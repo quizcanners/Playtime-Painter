@@ -563,16 +563,18 @@ namespace Playtime_Painter
         private void PROCESS_KEYS()
         {
 
-            MeshToolBase t = MeshTool;
+            var t = MeshTool;
             if (_dragging)
                 t.KeysEventDragging();
 
-            if ((t.ShowVertices) && (PointedUV != null))
+            if (t.ShowVertices && PointedUV != null)
                 t.KeysEventPointedVertex();
-            else if ((t.ShowLines) && (PointedLine != null))
+            else if (t.ShowLines && PointedLine != null)
                 t.KeysEventPointedLine();
-            else if ((t.ShowTriangles) && (PointedTriangle != null))
+            else if (t.ShowTriangles && PointedTriangle != null)
                 t.KeysEventPointedTriangle();
+
+            t.KeysEventPointedWhatever();
         }
 
         private void RAYCAST_SELECT_MOUSEedit()

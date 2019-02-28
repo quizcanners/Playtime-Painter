@@ -12,6 +12,7 @@
 				CGPROGRAM
 
 			#include "UnityCG.cginc"
+			#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
 			#pragma vertex vert
 			#pragma fragment frag
@@ -31,11 +32,7 @@
 
 			uniform float4 _MainTex_ST;
 			sampler2D _MainTex;
-			sampler2D c_ShadowTex;
-			float4x4 c_ShadowMatrix;
-			float4 c_ShadowCamPos;
-			float4 c_ZBufferParameters;
-			float4 c_CamParams;
+
 
 			v2f vert(appdata_full v) {
 				v2f o;
@@ -46,51 +43,32 @@
 				o.worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz,1.0f));
 				o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
 				o.color = v.color;
-				o.shadowCoords = mul(c_ShadowMatrix, o.worldPos); 
+				o.shadowCoords = mul(pp_ProjectorMatrix, o.worldPos); 
 				return o;
 			}
 
 			float4 frag(v2f o) : COLOR{
 
-				if (o.shadowCoords.w < 0) return 0;
-
-				float camAspectRatio = c_CamParams.x;
-				float camFOVDegrees = c_CamParams.y;
-				float near = c_CamParams.z;
-				float far = c_CamParams.w;
+				float camAspectRatio = pp_ProjectorConfiguration.x;
+				float camFOVDegrees = pp_ProjectorConfiguration.y;
+				//float near = pp_ProjectorConfiguration.z;
+				float far = pp_ProjectorConfiguration.w;
 
 				o.shadowCoords.xy /= o.shadowCoords.w;
 
-				float2 viewPosXY = o.shadowCoords.xy * camFOVDegrees;
+				float alpha = max(0, 1 - dot(o.shadowCoords.xy, o.shadowCoords.xy));
 
-				viewPosXY.x *= camAspectRatio;
+				float3 viewPos = float3(o.shadowCoords.xy * camFOVDegrees,1)*camAspectRatio;
 
-				o.shadowCoords.xy = (o.shadowCoords.xy+1) * 0.5;
+				float depth = tex2D(pp_DepthProjection, (o.shadowCoords.xy + 1) * 0.5);
 
-				if (o.shadowCoords.x < 0 || o.shadowCoords.x>1 || o.shadowCoords.y < 0 || o.shadowCoords.y>1)
-					return 0;
+				float dist = 1.0 / (pp_ProjectorClipPrecompute.x * (1 - depth) + pp_ProjectorClipPrecompute.y);
 
-				float tex = tex2D(c_ShadowTex, o.shadowCoords);
+				dist = length(viewPos * dist);
 
-				float3 vec = o.worldPos - c_ShadowCamPos.xyz;
+				float True01Range = length(o.worldPos - pp_ProjectorPosition.xyz) / far;
 
-				float trueDist = length(vec);
-				
-				float True01Range = trueDist / far;
-
-				if (True01Range > 1 || True01Range < 0)
-					True01Range = 0;
-
-				if (tex > 1 || tex < 0)
-					tex = 0;
-
-				float dist = 1.0 / (c_ZBufferParameters.x * (1 - tex) + c_ZBufferParameters.y); // Is a 01 depth
-
-				viewPosXY *= dist;
-
-				dist = length(float3(viewPosXY.xy, dist)); 
-
-				return  1 - abs(True01Range - dist) * 100;
+				return  max(0, alpha - abs(True01Range - dist) * 100);
 
 		
 			}

@@ -143,6 +143,10 @@ namespace Playtime_Painter {
         }
 
         public BrushMask mask;
+        
+        public int selectedSourceMask;
+
+        public bool maskFromGreyscale;
         #endregion
 
         #region Modes & Types
@@ -178,9 +182,8 @@ namespace Playtime_Painter {
 
         public float Size(bool worldSpace) => (worldSpace ? brush3DRadius : brush2DRadius);
         
-        public int selectedSourceTexture = 0;
-        public int selectedSourceMask = 0;
-        public bool useMask = false;
+        public int selectedSourceTexture;
+        public bool useMask;
         public bool previewDirty = false;
         [NonSerialized]
         public Vector2 maskOffset;
@@ -332,8 +335,7 @@ namespace Playtime_Painter {
 
             foreach (var b in PainterManagerPluginBase.BrushPlugins)
                 b.BrushConfigPEGI(ref overrideBlitModePegi, this).nl(ref changed);
-                           
-                
+                          
             if (p && !p.plugins.IsNullOrEmpty())
                 foreach (var pl in p.plugins)
                     if (pl.BrushConfigPEGI().nl(ref changed)) 

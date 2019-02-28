@@ -7610,20 +7610,45 @@ namespace PlayerAndEditorGUI {
             return (obj.ToPegiStringInterfacePart(out tmp)) ? tmp : obj.ToString().SimplifyTypeName();
         }
 
-#if PEGI
+        #if PEGI
 
         public static int focusInd;
-        
+
+        private static Dictionary<IPEGI, int> inspectionChain = new Dictionary<IPEGI, int>();
+
+        public static void ResetInspectedChain() => inspectionChain.Clear();
+
         public static bool Nested_Inspect(this IPEGI pgi)
         {
+
             if (pgi.IsNullOrDestroyed_Obj())
                 return false;
 
-                var isFOOE = pegi.isFoldedOutOrEntered;
+            var isFOOE = pegi.isFoldedOutOrEntered;
 
-                var changes = pgi.Inspect().RestoreBGColor();
+            var changes = false;
 
-                if (changes || pegi.globChanged)
+            int recuses;
+
+            if (!inspectionChain.TryGetValue(pgi, out recuses) || recuses < 2) {
+
+          
+                inspectionChain[pgi] = recuses + 1;
+                pgi.Inspect().RestoreBGColor();
+           
+                var count = inspectionChain[pgi];
+                if (count == 1)
+                    inspectionChain.Remove(pgi);
+                else
+                    inspectionChain[pgi] = count - 1;
+            
+
+            }
+            else
+                "3rd recursion".writeWarning();
+
+
+            if (changes || pegi.globChanged)
                 {
                     #if UNITY_EDITOR
                     ef.ClearFromPooledSerializedObjects(pgi as Object);
@@ -7712,9 +7737,7 @@ namespace PlayerAndEditorGUI {
             var pgi = obj.TryGet_fromObj<IPEGI>();
             return pgi?.Nested_Inspect() ?? obj.TryDefaultInspect();
         }
-
-
-
+        
         public static bool Try_enter_Inspect(this object obj, ref int enteredOne, int thisOne) {
 
             var l = obj.TryGet_fromObj<IPEGI_ListInspect>();
@@ -7768,7 +7791,7 @@ namespace PlayerAndEditorGUI {
             return count;
         }
 
-#endif
+        #endif
 
         public static T GetByIGotIndex<T>(this List<T> lst, int index) where T : IGotIndex
         {

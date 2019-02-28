@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Playtime_Painter
 {
     [ExecuteInEditMode]
-    public class ShaderReplacementTest : MonoBehaviour
+    public class DepthProjectorCamera : MonoBehaviour
     {
         [SerializeField] private Camera _cameraToReplaceShader;
 
@@ -55,43 +55,39 @@ namespace Playtime_Painter
         void Update()
         {
             if (!Application.isPlaying && _depthCamera)
-            {
-
                 _depthCamera.Render();
-            }
+            
         }
 
-        private void OnPostRender()
-        {
+        private readonly ShaderProperty.MatrixValue _spMatrix = new ShaderProperty.MatrixValue("pp_ProjectorMatrix");
+        private readonly ShaderProperty.TextureValue _spDepth = new ShaderProperty.TextureValue("pp_DepthProjection");
+        private readonly ShaderProperty.VectorValue _spPos = new ShaderProperty.VectorValue("pp_ProjectorPosition");
+        private readonly ShaderProperty.VectorValue _spZBuffer = new ShaderProperty.VectorValue("pp_ProjectorClipPrecompute");
+        private readonly ShaderProperty.VectorValue _camParams = new ShaderProperty.VectorValue("pp_ProjectorConfiguration");
+
+        private void OnPostRender() {
+
             if (!_depthCamera) return;
 
-            _shadowMatrix.GlobalValue = _depthCamera.projectionMatrix * _depthCamera.worldToCameraMatrix;
-            _shadowTexture.GlobalValue = _depthTarget;
-            _shadowCameraPositionProperty.GlobalValue = transform.position.ToVector4(0);
+            _spMatrix.GlobalValue = _depthCamera.projectionMatrix * _depthCamera.worldToCameraMatrix;
+            _spDepth.GlobalValue = _depthTarget;
+            _spPos.GlobalValue = transform.position.ToVector4(0);
 
             var far = _depthCamera.farClipPlane;
             var near = _depthCamera.nearClipPlane;
 
+            _camParams.GlobalValue = new Vector4(
+                _depthCamera.aspect,
+                Mathf.Tan(_depthCamera.fieldOfView * Mathf.Deg2Rad * 0.5f),
+                near,
+                far);
+            
             var zBuff = new Vector4(1f - far / near, far / near, 0, 0);
+                zBuff.z = zBuff.x / far;
+                zBuff.w = zBuff.y / far;
 
-            zBuff.z = zBuff.x / far;
-            zBuff.w = zBuff.y / far;
-
-            _zBufferParams.GlobalValue = zBuff;
-
-            _cameraParameters.GlobalValue = new Vector4(
-                _depthCamera.aspect, 
-                Mathf.Tan(_depthCamera.fieldOfView*Mathf.Deg2Rad*0.5f),
-                _depthCamera.nearClipPlane, 
-                _depthCamera.farClipPlane);
+            _spZBuffer.GlobalValue = zBuff;
+            
         }
-
-        private readonly ShaderProperty.MatrixValue _shadowMatrix = new ShaderProperty.MatrixValue("c_ShadowMatrix");
-
-        private readonly ShaderProperty.TextureValue _shadowTexture = new ShaderProperty.TextureValue("c_ShadowTex");
-        
-        private readonly ShaderProperty.VectorValue _shadowCameraPositionProperty = new ShaderProperty.VectorValue("c_ShadowCamPos");
-        private readonly ShaderProperty.VectorValue _zBufferParams =  new ShaderProperty.VectorValue("c_ZBufferParameters");
-        private readonly ShaderProperty.VectorValue _cameraParameters = new ShaderProperty.VectorValue("c_CamParams");
     }
 }

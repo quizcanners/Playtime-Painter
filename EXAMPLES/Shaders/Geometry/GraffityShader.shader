@@ -60,6 +60,11 @@
 
 			o.Albedo = col.rgb * deOverlay + overlay.rgb*overlay.a;
 
+
+
+			//col.rg = i.uv2_Overlay.xy;
+			//col.ba = 1;
+			//o.Albedo = col.rgb;
 		}
 		ENDCG
 	}

@@ -58,7 +58,7 @@
 
 		
 					o.texcoord.zw = v.texcoord1.xy;
-					o.texcoord.z = 3 - _Edges * 2;//abs(o.texcoord.z);
+					o.texcoord.z = 3 - _Edges * 2;
 					o.projPos.xy = v.normal.xy;
 					o.projPos.zw = max(0, float2(v.texcoord1.x, -v.texcoord1.x));
 
@@ -82,8 +82,6 @@
 					
 					uv = max(0, uv - _ProjTexPos.zw) * o.precompute.xy;
 
-					
-
 					float2 forFade = uv;
 
 					uv = max(0, uv - _Courners) * deCourners;
@@ -98,13 +96,10 @@
 					clipp = min(1, pow(clipp * o.precompute.z, o.texcoord.z));
 					o.color.a *= clipp;
 
-
 					float4 noise = tex2Dlod(_NoiseTex, float4(o.offUV.zw, 0, 0));
 					
 					float2 dir = o.texcoord.xy - 0.5;
-					dir = dir / abs(dir);
-					dir *= uv.xy;
-					dir += (noise.xy-0.5)*0.1;
+					dir = uv.xy * sign(dir) + (noise.xy - 0.5)*0.1;
 
 					float3 norm = normalize(float3(dir.x, dir.y, 0.5));
 

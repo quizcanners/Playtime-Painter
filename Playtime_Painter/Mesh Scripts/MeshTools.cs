@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using UnityEngine;
 using PlayerAndEditorGUI;
 
@@ -10,6 +9,7 @@ using QuizCannersUtilities;
 namespace Playtime_Painter
 {
 
+    #region Base
     public class MeshToolBase : PainterStuffStd, IPEGI, IGotDisplayName
     {
 
@@ -109,6 +109,8 @@ namespace Playtime_Painter
 
         public virtual void KeysEventPointedTriangle() { }
 
+        public virtual void KeysEventPointedWhatever() { }
+        
         public virtual void ManageDragging() { }
 
         #region Encode & Decode
@@ -125,6 +127,7 @@ namespace Playtime_Painter
         public virtual bool Inspect() => false;
         #endregion
     }
+    #endregion
 
     #region Position
 
@@ -167,15 +170,16 @@ namespace Playtime_Painter
         #region Inspector
         public override string Tooltip =>
 
-                    "Alt - RayCast To Grid" + Environment.NewLine +
-                    "LMB - Add Vertices/Make Triangles (Go Clockwise), Drag" + Environment.NewLine +
-                    "Scroll - Change Plane" + Environment.NewLine +
-                    "U - make Triangle unique." + Environment.NewLine +
-                    "M - merge with nearest while dragging ";
+                    ("Alt - RayCast To Grid {0}" +
+                    "LMB - Add Vertices/Make Triangles (Go Clockwise), Drag {0}"+
+                    "Scroll - Change Plane {0}"+
+                    "U - make Triangle unique. {0}" + 
+                    "M - merge with nearest while dragging {0}" +
+                    "N - Flip Normals").F(Environment.NewLine);
 
         public override string NameForDisplayPEGI => "ADD & MOVE";
 
-#if PEGI
+        #if PEGI
 
         private Vector3 _offset;
         public override bool Inspect()
@@ -201,7 +205,7 @@ namespace Playtime_Painter
 
             "Add into mesh".toggleIcon("Will split triangles and edges by inserting vertices", ref _addToTrianglesAndLines).nl(ref changed);
 
-            "Add Smooth:".toggle(70, ref Cfg.newVerticesSmooth).changes(ref changed);
+            "Add Smooth:".toggleIcon( ref Cfg.newVerticesSmooth).nl(ref changed);
             if ("Sharp All".Click(ref changed))
             {
                 foreach (var vr in MeshMGMT.editedMesh.meshPoints)
@@ -219,7 +223,7 @@ namespace Playtime_Painter
                 Cfg.newVerticesSmooth = true;
             }
 
-            "Add Unique:".toggleIcon(ref Cfg.newVerticesUnique);
+            "Add Unique:".toggleIcon( ref Cfg.newVerticesUnique).nl();
             if ("All shared".Click())
             {
                 mgm.editedMesh.AllVerticesShared();
@@ -292,10 +296,20 @@ namespace Playtime_Painter
 
             return changed;
         }
-#endif
+        #endif
         #endregion
 
         #region Kyboard
+
+        public override void KeysEventPointedWhatever()
+        {
+            if (KeyCode.N.IsDown() && PointedTris != null)
+            {
+                PointedTris.InvertNormal();
+                Dirty = true;
+            }
+        }
+
         public override void KeysEventDragging()
         {
             var m = MeshMGMT;
@@ -317,7 +331,6 @@ namespace Playtime_Painter
 
             if (KeyCode.Delete.IsDown())
             {
-                //Debug.Log("Deleting");
                 if (!EditorInputManager.Control)
                 {
                     if (m.PointedUV.meshPoint.vertices.Count == 1)
@@ -335,6 +348,9 @@ namespace Playtime_Painter
                     m.DeleteUv(m.PointedUV);
                 m.editedMesh.Dirty = true;
             }
+
+          
+
         }
 
         public override void KeysEventPointedTriangle()
@@ -346,12 +362,17 @@ namespace Playtime_Painter
                     if (uv.meshPoint.vertices.Count == 1 && uv.tris.Count == 1)
                         EditedMesh.meshPoints.Remove(uv.meshPoint);
 
-                MeshMGMT.editedMesh.Dirty = true;
+                Dirty = true;
                 return;
             }
 
             if (KeyCode.U.IsDown())
+            {
                 PointedTris.MakeTriangleVertUnique(PointedUv);
+                Dirty = true;
+            }
+
+          
 
             /*  if (KeyCode.N.isDown())
               {

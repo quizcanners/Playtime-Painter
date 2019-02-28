@@ -55,7 +55,7 @@
 					o.color =			v.color;
 
 					o.texcoord.zw =		v.texcoord1.xy;
-					o.texcoord.z =		_Edges;//abs(o.texcoord.z) * 10;
+					o.texcoord.z =		_Edges;
 					o.projPos.xy =		v.normal.xy;
 					o.projPos.zw =		max(0, float2(v.texcoord1.x, -v.texcoord1.x));
 

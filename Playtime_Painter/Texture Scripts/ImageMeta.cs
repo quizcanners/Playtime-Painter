@@ -769,8 +769,7 @@ namespace Playtime_Painter
 
             set { saveName = value; }
         }
-
-
+        
         private int _inspectedProcess = -1;
         public int inspectedStuff = -1;
 
@@ -936,7 +935,12 @@ namespace Playtime_Painter
             if (showToggles || (isATransparentLayer && !hasAlphaLayerTag) || forceOpenUTransparentLayer)
                 "Transparent Layer".toggleIcon(ref isATransparentLayer).nl(ref changed);
 
-            if (showToggles) {
+            if (showToggles)
+            {
+
+                if (!GlobalBrush.useMask)
+                    "Use Masks".toggleIcon(ref GlobalBrush.useMask).nl(ref changed);
+
                 if (isATransparentLayer)
                     preserveTransparency = true;
                 else

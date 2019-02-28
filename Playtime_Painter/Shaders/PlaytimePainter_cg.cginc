@@ -99,7 +99,10 @@ inline float4 brushTexcoord (float2 texcoord, float4 vertex){
 }
 
 inline float getMaskedAlpha (float2 texcoord){
-	float mask = tex2Dlod(_SourceMask, float4(texcoord.xy*_maskDynamics.x+_maskOffset.xy, 0, 0)).a;//_SourceMask
+	float4 fmask = tex2Dlod(_SourceMask, float4(texcoord.xy*_maskDynamics.x+_maskOffset.xy, 0, 0));
+
+	float mask = fmask.a* (1 - _maskDynamics.w) + fmask.r * _maskDynamics.w;
+
 	return mask * _maskDynamics.z + (1-mask)*(1-_maskDynamics.z);
 }
 

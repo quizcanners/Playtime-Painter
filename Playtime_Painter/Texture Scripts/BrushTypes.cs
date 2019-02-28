@@ -117,7 +117,7 @@ namespace Playtime_Painter
             var changed = false;
 
             
-            if (TexMGMTdata.masks.Count > 0)
+            if (TexMGMTdata.masks.Count > 0 || InspectedBrush.useMask)
             {
                 pegi.nl();
                 pegi.space();
@@ -132,15 +132,15 @@ namespace Playtime_Painter
                     if (!InspectedBrush.randomMaskOffset)
                         "Mask Offset ".edit(ref InspectedBrush.maskOffset).nl(ref changed);
 
-                    "Random Mask Offset".toggleIcon(ref InspectedBrush.randomMaskOffset, true).nl(ref changed);
-
-          
+                    "Random Mask Offset".toggleIcon(ref InspectedBrush.randomMaskOffset).nl(ref changed);
+                    
                     if ("Mask Tiling: ".edit(70, ref InspectedBrush.maskTiling, 1, 8).nl(ref changed))
                         InspectedBrush.maskTiling = Mathf.Clamp(InspectedBrush.maskTiling, 0.1f, 64);
                     
-
                     "Flip Mask Alpha".toggleIcon("Alpha = 1-Alpha", ref InspectedBrush.flipMaskAlpha).nl(ref changed);
-                    
+
+                    "Alpha from greyscale".toggleIcon(ref InspectedBrush.maskFromGreyscale).nl(ref changed);
+
                 }
 
 

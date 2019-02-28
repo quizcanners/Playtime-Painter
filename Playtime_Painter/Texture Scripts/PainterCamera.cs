@@ -437,14 +437,14 @@ namespace Playtime_Painter {
 
             if (isDecal) Shader_UpdateDecal(brush);
 
-            if (brush.useMask && rendTex)
-                sourceMask_Property.GlobalValue = Data.masks.TryGet(brush.selectedSourceMask);
+            if (rendTex)
+                sourceMask_Property.GlobalValue = brush.useMask ? Data.masks.TryGet(brush.selectedSourceMask) : null;
 
             maskDynamics_Property.GlobalValue = new Vector4(
                 brush.maskTiling,
                 rendTex ? brush.hardness : 0,       // y - Hardness is 0 to do correct preview for Texture2D brush 
-                (brush.flipMaskAlpha ? 0 : 1)
-                , 0);
+                ((brush.flipMaskAlpha || brush.useMask) ? 0 : 1) ,
+                 (brush.maskFromGreyscale && brush.useMask) ? 1 : 0);
 
             maskOffset_Property.GlobalValue = brush.maskOffset.ToVector4();
                 

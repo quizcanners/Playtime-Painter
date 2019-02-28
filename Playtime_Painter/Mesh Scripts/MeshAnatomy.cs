@@ -840,8 +840,8 @@ namespace Playtime_Painter
         }
 
         public bool SetSharpCorners(bool to) {
-            bool changed = false;
-            for (int i = 0; i < 3; i++)
+            var changed = false;
+            for (var i = 0; i < 3; i++)
                 if (DominantCourner[i] != to)
                 {
                     changed = true;
@@ -852,21 +852,22 @@ namespace Playtime_Painter
 
         public void InvertNormal()
         {
-            Vertex hold = vertexes[0];
+            var hold = vertexes[0];
 
             vertexes[0] = vertexes[2];
             vertexes[2] = hold;
+
+            
         }
 
         public bool IsSamePoints(Vertex[] other)
         {
-            foreach (Vertex v in other)
+            foreach (var v in other)
             {
-                bool same = false;
-                foreach (Vertex v1 in vertexes)
-                {
+                var same = false;
+                foreach (var v1 in vertexes)
                     if (v.meshPoint == v1.meshPoint) same = true;
-                }
+                
                 if (!same) return false;
             }
             return true;
@@ -874,10 +875,10 @@ namespace Playtime_Painter
 
         public bool IsSameUV(Vertex[] other)
         {
-            foreach (Vertex v in other)
+            foreach (var v in other)
             {
-                bool same = false;
-                foreach (Vertex v1 in vertexes)
+                var same = false;
+                foreach (var v1 in vertexes)
                     if (v == v1) same = true;
                 
                 if (!same) return false;
@@ -887,10 +888,10 @@ namespace Playtime_Painter
 
         public bool IsSameAs(MeshPoint[] other)
         {
-            foreach (MeshPoint v in other)
+            foreach (var v in other)
             {
-                bool same = false;
-                foreach (Vertex v1 in vertexes)
+                var same = false;
+                foreach (var v1 in vertexes)
                     if (v == v1.meshPoint) same = true;
                 
                 if (!same) return false;
@@ -901,10 +902,10 @@ namespace Playtime_Painter
         public bool IsNeighbourOf(Triangle td) {
             if (td == this) return false;
 
-            int same = 0;
+            var same = 0;
 
             foreach (var u in td.vertexes)
-                for (int i = 0; i < 3; i++)
+                for (var i = 0; i < 3; i++)
                     if (vertexes[i].meshPoint == u.meshPoint) { same++; break; }
 
             return same == 2;
