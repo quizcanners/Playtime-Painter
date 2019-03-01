@@ -953,11 +953,11 @@ namespace Playtime_Painter
             {
                 if (EditorInputManager.Control)
 
-                    bcf.mask.Transfer(ref m.PointedUV._color, bcf.Color);
+                    bcf.mask.Transfer(ref m.PointedUV.color, bcf.Color);
 
                 else
                     foreach (Vertex uvi in m.PointedUV.meshPoint.vertices)
-                        bcf.mask.Transfer(ref uvi._color, Cfg.brushConfig.Color);
+                        bcf.mask.Transfer(ref uvi.color, Cfg.brushConfig.Color);
 
                 m.editedMesh.dirtyColor = true;
             }
@@ -998,7 +998,7 @@ namespace Playtime_Painter
 
             foreach (var u in PointedTris.vertexes)
             foreach (var vuv in u.meshPoint.vertices)
-                bcf.mask.Transfer(ref vuv._color, c);
+                bcf.mask.Transfer(ref vuv.color, c);
 
             MeshMGMT.editedMesh.dirtyColor = true;
             return true;
@@ -1081,7 +1081,7 @@ namespace Playtime_Painter
             if (EditorInputManager.Control)
             {
                 _edgeValue = MeshMGMT.PointedUV.meshPoint.edgeStrength;
-                if (_alsoDoColor) GlobalBrush.Color = PointedUv._color;
+                if (_alsoDoColor) GlobalBrush.Color = PointedUv.color;
             }
             else
             {
@@ -1094,7 +1094,7 @@ namespace Playtime_Painter
                 {
                     var col = GlobalBrush.Color;
                     foreach (var uvi in PointedUv.meshPoint.vertices)
-                        GlobalBrush.mask.Transfer(ref uvi._color, col);
+                        GlobalBrush.mask.Transfer(ref uvi.color, col);
                 }
                 MeshMGMT.editedMesh.Dirty = true;
 
@@ -1168,9 +1168,9 @@ namespace Playtime_Painter
             {
                 var col = GlobalBrush.Color;
                 foreach (var uvi in vrtA.vertices)
-                    GlobalBrush.mask.Transfer(ref uvi._color, col);
+                    GlobalBrush.mask.Transfer(ref uvi.color, col);
                 foreach (var uvi in vrtB.vertices)
-                    GlobalBrush.mask.Transfer(ref uvi._color, col);
+                    GlobalBrush.mask.Transfer(ref uvi.color, col);
             }
 
             MeshMGMT.editedMesh.Dirty = true;

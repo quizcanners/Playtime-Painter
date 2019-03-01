@@ -742,7 +742,7 @@ namespace Playtime_Painter
             public override void GenerateIfNull()
             {
                 if (_vertices == null)
-                    _vertices = CurMeshDta._position;
+                    _vertices = CurMeshDta.Position;
  
             }
 
@@ -782,7 +782,7 @@ namespace Playtime_Painter
 
             public override void GenerateIfNull() {
                 if (v2s == null)
-                    v2s =  (_myUvIndex == 0) ? CurMeshDta._uv : CurMeshDta._uv1;
+                    v2s =  (_myUvIndex == 0) ? CurMeshDta.Uv : CurMeshDta._uv1;
             }
 
             public override Vector2[] GetV2(VertexDataTarget trg) => v2s;
@@ -820,7 +820,7 @@ namespace Playtime_Painter
 
             public override void GenerateIfNull() {
                 if (v4s == null)
-                    v4s = CurMeshDta._tangents;
+                    v4s = CurMeshDta.Tangents;
             }
 
             public override Vector4[] GetV4(VertexDataTarget trg)
@@ -862,7 +862,7 @@ namespace Playtime_Painter
 
             public override void GenerateIfNull() {
                 if (v3norms == null)
-                    v3norms = CurMeshDta._normals;
+                    v3norms = CurMeshDta.Normals;
             }
             
             public override float[] GetValue(int no)
@@ -900,7 +900,7 @@ namespace Playtime_Painter
             public override void GenerateIfNull()
             {
                 if (v3norms == null)
-                    v3norms = CurMeshDta._sharpNormals;
+                    v3norms = CurMeshDta.SharpNormals;
 
             }
 
@@ -936,7 +936,7 @@ namespace Playtime_Painter
             {
                 if (cols != null) return;
                 
-                var tmp = CurMeshDta._colors;
+                var tmp = CurMeshDta.Colors;
 
                 cols = new Vector4[vcnt];
 
@@ -987,7 +987,7 @@ namespace Playtime_Painter
             public override void GenerateIfNull()
             {
                 if (inds == null) 
-                    inds = CurMeshDta._vertexIndex;
+                    inds = CurMeshDta.VertexIndex;
                 
             }
 
@@ -1021,7 +1021,7 @@ namespace Playtime_Painter
 
             public override void GenerateIfNull() {
                 if (_shadows == null)
-                        _shadows = CurMeshDta._shadowBake;
+                        _shadows = CurMeshDta.ShadowBake;
 
             }
 
@@ -1058,7 +1058,7 @@ namespace Playtime_Painter
 
             public override void GenerateIfNull() {
                 if (textureNumbers == null)
-                    textureNumbers = CurMeshDta._trisTextures;
+                    textureNumbers = CurMeshDta.TriangleTextures;
             }
 
             public override float[] GetValue(int no)
@@ -1124,7 +1124,7 @@ namespace Playtime_Painter
             public override void GenerateIfNull()
             {
                 if (_edges == null)
-                    _edges = CurMeshDta._edgeData;
+                    _edges = CurMeshDta.EdgeData;
             }
 
             public override Vector4[] GetV4(VertexDataTarget trg) => _edges;
@@ -1171,7 +1171,7 @@ namespace Playtime_Painter
             public override void GenerateIfNull()
             {
                 if (edges == null)
-                    edges = CurMeshDta._edgeDataByWeight;
+                    edges = CurMeshDta.EdgeDataByWeight;
             }
 
             public override Vector3[] GetV3(VertexDataTarget trg) => edges;
@@ -1219,7 +1219,7 @@ namespace Playtime_Painter
             {
 
                 if (edges == null)
-                    edges = CurMeshDta._edgeNormal_0_OrSharp;
+                    edges = CurMeshDta.EdgeNormal0OrSharp;
 
             }
 
@@ -1268,7 +1268,7 @@ namespace Playtime_Painter
             {
 
                 if (edges == null)
-                    edges = CurMeshDta._edgeNormal_1_OrSharp;
+                    edges = CurMeshDta.EdgeNormal1OrSharp;
 
             }
 
@@ -1319,7 +1319,7 @@ namespace Playtime_Painter
             {
 
                 if (_edges == null)
-                    _edges = CurMeshDta._edgeNormal_2_OrSharp;
+                    _edges = CurMeshDta.EdgeNormal2OrSharp;
 
             }
 

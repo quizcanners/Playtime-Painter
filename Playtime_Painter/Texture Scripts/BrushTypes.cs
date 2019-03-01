@@ -633,7 +633,7 @@ namespace Playtime_Painter
 
         public override string NameForDisplayPEGI => "Sphere";
         
-        static void PrepareSphereBrush(ImageMeta id, BrushConfig br, StrokeVector stroke, PlaytimePainter pntr)
+        static void PrepareSphereBrush(ImageMeta id, BrushConfig br, StrokeVector stroke, PlaytimePainter painter)
         {
             if (TexMGMT.bigRtPair.IsNullOrEmpty())
                 TexMGMT.UpdateBuffersState();
@@ -641,7 +641,7 @@ namespace Playtime_Painter
             if (stroke.mouseDwn)
                 stroke.posFrom = stroke.posTo;
 
-            TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, stroke, pntr);
+            TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, stroke, painter);
 
             Vector2 offset = id.offset - stroke.unRepeatedUv.Floor();
 
@@ -669,11 +669,11 @@ namespace Playtime_Painter
             AfterStroke(painter, br, st);
         }
 
-        public static void Paint(RenderTexture rt, GameObject go, SkinnedMeshRenderer skinner, BrushConfig br, StrokeVector st, int submeshIndex)
+        public static void Paint(RenderTexture rt, GameObject go, SkinnedMeshRenderer skinner, BrushConfig br, StrokeVector st, int subMeshIndex)
         {
             br.BlitMode.PrePaint(null, br, st);
             PrepareSphereBrush(rt.GetImgData(), br, st, null);
-            TexMGMT.brushRenderer.UseSkinMeshAsBrush(go, skinner, submeshIndex);
+            TexMGMT.brushRenderer.UseSkinMeshAsBrush(go, skinner, subMeshIndex);
             TexMGMT.Render();
             AfterStroke(br);
         }
@@ -715,4 +715,8 @@ namespace Playtime_Painter
         #endif
         #endregion
     }
+
+   
+
+
 }

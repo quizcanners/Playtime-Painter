@@ -1762,10 +1762,12 @@ namespace Playtime_Painter {
 
         private static int _inspectedFancyStuff = -1;
 
-        private static bool inspectPainterCamera;
+        private static bool _inspectPainterCamera;
 
-        public bool Inspect()
-        {
+        public bool Inspect() {
+
+            CsharpUtils.TimerStart();
+
             inspected = this;
            
              var changed = false;
@@ -1783,7 +1785,6 @@ namespace Playtime_Painter {
                 
                 canInspect = false;
             }
-            
 
             if (canInspect && gameObject.IsPrefab()) {
                 "Inspecting a prefab.".nl();
@@ -1827,8 +1828,7 @@ namespace Playtime_Painter {
                     (IsCurrentTool && terrain && !Application.isPlaying &&
                      UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(terrain)) ||
                     #endif
-                    icon.On.Click("Click to Disable Tool"))
-                {
+                    icon.On.Click("Click to Disable Tool")) {
                     PainterDataAndConfig.toolEnabled = false;
                     WindowPosition.Collapse();
                     MeshManager.Inst.DisconnectMesh();
@@ -1901,15 +1901,16 @@ namespace Playtime_Painter {
 
                 #endregion
 
+
                 if (Cfg.showConfig || PainterStuff.IsPlaytimeNowDisabled) {
 
                     pegi.newLine();
                     
-                    if (!PainterStuff.IsPlaytimeNowDisabled && (Cfg.inspectedStuff == -1 || inspectPainterCamera) &&
-                            "Painter Camera".enter(ref inspectPainterCamera).nl(ref changed))
+                    if (!PainterStuff.IsPlaytimeNowDisabled && (Cfg.inspectedStuff == -1 || _inspectPainterCamera) &&
+                            "Painter Camera".enter(ref _inspectPainterCamera).nl(ref changed))
                                 TexMgmt.DependenciesInspect(true).changes(ref changed);
 
-                        if (!inspectPainterCamera || Cfg.inspectedStuff != -1)
+                        if (!_inspectPainterCamera || Cfg.inspectedStuff != -1)
                             Cfg.Nested_Inspect();
                     
                 }
@@ -2025,6 +2026,8 @@ namespace Playtime_Painter {
 
                     #endregion
 
+                  
+
                     #region Texture Editing
 
                     else
@@ -2103,6 +2106,7 @@ namespace Playtime_Painter {
                                 pegi.nl();
                             }
 
+                           
                             pegi.nl();
 
                             var cpu = id.TargetIsTexture2D();
@@ -2120,12 +2124,14 @@ namespace Playtime_Painter {
                                 "Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality."
                                     .writeWarning();
 
-                    #endregion
+                         
+                            #endregion
 
-                    #region Brush
-                            
+                            #region Brush
+
                             GlobalBrush.Inspect().changes(ref changed);
 
+                          
                             var mode = GlobalBrush.BlitMode;
                             var col = GlobalBrush.Color;
 
@@ -2154,7 +2160,8 @@ namespace Playtime_Painter {
                                 }
                             }
 
-                    #endregion
+                       
+                            #endregion
 
                         }
                         else
@@ -2169,6 +2176,7 @@ namespace Playtime_Painter {
                             }
                         }
 
+                    
                         id = ImgMeta;
 
                     #region Fancy Options
@@ -2274,9 +2282,10 @@ namespace Playtime_Painter {
                                 id.SetAndApply();
                         }
 
-                    #endregion
+                        #endregion
 
-                    #region Save Load Options
+                     
+                        #region Save Load Options
 
                         if (!PainterStuff.IsPlaytimeNowDisabled && HasMaterialSource && !Cfg.showConfig)
                         {
@@ -2336,7 +2345,7 @@ namespace Playtime_Painter {
                             }
 
 
-                            int ind = SelectedTexture;
+                            var ind = SelectedTexture;
                             if (pegi.select(ref ind, GetMaterialTextureNames()).changes(ref changed))
                             {
                                 SetOriginalShaderOnThis();
@@ -2548,7 +2557,8 @@ namespace Playtime_Painter {
                     #endregion
                         }
 
-                    #endregion
+                        #endregion
+                        
                     }
 
                     pegi.nl();
@@ -2556,15 +2566,23 @@ namespace Playtime_Painter {
                     
                     foreach (var p in PainterManagerPluginBase.ComponentMgmtPlugins)
                         p.ComponentInspector().nl(ref changed);
+                    
                 }
 
                 pegi.newLine();
 
                 if (changed)
                     Update_Brush_Parameters_For_Preview_Shader();
+
+ 
             }
 
             inspected = null;
+
+            pegi.nl();
+
+            CsharpUtils.TimerEnd().nl();
+
             return changed;
         }
         

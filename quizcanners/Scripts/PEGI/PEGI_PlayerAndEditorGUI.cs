@@ -469,6 +469,8 @@ namespace PlayerAndEditorGUI {
 
         #region Pop UP Services
 
+
+
         private static bool fullWindowDocumentationClick(string toolTip = "What is this?", int buttonSize = 20) =>
             icon.Question.BgColor(Color.clear).Click(toolTip, buttonSize).PreviousBgColor();
         
@@ -497,6 +499,22 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
+        public static bool fullWindowDocumentationWithLinkClick(this string text, string link, string linkName = null, string tip = "What is this", int buttonSize = 20)
+        {
+
+            if (fullWindowDocumentationClick(tip, buttonSize))
+            {
+                PopUpService.popUpText = text;
+                PopUpService.InitiatePopUp();
+                PopUpService.relatedLink = link;
+                PopUpService.relatedLinkName = linkName.IsNullOrEmpty() ? link : linkName;
+                return true;
+            }
+
+            return false;
+        }
+
+
         public static class PopUpService
         {
             
@@ -505,7 +523,11 @@ namespace PlayerAndEditorGUI {
             public const string SupportEmail = "quizcanners@gmail.com";
 
             public static string popUpText = "";
-            
+
+            public static string relatedLink = "";
+
+            public static string relatedLinkName = "";
+
             private static object popUpTarget;
 
             private static string understoodPopUpText = "Got it";
@@ -585,6 +607,8 @@ namespace PlayerAndEditorGUI {
 
                 if (understoodPopUpText.Click(15).nl()) {
                     popUpText = null;
+                    relatedLink = null;
+                    relatedLinkName = null;
                     inspectDocumentationDelegate = null;
                 }
 
@@ -604,6 +628,10 @@ namespace PlayerAndEditorGUI {
 
                 if (!popUpText.IsNullOrEmpty()) {
                     popUpText.writeBig();
+
+                    if (!relatedLink.IsNullOrEmpty() && relatedLinkName.Click(14))
+                                Application.OpenURL(relatedLink);
+                    
                     Confirm();
                     return true;
                 }

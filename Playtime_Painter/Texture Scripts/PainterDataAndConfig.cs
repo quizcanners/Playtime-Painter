@@ -206,10 +206,14 @@ namespace Playtime_Painter
 
         #endregion
 
+        #region Mesh Editing
+
         public int meshTool;
         public MeshToolBase MeshTool { get { meshTool = Mathf.Min(meshTool, MeshToolBase.AllTools.Count - 1); return MeshToolBase.AllTools[meshTool]; } }
         public float bevelDetectionSensitivity = 6;
         public string meshToolsStd;
+        public bool saveMeshUndos;
+        #endregion
 
         #region User Settings
         public bool makeVerticesUniqueOnEdgeColoring;
@@ -255,13 +259,11 @@ namespace Playtime_Painter
 
         private static string[] _texSizes;
 
-        private const int TexSizesRange = 9;
+        private const int TexSizesRange = 11;
         private const int MinPowerOfSize = 2;
 
-        public static string[] NewTextureSizeOptions
-        {
-            get
-            {
+        public static string[] NewTextureSizeOptions {
+            get {
                 if (_texSizes != null && _texSizes.Length == TexSizesRange) return _texSizes;
                 
                 _texSizes = new string[TexSizesRange];
@@ -270,7 +272,6 @@ namespace Playtime_Painter
                 
                 return _texSizes;
             }
-
         }
 
         public int SelectedWidthForNewTexture() => SizeIndexToSize(selectedWidthIndex);

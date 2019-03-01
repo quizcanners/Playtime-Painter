@@ -4,44 +4,54 @@
 		_AtlasTextures("_Textures In Row _ Atlas", float) = 1
 	}
 	Category{
-		Tags{ 
-			"Queue" = "Geometry"
-			"RenderType"="Opaque" 
-		}
+		
 
 		ColorMask RGBA
 		Cull off
 
 		SubShader{
+
+			Tags{
+			"Queue" = "Geometry"
+			"RenderType" = "Opaque"
+			}
+
 			Pass{
 
 				CGPROGRAM
 
-				#pragma multi_compile  PREVIEW_RGB PREVIEW_ALPHA  PREVIEW_SAMPLING_DISPLACEMENT
-				#pragma multi_compile  BRUSH_2D  BRUSH_3D  BRUSH_3D_TEXCOORD2  BRUSH_SQUARE  BRUSH_DECAL
-				#pragma multi_compile  BRUSH_NORMAL BRUSH_ADD BRUSH_SUBTRACT BRUSH_COPY
-				#pragma multi_compile  ___ UV_ATLASED
-				#pragma multi_compile  ___ BRUSH_TEXCOORD_2
-				#pragma multi_compile  ___ TARGET_TRANSPARENT_LAYER
+				#include "PlaytimePainter_cg.cginc"
 
 				#pragma vertex vert
 				#pragma fragment frag
 
-				#include "PlaytimePainter_cg.cginc"
-		
+				#pragma multi_compile  PREVIEW_RGB PREVIEW_ALPHA  PREVIEW_SAMPLING_DISPLACEMENT
+				#pragma multi_compile  BRUSH_2D  BRUSH_3D  BRUSH_3D_TEXCOORD2  BRUSH_SQUARE  BRUSH_DECAL
+				#pragma multi_compile  BRUSH_NORMAL BRUSH_ADD BRUSH_SUBTRACT BRUSH_COPY  BRUSH_PROJECTOR
+				#pragma multi_compile  ___ UV_ATLASED
+				#pragma multi_compile  ___ BRUSH_TEXCOORD_2
+				#pragma multi_compile  ___ TARGET_TRANSPARENT_LAYER
+				#pragma multi_compile_instancing
+
 				sampler2D _PreviewTex;
 				float _AtlasTextures;
 				float4 _PreviewTex_ST;
 				float4 _PreviewTex_TexelSize;
 	
 				struct v2f {
-				float4 pos : POSITION;
+				float4 pos : SV_POSITION;
 				float2 texcoord : TEXCOORD0;  
-				float3 worldPos : TEXCOORD1;
+				float4 worldPos : TEXCOORD1;
 
 				#if UV_ATLASED
 					float4 atlasedUV : TEXCOORD2;
 				#endif
+
+				#if BRUSH_PROJECTOR
+					float4 shadowCoords : TEXCOORD3;
+				#endif
+
+
 				};
 
 				inline float getLOD(float2 uv, float4 _TexelSize) {
@@ -54,6 +64,7 @@
 
 				v2f vert(appdata_full v) {
 					v2f o;
+					UNITY_SETUP_INSTANCE_ID(v);
 					o.pos = UnityObjectToClipPos(v.vertex);   
 
 					#if BRUSH_TEXCOORD_2
@@ -61,7 +72,7 @@
 					#endif
 
 					o.texcoord.xy = TRANSFORM_TEX(v.texcoord.xy, _PreviewTex);
-					o.worldPos = mul(unity_ObjectToWorld, v.vertex);
+					o.worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz,1.0f));
 
 					#if UV_ATLASED
 						float atY = floor(v.texcoord.z / _AtlasTextures);
@@ -72,30 +83,69 @@
 						o.atlasedUV.w = 1 / _AtlasTextures;
 					#endif
 
+				#if BRUSH_PROJECTOR
+						o.shadowCoords = mul(pp_ProjectorMatrix, o.worldPos);
+				#endif
+
 					return o;
 				}
 
 
 	
-				float4 frag(v2f i) : COLOR{
-
-					float dist = length(i.worldPos.xyz - _WorldSpaceCameraPos.xyz);
-
-					#if UV_ATLASED
-						float seam = (i.atlasedUV.z)*pow(2, (log2(dist)));
-						float2 fractal = (frac(i.texcoord.xy)*(i.atlasedUV.w - seam) + seam*0.5);
-						i.texcoord.xy = fractal + i.atlasedUV.xy;
-					#endif
-
-					#if BRUSH_COPY
-	 					_brushColor = tex2Dlod(_SourceTexture, float4(i.texcoord.xy, 0, 0));
-					#endif
+				float4 frag(v2f o) : COLOR{
 
 					float4 col = 0;
 					float alpha = 1;
 
-					float4 tc = float4(i.texcoord.xy, 0,0);
+					float dist = length(o.worldPos.xyz - _WorldSpaceCameraPos.xyz);
 
+				#if BRUSH_PROJECTOR
+
+					float camAspectRatio = pp_ProjectorConfiguration.x;
+					float camFOVDegrees = pp_ProjectorConfiguration.y;
+					//float near = pp_ProjectorConfiguration.z;
+					float far = pp_ProjectorConfiguration.w;
+
+					o.shadowCoords.xy /= o.shadowCoords.w;
+
+					alpha = max(0, 1 - dot(o.shadowCoords.xy, o.shadowCoords.xy));
+
+					float3 viewPos = float3(o.shadowCoords.xy * camFOVDegrees, 1)*camAspectRatio;
+
+					float2 pUv = (o.shadowCoords.xy + 1) * 0.5;
+
+					float depth = tex2D(pp_DepthProjection, pUv);
+
+					_brushColor = tex2Dlod(_SourceTexture, float4(pUv, 0, 0));
+
+					float fromCam = 1.0 / (pp_ProjectorClipPrecompute.x * (1 - depth) + pp_ProjectorClipPrecompute.y);
+
+					fromCam = length(viewPos * fromCam);
+
+					float True01Range = length(o.worldPos - pp_ProjectorPosition.xyz) / far;
+
+
+					float pr_shadow = saturate((alpha - abs(True01Range - fromCam) * 10)*10);
+
+					alpha = pr_shadow;
+
+					//return _brushColor * alpha;
+
+				#endif
+
+
+
+					#if UV_ATLASED
+						float seam = (o.atlasedUV.z)*pow(2, (log2(dist)));
+						float2 fractal = (frac(o.texcoord.xy)*(o.atlasedUV.w - seam) + seam*0.5);
+						o.texcoord.xy = fractal + o.atlasedUV.xy;
+					#endif
+
+					#if BRUSH_COPY
+	 					_brushColor = tex2Dlod(_SourceTexture, float4(o.texcoord.xy, 0, 0));
+					#endif
+
+					float4 tc = float4(o.texcoord.xy, 0, 0);
 
 					#if BRUSH_SQUARE
 						float2 perfTex = (floor(tc.xy*_PreviewTex_TexelSize.z) + 0.5) * _PreviewTex_TexelSize.x;
@@ -127,19 +177,19 @@
 
 					#else
 					
-						tc.zw = previewTexcoord(i.texcoord.xy);
+						tc.zw = previewTexcoord(o.texcoord.xy);
 
 					#endif
 
 			
 					#if  !BRUSH_SQUARE 	
-						alpha *= checkersFromWorldPosition(i.worldPos.xyz,dist); 
+						alpha *= checkersFromWorldPosition(o.worldPos.xyz,dist); 
 
 						col =  tex2Dlod(_PreviewTex, float4(tc.xy, 0, 0));
 					#endif
 
 					#if BRUSH_3D  || BRUSH_3D_TEXCOORD2
-						alpha *= prepareAlphaSpherePreview (tc.xy, i.worldPos);
+						alpha *= prepareAlphaSpherePreview (tc.xy, o.worldPos);
 					#endif
 
 					#if BRUSH_2D || BRUSH_SQUARE
@@ -191,13 +241,21 @@
 						col = col*_brushMask + 0.5*(1 - _brushMask)+col.a*_brushMask.a;
 					#endif
 	
-					#if BRUSH_NORMAL || BRUSH_COPY 
+					#if BRUSH_NORMAL || BRUSH_COPY || BRUSH_PROJECTOR
 
 					#if TARGET_TRANSPARENT_LAYER
 						col = AlphaBlitTransparentPreview(alpha, _brushColor, tc.xy, col);
 					#else
 						col = AlphaBlitOpaquePreview(alpha, _brushColor, tc.xy, col);
 					#endif
+
+					#if BRUSH_PROJECTOR
+						float pa = (_brushPointedUV.w)*pr_shadow;
+
+						col = col * (1-pa) + _brushColor*(pa);
+					#endif
+
+
 					#endif
 
 					#if BRUSH_ADD

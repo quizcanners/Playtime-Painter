@@ -13,7 +13,7 @@ namespace Playtime_Painter
         public bool projectionUv;
         public Vector2 tiling = Vector2.one;
         public Vector2 offset;
-
+        public float projectorNormalThreshold01 = 0.5f;
 
         #region Encode & Decode
         public override bool Decode(string tg, string data)
@@ -23,6 +23,7 @@ namespace Playtime_Painter
                 case "gtuv": projectionUv = data.ToBool(); break;
                 case "offset": offset = data.ToVector2(); break;
                 case "tile": tiling = data.ToVector2(); break;
+                case "nrmWrap": projectorNormalThreshold01 = data.ToFloat();  break;
                 default: return false;
             }
             return true;
@@ -30,10 +31,11 @@ namespace Playtime_Painter
 
         public override StdEncoder Encode()
         {
-            var cody = new StdEncoder();
-            cody.Add_Bool("gtuv", projectionUv);
-            cody.Add("offset", offset);
-            cody.Add("tile", tiling);
+            var cody = new StdEncoder()
+            .Add_Bool("gtuv", projectionUv)
+            .Add("offset", offset)
+            .Add("tile", tiling)
+            .Add("nrmWrap", projectorNormalThreshold01);
             return cody;
         }
         #endregion
@@ -41,20 +43,21 @@ namespace Playtime_Painter
         #region Inspect
         public override string NameForDisplayPEGI => "vertex UV";
 
-        public override string Tooltip => projectionUv ? "After setting scale and offset, paint this UVs on triengles. Use scroll wheel to change the direction a projection is facing." : "";
+        public override string Tooltip => projectionUv 
+            ? "After setting scale and offset, paint this UVs on triangles. Use scroll wheel to change the direction a projection is facing." 
+            : "You can adjust UV by dragging vertices";
 
         #if PEGI
         public override bool Inspect() {
 
-            bool changed = false;
+            var changed = false;
 
-            MeshManager mm = MeshMGMT;
+            var mm = MeshMGMT;
 
             if (("UV Set: " + mm.EditedUV + " (Click to switch)").Click().nl())
                 mm.EditedUV = mm.EditedUV == 1 ? 0 : 1; // 1 - mm.editedUV;
 
-            if (!projectionUv && "Projection UV Start".Click().nl())
-            {
+            if (!projectionUv && "Projection UV Start".Click().nl()) {
                 projectionUv = true;
                 UpdatePreview();
             }
@@ -72,6 +75,11 @@ namespace Playtime_Painter
                     EditedMesh.Dirty = true;
                 }
 
+                if ("Auto Apply Threshold".edit(ref projectorNormalThreshold01, 0, 1).changes(ref changed))
+                    UpdatePreview(true);
+                if (icon.Done.Click("Auto apply to all").nl())
+                    AutoProjectUVs(EditedMesh);
+
                 "Paint on vertices where you want to apply current UV configuration".writeHint();
                 "Use scroll wheel to change projection plane".writeHint();
             }
@@ -82,24 +90,43 @@ namespace Playtime_Painter
         #endif
         #endregion
 
-        private void UpdatePreview()
+        private void UpdatePreview(bool useThreshold = false)
         {
             if (!projectionUv) return;
 
             var m = MeshMGMT;
 
-            if (!m.target || (m.editedMesh.meshPoints == null) || (m.editedMesh.meshPoints.Count < 1)) return;
+            if (!m.target || m.editedMesh.meshPoints.IsNullOrEmpty()) return;
 
             var prMesh = FreshPreviewMesh;
 
-            var trgPos = m.target.transform.position;
+            var trgPos = m.targetTransform.position;
 
-            foreach (var v in prMesh.meshPoints)
-            {
-                var pUv = PosToUv((v.WorldPos - trgPos));
-                foreach (var uv in v.vertices)
-                    uv.SharedEditedUV = pUv;
-            }
+
+
+            var gn = GridNavigator.Inst();
+
+
+           // foreach (var t in EditedMesh.triangles)
+          //  {
+               // var pv = gn.InPlaneVector(t.GetNormal());
+
+              //  if (pv.magnitude < projectorNormalThreshold01)
+
+
+              if (!useThreshold)
+              {
+
+                  foreach (var v in prMesh.meshPoints)
+                  {
+
+                      var pUv = PosToUv((v.WorldPos - trgPos));
+                      foreach (var uv in v.vertices)
+                          uv.SharedEditedUV = pUv;
+                  }
+              }
+              else
+                  AutoProjectUVs(prMesh);
 
             m.target.SharedMesh = new MeshConstructor(prMesh, m.target.MeshProfile, m.target.SharedMesh).Construct();
         }
@@ -230,8 +257,7 @@ namespace Playtime_Painter
 
         }
 
-        public override bool MouseEventPointedTriangle()
-        {
+        public override bool MouseEventPointedTriangle() {
             if (!EditorInputManager.GetMouseButton(0)) return false;
 
             if (!projectionUv) return false;
@@ -241,14 +267,39 @@ namespace Playtime_Painter
 
             if (MeshMGMT.SelectedUV == null) MeshMGMT.SelectedUV = EditedMesh.meshPoints[0].vertices[0];
 
-            var trgPos = MeshMGMT.target.transform.position;
-        
-            for (var i = 0; i < 3; i++)
-                PointedTris.vertexes[i].EditedUV = PosToUv(PointedTris.vertexes[i].meshPoint.WorldPos - trgPos);
+            var trgPos = MeshMGMT.targetTransform.position;
 
-            EditedMesh.Dirty = true;
+            for (var i = 0; i < 3; i++) {
+                var v = PointedTris.vertexes[i];
+                EditedMesh.Dirty |= v.SetUvIndexBy(PosToUv(v.meshPoint.WorldPos - trgPos));
+            }
 
             return true;
+        }
+
+        void AutoProjectUVs(EditableMesh eMesh)
+        {
+            // projectorNormalThreshold01
+
+            var trgPos = MeshMGMT.targetTransform.position;
+
+            var gn = GridNavigator.Inst();
+
+
+            foreach (var t in eMesh.triangles)
+            {
+                var pv = gn.InPlaneVector(t.GetNormal());
+
+                if (!(pv.magnitude < projectorNormalThreshold01)) continue;
+
+                for (var i = 0; i < 3; i++) {
+                    var v = t.vertexes[i];
+
+                    v.SetUvIndexBy(PosToUv(v.meshPoint.WorldPos - trgPos));
+                }
+            }
+
+            eMesh.Dirty = true;
         }
 
         private Vector2 _lastCalculatedUv;
@@ -256,8 +307,8 @@ namespace Playtime_Painter
         public override void ManageDragging()
         {
 
-            if (PointedTris != null && SelectedUv != null)
-            {
+            if (PointedTris != null && SelectedUv != null) {
+
                 var uv = SelectedUv.SharedEditedUV;
                 var posUv = PointedTris.LocalPosToEditedUV(MeshMGMT.collisionPosLocal);
                 var newUv = uv * 2 - posUv;

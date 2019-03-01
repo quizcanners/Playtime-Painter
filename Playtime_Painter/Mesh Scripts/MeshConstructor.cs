@@ -1,15 +1,6 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
-using System;
-using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 using QuizCannersUtilities;
-using PlayerAndEditorGUI;
 
 
 namespace Playtime_Painter {
@@ -19,28 +10,28 @@ namespace Playtime_Painter {
         public List<int>[] tris;
         public uint[] baseVertex;
 
-        Vector4[] perVertexTrisTexture;
-        Vector2[] uvs;
-        Vector2[] uvs1;
+        private Vector4[] _perVertexTrisTexture;
+        private Vector2[] _uvs;
+        private Vector2[] _uvs1;
 
-        Vector3[] position;
-        Vector3[] normals;
-        Vector3[] sharpNormals;
+        private Vector3[] _position;
+        private Vector3[] _normals;
+        private Vector3[] _sharpNormals;
 
-        BoneWeight[] boneWeights;
-        Matrix4x4[] bindPoses;
+        private BoneWeight[] _boneWeights;
+        private Matrix4x4[] _bindPoses;
 
-        public Vector4[] Tangents;
+        public Vector4[] tangents;
 
-        Vector3[] edgeNormal0;
-        Vector3[] edgeNormal1;
-        Vector3[] edgeNormal2;
+        private Vector3[] _edgeNormal0;
+        private Vector3[] _edgeNormal1;
+        private Vector3[] _edgeNormal2;
 
-        Color[] colors;
-        Vector4[] edgeData;
-        Vector3[] edgeWeightedOnly;
-        Vector4[] shadowBake;
-        int[] originalIndex;
+        private Color[] _colors;
+        private Vector4[] _edgeData;
+        private Vector3[] _edgeWeightedOnly;
+        private Vector4[] _shadowBake;
+        private int[] _originalIndex;
 
         public MeshPackagingProfile profile;
 
@@ -50,333 +41,312 @@ namespace Playtime_Painter {
 
         public int vertsCount;
 
-        public Color[] _colors {
+        public Color[] Colors {
             get {
-                if (colors == null) {
-                    colors = new Color[vertsCount];
+                if (_colors == null) {
+                    _colors = new Color[vertsCount];
                     foreach (var vp in edMesh.meshPoints)
                         foreach (var uvi in vp.vertices)
-                            colors[uvi] = uvi._color;
+                            _colors[uvi] = uvi.color;
                 }
-                return colors;
+                return _colors;
             }
         }
 
-        public Vector4[] _shadowBake {
+        public Vector4[] ShadowBake {
             get {
-                if (shadowBake == null) {
-                    shadowBake = new Vector4[vertsCount];
-                    foreach (var vp in edMesh.meshPoints)
-                        foreach (var uvi in vp.vertices)
-                            shadowBake[uvi] = vp.shadowBake;
-                }
-                return shadowBake;
+                if (_shadowBake != null) return _shadowBake;
+
+                _shadowBake = new Vector4[vertsCount];
+                foreach (var vp in edMesh.meshPoints)
+                foreach (var uvi in vp.vertices)
+                    _shadowBake[uvi] = vp.shadowBake;
+                return _shadowBake;
             }
         }
 
-        public Vector2[] _uv { get {
-                if (uvs == null) {
-                    uvs = new Vector2[vertsCount];
-                    foreach (var vp in edMesh.meshPoints)
-                        foreach (var uvi in vp.vertices)
-                            uvs[uvi] = uvi.GetUV(0);
-                }
-                return uvs;
+        public Vector2[] Uv { get {
+                if (_uvs != null) return _uvs;
+
+                _uvs = new Vector2[vertsCount];
+                foreach (var vp in edMesh.meshPoints)
+                foreach (var uvi in vp.vertices)
+                    _uvs[uvi] = uvi.GetUV(0);
+                return _uvs;
             }
         }
 
         public Vector2[] _uv1 {
             get {
-                if (uvs1 == null) {
-                    uvs1 = new Vector2[vertsCount];
-                    foreach (var vp in edMesh.meshPoints)
-                        foreach (var uvi in vp.vertices)
-                            uvs1[uvi] = uvi.GetUV(1);
-                }
-                return uvs1;
+                if (_uvs1 != null) return _uvs1;
+
+                _uvs1 = new Vector2[vertsCount];
+                foreach (var vp in edMesh.meshPoints)
+                foreach (var uvi in vp.vertices)
+                    _uvs1[uvi] = uvi.GetUV(1);
+                return _uvs1;
             }
         }
 
-        public Vector4[] _trisTextures {
+        public Vector4[] TriangleTextures {
             get {
-                if (perVertexTrisTexture == null) {
+                if (_perVertexTrisTexture != null) return _perVertexTrisTexture;
 
-                    perVertexTrisTexture = new Vector4[vertsCount];
+                _perVertexTrisTexture = new Vector4[vertsCount];
 
-                    foreach (var tri in edMesh.triangles) {
-                        for (int no = 0; no < 3; no++)
-                            perVertexTrisTexture[tri.vertexes[no]] = tri.textureNo;
-
-                    }
-                }
-
-                return perVertexTrisTexture;
-            }
-        }
-
-        public Vector4[] _edgeData {
-            get {
-                if (edgeData == null) {
-                    edgeData = new Vector4[vertsCount];
-
-                    foreach (var tri in edMesh.triangles) {
-                        for (int no = 0; no < 3; no++) {
-                            Vertex up = tri.vertexes[no];
-                            float edge = (up.tris.Count == 1 //up.vert.SmoothNormal
-                                ) ? 1 : 0;
-                            edgeData[up] = new Vector4(no == 0 ? 0 : edge, no == 1 ? 0 : edge, no == 2 ? 0 : edge, up.meshPoint.edgeStrength);
-                        }
-                    }
-                }
-                return edgeData;
-            }
-        }
-
-        public Vector3[] _edgeDataByWeight
-        {
-            get
-            {
-
-                // Set edge on triangle side. 
-
-
-                if (edgeWeightedOnly == null)
-                {
-                    edgeWeightedOnly = new Vector3[vertsCount];
-
-                    foreach (var tri in edMesh.triangles)
-                        for (int no = 0; no < 3; no++)
-                        {
-                            Vertex up = tri.vertexes[no];
-
-                            // If other triangles of the point 
-
-                            // A weight for line 1-2 is in position 3, for 2-3 in 1 and so on.
-                            var ew = tri.edgeWeight;
-
-
-                            var weight = new Vector3(
-                                      no == 0 ? 0 : ew[0]
-                                    , no == 1 ? 0 : ew[1]
-                                    , no == 2 ? 0 : ew[2]
-                                    );
-
-                            if (weight.magnitude < 0.3f)
-                                weight[(no + 1) % 3] = up.meshPoint.edgeStrength;
-
-                            edgeWeightedOnly[up] = weight;
-
-                        }
-
-                }
-                return edgeWeightedOnly;
-            }
-        }
-
-        public Vector3[] _normals { get { if (normals == null) GenerateNormals(); return normals; } }
-
-        public Vector3[] _sharpNormals { get { if (sharpNormals == null) GenerateNormals(); return sharpNormals; } }
-
-        public Vector3[] _edgeNormal_0_OrSharp {
-            get {
-                if (edgeNormal0 == null) {
-                    edgeNormal0 = new Vector3[vertsCount];
-
-                    var sn = _sharpNormals;
-
-                    foreach (var tri in edMesh.triangles)
-                    {
-                        Vertex up = tri.vertexes[0];
-                        edgeNormal0[up] = sn[up];
-
-                        Vertex up1 = tri.vertexes[1];
-                        Vertex up2 = tri.vertexes[2];
-
-                        var tris = up1.meshPoint.GetTrianglesFromLine(up2.meshPoint);
-
-                        var nrm = tris.SmoothVector();
-
-                        edgeNormal0[up1] = nrm;
-                        edgeNormal0[up2] = nrm;
-                    }
-                }
-                return edgeNormal0;
-            }
-        }
-
-        public Vector3[] _edgeNormal_1_OrSharp {
-            get {
-                if (edgeNormal1 == null)
-                {
-                    edgeNormal1 = new Vector3[vertsCount];
-
-                    var sn = _sharpNormals;
-
-                    foreach (var tri in edMesh.triangles)
-                    {
-                        Vertex up = tri.vertexes[1];
-                        edgeNormal1[up] = sn[up];
-
-                        Vertex up0 = tri.vertexes[0];
-                        Vertex up2 = tri.vertexes[2];
-
-                        var tris = up0.meshPoint.GetTrianglesFromLine(up2.meshPoint);
-
-                        var nrm = tris.SmoothVector();
-
-                        edgeNormal1[up0] = nrm;
-                        edgeNormal1[up2] = nrm;
-                    }
-                }
-                return edgeNormal1;
-            }
-        }
-
-        public Vector3[] _edgeNormal_2_OrSharp {
-            get
-            {
-                if (edgeNormal2 == null) {
-                    edgeNormal2 = new Vector3[vertsCount];
-
-                    var sn = _sharpNormals;
-
-                    foreach (var tri in edMesh.triangles) {
-                        Vertex up = tri.vertexes[2];
-                        edgeNormal2[up] = sn[up];
-
-                        Vertex up0 = tri.vertexes[0];
-                        Vertex up1 = tri.vertexes[1];
-
-                        var tris = up0.meshPoint.GetTrianglesFromLine(up1.meshPoint);
-
-                        var nrm = tris.SmoothVector();
-
-                        edgeNormal2[up0] = nrm;
-                        edgeNormal2[up1] = nrm;
-                    }
-                }
-                return edgeNormal2;
-            }
-        }
-
-        public Vector4[] _tangents
-        {
-            get
-            {
-
-                if (Tangents == null)
-                {
-
-                    Tangents = new Vector4[vertsCount];
-                    Vector3[] tan1 = new Vector3[vertsCount];
-                    Vector3[] tan2 = new Vector3[vertsCount];
-
-                    int tri = 0;
-
-                    foreach (var t in edMesh.triangles)
-                    {
-
-                        var i1 = t.vertexes[0];
-                        var i2 = t.vertexes[1];
-                        var i3 = t.vertexes[2];
-
-                        Vector3 v1 = t.vertexes[0].Pos;
-                        Vector3 v2 = t.vertexes[1].Pos;
-                        Vector3 v3 = t.vertexes[2].Pos;
-
-                        Vector2 w1 = t.vertexes[0].GetUV(0);// texcoords[i1];
-                        Vector2 w2 = t.vertexes[1].GetUV(0);
-                        Vector2 w3 = t.vertexes[2].GetUV(0);
-
-                        float x1 = v2.x - v1.x;
-                        float x2 = v3.x - v1.x;
-                        float y1 = v2.y - v1.y;
-                        float y2 = v3.y - v1.y;
-                        float z1 = v2.z - v1.z;
-                        float z2 = v3.z - v1.z;
-
-                        float s1 = w2.x - w1.x;
-                        float s2 = w3.x - w1.x;
-                        float t1 = w2.y - w1.y;
-                        float t2 = w3.y - w1.y;
-
-                        float r = 1.0f / (s1 * t2 - s2 * t1);
-                        Vector3 sdir = new Vector3((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r);
-                        Vector3 tdir = new Vector3((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r);
-
-                        tan1[i1] += sdir;
-                        tan1[i2] += sdir;
-                        tan1[i3] += sdir;
-
-                        tan2[i1] += tdir;
-                        tan2[i2] += tdir;
-                        tan2[i3] += tdir;
-
-                        tri += 3;
-
-                    }
-
-                    for (int i = 0; i < (vertsCount); i++)
-                    {
-
-                        Vector3 n = normals[i];
-                        Vector3 t = tan1[i];
-
-                        // Gram-Schmidt orthogonalize
-                        Vector3.OrthoNormalize(ref n, ref t);
-
-                        Tangents[i].x = t.x;
-                        Tangents[i].y = t.y;
-                        Tangents[i].z = t.z;
-
-                        // Calculate handedness
-                        Tangents[i].w = (Vector3.Dot(Vector3.Cross(n, t), tan2[i]) < 0.0f) ? -1.0f : 1.0f;
-
-                    }
-
-
-                }
-
-                return Tangents;
-            }
-        }
-
-        public Vector3[] _position {
-            get  {
-
-                if (position == null) {
-                    position = new Vector3[vertsCount];
-
-                    float totalSize = 0;
-
-                    foreach (var vp in edMesh.meshPoints) {
-                        totalSize += vp.localPos.magnitude;
-                        var lp = vp.localPos;
-                        foreach (var uvi in vp.vertices)
-                            position[uvi] = lp;
-                    }
-
-                    edMesh.averageSize = totalSize / edMesh.meshPoints.Count;
-                }
+                foreach (var tri in edMesh.triangles) 
+                    for (var no = 0; no < 3; no++)
+                        _perVertexTrisTexture[tri.vertexes[no]] = tri.textureNo;
                 
-                return position;
+                return _perVertexTrisTexture;
             }
         }
 
-        public int[] _vertexIndex
+        public Vector4[] EdgeData {
+            get {
+                if (_edgeData != null) return _edgeData;
+                _edgeData = new Vector4[vertsCount];
+
+                foreach (var tri in edMesh.triangles) {
+                    for (var no = 0; no < 3; no++) {
+                        var up = tri.vertexes[no];
+                        float edge = (up.tris.Count == 1) ? 1 : 0;
+                        _edgeData[up] = new Vector4(no == 0 ? 0 : edge, no == 1 ? 0 : edge, no == 2 ? 0 : edge, up.meshPoint.edgeStrength);
+                    }
+                }
+                return _edgeData;
+            }
+        }
+
+        public Vector3[] EdgeDataByWeight
         {
             get
             {
-                if (originalIndex == null)
-                {
-                    originalIndex = new int[vertsCount];
 
-                    foreach (var vp in edMesh.meshPoints)
-                        foreach (var uvi in vp.vertices)
-                            originalIndex[uvi] = vp.index;
+                if (_edgeWeightedOnly != null) return _edgeWeightedOnly;
+
+                _edgeWeightedOnly = new Vector3[vertsCount];
+
+                foreach (var tri in edMesh.triangles)
+                    for (var no = 0; no < 3; no++)
+                    {
+                        var up = tri.vertexes[no];
+
+                        // If other triangles of the point 
+
+                        // A weight for line 1-2 is in position 3, for 2-3 in 1 and so on.
+                        var ew = tri.edgeWeight;
+
+
+                        var weight = new Vector3(
+                            no == 0 ? 0 : ew[0]
+                            , no == 1 ? 0 : ew[1]
+                            , no == 2 ? 0 : ew[2]
+                        );
+
+                        if (weight.magnitude < 0.3f)
+                            weight[(no + 1) % 3] = up.meshPoint.edgeStrength;
+
+                        _edgeWeightedOnly[up] = weight;
+
+                    }
+                return _edgeWeightedOnly;
+            }
+        }
+
+        public Vector3[] Normals { get { if (_normals == null) GenerateNormals(); return _normals; } }
+
+        public Vector3[] SharpNormals { get { if (_sharpNormals == null) GenerateNormals(); return _sharpNormals; } }
+
+        public Vector3[] EdgeNormal0OrSharp {
+            get {
+                if (_edgeNormal0 != null) return _edgeNormal0;
+
+                _edgeNormal0 = new Vector3[vertsCount];
+
+                var sn = SharpNormals;
+
+                foreach (var tri in edMesh.triangles)
+                {
+                    var up = tri.vertexes[0];
+                    _edgeNormal0[up] = sn[up];
+
+                    var up1 = tri.vertexes[1];
+                    var up2 = tri.vertexes[2];
+
+                    var tris = up1.meshPoint.GetTrianglesFromLine(up2.meshPoint);
+
+                    var nrm = tris.SmoothVector();
+
+                    _edgeNormal0[up1] = nrm;
+                    _edgeNormal0[up2] = nrm;
+                }
+                return _edgeNormal0;
+            }
+        }
+
+        public Vector3[] EdgeNormal1OrSharp {
+            get {
+                if (_edgeNormal1 != null) return _edgeNormal1;
+                _edgeNormal1 = new Vector3[vertsCount];
+
+                var sn = SharpNormals;
+
+                foreach (var tri in edMesh.triangles)
+                {
+                    var up = tri.vertexes[1];
+                    _edgeNormal1[up] = sn[up];
+
+                    var up0 = tri.vertexes[0];
+                    var up2 = tri.vertexes[2];
+
+                    var tris = up0.meshPoint.GetTrianglesFromLine(up2.meshPoint);
+
+                    var nrm = tris.SmoothVector();
+
+                    _edgeNormal1[up0] = nrm;
+                    _edgeNormal1[up2] = nrm;
+                }
+                return _edgeNormal1;
+            }
+        }
+
+        public Vector3[] EdgeNormal2OrSharp {
+            get
+            {
+                if (_edgeNormal2 != null) return _edgeNormal2;
+
+                _edgeNormal2 = new Vector3[vertsCount];
+
+                var sn = SharpNormals;
+
+                foreach (var tri in edMesh.triangles) {
+                    var up = tri.vertexes[2];
+                    _edgeNormal2[up] = sn[up];
+
+                    var up0 = tri.vertexes[0];
+                    var up1 = tri.vertexes[1];
+
+                    var tris = up0.meshPoint.GetTrianglesFromLine(up1.meshPoint);
+
+                    var nrm = tris.SmoothVector();
+
+                    _edgeNormal2[up0] = nrm;
+                    _edgeNormal2[up1] = nrm;
+                }
+                return _edgeNormal2;
+            }
+        }
+
+        public Vector4[] Tangents
+        {
+            get
+            {
+                if (tangents != null) return tangents;
+                tangents = new Vector4[vertsCount];
+                var tan1 = new Vector3[vertsCount];
+                var tan2 = new Vector3[vertsCount];
+
+                var tri = 0;
+
+                foreach (var t in edMesh.triangles)
+                {
+
+                    var i1 = t.vertexes[0];
+                    var i2 = t.vertexes[1];
+                    var i3 = t.vertexes[2];
+
+                    var v1 = t.vertexes[0].Pos;
+                    var v2 = t.vertexes[1].Pos;
+                    var v3 = t.vertexes[2].Pos;
+
+                    var w1 = t.vertexes[0].GetUV(0);// texcoords[i1];
+                    var w2 = t.vertexes[1].GetUV(0);
+                    var w3 = t.vertexes[2].GetUV(0);
+
+                    var x1 = v2.x - v1.x;
+                    var x2 = v3.x - v1.x;
+                    var y1 = v2.y - v1.y;
+                    var y2 = v3.y - v1.y;
+                    var z1 = v2.z - v1.z;
+                    var z2 = v3.z - v1.z;
+
+                    var s1 = w2.x - w1.x;
+                    var s2 = w3.x - w1.x;
+                    var t1 = w2.y - w1.y;
+                    var t2 = w3.y - w1.y;
+
+                    var r = 1.0f / (s1 * t2 - s2 * t1);
+                    var sDir = new Vector3((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r);
+                    var tDir = new Vector3((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r);
+
+                    tan1[i1] += sDir;
+                    tan1[i2] += sDir;
+                    tan1[i3] += sDir;
+
+                    tan2[i1] += tDir;
+                    tan2[i2] += tDir;
+                    tan2[i3] += tDir;
+
+                    tri += 3;
 
                 }
-                return originalIndex;
+
+                for (var i = 0; i < (vertsCount); i++)
+                {
+
+                    var n = _normals[i];
+                    var t = tan1[i];
+
+                    // Gram-Schmidt orthogonalize
+                    Vector3.OrthoNormalize(ref n, ref t);
+
+                    tangents[i].x = t.x;
+                    tangents[i].y = t.y;
+                    tangents[i].z = t.z;
+
+                    // Calculate handedness
+                    tangents[i].w = (Vector3.Dot(Vector3.Cross(n, t), tan2[i]) < 0.0f) ? -1.0f : 1.0f;
+
+                }
+
+                return tangents;
+            }
+        }
+
+        public Vector3[] Position {
+            get  {
+                if (_position != null) return _position;
+
+                _position = new Vector3[vertsCount];
+
+                float totalSize = 0;
+
+                foreach (var vp in edMesh.meshPoints) {
+                    totalSize += vp.localPos.magnitude;
+                    var lp = vp.localPos;
+                    foreach (var uvi in vp.vertices)
+                        _position[uvi] = lp;
+                }
+
+                edMesh.averageSize = totalSize / edMesh.meshPoints.Count;
+
+                return _position;
+            }
+        }
+
+        public int[] VertexIndex
+        {
+            get
+            {
+                if (_originalIndex != null) return _originalIndex;
+
+                _originalIndex = new int[vertsCount];
+
+                foreach (var vp in edMesh.meshPoints)
+                foreach (var uvi in vp.vertices)
+                    _originalIndex[uvi] = vp.index;
+                return _originalIndex;
             }
         }
         
@@ -392,9 +362,9 @@ namespace Playtime_Painter {
         void GenerateNormals()
         {
 
-            normals = new Vector3[vertsCount];
-            sharpNormals = new Vector3[vertsCount];
-            bool[] NormalForced = new bool[vertsCount];
+            _normals = new Vector3[vertsCount];
+            _sharpNormals = new Vector3[vertsCount];
+            var NormalForced = new bool[vertsCount];
 
             foreach (var vp in edMesh.meshPoints)
             {
@@ -402,13 +372,13 @@ namespace Playtime_Painter {
                 vp.normal = Vector3.zero;
             }
 
-            for (int i = 0; i < vertsCount; i++)
+            for (var i = 0; i < vertsCount; i++)
             {
-                normals[i] = Vector3.zero;
-                sharpNormals[i] = Vector3.zero;
+                _normals[i] = Vector3.zero;
+                _sharpNormals[i] = Vector3.zero;
             }
 
-            float scaleNormalizer = 1f / (edMesh.averageSize + 0.001f);
+            var scaleNormalizer = 1f / (edMesh.averageSize + 0.001f);
 
             foreach (var tri in edMesh.triangles)
             {
@@ -417,18 +387,18 @@ namespace Playtime_Painter {
 
                 tri.sharpNormal = tri.GetNormalByArea(scaleNormalizer);
 
-                for (int no = 0; no < 3; no++)
+                for (var no = 0; no < 3; no++)
                 {
 
-                    MeshPoint vertPnt = tri.vertexes[no].meshPoint;
+                    var vertPnt = tri.vertexes[no].meshPoint;
                     int mDIndex = tri.vertexes[no];
 
-                    sharpNormals[mDIndex] = tri.sharpNormal;
+                    _sharpNormals[mDIndex] = tri.sharpNormal;
 
                     if (tri.DominantCourner[no])
                     {
 
-                        normals[mDIndex] = tri.sharpNormal;
+                        _normals[mDIndex] = tri.sharpNormal;
                         NormalForced[mDIndex] = true;
 
                         if (vertPnt.normalIsSet)
@@ -442,7 +412,7 @@ namespace Playtime_Painter {
                     else
                     {
                         if (!NormalForced[mDIndex])
-                            normals[mDIndex] = tri.sharpNormal;
+                            _normals[mDIndex] = tri.sharpNormal;
 
                         if (!vertPnt.normalIsSet)
                             vertPnt.normal += tri.sharpNormal;
@@ -453,8 +423,8 @@ namespace Playtime_Painter {
 
             for (int i = 0; i < vertsCount; i++)
             {
-                normals[i].Normalize();
-                sharpNormals[i].Normalize();
+                _normals[i].Normalize();
+                _sharpNormals[i].Normalize();
             }
 
 
@@ -463,7 +433,7 @@ namespace Playtime_Painter {
                 {
                     vp.normal = vp.normal.normalized;
                     foreach (Vertex uv in vp.vertices)
-                        normals[uv] = vp.normal;
+                        _normals[uv] = vp.normal;
 
                 }
         }
@@ -531,10 +501,10 @@ namespace Playtime_Painter {
             mesh.bindposes = edMesh.bindPoses;
             
             if (edMesh.gotBoneWeights) {
-                boneWeights = new BoneWeight[vertsCount];
+                _boneWeights = new BoneWeight[vertsCount];
                 for (int i = 0; i < edMesh.meshPoints.Count; i++)
-                    boneWeights[i] = edMesh.meshPoints[i].boneWeight;
-                mesh.boneWeights = boneWeights;
+                    _boneWeights[i] = edMesh.meshPoints[i].boneWeight;
+                mesh.boneWeights = _boneWeights;
             }
 
             int vCnt = mesh.vertices.Length;

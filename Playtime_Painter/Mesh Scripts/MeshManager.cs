@@ -31,6 +31,7 @@ namespace Playtime_Painter
         public static Vector3 editorMousePos;
 
         public PlaytimePainter target;
+        public Transform targetTransform;
         public PlaytimePainter previouslyEdited;
 
         readonly List<string> _undoMoves = new List<string>();
@@ -85,11 +86,9 @@ namespace Playtime_Painter
         public void UpdateLocalSpaceV3S()
         {
             if (!target) return;
-
-            var tf = target.transform;
-
-            onGridLocal = tf.InverseTransformPoint(GridNavigator.onGridPos);
-            collisionPosLocal = tf.InverseTransformPoint(GridNavigator.collisionPos);
+            
+            onGridLocal = targetTransform.InverseTransformPoint(GridNavigator.onGridPos);
+            collisionPosLocal = targetTransform.InverseTransformPoint(GridNavigator.collisionPos);
         }
 
         public void EditMesh(PlaytimePainter painter, bool editCopy)
@@ -101,7 +100,7 @@ namespace Playtime_Painter
                 DisconnectMesh();
 
             target = painter;
-
+            targetTransform = painter.transform;
             editedMesh = new EditableMesh();
 
             editedMesh.Edit(painter);
@@ -135,6 +134,7 @@ namespace Playtime_Painter
                 MeshTool.OnDeSelectTool();
                 target.SavedEditableMesh = editedMesh.Encode().ToString();
                 target = null;
+                targetTransform = null;
             }
             Grid.DeactivateVertices();
             GridNavigator.Inst().SetEnabled(false, false);
@@ -150,11 +150,9 @@ namespace Playtime_Painter
         }
 #endif
 
-        public void Redraw()
-        {
+        public void Redraw() {
 
-            if (target)
-            {
+            if (target) {
 
                 var mc = new MeshConstructor(editedMesh, target.MeshProfile, target.SharedMesh);
 
@@ -441,7 +439,7 @@ namespace Playtime_Painter
             t.wasProcessed = true;
             const float precision = 0.05f;
 
-            var acc = (target.transform.InverseTransformPoint(CameraTransform.position) - collisionPosLocal).magnitude;
+            var acc = (targetTransform.InverseTransformPoint(CameraTransform.position) - collisionPosLocal).magnitude;
 
             acc *= precision;
 
@@ -707,7 +705,9 @@ namespace Playtime_Painter
         #endregion
 
         public static List<string> meshEditorIgnore = new List<string> { "VertexEd", "toolComponent" };
-        
+
+        private float delayUpdate;
+
         public void CombinedUpdate()
         {
 
@@ -731,14 +731,22 @@ namespace Playtime_Painter
             if (Application.isPlaying)
                 SORT_AND_UPDATE_UI();
 
-            if (editedMesh.Dirty)
-            {
+            delayUpdate -= Time.deltaTime;
+
+            if (editedMesh.Dirty && delayUpdate<0) {
+
                 _redoMoves.Clear();
-                _undoMoves.Add(editedMesh.Encode().ToString());
-                if (_undoMoves.Count > 10)
-                    _undoMoves.RemoveAt(0);
+
+                if (Cfg.saveMeshUndos) {
+                    _undoMoves.Add(editedMesh.Encode().ToString());
+
+                    if (_undoMoves.Count > 10)
+                        _undoMoves.RemoveAt(0);
+                }
+
                 Redraw();
                 previewMesh = null;
+                delayUpdate = 0.25f;
             }
 
             if (_justLoaded >= 0)
@@ -841,7 +849,7 @@ namespace Playtime_Painter
         {
             InitVerticesIfNull();
 
-            if ((previouslyEdited != null) && (!target))
+            if (previouslyEdited && !target)
             {
                 DisconnectMesh();
                 EditMesh(previouslyEdited, false);
@@ -886,11 +894,15 @@ namespace Playtime_Painter
 
             var previousTool = MeshTool;
 
-            if ("tool".select(70, ref Cfg.meshTool, MeshToolBase.AllTools).nl(ref changed)) {
+            if ("tool".select(70, ref Cfg.meshTool, MeshToolBase.AllTools).changes(ref changed)) {
                 Grid.vertexPointMaterial.SetColor("_Color", MeshTool.VertexColor);
                 previousTool.OnDeSelectTool();
                 MeshTool.OnSelectTool();
             }
+
+            MeshTool.Tooltip.fullWindowDocumentationClick("About this tool.");
+
+            pegi.nl();
 
             pegi.space();
             pegi.newLine();
@@ -900,7 +912,7 @@ namespace Playtime_Painter
 #if UNITY_EDITOR
             var mesh = target.GetMesh();
 
-            bool exists = !AssetDatabase.GetAssetPath(mesh).IsNullOrEmpty();
+            var exists = !AssetDatabase.GetAssetPath(mesh).IsNullOrEmpty();
             
             if ((exists ? icon.Save : icon.SaveAsNew).Click("Save Mesh As {0}".F(target.GenerateMeshSavePath()), 25).nl())
                 target.SaveMesh();
@@ -914,9 +926,6 @@ namespace Playtime_Painter
 
             foreach (var p in PainterManagerPluginBase.VertexEdgePlugins)
                 p.MeshToolInspection(mt).nl(ref changed);
-
-            if ("Hint".foldout(ref showTooltip).nl())
-                MeshTool.Tooltip.writeHint();
             
             if ("Merge Meshes".foldout(ref showCopyOptions).nl()) {
 
@@ -975,7 +984,9 @@ namespace Playtime_Painter
 
             Grid.vertexPointMaterial.SetColor("_Color", MeshTool.VertexColor);
 
-            if (!Application.isPlaying && "references".foldout(ref showReferences).nl())  {
+            if (!Application.isPlaying && "Advanced".foldout(ref showReferences).nl()) {
+
+                "Save Undos".toggleIcon(ref Cfg.saveMeshUndos).nl(ref changed);
 
                 "vertexPointMaterial".write_obj(Grid.vertexPointMaterial);
                 pegi.newLine();
@@ -1022,8 +1033,7 @@ namespace Playtime_Painter
 
             return changed;
         }
-
-
+        
         #endif
 
         #endregion
@@ -1075,23 +1085,21 @@ namespace Playtime_Painter
         public void DrowLinesAroundTargetPiece()
         {
 
-            Vector3 piecePos = target.transform.TransformPoint(-Vector3.one / 2);//PositionScripts.PosUpdate(_target.getpos(), false);
+            var piecePos = targetTransform.TransformPoint(-Vector3.one / 2);//PositionScripts.PosUpdate(_target.getpos(), false);
 
 
-            Vector3 projected = GridNavigator.Inst().ProjectToGrid(piecePos); // piecePos * getGridMaskVector() + ptdPos.ToV3(false)*getGridPerpendicularVector();
-            Vector3 GridMask = GridNavigator.Inst().GetGridMaskVector() * 128 + projected;
+            var projected = GridNavigator.Inst().ProjectToGrid(piecePos); // piecePos * getGridMaskVector() + ptdPos.ToV3(false)*getGridPerpendicularVector();
+            var gridMask = GridNavigator.Inst().GetGridMaskVector() * 128 + projected;
+            
+            Debug.DrawLine(new Vector3(projected.x, projected.y, projected.z), new Vector3(gridMask.x, projected.y, projected.z), Color.red);
+            Debug.DrawLine(new Vector3(projected.x, projected.y, projected.z), new Vector3(projected.x, gridMask.y, projected.z), Color.red);
+            Debug.DrawLine(new Vector3(projected.x, projected.y, projected.z), new Vector3(projected.x, projected.y, gridMask.z), Color.red);
 
+            Debug.DrawLine(new Vector3(projected.x, gridMask.y, gridMask.z), new Vector3(gridMask.x, gridMask.y, gridMask.z), Color.red);
+            Debug.DrawLine(new Vector3(gridMask.x, projected.y, gridMask.z), new Vector3(gridMask.x, gridMask.y, gridMask.z), Color.red);
+            Debug.DrawLine(new Vector3(gridMask.x, gridMask.y, projected.z), new Vector3(gridMask.x, gridMask.y, gridMask.z), Color.red);
 
-
-            Debug.DrawLine(new Vector3(projected.x, projected.y, projected.z), new Vector3(GridMask.x, projected.y, projected.z), Color.red);
-            Debug.DrawLine(new Vector3(projected.x, projected.y, projected.z), new Vector3(projected.x, GridMask.y, projected.z), Color.red);
-            Debug.DrawLine(new Vector3(projected.x, projected.y, projected.z), new Vector3(projected.x, projected.y, GridMask.z), Color.red);
-
-            Debug.DrawLine(new Vector3(projected.x, GridMask.y, GridMask.z), new Vector3(GridMask.x, GridMask.y, GridMask.z), Color.red);
-            Debug.DrawLine(new Vector3(GridMask.x, projected.y, GridMask.z), new Vector3(GridMask.x, GridMask.y, GridMask.z), Color.red);
-            Debug.DrawLine(new Vector3(GridMask.x, GridMask.y, projected.z), new Vector3(GridMask.x, GridMask.y, GridMask.z), Color.red);
-
-            DrawTransformedCubeDebug(target.transform, Color.blue);
+            DrawTransformedCubeDebug(targetTransform, Color.blue);
 
 
         }

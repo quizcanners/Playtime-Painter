@@ -45,12 +45,11 @@ namespace Playtime_Painter
 
         public int uvIndex;
         public int finalIndex;
-        public Color _color;
-
-        public bool tmpMark;
-        public bool HasVertex;
+        public Color color;
+        
+        public bool hasVertex;
         public List<Triangle> tris = new List<Triangle>();
-        public Vertex MyLastCopy;
+        public Vertex myLastCopy;
         public MeshPoint meshPoint;
 
         public bool SameAsLastFrame => this == EditedMesh.lastFramePointedUv; 
@@ -69,7 +68,7 @@ namespace Playtime_Painter
 
             cody.Add("i", finalIndex);
             cody.Add_IfNotZero("uvi", uvIndex);
-            cody.Add_IfNotBlack("col", _color);
+            cody.Add_IfNotBlack("col", color);
 
             return cody;
         }
@@ -78,7 +77,7 @@ namespace Playtime_Painter
             switch (tg) {
                 case "i": finalIndex = data.ToInt(); EditedMesh.uvsByFinalIndex[finalIndex] = this; break;
                 case "uvi": uvIndex = data.ToInt(); break;
-                case "col": _color = data.ToColor(); break;
+                case "col": color = data.ToColor(); break;
                 default: return false;
             }
             return true;
@@ -114,7 +113,7 @@ namespace Playtime_Painter
         }
 
         public Vertex(Vertex other) {
-            _color = other._color;
+            color = other.color;
             AddToList(other.meshPoint);
             uvIndex = other.uvIndex;
         }
@@ -144,7 +143,7 @@ namespace Playtime_Painter
 
         public Vertex(MeshPoint newVertex, Vertex other)
         {
-            _color = other._color;
+            color = other.color;
             AddToList(newVertex);
             SetUvIndexBy(other.GetUV(0), other.GetUV(1));
         }
@@ -176,16 +175,23 @@ namespace Playtime_Painter
         
         public bool SameUV(Vector2 uv, Vector2 uv1) => (uv - GetUV(0)).magnitude < 0.0000001f && (uv1 - GetUV(1)).magnitude < 0.0000001f;
         
-
         public void SetUvIndexBy(Vector2[] uvs) =>  uvIndex = meshPoint.GetIndexFor(uvs[0], uvs[1]);
         
         public void SetUvIndexBy(Vector2 uv0, Vector2 uv1) => uvIndex = meshPoint.GetIndexFor(uv0, uv1);
         
-        public void SetUvIndexBy(Vector2 uvEdited) {
+        public bool SetUvIndexBy(Vector2 uvEdited) {
             var uv0 = MeshMGMT.EditedUV == 0 ? uvEdited : GetUV(0);
             var uv1 = MeshMGMT.EditedUV == 1 ? uvEdited : GetUV(1);
 
-            uvIndex = meshPoint.GetIndexFor(uv0, uv1);
+            var index = meshPoint.GetIndexFor(uv0, uv1);
+
+            if (index != uvIndex)
+            {
+                uvIndex = index;
+                return true;
+            }
+
+            return false;
         }
 
         public bool ConnectedTo(MeshPoint other)
@@ -211,15 +217,15 @@ namespace Playtime_Painter
             for (var i = 0; i < 3; i++)
             {
                 var c = (ColorChanel)i;
-                c.SetChanel(ref _color, c == chan ? 0 : 1);
+                c.SetChanel(ref color, c == chan ? 0 : 1);
             }
         }
 
         public void FlipChanel(ColorChanel chan)
         {
-            var val = _color.GetChanel(chan);
+            var val = color.GetChanel(chan);
             val = (val > 0.9f) ? 0 : 1;
-            chan.SetChanel(ref _color, val);
+            chan.SetChanel(ref color, val);
         }
 
         private ColorChanel GetZeroChanelIfOne(ref int count)
@@ -227,7 +233,7 @@ namespace Playtime_Painter
             count = 0;
             var ch = ColorChanel.A;
             for (var i = 0; i < 3; i++)
-                if (_color.GetChanel((ColorChanel)i) > 0.9f)
+                if (color.GetChanel((ColorChanel)i) > 0.9f)
                     count++;
                 else ch = (ColorChanel)i;
 
@@ -354,21 +360,21 @@ namespace Playtime_Painter
         }
 
         public Vector3 WorldPos { get {
-                var emc = MeshManager.Inst.target;
+
                 
-                if (!emc.AnimatedVertices())  
-                    return emc.transform.TransformPoint(localPos);
+              //  if (!emc.AnimatedVertices())  
+              return MeshManager.Inst.targetTransform.TransformPoint(localPos);
                 
-                var animNo = emc.GetVertexAnimationNumber();
-                return emc.transform.TransformPoint(localPos + anim[animNo]);
+               // var animNo = emc.GetVertexAnimationNumber();
+              //  return emc.transform.TransformPoint(localPos + anim[animNo]);
                 
             } 
             set {
-              localPos =  MeshMGMT.target.transform.InverseTransformPoint(value);
+              localPos =  MeshMGMT.targetTransform.InverseTransformPoint(value);
             }
         }
 
-        public Vector3 GetWorldNormal() => MeshMGMT.target.transform.TransformDirection(GetNormal());
+        public Vector3 GetWorldNormal() => MeshMGMT.targetTransform.TransformDirection(GetNormal());
         
         private Vector3 GetNormal() {
             normal = Vector3.zero;
@@ -494,13 +500,13 @@ namespace Playtime_Painter
         public void PixPerfect() {
             var trg = MeshManager.Inst.target;
 
-            if ((trg!= null) && (trg.ImgMeta!= null)){
+            if (trg && (trg.ImgMeta!= null)){
                 var id = trg.ImgMeta;
                 var width = id.width*2;
                 var height = id.height*2;
 
                 foreach (var v2a in sharedV2S)
-                    for(int i=0; i<2; i++) {
+                    for(var i=0; i<2; i++) {
 
                         var x = v2a[i].x;
                         var y = v2a[i].y;
@@ -524,14 +530,14 @@ namespace Playtime_Painter
 
         public void ClearColor(BrushMask bm) {
             foreach (Vertex uvi in vertices)
-                bm.Transfer(ref uvi._color, Color.black);
+                bm.Transfer(ref uvi.color, Color.black);
         }
 
         void SetChanel(ColorChanel chan, MeshPoint other, float val)
         {
             foreach (Vertex u in vertices)
                 if (u.ConnectedTo(other))
-                    chan.SetChanel(ref u._color, val);
+                    chan.SetChanel(ref u.color, val);
         }
 
         public bool FlipChanelOnLine(ColorChanel chan, MeshPoint other)
@@ -543,7 +549,7 @@ namespace Playtime_Painter
 
             foreach (Vertex u in vertices)
                 if (u.ConnectedTo(other))
-                    val *= u._color.GetChanel(chan) * u.GetConnectedUVinVert(other)._color.GetChanel(chan);
+                    val *= u.color.GetChanel(chan) * u.GetConnectedUVinVert(other).color.GetChanel(chan);
 
             val = (val > 0.9f) ? 0 : 1;
 
@@ -562,7 +568,7 @@ namespace Playtime_Painter
         {
             foreach (Vertex u in vertices)
                 if (u.ConnectedTo(other))
-                    bm.Transfer(ref u._color, col);   //val *= u._color.GetChanel01(chan) * u.GetConnectedUVinVert(other)._color.GetChanel01(chan);
+                    bm.Transfer(ref u.color, col);   //val *= u._color.GetChanel01(chan) * u.GetConnectedUVinVert(other)._color.GetChanel01(chan);
 
         }
 
@@ -575,12 +581,12 @@ namespace Playtime_Painter
                         Vertex ouv = u.GetConnectedUVinVert(other);
                         ColorChanel ch = (ColorChanel)i;
 
-                        float val = u._color.GetChanel(ch) * ouv._color.GetChanel(ch);
+                        float val = u.color.GetChanel(ch) * ouv.color.GetChanel(ch);
 
                         if (val > 0.9f)
                         {
-                             ch.SetChanel(ref u._color, 0);
-                            ch.SetChanel(ref ouv._color, 0);
+                             ch.SetChanel(ref u.color, 0);
+                            ch.SetChanel(ref ouv.color, 0);
                         }
                     }
 
@@ -1013,7 +1019,7 @@ namespace Playtime_Painter
 
         public void AssignWeightedData (Vertex to, Vector3 weight) {
          
-            to._color = vertexes[0]._color * weight.x + vertexes[1]._color * weight.y + vertexes[2]._color * weight.z;
+            to.color = vertexes[0].color * weight.x + vertexes[1].color * weight.y + vertexes[2].color * weight.z;
             to.meshPoint.shadowBake = vertexes[0].meshPoint.shadowBake * weight.x + vertexes[1].meshPoint.shadowBake * weight.y + vertexes[2].meshPoint.shadowBake * weight.z;
             Vertex nearest = (Mathf.Max(weight.x, weight.y) > weight.z)  ? (weight.x > weight.y ? vertexes[0] : vertexes[1]) : vertexes[2];
             to.meshPoint.boneWeight = nearest.meshPoint.boneWeight; 
@@ -1122,9 +1128,9 @@ namespace Playtime_Painter
 
             for (int i = 0; i < 3; i++)
             {
-                if (vertexes[i].MyLastCopy == null) { Debug.Log("Error: UV has not been copied!"); return null; }
+                if (vertexes[i].myLastCopy == null) { Debug.Log("Error: UV has not been copied!"); return null; }
 
-                nvpnts[i] = vertexes[i].MyLastCopy;
+                nvpnts[i] = vertexes[i].myLastCopy;
             }
 
             return new Triangle(nvpnts);

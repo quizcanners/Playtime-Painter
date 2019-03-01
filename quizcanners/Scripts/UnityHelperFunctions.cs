@@ -108,6 +108,12 @@ namespace QuizCannersUtilities {
 
         #region Components & GameObjects
 
+        public static T Instantiate<T>(string name = null) where T : MonoBehaviour
+        {
+            var go = new GameObject(name.IsNullOrEmpty() ? typeof(T).ToPegiStringType() : name);
+            return go.AddComponent<T>();
+        }
+
         public static GameObject TryGetGameObject_Obj(this object obj) {
             var go = obj as GameObject;
 

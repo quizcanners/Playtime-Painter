@@ -1,18 +1,16 @@
-﻿Shader "Playtime Painter/ReplacementShaderTest" {
+﻿Shader "Playtime Painter/Editor/Preview/Projector" {
 
 	Properties{
 		_MainTex("Albedo (RGB)", 2D) = "white" {}
 		[Toggle(_DEBUG)] debugOn("Debug", Float) = 0
 	}
 
-
-		SubShader{
+	SubShader{
 		Tags { "RenderType" = "Opaque" }
 		Pass {
 				CGPROGRAM
 
-			#include "UnityCG.cginc"
-			#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
+			#include "PlaytimePainter_cg.cginc"
 
 			#pragma vertex vert
 			#pragma fragment frag
@@ -41,6 +39,7 @@
 				o.normal.xyz = UnityObjectToWorldNormal(v.normal);
 				o.pos = UnityObjectToClipPos(v.vertex);
 				o.worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz,1.0f));
+
 				o.texcoord = TRANSFORM_TEX(v.texcoord, _MainTex);
 				o.color = v.color;
 				o.shadowCoords = mul(pp_ProjectorMatrix, o.worldPos); 
@@ -74,6 +73,6 @@
 			}
 			ENDCG
 		}
-		}
-			FallBack "Diffuse"
+	}
+	FallBack "Diffuse"
 }

@@ -21,12 +21,6 @@ float4 g_l1col;
 float4 g_l2pos;
 float4 g_l2col;
 
-sampler2D pp_DepthProjection;
-float4x4 pp_ProjectorMatrix;
-float4 pp_ProjectorPosition;
-float4 pp_ProjectorClipPrecompute;
-float4 pp_ProjectorConfiguration;
-
 sampler2D _Global_Noise_Lookup;
 
 float4 _lightControl;

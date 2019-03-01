@@ -5,6 +5,7 @@ using QuizCannersUtilities;
 
 namespace Playtime_Painter {
 
+    #region Base
     public abstract class BlitMode : PainterStuff, IEditorDropdown, IGotDisplayName {
 
         private static List<BlitMode> _allModes;
@@ -42,7 +43,7 @@ namespace Playtime_Painter {
             UnityHelperFunctions.ToggleShaderKeywords(TexMGMTdata.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
         }
 
-        public BlitMode(int ind)
+        protected BlitMode(int ind)
         {
             index = ind;
         }
@@ -59,7 +60,8 @@ namespace Playtime_Painter {
                 new BlitModeMax(5),
                 new BlitModeBlur(6),
                 new BlitModeBloom(7),
-                new BlitModeSamplingOffset(8)
+                new BlitModeSamplingOffset(8),
+                new BlitModeProjector(9)
             };
             // The code below uses reflection to find all classes that are child classes of BlitMode.
             // The code above adds them manually to save some compilation time,
@@ -172,6 +174,11 @@ namespace Playtime_Painter {
         public abstract string NameForDisplayPEGI { get; }
 
     }
+
+    #endregion
+
+    #region Alpha Blit
+
     public class BlitModeAlpha : BlitMode
     {
         public override string NameForDisplayPEGI => "Alpha Blit"; 
@@ -187,6 +194,9 @@ namespace Playtime_Painter {
         public override bool SupportsTransparentLayer => true;
     }
 
+    #endregion
+    #region Add Blit
+
     public class BlitModeAdd : BlitMode
     {
         static BlitModeAdd _inst;
@@ -194,9 +204,7 @@ namespace Playtime_Painter {
 
         public override string NameForDisplayPEGI => "Add";
         protected override string ShaderKeyword(ImageMeta id) => "BRUSH_ADD";
-
-
-
+        
         public override Shader ShaderForSingleBuffer => TexMGMTdata.brushAdd;
         public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.AddBlit;
 
@@ -205,6 +213,9 @@ namespace Playtime_Painter {
             _inst = this;
         }
     }
+
+    #endregion
+    #region Subtract Blit
 
     public class BlitModeSubtract : BlitMode
     {
@@ -219,6 +230,10 @@ namespace Playtime_Painter {
 
     }
 
+    #endregion
+
+    #region Copy Blit
+
     public class BlitModeCopy : BlitMode
     {
         public override string NameForDisplayPEGI => "Copy";
@@ -232,6 +247,10 @@ namespace Playtime_Painter {
         public BlitModeCopy(int ind) : base(ind) { }
     }
 
+    #endregion
+
+    #region Min Blit
+
     public class BlitModeMin : BlitMode
     {
         public override string NameForDisplayPEGI => "Min"; 
@@ -242,6 +261,10 @@ namespace Playtime_Painter {
         public BlitModeMin(int ind) : base(ind) { }
     }
 
+    #endregion
+
+    #region Max Blit
+
     public class BlitModeMax : BlitMode
     {
         public override string NameForDisplayPEGI => "Max"; 
@@ -251,6 +274,10 @@ namespace Playtime_Painter {
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Max;
         public BlitModeMax(int ind) : base(ind) { }
     }
+
+    #endregion
+
+    #region Blur Blit
 
     public class BlitModeBlur : BlitMode
     {
@@ -273,6 +300,10 @@ namespace Playtime_Painter {
         public BlitModeBlur(int ind) : base(ind) { }
 
     }
+
+    #endregion
+
+    #region Sampling Offset Blit
 
     public class BlitModeSamplingOffset : BlitMode
     {
@@ -397,14 +428,14 @@ namespace Playtime_Painter {
 #endif
         #endregion
 
-        readonly ShaderProperty.VectorValue _pointedUvUntiledProperty = new ShaderProperty.VectorValue("_brushPointedUV_Untiled");
+        private readonly ShaderProperty.VectorValue _pointedUvUnTiledProperty = new ShaderProperty.VectorValue("_brushPointedUV_Untiled");
 
         public override void PrePaint(PlaytimePainter painter, BrushConfig br, StrokeVector st)
         {
 
             var v4 = new Vector4(st.unRepeatedUv.x, st.unRepeatedUv.y, Mathf.Floor(st.unRepeatedUv.x), Mathf.Floor(st.unRepeatedUv.y));
 
-            _pointedUvUntiledProperty.GlobalValue = v4;
+            _pointedUvUnTiledProperty.GlobalValue = v4;
 
             if (!st.firstStroke) return;
 
@@ -429,6 +460,10 @@ namespace Playtime_Painter {
         }
     }
 
+    #endregion
+
+    #region Bloom Blit
+
     public class BlitModeBloom : BlitMode
     {
         public override string NameForDisplayPEGI => "Bloom";
@@ -441,7 +476,7 @@ namespace Playtime_Painter {
         public BlitModeBloom(int ind) : base(ind) { }
 
         public override Shader ShaderForDoubleBuffer => TexMGMTdata.brushBlurAndSmudge;
-#if PEGI
+        #if PEGI
         public override bool Inspect()
         {
 
@@ -449,7 +484,54 @@ namespace Playtime_Painter {
             "Bloom Radius".edit(70, ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
             return changed;
         }
-#endif
+        #endif
     }
+
+    #endregion
+
+    #region Projector Blit
+
+    public class BlitModeProjector : BlitMode
+    {
+        public override string NameForDisplayPEGI => "Projector";
+
+        public override bool SupportedByTex2D => false;
+
+        public override bool SupportedBySingleBuffer => false;
+
+        public override bool UsingSourceTexture => true; 
+
+        protected override string ShaderKeyword(ImageMeta id) => "BRUSH_PROJECTOR";
+
+
+        public override string ToolTip =>
+            ("Will create a camera that will serve as a projector. This mode is similar to Copy, but instead of UV space will try to " +
+             "use projector matrix to get uvs.");
+
+        public override bool Inspect()
+        {
+            var changed = false;
+
+            if (!DepthProjectorCamera.Instance)
+            {
+                if ("Create Projector Camera".Click().nl())
+                    UnityHelperFunctions.Instantiate<DepthProjectorCamera>();
+            }
+            else
+            {
+                base.Inspect().nl(ref changed);
+
+                if (icon.Delete.Click("Delete Projector Camera"))
+                    DepthProjectorCamera.Instance.gameObject.DestroyWhatever();
+                else
+                    DepthProjectorCamera.Instance.Nested_Inspect().nl(ref changed);
+            }
+
+            return changed;
+        }
+
+        public BlitModeProjector(int ind) : base(ind)  { }
+    }
+    #endregion
 
 }

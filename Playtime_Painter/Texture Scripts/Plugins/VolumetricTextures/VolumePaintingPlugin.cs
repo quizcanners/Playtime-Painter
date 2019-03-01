@@ -264,7 +264,7 @@ namespace Playtime_Painter
 
                 "Scale:".edit(40, ref br.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f).nl(ref changed);
 
-                if ((br.BlitMode.UsingSourceTexture) && (id.TargetIsRenderTexture()))
+                if (br.BlitMode.UsingSourceTexture && id.TargetIsRenderTexture())
                 {
                     if (TexMGMTdata.sourceTextures.Count > 0)
                     {

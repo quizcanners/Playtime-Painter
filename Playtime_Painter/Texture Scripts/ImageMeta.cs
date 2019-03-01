@@ -933,18 +933,30 @@ namespace Playtime_Painter
             }
 
             if (showToggles || (isATransparentLayer && !hasAlphaLayerTag) || forceOpenUTransparentLayer)
-                "Transparent Layer".toggleIcon(ref isATransparentLayer).nl(ref changed);
-
-            if (showToggles)
             {
+                "Transparent Layer".toggleIcon(ref isATransparentLayer).changes(ref changed);
+                "Toggle this on if texture has transparent(invisible) areas which contains color you don't want to see"
+                .fullWindowDocumentationWithLinkClick("https://www.quizcanners.com/single-post/2018/09/30/Why-do-I-get-black-outline-around-the-stroke", "More About it");
 
-                if (!GlobalBrush.useMask)
-                    "Use Masks".toggleIcon(ref GlobalBrush.useMask).nl(ref changed);
+                pegi.nl();
+            }
+
+
+            if (showToggles) {
+                
+                "Use Masks".toggleIcon(ref GlobalBrush.useMask).nl(ref changed);
 
                 if (isATransparentLayer)
                     preserveTransparency = true;
-                else
-                    "Preserve Transparency".toggleIcon(ref preserveTransparency).nl(ref changed);
+                else {
+                    "Preserve Transparency".toggleIcon(ref preserveTransparency).changes(ref changed);
+
+                    ("if every pixel of texture has alpha = 1 (Max) Unity will be save it as .png without transparency. To counter this " +
+                     " I set first pixels to alpha 0.9. I know it is hacky, it you know a better way, let me know")
+                        .fullWindowDocumentationClick();
+
+                    pegi.nl();
+                }
             }
 
             var forceOpenUv2 = false;

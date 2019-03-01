@@ -96,7 +96,7 @@ namespace Playtime_Painter {
                 meshPoints.Add(v);
                 var uv = new Vertex(meshPoints[i], gotUv1 ? actualMesh.uv[i] : Vector2.zero, gotUv2 ? actualMesh.uv2[i] : Vector2.zero);
                 if (gotColors)
-                    uv._color = actualMesh.colors[i];
+                    uv.color = actualMesh.colors[i];
                 if (gotBoneWeights)
                     v.boneWeight = actualMesh.boneWeights[i];
             }
@@ -514,15 +514,15 @@ namespace Playtime_Painter {
         {
             foreach (var v in meshPoints)
                 foreach (var uv in v.vertices)
-                    uv.HasVertex = false;
+                    uv.hasVertex = false;
 
             foreach (var t in triangles)
                 foreach (var uv in t.vertexes)
-                    uv.HasVertex = true;
+                    uv.hasVertex = true;
 
             foreach (var v in meshPoints)
                 for (var i = 0; i < v.vertices.Count; i++)
-                    if (!v.vertices[i].HasVertex)
+                    if (!v.vertices[i].hasVertex)
                     {
                         v.vertices.RemoveAt(i);
                         i--;
@@ -548,8 +548,6 @@ namespace Playtime_Painter {
         public void AddTextureAnimDisplacement()
         {
             var m = MeshManager.Inst;
-
-            if (m.target == null) return;
 
             var em = m.target;
 
@@ -585,7 +583,7 @@ namespace Playtime_Painter {
             var c = col.ToGamma();
             foreach (var point in meshPoints)
                 foreach (var vertex in point.vertices)
-                   bm.Transfer(ref vertex._color, c);
+                   bm.Transfer(ref vertex.color, c);
 
             Dirty = true;
         }

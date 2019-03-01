@@ -26,6 +26,13 @@ float4 _brushSamplingDisplacement;
 float4 _brushPointedUV_Untiled;
 float _BufferCopyAspectRatio = 1;
 
+
+sampler2D pp_DepthProjection;
+float4x4 pp_ProjectorMatrix;
+float4 pp_ProjectorPosition;
+float4 pp_ProjectorClipPrecompute;
+float4 pp_ProjectorConfiguration;
+
 /*float3 Hue(float H)
 {
 	float R = abs(H * 6 - 3) - 1;
@@ -215,7 +222,6 @@ inline float prepareAlphaSmoothPreview (float4 texcoord){
 
 inline float4 AlphaBlitTransparent(float alpha, float4 src, float2 texcoord) {
 	
-	
 	float4 col = tex2Dlod(_DestBuffer, float4(texcoord.xy, 0, 0));
 
 	float rgbAlpha = src.a*alpha;
@@ -226,14 +232,18 @@ inline float4 AlphaBlitTransparent(float alpha, float4 src, float2 texcoord) {
 
 	_brushMask.rgb *= rgbAlpha;
 
-#ifdef UNITY_COLORSPACE_GAMMA
-	col.rgb  = pow(pow(src.rgb, GAMMA_TO_LINEAR)*_brushMask.rgb + pow(col.rgb, GAMMA_TO_LINEAR) *(1 - _brushMask.rgb), LINEAR_TO_GAMMA);
-	col.a = src.a*_brushMask.a + col.a * (1 - _brushMask.a);
-	return  max(0,col);
-#else 
-	col = src * _brushMask + col * (1 - _brushMask);
+	float4 tmpCol;
+
+	#ifdef UNITY_COLORSPACE_GAMMA
+	tmpCol.rgb  = pow(pow(src.rgb, GAMMA_TO_LINEAR)*_brushMask.rgb + pow(col.rgb, GAMMA_TO_LINEAR) *(1 - _brushMask.rgb), LINEAR_TO_GAMMA);
+	tmpCol.a = src.a*_brushMask.a + col.a * (1 - _brushMask.a);
+	#else 
+	tmpCol = src * _brushMask + col * (1 - _brushMask);
+	#endif
+
+	col = tmpCol* src.a + (1- src.a)*(float4(col.rgb, col.a*(1-alpha)));
+
 	return  max(0, col);
-#endif
 }
 
 inline float4 AlphaBlitTransparentPreview(float alpha, float4 src, float2 texcoord, float4 col) {
@@ -242,13 +252,19 @@ inline float4 AlphaBlitTransparentPreview(float alpha, float4 src, float2 texcoo
 
 	_brushMask *= alpha;
 
-#ifdef UNITY_COLORSPACE_GAMMA
-	col = pow(src, GAMMA_TO_LINEAR)*_brushMask + pow(col, GAMMA_TO_LINEAR) *(1 - _brushMask);
-	return  pow(col, LINEAR_TO_GAMMA);
-#else 
-	col = src * _brushMask + col * (1 - _brushMask);
+	float4 tmpCol;
+
+	#ifdef UNITY_COLORSPACE_GAMMA
+	tmpCol = pow(src, GAMMA_TO_LINEAR)*_brushMask + pow(col, GAMMA_TO_LINEAR) *(1 - _brushMask);
+	tmpCol = pow(tmpCol, LINEAR_TO_GAMMA);
+	#else 
+	tmpCol = src * _brushMask + col * (1 - _brushMask);
+	
+	#endif
+
+	col = tmpCol * src.a + (1 - src.a)*(float4(col.rgb, col.a*(1 - alpha)));
+
 	return  col;
-#endif
 }
 
 inline float4 AlphaBlitOpaque (float alpha,float4 src, float2 texcoord){

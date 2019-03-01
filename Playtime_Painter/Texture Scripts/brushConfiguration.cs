@@ -33,14 +33,14 @@ namespace Playtime_Painter {
 
             var id = painter.ImgMeta;
 
-            bool rt = id.TargetIsRenderTexture();
+            var rt = id.TargetIsRenderTexture();
 
-            BlitMode mode = BlitMode;
-            BrushType type = Type(!rt);
+            var mode = BlitMode;
+            var type = Type(!rt);
 
-            bool worldSpace = rt && IsA3DBrush(painter);
+            var worldSpace = rt && IsA3DBrush(painter);
 
-            StdEncoder cody = new StdEncoder()
+            var cody = new StdEncoder()
 
             .Add(rt ? "typeGPU" : "typeCPU", _type(!rt));
 
@@ -188,7 +188,7 @@ namespace Playtime_Painter {
         [NonSerialized]
         public Vector2 maskOffset;
         public bool randomMaskOffset;
-
+        
         public int selectedDecal;
         public float maskTiling = 1;
         public float hardness = 256;
@@ -342,10 +342,10 @@ namespace Playtime_Painter {
                         pl.SetToDirty_Obj();
                     
 
-            changed |= Type(cpu).Inspect().nl();
+            Type(cpu).Inspect().nl(ref changed);
 
-            if (!overrideBlitModePegi)
-                changed |= BlitMode.Inspect();
+            if (!overrideBlitModePegi && BlitMode.ShowInDropdown())
+                BlitMode.Inspect().nl(ref changed);
 
             _inspectedBrush = null;
 
@@ -375,7 +375,7 @@ namespace Playtime_Painter {
 
         public virtual bool Inspect() {
 
-            PlaytimePainter p = PlaytimePainter.inspected;
+            var p = PlaytimePainter.inspected;
 
             if (!p) {
                 "No Painter Detected".nl();
@@ -451,25 +451,25 @@ namespace Playtime_Painter {
 
         public bool ChannelSlider(BrushMask m, ref float channel)
         {
-            pegi.write(m.GetIcon(), 25);
+            m.GetIcon().write();
             return pegi.edit(ref channel, 0, 1).nl();
         }
 
         public bool ChannelSlider(BrushMask m, ref float chanel, Texture icon, bool slider) {
 
-            bool changed = false;
+            var changed = false;
 
             if (!icon)
                 icon = m.GetIcon();
 
-            string letter = m.ToText();
-            bool maskVal = BrushExtensions.HasFlag(mask, m);
+            var letter = m.ToText();
+            var maskVal = BrushExtensions.HasFlag(mask, m);
 
             if (InspectedPainter && InspectedPainter.meshEditing && MeshMGMT.MeshTool == VertexColorTool.inst) {
 
                 var mat = InspectedPainter.Material;
                 if (mat) {
-                    var tag = mat.GetTag(PainterDataAndConfig.VertexColorRole + m.ToString(), false, null);
+                    var tag = mat.GetTag(PainterDataAndConfig.VertexColorRole + m, false, null);
                     if (!tag.IsNullOrEmpty()) {
 
                         if (maskVal)
@@ -496,68 +496,89 @@ namespace Playtime_Painter {
             if (InspectedPainter)
                 return ColorSliders_PlaytimePainter();
 
-            bool changed = false;
+            var changed = false;
 
-            Color col = Color;
+            var col = Color;
             if (pegi.edit(ref col).nl(ref changed))
                 Color = col;
-             
-            if (Cfg.showColorSliders) {
-                ChannelSlider(BrushMask.R, ref colorLinear.r, null, true).nl(ref changed);
-                ChannelSlider(BrushMask.G, ref colorLinear.g, null, true).nl(ref changed);
-                ChannelSlider(BrushMask.B, ref colorLinear.b, null, true).nl(ref changed);
-                ChannelSlider(BrushMask.A, ref colorLinear.a, null, true).nl(ref changed);
-            }
+
+            if (!Cfg.showColorSliders) return changed;
+
+            ChannelSlider(BrushMask.R, ref colorLinear.r, null, true).nl(ref changed);
+            ChannelSlider(BrushMask.G, ref colorLinear.g, null, true).nl(ref changed);
+            ChannelSlider(BrushMask.B, ref colorLinear.b, null, true).nl(ref changed);
+            ChannelSlider(BrushMask.A, ref colorLinear.a, null, true).nl(ref changed);
 
             return changed;
         }
 
         private bool ColorSliders_PlaytimePainter() {
 
-            if (!Cfg.showColorSliders)
-                return false;
-            
-            bool changed = false;
-            PlaytimePainter painter = PlaytimePainter.inspected;
-            bool slider = BlitMode.ShowColorSliders;
+            var changed = false;
+            var painter = PlaytimePainter.inspected;
+            var id = painter.ImgMeta;
 
-            if (painter && painter.IsTerrainHeightTexture) {
-                changed |= ChannelSlider(BrushMask.A, ref colorLinear.a, null, true);
-            }
-            else if (painter && painter.IsTerrainControlTexture)
-            {
-                ChannelSlider(BrushMask.R, ref colorLinear.r, painter.terrain.GetSplashPrototypeTexture(0), slider).nl(ref changed);
-                ChannelSlider(BrushMask.G, ref colorLinear.g, painter.terrain.GetSplashPrototypeTexture(1), slider).nl(ref changed);
-                ChannelSlider(BrushMask.B, ref colorLinear.b, painter.terrain.GetSplashPrototypeTexture(2), slider).nl(ref changed);
-                ChannelSlider(BrushMask.A, ref colorLinear.a, painter.terrain.GetSplashPrototypeTexture(3), slider).nl(ref changed);
-            }
-            else
-            {
-                var id = painter.ImgMeta;
-                if (id.TargetIsRenderTexture() && id.renderTexture)
+            if (Cfg.showColorSliders) {
+
+             
+                var slider = BlitMode.ShowColorSliders;
+
+                if (painter && painter.IsTerrainHeightTexture)
                 {
-                    ChannelSlider(BrushMask.R, ref colorLinear.r).nl(ref changed);
-                    ChannelSlider(BrushMask.G, ref colorLinear.g).nl(ref changed);
-                    ChannelSlider(BrushMask.B, ref colorLinear.b).nl(ref changed);
-
+                    ChannelSlider(BrushMask.A, ref colorLinear.a, null, true).changes(ref changed);
+                }
+                else if (painter && painter.IsTerrainControlTexture)
+                {
+                    ChannelSlider(BrushMask.R, ref colorLinear.r, painter.terrain.GetSplashPrototypeTexture(0), slider)
+                        .nl(ref changed);
+                    ChannelSlider(BrushMask.G, ref colorLinear.g, painter.terrain.GetSplashPrototypeTexture(1), slider)
+                        .nl(ref changed);
+                    ChannelSlider(BrushMask.B, ref colorLinear.b, painter.terrain.GetSplashPrototypeTexture(2), slider)
+                        .nl(ref changed);
+                    ChannelSlider(BrushMask.A, ref colorLinear.a, painter.terrain.GetSplashPrototypeTexture(3), slider)
+                        .nl(ref changed);
                 }
                 else
                 {
+                   
+                    if (id.TargetIsRenderTexture() && id.renderTexture)
+                    {
+                        ChannelSlider(BrushMask.R, ref colorLinear.r).nl(ref changed);
+                        ChannelSlider(BrushMask.G, ref colorLinear.g).nl(ref changed);
+                        ChannelSlider(BrushMask.B, ref colorLinear.b).nl(ref changed);
 
-                    ChannelSlider(BrushMask.R, ref colorLinear.r, null, slider).nl(ref changed);
-                    ChannelSlider(BrushMask.G, ref colorLinear.g, null, slider).nl(ref changed);
-                    ChannelSlider(BrushMask.B, ref colorLinear.b, null, slider).nl(ref changed);
+                    }
+                    else
+                    {
 
-                    bool gotAlpha = painter.meshEditing || id.texture2D.TextureHasAlpha();
+                        if (!id.isATransparentLayer || colorLinear.a > 0)  {
+                            ChannelSlider(BrushMask.R, ref colorLinear.r, null, slider).nl(ref changed);
+                            ChannelSlider(BrushMask.G, ref colorLinear.g, null, slider).nl(ref changed);
+                            ChannelSlider(BrushMask.B, ref colorLinear.b, null, slider).nl(ref changed);
+                        }
+                        
+                        var gotAlpha = painter.meshEditing || id.texture2D.TextureHasAlpha();
 
-                    if (gotAlpha || id.preserveTransparency) {
+                        if ((gotAlpha || id.preserveTransparency) && !id.isATransparentLayer) {
+                            if (!gotAlpha)
+                                icon.Warning.write("Texture as no alpha, clicking save will fix it");
 
-                        if (!gotAlpha)
-                            icon.Warning.write("Texture as no alpha, clicking save will fix it");
-                        ChannelSlider(BrushMask.A, ref colorLinear.a, null, slider).nl(ref changed);
+                            ChannelSlider(BrushMask.A, ref colorLinear.a, null, slider).nl(ref changed);
+                        }
                     }
                 }
             }
+
+            if (id.isATransparentLayer) {
+
+                var erase = colorLinear.a < 0.5f;
+
+                "Erase".toggleIcon(ref erase).nl(ref changed);
+
+                colorLinear.a = erase ? 0 : 1;
+
+            }
+
             return changed;
         }
         #endif

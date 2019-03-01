@@ -38,7 +38,9 @@ namespace QuizCannersUtilities
             StopWatch.Start();
         }
 
-        public static string TimerEnd(this string label) => label.TimerEnd(true);
+        public static string TimerEnd() => TimerEnd(null);
+
+        public static string TimerEnd(this string label) => label.TimerEnd(false);
 
         public static string TimerEnd(this string label, bool logIt) => TimerEnd(label, logIt, logIt);
 
@@ -61,7 +63,7 @@ namespace QuizCannersUtilities
             var text = "";
             if (_timerStartLabel != null)
                 text += _timerStartLabel + "->";
-            text += label + ": " + timeText;
+            text += label + (label.IsNullOrEmpty() ? "" : ": ") + timeText;
 
             _timerStartLabel = null;
 
@@ -73,7 +75,9 @@ namespace QuizCannersUtilities
             return text;
         }
 
-        public static string TimerEnd_Restart(this string labelForEndedSection) => labelForEndedSection.TimerEnd_Restart(true);
+        public static string TimerEnd_Restart() => TimerEnd_Restart(null);
+        
+        public static string TimerEnd_Restart(this string labelForEndedSection) => labelForEndedSection.TimerEnd_Restart(false);
 
         public static string TimerEnd_Restart(this string labelForEndedSection, bool logIt) => labelForEndedSection.TimerEnd_Restart(logIt, logIt, 0);
 
