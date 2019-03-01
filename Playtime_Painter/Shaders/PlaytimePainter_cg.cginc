@@ -28,6 +28,7 @@ float _BufferCopyAspectRatio = 1;
 
 
 sampler2D pp_DepthProjection;
+float4 pp_DepthProjection_TexelSize;
 float4x4 pp_ProjectorMatrix;
 float4 pp_ProjectorPosition;
 float4 pp_ProjectorClipPrecompute;

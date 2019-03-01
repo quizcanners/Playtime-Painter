@@ -56,7 +56,6 @@
 					o.precompute.xy = 1 / (1.0001 - o.projPos.zw);
 					o.precompute.z = (1 + o.texcoord.z);
 
-
 					o.offUV.xy = o.texcoord.xy - 0.5;
 					o.offUV.z = saturate((o.color.a - 0.8) * 5);
 

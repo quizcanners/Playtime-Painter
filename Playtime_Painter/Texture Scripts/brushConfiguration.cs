@@ -392,7 +392,7 @@ namespace Playtime_Painter {
             var changed = false;
             var cpuBlit = id.destination == TexTarget.Texture2D;
             
-            changed |= p.PreviewShaderToggle_PEGI();
+            changed |= p.PreviewShaderToggleInspect();
 
             if ((PainterCamera.GotBuffers || id.renderTexture) && id.texture2D)
             {

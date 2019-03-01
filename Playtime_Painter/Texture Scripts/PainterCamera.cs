@@ -118,7 +118,7 @@ namespace Playtime_Painter {
         #region Painting Layer
         private void UpdateCullingMask() {
 
-            var l = Data ? Data.myLayer : 30;
+            var l = Data ? Data.playtimePainterLayer : 30;
 
             if (_mainCamera)
                 _mainCamera.cullingMask &= ~(1 << l);

@@ -569,7 +569,7 @@ namespace Playtime_Painter
 
             var m = MeshMGMT;
 
-            "Dominance True".toggle(ref _setTo).nl();
+            "Will Set {0} On Click".F(_setTo).toggleIcon(ref _setTo).nl();
 
             if ("Auto Bevel".Click())
                 AutoAssignDominantNormalsForBeveling();

@@ -1764,6 +1764,8 @@ namespace Playtime_Painter {
 
         private static bool _inspectPainterCamera;
 
+        private static bool _inspectMeshProfile;
+
         public bool Inspect() {
 
             CsharpUtils.TimerStart();
@@ -1927,7 +1929,7 @@ namespace Playtime_Painter {
                         } else {
 
                             var mg = MeshMgmt;
-                            mg.Undo_redo_PEGI().nl(ref changed);
+                            mg.UndoRedoInspect().nl(ref changed);
 
                             if (SharedMesh) {
 
@@ -1974,10 +1976,13 @@ namespace Playtime_Painter {
                                     meshRenderer = gameObject.AddComponent<MeshRenderer>();
                             }
 
-                            if (this && (MeshMgmt.target == this))
+                            if (IsEditingThisMesh)
                             {
 
-                                if ("Profile".foldout())
+                                if (!_inspectMeshProfile)
+                                    MeshMgmt.Inspect().nl();
+
+                                if ("Profile".enter( ref _inspectMeshProfile))
                                 {
 
                                     if ((Cfg.meshPackagingSolutions.Count > 1) && (icon.Delete.Click(25)))
@@ -1989,16 +1994,11 @@ namespace Playtime_Painter {
                                         if (MeshProfile.Inspect().nl())
                                             MeshMgmt.editedMesh.Dirty = true;
 
-                                        if ("Hint".foldout(ref VertexContents.showHint).nl())
-                                        {
-                                            "If using projected UV, place sharpNormal in TANGENT.".writeHint();
-                                            "Vectors should be placed in normal and tangent slots to batch correctly."
-                                                .writeHint();
-                                            "Keep uv1 as is for baked light and damage shaders.".writeHint();
-                                            "I place Shadows in UV2".nl();
-                                            "I place Edge in UV3.".nl();
-
-                                        }
+                                        ("If using projected UV, place sharpNormal in TANGENT. {0}" +
+                                         "Vectors should be placed in normal and tangent slots to batch correctly.{0}" +
+                                         "Keep uv1 as is for baked light and damage shaders.{0}" +
+                                         "I place Shadows in UV2{0}" +
+                                         "I place Edge in UV3.{0}").fullWindowDocumentationClick();
 
                                     }
                                 }
@@ -2015,7 +2015,7 @@ namespace Playtime_Painter {
                                         MeshProfile.name = "New Profile {0}".F(selectedMeshProfile);
                                     }
 
-                                    MeshMgmt.Inspect().nl();
+                                    MeshManager.AdvancedInspectPart();
                                 }
                             }
                         }
@@ -2167,7 +2167,7 @@ namespace Playtime_Painter {
                         else
                         {
                             if (!IsOriginalShader)
-                                PreviewShaderToggle_PEGI();
+                                PreviewShaderToggleInspect();
 
                             if (!painterWorks)
                             {
@@ -2586,7 +2586,7 @@ namespace Playtime_Painter {
             return changed;
         }
         
-        public bool PreviewShaderToggle_PEGI()
+        public bool PreviewShaderToggleInspect()
         {
 
             var changed = false;

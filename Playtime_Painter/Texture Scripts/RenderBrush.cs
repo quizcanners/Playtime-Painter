@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using QuizCannersUtilities;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace Playtime_Painter
 {
@@ -142,10 +143,8 @@ namespace Playtime_Painter
         
         public void Set(Texture tex) =>  meshRenderer.sharedMaterial.Set(_mainTex, tex);
         
-
         private void Set(Color col) => meshRenderer.sharedMaterial.Set(_colorVal, col);
    
-
         public void FullScreenQuad()
         {
             const float size = PainterCamera.OrthographicSize * 2;
@@ -237,19 +236,16 @@ namespace Playtime_Painter
             if (!meshFilter)
                 meshFilter = GetComponent<MeshFilter>();
 
+            if (meshRenderer)
+            {
+                meshRenderer.receiveShadows = false;
+                meshRenderer.shadowCastingMode = ShadowCastingMode.Off;
+
+            }
+
+            gameObject.layer = Cfg.playtimePainterLayer;
+
             PainterDataAndConfig.BufferCopyAspectRatio.GlobalValue = 1f;
         }
-
-        private void Awake()
-        {
-            if (meshRenderer == null)
-                meshRenderer = GetComponent<MeshRenderer>();
-
-            if (meshFilter == null)
-                meshFilter = GetComponent<MeshFilter>();
-
-        }
-
-
     }
 }

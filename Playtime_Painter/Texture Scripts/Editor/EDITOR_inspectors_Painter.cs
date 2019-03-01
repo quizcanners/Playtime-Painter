@@ -10,5 +10,8 @@ namespace Playtime_Painter {
 
     [CustomEditor(typeof(VolumeTexture))]
     public class VolumeTextureEditor : PEGI_Inspector<VolumeTexture> { }
+
+    [CustomEditor(typeof(DepthProjectorCamera))]
+    public class DepthProjectorCameraEditor : PEGI_Inspector<DepthProjectorCamera> { }
 }
 #endif

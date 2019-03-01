@@ -866,35 +866,26 @@ namespace Playtime_Painter
 
         #region Inspector
 #if PEGI
-        List<PlaytimePainter> selectedPainters = new List<PlaytimePainter>();
-        bool showReferences = false;
-        bool inspectMesh = false;
-        bool showTooltip;
-        bool showCopyOptions;
+        private readonly List<PlaytimePainter> _selectedPainters = new List<PlaytimePainter>();
+        private bool _showReferences;
+        private bool _inspectMesh;
+        private bool _showCopyOptions;
+
         public override bool Inspect()  {
 
-            bool changed = false;
+            var changed = false;
             EditableMesh.inspected = editedMesh;
 
             pegi.newLine();
             
-            if (editedMesh != null && "Mesh ".foldout(ref inspectMesh).nl())
-                changed |= editedMesh.Nested_Inspect().nl();
+            target.PreviewShaderToggleInspect().changes(ref changed);
 
-            pegi.space();
-            pegi.nl();
-
-            target.PreviewShaderToggle_PEGI().changes(ref changed);
-
-            if (!target.IsOriginalShader && "preview".select(45, ref MeshSHaderMode.selected, MeshSHaderMode.AllModes).nl(ref changed))
+            if (!target.IsOriginalShader && "preview".select(45, ref MeshSHaderMode.selected, MeshSHaderMode.AllModes).changes(ref changed))
                 MeshSHaderMode.ApplySelected();
 
-            pegi.space();
-            pegi.nl();
-
             var previousTool = MeshTool;
-
-            if ("tool".select(70, ref Cfg.meshTool, MeshToolBase.AllTools).changes(ref changed)) {
+            
+            if ("tool:".select(35, ref Cfg.meshTool, MeshToolBase.AllTools).changes(ref changed)) {
                 Grid.vertexPointMaterial.SetColor("_Color", MeshTool.VertexColor);
                 previousTool.OnDeSelectTool();
                 MeshTool.OnSelectTool();
@@ -903,23 +894,7 @@ namespace Playtime_Painter
             MeshTool.Tooltip.fullWindowDocumentationClick("About this tool.");
 
             pegi.nl();
-
-            pegi.space();
-            pegi.newLine();
-
-            "Mesh Name:".edit(70, ref target.meshNameField).changes(ref changed);
-
-#if UNITY_EDITOR
-            var mesh = target.GetMesh();
-
-            var exists = !AssetDatabase.GetAssetPath(mesh).IsNullOrEmpty();
             
-            if ((exists ? icon.Save : icon.SaveAsNew).Click("Save Mesh As {0}".F(target.GenerateMeshSavePath()), 25).nl())
-                target.SaveMesh();
-#endif
-            
-            pegi.nl();
-
             var mt = MeshTool;
 
             mt.Inspect().nl(ref changed);
@@ -927,75 +902,10 @@ namespace Playtime_Painter
             foreach (var p in PainterManagerPluginBase.VertexEdgePlugins)
                 p.MeshToolInspection(mt).nl(ref changed);
             
-            if ("Merge Meshes".foldout(ref showCopyOptions).nl()) {
-
-                if (!selectedPainters.Contains(target)) {
-                    if ("Copy Mesh".Click("Add Mesh to the list of meshes to be merged").nl(ref changed))
-                        selectedPainters.Add(target);
-
-                    if (!selectedPainters.IsNullOrEmpty()) {
-
-                        if (editedMesh.uv2DistributeRow < 2 && "Enable EV2 Distribution".toggleInt("Each mesh's UV2 will be modified to use a unique portion of a texture.", ref editedMesh.uv2DistributeRow).nl(ref changed))
-                            editedMesh.uv2DistributeRow = Mathf.Max(2, (int)Mathf.Sqrt(selectedPainters.Count));
-                        else
-                        {
-                            if (editedMesh.uv2DistributeCurrent > 0)
-                            {
-                                ("All added meshes will be distributed in " + editedMesh.uv2DistributeRow + " by " + editedMesh.uv2DistributeRow + " grid. By cancelling this added" +
-                                    "meshes will have UVs unchanged and may use the same portion of Texture (sampled with UV2) as other meshes.").writeHint();
-                                if ("Cancel Distribution".Click().nl())
-                                    editedMesh.uv2DistributeRow = 0;
-                            }
-                            else {
-                                "Row:".edit("Will change UV2 so that every mesh will have it's own portion of a texture.", 25, ref editedMesh.uv2DistributeRow, 2, 16).nl(ref changed);
-                                "Start from".edit(ref editedMesh.uv2DistributeCurrent).nl(ref changed);
-                            }
-
-                            "Using {0} out of {1} spots".F(editedMesh.uv2DistributeCurrent + selectedPainters.Count + 1, editedMesh.uv2DistributeRow * editedMesh.uv2DistributeRow).nl();
-                          
-                        }
-
-                        "Will Merge with the following:".nl();
-                        for (int i = 0; i < selectedPainters.Count; i++)
-                            if (!selectedPainters[i] || icon.Delete.Click(25)) {
-                                selectedPainters.RemoveAt(i);
-                                i--;
-                            }
-                        else
-                                selectedPainters[i].gameObject.name.nl();
-                        
-                        if ("Merge!".Click().nl(ref changed)) {
-
-                            foreach (var p in selectedPainters)
-                                editedMesh.MergeWith(p);
-
-                            editedMesh.Dirty = true;
-
-                        }
-                    }
-                }
-                else
-                    if ("Remove from Copy Selection".Click().nl(ref changed))
-                        selectedPainters.Remove(target);
-                
-            }
-            
             pegi.nl();
 
             Grid.vertexPointMaterial.SetColor("_Color", MeshTool.VertexColor);
-
-            if (!Application.isPlaying && "Advanced".foldout(ref showReferences).nl()) {
-
-                "Save Undos".toggleIcon(ref Cfg.saveMeshUndos).nl(ref changed);
-
-                "vertexPointMaterial".write_obj(Grid.vertexPointMaterial);
-                pegi.newLine();
-
-                "vertexPrefab".edit(ref Grid.vertPrefab).nl();
-                "Max Vert Markers ".edit(ref verticesShowMax).nl();
-                "pointedVertex".edit(ref Grid.pointedVertex.go).nl();
-                "SelectedVertex".edit(ref Grid.selectedVertex.go).nl();
-            }
+            
 
             EditableMesh.inspected = null;
             
@@ -1005,7 +915,111 @@ namespace Playtime_Painter
             return changed;
         }
 
-        public bool Undo_redo_PEGI()
+        public bool AdvancedInspectPart()
+        {
+            var changed = false;
+
+            if (editedMesh != null && "Mesh ".foldout(ref _inspectMesh).nl())
+            {
+                "Save Undo".toggleIcon(ref Cfg.saveMeshUndos).nl(ref changed);
+                
+                if (!_showCopyOptions)
+                {
+
+#if UNITY_EDITOR
+                    "Mesh Name:".edit(70, ref target.meshNameField).changes(ref changed);
+
+                    var mesh = target.GetMesh();
+
+                    var exists = !AssetDatabase.GetAssetPath(mesh).IsNullOrEmpty();
+
+                    if ((exists ? icon.Save : icon.SaveAsNew)
+                        .Click("Save Mesh As {0}".F(target.GenerateMeshSavePath()), 25).nl())
+                        target.SaveMesh();
+#endif
+                }
+
+                editedMesh.Nested_Inspect().nl(ref changed);
+
+            }
+
+            if ("Merging".foldout(ref _showCopyOptions).nl())
+            {
+
+                if (!_selectedPainters.Contains(target))
+                {
+                    if ("Copy Mesh".Click("Add Mesh to the list of meshes to be merged").nl(ref changed))
+                        _selectedPainters.Add(target);
+
+                    if (!_selectedPainters.IsNullOrEmpty())
+                    {
+
+                        if (editedMesh.uv2DistributeRow < 2 && "Enable EV2 Distribution".toggleInt("Each mesh's UV2 will be modified to use a unique portion of a texture.", ref editedMesh.uv2DistributeRow).nl(ref changed))
+                            editedMesh.uv2DistributeRow = Mathf.Max(2, (int)Mathf.Sqrt(_selectedPainters.Count));
+                        else
+                        {
+                            if (editedMesh.uv2DistributeCurrent > 0)
+                            {
+                                ("All added meshes will be distributed in " + editedMesh.uv2DistributeRow + " by " + editedMesh.uv2DistributeRow + " grid. By cancelling this added" +
+                                    "meshes will have UVs unchanged and may use the same portion of Texture (sampled with UV2) as other meshes.").writeHint();
+                                if ("Cancel Distribution".Click().nl())
+                                    editedMesh.uv2DistributeRow = 0;
+                            }
+                            else
+                            {
+                                "Row:".edit("Will change UV2 so that every mesh will have it's own portion of a texture.", 25, ref editedMesh.uv2DistributeRow, 2, 16).nl(ref changed);
+                                "Start from".edit(ref editedMesh.uv2DistributeCurrent).nl(ref changed);
+                            }
+
+                            "Using {0} out of {1} spots".F(editedMesh.uv2DistributeCurrent + _selectedPainters.Count + 1, editedMesh.uv2DistributeRow * editedMesh.uv2DistributeRow).nl();
+
+                        }
+
+                        "Will Merge with the following:".nl();
+                        for (var i = 0; i < _selectedPainters.Count; i++)
+                            if (!_selectedPainters[i] || icon.Delete.Click(25))
+                            {
+                                _selectedPainters.RemoveAt(i);
+                                i--;
+                            }
+                            else
+                                _selectedPainters[i].gameObject.name.nl();
+
+                        if ("Merge!".Click().nl(ref changed))
+                        {
+
+                            foreach (var p in _selectedPainters)
+                                editedMesh.MergeWith(p);
+
+                            editedMesh.Dirty = true;
+
+                        }
+                    }
+                }
+                else
+                    if ("Remove from Copy Selection".Click().nl(ref changed))
+                    _selectedPainters.Remove(target);
+
+            }
+
+            pegi.nl();
+
+            if (!Application.isPlaying && "Advanced".foldout(ref _showReferences).nl())
+            {
+
+             
+                "vertexPointMaterial".write_obj(Grid.vertexPointMaterial);
+                pegi.nl();
+                "vertexPrefab".edit(ref Grid.vertPrefab).nl();
+                "Max Vertex Markers ".edit(ref verticesShowMax).nl();
+                "pointedVertex".edit(ref Grid.pointedVertex.go).nl();
+                "SelectedVertex".edit(ref Grid.selectedVertex.go).nl();
+            }
+
+            return changed;
+        }
+
+        public bool UndoRedoInspect()
         {
             bool changed = false;
 

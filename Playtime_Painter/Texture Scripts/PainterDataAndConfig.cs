@@ -14,7 +14,7 @@ namespace Playtime_Painter
     public class PainterDataAndConfig : StdReferencesHolder, IKeepMyStd
     {
         private static PlaytimePainter Painter => PlaytimePainter.inspected;
-        public int myLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
+        public int playtimePainterLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
         
         public static bool toolEnabled;
 
@@ -430,7 +430,7 @@ namespace Playtime_Painter
                 "Shaders Refreshed".showNotificationIn3D_Views();
             }
             "Using layer:".write(80);
-            myLayer = EditorGUILayout.LayerField(myLayer);
+            playtimePainterLayer = EditorGUILayout.LayerField(playtimePainterLayer);
 
             pegi.nl();
             "Disable Second Buffer Update (Debug Mode)".toggleIcon(ref disableSecondBufferUpdateDebug).nl();

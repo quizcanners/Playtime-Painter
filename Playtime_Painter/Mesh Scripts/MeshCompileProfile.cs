@@ -276,7 +276,7 @@ namespace Playtime_Painter
         public int sameSizeDataIndex = -1;
         private int _targetIndex;
         public bool enabled;
-        public static bool showHint;
+     //   public static bool showHint;
         
         public VertexDataType SameSizeValue => (sameSizeDataIndex >= 0) ?  MeshSolutions.dataTypes[sameSizeDataIndex] : null;
         public VertexDataTarget Target { get { return MeshSolutions.dataTargets[_targetIndex]; } set { _targetIndex = value.myIndex; } }
