@@ -77,67 +77,50 @@
 
 				float2 uv = (o.shadowCoords.xy + 1) * 0.5;
 
-
-
-				#if USE_NOISE_TEXTURE
-
+				float2 pointUV = (floor(uv * pp_DepthProjection_TexelSize.zw) + 0.5) * pp_DepthProjection_TexelSize.xy;
+	
 				float2 off = pp_DepthProjection_TexelSize.xy;
 
-				float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy *12345 + float2(_SinTime.w, _CosTime.w) * 67891, 0, 0));
+			
+				float d0p = tex2D(pp_DepthProjection, pointUV).r - predictedDepth;
+				/*float d1p = tex2D(pp_DepthProjection, pointUV - off ).r - predictedDepth;
+				float d2p = tex2D(pp_DepthProjection, pointUV + off ).r - predictedDepth;
+				float d3p = tex2D(pp_DepthProjection, pointUV + float2(off.x, -off.y)).r - predictedDepth;
+				float d4p = tex2D(pp_DepthProjection, pointUV - float2(off.x, -off.y)).r - predictedDepth;*/
+
+
+				off *= 1.5;
 
 				float d0 = tex2D(pp_DepthProjection, uv).r - predictedDepth;
-				
-				uv -= o.shadowCoords.xy*off*(1+noise.xy);
+				/*float d1 = tex2D(pp_DepthProjection, uv - off).r - predictedDepth;
+				float d2 = tex2D(pp_DepthProjection, uv + off).r - predictedDepth;
+				float d3 = tex2D(pp_DepthProjection, uv + float2(off.x, -off.y)).r - predictedDepth;
+				float d4 = tex2D(pp_DepthProjection, uv - float2(off.x, -off.y)).r - predictedDepth;*/
 
-				float d1 = tex2D(pp_DepthProjection, uv - off					* noise.r).r - predictedDepth;
-				float d2 = tex2D(pp_DepthProjection, uv + off					* noise.g).r - predictedDepth;
-				float d3 = tex2D(pp_DepthProjection, uv + float2(off.x, -off.y)	* noise.b).r - predictedDepth;
-				float d4 = tex2D(pp_DepthProjection, uv - float2(off.x, -off.y)	* noise.a).r - predictedDepth;
-				
-				off *= 1.6;
 
-				float d5 = tex2D(pp_DepthProjection, uv + float2(0,		off.y)	* noise.r).r - predictedDepth;
-				float d6 = tex2D(pp_DepthProjection, uv - float2(0,		off.y)	* noise.g).r - predictedDepth;
-				float d7 = tex2D(pp_DepthProjection, uv + float2(off.x, 0)		* noise.b).r - predictedDepth;
-				float d8 = tex2D(pp_DepthProjection, uv - float2(off.x, 0)		* noise.a).r - predictedDepth;
 
-				float depth = (d0 + d1 + d2 + d3 + d4 + d5 + d6 + d7 + d8)/9;
+				float maxDp = d0p; //max(0, max(d0p, max(max(d1p, d2p), max(d3p, d4p))));// +noise.x*0.00001;
+				//float depthP = (d0p + d1p + d2p + d3p + d4p) * 0.2;
 
-				//depth = viewPos / (pp_ProjectorClipPrecompute.x * (1 - (depth+ predictedDepth)) + pp_ProjectorClipPrecompute.y);
+				float depth = d0; //(d0 + d1 + d2 + d3 + d4) * 0.2 + 0.00001;
 
-				//return depth;
+			//	return depth;
 
-				float maxD = max(d0, max(max(d1, d2), max(d3, d4))) +noise.x*0.00001;
+				depth = saturate(depth * 10 / max(0.005, d0p));
 
-				float minD = min(d0, min(min(d1, d2), min(d3, d4))) - noise.x*0.00001;
+			//	float ambient = saturate(d0 * 6000000 * saturate(0.001 - maxDp));
 
-				float ambient = saturate(maxD * 3000);
-
-				ambient = (ambient - abs(max(0, ambient - 0.5)));
-
-				depth = saturate(depth / max(0.005, maxD));
-
-				#else
-				
-				float depth = (tex2D(pp_DepthProjection, uv).r - predictedDepth)*200;
-				
-				float ambient = 0;
-
-				#endif
-
-			//	float shadow = saturate(depth / max(0.005, maxD));
+			//	return ambient;
 
 			//	return max(0, minD)*10000;
 
 				//return minD;
 
-				return alpha - max(0,
-					 max(depth,ambient )
+				return alpha - depth*0.5;  //max(0, 
+					// max(depth,ambient )
 						//- max(0, minD)*10000 
 						//- shadow
-					
-					
-					) * 0.5;
+					//) * 0.5;
 					//+ 
 					//max(0,ambient)
 					 //* 1000;

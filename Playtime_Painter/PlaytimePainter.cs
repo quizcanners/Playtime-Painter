@@ -19,7 +19,7 @@ namespace Playtime_Painter {
     [HelpURL(OnlineManual)]
     [DisallowMultipleComponent]
     [ExecuteInEditMode]
-    public class PlaytimePainter : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, IStd, IPEGI
+    public class PlaytimePainter : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, IKeepMyStd, IPEGI
     {
 
         #region StaticGetters
@@ -53,8 +53,8 @@ namespace Playtime_Painter {
         public Graphic uiGraphic;
         public Terrain terrain;
 
-        public TerrainCollider terrainCollider;
         [SerializeField] private MeshFilter meshFilter;
+        public TerrainCollider terrainCollider;
         public MeshCollider meshCollider;
         public Texture2D terrainHeightTexture;
 
@@ -78,8 +78,6 @@ namespace Playtime_Painter {
                 return Cfg.meshPackagingSolutions[selectedMeshProfile]; 
             }
         }
-
-        //public string meshNameField;
 
         public string savedMeshData;
         public Mesh meshDataSavedFor;
@@ -157,7 +155,7 @@ namespace Playtime_Painter {
 
         private int SelectedTexture
         {
-            get { var md = MatDta; return md == null ? 0 : md.selectedTexture; }
+            get { var md = MatDta; return md?.selectedTexture ?? 0; }
             set { var md = MatDta; if (md != null) md.selectedTexture = value; }
         }
 
@@ -227,8 +225,7 @@ namespace Playtime_Painter {
         #endif
 
         #if UNITY_EDITOR
-        public void OnMouseOverSceneView(RaycastHit hit, Event e)
-        {
+        public void OnMouseOverSceneView(RaycastHit hit, Event e) {
 
             if (!CanPaint())
                 return;
@@ -323,7 +320,27 @@ namespace Playtime_Painter {
             }
             
             RaycastHit hit;
-            return Physics.Raycast(cam.ScreenPointToRay(mousePos), out hit, float.MaxValue) && ProcessHit(hit, st);
+
+            var ray = PrepareRay(cam.ScreenPointToRay(mousePos));
+
+            if (ImgMeta.invertRayCast && meshRenderer) {
+                ray.origin = ray.GetPoint(meshRenderer.bounds.max.magnitude * 1.5f);
+                ray.direction = -ray.direction;
+            }
+
+            return Physics.Raycast(ray, out hit, float.MaxValue) && ProcessHit(hit, st);
+        }
+
+        public Ray PrepareRay(Ray ray)
+        {
+            var id = ImgMeta;
+
+            if (id == null || !id.invertRayCast || !meshRenderer || IsUiGraphicPainter) return ray;
+
+            ray.origin = ray.GetPoint(meshRenderer.bounds.max.magnitude * 1.5f);
+            ray.direction = -ray.direction;
+
+            return ray;
         }
 
         private void ProcessGridDrag()
@@ -557,6 +574,7 @@ namespace Playtime_Painter {
                 return;
             }
 
+            
             foreach (var nt in plugins)
                 if (nt.UpdateTilingFromMaterial(fieldName, this))
                     return;
@@ -1200,7 +1218,7 @@ namespace Playtime_Painter {
         public void PlaybackVectors()
         {
             if (cody.GotData)
-                Decode(cody.GetTag(), cody.GetData());
+                DecodeStroke(cody.GetTag(), cody.GetData());
             else
             {
                 if (playbackVectors.Count > 0)
@@ -1294,7 +1312,7 @@ namespace Playtime_Painter {
 
                 _strokeDistance = 0;
 
-                var data = Encode().ToString();
+                var data = EncodeStroke().ToString();
                 curImgData.recordedStrokes.Add(data);
                 curImgData.recordedStrokesForUndoRedo.Add(data);
 
@@ -1312,7 +1330,7 @@ namespace Playtime_Painter {
             
         }
 
-        public StdEncoder Encode()
+        public StdEncoder EncodeStroke()
         {
             var encoder = new StdEncoder();
 
@@ -1329,7 +1347,7 @@ namespace Playtime_Painter {
             return encoder;
         }
 
-        public bool Decode(string tg, string data)
+        public bool DecodeStroke(string tg, string data)
         {
 
             switch (tg)
@@ -1347,8 +1365,6 @@ namespace Playtime_Painter {
             }
             return true;
         }
-
-        public void Decode(string data) => data.DecodeTagsFor(this);
 
         #endregion
 
@@ -1587,7 +1603,7 @@ namespace Playtime_Painter {
             if (forcedMeshCollider && (meshCollider))
                 meshCollider.enabled = false;
         }
-
+        
         private void OnDisable()
         {
 
@@ -1605,26 +1621,26 @@ namespace Playtime_Painter {
             MeshManager.Inst.DisconnectMesh();
             MeshManager.Inst.previouslyEdited = this;
             
+            this.SaveStdData();
+
         }
 
-        public void OnEnable()
-        {
+        public void OnEnable() {
 
             PainterStuff.applicationIsQuitting = false;
-
-            if (plugins == null)
-                plugins = new List<PainterComponentPluginBase>();
-
-
-            PainterComponentPluginBase.UpdateList(this);
-
+            
             if (terrain)
                 UpdateShaderGlobals();
 
             if (!meshRenderer)
                 meshRenderer = GetComponent<MeshRenderer>();
 
-           
+            this.LoadStdData();
+
+            if (plugins == null)
+                plugins = new List<PainterComponentPluginBase>();
+
+            PainterComponentPluginBase.UpdatePlugins(this);
 
         }
 
@@ -2123,6 +2139,8 @@ namespace Playtime_Painter {
 
                             #region Brush
 
+                       
+
                             GlobalBrush.Inspect().changes(ref changed);
 
                           
@@ -2173,7 +2191,15 @@ namespace Playtime_Painter {
                     
                         id = ImgMeta;
 
-                    #region Fancy Options
+                        if (meshCollider && meshCollider.convex)
+                        {
+                            "Convex mesh collider detected. Most brushes will not work".writeWarning();
+                            if ("Disable convex".Click())
+                                meshCollider.convex = false;
+                        }
+
+
+                        #region Fancy Options
 
                         pegi.nl();
                         "Fancy options".foldout(ref Cfg.moreOptions).nl();
@@ -2828,7 +2854,34 @@ namespace Playtime_Painter {
             PreviewShader_StrokePosition_Update();
             return true;
         }
-        
+
+        #endregion
+
+        #region Encode & Decode
+
+        [SerializeField] private string _pluginStd;
+
+        public string ConfigStd
+        {
+            get { return _pluginStd;}
+            set { _pluginStd = value; }
+        }
+
+        public StdEncoder Encode() => new StdEncoder()
+            .Add("pgns", plugins, PainterManagerPluginBase.all);
+
+        public void Decode(string data) => new StdDecoder(data).DecodeTagsFor(this);
+
+        public bool Decode(string tg, string data)
+        {
+            switch (tag)
+            {
+                case "pgns": data.Decode_List_Abstract(out plugins, PainterManagerPluginBase.all); break;
+                default: return true;
+            }
+
+            return false;
+        }
         #endregion
 
     }

@@ -597,12 +597,15 @@ namespace Playtime_Painter
             
             var cody = new StdEncoder();
 
-            foreach (var t in MeshToolBase.AllTools)
-                cody.Add(t.stdTag, t.Encode());
+            var at = MeshToolBase.AllTools;
+            if (!at.IsNullOrEmpty())  {
+                foreach (var t in at)
+                    cody.Add(t.stdTag, t.Encode());
 
-            meshToolsStd = cody.ToString();
+                meshToolsStd = cody.ToString();
+            }
 
-           stdData = Encode().ToString();
+            stdData = Encode().ToString();
         }
     }
 }

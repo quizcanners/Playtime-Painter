@@ -37,6 +37,10 @@ namespace Playtime_Painter {
 
                 if (!offScreen) {
                     rayGui = HandleUtility.GUIPointToWorldRay(mousePosition);
+
+                    if (painter)
+                        rayGui = painter.PrepareRay(rayGui);
+                        
                     EditorInputManager.raySceneView = rayGui;
                 }
 
@@ -63,7 +67,7 @@ namespace Playtime_Painter {
                     UnityHelperFunctions.FocusOn(hit.transform.gameObject);
                 }
 
-                if ((!navigating) && AllowEditing(painter))
+                if (!navigating && AllowEditing(painter))
                     e.Use();
             }
 

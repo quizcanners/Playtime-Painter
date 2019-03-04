@@ -76,7 +76,7 @@ inline float ProjectorDepthDifference (float4 shadowCoords, float3 worldPos, out
 
 		float predictedDepth = 1 - (((viewPos / true01Range) - pp_ProjectorClipPrecompute.y) * pp_ProjectorClipPrecompute.z);
 
-		return 1 - saturate ((tex2D(pp_DepthProjection, pUv).r - predictedDepth) * pdist* pdist * 100);
+		return 1 - saturate ((tex2D(pp_DepthProjection, pUv).r - predictedDepth) * pdist* pdist * 20);
 
 }
 

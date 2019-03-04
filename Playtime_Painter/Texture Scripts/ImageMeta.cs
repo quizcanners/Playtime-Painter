@@ -39,6 +39,7 @@ namespace Playtime_Painter
         public bool showRecording;
         public bool enableUndoRedo;
         public bool pixelsDirty;
+        public bool invertRayCast;
         public bool preserveTransparency = true;
         private bool _alphaPreservePixelSet;
         public bool errorWhileReading;
@@ -139,6 +140,7 @@ namespace Playtime_Painter
             .Add_IfTrue("trnsp", isATransparentLayer)
             .Add_IfTrue("bu", enableUndoRedo)
             .Add_IfTrue("tc2Auto", _useTexcoord2AutoAssigned)
+            .Add_IfTrue("invCast", invertRayCast)
             .Add_IfNotBlack("clear", _clearColor)
             .Add_IfNotEmpty("URL", url)
             .Add_IfNotNegative("is", inspectedStuff)
@@ -182,6 +184,7 @@ namespace Playtime_Painter
                 case "trnsp": isATransparentLayer = data.ToBool(); break;
                 case "rec": showRecording = data.ToBool(); break;
                 case "bu": enableUndoRedo = data.ToBool(); break;
+                case "invCast": invertRayCast = data.ToBool(); break;
                 case "tc2Auto": _useTexcoord2AutoAssigned = data.ToBool(); break;
                 case "clear": _clearColor = data.ToColor(); break;
                 case "URL": url = data; break;
@@ -792,10 +795,10 @@ namespace Playtime_Painter
 
             if ("CPU blit options".conditional_enter(this.TargetIsTexture2D(), ref inspectedStuff, 0).nl())
             {
-                changed |= "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref _repaintDelay, 0.01f, 0.5f).nl();
+                "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref _repaintDelay, 0.01f, 0.5f).nl(ref changed);
                 
-                changed |= "Don't update mipmaps:".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",
-                    ref GlobalBrush.dontRedoMipMaps).nl();
+                "Don't update mipmaps:".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",
+                    ref GlobalBrush.dontRedoMipMaps).nl(ref changed);
             }
 
             if ("Save Textures In Game".enter(ref inspectedStuff, 1).nl()) {
@@ -814,8 +817,8 @@ namespace Playtime_Painter
 
             #region Processors
 
-            int newWidth = Cfg.SelectedWidthForNewTexture(); //PainterDataAndConfig.SizeIndexToSize(PainterCamera.Data.selectedWidthIndex);
-            int newHeight = Cfg.SelectedHeightForNewTexture();
+            var newWidth = Cfg.SelectedWidthForNewTexture(); //PainterDataAndConfig.SizeIndexToSize(PainterCamera.Data.selectedWidthIndex);
+            var newHeight = Cfg.SelectedHeightForNewTexture();
 
             if ("Texture Processors".enter(ref inspectedStuff, 6).nl_ifFolded()) {
 
@@ -940,10 +943,18 @@ namespace Playtime_Painter
 
                 pegi.nl();
             }
+            
+            if (showToggles)
+            {
 
+                if (!painter.IsUiGraphicPainter)
+                    "Invert RayCast"
+                        .toggleIcon(
+                            "Will rayCast into the camera (for cases when editing from inside a sphere, mask for 360 video for example.)",
+                            ref invertRayCast).nl(ref changed);
+                else
+                    invertRayCast = false;
 
-            if (showToggles) {
-                
                 "Use Masks".toggleIcon(ref GlobalBrush.useMask).nl(ref changed);
 
                 if (isATransparentLayer)

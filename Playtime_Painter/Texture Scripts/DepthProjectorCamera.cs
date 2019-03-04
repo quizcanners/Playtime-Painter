@@ -25,22 +25,27 @@ namespace Playtime_Painter
         [SerializeField] private Camera _projectorCamera;
         [SerializeField] private RenderTexture _depthTarget;
         public int targetSize = 512;
-        public float shadowBias = 0.005f;
-
 
         private bool _foldOut;
         public override bool Inspect()
         {
-            const bool changed = false;
+            var changed = false;
 
-            if ("Projector Camera".foldout(ref _foldOut).nl_ifFoldedOut())
+            if ("Projector Camera ".enter(ref _foldOut).nl_ifFoldedOut())
             {
-               // if ("Texture Size".select(ref targetSize, PainterCamera.Tex  ))
-                    //UpdateDepthCamera()
 
-            }
+                "Target Size".edit(ref targetSize).changes(ref changed);
+                if (icon.Refresh.Click("Recreate Depth Texture"))
+                {
+                    _depthTarget.DestroyWhatever();
+                    _depthTarget = null;
+                    UpdateDepthCamera();
+                }
 
-            this.ClickHighlight().nl();
+                // if ("Texture Size".select(ref targetSize, PainterCamera.Tex  ))
+                //UpdateDepthCamera()
+
+            } else this.ClickHighlight().nl();
 
 
 

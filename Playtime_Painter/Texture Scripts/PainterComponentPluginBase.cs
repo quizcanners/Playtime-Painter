@@ -18,7 +18,7 @@ namespace Playtime_Painter
         public TaggedTypesStd AllTypes => All;
         #endregion
 
-        public static void UpdateList(PlaytimePainter painter) {
+        public static void UpdatePlugins(PlaytimePainter painter) {
 
             for (var i = 0; i < painter.plugins.Count; i++) {
                 var nt = painter.plugins[i];

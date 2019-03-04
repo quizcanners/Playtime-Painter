@@ -3567,7 +3567,7 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region Toggle
-        private const int DefaultToggleIconSize = 35;
+        private const int DefaultToggleIconSize = 34;
 
         public static bool toggleInt(ref int val)
         {

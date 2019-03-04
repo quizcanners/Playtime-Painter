@@ -109,8 +109,7 @@ namespace Playtime_Painter
 
         public virtual bool Inspect()
         {
-
-        
+            
             if (BrushConfig.InspectedIsCpuBrush || !PainterCamera.Inst)
                 return false;
 
@@ -119,9 +118,6 @@ namespace Playtime_Painter
             
             if (TexMGMTdata.masks.Count > 0 || InspectedBrush.useMask)
             {
-                pegi.nl();
-                pegi.space();
-                pegi.nl();
 
                "Mask".toggleIcon ("Multiply Brush Speed By Mask Texture's alpha", ref InspectedBrush.useMask, true).changes(ref changed);
 
@@ -704,11 +700,11 @@ namespace Playtime_Painter
       
         #region Inspector
         #if PEGI
-        public override bool Inspect()
-        {
-            bool changed = "Paint On Grid".toggleIcon(ref Cfg.useGridForBrush, true); 
+        public override bool Inspect() {
 
-            changed |= base.Inspect();
+            var changed = "Paint On Grid".toggleIcon(ref Cfg.useGridForBrush, true).nl(); 
+
+            base.Inspect().nl(ref changed);
 
             return changed;
         }

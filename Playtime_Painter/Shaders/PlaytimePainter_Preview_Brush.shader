@@ -12,9 +12,11 @@
 		SubShader{
 
 			Tags{
-			"Queue" = "Geometry"
-			"RenderType" = "Opaque"
+			"Queue" = "Transparent"
+			"RenderType" = "Transparent"
 			}
+
+			Blend SrcAlpha OneMinusSrcAlpha
 
 			Pass{
 
@@ -229,6 +231,7 @@
 						col = AlphaBlitTransparentPreview(alpha, _brushColor, tc.xy, col);
 					#else
 						col = AlphaBlitOpaquePreview(alpha, _brushColor, tc.xy, col);
+						col.a = 1;
 					#endif
 
 					#if BRUSH_PROJECTOR

@@ -614,16 +614,14 @@ namespace QuizCannersUtilities
 
         #region Abstract 
 
-        public static List<T> Decode_List_Abstract<T>(this string data, out List<T> l) where T : IGotClassTag
+        public static List<T> Decode_List_Abstract<T>(this string data, out List<T> l, TaggedTypesStd taggedTypes) where T : IGotClassTag
         {
             var cody = new StdDecoder(data);
 
             l = new List<T>();
 
-            var tps = typeof(T).TryGetTaggedClasses();
-
             foreach (var tag in cody)
-                l.Add(cody.DecodeData<T>(tps));
+                l.Add(cody.DecodeData<T>(taggedTypes));
 
             return l;
         }
