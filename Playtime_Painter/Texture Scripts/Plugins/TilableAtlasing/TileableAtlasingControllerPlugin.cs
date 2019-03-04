@@ -237,12 +237,12 @@ namespace Playtime_Painter
             {
                 if (EditorInputManager.Control)
                     _curAtlasTexture = (int)MeshMGMT.PointedTriangle.textureNo[curAtlasChanel];
-                else if (PointedTris.textureNo[curAtlasChanel] != _curAtlasTexture)
+                else if (PointedTriangle.textureNo[curAtlasChanel] != _curAtlasTexture)
                 {
-                    if (PointedTris.SameAsLastFrame)
+                    if (PointedTriangle.SameAsLastFrame)
                         return true;
-                    PointedTris.textureNo[curAtlasChanel] = _curAtlasTexture;
-                    MeshMGMT.editedMesh.Dirty = true;
+                    PointedTriangle.textureNo[curAtlasChanel] = _curAtlasTexture;
+                    EditedMesh.Dirty = true;
                     return true;
                 }
             }
@@ -261,7 +261,7 @@ namespace Playtime_Painter
                     if (t.textureNo[curAtlasChanel] != _curAtlasTexture)
                     {
                         t.textureNo[curAtlasChanel] = _curAtlasTexture;
-                        MeshMGMT.editedMesh.Dirty = true;
+                        EditedMesh.Dirty = true;
                     }
                 return true;
             }
@@ -280,7 +280,7 @@ namespace Playtime_Painter
                     foreach (var t in uv.tris)
                     if (t.textureNo[curAtlasChanel] != _curAtlasTexture) {
                         t.textureNo[curAtlasChanel] = _curAtlasTexture;
-                        MeshMGMT.editedMesh.Dirty = true;
+                        EditedMesh.Dirty = true;
                     }
                 return true;
             }
@@ -293,7 +293,7 @@ namespace Playtime_Painter
             foreach (Triangle t in EditedMesh.triangles)
                 t.textureNo[chanel] = no;
 
-            MeshMGMT.editedMesh.Dirty = true;
+            EditedMesh.Dirty = true;
         }
 
         public void SetAllTrianglesTextureTo(int no, int chanel, int submesh)
@@ -303,7 +303,7 @@ namespace Playtime_Painter
                 if (t.submeshIndex == submesh)
                     t.textureNo[chanel] = no;
 
-            MeshMGMT.editedMesh.Dirty = true;
+            EditedMesh.Dirty = true;
         }
 
         public override void KeysEventPointedTriangle()
@@ -314,7 +314,7 @@ namespace Playtime_Painter
             {
                 _curAtlasTexture = keyDown;
                 MeshMGMT.PointedTriangle.textureNo[curAtlasChanel] = keyDown;
-                MeshMGMT.editedMesh.Dirty = true;
+                EditedMesh.Dirty = true;
                 if (!Application.isPlaying) Event.current.Use();
             }
         }

@@ -101,35 +101,17 @@
 
 				#if BRUSH_PROJECTOR
 
-					float camAspectRatio = pp_ProjectorConfiguration.x;
-					float camFOVDegrees = pp_ProjectorConfiguration.y;
-					//float near = pp_ProjectorConfiguration.z;
-					float far = pp_ProjectorConfiguration.w;
+					float2 pUv;
 
 					o.shadowCoords.xy /= o.shadowCoords.w;
 
-					alpha = max(0, 1 - dot(o.shadowCoords.xy, o.shadowCoords.xy));
+					alpha = ProjectorSquareAlpha(o.shadowCoords);
 
-					float3 viewPos = float3(o.shadowCoords.xy * camFOVDegrees, 1)*camAspectRatio;
-
-					float2 pUv = (o.shadowCoords.xy + 1) * 0.5;
-
-					float depth = tex2D(pp_DepthProjection, pUv);
+					alpha *= ProjectorDepthDifference(o.shadowCoords, o.worldPos, pUv );
 
 					_brushColor = tex2Dlod(_SourceTexture, float4(pUv, 0, 0));
 
-					float fromCam = 1.0 / (pp_ProjectorClipPrecompute.x * (1 - depth) + pp_ProjectorClipPrecompute.y);
-
-					fromCam = length(viewPos * fromCam);
-
-					float True01Range = length(o.worldPos - pp_ProjectorPosition.xyz) / far;
-
-
-					float pr_shadow = saturate((alpha - abs(True01Range - fromCam) * 10)*10);
-
-					alpha = pr_shadow;
-
-					//return _brushColor * alpha;
+					float pr_shadow = alpha; 
 
 				#endif
 
@@ -250,7 +232,7 @@
 					#endif
 
 					#if BRUSH_PROJECTOR
-						float pa = (_brushPointedUV.w)*pr_shadow;
+						float pa = (_brushPointedUV.w)*pr_shadow*0.8;
 
 						col = col * (1-pa) + _brushColor*(pa);
 					#endif

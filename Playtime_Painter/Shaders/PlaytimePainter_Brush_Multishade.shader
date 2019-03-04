@@ -27,12 +27,23 @@
 				struct v2f {
 					float4 pos : POSITION;
 					float4 texcoord : TEXCOORD0;
+
+				#if BRUSH_PROJECTOR
+					float4 worldPos : TEXCOORD1;
+					float4 shadowCoords : TEXCOORD2;
+				#endif
 				};
 
 				v2f vert(appdata_full v) {
 					v2f o;
 					o.pos = UnityObjectToClipPos(v.vertex);
 					o.texcoord = brushTexcoord(v.texcoord.xy, v.vertex);
+					
+					#if BRUSH_PROJECTOR
+					o.worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1.0f));
+					o.shadowCoords = mul(pp_ProjectorMatrix, o.worldPos);
+					#endif
+					
 					return o;
 				}
 				#endif
@@ -42,16 +53,19 @@
 				struct v2f {
 					float4 pos : POSITION;
 					float2 texcoord : TEXCOORD0;
-					float3 worldPos : TEXCOORD1;
+					float4 worldPos : TEXCOORD1;
+					#if BRUSH_PROJECTOR
+					float4 shadowCoords : TEXCOORD2;
+					#endif
 				};
 
 
 				v2f vert(appdata_full v) {
 
 					v2f o;
-					float4 worldPos = mul(unity_ObjectToWorld, v.vertex);
+					float4 worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1));
 
-					o.worldPos = worldPos.xyz;
+					o.worldPos = worldPos;
 
 					#if BRUSH_3D_TEXCOORD2
 						v.texcoord.xy = v.texcoord2.xy;
@@ -73,6 +87,10 @@
 
 					o.texcoord.xy = ComputeScreenPos(o.pos);
 
+					#if BRUSH_PROJECTOR
+					o.shadowCoords = mul(pp_ProjectorMatrix, o.worldPos);
+					#endif
+
 					return o;
 				}
 				#endif
@@ -80,23 +98,10 @@
 
 				float4 frag(v2f o) : COLOR{
 
-					#if BRUSH_PROJECTOR
-					return 1;
-
-					#endif
-
-
-					#if BRUSH_COPY
-						_brushColor = tex2Dlod(_SourceTexture, float4(o.texcoord.xy, 0, 0));
-					#endif
-
-					#if BRUSH_SAMPLE_DISPLACE
-						_brushColor.r = (_brushSamplingDisplacement.x - o.texcoord.x - _brushPointedUV_Untiled.z) / 2 + 0.5;
-						_brushColor.g = (_brushSamplingDisplacement.y - o.texcoord.y - _brushPointedUV_Untiled.w) / 2 + 0.5;
-					#endif
+					// Brush Types
 
 					#if BRUSH_3D || BRUSH_3D_TEXCOORD2
-						float alpha = prepareAlphaSphere(o.texcoord, o.worldPos);
+						float alpha = prepareAlphaSphere(o.texcoord, o.worldPos.xyz);
 						clip(alpha - 0.000001);
 					#endif
 
@@ -120,7 +125,33 @@
 						_brushColor.a = Height;
 					#endif
 
-					#if BRUSH_NORMAL || BRUSH_COPY || BRUSH_SAMPLE_DISPLACE
+						// Brush Modes
+
+					#if BRUSH_COPY
+						_brushColor = tex2Dlod(_SourceTexture, float4(o.texcoord.xy, 0, 0));
+					#endif
+
+					#if BRUSH_SAMPLE_DISPLACE
+						_brushColor.r = (_brushSamplingDisplacement.x - o.texcoord.x - _brushPointedUV_Untiled.z) / 2 + 0.5;
+						_brushColor.g = (_brushSamplingDisplacement.y - o.texcoord.y - _brushPointedUV_Untiled.w) / 2 + 0.5;
+					#endif
+
+
+					#if BRUSH_PROJECTOR
+						float2 pUv;
+
+						o.shadowCoords.xy /= o.shadowCoords.w;
+
+						alpha = ProjectorSquareAlpha(o.shadowCoords);
+
+						alpha *= 
+							ProjectorDepthDifference(o.shadowCoords, o.worldPos, pUv);
+
+						_brushColor = tex2Dlod(_SourceTexture, float4(pUv, 0, 0));
+
+					#endif
+
+					#if BRUSH_NORMAL || BRUSH_COPY || BRUSH_SAMPLE_DISPLACE || BRUSH_PROJECTOR
 
 					#if (BRUSH_NORMAL || BRUSH_COPY) && TARGET_TRANSPARENT_LAYER
 						return AlphaBlitTransparent(alpha, _brushColor,  o.texcoord.xy);

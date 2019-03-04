@@ -14,31 +14,6 @@ using QuizCannersUtilities;
 namespace Playtime_Painter
 {
 
-    public static class MeshAnatomyExtensions {
-
-        public static Vector3 SmoothVector (this List<Triangle> td) {
-
-            var v = Vector3.zero;
-
-            foreach (var t in td)
-                v += t.sharpNormal;
-
-            return v.normalized;
-
-        }
-
-        public static bool Contains(this List<MeshPoint> lst, LineData ld) => lst.Contains(ld.pnts[0].meshPoint) && lst.Contains(ld.pnts[1].meshPoint);
-      
-        public static bool Contains(this List<MeshPoint> lst, Triangle ld)
-        {
-            foreach (var p in ld.vertexes)
-                if (!lst.Contains(p.meshPoint))
-                    return false;
-            return true;
-        }
-
-    }
-
     public class Vertex : PainterStuffKeepUnrecognized_STD
     {
         protected PlaytimePainter Painter => MeshManager.Inst.target; 
@@ -261,50 +236,6 @@ namespace Playtime_Painter
         public static implicit operator int(Vertex d) => d.finalIndex;
         
     }
-
-    public class BlendFrame : PainterStuffStd
-    {
-        public Vector3 deltaPosition;
-        public Vector3 deltaTangent;
-        public Vector3 deltaNormal;
-
-        #region Encode & Decode
-        public override bool Decode(string tg, string data)
-        {
-            switch (tg)
-            {
-                case "p": deltaPosition = data.ToVector3(); break;
-                case "t": deltaTangent = data.ToVector3(); break;
-                case "n": deltaNormal = data.ToVector3(); break;
-                default: return false;
-            }
-            return true;
-        }
-        public override StdEncoder Encode() {
-            var cody = new StdEncoder(); 
-
-            cody.Add_IfNotZero("p", deltaPosition);
-            cody.Add_IfNotZero("t", deltaTangent);
-            cody.Add_IfNotZero("n", deltaNormal);
-
-            return cody;
-        }
-        #endregion
-
-
-        public BlendFrame()
-        {
-
-        }
-
-        public BlendFrame(Vector3 pos, Vector3 norm, Vector3 tang)
-        {
-            deltaPosition = pos;
-            deltaNormal = norm;
-            deltaTangent = tang;
-        }
-
-    } 
 
     public class MeshPoint : PainterStuffKeepUnrecognized_STD
     {
@@ -1360,6 +1291,78 @@ namespace Playtime_Painter
 
         public override int GetHashCode() => pnts[0].finalIndex;
         
+
+    }
+    
+    public class BlendFrame : PainterStuffStd
+    {
+        public Vector3 deltaPosition;
+        public Vector3 deltaTangent;
+        public Vector3 deltaNormal;
+
+        #region Encode & Decode
+        public override bool Decode(string tg, string data)
+        {
+            switch (tg)
+            {
+                case "p": deltaPosition = data.ToVector3(); break;
+                case "t": deltaTangent = data.ToVector3(); break;
+                case "n": deltaNormal = data.ToVector3(); break;
+                default: return false;
+            }
+            return true;
+        }
+        public override StdEncoder Encode()
+        {
+            var cody = new StdEncoder();
+
+            cody.Add_IfNotZero("p", deltaPosition);
+            cody.Add_IfNotZero("t", deltaTangent);
+            cody.Add_IfNotZero("n", deltaNormal);
+
+            return cody;
+        }
+        #endregion
+
+
+        public BlendFrame()
+        {
+
+        }
+
+        public BlendFrame(Vector3 pos, Vector3 norm, Vector3 tang)
+        {
+            deltaPosition = pos;
+            deltaNormal = norm;
+            deltaTangent = tang;
+        }
+
+    }
+
+    public static class MeshAnatomyExtensions
+    {
+
+        public static Vector3 SmoothVector(this List<Triangle> td)
+        {
+
+            var v = Vector3.zero;
+
+            foreach (var t in td)
+                v += t.sharpNormal;
+
+            return v.normalized;
+
+        }
+
+        public static bool Contains(this List<MeshPoint> lst, LineData ld) => lst.Contains(ld.pnts[0].meshPoint) && lst.Contains(ld.pnts[1].meshPoint);
+
+        public static bool Contains(this List<MeshPoint> lst, Triangle ld)
+        {
+            foreach (var p in ld.vertexes)
+                if (!lst.Contains(p.meshPoint))
+                    return false;
+            return true;
+        }
 
     }
 

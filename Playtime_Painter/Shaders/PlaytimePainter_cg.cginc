@@ -47,6 +47,39 @@ float4 HSVtoRGB(in float3 HSV)
 	return float4(((Hue(HSV.x) - 1) * HSV.y + 1) * HSV.z, 1);
 }*/
 
+
+inline float ProjectorSquareAlpha(float4 shadowCoords) {
+
+	float2 xy = abs(shadowCoords.xy);
+
+	return saturate((sign(shadowCoords.w) - max(xy.x,xy.y))*1000);
+}
+
+inline float ProjectorCircularAlpha(float4 shadowCoords) {
+	return max(0, sign(shadowCoords.w) - dot(shadowCoords.xy, shadowCoords.xy));
+}
+
+inline float ProjectorDepthDifference (float4 shadowCoords, float3 worldPos, out float2 pUv) {
+
+		float camAspectRatio = pp_ProjectorConfiguration.x;
+		float camFOVDegrees = pp_ProjectorConfiguration.y;
+		//float near = pp_ProjectorConfiguration.z;
+		float deFar = pp_ProjectorConfiguration.w;
+
+		float viewPos = length(float3(shadowCoords.xy * camFOVDegrees, 1))*camAspectRatio;
+
+		pUv = (shadowCoords.xy + 1) * 0.5;
+
+		float pdist = length(worldPos - pp_ProjectorPosition.xyz);
+
+		float true01Range = pdist * deFar;
+
+		float predictedDepth = 1 - (((viewPos / true01Range) - pp_ProjectorClipPrecompute.y) * pp_ProjectorClipPrecompute.z);
+
+		return 1 - saturate ((tex2D(pp_DepthProjection, pUv).r - predictedDepth) * pdist* pdist * 100);
+
+}
+
 inline float random(float2 st) {
 	return frac(sin(dot(st.xy+_Time.x, float2(12.9898f, 78.233f)))* 43758.5453123f);
 }

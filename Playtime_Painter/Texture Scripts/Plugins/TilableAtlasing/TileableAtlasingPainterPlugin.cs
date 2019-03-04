@@ -445,13 +445,13 @@ namespace Playtime_Painter {
                 MeshManager.Inst.EditMesh(painter, true);
 
                 if (firstAtlasing)
-                    atlPlug.preAtlasingSavedMesh = MeshManager.Inst.editedMesh.Encode().ToString();
+                    atlPlug.preAtlasingSavedMesh = MeshManager.editedMesh.Encode().ToString();
 
                 painter.selectedMeshProfile = _matAtlasProfile;
 
-                if ((tiling != Vector2.one) || (offset != Vector2.zero))
+                if (tiling != Vector2.one || offset != Vector2.zero)
                 {
-                    MeshManager.Inst.editedMesh.TileAndOffsetUVs(offset, tiling, 0);
+                    MeshManager.editedMesh.TileAndOffsetUVs(offset, tiling, 0);
                     Debug.Log("offsetting " + offset + " tiling " + tiling);
                 }
 

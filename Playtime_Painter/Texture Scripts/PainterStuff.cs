@@ -62,7 +62,7 @@ namespace Playtime_Painter
         protected static ImageMeta InspectedImageMeta { get { var ip = InspectedPainter; return ip ? ip.ImgMeta : null; } }
         protected static GridNavigator Grid => GridNavigator.Inst();
         protected static MeshManager MeshMGMT => MeshManager.Inst;
-        protected static EditableMesh EditedMesh => MeshManager.Inst.editedMesh;
+        protected static EditableMesh EditedMesh => MeshManager.editedMesh;
         public static bool applicationIsQuitting;
 
         public static bool IsPlaytimeNowDisabled { get

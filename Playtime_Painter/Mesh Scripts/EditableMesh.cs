@@ -194,6 +194,11 @@ namespace Playtime_Painter {
                 cody.Add("sctdUV", meshPoints.IndexOf(selectedUv.meshPoint));
             if (selectedTriangle != null)
                 cody.Add("sctdTris", triangles.IndexOf(selectedTriangle));
+
+            foreach (var t in MeshToolBase.allToolsWithPerMeshData)
+                cody.Add((t as MeshToolBase).stdTag, t.EncodePerMeshData());
+
+
             return cody;
         }
 
@@ -211,7 +216,19 @@ namespace Playtime_Painter {
                 case "UV2cur": uv2DistributeCurrent = data.ToInt(); break;
                 case "sctdUV": selectedUv = meshPoints[data.ToInt()].vertices[0]; break;
                 case "sctdTris": selectedTriangle = triangles[data.ToInt()]; break;
-                default: return false;
+                default:
+
+                    foreach (var t in MeshToolBase.allToolsWithPerMeshData){
+                        var mt = t as MeshToolBase;
+                        if (mt.stdTag.Equals(tg)) {
+                            mt.Decode(data);
+                            return true;
+                        }
+
+                    }
+
+
+                    return false;
             }
             return true;
         }
@@ -544,7 +561,20 @@ namespace Playtime_Painter {
                     if (!MoveTriangle(vp.vertices[1], vp.vertices[0])) { break; }
 
         }
-        
+
+        public void AllVerticesSharedIfSameUV() {
+
+            foreach (var vp in meshPoints)
+                for (var i=0; i<vp.vertices.Count; i++)
+                    for (var j = i + 1; j < vp.vertices.Count; j++) {
+                        var a = vp.vertices[i];
+                        var b = vp.vertices[j];
+                        if (a.uvIndex == b.uvIndex && MoveTriangle(b, a))
+                                j--;
+                    }
+        }
+
+
         public void AddTextureAnimDisplacement()
         {
             var m = MeshManager.Inst;
@@ -598,10 +628,8 @@ namespace Playtime_Painter {
                
             Dirty = true;
         }
-
-     
         
-        public void AllSubmeshZero()
+        public void AllSubMeshZero()
         {
             foreach (var t in triangles)
                 t.submeshIndex = 0;
@@ -799,28 +827,22 @@ namespace Playtime_Painter {
         #endregion
 
         #region Colors
-        public void AutoSetVerticesColors()
-        {
-            //  foreach (vertexpointDta v in vertices)
-            //    v.setColor(Color.black);
+        public void AutoSetVerticesColors() {
 
             var asCol = new bool[3];
             var asUv = new bool[3];
 
             foreach (var td in triangles)
             {
-
                 asCol[0] = asCol[1] = asCol[2] = false;
                 asUv[0] = asUv[1] = asUv[2] = false;
 
-                for (var i = 0; i < 3; i++)
-                {
+                for (var i = 0; i < 3; i++) {
                     var c = td.vertexes[i].GetZeroChanel_AifNotOne();
                     if (c == ColorChanel.A || asCol[(int) c]) continue;
                     asCol[(int)c] = true;
                     asUv[i] = true;
                     td.vertexes[i].SetColor_OppositeTo(c);
-                    //  Debug.Log("Setting requested " + c);
                 }
 
                 for (var i = 0; i < 3; i++)
@@ -831,7 +853,7 @@ namespace Playtime_Painter {
 
                         if (asCol[j]) continue;
 
-                        asCol[(int)j] = true;
+                        asCol[j] = true;
                         asUv[i] = true;
                         td.vertexes[i].SetColor_OppositeTo((ColorChanel)j);
                         break;

@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System;
+using System.IO;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 #if UNITY_EDITOR
@@ -38,7 +39,7 @@ namespace Playtime_Painter
 
         readonly List<string> _redoMoves = new List<string>();
 
-        public EditableMesh editedMesh = new EditableMesh();
+        public static EditableMesh editedMesh = new EditableMesh();
 
         public EditableMesh previewEdMesh = new EditableMesh();
 
@@ -110,7 +111,7 @@ namespace Playtime_Painter
 
             Redraw();
 
-            painter.meshNameField = editedMesh.meshName;
+          
 
             InitVerticesIfNull();
 
@@ -867,9 +868,8 @@ namespace Playtime_Painter
         #region Inspector
 #if PEGI
         private readonly List<PlaytimePainter> _selectedPainters = new List<PlaytimePainter>();
-        private bool _showReferences;
         private bool _inspectMesh;
-        private bool _showCopyOptions;
+        private int _inspecteMeshStuff = -1;
 
         public override bool Inspect()  {
 
@@ -880,8 +880,8 @@ namespace Playtime_Painter
             
             target.PreviewShaderToggleInspect().changes(ref changed);
 
-            if (!target.IsOriginalShader && "preview".select(45, ref MeshSHaderMode.selected, MeshSHaderMode.AllModes).changes(ref changed))
-                MeshSHaderMode.ApplySelected();
+            if (!target.IsOriginalShader && "preview".select(45, ref MeshShaderMode.selected, MeshShaderMode.AllModes).changes(ref changed))
+                MeshShaderMode.ApplySelected();
 
             var previousTool = MeshTool;
             
@@ -915,106 +915,165 @@ namespace Playtime_Painter
             return changed;
         }
 
+        public static string GenerateMeshSavePath() => Path.Combine(Cfg.meshesFolderName, editedMesh.meshName + ".asset");
+
+
+        private Vector3 _offset;
         public bool AdvancedInspectPart()
         {
             var changed = false;
 
-            if (editedMesh != null && "Mesh ".foldout(ref _inspectMesh).nl())
-            {
-                "Save Undo".toggleIcon(ref Cfg.saveMeshUndos).nl(ref changed);
-                
-                if (!_showCopyOptions)
-                {
+            if (editedMesh != null && "Mesh ".foldout(ref _inspectMesh).nl()) {
 
-#if UNITY_EDITOR
-                    "Mesh Name:".edit(70, ref target.meshNameField).changes(ref changed);
+
+                if (_inspecteMeshStuff == -1)
+                {
+                    
+                 
+                    
+                    #if UNITY_EDITOR
+                    "Mesh Name:".edit(70, ref editedMesh.meshName).changes(ref changed);
 
                     var mesh = target.GetMesh();
 
                     var exists = !AssetDatabase.GetAssetPath(mesh).IsNullOrEmpty();
 
                     if ((exists ? icon.Save : icon.SaveAsNew)
-                        .Click("Save Mesh As {0}".F(target.GenerateMeshSavePath()), 25).nl())
+                        .Click("Save Mesh As {0}".F(GenerateMeshSavePath()), 25).nl())
                         target.SaveMesh();
-#endif
+                        #endif
+
+
+                    "Save Undo".toggleIcon(ref Cfg.saveMeshUndos).changes(ref changed);
+                    if (Cfg.saveMeshUndos)
+                        icon.Warning.write("Can affect peformance");
+                    pegi.nl();
                 }
 
-                editedMesh.Nested_Inspect().nl(ref changed);
+                editedMesh.enter_Inspect(ref _inspecteMeshStuff, 1).nl(ref changed);
 
-            }
-
-            if ("Merging".foldout(ref _showCopyOptions).nl())
-            {
-
-                if (!_selectedPainters.Contains(target))
+                if ("Center".enter(ref _inspecteMeshStuff, 2).nl())
                 {
-                    if ("Copy Mesh".Click("Add Mesh to the list of meshes to be merged").nl(ref changed))
-                        _selectedPainters.Add(target);
-
-                    if (!_selectedPainters.IsNullOrEmpty())
+                    "center".edit(ref _offset).nl();
+                    if ("Modify".Click().nl())
                     {
+                        foreach (var v in EditedMesh.meshPoints)
+                            v.localPos += _offset;
 
-                        if (editedMesh.uv2DistributeRow < 2 && "Enable EV2 Distribution".toggleInt("Each mesh's UV2 will be modified to use a unique portion of a texture.", ref editedMesh.uv2DistributeRow).nl(ref changed))
-                            editedMesh.uv2DistributeRow = Mathf.Max(2, (int)Mathf.Sqrt(_selectedPainters.Count));
-                        else
+                        _offset = -_offset;
+
+                        editedMesh.Dirty = true;
+
+                    }
+
+                    if ("Auto Center".Click().nl())
+                    {
+                        var avr = Vector3.zero;
+                        foreach (var v in EditedMesh.meshPoints)
+                            avr += v.localPos;
+
+                        _offset = -avr / EditedMesh.meshPoints.Count;
+                    }
+
+                }
+
+                /*  if ("Mirror by Center".Click()) {
+                      GridNavigator.onGridPos = mgm.target.transform.position;
+                      mgm.UpdateLocalSpaceV3s();
+                      mgm.editedMesh.MirrorVerticlesAgainsThePlane(mgm.onGridLocal);
+                  }
+
+                  if (pegi.Click("Mirror by Plane")) {
+                      mgm.UpdateLocalSpaceV3s();
+                      mgm.editedMesh.MirrorVerticlesAgainsThePlane(mgm.onGridLocal);
+                  }
+                  pegi.newLine();
+
+                  pegi.edit(ref displace);
+                  pegi.newLine();
+
+                  if (pegi.Click("Cancel")) displace = Vector3.zero;
+
+                  if (pegi.Click("Apply")) {
+                      mgm.edMesh.Displace(displace);
+                      mgm.edMesh.dirty = true;
+                      displace = Vector3.zero;
+                  }
+                  */
+
+
+                if ("Combining meshes".enter(ref _inspecteMeshStuff, 3).nl())
+                {
+
+                    if (!_selectedPainters.Contains(target))
+                    {
+                        if ("Copy Mesh".Click("Add Mesh to the list of meshes to be merged").nl(ref changed))
+                            _selectedPainters.Add(target);
+
+                        if (!_selectedPainters.IsNullOrEmpty())
                         {
-                            if (editedMesh.uv2DistributeCurrent > 0)
-                            {
-                                ("All added meshes will be distributed in " + editedMesh.uv2DistributeRow + " by " + editedMesh.uv2DistributeRow + " grid. By cancelling this added" +
-                                    "meshes will have UVs unchanged and may use the same portion of Texture (sampled with UV2) as other meshes.").writeHint();
-                                if ("Cancel Distribution".Click().nl())
-                                    editedMesh.uv2DistributeRow = 0;
-                            }
+
+                            if (editedMesh.uv2DistributeRow < 2 && "Enable EV2 Distribution".toggleInt("Each mesh's UV2 will be modified to use a unique portion of a texture.", ref editedMesh.uv2DistributeRow).nl(ref changed))
+                                editedMesh.uv2DistributeRow = Mathf.Max(2, (int)Mathf.Sqrt(_selectedPainters.Count));
                             else
                             {
-                                "Row:".edit("Will change UV2 so that every mesh will have it's own portion of a texture.", 25, ref editedMesh.uv2DistributeRow, 2, 16).nl(ref changed);
-                                "Start from".edit(ref editedMesh.uv2DistributeCurrent).nl(ref changed);
+                                if (editedMesh.uv2DistributeCurrent > 0)
+                                {
+                                    ("All added meshes will be distributed in " + editedMesh.uv2DistributeRow + " by " + editedMesh.uv2DistributeRow + " grid. By cancelling this added" +
+                                        "meshes will have UVs unchanged and may use the same portion of Texture (sampled with UV2) as other meshes.").writeHint();
+                                    if ("Cancel Distribution".Click().nl())
+                                        editedMesh.uv2DistributeRow = 0;
+                                }
+                                else
+                                {
+                                    "Row:".edit("Will change UV2 so that every mesh will have it's own portion of a texture.", 25, ref editedMesh.uv2DistributeRow, 2, 16).nl(ref changed);
+                                    "Start from".edit(ref editedMesh.uv2DistributeCurrent).nl(ref changed);
+                                }
+
+                                "Using {0} out of {1} spots".F(editedMesh.uv2DistributeCurrent + _selectedPainters.Count + 1, editedMesh.uv2DistributeRow * editedMesh.uv2DistributeRow).nl();
+
                             }
 
-                            "Using {0} out of {1} spots".F(editedMesh.uv2DistributeCurrent + _selectedPainters.Count + 1, editedMesh.uv2DistributeRow * editedMesh.uv2DistributeRow).nl();
+                            "Will Merge with the following:".nl();
+                            for (var i = 0; i < _selectedPainters.Count; i++)
+                                if (!_selectedPainters[i] || icon.Delete.Click(25))
+                                {
+                                    _selectedPainters.RemoveAt(i);
+                                    i--;
+                                }
+                                else
+                                    _selectedPainters[i].gameObject.name.nl();
 
-                        }
-
-                        "Will Merge with the following:".nl();
-                        for (var i = 0; i < _selectedPainters.Count; i++)
-                            if (!_selectedPainters[i] || icon.Delete.Click(25))
+                            if ("Merge!".Click().nl(ref changed))
                             {
-                                _selectedPainters.RemoveAt(i);
-                                i--;
+
+                                foreach (var p in _selectedPainters)
+                                    editedMesh.MergeWith(p);
+
+                                editedMesh.Dirty = true;
+
                             }
-                            else
-                                _selectedPainters[i].gameObject.name.nl();
-
-                        if ("Merge!".Click().nl(ref changed))
-                        {
-
-                            foreach (var p in _selectedPainters)
-                                editedMesh.MergeWith(p);
-
-                            editedMesh.Dirty = true;
-
                         }
                     }
+                    else
+                        if ("Remove from Copy Selection".Click().nl(ref changed))
+                        _selectedPainters.Remove(target);
+
                 }
-                else
-                    if ("Remove from Copy Selection".Click().nl(ref changed))
-                    _selectedPainters.Remove(target);
 
-            }
-
-            pegi.nl();
-
-            if (!Application.isPlaying && "Advanced".foldout(ref _showReferences).nl())
-            {
-
-             
-                "vertexPointMaterial".write_obj(Grid.vertexPointMaterial);
                 pegi.nl();
-                "vertexPrefab".edit(ref Grid.vertPrefab).nl();
-                "Max Vertex Markers ".edit(ref verticesShowMax).nl();
-                "pointedVertex".edit(ref Grid.pointedVertex.go).nl();
-                "SelectedVertex".edit(ref Grid.selectedVertex.go).nl();
+
+                if (!Application.isPlaying && "Debug".foldout(ref _inspecteMeshStuff, 10).nl())
+                {
+                    "vertexPointMaterial".write_obj(Grid.vertexPointMaterial);
+                    pegi.nl();
+                    "vertexPrefab".edit(ref Grid.vertPrefab).nl();
+                    "Max Vertex Markers ".edit(ref verticesShowMax).nl();
+                    "pointedVertex".edit(ref Grid.pointedVertex.go).nl();
+                    "SelectedVertex".edit(ref Grid.selectedVertex.go).nl();
+                }
             }
+
 
             return changed;
         }
@@ -1270,22 +1329,21 @@ namespace Playtime_Painter
         #endregion
 
     }
+    
+    public class MeshShaderMode {
 
+        private static List<MeshShaderMode> _allModes = new List<MeshShaderMode>();
 
-    public class MeshSHaderMode {
+        public static List<MeshShaderMode> AllModes => _allModes;
 
-        private static List<MeshSHaderMode> _allModes = new List<MeshSHaderMode>();
+        private MeshShaderMode(string value) { _value = value; _allModes.Add(this); }
 
-        public static List<MeshSHaderMode> AllModes => _allModes;
+        public static MeshShaderMode lit = new          MeshShaderMode(PainterDataAndConfig.MESH_PREVIEW_LIT);
+        public static MeshShaderMode normVector = new   MeshShaderMode(PainterDataAndConfig.MESH_PREVIEW_NORMAL);
+        public static MeshShaderMode vertColor = new    MeshShaderMode(PainterDataAndConfig.MESH_PREVIEW_VERTCOLOR);
+        public static MeshShaderMode projection = new   MeshShaderMode(PainterDataAndConfig.MESH_PREVIEW_PROJECTION);
 
-        private MeshSHaderMode(string value) { _value = value; _allModes.Add(this); }
-
-        public static MeshSHaderMode lit = new          MeshSHaderMode(PainterDataAndConfig.MESH_PREVIEW_LIT);
-        public static MeshSHaderMode normVector = new   MeshSHaderMode(PainterDataAndConfig.MESH_PREVIEW_NORMAL);
-        public static MeshSHaderMode vertColor = new    MeshSHaderMode(PainterDataAndConfig.MESH_PREVIEW_VERTCOLOR);
-        public static MeshSHaderMode projection = new   MeshSHaderMode(PainterDataAndConfig.MESH_PREVIEW_PROJECTION);
-
-        public static MeshSHaderMode selected;
+        public static MeshShaderMode selected;
 
         public string _value;
 
@@ -1295,7 +1353,7 @@ namespace Playtime_Painter
             if (selected == null)
                 selected = _allModes[0];
 
-            foreach (MeshSHaderMode s in _allModes)
+            foreach (MeshShaderMode s in _allModes)
                 UnityHelperFunctions.SetShaderKeyword(s._value, selected == s);
 
         }

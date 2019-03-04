@@ -16,7 +16,7 @@ namespace Playtime_Painter
                     return true;
                 BrushConfig bcf = Cfg.brushConfig;
                 bcf.colorLinear.ToV4(ref PointedVertex.shadowBake, bcf.mask);
-                MeshMGMT.editedMesh.Dirty = true;
+                EditedMesh.Dirty = true;
                 return true;
             }
             return false;
@@ -26,12 +26,12 @@ namespace Playtime_Painter
         {
             if ((EditorInputManager.GetMouseButton(0)))
             {
-                if (PointedTris.SameAsLastFrame)
+                if (PointedTriangle.SameAsLastFrame)
                     return true;
                 BrushConfig bcf = Cfg.brushConfig;
-                foreach (var uv in PointedTris.vertexes)
+                foreach (var uv in PointedTriangle.vertexes)
                 bcf.colorLinear.ToV4(ref uv.meshPoint.shadowBake, bcf.mask);
-                MeshMGMT.editedMesh.Dirty = true;
+                EditedMesh.Dirty = true;
                 return true;
             }
             return false;

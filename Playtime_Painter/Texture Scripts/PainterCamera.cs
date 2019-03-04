@@ -14,7 +14,10 @@ namespace Playtime_Painter {
     [HelpURL(PlaytimePainter.OnlineManual)]
     [DisallowMultipleComponent]
     [ExecuteInEditMode]
-    public class PainterCamera : PainterStuffMono {
+    public class PainterCamera : PainterStuffMono
+    {
+
+        public static DepthProjectorCamera depthProjectorCamera;
 
         public static readonly BrushMeshGenerator BrushMeshGenerator = new BrushMeshGenerator();
 
@@ -116,19 +119,34 @@ namespace Playtime_Painter {
         #endregion
 
         #region Painting Layer
+        
+        public int LayerFlag => (1 << (Data ? Data.playtimePainterLayer : 30));
+
         private void UpdateCullingMask() {
 
-            var l = Data ? Data.playtimePainterLayer : 30;
+            var l = (Data ? Data.playtimePainterLayer : 30);
+
+            var flag = (1 << l);
 
             if (_mainCamera)
-                _mainCamera.cullingMask &= ~(1 << l);
+                _mainCamera.cullingMask &= ~flag;
 
             if (painterCamera)
-                painterCamera.cullingMask = 1 << l;
+                painterCamera.cullingMask = flag;
 
             UnityHelperFunctions.RenamingLayer(l, "Playtime Painter's Layer");
 
             brushRenderer.gameObject.layer = l;
+
+#if UNITY_EDITOR
+
+            var vis = Tools.visibleLayers & flag;
+            if (vis>0) {
+                Debug.Log("Editor, hiding Layer {0}".F(l));
+                Tools.visibleLayers &= ~flag;
+            }
+#endif
+
         }
         
         [SerializeField] private Camera _mainCamera;

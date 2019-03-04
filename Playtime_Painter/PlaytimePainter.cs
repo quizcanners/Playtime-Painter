@@ -79,7 +79,7 @@ namespace Playtime_Painter {
             }
         }
 
-        public string meshNameField;
+        //public string meshNameField;
 
         public string savedMeshData;
         public Mesh meshDataSavedFor;
@@ -1384,8 +1384,7 @@ namespace Playtime_Painter {
         private string GenerateTextureSavePath() =>
             Path.Combine(Cfg.texturesFolderName, ImgMeta.saveName + ".png");
 
-        public string GenerateMeshSavePath() =>
-             SharedMesh ? Path.Combine(Cfg.meshesFolderName, meshNameField+ ".asset") : "None";
+      
 
         private bool OnBeforeSaveTexture(ImageMeta id)
         {
@@ -1469,14 +1468,11 @@ namespace Playtime_Painter {
 
                 var sm = SharedMesh;
 
-                if (meshNameField.Length == 0)
-                    meshNameField = sm.name;
-                else
-                    sm.name = meshNameField;
+
 
                 Directory.CreateDirectory(Path.Combine("Assets", Cfg.meshesFolderName));
 
-                AssetDatabase.CreateAsset(sm, Path.Combine("Assets",GenerateMeshSavePath()));
+                AssetDatabase.CreateAsset(sm, Path.Combine("Assets",MeshManager.GenerateMeshSavePath()));
 
                 AssetDatabase.SaveAssets();
             }
@@ -1982,23 +1978,21 @@ namespace Playtime_Painter {
                                 if (!_inspectMeshProfile)
                                     MeshMgmt.Inspect().nl();
 
-                                if ("Profile".enter( ref _inspectMeshProfile))
-                                {
+                                if ("Profile".enter( ref _inspectMeshProfile)) {
 
                                     if ((Cfg.meshPackagingSolutions.Count > 1) && (icon.Delete.Click(25)))
                                         Cfg.meshPackagingSolutions.RemoveAt(selectedMeshProfile);
-                                    else
-                                    {
+                                    else {
 
                                         pegi.newLine();
                                         if (MeshProfile.Inspect().nl())
-                                            MeshMgmt.editedMesh.Dirty = true;
+                                            MeshManager.editedMesh.Dirty = true;
 
                                         ("If using projected UV, place sharpNormal in TANGENT. {0}" +
                                          "Vectors should be placed in normal and tangent slots to batch correctly.{0}" +
                                          "Keep uv1 as is for baked light and damage shaders.{0}" +
                                          "I place Shadows in UV2{0}" +
-                                         "I place Edge in UV3.{0}").fullWindowDocumentationClick();
+                                         "I place Edge in UV3.{0}").F(pegi.EnvironmentNl).fullWindowDocumentationClick();
 
                                     }
                                 }
@@ -2006,7 +2000,7 @@ namespace Playtime_Painter {
                                 {
                                     if ((" : ".select(20, ref selectedMeshProfile, Cfg.meshPackagingSolutions)) &&
                                         (IsEditingThisMesh))
-                                        MeshMgmt.editedMesh.Dirty = true;
+                                        MeshManager.editedMesh.Dirty = true;
 
                                     if (icon.Add.Click(25).nl())
                                     {

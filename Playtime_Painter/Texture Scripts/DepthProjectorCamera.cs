@@ -5,38 +5,35 @@ using UnityEngine;
 namespace Playtime_Painter
 {
     [ExecuteInEditMode]
-    public class DepthProjectorCamera : PainterStuffMono, IPEGI
+    public class DepthProjectorCamera : PainterStuffMono
     {
-        private static DepthProjectorCamera _inst;
-
+      
         public static DepthProjectorCamera Instance
         {
             get
             {
-                if (_inst)
-                    return _inst;
+                if (PainterCamera.depthProjectorCamera)
+                    return PainterCamera.depthProjectorCamera;
 
-                _inst = FindObjectOfType<DepthProjectorCamera>();
+                PainterCamera.depthProjectorCamera = FindObjectOfType<DepthProjectorCamera>();
 
-                return _inst;
+                return PainterCamera.depthProjectorCamera;
 
             }
         }
 
-       // [SerializeField] private Camera _cameraToReplaceShader;
-
-        [SerializeField] private Camera projectorCamera;
+        [SerializeField] private Camera _projectorCamera;
         [SerializeField] private RenderTexture _depthTarget;
         public int targetSize = 512;
         public float shadowBias = 0.005f;
 
 
-        private bool foldOut;
-        public bool Inspect()
+        private bool _foldOut;
+        public override bool Inspect()
         {
-            var changed = false;
+            const bool changed = false;
 
-            if ("Projector Camera".foldout(ref foldOut).nl_ifFoldedOut())
+            if ("Projector Camera".foldout(ref _foldOut).nl_ifFoldedOut())
             {
                // if ("Texture Size".select(ref targetSize, PainterCamera.Tex  ))
                     //UpdateDepthCamera()
@@ -50,47 +47,42 @@ namespace Playtime_Painter
 
             return changed;
         }
-        
-        void OnEnable()
-        {
-          
 
-            if (!projectorCamera)
-                projectorCamera = GetComponent<Camera>();
+        private void OnEnable() {
 
-            if (!projectorCamera)
-                projectorCamera = gameObject.AddComponent<Camera>();
+            if (!_projectorCamera) {
+                _projectorCamera = GetComponent<Camera>();
 
-         /*   if (_cameraToReplaceShader)
-                _cameraToReplaceShader.SetReplacementShader(Shader.Find("Playtime Painter/ReplacementShaderTest"),
-                    "RenderType");*/
+                if (!_projectorCamera)
+                    _projectorCamera = gameObject.AddComponent<Camera>();
+            }
 
-      
+            UpdateDepthCamera();
 
-         UpdateDepthCamera();
-
-            _inst = this;
+            PainterCamera.depthProjectorCamera = this;
 
         }
 
-        void Update()
+        private void Update()
         {
-            if (projectorCamera)
-                projectorCamera.Render();
+            if (_projectorCamera)
+                _projectorCamera.Render();
         }
         
         #region Global Shader Parameters
-        void UpdateDepthCamera()
-        {
-            if (!projectorCamera) return;
 
-            if (projectorCamera)
-            {
-                projectorCamera.enabled = false;
-                projectorCamera.depthTextureMode = DepthTextureMode.None;
-                projectorCamera.depth = -1000;
-                projectorCamera.clearFlags = CameraClearFlags.Depth;
-            }
+        private void UpdateDepthCamera()
+        {
+            if (!_projectorCamera) return;
+            
+            _projectorCamera.enabled = false;
+            _projectorCamera.depthTextureMode = DepthTextureMode.None;
+            _projectorCamera.depth = -1000;
+            _projectorCamera.clearFlags = CameraClearFlags.Depth;
+
+            var l = Cfg ? Cfg.playtimePainterLayer : 30;
+
+            _projectorCamera.cullingMask &= ~(1 << l);
             
             if (_depthTarget && _depthTarget.width == targetSize) return;
 
@@ -106,7 +98,7 @@ namespace Playtime_Painter
                 useMipMap = false
             };
 
-            projectorCamera.targetTexture = _depthTarget;
+            _projectorCamera.targetTexture = _depthTarget;
         }
         
         private readonly ShaderProperty.MatrixValue _spMatrix = new ShaderProperty.MatrixValue("pp_ProjectorMatrix");
@@ -117,18 +109,18 @@ namespace Playtime_Painter
 
         private void OnPostRender() {
 
-            if (!projectorCamera) return;
+            if (!_projectorCamera) return;
 
-            _spMatrix.GlobalValue = projectorCamera.projectionMatrix * projectorCamera.worldToCameraMatrix;
+            _spMatrix.GlobalValue = _projectorCamera.projectionMatrix * _projectorCamera.worldToCameraMatrix;
             _spDepth.GlobalValue = _depthTarget;
             _spPos.GlobalValue = transform.position.ToVector4(0);
 
-            var far = projectorCamera.farClipPlane;
-            var near = projectorCamera.nearClipPlane;
+            var far = _projectorCamera.farClipPlane;
+            var near = _projectorCamera.nearClipPlane;
 
             _camParams.GlobalValue = new Vector4(
-                projectorCamera.aspect,
-                Mathf.Tan(projectorCamera.fieldOfView * Mathf.Deg2Rad * 0.5f),
+                _projectorCamera.aspect,
+                Mathf.Tan(_projectorCamera.fieldOfView * Mathf.Deg2Rad * 0.5f),
                 near,
                 1f/far);
             

@@ -56,8 +56,9 @@
 
 				o.shadowCoords.xy /= o.shadowCoords.w;
 
-				float alpha = max(0, 1 - dot(o.shadowCoords.xy, o.shadowCoords.xy));
+				float alpha = max(0, sign(o.shadowCoords.w) - dot(o.shadowCoords.xy, o.shadowCoords.xy));
 
+		
 				float viewPos = length(float3(o.shadowCoords.xy * camFOVDegrees,1))*camAspectRatio;
 
 			
@@ -102,6 +103,10 @@
 
 				float depth = (d0 + d1 + d2 + d3 + d4 + d5 + d6 + d7 + d8)/9;
 
+				//depth = viewPos / (pp_ProjectorClipPrecompute.x * (1 - (depth+ predictedDepth)) + pp_ProjectorClipPrecompute.y);
+
+				//return depth;
+
 				float maxD = max(d0, max(max(d1, d2), max(d3, d4))) +noise.x*0.00001;
 
 				float minD = min(d0, min(min(d1, d2), min(d3, d4))) - noise.x*0.00001;
@@ -110,20 +115,24 @@
 
 				ambient = (ambient - abs(max(0, ambient - 0.5)));
 
+				depth = saturate(depth / max(0.005, maxD));
+
 				#else
 				
-				float depth = tex2D(pp_DepthProjection, uv).r - predictedDepth;
+				float depth = (tex2D(pp_DepthProjection, uv).r - predictedDepth)*200;
 				
+				float ambient = 0;
+
 				#endif
 
-				float shadow = saturate(depth / max(0.005, maxD));
+			//	float shadow = saturate(depth / max(0.005, maxD));
 
 			//	return max(0, minD)*10000;
 
 				//return minD;
 
-				return alpha - max(saturate(depth / max(0.005, maxD)), 
-					 max(0,ambient )
+				return alpha - max(0,
+					 max(depth,ambient )
 						//- max(0, minD)*10000 
 						//- shadow
 					

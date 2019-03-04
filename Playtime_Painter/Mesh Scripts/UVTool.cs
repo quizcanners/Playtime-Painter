@@ -5,9 +5,11 @@ using QuizCannersUtilities;
 namespace Playtime_Painter
 {
 
-    public class VertexUVTool : MeshToolBase
+    public class VertexUVTool : MeshToolBase, IMeshToolWithPerMeshData
     {
 
+        public override string stdTag => "t_uv";
+        
         public static VertexUVTool inst;
 
         public bool projectionUv;
@@ -29,15 +31,14 @@ namespace Playtime_Painter
             return true;
         }
 
-        public override StdEncoder Encode()
-        {
-            var cody = new StdEncoder()
+        public override StdEncoder Encode() => new StdEncoder()
             .Add_Bool("gtuv", projectionUv)
-            .Add("offset", offset)
-            .Add("tile", tiling)
             .Add("nrmWrap", projectorNormalThreshold01);
-            return cody;
-        }
+        
+        public StdEncoder EncodePerMeshData() => new StdEncoder()
+            .Add("offset", offset)
+            .Add("tile", tiling);
+
         #endregion
 
         #region Inspect
@@ -96,7 +97,7 @@ namespace Playtime_Painter
 
             var m = MeshMGMT;
 
-            if (!m.target || m.editedMesh.meshPoints.IsNullOrEmpty()) return;
+            if (!m.target || EditedMesh.meshPoints.IsNullOrEmpty()) return;
 
             var prMesh = FreshPreviewMesh;
 
@@ -262,7 +263,7 @@ namespace Playtime_Painter
 
             if (!projectionUv) return false;
             
-            if (PointedTris.SameAsLastFrame)
+            if (PointedTriangle.SameAsLastFrame)
                 return true;
 
             if (MeshMGMT.SelectedUV == null) MeshMGMT.SelectedUV = EditedMesh.meshPoints[0].vertices[0];
@@ -270,14 +271,14 @@ namespace Playtime_Painter
             var trgPos = MeshMGMT.targetTransform.position;
 
             for (var i = 0; i < 3; i++) {
-                var v = PointedTris.vertexes[i];
+                var v = PointedTriangle.vertexes[i];
                 EditedMesh.Dirty |= v.SetUvIndexBy(PosToUv(v.meshPoint.WorldPos - trgPos));
             }
 
             return true;
         }
 
-        void AutoProjectUVs(EditableMesh eMesh)
+        private void AutoProjectUVs(EditableMesh eMesh)
         {
             // projectorNormalThreshold01
 
@@ -307,10 +308,10 @@ namespace Playtime_Painter
         public override void ManageDragging()
         {
 
-            if (PointedTris != null && SelectedUv != null) {
+            if (PointedTriangle != null && SelectedUv != null) {
 
                 var uv = SelectedUv.SharedEditedUV;
-                var posUv = PointedTris.LocalPosToEditedUV(MeshMGMT.collisionPosLocal);
+                var posUv = PointedTriangle.LocalPosToEditedUV(MeshMGMT.collisionPosLocal);
                 var newUv = uv * 2 - posUv;
                 var isChanged = newUv != _lastCalculatedUv;
                 _lastCalculatedUv = newUv;
@@ -360,6 +361,7 @@ namespace Playtime_Painter
         {
             inst = this;
         }
+
 
     }
 

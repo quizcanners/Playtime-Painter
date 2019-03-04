@@ -531,10 +531,11 @@ namespace Playtime_Painter
             CheckShaders();
 
             var decoder = new StdDecoder(meshToolsStd);
+
             foreach (var tag in decoder) {
                 var d = decoder.GetData();
                 foreach (var m in MeshToolBase.AllTools)
-                    if (m.ToString().SameAs(tag))
+                    if (m.stdTag.SameAs(tag))
                     {
                         m.Decode(d);
                         break;
@@ -593,11 +594,15 @@ namespace Playtime_Painter
         public void ManagedOnDisable()
         {
             StopCamera();
-
-            if (!PainterStuff.applicationIsQuitting)
-                meshToolsStd = new StdEncoder().Add(StdDecoder.ListElementTag, MeshToolBase.AllTools).ToString();
             
-            stdData = Encode().ToString();
+            var cody = new StdEncoder();
+
+            foreach (var t in MeshToolBase.AllTools)
+                cody.Add(t.stdTag, t.Encode());
+
+            meshToolsStd = cody.ToString();
+
+           stdData = Encode().ToString();
         }
     }
 }
