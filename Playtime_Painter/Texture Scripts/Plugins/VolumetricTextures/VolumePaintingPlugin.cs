@@ -11,7 +11,7 @@ namespace Playtime_Painter
 {
 
     [TaggedType(tag)]
-    public class VolumePaintingPlugin : PainterManagerPluginBase, IGotDisplayName,
+    public class VolumePaintingPlugin : PainterSystemManagerPluginBase, IGotDisplayName,
         IPainterManagerPluginComponentPEGI, IPainterManagerPluginBrush, IPainterManagerPluginGizmis
     {
 
@@ -76,7 +76,7 @@ namespace Playtime_Painter
         
         public bool IsA3DBrush(PlaytimePainter painter, BrushConfig bc, ref bool overrideOther)
         {
-            if (painter.GetVolumeTexture() == null) return false;
+            if (!painter.GetVolumeTexture()) return false;
             overrideOther = true;
             return true;
         }
@@ -104,9 +104,9 @@ namespace Playtime_Painter
 
             var pixels = image.Pixels;
 
-            var ihalf = (int)(BlitFunctions.half - 0.5f);
+            var iHalf = (int)(BlitFunctions.half - 0.5f);
             var smooth = bc.GetBrushType(true) != BrushTypePixel.Inst;
-            if (smooth) ihalf += 1;
+            if (smooth) iHalf += 1;
 
             BlitFunctions.alphaMode = BlitFunctions.SphereAlpha;
 
@@ -118,7 +118,7 @@ namespace Playtime_Painter
             var z = (int)(pos.z + hw);
             var x = (int)(pos.x + hw);
 
-            for (BlitFunctions.y = -ihalf; BlitFunctions.y < ihalf + 1; BlitFunctions.y++)
+            for (BlitFunctions.y = -iHalf; BlitFunctions.y < iHalf + 1; BlitFunctions.y++)
             {
 
                 var h = y + BlitFunctions.y;
@@ -130,7 +130,7 @@ namespace Playtime_Painter
                 var hx = h % volume.hSlices;
                 var hTexIndex = (hy * texWidth + hx) * sliceWidth;
 
-                for (BlitFunctions.z = -ihalf; BlitFunctions.z < ihalf + 1; BlitFunctions.z++)
+                for (BlitFunctions.z = -iHalf; BlitFunctions.z < iHalf + 1; BlitFunctions.z++)
                 {
 
                     var trueZ = z + BlitFunctions.z;
@@ -138,7 +138,7 @@ namespace Playtime_Painter
                     if (trueZ < 0 || trueZ >= sliceWidth) continue;
                     var yTexIndex = hTexIndex + trueZ * texWidth;
 
-                    for (BlitFunctions.x = -ihalf; BlitFunctions.x < ihalf + 1; BlitFunctions.x++)
+                    for (BlitFunctions.x = -iHalf; BlitFunctions.x < iHalf + 1; BlitFunctions.x++)
                     {
                         if (!BlitFunctions.alphaMode()) continue;
                         var trueX = x + BlitFunctions.x;
@@ -165,8 +165,6 @@ namespace Playtime_Painter
                 stroke.posFrom = stroke.posTo;
 
             image.useTexcoord2 = false;
-            //  stroke.useTexcoord2 = false;
-
             TexMGMT.Shader_UpdateStrokeSegment(bc, bc.speed * 0.05f, image, stroke, painter);
             stroke.SetWorldPosInShader();
 
@@ -187,30 +185,38 @@ namespace Playtime_Painter
         {
             var id = InspectedPainter.ImgMeta;
             
-            if (id == null) return false;
+            if (id != null) return false;
             
             var inspectedProperty = InspectedPainter.GetMaterialTextureProperty;
             
             if (inspectedProperty == null || !inspectedProperty.NameForDisplayPEGI.Contains(VolumeTextureTag)) return false;
-            
-            "Volume Texture Expected".nl();
 
-            var tmp = -1;
+            if (inspectedProperty.IsGlobalVolume()) {
+                "Global Volume Expected".nl();
 
-            if (!"Available:".select(60, ref tmp, VolumeTexture.all))
+                "Create a game object with one of the Volume scripts and set it as Global Parameter"
+                    .fullWindowDocumentationClick();
+
+            }
+            else
             {
-                var vol = VolumeTexture.all.TryGet(tmp);
+                "Volume Texture Expected".nl();
 
-                if (!vol) return false;
-                
-                if (vol.MaterialPropertyName.Equals(inspectedProperty)) {
+                var tmp = -1;
+
+                if (!"Available:".select(60, ref tmp, VolumeTexture.all))
+                {
+                    var vol = VolumeTexture.all.TryGet(tmp);
+
+                    if (!vol) return false;
+
                     if (vol.ImageMeta != null)
                         vol.AddIfNew(InspectedPainter);
                     else
                         "Volume Has No Texture".showNotificationIn3D_Views();
+
+                    return true;
                 }
-                else { ("Volume is for " + vol.MaterialPropertyName + " not " + inspectedProperty).showNotificationIn3D_Views(); }
-                return true;
             }
 
             return false;
@@ -304,16 +310,78 @@ namespace Playtime_Painter
         }
     }
 
+
+    [TaggedType(Tag)]
+    public class VolumeTextureManagement : PainterComponentPluginBase
+    {
+        private const string Tag = "VolTexM";
+        public override string ClassTag => Tag;
+
+        private static VolumeTexture GlobalVolume => VolumeTexture.currentlyActiveGlobalVolume;
+
+        public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<ShaderProperty.TextureValue> dest)
+        {
+            var mat = painter.Material;
+
+            if (mat && mat.GetTag("Volume", false, "").Equals("Global"))
+            {
+                var vol = GlobalVolume;
+                if (vol)
+                    dest.Add(vol.MaterialPropertyNameGlobal);
+            }
+        }
+
+        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue field, ImageMeta id, PlaytimePainter painter)
+        {
+            if (!field.IsGlobalVolume()) return false;
+
+            GlobalVolume.texture = id.CurrentTexture() as Texture2D;
+
+            GlobalVolume.UpdateMaterials();
+            
+
+            return true;
+        }
+
+        public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter)
+        {
+            if (!field.IsGlobalVolume()) return false;
+
+            tex = GlobalVolume.texture;
+
+            return true;
+        }
+
+        public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue fieldName, PlaytimePainter painter)
+        {
+            if (!fieldName.IsGlobalVolume()) return false;
+            var id = painter.ImgMeta;
+            if (id == null) return true;
+            id.tiling = Vector2.one;
+            id.offset = Vector2.zero;
+            return true;
+        }
+    }
+
     public static class VolumeEditingExtensions
     {
+
+        public static bool IsGlobalVolume(this ShaderProperty.TextureValue field) {
+
+            var vol = VolumeTexture.currentlyActiveGlobalVolume;
+            return vol && field.Equals(vol.MaterialPropertyNameGlobal);
+        }
 
         public static VolumeTexture GetVolumeTexture(this PlaytimePainter p)
         {
             if (p == null)
                 return null;
+
             var id = p.ImgMeta;
-            if (id != null && id.texture2D != null)
+
+            if (id != null && id.texture2D)
                 return id.GetVolumeTextureData();
+
             return null;
         }
 

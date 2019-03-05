@@ -17,49 +17,25 @@
 				#include "PlaytimePainter_cg.cginc"
 
 				#pragma multi_compile  BRUSH_SQUARE    BRUSH_2D    BRUSH_3D    BRUSH_3D_TEXCOORD2  BRUSH_DECAL
-				#pragma multi_compile  BRUSH_NORMAL    BRUSH_ADD   BRUSH_SUBTRACT   BRUSH_COPY   BRUSH_SAMPLE_DISPLACE  BRUSH_PROJECTOR
+				#pragma multi_compile  BLIT_MODE_ALPHABLEND    BLIT_MODE_ADD   BLIT_MODE_SUBTRACT   BLIT_MODE_COPY   BLIT_MODE_SAMPLE_DISPLACE  BLIT_MODE_PROJECTION
 				#pragma multi_compile  ____ TARGET_TRANSPARENT_LAYER
 
 				#pragma vertex vert
 				#pragma fragment frag
 
-				#if BRUSH_2D || BRUSH_DECAL || BRUSH_SQUARE
 				struct v2f {
 					float4 pos : POSITION;
 					float4 texcoord : TEXCOORD0;
-
-				#if BRUSH_PROJECTOR
 					float4 worldPos : TEXCOORD1;
+					#if BLIT_MODE_PROJECTION
 					float4 shadowCoords : TEXCOORD2;
-				#endif
+					#endif
+					float2 srcTexAspect : TEXCOORD3;
 				};
 
-				v2f vert(appdata_full v) {
-					v2f o;
-					o.pos = UnityObjectToClipPos(v.vertex);
-					o.texcoord = brushTexcoord(v.texcoord.xy, v.vertex);
-					
-					#if BRUSH_PROJECTOR
-					o.worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1.0f));
-					o.shadowCoords = mul(pp_ProjectorMatrix, o.worldPos);
-					#endif
-					
-					return o;
-				}
-				#endif
+
 
 				#if BRUSH_3D || BRUSH_3D_TEXCOORD2
-
-				struct v2f {
-					float4 pos : POSITION;
-					float2 texcoord : TEXCOORD0;
-					float4 worldPos : TEXCOORD1;
-					#if BRUSH_PROJECTOR
-					float4 shadowCoords : TEXCOORD2;
-					#endif
-				};
-
-
 				v2f vert(appdata_full v) {
 
 					v2f o;
@@ -68,8 +44,11 @@
 					o.worldPos = worldPos;
 
 					#if BRUSH_3D_TEXCOORD2
-						v.texcoord.xy = v.texcoord2.xy;
+					v.texcoord.xy = v.texcoord2.xy;
 					#endif
+
+					float2 suv = _SourceTexture_TexelSize.zw;
+					o.srcTexAspect = max(1, float2(suv.y / suv.x, suv.x / suv.y));
 
 					// ATLASED CALCULATION
 					float atY = floor(v.texcoord.z / _brushAtlasSectionAndRows.z);
@@ -81,27 +60,56 @@
 					worldPos.z += 100;
 					worldPos.xy += (v.texcoord.xy*_brushEditedUVoffset.xy + _brushEditedUVoffset.zw - 0.5) * 256;
 
-					v.vertex = mul(unity_WorldToObject, float4(worldPos.xyz,v.vertex.w));
+					v.vertex = mul(unity_WorldToObject, float4(worldPos.xyz, v.vertex.w));
 
 					o.pos = UnityObjectToClipPos(v.vertex);
 
 					o.texcoord.xy = ComputeScreenPos(o.pos);
 
-					#if BRUSH_PROJECTOR
+					o.texcoord.zw = o.texcoord.xy - 0.5;
+
+					#if BLIT_MODE_PROJECTION
 					o.shadowCoords = mul(pp_ProjectorMatrix, o.worldPos);
 					#endif
 
 					return o;
 				}
-				#endif
 
+
+				#else
+
+				v2f vert(appdata_full v) {
+					v2f o;
+
+					o.worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1));
+
+					o.pos = UnityObjectToClipPos(v.vertex);
+					o.texcoord = brushTexcoord(v.texcoord.xy, v.vertex);	
+
+
+					float2 suv = _SourceTexture_TexelSize.zw;
+					o.srcTexAspect = max(1, float2(suv.y / suv.x, suv.x / suv.y));
+
+					return o;
+				}
+				#endif
 
 				float4 frag(v2f o) : COLOR{
 
 					// Brush Types
 
+					#if BLIT_MODE_PROJECTION
+						o.shadowCoords.xy /= o.shadowCoords.w;					
+					#endif
+
 					#if BRUSH_3D || BRUSH_3D_TEXCOORD2
-						float alpha = prepareAlphaSphere(o.texcoord, o.worldPos.xyz);
+						
+						#if BLIT_MODE_PROJECTION
+							float alpha = prepareAlphaSphere(o.shadowCoords.xy, o.worldPos.xyz);
+						#else
+							float alpha = prepareAlphaSphere(o.texcoord, o.worldPos.xyz);
+						#endif
+
 						clip(alpha - 0.000001);
 					#endif
 
@@ -127,33 +135,36 @@
 
 						// Brush Modes
 
-					#if BRUSH_COPY
-						_brushColor = tex2Dlod(_SourceTexture, float4(o.texcoord.xy, 0, 0));
+					#if BLIT_MODE_COPY
+						float4 src = tex2Dlod(_SourceTexture, float4(o.texcoord.xy*o.srcTexAspect, 0, 0));
+						alpha *= src.a;
+						_brushColor.rgb = SourceTextureByBrush(src.rgb);
 					#endif
 
-					#if BRUSH_SAMPLE_DISPLACE
+					#if BLIT_MODE_SAMPLE_DISPLACE
 						_brushColor.r = (_brushSamplingDisplacement.x - o.texcoord.x - _brushPointedUV_Untiled.z) / 2 + 0.5;
 						_brushColor.g = (_brushSamplingDisplacement.y - o.texcoord.y - _brushPointedUV_Untiled.w) / 2 + 0.5;
 					#endif
 
 
-					#if BRUSH_PROJECTOR
+					#if BLIT_MODE_PROJECTION
+
+						alpha *= ProjectorSquareAlpha(o.shadowCoords);
+
 						float2 pUv;
+						alpha *= ProjectorDepthDifference(o.shadowCoords, o.worldPos, pUv);
 
-						o.shadowCoords.xy /= o.shadowCoords.w;
+						float4 src = tex2Dlod(_SourceTexture, float4(pUv*o.srcTexAspect, 0, 0));
 
-						alpha = ProjectorSquareAlpha(o.shadowCoords);
+						alpha *= src.a;
 
-						alpha *= 
-							ProjectorDepthDifference(o.shadowCoords, o.worldPos, pUv);
-
-						_brushColor = tex2Dlod(_SourceTexture, float4(pUv, 0, 0));
+						_brushColor.rgb = SourceTextureByBrush(src.rgb);
 
 					#endif
 
-					#if BRUSH_NORMAL || BRUSH_COPY || BRUSH_SAMPLE_DISPLACE || BRUSH_PROJECTOR
+					#if BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY || BLIT_MODE_SAMPLE_DISPLACE || BLIT_MODE_PROJECTION
 
-					#if (BRUSH_NORMAL || BRUSH_COPY) && TARGET_TRANSPARENT_LAYER
+					#if (BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY) && TARGET_TRANSPARENT_LAYER
 						return AlphaBlitTransparent(alpha, _brushColor,  o.texcoord.xy);
 					#else
 						return AlphaBlitOpaque(alpha, _brushColor,  o.texcoord.xy);
@@ -161,11 +172,11 @@
 
 					#endif
 
-					#if BRUSH_ADD
+					#if BLIT_MODE_ADD
 						return  addWithDestBuffer(alpha*0.04, _brushColor,  o.texcoord.xy);
 					#endif
 
-					#if BRUSH_SUBTRACT
+					#if BLIT_MODE_SUBTRACT
 						return  subtractFromDestBuffer(alpha*0.04, _brushColor,  o.texcoord.xy);
 					#endif
 

@@ -15,7 +15,7 @@
 				#include "PlaytimePainter_cg.cginc"
 				#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
-				#pragma multi_compile  BRUSH_NORMAL  BRUSH_ADD   BRUSH_SUBTRACT   BRUSH_COPY   BRUSH_SAMPLE_DISPLACE
+				#pragma multi_compile  BLIT_MODE_ALPHABLEND  BLIT_MODE_ADD   BLIT_MODE_SUBTRACT   BLIT_MODE_COPY   BLIT_MODE_SAMPLE_DISPLACE
 
 				#pragma vertex vert
 				#pragma fragment frag
@@ -39,11 +39,11 @@
 
 					float3 worldPos = volumeUVtoWorld(i.texcoord.xy, VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
 
-					#if BRUSH_COPY
+					#if BLIT_MODE_COPY
 					_brushColor = tex2Dlod(_SourceTexture, float4(i.texcoord.xy, 0, 0));
 					#endif
 
-					#if BRUSH_SAMPLE_DISPLACE
+					#if BLIT_MODE_SAMPLE_DISPLACE
 					_brushColor.r = (_brushSamplingDisplacement.x - i.texcoord.x - _brushPointedUV_Untiled.z) / 2 + 0.5;
 					_brushColor.g = (_brushSamplingDisplacement.y - i.texcoord.y - _brushPointedUV_Untiled.w) / 2 + 0.5;
 					#endif
@@ -52,15 +52,15 @@
 
 					clip(alpha);
 
-					#if BRUSH_NORMAL || BRUSH_COPY || BRUSH_SAMPLE_DISPLACE
+					#if BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY || BLIT_MODE_SAMPLE_DISPLACE
 					return AlphaBlitOpaque(alpha, _brushColor,  i.texcoord.xy);
 					#endif
 
-					#if BRUSH_ADD
+					#if BLIT_MODE_ADD
 					return  addWithDestBuffer(alpha*0.04, _brushColor,  i.texcoord.xy);
 					#endif
 
-					#if BRUSH_SUBTRACT
+					#if BLIT_MODE_SUBTRACT
 					return  subtractFromDestBuffer(alpha*0.04, _brushColor,  i.texcoord.xy);
 					#endif
 

@@ -10,7 +10,7 @@ namespace Playtime_Painter {
 
     #region Manager
     [TaggedType(tag)]
-    public class MultiBufferProcessing : PainterManagerPluginBase, IPainterManagerPluginComponentPEGI, IPainterManagerPluginOnGUI
+    public class MultiBufferProcessing : PainterSystemManagerPluginBase, IPainterManagerPluginComponentPEGI, IPainterManagerPluginOnGUI
     {
         const string tag = "MltBffr";
         public override string ClassTag => tag;
@@ -681,7 +681,7 @@ namespace Playtime_Painter {
 
     #region Section
     
-    public class RenderSection : PainterStuffKeepUnrecognized_STD , IPEGI, IGotDisplayName, IPEGI_ListInspect
+    public class RenderSection : PainterSystemKeepUnrecognizedStd , IPEGI, IGotDisplayName, IPEGI_ListInspect
     {
         private enum BlitTrigger { Manual, PerFrame, WhenOtherSectionUpdated, WhenSourceReady, Delay, DelayAndUpdated }
 

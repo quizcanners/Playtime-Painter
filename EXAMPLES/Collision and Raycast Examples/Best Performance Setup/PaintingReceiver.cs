@@ -188,7 +188,7 @@ namespace Playtime_Painter.Examples {
             
             var changes = false;
 
-            if (icon.Refresh.Click("Find stuff automatically"))
+            if (icon.Refresh.Click("Find Components automatically"))
                 Refresh();
 
             if ("Renderer GetBrushType:".editEnum(90, ref type).nl())

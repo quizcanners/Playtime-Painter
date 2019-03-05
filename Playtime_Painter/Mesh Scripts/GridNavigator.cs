@@ -7,7 +7,7 @@ using PlayerAndEditorGUI;
 public enum Gridside { xz, xy, zy }
 
 [ExecuteInEditMode]
-public class GridNavigator : PainterStuffMono {
+public class GridNavigator : PainterSystemMono {
 
     public static GridNavigator Inst()  {
         if (_inst) return _inst;
@@ -102,7 +102,7 @@ public class GridNavigator : PainterStuffMono {
 
     private static Vector3 MouseToPlane(Plane plane)
     {
-        var ray = EditorInputManager.GetScreenRay(TexMGMT.MainCamera);
+        var ray = EditorInputManager.GetScreenMousePositionRay(TexMGMT.MainCamera);
         float rayDistance;
         return plane.Raycast(ray, out rayDistance) ? ray.GetPoint(rayDistance) : Vector3.zero;
     }
@@ -337,7 +337,7 @@ public class GridNavigator : PainterStuffMono {
 
         if (EditorInputManager.GetMouseButtonDown(2)) {
             RaycastHit hit;
-            if (Physics.Raycast(EditorInputManager.GetScreenRay(TexMGMT.MainCamera), out hit))
+            if (Physics.Raycast(EditorInputManager.GetScreenMousePositionRay(TexMGMT.MainCamera), out hit))
                 onGridPos = hit.point;
         }
     }

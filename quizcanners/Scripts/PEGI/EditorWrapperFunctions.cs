@@ -51,7 +51,7 @@ namespace PlayerAndEditorGUI {
 
             var o = (T)editor.target;
             var so = editor.serializedObject;
-            pegi.inspectedTerget = editor.target;
+            pegi.inspectedTarget = editor.target;
 
             var go = o.gameObject;
             
@@ -113,7 +113,7 @@ namespace PlayerAndEditorGUI {
 
             var o = (T)editor.target;
             var so = editor.serializedObject;
-            pegi.inspectedTerget = editor.target;
+            pegi.inspectedTarget = editor.target;
 
             var pgi = o as IPEGI;
             if (pgi != null)
@@ -136,7 +136,7 @@ namespace PlayerAndEditorGUI {
 
             editorType = EditorType.Material;
 
-            pegi.inspectedTerget = editor.unityMaterialEditor.target;
+            pegi.inspectedTarget = editor.unityMaterialEditor.target;
 
             var mat = editor.unityMaterialEditor.target as Material;
 

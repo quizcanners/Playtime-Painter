@@ -10,14 +10,14 @@ namespace Playtime_Painter {
     
     [ExecuteInEditMode]
     [Serializable]
-    public class VolumeTexture : PainterStuffMono, IGotName
+    public class VolumeTexture : PainterSystemMono, IGotName
     {
 
         [SerializeField] private bool setForGlobal;
 
-        private static VolumeTexture _currentlyActiveGlobalVolume;
+        public static VolumeTexture currentlyActiveGlobalVolume;
 
-        protected bool IsCurrentGlobalVolume => setForGlobal && this == _currentlyActiveGlobalVolume;
+        protected bool IsCurrentGlobalVolume => setForGlobal && this == currentlyActiveGlobalVolume;
         
         public static List<VolumeTexture> all = new List<VolumeTexture>();
 
@@ -32,19 +32,19 @@ namespace Playtime_Painter {
 
         [NonSerialized] protected NativeArray<Color> unsortedVolume;
 
-        [SerializeField] private Texture2D image;
+        [SerializeField] public Texture2D texture;
 
         public ImageMeta ImageMeta
         {
-            get { return image.GetImgData(); }
-            set { image = value?.texture2D; }
+            get { return texture.GetImgData(); }
+            set { texture = value?.texture2D; }
         }
 
         protected virtual string PropertyName => "DefaultVolume";
 
         public ShaderProperty.TextureValue MaterialPropertyName => new ShaderProperty.TextureValue(PropertyName + VolumePaintingPlugin.VolumeTextureTag);
 
-        public ShaderProperty.TextureValue MaterialPropertyNameGlobal => new ShaderProperty.TextureValue( PainterDataAndConfig.GlobalPropertyPrefix+ PropertyName + VolumePaintingPlugin.VolumeTextureTag);
+        public ShaderProperty.TextureValue MaterialPropertyNameGlobal => new ShaderProperty.TextureValue( PainterDataAndConfig.GlobalPropertyPrefix+ PropertyName + VolumePaintingPlugin.VolumeTextureTag, true);
         
         public List<Material> materials;
 
@@ -56,7 +56,7 @@ namespace Playtime_Painter {
 
         public Vector4 PosSize4Shader => transform.position.ToVector4(1f / size);
 
-        public Vector4 Slices4Shader { get { float w = (ImageMeta.width - hSlices * 2) / hSlices; return new Vector4(hSlices, w * 0.5f, 1f / w, 1f / hSlices); } }
+        public Vector4 Slices4Shader { get { float w = (Width - hSlices * 2) / hSlices; return new Vector4(hSlices, w * 0.5f, 1f / w, 1f / hSlices); } }
 
         public virtual bool NeedsToManageMaterials => true;
 
@@ -323,8 +323,17 @@ namespace Playtime_Painter {
             
             if (inspectedMaterial == -1) {
 
-                "Also set for Global shader parameters".toggleIcon(ref setForGlobal).nl(ref changed);
-                
+                "Also set for Global shader parameters".toggleIcon(ref setForGlobal, true).changes(ref changed);
+                if (setForGlobal)
+                {
+                    "Current is {0}".F(currentlyActiveGlobalVolume).nl();
+                    if (this != currentlyActiveGlobalVolume && "Set this".Click(ref changed))
+                        currentlyActiveGlobalVolume = null;
+                    
+                }
+
+                pegi.nl();
+
                 var n = name;
                 
                 if ("Name".editDelayed(50, ref n).nl(ref changed))
@@ -380,7 +389,7 @@ namespace Playtime_Painter {
             }
             
 
-            if (materials.Count > 0 && (changed || (inspectedMaterial == -1 && "Update Materials".Click().nl(ref changed))))
+            if (changed || (inspectedMaterial == -1 && "Update Materials".Click().nl(ref changed)))
                 UpdateMaterials();
 
             return changed;
@@ -389,19 +398,14 @@ namespace Playtime_Painter {
         #endif
         #endregion
 
-        protected virtual void UpdateMaterials()
-        {
-
-            var id = ImageMeta;
-
-            if (id == null) return;
-
+        public virtual void UpdateMaterials() {
+            
             materials.SetVolumeTexture(MaterialPropertyName, this);
             
             if (setForGlobal)  {
-                if (!_currentlyActiveGlobalVolume)
-                    _currentlyActiveGlobalVolume = this;
-                else if (_currentlyActiveGlobalVolume == this)
+                if (!currentlyActiveGlobalVolume)
+                    currentlyActiveGlobalVolume = this;
+                else if (currentlyActiveGlobalVolume == this)
                 {
                     VolumePaintingPlugin.VOLUME_POSITION_N_SIZE_Global.SetGlobal(PosSize4Shader);
                     VolumePaintingPlugin.VOLUME_H_SLICES_Global.SetGlobal(Slices4Shader);
@@ -419,6 +423,9 @@ namespace Playtime_Painter {
             _previousWorldPosition = transform.position;
             
             materials.SetVolumeTexture(MaterialPropertyName, this);
+
+            if (setForGlobal && !currentlyActiveGlobalVolume)
+                UpdateMaterials();
         }
 
         public virtual void OnEnable()
@@ -427,6 +434,8 @@ namespace Playtime_Painter {
                 materials = new List<Material>();
 
             all.Add(this);
+
+            UpdateMaterials();
         }
 
         public virtual void OnDisable()
@@ -435,6 +444,8 @@ namespace Playtime_Painter {
                 all.Remove(this);
             if (unsortedVolume.IsCreated)
                 unsortedVolume.Dispose();
+            if (this == currentlyActiveGlobalVolume)
+                currentlyActiveGlobalVolume = null;
         }
 
         public virtual void OnDrawGizmosSelected()

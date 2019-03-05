@@ -80,7 +80,7 @@ Shader "Playtime Painter/Terrain Integration/Triplanar" {
 					float3 worldNormal = UnityObjectToWorldNormal(v.normal);
 
 					#if WATER_FOAM
-					o.fwpos = foamStuff(o.wpos);    
+					o.fwpos = ComputeFoam(o.wpos);    
 					#endif
 
 					half3 wNormal = worldNormal;

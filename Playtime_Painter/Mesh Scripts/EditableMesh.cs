@@ -6,23 +6,24 @@ using QuizCannersUtilities;
 
 namespace Playtime_Painter {
 
-    public class EditableMesh : PainterStuffStd, IPEGI {
+    public class EditableMesh : PainterSystemStd, IPEGI {
 
         public string meshName = "unnamed";
 
         public bool Dirty {
             get {
-                return  dirtyColor || dirtyNormals || dirtyPosition;
+                return  dirtyColor || dirtyVertexIndexes || dirtyPosition;// || dirtyUvs;
             } set {
+                dirtyVertexIndexes = value;
                 dirtyColor = value;
-                dirtyNormals = value;
                 dirtyPosition = value;
+                //dirtyUvs = value;
             }
         }
-        public bool dirtyVertices;
         public bool dirtyPosition;
         public bool dirtyColor;
-        public bool dirtyNormals;
+        public bool dirtyVertexIndexes;
+       // public bool dirtyUvs;
         public int vertexCount;
 
         public bool gotBoneWeights;
@@ -195,8 +196,9 @@ namespace Playtime_Painter {
             if (selectedTriangle != null)
                 cody.Add("sctdTris", triangles.IndexOf(selectedTriangle));
 
-            foreach (var t in MeshToolBase.allToolsWithPerMeshData)
-                cody.Add((t as MeshToolBase).stdTag, t.EncodePerMeshData());
+            if (!MeshToolBase.AllTools.IsNullOrEmpty())
+                foreach (var t in MeshToolBase.allToolsWithPerMeshData)
+                    cody.Add((t as MeshToolBase).stdTag, t.EncodePerMeshData());
 
 
             return cody;
@@ -217,13 +219,13 @@ namespace Playtime_Painter {
                 case "sctdUV": selectedUv = meshPoints[data.ToInt()].vertices[0]; break;
                 case "sctdTris": selectedTriangle = triangles[data.ToInt()]; break;
                 default:
+                    if (MeshToolBase.AllTools.IsNullOrEmpty()) return false;
 
                     foreach (var t in MeshToolBase.allToolsWithPerMeshData){
                         var mt = t as MeshToolBase;
-                        if (mt.stdTag.Equals(tg)) {
-                            mt.Decode(data);
-                            return true;
-                        }
+                        if (mt == null || !mt.stdTag.Equals(tg)) continue;
+                        mt.Decode(data);
+                        return true;
 
                     }
 
@@ -554,8 +556,7 @@ namespace Playtime_Painter {
 
         }
         
-        public void AllVerticesShared()
-        {
+        public void AllVerticesShared() {
             foreach (var vp in meshPoints)
                 while (vp.vertices.Count > 1)
                     if (!MoveTriangle(vp.vertices[1], vp.vertices[0])) { break; }

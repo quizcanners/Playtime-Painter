@@ -7,7 +7,7 @@ using QuizCannersUtilities;
 namespace Playtime_Painter
 {
 
-    public class MaterialMeta : PainterStuffKeepUnrecognized_STD, IPEGI, IPEGI_ListInspect, IGotDisplayName {
+    public class MaterialMeta : PainterSystemKeepUnrecognizedStd, IPEGI, IPEGI_ListInspect, IGotDisplayName {
         
         public Material material;
         public int selectedTexture;

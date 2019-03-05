@@ -14,7 +14,7 @@ namespace Playtime_Painter
     }
 
     #region Base
-    public class MeshToolBase : PainterStuffStd, IPEGI, IGotDisplayName
+    public class MeshToolBase : PainterSystemStd, IPEGI, IGotDisplayName
     {
 
         public virtual string stdTag => "t_noStd";
@@ -68,11 +68,11 @@ namespace Playtime_Painter
         
         protected static LineData PointedLine => MeshMGMT.PointedLine;
         protected static Triangle PointedTriangle => MeshMGMT.PointedTriangle;
-        protected Triangle SelectedTrangle => MeshMGMT.SelectedTriangle;
+        protected Triangle SelectedTriangle => MeshMGMT.SelectedTriangle;
         protected static Vertex PointedUv => MeshMGMT.PointedUV;
         protected static Vertex SelectedUv => MeshMGMT.SelectedUV;
         protected static MeshPoint PointedVertex => MeshMGMT.PointedUV.meshPoint;
-        protected static EditableMesh FreshPreviewMesh
+        protected static EditableMesh GetPreviewMesh
         {
             get
             {

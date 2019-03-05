@@ -31,17 +31,28 @@ namespace Playtime_Painter {
                 
                 mousePosition = Event.current.mousePosition;
 
-                var offScreen = (Camera.current != null && (mousePosition.x < 0 || mousePosition.y < 0
-                    || mousePosition.x > Camera.current.pixelWidth ||
-                       mousePosition.y > Camera.current.pixelHeight));
+                var cam = Camera.current;
 
-                if (!offScreen) {
-                    rayGui = HandleUtility.GUIPointToWorldRay(mousePosition);
+                var offScreen = (!cam || (mousePosition.x < 0 || mousePosition.y < 0
+                    || mousePosition.x > cam.pixelWidth ||
+                       mousePosition.y > cam.pixelHeight));
+
+                if (!offScreen)
+                {
+
+                    var camTf = cam.transform;
+
+                    EditorInputManager.centerRaySceneView = new Ray(camTf.position, camTf.forward);
+
+                    mouseRayGui = HandleUtility.GUIPointToWorldRay(mousePosition);
+
+                    EditorInputManager.mouseRaySceneView = mouseRayGui;
+
 
                     if (painter)
-                        rayGui = painter.PrepareRay(rayGui);
+                        mouseRayGui = painter.PrepareRay(mouseRayGui);
                         
-                    EditorInputManager.raySceneView = rayGui;
+                  
                 }
 
             }
@@ -52,11 +63,11 @@ namespace Playtime_Painter {
             {
 
                 RaycastHit hit;
-                var isHit = Physics.Raycast(rayGui, out hit);
+                var isHit = Physics.Raycast(mouseRayGui, out hit);
 
                 var pp = isHit ? hit.transform.GetComponent<PlaytimePainter>() : null;
 
-                var refocus = OnEditorRayHit(hit, rayGui);
+                var refocus = OnEditorRayHit(hit, mouseRayGui);
 
                 if (lMouseDwn && e.button == 0 && refocus && isHit)
                 {
@@ -175,7 +186,7 @@ namespace Playtime_Painter {
         public static bool lMouseUp;
         
         public Vector2 mousePosition;
-        public Ray rayGui;
+        public Ray mouseRayGui;
 
         public override void OnInspectorGUI()
         {

@@ -193,7 +193,7 @@ namespace STD_Logic
 
             var changed = false;
 
-            if (inspectedStuff == -1) {
+            if (inspectedItems == -1) {
 
 
                 changed |= "{0} : ".F(_index).edit(50, ref _name).nl();

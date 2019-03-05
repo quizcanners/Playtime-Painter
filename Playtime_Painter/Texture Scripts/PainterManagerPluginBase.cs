@@ -9,7 +9,7 @@ namespace Playtime_Painter {
 
     public class PainterManagerPluginAttribute : AbstractWithTaggedTypes
     {
-        public override TaggedTypesStd TaggedTypes => PainterManagerPluginBase.all;
+        public override TaggedTypesStd TaggedTypes => PainterSystemManagerPluginBase.all;
     }
 
     public interface IPainterManagerPluginOnGUI
@@ -63,9 +63,9 @@ namespace Playtime_Painter {
     }
 
     [PainterManagerPlugin]
-    public abstract class PainterManagerPluginBase : PainterStuffKeepUnrecognized_STD, IGotDisplayName, IGotClassTag {
+    public abstract class PainterSystemManagerPluginBase : PainterSystemKeepUnrecognizedStd, IGotDisplayName, IGotClassTag {
 
-        public static List<PainterManagerPluginBase> plugins;
+        public static List<PainterSystemManagerPluginBase> plugins;
 
         public static readonly List<IPainterManagerPluginComponentPEGI> ComponentMgmtPlugins = new List<IPainterManagerPluginComponentPEGI>();
 
@@ -82,7 +82,7 @@ namespace Playtime_Painter {
         public static void RefreshPlugins() {
 
             if (plugins == null)
-                plugins = new List<PainterManagerPluginBase>();
+                plugins = new List<PainterSystemManagerPluginBase>();
             else
                 for (var i = 0; i < plugins.Count; i++)
                     if (plugins[i] == null) { plugins.RemoveAt(i); i--; }
@@ -99,7 +99,7 @@ namespace Playtime_Painter {
                     if (p.GetType() == t) { contains = true; break; }
 
                 if (!contains)
-                    plugins.Add((PainterManagerPluginBase)Activator.CreateInstance(t));
+                    plugins.Add((PainterSystemManagerPluginBase)Activator.CreateInstance(t));
 
             }
 
@@ -128,7 +128,7 @@ namespace Playtime_Painter {
         
         #region Abstract Serialized
         public abstract string ClassTag { get; } 
-        public static TaggedTypesStd all = new TaggedTypesStd(typeof(PainterManagerPluginBase));
+        public static TaggedTypesStd all = new TaggedTypesStd(typeof(PainterSystemManagerPluginBase));
         public TaggedTypesStd AllTypes => all;
         #endregion
 

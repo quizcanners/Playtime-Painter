@@ -6,7 +6,7 @@ using QuizCannersUtilities;
 namespace Playtime_Painter
 {
 
-    public abstract class BrushType : PainterStuff, IEditorDropdown, IPEGI, IGotDisplayName {
+    public abstract class BrushType : PainterSystem, IEditorDropdown, IPEGI, IGotDisplayName {
 
         private static List<BrushType> _allTypes;
 
@@ -99,6 +99,20 @@ namespace Playtime_Painter
             if (id == null)
                 return false;
 
+            var br = InspectedBrush;
+
+            if (br != null)
+            {
+                var blitMode = br.GetBlitMode(br.IsCpu(p));
+                if (blitMode.NeedsWorldSpacePosition && !IsA3DBrush)
+                    return false;
+                
+
+                // Debug.Log("{0} needs world space: {1} true for {2}".F(blitMode, blitMode.NeedsWorldSpacePosition, this));
+
+                //Debug.Log("Show in dropdown");
+            }
+
             return 
                 
                 (id.destination == TexTarget.Texture2D && SupportedByTex2D) ||
@@ -176,7 +190,7 @@ namespace Playtime_Painter
             
             BlitFunctions.PaintTexture2DMethod blitMethod = null;
             
-            foreach (var p in PainterManagerPluginBase.BrushPlugins)
+            foreach (var p in PainterSystemManagerPluginBase.BrushPlugins)
                 if (p.PaintPixelsInRam(st, alpha, id, br, painter)) {
                     blitMethod = p.PaintPixelsInRam;
                     break;
@@ -204,15 +218,15 @@ namespace Playtime_Painter
             if (st.CrossedASeam())
                 st.uvFrom = st.uvTo;
 
-            ImageMeta id = painter.ImgMeta;
+            var id = painter.ImgMeta;
 
             TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st, painter);
 
             var rb = RtBrush;
 
             rb.localScale = Vector3.one;
-            Vector2 direction = st.DeltaUv;
-            float length = direction.magnitude;
+            var direction = st.DeltaUv;
+            var length = direction.magnitude;
             BrushMesh = PainterCamera.BrushMeshGenerator.GetLongMesh(length * 256, br.StrokeWidth(id.width, false));
             rb.localRotation = Quaternion.Euler(new Vector3(0, 0, (direction.x > 0 ? -1 : 1) * Vector2.Angle(Vector2.up, direction)));
 
@@ -639,7 +653,7 @@ namespace Playtime_Painter
 
             TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, stroke, painter);
 
-            Vector2 offset = id.offset - stroke.unRepeatedUv.Floor();
+            var offset = id.offset - stroke.unRepeatedUv.Floor();
 
             stroke.SetWorldPosInShader();
 
@@ -650,7 +664,7 @@ namespace Playtime_Painter
         public override void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st)
         {
 
-            ImageMeta id = painter.ImgMeta;
+            var id = painter.ImgMeta;
 
             BeforeStroke(painter, br, st);
 

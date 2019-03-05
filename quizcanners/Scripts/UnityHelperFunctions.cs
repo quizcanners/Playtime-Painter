@@ -423,7 +423,7 @@ namespace QuizCannersUtilities {
 
         public static bool MouseToPlane(this Plane plane, out Vector3 hitPos, Camera cam = null)
         {
-            var ray = EditorInputManager.GetScreenRay(cam);
+            var ray = EditorInputManager.GetScreenMousePositionRay(cam);
             float rayDistance;
             if (plane.Raycast(ray, out rayDistance))
             {
@@ -753,8 +753,8 @@ namespace QuizCannersUtilities {
 
                 foreach (var file in fileInfo)
                 {
-                    var name = file.Name.Substring(0, file.Name.Length - StuffSaver.FileType.Length);
-                    if (file.Extension == StuffSaver.FileType && !l.Contains(name))
+                    var name = file.Name.Substring(0, file.Name.Length - FileSaverUtils.FileType.Length);
+                    if (file.Extension == FileSaverUtils.FileType && !l.Contains(name))
                         l.Add(name);
                 }
 
@@ -822,7 +822,7 @@ namespace QuizCannersUtilities {
         public static void DuplicateResource(string assetFolder, string insideAssetFolder, string oldName, string newName)
         {
             var path = Path.Combine("Assets", assetFolder, "Resources", insideAssetFolder);
-            AssetDatabase.CopyAsset(Path.Combine(path, oldName) + StuffSaver.FileType, Path.Combine(path, newName) + StuffSaver.FileType);
+            AssetDatabase.CopyAsset(Path.Combine(path, oldName) + FileSaverUtils.FileType, Path.Combine(path, newName) + FileSaverUtils.FileType);
         }
         #endif
 
@@ -905,7 +905,7 @@ namespace QuizCannersUtilities {
         #if UNITY_EDITOR
             try
             {
-                var path = Path.Combine("Assets", assetFolder, "Resources", insideAssetFolderAndName) + StuffSaver.FileType;
+                var path = Path.Combine("Assets", assetFolder, "Resources", insideAssetFolderAndName) + FileSaverUtils.FileType;
                 AssetDatabase.DeleteAsset(path);
             }
             catch (Exception e)

@@ -60,7 +60,7 @@
 					o.normal =  normalize(worldNormal);
 
 					#if WATER_FOAM
-					o.fwpos = foamStuff(o.wpos);
+					o.fwpos = ComputeFoam(o.wpos);
 					#endif
 
 					return o;

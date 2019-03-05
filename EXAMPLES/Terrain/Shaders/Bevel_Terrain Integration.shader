@@ -78,7 +78,7 @@
 				UNITY_TRANSFER_FOG(o, o.pos);
 				o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
 				#if WATER_FOAM
-				o.fwpos = foamStuff(o.worldPos);
+				o.fwpos = ComputeFoam(o.worldPos);
 				#endif
 				o.tc_Control.xyz = (o.worldPos.xyz - _mergeTeraPosition.xyz) / _mergeTerrainScale.xyz;
 				o.normal.xyz = UnityObjectToWorldNormal(v.normal);

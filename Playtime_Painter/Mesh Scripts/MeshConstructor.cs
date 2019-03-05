@@ -7,10 +7,10 @@ namespace Playtime_Painter {
 
     public class MeshConstructor {
 
-        public List<int>[] tris;
+        public List<int>[] triangles;
         public uint[] baseVertex;
 
-        private Vector4[] _perVertexTrisTexture;
+        private Vector4[] _perVertexTriangleTexture;
         private Vector2[] _uvs;
         private Vector2[] _uvs1;
 
@@ -39,12 +39,12 @@ namespace Playtime_Painter {
 
         public Mesh mesh;
 
-        public int vertsCount;
+        public int vertexCount;
 
         public Color[] Colors {
             get {
                 if (_colors == null) {
-                    _colors = new Color[vertsCount];
+                    _colors = new Color[vertexCount];
                     foreach (var vp in edMesh.meshPoints)
                         foreach (var uvi in vp.vertices)
                             _colors[uvi] = uvi.color;
@@ -57,7 +57,7 @@ namespace Playtime_Painter {
             get {
                 if (_shadowBake != null) return _shadowBake;
 
-                _shadowBake = new Vector4[vertsCount];
+                _shadowBake = new Vector4[vertexCount];
                 foreach (var vp in edMesh.meshPoints)
                 foreach (var uvi in vp.vertices)
                     _shadowBake[uvi] = vp.shadowBake;
@@ -68,7 +68,7 @@ namespace Playtime_Painter {
         public Vector2[] Uv { get {
                 if (_uvs != null) return _uvs;
 
-                _uvs = new Vector2[vertsCount];
+                _uvs = new Vector2[vertexCount];
                 foreach (var vp in edMesh.meshPoints)
                 foreach (var uvi in vp.vertices)
                     _uvs[uvi] = uvi.GetUV(0);
@@ -76,11 +76,11 @@ namespace Playtime_Painter {
             }
         }
 
-        public Vector2[] _uv1 {
+        public Vector2[] Uv1 {
             get {
                 if (_uvs1 != null) return _uvs1;
 
-                _uvs1 = new Vector2[vertsCount];
+                _uvs1 = new Vector2[vertexCount];
                 foreach (var vp in edMesh.meshPoints)
                 foreach (var uvi in vp.vertices)
                     _uvs1[uvi] = uvi.GetUV(1);
@@ -90,22 +90,22 @@ namespace Playtime_Painter {
 
         public Vector4[] TriangleTextures {
             get {
-                if (_perVertexTrisTexture != null) return _perVertexTrisTexture;
+                if (_perVertexTriangleTexture != null) return _perVertexTriangleTexture;
 
-                _perVertexTrisTexture = new Vector4[vertsCount];
+                _perVertexTriangleTexture = new Vector4[vertexCount];
 
                 foreach (var tri in edMesh.triangles) 
                     for (var no = 0; no < 3; no++)
-                        _perVertexTrisTexture[tri.vertexes[no]] = tri.textureNo;
+                        _perVertexTriangleTexture[tri.vertexes[no]] = tri.textureNo;
                 
-                return _perVertexTrisTexture;
+                return _perVertexTriangleTexture;
             }
         }
 
         public Vector4[] EdgeData {
             get {
                 if (_edgeData != null) return _edgeData;
-                _edgeData = new Vector4[vertsCount];
+                _edgeData = new Vector4[vertexCount];
 
                 foreach (var tri in edMesh.triangles) {
                     for (var no = 0; no < 3; no++) {
@@ -125,7 +125,7 @@ namespace Playtime_Painter {
 
                 if (_edgeWeightedOnly != null) return _edgeWeightedOnly;
 
-                _edgeWeightedOnly = new Vector3[vertsCount];
+                _edgeWeightedOnly = new Vector3[vertexCount];
 
                 foreach (var tri in edMesh.triangles)
                     for (var no = 0; no < 3; no++)
@@ -162,7 +162,7 @@ namespace Playtime_Painter {
             get {
                 if (_edgeNormal0 != null) return _edgeNormal0;
 
-                _edgeNormal0 = new Vector3[vertsCount];
+                _edgeNormal0 = new Vector3[vertexCount];
 
                 var sn = SharpNormals;
 
@@ -188,7 +188,7 @@ namespace Playtime_Painter {
         public Vector3[] EdgeNormal1OrSharp {
             get {
                 if (_edgeNormal1 != null) return _edgeNormal1;
-                _edgeNormal1 = new Vector3[vertsCount];
+                _edgeNormal1 = new Vector3[vertexCount];
 
                 var sn = SharpNormals;
 
@@ -216,7 +216,7 @@ namespace Playtime_Painter {
             {
                 if (_edgeNormal2 != null) return _edgeNormal2;
 
-                _edgeNormal2 = new Vector3[vertsCount];
+                _edgeNormal2 = new Vector3[vertexCount];
 
                 var sn = SharpNormals;
 
@@ -243,9 +243,9 @@ namespace Playtime_Painter {
             get
             {
                 if (tangents != null) return tangents;
-                tangents = new Vector4[vertsCount];
-                var tan1 = new Vector3[vertsCount];
-                var tan2 = new Vector3[vertsCount];
+                tangents = new Vector4[vertexCount];
+                var tan1 = new Vector3[vertexCount];
+                var tan2 = new Vector3[vertexCount];
 
                 var tri = 0;
 
@@ -292,7 +292,7 @@ namespace Playtime_Painter {
 
                 }
 
-                for (var i = 0; i < (vertsCount); i++)
+                for (var i = 0; i < (vertexCount); i++)
                 {
 
                     var n = _normals[i];
@@ -318,7 +318,7 @@ namespace Playtime_Painter {
             get  {
                 if (_position != null) return _position;
 
-                _position = new Vector3[vertsCount];
+                _position = new Vector3[vertexCount];
 
                 float totalSize = 0;
 
@@ -341,7 +341,7 @@ namespace Playtime_Painter {
             {
                 if (_originalIndex != null) return _originalIndex;
 
-                _originalIndex = new int[vertsCount];
+                _originalIndex = new int[vertexCount];
 
                 foreach (var vp in edMesh.meshPoints)
                 foreach (var uvi in vp.vertices)
@@ -350,21 +350,21 @@ namespace Playtime_Painter {
             }
         }
         
-        public MeshConstructor(EditableMesh edmesh, MeshPackagingProfile solution, Mesh fmesh)
+        public MeshConstructor(EditableMesh edMesh, MeshPackagingProfile solution, Mesh freshMesh)
         {
             profile = solution;
-            edMesh = edmesh;
-            mesh = fmesh;
+            this.edMesh = edMesh;
+            mesh = freshMesh;
             if (!mesh)
                 mesh = new Mesh();
         }
 
-        void GenerateNormals()
+        private void GenerateNormals()
         {
 
-            _normals = new Vector3[vertsCount];
-            _sharpNormals = new Vector3[vertsCount];
-            var NormalForced = new bool[vertsCount];
+            _normals = new Vector3[vertexCount];
+            _sharpNormals = new Vector3[vertexCount];
+            var NormalForced = new bool[vertexCount];
 
             foreach (var vp in edMesh.meshPoints)
             {
@@ -372,7 +372,7 @@ namespace Playtime_Painter {
                 vp.normal = Vector3.zero;
             }
 
-            for (var i = 0; i < vertsCount; i++)
+            for (var i = 0; i < vertexCount; i++)
             {
                 _normals[i] = Vector3.zero;
                 _sharpNormals[i] = Vector3.zero;
@@ -421,7 +421,7 @@ namespace Playtime_Painter {
                 }
             }
 
-            for (int i = 0; i < vertsCount; i++)
+            for (int i = 0; i < vertexCount; i++)
             {
                 _normals[i].Normalize();
                 _sharpNormals[i].Normalize();
@@ -438,7 +438,7 @@ namespace Playtime_Painter {
                 }
         }
 
-        void GenerateTris() {
+        private void GenerateTriangles() {
 
             if (mesh)
                 mesh.Clear();
@@ -452,7 +452,7 @@ namespace Playtime_Painter {
 
             edMesh.RefreshVertexTriangleList();
 
-            vertsCount = edMesh.AssignIndexes();
+            vertexCount = edMesh.AssignIndexes();
 
             if (edMesh.subMeshCount > 1) {
 
@@ -464,12 +464,12 @@ namespace Playtime_Painter {
                 edMesh.subMeshCount = maxSubmesh + 1;
             }
 
-            tris = new List<int>[edMesh.subMeshCount];
+            triangles = new List<int>[edMesh.subMeshCount];
             for (int i = 0; i < edMesh.subMeshCount; i++)
-                tris[i] = new List<int>();
+                triangles[i] = new List<int>();
 
             foreach (var tri in edMesh.triangles) {
-                var trs = tris[tri.submeshIndex];
+                var trs = triangles[tri.submeshIndex];
 
                 trs.Add(tri.vertexes[0]);
                 trs.Add(tri.vertexes[1]);
@@ -482,7 +482,7 @@ namespace Playtime_Painter {
 
         public Mesh UpdateMesh<T>() where T: VertexDataType {
 
-            vertsCount = edMesh.vertexCount;
+            vertexCount = edMesh.vertexCount;
 
             profile.UpdatePackage(this, typeof(T));
 
@@ -491,9 +491,9 @@ namespace Playtime_Painter {
 
         public Mesh Construct() {
 
-            GenerateTris();
+            GenerateTriangles();
 
-            bool valid = profile.Repack(this);
+            var valid = profile.Repack(this);
 
             if (!valid)
                 return mesh;
@@ -501,30 +501,30 @@ namespace Playtime_Painter {
             mesh.bindposes = edMesh.bindPoses;
             
             if (edMesh.gotBoneWeights) {
-                _boneWeights = new BoneWeight[vertsCount];
-                for (int i = 0; i < edMesh.meshPoints.Count; i++)
+                _boneWeights = new BoneWeight[vertexCount];
+                for (var i = 0; i < edMesh.meshPoints.Count; i++)
                     _boneWeights[i] = edMesh.meshPoints[i].boneWeight;
                 mesh.boneWeights = _boneWeights;
             }
 
-            int vCnt = mesh.vertices.Length;
+            var vCnt = mesh.vertices.Length;
 
             if (!edMesh.shapes.IsNullOrEmpty())
-                for (int s = 0; s < edMesh.shapes.Count; s++)
+                for (var s = 0; s < edMesh.shapes.Count; s++)
                 {
                     var name = edMesh.shapes[s];
-                    int frames = edMesh.meshPoints[0].shapes[s].Count;
+                    var frames = edMesh.meshPoints[0].shapes[s].Count;
 
-                    for (int f = 0; f < frames; f++)
+                    for (var f = 0; f < frames; f++)
                     {
 
                         var pos = new Vector3[vCnt];
                         var nrm = new Vector3[vCnt];
                         var tng = new Vector3[vCnt];
 
-                        for (int v = 0; v < vCnt; v++)
+                        for (var v = 0; v < vCnt; v++)
                         {
-                            BlendFrame bf = edMesh.uvsByFinalIndex[v].meshPoint.shapes[s][f];
+                            var bf = edMesh.uvsByFinalIndex[v].meshPoint.shapes[s][f];
 
                             pos[v] = bf.deltaPosition;
                             nrm[v] = bf.deltaNormal;
@@ -540,12 +540,10 @@ namespace Playtime_Painter {
             return mesh;
         }
 
-        public bool Valid => tris != null && edMesh.vertexCount >= 3 && tris.TotalCount() >= 3 && mesh; 
-        
-        public void AssignMesh(GameObject go) => AssignMesh(go.GetComponent<MeshFilter>(), go.GetComponent<MeshCollider>());
+        public bool Valid => triangles != null && edMesh.vertexCount >= 3 && triangles.TotalCount() >= 3 && mesh; 
         
         public void AssignMesh(MeshFilter m, MeshCollider c) {
-            if (tris.IsNullOrEmpty())
+            if (triangles.IsNullOrEmpty())
                 return;
 
             if (m)

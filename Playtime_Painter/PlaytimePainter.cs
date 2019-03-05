@@ -510,7 +510,7 @@ namespace Playtime_Painter {
                 else
                 {
 
-                    foreach (var pl in PainterManagerPluginBase.BrushPlugins)
+                    foreach (var pl in PainterSystemManagerPluginBase.BrushPlugins)
                     {
                         var ps = pl.GetPreviewShader(this);
                         if (!ps) continue;
@@ -863,7 +863,7 @@ namespace Playtime_Painter {
                 nt.GetNonMaterialTextureNames(this, ref MatDta.materialsTextureFields);
 
             if (!terrain)
-                MatDta.materialsTextureFields = Material.MyGetTextureProperties();
+                MatDta.materialsTextureFields.AddRange(Material.MyGetTextureProperties());
             else
             {
                 var tmp = Material.MyGetTextureProperties();
@@ -1571,7 +1571,7 @@ namespace Playtime_Painter {
                 foreach (var rt in rtp)
                     rt.gameObject.DestroyWhatever();
 
-            PainterStuff.applicationIsQuitting = false;
+            PainterSystem.applicationIsQuitting = false;
         }
 
 #if PEGI
@@ -1629,7 +1629,7 @@ namespace Playtime_Painter {
 
         public void OnEnable() {
 
-            PainterStuff.applicationIsQuitting = false;
+            PainterSystem.applicationIsQuitting = false;
             
             if (terrain)
                 UpdateShaderGlobals();
@@ -1751,7 +1751,7 @@ namespace Playtime_Painter {
             {
                 WindowPosition.Render(this, Inspect, "{0} {1}".F(gameObject.name, GetMaterialTextureProperty));
 
-                foreach (var p in PainterManagerPluginBase.GUIplugins)
+                foreach (var p in PainterSystemManagerPluginBase.GUIplugins)
                     p.OnGUI();
 
             }
@@ -1774,7 +1774,7 @@ namespace Playtime_Painter {
 
         private static string _tmpUrl = DefaultImageLoadUrl;
 
-        private static int _inspectedFancyStuff = -1;
+        private static int _inspectedFancyItems = -1;
 
         private static bool _inspectPainterCamera;
 
@@ -1789,7 +1789,7 @@ namespace Playtime_Painter {
              var changed = false;
 
             if (!TexMgmt && "Find camera".Click())
-                    PainterStuff.applicationIsQuitting = false;
+                    PainterSystem.applicationIsQuitting = false;
 
             var canInspect = true;
 
@@ -1866,7 +1866,7 @@ namespace Playtime_Painter {
 
                 #region Top Buttons
 
-                if (!PainterStuff.IsPlaytimeNowDisabled)
+                if (!PainterSystem.IsPlaytimeNowDisabled)
                 {
 
                     if ((MeshManager.target) && (MeshManager.target != this))
@@ -1918,15 +1918,15 @@ namespace Playtime_Painter {
                 #endregion
 
 
-                if (Cfg.showConfig || PainterStuff.IsPlaytimeNowDisabled) {
+                if (Cfg.showConfig || PainterSystem.IsPlaytimeNowDisabled) {
 
                     pegi.newLine();
                     
-                    if (!PainterStuff.IsPlaytimeNowDisabled && (Cfg.inspectedStuff == -1 || _inspectPainterCamera) &&
+                    if (!PainterSystem.IsPlaytimeNowDisabled && (Cfg.inspectedItems == -1 || _inspectPainterCamera) &&
                             "Painter Camera".enter(ref _inspectPainterCamera).nl(ref changed))
                                 TexMgmt.DependenciesInspect(true).changes(ref changed);
 
-                        if (!_inspectPainterCamera || Cfg.inspectedStuff != -1)
+                        if (!_inspectPainterCamera || Cfg.inspectedItems != -1)
                             Cfg.Nested_Inspect();
                     
                 }
@@ -2203,12 +2203,12 @@ namespace Playtime_Painter {
                         pegi.nl();
                         "Fancy options".foldout(ref Cfg.moreOptions).nl();
 
-                        var inspectionIndex = id?.inspectedStuff ?? _inspectedFancyStuff;
+                        var inspectionIndex = id?.inspectedItems ?? _inspectedFancyItems;
 
                         if (Cfg.moreOptions)
                         {
 
-                            if (icon.Show.enter("Show/Hide stuff", ref inspectionIndex, 7).nl())
+                            if (icon.Show.enter("Show/Hide items", ref inspectionIndex, 7).nl())
                             {
 
                                 "Show Previous Textures (if any) "
@@ -2253,17 +2253,17 @@ namespace Playtime_Painter {
 
                             if (id != null)
                             {
-                                id.inspectedStuff = inspectionIndex;
+                                id.inspectedItems = inspectionIndex;
                                 id.Inspect().changes(ref changed);
                             }
-                            else _inspectedFancyStuff = inspectionIndex;
+                            else _inspectedFancyItems = inspectionIndex;
 
                         }
 
 
                         if (id != null)
                         {
-                            var showToggles = (id.inspectedStuff == -1 && Cfg.moreOptions);
+                            var showToggles = (id.inspectedItems == -1 && Cfg.moreOptions);
 
                             id.ComponentDependent_PEGI(showToggles, this).changes(ref changed);
 
@@ -2316,7 +2316,7 @@ namespace Playtime_Painter {
                      
                         #region Save Load Options
 
-                        if (!PainterStuff.IsPlaytimeNowDisabled && HasMaterialSource && !Cfg.showConfig)
+                        if (!PainterSystem.IsPlaytimeNowDisabled && HasMaterialSource && !Cfg.showConfig)
                         {
                     #region Material Clonning Options
 
@@ -2593,7 +2593,7 @@ namespace Playtime_Painter {
                     pegi.nl();
                     #endregion
                     
-                    foreach (var p in PainterManagerPluginBase.ComponentMgmtPlugins)
+                    foreach (var p in PainterSystemManagerPluginBase.ComponentMgmtPlugins)
                         p.ComponentInspector().nl(ref changed);
                     
                 }
@@ -2669,7 +2669,7 @@ namespace Playtime_Painter {
                 GlobalBrush.IsA3DBrush(this) && !Cfg.showConfig)
                 Gizmos.DrawWireSphere(stroke.posTo, GlobalBrush.Size(true) * 0.5f);
             
-            foreach (var p in PainterManagerPluginBase.GizmoPlugins)
+            foreach (var p in PainterSystemManagerPluginBase.GizmoPlugins)
                 p.PlugIn_PainterGizmos(this);
         }
         #endif
@@ -2877,7 +2877,7 @@ namespace Playtime_Painter {
         }
 
         public StdEncoder Encode() => new StdEncoder()
-            .Add("pgns", plugins, PainterManagerPluginBase.all)
+            .Add("pgns", plugins, PainterSystemManagerPluginBase.all)
             .Add_IfTrue("invCast", invertRayCast);
 
         public void Decode(string data) => new StdDecoder(data).DecodeTagsFor(this);
@@ -2886,7 +2886,7 @@ namespace Playtime_Painter {
         {
             switch (tag)
             {
-                case "pgns": data.Decode_List_Abstract(out plugins, PainterManagerPluginBase.all); break;
+                case "pgns": data.Decode_List_Abstract(out plugins, PainterSystemManagerPluginBase.all); break;
                 case "invCast": invertRayCast = data.ToBool(); break;
                 default: return true;
             }

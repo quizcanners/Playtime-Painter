@@ -29,7 +29,7 @@
 
 				#pragma multi_compile  PREVIEW_RGB PREVIEW_ALPHA  PREVIEW_SAMPLING_DISPLACEMENT
 				#pragma multi_compile  BRUSH_2D  BRUSH_3D  BRUSH_3D_TEXCOORD2  BRUSH_SQUARE  BRUSH_DECAL
-				#pragma multi_compile  BRUSH_NORMAL BRUSH_ADD BRUSH_SUBTRACT BRUSH_COPY  BRUSH_PROJECTOR
+				#pragma multi_compile  BLIT_MODE_ALPHABLEND BLIT_MODE_ADD BLIT_MODE_SUBTRACT BLIT_MODE_COPY  BLIT_MODE_PROJECTION
 				#pragma multi_compile  ___ UV_ATLASED
 				#pragma multi_compile  ___ BRUSH_TEXCOORD_2
 				#pragma multi_compile  ___ TARGET_TRANSPARENT_LAYER
@@ -49,10 +49,10 @@
 					float4 atlasedUV : TEXCOORD2;
 				#endif
 
-				#if BRUSH_PROJECTOR
+				#if BLIT_MODE_PROJECTION
 					float4 shadowCoords : TEXCOORD3;
 				#endif
-
+					float2 srcTexAspect : TEXCOORD4;
 
 				};
 
@@ -73,6 +73,10 @@
 						v.texcoord.xy = v.texcoord2.xy;
 					#endif
 
+					float2 suv = _SourceTexture_TexelSize.zw;
+
+					o.srcTexAspect = max(1, float2(suv.y/suv.x, suv.x / suv.y));
+
 					o.texcoord.xy = TRANSFORM_TEX(v.texcoord.xy, _PreviewTex);
 					o.worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz,1.0f));
 
@@ -85,7 +89,7 @@
 						o.atlasedUV.w = 1 / _AtlasTextures;
 					#endif
 
-				#if BRUSH_PROJECTOR
+				#if BLIT_MODE_PROJECTION
 						o.shadowCoords = mul(pp_ProjectorMatrix, o.worldPos);
 				#endif
 
@@ -101,21 +105,27 @@
 
 					float dist = length(o.worldPos.xyz - _WorldSpaceCameraPos.xyz);
 
-				#if BRUSH_PROJECTOR
+					#if BLIT_MODE_PROJECTION
 
-					float2 pUv;
+						float2 pUv;
 
-					o.shadowCoords.xy /= o.shadowCoords.w;
+						o.shadowCoords.xy /= o.shadowCoords.w;
 
-					alpha = ProjectorSquareAlpha(o.shadowCoords);
+						alpha = ProjectorSquareAlpha(o.shadowCoords);
 
-					alpha *= ProjectorDepthDifference(o.shadowCoords, o.worldPos, pUv );
+						alpha *= ProjectorDepthDifference(o.shadowCoords, o.worldPos, pUv );
 
-					_brushColor = tex2Dlod(_SourceTexture, float4(pUv, 0, 0));
+						float4 src = tex2Dlod(_SourceTexture, float4(pUv*o.srcTexAspect, 0, 0));
 
-					float pr_shadow = alpha; 
+						alpha *= src.a;
+						float pr_shadow = alpha;
 
-				#endif
+						float par = _srcTextureUsage.x;
+
+					
+						_brushColor.rgb = SourceTextureByBrush(src.rgb);
+
+					#endif
 
 
 
@@ -125,8 +135,10 @@
 						o.texcoord.xy = fractal + o.atlasedUV.xy;
 					#endif
 
-					#if BRUSH_COPY
-	 					_brushColor = tex2Dlod(_SourceTexture, float4(o.texcoord.xy, 0, 0));
+					#if BLIT_MODE_COPY
+						float4 src = tex2Dlod(_SourceTexture, float4(o.texcoord.xy*o.srcTexAspect, 0, 0));
+						_brushColor.rgb = SourceTextureByBrush(src.rgb);
+						alpha *= src.a;
 					#endif
 
 					float4 tc = float4(o.texcoord.xy, 0, 0);
@@ -225,7 +237,7 @@
 						col = col*_brushMask + 0.5*(1 - _brushMask)+col.a*_brushMask.a;
 					#endif
 	
-					#if BRUSH_NORMAL || BRUSH_COPY || BRUSH_PROJECTOR
+					#if BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY || BLIT_MODE_PROJECTION
 
 					#if TARGET_TRANSPARENT_LAYER
 						col = AlphaBlitTransparentPreview(alpha, _brushColor, tc.xy, col);
@@ -234,7 +246,7 @@
 						col.a = 1;
 					#endif
 
-					#if BRUSH_PROJECTOR
+					#if BLIT_MODE_PROJECTION
 						float pa = (_brushPointedUV.w)*pr_shadow*0.8;
 
 						col = col * (1-pa) + _brushColor*(pa);
@@ -243,11 +255,11 @@
 
 					#endif
 
-					#if BRUSH_ADD
+					#if BLIT_MODE_ADD
 						col =  addWithDestBufferPreview (alpha*0.4, _brushColor, tc.xy, col);
 					#endif
     
-					#if BRUSH_SUBTRACT
+					#if BLIT_MODE_SUBTRACT
 						col =  subtractFromDestBufferPreview (alpha*0.4, _brushColor, tc.xy, col);
 					#endif
 

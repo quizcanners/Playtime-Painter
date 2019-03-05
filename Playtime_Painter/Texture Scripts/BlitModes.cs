@@ -6,7 +6,7 @@ using QuizCannersUtilities;
 namespace Playtime_Painter {
 
     #region Base
-    public abstract class BlitMode : PainterStuff, IEditorDropdown, IGotDisplayName {
+    public abstract class BlitMode : PainterSystem, IEditorDropdown, IGotDisplayName {
 
         private static List<BlitMode> _allModes;
 
@@ -65,7 +65,7 @@ namespace Playtime_Painter {
             };
             // The code below uses reflection to find all classes that are child classes of BlitMode.
             // The code above adds them manually to save some compilation time,
-            // and if you add new BlitMode, just add _allModes.Add (new BlitModeMyStuff ());
+            // and if you add new BlitMode, just add _allModes.Add (new BlitModeSomething ());
             // Alternatively, in a far-far future, the code below may be reanabled if there will be like hundreds of fan-made brushes for my asset
             // Which would be cool, but I'm a realist so whatever happens its ok, I lived a good life and greatfull for every day.
 
@@ -92,6 +92,7 @@ namespace Playtime_Painter {
         public virtual bool SupportedBySingleBuffer => true;
         public virtual bool UsingSourceTexture => false;
         public virtual bool ShowColorSliders => true;
+        public virtual bool NeedsWorldSpacePosition => false; // WorldSpace effect needs to be rendered using terget's mesh to have world positions of the vertexes
         public virtual Shader ShaderForDoubleBuffer => TexMGMTdata.brushDoubleBuffer;
         public virtual Shader ShaderForSingleBuffer => TexMGMTdata.brushBlit;
 
@@ -184,7 +185,7 @@ namespace Playtime_Painter {
     {
         public override string NameForDisplayPEGI => "Alpha Blit"; 
 
-        protected override string ShaderKeyword(ImageMeta id) => "BRUSH_NORMAL";
+        protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_ALPHABLEND";
 
         public override string ToolTip =>
             "If you don't know which one to choose, choose Alpha Blit. It will replace existing color with the color you are painting. " +
@@ -204,7 +205,7 @@ namespace Playtime_Painter {
         public static BlitModeAdd Inst { get { if (_inst == null) InstantiateBrushes(); return _inst; } }
 
         public override string NameForDisplayPEGI => "Add";
-        protected override string ShaderKeyword(ImageMeta id) => "BRUSH_ADD";
+        protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_ADD";
         
         public override Shader ShaderForSingleBuffer => TexMGMTdata.brushAdd;
         public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.AddBlit;
@@ -221,7 +222,7 @@ namespace Playtime_Painter {
     public class BlitModeSubtract : BlitMode
     {
         public override string NameForDisplayPEGI => "Subtract"; 
-        protected override string ShaderKeyword(ImageMeta id) => "BRUSH_SUBTRACT";
+        protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_SUBTRACT";
         
         public override bool SupportedBySingleBuffer => false;
 
@@ -238,7 +239,7 @@ namespace Playtime_Painter {
     public class BlitModeCopy : BlitMode
     {
         public override string NameForDisplayPEGI => "Copy";
-        protected override string ShaderKeyword(ImageMeta id) => "BRUSH_COPY";
+        protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_COPY";
         public override bool ShowColorSliders => false;
 
         public override bool SupportedByTex2D => false;
@@ -310,7 +311,7 @@ namespace Playtime_Painter {
     {
         public BlitModeSamplingOffset(int ind) : base(ind) { }
 
-        protected override string ShaderKeyword(ImageMeta id) => "BRUSH_SAMPLE_DISPLACE";
+        protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_SAMPLE_DISPLACE";
 
         public enum ColorSetMethod { MDownPosition = 0, MDownColor = 1, Manual = 2 }
 
@@ -494,7 +495,7 @@ namespace Playtime_Painter {
 
     public class BlitModeProjector : BlitMode
     {
-        public override string NameForDisplayPEGI => "Projector";
+        public override string NameForDisplayPEGI => "Projection";
 
         public override bool SupportedByTex2D => false;
 
@@ -502,12 +503,13 @@ namespace Playtime_Painter {
 
         public override bool UsingSourceTexture => true; 
 
-        protected override string ShaderKeyword(ImageMeta id) => "BRUSH_PROJECTOR";
+        protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_PROJECTION";
 
+        public override bool NeedsWorldSpacePosition => true;
 
         public override string ToolTip =>
             ("Will create a camera that will serve as a projector. This mode is similar to Copy, but instead of UV space will try to " +
-             "use projector matrix to get uvs.");
+             "use projector matrix to get uvs. Only World Space brushes can use Projector. Currently only sphere brush is a world space brush. ");
 
         public override bool Inspect()
         {

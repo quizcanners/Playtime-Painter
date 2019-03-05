@@ -8,7 +8,7 @@ namespace Playtime_Painter
 {
 
     [ExecuteInEditMode]
-    public class TexturesPool : PainterStuffMono  {
+    public class TexturesPool : PainterSystemMono  {
 
         public static TexturesPool inst;
         public static TexturesPool Inst { get {

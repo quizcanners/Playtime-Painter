@@ -18,7 +18,7 @@ namespace Playtime_Painter
 
     public enum TexTarget { Texture2D, RenderTexture }
 
-    public class ImageMeta : PainterStuffKeepUnrecognized_STD, IPEGI_ListInspect, IGotName, INeedAttention, ICanBeDefaultStd
+    public class ImageMeta : PainterSystemKeepUnrecognizedStd, IPEGI_ListInspect, IGotName, INeedAttention, ICanBeDefaultStd
     {
 
         #region Values
@@ -142,7 +142,7 @@ namespace Playtime_Painter
            
             .Add_IfNotBlack("clear", _clearColor)
             .Add_IfNotEmpty("URL", url)
-            .Add_IfNotNegative("is", inspectedStuff)
+            .Add_IfNotNegative("is", inspectedItems)
             .Add_IfFalse("alpha", preserveTransparency);
 
             if (enableUndoRedo)
@@ -188,7 +188,7 @@ namespace Playtime_Painter
                 case "clear": _clearColor = data.ToColor(); break;
                 case "URL": url = data; break;
                 case "alpha": preserveTransparency = data.ToBool(); break;
-                case "is": inspectedStuff = data.ToInt(); break;
+                case "is": inspectedItems = data.ToInt(); break;
                 default: return false;
             }
             return true;
@@ -242,7 +242,7 @@ namespace Playtime_Painter
 
             var allStrokes = new StdEncoder().Add("strokes", recordedStrokes).ToString();
 
-            StuffSaver.SaveToPersistentPath(Cfg.vectorsFolderName, saveName, allStrokes);
+            FileSaverUtils.SaveToPersistentPath(Cfg.vectorsFolderName, saveName, allStrokes);
 
             Cfg.recordingNames.Add(saveName);
 
@@ -773,7 +773,7 @@ namespace Playtime_Painter
         }
         
         private int _inspectedProcess = -1;
-        public int inspectedStuff = -1;
+        public int inspectedItems = -1;
 
         #if PEGI
 
@@ -792,7 +792,7 @@ namespace Playtime_Painter
 
             var changed = false;
 
-            if ("CPU blit options".conditional_enter(this.TargetIsTexture2D(), ref inspectedStuff, 0).nl())
+            if ("CPU blit options".conditional_enter(this.TargetIsTexture2D(), ref inspectedItems, 0).nl())
             {
                 "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref _repaintDelay, 0.01f, 0.5f).nl(ref changed);
                 
@@ -800,12 +800,12 @@ namespace Playtime_Painter
                     ref GlobalBrush.dontRedoMipMaps).nl(ref changed);
             }
 
-            if ("Save Textures In Game".enter(ref inspectedStuff, 1).nl()) {
+            if ("Save Textures In Game".enter(ref inspectedItems, 1).nl()) {
 
                 "Save Name".edit(70, ref saveName);
                 
                 if (icon.Folder.Click("Open Folder with textures").nl())
-                    StuffExplorer.OpenPersistentFolder(SavedImagesFolder);
+                    FileExplorerUtils.OpenPersistentFolder(SavedImagesFolder);
 
                 if ("Save Playtime".Click("Will save to {0}/{1}".F(Application.persistentDataPath, saveName)).nl())
                     SaveInPlayer();
@@ -819,7 +819,7 @@ namespace Playtime_Painter
             var newWidth = Cfg.SelectedWidthForNewTexture(); //PainterDataAndConfig.SizeIndexToSize(PainterCamera.Data.selectedWidthIndex);
             var newHeight = Cfg.SelectedHeightForNewTexture();
 
-            if ("Texture Processors".enter(ref inspectedStuff, 6).nl_ifFolded()) {
+            if ("Texture Processors".enter(ref inspectedItems, 6).nl_ifFolded()) {
 
 
                 "<-Return".nl(PEGI_Styles.ListLabel);
@@ -890,7 +890,7 @@ namespace Playtime_Painter
 
             #endregion
 
-            if ("Undo Redo".toggle_enter(ref enableUndoRedo, ref inspectedStuff, 2, ref changed).nl())
+            if ("Undo Redo".toggle_enter(ref enableUndoRedo, ref inspectedItems, 2, ref changed).nl())
             {
                 
                 "UNDOs: Tex2D".edit(80, ref _numberOfTexture2DBackups).changes(ref changed);
@@ -902,12 +902,12 @@ namespace Playtime_Painter
                     "Too big of a number will eat up lot of memory".writeWarning();
 
               "Creating more backups will eat more memory".writeOneTimeHint("backupIsMem");
-               "This are not connected to Unity's Undo/Redo because when you run out of backups you will by accident start undoing other stuff.".writeOneTimeHint("noNativeUndo");
+               "This are not connected to Unity's Undo/Redo because when you run out of backups you will by accident start undoing other operations.".writeOneTimeHint("noNativeUndo");
                "Use Z/X to undo/redo".writeOneTimeHint("ZXundoRedo");
 
             }
 
-            if ("Color Schemes".toggle_enter(ref Cfg.showColorSchemes, ref inspectedStuff, 5, ref changed).nl_ifFolded())
+            if ("Color Schemes".toggle_enter(ref Cfg.showColorSchemes, ref inspectedItems, 5, ref changed).nl_ifFolded())
             {
                 if (Cfg.colorSchemes.Count == 0)
                     Cfg.colorSchemes.Add(new ColorScheme() { paletteName = "New Color Scheme" });

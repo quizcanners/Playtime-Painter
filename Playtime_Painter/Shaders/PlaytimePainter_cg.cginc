@@ -4,6 +4,9 @@ static const float GAMMA_TO_LINEAR = 2.2;
 static const float LINEAR_TO_GAMMA = 1 / GAMMA_TO_LINEAR;
 
 sampler2D _SourceTexture;
+float4 _SourceTexture_TexelSize;
+float4 _srcTextureUsage;
+
 sampler2D _DestBuffer;
 float4 _DestBuffer_TexelSize;
 sampler2D _SourceMask;
@@ -47,6 +50,17 @@ float4 HSVtoRGB(in float3 HSV)
 	return float4(((Hue(HSV.x) - 1) * HSV.y + 1) * HSV.z, 1);
 }*/
 
+
+inline float3 SourceTextureByBrush(float3 src) {
+
+	// 0 - Copy, 1 = Multiply, 2 = Use Brush Color
+
+	float par = _srcTextureUsage.x;
+
+	return src*max(0, 1 - par) + _brushColor.rgb*max(0, par - 1)
+		+ _brushColor.rgb*src*(1 - abs(par - 1))
+		;
+}
 
 inline float ProjectorSquareAlpha(float4 shadowCoords) {
 

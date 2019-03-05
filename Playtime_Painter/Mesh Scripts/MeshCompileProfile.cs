@@ -41,7 +41,7 @@ namespace Playtime_Painter
             if (pegi.edit(ref myType).nl(ref changed)) {
                
                 var mSol = new MeshPackagingProfile();
-                mSol.Decode(StuffLoader.LoadTextAsset(myType));
+                mSol.Decode(FileLoaderUtils.LoadTextAsset(myType));
 
                 PainterCamera.Data.meshPackagingSolutions.Add(mSol);
                 PlaytimePainter.inspected.selectedMeshProfile = PainterCamera.Data.meshPackagingSolutions.Count - 1;
@@ -60,7 +60,7 @@ namespace Playtime_Painter
         {
 
             if (!sm.Valid) {
-                Debug.Log("Got no stuff to regenerate mesh. ");
+                Debug.Log("Got no data for mesh regeneration. ");
                 return false;
             }
 
@@ -526,7 +526,7 @@ namespace Playtime_Painter
             get { return _curMeshDra; }
 
             set { _curMeshDra = value;
-                vcnt = value.vertsCount;
+                vcnt = value.vertexCount;
                 _chanelMedium = new float[vcnt];
             }
 
@@ -543,11 +543,11 @@ namespace Playtime_Painter
             public override void Set(Vector3[] dta)
             {
                 CurMeshDta.mesh.vertices = dta;
-                if (CurMeshDta.tris == null) return;
+                if (CurMeshDta.triangles == null) return;
                 
-                CurMeshDta.mesh.subMeshCount = CurMeshDta.tris.Length;
-                for (var sm = 0; sm < CurMeshDta.tris.Length; sm++)
-                    CurMeshDta.mesh.SetTriangles(CurMeshDta.tris[sm], sm, true);
+                CurMeshDta.mesh.subMeshCount = CurMeshDta.triangles.Length;
+                for (var sm = 0; sm < CurMeshDta.triangles.Length; sm++)
+                    CurMeshDta.mesh.SetTriangles(CurMeshDta.triangles[sm], sm, true);
                 
             }
 
@@ -772,7 +772,7 @@ namespace Playtime_Painter
 
         public class VertexUV : VertexDataType
         {
-            private static int _uvEnum = 0;
+            private static int _uvEnum;
             private readonly int _myUvIndex;
             public static readonly VertexUV[] inst = new VertexUV[2];
 
@@ -782,12 +782,11 @@ namespace Playtime_Painter
 
             public override void GenerateIfNull() {
                 if (v2s == null)
-                    v2s =  (_myUvIndex == 0) ? CurMeshDta.Uv : CurMeshDta._uv1;
+                    v2s =  (_myUvIndex == 0) ? CurMeshDta.Uv : CurMeshDta.Uv1;
             }
 
             public override Vector2[] GetV2(VertexDataTarget trg) => v2s;
             
-
             public override float[] GetValue(int no)  {
                 for (var i = 0; i < vcnt; i++)
                     _chanelMedium[i] = v2s[i][no];

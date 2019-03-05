@@ -39,7 +39,7 @@ namespace QuizCannersUtilities
         public override bool Inspect()
         {
             bool changed = base.Inspect();
-            referencesMeta.enter_List_UObj(ref objects, ref inspectedStuff, 3);
+            referencesMeta.enter_List_UObj(ref objects, ref inspectedItems, 3);
             return changed;
         }
 #endif

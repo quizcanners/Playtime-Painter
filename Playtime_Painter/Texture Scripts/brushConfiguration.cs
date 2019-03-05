@@ -16,8 +16,13 @@ namespace Playtime_Painter {
 
     public enum DecalRotationMethod { Set, Random, StrokeDirection }
 
+    public enum SourceTextureColorUsage { Copy = 0, MultiplyByBrushColor = 1, UseBrushColor = 2}
+
     [Serializable]
-    public class BrushConfig : PainterStuffStd, IPEGI {
+    public class BrushConfig : PainterSystemStd, IPEGI {
+
+
+
 
         #region Encode Decode
         public override StdEncoder Encode() {
@@ -135,6 +140,9 @@ namespace Playtime_Painter {
         #endregion
 
         #region Brush Mask
+
+        public SourceTextureColorUsage srcColorUsage = SourceTextureColorUsage.Copy;
+
         public void MaskToggle(BrushMask flag) =>
             mask ^= flag;
         
@@ -151,25 +159,27 @@ namespace Playtime_Painter {
         public int selectedSourceMask;
 
         public bool maskFromGreyscale;
+        
         #endregion
 
         #region Modes & Types
 
+        public bool IsCpu(PlaytimePainter painter) => painter ? painter.ImgMeta.TargetIsTexture2D() : targetIsTex2D;
 
         [SerializeField] private int _inGpuBrushType;
         [SerializeField] private int _inCpuBrushType;
         private int _brushType(bool cpu) => cpu ? _inCpuBrushType : _inGpuBrushType;
         public void TypeSet(bool cpu, BrushType t) { if (cpu) _inCpuBrushType = t.index; else _inGpuBrushType = t.index; }
-        public BrushType GetBrushType(PlaytimePainter painter) => GetBrushType(painter ? painter.ImgMeta.TargetIsTexture2D() : targetIsTex2D);
+        public BrushType GetBrushType(PlaytimePainter painter) => GetBrushType(IsCpu(painter));
         public BrushType GetBrushType(bool cpu) => BrushType.AllTypes[_brushType(cpu)];
 
 
         [SerializeField] private int _inGpuBlitMode;
         [SerializeField] private int _inCpuBlitMode;
         public int blitMode(bool cpu) => cpu ? _inCpuBlitMode : _inGpuBlitMode;
-
         public BlitMode GetBlitMode(bool cpu) => BlitMode.AllModes[blitMode(cpu)];
-
+        public BlitMode GetBlitMode(PlaytimePainter painter) => BlitMode.AllModes[blitMode(IsCpu(painter))];
+        
         public void SetBlitMode(bool cpu, BlitMode mode)
         {
             if (cpu) _inCpuBlitMode = mode.index;
@@ -229,14 +239,17 @@ namespace Playtime_Painter {
             var isA3D = false;
 
             if (painter)
-                foreach (var pl in PainterManagerPluginBase.BrushPlugins)
+                foreach (var pl in PainterSystemManagerPluginBase.BrushPlugins)
                 {
                     isA3D = pl.IsA3DBrush(painter, this, ref overrideOther);
                     if (overrideOther) break;
                 }
 
             if (!overrideOther)
-                isA3D = GetBrushType(painter).IsA3DBrush;
+            {
+                var cpu = IsCpu(painter);
+                isA3D = GetBrushType(cpu).IsA3DBrush;
+            }
 
             return isA3D;
         }
@@ -293,7 +306,7 @@ namespace Playtime_Painter {
 
                 var rendered = false;
 
-                foreach (var pl in PainterManagerPluginBase.BrushPlugins)
+                foreach (var pl in PainterSystemManagerPluginBase.BrushPlugins)
                     if (pl.PaintRenderTexture(stroke, imgData, this, painter)) {
                         rendered = true;
                         break;
@@ -324,45 +337,45 @@ namespace Playtime_Painter {
             
             _inspectedBrush = this;
             var changed = false;
+            var cpu = p ? p.ImgMeta.TargetIsTexture2D() : targetIsTex2D;
+
+            var blitMode = GetBlitMode(cpu);
+            var brushType = GetBrushType(cpu);
 
             pegi.newLine();
 
             Msg.BlitMode.Write("How final color will be calculated", 70);
-            var cpu = p ? p.ImgMeta.TargetIsTexture2D() : targetIsTex2D;
+          
+            if (pegi.select(ref blitMode, BlitMode.AllModes).changes(ref changed))
+                SetBlitMode(cpu, blitMode);
 
-            var bm = GetBlitMode(cpu);
-
-            if (pegi.select(ref bm, BlitMode.AllModes).changes(ref changed))
-                SetBlitMode(cpu, bm);
-
-            bm?.ToolTip.fullWindowDocumentationClick("About this blit mode", 20).nl();
-
-            pegi.space();
-            pegi.newLine();
+            blitMode?.ToolTip.fullWindowDocumentationClick("About this blit mode", 20).nl();
             
             if (!cpu) {
                 Msg.BrushType.Write(80);
                 pegi.select(ref _inGpuBrushType, BrushType.AllTypes).changes(ref changed);
 
-                GetBrushType(p)?.ToolTip.fullWindowDocumentationClick("About this brush type", 20);
+                brushType?.ToolTip.fullWindowDocumentationClick("About this brush type", 20);
 
             }
 
             var overrideBlitModePegi = false;
 
-            foreach (var b in PainterManagerPluginBase.BrushPlugins)
+            foreach (var b in PainterSystemManagerPluginBase.BrushPlugins)
                 b.BrushConfigPEGI(ref overrideBlitModePegi, this).nl(ref changed);
                           
             if (p && !p.plugins.IsNullOrEmpty())
                 foreach (var pl in p.plugins)
                     if (pl.BrushConfigPEGI().nl(ref changed)) 
                         pl.SetToDirty_Obj();
-                    
 
-            GetBrushType(cpu).Inspect().nl(ref changed);
+            if (blitMode.UsingSourceTexture)
+                "Src Texture Color".editEnum(80, ref srcColorUsage).nl(ref changed);
 
-            if (!overrideBlitModePegi && bm.ShowInDropdown())
-                bm.Inspect().nl(ref changed);
+            brushType.Inspect().nl(ref changed);
+
+            if (!overrideBlitModePegi && blitMode.ShowInDropdown())
+                blitMode.Inspect().nl(ref changed);
 
             _inspectedBrush = null;
 
@@ -570,9 +583,14 @@ namespace Playtime_Painter {
                     {
 
                         if (!id.isATransparentLayer || colorLinear.a > 0)  {
-                            ChannelSlider(BrushMask.R, ref colorLinear.r, null, slider).nl(ref changed);
-                            ChannelSlider(BrushMask.G, ref colorLinear.g, null, slider).nl(ref changed);
-                            ChannelSlider(BrushMask.B, ref colorLinear.b, null, slider).nl(ref changed);
+
+                            var slider_copy = GetBlitMode(cpu).UsingSourceTexture ?
+                                (srcColorUsage != SourceTextureColorUsage.Copy && slider)
+                                :slider;
+
+                            ChannelSlider(BrushMask.R, ref colorLinear.r, null, slider_copy).nl(ref changed);
+                            ChannelSlider(BrushMask.G, ref colorLinear.g, null, slider_copy).nl(ref changed);
+                            ChannelSlider(BrushMask.B, ref colorLinear.b, null, slider_copy).nl(ref changed);
                         }
                         
                         var gotAlpha = painter.meshEditing || id.texture2D.TextureHasAlpha();

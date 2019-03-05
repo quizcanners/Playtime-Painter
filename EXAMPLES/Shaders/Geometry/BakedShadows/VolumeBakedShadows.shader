@@ -21,6 +21,7 @@
 			"RayTrace" = "Opaque"
 			"VertexColorRole_A" = "Second Atlas Texture"
 			"VertexColorRole_B" = "Additional Wetness"
+			"Volume" = "Global"
 		}
 
 		SubShader{
@@ -39,19 +40,22 @@
 				#pragma shader_feature  ___ VERT_SHADOW
 
 				uniform sampler2D _MainTex_ATL;
-				uniform sampler2D _BumpMapC_ATL;
-				uniform sampler2D g_BakedShadow_VOL;
-				uniform sampler2D _Microdetail;
 				float4 _MainTex_ATL_ST;
+				float4 _MainTex_ATL_TexelSize;
+
+				uniform sampler2D _BumpMapC_ATL;
+
+				uniform sampler2D g_BakedShadow_VOL;
+				float4 g_BakedShadows_VOL_TexelSize;
+
+				uniform sampler2D _Microdetail;
+			
 				float4 _Microdetail_ST;
 
 				float _Glossiness;
 				float _AtlasTextures;
 
 			
-				float4 _MainTex_ATL_TexelSize;
-				float4 g_BakedShadows_VOL_TexelSize;
-
 
 				struct v2f {
 					float4 pos : SV_POSITION;

@@ -66,8 +66,8 @@ namespace STD_Logic
         }
 
         protected virtual void InspectionTabs() {
-            icon.Condition.toggle("Trigger groups", ref inspectedStuff, 1);
-            icon.Close.toggle("Close All", ref inspectedStuff, -1);
+            icon.Condition.toggle("Trigger groups", ref inspectedItems, 1);
+            icon.Close.toggle("Close All", ref inspectedItems, -1);
         }
 
 
@@ -83,7 +83,7 @@ namespace STD_Logic
 
             changed |= base.Inspect().nl();
 
-            if (inspectedStuff == 1) {
+            if (inspectedItems == 1) {
 
                 if (inspectedTriggerGroup == -1) {
 

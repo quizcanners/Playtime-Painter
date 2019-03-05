@@ -11,7 +11,7 @@ using UnityEditor;
 namespace Playtime_Painter
 {
 
-    public class MeshManager : PainterStuffKeepUnrecognized_STD
+    public class MeshManager : PainterSystemKeepUnrecognizedStd
     {
 
         public static MeshManager Inst => PainterCamera.MeshManager;
@@ -143,22 +143,12 @@ namespace Playtime_Painter
             _redoMoves.Clear();
         }
 
-#if UNITY_EDITOR
-        public void SaveGeneratedMeshAsAsset()
-        {
-            AssetDatabase.CreateAsset(target.SharedMesh, "Assets/Models/" + target.gameObject.name + "_export.asset");
-            AssetDatabase.SaveAssets();
-        }
-#endif
-
         public void Redraw() {
 
             if (target) {
-
                 var mc = new MeshConstructor(editedMesh, target.MeshProfile, target.SharedMesh);
 
-                if (!editedMesh.dirtyNormals && EditedMesh.Dirty)
-                {
+                if (!editedMesh.dirtyVertexIndexes && EditedMesh.Dirty) {
 
                     if (EditedMesh.dirtyPosition)
                         mc.UpdateMesh<MeshSolutions.VertexPos>();
@@ -166,14 +156,11 @@ namespace Playtime_Painter
                     if (editedMesh.dirtyColor)
                         mc.UpdateMesh<MeshSolutions.VertexColor>();
 
-                }
-                else
-                {
+                }  else {
                     var m = mc.Construct();
                     target.SharedMesh = m;
                     target.meshCollider.AssignMeshAsCollider(m);
                 }
-
             }
 
             editedMesh.Dirty = false;
@@ -466,7 +453,7 @@ namespace Playtime_Painter
             return false;
         }
 
-        void GetPointedTRIANGLESorLINE()
+        private void GetPointedTriangleOrLine()
         {
 
             editedMesh.TagTrianglesUnprocessed();
@@ -502,7 +489,7 @@ namespace Playtime_Painter
 
         }
 
-        bool Raycast_VertexIsPointed()
+        private bool RayCastVertexIsPointed()
         {
             PointedUV = null;
             if (editedMesh.meshPoints.Count <= 0) return false;
@@ -515,7 +502,7 @@ namespace Playtime_Painter
             RaycastHit hit;
             var vertexIsPointed = false;
 
-            if (Physics.Raycast(EditorInputManager.GetScreenRay(TexMGMT.MainCamera), out hit))
+            if (Physics.Raycast(EditorInputManager.GetScreenMousePositionRay(TexMGMT.MainCamera), out hit))
             {
 
                 vertexIsPointed = (hit.transform.tag == "VertexEd");
@@ -535,7 +522,7 @@ namespace Playtime_Painter
                         GridNavigator.collisionPos = hit.point;
                         UpdateLocalSpaceV3S();
                         editedMesh.SortAround(collisionPosLocal, true);
-                        GetPointedTRIANGLESorLINE();
+                        GetPointedTriangleOrLine();
                     }
                 }
             }
@@ -582,7 +569,7 @@ namespace Playtime_Painter
             PointedTriangle = null;
             PointedLine = null;
 
-            bool pointingUV = Raycast_VertexIsPointed();
+            bool pointingUV = RayCastVertexIsPointed();
 
             if (_dragging)
                 MeshTool.ManageDragging();
@@ -707,7 +694,7 @@ namespace Playtime_Painter
 
         public static List<string> meshEditorIgnore = new List<string> { "VertexEd", "toolComponent" };
 
-        private float delayUpdate;
+        private float _delayUpdate;
 
         public void CombinedUpdate()
         {
@@ -720,7 +707,7 @@ namespace Playtime_Painter
                 return;
             }
 
-            int no = EditorInputManager.GetNumberKeyDown();
+            var no = EditorInputManager.GetNumberKeyDown();
             _selectingUVbyNumber = false;
             if (no != -1) { _currentUv = no - 1; _selectingUVbyNumber = true; } else _currentUv = 0;
 
@@ -732,9 +719,9 @@ namespace Playtime_Painter
             if (Application.isPlaying)
                 SORT_AND_UPDATE_UI();
 
-            delayUpdate -= Time.deltaTime;
+            _delayUpdate -= Time.deltaTime;
 
-            if (editedMesh.Dirty && delayUpdate<0) {
+            if (editedMesh.Dirty && _delayUpdate<0) {
 
                 _redoMoves.Clear();
 
@@ -747,7 +734,7 @@ namespace Playtime_Painter
 
                 Redraw();
                 previewMesh = null;
-                delayUpdate = 0.25f;
+                _delayUpdate = 0.25f;
             }
 
             if (_justLoaded >= 0)
@@ -869,7 +856,7 @@ namespace Playtime_Painter
 #if PEGI
         private readonly List<PlaytimePainter> _selectedPainters = new List<PlaytimePainter>();
         private bool _inspectMesh;
-        private int _inspecteMeshStuff = -1;
+        private int _inspectedMeshItems = -1;
 
         public override bool Inspect()  {
 
@@ -899,7 +886,7 @@ namespace Playtime_Painter
 
             mt.Inspect().nl(ref changed);
 
-            foreach (var p in PainterManagerPluginBase.VertexEdgePlugins)
+            foreach (var p in PainterSystemManagerPluginBase.VertexEdgePlugins)
                 p.MeshToolInspection(mt).nl(ref changed);
             
             pegi.nl();
@@ -926,7 +913,7 @@ namespace Playtime_Painter
             if (editedMesh != null && "Mesh ".foldout(ref _inspectMesh).nl()) {
 
 
-                if (_inspecteMeshStuff == -1)
+                if (_inspectedMeshItems == -1)
                 {
                     
                  
@@ -950,9 +937,9 @@ namespace Playtime_Painter
                     pegi.nl();
                 }
 
-                editedMesh.enter_Inspect(ref _inspecteMeshStuff, 1).nl(ref changed);
+                editedMesh.enter_Inspect(ref _inspectedMeshItems, 1).nl(ref changed);
 
-                if ("Center".enter(ref _inspecteMeshStuff, 2).nl())
+                if ("Center".enter(ref _inspectedMeshItems, 2).nl())
                 {
                     "center".edit(ref _offset).nl();
                     if ("Modify".Click().nl())
@@ -1002,7 +989,7 @@ namespace Playtime_Painter
                   */
 
 
-                if ("Combining meshes".enter(ref _inspecteMeshStuff, 3).nl())
+                if ("Combining meshes".enter(ref _inspectedMeshItems, 3).nl())
                 {
 
                     if (!_selectedPainters.Contains(target))
@@ -1063,7 +1050,7 @@ namespace Playtime_Painter
 
                 pegi.nl();
 
-                if (!Application.isPlaying && "Debug".foldout(ref _inspecteMeshStuff, 10).nl())
+                if (!Application.isPlaying && "Debug".foldout(ref _inspectedMeshItems, 10).nl())
                 {
                     "vertexPointMaterial".write_obj(Grid.vertexPointMaterial);
                     pegi.nl();

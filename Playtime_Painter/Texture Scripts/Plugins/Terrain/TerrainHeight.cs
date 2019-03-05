@@ -10,8 +10,16 @@ namespace Playtime_Painter {
         private const string Tag = "TerHeight";
         public override string ClassTag => Tag;
 
+        private bool CorrectField(ShaderProperty.TextureValue field) => field.Equals(PainterDataAndConfig.TerrainHeight);
+
+
+        private bool CorrectField(ShaderProperty.TextureValue field, PlaytimePainter painter) => 
+            painter.terrain &&
+            field.Equals(PainterDataAndConfig.TerrainHeight);
+
+
         public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter) {
-            if (!painter.terrain || !field.Equals(PainterDataAndConfig.TerrainHeight)) return false;
+            if (!CorrectField(field, painter)) return false;
             tex = painter.terrainHeightTexture;
             return true;
         }
@@ -22,10 +30,10 @@ namespace Playtime_Painter {
                 dest.Add(PainterDataAndConfig.TerrainHeight);
         }
 
-        public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue  fieldName, PlaytimePainter painter)
+        public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue field, PlaytimePainter painter)
         {
-            if (!painter.terrain) return false;
-            if (!fieldName.Equals(PainterDataAndConfig.TerrainHeight)) return false;
+            if (!CorrectField(field, painter)) return false;
+
             var id = painter.ImgMeta;
             if (id == null) return true;
             id.tiling = Vector2.one;
@@ -35,8 +43,8 @@ namespace Playtime_Painter {
 
         public override bool SetTextureOnMaterial(ShaderProperty.TextureValue  field, ImageMeta id, PlaytimePainter painter)
         {
-            if (!painter.terrain) return false;
-            if (!field.Equals(PainterDataAndConfig.TerrainHeight)) return false;
+            if (!CorrectField(field, painter)) return false;
+
             if (id != null && id.texture2D)
                 painter.terrainHeightTexture = id.texture2D;
 

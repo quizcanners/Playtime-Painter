@@ -21,7 +21,7 @@
 				CGPROGRAM
 
 				#pragma multi_compile  PREVIEW_RGB PREVIEW_ALPHA
-				#pragma multi_compile  BRUSH_NORMAL BRUSH_ADD BRUSH_SUBTRACT BRUSH_COPY
+				#pragma multi_compile  BLIT_MODE_ALPHABLEND BLIT_MODE_ADD BLIT_MODE_SUBTRACT BLIT_MODE_COPY
 
 				#pragma vertex vert
 				#pragma fragment frag
@@ -55,7 +55,7 @@
 				float4 frag(v2f i) : COLOR{
 							float dist = length(i.worldPos.xyz - _WorldSpaceCameraPos.xyz);
 
-					#if BRUSH_COPY
+					#if BLIT_MODE_COPY
 					_brushColor = SampleVolume(_SourceTexture, i.worldPos, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES, float3(0, 0, 0));
 					#endif
 
@@ -89,15 +89,15 @@
 					col = col * _brushMask + 0.5*(1 - _brushMask) + col.a*_brushMask.a; //  col.a;
 					#endif
 
-					#if BRUSH_NORMAL || BRUSH_COPY
+					#if BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY
 						col = AlphaBlitOpaquePreview(alpha, _brushColor,  i.texcoord.xy , col);
 					#endif
 
-					#if BRUSH_ADD
+					#if BLIT_MODE_ADD
 						col = addWithDestBufferPreview(alpha*0.4, _brushColor,  i.texcoord.xy, col);
 					#endif
 
-					#if BRUSH_SUBTRACT
+					#if BLIT_MODE_SUBTRACT
 						col = subtractFromDestBufferPreview(alpha*0.4, _brushColor,  i.texcoord.xy, col);
 					#endif
 

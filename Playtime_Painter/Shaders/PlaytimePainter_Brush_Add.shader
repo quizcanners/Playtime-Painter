@@ -88,7 +88,7 @@
 
 				float4 frag(v2f i) : COLOR{
 	
-					#if BRUSH_COPY
+					#if BLIT_MODE_COPY
 	 				_brushColor = tex2Dlod(_SourceTexture, float4(i.texcoord.xy, 0, 0));
 					#endif
 

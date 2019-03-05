@@ -469,7 +469,7 @@ namespace QuizCannersUtilities
                 if (pegi.edit(ref myType))
                 {
                     dirty = true;
-                    data = StuffLoader.LoadTextAsset(myType);
+                    data = FileLoaderUtils.LoadTextAsset(myType);
                 }
 
                 if (dirty)
@@ -580,7 +580,7 @@ namespace QuizCannersUtilities
                 this.inspect_Name();
                 if (Std != null && dataExplorer.tag.Length > 0 && icon.Save.Click("Save To Assets", ref changed))
                 {
-                    StuffSaver.Save_ToAssets_ByRelativePath(Mgmt.fileFolderHolder, dataExplorer.tag, dataExplorer.data);
+                    FileSaverUtils.Save_ToAssets_ByRelativePath(Mgmt.fileFolderHolder, dataExplorer.tag, dataExplorer.data);
                     UnityHelperFunctions.RefreshAssetDatabase();
                 }
 
@@ -687,7 +687,7 @@ namespace QuizCannersUtilities
                 if ("From File:".edit(65, ref myType))
                 {
                     added = new SavedIstd();
-                    added.dataExplorer.data = StuffLoader.LoadTextAsset(myType);
+                    added.dataExplorer.data = FileLoaderUtils.LoadTextAsset(myType);
                     added.NameForPEGI = myType.name;
                     added.comment = DateTime.Now.ToString(CultureInfo.InvariantCulture);
                     states.Add(added);

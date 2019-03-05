@@ -4,16 +4,19 @@ namespace PlayerAndEditorGUI
 {
     public static class EditorInputManager
     {
-        public static Ray raySceneView = new Ray();
-        public static Ray GetScreenRay(Camera cam = null)
+        public static Ray mouseRaySceneView = new Ray();
+        public static Ray centerRaySceneView = new Ray();
+
+        public static Ray GetScreenMousePositionRay(Camera cam = null)
         {
             if (!cam)
                 cam = Camera.main;
 
             return Application.isPlaying ?
-                 cam ? cam.ScreenPointToRay(Input.mousePosition) : raySceneView 
-                 : raySceneView;
+                 cam ? cam.ScreenPointToRay(Input.mousePosition) : mouseRaySceneView 
+                 : mouseRaySceneView;
         }
+
         public enum MB_state_Editor { Nothing, Up, Down, Dragging }
         public static MB_state_Editor[] mouseButtonState = new MB_state_Editor[3];
 

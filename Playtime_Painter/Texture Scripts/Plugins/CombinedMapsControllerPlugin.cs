@@ -9,7 +9,7 @@ namespace Playtime_Painter
 {
 
     [TaggedType(Tag)]
-    public class CombinedMapsControllerPlugin : PainterManagerPluginBase
+    public class CombinedMapsControllerPlugin : PainterSystemManagerPluginBase
     {
         private const string Tag = "CmbndMpsCntrl";
         public override string ClassTag => Tag;
@@ -52,7 +52,7 @@ namespace Playtime_Painter
         #endregion
     }
 
-    public class TextureSetForCombinedMaps : PainterStuffKeepUnrecognized_STD, IGotName {
+    public class TextureSetForCombinedMaps : PainterSystemKeepUnrecognizedStd, IGotName {
 
         protected static CombinedMapsControllerPlugin Ctrl => CombinedMapsControllerPlugin._inst;
 
@@ -187,7 +187,7 @@ namespace Playtime_Painter
 
     }
 
-    public class TexturePackagingProfile : PainterStuffStd, IGotName, IPEGI
+    public class TexturePackagingProfile : PainterSystemStd, IGotName, IPEGI
     {
         private bool _isColor;
         public float bumpStrength = 0.1f;

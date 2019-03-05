@@ -14,7 +14,7 @@ namespace Playtime_Painter {
     [HelpURL(PlaytimePainter.OnlineManual)]
     [DisallowMultipleComponent]
     [ExecuteInEditMode]
-    public class PainterCamera : PainterStuffMono
+    public class PainterCamera : PainterSystemMono
     {
 
         public static DepthProjectorCamera depthProjectorCamera;
@@ -61,20 +61,20 @@ namespace Playtime_Painter {
 
                 _inst = FindObjectOfType<PainterCamera>();
               
-                if (!PainterStuff.applicationIsQuitting) {
+                if (!PainterSystem.applicationIsQuitting) {
 
                     if (!_inst)
                     {
 
                        /* var go = new GameObject(PainterDataAndConfig.PainterCameraName);
                         _inst = go.AddComponent<PainterCamera>();
-                        PainterManagerPluginBase.RefreshPlugins();
+                        PainterSystemManagerPluginBase.RefreshPlugins();
                         */
                         //#if UNITY_EDITOR
                             var go = Resources.Load("prefabs/" + PainterDataAndConfig.PainterCameraName) as GameObject;
                             _inst = Instantiate(go).GetComponent<PainterCamera>();
                             _inst.name = PainterDataAndConfig.PainterCameraName;
-                            PainterManagerPluginBase.RefreshPlugins();
+                            PainterSystemManagerPluginBase.RefreshPlugins();
                         //#endif
 
                     }
@@ -104,14 +104,14 @@ namespace Playtime_Painter {
       
         private ListMetaData _pluginsMeta = new ListMetaData("Plugins", true, true, true, false, icon.Link);
 
-        public IEnumerable<PainterManagerPluginBase> Plugins
+        public IEnumerable<PainterSystemManagerPluginBase> Plugins
         {
             get {
 
-                if (PainterManagerPluginBase.plugins == null)
-                    PainterManagerPluginBase.RefreshPlugins();
+                if (PainterSystemManagerPluginBase.plugins == null)
+                    PainterSystemManagerPluginBase.RefreshPlugins();
 
-                return PainterManagerPluginBase.plugins;
+                return PainterSystemManagerPluginBase.plugins;
             }
         }
 
@@ -188,12 +188,12 @@ namespace Playtime_Painter {
 
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add("mm", MeshManager)
-            .Add_Abstract("pl", PainterManagerPluginBase.plugins, _pluginsMeta);
+            .Add_Abstract("pl", PainterSystemManagerPluginBase.plugins, _pluginsMeta);
 
         public override bool Decode(string tg, string data)
         {
             switch (tg) {
-                case "pl": data.Decode_List(out PainterManagerPluginBase.plugins, ref _pluginsMeta, PainterManagerPluginBase.all); break;
+                case "pl": data.Decode_List(out PainterSystemManagerPluginBase.plugins, ref _pluginsMeta, PainterSystemManagerPluginBase.all); break;
                 case "mm": MeshManager.Decode(data); break;
                 default: return false;
             }
@@ -419,6 +419,7 @@ namespace Playtime_Painter {
         ShaderProperty.VectorValue maskOffset_Property =        new ShaderProperty.VectorValue("_maskOffset");
         ShaderProperty.VectorValue brushForm_Property =         new ShaderProperty.VectorValue("_brushForm");
         ShaderProperty.TextureValue sourceTexture_Property =    new ShaderProperty.TextureValue("_SourceTexture");
+        ShaderProperty.VectorValue textureSourceParameters = new ShaderProperty.VectorValue("_srcTextureUsage");
 
         public void Shader_UpdateBrushConfig(BrushConfig brush = null, float brushAlpha = 1, ImageMeta id = null, PlaytimePainter painter = null)
         {
@@ -483,8 +484,13 @@ namespace Playtime_Painter {
             blitMode.SetKeyword(id).SetGlobalShaderParameters();
 
             if (rendTex && blitMode.UsingSourceTexture)
+            {
                 sourceTexture_Property.GlobalValue = Data.sourceTextures.TryGet(brush.selectedSourceTexture);
-
+                textureSourceParameters.GlobalValue = new Vector4(
+                    (float)brush.srcColorUsage, 
+                    0
+                    );
+            }
         }
 
         public void Shader_UpdateStrokeSegment(BrushConfig bc, float brushAlpha, ImageMeta id, StrokeVector stroke, PlaytimePainter pntr)
@@ -509,7 +515,7 @@ namespace Playtime_Painter {
 
             Shader shd = null;
             if (pntr)
-                foreach (var pl in PainterManagerPluginBase.BrushPlugins) {
+                foreach (var pl in PainterSystemManagerPluginBase.BrushPlugins) {
                     var bs = useSingle ? pl.GetBrushShaderSingleBuffer(pntr) : pl.GetBrushShaderDoubleBuffer(pntr);
                     if (!bs) continue;
                     shd = bs;
@@ -638,7 +644,7 @@ namespace Playtime_Painter {
             if (!MainCamera)
                 MainCamera = Camera.main;
 
-            PainterStuff.applicationIsQuitting = false;
+            PainterSystem.applicationIsQuitting = false;
 
             Inst = this;
 
@@ -743,9 +749,9 @@ namespace Playtime_Painter {
 
             autodisabledBufferTarget = null;
 
-            PainterManagerPluginBase.RefreshPlugins();
+            PainterSystemManagerPluginBase.RefreshPlugins();
 
-            foreach (var p in PainterManagerPluginBase.plugins)
+            foreach (var p in PainterSystemManagerPluginBase.plugins)
                 p?.Enable();
             
             if (Data)
@@ -754,14 +760,14 @@ namespace Playtime_Painter {
         }
 
         private void OnDisable() {
-            PainterStuff.applicationIsQuitting = true;
+            PainterSystem.applicationIsQuitting = true;
             
             DownloadManager.Dispose();
 
             BeforeClosing();
 
-            if (PainterManagerPluginBase.plugins!= null)
-                foreach (var p in PainterManagerPluginBase.plugins)
+            if (PainterSystemManagerPluginBase.plugins!= null)
+                foreach (var p in PainterSystemManagerPluginBase.plugins)
                     p?.Disable();
                 
 
@@ -817,7 +823,7 @@ namespace Playtime_Painter {
             if (!Data)
                 return;
 
-            if (!PainterStuff.IsPlaytimeNowDisabled && PlaytimePainter.IsCurrentTool && focusedPainter)
+            if (!PainterSystem.IsPlaytimeNowDisabled && PlaytimePainter.IsCurrentTool && focusedPainter)
                 focusedPainter.ManualUpdate();
 
             if (GlobalBrush.previewDirty)
@@ -880,15 +886,15 @@ namespace Playtime_Painter {
             }
 
             var needRefresh = false;
-            if (PainterManagerPluginBase.plugins!= null)
-                foreach (var pl in PainterManagerPluginBase.plugins)
+            if (PainterSystemManagerPluginBase.plugins!= null)
+                foreach (var pl in PainterSystemManagerPluginBase.plugins)
                     if (pl != null)
                         pl.Update();
                     else needRefresh = true;
 
             if (needRefresh) {
                 Debug.Log("Refreshing plugins");
-                PainterManagerPluginBase.RefreshPlugins();
+                PainterSystemManagerPluginBase.RefreshPlugins();
             }
 
         }
@@ -933,13 +939,13 @@ namespace Playtime_Painter {
                 "No data Holder".edit(60, ref dataHolder).nl(ref changed);
 
                 if (icon.Refresh.Click("Try to find it")) {
-                    PainterStuff.applicationIsQuitting = false;
+                    PainterSystem.applicationIsQuitting = false;
                     triedToFindPainterData = false;
                 }
 
                 if ("Create".Click().nl()) {
                     
-                    PainterStuff.applicationIsQuitting = false;
+                    PainterSystem.applicationIsQuitting = false;
                     triedToFindPainterData = false;
 
                     if (!Data) {
@@ -998,19 +1004,19 @@ namespace Playtime_Painter {
 
             var changed = false;
 
-            if (!PainterStuff.IsPlaytimeNowDisabled)
+            if (!PainterSystem.IsPlaytimeNowDisabled)
             {
 
-                changed |= _pluginsMeta.edit_List(ref PainterManagerPluginBase.plugins, PainterManagerPluginBase.all);
+                changed |= _pluginsMeta.edit_List(ref PainterSystemManagerPluginBase.plugins, PainterSystemManagerPluginBase.all);
 
                 if (!_pluginsMeta.Inspecting)
                 {
 
                     if ("Find Plugins".Click())
-                        PainterManagerPluginBase.RefreshPlugins();
+                        PainterSystemManagerPluginBase.RefreshPlugins();
 
                     if ("Delete Plugins".Click().nl())
-                        PainterManagerPluginBase.plugins = null;
+                        PainterSystemManagerPluginBase.plugins = null;
 
                 }
             }

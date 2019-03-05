@@ -6,7 +6,7 @@ using QuizCannersUtilities;
 namespace Playtime_Painter {
 
     [TaggedType(tag)]
-    public class ColorBleedControllerPlugin : PainterManagerPluginBase  {
+    public class ColorBleedControllerPlugin : PainterSystemManagerPluginBase  {
 
         const string tag = "ColBleed";
         public override string ClassTag => tag;

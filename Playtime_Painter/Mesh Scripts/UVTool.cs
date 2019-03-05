@@ -60,16 +60,16 @@ namespace Playtime_Painter
 
             if (!projectionUv && "Projection UV Start".Click().nl()) {
                 projectionUv = true;
-                UpdatePreview();
+                UpdateUvPreview();
             }
 
             if (projectionUv) {
 
                 if ("tiling".edit(ref tiling).nl(ref changed))
-                    UpdatePreview();
+                    UpdateUvPreview();
 
                 if ("offset".edit(ref offset).nl(ref changed))
-                    UpdatePreview();
+                    UpdateUvPreview();
 
                 if ("Projection UV Stop".Click().nl(ref changed)) {
                     projectionUv = false;
@@ -77,7 +77,7 @@ namespace Playtime_Painter
                 }
 
                 if ("Auto Apply Threshold".edit(ref projectorNormalThreshold01, 0, 1).changes(ref changed))
-                    UpdatePreview(true);
+                    UpdateUvPreview(true);
                 if (icon.Done.Click("Auto apply to all").nl())
                     AutoProjectUVs(EditedMesh);
 
@@ -91,7 +91,7 @@ namespace Playtime_Painter
         #endif
         #endregion
 
-        private void UpdatePreview(bool useThreshold = false)
+        private void UpdateUvPreview(bool useThreshold = false)
         {
             if (!projectionUv) return;
 
@@ -99,28 +99,12 @@ namespace Playtime_Painter
 
             if (!m.target || EditedMesh.meshPoints.IsNullOrEmpty()) return;
 
-            var prMesh = FreshPreviewMesh;
+            var prMesh = GetPreviewMesh;
 
             var trgPos = m.targetTransform.position;
-
-
-
-            var gn = GridNavigator.Inst();
-
-
-           // foreach (var t in EditedMesh.triangles)
-          //  {
-               // var pv = gn.InPlaneVector(t.GetNormal());
-
-              //  if (pv.magnitude < projectorNormalThreshold01)
-
-
-              if (!useThreshold)
-              {
-
-                  foreach (var v in prMesh.meshPoints)
-                  {
-
+            
+              if (!useThreshold) {
+                  foreach (var v in prMesh.meshPoints)  {
                       var pUv = PosToUv((v.WorldPos - trgPos));
                       foreach (var uv in v.vertices)
                           uv.SharedEditedUV = pUv;
@@ -160,7 +144,7 @@ namespace Playtime_Painter
             return uv;
         }
 
-        public override void OnSelectTool() => UpdatePreview();
+        public override void OnSelectTool() => UpdateUvPreview();
 
         public override void OnDeSelectTool()
         {
@@ -172,7 +156,7 @@ namespace Playtime_Painter
                 MeshMGMT.Redraw();
         }
 
-        public override void OnGridChange() => UpdatePreview();
+        public override void OnGridChange() => UpdateUvPreview();
 
         public override Color VertexColor => Color.magenta;
 
@@ -318,7 +302,7 @@ namespace Playtime_Painter
 
                 if (isChanged && !EditorInputManager.GetMouseButtonUp(0))
                 {
-                    var prMesh = FreshPreviewMesh;
+                    var prMesh = GetPreviewMesh;
                     if (prMesh.selectedUv != null)
                     {
                         prMesh.selectedUv.SharedEditedUV = _lastCalculatedUv;
@@ -368,7 +352,7 @@ namespace Playtime_Painter
 
     /*
     [ExecuteInEditMode]
-    public class UVnavigator : PainterStuffMono {
+    public class UVnavigator : PainterSystemMono {
 
         public static UVnavigator Inst()
         {

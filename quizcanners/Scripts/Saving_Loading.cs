@@ -14,7 +14,7 @@ using System.Diagnostics;
 
 namespace QuizCannersUtilities
 {
-    public static class StuffExplorer
+    public static class FileExplorerUtils
     {
         public static void OpenPersistentFolder() => OpenPath(Application.persistentDataPath);
 
@@ -31,11 +31,11 @@ namespace QuizCannersUtilities
         }
     }
 
-    public static class StuffDeleter
+    public static class FileDeleterUtils
     {
         public static bool DeleteFile_PersistentFolder(string subPath, string fileName)
             => DeleteFile(Path.Combine(Application.persistentDataPath, subPath,
-                Path.Combine(Application.persistentDataPath, subPath, "{0}{1}".F(fileName, StuffSaver.JsonFileType))));
+                Path.Combine(Application.persistentDataPath, subPath, "{0}{1}".F(fileName, FileSaverUtils.JsonFileType))));
 
         public static bool DeleteFile(string path)
         {
@@ -53,7 +53,7 @@ namespace QuizCannersUtilities
         }
     }
 
-    public static class StuffLoader
+    public static class FileLoaderUtils
     {
         private static readonly BinaryFormatter Formatter = new BinaryFormatter();
 
@@ -83,7 +83,7 @@ namespace QuizCannersUtilities
 
             var resourceName = Path.Combine(insideResourceFolder, name);
             var path = Path.Combine(Application.dataPath, resourceFolderLocation, "Resources",
-                       resourceName + StuffSaver.FileType);
+                       resourceName + FileSaverUtils.FileType);
 
             if (!File.Exists(path)) return null;
 
@@ -147,7 +147,7 @@ namespace QuizCannersUtilities
         public static string LoadStoryFromAssets(string folder, string name)
         {
 #if UNITY_EDITOR
-            var path = Path.Combine(Application.dataPath, folder, name + StuffSaver.FileType);
+            var path = Path.Combine(Application.dataPath, folder, name + FileSaverUtils.FileType);
 
             if (!File.Exists(path)) return null;
 
@@ -169,7 +169,7 @@ namespace QuizCannersUtilities
         public static string LoadFromPersistentPath(string subPath, string filename)
         {
             var filePath = Path.Combine(Application.persistentDataPath, subPath,
-                "{0}{1}".F(filename, StuffSaver.JsonFileType));
+                "{0}{1}".F(filename, FileSaverUtils.JsonFileType));
 
             return File.Exists(filePath) ? File.ReadAllText(filePath) : null;
         }
@@ -182,7 +182,7 @@ namespace QuizCannersUtilities
             {
                 var txt = lst[i].Replace(@"\", @"/");
                 txt = txt.Substring(txt.LastIndexOf("/") + 1);
-                txt = txt.Substring(0, txt.Length - StuffSaver.JsonFileType.Length);
+                txt = txt.Substring(0, txt.Length - FileSaverUtils.JsonFileType.Length);
                 lst[i] = txt;
             }
 
@@ -192,7 +192,7 @@ namespace QuizCannersUtilities
         public static bool LoadResource<T>(string pathNdName, ref T arrangement)
         {
 #if UNITY_EDITOR
-            var path = Application.dataPath + "/Resources/" + pathNdName + StuffSaver.FileType;
+            var path = Application.dataPath + "/Resources/" + pathNdName + FileSaverUtils.FileType;
 
             if (File.Exists(path))
             {
@@ -238,7 +238,7 @@ namespace QuizCannersUtilities
 
         public static bool LoadFrom<T>(string path, string name, ref T dta)
         {
-            var fullPath = Path.Combine(path, name + StuffSaver.FileType);
+            var fullPath = Path.Combine(path, name + FileSaverUtils.FileType);
             
             if (!File.Exists(fullPath)) return false;
             
@@ -275,7 +275,7 @@ namespace QuizCannersUtilities
     }
 
 
-    public class StuffLoaderAssync<T>
+    public class ResourceLoaderAssync<T>
     {
         ResourceRequest _rqst;
 
@@ -309,7 +309,7 @@ namespace QuizCannersUtilities
         }
     }
 
-    public static class StuffSaver
+    public static class FileSaverUtils
     {
         private static readonly BinaryFormatter Formatter = new BinaryFormatter();
 

@@ -8,7 +8,7 @@ namespace Playtime_Painter
 {
 
     [ExecuteInEditMode]
-    public class RenderBrush : PainterStuffMono
+    public class RenderBrush : PainterSystemMono
     {
 
         public MeshRenderer meshRenderer;

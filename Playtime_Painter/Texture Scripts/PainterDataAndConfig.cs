@@ -99,7 +99,7 @@ namespace Playtime_Painter
       
         #endregion
 
-        #region WebCamStuff
+        #region Web Cam Utils
         [NonSerialized] public WebCamTexture webCamTexture;
 
         public void RemoteUpdate()
@@ -294,7 +294,7 @@ namespace Playtime_Painter
 
             if (!Recordings.TryGetValue(filename, out data))
             {
-                data = StuffLoader.LoadFromPersistentPath(vectorsFolderName, filename);
+                data = FileLoaderUtils.LoadFromPersistentPath(vectorsFolderName, filename);
                 Recordings.Add(filename, data);
             }
 
@@ -363,10 +363,10 @@ namespace Playtime_Painter
 
 #if PEGI
                         .Add_IfNotNegative("iid", _inspectedImgData)
-                        .Add_IfNotNegative("isfs", _inspectedStuffs)
+                        .Add_IfNotNegative("isfs", _inspectedItems)
                         .Add_IfNotNegative("im", _inspectedMaterial)
                         .Add_IfNotNegative("id", _inspectedDecal)
-                        .Add_IfNotNegative("is", inspectedStuff)
+                        .Add_IfNotNegative("is", inspectedItems)
 #endif
                         .Add_IfTrue("e", toolEnabled);
 
@@ -390,10 +390,10 @@ namespace Playtime_Painter
                 case "Vpck": data.Decode_List(out meshPackagingSolutions); break;
                 #if PEGI
                 case "iid": _inspectedImgData = data.ToInt(); break;
-                case "isfs": _inspectedStuffs = data.ToInt(); break;
+                case "isfs": _inspectedItems = data.ToInt(); break;
                 case "im": _inspectedMaterial = data.ToInt(); break;
                 case "id": _inspectedDecal = data.ToInt(); break;
-                case "is": inspectedStuff = data.ToInt(); break;
+                case "is": inspectedItems = data.ToInt(); break;
                 #endif
                 case "e": toolEnabled = data.ToBool(); break;
                 default: return false;
@@ -405,24 +405,24 @@ namespace Playtime_Painter
         #region Inspector
         #if PEGI
            private int _inspectedImgData = -1;
-           private int _inspectedStuffs = -1;
+           private int _inspectedItems = -1;
            private int _inspectedMaterial = -1;
            private int _inspectedDecal = -1;
 
         private bool InspectData() {
             var changes = false;
             
-            "Img Metas".enter_List(ref imgMetas, ref _inspectedImgData, ref _inspectedStuffs, 0).nl(ref changes);
+            "Img Metas".enter_List(ref imgMetas, ref _inspectedImgData, ref _inspectedItems, 0).nl(ref changes);
 
-            "Mat Metas".enter_List(ref matMetas, ref _inspectedMaterial, ref _inspectedStuffs, 1).nl(ref changes);
+            "Mat Metas".enter_List(ref matMetas, ref _inspectedMaterial, ref _inspectedItems, 1).nl(ref changes);
 
-            "Source Textures".enter_List_UObj(ref sourceTextures, ref _inspectedStuffs, 2).nl(ref changes);
+            "Source Textures".enter_List_UObj(ref sourceTextures, ref _inspectedItems, 2).nl(ref changes);
 
-            "Masks".enter_List_UObj(ref masks, ref _inspectedStuffs, 3).nl(ref changes);
+            "Masks".enter_List_UObj(ref masks, ref _inspectedItems, 3).nl(ref changes);
 
-            "Decals".enter_List(ref decals, ref _inspectedDecal, ref _inspectedStuffs, 4).nl(ref changes);
+            "Decals".enter_List(ref decals, ref _inspectedDecal, ref _inspectedItems, 4).nl(ref changes);
 
-            if (_inspectedStuffs != -1) return changes;
+            if (_inspectedItems != -1) return changes;
 
             #if UNITY_EDITOR
             if ("Refresh Brush Shaders".Click(14).nl()) {
@@ -445,19 +445,19 @@ namespace Playtime_Painter
 
             var rtp = PainterCamera.Inst;
 
-            if (!PainterStuff.IsPlaytimeNowDisabled) {
-                if ("Plugins".enter(ref inspectedStuff, 10).nl_ifNotEntered() && rtp.PluginsInspect().nl(ref changed))
+            if (!PainterSystem.IsPlaytimeNowDisabled) {
+                if ("Plugins".enter(ref inspectedItems, 10).nl_ifNotEntered() && rtp.PluginsInspect().nl(ref changed))
                     rtp.SetToDirty();
 
-                if ("Lists".enter(ref inspectedStuff, 11).nl(ref changed))
+                if ("Lists".enter(ref inspectedItems, 11).nl(ref changed))
                     changed |= InspectData();
 
-                changed |= "Downloads".enter_Inspect(PainterCamera.DownloadManager, ref inspectedStuff, 12).nl(ref changed);
+                changed |= "Downloads".enter_Inspect(PainterCamera.DownloadManager, ref inspectedItems, 12).nl(ref changed);
             }
             else
-                inspectedStuff = -1;
+                inspectedItems = -1;
 
-            if (inspectedStuff == -1) {
+            if (inspectedItems == -1) {
 
                 #if UNITY_EDITOR
 
@@ -473,7 +473,7 @@ namespace Playtime_Painter
                 if (gotDefine && "Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay).nl())
                     MeshManager.Inst.DisconnectMesh();
 
-                if (!PainterStuff.IsPlaytimeNowDisabled) {
+                if (!PainterSystem.IsPlaytimeNowDisabled) {
 
                     if (Painter && Painter.meshEditing == false)
                         "Disable Non-Mesh Colliders in Play Mode".toggleIcon(ref disableNonMeshColliderInPlayMode).nl();

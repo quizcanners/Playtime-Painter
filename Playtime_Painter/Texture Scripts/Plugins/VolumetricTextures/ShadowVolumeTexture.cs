@@ -55,6 +55,8 @@ namespace Playtime_Painter
 
             if (lights == null)
                 lights = new MaterialLightManager();
+
+            
         }
 
         public override void OnDisable()
@@ -333,7 +335,7 @@ namespace Playtime_Painter
         }
         #endregion
 
-        protected override void UpdateMaterials() {
+        public override void UpdateMaterials() {
 
             base.UpdateMaterials();
 
@@ -358,15 +360,14 @@ namespace Playtime_Painter
         }
 
         public override bool Inspect()  {
-
-      
+            
             var changed = base.Inspect();
 
             if (inspectedMaterial != -1)
                 return changed;
 
        
-            changed |= lights.Nested_Inspect();
+            lights.Nested_Inspect().nl(ref changed);
             
             if (changed && MaterialLightManager.probeChanged != -1)
                 lightSourceDirty[MaterialLightManager.probeChanged] = true;
@@ -415,4 +416,5 @@ namespace Playtime_Painter
         #endif
         #endregion
     }
+
 }

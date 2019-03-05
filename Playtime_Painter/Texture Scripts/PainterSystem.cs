@@ -7,7 +7,7 @@ namespace Playtime_Painter
 
     public delegate bool PainterBoolPlugin(PlaytimePainter p);
 
-    public abstract class PainterStuffKeepUnrecognized_STD : PainterStuffStd, IKeepUnrecognizedStd, IPEGI
+    public abstract class PainterSystemKeepUnrecognizedStd : PainterSystemStd, IKeepUnrecognizedStd, IPEGI
     {
         public UnrecognizedTagsList UnrecognizedStd { get; } = new UnrecognizedTagsList();
 
@@ -16,7 +16,7 @@ namespace Playtime_Painter
         #endif
     }
     
-    public abstract class PainterStuffStd : PainterStuff, IStd  
+    public abstract class PainterSystemStd : PainterSystem, IStd  
     {
         public abstract StdEncoder Encode();
 
@@ -25,7 +25,7 @@ namespace Playtime_Painter
         public abstract bool Decode(string tg, string data);
     }
 
-    public class PainterStuffMono : MonoBehaviour, IKeepUnrecognizedStd, IPEGI
+    public class PainterSystemMono : MonoBehaviour, IKeepUnrecognizedStd, IPEGI
     {
         private readonly UnrecognizedTagsList _uTags = new UnrecognizedTagsList();
         public UnrecognizedTagsList UnrecognizedStd => _uTags;
@@ -41,7 +41,7 @@ namespace Playtime_Painter
         protected static BrushConfig GlobalBrush => TexMgmtData.brushConfig;
         protected static PlaytimePainter InspectedPainter => PlaytimePainter.inspected;
         protected static MeshManager MeshMGMT => MeshManager.Inst;
-        protected static bool ApplicationIsQuitting => PainterStuff.applicationIsQuitting;
+        protected static bool ApplicationIsQuitting => PainterSystem.applicationIsQuitting;
 
 #if PEGI
         public virtual bool Inspect() => _uTags.Inspect();  
@@ -50,7 +50,7 @@ namespace Playtime_Painter
     }
 
     
-    public class PainterStuff {
+    public class PainterSystem {
         protected static PainterDataAndConfig TexMGMTdata => PainterCamera.Data;
         protected static PainterDataAndConfig Cfg => PainterCamera.Data;
         protected static PainterCamera TexMGMT => PainterCamera.Inst;

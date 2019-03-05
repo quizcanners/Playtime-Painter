@@ -221,37 +221,37 @@ namespace QuizCannersUtilities {
 
         public virtual void ResetInspector()
         {
-            _inspectedDebugStuff = -1;
+            _inspectedDebugItems = -1;
             inspectedReference = -1;
-            inspectedStuff = -1;
+            inspectedItems = -1;
         }
 
         [HideInInspector]
-        [SerializeField] public int inspectedStuff = -1;
-        private int _inspectedDebugStuff = -1;
+        [SerializeField] public int inspectedItems = -1;
+        private int _inspectedDebugItems = -1;
         [SerializeField] private int inspectedReference = -1;
         public virtual bool Inspect()
         {
 
             var changed = false;
 
-            if (!icon.Debug.enter(ref inspectedStuff, 0)) return false;
+            if (!icon.Debug.enter(ref inspectedItems, 0)) return false;
             
             if (icon.Refresh.Click("Reset Inspector"))
                 ResetInspector();
 
             this.ClickHighlight();
 
-            if (inspectedStuff == -1)
+            if (inspectedItems == -1)
                 pegi.nl();
 
-            if ("STD Saves: ".AddCount(explorer).enter(ref _inspectedDebugStuff, 0).nl_ifNotEntered())
+            if ("STD Saves: ".AddCount(explorer).enter(ref _inspectedDebugItems, 0).nl_ifNotEntered())
                 explorer.Inspect(this);
 
-            if (inspectedStuff == -1)
+            if (inspectedItems == -1)
                 pegi.nl();
 
-            if (("Object References: " + nestedReferences.Count).enter(ref _inspectedDebugStuff, 1).nl_ifNotEntered())
+            if (("Object References: " + nestedReferences.Count).enter(ref _inspectedDebugItems, 1).nl_ifNotEntered())
             {
                 _listMetaData.edit_List_UObj(ref nestedReferences);
 
@@ -261,13 +261,13 @@ namespace QuizCannersUtilities {
 
             }
 
-            if (inspectedStuff == -1)
+            if (inspectedItems == -1)
                 pegi.nl();
 
-            if (("Unrecognized Tags: " + UnrecognizedStd.Count).enter(ref _inspectedDebugStuff, 2).nl_ifNotEntered())
+            if (("Unrecognized Tags: " + UnrecognizedStd.Count).enter(ref _inspectedDebugItems, 2).nl_ifNotEntered())
                 changed |= UnrecognizedStd.Nested_Inspect();
 
-            if (inspectedStuff == -1)
+            if (inspectedItems == -1)
                 pegi.nl();
 
             
@@ -303,16 +303,16 @@ namespace QuizCannersUtilities {
         #region Inspector
 
         public virtual void ResetInspector() {
-            inspectedStuff = -1;
+            inspectedItems = -1;
         }
 
-        public int inspectedStuff = -1;
+        public int inspectedItems = -1;
 
         #if PEGI
         public virtual bool Inspect() {
             var changed = false;
 
-            if (icon.Debug.enter(ref inspectedStuff, 0)) {
+            if (icon.Debug.enter(ref inspectedItems, 0)) {
                 if (icon.Refresh.Click("Reset Inspector"))
                     ResetInspector();
                 this.CopyPasteStdPegi().nl(ref changed);
@@ -355,8 +355,8 @@ namespace QuizCannersUtilities {
 
         protected virtual void ResetInspector()
         {
-            _inspectedDebugStuff = -1;
-            inspectedStuff = -1;
+            _inspectedDebugItems = -1;
+            inspectedItems = -1;
         }
 
         public virtual string NeedAttention() => null;
@@ -375,17 +375,17 @@ namespace QuizCannersUtilities {
             return changed;
         }
         [HideInInspector]
-        [SerializeField] public int inspectedStuff = -1;
+        [SerializeField] public int inspectedItems = -1;
 
-        private int _inspectedDebugStuff = -1;
+        private int _inspectedDebugItems = -1;
         public virtual bool Inspect() {
 
             var changed = false;
 
-            if (inspectedStuff == -1)
+            if (inspectedItems == -1)
                 pegi.Lock_UnlockWindowClick(gameObject);
 
-            if (!icon.Debug.enter(ref inspectedStuff, 0).changes(ref changed)) return changed; 
+            if (!icon.Debug.enter(ref inspectedItems, 0).changes(ref changed)) return changed; 
                 
             if (icon.Refresh.Click("Reset Inspector"))
                 ResetInspector();
@@ -396,13 +396,13 @@ namespace QuizCannersUtilities {
             
             "{0} Debug ".F(this.ToPegiString()).nl();
 
-            if (("STD Saves: " + explorer.states.Count).enter(ref _inspectedDebugStuff, 0).nl_ifNotEntered())
+            if (("STD Saves: " + explorer.states.Count).enter(ref _inspectedDebugItems, 0).nl_ifNotEntered())
                 explorer.Inspect(this);
 
-            if (inspectedStuff == -1)
+            if (inspectedItems == -1)
                 pegi.nl();
 
-            if (("Object References: " + nestedReferences.Count).enter(ref _inspectedDebugStuff, 1).nl_ifNotEntered())
+            if (("Object References: " + nestedReferences.Count).enter(ref _inspectedDebugItems, 1).nl_ifNotEntered())
             {
                 referencesMeta.edit_List_UObj(ref nestedReferences);
                 if (!referencesMeta.Inspecting && "Clear All References".Click("Will clear the list. Make sure everything" +
@@ -411,13 +411,13 @@ namespace QuizCannersUtilities {
 
             }
 
-            if (inspectedStuff == -1)
+            if (inspectedItems == -1)
                 pegi.nl();
 
-            if (("Unrecognized Tags: " + UnrecognizedStd.Count).enter(ref _inspectedDebugStuff, 2).nl_ifNotEntered())
+            if (("Unrecognized Tags: " + UnrecognizedStd.Count).enter(ref _inspectedDebugItems, 2).nl_ifNotEntered())
                 changed |= UnrecognizedStd.Nested_Inspect();
 
-            if (inspectedStuff == -1)
+            if (inspectedItems == -1)
                 pegi.nl();
             
            
@@ -446,7 +446,7 @@ namespace QuizCannersUtilities {
         {
             switch (tg) {
             #if PEGI
-                case "db": inspectedStuff = data.ToInt(); break;
+                case "db": inspectedItems = data.ToInt(); break;
             #endif
                 default: return false;
             }
@@ -455,7 +455,7 @@ namespace QuizCannersUtilities {
 
         public virtual StdEncoder Encode() => this.EncodeUnrecognized()
 #if PEGI
-            .Add_IfNotNegative("db", inspectedStuff)
+            .Add_IfNotNegative("db", inspectedItems)
 #endif
             ;
 
@@ -480,7 +480,7 @@ namespace QuizCannersUtilities {
             if (std == null) return;
 
             UnityHelperFunctions.SendEmail ( "somebody@gmail.com", subject, 
-                "{0} {1} Copy this entire email (or only stuff below) and paste it in the corresponding field on your side to paste it (don't change data before pasting it). {2} {3}{4}{5}".F(note, pegi.EnvironmentNl, pegi.EnvironmentNl,
+                "{0} {1} Copy this entire email and paste it in the corresponding field on your side to paste it (don't change data before pasting it). {2} {3}{4}{5}".F(note, pegi.EnvironmentNl, pegi.EnvironmentNl,
                 StdStart,  std.Encode().ToString(), StdEnd ) ) ;
         }
 
@@ -634,7 +634,7 @@ namespace QuizCannersUtilities {
 #if PEGI
             UnityEngine.Object myType = null;
             if (pegi.edit(ref myType)) {
-                txt = StuffLoader.LoadTextAsset(myType);
+                txt = FileLoaderUtils.LoadTextAsset(myType);
                 ("Loaded " + myType.name).showNotificationIn3D_Views();
 
                 return true;
@@ -682,25 +682,25 @@ namespace QuizCannersUtilities {
         public static T LoadFromAssets<T>(this T s, string fullPath, string name) where T:IStd, new() {
 			if (s == null)
 				s = new T ();
-            s.Decode(StuffLoader.LoadStoryFromAssets(fullPath, name));
+            s.Decode(FileLoaderUtils.LoadStoryFromAssets(fullPath, name));
 			return s;
         }
 
         public static IStd SaveToAssets(this IStd s, string path, string filename)
         {
-            StuffSaver.Save_ToAssets_ByRelativePath(path, filename, s.Encode().ToString());
+            FileSaverUtils.Save_ToAssets_ByRelativePath(path, filename, s.Encode().ToString());
             return s;
         }
 
         public static IStd SaveToPersistentPath(this IStd s, string path, string filename)
         {
-            StuffSaver.SaveToPersistentPath(path, filename, s.Encode().ToString());
+            FileSaverUtils.SaveToPersistentPath(path, filename, s.Encode().ToString());
             return s;
         }
 
         public static bool LoadFromPersistentPath(this IStd s, string path, string filename)
         {
-            var data = StuffLoader.LoadFromPersistentPath(path, filename);
+            var data = FileLoaderUtils.LoadFromPersistentPath(path, filename);
             if (data != null)
             {
                 s.Decode(data);
@@ -711,7 +711,7 @@ namespace QuizCannersUtilities {
 
         public static IStd SaveToResources(this IStd s, string resFolderPath, string insideResPath, string filename)
         {
-            StuffSaver.SaveToResources(resFolderPath, insideResPath, filename, s.Encode().ToString());
+            FileSaverUtils.SaveToResources(resFolderPath, insideResPath, filename, s.Encode().ToString());
             return s;
         }
 
@@ -735,7 +735,7 @@ namespace QuizCannersUtilities {
 		public static T LoadFromResources<T>(this T s, string subFolder, string file)where T:IStd, new() {
 			if (s == null)
 				s = new T ();
-			s.Decode(StuffLoader.LoadStoryFromResource(subFolder, file));
+			s.Decode(FileLoaderUtils.LoadStoryFromResource(subFolder, file));
 			return s;
 		}
 

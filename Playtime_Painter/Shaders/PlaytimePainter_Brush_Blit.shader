@@ -22,7 +22,7 @@
 				#include "PlaytimePainter_cg.cginc"
 
 				#pragma multi_compile  BRUSH_2D BRUSH_SQUARE  BRUSH_3D  BRUSH_3D_TEXCOORD2   BRUSH_DECAL
-				#pragma multi_compile  ___ BRUSH_COPY
+				#pragma multi_compile  ___ BLIT_MODE_COPY
 
 				#pragma vertex vert
 				#pragma fragment frag
@@ -88,7 +88,7 @@
 
 				float4 frag(v2f i) : COLOR{
 	
-					#if BRUSH_COPY
+					#if BLIT_MODE_COPY
 	 				_brushColor = tex2Dlod(_SourceTexture, float4(i.texcoord.xy, 0, 0));
 					#endif
 

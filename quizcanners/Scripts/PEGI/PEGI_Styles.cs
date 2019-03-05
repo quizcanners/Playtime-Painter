@@ -174,7 +174,7 @@ namespace PlayerAndEditorGUI
                 fontSize = 14,
             });
 
-        // Testing stuff
+        // Testing 
 
         public GUIStyle testListLabel;
         public GUIStyle testImageButton;

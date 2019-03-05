@@ -6,7 +6,7 @@ using QuizCannersUtilities;
 namespace Playtime_Painter {
     
     [System.Serializable]
-    public class MaterialLightManager : PainterStuff, IPEGI
+    public class MaterialLightManager : PainterSystem, IPEGI
     {
         public const int maxLights = 2;
 

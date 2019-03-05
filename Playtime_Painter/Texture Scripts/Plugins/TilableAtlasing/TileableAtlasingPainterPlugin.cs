@@ -97,13 +97,12 @@ namespace Playtime_Painter {
 
             BlitFunctions.cSrc = bc.Color;
 
-            var tmp = image.UvToPixelNumber(uvCoords);//new myIntVec2 (pixIndex);
+            var tmp = image.UvToPixelNumber(uvCoords);
 
             var fromX = tmp.x - iHalf;
 
             tmp.y -= iHalf;
-
-
+            
             var pixels = image.Pixels;
 
             for (BlitFunctions.y = -iHalf; BlitFunctions.y < iHalf + 1; BlitFunctions.y++)
@@ -260,9 +259,9 @@ namespace Playtime_Painter {
 
             pegi.space();
 
-            "Atlas".enter_Inspect(AtlasCreator, ref inspectedStuff, 11).nl(ref changed);
+            "Atlas".enter_Inspect(AtlasCreator, ref inspectedItems, 11).nl(ref changed);
 
-            if (inspectedStuff == -1) {
+            if (inspectedItems == -1) {
                 "Atlases".@select(70, ref atlasCreatorId, TileableAtlasingControllerPlugin.inst.atlases).changes(ref changed);
                 if (icon.Add.Click("Create new Atlas").nl(ref changed)) {
                     atlasCreatorId = TileableAtlasingControllerPlugin.inst.atlases.Count;
@@ -586,7 +585,7 @@ namespace Playtime_Painter {
                 ("If you don't set Atlased Material(Destination)  it will try to create a copy of current material and set isAtlased toggle on it, if it has one." +
                     " Below you can see: list of Texture Properties, for each you can select or create an atlas. Atlas is a class that holds all textures assigned to an atlas, and also creates and stores the atlas itself." +
                     "After this you can select a field from current Material, texture of which will be copied into an atlas. A bit confusing, I know)" +
-                    "Also if stuff looks smudged, rebuild the light.").writeHint();
+                    "Also if light looks smudged, rebuild the light.").writeHint();
             }
 
             if ((("Atlased Material:".edit(90, ref _atlasedMaterial).nl()) ||
@@ -980,7 +979,7 @@ namespace Playtime_Painter {
             var changed = false;
 #if UNITY_EDITOR
 
-            if (inspectedStuff == -1) {
+            if (inspectedItems == -1) {
 
                 "Atlas size:".editDelayed(ref _atlasSize, 80).nl(ref changed);
                     _atlasSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(_atlasSize, 512, 4096));
@@ -992,7 +991,7 @@ namespace Playtime_Painter {
                 AdjustListSize();
             }
 
-            _texturesMeta.enter_List(ref textures, ref inspectedStuff, 11).changes(ref changed);
+            _texturesMeta.enter_List(ref textures, ref inspectedItems, 11).changes(ref changed);
 
             if ("Textures:".foldout().nl()) {
                 AdjustListSize();

@@ -178,7 +178,7 @@ namespace PlayerAndEditorGUI {
 
             public void Render(IPEGI target, WindowFunction doWindow, string c_windowName) {
 
-                inspectedTerget = target;
+                inspectedTarget = target;
 
                 windowRect.x = Mathf.Clamp(windowRect.x, 0, Screen.width - 10);
                 windowRect.y = Mathf.Clamp(windowRect.y, 0, Screen.height - 10);
@@ -204,9 +204,9 @@ namespace PlayerAndEditorGUI {
         public delegate bool WindowFunction();
         #endregion
 
-        #region Other Stuff
+        #region Inspection Progress
 
-        public static object inspectedTerget;
+        public static object inspectedTarget;
 
         private static int _elementIndex;
 
@@ -589,7 +589,7 @@ namespace PlayerAndEditorGUI {
 
             public static void InitiatePopUp() {
 
-                popUpTarget = inspectedTerget;
+                popUpTarget = inspectedTarget;
 
                 switch (textsShown) {
                     case 0: understoodPopUpText = "OK";  break;
@@ -623,7 +623,7 @@ namespace PlayerAndEditorGUI {
 
             public static bool ShowingPopup() {
 
-                if (popUpTarget == null || popUpTarget != inspectedTerget)
+                if (popUpTarget == null || popUpTarget != inspectedTarget)
                     return false;
 
                 if (!popUpText.IsNullOrEmpty()) {
@@ -1845,23 +1845,23 @@ namespace PlayerAndEditorGUI {
 
             checkLine();
 
-            var lnms = new List<string>();
-            var indxs = new List<int>();
+            var namesList = new List<string>();
+            var indexes = new List<int>();
 
-            var jindx = -1;
+            var current = -1;
 
             for (var j = 0; j < lst.Count; j++)
                 if (!lst[j].filterEditorDropdown().IsNullOrDestroyed_Obj())
                 {
                     if (ind == j)
-                        jindx = indxs.Count;
-                    lnms.Add(_compileName(showIndex, j, lst[j])); //lst[j].ToPegiString());
-                    indxs.Add(j);
+                        current = indexes.Count;
+                    namesList.Add(_compileName(showIndex, j, lst[j])); //lst[j].ToPegiString());
+                    indexes.Add(j);
                 }
             
-            if (selectFinal(ind, ref jindx, lnms))
+            if (selectFinal(ind, ref current, namesList))
             {
-                ind = indxs[jindx];
+                ind = indexes[current];
                 return change;
             }
 

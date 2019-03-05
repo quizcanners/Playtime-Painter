@@ -16,7 +16,7 @@ namespace Playtime_Painter
 {
 
     [TaggedType(tag)]
-    public class TileableAtlasingControllerPlugin : PainterManagerPluginBase, IMeshToolPlugin, IPainterManagerPluginBrush
+    public class TileableAtlasingControllerPlugin : PainterSystemManagerPluginBase, IMeshToolPlugin, IPainterManagerPluginBrush
     {
         const string tag = "TilAtlCntrl";
         public override string ClassTag => tag;
@@ -89,7 +89,7 @@ namespace Playtime_Painter
 
 #if PEGI
 
-        int InspectedStuff = -1;
+        int InspectedItems = -1;
 
         public override bool Inspect()
         {
@@ -142,9 +142,9 @@ namespace Playtime_Painter
             }
 
             if (p)
-                "Atlased Materials".enter_List(ref atlasedMaterials, ref p.selectedAtlasedMaterial, ref InspectedStuff, 0).nl(ref changed);
+                "Atlased Materials".enter_List(ref atlasedMaterials, ref p.selectedAtlasedMaterial, ref InspectedItems, 0).nl(ref changed);
 
-            "Atlases".enter_List(ref atlases, ref inspectedAtlas, ref InspectedStuff, 1).nl(ref changed);
+            "Atlases".enter_List(ref atlases, ref inspectedAtlas, ref InspectedItems, 1).nl(ref changed);
 
             return changed;
 

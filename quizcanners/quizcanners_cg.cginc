@@ -320,7 +320,7 @@ inline float2 foamAlphaWhite(float3 fwpos) {
 	return float2(foamAlpha, foamWhite);
 }
 
-inline float4 foamStuff(float3 wpos) {
+inline float4 ComputeFoam(float3 wpos) {
 	float4 fwpos;
 	fwpos.xyz = wpos;
 	fwpos.xz += _wrldOffset.xz;
