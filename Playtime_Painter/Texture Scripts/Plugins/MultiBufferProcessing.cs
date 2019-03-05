@@ -799,7 +799,7 @@ namespace Playtime_Painter {
         {
             var changed = false;
 
-            "Update Type".editEnum(70, ref _trigger).changes(ref changed);
+            "Update GetBrushType".editEnum(70, ref _trigger).changes(ref changed);
 
             if ((_trigger != BlitTrigger.PerFrame || !_enabled) && "Blit".Click(ref changed))
                 Blit();

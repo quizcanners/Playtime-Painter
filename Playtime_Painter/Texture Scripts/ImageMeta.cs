@@ -39,7 +39,6 @@ namespace Playtime_Painter
         public bool showRecording;
         public bool enableUndoRedo;
         public bool pixelsDirty;
-        public bool invertRayCast;
         public bool preserveTransparency = true;
         private bool _alphaPreservePixelSet;
         public bool errorWhileReading;
@@ -140,7 +139,7 @@ namespace Playtime_Painter
             .Add_IfTrue("trnsp", isATransparentLayer)
             .Add_IfTrue("bu", enableUndoRedo)
             .Add_IfTrue("tc2Auto", _useTexcoord2AutoAssigned)
-            .Add_IfTrue("invCast", invertRayCast)
+           
             .Add_IfNotBlack("clear", _clearColor)
             .Add_IfNotEmpty("URL", url)
             .Add_IfNotNegative("is", inspectedStuff)
@@ -184,7 +183,7 @@ namespace Playtime_Painter
                 case "trnsp": isATransparentLayer = data.ToBool(); break;
                 case "rec": showRecording = data.ToBool(); break;
                 case "bu": enableUndoRedo = data.ToBool(); break;
-                case "invCast": invertRayCast = data.ToBool(); break;
+               
                 case "tc2Auto": _useTexcoord2AutoAssigned = data.ToBool(); break;
                 case "clear": _clearColor = data.ToColor(); break;
                 case "URL": url = data; break;
@@ -947,13 +946,6 @@ namespace Playtime_Painter
             if (showToggles)
             {
 
-                if (!painter.IsUiGraphicPainter)
-                    "Invert RayCast"
-                        .toggleIcon(
-                            "Will rayCast into the camera (for cases when editing from inside a sphere, mask for 360 video for example.)",
-                            ref invertRayCast).nl(ref changed);
-                else
-                    invertRayCast = false;
 
                 "Use Masks".toggleIcon(ref GlobalBrush.useMask).nl(ref changed);
 

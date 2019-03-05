@@ -24,7 +24,7 @@ namespace Playtime_Painter {
         {
             var changed = this.inspect_Name().nl();
 
-            "Type".editEnum(40, ref type).nl(ref changed);
+            "GetBrushType".editEnum(40, ref type).nl(ref changed);
             "Height Map".edit(ref heightMap).nl(ref changed);
             "Overlay".edit(ref overlay).nl(ref changed);
 

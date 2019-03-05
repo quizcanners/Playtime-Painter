@@ -35,14 +35,14 @@ namespace Playtime_Painter {
 
             var rt = id.TargetIsRenderTexture();
 
-            var mode = BlitMode;
-            var type = Type(!rt);
+            var mode = GetBlitMode(!rt);
+            var type = GetBrushType(!rt);
 
             var worldSpace = rt && IsA3DBrush(painter);
 
             var cody = new StdEncoder()
 
-            .Add(rt ? "typeGPU" : "typeCPU", _type(!rt));
+            .Add(rt ? "typeGPU" : "typeCPU", _brushType(!rt));
 
             if (worldSpace)
                 cody.Add("size3D", brush3DRadius);
@@ -51,7 +51,10 @@ namespace Playtime_Painter {
 
 
             cody.Add_Bool("useMask", useMask)
-            .Add("mode", blitMode);
+                .Add("modeCPU", _inCpuBlitMode)
+                .Add("modeGPU", _inGpuBlitMode);
+
+
 
             if (useMask)
                 cody.Add("mask", (int)mask);
@@ -59,7 +62,7 @@ namespace Playtime_Painter {
             cody.Add("bc", colorLinear);
 
             if (mode.UsingSourceTexture)
-                cody.Add("source", selectedSourceTexture);
+                cody.Add_IfNotZero("source", selectedSourceTexture);
 
             if (rt)
             {
@@ -93,8 +96,8 @@ namespace Playtime_Painter {
 
             switch (tg)
             {
-                case "typeGPU": inGpuType = data.ToInt(); break;
-                case "typeCPU": inCpuType = data.ToInt(); break;
+                case "typeGPU": _inGpuBrushType = data.ToInt(); break;
+                case "typeCPU": _inCpuBrushType = data.ToInt(); break;
                 case "size2D": brush2DRadius = data.ToFloat(); break;
                 case "size3D": brush3DRadius = data.ToFloat(); break;
 
@@ -102,7 +105,8 @@ namespace Playtime_Painter {
 
                 case "mask": mask = (BrushMask)data.ToInt(); break;
 
-                case "mode": blitMode = data.ToInt(); break;
+                case "modeCPU": _inCpuBlitMode = data.ToInt(); break;
+                case "modeGPU": _inGpuBlitMode = data.ToInt(); break;
 
                 case "bc": colorLinear.Decode(data); break;
 
@@ -150,33 +154,43 @@ namespace Playtime_Painter {
         #endregion
 
         #region Modes & Types
-        public int blitMode;
-        private int _type(bool cpu) => cpu ? inCpuType : inGpuType;
-        public void TypeSet(bool cpu, BrushType t) { if (cpu) inCpuType = t.index; else inGpuType = t.index; }
-        public int inGpuType;
-        public int inCpuType;
 
-        public BrushType Type(PlaytimePainter painter) => Type(painter ? painter.ImgMeta.TargetIsTexture2D() : targetIsTex2D);
 
-        public BrushType Type(bool cpu) => BrushType.AllTypes[_type(cpu)];
+        [SerializeField] private int _inGpuBrushType;
+        [SerializeField] private int _inCpuBrushType;
+        private int _brushType(bool cpu) => cpu ? _inCpuBrushType : _inGpuBrushType;
+        public void TypeSet(bool cpu, BrushType t) { if (cpu) _inCpuBrushType = t.index; else _inGpuBrushType = t.index; }
+        public BrushType GetBrushType(PlaytimePainter painter) => GetBrushType(painter ? painter.ImgMeta.TargetIsTexture2D() : targetIsTex2D);
+        public BrushType GetBrushType(bool cpu) => BrushType.AllTypes[_brushType(cpu)];
 
-        public BlitMode BlitMode { get { return BlitMode.AllModes[blitMode]; } set { blitMode = value.index; } }
 
+        [SerializeField] private int _inGpuBlitMode;
+        [SerializeField] private int _inCpuBlitMode;
+        public int blitMode(bool cpu) => cpu ? _inCpuBlitMode : _inGpuBlitMode;
+
+        public BlitMode GetBlitMode(bool cpu) => BlitMode.AllModes[blitMode(cpu)];
+
+        public void SetBlitMode(bool cpu, BlitMode mode)
+        {
+            if (cpu) _inCpuBlitMode = mode.index;
+            else _inGpuBlitMode = mode.index;
+            
+        }
         #endregion
 
         private void SetSupportedFor(bool cpu, bool rtDoubleBuffer) {
             if (!cpu) {
                 if (rtDoubleBuffer) {
-                    if (!Type(cpu).SupportedByRenderTexturePair) foreach (var t in BrushType.AllTypes) { if (t.SupportedByRenderTexturePair) { TypeSet(cpu, t); break; } }
-                    if (!BlitMode.SupportedByRenderTexturePair) foreach (var t in BlitMode.AllModes) { if (t.SupportedByRenderTexturePair) { BlitMode = t; break; } }
+                    if (!GetBrushType(false).SupportedByRenderTexturePair) foreach (var t in BrushType.AllTypes) { if (t.SupportedByRenderTexturePair) { TypeSet(false, t); break; } }
+                    if (!GetBlitMode(false).SupportedByRenderTexturePair) foreach (var t in BlitMode.AllModes) { if (t.SupportedByRenderTexturePair) { SetBlitMode(false, t); break; } }
                 } else {
-                    if (!Type(cpu).SupportedBySingleBuffer) foreach (var t in BrushType.AllTypes) { if (t.SupportedBySingleBuffer) { TypeSet(cpu, t); break; } }
-                    if (!BlitMode.SupportedBySingleBuffer) foreach (var t in BlitMode.AllModes) { if (t.SupportedBySingleBuffer) { BlitMode = t; break; } }
+                    if (!GetBrushType(false).SupportedBySingleBuffer) foreach (var t in BrushType.AllTypes) { if (t.SupportedBySingleBuffer) { TypeSet(false, t); break; } }
+                    if (!GetBlitMode(false).SupportedBySingleBuffer) foreach (var t in BlitMode.AllModes) { if (t.SupportedBySingleBuffer) { SetBlitMode(false, t); break; } }
                 }
             } else
             {
-                if (!Type(cpu).SupportedByTex2D) foreach (var t in BrushType.AllTypes) { if (t.SupportedByTex2D) { TypeSet(cpu, t); break; } }
-                if (!BlitMode.SupportedByTex2D) foreach (var t in BlitMode.AllModes) { if (t.SupportedByTex2D) { BlitMode = t; break; } }
+                if (!GetBrushType(true).SupportedByTex2D) foreach (var t in BrushType.AllTypes) { if (t.SupportedByTex2D) { TypeSet(true, t); break; } }
+                if (!GetBlitMode(true).SupportedByTex2D) foreach (var t in BlitMode.AllModes) { if (t.SupportedByTex2D) { SetBlitMode(true, t); break; } }
             }
         }
 
@@ -222,7 +236,7 @@ namespace Playtime_Painter {
                 }
 
             if (!overrideOther)
-                isA3D = Type(painter).IsA3DBrush;
+                isA3D = GetBrushType(painter).IsA3DBrush;
 
             return isA3D;
         }
@@ -260,9 +274,10 @@ namespace Playtime_Painter {
             }
 
             var cpu = imgData.TargetIsTexture2D();
-            var brushType = Type(cpu);
+            var brushType = GetBrushType(cpu);
+            var blitMode = GetBlitMode(cpu);
 
-            BlitMode.PrePaint(painter, this, stroke);
+            blitMode.PrePaint(painter, this, stroke);
 
             if (cpu) {
                 painter.RecordingMgmt();
@@ -304,8 +319,8 @@ namespace Playtime_Painter {
         {
             var p = PlaytimePainter.inspected;
 
-            BrushType.AllTypes.ClampIndexToCount(ref inCpuType);
-            BrushType.AllTypes.ClampIndexToCount(ref inGpuType);
+            BrushType.AllTypes.ClampIndexToCount(ref _inCpuBrushType);
+            BrushType.AllTypes.ClampIndexToCount(ref _inGpuBrushType);
             
             _inspectedBrush = this;
             var changed = false;
@@ -313,21 +328,23 @@ namespace Playtime_Painter {
             pegi.newLine();
 
             Msg.BlitMode.Write("How final color will be calculated", 70);
+            var cpu = p ? p.ImgMeta.TargetIsTexture2D() : targetIsTex2D;
 
-            pegi.select(ref blitMode, BlitMode.AllModes).changes(ref changed);
+            var bm = GetBlitMode(cpu);
 
-            BlitMode?.ToolTip.fullWindowDocumentationClick("About this blit mode", 20).nl();
+            if (pegi.select(ref bm, BlitMode.AllModes).changes(ref changed))
+                SetBlitMode(cpu, bm);
+
+            bm?.ToolTip.fullWindowDocumentationClick("About this blit mode", 20).nl();
 
             pegi.space();
             pegi.newLine();
             
-            var cpu = p ? p.ImgMeta.TargetIsTexture2D() : targetIsTex2D;
-            
             if (!cpu) {
                 Msg.BrushType.Write(80);
-                pegi.select(ref inGpuType, BrushType.AllTypes).changes(ref changed);
+                pegi.select(ref _inGpuBrushType, BrushType.AllTypes).changes(ref changed);
 
-                Type(p)?.ToolTip.fullWindowDocumentationClick("About this brush type", 20);
+                GetBrushType(p)?.ToolTip.fullWindowDocumentationClick("About this brush type", 20);
 
             }
 
@@ -342,10 +359,10 @@ namespace Playtime_Painter {
                         pl.SetToDirty_Obj();
                     
 
-            Type(cpu).Inspect().nl(ref changed);
+            GetBrushType(cpu).Inspect().nl(ref changed);
 
-            if (!overrideBlitModePegi && BlitMode.ShowInDropdown())
-                BlitMode.Inspect().nl(ref changed);
+            if (!overrideBlitModePegi && bm.ShowInDropdown())
+                bm.Inspect().nl(ref changed);
 
             _inspectedBrush = null;
 
@@ -354,7 +371,7 @@ namespace Playtime_Painter {
 
         public bool Targets_PEGI()
         {
-            bool changed = false;
+            var changed = false;
 
             if ((targetIsTex2D ? icon.CPU : icon.GPU).Click(
                 targetIsTex2D ? "Render Texture Config" : "Texture2D Config", ref changed ,45))
@@ -363,7 +380,7 @@ namespace Playtime_Painter {
                 SetSupportedFor(targetIsTex2D, true);
             }
 
-            bool smooth = Type(targetIsTex2D) != BrushTypePixel.Inst;
+            var smooth = GetBrushType(targetIsTex2D) != BrushTypePixel.Inst;
 
             if ((targetIsTex2D) && 
                 pegi.toggle(ref smooth, icon.Round.GetIcon(), icon.Square.GetIcon(), "Smooth/Pixels Brush", 45).changes(ref changed))
@@ -406,7 +423,7 @@ namespace Playtime_Painter {
 
 
             if (cpuBlit) {
-                var smooth = _type(cpuBlit) != BrushTypePixel.Inst.index;
+                var smooth = _brushType(cpuBlit) != BrushTypePixel.Inst.index;
 
                 if (pegi.toggle(ref smooth, icon.Round, icon.Square, "Smooth/Pixels Brush", 45).changes(ref changed))
                     TypeSet(cpuBlit, smooth ? BrushTypeNormal.Inst : (BrushType)BrushTypePixel.Inst);
@@ -431,7 +448,7 @@ namespace Playtime_Painter {
 #endif
 
 
-            if (Mode_Type_PEGI().changes(ref changed) && Type(cpuBlit) == BrushTypeDecal.Inst)
+            if (Mode_Type_PEGI().changes(ref changed) && GetBrushType(cpuBlit) == BrushTypeDecal.Inst)
                     MaskSet(BrushMask.A, true);
 
             if (p.terrain) {
@@ -520,8 +537,9 @@ namespace Playtime_Painter {
 
             if (Cfg.showColorSliders) {
 
+                var cpu = id.TargetIsTexture2D();
              
-                var slider = BlitMode.ShowColorSliders;
+                var slider = GetBlitMode(cpu).ShowColorSliders;
 
                 if (painter && painter.IsTerrainHeightTexture)
                 {

@@ -28,8 +28,8 @@ namespace Playtime_Painter
 
             //The code below can find all brushes, but at some Compilation time cost:
             /*
-            List<Type> allTypes = CsharpFuncs.GetAllChildTypesOf<BrushType>();
-            foreach (Type t in allTypes)
+            List<GetBrushType> allTypes = CsharpFuncs.GetAllChildTypesOf<BrushType>();
+            foreach (GetBrushType t in allTypes)
             {
                 BrushType tb = (BrushType)Activator.CreateInstance(t);
                 _allTypes.Add(tb);
@@ -628,8 +628,8 @@ namespace Playtime_Painter
         public override bool NeedsGrid => Cfg.useGridForBrush; 
 
         public override string NameForDisplayPEGI => "Sphere";
-        
-        static void PrepareSphereBrush(ImageMeta id, BrushConfig br, StrokeVector stroke, PlaytimePainter painter)
+
+        private static void PrepareSphereBrush(ImageMeta id, BrushConfig br, StrokeVector stroke, PlaytimePainter painter)
         {
             if (TexMGMT.bigRtPair.IsNullOrEmpty())
                 TexMGMT.UpdateBuffersState();
@@ -667,7 +667,7 @@ namespace Playtime_Painter
 
         public static void Paint(RenderTexture rt, GameObject go, SkinnedMeshRenderer skinner, BrushConfig br, StrokeVector st, int subMeshIndex)
         {
-            br.BlitMode.PrePaint(null, br, st);
+            br.GetBlitMode(false).PrePaint(null, br, st);
             PrepareSphereBrush(rt.GetImgData(), br, st, null);
             TexMGMT.brushRenderer.UseSkinMeshAsBrush(go, skinner, subMeshIndex);
             TexMGMT.Render();
@@ -676,7 +676,7 @@ namespace Playtime_Painter
 
         public static void Paint(RenderTexture rt, GameObject go, Mesh mesh, BrushConfig br, StrokeVector st, List<int> subMeshIndex)
         {
-            br.BlitMode.PrePaint(null, br, st);
+            br.GetBlitMode(false).PrePaint(null, br, st);
             PrepareSphereBrush(rt.GetImgData(), br, st, null);
             TexMGMT.brushRenderer.UseMeshAsBrush(go, mesh, subMeshIndex);
             TexMGMT.Render();
@@ -686,7 +686,7 @@ namespace Playtime_Painter
         public static void PaintAtlased(RenderTexture rt, GameObject go, Mesh mesh, BrushConfig br, StrokeVector st, List<int> subMeshIndex, int aTexturesInRow)
         {
 
-            br.BlitMode.PrePaint(null, br, st);
+            br.GetBlitMode(false).PrePaint(null, br, st);
 
             PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, aTexturesInRow, 1);
 

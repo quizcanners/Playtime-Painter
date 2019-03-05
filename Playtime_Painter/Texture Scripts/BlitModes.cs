@@ -70,8 +70,8 @@ namespace Playtime_Painter {
             // Which would be cool, but I'm a realist so whatever happens its ok, I lived a good life and greatfull for every day.
 
             /*
-			List<Type> allTypes = CsharpFuncs.GetAllChildTypesOf<BlitMode>();
-			foreach (Type t in allTypes) {
+			List<GetBrushType> allTypes = CsharpFuncs.GetAllChildTypesOf<BlitMode>();
+			foreach (GetBrushType t in allTypes) {
 				BlitMode tb = (BlitMode)Activator.CreateInstance(t);
 				_allModes.Add(tb);
 			}
@@ -123,7 +123,8 @@ namespace Playtime_Painter {
             var id = InspectedImageMeta;
 
             var cpuBlit = id == null ? InspectedBrush.targetIsTex2D : id.destination == TexTarget.Texture2D;
-            var brushType = InspectedBrush.Type(cpuBlit);
+            var brushType = InspectedBrush.GetBrushType(cpuBlit);
+            var blitMode = InspectedBrush.GetBlitMode(cpuBlit);
             var usingDecals = (!cpuBlit) && brushType.IsUsingDecals;
 
             var changed = false;
@@ -160,7 +161,7 @@ namespace Playtime_Painter {
 
             pegi.newLine();
 
-            if (InspectedBrush.BlitMode.UsingSourceTexture && (id == null || id.TargetIsRenderTexture()))
+            if (blitMode.UsingSourceTexture && (id == null || id.TargetIsRenderTexture()))
                  "Copy From:".selectOrAdd(70, ref InspectedBrush.selectedSourceTexture, ref TexMGMTdata.sourceTextures).nl(ref changed);
 
             pegi.newLine();

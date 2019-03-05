@@ -440,7 +440,8 @@ namespace Playtime_Painter {
             float textureWidth = id.width;
             var rendTex = id.TargetIsRenderTexture();
 
-            var brushType = brush.Type(!rendTex);
+            var brushType = brush.GetBrushType(!rendTex);
+            var blitMode = brush.GetBlitMode(!rendTex);
 
             var is3DBrush = brush.IsA3DBrush(painter);
             var isDecal = rendTex && brushType.IsUsingDecals;
@@ -476,19 +477,20 @@ namespace Playtime_Painter {
 
             UnityHelperFunctions.SetShaderKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2, id.useTexcoord2);
 
-            if (brush.BlitMode.SupportsTransparentLayer)
+            if (blitMode.SupportsTransparentLayer)
                 UnityHelperFunctions.SetShaderKeyword(PainterDataAndConfig.TARGET_TRANSPARENT_LAYER, id.isATransparentLayer);
 
-            brush.BlitMode.SetKeyword(id).SetGlobalShaderParameters();
+            blitMode.SetKeyword(id).SetGlobalShaderParameters();
 
-            if (rendTex && brush.BlitMode.UsingSourceTexture)
+            if (rendTex && blitMode.UsingSourceTexture)
                 sourceTexture_Property.GlobalValue = Data.sourceTextures.TryGet(brush.selectedSourceTexture);
 
         }
 
         public void Shader_UpdateStrokeSegment(BrushConfig bc, float brushAlpha, ImageMeta id, StrokeVector stroke, PlaytimePainter pntr)
         {
-            if (bigRtPair == null) UpdateBuffersState();
+            if (bigRtPair == null)
+                UpdateBuffersState();
 
             var isDoubleBuffer = !id.renderTexture;
 
@@ -508,14 +510,19 @@ namespace Playtime_Painter {
             Shader shd = null;
             if (pntr)
                 foreach (var pl in PainterManagerPluginBase.BrushPlugins) {
-                    Shader bs = useSingle ? pl.GetBrushShaderSingleBuffer(pntr) : pl.GetBrushShaderDoubleBuffer(pntr);
-                    if (bs) {
-                        shd = bs;
-                        break;
-                    }
+                    var bs = useSingle ? pl.GetBrushShaderSingleBuffer(pntr) : pl.GetBrushShaderDoubleBuffer(pntr);
+                    if (!bs) continue;
+                    shd = bs;
+                    break;
                 }
 
-            if (!shd) shd = useSingle ? bc.BlitMode.ShaderForSingleBuffer : bc.BlitMode.ShaderForDoubleBuffer;
+
+
+            if (!shd)
+            {
+                var blitMode = bc.GetBlitMode(false);
+                shd = useSingle ? blitMode.ShaderForSingleBuffer : blitMode.ShaderForDoubleBuffer;
+            }
 
             brushRenderer.Set(shd);
 

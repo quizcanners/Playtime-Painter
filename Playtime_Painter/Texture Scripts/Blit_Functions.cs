@@ -106,14 +106,14 @@ namespace Playtime_Painter {
         {
             half = (bc.Size(false)) / 2;
 
-            var smooth = bc.Type(true) != BrushTypePixel.Inst;
+            var smooth = bc.GetBrushType(true) != BrushTypePixel.Inst;
 
             if (smooth)
                 alphaMode = CircleAlpha;
             else
                 alphaMode = NoAlpha;
 
-            blitMode = bc.BlitMode.BlitFunctionTex2D(id);
+            blitMode = bc.GetBlitMode(true).BlitFunctionTex2D(id);
 
             alpha = 1;
 
@@ -156,7 +156,7 @@ namespace Playtime_Painter {
 
             var tmp = image.UvToPixelNumber(uvCoords, out offset);
 
-            var smooth = bc.Type(true) != BrushTypePixel.Inst;
+            var smooth = bc.GetBrushType(true) != BrushTypePixel.Inst;
             if (smooth)
             {
                 iHalf += 1;

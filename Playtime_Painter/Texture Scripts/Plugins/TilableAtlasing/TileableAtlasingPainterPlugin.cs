@@ -77,14 +77,14 @@ namespace Playtime_Painter {
             BlitFunctions.half = (bc.Size(false)) / 2;
             var iHalf = Mathf.FloorToInt(BlitFunctions.half - 0.5f);
 
-            var smooth = bc.Type(true) != BrushTypePixel.Inst;
+            var smooth = bc.GetBrushType(true) != BrushTypePixel.Inst;
 
             if (smooth)
                 BlitFunctions.alphaMode = BlitFunctions.CircleAlpha;
             else
                 BlitFunctions.alphaMode = BlitFunctions.NoAlpha;
 
-            BlitFunctions.blitMode = bc.BlitMode.BlitFunctionTex2D(image);
+            BlitFunctions.blitMode = bc.GetBlitMode(true).BlitFunctionTex2D(image);
 
             if (smooth) iHalf += 1;
 

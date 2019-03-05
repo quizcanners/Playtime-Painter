@@ -36,7 +36,7 @@ namespace Playtime_Painter {
 
         private static BrushConfig GlobalBrush => Cfg.brushConfig;
 
-        public BrushType GlobalBrushType => GlobalBrush.Type(ImgMeta.TargetIsTexture2D());
+        public BrushType GlobalBrushType => GlobalBrush.GetBrushType(ImgMeta.TargetIsTexture2D());
 
         public string ToolName => PainterDataAndConfig.ToolName;
 
@@ -132,6 +132,8 @@ namespace Playtime_Painter {
         public string nameHolder = "unnamed";
 
         public int selectedAtlasedMaterial = -1;
+        
+        public bool invertRayCast;
 
         [NonSerialized] public List<PainterComponentPluginBase> plugins;
 
@@ -323,7 +325,7 @@ namespace Playtime_Painter {
 
             var ray = PrepareRay(cam.ScreenPointToRay(mousePos));
 
-            if (ImgMeta.invertRayCast && meshRenderer) {
+            if (invertRayCast && meshRenderer) {
                 ray.origin = ray.GetPoint(meshRenderer.bounds.max.magnitude * 1.5f);
                 ray.direction = -ray.direction;
             }
@@ -335,7 +337,7 @@ namespace Playtime_Painter {
         {
             var id = ImgMeta;
 
-            if (id == null || !id.invertRayCast || !meshRenderer || IsUiGraphicPainter) return ray;
+            if (id == null || !invertRayCast || !meshRenderer || IsUiGraphicPainter) return ray;
 
             ray.origin = ray.GetPoint(meshRenderer.bounds.max.magnitude * 1.5f);
             ray.direction = -ray.direction;
@@ -2052,7 +2054,7 @@ namespace Playtime_Painter {
 
                             TexMgmt.DependenciesInspect().changes(ref changed);
                             
-                    #region Undo/Redo & Recording
+                            #region Undo/Redo & Recording
 
                             id.Undo_redo_PEGI();
 
@@ -2138,13 +2140,10 @@ namespace Playtime_Painter {
                             #endregion
 
                             #region Brush
-
-                       
-
+                            
                             GlobalBrush.Inspect().changes(ref changed);
-
-                          
-                            var mode = GlobalBrush.BlitMode;
+                            
+                            var mode = GlobalBrush.GetBlitMode(cpu);
                             var col = GlobalBrush.Color;
 
                             if ((cpu || !mode.UsingSourceTexture) && !IsTerrainHeightTexture &&
@@ -2290,6 +2289,16 @@ namespace Playtime_Painter {
                                     "As you paint, component will keep checking Sub Mesh index and will change painted material based on that index."
                                         .fullWindowDocumentationClick("About this option", 15).nl();
                                 }
+
+
+                                if (!IsUiGraphicPainter)
+                                    "Invert RayCast"
+                                        .toggleIcon(
+                                            "Will rayCast into the camera (for cases when editing from inside a sphere, mask for 360 video for example.)",
+                                            ref invertRayCast).nl(ref changed);
+                                else
+                                    invertRayCast = false;
+
                             }
 
                             if (Cfg.moreOptions)
@@ -2868,7 +2877,8 @@ namespace Playtime_Painter {
         }
 
         public StdEncoder Encode() => new StdEncoder()
-            .Add("pgns", plugins, PainterManagerPluginBase.all);
+            .Add("pgns", plugins, PainterManagerPluginBase.all)
+            .Add_IfTrue("invCast", invertRayCast);
 
         public void Decode(string data) => new StdDecoder(data).DecodeTagsFor(this);
 
@@ -2877,6 +2887,7 @@ namespace Playtime_Painter {
             switch (tag)
             {
                 case "pgns": data.Decode_List_Abstract(out plugins, PainterManagerPluginBase.all); break;
+                case "invCast": invertRayCast = data.ToBool(); break;
                 default: return true;
             }
 

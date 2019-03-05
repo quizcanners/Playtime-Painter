@@ -105,7 +105,7 @@ namespace Playtime_Painter
             var pixels = image.Pixels;
 
             var ihalf = (int)(BlitFunctions.half - 0.5f);
-            var smooth = bc.Type(true) != BrushTypePixel.Inst;
+            var smooth = bc.GetBrushType(true) != BrushTypePixel.Inst;
             if (smooth) ihalf += 1;
 
             BlitFunctions.alphaMode = BlitFunctions.SphereAlpha;
@@ -264,7 +264,7 @@ namespace Playtime_Painter
 
                 "Scale:".edit(40, ref br.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f).nl(ref changed);
 
-                if (br.BlitMode.UsingSourceTexture && id.TargetIsRenderTexture())
+                if (br.GetBlitMode(cpuBlit).UsingSourceTexture && id.TargetIsRenderTexture())
                 {
                     if (TexMGMTdata.sourceTextures.Count > 0)
                     {

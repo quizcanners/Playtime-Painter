@@ -43,11 +43,13 @@ namespace Playtime_Painter
         private void PrepareBlit(BrushConfig bc, ImageMeta id, float brushAlpha, StrokeVector stroke)
         {
 
+            var blitMode = bc.GetBlitMode(true);
+
             switch (_blitJobBlitMode)
             {
                 case BlitJobBlitMode.Add: _blitMode = AddBlit; break;
                 case BlitJobBlitMode.Alpha:
-                    if (bc.BlitMode.SupportsTransparentLayer && id.isATransparentLayer)
+                    if (blitMode.SupportsTransparentLayer && id.isATransparentLayer)
                         _blitMode = AlphaBlitTransparent;
                     else
                         _blitMode = AlphaBlitOpaque; break;
@@ -71,9 +73,9 @@ namespace Playtime_Painter
             _brAlpha = brushAlpha;
 
             _half = (bc.Size(false)) / 2;
-            _smooth = bc.Type(true) != BrushTypePixel.Inst;
+            _smooth = bc.GetBrushType(true) != BrushTypePixel.Inst;
 
-            _blitJobBlitMode = bc.BlitMode.BlitJobFunction();
+            _blitJobBlitMode = blitMode.BlitJobFunction();
 
             _alpha = 1;
 
