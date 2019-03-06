@@ -113,16 +113,21 @@
 
 						alpha = ProjectorSquareAlpha(o.shadowCoords);
 
-						alpha *= ProjectorDepthDifference(o.shadowCoords, o.worldPos, pUv );
+						float depthDiff = ProjectorDepthDifference(o.shadowCoords, o.worldPos, pUv);
 
-						float4 src = tex2Dlod(_SourceTexture, float4(pUv*o.srcTexAspect, 0, 0));
+						alpha *= depthDiff;
 
-						alpha *= src.a;
+						pUv *= o.srcTexAspect;
+
+						float4 src = tex2Dlod(_SourceTexture, float4(pUv, 0, 0));
+
+						alpha *= src.a * BrushClamp(pUv);
 						float pr_shadow = alpha;
 
 						float par = _srcTextureUsage.x;
-
 					
+						src.rgb *= (1 + pow(depthDiff, 64)) * 0.5;
+
 						_brushColor.rgb = SourceTextureByBrush(src.rgb);
 
 					#endif
@@ -240,7 +245,19 @@
 					#if BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY || BLIT_MODE_PROJECTION
 
 					#if TARGET_TRANSPARENT_LAYER
+						
 						col = AlphaBlitTransparentPreview(alpha, _brushColor, tc.xy, col);
+
+						float showBG = _srcTextureUsage.z * (1-col.a);
+
+						
+
+						col.a += showBG; 
+
+
+
+						col.rgb = col.rgb * (1 - showBG) + tex2D(_TransparentLayerUnderlay, tc.xy).rgb*showBG;
+
 					#else
 						col = AlphaBlitOpaquePreview(alpha, _brushColor, tc.xy, col);
 						col.a = 1;

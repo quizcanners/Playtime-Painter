@@ -17,6 +17,8 @@ namespace Playtime_Painter
     public class MeshToolBase : PainterSystemStd, IPEGI, IGotDisplayName
     {
 
+        protected enum DetectionMode { Points, Lines, Triangles }
+
         public virtual string stdTag => "t_noStd";
 
         public delegate bool MeshToolPlugBool(MeshToolBase tool, out bool val);
@@ -86,9 +88,9 @@ namespace Playtime_Painter
         }
         
         public virtual bool ShowVertices => true;
-
         public virtual bool ShowLines => true;
         public virtual bool ShowTriangles => true;
+
         public virtual bool ShowGrid => false;
 
         public virtual bool ShowSelectedVertex => false;
@@ -514,6 +516,8 @@ namespace Playtime_Painter
     {
         public override string stdTag => "t_shF";
 
+        private DetectionMode _detectionMode;
+
         public static SharpFacesTool inst;
 
         public SharpFacesTool()
@@ -523,29 +527,48 @@ namespace Playtime_Painter
 
         private bool _setTo = true;
 
-        public override bool ShowVertices => false;
+        public override bool ShowVertices => _detectionMode == DetectionMode.Points;
+
+        public override bool ShowLines => _detectionMode == DetectionMode.Lines;
+
+        public override bool ShowTriangles => _detectionMode == DetectionMode.Triangles;
 
         #region Inspector
+
         public override string NameForDisplayPEGI => "Dominant Faces";
 
-        public override string Tooltip =>
-                 "Paint the DOMINANCE on triangles" + Environment.NewLine +
-                    "It will affect how normal vector will be calculated" + Environment.NewLine +
-                    "N - smooth vertices, detect edge" + Environment.NewLine +
-                    "N on triangle near vertex - replace smooth normal of this vertex with This triangle's normal" + Environment.NewLine +
-                    "N on line to ForceNormal on connected triangles. (Alt - unForce)"
-                    ;
+        public override string Tooltip {
+
+            get
+            {
+                switch (_detectionMode)
+                {
+                    case DetectionMode.Points: return "Click on points to toggle smoothed normal";
+                    case DetectionMode.Lines: return "Click on lines to set dominants";
+                    default:
+                        return (
+                            ("Paint the DOMINANCE on triangles {0} It will affect how normal vector will be calculated {0}"
+                            +
+                            "Alt + N on Triangle to flip normals").F(pegi.EnvironmentNl));
+                }
+
+            }
             
-        
+    }
+
 #if PEGI
         public override bool Inspect()
         {
 
+            var changed = false;
+
             var m = MeshMGMT;
 
-            "Will Set {0} On Click".F(_setTo).toggleIcon(ref _setTo).nl();
+            "Will Set {0} On Click".F(_setTo).toggleIcon(ref _setTo).nl(ref changed);
 
-            if ("Auto Bevel".Click())
+            "Mode".editEnum(50, ref _detectionMode).nl( ref changed);
+
+           /* if ("Auto Bevel".Click())
                 AutoAssignDominantNormalsForBeveling();
             "Sensitivity".edit(60, ref Cfg.bevelDetectionSensitivity, 3, 30).nl();
 
@@ -563,19 +586,30 @@ namespace Playtime_Painter
                     vr.smoothNormal = true;
                 EditedMesh.Dirty = true;
                 Cfg.newVerticesSmooth = true;
-            }
+            }*/
 
 
-            return false;
+            return changed;
 
         }
-#endif
+        #endif
         #endregion
 
         public override bool MouseEventPointedTriangle()
         {
             if (EditorInputManager.GetMouseButton(0))
                 EditedMesh.Dirty |= PointedTriangle.SetSharpCorners(_setTo);
+
+            return false;
+        }
+
+        public override bool MouseEventPointedLine()
+        {
+            if (EditorInputManager.GetMouseButton(0)) {
+                foreach (var t in MeshMGMT.PointedLine.GetAllTriangles_USES_Tris_Listing())
+                    EditedMesh.Dirty |= t.SetSharpCorners(_setTo);
+              
+            }
 
             return false;
         }
@@ -627,16 +661,12 @@ namespace Playtime_Painter
                 {
                     var no = PointedTriangle.NumberOf(PointedTriangle.GetClosestTo(MeshMGMT.collisionPosLocal));
                     PointedTriangle.DominantCourner[no] = !PointedTriangle.DominantCourner[no];
-#if PEGI
                     (PointedTriangle.DominantCourner[no] ? "Triangle edge's Normal is now dominant" : "Triangle edge Normal is NO longer dominant").TeachingNotification();
-#endif
                 }
                 else
                 {
                     PointedTriangle.InvertNormal();
-#if PEGI
-                    "Inverting Normals".TeachingNotification();
-#endif
+                    "Flipping Normals".TeachingNotification();
                 }
 
                 EditedMesh.Dirty = true;
@@ -646,36 +676,36 @@ namespace Playtime_Painter
 
         }
 
-        public override void KeysEventPointedLine()
+        public override bool MouseEventPointedVertex()
         {
-            if (KeyCode.N.IsDown())
-            {
-                foreach (var t in MeshMGMT.PointedLine.GetAllTriangles_USES_Tris_Listing())
-                    t.SetSharpCorners(!EditorInputManager.Alt);
-#if PEGI
-                "N ON A LINE - Make triangle normals Dominant".TeachingNotification();
-#endif
-                EditedMesh.Dirty = true;
-            }
-        }
-
-        public override void KeysEventPointedVertex()
-        {
-
-
-
-            if (KeyCode.N.IsDown())
-            {
+            if (EditorInputManager.GetMouseButton(0)) {
                 var m = MeshMGMT;
-
                 m.PointedUV.meshPoint.smoothNormal = !m.PointedUV.meshPoint.smoothNormal;
                 EditedMesh.Dirty = true;
-#if PEGI
                 "N - on Vertex - smooth Normal".TeachingNotification();
-#endif
             }
 
+            return false;
         }
+
+
+        #region Encode & Decode
+
+        public override StdEncoder Encode() => new StdEncoder()
+            .Add("dm", (int)_detectionMode);
+
+        public override bool Decode(string tg, string data)
+        {
+            switch (tg)
+            {
+                case "dm": _detectionMode = (DetectionMode) data.ToInt(); break;
+                default: return false;
+            }
+
+            return true;
+        }
+
+        #endregion
 
     }
 

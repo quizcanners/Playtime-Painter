@@ -123,7 +123,7 @@ namespace Playtime_Painter.Examples {
 
             MatTex = texture;
 
-            texture.GetImgData().useTexcoord2 = useTexcoord2;
+            texture.GetImgData().useTexCoord2 = useTexcoord2;
 
             return texture;
         }
@@ -243,7 +243,7 @@ namespace Playtime_Painter.Examples {
 
 
             if ("  Use second texture coordinates".toggleIcon("If shader uses texcoord2 (Baked Light) to display damage, turn this ON.", ref useTexcoord2).nl() && texture)
-                texture.GetImgData().useTexcoord2 = useTexcoord2;
+                texture.GetImgData().useTexCoord2 = useTexcoord2;
             
             if (Material)
             {

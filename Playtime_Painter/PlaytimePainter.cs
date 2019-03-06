@@ -136,6 +136,22 @@ namespace Playtime_Painter {
         public bool invertRayCast;
 
         [NonSerialized] public List<PainterComponentPluginBase> plugins;
+        
+        public List<PainterComponentPluginBase> Plugins
+        {
+            get
+            {
+
+                if (plugins != null)
+                    return plugins;
+                
+                plugins = new List<PainterComponentPluginBase>();
+
+                PainterComponentPluginBase.UpdatePlugins(this);
+
+                return plugins;
+            }
+        }
 
         [NonSerialized] private PainterComponentPluginBase _lastFetchedPlugin;
         public T GetPlugin<T>() where T : PainterComponentPluginBase
@@ -146,7 +162,7 @@ namespace Playtime_Painter {
             if (_lastFetchedPlugin != null && _lastFetchedPlugin.GetType() == typeof(T))
                 returnPlug = (T)_lastFetchedPlugin;
             else
-                foreach (var p in plugins)
+                foreach (var p in Plugins)
                     if (p.GetType() == typeof(T))
                         returnPlug = (T)p;
 
@@ -258,7 +274,7 @@ namespace Playtime_Painter {
 
                     GlobalBrush.Paint(stroke, this);
 
-                    ManualUpdate();
+                    ManagedUpdate();
                 }
                 else
                     RecordingMgmt();
@@ -387,9 +403,9 @@ namespace Playtime_Painter {
 
             if (id == null) return hit.textureCoord;
 
-            var uv = id.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord;
+            var uv = id.useTexCoord2 ? hit.textureCoord2 : hit.textureCoord;
 
-            foreach (var p in plugins)
+            foreach (var p in Plugins)
                 if (p.OffsetAndTileUv(hit, this, ref uv))
                     return uv;
 
@@ -483,7 +499,7 @@ namespace Playtime_Painter {
                     return;
             }
 
-            if ((meshEditing) && (MeshMgmt.target != this))
+            if (meshEditing && (MeshMgmt.target != this))
                 return;
 
             var tex = ImgMeta.CurrentTexture();
@@ -577,7 +593,7 @@ namespace Playtime_Painter {
             }
 
             
-            foreach (var nt in plugins)
+             foreach (var nt in Plugins)
                 if (nt.UpdateTilingFromMaterial(fieldName, this))
                     return;
 
@@ -598,10 +614,10 @@ namespace Playtime_Painter {
                 mat.SetOffset(PainterDataAndConfig.PreviewTexture, id.offset);
                 return;
             }
-
-            foreach (var nt in plugins)
-                if (nt.UpdateTilingToMaterial(fieldName, this))
-                    return;
+            
+                foreach (var nt in Plugins)
+                    if (nt.UpdateTilingToMaterial(fieldName, this))
+                        return;
 
             if (!mat || fieldName == null || id == null) return;
             mat.SetTiling(fieldName, id.tiling);
@@ -656,7 +672,7 @@ namespace Playtime_Painter {
             if (id == null)
             {
                 id = new ImageMeta().Init(texture);
-                id.useTexcoord2 = field.NameForDisplayPEGI.Contains(PainterDataAndConfig.isUV2DisaplyNameTag);
+                id.useTexCoord2 = field.NameForDisplayPEGI.Contains(PainterDataAndConfig.isUV2DisaplyNameTag);
             }
 
             SetTextureOnMaterial(texture);
@@ -857,9 +873,8 @@ namespace Playtime_Painter {
                 return MatDta.materialsTextureFields;
 
             MatDta.materialsTextureFields.Clear();
-
-            if (!plugins.IsNullOrEmpty())
-            foreach (var nt in plugins)
+            
+            foreach (var nt in Plugins)
                 nt.GetNonMaterialTextureNames(this, ref MatDta.materialsTextureFields);
 
             if (!terrain)
@@ -898,8 +913,8 @@ namespace Playtime_Painter {
             if (fieldName == null)
                 return null;
 
-            if (!plugins.IsNullOrEmpty())
-                foreach (var t in plugins)
+         
+                foreach (var t in Plugins)
                 {
                     Texture tex = null;
                     if (t.GetTexture(fieldName, ref tex, this))
@@ -952,8 +967,8 @@ namespace Playtime_Painter {
             {
                 if (id != null)
                     Cfg.recentTextures.AddIfNew(property, id);
-
-                foreach (var nt in plugins)
+                
+                foreach (var nt in Plugins)
                     if (nt.SetTextureOnMaterial(property, id, this))
                         return id;
             }
@@ -1047,8 +1062,8 @@ namespace Playtime_Painter {
         public float tilingY = 8;
 
         public void UpdateShaderGlobals() {
-
-            foreach (var nt in plugins)
+       
+            foreach (var nt in Plugins)
                 nt.OnUpdate(this);
         }
 
@@ -1188,8 +1203,7 @@ namespace Playtime_Painter {
 
         public TerrainHeight GetTerrainHeight()
         {
-
-            foreach (var nt in plugins)
+            foreach (var nt in Plugins)
                 if (nt.GetType() == typeof(TerrainHeight))
                     return ((TerrainHeight)nt);
             
@@ -1638,12 +1652,7 @@ namespace Playtime_Painter {
                 meshRenderer = GetComponent<MeshRenderer>();
 
             this.LoadStdData();
-
-            if (plugins == null)
-                plugins = new List<PainterComponentPluginBase>();
-
-            PainterComponentPluginBase.UpdatePlugins(this);
-
+            
         }
 
         public void UpdateColliderForSkinnedMesh() {
@@ -2307,7 +2316,7 @@ namespace Playtime_Painter {
                             if (id.enableUndoRedo && id.backupManually && "Backup for UNDO".Click())
                                 id.Backup();
 
-                            if (GlobalBrush.dontRedoMipMaps && "Redo Mipmaps".Click().nl())
+                            if (id.dontRedoMipMaps && "Redo Mipmaps".Click().nl())
                                 id.SetAndApply();
                         }
 
@@ -2701,7 +2710,7 @@ namespace Playtime_Painter {
         #endif
 
         #if UNITY_EDITOR || BUILD_WITH_PAINTER
-        public void ManualUpdate() {
+        public void ManagedUpdate() {
             
             #if BUILD_WITH_PAINTER
             if (this == _mouseOverPaintableGraphicElement) {
@@ -2773,7 +2782,7 @@ namespace Playtime_Painter {
             
             TexMgmt.Shader_UpdateBrushConfig(GlobalBrush, 1, id, this);
 
-            foreach (var p in plugins)
+            foreach (var p in Plugins)
                 p.Update_Brush_Parameters_For_Preview_Shader(this);
 
             
@@ -2877,7 +2886,7 @@ namespace Playtime_Painter {
         }
 
         public StdEncoder Encode() => new StdEncoder()
-            .Add("pgns", plugins, PainterSystemManagerPluginBase.all)
+            .Add("pgns", Plugins, PainterSystemManagerPluginBase.all)
             .Add_IfTrue("invCast", invertRayCast);
 
         public void Decode(string data) => new StdDecoder(data).DecodeTagsFor(this);

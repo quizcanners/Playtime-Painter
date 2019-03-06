@@ -6,6 +6,7 @@ static const float LINEAR_TO_GAMMA = 1 / GAMMA_TO_LINEAR;
 sampler2D _SourceTexture;
 float4 _SourceTexture_TexelSize;
 float4 _srcTextureUsage;
+sampler2D _TransparentLayerUnderlay;
 
 sampler2D _DestBuffer;
 float4 _DestBuffer_TexelSize;
@@ -73,6 +74,14 @@ inline float ProjectorCircularAlpha(float4 shadowCoords) {
 	return max(0, sign(shadowCoords.w) - dot(shadowCoords.xy, shadowCoords.xy));
 }
 
+inline float BrushClamp(float2 uv) {
+	float doClamp = _srcTextureUsage.y;
+
+	uv = abs(uv - 0.5);
+
+	return saturate(1 + (0.5 - max(uv.x, uv.y))*doClamp*200);
+}
+
 inline float ProjectorDepthDifference (float4 shadowCoords, float3 worldPos, out float2 pUv) {
 
 		float camAspectRatio = pp_ProjectorConfiguration.x;
@@ -91,7 +100,6 @@ inline float ProjectorDepthDifference (float4 shadowCoords, float3 worldPos, out
 		float predictedDepth = 1 - (((viewPos / true01Range) - pp_ProjectorClipPrecompute.y) * pp_ProjectorClipPrecompute.z);
 
 		return 1 - saturate ((tex2D(pp_DepthProjection, pUv).r - predictedDepth) * pdist* pdist * 20);
-
 }
 
 inline float random(float2 st) {

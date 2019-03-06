@@ -99,11 +99,11 @@
 					// Brush Types
 
 					#if BLIT_MODE_PROJECTION
-						o.shadowCoords.xy /= o.shadowCoords.w;					
+						o.shadowCoords.xy /= o.shadowCoords.w;
 					#endif
 
 					#if BRUSH_3D || BRUSH_3D_TEXCOORD2
-						
+
 						#if BLIT_MODE_PROJECTION
 							float alpha = prepareAlphaSphere(o.shadowCoords.xy, o.worldPos.xyz);
 						#else
@@ -146,7 +146,6 @@
 						_brushColor.g = (_brushSamplingDisplacement.y - o.texcoord.y - _brushPointedUV_Untiled.w) / 2 + 0.5;
 					#endif
 
-
 					#if BLIT_MODE_PROJECTION
 
 						alpha *= ProjectorSquareAlpha(o.shadowCoords);
@@ -154,9 +153,11 @@
 						float2 pUv;
 						alpha *= ProjectorDepthDifference(o.shadowCoords, o.worldPos, pUv);
 
-						float4 src = tex2Dlod(_SourceTexture, float4(pUv*o.srcTexAspect, 0, 0));
+						pUv *= o.srcTexAspect;
 
-						alpha *= src.a;
+						float4 src = tex2Dlod(_SourceTexture, float4(pUv, 0, 0));
+
+						alpha *= src.a * BrushClamp(pUv);
 
 						_brushColor.rgb = SourceTextureByBrush(src.rgb);
 

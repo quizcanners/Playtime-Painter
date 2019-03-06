@@ -27,7 +27,7 @@ namespace Playtime_Painter
         [SerializeField] private bool _projectFromMainCamera;
         [SerializeField] private bool _centerOnMousePosition;
         [SerializeField] private bool _matchMainCamera;
-        [SerializeField] private bool _pauseUpdates;
+        [SerializeField] public bool pauseUpdates;
 
 
         public int targetSize = 512;
@@ -36,6 +36,9 @@ namespace Playtime_Painter
         public override bool Inspect()
         {
             var changed = false;
+
+            pegi.toggle(ref pauseUpdates, icon.Pause, icon.Play,
+                pauseUpdates ? "Resume Updates" : "Pause Updates").changes(ref changed);
 
             if ("Projector Camera ".enter(ref _foldOut).nl_ifFoldedOut()) {
 
@@ -50,8 +53,7 @@ namespace Playtime_Painter
                 if (_projectorCamera) {
                     var fov = _projectorCamera.fieldOfView;
 
-                    pegi.toggle(ref _pauseUpdates, icon.Pause, icon.Play,
-                        _pauseUpdates ? "Resume Updates" : "Pause Updates").changes(ref changed);
+               
 
                     if ("FOV".edit(30, ref fov, 0.1f, 180f).nl(ref changed))
                         _projectorCamera.fieldOfView = fov;
@@ -92,7 +94,7 @@ namespace Playtime_Painter
 
         }
 
-        private void LateUpdate()
+        public void ManagedUpdate()
         {
             if (_projectorCamera && _projectFromMainCamera)
             {
@@ -127,17 +129,19 @@ namespace Playtime_Painter
                     transform.LookAt(ray.origin + ray.direction);
 
                 }
-
             }
+        }
 
+        private void LateUpdate()
+        {
+            if (Application.isPlaying)
+                ManagedUpdate();
         }
 
         private void Update()
         {
             if (_projectorCamera) {
-
-           
-                if (!_pauseUpdates)
+                if (!pauseUpdates)
                     _projectorCamera.Render();
             }
         }

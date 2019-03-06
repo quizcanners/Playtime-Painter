@@ -83,7 +83,7 @@ namespace Playtime_Painter {
             }
 
             if (painter && painter.textureWasChanged)
-                painter.ManualUpdate();
+                painter.ManagedUpdate();
         }
 
 

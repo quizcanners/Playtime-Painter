@@ -378,21 +378,6 @@ namespace Playtime_Painter {
 
         #region Brush Shader MGMT
 
-        public static void Shader_PerFrame_Update(StrokeVector st, bool hidePreview, float size)
-        {
-
-            PainterDataAndConfig.BRUSH_POINTED_UV.GlobalValue = st.uvTo.ToVector4(0, _previewAlpha);
-
-            if (hidePreview && Math.Abs(_previewAlpha) < float.Epsilon)
-                return;
-
-            MyMath.IsLerpingBySpeed(ref _previewAlpha, hidePreview ? 0 : 1, 4f);
-            
-            PainterDataAndConfig.BRUSH_WORLD_POS_FROM.GlobalValue = _prevPosPreview.ToVector4(size);
-            PainterDataAndConfig.BRUSH_WORLD_POS_TO.GlobalValue = st.posTo.ToVector4((st.posTo - _prevPosPreview).magnitude); //new Vector4(st.posTo.x, st.posTo.y, st.posTo.z, (st.posTo - prevPosPreview).magnitude));
-            _prevPosPreview = st.posTo;
-        }
-
         ShaderProperty.TextureValue decal_HeightProperty =      new ShaderProperty.TextureValue("_VolDecalHeight");
         ShaderProperty.TextureValue decal_OverlayProperty =     new ShaderProperty.TextureValue("_VolDecalOverlay");
         ShaderProperty.VectorValue decal_ParametersProperty =   new ShaderProperty.VectorValue("_DecalParameters");
@@ -412,18 +397,34 @@ namespace Playtime_Painter {
 
         }
 
+        public static void Shader_PerFrame_Update(StrokeVector st, bool hidePreview, float size)
+        {
+
+            PainterDataAndConfig.BRUSH_POINTED_UV.GlobalValue = st.uvTo.ToVector4(0, _previewAlpha);
+
+            if (hidePreview && Math.Abs(_previewAlpha) < float.Epsilon)
+                return;
+
+            MyMath.IsLerpingBySpeed(ref _previewAlpha, hidePreview ? 0 : 1, 4f);
+
+            PainterDataAndConfig.BRUSH_WORLD_POS_FROM.GlobalValue = _prevPosPreview.ToVector4(size);
+            PainterDataAndConfig.BRUSH_WORLD_POS_TO.GlobalValue = st.posTo.ToVector4((st.posTo - _prevPosPreview).magnitude); //new Vector4(st.posTo.x, st.posTo.y, st.posTo.z, (st.posTo - prevPosPreview).magnitude));
+            _prevPosPreview = st.posTo;
+        }
+        
         ShaderProperty.VectorValue brushColor_Property =        new ShaderProperty.VectorValue("_brushColor");
         ShaderProperty.VectorValue brushMask_Property =         new ShaderProperty.VectorValue("_brushMask");
-        ShaderProperty.TextureValue sourceMask_Property =       new ShaderProperty.TextureValue("_SourceMask");
         ShaderProperty.VectorValue maskDynamics_Property =      new ShaderProperty.VectorValue("_maskDynamics");
         ShaderProperty.VectorValue maskOffset_Property =        new ShaderProperty.VectorValue("_maskOffset");
         ShaderProperty.VectorValue brushForm_Property =         new ShaderProperty.VectorValue("_brushForm");
-        ShaderProperty.TextureValue sourceTexture_Property =    new ShaderProperty.TextureValue("_SourceTexture");
         ShaderProperty.VectorValue textureSourceParameters = new ShaderProperty.VectorValue("_srcTextureUsage");
+
+        ShaderProperty.TextureValue sourceMask_Property = new ShaderProperty.TextureValue("_SourceMask");
+        ShaderProperty.TextureValue sourceTexture_Property = new ShaderProperty.TextureValue("_SourceTexture");
+        ShaderProperty.TextureValue transparentLayerUnder_Property = new ShaderProperty.TextureValue("_TransparentLayerUnderlay");
 
         public void Shader_UpdateBrushConfig(BrushConfig brush = null, float brushAlpha = 1, ImageMeta id = null, PlaytimePainter painter = null)
         {
-
             if (brush == null)
                 brush = GlobalBrush;
 
@@ -455,6 +456,19 @@ namespace Playtime_Painter {
                 BrushExtensions.HasFlag(brush.mask, BrushMask.B) ? 1 : 0,
                 BrushExtensions.HasFlag(brush.mask, BrushMask.A) ? 1 : 0);
 
+            float useTransparentLayerBackground = 0;
+
+            if (id.isATransparentLayer)
+            {
+                var md = painter.MatDta;
+                if (md != null && md.usePreviewShader && md.material) {
+                    var mt = md.material.mainTexture;
+                    transparentLayerUnder_Property.GlobalValue = mt;
+                    useTransparentLayerBackground = (mt && (id != mt.GetImgDataIfExists())) ? 1 : 0;
+                }
+            }
+
+
             if (isDecal) Shader_UpdateDecal(brush);
 
             if (rendTex)
@@ -474,9 +488,9 @@ namespace Playtime_Painter {
                 brush.Size(is3DBrush) / textureWidth, // z - scale for uv space
                 brush.blurAmount); // w - blur amount
 
-            brushType.SetKeyword(id.useTexcoord2);
+            brushType.SetKeyword(id.useTexCoord2);
 
-            UnityHelperFunctions.SetShaderKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2, id.useTexcoord2);
+            UnityHelperFunctions.SetShaderKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2, id.useTexCoord2);
 
             if (blitMode.SupportsTransparentLayer)
                 UnityHelperFunctions.SetShaderKeyword(PainterDataAndConfig.TARGET_TRANSPARENT_LAYER, id.isATransparentLayer);
@@ -488,7 +502,8 @@ namespace Playtime_Painter {
                 sourceTexture_Property.GlobalValue = Data.sourceTextures.TryGet(brush.selectedSourceTexture);
                 textureSourceParameters.GlobalValue = new Vector4(
                     (float)brush.srcColorUsage, 
-                    0
+                    brush.clampSourceTexture ? 1f : 0f,
+                    useTransparentLayerBackground
                     );
             }
         }
@@ -806,7 +821,7 @@ namespace Playtime_Painter {
         #endif
 
 #if UNITY_EDITOR || BUILD_WITH_PAINTER
-
+        
         public void Update() {
             if (Application.isPlaying)
                 CombinedUpdate();
@@ -824,7 +839,7 @@ namespace Playtime_Painter {
                 return;
 
             if (!PainterSystem.IsPlaytimeNowDisabled && PlaytimePainter.IsCurrentTool && focusedPainter)
-                focusedPainter.ManualUpdate();
+                focusedPainter.ManagedUpdate();
 
             if (GlobalBrush.previewDirty)
                 Shader_UpdateBrushConfig();
@@ -833,14 +848,18 @@ namespace Playtime_Painter {
 
             MeshManager.CombinedUpdate();
 
+            if (!Application.isPlaying && depthProjectorCamera)
+                depthProjectorCamera.ManagedUpdate();
+
 #if UNITY_2018_1_OR_NEWER
-            foreach( var j in blitJobsActive) 
+            foreach ( var j in blitJobsActive) 
                 if (j.jobHandle.IsCompleted)
                     j.CompleteJob();
 #endif
 
-            Data.RemoteUpdate();
+            Data.ManagedUpdate();
 
+           
             var l = PlaytimePainter.PlaybackPainters;
 
             if (l.Count > 0 && !StrokeVector.pausePlayback)
@@ -880,7 +899,7 @@ namespace Playtime_Painter {
                         PlaytimePainter.currentlyPaintedObjectPainter = null;
                     else {
                         TexMgmtData.brushConfig.Paint(p.stroke, p);
-                        p.ManualUpdate();
+                        p.ManagedUpdate();
                     }
                 }
             }

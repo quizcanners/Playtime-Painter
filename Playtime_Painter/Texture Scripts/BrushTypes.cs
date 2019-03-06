@@ -252,7 +252,8 @@ namespace Playtime_Painter
             if (!cam.secondBufferUpdated)
                 cam.UpdateBufferTwo();
 
-            foreach (var p in painter.plugins)
+
+            foreach (var p in  painter.Plugins)
                 p.BeforeGpuStroke(painter, br, st, this);
         }
 
@@ -267,7 +268,7 @@ namespace Playtime_Painter
             if (br.useMask && st.mouseUp && br.randomMaskOffset)
                 br.maskOffset = new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f));
 
-            foreach (var p in painter.plugins)
+            foreach (var p in painter.Plugins)
                 p.AfterGpuStroke(painter, br, st, this);
 
         }

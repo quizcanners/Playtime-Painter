@@ -31,8 +31,8 @@ namespace Playtime_Painter
         public Texture other;
         public int width = 128;
         public int height = 128;
-        public bool useTexcoord2;
-        private bool _useTexcoord2AutoAssigned;
+        public bool useTexCoord2;
+        private bool _useTexCoord2AutoAssigned;
         public bool lockEditing;
         public bool isATransparentLayer;
         public bool NeedsToBeSaved => (texture2D && texture2D.SavedAsAsset()) || (renderTexture && renderTexture.SavedAsAsset());
@@ -42,6 +42,7 @@ namespace Playtime_Painter
         public bool preserveTransparency = true;
         private bool _alphaPreservePixelSet;
         public bool errorWhileReading;
+        public bool dontRedoMipMaps;
 
         private float _repaintDelay = 0.016f;
         private int _numberOfTexture2DBackups = 10;
@@ -129,7 +130,7 @@ namespace Playtime_Painter
             .Add_Reference("other", other)
             .Add("w", width)
             .Add("h", height)
-            .Add_IfTrue("useUV2", useTexcoord2)
+            .Add_IfTrue("useUV2", useTexCoord2)
             .Add_IfTrue("Lock", lockEditing)
             .Add_IfTrue("b", backupManually)
             .Add_IfNotOne("tl", tiling)
@@ -138,7 +139,8 @@ namespace Playtime_Painter
             .Add_IfTrue("rec", showRecording)
             .Add_IfTrue("trnsp", isATransparentLayer)
             .Add_IfTrue("bu", enableUndoRedo)
-            .Add_IfTrue("tc2Auto", _useTexcoord2AutoAssigned)
+            .Add_IfTrue("tc2Auto", _useTexCoord2AutoAssigned)
+            .Add_IfTrue("dumm", dontRedoMipMaps)
            
             .Add_IfNotBlack("clear", _clearColor)
             .Add_IfNotEmpty("URL", url)
@@ -172,7 +174,7 @@ namespace Playtime_Painter
                 case "other": data.Decode_Reference(ref other); break;
                 case "w": width = data.ToInt(); break;
                 case "h": height = data.ToInt(); break;
-                case "useUV2": useTexcoord2 = data.ToBool(); break;
+                case "useUV2": useTexCoord2 = data.ToBool(); break;
                 case "Lock": lockEditing = data.ToBool(); break;
                 case "2dUndo": _numberOfTexture2DBackups = data.ToInt(); break;
                 case "rtBackups": _numberOfRenderTextureBackups = data.ToInt(); break;
@@ -183,8 +185,8 @@ namespace Playtime_Painter
                 case "trnsp": isATransparentLayer = data.ToBool(); break;
                 case "rec": showRecording = data.ToBool(); break;
                 case "bu": enableUndoRedo = data.ToBool(); break;
-               
-                case "tc2Auto": _useTexcoord2AutoAssigned = data.ToBool(); break;
+                case "dumm": dontRedoMipMaps = data.ToBool(); break;
+                case "tc2Auto": _useTexCoord2AutoAssigned = data.ToBool(); break;
                 case "clear": _clearColor = data.ToColor(); break;
                 case "URL": url = data; break;
                 case "alpha": preserveTransparency = data.ToBool(); break;
@@ -797,7 +799,7 @@ namespace Playtime_Painter
                 "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref _repaintDelay, 0.01f, 0.5f).nl(ref changed);
                 
                 "Don't update mipmaps:".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",
-                    ref GlobalBrush.dontRedoMipMaps).nl(ref changed);
+                    ref dontRedoMipMaps).nl(ref changed);
             }
 
             if ("Save Textures In Game".enter(ref inspectedItems, 1).nl()) {
@@ -965,20 +967,20 @@ namespace Playtime_Painter
             var forceOpenUv2 = false;
             var hasUv2Tag = painter.Material.HasTag(PainterDataAndConfig.TextureSampledWithUv2 + property);
 
-            if (!useTexcoord2 && hasUv2Tag) {
+            if (!useTexCoord2 && hasUv2Tag) {
 
-                if (!_useTexcoord2AutoAssigned)
+                if (!_useTexCoord2AutoAssigned)
                 {
-                    useTexcoord2 = true;
-                    _useTexcoord2AutoAssigned = true;
+                    useTexCoord2 = true;
+                    _useTexCoord2AutoAssigned = true;
                 }
                 else
                     "Material Field {0} is Sampled using Texture Coordinates 2 ".F(property).writeHint();
                 forceOpenUv2 = true;
             }
 
-            if (showToggles || (useTexcoord2 && !hasUv2Tag) || forceOpenUv2)
-                changed |= "Use Texcoord 2".toggleIcon(ref useTexcoord2).nl();
+            if (showToggles || (useTexCoord2 && !hasUv2Tag) || forceOpenUv2)
+                changed |= "Use Texcoord 2".toggleIcon(ref useTexCoord2).nl();
 
             return changed;
         }
@@ -1055,7 +1057,7 @@ namespace Playtime_Painter
             if (_repaintTimer >= 0 && !mouseUp) return;
             
             if (texture2D)
-                SetAndApply(!GlobalBrush.dontRedoMipMaps);
+                SetAndApply(!dontRedoMipMaps);
 
             pixelsDirty = false;
             _repaintTimer = _repaintDelay;

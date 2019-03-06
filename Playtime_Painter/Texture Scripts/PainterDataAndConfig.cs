@@ -102,7 +102,7 @@ namespace Playtime_Painter
         #region Web Cam Utils
         [NonSerialized] public WebCamTexture webCamTexture;
 
-        public void RemoteUpdate()
+        public void ManagedUpdate()
         {
             if (!webCamTexture || !webCamTexture.isPlaying) return;
             

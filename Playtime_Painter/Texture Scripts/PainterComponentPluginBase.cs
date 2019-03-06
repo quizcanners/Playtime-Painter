@@ -20,6 +20,7 @@ namespace Playtime_Painter
 
         public static void UpdatePlugins(PlaytimePainter painter) {
 
+           
             for (var i = 0; i < painter.plugins.Count; i++) {
                 var nt = painter.plugins[i];
 
@@ -27,10 +28,7 @@ namespace Playtime_Painter
                 painter.plugins.RemoveAt(i);
                 i--;
             }
-
-            for (var i = 0; i < painter.plugins.Count; i++)
-                if (painter.plugins[i] == null) { painter.plugins.RemoveAt(i); i--; }
-
+            
             foreach (var t in All) 
                 if (!painter.plugins.ContainsInstanceType(t)) 
                     painter.plugins.Add((PainterComponentPluginBase)Activator.CreateInstance(t));  

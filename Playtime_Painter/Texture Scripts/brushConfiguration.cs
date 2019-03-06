@@ -21,147 +21,6 @@ namespace Playtime_Painter {
     [Serializable]
     public class BrushConfig : PainterSystemStd, IPEGI {
 
-
-
-
-        #region Encode Decode
-        public override StdEncoder Encode() {
-
-            StdEncoder cody = new StdEncoder()
-                .Add_Abstract("dyn", brushDynamic);
-
-            return cody;
-        }
-
-        public StdEncoder EncodeStrokeFor(PlaytimePainter painter)
-        {
-
-            var id = painter.ImgMeta;
-
-            var rt = id.TargetIsRenderTexture();
-
-            var mode = GetBlitMode(!rt);
-            var type = GetBrushType(!rt);
-
-            var worldSpace = rt && IsA3DBrush(painter);
-
-            var cody = new StdEncoder()
-
-            .Add(rt ? "typeGPU" : "typeCPU", _brushType(!rt));
-
-            if (worldSpace)
-                cody.Add("size3D", brush3DRadius);
-            else
-                cody.Add("size2D", brush2DRadius / ((float)id.width));
-
-
-            cody.Add_Bool("useMask", useMask)
-                .Add("modeCPU", _inCpuBlitMode)
-                .Add("modeGPU", _inGpuBlitMode);
-
-
-
-            if (useMask)
-                cody.Add("mask", (int)mask);
-
-            cody.Add("bc", colorLinear);
-
-            if (mode.UsingSourceTexture)
-                cody.Add_IfNotZero("source", selectedSourceTexture);
-
-            if (rt)
-            {
-
-                if ((mode.GetType() == typeof(BlitModeBlur)))
-                    cody.Add("blur", blurAmount);
-
-                if (type.IsUsingDecals)
-                {
-                    cody.Add("decA", decalAngle)
-                    .Add("decNo", selectedDecal);
-                }
-
-                if (useMask)
-                {
-                    cody.Add("Smask", selectedSourceMask)
-                    .Add("maskTil", maskTiling)
-                    .Add_Bool("maskFlip", flipMaskAlpha)
-                    .Add("maskOff", maskOffset);
-                }
-            }
-
-            cody.Add("hard", hardness)
-            .Add("speed", speed);
-
-            return cody;
-        }
-
-        public override bool Decode(string tg, string data)
-        {
-
-            switch (tg)
-            {
-                case "typeGPU": _inGpuBrushType = data.ToInt(); break;
-                case "typeCPU": _inCpuBrushType = data.ToInt(); break;
-                case "size2D": brush2DRadius = data.ToFloat(); break;
-                case "size3D": brush3DRadius = data.ToFloat(); break;
-
-                case "useMask": useMask = data.ToBool(); break;
-
-                case "mask": mask = (BrushMask)data.ToInt(); break;
-
-                case "modeCPU": _inCpuBlitMode = data.ToInt(); break;
-                case "modeGPU": _inGpuBlitMode = data.ToInt(); break;
-
-                case "bc": colorLinear.Decode(data); break;
-
-                case "source": selectedSourceTexture = data.ToInt(); break;
-
-                case "blur": blurAmount = data.ToFloat(); break;
-
-                case "decA": decalAngle = data.ToFloat(); break;
-                case "decNo": selectedDecal = data.ToInt(); break;
-
-                case "Smask": selectedSourceMask = data.ToInt(); break;
-                case "maskTil": maskTiling = data.ToFloat(); break;
-                case "maskFlip": flipMaskAlpha = data.ToBool(); break;
-
-                case "hard": hardness = data.ToFloat(); break;
-                case "speed": speed = data.ToFloat(); break;
-                case "dyn": data.DecodeInto(out brushDynamic, BrushDynamic.all); break;
-
-                case "maskOff": maskOffset = data.ToVector2(); break;
-                default: return false;
-            }
-            return true;
-
-
-        }
-        #endregion
-
-        #region Brush Mask
-
-        public SourceTextureColorUsage srcColorUsage = SourceTextureColorUsage.Copy;
-
-        public void MaskToggle(BrushMask flag) =>
-            mask ^= flag;
-        
-        public void MaskSet(BrushMask flag, bool to)
-        {
-            if (to)
-                mask |= flag;
-            else
-                mask &= ~flag;
-        }
-
-        public BrushMask mask;
-        
-        public int selectedSourceMask;
-
-        public bool maskFromGreyscale;
-        
-        #endregion
-
         #region Modes & Types
 
         public bool IsCpu(PlaytimePainter painter) => painter ? painter.ImgMeta.TargetIsTexture2D() : targetIsTex2D;
@@ -203,35 +62,78 @@ namespace Playtime_Painter {
                 if (!GetBlitMode(true).SupportedByTex2D) foreach (var t in BlitMode.AllModes) { if (t.SupportedByTex2D) { SetBlitMode(true, t); break; } }
             }
         }
-
-        public float Size(bool worldSpace) => (worldSpace ? brush3DRadius : brush2DRadius);
         
+        public bool targetIsTex2D;
+        
+        #region Copy texture
         public int selectedSourceTexture;
+
+        public bool clampSourceTexture;
+
+        public SourceTextureColorUsage srcColorUsage = SourceTextureColorUsage.Copy;
+
+        #endregion
+
+        #region Masking
+
         public bool useMask;
-        public bool previewDirty = false;
-        [NonSerialized]
+        public int selectedSourceMask;
+        public bool maskFromGreyscale;
         public Vector2 maskOffset;
         public bool randomMaskOffset;
-        
-        public int selectedDecal;
+        public bool flipMaskAlpha;
         public float maskTiling = 1;
-        public float hardness = 256;
-        public float blurAmount = 1;
+        
+        public void MaskToggle(BrushMask flag) =>
+            mask ^= flag;
+
+        public void MaskSet(BrushMask flag, bool to)
+        {
+            if (to)
+                mask |= flag;
+            else
+                mask &= ~flag;
+        }
+
+        public BrushMask mask;
+
+        public bool PaintingAllChannels => BrushExtensions.HasFlag(mask, BrushMask.R) && BrushExtensions.HasFlag(mask, BrushMask.G) && BrushExtensions.HasFlag(mask, BrushMask.B) && BrushExtensions.HasFlag(mask, BrushMask.A);
+
+        public bool PaintingRGB => BrushExtensions.HasFlag(mask, BrushMask.R) && BrushExtensions.HasFlag(mask, BrushMask.G) && BrushExtensions.HasFlag(mask, BrushMask.B) && (!BrushExtensions.HasFlag(mask, BrushMask.A));
+
+
+        #endregion
+
+        [NonSerialized] public bool previewDirty = false;
+        
+        #region Decal
+        public int selectedDecal;
         public float decalAngle;
         public DecalRotationMethod decalRotationMethod;
         public bool decalContentious;
         public float decalAngleModifier;
-        public bool flipMaskAlpha;
-        public bool targetIsTex2D;
+        #endregion
+        
+        #region Brush Dynamics
+     
         public bool showBrushDynamics;
-
         public ElementData brushDynamicsConfigs = new ElementData();
 
         public BrushDynamic brushDynamic = new BrushDynamic_None();
+        #endregion
 
+        #region Brush Parameters
+        public float hardness = 256;
+        public float blurAmount = 1;
         public float brush3DRadius = 16;
         public float brush2DRadius = 16;
-        
+
+        public float Size(bool worldSpace) => (worldSpace ? brush3DRadius : brush2DRadius);
+        public LinearColor colorLinear;
+
+        public Color Color { get { return colorLinear.ToGamma(); } set { colorLinear.From(value); } }
+  
+
         public virtual bool IsA3DBrush(PlaytimePainter painter)
         {
             var overrideOther = false;
@@ -255,26 +157,14 @@ namespace Playtime_Painter {
         }
 
         public float speed = 10;
-        public bool mb1ToLinkPositions;
-        public bool dontRedoMipMaps;
-
-        public LinearColor colorLinear;
-
-        public Color Color { get { return colorLinear.ToGamma(); } set { colorLinear.From(value); } }
-
-        [NonSerialized]
-        public Vector2 sampledUv;
-
+        #endregion
+        
         public BrushConfig() {
             colorLinear = new LinearColor(Color.green);
             mask = new BrushMask();
             mask |= BrushMask.R | BrushMask.G | BrushMask.B;
         }
-
-        public bool PaintingAllChannels => BrushExtensions.HasFlag(mask, BrushMask.R) && BrushExtensions.HasFlag(mask, BrushMask.G) && BrushExtensions.HasFlag(mask, BrushMask.B) && BrushExtensions.HasFlag(mask, BrushMask.A);
-
-        public bool PaintingRGB => BrushExtensions.HasFlag(mask, BrushMask.R) && BrushExtensions.HasFlag(mask, BrushMask.G) && BrushExtensions.HasFlag(mask, BrushMask.B) && (!BrushExtensions.HasFlag(mask, BrushMask.A));
-
+        
         public PlaytimePainter Paint(StrokeVector stroke, PlaytimePainter painter) {
 
             var imgData = painter.ImgMeta;
@@ -364,15 +254,23 @@ namespace Playtime_Painter {
             foreach (var b in PainterSystemManagerPluginBase.BrushPlugins)
                 b.BrushConfigPEGI(ref overrideBlitModePegi, this).nl(ref changed);
                           
-            if (p && !p.plugins.IsNullOrEmpty())
-                foreach (var pl in p.plugins)
+            if (p)
+                foreach (var pl in p.Plugins)
                     if (pl.BrushConfigPEGI().nl(ref changed)) 
                         pl.SetToDirty_Obj();
 
-            if (blitMode.UsingSourceTexture)
-                "Src Texture Color".editEnum(80, ref srcColorUsage).nl(ref changed);
+            if (blitMode.AllSetUp) {
 
-            brushType.Inspect().nl(ref changed);
+                if (blitMode.UsingSourceTexture)
+                {
+                    "Src Texture Color".editEnum(80, ref srcColorUsage).nl(ref changed);
+                    "Clamp".toggleIcon(ref clampSourceTexture).nl(ref changed);
+                }
+
+                brushType.Inspect().nl(ref changed);
+
+               
+            }
 
             if (!overrideBlitModePegi && blitMode.ShowInDropdown())
                 blitMode.Inspect().nl(ref changed);
@@ -544,13 +442,20 @@ namespace Playtime_Painter {
 
         private bool ColorSliders_PlaytimePainter() {
 
-            var changed = false;
+           
             var painter = PlaytimePainter.inspected;
             var id = painter.ImgMeta;
+            var cpu = id.TargetIsTexture2D();
+            var blitMode = GetBlitMode(cpu);
+
+            if (!blitMode.AllSetUp)
+                return false;
+
+            var changed = false;
 
             if (Cfg.showColorSliders) {
 
-                var cpu = id.TargetIsTexture2D();
+              
              
                 var slider = GetBlitMode(cpu).ShowColorSliders;
 
@@ -584,7 +489,7 @@ namespace Playtime_Painter {
 
                         if (!id.isATransparentLayer || colorLinear.a > 0)  {
 
-                            var slider_copy = GetBlitMode(cpu).UsingSourceTexture ?
+                            var slider_copy = blitMode.UsingSourceTexture ?
                                 (srcColorUsage != SourceTextureColorUsage.Copy && slider)
                                 :slider;
 
@@ -617,10 +522,121 @@ namespace Playtime_Painter {
 
             return changed;
         }
-        #endif
+#endif
         #endregion
+        
+        #region Encode Decode
+        public override StdEncoder Encode() => new StdEncoder()
+                .Add_Abstract("dyn", brushDynamic);
+        
+        public StdEncoder EncodeStrokeFor(PlaytimePainter painter)
+        {
+
+            var id = painter.ImgMeta;
+
+            var rt = id.TargetIsRenderTexture();
+
+            var mode = GetBlitMode(!rt);
+            var type = GetBrushType(!rt);
+
+            var worldSpace = rt && IsA3DBrush(painter);
+
+            var cody = new StdEncoder()
+
+            .Add(rt ? "typeGPU" : "typeCPU", _brushType(!rt));
+
+            if (worldSpace)
+                cody.Add("size3D", brush3DRadius);
+            else
+                cody.Add("size2D", brush2DRadius / ((float)id.width));
+
+
+            cody.Add_Bool("useMask", useMask)
+                .Add("modeCPU", _inCpuBlitMode)
+                .Add("modeGPU", _inGpuBlitMode);
+
+
+
+            if (useMask)
+                cody.Add("mask", (int)mask);
+
+            cody.Add("bc", colorLinear);
+
+            if (mode.UsingSourceTexture)
+                cody.Add_IfNotZero("source", selectedSourceTexture);
+
+            if (rt)
+            {
+
+                if ((mode.GetType() == typeof(BlitModeBlur)))
+                    cody.Add("blur", blurAmount);
+
+                if (type.IsUsingDecals)
+                {
+                    cody.Add("decA", decalAngle)
+                    .Add("decNo", selectedDecal);
+                }
+
+                if (useMask)
+                {
+                    cody.Add("Smask", selectedSourceMask)
+                    .Add("maskTil", maskTiling)
+                    .Add_Bool("maskFlip", flipMaskAlpha)
+                    .Add("maskOff", maskOffset);
+                }
+            }
+
+            cody.Add("hard", hardness)
+            .Add("speed", speed);
+
+            return cody;
+        }
+
+        public override bool Decode(string tg, string data)
+        {
+
+            switch (tg)
+            {
+                case "typeGPU": _inGpuBrushType = data.ToInt(); break;
+                case "typeCPU": _inCpuBrushType = data.ToInt(); break;
+                case "size2D": brush2DRadius = data.ToFloat(); break;
+                case "size3D": brush3DRadius = data.ToFloat(); break;
+
+                case "useMask": useMask = data.ToBool(); break;
+
+                case "mask": mask = (BrushMask)data.ToInt(); break;
+
+                case "modeCPU": _inCpuBlitMode = data.ToInt(); break;
+                case "modeGPU": _inGpuBlitMode = data.ToInt(); break;
+
+                case "bc": colorLinear.Decode(data); break;
+
+                case "source": selectedSourceTexture = data.ToInt(); break;
+
+                case "blur": blurAmount = data.ToFloat(); break;
+
+                case "decA": decalAngle = data.ToFloat(); break;
+                case "decNo": selectedDecal = data.ToInt(); break;
+
+                case "Smask": selectedSourceMask = data.ToInt(); break;
+                case "maskTil": maskTiling = data.ToFloat(); break;
+                case "maskFlip": flipMaskAlpha = data.ToBool(); break;
+
+                case "hard": hardness = data.ToFloat(); break;
+                case "speed": speed = data.ToFloat(); break;
+                case "dyn": data.DecodeInto(out brushDynamic, BrushDynamic.all); break;
+
+                case "maskOff": maskOffset = data.ToVector2(); break;
+                default: return false;
+            }
+            return true;
+
+
+        }
+        #endregion
+
     }
-    
+
     public class BrushDynamicAttribute : AbstractWithTaggedTypes  {
         public override TaggedTypesStd TaggedTypes => BrushDynamic.all;
     }

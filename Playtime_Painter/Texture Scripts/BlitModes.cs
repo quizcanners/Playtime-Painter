@@ -87,6 +87,7 @@ namespace Playtime_Painter {
 
         public virtual BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Alpha;
 
+        public virtual bool AllSetUp => true;
         public virtual bool SupportedByTex2D => true;
         public virtual bool SupportedByRenderTexturePair => true;
         public virtual bool SupportedBySingleBuffer => true;
@@ -121,49 +122,64 @@ namespace Playtime_Painter {
         public virtual bool Inspect()
         {
 
-            var id = InspectedImageMeta;
-
-            var cpuBlit = id == null ? InspectedBrush.targetIsTex2D : id.destination == TexTarget.Texture2D;
-            var brushType = InspectedBrush.GetBrushType(cpuBlit);
-            var blitMode = InspectedBrush.GetBlitMode(cpuBlit);
-            var usingDecals = (!cpuBlit) && brushType.IsUsingDecals;
-
+          
             var changed = false;
 
-            pegi.nl();
-
-            if (!cpuBlit)
-                "Hardness:".edit("Makes edges more rough.", 70, ref InspectedBrush.hardness, 1f, 512f).nl(ref changed);
-
-            (usingDecals ? "Tint alpha" : "Speed").edit(usingDecals ? 70 : 40, ref InspectedBrush.speed, 0.01f, 20).nl(ref changed);
-
-            "Scale:".write(40);
-
-            if (InspectedBrush.IsA3DBrush(InspectedPainter))
+            if (AllSetUp)
             {
-                var m = PlaytimePainter.inspected.GetMesh();
+                var id = InspectedImageMeta;
+                var cpuBlit = id == null ? InspectedBrush.targetIsTex2D : id.destination == TexTarget.Texture2D;
+                var brushType = InspectedBrush.GetBrushType(cpuBlit);
+                var blitMode = InspectedBrush.GetBlitMode(cpuBlit);
+                var usingDecals = (!cpuBlit) && brushType.IsUsingDecals;
 
-                var maxScale = (m ? m.bounds.max.magnitude : 1) * (!PlaytimePainter.inspected ? 1 : PlaytimePainter.inspected.transform.lossyScale.magnitude);
+             
 
-                pegi.edit(ref InspectedBrush.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f).changes(ref changed);
-            }
-            else
-            {
-                if (!brushType.IsPixelPerfect)
-                    pegi.edit(ref InspectedBrush.brush2DRadius, cpuBlit ? 1 : 0.1f, usingDecals ? 128 : id?.width * 0.5f ?? 256).changes(ref changed);
+                pegi.nl();
+
+                if (!cpuBlit)
+                    "Hardness:".edit("Makes edges more rough.", 70, ref InspectedBrush.hardness, 1f, 512f)
+                        .nl(ref changed);
+
+                (usingDecals ? "Tint alpha" : "Speed").edit(usingDecals ? 70 : 40, ref InspectedBrush.speed, 0.01f, 20)
+                    .nl(ref changed);
+
+                "Scale:".write(40);
+
+                if (InspectedBrush.IsA3DBrush(InspectedPainter))
+                {
+                    var m = PlaytimePainter.inspected.GetMesh();
+
+                    var maxScale = (m ? m.bounds.max.magnitude : 1) * (!PlaytimePainter.inspected
+                                       ? 1
+                                       : PlaytimePainter.inspected.transform.lossyScale.magnitude);
+
+                    pegi.edit(ref InspectedBrush.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f)
+                        .changes(ref changed);
+                }
                 else
                 {
-                    var val = (int)InspectedBrush.brush2DRadius;
-                    pegi.edit(ref val, (int)(cpuBlit ? 1 : 0.1f), (int)(usingDecals ? 128 : id?.width * 0.5f ?? 256)).changes(ref changed);
-                    InspectedBrush.brush2DRadius = val;
-                    
+                    if (!brushType.IsPixelPerfect)
+                        pegi.edit(ref InspectedBrush.brush2DRadius, cpuBlit ? 1 : 0.1f,
+                            usingDecals ? 128 : id?.width * 0.5f ?? 256).changes(ref changed);
+                    else
+                    {
+                        var val = (int) InspectedBrush.brush2DRadius;
+                        pegi.edit(ref val, (int) (cpuBlit ? 1 : 0.1f),
+                            (int) (usingDecals ? 128 : id?.width * 0.5f ?? 256)).changes(ref changed);
+                        InspectedBrush.brush2DRadius = val;
+
+                    }
                 }
+
+                pegi.newLine();
+
+                if (blitMode.UsingSourceTexture && (id == null || id.TargetIsRenderTexture()))
+                    "Copy From:"
+                        .selectOrAdd(70, ref InspectedBrush.selectedSourceTexture, ref TexMGMTdata.sourceTextures)
+                        .nl(ref changed);
             }
 
-            pegi.newLine();
-
-            if (blitMode.UsingSourceTexture && (id == null || id.TargetIsRenderTexture()))
-                 "Copy From:".selectOrAdd(70, ref InspectedBrush.selectedSourceTexture, ref TexMGMTdata.sourceTextures).nl(ref changed);
 
             pegi.newLine();
 
@@ -501,7 +517,9 @@ namespace Playtime_Painter {
 
         public override bool SupportedBySingleBuffer => false;
 
-        public override bool UsingSourceTexture => true; 
+        public override bool UsingSourceTexture => true;
+
+        public override bool AllSetUp => PainterCamera.depthProjectorCamera;
 
         protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_PROJECTION";
 
