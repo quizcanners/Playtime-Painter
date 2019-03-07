@@ -1,12 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-using System;
-using UnityEngine.SceneManagement;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.IO;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -55,7 +50,7 @@ namespace Playtime_Painter
         #if PEGI
         public bool MeshToolInspection(MeshToolBase currentTool) {
 
-            if (currentTool is VertexEdgeTool && MeshMGMT.target.IsAtlased()) {
+            if (currentTool is VertexEdgeTool && MeshManager.target.IsAtlased()) {
                 "ATL_tex_Chanal:".edit(80,ref TriangleAtlasTool.Inst.curAtlasChanel);
 
                 if ("Auto Edge".Click().nl())
@@ -153,11 +148,9 @@ namespace Playtime_Painter
 #endif
         #endregion
 
-        public bool PaintPixelsInRam(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter pntr) {
-            var pl = pntr.GetPlugin<TileableAtlasingPainterPlugin>();
-            return pl == null ? false : pl.PaintTexture2D(stroke, brushAlpha, image, bc, pntr);
-        }
-
+        public bool PaintPixelsInRam(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter) =>
+           painter.GetPlugin<TileableAtlasingPainterPlugin>()?.PaintTexture2D(stroke, brushAlpha, image, bc, painter) ?? false;
+        
         public bool IsA3DBrush(PlaytimePainter painter, BrushConfig bc, ref bool overrideOther) => false;
 
         public bool PaintRenderTexture(StrokeVector stroke, ImageMeta image, BrushConfig bc, PlaytimePainter painter) => false;
@@ -223,7 +216,7 @@ namespace Playtime_Painter
             "Atlas Chanel: ".edit(ref curAtlasChanel).nl();
 
             if (MeshMGMT.SelectedTriangle != null)
-                ("Selected tris uses Atlas Texture " + MeshMGMT.SelectedTriangle.textureNo[0]).nl();
+                ("Selected triangles uses Atlas Texture " + MeshMGMT.SelectedTriangle.textureNo[0]).nl();
             
             pegi.writeHint("Cntrl + LMB -> Sample Texture Index");
             return false;
@@ -257,7 +250,7 @@ namespace Playtime_Painter
                 if (PointedLine.SameAsLastFrame)
                     return true;
 
-                foreach (var t in MeshMGMT.PointedLine.GetAllTriangles_USES_Tris_Listing())
+                foreach (var t in MeshMGMT.PointedLine.GetAllTriangles())
                     if (t.textureNo[curAtlasChanel] != _curAtlasTexture)
                     {
                         t.textureNo[curAtlasChanel] = _curAtlasTexture;
@@ -276,8 +269,8 @@ namespace Playtime_Painter
                 if (PointedUv.SameAsLastFrame)
                     return true;
 
-                foreach (var uv in MeshMGMT.PointedUV.meshPoint.vertices )
-                    foreach (var t in uv.tris)
+                foreach (var uv in MeshMGMT.PointedUv.meshPoint.vertices )
+                    foreach (var t in uv.triangles)
                     if (t.textureNo[curAtlasChanel] != _curAtlasTexture) {
                         t.textureNo[curAtlasChanel] = _curAtlasTexture;
                         EditedMesh.Dirty = true;
@@ -300,7 +293,7 @@ namespace Playtime_Painter
         {
 
             foreach (Triangle t in EditedMesh.triangles)
-                if (t.submeshIndex == submesh)
+                if (t.subMeshIndex == submesh)
                     t.textureNo[chanel] = no;
 
             EditedMesh.Dirty = true;

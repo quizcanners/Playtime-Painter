@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using PlayerAndEditorGUI;
+﻿using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
 namespace Playtime_Painter
@@ -14,7 +11,7 @@ namespace Playtime_Painter
             if ((EditorInputManager.GetMouseButton(0))) {
                 if (PointedUv.SameAsLastFrame)
                     return true;
-                BrushConfig bcf = Cfg.brushConfig;
+                var bcf = Cfg.brushConfig;
                 bcf.colorLinear.ToV4(ref PointedVertex.shadowBake, bcf.mask);
                 EditedMesh.Dirty = true;
                 return true;
@@ -59,7 +56,7 @@ namespace Playtime_Painter
                 foreach (var vt in VolumeTexture.all)
                     if (vt.GetType() == typeof(ShadowVolumeTexture) && vt.materials.Contains(mat)) shadVT = (ShadowVolumeTexture)vt;
 
-                if (shadVT && "Auto Raycast Shadows".Click().nl()) {
+                if (shadVT && "Auto RayCast Shadows".Click().nl()) {
 
                     foreach (var v in EditedMesh.meshPoints) {
 
@@ -76,7 +73,7 @@ namespace Playtime_Painter
 
                     EditedMesh.Dirty = true;
 
-                    "Raycast Complete".showNotificationIn3D_Views();
+                    "Ray Cast Complete".showNotificationIn3D_Views();
                 }
             }
             return false;

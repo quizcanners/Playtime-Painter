@@ -108,7 +108,7 @@ namespace Playtime_Painter{
             if (!painter || !painter.enabled) return false;
 
             if (painter.meshEditing)
-                return PainterCamera.MeshManager.target == painter && PainterCamera.Data.MeshTool.ShowGrid;
+                return MeshManager.target == painter && PainterCamera.Data.MeshTool.ShowGrid;
             
             if (painter.LockTextureEditing || PainterCamera.Data.showConfig || !PlaytimePainter.IsCurrentTool)
                 return false;
@@ -239,7 +239,7 @@ namespace Playtime_Painter{
             return null;
         }
 
-        public static MaterialMeta GetMaterialData (this Material mat) {
+        public static MaterialMeta GetMaterialPainterMeta (this Material mat) {
             return  PainterCamera.Data?.GetMaterialDataFor(mat);
         }
     }

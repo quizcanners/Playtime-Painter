@@ -197,7 +197,7 @@ public class GridNavigator : PainterSystemMono {
         else if (delta < 0)
             gSide = Gridside.xz;
 
-        if (before != gSide && MeshMGMT.target)
+        if (before != gSide && MeshManager.target)
             MeshMGMT.MeshTool.OnGridChange();
 
     }
@@ -211,7 +211,7 @@ public class GridNavigator : PainterSystemMono {
         if (!cfg)
             return;
 
-        var showGrid = m.target.NeedsGrid() || TexMGMT.focusedPainter.NeedsGrid(); 
+        var showGrid = MeshManager.target.NeedsGrid() || TexMGMT.focusedPainter.NeedsGrid(); 
 
         SetEnabled(showGrid, cfg.snapToGrid && showGrid);
 
@@ -298,7 +298,7 @@ public class GridNavigator : PainterSystemMono {
             .Set(_dyProp, dy / dist)
             .Set(_sizeProp, dist / scale);
 
-        if (MeshMGMT.target)
+        if (MeshManager.target)
             MeshMGMT.UpdateLocalSpaceV3S(); 
     }
 
@@ -314,7 +314,7 @@ public class GridNavigator : PainterSystemMono {
         if (Application.isPlaying) 
             ScrollsProcess(Input.GetAxis("Mouse ScrollWheel"));
 
-        if (!MeshMGMT.target && TexMgmtData)
+        if (!MeshManager.target && TexMgmtData)
             UpdatePositions();
         
     }

@@ -12,8 +12,9 @@ namespace Playtime_Painter.Examples {
 
         public float speed = 20;
         public float sensitivity = 5;
-        private bool _disableRotation = false;
+        private bool _disableRotation;
         public bool rotateWithoutRmb;
+        private bool simulateFlying;
 
         private bool Rotate() {
 
@@ -37,7 +38,10 @@ namespace Playtime_Painter.Examples {
             if (Input.GetKey(KeyCode.A)) add -= tf.right;
             if (Input.GetKey(KeyCode.S)) add -= tf.forward;
             if (Input.GetKey(KeyCode.D)) add += tf.right;
-            add.y = 0;
+
+            if (!simulateFlying)
+                add.y = 0;
+
             if (Input.GetKey(KeyCode.Q)) add += Vector3.down;
             if (Input.GetKey(KeyCode.E)) add += Vector3.up;
 
@@ -136,8 +140,8 @@ namespace Playtime_Painter.Examples {
             }
         }
 
-#region Inspector
-#if PEGI
+        #region Inspector
+        #if PEGI
         public bool Inspect()
         {
 
@@ -151,6 +155,8 @@ namespace Playtime_Painter.Examples {
             "Speed:".edit("Speed of movement", ref speed).nl();
 
             "Sensitivity:".edit("How fast camera will rotate", ref sensitivity).nl(ref changed);
+
+            "Flying".toggleIcon("Looking up/down will make camera move up/down.",ref simulateFlying).nl(ref changed);
 
             "Disable Rotation".toggleIcon( ref _disableRotation).nl(ref changed);
 

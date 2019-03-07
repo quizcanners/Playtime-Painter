@@ -71,7 +71,7 @@ namespace Playtime_Painter {
                 _uvs = new Vector2[vertexCount];
                 foreach (var vp in edMesh.meshPoints)
                 foreach (var uvi in vp.vertices)
-                    _uvs[uvi] = uvi.GetUV(0);
+                    _uvs[uvi] = uvi.GetUv(0);
                 return _uvs;
             }
         }
@@ -83,7 +83,7 @@ namespace Playtime_Painter {
                 _uvs1 = new Vector2[vertexCount];
                 foreach (var vp in edMesh.meshPoints)
                 foreach (var uvi in vp.vertices)
-                    _uvs1[uvi] = uvi.GetUV(1);
+                    _uvs1[uvi] = uvi.GetUv(1);
                 return _uvs1;
             }
         }
@@ -110,7 +110,7 @@ namespace Playtime_Painter {
                 foreach (var tri in edMesh.triangles) {
                     for (var no = 0; no < 3; no++) {
                         var up = tri.vertexes[no];
-                        float edge = (up.tris.Count == 1) ? 1 : 0;
+                        float edge = (up.triangles.Count == 1) ? 1 : 0;
                         _edgeData[up] = new Vector4(no == 0 ? 0 : edge, no == 1 ? 0 : edge, no == 2 ? 0 : edge, up.meshPoint.edgeStrength);
                     }
                 }
@@ -256,13 +256,13 @@ namespace Playtime_Painter {
                     var i2 = t.vertexes[1];
                     var i3 = t.vertexes[2];
 
-                    var v1 = t.vertexes[0].Pos;
-                    var v2 = t.vertexes[1].Pos;
-                    var v3 = t.vertexes[2].Pos;
+                    var v1 = t.vertexes[0].LocalPos;
+                    var v2 = t.vertexes[1].LocalPos;
+                    var v3 = t.vertexes[2].LocalPos;
 
-                    var w1 = t.vertexes[0].GetUV(0);// texcoords[i1];
-                    var w2 = t.vertexes[1].GetUV(0);
-                    var w3 = t.vertexes[2].GetUV(0);
+                    var w1 = t.vertexes[0].GetUv(0);// texcoords[i1];
+                    var w2 = t.vertexes[1].GetUv(0);
+                    var w3 = t.vertexes[2].GetUv(0);
 
                     var x1 = v2.x - v1.x;
                     var x2 = v3.x - v1.x;
@@ -395,7 +395,7 @@ namespace Playtime_Painter {
 
                     _sharpNormals[mDIndex] = tri.sharpNormal;
 
-                    if (tri.DominantCourner[no])
+                    if (tri.dominantCorner[no])
                     {
 
                         _normals[mDIndex] = tri.sharpNormal;
@@ -432,7 +432,7 @@ namespace Playtime_Painter {
                 if (vp.smoothNormal)
                 {
                     vp.normal = vp.normal.normalized;
-                    foreach (Vertex uv in vp.vertices)
+                    foreach (var uv in vp.vertices)
                         _normals[uv] = vp.normal;
 
                 }
@@ -456,20 +456,20 @@ namespace Playtime_Painter {
 
             if (edMesh.subMeshCount > 1) {
 
-                int maxSubmesh = 0;
+                var maxSubMesh = 0;
 
                 foreach (var t in edMesh.triangles)
-                    maxSubmesh = Mathf.Max(maxSubmesh, t.submeshIndex);
+                    maxSubMesh = Mathf.Max(maxSubMesh, t.subMeshIndex);
 
-                edMesh.subMeshCount = maxSubmesh + 1;
+                edMesh.subMeshCount = maxSubMesh + 1;
             }
 
             triangles = new List<int>[edMesh.subMeshCount];
-            for (int i = 0; i < edMesh.subMeshCount; i++)
+            for (var i = 0; i < edMesh.subMeshCount; i++)
                 triangles[i] = new List<int>();
 
             foreach (var tri in edMesh.triangles) {
-                var trs = triangles[tri.submeshIndex];
+                var trs = triangles[tri.subMeshIndex];
 
                 trs.Add(tri.vertexes[0]);
                 trs.Add(tri.vertexes[1]);

@@ -48,8 +48,7 @@
 			float4 overlay = tex2D(_Overlay, i.uv2_Overlay);
 			float deOverlay = 1 - overlay.a;
 
-			o.Smoothness = 0.6*col.r; //overlay.a * 0.5 + col.a*deOverlay;
-
+			o.Smoothness = 0.6*col.r; 
 			#if _Metal
 			o.Metallic = deOverlay;
 			#endif
@@ -61,10 +60,6 @@
 			o.Albedo = col.rgb * deOverlay + overlay.rgb*overlay.a;
 
 
-
-			//col.rg = i.uv2_Overlay.xy;
-			//col.ba = 1;
-			//o.Albedo = col.rgb;
 		}
 		ENDCG
 	}

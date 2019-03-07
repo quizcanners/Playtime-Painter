@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Editor/Grid" {
+﻿Shader "Playtime Painter/Editor/Markers/Grid" {
 	Properties {
 		_Color ("Color", Color) = (1,1,1,1)
 		_Size ("Scale", float) = 4

@@ -417,7 +417,7 @@ namespace Playtime_Painter {
 
                 if (atlPlug.preAtlasingMaterials == null)
                 {
-                    atlPlug.preAtlasingMaterials = painter.GetMaterials().ToList();
+                    atlPlug.preAtlasingMaterials = painter.Materials.ToList();
                     atlPlug.preAtlasingMesh = painter.GetMesh();
                     firstAtlasing = true;
                 }
@@ -595,7 +595,7 @@ namespace Playtime_Painter {
 
             if (painter)
             {
-                var mats = painter.GetMaterials();
+                var mats = painter.Materials;
                 if (mats != null)
                 {
                     if (mats.Length > 1)

@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/UI/ColorWithOverlay"
+﻿Shader "Playtime Painter/UI/Images/ColorWithOverlay"
 {
 	Properties{
 		_MainTex("Albedo (RGB)", 2D) = "black" {}

@@ -12,6 +12,8 @@ namespace Playtime_Painter
         public Material material;
         public int selectedTexture;
         public bool usePreviewShader;
+        public bool colorToVertexColorOnMerge;
+        public bool selectedForMerge;
         public List<ShaderProperty.TextureValue> materialsTextureFields = new List<ShaderProperty.TextureValue>();
 
         public ShaderProperty.TextureValue bufferParameterTarget; // which texture is currently using RenderTexture buffer
@@ -23,6 +25,7 @@ namespace Playtime_Painter
             .Add_Reference("mat", material)
             .Add_IfNotZero("texInd", selectedTexture)
             .Add_IfTrue("pv", usePreviewShader)
+            .Add_IfTrue("colToV", colorToVertexColorOnMerge)
             .Add("tfs", materialsTextureFields);
 
         public override bool Decode(string tg, string data)
@@ -33,6 +36,7 @@ namespace Playtime_Painter
                 case "texInd":  selectedTexture = data.ToInt(); break;
                 case "pv": usePreviewShader = data.ToBool(); break;
                 case "tfs": data.Decode_List(out materialsTextureFields); break;
+                case "colToV": colorToVertexColorOnMerge = data.ToBool(); break;
                 default: return false;
             }
             return true;
@@ -75,6 +79,8 @@ namespace Playtime_Painter
 
             if (material)
                 ("Shader: " + material.shader).nl();
+
+            "Color to Vertex color on Merge".toggleIcon(ref colorToVertexColorOnMerge).nl(ref changed);
 
             "Textures".edit_List(ref materialsTextureFields).changes(ref changed);
 

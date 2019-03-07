@@ -121,7 +121,7 @@ namespace Playtime_Painter {
             }
         }
 
-        public MaterialMeta MatDta => Material.GetMaterialData();
+        public MaterialMeta MatDta => Material.GetMaterialPainterMeta();
 
         public ImageMeta ImgMeta => GetTextureOnMaterial().GetImgData();
 
@@ -191,8 +191,8 @@ namespace Playtime_Painter {
         
         public void OnMouseOver() {
 
-            if ((pegi.MouseOverPlaytimePainterUI || (_mouseOverPaintableGraphicElement && _mouseOverPaintableGraphicElement!= this)) ||
-                (!IsUiGraphicPainter && EventSystem.current.IsPointerOverGameObject())) {
+            if ((pegi.MouseOverPlaytimePainterUI || (_mouseOverPaintableGraphicElement && this!=_mouseOverPaintableGraphicElement)) ||
+                (!IsUiGraphicPainter && EventSystem.current && EventSystem.current.IsPointerOverGameObject())) {
                 stroke.mouseDwn = false;
                 return;
             }
@@ -302,7 +302,7 @@ namespace Playtime_Painter {
             if (IsTerrainHeightTexture && IsOriginalShader)
                 return false;
 
-            if (MeshMgmt.target)
+            if (MeshManager.target)
                 return false;
 
             if (stroke.mouseDwn || stroke.mouseUp)
@@ -499,7 +499,7 @@ namespace Playtime_Painter {
                     return;
             }
 
-            if (meshEditing && (MeshMgmt.target != this))
+            if (meshEditing && (MeshManager.target != this))
                 return;
 
             var tex = ImgMeta.CurrentTexture();
@@ -704,7 +704,7 @@ namespace Playtime_Painter {
             if (id.destination == dst)
                 return;
 
-            id.ChangeDestination(dst, GetMaterial(true).GetMaterialData(), GetMaterialTextureProperty, this);
+            id.ChangeDestination(dst, GetMaterial(true).GetMaterialPainterMeta(), GetMaterialTextureProperty, this);
             CheckPreviewShader();
 
         }
@@ -848,18 +848,29 @@ namespace Playtime_Painter {
 
         #region Material MGMT
 
-        public Material[] GetMaterials() {
+        public Material[] Materials {
+            get
+            {
 
-            if (!terrain && !uiGraphic)
-                return meshRenderer.sharedMaterials;
-            
-            var mat = Material;
+                if (!terrain && !uiGraphic)
+                    return meshRenderer.sharedMaterials;
 
-            return mat ? new[] {mat} : null;
+                var mat = Material;
 
+                return mat ? new[] {mat} : null;
+            }
+            set
+            {
+                if (meshRenderer)
+                    meshRenderer.sharedMaterials = value;
+                else if (uiGraphic)
+                    uiGraphic.material = value.TryGet(0);
+                else if (terrain)
+                    terrain.materialTemplate = value.TryGet(0);
+            }
         }
 
-        public List<string> GetMaterialsNames() => GetMaterials().Select((mt, i) => mt ? mt.name : "Null material {0}".F(i)).ToList();
+        public List<string> GetMaterialsNames() => Materials.Select((mt, i) => mt ? mt.name : "Null material {0}".F(i)).ToList();
         
         private List<ShaderProperty.TextureValue> GetMaterialTextureNames()
         {
@@ -1632,7 +1643,7 @@ namespace Playtime_Painter {
             if (id != null && id.CurrentTexture().IsBigRenderTexturePair())
                 UpdateOrSetTexTarget(TexTarget.Texture2D);
 
-            if (!TexMgmt || MeshManager.Inst.target != this) return;
+            if (!TexMgmt || MeshManager.target != this) return;
             
             MeshManager.Inst.DisconnectMesh();
             MeshManager.Inst.previouslyEdited = this;
@@ -1756,13 +1767,11 @@ namespace Playtime_Painter {
             if (!selectedInPlaytime)
                 selectedInPlaytime = this;
             #if PEGI
-            if (selectedInPlaytime == this)
-            {
+            if (selectedInPlaytime == this)  {
                 WindowPosition.Render(this, Inspect, "{0} {1}".F(gameObject.name, GetMaterialTextureProperty));
 
-                foreach (var p in PainterSystemManagerPluginBase.GUIplugins)
+                foreach (var p in PainterSystemManagerPluginBase.GuiPlugins)
                     p.OnGUI();
-
             }
             #endif
       
@@ -1787,7 +1796,7 @@ namespace Playtime_Painter {
 
         private static bool _inspectPainterCamera;
 
-        private static bool _inspectMeshProfile;
+        public static int _inspectedMeshEditorItems = -1;
 
         public bool Inspect() {
 
@@ -1841,7 +1850,6 @@ namespace Playtime_Painter {
                 pegi.Lock_UnlockWindowClick(gameObject);
 
                 canInspect = false;
-
             }
             
             if (canInspect) {
@@ -1925,8 +1933,7 @@ namespace Playtime_Painter {
                 }
 
                 #endregion
-
-
+                
                 if (Cfg.showConfig || PainterSystem.IsPlaytimeNowDisabled) {
 
                     pegi.newLine();
@@ -1956,13 +1963,13 @@ namespace Playtime_Painter {
 
                             if (SharedMesh) {
 
-                                if (this != mg.target)
+                                if (this != MeshManager.target)
                                     if (SavedEditableMesh != null)
                                         "Component has saved mesh data.".nl();
                                 
                                 "Warning, this will change (or mess up) your model.".writeOneTimeHint("MessUpMesh");
 
-                                if (mg.target != this) {
+                                if (MeshManager.target != this) {
 
                                     var ent = gameObject.GetComponent($"pb_Entity");
                                     var obj = gameObject.GetComponent($"pb_Object");
@@ -2002,10 +2009,10 @@ namespace Playtime_Painter {
                             if (IsEditingThisMesh)
                             {
 
-                                if (!_inspectMeshProfile)
+                                if (_inspectedMeshEditorItems == -1)
                                     MeshMgmt.Inspect().nl();
 
-                                if ("Profile".enter( ref _inspectMeshProfile)) {
+                                if ("Profile".enter( ref _inspectedMeshEditorItems, 0)) {
 
                                     if ((Cfg.meshPackagingSolutions.Count > 1) && (icon.Delete.Click(25)))
                                         Cfg.meshPackagingSolutions.RemoveAt(selectedMeshProfile);
@@ -2023,7 +2030,7 @@ namespace Playtime_Painter {
 
                                     }
                                 }
-                                else
+                                else if (_inspectedMeshEditorItems == -1)
                                 {
                                     if ((" : ".select(20, ref selectedMeshProfile, Cfg.meshPackagingSolutions)) &&
                                         (IsEditingThisMesh))
@@ -2035,9 +2042,9 @@ namespace Playtime_Painter {
                                         selectedMeshProfile = Cfg.meshPackagingSolutions.Count - 1;
                                         MeshProfile.name = "New Profile {0}".F(selectedMeshProfile);
                                     }
-
-                                    MeshManager.AdvancedInspectPart();
                                 }
+
+                                MeshManager.MeshOptionsInspect();
                             }
                         }
 
@@ -2046,9 +2053,7 @@ namespace Playtime_Painter {
                     }
 
                     #endregion
-
-                  
-
+                    
                     #region Texture Editing
 
                     else
@@ -2288,7 +2293,7 @@ namespace Playtime_Painter {
 
                             if (showToggles)
                             {
-                                var mats = GetMaterials();
+                                var mats = Materials;
                                 if (autoSelectMaterialByNumberOfPointedSubMesh || !mats.IsNullOrEmpty())
                                 {
                                     "Auto Select Material".toggleIcon(
@@ -2331,7 +2336,7 @@ namespace Playtime_Painter {
 
                             pegi.nl();
 
-                            var mats = GetMaterials();
+                            var mats = Materials;
                             if (!mats.IsNullOrEmpty())
                             {
                                 var sm = selectedSubMesh;
@@ -2602,7 +2607,7 @@ namespace Playtime_Painter {
                     pegi.nl();
                     #endregion
                     
-                    foreach (var p in PainterSystemManagerPluginBase.ComponentMgmtPlugins)
+                    foreach (var p in PainterSystemManagerPluginBase.ComponentInspectionPlugins)
                         p.ComponentInspector().nl(ref changed);
                     
                 }
@@ -2791,30 +2796,10 @@ namespace Playtime_Painter {
         #endregion
 
         #region Mesh Editing 
-
-        public bool IsEditingThisMesh => IsCurrentTool && meshEditing && (MeshManager.Inst.target == this); 
+        
+        public bool IsEditingThisMesh => IsCurrentTool && meshEditing && (MeshManager.target == this); 
 
         private static MeshManager MeshManager => MeshManager.Inst; 
-
-        public int GetAnimationUVy() => 0;
-        
-        public bool AnimatedVertices() => false;
-        
-        public int GetVertexAnimationNumber() => 0;
-        
-        public bool TryLoadMesh(string data)
-        {
-            if (data.IsNullOrEmpty()) return false;
-            
-            SavedEditableMesh = data;
-
-            MeshManager.EditMesh(this, true);
-
-            MeshManager.DisconnectMesh();
-
-            return true;
-           
-        }
 
         #endregion
 

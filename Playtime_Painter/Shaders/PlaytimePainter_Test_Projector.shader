@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/ProjectorTest" {
+﻿Shader "Playtime Painter/Editor/ProjectorTest" {
 
 	Properties{
 		_MainTex("Albedo (RGB)", 2D) = "white" {}

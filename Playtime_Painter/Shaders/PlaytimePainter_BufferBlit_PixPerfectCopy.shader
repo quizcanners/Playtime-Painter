@@ -13,7 +13,7 @@
 
 		//Blend SrcAlpha OneMinusSrcAlpha 
 		ColorMask RGBA
-		Cull Back
+		Cull Off
 		ZTest off
 		ZWrite off
 

@@ -487,7 +487,7 @@ namespace Playtime_Painter {
                     else
                     {
 
-                        if (!id.isATransparentLayer || colorLinear.a > 0)  {
+                        if (painter.IsEditingThisMesh || id==null || !id.isATransparentLayer || colorLinear.a > 0)  {
 
                             var slider_copy = blitMode.UsingSourceTexture ?
                                 (srcColorUsage != SourceTextureColorUsage.Copy && slider)
@@ -500,7 +500,7 @@ namespace Playtime_Painter {
                         
                         var gotAlpha = painter.meshEditing || id.texture2D.TextureHasAlpha();
 
-                        if ((gotAlpha || id.preserveTransparency) && !id.isATransparentLayer) {
+                        if (!painter.IsEditingThisMesh &&  (gotAlpha || id.preserveTransparency) && !id.isATransparentLayer) {
                             if (!gotAlpha)
                                 icon.Warning.write("Texture as no alpha, clicking save will fix it");
 
@@ -510,7 +510,7 @@ namespace Playtime_Painter {
                 }
             }
 
-            if (id.isATransparentLayer) {
+            if (!painter.IsEditingThisMesh && id!=null && id.isATransparentLayer) {
 
                 var erase = colorLinear.a < 0.5f;
 

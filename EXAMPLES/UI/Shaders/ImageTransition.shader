@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/UI/ImageTransition" {
+﻿Shader "Playtime Painter/UI/Images/ImageTransition" {
 	Properties{
 		_MainTex("Mask (RGB)", 2D) = "white" {}
 		[NoScaleOffset]_MainTex_Current("First Texture", 2D) = "black" {}

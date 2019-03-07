@@ -67,17 +67,17 @@ namespace Playtime_Painter {
 
         public static List<PainterSystemManagerPluginBase> plugins;
 
-        public static readonly List<IPainterManagerPluginComponentPEGI> ComponentMgmtPlugins = new List<IPainterManagerPluginComponentPEGI>();
+        public static readonly List<IPainterManagerPluginComponentPEGI> ComponentInspectionPlugins = new List<IPainterManagerPluginComponentPEGI>();
 
         public static readonly List<IPainterManagerPluginBrush> BrushPlugins = new List<IPainterManagerPluginBrush>();
 
         public static readonly List<IPainterManagerPluginGizmis> GizmoPlugins = new List<IPainterManagerPluginGizmis>();
 
-        public static readonly List<IPainterManagerPlugin_MeshToolShowVertex> MeshToolPlugins = new List<IPainterManagerPlugin_MeshToolShowVertex>();
+        public static readonly List<IPainterManagerPlugin_MeshToolShowVertex> MeshToolShowVertexPlugins = new List<IPainterManagerPlugin_MeshToolShowVertex>();
 
-        public static readonly List<IMeshToolPlugin> VertexEdgePlugins = new List<IMeshToolPlugin>();
+        public static readonly List<IMeshToolPlugin> MeshToolPlugins = new List<IMeshToolPlugin>();
 
-        public static readonly List<IPainterManagerPluginOnGUI> GUIplugins = new List<IPainterManagerPluginOnGUI>();
+        public static readonly List<IPainterManagerPluginOnGUI> GuiPlugins = new List<IPainterManagerPluginOnGUI>();
 
         public static void RefreshPlugins() {
 
@@ -86,15 +86,11 @@ namespace Playtime_Painter {
             else
                 for (var i = 0; i < plugins.Count; i++)
                     if (plugins[i] == null) { plugins.RemoveAt(i); i--; }
-
-          
-
+            
             foreach (var t in all)
             {
                 var contains = false;
-
-             
-
+                
                 foreach (var p in plugins)
                     if (p.GetType() == t) { contains = true; break; }
 
@@ -103,26 +99,26 @@ namespace Playtime_Painter {
 
             }
 
-            ComponentMgmtPlugins.Clear();
+            ComponentInspectionPlugins.Clear();
             BrushPlugins.Clear();
             GizmoPlugins.Clear();
+            MeshToolShowVertexPlugins.Clear();
             MeshToolPlugins.Clear();
-            VertexEdgePlugins.Clear();
-            GUIplugins.Clear();
+            GuiPlugins.Clear();
 
             foreach (var t in plugins) {
 
-                ComponentMgmtPlugins.TryAdd(t as IPainterManagerPluginComponentPEGI);
+                ComponentInspectionPlugins.TryAdd(t as IPainterManagerPluginComponentPEGI);
 
                 BrushPlugins.TryAdd(t as IPainterManagerPluginBrush);
 
                 GizmoPlugins.TryAdd(t as IPainterManagerPluginGizmis);
 
-                MeshToolPlugins.TryAdd(t as IPainterManagerPlugin_MeshToolShowVertex);
+                MeshToolShowVertexPlugins.TryAdd(t as IPainterManagerPlugin_MeshToolShowVertex);
 
-                VertexEdgePlugins.TryAdd(t as IMeshToolPlugin);
+                MeshToolPlugins.TryAdd(t as IMeshToolPlugin);
 
-                GUIplugins.TryAdd(t as IPainterManagerPluginOnGUI);
+                GuiPlugins.TryAdd(t as IPainterManagerPluginOnGUI);
             }
         }
         

@@ -642,14 +642,14 @@ namespace QuizCannersUtilities
             }
         }
         
-        public static void Resize<T>(ref T[] args, int to)
+        public static T[] Resize<T>(this T[] args, int to)
         {
             T[] temp;
             temp = new T[to];
             if (args != null)
                 Array.Copy(args, 0, temp, 0, Mathf.Min(to, args.Length));
-            else
-                args = temp;
+          
+            return temp;
         }
 
         public static T[] ExpandBy<T>(this T[] args, int add)

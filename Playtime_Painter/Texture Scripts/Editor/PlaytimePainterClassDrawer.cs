@@ -102,7 +102,7 @@ namespace Playtime_Painter {
                 if (painter.meshEditing)
                 {
 
-                    var edited = MeshManager.Inst.target;
+                    var edited = MeshManager.target;
                     
                     if (pointedPainter && pointedPainter != edited && pointedPainter.meshEditing
                         && !pointedPainter.SavedEditableMesh.IsNullOrEmpty() && lMouseDwn && e.button == 0) {

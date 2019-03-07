@@ -1177,6 +1177,29 @@ namespace PlayerAndEditorGUI {
             return select(ref value, array);
         }
 
+        public static bool select(this string text, int width, ref int value, int min, int max)
+        {
+            write(text, width);
+            return select(ref value, min, max);
+        }
+
+        public static bool select(ref int value, int min, int max) {
+            var cnt = max - min + 1;
+
+            var tmp = value - min;
+            var array = new int[cnt];
+            for (var i = min; i < cnt; i++)
+                array[i] = min + i;
+            
+            if (select(ref tmp, array)) {
+                value = tmp + min;
+                return true;
+            }
+
+            return false;
+        }
+
+
         public static bool select<T>(this string text, int width, ref T value, List<T> array, bool showIndex = false, bool stripSlashes = false)
         {
             write(text, width);
@@ -2989,12 +3012,18 @@ namespace PlayerAndEditorGUI {
         public static bool conditional_enter(this string label, bool canEnter, ref int enteredOne, int thisOne) {
 
             if (!canEnter && enteredOne == thisOne)
-                enteredOne = -1;
-
-            if (canEnter)
-                label.enter(ref enteredOne, thisOne);
+            {
+                if (icon.Back.Click() || "All Done here".Click(14))
+                    enteredOne = -1;
+            }
             else
-                isFoldedOutOrEntered = false;
+            {
+
+                if (canEnter)
+                    label.enter(ref enteredOne, thisOne);
+                else
+                    isFoldedOutOrEntered = false;
+            }
 
             return isFoldedOutOrEntered;
         }
