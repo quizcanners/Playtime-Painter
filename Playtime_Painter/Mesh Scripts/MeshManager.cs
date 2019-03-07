@@ -12,9 +12,9 @@ using UnityEditor;
 namespace Playtime_Painter
 {
 
-    public class MeshManager : PainterSystemKeepUnrecognizedStd
-    {
+    public class MeshManager : PainterSystemKeepUnrecognizedStd {
 
+        #region Getters Setters
         public static MeshManager Inst => PainterCamera.MeshManager;
 
         public static Transform Transform => PainterCamera.Inst?.transform;
@@ -23,30 +23,40 @@ namespace Playtime_Painter
 
         public MeshToolBase MeshTool => PainterCamera.Data.MeshTool;
 
-        private static int _editedUv;
-
-        public int EditedUV {
+        public Vertex SelectedUv { get { return editedMesh.selectedUv; } set { editedMesh.selectedUv = value; } }
+        public LineData SelectedLine { get { return editedMesh.selectedLine; } set { editedMesh.selectedLine = value; } }
+        public Triangle SelectedTriangle { get { return editedMesh.selectedTriangle; } set { editedMesh.selectedTriangle = value; } }
+        public Vertex PointedUv { get { return editedMesh.pointedUv; } set { editedMesh.pointedUv = value; } }
+        public LineData PointedLine { get { return editedMesh.pointedLine; } set { editedMesh.pointedLine = value; } }
+        public Triangle PointedTriangle { get { return editedMesh.pointedTriangle; } set { editedMesh.pointedTriangle = value; } }
+        private static Vertex[] TriangleSet { get { return editedMesh.triangleSet; } set { editedMesh.triangleSet = value; } }
+        public int TriVertices { get { return editedMesh.triVertices; } set { editedMesh.triVertices = value; } }
+        public int EditedUV
+        {
             get { return _editedUv; }
-            set { _editedUv = value;  UnityHelperFunctions.SetShaderKeyword(PainterDataAndConfig._MESH_PREVIEW_UV2, _editedUv == 1);  }
-
+            set { _editedUv = value; UnityHelperFunctions.SetShaderKeyword(PainterDataAndConfig._MESH_PREVIEW_UV2, _editedUv == 1); }
         }
-  
+
+        #endregion
+        
         public static PlaytimePainter target;
         public static Transform targetTransform;
-        public PlaytimePainter previouslyEdited;
+        private static int _editedUv;
 
-        private readonly List<string> _undoMoves = new List<string>();
+        private static readonly List<string> _undoMoves = new List<string>();
 
-        private readonly List<string> _redoMoves = new List<string>();
+        private static readonly List<string> _redoMoves = new List<string>();
 
         public static EditableMesh editedMesh = new EditableMesh();
-
-        public EditableMesh previewEdMesh = new EditableMesh();
+        public static EditableMesh previewEdMesh = new EditableMesh();
 
         public Mesh previewMesh;
+        private int _currentUv;
+        private bool _selectingUVbyNumber;
+        public int verticesShowMax = 8;
+        public Vector3 onGridLocal;
+        public Vector3 collisionPosLocal;
 
-        public AddCubeCfg tmpCubeCfg = new AddCubeCfg();
-        
         #region Encode & Decode
 
         public override StdEncoder Encode() => this.EncodeUnrecognized()
@@ -63,27 +73,7 @@ namespace Playtime_Painter
         }
 
         #endregion
-
-        private int _currentUv;
-        private bool _selectingUVbyNumber;
-
-        public Vertex SelectedUv { get { return editedMesh.selectedUv; } set { editedMesh.selectedUv = value; } }
-        public LineData SelectedLine { get { return editedMesh.selectedLine; } set { editedMesh.selectedLine = value; } }
-        public Triangle SelectedTriangle { get { return editedMesh.selectedTriangle; } set { editedMesh.selectedTriangle = value; } }
-        public Vertex PointedUv { get { return editedMesh.pointedUv; } set { editedMesh.pointedUv = value; } }
-        public LineData PointedLine { get { return editedMesh.pointedLine; } set { editedMesh.pointedLine = value; } }
-        public Triangle PointedTriangle { get { return editedMesh.pointedTriangle; } set { editedMesh.pointedTriangle = value; } }
-        private static Vertex[] TriangleSet { get { return editedMesh.triangleSet; } set { editedMesh.triangleSet = value; } }
-        public int TriVertices { get { return editedMesh.triVertices; } set { editedMesh.triVertices = value; } }
-
-        [NonSerialized]
-        public int verticesShowMax = 8;
-
-        [NonSerialized]
-        public Vector3 onGridLocal;
-        [NonSerialized]
-        public Vector3 collisionPosLocal;
-
+        
         public void UpdateLocalSpaceV3S()
         {
             if (!target) return;
@@ -844,14 +834,7 @@ namespace Playtime_Painter
         {
             InitVerticesIfNull();
 
-            if (previouslyEdited && !target)
-            {
-                DisconnectMesh();
-                EditMesh(previouslyEdited, false);
-                _justLoaded = 5;
-            }
-
-            previouslyEdited = null;
+        
             TriVertices = 0;
             EditedUV = EditedUV;
 

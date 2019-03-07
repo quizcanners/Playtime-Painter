@@ -1646,7 +1646,6 @@ namespace Playtime_Painter {
             if (!TexMgmt || MeshManager.target != this) return;
             
             MeshManager.Inst.DisconnectMesh();
-            MeshManager.Inst.previouslyEdited = this;
             
             this.SaveStdData();
 

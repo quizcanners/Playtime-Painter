@@ -79,12 +79,12 @@ namespace Playtime_Painter
         {
             get
             {
-                if (!MeshMGMT.previewMesh)
+                if (MeshManager.previewEdMesh == null)
                 {
-                    MeshMGMT.previewEdMesh = new EditableMesh();
-                    MeshMGMT.previewEdMesh.Decode(EditedMesh.Encode().ToString());
+                    MeshManager.previewEdMesh = new EditableMesh();
+                    MeshManager.previewEdMesh.Decode(EditedMesh.Encode().ToString());
                 }
-                return MeshMGMT.previewEdMesh;
+                return MeshManager.previewEdMesh;
             }
         }
         

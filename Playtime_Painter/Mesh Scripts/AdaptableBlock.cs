@@ -1,36 +1,28 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
-using QuizCannersUtilities;
 
 namespace Playtime_Painter
 {
 
 
-    public enum MegavoxelRole { Solid, Damaged, Decorative }
-
-
     public class AdaptableBlock : MonoBehaviour
     {
-
+        public enum MegaVoxelRole { Solid, Damaged, Decorative }
+        
         public int scale;
         public AddCubeCfg config;
 
-        public bool AddAptCollidedWith(Vector3 other, float oscale, float myScale)
+        public bool AddAptCollidedWith(Vector3 other, float oScale, float myScale)
         {
-            float dx = other.x - transform.position.x;
-            if (dx < myScale && dx > -oscale)
-            {
-                float dy = other.y - transform.position.y;
-                if ((dy < myScale) && (dy > -oscale))
-                {
-                    float dz = other.z - transform.position.z;
+            var dx = other.x - transform.position.x;
+            if (!(dx < myScale) || !(dx > -oScale)) return false;
 
-                    if ((dz < myScale) && (dz > -oscale))
-                        return true;
-                }
-            }
-            return false;
+            var dy = other.y - transform.position.y;
+            if (!(dy < myScale) || !(dy > -oScale)) return false;
+
+            var dz = other.z - transform.position.z;
+
+            return dz < myScale && dz > -oScale;
         }
 
         /* public bool EmptySpace(Vector3 at, float scale, List<AdaptableBlock> blocks)  {
@@ -46,77 +38,68 @@ namespace Playtime_Painter
 
         public void UpdateCubeConfig(List<AdaptableBlock> blocks)
         {
-            config.SetAllTo(BlockSetting.Empty);
+            config.SetAllTo(AddCubeCfg.BlockSetting.Empty);
 
-            for (int i = 0; i < blocks.Count; i++)
-                if (blocks[i].gameObject.activeSelf)
+            foreach (var t in blocks)
+                if (t.gameObject.activeSelf)
                 {
-                    AdaptableBlock other = blocks[i];
-                    if ((other.scale >= scale) && (other != this))
-                    {
+                    var other = t;
+                    if ((other.scale < scale) || (other == this)) continue;
+                    if ((other.config.role != MegaVoxelRole.Solid) &&
+                        (other.config.role != MegaVoxelRole.Damaged || config.role != MegaVoxelRole.Solid) &&
+                        (other.config.role != MegaVoxelRole.Decorative || config.role != MegaVoxelRole.Damaged))
+                        continue;
+                   
 
-                        if ((other.config.role == MegavoxelRole.Solid) ||
-                        (other.config.role == MegavoxelRole.Damaged && config.role == MegavoxelRole.Solid) ||
-                        (other.config.role == MegavoxelRole.Decorative && config.role == MegavoxelRole.Damaged))
-                        {
+                    var mi = transform.position;
+                    var destScale = other.scale;
 
-                            Vector3 dist = new Vector3();
-                            Vector3 dest = other.transform.position;
-                            Vector3 mi = transform.position;
-                            int destScale = other.scale;
-                            dist.x = (dest.x + destScale / 2) - (mi.x + scale / 2);
-                            dist.z = (dest.z + destScale / 2) - (mi.z + scale / 2);
-                            dist.y = (dest.y + destScale / 2) - (mi.y + scale / 2);
-                            int touchDist = (destScale + scale) / 2;
-                            if ((touchDist >= Mathf.Abs(dist.x)) && (touchDist >= Mathf.Abs(dist.z)) && (touchDist >= Mathf.Abs(dist.y)))
-                            {
+                    var dist =  Vector3.one* (destScale - scale) * 0.5f - mi;
 
-                                dist = other.transform.position - transform.position;//.DistanceV3To(other._dta.pos);
-                                dist /= scale;
-                                int wid = other.scale / scale;
+                    var touchDist = (destScale + scale)/2;
 
-                                for (int x = 0; x < wid; x++)
-                                    for (int y = 0; y < wid; y++)
-                                        for (int z = 0; z < wid; z++)
-                                            config.AssignValue(x + (int)dist.x, y + (int)dist.y, z + (int)dist.z, BlockSetting.Full);
+                    if ((!(touchDist >= Mathf.Abs(dist.x))) || (!(touchDist >= Mathf.Abs(dist.z))) ||
+                        (!(touchDist >= Mathf.Abs(dist.y)))) continue;
 
-                            }
-                        }
-                    }
+                    dist = other.transform.position - transform.position;//.DistanceV3To(other._dta.pos);
+                    dist /= scale;
+                    var wid = other.scale / scale;
+
+                    for (var x = 0; x < wid; x++)
+                    for (var y = 0; y < wid; y++)
+                    for (var z = 0; z < wid; z++)
+                        config.AssignValue(x + (int)dist.x, y + (int)dist.y, z + (int)dist.z, AddCubeCfg.BlockSetting.Full);
                 }
         }
 
-        public bool GetPropperPiece(AddCubeCfg[] adds, int category, ref int rotation, ref int meshNumber, List<AdaptableBlock> blocks)
+        public bool GetProperPiece(AddCubeCfg[] adds, int category, ref int rotation, ref int meshNumber, List<AdaptableBlock> blocks)
         {
 
             UpdateCubeConfig(blocks);
 
-            if (config.IsVisible())
+            if (!config.IsVisible()) return false;
+
+            meshNumber = 0;
+
+            var maxSimilarity = -1;
+
+            for (var i = 0; i < adds.Length; i++)
             {
+                var addY = adds[i];
+                if (category != addY.category && (category != 0)) continue;
 
-                meshNumber = 0;
-                int maxCoopt = -1;
+                var newRotation = 0;
 
-                for (int i = 0; i < adds.Length; i++)
-                {
-                    AddCubeCfg addy = adds[i];
-                    if (((category == addy.Category) || (category == 0)))
-                    {
+                var newCoopt = config.CompareWithWorld(addY, ref newRotation);
 
-                        int newRotation = 0;
-                        int newCoopt = config.CompareWithWorld(addy, ref newRotation);
+                if (newCoopt <= maxSimilarity) continue;
 
-                        if (newCoopt > maxCoopt)
-                        {
-                            rotation = newRotation;
-                            meshNumber = i; maxCoopt = newCoopt;
-                        }
-                    }
-                }
+                rotation = newRotation;
 
-                return true;
+                meshNumber = i; maxSimilarity = newCoopt;
             }
-            return false;
+
+            return true;
         }
     }
 }
