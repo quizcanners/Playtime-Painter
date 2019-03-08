@@ -240,7 +240,7 @@ public class GridNavigator : PainterSystemMono {
         }
 
         if (cfg.snapToGrid)
-            hit = MyMath.RoundDiv(hit, cfg.gridSize);
+            hit = QcMath.RoundDiv(hit, cfg.gridSize);
 
         if (hit != Vector3.zero)  {
 

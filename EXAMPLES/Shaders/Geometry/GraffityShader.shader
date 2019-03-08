@@ -9,8 +9,8 @@
 	SubShader{
 		Tags{ 
 			"RenderType" = "Opaque"
-			"TextureSampledWithUV2_Overlay" = "true"
-			"TransparentLayerExpected_Overlay" = "true"
+			"_Overlay_TextureSampling" = "UV2"
+			"_Overlay_LayerType" = "Transparent"
 		}
 
 		LOD 200

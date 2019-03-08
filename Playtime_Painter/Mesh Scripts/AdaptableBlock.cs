@@ -26,7 +26,7 @@ namespace Playtime_Painter
         }
 
         /* public bool EmptySpace(Vector3 at, float scale, List<AdaptableBlock> blocks)  {
-             Vector3 tmp = MyMath.FloorDiv(at, (int)scale);
+             Vector3 tmp = QcMath.FloorDiv(at, (int)scale);
 
              for (int i = 0; i < blocks.Count; i++)
                  if (blocks[i].gameObject.activeSelf && AddAptCollidedWith(tmp, blocks[i].scale, scale))

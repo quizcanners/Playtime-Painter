@@ -354,7 +354,7 @@ namespace Playtime_Painter {
             if (Tools.current != Tool.None) {
                 Msg.LockToolToUseTransform.Get().writeWarning();
                 if (Msg.HideTransformTool.Get().Click().nl())
-                    UnityHelperFunctions.HideUnityTool();
+                    UnityUtils.HideUnityTool();
             }
 #endif
 
@@ -391,13 +391,15 @@ namespace Playtime_Painter {
                 icon = m.GetIcon();
 
             var letter = m.ToText();
-            var maskVal = BrushExtensions.HasFlag(mask, m);
+            var maskVal = mask.HasFlag(m);
 
             if (InspectedPainter && InspectedPainter.meshEditing && MeshMGMT.MeshTool == VertexColorTool.inst) {
 
                 var mat = InspectedPainter.Material;
-                if (mat) {
-                    var tag = mat.GetTag(PainterDataAndConfig.VertexColorRole + m, false, null);
+                if (mat)
+                {
+                    var tag = mat.Get(m.ToString(), ShaderTags.VertexColorRole);
+
                     if (!tag.IsNullOrEmpty()) {
 
                         if (maskVal)
@@ -411,17 +413,15 @@ namespace Playtime_Painter {
             if (maskVal ? icon.Click(letter) : "{0} channel disabled".F(letter).toggleIcon(ref maskVal, true).changes(ref changed)) 
                 MaskToggle(m);
             
-            if (slider && BrushExtensions.HasFlag(mask, m))
+            if (slider && mask.HasFlag(m))
                 pegi.edit(ref chanel, 0, 1).nl(ref changed);
-
-
-
+            
             return changed;
         }
 
         public bool ColorSliders() {
 
-            if (InspectedPainter)
+            if (InspectedPainter && !InspectedPainter.IsEditingThisMesh)
                 return ColorSliders_PlaytimePainter();
 
             var changed = false;

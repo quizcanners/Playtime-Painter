@@ -24,7 +24,7 @@ public class PixelPerfectMaterialDrawer : PEGI_Inspector_Material {
             if (mat.IsKeywordEnabled(RoundedGraphic.UNLINKED_VERTICES))
                 "UNLINKED VERTICES".nl();
 
-            var go = UnityHelperFunctions.GetFocusedGameObject();
+            var go = UnityUtils.GetFocusedGameObject();
 
             if (go) {
 

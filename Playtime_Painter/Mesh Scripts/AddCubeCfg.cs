@@ -118,14 +118,5 @@ namespace Playtime_Painter
 
             return maxScore;
         }
-
-
-
-
-
-
-
-
-
     }
 }

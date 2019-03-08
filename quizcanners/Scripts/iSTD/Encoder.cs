@@ -578,8 +578,8 @@ namespace QuizCannersUtilities
 
         public StdEncoder TryAdd<T>(string tag, T obj) {
 
-            var objstd = obj.TryGet_fromObj<IStd>(); 
-            return (objstd != null) ? Add(tag, objstd) : this;
+            var objStd = obj.TryGet_fromObj<IStd>(); 
+            return (objStd != null) ? Add(tag, objStd) : this;
         }
 
         public StdEncoder Add_IfNotNegative(string tag, int val) => (val >= 0) ? Add_String(tag, val.ToString()) : this;

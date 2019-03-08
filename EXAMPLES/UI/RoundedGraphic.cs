@@ -172,9 +172,7 @@ namespace Playtime_Painter.Examples
                 return c && (c.renderMode == RenderMode.ScreenSpaceOverlay || !c.worldCamera);
             }
         }
-
-        public const string PIXEL_PERFECT_MATERIAL_TAG = "PixelPerfectUI";
-        public const string SPRITE_ROLE_MATERIAL_TAG = "SpriteRole"; // "Hide", "Tile"
+        
         public const string UNLINKED_VERTICES = "_UNLINKED";
         public const string EDGE_SOFTNESS_FLOAT = "_Edges";
         
@@ -227,10 +225,10 @@ namespace Playtime_Painter.Examples
 
                 if (mat)
                 {
-                    var pixPfTag = mat.GetTag(PIXEL_PERFECT_MATERIAL_TAG, false);
+                    var pixPfTag = mat.Get(ShaderTags.PixelPerfectUi);
 
                     if (pixPfTag.IsNullOrEmpty())
-                        "{0} doesn't have {1} tag".F(shad.name, PIXEL_PERFECT_MATERIAL_TAG).writeWarning();
+                        "{0} doesn't have {1} tag".F(shad.name, ShaderTags.PixelPerfectUi.NameForDisplayPEGI).writeWarning();
                     else
                     {
 
@@ -243,9 +241,9 @@ namespace Playtime_Painter.Examples
                             if ((can.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord1) == 0)
                             {
 
-                                "Material requires Canvas to pass Edges data trough TexCoord1 data channel"
+                                "Material requires Canvas to pass Edges data trough Texture Coordinate 1 data channel"
                                     .writeWarning();
-                                if ("Fix Canvas TexCoord1".Click().nl())
+                                if ("Fix Canvas Texture Coordinate 1".Click().nl())
                                     can.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord1;
                             }
 
@@ -304,7 +302,7 @@ namespace Playtime_Painter.Examples
                     if ("Shaders".select(60, ref shad, CompatibleShaders, false, true).changes(ref changed))
                         mat.shader = shad;
 
-                    if (icon.Refresh.Click("Refresh compatible shaders list"))
+                    if (icon.Refresh.Click("Refresh compatible Shaders list"))
                         _compatibleShaders = null;
                 }
 
@@ -316,19 +314,19 @@ namespace Playtime_Painter.Examples
                 if (!usesPosition && feedPositionData)
                 {
                     "Shader doesn't have PixelPerfectUI = Position Tag. Position updates may not be needed".write();
-                    icon.Warning.write("Unnessessary data");
+                    icon.Warning.write("Unnecessary data");
                 }
 
                 pegi.nl();
 
                 var rt = raycastTarget;
-                if ("Clickable".toggleIcon("Is RayCast Target", ref rt).nl(ref changed))
+                if ("Click-able".toggleIcon("Is RayCast Target", ref rt).nl(ref changed))
                     raycastTarget = rt;
 
                 if (rt)
                     "On Click".edit_Property(() => OnClick, this).nl(ref changed);
 
-                var spriteTag = mat ? mat.GetTag(SPRITE_ROLE_MATERIAL_TAG, false) : null;
+                var spriteTag = mat ? mat.Get(ShaderTags.SpriteRole) : null;
 
                 var noTag = spriteTag.IsNullOrEmpty();
 
@@ -575,7 +573,14 @@ namespace Playtime_Painter.Examples
         
 #endregion
     }
-    
+
+
+    public static partial class ShaderTags
+    {
+        public static readonly ShaderTag PixelPerfectUi = new ShaderTag("PixelPerfectUI");
+        public static readonly ShaderTag SpriteRole = new ShaderTag("SpriteRole");
+    }
+
     public static class RoundedUiExtensions  {
 #if UNITY_EDITOR
         [MenuItem("GameObject/UI/Playtime Painter/Rounded UI Graphic", false, 0)]

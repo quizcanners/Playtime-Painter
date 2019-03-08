@@ -479,7 +479,7 @@ namespace QuizCannersUtilities {
         {
             if (std == null) return;
 
-            UnityHelperFunctions.SendEmail ( "somebody@gmail.com", subject, 
+            UnityUtils.SendEmail ( "somebody@gmail.com", subject, 
                 "{0} {1} Copy this entire email and paste it in the corresponding field on your side to paste it (don't change data before pasting it). {2} {3}{4}{5}".F(note, pegi.EnvironmentNl, pegi.EnvironmentNl,
                 StdStart,  std.Encode().ToString(), StdEnd ) ) ;
         }
@@ -534,7 +534,7 @@ namespace QuizCannersUtilities {
 
             if (icon.Folder.Click("Save {0} to the file".F(name))) {
                 std.SaveToAssets(folderName, name);
-                UnityHelperFunctions.RefreshAssetDatabase();
+                UnityUtils.RefreshAssetDatabase();
             }
 
             if (LoadOnDrop(out data))
@@ -634,7 +634,7 @@ namespace QuizCannersUtilities {
 #if PEGI
             UnityEngine.Object myType = null;
             if (pegi.edit(ref myType)) {
-                txt = FileLoaderUtils.LoadTextAsset(myType);
+                txt = FileLoadUtils.LoadTextAsset(myType);
                 ("Loaded " + myType.name).showNotificationIn3D_Views();
 
                 return true;
@@ -682,25 +682,25 @@ namespace QuizCannersUtilities {
         public static T LoadFromAssets<T>(this T s, string fullPath, string name) where T:IStd, new() {
 			if (s == null)
 				s = new T ();
-            s.Decode(FileLoaderUtils.LoadStoryFromAssets(fullPath, name));
+            s.Decode(FileLoadUtils.LoadStoryFromAssets(fullPath, name));
 			return s;
         }
 
         public static IStd SaveToAssets(this IStd s, string path, string filename)
         {
-            FileSaverUtils.Save_ToAssets_ByRelativePath(path, filename, s.Encode().ToString());
+            FileSaveUtils.SaveBytesToAssetsByRelativePath(path, filename, s.Encode().ToString());
             return s;
         }
 
         public static IStd SaveToPersistentPath(this IStd s, string path, string filename)
         {
-            FileSaverUtils.SaveToPersistentPath(path, filename, s.Encode().ToString());
+            FileSaveUtils.SaveJsonToPersistentPath(path, filename, s.Encode().ToString());
             return s;
         }
 
         public static bool LoadFromPersistentPath(this IStd s, string path, string filename)
         {
-            var data = FileLoaderUtils.LoadFromPersistentPath(path, filename);
+            var data = FileLoadUtils.LoadFromPersistentPath(path, filename);
             if (data != null)
             {
                 s.Decode(data);
@@ -711,7 +711,7 @@ namespace QuizCannersUtilities {
 
         public static IStd SaveToResources(this IStd s, string resFolderPath, string insideResPath, string filename)
         {
-            FileSaverUtils.SaveToResources(resFolderPath, insideResPath, filename, s.Encode().ToString());
+            FileSaveUtils.SaveBytesToResources(resFolderPath, insideResPath, filename, s.Encode().ToString());
             return s;
         }
 
@@ -735,7 +735,7 @@ namespace QuizCannersUtilities {
 		public static T LoadFromResources<T>(this T s, string subFolder, string file)where T:IStd, new() {
 			if (s == null)
 				s = new T ();
-			s.Decode(FileLoaderUtils.LoadStoryFromResource(subFolder, file));
+			s.Decode(FileLoadUtils.LoadStoryFromResource(subFolder, file));
 			return s;
 		}
 

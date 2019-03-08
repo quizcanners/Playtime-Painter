@@ -25,9 +25,9 @@ namespace Playtime_Painter {
         public BlitMode SetKeyword(ImageMeta id) {
 
             foreach (var bs in AllModes)
-                UnityHelperFunctions.SetShaderKeyword(bs.ShaderKeyword(id), false);
+                UnityUtils.SetShaderKeyword(bs.ShaderKeyword(id), false);
 
-            UnityHelperFunctions.SetShaderKeyword(ShaderKeyword(id), true);
+            UnityUtils.SetShaderKeyword(ShaderKeyword(id), true);
 
             return this;
 
@@ -40,7 +40,7 @@ namespace Playtime_Painter {
         public virtual void SetGlobalShaderParameters()
         {
             Shader.DisableKeyword("PREVIEW_SAMPLING_DISPLACEMENT");
-            UnityHelperFunctions.ToggleShaderKeywords(TexMGMTdata.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
+            UnityUtils.ToggleShaderKeywords(TexMGMTdata.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
         }
 
         protected BlitMode(int ind)
@@ -529,6 +529,7 @@ namespace Playtime_Painter {
             ("Will create a camera that will serve as a projector. This mode is similar to Copy, but instead of UV space will try to " +
              "use projector matrix to get uvs. Only World Space brushes can use Projector. Currently only sphere brush is a world space brush. ");
 
+#if PEGI
         public override bool Inspect()
         {
             var changed = false;
@@ -536,7 +537,7 @@ namespace Playtime_Painter {
             if (!DepthProjectorCamera.Instance)
             {
                 if ("Create Projector Camera".Click().nl())
-                    UnityHelperFunctions.Instantiate<DepthProjectorCamera>();
+                    UnityUtils.Instantiate<DepthProjectorCamera>();
             }
             else
             {
@@ -551,8 +552,10 @@ namespace Playtime_Painter {
             return changed;
         }
 
+#endif
+
         public BlitModeProjector(int ind) : base(ind)  { }
     }
-    #endregion
+#endregion
 
 }

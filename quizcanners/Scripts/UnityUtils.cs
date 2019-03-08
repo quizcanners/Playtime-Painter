@@ -7,13 +7,14 @@ using System.Collections.Generic;
 using System.Linq;
 using PlayerAndEditorGUI;
 using UnityEngine.Networking;
+using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 namespace QuizCannersUtilities {
 
-    public static class UnityHelperFunctions {
+    public static class UnityUtils {
 
         #region External Communications
         
@@ -50,22 +51,22 @@ namespace QuizCannersUtilities {
 
         #region Raycasts
 
-        public static bool RaycastGotHit(this Vector3 from, Vector3 vpos)
+        public static bool RayCastGotHit(this Vector3 from, Vector3 vPos)
         {
-            var ray = from - vpos;
-            return Physics.Raycast(new Ray(vpos, ray), ray.magnitude);
+            var ray = from - vPos;
+            return Physics.Raycast(new Ray(vPos, ray), ray.magnitude);
         }
 
-        public static bool RaycastGotHit(this Vector3 from, Vector3 vpos, float safeGap)
+        public static bool RayCastGotHit(this Vector3 from, Vector3 vPos, float safeGap)
         {
-            var ray = vpos - from;
+            var ray = vPos - from;
 
             var magnitude = ray.magnitude - safeGap;
 
-            return (magnitude <= 0) ? false : Physics.Raycast(new Ray(from, ray), magnitude);
+            return (!(magnitude <= 0)) && Physics.Raycast(new Ray(@from, ray), magnitude);
         }
 
-        public static bool RaycastHit(this Vector3 from, Vector3 to, out RaycastHit hit)
+        public static bool RayCastHit(this Vector3 from, Vector3 to, out RaycastHit hit)
         {
             var ray = to - from;
             return Physics.Raycast(new Ray(from, ray), out hit);
@@ -75,10 +76,10 @@ namespace QuizCannersUtilities {
 
         #region Gizmos
 
-        public static void LineTo(this Vector3 v3a, Vector3 v3b, Color col)
+        public static void LineTo(this Vector3 v3A, Vector3 v3B, Color col)
         {
             Gizmos.color = col;
-            Gizmos.DrawLine(v3a, v3b);
+            Gizmos.DrawLine(v3A, v3B);
         }
 
         #endregion
@@ -114,7 +115,7 @@ namespace QuizCannersUtilities {
             return go.AddComponent<T>();
         }
 
-        public static GameObject TryGetGameObject_Obj(this object obj) {
+        public static GameObject TryGetGameObjectFromObj(this object obj) {
             var go = obj as GameObject;
 
             if (go) return go; 
@@ -136,29 +137,15 @@ namespace QuizCannersUtilities {
             if (pgi != null)
                 return pgi;
 
-            var go = obj.TryGetGameObject_Obj();
+            var go = obj.TryGetGameObjectFromObj();
 
              return go ? go.TryGet<T>() : null;
         }
 
-        public static T TryGet_fromMb<T>(this MonoBehaviour mb) where T : class => mb ? mb.gameObject.TryGet<T>() : null;
+        public static T TryGetFromMb<T>(this MonoBehaviour mb) where T : class => mb ? mb.gameObject.TryGet<T>() : null;
 
-        public static T TryGet_fromTf<T>(this Transform tf) where T:class => tf ? tf.gameObject.TryGet<T>() : null;
-
-        public static T TryGet<T>(this GameObject go) where T:class {
-
-            if (!go)
-                return null;
-
-            foreach (var m in go.GetComponents<Component>())
-            {
-                var p = m as T;
-                if (p != null)
-                    return p;
-            }
-            return null;
-        }
-
+        public static T TryGet<T>(this GameObject go) where T:class => go ? go.GetComponents<Component>().OfType<T>().FirstOrDefault() : null;
+        
         public static bool IsNullOrDestroyed_Obj(this object obj) {
             if (obj as UnityEngine.Object)
                 return false;
@@ -262,7 +249,7 @@ namespace QuizCannersUtilities {
 
             #if UNITY_EDITOR
             var tmp = Selection.objects;
-            return !tmp.IsNullOrEmpty()  ? tmp[0].TryGetGameObject_Obj() : null;
+            return !tmp.IsNullOrEmpty()  ? tmp[0].TryGetGameObjectFromObj() : null;
             #else 
             return null;
             #endif
@@ -296,9 +283,9 @@ namespace QuizCannersUtilities {
         public static MeshCollider ForceMeshCollider(GameObject go)
         {
 
-            var collis = go.GetComponents<Collider>();
+            var colliders = go.GetComponents<Collider>();
 
-            foreach (var c in collis)
+            foreach (var c in colliders)
                 if (c.GetType() != typeof(MeshCollider)) c.enabled = false;
 
             var mc = go.GetComponent<MeshCollider>();
@@ -340,7 +327,7 @@ namespace QuizCannersUtilities {
             
         }
 
-        public static bool IsFocused(this GameObject go)
+        public static bool IsFocused(this Object obj)
         {
 
             #if UNITY_EDITOR
@@ -348,7 +335,7 @@ namespace QuizCannersUtilities {
             if (tmp.IsNullOrEmpty() || !tmp[0])
                 return false;
 
-            return (tmp[0] is GameObject) && (GameObject)tmp[0] == go;
+            return tmp[0] == obj;
             #else
             return false;
             #endif
@@ -366,7 +353,7 @@ namespace QuizCannersUtilities {
             return co;
         }
 
-        public static void DestroyWhatever_UObj(this UnityEngine.Object obj)
+        public static void DestroyWhateverUnityObject(this UnityEngine.Object obj)
         {
             if (!obj) return;
             
@@ -376,11 +363,11 @@ namespace QuizCannersUtilities {
                 UnityEngine.Object.DestroyImmediate(obj);
         }
 
-        public static void DestroyWhatever(this Texture tex) => tex.DestroyWhatever_UObj();
+        public static void DestroyWhatever(this Texture tex) => tex.DestroyWhateverUnityObject();
 
-        public static void DestroyWhatever(this GameObject go) => go.DestroyWhatever_UObj();
+        public static void DestroyWhatever(this GameObject go) => go.DestroyWhateverUnityObject();
 
-        public static void DestroyWhatever_Component(this Component cmp) => cmp.DestroyWhatever_UObj();
+        public static void DestroyWhateverComponent(this Component cmp) => cmp.DestroyWhateverUnityObject();
         
         public static void SetActiveTo(this GameObject go, bool setTo)
         {
@@ -395,28 +382,10 @@ namespace QuizCannersUtilities {
                 c.enabled = setTo;
         }
 
-        public static bool HasParameter(this Animator animator, string paramName)
-        {
-            if (!animator) return false;
-            
-            foreach (var param in animator.parameters) 
-                if (param.name.SameAs(paramName))
-                    return true;
-            
-            return false;
-        }
-
-        public static bool HasParameter(this Animator animator, string paramName, AnimatorControllerParameterType type)
-        {
-            if (!animator) return false;
-            
-            foreach (var param in animator.parameters)
-                if (param.name.SameAs(paramName) && param.type == type)
-                    return true;
-                
-            return false;
-        }
-
+        public static bool HasParameter(this Animator animator, string paramName) => animator && animator.parameters.Any(param => param.name.SameAs(paramName));
+        
+        public static bool HasParameter(this Animator animator, string paramName, AnimatorControllerParameterType type) => animator && animator.parameters.Any(param => param.name.SameAs(paramName) && param.type == type);
+        
         #endregion
 
         #region Unity Editor MGMT
@@ -447,13 +416,13 @@ namespace QuizCannersUtilities {
         public static bool GetDefine(this string define)
         {
 
-#if UNITY_EDITOR
-            var buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
-            var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
-            return defines.Contains(define);
-#else
-        return true;
-#endif
+            #if UNITY_EDITOR
+                var buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
+                var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
+                return defines.Contains(define);
+            #else
+                return true;
+            #endif
         }
 
         public static void SetDefine(this string val, bool to) {
@@ -528,10 +497,10 @@ namespace QuizCannersUtilities {
             return obj;
         }
 
-        public static void FocusOn(UnityEngine.Object go)
+        public static void FocusOn(Object go)
         {
         #if UNITY_EDITOR
-            var tmp = new UnityEngine.Object[1];
+            var tmp = new Object[1];
             tmp[0] = go;
             Selection.objects = tmp;
         #endif
@@ -558,20 +527,21 @@ namespace QuizCannersUtilities {
             #endif
         }
         
-        #if UNITY_EDITOR
+       
         public static void FocusOnGame()
         {
-
+#if UNITY_EDITOR
             var assembly = typeof(EditorWindow).Assembly;
             var type = assembly.GetType("UnityEditor.GameView");
             var gameView = EditorWindow.GetWindow(type);
             gameView.Focus();
-
+#endif
 
         }
 
         public static void RenamingLayer(int index, string name)
         {
+#if UNITY_EDITOR
             if (Application.isPlaying) return;
 
             var tagManager = new SerializedObject(AssetDatabase.LoadAllAssetsAtPath("ProjectSettings/TagManager.asset")[0]);
@@ -592,8 +562,9 @@ namespace QuizCannersUtilities {
             }
 
             tagManager.ApplyModifiedProperties();
+#endif
         }
-        #endif
+
         #endregion
 
         #region Assets Management
@@ -665,17 +636,17 @@ namespace QuizCannersUtilities {
 
             folderName = Path.Combine("Assets",folderName); //.AddPreSlashIfNotEmpty());
             var name = obj.name;
-            var fullpath =
+            var fullPath =
             #if UNITY_EDITOR
             AssetDatabase.GenerateUniqueAssetPath(Path.Combine(folderName, name) + extension);
             #else
             Path.Combine(folderName,  name) + extension;
             #endif
-            name = fullpath.Substring(folderName.Length);
+            name = fullPath.Substring(folderName.Length);
             name = name.Substring(0, name.Length - extension.Length);
             obj.name = name;
 
-            return fullpath;
+            return fullPath;
         }
 
         public static string GetAssetFolder(this UnityEngine.Object obj)
@@ -753,8 +724,8 @@ namespace QuizCannersUtilities {
 
                 foreach (var file in fileInfo)
                 {
-                    var name = file.Name.Substring(0, file.Name.Length - FileSaverUtils.FileType.Length);
-                    if (file.Extension == FileSaverUtils.FileType && !l.Contains(name))
+                    var name = file.Name.Substring(0, file.Name.Length - FileSaveUtils.bytesFileType.Length);
+                    if (file.Extension == FileSaveUtils.bytesFileType && !l.Contains(name))
                         l.Add(name);
                 }
 
@@ -784,7 +755,7 @@ namespace QuizCannersUtilities {
 
         public static T DuplicateScriptableObject<T>(this T el) where T : ScriptableObject
         {
-            T added = null;
+            T added;
 
 
         #if UNITY_EDITOR
@@ -816,26 +787,26 @@ namespace QuizCannersUtilities {
             return added;
         }
 
-        public static T CreateAsset_SO<T>(this List<T> objs, string path, string name) where T : ScriptableObject => CreateAsset_SO<T, T>(path, name, objs);
+        public static T CreateScriptableObjectAsset<T>(this List<T> objs, string path, string name) where T : ScriptableObject => CreateScriptableObjectAsset<T, T>(path, name, objs);
 
         #if UNITY_EDITOR
         public static void DuplicateResource(string assetFolder, string insideAssetFolder, string oldName, string newName)
         {
             var path = Path.Combine("Assets", assetFolder, "Resources", insideAssetFolder);
-            AssetDatabase.CopyAsset(Path.Combine(path, oldName) + FileSaverUtils.FileType, Path.Combine(path, newName) + FileSaverUtils.FileType);
+            AssetDatabase.CopyAsset(Path.Combine(path, oldName) + FileSaveUtils.bytesFileType, Path.Combine(path, newName) + FileSaveUtils.bytesFileType);
         }
         #endif
 
-        public static T CreateAsset_SO<T>(this List<T> list, string path, string name, Type t) where T : ScriptableObject {
+        public static T CreateScriptableObjectAsset<T>(this List<T> list, string path, string name, Type t) where T : ScriptableObject {
 
-            var obj = CreateAsset_SO<T,T>(path, name);
+            var obj = CreateScriptableObjectAsset<T,T>(path, name);
 
             list.Add(obj);
 
             return obj;
         }
 
-        public static T CreateAsset_SO<T, TG>(string path, string name, List<TG> optionalList = null) where T : TG where TG : ScriptableObject
+        public static T CreateScriptableObjectAsset<T, TG>(string path, string name, List<TG> optionalList = null) where T : TG where TG : ScriptableObject
         {
             var asset = ScriptableObject.CreateInstance<T>();
 
@@ -900,34 +871,6 @@ namespace QuizCannersUtilities {
             return asset;
         }
 
-        public static void DeleteResource(string assetFolder, string insideAssetFolderAndName)
-        {
-        #if UNITY_EDITOR
-            try
-            {
-                var path = Path.Combine("Assets", assetFolder, "Resources", insideAssetFolderAndName) + FileSaverUtils.FileType;
-                AssetDatabase.DeleteAsset(path);
-            }
-            catch (Exception e)
-            {
-                Debug.Log("Oh No " + e.ToString());
-            }
-        #endif
-        }
-
-        public static void SaveAsset(this UnityEngine.Object obj, string folder, string extension, bool refreshAfter = false)
-        {
-            #if UNITY_EDITOR
-            var fullPath = Path.Combine(Application.dataPath, folder);
-            Directory.CreateDirectory(fullPath);
-
-            AssetDatabase.CreateAsset(obj, obj.SetUniqueObjectName(folder, extension));
-
-            if (refreshAfter)
-                AssetDatabase.Refresh();
-
-            #endif
-        }
 
         #endregion
 
@@ -940,9 +883,9 @@ namespace QuizCannersUtilities {
         public static int NumericKeyDown(this Event e)
         {
 
-            if ((Application.isPlaying) && (!Input.anyKeyDown)) return -1;
+            if (Application.isPlaying && (!Input.anyKeyDown)) return -1;
 
-            if ((!Application.isPlaying) && (e.type != EventType.KeyDown)) return -1;
+            if (!Application.isPlaying && (e.type != EventType.KeyDown)) return -1;
 
             if (KeyCode.Alpha0.IsDown()) return 0;
             if (KeyCode.Alpha1.IsDown()) return 1;
@@ -960,7 +903,7 @@ namespace QuizCannersUtilities {
 
         public static bool IsDown(this KeyCode k)
         {
-            bool down = false;
+            var down = false;
 #if UNITY_EDITOR
             down |= (Event.current != null && Event.current.isKey && Event.current.type == EventType.KeyDown && Event.current.keyCode == k);
             if (Application.isPlaying)
@@ -973,7 +916,7 @@ namespace QuizCannersUtilities {
         public static bool IsUp(this KeyCode k)
         {
 
-            bool up = false;
+            var up = false;
 #if UNITY_EDITOR
             up |= (Event.current != null && Event.current.isKey && Event.current.type == EventType.KeyUp && Event.current.keyCode == k);
             if (Application.isPlaying)
@@ -983,14 +926,6 @@ namespace QuizCannersUtilities {
             return up;
         }
 
-        public static void Focus(this GameObject go)
-        {
-#if UNITY_EDITOR
-            GameObject[] tmp = new GameObject[1];
-            tmp[0] = go;
-            Selection.objects = tmp;
-#endif
-        }
         #endregion
 
         #region Spin Around
@@ -1052,9 +987,7 @@ namespace QuizCannersUtilities {
 
         #region Textures
         #region Material MGMT
-        public static bool HasTag(this Material mat, string tag) => mat && !mat.GetTag(tag, false, null).IsNullOrEmpty();
-        
-        public static string TagValue(this Material mat, string tag) => mat ? mat.GetTag(tag, false, null) : null;
+        public static bool HasTag(this Material mat, string tag, bool searchFallbacks = false, string defaultValue = "") => mat && !mat.GetTag(tag, searchFallbacks, defaultValue).IsNullOrEmpty();
         
         public static Material MaterialWhatever(this Renderer renderer) =>
                 !renderer ? null : (Application.isPlaying ? renderer.material : renderer.sharedMaterial);
@@ -1916,9 +1849,9 @@ namespace QuizCannersUtilities {
     
     public class ChillLogger : IGotDisplayName
     {
-        private bool _logged = false;
-        private bool _disabled = false;
-        private float _lastLogged = 0;
+        private bool _logged;
+        private bool _disabled;
+        private float _lastLogged;
         private int _calls;
         private readonly string message = "error";
 

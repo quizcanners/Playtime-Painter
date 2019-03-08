@@ -4,10 +4,11 @@ using UnityEngine;
 using System;
 using UnityEngine.UI;
 using PlayerAndEditorGUI;
+using QuizCannersUtilities;
 
 namespace QuizCannersUtilities {
 
-    public static class MyMath {
+    public static class QcMath {
 
         #region Checks
         public static bool IsNaN(this Vector3 q)
@@ -205,30 +206,30 @@ namespace QuizCannersUtilities {
             return Color.LerpUnclamped(from, to, portion);
         }
 
-        public static bool isLerpingAlphaBySpeed<T>(this List<T> imgs, float alpha, float speed) where T : Graphic
+        public static bool IsLerpingAlphaBySpeed<T>(this List<T> imgs, float alpha, float speed) where T : Graphic
         {
-            bool changing = false;
+     
+            if (imgs.IsNullOrEmpty()) return false;
 
-            if (!imgs.IsNullOrEmpty())
-                foreach (var i in imgs)
-                    changing |= i.isLerpingAlphaBySpeed(alpha, speed);
-
-
+            var changing = false;
+            
+            foreach (var i in imgs)
+                changing |= i.IsLerpingAlphaBySpeed(alpha, speed);
+            
             return changing;
         }
 
-        public static bool isLerpingAlphaBySpeed<T>(this T img, float alpha, float speed) where T : Graphic
+        public static bool IsLerpingAlphaBySpeed<T>(this T img, float alpha, float speed) where T : Graphic
         {
-            bool changing = false;
+            if (!img) return false;
 
-            if (img)
-            {
-                var col = img.color;
-                col.a = LerpBySpeed(col.a, alpha, speed);
+            var changing = false;
 
-                img.color = col;
-                changing |= col.a != alpha;
-            }
+            var col = img.color;
+            col.a = LerpBySpeed(col.a, alpha, speed);
+
+            img.color = col;
+            changing |= col.a != alpha;
 
             return changing;
         }
@@ -865,4 +866,100 @@ namespace QuizCannersUtilities {
         #endif
         #endregion
     }
+
+
+
+}
+
+namespace PlayerAndEditorGUI
+{
+#if PEGI
+    public static partial class pegi
+    {
+
+        #region Custom Structs
+
+        public static bool edit(ref MyIntVec2 val)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.edit(ref val);
+#endif
+
+            return edit(ref val.x) || edit(ref val.y);
+        }
+
+        public static bool edit(ref MyIntVec2 val, int min, int max)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.edit(ref val, min, max);
+#endif
+
+            return edit(ref val.x, min, max) || edit(ref val.y, min, max);
+
+        }
+
+        public static bool edit(ref MyIntVec2 val, int min, MyIntVec2 max)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.edit(ref val, min, max);
+#endif
+
+            return edit(ref val.x, min, max.x) || edit(ref val.y, min, max.y);
+        }
+
+        public static bool edit(this string label, ref MyIntVec2 val)
+        {
+            write(label);
+            nl();
+            return edit(ref val);
+        }
+
+        public static bool edit(this string label, int width, ref MyIntVec2 val)
+        {
+            write(label, width);
+            nl();
+            return edit(ref val);
+        }
+
+        public static bool edit(ref LinearColor col)
+        {
+            var c = col.ToGamma();
+            if (edit(ref c))
+            {
+                col.From(c);
+                return true;
+            }
+            return false;
+        }
+
+        public static bool edit(this string label, ref LinearColor col)
+        {
+            write(label);
+            return edit(ref col);
+        }
+
+        public static bool edit(this string label, int width, ref MyIntVec2 val, int min, int max)
+        {
+            write(label, width);
+            nl();
+            return edit(ref val, min, max);
+        }
+
+        public static bool edit(this string label, int width, ref MyIntVec2 val, int min, MyIntVec2 max)
+        {
+            write(label, width);
+            nl();
+            return edit(ref val, min, max);
+        }
+
+        #endregion
+
+    }
+#endif
 }

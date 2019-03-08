@@ -26,6 +26,7 @@ namespace Playtime_Painter {
        // public bool dirtyUvs;
         public int vertexCount;
 
+        public bool firstBuildRun;
         public bool gotBoneWeights;
         public int subMeshCount;
         public int uv2DistributeRow;
@@ -43,8 +44,6 @@ namespace Playtime_Painter {
 
         public List<Triangle> triangles = new List<Triangle>();
         
-        public readonly CountlessBool hasFrame = new CountlessBool();
-
         public Mesh actualMesh;
 
         public float averageSize;
@@ -242,6 +241,39 @@ namespace Playtime_Painter {
 
             return changed;
         }
+        
+        public void DeleteUv(Vertex uv)
+        {
+            var vrt = uv.meshPoint;
+
+            NullPointedSelected();
+
+            for (var i = 0; i < triangles.Count; i++)
+            {
+                if (!triangles[i].Includes(uv))
+                    continue;
+
+                triangles.RemoveAt(i);
+                i--;
+            }
+
+            if (IsInTriangleSet(uv))
+                triVertices = 0;
+            
+            vrt.vertices.Remove(uv);
+            
+            if (vrt.vertices.Count == 0)
+                meshPoints.Remove(vrt);
+            
+            Dirty = true;
+        }
+
+        public void DeleteLine(LineData ld)
+        {
+            NullPointedSelected();
+
+            RemoveLine(ld);
+        }
 
         #endregion
 
@@ -345,6 +377,8 @@ namespace Playtime_Painter {
         public LineData lastFramePointedLine;
 
         public Triangle lastFramePointedTriangle;
+
+        public MeshPoint PointedVertex => pointedUv?.meshPoint;
 
         public MeshPoint GetClosestToPos(Vector3 pos)
         {
@@ -469,8 +503,107 @@ namespace Playtime_Painter {
             }
 
         }
+
+        public void AddToTrisSet(Vertex nuv)
+        {
+
+            triangleSet[triVertices] = nuv;
+            triVertices++;
+
+            if (triVertices == 3)
+                foreach (var t in triangles)
+                    if (t.IsSamePoints(triangleSet))
+                    {
+                        t.Set(triangleSet);
+                        Dirty = true;
+                        triVertices = 0;
+                        return;
+                    }
+
+
+            if (triVertices < 3) return;
+
+            var td = new Triangle(triangleSet);
+
+            triangles.Add(td);
+
+            if (!EditorInputManager.Control)
+            {
+                MakeTriangleVertUnique(td, triangleSet[0]);
+                MakeTriangleVertUnique(td, triangleSet[1]);
+                MakeTriangleVertUnique(td, triangleSet[2]);
+            }
+
+            triVertices = 0;
+            Dirty = true;
+        }
+
+        public void SwapLine(MeshPoint a, MeshPoint b)
+        {
+            NullPointedSelected();
+
+            var trs = new Triangle[2];
+            var cnt = 0;
+            foreach (var tmp in triangles)
+            {
+                if (!tmp.Includes(a, b)) continue;
+
+                if (cnt == 2) return;
+                trs[cnt] = tmp;
+                cnt++;
+            }
+            if (cnt != 2) return;
+
+            var nol0 = trs[0].GetNotOneOf(a, b);
+            var nol1 = trs[1].GetNotOneOf(a, b);
+
+            trs[0].Replace(trs[0].GetByVertex(a), nol1);
+            trs[1].Replace(trs[1].GetByVertex(b), nol0);
+
+        }
+
+
+        public void MakeTriangleVertUnique(Triangle tris, Vertex pnt)
+        {
+
+            if (pnt.triangles.Count == 1) return;
+
+            var nuv = new Vertex(pnt.meshPoint, pnt);
+
+            tris.Replace(pnt, nuv);
+
+            Dirty = true;
+
+        }
+
+        public bool IsInTriangleSet(MeshPoint vertex)
+        {
+            for (var i = 0; i < triVertices; i++)
+                if (triangleSet[i].meshPoint == vertex) return true;
+            return false;
+        }
+
+        public bool IsInTriangleSet(Vertex uv)
+        {
+            for (var i = 0; i < triVertices; i++)
+                if (triangleSet[i] == uv) return true;
+            return false;
+        }
+
+        public void NullPointedSelected()
+        {
+            pointedUv = null;
+            pointedLine = null;
+            pointedTriangle = null;
+            selectedUv = null;
+            selectedLine = null;
+            selectedTriangle = null;
+
+            triVertices = 0;
+        }
+
         #endregion
-        
+
         #region Points MGMT
 
         public void MergeWith(PlaytimePainter other) => MergeWith(new EditableMesh(other), other);

@@ -824,7 +824,7 @@ namespace Playtime_Painter {
             }
 #endif
 
-            ImgMeta.Apply_ToGPU();
+            ImgMeta.ApplyToTexture2D();
 
         }
 
@@ -1604,7 +1604,7 @@ namespace Playtime_Painter {
         public static void Open_Discord() => Application.OpenURL(pegi.PopUpService.DiscordServer);
         
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Send an Email")]
-        public static void Open_Email() => UnityHelperFunctions.SendEmail(pegi.PopUpService.SupportEmail, "About your Playtime Painter",
+        public static void Open_Email() => UnityUtils.SendEmail(pegi.PopUpService.SupportEmail, "About your Playtime Painter",
             "Hello Yuri, we need to talk. I purchased your asset and expect an excellent quality, but ...");
 #endif
 
@@ -1736,7 +1736,7 @@ namespace Playtime_Painter {
 
             }
 
-            if ((this == TexMgmt.autodisabledBufferTarget) && (!LockTextureEditing) && (!UnityHelperFunctions.ApplicationIsAboutToEnterPlayMode()))
+            if ((this == TexMgmt.autodisabledBufferTarget) && (!LockTextureEditing) && (!UnityUtils.ApplicationIsAboutToEnterPlayMode()))
                 ReEnableRenderTexture();
 
             
@@ -1746,7 +1746,7 @@ namespace Playtime_Painter {
         {
 
 #if UNITY_EDITOR
-            UnityHelperFunctions.FocusOn(gameObject);
+            UnityUtils.FocusOn(gameObject);
 #endif
             selectedInPlaytime = this;
             Update_Brush_Parameters_For_Preview_Shader();
@@ -1838,9 +1838,9 @@ namespace Playtime_Painter {
                         if (c.GetType() != typeof(PlaytimePainter))
                             UnityEditorInternal.InternalEditorUtility.SetIsInspectorExpanded(c, false);
 
-                    UnityHelperFunctions.FocusOn(null);
+                    UnityUtils.FocusOn(null);
                     PainterCamera.refocusOnThis = gameObject;
-                    UnityHelperFunctions.HideUnityTool();
+                    UnityUtils.HideUnityTool();
                     #endif
 
                     CheckPreviewShader();
@@ -1866,7 +1866,7 @@ namespace Playtime_Painter {
                     MeshManager.Inst.DisconnectMesh();
                     SetOriginalShaderOnThis();
                     UpdateOrSetTexTarget(TexTarget.Texture2D);
-                    UnityHelperFunctions.RestoreUnityTool();
+                    UnityUtils.RestoreUnityTool();
                 }
 
                 pegi.Lock_UnlockWindowClick(gameObject);
@@ -2422,9 +2422,9 @@ namespace Playtime_Painter {
 
 #if UNITY_EDITOR
                                     if (id.lockEditing)
-                                        UnityHelperFunctions.RestoreUnityTool();
+                                        UnityUtils.RestoreUnityTool();
                                     else
-                                        UnityHelperFunctions.HideUnityTool();
+                                        UnityUtils.HideUnityTool();
 #endif
                                 }
                             }

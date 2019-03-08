@@ -32,9 +32,9 @@ namespace QuizCannersUtilities
             StopWatch.Start();
         }
 
-        public static void TimerStart(this string Label)
+        public static void TimerStart(this string label)
         {
-            _timerStartLabel = Label;
+            _timerStartLabel = label;
             StopWatch.Start();
         }
 
@@ -202,7 +202,7 @@ namespace QuizCannersUtilities
 
         }
 
-        static void AssignUniqueNameIn<T>(this T el, List<T> list)
+        private static void AssignUniqueNameIn<T>(this T el, IReadOnlyCollection<T> list)
         {
 #if PEGI
             var named = el as IGotName;
@@ -219,7 +219,7 @@ namespace QuizCannersUtilities
                 foreach (var e in list)
                 {
                     var other = e as IGotName;
-                    if ((other == null) || (e.Equals(el)) || (!tmpName.Equals(other.NameForPEGI)))
+                    if (other == null || e.Equals(el) || !tmpName.Equals(other.NameForPEGI))
                         continue;
                     
                     duplicate = true;
@@ -232,31 +232,6 @@ namespace QuizCannersUtilities
             named.NameForPEGI = tmpName;
 #endif
         }
-
-        #region Casts
-        public static bool TryCast<T>(this object obj, out T result)
-        {
-            if (obj != null)
-            {
-                if (obj is T)
-                {
-                    result = (T)obj;
-                    return true;
-                }
-            }
-
-            result = default(T);
-            return false;
-        }
-
-        public static T TryCast<T>(this object obj)
-        {
-            if (obj is T)
-                return (T)obj;
-
-            return default(T);
-        }
-        #endregion
 
         #region List Management
         
@@ -301,8 +276,6 @@ namespace QuizCannersUtilities
             return ret;
         }
 
-        public static string CountToString(this IList list) => list == null ? "Null list" : list.Count.ToString();
-        
         public static string GetUniqueName<T>(this string s, List<T> list)
         {
 
@@ -332,30 +305,17 @@ namespace QuizCannersUtilities
             return mod;
         }
 
-        public static int TotalCount(this List<int>[] lists) {
-            int total = 0;
-
-            foreach (var e in lists)
-                total += e.Count;
-
-            return total;
-        }
-
-        public static T GetRandom<T>(this List<T> list) {
-            if (list.Count == 0)
-                return default(T);
-
-            return list[UnityEngine.Random.Range(0, list.Count)];
-        }
-
+        public static int TotalCount(this List<int>[] lists) => lists.Sum(e => e.Count);
+        
+        public static T GetRandom<T>(this List<T> list) => list.Count == 0 ? default(T) : list[UnityEngine.Random.Range(0, list.Count)];
+        
         public static void ForceSet<T>(this List<T> list, int index, T val) {
-            if (list != null && index >= 0) {
-                while (list.Count <= index)
-                    list.Add(default(T));
+            if (list == null || index < 0) return;
 
-                list[index] = val;
-            }
+            while (list.Count <= index)
+                list.Add(default(T));
 
+            list[index] = val;
         }
 
         public static bool CanAdd<T>(this List<T> list, ref object obj, out T conv, bool onlyIfNew = true) {
@@ -410,21 +370,18 @@ namespace QuizCannersUtilities
 
         public static bool AddIfNew<T>(this List<T> list, T val)
         {
-            if (!list.Contains(val))
-            {
-                list.Add(val);
-                return true;
-            }
-            return false;
+            if (list.Contains(val)) return false;
+
+            list.Add(val);
+            return true;
         }
 
         public static bool TryRemoveTill<T>(this List<T> list, int maxCountLeft) {
-            if (list != null && list.Count > maxCountLeft) {
-                list.RemoveRange(maxCountLeft, list.Count - maxCountLeft);
-                return true;
-            }
+            if (list == null || list.Count <= maxCountLeft) return false;
 
-            return false;
+            list.RemoveRange(maxCountLeft, list.Count - maxCountLeft);
+            return true;
+
         }
 
         public static T TryGetLast<T>(this IList<T> list)
@@ -464,7 +421,7 @@ namespace QuizCannersUtilities
 
         public static int TryGetIndex<T>(this List<T> list, T obj)
         {
-            int ind = -1;
+            var ind = -1;
             if (list != null && obj != null)
                 ind = list.IndexOf(obj);
 
@@ -472,14 +429,15 @@ namespace QuizCannersUtilities
         }
 
         public static int TryGetIndexOrAdd<T>(this List<T> list, T obj) {
-            int ind = -1;
-            if (list != null && obj != null) {
-                ind = list.IndexOf(obj);
-                if (ind == -1) {
-                    list.Add(obj);
-                    ind = list.Count - 1;
-                }
-            }
+            var ind = -1;
+            if (list == null || obj == null) return ind;
+
+            ind = list.IndexOf(obj);
+
+            if (ind != -1) return ind;
+
+            list.Add(obj);
+            ind = list.Count - 1;
             return ind;
         }
 
@@ -526,15 +484,15 @@ namespace QuizCannersUtilities
         }
         
         public static void Move<T>(this List<T> list, int oldIndex, int newIndex) {
-            if (oldIndex != newIndex) {
-                T item = list[oldIndex];
-                list.RemoveAt(oldIndex);
-                list.Insert(newIndex, item);
-            }
+            if (oldIndex == newIndex) return;
+
+            var item = list[oldIndex];
+            list.RemoveAt(oldIndex);
+            list.Insert(newIndex, item);
         }
 
         public static void SetFirst<T>(this List<T> list, T value) {
-            for (int i = 0; i < list.Count; i++) 
+            for (var i = 0; i < list.Count; i++) 
                 if (list[i].Equals(value)) {
                     list.Move(i, 0);
                     return;
@@ -548,11 +506,11 @@ namespace QuizCannersUtilities
         public static List<T> RemoveLast<T>(this List<T> list, int count)
         {
 
-            int len = list.Count;
+            var len = list.Count;
 
             count = Mathf.Min(count, len);
 
-            int from = len - count;
+            var from = len - count;
 
             var range = list.GetRange(from, count);
 
@@ -565,7 +523,7 @@ namespace QuizCannersUtilities
         public static T RemoveLast<T>(this List<T> list)
         {
 
-            int index = list.Count - 1;
+            var index = list.Count - 1;
 
             var last = list[index];
 
@@ -578,14 +536,14 @@ namespace QuizCannersUtilities
 
         public static void Swap<T>(this List<T> list, int indexOfFirst)
         {
-            T tmp = list[indexOfFirst];
+            var tmp = list[indexOfFirst];
             list[indexOfFirst] = list[indexOfFirst + 1];
             list[indexOfFirst + 1] = tmp;
         }
 
         public static void Swap<T>(this IList<T> list, int indexA, int indexB)
         {
-            T tmp = list[indexA];
+            var tmp = list[indexA];
             list[indexA] = list[indexB];
             list[indexB] = tmp;
         }
@@ -600,7 +558,7 @@ namespace QuizCannersUtilities
         public static T TryGetLast<T>(this T[] array)
         {
 
-            if (array == null || array.Length == 0)
+            if (array.IsNullOrEmpty())
                 return default(T);
 
             return array[array.Length - 1];
@@ -627,25 +585,23 @@ namespace QuizCannersUtilities
 
         public static T[] GetCopy<T>(this T[] args)
         {
-            T[] temp = new T[args.Length];
+            var temp = new T[args.Length];
             args.CopyTo(temp, 0);
             return temp;
         }
         
         public static void Swap<T>(ref T[] array, int a, int b)
         {
-            if (array != null && a < array.Length && b < array.Length && a != b)
-            {
-                var tmp = array[a];
-                array[a] = array[b];
-                array[b] = tmp;
-            }
+            if (array == null || a >= array.Length || b >= array.Length || a == b) return;
+
+            var tmp = array[a];
+            array[a] = array[b];
+            array[b] = tmp;
         }
         
         public static T[] Resize<T>(this T[] args, int to)
         {
-            T[] temp;
-            temp = new T[to];
+            var temp = new T[to];
             if (args != null)
                 Array.Copy(args, 0, temp, 0, Mathf.Min(to, args.Length));
           
@@ -666,9 +622,9 @@ namespace QuizCannersUtilities
 
         public static void Remove<T>(ref T[] args, int ind)
         {
-            T[] temp = new T[args.Length - 1];
+            var temp = new T[args.Length - 1];
             Array.Copy(args, 0, temp, 0, ind);
-            int count = args.Length - ind - 1;
+            var count = args.Length - ind - 1;
             Array.Copy(args, ind + 1, temp, ind, count);
             args = temp;
         }
@@ -683,7 +639,7 @@ namespace QuizCannersUtilities
             }
             else temp = new T[add];
             args = temp;
-            for (int i = args.Length - add; i < args.Length; i++)
+            for (var i = args.Length - add; i < args.Length; i++)
                 args[i] = Activator.CreateInstance<T>();
         }
 
@@ -697,7 +653,7 @@ namespace QuizCannersUtilities
             }
             else temp = new T[1];
             args = temp;
-            T tmp = new T();
+            var tmp = new T();
             args[temp.Length - 1] = tmp;
             return tmp;
         }
@@ -706,11 +662,11 @@ namespace QuizCannersUtilities
         {
             if ((args != null) && (args.Length > 0))
             {
-                T[] temp = new T[args.Length + 1];
+                var temp = new T[args.Length + 1];
                 Array.Copy(args, 0, temp, 0, ind + 1);
                 if (ind < args.Length - 1)
                 {
-                    int count = args.Length - ind - 1;
+                    var count = args.Length - ind - 1;
                     Array.Copy(args, ind + 1, temp, ind + 2, count);
                 }
                 args = temp;
@@ -720,7 +676,7 @@ namespace QuizCannersUtilities
             {
 
                 args = new T[ind + 1];
-                for (int i = 0; i < ind + 1; i++)
+                for (var i = 0; i < ind + 1; i++)
                     args[i] = new T();
             }
 
@@ -736,11 +692,10 @@ namespace QuizCannersUtilities
         {
             TValue val;
 
-            if (!dict.TryGetValue(key, out val))
-            {
-                val = new TValue();
-                dict.Add(key, val);
-            }
+            if (dict.TryGetValue(key, out val)) return val;
+
+            val = new TValue();
+            dict.Add(key, val);
 
             return val;
         }
@@ -755,13 +710,11 @@ namespace QuizCannersUtilities
         public static bool TryChangeKey(this Dictionary<int, string> dic, int before, int now)
         {
             string value;
-            if ((!dic.TryGetValue(now, out value)) && dic.TryGetValue(before, out value))
-            {
-                dic.Remove(before);
-                dic.Add(now, value);
-                return true;
-            }
-            return false;
+            if ((dic.TryGetValue(now, out value)) || !dic.TryGetValue(before, out value)) return false;
+
+            dic.Remove(before);
+            dic.Add(now, value);
+            return true;
         }
 
         public static bool IsNullOrEmpty<T, TG>(this Dictionary<T, TG> dic) => dic == null || dic.Count == 0;
@@ -832,7 +785,7 @@ namespace QuizCannersUtilities
         private static int LevenshteinDistance(this string s, string t)
         {
 
-            if ((s == null) || (t == null))
+            if (s == null || t == null)
             {
                 UnityEngine.Debug.Log("Compared string is null: " + (s == null) + " " + (t == null));
                 return 999;
@@ -958,113 +911,6 @@ namespace QuizCannersUtilities
 
     }
     
-    public class CallsTracker : IPEGI
-    {
-
-#if PEGI
-
-        private readonly List<Step> _steps = new List<Step>();
-        private Step _previous;
-
-        #region Inspector
-
-        private static CallsTracker _inspected;
-        private int _inspectedStep = -1;
-        public bool Inspect()
-        {
-            var changed = false;
-
-            if (icon.Delete.Click("Delete All", ref changed))
-                _steps.Clear();
-
-            _inspected = this;
-            "Steps".write_List(_steps, ref _inspectedStep);
-
-            return changed;
-        }
-
-        #endregion
-
-        private class Step : IPEGI_ListInspect
-        {
-            public readonly string tag;
-            private int count = 0;
-            public readonly List<int> followedBy = new List<int>();
-
-            public int FollowedBy
-            {
-                get
-                {
-                    if (followedBy.Count > 0)
-                        return followedBy[0];
-                    else
-                        return -1;
-                }
-                set
-                {
-                    followedBy.SetFirst(value);
-                }
-            }
-
-            public Step(string nTag)
-            {
-                tag = nTag;
-            }
-
-            public void Track()
-            {
-                count++;
-            }
-
-            public bool PEGI_inList(IList list, int ind, ref int edited)
-            {
-                "{0}: [{1}] => {2}".F(tag, count,
-                     (followedBy.Count > 0) ?
-                    CallsTracker._inspected._steps[followedBy[0]].tag + (followedBy.Count > 1 ? followedBy.Count.ToString() : "") : "").write();
-
-                if (icon.Refresh.Click())
-                    count = 0;
-
-                return false;
-            }
-        }
-#endif
-
-
-        public void Track(string tag)
-        {
-#if PEGI
-
-            Step exp = null;
-
-            if (_previous != null)
-            {
-                for (var i = 0; i < _previous.followedBy.Count; i++)
-                {
-                    var e = _previous.followedBy[i];
-                    var tmp = _steps.TryGet(e);
-                    if (exp == null || !exp.tag.SameAs(tag)) continue;
-                    exp = tmp;
-                    _previous.FollowedBy = i;
-                    break;
-                }
-            }
-
-            if (_previous != null)
-                _previous.FollowedBy = _steps.Count;
-
-            exp = new Step(tag);
-            _steps.Add(exp);
-
-            exp.Track();
-
-            _previous = exp;
-#endif
-        }
-
-
-    }
-
     public class LoopLock
     {
         private volatile bool _lLock;

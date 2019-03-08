@@ -61,6 +61,7 @@ namespace Playtime_Painter
                 _allTools.Add(new TriangleAtlasTool());
                 _allTools.Add(new TriangleSubMeshTool());
                 _allTools.Add(new VertexShadowTool());
+                _allTools.Add(new VertexUVTool());
 
                 foreach (var t in _allTools)
                     allToolsWithPerMeshData.TryAdd(t as IMeshToolWithPerMeshData);
@@ -83,6 +84,7 @@ namespace Playtime_Painter
                 {
                     MeshManager.previewEdMesh = new EditableMesh();
                     MeshManager.previewEdMesh.Decode(EditedMesh.Encode().ToString());
+                    Debug.Log("Recreating preview");
                 }
                 return MeshManager.previewEdMesh;
             }
@@ -317,7 +319,7 @@ namespace Playtime_Painter
                     if (m.PointedUv.meshPoint.vertices.Count == 1)
                     {
                         if (!m.DeleteVertexHeal(MeshMGMT.PointedUv.meshPoint))
-                            m.DeleteUv(MeshMGMT.PointedUv);
+                            EditedMesh.DeleteUv(MeshMGMT.PointedUv);
                     }
                     else
                         while (m.PointedUv.meshPoint.vertices.Count > 1)
@@ -326,7 +328,7 @@ namespace Playtime_Painter
 
                 }
                 else
-                    m.DeleteUv(m.PointedUv);
+                    EditedMesh.DeleteUv(m.PointedUv);
 
                 EditedMesh.Dirty = true;
             }
@@ -468,8 +470,8 @@ namespace Playtime_Painter
 
                 if (beforeCouldDrag)
                     EditedMesh.dirtyPosition = true;
-                else if (m.TriVertices < 3 && m.SelectedUv != null && !m.IsInTrisSet(m.SelectedUv.meshPoint))
-                    m.AddToTrisSet(m.SelectedUv);
+                else if (m.TriVertices < 3 && m.SelectedUv != null && !EditedMesh.IsInTriangleSet(m.SelectedUv.meshPoint))
+                    EditedMesh.AddToTrisSet(m.SelectedUv);
 
             }
             else
@@ -933,7 +935,9 @@ namespace Playtime_Painter
         public int selectedSubMesh = 0;
 
         #region Inspector
-        public override string Tooltip => " 1234 on Line - apply RGBA for Border.";
+        public override string Tooltip => (" Vertex Color {0} 1. Make sure mesh Profile has Color enabled {0}" +
+                                          "2. Only if shader outputs vertex color, changes will be visible. " +
+                                          "1234 on Line - apply RGBA for Border.").F(pegi.EnvironmentNl);
 
         public override string NameForDisplayPEGI => "vertex Color";
 
@@ -941,16 +945,17 @@ namespace Playtime_Painter
         public override bool Inspect()
         {
             var changed = false;
-
-            if (("Paint All with Brush Color").Click().nl(ref changed))
-                EditedMesh.PaintAll(Cfg.brushConfig.colorLinear);
-
-            "Make Vertices Unique On coloring".toggle(60, ref Cfg.makeVerticesUniqueOnEdgeColoring).nl(ref changed);
-
+            
             var em = EditedMesh;
             var br = Cfg.brushConfig;
             var col = br.Color;
+            var p = InspectedPainter;
 
+            if (("Paint All with Brush Color").Click().nl(ref changed))
+                em.PaintAll(br.colorLinear);
+
+            "Make Vertex Unique On Paint".toggleIcon(ref Cfg.makeVerticesUniqueOnEdgeColoring).nl(ref changed);
+            
             if (em.subMeshCount > 1)
             {
 
@@ -969,15 +974,17 @@ namespace Playtime_Painter
                 pegi.nl();
 
             }
-
-        
-
-            if (pegi.edit(ref col).nl(ref changed))
-                br.Color = col;
-
-                
+            
+            //if (pegi.edit(ref col).nl(ref changed))
+              //  br.Color = col;
+            
             br.ColorSliders().nl();
             
+            if (!p.MeshProfile.UsesColor)
+                "Selected Mesh Profile does not appear to be using Color".writeWarning();
+            if (!p.MeshProfile.WritesColor)
+                "Selected Mesh Profile doesn't write to Color.".writeHint();
+
             return changed;
         }
         #endif
@@ -1301,19 +1308,20 @@ namespace Playtime_Painter
 
         public override string Tooltip => "Ctrl+LMB - sample" + Environment.NewLine + "LMB on triangle - set sub mesh";
         public override string NameForDisplayPEGI => "triangle Sub Mesh index";
-
-
+        
         #if PEGI
-        private bool _showAuto;
-        public override bool Inspect()
-        {
-            ("Total Sub Meshes: " + EditedMesh.subMeshCount).nl();
 
-            "Sub Mesh: ".edit(60, ref _curSubMesh).nl();
+        public override bool Inspect() {
+            "Sub Mesh: ".select(60, ref _curSubMesh, 0, EditedMesh.subMeshCount).nl();
+            
+            if ("Make all 0".Click().nl())
+                EditedMesh.SubMeshIndex = 0;
 
-            if ("Auto".foldout(ref _showAuto)) {
-                if ("Make all 0".Click().nl())
-                    EditedMesh.SubMeshIndex = 0;
+            if ("Delete Sub Mesh".Click())
+            {
+
+
+                EditedMesh.Dirty = true;
             }
 
             return false;
@@ -1343,8 +1351,7 @@ namespace Playtime_Painter
         #endregion
     }
     #endregion
-
-
+    
     public class VertexGroupTool : MeshToolBase
     {
 

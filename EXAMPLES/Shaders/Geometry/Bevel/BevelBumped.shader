@@ -13,7 +13,6 @@
 			"RenderType" = "Opaque"
 			"LightMode" = "ForwardBase"
 			"DisableBatching" = "True"
-			"UVtype" = "Normal"
 			"Solution" = "Bevel"
 		}
 

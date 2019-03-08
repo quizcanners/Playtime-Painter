@@ -25,9 +25,11 @@ namespace PlayerAndEditorGUI {
             unityMaterialEditor = materialEditor;
             _properties = properties;
 
-            PEGI_Extensions.ResetInspectedChain();
+
 
             #if PEGI
+              PEGI_Extensions.ResetInspectedChain();
+
             if (!drawDefaultInspector) {
                 ef.Inspect_Material(this).RestoreBGColor();
                 return;
@@ -36,7 +38,7 @@ namespace PlayerAndEditorGUI {
             ef.editorType = ef.EditorType.Material;
 
             pegi.toggleDefaultInspector();
-            #endif
+#endif
 
             DrawDefaultInspector();
 
@@ -120,15 +122,15 @@ namespace PlayerAndEditorGUI {
         [MenuItem("Tools/" + "PEGI" + "/Disable")]
         public static void DisablePegi()
         {
-            UnityHelperFunctions.SetDefine("PEGI", false);
-            UnityHelperFunctions.SetDefine("NO_PEGI", true);
+            UnityUtils.SetDefine("PEGI", false);
+            UnityUtils.SetDefine("NO_PEGI", true);
         }
 #else
         [MenuItem("Tools/" + "PEGI" + "/Enable")]
         public static void EnablePegi()
         {
-            UnityHelperFunctions.SetDefine("PEGI", true);
-            UnityHelperFunctions.SetDefine("NO_PEGI", false);
+            UnityUtils.SetDefine("PEGI", true);
+            UnityUtils.SetDefine("NO_PEGI", false);
         }
 #endif
 

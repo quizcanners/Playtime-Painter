@@ -94,7 +94,7 @@ namespace PlayerAndEditorGUI {
 
     #endregion
     
-    public static class pegi {
+    public static partial class pegi {
 
         public static string EnvironmentNl => Environment.NewLine;
 
@@ -616,7 +616,7 @@ namespace PlayerAndEditorGUI {
                 if (icon.Discord.Click())
                     Application.OpenURL(DiscordServer);
                 if (icon.Email.Click())
-                    UnityHelperFunctions.SendEmail(SupportEmail, "About this hint",
+                    UnityUtils.SendEmail(SupportEmail, "About this hint",
                         "The tooltip:{0}***{0} {1} {0}***{0} haven't answered some of the questions I had on my mind. Specifically: {0}".F(EnvironmentNl, popUpText));
 
             }
@@ -2728,7 +2728,7 @@ namespace PlayerAndEditorGUI {
             }
 
             if ((showLabelIfTrue || outside) &&
-                txt.ClickLabel(txt, -1, outside ? (enterLabelStyle == null ? PEGI_Styles.EnterLabel : enterLabelStyle) : PEGI_Styles.ExitLabel)) 
+                txt.ClickLabel(txt, -1, outside ? enterLabelStyle ?? PEGI_Styles.EnterLabel : PEGI_Styles.ExitLabel)) 
                 enteredOne = outside ? thisOne : -1;
             
 
@@ -3281,14 +3281,14 @@ namespace PlayerAndEditorGUI {
         #if UNITY_EDITOR
             if (ActiveEditorTracker.sharedTracker.isLocked == false && icon.Unlock.ClickUnFocus("Lock Inspector Window"))
             {
-                UnityHelperFunctions.FocusOn(ef.serObj.targetObject);
+                UnityUtils.FocusOn(ef.serObj.targetObject);
                 ActiveEditorTracker.sharedTracker.isLocked = true;
             }
         
             if (ActiveEditorTracker.sharedTracker.isLocked && icon.Lock.ClickUnFocus("Unlock Inspector Window"))
             {
                 ActiveEditorTracker.sharedTracker.isLocked = false;
-                UnityHelperFunctions.FocusOn(go);
+                UnityUtils.FocusOn(go);
             }
         #endif
         }
@@ -4253,89 +4253,6 @@ namespace PlayerAndEditorGUI {
 
         #endregion
 
-        #region Custom Structs
-
-        public static bool edit(ref MyIntVec2 val)
-        {
-
-    #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-                return ef.edit(ref val);
-    #endif
-            
-            return edit(ref val.x) || edit(ref val.y);
-        }
-
-        public static bool edit(ref MyIntVec2 val, int min, int max)
-        {
-
-    #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-                return ef.edit(ref val, min, max);
-    #endif
-            
-            return edit(ref val.x, min, max) || edit(ref val.y, min, max);
-
-        }
-
-        public static bool edit(ref MyIntVec2 val, int min, MyIntVec2 max)
-        {
-
-        #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-                return ef.edit(ref val, min, max);
-        #endif
-            
-            return edit(ref val.x, min, max.x) || edit(ref val.y, min, max.y);
-        }
-
-        public static bool edit(this string label, ref MyIntVec2 val)
-        {
-            write(label);
-            nl();
-            return edit(ref val);
-        }
-
-        public static bool edit(this string label, int width, ref MyIntVec2 val)
-        {
-            write(label, width);
-            nl();
-            return edit(ref val);
-        }
-
-        public static bool edit(ref LinearColor col)
-        {
-            var c = col.ToGamma();
-            if (edit(ref c))
-            {
-                col.From(c);
-                return true;
-            }
-            return false;
-        }
-
-        public static bool edit(this string label, ref LinearColor col)
-        {
-            write(label);
-            return edit(ref col);
-        }
-
-        public static bool edit(this string label, int width, ref MyIntVec2 val, int min, int max)
-        {
-            write(label, width);
-            nl();
-            return edit(ref val, min, max);
-        }
-
-        public static bool edit(this string label, int width, ref MyIntVec2 val, int min, MyIntVec2 max)
-        {
-            write(label, width);
-            nl();
-            return edit(ref val, min, max);
-        }
- 
-        #endregion
-
         #region UInt
 
         public static bool edit(ref uint val)
@@ -5172,7 +5089,7 @@ namespace PlayerAndEditorGUI {
             if (addingNewNameHolder.Length > 1) {
                 if (indTypes == null  && tagTypes == null)  {
                     if (icon.Create.ClickUnFocus("Create new object").nl(ref changed))
-                        added = lst.CreateAsset_SO("Assets/ScriptableObjects/", addingNewNameHolder);
+                        added = lst.CreateScriptableObjectAsset("Assets/ScriptableObjects/", addingNewNameHolder);
                 }
                 else
                 {
@@ -5191,7 +5108,7 @@ namespace PlayerAndEditorGUI {
                         foreach (var t in indTypes) {
                             write(t.ToPegiStringType());
                             if (icon.Create.ClickUnFocus().nl(ref changed))
-                                added = lst.CreateAsset_SO("Assets/ScriptableObjects/", addingNewNameHolder, t);
+                                added = lst.CreateScriptableObjectAsset("Assets/ScriptableObjects/", addingNewNameHolder, t);
                         }
 
                         if (tagTypes != null)
@@ -5202,7 +5119,7 @@ namespace PlayerAndEditorGUI {
 
                                 write(tagTypes.DisplayNames[i]);
                                 if (icon.Create.ClickUnFocus().nl(ref changed)) 
-                                    added = lst.CreateAsset_SO("Assets/ScriptableObjects/", addingNewNameHolder, tagTypes.TaggedTypes.TryGet(k[i]));
+                                    added = lst.CreateScriptableObjectAsset("Assets/ScriptableObjects/", addingNewNameHolder, tagTypes.TaggedTypes.TryGet(k[i]));
 
                             }
                         }
@@ -5504,7 +5421,7 @@ namespace PlayerAndEditorGUI {
 
         public static void write_Search_ListLabel(this string label, IList lst = null)
         {
-            int notInsp = -1;
+            var notInsp = -1;
             label.write_Search_ListLabel(ref notInsp, lst);
         }
 
@@ -5525,8 +5442,6 @@ namespace PlayerAndEditorGUI {
 
         public static void write_Search_ListLabel(this ListMetaData ld, IList lst) {
 
-            var editedName = false;
-
             currentListLabel = ld.label;
 
             if (!ld.Inspecting)
@@ -5536,13 +5451,11 @@ namespace PlayerAndEditorGUI {
 
                 var el = lst[ld.inspected];
 
-                el.Try_NameInspect(out editedName, ld.label);
-                
-                currentListLabel = editedName ? ld.label+":" : "{0}->{1}".F(ld.label, lst[ld.inspected].ToPegiString());
+                currentListLabel = "{0}->{1}".F(ld.label, lst[ld.inspected].ToPegiString());
                 
             } else currentListLabel = ld.label.AddCount(lst, true);
 
-            if (!editedName && currentListLabel.ClickLabel(ld.label, RemainingLength(70), PEGI_Styles.ListLabel) && ld.inspected != -1)
+            if (currentListLabel.ClickLabel(ld.label, RemainingLength(70), PEGI_Styles.ListLabel) && ld.inspected != -1)
                 ld.inspected = -1;
         }
 
@@ -5567,7 +5480,7 @@ namespace PlayerAndEditorGUI {
             if (icon.List.ClickUnFocus("{0}[{1}] of {2}".F(Msg.ReturnToList.Get(), list.Count, GetCurrentListLabel<T>(ld))).nl())
                 index = -1;
             else
-                changed |= list[index].Try_Nested_Inspect();
+                list[index].Try_Nested_Inspect().changes(ref changed);
 
             return changed;
         }
@@ -5599,7 +5512,7 @@ namespace PlayerAndEditorGUI {
 
                 var mb = ef.serObj.targetObject as MonoBehaviour;
 
-                UnityHelperFunctions.FocusOn(mb ? mb.gameObject : ef.serObj.targetObject);
+                UnityUtils.FocusOn(mb ? mb.gameObject : ef.serObj.targetObject);
 
             }
 
@@ -5711,7 +5624,6 @@ namespace PlayerAndEditorGUI {
 
             var changed = false;
             
-
             var sd = listMeta == null ? searchData : listMeta.searchData;
 
             if (list != editing_List_Order)
@@ -5728,7 +5640,7 @@ namespace PlayerAndEditorGUI {
             if (!paintingPlayAreaGui)
             {
                 nl();
-                changed |= ef.reorder_List(list, listMeta);
+                ef.reorder_List(list, listMeta).changes(ref changed);
             }
             else
 #endif
@@ -5949,7 +5861,8 @@ namespace PlayerAndEditorGUI {
                     meta.SetIsSelected(i, val);
         }
 
-        private static bool edit_List_Order_Obj<T>(this List<T> list, ListMetaData listMeta = null) where T : UnityEngine.Object {
+        private static bool edit_List_Order_Obj<T>(this List<T> list, ListMetaData listMeta = null) where T : Object {
+
             var changed = list.edit_List_Order(listMeta);
 
             if (list != editing_List_Order || listMeta == null) return changed;
@@ -5976,7 +5889,7 @@ namespace PlayerAndEditorGUI {
         public static bool Name_ClickInspect_PEGI<T>(this object el, List<T> list, int index, ref int edited, ListMetaData listMeta = null) {
             var changed = false;
 
-            var pl = el.TryGet_fromObj<IPEGI_ListInspect>();
+            var pl = el as IPEGI_ListInspect;//el.TryGet_fromObj<IPEGI_ListInspect>();
 
             if (pl != null)
             {
@@ -5994,7 +5907,8 @@ namespace PlayerAndEditorGUI {
                 else {
                     var uo = el as Object;
 
-                    var pg = el.TryGet_fromObj<IPEGI>();
+                    var pg = el as IPEGI; //el.TryGet_fromObj<IPEGI>();
+
                     if (pg != null)
                         el = pg;
 
@@ -6185,7 +6099,7 @@ namespace PlayerAndEditorGUI {
                         }
                         else
                         {
-                            changed |= el.Name_ClickInspect_PEGI(list, i, ref inspected, listMeta);
+                            el.Name_ClickInspect_PEGI(list, i, ref inspected, listMeta).changes(ref changed);
                             //el.clickHighlight();
                         }
                         newLine();
@@ -6196,7 +6110,7 @@ namespace PlayerAndEditorGUI {
                     list.list_DropOption();
 
             }
-            else changed |= list.ExitOrDrawPEGI(ref inspected);
+            else list.ExitOrDrawPEGI(ref inspected).changes(ref changed);
 
             newLine();
 
@@ -7255,7 +7169,7 @@ namespace PlayerAndEditorGUI {
             if (iname != null)
                 return iname.inspect_Name(label);
 
-            var uobj = obj.TryGetGameObject_Obj(); 
+            var uobj = obj.TryGetGameObjectFromObj(); 
 
             if (uobj)
             {
@@ -7316,7 +7230,7 @@ namespace PlayerAndEditorGUI {
             if (obj.IsNullOrDestroyed_Obj())
                 return false;
 
-            var go = obj.TryGetGameObject_Obj();
+            var go = obj.TryGetGameObjectFromObj();
 
             var matched = new bool[text.Length];
 
@@ -7629,7 +7543,7 @@ namespace PlayerAndEditorGUI {
         
         public static string ToPegiStringType(this Type type) => type.ToString().SimplifyTypeName();
            
-        public static string ToPegiStringUObj<T>(this T obj) where T: UnityEngine.Object {
+        public static string ToPegiStringUObj<T>(this T obj) where T: Object {
             if (obj == null)
                 return "NULL UObj {0}".F(typeof(T).ToPegiStringType());
 
@@ -7637,7 +7551,7 @@ namespace PlayerAndEditorGUI {
                 return "Destroyed UObj {0}".F(typeof(T).ToPegiStringType());
 
             string tmp;
-            return (obj.ToPegiStringInterfacePart(out tmp)) ? tmp : obj.name;
+            return (obj.ToPegiStringInterfacePart(out tmp)) ? tmp : (obj is Component ? obj.GetType().ToPegiStringType() : obj.name);
         }
 
         public static string ToPegiString<T>(this T obj) {
@@ -7790,19 +7704,20 @@ namespace PlayerAndEditorGUI {
 
         public static bool Try_Nested_Inspect(this Component cmp ) => cmp && cmp.gameObject.Try_Nested_Inspect();
 
-        public static bool Try_Nested_Inspect(this object obj) {
-            var pgi = obj.TryGet_fromObj<IPEGI>();
+        public static bool Try_Nested_Inspect(this object obj)
+        {
+            var pgi = obj as IPEGI; //.TryGet_fromObj<IPEGI>();
             return pgi?.Nested_Inspect() ?? obj.TryDefaultInspect();
         }
         
         public static bool Try_enter_Inspect(this object obj, ref int enteredOne, int thisOne) {
 
-            var l = obj.TryGet_fromObj<IPEGI_ListInspect>();
+            var l = obj as IPEGI_ListInspect;//.TryGet_fromObj<IPEGI_ListInspect>();
 
             if (l != null)
                 return l.enter_Inspect_AsList(ref enteredOne, thisOne);
 
-            var p = obj.TryGet_fromObj<IPEGI>();
+            var p = obj as IPEGI;//.TryGet_fromObj<IPEGI>();
 
             if (p != null)
                 return p.enter_Inspect(ref enteredOne, thisOne);

@@ -198,28 +198,28 @@ namespace Playtime_Painter {
 
             var pixels = im.Pixels;
 
-            int texSectorW = im.width / hSlices;
-            int w = Width;
+            var texSectorW = im.width / hSlices;
+            var w = Width;
 
-            for (int hy = 0; hy < hSlices; hy++)
+            for (var hy = 0; hy < hSlices; hy++)
             {
-                for (int hx = 0; hx < hSlices; hx++)
+                for (var hx = 0; hx < hSlices; hx++)
                 {
 
-                    int hTex_index = (hy * im.width + hx) * texSectorW;
+                    var hTexIndex = (hy * im.width + hx) * texSectorW;
 
-                    int h = hy * hSlices + hx;
+                    var h = hy * hSlices + hx;
 
-                    for (int y = 0; y < w; y++)
+                    for (var y = 0; y < w; y++)
                     {
-                        int yTex_index = hTex_index + y * im.width;
+                        var yTexIndex = hTexIndex + y * im.width;
 
-                        int yVolIndex = h * w * w + y * w;
+                        var yVolIndex = h * w * w + y * w;
 
-                        for (int x = 0; x < w; x++)
+                        for (var x = 0; x < w; x++)
                         {
-                            int texIndex = yTex_index + x;
-                            int volIndex = yVolIndex + x;
+                            var texIndex = yTexIndex + x;
+                            var volIndex = yVolIndex + x;
 
                             pixels[texIndex] = unsortedVolume[volIndex];
                         }
@@ -339,13 +339,13 @@ namespace Playtime_Painter {
                 if ("Name".editDelayed(50, ref n).nl(ref changed))
                     name = n;
 
-                var texture = ImageMeta.CurrentTexture();
+                var tex = ImageMeta.CurrentTexture();
 
-                if (texture == null)
+                if (tex == null)
                     ImageMeta = null;
 
-                if ("Texture".edit(60, ref texture).nl(ref changed))
-                    ImageMeta = texture ? texture.GetImgData() : null;
+                if ("Texture".edit(60, ref tex).nl(ref changed))
+                    ImageMeta = tex ? tex.GetImgData() : null;
 
                 "Volume Scale".edit(70, ref size).nl(ref changed);
                 size = Mathf.Max(0.0001f, size);
@@ -401,16 +401,16 @@ namespace Playtime_Painter {
         public virtual void UpdateMaterials() {
             
             materials.SetVolumeTexture(MaterialPropertyName, this);
-            
-            if (setForGlobal)  {
-                if (!currentlyActiveGlobalVolume)
-                    currentlyActiveGlobalVolume = this;
-                else if (currentlyActiveGlobalVolume == this)
-                {
-                    VolumePaintingPlugin.VOLUME_POSITION_N_SIZE_Global.SetGlobal(PosSize4Shader);
-                    VolumePaintingPlugin.VOLUME_H_SLICES_Global.SetGlobal(Slices4Shader);
-                    MaterialPropertyNameGlobal.SetGlobal(ImageMeta.CurrentTexture());
-                }
+
+            if (!setForGlobal) return;
+
+            if (!currentlyActiveGlobalVolume)
+                currentlyActiveGlobalVolume = this;
+            else if (currentlyActiveGlobalVolume == this)
+            {
+                VolumePaintingPlugin.VOLUME_POSITION_N_SIZE_Global.SetGlobal(PosSize4Shader);
+                VolumePaintingPlugin.VOLUME_H_SLICES_Global.SetGlobal(Slices4Shader);
+                MaterialPropertyNameGlobal.SetGlobal(ImageMeta.CurrentTexture());
             }
         }
 

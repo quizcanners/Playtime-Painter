@@ -35,11 +35,12 @@ namespace Playtime_Painter
         #endregion
 
         #region Constants
+        
         public const string PainterCameraName = "PainterCamera";
         public const string ToolName = "Playtime_Painter";
         private const string EnablePainterForBuild = "BUILD_WITH_PAINTER";
         
-        #region Material Preperties
+        #region Shader Preperties
 
         public const string GlobalPropertyPrefix = "g_";
 
@@ -68,9 +69,8 @@ namespace Playtime_Painter
         public static readonly ShaderProperty.FloatValue TexturesInAtlasRow = new ShaderProperty.FloatValue(ATLASED_TEXTURES);
         public static readonly ShaderProperty.FloatValue BufferCopyAspectRatio = new ShaderProperty.FloatValue("_BufferCopyAspectRatio");
         #endregion
-
-
-        #region Material Keywords
+        
+        #region Shader Multicompile Keywords
         public const string UV_NORMAL = "UV_NORMAL";
         public const string UV_ATLASED = "UV_ATLASED";
         public const string UV_PROJECTED = "UV_PROJECTED";
@@ -92,11 +92,6 @@ namespace Playtime_Painter
         public const string MESH_PREVIEW_PROJECTION = "MESH_PREVIEW_PROJECTION";
         #endregion
 
-
-        public const string TransparentLayerExpected = "TransparentLayerExpected";
-        public const string TextureSampledWithUv2 = "TextureSampledWithUV2";
-        public const string VertexColorRole = "VertexColorRole_";
-      
         #endregion
 
         #region Web Cam Utils
@@ -294,7 +289,7 @@ namespace Playtime_Painter
 
             if (!Recordings.TryGetValue(filename, out data))
             {
-                data = FileLoaderUtils.LoadFromPersistentPath(vectorsFolderName, filename);
+                data = FileLoadUtils.LoadFromPersistentPath(vectorsFolderName, filename);
                 Recordings.Add(filename, data);
             }
 
@@ -608,4 +603,38 @@ namespace Playtime_Painter
             stdData = Encode().ToString();
         }
     }
+
+    public static partial class ShaderTags
+    {
+
+        public static readonly ShaderTag LayerType = new ShaderTag("_LayerType");
+        public static class LayerTypes
+        {
+            public static readonly ShaderTagValue Transparent =
+                new ShaderTagValue("Transparent", LayerType);
+        }
+
+        public static readonly ShaderTag SamplingMode = new ShaderTag("_TextureSampling");
+        public static class SamplingModes
+        {
+            public static readonly ShaderTagValue Uv1 = new ShaderTagValue("UV1", SamplingMode);
+            public static readonly ShaderTagValue Uv2 = new ShaderTagValue("UV2", SamplingMode);
+            public static readonly ShaderTagValue TriplanarProjection = new ShaderTagValue("TriplanarProjection", SamplingMode);
+        }
+
+        public static readonly ShaderTag VertexColorRole = new ShaderTag("_VertexColorRole");
+
+        public static readonly ShaderTag MeshSolution = new ShaderTag("Solution");
+
+        public static class MeshSolutions
+        {
+            public static readonly ShaderTagValue Bevel = new ShaderTagValue("Bevel", MeshSolution);
+            public static readonly ShaderTagValue AtlasedProjected = new ShaderTagValue("AtlasedProjected", MeshSolution);
+        }
+
+
+    }
+
+
+
 }

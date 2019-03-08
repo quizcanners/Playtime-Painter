@@ -62,7 +62,7 @@ namespace Playtime_Painter
             "Emission Color".edit(ref ecol).nl(ref changed);
             "Brightness".edit(ref brightness).nl(ref changed);
 
-            if (changed) UnityHelperFunctions.RepaintViews();
+            if (changed) UnityUtils.RepaintViews();
 
             return changed;
         }

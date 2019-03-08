@@ -868,7 +868,7 @@ namespace QuizCannersUtilities
 
         public static void TryReplaceAssetByGuid<T>(this string data, ref T val) where T : UnityEngine.Object
         {
-            var ass = UnityHelperFunctions.GuidToAsset<T>(data);
+            var ass = UnityUtils.GuidToAsset<T>(data);
             if (ass)
                 val = ass;
         }

@@ -69,9 +69,9 @@ namespace Playtime_Painter {
                 if (_uvs != null) return _uvs;
 
                 _uvs = new Vector2[vertexCount];
-                foreach (var vp in edMesh.meshPoints)
-                foreach (var uvi in vp.vertices)
-                    _uvs[uvi] = uvi.GetUv(0);
+                foreach (var point in edMesh.meshPoints)
+                foreach (var uvi in point.vertices)
+                    _uvs[uvi.finalIndex] = uvi.GetUv(0);
                 return _uvs;
             }
         }
@@ -480,11 +480,17 @@ namespace Playtime_Painter {
 
         }
 
-        public Mesh UpdateMesh<T>() where T: VertexDataType {
+        public Mesh UpdateMesh<T>() where T: VertexDataSource
+        {
 
-            vertexCount = edMesh.vertexCount;
+            if (!edMesh.firstBuildRun)
+                Construct();
+            else
+            {
+                vertexCount = edMesh.vertexCount;
 
-            profile.UpdatePackage(this, typeof(T));
+                profile.UpdatePackage<T>(this);
+            }
 
             return mesh;
         }
@@ -534,6 +540,8 @@ namespace Playtime_Painter {
                         mesh.AddBlendShapeFrame(name, edMesh.blendWeights[s][f], pos, nrm, tng);
                     }
                 }
+
+            edMesh.firstBuildRun = true;
 
             mesh.name = edMesh.meshName;
 

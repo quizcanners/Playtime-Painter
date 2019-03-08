@@ -106,7 +106,7 @@ namespace Playtime_Painter {
 
 
             if (changed)  {
-                UnityHelperFunctions.RepaintViews();
+                UnityUtils.RepaintViews();
                 UpdateShader();
                 this.SetToDirty_Obj();
             }

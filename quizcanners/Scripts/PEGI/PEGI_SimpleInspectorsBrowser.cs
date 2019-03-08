@@ -17,9 +17,9 @@ namespace QuizCannersUtilities
 
         public string ConfigStd { get { return stdData; } set { stdData = value; } }
 
-        void OnEnable() => this.LoadStdData();
+        private void OnEnable() => this.LoadStdData();
 
-        void OnDisable() => this.SaveStdData();
+        private void OnDisable() => this.SaveStdData();
 
         public override bool Decode(string tg, string data)
         {
@@ -38,7 +38,7 @@ namespace QuizCannersUtilities
 #if PEGI
         public override bool Inspect()
         {
-            bool changed = base.Inspect();
+            var changed = base.Inspect();
             referencesMeta.enter_List_UObj(ref objects, ref inspectedItems, 3);
             return changed;
         }

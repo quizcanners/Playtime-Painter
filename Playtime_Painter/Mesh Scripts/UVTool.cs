@@ -114,7 +114,7 @@ namespace Playtime_Painter
 
               var trg = MeshManager.target;
 
-              trg.SharedMesh = new MeshConstructor(prMesh, trg.MeshProfile, trg.SharedMesh).Construct();
+            new MeshConstructor(prMesh, trg.MeshProfile, trg.SharedMesh).UpdateMesh<VertexDataTypes.VertexUv>();
         }
 
         public Vector2 PosToUv(Vector3 diff)
@@ -145,7 +145,6 @@ namespace Playtime_Painter
             return uv;
         }
         
-
         public Vector2 OffsetTileFromTriangle(Triangle t) {
 
             Vector2 uv  = Vector2.zero;
@@ -178,8 +177,7 @@ namespace Playtime_Painter
 
             return uv;
         }
-
-
+        
         public override void OnSelectTool() => UpdateUvPreview();
 
         public override void OnDeSelectTool()
@@ -383,9 +381,9 @@ namespace Playtime_Painter
                 var b = PointedLine.points[1];
 
                 if (!EditorInputManager.Control)
-                    MeshMGMT.SwapLine(a.meshPoint, b.meshPoint);
+                    EditedMesh.SwapLine(a.meshPoint, b.meshPoint);
                 else
-                    MeshMGMT.DeleteLine(PointedLine);
+                    EditedMesh.DeleteLine(PointedLine);
 
                 EditedMesh.Dirty = true;
             }
@@ -434,7 +432,7 @@ namespace Playtime_Painter
                 if (!Input.GetMouseButton(2)) MMouseDwn = false;
                 Zoom = Mathf.Max(0.1f, MouseDwnZoom + (Input.mousePosition.x - MouseDwnScreenPos.x) * 8 / Screen.width);
 
-                MouseDwnOffset = MyMath.LerpBySpeed(MouseDwnOffset, draggedOffset, 2 * Zoom);
+                MouseDwnOffset = QcMath.LerpBySpeed(MouseDwnOffset, draggedOffset, 2 * Zoom);
             }
 
             float Off = -Zoom / 2;

@@ -26,7 +26,7 @@ namespace Playtime_Painter.Examples
                 filter.sharedMesh = originalMesh;
                 this.SetToDirty();
             }
-            _meshCopy.DestroyWhatever_UObj();
+            _meshCopy.DestroyWhateverUnityObject();
         }
 
         private float _previousAlpha = -1;

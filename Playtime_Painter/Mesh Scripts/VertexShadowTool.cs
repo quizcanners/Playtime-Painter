@@ -66,7 +66,7 @@ namespace Playtime_Painter
                         {
                             var pnt = shadVT.lights.GetLight(i);
                             if (pnt)
-                                v.shadowBake[i] = pnt.transform.position.RaycastGotHit(vpos) ? 0.6f : 0;
+                                v.shadowBake[i] = pnt.transform.position.RayCastGotHit(vpos) ? 0.6f : 0;
 
                         }
                     }

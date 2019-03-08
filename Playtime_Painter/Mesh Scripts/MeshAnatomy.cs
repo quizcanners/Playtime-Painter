@@ -624,7 +624,7 @@ namespace Playtime_Painter
 
         public Vector3 GetNormal() {
 
-            sharpNormal = MyMath.GetNormalOfTheTriangle(
+            sharpNormal = QcMath.GetNormalOfTheTriangle(
                     vertexes[0].LocalPos,
                     vertexes[1].LocalPos,
                     vertexes[2].LocalPos);
@@ -638,7 +638,7 @@ namespace Playtime_Painter
             var p1 = vertexes[1].LocalPos * accuracyFix;
             var p2 = vertexes[2].LocalPos * accuracyFix;
             
-            sharpNormal = MyMath.GetNormalOfTheTriangle(
+            sharpNormal = QcMath.GetNormalOfTheTriangle(
                     p0 ,
                     p1,
                     p2);
@@ -662,7 +662,7 @@ namespace Playtime_Painter
             .Add_IfNotEpsilon("ew1", edgeWeight[1])
             .Add_IfNotEpsilon("ew2", edgeWeight[2]);
 
-            for (int i = 0; i < 3; i++)
+            for (var i = 0; i < 3; i++)
                 cody.Add(i.ToString(),vertexes[i].finalIndex);
 
             cody.Add_IfNotZero("tex", textureNo)

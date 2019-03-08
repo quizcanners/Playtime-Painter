@@ -75,7 +75,7 @@ namespace Playtime_Painter {
                     if (pp && pp == painter && AllowEditing(painter))
                         HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
 
-                    UnityHelperFunctions.FocusOn(hit.transform.gameObject);
+                    UnityUtils.FocusOn(hit.transform.gameObject);
                 }
 
                 if (!navigating && AllowEditing(painter))

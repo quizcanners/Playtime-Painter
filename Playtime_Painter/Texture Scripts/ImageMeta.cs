@@ -244,7 +244,7 @@ namespace Playtime_Painter
 
             var allStrokes = new StdEncoder().Add("strokes", recordedStrokes).ToString();
 
-            FileSaverUtils.SaveToPersistentPath(Cfg.vectorsFolderName, saveName, allStrokes);
+            FileSaveUtils.SaveJsonToPersistentPath(Cfg.vectorsFolderName, saveName, allStrokes);
 
             Cfg.recordingNames.Add(saveName);
 
@@ -346,7 +346,7 @@ namespace Playtime_Painter
             if (!texture2D)
                 return;
 
-            RenderTexture rt = renderTexture;
+            var rt = renderTexture;
 
             if (!rt && TexMGMT.imgMetaUsingRendTex == this)
                 rt = PainterCamera.Inst.GetDownscaledBigRt(width, height);
@@ -358,7 +358,7 @@ namespace Playtime_Painter
 
             PixelsFromTexture2D(tex);
 
-            bool converted = false;
+            var converted = false;
 
             /* MAC: 
                     Linear Space
@@ -455,15 +455,22 @@ namespace Playtime_Painter
         }
         
         public void SetPixelsInRam() => texture2D.SetPixels(_pixels);
-        
-        public void Apply_ToGPU(bool mipmaps = true) => texture2D.Apply(mipmaps, false);
 
-        public void SetAndApply(bool mipmaps = true) {
-            if (_pixels != null) {
-                SetPixelsInRam();
-                Apply_ToGPU(mipmaps);
-            }
+        public void ApplyToTexture2D(bool mipMaps = true) => texture2D.Apply(mipMaps, false);
+        
+        public void SetAndApply(bool mipMaps = true) {
+            if (_pixels == null) return;
+            SetPixelsInRam();
+            ApplyToTexture2D(mipMaps);
         }
+
+        private void SetApplyUpdateRenderTexture(bool mipMaps = true)
+        {
+            SetAndApply(mipMaps);
+            if (destination == TexTarget.RenderTexture)
+                Texture2D_To_RenderTexture();
+        }
+
         #endregion
         
         #region Pixels MGMT
@@ -779,7 +786,7 @@ namespace Playtime_Painter
 
         #if PEGI
 
-        private bool LoadTexturePEGI(string path)
+        private bool LoadTexturePegi(string path)
         {
             const bool changed = false;
 
@@ -798,7 +805,7 @@ namespace Playtime_Painter
             {
                 "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref _repaintDelay, 0.01f, 0.5f).nl(ref changed);
                 
-                "Don't update mipmaps:".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",
+                "Don't update mipMaps:".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",
                     ref dontRedoMipMaps).nl(ref changed);
             }
 
@@ -813,7 +820,7 @@ namespace Playtime_Painter
                     SaveInPlayer();
 
                 if (Cfg && Cfg.playtimeSavedTextures.Count > 0)
-                    "Playtime Saved Textures".write_List(Cfg.playtimeSavedTextures, LoadTexturePEGI);
+                    "Playtime Saved Textures".write_List(Cfg.playtimeSavedTextures, LoadTexturePegi);
             }
 
             #region Processors
@@ -870,21 +877,21 @@ namespace Playtime_Painter
                         if ("Clear Texture".Click().nl())
                         {
                             Colorize(_clearColor);
-                            SetAndApply();
+                            SetApplyUpdateRenderTexture();
                         }
                     }
 
                     if (_inspectedProcess == -1 && icon.Refresh.Click("Apply color {0}".F(_clearColor)).nl())
                     {
                         Colorize(_clearColor);
-                        SetAndApply();
+                        SetApplyUpdateRenderTexture();
                     }
                 }
 
                 if ("Render Buffer Debug".enter(ref _inspectedProcess, 3).nl()) {
-                    pegi.write(TexMGMT.bigRtPair[0], 200);
+                    TexMGMT.bigRtPair[0].write(200);
                     pegi.nl();
-                    pegi.write(TexMGMT.bigRtPair[1], 200);
+                    TexMGMT.bigRtPair[1].write(200);
 
                     pegi.nl();
                 }
@@ -905,7 +912,7 @@ namespace Playtime_Painter
 
               "Creating more backups will eat more memory".writeOneTimeHint("backupIsMem");
                "This are not connected to Unity's Undo/Redo because when you run out of backups you will by accident start undoing other operations.".writeOneTimeHint("noNativeUndo");
-               "Use Z/X to undo/redo".writeOneTimeHint("ZXundoRedo");
+               "Use Z/X to undo/redo".writeOneTimeHint("ZxUndoRedo");
 
             }
 
@@ -914,7 +921,7 @@ namespace Playtime_Painter
                 if (Cfg.colorSchemes.Count == 0)
                     Cfg.colorSchemes.Add(new ColorScheme() { paletteName = "New Color Scheme" });
 
-                changed |= pegi.edit_List(ref Cfg.colorSchemes, ref Cfg.inspectedColorScheme);
+                pegi.edit_List(ref Cfg.colorSchemes, ref Cfg.inspectedColorScheme).changes(ref changed);
             }
 
             return changed;
@@ -928,10 +935,10 @@ namespace Playtime_Painter
 
             var forceOpenUTransparentLayer = false;
 
-            var hasAlphaLayerTag = painter.Material.HasTag(PainterDataAndConfig.TransparentLayerExpected + property);
+            var hasAlphaLayerTag =
+                painter.Material.Has(property, ShaderTags.LayerTypes.Transparent);//GetTag(PainterDataAndConfig.ShaderTagLayerType + property, false).Equals("Transparent");
 
-            if (!isATransparentLayer && hasAlphaLayerTag)
-            {
+            if (!isATransparentLayer && hasAlphaLayerTag) {
                 "Material Field {0} is a Transparent Layer ".F(property).writeHint();
                 forceOpenUTransparentLayer = true;
             }
@@ -965,7 +972,7 @@ namespace Playtime_Painter
             }
 
             var forceOpenUv2 = false;
-            var hasUv2Tag = painter.Material.HasTag(PainterDataAndConfig.TextureSampledWithUv2 + property);
+            var hasUv2Tag = painter.Material.Has(property, ShaderTags.SamplingModes.Uv2);
 
             if (!useTexCoord2 && hasUv2Tag) {
 
@@ -980,7 +987,7 @@ namespace Playtime_Painter
             }
 
             if (showToggles || (useTexCoord2 && !hasUv2Tag) || forceOpenUv2)
-                changed |= "Use Texcoord 2".toggleIcon(ref useTexCoord2).nl();
+                changed |= "Use UV2".toggleIcon(ref useTexCoord2).nl();
 
             return changed;
         }

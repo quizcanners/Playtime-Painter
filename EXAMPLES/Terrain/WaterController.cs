@@ -73,7 +73,7 @@ namespace Playtime_Painter.Examples
 
             if (changed) {
                 SetFoamDynamics();
-                UnityHelperFunctions.RepaintViews(); 
+                UnityUtils.RepaintViews(); 
                 this.SetToDirty();
             }
             

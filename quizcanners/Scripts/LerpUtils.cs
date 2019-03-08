@@ -742,9 +742,7 @@ namespace QuizCannersUtilities {
 
             public MaterialFloat(string nname, float startingValue, float startingSpeed = 1, Renderer renderer = null, Material m = null) : base(startingSpeed, m, renderer)
             {
-                property = new ShaderProperty.FloatValue(nname);
-
-                property.GlobalValue = startingValue;
+                property = new ShaderProperty.FloatValue(nname) {GlobalValue = startingValue};
             }
             
             public override bool Portion(ref float linkedPortion) =>

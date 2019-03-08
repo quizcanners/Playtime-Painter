@@ -53,7 +53,7 @@ namespace Playtime_Painter
                     Shader.DisableKeyword(name);
             }
             
-            UnityHelperFunctions.SetShaderKeyword(ShaderKeyword(texcoord2), true);
+            UnityUtils.SetShaderKeyword(ShaderKeyword(texcoord2), true);
 
         }
 

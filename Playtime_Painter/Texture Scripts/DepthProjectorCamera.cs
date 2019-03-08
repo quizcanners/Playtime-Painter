@@ -33,6 +33,8 @@ namespace Playtime_Painter
         public int targetSize = 512;
         
         private bool _foldOut;
+
+#if PEGI
         public override bool Inspect()
         {
             var changed = false;
@@ -78,6 +80,8 @@ namespace Playtime_Painter
 
             return changed;
         }
+
+#endif
 
         private void OnEnable() {
 
@@ -164,7 +168,7 @@ namespace Playtime_Painter
             if (_depthTarget && _depthTarget.width == targetSize) return;
 
             if (_depthTarget)
-                _depthTarget.DestroyWhatever_UObj();
+                _depthTarget.DestroyWhateverUnityObject();
 
             var sz = Mathf.Max(targetSize, 16);
 

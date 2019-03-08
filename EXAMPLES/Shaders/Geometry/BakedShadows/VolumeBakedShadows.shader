@@ -19,8 +19,8 @@
 			"RenderType" = "Opaque"
 			"LightMode" = "ForwardBase"
 			"RayTrace" = "Opaque"
-			"VertexColorRole_A" = "Second Atlas Texture"
-			"VertexColorRole_B" = "Additional Wetness"
+			"A_VertexColorRole" = "Second Atlas Texture"
+			"B_VertexColorRole" = "Additional Wetness"
 			"Volume" = "Global"
 		}
 

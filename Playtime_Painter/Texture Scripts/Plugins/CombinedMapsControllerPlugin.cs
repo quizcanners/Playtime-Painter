@@ -248,7 +248,7 @@ namespace Playtime_Painter
             if (icon.Save.Click("Will save to " + path).nl())
             {
                 this.SaveToAssets(path, _name);
-                UnityHelperFunctions.RefreshAssetDatabase();
+                UnityUtils.RefreshAssetDatabase();
                 (_name + " was saved to " + path).showNotificationIn3D_Views();
             }
             pegi.nl();

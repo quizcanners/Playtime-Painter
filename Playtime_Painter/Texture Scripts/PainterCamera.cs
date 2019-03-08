@@ -134,7 +134,7 @@ namespace Playtime_Painter {
             if (painterCamera)
                 painterCamera.cullingMask = flag;
 
-            UnityHelperFunctions.RenamingLayer(l, "Playtime Painter's Layer");
+            UnityUtils.RenamingLayer(l, "Playtime Painter's Layer");
 
             brushRenderer.gameObject.layer = l;
 
@@ -366,7 +366,7 @@ namespace Playtime_Painter {
                 secondBufferDebug.sharedMaterial.mainTexture = bigRtPair[1];
                 var cmp = secondBufferDebug.GetComponent<PlaytimePainter>();
                 if (cmp)
-                    cmp.DestroyWhatever_Component();
+                    cmp.DestroyWhateverComponent();
             }
 
         }
@@ -405,7 +405,7 @@ namespace Playtime_Painter {
             if (hidePreview && Math.Abs(_previewAlpha) < float.Epsilon)
                 return;
 
-            MyMath.IsLerpingBySpeed(ref _previewAlpha, hidePreview ? 0 : 1, 4f);
+            QcMath.IsLerpingBySpeed(ref _previewAlpha, hidePreview ? 0 : 1, 4f);
 
             PainterDataAndConfig.BRUSH_WORLD_POS_FROM.GlobalValue = _prevPosPreview.ToVector4(size);
             PainterDataAndConfig.BRUSH_WORLD_POS_TO.GlobalValue = st.posTo.ToVector4((st.posTo - _prevPosPreview).magnitude); //new Vector4(st.posTo.x, st.posTo.y, st.posTo.z, (st.posTo - prevPosPreview).magnitude));
@@ -490,10 +490,10 @@ namespace Playtime_Painter {
 
             brushType.SetKeyword(id.useTexCoord2);
 
-            UnityHelperFunctions.SetShaderKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2, id.useTexCoord2);
+            UnityUtils.SetShaderKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2, id.useTexCoord2);
 
             if (blitMode.SupportsTransparentLayer)
-                UnityHelperFunctions.SetShaderKeyword(PainterDataAndConfig.TARGET_TRANSPARENT_LAYER, id.isATransparentLayer);
+                UnityUtils.SetShaderKeyword(PainterDataAndConfig.TARGET_TRANSPARENT_LAYER, id.isATransparentLayer);
 
             blitMode.SetKeyword(id).SetGlobalShaderParameters();
 
@@ -694,7 +694,7 @@ namespace Playtime_Painter {
             isLinearColorSpace = PlayerSettings.colorSpace == ColorSpace.Linear;
 
             EditorApplication.update -= CombinedUpdate;
-            if (!UnityHelperFunctions.ApplicationIsAboutToEnterPlayMode())
+            if (!UnityUtils.ApplicationIsAboutToEnterPlayMode())
                 EditorApplication.update += CombinedUpdate;
 
 
@@ -874,7 +874,7 @@ namespace Playtime_Painter {
             if (refocusOnThis) {
                 _scipFrames--;
                 if (_scipFrames == 0) {
-                    UnityHelperFunctions.FocusOn(refocusOnThis);
+                    UnityUtils.FocusOn(refocusOnThis);
                     refocusOnThis = null;
                     _scipFrames = 3;
                 }

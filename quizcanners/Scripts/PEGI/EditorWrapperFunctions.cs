@@ -462,6 +462,33 @@ namespace PlayerAndEditorGUI {
             return change;
         }
 
+        private static bool select(ref Component current, IReadOnlyList<Component> others, Rect rect)
+        {
+
+            var names = new string[others.Count];
+
+            var ind = -1;
+
+            for (var i = 0; i < others.Count; i++)
+            {
+                var el = others[i];
+                names[i] = i+": "+el.GetType().ToPegiStringType();
+                if (el && el == current)
+                    ind = i;
+            }
+
+            BeginCheckLine();
+
+            var newNo = EditorGUI.Popup(rect, ind, names);
+
+            if (!EndCheckLine()) return false;
+
+            current = others[newNo];
+
+            return change;
+        }
+
+
         #endregion
 
         public static void Space()
@@ -1181,8 +1208,7 @@ namespace PlayerAndEditorGUI {
             rect.width -= 30;
 
             if (el != null) {
-
-                if (_currentReorderedListTypes != null) {
+                
                     var ty = el.GetType();
 
                     var cont = new GUIContent {
@@ -1190,25 +1216,48 @@ namespace PlayerAndEditorGUI {
                         text = el.ToPegiString()
                     };
 
-                    var uo = el as UnityEngine.Object;
+                    var uo = el as Object;
                     if (uo)
-                        EditorGUI.ObjectField(rect, cont, uo, _currentReorderedType, true);
+                    {
+                        var mb = uo as Component;
+                        var go = mb ? mb.gameObject : uo as GameObject;
+
+                        if (!go)
+                            EditorGUI.ObjectField(rect, cont, uo, _currentReorderedType, true);
+                        else
+                        {
+                            var mbs = go.GetComponents<Component>();
+
+                            if (mbs.Length > 1) { 
+
+                                //rect.width = 100;
+                                //EditorGUI.ObjectField(rect, cont, uo, _currentReorderedType, true);
+                                //rect.x += 100;
+                                //rect.width = 100;
+
+                                if (select(ref mb, mbs, rect))
+                                    _currentReorderedList[index] = mb;
+                            }
+                            else
+                                EditorGUI.ObjectField(rect, cont, uo, _currentReorderedType, true);
+                        }
+                    }
                     else
                     {
-                        rect.width = 100;
-                        EditorGUI.LabelField(rect, cont);
-                        rect.x += 100;
-                        rect.width = 100;
 
-                        if (select_Type(ref ty, _currentReorderedListTypes, rect)) 
-                            _currentReorderedList.TryChangeObjectType(index, ty, _listMetaData);
+                        if (_currentReorderedListTypes != null)
+                        {
+
+                            rect.width = 100;
+                            EditorGUI.LabelField(rect, cont);
+                            rect.x += 100;
+                            rect.width = 100;
+
+                            if (select_Type(ref ty, _currentReorderedListTypes, rect))
+                                _currentReorderedList.TryChangeObjectType(index, ty, _listMetaData);
+                        } else
+                            EditorGUI.LabelField(rect, cont);
                     }
-                }
-                else
-                {
-                    rect.width = 200;
-                    EditorGUI.LabelField(rect, el.ToPegiString());
-                }
             }
             else
             {

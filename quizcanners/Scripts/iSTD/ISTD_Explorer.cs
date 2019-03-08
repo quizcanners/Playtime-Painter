@@ -244,7 +244,7 @@ namespace QuizCannersUtilities
         
         public bool TryGetByGuid<T>(ref T field) where T : UnityEngine.Object {
 
-            var obj = UnityHelperFunctions.GuidToAsset<T>(_guid);
+            var obj = UnityUtils.GuidToAsset<T>(_guid);
 
             field = null;
 
@@ -469,7 +469,7 @@ namespace QuizCannersUtilities
                 if (pegi.edit(ref myType))
                 {
                     dirty = true;
-                    data = FileLoaderUtils.LoadTextAsset(myType);
+                    data = FileLoadUtils.LoadTextAsset(myType);
                 }
 
                 if (dirty)
@@ -580,8 +580,8 @@ namespace QuizCannersUtilities
                 this.inspect_Name();
                 if (Std != null && dataExplorer.tag.Length > 0 && icon.Save.Click("Save To Assets", ref changed))
                 {
-                    FileSaverUtils.Save_ToAssets_ByRelativePath(Mgmt.fileFolderHolder, dataExplorer.tag, dataExplorer.data);
-                    UnityHelperFunctions.RefreshAssetDatabase();
+                    FileSaveUtils.SaveBytesToAssetsByRelativePath(Mgmt.fileFolderHolder, dataExplorer.tag, dataExplorer.data);
+                    UnityUtils.RefreshAssetDatabase();
                 }
 
                 pegi.nl();
@@ -687,7 +687,7 @@ namespace QuizCannersUtilities
                 if ("From File:".edit(65, ref myType))
                 {
                     added = new SavedIstd();
-                    added.dataExplorer.data = FileLoaderUtils.LoadTextAsset(myType);
+                    added.dataExplorer.data = FileLoadUtils.LoadTextAsset(myType);
                     added.NameForPEGI = myType.name;
                     added.comment = DateTime.Now.ToString(CultureInfo.InvariantCulture);
                     states.Add(added);
