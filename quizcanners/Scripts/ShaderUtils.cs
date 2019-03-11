@@ -41,10 +41,17 @@ namespace QuizCannersUtilities
 
             public Renderer SetOn(Renderer renderer, int materialIndex = 0)
             {
-                MaterialPropertyBlock block = new MaterialPropertyBlock();
+#if UNITY_2018_3_OR_NEWER
+                var block = new MaterialPropertyBlock();
                 renderer.GetPropertyBlock(block, materialIndex);
                 SetOn(block);
                 renderer.SetPropertyBlock(block, materialIndex);
+#else
+                var block = new MaterialPropertyBlock();
+                renderer.GetPropertyBlock(block);
+                SetOn(block);
+                renderer.SetPropertyBlock(block);
+#endif
                 return renderer;
             }
 

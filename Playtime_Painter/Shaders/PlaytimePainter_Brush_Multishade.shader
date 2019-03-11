@@ -86,9 +86,12 @@
 					o.pos = UnityObjectToClipPos(v.vertex);
 					o.texcoord = brushTexcoord(v.texcoord.xy, v.vertex);	
 
-
 					float2 suv = _SourceTexture_TexelSize.zw;
 					o.srcTexAspect = max(1, float2(suv.y / suv.x, suv.x / suv.y));
+
+					#if BLIT_MODE_PROJECTION
+					o.shadowCoords = mul(pp_ProjectorMatrix, o.worldPos);
+					#endif
 
 					return o;
 				}

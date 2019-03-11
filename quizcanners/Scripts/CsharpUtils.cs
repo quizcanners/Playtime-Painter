@@ -552,6 +552,8 @@ namespace QuizCannersUtilities
 
         public static List<T> NullIfEmpty<T>(this List<T> list) => (list == null || list.Count == 0) ? null : list;
 
+        public static string CountToString(this IList lst) => lst == null ? "NULL" : lst.Count.ToString();
+
         #endregion
 
         #region Array Management

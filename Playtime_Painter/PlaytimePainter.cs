@@ -923,14 +923,12 @@ namespace Playtime_Painter {
 
             if (fieldName == null)
                 return null;
-
-         
-                foreach (var t in Plugins)
-                {
-                    Texture tex = null;
-                    if (t.GetTexture(fieldName, ref tex, this))
-                        return tex;
-                }
+            
+            foreach (var t in Plugins) {
+                Texture tex = null;
+                if (t.GetTexture(fieldName, ref tex, this))
+                    return tex;
+            }
 
             return Material.Get(fieldName);
         }

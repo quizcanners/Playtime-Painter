@@ -3442,6 +3442,8 @@ namespace PlayerAndEditorGUI {
 
         public static bool Click(this icon icon, ref bool changed) => Click(icon.GetIcon(), icon.ToPegiString()).changes(ref changed);
 
+        public static bool ClickUnFocus(this icon icon) => ClickUnFocus(icon.GetIcon(), icon.ToPegiString());
+        
         public static bool ClickUnFocus(this icon icon, ref bool changed) => ClickUnFocus(icon.GetIcon(), icon.ToPegiString()).changes(ref changed);
         
         public static bool ClickUnFocus(this icon icon, int size = defaultButtonSize) => ClickUnFocus(icon.GetIcon(), icon.ToPegiString(), size);
@@ -5591,7 +5593,7 @@ namespace PlayerAndEditorGUI {
                 if (listMeta == null || listMeta.allowDelete) {
                     if (!isNull && typeof(T).IsUnityObject())
                     {
-                        if (icon.Delete.ClickUnfocus(Msg.MakeElementNull).changes(ref changed))
+                        if (icon.Delete.ClickUnFocus(Msg.MakeElementNull).changes(ref changed))
                             array[i] = default(T);
                     }
                     else
@@ -5678,12 +5680,12 @@ namespace PlayerAndEditorGUI {
 
                         if (!isNull && typeof(T).IsUnityObject())
                         {
-                            if (icon.Delete.ClickUnfocus(Msg.MakeElementNull))
+                            if (icon.Delete.ClickUnFocus(Msg.MakeElementNull))
                                 list[i] = default(T);
                         }
                         else
                         {
-                            if (icon.Close.ClickUnfocus(Msg.RemoveFromList).changes(ref changed))
+                            if (icon.Close.ClickUnFocus(Msg.RemoveFromList).changes(ref changed))
                             {
                                 list.RemoveAt(InspectedIndex);
                                 InspectedIndex--;
@@ -5968,7 +5970,7 @@ namespace PlayerAndEditorGUI {
                         }
                     }
                     
-                    if ((warningText == null && (listMeta == null ? icon.Enter : listMeta.Icon).ClickUnfocus(Msg.InspectElement)) || (warningText != null && icon.Warning.ClickUnFocus(warningText)))
+                    if ((warningText == null && (listMeta == null ? icon.Enter : listMeta.Icon).ClickUnFocus(Msg.InspectElement)) || (warningText != null && icon.Warning.ClickUnFocus(warningText)))
                         edited = index;
                         
                     if (!clickHighlightHandled)
@@ -6898,7 +6900,7 @@ namespace PlayerAndEditorGUI {
                         else
                             write(el.ToPegiString(), 120);
 
-                        if ((el is IPEGI) && icon.Enter.ClickUnfocus(Msg.InspectElement, 25))
+                        if ((el is IPEGI) && icon.Enter.ClickUnFocus(Msg.InspectElement, 25))
                             inspected = i;
                     }
                     newLine();

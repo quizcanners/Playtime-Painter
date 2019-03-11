@@ -8,7 +8,7 @@ using QuizCannersUtilities;
 
 namespace QuizCannersUtilities {
 
-    public static class QcMath {
+    public static partial class QcMath {
 
         #region Checks
         public static bool IsNaN(this Vector3 q)
@@ -89,166 +89,6 @@ namespace QuizCannersUtilities {
         {
             return new Vector3((int)v3.x, (int)v3.y, (int)v3.z);
         }
-
-        #endregion
-
-        #region Lerps
-
-        public static float SpeedToPortion(this float speed, float dist) => dist != 0 ? Mathf.Clamp01(speed * Time.deltaTime / Mathf.Abs(dist)) : 1;
-
-        public static bool SpeedToMinPortion(this float speed, float dist, ref float portion)
-        {
-
-            var nPortion = speed.SpeedToPortion(dist);
-            if (!(nPortion < portion)) 
-                return (1 - portion) < float.Epsilon && dist > 0;
-            
-            portion = nPortion;
-            
-            return true;
-
-        }
-        
-        public static bool IsLerpingBySpeed(ref float from, float to, float speed)
-        {
-            if (from == to)
-                return false;
-
-            from = Mathf.LerpUnclamped(from, to, speed.SpeedToPortion(Mathf.Abs(from - to)));
-            return true;
-        }
-
-        public static bool LerpBySpeed(ref float from, float to, float speed, out float portion)
-        {
-            if (from == to)
-            {
-                portion = 1;
-                return false;
-            }
-
-            portion = speed.SpeedToPortion(Mathf.Abs(from - to));
-            from = Mathf.LerpUnclamped(from, to, portion);
-
-            return true;
-        }
-
-        public static float LerpBySpeed(float from, float to, float speed)
-            => Mathf.LerpUnclamped(from, to, speed.SpeedToPortion(Mathf.Abs(from - to)));
-
-        public static float LerpBySpeed(float from, float to, float speed, out float portion)
-        {
-            portion = speed.SpeedToPortion(Mathf.Abs(from - to));
-            return Mathf.LerpUnclamped(from, to, portion);
-        }
-
-        public static bool LerpAngle_bySpeed(ref float from, float to, float speed)
-        {
-            float dist = Mathf.Abs(Mathf.DeltaAngle(from, to));
-            if (dist > 0)
-            {
-                float portion = speed.SpeedToPortion(dist);
-                from = Mathf.LerpAngle(from, to, portion);
-                return true;
-            }
-            return false;
-        }
-        
-        public static Vector2 LerpBySpeed(this Vector2 from, Vector2 to, float speed) => Vector2.LerpUnclamped(from, to, speed.SpeedToPortion(Vector2.Distance(from, to)));
-
-        public static Vector2 LerpBySpeed(this Vector2 from, Vector2 to, float speed, out float portion)
-        {
-            portion = speed.SpeedToPortion(Vector3.Distance(from, to));
-            return Vector3.LerpUnclamped(from, to, portion);
-        }
-        
-        public static Vector3 LerpBySpeed(this Vector3 from, Vector3 to, float speed) => Vector3.LerpUnclamped(from, to, speed.SpeedToPortion(Vector3.Distance(from, to)));
-
-        public static Vector3 LerpBySpeed(this Vector3 from, Vector3 to, float speed, out float portion)
-        {
-            portion = speed.SpeedToPortion(Vector3.Distance(from, to));
-            return Vector3.LerpUnclamped(from, to, portion);
-        }
-        
-        public static Vector4 LerpBySpeed(this Vector4 from, Vector4 to, float speed) => Vector4.LerpUnclamped(from, to, speed.SpeedToPortion(Vector4.Distance(from, to)));
-
-        public static Vector4 LerpBySpeed(this Vector4 from, Vector4 to, float speed, out float portion)
-        {
-            portion = speed.SpeedToPortion(Vector4.Distance(from, to));
-            return Vector4.LerpUnclamped(from, to, portion);
-        }
-        
-        public static Quaternion LerpBySpeed(this Quaternion from, Quaternion to, float speed) => Quaternion.LerpUnclamped(from, to, speed.SpeedToPortion(Quaternion.Angle(from, to)));
-
-        public static Quaternion LerpBySpeed(this Quaternion from, Quaternion to, float speed, out float portion)
-        {
-            portion = speed.SpeedToPortion(Quaternion.Angle(from, to));
-            return Quaternion.LerpUnclamped(from, to, portion);
-        }
-
-        public static float DistanceRgb(this Color col, Color other)
-            =>
-            (Mathf.Abs(col.r - other.r) + Mathf.Abs(col.g - other.g) + Mathf.Abs(col.b - other.b));
-
-        public static float DistanceRgba(this Color col, Color other)
-        {
-
-            float dist = ((Mathf.Abs(col.r - other.r) + Mathf.Abs(col.g - other.g) + Mathf.Abs(col.b - other.b)) * 0.33f + Mathf.Abs(col.a - other.a));
-
-            return dist;
-        }
-
-        public static Color LerpBySpeed(this Color from, Color to, float speed) => Color.LerpUnclamped(from, to, speed.SpeedToPortion(from.DistanceRgb(to)));
-
-        public static Color Lerp_RGB(this Color from, Color to, float speed, out float portion)
-        {
-            portion = speed.SpeedToPortion(from.DistanceRgb(to));
-            to.a = from.a;
-            return Color.LerpUnclamped(from, to, portion);
-        }
-
-        public static bool IsLerpingAlphaBySpeed<T>(this List<T> imgs, float alpha, float speed) where T : Graphic
-        {
-     
-            if (imgs.IsNullOrEmpty()) return false;
-
-            var changing = false;
-            
-            foreach (var i in imgs)
-                changing |= i.IsLerpingAlphaBySpeed(alpha, speed);
-            
-            return changing;
-        }
-
-        public static bool IsLerpingAlphaBySpeed<T>(this T img, float alpha, float speed) where T : Graphic
-        {
-            if (!img) return false;
-
-            var changing = false;
-
-            var col = img.color;
-            col.a = LerpBySpeed(col.a, alpha, speed);
-
-            img.color = col;
-            changing |= col.a != alpha;
-
-            return changing;
-        }
-
-        public static bool IsLerpingRgbBySpeed<T>(this T img, Color target, float speed) where T : Graphic
-        {
-            bool changing = false;
-
-            if (img)
-            {
-                float portion;
-                img.color = img.color.Lerp_RGB(target, speed, out portion);
-                
-                changing = portion < 1;
-            }
-
-            return changing;
-        }
-
 
         #endregion
 
@@ -867,17 +707,14 @@ namespace QuizCannersUtilities {
         #endregion
     }
 
-
-
 }
 
+#region Inspection
 namespace PlayerAndEditorGUI
 {
 #if PEGI
     public static partial class pegi
     {
-
-        #region Custom Structs
 
         public static bool edit(ref MyIntVec2 val)
         {
@@ -958,8 +795,7 @@ namespace PlayerAndEditorGUI
             return edit(ref val, min, max);
         }
 
-        #endregion
-
     }
 #endif
 }
+#endregion

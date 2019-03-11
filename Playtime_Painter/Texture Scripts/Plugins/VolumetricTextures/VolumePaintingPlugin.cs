@@ -3,17 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-using Unity.Jobs;
-using Unity.Collections;
-using System;
 
 namespace Playtime_Painter
 {
 
     [TaggedType(tag)]
     public class VolumePaintingPlugin : PainterSystemManagerPluginBase, IGotDisplayName,
-        IPainterManagerPluginComponentPEGI, IPainterManagerPluginBrush, IPainterManagerPluginGizmis
-    {
+        IPainterManagerPluginComponentPEGI, IPainterManagerPluginBrush, IPainterManagerPluginGizmis {
 
         const string tag = "VolumePntng";
         public override string ClassTag => tag;
@@ -335,10 +331,9 @@ namespace Playtime_Painter
         {
             if (!field.IsGlobalVolume()) return false;
 
-            GlobalVolume.texture = id.CurrentTexture() as Texture2D;
+            GlobalVolume.ImageMeta = id; 
 
             GlobalVolume.UpdateMaterials();
-            
 
             return true;
         }
@@ -347,7 +342,7 @@ namespace Playtime_Painter
         {
             if (!field.IsGlobalVolume()) return false;
 
-            tex = GlobalVolume.texture;
+            tex = GlobalVolume.ImageMeta.CurrentTexture();
 
             return true;
         }

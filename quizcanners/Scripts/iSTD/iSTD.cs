@@ -432,7 +432,7 @@ namespace QuizCannersUtilities {
 
         public virtual bool IsDefault => false;
 
-        protected readonly ListMetaData referencesMeta = new ListMetaData("References");
+        protected ListMetaData referencesMeta = new ListMetaData("References");
 
         [HideInInspector]
         [SerializeField] protected List<UnityEngine.Object> nestedReferences = new List<UnityEngine.Object>();

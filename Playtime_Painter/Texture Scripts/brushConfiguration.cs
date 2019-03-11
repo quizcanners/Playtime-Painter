@@ -35,9 +35,9 @@ namespace Playtime_Painter {
 
         [SerializeField] private int _inGpuBlitMode;
         [SerializeField] private int _inCpuBlitMode;
-        public int blitMode(bool cpu) => cpu ? _inCpuBlitMode : _inGpuBlitMode;
-        public BlitMode GetBlitMode(bool cpu) => BlitMode.AllModes[blitMode(cpu)];
-        public BlitMode GetBlitMode(PlaytimePainter painter) => BlitMode.AllModes[blitMode(IsCpu(painter))];
+        public int BlitMode(bool cpu) => cpu ? _inCpuBlitMode : _inGpuBlitMode;
+        public BlitMode GetBlitMode(bool cpu) => Playtime_Painter.BlitMode.AllModes[BlitMode(cpu)];
+        public BlitMode GetBlitMode(PlaytimePainter painter) => Playtime_Painter.BlitMode.AllModes[BlitMode(IsCpu(painter))];
         
         public void SetBlitMode(bool cpu, BlitMode mode)
         {
@@ -51,15 +51,15 @@ namespace Playtime_Painter {
             if (!cpu) {
                 if (rtDoubleBuffer) {
                     if (!GetBrushType(false).SupportedByRenderTexturePair) foreach (var t in BrushType.AllTypes) { if (t.SupportedByRenderTexturePair) { TypeSet(false, t); break; } }
-                    if (!GetBlitMode(false).SupportedByRenderTexturePair) foreach (var t in BlitMode.AllModes) { if (t.SupportedByRenderTexturePair) { SetBlitMode(false, t); break; } }
+                    if (!GetBlitMode(false).SupportedByRenderTexturePair) foreach (var t in Playtime_Painter.BlitMode.AllModes) { if (t.SupportedByRenderTexturePair) { SetBlitMode(false, t); break; } }
                 } else {
                     if (!GetBrushType(false).SupportedBySingleBuffer) foreach (var t in BrushType.AllTypes) { if (t.SupportedBySingleBuffer) { TypeSet(false, t); break; } }
-                    if (!GetBlitMode(false).SupportedBySingleBuffer) foreach (var t in BlitMode.AllModes) { if (t.SupportedBySingleBuffer) { SetBlitMode(false, t); break; } }
+                    if (!GetBlitMode(false).SupportedBySingleBuffer) foreach (var t in Playtime_Painter.BlitMode.AllModes) { if (t.SupportedBySingleBuffer) { SetBlitMode(false, t); break; } }
                 }
             } else
             {
                 if (!GetBrushType(true).SupportedByTex2D) foreach (var t in BrushType.AllTypes) { if (t.SupportedByTex2D) { TypeSet(true, t); break; } }
-                if (!GetBlitMode(true).SupportedByTex2D) foreach (var t in BlitMode.AllModes) { if (t.SupportedByTex2D) { SetBlitMode(true, t); break; } }
+                if (!GetBlitMode(true).SupportedByTex2D) foreach (var t in Playtime_Painter.BlitMode.AllModes) { if (t.SupportedByTex2D) { SetBlitMode(true, t); break; } }
             }
         }
         
@@ -236,7 +236,7 @@ namespace Playtime_Painter {
 
             Msg.BlitMode.Write("How final color will be calculated", 70);
           
-            if (pegi.select(ref blitMode, BlitMode.AllModes).changes(ref changed))
+            if (pegi.select(ref blitMode, Playtime_Painter.BlitMode.AllModes).changes(ref changed))
                 SetBlitMode(cpu, blitMode);
 
             blitMode?.ToolTip.fullWindowDocumentationClick("About this blit mode", 20).nl();
@@ -498,9 +498,9 @@ namespace Playtime_Painter {
                             ChannelSlider(BrushMask.B, ref colorLinear.b, null, slider_copy).nl(ref changed);
                         }
                         
-                        var gotAlpha = painter.meshEditing || id.texture2D.TextureHasAlpha();
+                        var gotAlpha = painter.meshEditing || id == null || id.texture2D.TextureHasAlpha();
 
-                        if (!painter.IsEditingThisMesh &&  (gotAlpha || id.preserveTransparency) && !id.isATransparentLayer) {
+                        if (id == null ||  (!painter.IsEditingThisMesh &&  (gotAlpha || id.preserveTransparency) && !id.isATransparentLayer)) {
                             if (!gotAlpha)
                                 icon.Warning.write("Texture as no alpha, clicking save will fix it");
 

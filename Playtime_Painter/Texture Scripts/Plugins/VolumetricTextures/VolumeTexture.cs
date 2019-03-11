@@ -13,11 +13,11 @@ namespace Playtime_Painter {
     public class VolumeTexture : PainterSystemMono, IGotName
     {
 
-        [SerializeField] private bool setForGlobal;
+        [SerializeField] private bool _setForGlobal;
 
         public static VolumeTexture currentlyActiveGlobalVolume;
 
-        protected bool IsCurrentGlobalVolume => setForGlobal && this == currentlyActiveGlobalVolume;
+        protected bool IsCurrentGlobalVolume => _setForGlobal && this == currentlyActiveGlobalVolume;
         
         public static List<VolumeTexture> all = new List<VolumeTexture>();
 
@@ -323,8 +323,8 @@ namespace Playtime_Painter {
             
             if (inspectedMaterial == -1) {
 
-                "Also set for Global shader parameters".toggleIcon(ref setForGlobal, true).changes(ref changed);
-                if (setForGlobal)
+                "Also set for Global shader parameters".toggleIcon(ref _setForGlobal, true).changes(ref changed);
+                if (_setForGlobal)
                 {
                     "Current is {0}".F(currentlyActiveGlobalVolume).nl();
                     if (this != currentlyActiveGlobalVolume && "Set this".Click(ref changed))
@@ -402,7 +402,7 @@ namespace Playtime_Painter {
             
             materials.SetVolumeTexture(MaterialPropertyName, this);
 
-            if (!setForGlobal) return;
+            if (!_setForGlobal) return;
 
             if (!currentlyActiveGlobalVolume)
                 currentlyActiveGlobalVolume = this;
@@ -424,7 +424,7 @@ namespace Playtime_Painter {
             
             materials.SetVolumeTexture(MaterialPropertyName, this);
 
-            if (setForGlobal && !currentlyActiveGlobalVolume)
+            if (_setForGlobal && !currentlyActiveGlobalVolume)
                 UpdateMaterials();
         }
 
