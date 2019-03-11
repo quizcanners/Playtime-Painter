@@ -18,7 +18,7 @@ namespace Playtime_Painter.Examples {
 
         public float ColorAlpha { get { return Brush.colorLinear.a; } set { Brush.colorLinear.a = value; Brush.previewDirty = true; } }
 
-        public float Speed { get { return Brush.speed; } set { Brush.speed = value; Brush.previewDirty = true; } }
+        public float Speed { get { return Brush.Speed; } set { Brush.Speed = value; Brush.previewDirty = true; } }
 
 
 

@@ -138,11 +138,15 @@ namespace Playtime_Painter {
                 pegi.nl();
 
                 if (!cpuBlit)
-                    "Hardness:".edit("Makes edges more rough.", 70, ref InspectedBrush.hardness, 1f, 512f)
-                        .nl(ref changed);
+                    "Hardness:".edit("Makes edges more rough.", 70, ref InspectedBrush.hardness, 1f, 22f).nl(ref changed);
 
-                (usingDecals ? "Tint alpha" : "Speed").edit(usingDecals ? 70 : 40, ref InspectedBrush.speed, 0.01f, 20)
-                    .nl(ref changed);
+                //var tmpSpeed = InspectedBrush.Speed;
+                (usingDecals ? "Tint alpha" : "Speed").write(usingDecals ? 70 : 40);
+
+                InspectedBrush._dSpeed.Inspect().nl(ref changed);
+                    //.edit(, ref tmpSpeed, 0.01f, 4.5f)
+                  //  .nl(ref changed))
+                   // InspectedBrush.Speed = tmpSpeed;
 
                 "Scale:".write(40);
 
@@ -213,6 +217,7 @@ namespace Playtime_Painter {
     }
 
     #endregion
+
     #region Add Blit
 
     public class BlitModeAdd : BlitMode
@@ -233,6 +238,7 @@ namespace Playtime_Painter {
     }
 
     #endregion
+    
     #region Subtract Blit
 
     public class BlitModeSubtract : BlitMode

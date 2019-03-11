@@ -1,19 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
-using System;
 using System.Collections.Generic;
 using PlayerAndEditorGUI;
-
 using QuizCannersUtilities;
 
-namespace STD_Logic
-{
+namespace STD_Logic {
 
     public sealed class TriggerGroup : AbstractKeepUnrecognizedStd, IGotName, IGotIndex, IPEGI, IPEGI_ListInspect {
 
         public static UnNullableStd<TriggerGroup> all = new UnNullableStd<TriggerGroup>();
        
-
         private UnNullableStd<Trigger> _triggers = new UnNullableStd<Trigger>();
 
         public readonly UnNullableStd<UnNullableStdLists<Values>> taggedInts = new UnNullableStd<UnNullableStdLists<Values>>();
@@ -291,7 +287,8 @@ namespace STD_Logic
         public TriggerGroup() {
             _index = UnNullableStd<TriggerGroup>.indexOfCurrentlyCreatedUnnulable;
         }
-
     }
+
+
 }
 

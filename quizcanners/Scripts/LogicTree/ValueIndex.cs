@@ -210,7 +210,7 @@ namespace STD_Logic
 
 
 #if PEGI
-        public static bool Toogle(this UnNullableStd<CountlessBool> uc, ValueIndex ind)
+        public static bool Toggle(this UnNullableStd<CountlessBool> uc, ValueIndex ind)
         {
             var tmp = uc.Get(ind);//[ind.groupIndex][ind.triggerIndex];
             if (pegi.toggleIcon(ref tmp))

@@ -14,11 +14,8 @@ namespace STD_Logic
 
         private static readonly List<TriggerUsage> Usages = new List<TriggerUsage>();
 
-        public static TriggerUsage Get(int ind) {
-            return Usages[ind];
-        }
-
-
+        public static TriggerUsage Get(int ind) => Usages[ind];
+        
         #region Inspector
         #if PEGI
         public static bool SelectUsage(ref int ind) => pegi.select(ref ind, Usages, 45);
@@ -80,13 +77,11 @@ namespace STD_Logic
 
         public abstract string NameForDisplayPEGI { get;  }
 
-        public virtual bool UsingEnum() {
-            return false;
-        }
-
-        public static readonly Usage_Boolean Boolean = new Usage_Boolean(0);
-        public static readonly Usage_Number Number = new Usage_Number(1);
-        public static readonly Usage_StringEnum Enumeration = new Usage_StringEnum(2);
+        public virtual bool UsingEnum() => false;
+        
+        public static readonly UsageBoolean Boolean = new UsageBoolean(0);
+        public static readonly UsageNumber Number = new UsageNumber(1);
+        public static readonly UsageStringEnum Enumeration = new UsageStringEnum(2);
         public static readonly UsageGameTimeStamp Timestamp = new UsageGameTimeStamp(3);
         public static readonly UsageRealTimeStamp RealTime = new UsageRealTimeStamp(4);
         //  public static Usage_BoolTag boolTag = new Usage_BoolTag(5);
@@ -106,7 +101,7 @@ namespace STD_Logic
         }
     }
 
-    public class Usage_Boolean : TriggerUsage {
+    public class UsageBoolean : TriggerUsage {
 
         public override string NameForDisplayPEGI => "YesNo";
 
@@ -139,7 +134,7 @@ namespace STD_Logic
             var vals = Values.global;
             
             var changed = base.Inspect(t);
-            vals.booleans.Toogle(t).changes(ref changed); 
+            vals.booleans.Toggle(t).changes(ref changed); 
 
             return changed;
         }
@@ -148,10 +143,10 @@ namespace STD_Logic
 
         public override bool IsBoolean => true;
 
-        public Usage_Boolean(int index) : base(index) { }
+        public UsageBoolean(int index) : base(index) { }
     }
 
-    public class Usage_Number : TriggerUsage {
+    public class UsageNumber : TriggerUsage {
 
         public override string NameForDisplayPEGI => "Number";
 
@@ -184,28 +179,24 @@ namespace STD_Logic
             }
         }
 
-        public override bool Inspect(Result r) {
-            var changed = false;
-
-            changed |= Select(ref r.type, ResultUsages);
-
-            changed |= pegi.edit(ref r.updateValue, 40);
-            return changed;
-        }
+        public override bool Inspect(Result r) => 
+            Select(ref r.type, ResultUsages) ||
+            pegi.edit(ref r.updateValue, 40);
+        
 
         public override bool Inspect(Trigger t) {
             var changed = base.Inspect(t);
-            changed |= Values.global.ints.Edit(t);
+            Values.global.ints.Edit(t).changes(ref changed);
 
             return changed;
         }
 #endif
         #endregion
 
-        public Usage_Number(int index) : base(index) { }
+        public UsageNumber(int index) : base(index) { }
     }
     
-    public class Usage_StringEnum : TriggerUsage
+    public class UsageStringEnum : TriggerUsage
     {
 
         public override string NameForDisplayPEGI => "Enums";
@@ -219,7 +210,7 @@ namespace STD_Logic
 
             if (num != null)
             {
-                Select(ref num.type, Usage_Number.ConditionUsages);
+                Select(ref num.type, UsageNumber.ConditionUsages);
 
                 pegi.select(ref num.compareValue, num.Trigger.enm);
             }
@@ -230,7 +221,7 @@ namespace STD_Logic
         public override bool Inspect(Result r) {
             bool changed = false;
 
-            changed |= Select(ref r.type, Usage_Number.ResultUsages);
+            changed |= Select(ref r.type, UsageNumber.ResultUsages);
             
             pegi.select(ref r.updateValue, r.Trigger.enm);
             return changed;
@@ -254,7 +245,7 @@ namespace STD_Logic
 
         public override bool HasMoreTriggerOptions => true;
         
-        public Usage_StringEnum(int index) : base(index) { }
+        public UsageStringEnum(int index) : base(index) { }
     }
 
     public class UsageGameTimeStamp : TriggerUsage {
@@ -309,7 +300,7 @@ namespace STD_Logic
 
         public override string NameForDisplayPEGI => "Real Time";
 
-        private static readonly Dictionary<int, string> conditionUsages = new Dictionary<int, string> {
+        private static readonly Dictionary<int, string> ConditionUsages = new Dictionary<int, string> {
             { ((int)ConditionType.RealTimePassedAbove), "Real_Time passed > " },
             { ((int)ConditionType.RealTimePassedBelow), "Real_Time passed < " },
         };
@@ -324,26 +315,27 @@ namespace STD_Logic
                 icon.Warning.write("Condition is not a number", 90);
             else
             {
-                Select(ref num.type, conditionUsages);
+                Select(ref num.type, ConditionUsages);
 
                 pegi.edit(ref num.compareValue, 40);
             }
         }
 
         public override bool Inspect(Result r) {
-            bool changed = false;
+            var changed = false;
 
-            changed |= Select(ref r.type, resultUsages);
+            Select(ref r.type, ResultUsages).changes(ref changed);
             
             if (r.type != ResultType.SetTimeReal)
-                changed |= pegi.edit(ref r.updateValue);
+                pegi.edit(ref r.updateValue).changes(ref changed);
+
             return changed;
         }
 
 #endif
         #endregion
 
-        private static readonly Dictionary<int, string> resultUsages = new Dictionary<int, string> {
+        private static readonly Dictionary<int, string> ResultUsages = new Dictionary<int, string> {
             {(int)ResultType.SetTimeReal, ResultType.SetTimeReal.GetText()},
             {(int)ResultType.Add, ResultType.Add.GetText()},
             {(int)ResultType.Subtract, ResultType.Subtract.GetText()},

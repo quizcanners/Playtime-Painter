@@ -676,10 +676,7 @@ namespace QuizCannersUtilities {
             foreach (var i in GetItAll())
                 yield return i;
         }
-    
-    
-
-}
+    }
 
 ///  Generic Trees
 public class Countless<T> : CountlessBase {
@@ -724,26 +721,25 @@ public class Countless<T> : CountlessBase {
                 {
                     depth++;
                     max *= BranchSize;
-                    VariableBranch newbr = GetNewBranch();
-                    //newbr.br = new VariableBranch[branchSize];
-                    newbr.br[0] = br;
-                    newbr.value++;
-                    br = newbr;
+                    var newBranch = GetNewBranch();
+                    newBranch.br[0] = br;
+                    newBranch.value++;
+                    br = newBranch;
                 }
                 path = new VariableBranch[depth];
                 pathInd = new int[depth];
             }
 
-            int d = depth;
-            VariableBranch vb = br;
-            int subSize = max;
+            var d = depth;
+            var vb = br;
+            var subSize = max;
 
             if (!obj.IsDefaultOrNull())
             {
                 while (d > 0)
                 {
                     subSize /= BranchSize;
-                    int no = ind / subSize;
+                    var no = ind / subSize;
                     ind -= no * subSize;
                     if (vb.br[no] == null) { vb.br[no] = GetNewBranch(); vb.value++; }
                     d--;
@@ -755,8 +751,8 @@ public class Countless<T> : CountlessBase {
                     vb.br[ind] = GetNewFruit();
                     vb.value += 1;
 
-                    int cnt = objs.Length;
-                    while ((_firstFreeObj < cnt) && (!objs[_firstFreeObj].IsDefaultOrNull())) _firstFreeObj++;
+                    var cnt = objs.Length;
+                    while (_firstFreeObj < cnt && !objs[_firstFreeObj].IsDefaultOrNull()) _firstFreeObj++;
                     if (_firstFreeObj >= cnt)
                         Expand(ref objs, BranchSize);
 
@@ -772,7 +768,7 @@ public class Countless<T> : CountlessBase {
                 while (d > 0)
                 {
                     subSize /= BranchSize;
-                    int no = ind / subSize;
+                    var no = ind / subSize;
                     ind -= no * subSize;
                     if (vb.br[no] == null) return;
                     d--;
@@ -784,11 +780,7 @@ public class Countless<T> : CountlessBase {
                 if (vb.br[ind] == null)
                     return;
 
-
-                int ar = vb.br[ind].value;
-
-                //  if (ar == 0)
-                //    Debug.Log("ar is zero");
+                var ar = vb.br[ind].value;
 
                 objs[ar] = default(T);
                 _firstFreeObj = Mathf.Min(_firstFreeObj, ar);
@@ -814,14 +806,14 @@ public class Countless<T> : CountlessBase {
             if (ind >= max || ind<0)
                 return default(T);
 
-            int d = depth;
-            VariableBranch vb = br;
-            int subSize = max;
+            var d = depth;
+            var vb = br;
+            var subSize = max;
 
             while (d > 0)
             {
                 subSize /= BranchSize;
-                int no = ind / subSize;
+                var no = ind / subSize;
                 ind -= no * subSize;
                 if (vb.br[no] == null)
                     return default(T);
@@ -829,35 +821,24 @@ public class Countless<T> : CountlessBase {
                 vb = vb.br[no];
             }
 
-            if (vb.br[ind] == null)
-                return default(T);
-
-            return objs[vb.br[ind].value];
+            return vb.br[ind] == null ? default(T) : objs[vb.br[ind].value];
         }
 
-        public List<T> GetAllObjsNoOrder()
-        {
-            List<T> tmp = new List<T>();
-            for (int i = 0; i < objs.Length; i++)
-                if (!objs[i].IsDefaultOrNull())
-                    tmp.Add(objs[i]);
-
-            return tmp;
-        }
-
+        public List<T> GetAllObjsNoOrder() => objs.Where(t => !t.IsDefaultOrNull()).ToList();
+        
         public List<T> GetAllObjs(out List<int> inds)
         {
-            List<T> objects = new List<T>();
+            var objects = new List<T>();
             List<int> vals;
             GetAllOrdered(out inds, out vals);
 
-            foreach (int i in vals)
+            foreach (var i in vals)
                 objects.Add(objs[i]);
 
             return objects;
         }
 
-        void GetAllOrdered(out List<int> inds, out List<int> vals)
+        private void GetAllOrdered(out List<int> inds, out List<int> vals)
         {
             inds = new List<int>();
             vals = new List<int>();
@@ -866,14 +847,12 @@ public class Countless<T> : CountlessBase {
 
         void GetAllCascadeInt(ref List<int> inds, ref List<int> vals, VariableBranch b, int dp, int start, int range)
         {
-            int step = range / BranchSize;
+            var step = range / BranchSize;
             if (dp > 0)
             {
-                for (int i = 0; i < BranchSize; i++)
+                for (var i = 0; i < BranchSize; i++)
                     if (b.br[i] != null)
                         GetAllCascadeInt(ref inds, ref vals, b.br[i], dp - 1, start + step * i, step);
-
-
             }
             else
             {
@@ -881,7 +860,7 @@ public class Countless<T> : CountlessBase {
                 if (range != BranchSize)
                     Debug.Log("Error in range: " + range);
 
-                for (int i = 0; i < 8; i++)
+                for (var i = 0; i < 8; i++)
                     if (b.br[i] != null)
                     {
                         inds.Add(start + i);
@@ -903,13 +882,12 @@ public class Countless<T> : CountlessBase {
 
         public IEnumerator<T> GetEnumerator() {
             List<int> indx;
-            List<T> all = GetAllObjs(out indx);
-            for (int i = 0; i < all.Count; i++) {
+            var all = GetAllObjs(out indx);
+            for (var i = 0; i < all.Count; i++) {
                 var e = all[i];
-                if (!e.IsDefaultOrNull()) {
-                    currentEnumerationIndex = indx[i];
-                    yield return e;
-                }
+                if (e.IsDefaultOrNull()) continue;
+                currentEnumerationIndex = indx[i];
+                yield return e;
             }
         }
 

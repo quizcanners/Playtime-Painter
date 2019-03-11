@@ -924,7 +924,9 @@ namespace QuizCannersUtilities
             public MaterialFloat(string nName, float startingValue, float startingSpeed = 1, Renderer renderer = null,
                 Material m = null) : base(startingSpeed, m, renderer)
             {
-                _property = new ShaderProperty.FloatValue(nName) {GlobalValue = startingValue};
+                _property = new ShaderProperty.FloatValue(nName); 
+                targetValue = startingValue;
+                Value = startingValue;
             }
 
             public override bool Portion(ref float linkedPortion) =>
@@ -992,7 +994,6 @@ namespace QuizCannersUtilities
                 Renderer renderer = null) : base(startingSpeed, m, renderer)
             {
                 _property = new ShaderProperty.ColorValue(nName);
-
                 Value = startingValue;
             }
 

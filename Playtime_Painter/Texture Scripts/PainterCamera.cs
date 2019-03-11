@@ -136,7 +136,8 @@ namespace Playtime_Painter {
 
             UnityUtils.RenamingLayer(l, "Playtime Painter's Layer");
 
-            brushRenderer.gameObject.layer = l;
+            if (brushRenderer)
+                brushRenderer.gameObject.layer = l;
 
 #if UNITY_EDITOR
 
@@ -378,22 +379,24 @@ namespace Playtime_Painter {
 
         #region Brush Shader MGMT
 
-        ShaderProperty.TextureValue decal_HeightProperty =      new ShaderProperty.TextureValue("_VolDecalHeight");
-        ShaderProperty.TextureValue decal_OverlayProperty =     new ShaderProperty.TextureValue("_VolDecalOverlay");
-        ShaderProperty.VectorValue decal_ParametersProperty =   new ShaderProperty.VectorValue("_DecalParameters");
+        private readonly ShaderProperty.TextureValue _decalHeightProperty =      new ShaderProperty.TextureValue("_VolDecalHeight");
+        private readonly ShaderProperty.TextureValue _decalOverlayProperty =     new ShaderProperty.TextureValue("_VolDecalOverlay");
+        private readonly ShaderProperty.VectorValue _decalParametersProperty =   new ShaderProperty.VectorValue("_DecalParameters");
 
         public void Shader_UpdateDecal(BrushConfig brush)
         {
 
-            VolumetricDecal vd = Data.decals.TryGet(brush.selectedDecal);
+            var vd = Data.decals.TryGet(brush.selectedDecal);
 
-            if (vd != null)
-            {
-                decal_HeightProperty.GlobalValue = vd.heightMap;
-                decal_OverlayProperty.GlobalValue = vd.overlay;
-                decal_ParametersProperty.GlobalValue = new Vector4(brush.decalAngle * Mathf.Deg2Rad, (vd.type == VolumetricDecalType.Add) ? 1 : -1,
-                        Mathf.Clamp01(brush.speed / 10f), 0);
-            }
+            if (vd == null) return;
+
+            _decalHeightProperty.GlobalValue = vd.heightMap;
+            _decalOverlayProperty.GlobalValue = vd.overlay;
+            _decalParametersProperty.GlobalValue = new Vector4(
+                brush.decalAngle * Mathf.Deg2Rad, 
+                (vd.type == VolumetricDecalType.Add) ? 1 : -1,
+                Mathf.Clamp01(brush.Speed / 10f), 
+                0);
 
         }
 
@@ -411,17 +414,17 @@ namespace Playtime_Painter {
             PainterDataAndConfig.BRUSH_WORLD_POS_TO.GlobalValue = st.posTo.ToVector4((st.posTo - _prevPosPreview).magnitude); //new Vector4(st.posTo.x, st.posTo.y, st.posTo.z, (st.posTo - prevPosPreview).magnitude));
             _prevPosPreview = st.posTo;
         }
-        
-        ShaderProperty.VectorValue brushColor_Property =        new ShaderProperty.VectorValue("_brushColor");
-        ShaderProperty.VectorValue brushMask_Property =         new ShaderProperty.VectorValue("_brushMask");
-        ShaderProperty.VectorValue maskDynamics_Property =      new ShaderProperty.VectorValue("_maskDynamics");
-        ShaderProperty.VectorValue maskOffset_Property =        new ShaderProperty.VectorValue("_maskOffset");
-        ShaderProperty.VectorValue brushForm_Property =         new ShaderProperty.VectorValue("_brushForm");
-        ShaderProperty.VectorValue textureSourceParameters = new ShaderProperty.VectorValue("_srcTextureUsage");
 
-        ShaderProperty.TextureValue sourceMask_Property = new ShaderProperty.TextureValue("_SourceMask");
-        ShaderProperty.TextureValue sourceTexture_Property = new ShaderProperty.TextureValue("_SourceTexture");
-        ShaderProperty.TextureValue transparentLayerUnder_Property = new ShaderProperty.TextureValue("_TransparentLayerUnderlay");
+        private static readonly ShaderProperty.VectorValue BrushColorProperty =        new ShaderProperty.VectorValue("_brushColor");
+        private static readonly ShaderProperty.VectorValue BrushMaskProperty =         new ShaderProperty.VectorValue("_brushMask");
+        private static readonly ShaderProperty.VectorValue MaskDynamicsProperty =      new ShaderProperty.VectorValue("_maskDynamics");
+        private static readonly ShaderProperty.VectorValue MaskOffsetProperty =        new ShaderProperty.VectorValue("_maskOffset");
+        private static readonly ShaderProperty.VectorValue BrushFormProperty =         new ShaderProperty.VectorValue("_brushForm");
+        private static readonly ShaderProperty.VectorValue TextureSourceParameters = new ShaderProperty.VectorValue("_srcTextureUsage");
+
+        private static readonly ShaderProperty.TextureValue SourceMaskProperty = new ShaderProperty.TextureValue("_SourceMask");
+        private static readonly ShaderProperty.TextureValue SourceTextureProperty = new ShaderProperty.TextureValue("_SourceTexture");
+        private static readonly ShaderProperty.TextureValue TransparentLayerUnderProperty = new ShaderProperty.TextureValue("_TransparentLayerUnderlay");
 
         public void Shader_UpdateBrushConfig(BrushConfig brush = null, float brushAlpha = 1, ImageMeta id = null, PlaytimePainter painter = null)
         {
@@ -448,9 +451,9 @@ namespace Playtime_Painter {
             var is3DBrush = brush.IsA3DBrush(painter);
             var isDecal = rendTex && brushType.IsUsingDecals;
 
-            brushColor_Property.GlobalValue = brush.Color;
+            BrushColorProperty.GlobalValue = brush.Color;
 
-            brushMask_Property.GlobalValue = new Vector4(
+            BrushMaskProperty.GlobalValue = new Vector4(
                 BrushExtensions.HasFlag(brush.mask, BrushMask.R) ? 1 : 0,
                 BrushExtensions.HasFlag(brush.mask, BrushMask.G) ? 1 : 0,
                 BrushExtensions.HasFlag(brush.mask, BrushMask.B) ? 1 : 0,
@@ -463,7 +466,7 @@ namespace Playtime_Painter {
                 var md = painter.MatDta;
                 if (md != null && md.usePreviewShader && md.material) {
                     var mt = md.material.mainTexture;
-                    transparentLayerUnder_Property.GlobalValue = mt;
+                    TransparentLayerUnderProperty.GlobalValue = mt;
                     useTransparentLayerBackground = (mt && (id != mt.GetImgDataIfExists())) ? 1 : 0;
                 }
             }
@@ -472,17 +475,17 @@ namespace Playtime_Painter {
             if (isDecal) Shader_UpdateDecal(brush);
 
             if (rendTex)
-                sourceMask_Property.GlobalValue = brush.useMask ? Data.masks.TryGet(brush.selectedSourceMask) : null;
+                SourceMaskProperty.GlobalValue = brush.useMask ? Data.masks.TryGet(brush.selectedSourceMask) : null;
 
-            maskDynamics_Property.GlobalValue = new Vector4(
+            MaskDynamicsProperty.GlobalValue = new Vector4(
                 brush.maskTiling,
-                rendTex ? brush.hardness : 0,       // y - Hardness is 0 to do correct preview for Texture2D brush 
+                rendTex ? brush.hardness * brush.hardness : 0,       // y - Hardness is 0 to do correct preview for Texture2D brush 
                 ((brush.flipMaskAlpha || brush.useMask) ? 0 : 1) ,
-                 (brush.maskFromGreyscale && brush.useMask) ? 1 : 0);
+                (brush.maskFromGreyscale && brush.useMask) ? 1 : 0);
 
-            maskOffset_Property.GlobalValue = brush.maskOffset.ToVector4();
+            MaskOffsetProperty.GlobalValue = brush.maskOffset.ToVector4();
                 
-            brushForm_Property.GlobalValue = new Vector4(
+            BrushFormProperty.GlobalValue = new Vector4(
                 brushAlpha, // x - transparency
                 brush.Size(is3DBrush), // y - scale for sphere
                 brush.Size(is3DBrush) / textureWidth, // z - scale for uv space
@@ -499,8 +502,8 @@ namespace Playtime_Painter {
 
             if (rendTex && blitMode.UsingSourceTexture)
             {
-                sourceTexture_Property.GlobalValue = Data.sourceTextures.TryGet(brush.selectedSourceTexture);
-                textureSourceParameters.GlobalValue = new Vector4(
+                SourceTextureProperty.GlobalValue = Data.sourceTextures.TryGet(brush.selectedSourceTexture);
+                TextureSourceParameters.GlobalValue = new Vector4(
                     (float)brush.srcColorUsage, 
                     brush.clampSourceTexture ? 1f : 0f,
                     useTransparentLayerBackground
@@ -536,8 +539,6 @@ namespace Playtime_Painter {
                     shd = bs;
                     break;
                 }
-
-
 
             if (!shd)
             {
@@ -670,8 +671,6 @@ namespace Playtime_Painter {
 
             if (!painterCamera)
                 painterCamera = GetComponent<Camera>();
-
-            UpdateCullingMask();
             
             #if BUILD_WITH_PAINTER
             if (!PainterDataAndConfig.toolEnabled && !Application.isEditor)
@@ -771,6 +770,8 @@ namespace Playtime_Painter {
             
             if (Data)
                 Data.ManagedOnEnable();
+
+            UpdateCullingMask();
 
         }
 

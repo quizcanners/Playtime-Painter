@@ -133,7 +133,6 @@ namespace Playtime_Painter {
 
         public Color Color { get { return colorLinear.ToGamma(); } set { colorLinear.From(value); } }
   
-
         public virtual bool IsA3DBrush(PlaytimePainter painter)
         {
             var overrideOther = false;
@@ -156,7 +155,14 @@ namespace Playtime_Painter {
             return isA3D;
         }
 
-        public float speed = 10;
+        [SerializeField] public DynamicRangeFloat _dSpeed = new DynamicRangeFloat() { max = 4.5f };
+
+        public float Speed
+        {
+            get { return _dSpeed.value * _dSpeed.value; }
+            set { _dSpeed.value = Mathf.Sqrt(value); }
+        }
+
         #endregion
         
         public BrushConfig() {
@@ -587,7 +593,8 @@ namespace Playtime_Painter {
             }
 
             cody.Add("hard", hardness)
-            .Add("speed", speed);
+                .Add("dSpeed", _dSpeed);
+            //.Add("Speed", speed);
 
             return cody;
         }
@@ -623,7 +630,8 @@ namespace Playtime_Painter {
                 case "maskFlip": flipMaskAlpha = data.ToBool(); break;
 
                 case "hard": hardness = data.ToFloat(); break;
-                case "speed": speed = data.ToFloat(); break;
+                case "Speed": _dSpeed.SetValue(data.ToFloat()); break;
+                case "dSpeed": _dSpeed.Decode(data); break;
                 case "dyn": data.DecodeInto(out brushDynamic, BrushDynamic.all); break;
 
                 case "maskOff": maskOffset = data.ToVector2(); break;
@@ -636,6 +644,8 @@ namespace Playtime_Painter {
         #endregion
 
     }
+
+    #region Dynamics
 
     public class BrushDynamicAttribute : AbstractWithTaggedTypes  {
         public override TaggedTypesStd TaggedTypes => BrushDynamic.all;
@@ -694,5 +704,5 @@ namespace Playtime_Painter {
   //      public override StdEncoder Encode() => new StdEncoder();
     }
     #endregion
-
+    #endregion
 }

@@ -161,7 +161,7 @@ namespace Playtime_Painter
                 stroke.posFrom = stroke.posTo;
 
             image.useTexCoord2 = false;
-            TexMGMT.Shader_UpdateStrokeSegment(bc, bc.speed * 0.05f, image, stroke, painter);
+            TexMGMT.Shader_UpdateStrokeSegment(bc, bc.Speed * 0.05f, image, stroke, painter);
             stroke.SetWorldPosInShader();
 
             TexMGMT.brushRenderer.FullScreenQuad();
@@ -258,9 +258,11 @@ namespace Playtime_Painter
                 pegi.nl();
 
                 if (!cpuBlit)
-                   "Hardness:".edit("Makes edges more rough.", 70, ref br.hardness, 1f, 512f).nl(ref changed);
+                   "Hardness:".edit("Makes edges more rough.", 70, ref br.hardness, 1f, 22f).nl(ref changed);
 
-                "Speed".edit(40, ref br.speed, 0.01f, 20).nl(ref changed);
+                var tmpSpeed = br._dSpeed.value;
+                if ("Speed".edit(40, ref tmpSpeed, 0.01f, 4.5f).nl(ref changed))
+                    br._dSpeed.value = tmpSpeed;
 
                 var maxScale = volTex.size * volTex.Width * 0.25f;
 

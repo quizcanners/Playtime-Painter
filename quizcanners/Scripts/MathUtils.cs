@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using UnityEngine.UI;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
@@ -445,7 +444,7 @@ namespace QuizCannersUtilities {
             }
         }
         
-        Color L_col { get { return new Color(r, g, b, a); } }
+        Color LCol => new Color(r, g, b, a);
 
         public override StdEncoder Encode() => new StdEncoder()
             .Add("r", r)
@@ -558,16 +557,16 @@ namespace QuizCannersUtilities {
 
         public Color ToGamma(float alpha)
         {
-            Color tmp = L_col.gamma;
+            Color tmp = LCol.gamma;
             tmp.a = alpha;
             return tmp;
         }
         
-        public Color ToGamma() => L_col.gamma;
+        public Color ToGamma() => LCol.gamma;
         
         public void ToGamma(ref Color tmp)
         {
-            tmp = L_col.gamma;
+            tmp = LCol.gamma;
         }
 
         public Vector4 Vector4 => new Vector4(r, g, b, a);
@@ -645,7 +644,7 @@ namespace QuizCannersUtilities {
 
         public static Color Multiply(LinearColor a, LinearColor b)
         {
-            Color tmp = a.L_col.gamma * b.L_col.gamma;
+            Color tmp = a.LCol.gamma * b.LCol.gamma;
             return tmp;
         }
 
@@ -672,38 +671,96 @@ namespace QuizCannersUtilities {
     }
 
     [Serializable]
-    public struct DynamicRangeFloat : IPEGI_ListInspect {
+    public struct DynamicRangeFloat : IStd {
 
-        [SerializeField] float min;
-        [SerializeField] float max;
+        [SerializeField] public float min;
+        [SerializeField] public float max;
         [SerializeField] public float value;
+
+        public void SetValue(float nVal)
+        {
+            value = nVal;
+            min = Mathf.Min(min, value);
+            max = Mathf.Max(max, value);
+        }
 
         #region Inspector
         #if PEGI
-        public bool PEGI_inList(IList list, int ind, ref int edited) {
+        private bool _showRange;
+
+        public bool Inspect() {
             var changed = false;
-            bool rangeChanged = false;
+            var rangeChanged = false;
 
-            pegi.edit(ref value, min, max).changes(ref changed);
-            
-            "[".write(10);
+            var tmp = value;
+            if (pegi.edit(ref tmp, min, max).changes(ref changed))
+                value = tmp;
 
-            float before = min;
 
-            if (pegi.editDelayed(ref min, 40).changes(ref rangeChanged) && min>=max)
-                max = min + (max - before);
-            "-".write(10);
-            if (pegi.editDelayed(ref max, 40).changes(ref rangeChanged))
-                min = Mathf.Min(min, max);
+            if (!_showRange && icon.Edit.ClickUnFocus("Edit Range", 20))
+                _showRange = true;
 
-            "]".write(10);
+            if (_showRange)  {
+                pegi.nl();
 
-            if (rangeChanged)
-                value = Mathf.Clamp(value, min, max);
+                if (icon.FoldedOut.ClickUnFocus("Hide Range"))
+                    _showRange = false;
+
+                "Range: [".write(60);
+
+                var before = min;
+
+                tmp = min;
+
+                if (pegi.editDelayed(ref tmp, 40).changes(ref rangeChanged))
+                {
+                    min = tmp;
+                    if (min >= max)
+                        max = min + (max - before);
+                }
+
+                "-".write(10);
+                tmp = max;
+                if (pegi.editDelayed(ref tmp, 40).changes(ref rangeChanged))
+                {
+                    max = tmp;
+                    min = Mathf.Min(min, max);
+
+                }
+
+                "]".write(10);
+
+                if (rangeChanged)
+                    value = Mathf.Clamp(value, min, max);
+            }
+
 
             return changed | rangeChanged;
         }
-        #endif
+#endif
+        #endregion
+
+        #region Encode & Decode
+
+        public StdEncoder Encode() => new StdEncoder()
+            .Add_IfNotEpsilon("m", min)
+            .Add_IfNotEpsilon("v", value)
+            .Add_IfNotEpsilon("x", max);
+
+        public void Decode(string data) => data.DecodeTagsFor(this);
+
+        public bool Decode(string tg, string data)
+        {
+            switch (tg)
+            {
+                case "m": min = data.ToFloat(); break;
+                case "v": value = data.ToFloat(); break;
+                case "x": max = data.ToFloat(); break;
+                default: return false;
+            }
+
+            return true;
+        }
         #endregion
     }
 

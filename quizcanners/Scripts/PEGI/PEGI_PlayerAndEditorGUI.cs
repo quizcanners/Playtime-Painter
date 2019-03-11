@@ -1619,26 +1619,26 @@ namespace PlayerAndEditorGUI {
         {
             checkLine();
 
-            var lnms = new List<string>();
-            var indxs = new List<int>();
+            var namesList = new List<string>();
+            var indexList = new List<int>();
 
-            var jindx = -1;
+            var current = -1;
 
             for (var j = 0; j < lst.Length; j++)
             {
                 var tmp = lst[j];
-                if (!tmp.filterEditorDropdown().IsDefaultOrNull())
-                {
-                    if ((!val.IsDefaultOrNull()) && val.Equals(tmp))
-                        jindx = lnms.Count;
-                    lnms.Add(_compileName(showIndex, j, tmp)); //showIndex ? "{0}: {1}".F(j, tmp.ToPegiString()) : tmp.ToPegiString());
-                    indxs.Add(j);
-                }
+                if (tmp.filterEditorDropdown().IsDefaultOrNull()) continue;
+
+                if (!val.IsDefaultOrNull() && val.Equals(tmp))
+                    current = namesList.Count;
+
+                namesList.Add(_compileName(showIndex, j, tmp)); //showIndex ? "{0}: {1}".F(j, tmp.ToPegiString()) : tmp.ToPegiString());
+                indexList.Add(j);
             }
 
-            if (selectFinal(val, ref jindx, lnms))
+            if (selectFinal(val, ref current, namesList))
             {
-                val = lst[indxs[jindx]];
+                val = lst[indexList[current]];
                 return change;
             }
 
@@ -1651,28 +1651,27 @@ namespace PlayerAndEditorGUI {
 
             checkLine();
 
-            var lnms = new List<string>();
-            var indxs = new List<int>();
+            var names = new List<string>();
+            var indexes = new List<int>();
 
-            var jindx = -1;
+            var current = -1;
 
             for (var j = 0; j < lst.Count; j++)
             {
                 var tmp = lst[j];
 
-                if ((!tmp.filterEditorDropdown().IsDefaultOrNull()) && lambda(tmp))
-                {
-                    if (val == j)
-                        jindx = lnms.Count;
-                    lnms.Add(_compileName(showIndex, j, tmp));//showIndex ? "{0}: {1}".F(j, tmp.ToPegiString()) : tmp.ToPegiString());
-                    indxs.Add(j);
-                }
+                if (tmp.filterEditorDropdown().IsDefaultOrNull() || !lambda(tmp)) continue;
+
+                if (val == j)
+                    current = names.Count;
+                names.Add(_compileName(showIndex, j, tmp));//showIndex ? "{0}: {1}".F(j, tmp.ToPegiString()) : tmp.ToPegiString());
+                indexes.Add(j);
             }
 
 
-            if (selectFinal(val, ref jindx, lnms))
+            if (selectFinal(val, ref current, names))
             {
-                val = indxs[jindx];
+                val = indexes[current];
                 return change;
             }
 
@@ -1684,10 +1683,10 @@ namespace PlayerAndEditorGUI {
 
             checkLine();
 
-            var lnms = new List<string>();
-            var indxs = new List<int>();
+            var names = new List<string>();
+            var indexes = new List<int>();
 
-            var jindx = -1;
+            var current = -1;
 
             foreach (var tmp in lst) {
                 
@@ -1696,15 +1695,15 @@ namespace PlayerAndEditorGUI {
                 var ind = tmp.IndexForPEGI;
 
                 if (val == ind)
-                    jindx = lnms.Count;
-                lnms.Add(_compileName(showIndex, ind, tmp));//showIndex ? "{0}: {1}".F(ind, tmp.ToPegiString()) : tmp.ToPegiString());
-                indxs.Add(ind);
+                    current = names.Count;
+                names.Add(_compileName(showIndex, ind, tmp));//showIndex ? "{0}: {1}".F(ind, tmp.ToPegiString()) : tmp.ToPegiString());
+                indexes.Add(ind);
                 
             }
 
-            if (selectFinal(ref val, ref jindx, lnms))
+            if (selectFinal(ref val, ref current, names))
             {
-                val = indxs[jindx];
+                val = indexes[current];
                 return change;
             }
 
@@ -1718,26 +1717,25 @@ namespace PlayerAndEditorGUI {
 
             checkLine();
 
-            var lnms = new List<string>();
-            var indxs = new List<int>();
+            var namesList = new List<string>();
+            var indexList = new List<int>();
 
-            var jindx = -1;
+            var current = -1;
 
             for (var j = 0; j < lst.Count; j++)
             {
                 var tmp = lst[j];
-                if (!tmp.filterEditorDropdown().IsDefaultOrNull() && lambda(tmp))
-                {
-                    if ((jindx == -1) && tmp.Equals(val))
-                        jindx = lnms.Count;
+                if (tmp.filterEditorDropdown().IsDefaultOrNull() || !lambda(tmp)) continue;
 
-                    lnms.Add(_compileName(showIndex, j, tmp)); 
-                    indxs.Add(j);
-                }
+                if (current == -1 && tmp.Equals(val))
+                    current = namesList.Count;
+
+                namesList.Add(_compileName(showIndex, j, tmp)); 
+                indexList.Add(j);
             }
 
-            if (selectFinal(val, ref jindx, lnms).changes(ref changed))
-                val = lst[indxs[jindx]];
+            if (selectFinal(val, ref current, namesList).changes(ref changed))
+                val = lst[indexList[current]];
             
 
             return changed;
@@ -1782,10 +1780,10 @@ namespace PlayerAndEditorGUI {
         {
             checkLine();
 
-            var lnms = new List<string>();
-            var indxs = new List<int>();
+            var names = new List<string>();
+            var indexes = new List<int>();
 
-            var jindx = -1;
+            var current = -1;
 
             for (var j = 0; j < lst.Count; j++)
             {
@@ -1793,18 +1791,18 @@ namespace PlayerAndEditorGUI {
                 if (tmp.IsDefaultOrNull()) continue;
                 
                 if ((!val.IsDefaultOrNull()) && tmp == val)
-                    jindx = lnms.Count;
-                lnms.Add(_compileName(showIndex, j, tmp)); //"{0}: {1}".F(j, tmp.ToPegiString()));
-                indxs.Add(j);
+                    current = names.Count;
+                names.Add(_compileName(showIndex, j, tmp)); //"{0}: {1}".F(j, tmp.ToPegiString()));
+                indexes.Add(j);
                 
             }
 
-            if (jindx == -1 && val != null)
-                lnms.Add(textForCurrent);
+            if (current == -1 && val != null)
+                names.Add(textForCurrent);
 
-            if (select(ref jindx, lnms.ToArray()) && (jindx < indxs.Count))
+            if (select(ref current, names.ToArray()) && (current < indexes.Count))
             {
-                val = lst[indxs[jindx]];
+                val = lst[indexes[current]];
                 return change;
             }
 
@@ -1819,25 +1817,26 @@ namespace PlayerAndEditorGUI {
 
             checkLine();
 
-            var lnms = new List<string>();
-            var indxs = new List<int>();
+            var namesList = new List<string>();
+            var indexList = new List<int>();
 
-            var jindx = -1;
+            var current = -1;
 
             for (var j = 0; j < lst.Count; j++)
             {
-                G tmp = lst[j];
-                if (!tmp.filterEditorDropdown().IsDefaultOrNull() && (same || typeof(T).IsAssignableFrom(tmp.GetType())))
-                {
-                    if (tmp.Equals(val))
-                        jindx = lnms.Count;
-                    lnms.Add(_compileName(showIndex, j, tmp)); //"{0}: {1}".F(j, tmp.ToPegiString()));
-                    indxs.Add(j);
-                }
+                var tmp = lst[j];
+                if (tmp.filterEditorDropdown().IsDefaultOrNull() ||
+                    (!same && !typeof(T).IsAssignableFrom(tmp.GetType()))) continue;
+
+                if (tmp.Equals(val))
+                    current = namesList.Count;
+
+                namesList.Add(_compileName(showIndex, j, tmp)); //"{0}: {1}".F(j, tmp.ToPegiString()));
+                indexList.Add(j);
             }
 
-            if (selectFinal(val, ref jindx, lnms).changes(ref changed))
-                val = lst[indxs[jindx]] as T;
+            if (selectFinal(val, ref current, namesList).changes(ref changed))
+                val = lst[indexList[current]] as T;
              
             return changed;
 
@@ -1928,30 +1927,31 @@ namespace PlayerAndEditorGUI {
         #endif
             
             List<int> unfinds;
-            var inds = new List<int>();
-            var objs = tree.GetAllObjs(out unfinds);
-            var lnms = new List<string>();
-            var jindx = -1;
+            var indexes = new List<int>();
+            var objects = tree.GetAllObjs(out unfinds);
+            var namesList = new List<string>();
+            var current = -1;
             var j = 0;
-            for (var i = 0; i < objs.Count; i++)
+            for (var i = 0; i < objects.Count; i++)
             {
 
-                var el = objs[i];
+                var el = objects[i];
 
-                if (!el.filterEditorDropdown().IsNullOrDestroyed_Obj() && lambda(el))
-                {
-                    inds.Add(unfinds[i]);
-                    if (no == inds[j])
-                        jindx = j;
-                    lnms.Add(objs[i].ToPegiString());
-                    j++;
-                }
+                if (el.filterEditorDropdown().IsNullOrDestroyed_Obj() || !lambda(el)) continue;
+
+                indexes.Add(unfinds[i]);
+
+                if (no == indexes[j])
+                    current = j;
+
+                namesList.Add(objects[i].ToPegiString());
+                j++;
             }
 
 
-            if (selectFinal(no, ref jindx, lnms))
+            if (selectFinal(no, ref current, namesList))
             {
-                no = inds[jindx];
+                no = indexes[current];
                 return change;
             }
             return false;
@@ -2275,10 +2275,10 @@ namespace PlayerAndEditorGUI {
                 return edit(ref ind);
             }
 
-            var lnms = new List<string>();
-            var indxs = new List<int>();
+            var names = new List<string>();
+            var indexes = new List<int>();
 
-            var jindx = -1;
+            var current = -1;
 
             foreach (var el in lst)
                 if (!el.filterEditorDropdown().IsNullOrDestroyed_Obj())
@@ -2286,15 +2286,15 @@ namespace PlayerAndEditorGUI {
                     var index = el.IndexForPEGI;
 
                     if (ind == index)
-                        jindx = indxs.Count;
-                    lnms.Add((showIndex ? index + ": " : "") + el.ToPegiString());
-                    indxs.Add(index);
+                        current = indexes.Count;
+                    names.Add((showIndex ? index + ": " : "") + el.ToPegiString());
+                    indexes.Add(index);
 
                 }
             
-            if (selectFinal(ind, ref jindx, lnms))
+            if (selectFinal(ind, ref current, names))
             {
-                ind = indxs[jindx];
+                ind = indexes[current];
                 return change;
             }
 
@@ -2333,9 +2333,9 @@ namespace PlayerAndEditorGUI {
             if (lst == null)
                 return false;
 
-            var lnms = new List<string>();
+            var namesList = new List<string>();
 
-            var jindx = -1;
+            var current = -1;
 
 
             foreach (var el in lst)
@@ -2346,15 +2346,15 @@ namespace PlayerAndEditorGUI {
                     if (name == null) continue;
                     
                     if (val != null && val.SameAs(name))
-                        jindx = lnms.Count;
-                    lnms.Add(name);
+                        current = namesList.Count;
+                    namesList.Add(name);
                     
                 }
             
 
-            if (selectFinal(val, ref jindx, lnms))
+            if (selectFinal(val, ref current, namesList))
             {
-                val = lnms[jindx];
+                val = namesList[current];
                 return true;
             }
 
@@ -2398,10 +2398,10 @@ namespace PlayerAndEditorGUI {
             if (lst == null)
                 return false;
             
-            var lnms = new List<string>();
-            var indxs = new List<int>();
+            var names = new List<string>();
+            var indexes = new List<int>();
             var els = new List<G>();
-            var jindx = -1;
+            var current = -1;
 
             foreach (var el in lst)
             {
@@ -2413,22 +2413,22 @@ namespace PlayerAndEditorGUI {
 
                 if (ind == index)
                 {
-                    jindx = indxs.Count;
+                    current = indexes.Count;
                     val = g;
                 }
-                lnms.Add(el.ToPegiString());
-                indxs.Add(index);
+                names.Add(el.ToPegiString());
+                indexes.Add(index);
                 els.Add(g);
                 
             }
 
-            if (lnms.Count == 0)
+            if (names.Count == 0)
                 return edit(ref ind);
           
-            if (selectFinal(ref ind, ref jindx, lnms))
+            if (selectFinal(ref ind, ref current, names))
             {
-                ind = indxs[jindx];
-                val = els[jindx];
+                ind = indexes[current];
+                val = els[current];
                 return true;
             }
 
@@ -4637,7 +4637,7 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-        static void sliderText(this string label, float val, string tip, int width)
+        private static void sliderText(this string label, float val, string tip, int width)
         {
             if (paintingPlayAreaGui)
                 "{0} [{1}]".F(label, val.ToString("F3")).write(width);
@@ -6590,21 +6590,27 @@ namespace PlayerAndEditorGUI {
             if (listIsNull(ref list))
                 return added;
 
-            changed |= list.edit_List_Order();
+            list.edit_List_Order().changes(ref changed);
 
             if (list != editing_List_Order)
             {
-                changed |= list.ListAddNewClick(ref added);
+                list.ListAddNewClick(ref added).changes(ref changed);
 
                 foreach (var i in list.InspectionIndexes())
                 {
                     var el = list[i];
-                    var before = el;
+                    //var before = el;
+                    var ch = GUI.changed;
+
                     el = lambda(el);
-                    var isNull = el.IsNullOrDestroyed_Obj();
-                    if (((!isNull && !el.Equals(before)) || (isNull && !before.IsNullOrDestroyed_Obj())).nl(ref changed))
+                        //var isNull = el.IsNullOrDestroyed_Obj();
+                    //if (((!isNull && !el.Equals(before)) || (isNull && !before.IsNullOrDestroyed_Obj())).nl(ref changed))
+                    if (!ch && GUI.changed)
+                    {
                         list[i] = el;
-                    
+                        changed = true;
+                    }
+
                 }
                 
             }
@@ -6644,12 +6650,15 @@ namespace PlayerAndEditorGUI {
                 foreach (var i in list.InspectionIndexes())
                 {
                     var el = list[i];
-                    var before = el;
+                    //var before = el;
+                    var ch = GUI.changed;
                     el = lambda(el);
-                    var isNull = el.IsNullOrDestroyed_Obj();
-                    if (((!isNull && !el.Equals(before)) || (isNull && !before.IsNullOrDestroyed_Obj())).nl(ref changed))
-                        list[i] = el;
-                    
+                    //var isNull = el.IsNullOrDestroyed_Obj();
+                    //if ((!isNull && !el.Equals(before) || isNull && !before.IsNullOrDestroyed_Obj()).nl(ref changed))
+                    if (ch || !GUI.changed) continue;
+                    list[i] = el;
+                    changed = true;
+
                 }
                 
             }
@@ -6661,27 +6670,27 @@ namespace PlayerAndEditorGUI {
         public static bool edit_List_UObj<T>(ref List<T> list, Func<T, T> lambda) where T : UnityEngine.Object
         {
 
-            bool changed = false;
+            var changed = false;
 
             if (listIsNull(ref list))
                 return changed;
 
-            changed |= list.edit_List_Order();
+            list.edit_List_Order().changes(ref changed);
 
             if (list != editing_List_Order)
             {
 
-                changed |= list.ListAddEmptyClick();
+                list.ListAddEmptyClick().changes(ref changed);
 
-                foreach (var i in list.InspectionIndexes())
-                {
+                foreach (var i in list.InspectionIndexes()) {
                     var el = list[i];
                     var before = el;
+                    var ch = GUI.changed;
                     el = lambda(el);
-              
-                    if (((el && !el.Equals(before)) || (!el && before)).nl(ref changed))
+                    if (!ch && GUI.changed) {
+                        changed = true;
                         list[i] = el;
-                    
+                    }
                 }
                 
             }
@@ -6712,10 +6721,12 @@ namespace PlayerAndEditorGUI {
                     var el = list[i];
                     var before = el;
 
+                    var ch = GUI.changed;
                     el = lambda(el);
+                    if (ch || !GUI.changed) continue;
 
-                    if ((!before.SameAs(el)).nl(ref changed))
-                        list[i] = el;
+                    changed = true;
+                    list[i] = el;
                 }
                 
             }
@@ -6958,11 +6969,16 @@ namespace PlayerAndEditorGUI {
                         itemKey.ToPegiString().write(50);
 
                     var el = item.Value;
-                    var before = el;
+                    //var before = el;
+                    var ch = GUI.changed;
                     el = lambda(el);
 
-                    if ((!before.Equals(el)).changes(ref changed))
+                    //if ((!before.Equals(el)).changes(ref changed))
+                    if (!ch && GUI.changed)
+                    {
+                        
                         dic[itemKey] = el;
+                    }
                 }
                 nl();
             }
@@ -7599,14 +7615,13 @@ namespace PlayerAndEditorGUI {
 
             var isFOOE = pegi.isFoldedOutOrEntered;
 
-            var changes = false;
+            var changed = false;
 
-            int recuses;
+            int recurses;
 
-            if (!inspectionChain.TryGetValue(pgi, out recuses) || recuses < 2) {
+            if (!inspectionChain.TryGetValue(pgi, out recurses) || recurses < 2) {
 
-          
-                inspectionChain[pgi] = recuses + 1;
+                inspectionChain[pgi] = recurses + 1;
                 pgi.Inspect().RestoreBGColor();
            
                 var count = inspectionChain[pgi];
@@ -7614,14 +7629,12 @@ namespace PlayerAndEditorGUI {
                     inspectionChain.Remove(pgi);
                 else
                     inspectionChain[pgi] = count - 1;
-            
-
             }
             else
                 "3rd recursion".writeWarning();
 
 
-            if (changes || pegi.globChanged)
+            if (changed || pegi.globChanged)
                 {
                     #if UNITY_EDITOR
                     ef.ClearFromPooledSerializedObjects(pgi as Object);
@@ -7631,11 +7644,11 @@ namespace PlayerAndEditorGUI {
 
                 pegi.isFoldedOutOrEntered = isFOOE;
 
-                return changes;
+                return changed;
 
         }
 
-        public static bool Inspect_AsInList(this IPEGI_ListInspect obj)
+        public static bool Inspect_AsInList(this IPEGI_ListInspect obj) 
         {
             var tmp = -1;
             var changes = obj.PEGI_inList(null, 0, ref tmp);

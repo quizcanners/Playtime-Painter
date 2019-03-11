@@ -825,7 +825,7 @@ namespace PlayerAndEditorGUI {
             }
 
             var tmp = val;
-            if (edit(ref tmp).ignoreChanges())
+            if (edit(ref tmp, width).ignoreChanges())
             {
                 _editedFloat = tmp;
                 _editedFloatIndex = _elementIndex;

@@ -69,9 +69,7 @@ namespace QuizCannersUtilities
             public override StdEncoder Encode() => new StdEncoder()
                 .Add_String("n", _name)
                 .Add_IfTrue("nm", nonMaterialProperty);
-
-
-
+            
             public override bool Decode(string tg, string data)
             {
                 switch (tg)
@@ -164,6 +162,18 @@ namespace QuizCannersUtilities
             }
         }
 
+        public static MaterialPropertyBlock Set<T>(this MaterialPropertyBlock block, ShaderPropertyIndexGeneric<T> property)
+        {
+            property.SetOn(block);
+            return block;
+        }
+
+        public static MaterialPropertyBlock Set<T>(this MaterialPropertyBlock block, ShaderPropertyIndexGeneric<T> property, T value)
+        {
+            property.SetOn(block, value);
+            return block;
+        }
+
         public static Material Set<T>(this Material mat, ShaderPropertyIndexGeneric<T> property)
         {
             property.SetOn(mat);
@@ -182,8 +192,7 @@ namespace QuizCannersUtilities
 
         #region Float
 
-        public class FloatValue : ShaderPropertyIndexGeneric<float>
-        {
+        public class FloatValue : ShaderPropertyIndexGeneric<float> {
 
             public override void SetOn(Material material) => material.SetFloat(id, lastValue);
 
@@ -212,7 +221,6 @@ namespace QuizCannersUtilities
             public FloatValue(string name, bool nonMaterial) : base(name, nonMaterial)
             {
             }
-
 
         }
 

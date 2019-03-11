@@ -171,7 +171,7 @@ namespace Playtime_Painter
             if (deltaUv.magnitude > (0.2f + st.avgBrushSpeed * 3)) deltaUv = Vector2.zero; // This is made to avoid glitch strokes on seams
             else st.avgBrushSpeed = (st.avgBrushSpeed + deltaUv.magnitude) / 2;
 
-            var alpha = Mathf.Clamp01(br.speed * (Application.isPlaying ? Time.deltaTime : 0.1f));
+            var alpha = Mathf.Clamp01(br.Speed * (Application.isPlaying ? Time.deltaTime : 0.1f));
 
             var worldSpace = painter.NeedsGrid();
 
@@ -220,7 +220,7 @@ namespace Playtime_Painter
 
             var id = painter.ImgMeta;
 
-            TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st, painter);
+            TexMGMT.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, st, painter);
 
             var rb = RtBrush;
 
@@ -301,7 +301,7 @@ namespace Playtime_Painter
 
              ImageMeta id = painter.ImgMeta;
 
-             TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st, painter);
+             TexMGMT.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, st, painter);
 
              RtBrush.localScale = Vector3.one * br.StrokeWidth(id.width, false);
 
@@ -340,7 +340,7 @@ namespace Playtime_Painter
                 firstStroke = false
             };
 
-            TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, stroke, null);
+            TexMGMT.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, stroke, null);
 
             float width = br.StrokeWidth(id.width, false);
 
@@ -597,7 +597,7 @@ namespace Playtime_Painter
                 {
                     firstStroke = false
                 };
-                r.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st2, painter);
+                r.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, st2, painter);
 
                 Vector3 junkPoint = st.uvFrom + st.previousDelta * 0.01f;
                 BrushMesh = PainterCamera.BrushMeshGenerator.GetStreak(UvToPosition(st.uvFrom), UvToPosition(junkPoint), meshWidth, true, false);
@@ -611,7 +611,7 @@ namespace Playtime_Painter
                 isTail = true;
             }
 
-            r.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, st, painter);
+            r.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, st, painter);
 
             BrushMesh = PainterCamera.BrushMeshGenerator.GetStreak(UvToPosition(st.uvFrom), UvToPosition(st.uvTo), meshWidth, st.mouseUp, isTail);
             tf.localScale = Vector3.one;
@@ -652,7 +652,7 @@ namespace Playtime_Painter
             if (stroke.mouseDwn)
                 stroke.posFrom = stroke.posTo;
 
-            TexMGMT.Shader_UpdateStrokeSegment(br, br.speed * 0.05f, id, stroke, painter);
+            TexMGMT.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, stroke, painter);
 
             var offset = id.offset - stroke.unRepeatedUv.Floor();
 

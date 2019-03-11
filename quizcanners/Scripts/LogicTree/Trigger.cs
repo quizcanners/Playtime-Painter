@@ -1,13 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using NUnit.Framework.Constraints;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
 namespace STD_Logic
 {
     
-    public class Trigger : ValueIndex , IGotDisplayName , IPEGI_ListInspect, IGotName {
+    public class Trigger : ValueIndex , IGotDisplayName , IPEGI_ListInspect, IGotName, ICategorized {
         
         public static int focusIndex = -2;
         public static string searchField = "";
@@ -15,6 +16,12 @@ namespace STD_Logic
         public static Trigger inspected;
         public string name = "";
         public Dictionary<int, string> enm;
+        private List<PickedCategory> myCategories = new List<PickedCategory>();
+        public List<PickedCategory> MyCategories
+        {
+            get { return myCategories;}
+            set { myCategories = value;  }
+        }
 
         private int _usage = 0;
 
@@ -36,7 +43,8 @@ namespace STD_Logic
         public override StdEncoder Encode() => new StdEncoder()
                 .Add_String("n", name)
                 .Add_IfNotZero("u", _usage)
-                .Add_IfNotEmpty("e", enm);
+                .Add_IfNotEmpty("e", enm)
+                .Add_IfNotEmpty("c", myCategories);
           
         public override bool Decode(string tg, string data) {
 
@@ -44,7 +52,7 @@ namespace STD_Logic
                 case "n": name = data; break;
                 case "u": _usage = data.ToInt(); break;
                 case "e": data.Decode_Dictionary(out enm); break;
-              //  case "s": isStatic = data.ToBool(); break;
+                case "c":  data.Decode_List(out myCategories); break;
                 default: return false;
             }
             return true;
@@ -81,11 +89,12 @@ namespace STD_Logic
 
                 Usage.Inspect(this).nl(ref changed);
 
-                if (Usage.HasMoreTriggerOptions)
-                {
+                if (Usage.HasMoreTriggerOptions) {
                     pegi.space();
                     pegi.nl();
                 }
+
+                "Categories".edit_List(ref myCategories).nl(ref changed);
 
             }
             else
