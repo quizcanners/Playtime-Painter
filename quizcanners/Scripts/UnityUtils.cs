@@ -142,7 +142,7 @@ namespace QuizCannersUtilities {
              return go ? go.TryGet<T>() : null;
         }
 
-        public static T TryGetFromMb<T>(this MonoBehaviour mb) where T : class => mb ? mb.gameObject.TryGet<T>() : null;
+        //public static T TryGetFromMb<T>(this MonoBehaviour mb) where T : class => mb ? mb.gameObject.TryGet<T>() : null;
 
         public static T TryGet<T>(this GameObject go) where T:class => go ? go.GetComponents<Component>().OfType<T>().FirstOrDefault() : null;
         
@@ -797,21 +797,29 @@ namespace QuizCannersUtilities {
         }
         #endif
 
-        public static T CreateScriptableObjectAsset<T>(this List<T> list, string path, string name, Type t) where T : ScriptableObject {
+        public static T CreateScriptableObjectAsset<T>(this List<T> list, string path, string name, Type t) where T : ScriptableObject
+        {
 
-            var obj = CreateScriptableObjectAsset<T,T>(path, name);
+            var asset = ScriptableObject.CreateInstance(t) as T; 
 
-            list.Add(obj);
+            SaveScriptableObjectAsAsset(asset, path, name, list);
 
-            return obj;
+            return asset;
         }
 
         public static T CreateScriptableObjectAsset<T, TG>(string path, string name, List<TG> optionalList = null) where T : TG where TG : ScriptableObject
         {
             var asset = ScriptableObject.CreateInstance<T>();
 
-            #if PEGI
+            SaveScriptableObjectAsAsset(asset, path, name, optionalList);
 
+            return asset;
+        }
+
+        static void SaveScriptableObjectAsAsset<T, TG>(T asset, string path, string name, List<TG> optionalList = null) where T : TG where TG : ScriptableObject
+        {
+
+#if PEGI
             var nm = asset as IGotName;
             if (nm != null)
                 nm.NameForPEGI = name;
@@ -836,9 +844,9 @@ namespace QuizCannersUtilities {
                 optionalList.Add(asset);
 
             }
-            #endif
-            
-            #if UNITY_EDITOR
+#endif
+
+#if UNITY_EDITOR
 
             if (!path.Contains("Assets"))
                 path = Path.Combine("Assets", path);
@@ -851,10 +859,10 @@ namespace QuizCannersUtilities {
             catch (Exception ex)
             {
                 Debug.LogError("Couldn't create Directory {0} : {1}".F(fullPath, ex.ToString()));
-                return null;
+                return;
             }
 
-            var assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(path, name+ ".asset"));
+            var assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(path, name + ".asset"));
 
             try
             {
@@ -868,7 +876,6 @@ namespace QuizCannersUtilities {
                 Debug.LogError("Couldn't create Scriptable Object {0} : {1}".F(assetPathAndName, ex.ToString()));
             }
 #endif
-            return asset;
         }
 
 

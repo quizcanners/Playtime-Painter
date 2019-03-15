@@ -1,6 +1,8 @@
-﻿using PlayerAndEditorGUI;
+﻿using System;
+using PlayerAndEditorGUI;
 using System.Collections;
 using System.Collections.Generic;
+using QuizCannersUtilities;
 using UnityEngine;
 
 namespace QuizCannersUtilities
@@ -514,4 +516,112 @@ namespace QuizCannersUtilities
             val.Has(mat, propertyPrefix, searchFallBacks);
     }
     #endregion
+}
+
+
+namespace PlayerAndEditorGUI
+{
+    // ReSharper disable InconsistentNaming
+#pragma warning disable 1692
+#pragma warning disable IDE1006
+
+    public static partial class pegi
+    {
+        #if PEGI
+        public static bool toggle(this Material mat, string keyword)
+        {
+            var val = Array.IndexOf(mat.shaderKeywords, keyword) != -1;
+
+            if (!keyword.toggleIcon(ref val)) return false;
+
+            if (val)
+                mat.EnableKeyword(keyword);
+            else
+                mat.DisableKeyword(keyword);
+
+            return true;
+        }
+
+        public static bool edit(this Material mat, ShaderProperty.FloatValue property, string name = null)
+        {
+            var val = mat.Get(property);
+
+            if (name.IsNullOrEmpty())
+                name = property.NameForDisplayPEGI;
+
+            if (name.edit(name.Length * letterSizeInPixels, ref val))
+            {
+                mat.Set(property, val);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool edit(this Material mat, ShaderProperty.FloatValue property, string name, float min, float max)
+        {
+            var val = mat.Get(property);
+
+            if (name.IsNullOrEmpty())
+                name = property.NameForDisplayPEGI;
+
+            if (name.edit(name.Length * letterSizeInPixels, ref val, min, max))
+            {
+                mat.Set(property, val);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool edit(this Material mat, ShaderProperty.ColorValue property, string name = null)
+        {
+            var val = mat.Get(property);
+
+            if (name.IsNullOrEmpty())
+                name = property.NameForDisplayPEGI;
+
+            if (name.edit(name.Length * letterSizeInPixels, ref val))
+            {
+                mat.Set(property, val);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool edit(this Material mat, ShaderProperty.VectorValue property, string name = null)
+        {
+            var val = mat.Get(property);
+
+            if (name.IsNullOrEmpty())
+                name = property.NameForDisplayPEGI;
+
+            if (name.edit(ref val))
+            {
+                mat.Set(property, val);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool edit(this Material mat, ShaderProperty.TextureValue property, string name = null)
+        {
+            var val = mat.Get(property);
+
+            if (name.IsNullOrEmpty())
+                name = property.NameForDisplayPEGI;
+
+            if (name.edit(name.Length * letterSizeInPixels, ref val))
+            {
+                mat.Set(property, val);
+                return true;
+            }
+
+            return false;
+        }
+        #endif
+    }
+
 }

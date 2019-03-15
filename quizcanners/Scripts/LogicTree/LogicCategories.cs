@@ -19,7 +19,11 @@ namespace STD_Logic {
 
         #region Inspect
 
-        public bool SelectCategory(PickedCategory pc)
+ 
+        private int inspected = -1;
+
+#if PEGI
+               public bool SelectCategory(PickedCategory pc)
         {
             var changed = false;
 
@@ -50,9 +54,7 @@ namespace STD_Logic {
             return changed;
         }
 
-        private int inspected = -1;
 
-        #if PEGI
         public override bool Inspect()
         {
             current = this;
@@ -65,7 +67,7 @@ namespace STD_Logic {
 
             return changed;
         }
-        #endif
+#endif
         #endregion
 
         #region Encode & Decode
@@ -125,7 +127,8 @@ namespace STD_Logic {
         #region Inspect
 
         private int _inspected = -1;
-        
+
+#if PEGI
         public bool Select(ref T val) => pegi.select(ref val, elements);
         
         public override bool Inspect() {
@@ -181,10 +184,10 @@ namespace STD_Logic {
 
             return changed;
         }
+#endif
+#endregion
 
-        #endregion
-
-        #region Encode & Decode
+#region Encode & Decode
 
         public override StdEncoder Encode() => this.EncodeUnrecognized()
             .Add_String("n", NameForPEGI)
@@ -212,16 +215,18 @@ namespace STD_Logic {
             return true;
         }
 
-        #endregion
+#endregion
     }
 
     public class PickedCategory: AbstractStd {
 
         public List<int> path = new List<int>();
-        
+
+#if PEGI
         public bool Inspect<T>() where T: ICategorized => CategoryRoot<T>.current.SelectCategory(this);
-        
-        #region Encode & Decode
+#endif        
+
+#region Encode & Decode
         public override StdEncoder Encode() => new StdEncoder()
             .Add_IfNotEmpty("p", path);
 
@@ -235,7 +240,7 @@ namespace STD_Logic {
 
             return true;
         }
-        #endregion
+#endregion
 
      
     }

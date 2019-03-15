@@ -11,6 +11,7 @@ using UnityEditor;
 namespace QuizCannersUtilities
 {
     #region List Data
+
     public class ListMetaData : AbstractStd, IPEGI {
         
         private const string DefaultFolderToSearch = "Assets/";
@@ -18,6 +19,7 @@ namespace QuizCannersUtilities
         public string label = "list";
         private string folderToSearch = DefaultFolderToSearch;
         public int inspected = -1;
+        public int previousInspected = -1;
         public int listSectionStartIndex;
         public bool Inspecting { get { return inspected != -1; } set { if (value == false) inspected = -1; } }
         public bool keepTypeData;
@@ -122,6 +124,7 @@ namespace QuizCannersUtilities
             {
                 case "ed": data.DecodeInto(out elementDatas); break;
                 case "insp": inspected = data.ToInt(); break;
+                case "pi": previousInspected = data.ToInt(); break;
                 case "fld": folderToSearch = data; break;
                 case "ktd": keepTypeData = data.ToBool(); break;
                 case "del": allowDelete = data.ToBool(); break;
@@ -139,6 +142,7 @@ namespace QuizCannersUtilities
         {
             var cody = new StdEncoder()
                 .Add_IfNotNegative("insp", inspected)
+                .Add_IfNotNegative("pi", previousInspected)
                 .Add_IfNotZero("st", listSectionStartIndex)
                 #if PEGI
                 .Add_IfNotDefault("s", searchData)
@@ -173,9 +177,11 @@ namespace QuizCannersUtilities
         }
     }
 
-    public class ElementData : AbstractStd, IPEGI, IGotName {
-        private string name;
-        private string componentType;
+    public class ElementData : AbstractStd, IPEGI, IGotName, IPEGI_Searchable {
+
+
+        public string name;
+        public string componentType;
         public string stdDta;
         private string _guid;
         public bool unrecognized;
@@ -266,9 +272,16 @@ namespace QuizCannersUtilities
             return true;
 
         }
-        
-#region Inspector
-#if PEGI
+
+        #region Inspector
+        #if PEGI
+
+        public bool String_SearchMatch(string searchString)
+        {
+            //TODO: Finish this
+            return false;
+        }
+
         public string NameForPEGI { get { return name; } set { name = value; } }
 
         public bool Inspect()
@@ -402,6 +415,8 @@ namespace QuizCannersUtilities
         }
 
 #endregion
+
+
     }
 
     public static class StdListDataExtensions {

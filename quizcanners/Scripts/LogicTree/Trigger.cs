@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using NUnit.Framework.Constraints;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
@@ -16,11 +15,11 @@ namespace STD_Logic
         public static Trigger inspected;
         public string name = "";
         public Dictionary<int, string> enm;
-        private List<PickedCategory> myCategories = new List<PickedCategory>();
+        private List<PickedCategory> _myCategories = new List<PickedCategory>();
         public List<PickedCategory> MyCategories
         {
-            get { return myCategories;}
-            set { myCategories = value;  }
+            get { return _myCategories;}
+            set { _myCategories = value;  }
         }
 
         private int _usage = 0;
@@ -44,7 +43,7 @@ namespace STD_Logic
                 .Add_String("n", name)
                 .Add_IfNotZero("u", _usage)
                 .Add_IfNotEmpty("e", enm)
-                .Add_IfNotEmpty("c", myCategories);
+                .Add_IfNotEmpty("c", _myCategories);
           
         public override bool Decode(string tg, string data) {
 
@@ -52,7 +51,7 @@ namespace STD_Logic
                 case "n": name = data; break;
                 case "u": _usage = data.ToInt(); break;
                 case "e": data.Decode_Dictionary(out enm); break;
-                case "c":  data.Decode_List(out myCategories); break;
+                case "c":  data.Decode_List(out _myCategories); break;
                 default: return false;
             }
             return true;
@@ -94,7 +93,7 @@ namespace STD_Logic
                     pegi.nl();
                 }
 
-                "Categories".edit_List(ref myCategories).nl(ref changed);
+                "Categories".edit_List(ref _myCategories).nl(ref changed);
 
             }
             else

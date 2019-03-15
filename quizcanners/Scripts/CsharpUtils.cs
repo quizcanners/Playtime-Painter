@@ -736,9 +736,7 @@ namespace QuizCannersUtilities
             return (ind == -1 || ind > name.Length - 2) ? name : name.Substring(ind + 1);
         }
 
-        public static bool SameAs(this string s, string other) =>
-            ((s.IsNullOrEmpty() && other.IsNullOrEmpty())
-            || s.Equals(other));
+        public static bool SameAs(this string s, string other) => s?.Equals(other) ?? other==null;
 
         public static bool IsSubstringOf(this string text, string biggerText, RegexOptions opt = RegexOptions.IgnoreCase) => Regex.IsMatch(biggerText, text, opt);
 
@@ -830,7 +828,14 @@ namespace QuizCannersUtilities
         public static bool IsNullOrEmpty(this string s) => string.IsNullOrEmpty(s);
 
         #endregion
-        
+
+        #region Actions
+
+        public static string ShortDescription<T>(this Action<T> action) =>
+            action == null ? "Null" : action.GetInvocationList().Length.ToString();
+
+        #endregion
+
         public static bool IsDefaultOrNull<T>(this T obj) => (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
         
         public static float RoundTo(this float val, int digits) => (float)Math.Round(val, digits);
