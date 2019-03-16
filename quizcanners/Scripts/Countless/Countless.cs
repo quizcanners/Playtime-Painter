@@ -162,7 +162,7 @@ namespace QuizCannersUtilities {
     }
 
 
-    public abstract class StdCountlessBase : CountlessBase, ICanBeDefaultStd
+    public abstract class CfgCountlessBase : CountlessBase, ICanBeDefaultCfg
     {
         public override bool IsDefault { get {
                 var def = (br == null || br.value == 0);
@@ -183,7 +183,7 @@ namespace QuizCannersUtilities {
         }
     }
 
-    public class CountlessInt : StdCountlessBase {
+    public class CountlessInt : CfgCountlessBase {
 
         List<int> inds;
 
@@ -427,7 +427,7 @@ namespace QuizCannersUtilities {
         public int currentEnumerationIndex;
     }
 
-    public class CountlessBool : StdCountlessBase
+    public class CountlessBool : CfgCountlessBase
     {
 
  
@@ -1250,7 +1250,7 @@ public class Countless<T> : CountlessBase {
 
         #region Inspector
 #if PEGI
-        public static bool Inspect<TG, T>(this TG countless, ref int inspected) where TG : CountlessStd<T> where T: IStd, IPEGI, new() {
+        public static bool Inspect<TG, T>(this TG countless, ref int inspected) where TG : CountlessCfg<T> where T: ICfg, IPEGI, new() {
 
             var changed = false;
             
@@ -1362,24 +1362,24 @@ public class Countless<T> : CountlessBase {
         #endregion
 
         /*
-        public static int Get(this UnNullableStd<CountlessInt> unn, int group, int index)
+        public static int Get(this UnNullableCfg<CountlessInt> unn, int group, int index)
         {
             var tg = TryGet(unn, group);
             return tg?[index] ?? 0;
         }
 
-        public static bool Get(this UnNullableStd<CountlessBool> unn, int group, int index) {
+        public static bool Get(this UnNullableCfg<CountlessBool> unn, int group, int index) {
             var tg = TryGet(unn, group);
             return tg != null && tg[index];
         }
 
-        public static T Get<T>(this UnNullableStd<CountlessStd<T>> unn, int group, int index) where T: ISTD, new()
+        public static T Get<T>(this UnNullableCfg<CountlessCfg<T>> unn, int group, int index) where T: ISTD, new()
         {
             var tg = TryGet(unn, group);
             return tg == null ? default(T) : tg[index];
         }
 */
-        public static T TryGet<T>(this UnNullableStd<T> unn, int index) where T : IStd, new() => unn != null ? unn.GetIfExists(index) : default(T);
+        public static T TryGet<T>(this UnNullableCfg<T> unn, int index) where T : ICfg, new() => unn != null ? unn.GetIfExists(index) : default(T);
         
 
     }

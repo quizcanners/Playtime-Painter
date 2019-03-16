@@ -48,19 +48,19 @@ namespace QuizCannersUtilities
             .Add("deSize", tf.sizeDelta);
         }
         
-        public static StdEncoder Encode(this IStd std, IStdSerializeNestedReferences keeper) {
+        public static StdEncoder Encode(this ICfg cfg, IStdSerializeNestedReferences keeper) {
 
             var prevKeeper = StdEncoder.keeper;
             StdEncoder.keeper = keeper;
 
-            var ret = std.Encode();
+            var ret = cfg.Encode();
 
             StdEncoder.keeper = prevKeeper;
             return ret;
 
         }
 
-        public static StdEncoder Encode<T>(this T[] arr) where T : IStd {
+        public static StdEncoder Encode<T>(this T[] arr) where T : ICfg {
             var cody = new StdEncoder();
 
             if (arr.IsNullOrEmpty()) return cody; 
@@ -255,7 +255,7 @@ namespace QuizCannersUtilities
             
         }
 
-        public StdEncoder Add(string tag, IStd other, IStdSerializeNestedReferences referencesKeeper)
+        public StdEncoder Add(string tag, ICfg other, IStdSerializeNestedReferences referencesKeeper)
         {
             var prevKeeper = keeper;
             keeper = referencesKeeper;
@@ -278,7 +278,7 @@ namespace QuizCannersUtilities
             return this;
         }
         
-        public StdEncoder Add<T>(string tag, List<T> other, IStdSerializeNestedReferences referencesKeeper) where T : IStd, new()
+        public StdEncoder Add<T>(string tag, List<T> other, IStdSerializeNestedReferences referencesKeeper) where T : ICfg, new()
         {
             var prevKeeper = keeper;
             keeper = referencesKeeper;
@@ -313,7 +313,7 @@ namespace QuizCannersUtilities
         #endregion
 
         #region Internal Add Unrecognized Data
-        private StdEncoder Add<T>(T val, IList<Type> types, ListMetaData ld, int index) where T : IStd
+        private StdEncoder Add<T>(T val, IList<Type> types, ListMetaData ld, int index) where T : ICfg
         {
 
             var el = ld.elementDatas.GetIfExists(index);
@@ -360,7 +360,7 @@ namespace QuizCannersUtilities
  
         }
 
-        public StdEncoder Add<T>(T v, List<Type> types) where T : IStd
+        public StdEncoder Add<T>(T v, List<Type> types) where T : ICfg
         {
             if (v.IsNullOrDestroyed_Obj())  return Add_String(NullTag, "");
             
@@ -418,11 +418,11 @@ namespace QuizCannersUtilities
         
         #endregion
 
-        public StdEncoder Add(string tag, IStd other)
+        public StdEncoder Add(string tag, ICfg other)
         {
             if (other.IsNullOrDestroyed_Obj()) return this;
             
-            var safe = other as IStdSafeEncoding;
+            var safe = other as ICfgSafeEncoding;
             
             if (safe == null)  return Add(tag, other.Encode());
             
@@ -508,7 +508,7 @@ namespace QuizCannersUtilities
 
         }
 
-        public StdEncoder Add<T>(string tag, List<T> lst, ListMetaData ld) where T : IStd, new() {
+        public StdEncoder Add<T>(string tag, List<T> lst, ListMetaData ld) where T : ICfg, new() {
 
             var cody = new StdEncoder();
 
@@ -534,7 +534,7 @@ namespace QuizCannersUtilities
 
         }
         
-        public StdEncoder Add<T>(string tag, List<T> lst) where T : IStd, new() {
+        public StdEncoder Add<T>(string tag, List<T> lst) where T : ICfg, new() {
 
             var cody = new StdEncoder();
 
@@ -572,13 +572,13 @@ namespace QuizCannersUtilities
 
         public StdEncoder Add(string tag, Dictionary<string, string> dic) => Add(tag, dic.Encode());
 
-        public StdEncoder Add<T>(string tag, T[] val) where T : IStd => Add(tag, val.Encode());
+        public StdEncoder Add<T>(string tag, T[] val) where T : ICfg => Add(tag, val.Encode());
 
         #region NonDefault Encodes
 
         public StdEncoder TryAdd<T>(string tag, T obj) {
 
-            var objStd = obj.TryGet_fromObj<IStd>(); 
+            var objStd = obj.TryGet_fromObj<ICfg>(); 
             return (objStd != null) ? Add(tag, objStd) : this;
         }
 
@@ -588,20 +588,20 @@ namespace QuizCannersUtilities
   
         public StdEncoder Add_IfFalse(string tag, bool val) => (!val) ? Add_Bool(tag, false) :  this;
         
-        public StdEncoder Add_IfNotDefault(string tag, ICanBeDefaultStd std) => (!std.IsNullOrDestroyed_Obj() && !std.IsDefault) ? Add(tag, std): this;
+        public StdEncoder Add_IfNotDefault(string tag, ICanBeDefaultCfg cfg) => (!cfg.IsNullOrDestroyed_Obj() && !cfg.IsDefault) ? Add(tag, cfg): this;
 
-        public StdEncoder Add_IfNotDefault(string tag, IStd std)
+        public StdEncoder Add_IfNotDefault(string tag, ICfg cfg)
         {
-            if (std.IsNullOrDestroyed_Obj()) return this;
+            if (cfg.IsNullOrDestroyed_Obj()) return this;
             
-            var def = std as ICanBeDefaultStd;
+            var def = cfg as ICanBeDefaultCfg;
 
-            return (def == null || !def.IsDefault) ? Add(tag, std) : this;
+            return (def == null || !def.IsDefault) ? Add(tag, cfg) : this;
         }
 
         public StdEncoder Add_IfNotEmpty(string tag, string val) => val.IsNullOrEmpty() ? this : Add_String(tag, val);
             
-        public StdEncoder Add_IfNotEmpty<T>(string tag, List<T> lst) where T : IStd, new() => lst.IsNullOrEmpty() ? this : Add(tag, lst);
+        public StdEncoder Add_IfNotEmpty<T>(string tag, List<T> lst) where T : ICfg, new() => lst.IsNullOrEmpty() ? this : Add(tag, lst);
 
         public StdEncoder Add_IfNotEmpty(string tag, List<string> val) => val.IsNullOrEmpty() ? this : Add(tag, val);
         
@@ -609,7 +609,7 @@ namespace QuizCannersUtilities
 
         public StdEncoder Add_IfNotEmpty(string tag, List<uint> val) => val.IsNullOrEmpty() ? this : Add(tag, val);
 
-        public StdEncoder Add_IfNotEmpty<T>(string tag, List<List<T>> lst) where T : IStd, new()
+        public StdEncoder Add_IfNotEmpty<T>(string tag, List<List<T>> lst) where T : ICfg, new()
         {
 
             if (lst.IsNullOrEmpty()) return this;

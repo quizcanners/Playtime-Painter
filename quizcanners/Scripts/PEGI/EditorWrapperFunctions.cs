@@ -303,7 +303,7 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static bool select<T>(ref int no, CountlessStd<T> tree) where T : IStd , new()
+        public static bool select<T>(ref int no, CountlessCfg<T> tree) where T : ICfg , new()
         {
             List<int> indexes;
             var objs = tree.GetAllObjs(out indexes);
@@ -1282,7 +1282,7 @@ namespace PlayerAndEditorGUI {
                             el = Activator.CreateInstance(ty);
                             _currentReorderedList[index] = el;
 
-                            var std = el as IStd;
+                            var std = el as ICfg;
 
                             if (std != null) 
                                  std.Decode(ed.SetRecognized().stdDta);

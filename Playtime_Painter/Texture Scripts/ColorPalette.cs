@@ -9,7 +9,7 @@ using UnityEngine;
 namespace Playtime_Painter
 {
     
-    public class ColorScheme : AbstractStd, IPEGI, IGotName, IPEGI_ListInspect
+    public class ColorScheme : AbstractCfg, IPEGI, IGotName, IPEGI_ListInspect
     {
         private static PainterDataAndConfig Cfg => PainterCamera.Data;
         private static BrushConfig GlobalBrush => Cfg.brushConfig;

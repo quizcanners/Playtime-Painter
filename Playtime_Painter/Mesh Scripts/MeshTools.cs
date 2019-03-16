@@ -14,7 +14,7 @@ namespace Playtime_Painter
     }
 
     #region Base
-    public class MeshToolBase : PainterSystemStd, IPEGI, IGotDisplayName
+    public class MeshToolBase : PainterSystemCfg, IPEGI, IGotDisplayName
     {
 
         protected enum DetectionMode { Points, Lines, Triangles }

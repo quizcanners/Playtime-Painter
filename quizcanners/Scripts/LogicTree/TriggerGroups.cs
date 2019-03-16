@@ -6,13 +6,13 @@ using QuizCannersUtilities;
 
 namespace STD_Logic {
 
-    public sealed class TriggerGroup : AbstractKeepUnrecognizedStd, IGotName, IGotIndex, IPEGI, IPEGI_ListInspect {
+    public sealed class TriggerGroup : AbstractKeepUnrecognizedCfg, IGotName, IGotIndex, IPEGI, IPEGI_ListInspect {
 
-        public static UnNullableStd<TriggerGroup> all = new UnNullableStd<TriggerGroup>();
+        public static UnNullableCfg<TriggerGroup> all = new UnNullableCfg<TriggerGroup>();
        
-        private UnNullableStd<Trigger> _triggers = new UnNullableStd<Trigger>();
+        private UnNullableCfg<Trigger> _triggers = new UnNullableCfg<Trigger>();
 
-        public readonly UnNullableStd<UnNullableStdLists<Values>> taggedInts = new UnNullableStd<UnNullableStdLists<Values>>();
+        public readonly UnNullableCfg<UnNullableCfgLists<Values>> taggedInts = new UnNullableCfg<UnNullableCfgLists<Values>>();
 
         private string _name = "Unnamed_Triggers";
         private int _index;
@@ -285,7 +285,7 @@ namespace STD_Logic {
         #endregion
         
         public TriggerGroup() {
-            _index = UnNullableStd<TriggerGroup>.indexOfCurrentlyCreatedUnnulable;
+            _index = UnNullableCfg<TriggerGroup>.indexOfCurrentlyCreatedUnnulable;
         }
     }
 

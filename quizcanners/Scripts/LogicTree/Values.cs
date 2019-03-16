@@ -8,13 +8,13 @@ using QuizCannersUtilities;
 namespace STD_Logic {
 
 
-    public class Values : AbstractKeepUnrecognizedStd, IPEGI, IGotCount
+    public class Values : AbstractKeepUnrecognizedCfg, IPEGI, IGotCount
     {
 
         public static Values global = new Values();
 
-        public UnNullableStd<CountlessBool> booleans = new UnNullableStd<CountlessBool>();
-        public UnNullableStd<CountlessInt> ints = new UnNullableStd<CountlessInt>();
+        public UnNullableCfg<CountlessBool> booleans = new UnNullableCfg<CountlessBool>();
+        public UnNullableCfg<CountlessInt> ints = new UnNullableCfg<CountlessInt>();
   //      UnnullableSTD<CountlessInt> enumTags = new UnnullableSTD<CountlessInt>();
   //      UnnullableSTD<CountlessBool> boolTags = new UnnullableSTD<CountlessBool>();
 
@@ -39,8 +39,8 @@ namespace STD_Logic {
 
         public override void Decode(string data) {
 
-            booleans = new UnNullableStd<CountlessBool>();
-            ints = new UnNullableStd<CountlessInt>();
+            booleans = new UnNullableCfg<CountlessBool>();
+            ints = new UnNullableCfg<CountlessInt>();
            // enumTags = new UnnullableSTD<CountlessInt>();
           //  boolTags = new UnnullableSTD<CountlessBool>();
 

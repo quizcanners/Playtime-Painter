@@ -8,18 +8,18 @@ namespace QuizCannersUtilities {
 
     #region Interfaces
 
-    public interface IStd {
+    public interface ICfg {
         StdEncoder Encode(); 
         void Decode(string data);
         bool Decode(string tg, string data);
     }
 
-    public interface IKeepUnrecognizedStd : IStd
+    public interface IKeepUnrecognizedCfg : ICfg
     {
         UnrecognizedTagsList UnrecognizedStd { get; }
     }
 
-    public interface ICanBeDefaultStd : IStd {
+    public interface ICanBeDefaultCfg : ICfg {
         bool IsDefault { get; }
     }
 
@@ -29,12 +29,12 @@ namespace QuizCannersUtilities {
         T GetReferenced<T>(int index) where T: UnityEngine.Object;
     }
 
-    public interface IStdSafeEncoding: IStd
+    public interface ICfgSafeEncoding: ICfg
     {
         LoopLock GetLoopLock { get;  }
     }
 
-    public interface IKeepMyStd : IStd
+    public interface IKeepMyCfg : ICfg
     {
         string ConfigStd { get; set; }
     }
@@ -178,7 +178,7 @@ namespace QuizCannersUtilities {
 
     }
 
-    public class StdReferencesHolder : ScriptableObject, IStdSerializeNestedReferences, IPEGI, IKeepUnrecognizedStd, IStdSafeEncoding
+    public class CfgReferencesHolder : ScriptableObject, IStdSerializeNestedReferences, IPEGI, IKeepUnrecognizedCfg, ICfgSafeEncoding
     {
         
         #region Encode & Decode
@@ -279,7 +279,7 @@ namespace QuizCannersUtilities {
     }
 
 
-    public abstract class AbstractStd : IStdSafeEncoding, ICanBeDefaultStd {
+    public abstract class AbstractCfg : ICfgSafeEncoding, ICanBeDefaultCfg {
         public abstract StdEncoder Encode();
         public virtual void Decode(string data) => data.DecodeTagsFor(this);
         public abstract bool Decode(string tg, string data);
@@ -289,7 +289,7 @@ namespace QuizCannersUtilities {
         public virtual bool IsDefault => false;
     }
 
-    public abstract class AbstractKeepUnrecognizedStd : AbstractStd, IKeepUnrecognizedStd {
+    public abstract class AbstractKeepUnrecognizedCfg : AbstractCfg, IKeepUnrecognizedCfg {
         public UnrecognizedTagsList UnrecognizedStd { get; } = new UnrecognizedTagsList();
 
 #if !UNITY_EDITOR
@@ -327,7 +327,7 @@ namespace QuizCannersUtilities {
         #endregion
     }
 
-    public abstract class ComponentStd : MonoBehaviour, IStdSafeEncoding, IKeepUnrecognizedStd, ICanBeDefaultStd, IStdSerializeNestedReferences, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
+    public abstract class ComponentCfg : MonoBehaviour, ICfgSafeEncoding, IKeepUnrecognizedCfg, ICanBeDefaultCfg, IStdSerializeNestedReferences, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
 
 #if !UNITY_EDITOR
         [NonSerialized]
@@ -469,22 +469,22 @@ namespace QuizCannersUtilities {
 
 #endregion
 
-#region Extensions
+    #region Extensions
     public static class StdExtensions {
 
         private const string StdStart = "<-<-<";
         private const string StdEnd = ">->->";
 
-        public static void EmailData(this IStd std, string subject, string note)
+        public static void EmailData(this ICfg cfg, string subject, string note)
         {
-            if (std == null) return;
+            if (cfg == null) return;
 
             UnityUtils.SendEmail ( "somebody@gmail.com", subject, 
                 "{0} {1} Copy this entire email and paste it in the corresponding field on your side to paste it (don't change data before pasting it). {2} {3}{4}{5}".F(note, pegi.EnvironmentNl, pegi.EnvironmentNl,
-                StdStart,  std.Encode().ToString(), StdEnd ) ) ;
+                StdStart,  cfg.Encode().ToString(), StdEnd ) ) ;
         }
 
-        public static void DecodeFromExternal(this IStd std, string data) => std?.Decode(ClearFromExternal(data));
+        public static void DecodeFromExternal(this ICfg cfg, string data) => cfg?.Decode(ClearFromExternal(data));
         
         private static string ClearFromExternal(string data) {
 
@@ -500,31 +500,31 @@ namespace QuizCannersUtilities {
         }
 
 #if PEGI
-        private static IStd _toCopy;
+        private static ICfg _toCopy;
 
-        public static bool CopyPasteStdPegi(this IStd std) {
+        public static bool CopyPasteStdPegi(this ICfg cfg) {
             
-            if (std == null) return false;
+            if (cfg == null) return false;
             
             var changed = false;
             
-            if (_toCopy == null && icon.Copy.Click("Copy {0}".F(std.ToPegiString())).changes(ref changed))
-                _toCopy = std;
+            if (_toCopy == null && icon.Copy.Click("Copy {0}".F(cfg.ToPegiString())).changes(ref changed))
+                _toCopy = cfg;
 
             if (_toCopy == null) return changed;
             
             if (icon.Close.Click("Empty copy buffer"))
                 _toCopy = null;
-            else if (!Equals(std, _toCopy) && icon.Paste.Click("Copy {0} into {1}".F(_toCopy, std)))
-                TryCopy_Std_AndOtherData(_toCopy, std);
+            else if (!Equals(cfg, _toCopy) && icon.Paste.Click("Copy {0} into {1}".F(_toCopy, cfg)))
+                TryCopy_Std_AndOtherData(_toCopy, cfg);
                   
             return changed;
         }
 
-        public static bool SendReceivePegi(this IStd std, string name, string folderName, out string data) {
+        public static bool SendReceivePegi(this ICfg cfg, string name, string folderName, out string data) {
   
             if (icon.Email.Click("Send {0} to somebody via email.".F(folderName)))
-                std.EmailData(name, "Use this {0}".F(name));
+                cfg.EmailData(name, "Use this {0}".F(name));
 
             data = "";
             if (pegi.edit(ref data).UnFocus()) {
@@ -533,7 +533,7 @@ namespace QuizCannersUtilities {
             }
 
             if (icon.Folder.Click("Save {0} to the file".F(name))) {
-                std.SaveToAssets(folderName, name);
+                cfg.SaveToAssets(folderName, name);
                 UnityUtils.RefreshAssetDatabase();
             }
 
@@ -553,11 +553,11 @@ namespace QuizCannersUtilities {
         {
             if (into == null || into == from) return;
             
-            var intoStd = into as IStd;
+            var intoStd = into as ICfg;
             
             if (intoStd != null)
             {
-                var fromStd = from as IStd;
+                var fromStd = from as ICfg;
 
                 if (fromStd != null)
                 {
@@ -643,7 +643,7 @@ namespace QuizCannersUtilities {
             return false;
         }
 
-        public static bool LoadOnDrop<T>(this T obj) where T: IStd
+        public static bool LoadOnDrop<T>(this T obj) where T: ICfg
         {
             string txt;
             if (LoadOnDrop(out txt)) {
@@ -654,8 +654,8 @@ namespace QuizCannersUtilities {
             return false;
         }
 
-        public static void UpdatePrefab (this IStd s, GameObject go) {
-            var iK = s as IKeepMyStd;
+        public static void UpdatePrefab (this ICfg s, GameObject go) {
+            var iK = s as IKeepMyCfg;
 
             if (iK != null)
                 iK.SaveStdData();
@@ -663,13 +663,13 @@ namespace QuizCannersUtilities {
             go.UpdatePrefab();
         }
 
-        public static void SaveStdData(this IKeepMyStd s) {
+        public static void SaveStdData(this IKeepMyCfg s) {
             if (s != null)
                 s.ConfigStd = s.Encode().ToString();
             
         }
 
-        public static bool LoadStdData(this IKeepMyStd s)
+        public static bool LoadStdData(this IKeepMyCfg s)
         {
             if (s == null)
                 return false;
@@ -679,26 +679,26 @@ namespace QuizCannersUtilities {
             return true;
         }
 
-        public static T LoadFromAssets<T>(this T s, string fullPath, string name) where T:IStd, new() {
+        public static T LoadFromAssets<T>(this T s, string fullPath, string name) where T:ICfg, new() {
 			if (s == null)
 				s = new T ();
             s.Decode(FileLoadUtils.LoadStoryFromAssets(fullPath, name));
 			return s;
         }
 
-        public static IStd SaveToAssets(this IStd s, string path, string filename)
+        public static ICfg SaveToAssets(this ICfg s, string path, string filename)
         {
             FileSaveUtils.SaveBytesToAssetsByRelativePath(path, filename, s.Encode().ToString());
             return s;
         }
 
-        public static IStd SaveToPersistentPath(this IStd s, string path, string filename)
+        public static ICfg SaveToPersistentPath(this ICfg s, string path, string filename)
         {
             FileSaveUtils.SaveJsonToPersistentPath(path, filename, s.Encode().ToString());
             return s;
         }
 
-        public static bool LoadFromPersistentPath(this IStd s, string path, string filename)
+        public static bool LoadFromPersistentPath(this ICfg s, string path, string filename)
         {
             var data = FileLoadUtils.LoadFromPersistentPath(path, filename);
             if (data != null)
@@ -709,13 +709,13 @@ namespace QuizCannersUtilities {
             return false;
         }
 
-        public static IStd SaveToResources(this IStd s, string resFolderPath, string insideResPath, string filename)
+        public static ICfg SaveToResources(this ICfg s, string resFolderPath, string insideResPath, string filename)
         {
             FileSaveUtils.SaveBytesToResources(resFolderPath, insideResPath, filename, s.Encode().ToString());
             return s;
         }
 
-        public static T CloneStd<T>(this T obj, IStdSerializeNestedReferences nested = null) where T : IStd
+        public static T CloneStd<T>(this T obj, IStdSerializeNestedReferences nested = null) where T : ICfg
         {
 
             if (obj.IsNullOrDestroyed_Obj()) return default(T);
@@ -732,18 +732,18 @@ namespace QuizCannersUtilities {
 
         }
         
-		public static T LoadFromResources<T>(this T s, string subFolder, string file)where T:IStd, new() {
+		public static T LoadFromResources<T>(this T s, string subFolder, string file)where T:ICfg, new() {
 			if (s == null)
 				s = new T ();
 			s.Decode(FileLoadUtils.LoadStoryFromResource(subFolder, file));
 			return s;
 		}
 
-        public static StdEncoder EncodeUnrecognized(this IKeepUnrecognizedStd ur) {
+        public static StdEncoder EncodeUnrecognized(this IKeepUnrecognizedCfg ur) {
             return ur.UnrecognizedStd.Encode();
         }
 
-        public static bool Decode(this IStd std, string data, IStdSerializeNestedReferences keeper) => data.DecodeInto(std, keeper);
+        public static bool Decode(this ICfg cfg, string data, IStdSerializeNestedReferences keeper) => data.DecodeInto(cfg, keeper);
     }
 #endregion
 }

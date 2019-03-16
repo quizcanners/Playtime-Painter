@@ -19,7 +19,7 @@ namespace Playtime_Painter {
     [HelpURL(OnlineManual)]
     [DisallowMultipleComponent]
     [ExecuteInEditMode]
-    public class PlaytimePainter : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, IKeepMyStd, IPEGI
+    public class PlaytimePainter : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, IKeepMyCfg, IPEGI
     {
 
         #region StaticGetters

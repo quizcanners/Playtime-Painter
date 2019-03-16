@@ -19,7 +19,7 @@ namespace Playtime_Painter {
     public enum SourceTextureColorUsage { Copy = 0, MultiplyByBrushColor = 1, UseBrushColor = 2}
 
     [Serializable]
-    public class BrushConfig : PainterSystemStd, IPEGI {
+    public class BrushConfig : PainterSystemCfg, IPEGI {
 
         #region Modes & Types
 
@@ -652,7 +652,7 @@ namespace Playtime_Painter {
     }
 
     [BrushDynamic]
-    public abstract class BrushDynamic : AbstractStd, IPEGI, IGotClassTag {
+    public abstract class BrushDynamic : AbstractCfg, IPEGI, IGotClassTag {
         public abstract string ClassTag { get; }
 
         public static TaggedTypesStd all = new TaggedTypesStd(typeof(BrushDynamic));

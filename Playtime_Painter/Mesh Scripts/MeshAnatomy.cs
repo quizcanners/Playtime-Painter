@@ -7,7 +7,7 @@ using QuizCannersUtilities;
 namespace Playtime_Painter
 {
 
-    public class Vertex : PainterSystemKeepUnrecognizedStd
+    public class Vertex : PainterSystemKeepUnrecognizedCfg
     {
         protected PlaytimePainter Painter => MeshManager.target; 
 
@@ -238,7 +238,7 @@ namespace Playtime_Painter
         
     }
 
-    public class MeshPoint : PainterSystemKeepUnrecognizedStd
+    public class MeshPoint : PainterSystemKeepUnrecognizedCfg
     {
 
         // TEMPORATY DATA / NEEDS MANUAL UPDATE:
@@ -604,7 +604,7 @@ namespace Playtime_Painter
        
     }
     
-    public class Triangle : PainterSystemKeepUnrecognizedStd
+    public class Triangle : PainterSystemKeepUnrecognizedCfg
     {
         public MeshPoint this[int index] => vertexes[index].meshPoint;
 
@@ -1229,7 +1229,7 @@ namespace Playtime_Painter
 
     }
     
-    public class BlendFrame : PainterSystemStd
+    public class BlendFrame : PainterSystemCfg
     {
         public Vector3 deltaPosition;
         public Vector3 deltaTangent;

@@ -211,7 +211,7 @@ namespace Playtime_Painter {
         }
     }
     
-    public class FieldAtlas : AbstractKeepUnrecognizedStd, IPEGI
+    public class FieldAtlas : AbstractKeepUnrecognizedCfg, IPEGI
     {
         static PainterCamera TexMGMT => PainterCamera.Inst; 
 
@@ -287,7 +287,7 @@ namespace Playtime_Painter {
         #endregion
     }
     
-    public class MaterialAtlases : AbstractKeepUnrecognizedStd, IGotName, IPEGI {
+    public class MaterialAtlases : AbstractKeepUnrecognizedCfg, IGotName, IPEGI {
 
         public string name;
 
@@ -649,7 +649,7 @@ namespace Playtime_Painter {
         #endregion
     }
     
-    public class AtlasTextureField: AbstractKeepUnrecognizedStd, IPEGI_ListInspect
+    public class AtlasTextureField: AbstractKeepUnrecognizedCfg, IPEGI_ListInspect
     {
         public Texture2D texture;
         public Color color = Color.black;
@@ -701,7 +701,7 @@ namespace Playtime_Painter {
 
     }
     
-    public class AtlasTextureCreator : AbstractKeepUnrecognizedStd, IGotName, IPEGI
+    public class AtlasTextureCreator : AbstractKeepUnrecognizedCfg, IGotName, IPEGI
     {
         private static PainterDataAndConfig Cfg => PainterCamera.Data;
 

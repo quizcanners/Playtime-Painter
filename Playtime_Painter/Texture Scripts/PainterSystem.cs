@@ -7,7 +7,7 @@ namespace Playtime_Painter
 
     public delegate bool PainterBoolPlugin(PlaytimePainter p);
 
-    public abstract class PainterSystemKeepUnrecognizedStd : PainterSystemStd, IKeepUnrecognizedStd, IPEGI
+    public abstract class PainterSystemKeepUnrecognizedCfg : PainterSystemCfg, IKeepUnrecognizedCfg, IPEGI
     {
         public UnrecognizedTagsList UnrecognizedStd { get; } = new UnrecognizedTagsList();
 
@@ -16,7 +16,7 @@ namespace Playtime_Painter
         #endif
     }
     
-    public abstract class PainterSystemStd : PainterSystem, IStd  
+    public abstract class PainterSystemCfg : PainterSystem, ICfg  
     {
         public abstract StdEncoder Encode();
 
@@ -25,7 +25,7 @@ namespace Playtime_Painter
         public abstract bool Decode(string tg, string data);
     }
 
-    public class PainterSystemMono : MonoBehaviour, IKeepUnrecognizedStd, IPEGI
+    public class PainterSystemMono : MonoBehaviour, IKeepUnrecognizedCfg, IPEGI
     {
         private readonly UnrecognizedTagsList _uTags = new UnrecognizedTagsList();
         public UnrecognizedTagsList UnrecognizedStd => _uTags;

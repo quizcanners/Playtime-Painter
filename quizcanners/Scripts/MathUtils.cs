@@ -414,7 +414,7 @@ namespace QuizCannersUtilities {
     }
     
     [Serializable]
-    public class LinearColor : AbstractStd
+    public class LinearColor : AbstractCfg
     {
         public float r, g, b, a;
 
@@ -671,7 +671,7 @@ namespace QuizCannersUtilities {
     }
 
     [Serializable]
-    public struct DynamicRangeFloat : IStd {
+    public struct DynamicRangeFloat : ICfg {
 
         [SerializeField] public float min;
         [SerializeField] public float max;

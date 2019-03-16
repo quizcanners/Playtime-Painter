@@ -10,7 +10,7 @@ namespace QuizCannersUtilities {
         void OnClassTypeChange(object previousInstance);
     }
 
-    public interface IGotClassTag : IStd {
+    public interface IGotClassTag : ICfg {
         string ClassTag { get; }
         TaggedTypesStd AllTypes { get; }
     }
@@ -135,7 +135,7 @@ namespace QuizCannersUtilities {
     }
 
     [MYCLASS]
-    public abstract class MYCLASSBase : AbstractKeepUnrecognizedStd, IGotClassTag {
+    public abstract class MYCLASSBase : AbstractKeepUnrecognizedCfg, IGotClassTag {
         public static TaggedTypesStd all = new TaggedTypesStd(typeof(MYCLASSBase));
         public TaggedTypesStd AllTypes => all;
         public abstract string ClassTag { get; }
@@ -162,7 +162,7 @@ namespace QuizCannersUtilities {
 
             var iTag = el as IGotClassTag;
 
-            var std = (el as IStd);
+            var std = (el as ICfg);
 
             var ed = ld.TryGetElement(index);
             

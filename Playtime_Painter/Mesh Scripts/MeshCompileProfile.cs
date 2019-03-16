@@ -9,7 +9,7 @@ using QuizCannersUtilities;
 namespace Playtime_Painter
 {
     
-    public class MeshPackagingProfile : AbstractStd, IPEGI, IGotName
+    public class MeshPackagingProfile : AbstractCfg, IPEGI, IGotName
     {
         public List<VertexDataLink> dtaLnks;
 
@@ -265,7 +265,7 @@ namespace Playtime_Painter
 
     }
 
-    public class VertexDataLink : AbstractStd, IPEGI
+    public class VertexDataLink : AbstractCfg, IPEGI
     {
         public int sameSizeDataIndex = -1;
         private int _targetIndex;
@@ -511,7 +511,7 @@ namespace Playtime_Painter
 
     }
     
-    public class VertexDataChannelLink : AbstractStd {
+    public class VertexDataChannelLink : AbstractCfg {
 
         public int srcIndex;
         public int dstIndex;

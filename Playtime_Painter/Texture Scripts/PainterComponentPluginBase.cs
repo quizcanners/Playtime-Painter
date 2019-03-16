@@ -10,7 +10,7 @@ namespace Playtime_Painter
     }
     
     [PainterPlugin]
-    public class PainterComponentPluginBase : AbstractStd, IGotClassTag {
+    public class PainterComponentPluginBase : AbstractCfg, IGotClassTag {
 
         #region Abstract Serialized
         public virtual string ClassTag => "Override me";

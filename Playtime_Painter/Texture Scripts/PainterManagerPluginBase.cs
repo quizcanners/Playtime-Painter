@@ -63,7 +63,7 @@ namespace Playtime_Painter {
     }
 
     [PainterManagerPlugin]
-    public abstract class PainterSystemManagerPluginBase : PainterSystemKeepUnrecognizedStd, IGotDisplayName, IGotClassTag {
+    public abstract class PainterSystemManagerPluginBase : PainterSystemKeepUnrecognizedCfg, IGotDisplayName, IGotClassTag {
 
         public static List<PainterSystemManagerPluginBase> plugins;
 

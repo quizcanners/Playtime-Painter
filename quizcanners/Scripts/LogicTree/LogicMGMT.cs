@@ -6,7 +6,7 @@ using QuizCannersUtilities;
 
 namespace STD_Logic
 {
-    public class LogicMGMT : ComponentStd   {
+    public class LogicMGMT : ComponentCfg   {
 
         public static LogicMGMT inst;
 
@@ -139,7 +139,7 @@ namespace STD_Logic
                 "Trigger Groups".write(PEGI_Styles.ListLabel); 
                 pegi.nl();
 
-                changed |= TriggerGroup.all.Inspect<UnNullableStd<TriggerGroup>, TriggerGroup>(ref inspectedTriggerGroup);
+                changed |= TriggerGroup.all.Inspect<UnNullableCfg<TriggerGroup>, TriggerGroup>(ref inspectedTriggerGroup);
 
                 if (inspectedTriggerGroup == -1) {
                     "At Index: ".edit(60, ref tmpIndex);

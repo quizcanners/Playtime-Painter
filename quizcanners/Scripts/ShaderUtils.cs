@@ -13,7 +13,7 @@ namespace QuizCannersUtilities
 
         #region Base
 
-        public abstract class BaseShaderPropertyIndex : AbstractStd, IGotDisplayName, IPEGI_ListInspect
+        public abstract class BaseShaderPropertyIndex : AbstractCfg, IGotDisplayName, IPEGI_ListInspect
         {
             protected int id;
             private string _name;

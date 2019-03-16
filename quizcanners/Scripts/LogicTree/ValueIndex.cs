@@ -6,7 +6,7 @@ using QuizCannersUtilities;
 namespace STD_Logic
 {
 
-    public abstract class ValueIndex : IStd, IGotDisplayName {
+    public abstract class ValueIndex : ICfg, IGotDisplayName {
 
         public int groupIndex;
         public int triggerIndex;
@@ -202,15 +202,15 @@ namespace STD_Logic
             return index;
         }
 
-        public static bool Get(this UnNullableStd<CountlessBool> uc, ValueIndex ind) => uc[ind.groupIndex][ind.triggerIndex];
-        public static void Set(this UnNullableStd<CountlessBool> uc, ValueIndex ind, bool value) => uc[ind.groupIndex][ind.triggerIndex] = value;
+        public static bool Get(this UnNullableCfg<CountlessBool> uc, ValueIndex ind) => uc[ind.groupIndex][ind.triggerIndex];
+        public static void Set(this UnNullableCfg<CountlessBool> uc, ValueIndex ind, bool value) => uc[ind.groupIndex][ind.triggerIndex] = value;
 
-        public static int Get(this UnNullableStd<CountlessInt> uc, ValueIndex ind) => uc[ind.groupIndex][ind.triggerIndex];
-        public static void Set(this UnNullableStd<CountlessInt> uc, ValueIndex ind, int value) => uc[ind.groupIndex][ind.triggerIndex] = value;
+        public static int Get(this UnNullableCfg<CountlessInt> uc, ValueIndex ind) => uc[ind.groupIndex][ind.triggerIndex];
+        public static void Set(this UnNullableCfg<CountlessInt> uc, ValueIndex ind, int value) => uc[ind.groupIndex][ind.triggerIndex] = value;
 
 
 #if PEGI
-        public static bool Toggle(this UnNullableStd<CountlessBool> uc, ValueIndex ind)
+        public static bool Toggle(this UnNullableCfg<CountlessBool> uc, ValueIndex ind)
         {
             var tmp = uc.Get(ind);//[ind.groupIndex][ind.triggerIndex];
             if (pegi.toggleIcon(ref tmp))
@@ -221,7 +221,7 @@ namespace STD_Logic
             return false;
         }
 
-        public static bool Edit(this UnNullableStd<CountlessInt> uc, ValueIndex ind)
+        public static bool Edit(this UnNullableCfg<CountlessInt> uc, ValueIndex ind)
         {
             var tmp = uc.Get(ind);//[ind.groupIndex][ind.triggerIndex];
             if (pegi.edit(ref tmp))
@@ -232,7 +232,7 @@ namespace STD_Logic
             return false;
         }
 
-        public static bool Select(this UnNullableStd<CountlessInt> uc, Trigger t)
+        public static bool Select(this UnNullableCfg<CountlessInt> uc, Trigger t)
         {
             var tmp = uc.Get(t);
             if (pegi.select(ref tmp, t.enm))

@@ -173,7 +173,7 @@ namespace Playtime_Painter {
         , typeof(DownScalar)
         )]
 
-    public class TextureBuffer : AbstractKeepUnrecognizedStd, IPEGI_ListInspect, IGotDisplayName {
+    public class TextureBuffer : AbstractKeepUnrecognizedCfg, IPEGI_ListInspect, IGotDisplayName {
         
         private int _version;
 
@@ -681,7 +681,7 @@ namespace Playtime_Painter {
 
     #region Section
     
-    public class RenderSection : PainterSystemKeepUnrecognizedStd , IPEGI, IGotDisplayName, IPEGI_ListInspect
+    public class RenderSection : PainterSystemKeepUnrecognizedCfg , IPEGI, IGotDisplayName, IPEGI_ListInspect
     {
         private enum BlitTrigger { Manual, PerFrame, WhenOtherSectionUpdated, WhenSourceReady, Delay, DelayAndUpdated }
 

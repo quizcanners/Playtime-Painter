@@ -18,7 +18,7 @@ namespace Playtime_Painter
 
     public enum TexTarget { Texture2D, RenderTexture }
 
-    public class ImageMeta : PainterSystemKeepUnrecognizedStd, IPEGI_ListInspect, IGotName, INeedAttention, ICanBeDefaultStd
+    public class ImageMeta : PainterSystemKeepUnrecognizedCfg, IPEGI_ListInspect, IGotName, INeedAttention, ICanBeDefaultCfg
     {
 
         #region Values

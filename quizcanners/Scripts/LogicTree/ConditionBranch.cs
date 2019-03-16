@@ -6,8 +6,8 @@ using PlayerAndEditorGUI;
 
 namespace STD_Logic {
 
-    public class ConditionBranch : AbstractKeepUnrecognizedStd, IPEGI, 
-        IAmConditional, ICanBeDefaultStd, IPEGI_ListInspect, IGotCount, IPEGI_Searchable, IGotName, INeedAttention {
+    public class ConditionBranch : AbstractKeepUnrecognizedCfg, IPEGI, 
+        IAmConditional, ICanBeDefaultCfg, IPEGI_ListInspect, IGotCount, IPEGI_Searchable, IGotName, INeedAttention {
         private enum ConditionBranchType { Or, And }
 
         private List<ConditionLogic> _conditions = new List<ConditionLogic>();

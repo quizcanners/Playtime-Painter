@@ -8,7 +8,7 @@ namespace STD_Logic {
         List<PickedCategory> MyCategories { get; set; }
     } 
 
-    public class CategoryRoot<T> : AbstractKeepUnrecognizedStd, IPEGI where T : ICategorized {
+    public class CategoryRoot<T> : AbstractKeepUnrecognizedCfg, IPEGI where T : ICategorized {
 
         public Countless<Category<T>> allSubs = new Countless<Category<T>>();
 
@@ -107,7 +107,7 @@ namespace STD_Logic {
         #endregion
     }
 
-    public class Category<T> : AbstractKeepUnrecognizedStd, IGotName, IGotIndex, IPEGI where T: ICategorized
+    public class Category<T> : AbstractKeepUnrecognizedCfg, IGotName, IGotIndex, IPEGI where T: ICategorized
     {
 
         public string NameForPEGI { get; set; }
@@ -217,7 +217,7 @@ namespace STD_Logic {
 #endregion
     }
 
-    public class PickedCategory: AbstractStd {
+    public class PickedCategory: AbstractCfg {
 
         public List<int> path = new List<int>();
 

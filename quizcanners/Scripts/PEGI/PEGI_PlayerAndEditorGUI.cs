@@ -1894,7 +1894,7 @@ namespace PlayerAndEditorGUI {
 
         }
       
-        public static bool select<T>(ref int no, CountlessStd<T> tree) where T : IStd, new()
+        public static bool select<T>(ref int no, CountlessCfg<T> tree) where T : ICfg, new()
         {
 
         #if UNITY_EDITOR
@@ -5634,7 +5634,7 @@ namespace PlayerAndEditorGUI {
                 if (!isNull && derivedClasses != null) {
                     var ty = el.GetType();
                     if (@select(ref ty, derivedClasses, el.ToPegiString()))
-                        array[i] = (el as IStd).TryDecodeInto<T>(ty);
+                        array[i] = (el as ICfg).TryDecodeInto<T>(ty);
                 }
 
                 if (!isNull)
@@ -5727,7 +5727,7 @@ namespace PlayerAndEditorGUI {
                     {
                         var ty = el.GetType();
                         if (@select(ref ty, derivedClasses, el.ToPegiString()))
-                            list[i] = (el as IStd).TryDecodeInto<T>(ty);
+                            list[i] = (el as ICfg).TryDecodeInto<T>(ty);
                     }
 
                     if (!isNull)
@@ -5793,7 +5793,7 @@ namespace PlayerAndEditorGUI {
                             foreach (var e in _copiedElements)
                             {
 
-                                var istd = listCopyBuffer.TryGet(e) as IStd;
+                                var istd = listCopyBuffer.TryGet(e) as ICfg;
 
                                 if (istd != null)
                                     list.TryAdd(istd.CloneStd());
@@ -7369,7 +7369,7 @@ namespace PlayerAndEditorGUI {
 
         private static readonly char[] splitCharacters = { ' ', '.' };
         
-        public class SearchData: AbstractStd, ICanBeDefaultStd {
+        public class SearchData: AbstractCfg, ICanBeDefaultCfg {
             public IList filteredList;
             public string searchedText;
             public int uncheckedElement = 0;

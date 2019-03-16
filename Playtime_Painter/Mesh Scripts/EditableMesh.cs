@@ -6,7 +6,7 @@ using QuizCannersUtilities;
 
 namespace Playtime_Painter {
 
-    public class EditableMesh : PainterSystemStd, IPEGI {
+    public class EditableMesh : PainterSystemCfg, IPEGI {
 
         public string meshName = "unnamed";
 
@@ -358,7 +358,7 @@ namespace Playtime_Painter {
 
         private readonly List<MeshPoint> _sortVerticesClose = new List<MeshPoint>();
         private readonly List<MeshPoint> _sortVerticesFar = new List<MeshPoint>();
-        public CountlessStd<Vertex> uvsByFinalIndex = new CountlessStd<Vertex>();
+        public CountlessCfg<Vertex> uvsByFinalIndex = new CountlessCfg<Vertex>();
         
         public Vertex selectedUv;
 

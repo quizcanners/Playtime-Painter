@@ -18,7 +18,7 @@ namespace Playtime_Painter.Examples
 {
 
     [ExecuteInEditMode]
-    public class RoundedGraphic : Image, IKeepMyStd, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPEGI {
+    public class RoundedGraphic : Image, IKeepMyCfg, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPEGI {
 
         #region Shader MGMT
 
@@ -547,7 +547,7 @@ namespace Playtime_Painter.Examples
         }
 
         [RoundedButtonModule]
-        public abstract class RoundedButtonModuleBase : AbstractKeepUnrecognizedStd, IGotClassTag
+        public abstract class RoundedButtonModuleBase : AbstractKeepUnrecognizedCfg, IGotClassTag
         {
             public static TaggedTypesStd all = new TaggedTypesStd(typeof(RoundedButtonModuleBase));
             public TaggedTypesStd AllTypes => all;

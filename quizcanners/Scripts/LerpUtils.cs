@@ -103,7 +103,7 @@ namespace QuizCannersUtilities
 
         #region Abstract Base
 
-        public abstract class BaseAnyValue : AbstractStd, ILinkedLerping, IPEGI, IPEGI_ListInspect
+        public abstract class BaseAnyValue : AbstractCfg, ILinkedLerping, IPEGI, IPEGI_ListInspect
         {
 
             public LerpSpeedMode lerpMode = LerpSpeedMode.SpeedThreshold;

@@ -6,7 +6,7 @@ namespace QuizCannersUtilities
 {
 
     [ExecuteInEditMode]
-    public class PEGI_SimpleInspectorsBrowser : ComponentStd, IKeepMyStd
+    public class PEGI_SimpleInspectorsBrowser : ComponentCfg, IKeepMyCfg
     {
 
         public List<Object> objects = new List<Object>();

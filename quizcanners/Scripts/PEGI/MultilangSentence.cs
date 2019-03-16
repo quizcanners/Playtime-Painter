@@ -9,7 +9,7 @@ namespace PlayerAndEditorGUI {
     public enum Languages { note = 0, en = 1, uk = 2, tr = 3, ru = 4 }
     
     [DerivedList(typeof(Sentence), typeof(ConditionalSentence))]
-    public class Sentence : AbstractKeepUnrecognizedStd, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
+    public class Sentence : AbstractKeepUnrecognizedCfg, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
 
         public static Languages currentLanguage = Languages.en; // Don't rely on enums, use Dictionary to store languages. Key - language code, value - translation.
 

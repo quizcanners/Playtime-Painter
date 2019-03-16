@@ -12,7 +12,7 @@ using UnityEditor;
 namespace Playtime_Painter
 {
 
-    public class MeshManager : PainterSystemKeepUnrecognizedStd {
+    public class MeshManager : PainterSystemKeepUnrecognizedCfg {
 
         #region Getters Setters
         public static MeshManager Inst => PainterCamera.MeshManager;

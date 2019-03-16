@@ -11,7 +11,7 @@ using UnityEditor;
 namespace Playtime_Painter
 {
 
-    public class PainterDataAndConfig : StdReferencesHolder, IKeepMyStd
+    public class PainterDataAndConfig : CfgReferencesHolder, IKeepMyCfg
     {
         private static PlaytimePainter Painter => PlaytimePainter.inspected;
         public int playtimePainterLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.

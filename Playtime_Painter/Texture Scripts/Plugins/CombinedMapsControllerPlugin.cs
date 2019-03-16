@@ -52,7 +52,7 @@ namespace Playtime_Painter
         #endregion
     }
 
-    public class TextureSetForCombinedMaps : PainterSystemKeepUnrecognizedStd, IGotName {
+    public class TextureSetForCombinedMaps : PainterSystemKeepUnrecognizedCfg, IGotName {
 
         protected static CombinedMapsControllerPlugin Ctrl => CombinedMapsControllerPlugin._inst;
 
@@ -187,7 +187,7 @@ namespace Playtime_Painter
 
     }
 
-    public class TexturePackagingProfile : PainterSystemStd, IGotName, IPEGI
+    public class TexturePackagingProfile : PainterSystemCfg, IGotName, IPEGI
     {
         private bool _isColor;
         public float bumpStrength = 0.1f;
@@ -418,7 +418,7 @@ namespace Playtime_Painter
         }
     }
 
-    public class TextureChannel : AbstractStd, IPEGI
+    public class TextureChannel : AbstractCfg, IPEGI
     {
         public bool enabled;
         public bool flip;

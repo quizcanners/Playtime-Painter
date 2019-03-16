@@ -10,7 +10,7 @@ namespace QuizCannersUtilities
 
         #region Non-Instancible
 
-        public static void Decode_Base(this string data, StdDecoder.DecodeDelegate dec, IKeepUnrecognizedStd unrecognizedKeeper, string tag = "b") 
+        public static void Decode_Base(this string data, StdDecoder.DecodeDelegate dec, IKeepUnrecognizedCfg unrecognizedKeeper, string tag = "b") 
             => new StdDecoder(data).DecodeTagsFor(dec, unrecognizedKeeper, tag);
         
         public static void Decode_Delegate(this string data, StdDecoder.DecodeDelegate dec) => new StdDecoder(data).DecodeTagsFor(dec);
@@ -349,11 +349,11 @@ namespace QuizCannersUtilities
         private static T DecodeData<T>(this StdDecoder cody, TaggedTypesStd tps) where T : IGotClassTag
              => Decode<T>(cody.currentTag, cody.GetData(), tps);
         
-        private static T DecodeData<T>(this StdDecoder cody, List<Type> tps, ListMetaData ld) where T : IStd
+        private static T DecodeData<T>(this StdDecoder cody, List<Type> tps, ListMetaData ld) where T : ICfg
             => Decode<T>(cody.currentTag, cody.GetData(), tps, ld, cody.currentTagIndex);
 
 
-        private static T DecodeData<T>(this StdDecoder cody, List<Type> tps) where T : IStd
+        private static T DecodeData<T>(this StdDecoder cody, List<Type> tps) where T : ICfg
             => Decode<T>(cody.currentTag, cody.GetData(), tps);
 
         private static T Decode<T>(string tag, string data, TaggedTypesStd tps, ListMetaData ld, int index) where T : IGotClassTag
@@ -381,7 +381,7 @@ namespace QuizCannersUtilities
             return (type == null) ? default(T) : data.DecodeInto_Type<T>(type);
         }
 
-        private static T Decode<T>(string tag, string data, List<Type> tps, ListMetaData ld, int index) where T : IStd
+        private static T Decode<T>(string tag, string data, List<Type> tps, ListMetaData ld, int index) where T : ICfg
         {
 
             if (tag == StdEncoder.NullTag) return default(T);
@@ -397,7 +397,7 @@ namespace QuizCannersUtilities
             return default(T);
         }
 
-        private static T Decode<T>(string tag, string data, List<Type> tps) where T : IStd
+        private static T Decode<T>(string tag, string data, List<Type> tps) where T : ICfg
         {
 
 
@@ -436,7 +436,7 @@ namespace QuizCannersUtilities
             
         }
 
-        public static List<T> TryDecode_IntoList_Elements<T>(this string data, List<T> l, ref ListMetaData ld) where T : IStd, new() {
+        public static List<T> TryDecode_IntoList_Elements<T>(this string data, List<T> l, ref ListMetaData ld) where T : ICfg, new() {
 
             if (ld == null)
                 ld = new ListMetaData();
@@ -478,7 +478,7 @@ namespace QuizCannersUtilities
             return l;
         }
         
-        public static List<List<T>> Decode_ListOfList<T>(this string data, out List<List<T>> l) where T : IStd, new()
+        public static List<List<T>> Decode_ListOfList<T>(this string data, out List<List<T>> l) where T : ICfg, new()
         {
             l = new List<List<T>>();
 
@@ -494,7 +494,7 @@ namespace QuizCannersUtilities
             return l;
         }
         
-        public static List<T> Decode_List<T>(this string data, out List<T> l, ref ListMetaData ld) where T : IStd, new() {
+        public static List<T> Decode_List<T>(this string data, out List<T> l, ref ListMetaData ld) where T : ICfg, new() {
 
             if (ld == null)
                 ld = new ListMetaData();
@@ -525,7 +525,7 @@ namespace QuizCannersUtilities
             return l;
         }
         
-        public static List<T> Decode_List<T>(this string data, out List<T> l) where T : IStd, new() {
+        public static List<T> Decode_List<T>(this string data, out List<T> l) where T : ICfg, new() {
 
             var cody = new StdDecoder(data);
 
@@ -544,7 +544,7 @@ namespace QuizCannersUtilities
         #endregion
 
         #region Arrays
-        public static T[] Decode_Array<T>(this string data, out T[] l) where T : IStd, new()
+        public static T[] Decode_Array<T>(this string data, out T[] l) where T : ICfg, new()
         {
 
             var cody = new StdDecoder(data);
@@ -685,16 +685,16 @@ namespace QuizCannersUtilities
         #endregion
 
         #region STD class
-        public static IStd DecodeTagsFor<T>(this string data, T val) where T : IStd
+        public static ICfg DecodeTagsFor<T>(this string data, T val) where T : ICfg
         => (val.IsNullOrDestroyed_Obj()) ? val : new StdDecoder(data).DecodeTagsFor(val);
       
-        public static T DecodeInto<T>(this string data, out T val) where T : IStd, new()
+        public static T DecodeInto<T>(this string data, out T val) where T : ICfg, new()
         {
             val = data.DecodeInto<T>();
             return val;
         }
 
-        public static T DecodeInto<T>(this string data) where T : IStd, new()
+        public static T DecodeInto<T>(this string data) where T : ICfg, new()
         {
             var obj = new T();
             obj.Decode(data);
@@ -702,9 +702,9 @@ namespace QuizCannersUtilities
         }
 
         public static bool TryDecodeInto<T>(this string data, T val) =>
-            val.TryGet_fromObj<IStd>().Decode_ifNotNull(data);
+            val.TryGet_fromObj<ICfg>().Decode_ifNotNull(data);
         
-        public static bool Decode_ifNotNull(this IStd istd, string data)
+        public static bool Decode_ifNotNull(this ICfg istd, string data)
         {
             if (istd == null) return false;
             
@@ -720,7 +720,7 @@ namespace QuizCannersUtilities
             return obj;
         }
 
-        public static T DecodeInto_Type<T>(this string data, Type childType) where T : IStd
+        public static T DecodeInto_Type<T>(this string data, Type childType) where T : ICfg
         {
             var val = (T)Activator.CreateInstance(childType);
             val.Decode(data);
@@ -731,18 +731,18 @@ namespace QuizCannersUtilities
         {
             var val = (T)Activator.CreateInstance(childType);
 
-            (val as IStd).Decode_ifNotNull(data);
+            (val as ICfg).Decode_ifNotNull(data);
 
             return val;
         }
 
-        public static T TryDecodeInto<T>(this IStd ovj, Type childType)
+        public static T TryDecodeInto<T>(this ICfg ovj, Type childType)
         {
             var val = (T)Activator.CreateInstance(childType);
 
             if (ovj == null) return val;
             
-            var std = val as IStd;
+            var std = val as ICfg;
 
             if (std == null) return val;
             
@@ -770,7 +770,7 @@ namespace QuizCannersUtilities
         public static IStdSerializeNestedReferences Keeper { get { return StdEncoder.keeper;  } set { StdEncoder.keeper = value; } }
 
         public static bool TryDecodeInto<T>(this string data, T val, IStdSerializeNestedReferences referencesKeeper) {
-            var std = val.TryGet_fromObj<IStd>();
+            var std = val.TryGet_fromObj<ICfg>();
            
             if (std == null) return false;
             
@@ -781,12 +781,12 @@ namespace QuizCannersUtilities
         }
 
         public static T DecodeInto<T>(this string data, out T val, IStdSerializeNestedReferences referencesKeeper)
-            where T : IStd, new() {
+            where T : ICfg, new() {
             val = data.DecodeInto<T>(referencesKeeper);
             return val;
         }
 
-        public static T DecodeInto<T>(this string data, IStdSerializeNestedReferences referencesKeeper) where T : IStd, new()
+        public static T DecodeInto<T>(this string data, IStdSerializeNestedReferences referencesKeeper) where T : ICfg, new()
         {
             var obj = new T();
             data.DecodeInto(obj, referencesKeeper);
@@ -797,7 +797,7 @@ namespace QuizCannersUtilities
 
         public static List<T> Decode_References<T>(this string data, out List<T> list) where T: UnityEngine.Object => data.Decode_References(out list, Keeper);
 
-        public static bool DecodeInto<T>(this string data, T val, IStdSerializeNestedReferences referencesKeeper) where T : IStd
+        public static bool DecodeInto<T>(this string data, T val, IStdSerializeNestedReferences referencesKeeper) where T : ICfg
         {
             if (val == null) return false;  
 
@@ -811,7 +811,7 @@ namespace QuizCannersUtilities
 
         }
 
-        public static List<T> Decode_List<T>(this string data, out List<T> val, IStdSerializeNestedReferences referencesKeeper, ref ListMetaData ld) where T : IStd, new()
+        public static List<T> Decode_List<T>(this string data, out List<T> val, IStdSerializeNestedReferences referencesKeeper, ref ListMetaData ld) where T : ICfg, new()
         {
             var prevKeeper = Keeper;
             Keeper = referencesKeeper;
@@ -823,7 +823,7 @@ namespace QuizCannersUtilities
             return val;
         }
 
-        public static List<T> Decode_List<T>(this string data, out List<T> val, IStdSerializeNestedReferences referencesKeeper) where T : IStd, new()
+        public static List<T> Decode_List<T>(this string data, out List<T> val, IStdSerializeNestedReferences referencesKeeper) where T : ICfg, new()
         {
             var prevKeeper = Keeper;
             Keeper = referencesKeeper;
@@ -899,7 +899,7 @@ namespace QuizCannersUtilities
         }
         
         private static readonly List<string> BaseClassChain = new List<string>();
-        public void DecodeTagsFor(DecodeDelegate decodeDelegate, IKeepUnrecognizedStd unrecognizedKeeper, string tag) {
+        public void DecodeTagsFor(DecodeDelegate decodeDelegate, IKeepUnrecognizedCfg unrecognizedKeeper, string tag) {
 
             BaseClassChain.Add(tag);
             try {
@@ -920,9 +920,9 @@ namespace QuizCannersUtilities
            
         }
 
-        public T DecodeTagsFor<T>(T std) where T : IStd {
+        public T DecodeTagsFor<T>(T std) where T : ICfg {
 
-            var unrecognizedKeeper = (std as IKeepUnrecognizedStd)?.UnrecognizedStd;
+            var unrecognizedKeeper = (std as IKeepUnrecognizedCfg)?.UnrecognizedStd;
 
                 if (unrecognizedKeeper == null)
                     foreach (var tag in this)
