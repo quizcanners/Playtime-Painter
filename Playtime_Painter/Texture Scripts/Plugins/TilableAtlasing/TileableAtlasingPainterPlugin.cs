@@ -28,7 +28,7 @@ namespace Playtime_Painter {
 
         #region Encode & Decode
 
-        public override StdEncoder Encode() => new StdEncoder()
+        public override CfgEncoder Encode() => new CfgEncoder()
             .Add_References("pam", preAtlasingMaterials)
             .Add_Reference("pamsh", preAtlasingMesh)
             .Add_String("sm", preAtlasingSavedMesh)
@@ -223,7 +223,7 @@ namespace Playtime_Painter {
         public AtlasTextureCreator AtlasCreator => TileableAtlasingControllerPlugin.inst.atlases.Count > atlasCreatorId ? TileableAtlasingControllerPlugin.inst.atlases[atlasCreatorId] : null; 
 
         #region Encode & Decode
-        public override StdEncoder Encode() => this.EncodeUnrecognized()
+        public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add_String("af", atlasedField)
             .Add("of", originField)
             .Add("acid", atlasCreatorId)
@@ -298,7 +298,7 @@ namespace Playtime_Painter {
 
         #region Encode & Decode
 
-        public override StdEncoder Encode() => this.EncodeUnrecognized()
+        public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add_String("n", name)
             .Add_Reference("om", originalMaterial)
             .Add("ots", originalTextures)
@@ -681,7 +681,7 @@ namespace Playtime_Painter {
         #endregion
 
         #region Encode & Decode
-        public override StdEncoder Encode() => this.EncodeUnrecognized()
+        public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add_Reference("tex", texture)
             .Add("col", color)
             .Add_IfTrue("u", used);
@@ -726,7 +726,7 @@ namespace Playtime_Painter {
 
         #region Encode & Decode
 
-        public override StdEncoder Encode() => this.EncodeUnrecognized()
+        public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add("tf", targetFields)
             .Add("af", atlasFields)
             .Add("sf", _srcFields)

@@ -187,7 +187,7 @@ namespace Playtime_Painter {
 
         #region Encode & Decode
 
-        public override StdEncoder Encode() => this.EncodeUnrecognized()
+        public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add("mm", MeshManager)
             .Add_Abstract("pl", PainterSystemManagerPluginBase.plugins, _pluginsMeta);
 
@@ -926,7 +926,7 @@ namespace Playtime_Painter {
             foreach (var p in PlaytimePainter.PlaybackPainters)
                 p.playbackVectors.Clear();
 
-            PlaytimePainter.cody = new StdDecoder(null);
+            PlaytimePainter.cody = new CfgDecoder(null);
         }
 
         #endregion

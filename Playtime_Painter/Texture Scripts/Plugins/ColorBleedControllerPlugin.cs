@@ -22,7 +22,7 @@ namespace Playtime_Painter {
         
         #region Encode & Decode
 
-        public override StdEncoder Encode()
+        public override CfgEncoder Encode()
         {
             var cody = this.EncodeUnrecognized();
             if (_modifyBrightness)

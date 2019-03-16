@@ -25,7 +25,7 @@ namespace STD_Logic
             return _realTimeOnStartUp + (int)Time.realtimeSinceStartup;
         }
         
-        public override StdEncoder Encode() =>this.EncodeUnrecognized();
+        public override CfgEncoder Encode() =>this.EncodeUnrecognized();
 
         public override bool Decode(string tg, string data) => false;
 

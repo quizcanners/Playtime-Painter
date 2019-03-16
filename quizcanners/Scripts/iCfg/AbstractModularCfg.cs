@@ -12,13 +12,13 @@ namespace QuizCannersUtilities {
 
     public interface IGotClassTag : ICfg {
         string ClassTag { get; }
-        TaggedTypesStd AllTypes { get; }
+        TaggedTypesCfg AllTypes { get; }
     }
 
     [AttributeUsage(AttributeTargets.Class)]
     public abstract class AbstractWithTaggedTypes : Attribute
     {
-        public abstract TaggedTypesStd TaggedTypes { get; }
+        public abstract TaggedTypesCfg TaggedTypes { get; }
     }
 
     [AttributeUsage(AttributeTargets.Class)]
@@ -35,11 +35,11 @@ namespace QuizCannersUtilities {
         }
     }
 
-    public class TaggedTypesStd
+    public class TaggedTypesCfg
     {
         private readonly Type _coreType;
 
-        public TaggedTypesStd(Type type)
+        public TaggedTypesCfg(Type type)
         {
             _coreType = type;
         }
@@ -52,7 +52,7 @@ namespace QuizCannersUtilities {
 
         private Dictionary<string, Type> _dictionary;
 
-        private TaggedTypesStd RefreshNodeTypesList() {
+        private TaggedTypesCfg RefreshNodeTypesList() {
             if (_keys != null) return this;
             
             _dictionary = new Dictionary<string, Type>();
@@ -131,13 +131,13 @@ namespace QuizCannersUtilities {
     #region Example
     /* Implementation Template
     public class MYCLASSAttribute : AbstractWithTaggedTypes {
-        public override TaggedTypesStd TaggedTypes => MYCLASSBase.all;
+        public override TaggedTypesCfg TaggedTypes => MYCLASSBase.all;
     }
 
     [MYCLASS]
     public abstract class MYCLASSBase : AbstractKeepUnrecognizedCfg, IGotClassTag {
-        public static TaggedTypesStd all = new TaggedTypesStd(typeof(MYCLASSBase));
-        public TaggedTypesStd AllTypes => all;
+        public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(MYCLASSBase));
+        public TaggedTypesCfg AllTypes => all;
         public abstract string ClassTag { get; }
     }
 
@@ -177,7 +177,7 @@ namespace QuizCannersUtilities {
 
         }
         
-        public static void Replace_IfDifferent<T>(this TaggedTypesStd std, ref T obj, Type newType) {
+        public static void Replace_IfDifferent<T>(this TaggedTypesCfg cfg, ref T obj, Type newType) {
             if (obj.GetType() != newType)
                 obj = (T)Activator.CreateInstance(newType);
         }

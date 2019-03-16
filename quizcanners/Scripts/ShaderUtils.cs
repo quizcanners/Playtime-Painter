@@ -68,7 +68,7 @@ namespace QuizCannersUtilities
             }
 #endif
 
-            public override StdEncoder Encode() => new StdEncoder()
+            public override CfgEncoder Encode() => new CfgEncoder()
                 .Add_String("n", _name)
                 .Add_IfTrue("nm", nonMaterialProperty);
             
@@ -401,7 +401,7 @@ namespace QuizCannersUtilities
 
             #region Encode & Decode
 
-            public override StdEncoder Encode() => new StdEncoder()
+            public override CfgEncoder Encode() => new CfgEncoder()
                 .Add("b", base.Encode())
                 .Add("tgs", _usageTags);
 

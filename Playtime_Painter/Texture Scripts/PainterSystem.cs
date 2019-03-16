@@ -18,7 +18,7 @@ namespace Playtime_Painter
     
     public abstract class PainterSystemCfg : PainterSystem, ICfg  
     {
-        public abstract StdEncoder Encode();
+        public abstract CfgEncoder Encode();
 
         public virtual void Decode(string data) => data.DecodeTagsFor(this);
 
@@ -34,7 +34,7 @@ namespace Playtime_Painter
 
         public virtual bool Decode(string tg, string data) => true;
 
-        public virtual StdEncoder Encode() => this.EncodeUnrecognized();
+        public virtual CfgEncoder Encode() => this.EncodeUnrecognized();
         protected static PainterDataAndConfig Cfg => PainterCamera.Data;
         protected static PainterDataAndConfig TexMgmtData => PainterCamera.Data;
         protected static PainterCamera TexMGMT => PainterCamera.Inst;

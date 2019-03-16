@@ -125,10 +125,10 @@ namespace QuizCannersUtilities
 
             #region Encode & Decode
 
-            public override StdEncoder Encode()
+            public override CfgEncoder Encode()
             {
 
-                var cody = new StdEncoder()
+                var cody = new CfgEncoder()
                     .Add_Bool("ch", allowChangeParameters);
 
                 if (allowChangeParameters)
@@ -348,9 +348,9 @@ namespace QuizCannersUtilities
 
             #region Encode & Decode
 
-            public override StdEncoder Encode()
+            public override CfgEncoder Encode()
             {
-                var cody = new StdEncoder()
+                var cody = new CfgEncoder()
                     .Add("b", base.Encode);
                 if (allowChangeParameters)
                     cody.Add("t", CurrentValue);
@@ -419,7 +419,7 @@ namespace QuizCannersUtilities
 
             #region Encode & Decode
 
-            public override StdEncoder Encode() => new StdEncoder()
+            public override CfgEncoder Encode() => new CfgEncoder()
                 .Add("b", base.Encode);
 
             public override bool Decode(string tg, string data)
@@ -589,10 +589,10 @@ namespace QuizCannersUtilities
 
             #region Encode & Decode
 
-            public override StdEncoder Encode()
+            public override CfgEncoder Encode()
             {
 
-                var cody = new StdEncoder().Add("b", base.Encode);
+                var cody = new CfgEncoder().Add("b", base.Encode);
                 if (allowChangeParameters)
                 {
                     cody.Add_IfNotZero("onStart", (int) _onStart);
@@ -704,7 +704,7 @@ namespace QuizCannersUtilities
 
             #region Encode & Decode
 
-            public override StdEncoder Encode() => new StdEncoder()
+            public override CfgEncoder Encode() => new CfgEncoder()
                 .Add("b", base.Encode)
                 .Add("col", targetValue);
 
@@ -1126,8 +1126,8 @@ namespace QuizCannersUtilities
                     graphic.TrySetAlpha(0);
             }
 
-            public override StdEncoder Encode() =>
-                new StdEncoder().Add("bb", base.Encode).Add_Bool("zero", setZeroOnStart);
+            public override CfgEncoder Encode() =>
+                new CfgEncoder().Add("bb", base.Encode).Add_Bool("zero", setZeroOnStart);
 
             public override bool Decode(string tg, string data)
             {

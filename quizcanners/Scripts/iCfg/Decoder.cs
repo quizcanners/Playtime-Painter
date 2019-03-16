@@ -10,15 +10,15 @@ namespace QuizCannersUtilities
 
         #region Non-Instancible
 
-        public static void Decode_Base(this string data, StdDecoder.DecodeDelegate dec, IKeepUnrecognizedCfg unrecognizedKeeper, string tag = "b") 
-            => new StdDecoder(data).DecodeTagsFor(dec, unrecognizedKeeper, tag);
+        public static void Decode_Base(this string data, CfgDecoder.DecodeDelegate dec, IKeepUnrecognizedCfg unrecognizedKeeper, string tag = "b") 
+            => new CfgDecoder(data).DecodeTagsFor(dec, unrecognizedKeeper, tag);
         
-        public static void Decode_Delegate(this string data, StdDecoder.DecodeDelegate dec) => new StdDecoder(data).DecodeTagsFor(dec);
+        public static void Decode_Delegate(this string data, CfgDecoder.DecodeDelegate dec) => new CfgDecoder(data).DecodeTagsFor(dec);
 
         public static void DecodeInto(this string data, Transform tf)
         {
 
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
             var local = false;
 
             foreach (var tag in cody)
@@ -37,7 +37,7 @@ namespace QuizCannersUtilities
         public static void DecodeInto(this string data, RectTransform tf)
         {
 
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
 
             foreach (var tag in cody)
             {
@@ -62,7 +62,7 @@ namespace QuizCannersUtilities
 
         public static BoneWeight ToBoneWeight(this string data)
         {
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
             var b = new BoneWeight();
 
             foreach (var tag in cody)
@@ -88,7 +88,7 @@ namespace QuizCannersUtilities
 
         public static Matrix4x4 ToMatrix4X4(this string data)
         {
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
             var m = new Matrix4x4();
 
             foreach (var tag in cody)
@@ -126,7 +126,7 @@ namespace QuizCannersUtilities
         public static Quaternion ToQuaternion(this string data)
         {
 
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
 
             var q = new Quaternion();
 
@@ -147,7 +147,7 @@ namespace QuizCannersUtilities
 
         public static Vector4 ToVector4(this string data) {
 
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
 
             var v4 = new Vector4();
 
@@ -167,7 +167,7 @@ namespace QuizCannersUtilities
 
         public static Vector3 ToVector3(this string data) {
 
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
 
             var v3 = new Vector3();
 
@@ -186,7 +186,7 @@ namespace QuizCannersUtilities
 
         public static Vector2 ToVector2(this string data) {
 
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
 
             var v2 = new Vector3();
 
@@ -204,7 +204,7 @@ namespace QuizCannersUtilities
 
         public static Rect ToRect(this string data)
         {
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
 
             var rect = new Rect();
 
@@ -220,7 +220,7 @@ namespace QuizCannersUtilities
             return rect;
         }
 
-        public static bool ToBool(this string data) => data == StdEncoder.IsTrueTag;
+        public static bool ToBool(this string data) => data == CfgEncoder.IsTrueTag;
         
         public static int ToInt(this string data) {
 
@@ -252,7 +252,7 @@ namespace QuizCannersUtilities
 
         public static Color ToColor(this string data)
         {
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
             var c = new Color();
             foreach (var tag in cody)
             {
@@ -278,7 +278,7 @@ namespace QuizCannersUtilities
 
             l = new List<string>();
 
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
 
             foreach (var tag in cody)
                 l.Add(cody.GetData());
@@ -290,7 +290,7 @@ namespace QuizCannersUtilities
 
             l = new List<int>();
 
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
 
             foreach (var tag in cody)
                 l.Add(cody.GetData().ToInt());
@@ -303,7 +303,7 @@ namespace QuizCannersUtilities
 
             l = new List<float>();
 
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
 
             foreach (var tag in cody)
                 l.Add(cody.GetData().ToFloat());
@@ -317,7 +317,7 @@ namespace QuizCannersUtilities
 
             l = new List<uint>();
 
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
 
             foreach (var tag in cody)
                 l.Add(cody.GetData().ToUInt());
@@ -331,7 +331,7 @@ namespace QuizCannersUtilities
 
             l = new List<Color>();
 
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
 
             foreach (var tag in cody)
                 l.Add(cody.GetData().ToColor());
@@ -343,23 +343,23 @@ namespace QuizCannersUtilities
 
         #region InternalDecode
 
-        private static T DecodeData<T>(this StdDecoder cody, TaggedTypesStd tps, ListMetaData ld) where T : IGotClassTag
+        private static T DecodeData<T>(this CfgDecoder cody, TaggedTypesCfg tps, ListMetaData ld) where T : IGotClassTag
             => Decode<T>(cody.currentTag, cody.GetData(), tps, ld, cody.currentTagIndex);
 
-        private static T DecodeData<T>(this StdDecoder cody, TaggedTypesStd tps) where T : IGotClassTag
+        private static T DecodeData<T>(this CfgDecoder cody, TaggedTypesCfg tps) where T : IGotClassTag
              => Decode<T>(cody.currentTag, cody.GetData(), tps);
         
-        private static T DecodeData<T>(this StdDecoder cody, List<Type> tps, ListMetaData ld) where T : ICfg
+        private static T DecodeData<T>(this CfgDecoder cody, List<Type> tps, ListMetaData ld) where T : ICfg
             => Decode<T>(cody.currentTag, cody.GetData(), tps, ld, cody.currentTagIndex);
 
 
-        private static T DecodeData<T>(this StdDecoder cody, List<Type> tps) where T : ICfg
+        private static T DecodeData<T>(this CfgDecoder cody, List<Type> tps) where T : ICfg
             => Decode<T>(cody.currentTag, cody.GetData(), tps);
 
-        private static T Decode<T>(string tag, string data, TaggedTypesStd tps, ListMetaData ld, int index) where T : IGotClassTag
+        private static T Decode<T>(string tag, string data, TaggedTypesCfg tps, ListMetaData ld, int index) where T : IGotClassTag
         {
 
-            if (tag == StdEncoder.NullTag) return default(T);
+            if (tag == CfgEncoder.NullTag) return default(T);
             
             var type = tps.TaggedTypes.TryGet(tag);
             
@@ -371,10 +371,10 @@ namespace QuizCannersUtilities
             return default(T);
         }
 
-        private static T Decode<T>(string tag, string data, TaggedTypesStd tps) where T : IGotClassTag
+        private static T Decode<T>(string tag, string data, TaggedTypesCfg tps) where T : IGotClassTag
         {
 
-            if (tag == StdEncoder.NullTag) return default(T);
+            if (tag == CfgEncoder.NullTag) return default(T);
             
             var type = tps.TaggedTypes.TryGet(tag);
             
@@ -384,7 +384,7 @@ namespace QuizCannersUtilities
         private static T Decode<T>(string tag, string data, List<Type> tps, ListMetaData ld, int index) where T : ICfg
         {
 
-            if (tag == StdEncoder.NullTag) return default(T);
+            if (tag == CfgEncoder.NullTag) return default(T);
             
             var type = tps.TryGet(tag.ToIntFromTextSafe(-1));
             
@@ -401,14 +401,14 @@ namespace QuizCannersUtilities
         {
 
 
-            if (tag == StdEncoder.NullTag) return default(T);
+            if (tag == CfgEncoder.NullTag) return default(T);
             
             var type = tps.TryGet(tag.ToIntFromTextSafe(-1));
             
             if (type != null)
                 return data.DecodeInto_Type<T>(type);
             
-            return tag == StdDecoder.ListElementTag ? data.DecodeInto_Type<T>(tps[0]) : default(T);
+            return tag == CfgDecoder.ListElementTag ? data.DecodeInto_Type<T>(tps[0]) : default(T);
         }
         #endregion
 
@@ -419,7 +419,7 @@ namespace QuizCannersUtilities
 
             if (val == null) return false;
             
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
 
             var index = 0;
 
@@ -441,17 +441,17 @@ namespace QuizCannersUtilities
             if (ld == null)
                 ld = new ListMetaData();
 
-            var overCody = new StdDecoder(data);
+            var overCody = new CfgDecoder(data);
             var index = 0;
 
             foreach (var tag in overCody)  {
 
                 switch (tag) {
 
-                    case StdEncoder.ListMetaTag: ld.Decode(overCody.GetData()); break;
+                    case CfgEncoder.ListMetaTag: ld.Decode(overCody.GetData()); break;
 
-                    case StdEncoder.ListTag:
-                        var cody = new StdDecoder(overCody.GetData());
+                    case CfgEncoder.ListTag:
+                        var cody = new CfgDecoder(overCody.GetData());
 
                         foreach (var t in cody) {
 
@@ -482,7 +482,7 @@ namespace QuizCannersUtilities
         {
             l = new List<List<T>>();
 
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
 
             while (cody.GotData) {
                 cody.GetTag();
@@ -502,15 +502,15 @@ namespace QuizCannersUtilities
 
             var tps = typeof(T).TryGetDerivedClasses();
        
-            var overCody = new StdDecoder(data);
+            var overCody = new CfgDecoder(data);
             foreach (var tag in overCody) {
 
                 switch (tag) {
 
-                    case StdEncoder.ListMetaTag: ld.Decode(overCody.GetData()); break;
+                    case CfgEncoder.ListMetaTag: ld.Decode(overCody.GetData()); break;
                         
-                    case StdEncoder.ListTag:
-                        var cody = new StdDecoder(overCody.GetData());
+                    case CfgEncoder.ListTag:
+                        var cody = new CfgDecoder(overCody.GetData());
                         if (tps != null)
                             foreach (var t in cody)
                                 l.Add(cody.DecodeData<T>(tps, ld)); 
@@ -527,7 +527,7 @@ namespace QuizCannersUtilities
         
         public static List<T> Decode_List<T>(this string data, out List<T> l) where T : ICfg, new() {
 
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
 
             l = new List<T>();
 
@@ -547,7 +547,7 @@ namespace QuizCannersUtilities
         public static T[] Decode_Array<T>(this string data, out T[] l) where T : ICfg, new()
         {
 
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
 
             l = null;
 
@@ -563,7 +563,7 @@ namespace QuizCannersUtilities
                     l = new T[d.ToInt()];
                 else
                 {
-                    var isNull = tag == StdEncoder.NullTag;
+                    var isNull = tag == CfgEncoder.NullTag;
 
                     var obj = isNull ? default(T) : d.DecodeInto<T>();
 
@@ -582,7 +582,7 @@ namespace QuizCannersUtilities
         public static Matrix4x4[] Decode_Array(this string data, out Matrix4x4[] l)
         {
 
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
 
             l = null;
 
@@ -614,9 +614,9 @@ namespace QuizCannersUtilities
 
         #region Abstract 
 
-        public static List<T> Decode_List_Abstract<T>(this string data, out List<T> l, TaggedTypesStd taggedTypes) where T : IGotClassTag
+        public static List<T> Decode_List_Abstract<T>(this string data, out List<T> l, TaggedTypesCfg taggedTypes) where T : IGotClassTag
         {
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
 
             l = new List<T>();
 
@@ -626,8 +626,8 @@ namespace QuizCannersUtilities
             return l;
         }
 
-        public static List<T> Decode_List<T>(this string data, out List<T> l, TaggedTypesStd tps) where T : IGotClassTag {
-            var cody = new StdDecoder(data);
+        public static List<T> Decode_List<T>(this string data, out List<T> l, TaggedTypesCfg tps) where T : IGotClassTag {
+            var cody = new CfgDecoder(data);
 
             l = new List<T>();
 
@@ -637,18 +637,18 @@ namespace QuizCannersUtilities
             return l;
         }
 
-        public static List<T> Decode_List<T>(this string data, out List<T> l, ref ListMetaData ld, TaggedTypesStd tps) where T : IGotClassTag
+        public static List<T> Decode_List<T>(this string data, out List<T> l, ref ListMetaData ld, TaggedTypesCfg tps) where T : IGotClassTag
         {
             l = new List<T>();
             if (ld == null)
                 ld = new ListMetaData();
 
-            var overCody = new StdDecoder(data);
+            var overCody = new CfgDecoder(data);
             foreach (var tag in overCody) {
                 switch (tag) {
-                    case StdEncoder.ListMetaTag: ld.Decode(overCody.GetData()); break;
-                    case StdEncoder.ListTag:
-                        var cody = new StdDecoder(overCody.GetData());
+                    case CfgEncoder.ListMetaTag: ld.Decode(overCody.GetData()); break;
+                    case CfgEncoder.ListTag:
+                        var cody = new CfgDecoder(overCody.GetData());
                             foreach (var t in cody) l.Add(cody.DecodeData<T>(tps, ld));   break;
                     default: l.Add(overCody.DecodeData<T>(tps, ld));
                     break;
@@ -663,7 +663,7 @@ namespace QuizCannersUtilities
         #region Dictionary
         public static void Decode_Dictionary(this string data, out Dictionary<int, string> dic)
         {
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
 
             dic = new Dictionary<int, string>();
 
@@ -674,7 +674,7 @@ namespace QuizCannersUtilities
 
         public static void Decode_Dictionary(this string data, out Dictionary<string, string> dic)
         {
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
 
             dic = new Dictionary<string, string>();
 
@@ -686,7 +686,7 @@ namespace QuizCannersUtilities
 
         #region STD class
         public static ICfg DecodeTagsFor<T>(this string data, T val) where T : ICfg
-        => (val.IsNullOrDestroyed_Obj()) ? val : new StdDecoder(data).DecodeTagsFor(val);
+        => (val.IsNullOrDestroyed_Obj()) ? val : new CfgDecoder(data).DecodeTagsFor(val);
       
         public static T DecodeInto<T>(this string data, out T val) where T : ICfg, new()
         {
@@ -752,11 +752,11 @@ namespace QuizCannersUtilities
         }
         #endregion
 
-        public static void DecodeInto<T>(this string data, out T val, TaggedTypesStd typeList) where T : IGotClassTag {
+        public static void DecodeInto<T>(this string data, out T val, TaggedTypesCfg typeList) where T : IGotClassTag {
 
             val = default(T);
 
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
 
             var type = typeList.TaggedTypes.TryGet(cody.GetTag());
 
@@ -767,7 +767,7 @@ namespace QuizCannersUtilities
 
 
         #region Into Unity Objects
-        public static IStdSerializeNestedReferences Keeper { get { return StdEncoder.keeper;  } set { StdEncoder.keeper = value; } }
+        public static IStdSerializeNestedReferences Keeper { get { return CfgEncoder.keeper;  } set { CfgEncoder.keeper = value; } }
 
         public static bool TryDecodeInto<T>(this string data, T val, IStdSerializeNestedReferences referencesKeeper) {
             var std = val.TryGet_fromObj<ICfg>();
@@ -876,9 +876,9 @@ namespace QuizCannersUtilities
 
     }
     
-    public class StdDecoder   {
+    public class CfgDecoder   {
 
-        public static string ListElementTag => StdEncoder.ListElementTag;
+        public static string ListElementTag => CfgEncoder.ListElementTag;
 
         public delegate bool DecodeDelegate(string tag, string data);
 
@@ -886,7 +886,7 @@ namespace QuizCannersUtilities
         private int _position;
         private bool _expectingGetData;
 
-        public StdDecoder(string dataStream)
+        public CfgDecoder(string dataStream)
         {
             _data = dataStream ?? "";
             
@@ -941,7 +941,7 @@ namespace QuizCannersUtilities
         private string ToNextSplitter()
         {
             var start = _position;
-            while (_data[_position] != StdEncoder.Splitter)
+            while (_data[_position] != CfgEncoder.Splitter)
                 _position++;
             
             _position++;

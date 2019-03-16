@@ -138,9 +138,9 @@ namespace QuizCannersUtilities
             return true;
         }
 
-        public override StdEncoder Encode()
+        public override CfgEncoder Encode()
         {
-            var cody = new StdEncoder()
+            var cody = new CfgEncoder()
                 .Add_IfNotNegative("insp", inspected)
                 .Add_IfNotNegative("pi", previousInspected)
                 .Add_IfNotZero("st", listSectionStartIndex)
@@ -209,7 +209,7 @@ namespace QuizCannersUtilities
             stdDta = data;
         }
         
-        public void ChangeType(ref object obj, Type newType, TaggedTypesStd taggedTypes, bool keepTypeConfig = false)
+        public void ChangeType(ref object obj, Type newType, TaggedTypesCfg taggedTypes, bool keepTypeConfig = false)
         {
             var previous = obj;
 
@@ -394,8 +394,8 @@ namespace QuizCannersUtilities
             return true;
         }
 
-        public override StdEncoder Encode() {
-            var cody = new StdEncoder()
+        public override CfgEncoder Encode() {
+            var cody = new CfgEncoder()
                 .Add_IfNotEmpty("n", name)
                 .Add_IfNotEmpty("cfg", stdDta);
 
@@ -546,9 +546,9 @@ namespace QuizCannersUtilities
 #endregion
 
 #region Encode & Decode
-        public override StdEncoder Encode()
+        public override CfgEncoder Encode()
         {
-            var cody = new StdEncoder();
+            var cody = new CfgEncoder();
 
             if (_tags == null) return cody;
             

@@ -9,7 +9,7 @@ namespace Playtime_Painter {
 
     public class PainterManagerPluginAttribute : AbstractWithTaggedTypes
     {
-        public override TaggedTypesStd TaggedTypes => PainterSystemManagerPluginBase.all;
+        public override TaggedTypesCfg TaggedTypes => PainterSystemManagerPluginBase.all;
     }
 
     public interface IPainterManagerPluginOnGUI
@@ -124,12 +124,12 @@ namespace Playtime_Painter {
         
         #region Abstract Serialized
         public abstract string ClassTag { get; } 
-        public static TaggedTypesStd all = new TaggedTypesStd(typeof(PainterSystemManagerPluginBase));
-        public TaggedTypesStd AllTypes => all;
+        public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(PainterSystemManagerPluginBase));
+        public TaggedTypesCfg AllTypes => all;
         #endregion
 
         #region Encode & Decode
-        public override StdEncoder Encode() => this.EncodeUnrecognized();
+        public override CfgEncoder Encode() => this.EncodeUnrecognized();
 
         public override bool Decode(string tg, string data) => false;
         #endregion

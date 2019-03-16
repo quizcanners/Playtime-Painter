@@ -380,7 +380,7 @@ namespace Playtime_Painter.Examples
                 this.SaveStdData();
         }
         
-        public StdEncoder Encode() => new StdEncoder()
+        public CfgEncoder Encode() => new CfgEncoder()
             .Add_Abstract("mdls", _modules);
 
         public void Decode(string data) => data.DecodeTagsFor(this);
@@ -531,7 +531,7 @@ namespace Playtime_Painter.Examples
                 return true;
             }
 
-            public override StdEncoder Encode() => this.EncodeUnrecognized()
+            public override CfgEncoder Encode() => this.EncodeUnrecognized()
                     .Add("b", base.Encode())
                     .Add("crn", _roundedCorners)
                     .Add("hov", valueWhenOver)
@@ -543,14 +543,14 @@ namespace Playtime_Painter.Examples
         
         public class RoundedButtonModuleAttribute : AbstractWithTaggedTypes
         {
-            public override TaggedTypesStd TaggedTypes => RoundedButtonModuleBase.all;
+            public override TaggedTypesCfg TaggedTypes => RoundedButtonModuleBase.all;
         }
 
         [RoundedButtonModule]
         public abstract class RoundedButtonModuleBase : AbstractKeepUnrecognizedCfg, IGotClassTag
         {
-            public static TaggedTypesStd all = new TaggedTypesStd(typeof(RoundedButtonModuleBase));
-            public TaggedTypesStd AllTypes => all;
+            public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(RoundedButtonModuleBase));
+            public TaggedTypesCfg AllTypes => all;
             public abstract string ClassTag { get; }
 
             public virtual bool Update(RoundedGraphic target) => false;
@@ -565,7 +565,7 @@ namespace Playtime_Painter.Examples
 #endregion
 
 #region Encode & Decode
-            public override StdEncoder Encode() => this.EncodeUnrecognized();
+            public override CfgEncoder Encode() => this.EncodeUnrecognized();
 
             public override bool Decode(string tg, string data) => false;
 #endregion

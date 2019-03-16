@@ -1466,7 +1466,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        public static bool selectTypeTag(this TaggedTypesStd types, ref string tag) => select(ref tag, types.Keys);
+        public static bool selectTypeTag(this TaggedTypesCfg types, ref string tag) => select(ref tag, types.Keys);
 
         public static bool select(ref int no, List<string> from)
         {
@@ -3166,7 +3166,7 @@ namespace PlayerAndEditorGUI {
 
         #region Tagged Types
 
-        public static T enter_List<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne, TaggedTypesStd types, ref bool changed) =>
+        public static T enter_List<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne, TaggedTypesCfg types, ref bool changed) =>
             meta.enter_HeaderPart(ref list, ref enteredOne, thisOne) ? meta.edit_List(ref list, types, ref changed) : default(T);
         
 
@@ -5220,7 +5220,7 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-        private static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added, TaggedTypesStd types, ListMetaData ld) 
+        private static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added, TaggedTypesCfg types, ListMetaData ld) 
         {
             if (ld != null && !ld.allowCreate)
                 return false;
@@ -6453,13 +6453,13 @@ namespace PlayerAndEditorGUI {
 
         #region Tagged Types
 
-    public static T edit_List<T>(this ListMetaData listMeta, ref List<T> list, TaggedTypesStd types, ref bool changed)
+    public static T edit_List<T>(this ListMetaData listMeta, ref List<T> list, TaggedTypesCfg types, ref bool changed)
     {
         write_Search_ListLabel(listMeta, list);
         return edit_List(ref list, ref listMeta.inspected, types, ref changed, listMeta).listLabel_Used();
     }
 
-    public static bool edit_List<T>(this ListMetaData listMeta, ref List<T> list, TaggedTypesStd types) {
+    public static bool edit_List<T>(this ListMetaData listMeta, ref List<T> list, TaggedTypesCfg types) {
         bool changed = false;
         write_Search_ListLabel(listMeta, list);
         edit_List(ref list, ref listMeta.inspected, types, ref changed, listMeta).listLabel_Used();
@@ -6476,12 +6476,12 @@ namespace PlayerAndEditorGUI {
         return edit_List(ref list, ref listMeta.inspected, types, ref changed, listMeta).listLabel_Used();
     }*/
 
-    public static T edit_List<T>(this string label, ref List<T> list, ref int inspected, TaggedTypesStd types, ref bool changed) {
+    public static T edit_List<T>(this string label, ref List<T> list, ref int inspected, TaggedTypesCfg types, ref bool changed) {
         label.write_Search_ListLabel(ref inspected, list);
         return edit_List(ref list, ref inspected, types, ref changed).listLabel_Used();
     }
         
-    public static T edit_List<T>(ref List<T> list, ref int inspected, TaggedTypesStd types, ref bool changed, ListMetaData listMeta = null) {
+    public static T edit_List<T>(ref List<T> list, ref int inspected, TaggedTypesCfg types, ref bool changed, ListMetaData listMeta = null) {
 
         var added = default(T);
 
@@ -7417,7 +7417,7 @@ namespace PlayerAndEditorGUI {
                 searchBy = searchBys;
             }
 
-            public override StdEncoder Encode() => new StdEncoder().Add_String("s", searchedText);
+            public override CfgEncoder Encode() => new CfgEncoder().Add_String("s", searchedText);
 
             public override bool Decode(string tg, string data)
             {

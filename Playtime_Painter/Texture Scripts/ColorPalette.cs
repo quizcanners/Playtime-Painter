@@ -99,7 +99,7 @@ namespace Playtime_Painter
 
         #region Encode/Decode
 
-        public override StdEncoder Encode() => new StdEncoder()
+        public override CfgEncoder Encode() => new CfgEncoder()
             .Add_String("n", paletteName)
             .Add("cols", _colors);
 

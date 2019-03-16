@@ -39,7 +39,7 @@ namespace STD_Logic
 
         #region Encode & Decode
 
-        public override StdEncoder Encode() => new StdEncoder()
+        public override CfgEncoder Encode() => new CfgEncoder()
                 .Add_String("n", name)
                 .Add_IfNotZero("u", _usage)
                 .Add_IfNotEmpty("e", enm)

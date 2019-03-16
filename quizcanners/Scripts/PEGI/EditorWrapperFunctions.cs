@@ -1149,7 +1149,7 @@ namespace PlayerAndEditorGUI {
         private static IList _currentReorderedList;
         private static Type _currentReorderedType;
         private static List<Type> _currentReorderedListTypes;
-        private static TaggedTypesStd _currentTaggedTypes;
+        private static TaggedTypesCfg _currentTaggedTypes;
         private static ListMetaData _listMetaData;
 
         private static bool GetIsSelected(int ind) => (_listMetaData != null) ? _listMetaData.GetIsSelected(ind) : pegi.selectedEls[ind];

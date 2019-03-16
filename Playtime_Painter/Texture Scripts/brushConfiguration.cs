@@ -532,10 +532,10 @@ namespace Playtime_Painter {
         #endregion
         
         #region Encode Decode
-        public override StdEncoder Encode() => new StdEncoder()
+        public override CfgEncoder Encode() => new CfgEncoder()
                 .Add_Abstract("dyn", brushDynamic);
         
-        public StdEncoder EncodeStrokeFor(PlaytimePainter painter)
+        public CfgEncoder EncodeStrokeFor(PlaytimePainter painter)
         {
 
             var id = painter.ImgMeta;
@@ -547,7 +547,7 @@ namespace Playtime_Painter {
 
             var worldSpace = rt && IsA3DBrush(painter);
 
-            var cody = new StdEncoder()
+            var cody = new CfgEncoder()
 
             .Add(rt ? "typeGPU" : "typeCPU", _brushType(!rt));
 
@@ -648,15 +648,15 @@ namespace Playtime_Painter {
     #region Dynamics
 
     public class BrushDynamicAttribute : AbstractWithTaggedTypes  {
-        public override TaggedTypesStd TaggedTypes => BrushDynamic.all;
+        public override TaggedTypesCfg TaggedTypes => BrushDynamic.all;
     }
 
     [BrushDynamic]
     public abstract class BrushDynamic : AbstractCfg, IPEGI, IGotClassTag {
         public abstract string ClassTag { get; }
 
-        public static TaggedTypesStd all = new TaggedTypesStd(typeof(BrushDynamic));
-        public TaggedTypesStd AllTypes => all;
+        public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(BrushDynamic));
+        public TaggedTypesCfg AllTypes => all;
 
         public override bool Decode(string tg, string data) {
             switch (tg) {
@@ -667,7 +667,7 @@ namespace Playtime_Painter {
             return true;
         }
 
-        public override StdEncoder Encode() => new StdEncoder().Add("t", testValue);
+        public override CfgEncoder Encode() => new CfgEncoder().Add("t", testValue);
 
         #region Inspector
         int testValue = -1;
@@ -701,7 +701,7 @@ namespace Playtime_Painter {
 
 //        public override bool Decode(string tag, string data) => true;
 
-  //      public override StdEncoder Encode() => new StdEncoder();
+  //      public override CfgEncoder Encode() => new CfgEncoder();
     }
     #endregion
     #endregion

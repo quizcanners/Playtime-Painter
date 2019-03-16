@@ -122,7 +122,7 @@ namespace Playtime_Painter
 
         public bool IsDefault => !NeedsToBeSaved;
 
-        public override StdEncoder Encode()
+        public override CfgEncoder Encode()
         {
             var cody = this.EncodeUnrecognized()
             .Add_IfNotZero("dst", (int)destination)
@@ -242,7 +242,7 @@ namespace Playtime_Painter
         public void SaveRecording()
         {
 
-            var allStrokes = new StdEncoder().Add("strokes", recordedStrokes).ToString();
+            var allStrokes = new CfgEncoder().Add("strokes", recordedStrokes).ToString();
 
             FileSaveUtils.SaveJsonToPersistentPath(Cfg.vectorsFolderName, saveName, allStrokes);
 

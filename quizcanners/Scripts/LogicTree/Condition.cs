@@ -18,7 +18,7 @@ namespace STD_Logic
     public class ConditionLogic : ValueIndex, IPEGI_ListInspect  {
 
         #region Encode & Decode
-        public override StdEncoder Encode() => new StdEncoder().Add("ind", EncodeIndex());
+        public override CfgEncoder Encode() => new CfgEncoder().Add("ind", EncodeIndex());
 
         public override bool Decode(string tg, string data) => true;
         #endregion
@@ -63,7 +63,7 @@ namespace STD_Logic
         public bool compareValue;
 
         #region Encode & Decode
-        public override StdEncoder Encode() => new StdEncoder()
+        public override CfgEncoder Encode() => new CfgEncoder()
             .Add_IfTrue("b", compareValue)
             .Add("ind", EncodeIndex());
 
@@ -109,7 +109,7 @@ namespace STD_Logic
         public int compareValue;
 
         #region Encode & Decode
-        public override StdEncoder Encode() => new StdEncoder()
+        public override CfgEncoder Encode() => new CfgEncoder()
             .Add_IfNotZero("v", compareValue)
             .Add_IfNotZero("ty", (int)type)
             .Add("ind", EncodeIndex);

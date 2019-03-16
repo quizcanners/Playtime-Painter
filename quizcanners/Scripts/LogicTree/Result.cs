@@ -73,7 +73,7 @@ namespace STD_Logic  {
             return true;
         }
         
-        public override StdEncoder Encode()=> new StdEncoder()
+        public override CfgEncoder Encode()=> new CfgEncoder()
                 .Add_IfNotZero("ty", (int)type)
                 .Add_IfNotZero("val", updateValue)
                 .Add("ind", EncodeIndex);

@@ -9,7 +9,7 @@ namespace QuizCannersUtilities {
     #region Interfaces
 
     public interface ICfg {
-        StdEncoder Encode(); 
+        CfgEncoder Encode(); 
         void Decode(string data);
         bool Decode(string tg, string data);
     }
@@ -140,7 +140,7 @@ namespace QuizCannersUtilities {
 
         public void Add(List<string> tags, string data) => _elements.Add(tags, data);
 
-        public StdEncoder Encode() => locked ? new StdEncoder() : _elements.Encode().Lock(this);
+        public CfgEncoder Encode() => locked ? new CfgEncoder() : _elements.Encode().Lock(this);
 
         #if PEGI
     
@@ -195,7 +195,7 @@ namespace QuizCannersUtilities {
         public virtual T GetReferenced<T>(int index) where T : UnityEngine.Object => nestedReferences.TryGet(index) as T;
 
 
-        public virtual StdEncoder Encode() => this.EncodeUnrecognized()
+        public virtual CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add("listDta", _listMetaData);
 
         public virtual void Decode(string data) => data.DecodeTagsFor(this);
@@ -280,7 +280,7 @@ namespace QuizCannersUtilities {
 
 
     public abstract class AbstractCfg : ICfgSafeEncoding, ICanBeDefaultCfg {
-        public abstract StdEncoder Encode();
+        public abstract CfgEncoder Encode();
         public virtual void Decode(string data) => data.DecodeTagsFor(this);
         public abstract bool Decode(string tg, string data);
 
@@ -297,7 +297,7 @@ namespace QuizCannersUtilities {
         #endif
         private readonly StdExplorerData _explorer = new StdExplorerData();
         
-        public override StdEncoder Encode() => this.EncodeUnrecognized();
+        public override CfgEncoder Encode() => this.EncodeUnrecognized();
 
         public override bool Decode(string tg, string data) => false;
         #region Inspector
@@ -453,7 +453,7 @@ namespace QuizCannersUtilities {
             return true;
         }
 
-        public virtual StdEncoder Encode() => this.EncodeUnrecognized()
+        public virtual CfgEncoder Encode() => this.EncodeUnrecognized()
 #if PEGI
             .Add_IfNotNegative("db", inspectedItems)
 #endif
@@ -561,10 +561,10 @@ namespace QuizCannersUtilities {
 
                 if (fromStd != null)
                 {
-                    var prev = StdEncoder.keeper;
-                    StdEncoder.keeper = TmpHolder;
+                    var prev = CfgEncoder.keeper;
+                    CfgEncoder.keeper = TmpHolder;
                     intoStd.Decode(fromStd.Encode().ToString());
-                    StdEncoder.keeper = prev;
+                    CfgEncoder.keeper = prev;
 
                     TmpHolder.nestedReferences.Clear();
                 }
@@ -592,8 +592,8 @@ namespace QuizCannersUtilities {
         public static void Add(this List<UnrecognizedTagsList.UnrecognizedElement> lst, string tag, string data)
             =>  lst.Add(new UnrecognizedTagsList.UnrecognizedElement(tag, data));
 
-        public static StdEncoder Encode(this IEnumerable<UnrecognizedTagsList.UnrecognizedElement> lst) {
-            var cody = new StdEncoder();
+        public static CfgEncoder Encode(this IEnumerable<UnrecognizedTagsList.UnrecognizedElement> lst) {
+            var cody = new CfgEncoder();
             foreach (var e in lst) {
                 if (e.elements.Count == 0)
                     cody.Add_String(e.tag, e.data);
@@ -604,9 +604,9 @@ namespace QuizCannersUtilities {
             return cody;
         }
 
-        public static TaggedTypesStd GetTaggedTypes_Safe<T>(this T obj) where T : IGotClassTag => obj != null ? obj.AllTypes : typeof(T).TryGetTaggedClasses();
+        public static TaggedTypesCfg GetTaggedTypes_Safe<T>(this T obj) where T : IGotClassTag => obj != null ? obj.AllTypes : typeof(T).TryGetTaggedClasses();
         
-        public static TaggedTypesStd TryGetTaggedClasses(this Type type)
+        public static TaggedTypesCfg TryGetTaggedClasses(this Type type)
         {
 
             if (!typeof(IGotClassTag).IsAssignableFrom(type)) return null;
@@ -739,7 +739,7 @@ namespace QuizCannersUtilities {
 			return s;
 		}
 
-        public static StdEncoder EncodeUnrecognized(this IKeepUnrecognizedCfg ur) {
+        public static CfgEncoder EncodeUnrecognized(this IKeepUnrecognizedCfg ur) {
             return ur.UnrecognizedStd.Encode();
         }
 

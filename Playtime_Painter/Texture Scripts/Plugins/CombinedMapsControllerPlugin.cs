@@ -26,7 +26,7 @@ namespace Playtime_Painter
         public override string NameForDisplayPEGI => "Combined Maps [{0}]".F(_textureSets.Count);
 
         #region Encode & Decode
-        public override StdEncoder Encode() => this.EncodeUnrecognized()
+        public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add("cm", _textureSets)
             .Add("tps", texturePackagingSolutions);
 
@@ -93,7 +93,7 @@ namespace Playtime_Painter
         public string NameForPEGI { get { return name; } set { name = value; } }
 
         #region Encode & Decode
-        public override StdEncoder Encode() => this.EncodeUnrecognized()
+        public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add_Reference("d", diffuse)
             .Add_Reference("h", heightMap)
             .Add_Reference("bump", normalMap)
@@ -216,9 +216,9 @@ namespace Playtime_Painter
             return true;
         }
 
-        public override StdEncoder Encode()
+        public override CfgEncoder Encode()
         {
-            var cody = new StdEncoder()
+            var cody = new CfgEncoder()
 
             .Add_IfNotEmpty("ch", _channel)
             .Add_Bool("c", _isColor)
@@ -440,7 +440,7 @@ namespace Playtime_Painter
             return true;
         }
 
-        public override StdEncoder Encode() => new StdEncoder()
+        public override CfgEncoder Encode() => new CfgEncoder()
             .Add_IfNotZero("s", _sourceRole)
             .Add_IfNotZero("c", sourceChannel)
             .Add_Bool("f", flip);

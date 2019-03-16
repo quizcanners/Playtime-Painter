@@ -29,7 +29,7 @@ namespace QuizCannersUtilities
             return true;
         }
 
-        public override StdEncoder Encode() =>
+        public override CfgEncoder Encode() =>
             this.EncodeUnrecognized().Add("ld", referencesMeta);
 
         #region Inspector

@@ -278,8 +278,8 @@ namespace Playtime_Painter {
         #endregion
 
         #region Encode & Decode
-        public override StdEncoder Encode() {
-            var cody = new StdEncoder()
+        public override CfgEncoder Encode() {
+            var cody = new CfgEncoder()
             .Add_String("n", meshName)
             .Add_IfNotEmpty("vrt",meshPoints)
             .Add_IfNotEmpty("tri",triangles)

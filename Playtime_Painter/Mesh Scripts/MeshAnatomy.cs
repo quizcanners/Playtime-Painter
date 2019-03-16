@@ -39,8 +39,8 @@ namespace Playtime_Painter
         }
 
         #region Encode & Decode
-        public override StdEncoder Encode() {
-            var cody = new StdEncoder();
+        public override CfgEncoder Encode() {
+            var cody = new CfgEncoder();
 
             cody.Add("i", finalIndex);
             cody.Add_IfNotZero("uvi", uvIndex);
@@ -323,8 +323,8 @@ namespace Playtime_Painter
         }
 
         #region Encode & Decode
-        public override StdEncoder Encode() {
-            var cody = new StdEncoder();
+        public override CfgEncoder Encode() {
+            var cody = new CfgEncoder();
 
             foreach (var lst in sharedV2S) {
                 cody.Add("u0", lst[0]);
@@ -651,8 +651,8 @@ namespace Playtime_Painter
         public float Area => Vector3.Cross(vertexes[0].LocalPos - vertexes[1].LocalPos, vertexes[0].LocalPos - vertexes[2].LocalPos).magnitude * 0.5f;
 
         #region Encode & Decode
-        public override StdEncoder Encode() {
-            var cody = new StdEncoder()
+        public override CfgEncoder Encode() {
+            var cody = new CfgEncoder()
 
             .Add_IfTrue("f0", dominantCorner[0])
             .Add_IfTrue("f1", dominantCorner[1])
@@ -1247,9 +1247,9 @@ namespace Playtime_Painter
             }
             return true;
         }
-        public override StdEncoder Encode()
+        public override CfgEncoder Encode()
         {
-            var cody = new StdEncoder();
+            var cody = new CfgEncoder();
 
             cody.Add_IfNotZero("p", deltaPosition);
             cody.Add_IfNotZero("t", deltaTangent);

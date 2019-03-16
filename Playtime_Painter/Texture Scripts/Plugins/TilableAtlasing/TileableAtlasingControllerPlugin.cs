@@ -26,7 +26,7 @@ namespace Playtime_Painter
 
         #region Encode & Decode
 
-        public override StdEncoder Encode() => this.EncodeUnrecognized()
+        public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add("atl", atlases)
             .Add("am", atlasedMaterials);
 
@@ -313,7 +313,7 @@ namespace Playtime_Painter
         }
 
         #region Encode & Decode
-        public override StdEncoder Encode() => new StdEncoder()
+        public override CfgEncoder Encode() => new CfgEncoder()
             .Add("cat", _curAtlasTexture)
             .Add("cac", curAtlasChanel);
    

@@ -76,7 +76,7 @@ namespace STD_Logic {
 
         #region Encode_Decode
 
-        public override StdEncoder Encode() => this.EncodeUnrecognized()
+        public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add_String("n", _name)
             .Add("ind", _index)
             .Add_IfNotDefault("t", _triggers)

@@ -66,7 +66,7 @@ namespace PlayerAndEditorGUI {
         public bool Contains() => Contains(currentLanguage);
 
         #region Encode & Decode
-        public override StdEncoder Encode() => this.EncodeUnrecognized()
+        public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add("txts", texts)
             .Add_IfTrue("na", needsReview);
 
@@ -155,7 +155,7 @@ namespace PlayerAndEditorGUI {
 #endregion
 
         #region Encode & Decode
-        public override StdEncoder Encode() => new StdEncoder()
+        public override CfgEncoder Encode() => new CfgEncoder()
                 .Add("b", base.Encode)
                 .Add_IfNotDefault("cnd", _condition);
          

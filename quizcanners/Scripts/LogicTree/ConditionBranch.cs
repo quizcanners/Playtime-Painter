@@ -139,7 +139,7 @@ namespace STD_Logic {
         #region Encode & Decode
         public override bool IsDefault => (_conditions.Count == 0 && _branches.Count == 0);
 
-        public override StdEncoder Encode() => this.EncodeUnrecognized()
+        public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add_IfNotEmpty("wb",         _branches)
             .Add_IfNotEmpty("v",          _conditions)
             .Add("t",                     (int)_type)

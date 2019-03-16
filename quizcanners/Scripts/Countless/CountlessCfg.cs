@@ -43,13 +43,13 @@ namespace QuizCannersUtilities
             return true;
         }
 
-        public override StdEncoder Encode()
+        public override CfgEncoder Encode()
         {
           
             List<int> indexes;
             var values = GetAllObjs(out indexes);
 
-            var cody = new StdEncoder()
+            var cody = new CfgEncoder()
                 .Add("inds", indexes)
                 .Add("vals", values)
                 .Add_IfNotNegative("brws", _edited)
@@ -415,9 +415,9 @@ namespace QuizCannersUtilities
             Clear();
             data.DecodeTagsFor(this);
         }
-        public StdEncoder Encode()
+        public CfgEncoder Encode()
         {
-            var cody = new StdEncoder();
+            var cody = new CfgEncoder();
 
             List<int> indexes;
             var values = GetAllObjs(out indexes);

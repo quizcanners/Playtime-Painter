@@ -72,7 +72,7 @@ namespace STD_Logic {
         #region Encode & Decode
         public static CategoryRoot<T> current = new CategoryRoot<T>();
 
-        public override StdEncoder Encode()
+        public override CfgEncoder Encode()
         {
             current = this;
 
@@ -188,7 +188,7 @@ namespace STD_Logic {
 
 #region Encode & Decode
 
-        public override StdEncoder Encode() => this.EncodeUnrecognized()
+        public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add_String("n", NameForPEGI)
             .Add("i", IndexForPEGI)
             .Add_IfNotEmpty("s", subCategories)
@@ -226,7 +226,7 @@ namespace STD_Logic {
 #endif        
 
 #region Encode & Decode
-        public override StdEncoder Encode() => new StdEncoder()
+        public override CfgEncoder Encode() => new CfgEncoder()
             .Add_IfNotEmpty("p", path);
 
         public override bool Decode(string tg, string data)

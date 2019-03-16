@@ -1230,7 +1230,7 @@ namespace Playtime_Painter {
 
         public List<string> playbackVectors = new List<string>();
 
-        public static StdDecoder cody = new StdDecoder("");
+        public static CfgDecoder cody = new CfgDecoder("");
 
         private void PlayByFilename(string recordingName)
         {
@@ -1248,7 +1248,7 @@ namespace Playtime_Painter {
             {
                 if (playbackVectors.Count > 0)
                 {
-                    cody = new StdDecoder(playbackVectors[0]);
+                    cody = new CfgDecoder(playbackVectors[0]);
                     playbackVectors.RemoveAt(0);
                 }
                 else
@@ -1355,9 +1355,9 @@ namespace Playtime_Painter {
             
         }
 
-        public StdEncoder EncodeStroke()
+        public CfgEncoder EncodeStroke()
         {
-            var encoder = new StdEncoder();
+            var encoder = new CfgEncoder();
 
             var id = ImgMeta;
 
@@ -2867,11 +2867,11 @@ namespace Playtime_Painter {
             set { _pluginStd = value; }
         }
 
-        public StdEncoder Encode() => new StdEncoder()
+        public CfgEncoder Encode() => new CfgEncoder()
             .Add("pgns", Plugins, PainterSystemManagerPluginBase.all)
             .Add_IfTrue("invCast", invertRayCast);
 
-        public void Decode(string data) => new StdDecoder(data).DecodeTagsFor(this);
+        public void Decode(string data) => new CfgDecoder(data).DecodeTagsFor(this);
 
         public bool Decode(string tg, string data)
         {

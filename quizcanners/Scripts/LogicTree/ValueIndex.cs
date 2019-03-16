@@ -20,10 +20,10 @@ namespace STD_Logic
         #region Encode & Decode
         public void Decode(string data) => data.DecodeTagsFor(this);
 
-        public abstract StdEncoder Encode();
+        public abstract CfgEncoder Encode();
         public abstract bool Decode(string tg, string data);
 
-        protected StdEncoder EncodeIndex() => new StdEncoder()
+        protected CfgEncoder EncodeIndex() => new CfgEncoder()
             .Add("gi", groupIndex)
             .Add("ti", triggerIndex);
 

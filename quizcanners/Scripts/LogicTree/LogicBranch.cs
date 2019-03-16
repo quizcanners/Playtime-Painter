@@ -33,7 +33,7 @@ namespace STD_Logic
         public bool CheckConditions(Values values) => conditions.CheckConditions(Values.global);
 
         #region Encode & Decode
-        public override StdEncoder Encode() => this.EncodeUnrecognized()
+        public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add_String("name", name)
             .Add("cond", conditions)
             .Add_IfNotEmpty("sub", subBranches)

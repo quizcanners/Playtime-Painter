@@ -6,7 +6,7 @@ using QuizCannersUtilities;
 namespace Playtime_Painter
 {
     public class PainterPluginAttribute : AbstractWithTaggedTypes {
-        public override TaggedTypesStd TaggedTypes => PainterComponentPluginBase.All;
+        public override TaggedTypesCfg TaggedTypes => PainterComponentPluginBase.All;
     }
     
     [PainterPlugin]
@@ -14,8 +14,8 @@ namespace Playtime_Painter
 
         #region Abstract Serialized
         public virtual string ClassTag => "Override me";
-        public static readonly TaggedTypesStd All = new TaggedTypesStd(typeof(PainterComponentPluginBase));
-        public TaggedTypesStd AllTypes => All;
+        public static readonly TaggedTypesCfg All = new TaggedTypesCfg(typeof(PainterComponentPluginBase));
+        public TaggedTypesCfg AllTypes => All;
         #endregion
 
         public static void UpdatePlugins(PlaytimePainter painter) {
@@ -64,7 +64,7 @@ namespace Playtime_Painter
         }
 
         #region Encode & Decode
-        public override StdEncoder Encode() => new StdEncoder();
+        public override CfgEncoder Encode() => new CfgEncoder();
 
         public override bool Decode(string tg, string data) => false;
         #endregion

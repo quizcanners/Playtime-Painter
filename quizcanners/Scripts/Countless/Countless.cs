@@ -172,7 +172,7 @@ namespace QuizCannersUtilities {
             }
         }
 
-        public abstract StdEncoder Encode();
+        public abstract CfgEncoder Encode();
 
         public abstract bool Decode(string tg, string data);
 
@@ -206,9 +206,9 @@ namespace QuizCannersUtilities {
 
         }
 
-        public override StdEncoder Encode()
+        public override CfgEncoder Encode()
         {
-            var cody = new StdEncoder();
+            var cody = new CfgEncoder();
 
             List<int> values;
 
@@ -451,7 +451,7 @@ namespace QuizCannersUtilities {
 
         }
 
-        public override StdEncoder Encode() => new StdEncoder().Add("inds", GetItAll()).Add("last", lastFreeIndex);
+        public override CfgEncoder Encode() => new CfgEncoder().Add("inds", GetItAll()).Add("last", lastFreeIndex);
         #endregion
 
         public List<int> GetItAll()
@@ -1280,9 +1280,9 @@ public class Countless<T> : CountlessBase {
         #endregion
 
         #region Encode & Decode
-        public static StdEncoder Encode(this Countless<string> c)
+        public static CfgEncoder Encode(this Countless<string> c)
         {
-            var cody = new StdEncoder();
+            var cody = new CfgEncoder();
             List<int> inds;
             List<string> vals = c.GetAllObjs(out inds);
             for (int i = 0; i < inds.Count; i++)
@@ -1293,15 +1293,15 @@ public class Countless<T> : CountlessBase {
         public static void DecodeInto_Countless(this string data, out Countless<string> c)
         {
             c = new Countless<string>();
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
             foreach (var tag in cody)
                 c[tag.ToInt()] = cody.GetData();
 
         }
 
-        public static StdEncoder Encode(this Countless<float> c)
+        public static CfgEncoder Encode(this Countless<float> c)
         {
-            var cody = new StdEncoder();
+            var cody = new CfgEncoder();
             List<int> inds;
             List<float> vals = c.GetAllObjs(out inds);
             for (int i = 0; i < inds.Count; i++)
@@ -1312,15 +1312,15 @@ public class Countless<T> : CountlessBase {
         public static void DecodeInto_Countless(this string data, out Countless<float> c)
         {
             c = new Countless<float>();
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
             foreach (var tag in cody)
                 c[tag.ToInt()] = cody.GetData().ToFloat();
 
         }
 
-        public static StdEncoder Encode(this Countless<Vector3> c)
+        public static CfgEncoder Encode(this Countless<Vector3> c)
         {
-            var cody = new StdEncoder();
+            var cody = new CfgEncoder();
             if (c != null)
             {
                 List<int> inds;
@@ -1334,15 +1334,15 @@ public class Countless<T> : CountlessBase {
         public static void DecodeInto_Countless(this string data, out Countless<Vector3> c)
         {
             c = new Countless<Vector3>();
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
             foreach (var tag in cody)
                 c[tag.ToInt()] = cody.GetData().ToVector3();
 
         }
 
-        public static StdEncoder Encode(this Countless<Quaternion> c)
+        public static CfgEncoder Encode(this Countless<Quaternion> c)
         {
-            var cody = new StdEncoder();
+            var cody = new CfgEncoder();
             List<int> inds;
             List<Quaternion> vals = c.GetAllObjs(out inds);
             for (int i = 0; i < inds.Count; i++)
@@ -1353,7 +1353,7 @@ public class Countless<T> : CountlessBase {
         public static void DecodeInto_Countless(this string data, out Countless<Quaternion> c)
         {
             c = new Countless<Quaternion>();
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
             foreach (var tag in cody)
                 c[tag.ToInt()] = cody.GetData().ToQuaternion();
 

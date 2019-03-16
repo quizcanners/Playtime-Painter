@@ -31,11 +31,11 @@ namespace Playtime_Painter
             return true;
         }
 
-        public override StdEncoder Encode() => new StdEncoder()
+        public override CfgEncoder Encode() => new CfgEncoder()
             .Add_Bool("gtuv", projectionUv)
             .Add("nrmWrap", projectorNormalThreshold01);
         
-        public StdEncoder EncodePerMeshData() => new StdEncoder()
+        public CfgEncoder EncodePerMeshData() => new CfgEncoder()
             .Add("offset", offset)
             .Add("tile", tiling);
 

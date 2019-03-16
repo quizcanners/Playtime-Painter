@@ -21,7 +21,7 @@ namespace Playtime_Painter {
         public static List<TextureBuffer> buffers = new List<TextureBuffer>();
 
         #region Encode & Decode
-        public override StdEncoder Encode() => this.EncodeUnrecognized()
+        public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add("s", buffers)
             .Add("sc", sections)
             .Add_Bool("gui", _showOnGui);
@@ -256,7 +256,7 @@ namespace Playtime_Painter {
         #endregion
 
         #region Encode & Decode
-        public override StdEncoder Encode() =>this.EncodeUnrecognized().Add_IfTrue("show", showOnGui);
+        public override CfgEncoder Encode() =>this.EncodeUnrecognized().Add_IfTrue("show", showOnGui);
 
         public override bool Decode(string tg, string data)
         {
@@ -302,7 +302,7 @@ namespace Playtime_Painter {
         #endregion
         
         #region Encode & Decode
-        public override StdEncoder Encode() => new StdEncoder()
+        public override CfgEncoder Encode() => new CfgEncoder()
             .Add_GUID("t", Texture)
             .Add_IfTrue("show", showOnGui);
 
@@ -392,7 +392,7 @@ namespace Playtime_Painter {
         }
 
         #region Encode & Decode
-        public override StdEncoder Encode() =>this.EncodeUnrecognized()
+        public override CfgEncoder Encode() =>this.EncodeUnrecognized()
             .Add("w", width)
             .Add("c", (int)colorMode)
             .Add_IfTrue("show", showOnGui);
@@ -510,7 +510,7 @@ namespace Playtime_Painter {
         #endregion
 
         #region Encode & Decode
-        public override StdEncoder Encode() => new StdEncoder().Add_IfTrue("show", showOnGui);
+        public override CfgEncoder Encode() => new CfgEncoder().Add_IfTrue("show", showOnGui);
 
         public override bool Decode(string tg, string data)
         {
@@ -555,7 +555,7 @@ namespace Playtime_Painter {
         #endregion
         
         #region Encode & Decode
-        public override StdEncoder Encode() => new StdEncoder().Add("t", targetIndex).Add_IfTrue("show", showOnGui);
+        public override CfgEncoder Encode() => new CfgEncoder().Add("t", targetIndex).Add_IfTrue("show", showOnGui);
 
         public override bool Decode(string tg, string data)
         {
@@ -653,7 +653,7 @@ namespace Playtime_Painter {
         #endregion
 
         #region Encode & Decode
-        public override StdEncoder Encode() =>this.EncodeUnrecognized()
+        public override CfgEncoder Encode() =>this.EncodeUnrecognized()
             .Add_IfNotEmpty("n", _name)
             .Add_IfNotEpsilon("w", _width)
             .Add_IfTrue("l", _linear)
@@ -703,7 +703,7 @@ namespace Playtime_Painter {
 
         #region Encode & Decode
 
-        public override StdEncoder Encode() => this.EncodeUnrecognized()
+        public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add_Reference("m", _material)
             .Add("trg", _targetBufferIndex)
             .Add_Bool("e", _enabled);

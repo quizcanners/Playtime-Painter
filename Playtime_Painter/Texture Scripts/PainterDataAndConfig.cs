@@ -293,7 +293,7 @@ namespace Playtime_Painter
                 Recordings.Add(filename, data);
             }
 
-            var cody = new StdDecoder(data);
+            var cody = new CfgDecoder(data);
             var strokes = new List<string>();
             foreach (var tag in cody)
             {
@@ -320,7 +320,7 @@ namespace Playtime_Painter
 
         private readonly LoopLock _encodeDecodeLock = new LoopLock();
 
-        public override StdEncoder Encode()
+        public override CfgEncoder Encode()
         {
             if (_encodeDecodeLock.Unlocked)
             {
@@ -525,7 +525,7 @@ namespace Playtime_Painter
             
             CheckShaders();
 
-            var decoder = new StdDecoder(meshToolsStd);
+            var decoder = new CfgDecoder(meshToolsStd);
 
             foreach (var tag in decoder) {
                 var d = decoder.GetData();
@@ -590,7 +590,7 @@ namespace Playtime_Painter
         {
             StopCamera();
             
-            var cody = new StdEncoder();
+            var cody = new CfgEncoder();
 
             var at = MeshToolBase.AllTools;
             if (!at.IsNullOrEmpty())  {

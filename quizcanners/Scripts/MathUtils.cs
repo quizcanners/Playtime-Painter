@@ -446,7 +446,7 @@ namespace QuizCannersUtilities {
         
         Color LCol => new Color(r, g, b, a);
 
-        public override StdEncoder Encode() => new StdEncoder()
+        public override CfgEncoder Encode() => new CfgEncoder()
             .Add("r", r)
             .Add("g", g)
             .Add("b", b)
@@ -747,7 +747,7 @@ namespace QuizCannersUtilities {
 
         #region Encode & Decode
 
-        public StdEncoder Encode() => new StdEncoder()
+        public CfgEncoder Encode() => new CfgEncoder()
             .Add_IfNotEpsilon("m", min)
             .Add_IfNotEpsilon("v", value)
             .Add_IfNotEpsilon("x", max);

@@ -59,7 +59,7 @@ namespace Playtime_Painter
 
         #region Encode & Decode
 
-        public override StdEncoder Encode() => this.EncodeUnrecognized()
+        public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add_IfTrue("byUV", _selectingUVbyNumber);
 
         public override bool Decode(string tg, string data)

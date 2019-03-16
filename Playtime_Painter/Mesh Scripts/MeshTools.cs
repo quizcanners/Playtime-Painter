@@ -10,7 +10,7 @@ namespace Playtime_Painter
 {
 
     public interface IMeshToolWithPerMeshData {
-        StdEncoder EncodePerMeshData();
+        CfgEncoder EncodePerMeshData();
     }
 
     #region Base
@@ -131,7 +131,7 @@ namespace Playtime_Painter
         public virtual void ManageDragging() { }
 
         #region Encode & Decode
-        public override StdEncoder Encode() => null;
+        public override CfgEncoder Encode() => null;
 
         public override bool Decode(string tg, string data) => false;
         #endregion
@@ -499,7 +499,7 @@ namespace Playtime_Painter
         #endregion
 
         #region Encode & Decode
-        public override StdEncoder Encode() => new StdEncoder()
+        public override CfgEncoder Encode() => new CfgEncoder()
             .Add("dm",(int)_detectionMode)
             .Add_Bool("inM", _addToTrianglesAndLines);
         
@@ -711,7 +711,7 @@ namespace Playtime_Painter
 
         #region Encode & Decode
 
-        public override StdEncoder Encode() => new StdEncoder()
+        public override CfgEncoder Encode() => new CfgEncoder()
             .Add("dm", (int)_detectionMode);
 
         public override bool Decode(string tg, string data)
@@ -1077,7 +1077,7 @@ namespace Playtime_Painter
 
         #region Encode & Decode
 
-        public override StdEncoder Encode() => new StdEncoder()
+        public override CfgEncoder Encode() => new CfgEncoder()
             .Add_IfNotZero("sm", selectedSubMesh);
 
         public override bool Decode(string tg, string data) {
@@ -1260,7 +1260,7 @@ namespace Playtime_Painter
             return true;
         }
 
-        public override StdEncoder Encode() => new StdEncoder()
+        public override CfgEncoder Encode() => new CfgEncoder()
             .Add("v", _edgeValue)
             .Add_Bool("doCol", _alsoDoColor)
             .Add_Bool("fe", _editingFlexibleEdge);
@@ -1330,9 +1330,9 @@ namespace Playtime_Painter
         #endregion
 
         #region Encode & Decode
-        public override StdEncoder Encode()
+        public override CfgEncoder Encode()
         {
-            var cody = new StdEncoder();
+            var cody = new CfgEncoder();
             if (_curSubMesh != 0)
                 cody.Add("sm", _curSubMesh);
             return cody;

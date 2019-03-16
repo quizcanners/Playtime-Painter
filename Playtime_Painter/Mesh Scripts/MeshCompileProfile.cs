@@ -123,9 +123,9 @@ namespace Playtime_Painter
         }
 
         #region Encode & Decode
-        public override StdEncoder Encode() 
+        public override CfgEncoder Encode() 
         {
-            var cody = new StdEncoder();
+            var cody = new CfgEncoder();
 
             cody.Add_String("n", name);
             cody.Add_IfNotEmpty("sln", dtaLnks);
@@ -295,9 +295,9 @@ namespace Playtime_Painter
         }
 
         #region Encode & Decode
-        public override StdEncoder Encode()
+        public override CfgEncoder Encode()
         {
-            var cody = new StdEncoder();
+            var cody = new CfgEncoder();
 
             cody.Add_IfTrue("en", enabled)
             .Add_IfNotZero("t", _targetIndex);
@@ -524,8 +524,8 @@ namespace Playtime_Painter
         }
 
         #region Encode & Decode
-        public override StdEncoder Encode() {
-            StdEncoder cody = new StdEncoder();
+        public override CfgEncoder Encode() {
+            CfgEncoder cody = new CfgEncoder();
             cody.Add_IfNotZero("t", srcIndex);
             cody.Add_IfNotZero("v", dstIndex);
             return cody;
