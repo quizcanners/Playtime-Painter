@@ -695,8 +695,7 @@ namespace QuizCannersUtilities {
             var tmp = value;
             if (pegi.edit(ref tmp, min, max).changes(ref changed))
                 value = tmp;
-
-
+            
             if (!_showRange && icon.Edit.ClickUnFocus("Edit Range", 20))
                 _showRange = true;
 
@@ -730,6 +729,12 @@ namespace QuizCannersUtilities {
 
                 "]".write(10);
 
+                pegi.nl();
+
+                "Tap Enter to apply Range change in the field (will Clamp current value)".writeHint();
+
+                pegi.nl();
+                
                 if (rangeChanged)
                     value = Mathf.Clamp(value, min, max);
             }
@@ -737,7 +742,7 @@ namespace QuizCannersUtilities {
 
             return changed | rangeChanged;
         }
-#endif
+        #endif
         #endregion
 
         #region Encode & Decode
@@ -762,6 +767,14 @@ namespace QuizCannersUtilities {
             return true;
         }
         #endregion
+        
+        public DynamicRangeFloat(float min = 0, float max = 1, float value = 0.5f)
+        {
+            this.min = min;
+            this.max = max;
+            this.value = value;
+            _showRange = false;
+        }
     }
 
 }

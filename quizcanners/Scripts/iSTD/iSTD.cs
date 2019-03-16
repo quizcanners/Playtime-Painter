@@ -574,7 +574,7 @@ namespace QuizCannersUtilities {
 
             var ch = into as ICanChangeClass;
             if (ch != null && !from.IsNullOrDestroyed_Obj())
-                ch.Copy_NonStdData_From_PreviousInstance(from);
+                ch.OnClassTypeChange(from);
 
             
         }

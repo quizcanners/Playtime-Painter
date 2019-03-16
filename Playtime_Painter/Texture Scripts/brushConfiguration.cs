@@ -155,7 +155,7 @@ namespace Playtime_Painter {
             return isA3D;
         }
 
-        [SerializeField] public DynamicRangeFloat _dSpeed = new DynamicRangeFloat() { max = 4.5f };
+        [SerializeField] public DynamicRangeFloat _dSpeed = new DynamicRangeFloat(0.1f, 4.5f, 3f );
 
         public float Speed
         {

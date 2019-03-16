@@ -1,7 +1,4 @@
-﻿using PlayerAndEditorGUI;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace PlayerAndEditorGUI
 {
@@ -183,7 +180,7 @@ namespace PlayerAndEditorGUI
         #if PEGI
         public bool Inspect()
         {
-            bool changed = false;
+            var changed = false;
 
             "Some text asdj iosjd oasjdoiasjd ioasjdisao diaduisa".write();
             if (icon.Refresh.Click().nl()) Refresh();

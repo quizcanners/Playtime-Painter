@@ -1,17 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
-using System;
 
 namespace QuizCannersUtilities
 {
 
     [ExecuteInEditMode]
-    public class PEGI_SimpleInspectorsBrowser : ComponentStd, IPEGI, IKeepMyStd
+    public class PEGI_SimpleInspectorsBrowser : ComponentStd, IKeepMyStd
     {
 
-        public List<UnityEngine.Object> objects = new List<UnityEngine.Object>();
+        public List<Object> objects = new List<Object>();
 
         [SerializeField] string stdData = "";
 

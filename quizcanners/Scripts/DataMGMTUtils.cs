@@ -38,20 +38,19 @@ namespace QuizCannersUtilities
 #if UNITY_EDITOR
             try
             {
-                var path = Path.Combine("Assets", assetFolder, "Resources", insideAssetFolderAndName) + FileSaveUtils.bytesFileType;
+                var path = Path.Combine("Assets", Path.Combine(assetFolder, Path.Combine("Resources", insideAssetFolderAndName))) + FileSaveUtils.bytesFileType;
                 AssetDatabase.DeleteAsset(path);
             }
             catch (Exception e)
             {
-                Debug.Log("Oh No " + e.ToString());
+                Debug.Log("Oh No " + e);
             }
 #endif
         }
 
 
         public static bool DeleteFile_PersistentFolder(string subPath, string fileName)
-            => DeleteFile(Path.Combine(Application.persistentDataPath, subPath,
-                Path.Combine(Application.persistentDataPath, subPath, "{0}{1}".F(fileName, FileSaveUtils.JsonFileType))));
+            => DeleteFile(Path.Combine(Application.persistentDataPath, subPath, Path.Combine(Application.persistentDataPath, subPath, "{0}{1}".F(fileName, FileSaveUtils.JsonFileType))));
 
         public static bool DeleteFile(string path)
         {
@@ -98,8 +97,7 @@ namespace QuizCannersUtilities
 #if UNITY_EDITOR
 
             var resourceName = Path.Combine(insideResourceFolder, name);
-            var path = Path.Combine(Application.dataPath, resourceFolderLocation, "Resources",
-                       resourceName + FileSaveUtils.bytesFileType);
+            var path = Path.Combine(Application.dataPath, Path.Combine(resourceFolderLocation, Path.Combine("Resources",  resourceName + FileSaveUtils.bytesFileType)));
 
             if (!File.Exists(path)) return null;
 

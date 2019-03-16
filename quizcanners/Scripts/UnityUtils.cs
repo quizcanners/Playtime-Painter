@@ -712,7 +712,7 @@ namespace QuizCannersUtilities {
 
             try
             {
-                var path = Path.Combine(Application.dataPath, assetFolder, "Resources" , insideAssetsFolder);
+                var path = Path.Combine(Application.dataPath, Path.Combine(assetFolder, Path.Combine("Resources" , insideAssetsFolder)));
 
                 if (!Directory.Exists(path)) return;
 
@@ -792,7 +792,7 @@ namespace QuizCannersUtilities {
         #if UNITY_EDITOR
         public static void DuplicateResource(string assetFolder, string insideAssetFolder, string oldName, string newName)
         {
-            var path = Path.Combine("Assets", assetFolder, "Resources", insideAssetFolder);
+            var path = Path.Combine("Assets", Path.Combine(assetFolder, Path.Combine("Resources", insideAssetFolder)));
             AssetDatabase.CopyAsset(Path.Combine(path, oldName) + FileSaveUtils.bytesFileType, Path.Combine(path, newName) + FileSaveUtils.bytesFileType);
         }
         #endif

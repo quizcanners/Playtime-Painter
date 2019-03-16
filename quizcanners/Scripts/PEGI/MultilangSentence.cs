@@ -1,64 +1,56 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using System;
-using System.Text.RegularExpressions;
-using System.Text;
-using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using STD_Logic;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace PlayerAndEditorGUI {
 
     public enum Languages { note = 0, en = 1, uk = 2, tr = 3, ru = 4 }
+    
+    [DerivedList(typeof(Sentence), typeof(ConditionalSentence))]
+    public class Sentence : AbstractKeepUnrecognizedStd, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
 
-    [Serializable]
-    [DerivedList(typeof(Sentance), typeof(ConditionalSentance))]
-    public class Sentance : AbstractKeepUnrecognizedStd, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
+        public static Languages currentLanguage = Languages.en; // Don't rely on enums, use Dictionary to store languages. Key - language code, value - translation.
 
-        public static Languages curlang = Languages.en; // Don't rely on enums, use Dictionary to store languages. Key - language code, value - translation.
-
-        List<string> lanCodes;
+        List<string> _languageCodes;
 
         public List<string> LanguageCodes { get {
-                if (lanCodes == null) {
-                    lanCodes = new List<string>();
-                    string[] names = Enum.GetNames(typeof(Languages));
-                    var values = (int[])Enum.GetValues(typeof(Languages));
-                    for (int i = 0; i < values.Length; i++)
-                        lanCodes.ForceSet(values[i], names[i]);
-                }
+                if (_languageCodes != null) return _languageCodes;
 
-                return lanCodes;
+                _languageCodes = new List<string>();
+                var names = Enum.GetNames(typeof(Languages));
+                var values = (int[])Enum.GetValues(typeof(Languages));
+                for (var i = 0; i < values.Length; i++)
+                    _languageCodes.ForceSet(values[i], names[i]);
+
+                return _languageCodes;
             }
         }
 
-        public Dictionary<int, string> txts = new Dictionary<int, string>();
+        public Dictionary<int, string> texts = new Dictionary<int, string>();
 
-        bool needsReview = false;
+        bool needsReview;
 
         public static bool singleView = true;
 
-        public string NameForPEGI { get { return this[curlang]; } set { this[curlang] = value; } }
+        public string NameForPEGI { get { return this[currentLanguage]; } set { this[currentLanguage] = value; } }
 
         public override string ToString() => NameForPEGI;
 
         public string this[Languages lang] {
             get {
                 string text;
-                int ind = (int)lang;
+                var ind = (int)lang;
 
-                if (txts.TryGetValue(ind, out text))
+                if (texts.TryGetValue(ind, out text))
                     return text;
                 else
                 {
                     if (lang == Languages.en)
                     {
                         text = "English Text";
-                        txts[ind] = text;
+                        texts[ind] = text;
                     }
                     else
                         text = this[Languages.en];
@@ -66,21 +58,21 @@ namespace PlayerAndEditorGUI {
 
                 return text;
             }
-            set { txts[(int)lang] = value; }
+            set { texts[(int)lang] = value; }
         }
 
-        public bool Contains(Languages lang) => txts.ContainsKey((int)lang);
+        public bool Contains(Languages lang) => texts.ContainsKey((int)lang);
 
-        public bool Contains() => Contains(curlang);
+        public bool Contains() => Contains(currentLanguage);
 
         #region Encode & Decode
         public override StdEncoder Encode() => this.EncodeUnrecognized()
-            .Add("txts", txts)
+            .Add("txts", texts)
             .Add_IfTrue("na", needsReview);
 
         public override bool Decode(string tg, string data){
             switch (tg) {
-                case "txts": data.Decode_Dictionary(out txts); break;
+                case "txts": data.Decode_Dictionary(out texts); break;
                 case "na": needsReview = data.ToBool(); break;
                 default: return false;
             }
@@ -97,12 +89,12 @@ namespace PlayerAndEditorGUI {
             return null;
         }
 
-        public static bool LanguageSelector_PEGI() => pegi.editEnum(ref curlang, 30);
+        public static bool LanguageSelector_PEGI() => pegi.editEnum(ref currentLanguage, 30);
         
         public virtual bool PEGI_inList(IList list, int ind, ref int edited) {
             var changed = this.inspect_Name();
 
-            if (this.Click_Enter_Attention(icon.Hint, curlang.ToPegiString()))
+            if (this.Click_Enter_Attention(icon.Hint, currentLanguage.ToPegiString()))
                 edited = ind;
             return changed;
         }
@@ -119,11 +111,11 @@ namespace PlayerAndEditorGUI {
                 }
             } else {
 
-                "Translations".edit_Dictionary_Values(ref txts, LanguageCodes);
+                "Translations".edit_Dictionary_Values(ref texts, LanguageCodes);
 
                 LanguageSelector_PEGI();
-                if (!Contains() && icon.Add.Click("Add {0}".F(curlang.ToPegiString())))
-                    NameForPEGI = this[curlang];
+                if (!Contains() && icon.Add.Click("Add {0}".F(currentLanguage.ToPegiString())))
+                    NameForPEGI = this[currentLanguage];
 
                 pegi.nl();
             }
@@ -139,23 +131,23 @@ namespace PlayerAndEditorGUI {
         #endregion
     }
 
-    public class ConditionalSentance : Sentance, IAmConditional {
+    public class ConditionalSentence : Sentence, IAmConditional {
 
-        ConditionBranch condition = new ConditionBranch();
+        readonly ConditionBranch _condition = new ConditionBranch();
 
-        public bool CheckConditions(Values values) => condition.CheckConditions(values);
+        public bool CheckConditions(Values values) => _condition.CheckConditions(values);
 
         #region Inspector
 #if PEGI
         public override bool PEGI_inList(IList list, int ind, ref int edited) {
             var changed = this.inspect_Name();
-            if (this.Click_Enter_Attention(condition.IsTrue() ? icon.Active : icon.InActive, curlang.ToPegiString()))
+            if (this.Click_Enter_Attention(_condition.IsTrue() ? icon.Active : icon.InActive, currentLanguage.ToPegiString()))
                 edited = ind;
             return changed;
         }
 
         public override bool Inspect() {
-            var changes = condition.Nested_Inspect().nl();
+            var changes = _condition.Nested_Inspect().nl();
             changes |= base.Inspect();
             return changes;
         }
@@ -165,14 +157,14 @@ namespace PlayerAndEditorGUI {
         #region Encode & Decode
         public override StdEncoder Encode() => new StdEncoder()
                 .Add("b", base.Encode)
-                .Add_IfNotDefault("cnd", condition);
+                .Add_IfNotDefault("cnd", _condition);
          
         public override bool Decode(string tg, string data)
         {
             switch (tg)
             {
                 case "b": data.Decode_Base(base.Decode, this); break;
-                case "cnd": condition.Decode(data); break;
+                case "cnd": _condition.Decode(data); break;
                 default: return false;
             }
             return true;
@@ -182,10 +174,10 @@ namespace PlayerAndEditorGUI {
     }
 
 
-    public static class MultilanguageSentanceExtensions
+    public static class MultiLanguageSentenceExtensions
     {
 
-        public static Sentance GetNextText (this List<Sentance> list, ref int startIndex) {
+        public static Sentence GetNextText (this List<Sentence> list, ref int startIndex) {
 
             while (list.Count > startIndex) {
                 var txt = list[startIndex];

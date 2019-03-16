@@ -518,7 +518,7 @@ namespace Playtime_Painter
         public virtual bool UsingBumpStrengthSlider(int sourceChannel) => false; 
         public virtual bool UsingColorSelector => false;
         protected virtual bool IsColor => false;
-        protected virtual List<string> Channels => Chennels;
+        protected virtual List<string> GetChannels => Chennels;
         protected virtual Color DefaultColor => IsColor ? Color.white : Color.grey;
 
         public abstract string NameForDisplayPEGI { get; }
@@ -621,7 +621,7 @@ namespace Playtime_Painter
 
         public bool Inspect(ref int selectedChannel, TextureChannel tc)
         {
-            var changed = ".".select(10, ref selectedChannel, Channels).nl();
+            var changed = ".".select(10, ref selectedChannel, GetChannels).nl();
 
             return changed;
         }
@@ -736,14 +736,13 @@ namespace Playtime_Painter
 
             mipLevels = new List<Color[]>();
 
-            var hpix = heightMap.GetPixels(width, height);
+            var hPixels = heightMap.GetPixels(width, height);
 
             var w = width;
             var h = height;
+            
+            while (w > 1 && h > 1) {
 
-
-            while (w > 1 && h > 1)
-            {
                 w /= 2;
                 h /= 2;
 
@@ -767,7 +766,7 @@ namespace Playtime_Painter
                             for (var sx = 0; sx < dx; sx++)
                             {
                                 var ind = start + sy * width + sx;
-                                avg += hpix[ind].a;
+                                avg += hPixels[ind].a;
                                 col += pixels[ind];
                             }
 
@@ -778,7 +777,7 @@ namespace Playtime_Painter
 
                         for (var sy = 0; sy < dy; sy++)
                             for (var sx = 0; sx < dx; sx++)
-                                noise += Mathf.Abs(hpix[start + sy * width + sx].a - avg);
+                                noise += Mathf.Abs(hPixels[start + sy * width + sx].a - avg);
 
                         noise /= pixelsPerSector;
 
@@ -801,10 +800,6 @@ namespace Playtime_Painter
 
     public class TextureRoleReflectivity : TextureRole
     {
-
-
-        // public override bool sourceSingleChannel { get { return true; } }
-        //  public override bool productSingleChannel { get { return true; } }
 
         public override string NameForDisplayPEGI => "Reflectivity";
 
@@ -846,11 +841,9 @@ namespace Playtime_Painter
         public override string NameForDisplayPEGI => "Height";
         public override bool UsingBumpStrengthSlider(int channel) { return channel < 2; }
 
-        // public override bool sourceSingleChannel { get { return true; } }
+        protected override List<string> GetChannels => Channels;
 
-        protected override List<string> Channels => Chanals;
-
-        private static readonly List<string> Chanals = new List<string> { "Normal R", "Normal G", "Height Greyscale", "Height Alpha" };
+        private static readonly List<string> Channels = new List<string> { "Normal R", "Normal G", "Height Greyscale", "Height Alpha" };
 
         private static int _width;
         private static int _height;
@@ -879,35 +872,27 @@ namespace Playtime_Painter
 
             ExtractPixels(set.heightMap ? set.heightMap : set.ambient, _width, _height);
 
-            float xLeft;
-            float xRight;
-            float yUp;
-            float yDown;
+            var strength = set.Profile.bumpStrength;
 
-            float yDelta;
-            float xDelta;
-
-            float strength = set.Profile.bumpStrength;
-
-            for (int by = 0; @by < _height; @by++)
+            for (var bY = 0; bY < _height; bY++)
             {
-                for (int bx = 0; bx < _width; bx++)
+                for (var bX = 0; bX < _width; bX++)
                 {
 
-                    int dstIndex = IndexFrom(bx, @by);
+                    var dstIndex = IndexFrom(bX, bY);
 
                     var col = pixels[dstIndex];
 
                     col.b = col.grayscale;
 
-                    xLeft = pixels[IndexFrom(bx - 1, @by)].a;
-                    xRight = pixels[IndexFrom(bx + 1, @by)].a;
-                    yUp = pixels[IndexFrom(bx, @by - 1)].a;
-                    yDown = pixels[IndexFrom(bx, @by + 1)].a;
+                    var xLeft = pixels[IndexFrom(bX - 1, bY)].a;
+                    var xRight = pixels[IndexFrom(bX + 1, bY)].a;
+                    var yUp = pixels[IndexFrom(bX, bY - 1)].a;
+                    var yDown = pixels[IndexFrom(bX, bY + 1)].a;
 
-                    xDelta = (-xRight + xLeft) * strength;
+                    var xDelta = (-xRight + xLeft) * strength;
 
-                    yDelta = (-yDown + yUp) * strength;
+                    var yDelta = (-yDown + yUp) * strength;
 
                     col.r = Mathf.Clamp01(xDelta * Mathf.Abs(xDelta) + 0.5f);
                     col.g = Mathf.Clamp01(yDelta * Mathf.Abs(yDelta) + 0.5f);
@@ -926,9 +911,12 @@ namespace Playtime_Painter
     {
         public override string NameForDisplayPEGI => "Normal";
 
-        public override bool UsingBumpStrengthSlider(int channel) { return true; }
+        public override bool UsingBumpStrengthSlider(int channel) => true; 
 
+        #if UNITY_EDITOR
+        private Texture2D _texture;
         private bool _wasMarkedAsNormal;
+        #endif
 
         public TextureRole_Normal(int index) : base(index)
         {
@@ -939,18 +927,17 @@ namespace Playtime_Painter
             base.ClearPixels();
 
 #if UNITY_EDITOR
-            if (tex)
-            {
-                var imp = tex.GetTextureImporter();
+            if (_texture) {
+                var imp = _texture.GetTextureImporter();
                 if (imp.WasMarkedAsNormal(_wasMarkedAsNormal))
                     imp.SaveAndReimport();
             }
-#endif
+
             _wasMarkedAsNormal = false;
-        }
-#if UNITY_EDITOR
-        Texture2D tex;
 #endif
+
+        }
+
         public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
         {
           
@@ -960,13 +947,12 @@ namespace Playtime_Painter
                 var height = id?.height ?? set.height;
                 ExtractPixels(set.normalMap, width, height);
             }
-#if UNITY_EDITOR
-            tex = set.normalMap;
-#endif
+
+            #if UNITY_EDITOR
+                _texture = set.normalMap;
+            #endif
             return pixels;
         }
     }
-
-
 }
 

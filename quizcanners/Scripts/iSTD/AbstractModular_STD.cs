@@ -7,7 +7,7 @@ using UnityEngine;
 namespace QuizCannersUtilities {
 
     public interface ICanChangeClass {
-        void Copy_NonStdData_From_PreviousInstance(object previous);
+        void OnClassTypeChange(object previousInstance);
     }
 
     public interface IGotClassTag : IStd {
@@ -62,8 +62,6 @@ namespace QuizCannersUtilities {
             _types = new List<Type>();
 
             _displayNames = new List<string>();
-
-            //   Debug.Log("Getting all types of {0}".F(coreType));
 
             var allTypes = _coreType.GetAllChildTypes();
 

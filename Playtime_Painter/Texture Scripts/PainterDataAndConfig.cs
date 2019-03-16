@@ -543,8 +543,7 @@ namespace Playtime_Painter
         {
             #if !UNITY_EDITOR
                 return;
-            #endif
-
+            #else
             CheckShader(ref pixPerfectCopy,         "Playtime Painter/Buffer Blit/Pixel Perfect Copy",  forceReload);
 
             CheckShader(ref brushBlitSmoothed,          "Playtime Painter/Buffer Blit/Smooth",              forceReload);
@@ -568,16 +567,17 @@ namespace Playtime_Painter
             CheckShader(ref previewMesh,           "Playtime Painter/Editor/Preview/Mesh",             forceReload);
 
             CheckShader(ref previewTerrain,         "Playtime Painter/Editor/Preview/Terrain",          forceReload);
+            #endif
         }
 
         private static void CheckShader(ref Shader shade, string path, bool forceReload = false) {
 
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
 
             if (forceReload || !shade)
                 shade = Shader.Find(path);
 
-            #endif
+#endif
         }
 
         public void ManagedOnEnable()
