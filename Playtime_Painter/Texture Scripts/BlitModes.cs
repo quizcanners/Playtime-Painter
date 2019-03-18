@@ -8,45 +8,19 @@ namespace Playtime_Painter {
     #region Base
     public abstract class BlitMode : PainterSystem, IEditorDropdown, IGotDisplayName {
 
+        #region All Modes 
         private static List<BlitMode> _allModes;
 
-        public int index;
-
-        public virtual bool SupportsTransparentLayer => false;
-
-        public static List<BlitMode> AllModes {
-            get {
+        public static List<BlitMode> AllModes
+        {
+            get
+            {
                 if (_allModes == null)
                     InstantiateBrushes();
                 return _allModes;
             }
         }
-        
-        public BlitMode SetKeyword(ImageMeta id) {
 
-            foreach (var bs in AllModes)
-                UnityUtils.SetShaderKeyword(bs.ShaderKeyword(id), false);
-
-            UnityUtils.SetShaderKeyword(ShaderKeyword(id), true);
-
-            return this;
-
-        }
-
-        protected virtual string ShaderKeyword(ImageMeta id) => null;
-
-        public virtual List<string> ShaderKeywords => null;
-
-        public virtual void SetGlobalShaderParameters()
-        {
-            Shader.DisableKeyword("PREVIEW_SAMPLING_DISPLACEMENT");
-            UnityUtils.ToggleShaderKeywords(TexMGMTdata.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
-        }
-
-        protected BlitMode(int ind)
-        {
-            index = ind;
-        }
 
         protected static void InstantiateBrushes()
         {
@@ -78,6 +52,41 @@ namespace Playtime_Painter {
             */
         }
 
+
+        public int index;
+
+
+        protected BlitMode(int ind)
+        {
+            index = ind;
+        }
+
+
+        #endregion
+
+        public virtual bool SupportsTransparentLayer => false;
+
+        public BlitMode SetKeyword(ImageMeta id) {
+
+            foreach (var bs in AllModes)
+                UnityUtils.SetShaderKeyword(bs.ShaderKeyword(id), false);
+
+            UnityUtils.SetShaderKeyword(ShaderKeyword(id), true);
+
+            return this;
+
+        }
+
+        protected virtual string ShaderKeyword(ImageMeta id) => null;
+
+        public virtual List<string> ShaderKeywords => null;
+
+        public virtual void SetGlobalShaderParameters()
+        {
+            Shader.DisableKeyword("PREVIEW_SAMPLING_DISPLACEMENT");
+            UnityUtils.ToggleShaderKeywords(TexMGMTdata.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
+        }
+
         public virtual BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id)
         {
             if (id.isATransparentLayer)
@@ -96,6 +105,10 @@ namespace Playtime_Painter {
         public virtual bool NeedsWorldSpacePosition => false; // WorldSpace effect needs to be rendered using terget's mesh to have world positions of the vertexes
         public virtual Shader ShaderForDoubleBuffer => TexMGMTdata.brushDoubleBuffer;
         public virtual Shader ShaderForSingleBuffer => TexMGMTdata.brushBlit;
+
+        #region Inspect
+
+        public abstract string NameForDisplayPEGI { get; }
 
         public virtual string ToolTip => NameForDisplayPEGI + " (No Tooltip)";
 
@@ -191,9 +204,9 @@ namespace Playtime_Painter {
         }
         #endif
 
-        public virtual void PrePaint(PlaytimePainter painter, BrushConfig br, StrokeVector st) { }
+        #endregion
 
-        public abstract string NameForDisplayPEGI { get; }
+        public virtual void PrePaint(PlaytimePainter painter, BrushConfig br, StrokeVector st) { }
 
     }
 
@@ -528,6 +541,8 @@ namespace Playtime_Painter {
         public override bool AllSetUp => PainterCamera.depthProjectorCamera;
 
         protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_PROJECTION";
+
+        public override Shader ShaderForDoubleBuffer => TexMGMTdata.brushDoubleBufferProjector; // TODO: Test this
 
         public override bool NeedsWorldSpacePosition => true;
 

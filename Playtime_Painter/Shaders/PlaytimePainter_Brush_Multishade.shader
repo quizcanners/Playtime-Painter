@@ -8,7 +8,6 @@
 		ZTest off
 		ZWrite off
 
-
 		SubShader{
 			Pass{
 
@@ -163,6 +162,8 @@
 						alpha *= src.a * BrushClamp(pUv);
 
 						_brushColor.rgb = SourceTextureByBrush(src.rgb);
+
+						return float4(0, 0, 0, 0);
 
 					#endif
 

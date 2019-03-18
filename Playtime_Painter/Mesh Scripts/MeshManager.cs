@@ -147,6 +147,9 @@ namespace Playtime_Painter
                     if (editedMesh.dirtyColor)
                         mc.UpdateMesh<VertexDataTypes.VertexColor>();
 
+                    if (editedMesh.dirtyUvs)
+                        mc.UpdateMesh<VertexDataTypes.VertexUv>();
+
                 }  else {
                     var m = mc.Construct();
                     target.SharedMesh = m;

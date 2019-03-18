@@ -26,6 +26,7 @@ namespace Playtime_Painter
         public Shader brushBufferCopy;
         public Shader brushBlitSmoothed;
         public Shader brushDoubleBuffer;
+        public Shader brushDoubleBufferProjector;
         public Shader brushBlurAndSmudge;
         public Shader brushColorFill;
 
@@ -557,6 +558,8 @@ namespace Playtime_Painter
             CheckShader(ref brushCopy,                "Playtime Painter/Editor/Brush/Copy",               forceReload);
 
             CheckShader(ref brushDoubleBuffer,          "Playtime Painter/Editor/Brush/DoubleBuffer",       forceReload);
+
+            CheckShader(ref brushDoubleBufferProjector, "Playtime Painter/Editor/Brush/DoubleBuffer_Projector", forceReload);
 
             CheckShader(ref brushBlurAndSmudge,   "Playtime Painter/Editor/Brush/BlurN_Smudge",       forceReload);
 

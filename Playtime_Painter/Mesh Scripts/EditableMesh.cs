@@ -12,18 +12,18 @@ namespace Playtime_Painter {
 
         public bool Dirty {
             get {
-                return  dirtyColor || dirtyVertexIndexes || dirtyPosition;// || dirtyUvs;
+                return  dirtyColor || dirtyVertexIndexes || dirtyPosition || dirtyUvs;
             } set {
                 dirtyVertexIndexes = value;
                 dirtyColor = value;
                 dirtyPosition = value;
-                //dirtyUvs = value;
+                dirtyUvs = value;
             }
         }
         public bool dirtyPosition;
         public bool dirtyColor;
         public bool dirtyVertexIndexes;
-       // public bool dirtyUvs;
+        public bool dirtyUvs;
         public int vertexCount;
 
         public bool firstBuildRun;

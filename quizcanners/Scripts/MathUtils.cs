@@ -773,7 +773,9 @@ namespace QuizCannersUtilities {
             this.min = min;
             this.max = max;
             this.value = value;
+#if PEGI
             _showRange = false;
+#endif
         }
     }
 

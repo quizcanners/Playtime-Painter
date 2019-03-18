@@ -291,10 +291,9 @@ namespace Playtime_Painter
             if (!EditorInputManager.Control) {
                 var trgPos = MeshManager.targetTransform.position;
 
-                for (var i = 0; i < 3; i++)
-                {
+                for (var i = 0; i < 3; i++) {
                     var v = PointedTriangle.vertexes[i];
-                    EditedMesh.Dirty |= v.SetUvIndexBy(PosToUv(v.meshPoint.WorldPos - trgPos));
+                    EditedMesh.dirtyUvs |= v.SetUvIndexBy(PosToUv(v.meshPoint.WorldPos - trgPos));
                 }
             }
             else
@@ -359,11 +358,11 @@ namespace Playtime_Painter
                 }
             }
 
-            if (EditorInputManager.GetMouseButtonUp(0))
-            {
+            if (EditorInputManager.GetMouseButtonUp(0)) {
 
                 MeshMGMT.SelectedUv.SharedEditedUv = _lastCalculatedUv;
-                EditedMesh.Dirty = true;
+                EditedMesh.dirtyUvs = true;
+                Debug.Log("Setting Dirty UV Test");
                 MeshMGMT.Dragging = false;
             }
 
