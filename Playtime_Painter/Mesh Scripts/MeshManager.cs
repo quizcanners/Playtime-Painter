@@ -281,7 +281,12 @@ namespace Playtime_Painter
         #endregion
 
         #region Tool MGMT
-        public static List<string> meshEditorIgnore = new List<string> { "VertexEd", "toolComponent" };
+
+        public const string VertexEditorUiElementTag = "VertexEd";
+
+        public const string ToolComponentTag = "toolComponent";
+
+        public static List<string> meshEditorIgnore = new List<string> { VertexEditorUiElementTag, ToolComponentTag };
 
         private bool ProcessLinesOnTriangle(Triangle t)
         {
@@ -370,7 +375,7 @@ namespace Playtime_Painter
             if (Physics.Raycast(EditorInputManager.GetScreenMousePositionRay(TexMGMT.MainCamera), out hit))
             {
 
-                vertexIsPointed = (hit.transform.tag == "VertexEd");
+                vertexIsPointed = (hit.transform.tag == VertexEditorUiElementTag);
 
                 if (!alt)
                 {
@@ -391,9 +396,7 @@ namespace Playtime_Painter
                     }
                 }
             }
-
-
-
+            
             UpdateLocalSpaceV3S();
             return vertexIsPointed;
         }
@@ -411,7 +414,7 @@ namespace Playtime_Painter
 
         }
 
-        private void PROCESS_KEYS()
+        private void ProcessKeyInputs()
         {
 
             var t = MeshTool;
@@ -428,13 +431,13 @@ namespace Playtime_Painter
             t.KeysEventPointedWhatever();
         }
 
-        private void RAYCAST_SELECT_MOUSEedit()
+        private void ProcessMouseActions()
         {
 
             PointedTriangle = null;
             PointedLine = null;
 
-            bool pointingUV = RayCastVertexIsPointed();
+            var pointingUv = RayCastVertexIsPointed();
 
             if (_dragging)
                 MeshTool.ManageDragging();
@@ -442,23 +445,23 @@ namespace Playtime_Painter
             if (!_dragging)
             {
 
-                if (pointingUV && _currentUv <= editedMesh.meshPoints[0].vertices.Count)
+                if (pointingUv && _currentUv <= editedMesh.meshPoints[0].vertices.Count)
                 {
 
-                    var pointedVX = editedMesh.meshPoints[0];
+                    var pointedVx = editedMesh.meshPoints[0];
 
-                    if (_currentUv == pointedVX.vertices.Count) _currentUv--;
+                    if (_currentUv == pointedVx.vertices.Count) _currentUv--;
 
-                    if ((SelectedUv != null) && (SelectedUv.meshPoint == pointedVX) && (!_selectingUVbyNumber))
+                    if ((SelectedUv != null) && (SelectedUv.meshPoint == pointedVx) && (!_selectingUVbyNumber))
                         PointedUv = SelectedUv;
                     else
-                        PointedUv = pointedVX.vertices[_currentUv];
+                        PointedUv = pointedVx.vertices[_currentUv];
 
                     if (EditorInputManager.GetMouseButtonDown(0))
                         AssignSelected(PointedUv);
                 }
 
-                MeshToolBase t = MeshTool;
+                var t = MeshTool;
 
                 if (t.ShowVertices && PointedUv != null)
                 {
@@ -489,7 +492,7 @@ namespace Playtime_Painter
             }
         }
 
-        private void SORT_AND_UPDATE_UI()
+        private void SortAndUpdate()
         {
 
             if (!Grid)
@@ -536,14 +539,18 @@ namespace Playtime_Painter
                     tmpScale *= 1.5f;
                 }
 
-                mark.go.SetActiveTo(true);
-                mark.go.transform.position = worldPos;
-                mark.go.transform.rotation = camTf.rotation;
-                mark.go.transform.localScale = new Vector3((editedMesh.IsInTriangleSet(point) ? 1.5f : 1) * tmpScale, tmpScale, tmpScale);
+                var go = mark.go;
+                var tf = go.transform;
+
+
+                go.SetActiveTo(true);
+                tf.position = worldPos;
+                tf.rotation = camTf.rotation;
+                tf.localScale = new Vector3((editedMesh.IsInTriangleSet(point) ? 1.5f : 1) * tmpScale, tmpScale, tmpScale);
 
                 var tmpRay = new Ray {origin = camTf.position};
 
-                tmpRay.direction = mark.go.transform.position - tmpRay.origin;
+                tmpRay.direction = tf.position - tmpRay.origin;
 
                 if ((Physics.Raycast(tmpRay, out hit, 1000)) && (!meshEditorIgnore.Contains(hit.transform.tag)))
                     mark.go.SetActiveTo(false);
@@ -580,7 +587,7 @@ namespace Playtime_Painter
             Grid?.UpdatePositions();
 
             if (Application.isPlaying)
-                SORT_AND_UPDATE_UI();
+                SortAndUpdate();
 
             _delayUpdate -= Time.deltaTime;
 
@@ -614,7 +621,7 @@ namespace Playtime_Painter
 
             if (e.type == EventType.KeyDown) {
                
-                PROCESS_KEYS();
+                ProcessKeyInputs();
 
                 switch (e.keyCode)
                 {
@@ -625,14 +632,14 @@ namespace Playtime_Painter
             }
             
             if (e.isMouse || (e.type == EventType.ScrollWheel)) 
-                RAYCAST_SELECT_MOUSEedit();
+                ProcessMouseActions();
            /* else if (_dragging) {
                 Debug.Log("Setting dirty manually");
                 editedMesh.dirty_Position = true;
                 _dragging = false;
             }*/
             
-            SORT_AND_UPDATE_UI();
+            SortAndUpdate();
 
             return;
         }
@@ -645,8 +652,8 @@ namespace Playtime_Painter
                 return;
             #endif
 
-            RAYCAST_SELECT_MOUSEedit();
-            PROCESS_KEYS();
+            ProcessMouseActions();
+            ProcessKeyInputs();
         }
         #endregion
         

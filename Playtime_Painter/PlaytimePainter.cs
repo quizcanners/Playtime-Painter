@@ -1546,7 +1546,7 @@ namespace Playtime_Painter {
 
         public const string OnlineManual = "https://docs.google.com/document/d/170k_CE-rowVW9nsAo3EUqVIAWlZNahC0ua11t1ibMBo/edit?usp=sharing";
 
-        private static readonly List<string> TextureEditorIgnore = new List<string> { "VertexEd", "toolComponent", "o" };
+        private static readonly List<string> TextureEditorIgnore = new List<string> { MeshManager.VertexEditorUiElementTag, MeshManager.ToolComponentTag, "o" };
 
         public static bool CanEditWithTag(string tag)
         {
@@ -1972,7 +1972,7 @@ namespace Playtime_Painter {
                                     var obj = gameObject.GetComponent($"pb_Object");
 
                                     if (ent || obj)
-                                        "PRO builder detected. Strip it using Actions in the Tools->ProBuilder menu."
+                                        "PRO builder detected. Strip it using Actions in the Tools/ProBuilder menu."
                                             .writeHint();
                                     else {
                                         if (Application.isPlaying)

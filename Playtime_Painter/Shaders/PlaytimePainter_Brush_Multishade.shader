@@ -16,7 +16,7 @@
 				#include "PlaytimePainter_cg.cginc"
 
 				#pragma multi_compile  BRUSH_SQUARE    BRUSH_2D    BRUSH_3D    BRUSH_3D_TEXCOORD2  BRUSH_DECAL
-				#pragma multi_compile  BLIT_MODE_ALPHABLEND    BLIT_MODE_ADD   BLIT_MODE_SUBTRACT   BLIT_MODE_COPY   BLIT_MODE_SAMPLE_DISPLACE  BLIT_MODE_PROJECTION
+				#pragma multi_compile  BLIT_MODE_ALPHABLEND    BLIT_MODE_ADD   BLIT_MODE_SUBTRACT   BLIT_MODE_COPY   BLIT_MODE_SAMPLE_DISPLACE  //BLIT_MODE_PROJECTION
 				#pragma multi_compile  ____ TARGET_TRANSPARENT_LAYER
 
 				#pragma vertex vert
@@ -26,9 +26,9 @@
 					float4 pos : POSITION;
 					float4 texcoord : TEXCOORD0;
 					float4 worldPos : TEXCOORD1;
-					#if BLIT_MODE_PROJECTION
+				/*	#if BLIT_MODE_PROJECTION
 					float4 shadowCoords : TEXCOORD2;
-					#endif
+					#endif*/
 					float2 srcTexAspect : TEXCOORD3;
 				};
 
@@ -67,9 +67,9 @@
 
 					o.texcoord.zw = o.texcoord.xy - 0.5;
 
-					#if BLIT_MODE_PROJECTION
+					/*#if BLIT_MODE_PROJECTION
 					o.shadowCoords = mul(pp_ProjectorMatrix, o.worldPos);
-					#endif
+					#endif*/
 
 					return o;
 				}
@@ -88,9 +88,9 @@
 					float2 suv = _SourceTexture_TexelSize.zw;
 					o.srcTexAspect = max(1, float2(suv.y / suv.x, suv.x / suv.y));
 
-					#if BLIT_MODE_PROJECTION
+					/*#if BLIT_MODE_PROJECTION
 					o.shadowCoords = mul(pp_ProjectorMatrix, o.worldPos);
-					#endif
+					#endif*/
 
 					return o;
 				}
@@ -106,11 +106,11 @@
 
 					#if BRUSH_3D || BRUSH_3D_TEXCOORD2
 
-						#if BLIT_MODE_PROJECTION
+						/*#if BLIT_MODE_PROJECTION
 							float alpha = prepareAlphaSphere(o.shadowCoords.xy, o.worldPos.xyz);
-						#else
+						#else*/
 							float alpha = prepareAlphaSphere(o.texcoord, o.worldPos.xyz);
-						#endif
+						//#endif
 
 						clip(alpha - 0.000001);
 					#endif
@@ -148,7 +148,7 @@
 						_brushColor.g = (_brushSamplingDisplacement.y - o.texcoord.y - _brushPointedUV_Untiled.w) / 2 + 0.5;
 					#endif
 
-					#if BLIT_MODE_PROJECTION
+					/*#if BLIT_MODE_PROJECTION
 
 						alpha *= ProjectorSquareAlpha(o.shadowCoords);
 
@@ -165,9 +165,9 @@
 
 						return float4(0, 0, 0, 0);
 
-					#endif
+					#endif*/
 
-					#if BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY || BLIT_MODE_SAMPLE_DISPLACE || BLIT_MODE_PROJECTION
+					#if BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY || BLIT_MODE_SAMPLE_DISPLACE //|| BLIT_MODE_PROJECTION
 
 					#if (BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY) && TARGET_TRANSPARENT_LAYER
 						return AlphaBlitTransparent(alpha, _brushColor,  o.texcoord.xy);

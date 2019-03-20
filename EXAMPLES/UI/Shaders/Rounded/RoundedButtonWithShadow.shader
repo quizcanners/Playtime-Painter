@@ -2,7 +2,8 @@
 	
 	Properties{
 		[PerRendererData] _MainTex("Albedo (RGB)", 2D) = "black" {}
-		_Edges("Softness", Range(0,10)) = 0.5
+		_Shadow("Shadow", Range(0,15)) = 0.5
+		_Edges ("Button Sharpness", Range(0,1)) = 0.5
 	}
 
 	Category{
@@ -44,6 +45,7 @@
 					float4 color: COLOR;
 				};
 
+				float _Shadow;
 				float _Edges;
 
 				v2f vert(appdata_full v) {
@@ -55,13 +57,13 @@
 					o.color =			v.color;
 
 					o.texcoord.zw =		v.texcoord1.xy;
-					o.texcoord.z =		_Edges;
+					o.texcoord.z =		_Shadow;
 					o.projPos.xy =		v.normal.xy;
 					o.projPos.zw =		max(0, float2(v.texcoord1.x, -v.texcoord1.x));
 
 					o.precompute.w =	1 / (1.0001 - o.texcoord.w);
 					o.precompute.xy =	1 / (1.0001 - o.projPos.zw);
-					o.precompute.z =	(1 + o.texcoord.z *  (16 - _Edges * 15));
+					o.precompute.z =	(1 + o.texcoord.z *  (16 - _Shadow * 15));
 
 					o.offUV.xy =		(o.texcoord.xy - 0.5)*2;
 					o.offUV.z =			saturate((o.color.a - 0.8) * 5);
@@ -93,9 +95,11 @@
 
 					float4 col = i.color;
 
-					float button = pow(clipp, _Edges + 1);
+					float button = pow(clipp, 1 + _Shadow);
 
-					float inner = min(1, button * 1024) * saturate((1 - (1 - clipp) * 10) * 10);
+					float inn = 1 + 10 * _Edges;
+
+					float inner = min(1, button * 1024) * saturate((1 - (1 - clipp) * 10) * inn);
 
 					col.rgb *= inner;
 					

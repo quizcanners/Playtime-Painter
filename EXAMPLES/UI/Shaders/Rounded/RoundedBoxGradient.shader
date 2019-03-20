@@ -2,7 +2,7 @@
 {
 	Properties{
 		[PerRendererData][NoScaleOffset]_MainTex("Noise (RGB)", 2D) = "gray" {}
-		[NoScaleOffset]_NoiseTex("Albedo (RGB)", 2D) = "gray" {}
+		//[NoScaleOffset]_NoiseTex("Albedo (RGB)", 2D) = "gray" {}
 		_Edges("Sharpness", Range(0,1)) = 0.5
 		_ColorC("Center", Color) = (1,1,1,1)
 		_ColorE("Edge", Color) = (1,1,1,1)
@@ -37,6 +37,7 @@
 
 				#pragma multi_compile_instancing
 				#pragma multi_compile ____  _UNLINKED 
+				#pragma multi_compile ___ USE_NOISE_TEXTURE
 
 				#pragma shader_feature _GRAD_HOR _GRAD_VERT 
 				#pragma shader_feature _GRADS_ONCE _GRADS_MIRROR
@@ -54,7 +55,8 @@
 				float _Edges;
 				float4 _ColorC;
 				float4 _ColorE;
-				sampler2D _NoiseTex;
+				sampler2D _Global_Noise_Lookup;
+				//sampler2D _NoiseTex;
 
 				v2f vert(appdata_full v) {
 					v2f o;
@@ -104,16 +106,29 @@
 					float mid = forGrad.x;
 					#endif
 
-					float4 noise = tex2Dlod(_NoiseTex, float4(o.offUV.zw,0,0));
+					mid *= 2;
 
-					#ifdef UNITY_COLORSPACE_GAMMA
+					mid = (mid*mid)/4;
+
+
+#ifdef UNITY_COLORSPACE_GAMMA
 					_ColorC.rgb *= _ColorC.rgb;
 					_ColorE.rgb *= _ColorE.rgb;
-					#endif
+#endif
+
+					#if USE_NOISE_TEXTURE
+
+					float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
 
 					noise.xy = (noise.xy -0.5) * 0.01;
 
-					o.color.rgb = _ColorE.rgb * (mid+ noise.x) +_ColorC.rgb * (1-mid+ noise.y);
+					o.color.rgb = _ColorE.rgb * (mid + noise.x) + _ColorC.rgb * (1 - mid + noise.y);
+
+					#else
+
+					o.color.rgb = _ColorE.rgb * (mid) + _ColorC.rgb * (1 - mid);
+
+					#endif
 
 					#ifdef UNITY_COLORSPACE_GAMMA
 					o.color.rgb = sqrt(o.color.rgb);

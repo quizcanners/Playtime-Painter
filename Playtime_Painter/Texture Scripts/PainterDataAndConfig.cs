@@ -448,7 +448,7 @@ namespace Playtime_Painter
                 if ("Lists".enter(ref inspectedItems, 11).nl(ref changed))
                     changed |= InspectData();
 
-                changed |= "Downloads".enter_Inspect(PainterCamera.DownloadManager, ref inspectedItems, 12).nl(ref changed);
+                "Downloads".enter_Inspect(PainterCamera.DownloadManager, ref inspectedItems, 12).nl(ref changed);
             }
             else
                 inspectedItems = -1;
@@ -459,12 +459,12 @@ namespace Playtime_Painter
 
                 var gotDefine = EnablePainterForBuild.GetDefine();
 
-                    if ("Enable Painter for Playtime & Build".toggleIcon(ref gotDefine).nl())
-                        EnablePainterForBuild.SetDefine(gotDefine);
+                if ("Enable Painter for Playtime & Build".toggleIcon(ref gotDefine).nl())
+                    EnablePainterForBuild.SetDefine(gotDefine);
 
                 if (gotDefine)
-                    ("In Tools->Playtime_Painter the folder Shaders should be moved into folder Resources so all the " +
-                        "painting shaders will be build with the player. Ignore if you already done this.").writeHint();
+                    ("In Tools/Playtime_Painter move Shaders folder Resources so all the " +
+                        "painting shaders will be build with the player. Ignore if it is already done.").writeHint();
 
                 if (gotDefine && "Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay).nl())
                     MeshManager.Inst.DisconnectMesh();
@@ -476,13 +476,15 @@ namespace Playtime_Painter
 
                     "Teaching Notifications".toggleIcon("Will show some notifications on the screen", ref showTeachingNotifications).nl();
 
-                    "Save Textures To".edit(110, ref texturesFolderName).nl();
+                    "Where to save content".nl(PEGI_Styles.ListLabel);
 
-                    "_Atlas Textures Sub folder".edit(150, ref atlasFolderName).nl();
+                    "Textures".edit(60, ref texturesFolderName).nl();
 
-                    "Save Materials To".edit(110, ref materialsFolderName).nl();
+                    "TileAble Atlases: {0}/".F(texturesFolderName).edit(120, ref atlasFolderName).nl();
 
-                    "Save Meshes To".edit(110, ref meshesFolderName).nl();
+                    "Materials".edit(60, ref materialsFolderName).nl();
+
+                    "Meshes".edit(60, ref meshesFolderName).nl();
                 }
 
                 if (icon.Discord.Click("Join Discord", 64))

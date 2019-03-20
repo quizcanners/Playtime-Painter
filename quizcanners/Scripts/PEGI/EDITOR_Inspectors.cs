@@ -116,22 +116,33 @@ namespace PlayerAndEditorGUI {
     public class PEGI_StylesDrawer : PEGI_Inspector<PEGI_Styles>
     {
 
-#if PEGI
+#if   NO_PEGI
+        [MenuItem("Tools/" + "PEGI" + "/Enable")]
+        public static void EnablePegi() {
+            UnityUtils.SetDefine("NO_PEGI", false);
+        }
+#else 
+
+
+#if   PEGI
         [MenuItem("Tools/" + "PEGI" + "/Disable")]
-        public static void DisablePegi()
-        {
+        public static void DisablePegi() {
             UnityUtils.SetDefine("PEGI", false);
-            UnityUtils.SetDefine("NO_PEGI", true);
         }
 #else
+
         [MenuItem("Tools/" + "PEGI" + "/Enable")]
-        public static void EnablePegi()
-        {
+        public static void EnablePegi() {
             UnityUtils.SetDefine("PEGI", true);
-            UnityUtils.SetDefine("NO_PEGI", false);
+        }
+
+        [MenuItem("Tools/" + "PEGI" + "/Disable")]
+        public static void DisablePegi() {
+            UnityUtils.SetDefine("NO_PEGI", true);
         }
 #endif
 
+#endif
     }
 
     [CustomEditor(typeof(PEGI_SimpleInspectorsBrowser))]
@@ -139,5 +150,5 @@ namespace PlayerAndEditorGUI {
 
 
 #endif
-}
+    }
 
