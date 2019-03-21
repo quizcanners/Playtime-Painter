@@ -107,6 +107,24 @@ namespace QuizCannersUtilities {
 
         #endregion
 
+        #region Rect Transform
+
+        public static void SetPivotTryKeepPosition(this RectTransform rectTransform, float pivotX, float pivotY) =>
+            rectTransform.SetPivotTryKeepPosition(new Vector2(pivotX, pivotY)); 
+        
+
+            public static void SetPivotTryKeepPosition(this RectTransform rectTransform, Vector2 pivot)
+        {
+            if (!rectTransform) return;
+            var size = rectTransform.rect.size;
+            var deltaPivot = rectTransform.pivot - pivot;
+            var deltaPosition = new Vector3(deltaPivot.x * size.x, deltaPivot.y * size.y) * rectTransform.localScale.x;
+            rectTransform.pivot = pivot;
+            rectTransform.localPosition -= deltaPosition;
+        }
+
+        #endregion
+
         #region Components & GameObjects
 
         public static T Instantiate<T>(string name = null) where T : MonoBehaviour

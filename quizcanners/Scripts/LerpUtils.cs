@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace QuizCannersUtilities
 {
@@ -1325,15 +1327,17 @@ namespace QuizCannersUtilities
 
         public static bool LerpAngle_bySpeed(ref float from, float to, float speed)
         {
-            float dist = Mathf.Abs(Mathf.DeltaAngle(from, to));
-            if (dist > 0)
-            {
-                float portion = speed.SpeedToPortion(dist);
-                from = Mathf.LerpAngle(from, to, portion);
-                return true;
-            }
+            var dist = Mathf.Abs(Mathf.DeltaAngle(from, to));
+            if (dist <= float.Epsilon) return false;
+            var portion = speed.SpeedToPortion(dist);
+            from = Mathf.LerpAngle(from, to, portion);
+            return true;
+        }
 
-            return false;
+        public static Vector2 LerpBySpeed(this Vector2 from, float toX, float toY, float speed)
+        {
+            var to = new Vector2(toX, toY);
+            return Vector2.LerpUnclamped(from, to, speed.SpeedToPortion(Vector2.Distance(from, to)));
         }
 
         public static Vector2 LerpBySpeed(this Vector2 from, Vector2 to, float speed) =>

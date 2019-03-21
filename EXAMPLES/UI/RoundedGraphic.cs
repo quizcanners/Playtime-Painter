@@ -23,7 +23,13 @@ namespace Playtime_Painter.Examples
         #region Shader MGMT
 
         public bool feedPositionData = true;
-        
+
+        [SerializeField] private Rect atlasedUVs = new Rect(0,0,1,1);
+
+        private enum PositionDataType { ScreenPosition, AtlasPosition }
+
+        [SerializeField] private PositionDataType _positionDataType;
+
         [SerializeField] private float[] _roundedCorners = new float[1];
         
         private float GetCorner(int index) => _roundedCorners[index % _roundedCorners.Length];
@@ -64,6 +70,7 @@ namespace Playtime_Painter.Examples
             var rt = rectTransform;
             var piv = rt.pivot;
             var rectSize = rt.rect.size;
+           
             var corner1 = (Vector2.zero - piv) * rectSize;
             var corner2 = (Vector2.one - piv) * rectSize;
 
@@ -73,21 +80,55 @@ namespace Playtime_Painter.Examples
 
             var pos = Vector2.zero;
 
-            if (feedPositionData)
-            {
+            if (feedPositionData) {
                 var myCanvas = canvas;
                 pos = RectTransformUtility.WorldToScreenPoint(IsOverlay ? null : (myCanvas ? myCanvas.worldCamera : null), rt.position);
-                pos.Scale(new Vector2(1f / Screen.width, 1f / Screen.height));
+               
+            }
+            var rctS = rectSize;
+
+            rctS = new Vector2(Mathf.Max(0, (rctS.x - rctS.y) / rctS.x), Mathf.Max(0, (rctS.y - rctS.x) / rctS.y));
+
+            var scaleToSided = rctS.x - rctS.y; // If x>0 - positive, else - negative
+
+            var feedAtlasedPosition = feedPositionData && _positionDataType == PositionDataType.AtlasPosition;
+
+            float atlasedAspectX = 0;
+            
+            var sp = sprite;
+            if (sp) {
+                var tex = sp.texture;
+
+                var texturePixelSize = new Vector2(tex.width, tex.height);
+
+                var pixelsToShow = texturePixelSize;
+ 
+                if (feedAtlasedPosition)
+                    pixelsToShow *= new Vector2( (atlasedUVs.width - atlasedUVs.x), (atlasedUVs.height - atlasedUVs.y));
+                
+                var sizeByPixels = rectSize / pixelsToShow;
+
+                var scaleX = Mathf.Max(0, (sizeByPixels.y - sizeByPixels.x) / sizeByPixels.y);
+
+                var truePixSizeX = (rectSize.x * canvas.scaleFactor); 
+                
+                atlasedAspectX = (pixelsToShow.x * (1f - scaleX)) / truePixSizeX;
+                
+                if (feedAtlasedPosition) {
+                    var atlasedOffCenter = (new Vector2(atlasedUVs.width + atlasedUVs.x, atlasedUVs.height + atlasedUVs.y)  - Vector2.one)*0.5f;
+
+                    pos -= atlasedOffCenter * texturePixelSize / atlasedAspectX;
+                }
             }
 
-            rectSize = new Vector2(Mathf.Max(0, (rectSize.x - rectSize.y) / rectSize.x), Mathf.Max(0, (rectSize.y - rectSize.x) / rectSize.y));
+            if (feedPositionData)
+                pos.Scale(new Vector2(1f / Screen.width, 1f / Screen.height));
+            
+            vertex.normal = new Vector3(pos.x, pos.y, atlasedAspectX);
 
-            var scaleToSided = rectSize.x - rectSize.y; // If x>0 - positive, else - negative
-
-            vertex.normal = new Vector4(pos.x, pos.y, scaleToSided, 0);
-            vertex.uv1 = new Vector2(scaleToSided, GetCorner(0));  // Replaced Edge smoothness with Scale
+            vertex.uv1 = new Vector2(scaleToSided, GetCorner(0));  
             vertex.color = color;
-
+            
             vertex.uv0 = new Vector2(0, 0);
             vertex.position = new Vector2(corner1.x, corner1.y);
             vh.AddVert(vertex);
@@ -96,12 +137,12 @@ namespace Playtime_Painter.Examples
             vertex.uv1.y = GetCorner(1);
             vertex.position = new Vector2(corner1.x, corner2.y);
             vh.AddVert(vertex);
-
+            
             vertex.uv0 = new Vector2(1, 1);
             vertex.uv1.y = GetCorner(2);
             vertex.position = new Vector2(corner2.x, corner2.y);
             vh.AddVert(vertex);
-
+            
             vertex.uv0 = new Vector2(1, 0);
             vertex.uv1.y = GetCorner(3);
             vertex.position = new Vector2(corner2.x, corner1.y);
@@ -122,7 +163,7 @@ namespace Playtime_Painter.Examples
                 //0    5,10   3
 
                 var cornMid = (corner1 + corner2) * 0.5f;
-
+                
                 vertex.uv1.y = GetCorner(0);
                 vh.AddVert(vertex.Set(0, 0.5f, corner1, cornMid)); //4
                 vh.AddVert(vertex.Set(0.5f, 0, cornMid, corner1)); //5
@@ -183,25 +224,17 @@ namespace Playtime_Painter.Examples
 
         private static List<Shader> _compatibleShaders;
 
-        public static List<Shader> CompatibleShaders
-        {
-            get
-            {
-                if (_compatibleShaders == null)
-                {
-                    _compatibleShaders = new List<Shader>()
-                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/BumpedButton"))
-                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Box"))
-                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/PixelPerfect"))
-                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Outline"))
-                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/ButtonWithShadow"))
-                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Shadow"))
-                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Gradient"))
-                        .TryAdd(Shader.Find("Playtime Painter/UI/PixelLine"));
-                }
-                return _compatibleShaders;
-            }
-        }
+        public static List<Shader> CompatibleShaders =>
+            _compatibleShaders ?? (_compatibleShaders = new List<Shader>()
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/BumpedButton"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Box"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/PixelPerfect"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Outline"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/ButtonWithShadow"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Shadow"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Gradient"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/PreserveAspect"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/PixelLine")));
 
         [SerializeField] private bool _showModules;
         [SerializeField] private int _inspectedModule;
@@ -218,11 +251,14 @@ namespace Playtime_Painter.Examples
             
             var changed = false;
 
-            var usesPosition = false;
+            var expectedScreenPosition = false;
+
+            var expectedAtlasedPosition = false;
 
             if (!_showModules)
             {
 
+                #region Material Tags 
                 if (mat)
                 {
                     var pixPfTag = mat.Get(ShaderTags.PixelPerfectUi);
@@ -232,7 +268,10 @@ namespace Playtime_Painter.Examples
                     else
                     {
 
-                        usesPosition = pixPfTag.SameAs("Position");
+                        expectedScreenPosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.Position.NameForDisplayPEGI);
+
+                        if (!expectedScreenPosition)
+                        expectedAtlasedPosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.AtlasedPosition.NameForDisplayPEGI);
 
                         if (!can)
                             "No Canvas".writeWarning();
@@ -254,9 +293,20 @@ namespace Playtime_Painter.Examples
                                 if ("Fix Canvas ".Click().nl())
                                     can.additionalShaderChannels |= AdditionalCanvasShaderChannels.Normal;
                             }
+
+                            if (can.renderMode == RenderMode.WorldSpace) {
+                                "Rounded UI isn't working on world space UI yet.".writeWarning();
+                                if ("Change to Overlay".Click())
+                                    can.renderMode = RenderMode.ScreenSpaceOverlay;
+                                if ("Change to Camera".Click())
+                                    can.renderMode = RenderMode.ScreenSpaceCamera;
+                                pegi.nl();
+                            }
+
                         }
                     }
                 }
+                #endregion
 
                 var linked = LinkedCorners;
 
@@ -268,21 +318,19 @@ namespace Playtime_Painter.Examples
                 if (pegi.toggle(ref linked, icon.Link, icon.UnLinked).changes(ref changed))
                     LinkedCorners = linked;
 
-                for (var i = 0; i < _roundedCorners.Length; i++)
-                {
+                for (var i = 0; i < _roundedCorners.Length; i++) {
                     var crn = _roundedCorners[i];
 
-                    if ("Corner{0}".F(linked ? "s" : (" " + i.ToString())).edit(90, ref crn, 0, 1f).nl(ref changed))
+                    if ("Corner{0}".F(linked ? "s" : (" " + i)).edit(90, ref crn, 0, 1f).nl(ref changed))
                         _roundedCorners[i] = crn;
                 }
 
                 pegi.nl();
                 
-                if (mat)
-                {
+                if (mat) {
 
-                    if (!Application.isPlaying)
-                    {
+                    if (!Application.isPlaying) {
+
                         var path = mat.GetAssetFolder();
                         if (path.IsNullOrEmpty())
                             "Material is not saved as asset. Click COPY next to it to save as asset".writeHint();
@@ -296,8 +344,7 @@ namespace Playtime_Painter.Examples
                 if (pegi.edit(ref mat, 60).changes(ref changed) || pegi.ClickDuplicate(ref mat, gameObject.name).nl(ref changed))
                     material = mat;
 
-                if (mat)
-                {
+                if (mat) {
 
                     if ("Shaders".select(60, ref shad, CompatibleShaders, false, true).changes(ref changed))
                         mat.shader = shad;
@@ -308,21 +355,47 @@ namespace Playtime_Painter.Examples
 
                 pegi.nl();
 
-                if (usesPosition || feedPositionData)
-                    "Position Data".toggleIcon(ref feedPositionData).changes(ref changed);
+                #region Position Data
 
-                if (!usesPosition && feedPositionData)
-                {
-                    "Shader doesn't have PixelPerfectUI = Position Tag. Position updates may not be needed".write();
-                    icon.Warning.write("Unnecessary data");
+                if (expectedScreenPosition || expectedAtlasedPosition || feedPositionData) {
+                    "Position Data".toggleIcon(ref feedPositionData, true).changes(ref changed);
+                    if (feedPositionData) {
+                        "Position: ".editEnum(60, ref _positionDataType).nl();
+
+                        if (_positionDataType == PositionDataType.AtlasPosition){
+
+                            if (expectedScreenPosition)
+                                "Shader is expecting Screen Position".writeWarning();
+                            else if (!LinkedCorners)
+                                "Unlinked corners don't support the Atlased UVs yet".writeWarning();
+                        } else if (expectedAtlasedPosition)
+                            "Shader is expecting Atlased Position".writeWarning();
+
+                    }
+
+                    pegi.nl();
                 }
 
-                pegi.nl();
+                if (feedPositionData)  {
+                    if (!expectedScreenPosition && !expectedAtlasedPosition)
+                        "Shader doesn't have any PixelPerfectUI Position Tags. Position updates may not be needed".writeWarning();
+                 
+                        pegi.nl();
+
+                        if (_positionDataType == PositionDataType.AtlasPosition)
+                        {
+                            "UV:".edit(ref atlasedUVs).nl(ref changed);
+                            pegi.edit01(ref atlasedUVs).nl(ref changed);
+                        }
+
+                }
+
+                #endregion
 
                 var rt = raycastTarget;
                 if ("Click-able".toggleIcon("Is RayCast Target", ref rt).nl(ref changed))
                     raycastTarget = rt;
-
+                
                 if (rt)
                     "On Click".edit_Property(() => OnClick, this).nl(ref changed);
 
@@ -330,8 +403,7 @@ namespace Playtime_Painter.Examples
 
                 var noTag = spriteTag.IsNullOrEmpty();
 
-                if (noTag || !spriteTag.SameAs("Hide"))
-                {
+                if (noTag || !spriteTag.SameAs(ShaderTags.SpriteRoles.Hide.NameForDisplayPEGI)) {
 
                     if (noTag)
                         spriteTag = "Sprite";
@@ -403,8 +475,7 @@ namespace Playtime_Painter.Examples
 
         public float maxHoldForClick = 0.3f;
         public float maxMousePositionPixOffsetForClick = 20f;
-
-
+        
         [NonSerialized] private bool _mouseDown;
         [NonSerialized] private float _mouseDownTime;
         [NonSerialized] private Vector2 _mouseDownPosition;
@@ -555,14 +626,14 @@ namespace Playtime_Painter.Examples
 
             public virtual bool Update(RoundedGraphic target) => false;
 
-#region Inspect
-#if PEGI
+            #region Inspect
+            #if PEGI
             public override bool Inspect()
             {
                 return false;
             }
-#endif
-#endregion
+            #endif
+            #endregion
 
 #region Encode & Decode
             public override CfgEncoder Encode() => this.EncodeUnrecognized();
@@ -578,7 +649,24 @@ namespace Playtime_Painter.Examples
     public static partial class ShaderTags
     {
         public static readonly ShaderTag PixelPerfectUi = new ShaderTag("PixelPerfectUI");
+
+        public static class PixelPerfectUis
+        {
+            public static readonly ShaderTagValue Simple = new ShaderTagValue("Simple", PixelPerfectUi);
+            public static readonly ShaderTagValue Position = new ShaderTagValue("Position", PixelPerfectUi);
+
+            public static readonly ShaderTagValue AtlasedPosition =
+                new ShaderTagValue("AtlasedPosition", PixelPerfectUi);
+
+        }
+
+
         public static readonly ShaderTag SpriteRole = new ShaderTag("SpriteRole");
+
+        public static class SpriteRoles
+        {
+            public static readonly ShaderTagValue Hide = new ShaderTagValue("Hide", SpriteRole);
+        }
     }
 
     public static class RoundedUiExtensions  {

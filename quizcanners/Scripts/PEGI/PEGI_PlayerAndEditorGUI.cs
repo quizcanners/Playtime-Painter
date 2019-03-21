@@ -4042,6 +4042,43 @@ namespace PlayerAndEditorGUI {
 
         }
 
+        public static bool edit01(this string label, int width, ref Rect val)
+        {
+            label.nl(width);
+            return edit01(ref val);
+        }
+
+        public static bool edit01(ref Rect val)
+        {
+            var center = val.center;
+            var size = val.size;
+            
+            if (
+                "X".edit(30, ref center.x, 0, 1).nl() ||
+                "Y".edit(30, ref center.y, 0, 1).nl() ||
+                "W".edit(30, ref size.x, 0, 1).nl() ||
+                "H".edit(30, ref size.y, 0, 1).nl())
+            {
+                var half = size * 0.5f;
+                val.min = center - half;
+                val.max = center + half;
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool edit(this string label, ref Rect val) {
+            var v4 = val.ToVector4();
+
+            if (label.edit(ref v4)) {
+                val = v4.ToRect();
+                return true;
+            }
+
+            return false;
+        }
+
         public static bool edit(this string label, ref Vector4 val)
         {
 

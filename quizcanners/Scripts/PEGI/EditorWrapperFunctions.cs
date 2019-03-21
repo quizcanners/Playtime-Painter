@@ -705,7 +705,7 @@ namespace PlayerAndEditorGUI {
         {
             BeginCheckLine();
             
-            val = EditorGUILayout.Vector2Field(label, val);
+            val = EditorGUILayout.Vector4Field(label, val);
 
             return EndCheckLine();
         }

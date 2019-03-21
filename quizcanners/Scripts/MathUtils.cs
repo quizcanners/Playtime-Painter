@@ -240,6 +240,14 @@ namespace QuizCannersUtilities {
 
         public static Vector2 YX(this Vector2 vec) => new Vector2(vec.y, vec.x);
         
+        public static Vector2 ZW(this Vector4 vec) => new Vector2(vec.z, vec.w);
+
+        public static Vector2 XY(this Vector4 vec) => new Vector2(vec.x, vec.y);
+
+        public static Vector2 XW(this Vector4 vec) => new Vector2(vec.x, vec.w);
+
+        public static Vector2 ZY(this Vector4 vec) => new Vector2(vec.z, vec.y);
+
         public static Vector2 Clamp01(this Vector2 v2) {
             v2.x = Mathf.Clamp01(v2.x);
             v2.y = Mathf.Clamp01(v2.y);
@@ -329,6 +337,11 @@ namespace QuizCannersUtilities {
         public static Vector3 ToVector3(this Vector2 v2, float z = 0) => new Vector3(v2.x, v2.y, z);
 
         public static Vector4 ToVector4(this Vector2 v2xy, Vector2 v2zw) => new Vector4(v2xy.x, v2xy.y, v2zw.x, v2zw.y);
+
+        public static Vector4 ToVector4(this Rect rect) => new Vector4(rect.x, rect.y, rect.width, rect.height);
+
+        public static Rect ToRect(this Vector4 v4) => new Rect(v4.x,v4.y,v4.z,v4.w);
+
         #endregion
     }
     
