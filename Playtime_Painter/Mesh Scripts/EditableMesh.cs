@@ -89,16 +89,14 @@ namespace Playtime_Painter {
 
             for (var i = 0; i < vCnt; i++)
             {
-                var v = new MeshPoint(vertices[i])
-                {
-                    smoothNormal = false
-                };
+                var v = new MeshPoint(vertices[i]);
+
                 meshPoints.Add(v);
                 var uv = new Vertex(meshPoints[i], gotUv1 ? actualMesh.uv[i] : Vector2.zero, gotUv2 ? actualMesh.uv2[i] : Vector2.zero);
                 if (gotColors)
                     uv.color = actualMesh.colors[i];
                 if (gotBoneWeights)
-                    v.boneWeight = actualMesh.boneWeights[i];
+                    uv.boneWeight = actualMesh.boneWeights[i];
             }
 
             shapes = new List<string>();
@@ -157,10 +155,8 @@ namespace Playtime_Painter {
             }
 
             for (var i = 0; i < vCnt; i++) {
-
                 var main = meshPoints[i];
-                for (var j = i + 1; j < vCnt; j++)
-                {
+                for (var j = i + 1; j < vCnt; j++) {
                     if (!((meshPoints[j].localPos - main.localPos).magnitude < float.Epsilon)) continue;
                     
                     Merge(i, j);
@@ -355,7 +351,8 @@ namespace Playtime_Painter {
         private int _nearestVertexCount = 50;
         private float _distanceLimit = 1;
         private const float NearTarget = 64;
-
+        
+        public readonly List<MeshPoint> _draggedVertices = new List<MeshPoint>();
         private readonly List<MeshPoint> _sortVerticesClose = new List<MeshPoint>();
         private readonly List<MeshPoint> _sortVerticesFar = new List<MeshPoint>();
         public CountlessCfg<Vertex> uvsByFinalIndex = new CountlessCfg<Vertex>();
@@ -934,6 +931,7 @@ namespace Playtime_Painter {
                     newUv = new Vertex(newVrt, uv, uv1);
                 else
                     newUv.SetUvIndexBy(uv, uv1);
+
                 tr.AssignWeightedData(newUv, w);
 
 

@@ -508,8 +508,14 @@ namespace Playtime_Painter {
             
             if (edMesh.gotBoneWeights) {
                 _boneWeights = new BoneWeight[vertexCount];
-                for (var i = 0; i < edMesh.meshPoints.Count; i++)
-                    _boneWeights[i] = edMesh.meshPoints[i].boneWeight;
+
+               // for (var i = 0; i < edMesh.meshPoints.Count; i++)
+                //    _boneWeights[i] = edMesh.meshPoints[i].boneWeight;
+
+                foreach (var vp in edMesh.meshPoints) 
+                    foreach (var uvi in vp.vertices)
+                        _boneWeights[uvi] = uvi.boneWeight;
+                
                 mesh.boneWeights = _boneWeights;
             }
 

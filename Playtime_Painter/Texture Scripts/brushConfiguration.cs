@@ -318,9 +318,19 @@ namespace Playtime_Painter {
 
             pegi.nl();
 
-            if (p.skinnedMeshRenderer && "Update Collider from Skinned Mesh".Click().nl())
-                p.UpdateColliderForSkinnedMesh();
-            
+            if (p.skinnedMeshRenderer) {
+                if ("Update Collider from Skinned Mesh".Click())
+                    p.UpdateColliderForSkinnedMesh();
+
+                ("To paint an object a collision detection is needed. Mesh Collider is not being animated. To paint it, update Mesh Collider with Update Collider button." +
+                 " For ingame painting it is preferable to use simple colliders like Speheres to avoid per frame updates for collider mesh."
+                    ).fullWindowDocumentationClick();
+
+                pegi.nl();
+
+            }
+
+
             var id = p.ImgMeta;
 
             var changed = false;

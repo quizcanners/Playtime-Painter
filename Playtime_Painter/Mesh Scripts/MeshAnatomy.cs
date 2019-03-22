@@ -19,7 +19,7 @@ namespace Playtime_Painter
         public List<Triangle> triangles = new List<Triangle>();
         public Vertex myLastCopy;
         public MeshPoint meshPoint;
-
+        public BoneWeight boneWeight;
 
         public bool SetColor(Color col)
         {
@@ -40,11 +40,11 @@ namespace Playtime_Painter
 
         #region Encode & Decode
         public override CfgEncoder Encode() {
-            var cody = new CfgEncoder();
-
-            cody.Add("i", finalIndex);
-            cody.Add_IfNotZero("uvi", uvIndex);
-            cody.Add_IfNotBlack("col", color);
+            var cody = new CfgEncoder()
+            .Add("i", finalIndex)
+            .Add_IfNotZero("uvi", uvIndex)
+            .Add_IfNotBlack("col", color)
+            .Add("bw", boneWeight);
 
             return cody;
         }
@@ -54,6 +54,7 @@ namespace Playtime_Painter
                 case "i": finalIndex = data.ToInt(); EditableMesh.decodedEditableMesh.uvsByFinalIndex[finalIndex] = this; break;
                 case "uvi": uvIndex = data.ToInt(); break;
                 case "col": color = data.ToColor(); break;
+                case "bw": boneWeight = data.ToBoneWeight(); break;
                 default: return false;
             }
             return true;
@@ -255,8 +256,6 @@ namespace Playtime_Painter
         public Vector3 localPos;
         public bool smoothNormal;
         public Vector4 shadowBake;
-       // public Countless<Vector3> anim;
-        public BoneWeight boneWeight;
         public List<List<BlendFrame>> shapes = new List<List<BlendFrame>>(); // not currently working
         public float edgeStrength;
         public int vertexGroup;
@@ -339,7 +338,7 @@ namespace Playtime_Painter
 
             .Add_IfNotZero("shad", shadowBake)
 
-            .Add("bw", boneWeight)
+         
 
             .Add_IfNotEpsilon("edge", edgeStrength)
             .Add_IfNotEmpty("bs", shapes)
@@ -357,7 +356,6 @@ namespace Playtime_Painter
                 case "pos": localPos = data.ToVector3(); break;
                 case "smth": smoothNormal = data.ToBool(); break;
                 case "shad": shadowBake = data.ToVector4(); break;
-                case "bw": boneWeight = data.ToBoneWeight(); break;
                 case "edge":  edgeStrength = data.ToFloat(); break;
                 case "bs": data.Decode_ListOfList(out shapes); break;
                 case "gr": vertexGroup = data.ToInt(); break;
@@ -907,7 +905,8 @@ namespace Playtime_Painter
             to.color = vertexes[0].color * weight.x + vertexes[1].color * weight.y + vertexes[2].color * weight.z;
             to.meshPoint.shadowBake = vertexes[0].meshPoint.shadowBake * weight.x + vertexes[1].meshPoint.shadowBake * weight.y + vertexes[2].meshPoint.shadowBake * weight.z;
             var nearest = (Mathf.Max(weight.x, weight.y) > weight.z)  ? (weight.x > weight.y ? vertexes[0] : vertexes[1]) : vertexes[2];
-            to.meshPoint.boneWeight = nearest.meshPoint.boneWeight; 
+
+            to.boneWeight = nearest.boneWeight; 
         }
 
         public void Replace(Vertex point, Vertex with)

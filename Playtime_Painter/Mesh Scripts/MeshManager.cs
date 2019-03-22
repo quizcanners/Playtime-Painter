@@ -180,7 +180,7 @@ namespace Playtime_Painter
 
         [NonSerialized] private bool _dragging;
 
-        public bool Dragging { get { return _dragging; } set { _dragging = value; if (value) DragDelay = 0.4f; } }
+        public bool Dragging { get { return _dragging; } set { _dragging = value; if (value) DragDelay = 0.2f; } }
         #endregion
 
         #region Vertex Operations
@@ -552,7 +552,7 @@ namespace Playtime_Painter
 
                 tmpRay.direction = tf.position - tmpRay.origin;
 
-                if ((Physics.Raycast(tmpRay, out hit, 1000)) && (!meshEditorIgnore.Contains(hit.transform.tag)))
+                if (Physics.Raycast(tmpRay, out hit, 1000) && (!meshEditorIgnore.Contains(hit.transform.tag)))
                     mark.go.SetActiveTo(false);
 
                 mark.textm.color = SameTriangleAsPointed(point) ? Color.white : Color.gray;
@@ -1146,6 +1146,23 @@ namespace Playtime_Painter
             {
                 if (PointedLine != null)
                     Line(PointedLine.points[0].meshPoint, PointedLine.points[1].meshPoint, Color.green);
+
+                var dv = EditedMesh._draggedVertices;
+
+                if (dv.Count > 0) {
+
+                    for (int i = 0; i < dv.Count; i++)
+                    {
+                        var a = dv[i];
+                        for (int j = 0; j < dv.Count; j++)
+                        {
+                            Line(a, dv[j], Color.cyan); //var b = dv[j];
+
+                        }
+                    }
+
+                }
+
 
                 for (int i = 0; i < Mathf.Min(verticesShowMax, editedMesh.meshPoints.Count); i++)
                 {

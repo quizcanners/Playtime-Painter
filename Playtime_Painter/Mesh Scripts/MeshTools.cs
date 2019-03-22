@@ -162,10 +162,11 @@ namespace Playtime_Painter
 
         public override bool ShowTriangles => _detectionMode == DetectionMode.Triangles;
 
-        private readonly List<MeshPoint> _draggedVertices = new List<MeshPoint>();
+        private static List<MeshPoint> _draggedVertices => EditedMesh._draggedVertices; // new List<MeshPoint>();
+
         private Vector3 _originalPosition;
 
-        public override bool ShowGrid => ShowVertices;
+        public override bool ShowGrid => true;
 
         public override void AssignText(MarkerWithText markers, MeshPoint point)
         {
@@ -486,7 +487,8 @@ namespace Playtime_Painter
                 
                 var delta = GridNavigator.onGridPos - _originalPosition;
 
-                if (!(delta.magnitude > 0)) return;
+                if (delta.magnitude == 0)
+                    return;
                 
                 m.TriVertices = 0;
 
