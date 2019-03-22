@@ -1,4 +1,7 @@
-﻿using UnityEngine;
+﻿#if UNITY_EDITOR
+using UnityEditor;
+#endif
+using UnityEngine;
 
 namespace PlayerAndEditorGUI
 {
@@ -153,7 +156,8 @@ namespace PlayerAndEditorGUI
             });
 
         #endregion
-        
+
+        #region Text
         static GUIStyle _wrappingText;
         public static GUIStyle WrappingText =>
             _wrappingText ?? (_wrappingText = new GUIStyle(GUI.skin.label)
@@ -170,6 +174,23 @@ namespace PlayerAndEditorGUI
                 wordWrap = true,
                 fontSize = 14,
             });
+        #endregion
+
+        #region Line
+
+        static GUIStyle _horizontalLine = new GUIStyle();
+
+        public static GUIStyle HorizontalLine =>
+            _horizontalLine ?? (_horizontalLine = new GUIStyle()
+            {
+#if UNITY_EDITOR
+                normal = {background = EditorGUIUtility.whiteTexture},
+#endif
+                margin = new RectOffset(0, 0, 4, 4),
+                fixedHeight = 1
+            });
+        
+        #endregion
 
         // Testing 
 

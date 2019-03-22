@@ -1027,7 +1027,7 @@ namespace Playtime_Painter {
             if (!PainterSystem.IsPlaytimeNowDisabled)
             {
 
-                changed |= _pluginsMeta.edit_List(ref PainterSystemManagerPluginBase.plugins, PainterSystemManagerPluginBase.all);
+                _pluginsMeta.edit_List(ref PainterSystemManagerPluginBase.plugins, PainterSystemManagerPluginBase.all).changes(ref changed);
 
                 if (!_pluginsMeta.Inspecting)
                 {

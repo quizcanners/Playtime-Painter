@@ -229,13 +229,10 @@ namespace PlayerAndEditorGUI {
 
             BeginCheckLine();
 
-            var cnt = new GUIContent
-            {
-                text = txt,
-                tooltip = hint
-            };
-
-            foldedOut = EditorGUILayout.Foldout(foldedOut, cnt, true);
+            textAndToolTip.text = txt;
+            textAndToolTip.tooltip = hint;
+          
+            foldedOut = EditorGUILayout.Foldout(foldedOut, textAndToolTip, true);
             EndCheckLine();
 
             return foldedOut; 
@@ -839,6 +836,9 @@ namespace PlayerAndEditorGUI {
 
 
         #region Property
+
+        private static GUIContent textImageTip = new GUIContent();
+
         public static bool edit_Property<T>(string label, Texture image, string tip, int width, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
         {
             var changes = false;
@@ -850,8 +850,10 @@ namespace PlayerAndEditorGUI {
             var member = ((MemberExpression)memberExpression.Body).Member;
             var name = member.Name;
 
-            var cont = new GUIContent(label, image, tip);
-
+            textImageTip.text = label;
+            textImageTip.image = image;
+            textImageTip.tooltip = tip;
+            
             var tps = serializedObject.FindProperty(name);
 
             if (tps == null) return changes;
@@ -859,9 +861,9 @@ namespace PlayerAndEditorGUI {
             EditorGUI.BeginChangeCheck();
 
             if (width < 1)
-                EditorGUILayout.PropertyField(tps, cont, true);
+                EditorGUILayout.PropertyField(tps, textImageTip, true);
             else
-                EditorGUILayout.PropertyField(tps, cont, true, GUILayout.MaxWidth(width));
+                EditorGUILayout.PropertyField(tps, textImageTip, true, GUILayout.MaxWidth(width));
 
             if (!EditorGUI.EndChangeCheck()) return changes;
 
@@ -926,30 +928,13 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        public static bool toggle(ref bool val, Texture2D TrueIcon, Texture2D FalseIcon, string tip, int width, GUIStyle style = null) {
-            var before = val;
-
-            if (style == null)
-                style = PEGI_Styles.ImageButton;
-
-
-            if (val)
-            {
-                if (Click(TrueIcon, tip, width, style)) val = false;
-            }
-            else if (Click(FalseIcon, tip, width, style)) val = true;
-            
-
-            return (before != val);
-        }
-
-        public static bool toggle(ref bool val, string text, string tip)
+        public static bool toggle(ref bool val, GUIContent cnt)
         {
             BeginCheckLine();
-            val = EditorGUILayout.Toggle(new GUIContent{ text = text,  tooltip = tip }, val);
-
+            val = EditorGUILayout.Toggle(cnt, val);
             return EndCheckLine();
         }
+
         #endregion
 
         #region Click
@@ -976,15 +961,11 @@ namespace PlayerAndEditorGUI {
             checkLine();
             return GUILayout.Button(content, style) && change;
         }
-        
-        public static bool Click(string label, string tip) => Click(new GUIContent {text = label, tooltip = tip});
 
-        public static bool Click(string label, string tip, GUIStyle style) => Click(new GUIContent { text = label, tooltip = tip},style);
-
-        public static bool Click(string label, string tip, int width, GUIStyle style)
+        public static bool Click(GUIContent content, int width, GUIStyle style)
         {
             checkLine();
-            return GUILayout.Button(new GUIContent { text = label, tooltip = tip }, style, GUILayout.MaxWidth(width)) && change;
+            return GUILayout.Button(content, style, GUILayout.MaxWidth(width)) && change;
         }
 
         public static bool Click(Texture image, int width, GUIStyle style = null)   {
@@ -995,17 +976,18 @@ namespace PlayerAndEditorGUI {
             return GUILayout.Button(image, style, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) && change;
         }
 
-        public static bool Click(Texture image, string tip, int width, GUIStyle style = null) => Click(image, tip, width, width, style);
-
-        public static bool Click(Texture image, string tip, int width, int height, GUIStyle style = null)
+        public static bool ClickImage(GUIContent cnt, int width, GUIStyle style = null) => ClickImage(cnt, width, width, style);
+        
+        public static bool ClickImage(GUIContent cnt, int width, int height, GUIStyle style = null)
         {
             if (style == null)
                 style = PEGI_Styles.ImageButton;
 
             checkLine();
 
-            return GUILayout.Button(new GUIContent { image = image, tooltip = tip}, style, GUILayout.MaxWidth(width+10), GUILayout.MaxHeight(height)).Dirty(); 
+            return GUILayout.Button(cnt, style, GUILayout.MaxWidth(width + 10), GUILayout.MaxHeight(height)).Dirty();
         }
+
         #endregion
 
         #region write
@@ -1021,28 +1003,21 @@ namespace PlayerAndEditorGUI {
             EditorGUILayout.ObjectField(field, typeof(T), false, GUILayout.MaxWidth(width));
         }
 
-        public static void write(Texture icon, int width) => write(icon, icon ? icon.name : "Null Icon", width, width);
- 
-        public static void write(Texture icon, string tip, int width) => write(icon, tip, width, width);
-      
-        public static void write(Texture icon, string tip, int width, int height)
-        {
+        public static void write(GUIContent cnt, int width, int height)  {
 
             checkLine();
-
             GUI.enabled = false;
             Color.clear.SetBgColor();
-            GUILayout.Button(new GUIContent {    image = icon, tooltip = tip}, PEGI_Styles.ImageButton ,GUILayout.MaxWidth(width+10), GUILayout.MaxHeight(height));
+            GUILayout.Button(cnt, PEGI_Styles.ImageButton, GUILayout.MaxWidth(width + 10), GUILayout.MaxHeight(height));
             pegi.PreviousBgColor();
             GUI.enabled = true;
-            
+
         }
-        
+
         public static void write(string text, int width)
         {
 
             checkLine();
-
             EditorGUILayout.LabelField(text, EditorStyles.miniLabel, GUILayout.MaxWidth(width));
         }
 
@@ -1058,11 +1033,11 @@ namespace PlayerAndEditorGUI {
             EditorGUILayout.LabelField(cnt, PEGI_Styles.WrappingText, GUILayout.MaxWidth(width));
         }
 
-        public static void write(string text, string tip) => write(new GUIContent { text = text, tooltip = tip});
-        
-        public static void write(string text, string tip, int width) => write(new GUIContent { text = text, tooltip = tip}, width);
-        
-        public static void write(string text) => write(text, PEGI_Styles.WrappingText);
+        public static void write(string text)
+        {
+            checkLine();
+            EditorGUILayout.LabelField(text, PEGI_Styles.WrappingText);
+        }
 
         public static void write(string text, GUIStyle style )  {
             checkLine();
@@ -1074,16 +1049,16 @@ namespace PlayerAndEditorGUI {
             EditorGUILayout.LabelField(text, style, GUILayout.MaxWidth(width));
         }
 
-        public static void write(string text, string hint, GUIStyle style)
+        public static void write(GUIContent cnt, int width, GUIStyle style)
         {
             checkLine();
-            EditorGUILayout.LabelField(new GUIContent(text, hint), style);
+            EditorGUILayout.LabelField(cnt, style, GUILayout.MaxWidth(width));
         }
 
-        public static void write(string text, string hint, int width , GUIStyle style)
+        public static void write(GUIContent cnt, GUIStyle style)
         {
             checkLine();
-            EditorGUILayout.LabelField(new GUIContent(text, hint), style, GUILayout.MaxWidth(width));
+            EditorGUILayout.LabelField(cnt, style);
         }
 
         public static void writeHint(string text, MessageType type)  {
@@ -1186,11 +1161,15 @@ namespace PlayerAndEditorGUI {
 
             }
 
+
+
             l.GetReordable(metas).DoLayoutList();
             return EditorGUI.EndChangeCheck();
         }
         
         private static void DrawHeader(Rect rect) => GUI.Label(rect, "Ordering {0} {1}s".F(_currentReorderedList.Count.ToString(), _currentReorderedType.ToPegiStringType()));
+
+        private static GUIContent textAndToolTip = new GUIContent();
 
         private static void DrawElement(Rect rect, int index, bool active, bool focused) {
             
@@ -1210,10 +1189,9 @@ namespace PlayerAndEditorGUI {
                 
                     var ty = el.GetType();
 
-                    var cont = new GUIContent {
-                        tooltip = ty.ToString(),
-                        text = el.ToPegiString()
-                    };
+                    textAndToolTip.text = ty.ToString();
+                    textAndToolTip.tooltip = el.ToPegiString();
+                 
 
                     var uo = el as Object;
                     if (uo)
@@ -1222,7 +1200,7 @@ namespace PlayerAndEditorGUI {
                         var go = mb ? mb.gameObject : uo as GameObject;
 
                         if (!go)
-                            EditorGUI.ObjectField(rect, cont, uo, _currentReorderedType, true);
+                            EditorGUI.ObjectField(rect, textAndToolTip, uo, _currentReorderedType, true);
                         else
                         {
                             var mbs = go.GetComponents<Component>();
@@ -1238,7 +1216,7 @@ namespace PlayerAndEditorGUI {
                                     _currentReorderedList[index] = mb;
                             }
                             else
-                                EditorGUI.ObjectField(rect, cont, uo, _currentReorderedType, true);
+                                EditorGUI.ObjectField(rect, textAndToolTip, uo, _currentReorderedType, true);
                         }
                     }
                     else
@@ -1248,14 +1226,14 @@ namespace PlayerAndEditorGUI {
                         {
 
                             rect.width = 100;
-                            EditorGUI.LabelField(rect, cont);
+                            EditorGUI.LabelField(rect, textAndToolTip);
                             rect.x += 100;
                             rect.width = 100;
 
                             if (select_Type(ref ty, _currentReorderedListTypes, rect))
                                 _currentReorderedList.TryChangeObjectType(index, ty, _listMetaData);
                         } else
-                            EditorGUI.LabelField(rect, cont);
+                            EditorGUI.LabelField(rect, textAndToolTip);
                     }
             }
             else
@@ -1264,15 +1242,14 @@ namespace PlayerAndEditorGUI {
                 
                 if (ed != null && ed.unrecognized) {
 
-                    if (_currentTaggedTypes != null) {
+                    if (_currentTaggedTypes != null)
+                    {
 
-                        var cont = new GUIContent {
-                            tooltip = "Select New Class",
-                            text = "UNREC {0}".F(ed.unrecognizedUnderTag)
-                        };
-
+                        textAndToolTip.text = "UNREC {0}".F(ed.unrecognizedUnderTag);
+                        textAndToolTip.tooltip = "Select New Class";
+                        
                         rect.width = 100;
-                        EditorGUI.LabelField(rect, cont);
+                        EditorGUI.LabelField(rect, textAndToolTip);
                         rect.x += 100;
                         rect.width = 100;
 

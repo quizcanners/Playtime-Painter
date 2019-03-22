@@ -452,19 +452,11 @@ namespace PlayerAndEditorGUI {
   
         public static void line(Color col)
         {
-        nl();
-
-            var horizontalLine = new GUIStyle();
-
-        #if UNITY_EDITOR
-            horizontalLine.normal.background = EditorGUIUtility.whiteTexture;
-        #endif
-            horizontalLine.margin = new RectOffset(0, 0, 4, 4);
-            horizontalLine.fixedHeight = 1;
+            nl();
 
             var c = GUI.color;
             GUI.color = col;
-            GUILayout.Box(GUIContent.none, horizontalLine);
+            GUILayout.Box(GUIContent.none, PEGI_Styles.HorizontalLine);
             GUI.color = c;
         }
 
@@ -630,7 +622,7 @@ namespace PlayerAndEditorGUI {
                     return false;
 
                 if (!popUpText.IsNullOrEmpty()) {
-                    popUpText.writeBig();
+                    popUpText.writeBig("Click the blue text below to close this toolTip. This is basically a tooltip for a tooltip. It is the world we are living in now.");
 
                     if (!relatedLink.IsNullOrEmpty() && relatedLinkName.Click(14))
                                 Application.OpenURL(relatedLink);
@@ -835,16 +827,51 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region WRITE
-        
+
+        #region GUI Contents
+        private static GUIContent imageAndTip = new GUIContent();
+
+        private static GUIContent ImageAndTip(Texture tex, string toolTip)
+        {
+            imageAndTip.image = tex;
+            imageAndTip.tooltip = toolTip;
+            return imageAndTip;
+        }
+
+        private static GUIContent ImageAndTip(Texture tex)
+        {
+            imageAndTip.image = tex;
+            imageAndTip.tooltip = tex ? tex.name : "Null Image";
+            return imageAndTip;
+        }
+
+        private static GUIContent textAndTip = new GUIContent();
+
+        private static GUIContent TextAndTip(string text)
+        {
+            textAndTip.text = text;
+            textAndTip.tooltip = text;
+            return textAndTip;
+        }
+
+        private static GUIContent TextAndTip(string text, string toolTip)
+        {
+            textAndTip.text = text;
+            textAndTip.tooltip = toolTip;
+            return textAndTip;
+        }
+        #endregion
+
         private const int letterSizeInPixels = 8;
 
+        private static int ApproximateLengthUnsafe(this string label) => letterSizeInPixels * label.Length;
+        
         private static int ApproximateLength(this string label) => label.IsNullOrEmpty() ? 1 : letterSizeInPixels * label.Length;
 
         private static int ApproximateLength(this string label, int otherElements) => Mathf.Min(label.IsNullOrEmpty() ? 1 : letterSizeInPixels * label.Length, Screen.width - otherElements);
 
         private static int RemainingLength(int otherElements) => Screen.width - otherElements;
-
-
+        
         #region Unity Object
         public static void write<T>(T field) where T : UnityEngine.Object {
         #if UNITY_EDITOR
@@ -887,7 +914,7 @@ namespace PlayerAndEditorGUI {
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                ef.write(img, width);
+                ef.write(ImageAndTip(img), width);
             
             else
 #endif
@@ -900,12 +927,12 @@ namespace PlayerAndEditorGUI {
             }
         }
 
-        public static void write(this Texture img, string tip, int width = defaultButtonSize)
+        public static void write(this Texture img, string toolTip, int width = defaultButtonSize)
         {
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                ef.write(img, tip, width);
+                ef.write(ImageAndTip(img, toolTip), width);
             
             else
 #endif
@@ -915,26 +942,26 @@ namespace PlayerAndEditorGUI {
 
                 SetBgColor(Color.clear);
 
-                img.Click(tip, width, width);
+                img.Click(toolTip, width, width);
 
                 RestoreBGcolor();
             }
 
         }
 
-        public static void write(this Texture img, string tip, int width, int height)
+        public static void write(this Texture img, string toolTip, int width, int height)
         {
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                ef.write(img, tip, width, height);
+                ef.write(ImageAndTip(img, toolTip), width, height);
             else
 #endif
             {
 
                 SetBgColor(Color.clear);
 
-                img.Click(tip, width, height);
+                img.Click(toolTip, width, height);
 
                 RestoreBGcolor();
 
@@ -943,126 +970,147 @@ namespace PlayerAndEditorGUI {
         }
 
         #endregion
-
+        
         public static void write(this icon icon, int size = defaultButtonSize) => write(icon.GetIcon(), size);
 
-        public static void write(this icon icon, string tip, int size = defaultButtonSize) => write(icon.GetIcon(), tip, size);
+        public static void write(this icon icon, string toolTip, int size = defaultButtonSize) => write(icon.GetIcon(), toolTip, size);
 
-        public static void write(this icon icon, string tip, int width, int height) => write(icon.GetIcon(), tip, width, height);
+        public static void write(this icon icon, string toolTip, int width, int height) => write(icon.GetIcon(), toolTip, width, height);
 
         public static void write(this string text)
         {
+            var cnt = TextAndTip(text);
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                ef.write(text, text);
+                ef.write(cnt);
             else
 #endif
             {
                 checkLine();
-                GUILayout.Label(text);
+                GUILayout.Label(cnt);
             }
 
         }
 
         public static void write(this string text, GUIStyle style)
         {
+            var cnt = TextAndTip(text);
+
         #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                ef.write(text, text, style);
+                ef.write(cnt, style);
             else
         #endif
             {
                 checkLine();
-                GUILayout.Label(text);
+                GUILayout.Label(cnt);
             }
         }
 
-        public static void write(this string text, string hint, GUIStyle style)
+        public static void write(this string text, string toolTip, GUIStyle style)
         {
+            textAndTip.text = text;
+            textAndTip.tooltip = toolTip;
+
+
         #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                ef.write(text, hint, style);
+                ef.write(textAndTip, style);
             else
         #endif
             {
                 checkLine();
-                var cont = new GUIContent() { text = text, tooltip = hint };
-                GUILayout.Label(cont, style);
+                GUILayout.Label(textAndTip, style);
             }
         }
 
         public static void write(this string text, int width, GUIStyle style)
         {
-        #if UNITY_EDITOR
+            textAndTip.text = text;
+            textAndTip.tooltip = text;
+
+#if UNITY_EDITOR
             if (!paintingPlayAreaGui)
             {
-                ef.write(text, width, style);
+                ef.write(textAndTip, width, style);
                 return;
             }
         #endif
             
             checkLine();
-            GUILayout.Label(new GUIContent() { text = text }, style, GUILayout.MaxWidth(width));
+            GUILayout.Label(textAndTip, style, GUILayout.MaxWidth(width));
             
         }
 
-        public static void write(this string text, string hint, int width, GUIStyle style)
+        public static void write(this string text, string toolTip, int width, GUIStyle style)
         {
-        #if UNITY_EDITOR
+
+            textAndTip.text = text;
+            textAndTip.tooltip = toolTip;
+
+            #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
             {
-                ef.write(text, hint, width, style);
+                ef.write(textAndTip, width, style);
                 return;
             }
-        #endif
+            #endif
             
             checkLine();
-            GUILayout.Label(new GUIContent() { text = text, tooltip = hint }, style, GUILayout.MaxWidth(width));
+            GUILayout.Label(textAndTip, style, GUILayout.MaxWidth(width));
             
         }
 
         public static void write(this string text, int width) => text.write(text, width);
 
-        public static void write(this string text, string tip)
+        public static void write(this string text, string toolTip)
         {
 
-        #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-            {
-                ef.write(text, tip, text.ApproximateLength());
+            textAndTip.text = text;
+            textAndTip.tooltip = toolTip;
+
+            #if UNITY_EDITOR
+            if (!paintingPlayAreaGui) {
+                ef.write(textAndTip);
                 return;
             }
-        #endif
+            #endif
             
             checkLine();
-            GUILayout.Label(new GUIContent() { text = text, tooltip = tip });
-    
+            GUILayout.Label(textAndTip);
         }
 
-        public static void write(this string text, string tip, int width)
-        {
-            if (width <= 0)
-                write(text, tip);
+        public static void write(this string text, string toolTip, int width)  {
 
-        #if UNITY_EDITOR
+            textAndTip.text = text;
+            textAndTip.tooltip = toolTip;
+            
+            #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
             {
-                ef.write(text, tip, width);
+                ef.write(textAndTip, width);
                 return;
             }
-        #endif
+            #endif
             
             checkLine();
-            GUILayout.Label(new GUIContent() { text = text, tooltip = tip }, GUILayout.MaxWidth(width));
+            GUILayout.Label(textAndTip, GUILayout.MaxWidth(width));
 
         }
 
         public static void writeBig(this string text)
         {
             text.write(PEGI_Styles.OverflowText);
-            pegi.nl();
+            nl();
         }
+
+        public static void writeBig(this string text, string toolTip)
+        {
+            text.write(toolTip, PEGI_Styles.OverflowText);
+            nl();
+        }
+
         public static bool write_ForCopy(string val) => edit(ref val);
         public static bool write_ForCopy(this string label, int width, string val) => edit(label, width, ref val);
         public static bool write_ForCopy(this string label, string val) => edit(label, ref val);
@@ -3303,14 +3351,17 @@ namespace PlayerAndEditorGUI {
             if (style == null)
                 style = PEGI_Styles.ClickableText;
 
+            textAndTip.text = label;
+            textAndTip.tooltip = hint;
+
         #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                return (width == -1 ? ef.Click(label, hint, style) : ef.Click(label, hint, width, style)).UnFocus().RestoreBGColor();
+                return (width == -1 ? ef.Click(textAndTip, style) : ef.Click(textAndTip, width, style)).UnFocus().RestoreBGColor();
         #endif
             
             checkLine();
-            var cont = new GUIContent() { text = label, tooltip = hint };
-            return (width ==-1 ? GUILayout.Button(cont, style) : GUILayout.Button(cont, style, GUILayout.MaxWidth(width))).DirtyUnFocus().PreviousBgColor();
+
+            return (width ==-1 ? GUILayout.Button(textAndTip, style) : GUILayout.Button(textAndTip, style, GUILayout.MaxWidth(width))).DirtyUnFocus().PreviousBgColor();
         }
 
         public static bool ClickUnFocus(this Texture tex, int width = defaultButtonSize)
@@ -3326,16 +3377,10 @@ namespace PlayerAndEditorGUI {
         }
 
         public static bool ClickUnFocus(this Texture tex, string tip, int width = defaultButtonSize) =>
-        #if UNITY_EDITOR
-            !paintingPlayAreaGui ? ef.Click(tex, tip, width).UnFocus() :
-        #endif
              Click(tex, tip, width).UnFocus();
-        
+
         public static bool ClickUnFocus(this Texture tex, string tip, int width, int height) =>
-        #if UNITY_EDITOR
-              !paintingPlayAreaGui ? ef.Click(tex, tip, width, height).UnFocus() :
-        #endif
-            Click(tex, tip, width, height).UnFocus();
+                Click(tex, tip, width, height).UnFocus();
         
         public static bool ClickUnFocus(this string text)
         {
@@ -3348,18 +3393,34 @@ namespace PlayerAndEditorGUI {
             return GUILayout.Button(text, GUILayout.MaxWidth(maxWidthForPlaytimeButtonText)).DirtyUnFocus();
         }
 
-        public static bool Click(this string label, int fontSize) => new GUIContent() { text = label }.Click(PEGI_Styles.ScalableBlueText(fontSize));
+        public static bool Click(this string label, int fontSize)
+        {
+            textAndTip.text = label;
+            textAndTip.tooltip = label;
+            return textAndTip.ClickText(PEGI_Styles.ScalableBlueText(fontSize));
+        }
 
-        public static bool Click(this string label, string hint, int fontSize) => new GUIContent() { text = label, tooltip = hint}.Click(PEGI_Styles.ScalableBlueText(fontSize));
+        public static bool Click(this string label, string hint, int fontSize) => TextAndTip(label, hint).ClickText(PEGI_Styles.ScalableBlueText(fontSize));
         
-        public static bool Click(this string label, GUIStyle style) => new GUIContent() {text = label}.Click(style); 
+        public static bool Click(this string label, GUIStyle style) => TextAndTip(label).ClickText(style); 
         
-        public static bool Click(this GUIContent content, GUIStyle style)
+        private static bool ClickText(this GUIContent content, GUIStyle style)
         {
 
             #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
                 return ef.Click(content, style);
+            #endif
+            checkLine();
+            return GUILayout.Button(content, style, GUILayout.MaxWidth(maxWidthForPlaytimeButtonText)).Dirty();
+        }
+
+        private static bool ClickImage(this GUIContent content, int width, GUIStyle style)
+        {
+
+            #if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.ClickImage(content, width, style);
             #endif
             checkLine();
             return GUILayout.Button(content, style, GUILayout.MaxWidth(maxWidthForPlaytimeButtonText)).Dirty();
@@ -3381,12 +3442,13 @@ namespace PlayerAndEditorGUI {
         
         public static bool Click(this string text, string tip)
         {
+            var cnt = TextAndTip(text, tip);
             #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                return ef.Click(text, tip);
+                return ef.Click(cnt);
             #endif
             checkLine();
-            return GUILayout.Button(new GUIContent() { text = text, tooltip = tip }, GUILayout.MaxWidth(maxWidthForPlaytimeButtonText)).Dirty();
+            return GUILayout.Button(cnt, GUILayout.MaxWidth(maxWidthForPlaytimeButtonText)).Dirty();
         }
 
         private static Texture GetTexture_orEmpty(this Sprite sp) => sp ? sp.texture : icon.Empty.GetIcon();
@@ -3418,27 +3480,30 @@ namespace PlayerAndEditorGUI {
         public static bool Click(this Texture img, string tip, int size = defaultButtonSize)  {
 
             if (!img) img = icon.Empty.GetIcon();
-        
-        #if UNITY_EDITOR
+
+            var cnt = ImageAndTip(img, tip);
+
+            #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                return ef.Click(img, tip, size);
-        #endif
+                return ef.ClickImage(cnt, size);
+            #endif
             
                 checkLine();
-                return GUILayout.Button(new GUIContent(img, tip), GUILayout.MaxWidth(size + 5), GUILayout.MaxHeight(size)).Dirty();
-
+                return GUILayout.Button(cnt, GUILayout.MaxWidth(size + 5), GUILayout.MaxHeight(size)).Dirty();
         }
-
+        
         public static bool Click(this Texture img, string tip, int width, int height)
         {
             if (!img) img = icon.Empty.GetIcon();
 
-        #if UNITY_EDITOR
+            var cnt = ImageAndTip(img, tip);
+
+#if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                return ef.Click(img, tip, width, height);
+                return ef.ClickImage(cnt, width, height);
         #endif
                 checkLine();
-                return GUILayout.Button(new GUIContent(img, tip), GUILayout.MaxWidth(width), GUILayout.MaxHeight(height)).Dirty();
+                return GUILayout.Button(cnt, GUILayout.MaxWidth(width), GUILayout.MaxHeight(height)).Dirty();
         }
 
         public static bool Click(this icon icon) => Click(icon.GetIcon(), icon.ToPegiString());
@@ -3664,14 +3729,14 @@ namespace PlayerAndEditorGUI {
 
         public static bool toggle(ref bool val, string text, string tip)
         {
-
+            var cnt = TextAndTip(text, tip);
         #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                return ef.toggle(ref val, text, tip);
+                return ef.toggle(ref val, cnt);
             
         #endif
             bc();
-            val = GUILayout.Toggle(val, new GUIContent() { text = text, tooltip = tip });
+            val = GUILayout.Toggle(val, cnt);
             return ec();
         }
 
@@ -3741,18 +3806,16 @@ namespace PlayerAndEditorGUI {
 
         public static bool toggle(ref bool val, Texture2D TrueIcon, Texture2D FalseIcon, string tip, int width, GUIStyle style = null)
         {
-            #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-                return ef.toggle(ref val, TrueIcon, FalseIcon, tip, width, style);
-            #endif
-            
+
+           // add style
+
                 var before = val;
                 if (val)  {
-                    if (Click(TrueIcon, tip, width))
+                    if (ClickImage(ImageAndTip(TrueIcon, tip), width, style))
                         val = false;
                 }
                 else
-                    if (Click(FalseIcon, tip, width))
+                    if (ClickImage(ImageAndTip(FalseIcon, tip), width, style))
                         val = true;
 
                 return (before != val);
@@ -3760,18 +3823,18 @@ namespace PlayerAndEditorGUI {
 
         public static bool toggle(ref bool val, string text, string tip, int width)
         {
-
+            var cnt = TextAndTip( text,  tip);
         #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
             {
-                ef.write(text, tip, width);
+                ef.write(cnt, width);
                 return ef.toggle(ref val);
             }
         
         #endif
 
             bc();
-            val = GUILayout.Toggle(val, new GUIContent() { text = text, tooltip = tip });
+            val = GUILayout.Toggle(val, cnt);
             return ec();
 
         }
@@ -4292,9 +4355,9 @@ namespace PlayerAndEditorGUI {
         
         public static bool editTexture(this Material mat, string name) => mat.editTexture(name, name);
 
-        public static bool editTexture(this Material mat, string name, string display)
-        {
-            write(display);
+        public static bool editTexture(this Material mat, string name, string display) {
+
+            display.write(display.ApproximateLength());
             var tex = mat.GetTexture(name);
 
             if (edit(ref tex))
@@ -5689,8 +5752,6 @@ namespace PlayerAndEditorGUI {
 
             var changed = false;
 
-       
-
             var sd = listMeta == null ? searchData : listMeta.searchData;
 
             if (list != editing_List_Order)
@@ -6499,19 +6560,10 @@ namespace PlayerAndEditorGUI {
     public static bool edit_List<T>(this ListMetaData listMeta, ref List<T> list, TaggedTypesCfg types) {
         bool changed = false;
         write_Search_ListLabel(listMeta, list);
+
         edit_List(ref list, ref listMeta.inspected, types, ref changed, listMeta).listLabel_Used();
         return changed;
     }
-
-
-    /* public static T edit_List<T>(this string label, ref List<T> list, TaggedTypes_STD types, ref bool changed, List_Data listMeta = null)
-    {
-        if (listMeta != null)
-            listMeta.write_Search_ListLabel(list);
-        else 
-            label.write_Search_ListLabel(ref listMeta.inspected, list);
-        return edit_List(ref list, ref listMeta.inspected, types, ref changed, listMeta).listLabel_Used();
-    }*/
 
     public static T edit_List<T>(this string label, ref List<T> list, ref int inspected, TaggedTypesCfg types, ref bool changed) {
         label.write_Search_ListLabel(ref inspected, list);

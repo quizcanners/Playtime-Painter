@@ -80,8 +80,10 @@ namespace Playtime_Painter.Examples
 
             var pos = Vector2.zero;
 
+            var myCanvas = canvas;
+
             if (feedPositionData) {
-                var myCanvas = canvas;
+               
                 pos = RectTransformUtility.WorldToScreenPoint(IsOverlay ? null : (myCanvas ? myCanvas.worldCamera : null), rt.position);
                
             }
@@ -110,7 +112,7 @@ namespace Playtime_Painter.Examples
 
                 var scaleX = Mathf.Max(0, (sizeByPixels.y - sizeByPixels.x) / sizeByPixels.y);
 
-                var truePixSizeX = (rectSize.x * canvas.scaleFactor); 
+                var truePixSizeX = (rectSize.x * (myCanvas ? myCanvas.scaleFactor : 1)); 
                 
                 atlasedAspectX = (pixelsToShow.x * (1f - scaleX)) / truePixSizeX;
                 
@@ -366,8 +368,8 @@ namespace Playtime_Painter.Examples
 
                             if (expectedScreenPosition)
                                 "Shader is expecting Screen Position".writeWarning();
-                            else if (!LinkedCorners)
-                                "Unlinked corners don't support the Atlased UVs yet".writeWarning();
+                           // else if (!LinkedCorners)
+                             //   "Unlinked corners don't support the Atlased UVs yet".writeWarning();
                         } else if (expectedAtlasedPosition)
                             "Shader is expecting Atlased Position".writeWarning();
 
@@ -386,7 +388,19 @@ namespace Playtime_Painter.Examples
                         {
                             "UV:".edit(ref atlasedUVs).nl(ref changed);
                             pegi.edit01(ref atlasedUVs).nl(ref changed);
-                        }
+
+
+
+                            if (rectTransform.pivot != Vector2.one * 0.5f)
+                            {
+                                "Pivot is expected to be in the center for Aspect Preservation to work".writeHint();
+                                pegi.nl();
+                                if ("Set Pivot to 0.5,0.5".Click().nl(ref changed))
+                                    rectTransform.SetPivotTryKeepPosition(Vector2.one * 0.5f);
+                            }
+
+
+                    }
 
                 }
 
@@ -417,7 +431,10 @@ namespace Playtime_Painter.Examples
                 if (pegi.edit(ref col).nl(ref changed))
                     color = col;
             }
-            
+
+
+
+
             if ("Modules".enter_List(ref _modules, ref _inspectedModule, ref _showModules).nl(ref changed))
                 this.SaveStdData();
             
