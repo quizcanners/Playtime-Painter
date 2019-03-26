@@ -1,5 +1,4 @@
-﻿Shader "Playtime Painter/Editor/Replacement/ShadowDataOutput" 
-{
+﻿Shader "Playtime Painter/Editor/Replacement/ShadowDataOutput" {
 
 	SubShader{
 

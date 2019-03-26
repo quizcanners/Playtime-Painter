@@ -236,6 +236,7 @@ namespace Playtime_Painter.Examples
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Shadow"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Gradient"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/PreserveAspect"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/PreserveAspect_InvertingFiller"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/PixelLine")));
 
         [SerializeField] private bool _showModules;
@@ -351,6 +352,13 @@ namespace Playtime_Painter.Examples
                     if ("Shaders".select(60, ref shad, CompatibleShaders, false, true).changes(ref changed))
                         mat.shader = shad;
 
+                    
+
+                    var sTip = mat.Get(QuizCannersUtilities.ShaderTags.ShaderTip);
+
+                    if (!sTip.IsNullOrEmpty())
+                        sTip.fullWindowDocumentationClick();
+
                     if (icon.Refresh.Click("Refresh compatible Shaders list"))
                         _compatibleShaders = null;
                 }
@@ -362,14 +370,24 @@ namespace Playtime_Painter.Examples
                 if (expectedScreenPosition || expectedAtlasedPosition || feedPositionData) {
                     "Position Data".toggleIcon(ref feedPositionData, true).changes(ref changed);
                     if (feedPositionData) {
-                        "Position: ".editEnum(60, ref _positionDataType).nl();
+                        "Position: ".editEnum(60, ref _positionDataType).changes(ref changed);
+
+                        "Shaders that use position data often don't look right in the scene view."
+                            .fullWindowDocumentationClick();
+
+                        pegi.nl();
 
                         if (_positionDataType == PositionDataType.AtlasPosition){
 
                             if (expectedScreenPosition)
                                 "Shader is expecting Screen Position".writeWarning();
-                           // else if (!LinkedCorners)
-                             //   "Unlinked corners don't support the Atlased UVs yet".writeWarning();
+                            
+                            if (rectTransform.localRotation.eulerAngles.magnitude > 1f) {
+                                "Shaders with Atlased position doesn't work with rotation well".writeWarning();
+                                if ("Zero rotation".Click())
+                                    rectTransform.localRotation = Quaternion.Euler(Vector3.zero);
+                            }
+
                         } else if (expectedAtlasedPosition)
                             "Shader is expecting Atlased Position".writeWarning();
 
@@ -425,16 +443,29 @@ namespace Playtime_Painter.Examples
                     var sp = sprite;
                     if (spriteTag.edit(90, ref sp).nl(ref changed))
                         sprite = sp;
+
+                    var tex = sp.texture;
+
+                    if (sp)
+                    {
+
+                        if (sp && (tex.width != rectTransform.rect.width ||
+                                   sp.texture.height != rectTransform.rect.height)
+                               && "Set Native Size".Click().nl())
+                        {
+                            var rect = rectTransform.rect;
+                            rect.width = sp.texture.width;
+                            rect.height = sp.texture.height;
+                        }
+                    }
+
                 }
 
                 var col = color;
                 if (pegi.edit(ref col).nl(ref changed))
                     color = col;
             }
-
-
-
-
+            
             if ("Modules".enter_List(ref _modules, ref _inspectedModule, ref _showModules).nl(ref changed))
                 this.SaveStdData();
             

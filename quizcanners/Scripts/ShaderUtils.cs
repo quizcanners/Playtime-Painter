@@ -482,6 +482,8 @@ namespace QuizCannersUtilities
     public static partial class ShaderTags
     {
 
+        public static readonly ShaderTag ShaderTip = new ShaderTag("ShaderTip");
+
         public static readonly ShaderTag Queue = new ShaderTag("Queue");
 
         public static class Queues 
