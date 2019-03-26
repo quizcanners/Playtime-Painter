@@ -2,7 +2,6 @@
 {
 	Properties{
 		[PerRendererData][NoScaleOffset]_MainTex("Noise (RGB)", 2D) = "gray" {}
-		//[NoScaleOffset]_NoiseTex("Albedo (RGB)", 2D) = "gray" {}
 		_Edges("Sharpness", Range(0,1)) = 0.5
 		_ColorC("Center", Color) = (1,1,1,1)
 		_ColorE("Edge", Color) = (1,1,1,1)
@@ -106,10 +105,10 @@
 					float mid = forGrad.x;
 					#endif
 
+					#if !_GRADS_ONCE 
 					mid *= 2;
-
 					mid = (mid*mid)/4;
-
+					#endif
 
 #ifdef UNITY_COLORSPACE_GAMMA
 					_ColorC.rgb *= _ColorC.rgb;

@@ -6,6 +6,7 @@
 		_CustomTime("Time", Range(0,60)) = 2
 		_Tiling("Tiling", Range(0.1,20)) = 2
 		_Upscale("Forward", Range(0.1,1)) = 1
+			[Toggle(_FADEOUT)] unlinked("Fade Out On Alpha One", Float) = 0
 	}
 
 	Category{
@@ -33,6 +34,7 @@
 				#pragma fragment frag
 				#pragma multi_compile_fwdbase
 				#pragma multi_compile_instancing
+				#pragma shader_feature ____  _FADEOUT 
 				#pragma shader_feature SCREENSPACE
 				#pragma shader_feature DYNAMIC_SPEED
 				#pragma target 3.0
@@ -113,7 +115,22 @@
 
 					float2 off = i.offAndTotal.xy;
 
-					float finalAlpha = saturate(1 - dot(off, off) * 4);
+					float distance = dot(off, off)*4;
+
+#if _FADEOUT
+					float finalAlpha = saturate(i.color.a * 2 - distance);
+
+					
+
+					finalAlpha *= saturate((1 - i.color.a) * (2 + distance));
+
+
+
+
+#else
+					float finalAlpha = saturate(1 - distance);
+#endif
+					
 
 #if SCREENSPACE
 					float2 sp = (i.screenPos.xy / i.screenPos.w) * _ScreenParams.xy * _MainTex_TexelSize.xy;
@@ -131,7 +148,7 @@
 
 					col = (col * i.colPortions.x + col2 * i.colPortions.y + col3 * i.colPortions.z + col4 * i.colPortions.w) / i.offAndTotal.z * pow(finalAlpha , 4);
 
-
+					//_FADEOUT
 					col.a *= finalAlpha; 
 
 					col.rgb *= i.color.rgb;

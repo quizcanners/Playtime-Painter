@@ -1736,6 +1736,30 @@ namespace QuizCannersUtilities {
             }
         }
 
+        public static void SetColor_RGB(this MeshFilter mf, Color col) {
+
+            if (mf) {
+
+                var m = mf.mesh;
+
+                List<Color> colors = new List<Color>();
+
+                m.GetColors(colors);
+
+                if (colors.Count < m.vertexCount)
+                    mf.SetColor(col);
+                else {
+                    for (int i = 0; i < m.vertexCount; i++) {
+                        col.a = colors[i].a;
+                        colors[i] = col;
+                    }
+
+                    mf.mesh.colors = colors.ToArray();
+                }
+            }
+        }
+
+
         public static void SetAlpha(this MeshFilter mf, float alpha)
         {
             if (!mf) return;

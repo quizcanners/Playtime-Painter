@@ -7,14 +7,22 @@ public class InfiniteParticlesDrawerGUI : PEGI_Inspector_Material {
 #if PEGI
 
 
-
-
+    public const string FadeOutTag = "_FADEOUT";
+     
     public override bool Inspect(Material mat) {
 
         var changed = pegi.toggleDefaultInspector();
 
         mat.toggle("SCREENSPACE").nl(ref changed);
         mat.toggle("DYNAMIC_SPEED").nl(ref changed);
+        mat.toggle(FadeOutTag).nl(ref changed);
+
+        var fo = mat.HasTag(FadeOutTag, false);
+
+        if (fo)
+            "When alpha is one, the graphic will be invisible.".writeHint();
+
+        pegi.nl();
 
         var dynamicSpeed = mat.GetKeyword("DYNAMIC_SPEED");
 

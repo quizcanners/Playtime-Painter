@@ -95,6 +95,8 @@
 	  				_brushColor = pow(_brushColor, LINEAR_TO_GAMMA);*/
 
 
+
+
 					#define GRABPIXELX(weight,kernel) pow(tex2Dlod( _DestBuffer, float4(uv + float2(kernel*xker, 0)  ,0,0)), GAMMA_TO_LINEAR) * weight
 
 					#define GRABPIXELY(weight,kernel) pow(tex2Dlod( _DestBuffer, float4(uv + float2(0, kernel*yker)  ,0,0)), GAMMA_TO_LINEAR) * weight
@@ -107,10 +109,10 @@
 
 					#endif
 
+				
 					float4 sum = 0;
 
 					float xker = 0.0001*_brushForm.w;
-
 				
 					sum += GRABPIXELX(0.05, -4.0);
 					sum += GRABPIXELX(0.09, -3.0);

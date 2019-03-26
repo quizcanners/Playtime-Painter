@@ -28,8 +28,9 @@ namespace Playtime_Painter
         public Shader brushDoubleBuffer;
         public Shader brushDoubleBufferProjector;
         public Shader brushBlurAndSmudge;
-        public Shader brushColorFill;
+        public Shader inkColorSpread;
 
+        public Shader bufferColorFill;
         public Shader previewMesh;
         public Shader previewBrush;
         public Shader previewTerrain;
@@ -547,31 +548,33 @@ namespace Playtime_Painter
             #if !UNITY_EDITOR
                 return;
             #else
-            CheckShader(ref pixPerfectCopy,         "Playtime Painter/Buffer Blit/Pixel Perfect Copy",  forceReload);
+            CheckShader(ref pixPerfectCopy,             "Playtime Painter/Buffer Blit/Pixel Perfect Copy",      forceReload);
 
-            CheckShader(ref brushBlitSmoothed,          "Playtime Painter/Buffer Blit/Smooth",              forceReload);
+            CheckShader(ref brushBlitSmoothed,          "Playtime Painter/Buffer Blit/Smooth",                  forceReload);
 
-            CheckShader(ref brushBufferCopy,  "Playtime Painter/Buffer Blit/Copier",              forceReload);
+            CheckShader(ref brushBufferCopy,            "Playtime Painter/Buffer Blit/Copier",                  forceReload);
 
-            CheckShader(ref brushBlit,                "Playtime Painter/Editor/Brush/Blit",               forceReload);
+            CheckShader(ref brushBlit,                  "Playtime Painter/Editor/Brush/Blit",                   forceReload);
 
-            CheckShader(ref brushAdd,                 "Playtime Painter/Editor/Brush/Add",                forceReload);
+            CheckShader(ref brushAdd,                   "Playtime Painter/Editor/Brush/Add",                    forceReload);
 
-            CheckShader(ref brushCopy,                "Playtime Painter/Editor/Brush/Copy",               forceReload);
+            CheckShader(ref brushCopy,                  "Playtime Painter/Editor/Brush/Copy",                   forceReload);
 
-            CheckShader(ref brushDoubleBuffer,          "Playtime Painter/Editor/Brush/DoubleBuffer",       forceReload);
+            CheckShader(ref brushDoubleBuffer,          "Playtime Painter/Editor/Brush/DoubleBuffer",           forceReload);
 
             CheckShader(ref brushDoubleBufferProjector, "Playtime Painter/Editor/Brush/DoubleBuffer_Projector", forceReload);
 
-            CheckShader(ref brushBlurAndSmudge,   "Playtime Painter/Editor/Brush/BlurN_Smudge",       forceReload);
+            CheckShader(ref brushBlurAndSmudge,         "Playtime Painter/Editor/Brush/BlurN_Smudge",           forceReload);
 
-            CheckShader(ref brushColorFill,           "Playtime Painter/Buffer Blit/Color Fill",          forceReload);
+            CheckShader(ref inkColorSpread,           "Playtime Painter/Editor/Brush/Spread",                 forceReload);
 
-            CheckShader(ref previewBrush,             "Playtime Painter/Editor/Preview/Brush",            forceReload);
+            CheckShader(ref bufferColorFill,            "Playtime Painter/Buffer Blit/Color Fill",              forceReload);
 
-            CheckShader(ref previewMesh,           "Playtime Painter/Editor/Preview/Mesh",             forceReload);
+            CheckShader(ref previewBrush,               "Playtime Painter/Editor/Preview/Brush",                forceReload);
 
-            CheckShader(ref previewTerrain,         "Playtime Painter/Editor/Preview/Terrain",          forceReload);
+            CheckShader(ref previewMesh,                "Playtime Painter/Editor/Preview/Mesh",                 forceReload);
+
+            CheckShader(ref previewTerrain,             "Playtime Painter/Editor/Preview/Terrain",              forceReload);
             #endif
         }
 
@@ -609,6 +612,7 @@ namespace Playtime_Painter
         }
     }
 
+    #region Shader Tags
     public static partial class ShaderTags
     {
 
@@ -640,6 +644,6 @@ namespace Playtime_Painter
 
     }
 
-
+    #endregion
 
 }

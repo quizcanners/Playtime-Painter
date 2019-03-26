@@ -11,6 +11,7 @@
 		LOD 200
 		ColorMask RGB
 		ZWrite Off
+		Cull Off
 		Blend SrcAlpha One
 
 		SubShader{

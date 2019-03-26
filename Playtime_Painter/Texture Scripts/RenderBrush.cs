@@ -225,7 +225,7 @@ namespace Playtime_Painter
             tf.localPosition = Vector3.forward * 10;
             tf.localRotation = Quaternion.identity;
             meshFilter.mesh = PainterCamera.BrushMeshGenerator.GetQuad();
-            Set(TexMgmtData.brushColorFill).Set(col);
+            Set(TexMgmtData.bufferColorFill).Set(col);
         }
         
         private void OnEnable()

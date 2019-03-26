@@ -35,7 +35,8 @@ namespace Playtime_Painter {
                 new BlitModeBlur(6),
                 new BlitModeBloom(7),
                 new BlitModeSamplingOffset(8),
-                new BlitModeProjector(9)
+                new BlitModeProjector(9),
+                new BlitModeInkFiller(10)
             };
             // The code below uses reflection to find all classes that are child classes of BlitMode.
             // The code above adds them manually to save some compilation time,
@@ -221,7 +222,7 @@ namespace Playtime_Painter {
         protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_ALPHABLEND";
 
         public override string ToolTip =>
-            "If you don't know which one to choose, choose Alpha Blit. It will replace existing color with the color you are painting. " +
+            "The most standard brush. It will gradually replace existing color with the color you are painting with. " +
             "Keep in mind, if you are painting on texture with transparency (has areas you can see trough), also toggle Transparent Blit mode. " +
             "Otherwise you'll see some weird outlines.";
 
@@ -244,6 +245,7 @@ namespace Playtime_Painter {
         public override Shader ShaderForSingleBuffer => TexMGMTdata.brushAdd;
         public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.AddBlit;
 
+        public override string ToolTip => "Adds brush color to texture color.";
         public BlitModeAdd(int ind) : base(ind)
         {
             _inst = this;
@@ -263,6 +265,8 @@ namespace Playtime_Painter {
 
         public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.SubtractBlit;
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Subtract;
+
+        public override string ToolTip => "Subtracts brush color from texture color.";
         public BlitModeSubtract(int ind) : base(ind) { }
 
     }
@@ -281,6 +285,8 @@ namespace Playtime_Painter {
         public override bool UsingSourceTexture => true;
         public override Shader ShaderForSingleBuffer => TexMGMTdata.brushCopy;
 
+        public override string ToolTip => "Copies pixels from selected source texture to painted texture.";
+
         public BlitModeCopy(int ind) : base(ind) { }
     }
 
@@ -295,6 +301,8 @@ namespace Playtime_Painter {
         public override bool SupportedBySingleBuffer => false;
         public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.MinBlit;
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Min;
+
+        public override string ToolTip => "Paints smalles value between brush color and current texture color for each channel.";
         public BlitModeMin(int ind) : base(ind) { }
     }
 
@@ -309,6 +317,8 @@ namespace Playtime_Painter {
         public override bool SupportedBySingleBuffer => false;
         public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.MaxBlit;
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Max;
+
+        public override string ToolTip => "Paints highest value between brush color and current texture color for each channel.";
         public BlitModeMax(int ind) : base(ind) { }
     }
 
@@ -325,6 +335,9 @@ namespace Playtime_Painter {
         public override bool SupportedByTex2D => false;
 
         public override Shader ShaderForDoubleBuffer => TexMGMTdata.brushBlurAndSmudge;
+
+        public override string ToolTip => "As name suggests, blurs pixels";
+
 #if PEGI
         public override bool Inspect()
         {
@@ -381,6 +394,10 @@ namespace Playtime_Painter {
         }
 
         #region Inspector
+
+        public override string ToolTip => "This one is more in the experimental category. It writes distance from central pixel. Could be used to create texture with pixels shaped as hexagons, or bricks in the wall. ";
+
+
 #if PEGI
         public override bool Inspect()
         {
@@ -509,10 +526,11 @@ namespace Playtime_Painter {
         public override bool ShowColorSliders => false;
         public override bool SupportedBySingleBuffer => false;
         public override bool SupportedByTex2D => false;
-
-        public BlitModeBloom(int ind) : base(ind) { }
+        
+        public override string ToolTip => "Similar to Blur, but instead of blurring the colors, spreads brightness from bright pixels to darker ones";
 
         public override Shader ShaderForDoubleBuffer => TexMGMTdata.brushBlurAndSmudge;
+
         #if PEGI
         public override bool Inspect()
         {
@@ -522,6 +540,8 @@ namespace Playtime_Painter {
             return changed;
         }
         #endif
+
+        public BlitModeBloom(int ind) : base(ind) { }
     }
 
     #endregion
@@ -577,6 +597,38 @@ namespace Playtime_Painter {
 
         public BlitModeProjector(int ind) : base(ind)  { }
     }
-#endregion
+    #endregion
+
+    #region Filler Blit
+
+    public class BlitModeInkFiller : BlitMode
+    {
+        public override string NameForDisplayPEGI => "Ink Filler";
+
+        public override bool SupportedByTex2D => false;
+
+        public override bool SupportedBySingleBuffer => false;
+
+        public override Shader ShaderForDoubleBuffer => TexMGMTdata.inkColorSpread; 
+
+        public override string ToolTip =>
+            (" Inspired by comic books. After you paint BLACK lines, this brush will try to gradually fill the painted area with color without crossing those lines. " +
+             ". ");
+
+        #if PEGI
+        public override bool Inspect()
+        {
+            var changed = false;
+
+            "Spread Speed".edit(70, ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
+
+            return changed;
+        }
+        #endif
+
+        public BlitModeInkFiller(int ind) : base(ind) { }
+    }
+
+    #endregion
 
 }

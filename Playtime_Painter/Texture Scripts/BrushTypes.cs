@@ -285,8 +285,10 @@ namespace Playtime_Painter
 
         public override bool SupportedByTex2D => true; 
 
-        public override string NameForDisplayPEGI=> "Pixel"; 
+        public override string NameForDisplayPEGI=> "Pixel";
 
+        public override string ToolTip => "Paints square pixel perfect shape. Recommended to use with Preview shader.";
+        
         public override bool IsPixelPerfect => true; 
 
         public override void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st)
@@ -328,6 +330,8 @@ namespace Playtime_Painter
         public override bool SupportedByTex2D => true; 
 
         public override string NameForDisplayPEGI => "Normal";
+
+        public override string ToolTip => "Regular round brush";
         
         public static void Paint(Vector2 uv, BrushConfig br, RenderTexture rt)
         {
@@ -448,7 +452,12 @@ namespace Playtime_Painter
             br.decalAngle = Random.Range(-90f, 450f);
             TexMGMT.Shader_UpdateDecal(Cfg.brushConfig); 
         }
-        #if PEGI
+
+
+        public override string ToolTip => "Paints volumetric decals. It uses alpha channel of the painted texture as height. Denting decals (think bullet holes)" +
+                                          "will subtract alpha if their depth is higher (deeper) and paint their color. Additive decals will add alpha if theirs is higher. ";
+
+#if PEGI
         public override bool Inspect()
         {
 
@@ -503,6 +512,9 @@ namespace Playtime_Painter
         private float _lazySpeedDynamic = 1;
         private float _lazyAngleSmoothed = 1;
         public Vector2 previousDirectionLazy;
+
+        public override string ToolTip => "Lazy brush will follow your mouse with a bit of a delay. It tries to paint a smooth line." +
+                                          " Also useful if you want to paint a semi-transparent line.";
 
         public override void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st)
         {
@@ -712,8 +724,12 @@ namespace Playtime_Painter
 
             PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
         }
-      
+
         #region Inspector
+
+        public override string ToolTip => "Sphere brush is very different from all other brushes. It uses world position to paint. " +
+                                          "It is perfect for working with complex meshes. It can even paint in animated skinned meshes.";
+
         #if PEGI
         public override bool Inspect() {
 

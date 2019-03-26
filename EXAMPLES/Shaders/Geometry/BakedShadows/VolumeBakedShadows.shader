@@ -31,8 +31,8 @@
 				#pragma vertex vert
 				#pragma fragment frag
 				#pragma multi_compile_fog
-				#pragma multi_compile_fwdbase
-				#pragma target 3.0
+				//#pragma multi_compile_fwdbase
+				//#pragma target 3.0
 				#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
 				#pragma shader_feature  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
@@ -81,6 +81,14 @@
 					UNITY_FOG_COORDS(11)
 				};
 
+
+				/*
+				VolumeBaked shadow recipy:
+					texcoord.xw - texture index 0,1
+					texcoord1.xy - UV1
+					texcoord2 - edge
+					texcoord2 - vertex shadow
+				*/
 
 				v2f vert(appdata_full v) {
 					v2f o;

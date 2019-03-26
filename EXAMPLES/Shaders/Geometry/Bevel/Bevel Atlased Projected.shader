@@ -67,7 +67,15 @@
 				#endif
 			};
 
-			//
+			/*
+			VolumeBaked shadow recipy:
+				v.texcoord.z - Atlased texture index
+
+				o.edge = float4(v.texcoord1.w, v.texcoord2.w, v.texcoord3.w, v.texcoord.w);
+				o.edgeNorm0 = UnityObjectToWorldNormal(v.texcoord1.xyz);
+				o.edgeNorm1 = UnityObjectToWorldNormal(v.texcoord2.xyz);
+				o.edgeNorm2 = UnityObjectToWorldNormal(v.texcoord3.xyz);
+			*/
 
 			v2f vert(appdata_full v) {
 				v2f o;

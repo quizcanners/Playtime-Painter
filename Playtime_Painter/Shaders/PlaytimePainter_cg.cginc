@@ -38,20 +38,6 @@ float4 pp_ProjectorPosition;
 float4 pp_ProjectorClipPrecompute;
 float4 pp_ProjectorConfiguration;
 
-/*float3 Hue(float H)
-{
-	float R = abs(H * 6 - 3) - 1;
-	float G = 2 - abs(H * 6 - 2);
-	float B = 2 - abs(H * 6 - 4);
-	return saturate(float3(R, G, B));
-}
-
-float4 HSVtoRGB(in float3 HSV)
-{
-	return float4(((Hue(HSV.x) - 1) * HSV.y + 1) * HSV.z, 1);
-}*/
-
-
 inline float3 SourceTextureByBrush(float3 src) {
 
 	// 0 - Copy, 1 = Multiply, 2 = Use Brush Color
@@ -185,6 +171,14 @@ inline float positionToAlpha (float3 worldPos){
 		 return (_brushForm.y -  dist)/_brushForm.y; 
 }
 
+inline float alphaFromUV(float4 texcoord) {
+
+	float2 off = texcoord.zw * texcoord.zw;
+	float a = off.x + off.y;
+
+	return 1 - a * (4);
+}
+
 inline float calculateAlpha (float a, float fromMask){
 	float hardmod = _maskDynamics.y/512;
 	return saturate(pow( a*(1-hardmod)+(a*(fromMask)*3*hardmod) ,(1+_maskDynamics.y*0.1))*_brushForm.x);
@@ -206,23 +200,7 @@ inline float prepareAlphaSpherePreview (float2 texcoord, float3 worldPos){
 	return calculateAlpha (alpha, mask);
 }
 
-inline float alphaFromUV (float4 texcoord){
-		
-	float2 off = texcoord.zw * texcoord.zw;
-	float a = off.x+off.y;
-		
-	return 1 - a*(4);
-}
-
 inline float prepareAlphaSquare(float2 texcoord) {
-	/*float mask = getMaskedAlpha(texcoord.xy);
-
-	clip(1 - texcoord.z*texcoord.z);
-	clip(1 - texcoord.w*texcoord.w);
-
-
-	return calculateAlpha(1, mask);*/
-
 
 	float4 tc = float4(texcoord.xy, 0, 0);
 
