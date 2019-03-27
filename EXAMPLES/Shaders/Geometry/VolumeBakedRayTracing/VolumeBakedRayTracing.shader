@@ -39,9 +39,6 @@
 					UNITY_FOG_COORDS(6)
 				};
 
-
-
-
 				v2f vert(appdata_full v) {
 					v2f o;
 
@@ -110,25 +107,20 @@
 
 					bake = 1 - bake;
 
-					float4 directBake = saturate((bake - 0.5) * 2);
-
-					float power = (pow(col.a, 8*micro.b))*2048;
-
-					power = max(0.001, power);
+					float power = bumpMap.b; 
 
 					float3 scatter = 0;
 					float3 glossLight = 0;
 					float3 directLight = 0;
 
-
 					PointLightTrace(scatter, glossLight, directLight, i.worldPos.xyz - g_l0pos.xyz,
-						i.normal, i.viewDir.xyz, ambientBlock, bake.r, directBake.r, g_l0col, power);
+						i.normal, i.viewDir.xyz, ambientBlock, bake.r,  g_l0col, power);
 
 					PointLightTrace(scatter, glossLight, directLight, i.worldPos.xyz - g_l1pos.xyz,
-						i.normal, i.viewDir.xyz, ambientBlock, bake.g, directBake.g, g_l1col, power);
+						i.normal, i.viewDir.xyz, ambientBlock, bake.g,  g_l1col, power);
 
 					PointLightTrace(scatter, glossLight, directLight, i.worldPos.xyz - g_l2pos.xyz,
-						i.normal, i.viewDir.xyz, ambientBlock, bake.b, directBake.b, g_l2col, power);
+						i.normal, i.viewDir.xyz, ambientBlock, bake.b,  g_l2col, power);
 
 					glossLight *= 0.1;
 					scatter *= (1 - bake.a);
@@ -136,14 +128,14 @@
 					float shadow = SHADOW_ATTENUATION(i);
 
 					DirectionalLight(scatter, glossLight, directLight,
-						shadow*directBake.a, i.normal.xyz, i.viewDir.xyz, ambientBlock, bake.a, power);
+						shadow, i.normal.xyz, i.viewDir.xyz, ambientBlock, bake.a, power);
 
 					float smoothness = saturate(pow(col.a, 5 - fernel));
 					float deDmoothness = 1 - smoothness;
 
 					col.rgb *= (directLight*deDmoothness + (scatter)* bumpMap.a	);
 
-					col.rgb += (glossLight + ShadeSH9(float4(-reflected, 1))*directBake.a)* smoothness;
+					col.rgb += (glossLight + ShadeSH9(float4(-reflected, 1)))* smoothness;
 
 					BleedAndBrightness(col, 1+shadow*8);
 

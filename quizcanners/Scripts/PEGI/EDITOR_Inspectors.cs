@@ -73,17 +73,14 @@ namespace PlayerAndEditorGUI {
 
         public override void OnInspectorGUI() {
             #if PEGI
-
-
+            
             PEGI_Extensions.ResetInspectedChain();
 
             if (!drawDefaultInspector) {
                 Inspect(this).RestoreBGColor();
                 return;
             }
-
-
-
+            
             ef.editorType = EditorType;
 
             pegi.toggleDefaultInspector();

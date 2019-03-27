@@ -16,7 +16,6 @@
 		ZTest off
 		ZWrite off
 
-
 		SubShader{
 			Pass{
 

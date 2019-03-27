@@ -24,8 +24,7 @@ namespace Playtime_Painter
 
         public bool[] lightSourceDirty = new bool[MaterialLightManager.maxLights];
 
-        public override void Update()
-        {
+        public override void Update() {
             base.Update();
             lights.UpdateLightOnMaterials(materials);
             UpdateRayCasts();
@@ -55,8 +54,6 @@ namespace Playtime_Painter
 
             if (lights == null)
                 lights = new MaterialLightManager();
-
-            
         }
 
         public override void OnDisable()

@@ -350,8 +350,7 @@ namespace Playtime_Painter {
             if (!cfg)
                 return;
             
-            if (!GotBuffers)
-            {
+            if (!GotBuffers)  {
                 bigRtPair = new RenderTexture[2];
                 bigRtPair[0] = new RenderTexture(RenderTextureSize, RenderTextureSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
                 bigRtPair[1] = new RenderTexture(RenderTextureSize, RenderTextureSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
@@ -359,11 +358,10 @@ namespace Playtime_Painter {
                 bigRtPair[1].wrapMode = TextureWrapMode.Repeat;
                 bigRtPair[0].name = "Painter Buffer 0 _ " + RenderTextureSize;
                 bigRtPair[1].name = "Painter Buffer 1 _ " + RenderTextureSize;
-
             }
 
-            if (secondBufferDebug)
-            {
+            if (secondBufferDebug) {
+
                 secondBufferDebug.sharedMaterial.mainTexture = bigRtPair[1];
                 var cmp = secondBufferDebug.GetComponent<PlaytimePainter>();
                 if (cmp)
@@ -371,17 +369,15 @@ namespace Playtime_Painter {
             }
 
         }
-
-     
-
-        public static bool GotBuffers => Inst && Inst.bigRtPair != null && _inst.bigRtPair.Length > 0 && _inst.bigRtPair[0];
+        
+        public static bool GotBuffers => Inst && !Inst.bigRtPair.IsNullOrEmpty() && _inst.bigRtPair[0];
         #endregion
 
         #region Brush Shader MGMT
 
-        private readonly ShaderProperty.TextureValue _decalHeightProperty =      new ShaderProperty.TextureValue("_VolDecalHeight");
-        private readonly ShaderProperty.TextureValue _decalOverlayProperty =     new ShaderProperty.TextureValue("_VolDecalOverlay");
-        private readonly ShaderProperty.VectorValue _decalParametersProperty =   new ShaderProperty.VectorValue("_DecalParameters");
+        private readonly ShaderProperty.TextureValue _decalHeightProperty =                 new ShaderProperty.TextureValue("_VolDecalHeight");
+        private readonly ShaderProperty.TextureValue _decalOverlayProperty =                new ShaderProperty.TextureValue("_VolDecalOverlay");
+        private readonly ShaderProperty.VectorValue _decalParametersProperty =              new ShaderProperty.VectorValue("_DecalParameters");
 
         public void Shader_UpdateDecal(BrushConfig brush)
         {
@@ -415,17 +411,19 @@ namespace Playtime_Painter {
             _prevPosPreview = st.posTo;
         }
 
-        private static readonly ShaderProperty.VectorValue BrushColorProperty =        new ShaderProperty.VectorValue("_brushColor");
-        private static readonly ShaderProperty.VectorValue BrushMaskProperty =         new ShaderProperty.VectorValue("_brushMask");
-        private static readonly ShaderProperty.VectorValue MaskDynamicsProperty =      new ShaderProperty.VectorValue("_maskDynamics");
-        private static readonly ShaderProperty.VectorValue MaskOffsetProperty =        new ShaderProperty.VectorValue("_maskOffset");
-        private static readonly ShaderProperty.VectorValue BrushFormProperty =         new ShaderProperty.VectorValue("_brushForm");
-        private static readonly ShaderProperty.VectorValue TextureSourceParameters = new ShaderProperty.VectorValue("_srcTextureUsage");
+        private static readonly ShaderProperty.VectorValue ChannelCopySourceMask =          new ShaderProperty.VectorValue("_ChannelSourceMask");
+        private static readonly ShaderProperty.VectorValue BrushColorProperty =             new ShaderProperty.VectorValue("_brushColor");
+        private static readonly ShaderProperty.VectorValue BrushMaskProperty =              new ShaderProperty.VectorValue("_brushMask");
+        private static readonly ShaderProperty.VectorValue MaskDynamicsProperty =           new ShaderProperty.VectorValue("_maskDynamics");
+        private static readonly ShaderProperty.VectorValue MaskOffsetProperty =             new ShaderProperty.VectorValue("_maskOffset");
+        private static readonly ShaderProperty.VectorValue BrushFormProperty =              new ShaderProperty.VectorValue("_brushForm");
+        private static readonly ShaderProperty.VectorValue TextureSourceParameters =        new ShaderProperty.VectorValue("_srcTextureUsage");
+        private static readonly ShaderProperty.VectorValue cameraPosition_Property =        new ShaderProperty.VectorValue("_RTcamPosition");
 
-        private static readonly ShaderProperty.TextureValue SourceMaskProperty = new ShaderProperty.TextureValue("_SourceMask");
-        private static readonly ShaderProperty.TextureValue SourceTextureProperty = new ShaderProperty.TextureValue("_SourceTexture");
+        private static readonly ShaderProperty.TextureValue SourceMaskProperty =            new ShaderProperty.TextureValue("_SourceMask");
+        private static readonly ShaderProperty.TextureValue SourceTextureProperty =         new ShaderProperty.TextureValue("_SourceTexture");
         private static readonly ShaderProperty.TextureValue TransparentLayerUnderProperty = new ShaderProperty.TextureValue("_TransparentLayerUnderlay");
-
+     
         public void Shader_UpdateBrushConfig(BrushConfig brush = null, float brushAlpha = 1, ImageMeta id = null, PlaytimePainter painter = null)
         {
             if (brush == null)
@@ -578,9 +576,7 @@ namespace Playtime_Painter {
         #endregion
 
         #region Render
-
-        ShaderProperty.VectorValue cameraPosition_Property = new ShaderProperty.VectorValue("_RTcamPosition");
-
+        
         public void Render()
         {
 
@@ -601,8 +597,23 @@ namespace Playtime_Painter {
 
         }
 
-        public RenderTexture Render(Texture from, RenderTexture to, Shader shade)
-        {
+        void SetChannelCopySourceMask(ColorChanel sourceChannel) => ChannelCopySourceMask.GlobalValue = new Vector4(
+                sourceChannel == ColorChanel.R ? 1 : 0,
+                sourceChannel == ColorChanel.G ? 1 : 0,
+                sourceChannel == ColorChanel.B ? 1 : 0,
+                sourceChannel == ColorChanel.A ? 1 : 0
+        );
+
+        public RenderTexture Render(Texture from, RenderTexture to, ColorChanel sourceChannel, ColorChanel intoChannel) {
+            SetChannelCopySourceMask(sourceChannel);
+            Render(from, to, Data.CopyIntoTargetChannelShader(intoChannel));
+            return to;
+        }
+
+        public RenderTexture RenderDepth(Texture from, RenderTexture to, ColorChanel intoChannel) =>
+            Render(from, to, ColorChanel.R, intoChannel);
+        
+        public RenderTexture Render(Texture from, RenderTexture to, Shader shade) {
             brushRenderer.CopyBuffer(from, to, shade);
             return to;
         }

@@ -31,6 +31,22 @@ namespace Playtime_Painter
         public Shader inkColorSpread;
 
         public Shader bufferColorFill;
+        public Shader bufferCopyR;
+        public Shader bufferCopyG;
+        public Shader bufferCopyB;
+        public Shader bufferCopyA;
+
+        public Shader CopyIntoTargetChannelShader(ColorChanel chan)  {
+            switch (chan) {
+                case ColorChanel.R: return bufferCopyR;
+                case ColorChanel.G: return bufferCopyG;
+                case ColorChanel.B: return bufferCopyB;
+                case ColorChanel.A: return bufferCopyA;
+            }
+
+            return null;
+        }
+
         public Shader previewMesh;
         public Shader previewBrush;
         public Shader previewTerrain;
@@ -566,9 +582,17 @@ namespace Playtime_Painter
 
             CheckShader(ref brushBlurAndSmudge,         "Playtime Painter/Editor/Brush/BlurN_Smudge",           forceReload);
 
-            CheckShader(ref inkColorSpread,           "Playtime Painter/Editor/Brush/Spread",                 forceReload);
+            CheckShader(ref inkColorSpread,             "Playtime Painter/Editor/Brush/Spread",                 forceReload);
 
             CheckShader(ref bufferColorFill,            "Playtime Painter/Buffer Blit/Color Fill",              forceReload);
+            
+            CheckShader(ref bufferCopyR,                "Playtime Painter/Buffer Blit/Copy Red",                forceReload);
+
+            CheckShader(ref bufferCopyG,                "Playtime Painter/Buffer Blit/Copy Green",              forceReload);
+
+            CheckShader(ref bufferCopyB,                "Playtime Painter/Buffer Blit/Copy Blue",               forceReload);
+
+            CheckShader(ref bufferCopyA,                "Playtime Painter/Buffer Blit/Copy Alpha",              forceReload);
 
             CheckShader(ref previewBrush,               "Playtime Painter/Editor/Preview/Brush",                forceReload);
 
@@ -581,10 +605,12 @@ namespace Playtime_Painter
         private static void CheckShader(ref Shader shade, string path, bool forceReload = false) {
 
 #if UNITY_EDITOR
-
             if (forceReload || !shade)
+            {
                 shade = Shader.Find(path);
-
+                if (!shade)
+                    Debug.LogError("Could not find {0}".F(path));
+            }
 #endif
         }
 

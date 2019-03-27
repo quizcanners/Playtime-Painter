@@ -8,26 +8,42 @@ namespace Playtime_Painter {
     [System.Serializable]
     public class MaterialLightManager : PainterSystem, IPEGI
     {
-        public const int maxLights = 2;
+        public const int maxLights = 3;
 
         public int[] probes;
 
         public LightCaster GetLight (int number) => LightCaster.AllProbes[probes[number]];
 
+        public LightCaster GetNextLight(ref int index)
+        {
+            int tmpIndex = index;
+
+            do
+            {
+                tmpIndex = (index + 1) % maxLights;
+
+                var l = GetLight(tmpIndex);
+
+                if (l != null) {
+                    index = tmpIndex;
+                    return l;
+                }
+
+            } while (tmpIndex != index);
+
+            return null;
+
+        }
+
         private static List<ShaderProperty.VectorValue> _positionProperties;
-
         private static List<ShaderProperty.VectorValue> _colorVectorProperties;
-
-
         private static List<ShaderProperty.VectorValue> _positionPropertiesGlobal;
-
         private static List<ShaderProperty.VectorValue> _colorVectorPropertiesGlobal;
-
-
+        
         public MaterialLightManager() {
 
-            if (_positionProperties.IsNullOrEmpty())
-            {
+            if (_positionProperties.IsNullOrEmpty()) {
+
                 _positionProperties = new List<ShaderProperty.VectorValue>();
                 _colorVectorProperties = new List<ShaderProperty.VectorValue>();
                 _positionPropertiesGlobal = new List<ShaderProperty.VectorValue>();

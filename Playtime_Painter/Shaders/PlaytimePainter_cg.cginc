@@ -28,6 +28,7 @@ float4 _DecalParameters;
 float4 _brushAtlasSectionAndRows;
 float4 _brushSamplingDisplacement;
 float4 _brushPointedUV_Untiled;
+float4 _ChannelSourceMask;
 float _BufferCopyAspectRatio = 1;
 
 

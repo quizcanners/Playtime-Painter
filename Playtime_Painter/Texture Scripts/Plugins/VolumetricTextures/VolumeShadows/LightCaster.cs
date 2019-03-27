@@ -10,7 +10,10 @@ namespace Playtime_Painter
 
         public static readonly Countless<LightCaster> AllProbes = new Countless<LightCaster>();
         private static int freeIndex;
-        
+
+        public ProjectorCameraConfiguration cameraConfiguration;
+
+
         public Color ecol = Color.yellow;
         public float brightness = 1;
 
@@ -20,6 +23,10 @@ namespace Playtime_Painter
         public string NameForPEGI { get { return gameObject.name; } set { gameObject.name = value; } }
 
         private void OnEnable() {
+
+            if (cameraConfiguration == null)
+                cameraConfiguration = new ProjectorCameraConfiguration();
+
             if (AllProbes[index]) {
                 while (AllProbes[freeIndex]) freeIndex++;
                 index = freeIndex;

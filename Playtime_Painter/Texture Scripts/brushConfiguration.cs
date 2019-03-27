@@ -356,12 +356,12 @@ namespace Playtime_Painter {
                     TypeSet(cpuBlit, smooth ? BrushTypeNormal.Inst : (BrushType)BrushTypePixel.Inst);
             }
 
-            pegi.newLine();
+            pegi.nl();
 
             if (showBrushDynamics)
             {
                 if ("Brush Dynamic".selectType( 90, ref brushDynamic, brushDynamicsConfigs, true).nl(ref changed))
-                    brushDynamic?.Nested_Inspect().nl();
+                    brushDynamic?.Nested_Inspect().nl(ref changed);
             }
             else
                 brushDynamic.AllTypes.Replace_IfDifferent(ref brushDynamic, typeof(BrushDynamic_None));
