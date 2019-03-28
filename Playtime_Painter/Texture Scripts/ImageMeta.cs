@@ -43,6 +43,12 @@ namespace Playtime_Painter
         private bool _alphaPreservePixelSet;
         public bool errorWhileReading;
         public bool dontRedoMipMaps;
+        
+
+        private float sdfMaxInside = 1f;
+        private float sdfMaxOutside = 1f;
+        private float sdfPostProcessDistance = 1f;
+        
 
         private float _repaintDelay = 0.016f;
         private int _numberOfTexture2DBackups = 10;
@@ -146,7 +152,14 @@ namespace Playtime_Painter
             .Add_IfNotEmpty("URL", url)
             .Add_IfNotNegative("is", inspectedItems)
             .Add_IfFalse("alpha", preserveTransparency);
-
+            
+           if (sdfMaxInside != 1f)
+               cody.Add("sdfMI", sdfMaxInside);
+           if (sdfMaxOutside != 1f)
+               cody.Add("sdfMO", sdfMaxOutside);
+           if (sdfPostProcessDistance != 1f)
+               cody.Add("sdfMD", sdfPostProcessDistance);
+           
             if (enableUndoRedo)
                 cody.Add("2dUndo", _numberOfTexture2DBackups)
                 .Add("rtBackups", _numberOfRenderTextureBackups);
@@ -191,6 +204,9 @@ namespace Playtime_Painter
                 case "URL": url = data; break;
                 case "alpha": preserveTransparency = data.ToBool(); break;
                 case "is": inspectedItems = data.ToInt(); break;
+                case "sdfMI": sdfMaxInside = data.ToFloat(); break;
+                case "sdfMO": sdfMaxOutside = data.ToFloat(); break;
+                case "sdfMD": sdfPostProcessDistance = data.ToFloat(); break;
                 default: return false;
             }
             return true;
@@ -535,7 +551,7 @@ namespace Playtime_Painter
             return needsReColorizingAfterSave;
         }
 
-        public Color SampleAt(Vector2 uv) => (destination == TexTarget.Texture2D) ? Pixel(UvToPixelNumber(uv)) : SampleRenderTexture(uv);
+        public Color SampleAt(Vector2 uv) => (destination == TexTarget.Texture2D) ? PixelSafe(UvToPixelNumber(uv)) : SampleRenderTexture(uv);
 
         private Color SampleRenderTexture(Vector2 uv)
         {
@@ -589,7 +605,7 @@ namespace Playtime_Painter
             }
         }
 
-        public Color Pixel(MyIntVec2 v)
+        public Color PixelSafe(MyIntVec2 v)
         {
             v.x %= width;
             while (v.x < 0)
@@ -602,6 +618,10 @@ namespace Playtime_Painter
             return Pixels[v.y * width + v.x];
         }
 
+        public Color PixelUnSafe(int x, int y) => Pixels[y * width + x];
+
+        public Color SetPixelUnSafe(int x, int y, Color col) => Pixels[y * width + x] = col;
+        
         public int PixelNo(MyIntVec2 v)
         {
             int x = v.x;
