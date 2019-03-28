@@ -23,7 +23,7 @@ namespace QuizCannersUtilities {
         bool IsDefault { get; }
     }
 
-    public interface IStdSerializeNestedReferences
+    public interface ICfgSerializeNestedReferences
     {
         int GetReferenceIndex(UnityEngine.Object obj);
         T GetReferenced<T>(int index) where T: UnityEngine.Object;
@@ -169,7 +169,7 @@ namespace QuizCannersUtilities {
 
     #region Abstract Implementations
 
-    public class StdSimpleReferenceHolder : IStdSerializeNestedReferences {
+    public class StdSimpleReferenceHolder : ICfgSerializeNestedReferences {
         
         public readonly List<UnityEngine.Object> nestedReferences = new List<UnityEngine.Object>();
         public int GetReferenceIndex(UnityEngine.Object obj) => nestedReferences.TryGetIndexOrAdd(obj);
@@ -178,7 +178,7 @@ namespace QuizCannersUtilities {
 
     }
 
-    public class CfgReferencesHolder : ScriptableObject, IStdSerializeNestedReferences, IPEGI, IKeepUnrecognizedCfg, ICfgSafeEncoding
+    public class CfgReferencesHolder : ScriptableObject, ICfgSerializeNestedReferences, IPEGI, IKeepUnrecognizedCfg, ICfgSafeEncoding
     {
         
         #region Encode & Decode
@@ -327,7 +327,7 @@ namespace QuizCannersUtilities {
         #endregion
     }
 
-    public abstract class ComponentCfg : MonoBehaviour, ICfgSafeEncoding, IKeepUnrecognizedCfg, ICanBeDefaultCfg, IStdSerializeNestedReferences, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
+    public abstract class ComponentCfg : MonoBehaviour, ICfgSafeEncoding, IKeepUnrecognizedCfg, ICanBeDefaultCfg, ICfgSerializeNestedReferences, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
 
 #if !UNITY_EDITOR
         [NonSerialized]
@@ -715,7 +715,7 @@ namespace QuizCannersUtilities {
             return s;
         }
 
-        public static T CloneStd<T>(this T obj, IStdSerializeNestedReferences nested = null) where T : ICfg
+        public static T CloneStd<T>(this T obj, ICfgSerializeNestedReferences nested = null) where T : ICfg
         {
 
             if (obj.IsNullOrDestroyed_Obj()) return default(T);
@@ -743,7 +743,7 @@ namespace QuizCannersUtilities {
             return ur.UnrecognizedStd.Encode();
         }
 
-        public static bool Decode(this ICfg cfg, string data, IStdSerializeNestedReferences keeper) => data.DecodeInto(cfg, keeper);
+        public static bool Decode(this ICfg cfg, string data, ICfgSerializeNestedReferences keeper) => data.DecodeInto(cfg, keeper);
     }
 #endregion
 }

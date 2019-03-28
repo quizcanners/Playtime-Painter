@@ -463,9 +463,7 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region Pop UP Services
-
-
-
+        
         private static bool fullWindowDocumentationClick(string toolTip = "What is this?", int buttonSize = 20) =>
             icon.Question.BgColor(Color.clear).Click(toolTip, buttonSize).PreviousBgColor();
         
@@ -508,8 +506,7 @@ namespace PlayerAndEditorGUI {
 
             return false;
         }
-
-
+        
         public static class PopUpService
         {
             

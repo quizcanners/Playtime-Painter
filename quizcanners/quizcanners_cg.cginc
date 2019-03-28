@@ -10,7 +10,6 @@ float _Picker_Brightness;
 float _Picker_Contrast;
 float _Picker_HUV;
 
-
 float4 g_VOLUME_H_SLICES;
 float4 g_VOLUME_POSITION_N_SIZE;
 

@@ -19,11 +19,9 @@ namespace Playtime_Painter {
     [HelpURL(OnlineManual)]
     [DisallowMultipleComponent]
     [ExecuteInEditMode]
-    public class PlaytimePainter : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, IKeepMyCfg, IPEGI
-    {
+    public class PlaytimePainter : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, IKeepMyCfg, IPEGI {
 
         #region StaticGetters
-
         public static bool IsCurrentTool { get { return PainterDataAndConfig.toolEnabled; } set { PainterDataAndConfig.toolEnabled = value; } }
         
         private static PainterDataAndConfig Cfg => PainterCamera.Data;
@@ -1634,12 +1632,12 @@ namespace Playtime_Painter {
 
             SetOriginalShader();
 
-            var id = GetTextureOnMaterial().GetImgDataIfExists();
+            //var id = GetTextureOnMaterial().GetImgDataIfExists();
 
             initialized = false; // Should be before restoring to texture2D to avoid Clear to black.
 
-            if (id != null && id.CurrentTexture().IsBigRenderTexturePair())
-                UpdateOrSetTexTarget(TexTarget.Texture2D);
+            //if (id != null && id.CurrentTexture().IsBigRenderTexturePair())
+            //  UpdateOrSetTexTarget(TexTarget.Texture2D);
 
             if (!TexMgmt || MeshManager.target != this) return;
             
@@ -1719,7 +1717,7 @@ namespace Playtime_Painter {
 
             }
 
-            if ((meshRenderer) && (meshRenderer.GetType() == typeof(SkinnedMeshRenderer))) {
+            if (meshRenderer && (meshRenderer.GetType() == typeof(SkinnedMeshRenderer))) {
                 skinnedMeshRenderer = (SkinnedMeshRenderer)meshRenderer;
                 UpdateColliderForSkinnedMesh();
             }
@@ -1737,7 +1735,6 @@ namespace Playtime_Painter {
             if ((this == TexMgmt.autodisabledBufferTarget) && (!LockTextureEditing) && (!UnityUtils.ApplicationIsAboutToEnterPlayMode()))
                 ReEnableRenderTexture();
 
-            
         }
 
         private void FocusOnThisObject()

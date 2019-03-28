@@ -37,9 +37,11 @@ namespace Playtime_Painter
         public ProjectorCameraConfiguration GetProjectorCameraConfiguration()
             => lights.GetLight(lastUpdatedLight).cameraConfiguration;
 
+        public RenderTexture GetTargetTexture() => DepthProjectorCamera.GetReusableDepthTarget();
+        
         public void AfterDepthCameraRender(Texture depthTexture) => PainterCamera.Inst.RenderDepth(depthTexture, GetAllBakedDepths(), (ColorChanel) lastUpdatedLight);
         
-        protected override string PropertyName => "BakedRays";
+        protected override string PropertyNameRoot => "BakedRays";
 
         #endregion
         
@@ -58,6 +60,8 @@ namespace Playtime_Painter
 
             bakedDepthes.GlobalValue = allBakedDepthesTexture;
         }
+
+    
         #endregion
     }
 }

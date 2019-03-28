@@ -195,7 +195,7 @@ namespace Playtime_Painter {
 
                 var materialData = painter.MatDta;
 
-                if (!imgData.renderTexture  && !TexMGMT.materialsUsingTendTex.Contains(materialData)) {
+                if (!imgData.renderTexture  && !TexMGMT.materialsUsingRenderTexture.Contains(materialData)) {
                     TexMGMT.ChangeBufferTarget(imgData, materialData, painter.GetMaterialTextureProperty, painter);
                     painter.SetTextureOnMaterial(imgData);
                 }

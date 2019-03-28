@@ -34,6 +34,7 @@ float _BufferCopyAspectRatio = 1;
 
 sampler2D pp_DepthProjection;
 float4 pp_DepthProjection_TexelSize;
+
 float4x4 pp_ProjectorMatrix;
 float4 pp_ProjectorPosition;
 float4 pp_ProjectorClipPrecompute;
@@ -87,6 +88,7 @@ inline float ProjectorDepthDifference (float4 shadowCoords, float3 worldPos, out
 		float predictedDepth = 1 - (((viewPos / true01Range) - pp_ProjectorClipPrecompute.y) * pp_ProjectorClipPrecompute.z);
 
 		return 1 - saturate ((tex2D(pp_DepthProjection, pUv).r - predictedDepth) * pdist* pdist * 20);
+
 }
 
 inline float random(float2 st) {

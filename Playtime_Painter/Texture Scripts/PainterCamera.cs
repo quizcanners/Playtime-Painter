@@ -292,7 +292,7 @@ namespace Playtime_Painter {
 
         #region Buffers MGMT
         public ImageMeta imgMetaUsingRendTex;
-        public List<MaterialMeta> materialsUsingTendTex = new List<MaterialMeta>();
+        public List<MaterialMeta> materialsUsingRenderTexture = new List<MaterialMeta>();
         public PlaytimePainter autodisabledBufferTarget;
 
         public void EmptyBufferTarget()
@@ -306,40 +306,40 @@ namespace Playtime_Painter {
 
             imgMetaUsingRendTex.destination = TexTarget.Texture2D;
 
-            foreach (var m in materialsUsingTendTex)
+            foreach (var m in materialsUsingRenderTexture)
                 m.SetTextureOnLastTarget(imgMetaUsingRendTex);
 
-            materialsUsingTendTex.Clear();
+            materialsUsingRenderTexture.Clear();
             imgMetaUsingRendTex = null;
         }
 
         public void ChangeBufferTarget(ImageMeta newTarget, MaterialMeta mat, ShaderProperty.TextureValue parameter, PlaytimePainter painter)
         {
 
-            if (newTarget != imgMetaUsingRendTex)
-            {
+            if (newTarget != imgMetaUsingRendTex)  {
 
-                if (materialsUsingTendTex.Count > 0)
+                if (materialsUsingRenderTexture.Count > 0)
                     PlaytimePainter.SetOriginalShader();
 
-                if (imgMetaUsingRendTex != null)
-                {
+                if (imgMetaUsingRendTex != null) {
+
                     if (imgMetaUsingRendTex.texture2D)
                         imgMetaUsingRendTex.RenderTexture_To_Texture2D();
 
                     imgMetaUsingRendTex.destination = TexTarget.Texture2D;
 
-                    foreach (var m in materialsUsingTendTex)
+                    foreach (var m in materialsUsingRenderTexture)
                         m.SetTextureOnLastTarget(imgMetaUsingRendTex);
                 }
-                materialsUsingTendTex.Clear();
+
+                materialsUsingRenderTexture.Clear();
                 autodisabledBufferTarget = null;
                 imgMetaUsingRendTex = newTarget;
             }
 
             mat.bufferParameterTarget = parameter;
             mat.painterTarget = painter;
-            materialsUsingTendTex.Add(mat);
+            materialsUsingRenderTexture.Add(mat);
         }
 
         public void UpdateBuffersState()
@@ -809,8 +809,8 @@ namespace Playtime_Painter {
             if (PlaytimePainter.previewHolderMaterial)
                 PlaytimePainter.previewHolderMaterial.shader = PlaytimePainter.previewHolderOriginalShader;
 
-            if (materialsUsingTendTex.Count > 0)
-                autodisabledBufferTarget = materialsUsingTendTex[0].painterTarget;
+            if (materialsUsingRenderTexture.Count > 0)
+                autodisabledBufferTarget = materialsUsingRenderTexture[0].painterTarget;
             EmptyBufferTarget();
             #endif
 

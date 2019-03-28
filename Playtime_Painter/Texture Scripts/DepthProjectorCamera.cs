@@ -9,10 +9,6 @@ namespace Playtime_Painter
     [ExecuteInEditMode]
     public class DepthProjectorCamera : PainterSystemMono {
 
-
-
-
-
         public static DepthProjectorCamera Instance
         {
             get
@@ -29,6 +25,26 @@ namespace Playtime_Painter
 
         [SerializeField] private Camera _projectorCamera;
         [SerializeField] private RenderTexture _depthTarget;
+        [SerializeField] private static RenderTexture _depthTargetForUsers;
+
+        public static RenderTexture GetReusableDepthTarget()
+        {
+            if (_depthTargetForUsers)
+                return _depthTargetForUsers;
+
+            _depthTargetForUsers = GetDepthRenderTexture(1024);
+
+            return _depthTargetForUsers;
+        }
+
+        private static RenderTexture GetDepthRenderTexture(int sz) => new RenderTexture(sz, sz, 32, RenderTextureFormat.Depth, RenderTextureReadWrite.Linear)
+        {
+            wrapMode = TextureWrapMode.Clamp,
+            filterMode = FilterMode.Bilinear,
+            autoGenerateMips = false,
+            useMipMap = false
+        };
+
         [SerializeField] private bool _projectFromMainCamera;
         [SerializeField] private bool _centerOnMousePosition;
         [SerializeField] private bool _matchMainCamera;
@@ -91,49 +107,57 @@ namespace Playtime_Painter
 
             PainterCamera.depthProjectorCamera = this;
 
+            _spDepth.GlobalValue = _depthTarget;
+
         }
 
-        public void ManagedUpdate()
-        {
-            if (_projectorCamera && _projectFromMainCamera) {
+        public void ManagedUpdate() {
 
-                if (Application.isPlaying) {
-                    if (PainterCamera.Inst) {
-                        var cam = PainterCamera.Inst.MainCamera;
+            if (_projectorCamera) {
 
-                        if (cam) {
-                            transform.parent = cam.transform;
-                            transform.localScale = Vector3.one;
-                            transform.localPosition = Vector3.zero;
+                if (_projectFromMainCamera) {
 
-                            if (_centerOnMousePosition)
-                                transform.LookAt(transform.position + cam.ScreenPointToRay(Input.mousePosition).direction);
-                            else
-                                transform.localRotation = Quaternion.identity;
+                    if (Application.isPlaying) {
+
+                        if (PainterCamera.Inst) {
+
+                            var cam = PainterCamera.Inst.MainCamera;
+
+                            if (cam) {
+                                transform.parent = cam.transform;
+                                transform.localScale = Vector3.one;
+                                transform.localPosition = Vector3.zero;
+
+                                if (_centerOnMousePosition)
+                                    transform.LookAt(transform.position +
+                                                     cam.ScreenPointToRay(Input.mousePosition).direction);
+                                else
+                                    transform.localRotation = Quaternion.identity;
+                            }
                         }
                     }
-                }
-                else
-                {
-                    transform.parent = null;
-                    var ray = _centerOnMousePosition
-                        ? EditorInputManager.mouseRaySceneView
-                        : EditorInputManager.centerRaySceneView;
+                    else
+                    {
+                        transform.parent = null;
+                        var ray = _centerOnMousePosition
+                            ? EditorInputManager.mouseRaySceneView
+                            : EditorInputManager.centerRaySceneView;
 
-                    transform.position = ray.origin;
-                    transform.LookAt(ray.origin + ray.direction);
+                        transform.position = ray.origin;
+                        transform.LookAt(ray.origin + ray.direction);
 
+                    }
                 }
+
+                BeforeRender();
             }
         }
 
-        private void LateUpdate()
-        {
+        private void LateUpdate() {
             if (Application.isPlaying)
                 ManagedUpdate();
         }
-
-
+        
         #region Other Updates 
 
         private int lastUpdatedUser = 0;
@@ -151,55 +175,45 @@ namespace Playtime_Painter
         }
 
         #endregion
+        
+        private void BeforeRender() {
+           
+            if (!pauseUpdates)  {
 
-        private void Update()
-        {
-            if (_projectorCamera) {
-                if (!pauseUpdates)
-                {
-                    
+                if (lastUpdatedUser >= depthUsers.Count) {
+                    lastUpdatedUser = 0;
+                    userToGetUpdate = null;
 
-                    if (lastUpdatedUser >= depthUsers.Count) {
-                        lastUpdatedUser = 0;
-                        userToGetUpdate = null;
-                    }
-                    else
-                    {
-                        userToGetUpdate = depthUsers[lastUpdatedUser];
-                        lastUpdatedUser++;
-                    }
+                }  else {
 
-                    if (userToGetUpdate != null)
-                    {
-                        painterProjectorCameraConfiguration.From(_projectorCamera);
-                        userToGetUpdate.GetProjectorCameraConfiguration().To(_projectorCamera);
-                    }
-
-                    _projectorCamera.Render();
-                    painterProjection.Set(_projectorCamera, _depthTarget);
-
-
-
-                    if (userToGetUpdate != null)
-                        painterProjectorCameraConfiguration.To(_projectorCamera);
-                    
-
+                    userToGetUpdate = depthUsers[lastUpdatedUser];
+                    lastUpdatedUser++;
                 }
+
+                if (userToGetUpdate != null)
+                {
+                    painterProjectorCameraConfiguration.From(_projectorCamera);
+                    userToGetUpdate.GetProjectorCameraConfiguration().To(_projectorCamera);
+                    _projectorCamera.targetTexture = userToGetUpdate.GetTargetTexture();
+                } else 
+                    _projectorCamera.targetTexture = _depthTarget;
+
+                _projectorCamera.Render();
+                painterProjection.Set(_projectorCamera);
+
             }
         }
 
-        void OnPostRender()
-        {
-            if (userToGetUpdate !=null)
-            {
-                //userToGetUpdate.AfterDepthCameraRender();
+        void OnPostRender() {
+            if (userToGetUpdate !=null)  {
+                userToGetUpdate.AfterDepthCameraRender(_depthTarget);
                 userToGetUpdate = null;
-
+                painterProjectorCameraConfiguration.To(_projectorCamera);
             }
         }
 
         #region Global Shader Parameters
-
+        
         private void UpdateDepthCamera() {
 
             if (!_projectorCamera) return;
@@ -222,21 +236,18 @@ namespace Playtime_Painter
 
             var sz = Mathf.Max(targetSize, 16);
 
-            _depthTarget = new RenderTexture(sz, sz, 32, RenderTextureFormat.Depth, RenderTextureReadWrite.Linear) {
-                wrapMode = TextureWrapMode.Clamp,
-                filterMode = FilterMode.Bilinear,
-                autoGenerateMips = false,
-                useMipMap = false
-            };
+            _depthTarget = GetDepthRenderTexture(sz);
+
+            _spDepth.GlobalValue = _depthTarget;
 
             _projectorCamera.targetTexture = _depthTarget;
         }
         
         private readonly ProjectorCameraParameters painterProjection = new ProjectorCameraParameters("pp_");
+        private readonly ShaderProperty.TextureValue _spDepth = new ShaderProperty.TextureValue("pp_DepthProjection");
+
 
         //private void OnPostRender() {
-            
-            
 
            /* _spMatrix.GlobalValue = _projectorCamera.projectionMatrix * _projectorCamera.worldToCameraMatrix;
             _spDepth.GlobalValue = _depthTarget;
@@ -273,6 +284,7 @@ namespace Playtime_Painter
         ProjectorCameraParameters GetProjectorCameraParameter();
         ProjectorCameraConfiguration GetProjectorCameraConfiguration();
         void AfterDepthCameraRender(Texture depthTexture);
+        RenderTexture GetTargetTexture();
     }
 
     [Serializable]
@@ -375,13 +387,11 @@ namespace Playtime_Painter
     {
 
         private readonly ShaderProperty.MatrixValue _spMatrix;
-        private readonly ShaderProperty.TextureValue _spDepth;
         private readonly ShaderProperty.VectorValue _spPos;
         private readonly ShaderProperty.VectorValue _spZBuffer;
         private readonly ShaderProperty.VectorValue _camParams;
 
-        public void Set(Camera cam, Texture tex)
-        {
+        public void Set(Camera cam) {
 
             if (!cam)
                 return;
@@ -391,7 +401,7 @@ namespace Playtime_Painter
             var near = cam.nearClipPlane;
 
             _spMatrix.GlobalValue = cam.projectionMatrix * cam.worldToCameraMatrix;
-            _spDepth.GlobalValue = tex;
+
             _spPos.GlobalValue = tf.position.ToVector4(0);
 
             _camParams.GlobalValue = new Vector4(
@@ -401,6 +411,7 @@ namespace Playtime_Painter
                 1f / far);
 
             var zBuff = new Vector4(1f - far / near, far / near, 0, 0);
+
             zBuff.z = 1 / zBuff.x;
 
             _spZBuffer.GlobalValue = zBuff;
@@ -409,7 +420,6 @@ namespace Playtime_Painter
         public ProjectorCameraParameters(string prefix)
         {
             _spMatrix = new ShaderProperty.MatrixValue(prefix + "ProjectorMatrix");
-            _spDepth = new ShaderProperty.TextureValue(prefix + "DepthProjection");
             _spPos = new ShaderProperty.VectorValue(prefix + "ProjectorPosition");
             _spZBuffer = new ShaderProperty.VectorValue(prefix + "ProjectorClipPrecompute");
             _camParams = new ShaderProperty.VectorValue(prefix + "ProjectorConfiguration");

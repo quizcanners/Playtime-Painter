@@ -48,7 +48,7 @@ namespace QuizCannersUtilities
             .Add("deSize", tf.sizeDelta);
         }
         
-        public static CfgEncoder Encode(this ICfg cfg, IStdSerializeNestedReferences keeper) {
+        public static CfgEncoder Encode(this ICfg cfg, ICfgSerializeNestedReferences keeper) {
 
             var prevKeeper = CfgEncoder.keeper;
             CfgEncoder.keeper = keeper;
@@ -232,17 +232,17 @@ namespace QuizCannersUtilities
         
         #region Unity_Objects
 
-        public static IStdSerializeNestedReferences keeper;
+        public static ICfgSerializeNestedReferences keeper;
 
         public CfgEncoder Add_GUID(string tag, UnityEngine.Object obj) => Add_IfNotEmpty(tag, obj.GetGuid());
 
         public CfgEncoder Add_Reference(string tag, UnityEngine.Object obj) => Add_Reference(tag, obj, keeper);
 
-        public CfgEncoder Add_Reference(string tag, UnityEngine.Object obj, IStdSerializeNestedReferences referencesKeeper) => (referencesKeeper == null || !obj) ? this : Add_IfNotNegative(tag, referencesKeeper.GetReferenceIndex(obj));
+        public CfgEncoder Add_Reference(string tag, UnityEngine.Object obj, ICfgSerializeNestedReferences referencesKeeper) => (referencesKeeper == null || !obj) ? this : Add_IfNotNegative(tag, referencesKeeper.GetReferenceIndex(obj));
             
         public CfgEncoder Add_References<T>(string tag, List<T> objs) where T : UnityEngine.Object => Add_References(tag, objs,keeper);
 
-        public CfgEncoder Add_References<T>(string tag, List<T> lst, IStdSerializeNestedReferences referencesKeeper) where T: UnityEngine.Object
+        public CfgEncoder Add_References<T>(string tag, List<T> lst, ICfgSerializeNestedReferences referencesKeeper) where T: UnityEngine.Object
         {
             if (referencesKeeper == null || lst == null) return this;
             
@@ -255,7 +255,7 @@ namespace QuizCannersUtilities
             
         }
 
-        public CfgEncoder Add(string tag, ICfg other, IStdSerializeNestedReferences referencesKeeper)
+        public CfgEncoder Add(string tag, ICfg other, ICfgSerializeNestedReferences referencesKeeper)
         {
             var prevKeeper = keeper;
             keeper = referencesKeeper;
@@ -267,7 +267,7 @@ namespace QuizCannersUtilities
             return this;
         }
 
-        public CfgEncoder TryAdd<T>(string tag, T obj, IStdSerializeNestedReferences referencesKeeper)
+        public CfgEncoder TryAdd<T>(string tag, T obj, ICfgSerializeNestedReferences referencesKeeper)
         {
             var prevKeeper = keeper;
             keeper = referencesKeeper;
@@ -278,7 +278,7 @@ namespace QuizCannersUtilities
             return this;
         }
         
-        public CfgEncoder Add<T>(string tag, List<T> other, IStdSerializeNestedReferences referencesKeeper) where T : ICfg, new()
+        public CfgEncoder Add<T>(string tag, List<T> other, ICfgSerializeNestedReferences referencesKeeper) where T : ICfg, new()
         {
             var prevKeeper = keeper;
             keeper = referencesKeeper;

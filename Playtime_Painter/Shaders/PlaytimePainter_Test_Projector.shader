@@ -51,17 +51,14 @@
 
 				float camAspectRatio = pp_ProjectorConfiguration.x;
 				float camFOVDegrees = pp_ProjectorConfiguration.y;
-				//float near = pp_ProjectorConfiguration.z;
 				float deFar = pp_ProjectorConfiguration.w;
 
 				o.shadowCoords.xy /= o.shadowCoords.w;
 
 				float alpha = max(0, sign(o.shadowCoords.w) - dot(o.shadowCoords.xy, o.shadowCoords.xy));
 
-		
 				float viewPos = length(float3(o.shadowCoords.xy * camFOVDegrees,1))*camAspectRatio;
 
-			
 				float true01Range = length(o.worldPos - pp_ProjectorPosition.xyz) * deFar;
 
 				//Reverse Distance
@@ -81,7 +78,6 @@
 	
 				float2 off = pp_DepthProjection_TexelSize.xy;
 
-			
 				float d0p = tex2D(pp_DepthProjection, pointUV).r - predictedDepth;
 				/*float d1p = tex2D(pp_DepthProjection, pointUV - off ).r - predictedDepth;
 				float d2p = tex2D(pp_DepthProjection, pointUV + off ).r - predictedDepth;

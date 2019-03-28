@@ -45,13 +45,13 @@
 					#if  TARGET_TRANSPARENT_LAYER
 					float2 tmp;
 					tmp.x = min(dni.x, length(col.rgb - brushColor.rgb));
-					tmp.i = min(dni.i, length(col.rgb));
+					tmp.y = min(dni.y, length(col.rgb));
 
 					dni = tmp * col.a + dni * (1 - col.a);
 
 					#else
 					dni.x = min(dni.x, length(col.rgb - brushColor.rgb));
-					dni.i = min(dni.i, length(col.rgb));
+					dni.y = min(dni.y, length(col.rgb));
 					#endif
 
 				}

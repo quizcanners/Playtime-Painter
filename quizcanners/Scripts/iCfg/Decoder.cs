@@ -767,9 +767,9 @@ namespace QuizCannersUtilities
 
 
         #region Into Unity Objects
-        public static IStdSerializeNestedReferences Keeper { get { return CfgEncoder.keeper;  } set { CfgEncoder.keeper = value; } }
+        public static ICfgSerializeNestedReferences Keeper { get { return CfgEncoder.keeper;  } set { CfgEncoder.keeper = value; } }
 
-        public static bool TryDecodeInto<T>(this string data, T val, IStdSerializeNestedReferences referencesKeeper) {
+        public static bool TryDecodeInto<T>(this string data, T val, ICfgSerializeNestedReferences referencesKeeper) {
             var std = val.TryGet_fromObj<ICfg>();
            
             if (std == null) return false;
@@ -780,13 +780,13 @@ namespace QuizCannersUtilities
                 
         }
 
-        public static T DecodeInto<T>(this string data, out T val, IStdSerializeNestedReferences referencesKeeper)
+        public static T DecodeInto<T>(this string data, out T val, ICfgSerializeNestedReferences referencesKeeper)
             where T : ICfg, new() {
             val = data.DecodeInto<T>(referencesKeeper);
             return val;
         }
 
-        public static T DecodeInto<T>(this string data, IStdSerializeNestedReferences referencesKeeper) where T : ICfg, new()
+        public static T DecodeInto<T>(this string data, ICfgSerializeNestedReferences referencesKeeper) where T : ICfg, new()
         {
             var obj = new T();
             data.DecodeInto(obj, referencesKeeper);
@@ -797,7 +797,7 @@ namespace QuizCannersUtilities
 
         public static List<T> Decode_References<T>(this string data, out List<T> list) where T: UnityEngine.Object => data.Decode_References(out list, Keeper);
 
-        public static bool DecodeInto<T>(this string data, T val, IStdSerializeNestedReferences referencesKeeper) where T : ICfg
+        public static bool DecodeInto<T>(this string data, T val, ICfgSerializeNestedReferences referencesKeeper) where T : ICfg
         {
             if (val == null) return false;  
 
@@ -811,7 +811,7 @@ namespace QuizCannersUtilities
 
         }
 
-        public static List<T> Decode_List<T>(this string data, out List<T> val, IStdSerializeNestedReferences referencesKeeper, ref ListMetaData ld) where T : ICfg, new()
+        public static List<T> Decode_List<T>(this string data, out List<T> val, ICfgSerializeNestedReferences referencesKeeper, ref ListMetaData ld) where T : ICfg, new()
         {
             var prevKeeper = Keeper;
             Keeper = referencesKeeper;
@@ -823,7 +823,7 @@ namespace QuizCannersUtilities
             return val;
         }
 
-        public static List<T> Decode_List<T>(this string data, out List<T> val, IStdSerializeNestedReferences referencesKeeper) where T : ICfg, new()
+        public static List<T> Decode_List<T>(this string data, out List<T> val, ICfgSerializeNestedReferences referencesKeeper) where T : ICfg, new()
         {
             var prevKeeper = Keeper;
             Keeper = referencesKeeper;
@@ -835,7 +835,7 @@ namespace QuizCannersUtilities
             return val;
         }
 
-        public static T Decode<T>(this string data, ref T val, IStdSerializeNestedReferences referencesKeeper) where T: UnityEngine.Object
+        public static T Decode<T>(this string data, ref T val, ICfgSerializeNestedReferences referencesKeeper) where T: UnityEngine.Object
         {
            
             if (referencesKeeper == null) return val;
@@ -850,7 +850,7 @@ namespace QuizCannersUtilities
             return val;
         }
 
-        public static List<T> Decode_References<T>(this string data, out List<T> list, IStdSerializeNestedReferences referencesKeeper) where T : UnityEngine.Object
+        public static List<T> Decode_References<T>(this string data, out List<T> list, ICfgSerializeNestedReferences referencesKeeper) where T : UnityEngine.Object
         {
             list = new List<T>();
 

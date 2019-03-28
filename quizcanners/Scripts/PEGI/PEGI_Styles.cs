@@ -172,7 +172,7 @@ namespace PlayerAndEditorGUI
             {
                 clipping = TextClipping.Overflow,
                 wordWrap = true,
-                fontSize = 14,
+                fontSize = 12,
             });
         #endregion
 

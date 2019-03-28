@@ -40,11 +40,11 @@ namespace Playtime_Painter {
             set { texture = value?.texture2D; }
         }
 
-        protected virtual string PropertyName => "DefaultVolume";
+        protected virtual string PropertyNameRoot => "DefaultVolume";
 
-        public ShaderProperty.TextureValue MaterialPropertyName => new ShaderProperty.TextureValue(PropertyName + VolumePaintingPlugin.VolumeTextureTag);
+        public ShaderProperty.TextureValue MaterialPropertyName => new ShaderProperty.TextureValue(PropertyNameRoot + VolumePaintingPlugin.VolumeTextureTag);
 
-        public ShaderProperty.TextureValue MaterialPropertyNameGlobal => new ShaderProperty.TextureValue( PainterDataAndConfig.GlobalPropertyPrefix+ PropertyName + VolumePaintingPlugin.VolumeTextureTag, true);
+        public ShaderProperty.TextureValue MaterialPropertyNameGlobal => new ShaderProperty.TextureValue( PainterDataAndConfig.GlobalPropertyPrefix+ PropertyNameRoot + VolumePaintingPlugin.VolumeTextureTag, true);
         
         public List<Material> materials;
 

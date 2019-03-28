@@ -16,7 +16,7 @@ namespace Playtime_Painter
 
         public MaterialLightManager lights;
 
-        protected override string PropertyName => "BakedShadow";
+        protected override string PropertyNameRoot => "BakedShadow";
 
         public override bool VolumeJobIsRunning => _rayStep != RayCastStep.Nothing || base.VolumeJobIsRunning;
 
