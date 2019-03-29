@@ -14,6 +14,9 @@ namespace Playtime_Painter
 
         public bool projectionUv;
         public Vector2 tiling = Vector2.one;
+
+        
+
         public Vector2 offset;
         public float projectorNormalThreshold01 = 0.5f;
 
@@ -44,8 +47,10 @@ namespace Playtime_Painter
         #region Inspect
         public override string NameForDisplayPEGI => "vertex UV";
 
-        public override string Tooltip =>"You project UV and adjust by dragging individual vertices (UVs will change, not the position)." +
-                                         "Control+LMB to sample UV offset and tiling from triangle.";
+        public override string Tooltip =>"When Starting UV Projection, entire mesh will show a preview. UVs still need to be applied manually by painting them. " +
+                                         "Alternativelly it is possible to use Auto Apply Treshold to map to all using Normal Treshold. " +
+                                         "It is recommended to Set all vertices Unique (with Add & Move tool) before applying UVs. And after, merge them if UVs are same." +
+                                         "You project UV and adjust by dragging individual vertices (UVs will change, not the position)."  ;
 
         #if PEGI
         public override bool Inspect() {
@@ -67,7 +72,7 @@ namespace Playtime_Painter
                 if ("tiling".edit(ref tiling).nl(ref changed))
                     UpdateUvPreview();
 
-                if ("offset".edit(ref offset).nl(ref changed))
+                if ("offset".edit01(ref offset).nl(ref changed))
                     UpdateUvPreview();
 
                 if ("Projection UV Stop".Click().nl(ref changed)) {
@@ -296,13 +301,7 @@ namespace Playtime_Painter
                     EditedMesh.dirtyUvs |= v.SetUvIndexBy(PosToUv(v.meshPoint.WorldPos - trgPos));
                 }
             }
-            else
-            {
-
-
-
-            }
-            
+           
 
             return true;
         }

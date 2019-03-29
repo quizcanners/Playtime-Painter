@@ -68,8 +68,7 @@ namespace Playtime_Painter {
             if (b) cDst.b = Mathf.Sqrt(rgbAlpha * cSrc.b * cSrc.b + cDst.b * cDst.b * deAlpha);
             if (a) cDst.a = alpha * cSrc.a + cDst.a * (1 - alpha);
         }
-
-
+        
         public static void AddBlit(ref Color cDst)
         {
             if (r) cDst.r = alpha * cSrc.r + cDst.r;
@@ -157,8 +156,7 @@ namespace Playtime_Painter {
             var tmp = image.UvToPixelNumber(uvCoords, out offset);
 
             var smooth = bc.GetBrushType(true) != BrushTypePixel.Inst;
-            if (smooth)
-            {
+            if (smooth) {
                 iHalf += 1;
                 offset = Vector2.zero;
             }

@@ -222,7 +222,7 @@ namespace Playtime_Painter {
 
             ProcessMouseDrag(control);
 
-            if ((!mouseButton && !stroke.mouseUp) && !control) return;
+            if ((!mouseButton && !stroke.mouseUp) || control) return;
             
             if (currentlyPaintedObjectPainter != this) {
                 currentlyPaintedObjectPainter = this;
@@ -1422,9 +1422,7 @@ namespace Playtime_Painter {
 
         private string GenerateTextureSavePath() =>
             Path.Combine(Cfg.texturesFolderName, ImgMeta.saveName + ".png");
-
-      
-
+        
         private bool OnBeforeSaveTexture(ImageMeta id)
         {
             if (id.TargetIsRenderTexture()) 
@@ -1506,14 +1504,16 @@ namespace Playtime_Painter {
                     SharedMesh = Instantiate(SharedMesh);
 
                 var sm = SharedMesh;
-
-
-
+                
                 Directory.CreateDirectory(Path.Combine("Assets", Cfg.meshesFolderName));
 
                 AssetDatabase.CreateAsset(sm, Path.Combine("Assets",MeshManager.GenerateMeshSavePath()));
 
                 AssetDatabase.SaveAssets();
+
+                if (meshCollider && !meshCollider.sharedMesh && sm)
+                    meshCollider.sharedMesh = sm;
+
             }
             catch (Exception ex)
             {
@@ -1623,7 +1623,7 @@ namespace Playtime_Painter {
             foreach (var c in colliders)
                 if (c.GetType() != typeof(MeshCollider)) c.enabled = true;
 
-            if (forcedMeshCollider && (meshCollider))
+            if (forcedMeshCollider && meshCollider)
                 meshCollider.enabled = false;
         }
         
@@ -1632,12 +1632,18 @@ namespace Playtime_Painter {
 
             SetOriginalShader();
 
-            //var id = GetTextureOnMaterial().GetImgDataIfExists();
+         
 
             initialized = false; // Should be before restoring to texture2D to avoid Clear to black.
 
-            //if (id != null && id.CurrentTexture().IsBigRenderTexturePair())
-            //  UpdateOrSetTexTarget(TexTarget.Texture2D);
+
+            if (Application.isPlaying) {
+
+                var id = GetTextureOnMaterial().GetImgDataIfExists();
+
+                if (id != null && id.CurrentTexture().IsBigRenderTexturePair())
+                    UpdateOrSetTexTarget(TexTarget.Texture2D);
+            }
 
             if (!TexMgmt || MeshManager.target != this) return;
             
@@ -1917,12 +1923,11 @@ namespace Playtime_Painter {
                     pegi.toggle(ref Cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config, "Settings");
 
                     ("This Component allows you to paint on this object's renderer's material's texture (Yes, there is a bit of hierarchy). It can also edit the mesh. " +
-                      "All functions & configurations are accessible from within this inspector. It uses my custom wrapper on EditorGUI so making it is easy and fast. " +
-                      "Almost every class has it's own Inspect() function. I designed it to be user friendly (in terms of usage and programming) " +
-                      "One thing may be confusing though: {0} When inspecting element of any list, on the left from list's header " +
-                      "will be a button to exit the list, and on the right - to return to the list view " +
-                      "It may be counter intuitive at first. " +
-                      "But it saves time once you get used to it. If you are working with only one element in a list you don't have to look for it every time when you come back.").F(pegi.EnvironmentNl)
+                      "All functions & configurations are accessible from within this inspector. " +
+                      "Any changes are applied only to working copy of the texture and will be lost on Entering/Exiting Play mode or restarting Unity." +
+                      "Load button on the bottom can reload working copy from original image file." +
+                      "Save button will apply changes to the original file. To save as new file, change name before saving and click Save As New." +
+                      "").F(pegi.EnvironmentNl)
                       .fullWindowDocumentationClick("What is this component?");
                 }
 
@@ -1942,6 +1947,18 @@ namespace Playtime_Painter {
                 }
                 else
                 {
+
+                    if (meshCollider && !meshCollider.sharedMesh)
+                    {
+                        pegi.nl();
+                        "Mesh Collider has no mesh".writeWarning();
+                        if (meshFilter && meshFilter.sharedMesh &&
+                            "Assign".Click("Will assign {0}".F(meshFilter.sharedMesh)))
+                            meshCollider.sharedMesh = meshFilter.sharedMesh;
+
+                        pegi.nl();
+                    }
+
                     #region Mesh Editing
 
                     if (meshEditing) {

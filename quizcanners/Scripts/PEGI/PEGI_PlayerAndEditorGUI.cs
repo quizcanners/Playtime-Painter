@@ -4108,16 +4108,22 @@ namespace PlayerAndEditorGUI {
             return edit01(ref val);
         }
 
+        public static bool edit01(ref float val) => edit(ref val, 0, 1);
+
+        public static bool edit01(this string label, ref float val) => label.edit(label.ApproximateLength(), ref val, 0, 1);
+        
+        public static bool edit01(this string label, int width, ref float val) => label.edit(width, ref val, 0, 1);
+
         public static bool edit01(ref Rect val)
         {
             var center = val.center;
             var size = val.size;
             
             if (
-                "X".edit(30, ref center.x, 0, 1).nl() ||
-                "Y".edit(30, ref center.y, 0, 1).nl() ||
-                "W".edit(30, ref size.x, 0, 1).nl() ||
-                "H".edit(30, ref size.y, 0, 1).nl())
+                "X".edit01(30, ref center.x).nl() ||
+                "Y".edit01(30, ref center.y).nl() ||
+                "W".edit01(30, ref size.x).nl() ||
+                "H".edit01(30, ref size.y).nl())
             {
                 var half = size * 0.5f;
                 val.min = center - half;
@@ -4177,6 +4183,23 @@ namespace PlayerAndEditorGUI {
             
             return  edit(ref val.x) || edit(ref val.y);
         }
+
+        public static bool edit01(this string label, int width, ref Vector2 val)
+        {
+            label.nl(width);
+            return edit01(ref val);
+        }
+
+        public static bool edit01(this string label, ref Vector2 val)
+        {
+            label.nl(label.ApproximateLength());
+            return edit01(ref val);
+        }
+
+        public static bool edit01(ref Vector2 val) =>
+            "X".edit01(10, ref val.x).nl() ||
+            "Y".edit01(10, ref val.y).nl();
+
 
         public static bool edit_Range(this string label, int width, ref Vector2 vec2) {
 

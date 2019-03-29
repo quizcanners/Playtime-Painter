@@ -511,7 +511,6 @@ namespace Playtime_Painter
 
         public float DistanceTo (MeshPoint other) => (localPos - other.localPos).magnitude;
         
-        
         public void MergeWithNearest(EditableMesh edMesh) {
 
             var allVertices = edMesh.meshPoints;
@@ -598,8 +597,7 @@ namespace Playtime_Painter
             
             return lst;
         }
-
-       
+        
     }
     
     public class Triangle : PainterSystemKeepUnrecognizedCfg

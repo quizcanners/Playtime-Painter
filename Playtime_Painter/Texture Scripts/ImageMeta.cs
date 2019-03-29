@@ -43,7 +43,7 @@ namespace Playtime_Painter
         private bool _alphaPreservePixelSet;
         public bool errorWhileReading;
         public bool dontRedoMipMaps;
-        
+        public bool disableContiniousLine;
 
         private float sdfMaxInside = 1f;
         private float sdfMaxOutside = 1f;
@@ -147,6 +147,7 @@ namespace Playtime_Painter
             .Add_IfTrue("bu", enableUndoRedo)
             .Add_IfTrue("tc2Auto", _useTexCoord2AutoAssigned)
             .Add_IfTrue("dumm", dontRedoMipMaps)
+            .Add_IfTrue("dCnt", disableContiniousLine)
            
             .Add_IfNotBlack("clear", _clearColor)
             .Add_IfNotEmpty("URL", url)
@@ -199,6 +200,7 @@ namespace Playtime_Painter
                 case "rec": showRecording = data.ToBool(); break;
                 case "bu": enableUndoRedo = data.ToBool(); break;
                 case "dumm": dontRedoMipMaps = data.ToBool(); break;
+                case "dCnt": disableContiniousLine = data.ToBool(); break;
                 case "tc2Auto": _useTexCoord2AutoAssigned = data.ToBool(); break;
                 case "clear": _clearColor = data.ToColor(); break;
                 case "URL": url = data; break;
@@ -823,6 +825,8 @@ namespace Playtime_Painter
 
             if ("CPU blit options".conditional_enter(this.TargetIsTexture2D(), ref inspectedItems, 0).nl())
             {
+                "Disable Continious Lines".toggleIcon("If you see unwanted lines appearing on the texture as you paint, enable this." ,ref disableContiniousLine).nl(ref changed);
+
                 "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref _repaintDelay, 0.01f, 0.5f).nl(ref changed);
                 
                 "Don't update mipMaps:".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",
@@ -972,9 +976,7 @@ namespace Playtime_Painter
                 pegi.nl();
             }
             
-            if (showToggles)
-            {
-
+            if (showToggles) {
 
                 "Use Masks".toggleIcon(ref GlobalBrush.useMask).nl(ref changed);
 

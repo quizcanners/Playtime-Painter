@@ -139,21 +139,18 @@ namespace Playtime_Painter
 
                     pegi.selectOrAdd(ref InspectedBrush.selectedSourceMask, ref TexMGMTdata.masks).nl(ref changed);
 
+                    "Mask greyscale".toggleIcon("Otherwise will use alpha", ref InspectedBrush.maskFromGreyscale).nl(ref changed);
+
+                    "Flip Mask ".toggleIcon("Alpha = 1-Alpha", ref InspectedBrush.flipMaskAlpha).nl(ref changed);
+
                     if (!InspectedBrush.randomMaskOffset)
-                        "Mask Offset ".edit(ref InspectedBrush.maskOffset).nl(ref changed);
+                        "Mask Offset ".edit01(ref InspectedBrush.maskOffset).nl(ref changed);
 
                     "Random Mask Offset".toggleIcon(ref InspectedBrush.randomMaskOffset).nl(ref changed);
                     
                     if ("Mask Tiling: ".edit(70, ref InspectedBrush.maskTiling, 1, 8).nl(ref changed))
                         InspectedBrush.maskTiling = Mathf.Clamp(InspectedBrush.maskTiling, 0.1f, 64);
-                    
-                    "Flip Mask Alpha".toggleIcon("Alpha = 1-Alpha", ref InspectedBrush.flipMaskAlpha).nl(ref changed);
-
-                    "Alpha from greyscale".toggleIcon(ref InspectedBrush.maskFromGreyscale).nl(ref changed);
-
                 }
-
-
             }
     
             if (InspectedPainter.NeedsGrid() && "Center Grid On Object".Click().nl())
@@ -177,17 +174,31 @@ namespace Playtime_Painter
 
             var id = painter.ImgMeta;
 
-            var uvDist = (deltaUv.magnitude * id.width * 8 / br.Size(false));
-            var worldDist = st.DeltaWorldPos.magnitude;
+            var deltaPos = st.DeltaWorldPos;
 
-            float steps = (int)Mathf.Max(1, worldSpace ? worldDist : uvDist);
+            float steps = 1;
 
-            deltaUv /= steps;
-            var deltaPos = st.DeltaWorldPos / steps;
+            if (id.disableContiniousLine)  {
+               
+                st.uvFrom = st.uvTo;
+                st.posFrom = st.posTo;
+               
+            }
+            else {
 
-            st.uvFrom += deltaUv;
-            st.posFrom += deltaPos;
-            
+                var uvDist = (deltaUv.magnitude * id.width * 8 / br.Size(false));
+                var worldDist = st.DeltaWorldPos.magnitude;
+
+                steps = (int) Mathf.Max(1, worldSpace ? worldDist : uvDist);
+
+                deltaUv /= steps;
+                deltaPos /= steps;
+
+                st.uvFrom += deltaUv;
+                st.posFrom += deltaPos;
+            }
+
+
             BlitFunctions.PaintTexture2DMethod blitMethod = null;
             
             foreach (var p in PainterSystemManagerPluginBase.BrushPlugins)

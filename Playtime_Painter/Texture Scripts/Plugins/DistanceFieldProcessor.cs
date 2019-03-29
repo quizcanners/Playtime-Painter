@@ -1,8 +1,21 @@
+/*
+ * The script below was originally obtained from
+ * SDF Toolkit Free by CATLIKE CODING (Can be found on the Asset Store)
+ * The generator is based on the Anti-aliased Euclidean distance transform described by Stefan Gustavson and Robin Strand.
+ * The algorithm it uses is an adapted version of Stefan Gustavson's code and falls under the permissive MIT License.
+ * This means that you can bundle it with your commercial products.
+ * The MIT license applies only to this class which was originally named SDFTextureGenerator.cs.
+ *
+ *
+ * I modified it to work with Playtime Painter's ImageMeta class, but the underlying technique remains the same. 
+ */
+
 using UnityEngine;
 
 namespace Playtime_Painter {
     
-    public static class SDFTextureGenerator {
+    public static class DistanceFieldProcessor
+    {
 		
 		private class Pixel {
             public float originalValue;
@@ -14,17 +27,6 @@ namespace Playtime_Painter {
 		private static int width, height;
 		private static Pixel[,] pixels;
 		
-		/// <summary>
-		/// Fill a texture with a signed distance field generated from the alpha channel of a source texture.
-		/// </summary>
-		/// <param name="source">
-		/// Source texture. Alpha values of 1 are considered inside, values of 0 are considered outside, and any other values are considered
-		/// to be on the edge. Must be readable.
-		/// </param>
-		/// <param name="destination">
-		/// Destination texture. Must be the same size as the source texture. Must be readable.
-		/// The texture change does not get applied automatically, you need to do that yourself.
-		/// </param>
 		/// <param name="maxInside">
 		/// Maximum pixel distance measured inside the edge, resulting in an alpha value of 1.
 		/// If set to or below 0, everything inside will have an alpha value of 1.
@@ -42,8 +44,6 @@ namespace Playtime_Painter {
 			float maxInside,
 			float maxOutside,
 			float postProcessDistance) {
-
-            //Texture2D destination = source;
 
 			width = image.width;
 			height = image.height;

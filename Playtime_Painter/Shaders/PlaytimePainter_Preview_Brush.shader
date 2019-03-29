@@ -267,6 +267,8 @@
 						float pa = (_brushPointedUV.w)*pr_shadow*0.8;
 
 						col = col * (1-pa) + _brushColor*(pa);
+
+
 					#endif
 
 
@@ -278,6 +280,10 @@
     
 					#if BLIT_MODE_SUBTRACT
 						col =  subtractFromDestBufferPreview (alpha*0.4, _brushColor, tc.xy, col);
+					#endif
+
+					#if !TARGET_TRANSPARENT_LAYER
+						col.a = 1;
 					#endif
 
 					
