@@ -15,10 +15,11 @@ namespace Playtime_Painter
         public bool projectionUv;
         public Vector2 tiling = Vector2.one;
 
-        
+        private bool projectFront = false;
 
         public Vector2 offset;
         public float projectorNormalThreshold01 = 0.5f;
+        private bool meshProcessors = false;
 
         #region Encode & Decode
         public override bool Decode(string tg, string data)
@@ -29,6 +30,8 @@ namespace Playtime_Painter
                 case "offset": offset = data.ToVector2(); break;
                 case "tile": tiling = data.ToVector2(); break;
                 case "nrmWrap": projectorNormalThreshold01 = data.ToFloat();  break;
+                case "fr": projectFront = true; break;
+                case "mp": meshProcessors = true; break;
                 default: return false;
             }
             return true;
@@ -36,7 +39,9 @@ namespace Playtime_Painter
 
         public override CfgEncoder Encode() => new CfgEncoder()
             .Add_Bool("gtuv", projectionUv)
-            .Add("nrmWrap", projectorNormalThreshold01);
+            .Add("nrmWrap", projectorNormalThreshold01)
+            .Add_IfTrue("fr", projectFront)
+            .Add_IfTrue("mp", meshProcessors);
         
         public CfgEncoder EncodePerMeshData() => new CfgEncoder()
             .Add("offset", offset)
@@ -59,7 +64,7 @@ namespace Playtime_Painter
 
             var mm = MeshMGMT;
 
-            if (("UV Set: " + mm.EditedUV + " (Click to switch)").Click().nl())
+            if (("Edited UV: " + mm.EditedUV + " (Click to switch)").Click().nl())
                 mm.EditedUV = mm.EditedUV == 1 ? 0 : 1; // 1 - mm.editedUV;
 
             if (!projectionUv && "Projection UV Start".Click().nl()) {
@@ -72,7 +77,7 @@ namespace Playtime_Painter
                 if ("tiling".edit(ref tiling).nl(ref changed))
                     UpdateUvPreview();
 
-                if ("offset".edit01(ref offset).nl(ref changed))
+                if ("offset".edit(ref offset, -1, 1).nl(ref changed))
                     UpdateUvPreview();
 
                 if ("Projection UV Stop".Click().nl(ref changed)) {
@@ -80,13 +85,34 @@ namespace Playtime_Painter
                     EditedMesh.Dirty = true;
                 }
 
-                if ("Auto Apply Threshold".edit(ref projectorNormalThreshold01, 0, 1).changes(ref changed))
-                    UpdateUvPreview(true);
-                if (icon.Done.Click("Auto apply to all").nl())
-                    AutoProjectUVs(EditedMesh);
+                //"Paint on vertices where you want to apply current UV configuration".writeHint();
+                //"Use scroll wheel to change projection plane".writeHint();
+            }
 
-                "Paint on vertices where you want to apply current UV configuration".writeHint();
-                "Use scroll wheel to change projection plane".writeHint();
+            if ("Processors".foldout(ref meshProcessors).nl())  {
+
+                if (projectionUv) {
+                    if ("Auto Apply Threshold".edit(ref projectorNormalThreshold01, 0.01f, 1f).changes(ref changed))
+                        UpdateUvPreview(true);
+
+                    if ((projectFront ? "front" : "back").Click())
+                        projectFront = !projectFront;
+
+                    if (icon.Done.Click("Auto apply to all"))
+                        AutoProjectUVs(EditedMesh);
+                }
+
+                pegi.nl();
+
+                if ("All UVs to 01 space".Click())
+                {
+                    foreach (var point in EditedMesh.meshPoints)
+                        point.UVto01Space();
+
+                    EditedMesh.Dirty = true;
+                }
+
+                pegi.nl();
             }
 
             return changed;
@@ -306,20 +332,29 @@ namespace Playtime_Painter
             return true;
         }
 
-        private void AutoProjectUVs(EditableMesh eMesh)
-        {
-            // projectorNormalThreshold01
+        private void AutoProjectUVs(EditableMesh eMesh) {
 
             var trgPos = MeshManager.targetTransform.position;
 
             var gn = GridNavigator.Inst();
 
-
+            if (projectorNormalThreshold01 == 1) {
+                foreach (var t in eMesh.triangles) {
+                    for (var i = 0; i < 3; i++) {
+                        var v = t.vertexes[i];
+                        v.SetUvIndexBy(PosToUv(v.meshPoint.WorldPos - trgPos));
+                    }
+                }
+            } else 
             foreach (var t in eMesh.triangles)
             {
-                var pv = gn.InPlaneVector(t.GetNormal());
+                var norm = t.GetSharpNormal();
 
-                if (!(pv.magnitude < projectorNormalThreshold01)) continue;
+               // var pv = gn.InPlaneVector(norm);
+
+                var perp = gn.PerpendicularToPlaneVector(norm);
+
+                if ((Mathf.Abs(perp) < projectorNormalThreshold01) || (perp>0 != projectFront)) continue;
 
                 for (var i = 0; i < 3; i++) {
                     var v = t.vertexes[i];

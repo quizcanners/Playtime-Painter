@@ -61,7 +61,12 @@ namespace Playtime_Painter {
         public Mesh SharedMesh {
 
             get { return meshFilter ? meshFilter.sharedMesh : (skinnedMeshRenderer ? skinnedMeshRenderer.sharedMesh : null); }
-            set { if (meshFilter) meshFilter.sharedMesh = value; if (skinnedMeshRenderer) skinnedMeshRenderer.sharedMesh = value; }
+            set {
+                if (meshFilter) meshFilter.sharedMesh = value;
+                if (skinnedMeshRenderer) skinnedMeshRenderer.sharedMesh = value;
+
+                //UpdateMeshCollider(value);
+            }
         }
 
         public Mesh Mesh { set { if (meshFilter) meshFilter.mesh = value; if (skinnedMeshRenderer) skinnedMeshRenderer.sharedMesh = value; } }
@@ -1511,13 +1516,14 @@ namespace Playtime_Painter {
 
                 AssetDatabase.SaveAssets();
 
-                if (meshCollider && !meshCollider.sharedMesh && sm)
-                    meshCollider.sharedMesh = sm;
+                UpdateMeshCollider();
+
+                //if (meshCollider && !meshCollider.sharedMesh && sm)
+                  //  meshCollider.sharedMesh = sm;
 
             }
-            catch (Exception ex)
-            {
-                Debug.Log(ex);
+            catch (Exception ex)  {
+                Debug.LogError(ex);
             }
         }
 
@@ -1667,16 +1673,27 @@ namespace Playtime_Painter {
             
         }
 
-        public void UpdateColliderForSkinnedMesh() {
+        private void UpdateColliderForSkinnedMesh() {
 
             if (!colliderForSkinnedMesh)
+            {
                 colliderForSkinnedMesh = new Mesh();
+                colliderForSkinnedMesh.name = "Generated Collider for "+name;
+            }
 
             skinnedMeshRenderer.BakeMesh(colliderForSkinnedMesh);
 
-            if (meshCollider)
-                meshCollider.sharedMesh = colliderForSkinnedMesh;
-
+            try
+            {
+                if (meshCollider)
+                {
+                    meshCollider.sharedMesh = null;
+                    meshCollider.sharedMesh = colliderForSkinnedMesh;
+                }
+            }
+            catch (Exception ex) {
+                _logger.Log_Interval(1000, ex.ToString(), true, this);
+            }
         }
 
         public void InitIfNotInitialized()
@@ -2807,7 +2824,16 @@ namespace Playtime_Painter {
         #endregion
 
         #region Mesh Editing 
-        
+
+        public void UpdateMeshCollider(Mesh mesh = null) {
+
+            if (skinnedMeshRenderer)
+                UpdateColliderForSkinnedMesh();
+            else if (mesh)
+                meshCollider?.AssignMeshAsCollider(mesh);
+
+        }
+
         public bool IsEditingThisMesh => IsCurrentTool && meshEditing && (MeshManager.target == this); 
 
         private static MeshManager MeshManager => MeshManager.Inst; 

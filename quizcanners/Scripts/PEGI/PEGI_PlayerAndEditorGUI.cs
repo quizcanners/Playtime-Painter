@@ -464,8 +464,8 @@ namespace PlayerAndEditorGUI {
 
         #region Pop UP Services
         
-        private static bool fullWindowDocumentationClick(string toolTip = "What is this?", int buttonSize = 20) =>
-            icon.Question.BgColor(Color.clear).Click(toolTip, buttonSize).PreviousBgColor();
+        private static bool fullWindowDocumentationClick(string toolTip = "What is this?", int buttonSize = 20, icon clickIcon = icon.Question ) =>
+            clickIcon.BgColor(Color.clear).Click(toolTip, buttonSize).PreviousBgColor();
         
         public static bool fullWindowDocumentationClick(InspectionDelegate function, string toolTip = "What is this?", int buttonSize = 20)
         {
@@ -479,11 +479,12 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        public static bool fullWindowDocumentationClick(this string text, string toolTip = "What is this?", int buttonSize = 20)
-        {
+        public static bool fullWindowWarningDocumentationClick(this string text, string toolTip = "What is this?",
+            int buttonSize = 20) => text.fullWindowDocumentationClick(toolTip, buttonSize, icon.Warning);
 
-            if (fullWindowDocumentationClick(toolTip, buttonSize))
-            {
+        public static bool fullWindowDocumentationClick(this string text, string toolTip = "What is this?", int buttonSize = 20, icon clickIcon = icon.Question)  {
+
+            if (fullWindowDocumentationClick(toolTip, buttonSize, clickIcon)) {
                 PopUpService.popUpText = text;
                 PopUpService.InitiatePopUp();
                 return true;
@@ -4199,8 +4200,7 @@ namespace PlayerAndEditorGUI {
         public static bool edit01(ref Vector2 val) =>
             "X".edit01(10, ref val.x).nl() ||
             "Y".edit01(10, ref val.y).nl();
-
-
+        
         public static bool edit_Range(this string label, int width, ref Vector2 vec2) {
 
             var x = vec2.x;

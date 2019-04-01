@@ -671,12 +671,11 @@ namespace Playtime_Painter {
             // Mistake here somewhere
 
             var changed = new Vertex[3];
-            for (var i = 0; i < 3; i++)
-            {
+            for (var i = 0; i < 3; i++)  {
 
                 var uvi = triangle.vertexes[i];
         
-                if (uvi.triangles.Count > 1) //count > 1)
+                if (uvi.triangles.Count > 1) 
                 {
                     changed[i] = new Vertex(uvi);
                     change = true;

@@ -54,12 +54,9 @@ namespace PlayerAndEditorGUI {
 
             var go = o.gameObject;
             
-            if (go.IsPrefab())
-                return false;
-
             var pgi = o as IPEGI;
-            
-            if (pgi != null) {
+
+            if (pgi != null && !go.IsPrefab()) {
 
                 start(so);
 

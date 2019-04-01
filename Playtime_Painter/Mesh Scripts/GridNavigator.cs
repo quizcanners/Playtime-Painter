@@ -3,6 +3,7 @@ using System;
 using Playtime_Painter;
 using QuizCannersUtilities;
 using PlayerAndEditorGUI;
+using UnityEditor;
 
 public enum Gridside { xz, xy, zy }
 
@@ -113,8 +114,8 @@ public class GridNavigator : PainterSystemMono {
             case Gridside.xy: return new Vector3(v2.x, v2.y, 0); //Mirror.z = 1; break;
             case Gridside.xz: return new Vector3(v2.x, 0, v2.y); //
             case Gridside.zy: return new Vector3(0, v2.y, v2.x); //
+            default: return Vector3.zero;
         }
-        return Vector3.zero;
 
     }
 
@@ -125,8 +126,21 @@ public class GridNavigator : PainterSystemMono {
             case Gridside.xy: return new Vector2(f.x, f.y); //Mirror.z = 1; break;
             case Gridside.xz: return new Vector2(f.x, f.z); //
             case Gridside.zy: return new Vector2(f.z, f.y); //
+            default: return Vector3.zero;
         }
-        return Vector3.zero;
+    }
+
+
+    public float PerpendicularToPlaneVector(Vector3 f)
+    {
+        switch (gSide)
+        {
+            case Gridside.xy: return f.z; //Mirror.z = 1; break;
+            case Gridside.xz: return f.y; //new Vector2(f.x, f.z); //
+            case Gridside.zy: return f.x; //new Vector2(f.z, f.y); //
+            default: return 0;
+        }
+        
     }
 
     public Vector3 GetGridPerpendicularVector()

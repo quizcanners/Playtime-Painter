@@ -153,7 +153,7 @@ namespace Playtime_Painter
                 }  else {
                     var m = mc.Construct();
                     target.SharedMesh = m;
-                    target.meshCollider.AssignMeshAsCollider(m);
+                    target.UpdateMeshCollider(m); //meshCollider.AssignMeshAsCollider(m);
                 }
             }
 
@@ -806,11 +806,19 @@ namespace Playtime_Painter
                 previousTool.OnDeSelectTool();
                 MeshTool.OnSelectTool();
             }
-
+            
             MeshTool.Tooltip.fullWindowDocumentationClick("About this tool.");
 
-            pegi.nl();
+    
+            if (target.skinnedMeshRenderer) 
+                ("When using Skinned Mesh Renderer, the mesh will be transformed by it, so mesh points will not be in the correct position, and it is impossible to do any modifications on mesh with the mouse. It is still possible to do automatic processes like " +
+                 "changing mesh profile and everything that doesn't require direct input from mouse over the object. It is recommended to edit the object separately from the skinned mesh."
+                    ).fullWindowWarningDocumentationClick("Skinned mesh detected");
             
+            pegi.nl();
+
+
+
             var mt = MeshTool;
 
             mt.Inspect().nl(ref changed);

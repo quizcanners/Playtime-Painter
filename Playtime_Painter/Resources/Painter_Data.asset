@@ -75,12 +75,22 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 9ae229dd8ceca9b4383f716fbdbe3a8c, type: 2}
   - {fileID: 2800000, guid: 2fce8c8a1590e3043bcbed37b6979fbe, type: 3}
   - {fileID: 2800000, guid: da1a23f944deca6489d4def47c8a3998, type: 3}
+  - {fileID: 2800000, guid: 801c4ecb03c62ed47b16175d06855e1a, type: 3}
+  - {fileID: 2100000, guid: 970868379a374e04e969f0c637e884d1, type: 2}
+  - {fileID: 2800000, guid: dd7c202806e7a03488df3f069ce73e9d, type: 3}
+  - {fileID: 2800000, guid: 050c58dde54a87547a680b69f0123c57, type: 3}
+  - {fileID: 2100014, guid: 2511bd7279babd042aa9e91d37ce31b4, type: 3}
+  - {fileID: 2100012, guid: 2511bd7279babd042aa9e91d37ce31b4, type: 3}
+  - {fileID: 2800000, guid: d702353e8cf6cb94ea3b81fab1638337, type: 3}
   explorer:
     states: []
     fileFolderHolder: STDEncodes
   inspectedItems: -1
   inspectedReference: -1
   playtimePainterLayer: 30
+  additiveAlphaOutput: {fileID: 4800000, guid: 64fa7bd7d59cb1245a6603bb8dfb652b, type: 3}
+  multishadeBufferBlit: {fileID: 4800000, guid: 5c155ea54209c1b4282c00cea158edb3,
+    type: 3}
   brushBlit: {fileID: 4800000, guid: f2fe9d0c60fd29b4d84fc2dbad4f2cbf, type: 3}
   brushAdd: {fileID: 4800000, guid: 5e5b22a6f613bce4ba98a3e5c1328384, type: 3}
   brushCopy: {fileID: 4800000, guid: 8afa7564920dd2746bf6b4523c648e22, type: 3}
@@ -121,13 +131,13 @@ MonoBehaviour:
   inspectedColorScheme: -1
   showUrlField: 0
   meshTool: 0
-  bevelDetectionSensitivity: 12.1
-  meshToolsStd: t_pos|15|dm|1|0|inM|1|n||t_shF|7|dm|1|0||t_vCol|0||t_edgs|23|v|1|1|doCol|1|n|fe|1|n||t_noStd|16|cat|1|0|cac|1|0||t_sbmsh|0||t_uv|21|gtuv|1|n|nrmWrap|1|0||
+  bevelDetectionSensitivity: 4.1
+  meshToolsStd: t_pos|15|dm|1|0|inM|1|n||t_shF|7|dm|1|0||t_vCol|0||t_edgs|23|v|1|1|doCol|1|n|fe|1|n||t_noStd|16|cat|1|0|cac|1|0||t_sbmsh|0||t_uv|38|gtuv|1|n|nrmWrap|4|0.16|fr|1|y|mp|1|y||
   saveMeshUndos: 0
   makeVerticesUniqueOnEdgeColoring: 0
   gridSize: 1
   snapToGrid: 0
-  newVerticesUnique: 0
+  newVerticesUnique: 1
   newVerticesSmooth: 1
   pixelPerfectMeshEditing: 0
   useGridForBrush: 0
@@ -140,6 +150,7 @@ MonoBehaviour:
   brushConfig:
     _inGpuBrushType: 3
     _inCpuBrushType: 0
+    useAlphaBuffer: 1
     _inGpuBlitMode: 0
     _inCpuBlitMode: 0
     targetIsTex2D: 0
@@ -160,19 +171,19 @@ MonoBehaviour:
     decalContentious: 0
     decalAngleModifier: 0
     showBrushDynamics: 0
-    hardness: 13.35
-    blurAmount: 3.55
-    brush3DRadius: 0.017
-    brush2DRadius: 44
+    hardness: 13.2
+    blurAmount: 1.63
+    brush3DRadius: 0.126
+    brush2DRadius: 41
     colorLinear:
       r: 1
-      g: 1
-      b: 1
-      a: 0
+      g: 0
+      b: 0
+      a: 1
     _dSpeed:
       min: 0.1
       max: 4.5
-      value: 4.5
+      value: 3.49
   showColorSliders: 1
   disableNonMeshColliderInPlayMode: 0
   previewAlphaChanel: 0
@@ -191,6 +202,6 @@ MonoBehaviour:
   selectedHeightIndex: 8
   recordingNames: []
   browsedRecord: 0
-  stdData: imgs|601|e|40|tex2D|2|49|w|4|1024|h|4|1024|sn|5|mask0||e|38|tex2D|2|60|w|3|128|h|3|128|sn|5|noise||e|41|tex2D|2|61|w|4|1024|h|4|1024|sn|6|Cube
-    1||e|53|tex2D|2|58|w|4|1024|h|4|1024|sn|17|Sphere__WaterMask||e|39|tex2D|2|53|w|4|1024|h|4|1024|sn|4|Cube||e|56|tex2D|2|51|w|4|1024|h|4|1024|sn|20|Ankara
-    Erkek - Govde||e|63|tex2D|2|47|w|4|1024|h|3|256|sn|18|Rounded UI Element|trnsp|1|y||e|40|tex2D|1|0|w|4|2048|h|4|2048|sn|6|Volume||e|40|tex2D|2|45|w|2|16|h|2|16|sn|9|SmoothBox||e|37|tex2D|2|46|w|2|16|h|2|16|sn|6|pixArt||e|36|tex2D|1|1|w|3|256|h|3|256|sn|4|Cube||e|46|tex2D|1|9|w|4|2048|h|4|2048|sn|11|Diffuse_ATL|||sch|1|0|mats|3048|e|188|mat|2|59|tfs|170|e|26|b|13|n|8|_MainTex||tgs|0|||e|32|b|19|n|13|_SparklesMask||tgs|0|||e|29|b|16|n|10|_WaterMask||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|27|b|14|n|9|_BumpMap1||tgs|0|||||e|16|mat|2|57|tfs|0|||e|354|mat|2|54|tfs|336|e|26|b|13|n|8|_MainTex||tgs|0|||e|36|b|23|n|17|_MetallicGlossMap||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|31|b|18|n|12|_ParallaxMap||tgs|0|||e|32|b|19|n|13|_OcclusionMap||tgs|0|||e|31|b|18|n|12|_EmissionMap||tgs|0|||e|30|b|17|n|11|_DetailMask||tgs|0|||e|35|b|22|n|16|_DetailAlbedoMap||tgs|0|||e|35|b|22|n|16|_DetailNormalMap||tgs|0|||||e|354|mat|2|55|tfs|336|e|26|b|13|n|8|_MainTex||tgs|0|||e|36|b|23|n|17|_MetallicGlossMap||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|31|b|18|n|12|_ParallaxMap||tgs|0|||e|32|b|19|n|13|_OcclusionMap||tgs|0|||e|31|b|18|n|12|_EmissionMap||tgs|0|||e|30|b|17|n|11|_DetailMask||tgs|0|||e|35|b|22|n|16|_DetailAlbedoMap||tgs|0|||e|35|b|22|n|16|_DetailNormalMap||tgs|0|||||e|354|mat|2|56|tfs|336|e|26|b|13|n|8|_MainTex||tgs|0|||e|36|b|23|n|17|_MetallicGlossMap||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|31|b|18|n|12|_ParallaxMap||tgs|0|||e|32|b|19|n|13|_OcclusionMap||tgs|0|||e|31|b|18|n|12|_EmissionMap||tgs|0|||e|30|b|17|n|11|_DetailMask||tgs|0|||e|35|b|22|n|16|_DetailAlbedoMap||tgs|0|||e|35|b|22|n|16|_DetailNormalMap||tgs|0|||||e|354|mat|2|11|tfs|336|e|26|b|13|n|8|_MainTex||tgs|0|||e|36|b|23|n|17|_MetallicGlossMap||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|31|b|18|n|12|_ParallaxMap||tgs|0|||e|32|b|19|n|13|_OcclusionMap||tgs|0|||e|31|b|18|n|12|_EmissionMap||tgs|0|||e|30|b|17|n|11|_DetailMask||tgs|0|||e|35|b|22|n|16|_DetailAlbedoMap||tgs|0|||e|35|b|22|n|16|_DetailNormalMap||tgs|0|||||e|361|mat|2|52|pv|1|y|tfs|336|e|26|b|13|n|8|_MainTex||tgs|0|||e|36|b|23|n|17|_MetallicGlossMap||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|31|b|18|n|12|_ParallaxMap||tgs|0|||e|32|b|19|n|13|_OcclusionMap||tgs|0|||e|31|b|18|n|12|_EmissionMap||tgs|0|||e|30|b|17|n|11|_DetailMask||tgs|0|||e|35|b|22|n|16|_DetailAlbedoMap||tgs|0|||e|35|b|22|n|16|_DetailNormalMap||tgs|0|||||e|82|mat|2|50|tfs|65|e|26|b|13|n|8|_MainTex||tgs|0|||e|27|b|14|n|9|_MainTex2||tgs|0|||||e|354|mat|2|48|tfs|336|e|26|b|13|n|8|_MainTex||tgs|0|||e|36|b|23|n|17|_MetallicGlossMap||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|31|b|18|n|12|_ParallaxMap||tgs|0|||e|32|b|19|n|13|_OcclusionMap||tgs|0|||e|31|b|18|n|12|_EmissionMap||tgs|0|||e|30|b|17|n|11|_DetailMask||tgs|0|||e|35|b|22|n|16|_DetailAlbedoMap||tgs|0|||e|35|b|22|n|16|_DetailNormalMap||tgs|0|||||e|176|mat|1|7|tfs|159|e|26|b|13|n|8|_MainTex||tgs|0|||e|23|b|10|n|5|_Bump||tgs|0|||e|25|b|12|n|7|_Smudge||tgs|0|||e|25|b|12|n|7|_BumpEx||tgs|0|||e|30|b|17|n|11|_BumpDetail||tgs|0|||||e|75|mat|1|6|tfs|59|e|26|b|13|n|8|_MainTex||tgs|0|||e|21|b|9|n|4|_Map||tgs|0|||||e|48|mat|1|3|tfs|32|e|26|b|13|n|8|_MainTex||tgs|0|||||e|109|mat|1|5|tfs|93|e|26|b|13|n|8|_MainTex||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|23|b|10|n|5|_Refl||tgs|0|||||e|129|mat|1|4|tfs|112|e|31|b|18|n|12|_MainTex_ATL||tgs|0|||e|32|b|19|n|13|_BumpMapC_ATL||tgs|0|||e|31|b|18|n|12|_Microdetail||tgs|0||||||pals|0||cam|161|mm|0||pl|147|_lstMeta|0||_lst|125|ColBleed|0||CmbndMpsCntrl|13|cm|0||tps|0|||MltBffr|19|s|0||sc|0||gui|1|n||TilAtlCntrl|13|atl|0||am|0|||VolumePntng|7|ug|1|n|||||Vpck|1573|e|261|n|6|Simple|sln|241|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|6|t|1|2||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|511|n|5|Bevel|sln|492|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|84|en|1|y|t|1|2|vals|62|e|7|t|2|12||e|13|t|2|12|v|1|1||e|13|t|2|12|v|1|2||e|7|t|2|15||||e|91|en|1|y|t|1|3|vals|69|e|7|t|2|13||e|13|t|2|13|v|1|1||e|13|t|2|13|v|1|2||e|13|t|2|15|v|1|1||||e|91|en|1|y|t|1|4|vals|69|e|7|t|2|14||e|13|t|2|14|v|1|1||e|13|t|2|14|v|1|2||e|13|t|2|15|v|1|2||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|370|n|16|AtlasedProjected|sln|339|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|60|en|1|y|t|1|2|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|2||||e|26|en|1|y|t|1|3|sameSize|1|8||e|27|en|1|y|t|1|4|sameSize|2|11||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|403|n|16|Standard_Atlased|sln|372|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|60|en|1|y|t|1|2|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|2||||e|26|en|1|y|t|1|3|sameSize|1|8||e|60|en|1|y|t|1|4|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|2||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6|||||e|1|y|
+  stdData: imgs|663|e|53|tex2D|2|68|w|4|1024|h|4|1024|sn|10|WaterMask2|is|1|6||e|84|tex2D|2|64|w|4|1024|h|4|1024|sn|14|DenizliDiffuse|clear|24|r|1|1|g|1|1|b|1|1|a|1|1|||e|57|tex2D|2|65|w|4|2048|h|4|2048|sn|21|Denizli
+    Kadin - Govde||e|57|tex2D|2|62|w|4|2048|h|4|2048|sn|21|Denizli Kadin - Govde||e|40|tex2D|2|49|w|4|1024|h|4|1024|sn|5|mask0||e|38|tex2D|2|60|w|3|128|h|3|128|sn|5|noise||e|63|tex2D|2|47|w|4|1024|h|3|256|sn|18|Rounded
+    UI Element|trnsp|1|y||e|40|tex2D|1|0|w|4|2048|h|4|2048|sn|6|Volume||e|40|tex2D|2|45|w|2|16|h|2|16|sn|9|SmoothBox||e|37|tex2D|2|46|w|2|16|h|2|16|sn|6|pixArt||e|36|tex2D|1|1|w|3|256|h|3|256|sn|4|Cube||e|46|tex2D|1|9|w|4|2048|h|4|2048|sn|11|Diffuse_ATL|||sch|1|0|mats|3041|e|188|mat|2|59|tfs|170|e|26|b|13|n|8|_MainTex||tgs|0|||e|32|b|19|n|13|_SparklesMask||tgs|0|||e|29|b|16|n|10|_WaterMask||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|27|b|14|n|9|_BumpMap1||tgs|0|||||e|354|mat|2|11|tfs|336|e|26|b|13|n|8|_MainTex||tgs|0|||e|36|b|23|n|17|_MetallicGlossMap||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|31|b|18|n|12|_ParallaxMap||tgs|0|||e|32|b|19|n|13|_OcclusionMap||tgs|0|||e|31|b|18|n|12|_EmissionMap||tgs|0|||e|30|b|17|n|11|_DetailMask||tgs|0|||e|35|b|22|n|16|_DetailAlbedoMap||tgs|0|||e|35|b|22|n|16|_DetailNormalMap||tgs|0|||||e|354|mat|2|63|tfs|336|e|26|b|13|n|8|_MainTex||tgs|0|||e|36|b|23|n|17|_MetallicGlossMap||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|31|b|18|n|12|_ParallaxMap||tgs|0|||e|32|b|19|n|13|_OcclusionMap||tgs|0|||e|31|b|18|n|12|_EmissionMap||tgs|0|||e|30|b|17|n|11|_DetailMask||tgs|0|||e|35|b|22|n|16|_DetailAlbedoMap||tgs|0|||e|35|b|22|n|16|_DetailNormalMap||tgs|0|||||e|16|mat|2|57|tfs|0|||e|354|mat|2|54|tfs|336|e|26|b|13|n|8|_MainTex||tgs|0|||e|36|b|23|n|17|_MetallicGlossMap||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|31|b|18|n|12|_ParallaxMap||tgs|0|||e|32|b|19|n|13|_OcclusionMap||tgs|0|||e|31|b|18|n|12|_EmissionMap||tgs|0|||e|30|b|17|n|11|_DetailMask||tgs|0|||e|35|b|22|n|16|_DetailAlbedoMap||tgs|0|||e|35|b|22|n|16|_DetailNormalMap||tgs|0|||||e|354|mat|2|55|tfs|336|e|26|b|13|n|8|_MainTex||tgs|0|||e|36|b|23|n|17|_MetallicGlossMap||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|31|b|18|n|12|_ParallaxMap||tgs|0|||e|32|b|19|n|13|_OcclusionMap||tgs|0|||e|31|b|18|n|12|_EmissionMap||tgs|0|||e|30|b|17|n|11|_DetailMask||tgs|0|||e|35|b|22|n|16|_DetailAlbedoMap||tgs|0|||e|35|b|22|n|16|_DetailNormalMap||tgs|0|||||e|354|mat|2|56|tfs|336|e|26|b|13|n|8|_MainTex||tgs|0|||e|36|b|23|n|17|_MetallicGlossMap||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|31|b|18|n|12|_ParallaxMap||tgs|0|||e|32|b|19|n|13|_OcclusionMap||tgs|0|||e|31|b|18|n|12|_EmissionMap||tgs|0|||e|30|b|17|n|11|_DetailMask||tgs|0|||e|35|b|22|n|16|_DetailAlbedoMap||tgs|0|||e|35|b|22|n|16|_DetailNormalMap||tgs|0|||||e|82|mat|2|50|tfs|65|e|26|b|13|n|8|_MainTex||tgs|0|||e|27|b|14|n|9|_MainTex2||tgs|0|||||e|354|mat|2|48|tfs|336|e|26|b|13|n|8|_MainTex||tgs|0|||e|36|b|23|n|17|_MetallicGlossMap||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|31|b|18|n|12|_ParallaxMap||tgs|0|||e|32|b|19|n|13|_OcclusionMap||tgs|0|||e|31|b|18|n|12|_EmissionMap||tgs|0|||e|30|b|17|n|11|_DetailMask||tgs|0|||e|35|b|22|n|16|_DetailAlbedoMap||tgs|0|||e|35|b|22|n|16|_DetailNormalMap||tgs|0|||||e|176|mat|1|7|tfs|159|e|26|b|13|n|8|_MainTex||tgs|0|||e|23|b|10|n|5|_Bump||tgs|0|||e|25|b|12|n|7|_Smudge||tgs|0|||e|25|b|12|n|7|_BumpEx||tgs|0|||e|30|b|17|n|11|_BumpDetail||tgs|0|||||e|75|mat|1|6|tfs|59|e|26|b|13|n|8|_MainTex||tgs|0|||e|21|b|9|n|4|_Map||tgs|0|||||e|48|mat|1|3|tfs|32|e|26|b|13|n|8|_MainTex||tgs|0|||||e|109|mat|1|5|tfs|93|e|26|b|13|n|8|_MainTex||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|23|b|10|n|5|_Refl||tgs|0|||||e|129|mat|1|4|tfs|112|e|31|b|18|n|12|_MainTex_ATL||tgs|0|||e|32|b|19|n|13|_BumpMapC_ATL||tgs|0|||e|31|b|18|n|12|_Microdetail||tgs|0||||||pals|0||cam|161|mm|0||pl|147|_lstMeta|0||_lst|125|ColBleed|0||CmbndMpsCntrl|13|cm|0||tps|0|||MltBffr|19|s|0||sc|0||gui|1|n||TilAtlCntrl|13|atl|0||am|0|||VolumePntng|7|ug|1|n|||||Vpck|2041|e|298|n|6|Simple|sln|278|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|42|en|1|y|t|1|2|vals|20|e|0||e|0||e|0||e|0||||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|511|n|5|Bevel|sln|492|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|84|en|1|y|t|1|2|vals|62|e|7|t|2|12||e|13|t|2|12|v|1|1||e|13|t|2|12|v|1|2||e|7|t|2|15||||e|91|en|1|y|t|1|3|vals|69|e|7|t|2|13||e|13|t|2|13|v|1|1||e|13|t|2|13|v|1|2||e|13|t|2|15|v|1|1||||e|91|en|1|y|t|1|4|vals|69|e|7|t|2|14||e|13|t|2|14|v|1|1||e|13|t|2|14|v|1|2||e|13|t|2|15|v|1|2||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|370|n|16|AtlasedProjected|sln|339|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|60|en|1|y|t|1|2|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|2||||e|26|en|1|y|t|1|3|sameSize|1|8||e|27|en|1|y|t|1|4|sameSize|2|11||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|403|n|16|Standard_Atlased|sln|372|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|60|en|1|y|t|1|2|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|2||||e|26|en|1|y|t|1|3|sameSize|1|8||e|60|en|1|y|t|1|4|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|2||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|424|n|22|WithUV2_AndSharpNormal|sln|387|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|75|en|1|y|t|1|2|vals|53|e|6|t|1|2||e|12|t|1|2|v|1|1||e|7|t|2|10||e|7|t|2|10||||e|81|en|1|y|t|1|3|vals|59|e|6|t|1|5||e|12|t|1|5|v|1|1||e|12|t|1|5|v|1|2||e|7|t|2|10||||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6|||||e|1|y|

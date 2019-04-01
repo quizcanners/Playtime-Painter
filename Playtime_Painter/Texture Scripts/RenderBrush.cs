@@ -24,11 +24,12 @@ namespace Playtime_Painter
         private int _replacedLayer;
         public bool deformedBounds;
 
-        public void RestoreBounds()
-        {
+        public void AfterRender() {
 
-            if (_replacedTargetsMaterial)
-            {
+            if (!deformedBounds)
+                return;
+
+            if (_replacedTargetsMaterial) {
 
                 var lst = _changedSkinnedMeshRenderer.sharedMaterials;
                 lst[_modifiedSubMesh] = _replacedTargetsMaterial;
@@ -40,8 +41,7 @@ namespace Playtime_Painter
                 meshRenderer.enabled = true;
 
             }
-            else
-            {
+            else {
                 transform.parent = PainterCamera.Inst.transform;
                 _modifiedMesh.bounds = modifiedBound;
 

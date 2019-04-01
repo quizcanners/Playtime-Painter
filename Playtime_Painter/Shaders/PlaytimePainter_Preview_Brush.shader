@@ -242,6 +242,10 @@
 						col = col*_brushMask + 0.5*(1 - _brushMask)+col.a*_brushMask.a;
 					#endif
 	
+						// Temporary
+					alpha += tex2D(_pp_AlphaBuffer, o.texcoord.xy);
+
+
 					#if BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY || BLIT_MODE_PROJECTION
 
 					#if TARGET_TRANSPARENT_LAYER

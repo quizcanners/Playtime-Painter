@@ -31,7 +31,7 @@ namespace Playtime_Painter {
         public void TypeSet(bool cpu, BrushType t) { if (cpu) _inCpuBrushType = t.index; else _inGpuBrushType = t.index; }
         public BrushType GetBrushType(PlaytimePainter painter) => GetBrushType(IsCpu(painter));
         public BrushType GetBrushType(bool cpu) => BrushType.AllTypes[_brushType(cpu)];
-
+        public bool useAlphaBuffer;
 
         [SerializeField] private int _inGpuBlitMode;
         [SerializeField] private int _inCpuBlitMode;
@@ -252,7 +252,6 @@ namespace Playtime_Painter {
                 pegi.select(ref _inGpuBrushType, BrushType.AllTypes).changes(ref changed);
 
                 brushType?.ToolTip.fullWindowDocumentationClick("About this brush type", 20);
-
             }
 
             var overrideBlitModePegi = false;
@@ -267,15 +266,22 @@ namespace Playtime_Painter {
 
             if (blitMode.AllSetUp) {
 
-                if (blitMode.UsingSourceTexture)
-                {
+                if (blitMode.UsingSourceTexture) {
                     "Src Texture Color".editEnum(80, ref srcColorUsage).nl(ref changed);
                     "Clamp".toggleIcon(ref clampSourceTexture).nl(ref changed);
                 }
 
                 brushType.Inspect().nl(ref changed);
 
-               
+                if (brushType.SupportsAlphaBufferPainting)
+                {
+                    "Alpha Buffer".toggleIcon(ref useAlphaBuffer).changes(ref changed);
+
+                    "Will render brush to Alpha Buffer and then use Alpha buffer to render to texture. For Sphere brush helps avoid many various artifacts."
+                        .fullWindowDocumentationClick();
+
+                    pegi.nl();
+                }
             }
 
             if (!overrideBlitModePegi && blitMode.ShowInDropdown())
@@ -320,7 +326,7 @@ namespace Playtime_Painter {
 
             if (p.skinnedMeshRenderer) {
                 if ("Update Collider from Skinned Mesh".Click())
-                    p.UpdateColliderForSkinnedMesh();
+                    p.UpdateMeshCollider();
 
                 ("To paint an object a collision detection is needed. Mesh Collider is not being animated. To paint it, update Mesh Collider with Update Collider button." +
                  " For ingame painting it is preferable to use simple colliders like Speheres to avoid per frame updates for collider mesh."

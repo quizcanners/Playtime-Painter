@@ -7,6 +7,8 @@ sampler2D _SourceTexture;
 float4 _SourceTexture_TexelSize;
 float4 _srcTextureUsage;
 sampler2D _TransparentLayerUnderlay;
+sampler2D _pp_AlphaBuffer;
+float4 _pp_AlphaBuffer_TexelSize;
 
 sampler2D _DestBuffer;
 float4 _DestBuffer_TexelSize;

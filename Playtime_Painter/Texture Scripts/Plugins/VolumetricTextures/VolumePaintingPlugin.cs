@@ -161,14 +161,15 @@ namespace Playtime_Painter
                 stroke.posFrom = stroke.posTo;
 
             image.useTexCoord2 = false;
-            TexMGMT.Shader_UpdateStrokeSegment(bc, bc.Speed * 0.05f, image, stroke, painter);
+            bool alphaBuffer;
+            TexMGMT.Shader_UpdateStrokeSegment(bc, bc.Speed * 0.05f, image, stroke, painter, out alphaBuffer);
             stroke.SetWorldPosInShader();
 
             TexMGMT.brushRenderer.FullScreenQuad();
 
             TexMGMT.Render();
 
-            BrushTypeSphere.Inst.AfterStroke(painter, bc, stroke);
+            BrushTypeSphere.Inst.AfterStroke(painter, bc, stroke, alphaBuffer, image);
 
             return true;
         }

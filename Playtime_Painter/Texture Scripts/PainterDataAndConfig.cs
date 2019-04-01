@@ -19,6 +19,10 @@ namespace Playtime_Painter
         public static bool toolEnabled;
 
         #region Shaders
+  
+        public Shader additiveAlphaOutput;
+        public Shader multishadeBufferBlit;
+
         public Shader brushBlit;
         public Shader brushAdd;
         public Shader brushCopy;
@@ -599,6 +603,10 @@ namespace Playtime_Painter
             CheckShader(ref previewMesh,                "Playtime Painter/Editor/Preview/Mesh",                 forceReload);
 
             CheckShader(ref previewTerrain,             "Playtime Painter/Editor/Preview/Terrain",              forceReload);
+
+            CheckShader(ref additiveAlphaOutput,        "Playtime Painter/Editor/Brush/AdditiveAlphaOutput",    forceReload);
+
+            CheckShader(ref multishadeBufferBlit,       "Playtime Painter/Editor/Buffer Blit/Multishade",       forceReload);
             #endif
         }
 

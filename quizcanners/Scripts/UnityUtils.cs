@@ -1822,7 +1822,8 @@ namespace QuizCannersUtilities {
 
         #endregion
     }
-    
+
+    #region Various MGMT Classes
     public class PerformanceTimer : IPEGI_ListInspect, IGotDisplayName
     {
         private readonly string _name;
@@ -2156,6 +2157,148 @@ namespace QuizCannersUtilities {
 #endif
 #endregion
     }
+
+    // Work in progress
+    [Serializable]
+    public class ScreenShootTaker : IPEGI
+    {
+
+        #region ScreenShot
+
+        #if PEGI
+        public bool Inspect()
+        {
+            "Camera ".edit(60, ref cameraToTakeScreenShotFrom);
+
+            "On Post render is only called when script is attached to camera. Not finished implementation ... ".writeHint();
+
+            if (cameraToTakeScreenShotFrom && icon.SaveAsNew.Click())
+                ToRenderTextureFirst();
+            
+            if (icon.Show.Click("Grab screen"))
+                grab = true;
+
+            if (icon.Copy.Click("Screen Capture"))
+                ScreenCapture.CaptureScreenshot("ScreenShots/{0}".F(screenShotName));
+
+            if (icon.Refresh.Click("Refresh Asset Database"))
+                UnityUtils.RefreshAssetDatabase();
+
+            pegi.nl();
+
+            "Up Scale".edit(60, ref UpScale).nl();
+            "Alpha".toggleIcon(ref AlphaBackground).nl();
+
+            "Img Name".edit(90, ref screenShotName).nl();
+
+            return false;
+        }
+        #endif
+
+        private bool grab;
+
+        public Camera cameraToTakeScreenShotFrom;
+        public int UpScale = 4;
+        public bool AlphaBackground = true;
+
+        [NonSerialized] private RenderTexture forScreenRenderTexture;
+        [NonSerialized] private Texture2D screenShotTexture2D;
+
+        public void ToRenderTextureFirst()
+        {
+
+            var cam = cameraToTakeScreenShotFrom;
+            var w = cam.pixelWidth * UpScale;
+            var h = cam.pixelHeight * UpScale;
+
+            CheckRenderTexture(w, h);
+            CheckTexture2D(w, h);
+
+            cam.targetTexture = forScreenRenderTexture;
+            var clearFlags = cam.clearFlags;
+            if (AlphaBackground)
+            {
+                cam.clearFlags = CameraClearFlags.SolidColor;
+                cam.backgroundColor = new Color(0, 0, 0, 0);
+            }
+
+            cam.Render();
+            RenderTexture.active = forScreenRenderTexture;
+            screenShotTexture2D.ReadPixels(new Rect(0, 0, w, h), 0, 0);
+            screenShotTexture2D.Apply();
+
+            cam.targetTexture = null;
+            RenderTexture.active = null;
+
+            cam.clearFlags = clearFlags;
+
+            FileSaveUtils.SaveTextureToAssetsFolder("ScreenShoots", GetScreenShotName(), ".png", screenShotTexture2D);
+        }
+        
+        public void OnPostRender()
+        {
+            if (grab)
+            {
+
+                grab = false;
+
+                //Debug.Log("post Render Grab");
+
+                var w = Screen.width;
+                var h = Screen.height;
+
+                CheckTexture2D(w, h);
+
+                screenShotTexture2D.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0, false);
+                screenShotTexture2D.Apply();
+
+                FileSaveUtils.SaveTextureToAssetsFolder("ScreenShoots", GetScreenShotName(), ".png", screenShotTexture2D);
+
+            }
+        }
+
+        public void CheckRenderTexture(int w, int h)
+        {
+            if (!forScreenRenderTexture || forScreenRenderTexture.width != w || forScreenRenderTexture.height != h)
+            {
+
+                if (forScreenRenderTexture)
+                    forScreenRenderTexture.DestroyWhatever();
+
+                forScreenRenderTexture = new RenderTexture(w, h, 32);
+            }
+
+        }
+
+        public void CheckTexture2D(int w, int h)
+        {
+            if (!screenShotTexture2D || screenShotTexture2D.width != w || screenShotTexture2D.height != h)
+            {
+
+                if (screenShotTexture2D)
+                    screenShotTexture2D.DestroyWhatever();
+
+                screenShotTexture2D = new Texture2D(w, h, TextureFormat.ARGB32, false);
+            }
+        }
+
+        private string screenShotName;
+
+        public string GetScreenShotName()
+        {
+            var name = screenShotName;
+
+            if (name.IsNullOrEmpty()) name = "SS-" + DateTime.Now.ToString("yyyy.MM.dd.HH.mm.ss");
+
+            return name;
+        }
+
+        #endregion
+
+
+    }
+
+    #endregion
 
 }
 

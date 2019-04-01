@@ -14,8 +14,7 @@ namespace Playtime_Painter {
     [HelpURL(PlaytimePainter.OnlineManual)]
     [DisallowMultipleComponent]
     [ExecuteInEditMode]
-    public class PainterCamera : PainterSystemMono
-    {
+    public class PainterCamera : PainterSystemMono {
 
         public static DepthProjectorCamera depthProjectorCamera;
 
@@ -173,7 +172,20 @@ namespace Playtime_Painter {
             get { return painterCamera.targetTexture; }
             set { painterCamera.targetTexture = value; }
         }
-        
+
+        public Shader CurrentShader
+        {
+            set { brushRenderer.Set(value); }
+        }
+
+        public Material CurrentMaterial
+        {
+            get
+            {
+               return brushRenderer.meshRenderer.sharedMaterial;
+            }
+        }
+
         public RenderBrush brushPrefab;
         public const float OrthographicSize = 128; 
 
@@ -204,14 +216,19 @@ namespace Playtime_Painter {
 
         #endregion
 
-        #region Double Buffer Painting
+        #region Painting Buffers
 
         public const int RenderTextureSize = 2048;
         
         public RenderTexture[] bigRtPair;
+        public RenderTexture alphaBufferTexture;
         public int bigRtVersion;
 
+        public RenderTexture DoubleBufferCameraTarget => bigRtPair[0];
+
         public MeshRenderer secondBufferDebug;
+
+        public MeshRenderer alphaBufferDebug;
 
         #endregion
 
@@ -254,7 +271,7 @@ namespace Playtime_Painter {
             return rt;
         }
 
-        public RenderTexture GetDownscaledBigRt(int width, int height) => Downscale_ToBuffer(bigRtPair[0], width, height);
+        public RenderTexture GetDownscaledBigRt(int width, int height) => Downscale_ToBuffer(DoubleBufferCameraTarget, width, height);
 
         public RenderTexture Downscale_ToBuffer(Texture tex, int width, int height, Material mat) => Downscale_ToBuffer(tex, width, height, mat, null);
 
@@ -342,8 +359,7 @@ namespace Playtime_Painter {
             materialsUsingRenderTexture.Add(mat);
         }
 
-        public void UpdateBuffersState()
-        {
+        public void UpdateBuffersState() {
 
             var cfg = TexMgmtData;
 
@@ -352,25 +368,35 @@ namespace Playtime_Painter {
             
             if (!GotBuffers)  {
                 bigRtPair = new RenderTexture[2];
-                bigRtPair[0] = new RenderTexture(RenderTextureSize, RenderTextureSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
-                bigRtPair[1] = new RenderTexture(RenderTextureSize, RenderTextureSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
-                bigRtPair[0].wrapMode = TextureWrapMode.Repeat;
-                bigRtPair[1].wrapMode = TextureWrapMode.Repeat;
-                bigRtPair[0].name = "Painter Buffer 0 _ " + RenderTextureSize;
-                bigRtPair[1].name = "Painter Buffer 1 _ " + RenderTextureSize;
+                var tA = new RenderTexture(RenderTextureSize, RenderTextureSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
+                var tB = new RenderTexture(RenderTextureSize, RenderTextureSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
+                bigRtPair[0] = tA;
+                bigRtPair[1] = tB;
+                tA.useMipMap = false;
+                tB.useMipMap = false;
+                tA.wrapMode = TextureWrapMode.Repeat;
+                tB.wrapMode = TextureWrapMode.Repeat;
+                tA.name = "Painter Buffer 0 _ " + RenderTextureSize;
+                tB.name = "Painter Buffer 1 _ " + RenderTextureSize;
             }
 
-            if (secondBufferDebug) {
+            if (!alphaBufferTexture) {
+                alphaBufferTexture = new RenderTexture(RenderTextureSize, RenderTextureSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
+                alphaBufferTexture.wrapMode = TextureWrapMode.Repeat;
+                alphaBufferTexture.name = "Painting Alpha Buffer _ " + RenderTextureSize;
+                alphaBufferTexture.useMipMap = false;
+                
+            }
 
+            if (secondBufferDebug) 
                 secondBufferDebug.sharedMaterial.mainTexture = bigRtPair[1];
-                var cmp = secondBufferDebug.GetComponent<PlaytimePainter>();
-                if (cmp)
-                    cmp.DestroyWhateverComponent();
-            }
+            
+            if (alphaBufferDebug)
+                alphaBufferDebug.sharedMaterial.mainTexture = alphaBufferTexture;
 
         }
         
-        public static bool GotBuffers => Inst && !Inst.bigRtPair.IsNullOrEmpty() && _inst.bigRtPair[0];
+        public static bool GotBuffers => Inst && !Inst.bigRtPair.IsNullOrEmpty() && _inst.DoubleBufferCameraTarget;
         #endregion
 
         #region Brush Shader MGMT
@@ -423,7 +449,8 @@ namespace Playtime_Painter {
         private static readonly ShaderProperty.TextureValue SourceMaskProperty =            new ShaderProperty.TextureValue("_SourceMask");
         private static readonly ShaderProperty.TextureValue SourceTextureProperty =         new ShaderProperty.TextureValue("_SourceTexture");
         private static readonly ShaderProperty.TextureValue TransparentLayerUnderProperty = new ShaderProperty.TextureValue("_TransparentLayerUnderlay");
-     
+        private static readonly ShaderProperty.TextureValue AlphaPaintingBuffer =           new ShaderProperty.TextureValue("_pp_AlphaBuffer");
+
         public void Shader_UpdateBrushConfig(BrushConfig brush = null, float brushAlpha = 1, ImageMeta id = null, PlaytimePainter painter = null)
         {
             if (brush == null)
@@ -509,22 +536,24 @@ namespace Playtime_Painter {
             }
         }
 
-        public void Shader_UpdateStrokeSegment(BrushConfig bc, float brushAlpha, ImageMeta id, StrokeVector stroke, PlaytimePainter pntr)
+        public void Shader_UpdateStrokeSegment(BrushConfig bc, float brushAlpha, ImageMeta id, StrokeVector stroke, PlaytimePainter pntr, out bool alphaBuffer)
         {
             if (bigRtPair == null)
                 UpdateBuffersState();
-
+            
             var isDoubleBuffer = !id.renderTexture;
 
             var useSingle = !isDoubleBuffer || bc.IsSingleBufferBrush();
 
+            alphaBuffer = !useSingle && bc.useAlphaBuffer && bc.GetBrushType(false).SupportsAlphaBufferPainting;
+            
             if (!useSingle && !secondBufferUpdated)
                 UpdateBufferTwo();
 
             if (stroke.firstStroke)
                 Shader_UpdateBrushConfig(bc, brushAlpha, id, pntr);
 
-            TargetTexture = id.CurrentRenderTexture();
+            TargetTexture = alphaBuffer ? alphaBufferTexture : id.CurrentRenderTexture();
 
             if (isDoubleBuffer)
                 PainterDataAndConfig.DESTINATION_BUFFER.GlobalValue = bigRtPair[1];
@@ -538,14 +567,16 @@ namespace Playtime_Painter {
                     break;
                 }
 
-            if (!shd)
-            {
+            if (!shd) {
                 var blitMode = bc.GetBlitMode(false);
-                shd = useSingle ? blitMode.ShaderForSingleBuffer : blitMode.ShaderForDoubleBuffer;
+
+                if (alphaBuffer)
+                    shd = TexMgmtData.additiveAlphaOutput;
+                else 
+                    shd = useSingle ? blitMode.ShaderForSingleBuffer : blitMode.ShaderForDoubleBuffer;
             }
 
-            brushRenderer.Set(shd);
-
+            CurrentShader = shd;
         }
 
         #endregion
@@ -555,7 +586,7 @@ namespace Playtime_Painter {
         {
             if (!tex || id == null)
                 return;
-            brushRenderer.Set(Data.pixPerfectCopy);
+            CurrentShader = Data.pixPerfectCopy;
             Graphics.Blit(tex, id.CurrentRenderTexture(), brushRenderer.meshRenderer.sharedMaterial);
 
             AfterRenderBlit(id.CurrentRenderTexture());
@@ -569,19 +600,38 @@ namespace Playtime_Painter {
 
             if (!from)
                 return;
-            brushRenderer.Set(blitShader);
+            CurrentShader = blitShader;
             Graphics.Blit(from, to, brushRenderer.meshRenderer.sharedMaterial);
             AfterRenderBlit(to);
         }
         #endregion
 
         #region Render
-        
+
+        public void FinalizeFromAlphaBuffer(RenderTexture rt, Shader shader) {
+
+            AlphaPaintingBuffer.GlobalValue = alphaBufferTexture;
+
+         //   Debug.Log("Rendering {0} to {1} with {2}".F(alphaBufferTexture ,rt, shader));
+
+           // TargetTexture = rt;
+
+           // CurrentShader = shader;
+
+           // Render();
+
+            Render(alphaBufferTexture, rt, shader);
+
+            //Render(Texture from, RenderTexture to, Shader shade)
+
+            Render(Color.black, alphaBufferTexture);
+
+            if (!secondBufferUpdated)
+                UpdateBufferTwo();
+        }
+
         public void Render()
         {
-
-            //if (!secondBufferUpdated)
-                //Debug.Log("Second buffer dirty");//  UpdateBufferTwo();
 
             transform.rotation = Quaternion.identity;
             cameraPosition_Property.GlobalValue = transform.position.ToVector4();
@@ -590,11 +640,10 @@ namespace Playtime_Painter {
             painterCamera.Render();
             brushRenderer.gameObject.SetActive(false);
 
-            secondBufferUpdated = false;
+            if (TargetTexture == DoubleBufferCameraTarget)
+                secondBufferUpdated = false;
 
-            if (brushRenderer.deformedBounds)
-                brushRenderer.RestoreBounds();
-
+            brushRenderer.AfterRender();
         }
 
         void SetChannelCopySourceMask(ColorChanel sourceChannel) => ChannelCopySourceMask.GlobalValue = new Vector4(
@@ -639,13 +688,13 @@ namespace Playtime_Painter {
         }
 
         void AfterRenderBlit(Texture target) {
-            if (bigRtPair.Length > 0 && bigRtPair[0] && bigRtPair[0] == target)
+            if (bigRtPair.Length > 0 && DoubleBufferCameraTarget && DoubleBufferCameraTarget == target)
                 secondBufferUpdated = false;
         }
 
         public void UpdateBufferTwo() {
-            brushRenderer.Set(Data.pixPerfectCopy);
-            Graphics.Blit(bigRtPair[0], bigRtPair[1]);
+            CurrentShader = Data.pixPerfectCopy;
+            Graphics.Blit(DoubleBufferCameraTarget, bigRtPair[1]);
             secondBufferUpdated = true;
             bigRtVersion++;
         }
@@ -657,7 +706,7 @@ namespace Playtime_Painter {
             {
                 brushRenderer.Set(bigRtPair[0]);
                 TargetTexture = bigRtPair[1];
-                brushRenderer.Set(Data.brushBufferCopy);
+                CurrentShader = Data.brushBufferCopy;
                 Render();
                 secondBufferUpdated = true;
                 bigRtVersion++;

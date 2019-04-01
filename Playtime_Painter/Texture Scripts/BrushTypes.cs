@@ -72,6 +72,7 @@ namespace Playtime_Painter
         public virtual bool SupportedByRenderTexturePair => true;
         public virtual bool SupportedBySingleBuffer => true;
         public virtual bool IsA3DBrush => false;
+        public virtual bool SupportsAlphaBufferPainting => false;
         public virtual bool IsPixelPerfect => false;
         public virtual bool IsUsingDecals => false;
         public virtual bool StartPaintingTheMomentMouseIsDown => true;
@@ -230,8 +231,10 @@ namespace Playtime_Painter
                 st.uvFrom = st.uvTo;
 
             var id = painter.ImgMeta;
+            
+            bool alphaBuffer;
 
-            TexMGMT.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, st, painter);
+            TexMGMT.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, st, painter, out alphaBuffer);
 
             var rb = RtBrush;
 
@@ -241,18 +244,12 @@ namespace Playtime_Painter
             BrushMesh = PainterCamera.BrushMeshGenerator.GetLongMesh(length * 256, br.StrokeWidth(id.width, false));
             rb.localRotation = Quaternion.Euler(new Vector3(0, 0, (direction.x > 0 ? -1 : 1) * Vector2.Angle(Vector2.up, direction)));
 
-            rb.localPosition = StrokeVector.BrushWorldPositionFrom((st.uvFrom + st.uvTo) / 2);
+            rb.localPosition = StrokeVector.BrushWorldPositionFrom((st.uvFrom + st.uvTo) *0.5f);
 
             TexMGMT.Render();
 
-            AfterStroke(painter, br, st);
-        }
+            AfterStroke(painter, br, st, alphaBuffer, id);
 
-        protected static void AfterStroke(BrushConfig br)
-        {
-
-            if (br.useMask && br.randomMaskOffset)
-                br.maskOffset = new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f));
 
         }
 
@@ -262,13 +259,12 @@ namespace Playtime_Painter
 
             if (!cam.secondBufferUpdated)
                 cam.UpdateBufferTwo();
-
-
+            
             foreach (var p in  painter.Plugins)
                 p.BeforeGpuStroke(painter, br, st, this);
         }
 
-        public virtual void AfterStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st)
+        public virtual void AfterStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, bool alphaBuffer, ImageMeta id)
         {
 
             painter.AfterStroke(st);
@@ -282,7 +278,24 @@ namespace Playtime_Painter
             foreach (var p in painter.Plugins)
                 p.AfterGpuStroke(painter, br, st, this);
 
+            if (alphaBuffer && id.CurrentRenderTexture()) {
+                var sh = br.GetBlitMode(false).ShaderForAlphaBufferBlit;
+                TexMGMT.FinalizeFromAlphaBuffer(id.CurrentRenderTexture(), sh);
+            }
         }
+
+        protected static void AfterStroke(BrushConfig br, bool alphaBuffer, RenderTexture rt = null) {
+
+            if (br.useMask && br.randomMaskOffset)
+                br.maskOffset = new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f));
+            
+            if (alphaBuffer && rt) {
+                var sh = br.GetBlitMode(false).ShaderForAlphaBufferBlit;
+                TexMGMT.FinalizeFromAlphaBuffer(rt, sh);
+            }
+        }
+
+       
 
     }
 
@@ -314,7 +327,10 @@ namespace Playtime_Painter
 
              ImageMeta id = painter.ImgMeta;
 
-             TexMGMT.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, st, painter);
+
+             bool alphaBuffer;
+
+            TexMGMT.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, st, painter, out alphaBuffer);
 
              RtBrush.localScale = Vector3.one * br.StrokeWidth(id.width, false);
 
@@ -325,7 +341,7 @@ namespace Playtime_Painter
 
              TexMGMT.Render();
 
-             AfterStroke(painter, br, st);
+             AfterStroke(painter, br, st, alphaBuffer, id);
         }
 
     }
@@ -355,7 +371,10 @@ namespace Playtime_Painter
                 firstStroke = false
             };
 
-            TexMGMT.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, stroke, null);
+
+            bool alphaBuffer;
+
+            TexMGMT.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, stroke, null, out alphaBuffer);
 
             float width = br.StrokeWidth(id.width, false);
 
@@ -368,7 +387,7 @@ namespace Playtime_Painter
 
             TexMGMT.Render();
 
-            AfterStroke(br);
+            AfterStroke(br,  alphaBuffer, rt);
 
         }
     }
@@ -417,7 +436,10 @@ namespace Playtime_Painter
 
                 if (TexMGMT.bigRtPair == null) TexMGMT.UpdateBuffersState();
 
-                TexMGMT.Shader_UpdateStrokeSegment(br, 1, id, st, painter);
+
+                bool alphaBuffer;
+
+                TexMGMT.Shader_UpdateStrokeSegment(br, 1, id, st, painter, out alphaBuffer);
                 var tf = RtBrush;
                 tf.localScale = Vector3.one * br.Size(false);
                 tf.localRotation = Quaternion.Euler(new Vector3(0, 0, br.decalAngle));
@@ -447,16 +469,16 @@ namespace Playtime_Painter
 
                 TexMGMT.Render();
 
-                AfterStroke(painter, br, st);
+                AfterStroke(painter, br, st, alphaBuffer, id);
 
             }
             else
                 painter.AfterStroke(st);
         }
 
-        public override void AfterStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st)
+        public override void AfterStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, bool alphaBuffer, ImageMeta id)
         {
-            base.AfterStroke(painter, br, st);
+            base.AfterStroke(painter, br, st, alphaBuffer, id);
 
             if (br.decalRotationMethod != DecalRotationMethod.Random) return;
             
@@ -614,13 +636,15 @@ namespace Playtime_Painter
 
             var isTail = st.firstStroke;
 
+            bool alphaBuffer;
+
             if (!isTail && !smooth)
             {
                 var st2 = new StrokeVector(st)
                 {
                     firstStroke = false
                 };
-                r.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, st2, painter);
+                r.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, st2, painter, out alphaBuffer);
 
                 Vector3 junkPoint = st.uvFrom + st.previousDelta * 0.01f;
                 BrushMesh = PainterCamera.BrushMeshGenerator.GetStreak(UvToPosition(st.uvFrom), UvToPosition(junkPoint), meshWidth, true, false);
@@ -634,7 +658,7 @@ namespace Playtime_Painter
                 isTail = true;
             }
 
-            r.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, st, painter);
+            r.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, st, painter, out alphaBuffer);
 
             BrushMesh = PainterCamera.BrushMeshGenerator.GetStreak(UvToPosition(st.uvFrom), UvToPosition(st.uvTo), meshWidth, st.mouseUp, isTail);
             tf.localScale = Vector3.one;
@@ -645,7 +669,7 @@ namespace Playtime_Painter
 
             r.Render();
 
-            AfterStroke(painter, br, st);
+            AfterStroke(painter, br, st, alphaBuffer, id);
         }
     }
 
@@ -657,7 +681,9 @@ namespace Playtime_Painter
 
         public static BrushTypeSphere Inst { get { InitIfNull(); return _inst; } }
 
-        protected override string ShaderKeyword(bool texcoord2) => texcoord2 ? "BRUSH_3D_TEXCOORD2" : "BRUSH_3D"; 
+        protected override string ShaderKeyword(bool texcoord2) => texcoord2 ? "BRUSH_3D_TEXCOORD2" : "BRUSH_3D";
+
+        public override bool SupportsAlphaBufferPainting => true;
 
         public override bool IsA3DBrush => true; 
 
@@ -667,7 +693,7 @@ namespace Playtime_Painter
 
         public override string NameForDisplayPEGI => "Sphere";
 
-        private static void PrepareSphereBrush(ImageMeta id, BrushConfig br, StrokeVector stroke, PlaytimePainter painter)
+        private static void PrepareSphereBrush(ImageMeta id, BrushConfig br, StrokeVector stroke, PlaytimePainter painter, out bool alphaBuffer)
         {
             if (TexMGMT.bigRtPair.IsNullOrEmpty())
                 TexMGMT.UpdateBuffersState();
@@ -675,7 +701,7 @@ namespace Playtime_Painter
             if (stroke.mouseDwn)
                 stroke.posFrom = stroke.posTo;
 
-            TexMGMT.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, stroke, painter);
+            TexMGMT.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, stroke, painter, out alphaBuffer);
 
             var offset = id.offset - stroke.unRepeatedUv.Floor();
 
@@ -685,14 +711,15 @@ namespace Playtime_Painter
             PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
         }
 
-        public override void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st)
-        {
+        public override void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st) {
 
             var id = painter.ImgMeta;
 
             BeforeStroke(painter, br, st);
 
-            PrepareSphereBrush(id, br, st, painter);
+            bool alphaBuffer;
+
+            PrepareSphereBrush(id, br, st, painter, out alphaBuffer);
 
             if (!st.mouseDwn)
             {
@@ -700,25 +727,31 @@ namespace Playtime_Painter
                 TexMGMT.Render();
             }
 
-            AfterStroke(painter, br, st);
+            AfterStroke(painter, br, st, alphaBuffer, id);
         }
 
         public static void Paint(RenderTexture rt, GameObject go, SkinnedMeshRenderer skinner, BrushConfig br, StrokeVector st, int subMeshIndex)
         {
             br.GetBlitMode(false).PrePaint(null, br, st);
-            PrepareSphereBrush(rt.GetImgData(), br, st, null);
+
+            bool alphaBuffer;
+
+            PrepareSphereBrush(rt.GetImgData(), br, st, null, out alphaBuffer);
             TexMGMT.brushRenderer.UseSkinMeshAsBrush(go, skinner, subMeshIndex);
             TexMGMT.Render();
-            AfterStroke(br);
+            AfterStroke(br, alphaBuffer, rt);
         }
 
         public static void Paint(RenderTexture rt, GameObject go, Mesh mesh, BrushConfig br, StrokeVector st, List<int> subMeshIndex)
         {
             br.GetBlitMode(false).PrePaint(null, br, st);
-            PrepareSphereBrush(rt.GetImgData(), br, st, null);
+
+            bool alphaBuffer;
+            
+            PrepareSphereBrush(rt.GetImgData(), br, st, null, out alphaBuffer);
             TexMGMT.brushRenderer.UseMeshAsBrush(go, mesh, subMeshIndex);
             TexMGMT.Render();
-            AfterStroke(br);
+            AfterStroke(br, alphaBuffer, rt);
         }
 
         public static void PaintAtlased(RenderTexture rt, GameObject go, Mesh mesh, BrushConfig br, StrokeVector st, List<int> subMeshIndex, int aTexturesInRow)
@@ -728,10 +761,12 @@ namespace Playtime_Painter
 
             PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, aTexturesInRow, 1);
 
-            PrepareSphereBrush(rt.GetImgData(), br, st, null);
+            bool alphaBuffer;
+            PrepareSphereBrush(rt.GetImgData(), br, st, null, out alphaBuffer);
             TexMGMT.brushRenderer.UseMeshAsBrush(go, mesh, subMeshIndex);
             TexMGMT.Render();
-            AfterStroke(br);
+
+            AfterStroke(br, alphaBuffer, rt);
 
             PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
         }

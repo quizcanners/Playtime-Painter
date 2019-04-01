@@ -106,6 +106,7 @@ namespace Playtime_Painter {
         public virtual bool NeedsWorldSpacePosition => false; // WorldSpace effect needs to be rendered using terget's mesh to have world positions of the vertexes
         public virtual Shader ShaderForDoubleBuffer => TexMGMTdata.brushDoubleBuffer;
         public virtual Shader ShaderForSingleBuffer => TexMGMTdata.brushBlit;
+        public virtual Shader ShaderForAlphaBufferBlit => TexMGMTdata.multishadeBufferBlit;
 
         #region Inspect
 

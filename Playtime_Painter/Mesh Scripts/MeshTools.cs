@@ -84,7 +84,7 @@ namespace Playtime_Painter
                 {
                     MeshManager.previewEdMesh = new EditableMesh();
                     MeshManager.previewEdMesh.Decode(EditedMesh.Encode().ToString());
-                    Debug.Log("Recreating preview");
+                    //Debug.Log("Recreating preview");
                 }
                 return MeshManager.previewEdMesh;
             }
@@ -201,7 +201,8 @@ namespace Playtime_Painter
                     "LMB - Add Vertices/Make Triangles (Go Clockwise), Drag {0}"+
                     "Scroll - Change Plane {0}"+
                     "U - make Triangle unique. {0}" + 
-                    "M - merge with nearest while dragging {0}").F(Environment.NewLine);
+                    "M - merge with nearest while dragging {0}" +
+                    "This tool also contains functionality related to smoothing and sharpening of the edges.").F(Environment.NewLine);
 
         public override string NameForDisplayPEGI => "ADD & MOVE";
 
@@ -269,6 +270,7 @@ namespace Playtime_Painter
             {
                 foreach (var t in EditedMesh.triangles)
                     em.GiveTriangleUniqueVertices(t);
+
                 Cfg.newVerticesUnique = true;
             }
 

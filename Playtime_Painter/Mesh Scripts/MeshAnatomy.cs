@@ -14,13 +14,77 @@ namespace Playtime_Painter
         public int uvIndex;
         public int finalIndex;
         public Color color;
-        
+        public BoneWeight boneWeight;
+
         public bool hasVertex;
         public List<Triangle> triangles = new List<Triangle>();
         public Vertex myLastCopy;
         public MeshPoint meshPoint;
-        public BoneWeight boneWeight;
 
+        #region Constructors
+
+        private void AssignToPoint(MeshPoint nPoint, Vertex toCopyFrom = null) {
+            meshPoint = nPoint;
+
+            var verts = nPoint.vertices;
+
+            if (toCopyFrom == null && verts.Count > 0)
+                toCopyFrom = verts[0];
+
+            if (toCopyFrom != null)
+                boneWeight = toCopyFrom.boneWeight;
+
+            nPoint.vertices.Add(this);
+        }
+
+        public Vertex()  {
+            meshPoint = MeshPoint.currentlyDecoded;
+        }
+
+        public Vertex(Vertex other)
+        {
+            color = other.color;
+            AssignToPoint(other.meshPoint, other);
+            uvIndex = other.uvIndex;
+        }
+
+        public Vertex(MeshPoint newVertex)
+        {
+            AssignToPoint(newVertex);
+
+            if (meshPoint.sharedV2S.Count == 0)
+                SetUvIndexBy(Vector2.one * 0.5f, Vector2.one * 0.5f);
+            else
+                uvIndex = 0;
+        }
+
+        public Vertex(MeshPoint newVertex, Vector2 uv0)
+        {
+            AssignToPoint(newVertex);
+
+            SetUvIndexBy(uv0, Vector2.zero);
+        }
+
+        public Vertex(MeshPoint newVertex, Vector2 uv0, Vector2 uv1)
+        {
+            AssignToPoint(newVertex);
+            SetUvIndexBy(uv0, uv1);
+        }
+
+        public Vertex(MeshPoint newVertex, Vertex other)
+        {
+            color = other.color;
+            AssignToPoint(newVertex, other);
+            SetUvIndexBy(other.GetUv(0), other.GetUv(1));
+        }
+
+        public Vertex(MeshPoint newVertex, string data)
+        {
+            AssignToPoint(newVertex);
+            Decode(data);
+        }
+        #endregion
+        
         public bool SetColor(Color col)
         {
             if (col.Equals(color)) return false;
@@ -31,12 +95,6 @@ namespace Playtime_Painter
         public bool SameAsLastFrame => this == EditedMesh.lastFramePointedUv; 
 
         public Vector3 LocalPos => meshPoint.localPos;
-
-        private void AddToList(MeshPoint nPoint)
-        {
-            meshPoint = nPoint;
-            nPoint.vertices.Add(this);
-        }
 
         #region Encode & Decode
         public override CfgEncoder Encode() {
@@ -84,53 +142,6 @@ namespace Playtime_Painter
 
         }
 
-        #region Constructors
-        public Vertex() {
-            meshPoint = MeshPoint.currentlyDecoded;
-        }
-
-        public Vertex(Vertex other) {
-            color = other.color;
-            AddToList(other.meshPoint);
-            uvIndex = other.uvIndex;
-        }
-
-        public Vertex(MeshPoint newVertex)
-        {
-            AddToList(newVertex);
-
-            if (meshPoint.sharedV2S.Count == 0)
-                SetUvIndexBy(Vector2.one * 0.5f, Vector2.one * 0.5f);
-            else
-                uvIndex = 0;
-        }
-
-        public Vertex(MeshPoint newVertex, Vector2 uv0)
-        {
-            AddToList(newVertex);
-          
-            SetUvIndexBy(uv0, Vector2.zero);
-        }
-
-        public Vertex(MeshPoint newVertex, Vector2 uv0, Vector2 uv1)
-        {
-            AddToList(newVertex);
-            SetUvIndexBy(uv0, uv1);
-        }
-
-        public Vertex(MeshPoint newVertex, Vertex other)
-        {
-            color = other.color;
-            AddToList(newVertex);
-            SetUvIndexBy(other.GetUv(0), other.GetUv(1));
-        }
-
-        public Vertex(MeshPoint newVertex, string data) {
-            AddToList(newVertex);
-            Decode(data);
-        }
-        #endregion
-
         public void AssignToNewVertex(MeshPoint vp) {
             var myUv = meshPoint.sharedV2S[uvIndex];
             meshPoint.vertices.Remove(this);
@@ -169,6 +180,11 @@ namespace Playtime_Painter
             return true;
 
         }
+
+        public void UVto01Space() => EditedUv = EditedUv.To01Space();
+
+        public bool SameTileAs(Vertex other) => EditedUv.Floor().Equals(other.EditedUv.Floor());
+        
         #endregion
 
         public bool ConnectedTo(MeshPoint other)
@@ -260,6 +276,13 @@ namespace Playtime_Painter
         public float edgeStrength;
         public int vertexGroup;
 
+        public void UVto01Space() {
+            int ind = MeshMGMT.EditedUV;
+
+            for (int i = 0; i < sharedV2S.Count; i++)
+                sharedV2S[i][ind] = sharedV2S[i][ind].To01Space();
+        }
+
         public void RunDebug()
         {
 
@@ -314,7 +337,7 @@ namespace Playtime_Painter
             
             foreach (var u in vertices)
                 foreach (var t in u.triangles) 
-                normal += t.GetNormal();
+                normal += t.GetSharpNormal();
             
             normal.Normalize();
 
@@ -611,14 +634,13 @@ namespace Playtime_Painter
         public int subMeshIndex;
         public bool subMeshIndexRemapped;
         public Vector3 sharpNormal;
-
-
+        
         public void RunDebug()
         {
 
         }
 
-        public Vector3 GetNormal() {
+        public Vector3 GetSharpNormal() {
 
             sharpNormal = QcMath.GetNormalOfTheTriangle(
                     vertexes[0].LocalPos,
@@ -703,7 +725,7 @@ namespace Playtime_Painter
 
         public bool IsVertexIn(MeshPoint vrt) => vertexes.Any(v => v.meshPoint == vrt);
         
-       
+
 
         public bool SetSmoothVertices (bool to) {
             var changed = false;

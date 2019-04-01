@@ -33,15 +33,22 @@ namespace QuizCannersUtilities {
         
         #region Adjust
 
+        public static Vector2 ToM11Space(this Vector2 v2) => (v2 - new Vector2(Mathf.Floor(v2.x), Mathf.Floor(v2.y)));
+
         public static Vector2 To01Space(this Vector2 v2)
         {
-            return (v2 - new Vector2(Mathf.Floor(v2.x), Mathf.Floor(v2.y)));
+            v2.x = v2.x % 1;
+            v2.y = v2.y % 1;
+
+            v2 += Vector2.one;
+
+            v2.x = v2.x % 1;
+            v2.y = v2.y % 1;
+
+            return v2;
         }
 
-        public static Vector2 Floor(this Vector2 v2)
-        {
-            return new Vector2(Mathf.Floor(v2.x), Mathf.Floor(v2.y));
-        }
+        public static Vector2 Floor(this Vector2 v2) => new Vector2(Mathf.Floor(v2.x), Mathf.Floor(v2.y));
         
         public static float ClampZeroTo(this float value, float max)
         {

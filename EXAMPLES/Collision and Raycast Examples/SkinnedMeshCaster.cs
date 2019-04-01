@@ -31,7 +31,7 @@ namespace Playtime_Painter.Examples
 
             if (painter.skinnedMeshRenderer && !brush.IsA3DBrush(painter)) {   
 
-                painter.UpdateColliderForSkinnedMesh();
+                painter.UpdateMeshCollider();
 
                 var colliderDisabled = !painter.meshCollider.enabled;
 

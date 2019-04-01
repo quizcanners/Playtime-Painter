@@ -351,11 +351,11 @@ namespace Playtime_Painter {
             get
             {
                 PainterDataAndConfig.DESTINATION_BUFFER.GlobalValue = TexMgmt.bigRtPair[1];
-                return TexMgmt.bigRtPair[0];
+                return TexMgmt.DoubleBufferCameraTarget;
             }
         }
 
-        public override Texture GetTextureDisplay => TexMgmt.bigRtPair[0];
+        public override Texture GetTextureDisplay => TexMgmt.DoubleBufferCameraTarget;
 
         public override bool CanBeTarget => true;
 
