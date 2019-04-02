@@ -169,7 +169,7 @@ namespace Playtime_Painter
 
             TexMGMT.Render();
 
-            BrushTypeSphere.Inst.AfterStroke(painter, bc, stroke, alphaBuffer, image);
+            BrushTypeSphere.Inst.AfterStroke_Painter(painter, bc, stroke, alphaBuffer, image);
 
             return true;
         }
@@ -192,7 +192,7 @@ namespace Playtime_Painter
                 "Global Volume Expected".nl();
 
                 "Create a game object with one of the Volume scripts and set it as Global Parameter"
-                    .fullWindowDocumentationClick();
+                    .fullWindowDocumentationClick("About Global Volume Parameters");
 
             }
             else

@@ -302,7 +302,7 @@ namespace Playtime_Painter {
             if (LockTextureEditing)
                 return false;
 
-            if (IsTerrainHeightTexture && IsOriginalShader)
+            if (IsTerrainHeightTexture && NotUsingPreview)
                 return false;
 
             if (MeshManager.target)
@@ -453,6 +453,7 @@ namespace Playtime_Painter {
 
         public void SampleTexture(Vector2 uv)
         {
+            TexMgmt.OnBeforeBlitConfigurationChange();
             GlobalBrush.colorLinear.From(ImgMeta.SampleAt(uv), GlobalBrush.mask);
             Update_Brush_Parameters_For_Preview_Shader();
         }
@@ -478,7 +479,7 @@ namespace Playtime_Painter {
         public static Material previewHolderMaterial;
         public static Shader previewHolderOriginalShader;
 
-        public bool IsOriginalShader => !previewHolderMaterial || previewHolderMaterial != Material; 
+        public bool NotUsingPreview => !previewHolderMaterial || previewHolderMaterial != Material; 
 
         private  void CheckPreviewShader()
         {
@@ -486,7 +487,7 @@ namespace Playtime_Painter {
                 return;
             if (!IsCurrentTool || (LockTextureEditing && !IsEditingThisMesh))
                 SetOriginalShaderOnThis();
-            else if (MatDta.usePreviewShader && IsOriginalShader)
+            else if (MatDta.usePreviewShader && NotUsingPreview)
                 SetPreviewShader();
         }
 
@@ -569,12 +570,15 @@ namespace Playtime_Painter {
 
         public static void SetOriginalShader()
         {
-            if (!previewHolderMaterial) return;
+            if (!previewHolderMaterial)
+                return;
             
             previewHolderMaterial.shader = previewHolderOriginalShader;
             previewHolderOriginalShader = null;
             previewHolderMaterial = null;
             
+            TexMgmt.OnPreviewSwitch();
+
         }
 
         #endregion
@@ -588,7 +592,7 @@ namespace Playtime_Painter {
 
             var fieldName = GetMaterialTextureProperty;
             var mat = Material;
-            if (!IsOriginalShader && !terrain)
+            if (!NotUsingPreview && !terrain)
             {
                 id.tiling = mat.GetTiling(PainterDataAndConfig.PreviewTexture);
                 id.offset = mat.GetOffset(PainterDataAndConfig.PreviewTexture);
@@ -611,7 +615,7 @@ namespace Playtime_Painter {
             var id = ImgMeta;
             var fieldName = GetMaterialTextureProperty;
             var mat = Material;
-            if (!IsOriginalShader && !terrain)
+            if (!NotUsingPreview && !terrain)
             {
                 mat.SetTiling(PainterDataAndConfig.PreviewTexture, id.tiling);
                 mat.SetOffset(PainterDataAndConfig.PreviewTexture, id.offset);
@@ -629,7 +633,7 @@ namespace Playtime_Painter {
 
         private  void OnChangedTexture_OnMaterial()
         {
-            if (IsOriginalShader || !terrain)
+            if (NotUsingPreview || !terrain)
                 ChangeTexture(GetTextureOnMaterial());
         }
 
@@ -883,7 +887,7 @@ namespace Playtime_Painter {
             if (MatDta == null)
                 return new List<ShaderProperty.TextureValue>();
 
-            if (!IsOriginalShader)
+            if (!NotUsingPreview)
                 return MatDta.materialsTextureFields;
 
             MatDta.materialsTextureFields.Clear();
@@ -912,7 +916,7 @@ namespace Playtime_Painter {
         private Texture GetTextureOnMaterial()
         {
 
-            if (!IsOriginalShader)
+            if (!NotUsingPreview)
             {
                 if (meshEditing) return null;
                 if (!terrain)
@@ -989,7 +993,7 @@ namespace Playtime_Painter {
             if (property != null)
                 mat.Set(property, id.CurrentTexture());
 
-            if (!IsOriginalShader && (!terrain))
+            if (!NotUsingPreview && (!terrain))
                 SetTextureOnPreview(id.CurrentTexture());
 
             return id;
@@ -1412,11 +1416,12 @@ namespace Playtime_Painter {
 
             var id = ImgMeta;
 
+            TexMgmt.DiscardChanges(id);
+
             importer.SaveAndReimport();
             if (id.TargetIsRenderTexture())
                 id.TextureToRenderTexture(id.texture2D);
-            else
-                if (id.texture2D)
+            else if (id.texture2D)
                 id.PixelsFromTexture2D(id.texture2D);
 
             SetTextureOnMaterial(id);
@@ -1428,8 +1433,8 @@ namespace Playtime_Painter {
         private string GenerateTextureSavePath() =>
             Path.Combine(Cfg.texturesFolderName, ImgMeta.saveName + ".png");
         
-        private bool OnBeforeSaveTexture(ImageMeta id)
-        {
+        private bool OnBeforeSaveTexture(ImageMeta id) {
+          
             if (id.TargetIsRenderTexture()) 
                 id.RenderTexture_To_Texture2D();
 
@@ -1767,6 +1772,7 @@ namespace Playtime_Painter {
             UnityUtils.FocusOn(gameObject);
 #endif
             selectedInPlaytime = this;
+            //TexMgmt.OnBeforeBlitConfigurationChange();
             Update_Brush_Parameters_For_Preview_Shader();
             InitIfNotInitialized();
         }
@@ -1945,7 +1951,7 @@ namespace Playtime_Painter {
                       "Load button on the bottom can reload working copy from original image file." +
                       "Save button will apply changes to the original file. To save as new file, change name before saving and click Save As New." +
                       "").F(pegi.EnvironmentNl)
-                      .fullWindowDocumentationClick("What is this component?");
+                      .fullWindowDocumentationClick("About Playtime Painter Component");
                 }
 
                 #endregion
@@ -2054,7 +2060,7 @@ namespace Playtime_Painter {
                                          "Vectors should be placed in normal and tangent slots to batch correctly.{0}" +
                                          "Keep uv1 as is for baked light and damage shaders.{0}" +
                                          "I place Shadows in UV2{0}" +
-                                         "I place Edge in UV3.{0}").F(pegi.EnvironmentNl).fullWindowDocumentationClick();
+                                         "I place Edge in UV3.{0}").F(pegi.EnvironmentNl).fullWindowDocumentationClick("Common usage");
 
                                     }
                                 }
@@ -2194,8 +2200,7 @@ namespace Playtime_Painter {
 
                             pegi.nl();
 
-                            if (!Cfg.moreOptions)
-                            {
+                            if (!Cfg.moreOptions)  {
 
                                 GlobalBrush.ColorSliders().nl(ref changed);
 
@@ -2212,14 +2217,13 @@ namespace Playtime_Painter {
 
                                 }
                             }
-
-                       
+                            
                             #endregion
 
                         }
                         else
                         {
-                            if (!IsOriginalShader)
+                            if (!NotUsingPreview)
                                 PreviewShaderToggleInspect();
 
                             if (!painterWorks)
@@ -2309,13 +2313,13 @@ namespace Playtime_Painter {
 
                             id.ComponentDependent_PEGI(showToggles, this).changes(ref changed);
 
-                            if (showToggles || (!IsOriginalShader && Cfg.previewAlphaChanel))
+                            if (showToggles || (!NotUsingPreview && Cfg.previewAlphaChanel))
                             {
                                 "Preview Edited RGBA".toggleIcon(ref Cfg.previewAlphaChanel)
                                     .changes(ref changed);
 
                                 "When using preview shader, only color channels you are currently editing will be visible in the preview. Useful when you want to edit only one color channel"
-                                    .fullWindowDocumentationClick("About this option", 15).nl();
+                                    .fullWindowDocumentationClick("About Preview Edited RGBA", 15).nl();
 
                             }
 
@@ -2329,7 +2333,7 @@ namespace Playtime_Painter {
                                         ref autoSelectMaterialByNumberOfPointedSubMesh).changes(ref changed);
 
                                     "As you paint, component will keep checking Sub Mesh index and will change painted material based on that index."
-                                        .fullWindowDocumentationClick("About this option", 15).nl();
+                                        .fullWindowDocumentationClick("About Auto Select Materials", 15).nl();
                                 }
 
 
@@ -2643,9 +2647,12 @@ namespace Playtime_Painter {
                 pegi.newLine();
 
                 if (changed)
+                {
+                    TexMgmt.OnBeforeBlitConfigurationChange();
                     Update_Brush_Parameters_For_Preview_Shader();
+                }
 
- 
+
             }
 
             inspected = null;
@@ -2665,7 +2672,7 @@ namespace Playtime_Painter {
             {
                 Texture tht = terrainHeightTexture;
 
-                if (!IsOriginalShader && icon.PreviewShader.Click("Applies changes made on Texture to Actual physical Unity Terrain.", 45).changes(ref changed))
+                if (!NotUsingPreview && icon.PreviewShader.Click("Applies changes made on Texture to Actual physical Unity Terrain.", 45).changes(ref changed))
                 {
                     Preview_To_UnityTerrain();
                     Unity_To_Preview();
@@ -2676,7 +2683,7 @@ namespace Playtime_Painter {
                 }
                 PainterCamera.Data.brushConfig.MaskSet(BrushMask.A, true);
 
-                if (tht.GetImgData() != null && IsOriginalShader && icon.OriginalShader.Click("Applies changes made in Unity terrain Editor", 45).changes(ref changed))
+                if (tht.GetImgData() != null && NotUsingPreview && icon.OriginalShader.Click("Applies changes made in Unity terrain Editor", 45).changes(ref changed))
                 {
                     Unity_To_Preview();
                     SetPreviewShader();
@@ -2685,10 +2692,10 @@ namespace Playtime_Painter {
             else
             {
 
-                if (IsOriginalShader && icon.OriginalShader.Click("Switch To Preview Shader", 45).changes(ref changed))
+                if (NotUsingPreview && icon.OriginalShader.Click("Switch To Preview Shader", 45).changes(ref changed))
                     SetPreviewShader();
 
-                if (!IsOriginalShader && icon.PreviewShader.Click("Return to Original Shader", 45).changes(ref changed))
+                if (!NotUsingPreview && icon.PreviewShader.Click("Return to Original Shader", 45).changes(ref changed))
                 {
                     MatDta.usePreviewShader = false;
                     SetOriginalShaderOnThis();
@@ -2707,7 +2714,7 @@ namespace Playtime_Painter {
             if (meshEditing && !Application.isPlaying)
                     MeshManager.Inst.DRAW_Lines(true);
             
-            if (IsOriginalShader && !LockTextureEditing && _lastMouseOverObject == this && IsCurrentTool &&
+            if (NotUsingPreview && !LockTextureEditing && _lastMouseOverObject == this && IsCurrentTool &&
                 GlobalBrush.IsA3DBrush(this) && !Cfg.showConfig)
                 Gizmos.DrawWireSphere(stroke.posTo, GlobalBrush.Size(true) * 0.5f);
             
@@ -2800,7 +2807,7 @@ namespace Playtime_Painter {
         private void PreviewShader_StrokePosition_Update()
         {
             CheckPreviewShader();
-            if (IsOriginalShader) return;
+            if (NotUsingPreview) return;
             
             var hide = Application.isPlaying ? Input.GetMouseButton(0) : currentlyPaintedObjectPainter == this;
             PainterCamera.Shader_PerFrame_Update(stroke, hide, GlobalBrush.Size(this));
@@ -2811,7 +2818,7 @@ namespace Playtime_Painter {
         {
             var id = ImgMeta;
 
-            if (id == null || IsOriginalShader) return;
+            if (id == null || NotUsingPreview) return;
             
             TexMgmt.Shader_UpdateBrushConfig(GlobalBrush, 1, id, this);
 

@@ -101,6 +101,7 @@ namespace Playtime_Painter {
         public virtual bool SupportedByTex2D => true;
         public virtual bool SupportedByRenderTexturePair => true;
         public virtual bool SupportedBySingleBuffer => true;
+        public virtual bool SupportedByAlphaBuffer => true;
         public virtual bool UsingSourceTexture => false;
         public virtual bool ShowColorSliders => true;
         public virtual bool NeedsWorldSpacePosition => false; // WorldSpace effect needs to be rendered using terget's mesh to have world positions of the vertexes
@@ -126,6 +127,11 @@ namespace Playtime_Painter {
             var id = InspectedImageMeta;
 
             if (id == null)
+                return false;
+
+            var br = GlobalBrush;
+
+            if (!cpu && br.useAlphaBuffer && !SupportedByAlphaBuffer && br.GetBrushType(cpu).SupportsAlphaBufferPainting)
                 return false;
 
             return ((id.destination == TexTarget.Texture2D) && (SupportedByTex2D)) ||
@@ -329,24 +335,29 @@ namespace Playtime_Painter {
 
     public class BlitModeBlur : BlitMode
     {
-        public override string NameForDisplayPEGI => "Blur";
         protected override string ShaderKeyword(ImageMeta id) => "BRUSH_BLUR";
         public override bool ShowColorSliders => false;
         public override bool SupportedBySingleBuffer => false;
         public override bool SupportedByTex2D => false;
 
         public override Shader ShaderForDoubleBuffer => TexMGMTdata.brushBlurAndSmudge;
+        public override Shader ShaderForAlphaBufferBlit => TexMGMTdata.blurAndSmudgeBufferBlit;
 
+        #region Inspector
+
+        public override string NameForDisplayPEGI => "Blur";
         public override string ToolTip => "As name suggests, blurs pixels";
 
-#if PEGI
+        #if PEGI
         public override bool Inspect()
         {
             var changed = base.Inspect().nl();
             "Blur Amount".edit(70, ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
             return changed;
         }
-#endif
+        #endif
+
+        #endregion
 
         public BlitModeBlur(int ind) : base(ind) { }
 
@@ -521,26 +532,28 @@ namespace Playtime_Painter {
 
     public class BlitModeBloom : BlitMode
     {
-        public override string NameForDisplayPEGI => "Bloom";
         protected override string ShaderKeyword(ImageMeta id) => "BRUSH_BLOOM";
 
         public override bool ShowColorSliders => false;
         public override bool SupportedBySingleBuffer => false;
         public override bool SupportedByTex2D => false;
         
-        public override string ToolTip => "Similar to Blur, but instead of blurring the colors, spreads brightness from bright pixels to darker ones";
-
         public override Shader ShaderForDoubleBuffer => TexMGMTdata.brushBlurAndSmudge;
+        public override Shader ShaderForAlphaBufferBlit => TexMGMTdata.blurAndSmudgeBufferBlit;
 
+        #region Inspector
+        public override string NameForDisplayPEGI => "Bloom";
+        public override string ToolTip => "Similar to Blur, but instead of blurring the colors, spreads brightness from bright pixels to darker ones";
+        
         #if PEGI
-        public override bool Inspect()
-        {
+        public override bool Inspect() {
 
             var changed = base.Inspect().nl();
             "Bloom Radius".edit(70, ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
             return changed;
         }
         #endif
+        #endregion
 
         public BlitModeBloom(int ind) : base(ind) { }
     }
@@ -559,6 +572,8 @@ namespace Playtime_Painter {
 
         public override bool UsingSourceTexture => true;
 
+        public override bool SupportedByAlphaBuffer => false;
+        
         public override bool AllSetUp => PainterCamera.depthProjectorCamera;
 
         protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_PROJECTION";
@@ -602,16 +617,19 @@ namespace Playtime_Painter {
 
     #region Filler Blit
 
-    public class BlitModeInkFiller : BlitMode
-    {
-        public override string NameForDisplayPEGI => "Ink Filler";
+    public class BlitModeInkFiller : BlitMode {
 
         public override bool SupportedByTex2D => false;
 
         public override bool SupportedBySingleBuffer => false;
 
-        public override Shader ShaderForDoubleBuffer => TexMGMTdata.inkColorSpread; 
+        public override bool SupportedByAlphaBuffer => false;
 
+        public override Shader ShaderForDoubleBuffer => TexMGMTdata.inkColorSpread;
+
+        #region Inspector
+        public override string NameForDisplayPEGI => "Ink Filler";
+        
         public override string ToolTip =>
             (" Inspired by comic books. After you paint BLACK lines, this brush will try to gradually fill the painted area with color without crossing those lines. " +
              ". ");
@@ -619,13 +637,14 @@ namespace Playtime_Painter {
         #if PEGI
         public override bool Inspect()
         {
-            var changed = false;
+            var changed = base.Inspect().nl();
 
             "Spread Speed".edit(70, ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
 
             return changed;
         }
         #endif
+        #endregion
 
         public BlitModeInkFiller(int ind) : base(ind) { }
     }

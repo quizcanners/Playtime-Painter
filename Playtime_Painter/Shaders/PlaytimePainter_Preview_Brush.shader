@@ -242,10 +242,6 @@
 						col = col*_brushMask + 0.5*(1 - _brushMask)+col.a*_brushMask.a;
 					#endif
 	
-						// Temporary
-					alpha += tex2D(_pp_AlphaBuffer, o.texcoord.xy);
-
-
 					#if BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY || BLIT_MODE_PROJECTION
 
 					#if TARGET_TRANSPARENT_LAYER
@@ -254,11 +250,7 @@
 
 						float showBG = _srcTextureUsage.z * (1-col.a);
 
-						
-
 						col.a += showBG; 
-
-
 
 						col.rgb = col.rgb * (1 - showBG) + tex2D(_TransparentLayerUnderlay, tc.xy).rgb*showBG;
 

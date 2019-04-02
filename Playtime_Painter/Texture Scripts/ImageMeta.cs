@@ -49,7 +49,6 @@ namespace Playtime_Painter
         private float sdfMaxOutside = 1f;
         private float sdfPostProcessDistance = 1f;
         
-
         private float _repaintDelay = 0.016f;
         private int _numberOfTexture2DBackups = 10;
         private int _numberOfRenderTextureBackups = 10;
@@ -66,9 +65,7 @@ namespace Playtime_Painter
             get { if (_pixels == null) PixelsFromTexture2D(texture2D); return _pixels; }
             set { _pixels = value; }
         }
-
-       
-
+        
         #endregion
 
         #region SAVE IN PLAYER
@@ -365,6 +362,8 @@ namespace Playtime_Painter
                 return;
 
             var rt = renderTexture;
+
+            TexMGMT.ApplyAllChangesTo(this);
 
             if (!rt && TexMGMT.imgMetaUsingRendTex == this)
                 rt = PainterCamera.Inst.GetDownscaledBigRt(width, height);
@@ -910,9 +909,33 @@ namespace Playtime_Painter
                         Colorize(_clearColor);
                         SetApplyUpdateRenderTexture();
                     }
+
+                    if ("Signed Distance Filelds generator".enter(ref _inspectedProcess, 4).nl())
+                    {
+
+                        "Will convert black and white color to black and white signed field".nl();
+
+                        "SDF Max Inside".edit(ref sdfMaxInside).nl();
+                        "SDF Max Outside".edit(ref sdfMaxOutside).nl();
+                        "SDF Post Process".edit(ref sdfPostProcessDistance).nl();
+
+                        if ("Generate".Click())
+                        {
+                            var p = PlaytimePainter.inspected;
+                            if (p)
+                                p.UpdateOrSetTexTarget(TexTarget.Texture2D);
+
+                            DistanceFieldProcessor.Generate(this, sdfMaxInside, sdfMaxOutside, sdfPostProcessDistance);
+                            SetAndApply();
+                        }
+
+                    }
                 }
 
-                if ("Render Buffer Debug".enter(ref _inspectedProcess, 3).nl()) {
+
+              
+
+                if ("Render Buffer Debug".enter(ref _inspectedProcess, 40).nl()) {
                     TexMGMT.bigRtPair[0].write(200);
                     pegi.nl();
                     TexMGMT.bigRtPair[1].write(200);
@@ -987,7 +1010,7 @@ namespace Playtime_Painter
 
                     ("if every pixel of texture has alpha = 1 (Max) Unity will be save it as .png without transparency. To counter this " +
                      " I set first pixels to alpha 0.9. I know it is hacky, it you know a better way, let me know")
-                        .fullWindowDocumentationClick();
+                        .fullWindowDocumentationClick("About Preserve Transparency");
 
                     pegi.nl();
                 }

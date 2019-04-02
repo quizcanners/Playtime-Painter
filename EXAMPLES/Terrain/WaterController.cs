@@ -62,7 +62,7 @@ namespace Playtime_Painter.Examples
             "Water just renders the plane, but multiplies it by screen's alpha rendered by underlying objects. " +
             "This is one of those methods I labeled as EXPERIMENTAL in the Asset description. And it will probably will stay in that category" +
             "since it is not a robust method. And I only recommend working on those method at the later stages of your project, " +
-            "when you can be sure it will not conflict with other effects.").fullWindowDocumentationClick();
+            "when you can be sure it will not conflict with other effects.").fullWindowDocumentationClick("About Water Controller");
 
 
             "Foam".edit(70, ref foamMask).nl(ref changed);

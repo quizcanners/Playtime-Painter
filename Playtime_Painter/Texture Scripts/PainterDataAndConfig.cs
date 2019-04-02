@@ -22,6 +22,7 @@ namespace Playtime_Painter
   
         public Shader additiveAlphaOutput;
         public Shader multishadeBufferBlit;
+        public Shader blurAndSmudgeBufferBlit;
 
         public Shader brushBlit;
         public Shader brushAdd;
@@ -607,6 +608,8 @@ namespace Playtime_Painter
             CheckShader(ref additiveAlphaOutput,        "Playtime Painter/Editor/Brush/AdditiveAlphaOutput",    forceReload);
 
             CheckShader(ref multishadeBufferBlit,       "Playtime Painter/Editor/Buffer Blit/Multishade",       forceReload);
+
+            CheckShader(ref blurAndSmudgeBufferBlit,    "Playtime Painter/Editor/Buffer Blit/BlurN_Smudge",     forceReload);
             #endif
         }
 

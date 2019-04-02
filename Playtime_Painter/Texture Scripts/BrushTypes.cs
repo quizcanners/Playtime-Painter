@@ -248,7 +248,7 @@ namespace Playtime_Painter
 
             TexMGMT.Render();
 
-            AfterStroke(painter, br, st, alphaBuffer, id);
+            AfterStroke_Painter(painter, br, st, alphaBuffer, id);
 
 
         }
@@ -264,34 +264,35 @@ namespace Playtime_Painter
                 p.BeforeGpuStroke(painter, br, st, this);
         }
 
-        public virtual void AfterStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, bool alphaBuffer, ImageMeta id)
-        {
+        public virtual void AfterStroke_Painter(PlaytimePainter painter, BrushConfig br, StrokeVector st, bool alphaBuffer, ImageMeta id) {
 
             painter.AfterStroke(st);
-
-            if (!br.IsSingleBufferBrush() && !br.IsA3DBrush(painter))
-                TexMGMT.UpdateBufferSegment();
-
+            
             if (br.useMask && st.mouseUp && br.randomMaskOffset)
                 br.maskOffset = new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f));
+            
+            if (alphaBuffer) {
+                var sh = br.GetBlitMode(false).ShaderForAlphaBufferBlit;
+                if (painter.NotUsingPreview) 
+                    TexMGMT.UpdateFromAlphaBuffer(id.CurrentRenderTexture(), sh);
+                else 
+                    TexMGMT.AlphaBufferSetDirtyBeforeRender(id, sh);
+            }
+            else if (!br.IsSingleBufferBrush() && !br.IsA3DBrush(painter))
+                TexMGMT.UpdateBufferSegment();
 
             foreach (var p in painter.Plugins)
                 p.AfterGpuStroke(painter, br, st, this);
-
-            if (alphaBuffer && id.CurrentRenderTexture()) {
-                var sh = br.GetBlitMode(false).ShaderForAlphaBufferBlit;
-                TexMGMT.FinalizeFromAlphaBuffer(id.CurrentRenderTexture(), sh);
-            }
         }
 
-        protected static void AfterStroke(BrushConfig br, bool alphaBuffer, RenderTexture rt = null) {
+        protected static void AfterStroke_NoPainter(BrushConfig br, bool alphaBuffer, RenderTexture rt = null) {
 
             if (br.useMask && br.randomMaskOffset)
                 br.maskOffset = new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f));
             
-            if (alphaBuffer && rt) {
+            if (alphaBuffer) {
                 var sh = br.GetBlitMode(false).ShaderForAlphaBufferBlit;
-                TexMGMT.FinalizeFromAlphaBuffer(rt, sh);
+                TexMGMT.UpdateFromAlphaBuffer(rt, sh);
             }
         }
 
@@ -341,7 +342,7 @@ namespace Playtime_Painter
 
              TexMGMT.Render();
 
-             AfterStroke(painter, br, st, alphaBuffer, id);
+             AfterStroke_Painter(painter, br, st, alphaBuffer, id);
         }
 
     }
@@ -387,7 +388,7 @@ namespace Playtime_Painter
 
             TexMGMT.Render();
 
-            AfterStroke(br,  alphaBuffer, rt);
+            AfterStroke_NoPainter(br,  alphaBuffer, rt);
 
         }
     }
@@ -469,16 +470,16 @@ namespace Playtime_Painter
 
                 TexMGMT.Render();
 
-                AfterStroke(painter, br, st, alphaBuffer, id);
+                AfterStroke_Painter(painter, br, st, alphaBuffer, id);
 
             }
             else
                 painter.AfterStroke(st);
         }
 
-        public override void AfterStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, bool alphaBuffer, ImageMeta id)
+        public override void AfterStroke_Painter(PlaytimePainter painter, BrushConfig br, StrokeVector st, bool alphaBuffer, ImageMeta id)
         {
-            base.AfterStroke(painter, br, st, alphaBuffer, id);
+            base.AfterStroke_Painter(painter, br, st, alphaBuffer, id);
 
             if (br.decalRotationMethod != DecalRotationMethod.Random) return;
             
@@ -669,7 +670,7 @@ namespace Playtime_Painter
 
             r.Render();
 
-            AfterStroke(painter, br, st, alphaBuffer, id);
+            AfterStroke_Painter(painter, br, st, alphaBuffer, id);
         }
     }
 
@@ -690,8 +691,6 @@ namespace Playtime_Painter
         public override bool SupportedForTerrainRt => false; 
 
         public override bool NeedsGrid => Cfg.useGridForBrush; 
-
-        public override string NameForDisplayPEGI => "Sphere";
 
         private static void PrepareSphereBrush(ImageMeta id, BrushConfig br, StrokeVector stroke, PlaytimePainter painter, out bool alphaBuffer)
         {
@@ -727,7 +726,7 @@ namespace Playtime_Painter
                 TexMGMT.Render();
             }
 
-            AfterStroke(painter, br, st, alphaBuffer, id);
+            AfterStroke_Painter(painter, br, st, alphaBuffer, id);
         }
 
         public static void Paint(RenderTexture rt, GameObject go, SkinnedMeshRenderer skinner, BrushConfig br, StrokeVector st, int subMeshIndex)
@@ -739,7 +738,7 @@ namespace Playtime_Painter
             PrepareSphereBrush(rt.GetImgData(), br, st, null, out alphaBuffer);
             TexMGMT.brushRenderer.UseSkinMeshAsBrush(go, skinner, subMeshIndex);
             TexMGMT.Render();
-            AfterStroke(br, alphaBuffer, rt);
+            AfterStroke_NoPainter(br, alphaBuffer, rt);
         }
 
         public static void Paint(RenderTexture rt, GameObject go, Mesh mesh, BrushConfig br, StrokeVector st, List<int> subMeshIndex)
@@ -751,7 +750,7 @@ namespace Playtime_Painter
             PrepareSphereBrush(rt.GetImgData(), br, st, null, out alphaBuffer);
             TexMGMT.brushRenderer.UseMeshAsBrush(go, mesh, subMeshIndex);
             TexMGMT.Render();
-            AfterStroke(br, alphaBuffer, rt);
+            AfterStroke_NoPainter(br, alphaBuffer, rt);
         }
 
         public static void PaintAtlased(RenderTexture rt, GameObject go, Mesh mesh, BrushConfig br, StrokeVector st, List<int> subMeshIndex, int aTexturesInRow)
@@ -766,15 +765,17 @@ namespace Playtime_Painter
             TexMGMT.brushRenderer.UseMeshAsBrush(go, mesh, subMeshIndex);
             TexMGMT.Render();
 
-            AfterStroke(br, alphaBuffer, rt);
+            AfterStroke_NoPainter(br, alphaBuffer, rt);
 
             PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
         }
 
         #region Inspector
 
+        public override string NameForDisplayPEGI => "Sphere";
+        
         public override string ToolTip => "Sphere brush is very different from all other brushes. It uses world position to paint. " +
-                                          "It is perfect for working with complex meshes. It can even paint in animated skinned meshes.";
+                                          "It is perfect for working with complex meshes. It can even paint on animated skinned meshes.";
 
         #if PEGI
         public override bool Inspect() {

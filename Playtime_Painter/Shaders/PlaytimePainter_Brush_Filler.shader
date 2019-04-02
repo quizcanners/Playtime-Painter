@@ -49,9 +49,11 @@
 
 					dni = tmp * col.a + dni * (1 - col.a);
 
+					//dni.y = 0;
+
 					#else
 					dni.x = min(dni.x, length(col.rgb - brushColor.rgb));
-					dni.y = min(dni.y, length(col.rgb));
+					dni.y = min(dni.y, col.r + col.b + col.g);
 					#endif
 
 				}
@@ -94,13 +96,23 @@
 					DistAndInc(dniY, uv + float2(0, 2 * d.y), _brushColor.rgb);
 					DistAndInc(dniY, uv + float2(0, 1 * d.y), _brushColor.rgb);
 
-					#define GETDIST(cid) cid.x + max(0, 0.1 - cid.y) * 10
+					float2 dni = 3;
 
-					float dist = min(GETDIST(dniX), GETDIST(dniDX));
-					dist = min(dist, GETDIST(dniY));
-					dist = min(dist, GETDIST(dniDY));
+					DistAndInc(dni, uv, _brushColor.rgb);
 
-					float alpha = min(1,saturate((a - 0.95) * 20 + saturate(a * (1 - dist*4)*blurAmount)));
+					// X - Color distance
+					// Y - BRIGHTNESS
+
+					#define GETDIST(cidx,cidy) (cidx + max(0, 0.1 - cidy)*100)
+
+					float dist = min(GETDIST(dniX.x, dniX.y), GETDIST(dniDX.x, dniDX.y));
+					dist = min(dist, GETDIST(dniY.x, dniY.y));
+					dist = min(dist, GETDIST(dniDY.x, dniDY.y));
+					//dist = min(dist, GETDIST(dni.x, dni.y));
+
+					dist = max(dist, 0.1 - dni.y) * 128;
+
+					float alpha = min(1, saturate((a - 0.9975) * 400) + saturate(a * (1 - dist)*blurAmount));
 
 					#if  TARGET_TRANSPARENT_LAYER
 						return AlphaBlitTransparent(alpha, _brushColor,  o.texcoord.xy);

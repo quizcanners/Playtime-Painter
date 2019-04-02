@@ -172,7 +172,7 @@ namespace Playtime_Painter {
             var changed = false;
             
             var m = p.Material;
-            if (p.IsOriginalShader) {
+            if (p.NotUsingPreview) {
                 if (m.HasProperty(PainterDataAndConfig.ATLASED_TEXTURES))
                     atlasRows = m.GetInt(PainterDataAndConfig.ATLASED_TEXTURES);
             }

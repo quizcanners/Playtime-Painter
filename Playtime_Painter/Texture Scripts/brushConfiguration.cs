@@ -128,6 +128,8 @@ namespace Playtime_Painter {
         public float brush3DRadius = 16;
         public float brush2DRadius = 16;
 
+        public float alphaLimitForAlphaBuffer = 1;
+
         public float Size(bool worldSpace) => (worldSpace ? brush3DRadius : brush2DRadius);
         public LinearColor colorLinear;
 
@@ -241,44 +243,56 @@ namespace Playtime_Painter {
             pegi.newLine();
 
             Msg.BlitMode.Write("How final color will be calculated", 70);
-          
-            if (pegi.select(ref blitMode, Playtime_Painter.BlitMode.AllModes).changes(ref changed))
-                SetBlitMode(cpu, blitMode);
 
-            blitMode?.ToolTip.fullWindowDocumentationClick("About this blit mode", 20).nl();
+            if (pegi.select(ref blitMode, Playtime_Painter.BlitMode.AllModes).changes(ref changed)) 
+                SetBlitMode(cpu, blitMode);
+            
+
+            blitMode?.ToolTip.fullWindowDocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI), 20).nl();
             
             if (!cpu) {
                 Msg.BrushType.Write(80);
                 pegi.select(ref _inGpuBrushType, BrushType.AllTypes).changes(ref changed);
 
-                brushType?.ToolTip.fullWindowDocumentationClick("About this brush type", 20);
+                brushType?.ToolTip.fullWindowDocumentationClick("About {0} brush type".F(brushType.NameForDisplayPEGI), 20);
             }
 
             var overrideBlitModePegi = false;
 
             foreach (var b in PainterSystemManagerPluginBase.BrushPlugins)
                 b.BrushConfigPEGI(ref overrideBlitModePegi, this).nl(ref changed);
-                          
+
             if (p)
                 foreach (var pl in p.Plugins)
-                    if (pl.BrushConfigPEGI().nl(ref changed)) 
+                    if (pl.BrushConfigPEGI().nl(ref changed))
                         pl.SetToDirty_Obj();
+                    
 
             if (blitMode.AllSetUp) {
 
                 if (blitMode.UsingSourceTexture) {
+
                     "Src Texture Color".editEnum(80, ref srcColorUsage).nl(ref changed);
+                   
                     "Clamp".toggleIcon(ref clampSourceTexture).nl(ref changed);
+
                 }
 
                 brushType.Inspect().nl(ref changed);
 
                 if (brushType.SupportsAlphaBufferPainting)
                 {
-                    "Alpha Buffer".toggleIcon(ref useAlphaBuffer).changes(ref changed);
+                    "Alpha Buffer".toggleIcon(ref useAlphaBuffer, true).changes(ref changed);
 
-                    "Will render brush to Alpha Buffer and then use Alpha buffer to render to texture. For Sphere brush helps avoid many various artifacts."
-                        .fullWindowDocumentationClick();
+                    if (useAlphaBuffer)
+                        "Alpha".edit("This is the kind of alpha you see in standard painting software. But it is only available when using Alpha Buffer", 40, ref alphaLimitForAlphaBuffer, 0.01f, 1f).changes(ref changed);
+
+                    if (p && p.NotUsingPreview)
+                        ("It is recommended to use preview when using Alpha Blit. As it will improve performance." +
+                            " ").fullWindowWarningDocumentationClick("Preview is recommended.");
+
+                    ("Will render brush to Alpha Buffer first and then use that Alpha buffer to render changes to texture. For Sphere brush helps avoid many various artifacts. Using Preview will improve performance, as it will not apply changes to texture until you exit preview mode, or change any setting that affects blit mode. Please report any issues you encounter while using this, as this is a new feature, and there are planty of places where it can function not as desired. It is totally worth it as it makes sphere brush an almost flawless tool for mesh editing. The only remaining issue is tyling. ")
+                        .fullWindowDocumentationClick("About Alpha Buffer");
 
                     pegi.nl();
                 }
@@ -286,7 +300,7 @@ namespace Playtime_Painter {
 
             if (!overrideBlitModePegi && blitMode.ShowInDropdown())
                 blitMode.Inspect().nl(ref changed);
-
+              
             _inspectedBrush = null;
 
             return changed;
@@ -305,9 +319,9 @@ namespace Playtime_Painter {
 
             var smooth = GetBrushType(targetIsTex2D) != BrushTypePixel.Inst;
 
-            if ((targetIsTex2D) && 
+            if (targetIsTex2D && 
                 pegi.toggle(ref smooth, icon.Round.GetIcon(), icon.Square.GetIcon(), "Smooth/Pixels Brush", 45).changes(ref changed))
-                TypeSet(targetIsTex2D, smooth ? (BrushType)BrushTypeNormal.Inst : (BrushType)BrushTypePixel.Inst);
+                TypeSet(targetIsTex2D, smooth ? BrushTypeNormal.Inst : (BrushType)BrushTypePixel.Inst);
             
 
             return changed;
@@ -330,10 +344,9 @@ namespace Playtime_Painter {
 
                 ("To paint an object a collision detection is needed. Mesh Collider is not being animated. To paint it, update Mesh Collider with Update Collider button." +
                  " For ingame painting it is preferable to use simple colliders like Speheres to avoid per frame updates for collider mesh."
-                    ).fullWindowDocumentationClick();
+                    ).fullWindowDocumentationClick("Why Update Collider from skinned mesh?");
 
                 pegi.nl();
-
             }
 
 
@@ -386,7 +399,7 @@ namespace Playtime_Painter {
 
             if (p.terrain) {
 
-                if (p.ImgMeta != null && p.IsTerrainHeightTexture && p.IsOriginalShader)
+                if (p.ImgMeta != null && p.IsTerrainHeightTexture && p.NotUsingPreview)
                     "Preview Shader is needed to see changes to terrain height.".writeWarning();
 
                 pegi.nl();
@@ -476,8 +489,6 @@ namespace Playtime_Painter {
             var changed = false;
 
             if (Cfg.showColorSliders) {
-
-              
              
                 var slider = GetBlitMode(cpu).ShowColorSliders;
 
@@ -512,7 +523,7 @@ namespace Playtime_Painter {
                         if (painter.IsEditingThisMesh || id==null || !id.isATransparentLayer || colorLinear.a > 0)  {
 
                             var slider_copy = blitMode.UsingSourceTexture ?
-                                (srcColorUsage != SourceTextureColorUsage.Copy && slider)
+                                (srcColorUsage != SourceTextureColorUsage.Copy)
                                 :slider;
 
                             ChannelSlider(BrushMask.R, ref colorLinear.r, null, slider_copy).nl(ref changed);

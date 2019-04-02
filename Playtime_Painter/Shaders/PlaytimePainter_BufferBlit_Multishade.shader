@@ -16,7 +16,7 @@
 
 				 #include "PlaytimePainter_cg.cginc"
 
-				 #pragma multi_compile BLIT_MODE_ALPHABLEND  BLIT_MODE_ADD  BLIT_MODE_SUBTRACT   BLIT_MODE_COPY   BLIT_MODE_SAMPLE_DISPLACE
+				 #pragma multi_compile BLIT_MODE_ALPHABLEND  BLIT_MODE_ADD  BLIT_MODE_SUBTRACT BLIT_MODE_COPY BLIT_MODE_SAMPLE_DISPLACE
 				 #pragma multi_compile ____ TARGET_TRANSPARENT_LAYER
 
 				 #pragma vertex vert
@@ -49,20 +49,17 @@
 
 					 // Brush Types
 
-					 float2 off = _pp_AlphaBuffer_TexelSize.xy;
+					// float2 off = _pp_AlphaBuffer_TexelSize.xy;
 
 
-					#define GRABPIXEL(ker) tex2Dlod(_pp_AlphaBuffer, float4(o.texcoord.xy + ker * off ,0,0)).r
+					//#define GRABPIXEL(ker) tex2Dlod(_pp_AlphaBuffer, float4(o.texcoord.xy + ker * off ,0,0)).r
 
 
-					 float alpha =
+					 float alpha = SampleAlphaBuffer(o.texcoord.xy);
 
-						 max (
-
+					/*	 max (
 							 GRABPIXEL(float2(0, 0)),
-
 							 max(
-
 								 max(
 									max(GRABPIXEL(float2(-1, 0)), GRABPIXEL(float2(0, -1))),
 									max(GRABPIXEL(float2(1, 0)), GRABPIXEL(float2(0, 1)))
@@ -71,13 +68,10 @@
 									 max(GRABPIXEL(float2(-1, -1)), GRABPIXEL(float2(1, 1))),
 									 max(GRABPIXEL(float2(-1, 1)), GRABPIXEL(float2(1, -1)))
 								 )
-						 
-						 
 							 )
-						 )
-						 
-						 
-						 ;    //tex2Dlod(_pp_AlphaBuffer, float4(o.texcoord.xy,0,0)).r;
+						 );  
+
+					 alpha = min(alpha, _pp_AlphaBufferCfg.x);*/
 
 					 #if BLIT_MODE_COPY
 						 float4 src = tex2Dlod(_SourceTexture, float4(o.texcoord.xy*o.srcTexAspect, 0, 0));
@@ -89,8 +83,6 @@
 						 _brushColor.r = (_brushSamplingDisplacement.x - o.texcoord.x - _brushPointedUV_Untiled.z) / 2 + 0.5;
 						 _brushColor.g = (_brushSamplingDisplacement.y - o.texcoord.y - _brushPointedUV_Untiled.w) / 2 + 0.5;
 					 #endif
-
-						
 
 					 #if BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY || BLIT_MODE_SAMPLE_DISPLACE 
 
@@ -104,11 +96,11 @@
 					 #endif
 
 					 #if BLIT_MODE_ADD
-						 return  addWithDestBuffer(alpha*0.04, _brushColor,  o.texcoord.xy);
+						 return  addWithDestBuffer(alpha, _brushColor,  o.texcoord.xy);
 					 #endif
 
 					 #if BLIT_MODE_SUBTRACT
-						 return  subtractFromDestBuffer(alpha*0.04, _brushColor,  o.texcoord.xy);
+						 return  subtractFromDestBuffer(alpha, _brushColor,  o.texcoord.xy);
 					 #endif
 				 }
 				 ENDCG

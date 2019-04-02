@@ -482,10 +482,18 @@ namespace PlayerAndEditorGUI {
         public static bool fullWindowWarningDocumentationClick(this string text, string toolTip = "What is this?",
             int buttonSize = 20) => text.fullWindowDocumentationClick(toolTip, buttonSize, icon.Warning);
 
-        public static bool fullWindowDocumentationClick(this string text, string toolTip = "What is this?", int buttonSize = 20, icon clickIcon = icon.Question)  {
+        public static bool fullWindowDocumentationClick(this string text, string toolTip = "", int buttonSize = 20, icon clickIcon = icon.Question)
+        {
+
+            bool gotHeadline = false;
+
+            if (toolTip.IsNullOrEmpty())
+                toolTip = "What is this ?";
+            else gotHeadline = true;
 
             if (fullWindowDocumentationClick(toolTip, buttonSize, clickIcon)) {
                 PopUpService.popUpText = text;
+                PopUpService.popUpHeader = gotHeadline ? toolTip : "";
                 PopUpService.InitiatePopUp();
                 return true;
             }
@@ -514,6 +522,8 @@ namespace PlayerAndEditorGUI {
             public const string DiscordServer = "https://discord.gg/rF7yXq3";
 
             public const string SupportEmail = "quizcanners@gmail.com";
+
+            public static string popUpHeader = "";
 
             public static string popUpText = "";
 
@@ -620,6 +630,12 @@ namespace PlayerAndEditorGUI {
                     return false;
 
                 if (!popUpText.IsNullOrEmpty()) {
+                    
+                    if (!popUpHeader.IsNullOrEmpty()) {
+                        popUpHeader.write(PEGI_Styles.ListLabel);
+                        nl();
+                    }
+                    
                     popUpText.writeBig("Click the blue text below to close this toolTip. This is basically a tooltip for a tooltip. It is the world we are living in now.");
 
                     if (!relatedLink.IsNullOrEmpty() && relatedLinkName.Click(14))

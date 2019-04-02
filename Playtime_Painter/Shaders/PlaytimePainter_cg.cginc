@@ -9,6 +9,7 @@ float4 _srcTextureUsage;
 sampler2D _TransparentLayerUnderlay;
 sampler2D _pp_AlphaBuffer;
 float4 _pp_AlphaBuffer_TexelSize;
+float4 _pp_AlphaBufferCfg;
 
 sampler2D _DestBuffer;
 float4 _DestBuffer_TexelSize;
@@ -189,6 +190,33 @@ inline float calculateAlpha (float a, float fromMask){
 	return saturate(pow( a*(1-hardmod)+(a*(fromMask)*3*hardmod) ,(1+_maskDynamics.y*0.1))*_brushForm.x);
 }
 
+inline float SampleAlphaBuffer(float2 uv) {
+
+	float2 off = _pp_AlphaBuffer_TexelSize.xy;
+
+	#define GRABPIXEL(ker) tex2Dlod(_pp_AlphaBuffer, float4(uv + ker * off ,0,0)).r
+
+	float alpha =
+
+		max(
+			GRABPIXEL(float2(0, 0)),
+			max(
+				max(
+					max(GRABPIXEL(float2(-1, 0)), GRABPIXEL(float2(0, -1))),
+					max(GRABPIXEL(float2(1, 0)), GRABPIXEL(float2(0, 1)))
+				),
+				max(
+					max(GRABPIXEL(float2(-1, -1)), GRABPIXEL(float2(1, 1))),
+					max(GRABPIXEL(float2(-1, 1)), GRABPIXEL(float2(1, -1)))
+				)
+			)
+		);
+
+	alpha = min(alpha, _pp_AlphaBufferCfg.x);
+
+	return alpha;
+}
+
 inline float prepareAlphaSphere (float2 texcoord, float3 worldPos){
 	float mask = getMaskedAlpha (texcoord);
 
@@ -259,6 +287,10 @@ inline float prepareAlphaSmoothPreview (float4 texcoord){
 	return calculateAlpha (a, mask);
 }
 
+inline float4 BrushMaskWithAlphaBuffer(float alpha, float2 uv) {
+	return _brushMask * min(_pp_AlphaBufferCfg.x, alpha*_brushPointedUV.w + tex2D(_pp_AlphaBuffer, uv).r);
+}
+
 inline float4 AlphaBlitTransparent(float alpha, float4 src, float2 texcoord) {
 	
 	float4 col = tex2Dlod(_DestBuffer, float4(texcoord.xy, 0, 0));
@@ -287,7 +319,7 @@ inline float4 AlphaBlitTransparent(float alpha, float4 src, float2 texcoord) {
 
 inline float4 AlphaBlitTransparentPreview(float alpha, float4 src, float2 texcoord, float4 col) {
 	
-	alpha = alpha / min(1, col.a + alpha+0.000000001) * _brushPointedUV.w;
+	alpha = min(1, alpha / min(1, col.a + alpha+0.000000001) * _brushPointedUV.w + tex2D(_pp_AlphaBuffer, texcoord).r);
 
 	_brushMask *= alpha;
 
@@ -322,7 +354,7 @@ inline float4 AlphaBlitOpaque (float alpha,float4 src, float2 texcoord){
 }
 
 inline float4 AlphaBlitOpaquePreview (float alpha,float4 src, float2 texcoord, float4 col){
-	_brushMask*=alpha*_brushPointedUV.w;
+	_brushMask = BrushMaskWithAlphaBuffer(alpha, texcoord); //*= min(1, alpha*_brushPointedUV.w + tex2D(_pp_AlphaBuffer, texcoord).r);
 
 	#ifdef UNITY_COLORSPACE_GAMMA
 	col = pow(src, GAMMA_TO_LINEAR)*_brushMask+pow(col, GAMMA_TO_LINEAR)*(1-_brushMask);
@@ -350,7 +382,7 @@ inline float4 addWithDestBuffer (float alpha,float4 src, float2 texcoord){
 }
 
 inline float4 addWithDestBufferPreview (float alpha,float4 src, float2 texcoord, float4 col){
-	_brushMask*=alpha*_brushPointedUV.w;
+	_brushMask = BrushMaskWithAlphaBuffer(alpha, texcoord); //_brushMask*=alpha*_brushPointedUV.w;
 
 	#ifdef UNITY_COLORSPACE_GAMMA
 	col.rgb = pow(pow(src.rgb, GAMMA_TO_LINEAR)*_brushMask.rgb+pow(col.rgb, GAMMA_TO_LINEAR), LINEAR_TO_GAMMA);
@@ -379,7 +411,7 @@ inline float4 subtractFromDestBuffer (float alpha,float4 src, float2 texcoord){
 }
 
 inline float4 subtractFromDestBufferPreview (float alpha,float4 src, float2 texcoord, float4 col){
-    _brushMask*=alpha;
+	_brushMask = BrushMaskWithAlphaBuffer(alpha, texcoord); //_brushMask*=alpha;
 
     #ifdef UNITY_COLORSPACE_GAMMA
     col = max(0, pow(col, GAMMA_TO_LINEAR) - pow(src, GAMMA_TO_LINEAR)*_brushMask);

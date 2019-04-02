@@ -155,13 +155,13 @@ namespace Playtime_Painter
             meshFilter.mesh = PainterCamera.BrushMeshGenerator.GetQuad();
         }
 
-        public void CopyBuffer(Texture tex, RenderTexture onto, Shader shade) => CopyBuffer(tex, onto, null, shade);
+        public RenderTexture CopyBuffer(Texture tex, RenderTexture onto, Shader shade) => CopyBuffer(tex, onto, null, shade);
 
-        public void CopyBuffer(Texture tex, RenderTexture onto, Material mat) => CopyBuffer(tex, onto, mat, null);
+        public RenderTexture CopyBuffer(Texture tex, RenderTexture onto, Material mat) => CopyBuffer(tex, onto, mat, null);
 
-        private void CopyBuffer(Texture tex, RenderTexture onto, Material material, Shader shade)
+        private RenderTexture CopyBuffer(Texture tex, RenderTexture onto, Material material, Shader shade)
         {
-            if (!tex || !onto) return;
+            if (!tex || !onto) return onto;
             
             const float size = PainterCamera.OrthographicSize * 2;
             
@@ -213,6 +213,7 @@ namespace Playtime_Painter
             if (Math.Abs(aspectRatio - 1) > float.Epsilon)
                 PainterDataAndConfig.BufferCopyAspectRatio.GlobalValue = 1;
 
+            return onto;
         }
 
         public void PrepareColorPaint(Color col)

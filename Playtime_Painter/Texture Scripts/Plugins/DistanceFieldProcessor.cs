@@ -26,19 +26,30 @@ namespace Playtime_Painter {
 		
 		private static int width, height;
 		private static Pixel[,] pixels;
-		
-		/// <param name="maxInside">
-		/// Maximum pixel distance measured inside the edge, resulting in an alpha value of 1.
-		/// If set to or below 0, everything inside will have an alpha value of 1.
-		/// </param>
-		/// <param name="maxOutside">
-		/// Maximum pixel distance measured outside the edge, resulting in an alpha value of 0.
-		/// If set to or below 0, everything outside will have an alpha value of 0.
-		/// </param>
-		/// <param name="postProcessDistance">
-		/// Pixel distance from the edge within which pixels will be post-processed using the edge gradient.
-		/// </param>
-		
+        private static ImageMeta img;
+
+        /// <param name="maxInside">
+        /// Maximum pixel distance measured inside the edge, resulting in an alpha value of 1.
+        /// If set to or below 0, everything inside will have an alpha value of 1.
+        /// </param>
+        /// <param name="maxOutside">
+        /// Maximum pixel distance measured outside the edge, resulting in an alpha value of 0.
+        /// If set to or below 0, everything outside will have an alpha value of 0.
+        /// </param>
+        /// <param name="postProcessDistance">
+        /// Pixel distance from the edge within which pixels will be post-processed using the edge gradient.
+        /// </param>
+
+        static void SetColor(int x, int y, float value, float scale) {
+
+            var col = img.PixelUnSafe(x, y);
+            col.r = value;
+            col.g = value;
+            col.b = value;
+
+            img.SetPixelUnSafe(x, y, col);
+        }
+
 		public static void Generate (
             ImageMeta image,
 			float maxInside,
@@ -48,11 +59,13 @@ namespace Playtime_Painter {
 			width = image.width;
 			height = image.height;
 
-			pixels = new Pixel[width, height];
+            img = image;
+
+            pixels = new Pixel[width, height];
 			int x, y;
 			float scale;
 
-			Color c = Color.black;
+			//Color c = Color.black;
 
 			for(y = 0; y < height; y++)
 				for(x = 0; x < width; x++)
@@ -61,7 +74,7 @@ namespace Playtime_Painter {
 			if(maxInside > 0f){
 				for(y = 0; y < height; y++)
 					for(x = 0; x < width; x++)
-						pixels[x, y].originalValue = 1f - image.PixelUnSafe(x, y).r;
+						pixels[x, y].originalValue = 1f - image.PixelUnSafe(x, y).grayscale;
 					
 				ComputeEdgeGradients();
 				GenerateDistanceTransform();
@@ -72,9 +85,13 @@ namespace Playtime_Painter {
 
 				for(y = 0; y < height; y++)
 					for(x = 0; x < width; x++){
-						c.r = Mathf.Clamp01(pixels[x, y].distance * scale);
-                        image.SetPixelUnSafe(x, y, c);
-					}
+						//c.r = Mathf.Clamp01(pixels[x, y].distance * scale);
+                       // image.SetPixelUnSafe(x, y, c);
+
+                        SetColor(x, y, Mathf.Clamp01(pixels[x, y].distance * scale), scale);
+
+
+                    }
 				
 			}
 
@@ -92,16 +109,18 @@ namespace Playtime_Painter {
 				if(maxInside > 0f){
 					for(y = 0; y < height; y++)
 						for(x = 0; x < width; x++){
-							c.r = 0.5f + (image.PixelUnSafe(x, y).r - Mathf.Clamp01(pixels[x, y].distance * scale)) * 0.5f;
-                            image.SetPixelUnSafe(x, y, c);
+							float value = 0.5f + (image.PixelUnSafe(x, y).r - Mathf.Clamp01(pixels[x, y].distance * scale)) * 0.5f;
+                            SetColor(x, y, value, scale);
+                            //image.SetPixelUnSafe(x, y, c);
 						}
 				}
 				else{
 					for(y = 0; y < height; y++)
 						for(x = 0; x < width; x++){
-							c.r = Mathf.Clamp01(1f - pixels[x, y].distance * scale);
-                            image.SetPixelUnSafe(x, y, c);
-						}
+							var value = Mathf.Clamp01(1f - pixels[x, y].distance * scale);
+                            //image.SetPixelUnSafe(x, y, c);
+                            SetColor(x, y, value, scale);
+                        }
 					
 				}
 			}

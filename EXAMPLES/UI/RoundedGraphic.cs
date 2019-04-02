@@ -351,13 +351,11 @@ namespace Playtime_Painter.Examples
 
                     if ("Shaders".select(60, ref shad, CompatibleShaders, false, true).changes(ref changed))
                         mat.shader = shad;
-
                     
-
                     var sTip = mat.Get(QuizCannersUtilities.ShaderTags.ShaderTip);
 
                     if (!sTip.IsNullOrEmpty())
-                        sTip.fullWindowDocumentationClick();
+                        sTip.fullWindowDocumentationClick("Tip from shader tag");
 
                     if (icon.Refresh.Click("Refresh compatible Shaders list"))
                         _compatibleShaders = null;
@@ -373,7 +371,7 @@ namespace Playtime_Painter.Examples
                         "Position: ".editEnum(60, ref _positionDataType).changes(ref changed);
 
                         "Shaders that use position data often don't look right in the scene view."
-                            .fullWindowDocumentationClick();
+                            .fullWindowDocumentationClick("Camera dependancy warning");
 
                         pegi.nl();
 

@@ -796,7 +796,7 @@ namespace Playtime_Painter
             
             target.PreviewShaderToggleInspect().changes(ref changed);
 
-            if (!target.IsOriginalShader && "preview".select(45, ref MeshShaderMode.selected, MeshShaderMode.AllModes).changes(ref changed))
+            if (!target.NotUsingPreview && "preview".select(45, ref MeshShaderMode.selected, MeshShaderMode.AllModes).changes(ref changed))
                 MeshShaderMode.ApplySelected();
 
             var previousTool = MeshTool;
@@ -807,7 +807,7 @@ namespace Playtime_Painter
                 MeshTool.OnSelectTool();
             }
             
-            MeshTool.Tooltip.fullWindowDocumentationClick("About this tool.");
+            MeshTool.Tooltip.fullWindowDocumentationClick("About {0} tool".F(MeshTool.NameForDisplayPEGI));
 
     
             if (target.skinnedMeshRenderer) 

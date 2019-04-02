@@ -224,6 +224,10 @@ namespace Playtime_Painter {
         public RenderTexture alphaBufferTexture;
         public int bigRtVersion;
 
+        public bool secondBufferUpdated;
+        [NonSerialized] private ImageMeta alphaBufferDataTarget;
+        [NonSerialized] private Shader alphaBufferDataShader;
+
         public RenderTexture DoubleBufferCameraTarget => bigRtPair[0];
 
         public MeshRenderer secondBufferDebug;
@@ -445,6 +449,7 @@ namespace Playtime_Painter {
         private static readonly ShaderProperty.VectorValue BrushFormProperty =              new ShaderProperty.VectorValue("_brushForm");
         private static readonly ShaderProperty.VectorValue TextureSourceParameters =        new ShaderProperty.VectorValue("_srcTextureUsage");
         private static readonly ShaderProperty.VectorValue cameraPosition_Property =        new ShaderProperty.VectorValue("_RTcamPosition");
+        private static readonly ShaderProperty.VectorValue AlphaBufferConfigProperty =      new ShaderProperty.VectorValue("_pp_AlphaBufferCfg");
 
         private static readonly ShaderProperty.TextureValue SourceMaskProperty =            new ShaderProperty.TextureValue("_SourceMask");
         private static readonly ShaderProperty.TextureValue SourceTextureProperty =         new ShaderProperty.TextureValue("_SourceTexture");
@@ -516,6 +521,10 @@ namespace Playtime_Painter {
                 brush.Size(is3DBrush) / textureWidth, // z - scale for uv space
                 brush.blurAmount); // w - blur amount
 
+            AlphaBufferConfigProperty.GlobalValue = new Vector4(
+                brush.alphaLimitForAlphaBuffer,
+                0,0,0);
+
             brushType.SetKeyword(id.useTexCoord2);
 
             UnityUtils.SetShaderKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2, id.useTexCoord2);
@@ -546,17 +555,6 @@ namespace Playtime_Painter {
             var useSingle = !isDoubleBuffer || bc.IsSingleBufferBrush();
 
             alphaBuffer = !useSingle && bc.useAlphaBuffer && bc.GetBrushType(false).SupportsAlphaBufferPainting;
-            
-            if (!useSingle && !secondBufferUpdated)
-                UpdateBufferTwo();
-
-            if (stroke.firstStroke)
-                Shader_UpdateBrushConfig(bc, brushAlpha, id, pntr);
-
-            TargetTexture = alphaBuffer ? alphaBufferTexture : id.CurrentRenderTexture();
-
-            if (isDoubleBuffer)
-                PainterDataAndConfig.DESTINATION_BUFFER.GlobalValue = bigRtPair[1];
 
             Shader shd = null;
             if (pntr)
@@ -571,11 +569,26 @@ namespace Playtime_Painter {
                 var blitMode = bc.GetBlitMode(false);
 
                 if (alphaBuffer)
+                {
                     shd = TexMgmtData.additiveAlphaOutput;
-                else 
+                    AlphaBufferSetDirtyBeforeRender(id, blitMode.ShaderForAlphaBufferBlit);
+                }
+                else
                     shd = useSingle ? blitMode.ShaderForSingleBuffer : blitMode.ShaderForDoubleBuffer;
             }
 
+
+            if (!useSingle && !secondBufferUpdated)
+                UpdateBufferTwo();
+
+            if (stroke.firstStroke)
+                Shader_UpdateBrushConfig(bc, brushAlpha, id, pntr);
+
+            TargetTexture = alphaBuffer ? alphaBufferTexture : id.CurrentRenderTexture();
+
+            if (isDoubleBuffer)
+                PainterDataAndConfig.DESTINATION_BUFFER.GlobalValue = bigRtPair[1];
+            
             CurrentShader = shd;
         }
 
@@ -587,9 +600,10 @@ namespace Playtime_Painter {
             if (!tex || id == null)
                 return;
             CurrentShader = Data.pixPerfectCopy;
-            Graphics.Blit(tex, id.CurrentRenderTexture(), brushRenderer.meshRenderer.sharedMaterial);
+            var dst = id.CurrentRenderTexture();
+            Graphics.Blit(tex, dst, brushRenderer.meshRenderer.sharedMaterial);
 
-            AfterRenderBlit(id.CurrentRenderTexture());
+            AfterBlit(dst);
 
         }
 
@@ -602,36 +616,61 @@ namespace Playtime_Painter {
                 return;
             CurrentShader = blitShader;
             Graphics.Blit(from, to, brushRenderer.meshRenderer.sharedMaterial);
-            AfterRenderBlit(to);
+            AfterBlit(to);
         }
+        
+        void AfterBlit(Texture target)
+        {
+            if (target && target == DoubleBufferCameraTarget)
+                secondBufferUpdated = false;
+        }
+        
+        #endregion
+
+        #region Alpha Buffer 
+
+        public void AlphaBufferSetDirtyBeforeRender(ImageMeta id, Shader shade) {
+
+            if (alphaBufferDataTarget != null && (alphaBufferDataTarget != id || alphaBufferDataShader != shade))
+            {
+                Debug.Log("Updating for " + alphaBufferDataTarget.ToPegiString() + " with " + alphaBufferDataShader);
+                UpdateFromAlphaBuffer(alphaBufferDataTarget.CurrentRenderTexture(), alphaBufferDataShader);
+            }
+
+            alphaBufferDataTarget = id;
+            alphaBufferDataShader = shade;
+
+        }
+
+        void DiscardAlphaBuffer() {
+            Render(Color.black, alphaBufferTexture);
+            alphaBufferDataTarget = null;
+        }
+
+        public void UpdateFromAlphaBuffer(RenderTexture rt, Shader shader)
+        {
+
+            if (rt) {
+                AlphaPaintingBuffer.GlobalValue = alphaBufferTexture;
+                Render(alphaBufferTexture, rt, shader);
+            }
+
+            DiscardAlphaBuffer();
+
+            if (!secondBufferUpdated)
+                UpdateBufferTwo();
+            
+            //Debug.Log("Finilizing from alpha buffer");
+
+        }
+
+        void FinalizePreviousAlphaDataTarget() => UpdateFromAlphaBuffer(alphaBufferDataTarget.CurrentRenderTexture(), alphaBufferDataShader);
+        
         #endregion
 
         #region Render
 
-        public void FinalizeFromAlphaBuffer(RenderTexture rt, Shader shader) {
-
-            AlphaPaintingBuffer.GlobalValue = alphaBufferTexture;
-
-         //   Debug.Log("Rendering {0} to {1} with {2}".F(alphaBufferTexture ,rt, shader));
-
-           // TargetTexture = rt;
-
-           // CurrentShader = shader;
-
-           // Render();
-
-            Render(alphaBufferTexture, rt, shader);
-
-            //Render(Texture from, RenderTexture to, Shader shade)
-
-            Render(Color.black, alphaBufferTexture);
-
-            if (!secondBufferUpdated)
-                UpdateBufferTwo();
-        }
-
-        public void Render()
-        {
+        public void Render()  {
 
             transform.rotation = Quaternion.identity;
             cameraPosition_Property.GlobalValue = transform.position.ToVector4();
@@ -640,12 +679,16 @@ namespace Playtime_Painter {
             painterCamera.Render();
             brushRenderer.gameObject.SetActive(false);
 
-            if (TargetTexture == DoubleBufferCameraTarget)
+            var trg = TargetTexture;
+
+            if (trg == DoubleBufferCameraTarget)
                 secondBufferUpdated = false;
+            //else if (trg == alphaBufferTexture)
+              //  alphaBufferDataTarget = trg.GetImgData();
 
             brushRenderer.AfterRender();
         }
-
+        
         void SetChannelCopySourceMask(ColorChanel sourceChannel) => ChannelCopySourceMask.GlobalValue = new Vector4(
                 sourceChannel == ColorChanel.R ? 1 : 0,
                 sourceChannel == ColorChanel.G ? 1 : 0,
@@ -659,20 +702,12 @@ namespace Playtime_Painter {
             return to;
         }
 
-        public RenderTexture RenderDepth(Texture from, RenderTexture to, ColorChanel intoChannel) =>
-            Render(from, to, ColorChanel.R, intoChannel);
+        public RenderTexture RenderDepth(Texture from, RenderTexture to, ColorChanel intoChannel) =>   Render(from, to, ColorChanel.R, intoChannel);
         
-        public RenderTexture Render(Texture from, RenderTexture to, Shader shade) {
-            brushRenderer.CopyBuffer(from, to, shade);
-            return to;
-        }
-
-        public RenderTexture Render(Texture from, RenderTexture to, Material mat)
-        {
-            brushRenderer.CopyBuffer(from, to, mat);
-            return to;
-        }
-
+        public RenderTexture Render(Texture from, RenderTexture to, Shader shade) => brushRenderer.CopyBuffer(from, to, shade);
+        
+        public RenderTexture Render(Texture from, RenderTexture to, Material mat) =>  brushRenderer.CopyBuffer(from, to, mat);
+         
         public RenderTexture Render(Texture from, RenderTexture to) => Render(from, to, Data.brushBufferCopy);
 
         public RenderTexture Render(ImageMeta from, RenderTexture to) => Render(from.CurrentTexture(), to, Data.brushBufferCopy);
@@ -684,12 +719,6 @@ namespace Playtime_Painter {
             TargetTexture = to;
             brushRenderer.PrepareColorPaint(col);
             Render();
-            AfterRenderBlit(to);
-        }
-
-        void AfterRenderBlit(Texture target) {
-            if (bigRtPair.Length > 0 && DoubleBufferCameraTarget && DoubleBufferCameraTarget == target)
-                secondBufferUpdated = false;
         }
 
         public void UpdateBufferTwo() {
@@ -697,9 +726,10 @@ namespace Playtime_Painter {
             Graphics.Blit(DoubleBufferCameraTarget, bigRtPair[1]);
             secondBufferUpdated = true;
             bigRtVersion++;
-        }
 
-        public bool secondBufferUpdated;
+            //Debug.Log("Updating buffer two");
+        }
+        
         public void UpdateBufferSegment()
         {
             if (!Data.disableSecondBufferUpdateDebug)
@@ -715,6 +745,31 @@ namespace Playtime_Painter {
         #endregion
 
         #region Component MGMT
+
+        public void ApplyAllChangesTo(ImageMeta id) {
+
+            if (id != null) {
+                if (id == alphaBufferDataTarget)
+                    FinalizePreviousAlphaDataTarget();
+            } 
+
+        }
+
+        public void DiscardChanges(ImageMeta id) {
+
+            if (id != null && id == alphaBufferDataTarget)
+                DiscardAlphaBuffer();
+            
+        }
+
+        public void OnPreviewSwitch() {
+            FinalizePreviousAlphaDataTarget();
+        }
+
+        public void OnBeforeBlitConfigurationChange() {
+            FinalizePreviousAlphaDataTarget();
+        }
+
         private void OnEnable() {
 
             if (!MainCamera)

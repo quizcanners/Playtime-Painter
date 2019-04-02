@@ -184,7 +184,7 @@ namespace Playtime_Painter.Examples {
 
         public virtual bool Inspect() {
             
-            "Works with PaintWithoutComponent script. This lets you configure how painting will be received".fullWindowDocumentationClick();
+            "Works with PaintWithoutComponent script. This lets you configure how painting will be received".fullWindowDocumentationClick("About Painting Receiver");
             
             var changes = false;
 
