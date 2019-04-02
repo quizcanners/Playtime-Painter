@@ -101,12 +101,13 @@ namespace Playtime_Painter {
         public virtual bool SupportedByTex2D => true;
         public virtual bool SupportedByRenderTexturePair => true;
         public virtual bool SupportedBySingleBuffer => true;
-        public virtual bool SupportedByAlphaBuffer => true;
+        public virtual bool SupportsAlphaBufferPainting => true;
         public virtual bool UsingSourceTexture => false;
         public virtual bool ShowColorSliders => true;
         public virtual bool NeedsWorldSpacePosition => false; // WorldSpace effect needs to be rendered using terget's mesh to have world positions of the vertexes
         public virtual Shader ShaderForDoubleBuffer => TexMGMTdata.brushDoubleBuffer;
         public virtual Shader ShaderForSingleBuffer => TexMGMTdata.brushBlit;
+        public virtual Shader ShaderForAlphaOutput => TexMGMTdata.additiveAlphaOutput;
         public virtual Shader ShaderForAlphaBufferBlit => TexMGMTdata.multishadeBufferBlit;
 
         #region Inspect
@@ -131,8 +132,8 @@ namespace Playtime_Painter {
 
             var br = GlobalBrush;
 
-            if (!cpu && br.useAlphaBuffer && !SupportedByAlphaBuffer && br.GetBrushType(cpu).SupportsAlphaBufferPainting)
-                return false;
+           // if (!cpu && br.useAlphaBuffer && !SupportsAlphaBufferPainting && br.GetBrushType(false).SupportsAlphaBufferPainting)
+             //   return false;
 
             return ((id.destination == TexTarget.Texture2D) && (SupportedByTex2D)) ||
                 ((id.destination == TexTarget.RenderTexture) &&
@@ -572,13 +573,16 @@ namespace Playtime_Painter {
 
         public override bool UsingSourceTexture => true;
 
-        public override bool SupportedByAlphaBuffer => false;
+        public override bool SupportsAlphaBufferPainting => true;
         
         public override bool AllSetUp => PainterCamera.depthProjectorCamera;
 
         protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_PROJECTION";
 
         public override Shader ShaderForDoubleBuffer => TexMGMTdata.brushDoubleBufferProjector; // TODO: Test this
+
+        public override Shader ShaderForAlphaBufferBlit => TexMGMTdata.projectorBrushBufferBlit;
+        public override Shader ShaderForAlphaOutput => TexMGMTdata.additiveAlphaAndUVOutput;
 
         public override bool NeedsWorldSpacePosition => true;
 
@@ -623,7 +627,7 @@ namespace Playtime_Painter {
 
         public override bool SupportedBySingleBuffer => false;
 
-        public override bool SupportedByAlphaBuffer => false;
+        public override bool SupportsAlphaBufferPainting => false;
 
         public override Shader ShaderForDoubleBuffer => TexMGMTdata.inkColorSpread;
 

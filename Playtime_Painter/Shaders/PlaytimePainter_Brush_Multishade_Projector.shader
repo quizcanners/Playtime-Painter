@@ -30,7 +30,6 @@
 					float2 srcTexAspect : TEXCOORD3;
 				};
 
-
 				v2f vert(appdata_full v) {
 
 					v2f o;
@@ -66,7 +65,6 @@
 
 					return o;
 				}
-
 
 				float4 frag(v2f o) : COLOR{
 

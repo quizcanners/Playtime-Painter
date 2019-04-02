@@ -21,8 +21,10 @@ namespace Playtime_Painter
         #region Shaders
   
         public Shader additiveAlphaOutput;
+        public Shader additiveAlphaAndUVOutput;
         public Shader multishadeBufferBlit;
         public Shader blurAndSmudgeBufferBlit;
+        public Shader projectorBrushBufferBlit;
 
         public Shader brushBlit;
         public Shader brushAdd;
@@ -575,6 +577,22 @@ namespace Playtime_Painter
 
             CheckShader(ref brushBufferCopy,            "Playtime Painter/Buffer Blit/Copier",                  forceReload);
 
+            CheckShader(ref bufferColorFill,            "Playtime Painter/Buffer Blit/Color Fill",              forceReload);
+
+            CheckShader(ref bufferCopyR,                "Playtime Painter/Buffer Blit/Copy Red",                forceReload);
+
+            CheckShader(ref bufferCopyG,                "Playtime Painter/Buffer Blit/Copy Green",              forceReload);
+
+            CheckShader(ref bufferCopyB,                "Playtime Painter/Buffer Blit/Copy Blue",               forceReload);
+
+            CheckShader(ref bufferCopyA,                "Playtime Painter/Buffer Blit/Copy Alpha",              forceReload);
+
+            CheckShader(ref multishadeBufferBlit,       "Playtime Painter/Editor/Buffer Blit/Multishade",       forceReload);
+
+            CheckShader(ref blurAndSmudgeBufferBlit,    "Playtime Painter/Editor/Buffer Blit/BlurN_Smudge",     forceReload);
+
+            CheckShader(ref projectorBrushBufferBlit,   "Playtime Painter/Editor/Buffer Blit/Projector Brush",  forceReload);
+
             CheckShader(ref brushBlit,                  "Playtime Painter/Editor/Brush/Blit",                   forceReload);
 
             CheckShader(ref brushAdd,                   "Playtime Painter/Editor/Brush/Add",                    forceReload);
@@ -589,28 +607,19 @@ namespace Playtime_Painter
 
             CheckShader(ref inkColorSpread,             "Playtime Painter/Editor/Brush/Spread",                 forceReload);
 
-            CheckShader(ref bufferColorFill,            "Playtime Painter/Buffer Blit/Color Fill",              forceReload);
+            CheckShader(ref additiveAlphaOutput,        "Playtime Painter/Editor/Brush/AdditiveAlphaOutput",    forceReload);
+
+            CheckShader(ref additiveAlphaAndUVOutput,   "Playtime Painter/Editor/Brush/AdditiveUV_Alpha",       forceReload);
             
-            CheckShader(ref bufferCopyR,                "Playtime Painter/Buffer Blit/Copy Red",                forceReload);
-
-            CheckShader(ref bufferCopyG,                "Playtime Painter/Buffer Blit/Copy Green",              forceReload);
-
-            CheckShader(ref bufferCopyB,                "Playtime Painter/Buffer Blit/Copy Blue",               forceReload);
-
-            CheckShader(ref bufferCopyA,                "Playtime Painter/Buffer Blit/Copy Alpha",              forceReload);
-
             CheckShader(ref previewBrush,               "Playtime Painter/Editor/Preview/Brush",                forceReload);
 
             CheckShader(ref previewMesh,                "Playtime Painter/Editor/Preview/Mesh",                 forceReload);
 
             CheckShader(ref previewTerrain,             "Playtime Painter/Editor/Preview/Terrain",              forceReload);
 
-            CheckShader(ref additiveAlphaOutput,        "Playtime Painter/Editor/Brush/AdditiveAlphaOutput",    forceReload);
 
-            CheckShader(ref multishadeBufferBlit,       "Playtime Painter/Editor/Buffer Blit/Multishade",       forceReload);
 
-            CheckShader(ref blurAndSmudgeBufferBlit,    "Playtime Painter/Editor/Buffer Blit/BlurN_Smudge",     forceReload);
-            #endif
+#endif
         }
 
         private static void CheckShader(ref Shader shade, string path, bool forceReload = false) {

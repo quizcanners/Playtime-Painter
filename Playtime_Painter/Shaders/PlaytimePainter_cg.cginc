@@ -288,7 +288,7 @@ inline float prepareAlphaSmoothPreview (float4 texcoord){
 }
 
 inline float4 BrushMaskWithAlphaBuffer(float alpha, float2 uv) {
-	return _brushMask * min(_pp_AlphaBufferCfg.x, alpha*_brushPointedUV.w + tex2D(_pp_AlphaBuffer, uv).r);
+	return _brushMask * min(_pp_AlphaBufferCfg.x, alpha*_brushPointedUV.w + tex2D(_pp_AlphaBuffer, uv).a);
 }
 
 inline float4 AlphaBlitTransparent(float alpha, float4 src, float2 texcoord) {
@@ -319,7 +319,7 @@ inline float4 AlphaBlitTransparent(float alpha, float4 src, float2 texcoord) {
 
 inline float4 AlphaBlitTransparentPreview(float alpha, float4 src, float2 texcoord, float4 col) {
 	
-	alpha = min(1, alpha / min(1, col.a + alpha+0.000000001) * _brushPointedUV.w + tex2D(_pp_AlphaBuffer, texcoord).r);
+	alpha = min(1, alpha / min(1, col.a + alpha+0.000000001) * _brushPointedUV.w + tex2D(_pp_AlphaBuffer, texcoord).a);
 
 	_brushMask *= alpha;
 

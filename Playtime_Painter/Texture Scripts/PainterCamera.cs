@@ -554,7 +554,9 @@ namespace Playtime_Painter {
 
             var useSingle = !isDoubleBuffer || bc.IsSingleBufferBrush();
 
-            alphaBuffer = !useSingle && bc.useAlphaBuffer && bc.GetBrushType(false).SupportsAlphaBufferPainting;
+            var blitMode = bc.GetBlitMode(false);
+
+            alphaBuffer = !useSingle && bc.useAlphaBuffer && bc.GetBrushType(false).SupportsAlphaBufferPainting && blitMode.SupportsAlphaBufferPainting;
 
             Shader shd = null;
             if (pntr)
@@ -566,11 +568,9 @@ namespace Playtime_Painter {
                 }
 
             if (!shd) {
-                var blitMode = bc.GetBlitMode(false);
 
-                if (alphaBuffer)
-                {
-                    shd = TexMgmtData.additiveAlphaOutput;
+                if (alphaBuffer) {
+                    shd = blitMode.ShaderForAlphaOutput; 
                     AlphaBufferSetDirtyBeforeRender(id, blitMode.ShaderForAlphaBufferBlit);
                 }
                 else
@@ -643,7 +643,7 @@ namespace Playtime_Painter {
         }
 
         void DiscardAlphaBuffer() {
-            Render(Color.black, alphaBufferTexture);
+            Render(Color.clear, alphaBufferTexture);
             alphaBufferDataTarget = null;
         }
 

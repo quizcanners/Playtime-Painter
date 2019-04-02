@@ -47,7 +47,7 @@ namespace Playtime_Painter
 
         [SerializeField] private bool _projectFromMainCamera;
         [SerializeField] private bool _centerOnMousePosition;
-        [SerializeField] private bool _matchMainCamera;
+        //[SerializeField] private bool _matchMainCamera;
         [SerializeField] public bool pauseUpdates;
         
         public int targetSize = 512;
@@ -61,10 +61,15 @@ namespace Playtime_Painter
         {
             var changed = false;
 
-            pegi.toggle(ref pauseUpdates, icon.Pause, icon.Play,
+            pegi.toggle(ref pauseUpdates, icon.Play, icon.Pause,
                 pauseUpdates ? "Resume Updates" : "Pause Updates").changes(ref changed);
 
-            if ("Projector Camera ".enter(ref _foldOut).nl_ifFoldedOut()) {
+            if (!_foldOut)
+                pegi.toggle(ref _projectFromMainCamera, icon.Link, icon.UnLinked, "Link Projector Camera to {0} camera".F(Application.isPlaying ? "Main Camera" : "Editor Camera")).changes(ref changed);
+            
+           
+
+            if ("Projector ".enter(ref _foldOut).nl_ifFoldedOut()) {
 
                 "Target Size".edit(ref targetSize).changes(ref changed);
                 if (icon.Refresh.Click("Recreate Depth Texture").nl(ref changed)) {
@@ -74,20 +79,24 @@ namespace Playtime_Painter
                 }
 
                 if (_projectorCamera) {
-                    var fov = _projectorCamera.fieldOfView;
-                    
-                    if ("FOV".edit(30, ref fov, 0.1f, 180f).nl(ref changed))
-                        _projectorCamera.fieldOfView = fov;
-
+                   
                     "Project from Camera".toggleIcon("Will always project from Play or Editor Camera" ,ref _projectFromMainCamera).nl(ref changed);
 
                     if (_projectFromMainCamera) {
-                        "Match Main Camera's config".toggleIcon(ref _matchMainCamera).nl(ref changed);
+                        //"Match Main Camera's config".toggleIcon(ref _matchMainCamera).nl(ref changed);
                         "Follow the mouse".toggleIcon(ref _centerOnMousePosition).nl(ref changed);
                     }
+
+                    var fov = _projectorCamera.fieldOfView;
+
+                    if ("FOV".edit(30, ref fov, 0.1f, 180f).nl(ref changed)) {
+
+                        _projectorCamera.fieldOfView = fov;
+                    }
+
                 }
             } else this.ClickHighlight().nl();
-
+            
             return changed;
         }
 

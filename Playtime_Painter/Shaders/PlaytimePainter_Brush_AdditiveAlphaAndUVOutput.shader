@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Editor/Brush/AdditiveAlphaOutput" {
+﻿Shader "Playtime Painter/Editor/Brush/AdditiveUV_Alpha" {
 
 	Category{
 		Tags{
@@ -7,7 +7,9 @@
 			"RenderType" = "Transparent"
 		}
 
-		Blend SrcAlpha One
+		Blend One Zero, SrcAlpha One 
+
+
 		ColorMask RGBA
 		Cull off
 		ZTest off
@@ -20,7 +22,7 @@
 
 				#include "PlaytimePainter_cg.cginc"
 
-				#pragma multi_compile  BRUSH_2D BRUSH_SQUARE BRUSH_3D BRUSH_3D_TEXCOORD2
+				#pragma multi_compile BRUSH_3D BRUSH_3D_TEXCOORD2
 
 				#pragma vertex vert
 				#pragma fragment frag
@@ -29,9 +31,10 @@
 					float4 pos : POSITION;
 					float4 texcoord : TEXCOORD0;
 					float4 worldPos : TEXCOORD1;
+					float4 shadowCoords : TEXCOORD2;
+					float2 srcTexAspect : TEXCOORD3;
 				};
 
-				#if BRUSH_3D || BRUSH_3D_TEXCOORD2
 				v2f vert(appdata_full v) {
 
 					v2f o;
@@ -40,10 +43,12 @@
 					o.worldPos = worldPos;
 
 					#if BRUSH_3D_TEXCOORD2
-					v.texcoord.xy = v.texcoord2.xy;
+						v.texcoord.xy = v.texcoord2.xy;
 					#endif
 
-					// ATLASED CALCULATION
+					float2 suv = _SourceTexture_TexelSize.zw;
+					o.srcTexAspect = max(1, float2(suv.y / suv.x, suv.x / suv.y));
+
 					float atY = floor(v.texcoord.z / _brushAtlasSectionAndRows.z);
 					float atX = v.texcoord.z - atY * _brushAtlasSectionAndRows.z;
 					v.texcoord.xy = (float2(atX, atY) + v.texcoord.xy) / _brushAtlasSectionAndRows.z
@@ -61,38 +66,32 @@
 
 					o.texcoord.zw = o.texcoord.xy - 0.5;
 
-					return o;
-				}
-
-				#else
-
-				v2f vert(appdata_full v) {
-					v2f o;
-
-					o.worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1));
-
-					o.pos = UnityObjectToClipPos(v.vertex);
-					o.texcoord = brushTexcoord(v.texcoord.xy, v.vertex);
+					o.shadowCoords = mul(pp_ProjectorMatrix, o.worldPos);
 
 					return o;
 				}
-				#endif
 
-				float4 frag(v2f o) : COLOR{
 
-					#if BRUSH_3D || BRUSH_3D_TEXCOORD2
-					float alpha = prepareAlphaSphere(o.texcoord, o.worldPos.xyz);
-					#endif
+				float4 frag(v2f o) : COLOR {
 
-					#if BRUSH_2D
-					float alpha = prepareAlphaSmooth(o.texcoord);
-					#endif
+					o.shadowCoords.xy /= o.shadowCoords.w;
 
-					#if BRUSH_SQUARE
-					float alpha = prepareAlphaSquare(o.texcoord.xy);
-					#endif
+					float alpha = prepareAlphaSphere(o.shadowCoords.xy, o.worldPos.xyz);
 
-					return alpha;
+					clip(alpha - 0.000001);
+
+					alpha *= ProjectorSquareAlpha(o.shadowCoords);
+
+					float2 pUv;
+					alpha *= ProjectorDepthDifference(o.shadowCoords, o.worldPos, pUv);
+
+					pUv *= o.srcTexAspect;
+
+					alpha *= BrushClamp(pUv);
+
+					clip(alpha - 0.01);
+
+					return float4(pUv, 0, alpha);
 
 				}
 				ENDCG

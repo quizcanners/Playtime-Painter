@@ -71,8 +71,8 @@ namespace Playtime_Painter
         public virtual bool SupportedByTex2D => false;
         public virtual bool SupportedByRenderTexturePair => true;
         public virtual bool SupportedBySingleBuffer => true;
-        public virtual bool IsA3DBrush => false;
-        public virtual bool SupportsAlphaBufferPainting => false;
+        public virtual bool IsAWorldSpaceBrush => false;
+        public virtual bool SupportsAlphaBufferPainting => true;
         public virtual bool IsPixelPerfect => false;
         public virtual bool IsUsingDecals => false;
         public virtual bool StartPaintingTheMomentMouseIsDown => true;
@@ -105,7 +105,7 @@ namespace Playtime_Painter
             if (br != null)
             {
                 var blitMode = br.GetBlitMode(br.IsCpu(p));
-                if (blitMode.NeedsWorldSpacePosition && !IsA3DBrush)
+                if (blitMode.NeedsWorldSpacePosition && !IsAWorldSpaceBrush)
                     return false;
                 
 
@@ -405,6 +405,8 @@ namespace Playtime_Painter
 
         public override bool SupportedForTerrainRt => false;
 
+        public override bool SupportsAlphaBufferPainting => false;
+
         protected override string ShaderKeyword(bool texcoord) => "BRUSH_DECAL"; 
         public override bool IsUsingDecals => true; 
 
@@ -486,8 +488,7 @@ namespace Playtime_Painter
             br.decalAngle = Random.Range(-90f, 450f);
             TexMGMT.Shader_UpdateDecal(Cfg.brushConfig); 
         }
-
-
+        
         public override string ToolTip => "Paints volumetric decals. It uses alpha channel of the painted texture as height. Denting decals (think bullet holes)" +
                                           "will subtract alpha if their depth is higher (deeper) and paint their color. Additive decals will add alpha if theirs is higher. ";
 
@@ -495,27 +496,32 @@ namespace Playtime_Painter
         public override bool Inspect()
         {
 
-            var changes = false;
+            var changed = false;
 
-            pegi.select(ref InspectedBrush.selectedDecal, TexMGMTdata.decals).nl(ref changes);
+            pegi.select(ref InspectedBrush.selectedDecal, TexMGMTdata.decals).changes(ref changed);
 
             var decal = TexMGMTdata.decals.TryGet(InspectedBrush.selectedDecal);
 
             if (decal == null)
-                "Select valid decal; Assign to Painter Camera.".write();
+                "Select a valid decal. You can add some in Config -> Lists.".fullWindowWarningDocumentationClick("No Decal selected");
+
             pegi.nl();
 
-            "Continuous".toggle("Will keep adding decal every frame while the mouse is down", 80, ref InspectedBrush.decalContentious).nl();
+            "Continuous".toggle("Will keep adding decal every frame while the mouse is down", 80, ref InspectedBrush.decalContentious).changes(ref changed);
+
+            "Continious Decal will keep painting every frame while mouse button is held".fullWindowDocumentationClick("Countinious Decal");
+
+            pegi.nl();
 
             "Rotation".write("Rotation method", 60);
 
-            pegi.editEnum(ref InspectedBrush.decalRotationMethod).nl(ref changes); 
+            pegi.editEnum(ref InspectedBrush.decalRotationMethod).nl(ref changed); 
 
             switch (InspectedBrush.decalRotationMethod)
             {
                 case DecalRotationMethod.Set:
                     "Angle:".write("Decal rotation", 60);
-                    changes |= pegi.edit(ref InspectedBrush.decalAngle, -90, 450);
+                    changed |= pegi.edit(ref InspectedBrush.decalAngle, -90, 450);
                     break;
                 case DecalRotationMethod.StrokeDirection:
                     "Ang Offset:".edit("Angle modifier after the rotation method is applied", 80, ref InspectedBrush.decalAngleModifier, -180f, 180f);
@@ -526,7 +532,7 @@ namespace Playtime_Painter
             if (!BrushExtensions.HasFlag(InspectedBrush.mask, BrushMask.A))
                 "! Alpha chanel is disabled. Decals may not render properly".writeHint();
 
-            return changes;
+            return changed;
 
         }
         #endif
@@ -684,9 +690,9 @@ namespace Playtime_Painter
 
         protected override string ShaderKeyword(bool texcoord2) => texcoord2 ? "BRUSH_3D_TEXCOORD2" : "BRUSH_3D";
 
+        public override bool IsAWorldSpaceBrush => true;
+        
         public override bool SupportsAlphaBufferPainting => true;
-
-        public override bool IsA3DBrush => true; 
 
         public override bool SupportedForTerrainRt => false; 
 

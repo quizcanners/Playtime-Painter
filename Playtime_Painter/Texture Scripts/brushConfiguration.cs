@@ -151,7 +151,7 @@ namespace Playtime_Painter {
             if (!overrideOther)
             {
                 var cpu = IsCpu(painter);
-                isA3D = GetBrushType(cpu).IsA3DBrush;
+                isA3D = GetBrushType(cpu).IsAWorldSpaceBrush;
             }
 
             return isA3D;
@@ -247,7 +247,6 @@ namespace Playtime_Painter {
             if (pegi.select(ref blitMode, Playtime_Painter.BlitMode.AllModes).changes(ref changed)) 
                 SetBlitMode(cpu, blitMode);
             
-
             blitMode?.ToolTip.fullWindowDocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI), 20).nl();
             
             if (!cpu) {
@@ -280,18 +279,26 @@ namespace Playtime_Painter {
 
                 brushType.Inspect().nl(ref changed);
 
-                if (brushType.SupportsAlphaBufferPainting)
+                if (!cpu && brushType.SupportsAlphaBufferPainting && blitMode.SupportsAlphaBufferPainting)
                 {
                     "Alpha Buffer".toggleIcon(ref useAlphaBuffer, true).changes(ref changed);
 
                     if (useAlphaBuffer)
-                        "Alpha".edit("This is the kind of alpha you see in standard painting software. But it is only available when using Alpha Buffer", 40, ref alphaLimitForAlphaBuffer, 0.01f, 1f).changes(ref changed);
+                    {
+                        "Alpha".edit(
+                            "This is the kind of alpha you see in standard painting software. But it is only available when using Alpha Buffer",
+                            40, ref alphaLimitForAlphaBuffer, 0.01f, 1f).changes(ref changed);
 
-                    if (p && p.NotUsingPreview)
-                        ("It is recommended to use preview when using Alpha Blit. As it will improve performance." +
-                            " ").fullWindowWarningDocumentationClick("Preview is recommended.");
+                        if (p && p.NotUsingPreview)
+                            ("It is recommended to use preview when using Alpha Blit. As it will improve performance." +
+                             " ").fullWindowWarningDocumentationClick("Preview is recommended.");
+                    }
 
-                    ("Will render brush to Alpha Buffer first and then use that Alpha buffer to render changes to texture. For Sphere brush helps avoid many various artifacts. Using Preview will improve performance, as it will not apply changes to texture until you exit preview mode, or change any setting that affects blit mode. Please report any issues you encounter while using this, as this is a new feature, and there are planty of places where it can function not as desired. It is totally worth it as it makes sphere brush an almost flawless tool for mesh editing. The only remaining issue is tyling. ")
+
+                    ("Will render brush to Alpha Buffer first and then use that Alpha buffer to render changes to texture. For Sphere brush helps avoid many various artifacts." +
+                     " Using Preview will improve performance, as it will not apply changes to texture until you exit preview mode, or change any setting that affects blit mode. " +
+                     "Please report any issues you encounter while using this, as this is a new feature, and there are planty of places where it can function not as desired. " +
+                     "It is totally worth it as it makes sphere brush an almost flawless tool for mesh editing. The only remaining issue is tyling. ")
                         .fullWindowDocumentationClick("About Alpha Buffer");
 
                     pegi.nl();

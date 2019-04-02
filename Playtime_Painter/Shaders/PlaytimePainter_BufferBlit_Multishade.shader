@@ -25,7 +25,7 @@
 				 struct v2f {
 					 float4 pos : POSITION;
 					 float4 texcoord : TEXCOORD0;
-					 float4 worldPos : TEXCOORD1;
+					 //float4 worldPos : TEXCOORD1;
 					 float2 srcTexAspect : TEXCOORD3;
 				 };
 
@@ -34,7 +34,7 @@
 				 v2f vert(appdata_full v) {
 					 v2f o;
 
-					 o.worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1));
+					 //o.worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1));
 
 					 o.pos = UnityObjectToClipPos(v.vertex);
 					 o.texcoord = brushTexcoord(v.texcoord.xy, v.vertex);

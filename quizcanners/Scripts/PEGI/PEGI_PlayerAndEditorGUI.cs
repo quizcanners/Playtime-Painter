@@ -3818,21 +3818,23 @@ namespace PlayerAndEditorGUI {
         public static bool toggleIcon(this string labelIfFalse, ref bool val, string labelIfTrue)
             => (val ? labelIfTrue : labelIfFalse).toggleIcon(ref val);
 
-        public static bool toggle(ref bool val, Texture2D TrueIcon, Texture2D FalseIcon, string tip, int width, GUIStyle style = null)
-        {
-
-           // add style
-
-                var before = val;
-                if (val)  {
-                    if (ClickImage(ImageAndTip(TrueIcon, tip), width, style))
-                        val = false;
+        public static bool toggle(ref bool val, Texture2D TrueIcon, Texture2D FalseIcon, string tip, int width, GUIStyle style = null) {
+            var before = val;
+            if (val)  {
+                if (ClickImage(ImageAndTip(TrueIcon, tip), width, style))
+                {
+                    val = false;
+                    return true;
                 }
-                else
-                    if (ClickImage(ImageAndTip(FalseIcon, tip), width, style))
-                        val = true;
 
-                return (before != val);
+            }
+            else if (ClickImage(ImageAndTip(FalseIcon, tip), width, style))
+            {
+                val = true;
+                return true;
+            }
+
+            return false;
         }
 
         public static bool toggle(ref bool val, string text, string tip, int width)
@@ -7657,7 +7659,7 @@ namespace PlayerAndEditorGUI {
             if (!inspectionChain.TryGetValue(pgi, out recurses) || recurses < 2) {
 
                 inspectionChain[pgi] = recurses + 1;
-                pgi.Inspect().RestoreBGColor();
+                pgi.Inspect().RestoreBGColor().changes(ref changed);
            
                 var count = inspectionChain[pgi];
                 if (count == 1)

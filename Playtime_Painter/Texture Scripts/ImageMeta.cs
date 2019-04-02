@@ -58,7 +58,7 @@ namespace Playtime_Painter
         public string saveName = "No Name";
         public string url = "";
         private Color[] _pixels;
-        private Color _clearColor = Color.black;
+        public Color clearColor = Color.black;
 
         public Color[] Pixels
         {
@@ -146,7 +146,7 @@ namespace Playtime_Painter
             .Add_IfTrue("dumm", dontRedoMipMaps)
             .Add_IfTrue("dCnt", disableContiniousLine)
            
-            .Add_IfNotBlack("clear", _clearColor)
+            .Add_IfNotBlack("clear", clearColor)
             .Add_IfNotEmpty("URL", url)
             .Add_IfNotNegative("is", inspectedItems)
             .Add_IfFalse("alpha", preserveTransparency);
@@ -199,7 +199,7 @@ namespace Playtime_Painter
                 case "dumm": dontRedoMipMaps = data.ToBool(); break;
                 case "dCnt": disableContiniousLine = data.ToBool(); break;
                 case "tc2Auto": _useTexCoord2AutoAssigned = data.ToBool(); break;
-                case "clear": _clearColor = data.ToColor(); break;
+                case "clear": clearColor = data.ToColor(); break;
                 case "URL": url = data; break;
                 case "alpha": preserveTransparency = data.ToBool(); break;
                 case "is": inspectedItems = data.ToInt(); break;
@@ -481,7 +481,7 @@ namespace Playtime_Painter
             ApplyToTexture2D(mipMaps);
         }
 
-        private void SetApplyUpdateRenderTexture(bool mipMaps = true)
+        public void SetApplyUpdateRenderTexture(bool mipMaps = true)
         {
             SetAndApply(mipMaps);
             if (destination == TexTarget.RenderTexture)
@@ -896,17 +896,17 @@ namespace Playtime_Painter
                     if ("Colorize ".enter(ref _inspectedProcess, 1))
                     {
 
-                        "Clear Color".edit(80, ref _clearColor).nl();
+                        "Clear Color".edit(80, ref clearColor).nl();
                         if ("Clear Texture".Click().nl())
                         {
-                            Colorize(_clearColor);
+                            Colorize(clearColor);
                             SetApplyUpdateRenderTexture();
                         }
                     }
 
-                    if (_inspectedProcess == -1 && icon.Refresh.Click("Apply color {0}".F(_clearColor)).nl())
+                    if (_inspectedProcess == -1 && icon.Refresh.Click("Apply color {0}".F(clearColor)).nl())
                     {
-                        Colorize(_clearColor);
+                        Colorize(clearColor);
                         SetApplyUpdateRenderTexture();
                     }
 

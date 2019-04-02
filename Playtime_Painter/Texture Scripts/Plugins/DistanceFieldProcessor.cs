@@ -84,15 +84,9 @@ namespace Playtime_Painter {
 				scale = 1f / maxInside;
 
 				for(y = 0; y < height; y++)
-					for(x = 0; x < width; x++){
-						//c.r = Mathf.Clamp01(pixels[x, y].distance * scale);
-                       // image.SetPixelUnSafe(x, y, c);
-
+					for(x = 0; x < width; x++)
                         SetColor(x, y, Mathf.Clamp01(pixels[x, y].distance * scale), scale);
-
-
-                    }
-				
+                    
 			}
 
 			if(maxOutside > 0f){
@@ -111,14 +105,12 @@ namespace Playtime_Painter {
 						for(x = 0; x < width; x++){
 							float value = 0.5f + (image.PixelUnSafe(x, y).r - Mathf.Clamp01(pixels[x, y].distance * scale)) * 0.5f;
                             SetColor(x, y, value, scale);
-                            //image.SetPixelUnSafe(x, y, c);
 						}
 				}
 				else{
 					for(y = 0; y < height; y++)
 						for(x = 0; x < width; x++){
 							var value = Mathf.Clamp01(1f - pixels[x, y].distance * scale);
-                            //image.SetPixelUnSafe(x, y, c);
                             SetColor(x, y, value, scale);
                         }
 					

@@ -2247,15 +2247,26 @@ namespace Playtime_Painter {
                         #region Fancy Options
 
                         pegi.nl();
-                        "Fancy options".foldout(ref Cfg.moreOptions).nl();
+                        "Fancy options".foldout(ref Cfg.moreOptions);
+
+                        if (id != null && !Cfg.moreOptions)
+                        {
+                           pegi.edit(ref id.clearColor);
+                            if (icon.Refresh.Click("Clear texture"))
+                            {
+                                id.Colorize(id.clearColor);
+                                id.SetApplyUpdateRenderTexture();
+                            }
+                        }
+
+                        pegi.nl();
 
                         var inspectionIndex = id?.inspectedItems ?? _inspectedFancyItems;
 
                         if (Cfg.moreOptions)
                         {
 
-                            if (icon.Show.enter("Show/Hide items", ref inspectionIndex, 7).nl())
-                            {
+                            if (icon.Show.enter("Show/Hide items", ref inspectionIndex, 7).nl()) {
 
                                 "Show Previous Textures (if any) "
                                     .toggleVisibilityIcon(
