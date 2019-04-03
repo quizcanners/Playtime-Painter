@@ -158,13 +158,13 @@ namespace Playtime_Painter {
                 pegi.nl();
 
                 if (!cpuBlit)
-                    "Hardness:".edit("Makes edges more rough.", 70, ref InspectedBrush.hardness, 1f, 22f).nl(ref changed);
+                    MsgPainter.Hardness.GetText().edit("Makes edges more rough.", 70, ref InspectedBrush.hardness, 1f, 22f).nl(ref changed);
                 
-                (usingDecals ? "Tint alpha" : "Speed").write(usingDecals ? 70 : 40);
+                (usingDecals ? "Tint alpha" : MsgPainter.Speed.GetText()).write(usingDecals ? 70 : 60);
 
                 InspectedBrush._dSpeed.Inspect().nl(ref changed);
 
-                "Scale:".write(40);
+                MsgPainter.Scale.Write(40);
 
                 if (InspectedBrush.IsA3DBrush(InspectedPainter))
                 {
@@ -194,8 +194,9 @@ namespace Playtime_Painter {
                 pegi.nl();
 
                 if (blitMode.UsingSourceTexture && (id == null || id.TargetIsRenderTexture()))
-                    "Copy From:"
-                        .selectOrAdd(70, ref InspectedBrush.selectedSourceTexture, ref TexMGMTdata.sourceTextures)
+                    //"Copy From:"
+                    MsgPainter.CopyFrom.GetText()  
+                    .selectOrAdd(70, ref InspectedBrush.selectedSourceTexture, ref TexMGMTdata.sourceTextures)
                         .nl(ref changed);
             }
 

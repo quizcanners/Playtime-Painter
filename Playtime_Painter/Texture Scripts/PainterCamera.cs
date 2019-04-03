@@ -23,7 +23,10 @@ namespace Playtime_Painter {
         public static readonly MeshManager MeshManager = new MeshManager();
 
         public static readonly TextureDownloadManager DownloadManager = new TextureDownloadManager();
-        
+
+        public AnimationCurve tmpCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(0.5f, 0.5f), new Keyframe(1, 1));
+
+
         #region Painter Data
         [SerializeField] private PainterDataAndConfig dataHolder;
 
@@ -1049,6 +1052,12 @@ namespace Playtime_Painter {
 
         #region Inspector
         #if PEGI
+
+        public AnimationCurve InspectAnimationCurve(string role) {
+            role.edit_Property(() => tmpCurve, this);
+
+            return tmpCurve;
+        }
 
         public override bool Inspect()
         {

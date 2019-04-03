@@ -246,8 +246,8 @@ namespace Playtime_Painter {
             var brushType = GetBrushType(cpu);
 
             pegi.newLine();
-            
-            Msg.BlitMode.Write("How final color will be calculated", 70);
+
+            MsgPainter.BlitMode.Write("How final color will be calculated", 70);
 
             if (pegi.select(ref blitMode, Playtime_Painter.BlitMode.AllModes).changes(ref changed)) 
                 SetBlitMode(cpu, blitMode);
@@ -257,8 +257,10 @@ namespace Playtime_Painter {
             if (blitMode != null && pegi.DocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI)))
                 pegi.FullWindwDocumentationOpen(blitMode.ToolTip);
             
-            if (!cpu) {
-                Msg.BrushType.Write(80);
+            if (!cpu)
+            {
+                pegi.nl();
+                MsgPainter.BrushType.Write(80);
                 pegi.select(ref _inGpuBrushType, BrushType.AllTypes).changes(ref changed);
 
                 if (brushType!= null && pegi.DocumentationClick("About {0} brush type".F(brushType.NameForDisplayPEGI)))
@@ -406,8 +408,8 @@ namespace Playtime_Painter {
 
 #if UNITY_EDITOR
             if (Tools.current != Tool.None) {
-                Msg.LockToolToUseTransform.Get().writeWarning();
-                if (Msg.HideTransformTool.Get().Click().nl())
+                MsgPainter.LockToolToUseTransform.GetText().writeWarning();
+                if (MsgPainter.HideTransformTool.GetText().Click().nl())
                     UnityUtils.HideUnityTool();
             }
 #endif

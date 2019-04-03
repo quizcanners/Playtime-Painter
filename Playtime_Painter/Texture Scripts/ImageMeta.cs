@@ -149,6 +149,7 @@ namespace Playtime_Painter
             .Add_IfNotBlack("clear", clearColor)
             .Add_IfNotEmpty("URL", url)
             .Add_IfNotNegative("is", inspectedItems)
+            .Add_IfNotNegative("ip", _inspectedProcess)
             .Add_IfFalse("alpha", preserveTransparency);
             
            if (sdfMaxInside != 1f)
@@ -203,6 +204,7 @@ namespace Playtime_Painter
                 case "URL": url = data; break;
                 case "alpha": preserveTransparency = data.ToBool(); break;
                 case "is": inspectedItems = data.ToInt(); break;
+                case "ip": _inspectedProcess = data.ToInt(); break;
                 case "sdfMI": sdfMaxInside = data.ToFloat(); break;
                 case "sdfMO": sdfMaxOutside = data.ToFloat(); break;
                 case "sdfMD": sdfPostProcessDistance = data.ToFloat(); break;
@@ -806,7 +808,7 @@ namespace Playtime_Painter
         public int inspectedItems = -1;
 
         #if PEGI
-
+        
         private bool LoadTexturePegi(string path)
         {
             const bool changed = false;
@@ -893,8 +895,7 @@ namespace Playtime_Painter
                         pegi.nl();
                     }
 
-                    if ("Colorize ".enter(ref _inspectedProcess, 1))
-                    {
+                    if ("Clear ".enter(ref _inspectedProcess, 1))  {
 
                         "Clear Color".edit(80, ref clearColor).nl();
                         if ("Clear Texture".Click().nl())
@@ -904,10 +905,37 @@ namespace Playtime_Painter
                         }
                     }
 
-                    if (_inspectedProcess == -1 && icon.Refresh.Click("Apply color {0}".F(clearColor)).nl())
-                    {
+                    if (_inspectedProcess == -1 && icon.Refresh.Click("Apply color {0}".F(clearColor)).nl()) {
                         Colorize(clearColor);
                         SetApplyUpdateRenderTexture();
+                    }
+
+                    if ("Color to Alpha".enter(ref _inspectedProcess, 2).nl())
+                    {
+                        "Background Color".edit(80, ref clearColor).nl();
+                        if (Pixels != null)
+                        {
+                            if ("Color to Alpha".Click("Will Convert Background Color with transparency").nl())
+                            {
+                                for (int i = 0; i < _pixels.Length; i++)
+                                    _pixels[i] = BlitFunctions.ColorToAlpha(_pixels[i], clearColor);
+                                SetApplyUpdateRenderTexture();
+                            }
+
+                            if ("Color from Alpha".Click("Will subtract background color from transparency").nl())
+                            {
+                                for (int i = 0; i < _pixels.Length; i++) {
+                                    var col = _pixels[i];
+
+                                    col.a = BlitFunctions.ColorToAlpha(_pixels[i], clearColor).a;
+
+                                    _pixels[i] = col;
+                                }
+
+                                SetApplyUpdateRenderTexture();
+                            }
+
+                        }
                     }
 
                     if ("Signed Distance Filelds generator".enter(ref _inspectedProcess, 4).nl())
@@ -930,11 +958,16 @@ namespace Playtime_Painter
                         }
 
                     }
+
+                    if ("Curves".enter(ref _inspectedProcess, 5).nl())
+                    {
+                        tmpCurve.Try_Nested_Inspect().nl();
+
+
+                    }
+
                 }
-
-
-              
-
+                
                 if ("Render Buffer Debug".enter(ref _inspectedProcess, 40).nl()) {
                     TexMGMT.bigRtPair[0].write(200);
                     pegi.nl();
@@ -1006,13 +1039,10 @@ namespace Playtime_Painter
                 if (isATransparentLayer)
                     preserveTransparency = true;
                 else {
-                    "Preserve Transparency".toggleIcon(ref preserveTransparency).changes(ref changed);
 
-                    if (pegi.DocumentationClick("About Preserve Transparency"))
-                        pegi.FullWindwDocumentationOpen(
-                            "if every pixel of texture has alpha = 1 (Max) Unity will be save it as .png without transparency. To counter this " +
-                             " I set first pixels to alpha 0.9. I know it is hacky, it you know a better way, let me know"
-                            );
+                    MsgPainter.PreserveTransparency.GetText().toggleIcon(ref preserveTransparency).changes(ref changed);
+
+                    MsgPainter.PreserveTransparency.Documentation();
 
                     pegi.nl();
                 }

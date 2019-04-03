@@ -1,60 +1,229 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using System.Collections.Generic;
+using QuizCannersUtilities;
 
-namespace PlayerAndEditorGUI
-{
+namespace PlayerAndEditorGUI {
 
-    public enum Msg  {Texture2D, RenderTexture, BrushType, BlitMode, editDelayed_HitEnter, InspectElement, LockToolToUseTransform, HideTransformTool,
+    public enum Msg  {Texture2D, RenderTexture,  editDelayed_HitEnter, InspectElement, 
         HighlightElement, RemoveFromList, AddNewListElement, AddEmptyListElement, ReturnToList, MakeElementNull, NameNewBeforeInstancing_1p, New };
-
-   
-
-    public static class LazyTranslationsExtension {
     
-        static void Init() {
+    public static partial class LazyTranslations {
 
-            texts = new List<List<string>>();
+        public static int _systemLanguage = -1;
+        
+        private const int eng = (int)SystemLanguage.English;
+        private const int ukr = (int)SystemLanguage.Ukrainian;
+        private const int trk = (int)SystemLanguage.Turkish;
+        private const int rus = (int)SystemLanguage.Russian;
+        
+        public class LazyTranslation
+        {
+            public string text;
+            public string details;
 
-            WillBeTranslatingFrom(SystemLanguage.English);
-            Msg.New.Add("New");
-            Msg.NameNewBeforeInstancing_1p.Add("Name for the new {0} you'll instantiate");
-            Msg.Texture2D.Add("Texture");
-            Msg.RenderTexture.Add("Render Texture");
-            Msg.BrushType.Add("Brush Type");
-            Msg.BlitMode.Add("Blit Mode");
-            Msg.editDelayed_HitEnter.Add("Press Enter to Complete Edit");
-            Msg.InspectElement.Add("Inspect element");
-            Msg.HighlightElement.Add("Highlight this element in the project");
-            Msg.RemoveFromList.Add("Remove this list element");
-            Msg.AddNewListElement.Add("Add New element to a list");
-            Msg.AddEmptyListElement.Add("Add NULL/default list element");
-            Msg.ReturnToList.Add("Return to list");
-            Msg.MakeElementNull.Add("Null this element.");
-            Msg.LockToolToUseTransform.Add("Lock texture to use transform tools. Or click 'Hide transform tool'");
-            Msg.HideTransformTool.Add("Hide transform tool");
+            public LazyTranslation(string mText)
+            {
+                text = mText;
+            }
 
-            WillBeTranslatingFrom(SystemLanguage.Ukrainian);
-            Msg.New.Add("Новий");
-            Msg.Texture2D.Add("Текстура");
-            Msg.RenderTexture.Add("Рендер Текстура");
-            Msg.BrushType.Add("Тип");
-            Msg.BlitMode.Add("Метод");
-            Msg.LockToolToUseTransform.Add("Постав блок на текстурі щоб рухати обєкт, або натисни на 'Приховати трансформації' щоб не мішали.");
-            Msg.HideTransformTool.Add("Приховати трансформації");
-            Msg.HighlightElement.Add("Показати цей елемент в проекті");
-            Msg.RemoveFromList.Add("Забрати цей елемент зі списку");
-            Msg.AddNewListElement.Add("Створити новий елемент у списку");
+            public LazyTranslation(string mText, string mDetails)
+            {
+                text = mText;
+                details = mDetails;
+            }
 
-            _systemLanguage = (int)Application.systemLanguage;
+            public override string ToString() => text;
         }
 
+        #region Inspector
+        #if PEGI
+        public static bool LanguageSelection() {
+            if (_systemLanguage == -1)
+                Init();
 
-    // No need to modify anything below
+            "Language".editEnum<SystemLanguage>(60, ref _systemLanguage).nl();
+            
+            return false;
+        } 
 
-        public static List<List<string>> texts;
+        public static bool Documentation(this LazyTranslation trnsl) {
+            if (pegi.DocumentationClick(trnsl.text))
+            {
+                pegi.FullWindwDocumentationOpen(trnsl.details);
+                return true;
+            }
 
-#if PEGI
+            return false;
+        }
+        #endif
+        #endregion
 
+        #region Translation Class
+        class TranslationsEnum
+        {
+            public static UnNullable<Countless<LazyTranslation>> pntrTexts = new UnNullable<Countless<LazyTranslation>>();
+            public static CountlessBool textInitialized = new CountlessBool();
+
+            public bool Initialized(int index) => textInitialized[index];
+
+            public Countless<LazyTranslation> this[int ind] => pntrTexts[ind];
+
+            public LazyTranslation GetWhenInited(int ind, int lang)
+            {
+
+                textInitialized[ind] = true;
+
+                var val = pntrTexts[ind][lang];
+
+                if (val != null)
+                    return val;
+
+                val = pntrTexts[ind][eng];
+
+                return val;
+            }
+        }
+
+        static Countless<LazyTranslation> From(this Countless<LazyTranslation> sntnc, int lang, string text)
+        {
+            sntnc[lang] = new LazyTranslation(text);
+            return sntnc;
+        }
+
+        static Countless<LazyTranslation> From(this Countless<LazyTranslation> sntnc, int lang, string text, string details)
+        {
+            sntnc[lang] = new LazyTranslation(text, details);
+            return sntnc;
+        }
+        #endregion
+
+        #region Implementation
+
+        static void Init() => _systemLanguage = (int)Application.systemLanguage;
+
+        public static string Get(this Msg s)
+        {
+
+            if (_systemLanguage == -1)
+                Init();
+
+            var tmp = s.GetIn(_systemLanguage);
+
+            return tmp ?? s.GetIn((int)SystemLanguage.English);
+        }
+
+        public static string GetIn(this Msg s, int l)
+        {
+            var lt = s.Get(l);
+
+            if (lt == null)  {
+                coreTranslations[(int) s][l] = new LazyTranslation(s.ToString());
+
+                lt = s.Get(l);
+            }
+
+            return lt.text;
+        }
+
+        static TranslationsEnum coreTranslations = new TranslationsEnum();
+
+        public static LazyTranslation Get(this Msg msg, int lang)
+        {
+
+            int index = (int)msg;
+
+            if (coreTranslations.Initialized(index))
+                return coreTranslations.GetWhenInited(index, lang);
+
+            switch (msg)
+            {
+                case Msg.New: msg.Translate("New").From(ukr, "Новий").From(trk, "Yeni");
+                    break;
+
+                case Msg.NameNewBeforeInstancing_1p: msg.Translate("Name for the new {0} you'll instantiate");
+                    break;
+                case Msg.Texture2D: msg.Translate("Texture")
+                        .From(ukr, "Текстура");
+                    break;
+                case Msg.RenderTexture: msg.Translate("Render Texture")
+                        .From(ukr, "Рендер Текстура");
+                    break;
+       
+                case Msg.editDelayed_HitEnter:
+                    msg.Translate("Press Enter to Complete Edit")
+                        .From(ukr, "Натисніть Ентер щоб завершити введення");
+                    break;
+
+                case Msg.InspectElement:
+                    msg.Translate("Inspect element")
+                        .From(ukr, "Оглянути елемент"); ;
+                    break;
+
+                case Msg.HighlightElement:
+                    msg.Translate("Highlight this element in the project")
+                        .From(ukr, "Показати цей елемент в проекті");
+                    break;
+
+                case Msg.RemoveFromList:
+                    msg.Translate("Remove this list element")
+                        .From(ukr, "Забрати цей елемент зі списку");
+                    break;
+
+                case Msg.AddNewListElement:
+                    msg.Translate("Add New element to a list")
+                        .From(ukr, "Створити новий елемент у списку");
+                    break;
+
+                case Msg.AddEmptyListElement:
+                    msg.Translate("Add NULL/default list element")
+                        .From(ukr, "Додати порожній елемент до списку"); ;
+                    break;
+
+                case Msg.ReturnToList:
+                    msg.Translate("Return to list")
+                        .From(ukr, "Повернутись до списку"); ;
+                    break;
+
+                case Msg.MakeElementNull:
+                    msg.Translate("Null this element.")
+                        .From(ukr, "Забрати елемент зі списку");
+                    break;
+            }
+
+            return coreTranslations.GetWhenInited(index, lang);
+        }
+
+        public static string GetText(this Msg msg)
+        {
+            var lt = msg.GetLt();
+            return lt != null ? lt.ToString() : msg.ToString();
+        }
+
+        public static bool Documentation(this Msg msg) => msg.GetLt().Documentation();
+
+        static LazyTranslation GetLt(this Msg msg)
+        {
+            if (_systemLanguage == -1)
+                Init();
+
+            return msg.Get(_systemLanguage);
+        }
+
+        static Countless<LazyTranslation> Translate(this Msg smg, string english)
+        {
+            var org = coreTranslations[(int)smg];
+            org[eng] = new LazyTranslation(english);
+            return org;
+        }
+
+        static Countless<LazyTranslation> Translate(this Msg smg, string english, string englishDetails)
+        {
+            var org = coreTranslations[(int)smg];
+            org[eng] = new LazyTranslation(english, englishDetails);
+            return org;
+        }
+        
         public static void Nl(this Msg m) { m.Get().nl(); }
         public static void Nl(this Msg m, int width) { m.Get().nl(width); }
         public static void Nl(this Msg m, string tip, int width) { m.Get().nl(tip, width); }
@@ -65,43 +234,8 @@ namespace PlayerAndEditorGUI
         public static bool Click(this icon icon, Msg text, ref bool changed) => icon.ClickUnFocus(text.Get()).changes(ref changed);
         public static bool ClickUnFocus(this icon icon, Msg text, int size = pegi.defaultButtonSize) => pegi.ClickUnFocus(icon.GetIcon(), text.Get(), size);
         public static bool ClickUnFocus(this icon icon, Msg text, int width, int height) => pegi.ClickUnFocus(icon.GetIcon(), text.Get(), width, height);
-#endif
 
-        public static string Get(this Msg s) {
+        #endregion
 
-            var tmp = s.GetIn(_systemLanguage);
-
-            return tmp ?? s.GetIn((int)SystemLanguage.English);
-        }
-
-        public static string GetIn (this Msg s, int l) {
-            if (texts == null)
-                Init();
-
-            if (texts.Count <= l) return null;
-            var list = texts[l];
-
-            if (list.Count <= (int) s) return null;
-            var tmp = list[(int)s];
-            return tmp;
-        }
-
-        private static int _systemLanguage;
-
-        private static int _currentLanguage;
-
-        private static void WillBeTranslatingFrom (SystemLanguage l) {
-            _currentLanguage = (int)l;
-            while (texts.Count <= _currentLanguage)
-                texts.Add(new List<string>());
-        }
-
-        private static void Add (this Msg m, string text) {
-            var line = (int)m;
-            while (texts[_currentLanguage].Count <= line)
-                texts[_currentLanguage].Add(null);
-
-            texts[_currentLanguage][line] = text;
-        }
     }
 }

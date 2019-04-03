@@ -519,6 +519,9 @@ namespace Playtime_Painter
 
                 if (icon.Email.Click("Report a bug / send suggestion / ask question.", 64))
                     PlaytimePainter.Open_Email();
+
+                pegi.nl();
+                LazyTranslations.LanguageSelection().nl();
 #endif
 
             }
@@ -527,6 +530,8 @@ namespace Playtime_Painter
 
             return changed;
         }
+
+        [SerializeField] private int systemLanguage = -1;
 
         #endif
         #endregion
@@ -563,6 +568,9 @@ namespace Playtime_Painter
                         break;
                     }
             }
+
+            if (systemLanguage!= -1)
+                LazyTranslations._systemLanguage = systemLanguage;
 
         }
 
@@ -655,6 +663,8 @@ namespace Playtime_Painter
             }
 
             stdData = Encode().ToString();
+            
+            systemLanguage = LazyTranslations._systemLanguage;
         }
     }
 

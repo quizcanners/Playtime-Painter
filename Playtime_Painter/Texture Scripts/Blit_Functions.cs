@@ -193,5 +193,70 @@ namespace Playtime_Painter {
         }
 
 
+
+        #region Processors
+
+        public static Color ColorToAlpha(Color pix, Color colBG) {
+
+            
+
+            double pixR = pix.r;
+            double pixG = pix.g;
+            double pixB = pix.b;
+            double pixA = pix.a;
+
+            double colBgR = colBG.r;
+            double colBgG = colBG.g;
+            double colBgB = colBG.b;
+
+
+            double a1 = 0;
+            double a2 = 0;
+            double a3 = 0;
+
+            double diffR = pixR - colBgR;
+            double diffG = pixG - colBgG;
+            double diffB = pixB - colBgB;
+
+            if (pixR > colBgR)
+                a1 = diffR / (1d - colBgR);
+            else if (pixR < colBgR)
+                a1 = (colBgR - pixR) / colBgR;
+
+            if (pixG > colBgG)
+                a2 = diffG / (1d - colBgG);
+            else if (pixG < colBgG)
+                a2 = (colBgG - pixG) / colBgG;
+ 
+
+            if (pixB > colBgB)
+                a3 = diffB / (1d - colBgB);
+            else if (pixB < colBgB)
+                a3 = (colBgB - pixB) / colBgB;
+
+            double aA = a1;
+            if (a2 > aA) aA = a2;
+            if (a3 > aA) aA = a3;
+
+            if (aA >= 0.0001) {
+
+                pixA = aA * pixA;
+
+                double dA = 1f / aA;
+
+                pixR = diffR * dA + colBgR;
+                pixG = diffG * dA + colBgG;
+                pixB = diffB * dA + colBgB;
+
+                return new Color((float) pixR, (float)pixG, (float)pixB, (float)pixA);
+            }
+            else
+                return Color.clear;
+            
+        }
+
+        #endregion
+
+
     }
 }
