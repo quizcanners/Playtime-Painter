@@ -32,3 +32,4 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+Playtime_Painter/Resources/prefabs/BrushMaterial.mat
