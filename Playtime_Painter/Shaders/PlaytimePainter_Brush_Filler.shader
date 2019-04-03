@@ -103,14 +103,14 @@
 					// X - Color distance
 					// Y - BRIGHTNESS
 
-					#define GETDIST(cidx,cidy) (cidx + max(0, 0.1 - cidy)*100)
+					#define GETDIST(cidx,cidy) (cidx + max(0, 0.1 - cidy)*10)
 
 					float dist = min(GETDIST(dniX.x, dniX.y), GETDIST(dniDX.x, dniDX.y));
 					dist = min(dist, GETDIST(dniY.x, dniY.y));
 					dist = min(dist, GETDIST(dniDY.x, dniDY.y));
 					//dist = min(dist, GETDIST(dni.x, dni.y));
 
-					dist = max(dist, 0.1 - dni.y) * 128;
+					dist = max(dist*2, (0.1 - dni.y)*11);
 
 					float alpha = min(1, saturate((a - 0.9975) * 400) + saturate(a * (1 - dist)*blurAmount));
 

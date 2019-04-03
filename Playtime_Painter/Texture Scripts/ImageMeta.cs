@@ -961,11 +961,34 @@ namespace Playtime_Painter
 
                     if ("Curves".enter(ref _inspectedProcess, 5).nl())
                     {
-                        tmpCurve.Try_Nested_Inspect().nl();
+                        var crv = TexMGMT.InspectAnimationCurve("Channel");
 
+                        if (Pixels != null) {
 
+                            if ("Remap Alpha".Click()) {
+                                for (int i = 0; i < _pixels.Length; i++)  {
+                                    var col = _pixels[i];
+                                    col.a = crv.Evaluate(col.a);
+                                    _pixels[i] = col;
+                                }
+                                SetApplyUpdateRenderTexture();
+                            }
+
+                            if ("Remap Color".Click())
+                            {
+                                for (int i = 0; i < _pixels.Length; i++)
+                                {
+                                    var col = _pixels[i];
+                                    col.r = crv.Evaluate(col.r);
+                                    col.g = crv.Evaluate(col.g);
+                                    col.b = crv.Evaluate(col.b);
+                                    _pixels[i] = col;
+                                }
+                                SetApplyUpdateRenderTexture();
+                            }
+
+                        }
                     }
-
                 }
                 
                 if ("Render Buffer Debug".enter(ref _inspectedProcess, 40).nl()) {
