@@ -479,6 +479,20 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
+        public static bool DocumentationClick(string toolTip, int buttonSize = 20, icon clickIcon = icon.Question) {
+            if (fullWindowDocumentationClick(toolTip, buttonSize, clickIcon)) {
+                PopUpService.popUpHeader = toolTip;
+                return true;
+            }
+
+            return false;
+        }
+
+        public static void FullWindwDocumentationOpen(string text) {
+            PopUpService.popUpText = text;
+            PopUpService.InitiatePopUp();
+        }
+
         public static bool fullWindowWarningDocumentationClick(this string text, string toolTip = "What is this?",
             int buttonSize = 20) => text.fullWindowDocumentationClick(toolTip, buttonSize, icon.Warning);
 
@@ -620,7 +634,7 @@ namespace PlayerAndEditorGUI {
                     Application.OpenURL(DiscordServer);
                 if (icon.Email.Click())
                     UnityUtils.SendEmail(SupportEmail, "About this hint",
-                        "The tooltip:{0}***{0} {1} {0}***{0} haven't answered some of the questions I had on my mind. Specifically: {0}".F(EnvironmentNl, popUpText));
+                        "The toolTip:{0}***{0} {1} {0}***{0} haven't answered some of the questions I had on my mind. Specifically: {0}".F(EnvironmentNl, popUpText));
 
             }
 
@@ -636,7 +650,7 @@ namespace PlayerAndEditorGUI {
                         nl();
                     }
                     
-                    popUpText.writeBig("Click the blue text below to close this toolTip. This is basically a tooltip for a tooltip. It is the world we are living in now.");
+                    popUpText.writeBig("Click the blue text below to close this toolTip. This is basically a toolTip for a toolTip. It is the world we are living in now.");
 
                     if (!relatedLink.IsNullOrEmpty() && relatedLinkName.Click(14))
                                 Application.OpenURL(relatedLink);

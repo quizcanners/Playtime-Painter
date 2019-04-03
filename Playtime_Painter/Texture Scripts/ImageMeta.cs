@@ -1008,9 +1008,11 @@ namespace Playtime_Painter
                 else {
                     "Preserve Transparency".toggleIcon(ref preserveTransparency).changes(ref changed);
 
-                    ("if every pixel of texture has alpha = 1 (Max) Unity will be save it as .png without transparency. To counter this " +
-                     " I set first pixels to alpha 0.9. I know it is hacky, it you know a better way, let me know")
-                        .fullWindowDocumentationClick("About Preserve Transparency");
+                    if (pegi.DocumentationClick("About Preserve Transparency"))
+                        pegi.FullWindwDocumentationOpen(
+                            "if every pixel of texture has alpha = 1 (Max) Unity will be save it as .png without transparency. To counter this " +
+                             " I set first pixels to alpha 0.9. I know it is hacky, it you know a better way, let me know"
+                            );
 
                     pegi.nl();
                 }

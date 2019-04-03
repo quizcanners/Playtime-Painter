@@ -1945,13 +1945,14 @@ namespace Playtime_Painter {
 
                     pegi.toggle(ref Cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config, "Settings");
 
-                    ("This Component allows you to paint on this object's renderer's material's texture (Yes, there is a bit of hierarchy). It can also edit the mesh. " +
-                      "All functions & configurations are accessible from within this inspector. " +
-                      "Any changes are applied only to working copy of the texture and will be lost on Entering/Exiting Play mode or restarting Unity." +
-                      "Load button on the bottom can reload working copy from original image file." +
-                      "Save button will apply changes to the original file. To save as new file, change name before saving and click Save As New." +
-                      "").F(pegi.EnvironmentNl)
-                      .fullWindowDocumentationClick("About Playtime Painter Component");
+                    if (pegi.DocumentationClick("About Playtime Painter Component"))
+                        pegi.FullWindwDocumentationOpen(
+                            ("This Component allows you to paint on this object's renderer's material's texture (Yes, there is a bit of hierarchy). It can also edit the mesh. " +
+                             "All functions & configurations are accessible from within this inspector. " +
+                             "Any changes are applied only to working copy of the texture and will be lost on Entering/Exiting Play mode or restarting Unity." +
+                             "Load button on the bottom can reload working copy from original image file." +
+                             "Save button will apply changes to the original file. To save as new file, change name before saving and click Save As New." +
+                             "").F(pegi.EnvironmentNl));
                 }
 
                 #endregion
@@ -2056,11 +2057,13 @@ namespace Playtime_Painter {
                                         if (MeshProfile.Inspect().nl())
                                             MeshManager.editedMesh.Dirty = true;
 
-                                        ("If using projected UV, place sharpNormal in TANGENT. {0}" +
-                                         "Vectors should be placed in normal and tangent slots to batch correctly.{0}" +
-                                         "Keep uv1 as is for baked light and damage shaders.{0}" +
-                                         "I place Shadows in UV2{0}" +
-                                         "I place Edge in UV3.{0}").F(pegi.EnvironmentNl).fullWindowDocumentationClick("Common usage");
+                                        if (pegi.DocumentationClick("Common usage"))
+                                            pegi.FullWindwDocumentationOpen(
+                                                ("If using projected UV, place sharpNormal in TANGENT. {0}" +
+                                                 "Vectors should be placed in normal and tangent slots to batch correctly.{0}" +
+                                                 "Keep uv1 as is for baked light and damage shaders.{0}" +
+                                                 "I place Shadows in UV2{0}" +
+                                                 "I place Edge in UV3.{0}").F(pegi.EnvironmentNl));
 
                                     }
                                 }
@@ -2226,14 +2229,12 @@ namespace Playtime_Painter {
                             if (!NotUsingPreview)
                                 PreviewShaderToggleInspect();
 
-                            if (!painterWorks)
-                            {
+                            if (!painterWorks) {
                                 pegi.nl();
                                 "UI Element editing only works in Game View during Play.".writeWarning();
                             }
                         }
-
-                    
+                        
                         id = ImgMeta;
 
                         if (meshCollider && meshCollider.convex)
@@ -2253,7 +2254,7 @@ namespace Playtime_Painter {
                         {
 
                            pegi.edit(ref id.clearColor, 50);
-                            if (icon.Refresh.Click("Clear texture"))
+                            if (icon.Clear.Click("Clear texture"))
                             {
                                 id.Colorize(id.clearColor);
                                 id.SetApplyUpdateRenderTexture();

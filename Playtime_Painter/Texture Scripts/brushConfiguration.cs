@@ -254,13 +254,15 @@ namespace Playtime_Painter {
 
             pegi.toggle(ref inspectAdvancedOptions, icon.FoldedOut, icon.Create, "Advanced Options", 25);
 
-            blitMode?.ToolTip.fullWindowDocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI), 20).nl();
+            if (blitMode != null && pegi.DocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI)))
+                pegi.FullWindwDocumentationOpen(blitMode.ToolTip);
             
             if (!cpu) {
                 Msg.BrushType.Write(80);
                 pegi.select(ref _inGpuBrushType, BrushType.AllTypes).changes(ref changed);
 
-                brushType?.ToolTip.fullWindowDocumentationClick("About {0} brush type".F(brushType.NameForDisplayPEGI), 20);
+                if (brushType!= null && pegi.DocumentationClick("About {0} brush type".F(brushType.NameForDisplayPEGI)))
+                    pegi.FullWindwDocumentationOpen(brushType.ToolTip);
             }
             
             var overrideBlitModePegi = false;
@@ -302,12 +304,12 @@ namespace Playtime_Painter {
                              " ").fullWindowWarningDocumentationClick("Preview is recommended.");
                     }
 
-
-                    ("Will render brush to Alpha Buffer first and then use that Alpha buffer to render changes to texture. For Sphere brush helps avoid many various artifacts." +
-                     " Using Preview will improve performance, as it will not apply changes to texture until you exit preview mode, or change any setting that affects blit mode. " +
-                     "Please report any issues you encounter while using this, as this is a new feature, and there are planty of places where it can function not as desired. " +
-                     "It is totally worth it as it makes sphere brush an almost flawless tool for mesh editing. The only remaining issue is tyling. ")
-                        .fullWindowDocumentationClick("About Alpha Buffer");
+                    if (pegi.DocumentationClick("About Alpha Buffer"))
+                        pegi.FullWindwDocumentationOpen(
+                        "Will render brush to Alpha Buffer first and then use that Alpha buffer to render changes to texture. For Sphere brush helps avoid many various artifacts." +
+                         " Using Preview will improve performance, as it will not apply changes to texture until you exit preview mode, or change any setting that affects blit mode. " +
+                         "Please report any issues you encounter while using this, as this is a new feature, and there are planty of places where it can function not as desired. " +
+                         "It is totally worth it as it makes sphere brush an almost flawless tool for mesh editing. The only remaining issue is tyling. ");
 
                     pegi.nl();
                 }
@@ -357,9 +359,11 @@ namespace Playtime_Painter {
                 if ("Update Collider from Skinned Mesh".Click())
                     p.UpdateMeshCollider();
 
-                ("To paint an object a collision detection is needed. Mesh Collider is not being animated. To paint it, update Mesh Collider with Update Collider button." +
-                 " For ingame painting it is preferable to use simple colliders like Speheres to avoid per frame updates for collider mesh."
-                    ).fullWindowDocumentationClick("Why Update Collider from skinned mesh?");
+                if (pegi.DocumentationClick("Why Update Collider from skinned mesh?"))
+                    pegi.FullWindwDocumentationOpen(
+                        ("To paint an object a collision detection is needed. Mesh Collider is not being animated. To paint it, update Mesh Collider with Update Collider button." +
+                        " For ingame painting it is preferable to use simple colliders like Speheres to avoid per frame updates for collider mesh."
+                        ));
 
                 pegi.nl();
             }

@@ -9,7 +9,7 @@ namespace PlayerAndEditorGUI
     public enum icon
     {
         Alpha, Active,  Add, Animation, Audio,
-        Back, Book, Save, Close, Condition, Config, Copy, Cut, Create,
+        Back, Book, Save, Close, Condition, Config, Copy, Cut, Create, Clear,
         Discord, Delete, Done, Docs, Download, Down, DownLast, Debug, DeSelectAll,
         Edit, Enter, Exit, Email, Empty,
         False, FoldedOut, Folder,

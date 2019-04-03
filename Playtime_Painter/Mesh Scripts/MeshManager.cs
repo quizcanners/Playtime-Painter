@@ -806,8 +806,10 @@ namespace Playtime_Painter
                 previousTool.OnDeSelectTool();
                 MeshTool.OnSelectTool();
             }
+
+            if (pegi.DocumentationClick("About {0} tool".F(MeshTool.NameForDisplayPEGI)))
+                pegi.FullWindwDocumentationOpen(MeshTool.Tooltip);
             
-            MeshTool.Tooltip.fullWindowDocumentationClick("About {0} tool".F(MeshTool.NameForDisplayPEGI));
 
     
             if (target.skinnedMeshRenderer) 
