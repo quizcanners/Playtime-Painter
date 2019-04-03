@@ -874,6 +874,14 @@ namespace PlayerAndEditorGUI {
             textAndTip.tooltip = toolTip;
             return textAndTip;
         }
+
+        private static GUIContent tipOnlyContent = new GUIContent();
+
+        private static GUIContent TipOnlyContent(string text)  {
+            tipOnlyContent.tooltip = text;
+            return tipOnlyContent;
+        }
+
         #endregion
 
         private const int letterSizeInPixels = 8;
@@ -1428,13 +1436,13 @@ namespace PlayerAndEditorGUI {
             return select(ref no, tree, lambda);
         }
 
-        public static bool selectOrAdd<T>(ref int selected, ref List<T> objcts) where T : UnityEngine.Object
+        public static bool selectOrAdd<T>(ref int selected, ref List<T> objcts) where T : Object
         {
             var changed = select(ref selected, objcts);
 
             var tex = objcts.TryGet(selected);
 
-            if (edit(ref tex).changes(ref changed)) {
+            if (edit(ref tex, 50).changes(ref changed)) {
                 if (!tex)
                     selected = -1;
                 else {
@@ -1459,8 +1467,7 @@ namespace PlayerAndEditorGUI {
         #endif            
                 select(ref ind, lst);
         
-
-        public static bool selectOrAdd<T>(this string label, int width, ref int selected, ref List<T> objs) where T : UnityEngine.Object  {
+        public static bool selectOrAdd<T>(this string label, int width, ref int selected, ref List<T> objs) where T : Object  {
             label.write(width);
             return selectOrAdd(ref selected, ref objs);
         }
@@ -3759,6 +3766,16 @@ namespace PlayerAndEditorGUI {
 
         public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon, GUIStyle style = null) => toggle(ref val, TrueIcon.GetIcon(), FalseIcon.GetIcon(), "", defaultButtonSize, style);
 
+        public static bool toggleVisibilityIcon(ref bool val, string hint, int width = DefaultToggleIconSize)
+        {
+            SetBgColor(Color.clear);
+
+            var changed = toggle(ref val, icon.Show, icon.Hide, hint, width, PEGI_Styles.ToggleButton).PreviousBgColor();
+
+            return changed;
+        }
+
+
         public static bool toggleVisibilityIcon(this string label, string hint, ref bool val, bool dontHideTextWhenOn = false)
         {
             SetBgColor(Color.clear);
@@ -4301,6 +4318,16 @@ namespace PlayerAndEditorGUI {
                    icon.Blue.edit_ColorChannel(ref col, 2).nl() ||
                    icon.Alpha.edit_ColorChannel(ref col, 3).nl();
 
+        }
+
+        public static bool edit(ref Color col, int width)
+        {
+        #if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.edit(ref col, width);
+
+        #endif
+            return false;
         }
 
         public static bool edit_ColorChannel(this icon ico, ref Color col, int channel)

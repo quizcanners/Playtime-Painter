@@ -25,6 +25,7 @@ namespace Playtime_Painter {
 
         public bool IsCpu(PlaytimePainter painter) => painter ? painter.ImgMeta.TargetIsTexture2D() : targetIsTex2D;
 
+
         [SerializeField] private int _inGpuBrushType;
         [SerializeField] private int _inCpuBrushType;
         private int _brushType(bool cpu) => cpu ? _inCpuBrushType : _inGpuBrushType;
@@ -130,6 +131,8 @@ namespace Playtime_Painter {
 
         public float alphaLimitForAlphaBuffer = 1;
 
+        public bool worldSpaceBrushPixelJitter;
+
         public float Size(bool worldSpace) => (worldSpace ? brush3DRadius : brush2DRadius);
         public LinearColor colorLinear;
 
@@ -223,6 +226,8 @@ namespace Playtime_Painter {
         }
 
         #region Inspector
+
+        public static bool inspectAdvancedOptions = false;
         public static BrushConfig _inspectedBrush;
         public static bool InspectedIsCpuBrush => PlaytimePainter.inspected ? InspectedImageMeta.TargetIsTexture2D() : _inspectedBrush.targetIsTex2D;
         #if PEGI
@@ -241,12 +246,14 @@ namespace Playtime_Painter {
             var brushType = GetBrushType(cpu);
 
             pegi.newLine();
-
+            
             Msg.BlitMode.Write("How final color will be calculated", 70);
 
             if (pegi.select(ref blitMode, Playtime_Painter.BlitMode.AllModes).changes(ref changed)) 
                 SetBlitMode(cpu, blitMode);
-            
+
+            pegi.toggle(ref inspectAdvancedOptions, icon.FoldedOut, icon.Create, "Advanced Options", 25);
+
             blitMode?.ToolTip.fullWindowDocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI), 20).nl();
             
             if (!cpu) {
@@ -255,7 +262,7 @@ namespace Playtime_Painter {
 
                 brushType?.ToolTip.fullWindowDocumentationClick("About {0} brush type".F(brushType.NameForDisplayPEGI), 20);
             }
-
+            
             var overrideBlitModePegi = false;
 
             foreach (var b in PainterSystemManagerPluginBase.BrushPlugins)
@@ -273,7 +280,8 @@ namespace Playtime_Painter {
 
                     "Src Texture Color".editEnum(80, ref srcColorUsage).nl(ref changed);
                    
-                    "Clamp".toggleIcon(ref clampSourceTexture).nl(ref changed);
+                    if (InspectAdvanced)
+                        "Clamp".toggleIcon(ref clampSourceTexture).nl(ref changed);
 
                 }
 

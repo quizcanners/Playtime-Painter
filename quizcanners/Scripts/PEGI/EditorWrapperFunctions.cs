@@ -638,6 +638,24 @@ namespace PlayerAndEditorGUI {
 
         }
 
+        public static bool edit(ref Color col, int width)
+        {
+
+            BeginCheckLine();
+            col = EditorGUILayout.ColorField(col, GUILayout.MaxWidth(width));
+            return EndCheckLine();
+
+        }
+
+        public static bool edit(ref Color col, GUIContent cnt, int width)
+        {
+
+            BeginCheckLine();
+            col = EditorGUILayout.ColorField(cnt ,col, GUILayout.MaxWidth(width));
+            return EndCheckLine();
+
+        }
+
         public static bool editKey(ref Dictionary<int, string> dic, int key)
         {
             checkLine();

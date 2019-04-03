@@ -78,12 +78,13 @@ namespace Playtime_Painter
         public virtual bool StartPaintingTheMomentMouseIsDown => true;
         public virtual bool SupportedForTerrainRt => true;
         public virtual bool NeedsGrid => false;
-
+        
         public abstract string NameForDisplayPEGI { get; }
 
         public virtual string ToolTip => NameForDisplayPEGI + " (No Tooltip)";
 
         #region Inspect
+
         #if PEGI
         public virtual bool ShowInDropdown()
         {
@@ -107,11 +108,7 @@ namespace Playtime_Painter
                 var blitMode = br.GetBlitMode(br.IsCpu(p));
                 if (blitMode.NeedsWorldSpacePosition && !IsAWorldSpaceBrush)
                     return false;
-                
-
-                // Debug.Log("{0} needs world space: {1} true for {2}".F(blitMode, blitMode.NeedsWorldSpacePosition, this));
-
-                //Debug.Log("Show in dropdown");
+               
             }
 
             return 
@@ -125,37 +122,51 @@ namespace Playtime_Painter
         public virtual bool Inspect()
         {
             
+
+
             if (BrushConfig.InspectedIsCpuBrush || !PainterCamera.Inst)
                 return false;
 
             var changed = false;
 
-            
+            var br = InspectedBrush;
+
+            var adv = InspectAdvanced;
+
+            var p = InspectedPainter;
+
             if (TexMGMTdata.masks.Count > 0 || InspectedBrush.useMask)
             {
 
-               "Mask".toggleIcon ("Multiply Brush Speed By Mask Texture's alpha", ref InspectedBrush.useMask, true).changes(ref changed);
+              
 
-                if (InspectedBrush.useMask) {
+                if (adv || br.useMask)
+                    "Mask".toggleIcon ("Multiply Brush Speed By Mask Texture's alpha", ref br.useMask, true).changes(ref changed);
 
-                    pegi.selectOrAdd(ref InspectedBrush.selectedSourceMask, ref TexMGMTdata.masks).nl(ref changed);
+                if (br.useMask) {
 
-                    "Mask greyscale".toggleIcon("Otherwise will use alpha", ref InspectedBrush.maskFromGreyscale).nl(ref changed);
+                    pegi.selectOrAdd(ref br.selectedSourceMask, ref TexMGMTdata.masks).nl(ref changed);
 
-                    "Flip Mask ".toggleIcon("Alpha = 1-Alpha", ref InspectedBrush.flipMaskAlpha).nl(ref changed);
+                    if (adv)
+                        "Mask greyscale".toggleIcon("Otherwise will use alpha", ref br.maskFromGreyscale).nl(ref changed);
 
-                    if (!InspectedBrush.randomMaskOffset)
-                        "Mask Offset ".edit01(ref InspectedBrush.maskOffset).nl(ref changed);
+                    if (br.flipMaskAlpha || adv)
+                    "Flip Mask ".toggleIcon("Alpha = 1-Alpha", ref br.flipMaskAlpha).nl(ref changed);
 
-                    "Random Mask Offset".toggleIcon(ref InspectedBrush.randomMaskOffset).nl(ref changed);
+                    if (!br.randomMaskOffset && adv)
+                        "Mask Offset ".edit01(ref br.maskOffset).nl(ref changed);
+
+                    if (br.randomMaskOffset || adv)
+                        "Random Mask Offset".toggleIcon(ref br.randomMaskOffset).nl(ref changed);
                     
-                    if ("Mask Tiling: ".edit(70, ref InspectedBrush.maskTiling, 1, 8).nl(ref changed))
-                        InspectedBrush.maskTiling = Mathf.Clamp(InspectedBrush.maskTiling, 0.1f, 64);
+                    if (adv)
+                    if ("Mask Tiling: ".edit(70, ref br.maskTiling, 1, 8).nl(ref changed))
+                        br.maskTiling = Mathf.Clamp(br.maskTiling, 0.1f, 64);
                 }
             }
     
-            if (InspectedPainter.NeedsGrid() && "Center Grid On Object".Click().nl())
-                GridNavigator.onGridPos = InspectedPainter.transform.position;
+            if (InspectAdvanced && p.NeedsGrid() && "Center Grid On Object".Click().nl())
+                GridNavigator.onGridPos = p.transform.position;
 
             return changed;
         }
@@ -507,6 +518,8 @@ namespace Playtime_Painter
 
             pegi.nl();
 
+
+
             "Continuous".toggle("Will keep adding decal every frame while the mouse is down", 80, ref InspectedBrush.decalContentious).changes(ref changed);
 
             "Continious Decal will keep painting every frame while mouse button is held".fullWindowDocumentationClick("Countinious Decal");
@@ -547,14 +560,16 @@ namespace Playtime_Painter
         public override bool StartPaintingTheMomentMouseIsDown => false; 
         protected override string ShaderKeyword(bool texcoord2) => "BRUSH_2D"; 
 
-        public override string NameForDisplayPEGI => "Lazy";
-        
         private float _lazySpeedDynamic = 1;
         private float _lazyAngleSmoothed = 1;
         public Vector2 previousDirectionLazy;
 
+        #region Inspector
+        public override string NameForDisplayPEGI => "Lazy";
+
         public override string ToolTip => "Lazy brush will follow your mouse with a bit of a delay. It tries to paint a smooth line." +
                                           " Also useful if you want to paint a semi-transparent line.";
+        #endregion
 
         public override void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st)
         {
@@ -784,10 +799,23 @@ namespace Playtime_Painter
                                           "It is perfect for working with complex meshes. It can even paint on animated skinned meshes.";
 
         #if PEGI
-        public override bool Inspect() {
+        public override bool Inspect()
+        {
 
-            var changed = "Paint On Grid".toggleIcon(ref Cfg.useGridForBrush, true).nl(); 
+            var changed = false;
 
+            var br = InspectedBrush;
+
+            if (InspectAdvanced || Cfg.useGridForBrush)
+                "Paint On Grid".toggleIcon(ref Cfg.useGridForBrush, true).nl();
+
+            if (!br.useAlphaBuffer && (br.worldSpaceBrushPixelJitter || InspectAdvanced)) {
+                "One Pixel Jitter".toggleIcon(ref br.worldSpaceBrushPixelJitter).changes(ref changed);
+                "Will provide a single pixel jitter which can help fix seams not being painted properly"
+                    .fullWindowDocumentationClick("Why use one pixel jitter?");
+                pegi.nl();
+            }
+        
             base.Inspect().nl(ref changed);
 
             return changed;

@@ -194,20 +194,20 @@ inline float SampleAlphaBuffer(float2 uv) {
 
 	float2 off = _pp_AlphaBuffer_TexelSize.xy;
 
-	#define GRABPIXEL(ker) tex2Dlod(_pp_AlphaBuffer, float4(uv + ker * off ,0,0)).r
+	#define GRABPIXELA(ker) tex2Dlod(_pp_AlphaBuffer, float4(uv + ker * off ,0,0)).a
 
 	float alpha =
 
 		max(
-			GRABPIXEL(float2(0, 0)),
+			GRABPIXELA(float2(0, 0)),
 			max(
 				max(
-					max(GRABPIXEL(float2(-1, 0)), GRABPIXEL(float2(0, -1))),
-					max(GRABPIXEL(float2(1, 0)), GRABPIXEL(float2(0, 1)))
+					max(GRABPIXELA(float2(-1, 0)), GRABPIXELA(float2(0, -1))),
+					max(GRABPIXELA(float2(1, 0)), GRABPIXELA(float2(0, 1)))
 				),
 				max(
-					max(GRABPIXEL(float2(-1, -1)), GRABPIXEL(float2(1, 1))),
-					max(GRABPIXEL(float2(-1, 1)), GRABPIXEL(float2(1, -1)))
+					max(GRABPIXELA(float2(-1, -1)), GRABPIXELA(float2(1, 1))),
+					max(GRABPIXELA(float2(-1, 1)), GRABPIXELA(float2(1, -1)))
 				)
 			)
 		);
@@ -216,6 +216,44 @@ inline float SampleAlphaBuffer(float2 uv) {
 
 	return alpha;
 }
+
+inline float4 GetMaxByAlpha(float4 a, float4 b) {
+
+	float alA = saturate(a.a * 5096 - b.a);
+
+	return a * alA + b*(1 - alA);
+
+}
+
+inline float4 SampleUV_AlphaBuffer(float2 uv) {
+
+	float2 off = _pp_AlphaBuffer_TexelSize.xy;
+
+	#define GRABPIXEL(ker) tex2Dlod(_pp_AlphaBuffer, float4(uv + ker * off ,0,0))
+	
+	#define GETMAXBYALPHA(a, b) 
+
+	float4 result =
+
+		GetMaxByAlpha(
+			GRABPIXEL(float2(0, 0)),
+			GetMaxByAlpha(
+				GetMaxByAlpha(
+					GetMaxByAlpha(GRABPIXEL(float2(-1, 0)), GRABPIXEL(float2(0, -1))),
+					GetMaxByAlpha(GRABPIXEL(float2(1, 0)), GRABPIXEL(float2(0, 1)))
+				),
+				GetMaxByAlpha(
+					GetMaxByAlpha(GRABPIXEL(float2(-1, -1)), GRABPIXEL(float2(1, 1))),
+					GetMaxByAlpha(GRABPIXEL(float2(-1, 1)), GRABPIXEL(float2(1, -1)))
+				)
+			)
+		);
+
+	result.a = min(result.a, _pp_AlphaBufferCfg.x);
+
+	return result;
+}
+
 
 inline float prepareAlphaSphere (float2 texcoord, float3 worldPos){
 	float mask = getMaskedAlpha (texcoord);
@@ -354,7 +392,7 @@ inline float4 AlphaBlitOpaque (float alpha,float4 src, float2 texcoord){
 }
 
 inline float4 AlphaBlitOpaquePreview (float alpha,float4 src, float2 texcoord, float4 col){
-	_brushMask = BrushMaskWithAlphaBuffer(alpha, texcoord); //*= min(1, alpha*_brushPointedUV.w + tex2D(_pp_AlphaBuffer, texcoord).r);
+	_brushMask = BrushMaskWithAlphaBuffer(alpha, texcoord); 
 
 	#ifdef UNITY_COLORSPACE_GAMMA
 	col = pow(src, GAMMA_TO_LINEAR)*_brushMask+pow(col, GAMMA_TO_LINEAR)*(1-_brushMask);

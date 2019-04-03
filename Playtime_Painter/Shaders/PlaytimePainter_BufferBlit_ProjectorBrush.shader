@@ -38,7 +38,7 @@
 
 				float4 frag(v2f o) : COLOR{
 
-					float4 buff = tex2Dlod(_pp_AlphaBuffer, float4(o.texcoord.xy ,0,0));//SampleAlphaBuffer(o.texcoord.xy);
+					float4 buff = SampleUV_AlphaBuffer(o.texcoord.xy);//tex2Dlod(_pp_AlphaBuffer, float4(o.texcoord.xy ,0,0));
 
 					float4 src = tex2Dlod(_SourceTexture, float4(buff.rg, 0, 0));
 

@@ -132,8 +132,6 @@
 
 					#endif
 
-
-
 					#if UV_ATLASED
 						float seam = (o.atlasedUV.z)*pow(2, (log2(dist)));
 						float2 fractal = (frac(o.texcoord.xy)*(o.atlasedUV.w - seam) + seam*0.5);
@@ -204,6 +202,9 @@
 						#endif
 					#endif
 
+
+						//	return _brushColor;
+
 					#if BRUSH_DECAL
 						float2 decalUV = (tc.xy - _brushPointedUV.xy)*256/_brushForm.y;
 
@@ -259,12 +260,11 @@
 						col.a = 1;
 					#endif
 
+
 					#if BLIT_MODE_PROJECTION
 						float pa = (_brushPointedUV.w)*pr_shadow*0.8;
 
 						col = col * (1-pa) + _brushColor*(pa);
-
-
 					#endif
 
 

@@ -389,7 +389,6 @@ namespace Playtime_Painter {
                 alphaBufferTexture.wrapMode = TextureWrapMode.Repeat;
                 alphaBufferTexture.name = "Painting Alpha Buffer _ " + RenderTextureSize;
                 alphaBufferTexture.useMipMap = false;
-                
             }
 
             if (secondBufferDebug) 
@@ -523,7 +522,9 @@ namespace Playtime_Painter {
 
             AlphaBufferConfigProperty.GlobalValue = new Vector4(
                 brush.alphaLimitForAlphaBuffer,
-                0,0,0);
+                brush.worldSpaceBrushPixelJitter ? 1 : 0,
+                0,
+                0);
 
             brushType.SetKeyword(id.useTexCoord2);
 
@@ -1097,6 +1098,19 @@ namespace Playtime_Painter {
 
             if (showAll || bigRtPair.IsNullOrEmpty())
                 (bigRtPair.IsNullOrEmpty() ? "No buffers" : "Using HDR buffers " + ((!bigRtPair[0]) ? "uninitialized" : "initialized")).nl();
+
+            if (showAll) {
+                if ("Clear Buffers".Click().nl()) {
+                    foreach (var b in bigRtPair)
+                        b.DestroyWhateverUnityObject();
+
+                    alphaBufferTexture.DestroyWhateverUnityObject();
+                        
+                    UpdateBuffersState();
+
+                }
+
+            }
 
             if (!painterCamera)
             {

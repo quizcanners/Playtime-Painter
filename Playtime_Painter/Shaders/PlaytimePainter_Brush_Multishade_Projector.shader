@@ -35,6 +35,10 @@
 					v2f o;
 					float4 worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1));
 
+					float t = _Time.w * 50;
+
+					float2 jitter = _pp_AlphaBufferCfg.y * _DestBuffer_TexelSize.xy * float2(sin(t), cos(t*1.3));
+
 					o.worldPos = worldPos;
 
 					#if BRUSH_3D_TEXCOORD2
@@ -51,7 +55,7 @@
 
 					worldPos.xyz = _RTcamPosition.xyz;
 					worldPos.z += 100;
-					worldPos.xy += (v.texcoord.xy*_brushEditedUVoffset.xy + _brushEditedUVoffset.zw - 0.5) * 256;
+					worldPos.xy += (v.texcoord.xy*_brushEditedUVoffset.xy + _brushEditedUVoffset.zw - 0.5 + jitter) * 256;
 
 					v.vertex = mul(unity_WorldToObject, float4(worldPos.xyz, v.vertex.w));
 

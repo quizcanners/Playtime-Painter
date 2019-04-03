@@ -51,6 +51,7 @@ namespace Playtime_Painter
 
     
     public class PainterSystem {
+        protected static bool InspectAdvanced => BrushConfig.inspectAdvancedOptions;
         protected static PainterDataAndConfig TexMGMTdata => PainterCamera.Data;
         protected static PainterDataAndConfig Cfg => PainterCamera.Data;
         protected static PainterCamera TexMGMT => PainterCamera.Inst;

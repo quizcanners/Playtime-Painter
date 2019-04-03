@@ -2251,7 +2251,8 @@ namespace Playtime_Painter {
 
                         if (id != null && !Cfg.moreOptions)
                         {
-                           pegi.edit(ref id.clearColor);
+
+                           pegi.edit(ref id.clearColor, 50);
                             if (icon.Refresh.Click("Clear texture"))
                             {
                                 id.Colorize(id.clearColor);

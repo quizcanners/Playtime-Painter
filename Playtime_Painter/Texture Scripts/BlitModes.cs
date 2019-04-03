@@ -147,28 +147,22 @@ namespace Playtime_Painter {
           
             var changed = false;
 
-            if (AllSetUp)
-            {
+            if (AllSetUp) {
+
                 var id = InspectedImageMeta;
                 var cpuBlit = id == null ? InspectedBrush.targetIsTex2D : id.destination == TexTarget.Texture2D;
                 var brushType = InspectedBrush.GetBrushType(cpuBlit);
                 var blitMode = InspectedBrush.GetBlitMode(cpuBlit);
                 var usingDecals = (!cpuBlit) && brushType.IsUsingDecals;
-
-             
-
+                
                 pegi.nl();
 
                 if (!cpuBlit)
                     "Hardness:".edit("Makes edges more rough.", 70, ref InspectedBrush.hardness, 1f, 22f).nl(ref changed);
-
-                //var tmpSpeed = InspectedBrush.Speed;
+                
                 (usingDecals ? "Tint alpha" : "Speed").write(usingDecals ? 70 : 40);
 
                 InspectedBrush._dSpeed.Inspect().nl(ref changed);
-                    //.edit(, ref tmpSpeed, 0.01f, 4.5f)
-                  //  .nl(ref changed))
-                   // InspectedBrush.Speed = tmpSpeed;
 
                 "Scale:".write(40);
 
@@ -191,14 +185,13 @@ namespace Playtime_Painter {
                     else
                     {
                         var val = (int) InspectedBrush.brush2DRadius;
-                        pegi.edit(ref val, (int) (cpuBlit ? 1 : 0.1f),
-                            (int) (usingDecals ? 128 : id?.width * 0.5f ?? 256)).changes(ref changed);
+                        pegi.edit(ref val, (int) (cpuBlit ? 1 : 0.1f), (int) (usingDecals ? 128 : id?.width * 0.5f ?? 256)).changes(ref changed);
                         InspectedBrush.brush2DRadius = val;
 
                     }
                 }
 
-                pegi.newLine();
+                pegi.nl();
 
                 if (blitMode.UsingSourceTexture && (id == null || id.TargetIsRenderTexture()))
                     "Copy From:"
@@ -586,6 +579,7 @@ namespace Playtime_Painter {
 
         public override bool NeedsWorldSpacePosition => true;
 
+        #region Inspector
         public override string ToolTip =>
             ("Will create a camera that will serve as a projector. This mode is similar to Copy, but instead of UV space will try to " +
              "use projector matrix to get uvs. Only World Space brushes can use Projector. Currently only sphere brush is a world space brush. ");
@@ -614,6 +608,7 @@ namespace Playtime_Painter {
         }
 
 #endif
+        #endregion
 
         public BlitModeProjector(int ind) : base(ind)  { }
     }
