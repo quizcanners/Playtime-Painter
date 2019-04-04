@@ -37,8 +37,7 @@
 
 					float t = _Time.w * 50;
 
-					float2 jitter = //_pp_AlphaBufferCfg.y * 
-						_DestBuffer_TexelSize.xy * float2(sin(t), cos(t*1.3));
+					float2 jitter = _DestBuffer_TexelSize.xy * float2(sin(t), cos(t*1.3));
 
 					float4 worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1));
 
@@ -57,9 +56,6 @@
 					v.texcoord.xy = (float2(atX, atY) + v.texcoord.xy) / _brushAtlasSectionAndRows.z
 						* _brushAtlasSectionAndRows.w + v.texcoord.xy * (1 - _brushAtlasSectionAndRows.w);
 
-
-
-
 					worldPos.xyz = _RTcamPosition.xyz;
 					worldPos.z += 100;
 					worldPos.xy += (v.texcoord.xy*_brushEditedUVoffset.xy + _brushEditedUVoffset.zw - 0.5 + jitter) * 256;
@@ -71,10 +67,6 @@
 					o.texcoord.xy = ComputeScreenPos(o.pos);
 
 					o.texcoord.zw = o.texcoord.xy - 0.5;
-
-					/*#if BLIT_MODE_PROJECTION
-					o.shadowCoords = mul(pp_ProjectorMatrix, o.worldPos);
-					#endif*/
 
 					return o;
 				}
@@ -92,10 +84,6 @@
 
 					float2 suv = _SourceTexture_TexelSize.zw;
 					o.srcTexAspect = max(1, float2(suv.y / suv.x, suv.x / suv.y));
-
-					/*#if BLIT_MODE_PROJECTION
-					o.shadowCoords = mul(pp_ProjectorMatrix, o.worldPos);
-					#endif*/
 
 					return o;
 				}

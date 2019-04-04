@@ -380,14 +380,15 @@ namespace Playtime_Painter
                         .Add("pals", colorSchemes)
                         .Add("cam", PainterCamera.Inst)
                         .Add("Vpck", meshPackagingSolutions)
+                        .Add_IfTrue("hd", hideDocumentation)
 
-#if PEGI
+                    #if PEGI
                         .Add_IfNotNegative("iid", _inspectedImgData)
                         .Add_IfNotNegative("isfs", _inspectedItems)
                         .Add_IfNotNegative("im", _inspectedMaterial)
                         .Add_IfNotNegative("id", _inspectedDecal)
                         .Add_IfNotNegative("is", inspectedItems)
-#endif
+                    #endif
                         .Add_IfTrue("e", toolEnabled);
 
                     return cody;
@@ -408,6 +409,7 @@ namespace Playtime_Painter
                 case "pals": data.Decode_List(out colorSchemes); break;
                 case "cam": if (PainterCamera.Inst) PainterCamera.Inst.Decode(data); break;
                 case "Vpck": data.Decode_List(out meshPackagingSolutions); break;
+                case "hd": hideDocumentation = data.ToBool(); break;
                 #if PEGI
                 case "iid": _inspectedImgData = data.ToInt(); break;
                 case "isfs": _inspectedItems = data.ToInt(); break;
@@ -423,6 +425,9 @@ namespace Playtime_Painter
         #endregion
 
         #region Inspector
+
+        public static bool hideDocumentation;
+
         #if PEGI
            private int _inspectedImgData = -1;
            private int _inspectedItems = -1;
@@ -509,6 +514,12 @@ namespace Playtime_Painter
                     "Materials".edit(60, ref materialsFolderName).nl();
 
                     "Meshes".edit(60, ref meshesFolderName).nl();
+
+                    "Hide documentation".toggleIcon(ref hideDocumentation).changes(ref changed);
+
+                    MsgPainter.aboutDisableDocumentation.Documentation();
+
+                    pegi.nl();
                 }
 
                 if (icon.Discord.Click("Join Discord", 64))
@@ -521,6 +532,9 @@ namespace Playtime_Painter
                     PlaytimePainter.Open_Email();
 
                 pegi.nl();
+
+
+
                 LazyTranslations.LanguageSelection().nl();
 #endif
 

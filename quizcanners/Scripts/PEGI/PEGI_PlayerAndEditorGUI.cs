@@ -488,6 +488,9 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
+        public static bool DocumentationWarningClick(string toolTip, int buttonSize = 20 )
+        => DocumentationClick(toolTip,  buttonSize = 20, icon.Warning);
+
         public static void FullWindwDocumentationOpen(string text) {
             PopUpService.popUpText = text;
             PopUpService.InitiatePopUp();
@@ -900,7 +903,7 @@ namespace PlayerAndEditorGUI {
 
         private const int letterSizeInPixels = 8;
 
-        private static int ApproximateLengthUnsafe(this string label) => letterSizeInPixels * label.Length;
+        public static int ApproximateLengthUnsafe(this string label) => letterSizeInPixels * label.Length;
         
         private static int ApproximateLength(this string label) => label.IsNullOrEmpty() ? 1 : letterSizeInPixels * label.Length;
 

@@ -647,6 +647,7 @@ namespace Playtime_Painter {
         }
 
         void DiscardAlphaBuffer() {
+            alphaBufferTexture.DiscardContents();
             Render(Color.clear, alphaBufferTexture);
             alphaBufferDataTarget = null;
         }
@@ -727,11 +728,10 @@ namespace Playtime_Painter {
 
         public void UpdateBufferTwo() {
             CurrentShader = Data.pixPerfectCopy;
+            bigRtPair[1].DiscardContents();
             Graphics.Blit(DoubleBufferCameraTarget, bigRtPair[1]);
             secondBufferUpdated = true;
             bigRtVersion++;
-
-            //Debug.Log("Updating buffer two");
         }
         
         public void UpdateBufferSegment()

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using Playtime_Painter;
 using QuizCannersUtilities;
 
 namespace PlayerAndEditorGUI {
 
     public enum MsgPainter {
         PreserveTransparency, BrushType, BlitMode, LockToolToUseTransform, HideTransformTool, AboutPlaytimePainter,
-         MeshProfileUsage, Speed, Scale, Hardness, CopyFrom, FancyOptions
+         MeshProfileUsage, Speed, Scale, Hardness, CopyFrom, FancyOptions, previewRGBA, AutoSelectMaterial,
+         aboutDisableDocumentation, SampleColor, PreviewRecommended, AlphaBufferBlit, Opacity, SpreadSpeed, BlurAmount
     };
 
     public static partial class LazyTranslations {
@@ -53,6 +55,8 @@ namespace PlayerAndEditorGUI {
                          "Any changes are applied only to working copy of the texture and will be lost on Entering/Exiting Play mode or restarting Unity." +
                          "Load button on the bottom can reload working copy from original image file." +
                          "Save button will apply changes to the original file. To save as new file, change name before saving and click Save As New." +
+                         "Use Ctrl + Left Mouse Button to sample color from texture." +
+                         "I tried to integrate tutorial into the component (Click on blue '?') .You can hide them from the configuration. " +
                          "").F(pegi.EnvironmentNl));
                     break;
                 case MsgPainter.MeshProfileUsage:
@@ -71,10 +75,8 @@ namespace PlayerAndEditorGUI {
                     msg.Translate("Scale")
                         .From(ukr, "розмір");
                     break;
-
-
                 case MsgPainter.Hardness:
-                    msg.Translate("Hardness")
+                    msg.Translate("Sharpness")
                         .From(ukr, "різкість");
                     break;
                 case MsgPainter.CopyFrom:
@@ -85,13 +87,57 @@ namespace PlayerAndEditorGUI {
                     msg.Translate("Fancy options")
                         .From(ukr, "Налаштування");
                     break;
+                case MsgPainter.previewRGBA:
+                    msg.Translate("Preview Edited RGBA", 
+                        "When using preview shader, only color channels you are currently editing will be visible in the preview. Useful when you want to edit only one color channel");
+                    break;
+                case MsgPainter.AutoSelectMaterial:
+                    msg.Translate("Auto Select Materials", "As you paint, component will keep checking Sub Mesh index and will change painted material based on that index.");
+                    break;
+                case MsgPainter.aboutDisableDocumentation:
+                    msg.Translate("Hide what?", 
+                            "This is an example of what will be hidden if you toggle this option (This blue question mark icons)")
+                    ;
+                    break;
+                case MsgPainter.SampleColor:
+                    msg.Translate("Sampling Texture colors",
+                        "To sample source color of the texture, hold Ctrl before clicking Left Mouse Button");
+                    break;
+                case MsgPainter.PreviewRecommended:
+                    msg.Translate("Preview is recommended",
+                        "It is recommended to use preview when using Alpha Blit as it will improve performance " +
+                        "and enable brush transparency option.");
+                    break;
+                case MsgPainter.AlphaBufferBlit:
+                    msg.Translate("AlphaBufferBlit",
+                        "Will render brush to Alpha Buffer first and then use that Alpha buffer to render changes to texture. For Sphere brush helps avoid many various artifacts." +
+                        "Using Preview will improve performance, as it will not apply changes to texture until you exit preview mode, or change any setting that affects blit mode. " +
+                        "Using it without Preview will result in decreased performance in comparison to disabled Alpha Buffer as it will need to update original texture every frame to " +
+                        "allow you to see the changes" +
+                        "Please report any issues you encounter while using this, as this is a new feature, and there are planty of places where it can function not as desired. "
+                        
 
+                    );
+                    break;
+                case MsgPainter.Opacity:
+                    msg.Translate("Opacity")
+                        .From(ukr, "Непрозорість");
+                    break;
+                case MsgPainter.SpreadSpeed:
+                    msg.Translate("Spread")
+                        .From(ukr, "Поширення");
+                    break;
+                case MsgPainter.BlurAmount:
+                    msg.Translate("Radius")
+                        .From(ukr, "радіус");
+
+                    break;
             }
 
             return painterTranslations.GetWhenInited(index, lang);
         }
 
-        public static void Write(this MsgPainter m) { m.GetText().write(); }
+        public static void Write(this MsgPainter m) { var txt = m.GetText(); txt.write(txt.ApproximateLengthUnsafe()); }
         public static void Write(this MsgPainter m, int width) { m.GetText().write(width); }
         public static void Write(this MsgPainter m, string tip, int width) { m.GetText().write(tip, width); }
 
@@ -100,8 +146,17 @@ namespace PlayerAndEditorGUI {
              var lt =   msg.Get();
              return lt != null ? lt.ToString() : msg.ToString();
         }
-        
-        public static bool Documentation(this MsgPainter msg) => msg.Get().Documentation();
+
+        public static string GetDescription(this MsgPainter msg)
+        {
+            var lt = msg.Get();
+            return lt != null ? lt.details : msg.ToString();
+        }
+
+        public static bool Documentation(this MsgPainter msg) =>  PainterDataAndConfig.hideDocumentation ? false : msg.Get().Documentation();
+
+        public static bool DocumentationWarning(this MsgPainter msg) => PainterDataAndConfig.hideDocumentation ? false : msg.Get().WarningDocumentation();
+
 
         static LazyTranslation Get(this MsgPainter msg)
         {

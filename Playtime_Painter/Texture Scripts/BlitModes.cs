@@ -160,11 +160,14 @@ namespace Playtime_Painter {
                 if (!cpuBlit)
                     MsgPainter.Hardness.GetText().edit("Makes edges more rough.", 70, ref InspectedBrush.hardness, 1f, 22f).nl(ref changed);
                 
-                (usingDecals ? "Tint alpha" : MsgPainter.Speed.GetText()).write(usingDecals ? 70 : 60);
+                var txt = (usingDecals ? "Tint alpha" : MsgPainter.Speed.GetText());
+
+                txt.write(txt.ApproximateLengthUnsafe());
 
                 InspectedBrush._dSpeed.Inspect().nl(ref changed);
 
-                MsgPainter.Scale.Write(40);
+
+                MsgPainter.Scale.Write();
 
                 if (InspectedBrush.IsA3DBrush(InspectedPainter))
                 {
@@ -347,7 +350,10 @@ namespace Playtime_Painter {
         public override bool Inspect()
         {
             var changed = base.Inspect().nl();
-            "Blur Amount".edit(70, ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
+
+            var txt = MsgPainter.BlurAmount.GetText();
+
+            txt.edit(txt.ApproximateLengthUnsafe(), ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
             return changed;
         }
         #endif
@@ -639,7 +645,9 @@ namespace Playtime_Painter {
         {
             var changed = base.Inspect().nl();
 
-            "Spread Speed".edit(70, ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
+            var txt = MsgPainter.SpreadSpeed.GetText();
+
+            txt.edit(txt.ApproximateLengthUnsafe(), ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
 
             return changed;
         }

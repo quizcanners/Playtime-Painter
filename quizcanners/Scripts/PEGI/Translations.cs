@@ -16,7 +16,16 @@ namespace PlayerAndEditorGUI {
         private const int ukr = (int)SystemLanguage.Ukrainian;
         private const int trk = (int)SystemLanguage.Turkish;
         private const int rus = (int)SystemLanguage.Russian;
-        
+
+
+        private const int chn = (int)SystemLanguage.Chinese;
+        private const int gmn = (int)SystemLanguage.German; 
+        private const int spn = (int)SystemLanguage.Spanish;
+        private const int jap = (int)SystemLanguage.Japanese;
+        private const int frc = (int)SystemLanguage.French;
+        private const int kor = (int)SystemLanguage.Korean;
+        private const int ptg = (int)SystemLanguage.Portuguese;
+
         public class LazyTranslation
         {
             public string text;
@@ -56,7 +65,19 @@ namespace PlayerAndEditorGUI {
 
             return false;
         }
-        #endif
+
+        public static bool WarningDocumentation(this LazyTranslation trnsl)
+        {
+            if (pegi.DocumentationWarningClick(trnsl.text))
+            {
+                pegi.FullWindwDocumentationOpen(trnsl.details);
+                return true;
+            }
+
+            return false;
+        }
+
+#endif
         #endregion
 
         #region Translation Class

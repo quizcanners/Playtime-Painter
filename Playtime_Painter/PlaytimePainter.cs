@@ -577,7 +577,8 @@ namespace Playtime_Painter {
             previewHolderOriginalShader = null;
             previewHolderMaterial = null;
             
-            TexMgmt.OnPreviewSwitch();
+            if (TexMgmt)
+                TexMgmt.OnPreviewSwitch();
 
         }
 
@@ -1966,18 +1967,25 @@ namespace Playtime_Painter {
                 else
                 {
 
-                    if (meshCollider && !meshCollider.sharedMesh)
+                    if (meshCollider)
                     {
-                        pegi.nl();
-                        "Mesh Collider has no mesh".writeWarning();
-                        if (meshFilter && meshFilter.sharedMesh &&
-                            "Assign".Click("Will assign {0}".F(meshFilter.sharedMesh)))
-                            meshCollider.sharedMesh = meshFilter.sharedMesh;
+                        if (!meshCollider.sharedMesh){
+                            pegi.nl();
+                            "Mesh Collider has no mesh".writeWarning();
+                            if (meshFilter && meshFilter.sharedMesh &&
+                                "Assign".Click("Will assign {0}".F(meshFilter.sharedMesh)))
+                                meshCollider.sharedMesh = meshFilter.sharedMesh;
 
-                        pegi.nl();
-                    }
+                            pegi.nl();
+                        } else if (meshFilter && meshFilter.sharedMesh &&
+                                   meshFilter.sharedMesh != meshCollider.sharedMesh) {
+                            "Collider and filter have different meshes. Painting may not be able to obtain a correct UV coordinates."
+                                .fullWindowWarningDocumentationClick("Mesh collider mesh is different");
+                        }
+                        
+                }
 
-                    #region Mesh Editing
+                #region Mesh Editing
 
                     if (meshEditing) {
 
@@ -2091,7 +2099,7 @@ namespace Playtime_Painter {
                         {
 
                             TexMgmt.DependenciesInspect().changes(ref changed);
-                            
+
                             #region Undo/Redo & Recording
 
                             id.Undo_redo_PEGI();
@@ -2129,7 +2137,7 @@ namespace Playtime_Painter {
                                         pegi.select(ref Cfg.browsedRecord, Cfg.recordingNames);
                                         if (icon.Play.Click("Play stroke vectors on current mesh", ref changed, 18))
                                             PlayByFilename(Cfg.recordingNames[Cfg.browsedRecord]);
-                                        
+
                                         if (icon.Record.Click("Continue Recording", 18))
                                         {
                                             id.saveName = Cfg.recordingNames[Cfg.browsedRecord];
@@ -2156,7 +2164,7 @@ namespace Playtime_Painter {
                                 pegi.nl();
                             }
 
-                           
+
                             pegi.nl();
 
                             var cpu = id.TargetIsTexture2D();
@@ -2174,20 +2182,27 @@ namespace Playtime_Painter {
                                 "Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality."
                                     .writeWarning();
 
-                         
+                          //  if (meshCollider && meshRenderer && !meshCollider.sharedMesh)
+
+
                             #endregion
 
                             #region Brush
-                            
+
                             GlobalBrush.Inspect().changes(ref changed);
-                            
+
                             var mode = GlobalBrush.GetBlitMode(cpu);
                             var col = GlobalBrush.Color;
 
                             if ((cpu || !mode.UsingSourceTexture) && !IsTerrainHeightTexture &&
-                                !pegi.paintingPlayAreaGui && pegi.edit(ref col).changes(ref changed))
-                                GlobalBrush.Color = col;
+                                !pegi.paintingPlayAreaGui) {
+                                if (pegi.edit(ref col).changes(ref changed))
+                                    GlobalBrush.Color = col;
 
+                                MsgPainter.SampleColor.Documentation();
+
+                            }
+                            
                             pegi.nl();
 
                             if (!Cfg.moreOptions)  {
@@ -2318,9 +2333,8 @@ namespace Playtime_Painter {
                                 "Preview Edited RGBA".toggleIcon(ref Cfg.previewAlphaChanel)
                                     .changes(ref changed);
 
-                                "When using preview shader, only color channels you are currently editing will be visible in the preview. Useful when you want to edit only one color channel"
-                                    .fullWindowDocumentationClick("About Preview Edited RGBA", 15).nl();
-
+                                MsgPainter.previewRGBA.Documentation().nl();
+                                
                             }
 
                             if (showToggles)
@@ -2331,9 +2345,8 @@ namespace Playtime_Painter {
                                     "Auto Select Material".toggleIcon(
                                         "Material will be changed based on the subMesh you are painting on",
                                         ref autoSelectMaterialByNumberOfPointedSubMesh).changes(ref changed);
-
-                                    "As you paint, component will keep checking Sub Mesh index and will change painted material based on that index."
-                                        .fullWindowDocumentationClick("About Auto Select Materials", 15).nl();
+                                    
+                                    MsgPainter.AutoSelectMaterial.Documentation().nl();
                                 }
 
 
