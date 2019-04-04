@@ -2194,7 +2194,7 @@ namespace Playtime_Painter {
                             var mode = GlobalBrush.GetBlitMode(cpu);
                             var col = GlobalBrush.Color;
 
-                            if ((cpu || !mode.UsingSourceTexture) && !IsTerrainHeightTexture &&
+                            if ((cpu || !mode.UsingSourceTexture || GlobalBrush.srcColorUsage != SourceTextureColorUsage.Copy) && !IsTerrainHeightTexture &&
                                 !pegi.paintingPlayAreaGui) {
                                 if (pegi.edit(ref col).changes(ref changed))
                                     GlobalBrush.Color = col;

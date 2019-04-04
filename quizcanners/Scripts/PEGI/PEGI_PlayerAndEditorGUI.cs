@@ -6151,23 +6151,24 @@ namespace PlayerAndEditorGUI {
             var isPrevious = listMeta != null && listMeta.previousInspected == index;
 
             if (isPrevious)
-            {
                 PreviousInspectedColor.SetBgColor();
-                //Debug.Log("Is Previous");
-            }
-
+            
             if (pl != null)
             {
                 if (pl.PEGI_inList(list, index, ref inspected).changes(ref changed) || globChanged)
                     pl.SetToDirty_Obj();
+
+                if (changed)
+                    isPrevious = true;
+
             } else {
 
                 if (el.IsNullOrDestroyed_Obj()) {
                     var ed = listMeta?[index];
                     if (ed == null)
                         "{0}: NULL {1}".F(index, typeof(T).ToPegiStringType()).write();
-                    else 
-                        ed.PEGI_inList<T>(ref el, index, ref inspected);
+                    else if (ed.PEGI_inList<T>(ref el, index, ref inspected))
+                        isPrevious = true;
                 }
                 else {
                     var uo = el as Object;
@@ -6200,11 +6201,14 @@ namespace PlayerAndEditorGUI {
                             {
                                 so.RenameAsset(n);
                                 named.NameForPEGI = n;
+                                isPrevious = true;
                             }
                         }
-                        else
-                            if (edit(ref n))
+                        else if (edit(ref n))
+                        {
                             named.NameForPEGI = n;
+                            isPrevious = true;
+                        }
                     }
                     else
                     {
@@ -6222,7 +6226,9 @@ namespace PlayerAndEditorGUI {
                                 tex = uo as Texture;
                                 if (tex)
                                 {
-                                    uo.ClickHighlight(tex);
+                                    if (uo.ClickHighlight(tex))
+                                        isPrevious = true;
+
                                     clickHighlightHandled = true;
                                 }
                             }
@@ -6234,9 +6240,9 @@ namespace PlayerAndEditorGUI {
                     
                     if ((warningText == null && (listMeta == null ? icon.Enter : listMeta.Icon).ClickUnFocus(Msg.InspectElement)) || (warningText != null && icon.Warning.ClickUnFocus(warningText)))
                         inspected = index;
-                        
-                    if (!clickHighlightHandled)
-                        uo.ClickHighlight();
+
+                    if (!clickHighlightHandled && uo.ClickHighlight())
+                        isPrevious = true;
                 }
             }  
  
@@ -6245,6 +6251,9 @@ namespace PlayerAndEditorGUI {
             if (listMeta != null) {
                 if (listMeta.inspected != -1)
                     listMeta.previousInspected = listMeta.inspected;
+                else if (isPrevious)
+                    listMeta.previousInspected = index;
+
             }
 
 

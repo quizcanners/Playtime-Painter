@@ -123,8 +123,11 @@
 						// Brush Modes
 
 					#if BLIT_MODE_COPY
+
+						float ignoreSrcAlpha = _srcTextureUsage.w;
+
 						float4 src = tex2Dlod(_SourceTexture, float4(o.texcoord.xy*o.srcTexAspect, 0, 0));
-						alpha *= src.a;
+						alpha *= ignoreSrcAlpha + src.a*(1- ignoreSrcAlpha);
 						_brushColor.rgb = SourceTextureByBrush(src.rgb);
 					#endif
 

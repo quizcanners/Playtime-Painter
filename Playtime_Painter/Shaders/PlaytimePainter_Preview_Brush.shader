@@ -102,10 +102,13 @@
 
 					float4 col = 0;
 					float alpha = 1;
+					float ignoreSrcAlpha = _srcTextureUsage.w;
 
 					float dist = length(o.worldPos.xyz - _WorldSpaceCameraPos.xyz);
 
 					#if BLIT_MODE_PROJECTION
+
+					
 
 						float2 pUv;
 
@@ -121,7 +124,7 @@
 
 						float4 src = tex2Dlod(_SourceTexture, float4(pUv, 0, 0));
 
-						alpha *= src.a * BrushClamp(pUv);
+						alpha *= (ignoreSrcAlpha + src.a * (1- ignoreSrcAlpha)) * BrushClamp(pUv);
 						float pr_shadow = alpha;
 
 						float par = _srcTextureUsage.x;
@@ -129,7 +132,7 @@
 						src.rgb *= (1 + pow(depthDiff, 64)) * 0.5;
 
 						_brushColor.rgb = SourceTextureByBrush(src.rgb);
-
+						_brushColor.a = src.a;
 					#endif
 
 					#if UV_ATLASED
@@ -141,7 +144,7 @@
 					#if BLIT_MODE_COPY
 						float4 src = tex2Dlod(_SourceTexture, float4(o.texcoord.xy*o.srcTexAspect, 0, 0));
 						_brushColor.rgb = SourceTextureByBrush(src.rgb);
-						alpha *= src.a;
+						alpha *= ignoreSrcAlpha + src.a*(1- ignoreSrcAlpha);
 					#endif
 
 					float4 tc = float4(o.texcoord.xy, 0, 0);
@@ -243,6 +246,8 @@
 						col = col*_brushMask + 0.5*(1 - _brushMask)+col.a*_brushMask.a;
 					#endif
 	
+
+				
 					#if BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY || BLIT_MODE_PROJECTION
 
 					#if TARGET_TRANSPARENT_LAYER
@@ -257,11 +262,15 @@
 
 					#else
 						col = AlphaBlitOpaquePreview(alpha, _brushColor, tc.xy, col);
+
 						col.a = 1;
 					#endif
 
 
+						
+
 					#if BLIT_MODE_PROJECTION
+
 						float pa = (_brushPointedUV.w)*pr_shadow*0.8;
 
 						col = col * (1-pa) + _brushColor*(pa);

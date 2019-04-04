@@ -47,35 +47,14 @@
 
 				 float4 frag(v2f o) : COLOR{
 
-					 // Brush Types
-
-					// float2 off = _pp_AlphaBuffer_TexelSize.xy;
-
-
-					//#define GRABPIXEL(ker) tex2Dlod(_pp_AlphaBuffer, float4(o.texcoord.xy + ker * off ,0,0)).r
-
-
 					 float alpha = SampleAlphaBuffer(o.texcoord.xy);
 
-					/*	 max (
-							 GRABPIXEL(float2(0, 0)),
-							 max(
-								 max(
-									max(GRABPIXEL(float2(-1, 0)), GRABPIXEL(float2(0, -1))),
-									max(GRABPIXEL(float2(1, 0)), GRABPIXEL(float2(0, 1)))
-								 ),
-								 max(
-									 max(GRABPIXEL(float2(-1, -1)), GRABPIXEL(float2(1, 1))),
-									 max(GRABPIXEL(float2(-1, 1)), GRABPIXEL(float2(1, -1)))
-								 )
-							 )
-						 );  
-
-					 alpha = min(alpha, _pp_AlphaBufferCfg.x);*/
-
 					 #if BLIT_MODE_COPY
+
+						float ignoreSrcAlpha = _srcTextureUsage.w;
+
 						 float4 src = tex2Dlod(_SourceTexture, float4(o.texcoord.xy*o.srcTexAspect, 0, 0));
-						 alpha *= src.a;
+						 alpha *= ignoreSrcAlpha + src.a * (1- ignoreSrcAlpha);
 						 _brushColor.rgb = SourceTextureByBrush(src.rgb);
 					 #endif
 

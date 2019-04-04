@@ -71,6 +71,8 @@ namespace Playtime_Painter {
 
         public bool clampSourceTexture;
 
+        public bool ignoreSrcTextureTransparency;
+
         public SourceTextureColorUsage srcColorUsage = SourceTextureColorUsage.Copy;
 
         #endregion
@@ -283,10 +285,12 @@ namespace Playtime_Painter {
                 if (blitMode.UsingSourceTexture) {
 
                     "Src Texture Color".editEnum(80, ref srcColorUsage).nl(ref changed);
-                   
-                    if (InspectAdvanced)
-                        "Clamp".toggleIcon(ref clampSourceTexture).nl(ref changed);
 
+                    if (InspectAdvanced) {
+                        "Clamp".toggleIcon(ref clampSourceTexture).nl(ref changed);
+                        "Ignore Transparency".toggleIcon(ref ignoreSrcTextureTransparency).changes(ref changed);
+                        "Ignore transparency of the source texture. Otherwise the tool will only paint parts of the texture which are not transparent".fullWindowDocumentationClick().nl();
+                    }
                 }
 
                 brushType.Inspect().nl(ref changed);

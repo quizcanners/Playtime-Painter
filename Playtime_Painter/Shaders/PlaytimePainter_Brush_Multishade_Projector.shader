@@ -87,7 +87,7 @@
 
 						float4 src = tex2Dlod(_SourceTexture, float4(pUv, 0, 0));
 
-						alpha *= src.a * BrushClamp(pUv);
+						alpha = src.a * alpha * BrushClamp(pUv);
 
 						_brushColor.rgb = SourceTextureByBrush(src.rgb);
 

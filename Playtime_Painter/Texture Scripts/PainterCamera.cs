@@ -544,7 +544,8 @@ namespace Playtime_Painter {
                 TextureSourceParameters.GlobalValue = new Vector4(
                     (float)brush.srcColorUsage, 
                     brush.clampSourceTexture ? 1f : 0f,
-                    useTransparentLayerBackground
+                    useTransparentLayerBackground,
+                    brush.ignoreSrcTextureTransparency ? 1f : 0f
                     );
             }
         }

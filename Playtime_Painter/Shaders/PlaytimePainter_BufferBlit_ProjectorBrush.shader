@@ -42,7 +42,9 @@
 
 					float4 src = tex2Dlod(_SourceTexture, float4(buff.rg, 0, 0));
 
-					float alpha = min(1,buff.a);
+					float ignoreSrcAlpha = _srcTextureUsage.w;
+
+					float alpha = min(1,buff.a)*(ignoreSrcAlpha + src.a * (1- ignoreSrcAlpha));
 
 					_brushColor.rgb = SourceTextureByBrush(src.rgb);
 
