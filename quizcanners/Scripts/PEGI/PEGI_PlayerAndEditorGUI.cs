@@ -2047,8 +2047,31 @@ namespace PlayerAndEditorGUI {
             
         }
 
+
+
         public static bool selectEnum<T>(ref int current) => selectEnum(ref current, typeof(T));
-        
+
+        public static bool selectEnum<T>(this string label, int width, ref int current, List<int> options)
+        {
+            label.write(width);
+            return selectEnum<T>(ref current, options);
+        }
+
+        public static bool selectEnum<T>(ref int eval, List<int> options, int width = -1) =>
+            selectEnum(ref eval, typeof(T), options, width);
+
+        public static bool selectEnum<T>(ref T eval, List<int> options, int width = -1) {
+            var val = Convert.ToInt32(eval);
+
+            if (selectEnum(ref val, typeof(T), options, width))
+            {
+                eval = (T)((object)val);
+                return true;
+            }
+
+            return false;
+        }
+
         public static bool selectEnum(ref int current, Type type, int width = -1)
         {
             checkLine();
@@ -2066,6 +2089,31 @@ namespace PlayerAndEditorGUI {
             current = val[tmpVal];
             return change;
         }
+
+        public static bool selectEnum(ref int current, Type type, List<int> options, int width = -1) {
+            checkLine();
+            var tmpVal = -1;
+
+            List<string> names = new List<string>();
+
+            for (var i = 0; i < options.Count; i++)
+            {
+                var op = options[i];
+                names.Add(Enum.GetName(type, op));
+                if (options[i] == current)
+                    tmpVal = i;
+            }
+
+            if (width == -1 ? select(ref tmpVal, names) : select(ref tmpVal, names, width))
+            {
+                current = options[tmpVal];
+                return change;
+            }
+
+            return false;
+        }
+
+
 
         public static bool select<T>(ref int ind, T[] arr, bool showIndex = false)
         {
@@ -4968,7 +5016,7 @@ namespace PlayerAndEditorGUI {
 
             return false;
         }
-
+        
         public static bool editEnum<T>(ref int current, Type type, int width = -1)
                 => selectEnum(ref current, typeof(T), width);
 

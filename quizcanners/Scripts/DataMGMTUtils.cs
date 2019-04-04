@@ -324,6 +324,8 @@ namespace QuizCannersUtilities
 
     public static class FileSaveUtils
     {
+   
+
         private static readonly BinaryFormatter Formatter = new BinaryFormatter();
         
         public const string bytesFileType = ".bytes";
@@ -402,7 +404,12 @@ namespace QuizCannersUtilities
 
         public static void SaveTextureToAssetsFolder(string subFolder, string fileName, string extension, Texture2D texture) =>
             File.WriteAllBytes(CreateDirectoryPath(Application.dataPath, subFolder, fileName, extension), texture.EncodeToPNG());
-        
+
+        public static void SaveTextureOutsideAssetsFolder(string subFolder, string fileName, string extension, Texture2D texture) =>
+            File.WriteAllBytes(CreateDirectoryPath(UnityUtils.OutsideOfAssetsFolder, subFolder, fileName, extension), texture.EncodeToPNG());
+
+        ///Assets
+
         public static void SaveToAssetsFolder(string subFolder, string fileName , string extension, byte[] data) =>
             File.WriteAllBytes(CreateDirectoryPath(Application.dataPath, subFolder, fileName, extension), data);
         

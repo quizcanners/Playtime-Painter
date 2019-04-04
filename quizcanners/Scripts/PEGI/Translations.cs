@@ -16,8 +16,6 @@ namespace PlayerAndEditorGUI {
         private const int ukr = (int)SystemLanguage.Ukrainian;
         private const int trk = (int)SystemLanguage.Turkish;
         private const int rus = (int)SystemLanguage.Russian;
-
-
         private const int chn = (int)SystemLanguage.Chinese;
         private const int gmn = (int)SystemLanguage.German; 
         private const int spn = (int)SystemLanguage.Spanish;
@@ -47,11 +45,14 @@ namespace PlayerAndEditorGUI {
 
         #region Inspector
         #if PEGI
+
+        private static readonly List<int> supportedLanguages = new List<int>() {eng, ukr};
+
         public static bool LanguageSelection() {
             if (_systemLanguage == -1)
                 Init();
 
-            "Language".editEnum<SystemLanguage>(60, ref _systemLanguage).nl();
+            "Language".selectEnum<SystemLanguage>(60, ref _systemLanguage, supportedLanguages).nl();
             
             return false;
         } 
@@ -77,7 +78,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-#endif
+        #endif
         #endregion
 
         #region Translation Class

@@ -247,7 +247,7 @@ namespace Playtime_Painter {
 
             pegi.newLine();
 
-            MsgPainter.BlitMode.Write("How final color will be calculated", 70);
+            MsgPainter.BlitMode.Write("How final color will be calculated");
 
             if (pegi.select(ref blitMode, Playtime_Painter.BlitMode.AllModes).changes(ref changed)) 
                 SetBlitMode(cpu, blitMode);

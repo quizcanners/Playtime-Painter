@@ -403,10 +403,13 @@ namespace QuizCannersUtilities {
         public static bool HasParameter(this Animator animator, string paramName) => animator && animator.parameters.Any(param => param.name.SameAs(paramName));
         
         public static bool HasParameter(this Animator animator, string paramName, AnimatorControllerParameterType type) => animator && animator.parameters.Any(param => param.name.SameAs(paramName) && param.type == type);
-        
+
         #endregion
 
         #region Unity Editor MGMT
+
+        public static string OutsideOfAssetsFolder =
+            Application.dataPath.Substring(0, Application.dataPath.Length - 6);
 
         public static bool MouseToPlane(this Plane plane, out Vector3 hitPos, Camera cam = null)
         {
@@ -869,7 +872,8 @@ namespace QuizCannersUtilities {
             if (!path.Contains("Assets"))
                 path = Path.Combine("Assets", path);
 
-            var fullPath = Application.dataPath.Substring(0, Application.dataPath.Length - 6) + path;
+            var fullPath = Path.Combine(OutsideOfAssetsFolder // Application.dataPath.Substring(0, Application.dataPath.Length - 6) +
+                                                              ,path);
             try
             {
                 Directory.CreateDirectory(fullPath);
@@ -2232,7 +2236,7 @@ namespace QuizCannersUtilities {
 
             cam.clearFlags = clearFlags;
 
-            FileSaveUtils.SaveTextureToAssetsFolder("ScreenShoots", GetScreenShotName(), ".png", screenShotTexture2D);
+            FileSaveUtils.SaveTextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png", screenShotTexture2D);
         }
         
         public void OnPostRender()
@@ -2252,7 +2256,7 @@ namespace QuizCannersUtilities {
                 screenShotTexture2D.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0, false);
                 screenShotTexture2D.Apply();
 
-                FileSaveUtils.SaveTextureToAssetsFolder("ScreenShoots", GetScreenShotName(), ".png", screenShotTexture2D);
+                FileSaveUtils.SaveTextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png", screenShotTexture2D);
 
             }
         }
