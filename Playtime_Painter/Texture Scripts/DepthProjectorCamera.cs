@@ -82,11 +82,9 @@ namespace Playtime_Painter
                    
                     "Project from Camera".toggleIcon("Will always project from Play or Editor Camera" ,ref _projectFromMainCamera).nl(ref changed);
 
-                    if (_projectFromMainCamera) {
-                        //"Match Main Camera's config".toggleIcon(ref _matchMainCamera).nl(ref changed);
+                    if (_projectFromMainCamera) 
                         "Follow the mouse".toggleIcon(ref _centerOnMousePosition).nl(ref changed);
-                    }
-
+                    
                     var fov = _projectorCamera.fieldOfView;
 
                     if ("FOV".edit(30, ref fov, 0.1f, 180f).nl(ref changed)) {
@@ -142,6 +140,8 @@ namespace Playtime_Painter
                                                      cam.ScreenPointToRay(Input.mousePosition).direction);
                                 else
                                     transform.localRotation = Quaternion.identity;
+
+                                transform.parent = null;
                             }
                         }
                     }

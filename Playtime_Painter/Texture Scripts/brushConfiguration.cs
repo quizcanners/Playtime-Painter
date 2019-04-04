@@ -467,7 +467,7 @@ namespace Playtime_Painter {
                 }
             }
 
-            if (maskVal ? icon.Click(letter) : "{0} channel disabled".F(letter).toggleIcon(ref maskVal, true).changes(ref changed)) 
+            if (maskVal ? icon.Click(letter) : "{0} channel ignored".F(letter).toggleIcon(ref maskVal, true).changes(ref changed)) 
                 MaskToggle(m);
             
             if (slider && mask.HasFlag(m))
@@ -510,60 +510,65 @@ namespace Playtime_Painter {
 
             var changed = false;
 
-            if (Cfg.showColorSliders) {
-             
-                var slider = GetBlitMode(cpu).ShowColorSliders;
+           // if (Cfg.showColorSliders) {
+           bool r = Cfg.showColorSliders || !mask.HasFlag(BrushMask.R);
+           bool g = Cfg.showColorSliders || !mask.HasFlag(BrushMask.G);
+           bool b = Cfg.showColorSliders || !mask.HasFlag(BrushMask.B);
+           bool a = Cfg.showColorSliders || !mask.HasFlag(BrushMask.A);
 
-                if (painter && painter.IsTerrainHeightTexture)
+
+            var slider = GetBlitMode(cpu).ShowColorSliders;
+
+            if (painter && painter.IsTerrainHeightTexture)
+            {
+                ChannelSlider(BrushMask.A, ref colorLinear.a, null, true).changes(ref changed);
+            }
+            else if (painter && painter.IsTerrainControlTexture)
+            {
+                if (r) ChannelSlider(BrushMask.R, ref colorLinear.r, painter.terrain.GetSplashPrototypeTexture(0), slider)
+                    .nl(ref changed);
+                if (g) ChannelSlider(BrushMask.G, ref colorLinear.g, painter.terrain.GetSplashPrototypeTexture(1), slider)
+                    .nl(ref changed);
+                if (b) ChannelSlider(BrushMask.B, ref colorLinear.b, painter.terrain.GetSplashPrototypeTexture(2), slider)
+                    .nl(ref changed);
+                if (a) ChannelSlider(BrushMask.A, ref colorLinear.a, painter.terrain.GetSplashPrototypeTexture(3), slider)
+                    .nl(ref changed);
+            }
+            else
+            {
+               
+                if (id.TargetIsRenderTexture() && id.renderTexture)
                 {
-                    ChannelSlider(BrushMask.A, ref colorLinear.a, null, true).changes(ref changed);
-                }
-                else if (painter && painter.IsTerrainControlTexture)
-                {
-                    ChannelSlider(BrushMask.R, ref colorLinear.r, painter.terrain.GetSplashPrototypeTexture(0), slider)
-                        .nl(ref changed);
-                    ChannelSlider(BrushMask.G, ref colorLinear.g, painter.terrain.GetSplashPrototypeTexture(1), slider)
-                        .nl(ref changed);
-                    ChannelSlider(BrushMask.B, ref colorLinear.b, painter.terrain.GetSplashPrototypeTexture(2), slider)
-                        .nl(ref changed);
-                    ChannelSlider(BrushMask.A, ref colorLinear.a, painter.terrain.GetSplashPrototypeTexture(3), slider)
-                        .nl(ref changed);
+                    if (r) ChannelSlider(BrushMask.R, ref colorLinear.r).nl(ref changed);
+                    if (g) ChannelSlider(BrushMask.G, ref colorLinear.g).nl(ref changed);
+                    if (b) ChannelSlider(BrushMask.B, ref colorLinear.b).nl(ref changed);
+
                 }
                 else
                 {
-                   
-                    if (id.TargetIsRenderTexture() && id.renderTexture)
-                    {
-                        ChannelSlider(BrushMask.R, ref colorLinear.r).nl(ref changed);
-                        ChannelSlider(BrushMask.G, ref colorLinear.g).nl(ref changed);
-                        ChannelSlider(BrushMask.B, ref colorLinear.b).nl(ref changed);
 
+                    if (painter.IsEditingThisMesh || id==null || !id.isATransparentLayer || colorLinear.a > 0)  {
+
+                        var slider_copy = blitMode.UsingSourceTexture ?
+                            (srcColorUsage != SourceTextureColorUsage.Copy)
+                            :slider;
+
+                        if (r) ChannelSlider(BrushMask.R, ref colorLinear.r, null, slider_copy).nl(ref changed);
+                        if (g) ChannelSlider(BrushMask.G, ref colorLinear.g, null, slider_copy).nl(ref changed);
+                        if (b) ChannelSlider(BrushMask.B, ref colorLinear.b, null, slider_copy).nl(ref changed);
                     }
-                    else
-                    {
+                    
+                    var gotAlpha = painter.meshEditing || id == null || id.texture2D.TextureHasAlpha();
 
-                        if (painter.IsEditingThisMesh || id==null || !id.isATransparentLayer || colorLinear.a > 0)  {
+                    if (id == null ||  (!painter.IsEditingThisMesh &&  (gotAlpha || id.preserveTransparency) && !id.isATransparentLayer)) {
+                        if (!gotAlpha)
+                            icon.Warning.write("Texture as no alpha, clicking save will fix it");
 
-                            var slider_copy = blitMode.UsingSourceTexture ?
-                                (srcColorUsage != SourceTextureColorUsage.Copy)
-                                :slider;
-
-                            ChannelSlider(BrushMask.R, ref colorLinear.r, null, slider_copy).nl(ref changed);
-                            ChannelSlider(BrushMask.G, ref colorLinear.g, null, slider_copy).nl(ref changed);
-                            ChannelSlider(BrushMask.B, ref colorLinear.b, null, slider_copy).nl(ref changed);
-                        }
-                        
-                        var gotAlpha = painter.meshEditing || id == null || id.texture2D.TextureHasAlpha();
-
-                        if (id == null ||  (!painter.IsEditingThisMesh &&  (gotAlpha || id.preserveTransparency) && !id.isATransparentLayer)) {
-                            if (!gotAlpha)
-                                icon.Warning.write("Texture as no alpha, clicking save will fix it");
-
-                            ChannelSlider(BrushMask.A, ref colorLinear.a, null, slider).nl(ref changed);
-                        }
+                        if (a) ChannelSlider(BrushMask.A, ref colorLinear.a, null, slider).nl(ref changed);
                     }
                 }
             }
+          //  }
 
             if (!painter.IsEditingThisMesh && id!=null && id.isATransparentLayer) {
 

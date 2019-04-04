@@ -106,10 +106,9 @@
 
 					float dist = length(o.worldPos.xyz - _WorldSpaceCameraPos.xyz);
 
+					float srcAlpha = 1;
+
 					#if BLIT_MODE_PROJECTION
-
-					
-
 						float2 pUv;
 
 						o.shadowCoords.xy /= o.shadowCoords.w;
@@ -132,7 +131,7 @@
 						src.rgb *= (1 + pow(depthDiff, 64)) * 0.5;
 
 						_brushColor.rgb = SourceTextureByBrush(src.rgb);
-						_brushColor.a = src.a;
+						srcAlpha = src.a;
 					#endif
 
 					#if UV_ATLASED
@@ -144,7 +143,10 @@
 					#if BLIT_MODE_COPY
 						float4 src = tex2Dlod(_SourceTexture, float4(o.texcoord.xy*o.srcTexAspect, 0, 0));
 						_brushColor.rgb = SourceTextureByBrush(src.rgb);
-						alpha *= ignoreSrcAlpha + src.a*(1- ignoreSrcAlpha);
+						//alpha *= ignoreSrcAlpha + src.a*(1- ignoreSrcAlpha);
+
+						srcAlpha = src.a;
+
 					#endif
 
 					float4 tc = float4(o.texcoord.xy, 0, 0);
@@ -252,7 +254,7 @@
 
 					#if TARGET_TRANSPARENT_LAYER
 						
-						col = AlphaBlitTransparentPreview(alpha, _brushColor, tc.xy, col);
+						col = AlphaBlitTransparentPreview(alpha, _brushColor, tc.xy, col, srcAlpha);
 
 						float showBG = _srcTextureUsage.z * (1-col.a);
 
@@ -261,7 +263,7 @@
 						col.rgb = col.rgb * (1 - showBG) + tex2D(_TransparentLayerUnderlay, tc.xy).rgb*showBG;
 
 					#else
-						col = AlphaBlitOpaquePreview(alpha, _brushColor, tc.xy, col);
+						col = AlphaBlitOpaquePreview(alpha, _brushColor, tc.xy, col, srcAlpha);
 
 						col.a = 1;
 					#endif
@@ -280,7 +282,7 @@
 					#endif
 
 					#if BLIT_MODE_ADD
-						col =  addWithDestBufferPreview (alpha*0.4, _brushColor, tc.xy, col);
+						col =  addWithDestBufferPreview (alpha*0.4, _brushColor, tc.xy, col, srcAlpha);
 					#endif
     
 					#if BLIT_MODE_SUBTRACT

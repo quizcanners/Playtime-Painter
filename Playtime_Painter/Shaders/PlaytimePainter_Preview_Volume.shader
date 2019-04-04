@@ -55,8 +55,11 @@
 				float4 frag(v2f i) : COLOR{
 							float dist = length(i.worldPos.xyz - _WorldSpaceCameraPos.xyz);
 
+				float srcAlpha = 1;
+
 					#if BLIT_MODE_COPY
 					_brushColor = SampleVolume(_SourceTexture, i.worldPos, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES, float3(0, 0, 0));
+					srcAlpha = _brushColor.a;
 					#endif
 
 					float4 col = 0;
@@ -90,11 +93,11 @@
 					#endif
 
 					#if BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY
-						col = AlphaBlitOpaquePreview(alpha, _brushColor,  i.texcoord.xy , col);
+						col = AlphaBlitOpaquePreview(alpha, _brushColor,  i.texcoord.xy , col, srcAlpha);
 					#endif
 
 					#if BLIT_MODE_ADD
-						col = addWithDestBufferPreview(alpha*0.4, _brushColor,  i.texcoord.xy, col);
+						col = addWithDestBufferPreview(alpha*0.4, _brushColor,  i.texcoord.xy, col, srcAlpha);
 					#endif
 
 					#if BLIT_MODE_SUBTRACT

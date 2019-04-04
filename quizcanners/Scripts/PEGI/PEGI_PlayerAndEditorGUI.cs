@@ -3501,7 +3501,10 @@ namespace PlayerAndEditorGUI {
             return GUILayout.Button(content, style, GUILayout.MaxWidth(maxWidthForPlaytimeButtonText)).Dirty();
         }
 
-        private static bool ClickImage(this GUIContent content, int width, GUIStyle style)
+        private static bool ClickImage(this GUIContent content, int width, GUIStyle style) =>
+            content.ClickImage(width, width, style);
+
+        private static bool ClickImage(this GUIContent content, int width, int height, GUIStyle style)
         {
 
             #if UNITY_EDITOR
@@ -3509,7 +3512,15 @@ namespace PlayerAndEditorGUI {
                 return ef.ClickImage(content, width, style);
             #endif
             checkLine();
-            return GUILayout.Button(content, style, GUILayout.MaxWidth(maxWidthForPlaytimeButtonText)).Dirty();
+
+           // if (style == null)
+             //   style = PEGI_Styles.ImageButton;
+            
+
+            return (style != null ? 
+                    GUILayout.Button(content, style, GUILayout.MaxWidth(width+5),  GUILayout.MaxHeight(height)) :
+                    GUILayout.Button(content,  GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(height)))
+                .Dirty();
         }
 
         public static bool Click(this string text, ref bool changed) => text.Click().changes(ref changed);
@@ -3900,8 +3911,9 @@ namespace PlayerAndEditorGUI {
         public static bool toggleIcon(this string labelIfFalse, ref bool val, string labelIfTrue)
             => (val ? labelIfTrue : labelIfFalse).toggleIcon(ref val);
 
-        public static bool toggle(ref bool val, Texture2D TrueIcon, Texture2D FalseIcon, string tip, int width, GUIStyle style = null) {
+        public static bool toggle(ref bool val, Texture2D TrueIcon, Texture2D FalseIcon, string tip, int width = defaultButtonSize, GUIStyle style = null) {
             var before = val;
+
             if (val)  {
                 if (ClickImage(ImageAndTip(TrueIcon, tip), width, style))
                 {

@@ -359,7 +359,7 @@ inline float4 AlphaBlitTransparent(float alpha, float4 src, float2 texcoord) {
 	return  max(0, col);
 }
 
-inline float4 AlphaBlitTransparentPreview(float alpha, float4 src, float2 texcoord, float4 col) {
+inline float4 AlphaBlitTransparentPreview(float alpha, float4 src, float2 texcoord, float4 col, float srcAlpha) {
 	
 	alpha = min(1, alpha / min(1, col.a + alpha+0.000000001) * _brushPointedUV.w + tex2D(_pp_AlphaBuffer, texcoord).a);
 
@@ -367,7 +367,7 @@ inline float4 AlphaBlitTransparentPreview(float alpha, float4 src, float2 texcoo
 
 	float ignoreSrcAlpha = _srcTextureUsage.w;
 
-	_brushMask *= ignoreSrcAlpha + src.a*(1 - ignoreSrcAlpha);
+	_brushMask *= ignoreSrcAlpha + srcAlpha *(1 - ignoreSrcAlpha);
 
 	float4 tmpCol;
 
@@ -399,8 +399,8 @@ inline float4 AlphaBlitOpaque (float alpha,float4 src, float2 texcoord){
 	#endif
 }
 
-inline float4 AlphaBlitOpaquePreview (float alpha,float4 src, float2 texcoord, float4 col){
-	_brushMask = BrushMaskWithAlphaBuffer(alpha, texcoord, src.a); 
+inline float4 AlphaBlitOpaquePreview (float alpha,float4 src, float2 texcoord, float4 col, float srcAlpha){
+	_brushMask = BrushMaskWithAlphaBuffer(alpha, texcoord, srcAlpha);
 
 	#ifdef UNITY_COLORSPACE_GAMMA
 	col = pow(src, GAMMA_TO_LINEAR)*_brushMask+pow(col, GAMMA_TO_LINEAR)*(1-_brushMask);
@@ -427,8 +427,8 @@ inline float4 addWithDestBuffer (float alpha,float4 src, float2 texcoord){
 	#endif
 }
 
-inline float4 addWithDestBufferPreview (float alpha,float4 src, float2 texcoord, float4 col){
-	_brushMask = BrushMaskWithAlphaBuffer(alpha, texcoord, src.a); //_brushMask*=alpha*_brushPointedUV.w;
+inline float4 addWithDestBufferPreview (float alpha,float4 src, float2 texcoord, float4 col, float srcAlpha){
+	_brushMask = BrushMaskWithAlphaBuffer(alpha, texcoord, srcAlpha); //_brushMask*=alpha*_brushPointedUV.w;
 
 	#ifdef UNITY_COLORSPACE_GAMMA
 	col.rgb = pow(pow(src.rgb, GAMMA_TO_LINEAR)*_brushMask.rgb+pow(col.rgb, GAMMA_TO_LINEAR), LINEAR_TO_GAMMA);

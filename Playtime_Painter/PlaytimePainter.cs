@@ -2256,10 +2256,25 @@ namespace Playtime_Painter {
                         {
 
                            pegi.edit(ref id.clearColor, 50);
-                            if (icon.Clear.Click("Clear texture"))
+                            if (icon.Clear.Click("Clear channels which are not ignored"))
                             {
-                                id.Colorize(id.clearColor);
-                                id.SetApplyUpdateRenderTexture();
+                                if (GlobalBrush.PaintingAllChannels)
+                                {
+                                    id.Colorize(id.clearColor);
+                                    id.SetApplyUpdateRenderTexture();
+                                }
+                                else
+                                {
+                                    var wasRt = id.destination == TexTarget.RenderTexture;
+
+                                    if (wasRt)
+                                        UpdateOrSetTexTarget(TexTarget.Texture2D);
+
+                                    id.SetPixels(id.clearColor, GlobalBrush.mask).SetAndApply();
+                                    
+                                    if (wasRt)
+                                        UpdateOrSetTexTarget(TexTarget.RenderTexture);
+                                }
                             }
                         }
 

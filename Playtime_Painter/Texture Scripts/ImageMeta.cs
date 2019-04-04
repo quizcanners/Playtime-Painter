@@ -535,21 +535,49 @@ namespace Playtime_Painter
             if (uv.y < 0) uv.y += 1;
         }
 
+        void SetPixels(Color col)
+        {
+            var p = Pixels;
+            for (var i = 0; i < p.Length; i++)
+                p[i] = col;
+        }
+
+        public ImageMeta SetPixels(Color col, BrushMask mask) {
+            var p = Pixels;
+
+            bool r = mask.HasFlag(BrushMask.R);
+            bool g = mask.HasFlag(BrushMask.G);
+            bool b = mask.HasFlag(BrushMask.B);
+            bool a = mask.HasFlag(BrushMask.A);
+
+            for (var i = 0; i < p.Length; i++)
+            {
+                var pix = p[i];
+                pix.r = r ? col.a : pix.r;
+                pix.g = g ? col.g : pix.g;
+                pix.b = b ? col.b : pix.b;
+                pix.a = a ? col.a : pix.a;
+                p[i] = pix; 
+            }
+
+            return this;
+        }
+
         public bool Colorize(Color col, bool creatingNewTexture = false)
         {
             // When first creating texture Alpha value should not be 1 otherwise texture will be encoded to RGB and not RGBA 
             var needsReColorizingAfterSave = false;
 
-#if UNITY_EDITOR
-            if (creatingNewTexture && Math.Abs(col.a - 1) < float.Epsilon)
-            {
+            #if UNITY_EDITOR
+
+            if (creatingNewTexture && Math.Abs(col.a - 1) < float.Epsilon) {
                 needsReColorizingAfterSave = true;
                 col.a = 0.5f;
             }
-#endif
 
-            for (var i = 0; i < Pixels.Length; i++)
-                _pixels[i] = col;
+            #endif
+
+            SetPixels(col);
 
             return needsReColorizingAfterSave;
         }
@@ -807,8 +835,29 @@ namespace Playtime_Painter
         private int _inspectedProcess = -1;
         public int inspectedItems = -1;
 
-        #if PEGI
-        
+#if PEGI
+
+        void ReturnToRenderTexture()
+        {
+            var p = PlaytimePainter.inspected;
+            p.UpdateOrSetTexTarget(TexTarget.RenderTexture);
+        }
+
+        bool WasRenderTexture()
+        {
+            if (destination == TexTarget.RenderTexture)
+            {
+                var p = PlaytimePainter.inspected;
+                if (p)
+                {
+                    p.UpdateOrSetTexTarget(TexTarget.Texture2D);
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private bool LoadTexturePegi(string path)
         {
             const bool changed = false;
@@ -917,13 +966,22 @@ namespace Playtime_Painter
                         {
                             if ("Color to Alpha".Click("Will Convert Background Color with transparency").nl())
                             {
+                                bool wasRt = WasRenderTexture();
+
                                 for (int i = 0; i < _pixels.Length; i++)
                                     _pixels[i] = BlitFunctions.ColorToAlpha(_pixels[i], clearColor);
-                                SetApplyUpdateRenderTexture();
+
+                                SetAndApply();
+
+                                if (wasRt)
+                                    ReturnToRenderTexture();
                             }
 
                             if ("Color from Alpha".Click("Will subtract background color from transparency").nl())
                             {
+
+                                bool wasRt = WasRenderTexture();
+
                                 for (int i = 0; i < _pixels.Length; i++) {
                                     var col = _pixels[i];
 
@@ -932,7 +990,10 @@ namespace Playtime_Painter
                                     _pixels[i] = col;
                                 }
 
-                                SetApplyUpdateRenderTexture();
+                                SetAndApply();
+
+                                if (wasRt)
+                                    ReturnToRenderTexture();
                             }
 
                         }
@@ -949,12 +1010,18 @@ namespace Playtime_Painter
 
                         if ("Generate".Click())
                         {
+                            bool wasRt = WasRenderTexture();
+
                             var p = PlaytimePainter.inspected;
                             if (p)
                                 p.UpdateOrSetTexTarget(TexTarget.Texture2D);
 
                             DistanceFieldProcessor.Generate(this, sdfMaxInside, sdfMaxOutside, sdfPostProcessDistance);
+
                             SetAndApply();
+
+                            if (wasRt)
+                                ReturnToRenderTexture();
                         }
 
                     }
