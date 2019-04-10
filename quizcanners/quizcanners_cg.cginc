@@ -54,6 +54,27 @@ float4 _mergeTerrainScale;
 float _Merge;
 
 
+float4 ProjectorUvDepthAlpha(float4 shadowCoords, float3 worldPos, float3 lightPos, float4 cfg, float4 precompute) {
+
+	float camAspectRatio = cfg.x;
+	float camFOVDegrees = cfg.y;
+	float deFar = cfg.w;
+
+	shadowCoords.xy /= shadowCoords.w;
+
+	float alpha = max(0, sign(shadowCoords.w) - dot(shadowCoords.xy, shadowCoords.xy));
+
+	float viewPos = length(float3(shadowCoords.xy * camFOVDegrees, 1))*camAspectRatio;
+
+	float true01Range = length(worldPos - lightPos) * deFar;
+
+	float predictedDepth = 1 - (((viewPos / true01Range) - precompute.y) * precompute.z);
+
+	return float4((shadowCoords.xy + 1) * 0.5, predictedDepth, alpha);
+
+}
+
+
 
 inline void vert_atlasedTexture(float _AtlasTextures, float atlasNumber, out float4 atlasedUV) {
 	float atY = floor(atlasNumber / _AtlasTextures);

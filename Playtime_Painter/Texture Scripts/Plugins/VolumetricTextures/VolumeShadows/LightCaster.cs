@@ -16,12 +16,21 @@ namespace Playtime_Painter
 
         public ProjectorCameraConfiguration UpdateAndGetCameraConfiguration() {
             cameraConfiguration.CopyTransform(transform);
+
+            if (camShake > 0)
+            {
+
+
+                cameraConfiguration.rotation = Quaternion.Lerp(cameraConfiguration.rotation, Random.rotation, camShake);
+            }
+
             return cameraConfiguration;
 
         }
 
         public Color ecol = Color.yellow;
         public float brightness = 1;
+        public float camShake = 0.0001f;
 
         public int index;
 
@@ -86,6 +95,8 @@ namespace Playtime_Painter
                 var tmp = index;
                 if ("Index".edit(ref tmp).nl(ref changed))
                     ChangeIndexTo(tmp);
+
+                "Shake".edit(50, ref camShake, 0, 0.001f).nl();
 
                 "Emission Color".edit(ref ecol).nl(ref changed);
                 "Brightness".edit(ref brightness).nl(ref changed);

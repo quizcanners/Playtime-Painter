@@ -71,18 +71,25 @@ namespace Playtime_Painter
         }
 
         #region ProjectionUpdates
-
-        public static RenderTexture allBakedDepthesTexture;
+        public static RenderTexture allBakedDepthesBufferTexture;
+        public static RenderTexture _allBakedDepthesTexture;
         static readonly ShaderProperty.TextureValue bakedDepthes = new ShaderProperty.TextureValue("_pp_RayProjectorDepthes");
 
         public RenderTexture GetAllBakedDepths() {
 
-            if (!allBakedDepthesTexture) {
-                allBakedDepthesTexture = new RenderTexture(1024, 1024, 0, RenderTextureFormat.ARGB32);
-                bakedDepthes.GlobalValue = allBakedDepthesTexture;
+            if (!_allBakedDepthesTexture) {
+                _allBakedDepthesTexture = new RenderTexture(1024, 1024, 0, RenderTextureFormat.ARGBFloat);
+                bakedDepthes.GlobalValue = _allBakedDepthesTexture;
             }
 
-            return allBakedDepthesTexture;
+            return _allBakedDepthesTexture;
+        }
+
+        public RenderTexture GetBakedDepthsBuffer() {
+            if (!allBakedDepthesBufferTexture)
+                allBakedDepthesBufferTexture = new RenderTexture(1024, 1024, 0, RenderTextureFormat.ARGB32);
+            
+            return allBakedDepthesBufferTexture;
         }
 
         private int lastUpdatedLight = 0;
@@ -107,15 +114,20 @@ namespace Playtime_Painter
         public void AfterDepthCameraRender(RenderTexture depthTexture)
         {
 
-           // Debug.Log("Updating Baked depths");
-            //PainterCamera.Inst.Render(depthTexture, GetAllBakedDepths());
+            var buff = GetBakedDepthsBuffer();
 
-             PainterCamera.Inst.RenderDepth(depthTexture, GetAllBakedDepths(), (ColorChanel) lastUpdatedLight);
+            PainterCamera.Inst.RenderDepth(depthTexture, buff, (ColorChanel) lastUpdatedLight);
             depthTexture.DiscardContents();
 
-            //Debug.Log("Updated light {0}".F(lastUpdatedLight));
+            lastUpdatedLight += 1;
 
-            lastUpdatedLight = (lastUpdatedLight + 1) % lights.probes.Length;
+            if (lastUpdatedLight >= lights.probes.Length)
+            {
+                PainterCamera.Inst.Render(buff, GetAllBakedDepths(), 0.5f);
+                buff.DiscardContents();
+                lastUpdatedLight = 0;
+            }
+            
 
         }
 
@@ -136,7 +148,7 @@ namespace Playtime_Painter
                     projectorCameraParams.Add(new ProjectorCameraParameters("rt{0}_".F(i)));
             }
 
-            bakedDepthes.GlobalValue = allBakedDepthesTexture;
+            bakedDepthes.GlobalValue = _allBakedDepthesTexture;
         }
 
     

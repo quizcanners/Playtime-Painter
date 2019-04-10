@@ -36,9 +36,7 @@ namespace Playtime_Painter.Examples
 
         public bool changeColor;
         public Color color = Color.white;
-
-
-
+        
         // Update is called once per frame
         private void LateUpdate()
         {
@@ -64,18 +62,15 @@ namespace Playtime_Painter.Examples
 
             var cols = _meshCopy.colors;
 
-            if (cols.IsNullOrEmpty())
-            {
+            if (cols.IsNullOrEmpty()) {
                 cols = new Color[verticesCount];
 
                 for (var i = 0; i < verticesCount; i++)
                     cols[i] = Color.white;
-
-
             }
 
-            if (changeColor)
-            {
+            if (changeColor) {
+
                 color.a = colorAlpha;
 
                 for (var i = 0; i < verticesCount; i++)

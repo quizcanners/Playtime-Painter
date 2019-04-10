@@ -12,6 +12,7 @@
 		}
 
 		ColorMask R
+		//Blend SrcAlpha One //MinusSrcAlpha
 		Cull Back
 		ZTest off
 		ZWrite off
@@ -26,6 +27,8 @@
 				#include "PlaytimePainter_cg.cginc"
 
 				sampler2D _MainTex;
+				float _pp_CopyBlitAlpha;
+
 
 				struct v2f {
 					float4 pos : POSITION;
@@ -43,7 +46,14 @@
 
 				float4 frag(v2f i) : COLOR{
 					float4 col = tex2Dlod(_MainTex, float4(i.texcoord.xy, 0, 0))* _ChannelSourceMask;
+
 					return col.r + col.g + col.b + col.a;
+
+					//col.a *= _pp_CopyBlitAlpha;
+
+					//col.a = 1;
+
+					return col;
 				}
 				ENDCG
 			}

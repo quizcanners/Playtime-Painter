@@ -443,6 +443,8 @@ namespace Playtime_Painter {
 
         #region Brush Shader MGMT
 
+        private readonly ShaderProperty.FloatValue _copyChannelTransparency =               new ShaderProperty.FloatValue("_pp_CopyBlitAlpha");
+
         private readonly ShaderProperty.TextureValue _decalHeightProperty =                 new ShaderProperty.TextureValue("_VolDecalHeight");
         private readonly ShaderProperty.TextureValue _decalOverlayProperty =                new ShaderProperty.TextureValue("_VolDecalOverlay");
         private readonly ShaderProperty.VectorValue _decalParametersProperty =              new ShaderProperty.VectorValue("_DecalParameters");
@@ -744,8 +746,16 @@ namespace Playtime_Painter {
             return to;
         }
 
-        public RenderTexture RenderDepth(Texture from, RenderTexture to, ColorChanel intoChannel) =>   Render(from, to, ColorChanel.R, intoChannel);
-        
+        public RenderTexture RenderDepth(Texture from, RenderTexture to, ColorChanel intoChannel) => Render(from, to, ColorChanel.R, intoChannel);
+
+        public RenderTexture Render(Texture from, RenderTexture to, float alpha) {
+
+            _copyChannelTransparency.GlobalValue = alpha;
+
+            return Render(from, to, Data.bufferBlendRGB);
+
+        }
+
         public RenderTexture Render(Texture from, RenderTexture to, Shader shade) => brushRenderer.CopyBuffer(from, to, shade);
         
         public RenderTexture Render(Texture from, RenderTexture to, Material mat) =>  brushRenderer.CopyBuffer(from, to, mat);

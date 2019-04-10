@@ -102,26 +102,7 @@
 					directLight += lcol.rgb / (len * len) * shadow;
 				}
 
-				float4 ProjectorUV(float4 shadowCoords, float3 worldPos, float3 lightPos, float4 cfg,
-					float4 precompute) {
-
-					float camAspectRatio = cfg.x;
-					float camFOVDegrees = cfg.y;
-					float deFar = cfg.w;
-
-					shadowCoords.xy /= shadowCoords.w;
-
-					float alpha = max(0, sign(shadowCoords.w) - dot(shadowCoords.xy, shadowCoords.xy));
-
-					float viewPos = length(float3(shadowCoords.xy * camFOVDegrees, 1))*camAspectRatio;
-
-					float true01Range = length(worldPos - lightPos) * deFar;
-
-					float predictedDepth = 1 - (((viewPos / true01Range) - precompute.y) * precompute.z);
-
-					return float4((shadowCoords.xy + 1) * 0.5, predictedDepth, alpha);
-
-				}
+			
 
 				float4 frag(v2f o) : COLOR{
 
@@ -129,13 +110,11 @@
 
 					o.viewDir.xyz = normalize(o.viewDir.xyz);
 
-
-
 					float3 shads;
 
 					float3 posNrm = o.worldPos.xyz + o.normal.xyz*2;
 
-					float4 shUv0 = ProjectorUV( 
+					float4 shUv0 = ProjectorUvDepthAlpha(
 						o.shadowCoords0, posNrm,
 						rt0_ProjectorPosition.rgb,
 						rt0_ProjectorConfiguration,
@@ -143,7 +122,7 @@
 
 					shads.r =  (1 - saturate((tex2D(_pp_RayProjectorDepthes, shUv0.xy).r - shUv0.z) * 128)) * shUv0.w;
 
-					float4 shUv1 = ProjectorUV(
+					float4 shUv1 = ProjectorUvDepthAlpha(
 						o.shadowCoords1, posNrm,
 						rt1_ProjectorPosition.rgb,
 						rt1_ProjectorConfiguration,
@@ -151,7 +130,7 @@
 
 					shads.g = (1 - saturate((tex2D(_pp_RayProjectorDepthes, shUv1.xy).g - shUv1.z) * 128)) * shUv1.w;
 
-					float4 shUv2 = ProjectorUV(
+					float4 shUv2 = ProjectorUvDepthAlpha(
 						o.shadowCoords2, posNrm,
 						rt2_ProjectorPosition.rgb,
 						rt2_ProjectorConfiguration,
@@ -188,6 +167,10 @@
 
 					//bake = 1 - bake;
 
+					//TODO: Remove TMP:
+					bake = 0;
+
+
 					float power = bumpMap.b; 
 
 					float3 scatter = 0;
@@ -204,9 +187,10 @@
 						o.normal, o.viewDir.xyz, bake.b, shads.b,  g_l2col, power);
 
 					col.rgb *= 
-						//directLight
+						directLight
 						//+ 
-						scatter * 0.01;
+						//scatter * 0.01
+						;
 
 				//	return g_l0col;
 

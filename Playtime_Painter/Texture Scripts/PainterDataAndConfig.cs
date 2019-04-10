@@ -42,6 +42,7 @@ namespace Playtime_Painter
         public Shader bufferCopyG;
         public Shader bufferCopyB;
         public Shader bufferCopyA;
+        public Shader bufferBlendRGB;
         public Shader bufferCopyDownscaleX4;
         public Shader bufferCopyDownscaleX8;
 
@@ -612,6 +613,8 @@ namespace Playtime_Painter
             CheckShader(ref bufferCopyB,                "Playtime Painter/Buffer Blit/Copy Blue",               forceReload);
 
             CheckShader(ref bufferCopyA,                "Playtime Painter/Buffer Blit/Copy Alpha",              forceReload);
+
+            CheckShader(ref bufferBlendRGB,             "Playtime Painter/Editor/Buffer Blit/Blend",            forceReload);
 
             CheckShader(ref multishadeBufferBlit,       "Playtime Painter/Editor/Buffer Blit/Multishade",       forceReload);
 

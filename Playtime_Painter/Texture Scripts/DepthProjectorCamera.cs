@@ -402,6 +402,8 @@ namespace Playtime_Painter
             "Position: {0}".F(position).nl();
             "Rotation: {0}".F(rotation).nl();
 
+            "FOV".edit(40, ref fieldOfView, 60, 180).nl(ref changed);
+
             "Tmp Camera".edit(ref camera).changes(ref changed);
 
             if (camera) {
