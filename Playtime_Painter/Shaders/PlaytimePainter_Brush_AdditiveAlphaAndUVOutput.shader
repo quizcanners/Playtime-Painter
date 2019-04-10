@@ -24,6 +24,8 @@
 
 				#pragma multi_compile BRUSH_3D BRUSH_3D_TEXCOORD2
 
+				#pragma multi_compile ___  USE_DEPTH_FOR_PROJECTOR
+
 				#pragma vertex vert
 				#pragma fragment frag
 
@@ -78,18 +80,17 @@
 
 					float alpha = prepareAlphaSphere(o.shadowCoords.xy, o.worldPos.xyz);
 
-					clip(alpha - 0.000001);
-
 					alpha *= ProjectorSquareAlpha(o.shadowCoords);
 
-					float2 pUv;
+					float2 pUv = (o.shadowCoords.xy + 1) * 0.5;
+
+					#if USE_DEPTH_FOR_PROJECTOR
 					alpha *= ProjectorDepthDifference(o.shadowCoords, o.worldPos, pUv);
+					#endif
 
 					pUv *= o.srcTexAspect;
 
 					alpha *= BrushClamp(pUv);
-
-					clip(alpha - 0.01);
 
 					return float4(pUv, 0, alpha);
 

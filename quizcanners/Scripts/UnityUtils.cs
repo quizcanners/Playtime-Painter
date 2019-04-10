@@ -408,9 +408,6 @@ namespace QuizCannersUtilities {
 
         #region Unity Editor MGMT
 
-        public static string OutsideOfAssetsFolder =
-            Application.dataPath.Substring(0, Application.dataPath.Length - 6);
-
         public static bool MouseToPlane(this Plane plane, out Vector3 hitPos, Camera cam = null)
         {
             var ray = EditorInputManager.GetScreenMousePositionRay(cam);
@@ -872,8 +869,8 @@ namespace QuizCannersUtilities {
             if (!path.Contains("Assets"))
                 path = Path.Combine("Assets", path);
 
-            var fullPath = Path.Combine(OutsideOfAssetsFolder // Application.dataPath.Substring(0, Application.dataPath.Length - 6) +
-                                                              ,path);
+            var fullPath = Path.Combine(FileSaveUtils.OutsideOfAssetsFolder // Application.dataPath.Substring(0, Application.dataPath.Length - 6) +
+                                                              , path);
             try
             {
                 Directory.CreateDirectory(fullPath);

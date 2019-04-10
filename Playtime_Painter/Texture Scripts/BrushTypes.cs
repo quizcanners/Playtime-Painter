@@ -78,14 +78,22 @@ namespace Playtime_Painter
         public virtual bool StartPaintingTheMomentMouseIsDown => true;
         public virtual bool SupportedForTerrainRt => true;
         public virtual bool NeedsGrid => false;
-        
-        public abstract string NameForDisplayPEGI { get; }
 
-        public virtual string ToolTip => NameForDisplayPEGI + " (No Tooltip)";
 
         #region Inspect
 
+        public virtual string NameForDisplayPEGI => Translation.GetText();
+
+        public virtual string ToolTip => Translation.GetDescription(); //NameForDisplayPEGI + " (No Tooltip)";
+
+        protected virtual MsgPainter Translation => MsgPainter.Unnamed;
+
         #if PEGI
+
+
+
+
+
         public virtual bool ShowInDropdown()
         {
             var p = PlaytimePainter.inspected;
@@ -319,12 +327,10 @@ namespace Playtime_Painter
 
         protected override string ShaderKeyword(bool texcoord2) => "BRUSH_SQUARE";
 
-        public override bool SupportedByTex2D => true; 
+        public override bool SupportedByTex2D => true;
 
-        public override string NameForDisplayPEGI=> "Pixel";
+        protected override MsgPainter Translation => MsgPainter.BrushTypePixel;
 
-        public override string ToolTip => "Paints square pixel perfect shape. Recommended to use with Preview shader.";
-        
         public override bool IsPixelPerfect => true; 
 
         public override void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st)
@@ -335,7 +341,7 @@ namespace Playtime_Painter
              if (st.CrossedASeam())
                  st.uvFrom = st.uvTo;
 
-             if (TexMGMT.bigRtPair == null) TexMGMT.UpdateBuffersState();
+             if (TexMGMT.bigRtPair == null) TexMGMT.RecreateBuffersIfDestroyed();
 
              ImageMeta id = painter.ImgMeta;
 
@@ -368,15 +374,13 @@ namespace Playtime_Painter
 
         public override bool SupportedByTex2D => true; 
 
-        public override string NameForDisplayPEGI => "Normal";
+        protected override MsgPainter Translation => MsgPainter.BrushTypeNormal;
 
-        public override string ToolTip => "Regular round brush";
-        
         public static void Paint(Vector2 uv, BrushConfig br, RenderTexture rt)
         {
 
             if (TexMGMT.bigRtPair == null)
-                TexMGMT.UpdateBuffersState();
+                TexMGMT.RecreateBuffersIfDestroyed();
 
             var id = rt.GetImgData();
             var stroke = new StrokeVector(uv) {
@@ -421,8 +425,6 @@ namespace Playtime_Painter
         protected override string ShaderKeyword(bool texcoord) => "BRUSH_DECAL"; 
         public override bool IsUsingDecals => true; 
 
-        public override string NameForDisplayPEGI => "Decal";
-
         private Vector2 _previousUv;
 
         public override void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st)
@@ -448,7 +450,7 @@ namespace Playtime_Painter
    
                 }
 
-                if (TexMGMT.bigRtPair == null) TexMGMT.UpdateBuffersState();
+                if (TexMGMT.bigRtPair == null) TexMGMT.RecreateBuffersIfDestroyed();
 
 
                 bool alphaBuffer;
@@ -499,17 +501,18 @@ namespace Playtime_Painter
             br.decalAngle = Random.Range(-90f, 450f);
             TexMGMT.Shader_UpdateDecal(Cfg.brushConfig); 
         }
-        
-        public override string ToolTip => "Paints volumetric decals. It uses alpha channel of the painted texture as height. Denting decals (think bullet holes)" +
-                                          "will subtract alpha if their depth is higher (deeper) and paint their color. Additive decals will add alpha if theirs is higher. ";
 
-#if PEGI
+        #region Inspector
+
+        protected override MsgPainter Translation => MsgPainter.BrushTypeDecal;
+
+        #if PEGI
         public override bool Inspect()
         {
 
             var changed = false;
 
-            pegi.select(ref InspectedBrush.selectedDecal, TexMGMTdata.decals).changes(ref changed);
+            pegi.select_Index(ref InspectedBrush.selectedDecal, TexMGMTdata.decals).changes(ref changed);
 
             var decal = TexMGMTdata.decals.TryGet(InspectedBrush.selectedDecal);
 
@@ -549,7 +552,7 @@ namespace Playtime_Painter
 
         }
         #endif
-
+        #endregion
     }
 
     public class BrushTypeLazy : BrushType {
@@ -564,13 +567,8 @@ namespace Playtime_Painter
         private float _lazyAngleSmoothed = 1;
         public Vector2 previousDirectionLazy;
 
-        #region Inspector
-        public override string NameForDisplayPEGI => "Lazy";
-
-        public override string ToolTip => "Lazy brush will follow your mouse with a bit of a delay. It tries to paint a smooth line." +
-                                          " Also useful if you want to paint a semi-transparent line.";
-        #endregion
-
+        protected override MsgPainter Translation => MsgPainter.BrushTypeLazy;
+        
         public override void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st)
         {
 
@@ -648,7 +646,7 @@ namespace Playtime_Painter
             }
             var r = TexMGMT;
             
-            if (TexMGMT.bigRtPair == null) TexMGMT.UpdateBuffersState();
+            if (TexMGMT.bigRtPair == null) TexMGMT.RecreateBuffersIfDestroyed();
 
             var meshWidth = br.StrokeWidth(id.width, false); 
             
@@ -716,7 +714,7 @@ namespace Playtime_Painter
         private static void PrepareSphereBrush(ImageMeta id, BrushConfig br, StrokeVector stroke, PlaytimePainter painter, out bool alphaBuffer)
         {
             if (TexMGMT.bigRtPair.IsNullOrEmpty())
-                TexMGMT.UpdateBuffersState();
+                TexMGMT.RecreateBuffersIfDestroyed();
 
             if (stroke.mouseDwn)
                 stroke.posFrom = stroke.posTo;
@@ -793,10 +791,7 @@ namespace Playtime_Painter
 
         #region Inspector
 
-        public override string NameForDisplayPEGI => "Sphere";
-        
-        public override string ToolTip => "Sphere brush is very different from all other brushes. It uses world position to paint. " +
-                                          "It is perfect for working with complex meshes. It can even paint on animated skinned meshes.";
+        protected override MsgPainter Translation => MsgPainter.BrushTypeSphere;
 
         #if PEGI
         public override bool Inspect()

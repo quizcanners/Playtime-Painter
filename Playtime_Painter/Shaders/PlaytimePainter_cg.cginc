@@ -73,7 +73,7 @@ inline float BrushClamp(float2 uv) {
 	return saturate(1 + (0.5 - max(uv.x, uv.y))*doClamp*200);
 }
 
-inline float ProjectorDepthDifference (float4 shadowCoords, float3 worldPos, out float2 pUv) {
+inline float ProjectorDepthDifference (float4 shadowCoords, float3 worldPos, float2 pUv) {
 
 		float camAspectRatio = pp_ProjectorConfiguration.x;
 		float camFOVDegrees = pp_ProjectorConfiguration.y;
@@ -82,7 +82,7 @@ inline float ProjectorDepthDifference (float4 shadowCoords, float3 worldPos, out
 
 		float viewPos = length(float3(shadowCoords.xy * camFOVDegrees, 1))*camAspectRatio;
 
-		pUv = (shadowCoords.xy + 1) * 0.5;
+		//pUv = (shadowCoords.xy + 1) * 0.5;
 
 		float pdist = length(worldPos - pp_ProjectorPosition.xyz);
 
@@ -328,8 +328,9 @@ inline float prepareAlphaSmoothPreview (float4 texcoord){
 inline float4 BrushMaskWithAlphaBuffer(float alpha, float2 uv, float srcA) {
 	
 	float ignoreSrcAlpha = _srcTextureUsage.w;
+	float usingAlphaBuffer = _pp_AlphaBufferCfg.z;
 
-	return _brushMask * min(_pp_AlphaBufferCfg.x * (ignoreSrcAlpha + srcA*(1 - ignoreSrcAlpha)), alpha*_brushPointedUV.w + tex2D(_pp_AlphaBuffer, uv).a);
+	return _brushMask * min(_pp_AlphaBufferCfg.x * (ignoreSrcAlpha + srcA * (1 - ignoreSrcAlpha)), alpha*_brushPointedUV.w + tex2D(_pp_AlphaBuffer, uv).a*usingAlphaBuffer);
 }
 
 

@@ -472,8 +472,21 @@ namespace Playtime_Painter
             else Debug.Log("Destination already Set");
 
         }
-        
-        public void SetPixelsInRam() => texture2D.SetPixels(_pixels);
+
+        public void SetPixelsInRam()
+        {
+            try
+            {
+                texture2D.SetPixels(_pixels);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(ex);
+
+                _pixels = null;
+                errorWhileReading = true;
+            }
+        }
 
         public void ApplyToTexture2D(bool mipMaps = true) => texture2D.Apply(mipMaps, false);
         
@@ -590,7 +603,7 @@ namespace Playtime_Painter
             var curRt = RenderTexture.active;
 
             var rtp = PainterCamera.Inst;
-            const int size = PainterCamera.RenderTextureSize / 4;
+            int size = PainterCamera.renderBuffersSize / 4;
             RenderTexture.active = renderTexture ? renderTexture : rtp.GetDownscaledBigRt(size, size);
 
             if (!_sampler) _sampler = new Texture2D(8, 8);
@@ -916,10 +929,8 @@ namespace Playtime_Painter
                         "New Width ".select(60, ref PainterCamera.Data.selectedWidthIndex, PainterDataAndConfig.NewTextureSizeOptions).nl(ref changed);
 
                         "New Height ".select(60, ref PainterCamera.Data.selectedHeightIndex, PainterDataAndConfig.NewTextureSizeOptions).nl(ref changed);
-
-
-                        if (newWidth != width || newHeight != height)
-                        {
+                        
+                        if (newWidth != width || newHeight != height) {
 
                             bool rescale;
 

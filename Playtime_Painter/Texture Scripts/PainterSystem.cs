@@ -27,6 +27,7 @@ namespace Playtime_Painter
 
     public class PainterSystemMono : MonoBehaviour, IKeepUnrecognizedCfg, IPEGI
     {
+        #region Encode & Decode
         private readonly UnrecognizedTagsList _uTags = new UnrecognizedTagsList();
         public UnrecognizedTagsList UnrecognizedStd => _uTags;
 
@@ -35,6 +36,8 @@ namespace Playtime_Painter
         public virtual bool Decode(string tg, string data) => true;
 
         public virtual CfgEncoder Encode() => this.EncodeUnrecognized();
+        #endregion
+
         protected static PainterDataAndConfig Cfg => PainterCamera.Data;
         protected static PainterDataAndConfig TexMgmtData => PainterCamera.Data;
         protected static PainterCamera TexMGMT => PainterCamera.Inst;

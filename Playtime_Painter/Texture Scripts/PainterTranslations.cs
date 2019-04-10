@@ -6,9 +6,15 @@ using QuizCannersUtilities;
 namespace PlayerAndEditorGUI {
 
     public enum MsgPainter {
-        PreserveTransparency, BrushType, BlitMode, LockToolToUseTransform, HideTransformTool, AboutPlaytimePainter,
+        PreserveTransparency,
+        BrushType, BrushTypeNormal, BrushTypeDecal, BrushTypeLazy, BrushTypeSphere, BrushTypePixel,
+        BlitMode, BlitModeAlpha, BlitModeAdd, BlitModeSubtract, BlitModeCopy, BlitModeMin, BlitModeMax, BlitModeBlur,
+        BlitModeOff, BlitModeBloom, BlitModeProjector, BlitModeFiller,
+        LockToolToUseTransform, HideTransformTool, AboutPlaytimePainter,
          MeshProfileUsage, Speed, Scale, Hardness, CopyFrom, FancyOptions, previewRGBA, AutoSelectMaterial,
-         aboutDisableDocumentation, SampleColor, PreviewRecommended, AlphaBufferBlit, Opacity, SpreadSpeed, BlurAmount
+         aboutDisableDocumentation, SampleColor, PreviewRecommended, AlphaBufferBlit, Opacity, SpreadSpeed, BlurAmount,
+         Unnamed
+
     };
 
     public static partial class LazyTranslations {
@@ -132,6 +138,97 @@ namespace PlayerAndEditorGUI {
                         .From(ukr, "радіус");
 
                     break;
+
+                #region Brush Types
+                case MsgPainter.BrushTypeNormal:
+                    msg.Translate("Normal", "Regular round texture space brush");
+                    break;
+
+                case MsgPainter.BrushTypeDecal:
+                    msg.Translate("Decal ", "Paints volumetric decals. It uses alpha channel of the painted texture as height. Denting decals (think bullet holes)" +
+                                                                        "will subtract alpha if their depth is higher (deeper) and paint their color. Additive decals will add alpha if theirs is higher. ");
+                    break;
+
+                case MsgPainter.BrushTypeLazy:
+                    msg.Translate("Lazy ", "Lazy brush will follow your mouse with a bit of a delay. It tries to paint a smooth line." +
+                                           " Also useful if you want to paint a semi-transparent line.");
+                    break;
+
+                case MsgPainter.BrushTypeSphere:
+                    msg.Translate("Sphere ", "Sphere brush is very different from all other brushes. It uses world position to paint. " +
+                                             "It is perfect for working with complex meshes. It can even paint on animated skinned meshes.");
+                    break;
+
+                case MsgPainter.BrushTypePixel:
+                    msg.Translate("Pixel ", "Paints square pixel perfect shape. Recommended to use with Preview shader.");
+                    break;
+
+                #endregion
+
+                #region Blit Modes
+
+                case MsgPainter.BlitModeAlpha:
+                    msg.Translate("Alpha Blit", "The most standard brush. It will gradually replace existing color with the color you are painting with. " +
+                                                "Keep in mind, if you are painting on texture with transparency (has areas you can see trough), also toggle Transparent Blit mode. " +
+                                                "Otherwise you'll see some weird outlines.");
+                    break;
+
+                case MsgPainter.BlitModeAdd:
+                    msg.Translate("Add", "Adds brush color to texture color.");
+                    break;
+
+                case MsgPainter.BlitModeSubtract:
+                    msg.Translate("Subtract", "Subtracts brush color from texture color.");
+                    break;
+
+                case MsgPainter.BlitModeCopy:
+                    msg.Translate("Copy ", "Copies pixels from selected source texture to painted texture.");
+                    break;
+
+                case MsgPainter.BlitModeMin:
+                    msg.Translate("Min ", "Paints smallest value between brush color and current texture color for each channel.");
+                    break;
+
+                case MsgPainter.BlitModeMax:
+                    msg.Translate("Max ", "Paints highest value between brush color and current texture color for each channel.");
+                    break;
+
+                case MsgPainter.BlitModeBlur:
+                    msg.Translate("Blur ", "Applies blur effect. Mixes each pixel's color with the color of pixels next to it.");
+                    break;
+
+                case MsgPainter.
+                    BlitModeOff:
+                    msg.Translate("Pixel Reshape ", "This one is more in the experimental category. It writes distance from central pixel. Could be used to create texture with pixels shaped as hexagons, or bricks in the wall. "
+                        );
+                    break;
+
+                case MsgPainter.BlitModeBloom:
+                    msg.Translate(
+                        "Bloom ", 
+                        "Similar to Blur, but instead of blurring the colors, spreads brightness from bright pixels to darker ones");
+                    break;
+
+                case MsgPainter.BlitModeProjector:
+                    msg.Translate(
+                        "Projection ", 
+                        "Will create a camera that will serve as a projector. This mode is similar to Copy, but instead of matching UV coordinates of source and target it will sample source " +
+                        "using projector. Only World Space brushes can use this Blit Mode. Currently only sphere brush is a world space brush. First step is usually to position projector camera. "
+                        );
+                    break;
+
+                case MsgPainter.BlitModeFiller:
+                    msg.Translate(
+                        "Ink Filler ", 
+                        " Inspired by comic books. After you paint BLACK lines, this brush will try to gradually fill the painted area with color without crossing those lines. ");
+                    break;
+                case MsgPainter.Unnamed:
+                    msg.Translate(
+                        "Unnamed ",
+                        "The selected class doesn't have a Readable name.");
+                    break;
+                    #endregion
+
             }
 
             return painterTranslations.GetWhenInited(index, lang);

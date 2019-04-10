@@ -255,14 +255,14 @@ namespace Playtime_Painter {
 
             if (!enabled) return changed;
             
-            pegi.select(ref originField, a.originalTextures).nl(ref changed);
+            pegi.select_Index(ref originField, a.originalTextures).nl(ref changed);
 
             pegi.space();
 
             "Atlas".enter_Inspect(AtlasCreator, ref inspectedItems, 11).nl(ref changed);
 
             if (inspectedItems == -1) {
-                "Atlases".@select(70, ref atlasCreatorId, TileableAtlasingControllerPlugin.inst.atlases).changes(ref changed);
+                "Atlases".select_Index(70, ref atlasCreatorId, TileableAtlasingControllerPlugin.inst.atlases).changes(ref changed);
                 if (icon.Add.Click("Create new Atlas").nl(ref changed)) {
                     atlasCreatorId = TileableAtlasingControllerPlugin.inst.atlases.Count;
                     var ac = new AtlasTextureCreator(atlasedField + " for " + a.name);
@@ -600,7 +600,7 @@ namespace Playtime_Painter {
                 {
                     if (mats.Length > 1)
                     {
-                        if ("Source Material:".select("Same as selecting a sub Mesh, which will be converted", 90, ref painter.selectedSubMesh, mats).changes(ref changed))
+                        if ("Source Material:".select_Index("Same as selecting a sub Mesh, which will be converted", 90, ref painter.selectedSubMesh, mats).changes(ref changed))
                             OnChangeMaterial(painter);
                     }
                     else if (mats.Length > 0)
@@ -619,7 +619,7 @@ namespace Playtime_Painter {
             foreach (var f in _fields)
                 changed |= f.Nested_Inspect();
 
-            changed |= "Mesh Profiles [{0}]".F(PainterCamera.Data.meshPackagingSolutions.Count).select(140, ref _matAtlasProfile, PainterCamera.Data.meshPackagingSolutions).nl();
+            changed |= "Mesh Profiles [{0}]".F(PainterCamera.Data.meshPackagingSolutions.Count).select_Index(140, ref _matAtlasProfile, PainterCamera.Data.meshPackagingSolutions).nl();
 
             if (DestinationMaterial && !DestinationMaterial.HasProperty(PainterDataAndConfig.isAtlasedProperty))
             {

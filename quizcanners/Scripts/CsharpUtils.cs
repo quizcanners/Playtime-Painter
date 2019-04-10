@@ -709,6 +709,13 @@ namespace QuizCannersUtilities
             return value;
         }
 
+        public static T TryGet<T,G>(this Dictionary<G, T> dic, G tag)
+        {
+            T value;
+            dic.TryGetValue(tag, out value);
+            return value;
+        }
+
         public static bool TryChangeKey(this Dictionary<int, string> dic, int before, int now)
         {
             string value;

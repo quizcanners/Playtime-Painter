@@ -801,7 +801,7 @@ namespace Playtime_Painter
 
             var previousTool = MeshTool;
             
-            if ("tool:".select(35, ref Cfg.meshTool, MeshToolBase.AllTools).changes(ref changed)) {
+            if ("tool:".select_Index(35, ref Cfg.meshTool, MeshToolBase.AllTools).changes(ref changed)) {
                 Grid.vertexPointMaterial.SetColor("_Color", MeshTool.VertexColor);
                 previousTool.OnDeSelectTool();
                 MeshTool.OnSelectTool();

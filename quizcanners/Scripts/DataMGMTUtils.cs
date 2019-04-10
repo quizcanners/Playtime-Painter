@@ -324,7 +324,9 @@ namespace QuizCannersUtilities
 
     public static class FileSaveUtils
     {
-   
+
+        public static string OutsideOfAssetsFolder =
+            Application.dataPath.Substring(0, Application.dataPath.Length - 6);
 
         private static readonly BinaryFormatter Formatter = new BinaryFormatter();
         
@@ -406,7 +408,7 @@ namespace QuizCannersUtilities
             File.WriteAllBytes(CreateDirectoryPath(Application.dataPath, subFolder, fileName, extension), texture.EncodeToPNG());
 
         public static void SaveTextureOutsideAssetsFolder(string subFolder, string fileName, string extension, Texture2D texture) =>
-            File.WriteAllBytes(CreateDirectoryPath(UnityUtils.OutsideOfAssetsFolder, subFolder, fileName, extension), texture.EncodeToPNG());
+            File.WriteAllBytes(CreateDirectoryPath(OutsideOfAssetsFolder, subFolder, fileName, extension), texture.EncodeToPNG());
 
         ///Assets
 

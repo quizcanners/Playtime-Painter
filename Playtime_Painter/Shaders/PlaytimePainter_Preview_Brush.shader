@@ -109,15 +109,17 @@
 					float srcAlpha = 1;
 
 					#if BLIT_MODE_PROJECTION
-						float2 pUv;
+					
 
 						o.shadowCoords.xy /= o.shadowCoords.w;
 
 						alpha = ProjectorSquareAlpha(o.shadowCoords);
 
-						float depthDiff = ProjectorDepthDifference(o.shadowCoords, o.worldPos, pUv);
+						float2 pUv = (o.shadowCoords.xy + 1) * 0.5;
 
-						alpha *= depthDiff;
+						//float depthDiff = ProjectorDepthDifference(o.shadowCoords, o.worldPos, pUv);
+
+						//alpha *= depthDiff;
 
 						pUv *= o.srcTexAspect;
 
@@ -128,7 +130,7 @@
 
 						float par = _srcTextureUsage.x;
 					
-						src.rgb *= (1 + pow(depthDiff, 64)) * 0.5;
+						//src.rgb *= (1 + pow(depthDiff, 64)) * 0.5;
 
 						_brushColor.rgb = SourceTextureByBrush(src.rgb);
 						srcAlpha = src.a;
@@ -152,12 +154,12 @@
 					float4 tc = float4(o.texcoord.xy, 0, 0);
 
 					#if BRUSH_SQUARE
-						float2 perfTex = (floor(tc.xy*_PreviewTex_TexelSize.z) + 0.5) * _PreviewTex_TexelSize.x;
+						float2 perfTex = (floor(tc.xy*_PreviewTex_TexelSize.zw) + 0.5) * _PreviewTex_TexelSize.xy;
 						float2 off = (tc.xy - perfTex);
 
 						float n = max(4,30 - dist); 
 
-						float2 offset = saturate((abs(off) * _PreviewTex_TexelSize.z)*(n*2+2) - n);
+						float2 offset = saturate((abs(off) * _PreviewTex_TexelSize.zw)*(n*2+2) - n);
 
 						off = off * offset;
 
@@ -177,7 +179,7 @@
 
 						col = col*(1-border) + (0.5 - col * 0.5)*border;
 
-						_brushPointedUV.xy = (floor (_brushPointedUV.xy*_PreviewTex_TexelSize.z)+ 0.5) * _PreviewTex_TexelSize.x;
+						_brushPointedUV.xy = (floor (_brushPointedUV.xy*_PreviewTex_TexelSize.zw)+ 0.5) * _PreviewTex_TexelSize.xy;
 
 					#else
 					
@@ -248,8 +250,7 @@
 						col = col*_brushMask + 0.5*(1 - _brushMask)+col.a*_brushMask.a;
 					#endif
 	
-
-				
+					
 					#if BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY || BLIT_MODE_PROJECTION
 
 					#if TARGET_TRANSPARENT_LAYER
@@ -268,9 +269,6 @@
 						col.a = 1;
 					#endif
 
-
-						
-
 					#if BLIT_MODE_PROJECTION
 
 						float pa = (_brushPointedUV.w)*pr_shadow*0.8;
@@ -280,6 +278,8 @@
 
 
 					#endif
+
+						//return alpha;
 
 					#if BLIT_MODE_ADD
 						col =  addWithDestBufferPreview (alpha*0.4, _brushColor, tc.xy, col, srcAlpha);

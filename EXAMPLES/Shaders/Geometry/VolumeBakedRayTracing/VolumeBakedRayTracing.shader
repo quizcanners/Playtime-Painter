@@ -10,7 +10,7 @@
 			"RenderType" = "Opaque"
 			"LightMode" = "ForwardBase"
 			"RayTrace" = "Opaque"
-			"Volume" = "Global"
+			"Volume" = "g_BakedRays_VOL"
 		}
 
 		SubShader{
@@ -175,6 +175,8 @@
 					// Point Lights:
 			
 					float4 bake = SampleVolume(g_BakedRays_VOL, o.worldPos,  g_VOLUME_POSITION_N_SIZE,  g_VOLUME_H_SLICES, o.normal);
+
+					return bake;
 
 					bake = 1 - bake;
 

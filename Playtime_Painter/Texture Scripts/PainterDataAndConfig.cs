@@ -42,6 +42,8 @@ namespace Playtime_Painter
         public Shader bufferCopyG;
         public Shader bufferCopyB;
         public Shader bufferCopyA;
+        public Shader bufferCopyDownscaleX4;
+        public Shader bufferCopyDownscaleX8;
 
         public Shader CopyIntoTargetChannelShader(ColorChanel chan)  {
             switch (chan) {
@@ -104,6 +106,7 @@ namespace Playtime_Painter
         public const string WATER_FOAM = "WATER_FOAM";
         public const string BRUSH_TEXCOORD_2 = "BRUSH_TEXCOORD_2";
         public const string TARGET_TRANSPARENT_LAYER = "TARGET_TRANSPARENT_LAYER";
+        public const string USE_DEPTH_FOR_PROJECTOR = "USE_DEPTH_FOR_PROJECTOR";
 
         public const string isAtlasedProperty = "_ATLASED";
         public const string isAtlasableDisaplyNameTag = "_ATL";
@@ -263,6 +266,7 @@ namespace Playtime_Painter
         public bool showTeachingNotifications;
         public bool disableSecondBufferUpdateDebug;
         public MyIntVec2 samplingMaskSize;
+        public bool useDepthForProjector;
         #endregion
 
         #region New Texture Config
@@ -639,7 +643,9 @@ namespace Playtime_Painter
 
             CheckShader(ref previewTerrain,             "Playtime Painter/Editor/Preview/Terrain",              forceReload);
 
+            CheckShader(ref bufferCopyDownscaleX4,      "Playtime Painter/Buffer Blit/DownScaleX4",             forceReload);
 
+            CheckShader(ref bufferCopyDownscaleX8,      "Playtime Painter/Buffer Blit/DownScaleX8",             forceReload);
 
 #endif
         }

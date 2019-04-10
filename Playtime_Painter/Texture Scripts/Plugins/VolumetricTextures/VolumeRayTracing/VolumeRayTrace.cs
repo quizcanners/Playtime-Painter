@@ -35,12 +35,20 @@ namespace Playtime_Painter
             => projectorCameraParams[lastUpdatedLight];
 
         public ProjectorCameraConfiguration GetProjectorCameraConfiguration()
-            => lights.GetLight(lastUpdatedLight).cameraConfiguration;
+        {
+
+            var l = lights.GetLight(lastUpdatedLight);
+              return l ? l.cameraConfiguration : null;
+        }
 
         public RenderTexture GetTargetTexture() => DepthProjectorCamera.GetReusableDepthTarget();
-        
-        public void AfterDepthCameraRender(Texture depthTexture) => PainterCamera.Inst.RenderDepth(depthTexture, GetAllBakedDepths(), (ColorChanel) lastUpdatedLight);
-        
+
+        public void AfterDepthCameraRender(RenderTexture depthTexture)
+        {
+            PainterCamera.Inst.RenderDepth(depthTexture, GetAllBakedDepths(), (ColorChanel) lastUpdatedLight);
+            depthTexture.DiscardContents();
+        }
+
         protected override string PropertyNameRoot => "BakedRays";
 
         #endregion

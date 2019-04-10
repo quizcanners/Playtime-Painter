@@ -43,7 +43,7 @@ namespace STD_Logic {
             if (categoryFound) return changed;
 
             int tmp = -1;
-            if ("Category".select(ref tmp, subCategories).changes(ref changed)) {
+            if ("Category".select_Index(ref tmp, subCategories).changes(ref changed)) {
                 var c = subCategories.TryGet(tmp);
                 if (c!= null)
                     pc.path.ForceSet(0,c.IndexForPEGI);
@@ -174,7 +174,7 @@ namespace STD_Logic {
             NameForPEGI.write(PEGI_Styles.ClickableText);
 
             int tmp = -1;
-            if ("Sub Category".select(ref tmp, subCategories).nl(ref changed))
+            if ("Sub Category".select_Index(ref tmp, subCategories).nl(ref changed))
             {
                 var c = subCategories.TryGet(tmp);
                 if (c != null)

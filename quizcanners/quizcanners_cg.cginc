@@ -695,11 +695,12 @@ inline float3 volumeUVtoWorld(float2 uv, float4 VOLUME_POSITION_N_SIZE, float4 V
 
 //  var VOLUME_POSITION_N_SIZE = new Vector4(pos.x, pos.y, pos.z, 1f / size);
 //var VOLUME_H_SLICES = new Vector4(slices, w * 0.5f, 1f / ((float)w), 1f / ((float)slices));
-
+//hSlices, w * 0.5f, 1f / w, 1f / hSlices
 
 inline float4 SampleVolume(sampler2D volume, float3 worldPos, float4 VOLUME_POSITION_N_SIZE, float4 VOLUME_H_SLICES, float3 normal) {
 
-	float3 bsPos = (worldPos.xyz - VOLUME_POSITION_N_SIZE.xyz)*VOLUME_POSITION_N_SIZE.w + normal*0.25;
+
+	float3 bsPos = (worldPos.xyz - VOLUME_POSITION_N_SIZE.xyz)*VOLUME_POSITION_N_SIZE.w +normal * 0.25;
 
 	bsPos.xz = saturate((bsPos.xz + VOLUME_H_SLICES.y)* VOLUME_H_SLICES.z)*VOLUME_H_SLICES.w;
 	float h = min(max(0, bsPos.y), VOLUME_H_SLICES.x*VOLUME_H_SLICES.x - 1);
@@ -724,10 +725,6 @@ inline float4 SampleVolume(sampler2D volume, float3 worldPos, float4 VOLUME_POSI
 	float deH = frac(h); 
 
 	bake = bake * (1 - deH) + bakeUp * (deH);
-
-	//float3 wp = volumeUVtoWorld(sector + bsPos.xz, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES);
-
-		//bake.rgb = ((worldPos - wp)*0.5 + 0.5);
 
 	return bake;
 }

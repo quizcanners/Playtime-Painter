@@ -263,7 +263,7 @@ namespace Playtime_Painter {
             {
                 pegi.nl();
                 MsgPainter.BrushType.Write();
-                pegi.select(ref _inGpuBrushType, BrushType.AllTypes).changes(ref changed);
+                pegi.select_Index(ref _inGpuBrushType, BrushType.AllTypes).changes(ref changed);
 
                 if (docsEnabled && brushType != null && pegi.DocumentationClick("About {0} brush type".F(brushType.NameForDisplayPEGI)))
                     pegi.FullWindwDocumentationOpen(brushType.ToolTip);

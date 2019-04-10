@@ -40,6 +40,9 @@ namespace Playtime_Painter
     [CustomEditor(typeof(ShadowVolumeTexture))]
     public class ShadowVolumeTextureEditor : PEGI_Inspector<ShadowVolumeTexture> { }
 
+    [CustomEditor(typeof(VolumeRayTrace))]
+    public class VolumeRayTraceEditor : PEGI_Inspector<VolumeRayTrace> { }
+
     [CustomEditor(typeof(SkinnedMeshCaster))]
     public class SkinnedMeshCasterEditor : PEGI_Inspector<SkinnedMeshCaster> { }
     

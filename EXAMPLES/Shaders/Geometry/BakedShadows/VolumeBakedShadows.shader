@@ -21,7 +21,7 @@
 			"RayTrace" = "Opaque"
 			"A_VertexColorRole" = "Second Atlas Texture"
 			"B_VertexColorRole" = "Additional Wetness"
-			"Volume" = "Global"
+			"Volume" = "g_BakedShadow_VOL"
 		}
 
 		SubShader{
@@ -54,8 +54,6 @@
 
 				float _Glossiness;
 				float _AtlasTextures;
-
-			
 
 				struct v2f {
 					float4 pos : SV_POSITION;

@@ -84,8 +84,8 @@ namespace PlayerAndEditorGUI {
         #region Translation Class
         class TranslationsEnum
         {
-            public static UnNullable<Countless<LazyTranslation>> pntrTexts = new UnNullable<Countless<LazyTranslation>>();
-            public static CountlessBool textInitialized = new CountlessBool();
+            public UnNullable<Countless<LazyTranslation>> pntrTexts = new UnNullable<Countless<LazyTranslation>>();
+            public CountlessBool textInitialized = new CountlessBool();
 
             public bool Initialized(int index) => textInitialized[index];
 

@@ -550,7 +550,7 @@ namespace Playtime_Painter {
         #region Inspector
 #if PEGI
         public override string NameForDisplayPEGI => "Other: " + MultiBufferProcessing.sections.TryGet(targetIndex).ToPegiString();
-        public override bool Inspect() => "Source".select(50, ref targetIndex, MultiBufferProcessing.sections).nl();
+        public override bool Inspect() => "Source".select_Index(50, ref targetIndex, MultiBufferProcessing.sections).nl();
 #endif
         #endregion
         
@@ -809,7 +809,7 @@ namespace Playtime_Painter {
 
             pegi.nl();
 
-            "From ".select(ref _sourceBufferIndex, MultiBufferProcessing.buffers).nl(ref changed);
+            "From ".select_Index(ref _sourceBufferIndex, MultiBufferProcessing.buffers).nl(ref changed);
 
             "To ".select(ref _targetBufferIndex, MultiBufferProcessing.buffers, e => e.CanBeTarget).nl(ref changed);
 

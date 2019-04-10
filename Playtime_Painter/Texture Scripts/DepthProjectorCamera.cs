@@ -47,9 +47,8 @@ namespace Playtime_Painter
 
         [SerializeField] private bool _projectFromMainCamera;
         [SerializeField] private bool _centerOnMousePosition;
-        //[SerializeField] private bool _matchMainCamera;
         [SerializeField] public bool pauseUpdates;
-        
+ 
         public int targetSize = 512;
 
         #region Inspector
@@ -118,19 +117,74 @@ namespace Playtime_Painter
 
         }
 
-        public void ManagedUpdate() {
+        private void UpdateDepthCamera()
+        {
 
-            if (_projectorCamera) {
+            if (!_projectorCamera) return;
 
-                if (_projectFromMainCamera) {
+            _projectorCamera.enabled = false;
+            _projectorCamera.depthTextureMode = DepthTextureMode.None;
+            _projectorCamera.depth = -1000;
+            _projectorCamera.clearFlags = CameraClearFlags.Depth;
 
-                    if (Application.isPlaying) {
+            var l = Cfg ? Cfg.playtimePainterLayer : 30;
 
-                        if (PainterCamera.Inst) {
+            _projectorCamera.cullingMask &= ~(1 << l);
+
+            if (_depthTarget)
+            {
+                if (_depthTarget.width == targetSize)
+                    return;
+                else
+                    _depthTarget.DestroyWhateverUnityObject();
+            }
+
+            var sz = Mathf.Max(targetSize, 16);
+
+            _depthTarget = GetDepthRenderTexture(sz);
+
+            _spDepth.GlobalValue = _depthTarget;
+
+            _projectorCamera.targetTexture = _depthTarget;
+        }
+        
+        #region Depth Requests 
+
+        private int lastUpdatedUser = 0;
+
+        private IUseDepthProjector userToGetUpdate;
+
+        ProjectorCameraConfiguration painterProjectorCameraConfiguration = new ProjectorCameraConfiguration();
+        
+        [NonSerialized] private static readonly List<IUseDepthProjector> depthUsers = new List<IUseDepthProjector>();
+        
+        public static void SubscribeToDepthCamera(IUseDepthProjector pj) {
+            if (!depthUsers.Contains(pj))
+                depthUsers.Add(pj);
+
+        }
+
+        #endregion
+
+        public void ManagedUpdate()
+        {
+
+            if (_projectorCamera)
+            {
+
+                if (_projectFromMainCamera)
+                {
+
+                    if (Application.isPlaying)
+                    {
+
+                        if (PainterCamera.Inst)
+                        {
 
                             var cam = PainterCamera.Inst.MainCamera;
 
-                            if (cam) {
+                            if (cam)
+                            {
                                 transform.parent = cam.transform;
                                 transform.localScale = Vector3.one;
                                 transform.localPosition = Vector3.zero;
@@ -158,34 +212,17 @@ namespace Playtime_Painter
                     }
                 }
 
-                BeforeRender();
+                CallRender();
             }
         }
 
-        private void LateUpdate() {
+        private void LateUpdate()
+        {
             if (Application.isPlaying)
                 ManagedUpdate();
         }
-        
-        #region Other Updates 
 
-        private int lastUpdatedUser = 0;
-
-        private IUseDepthProjector userToGetUpdate;
-
-        ProjectorCameraConfiguration painterProjectorCameraConfiguration = new ProjectorCameraConfiguration();
-        
-        [NonSerialized] private static readonly List<IUseDepthProjector> depthUsers = new List<IUseDepthProjector>();
-        
-        public static void SubscribeToDepthCamera(IUseDepthProjector pj) {
-            if (!depthUsers.Contains(pj))
-                depthUsers.Add(pj);
-
-        }
-
-        #endregion
-        
-        private void BeforeRender() {
+        private void CallRender() {
            
             if (!pauseUpdates)  {
 
@@ -199,100 +236,61 @@ namespace Playtime_Painter
                     lastUpdatedUser++;
                 }
 
+                bool gotUser = false;
+
                 if (userToGetUpdate != null)
                 {
-                    painterProjectorCameraConfiguration.From(_projectorCamera);
-                    userToGetUpdate.GetProjectorCameraConfiguration().To(_projectorCamera);
-                    _projectorCamera.targetTexture = userToGetUpdate.GetTargetTexture();
-                } else 
-                    _projectorCamera.targetTexture = _depthTarget;
+                    var cfg = userToGetUpdate.GetProjectorCameraConfiguration();
+                    var trg = userToGetUpdate.GetTargetTexture();
 
-                _projectorCamera.Render();
-                painterProjection.Set(_projectorCamera);
+                    if (trg && cfg != null)
+                    {
+                        painterProjectorCameraConfiguration.From(_projectorCamera);
+                        cfg.To(_projectorCamera);
+                        _projectorCamera.targetTexture = trg;
+                        gotUser = true;
+                    }
+                }
+                
+
+                if (!gotUser) {
+                    _projectorCamera.targetTexture = _depthTarget;
+                    painterProjection.Set(_projectorCamera);
+                    userToGetUpdate = null;
+                }
+
+                if (gotUser || TexMgmtData.useDepthForProjector)
+                    _projectorCamera.Render();
 
             }
         }
 
         void OnPostRender() {
             if (userToGetUpdate !=null)  {
-                userToGetUpdate.AfterDepthCameraRender(_depthTarget);
+
+                try
+                {
+                    userToGetUpdate.AfterDepthCameraRender(_depthTarget);
+                }
+                catch (Exception ex) {
+                    Debug.LogError(ex);
+                }
+
                 userToGetUpdate = null;
                 painterProjectorCameraConfiguration.To(_projectorCamera);
             }
         }
 
-        #region Global Shader Parameters
-        
-        private void UpdateDepthCamera() {
-
-            if (!_projectorCamera) return;
-            
-            _projectorCamera.enabled = false;
-            _projectorCamera.depthTextureMode = DepthTextureMode.None;
-            _projectorCamera.depth = -1000;
-            _projectorCamera.clearFlags = CameraClearFlags.Depth;
-
-            var l = Cfg ? Cfg.playtimePainterLayer : 30;
-
-            _projectorCamera.cullingMask &= ~(1 << l);
-
-            if (_depthTarget) {
-                if (_depthTarget.width == targetSize)
-                    return;
-                else 
-                    _depthTarget.DestroyWhateverUnityObject();
-            }
-
-            var sz = Mathf.Max(targetSize, 16);
-
-            _depthTarget = GetDepthRenderTexture(sz);
-
-            _spDepth.GlobalValue = _depthTarget;
-
-            _projectorCamera.targetTexture = _depthTarget;
-        }
-        
         private readonly ProjectorCameraParameters painterProjection = new ProjectorCameraParameters("pp_");
         private readonly ShaderProperty.TextureValue _spDepth = new ShaderProperty.TextureValue("pp_DepthProjection");
 
-
-        //private void OnPostRender() {
-
-           /* _spMatrix.GlobalValue = _projectorCamera.projectionMatrix * _projectorCamera.worldToCameraMatrix;
-            _spDepth.GlobalValue = _depthTarget;
-            _spPos.GlobalValue = transform.position.ToVector4(0);
-
-            var far = _projectorCamera.farClipPlane;
-            var near = _projectorCamera.nearClipPlane;
-
-            _camParams.GlobalValue = new Vector4(
-                _projectorCamera.aspect,
-                Mathf.Tan(_projectorCamera.fieldOfView * Mathf.Deg2Rad * 0.5f),
-                near,
-                1f/far);
-            
-            var zBuff = new Vector4(1f - far / near, far / near, 0, 0);
-            zBuff.z = 1 / zBuff.x; 
-
-            _spZBuffer.GlobalValue = zBuff;*/
-      //  }
-
-        /* private readonly ShaderProperty.MatrixValue _spMatrix = new     ShaderProperty.MatrixValue("pp_ProjectorMatrix");
-           private readonly ShaderProperty.TextureValue _spDepth = new     ShaderProperty.TextureValue("pp_DepthProjection");
-           private readonly ShaderProperty.VectorValue _spPos = new        ShaderProperty.VectorValue("pp_ProjectorPosition");
-           private readonly ShaderProperty.VectorValue _spZBuffer = new    ShaderProperty.VectorValue("pp_ProjectorClipPrecompute");
-           private readonly ShaderProperty.VectorValue _camParams = new    ShaderProperty.VectorValue("pp_ProjectorConfiguration");*/
-
-        #endregion
-
     }
 
-    public interface IUseDepthProjector
-    {
+    public interface IUseDepthProjector {
         bool ProjectorReady();
         ProjectorCameraParameters GetProjectorCameraParameter();
         ProjectorCameraConfiguration GetProjectorCameraConfiguration();
-        void AfterDepthCameraRender(Texture depthTexture);
+        void AfterDepthCameraRender(RenderTexture depthTexture);
         RenderTexture GetTargetTexture();
     }
 
@@ -392,8 +390,7 @@ namespace Playtime_Painter
 
     }
 
-    public class ProjectorCameraParameters
-    {
+    public class ProjectorCameraParameters {
 
         private readonly ShaderProperty.MatrixValue _spMatrix;
         private readonly ShaderProperty.VectorValue _spPos;

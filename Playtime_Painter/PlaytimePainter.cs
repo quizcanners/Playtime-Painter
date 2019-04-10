@@ -2064,7 +2064,7 @@ namespace Playtime_Painter {
                                 }
                                 else if (_inspectedMeshEditorItems == -1)
                                 {
-                                    if ((" : ".select(20, ref selectedMeshProfile, Cfg.meshPackagingSolutions)) &&
+                                    if ((" : ".select_Index(20, ref selectedMeshProfile, Cfg.meshPackagingSolutions)) &&
                                         (IsEditingThisMesh))
                                         MeshManager.editedMesh.Dirty = true;
 
@@ -2217,7 +2217,7 @@ namespace Playtime_Painter {
                                     scheme?.PickerPEGI();
 
                                     if (Cfg.showColorSchemes)
-                                        changed |= "Scheme".select(60, ref Cfg.selectedColorScheme, Cfg.colorSchemes)
+                                        changed |= "Scheme".select_Index(60, ref Cfg.selectedColorScheme, Cfg.colorSchemes)
                                             .nl();
 
                                 }
@@ -2323,7 +2323,7 @@ namespace Playtime_Painter {
                                 "Color Texture".toggleIcon("Will the new texture be a Color Texture",
                                     ref Cfg.newTextureIsColor).nl(ref changed);
 
-                                "Size:".select("Size of the new Texture", 40, ref PainterCamera.Data.selectedWidthIndex,
+                                "Size:".select_Index("Size of the new Texture", 40, ref PainterCamera.Data.selectedWidthIndex,
                                     PainterDataAndConfig.NewTextureSizeOptions).nl();
                             }
 
@@ -2400,7 +2400,7 @@ namespace Playtime_Painter {
                             if (!mats.IsNullOrEmpty())
                             {
                                 var sm = selectedSubMesh;
-                                if (pegi.select(ref sm, mats))
+                                if (pegi.select_Index(ref sm, mats))
                                 {
                                     SetOriginalShaderOnThis();
                                     selectedSubMesh = sm;
@@ -2449,7 +2449,7 @@ namespace Playtime_Painter {
 
 
                             var ind = SelectedTexture;
-                            if (pegi.select(ref ind, GetMaterialTextureNames()).changes(ref changed))
+                            if (pegi.select_Index(ref ind, GetMaterialTextureNames()).changes(ref changed))
                             {
                                 SetOriginalShaderOnThis();
                                 SelectedTexture = ind;

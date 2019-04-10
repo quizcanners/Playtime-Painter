@@ -74,7 +74,6 @@
 				float dotprod = dot(o.viewDir.xyz, o.normal);
 				float3 reflected = normalize(o.viewDir.xyz - 2 * (dotprod)*o.normal);
 
-
 				bake.r = CalculateBake(bake.r, o.worldPos, g_l0pos.xyz, -o.viewDir, reflected, cameraToPointLength);
 
 				bake.g = CalculateBake(bake.g, o.worldPos, g_l1pos.xyz, -o.viewDir, reflected, cameraToPointLength);

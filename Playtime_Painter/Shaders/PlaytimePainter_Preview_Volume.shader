@@ -2,7 +2,7 @@
 	Properties{
 		_PreviewTex("Base (RGB)", 2D) = "white" { }
 		VOLUME_H_SLICES("Baked Shadow Slices", Vector) = (0,0,0,0)
-		VOLUME_POSITION_N_SIZE("Baked Shadow Position & Size", Vector) = (0,0,0,0)
+		VOLUME_POSITION_N_SIZE("Volume Position & Size", Vector) = (0,0,0,0)
 	}
 
 	Category{

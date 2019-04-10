@@ -148,7 +148,7 @@ namespace Playtime_Painter.Examples {
             var changed = false;
 
             if (!_mainCam)  {
-                "Main Camera".select(ref _mainCam).nl();
+                "Main Camera".selectInScene(ref _mainCam).nl();
                 "Camera is missing, spin around will not work".writeWarning();
             }
              

@@ -45,14 +45,9 @@
 					return o;
 				}
 
-				 /*    x contains 1.0/width
-				 y contains 1.0/height
-				 z contains width
-				 w contains height*/
-
 				float4 frag(v2f i) : COLOR{
 	
-					float2 perfTex = (floor(i.texcoord.xy*_MainTex_TexelSize.z) + 0.5) * _MainTex_TexelSize.x;
+					float2 perfTex = (floor(i.texcoord.xy*_MainTex_TexelSize.zw) + 0.5) * _MainTex_TexelSize.xy;
 
 					float4 col = tex2Dlod(_MainTex, float4(perfTex, 0, 0));
 

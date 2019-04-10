@@ -112,9 +112,11 @@ namespace Playtime_Painter {
 
         #region Inspect
 
-        public abstract string NameForDisplayPEGI { get; }
+        protected virtual MsgPainter Translation => MsgPainter.Unnamed;
 
-        public virtual string ToolTip => NameForDisplayPEGI + " (No Tooltip)";
+        public virtual string NameForDisplayPEGI => Translation.GetText();
+
+        public virtual string ToolTip => Translation.GetDescription();
 
         #if PEGI
         public virtual bool ShowInDropdown()
@@ -222,14 +224,10 @@ namespace Playtime_Painter {
 
     public class BlitModeAlpha : BlitMode
     {
-        public override string NameForDisplayPEGI => "Alpha Blit"; 
 
         protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_ALPHABLEND";
 
-        public override string ToolTip =>
-            "The most standard brush. It will gradually replace existing color with the color you are painting with. " +
-            "Keep in mind, if you are painting on texture with transparency (has areas you can see trough), also toggle Transparent Blit mode. " +
-            "Otherwise you'll see some weird outlines.";
+        protected override MsgPainter Translation => MsgPainter.BlitModeAlpha;
 
         public BlitModeAlpha(int ind) : base(ind) { }
         public override bool SupportsTransparentLayer => true;
@@ -243,14 +241,17 @@ namespace Playtime_Painter {
     {
         static BlitModeAdd _inst;
         public static BlitModeAdd Inst { get { if (_inst == null) InstantiateBrushes(); return _inst; } }
+        
 
-        public override string NameForDisplayPEGI => "Add";
+
         protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_ADD";
         
         public override Shader ShaderForSingleBuffer => TexMGMTdata.brushAdd;
         public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.AddBlit;
 
-        public override string ToolTip => "Adds brush color to texture color.";
+        protected override MsgPainter Translation => MsgPainter.BlitModeAdd;
+
+
         public BlitModeAdd(int ind) : base(ind)
         {
             _inst = this;
@@ -263,15 +264,16 @@ namespace Playtime_Painter {
 
     public class BlitModeSubtract : BlitMode
     {
-        public override string NameForDisplayPEGI => "Subtract"; 
+
+        protected override MsgPainter Translation => MsgPainter.BlitModeSubtract;
+        
         protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_SUBTRACT";
         
         public override bool SupportedBySingleBuffer => false;
 
         public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.SubtractBlit;
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Subtract;
-
-        public override string ToolTip => "Subtracts brush color from texture color.";
+        
         public BlitModeSubtract(int ind) : base(ind) { }
 
     }
@@ -282,15 +284,14 @@ namespace Playtime_Painter {
 
     public class BlitModeCopy : BlitMode
     {
-        public override string NameForDisplayPEGI => "Copy";
+        protected override MsgPainter Translation => MsgPainter.BlitModeCopy;
+        
         protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_COPY";
         public override bool ShowColorSliders => false;
 
         public override bool SupportedByTex2D => false;
         public override bool UsingSourceTexture => true;
         public override Shader ShaderForSingleBuffer => TexMGMTdata.brushCopy;
-
-        public override string ToolTip => "Copies pixels from selected source texture to painted texture.";
 
         public BlitModeCopy(int ind) : base(ind) { }
     }
@@ -301,13 +302,13 @@ namespace Playtime_Painter {
 
     public class BlitModeMin : BlitMode
     {
-        public override string NameForDisplayPEGI => "Min"; 
+        protected override MsgPainter Translation => MsgPainter.BlitModeMin;
+        
         public override bool SupportedByRenderTexturePair => false;
         public override bool SupportedBySingleBuffer => false;
         public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.MinBlit;
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Min;
 
-        public override string ToolTip => "Paints smalles value between brush color and current texture color for each channel.";
         public BlitModeMin(int ind) : base(ind) { }
     }
 
@@ -317,13 +318,16 @@ namespace Playtime_Painter {
 
     public class BlitModeMax : BlitMode
     {
-        public override string NameForDisplayPEGI => "Max"; 
+
+        protected override MsgPainter Translation => MsgPainter.BlitModeMax;
+
+        
         public override bool SupportedByRenderTexturePair => false;
         public override bool SupportedBySingleBuffer => false;
         public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.MaxBlit;
         public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Max;
 
-        public override string ToolTip => "Paints highest value between brush color and current texture color for each channel.";
+        //"Paints highest value between brush color and current texture color for each channel.";
         public BlitModeMax(int ind) : base(ind) { }
     }
 
@@ -343,8 +347,7 @@ namespace Playtime_Painter {
 
         #region Inspector
 
-        public override string NameForDisplayPEGI => "Blur";
-        public override string ToolTip => "As name suggests, blurs pixels";
+        protected override MsgPainter Translation => MsgPainter.BlitModeBlur;
 
         #if PEGI
         public override bool Inspect()
@@ -390,8 +393,6 @@ namespace Playtime_Painter {
 
         public override bool SupportedByTex2D => true;
 
-        public override string NameForDisplayPEGI => "Pixel Reshape"; 
-
         public void FromUv(Vector2 uv)
         {
             currentPixel.x = (int)Mathf.Floor(uv.x * Cfg.samplingMaskSize.x);
@@ -408,8 +409,7 @@ namespace Playtime_Painter {
 
         #region Inspector
 
-        public override string ToolTip => "This one is more in the experimental category. It writes distance from central pixel. Could be used to create texture with pixels shaped as hexagons, or bricks in the wall. ";
-
+        protected override MsgPainter Translation => MsgPainter.BlitModeOff;
 
 #if PEGI
         public override bool Inspect()
@@ -543,9 +543,8 @@ namespace Playtime_Painter {
         public override Shader ShaderForAlphaBufferBlit => TexMGMTdata.blurAndSmudgeBufferBlit;
 
         #region Inspector
-        public override string NameForDisplayPEGI => "Bloom";
-        public override string ToolTip => "Similar to Blur, but instead of blurring the colors, spreads brightness from bright pixels to darker ones";
-        
+        protected override MsgPainter Translation => MsgPainter.BlitModeBloom;
+
         #if PEGI
         public override bool Inspect() {
 
@@ -565,7 +564,6 @@ namespace Playtime_Painter {
 
     public class BlitModeProjector : BlitMode
     {
-        public override string NameForDisplayPEGI => "Projection";
 
         public override bool SupportedByTex2D => false;
 
@@ -584,26 +582,39 @@ namespace Playtime_Painter {
         public override Shader ShaderForAlphaBufferBlit => TexMGMTdata.projectorBrushBufferBlit;
         public override Shader ShaderForAlphaOutput => TexMGMTdata.additiveAlphaAndUVOutput;
 
+        //           
+
+        public override void SetGlobalShaderParameters()
+        {
+            base.SetGlobalShaderParameters();
+            UnityUtils.SetShaderKeyword(PainterDataAndConfig.USE_DEPTH_FOR_PROJECTOR, TexMGMTdata.useDepthForProjector);
+        }
+
+
         public override bool NeedsWorldSpacePosition => true;
 
         #region Inspector
-        public override string ToolTip =>
-            ("Will create a camera that will serve as a projector. This mode is similar to Copy, but instead of UV space will try to " +
-             "use projector matrix to get uvs. Only World Space brushes can use Projector. Currently only sphere brush is a world space brush. ");
+        protected override MsgPainter Translation => MsgPainter.BlitModeProjector;
+
 
 #if PEGI
         public override bool Inspect()
         {
             var changed = false;
 
-            if (!DepthProjectorCamera.Instance)
-            {
-                if ("Create Projector Camera".Click().nl())
+            if (!DepthProjectorCamera.Instance) {
+
+                if ("Create Projector Camera".Click().nl()) {
+
                     UnityUtils.Instantiate<DepthProjectorCamera>();
+                    "posProjCam".resetOneTimeHint();
+                }
             }
             else
             {
                 base.Inspect().nl(ref changed);
+
+                "First step is usually to position the projector camera. You can Lock it to current camera view.".writeOneTimeHint("posProjCam");
 
                 if (icon.Delete.Click("Delete Projector Camera"))
                     DepthProjectorCamera.Instance.gameObject.DestroyWhatever();
@@ -634,11 +645,8 @@ namespace Playtime_Painter {
         public override Shader ShaderForDoubleBuffer => TexMGMTdata.inkColorSpread;
 
         #region Inspector
-        public override string NameForDisplayPEGI => "Ink Filler";
-        
-        public override string ToolTip =>
-            (" Inspired by comic books. After you paint BLACK lines, this brush will try to gradually fill the painted area with color without crossing those lines. " +
-             ". ");
+
+        protected override MsgPainter Translation => MsgPainter.BlitModeFiller;
 
         #if PEGI
         public override bool Inspect()

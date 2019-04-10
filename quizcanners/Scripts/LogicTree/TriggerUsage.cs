@@ -18,7 +18,7 @@ namespace STD_Logic
         
         #region Inspector
         #if PEGI
-        public static bool SelectUsage(ref int ind) => pegi.select(ref ind, Usages, 45);
+        public static bool SelectUsage(ref int ind) => pegi.select_Index(ref ind, Usages, 45);
 
         public virtual void Inspect(ConditionLogic c) { }
 

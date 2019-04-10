@@ -219,7 +219,7 @@ namespace Playtime_Painter.Examples {
             var r = Renderer;
 
             if ((r && r.sharedMaterials.Length > 1) || materialIndex != 0) 
-                "   Material".select(80, ref materialIndex, r.sharedMaterials).nl();
+                "   Material".select_Index(80, ref materialIndex, r.sharedMaterials).nl();
             
             if (Material) {
                 var lst = Material.MyGetTextureProperties();

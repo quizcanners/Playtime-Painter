@@ -37,7 +37,7 @@ namespace Playtime_Painter.Examples
                 case HintStage.AddTexture:
                     newText = "Pill on the left has no texture. Select it with " + mb + " and click 'Create Texture' icon"; break;
                 case HintStage.RenderTexture:
-                    const int size = PainterCamera.RenderTextureSize;
+                    int size = PainterCamera.renderBuffersSize;
                     newText = "Change MODE to GPU Blit. \n This will enable different option and will use two " + size + "*" + size + " Render Texture buffers for editing. \n"; break;
                 case HintStage.WellDone: goto default;
                 default:

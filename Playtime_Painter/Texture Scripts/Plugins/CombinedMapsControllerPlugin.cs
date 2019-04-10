@@ -167,7 +167,7 @@ namespace Playtime_Painter
                 "is Color".toggle(ref isColor).nl(ref changed);
             }
             
-            pegi.select(ref selectedProfile, Ctrl.texturePackagingSolutions);
+            pegi.select_Index(ref selectedProfile, Ctrl.texturePackagingSolutions);
 
             if (icon.Add.Click("New Texture Packaging Profile").nl()) {
                 Ctrl.texturePackagingSolutions.AddWithUniqueNameAndIndex();
@@ -461,7 +461,7 @@ namespace Playtime_Painter
 
                 var rls = TextureRole.All;
 
-                pegi.select(ref _sourceRole, rls).changes(ref changed);
+                pegi.select_Index(ref _sourceRole, rls).changes(ref changed);
 
                 rls[_sourceRole].Inspect(ref sourceChannel, this).changes(ref changed);
             }
@@ -621,7 +621,7 @@ namespace Playtime_Painter
 
         public bool Inspect(ref int selectedChannel, TextureChannel tc)
         {
-            var changed = ".".select(10, ref selectedChannel, GetChannels).nl();
+            var changed = ".".select_Index(10, ref selectedChannel, GetChannels).nl();
 
             return changed;
         }

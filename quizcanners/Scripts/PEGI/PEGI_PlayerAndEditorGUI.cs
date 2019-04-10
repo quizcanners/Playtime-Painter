@@ -1217,31 +1217,324 @@ namespace PlayerAndEditorGUI {
             PlayerPrefs.SetInt(name, 1);
             return true;
         }
-        
+
         #endregion
 
         #endregion
 
         #region SELECT
-
+        
         static T filterEditorDropdown<T>(this T obj)  {
             var edd = obj as IEditorDropdown;
             return (edd == null || edd.ShowInDropdown()) ? obj : default(T); 
         }
+        
+        #region Select From Int
+        
+        public static bool selectPow2(this string label, ref int current, int min, int max) =>
+            label.selectPow2(label, label.ApproximateLength(), ref current, min, max);
+        
+        public static bool selectPow2(this string label, string tip, int width, ref int current, int min, int max)
+        {
 
-        #region Extended Select
+            label.write(tip, width);
+
+            return selectPow2(ref current, min, max);
+
+        }
+
+        public static bool selectPow2(ref int current, int min, int max) {
+
+            List<int> tmp = new List<int>();
+
+            min = Mathf.NextPowerOfTwo(min);
+
+            while (min <= max) {
+                tmp.Add(min);
+                min = Mathf.NextPowerOfTwo(min+1);
+            }
+            
+            return select(ref current, tmp);
+
+        }
+
+        public static bool select(this string label, string tip, ref int value, List<int> list)
+        {
+            label.write(tip);
+            return select(ref value, list);
+        }
+
+        public static bool select(this string label, string tip, int width, ref int value, List<int> list)
+        {
+            label.write(tip, width);
+            return select(ref value, list);
+        }
+
+        public static bool select(this string label, int width, ref int value, List<int> list)
+        {
+            label.write(width);
+            return select(ref value, list);
+        }
+
+        public static bool select(this string label, ref int value, List<int> list)
+        {
+            label.write(label.ApproximateLength());
+            return select(ref value, list);
+        }
+
+        public static bool select(ref int value, List<int> list) => select(ref value, list.ToArray());
+
+        public static bool select(this string text, int width, ref int value, int min, int max)
+        {
+            write(text, width);
+            return select(ref value, min, max);
+        }
+
+        public static bool select(ref int value, int min, int max)
+        {
+            var cnt = max - min + 1;
+
+            var tmp = value - min;
+            var array = new int[cnt];
+            for (var i = min; i < cnt; i++)
+                array[i] = min + i;
+
+            if (select(ref tmp, array))
+            {
+                value = tmp + min;
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool select(this string text, ref int ind, int[] arr)
+        {
+            write(text);
+            return select(ref ind, arr);
+        }
+
+        public static bool select(this string text, int width, ref int ind, int[] arr)
+        {
+            write(text, width);
+            return select(ref ind, arr);
+        }
+
+        public static bool select(this string text, string tip, int width, ref int ind, int[] arr, bool showIndex = false)
+        {
+            write(text, tip, width);
+            return select(ref ind, arr, showIndex);
+        }
+
+        public static bool select(ref int val, int[] arr, bool showIndex = false) {
+
+            checkLine();
+
+            var lnms = new List<string>();
+
+            int tmp = -1;
+
+            if (arr != null)
+                for (var i = 0; i < arr.Length; i++) {
+
+                    var el = arr[i];
+                    if (el == val)
+                        tmp = i;
+                    lnms.Add(_compileName(showIndex, i, el));
+                }
+            
+            if (selectFinal(val, ref tmp, lnms))  {
+                val = arr[tmp];
+                return true;
+            }
+
+            return false;
+
+        }
+
+        #endregion
+
+        #region From Strings
+
+        public static bool select(ref int no, List<string> from)
+        {
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return from.IsNullOrEmpty() ? "Selecting from null:".edit(90, ref no) : ef.select(ref no, from.ToArray());
+#endif
+
+
+            if (from.IsNullOrEmpty()) return false;
+
+            foldout(from.TryGet(no, "..."));
+
+            if (isFoldedOutOrEntered)
+            {
+                if (from.Count > 1)
+                    newLine();
+                for (var i = 0; i < from.Count; i++)
+                    if (i != no && "{0}: {1}".F(i, from[i]).ClickUnFocus().nl())
+                    {
+                        no = i;
+                        foldIn();
+                        return change;
+                    }
+            }
+
+            GUILayout.Space(10);
+
+            return false;
+
+        }
+
+        public static bool select(ref int no, string[] from, int width = -1)
+        {
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return width > 0 ?
+                    ef.select(ref no, from, width) :
+                    ef.select(ref no, from);
+#endif
+
+            if (from.IsNullOrEmpty())
+                return false;
+
+            foldout(from.TryGet(no, "..."));
+
+            if (isFoldedOutOrEntered)
+            {
+
+                if (from.Length > 1)
+                    newLine();
+
+                for (var i = 0; i < from.Length; i++)
+                    if (i != no && "{0}: {1}".F(i, from[i]).ClickUnFocus().nl())
+                    {
+                        no = i;
+                        foldIn();
+                        return true;
+                    }
+
+
+            }
+
+            GUILayout.Space(10);
+
+            return false;
+
+        }
+
+        private static bool selectFinal(ref int val, ref int indexes, List<string> namesList)
+        {
+            var count = namesList.Count;
+
+            if (count == 0)
+                return edit(ref val);
+
+            if (indexes == -1)
+            {
+                indexes = namesList.Count;
+                namesList.Add("[{0}]".F(val.ToPegiString()));
+
+            }
+
+            var tmp = indexes;
+
+            if (select(ref tmp, namesList.ToArray()) && (tmp < count))
+            {
+                indexes = tmp;
+                return change;
+            }
+
+            return false;
+
+        }
+
+        private static bool selectFinal<T>(T val, ref int indexes, List<string> namesList)
+        {
+            var count = namesList.Count;
+
+            if (indexes == -1 && !val.IsNullOrDestroyed_Obj())
+            {
+                indexes = namesList.Count;
+                namesList.Add("[{0}]".F(val.ToPegiString()));
+
+            }
+
+            var tmp = indexes;
+
+            if (select(ref tmp, namesList.ToArray()) && tmp < count)
+            {
+                indexes = tmp;
+                return true;
+            }
+
+            return false;
+        }
+
+        private static string _compileName<T>(bool showIndex, int index, T obj, bool stripSlashes = false)
+        {
+            var st = obj.ToPegiString();
+            if (stripSlashes)
+                st = st.SimplifyDirectory();
+
+            return (showIndex || st.Length == 0) ? "{0}: {1}".F(index, st) : st;
+        }
+
+        public static bool select(this string text, ref string val, List<string> lst)
+        {
+            write(text);
+            return select(ref val, lst);
+        }
+        
+        public static bool select(this string text, int width, ref int value, string[] array)
+        {
+            write(text, width);
+            return select(ref value, array);
+        }
+        
+        public static bool select(this string text, int width, ref string val, List<string> lst)
+        {
+            write(text, width);
+            return select(ref val, lst);
+        }
+
+        public static bool select(ref string val, List<string> lst)
+        {
+            var ind = -1;
+
+            for (var i = 0; i < lst.Count; i++)
+                if (lst[i] != null && lst[i].SameAs(val))
+                {
+                    ind = i;
+                    break;
+                }
+
+            if (select(ref ind, lst))
+            {
+                val = lst[ind];
+                return change;
+            }
+
+            return false;
+        }
+
+        #endregion
+
+        #region Object
 
         private static readonly Dictionary<Type, List<Object>> objectsInScene = new Dictionary<Type, List<Object>>();
 
-        static List<Object> FindObjects<T>() where T: Object {
+        static List<Object> FindObjects<T>() where T : Object
+        {
             var objects = new List<Object>(Object.FindObjectsOfType<T>());
 
             objectsInScene[typeof(T)] = objects;
 
             return objects;
         }
-
-        public static bool select<T>(this string label, ref T obj) where T : Object {
+        
+        public static bool selectInScene<T>(this string label, ref T obj) where T : Object {
 
             List<Object> objects;
 
@@ -1261,45 +1554,80 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-        public static bool select(this string text, int width, ref int value, string[] array)
+        public static bool selectOrAdd<T>(this string label, int width, ref int selected, ref List<T> objs) where T : Object
         {
-            write(text, width);
-            return select(ref value, array);
+            label.write(width);
+            return selectOrAdd(ref selected, ref objs);
         }
 
-        public static bool select(this string text, int width, ref int value, int min, int max)
+        public static bool selectOrAdd<T>(ref int selected, ref List<T> objcts) where T : Object
         {
-            write(text, width);
-            return select(ref value, min, max);
-        }
+            var changed = select_Index(ref selected, objcts);
 
-        public static bool select(ref int value, int min, int max) {
-            var cnt = max - min + 1;
+            var tex = objcts.TryGet(selected);
 
-            var tmp = value - min;
-            var array = new int[cnt];
-            for (var i = min; i < cnt; i++)
-                array[i] = min + i;
-            
-            if (select(ref tmp, array)) {
-                value = tmp + min;
-                return true;
+            if (edit(ref tex, 50).changes(ref changed))
+            {
+                if (!tex)
+                    selected = -1;
+                else
+                {
+                    var ind = objcts.IndexOf(tex);
+                    if (ind >= 0)
+                        selected = ind;
+                    else
+                    {
+                        selected = objcts.Count;
+                        objcts.Add(tex);
+                    }
+                }
             }
 
-            return false;
+            return changed;
         }
+        
+        public static bool select(ref int no, Texture[] tex)
+        {
 
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.select(ref no, tex);
 
-        public static bool select<T>(this string text, int width, ref T value, List<T> array, bool showIndex = false, bool stripSlashes = false)
+#endif
+
+            if (tex.Length == 0) return false;
+
+            checkLine();
+
+            var tnames = new List<string>();
+            var tnumbers = new List<int>();
+
+            var curno = 0;
+            for (var i = 0; i < tex.Length; i++)
+                if (!tex[i].IsNullOrDestroyed_Obj())
+                {
+                    tnumbers.Add(i);
+                    tnames.Add("{0}: {1}".F(i, tex[i].name));
+                    if (no == i) curno = tnames.Count - 1;
+                }
+
+            var changed = false;
+
+            if (select(ref curno, tnames.ToArray()).changes(ref changed) && curno >= 0 && curno < tnames.Count)
+                no = tnumbers[curno];
+
+            return changed;
+
+        }
+        
+        #endregion
+
+        #region Select Generic
+
+        public static bool select<T>(this string text, int width, ref T value, List<T> lst, bool showIndex = false, bool stripSlashes = false)
         {
             write(text, width);
-            return select(ref value, array, showIndex, stripSlashes);
-        }
-
-        public static bool select(this string text, ref string val, List<string> lst)
-        {
-            write(text);
-            return select(ref val, lst);
+            return select(ref value, lst, showIndex, stripSlashes);
         }
 
         public static bool select<T>(this string text, ref T value, List<T> list, bool showIndex = false)
@@ -1308,60 +1636,209 @@ namespace PlayerAndEditorGUI {
             return select(ref value, list, showIndex);
         }
 
-        public static bool select(this string text, int width, ref string val, List<string> lst)
-        {
-            write(text, width);
-            return select(ref val, lst);
-        }
-
-        public static bool select<T>(this string text, ref int ind, List<T> lst, bool showIndex = false)
-        {
-            write(text);
-            return select(ref ind, lst, showIndex);
-        }
-
-        public static bool select<T>(this string text, ref int ind, T[] lst)
-        {
-            write(text);
-            return select(ref ind, lst);
-        }
-
-        public static bool select<T>(this string text, int width, ref int ind, T[] lst)
-        {
-            write(text, width);
-            return select(ref ind, lst);
-        }
-
-        public static bool select<T>(this string text, string tip, int width, ref int ind, T[] lst, bool showIndex = false)
-        {
-            write(text, tip, width);
-            return select(ref ind, lst, showIndex);
-        }
-
         public static bool select<T>(this string text, ref T value, T[] lst, bool showIndex = false)
         {
             write(text);
             return select(ref value, lst, showIndex);
         }
 
-        public static bool select<T>(this string text, string tip, ref int ind, List<T> lst)
+        public static bool select<T>(ref T val, T[] lst, bool showIndex = false)
         {
-            write(text, tip);
-            return select(ref ind, lst);
+            checkLine();
+
+            var namesList = new List<string>();
+            var indexList = new List<int>();
+
+            var current = -1;
+
+            for (var j = 0; j < lst.Length; j++)
+            {
+                var tmp = lst[j];
+                if (tmp.filterEditorDropdown().IsDefaultOrNull()) continue;
+
+                if (!val.IsDefaultOrNull() && val.Equals(tmp))
+                    current = namesList.Count;
+
+                namesList.Add(_compileName(showIndex, j, tmp)); //showIndex ? "{0}: {1}".F(j, tmp.ToPegiString()) : tmp.ToPegiString());
+                indexList.Add(j);
+            }
+
+            if (selectFinal(val, ref current, namesList))
+            {
+                val = lst[indexList[current]];
+                return change;
+            }
+
+            return false;
+
         }
 
-        public static bool select<T>(this string text, int width, ref int ind, List<T> lst, bool showIndex = false)
+        public static bool select<T>(ref T val, List<T> lst, bool showIndex = false, bool stripSlashes = false)
+        {
+            checkLine();
+
+            var names = new List<string>();
+            var indexes = new List<int>();
+
+            var currentIndex = -1;
+
+            for (var i = 0; i < lst.Count; i++)
+            {
+                var tmp = lst[i];
+                if (tmp.filterEditorDropdown().IsDefaultOrNull()) continue;
+
+                if (!val.IsDefaultOrNull() && tmp.Equals(val))
+                    currentIndex = names.Count;
+
+                names.Add(_compileName(showIndex, i, tmp, stripSlashes));
+                indexes.Add(i);
+
+            }
+
+            if (selectFinal(val, ref currentIndex, names))
+            {
+                val = lst[indexes[currentIndex]];
+                return change;
+            }
+
+            return false;
+
+        }
+
+        public static bool select_SameClass<T, G>(ref T val, List<G> lst, bool showIndex = false) where T : class where G : class
+        {
+            var changed = false;
+            var same = typeof(T) == typeof(G);
+
+            checkLine();
+
+            var namesList = new List<string>();
+            var indexList = new List<int>();
+
+            var current = -1;
+
+            for (var j = 0; j < lst.Count; j++)
+            {
+                var tmp = lst[j];
+                if (tmp.filterEditorDropdown().IsDefaultOrNull() ||
+                    (!same && !typeof(T).IsAssignableFrom(tmp.GetType()))) continue;
+
+                if (tmp.Equals(val))
+                    current = namesList.Count;
+
+                namesList.Add(_compileName(showIndex, j, tmp)); //"{0}: {1}".F(j, tmp.ToPegiString()));
+                indexList.Add(j);
+            }
+
+            if (selectFinal(val, ref current, namesList).changes(ref changed))
+                val = lst[indexList[current]] as T;
+
+            return changed;
+
+        }
+
+        #endregion
+
+        #region Select Index
+
+        public static bool select_Index<T>(this string text, ref int ind, List<T> lst, bool showIndex = false)
+        {
+            write(text);
+            return select_Index(ref ind, lst, showIndex);
+        }
+
+        public static bool select_Index<T>(this string text, ref int ind, T[] lst)
+        {
+            write(text);
+            return select_Index(ref ind, lst);
+        }
+
+        public static bool select_Index<T>(this string text, int width, ref int ind, T[] lst)
         {
             write(text, width);
-            return select(ref ind, lst, showIndex);
+            return select_Index(ref ind, lst);
         }
 
-        public static bool select<T>(this string text, string tip, int width, ref int ind, List<T> lst, bool showIndex = false)
+        public static bool select_Index<T>(this string text, string tip, int width, ref int ind, T[] lst, bool showIndex = false)
         {
             write(text, tip, width);
-            return select(ref ind, lst, showIndex);
+            return select_Index(ref ind, lst, showIndex);
         }
 
+        public static bool select_Index<T>(this string text, string tip, ref int ind, List<T> lst)
+        {
+            write(text, tip);
+            return select_Index(ref ind, lst);
+        }
+
+        public static bool select_Index<T>(this string text, int width, ref int ind, List<T> lst, bool showIndex = false)
+        {
+            write(text, width);
+            return select_Index(ref ind, lst, showIndex);
+        }
+
+        public static bool select_Index<T>(this string text, string tip, int width, ref int ind, List<T> lst, bool showIndex = false)
+        {
+            write(text, tip, width);
+            return select_Index(ref ind, lst, showIndex);
+        }
+        
+        public static bool select_Index<T>(ref int ind, List<T> lst, int width) =>
+#if UNITY_EDITOR
+            (!paintingPlayAreaGui) ?
+                ef.select(ref ind, lst, width) :
+#endif
+                select_Index(ref ind, lst);
+        
+        public static bool select_Index<T>(ref int ind, List<T> lst, bool showIndex = false)
+        {
+
+            checkLine();
+
+            var namesList = new List<string>();
+            var indexes = new List<int>();
+
+            var current = -1;
+
+            for (var j = 0; j < lst.Count; j++)
+                if (!lst[j].filterEditorDropdown().IsNullOrDestroyed_Obj())
+                {
+                    if (ind == j)
+                        current = indexes.Count;
+                    namesList.Add(_compileName(showIndex, j, lst[j])); //lst[j].ToPegiString());
+                    indexes.Add(j);
+                }
+
+            if (selectFinal(ind, ref current, namesList))
+            {
+                ind = indexes[current];
+                return change;
+            }
+
+            return false;
+
+        }
+
+        public static bool select_Index<T>(ref int ind, T[] arr, bool showIndex = false)
+        {
+
+            checkLine();
+
+            var lnms = new List<string>();
+
+            if (arr.ClampIndexToLength(ref ind))
+            {
+                for (var i = 0; i < arr.Length; i++)
+                    lnms.Add(_compileName(showIndex, i, arr[i]));
+            }
+
+            return selectFinal(ind, ref ind, lnms);
+
+        }
+        
+        #endregion
+
+        #region With Lambda
         public static bool select<T>(this string label, ref int val, List<T> list, Func<T, bool> lambda, bool showIndex = false)
         {
             write(label);
@@ -1397,7 +1874,107 @@ namespace PlayerAndEditorGUI {
             write(text, hint, width);
             return select(ref val, list, lambda, showIndex);
         }
+        
+        public static bool select<T>(ref int val, List<T> lst, Func<T, bool> lambda, bool showIndex = false)
+        {
 
+            checkLine();
+
+            var names = new List<string>();
+            var indexes = new List<int>();
+
+            var current = -1;
+
+            for (var j = 0; j < lst.Count; j++)
+            {
+                var tmp = lst[j];
+
+                if (tmp.filterEditorDropdown().IsDefaultOrNull() || !lambda(tmp)) continue;
+
+                if (val == j)
+                    current = names.Count;
+                names.Add(_compileName(showIndex, j, tmp));//showIndex ? "{0}: {1}".F(j, tmp.ToPegiString()) : tmp.ToPegiString());
+                indexes.Add(j);
+            }
+
+
+            if (selectFinal(val, ref current, names))
+            {
+                val = indexes[current];
+                return change;
+            }
+
+            return false;
+        }
+
+        public static bool select_IGotIndex<T>(ref int val, List<T> lst, Func<T, bool> lambda, bool showIndex = false) where T : IGotIndex
+        {
+
+            checkLine();
+
+            var names = new List<string>();
+            var indexes = new List<int>();
+
+            var current = -1;
+
+            foreach (var tmp in lst)
+            {
+
+                if (tmp.filterEditorDropdown().IsDefaultOrNull() || !lambda(tmp)) continue;
+
+                var ind = tmp.IndexForPEGI;
+
+                if (val == ind)
+                    current = names.Count;
+                names.Add(_compileName(showIndex, ind, tmp));//showIndex ? "{0}: {1}".F(ind, tmp.ToPegiString()) : tmp.ToPegiString());
+                indexes.Add(ind);
+
+            }
+
+            if (selectFinal(ref val, ref current, names))
+            {
+                val = indexes[current];
+                return change;
+            }
+
+            return false;
+        }
+
+        public static bool select<T>(ref T val, List<T> lst, Func<T, bool> lambda, bool showIndex = false)
+        {
+            var changed = false;
+
+
+            checkLine();
+
+            var namesList = new List<string>();
+            var indexList = new List<int>();
+
+            var current = -1;
+
+            for (var j = 0; j < lst.Count; j++)
+            {
+                var tmp = lst[j];
+                if (tmp.filterEditorDropdown().IsDefaultOrNull() || !lambda(tmp)) continue;
+
+                if (current == -1 && tmp.Equals(val))
+                    current = namesList.Count;
+
+                namesList.Add(_compileName(showIndex, j, tmp));
+                indexList.Add(j);
+            }
+
+            if (selectFinal(val, ref current, namesList).changes(ref changed))
+                val = lst[indexList[current]];
+
+
+            return changed;
+
+        }
+
+        #endregion
+
+        #region Countless
         public static bool select<T>(this string label, int width, ref int no, Countless<T> tree)
         {
             label.write(width);
@@ -1453,41 +2030,155 @@ namespace PlayerAndEditorGUI {
             return select(ref no, tree, lambda);
         }
 
-        public static bool selectOrAdd<T>(ref int selected, ref List<T> objcts) where T : Object
+        public static bool select<T>(ref int no, CountlessCfg<T> tree) where T : ICfg, new()
         {
-            var changed = select(ref selected, objcts);
 
-            var tex = objcts.TryGet(selected);
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.select(ref no, tree);
+#endif
 
-            if (edit(ref tex, 50).changes(ref changed)) {
-                if (!tex)
-                    selected = -1;
-                else {
-                    var ind = objcts.IndexOf(tex);
-                    if (ind >= 0)
-                        selected = ind;
-                    else
-                    {
-                        selected = objcts.Count;
-                        objcts.Add(tex);
-                    }
-                }
+            List<int> inds;
+            var objs = tree.GetAllObjs(out inds);
+            var filtered = new List<string>();
+            var tmpindex = -1;
+            for (var i = 0; i < objs.Count; i++)
+            {
+                if (no == inds[i])
+                    tmpindex = i;
+                filtered.Add(objs[i].ToPegiString());
             }
 
-            return changed;
+            if (select(ref tmpindex, filtered.ToArray()))
+            {
+                no = inds[tmpindex];
+                return change;
+            }
+            return false;
+
         }
 
-        public static bool select<T>(ref int ind, List<T> lst, int width) =>
-        #if UNITY_EDITOR
-            (!paintingPlayAreaGui) ?
-                ef.select(ref ind, lst, width) :
-        #endif            
-                select(ref ind, lst);
-        
-        public static bool selectOrAdd<T>(this string label, int width, ref int selected, ref List<T> objs) where T : Object  {
-            label.write(width);
-            return selectOrAdd(ref selected, ref objs);
+        public static bool select<T>(ref int no, Countless<T> tree, Func<T, bool> lambda)
+        {
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.select(ref no, tree);
+#endif
+
+            List<int> unfinds;
+            var indexes = new List<int>();
+            var objects = tree.GetAllObjs(out unfinds);
+            var namesList = new List<string>();
+            var current = -1;
+            var j = 0;
+            for (var i = 0; i < objects.Count; i++)
+            {
+
+                var el = objects[i];
+
+                if (el.filterEditorDropdown().IsNullOrDestroyed_Obj() || !lambda(el)) continue;
+
+                indexes.Add(unfinds[i]);
+
+                if (no == indexes[j])
+                    current = j;
+
+                namesList.Add(objects[i].ToPegiString());
+                j++;
+            }
+
+
+            if (selectFinal(no, ref current, namesList))
+            {
+                no = indexes[current];
+                return change;
+            }
+            return false;
+
         }
+
+        public static bool select(CountlessInt cint, int ind, Dictionary<int, string> from)
+        {
+
+            var value = cint[ind];
+
+            if (select(ref value, from))
+            {
+                cint[ind] = value;
+                return change;
+            }
+            return false;
+        }
+
+        #endregion
+
+        #region Enum
+        public static bool selectEnum<T>(ref int current) => selectEnum(ref current, typeof(T));
+
+        public static bool selectEnum<T>(this string label, int width, ref int current, List<int> options)
+        {
+            label.write(width);
+            return selectEnum<T>(ref current, options);
+        }
+
+        public static bool selectEnum<T>(ref int eval, List<int> options, int width = -1) =>
+            selectEnum(ref eval, typeof(T), options, width);
+
+        public static bool selectEnum<T>(ref T eval, List<int> options, int width = -1)
+        {
+            var val = Convert.ToInt32(eval);
+
+            if (selectEnum(ref val, typeof(T), options, width))
+            {
+                eval = (T)((object)val);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool selectEnum(ref int current, Type type, int width = -1)
+        {
+            checkLine();
+            var tmpVal = -1;
+
+            var names = Enum.GetNames(type);
+            var val = (int[])Enum.GetValues(type);
+
+            for (var i = 0; i < val.Length; i++)
+                if (val[i] == current)
+                    tmpVal = i;
+
+            if (!select(ref tmpVal, names, width)) return false;
+
+            current = val[tmpVal];
+            return change;
+        }
+
+        public static bool selectEnum(ref int current, Type type, List<int> options, int width = -1)
+        {
+            checkLine();
+            var tmpVal = -1;
+
+            List<string> names = new List<string>();
+
+            for (var i = 0; i < options.Count; i++)
+            {
+                var op = options[i];
+                names.Add(Enum.GetName(type, op));
+                if (options[i] == current)
+                    tmpVal = i;
+            }
+
+            if (width == -1 ? select(ref tmpVal, names) : select_Index(ref tmpVal, names, width))
+            {
+                current = options[tmpVal];
+                return change;
+            }
+
+            return false;
+        }
+
 
         public static bool selectEnum<T>(this string text, string tip, int width, ref int eval) {
             write(text, tip, width);
@@ -1503,9 +2194,44 @@ namespace PlayerAndEditorGUI {
             write(text);
             return selectEnum<T>(ref eval);
         }
-
         #endregion
 
+        #region Select Type
+
+        public static bool select(ref Type val, List<Type> lst, string textForCurrent, bool showIndex = false)
+        {
+            checkLine();
+
+            var names = new List<string>();
+            var indexes = new List<int>();
+
+            var current = -1;
+
+            for (var j = 0; j < lst.Count; j++)
+            {
+                var tmp = lst[j];
+                if (tmp.IsDefaultOrNull()) continue;
+
+                if ((!val.IsDefaultOrNull()) && tmp == val)
+                    current = names.Count;
+                names.Add(_compileName(showIndex, j, tmp)); //"{0}: {1}".F(j, tmp.ToPegiString()));
+                indexes.Add(j);
+
+            }
+
+            if (current == -1 && val != null)
+                names.Add(textForCurrent);
+
+            if (select(ref current, names.ToArray()) && (current < indexes.Count))
+            {
+                val = lst[indexes[current]];
+                return change;
+            }
+
+            return false;
+
+        }
+        
         public static bool selectType<T>(this string text, string hint, int width, ref T el, ElementData ed = null, bool keepTypeConfig = true) where T : class, IGotClassTag
         {
             text.write(hint, width);
@@ -1553,592 +2279,19 @@ namespace PlayerAndEditorGUI {
         }
 
         public static bool selectTypeTag(this TaggedTypesCfg types, ref string tag) => select(ref tag, types.Keys);
+        #endregion
 
-        public static bool select(ref int no, List<string> from)
-        {
-        #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-                return from.IsNullOrEmpty() ? "Selecting from null:".edit(90, ref no) : ef.select(ref no, from.ToArray());
-        #endif
-
-            
-            if (from.IsNullOrEmpty()) return false;
-
-            foldout(from.TryGet(no, "...")); 
-
-            if (isFoldedOutOrEntered)
-            {
-                if (from.Count>1)
-                newLine();
-                for (var i = 0; i < from.Count; i++) 
-                    if (i != no && "{0}: {1}".F(i, from[i]).ClickUnFocus().nl()) {
-                        no = i;
-                        foldIn();
-                        return change;
-                    }
-            }
-
-            GUILayout.Space(10);
-
-            return false;
-            
-        }
-
-        public static bool select(ref int no, string[] from, int width = -1)
-        {
-        #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-                return  width > 0 ? 
-                    ef.select(ref no, from, width) : 
-                    ef.select(ref no, from);
-        #endif
-
-            if (from.IsNullOrEmpty())
-                return false;
-
-            foldout(from.TryGet(no,"..."));
-        
-            if (isFoldedOutOrEntered) {
-
-                if (from.Length > 1)
-                    newLine();
-
-                for (var i = 0; i < from.Length; i++) 
-                    if (i != no && "{0}: {1}".F(i, from[i]).ClickUnFocus().nl()) {
-                        no = i;
-                        foldIn();
-                        return true;
-                    }
-                        
-                
-            }
-
-            GUILayout.Space(10);
-
-            return false;
-            
-        }
-
-      /*  public static bool select(ref int no, string[] from, int width, bool showIndex = false)
-        {
-        #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-                return ef.select(ref no, from, width);
-        #endif
-
-            if (from.IsNullOrEmpty())
-                return false;
-
-            foldout(from.TryGet(no,"..."));
-            newLine();
-
-            if (isFoldedOutOrEntered) 
-                for (var i = 0; i < from.Length; i++)
-                    if (i != no && (showIndex ? "{0}: {1}".F(i, from[i]) : from[i]).ClickUnFocus(width).nl())
-                    {
-                        no = i;
-                        foldIn();
-                        return change;
-                    }
-
-            GUILayout.Space(10);
-
-            return false;
-            
-        }*/
-
-        private static bool selectFinal(ref int val, ref int indexes, List<string> namesList)
-        {
-            var count = namesList.Count;
-
-            if (count == 0)
-                return edit(ref val);
-            
-            if (indexes == -1)
-            {
-                indexes = namesList.Count;
-                namesList.Add("[{0}]".F(val.ToPegiString()));
-              
-            }
-
-            var tmp = indexes;
-
-            if (select(ref tmp, namesList.ToArray()) && (tmp < count))
-            {
-                indexes = tmp;
-                return change;
-            }
-
-            return false;
-            
-        }
-
-        private static bool selectFinal<T>(T val, ref int indexes, List<string> namesList)
-        {
-            var count = namesList.Count;
-
-            if (indexes == -1 && !val.IsNullOrDestroyed_Obj())
-            {
-                indexes = namesList.Count;
-                namesList.Add("[{0}]".F(val.ToPegiString()));
-               
-            }
-
-            var tmp = indexes;
-
-            if (select(ref tmp, namesList.ToArray()) && tmp < count)
-            {
-                indexes = tmp;
-                return true;
-            }
-
-            return false;
-        }
-
-        private static string _compileName<T>(bool showIndex, int index, T obj, bool stripSlashes = false)
-        {
-            var st = obj.ToPegiString();
-            if (stripSlashes) 
-                st = st.SimplifyDirectory();
-            
-            return (showIndex || st.Length == 0) ? "{0}: {1}".F(index, st) : st;
-        }
-
-        public static bool select<T>(ref T val, T[] lst, bool showIndex = false)
-        {
-            checkLine();
-
-            var namesList = new List<string>();
-            var indexList = new List<int>();
-
-            var current = -1;
-
-            for (var j = 0; j < lst.Length; j++)
-            {
-                var tmp = lst[j];
-                if (tmp.filterEditorDropdown().IsDefaultOrNull()) continue;
-
-                if (!val.IsDefaultOrNull() && val.Equals(tmp))
-                    current = namesList.Count;
-
-                namesList.Add(_compileName(showIndex, j, tmp)); //showIndex ? "{0}: {1}".F(j, tmp.ToPegiString()) : tmp.ToPegiString());
-                indexList.Add(j);
-            }
-
-            if (selectFinal(val, ref current, namesList))
-            {
-                val = lst[indexList[current]];
-                return change;
-            }
-
-            return false;
-
-        }
-
-        public static bool select<T>(ref int val, List<T> lst, Func<T, bool> lambda, bool showIndex = false)
-        {
-
-            checkLine();
-
-            var names = new List<string>();
-            var indexes = new List<int>();
-
-            var current = -1;
-
-            for (var j = 0; j < lst.Count; j++)
-            {
-                var tmp = lst[j];
-
-                if (tmp.filterEditorDropdown().IsDefaultOrNull() || !lambda(tmp)) continue;
-
-                if (val == j)
-                    current = names.Count;
-                names.Add(_compileName(showIndex, j, tmp));//showIndex ? "{0}: {1}".F(j, tmp.ToPegiString()) : tmp.ToPegiString());
-                indexes.Add(j);
-            }
-
-
-            if (selectFinal(val, ref current, names))
-            {
-                val = indexes[current];
-                return change;
-            }
-
-            return false;
-        }
-
-        public static bool select_IGotIndex<T>(ref int val, List<T> lst, Func<T, bool> lambda, bool showIndex = false) where T : IGotIndex
-        {
-
-            checkLine();
-
-            var names = new List<string>();
-            var indexes = new List<int>();
-
-            var current = -1;
-
-            foreach (var tmp in lst) {
-                
-                if (tmp.filterEditorDropdown().IsDefaultOrNull() || !lambda(tmp)) continue;
-                
-                var ind = tmp.IndexForPEGI;
-
-                if (val == ind)
-                    current = names.Count;
-                names.Add(_compileName(showIndex, ind, tmp));//showIndex ? "{0}: {1}".F(ind, tmp.ToPegiString()) : tmp.ToPegiString());
-                indexes.Add(ind);
-                
-            }
-
-            if (selectFinal(ref val, ref current, names))
-            {
-                val = indexes[current];
-                return change;
-            }
-
-            return false;
-        }
-
-        public static bool select<T>(ref T val, List<T> lst, Func<T, bool> lambda, bool showIndex = false)
-        {
-            var changed = false;
-
-
-            checkLine();
-
-            var namesList = new List<string>();
-            var indexList = new List<int>();
-
-            var current = -1;
-
-            for (var j = 0; j < lst.Count; j++)
-            {
-                var tmp = lst[j];
-                if (tmp.filterEditorDropdown().IsDefaultOrNull() || !lambda(tmp)) continue;
-
-                if (current == -1 && tmp.Equals(val))
-                    current = namesList.Count;
-
-                namesList.Add(_compileName(showIndex, j, tmp)); 
-                indexList.Add(j);
-            }
-
-            if (selectFinal(val, ref current, namesList).changes(ref changed))
-                val = lst[indexList[current]];
-            
-
-            return changed;
-
-        }
-
-        public static bool select<T>(ref T val, List<T> lst, bool showIndex = false, bool stripSlashes = false)
-        {
-            checkLine();
-
-            var names = new List<string>();
-            var indexes = new List<int>();
-
-            var currentIndex = -1;
-
-            for (var i = 0; i < lst.Count; i++)
-            {
-                var tmp = lst[i];
-                if (tmp.filterEditorDropdown().IsDefaultOrNull()) continue;
-                
-                if (!val.IsDefaultOrNull() && tmp.Equals(val))
-                    currentIndex = names.Count;
-                
-                names.Add(_compileName(showIndex, i, tmp, stripSlashes)); 
-                indexes.Add(i);
-                
-            }
-
-            if (selectFinal(val, ref currentIndex, names))
-            {
-                val = lst[indexes[currentIndex]];
-                return change;
-            }
-
-            return false;
-
-        }
-
-        public static bool select<G,T>(ref T val, Dictionary<G, T> dic, bool showIndex = false) => select(ref val, new List<T>(dic.Values), showIndex);
-
-        public static bool select(ref Type val, List<Type> lst, string textForCurrent, bool showIndex = false)
-        {
-            checkLine();
-
-            var names = new List<string>();
-            var indexes = new List<int>();
-
-            var current = -1;
-
-            for (var j = 0; j < lst.Count; j++)
-            {
-                var tmp = lst[j];
-                if (tmp.IsDefaultOrNull()) continue;
-                
-                if ((!val.IsDefaultOrNull()) && tmp == val)
-                    current = names.Count;
-                names.Add(_compileName(showIndex, j, tmp)); //"{0}: {1}".F(j, tmp.ToPegiString()));
-                indexes.Add(j);
-                
-            }
-
-            if (current == -1 && val != null)
-                names.Add(textForCurrent);
-
-            if (select(ref current, names.ToArray()) && (current < indexes.Count))
-            {
-                val = lst[indexes[current]];
-                return change;
-            }
-
-            return false;
-
-        }
-
-        public static bool select_SameClass<T, G>(ref T val, List<G> lst, bool showIndex = false) where T : class where G : class
-        {
-            var changed = false;
-            var same = typeof(T) == typeof(G);
-
-            checkLine();
-
-            var namesList = new List<string>();
-            var indexList = new List<int>();
-
-            var current = -1;
-
-            for (var j = 0; j < lst.Count; j++)
-            {
-                var tmp = lst[j];
-                if (tmp.filterEditorDropdown().IsDefaultOrNull() ||
-                    (!same && !typeof(T).IsAssignableFrom(tmp.GetType()))) continue;
-
-                if (tmp.Equals(val))
-                    current = namesList.Count;
-
-                namesList.Add(_compileName(showIndex, j, tmp)); //"{0}: {1}".F(j, tmp.ToPegiString()));
-                indexList.Add(j);
-            }
-
-            if (selectFinal(val, ref current, namesList).changes(ref changed))
-                val = lst[indexList[current]] as T;
-             
-            return changed;
-
-        }
-
-        public static bool select(ref string val, List<string> lst)
-        {
-            var ind = -1;
-
-            for (var i = 0; i < lst.Count; i++)
-                if (lst[i] != null && lst[i].SameAs(val))
-                {
-                    ind = i;
-                    break;
-                }
-
-            if (select(ref ind, lst))
-            {
-                val = lst[ind];
-                return change;
-            }
-
-            return false;
-        }
-
-        public static bool select<T>(ref int ind, List<T> lst, bool showIndex = false)
-        {
-
-            checkLine();
-
-            var namesList = new List<string>();
-            var indexes = new List<int>();
-
-            var current = -1;
-
-            for (var j = 0; j < lst.Count; j++)
-                if (!lst[j].filterEditorDropdown().IsNullOrDestroyed_Obj())
-                {
-                    if (ind == j)
-                        current = indexes.Count;
-                    namesList.Add(_compileName(showIndex, j, lst[j])); //lst[j].ToPegiString());
-                    indexes.Add(j);
-                }
-            
-            if (selectFinal(ind, ref current, namesList))
-            {
-                ind = indexes[current];
-                return change;
-            }
-
-            return false;
-
-        }
-      
-        public static bool select<T>(ref int no, CountlessCfg<T> tree) where T : ICfg, new()
-        {
-
-        #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-                return ef.select(ref no, tree);
-        #endif
-            
-            List<int> inds;
-            var objs = tree.GetAllObjs(out inds);
-            var filtered = new List<string>();
-            var tmpindex = -1;
-            for (var i = 0; i < objs.Count; i++)
-            {
-                if (no == inds[i])
-                    tmpindex = i;
-                filtered.Add(objs[i].ToPegiString());
-            }
-
-            if (select(ref tmpindex, filtered.ToArray()))
-            {
-                no = inds[tmpindex];
-                return change;
-            }
-            return false;
-            
-        }
-
-        public static bool select<T>(ref int no, Countless<T> tree, Func<T, bool> lambda)
-        {
-        #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-                return ef.select(ref no, tree);
-        #endif
-            
-            List<int> unfinds;
-            var indexes = new List<int>();
-            var objects = tree.GetAllObjs(out unfinds);
-            var namesList = new List<string>();
-            var current = -1;
-            var j = 0;
-            for (var i = 0; i < objects.Count; i++)
-            {
-
-                var el = objects[i];
-
-                if (el.filterEditorDropdown().IsNullOrDestroyed_Obj() || !lambda(el)) continue;
-
-                indexes.Add(unfinds[i]);
-
-                if (no == indexes[j])
-                    current = j;
-
-                namesList.Add(objects[i].ToPegiString());
-                j++;
-            }
-
-
-            if (selectFinal(no, ref current, namesList))
-            {
-                no = indexes[current];
-                return change;
-            }
-            return false;
-            
-        }
-
-
-
-        public static bool selectEnum<T>(ref int current) => selectEnum(ref current, typeof(T));
-
-        public static bool selectEnum<T>(this string label, int width, ref int current, List<int> options)
-        {
-            label.write(width);
-            return selectEnum<T>(ref current, options);
-        }
-
-        public static bool selectEnum<T>(ref int eval, List<int> options, int width = -1) =>
-            selectEnum(ref eval, typeof(T), options, width);
-
-        public static bool selectEnum<T>(ref T eval, List<int> options, int width = -1) {
-            var val = Convert.ToInt32(eval);
-
-            if (selectEnum(ref val, typeof(T), options, width))
-            {
-                eval = (T)((object)val);
-                return true;
-            }
-
-            return false;
-        }
-
-        public static bool selectEnum(ref int current, Type type, int width = -1)
-        {
-            checkLine();
-            var tmpVal = -1;
-
-            var names = Enum.GetNames(type);
-            var val = (int[])Enum.GetValues(type);
-
-            for (var i = 0; i < val.Length; i++)
-                if (val[i] == current)
-                    tmpVal = i;
-
-            if (!select(ref tmpVal, names, width)) return false;
-            
-            current = val[tmpVal];
-            return change;
-        }
-
-        public static bool selectEnum(ref int current, Type type, List<int> options, int width = -1) {
-            checkLine();
-            var tmpVal = -1;
-
-            List<string> names = new List<string>();
-
-            for (var i = 0; i < options.Count; i++)
-            {
-                var op = options[i];
-                names.Add(Enum.GetName(type, op));
-                if (options[i] == current)
-                    tmpVal = i;
-            }
-
-            if (width == -1 ? select(ref tmpVal, names) : select(ref tmpVal, names, width))
-            {
-                current = options[tmpVal];
-                return change;
-            }
-
-            return false;
-        }
-
-
-
-        public static bool select<T>(ref int ind, T[] arr, bool showIndex = false)
-        {
-
-            checkLine();
-
-            var lnms = new List<string>();
-            
-            if (arr.ClampIndexToLength(ref ind)) {
-                for (var i = 0; i < arr.Length; i++)
-                    lnms.Add(_compileName(showIndex, i, arr[i])); 
-            }
-
-            return selectFinal(ind, ref ind, lnms);
-
-        }
+        #region Dictionary
+        public static bool select<G, T>(ref T val, Dictionary<G, T> dic, bool showIndex = false) => select(ref val, new List<T>(dic.Values), showIndex);
 
         public static bool select(ref int current, Dictionary<int, string> from)
         {
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
             if (!paintingPlayAreaGui)
                 return ef.select(ref current, from);
-          
-        #endif
-            
+
+#endif
+
             var options = new string[from.Count];
 
             int ind = current;
@@ -2151,25 +2304,26 @@ namespace PlayerAndEditorGUI {
                     ind = i;
             }
 
-            if (select(ref ind, options)) {
+            if (select(ref ind, options))
+            {
                 current = from.ElementAt(ind).Key;
                 return change;
             }
             return false;
-            
+
         }
 
         public static bool select(ref int current, Dictionary<int, string> from, int width)
         {
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
             if (!paintingPlayAreaGui)
                 return ef.select(ref current, from, width);
-        #endif
+#endif
 
             var options = new string[from.Count];
-            
+
             var ind = current;
-            
+
             for (var i = 0; i < from.Count; i++)
             {
                 var e = from.ElementAt(i);
@@ -2177,63 +2331,19 @@ namespace PlayerAndEditorGUI {
                 if (current == e.Key)
                     ind = i;
             }
-            
-            if (select(ref ind, options, width)) {
+
+            if (select(ref ind, options, width))
+            {
                 current = from.ElementAt(ind).Key;
                 return change;
             }
             return false;
-            
+
         }
 
-        public static bool select(CountlessInt cint, int ind, Dictionary<int, string> from)
-        {
-
-            var value = cint[ind];
-
-            if (select(ref value, from))  {
-                cint[ind] = value;
-                return change;
-            }
-            return false;
-        }
-
-        public static bool select(ref int no, Texture[] tex)
-        {
+        #endregion
         
-        #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-                return ef.select(ref no, tex);
-           
-        #endif
-
-            if (tex.Length == 0) return false;
-
-            checkLine();
-
-            var tnames = new List<string>();
-            var tnumbers = new List<int>();
-
-            var curno = 0;
-            for (var i = 0; i < tex.Length; i++)
-                if (!tex[i].IsNullOrDestroyed_Obj())
-                {
-                    tnumbers.Add(i);
-                    tnames.Add("{0}: {1}".F(i, tex[i].name));
-                    if (no == i) curno = tnames.Count - 1;
-                }
-
-            var changed = false;
-
-            if (select(ref curno, tnames.ToArray()).changes(ref changed) && curno >= 0 && curno < tnames.Count)
-                    no = tnumbers[curno];
-            
-            return changed;
-            
-        }
-
-        // ***************************** Select or edit
-
+        #region Select Or Edit
         public static bool select_or_edit_ColorPropertyName(this string name, int width, ref string property, Material material)
         {
             name.write(width);
@@ -2302,7 +2412,7 @@ namespace PlayerAndEditorGUI {
             => select_or_edit(null, null, 0, ref obj, list, showIndex);
 
         public static bool select_or_edit<T>(this string name, ref int val, List<T> list, bool showIndex = false) =>
-             list.IsNullOrEmpty() ?  name.edit(ref val) : name.select(ref val, list, showIndex);
+             list.IsNullOrEmpty() ?  name.edit(ref val) : name.select_Index(ref val, list, showIndex);
         
         public static bool select_or_edit(ref string val, List<string> list, bool showIndex = false)
         {
@@ -2345,10 +2455,10 @@ namespace PlayerAndEditorGUI {
         }
 
         public static bool select_or_edit<T>(this string name, int width, ref int val, List<T> list, bool showIndex = false) =>
-            list.IsNullOrEmpty() ? name.edit(width, ref val) : name.select(width, ref val, list, showIndex);
+            list.IsNullOrEmpty() ? name.edit(width, ref val) : name.select_Index(width, ref val, list, showIndex);
         
         public static bool select_or_edit<T>(this string name, string hint, int width, ref int val, List<T> list, bool showIndex = false) =>
-            list.IsNullOrEmpty()  ? name.edit(hint, width, ref val) : name.select(hint, width, ref val, list, showIndex);
+            list.IsNullOrEmpty()  ? name.edit(hint, width, ref val) : name.select_Index(hint, width, ref val, list, showIndex);
         
 
         public static bool select_SameClass_or_edit<T, G>(this string text, string hint, int width, ref T obj, List<G> list) where T : UnityEngine.Object where G : class
@@ -2379,7 +2489,9 @@ namespace PlayerAndEditorGUI {
         public static bool select_SameClass_or_edit<T, G>(this string name, int width, ref T obj, List<G> list) where T : UnityEngine.Object where G : class =>
              select_SameClass_or_edit(name, null, width, ref obj, list);
 
+        #endregion
 
+        #region Select IGotIndex
         public static bool select_iGotIndex<T>(this string label, string tip, ref int ind, List<T> lst, bool showIndex = false) where T : IGotIndex
         {
             write(label, tip);
@@ -2438,6 +2550,83 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
+        public static bool select_iGotIndex_SameClass<T, G>(this string label, string tip, int width, ref int ind, List<T> lst) where G : class, T where T : IGotIndex
+        {
+            write(label, tip, width);
+            return select_iGotIndex_SameClass<T, G>(ref ind, lst);
+        }
+
+        public static bool select_iGotIndex_SameClass<T, G>(this string label, int width, ref int ind, List<T> lst) where G : class, T where T : IGotIndex
+        {
+            write(label, width);
+            return select_iGotIndex_SameClass<T, G>(ref ind, lst);
+        }
+
+        public static bool select_iGotIndex_SameClass<T, G>(this string label, ref int ind, List<T> lst) where G : class, T where T : IGotIndex
+        {
+            write(label);
+            return select_iGotIndex_SameClass<T, G>(ref ind, lst);
+        }
+
+        public static bool select_iGotIndex_SameClass<T, G>(ref int ind, List<T> lst) where G : class, T where T : IGotIndex
+        {
+            G val;
+            return select_iGotIndex_SameClass(ref ind, lst, out val);
+        }
+
+        public static bool select_iGotIndex_SameClass<T, G>(this string label, ref int ind, List<T> lst, out G val) where G : class, T where T : IGotIndex
+        {
+            write(label);
+            return select_iGotIndex_SameClass<T, G>(ref ind, lst, out val);
+        }
+
+        public static bool select_iGotIndex_SameClass<T, G>(ref int ind, List<T> lst, out G val) where G : class, T where T : IGotIndex
+        {
+            val = default(G);
+
+            if (lst == null)
+                return false;
+
+            var names = new List<string>();
+            var indexes = new List<int>();
+            var els = new List<G>();
+            var current = -1;
+
+            foreach (var el in lst)
+            {
+                var g = el as G;
+
+                if (g.filterEditorDropdown().IsNullOrDestroyed_Obj()) continue;
+
+                var index = g.IndexForPEGI;
+
+                if (ind == index)
+                {
+                    current = indexes.Count;
+                    val = g;
+                }
+                names.Add(el.ToPegiString());
+                indexes.Add(index);
+                els.Add(g);
+
+            }
+
+            if (names.Count == 0)
+                return edit(ref ind);
+
+            if (selectFinal(ref ind, ref current, names))
+            {
+                ind = indexes[current];
+                val = els[current];
+                return true;
+            }
+
+            return false;
+        }
+
+        #endregion
+
+        #region Select IGotName
 
         public static bool select_iGotName<T>(this string label, string tip, ref string name, List<T> lst) where T : IGotName
         {
@@ -2497,80 +2686,7 @@ namespace PlayerAndEditorGUI {
 
             return false;
         }
-        
-
-        public static bool select_iGotIndex_SameClass<T, G>(this string label, string tip, int width, ref int ind, List<T> lst) where G : class, T where T : IGotIndex
-        {
-            write(label, tip, width);
-            return select_iGotIndex_SameClass<T, G>(ref ind, lst);
-        }
-
-        public static bool select_iGotIndex_SameClass<T, G>(this string label, int width, ref int ind, List<T> lst) where G : class, T where T : IGotIndex
-        {
-            write(label, width);
-            return select_iGotIndex_SameClass<T, G>(ref ind, lst);
-        }
-
-        public static bool select_iGotIndex_SameClass<T, G>(this string label, ref int ind, List<T> lst) where G : class, T where T : IGotIndex
-        {
-            write(label);
-            return select_iGotIndex_SameClass<T, G>(ref ind, lst);
-        }
-
-        public static bool select_iGotIndex_SameClass<T, G>(ref int ind, List<T> lst) where G : class, T where T : IGotIndex
-        {
-            G val;
-            return select_iGotIndex_SameClass(ref ind, lst, out val);
-        }
-
-        public static bool select_iGotIndex_SameClass<T, G>(this string label, ref int ind, List<T> lst, out G val) where G : class, T where T : IGotIndex
-        {
-            write(label);
-            return select_iGotIndex_SameClass<T, G>(ref ind, lst, out val);
-        }
-
-        public static bool select_iGotIndex_SameClass<T, G>(ref int ind, List<T> lst, out G val) where G : class, T where T : IGotIndex {
-            val = default(G);
-
-            if (lst == null)
-                return false;
-            
-            var names = new List<string>();
-            var indexes = new List<int>();
-            var els = new List<G>();
-            var current = -1;
-
-            foreach (var el in lst)
-            {
-                var g = el as G;
-
-                if (g.filterEditorDropdown().IsNullOrDestroyed_Obj()) continue;
-                
-                var index = g.IndexForPEGI;
-
-                if (ind == index)
-                {
-                    current = indexes.Count;
-                    val = g;
-                }
-                names.Add(el.ToPegiString());
-                indexes.Add(index);
-                els.Add(g);
-                
-            }
-
-            if (names.Count == 0)
-                return edit(ref ind);
-          
-            if (selectFinal(ref ind, ref current, names))
-            {
-                ind = indexes[current];
-                val = els[current];
-                return true;
-            }
-
-            return false;
-        }
+        #endregion
 
         #endregion
 
