@@ -360,49 +360,57 @@ namespace Playtime_Painter
             
             var changed = base.Inspect();
 
-            if (inspectedMaterial != -1)
-                return changed;
+            if ("Lights".enter(ref inspectedElement, 10).nl())
+            {
+                lights.Nested_Inspect().nl(ref changed);
 
-       
-            lights.Nested_Inspect().nl(ref changed);
-            
-            if (changed && MaterialLightManager.probeChanged != -1)
-                lightSourceDirty[MaterialLightManager.probeChanged] = true;
-            
-            if (ImageMeta != null && ImageMeta.texture2D) {
+                if (changed && MaterialLightManager.probeChanged != -1)
+                    lightSourceDirty[MaterialLightManager.probeChanged] = true;
+            }
 
-                if (!VolumeJobIsRunning) {
+            if ("Volume Baking".enter(ref inspectedElement, 11).nl())
+            {
 
-                    "Channel: ".edit(ref _rayJobChannel, 0, 2).changes(ref changed);
+                if (ImageMeta != null && ImageMeta.texture2D)
+                {
 
-                    if (icon.Refresh.Click("Recalculate ", ref changed).nl())
+                    if (!VolumeJobIsRunning)
                     {
-                        VolumeFromTexture();
-                        lightSourceDirty[_rayJobChannel] = true;
-                        _rayStep = RayCastStep.Requested;
+
+                        "Channel: ".edit(ref _rayJobChannel, 0, 2).changes(ref changed);
+
+                        if (icon.Refresh.Click("Recalculate ", ref changed).nl())
+                        {
+                            VolumeFromTexture();
+                            lightSourceDirty[_rayJobChannel] = true;
+                            _rayStep = RayCastStep.Requested;
+                        }
+
+                        if ("All".Click().nl(ref changed))
+                        {
+                            VolumeFromTexture();
+                            for (var i = 0; i < MaterialLightManager.maxLights; i++)
+                                lightSourceDirty[i] = true;
+                        }
+                    }
+                    else
+                    {
+                        "Recalculating channel {0} : {1}".F(_rayJobChannel, _rayStep.ToString()).write();
+
+                        if (icon.Close.Click("Stop Recalculations").nl())
+                            CompleteAndDisposeAll();
                     }
 
-                    if ("All".Click().nl(ref changed))
-                    {
-                        VolumeFromTexture();
-                        for (var i = 0; i < MaterialLightManager.maxLights; i++)
-                            lightSourceDirty[i] = true;
-                    }
                 }
                 else
                 {
-                    "Recalculating channel {0} : {1}".F(_rayJobChannel, _rayStep.ToString()).write();
-
-                    if (icon.Close.Click("Stop Recalculations").nl())
-                        CompleteAndDisposeAll();
+                    if (ImageMeta == null)
+                        "Image Data is Null".nl();
+                    else
+                        "Texture 2D is null".nl();
                 }
-
-            } else  {
-                if (ImageMeta == null)
-                    "Image Data is Null".nl();
-                else
-                    "Texture 2D is null".nl();
             }
+
             if (changed)
                 UpdateMaterials();
 

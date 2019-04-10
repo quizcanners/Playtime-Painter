@@ -44,11 +44,13 @@ namespace Playtime_Painter
         public bool errorWhileReading;
         public bool dontRedoMipMaps;
         public bool disableContiniousLine;
-
+     
         private float sdfMaxInside = 1f;
         private float sdfMaxOutside = 1f;
         private float sdfPostProcessDistance = 1f;
-        
+
+        public bool isAVolumeTexture;
+
         private float _repaintDelay = 0.016f;
         private int _numberOfTexture2DBackups = 10;
         private int _numberOfRenderTextureBackups = 10;
@@ -1173,7 +1175,7 @@ namespace Playtime_Painter
         public bool Undo_redo_PEGI()
         {
             var changed = false;
-
+            
             if (cache == null) cache = new UndoCache();
             if (recordedStrokes == null) recordedStrokes = new List<string>();
             if (recordedStrokesForUndoRedo == null) recordedStrokesForUndoRedo = new List<string>(); // to sync strokes recording with Undo Redo

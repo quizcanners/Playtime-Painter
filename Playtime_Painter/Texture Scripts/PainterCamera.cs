@@ -816,6 +816,8 @@ namespace Playtime_Painter {
             if (!MainCamera)
                 MainCamera = Camera.main;
 
+            DepthProjectorCamera.triedToFindDepthCamera = false;
+
             PainterSystem.applicationIsQuitting = false;
 
             Inst = this;

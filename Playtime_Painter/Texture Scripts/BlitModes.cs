@@ -582,14 +582,11 @@ namespace Playtime_Painter {
         public override Shader ShaderForAlphaBufferBlit => TexMGMTdata.projectorBrushBufferBlit;
         public override Shader ShaderForAlphaOutput => TexMGMTdata.additiveAlphaAndUVOutput;
 
-        //           
-
         public override void SetGlobalShaderParameters()
         {
             base.SetGlobalShaderParameters();
             UnityUtils.SetShaderKeyword(PainterDataAndConfig.USE_DEPTH_FOR_PROJECTOR, TexMGMTdata.useDepthForProjector);
         }
-
 
         public override bool NeedsWorldSpacePosition => true;
 
@@ -612,7 +609,9 @@ namespace Playtime_Painter {
             }
             else
             {
-                base.Inspect().nl(ref changed);
+              
+                if (BrushConfig.inspectAdvancedOptions)
+                    "Use Depth To Mask brush".toggleIcon(ref TexMGMTdata.useDepthForProjector).nl();
 
                 "First step is usually to position the projector camera. You can Lock it to current camera view.".writeOneTimeHint("posProjCam");
 
@@ -621,6 +620,9 @@ namespace Playtime_Painter {
                 else
                     DepthProjectorCamera.Instance.Nested_Inspect().nl(ref changed);
             }
+
+            base.Inspect().nl(ref changed);
+
 
             return changed;
         }

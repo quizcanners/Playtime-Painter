@@ -1,5 +1,6 @@
 ﻿
 using System.Collections.Generic;
+using System.Runtime.Remoting.Messaging;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
@@ -220,8 +221,8 @@ namespace Playtime_Painter
 
         private bool _exploreVolumeData;
 
-        public bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br)
-        {
+        public bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br) {
+
             var changed = false;
 
             var p = InspectedPainter;
@@ -254,6 +255,16 @@ namespace Playtime_Painter
                 
                 if (cpuBlit)
                     "Painting volume with CPU brush is very slow".writeWarning();
+                else
+                {
+                    if (!br.GetBrushType(false).IsAWorldSpaceBrush) {
+                        "Only World space brush can edit volumes".writeHint();
+                        pegi.nl();
+                        if ("Change to Sphere brush".Click())
+                            br.SetBrushType(false, BrushTypeSphere.Inst);
+                    }
+                }
+
                 pegi.nl();
 
                 if (!cpuBlit)
@@ -267,6 +278,7 @@ namespace Playtime_Painter
 
                 "Scale:".edit(40, ref br.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f).nl(ref changed);
 
+                /*
                 if (br.GetBlitMode(cpuBlit).UsingSourceTexture && id.TargetIsRenderTexture())
                 {
                     if (TexMGMTdata.sourceTextures.Count > 0)
@@ -276,7 +288,7 @@ namespace Playtime_Painter
                     }
                     else
                         "Add Textures to Render Camera to copy from".nl();
-                }
+                }*/
 
             }
             if (changed) this.SetToDirty_Obj();
@@ -396,7 +408,7 @@ namespace Playtime_Painter
 
         public static VolumeTexture GetVolumeTexture(this PlaytimePainter p)
         {
-            if (p == null)
+            if (!p)
                 return null;
 
             var id = p.ImgMeta;
@@ -414,19 +426,25 @@ namespace Playtime_Painter
         }
 
         public static void SetVolumeTexture(this IEnumerable<Material> materials, VolumeTexture vt) {
-            if (!vt || vt.ImageMeta == null) return;
+            if (!vt)
+                return;
+            var imd = vt.ImageMeta;
+
+            if (imd == null)
+                return;
+
+            imd.isAVolumeTexture = true;
 
             var pnS = vt.PosSize4Shader;
             var vhS = vt.Slices4Shader;
             var tex = vt.MaterialPropertyName;
-
-
+            
             foreach (var m in materials)
                 if (m)
                 {
                     VolumePaintingPlugin.VOLUME_POSITION_N_SIZE.SetOn(m, pnS);
                     VolumePaintingPlugin.VOLUME_H_SLICES.SetOn(m, vhS);
-                    tex.SetOn(m, vt.ImageMeta.CurrentTexture());
+                    tex.SetOn(m, imd.CurrentTexture());
                 }
         }
 

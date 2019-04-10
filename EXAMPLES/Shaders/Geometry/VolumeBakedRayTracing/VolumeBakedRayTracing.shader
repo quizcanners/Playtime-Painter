@@ -23,6 +23,7 @@
 				#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
 				uniform sampler2D g_BakedRays_VOL;
+				uniform sampler2D _pp_RayProjectorDepthes;
 				float4 g_BakedRays_VOL_TexelSize;
 
 				float4x4 rt0_ProjectorMatrix;
@@ -61,7 +62,7 @@
 
 					o.pos = UnityObjectToClipPos(v.vertex);
 					UNITY_TRANSFER_FOG(o, o.pos);
-					o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
+					o.worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1.0f));
 					o.normal.xyz = UnityObjectToWorldNormal(v.normal);
 			
 					o.vcol = v.color;
@@ -72,9 +73,11 @@
 
 					TRANSFER_SHADOW(o);
 
-					o.shadowCoords0 = mul(rt0_ProjectorMatrix, o.worldPos);
-					o.shadowCoords1 = mul(rt1_ProjectorMatrix, o.worldPos);
-					o.shadowCoords2 = mul(rt2_ProjectorMatrix, o.worldPos);
+					// TODO: Need for subtracting a position is an unexpected behavious
+
+					o.shadowCoords0 = mul(rt0_ProjectorMatrix, o.worldPos - float4(rt0_ProjectorPosition.xyz, 0));
+					o.shadowCoords1 = mul(rt1_ProjectorMatrix, o.worldPos - float4(rt1_ProjectorPosition.xyz, 0));
+					o.shadowCoords2 = mul(rt2_ProjectorMatrix, o.worldPos - float4(rt2_ProjectorPosition.xyz, 0));
 
 					return o;
 				}
@@ -91,16 +94,20 @@
 					float NdotH = max(0.01, (dot(normal, halfDirection)));
 					float normTerm = pow(NdotH, power); // GGXTerm(NdotH, power);
 
-					scatter += bake*lcol.rgb;
+					scatter += bake * lcol.rgb;
 
 					lcol.rgb *= direct;
 
 					glossLight += lcol.rgb*normTerm;
-					directLight += lcol.rgb / (len * len);
+					directLight += lcol.rgb / (len * len) * shadow;
 				}
 
-				float3 ProjectorUV(float4 shadowCoords, float3 worldPos, float3 lightPos, float camAspectRatio, float camFOVDegrees, float deFar,
+				float4 ProjectorUV(float4 shadowCoords, float3 worldPos, float3 lightPos, float4 cfg,
 					float4 precompute) {
+
+					float camAspectRatio = cfg.x;
+					float camFOVDegrees = cfg.y;
+					float deFar = cfg.w;
 
 					shadowCoords.xy /= shadowCoords.w;
 
@@ -112,73 +119,74 @@
 
 					float predictedDepth = 1 - (((viewPos / true01Range) - precompute.y) * precompute.z);
 
-					float3 uv = float3((shadowCoords.xy + 1) * 0.5, predictedDepth);
+					return float4((shadowCoords.xy + 1) * 0.5, predictedDepth, alpha);
 
-					return uv; //tex2D(depthTex, uv) - predictedDepth;
 				}
 
 				float4 frag(v2f o) : COLOR{
 
+					o.normal = normalize(o.normal);
+
+					o.viewDir.xyz = normalize(o.viewDir.xyz);
+
+
+
 					float3 shads;
 
-					float3 shUv0 = ProjectorUV( 
-						o.shadowCoords0, o.worldPos, 
+					float3 posNrm = o.worldPos.xyz + o.normal.xyz*2;
+
+					float4 shUv0 = ProjectorUV( 
+						o.shadowCoords0, posNrm,
 						rt0_ProjectorPosition.rgb,
-						rt0_ProjectorConfiguration.x, 
-						rt0_ProjectorConfiguration.y, 
-						rt0_ProjectorConfiguration.w,
+						rt0_ProjectorConfiguration,
 						rt0_ProjectorClipPrecompute);
 
-					shads.r = tex2D(g_BakedRays_VOL, shUv0.xy).r - shUv0.z;
+					shads.r =  (1 - saturate((tex2D(_pp_RayProjectorDepthes, shUv0.xy).r - shUv0.z) * 128)) * shUv0.w;
 
-					float3 shUv1 = ProjectorUV(
-						o.shadowCoords1, o.worldPos,
+					float4 shUv1 = ProjectorUV(
+						o.shadowCoords1, posNrm,
 						rt1_ProjectorPosition.rgb,
-						rt1_ProjectorConfiguration.x,
-						rt1_ProjectorConfiguration.y,
-						rt1_ProjectorConfiguration.w,
+						rt1_ProjectorConfiguration,
 						rt1_ProjectorClipPrecompute);
 
-					shads.g = tex2D(g_BakedRays_VOL, shUv1.xy).g - shUv1.z;
+					shads.g = (1 - saturate((tex2D(_pp_RayProjectorDepthes, shUv1.xy).g - shUv1.z) * 128)) * shUv1.w;
 
-					float3 shUv2 = ProjectorUV(
-						o.shadowCoords2, o.worldPos,
+					float4 shUv2 = ProjectorUV(
+						o.shadowCoords2, posNrm,
 						rt2_ProjectorPosition.rgb,
-						rt2_ProjectorConfiguration.x,
-						rt2_ProjectorConfiguration.y,
-						rt2_ProjectorConfiguration.w,
+						rt2_ProjectorConfiguration,
 						rt2_ProjectorClipPrecompute);
 
-					shads.b = tex2D(g_BakedRays_VOL, shUv2.xy).b - shUv2.z;
+					shads.b = (1 - saturate((tex2D(_pp_RayProjectorDepthes, shUv2.xy).b - shUv2.z) * 128)) * shUv2.w;
 
-					return float4 (shads, 1 );
-				
+					/*
 					float2 border = DetectEdge(o.edge);
 					border.x = max(border.y, border.x);
 					float deBorder = 1 - border.x;
-					
-					float4 col = o.vcol;
+					*/
+
+					float4 col = 0.5; //o.vcol;
 
 					float4 bumpMap = float4(0,0,0.5,1);
 	
-					bumpMap.ba = bumpMap.ba*deBorder + float2(1, 1)*border.x;
+					//bumpMap.ba = bumpMap.ba*deBorder + float2(1, 1)*border.x;
 		
-					o.viewDir.xyz = normalize(o.viewDir.xyz);
+					
 
-					o.normal = normalize(o.normal);
+				
 
 					float dotprod = dot(o.viewDir.xyz, o.normal);
 					float fernel = (1.5 - dotprod);
-					float ambientBlock = (3+dotprod);
+					//float ambientBlock = (3+dotprod);
 					float3 reflected = normalize(o.viewDir.xyz - 2 * (dotprod)*o.normal);
 			
 					// Point Lights:
 			
 					float4 bake = SampleVolume(g_BakedRays_VOL, o.worldPos,  g_VOLUME_POSITION_N_SIZE,  g_VOLUME_H_SLICES, o.normal);
 
-					return bake;
+					//return bake;
 
-					bake = 1 - bake;
+					//bake = 1 - bake;
 
 					float power = bumpMap.b; 
 
@@ -187,32 +195,46 @@
 					float3 directLight = 0;
 
 					PointLightTrace(scatter, glossLight, directLight, o.worldPos.xyz - g_l0pos.xyz,
-						o.normal, o.viewDir.xyz, ambientBlock, bake.r,  g_l0col, power);
+						o.normal, o.viewDir.xyz, bake.r, shads.r,  g_l0col, power);
 
 					PointLightTrace(scatter, glossLight, directLight, o.worldPos.xyz - g_l1pos.xyz,
-						o.normal, o.viewDir.xyz, ambientBlock, bake.g,  g_l1col, power);
+						o.normal, o.viewDir.xyz, bake.g, shads.g,  g_l1col, power);
 
 					PointLightTrace(scatter, glossLight, directLight, o.worldPos.xyz - g_l2pos.xyz,
-						o.normal, o.viewDir.xyz, ambientBlock, bake.b,  g_l2col, power);
+						o.normal, o.viewDir.xyz, bake.b, shads.b,  g_l2col, power);
 
-					glossLight *= 0.1;
-					scatter *= (1 - bake.a);
+					col.rgb *= 
+						//directLight
+						//+ 
+						scatter * 0.01;
 
-					float shadow = SHADOW_ATTENUATION(o);
+				//	return g_l0col;
 
-					DirectionalLight(scatter, glossLight, directLight,
-						shadow, o.normal.xyz, o.viewDir.xyz, ambientBlock, bake.a, power);
+
+					//glossLight *= 0.1;
+					//scatter *= (1 - bake.a);
+
+					float shadow = 1; // SHADOW_ATTENUATION(o);
+
+					//return shadow; // Doesnt recieve shadows
+
+					//DirectionalLight(scatter, glossLight, directLight,
+						//shadow, o.normal.xyz, o.viewDir.xyz, ambientBlock, bake.a, power);
 
 					float smoothness = saturate(pow(col.a, 5 - fernel));
 					float deDmoothness = 1 - smoothness;
 
-					col.rgb *= (directLight*deDmoothness + (scatter)* bumpMap.a	);
+					//col.rgb *= (directLight*deDmoothness + (scatter)* bumpMap.a	);
 
-					col.rgb += (glossLight + ShadeSH9(float4(-reflected, 1)))* smoothness;
+					//col.rgb += (glossLight + ShadeSH9(float4(-reflected, 1)))* smoothness;
 
-					BleedAndBrightness(col, 1+shadow*8);
+					//BleedAndBrightness(col, 1+shadow*8);
 
-					UNITY_APPLY_FOG(o.fogCoord, col);
+					//col = 0.5;
+
+					//UNITY_APPLY_FOG(o.fogCoord, col);
+
+					
 
 					return col;
 

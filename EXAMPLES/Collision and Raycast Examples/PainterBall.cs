@@ -49,7 +49,7 @@ namespace Playtime_Painter.Examples {
         public void OnCollisionExit(Collision exitedCollider) => TryRemove(exitedCollider.gameObject);
         
         public void OnEnable()  {
-            brush.TypeSet(false, BrushTypeSphere.Inst);
+            brush.SetBrushType(false, BrushTypeSphere.Inst);
 
             if (!rendy) 
                 rendy = GetComponent<MeshRenderer>();
@@ -124,7 +124,7 @@ namespace Playtime_Painter.Examples {
                 if (brush.targetIsTex2D || !brush.IsA3DBrush(null))
                 {
                     brush.targetIsTex2D = false;
-                    brush.TypeSet(false, BrushTypeSphere.Inst);
+                    brush.SetBrushType(false, BrushTypeSphere.Inst);
 
                     "PaintBall_brushHint".resetOneTimeHint();
                 }

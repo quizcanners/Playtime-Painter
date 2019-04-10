@@ -953,7 +953,7 @@ namespace PlayerAndEditorGUI {
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                ef.write(ImageAndTip(img), width);
+                ef.write(img, width);
             
             else
 #endif
@@ -971,7 +971,7 @@ namespace PlayerAndEditorGUI {
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                ef.write(ImageAndTip(img, toolTip), width);
+                ef.write(img, toolTip, width);
             
             else
 #endif
@@ -993,7 +993,7 @@ namespace PlayerAndEditorGUI {
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                ef.write(ImageAndTip(img, toolTip), width, height);
+                ef.write(img, toolTip, width, height);
             else
 #endif
             {
@@ -7912,6 +7912,23 @@ namespace PlayerAndEditorGUI {
 
                 return changed;
 
+        }
+
+
+
+        public static bool Inspect_AsInList<T>(this T obj, List<T> list, int current, ref int inspected) where T : IPEGI_ListInspect
+        {
+            var changes = obj.PEGI_inList(list, current, ref inspected);
+
+            if (pegi.globChanged || changes)
+            {
+#if UNITY_EDITOR
+                ef.ClearFromPooledSerializedObjects(obj as Object);
+#endif
+                obj.SetToDirty_Obj();
+            }
+
+            return changes;
         }
 
         public static bool Inspect_AsInList(this IPEGI_ListInspect obj) 

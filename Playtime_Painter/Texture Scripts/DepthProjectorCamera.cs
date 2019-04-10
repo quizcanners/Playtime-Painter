@@ -16,12 +16,18 @@ namespace Playtime_Painter
                 if (PainterCamera.depthProjectorCamera)
                     return PainterCamera.depthProjectorCamera;
 
-                PainterCamera.depthProjectorCamera = FindObjectOfType<DepthProjectorCamera>();
+                if (!triedToFindDepthCamera)
+                {
+                    PainterCamera.depthProjectorCamera = FindObjectOfType<DepthProjectorCamera>();
+                    triedToFindDepthCamera = false;
+                }
 
                 return PainterCamera.depthProjectorCamera;
 
             }
         }
+
+        public static bool triedToFindDepthCamera;
 
         [SerializeField] private Camera _projectorCamera;
         [SerializeField] private RenderTexture _depthTarget;
@@ -33,6 +39,8 @@ namespace Playtime_Painter
                 return _depthTargetForUsers;
 
             _depthTargetForUsers = GetDepthRenderTexture(1024);
+
+            Debug.Log("Creating new depth texture");
 
             return _depthTargetForUsers;
         }
@@ -53,6 +61,7 @@ namespace Playtime_Painter
 
         #region Inspector
         private bool _foldOut;
+        private int _inspectedUser = -1;
 
         #if PEGI
 
@@ -66,8 +75,6 @@ namespace Playtime_Painter
             if (!_foldOut)
                 pegi.toggle(ref _projectFromMainCamera, icon.Link, icon.UnLinked, "Link Projector Camera to {0} camera".F(Application.isPlaying ? "Main Camera" : "Editor Camera")).changes(ref changed);
             
-           
-
             if ("Projector ".enter(ref _foldOut).nl_ifFoldedOut()) {
 
                 "Target Size".edit(ref targetSize).changes(ref changed);
@@ -92,6 +99,10 @@ namespace Playtime_Painter
                     }
 
                 }
+
+                if (!PlaytimePainter.inspected)
+                    "Requested updates".edit_List(ref depthUsers, ref _inspectedUser).nl();
+
             } else this.ClickHighlight().nl();
             
             return changed;
@@ -115,6 +126,11 @@ namespace Playtime_Painter
 
             _spDepth.GlobalValue = _depthTarget;
 
+        }
+
+        void OnDisable()
+        {
+            triedToFindDepthCamera = false;
         }
 
         private void UpdateDepthCamera()
@@ -156,7 +172,7 @@ namespace Playtime_Painter
 
         ProjectorCameraConfiguration painterProjectorCameraConfiguration = new ProjectorCameraConfiguration();
         
-        [NonSerialized] private static readonly List<IUseDepthProjector> depthUsers = new List<IUseDepthProjector>();
+        [NonSerialized] private static List<IUseDepthProjector> depthUsers = new List<IUseDepthProjector>();
         
         public static void SubscribeToDepthCamera(IUseDepthProjector pj) {
             if (!depthUsers.Contains(pj))
@@ -172,47 +188,52 @@ namespace Playtime_Painter
             if (_projectorCamera)
             {
 
-                if (_projectFromMainCamera)
-                {
-
-                    if (Application.isPlaying)
-                    {
-
-                        if (PainterCamera.Inst)
-                        {
-
-                            var cam = PainterCamera.Inst.MainCamera;
-
-                            if (cam)
-                            {
-                                transform.parent = cam.transform;
-                                transform.localScale = Vector3.one;
-                                transform.localPosition = Vector3.zero;
-
-                                if (_centerOnMousePosition)
-                                    transform.LookAt(transform.position +
-                                                     cam.ScreenPointToRay(Input.mousePosition).direction);
-                                else
-                                    transform.localRotation = Quaternion.identity;
-
-                                transform.parent = null;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        transform.parent = null;
-                        var ray = _centerOnMousePosition
-                            ? EditorInputManager.mouseRaySceneView
-                            : EditorInputManager.centerRaySceneView;
-
-                        transform.position = ray.origin;
-                        transform.LookAt(ray.origin + ray.direction);
-
-                    }
-                }
+               
 
                 CallRender();
+            }
+        }
+
+        void UpdatePainterCameraPosition()
+        {
+            if (_projectFromMainCamera)
+            {
+
+                if (Application.isPlaying)
+                {
+
+                    if (PainterCamera.Inst)
+                    {
+
+                        var cam = PainterCamera.Inst.MainCamera;
+
+                        if (cam)
+                        {
+                            transform.parent = cam.transform;
+                            transform.localScale = Vector3.one;
+                            transform.localPosition = Vector3.zero;
+
+                            if (_centerOnMousePosition)
+                                transform.LookAt(transform.position +
+                                                 cam.ScreenPointToRay(Input.mousePosition).direction);
+                            else
+                                transform.localRotation = Quaternion.identity;
+
+                            transform.parent = null;
+                        }
+                    }
+                }
+                else
+                {
+                    transform.parent = null;
+                    var ray = _centerOnMousePosition
+                        ? EditorInputManager.mouseRaySceneView
+                        : EditorInputManager.centerRaySceneView;
+
+                    transform.position = ray.origin;
+                    transform.LookAt(ray.origin + ray.direction);
+
+                }
             }
         }
 
@@ -234,27 +255,40 @@ namespace Playtime_Painter
 
                     userToGetUpdate = depthUsers[lastUpdatedUser];
                     lastUpdatedUser++;
-                }
 
+                   
+                }
+                
                 bool gotUser = false;
 
                 if (userToGetUpdate != null)
                 {
                     var cfg = userToGetUpdate.GetProjectorCameraConfiguration();
                     var trg = userToGetUpdate.GetTargetTexture();
+                   
 
                     if (trg && cfg != null)
                     {
                         painterProjectorCameraConfiguration.From(_projectorCamera);
                         cfg.To(_projectorCamera);
                         _projectorCamera.targetTexture = trg;
+
+                        var prm = userToGetUpdate.GetProjectionParameter();
+                        if (prm != null)
+                            prm.Set(_projectorCamera);
+
                         gotUser = true;
                     }
                 }
                 
 
-                if (!gotUser) {
+                if (!gotUser)
+                {
+                    
+                    UpdatePainterCameraPosition();
+
                     _projectorCamera.targetTexture = _depthTarget;
+                   
                     painterProjection.Set(_projectorCamera);
                     userToGetUpdate = null;
                 }
@@ -270,7 +304,9 @@ namespace Playtime_Painter
 
                 try
                 {
-                    userToGetUpdate.AfterDepthCameraRender(_depthTarget);
+                   
+                    userToGetUpdate.AfterDepthCameraRender(_projectorCamera.targetTexture);
+
                 }
                 catch (Exception ex) {
                     Debug.LogError(ex);
@@ -278,6 +314,10 @@ namespace Playtime_Painter
 
                 userToGetUpdate = null;
                 painterProjectorCameraConfiguration.To(_projectorCamera);
+            }
+            else
+            {
+               
             }
         }
 
@@ -288,7 +328,7 @@ namespace Playtime_Painter
 
     public interface IUseDepthProjector {
         bool ProjectorReady();
-        ProjectorCameraParameters GetProjectorCameraParameter();
+        ProjectorCameraParameters GetProjectionParameter();
         ProjectorCameraConfiguration GetProjectorCameraConfiguration();
         void AfterDepthCameraRender(RenderTexture depthTexture);
         RenderTexture GetTargetTexture();
@@ -297,11 +337,11 @@ namespace Playtime_Painter
     [Serializable]
     public class ProjectorCameraConfiguration : AbstractCfg, IPEGI
     {
-        public float fieldOfView;
+        public float fieldOfView = 90;
         public Vector3 position;
         public Quaternion rotation;
-        public float nearPlane;
-        public float farPlane;
+        public float nearPlane = 0.1f;
+        public float farPlane = 100;
         private bool localTransform;
 
         public void From(Camera cam) {
@@ -338,6 +378,20 @@ namespace Playtime_Painter
             cam.farClipPlane = farPlane;
         }
 
+        public void CopyTransform(Transform tf)
+        {
+            position = tf.position;
+            rotation = tf.rotation;
+        }
+
+        public void DrawFrustrum(Matrix4x4 gizmoMatrix)
+        {
+            //Gizmos.matrix = gizmoMatrix;
+
+            Gizmos.DrawFrustum(Vector3.zero, fieldOfView, farPlane, nearPlane, 1);
+             
+        }
+
         #region Inspector
 
         [SerializeField] private Camera camera;
@@ -345,6 +399,8 @@ namespace Playtime_Painter
             var changed = false;
 
             "Local".toggleIcon("Use local Position and rotation of the camera." ,ref localTransform).nl();
+            "Position: {0}".F(position).nl();
+            "Rotation: {0}".F(rotation).nl();
 
             "Tmp Camera".edit(ref camera).changes(ref changed);
 
@@ -356,6 +412,8 @@ namespace Playtime_Painter
             }
 
             pegi.nl();
+
+          
 
             return changed;
         }

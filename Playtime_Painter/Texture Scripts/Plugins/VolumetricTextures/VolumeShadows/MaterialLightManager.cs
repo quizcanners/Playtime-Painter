@@ -62,8 +62,12 @@ namespace Playtime_Painter {
                 probes = new int[maxLights];
         }
 
+        #region Inspector
         #if PEGI
+
         public static int probeChanged = -1;
+
+        private int inspectedProbe = -1;
 
         public virtual bool Inspect() {
 
@@ -73,49 +77,72 @@ namespace Playtime_Painter {
 
             if (probes == null)
                 probes = new int[maxLights];
-            
-            for (var c = 0; c < maxLights; c++) {
 
-                var ind = probes[c];
+            if (inspectedProbe == -1)
+            {
 
-                if (ind < 0)
+                for (var c = 0; c < maxLights; c++)
                 {
-                    pegi.write(((ColorChanel)c).GetIcon());
-                    if (icon.Add.Click().nl(ref changed))
+
+                    var ind = probes[c];
+
+                    if (ind < 0)
                     {
-                        probes[c] = 0;
-                        probeChanged = c;
+                        pegi.write(((ColorChanel) c).GetIcon());
+                        if (icon.Add.Click().nl(ref changed))
+                        {
+                            probes[c] = 0;
+                            probeChanged = c;
+                        }
+
                     }
-
-                }
-                else
-                {
-                    
-                    var prb = LightCaster.AllProbes[ind];
-
-                    if (!prb)
-                        ("Probe " + ind).write(50);
                     else
-                        if (icon.Delete.Click(ref changed)) {
+                    {
+
+                        var prb = LightCaster.AllProbes[ind];
+
+                        if (!prb)
+                            ("Probe " + ind).write(50);
+                        else if (icon.Delete.Click(ref changed))
+                        {
                             probes[c] = -1;
                             probeChanged = c;
                         }
-                    
-                    if ("Light:".select_iGotIndex("Select Light Source" ,50, ref ind, LightCaster.AllProbes.GetAllObjsNoOrder()).nl(ref changed)) {
-                        probes[c] = ind;
-                        probeChanged = c;
-                    }
+
+                        if ("Light:".select_iGotIndex("Select Light Source", 50, ref ind,
+                            LightCaster.AllProbes.GetAllObjsNoOrder()).changes(ref changed))
+                        {
+                            probes[c] = ind;
+                            probeChanged = c;
+                        }
                         
+                        if (prb)
+                            prb.Inspect_AsInList(null, ind, ref inspectedProbe);
+
+                        pegi.nl();
+
+                    }
+
                 }
-                    
             }
-                pegi.space();
-                pegi.newLine();
+            else
+            {
+                if (icon.Exit.Click("Exit Probe inspect"))
+                    inspectedProbe = -1;
+
+                var prb = LightCaster.AllProbes[inspectedProbe];
+
+                if (prb)
+                    prb.Nested_Inspect();
+            }
+            
+            pegi.nl();
         
             return changed;
         }
 
-#endif
+        #endif
+        #endregion
 
         public void UpdateLightsGlobal() {
 

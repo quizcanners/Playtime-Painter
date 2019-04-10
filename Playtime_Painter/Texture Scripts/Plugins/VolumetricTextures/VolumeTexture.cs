@@ -75,8 +75,6 @@ namespace Playtime_Painter {
 
         public Vector4 Slices4Shader { get { float w = ((ImageMeta?.width ?? (TexturesPool.inst ? TexturesPool.inst.width : _tmpWidth)) - hSlices * 2) / hSlices;
             return new Vector4(hSlices, w * 0.5f, 1f / w, 1f / hSlices); } }
-        //2048
-        // 8, 15, 0.0333, 0.125
 
         public virtual bool NeedsToManageMaterials => true;
 
@@ -311,14 +309,16 @@ namespace Playtime_Painter {
         private void UpdateTextureName()
         {
             if (ImageMeta == null) return;
-            
-            ImageMeta.saveName = name + VolumePaintingPlugin.VolumeTextureTag + hSlices.ToString() + VolumePaintingPlugin.VolumeSlicesCountTag; ;
-            if (ImageMeta.texture2D != null) ImageMeta.texture2D.name = ImageMeta.saveName;
-            if (ImageMeta.renderTexture != null) ImageMeta.renderTexture.name = ImageMeta.saveName;
+            ImageMeta.isAVolumeTexture = true;
+            ImageMeta.saveName = name + VolumePaintingPlugin.VolumeTextureTag + hSlices.ToString() + VolumePaintingPlugin.VolumeSlicesCountTag;
+            if (ImageMeta.texture2D) ImageMeta.texture2D.name = ImageMeta.saveName;
+            if (ImageMeta.renderTexture) ImageMeta.renderTexture.name = ImageMeta.saveName;
         }
 
         #region Inspect
         #if PEGI
+        protected int inspectedElement = -1;
+
         protected int inspectedMaterial = -1;
 
         protected virtual bool VolumeDocumentation()
@@ -340,22 +340,26 @@ namespace Playtime_Painter {
             var changed = false;
             
             pegi.fullWindowDocumentationClick(VolumeDocumentation);
-            
-            if (inspectedMaterial == -1) {
 
+            if (inspectedElement == -1)
+            {
                 "Also set for Global shader parameters".toggleIcon(ref setForGlobal, true).changes(ref changed);
                 if (setForGlobal)
                 {
-                    "Current for {0} is {1}".F(MaterialPropertyNameGlobal ,CurrentGlobal).nl();
+                    "Current for {0} is {1}".F(MaterialPropertyNameGlobal, CurrentGlobal).nl();
                     if (this != CurrentGlobal && "Clear".Click(ref changed))
                         CurrentGlobal = null;
-                    
+
                 }
 
                 pegi.nl();
+            }
+
+            if ("Volume Texture".enter(ref inspectedElement, 1).nl())
+            {
 
                 var n = name;
-                
+
                 if ("Name".editDelayed(50, ref n).nl(ref changed))
                     name = n;
 
@@ -400,17 +404,25 @@ namespace Playtime_Painter {
                 ("Will result in X:" + w + " Z:" + w + " Y:" + Height + "volume").nl();
             }
 
-            "Materials".edit_List_UObj(ref materials, ref inspectedMaterial);
+            if ("Materials".enter(ref inspectedElement, 2).nl_ifFoldedOut()) {
 
-            if (inspectedMaterial == -1 && InspectedPainter) {
+                "Materials".edit_List_UObj(ref materials, ref inspectedMaterial);
+
+                if (inspectedMaterial == -1 && InspectedPainter)
+                {
                     var pMat = InspectedPainter.Material;
                     if (pMat != null && materials.Contains(pMat) && "Remove This Material".Click().nl(ref changed))
                         materials.Remove(pMat);
-            }
-            
+                }
 
-            if (changed || (inspectedMaterial == -1 && "Update Materials".Click().nl(ref changed)))
+                if (changed || (inspectedMaterial == -1 && "Update Materials".Click().nl(ref changed)))
+                    UpdateMaterials();
+            }
+
+            if (inspectedElement == -1 && icon.Refresh.Click("Update Materials"))
                 UpdateMaterials();
+
+            pegi.nl();
 
             return changed;
         }

@@ -1006,13 +1006,30 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region write
-        public static void write<T>(T field) where T : UnityEngine.Object
+
+        private static GUIContent imageAndTip = new GUIContent();
+
+        private static GUIContent ImageAndTip(Texture tex, string toolTip)
+        {
+            imageAndTip.image = tex;
+            imageAndTip.tooltip = toolTip;
+            return imageAndTip;
+        }
+
+        private static GUIContent ImageAndTip(Texture tex)
+        {
+            imageAndTip.image = tex;
+            imageAndTip.tooltip = tex ? tex.name : "Null Image";
+            return imageAndTip;
+        }
+
+        public static void write<T>(T field) where T : Object
         {
             checkLine();
             EditorGUILayout.ObjectField(field, typeof(T), false);
         }
 
-        public static void write<T>(T field, int width) where T : UnityEngine.Object
+        public static void write<T>(T field, int width) where T : Object
         {
             checkLine();
             EditorGUILayout.ObjectField(field, typeof(T), false, GUILayout.MaxWidth(width));
@@ -1040,6 +1057,27 @@ namespace PlayerAndEditorGUI {
         {
             checkLine();
             EditorGUILayout.LabelField(cnt, PEGI_Styles.WrappingText);
+        }
+
+        public static void write(Texture tex, int width)
+        {
+           checkLine();
+
+           GUILayout.Label(tex, GUILayout.MaxWidth(width), GUILayout.MaxHeight(width));
+        }
+
+        public static void write(Texture tex, string tip, int width)
+        {
+            checkLine();
+
+            GUILayout.Label(ImageAndTip(tex, tip), GUILayout.MaxWidth(width), GUILayout.MaxHeight(width));
+        }
+
+        public static void write(Texture tex, string tip, int width, int height)
+        {
+            checkLine();
+
+            GUILayout.Label(ImageAndTip(tex, tip), GUILayout.MaxWidth(width), GUILayout.MaxHeight(height));
         }
 
         public static void write(GUIContent cnt, int width)
