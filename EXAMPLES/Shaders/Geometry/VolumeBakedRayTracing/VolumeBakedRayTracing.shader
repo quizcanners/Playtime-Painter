@@ -22,25 +22,6 @@
 				#pragma multi_compile_fog
 				#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
-				uniform sampler2D g_BakedRays_VOL;
-				uniform sampler2D _pp_RayProjectorDepthes;
-				float4 g_BakedRays_VOL_TexelSize;
-
-				float4x4 rt0_ProjectorMatrix;
-				float4 rt0_ProjectorPosition;
-				float4 rt0_ProjectorClipPrecompute;
-				float4 rt0_ProjectorConfiguration;
-
-				float4x4 rt1_ProjectorMatrix;
-				float4 rt1_ProjectorPosition;
-				float4 rt1_ProjectorClipPrecompute;
-				float4 rt1_ProjectorConfiguration;
-
-				float4x4 rt2_ProjectorMatrix;
-				float4 rt2_ProjectorPosition;
-				float4 rt2_ProjectorClipPrecompute;
-				float4 rt2_ProjectorConfiguration;
-
 				struct v2f {
 					float4 pos : SV_POSITION;
 					float4 vcol : COLOR0;
@@ -110,9 +91,12 @@
 
 					o.viewDir.xyz = normalize(o.viewDir.xyz);
 
-					float3 shads;
+					
+					float3 posNrm = o.worldPos.xyz + o.normal.xyz;
 
-					float3 posNrm = o.worldPos.xyz + o.normal.xyz*2;
+					float3 shads = GetRayTracedShadows(posNrm, o.shadowCoords0, o.shadowCoords1, o.shadowCoords2);
+
+				/*	float near = rt0_ProjectorConfiguration.z;
 
 					float4 shUv0 = ProjectorUvDepthAlpha(
 						o.shadowCoords0, posNrm,
@@ -120,7 +104,10 @@
 						rt0_ProjectorConfiguration,
 						rt0_ProjectorClipPrecompute);
 
-					shads.r =  (1 - saturate((tex2D(_pp_RayProjectorDepthes, shUv0.xy).r - shUv0.z) * 128)) * shUv0.w;
+					shads.r =  (1 - saturate((tex2Dlod(_pp_RayProjectorDepthes, float4(shUv0.xy,0,0)).r - shUv0.z) * 128 / near)) * shUv0.w;
+
+
+					near = rt1_ProjectorConfiguration.z;
 
 					float4 shUv1 = ProjectorUvDepthAlpha(
 						o.shadowCoords1, posNrm,
@@ -128,7 +115,9 @@
 						rt1_ProjectorConfiguration,
 						rt1_ProjectorClipPrecompute);
 
-					shads.g = (1 - saturate((tex2D(_pp_RayProjectorDepthes, shUv1.xy).g - shUv1.z) * 128)) * shUv1.w;
+					shads.g = (1 - saturate((tex2Dlod(_pp_RayProjectorDepthes, float4(shUv1.xy,0,0)).g - shUv1.z) * 128 / near)) * shUv1.w;
+
+					near = rt2_ProjectorConfiguration.z;
 
 					float4 shUv2 = ProjectorUvDepthAlpha(
 						o.shadowCoords2, posNrm,
@@ -136,8 +125,8 @@
 						rt2_ProjectorConfiguration,
 						rt2_ProjectorClipPrecompute);
 
-					shads.b = (1 - saturate((tex2D(_pp_RayProjectorDepthes, shUv2.xy).b - shUv2.z) * 128)) * shUv2.w;
-
+					shads.b = (1 - saturate((tex2Dlod(_pp_RayProjectorDepthes, float4(shUv2.xy,0,0)).b - shUv2.z) * 128 / near)) * shUv2.w;
+					*/
 					/*
 					float2 border = DetectEdge(o.edge);
 					border.x = max(border.y, border.x);
@@ -168,7 +157,7 @@
 					//bake = 1 - bake;
 
 					//TODO: Remove TMP:
-					bake = 0;
+				//	bake = 0;
 
 
 					float power = bumpMap.b; 
@@ -176,6 +165,8 @@
 					float3 scatter = 0;
 					float3 glossLight = 0;
 					float3 directLight = 0;
+
+					//return shads.r;
 
 					PointLightTrace(scatter, glossLight, directLight, o.worldPos.xyz - g_l0pos.xyz,
 						o.normal, o.viewDir.xyz, bake.r, shads.r,  g_l0col, power);
@@ -188,8 +179,8 @@
 
 					col.rgb *= 
 						directLight
-						//+ 
-						//scatter * 0.01
+						+ 
+						scatter * 0.0005
 						;
 
 				//	return g_l0col;
@@ -220,7 +211,7 @@
 
 					
 
-					return col;
+					return col;//  +bake * 0.25;
 
 				}
 				ENDCG

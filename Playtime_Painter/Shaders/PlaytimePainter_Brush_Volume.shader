@@ -48,9 +48,9 @@
 					_brushColor.g = (_brushSamplingDisplacement.y - i.texcoord.y - _brushPointedUV_Untiled.w) / 2 + 0.5;
 					#endif
 
-					float alpha = prepareAlphaSphere(i.texcoord.xy, worldPos);//positionToAlpha(worldPos);
+					float alpha = prepareAlphaSphere(i.texcoord.xy, worldPos);
 
-					clip(alpha);
+					//clip(alpha);
 
 					#if BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY || BLIT_MODE_SAMPLE_DISPLACE
 					return AlphaBlitOpaque(alpha, _brushColor,  i.texcoord.xy);

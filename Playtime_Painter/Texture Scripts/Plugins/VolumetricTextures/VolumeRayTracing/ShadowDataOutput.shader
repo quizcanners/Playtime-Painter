@@ -18,24 +18,7 @@
 			#pragma multi_compile_fog
 			#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
-			uniform sampler2D g_BakedRays_VOL;
-			uniform sampler2D _pp_RayProjectorDepthes;
-			float4 g_BakedRays_VOL_TexelSize;
-
-			float4x4 rt0_ProjectorMatrix;
-			float4 rt0_ProjectorPosition;
-			float4 rt0_ProjectorClipPrecompute;
-			float4 rt0_ProjectorConfiguration;
-
-			float4x4 rt1_ProjectorMatrix;
-			float4 rt1_ProjectorPosition;
-			float4 rt1_ProjectorClipPrecompute;
-			float4 rt1_ProjectorConfiguration;
-
-			float4x4 rt2_ProjectorMatrix;
-			float4 rt2_ProjectorPosition;
-			float4 rt2_ProjectorClipPrecompute;
-			float4 rt2_ProjectorConfiguration;
+	
 
 			struct v2f {
 				float4 pos : SV_POSITION;
@@ -85,9 +68,11 @@
 
 				o.viewDir.xyz = normalize(o.viewDir.xyz);
 
-				float4 shads = 0;
+				float3 posNrm = o.worldPos.xyz + o.normal.xyz;
 
-				float3 posNrm = o.worldPos.xyz + o.normal.xyz * 2;
+				float3 shads = GetRayTracedShadows(posNrm, o.shadowCoords0, o.shadowCoords1, o.shadowCoords2);
+
+				/*float near = rt0_ProjectorConfiguration.z;
 
 				float4 shUv0 = ProjectorUvDepthAlpha(
 					o.shadowCoords0, posNrm,
@@ -97,6 +82,8 @@
 
 				shads.r = (1 - saturate((tex2D(_pp_RayProjectorDepthes, shUv0.xy).r - shUv0.z) * 128)) * shUv0.w;
 
+				near = rt1_ProjectorConfiguration.z;
+
 				float4 shUv1 = ProjectorUvDepthAlpha(
 					o.shadowCoords1, posNrm,
 					rt1_ProjectorPosition.rgb,
@@ -105,6 +92,8 @@
 
 				shads.g = (1 - saturate((tex2D(_pp_RayProjectorDepthes, shUv1.xy).g - shUv1.z) * 128)) * shUv1.w;
 
+				near = rt2_ProjectorConfiguration.z;
+
 				float4 shUv2 = ProjectorUvDepthAlpha(
 					o.shadowCoords2, posNrm,
 					rt2_ProjectorPosition.rgb,
@@ -112,11 +101,13 @@
 					rt2_ProjectorClipPrecompute);
 
 				shads.b = (1 - saturate((tex2D(_pp_RayProjectorDepthes, shUv2.xy).b - shUv2.z) * 128)) * shUv2.w;
+				*/
 
-				float dotprod = dot(o.viewDir.xyz, o.normal);
+
+				/*float dotprod = dot(o.viewDir.xyz, o.normal);
 				float fernel = (1.5 - dotprod);
 				float3 reflected = normalize(o.viewDir.xyz - 2 * (dotprod)*o.normal);
-
+				*/
 				float4 bake = SampleVolume(g_BakedRays_VOL, o.worldPos,  g_VOLUME_POSITION_N_SIZE,  g_VOLUME_H_SLICES, o.normal);
 
 
@@ -144,9 +135,10 @@
 				//return float4(o.viewDir.xyz,1);
 
 
+				
 
-
-				return shads;
+				return //float4(0,0,1,1); //
+				float4(shads, 1);
 
 			}
 			ENDCG

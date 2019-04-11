@@ -107,6 +107,10 @@ namespace Playtime_Painter
                 cameraConfiguration.Nested_Inspect().nl(ref changed);
             }
 
+            if (inspectedElement == -1 && cameraConfiguration.nearPlane < 5 && "Increase near plane to 5".Click())
+                cameraConfiguration.nearPlane = 5;
+
+
             if (changed) UnityUtils.RepaintViews();
 
             return changed;

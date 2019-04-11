@@ -257,7 +257,7 @@ namespace Playtime_Painter {
             if (!ProcessHit(hit, stroke))
                 return;
 
-            if ((currentlyPaintedObjectPainter != this) && (stroke.mouseDwn))
+            if ((currentlyPaintedObjectPainter != this) && stroke.mouseDwn)
             {
                 stroke.firstStroke = true;
                 currentlyPaintedObjectPainter = this;
@@ -390,7 +390,7 @@ namespace Playtime_Painter {
             if (ImgMeta == null) return false;
 
             st.posTo = hit.point;
-
+            st.collisionNormal = hit.normal;
             st.unRepeatedUv = OffsetAndTileUv(hit);
             st.uvTo = st.unRepeatedUv.To01Space();
 

@@ -3281,6 +3281,27 @@ namespace PlayerAndEditorGUI {
             return isFoldedOutOrEntered;
         }
 
+        public static bool conditional_enter(this string label, bool canEnter, ref bool entered)
+        {
+
+            if (!canEnter && entered)
+            {
+                if (icon.Back.Click() || "All Done here".Click(14))
+                    entered = false;
+            }
+            else
+            {
+
+                if (canEnter)
+                    label.enter(ref entered);
+                else
+                    isFoldedOutOrEntered = false;
+            }
+
+            return isFoldedOutOrEntered;
+        }
+
+
         public static bool conditional_enter_inspect(this IPEGI_ListInspect obj, bool canEnter, ref int enteredOne, int thisOne) {
             if (!canEnter && enteredOne == thisOne)
                 enteredOne = -1;
@@ -4994,6 +5015,10 @@ namespace PlayerAndEditorGUI {
             write(label, width);
             return edit(ref val);
         }
+
+        public static bool edit_Range(this string label, ref float from, ref float to) =>
+            label.edit_Range(label.ApproximateLength(), ref from, ref to);
+
 
         public static bool edit_Range(this string label, int width, ref float from, ref float to)
         {

@@ -54,6 +54,27 @@ float4 _mergeTerrainScale;
 float _Merge;
 
 
+
+uniform sampler2D g_BakedRays_VOL;
+uniform sampler2D _pp_RayProjectorDepthes;
+float4 g_BakedRays_VOL_TexelSize;
+
+float4x4 rt0_ProjectorMatrix;
+float4 rt0_ProjectorPosition;
+float4 rt0_ProjectorClipPrecompute;
+float4 rt0_ProjectorConfiguration;
+
+float4x4 rt1_ProjectorMatrix;
+float4 rt1_ProjectorPosition;
+float4 rt1_ProjectorClipPrecompute;
+float4 rt1_ProjectorConfiguration;
+
+float4x4 rt2_ProjectorMatrix;
+float4 rt2_ProjectorPosition;
+float4 rt2_ProjectorClipPrecompute;
+float4 rt2_ProjectorConfiguration;
+
+
 float4 ProjectorUvDepthAlpha(float4 shadowCoords, float3 worldPos, float3 lightPos, float4 cfg, float4 precompute) {
 
 	float camAspectRatio = cfg.x;
@@ -75,6 +96,44 @@ float4 ProjectorUvDepthAlpha(float4 shadowCoords, float3 worldPos, float3 lightP
 }
 
 
+float3 GetRayTracedShadows(float3 posNrm, float4 shadowCoords0, float4 shadowCoords1, float4 shadowCoords2 ) {
+
+	float near = rt0_ProjectorConfiguration.z;
+
+	float3 shads;
+
+	float4 shUv0 = ProjectorUvDepthAlpha(
+		shadowCoords0, posNrm,
+		rt0_ProjectorPosition.rgb,
+		rt0_ProjectorConfiguration,
+		rt0_ProjectorClipPrecompute);
+
+	shads.r = (1 - saturate((tex2Dlod(_pp_RayProjectorDepthes, float4(shUv0.xy, 0, 0)).r - shUv0.z) * 128 / near)) * shUv0.w;
+
+
+	near = rt1_ProjectorConfiguration.z;
+
+	float4 shUv1 = ProjectorUvDepthAlpha(
+		shadowCoords1, posNrm,
+		rt1_ProjectorPosition.rgb,
+		rt1_ProjectorConfiguration,
+		rt1_ProjectorClipPrecompute);
+
+	shads.g = (1 - saturate((tex2Dlod(_pp_RayProjectorDepthes, float4(shUv1.xy, 0, 0)).g - shUv1.z) * 128 / near)) * shUv1.w;
+
+	near = rt2_ProjectorConfiguration.z;
+
+	float4 shUv2 = ProjectorUvDepthAlpha(
+		shadowCoords2, posNrm,
+		rt2_ProjectorPosition.rgb,
+		rt2_ProjectorConfiguration,
+		rt2_ProjectorClipPrecompute);
+
+	shads.b = (1 - saturate((tex2Dlod(_pp_RayProjectorDepthes, float4(shUv2.xy, 0, 0)).b - shUv2.z) * 128 / near)) * shUv2.w;
+
+	return shads;
+
+}
 
 inline void vert_atlasedTexture(float _AtlasTextures, float atlasNumber, out float4 atlasedUV) {
 	float atY = floor(atlasNumber / _AtlasTextures);
@@ -721,7 +780,7 @@ inline float3 volumeUVtoWorld(float2 uv, float4 VOLUME_POSITION_N_SIZE, float4 V
 inline float4 SampleVolume(sampler2D volume, float3 worldPos, float4 VOLUME_POSITION_N_SIZE, float4 VOLUME_H_SLICES, float3 normal) {
 
 
-	float3 bsPos = (worldPos.xyz - VOLUME_POSITION_N_SIZE.xyz)*VOLUME_POSITION_N_SIZE.w +normal * 0.25;
+	float3 bsPos = (worldPos.xyz - VOLUME_POSITION_N_SIZE.xyz)*VOLUME_POSITION_N_SIZE.w +normal;
 
 	bsPos.xz = saturate((bsPos.xz + VOLUME_H_SLICES.y)* VOLUME_H_SLICES.z)*VOLUME_H_SLICES.w;
 	float h = min(max(0, bsPos.y), VOLUME_H_SLICES.x*VOLUME_H_SLICES.x - 1);

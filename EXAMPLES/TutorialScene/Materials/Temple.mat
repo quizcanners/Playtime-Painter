@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Temple
-  m_Shader: {fileID: 4800000, guid: cedc6d7951a0d38408f58630ee5106d8, type: 3}
+  m_Shader: {fileID: 4800000, guid: dda90552a8c36ca4ca505f9459776cef, type: 3}
   m_ShaderKeywords: UV_ATLASED VERT_SHADOW _BUMP_COMBINED _DEBUG _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
@@ -88,7 +88,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _PreviewTex:
-        m_Texture: {fileID: 2800000, guid: 3a04021182f0c04438f85f8fbc1a4227, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Refl:
@@ -128,7 +128,7 @@ Material:
     - debugOn: 1
     m_Colors:
     - VOLUME_H_SLICES: {r: 8, g: 127, b: 0.003937008, a: 0.125}
-    - VOLUME_POSITION_N_SIZE: {r: -1.42, g: 0, b: -12.59, a: 3.3333333}
+    - VOLUME_POSITION_N_SIZE: {r: 19.47, g: -3.65, b: -28.13, a: 3.3333333}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - l0col: {r: 20.23, g: 0, b: 2.4400609, a: 0}

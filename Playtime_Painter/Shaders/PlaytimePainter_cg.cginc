@@ -400,6 +400,8 @@ inline float4 AlphaBlitOpaque (float alpha,float4 src, float2 texcoord){
 	#endif
 }
 
+
+
 inline float4 AlphaBlitOpaquePreview (float alpha,float4 src, float2 texcoord, float4 col, float srcAlpha){
 	_brushMask = BrushMaskWithAlphaBuffer(alpha, texcoord, srcAlpha);
 

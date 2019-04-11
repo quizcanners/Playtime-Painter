@@ -23,9 +23,9 @@ namespace Playtime_Painter
                 if (!dp)
                 {
                     "Depth Projector is needed to update shadows".writeHint();
-                    
+
                     if ("Instantiate Depth Projector Camera".Click().nl())
-                        UnityUtils.Instantiate<DepthProjectorCamera>();
+                        PainterCamera.GetProjectorCamera();
                 }
             }
 
@@ -79,6 +79,8 @@ namespace Playtime_Painter
 
             if (!_allBakedDepthesTexture) {
                 _allBakedDepthesTexture = new RenderTexture(1024, 1024, 0, RenderTextureFormat.ARGBFloat);
+                _allBakedDepthesTexture.autoGenerateMips = false;
+                _allBakedDepthesTexture.useMipMap = false;
                 bakedDepthes.GlobalValue = _allBakedDepthesTexture;
             }
 
@@ -87,8 +89,12 @@ namespace Playtime_Painter
 
         public RenderTexture GetBakedDepthsBuffer() {
             if (!allBakedDepthesBufferTexture)
+            {
                 allBakedDepthesBufferTexture = new RenderTexture(1024, 1024, 0, RenderTextureFormat.ARGB32);
-            
+                allBakedDepthesBufferTexture.autoGenerateMips = false;
+                allBakedDepthesBufferTexture.useMipMap = false;
+            }
+
             return allBakedDepthesBufferTexture;
         }
 
@@ -97,9 +103,9 @@ namespace Playtime_Painter
         public bool ProjectorReady() 
             => IsCurrentGlobalVolume && lights.GetNextLight(ref lastUpdatedLight);
         
-        private static List<ProjectorCameraParameters> projectorCameraParams;
+        private static List<CameraMatrixParameters> projectorCameraParams;
 
-        public ProjectorCameraParameters GetProjectionParameter()
+        public CameraMatrixParameters GetGlobalCameraMatrixParameters()
             => projectorCameraParams[lastUpdatedLight];
 
         public ProjectorCameraConfiguration GetProjectorCameraConfiguration()
@@ -111,7 +117,9 @@ namespace Playtime_Painter
 
         public RenderTexture GetTargetTexture() => DepthProjectorCamera.GetReusableDepthTarget();
 
-        public void AfterDepthCameraRender(RenderTexture depthTexture)
+        public ProjectorMode GetMode() => ProjectorMode.Clear;
+
+        public void AfterCameraRender(RenderTexture depthTexture)
         {
 
             var buff = GetBakedDepthsBuffer();
@@ -140,18 +148,20 @@ namespace Playtime_Painter
 
             base.OnEnable();
 
-            DepthProjectorCamera.SubscribeToDepthCamera(this);
+            DepthProjectorCamera.TrySubscribeToDepthCamera(this);
 
             if (projectorCameraParams == null) {
-                projectorCameraParams = new List<ProjectorCameraParameters>();
+                projectorCameraParams = new List<CameraMatrixParameters>();
                 for (int i=0; i<3; i++)
-                    projectorCameraParams.Add(new ProjectorCameraParameters("rt{0}_".F(i)));
+                    projectorCameraParams.Add(new CameraMatrixParameters("rt{0}_".F(i)));
             }
 
             bakedDepthes.GlobalValue = _allBakedDepthesTexture;
         }
 
-    
+     
+
+
         #endregion
     }
 }

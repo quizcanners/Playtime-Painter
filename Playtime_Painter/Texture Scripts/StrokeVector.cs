@@ -3,14 +3,14 @@ using System;
 using QuizCannersUtilities;
 
 namespace Playtime_Painter {
-
-    [Serializable]
+    
     public class StrokeVector : AbstractCfg {
 
 	    public Vector2 uvFrom;
 	    public Vector3 posFrom;
 	    public Vector2 uvTo;
 	    public Vector3 posTo;
+        public Vector3 collisionNormal;
         public Vector2 unRepeatedUv;
         
         public Vector2 previousDelta;
@@ -172,5 +172,22 @@ namespace Playtime_Painter {
             Dwn();
         }
     }
+
+    public class BrushStrokePainterImage
+    {
+        public StrokeVector stroke;
+        public ImageMeta image;
+        public BrushConfig brush;
+        public PlaytimePainter painter;
+
+        public BrushStrokePainterImage(StrokeVector s, ImageMeta id, BrushConfig br, PlaytimePainter pp)
+        {
+            stroke = s;
+            image = id;
+            brush = br;
+            painter = pp;
+        }
+    }
+
 
 }

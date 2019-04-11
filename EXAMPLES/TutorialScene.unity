@@ -445,7 +445,7 @@ Camera:
   m_Enabled: 0
   serializedVersion: 2
   m_ClearFlags: 3
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
   m_projectionMatrixMode: 1
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
@@ -457,9 +457,9 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 1
-  far clip plane: 6000
-  field of view: 66
+  near clip plane: 410
+  far clip plane: 410
+  field of view: 69.2
   orthographic: 0
   orthographic size: 5
   m_Depth: -1000
@@ -467,11 +467,11 @@ Camera:
     serializedVersion: 2
     m_Bits: 3221225471
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 1168007212}
+  m_TargetTexture: {fileID: 872939342}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
-  m_AllowMSAA: 1
+  m_AllowMSAA: 0
   m_AllowDynamicResolution: 0
   m_ForceIntoRT: 0
   m_OcclusionCulling: 1
@@ -493,7 +493,7 @@ MonoBehaviour:
   _depthTarget: {fileID: 872939342}
   _projectFromMainCamera: 0
   _centerOnMousePosition: 0
-  pauseUpdates: 0
+  pauseAutoUpdates: 0
   targetSize: 512
 --- !u!4 &225616684
 Transform:
@@ -502,13 +502,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 225616681}
-  m_LocalRotation: {x: 0.10230284, y: -0.841871, z: 0.17181703, w: 0.50126463}
-  m_LocalPosition: {x: -23.540638, y: 11.489244, z: 0.28132057}
+  m_LocalRotation: {x: -0.039982826, y: -0.74944735, z: -0.009346944, w: -0.66078943}
+  m_LocalPosition: {x: -11.99, y: 7.02, z: -24.08}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 18
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -14.005001, y: 88.87, z: 0.002}
 --- !u!84 &229158092
 RenderTexture:
   m_ObjectHideFlags: 0
@@ -997,7 +997,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 479929388}
-  m_Mesh: {fileID: 528912354}
+  m_Mesh: {fileID: 537570213}
 --- !u!23 &479929391
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -1047,7 +1047,7 @@ Transform:
   m_LocalScale: {x: 256, y: 256, z: 0}
   m_Children: []
   m_Father: {fileID: 2003499432}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &505755631
 GameObject:
@@ -1159,17 +1159,6 @@ MonoBehaviour:
   nameHolder: Terrain
   selectedAtlasedMaterial: -1
   invertRayCast: 0
-  stroke:
-    uvFrom: {x: 0.56520545, y: 0.37867302}
-    posFrom: {x: 126.1109, y: 34.029152, z: -100.95398}
-    uvTo: {x: 0.49057904, y: 0.48013422}
-    posTo: {x: -23.141968, y: 52.0426, z: 101.96838}
-    unRepeatedUv: {x: 0.49057904, y: 0.48013422}
-    previousDelta: {x: 0, y: 0}
-    avgBrushSpeed: 0.00016152911
-    mouseDwn: 0
-    firstStroke: 0
-    mouseUp: 0
   tilingY: 13.333333
   playbackVectors: []
   forcedMeshCollider: 0
@@ -1323,7 +1312,7 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: ae956fc2634ffd945bc0f8823f40feba, type: 2}
---- !u!43 &528912354
+--- !u!43 &537570213
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2035,17 +2024,6 @@ MonoBehaviour:
   nameHolder: Cube (3)
   selectedAtlasedMaterial: -1
   invertRayCast: 0
-  stroke:
-    uvFrom: {x: 0.8842304, y: 0.03669715}
-    posFrom: {x: -27.941761, y: 8.950188, z: -1.0688579}
-    uvTo: {x: 0.9949269, y: 0.9871788}
-    posTo: {x: -27.936687, y: 8.9263115, z: -1.1846275}
-    unRepeatedUv: {x: 0.9949269, y: 0.98717886}
-    previousDelta: {x: -0.00015711784, y: -0.0119102}
-    avgBrushSpeed: 0.035094853
-    mouseDwn: 0
-    firstStroke: 0
-    mouseUp: 0
   tilingY: 8
   playbackVectors: []
   forcedMeshCollider: 1
@@ -2122,7 +2100,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 19
+  m_RootOrder: 22
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &761168667
 PrefabInstance:
@@ -2194,6 +2172,38 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: ae956fc2634ffd945bc0f8823f40feba, type: 2}
+--- !u!84 &816951351
+RenderTexture:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: 
+  m_ImageContentsHash:
+    serializedVersion: 2
+    Hash: 00000000000000000000000000000000
+  m_ForcedFallbackFormat: 4
+  m_DownscaleFallback: 0
+  m_Width: 1024
+  m_Height: 1024
+  m_AntiAliasing: 1
+  m_DepthFormat: 0
+  m_ColorFormat: 0
+  m_MipMap: 0
+  m_GenerateMips: 0
+  m_SRGB: 0
+  m_UseDynamicScale: 0
+  m_BindMS: 0
+  m_TextureSettings:
+    serializedVersion: 2
+    m_FilterMode: 1
+    m_Aniso: 1
+    m_MipBias: 0
+    m_WrapU: 1
+    m_WrapV: 1
+    m_WrapW: 1
+  m_Dimension: 2
+  m_VolumeDepth: 1
 --- !u!1001 &817507153
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -2478,7 +2488,7 @@ Transform:
   m_LocalScale: {x: 256, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 17
+  m_RootOrder: 21
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &906500836
 GameObject:
@@ -3113,17 +3123,6 @@ MonoBehaviour:
   nameHolder: PixArt
   selectedAtlasedMaterial: -1
   invertRayCast: 0
-  stroke:
-    uvFrom: {x: 0, y: 0}
-    posFrom: {x: 0, y: 0, z: 0}
-    uvTo: {x: 0.57743925, y: 0.0740948}
-    posTo: {x: 17.60672, y: 70.04685, z: 9.144828}
-    unRepeatedUv: {x: 0.57743925, y: 0.0740948}
-    previousDelta: {x: 0, y: 0}
-    avgBrushSpeed: 0
-    mouseDwn: 0
-    firstStroke: 1
-    mouseUp: 0
   tilingY: 8
   playbackVectors: []
   forcedMeshCollider: 0
@@ -3285,38 +3284,6 @@ PrefabInstance:
     m_RemovedComponents:
     - {fileID: 0}
   m_SourcePrefab: {fileID: 100100000, guid: ae956fc2634ffd945bc0f8823f40feba, type: 2}
---- !u!84 &1168007212
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_Width: 1024
-  m_Height: 1024
-  m_AntiAliasing: 1
-  m_DepthFormat: 2
-  m_ColorFormat: 1
-  m_MipMap: 0
-  m_GenerateMips: 0
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
 --- !u!1 &1174206416
 GameObject:
   m_ObjectHideFlags: 0
@@ -3402,11 +3369,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1174206416}
   m_LocalRotation: {x: -0, y: -0, z: 0.76990575, w: 0.63815767}
-  m_LocalPosition: {x: 1.8, y: 3.16, z: -12.75}
+  m_LocalPosition: {x: 3.85, y: 3.16, z: -31.9}
   m_LocalScale: {x: 256, y: 0.05, z: 0.05}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 16
+  m_RootOrder: 20
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 100.691}
 --- !u!1001 &1194478227
 PrefabInstance:
@@ -3502,17 +3469,6 @@ MonoBehaviour:
   nameHolder: Volume Shadow Temple
   selectedAtlasedMaterial: -1
   invertRayCast: 0
-  stroke:
-    uvFrom: {x: 0.25224876, y: 0.029803276}
-    posFrom: {x: 1.8894911, y: 0.99999994, z: -14.553132}
-    uvTo: {x: 0.41215515, y: 0.03188622}
-    posTo: {x: 0, y: 0.031886175, z: -25.945969}
-    unRepeatedUv: {x: -19.587845, y: 0.031886175}
-    previousDelta: {x: 0, y: 0}
-    avgBrushSpeed: 0.013750032
-    mouseDwn: 0
-    firstStroke: 0
-    mouseUp: 0
   tilingY: 8
   playbackVectors: []
   forcedMeshCollider: 0
@@ -4252,17 +4208,6 @@ MonoBehaviour:
   nameHolder: SmoothBox
   selectedAtlasedMaterial: -1
   invertRayCast: 0
-  stroke:
-    uvFrom: {x: 0, y: 0}
-    posFrom: {x: 0, y: 0, z: 0}
-    uvTo: {x: 0.69146985, y: 0.041953053}
-    posTo: {x: -13.181497, y: 72.1487, z: 12.713094}
-    unRepeatedUv: {x: 0.69146985, y: 0.041953053}
-    previousDelta: {x: 0, y: 0}
-    avgBrushSpeed: 0
-    mouseDwn: 0
-    firstStroke: 1
-    mouseUp: 0
   tilingY: 8
   playbackVectors: []
   forcedMeshCollider: 1
@@ -4563,17 +4508,6 @@ MonoBehaviour:
   nameHolder: Cube
   selectedAtlasedMaterial: -1
   invertRayCast: 0
-  stroke:
-    uvFrom: {x: 0.6814059, y: 0.15667123}
-    posFrom: {x: 9.8336525, y: 72.91989, z: 9.384115}
-    uvTo: {x: 0.60754514, y: 0.49425083}
-    posTo: {x: 8.943132, y: 72.07396, z: 10.646704}
-    unRepeatedUv: {x: 0.60754514, y: 0.49425083}
-    previousDelta: {x: 0.00254488, y: 0.0017701238}
-    avgBrushSpeed: 0.000000011366076
-    mouseDwn: 0
-    firstStroke: 0
-    mouseUp: 0
   tilingY: 8
   playbackVectors: []
   forcedMeshCollider: 1
@@ -4795,7 +4729,7 @@ MonoBehaviour:
   picture: {fileID: 1144922678}
   pill: {fileID: 2050424860}
   cube: {fileID: 1815085830}
-  timer: -333.3688
+  timer: -1263.6245
   style:
     m_Name: Hint Style
     m_Normal:
@@ -5148,7 +5082,7 @@ Camera:
   m_Enabled: 0
   serializedVersion: 2
   m_ClearFlags: 4
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
   m_projectionMatrixMode: 1
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
@@ -5170,7 +5104,7 @@ Camera:
     serializedVersion: 2
     m_Bits: 1073741824
   m_RenderingPath: 1
-  m_TargetTexture: {fileID: 2035365615}
+  m_TargetTexture: {fileID: 816951351}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -5238,7 +5172,7 @@ MonoBehaviour:
   - {fileID: 229158092}
   - {fileID: 2100083537}
   alphaBufferTexture: {fileID: 1402862852}
-  bigRtVersion: 41203
+  bigRtVersion: 148073
   secondBufferUpdated: 1
   secondBufferDebug: {fileID: 0}
   alphaBufferDebug: {fileID: 0}
@@ -5444,38 +5378,6 @@ MonoBehaviour:
   orbitingFocused: 0
   spinStartTime: 0
   _mainCam: {fileID: 0}
---- !u!84 &2035365615
-RenderTexture:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: 
-  m_ImageContentsHash:
-    serializedVersion: 2
-    Hash: 00000000000000000000000000000000
-  m_ForcedFallbackFormat: 4
-  m_DownscaleFallback: 0
-  m_Width: 1024
-  m_Height: 1024
-  m_AntiAliasing: 1
-  m_DepthFormat: 0
-  m_ColorFormat: 0
-  m_MipMap: 0
-  m_GenerateMips: 1
-  m_SRGB: 0
-  m_UseDynamicScale: 0
-  m_BindMS: 0
-  m_TextureSettings:
-    serializedVersion: 2
-    m_FilterMode: 1
-    m_Aniso: 1
-    m_MipBias: 0
-    m_WrapU: 1
-    m_WrapV: 1
-    m_WrapW: 1
-  m_Dimension: 2
-  m_VolumeDepth: 1
 --- !u!1 &2050424860
 GameObject:
   m_ObjectHideFlags: 0
@@ -5524,17 +5426,6 @@ MonoBehaviour:
   nameHolder: Pill
   selectedAtlasedMaterial: -1
   invertRayCast: 0
-  stroke:
-    uvFrom: {x: 0, y: 0}
-    posFrom: {x: 0, y: 0, z: 0}
-    uvTo: {x: 0, y: 0}
-    posTo: {x: 0, y: 0, z: 0}
-    unRepeatedUv: {x: 0, y: 0}
-    previousDelta: {x: 0, y: 0}
-    avgBrushSpeed: 0
-    mouseDwn: 1
-    firstStroke: 1
-    mouseUp: 0
   tilingY: 8
   playbackVectors: []
   forcedMeshCollider: 0
@@ -6210,7 +6101,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1582996838084086}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -1.42, y: 0, z: -12.59}
+  m_LocalPosition: {x: 19.47, y: -3.65, z: -28.13}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -6281,13 +6172,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1573499391500076}
-  m_LocalRotation: {x: 0.06170974, y: -0.6999515, z: -0.060930274, w: -0.70890576}
-  m_LocalPosition: {x: -0.77, y: 5.45, z: -15.83}
+  m_LocalRotation: {x: -0.33220932, y: -0.6191746, z: 0.33777118, w: -0.6262351}
+  m_LocalPosition: {x: -17.7, y: 40.23, z: -25.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 4691545862857886}
-  m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: -9.950001, y: -270.728, z: 0}
+  m_Father: {fileID: 0}
+  m_RootOrder: 17
+  m_LocalEulerAnglesHint: {x: 56.549004, y: -271.301, z: -1.212}
 --- !u!4 &4342248476821742
 Transform:
   m_ObjectHideFlags: 0
@@ -6338,13 +6229,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1957514690862326}
-  m_LocalRotation: {x: 0.12623686, y: 0.845701, z: -0.10812506, w: 0.50711244}
-  m_LocalPosition: {x: -6.36, y: 5.86, z: -25.59}
+  m_LocalRotation: {x: -0.03301963, y: -0.4253326, z: -0.02463397, w: -0.904099}
+  m_LocalPosition: {x: 15.84, y: 14.97, z: -49.03}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 4691545862857886}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 18.114, y: 119.104004, z: 6.2730002}
+  m_Father: {fileID: 0}
+  m_RootOrder: 15
+  m_LocalEulerAnglesHint: {x: 2.2210002, y: 410.47, z: 4.168}
 --- !u!4 &4613094572967130
 Transform:
   m_ObjectHideFlags: 0
@@ -6368,11 +6259,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1920087885295230}
   m_LocalRotation: {x: -0.094493605, y: 0.6268012, z: 0.07696145, w: 0.7695896}
-  m_LocalPosition: {x: -9.12, y: 8.52, z: -44.8}
+  m_LocalPosition: {x: -13.82, y: 3.3, z: -11.76}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 4691545862857886}
-  m_RootOrder: 1
+  m_Father: {fileID: 0}
+  m_RootOrder: 16
   m_LocalEulerAnglesHint: {x: -14.000001, y: 78.323006, z: 0}
 --- !u!4 &4685272643933158
 Transform:
@@ -6400,12 +6291,9 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 4592910077726272}
-  - {fileID: 4623602991585464}
-  - {fileID: 4337064910413716}
   - {fileID: 4773842164222412}
   m_Father: {fileID: 0}
-  m_RootOrder: 15
+  m_RootOrder: 19
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4716706377952844
 Transform:
@@ -6430,7 +6318,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1752681434301650}
   m_LocalRotation: {x: -0, y: -0.124593675, z: -0, w: 0.9922079}
-  m_LocalPosition: {x: 2.6, y: 3.97, z: -21.54}
+  m_LocalPosition: {x: -35.81, y: 2.89, z: -36.05}
   m_LocalScale: {x: 12, y: 5, z: 12}
   m_Children:
   - {fileID: 4776479308595674}
@@ -6442,7 +6330,7 @@ Transform:
   - {fileID: 4356688905579586}
   - {fileID: 4056916143924918}
   m_Father: {fileID: 4691545862857886}
-  m_RootOrder: 3
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: -685.294, z: 0}
 --- !u!4 &4776479308595674
 Transform:
@@ -7451,13 +7339,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraConfiguration:
     fieldOfView: 66
-    position: {x: -9.12, y: 8.52, z: -44.8}
-    rotation: {x: -0.09450898, y: 0.626873, z: 0.07694851, w: 0.7695305}
-    nearPlane: 1
-    farPlane: 6000
+    position: {x: -13.82, y: 3.3, z: -11.76}
+    rotation: {x: -0.094575815, y: 0.6267724, z: 0.07699216, w: 0.76959985}
+    nearPlane: 5
+    farPlane: 60
     camera: {fileID: 2020219815}
-  ecol: {r: 0.015686274, g: 1, b: 0.069145136, a: 1}
-  brightness: 265
+  ecol: {r: 0.26118433, g: 1, b: 0, a: 1}
+  brightness: 1000
   camShake: 0.0001
   index: 1
 --- !u!114 &114608961586632692
@@ -7474,13 +7362,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cameraConfiguration:
     fieldOfView: 113.8
-    position: {x: -0.77, y: 5.45, z: -15.83}
-    rotation: {x: 0.06170788, y: -0.699932, z: -0.06098372, w: -0.7089205}
-    nearPlane: 1
-    farPlane: 6000
+    position: {x: -17.7, y: 40.23, z: -25.3}
+    rotation: {x: -0.33214456, y: -0.6191682, z: 0.3378332, w: -0.6262424}
+    nearPlane: 5
+    farPlane: 60
     camera: {fileID: 2020219815}
   ecol: {r: 0.015686274, g: 0.4911854, b: 1, a: 1}
-  brightness: 10
+  brightness: 1000
   camShake: 0.0001
   index: 2
 --- !u!114 &114811405726825066
@@ -7496,13 +7384,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraConfiguration:
-    fieldOfView: 133.4
-    position: {x: -6.36, y: 5.86, z: -25.59}
-    rotation: {x: 0.12610817, y: 0.84563273, z: -0.10815152, w: 0.50725263}
-    nearPlane: 1
-    farPlane: 6000
+    fieldOfView: 71.1
+    position: {x: 15.84, y: 14.97, z: -49.03}
+    rotation: {x: -0.032952998, y: -0.4254906, z: -0.024629943, w: -0.9040272}
+    nearPlane: 10
+    farPlane: 410
     camera: {fileID: 2020219815}
-  ecol: {r: 0.9339623, g: 0.8062033, b: 0.8217348, a: 1}
+  ecol: {r: 1, g: 0, b: 0.125, a: 1}
   brightness: 1000
   camShake: 0.000212
   index: 0

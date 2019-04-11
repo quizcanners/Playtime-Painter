@@ -1124,12 +1124,12 @@ namespace QuizCannersUtilities {
         }
 
 
-        public static void CopyFrom(this Texture2D tex, RenderTexture rt) {
+        public static Texture2D CopyFrom(this Texture2D tex, RenderTexture rt) {
             if (!rt || !tex){
 #if UNITY_EDITOR
                 Debug.Log("Texture is null");
 #endif
-                return;
+                return tex;
             }
 
             var curRT = RenderTexture.active;
@@ -1140,6 +1140,7 @@ namespace QuizCannersUtilities {
 
             RenderTexture.active = curRT;
 
+            return tex;
         }
 
         public static bool TextureHasAlpha (this Texture2D tex)

@@ -18,6 +18,19 @@ namespace Playtime_Painter {
 
         public static DepthProjectorCamera depthProjectorCamera;
 
+        public static DepthProjectorCamera GetProjectorCamera()
+        {
+          
+                if (depthProjectorCamera)
+                    return depthProjectorCamera;
+
+                if (!DepthProjectorCamera.Instance)
+                    depthProjectorCamera = UnityUtils.Instantiate<DepthProjectorCamera>();
+
+                return depthProjectorCamera;
+            
+        }
+
         public static readonly BrushMeshGenerator BrushMeshGenerator = new BrushMeshGenerator();
 
         public static readonly MeshManager MeshManager = new MeshManager();
@@ -240,28 +253,42 @@ namespace Playtime_Painter {
         #endregion
 
         #region Buffer Scaling
-        [NonSerialized] private readonly RenderTexture[] _squareBuffers = new RenderTexture[10];
+
+        private const int squareBuffersCount = 13;
+
+        [NonSerialized] private readonly RenderTexture[] _squareBuffers = new RenderTexture[squareBuffersCount];
 
         public RenderTexture GetSquareBuffer(int width)
         {
-            int no = 9;
+            int no = squareBuffersCount-1;
             switch (width)
             {
-                case 8: no = 0; break;
-                case 16: no = 1; break;
-                case 32: no = 2; break;
-                case 64: no = 3; break;
-                case 128: no = 4; break;
-                case 256: no = 5; break;
-                case 512: no = 6; break;
-                case 1024: no = 7; break;
-                case 2048: no = 8; break;
-                case 4096: no = 9; break;
-                default: Debug.Log(width + " is not in range "); break;
+                case 1: no = 0; break;
+                case 2: no = 1; break;
+                case 4: no = 2; break;
+                case 8: no = 3; break;
+                case 16: no = 4; break;
+                case 32: no = 5; break;
+                case 64: no = 6; break;
+                case 128: no = 7; break;
+                case 256: no = 8; break;
+                case 512: no = 9; break;
+                case 1024: no = 10; break;
+                case 2048: no = 11; break;
+                case 4096: no = 12; break;
+                default: logger.Log_Every(5, width + " is not in range "); break;
             }
 
             if (!_squareBuffers[no])
-                _squareBuffers[no] = new RenderTexture(width, width, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
+            {
+                var sbf = new RenderTexture(width, width, 0, RenderTextureFormat.ARGB32,
+                    RenderTextureReadWrite.Default);
+
+                sbf.useMipMap = false;
+                sbf.autoGenerateMips = false;
+
+                _squareBuffers[no] = sbf;
+            }
 
             return _squareBuffers[no];
         }
@@ -280,6 +307,21 @@ namespace Playtime_Painter {
 
         public RenderTexture GetDownscaledBigRt(int width, int height) => Downscale_ToBuffer(DoubleBufferCameraTarget, width, height);
 
+        public RenderTexture GetDownscaleOf(Texture tex, int targetSize) {
+
+            if (!tex)
+                logger.Log_Interval(5, "Null texture as downscale source");
+            else if (tex.width != tex.height)
+                logger.Log_Interval(5, "Texture should be square");
+            else if (!Mathf.IsPowerOfTwo(tex.width))
+                logger.Log_Interval(5, "{0} is not a Power of two".F(tex));
+            else
+                return Downscale_ToBuffer(tex, targetSize, targetSize);
+            
+
+            return null;
+        }
+
         public RenderTexture Downscale_ToBuffer(Texture tex, int width, int height, Material material = null, Shader shader = null)
         {
 
@@ -289,7 +331,7 @@ namespace Playtime_Painter {
             bool usingCustom = material || shader;
 
             if (!shader)
-                shader = Data.pixPerfectCopy; //Data.brushBufferCopy;
+                shader = Data.pixPerfectCopy;
 
             bool square = (width == height);
             if (!square || !Mathf.IsPowerOfTwo(width))
@@ -482,7 +524,7 @@ namespace Playtime_Painter {
         }
 
         private static readonly ShaderProperty.VectorValue ChannelCopySourceMask =          new ShaderProperty.VectorValue("_ChannelSourceMask");
-        private static readonly ShaderProperty.VectorValue BrushColorProperty =             new ShaderProperty.VectorValue("_brushColor");
+        public static readonly ShaderProperty.VectorValue BrushColorProperty =             new ShaderProperty.VectorValue("_brushColor");
         private static readonly ShaderProperty.VectorValue BrushMaskProperty =              new ShaderProperty.VectorValue("_brushMask");
         private static readonly ShaderProperty.VectorValue MaskDynamicsProperty =           new ShaderProperty.VectorValue("_maskDynamics");
         private static readonly ShaderProperty.VectorValue MaskOffsetProperty =             new ShaderProperty.VectorValue("_maskOffset");
@@ -1099,7 +1141,10 @@ namespace Playtime_Painter {
         #endregion
 
         #region Inspector
-        #if PEGI
+        
+                ChillLogger logger = new ChillLogger("error");
+
+#if PEGI
 
         public AnimationCurve InspectAnimationCurve(string role) {
             role.edit_Property(() => tmpCurve, this);
@@ -1118,10 +1163,30 @@ namespace Playtime_Painter {
             return changed;
         }
 
+        private bool showBuffers;
+
         public bool DependenciesInspect(bool showAll = false) {
 
             var changed = false;
-            
+
+            if (showAll && "Scaling Buffers".enter(ref showBuffers).nl())
+            {
+                for (int i = 0; i < squareBuffersCount; i++)
+                {
+
+                    if (!_squareBuffers[i])
+                        "No Buffer {0}".F(Mathf.Pow(2, i)).nl();
+                    else
+                        _squareBuffers[i].write(50);
+
+                    pegi.nl();
+
+                }
+
+
+                return changed;
+            }
+
             if (showAll && "Buffer Size".selectPow2("Size of Buffers used for GPU painting", 90, ref renderBuffersSize, 64, 4096).nl())
             {
                 EmptyBufferTarget();

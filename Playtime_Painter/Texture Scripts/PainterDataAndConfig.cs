@@ -46,6 +46,8 @@ namespace Playtime_Painter
         public Shader bufferCopyDownscaleX4;
         public Shader bufferCopyDownscaleX8;
 
+        public Shader rayTraceOutput;
+
         public Shader CopyIntoTargetChannelShader(ColorChanel chan)  {
             switch (chan) {
                 case ColorChanel.R: return bufferCopyR;
@@ -649,6 +651,8 @@ namespace Playtime_Painter
             CheckShader(ref bufferCopyDownscaleX4,      "Playtime Painter/Buffer Blit/DownScaleX4",             forceReload);
 
             CheckShader(ref bufferCopyDownscaleX8,      "Playtime Painter/Buffer Blit/DownScaleX8",             forceReload);
+
+            CheckShader(ref rayTraceOutput,             "Playtime Painter/Editor/Replacement/ShadowDataOutput", forceReload);
 
 #endif
         }
