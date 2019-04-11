@@ -4969,8 +4969,24 @@ namespace PlayerAndEditorGUI {
             
         }
 
-        private static string editedFloat;
-        private static int editedFloatIndex;
+        public static bool editDelayed(this string label, string tip, int width, ref float val)
+        {
+            write(label, tip, width);
+            return editDelayed(ref val);
+        }
+
+        public static bool editDelayed(this string label, int width, ref float val)
+        {
+            write(label, width);
+            return editDelayed(ref val);
+        }
+
+        public static bool editDelayed(this string label, ref float val)
+        {
+            write(label);
+            return editDelayed(ref val);
+        }
+        
         public static bool editDelayed(ref float val, int width)
         {
 
@@ -4978,6 +4994,17 @@ namespace PlayerAndEditorGUI {
             if (!paintingPlayAreaGui)
                 return ef.editDelayed(ref val, width);
     #endif
+
+            return editDelayed(ref val);
+        }
+
+        public static bool editDelayed(ref float val)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.editDelayed(ref val);
+#endif
 
 
             checkLine();
@@ -4998,7 +5025,6 @@ namespace PlayerAndEditorGUI {
                 return change;
             }
 
-
             if (edit(ref tmp).ignoreChanges())
             {
                 editedFloat = tmp;
@@ -5008,19 +5034,19 @@ namespace PlayerAndEditorGUI {
             _elementIndex++;
 
             return false;
-
         }
-        
+
+        private static string editedFloat;
+        private static int editedFloatIndex;
+
         public static bool edit(this string label, int width, ref float val)
         {
             write(label, width);
             return edit(ref val);
         }
 
-        public static bool edit_Range(this string label, ref float from, ref float to) =>
-            label.edit_Range(label.ApproximateLength(), ref from, ref to);
-
-
+        public static bool edit_Range(this string label, ref float from, ref float to) => label.edit_Range(label.ApproximateLength(), ref from, ref to);
+        
         public static bool edit_Range(this string label, int width, ref float from, ref float to)
         {
             write(label, width);
@@ -5082,7 +5108,78 @@ namespace PlayerAndEditorGUI {
 
         #endregion
 
-        #region double
+        #region Double
+
+        public static bool editDelayed(this string label, string tip, int width, ref double val)
+        {
+            write(label, tip, width);
+            return editDelayed(ref val);
+        }
+
+        public static bool editDelayed(this string label, int width, ref double val)
+        {
+            write(label, width);
+            return editDelayed(ref val);
+        }
+
+        public static bool editDelayed(this string label, ref double val)
+        {
+            write(label);
+            return editDelayed(ref val);
+        }
+
+        public static bool editDelayed(ref double val, int width)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.editDelayed(ref val, width);
+#endif
+
+            return editDelayed(ref val);
+        }
+
+        public static bool editDelayed(ref double val)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.editDelayed(ref val);
+#endif
+
+
+            checkLine();
+
+            var tmp = (editedDoubleIndex == _elementIndex) ? editedDouble : val.ToString();
+
+            if (KeyCode.Return.IsDown() && (_elementIndex == editedDoubleIndex))
+            {
+                edit(ref tmp);
+
+                double newValue;
+                if (double.TryParse(editedFloat, out newValue))
+                    val = newValue;
+                _elementIndex++;
+
+                editedDoubleIndex = -1;
+
+                return change;
+            }
+
+            if (edit(ref tmp).ignoreChanges())
+            {
+                editedDouble = tmp;
+                editedDoubleIndex = _elementIndex;
+            }
+
+            _elementIndex++;
+
+            return false;
+        }
+
+        private static string editedDouble;
+        private static int editedDoubleIndex;
+
 
         public static bool edit(ref double val)
         {

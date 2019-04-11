@@ -879,8 +879,26 @@ namespace PlayerAndEditorGUI {
             return false;*/
         }
 
-        #endregion
+        public static bool editDelayed(ref double val)
+        {
 
+            BeginCheckLine();
+            val = EditorGUILayout.DelayedDoubleField(val);
+            return EndCheckLine();
+        }
+
+        public static bool editDelayed(ref double val, int width)
+        {
+
+            BeginCheckLine();
+            val = EditorGUILayout.DelayedDoubleField(val, GUILayout.MaxWidth(width));
+            return EndCheckLine();
+
+           
+        }
+
+
+        #endregion
 
         #region Property
 
