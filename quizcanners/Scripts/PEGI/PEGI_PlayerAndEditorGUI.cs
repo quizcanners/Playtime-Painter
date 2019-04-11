@@ -4885,6 +4885,7 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region Float
+        
         public static bool edit(ref float val)
         {
 

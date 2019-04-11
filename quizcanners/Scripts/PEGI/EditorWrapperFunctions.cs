@@ -742,12 +742,16 @@ namespace PlayerAndEditorGUI {
 
         #region Delayed
 
-        private static string _editedText;
-        private static string _editedHash = "";
+       // private static string _editedText;
+       // private static string _editedHash = "";
         public static bool editDelayed(ref string text)
         {
-           
-            if (KeyCode.Return.IsDown())
+
+            BeginCheckLine();
+            text = EditorGUILayout.DelayedTextField(text);
+            return EndCheckLine();
+
+          /*  if (KeyCode.Return.IsDown())
             {
                 if (text.GetHashCode().ToString() == _editedHash)
                 {
@@ -765,13 +769,17 @@ namespace PlayerAndEditorGUI {
                 _editedHash = text.GetHashCode().ToString();
             }
             
-            return false;//(String.Compare(before, text) != 0);
+            return false;//(String.Compare(before, text) != 0);*/
         }
 
         public static bool editDelayed(ref string text, int width)
         {
-          
 
+            BeginCheckLine();
+            text = EditorGUILayout.DelayedTextField(text, GUILayout.MaxWidth(width));
+            return EndCheckLine();
+
+            /*
             if (KeyCode.Return.IsDown() && (text.GetHashCode().ToString() == _editedHash))
             {
                 checkLine();
@@ -789,16 +797,28 @@ namespace PlayerAndEditorGUI {
 
 
 
-            return false;//(String.Compare(before, text) != 0);
+            return false;//(String.Compare(before, text) != 0);*/
         }
-        
-        static int editedIntegerIndex;
-        static int editedInteger;
-        public static bool editDelayed(ref int val, int width)
-        {
-          
 
-            if (KeyCode.Return.IsDown() && (_elementIndex == editedIntegerIndex))
+
+        public static bool editDelayed(ref int val)
+        {
+
+            BeginCheckLine();
+            val = EditorGUILayout.DelayedIntField(val);
+            return EndCheckLine();
+        }
+
+        // static int editedIntegerIndex;
+            // static int editedInteger;
+            public static bool editDelayed(ref int val, int width)
+        {
+
+            BeginCheckLine();
+            val = EditorGUILayout.DelayedIntField(val, GUILayout.MaxWidth(width));
+            return EndCheckLine();
+
+           /* if (KeyCode.Return.IsDown() && (_elementIndex == editedIntegerIndex))
             {
                 checkLine();
                 EditorGUILayout.IntField(val, GUILayout.Width(width));
@@ -816,16 +836,28 @@ namespace PlayerAndEditorGUI {
 
             _elementIndex++;
 
-            return false;
+            return false;*/
         }
 
-        private static int _editedFloatIndex;
-        private static float _editedFloat;
+        //private static int _editedFloatIndex;
+        //private static float _editedFloat;
+
+        public static bool editDelayed(ref float val)
+        {
+
+            BeginCheckLine();
+            val = EditorGUILayout.DelayedFloatField(val);
+            return EndCheckLine();
+        }
+
         public static bool editDelayed(ref float val, int width)
         {
-           
 
-            if (KeyCode.Return.IsDown() && (_elementIndex == _editedFloatIndex))
+            BeginCheckLine();
+            val = EditorGUILayout.DelayedFloatField(val, GUILayout.MaxWidth(width));
+            return EndCheckLine();
+
+           /* if (KeyCode.Return.IsDown() && (_elementIndex == _editedFloatIndex))
             {
                 checkLine();
                 EditorGUILayout.FloatField(val, GUILayout.Width(width));
@@ -844,7 +876,7 @@ namespace PlayerAndEditorGUI {
 
             _elementIndex++;
 
-            return false;
+            return false;*/
         }
 
         #endregion
