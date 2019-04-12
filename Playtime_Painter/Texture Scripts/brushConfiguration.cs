@@ -700,17 +700,22 @@ namespace Playtime_Painter {
 
     #region Dynamics
 
-    public class BrushDynamicAttribute : AbstractWithTaggedTypes  {
+    public class BrushDynamicAttribute : AbstractWithTaggedTypes
+    {
         public override TaggedTypesCfg TaggedTypes => BrushDynamic.all;
     }
 
     [BrushDynamic]
     public abstract class BrushDynamic : AbstractCfg, IPEGI, IGotClassTag {
+
+        public virtual void OnPrepareRay(PlaytimePainter p, BrushConfig bc, ref Ray ray) { }
+
+        #region Encode & Decode
         public abstract string ClassTag { get; }
 
         public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(BrushDynamic));
         public TaggedTypesCfg AllTypes => all;
-
+        
         public override bool Decode(string tg, string data) {
             switch (tg) {
                 case "t": testValue = data.ToInt(); break;
@@ -722,19 +727,22 @@ namespace Playtime_Painter {
 
         public override CfgEncoder Encode() => new CfgEncoder().Add("t", testValue);
 
+        #endregion
+
         #region Inspector
         int testValue = -1;
 
 #if PEGI
-        public bool Inspect()
+        public virtual bool Inspect() => false;  /*
         {
             bool changed = false;
 
-            changed |= "Test Value".edit(60, ref testValue).nl();
+            "Test Value".edit(60, ref testValue).nl(ref changed);
 
             return changed;
-        }
+        }*/
 #endif
+
         #endregion
     }
 
@@ -745,17 +753,59 @@ namespace Playtime_Painter {
         public override string ClassTag => classTag;
     }
 
-    #region Size to Speed Dynamic
+    [TaggedType(classTag, "Jitter")]
+    public class BrushDynamic_Jitter : BrushDynamic {
+        const string classTag = "gitter";
+        public override string ClassTag => classTag;
+
+        private float jitterStrength = 0.1f;
+
+        public override void OnPrepareRay(PlaytimePainter p, BrushConfig bc, ref Ray rey)
+        {
+            // Quaternion * Vector3
+
+            rey.direction = Vector3.Lerp( rey.direction, UnityEngine.Random.rotation * rey.direction, jitterStrength); //  Quaternion.Lerp(cameraConfiguration.rotation, , camShake);
+        }
+
+        #region Inspector
+        #if PEGI
+        public override bool Inspect() =>
+       // {
+         //   var changed = false;
+
+            "Strength".edit(ref jitterStrength, 0.00001f, 0.25f);
+
+          //  return changed;
+
+      //  }
+        #endif
+        #endregion
+
+        #region Encode & Decode
+        public override bool Decode(string tg, string data)
+        {
+            switch (tg)
+            {
+                case "j": jitterStrength = data.ToFloat(); break;
+                default: return false;
+            }
+
+            return true;
+        }
+
+        public override CfgEncoder Encode() => new CfgEncoder().Add("j", jitterStrength);    
+        #endregion
+
+    }
+
     [TaggedType(classTag, "Size from Speed")]
-    public class SpeedToSize : BrushDynamic {
+    public class BrushDynamic_SpeedToSize : BrushDynamic {
         const string classTag = "sts";
 
         public override string ClassTag => classTag;
-
-//        public override bool Decode(string tag, string data) => true;
-
-  //      public override CfgEncoder Encode() => new CfgEncoder();
     }
-    #endregion
+
+
+    
     #endregion
 }

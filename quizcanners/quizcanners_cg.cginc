@@ -91,45 +91,62 @@ float4 ProjectorUvDepthAlpha(float4 shadowCoords, float3 worldPos, float3 lightP
 
 	float predictedDepth = 1 - (((viewPos / true01Range) - precompute.y) * precompute.z);
 
-	return float4((shadowCoords.xy + 1) * 0.5, predictedDepth, alpha);
+	return float4((shadowCoords.xy + 1) * 0.5, predictedDepth , alpha);
 
 }
 
 
-float3 GetRayTracedShadows(float3 posNrm, float4 shadowCoords0, float4 shadowCoords1, float4 shadowCoords2 ) {
+float3 GetRayTracedShadows(float3 posNrm, float3 norm, float4 shadowCoords0, float4 shadowCoords1, float4 shadowCoords2 ) {
 
 	float near = rt0_ProjectorConfiguration.z;
 
 	float3 shads;
 
+	float distance = rt0_ProjectorClipPrecompute.w;
+
 	float4 shUv0 = ProjectorUvDepthAlpha(
-		shadowCoords0, posNrm,
+		shadowCoords0, posNrm + norm * 0.1 * distance,
 		rt0_ProjectorPosition.rgb,
 		rt0_ProjectorConfiguration,
 		rt0_ProjectorClipPrecompute);
+	
+	const float sharpness = 256;
 
-	shads.r = (1 - saturate((tex2Dlod(_pp_RayProjectorDepthes, float4(shUv0.xy, 0, 0)).r - shUv0.z) * 128 / near)) * shUv0.w;
+	float depth = tex2Dlod(_pp_RayProjectorDepthes, float4(shUv0.xy, 0, 0)).r;
 
+	shads.r = (1 - saturate((depth - shUv0.z) * sharpness / near)) * shUv0.w;
+
+	// Subtract from predicted depth based on normal - 0.03
+
+	// Sharpness needs to be increased with distance increase
 
 	near = rt1_ProjectorConfiguration.z;
 
+	distance = rt1_ProjectorClipPrecompute.w;
+
 	float4 shUv1 = ProjectorUvDepthAlpha(
-		shadowCoords1, posNrm,
+		shadowCoords1, posNrm + norm * 0.1 * distance,
 		rt1_ProjectorPosition.rgb,
 		rt1_ProjectorConfiguration,
 		rt1_ProjectorClipPrecompute);
 
-	shads.g = (1 - saturate((tex2Dlod(_pp_RayProjectorDepthes, float4(shUv1.xy, 0, 0)).g - shUv1.z) * 128 / near)) * shUv1.w;
+	depth = tex2Dlod(_pp_RayProjectorDepthes, float4(shUv1.xy, 0, 0)).g;
+
+	shads.g = (1 - saturate((depth - shUv1.z) * sharpness / near)) * shUv1.w;
 
 	near = rt2_ProjectorConfiguration.z;
 
+	distance = rt2_ProjectorClipPrecompute.w;
+
 	float4 shUv2 = ProjectorUvDepthAlpha(
-		shadowCoords2, posNrm,
+		shadowCoords2, posNrm + norm * 0.1 * distance,
 		rt2_ProjectorPosition.rgb,
 		rt2_ProjectorConfiguration,
 		rt2_ProjectorClipPrecompute);
 
-	shads.b = (1 - saturate((tex2Dlod(_pp_RayProjectorDepthes, float4(shUv2.xy, 0, 0)).b - shUv2.z) * 128 / near)) * shUv2.w;
+	depth = tex2Dlod(_pp_RayProjectorDepthes, float4(shUv2.xy, 0, 0)).b;
+
+	shads.b = (1 - saturate((depth - shUv2.z) * sharpness / (near * (1- depth)))) * shUv2.w;
 
 	return shads;
 

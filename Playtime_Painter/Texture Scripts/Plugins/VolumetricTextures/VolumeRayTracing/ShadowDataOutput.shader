@@ -68,42 +68,9 @@
 
 				o.viewDir.xyz = normalize(o.viewDir.xyz);
 
-				float3 posNrm = o.worldPos.xyz + o.normal.xyz;
+				float3 shads = GetRayTracedShadows(o.worldPos.xyz, o.normal, o.shadowCoords0, o.shadowCoords1, o.shadowCoords2);
 
-				float3 shads = GetRayTracedShadows(posNrm, o.shadowCoords0, o.shadowCoords1, o.shadowCoords2);
-
-				/*float near = rt0_ProjectorConfiguration.z;
-
-				float4 shUv0 = ProjectorUvDepthAlpha(
-					o.shadowCoords0, posNrm,
-					rt0_ProjectorPosition.rgb,
-					rt0_ProjectorConfiguration,
-					rt0_ProjectorClipPrecompute);
-
-				shads.r = (1 - saturate((tex2D(_pp_RayProjectorDepthes, shUv0.xy).r - shUv0.z) * 128)) * shUv0.w;
-
-				near = rt1_ProjectorConfiguration.z;
-
-				float4 shUv1 = ProjectorUvDepthAlpha(
-					o.shadowCoords1, posNrm,
-					rt1_ProjectorPosition.rgb,
-					rt1_ProjectorConfiguration,
-					rt1_ProjectorClipPrecompute);
-
-				shads.g = (1 - saturate((tex2D(_pp_RayProjectorDepthes, shUv1.xy).g - shUv1.z) * 128)) * shUv1.w;
-
-				near = rt2_ProjectorConfiguration.z;
-
-				float4 shUv2 = ProjectorUvDepthAlpha(
-					o.shadowCoords2, posNrm,
-					rt2_ProjectorPosition.rgb,
-					rt2_ProjectorConfiguration,
-					rt2_ProjectorClipPrecompute);
-
-				shads.b = (1 - saturate((tex2D(_pp_RayProjectorDepthes, shUv2.xy).b - shUv2.z) * 128)) * shUv2.w;
-				*/
-
-
+	
 				/*float dotprod = dot(o.viewDir.xyz, o.normal);
 				float fernel = (1.5 - dotprod);
 				float3 reflected = normalize(o.viewDir.xyz - 2 * (dotprod)*o.normal);

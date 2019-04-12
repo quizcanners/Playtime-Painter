@@ -217,6 +217,8 @@ namespace Playtime_Painter {
 
             var mousePos = Input.mousePosition;
 
+
+
             if (uiGraphic) {
                 if (!CastRayPlaytime_UI())
                     return;
@@ -269,7 +271,7 @@ namespace Playtime_Painter {
 
             ProcessMouseDrag(control);
 
-            if ((currentlyPaintedObjectPainter == this))
+            if (currentlyPaintedObjectPainter == this)
             {
 
                 if (!stroke.mouseDwn || CanPaintOnMouseDown())
@@ -340,8 +342,6 @@ namespace Playtime_Painter {
                 return true;
             }
             
-            RaycastHit hit;
-
             var ray = PrepareRay(cam.ScreenPointToRay(mousePos));
 
             if (invertRayCast && meshRenderer) {
@@ -349,12 +349,17 @@ namespace Playtime_Painter {
                 ray.direction = -ray.direction;
             }
 
+            RaycastHit hit;
             return Physics.Raycast(ray, out hit, float.MaxValue) && ProcessHit(hit, st);
         }
 
         public Ray PrepareRay(Ray ray)
         {
             var id = ImgMeta;
+
+            var br = GlobalBrush;
+            if (br.showBrushDynamics)
+                GlobalBrush.brushDynamic.OnPrepareRay(this, br, ref ray);
 
             if (id == null || !invertRayCast || !meshRenderer || IsUiGraphicPainter) return ray;
 

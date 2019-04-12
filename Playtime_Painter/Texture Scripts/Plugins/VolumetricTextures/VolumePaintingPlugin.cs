@@ -208,13 +208,14 @@ namespace Playtime_Painter
             var bc = cfg.brush;
 
             var vt = painter.GetVolumeTexture();
-            
+            stroke.posFrom = stroke.posTo;
+
             BrushTypeSphere.Inst.BeforeStroke(painter, bc, stroke);
 
             VOLUME_POSITION_N_SIZE_BRUSH.GlobalValue = vt.PosSize4Shader;
             VOLUME_H_SLICES_BRUSH.GlobalValue = vt.Slices4Shader;
-            if (stroke.mouseDwn)
-                stroke.posFrom = stroke.posTo;
+            //if (stroke.mouseDwn)
+               
 
             image.useTexCoord2 = false;
             bool alphaBuffer;

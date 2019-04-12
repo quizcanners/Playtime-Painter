@@ -592,6 +592,7 @@ namespace Playtime_Painter
             var zBuff = new Vector4(1f - far / near, far / near, 0, 0);
 
             zBuff.z = 1 / zBuff.x;
+            zBuff.w = far - near;
 
             _spZBuffer.GlobalValue = zBuff;
         }

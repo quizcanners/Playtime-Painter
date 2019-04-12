@@ -91,58 +91,12 @@
 
 					o.viewDir.xyz = normalize(o.viewDir.xyz);
 
-					
-					float3 posNrm = o.worldPos.xyz + o.normal.xyz;
-
-					float3 shads = GetRayTracedShadows(posNrm, o.shadowCoords0, o.shadowCoords1, o.shadowCoords2);
-
-				/*	float near = rt0_ProjectorConfiguration.z;
-
-					float4 shUv0 = ProjectorUvDepthAlpha(
-						o.shadowCoords0, posNrm,
-						rt0_ProjectorPosition.rgb,
-						rt0_ProjectorConfiguration,
-						rt0_ProjectorClipPrecompute);
-
-					shads.r =  (1 - saturate((tex2Dlod(_pp_RayProjectorDepthes, float4(shUv0.xy,0,0)).r - shUv0.z) * 128 / near)) * shUv0.w;
-
-
-					near = rt1_ProjectorConfiguration.z;
-
-					float4 shUv1 = ProjectorUvDepthAlpha(
-						o.shadowCoords1, posNrm,
-						rt1_ProjectorPosition.rgb,
-						rt1_ProjectorConfiguration,
-						rt1_ProjectorClipPrecompute);
-
-					shads.g = (1 - saturate((tex2Dlod(_pp_RayProjectorDepthes, float4(shUv1.xy,0,0)).g - shUv1.z) * 128 / near)) * shUv1.w;
-
-					near = rt2_ProjectorConfiguration.z;
-
-					float4 shUv2 = ProjectorUvDepthAlpha(
-						o.shadowCoords2, posNrm,
-						rt2_ProjectorPosition.rgb,
-						rt2_ProjectorConfiguration,
-						rt2_ProjectorClipPrecompute);
-
-					shads.b = (1 - saturate((tex2Dlod(_pp_RayProjectorDepthes, float4(shUv2.xy,0,0)).b - shUv2.z) * 128 / near)) * shUv2.w;
-					*/
-					/*
-					float2 border = DetectEdge(o.edge);
-					border.x = max(border.y, border.x);
-					float deBorder = 1 - border.x;
-					*/
+					float3 shads = GetRayTracedShadows(o.worldPos.xyz, o.normal, o.shadowCoords0, o.shadowCoords1, o.shadowCoords2);
 
 					float4 col = 0.5; //o.vcol;
 
 					float4 bumpMap = float4(0,0,0.5,1);
 	
-					//bumpMap.ba = bumpMap.ba*deBorder + float2(1, 1)*border.x;
-		
-					
-
-				
-
 					float dotprod = dot(o.viewDir.xyz, o.normal);
 					float fernel = (1.5 - dotprod);
 					//float ambientBlock = (3+dotprod);
@@ -151,14 +105,6 @@
 					// Point Lights:
 			
 					float4 bake = SampleVolume(g_BakedRays_VOL, o.worldPos,  g_VOLUME_POSITION_N_SIZE,  g_VOLUME_H_SLICES, o.normal);
-
-					//return bake;
-
-					//bake = 1 - bake;
-
-					//TODO: Remove TMP:
-				//	bake = 0;
-
 
 					float power = bumpMap.b; 
 
@@ -183,34 +129,9 @@
 						scatter * 0.0005
 						;
 
-				//	return g_l0col;
-
-
-					//glossLight *= 0.1;
-					//scatter *= (1 - bake.a);
-
-					float shadow = 1; // SHADOW_ATTENUATION(o);
-
-					//return shadow; // Doesnt recieve shadows
-
-					//DirectionalLight(scatter, glossLight, directLight,
-						//shadow, o.normal.xyz, o.viewDir.xyz, ambientBlock, bake.a, power);
-
 					float smoothness = saturate(pow(col.a, 5 - fernel));
 					float deDmoothness = 1 - smoothness;
-
-					//col.rgb *= (directLight*deDmoothness + (scatter)* bumpMap.a	);
-
-					//col.rgb += (glossLight + ShadeSH9(float4(-reflected, 1)))* smoothness;
-
-					//BleedAndBrightness(col, 1+shadow*8);
-
-					//col = 0.5;
-
-					//UNITY_APPLY_FOG(o.fogCoord, col);
-
-					
-
+			
 					return col;//  +bake * 0.25;
 
 				}

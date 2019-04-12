@@ -47,12 +47,10 @@ namespace Playtime_Painter {
                     mouseRayGui = HandleUtility.GUIPointToWorldRay(mousePosition);
 
                     EditorInputManager.mouseRaySceneView = mouseRayGui;
-
-
+                    
                     if (painter)
                         mouseRayGui = painter.PrepareRay(mouseRayGui);
-                        
-                  
+                      
                 }
 
             }
