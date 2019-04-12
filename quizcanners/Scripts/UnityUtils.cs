@@ -805,7 +805,7 @@ namespace QuizCannersUtilities {
             return added;
         }
 
-        public static T CreateScriptableObjectAsset<T>(this List<T> objs, string path, string name) where T : ScriptableObject => CreateScriptableObjectAsset<T, T>(path, name, objs);
+        public static T CreateAndAddScriptableObjectAsset<T>(this List<T> objs, string path, string name) where T : ScriptableObject => CreateScriptableObjectAsset<T, T>(path, name, objs);
 
         #if UNITY_EDITOR
         public static void DuplicateResource(string assetFolder, string insideAssetFolder, string oldName, string newName)
@@ -825,6 +825,15 @@ namespace QuizCannersUtilities {
             return asset;
         }
 
+        public static T CreateScriptableObjectAsset<T>(string path, string name) where T : ScriptableObject
+        {
+            var asset = ScriptableObject.CreateInstance<T>();
+
+            SaveScriptableObjectAsAsset<T,T>(asset, path, name);
+
+            return asset;
+        }
+        
         public static T CreateScriptableObjectAsset<T, TG>(string path, string name, List<TG> optionalList = null) where T : TG where TG : ScriptableObject
         {
             var asset = ScriptableObject.CreateInstance<T>();

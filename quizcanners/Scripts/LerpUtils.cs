@@ -127,14 +127,12 @@ namespace QuizCannersUtilities
 
             #region Encode & Decode
 
-            public override CfgEncoder Encode()
-            {
+            public override CfgEncoder Encode() {
 
                 var cody = new CfgEncoder()
                     .Add_Bool("ch", allowChangeParameters);
 
-                if (allowChangeParameters)
-                {
+                if (allowChangeParameters) {
 
                     if (EaseInOutImplemented)
                         cody.Add_Bool("eio", easeInOut);
@@ -219,16 +217,16 @@ namespace QuizCannersUtilities
 
             #region Inspector
 
-#if PEGI
-            public virtual bool PEGI_inList(IList list, int ind, ref int edited)
-            {
+            #if PEGI
+            public virtual bool PEGI_inList(IList list, int ind, ref int edited) {
 
                 var changed = false;
 
-
                 if (!allowChangeParameters)
+                {
                     Name.toggleIcon("Will this config contain new parameters", ref allowChangeParameters)
                         .changes(ref changed);
+                }
                 else
                 {
                     if (Application.isPlaying)
@@ -237,13 +235,13 @@ namespace QuizCannersUtilities
                     switch (lerpMode)
                     {
                         case LerpSpeedMode.SpeedThreshold:
-                            (Name + " Thld").edit(170, ref speedLimit).changes(ref changed);
+                            (Name + " Thld").edit(ref speedLimit).changes(ref changed);
                             break;
                         case LerpSpeedMode.UnlinkedSpeed:
-                            (Name + " Speed").edit(170, ref speedLimit).changes(ref changed);
+                            (Name + " Speed").edit(ref speedLimit).changes(ref changed);
                             break;
                         default:
-                            (Name + " Mode").editEnum(120, ref lerpMode).changes(ref changed);
+                            (Name + " Mode").editEnum(ref lerpMode).changes(ref changed);
                             break;
                     }
                 }
@@ -263,15 +261,29 @@ namespace QuizCannersUtilities
                 if (!allowChangeParameters) return changed;
 
                 "Lerp Speed Mode ".editEnum(110, ref lerpMode).nl(ref changed);
-                if (lerpMode == LerpSpeedMode.SpeedThreshold || lerpMode == LerpSpeedMode.UnlinkedSpeed)
-                    "Lerp Speed for {0}".F(Name).edit(150, ref speedLimit).nl(ref changed);
 
+                if (Application.isPlaying)
+                    (Enabled ? icon.Active : icon.InActive).write(Enabled ? "Lerp Possible" : "Lerp Not Possible");
+
+                switch (lerpMode)
+                {
+                    case LerpSpeedMode.SpeedThreshold:
+                        (Name + " Thld").edit(ref speedLimit).changes(ref changed);
+                        break;
+                    case LerpSpeedMode.UnlinkedSpeed:
+                        (Name + " Speed").edit(ref speedLimit).changes(ref changed);
+                        break;
+                    default:
+                        (Name + " Mode").editEnum(ref lerpMode).changes(ref changed);
+                        break;
+                }
+                
                 if (EaseInOutImplemented)
                     "Ease In/Out".toggleIcon(ref easeInOut).nl(ref changed);
 
                 return changed;
             }
-#endif
+            #endif
 
             #endregion
 
@@ -730,18 +742,17 @@ namespace QuizCannersUtilities
 
             #region Inspector
 
-#if PEGI
+            #if PEGI
             public override bool Inspect()
             {
 
                 var changed = base.Inspect();
 
                 pegi.edit(ref targetValue).nl(ref changed);
-
-
+                
                 return changed;
             }
-#endif
+            #endif
 
             #endregion
         }
@@ -753,7 +764,14 @@ namespace QuizCannersUtilities
         public class FloatValue : BaseFloatLerp, IGotName
         {
             private readonly string _name = "Float value";
+
             public float targetValue;
+
+            public bool minMax;
+
+            public float min = 0;
+
+            public float max = 1;
 
             public override float Value { get; set; }
 
@@ -765,11 +783,66 @@ namespace QuizCannersUtilities
 
             protected override string Name => _name;
 
+            #region Inspect
             public string NameForPEGI
             {
                 get { return _name; }
                 set { }
             }
+
+#if PEGI
+            public override bool PEGI_inList(IList list, int ind, ref int edited) {
+                var changed = false;
+
+                if (allowChangeParameters)
+                {
+                    int width = _name.ApproximateLengthUnsafe();
+                    if (minMax)
+                        _name.edit(width, ref targetValue, min, max).changes(ref changed);
+                    else
+                        _name.edit(width, ref targetValue).changes(ref changed);
+                }
+
+                if (icon.Enter.Click())
+                    edited = ind;
+
+                //base.PEGI_inList(list, ind, ref edited).changes(ref changed);
+
+                return changed;
+            }
+
+#endif
+#endregion
+
+            #region Encode & Decode
+
+            public override CfgEncoder Encode()
+            {
+                var cody = new CfgEncoder()
+                    .Add("b", base.Encode)
+                    .Add("trgf", targetValue)
+                    .Add_Bool("rng", minMax);
+                if (minMax)
+                    cody.Add("min", min)
+                        .Add("max", max);
+
+                return cody;
+            }
+
+            public override bool Decode(string tg, string data) {
+                switch (tg) {
+                    case "b":data.Decode_Delegate(base.Decode);break;
+                    case "trgf":targetValue = data.ToFloat();break;
+                    case "rng": minMax = data.ToBool(); break;
+                    case "min": min = data.ToFloat(); break;
+                    case "max": max = data.ToFloat(); break;
+                    default: return base.Decode(tg,data); // For compatibility reasons, should return false
+                }
+
+                return true;
+            }
+            
+            #endregion
 
             public FloatValue()
             {
@@ -777,6 +850,58 @@ namespace QuizCannersUtilities
 
             public FloatValue(string name)
             {
+                _name = name;
+            }
+
+            public FloatValue(string name, float startValue)
+            {
+                _name = name;
+                targetValue = startValue;
+                Value = startValue;
+            }
+
+            public FloatValue(string name, float startValue, float lerpSpeed)
+            {
+                _name = name;
+                targetValue = startValue;
+                Value = startValue;
+                speedLimit = lerpSpeed;
+            }
+
+            public FloatValue(string name, float startValue, float lerpSpeed, float min, float max)
+            {
+                _name = name;
+                targetValue = startValue;
+                Value = startValue;
+                speedLimit = lerpSpeed;
+                minMax = true;
+                this.min = min;
+                this.max = max;
+            }
+        }
+
+        public class ColorValue : BaseColorValue, IGotName
+        {
+            private readonly string _name = "Float value";
+
+            private Color currentValue;
+
+            public override Color Value  {
+                get { return currentValue; }
+                set { currentValue = value; }
+            }
+
+            public string NameForPEGI
+            {
+                get { return _name; }
+                set { }
+            }
+            
+            public ColorValue()
+            {
+            }
+
+            public ColorValue(string name)  {
                 _name = name;
             }
 

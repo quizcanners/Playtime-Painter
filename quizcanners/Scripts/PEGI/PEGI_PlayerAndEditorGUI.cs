@@ -5588,7 +5588,7 @@ namespace PlayerAndEditorGUI {
             if (addingNewNameHolder.Length > 1) {
                 if (indTypes == null  && tagTypes == null)  {
                     if (icon.Create.ClickUnFocus("Create new object").nl(ref changed))
-                        added = lst.CreateScriptableObjectAsset("Assets/ScriptableObjects/", addingNewNameHolder);
+                        added = lst.CreateAndAddScriptableObjectAsset("Assets/ScriptableObjects/", addingNewNameHolder);
                 }
                 else
                 {

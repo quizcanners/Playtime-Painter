@@ -1,7 +1,7 @@
 ﻿Shader "Playtime Painter/Editor/Preview/Terrain" {
 	Category{
         Tags { 
-		"RenderType" = "Opaque"
+			"RenderType" = "Opaque"
             "LightMode" = "ForwardBase"
             "Queue" = "Geometry"
         }
