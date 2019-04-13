@@ -96,7 +96,7 @@ namespace Playtime_Painter
             if (volume.VolumeJobIsRunning)
                 return false;
 
-            bc.brush3DRadius = Mathf.Min(brushScaleMaxForCpu(volume), bc.brush3DRadius);
+            bc.brush3DRadius = Mathf.Min(BrushScaleMaxForCpu(volume), bc.brush3DRadius);
 
             var volumeScale = volume.size;
             
@@ -234,13 +234,15 @@ namespace Playtime_Painter
         #region Ray Tracing
 
         private bool _enableRayTracing;
-        
-        private Texture2D getOnPixelsTexture()
+
+        const int targetScale = 8;
+
+        private Texture2D getMinSizeTexture()
         {
             if (tex)
                 return tex;
 
-            tex = new Texture2D(1, 1, TextureFormat.RGBA32, false);
+            tex = new Texture2D(targetScale, targetScale, TextureFormat.RGBA32, false, true);
 
             return tex;
         }
@@ -260,11 +262,23 @@ namespace Playtime_Painter
         public void AfterCameraRender(RenderTexture texture)
         {
 
-            var tiny = TexMGMT.GetDownscaleOf(texture, 1);
+            const int pixelsCount = targetScale * targetScale;
 
-            var pix = getOnPixelsTexture().CopyFrom(tiny).GetPixels();
+            var tiny = TexMGMT.GetDownscaleOf(texture, targetScale);
 
-            GlobalBrush.Color = pix[0];
+            var pix = getMinSizeTexture().CopyFrom(tiny).GetPixels();
+
+            Color avg = Color.black;
+            //float totalConfidance = 0;
+
+            foreach (var p in pix)
+            {
+                //float alpha = p.a;
+                avg += p;// * alpha;
+                //totalConfidance += alpha;
+            }
+
+            GlobalBrush.Color = avg / (float)pixelsCount;
 
             PainterCamera.BrushColorProperty.GlobalValue = GlobalBrush.Color;
 
@@ -274,7 +288,24 @@ namespace Playtime_Painter
             delayedPaintingConfiguration = null;
         }
 
-        public RenderTexture GetTargetTexture() => TexMGMT.GetSquareBuffer(1024);
+        private RenderTexture renderTextureWithDepth;
+
+        RenderTexture GetRenderTextureWithDepth()
+        {
+            if (!renderTextureWithDepth)
+            {
+                renderTextureWithDepth = new RenderTexture(512, 512, 16, RenderTextureFormat.ARGB32,
+                    RenderTextureReadWrite.Linear);
+
+                renderTextureWithDepth.useMipMap = false;
+                renderTextureWithDepth.autoGenerateMips = false;
+                
+            }
+
+            return renderTextureWithDepth;
+        }
+
+        public RenderTexture GetTargetTexture() => GetRenderTextureWithDepth();
 
         public ProjectorMode GetMode() => ProjectorMode.ReplacementShader;
 
@@ -333,12 +364,11 @@ namespace Playtime_Painter
 
         private bool _exploreRayTaceCamera;
 
-        float brushScaleMaxForCpu(VolumeTexture volTex)
+        float BrushScaleMaxForCpu(VolumeTexture volTex)
         {
             return volTex.size * volTex.Width * 0.025f;
         }
-
-
+        
         public bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br) {
 
             var changed = false;
@@ -398,9 +428,16 @@ namespace Playtime_Painter
                 if ("Speed".edit(40, ref tmpSpeed, 0.01f, 4.5f).nl(ref changed))
                     br._dSpeed.value = tmpSpeed;
 
-                var maxScale = cpuBlit ? brushScaleMaxForCpu(volTex) : volTex.size * volTex.Width * 4;
 
-                "Scale:".edit(40, ref br.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f).nl(ref changed);
+              
+                var maxScale =  volTex.size * volTex.Width * 4;
+
+                "Scale:".edit(40, ref br.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f).changes(ref changed);
+
+                if (cpuBlit && br.brush3DRadius > BrushScaleMaxForCpu(volTex))
+                    icon.Warning.write("Size will be reduced when panting due to low performance of the CPU brush for volumes");
+
+                pegi.nl();
 
                 /*
                 if (br.GetBlitMode(cpuBlit).UsingSourceTexture && id.TargetIsRenderTexture())

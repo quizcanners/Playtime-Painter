@@ -837,7 +837,7 @@ namespace Playtime_Painter {
         }
         #endregion
 
-        #region Component MGMT
+        #region Updates
 
         public void ApplyAllChangesTo(ImageMeta id) {
 
@@ -1050,7 +1050,7 @@ namespace Playtime_Painter {
 
             if (!PainterSystem.IsPlaytimeNowDisabled && PlaytimePainter.IsCurrentTool && focusedPainter)
                 focusedPainter.ManagedUpdate();
-
+            
             if (GlobalBrush.previewDirty)
                 Shader_UpdateBrushConfig();
 
@@ -1177,7 +1177,11 @@ namespace Playtime_Painter {
                     if (!_squareBuffers[i])
                         "No Buffer {0}".F(Mathf.Pow(2, i)).nl();
                     else
-                        _squareBuffers[i].write(50);
+                    {
+
+                        pegi.edit(ref _squareBuffers[i]);
+                        _squareBuffers[i].write(250);
+                    }
 
                     pegi.nl();
 

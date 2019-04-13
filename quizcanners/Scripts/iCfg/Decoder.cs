@@ -21,10 +21,10 @@ namespace QuizCannersUtilities
             var cody = new CfgDecoder(data);
             var local = false;
 
-            foreach (var tag in cody)
+            foreach (var t in cody)
             {
                 var d = cody.GetData();
-                switch (tag)
+                switch (t)
                 {
                     case "loc": local = d.ToBool(); break;
                     case "pos": if (local) tf.localPosition = d.ToVector3(); else tf.position = d.ToVector3(); break;
@@ -39,10 +39,10 @@ namespace QuizCannersUtilities
 
             var cody = new CfgDecoder(data);
 
-            foreach (var tag in cody)
+            foreach (var t in cody)
             {
                 var d = cody.GetData();
-                switch (tag)
+                switch (t)
                 {
                     case "tfBase": d.DecodeInto(tf.transform); break;
                     case "aPos": tf.anchoredPosition = d.ToVector2(); break;
@@ -65,10 +65,10 @@ namespace QuizCannersUtilities
             var cody = new CfgDecoder(data);
             var b = new BoneWeight();
 
-            foreach (var tag in cody)
+            foreach (var t in cody)
             {
                 var d = cody.GetData();
-                switch (tag)
+                switch (t)
                 {
                     case "i0": b.boneIndex0 = d.ToInt(); break;
                     case "w0": b.weight0 = d.ToFloat(); break;
@@ -91,10 +91,10 @@ namespace QuizCannersUtilities
             var cody = new CfgDecoder(data);
             var m = new Matrix4x4();
 
-            foreach (var tag in cody)
+            foreach (var t in cody)
             {
                 var d = cody.GetData();
-                switch (tag)
+                switch (t)
                 {
 
                     case "00": m.m00 = d.ToFloat(); break;
@@ -117,7 +117,7 @@ namespace QuizCannersUtilities
                     case "32": m.m32 = d.ToFloat(); break;
                     case "33": m.m33 = d.ToFloat(); break;
 
-                    default: Debug.Log("Unknown component: " + tag); break;
+                    default: Debug.Log("Unknown component: " + t); break;
                 }
             }
             return m;
@@ -130,10 +130,10 @@ namespace QuizCannersUtilities
 
             var q = new Quaternion();
 
-            foreach (var tag in cody)
+            foreach (var t in cody)
             {
                 var d = cody.GetData();
-                switch (tag)
+                switch (t)
                 {
                     case "x": q.x = d.ToFloat(); break;
                     case "y": q.y = d.ToFloat(); break;
@@ -151,15 +151,15 @@ namespace QuizCannersUtilities
 
             var v4 = new Vector4();
 
-            foreach (var tag in cody)
+            foreach (var t in cody)
             {
                 var d = cody.GetData();
-                switch (tag) {
+                switch (t) {
                     case "x": v4.x = d.ToFloat(); break;
                     case "y": v4.y = d.ToFloat(); break;
                     case "z": v4.z = d.ToFloat(); break;
                     case "w": v4.w = d.ToFloat(); break;
-                    default: Debug.Log("Unknown component: " + tag); break;
+                    default: Debug.Log("Unknown component: " + t); break;
                 }
             }
             return v4;
@@ -171,10 +171,10 @@ namespace QuizCannersUtilities
 
             var v3 = new Vector3();
 
-            foreach (var tag in cody)
+            foreach (var t in cody)
             {
                 var d = cody.GetData();
-                switch (tag)
+                switch (t)
                 {
                     case "x": v3.x = d.ToFloat(); break;
                     case "y": v3.y = d.ToFloat(); break;
@@ -190,10 +190,10 @@ namespace QuizCannersUtilities
 
             var v2 = new Vector3();
 
-            foreach (var tag in cody)
+            foreach (var t in cody)
             {
                 var d = cody.GetData();
-                switch (tag)
+                switch (t)
                 {
                     case "x": v2.x = d.ToFloat(); break;
                     case "y": v2.y = d.ToFloat(); break;
@@ -208,10 +208,10 @@ namespace QuizCannersUtilities
 
             var rect = new Rect();
 
-            foreach (var tag in cody)
+            foreach (var t in cody)
             {
                 var d = cody.GetData();
-                switch (tag)
+                switch (t)
                 {
                     case "pos": rect.position = d.ToVector2(); break;
                     case "size": rect.size = d.ToVector2(); break;
@@ -254,10 +254,10 @@ namespace QuizCannersUtilities
         {
             var cody = new CfgDecoder(data);
             var c = new Color();
-            foreach (var tag in cody)
+            foreach (var t in cody)
             {
                 var d = cody.GetData();
-                switch (tag)
+                switch (t)
                 {
                     case "r": c.r = d.ToFloat(); break;
                     case "g": c.g = d.ToFloat(); break;

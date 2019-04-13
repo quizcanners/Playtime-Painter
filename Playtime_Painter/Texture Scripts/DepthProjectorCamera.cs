@@ -138,8 +138,6 @@ namespace Playtime_Painter
 
         private IUseDepthProjector userToGetUpdate;
 
-        ProjectorCameraConfiguration painterProjectorCameraConfiguration = new ProjectorCameraConfiguration();
-        
         [NonSerialized] private static List<IUseDepthProjector> depthUsers = new List<IUseDepthProjector>();
         
         CountlessBool disabledUser = new CountlessBool();
@@ -254,7 +252,9 @@ namespace Playtime_Painter
 
                     if (trg && cfg != null)
                     {
-                        painterProjectorCameraConfiguration.From(_projectorCamera);
+                        if (!pauseAutoUpdates)
+                            painterProjectorCameraConfiguration.From(_projectorCamera);
+
                         cfg.To(_projectorCamera);
                         _projectorCamera.targetTexture = trg;
 
@@ -335,7 +335,9 @@ namespace Playtime_Painter
                 lastUserUpdateReturned = Time.time;
 
                 userToGetUpdate = null;
-                painterProjectorCameraConfiguration.To(_projectorCamera);
+
+                if (!pauseAutoUpdates)
+                    painterProjectorCameraConfiguration.To(_projectorCamera);
             }
         }
 
@@ -413,7 +415,8 @@ namespace Playtime_Painter
                 }
             }
         }
-        
+
+        ProjectorCameraConfiguration painterProjectorCameraConfiguration = new ProjectorCameraConfiguration();
         private readonly CameraMatrixParameters _painterDepthCameraMatrix = new CameraMatrixParameters("pp_");
         private readonly ShaderProperty.TextureValue _painterDepthTexture = new ShaderProperty.TextureValue("pp_DepthProjection");
 
@@ -450,8 +453,10 @@ namespace Playtime_Painter
             localTransform = false;
 
             if (lookInNormalDirection)
+            {
+                position += vec.collisionNormal;
                 rotation = Quaternion.LookRotation(vec.collisionNormal, Vector3.up);
-
+            }
         }
 
         public void From(Camera cam) {

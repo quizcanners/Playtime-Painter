@@ -18,8 +18,220 @@ namespace Playtime_Painter
         
         public static bool toolEnabled;
 
+        #region Weather Configurations
+        [SerializeField] [HideInInspector] List<Configuration> weatherConfigurations = new List<Configuration>();
+        [SerializeField] private WeatherConfiguration weatherManager= new WeatherConfiguration();
+        
+        public class WeatherConfiguration: ICfg 
+        {
+            private Configuration activeWeatherConfig;
+            
+            #region Lerping
+
+            LinkedLerp.ColorValue fogColor = new LinkedLerp.ColorValue("Fog Color");
+            LinkedLerp.ColorValue skyColor = new LinkedLerp.ColorValue("Sky Color");
+            LinkedLerp.FloatValue shadowStrength = new LinkedLerp.FloatValue("Shadow Strength", 1);
+            LinkedLerp.FloatValue shadowDistance = new LinkedLerp.FloatValue("Shadow Distance", 100, 500, 10, 1000);
+            LinkedLerp.FloatValue fogDistance = new LinkedLerp.FloatValue("Fog Distance", 100, 500, 0.01f, 1000);
+            LinkedLerp.FloatValue fogDensity = new LinkedLerp.FloatValue("Fog Density", 0.01f, 0.01f, 0.00001f, 0.1f);
+
+            private LerpData ld = new LerpData();
+
+            public void Update()
+            {
+                if (activeWeatherConfig != null)
+                {
+                    ld.Reset();
+
+                    // Find slowest property
+                    shadowStrength.Portion(ld);
+                    shadowDistance.Portion(ld);
+                    fogColor.Portion(ld);
+                    skyColor.Portion(ld);
+                    fogDensity.Portion(ld);
+                    fogDistance.Portion(ld);
+
+                    // Lerp all the properties
+                    shadowStrength.Lerp(ld);
+                    shadowDistance.Lerp(ld);
+                    fogColor.Lerp(ld);
+                    skyColor.Lerp(ld);
+                    fogDensity.Lerp(ld);
+                    fogDistance.Lerp(ld);
+                    
+                    RenderSettings.fogColor = fogColor.Value;
+
+                    if (RenderSettings.fog)
+                    {
+
+                        RenderSettings.fogEndDistance = fogDistance.Value;
+                        RenderSettings.fogDensity = fogDensity.Value;
+                    }
+
+                    RenderSettings.ambientSkyColor = skyColor.Value;
+                    QualitySettings.shadowDistance = shadowDistance.Value;
+                }
+                
+            }
+            #endregion
+
+            #region Inspector
+            private int inspectedProperty = -1;
+
+            public bool Inspect(ref List<Configuration> configurations)
+            {
+
+                bool changed = false;
+
+                bool notInspectingProperty = inspectedProperty == -1;
+                
+                shadowDistance.enter_Inspect_AsList(ref inspectedProperty, 3).nl(ref changed);
+
+                bool fog = RenderSettings.fog;
+
+                if (notInspectingProperty && "Fog".toggleIcon(ref fog, true).changes(ref changed))
+                    RenderSettings.fog = fog;
+                
+                if (fog)
+                {
+                    var fogMode = RenderSettings.fogMode;
+
+                    if (notInspectingProperty)
+                    {
+                        "Fog Color".edit(60, ref fogColor.targetValue).nl();
+
+                        if ("Fog Mode".editEnum(60, ref fogMode).nl())
+                            RenderSettings.fogMode = fogMode;
+                    }
+
+                    if (fogMode == FogMode.Linear)
+                        fogDistance.enter_Inspect_AsList(ref inspectedProperty, 4).nl(ref changed);
+                    else
+                        fogDensity.enter_Inspect_AsList(ref inspectedProperty, 5).nl(ref changed);
+                }
+
+                if (notInspectingProperty)
+                    "Sky Color".edit(60, ref skyColor.targetValue).nl(ref changed);
+
+                
+                
+                pegi.nl();
+                
+                "Configurations".edit_List(ref configurations, EditConfiguration).nl(ref changed);
+                
+                if (Application.isPlaying)
+                {
+                    if (ld.linkedPortion < 1)
+                    {
+                        "Lerping {0}".F(ld.dominantParameter).write();
+                        ("Each parameter has a transition speed. THis text shows which parameter sets speed for others (the slowest one). " +
+                         "If Transition is too slow, increase this parameter's speed").fullWindowDocumentationClick();
+                        pegi.nl();
+                    }
+                }
+                
+                if (changed)
+                {
+                    Update();
+#if UNITY_EDITOR
+                    if (Application.isPlaying == false)
+                    {
+                        SceneView.RepaintAll();
+                        UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+                    }
+#endif
+                }
+
+                return changed;
+            }
+
+            Configuration EditConfiguration(Configuration val)
+            {
+
+                if (val == activeWeatherConfig)
+                {
+                    pegi.SetBgColor(Color.green);
+
+                    if (icon.Red.Click())
+                        activeWeatherConfig = null;
+                }
+                else
+                {
+
+                    if (!val.data.IsNullOrEmpty())
+                    {
+                        if (icon.Play.Click(val.data))
+                        {
+                            Decode(val.data);
+                            activeWeatherConfig = val;
+                        }
+                    }
+                    else if (icon.SaveAsNew.Click())
+                        val.data = Encode().ToString();
+                }
+
+                pegi.edit(ref val.name);
+
+                if (activeWeatherConfig == null || activeWeatherConfig == val)
+                {
+                    if (icon.Save.Click())
+                        val.data = Encode().ToString();
+                }
+                else if (!val.data.IsNullOrEmpty() && icon.Delete.Click())
+                    val.data = null;
+
+                pegi.RestoreBGcolor();
+
+                return val;
+            }
+
+            #endregion
+            
+            #region Encode & Decode
+
+            // Encode and Decode class lets you store configuration of this class in a string 
+
+            public CfgEncoder Encode()
+            {
+                var cody = new CfgEncoder()
+                    .Add("sh", shadowStrength.targetValue)
+                    .Add("sdst", shadowDistance)
+                    .Add("sc", skyColor.targetValue)
+                    .Add_Bool("fg", RenderSettings.fog);
+
+                if (RenderSettings.fog)
+                    cody.Add("fogCol", fogColor.targetValue)
+                        .Add("fogD", fogDistance)
+                        .Add("fogDen", fogDensity);
+
+                return cody;
+            }
+
+            public void Decode(string data) => new CfgDecoder(data).DecodeTagsFor(this);
+
+            public bool Decode(string tg, string data) {
+                switch (tg) {
+                    case "sh": shadowStrength.targetValue = data.ToFloat(); break;
+                    case "sdst": shadowDistance.Decode(data); break;
+                    case "sc": skyColor.targetValue = data.ToColor(); break;
+                    case "fg": RenderSettings.fog = data.ToBool(); break;
+                    case "fogD": fogDistance.Decode(data); break;
+                    case "fogDen": fogDensity.Decode(data); break;
+                    case "fogCol": fogColor.targetValue = data.ToColor(); break;
+                    default: return false;
+                }
+
+                return true;
+            }
+
+            #endregion
+
+        }
+
+        #endregion
+
         #region Shaders
-  
+
         public Shader additiveAlphaOutput;
         public Shader additiveAlphaAndUVOutput;
         public Shader multishadeBufferBlit;
@@ -128,15 +340,19 @@ namespace Playtime_Painter
         #region Web Cam Utils
         [NonSerialized] public WebCamTexture webCamTexture;
 
-        public void ManagedUpdate()
+        private void WebCamUpdates()
         {
             if (!webCamTexture || !webCamTexture.isPlaying) return;
-            
+
             _cameraUnusedTime += Time.deltaTime;
 
             if (_cameraUnusedTime > 10f)
                 webCamTexture.Stop();
         }
+
+  
+
+
 
         public void StopCamera()
         {
@@ -327,10 +543,10 @@ namespace Playtime_Painter
 
             var cody = new CfgDecoder(data);
             var strokes = new List<string>();
-            foreach (var tag in cody)
+            foreach (var t in cody)
             {
                 var d = cody.GetData();
-                switch (tag)
+                switch (t)
                 {
                     case "strokes": d.Decode_List(out strokes); break;
                 }
@@ -441,7 +657,7 @@ namespace Playtime_Painter
            private int _inspectedMaterial = -1;
            private int _inspectedDecal = -1;
 
-        private bool InspectData() {
+            private bool InspectData() {
             var changes = false;
             
             "Img Metas".enter_List(ref imgMetas, ref _inspectedImgData, ref _inspectedItems, 0).nl(ref changes);
@@ -484,7 +700,10 @@ namespace Playtime_Painter
                 if ("Lists".enter(ref inspectedItems, 11).nl(ref changed))
                     changed |= InspectData();
 
-                "Downloads".enter_Inspect(PainterCamera.DownloadManager, ref inspectedItems, 12).nl(ref changed);
+                if ("Weather Configuration".enter(ref inspectedItems, 12).nl(ref changed))
+                    weatherManager.Inspect(ref weatherConfigurations).nl(ref changed);
+
+                "Downloads".enter_Inspect(PainterCamera.DownloadManager, ref inspectedItems, 13).nl(ref changed);
             }
             else
                 inspectedItems = -1;
@@ -593,6 +812,13 @@ namespace Playtime_Painter
             if (systemLanguage!= -1)
                 LazyTranslations._systemLanguage = systemLanguage;
 
+        }
+
+        public void ManagedUpdate()
+        {
+            weatherManager.Update();
+
+            WebCamUpdates();
         }
 
         private void CheckShaders(bool forceReload = false)

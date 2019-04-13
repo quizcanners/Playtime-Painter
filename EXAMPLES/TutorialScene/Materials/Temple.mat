@@ -128,7 +128,7 @@ Material:
     - debugOn: 1
     m_Colors:
     - VOLUME_H_SLICES: {r: 8, g: 127, b: 0.003937008, a: 0.125}
-    - VOLUME_POSITION_N_SIZE: {r: 19.47, g: -3.65, b: -28.13, a: 3.3333333}
+    - VOLUME_POSITION_N_SIZE: {r: 63.57, g: 34.149998, b: 136.17, a: 3.3333333}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - l0col: {r: 20.23, g: 0, b: 2.4400609, a: 0}

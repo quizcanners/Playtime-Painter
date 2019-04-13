@@ -222,8 +222,7 @@ namespace PlayerAndEditorGUI {
             return lt != null ? lt.ToString() : msg.ToString();
         }
 
-        public static bool Documentation(this Msg msg) => msg.GetLt().Documentation();
-
+  
         static LazyTranslation GetLt(this Msg msg)
         {
             if (_systemLanguage == -1)
@@ -245,7 +244,9 @@ namespace PlayerAndEditorGUI {
             org[eng] = new LazyTranslation(english, englishDetails);
             return org;
         }
-        
+
+#if PEGI
+        public static bool Documentation(this Msg msg) => msg.GetLt().Documentation();
         public static void Nl(this Msg m) { m.Get().nl(); }
         public static void Nl(this Msg m, int width) { m.Get().nl(width); }
         public static void Nl(this Msg m, string tip, int width) { m.Get().nl(tip, width); }
@@ -256,8 +257,9 @@ namespace PlayerAndEditorGUI {
         public static bool Click(this icon icon, Msg text, ref bool changed) => icon.ClickUnFocus(text.Get()).changes(ref changed);
         public static bool ClickUnFocus(this icon icon, Msg text, int size = pegi.defaultButtonSize) => pegi.ClickUnFocus(icon.GetIcon(), text.Get(), size);
         public static bool ClickUnFocus(this icon icon, Msg text, int width, int height) => pegi.ClickUnFocus(icon.GetIcon(), text.Get(), width, height);
+#endif
 
-        #endregion
+#endregion
 
     }
 }

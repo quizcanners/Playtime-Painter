@@ -91,7 +91,7 @@ float4 ProjectorUvDepthAlpha(float4 shadowCoords, float3 worldPos, float3 lightP
 
 	float predictedDepth = 1 - (((viewPos / true01Range) - precompute.y) * precompute.z);
 
-	return float4((shadowCoords.xy + 1) * 0.5, predictedDepth , alpha);
+	return float4((shadowCoords.xy + 1) * 0.5, predictedDepth+0.01 , alpha);
 
 }
 
@@ -105,12 +105,13 @@ float3 GetRayTracedShadows(float3 posNrm, float3 norm, float4 shadowCoords0, flo
 	float distance = rt0_ProjectorClipPrecompute.w;
 
 	float4 shUv0 = ProjectorUvDepthAlpha(
-		shadowCoords0, posNrm + norm * 0.1 * distance,
+		shadowCoords0, posNrm //+ norm * 0.1 * distance
+		,
 		rt0_ProjectorPosition.rgb,
 		rt0_ProjectorConfiguration,
 		rt0_ProjectorClipPrecompute);
 	
-	const float sharpness = 256;
+	const float sharpness = 1024;
 
 	float depth = tex2Dlod(_pp_RayProjectorDepthes, float4(shUv0.xy, 0, 0)).r;
 
@@ -125,7 +126,8 @@ float3 GetRayTracedShadows(float3 posNrm, float3 norm, float4 shadowCoords0, flo
 	distance = rt1_ProjectorClipPrecompute.w;
 
 	float4 shUv1 = ProjectorUvDepthAlpha(
-		shadowCoords1, posNrm + norm * 0.1 * distance,
+		shadowCoords1, posNrm //+ norm * 0.1 * distance
+		,
 		rt1_ProjectorPosition.rgb,
 		rt1_ProjectorConfiguration,
 		rt1_ProjectorClipPrecompute);
@@ -139,7 +141,8 @@ float3 GetRayTracedShadows(float3 posNrm, float3 norm, float4 shadowCoords0, flo
 	distance = rt2_ProjectorClipPrecompute.w;
 
 	float4 shUv2 = ProjectorUvDepthAlpha(
-		shadowCoords2, posNrm + norm * 0.1 * distance,
+		shadowCoords2, posNrm //+ norm * 0.1 * distance
+		,
 		rt2_ProjectorPosition.rgb,
 		rt2_ProjectorConfiguration,
 		rt2_ProjectorClipPrecompute);

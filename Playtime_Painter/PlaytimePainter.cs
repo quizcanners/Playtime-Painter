@@ -1648,12 +1648,9 @@ namespace Playtime_Painter {
         {
 
             SetOriginalShader();
-
-         
-
+            
             initialized = false; // Should be before restoring to texture2D to avoid Clear to black.
-
-
+            
             if (Application.isPlaying) {
 
                 var id = GetTextureOnMaterial().GetImgDataIfExists();
@@ -2955,7 +2952,7 @@ namespace Playtime_Painter {
 
         public bool Decode(string tg, string data)
         {
-            switch (tag)
+            switch (tg)
             {
                 case "pgns": data.Decode_List_Abstract(out plugins, PainterSystemManagerPluginBase.all); break;
                 case "invCast": invertRayCast = data.ToBool(); break;

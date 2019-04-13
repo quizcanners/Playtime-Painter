@@ -39,15 +39,16 @@
 
 					float4 col = tex2Dlod(_DestBuffer, float4(o.texcoord.xy, 0, 0));
 
-					float alpha = saturate(positionToAlpha(worldPos));
+					float preAlpha = saturate(positionToAlpha(worldPos));
 					
-					
+					float alpha = saturate((pow(preAlpha,1) - col.a * 0.95) * 5);
 
-					alpha = saturate((pow(alpha,2) - max(0,col.a * 0.8)) * 5);
+					col.a = max(preAlpha, col.a);
 
-					col.a = max(alpha, col.a);
 
-					alpha *= 0.5;
+					//col.a = alpha + col.a*(1 - alpha); //max(alpha, col.a);
+
+					//alpha *= 0.25;
 
 					col.rgb = _brushColor.rgb * alpha + col.rgb * (1 - alpha);
 

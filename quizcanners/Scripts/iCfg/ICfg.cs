@@ -169,6 +169,53 @@ namespace QuizCannersUtilities {
 
     #region Abstract Implementations
 
+    public class ConfigurationsListBase : ScriptableObject, IPEGI {
+        public List<Configuration> configurations = new List<Configuration>();
+
+        #region Inspector
+        #if PEGI
+
+        public virtual bool Inspect() => "Configurations".edit_List(ref configurations); 
+        
+        public static bool Inspect<T>(ref T configs, Func<T, T> func) where T : ConfigurationsListBase {
+            var changed = false;
+
+            if (configs)
+            {
+                if (icon.UnLinked.Click("Disconnect config"))
+                    configs = null;
+                else
+                    configs.Nested_Inspect().nl(ref changed);
+            }
+            else
+            {
+                "Configs".edit(90, ref configs);
+
+                if (icon.Create.Click("Create new Config"))
+                    configs = UnityUtils.CreateScriptableObjectAsset<T>("Tools/Configs", "Config");
+
+                pegi.nl();
+            }
+
+            return changed;
+        }
+
+        #endif
+        #endregion
+
+    }
+
+    [Serializable]
+    public class Configuration
+    {
+        public string name;
+        public string data;
+
+        public Configuration() {
+            name = "New Water Config";
+        }
+    }
+
     public class StdSimpleReferenceHolder : ICfgSerializeNestedReferences {
         
         public readonly List<UnityEngine.Object> nestedReferences = new List<UnityEngine.Object>();

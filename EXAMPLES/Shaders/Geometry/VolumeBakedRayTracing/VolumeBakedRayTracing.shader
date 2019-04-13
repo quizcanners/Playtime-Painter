@@ -77,10 +77,10 @@
 
 					scatter += bake * lcol.rgb;
 
-					lcol.rgb *= direct;
+					lcol.rgb *= direct* shadow;
 
 					glossLight += lcol.rgb*normTerm;
-					directLight += lcol.rgb / (len * len) * shadow;
+					directLight += lcol.rgb / (len * len);
 				}
 
 			
@@ -106,7 +106,7 @@
 			
 					float4 bake = SampleVolume(g_BakedRays_VOL, o.worldPos,  g_VOLUME_POSITION_N_SIZE,  g_VOLUME_H_SLICES, o.normal);
 
-					float power = bumpMap.b; 
+					float power = bumpMap.b*(4+ fernel*16);
 
 					float3 scatter = 0;
 					float3 glossLight = 0;
@@ -126,12 +126,20 @@
 					col.rgb *= 
 						directLight
 						+ 
-						scatter * 0.0005
+						scatter * 0.01
 						;
 
 					float smoothness = saturate(pow(col.a, 5 - fernel));
 					float deDmoothness = 1 - smoothness;
 			
+					//return glossLight;
+
+					col.rgb += glossLight*0.002;
+
+
+					float3 mix = col.gbr + col.brg;
+					col.rgb += mix * mix*0.02; // Arbitrary value
+
 					return col;//  +bake * 0.25;
 
 				}
