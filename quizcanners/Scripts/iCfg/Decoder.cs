@@ -4,8 +4,7 @@ using System.Globalization;
 using PlayerAndEditorGUI;
 using UnityEngine;
 
-namespace QuizCannersUtilities
-{
+namespace QuizCannersUtilities {
 
     public static class DecodeExtensions {
 
@@ -781,9 +780,7 @@ namespace QuizCannersUtilities
             if (type != null)
                 val = cody.GetData().DecodeInto_Type<T>(type);
         }
-
-
-
+        
         #region Into Unity Objects
         public static ICfgSerializeNestedReferences Keeper { get { return CfgEncoder.keeper;  } set { CfgEncoder.keeper = value; } }
 
@@ -1026,4 +1023,5 @@ namespace QuizCannersUtilities
             return GetTag() != null;
         }
     }
+
 }

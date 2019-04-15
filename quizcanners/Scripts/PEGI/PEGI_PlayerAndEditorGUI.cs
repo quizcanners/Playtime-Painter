@@ -4162,6 +4162,8 @@ namespace PlayerAndEditorGUI {
 
         #region UnityObject
 
+
+
         public static bool edit<T>(ref T field, int width) where T : Object =>
         #if UNITY_EDITOR
                 !paintingPlayAreaGui ?  ef.edit(ref field, width) :
@@ -4745,8 +4747,20 @@ namespace PlayerAndEditorGUI {
 
         #region Int
 
-      
-        
+        public static bool editLayerMask(this string label, ref int val)
+        {
+            label.write(label.ApproximateLength());
+            return editLayerMask(ref val);
+        }
+
+        public static bool editLayerMask(ref int val) {
+            #if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.editLayerMask(ref val);
+            #endif
+
+            return false;
+        }
 
         public static bool edit(ref int val)
         {

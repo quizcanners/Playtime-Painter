@@ -494,6 +494,14 @@ namespace PlayerAndEditorGUI {
         #region Edit
 
         #region Values
+
+        public static bool editLayerMask(ref int val)
+        {
+            BeginCheckLine();
+            val = EditorGUILayout.LayerField(val);
+            return EndCheckLine();
+        }
+
         public static bool edit(ref string text)
         {
             BeginCheckLine();

@@ -1819,7 +1819,7 @@ namespace QuizCannersUtilities {
         #endregion
     }
 
-    #region Various MGMT Classes
+    #region Various Managers Classes
     public class PerformanceTimer : IPEGI_ListInspect, IGotDisplayName
     {
         private readonly string _name;
@@ -2156,8 +2156,7 @@ namespace QuizCannersUtilities {
 
     // Work in progress
     [Serializable]
-    public class ScreenShootTaker : IPEGI
-    {
+    public class ScreenShootTaker : IPEGI {
 
         #region ScreenShot
 
@@ -2291,8 +2290,7 @@ namespace QuizCannersUtilities {
         }
 
         #endregion
-
-
+        
     }
 
     #endregion

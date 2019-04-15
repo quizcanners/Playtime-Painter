@@ -6,7 +6,15 @@ using UnityEditor;
 #endif
 
 namespace PlayerAndEditorGUI {
+
+#if UNITY_EDITOR
+
+    // Use this two lines to have Unity Inspector show drawer from IPEGI's Inspect functions
+    [CustomEditor(typeof(PEGI_SimpleInspectorsBrowser))]
+    public class PEGI_SimpleInspectorsBrowserDrawer : PEGI_Inspector<PEGI_SimpleInspectorsBrowser> { }
     
+#endif
+
     public abstract class PEGI_Inspector_Material
         #if UNITY_EDITOR
         : ShaderGUI
@@ -92,22 +100,23 @@ namespace PlayerAndEditorGUI {
 
     }
 
-     public abstract class PEGI_Inspector<T> : PEGI_Inspector_Base where T : MonoBehaviour {
+    public abstract class PEGI_Inspector<T> : PEGI_Inspector_Base where T : MonoBehaviour
+    {
 #if PEGI
         protected override ef.EditorType EditorType => ef.EditorType.Mono;
 
         protected override bool Inspect(Editor editor) => ef.Inspect<T>(editor);
 #endif
-     }
+    }
 
-    public abstract class PEGI_Inspector_SO<T> : PEGI_Inspector_Base where T : ScriptableObject {
+    public abstract class PEGI_Inspector_SO<T> : PEGI_Inspector_Base where T : ScriptableObject
+    {
 #if PEGI
         protected override ef.EditorType EditorType => ef.EditorType.ScriptableObject;
 
         protected override bool Inspect(Editor editor) => ef.Inspect_so<T>(editor);
 #endif
     }
-
 
     [CustomEditor(typeof(PEGI_Styles))]
     public class PEGI_StylesDrawer : PEGI_Inspector<PEGI_Styles>
@@ -123,7 +132,8 @@ namespace PlayerAndEditorGUI {
 
 #if   PEGI
         [MenuItem("Tools/" + "PEGI" + "/Disable")]
-        public static void DisablePegi() {
+        public static void DisablePegi()
+        {
             UnityUtils.SetDefine("PEGI", false);
         }
 #else
@@ -142,10 +152,7 @@ namespace PlayerAndEditorGUI {
 #endif
     }
 
-    [CustomEditor(typeof(PEGI_SimpleInspectorsBrowser))]
-    public class PEGI_SimpleInspectorsBrowserDrawer : PEGI_Inspector<PEGI_SimpleInspectorsBrowser> { }
-
 
 #endif
-    }
+}
 
