@@ -38,8 +38,8 @@ namespace Playtime_Painter
         public bool exclusive;
 
 		public void Set (ImageMeta from, int globalOrder){
-          
-            PainterCamera.Inst.Blit(from.CurrentRenderTexture(), rt);
+
+            RenderTextureBuffersManager.Blit(from.CurrentRenderTexture(), rt);
 
             SetB(from, globalOrder);
 

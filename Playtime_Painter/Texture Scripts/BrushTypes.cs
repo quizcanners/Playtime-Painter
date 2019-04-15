@@ -276,8 +276,8 @@ namespace Playtime_Painter
 
             var cam = TexMGMT;
 
-            if (!cam.secondBufferUpdated)
-                cam.UpdateBufferTwo();
+            if (!RenderTextureBuffersManager.secondBufferUpdated)
+                RenderTextureBuffersManager.UpdateBufferTwo();
             
             foreach (var p in  painter.Plugins)
                 p.BeforeGpuStroke(painter, br, st, this);
@@ -341,7 +341,7 @@ namespace Playtime_Painter
              if (st.CrossedASeam())
                  st.uvFrom = st.uvTo;
 
-             if (TexMGMT.bigRtPair == null) TexMGMT.RecreateBuffersIfDestroyed();
+             if (RenderTextureBuffersManager.bigRtPair == null) TexMGMT.RecreateBuffersIfDestroyed();
 
              ImageMeta id = painter.ImgMeta;
 
@@ -379,7 +379,7 @@ namespace Playtime_Painter
         public static void Paint(Vector2 uv, BrushConfig br, RenderTexture rt)
         {
 
-            if (TexMGMT.bigRtPair == null)
+            if (RenderTextureBuffersManager.bigRtPair == null)
                 TexMGMT.RecreateBuffersIfDestroyed();
 
             var id = rt.GetImgData();
@@ -450,7 +450,7 @@ namespace Playtime_Painter
    
                 }
 
-                if (TexMGMT.bigRtPair == null) TexMGMT.RecreateBuffersIfDestroyed();
+                if (RenderTextureBuffersManager.bigRtPair == null) TexMGMT.RecreateBuffersIfDestroyed();
 
 
                 bool alphaBuffer;
@@ -646,7 +646,8 @@ namespace Playtime_Painter
             }
             var r = TexMGMT;
             
-            if (TexMGMT.bigRtPair == null) TexMGMT.RecreateBuffersIfDestroyed();
+            if (RenderTextureBuffersManager.bigRtPair == null)
+                TexMGMT.RecreateBuffersIfDestroyed();
 
             var meshWidth = br.StrokeWidth(id.width, false); 
             
@@ -713,7 +714,7 @@ namespace Playtime_Painter
 
         private static void PrepareSphereBrush(ImageMeta id, BrushConfig br, StrokeVector stroke, PlaytimePainter painter, out bool alphaBuffer)
         {
-            if (TexMGMT.bigRtPair.IsNullOrEmpty())
+            if (RenderTextureBuffersManager.bigRtPair.IsNullOrEmpty())
                 TexMGMT.RecreateBuffersIfDestroyed();
 
             if (stroke.mouseDwn)

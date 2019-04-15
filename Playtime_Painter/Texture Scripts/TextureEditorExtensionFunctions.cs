@@ -174,7 +174,7 @@ namespace Playtime_Painter{
             return nid;
         }
 
-        public static bool IsBigRenderTexturePair(this Texture tex) => tex && (tex == PainterCamera.Inst.bigRtPair.TryGet(0));
+        public static bool IsBigRenderTexturePair(this Texture tex) => tex && (tex == RenderTextureBuffersManager.bigRtPair.TryGet(0));
 
         private static bool ContainsDuplicant(this IList<ImageMeta> textures, ImageMeta other)
         {

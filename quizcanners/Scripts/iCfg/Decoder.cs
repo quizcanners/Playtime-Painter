@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using PlayerAndEditorGUI;
 using UnityEngine;
 
 namespace QuizCannersUtilities
@@ -616,12 +617,29 @@ namespace QuizCannersUtilities
 
         public static List<T> Decode_List_Abstract<T>(this string data, out List<T> l, TaggedTypesCfg taggedTypes) where T : IGotClassTag
         {
-            var cody = new CfgDecoder(data);
 
             l = new List<T>();
 
+
+#if UNITY_EDITOR
+
+            var ct = taggedTypes.CoreType;
+            var lt = typeof(T);
+            if (ct!=lt &&   !lt.IsSubclassOf(ct)) {
+                Debug.LogError("Type of {0} is not a subclass of {1}".F(lt.ToPegiStringType(), ct.ToPegiStringType()));
+                return l;
+            }
+#endif
+
+            var cody = new CfgDecoder(data);
+
+        
             foreach (var tag in cody)
-                l.Add(cody.DecodeData<T>(taggedTypes));
+            {
+                var tmp = cody.DecodeData<T>(taggedTypes);
+                if (tmp != null)
+                    l.Add(tmp);
+            }
 
             return l;
         }

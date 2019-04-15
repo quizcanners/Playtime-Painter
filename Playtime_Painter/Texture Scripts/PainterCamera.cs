@@ -217,13 +217,13 @@ namespace Playtime_Painter {
         public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add("mm", MeshManager)
             .Add_Abstract("pl", PainterSystemManagerPluginBase.plugins, _pluginsMeta)
-            .Add("rts", renderBuffersSize);
+            .Add("rts", RenderTextureBuffersManager.renderBuffersSize);
 
         public override bool Decode(string tg, string data) {
             switch (tg) {
                 case "pl": data.Decode_List(out PainterSystemManagerPluginBase.plugins, ref _pluginsMeta, PainterSystemManagerPluginBase.all); break;
                 case "mm": MeshManager.Decode(data); break;
-                case "rts": renderBuffersSize = data.ToInt(); break;
+                case "rts": RenderTextureBuffersManager.renderBuffersSize = data.ToInt(); break;
                 default: return false;
             }
 
@@ -234,17 +234,11 @@ namespace Playtime_Painter {
 
         #region Painting Buffers
         
-        public static int renderBuffersSize = 2048;
-        
-        public RenderTexture[] bigRtPair;
-        public RenderTexture alphaBufferTexture;
-        public int bigRtVersion;
-        
-        public bool secondBufferUpdated;
+
         [NonSerialized] private ImageMeta alphaBufferDataTarget;
         [NonSerialized] private Shader alphaBufferDataShader;
 
-        public RenderTexture DoubleBufferCameraTarget => bigRtPair[0];
+        public RenderTexture DoubleBufferCameraTarget => RenderTextureBuffersManager.bigRtPair[0];
 
         public MeshRenderer secondBufferDebug;
 
@@ -253,58 +247,9 @@ namespace Playtime_Painter {
         #endregion
 
         #region Buffer Scaling
-
-        private const int squareBuffersCount = 13;
-
-        [NonSerialized] private readonly RenderTexture[] _squareBuffers = new RenderTexture[squareBuffersCount];
-
-        public RenderTexture GetSquareBuffer(int width)
-        {
-            int no = squareBuffersCount-1;
-            switch (width)
-            {
-                case 1: no = 0; break;
-                case 2: no = 1; break;
-                case 4: no = 2; break;
-                case 8: no = 3; break;
-                case 16: no = 4; break;
-                case 32: no = 5; break;
-                case 64: no = 6; break;
-                case 128: no = 7; break;
-                case 256: no = 8; break;
-                case 512: no = 9; break;
-                case 1024: no = 10; break;
-                case 2048: no = 11; break;
-                case 4096: no = 12; break;
-                default: logger.Log_Every(5, width + " is not in range "); break;
-            }
-
-            if (!_squareBuffers[no])
-            {
-                var sbf = new RenderTexture(width, width, 0, RenderTextureFormat.ARGB32,
-                    RenderTextureReadWrite.Default);
-
-                sbf.useMipMap = false;
-                sbf.autoGenerateMips = false;
-
-                _squareBuffers[no] = sbf;
-            }
-
-            return _squareBuffers[no];
-        }
-
-        [NonSerialized]
-        List<RenderTexture> nonSquareBuffers = new List<RenderTexture>();
-        public RenderTexture GetNonSquareBuffer(int width, int height)
-        {
-            foreach (RenderTexture r in nonSquareBuffers)
-                if ((r.width == width) && (r.height == height)) return r;
-
-            RenderTexture rt = new RenderTexture(width, height, 0, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default);
-            nonSquareBuffers.Add(rt);
-            return rt;
-        }
-
+        RenderTexture SquareBuffer(int width)
+            => RenderTextureBuffersManager.GetSquareBuffer(width);
+        
         public RenderTexture GetDownscaledBigRt(int width, int height) => Downscale_ToBuffer(DoubleBufferCameraTarget, width, height);
 
         public RenderTexture GetDownscaleOf(Texture tex, int targetSize) {
@@ -335,14 +280,14 @@ namespace Playtime_Painter {
 
             bool square = (width == height);
             if (!square || !Mathf.IsPowerOfTwo(width))
-                return Render(tex, GetNonSquareBuffer(width, height), shader);
+                return Render(tex, RenderTextureBuffersManager.GetNonSquareBuffer(width, height), shader);
             else
             {
                 int tmpWidth = Mathf.Max(tex.width / 2, width);
 
                 RenderTexture from = material
-                    ? Render(tex, GetSquareBuffer(tmpWidth), material) 
-                    : Render(tex, GetSquareBuffer(tmpWidth), shader);
+                    ? Render(tex, SquareBuffer(tmpWidth), material) 
+                    : Render(tex, SquareBuffer(tmpWidth), shader);
 
 
                 while (tmpWidth > width) {
@@ -350,7 +295,7 @@ namespace Playtime_Painter {
                     if (!usingCustom && tmpWidth / 4 > width)
                     {
                         tmpWidth /= 8;
-                        from = Render(from, GetSquareBuffer(tmpWidth), Data.bufferCopyDownscaleX8);
+                        from = Render(from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX8);
                         from.DiscardContents();
 
                     }
@@ -358,7 +303,7 @@ namespace Playtime_Painter {
                     {
                        
                         tmpWidth /= 4;
-                        from = Render(from, GetSquareBuffer(tmpWidth), Data.bufferCopyDownscaleX4);
+                        from = Render(from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX4);
                         from.DiscardContents();
                     }
                     else
@@ -366,8 +311,8 @@ namespace Playtime_Painter {
 
                         tmpWidth /= 2;
                         from = material
-                            ? Render(from, GetSquareBuffer(tmpWidth), material)
-                            : Render(from, GetSquareBuffer(tmpWidth), shader);
+                            ? Render(from, SquareBuffer(tmpWidth), material)
+                            : Render(from, SquareBuffer(tmpWidth), shader);
 
                         from.DiscardContents();
 
@@ -384,13 +329,31 @@ namespace Playtime_Painter {
         public List<MaterialMeta> materialsUsingRenderTexture = new List<MaterialMeta>();
         public PlaytimePainter autodisabledBufferTarget;
 
+        public void RecreateBuffersIfDestroyed()
+        {
+
+            var cfg = TexMgmtData;
+
+            if (!cfg)
+                return;
+
+            RenderTextureBuffersManager.InitBrushBuffers();
+
+            if (secondBufferDebug)
+                secondBufferDebug.sharedMaterial.mainTexture = RenderTextureBuffersManager.bigRtPair[1];
+
+            if (alphaBufferDebug)
+                alphaBufferDebug.sharedMaterial.mainTexture = RenderTextureBuffersManager.alphaBufferTexture;
+
+        }
+
         public void EmptyBufferTarget()
         {
 
             if (imgMetaUsingRendTex == null)
                 return;
 
-            if (imgMetaUsingRendTex.texture2D) 
+            if (imgMetaUsingRendTex.texture2D)
                 imgMetaUsingRendTex.RenderTexture_To_Texture2D();
 
             imgMetaUsingRendTex.destination = TexTarget.Texture2D;
@@ -400,6 +363,7 @@ namespace Playtime_Painter {
 
             materialsUsingRenderTexture.Clear();
             imgMetaUsingRendTex = null;
+            RenderTextureBuffersManager.DiscardPaintingBuffersContents();
         }
 
         public void ChangeBufferTarget(ImageMeta newTarget, MaterialMeta mat, ShaderProperty.TextureValue parameter, PlaytimePainter painter)
@@ -431,56 +395,14 @@ namespace Playtime_Painter {
             materialsUsingRenderTexture.Add(mat);
         }
 
-        public void RecreateBuffersIfDestroyed() {
+ 
+        public static RenderTexture FrontBuffer => RenderTextureBuffersManager.bigRtPair[0];
 
-            var cfg = TexMgmtData;
+        public static RenderTexture BackBuffer => RenderTextureBuffersManager.bigRtPair[1];
 
-            if (!cfg)
-                return;
-            
-            if (!GotBuffers)  {
-                bigRtPair = new RenderTexture[2];
-                var tA = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
-                var tB = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
-                bigRtPair[0] = tA;
-                bigRtPair[1] = tB;
-                tA.useMipMap = false;
-                tB.useMipMap = false;
-                tA.wrapMode = TextureWrapMode.Repeat;
-                tB.wrapMode = TextureWrapMode.Repeat;
-                tA.name = "Painter Buffer 0 _ " + renderBuffersSize;
-                tB.name = "Painter Buffer 1 _ " + renderBuffersSize;
-            }
+        public static RenderTexture AlphaBuffer => RenderTextureBuffersManager.alphaBufferTexture;
 
-            if (!alphaBufferTexture) {
-                alphaBufferTexture = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
-                alphaBufferTexture.wrapMode = TextureWrapMode.Repeat;
-                alphaBufferTexture.name = "Painting Alpha Buffer _ " + renderBuffersSize;
-                alphaBufferTexture.useMipMap = false;
-            }
-
-            if (secondBufferDebug) 
-                secondBufferDebug.sharedMaterial.mainTexture = bigRtPair[1];
-            
-            if (alphaBufferDebug)
-                alphaBufferDebug.sharedMaterial.mainTexture = alphaBufferTexture;
-
-        }
-
-        void ClearBuffers()
-        {
-            foreach (var b in bigRtPair)
-                b.DestroyWhatever();
-
-            bigRtPair = null;
-
-            alphaBufferTexture.DestroyWhatever();
-            
-        }
-
-        bool GotBuffersInternal => !bigRtPair.IsNullOrEmpty() && _inst.DoubleBufferCameraTarget;
-
-        public static bool GotBuffers => Inst && Inst.GotBuffersInternal;
+        public static bool GotBuffers => Inst && RenderTextureBuffersManager.GotBuffers && _inst.DoubleBufferCameraTarget;
         #endregion
 
         #region Brush Shader MGMT
@@ -632,7 +554,7 @@ namespace Playtime_Painter {
 
         public void Shader_UpdateStrokeSegment(BrushConfig bc, float brushAlpha, ImageMeta id, StrokeVector stroke, PlaytimePainter pntr, out bool alphaBuffer)
         {
-            if (bigRtPair == null)
+            if (RenderTextureBuffersManager.bigRtPair == null)
                 RecreateBuffersIfDestroyed();
             
             var isDoubleBuffer = !id.renderTexture;
@@ -663,54 +585,23 @@ namespace Playtime_Painter {
             }
 
 
-            if (!useSingle && !secondBufferUpdated)
-                UpdateBufferTwo();
+            if (!useSingle && !RenderTextureBuffersManager.secondBufferUpdated)
+                RenderTextureBuffersManager.UpdateBufferTwo();
 
             if (stroke.firstStroke)
                 Shader_UpdateBrushConfig(bc, brushAlpha, id, pntr);
 
-            TargetTexture = alphaBuffer ? alphaBufferTexture : id.CurrentRenderTexture();
+            TargetTexture = alphaBuffer ? AlphaBuffer : id.CurrentRenderTexture();
 
             if (isDoubleBuffer)
-                PainterDataAndConfig.DESTINATION_BUFFER.GlobalValue = bigRtPair[1];
+                PainterDataAndConfig.DESTINATION_BUFFER.GlobalValue = BackBuffer;
             
             CurrentShader = shd;
         }
 
         #endregion
 
-        #region Blit Textures
-        public void Blit(Texture tex, ImageMeta id)
-        {
-            if (!tex || id == null)
-                return;
-            CurrentShader = Data.pixPerfectCopy;
-            var dst = id.CurrentRenderTexture();
-            Graphics.Blit(tex, dst, brushRenderer.meshRenderer.sharedMaterial);
-
-            AfterBlit(dst);
-
-        }
-
-        public void Blit(Texture from, RenderTexture to) =>  Blit(from, to, Data.pixPerfectCopy);
-        
-        public void Blit(Texture from, RenderTexture to, Shader blitShader)
-        {
-
-            if (!from)
-                return;
-            CurrentShader = blitShader;
-            Graphics.Blit(from, to, brushRenderer.meshRenderer.sharedMaterial);
-            AfterBlit(to);
-        }
-        
-        void AfterBlit(Texture target)
-        {
-            if (target && target == DoubleBufferCameraTarget)
-                secondBufferUpdated = false;
-        }
-        
-        #endregion
+    
 
         #region Alpha Buffer 
 
@@ -728,8 +619,8 @@ namespace Playtime_Painter {
         }
 
         void DiscardAlphaBuffer() {
-            alphaBufferTexture.DiscardContents();
-            Render(Color.clear, alphaBufferTexture);
+            RenderTextureBuffersManager.alphaBufferTexture.DiscardContents();
+            Render(Color.clear, RenderTextureBuffersManager.alphaBufferTexture);
             alphaBufferDataTarget = null;
         }
 
@@ -737,17 +628,15 @@ namespace Playtime_Painter {
         {
 
             if (rt) {
-                AlphaPaintingBuffer.GlobalValue = alphaBufferTexture;
-                Render(alphaBufferTexture, rt, shader);
+                AlphaPaintingBuffer.GlobalValue = AlphaBuffer;
+                Render(AlphaBuffer, rt, shader);
             }
 
             DiscardAlphaBuffer();
 
-            if (!secondBufferUpdated)
-                UpdateBufferTwo();
+            if (!RenderTextureBuffersManager.secondBufferUpdated)
+                RenderTextureBuffersManager.UpdateBufferTwo();
             
-            //Debug.Log("Finilizing from alpha buffer");
-
         }
 
         void FinalizePreviousAlphaDataTarget() => UpdateFromAlphaBuffer(alphaBufferDataTarget.CurrentRenderTexture(), alphaBufferDataShader);
@@ -768,7 +657,7 @@ namespace Playtime_Painter {
             var trg = TargetTexture;
 
             if (trg == DoubleBufferCameraTarget)
-                secondBufferUpdated = false;
+                RenderTextureBuffersManager.secondBufferUpdated = false;
             //else if (trg == alphaBufferTexture)
               //  alphaBufferDataTarget = trg.GetImgData();
 
@@ -814,25 +703,18 @@ namespace Playtime_Painter {
             brushRenderer.PrepareColorPaint(col);
             Render();
         }
-
-        public void UpdateBufferTwo() {
-            CurrentShader = Data.pixPerfectCopy;
-            bigRtPair[1].DiscardContents();
-            Graphics.Blit(DoubleBufferCameraTarget, bigRtPair[1]);
-            secondBufferUpdated = true;
-            bigRtVersion++;
-        }
         
         public void UpdateBufferSegment()
         {
             if (!Data.disableSecondBufferUpdateDebug)
             {
-                brushRenderer.Set(bigRtPair[0]);
-                TargetTexture = bigRtPair[1];
+                //BackBuffer.DiscardContents();
+                brushRenderer.Set(FrontBuffer);
+                TargetTexture = BackBuffer;
                 CurrentShader = Data.brushBufferCopy;
                 Render();
-                secondBufferUpdated = true;
-                bigRtVersion++;
+                RenderTextureBuffersManager.secondBufferUpdated = true;
+                RenderTextureBuffersManager.bigRtVersion++;
             }
         }
         #endregion
@@ -1014,7 +896,8 @@ namespace Playtime_Painter {
             #endif
 
         }
-#if UNITY_EDITOR
+
+        #if UNITY_EDITOR
         public void OnSceneOpening(string path, OpenSceneMode mode)
         {
             // Debug.Log("On Scene Opening");
@@ -1142,9 +1025,9 @@ namespace Playtime_Painter {
 
         #region Inspector
         
-                ChillLogger logger = new ChillLogger("error");
+        ChillLogger logger = new ChillLogger("error");
 
-#if PEGI
+        #if PEGI
 
         public AnimationCurve InspectAnimationCurve(string role) {
             role.edit_Property(() => tmpCurve, this);
@@ -1169,34 +1052,15 @@ namespace Playtime_Painter {
 
             var changed = false;
 
-            if (showAll && "Scaling Buffers".enter(ref showBuffers).nl())
+            if (showAll && "Buffers".enter(ref showBuffers).nl())
             {
-                for (int i = 0; i < squareBuffersCount; i++)
-                {
 
-                    if (!_squareBuffers[i])
-                        "No Buffer {0}".F(Mathf.Pow(2, i)).nl();
-                    else
-                    {
-
-                        pegi.edit(ref _squareBuffers[i]);
-                        _squareBuffers[i].write(250);
-                    }
-
-                    pegi.nl();
-
-                }
-
-
+                RenderTextureBuffersManager.Inspect().nl(ref changed);
+                
                 return changed;
             }
 
-            if (showAll && "Buffer Size".selectPow2("Size of Buffers used for GPU painting", 90, ref renderBuffersSize, 64, 4096).nl())
-            {
-                EmptyBufferTarget();
-                ClearBuffers();
-                RecreateBuffersIfDestroyed();
-            }
+          
 
 #if UNITY_EDITOR
             if (!Data)
@@ -1226,16 +1090,9 @@ namespace Playtime_Painter {
             }
             #endif
 
-            if (showAll || bigRtPair.IsNullOrEmpty())
-                (bigRtPair.IsNullOrEmpty() ? "No buffers" : "Using HDR buffers " + ((!bigRtPair[0]) ? "uninitialized" : "initialized")).nl();
-
-            if (showAll) {
-                if ("Refresh Buffers".Click().nl()) {
-                    ClearBuffers();
-                    RecreateBuffersIfDestroyed();
-                }
-            }
-
+            if (showAll || RenderTextureBuffersManager.bigRtPair.IsNullOrEmpty())
+                (RenderTextureBuffersManager.bigRtPair.IsNullOrEmpty() ? "No buffers" : "Using HDR buffers " + ((!FrontBuffer) ? "uninitialized" : "initialized")).nl();
+            
             if (!painterCamera)
             {
                 pegi.nl();

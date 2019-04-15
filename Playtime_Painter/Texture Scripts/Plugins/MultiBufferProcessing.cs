@@ -327,20 +327,20 @@ namespace Playtime_Painter {
 
         public override void AfterRender()
         {
-            TexMgmt.UpdateBufferTwo();
-            TexMgmt.bigRtVersion++;
+            RenderTextureBuffersManager.UpdateBufferTwo();
+            RenderTextureBuffersManager.bigRtVersion++;
         }
 
         public override int Version
         {
             get
             {
-                return TexMgmt.bigRtVersion;
+                return RenderTextureBuffersManager.bigRtVersion;
             }
 
             set
             {
-                TexMgmt.bigRtVersion = value;
+                RenderTextureBuffersManager.bigRtVersion = value;
             }
         }
 
@@ -350,7 +350,7 @@ namespace Playtime_Painter {
         {
             get
             {
-                PainterDataAndConfig.DESTINATION_BUFFER.GlobalValue = TexMgmt.bigRtPair[1];
+                PainterDataAndConfig.DESTINATION_BUFFER.GlobalValue = RenderTextureBuffersManager.bigRtPair[1];
                 return TexMgmt.DoubleBufferCameraTarget;
             }
         }

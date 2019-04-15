@@ -388,7 +388,17 @@ namespace Playtime_Painter
                 if (BrushConfig.inspectAdvancedOptions || _enableRayTracing)
                     "Ray-Tracing".toggleIcon(ref _enableRayTracing).nl();
 
-                if (_enableRayTracing && "Ray Trace Camera".enter(ref _exploreRayTaceCamera).nl())
+
+
+                if (_enableRayTracing)
+                {
+                    var dp = PainterCamera.depthProjectorCamera;
+                    if (dp && dp.pauseAutoUpdates)
+                        "Light Projectors paused".toggleIcon(ref dp.pauseAutoUpdates).nl(ref changed);
+                    
+                }
+
+                if ("Ray Trace Camera".conditional_enter(_enableRayTracing, ref _exploreRayTaceCamera).nl())
                     rayTraceCameraConfiguration.Nested_Inspect().changes(ref changed);
 
                 if ((volTex.name + " " + id.texture2D.VolumeSize(volTex.hSlices)).foldout(ref _exploreVolumeData).nl())

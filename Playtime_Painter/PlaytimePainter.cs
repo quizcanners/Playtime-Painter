@@ -145,7 +145,7 @@ namespace Playtime_Painter {
             get
             {
 
-                if (plugins != null)
+                if (!plugins.IsNullOrEmpty())
                     return plugins;
                 
                 plugins = new List<PainterComponentPluginBase>();
@@ -899,6 +899,7 @@ namespace Playtime_Painter {
             MatDta.materialsTextureFields.Clear();
             
             foreach (var nt in Plugins)
+                if (nt != null)
                 nt.GetNonMaterialTextureNames(this, ref MatDta.materialsTextureFields);
 
             if (!terrain)
@@ -1659,11 +1660,13 @@ namespace Playtime_Painter {
                     UpdateOrSetTexTarget(TexTarget.Texture2D);
             }
 
+
+            this.SaveStdData();
+
             if (!TexMgmt || MeshManager.target != this) return;
             
             MeshManager.Inst.DisconnectMesh();
-            
-            this.SaveStdData();
+           
 
         }
 
@@ -2954,7 +2957,7 @@ namespace Playtime_Painter {
         {
             switch (tg)
             {
-                case "pgns": data.Decode_List_Abstract(out plugins, PainterSystemManagerPluginBase.all); break;
+                case "pgns": data.Decode_List_Abstract(out plugins, PainterComponentPluginBase.all); break;
                 case "invCast": invertRayCast = data.ToBool(); break;
                 default: return true;
             }

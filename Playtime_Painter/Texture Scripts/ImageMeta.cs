@@ -605,7 +605,7 @@ namespace Playtime_Painter
             var curRt = RenderTexture.active;
 
             var rtp = PainterCamera.Inst;
-            int size = PainterCamera.renderBuffersSize / 4;
+            int size = RenderTextureBuffersManager.renderBuffersSize / 4;
             RenderTexture.active = renderTexture ? renderTexture : rtp.GetDownscaledBigRt(size, size);
 
             if (!_sampler) _sampler = new Texture2D(8, 8);
@@ -1069,14 +1069,6 @@ namespace Playtime_Painter
 
                         }
                     }
-                }
-                
-                if ("Render Buffer Debug".enter(ref _inspectedProcess, 40).nl()) {
-                    TexMGMT.bigRtPair[0].write(200);
-                    pegi.nl();
-                    TexMGMT.bigRtPair[1].write(200);
-
-                    pegi.nl();
                 }
             }
 

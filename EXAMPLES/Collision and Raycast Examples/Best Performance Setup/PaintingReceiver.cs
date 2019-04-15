@@ -90,7 +90,7 @@ namespace Playtime_Painter.Examples {
                 Refresh();
 
             if (Application.isPlaying && (originalTexture) && (texture) && (texture.GetType() == typeof(RenderTexture)))
-                PainterCamera.Inst.Blit(originalTexture, (RenderTexture)texture);
+                RenderTextureBuffersManager.Blit(originalTexture, (RenderTexture)texture);
             
         }
 
@@ -117,7 +117,7 @@ namespace Playtime_Painter.Examples {
 
             var tex = originalTexture ? originalTexture : MatTex;
             if (tex)
-                PainterCamera.Inst.Blit( tex , (RenderTexture) texture);
+                RenderTextureBuffersManager.Blit( tex , (RenderTexture) texture);
             else
                 PainterCamera.Inst.Render(Color.black , (RenderTexture)texture);
 
@@ -155,8 +155,8 @@ namespace Playtime_Painter.Examples {
             if (t2D) {
                 t2D.SetPixels(((Texture2D)originalTexture).GetPixels());
                 t2D.Apply(true);
-            } else 
-                PainterCamera.Inst.Blit(originalTexture, (RenderTexture)texture);
+            } else
+                RenderTextureBuffersManager.Blit(originalTexture, (RenderTexture)texture);
 
         }
 

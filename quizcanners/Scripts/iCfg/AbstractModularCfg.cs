@@ -39,6 +39,8 @@ namespace QuizCannersUtilities {
     {
         private readonly Type _coreType;
 
+        public Type CoreType => _coreType;
+
         public TaggedTypesCfg(Type type)
         {
             _coreType = type;

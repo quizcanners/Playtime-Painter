@@ -2166,16 +2166,16 @@ namespace QuizCannersUtilities {
         {
             "Camera ".edit(60, ref cameraToTakeScreenShotFrom);
 
-            "On Post render is only called when script is attached to camera. Not finished implementation ... ".writeHint();
+           // "On Post render is only called when script is attached to camera. Not finished implementation ... ".writeHint();
 
-            if (cameraToTakeScreenShotFrom && icon.SaveAsNew.Click())
+            if (cameraToTakeScreenShotFrom && icon.SaveAsNew.Click("From Camera"))
                 ToRenderTextureFirst();
             
-            if (icon.Show.Click("Grab screen"))
-                grab = true;
+          //  if (icon.Show.Click("Grab screen"))
+            //    grab = true;
 
             if (icon.Copy.Click("Screen Capture"))
-                ScreenCapture.CaptureScreenshot("ScreenShots/{0}".F(screenShotName));
+                ScreenCapture.CaptureScreenshot("ScreenShots/{0}".F(screenShotName), UpScale);
 
             if (icon.Refresh.Click("Refresh Asset Database"))
                 UnityUtils.RefreshAssetDatabase();
@@ -2231,6 +2231,7 @@ namespace QuizCannersUtilities {
             FileSaveUtils.SaveTextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png", screenShotTexture2D);
         }
         
+        // Needs to be a part of a camera
         public void OnPostRender()
         {
             if (grab)
