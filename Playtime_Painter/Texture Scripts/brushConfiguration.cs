@@ -228,7 +228,7 @@ namespace Playtime_Painter {
 
         #region Inspector
 
-        public static bool inspectAdvancedOptions = false;
+        public static bool showAdvanced = false;
         public static BrushConfig _inspectedBrush;
         public static bool InspectedIsCpuBrush => PlaytimePainter.inspected ? InspectedImageMeta.TargetIsTexture2D() : _inspectedBrush.targetIsTex2D;
         #if PEGI
@@ -253,7 +253,7 @@ namespace Playtime_Painter {
             if (pegi.select(ref blitMode, Playtime_Painter.BlitMode.AllModes).changes(ref changed)) 
                 SetBlitMode(cpu, blitMode);
 
-            pegi.toggle(ref inspectAdvancedOptions, icon.FoldedOut, icon.Create, "Advanced Options", 25);
+            pegi.toggle(ref showAdvanced, icon.FoldedOut, icon.Create, "Advanced Options", 25);
 
             if (docsEnabled && blitMode != null && pegi.DocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI)))
                 pegi.FullWindwDocumentationOpen(blitMode.ToolTip);

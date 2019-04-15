@@ -11,7 +11,7 @@ namespace PlayerAndEditorGUI {
         LockToolToUseTransform, HideTransformTool, AboutPlaytimePainter,
          MeshProfileUsage, Speed, Scale, Hardness, CopyFrom, FancyOptions, previewRGBA, AutoSelectMaterial,
          aboutDisableDocumentation, SampleColor, PreviewRecommended, AlphaBufferBlit, Opacity, SpreadSpeed, BlurAmount,
-         Unnamed
+         Unnamed, TransparentLayer
 
     };
 
@@ -30,7 +30,7 @@ namespace PlayerAndEditorGUI {
                 case MsgPainter.PreserveTransparency:
                     msg.Translate("Preserve Transparency", "if every pixel of texture has alpha = 1 (Max) Unity will be save it as .png without transparency. To counter this " +
                                       " I set first pixels to alpha 0.9. I know it is hacky, it you know a better way, let me know")
-                        .From(ukr, "Памятати прозорість", "Змінює прозорість першого пікселя на 0.9 щоб під час компресії алгоритм не забрав альфа канал.")
+                        .From(ukr, "Зберігати Альфа Канал", "Змінює прозорість першого пікселя на 0.9 щоб під час компресії алгоритм не забрав альфа канал.")
                         ;
 
                     break;
@@ -59,7 +59,7 @@ namespace PlayerAndEditorGUI {
                          "Any changes are applied only to working copy of the texture and will be lost on Entering/Exiting Play mode or restarting Unity." +
                          "Load button on the bottom can reload working copy from original image file." +
                          "Save button will apply changes to the original file. To save as new file, change name before saving and click Save As New." +
-                         "Use Ctrl + Left Mouse Button to sample color from texture." +
+                         "Use Ctrl + Left Mouse Button to sample color of the texture." +
                          "I tried to integrate tutorial into the component (Click on blue '?') .You can hide them from the configuration. " +
                          "").F(pegi.EnvironmentNl));
                     break;
@@ -225,8 +225,12 @@ namespace PlayerAndEditorGUI {
                         "Unnamed ",
                         "The selected class doesn't have a Readable name.");
                     break;
-                    #endregion
-
+                #endregion
+                case MsgPainter.TransparentLayer:
+                    msg.Translate("Transparent",
+                            "Toggle this ON if texture has transparent areas which will not be visible. This will affect how they are painted: color of the transparent areas will be neglected to avoid outline artifacts.")
+                        .From(ukr, "Прозора текстура", "Під час малювання прозорих частин їхнім кольором нехтується. Це допомогає уникнути небажаних контурів.");
+                    break;
             }
 
             return painterTranslations.GetWhenInited(index, lang);

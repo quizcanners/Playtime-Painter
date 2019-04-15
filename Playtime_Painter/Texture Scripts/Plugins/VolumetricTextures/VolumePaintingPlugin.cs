@@ -237,7 +237,7 @@ namespace Playtime_Painter
 
         const int targetScale = 8;
 
-        private Texture2D getMinSizeTexture()
+        private static Texture2D getMinSizeTexture()
         {
             if (tex)
                 return tex;
@@ -247,7 +247,7 @@ namespace Playtime_Painter
             return tex;
         }
 
-        private Texture2D tex;
+        private static Texture2D tex;
 
         private BrushStrokePainterImage delayedPaintingConfiguration;
 
@@ -287,25 +287,8 @@ namespace Playtime_Painter
             PaintRenderTexture(delayedPaintingConfiguration);
             delayedPaintingConfiguration = null;
         }
-
-        private RenderTexture renderTextureWithDepth;
-
-        RenderTexture GetRenderTextureWithDepth()
-        {
-            if (!renderTextureWithDepth)
-            {
-                renderTextureWithDepth = new RenderTexture(512, 512, 16, RenderTextureFormat.ARGB32,
-                    RenderTextureReadWrite.Linear);
-
-                renderTextureWithDepth.useMipMap = false;
-                renderTextureWithDepth.autoGenerateMips = false;
-                
-            }
-
-            return renderTextureWithDepth;
-        }
-
-        public RenderTexture GetTargetTexture() => GetRenderTextureWithDepth();
+        
+        public RenderTexture GetTargetTexture() => RenderTextureBuffersManager.GetRenderTextureWithDepth();
 
         public ProjectorMode GetMode() => ProjectorMode.ReplacementShader;
 
@@ -382,10 +365,10 @@ namespace Playtime_Painter
 
                 var id = p.ImgMeta;
 
-                if (BrushConfig.inspectAdvancedOptions) 
+                if (BrushConfig.showAdvanced) 
                     "Grid".toggle(50, ref _useGrid).nl();
                 
-                if (BrushConfig.inspectAdvancedOptions || _enableRayTracing)
+                if (BrushConfig.showAdvanced || _enableRayTracing)
                     "Ray-Tracing".toggleIcon(ref _enableRayTracing).nl();
 
 

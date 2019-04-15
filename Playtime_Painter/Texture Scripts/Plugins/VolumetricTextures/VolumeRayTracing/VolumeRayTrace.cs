@@ -111,17 +111,15 @@ namespace Playtime_Painter
 
         public ProjectorCameraConfiguration GetProjectorCameraConfiguration()
         {
-
             var l = lights.GetLight(lastUpdatedLight);
-              return l ? l.UpdateAndGetCameraConfiguration() : null;
+            return l ? l.UpdateAndGetCameraConfiguration() : null;
         }
 
-        public RenderTexture GetTargetTexture() => DepthProjectorCamera.GetReusableDepthTarget();
+        public RenderTexture GetTargetTexture() => RenderTextureBuffersManager.GetReusableDepthTarget();
 
         public ProjectorMode GetMode() => ProjectorMode.Clear;
 
-        public void AfterCameraRender(RenderTexture depthTexture)
-        {
+        public void AfterCameraRender(RenderTexture depthTexture) {
 
             var buff = GetBakedDepthsBuffer();
 
@@ -136,7 +134,6 @@ namespace Playtime_Painter
                 buff.DiscardContents();
                 lastUpdatedLight = 0;
             }
-            
 
         }
 

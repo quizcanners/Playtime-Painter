@@ -143,10 +143,7 @@ namespace Playtime_Painter
 
             var p = InspectedPainter;
 
-            if (TexMGMTdata.masks.Count > 0 || InspectedBrush.useMask)
-            {
-
-              
+            if (BrushConfig.showAdvanced || InspectedBrush.useMask) {
 
                 if (adv || br.useMask)
                     "Mask".toggleIcon ("Multiply Brush Speed By Mask Texture's alpha", ref br.useMask, true).changes(ref changed);

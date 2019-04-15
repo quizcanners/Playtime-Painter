@@ -610,7 +610,7 @@ namespace Playtime_Painter {
             else
             {
               
-                if (BrushConfig.inspectAdvancedOptions)
+                if (BrushConfig.showAdvanced)
                     "Use Depth To Mask brush".toggleIcon(ref TexMGMTdata.useDepthForProjector).nl();
 
                 "First step is usually to position the projector camera. You can Lock it to current camera view.".writeOneTimeHint("posProjCam");

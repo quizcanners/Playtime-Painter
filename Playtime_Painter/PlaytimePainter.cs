@@ -2354,7 +2354,6 @@ namespace Playtime_Painter {
                                     .changes(ref changed);
 
                                 MsgPainter.previewRGBA.Documentation().nl();
-                                
                             }
 
                             if (showToggles)

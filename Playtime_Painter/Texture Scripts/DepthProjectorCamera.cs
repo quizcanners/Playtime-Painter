@@ -29,35 +29,12 @@ namespace Playtime_Painter
         public static bool triedToFindDepthCamera;
 
         [SerializeField] private Camera _projectorCamera;
-        [SerializeField] private RenderTexture _depthTarget;
-        [SerializeField] private static RenderTexture _depthTargetForUsers;
-
-        public static RenderTexture GetReusableDepthTarget()
-        {
-            if (_depthTargetForUsers)
-                return _depthTargetForUsers;
-
-            _depthTargetForUsers = GetDepthRenderTexture(1024);
-
-           // Debug.Log("Creating new depth texture");
-
-            return _depthTargetForUsers;
-        }
-
-        private static RenderTexture GetDepthRenderTexture(int sz) => new RenderTexture(sz, sz, 32, RenderTextureFormat.Depth, RenderTextureReadWrite.Linear)
-        {
-            wrapMode = TextureWrapMode.Clamp,
-            filterMode = FilterMode.Bilinear,
-            autoGenerateMips = false,
-            useMipMap = false
-        };
-
+        
         [SerializeField] private bool _projectFromMainCamera;
         [SerializeField] private bool _centerOnMousePosition;
         [SerializeField] public bool pauseAutoUpdates;
  
-        public int targetSize = 512;
-
+       
         #region Inspector
         private bool _foldOut;
         private int _inspectedUser = -1;
@@ -76,13 +53,9 @@ namespace Playtime_Painter
             
             if ("Projector ".enter(ref _foldOut).nl_ifFoldedOut()) {
 
-                "Target Size".edit(ref targetSize).changes(ref changed);
-                if (icon.Refresh.Click("Recreate Depth Texture").nl(ref changed)) {
-                    _depthTarget.DestroyWhatever();
-                    _depthTarget = null;
+                 if (RenderTextureBuffersManager.InspectDepthTarget().nl(ref changed))
                     UpdateDepthCamera();
-                }
-
+                
                 if (_projectorCamera) {
                    
                     "Project from Camera".toggleIcon("Will always project from Play or Editor Camera" ,ref _projectFromMainCamera).nl(ref changed);
@@ -119,11 +92,12 @@ namespace Playtime_Painter
                     _projectorCamera = gameObject.AddComponent<Camera>();
             }
 
+            RenderTextureBuffersManager.UpdateDepthTarget();
             UpdateDepthCamera();
 
             PainterCamera.depthProjectorCamera = this;
 
-            _painterDepthTexture.GlobalValue = _depthTarget;
+            _painterDepthTexture.GlobalValue = RenderTextureBuffersManager.depthTarget;
 
         }
 
@@ -301,7 +275,7 @@ namespace Playtime_Painter
 
                 UpdateCameraPositionForPainter();
 
-                _projectorCamera.targetTexture = _depthTarget;
+                _projectorCamera.targetTexture = RenderTextureBuffersManager.depthTarget;
                
                 _painterDepthCameraMatrix.SetGlobalFrom(_projectorCamera);
                
@@ -356,21 +330,9 @@ namespace Playtime_Painter
 
             _projectorCamera.cullingMask &= ~(1 << l);
 
-            if (_depthTarget)
-            {
-                if (_depthTarget.width == targetSize)
-                    return;
-                else
-                    _depthTarget.DestroyWhateverUnityObject();
-            }
+            _painterDepthTexture.GlobalValue = RenderTextureBuffersManager.depthTarget;
 
-            var sz = Mathf.Max(targetSize, 16);
-
-            _depthTarget = GetDepthRenderTexture(sz);
-
-            _painterDepthTexture.GlobalValue = _depthTarget;
-
-            _projectorCamera.targetTexture = _depthTarget;
+            _projectorCamera.targetTexture = RenderTextureBuffersManager.depthTarget;
         }
         
         void UpdateCameraPositionForPainter()

@@ -146,10 +146,88 @@ namespace Playtime_Painter {
 
         #endregion
 
+        #region Depth Buffers 
+
+        public static int sizeOfDepthBuffers = 512;
+
+        public static RenderTexture depthTarget;
+        private static RenderTexture _depthTargetForUsers;
+
+        public static RenderTexture GetReusableDepthTarget()
+        {
+            if (_depthTargetForUsers)
+                return _depthTargetForUsers;
+
+            _depthTargetForUsers = GetDepthRenderTexture(1024);
+
+            return _depthTargetForUsers;
+        }
+
+        private static RenderTexture GetDepthRenderTexture(int sz) => new RenderTexture(sz, sz, 32, RenderTextureFormat.Depth, RenderTextureReadWrite.Linear)
+        {
+            wrapMode = TextureWrapMode.Clamp,
+            filterMode = FilterMode.Bilinear,
+            autoGenerateMips = false,
+            useMipMap = false
+        };
+
+        public static void UpdateDepthTarget()
+        {
+            if (depthTarget)
+            {
+                if (depthTarget.width == sizeOfDepthBuffers)
+                    return;
+                else
+                    depthTarget.DestroyWhateverUnityObject();
+            }
+
+            var sz = Mathf.Max(sizeOfDepthBuffers, 16);
+
+            depthTarget = GetDepthRenderTexture(sz);
+            
+        }
+
+        #if PEGI
+        public static bool InspectDepthTarget()
+        {
+            var changed = false;
+            "Target Size".edit(ref sizeOfDepthBuffers).changes(ref changed);
+            if (icon.Refresh.Click("Recreate Depth Texture").nl(ref changed))
+            {
+                depthTarget.DestroyWhatever();
+                depthTarget = null;
+                UpdateDepthTarget();
+            }
+
+            return changed;
+        }
+        #endif
+
+        #endregion
+
+        #region RenderTexture with depth 
+
+        private static RenderTexture renderTextureWithDepth;
+
+        public static RenderTexture GetRenderTextureWithDepth()
+        {
+            if (!renderTextureWithDepth)
+            {
+                renderTextureWithDepth = new RenderTexture(512, 512, 16, RenderTextureFormat.ARGB32,
+                    RenderTextureReadWrite.Linear);
+
+                renderTextureWithDepth.useMipMap = false;
+                renderTextureWithDepth.autoGenerateMips = false;
+
+            }
+
+            return renderTextureWithDepth;
+        }
+
+        #endregion
+
         public static bool GotBuffers => !bigRtPair.IsNullOrEmpty();
-
-
-
+        
         static void ClearBuffers()
         {
             foreach (var b in bigRtPair)
@@ -186,13 +264,7 @@ namespace Playtime_Painter {
                 alphaBufferTexture.useMipMap = false;
             }
         }
-
-
-
-
- 
-
-
+        
         #region Inspector
 
         static ChillLogger logger = new ChillLogger("error");
@@ -203,15 +275,15 @@ namespace Playtime_Painter {
         {
             var changed = false;
 
-            if ("Refresh Buffers".Click().nl()) {
+            if (inspectedElement < 2 && "Refresh Buffers".Click().nl())
+            {
                 ClearBuffers();
                 PainterCamera.Inst.RecreateBuffersIfDestroyed();
             }
-            
-            if ("Panting Buffers".enter(ref inspectedElement, 0).nl()) {
 
-                if ("Buffer Size".selectPow2("Size of Buffers used for GPU painting", 90, ref renderBuffersSize, 64, 4096).nl())
-                {
+            if ("Panting Buffers".enter(ref inspectedElement, 0).nl()) {
+                
+                if ("Buffer Size".selectPow2("Size of Buffers used for GPU painting", 90, ref renderBuffersSize, 64, 4096).nl()) {
                     PainterCamera.Inst.EmptyBufferTarget();
                     ClearBuffers();
                     PainterCamera.Inst.RecreateBuffersIfDestroyed();
@@ -227,22 +299,32 @@ namespace Playtime_Painter {
             if ("Scaling Buffers".enter(ref inspectedElement, 1).nl())
             {
 
-                for (int i = 0; i < squareBuffersCount; i++)
-                {
+                for (int i = 0; i < squareBuffersCount; i++) {
 
                     if (!_squareBuffers[i])
-                        "No Buffer {0}".F(Mathf.Pow(2, i)).nl();
-                    else
-                    {
+                        "No Buffer for {0}*{0}".F(Mathf.Pow(2, i)).nl();
+                    else {
 
-                        pegi.edit(ref _squareBuffers[i]);
+                        pegi.edit(ref _squareBuffers[i]).nl();
                         _squareBuffers[i].write(250);
                     }
 
                     pegi.nl();
-
-
                 }
+            }
+
+            if ("Depth Texture".enter(ref inspectedElement, 2).nl()) {
+                "For Camera".edit(ref depthTarget).nl();
+                depthTarget.write(250);
+
+                "Reusable for blits".edit(ref _depthTargetForUsers).nl();
+                _depthTargetForUsers.write(250);
+            }
+
+            if ("Render Textures with Depth buffer".enter(ref inspectedElement, 3).nl())
+            {
+                "Reusable".edit(ref renderTextureWithDepth).nl();
+                renderTextureWithDepth.write(250);
             }
 
             return changed;

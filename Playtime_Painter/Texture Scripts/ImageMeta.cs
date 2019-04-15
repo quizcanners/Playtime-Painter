@@ -1120,16 +1120,18 @@ namespace Playtime_Painter
 
             if (showToggles || (isATransparentLayer && !hasAlphaLayerTag) || forceOpenUTransparentLayer)
             {
-                "Transparent Layer".toggleIcon(ref isATransparentLayer).changes(ref changed);
-                "Toggle this on if texture has transparent(invisible) areas which contains color you don't want to see"
+                MsgPainter.TransparentLayer.GetText().toggleIcon(ref isATransparentLayer).changes(ref changed);
+                //"Toggle this on if texture has transparent(invisible) areas which contains color you don't want to see"
+                MsgPainter.TransparentLayer.GetDescription()
                 .fullWindowDocumentationWithLinkClick("https://www.quizcanners.com/single-post/2018/09/30/Why-do-I-get-black-outline-around-the-stroke", "More About it");
+
+                if (isATransparentLayer)
+                    preserveTransparency = true;
 
                 pegi.nl();
             }
             
             if (showToggles) {
-
-                "Use Masks".toggleIcon(ref GlobalBrush.useMask).nl(ref changed);
 
                 if (isATransparentLayer)
                     preserveTransparency = true;
@@ -1159,7 +1161,7 @@ namespace Playtime_Painter
             }
 
             if (showToggles || (useTexCoord2 && !hasUv2Tag) || forceOpenUv2)
-                changed |= "Use UV2".toggleIcon(ref useTexCoord2).nl();
+                "Use UV2".toggleIcon(ref useTexCoord2).nl(ref changed);
 
             return changed;
         }
