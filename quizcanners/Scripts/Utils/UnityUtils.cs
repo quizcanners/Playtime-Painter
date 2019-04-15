@@ -407,22 +407,7 @@ namespace QuizCannersUtilities {
         #endregion
 
         #region Unity Editor MGMT
-
-        public static bool MouseToPlane(this Plane plane, out Vector3 hitPos, Camera cam = null)
-        {
-            var ray = EditorInputManager.GetScreenMousePositionRay(cam);
-            float rayDistance;
-            if (plane.Raycast(ray, out rayDistance))
-            {
-                hitPos = ray.GetPoint(rayDistance);
-                return true;
-            }
-
-            hitPos = Vector3.zero;
-
-            return false;
-        }
-
+        
         public static void Log(this string text)
         {
 

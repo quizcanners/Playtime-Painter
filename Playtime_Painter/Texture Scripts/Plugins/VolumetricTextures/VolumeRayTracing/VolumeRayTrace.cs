@@ -11,7 +11,7 @@ namespace Playtime_Painter
         public MaterialLightManager lights = new MaterialLightManager();
 
         #region Inspect
-
+#if PEGI
         public override bool Inspect()
         {
             var changed = base.Inspect();
@@ -49,7 +49,8 @@ namespace Playtime_Painter
         }
 
 
-        #endregion
+#endif
+#endregion
 
         public override void Update()
         {
@@ -70,7 +71,7 @@ namespace Playtime_Painter
 
         }
 
-        #region ProjectionUpdates
+#region ProjectionUpdates
         public static RenderTexture allBakedDepthesBufferTexture;
         public static RenderTexture _allBakedDepthesTexture;
         static readonly ShaderProperty.TextureValue bakedDepthes = new ShaderProperty.TextureValue("_pp_RayProjectorDepthes");
@@ -141,9 +142,9 @@ namespace Playtime_Painter
 
         protected override string PropertyNameRoot => "BakedRays";
 
-        #endregion
+#endregion
         
-        #region Initialization
+#region Initialization
         public override void OnEnable() {
 
             base.OnEnable();
@@ -162,6 +163,6 @@ namespace Playtime_Painter
      
 
 
-        #endregion
+#endregion
     }
 }

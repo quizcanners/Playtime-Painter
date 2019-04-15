@@ -1,6 +1,4 @@
-﻿using System;
-using System.Runtime.CompilerServices;
-using Playtime_Painter;
+﻿using Playtime_Painter;
 using QuizCannersUtilities;
 
 namespace PlayerAndEditorGUI {
@@ -234,11 +232,12 @@ namespace PlayerAndEditorGUI {
             return painterTranslations.GetWhenInited(index, lang);
         }
 
+#if PEGI
         public static void Write(this MsgPainter m) { var txt = m.GetText(); txt.write(txt.ApproximateLengthUnsafe()); }
         public static void Write(this MsgPainter m, int width) { m.GetText().write(width); }
         public static void Write(this MsgPainter m, string tip, int width) { m.GetText().write(tip, width); }
         public static void Write(this MsgPainter m, string tip) { var txt = m.GetText(); txt.write(tip, txt.ApproximateLengthUnsafe()); }
-
+#endif
         public static string GetText(this MsgPainter msg)
         {
              var lt =   msg.Get();
@@ -251,10 +250,11 @@ namespace PlayerAndEditorGUI {
             return lt != null ? lt.details : msg.ToString();
         }
 
+#if PEGI
         public static bool Documentation(this MsgPainter msg) =>  PainterDataAndConfig.hideDocumentation ? false : msg.Get().Documentation();
 
         public static bool DocumentationWarning(this MsgPainter msg) => PainterDataAndConfig.hideDocumentation ? false : msg.Get().WarningDocumentation();
-
+#endif
 
         static LazyTranslation Get(this MsgPainter msg)
         {

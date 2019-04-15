@@ -309,15 +309,18 @@ namespace Playtime_Painter
 
         public ProjectorMode GetMode() => ProjectorMode.ReplacementShader;
 
-        #endregion
-
-        #region Inspector
-        #if PEGI
-        public override string NameForDisplayPEGI => "Volume Painting";
-
         public string ProjectorTagToReplace => "RenderType";
 
         public Shader ProjectorShaderToReplaceWith => TexMGMTdata.rayTraceOutput;
+
+
+        #endregion
+
+        #region Inspector
+        float BrushScaleMaxForCpu(VolumeTexture volTex) => volTex.size * volTex.Width * 0.025f;
+        
+#if PEGI
+        public override string NameForDisplayPEGI => "Volume Painting";
 
         public bool ComponentInspector()
         {
@@ -364,11 +367,7 @@ namespace Playtime_Painter
 
         private bool _exploreRayTaceCamera;
 
-        float BrushScaleMaxForCpu(VolumeTexture volTex)
-        {
-            return volTex.size * volTex.Width * 0.025f;
-        }
-        
+   
         public bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br) {
 
             var changed = false;
@@ -466,8 +465,8 @@ namespace Playtime_Painter
 
             return changes;
         }
-        #endif
- 
+#endif
+
         public bool PlugIn_PainterGizmos(PlaytimePainter painter)
         {
             var volume = painter.ImgMeta.GetVolumeTextureData();

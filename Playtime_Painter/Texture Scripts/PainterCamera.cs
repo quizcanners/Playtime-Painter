@@ -349,20 +349,17 @@ namespace Playtime_Painter {
 
                     if (!usingCustom && tmpWidth / 4 > width)
                     {
-                        //Debug.Log("Using X8 downscaler {0} => {1}".F(tmpWidth, width));
-
                         tmpWidth /= 8;
                         from = Render(from, GetSquareBuffer(tmpWidth), Data.bufferCopyDownscaleX8);
+                        from.DiscardContents();
 
                     }
                     else if (!usingCustom && tmpWidth / 2 > width)
                     {
-                        
-                        //Debug.Log("Using X4 downscaler {0} => {1}".F(tmpWidth, width));
-
+                       
                         tmpWidth /= 4;
                         from = Render(from, GetSquareBuffer(tmpWidth), Data.bufferCopyDownscaleX4);
-                    
+                        from.DiscardContents();
                     }
                     else
                     {
@@ -371,6 +368,9 @@ namespace Playtime_Painter {
                         from = material
                             ? Render(from, GetSquareBuffer(tmpWidth), material)
                             : Render(from, GetSquareBuffer(tmpWidth), shader);
+
+                        from.DiscardContents();
+
                     }
                 }
 

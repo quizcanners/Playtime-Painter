@@ -20,6 +20,24 @@ namespace PlayerAndEditorGUI
         public enum MB_state_Editor { Nothing, Up, Down, Dragging }
         public static MB_state_Editor[] mouseButtonState = new MB_state_Editor[3];
 
+        public static bool MouseToPlane(this Plane plane, out Vector3 hitPos, Camera cam = null)
+            => plane.MouseToPlane(out hitPos, GetScreenMousePositionRay(cam));
+
+        public static bool MouseToPlane(this Plane plane, out Vector3 hitPos, Ray ray)
+        {
+            float rayDistance;
+            if (plane.Raycast(ray, out rayDistance))
+            {
+                hitPos = ray.GetPoint(rayDistance);
+                return true;
+            }
+
+            hitPos = Vector3.zero;
+
+            return false;
+        }
+
+
         public static bool Control => Application.isPlaying ?
                      (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
                     : Event.current.control;
@@ -28,12 +46,10 @@ namespace PlayerAndEditorGUI
                     (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
                     : (Event.current != null && Event.current.alt);
         
-
         public static bool Shift => Application.isPlaying ? 
                     (Input.GetKey(KeyCode.LeftShift)
                     || Input.GetKey(KeyCode.RightShift)) : ( Event.current != null && Event.current.shift);
         
-
         public static int GetNumberKeyDown()
         {
             for (int i = 0; i < 10; i++)

@@ -508,7 +508,7 @@ namespace Playtime_Painter
         }
 
         #region Inspector
-
+#if PEGI
         [SerializeField] private Camera camera;
         public bool Inspect() {
             var changed = false;
@@ -538,9 +538,10 @@ namespace Playtime_Painter
             return changed;
         }
 
-        #endregion
+#endif
+#endregion
 
-        #region Encode & Decode
+#region Encode & Decode
 
         public override bool Decode(string tg, string data) {
             switch (tg) {
@@ -564,7 +565,7 @@ namespace Playtime_Painter
             .Add("f", farPlane)
             .Add_IfTrue("l", localTransform);
         
-        #endregion
+#endregion
 
     }
 

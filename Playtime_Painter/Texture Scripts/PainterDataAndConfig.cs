@@ -75,7 +75,8 @@ namespace Playtime_Painter
             }
             #endregion
 
-            #region Inspector
+#region Inspector
+#if PEGI
             private int inspectedProperty = -1;
 
             public bool Inspect(ref List<Configuration> configurations)
@@ -184,10 +185,10 @@ namespace Playtime_Painter
 
                 return val;
             }
-
-            #endregion
+#endif
+#endregion
             
-            #region Encode & Decode
+#region Encode & Decode
 
             // Encode and Decode class lets you store configuration of this class in a string 
 
@@ -224,13 +225,13 @@ namespace Playtime_Painter
                 return true;
             }
 
-            #endregion
+#endregion
 
         }
 
-        #endregion
+#endregion
 
-        #region Shaders
+#region Shaders
 
         public Shader additiveAlphaOutput;
         public Shader additiveAlphaAndUVOutput;
@@ -274,15 +275,15 @@ namespace Playtime_Painter
         public Shader previewMesh;
         public Shader previewBrush;
         public Shader previewTerrain;
-        #endregion
+#endregion
 
-        #region Constants
+#region Constants
         
         public const string PainterCameraName = "PainterCamera";
         public const string ToolName = "Playtime_Painter";
         private const string EnablePainterForBuild = "BUILD_WITH_PAINTER";
         
-        #region Shader Preperties
+#region Shader Preperties
 
         public const string GlobalPropertyPrefix = "g_";
 
@@ -310,9 +311,9 @@ namespace Playtime_Painter
         public const string ATLASED_TEXTURES = "_AtlasTextures";
         public static readonly ShaderProperty.FloatValue TexturesInAtlasRow =               new ShaderProperty.FloatValue(ATLASED_TEXTURES);
         public static readonly ShaderProperty.FloatValue BufferCopyAspectRatio =            new ShaderProperty.FloatValue("_BufferCopyAspectRatio");
-        #endregion
+#endregion
         
-        #region Shader Multicompile Keywords
+#region Shader Multicompile Keywords
         public const string UV_NORMAL = "UV_NORMAL";
         public const string UV_ATLASED = "UV_ATLASED";
         public const string UV_PROJECTED = "UV_PROJECTED";
@@ -333,11 +334,11 @@ namespace Playtime_Painter
         public const string MESH_PREVIEW_NORMAL = "MESH_PREVIEW_NORMAL";
         public const string MESH_PREVIEW_VERTCOLOR = "MESH_PREVIEW_VERTCOLOR";
         public const string MESH_PREVIEW_PROJECTION = "MESH_PREVIEW_PROJECTION";
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region Web Cam Utils
+#region Web Cam Utils
         [NonSerialized] public WebCamTexture webCamTexture;
 
         private void WebCamUpdates()
@@ -377,9 +378,9 @@ namespace Playtime_Painter
 
             return webCamTexture;
         }
-        #endregion
+#endregion
 
-        #region DataLists
+#region DataLists
 
         public List<string> playtimeSavedTextures = new List<string>();
         
@@ -446,18 +447,18 @@ namespace Playtime_Painter
 
         public bool showUrlField;
 
-        #endregion
+#endregion
 
-        #region Mesh Editing
+#region Mesh Editing
 
         public int meshTool;
         public MeshToolBase MeshTool { get { meshTool = Mathf.Min(meshTool, MeshToolBase.AllTools.Count - 1); return MeshToolBase.AllTools[meshTool]; } }
         public float bevelDetectionSensitivity = 6;
         public string meshToolsStd;
         public bool saveMeshUndos;
-        #endregion
+#endregion
 
-        #region User Settings
+#region User Settings
         public bool makeVerticesUniqueOnEdgeColoring;
         public int gridSize = 1;
         public bool snapToGrid;
@@ -486,9 +487,9 @@ namespace Playtime_Painter
         public bool disableSecondBufferUpdateDebug;
         public MyIntVec2 samplingMaskSize;
         public bool useDepthForProjector;
-        #endregion
+#endregion
 
-        #region New Texture Config
+#region New Texture Config
 
         public bool newTextureIsColor = true;
 
@@ -522,9 +523,9 @@ namespace Playtime_Painter
         public int SelectedHeightForNewTexture() => SizeIndexToSize(selectedHeightIndex);
 
         private static int SizeIndexToSize(int ind) => (int)Mathf.Pow(2, ind + MinPowerOfSize);
-        #endregion
+#endregion
 
-        #region BrushStrokeRecordings
+#region BrushStrokeRecordings
         public List<string> recordingNames = new List<string>();
 
         public int browsedRecord;
@@ -555,9 +556,9 @@ namespace Playtime_Painter
             return strokes;
         }
 
-        #endregion
+#endregion
 
-        #region Encode/Decode
+#region Encode/Decode
 
         [SerializeField] private string stdData = "";
         public string ConfigStd
@@ -605,13 +606,13 @@ namespace Playtime_Painter
                         .Add("Vpck", meshPackagingSolutions)
                         .Add_IfTrue("hd", hideDocumentation)
 
-                    #if PEGI
+#if PEGI
                         .Add_IfNotNegative("iid", _inspectedImgData)
                         .Add_IfNotNegative("isfs", _inspectedItems)
                         .Add_IfNotNegative("im", _inspectedMaterial)
                         .Add_IfNotNegative("id", _inspectedDecal)
                         .Add_IfNotNegative("is", inspectedItems)
-                    #endif
+#endif
                         .Add_IfTrue("e", toolEnabled);
 
                     return cody;
@@ -633,25 +634,27 @@ namespace Playtime_Painter
                 case "cam": if (PainterCamera.Inst) PainterCamera.Inst.Decode(data); break;
                 case "Vpck": data.Decode_List(out meshPackagingSolutions); break;
                 case "hd": hideDocumentation = data.ToBool(); break;
-                #if PEGI
+#if PEGI
                 case "iid": _inspectedImgData = data.ToInt(); break;
                 case "isfs": _inspectedItems = data.ToInt(); break;
                 case "im": _inspectedMaterial = data.ToInt(); break;
                 case "id": _inspectedDecal = data.ToInt(); break;
                 case "is": inspectedItems = data.ToInt(); break;
-                #endif
+#endif
                 case "e": toolEnabled = data.ToBool(); break;
                 default: return false;
             }
             return true;
         }
-        #endregion
+#endregion
 
-        #region Inspector
+#region Inspector
+
+      
+        [SerializeField] private int systemLanguage = -1;
 
         public static bool hideDocumentation;
-
-        #if PEGI
+#if PEGI
            private int _inspectedImgData = -1;
            private int _inspectedItems = -1;
            private int _inspectedMaterial = -1;
@@ -672,7 +675,7 @@ namespace Playtime_Painter
 
             if (_inspectedItems != -1) return changes;
 
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             if ("Refresh Brush Shaders".Click(14).nl()) {
                 CheckShaders(true);
                 "Shaders Refreshed".showNotificationIn3D_Views();
@@ -682,7 +685,7 @@ namespace Playtime_Painter
 
             pegi.nl();
             "Disable Second Buffer Update (Debug Mode)".toggleIcon(ref disableSecondBufferUpdateDebug).nl();
-            #endif
+#endif
 
             return changes;
         }
@@ -710,7 +713,7 @@ namespace Playtime_Painter
 
             if (inspectedItems == -1) {
 
-                #if UNITY_EDITOR
+#if UNITY_EDITOR
 
                 var gotDefine = EnablePainterForBuild.GetDefine();
 
@@ -771,9 +774,9 @@ namespace Playtime_Painter
             return changed;
         }
 
-        [SerializeField] private int systemLanguage = -1;
+      
 
-        #endif
+#endif
         #endregion
 
         private void Init() {
@@ -823,9 +826,9 @@ namespace Playtime_Painter
 
         private void CheckShaders(bool forceReload = false)
         {
-            #if !UNITY_EDITOR
+#if !UNITY_EDITOR
                 return;
-            #else
+#else
             CheckShader(ref pixPerfectCopy,             "Playtime Painter/Buffer Blit/Pixel Perfect Copy",      forceReload);
 
             CheckShader(ref brushBlitSmoothed,          "Playtime Painter/Buffer Blit/Smooth",                  forceReload);
@@ -921,7 +924,7 @@ namespace Playtime_Painter
         }
     }
 
-    #region Shader Tags
+#region Shader Tags
     public static partial class ShaderTags
     {
 
@@ -953,6 +956,6 @@ namespace Playtime_Painter
 
     }
 
-    #endregion
+#endregion
 
 }

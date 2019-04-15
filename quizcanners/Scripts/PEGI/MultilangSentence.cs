@@ -2,20 +2,35 @@
 using System.Collections.Generic;
 using System;
 using QuizCannersUtilities;
-using STD_Logic;
 
 namespace PlayerAndEditorGUI {
 
     public enum Languages { note = 0, en = 1, uk = 2, tr = 3, ru = 4 }
-    
-    [DerivedList(typeof(Sentence), typeof(ConditionalSentence))]
-    public class Sentence : AbstractKeepUnrecognizedCfg, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
 
-        public static Languages currentLanguage = Languages.en; // Don't rely on enums, use Dictionary to store languages. Key - language code, value - translation.
+
+    public class SentenceAttribute : AbstractWithTaggedTypes
+    {
+        public override TaggedTypesCfg TaggedTypes => SentenceBase.all;
+    }
+
+    [Sentence]
+    public abstract class SentenceBase: AbstractKeepUnrecognizedCfg, IGotClassTag, IGotName
+    {
+        #region Tagged Types MGMT
+        public abstract string ClassTag { get; }
+        
+        public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(SentenceBase));
+        public TaggedTypesCfg AllTypes => all;
+        #endregion
+
+        public static Languages currentLanguage = Languages.en;
 
         List<string> _languageCodes;
 
-        public List<string> LanguageCodes { get {
+        public List<string> LanguageCodes
+        {
+            get
+            {
                 if (_languageCodes != null) return _languageCodes;
 
                 _languageCodes = new List<string>();
@@ -28,13 +43,28 @@ namespace PlayerAndEditorGUI {
             }
         }
 
+        public abstract string NameForPEGI { get; set; }
+
+#if PEGI
+        public static bool LanguageSelector_PEGI() => pegi.editEnum(ref currentLanguage, 30);
+#endif
+
+    }
+
+    [TaggedType(classTag)]
+    public class Sentence : SentenceBase,  IPEGI, IPEGI_ListInspect, INeedAttention {
+
+        const string classTag = "ml";
+        
+        public override string ClassTag => classTag;
+        
         public Dictionary<int, string> texts = new Dictionary<int, string>();
 
         bool needsReview;
 
         public static bool singleView = true;
 
-        public string NameForPEGI { get { return this[currentLanguage]; } set { this[currentLanguage] = value; } }
+        public override string NameForPEGI { get { return this[currentLanguage]; } set { this[currentLanguage] = value; } }
 
         public override string ToString() => NameForPEGI;
 
@@ -88,8 +118,6 @@ namespace PlayerAndEditorGUI {
                 return "Marked for review";
             return null;
         }
-
-        public static bool LanguageSelector_PEGI() => pegi.editEnum(ref currentLanguage, 30);
         
         public virtual bool PEGI_inList(IList list, int ind, ref int edited) {
             var changed = this.inspect_Name();
@@ -131,66 +159,10 @@ namespace PlayerAndEditorGUI {
         #endregion
     }
 
-    public class ConditionalSentence : Sentence, IAmConditional {
 
-        readonly ConditionBranch _condition = new ConditionBranch();
-
-        public bool CheckConditions(Values values) => _condition.CheckConditions(values);
-
-        #region Inspector
-#if PEGI
-        public override bool PEGI_inList(IList list, int ind, ref int edited) {
-            var changed = this.inspect_Name();
-            if (this.Click_Enter_Attention(_condition.IsTrue() ? icon.Active : icon.InActive, currentLanguage.ToPegiString()))
-                edited = ind;
-            return changed;
-        }
-
-        public override bool Inspect() {
-            var changes = _condition.Nested_Inspect().nl();
-            changes |= base.Inspect();
-            return changes;
-        }
-#endif
-#endregion
-
-        #region Encode & Decode
-        public override CfgEncoder Encode() => new CfgEncoder()
-                .Add("b", base.Encode)
-                .Add_IfNotDefault("cnd", _condition);
-         
-        public override bool Decode(string tg, string data)
-        {
-            switch (tg)
-            {
-                case "b": data.Decode_Base(base.Decode, this); break;
-                case "cnd": _condition.Decode(data); break;
-                default: return false;
-            }
-            return true;
-        }
-        #endregion
-
-    }
-
-
-    public static class MultiLanguageSentenceExtensions
-    {
-
-        public static Sentence GetNextText (this List<Sentence> list, ref int startIndex) {
-
-            while (list.Count > startIndex) {
-                var txt = list[startIndex];
-
-                if (!txt.TryTestCondition())
-                    startIndex++;
-                else
-                    return txt;
-            }
-            return null;
-        }
-
-    }
+  
+    
+  
 
 }
 
