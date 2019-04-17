@@ -45,15 +45,15 @@ sampler2D _mergeSplatN_2;
 sampler2D _mergeSplatN_3;
 sampler2D _mergeSplatN_4;
 
-float4 _Control_ST;
-float4 _mergeTerrainTiling;
+sampler2D _pp_WaterBump;
 float4 _foamParams;
 float4 _foamDynamics;
+
+float4 _Control_ST;
+float4 _mergeTerrainTiling;
 float4 _mergeTeraPosition;
 float4 _mergeTerrainScale;
 float _Merge;
-
-
 
 uniform sampler2D g_BakedRays_VOL;
 uniform sampler2D _pp_RayProjectorDepthes;
@@ -74,6 +74,52 @@ float4 rt2_ProjectorPosition;
 float4 rt2_ProjectorClipPrecompute;
 float4 rt2_ProjectorConfiguration;
 
+float4 SampleWaterNormal(float3 viewDir, float3 wpos, float3 otcControl, out float yDiff) {
+
+	float2 v = viewDir.xz / viewDir.y;
+
+	float toCam = _WorldSpaceCameraPos.y - _foamParams.z;
+
+	yDiff = wpos.y - _foamParams.z;
+
+	const float waterTyling = 0.1;
+
+	float2 projectedxz = (_WorldSpaceCameraPos.xz - v * toCam) * waterTyling;
+
+	float dist = length(wpos.xyz - _WorldSpaceCameraPos.xyz);
+
+	float far = min(1, dist*0.01);
+	float deFar = 1 - far;
+
+	float height = max(0, tex2D(_mergeTerrainHeight, otcControl.xz).a);
+
+	float2 waterUV = projectedxz; //(projectedxz - _mergeTeraPosition.xz);
+	float2 waterUV2 = waterUV.yx + height;//*0.01;
+
+	waterUV -= height;
+
+	float4 bump2B = tex2D(_pp_WaterBump, waterUV * 0.1 + _Time.y*0.0041);
+	bump2B.rg -= 0.5;
+
+	float4 bumpB = tex2D(_pp_WaterBump, waterUV2 * 0.1 - _Time.y*0.005);
+	bumpB.rg -= 0.5;
+
+	float4 bump2 = tex2Dlod(_pp_WaterBump, float4(waterUV + bumpB.rg*0.01
+		- _Time.y*0.02, 0, bump2B.a*bumpB.a * 2));
+	bump2.rg -= 0.5;
+
+	float4 bump = tex2Dlod(_pp_WaterBump, float4(waterUV2 - bump2.rg*0.02
+		+ bump2.rg*0.01 + _Time.y*0.032, 0, bumpB.a *bump2B.a * 2));
+	bump.rg -= 0.5;
+
+	bump.rg = (bump2.rg + bump.rg)*deFar + (bump2B.rg*bump.a + bumpB.rg*bump2.a)*0.5;
+
+	float3 normal = normalize(float3(bump.r, 1, bump.g));
+
+	float smoothness = saturate(bump.b + bump2.b*deFar);
+
+	return float4(normal, smoothness);
+}
 
 float4 ProjectorUvDepthAlpha(float4 shadowCoords, float3 worldPos, float3 lightPos, float4 cfg, float4 precompute) {
 
@@ -381,15 +427,12 @@ inline float3 DetectSmoothEdge(float thickness ,float4 edge, float3 junkNorm, fl
 
 }
 
-
-
 inline float3 reflectedVector (float3 normal, float3 viewDir){
 
 	float dotprod = dot(normal.xyz, viewDir.xyz);
 	return  normalize(viewDir.xyz - 2*(dotprod)*normal.xyz); 
 
 }
-
 
 inline void leakColors (inout float4 col){
 
@@ -451,8 +494,6 @@ inline float2 WetSection(inout float4 terrainN, inout float colA, float3 fwpos, 
 	return float2(foamA_W.y*(0.5 + shadow)*(under), soil*(viewDir*above) + under);
 }
 
-
-
 inline void BleedAndBrightness(inout float4 col, float mod) {
 
 	col.rgb *= _lightControl.a;
@@ -512,22 +553,32 @@ inline void Simple_Light(float4 terrainN,float3 worldNormal, float3 viewDir, ino
 
 }
 
-
-
-
 inline void Terrain_Light(float3 tc_Control, float4 terrainN, 
-	float3 worldNormal, float3 viewDir, inout float4 col, float shadow, float Metallic, float4 fwpos
+	float3 worldNormal, float3 viewDir, inout float4 col, float shadow, float Metallic, float4 fwpos,
+	float4 waterNrmAndSmooth
+
+
 	) {
+
+	float smoothness = col.a;
 
 #if WATER_FOAM
 
-	//float4 fcol = tex2D(_foam_MASK, fwpos.xz + _Time.x);
-
-
-	///terrainN.b += fcol.r;
-	//fwpos.y += fcol.r;
-
 	float2 wet = WetSection(terrainN, col.a, fwpos, shadow, viewDir.y, Metallic);
+
+	float showWater = 1-wet.y;
+
+	float deWater = 1 - showWater;
+
+	worldNormal.xyz = waterNrmAndSmooth.xyz * showWater + worldNormal.xyz * deWater;
+
+	smoothness = showWater + smoothness * deWater;
+
+	col.rgb *= deWater + saturate(viewDir.y)*showWater;  // NEW
+
+
+	terrainN.a = terrainN.a * deWater + showWater;
+
 #endif
 
 
@@ -535,19 +586,18 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 	float fernel = 1.5 - dotprod;
 	float3 reflected = normalize(viewDir.xyz - 2 * (dotprod)*worldNormal);// *fernel
 
-	float smoothness = col.a;//pow(terrainN.b, (3 - fernel) * 20); // (pow(terrainN.b, (3 - fernel) * 2));
+	
 	float deSmoothness = (1 - smoothness);
 
 	float ambientBlock = (1 - terrainN.a)*dotprod; // MODIFIED
 
-	shadow = saturate((shadow * 2 - ambientBlock));
+	shadow = saturate(shadow * 2 - ambientBlock);
 
 	float diff = saturate((dot(worldNormal, _WorldSpaceLightPos0.xyz)));
 	diff = saturate(diff - ambientBlock * 4 * (1 - diff));
 	float direct = diff*shadow;
 
-	float3 teraBounce = //_LightColor0.rgb*
-		TERABOUNCE;
+	float3 teraBounce = TERABOUNCE;
 
 	float4 terrainAmbient = tex2Dlod(_TerrainColors, float4(tc_Control.xz + worldNormal.xz*0.003
 		,0,0));
@@ -571,21 +621,21 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 	float deMetalic = (1 - Metallic);
 
 	col.rgb = col.rgb* (
-		_LightColor0*(1-col.a) +
+		_LightColor0*deSmoothness +
 		
 		(terrainAmbient.rgb + ambientCol
 			)*fernel*terrainAmbient.a
 		
-		) //*( deSmoothness*Metallic + deMetalic)
+		) 
 		;
 
 	float3 halfDirection = normalize(viewDir.xyz + _WorldSpaceLightPos0.xyz);
 
-	float NdotH = max(0.01, (dot(worldNormal, halfDirection)));// *pow(smoothness + 0.2, 8);
+	float NdotH = max(0.01, (dot(worldNormal, halfDirection)));
 	
 	float power = pow(smoothness, 8) * 4096;
 
-	float normTerm = pow(NdotH, power)*power*0.01;
+	float normTerm = pow(NdotH, power)*power;
 
 	float3 reflResult = (
 		normTerm //normTerm
@@ -595,7 +645,7 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 		(terrainLrefl.rgb +
 		ambientRefl.rgb)*terrainN.a
 
-		)* col.a;// *fernel;
+		)* smoothness;
 
 	col.rgb += reflResult* (deMetalic + col.rgb*Metallic);
 
@@ -609,17 +659,13 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 
 	col.rgb += wet.x*0.3;//*fcol.rgb*fcol.a;
 	col.a = wet.y;
-	col.rgb *= 1 - saturate((_foamParams.z - fwpos.w)*0.1);  // NEW
+	
 #endif
 
 	BleedAndBrightness(col, fernel);
 
 
 }
-
-
-
-
 
 inline void Terrain_4_Splats(float4 cont, float2 lowtiled, float2 tiled, float far, float deFar, inout float4 terrain, float triplanarY, inout float4 terrainN, inout float maxheight)
 {
@@ -675,8 +721,6 @@ inline void Terrain_4_Splats(float4 cont, float2 lowtiled, float2 tiled, float f
 
 	terrainN.rg = terrainN.rg * 2 - 1;
 }
-
-
 
 inline void Terrain_Trilanear(float3 tc_Control, float3 worldPos, float dist, inout float3 worldNormal, inout float4 col, inout float4 terrainN, float4 bumpMap) {
 

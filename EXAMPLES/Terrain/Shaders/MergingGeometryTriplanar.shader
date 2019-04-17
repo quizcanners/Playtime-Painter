@@ -104,6 +104,12 @@ Shader "Playtime Painter/Terrain Integration/Triplanar" {
 					i.viewDir.xyz = normalize(i.viewDir.xyz);
 					float dist = length(i.wpos.xyz - _WorldSpaceCameraPos.xyz);
 
+
+#if WATER_FOAM
+					float yDiff;
+					float4 nrmNdSm = SampleWaterNormal(i.viewDir.xyz, i.wpos.xyz, i.tc_Control.xyz, yDiff);
+#endif
+
 					float4 col = tex2D(_MainTex, i.texcoord.xy);
 	
 					#if CLIP_ALPHA
@@ -140,11 +146,13 @@ Shader "Playtime Painter/Terrain Integration/Triplanar" {
 
 					float Metalic = 0;
 
+
+
 					Terrain_Light(i.tc_Control, terrainN, worldNormal, i.viewDir.xyz, col, shadow, Metalic,
 					#if WATER_FOAM
-						i.fwpos
+						i.fwpos, nrmNdSm
 					#else
-					0
+					0, 0
 					#endif
 						);
 

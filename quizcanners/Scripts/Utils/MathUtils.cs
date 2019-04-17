@@ -241,6 +241,23 @@ namespace QuizCannersUtilities {
             return Vector3.Cross(p1, p2).normalized;
         }
 
+        public static Quaternion Avarage(this List<Quaternion> quaternions)
+        {
+            Quaternion average = new Quaternion(0, 0, 0, 0);
+
+            int amount = 0;
+
+            foreach (var quaternion in quaternions)
+            {
+                amount++;
+
+                average = Quaternion.Slerp(average, quaternion, 1f / amount);
+            }
+
+            return average;
+        }
+
+
         #endregion
 
         #region Transformations

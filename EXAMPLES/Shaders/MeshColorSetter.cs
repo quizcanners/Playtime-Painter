@@ -36,7 +36,13 @@ namespace Playtime_Painter.Examples
 
         public bool changeColor;
         public Color color = Color.white;
-        
+
+        public bool LerpBySpeed(float targetValue, float speed) => QcMath.IsLerpingBySpeed(ref colorAlpha, targetValue, speed);
+
+        public bool LerpPortion(float targetValue, float speed, ref float portion) => speed.SpeedToMinPortion(Mathf.Abs(colorAlpha - targetValue), ref portion);
+
+        public void LerpAlpha(float target, float portion) => colorAlpha = Mathf.Lerp(colorAlpha, target, portion);
+
         // Update is called once per frame
         private void LateUpdate()
         {

@@ -1,7 +1,7 @@
 ﻿Shader "Playtime Painter/Terrain Integration/Water" {
-	Properties {
+	/*Properties {
 		_BumpMapC("BumpMap (RGB)", 2D) = "grey" {}
-	}
+	}*/
 
 	Category {
 		Tags { "RenderType"="Transparent" 
@@ -26,7 +26,7 @@
 
 				#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
 
-				sampler2D _BumpMapC;
+				//sampler2D _BumpMapC;
 
 				struct v2f {
 					float4 pos : POSITION;
@@ -56,36 +56,19 @@
 				}
 
 				float4 frag (v2f i) : COLOR {
-					float dist = length(i.wpos.xyz - _WorldSpaceCameraPos.xyz);
-
-					float far = min(1, dist*0.01);
-					float deFar = 1 - far;
 
 					i.viewDir.xyz = normalize(i.viewDir.xyz);
-				
-					float2 waterUV = (i.wpos.xz- _mergeTeraPosition.xz)*0.02;
-					float2 waterUV2 = waterUV.yx;//*0.01;
 
-					float4 bump2B = tex2D(_BumpMapC, waterUV * 0.1 + _Time.y*0.0041);
-					bump2B.rg -= 0.5;
-			
-					float4 bumpB = tex2D(_BumpMapC, waterUV2 * 0.1 - _Time.y*0.005);
-					bumpB.rg -= 0.5;
 
-					float4 bump2 = tex2Dlod(_BumpMapC, float4(waterUV + bumpB.rg*0.01
-						- _Time.y*0.02,0, bump2B.a*bumpB.a*2));
-					bump2.rg -= 0.5;
+					float yDiff;
+					
+					float4 nrmNdSm = SampleWaterNormal(i.viewDir.xyz, i.wpos.xyz, i.tc_Control.xyz,  yDiff);
 
-					float4 bump = tex2Dlod(_BumpMapC,float4(waterUV2 - bump2.rg*0.02
-						+ bump2.rg*0.01 + _Time.y*0.032 , 0 , bumpB.a *bump2B.a*2));
-					bump.rg -= 0.5;
-		
-					bump.rg = (bump2.rg + bump.rg)*deFar + (bump2B.rg*bump.a + bumpB.rg*bump2.a)*0.5;
-			
-					float smoothness = saturate(bump.b+bump2.b*deFar);
+					float3 normal = nrmNdSm.xyz;
+
+					float smoothness = nrmNdSm.w;
+					
 					float deSmoothness = 1 - smoothness;
-				
-					float3 normal = normalize(float3(bump.r,1,bump.g));
 
 					float3 preDot = normal*i.viewDir.xyz;
 
@@ -111,7 +94,7 @@
 					float NdotH = saturate((dot(normal, halfDirection)-1+smoothness*0.005)*100);
 
 					cont.rgb = ( unity_AmbientSky.rgb*max(0,terrainLight.a*terrainLight.a- height* height*2) + (dott*0.1
-						+ NdotH*4)*shadow*_LightColor0.rgb + terrainLight.rgb *bump.b*0.5) *(0.25 + dotprod);
+						+ NdotH*4)*shadow*_LightColor0.rgb + terrainLight.rgb *smoothness*0.5) *(0.25 + dotprod);
 
 					BleedAndBrightness(cont, 1);
 

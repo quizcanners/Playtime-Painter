@@ -12,6 +12,7 @@ namespace Playtime_Painter.Examples
         private readonly ShaderProperty.VectorValue _foamDynamicsProperty = new ShaderProperty.VectorValue("_foamDynamics");
         private readonly ShaderProperty.VectorValue _foamParametersProperty = new ShaderProperty.VectorValue("_foamParams");
         private readonly ShaderProperty.TextureValue _foamTextureProperty = new ShaderProperty.TextureValue("_foam_MASK");
+        private readonly ShaderProperty.TextureValue _pp_waterBumpMap = new ShaderProperty.TextureValue("_pp_WaterBump");
 
         private void OnEnable()
         {
@@ -25,7 +26,7 @@ namespace Playtime_Painter.Examples
         }
 
         public Texture foamMask;
-
+        public Texture waterBump;
         public Vector4 foamParameters;
         private float _myTime = 0;
         public float thickness;
@@ -36,6 +37,7 @@ namespace Playtime_Painter.Examples
         private void SetFoamDynamics() {
             _foamDynamicsProperty.GlobalValue = new Vector4(thickness, noise, upscale, (300 - thickness));
             _foamTextureProperty.GlobalValue = foamMask;
+            _pp_waterBumpMap.GlobalValue = waterBump;
         }
 
         private void Update() {
@@ -64,7 +66,7 @@ namespace Playtime_Painter.Examples
             "since it is not a robust method. And I only recommend working on those method at the later stages of your project, " +
             "when you can be sure it will not conflict with other effects.").fullWindowDocumentationClick("About Water Controller");
 
-
+            "Bump".edit(70, ref waterBump).nl(ref changed);
             "Foam".edit(70, ref foamMask).nl(ref changed);
             "Thickness:".edit(70, ref thickness, 5, 300).nl(ref changed);
             "Noise:".edit(50, ref noise, 0, 100).nl(ref changed);
