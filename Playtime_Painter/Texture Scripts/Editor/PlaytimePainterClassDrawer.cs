@@ -70,14 +70,19 @@ namespace Playtime_Painter {
                 if (lMouseDwn && e.button == 0 && refocus && isHit)
                 {
 
+                   // #if !UNITY_2019_1_OR_NEWER
                     if (pp && pp == painter && AllowEditing(painter))
                         HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
+                    //#endif
 
                     UnityUtils.FocusOn(hit.transform.gameObject);
                 }
 
+                #if !UNITY_2019_1_OR_NEWER
                 if (!navigating && AllowEditing(painter))
                     e.Use();
+                #endif
+
             }
 
             if (painter && painter.textureWasChanged)
@@ -155,11 +160,12 @@ namespace Playtime_Painter {
                 MeshManager.Inst.UpdateInputEditorTime(e,  lMouseUp, lMouseDwn);
         }
 
-        public virtual void OnSceneGUI()
-        {
+        public virtual void OnSceneGUI() {
 
+#if !UNITY_2019_1_OR_NEWER
             if (PlaytimePainter.IsCurrentTool && painter && !UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(painter))
                 PlaytimePainter.IsCurrentTool = false;
+#endif
 
             if (AllowEditing(painter))
             {
@@ -168,6 +174,7 @@ namespace Playtime_Painter {
                 if (!navigating && PlaytimePainter.IsCurrentTool)
                     HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
             }
+
 
             navigating = false;
         }

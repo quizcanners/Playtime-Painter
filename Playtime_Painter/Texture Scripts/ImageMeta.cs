@@ -1090,15 +1090,7 @@ namespace Playtime_Painter
                "Use Z/X to undo/redo".writeOneTimeHint("ZxUndoRedo");
 
             }
-
-            if ("Color Schemes".toggle_enter(ref Cfg.showColorSchemes, ref inspectedItems, 5, ref changed).nl_ifFolded())
-            {
-                if (Cfg.colorSchemes.Count == 0)
-                    Cfg.colorSchemes.Add(new ColorScheme() { paletteName = "New Color Scheme" });
-
-                pegi.edit_List(ref Cfg.colorSchemes, ref Cfg.inspectedColorScheme).changes(ref changed);
-            }
-
+            
             return changed;
         }
 

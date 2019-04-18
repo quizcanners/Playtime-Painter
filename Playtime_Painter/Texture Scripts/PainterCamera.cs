@@ -221,7 +221,10 @@ namespace Playtime_Painter {
 
         public override bool Decode(string tg, string data) {
             switch (tg) {
-                case "pl": data.Decode_List(out PainterSystemManagerPluginBase.plugins, ref _pluginsMeta, PainterSystemManagerPluginBase.all); break;
+                case "pl":
+                    data.Decode_List(out PainterSystemManagerPluginBase.plugins, ref _pluginsMeta, PainterSystemManagerPluginBase.all);
+                    PainterSystemManagerPluginBase.RefreshPlugins();
+                    break;
                 case "mm": MeshManager.Decode(data); break;
                 case "rts": RenderTextureBuffersManager.renderBuffersSize = data.ToInt(); break;
                 default: return false;
@@ -600,9 +603,7 @@ namespace Playtime_Painter {
         }
 
         #endregion
-
-    
-
+        
         #region Alpha Buffer 
 
         public void AlphaBufferSetDirtyBeforeRender(ImageMeta id, Shader shade) {
@@ -868,6 +869,9 @@ namespace Playtime_Painter {
         }
 
         private void OnDisable() {
+
+
+
             PainterSystem.applicationIsQuitting = true;
             
             DownloadManager.Dispose();

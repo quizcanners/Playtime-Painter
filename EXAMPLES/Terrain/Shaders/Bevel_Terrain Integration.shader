@@ -126,6 +126,17 @@
 
 				i.viewDir.xyz = normalize(i.viewDir.xyz);
 
+
+#if WATER_FOAM
+			float yDiff;
+
+			float4 nrmNdSm = SampleWaterNormal(i.viewDir.xyz, i.wpos.xyz, i.tc_Control.xyz, yDiff);
+
+			i.tc_Control.xz += nrmNdSm.xz * max(0, -yDiff)*0.0001;
+
+#endif
+
+
 				float dist = length(i.worldPos.xyz - _WorldSpaceCameraPos.xyz)+1;
 
 				float mip = 0;
@@ -198,9 +209,9 @@
 				Terrain_Light(i.tc_Control, terrainN, worldNormal, i.viewDir.xyz, col, shadow, Metalic, 
 		
 				#if WATER_FOAM
-					i.fwpos
+					i.fwpos, nrmNdSm
 				#else
-					0
+					0, 0
 				#endif
 					);
 

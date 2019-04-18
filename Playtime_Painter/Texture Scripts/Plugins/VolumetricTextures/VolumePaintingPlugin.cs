@@ -35,10 +35,15 @@ namespace Playtime_Painter
 
         #region Encode & Decode
 
-        public override CfgEncoder Encode() => this.EncodeUnrecognized()
-            .Add_IfTrue("ug", _useGrid)
-            .Add_IfTrue("rtr", _enableRayTracing)
-            .Add("cam", rayTraceCameraConfiguration);
+        public override CfgEncoder Encode()
+        {
+            var cody = this.EncodeUnrecognized()
+                .Add_IfTrue("ug", _useGrid)
+                .Add_IfTrue("rtr", _enableRayTracing)
+                .Add("cam", rayTraceCameraConfiguration);
+
+            return cody;
+        }
 
         public override bool Decode(string tg, string data)
         {

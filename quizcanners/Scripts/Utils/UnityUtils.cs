@@ -513,15 +513,24 @@ namespace QuizCannersUtilities {
         private static Tool _previousEditorTool = Tool.None;
 #endif
 
-        public static void RestoreUnityTool() {
+        public static bool TryRestoreUnityTool() {
             #if UNITY_EDITOR
-            if (_previousEditorTool != Tool.None && Tools.current == Tool.None)
+            
+            if (_previousEditorTool != Tool.None) {
                 Tools.current = _previousEditorTool;
+                _previousEditorTool = Tool.None;
+                return true;
+            }
             #endif
+
+            return false;
         }
 
         public static void HideUnityTool() {
             #if UNITY_EDITOR
+
+            Debug.Log("Hiding Unity tool");
+
             if (Tools.current == Tool.None) return;
             
             _previousEditorTool = Tools.current;

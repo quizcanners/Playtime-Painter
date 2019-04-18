@@ -77,8 +77,11 @@ public class GridNavigator : PainterSystemMono {
                 v.go.SetActive(false);
         }
 
-        pointedVertex.go.SetActive(false);
-        selectedVertex.go.SetActive(false);
+        if (pointedVertex.go)
+            pointedVertex.go.SetActive(false);
+
+        if (selectedVertex.go)
+            selectedVertex.go.SetActive(false);
     }
 
     public void SetEnabled(bool gridEn, bool dotEn) {

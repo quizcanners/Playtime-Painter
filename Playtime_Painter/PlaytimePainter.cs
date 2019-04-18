@@ -3,6 +3,7 @@ using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditor.EditorTools;
 #endif
 
 using System;
@@ -19,11 +20,52 @@ namespace Playtime_Painter {
     [HelpURL(OnlineManual)]
     [DisallowMultipleComponent]
     [ExecuteInEditMode]
-    public class PlaytimePainter : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, IKeepMyCfg, IPEGI {
+    public class PlaytimePainter : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, IKeepMyCfg, IPEGI
+    {
 
         #region StaticGetters
-        public static bool IsCurrentTool { get { return PainterDataAndConfig.toolEnabled; } set { PainterDataAndConfig.toolEnabled = value; } }
         
+        public static bool IsCurrentTool
+        {
+            get
+            {
+
+                #if UNITY_EDITOR && UNITY_2019_1_OR_NEWER
+                if (!Application.isPlaying) {
+                    
+                    return EditorTools.activeToolType == typeof(PainterAsIntegratedCustomTool);
+
+                }
+                #endif
+
+                return PainterDataAndConfig.toolEnabled;
+            }
+            set
+            {
+                #if UNITY_EDITOR && UNITY_2019_1_OR_NEWER
+                if (!Application.isPlaying)
+                {
+                    if (value) {
+         
+                        EditorTools.SetActiveTool<PainterAsIntegratedCustomTool>();
+                        Tools.current = Tool.Custom;
+                    }
+                    else
+                    {
+
+                        if (!UnityUtils.TryRestoreUnityTool())
+                        {
+
+                            Tools.current = Tool.None;
+                        }
+                    }
+                }
+                #endif
+                
+                PainterDataAndConfig.toolEnabled = value;
+            }
+        }
+
         private static PainterDataAndConfig Cfg => PainterCamera.Data;
 
         private static PainterCamera TexMgmt => PainterCamera.Inst;
@@ -36,11 +78,7 @@ namespace Playtime_Painter {
 
         public BrushType GlobalBrushType => GlobalBrush.GetBrushType(ImgMeta.TargetIsTexture2D());
 
-        public string ToolName => PainterDataAndConfig.ToolName;
-
         private bool NeedsGrid => this.NeedsGrid();
-
-        public Texture ToolIcon => icon.Painter.GetIcon();
         
         #endregion
 
@@ -1827,9 +1865,16 @@ namespace Playtime_Painter {
 
         public static int _inspectedMeshEditorItems = -1;
 
+        private static int inspectedShowOptionsSubitem = -1;
+
         public bool Inspect() {
 
-            CsharpUtils.TimerStart();
+            #if UNITY_2019_1_OR_NEWER && UNITY_EDITOR
+            if (!Application.isPlaying && !IsCurrentTool) {
+                "Painter tool is not selected (Select it in the top left area)".writeHint();
+                return false;
+            }
+            #endif
 
             inspected = this;
            
@@ -1856,12 +1901,14 @@ namespace Playtime_Painter {
 
             if (canInspect && !IsCurrentTool)
             {
-                if (icon.Off.Click("Click to Enable Tool").changes(ref changed))
+
+
+                if ( icon.Off.Click("Click to Enable Tool").changes(ref changed))
                 {
-                    PainterDataAndConfig.toolEnabled = true;
+                    IsCurrentTool = true;
+                    enabled = true;
 
                     #if UNITY_EDITOR
-                    enabled = true;
                     var cs = GetComponents(typeof(Component));
 
                     foreach (var c in cs)
@@ -1870,7 +1917,6 @@ namespace Playtime_Painter {
 
                     UnityUtils.FocusOn(null);
                     PainterCamera.refocusOnThis = gameObject;
-                    UnityUtils.HideUnityTool();
                     #endif
 
                     CheckPreviewShader();
@@ -1884,19 +1930,25 @@ namespace Playtime_Painter {
             if (canInspect) {
 
                 TexMgmt.focusedPainter = this;
-                
+
+
                 if (
                     #if UNITY_EDITOR
+                    #if UNITY_2019_1_OR_NEWER   
+                    Application.isPlaying &&
+                    #endif
+                    
                     (IsCurrentTool && terrain && !Application.isPlaying &&
                      UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(terrain)) ||
                     #endif
-                    icon.On.Click("Click to Disable Tool")) {
-                    PainterDataAndConfig.toolEnabled = false;
+                    icon.On.Click("Click to Disable Tool"))
+                {
+                    IsCurrentTool = false;
                     WindowPosition.Collapse();
                     MeshManager.Inst.DisconnectMesh();
                     SetOriginalShaderOnThis();
                     UpdateOrSetTexTarget(TexTarget.Texture2D);
-                    UnityUtils.RestoreUnityTool();
+                   
                 }
 
                 pegi.Lock_UnlockWindowClick(gameObject);
@@ -2089,9 +2141,9 @@ namespace Playtime_Painter {
 
                     }
 
-                    #endregion
+                #endregion
                     
-                    #region Texture Editing
+                #region Texture Editing
 
                     else
                     {
@@ -2105,7 +2157,7 @@ namespace Playtime_Painter {
 
                             TexMgmt.DependenciesInspect().changes(ref changed);
 
-                            #region Undo/Redo & Recording
+                #region Undo/Redo & Recording
 
                             id.Undo_redo_PEGI();
 
@@ -2190,9 +2242,9 @@ namespace Playtime_Painter {
                           //  if (meshCollider && meshRenderer && !meshCollider.sharedMesh)
 
 
-                            #endregion
+                #endregion
 
-                            #region Brush
+                #region Brush
 
                             GlobalBrush.Inspect().changes(ref changed);
 
@@ -2228,7 +2280,7 @@ namespace Playtime_Painter {
                                 }
                             }
                             
-                            #endregion
+                #endregion
 
                         }
                         else
@@ -2252,7 +2304,7 @@ namespace Playtime_Painter {
                         }
 
 
-                        #region Fancy Options
+                #region Fancy Options
 
                         pegi.nl();
                         "Fancy options".foldout(ref Cfg.moreOptions);
@@ -2290,7 +2342,7 @@ namespace Playtime_Painter {
                         if (Cfg.moreOptions)
                         {
 
-                            if (icon.Show.enter("Show/Hide items", ref inspectionIndex, 7).nl()) {
+                            if (icon.Show.enter("Optional UI Elements", ref inspectionIndex, 7).nl()) {
 
                                 "Show Previous Textures (if any) "
                                     .toggleVisibilityIcon(
@@ -2305,6 +2357,9 @@ namespace Playtime_Painter {
                                 "Color Sliders ".toggleVisibilityIcon("Should the color slider be shown ",
                                     ref Cfg.showColorSliders, true).nl(ref changed);
 
+                                if ("Color Schemes".toggle_enter(ref Cfg.showColorSchemes, ref inspectedShowOptionsSubitem, 5, ref changed).nl_ifFolded())
+                                    Cfg.InspectColorSchemes();
+                           
                                 if (id != null)
                                     "Recording/Playback".toggleVisibilityIcon("Show options for brush recording",
                                         ref id.showRecording, true).nl(ref changed);
@@ -2367,12 +2422,9 @@ namespace Playtime_Painter {
                                     
                                     MsgPainter.AutoSelectMaterial.Documentation().nl();
                                 }
-
-
+                                
                                 if (!IsUiGraphicPainter)
-                                    "Invert RayCast"
-                                        .toggleIcon(
-                                            "Will rayCast into the camera (for cases when editing from inside a sphere, mask for 360 video for example.)",
+                                    "Invert RayCast" .toggleIcon("Will rayCast into the camera (for cases when editing from inside a sphere, mask for 360 video for example.)",
                                             ref invertRayCast).nl(ref changed);
                                 else
                                     invertRayCast = false;
@@ -2389,14 +2441,14 @@ namespace Playtime_Painter {
                                 id.SetAndApply();
                         }
 
-                        #endregion
+                #endregion
 
                      
-                        #region Save Load Options
+                #region Save Load Options
 
                         if (!PainterSystem.IsPlaytimeNowDisabled && HasMaterialSource && !Cfg.showConfig)
                         {
-                    #region Material Clonning Options
+                #region Material Clonning Options
 
                             pegi.nl();
 
@@ -2426,9 +2478,9 @@ namespace Playtime_Painter {
                             pegi.space();
                             pegi.nl();
 
-                    #endregion
+                #endregion
 
-                    #region Texture Instantiation Options
+                #region Texture Instantiation Options
 
                             if (Cfg.showUrlField)
                             {
@@ -2487,7 +2539,7 @@ namespace Playtime_Painter {
 
 #if UNITY_EDITOR
                                     if (id.lockEditing)
-                                        UnityUtils.RestoreUnityTool();
+                                        UnityUtils.TryRestoreUnityTool();
                                     else
                                         UnityUtils.HideUnityTool();
 #endif
@@ -2587,9 +2639,9 @@ namespace Playtime_Painter {
                             pegi.space();
                             pegi.newLine();
 
-                    #endregion
+                #endregion
 
-                    #region Texture Saving/Loading
+                #region Texture Saving/Loading
 
                             if (!LockTextureEditing)
                             {
@@ -2661,15 +2713,15 @@ namespace Playtime_Painter {
                             pegi.space();
                             pegi.nl();
 
-                    #endregion
+                #endregion
                         }
 
-                        #endregion
+                #endregion
                         
                     }
 
                     pegi.nl();
-                    #endregion
+                #endregion
                     
                     foreach (var p in PainterSystemManagerPluginBase.ComponentInspectionPlugins)
                         p.ComponentInspector().nl(ref changed);
@@ -2690,8 +2742,6 @@ namespace Playtime_Painter {
             inspected = null;
 
             pegi.nl();
-
-            CsharpUtils.TimerEnd().nl();
 
             return changed;
         }
@@ -2736,10 +2786,10 @@ namespace Playtime_Painter {
             return changed;
 
         }
-        #endif
+#endif
 
-        #if UNITY_EDITOR
-        private void OnDrawGizmosSelected()
+#if UNITY_EDITOR
+                private void OnDrawGizmosSelected()
         {
             if (!TexMgmt || this != TexMgmt.focusedPainter) return;
 

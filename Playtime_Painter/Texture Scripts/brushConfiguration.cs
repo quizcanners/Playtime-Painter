@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditor.EditorTools;
 #endif
 using System;
 using PlayerAndEditorGUI;
@@ -345,7 +346,7 @@ namespace Playtime_Painter {
 
             return changed;
         }
-
+        
         public virtual bool Inspect() {
 
             var p = PlaytimePainter.inspected;
@@ -407,11 +408,24 @@ namespace Playtime_Painter {
                 brushDynamic.AllTypes.Replace_IfDifferent(ref brushDynamic, typeof(BrushDynamic_None));
 
 #if UNITY_EDITOR
-            if (Tools.current != Tool.None) {
+
+#if UNITY_2019_1_OR_NEWER
+            /*if (EditorTools.activeToolType != typeof(PainterAsIntegratedCustomTool)) {
+                MsgPainter.LockToolToUseTransform.GetText().writeWarning();
+                if (MsgPainter.HideTransformTool.GetText().Click().nl())
+                {
+                    Tools.current = Tool.Custom;
+                    EditorTools.SetActiveTool<PainterAsIntegratedCustomTool>();
+                }
+            }*/
+#else
+            if ( Tools.current != Tool.None ) {
                 MsgPainter.LockToolToUseTransform.GetText().writeWarning();
                 if (MsgPainter.HideTransformTool.GetText().Click().nl())
                     UnityUtils.HideUnityTool();
             }
+#endif
+
 #endif
 
 

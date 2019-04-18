@@ -774,7 +774,13 @@ namespace Playtime_Painter
             return changed;
         }
 
-      
+        public bool InspectColorSchemes()
+        {
+            if (colorSchemes.Count == 0)
+                colorSchemes.Add(new ColorScheme() { paletteName = "New Color Scheme" });
+
+            return pegi.edit_List(ref colorSchemes, ref inspectedColorScheme);
+        }
 
 #endif
         #endregion
