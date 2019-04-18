@@ -1300,8 +1300,8 @@ namespace PlayerAndEditorGUI {
                 
                     var ty = el.GetType();
 
-                    textAndToolTip.text = ty.ToString();
-                    textAndToolTip.tooltip = el.ToPegiString();
+                    textAndToolTip.text = "{0}:{1}".F(ty.ToPegiStringType(), el.ToPegiString());
+                    textAndToolTip.tooltip = el.ToString();
                  
 
                     var uo = el as Object;

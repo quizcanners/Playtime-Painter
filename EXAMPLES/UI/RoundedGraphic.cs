@@ -441,16 +441,12 @@ namespace Playtime_Painter.Examples
                     var sp = sprite;
                     if (spriteTag.edit(90, ref sp).nl(ref changed))
                         sprite = sp;
+                    
+                    if (sp) {
 
-                    var tex = sp.texture;
+                        var tex = sp.texture;
 
-                    if (sp)
-                    {
-
-                        if (sp && (tex.width != rectTransform.rect.width ||
-                                   sp.texture.height != rectTransform.rect.height)
-                               && "Set Native Size".Click().nl())
-                        {
+                        if (tex && (tex.width != rectTransform.rect.width || sp.texture.height != rectTransform.rect.height) && "Set Native Size".Click().nl()) {
                             var rect = rectTransform.rect;
                             rect.width = sp.texture.width;
                             rect.height = sp.texture.height;
