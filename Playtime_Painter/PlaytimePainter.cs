@@ -227,7 +227,6 @@ namespace Playtime_Painter {
         public static PlaytimePainter currentlyPaintedObjectPainter;
         private static PlaytimePainter _lastMouseOverObject;
         
-        #if BUILD_WITH_PAINTER
         private double _mouseButtonTime;
         
         public void OnMouseOver() {
@@ -283,7 +282,6 @@ namespace Playtime_Painter {
                 currentlyPaintedObjectPainter = null;
  
         }
-        #endif
 
         #if UNITY_EDITOR
         public void OnMouseOverSceneView(RaycastHit hit, Event e) {
@@ -497,16 +495,12 @@ namespace Playtime_Painter {
             Update_Brush_Parameters_For_Preview_Shader();
         }
 
-        public void AfterStroke(StrokeVector st)
-        {
-
+        public void AfterStroke(StrokeVector st) {
             st.SetPreviousValues();
             st.firstStroke = false;
             st.mouseDwn = false;
-#if UNITY_EDITOR || BUILD_WITH_PAINTER
             if (ImgMeta.TargetIsTexture2D())
                 ImgMeta.pixelsDirty = true;
-#endif
         }
 
         private bool CanPaintOnMouseDown() =>  ImgMeta.TargetIsTexture2D() || GlobalBrushType.StartPaintingTheMomentMouseIsDown;
@@ -1823,8 +1817,7 @@ namespace Playtime_Painter {
 
         public void OnGUI()
         {
-
-            #if BUILD_WITH_PAINTER
+            
             if (!Cfg || !Cfg.enablePainterUIonPlay) return;
             
             if (!selectedInPlaytime)
@@ -1838,7 +1831,6 @@ namespace Playtime_Painter {
             }
             #endif
       
-            #endif
 
         }
 
@@ -1960,8 +1952,7 @@ namespace Playtime_Painter {
 
                 #region Top Buttons
 
-                if (!PainterSystem.IsPlaytimeNowDisabled)
-                {
+             
 
                     if ((MeshManager.target) && (MeshManager.target != this))
                         MeshManager.DisconnectMesh();
@@ -2001,15 +1992,15 @@ namespace Playtime_Painter {
 
                     MsgPainter.AboutPlaytimePainter.Documentation();
 
-                }
+                
 
                 #endregion
                 
-                if (Cfg.showConfig || PainterSystem.IsPlaytimeNowDisabled) {
+                if (Cfg.showConfig) {
 
                     pegi.newLine();
                     
-                    if (!PainterSystem.IsPlaytimeNowDisabled && (Cfg.inspectedItems == -1 || _inspectPainterCamera) &&
+                    if ((Cfg.inspectedItems == -1 || _inspectPainterCamera) &&
                             "Painter Camera".enter(ref _inspectPainterCamera).nl(ref changed))
                                 TexMgmt.DependenciesInspect(true).changes(ref changed);
 
@@ -2442,7 +2433,7 @@ namespace Playtime_Painter {
                      
                 #region Save Load Options
 
-                        if (!PainterSystem.IsPlaytimeNowDisabled && HasMaterialSource && !Cfg.showConfig)
+                        if (HasMaterialSource && !Cfg.showConfig)
                         {
                 #region Material Clonning Options
 
@@ -2826,19 +2817,16 @@ namespace Playtime_Painter {
 
         }
         #endif
-
-        #if UNITY_EDITOR || BUILD_WITH_PAINTER
+        
         public void ManagedUpdate() {
             
-            #if BUILD_WITH_PAINTER
             if (this == _mouseOverPaintableGraphicElement) {
                 if (!Input.GetMouseButton(0) || !DataUpdate(Input.mousePosition, _clickCamera))
                     _mouseOverPaintableGraphicElement = null;
 
                 OnMouseOver();
             }
-            #endif
-
+      
             #region URL Loading
             if (loadingOrder.Count > 0)
             {
@@ -2880,7 +2868,6 @@ namespace Playtime_Painter {
             id?.Update(stroke.mouseUp);
             
         }
-        #endif
 
         private void PreviewShader_StrokePosition_Update()
         {

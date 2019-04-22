@@ -24,6 +24,8 @@ namespace Playtime_Painter
         private int _replacedLayer;
         public bool deformedBounds;
 
+        public Material GetMaterial() => meshRenderer.sharedMaterial;
+
         public void AfterRender() {
 
             if (!deformedBounds)
@@ -140,11 +142,18 @@ namespace Playtime_Painter
         private readonly ShaderProperty.TextureValue _mainTex = new ShaderProperty.TextureValue("_MainTex");
 
         private readonly ShaderProperty.ColorValue _colorVal = new ShaderProperty.ColorValue("_Color");
-        
-        public void Set(Texture tex) =>  meshRenderer.sharedMaterial.Set(_mainTex, tex);
-        
-        private void Set(Color col) => meshRenderer.sharedMaterial.Set(_colorVal, col);
-   
+
+        public RenderBrush Set(Texture tex)
+        {
+            meshRenderer.sharedMaterial.Set(_mainTex, tex);
+            return this;
+        }
+
+        public RenderBrush Set(Color col) {
+            meshRenderer.sharedMaterial.Set(_colorVal, col);
+            return this;
+        }
+
         public void FullScreenQuad()
         {
             const float size = PainterCamera.OrthographicSize * 2;

@@ -126,14 +126,19 @@ float4 ProjectorUvDepthAlpha(float4 shadowCoords, float3 worldPos, float3 lightP
 	float camAspectRatio = cfg.x;
 	float camFOVDegrees = cfg.y;
 	float deFar = cfg.w;
+	float near = cfg.z;
 
 	shadowCoords.xy /= shadowCoords.w;
+	
+	float3 diff = worldPos - lightPos;
+		
+	float dist = length(diff);
 
-	float alpha = max(0, sign(shadowCoords.w) - dot(shadowCoords.xy, shadowCoords.xy));
+	float alpha = max(0, sign(shadowCoords.w) - dot(shadowCoords.xy, shadowCoords.xy) - max(0, near - dist)*8);
 
 	float viewPos = length(float3(shadowCoords.xy * camFOVDegrees, 1))*camAspectRatio;
 
-	float true01Range = length(worldPos - lightPos) * deFar;
+	float true01Range = dist * deFar;
 
 	float predictedDepth = 1 - (((viewPos / true01Range) - precompute.y) * precompute.z);
 
@@ -162,10 +167,6 @@ float3 GetRayTracedShadows(float3 posNrm, float3 norm, float4 shadowCoords0, flo
 	float depth = tex2Dlod(_pp_RayProjectorDepthes, float4(shUv0.xy, 0, 0)).r;
 
 	shads.r = (1 - saturate((depth - shUv0.z) * sharpness / near)) * shUv0.w;
-
-	// Subtract from predicted depth based on normal - 0.03
-
-	// Sharpness needs to be increased with distance increase
 
 	near = rt1_ProjectorConfiguration.z;
 

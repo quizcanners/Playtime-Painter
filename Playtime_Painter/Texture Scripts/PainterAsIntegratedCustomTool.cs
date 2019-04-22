@@ -24,27 +24,7 @@ namespace Playtime_Painter
 
         public override GUIContent toolbarIcon => m_IconContent; 
         
-        public override void OnToolGUI(EditorWindow window) {
-            
-           /* EditorGUI.BeginChangeCheck();
-
-            Vector3 position = Tools.handlePosition;
-
-            using (new Handles.DrawingScope(Color.green))
-            {
-                position = Handles.Slider(position, Vector3.right);
-            }
-
-            if (EditorGUI.EndChangeCheck())
-            {
-                Vector3 delta = position - Tools.handlePosition;
-
-                Undo.RecordObjects(Selection.transforms, "Move Platform");
-
-                foreach (var transform in Selection.transforms)
-                    transform.position += delta;
-            }*/
-        }
+        public override void OnToolGUI(EditorWindow window) { }
     }
 #endif
 }

@@ -281,7 +281,6 @@ namespace Playtime_Painter
         
         public const string PainterCameraName = "PainterCamera";
         public const string ToolName = "Playtime_Painter";
-        private const string EnablePainterForBuild = "BUILD_WITH_PAINTER";
         
 #region Shader Preperties
 
@@ -695,8 +694,7 @@ namespace Playtime_Painter
             var changed = false; 
 
             var rtp = PainterCamera.Inst;
-
-            if (!PainterSystem.IsPlaytimeNowDisabled) {
+            
                 if ("Plugins".enter(ref inspectedItems, 10).nl_ifNotEntered() && rtp.PluginsInspect().nl(ref changed))
                     rtp.SetToDirty();
 
@@ -707,27 +705,16 @@ namespace Playtime_Painter
                     weatherManager.Inspect(ref weatherConfigurations).nl(ref changed);
 
                 "Downloads".enter_Inspect(PainterCamera.DownloadManager, ref inspectedItems, 13).nl(ref changed);
-            }
-            else
-                inspectedItems = -1;
+    
 
             if (inspectedItems == -1) {
 
 #if UNITY_EDITOR
 
-                var gotDefine = EnablePainterForBuild.GetDefine();
-
-                if ("Enable Painter for Playtime & Build".toggleIcon(ref gotDefine).nl())
-                    EnablePainterForBuild.SetDefine(gotDefine);
-
-                if (gotDefine)
-                    ("In Tools/Playtime_Painter move Shaders folder Resources so all the " +
-                        "painting shaders will be build with the player. Ignore if it is already done.").writeHint();
-
-                if (gotDefine && "Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay).nl())
+              
+                if ("Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay).nl())
                     MeshManager.Inst.DisconnectMesh();
-
-                if (!PainterSystem.IsPlaytimeNowDisabled) {
+                
 
                     if (Painter && Painter.meshEditing == false)
                         "Disable Non-Mesh Colliders in Play Mode".toggleIcon(ref disableNonMeshColliderInPlayMode).nl();
@@ -749,7 +736,7 @@ namespace Playtime_Painter
                     MsgPainter.aboutDisableDocumentation.Documentation();
 
                     pegi.nl();
-                }
+                
 
                 if (icon.Discord.Click("Join Discord", 64))
                     PlaytimePainter.Open_Discord();

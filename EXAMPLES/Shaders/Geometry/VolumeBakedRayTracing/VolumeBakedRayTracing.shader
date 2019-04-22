@@ -227,24 +227,12 @@
 					float smoothness = saturate(pow(col.a, 5 - fernel));
 					float deDmoothness = 1 - smoothness;
 
-
-
 					// Ray Traing part
 
 					float3 shads = GetRayTracedShadows(o.worldPos.xyz, o.normal, o.shadowCoords0, o.shadowCoords1, o.shadowCoords2);
 
-					//float4 col = 0.5; //o.vcol;
-
-					//float4 bumpMap = float4(0,0,0.5,1);
-	
-				
-					//float ambientBlock = (3+dotprod);
 					float3 reflected = normalize(o.viewDir.xyz - 2 * (dotprod)*o.normal);
-			
-					//float3 
-
-					// Point Lights:
-			
+						
 					float4 bake = SampleVolume(g_BakedRays_VOL, o.worldPos + reflected * fernel * smoothness,  g_VOLUME_POSITION_N_SIZE,  g_VOLUME_H_SLICES, o.normal);
 
 					float power = smoothness * (128+ fernel*128);
@@ -262,26 +250,14 @@
 					PointLightTrace(scatter, glossLight, directLight, o.worldPos.xyz - g_l2pos.xyz,
 						o.normal, o.viewDir.xyz, bake.b, shads.b,  g_l2col, power, ambientBlock);
 
-					col.rgb *= 
-						(
-						directLight
-						 + 
-						scatter * 0.01 * bumpMap.a) * (1-col.a)
-						;
-
-				
-			
-					//return glossLight;
+					col.rgb *= (	directLight + scatter * 0.01 * bumpMap.a) * (1-col.a);
 
 					col.rgb += glossLight*0.002*col.a;
-
 
 					float3 mix = col.gbr + col.brg;
 					col.rgb += mix * mix*0.02; // Arbitrary value
 
-					//col.rgb = bumpMap.b;
-
-					return  col;//  +bake * 0.25;
+					return  col;
 
 				}
 				ENDCG

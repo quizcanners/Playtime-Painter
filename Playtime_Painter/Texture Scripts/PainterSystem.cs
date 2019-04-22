@@ -70,16 +70,6 @@ namespace Playtime_Painter
         protected static bool docsEnabled => !PainterDataAndConfig.hideDocumentation;
         public static bool applicationIsQuitting;
 
-        public static bool IsPlaytimeNowDisabled { get
-            {
-            #if !BUILD_WITH_PAINTER
-                if (Application.isPlaying)
-                    return true;
-            #endif
-                return false;
-            }
-        }
-
     }
 
 }

@@ -620,8 +620,8 @@ namespace Playtime_Painter {
         }
 
         void DiscardAlphaBuffer() {
-            RenderTextureBuffersManager.alphaBufferTexture.DiscardContents();
-            Render(Color.clear, RenderTextureBuffersManager.alphaBufferTexture);
+            RenderTextureBuffersManager.ClearAlphaBuffer(); //alphaBufferTexture.DiscardContents();
+           //RenderTextureBuffersManager.Blit(Color.clear, RenderTextureBuffersManager.alphaBufferTexture);
             alphaBufferDataTarget = null;
         }
 
@@ -765,11 +765,9 @@ namespace Playtime_Painter {
             if (!painterCamera)
                 painterCamera = GetComponent<Camera>();
             
-            #if BUILD_WITH_PAINTER
             if (!PainterDataAndConfig.toolEnabled && !Application.isEditor)
                     PainterDataAndConfig.toolEnabled = true;
-            #endif
-
+        
             #if UNITY_EDITOR
 
             EditorSceneManager.sceneSaving -= BeforeSceneSaved;
@@ -817,7 +815,6 @@ namespace Playtime_Painter {
             }
          
 
-#if BUILD_WITH_PAINTER || UNITY_EDITOR
 
 
             transform.position = Vector3.up * 3000;
@@ -852,7 +849,6 @@ namespace Playtime_Painter {
 
             RecreateBuffersIfDestroyed();
 
-#endif
 
             autodisabledBufferTarget = null;
 
@@ -918,8 +914,6 @@ namespace Playtime_Painter {
         }
         #endif
 
-#if UNITY_EDITOR || BUILD_WITH_PAINTER
-        
         public void Update() {
             if (Application.isPlaying)
                 CombinedUpdate();
@@ -935,7 +929,7 @@ namespace Playtime_Painter {
             if (!Data)
                 return;
 
-            if (!PainterSystem.IsPlaytimeNowDisabled && PlaytimePainter.IsCurrentTool && focusedPainter)
+            if (PlaytimePainter.IsCurrentTool && focusedPainter)
                 focusedPainter.ManagedUpdate();
             
             if (GlobalBrush.previewDirty)
@@ -1014,8 +1008,7 @@ namespace Playtime_Painter {
             }
 
         }
-
-        #endif
+        
 
         public static void CancelAllPlaybacks()
         {
@@ -1103,8 +1096,7 @@ namespace Playtime_Painter {
                 "no painter camera".writeWarning();
                 pegi.nl();
             }
-
-#if BUILD_WITH_PAINTER 
+            
             if (showAll || !MainCamera) {
                 pegi.nl();
 
@@ -1129,7 +1121,6 @@ namespace Playtime_Painter {
 
                 pegi.nl();
             }
-#endif
 
             return changed;
         }
@@ -1137,24 +1128,20 @@ namespace Playtime_Painter {
         public bool PluginsInspect() {
 
             var changed = false;
+            
+            _pluginsMeta.edit_List(ref PainterSystemManagerPluginBase.plugins, PainterSystemManagerPluginBase.all).changes(ref changed);
 
-            if (!PainterSystem.IsPlaytimeNowDisabled)
+            if (!_pluginsMeta.Inspecting)
             {
 
-                _pluginsMeta.edit_List(ref PainterSystemManagerPluginBase.plugins, PainterSystemManagerPluginBase.all).changes(ref changed);
+                if ("Find Plugins".Click())
+                    PainterSystemManagerPluginBase.RefreshPlugins();
 
-                if (!_pluginsMeta.Inspecting)
-                {
+                if ("Delete Plugins".Click().nl())
+                    PainterSystemManagerPluginBase.plugins = null;
 
-                    if ("Find Plugins".Click())
-                        PainterSystemManagerPluginBase.RefreshPlugins();
-
-                    if ("Delete Plugins".Click().nl())
-                        PainterSystemManagerPluginBase.plugins = null;
-
-                }
             }
-            else _pluginsMeta.Inspecting = false;
+       
 
             return changed;
         }

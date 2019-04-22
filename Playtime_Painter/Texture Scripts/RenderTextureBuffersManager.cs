@@ -24,6 +24,12 @@ namespace Playtime_Painter {
                 rt.DiscardContents();
         }
 
+        public static void ClearAlphaBuffer()
+        {
+            alphaBufferTexture.DiscardContents();
+            Blit(Color.clear, alphaBufferTexture);
+        }
+
         public static int bigRtVersion;
 
         public static bool secondBufferUpdated;
@@ -128,21 +134,30 @@ namespace Playtime_Painter {
 
         public static void Blit(Texture from, RenderTexture to) => Blit(from, to, Data.pixPerfectCopy);
 
-        public static void Blit(Texture from, RenderTexture to, Shader blitShader)
-        {
+        public static void Blit(Texture from, RenderTexture to, Shader blitShader) {
 
-            if (!from)
-                return;
+            //if (!from)
+              //  logger.Log_Interval(5, "Possibly Blitting null texture");
+            
             var mat = TempMaterial(blitShader);
             Graphics.Blit(from, to, mat);
             AfterBlit(to);
         }
 
-        static void AfterBlit(Texture target)
-        {
+        static void AfterBlit(Texture target) {
             if (target && target == bigRtPair[0])
                 secondBufferUpdated = false;
         }
+
+        public static void Blit(Color col, RenderTexture to)
+        {
+            var tm = PainterCamera.Inst;
+
+            var mat = tm.brushRenderer.Set(Data.bufferColorFill).Set(col).GetMaterial();
+
+            Graphics.Blit(null, to, mat);
+        }
+
 
         #endregion
 

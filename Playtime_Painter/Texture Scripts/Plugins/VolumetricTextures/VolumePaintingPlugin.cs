@@ -168,6 +168,7 @@ namespace Playtime_Painter
         public bool PaintRenderTexture(StrokeVector stroke, ImageMeta image, BrushConfig bc, PlaytimePainter painter)
         {
             var vt = painter.GetVolumeTexture();
+
             if (!vt)
                 return false;
 
@@ -183,26 +184,6 @@ namespace Playtime_Painter
             }
             else
                 PaintRenderTexture(new BrushStrokePainterImage(stroke, image, bc, painter));
-
-
-
-            /*
-                BrushTypeSphere.Inst.BeforeStroke(painter, bc, stroke);
-               VOLUME_POSITION_N_SIZE_BRUSH.GlobalValue = vt.PosSize4Shader;
-               VOLUME_H_SLICES_BRUSH.GlobalValue = vt.Slices4Shader;
-               if (stroke.mouseDwn)
-                   stroke.posFrom = stroke.posTo;
-
-               image.useTexCoord2 = false;
-               bool alphaBuffer;
-               TexMGMT.Shader_UpdateStrokeSegment(bc, bc.Speed * 0.05f, image, stroke, painter, out alphaBuffer);
-               stroke.SetWorldPosInShader();
-
-               TexMGMT.brushRenderer.FullScreenQuad();
-
-               TexMGMT.Render();
-
-               BrushTypeSphere.Inst.AfterStroke_Painter(painter, bc, stroke, alphaBuffer, image);*/
 
             return true;
         }
@@ -221,17 +202,14 @@ namespace Playtime_Painter
 
             VOLUME_POSITION_N_SIZE_BRUSH.GlobalValue = vt.PosSize4Shader;
             VOLUME_H_SLICES_BRUSH.GlobalValue = vt.Slices4Shader;
-            //if (stroke.mouseDwn)
-               
-
+ 
             image.useTexCoord2 = false;
             bool alphaBuffer;
             TexMGMT.Shader_UpdateStrokeSegment(bc, bc.Speed * 0.05f, image, stroke, painter, out alphaBuffer);
+
             stroke.SetWorldPosInShader();
 
-            TexMGMT.brushRenderer.FullScreenQuad();
-
-            TexMGMT.Render();
+            RenderTextureBuffersManager.Blit(null, image.CurrentRenderTexture(), TexMGMT.brushRenderer.meshRenderer.sharedMaterial.shader);
 
             BrushTypeSphere.Inst.AfterStroke_Painter(painter, bc, stroke, alphaBuffer, image);
 
