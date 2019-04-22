@@ -401,7 +401,7 @@ namespace Playtime_Painter {
             p.PreviewShaderToggleInspect().changes(ref changed);
 
             if (!PainterCamera.GotBuffers && icon.Refresh.Click("Refresh Main Camera Buffers"))
-                RenderTextureBuffersManager.RefreshBuffers();
+                RenderTextureBuffersManager.RefreshPaintingBuffers();
 
 
             if ((PainterCamera.GotBuffers || id.renderTexture) && id.texture2D)

@@ -864,9 +864,7 @@ namespace Playtime_Painter {
         }
 
         private void OnDisable() {
-
-
-
+            
             PainterSystem.applicationIsQuitting = true;
             
             DownloadManager.Dispose();
@@ -880,6 +878,8 @@ namespace Playtime_Painter {
 
             if (Data)
                 Data.ManagedOnDisable();
+
+            RenderTextureBuffersManager.OnDisable();
 
         }
 

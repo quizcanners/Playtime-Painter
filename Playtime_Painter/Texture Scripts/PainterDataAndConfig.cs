@@ -510,6 +510,8 @@ namespace Playtime_Painter
 
 #region New Texture Config
 
+public bool useFloatForScalingBuffers;
+
         public bool newTextureIsColor = true;
 
         public Color newTextureClearColor = Color.black;
