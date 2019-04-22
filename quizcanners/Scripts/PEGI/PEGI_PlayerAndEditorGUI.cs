@@ -7152,6 +7152,12 @@ namespace PlayerAndEditorGUI {
             return edit_List(ref list, lambda).listLabel_Used();
         }
 
+        public static T edit_List<T>(this string label, ref List<T> list, Func<T, T> lambda, ref bool changed) where T : new()
+        {
+            label.write_Search_ListLabel(list);
+            return edit_List(ref list, lambda, ref changed).listLabel_Used();
+        }
+
         public static bool edit_List<T>(ref List<T> list, Func<T, T> lambda) where T : new()
         {
             var changed = false;

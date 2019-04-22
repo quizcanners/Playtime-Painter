@@ -594,8 +594,8 @@ namespace Playtime_Painter.Examples
                 _roundedCorners.Portion(ld);
                 _roundedCorners.Lerp(ld);
 
-                if (_roundedCorners.Value != target.GetCorner(0)) {
-                    target.SetCorners(_roundedCorners.Value);
+                if (_roundedCorners.CurrentValue != target.GetCorner(0)) {
+                    target.SetCorners(_roundedCorners.CurrentValue);
                     return true;
                 }
 

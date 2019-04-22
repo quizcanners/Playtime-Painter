@@ -289,15 +289,34 @@ namespace QuizCannersUtilities
 
         }
 
-        public abstract class BaseVector2Lerp : BaseAnyValue
+        public abstract class BaseAnyLerpValueGeneric<T> : BaseAnyValue {
+
+            protected abstract T TargetValue { get; set; }
+            public abstract T CurrentValue { get; set; }
+
+            public T TargetAndCurrentValue {
+                set
+                {
+                    TargetValue = value;
+                    CurrentValue = value;
+                }
+            }
+
+        }
+
+        public abstract class BaseVector2Lerp : BaseAnyLerpValueGeneric<Vector2>
         {
             public Vector2 targetValue;
+
+            protected override Vector2 TargetValue
+            {
+                get { return targetValue;}
+                set { targetValue = value; }
+            }
 
             protected override bool EaseInOutImplemented => true;
 
             private float _easePortion = 0.1f;
-
-            protected abstract Vector2 CurrentValue { get; set; }
 
             public override bool UsingLinkedThreshold => base.UsingLinkedThreshold && Enabled;
 
@@ -396,26 +415,22 @@ namespace QuizCannersUtilities
             }
         }
 
-        public abstract class BaseFloatLerp : BaseAnyValue, IPEGI_ListInspect
+        public abstract class BaseFloatLerp : BaseAnyLerpValueGeneric<float>, IPEGI_ListInspect
         {
-
-            protected abstract float TargetValue { get; set; }
-
-            public abstract float Value { get; set; }
 
             protected virtual bool CanLerp => true;
 
             public override bool LerpInternal(float linkedPortion)
             {
-                if (CanLerp && (!defaultSet || Value != TargetValue))
-                    Value = Mathf.Lerp(Value, TargetValue, linkedPortion);
+                if (CanLerp && (!defaultSet || CurrentValue != TargetValue))
+                    CurrentValue = Mathf.Lerp(CurrentValue, TargetValue, linkedPortion);
                 else return false;
 
                 return true;
             }
 
             public override bool Portion(ref float linkedPortion) =>
-                speedLimit.SpeedToMinPortion(Value - TargetValue, ref linkedPortion);
+                speedLimit.SpeedToMinPortion(CurrentValue - TargetValue, ref linkedPortion);
 
             #region Inspect
 
@@ -424,7 +439,7 @@ namespace QuizCannersUtilities
             {
                 var ret = base.Inspect();
                 if (Application.isPlaying)
-                    "{0} => {1}".F(Value, TargetValue).nl();
+                    "{0} => {1}".F(CurrentValue, TargetValue).nl();
                 return ret;
             }
 #endif
@@ -459,9 +474,6 @@ namespace QuizCannersUtilities
             public ShaderProperty.FloatValue transitionProperty;
             public ShaderProperty.TextureValue currentTexturePrTextureValue;
             public ShaderProperty.TextureValue nextTexturePrTextureValue;
-            //public int transitionPropertyName;
-            //public int currentTexturePropertyName;
-            //public int nextTexturePropertyName;
 
             private enum OnStart
             {
@@ -478,7 +490,7 @@ namespace QuizCannersUtilities
                 set { }
             }
 
-            public override float Value
+            public override float CurrentValue
             {
                 get { return _portion; }
                 set
@@ -540,7 +552,7 @@ namespace QuizCannersUtilities
                             if (_targetTextures.Count > 1)
                             {
                                 _targetTextures.Swap(0, 1);
-                                Value = Mathf.Max(0, 1 - Value);
+                                CurrentValue = Mathf.Max(0, 1 - CurrentValue);
                                 Current = Next;
                                 Next = value;
                                 _targetTextures.TryRemoveTill(2);
@@ -698,19 +710,24 @@ namespace QuizCannersUtilities
             }
         }
 
-        public abstract class BaseColorValue : BaseAnyValue
+        public abstract class BaseColorValue : BaseAnyLerpValueGeneric<Color>
         {
             protected override string Name => "Color";
             public Color targetValue = Color.white;
-            public abstract Color Value { get; set; }
+
+            protected override Color TargetValue
+            {
+                get { return targetValue; }
+                set { targetValue = value; }
+            }
 
             public override bool Portion(ref float linkedPortion) =>
-                speedLimit.SpeedToMinPortion(Value.DistanceRgba(targetValue), ref linkedPortion);
+                speedLimit.SpeedToMinPortion(CurrentValue.DistanceRgba(targetValue), ref linkedPortion);
 
             public sealed override bool LerpInternal(float linkedPortion)
             {
-                if (Enabled && (targetValue != Value || !defaultSet))
-                    Value = Color.Lerp(Value, targetValue, linkedPortion);
+                if (Enabled && (targetValue != CurrentValue || !defaultSet))
+                    CurrentValue = Color.Lerp(CurrentValue, targetValue, linkedPortion);
                 else return false;
 
                 return true;
@@ -773,7 +790,7 @@ namespace QuizCannersUtilities
 
             public float max = 1;
 
-            public override float Value { get; set; }
+            public override float CurrentValue { get; set; }
 
             protected override float TargetValue
             {
@@ -857,14 +874,14 @@ namespace QuizCannersUtilities
             {
                 _name = name;
                 targetValue = startValue;
-                Value = startValue;
+                CurrentValue = startValue;
             }
 
             public FloatValue(string name, float startValue, float lerpSpeed)
             {
                 _name = name;
                 targetValue = startValue;
-                Value = startValue;
+                CurrentValue = startValue;
                 speedLimit = lerpSpeed;
             }
 
@@ -872,7 +889,7 @@ namespace QuizCannersUtilities
             {
                 _name = name;
                 targetValue = startValue;
-                Value = startValue;
+                CurrentValue = startValue;
                 speedLimit = lerpSpeed;
                 minMax = true;
                 this.min = min;
@@ -886,7 +903,8 @@ namespace QuizCannersUtilities
 
             private Color currentValue;
 
-            public override Color Value  {
+            public override Color CurrentValue
+            {
                 get { return currentValue; }
                 set { currentValue = value; }
             }
@@ -987,7 +1005,7 @@ namespace QuizCannersUtilities
 
             protected override string Name => "Anchored Position";
 
-            protected override Vector2 CurrentValue
+            public override Vector2 CurrentValue
             {
                 get { return rectTransform ? rectTransform.anchoredPosition : targetValue; }
                 set
@@ -1009,7 +1027,7 @@ namespace QuizCannersUtilities
 
             protected override string Name => "Width Height";
 
-            protected override Vector2 CurrentValue
+            public override Vector2 CurrentValue
             {
                 get { return rectTransform ? rectTransform.sizeDelta : targetValue; }
                 set { rectTransform.sizeDelta = value; }
@@ -1226,7 +1244,7 @@ namespace QuizCannersUtilities
                 set { targetValue = value; }
             }
 
-            public override float Value
+            public override float CurrentValue
             {
                 get { return graphic ? graphic.color.a : targetValue; }
                 set { graphic.TrySetAlpha(value); }
@@ -1300,7 +1318,7 @@ namespace QuizCannersUtilities
 
             public Graphic graphic;
 
-            public override Color Value
+            public override Color CurrentValue
             {
                 get { return graphic ? graphic.color : targetValue; }
                 set { graphic.color = value; }

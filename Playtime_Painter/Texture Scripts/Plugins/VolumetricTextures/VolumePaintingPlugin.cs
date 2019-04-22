@@ -24,6 +24,9 @@ namespace Playtime_Painter
         public static ShaderProperty.VectorValue VOLUME_H_SLICES_BRUSH = new ShaderProperty.VectorValue("VOLUME_H_SLICES_BRUSH");
         public static ShaderProperty.VectorValue VOLUME_POSITION_N_SIZE_BRUSH = new ShaderProperty.VectorValue("VOLUME_POSITION_N_SIZE_BRUSH");
 
+        public static ShaderProperty.VectorValue VOLUME_BRUSH_DIRECTION = new ShaderProperty.VectorValue("VOLUME_BRUSH_DYRECTION");
+
+
         public const string VolumeTextureTag = "_VOL";
         public const string VolumeSlicesCountTag = "_slices";
 
@@ -202,12 +205,16 @@ namespace Playtime_Painter
 
             VOLUME_POSITION_N_SIZE_BRUSH.GlobalValue = vt.PosSize4Shader;
             VOLUME_H_SLICES_BRUSH.GlobalValue = vt.Slices4Shader;
- 
+            VOLUME_BRUSH_DIRECTION.GlobalValue = stroke.collisionNormal.ToVector4(0);
+           
+
             image.useTexCoord2 = false;
             bool alphaBuffer;
             TexMGMT.Shader_UpdateStrokeSegment(bc, bc.Speed * 0.05f, image, stroke, painter, out alphaBuffer);
 
+
             stroke.SetWorldPosInShader();
+            
 
             RenderTextureBuffersManager.Blit(null, image.CurrentRenderTexture(), TexMGMT.brushRenderer.meshRenderer.sharedMaterial.shader);
 
@@ -222,7 +229,7 @@ namespace Playtime_Painter
 
         const int targetScale = 8;
 
-        private static Texture2D getMinSizeTexture()
+        private static Texture2D GetMinSizeTexture()
         {
             if (tex)
                 return tex;
@@ -250,7 +257,7 @@ namespace Playtime_Painter
 
             var tiny = TexMGMT.GetDownscaleOf(texture, targetScale);
 
-            var pix = getMinSizeTexture().CopyFrom(tiny).GetPixels();
+            var pix = GetMinSizeTexture().CopyFrom(tiny).GetPixels();
 
             Color avg = Color.black;
 
@@ -279,7 +286,7 @@ namespace Playtime_Painter
         #region Inspector
         float BrushScaleMaxForCpu(VolumeTexture volTex) => volTex.size * volTex.Width * 0.025f;
         
-#if PEGI
+        #if PEGI
         public override string NameForDisplayPEGI => "Volume Painting";
 
         public bool ComponentInspector()
@@ -442,7 +449,7 @@ namespace Playtime_Painter
 
             return changes;
         }
-#endif
+        #endif
 
         public bool PlugIn_PainterGizmos(PlaytimePainter painter)
         {

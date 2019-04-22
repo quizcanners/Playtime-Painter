@@ -161,21 +161,30 @@ inline float getMaskedAlpha (float2 texcoord){
 	return mask * _maskDynamics.z + (1-mask)*(1-_maskDynamics.z);
 }
 
-inline float positionToAlpha (float3 worldPos){
-  float a = length(_brushWorldPosFrom-worldPos);
-          float b = length(_brushWorldPosTo-worldPos);
-		  float c = _brushWorldPosTo.w;
-		float dist = 0;
+inline float positionToAlpha(float3 worldPos) {
+	float a = length(_brushWorldPosFrom - worldPos);
+	float b = length(_brushWorldPosTo - worldPos);
+	float c = _brushWorldPosTo.w;
+	float dist = 0;
 
-        if (isAcute(a, b, c)) dist = min(a, b);
-        else {
-            float s = (a + b + c) / 2;
-            float h = 4 * s * (s - a) * (s - b) * (s - c) / (c * c);
-            dist = sqrt(h);
-        }
-		
-		 return (_brushForm.y -  dist)/_brushForm.y; 
+	if (isAcute(a, b, c)) dist = min(a, b);
+	else {
+		float s = (a + b + c) / 2;
+		float h = 4 * s * (s - a) * (s - b) * (s - c) / (c * c);
+		dist = sqrt(h);
+	}
+
+	return (_brushForm.y - dist) / _brushForm.y;
 }
+/*
+inline float POINT_BRUSH_ALPHA_DIRECTED (float3 worldPos, float3 directionForHalfSphere) {
+
+	float3 diff = worldPos - _brushWorldPosTo;
+
+    float dist = length(diff);
+		
+	return (_brushForm.y -  dist)/_brushForm.y * saturate(dot(normalize(diff) , directionForHalfSphere) * 16);
+}*/
 
 inline float alphaFromUV(float4 texcoord) {
 

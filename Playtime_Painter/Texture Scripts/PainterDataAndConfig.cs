@@ -37,6 +37,19 @@ namespace Playtime_Painter
 
             private LerpData ld = new LerpData();
 
+            public void ReadCurrentValues()
+            {
+                fogColor.TargetAndCurrentValue = RenderSettings.fogColor;
+
+                if (RenderSettings.fog) {
+                    fogDistance.TargetAndCurrentValue = RenderSettings.fogEndDistance;
+                    fogDensity.TargetAndCurrentValue = RenderSettings.fogDensity;
+                }
+
+                skyColor.TargetAndCurrentValue = RenderSettings.ambientSkyColor;
+                shadowDistance.TargetAndCurrentValue = QualitySettings.shadowDistance;
+            }
+
             public void Update()
             {
                 if (activeWeatherConfig != null)
@@ -59,24 +72,24 @@ namespace Playtime_Painter
                     fogDensity.Lerp(ld);
                     fogDistance.Lerp(ld);
                     
-                    RenderSettings.fogColor = fogColor.Value;
+                    RenderSettings.fogColor = fogColor.CurrentValue;
 
                     if (RenderSettings.fog)
                     {
 
-                        RenderSettings.fogEndDistance = fogDistance.Value;
-                        RenderSettings.fogDensity = fogDensity.Value;
+                        RenderSettings.fogEndDistance = fogDistance.CurrentValue;
+                        RenderSettings.fogDensity = fogDensity.CurrentValue;
                     }
 
-                    RenderSettings.ambientSkyColor = skyColor.Value;
-                    QualitySettings.shadowDistance = shadowDistance.Value;
+                    RenderSettings.ambientSkyColor = skyColor.CurrentValue;
+                    QualitySettings.shadowDistance = shadowDistance.CurrentValue;
                 }
                 
             }
             #endregion
 
-#region Inspector
-#if PEGI
+            #region Inspector
+            #if PEGI
             private int inspectedProperty = -1;
 
             public bool Inspect(ref List<Configuration> configurations)
@@ -93,8 +106,8 @@ namespace Playtime_Painter
                 if (notInspectingProperty && "Fog".toggleIcon(ref fog, true).changes(ref changed))
                     RenderSettings.fog = fog;
                 
-                if (fog)
-                {
+                if (fog) {
+
                     var fogMode = RenderSettings.fogMode;
 
                     if (notInspectingProperty)
@@ -113,13 +126,19 @@ namespace Playtime_Painter
 
                 if (notInspectingProperty)
                     "Sky Color".edit(60, ref skyColor.targetValue).nl(ref changed);
-
-                
                 
                 pegi.nl();
                 
-                "Configurations".edit_List(ref configurations, EditConfiguration).nl(ref changed);
-                
+                var newObj = "Configurations".edit_List(ref configurations, EditConfiguration, ref changed);
+
+                pegi.nl();
+
+                if (newObj != null) {
+                    ReadCurrentValues();
+                    newObj.data = Encode().ToString();
+                    activeWeatherConfig = newObj;
+                }
+
                 if (Application.isPlaying)
                 {
                     if (ld.linkedPortion < 1)
@@ -185,8 +204,8 @@ namespace Playtime_Painter
 
                 return val;
             }
-#endif
-#endregion
+            #endif
+            #endregion
             
 #region Encode & Decode
 

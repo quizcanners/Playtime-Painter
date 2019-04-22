@@ -1859,7 +1859,7 @@ namespace Playtime_Painter {
 
             #if UNITY_2019_1_OR_NEWER && UNITY_EDITOR
             if (!Application.isPlaying && !IsCurrentTool) {
-                "Painter tool is not selected (Select it in the top left area)".writeHint();
+                MsgPainter.PleaseSelect.GetText().writeHint();
                 return false;
             }
             #endif
@@ -1954,46 +1954,45 @@ namespace Playtime_Painter {
 
              
 
-                    if ((MeshManager.target) && (MeshManager.target != this))
-                        MeshManager.DisconnectMesh();
+                if (MeshManager.target && (MeshManager.target != this))
+                    MeshManager.DisconnectMesh();
 
-                    if (!Cfg.showConfig)
+                if (!Cfg.showConfig)
+                {
+                    if (meshEditing)
                     {
-                        if (meshEditing)
+                        if (icon.Painter.Click("Edit Texture", ref changed))
                         {
-                            if (icon.Painter.Click("Edit Texture", ref changed))
-                            {
-                                SetOriginalShader();
-                                meshEditing = false;
-                                CheckPreviewShader();
-                                MeshMgmt.DisconnectMesh();
-                                Cfg.showConfig = false;
-                                "Editing Texture".showNotificationIn3D_Views();
-                            }
-                        }
-                        else
-                        {
-                            if (icon.Mesh.Click("Edit Mesh", ref changed))
-                            {
-                                meshEditing = true;
-
-                                SetOriginalShader();
-                                UpdateOrSetTexTarget(TexTarget.Texture2D);
-                                Cfg.showConfig = false;
-                                "Editing Mesh".showNotificationIn3D_Views();
-
-                                if (SavedEditableMesh != null)
-                                    MeshMgmt.EditMesh(this, false);
-                            }
+                            SetOriginalShader();
+                            meshEditing = false;
+                            CheckPreviewShader();
+                            MeshMgmt.DisconnectMesh();
+                            Cfg.showConfig = false;
+                            "Editing Texture".showNotificationIn3D_Views();
                         }
                     }
+                    else
+                    {
+                        if (icon.Mesh.Click("Edit Mesh", ref changed))
+                        {
+                            meshEditing = true;
 
-                    pegi.toggle(ref Cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config, "Settings");
+                            SetOriginalShader();
+                            UpdateOrSetTexTarget(TexTarget.Texture2D);
+                            Cfg.showConfig = false;
+                            "Editing Mesh".showNotificationIn3D_Views();
 
-                    MsgPainter.AboutPlaytimePainter.Documentation();
+                            if (SavedEditableMesh != null)
+                                MeshMgmt.EditMesh(this, false);
+                        }
+                    }
+                }
+
+                pegi.toggle(ref Cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config, "Settings");
+
+                MsgPainter.AboutPlaytimePainter.Documentation();
 
                 
-
                 #endregion
                 
                 if (Cfg.showConfig) {
@@ -2293,7 +2292,7 @@ namespace Playtime_Painter {
                 #region Fancy Options
 
                         pegi.nl();
-                        "Fancy options".foldout(ref Cfg.moreOptions);
+                        MsgPainter.FancyOptions.GetText().foldout(ref Cfg.moreOptions);
 
                         if (id != null && !Cfg.moreOptions)
                         {
@@ -2423,7 +2422,7 @@ namespace Playtime_Painter {
                             if (id.enableUndoRedo && id.backupManually && "Backup for UNDO".Click())
                                 id.Backup();
 
-                            if (id.dontRedoMipMaps && "Redo Mipmaps".Click().nl())
+                            if (id.dontRedoMipMaps && icon.Refresh.Click("Update Mipmaps now").nl())
                                 id.SetAndApply();
                         }
 

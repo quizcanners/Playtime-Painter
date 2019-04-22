@@ -894,8 +894,8 @@ namespace Playtime_Painter
 
                 "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref _repaintDelay, 0.01f, 0.5f).nl(ref changed);
                 
-                "Don't update mipMaps:".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",
-                    ref dontRedoMipMaps).nl(ref changed);
+                "Don't update mipMaps".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",
+                    ref dontRedoMipMaps).changes(ref changed);
             }
 
             if ("Save Textures In Game".enter(ref inspectedItems, 1).nl()) {

@@ -20,6 +20,7 @@
 
 				float4 VOLUME_POSITION_N_SIZE_BRUSH;
 				float4 VOLUME_H_SLICES_BRUSH;
+				float4 VOLUME_BRUSH_DYRECTION;
 
 				struct v2f {
 					float4 pos : POSITION;
@@ -39,22 +40,28 @@
 
 					float4 col = tex2Dlod(_DestBuffer, float4(o.texcoord.xy, 0, 0));
 
-					float preAlpha = saturate(positionToAlpha(worldPos));
+					//VOLUME_BRUSH_DYRECTION
+
+					//float dott = dot(VOLUME_BRUSH_DYRECTION.xyz, worldPos - );
+
+					//TODO: Make correct offset to world position
+					//TODO: Use distance as alpha, not actual brush alpha
+
+					float3 diff = worldPos - _brushWorldPosTo;
+
+					float dist = length(diff);
+
+					float preAlpha = saturate(1/(dist+0.000001)) * saturate(dot(normalize(diff), VOLUME_BRUSH_DYRECTION.xyz) * 16);
+
+					//float preAlpha = saturate(POINT_BRUSH_ALPHA_DIRECTED(worldPos + VOLUME_BRUSH_DYRECTION.xyz, VOLUME_BRUSH_DYRECTION.xyz)); //saturate(positionToAlpha(worldPos));
 					
-					float alpha = saturate((pow(preAlpha,1) - col.a * 0.95) * 5);
+					float alpha = saturate((preAlpha - col.a * 0.9) * 5);
 
 					col.a = max(preAlpha, col.a);
 
-
-					//col.a = alpha + col.a*(1 - alpha); //max(alpha, col.a);
-
-					//alpha *= 0.25;
-
 					col.rgb = _brushColor.rgb * alpha + col.rgb * (1 - alpha);
 
-					//return 0;
-
-					return  col; //max(0, col);
+					return  col;
 
 				}
 				ENDCG

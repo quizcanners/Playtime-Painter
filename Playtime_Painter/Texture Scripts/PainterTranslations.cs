@@ -11,7 +11,7 @@ namespace PlayerAndEditorGUI {
         LockToolToUseTransform, HideTransformTool, AboutPlaytimePainter,
          MeshProfileUsage, Speed, Scale, Hardness, CopyFrom, FancyOptions, previewRGBA, AutoSelectMaterial,
          aboutDisableDocumentation, SampleColor, PreviewRecommended, AlphaBufferBlit, Opacity, SpreadSpeed, BlurAmount,
-         Unnamed, TransparentLayer
+         Unnamed, TransparentLayer, PleaseSelect
 
     };
 
@@ -90,8 +90,8 @@ namespace PlayerAndEditorGUI {
                         .From(ukr, "Копіювати з");
                     break;
                 case MsgPainter.FancyOptions:
-                    msg.Translate("Fancy options")
-                        .From(ukr, "Налаштування");
+                    msg.Translate("Texture options")
+                        .From(ukr, "Налаштування текстури");
                     break;
                 case MsgPainter.previewRGBA:
                     msg.Translate("Preview Edited RGBA", 
@@ -232,6 +232,11 @@ namespace PlayerAndEditorGUI {
                     msg.Translate("Transparent",
                             "Toggle this ON if texture has transparent areas which will not be visible. This will affect how they are painted: color of the transparent areas will be neglected to avoid outline artifacts.")
                         .From(ukr, "Прозора текстура", "Під час малювання прозорих частин їхнім кольором нехтується. Це допомогає уникнути небажаних контурів.");
+                    break;
+                case MsgPainter.PleaseSelect:
+                    msg.Translate("Painter tool is not selected (Select it in the top left area)")
+                        .From(ukr, "Щоб редагувати текстуру або модель, оберіть Playtime Painter серед інструментів" +
+                                   " в лівому верхньому куті екрану.");
                     break;
             }
 
