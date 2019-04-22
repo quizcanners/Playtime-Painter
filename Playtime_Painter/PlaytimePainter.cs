@@ -2233,7 +2233,7 @@ namespace Playtime_Painter {
 
                 #region Brush
 
-                            GlobalBrush.Inspect().changes(ref changed);
+                            GlobalBrush.Nested_Inspect().changes(ref changed);
 
                             var mode = GlobalBrush.GetBlitMode(cpu);
                             var col = GlobalBrush.Color;
@@ -2261,8 +2261,7 @@ namespace Playtime_Painter {
                                     scheme?.PickerPEGI();
 
                                     if (Cfg.showColorSchemes)
-                                        changed |= "Scheme".select_Index(60, ref Cfg.selectedColorScheme, Cfg.colorSchemes)
-                                            .nl();
+                                        "Scheme".select_Index(60, ref Cfg.selectedColorScheme, Cfg.colorSchemes) .nl(ref changed);
 
                                 }
                             }

@@ -21,7 +21,7 @@
 
 			struct v2f {
 				float4 pos : SV_POSITION;
-				float3 worldPos : TEXCOORD0;
+				float4 worldPos : TEXCOORD0;
 				float3 normal : TEXCOORD1;
 				SHADOW_COORDS(3)
 				float3 viewDir: TEXCOORD4;
@@ -40,9 +40,9 @@
 
 				TRANSFER_SHADOW(o);
 
-				o.shadowCoords0 = mul(rt0_ProjectorMatrix, o.worldPos - float4(rt0_ProjectorPosition.xyz, 0));
-				o.shadowCoords1 = mul(rt1_ProjectorMatrix, o.worldPos - float4(rt1_ProjectorPosition.xyz, 0));
-				o.shadowCoords2 = mul(rt2_ProjectorMatrix, o.worldPos - float4(rt2_ProjectorPosition.xyz, 0));
+				o.shadowCoords0 = mul(rt0_ProjectorMatrix, o.worldPos);// -float4(rt0_ProjectorPosition.xyz, 0));
+				o.shadowCoords1 = mul(rt1_ProjectorMatrix, o.worldPos);// -float4(rt1_ProjectorPosition.xyz, 0));
+				o.shadowCoords2 = mul(rt2_ProjectorMatrix, o.worldPos);// -float4(rt2_ProjectorPosition.xyz, 0));
 
 				return o;
 			}
@@ -74,7 +74,7 @@
 				float fernel = (1.5 - dotprod);
 				float3 reflected = normalize(o.viewDir.xyz - 2 * (dotprod)*o.normal);
 				*/
-				float4 bake = SampleVolume(g_BakedRays_VOL, o.worldPos,  g_VOLUME_POSITION_N_SIZE,  g_VOLUME_H_SLICES, o.normal);
+				float4 bake = SampleVolume(g_BakedRays_VOL, o.worldPos.xyz,  g_VOLUME_POSITION_N_SIZE,  g_VOLUME_H_SLICES, o.normal);
 
 
 				float3 vec = o.worldPos.xyz - g_l0pos.xyz;

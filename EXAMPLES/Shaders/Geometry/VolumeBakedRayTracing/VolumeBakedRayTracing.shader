@@ -44,7 +44,7 @@
 					float4 pos : SV_POSITION;
 					float4 vcol : COLOR0;
 
-					float3 worldPos : TEXCOORD0;
+					float4 worldPos : TEXCOORD0;
 					float3 normal : TEXCOORD1;
 					float2 texcoord : TEXCOORD2;
 					SHADOW_COORDS(3)
@@ -79,21 +79,19 @@
 
 					TRANSFER_SHADOW(o);
 
-					// TODO: Need for subtracting a position is an unexpected behavious
+					o.shadowCoords0 = mul(rt0_ProjectorMatrix, o.worldPos);
+					o.shadowCoords1 = mul(rt1_ProjectorMatrix, o.worldPos);
+					o.shadowCoords2 = mul(rt2_ProjectorMatrix, o.worldPos);
 
-					o.shadowCoords0 = mul(rt0_ProjectorMatrix, o.worldPos - float4(rt0_ProjectorPosition.xyz, 0));
-					o.shadowCoords1 = mul(rt1_ProjectorMatrix, o.worldPos - float4(rt1_ProjectorPosition.xyz, 0));
-					o.shadowCoords2 = mul(rt2_ProjectorMatrix, o.worldPos - float4(rt2_ProjectorPosition.xyz, 0));
-
-#if defined(UV_ATLASED)
+					#if defined(UV_ATLASED)
 					vert_atlasedTexture(_AtlasTextures, v.texcoord.z, _MainTex_ATL_TexelSize.x, o.atlasedUV);
 					vert_atlasedTexture(_AtlasTextures, v.texcoord.w, _MainTex_ATL_TexelSize.x, o.atlasedUV2);
-#endif
+					#endif
 
-#if !_BUMP_NONE
+					#if !_BUMP_NONE
 					o.wTangent.xyz = UnityObjectToWorldDir(v.tangent.xyz);
 					o.wTangent.w = v.tangent.w * unity_WorldTransformParams.w;
-#endif
+					#endif
 
 					return o;
 				}
@@ -233,7 +231,7 @@
 
 					float3 reflected = normalize(o.viewDir.xyz - 2 * (dotprod)*o.normal);
 						
-					float4 bake = SampleVolume(g_BakedRays_VOL, o.worldPos + reflected * fernel * smoothness,  g_VOLUME_POSITION_N_SIZE,  g_VOLUME_H_SLICES, o.normal);
+					float4 bake = SampleVolume(g_BakedRays_VOL, o.worldPos.xyz + reflected * fernel * smoothness,  g_VOLUME_POSITION_N_SIZE,  g_VOLUME_H_SLICES, o.normal);
 
 					float power = smoothness * (128+ fernel*128);
 

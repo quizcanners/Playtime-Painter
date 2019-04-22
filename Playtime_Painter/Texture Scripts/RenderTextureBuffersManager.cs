@@ -36,9 +36,12 @@ namespace Playtime_Painter {
 
         public static void UpdateBufferTwo()
         {
-            //CurrentShader = PainterCamera.Data.pixPerfectCopy;
-            bigRtPair[1].DiscardContents();
-            Graphics.Blit(bigRtPair[0], bigRtPair[1]);
+            if (!bigRtPair.IsNullOrEmpty() && bigRtPair[0]) {
+                bigRtPair[1].DiscardContents();
+                Graphics.Blit(bigRtPair[0], bigRtPair[1]);
+            } else 
+            logger.Log_Interval(5, "Render Texture buffers are null");
+
             secondBufferUpdated = true;
             bigRtVersion++;
         }
@@ -254,6 +257,12 @@ namespace Playtime_Painter {
 
         }
 
+        public static void RefreshBuffers()
+        {
+            ClearBuffers();
+            PainterCamera.Inst.RecreateBuffersIfDestroyed();
+        }
+
         public static void InitBrushBuffers()
         {
             if (!GotBuffers)
@@ -291,10 +300,7 @@ namespace Playtime_Painter {
             var changed = false;
 
             if (inspectedElement < 2 && "Refresh Buffers".Click().nl())
-            {
-                ClearBuffers();
-                PainterCamera.Inst.RecreateBuffersIfDestroyed();
-            }
+                RefreshBuffers();
 
             if ("Panting Buffers".enter(ref inspectedElement, 0).nl()) {
                 
