@@ -1849,8 +1849,6 @@ namespace Playtime_Painter {
 
         private static int _inspectedFancyItems = -1;
 
-        private static bool _inspectPainterCamera;
-
         public static int _inspectedMeshEditorItems = -1;
 
         private static int inspectedShowOptionsSubitem = -1;
@@ -1999,12 +1997,7 @@ namespace Playtime_Painter {
 
                     pegi.newLine();
                     
-                    if ((Cfg.inspectedItems == -1 || _inspectPainterCamera) &&
-                            "Painter Camera".enter(ref _inspectPainterCamera).nl(ref changed))
-                                TexMgmt.DependenciesInspect(true).changes(ref changed);
-
-                        if (!_inspectPainterCamera || Cfg.inspectedItems != -1)
-                            Cfg.Nested_Inspect();
+                      Cfg.Nested_Inspect();
                     
                 }
                 else
@@ -2026,7 +2019,7 @@ namespace Playtime_Painter {
                                 .fullWindowWarningDocumentationClick("Mesh collider mesh is different");
                         }
                         
-                }
+                    }
 
                 #region Mesh Editing
 
@@ -2344,10 +2337,17 @@ namespace Playtime_Painter {
 
                                 if ("Color Schemes".toggle_enter(ref Cfg.showColorSchemes, ref inspectedShowOptionsSubitem, 5, ref changed).nl_ifFolded())
                                     Cfg.InspectColorSchemes();
-                           
+
                                 if (id != null)
+                                {
                                     "Recording/Playback".toggleVisibilityIcon("Show options for brush recording",
                                         ref id.showRecording, true).nl(ref changed);
+
+                                    if (id.isAVolumeTexture)
+                                        "Show Volume Data in Painter"
+                                            .toggleIcon(ref PainterCamera.Data.showVolumeDetailsInPainter).nl(ref changed);
+
+                                }
 
                                 "Brush Dynamics"
                                     .toggleVisibilityIcon("Will modify scale and other values based on movement.",
@@ -2774,16 +2774,19 @@ namespace Playtime_Painter {
 #endif
 
 #if UNITY_EDITOR
-                private void OnDrawGizmosSelected()
+        private void OnDrawGizmosSelected()
         {
             if (!TexMgmt || this != TexMgmt.focusedPainter) return;
 
             if (meshEditing && !Application.isPlaying)
                     MeshManager.Inst.DRAW_Lines(true);
-            
+
+            var br = GlobalBrush;
+
             if (NotUsingPreview && !LockTextureEditing && _lastMouseOverObject == this && IsCurrentTool &&
-                GlobalBrush.IsA3DBrush(this) && !Cfg.showConfig)
-                Gizmos.DrawWireSphere(stroke.posTo, GlobalBrush.Size(true) * 0.5f);
+                br.IsA3DBrush(this) && br.showingSize && !Cfg.showConfig)
+                Gizmos.DrawWireSphere(stroke.posTo, br.Size(true) * 0.5f
+                                                    );
             
             foreach (var p in PainterSystemManagerPluginBase.GizmoPlugins)
                 p.PlugIn_PainterGizmos(this);

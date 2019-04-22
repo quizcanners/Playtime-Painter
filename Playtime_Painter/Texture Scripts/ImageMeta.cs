@@ -896,6 +896,10 @@ namespace Playtime_Painter
                 
                 "Don't update mipMaps".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",
                     ref dontRedoMipMaps).changes(ref changed);
+
+                if (isAVolumeTexture)
+                    "Is A volume texture".toggleIcon(ref isAVolumeTexture).nl(ref changed);
+
             }
 
             if ("Save Textures In Game".enter(ref inspectedItems, 1).nl()) {

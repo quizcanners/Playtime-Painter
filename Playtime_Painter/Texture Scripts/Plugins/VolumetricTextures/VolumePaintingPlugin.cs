@@ -25,8 +25,7 @@ namespace Playtime_Painter
         public static ShaderProperty.VectorValue VOLUME_POSITION_N_SIZE_BRUSH = new ShaderProperty.VectorValue("VOLUME_POSITION_N_SIZE_BRUSH");
 
         public static ShaderProperty.VectorValue VOLUME_BRUSH_DIRECTION = new ShaderProperty.VectorValue("VOLUME_BRUSH_DYRECTION");
-
-
+        
         public const string VolumeTextureTag = "_VOL";
         public const string VolumeSlicesCountTag = "_slices";
 
@@ -34,7 +33,7 @@ namespace Playtime_Painter
         
         private static Shader _preview;
         private static Shader _brush;
-        private static Shader _rayTraceBrush;
+        private static Shader _brushShaderFroRayTrace;
 
         #region Encode & Decode
 
@@ -75,14 +74,14 @@ namespace Playtime_Painter
             if (!_brush)
                 _brush = Shader.Find("Playtime Painter/Editor/Brush/Volume");          
 
-            if (!_rayTraceBrush)
-                _rayTraceBrush = Shader.Find("Playtime Painter/Editor/Brush/Volume_RayTrace");
+            if (!_brushShaderFroRayTrace)
+                _brushShaderFroRayTrace = Shader.Find("Playtime Painter/Editor/Brush/Volume_RayTrace");
         }
         
         public Shader GetPreviewShader(PlaytimePainter p) => p.GetVolumeTexture() ? _preview : null;
         
         public Shader GetBrushShaderDoubleBuffer(PlaytimePainter p) => 
-            p.GetVolumeTexture() ? (_enableRayTracing ? _rayTraceBrush : _brush) : null;
+            p.GetVolumeTexture() ? (_enableRayTracing ? _brushShaderFroRayTrace : _brush) : null;
 
         public Shader GetBrushShaderSingleBuffer(PlaytimePainter p) => null;
 
@@ -95,14 +94,14 @@ namespace Playtime_Painter
             return true;
         }
 
-        public bool PaintPixelsInRam(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter) {
+        public void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter) {
 
             var volume = image.texture2D.GetVolumeTextureData();
 
-            if (!volume) return false;
+            if (!volume) return;
             
             if (volume.VolumeJobIsRunning)
-                return false;
+                return;
 
             bc.brush3DRadius = Mathf.Min(BrushScaleMaxForCpu(volume), bc.brush3DRadius);
 
@@ -138,7 +137,8 @@ namespace Playtime_Painter
 
                 var h = y + BlitFunctions.y;
 
-                if (h >= height) return true;
+                if (h >= height)
+                    return;
 
                 if (h < 0) continue;
                 var hy = h / volume.hSlices;
@@ -164,16 +164,20 @@ namespace Playtime_Painter
                     }
                 }
             }
-
-            return true;
+            
         }
 
-        public bool PaintRenderTexture(StrokeVector stroke, ImageMeta image, BrushConfig bc, PlaytimePainter painter)
+        public bool IsEnabledFor(PlaytimePainter painter, ImageMeta img, BrushConfig cfg) => img.IsVolumeTexture();
+
+        public void PaintRenderTexture(StrokeVector stroke, ImageMeta image, BrushConfig bc, PlaytimePainter painter)
         {
             var vt = painter.GetVolumeTexture();
 
             if (!vt)
-                return false;
+            {
+                Debug.LogError("Painted volume was not found");
+                return;
+            }
 
             if (_enableRayTracing) {
 
@@ -187,8 +191,7 @@ namespace Playtime_Painter
             }
             else
                 PaintRenderTexture(new BrushStrokePainterImage(stroke, image, bc, painter));
-
-            return true;
+            
         }
 
         public bool PaintRenderTexture(BrushStrokePainterImage cfg)
@@ -211,11 +214,9 @@ namespace Playtime_Painter
             image.useTexCoord2 = false;
             bool alphaBuffer;
             TexMGMT.Shader_UpdateStrokeSegment(bc, bc.Speed * 0.05f, image, stroke, painter, out alphaBuffer);
-
-
+            
             stroke.SetWorldPosInShader();
             
-
             RenderTextureBuffersManager.Blit(null, image.CurrentRenderTexture(), TexMGMT.brushRenderer.meshRenderer.sharedMaterial.shader);
 
             BrushTypeSphere.Inst.AfterStroke_Painter(painter, bc, stroke, alphaBuffer, image);
@@ -226,6 +227,8 @@ namespace Playtime_Painter
         #region Ray Tracing
 
         private bool _enableRayTracing;
+
+        private float arbitraryBrightnessIncrease = 4;
 
         const int targetScale = 8;
 
@@ -264,7 +267,7 @@ namespace Playtime_Painter
             foreach (var p in pix)
                 avg += p;
   
-            GlobalBrush.Color = avg / (float)pixelsCount;
+            GlobalBrush.Color = avg * arbitraryBrightnessIncrease / (float)pixelsCount;
 
             PainterCamera.BrushColorProperty.GlobalValue = GlobalBrush.Color;
 
@@ -285,7 +288,8 @@ namespace Playtime_Painter
 
         #region Inspector
         float BrushScaleMaxForCpu(VolumeTexture volTex) => volTex.size * volTex.Width * 0.025f;
-        
+
+  
         #if PEGI
         public override string NameForDisplayPEGI => "Volume Painting";
 
@@ -347,53 +351,70 @@ namespace Playtime_Painter
                 overrideBlitMode = true;
 
                 var id = p.ImgMeta;
-
+                
                 if (BrushConfig.showAdvanced) 
                     "Grid".toggle(50, ref _useGrid).nl();
 
-                if (BrushConfig.showAdvanced || _enableRayTracing)
-                {
-                    "Ray-Tracing".toggleIcon(ref _enableRayTracing).changes(ref changed);
+                var cpuBlit = id.TargetIsTexture2D().nl();
 
-                    if (br.useAlphaBuffer)
-                        icon.Warning.write("Alpha buffer can't work with Ray Tracing and will be automatically disabled");
-
-                    pegi.nl();
-                }
+                br.showingSize = !_enableRayTracing || cpuBlit;
 
 
-                if (_enableRayTracing)
-                {
-                    var dp = PainterCamera.depthProjectorCamera;
-                    if (dp && dp.pauseAutoUpdates)
-                        "Light Projectors paused".toggleIcon(ref dp.pauseAutoUpdates).nl(ref changed);
+                if (!cpuBlit)  {
 
-                    //if (br.useAlphaBuffer)
-                    //br.useAlphaBuffer = false;
-                }
+                    if (BrushConfig.showAdvanced || _enableRayTracing)
+                    {
+                        "Ray-Tracing".toggleIcon(ref _enableRayTracing, true).changes(ref changed);
 
-                if ("Ray Trace Camera".conditional_enter(_enableRayTracing, ref _exploreRayTaceCamera).nl())
-                    rayTraceCameraConfiguration.Nested_Inspect().changes(ref changed);
+                        if (br.useAlphaBuffer)
+                            icon.Warning.write(
+                                "Ray Tracing doesn't use Alpha buffer. Alpha buffer will be automatically disabled");
+                        
+                    }
 
-                if ((volTex.name + " " + id.texture2D.VolumeSize(volTex.hSlices)).foldout(ref _exploreVolumeData).nl())
-                    changed |= volTex.Nested_Inspect();
+                    if ("Ray Trace Camera".conditional_enter(_enableRayTracing && PainterCamera.depthProjectorCamera,
+                        ref _exploreRayTaceCamera))
+                        rayTraceCameraConfiguration.Nested_Inspect().nl(ref changed);
 
-                if (volTex.NeedsToManageMaterials)
-                {
-                    var painterMaterial = InspectedPainter.Material;
-                    if (painterMaterial != null) {
-                        if (!volTex.materials.Contains(painterMaterial))
-                            if ("Add This Material".Click().nl())
-                                volTex.AddIfNew(p);
+                    if (_enableRayTracing && BrushConfig.showAdvanced)
+                    {
+                        pegi.nl();
+                        "Bounced brightness mltpl".edit(ref arbitraryBrightnessIncrease, 1, 2).changes(ref changed);
+
+                        "A completely arbitrary value that increases the amount of bounced light. Used to utilize the full 0-1 range of the texture for increased percision"
+                            .fullWindowDocumentationClick();
+
+                        pegi.nl();
+                    }
+
+                    if (!_exploreRayTaceCamera && _enableRayTracing) {
+                        var dp = PainterCamera.depthProjectorCamera;
+
+                        if (!dp)
+                        {
+                            if ("Create Projector Camera".Click().nl())
+                                PainterCamera.GetProjectorCamera();
+                        }
+                        else if (dp.pauseAutoUpdates)
+                        {
+                            pegi.nl();
+                            "Light Projectors paused".toggleIcon(ref dp.pauseAutoUpdates).nl(ref changed);
+                        }
+
+                        pegi.nl();
+                        
                     }
                 }
-
-                var cpuBlit = id.TargetIsTexture2D().nl();
                 
                 if (cpuBlit)
-                    "Painting volume with CPU brush is very slow".writeWarning();
+                {
+                    /*if (_enableRayTracing)
+                        icon.Warning.write("CPU Brush is slow for volumes");*/
+                }
                 else
                 {
+                    pegi.nl();
+
                     if (!br.GetBrushType(false).IsAWorldSpaceBrush) {
                         "Only World space brush can edit volumes".writeHint();
                         pegi.nl();
@@ -404,6 +425,21 @@ namespace Playtime_Painter
 
                 pegi.nl();
 
+
+                if (!_exploreRayTaceCamera && PainterCamera.Data.showVolumeDetailsInPainter && (volTex.name + " " + id.texture2D.VolumeSize(volTex.hSlices)).foldout(ref _exploreVolumeData).nl())
+                    volTex.Nested_Inspect().changes(ref changed);
+
+                if (volTex.NeedsToManageMaterials)
+                {
+                    var painterMaterial = InspectedPainter.Material;
+                    if (painterMaterial != null)
+                    {
+                        if (!volTex.materials.Contains(painterMaterial))
+                            if ("Add This Material".Click().nl())
+                                volTex.AddIfNew(p);
+                    }
+                }
+
                 if (!cpuBlit)
                    "Hardness:".edit("Makes edges more rough.", 70, ref br.hardness, 1f, 22f).nl(ref changed);
 
@@ -411,14 +447,18 @@ namespace Playtime_Painter
                 if ("Speed".edit(40, ref tmpSpeed, 0.01f, 4.5f).nl(ref changed))
                     br._dSpeed.value = tmpSpeed;
 
+                
+                if (br.showingSize) {
 
-              
-                var maxScale =  volTex.size * volTex.Width * 4;
+                    var maxScale = volTex.size * volTex.Width * 4;
 
-                "Scale:".edit(40, ref br.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f).changes(ref changed);
+                    "Scale:".edit(40, ref br.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f).changes(ref changed);
 
-                if (cpuBlit && br.brush3DRadius > BrushScaleMaxForCpu(volTex))
-                    icon.Warning.write("Size will be reduced when panting due to low performance of the CPU brush for volumes");
+                    if (cpuBlit && !_brushShaderFroRayTrace && br.brush3DRadius > BrushScaleMaxForCpu(volTex))
+                        icon.Warning.write(
+                            "Size will be reduced when panting due to low performance of the CPU brush for volumes");
+
+                }
 
                 pegi.nl();
 
@@ -564,6 +604,15 @@ namespace Playtime_Painter
             return null;
         }
 
+        public static VolumeTexture IsVolumeTexture(this ImageMeta id)
+        {
+     
+            if (id != null && id.texture2D) 
+                return id.GetVolumeTextureData();
+
+            return null;
+        }
+
         public static Vector3 VolumeSize(this Texture2D tex, int slices)
         {
             var w = tex.width / slices;
@@ -613,6 +662,7 @@ namespace Playtime_Painter
                 else if (vt.ImageMeta != null && id == vt.ImageMeta)
                 {
                     _lastFetchedVt = vt;
+                    id.isAVolumeTexture = true;
                     return vt;
                 }
             }

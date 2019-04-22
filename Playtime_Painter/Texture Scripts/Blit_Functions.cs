@@ -6,7 +6,7 @@ namespace Playtime_Painter {
     public static class BlitFunctions {
 
         public delegate void BlitModeFunction(ref Color dst);
-        public delegate bool PaintTexture2DMethod(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter);
+        public delegate void PaintTexture2DMethod(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter);
 
         public delegate bool AlphaModeDlg();
 
@@ -137,11 +137,11 @@ namespace Playtime_Painter {
             Paint(new StrokeVector(uvCoords), brushAlpha, texture.GetImgData(), bc, pntr);
         }
 
-        public static bool Paint(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter)
+        public static void Paint(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter)
         {
 
             if (image?.Pixels == null)
-                return false;
+                return;
 
             var uvCoords = stroke.uvFrom;
 
@@ -188,8 +188,7 @@ namespace Playtime_Painter {
 
                 tmp.y += 1;
             }
-
-            return true;
+            
         }
 
 

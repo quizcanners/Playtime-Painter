@@ -15,7 +15,8 @@ namespace Playtime_Painter
     {
         const string tag = "TilAtlCntrl";
         public override string ClassTag => tag;
-        
+
+
         public static TileableAtlasingControllerPlugin inst;
 
         public override string ToString() => "Tilable Atlasing";
@@ -47,7 +48,9 @@ namespace Playtime_Painter
         [SerializeField]
         protected int inspectedAtlas;
 
-        #if PEGI
+  
+
+#if PEGI
         public bool MeshToolInspection(MeshToolBase currentTool) {
 
             if (currentTool is VertexEdgeTool && MeshManager.target.IsAtlased()) {
@@ -148,12 +151,13 @@ namespace Playtime_Painter
 #endif
         #endregion
 
-        public bool PaintPixelsInRam(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter) =>
-           painter.GetPlugin<TileableAtlasingPainterPlugin>()?.PaintTexture2D(stroke, brushAlpha, image, bc, painter) ?? false;
+        public void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter) =>
+           painter.GetPlugin<TileableAtlasingPainterPlugin>()?.PaintTexture2D(stroke, brushAlpha, image, bc, painter);
         
         public bool IsA3DBrush(PlaytimePainter painter, BrushConfig bc, ref bool overrideOther) => false;
 
-        public bool PaintRenderTexture(StrokeVector stroke, ImageMeta image, BrushConfig bc, PlaytimePainter painter) => false;
+        public void PaintRenderTexture(StrokeVector stroke, ImageMeta image, BrushConfig bc, PlaytimePainter painter)
+        { }
 
         public bool NeedsGrid(PlaytimePainter p) => false;
 
@@ -164,6 +168,9 @@ namespace Playtime_Painter
         public Shader GetBrushShaderSingleBuffer(PlaytimePainter p) => null;
 
         public bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br) => false;
+
+        public bool IsEnabledFor(PlaytimePainter painter, ImageMeta id, BrushConfig cfg) => painter.IsAtlased() && !id.TargetIsRenderTexture();
+
     }
 
     public class TriangleAtlasTool : MeshToolBase

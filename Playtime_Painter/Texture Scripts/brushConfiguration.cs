@@ -131,6 +131,7 @@ namespace Playtime_Painter {
         public float brush3DRadius = 16;
         public float brush2DRadius = 16;
         public bool useAlphaBuffer;
+        
 
         public float alphaLimitForAlphaBuffer = 1;
 
@@ -211,7 +212,8 @@ namespace Playtime_Painter {
                 var rendered = false;
 
                 foreach (var pl in PainterSystemManagerPluginBase.BrushPlugins)
-                    if (pl.PaintRenderTexture(stroke, imgData, this, painter)) {
+                    if (pl.IsEnabledFor(painter, imgData, this)) { 
+                        pl.PaintRenderTexture(stroke, imgData, this, painter);
                         rendered = true;
                         break;
                     }
@@ -230,6 +232,7 @@ namespace Playtime_Painter {
 
         #region Inspector
 
+        public bool showingSize = true;
         public static bool showAdvanced = false;
         public static BrushConfig _inspectedBrush;
         public static bool InspectedIsCpuBrush => PlaytimePainter.inspected ? InspectedImageMeta.TargetIsTexture2D() : _inspectedBrush.targetIsTex2D;
@@ -237,13 +240,23 @@ namespace Playtime_Painter {
         public bool Mode_Type_PEGI()
         {
             var p = PlaytimePainter.inspected;
+            var id = p.ImgMeta;
+
+            IPainterManagerPluginBrush plugin = null;
+
+            foreach (var b in PainterSystemManagerPluginBase.BrushPlugins)
+                if (b.IsEnabledFor(p, id, this))
+                {
+                    plugin = b;
+                    break;
+                }
 
             BrushType.AllTypes.ClampIndexToCount(ref _inCpuBrushType);
             BrushType.AllTypes.ClampIndexToCount(ref _inGpuBrushType);
             
             _inspectedBrush = this;
             var changed = false;
-            var cpu = p ? p.ImgMeta.TargetIsTexture2D() : targetIsTex2D;
+            var cpu = p ? id.TargetIsTexture2D() : targetIsTex2D;
 
             var blitMode = GetBlitMode(cpu);
             var brushType = GetBrushType(cpu);
@@ -272,8 +285,12 @@ namespace Playtime_Painter {
             
             var overrideBlitModePegi = false;
 
-            foreach (var b in PainterSystemManagerPluginBase.BrushPlugins)
-                b.BrushConfigPEGI(ref overrideBlitModePegi, this).nl(ref changed);
+            pegi.nl();
+
+             plugin?.BrushConfigPEGI(ref overrideBlitModePegi, this);
+
+            //foreach (var b in PainterSystemManagerPluginBase.BrushPlugins)
+              //  b.BrushConfigPEGI(ref overrideBlitModePegi, this).nl(ref changed);
 
             if (p)
                 foreach (var pl in p.Plugins)
@@ -296,8 +313,8 @@ namespace Playtime_Painter {
 
                 brushType.Inspect().nl(ref changed);
 
-                if (!cpu && brushType.SupportsAlphaBufferPainting && blitMode.SupportsAlphaBufferPainting)
-                {
+                if (!cpu && brushType.SupportsAlphaBufferPainting && blitMode.SupportsAlphaBufferPainting && (useAlphaBuffer || InspectAdvanced)) {
+
                     "Alpha Buffer".toggleIcon(ref useAlphaBuffer, true).changes(ref changed);
 
                     if (useAlphaBuffer)
@@ -320,8 +337,11 @@ namespace Playtime_Painter {
             }
 
             if (!overrideBlitModePegi && blitMode.ShowInDropdown())
-                blitMode.Inspect().nl(ref changed);
-              
+            {
+                blitMode.Inspect(plugin).nl(ref changed);
+                showingSize = true;
+            }
+
             _inspectedBrush = null;
 
             return changed;
@@ -414,16 +434,7 @@ namespace Playtime_Painter {
 
 #if UNITY_EDITOR
 
-#if UNITY_2019_1_OR_NEWER
-            /*if (EditorTools.activeToolType != typeof(PainterAsIntegratedCustomTool)) {
-                MsgPainter.LockToolToUseTransform.GetText().writeWarning();
-                if (MsgPainter.HideTransformTool.GetText().Click().nl())
-                {
-                    Tools.current = Tool.Custom;
-                    EditorTools.SetActiveTool<PainterAsIntegratedCustomTool>();
-                }
-            }*/
-#else
+#if !UNITY_2019_1_OR_NEWER
             if ( Tools.current != Tool.None ) {
                 MsgPainter.LockToolToUseTransform.GetText().writeWarning();
                 if (MsgPainter.HideTransformTool.GetText().Click().nl())

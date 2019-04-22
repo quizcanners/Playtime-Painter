@@ -484,6 +484,7 @@ namespace Playtime_Painter
         public bool newVerticesSmooth = true;
         public bool pixelPerfectMeshEditing;
         public bool useGridForBrush;
+        public bool showVolumeDetailsInPainter;
 
         public string materialsFolderName = "Materials";
         public string texturesFolderName = "Textures";
@@ -664,23 +665,24 @@ namespace Playtime_Painter
             }
             return true;
         }
-#endregion
+        #endregion
 
-#region Inspector
+        #region Inspector
 
-      
+
         [SerializeField] private int systemLanguage = -1;
 
         public static bool hideDocumentation;
 #if PEGI
-           private int _inspectedImgData = -1;
-           private int _inspectedItems = -1;
-           private int _inspectedMaterial = -1;
-           private int _inspectedDecal = -1;
+        private int _inspectedImgData = -1;
+        private int _inspectedItems = -1;
+        private int _inspectedMaterial = -1;
+        private int _inspectedDecal = -1;
 
-            private bool InspectData() {
+        private bool InspectData()
+        {
             var changes = false;
-            
+
             "Img Metas".enter_List(ref imgMetas, ref _inspectedImgData, ref _inspectedItems, 0).nl(ref changes);
 
             "Mat Metas".enter_List(ref matMetas, ref _inspectedMaterial, ref _inspectedItems, 1).nl(ref changes);
@@ -694,7 +696,8 @@ namespace Playtime_Painter
             if (_inspectedItems != -1) return changes;
 
 #if UNITY_EDITOR
-            if ("Refresh Brush Shaders".Click(14).nl()) {
+            if ("Refresh Brush Shaders".Click(14).nl())
+            {
                 CheckShaders(true);
                 "Shaders Refreshed".showNotificationIn3D_Views();
             }
@@ -713,18 +716,22 @@ namespace Playtime_Painter
             var changed = false; 
 
             var rtp = PainterCamera.Inst;
-            
-                if ("Plugins".enter(ref inspectedItems, 10).nl_ifNotEntered() && rtp.PluginsInspect().nl(ref changed))
-                    rtp.SetToDirty();
 
-                if ("Lists".enter(ref inspectedItems, 11).nl(ref changed))
-                    changed |= InspectData();
+           
+            if ("Plugins".enter(ref inspectedItems, 10).nl_ifNotEntered() && rtp.PluginsInspect().nl(ref changed))
+                rtp.SetToDirty();
 
-                if ("Weather Configuration".enter(ref inspectedItems, 12).nl(ref changed))
-                    weatherManager.Inspect(ref weatherConfigurations).nl(ref changed);
+            if ("Lists".enter(ref inspectedItems, 11).nl(ref changed))
+                changed |= InspectData();
 
-                "Downloads".enter_Inspect(PainterCamera.DownloadManager, ref inspectedItems, 13).nl(ref changed);
-    
+            if ("Weather Configuration".enter(ref inspectedItems, 12).nl(ref changed))
+                weatherManager.Inspect(ref weatherConfigurations).nl(ref changed);
+
+            "Downloads".enter_Inspect(PainterCamera.DownloadManager, ref inspectedItems, 13).nl(ref changed);
+
+            if ("Painter Camera".enter(ref inspectedItems, 14).nl_ifNotEntered())
+                PainterCamera.Inst.DependenciesInspect(true);
+
 
             if (inspectedItems == -1) {
 
@@ -788,7 +795,7 @@ namespace Playtime_Painter
             return pegi.edit_List(ref colorSchemes, ref inspectedColorScheme);
         }
 
-#endif
+        #endif
         #endregion
 
         private void Init() {

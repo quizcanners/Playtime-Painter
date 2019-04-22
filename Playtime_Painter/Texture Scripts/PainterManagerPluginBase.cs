@@ -3,6 +3,7 @@ using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using System.Collections.Generic;
 using System;
+using System.Collections;
 
 namespace Playtime_Painter {
 
@@ -33,9 +34,9 @@ namespace Playtime_Painter {
     {
         bool IsA3DBrush(PlaytimePainter painter, BrushConfig bc, ref bool overrideOther);
 
-        bool PaintRenderTexture(StrokeVector stroke, ImageMeta image, BrushConfig bc, PlaytimePainter painter);
+        void PaintRenderTexture(StrokeVector stroke, ImageMeta image, BrushConfig bc, PlaytimePainter painter);
 
-        bool PaintPixelsInRam(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter);
+        void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter);
 
         bool NeedsGrid(PlaytimePainter p);
 
@@ -45,7 +46,10 @@ namespace Playtime_Painter {
 
         Shader GetBrushShaderSingleBuffer(PlaytimePainter p);
 
-        #if PEGI
+        bool IsEnabledFor(PlaytimePainter p, ImageMeta image, BrushConfig cfg);
+
+
+#if PEGI
         bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br);
         #endif
     }
@@ -63,7 +67,7 @@ namespace Playtime_Painter {
     }
 
     [PainterManagerPlugin]
-    public abstract class PainterSystemManagerPluginBase : PainterSystemKeepUnrecognizedCfg, IGotDisplayName, IGotClassTag {
+    public abstract class PainterSystemManagerPluginBase : PainterSystemKeepUnrecognizedCfg, IGotDisplayName, IGotClassTag, IPEGI_ListInspect {
 
         public static List<PainterSystemManagerPluginBase> plugins;
 
@@ -141,6 +145,26 @@ namespace Playtime_Painter {
         public virtual void Enable() { }
 
         public virtual void Disable() {  }
+        
+        #region Inspector
+
+        public virtual string ToolTip => "Painter plugin";
+
+        public virtual bool PEGI_inList(IList list, int ind, ref int edited)
+        {
+
+            if (NameForDisplayPEGI.ClickLabel())
+                edited = ind;
+
+            ToolTip.fullWindowDocumentationClick();
+
+            if (icon.Enter.Click())
+                edited = ind;
+
+            return false;
+        }
+
+        #endregion
 
     }
 }

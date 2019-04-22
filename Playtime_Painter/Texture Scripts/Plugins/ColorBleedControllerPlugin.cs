@@ -56,14 +56,17 @@ namespace Playtime_Painter {
 
 
 #if PEGI
-        private bool _showHint;
+
+        public override string ToolTip =>
+            "This is not a postprocess effect. Color Bleed and Brightness modifies Global Shader Parameter used by Custom shaders included with the asset.";            
+        
         public override bool Inspect() {
             var changed = false;
 
-            "Enable".toggleIcon(ref _colorBleed, true).changes(ref changed);
+            "Color Bleed".toggleIcon(ref _colorBleed, true).changes(ref changed);
 
             if (_colorBleed)
-                pegi.edit(ref _colorBleeding, 0.0001f, 0.3f).nl(ref changed);
+                "Bleed".edit(60, ref _colorBleeding, 0.0001f, 0.3f).nl(ref changed);
             else
                 _colorBleeding = 0;
             
@@ -72,39 +75,12 @@ namespace Playtime_Painter {
             "Brightness".toggleIcon(ref _modifyBrightness, true).changes(ref changed);
 
             if (_modifyBrightness)
-                pegi.edit(ref _eyeBrightness, 0.0001f, 8f).changes(ref changed);
+                "Brightness".edit(90, ref _eyeBrightness, 0.0001f, 8f).changes(ref changed);
             else
                 _eyeBrightness = 1;
 
             pegi.nl();
             
-        
-            var fog = RenderSettings.fog;
-            
-            if ("Fog".toggleIcon(ref fog, true)) 
-                RenderSettings.fog = fog;
-            
-            if (fog) {
-                var col = RenderSettings.fogColor;
-                if ("Fog Color".edit(ref col).nl()) 
-                    RenderSettings.fogColor = col;
-                var mode = RenderSettings.fogMode;
-                if (mode != FogMode.ExponentialSquared)
-                    "Exponential Squared is recommended".writeHint();
-                if ("Mode".editEnum(ref mode).nl().nl())
-                    RenderSettings.fogMode = mode;
-                var density = RenderSettings.fogDensity;
-                if ("Density".edit(60, ref density, 0f, 0.05f).nl())
-                    RenderSettings.fogDensity = density;
-            }
-
-            pegi.toggle(ref _showHint, icon.Close, icon.Hint, "Show hint", 35).nl();
-
-            if (_showHint)
-                "This is not a postprocess effect. Color Bleed and Brightness modifies Global Shader Parameter used by Custom shaders included with the asset.".writeHint();
-
-
-
             if (changed)  {
                 UnityUtils.RepaintViews();
                 UpdateShader();

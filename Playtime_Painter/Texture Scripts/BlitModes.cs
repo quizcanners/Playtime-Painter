@@ -142,14 +142,23 @@ namespace Playtime_Painter {
                     ((SupportedByRenderTexturePair && (!id.renderTexture))
                         || (SupportedBySingleBuffer && (id.renderTexture))));
         }
-        
-        public virtual bool Inspect()
+
+        protected virtual bool Inspect()
+        {
+
+            return false;
+        }
+
+        public bool Inspect(IPainterManagerPluginBrush plugin)
         {
 
           
             var changed = false;
 
             if (AllSetUp) {
+
+                Inspect();
+
 
                 var id = InspectedImageMeta;
                 var cpuBlit = id == null ? InspectedBrush.targetIsTex2D : id.destination == TexTarget.Texture2D;
@@ -167,41 +176,42 @@ namespace Playtime_Painter {
                 txt.write(txt.ApproximateLengthUnsafe());
 
                 InspectedBrush._dSpeed.Inspect().nl(ref changed);
+                
+          
 
+                    MsgPainter.Scale.Write();
 
-                MsgPainter.Scale.Write();
+                    if (InspectedBrush.IsA3DBrush(InspectedPainter))
+                    {
+                        var m = PlaytimePainter.inspected.GetMesh();
 
-                if (InspectedBrush.IsA3DBrush(InspectedPainter))
-                {
-                    var m = PlaytimePainter.inspected.GetMesh();
+                        var maxScale = (m ? m.bounds.max.magnitude : 1) * (!PlaytimePainter.inspected
+                                           ? 1
+                                           : PlaytimePainter.inspected.transform.lossyScale.magnitude);
 
-                    var maxScale = (m ? m.bounds.max.magnitude : 1) * (!PlaytimePainter.inspected
-                                       ? 1
-                                       : PlaytimePainter.inspected.transform.lossyScale.magnitude);
-
-                    pegi.edit(ref InspectedBrush.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f)
-                        .changes(ref changed);
-                }
-                else
-                {
-                    if (!brushType.IsPixelPerfect)
-                        pegi.edit(ref InspectedBrush.brush2DRadius, cpuBlit ? 1 : 0.1f,
-                            usingDecals ? 128 : id?.width * 0.5f ?? 256).changes(ref changed);
+                        pegi.edit(ref InspectedBrush.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f)
+                            .changes(ref changed);
+                    }
                     else
                     {
-                        var val = (int) InspectedBrush.brush2DRadius;
-                        pegi.edit(ref val, (int) (cpuBlit ? 1 : 0.1f), (int) (usingDecals ? 128 : id?.width * 0.5f ?? 256)).changes(ref changed);
-                        InspectedBrush.brush2DRadius = val;
+                        if (!brushType.IsPixelPerfect)
+                            pegi.edit(ref InspectedBrush.brush2DRadius, cpuBlit ? 1 : 0.1f,
+                                usingDecals ? 128 : id?.width * 0.5f ?? 256).changes(ref changed);
+                        else
+                        {
+                            var val = (int) InspectedBrush.brush2DRadius;
+                            pegi.edit(ref val, (int) (cpuBlit ? 1 : 0.1f),
+                                (int) (usingDecals ? 128 : id?.width * 0.5f ?? 256)).changes(ref changed);
+                            InspectedBrush.brush2DRadius = val;
 
+                        }
                     }
-                }
+                
 
                 pegi.nl();
 
                 if (blitMode.UsingSourceTexture && (id == null || id.TargetIsRenderTexture()))
-                    //"Copy From:"
-                    MsgPainter.CopyFrom.GetText()  
-                    .selectOrAdd(70, ref InspectedBrush.selectedSourceTexture, ref TexMGMTdata.sourceTextures)
+                    MsgPainter.CopyFrom.GetText().selectOrAdd(70, ref InspectedBrush.selectedSourceTexture, ref TexMGMTdata.sourceTextures)
                         .nl(ref changed);
             }
 
@@ -349,8 +359,8 @@ namespace Playtime_Painter {
 
         protected override MsgPainter Translation => MsgPainter.BlitModeBlur;
 
-        #if PEGI
-        public override bool Inspect()
+#if PEGI
+        protected override bool Inspect()
         {
             var changed = base.Inspect().nl();
 
@@ -412,7 +422,7 @@ namespace Playtime_Painter {
         protected override MsgPainter Translation => MsgPainter.BlitModeOff;
 
 #if PEGI
-        public override bool Inspect()
+        protected override bool Inspect()
         {
             bool changed = base.Inspect();
 
@@ -421,15 +431,15 @@ namespace Playtime_Painter {
 
             pegi.newLine();
 
-            changed |= "Mask Size: ".edit(60, ref Cfg.samplingMaskSize).nl();
+            "Mask Size: ".edit(60, ref Cfg.samplingMaskSize).nl(ref changed);
 
             Cfg.samplingMaskSize.Clamp(1, 512);
 
-            changed |= "Color Set On".editEnum(ref method).nl();
+            "Color Set On".editEnum(ref method).nl(ref changed);
 
             if (method == ColorSetMethod.Manual)
             {
-                changed |= "CurrentPixel".edit(80, ref currentPixel).nl();
+                "CurrentPixel".edit(80, ref currentPixel).nl(ref changed);
 
                 currentPixel.Clamp(-Cfg.samplingMaskSize.Max, Cfg.samplingMaskSize.Max * 2);
             }
@@ -545,8 +555,8 @@ namespace Playtime_Painter {
         #region Inspector
         protected override MsgPainter Translation => MsgPainter.BlitModeBloom;
 
-        #if PEGI
-        public override bool Inspect() {
+#if PEGI
+        protected override bool Inspect() {
 
             var changed = base.Inspect().nl();
             "Bloom Radius".edit(70, ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
@@ -595,7 +605,7 @@ namespace Playtime_Painter {
 
 
 #if PEGI
-        public override bool Inspect()
+        protected override bool Inspect()
         {
             var changed = false;
 
@@ -650,8 +660,8 @@ namespace Playtime_Painter {
 
         protected override MsgPainter Translation => MsgPainter.BlitModeFiller;
 
-        #if PEGI
-        public override bool Inspect()
+#if PEGI
+        protected override bool Inspect()
         {
             var changed = base.Inspect().nl();
 

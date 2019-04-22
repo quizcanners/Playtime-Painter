@@ -1141,8 +1141,6 @@ namespace Playtime_Painter
 
             if (!target) return;
 
-            //Gizmos.DrawSphere (_target.transform.InverseTransformPoint(collisionPosLocal), _Mesh.distanceLimit*_target.transform.lossyScale.x);
-
             if (MeshTool.ShowTriangles)
             {
                 if ((PointedTriangle != null) && ((PointedTriangle != SelectedTriangle) || (!MeshTool.ShowSelectedTriangle)))
@@ -1198,17 +1196,9 @@ namespace Playtime_Painter
                             Line(td.vertexes[2].meshPoint, td.vertexes[0].meshPoint, Color.yellow);
                         }
                     }
-                    //Vector3 selPos = pointedUV.vertex.worldPos; //.pos.ToV3 (false);
-                    //Gizmos.color = Color.green;
-                    //Gizmos.DrawLine(selPos, GridNavigator.inst().ProjectToGrid(selPos));
-                    //Line(selPos, GridNavigator.inst().ProjectToGrid(selPos), Color.green);
+                 
                 }
-
-                /*if (selectedUV != null)
-                {
-                    Vector3 selPos = selectedUV.vertex.getWorldPos();//.pos.ToV3 (false);
-                    Debug.DrawLine(selPos, GridNavigator.inst().ProjectToGrid(selPos), Color.green);
-                }*/
+                
             }
         }
         
@@ -1269,37 +1259,7 @@ namespace Playtime_Painter
 
         }
 
-        public static void DrawTransformedCubeGizmo(Transform tf, Color col)
-        {
-
-            Vector3 dlb = tf.TransformPoint(new Vector3(-0.5f, -0.5f, -0.5f));
-            Vector3 dlf = tf.TransformPoint(new Vector3(-0.5f, -0.5f, 0.5f));
-            Vector3 drb = tf.TransformPoint(new Vector3(-0.5f, 0.5f, -0.5f));
-            Vector3 drf = tf.TransformPoint(new Vector3(-0.5f, 0.5f, 0.5f));
-
-            Vector3 ulb = tf.TransformPoint(new Vector3(0.5f, -0.5f, -0.5f));
-            Vector3 ulf = tf.TransformPoint(new Vector3(0.5f, -0.5f, 0.5f));
-            Vector3 urb = tf.TransformPoint(new Vector3(0.5f, 0.5f, -0.5f));
-            Vector3 urf = tf.TransformPoint(new Vector3(0.5f, 0.5f, 0.5f));
-
-            Gizmos.color = col;
-
-            Gizmos.DrawLine(dlb, ulb);
-            Gizmos.DrawLine(dlf, ulf);
-            Gizmos.DrawLine(drb, urb);
-            Gizmos.DrawLine(drf, urf);
-
-            Gizmos.DrawLine(dlb, dlf);
-            Gizmos.DrawLine(dlf, drf);
-            Gizmos.DrawLine(drf, drb);
-            Gizmos.DrawLine(drb, dlb);
-
-            Gizmos.DrawLine(ulb, ulf);
-            Gizmos.DrawLine(ulf, urf);
-            Gizmos.DrawLine(urf, urb);
-            Gizmos.DrawLine(urb, ulb);
-
-        }
+       
         #endregion
 
     }

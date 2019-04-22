@@ -116,7 +116,7 @@ namespace Playtime_Painter {
 
         #region Plugins
       
-        private ListMetaData _pluginsMeta = new ListMetaData("Plugins", true, true, true, false, icon.Link);
+        private ListMetaData _pluginsMeta = new ListMetaData("Plugins", true, true, true, false);
 
         public IEnumerable<PainterSystemManagerPluginBase> Plugins
         {
@@ -128,8 +128,7 @@ namespace Playtime_Painter {
                 return PainterSystemManagerPluginBase.plugins;
             }
         }
-
-
+        
         #endregion
 
         #region Painting Layer
@@ -1034,7 +1033,10 @@ namespace Playtime_Painter {
 
         public override bool Inspect()
         {
-            var changed =  DependenciesInspect(true);
+
+            var changed = false;
+
+            changed |= DependenciesInspect(true);
 
             if (Data)
                 Data.Nested_Inspect().nl(ref changed);
@@ -1049,15 +1051,16 @@ namespace Playtime_Painter {
 
             var changed = false;
 
-            if (showAll && "Buffers".enter(ref showBuffers).nl())
-            {
+            if (showAll)
+                pegi.nl();
 
+            if (showAll && "Buffers".enter(ref showBuffers).nl())  {
+             
                 RenderTextureBuffersManager.Inspect().nl(ref changed);
                 
                 return changed;
             }
-
-          
+            
 
 #if UNITY_EDITOR
             if (!Data)
@@ -1090,8 +1093,7 @@ namespace Playtime_Painter {
             if (showAll || RenderTextureBuffersManager.bigRtPair.IsNullOrEmpty())
                 (RenderTextureBuffersManager.bigRtPair.IsNullOrEmpty() ? "No buffers" : "Using HDR buffers " + ((!FrontBuffer) ? "uninitialized" : "initialized")).nl();
             
-            if (!painterCamera)
-            {
+            if (!painterCamera) {
                 pegi.nl();
                 "no painter camera".writeWarning();
                 pegi.nl();

@@ -255,6 +255,11 @@
 					float3 mix = col.gbr + col.brg;
 					col.rgb += mix * mix*0.02; // Arbitrary value
 
+					BleedAndBrightness(col, 1);
+
+					UNITY_APPLY_FOG(o.fogCoord, col);
+
+
 					return  col;
 
 				}

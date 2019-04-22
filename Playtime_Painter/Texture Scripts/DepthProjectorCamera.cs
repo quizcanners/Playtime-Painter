@@ -133,7 +133,7 @@ namespace Playtime_Painter
 
             userToGetUpdate = proj;
             RequestRender(false);
-            //ReturnResults();
+            ReturnResults();
         }
 
         private void LateUpdate()
@@ -210,12 +210,9 @@ namespace Playtime_Painter
 
             bool gotUser = false;
 
-           // if (currentMode == ProjectorMode.ReplacementShader) {
-                _projectorCamera.ResetReplacementShader();
-                _projectorCamera.clearFlags = CameraClearFlags.Depth;
-              //  currentMode = ProjectorMode.Clear;
-            //}
-
+            _projectorCamera.ResetReplacementShader();
+            _projectorCamera.clearFlags = CameraClearFlags.Depth;
+            
             try
             {
 

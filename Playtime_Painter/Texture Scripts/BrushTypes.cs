@@ -78,8 +78,7 @@ namespace Playtime_Painter
         public virtual bool StartPaintingTheMomentMouseIsDown => true;
         public virtual bool SupportedForTerrainRt => true;
         public virtual bool NeedsGrid => false;
-
-
+        
         #region Inspect
 
         public virtual string NameForDisplayPEGI => Translation.GetText();
@@ -89,11 +88,7 @@ namespace Playtime_Painter
         protected virtual MsgPainter Translation => MsgPainter.Unnamed;
 
         #if PEGI
-
-
-
-
-
+        
         public virtual bool ShowInDropdown()
         {
             var p = PlaytimePainter.inspected;
@@ -219,7 +214,8 @@ namespace Playtime_Painter
             BlitFunctions.PaintTexture2DMethod blitMethod = null;
             
             foreach (var p in PainterSystemManagerPluginBase.BrushPlugins)
-                if (p.PaintPixelsInRam(st, alpha, id, br, painter)) {
+                if (p.IsEnabledFor(painter, id, br)) {
+                    p.PaintPixelsInRam(st, alpha, id, br, painter); 
                     blitMethod = p.PaintPixelsInRam;
                     break;
                 }
