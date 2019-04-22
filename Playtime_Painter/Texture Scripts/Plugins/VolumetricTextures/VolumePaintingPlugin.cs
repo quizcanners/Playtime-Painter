@@ -175,6 +175,8 @@ namespace Playtime_Painter
 
                 rayTraceCameraConfiguration.From(stroke);
 
+                bc.useAlphaBuffer = false;
+
                 delayedPaintingConfiguration = new BrushStrokePainterImage(stroke, image, bc, painter);
 
                 PainterCamera.GetProjectorCamera().RenderRightNow(this);
@@ -264,8 +266,7 @@ namespace Playtime_Painter
 
         public ProjectorCameraConfiguration GetProjectorCameraConfiguration() => rayTraceCameraConfiguration;
 
-        public void AfterCameraRender(RenderTexture texture)
-        {
+        public void AfterCameraRender(RenderTexture texture) {
 
             const int pixelsCount = targetScale * targetScale;
 
@@ -274,22 +275,16 @@ namespace Playtime_Painter
             var pix = getMinSizeTexture().CopyFrom(tiny).GetPixels();
 
             Color avg = Color.black;
-            //float totalConfidance = 0;
 
             foreach (var p in pix)
-            {
-                //float alpha = p.a;
-                avg += p;// * alpha;
-                //totalConfidance += alpha;
-            }
-
+                avg += p;
+  
             GlobalBrush.Color = avg / (float)pixelsCount;
 
             PainterCamera.BrushColorProperty.GlobalValue = GlobalBrush.Color;
 
-            //Debug.Log("Returning Ray Trace for {0} : {1} ".F(rayTraceCameraConfiguration.position, pix[0].ToString()));
-
             PaintRenderTexture(delayedPaintingConfiguration);
+
             delayedPaintingConfiguration = null;
         }
         
@@ -300,8 +295,7 @@ namespace Playtime_Painter
         public string ProjectorTagToReplace => "RenderType";
 
         public Shader ProjectorShaderToReplaceWith => TexMGMTdata.rayTraceOutput;
-
-
+        
         #endregion
 
         #region Inspector
@@ -354,8 +348,7 @@ namespace Playtime_Painter
         private bool _exploreVolumeData;
 
         private bool _exploreRayTaceCamera;
-
-   
+        
         public bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br) {
 
             var changed = false;
@@ -372,10 +365,16 @@ namespace Playtime_Painter
 
                 if (BrushConfig.showAdvanced) 
                     "Grid".toggle(50, ref _useGrid).nl();
-                
-                if (BrushConfig.showAdvanced || _enableRayTracing)
-                    "Ray-Tracing".toggleIcon(ref _enableRayTracing).nl();
 
+                if (BrushConfig.showAdvanced || _enableRayTracing)
+                {
+                    "Ray-Tracing".toggleIcon(ref _enableRayTracing).changes(ref changed);
+
+                    if (br.useAlphaBuffer)
+                        icon.Warning.write("Alpha buffer can't work with Ray Tracing and will be automatically disabled");
+
+                    pegi.nl();
+                }
 
 
                 if (_enableRayTracing)
@@ -383,7 +382,9 @@ namespace Playtime_Painter
                     var dp = PainterCamera.depthProjectorCamera;
                     if (dp && dp.pauseAutoUpdates)
                         "Light Projectors paused".toggleIcon(ref dp.pauseAutoUpdates).nl(ref changed);
-                    
+
+                    //if (br.useAlphaBuffer)
+                    //br.useAlphaBuffer = false;
                 }
 
                 if ("Ray Trace Camera".conditional_enter(_enableRayTracing, ref _exploreRayTaceCamera).nl())

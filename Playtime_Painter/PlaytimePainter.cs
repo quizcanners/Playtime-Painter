@@ -297,8 +297,7 @@ namespace Playtime_Painter {
             if (!ProcessHit(hit, stroke))
                 return;
 
-            if ((currentlyPaintedObjectPainter != this) && stroke.mouseDwn)
-            {
+            if (currentlyPaintedObjectPainter != this && stroke.mouseDwn) {
                 stroke.firstStroke = true;
                 currentlyPaintedObjectPainter = this;
                 FocusOnThisObject();
@@ -308,13 +307,10 @@ namespace Playtime_Painter {
             var control = Event.current != null && Event.current.control;
 
             ProcessMouseDrag(control);
+            
+            if (currentlyPaintedObjectPainter == this) {
 
-            if (currentlyPaintedObjectPainter == this)
-            {
-
-                if (!stroke.mouseDwn || CanPaintOnMouseDown())
-                {
-
+                if (!stroke.mouseDwn || CanPaintOnMouseDown()) {
                     GlobalBrush.Paint(stroke, this);
 
                     ManagedUpdate();
@@ -324,8 +320,8 @@ namespace Playtime_Painter {
 
             }
 
-            if (currentlyPaintedObjectPainter != this)
-                currentlyPaintedObjectPainter = null;
+            //if (currentlyPaintedObjectPainter != this)
+              //  currentlyPaintedObjectPainter = null;
 
             stroke.mouseDwn = false;
 

@@ -61,7 +61,9 @@ namespace PlayerAndEditorGUI {
                          "Save button will apply changes to the original file. To save as new file, change name before saving and click Save As New." +
                          "Use Ctrl + Left Mouse Button to sample color of the texture." +
                          "I tried to integrate tutorial into the component (Click on blue '?') .You can hide them from the configuration. " +
-                         "").F(pegi.EnvironmentNl));
+                         "").F(pegi.EnvironmentNl))
+                        .From(trk, "Playtime Painter Komponenti Hakkında" ,
+                            "Bu komponent  sizin bu objenin işleyicisinin (renderer) materyalinin dokusunu ( material's texture) boyayabilmenizi sağlar ( Evet, burada biraz hiyerarşi var). Ayrıca meshi de düzenleyebilirsiniz.");
                     break;
                 case MsgPainter.MeshProfileUsage:
                     msg.Translate("Mesh Profile usage", ("If using projected UV, place sharpNormal in TANGENT. {0}" +

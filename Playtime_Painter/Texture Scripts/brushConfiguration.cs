@@ -32,10 +32,10 @@ namespace Playtime_Painter {
         public void SetBrushType(bool cpu, BrushType t) { if (cpu) _inCpuBrushType = t.index; else _inGpuBrushType = t.index; }
         public BrushType GetBrushType(PlaytimePainter painter) => GetBrushType(IsCpu(painter));
         public BrushType GetBrushType(bool cpu) => BrushType.AllTypes[_brushType(cpu)];
-        public bool useAlphaBuffer;
 
         [SerializeField] private int _inGpuBlitMode;
         [SerializeField] private int _inCpuBlitMode;
+
         public int BlitMode(bool cpu) => cpu ? _inCpuBlitMode : _inGpuBlitMode;
         public BlitMode GetBlitMode(bool cpu) => Playtime_Painter.BlitMode.AllModes[BlitMode(cpu)];
         public BlitMode GetBlitMode(PlaytimePainter painter) => Playtime_Painter.BlitMode.AllModes[BlitMode(IsCpu(painter))];
@@ -130,6 +130,7 @@ namespace Playtime_Painter {
         public float blurAmount = 1;
         public float brush3DRadius = 16;
         public float brush2DRadius = 16;
+        public bool useAlphaBuffer;
 
         public float alphaLimitForAlphaBuffer = 1;
 

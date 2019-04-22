@@ -46,7 +46,7 @@ namespace PlayerAndEditorGUI {
         #region Inspector
         #if PEGI
 
-        private static readonly List<int> supportedLanguages = new List<int>() {eng, ukr};
+        private static readonly List<int> supportedLanguages = new List<int>() {eng, ukr, trk};
 
         public static bool LanguageSelection() {
             if (_systemLanguage == -1)
