@@ -4,6 +4,7 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using System;
 using System.Globalization;
+using static Playtime_Painter.ColorBleedControllerPlugin;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -17,240 +18,8 @@ namespace Playtime_Painter
         public int playtimePainterLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
         
         public static bool toolEnabled;
-
-        #region Weather Configurations
-        [SerializeField] [HideInInspector] List<Configuration> weatherConfigurations = new List<Configuration>();
-        [SerializeField] private WeatherConfiguration weatherManager= new WeatherConfiguration();
         
-        public class WeatherConfiguration: ICfg 
-        {
-            private Configuration activeWeatherConfig;
-            
-            #region Lerping
-
-            LinkedLerp.ColorValue fogColor = new LinkedLerp.ColorValue("Fog Color");
-            LinkedLerp.ColorValue skyColor = new LinkedLerp.ColorValue("Sky Color");
-            LinkedLerp.FloatValue shadowStrength = new LinkedLerp.FloatValue("Shadow Strength", 1);
-            LinkedLerp.FloatValue shadowDistance = new LinkedLerp.FloatValue("Shadow Distance", 100, 500, 10, 1000);
-            LinkedLerp.FloatValue fogDistance = new LinkedLerp.FloatValue("Fog Distance", 100, 500, 0.01f, 1000);
-            LinkedLerp.FloatValue fogDensity = new LinkedLerp.FloatValue("Fog Density", 0.01f, 0.01f, 0.00001f, 0.1f);
-
-            private LerpData ld = new LerpData();
-
-            public void ReadCurrentValues()
-            {
-                fogColor.TargetAndCurrentValue = RenderSettings.fogColor;
-
-                if (RenderSettings.fog) {
-                    fogDistance.TargetAndCurrentValue = RenderSettings.fogEndDistance;
-                    fogDensity.TargetAndCurrentValue = RenderSettings.fogDensity;
-                }
-
-                skyColor.TargetAndCurrentValue = RenderSettings.ambientSkyColor;
-                shadowDistance.TargetAndCurrentValue = QualitySettings.shadowDistance;
-            }
-
-            public void Update()
-            {
-                if (activeWeatherConfig != null)
-                {
-                    ld.Reset();
-
-                    // Find slowest property
-                    shadowStrength.Portion(ld);
-                    shadowDistance.Portion(ld);
-                    fogColor.Portion(ld);
-                    skyColor.Portion(ld);
-                    fogDensity.Portion(ld);
-                    fogDistance.Portion(ld);
-
-                    // Lerp all the properties
-                    shadowStrength.Lerp(ld);
-                    shadowDistance.Lerp(ld);
-                    fogColor.Lerp(ld);
-                    skyColor.Lerp(ld);
-                    fogDensity.Lerp(ld);
-                    fogDistance.Lerp(ld);
-                    
-                    RenderSettings.fogColor = fogColor.CurrentValue;
-
-                    if (RenderSettings.fog)
-                    {
-
-                        RenderSettings.fogEndDistance = fogDistance.CurrentValue;
-                        RenderSettings.fogDensity = fogDensity.CurrentValue;
-                    }
-
-                    RenderSettings.ambientSkyColor = skyColor.CurrentValue;
-                    QualitySettings.shadowDistance = shadowDistance.CurrentValue;
-                }
-                
-            }
-            #endregion
-
-            #region Inspector
-            #if PEGI
-            private int inspectedProperty = -1;
-
-            public bool Inspect(ref List<Configuration> configurations)
-            {
-
-                bool changed = false;
-
-                bool notInspectingProperty = inspectedProperty == -1;
-                
-                shadowDistance.enter_Inspect_AsList(ref inspectedProperty, 3).nl(ref changed);
-
-                bool fog = RenderSettings.fog;
-
-                if (notInspectingProperty && "Fog".toggleIcon(ref fog, true).changes(ref changed))
-                    RenderSettings.fog = fog;
-                
-                if (fog) {
-
-                    var fogMode = RenderSettings.fogMode;
-
-                    if (notInspectingProperty)
-                    {
-                        "Fog Color".edit(60, ref fogColor.targetValue).nl();
-
-                        if ("Fog Mode".editEnum(60, ref fogMode).nl())
-                            RenderSettings.fogMode = fogMode;
-                    }
-
-                    if (fogMode == FogMode.Linear)
-                        fogDistance.enter_Inspect_AsList(ref inspectedProperty, 4).nl(ref changed);
-                    else
-                        fogDensity.enter_Inspect_AsList(ref inspectedProperty, 5).nl(ref changed);
-                }
-
-                if (notInspectingProperty)
-                    "Sky Color".edit(60, ref skyColor.targetValue).nl(ref changed);
-                
-                pegi.nl();
-                
-                var newObj = "Configurations".edit_List(ref configurations, EditConfiguration, ref changed);
-
-                pegi.nl();
-
-                if (newObj != null) {
-                    ReadCurrentValues();
-                    newObj.data = Encode().ToString();
-                    activeWeatherConfig = newObj;
-                }
-
-                if (Application.isPlaying)
-                {
-                    if (ld.linkedPortion < 1)
-                    {
-                        "Lerping {0}".F(ld.dominantParameter).write();
-                        ("Each parameter has a transition speed. THis text shows which parameter sets speed for others (the slowest one). " +
-                         "If Transition is too slow, increase this parameter's speed").fullWindowDocumentationClick();
-                        pegi.nl();
-                    }
-                }
-                
-                if (changed)
-                {
-                    Update();
-#if UNITY_EDITOR
-                    if (Application.isPlaying == false)
-                    {
-                        SceneView.RepaintAll();
-                        UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
-                    }
-#endif
-                }
-
-                return changed;
-            }
-
-            Configuration EditConfiguration(Configuration val)
-            {
-
-                if (val == activeWeatherConfig)
-                {
-                    pegi.SetBgColor(Color.green);
-
-                    if (icon.Red.Click())
-                        activeWeatherConfig = null;
-                }
-                else
-                {
-
-                    if (!val.data.IsNullOrEmpty())
-                    {
-                        if (icon.Play.Click(val.data))
-                        {
-                            Decode(val.data);
-                            activeWeatherConfig = val;
-                        }
-                    }
-                    else if (icon.SaveAsNew.Click())
-                        val.data = Encode().ToString();
-                }
-
-                pegi.edit(ref val.name);
-
-                if (activeWeatherConfig == null || activeWeatherConfig == val)
-                {
-                    if (icon.Save.Click())
-                        val.data = Encode().ToString();
-                }
-                else if (!val.data.IsNullOrEmpty() && icon.Delete.Click())
-                    val.data = null;
-
-                pegi.RestoreBGcolor();
-
-                return val;
-            }
-            #endif
-            #endregion
-            
-#region Encode & Decode
-
-            // Encode and Decode class lets you store configuration of this class in a string 
-
-            public CfgEncoder Encode()
-            {
-                var cody = new CfgEncoder()
-                    .Add("sh", shadowStrength.targetValue)
-                    .Add("sdst", shadowDistance)
-                    .Add("sc", skyColor.targetValue)
-                    .Add_Bool("fg", RenderSettings.fog);
-
-                if (RenderSettings.fog)
-                    cody.Add("fogCol", fogColor.targetValue)
-                        .Add("fogD", fogDistance)
-                        .Add("fogDen", fogDensity);
-
-                return cody;
-            }
-
-            public void Decode(string data) => new CfgDecoder(data).DecodeTagsFor(this);
-
-            public bool Decode(string tg, string data) {
-                switch (tg) {
-                    case "sh": shadowStrength.targetValue = data.ToFloat(); break;
-                    case "sdst": shadowDistance.Decode(data); break;
-                    case "sc": skyColor.targetValue = data.ToColor(); break;
-                    case "fg": RenderSettings.fog = data.ToBool(); break;
-                    case "fogD": fogDistance.Decode(data); break;
-                    case "fogDen": fogDensity.Decode(data); break;
-                    case "fogCol": fogColor.targetValue = data.ToColor(); break;
-                    default: return false;
-                }
-
-                return true;
-            }
-
-#endregion
-
-        }
-
-#endregion
-
-#region Shaders
+        #region Shaders
 
         public Shader additiveAlphaOutput;
         public Shader additiveAlphaAndUVOutput;
@@ -490,7 +259,7 @@ namespace Playtime_Painter
         public string texturesFolderName = "Textures";
         public string meshesFolderName = "Models";
         public string vectorsFolderName = "Vectors";
-        public string atlasFolderName = "Textures/Atlases";
+        public string atlasFolderName = "Atlases";
 
         public bool enablePainterUIonPlay;
         public BrushConfig brushConfig;
@@ -503,7 +272,6 @@ namespace Playtime_Painter
         public bool allowExclusiveRenderTextures;
         public bool showConfig;
         public bool showTeachingNotifications;
-        public bool disableSecondBufferUpdateDebug;
         public MyIntVec2 samplingMaskSize;
         public bool useDepthForProjector;
 #endregion
@@ -695,21 +463,6 @@ public bool useFloatForScalingBuffers;
 
             "Decals".enter_List(ref decals, ref _inspectedDecal, ref _inspectedItems, 4).nl(ref changes);
 
-            if (_inspectedItems != -1) return changes;
-
-#if UNITY_EDITOR
-            if ("Refresh Brush Shaders".Click(14).nl())
-            {
-                CheckShaders(true);
-                "Shaders Refreshed".showNotificationIn3D_Views();
-            }
-            "Using layer:".write(80);
-            playtimePainterLayer = EditorGUILayout.LayerField(playtimePainterLayer);
-
-            pegi.nl();
-            "Disable Second Buffer Update (Debug Mode)".toggleIcon(ref disableSecondBufferUpdateDebug).nl();
-#endif
-
             return changes;
         }
 
@@ -718,18 +471,20 @@ public bool useFloatForScalingBuffers;
             var changed = false; 
 
             var rtp = PainterCamera.Inst;
-
-           
-            if ("Plugins".enter(ref inspectedItems, 10).nl_ifNotEntered() && rtp.PluginsInspect().nl(ref changed))
+            
+            if ("Plugins".enter(ref inspectedItems, 10, false).nl_ifNotEntered() && rtp.PluginsInspect().nl(ref changed))
                 rtp.SetToDirty();
 
             if ("Lists".enter(ref inspectedItems, 11).nl(ref changed))
-                changed |= InspectData();
+                InspectData().changes(ref changed);
 
-            if ("Weather Configuration".enter(ref inspectedItems, 12).nl(ref changed))
-                weatherManager.Inspect(ref weatherConfigurations).nl(ref changed);
+            if ("Downloads".enter(ref inspectedItems, 13).nl_ifFolded(ref changed)) {
 
-            "Downloads".enter_Inspect(PainterCamera.DownloadManager, ref inspectedItems, 13).nl(ref changed);
+                "You can enable URL field in the Optional UI elements to get texture directly from web"
+                    .fullWindowDocumentationClick();
+
+                PainterCamera.DownloadManager.Nested_Inspect();
+            }
 
             if ("Painter Camera".enter(ref inspectedItems, 14).nl_ifNotEntered())
                 PainterCamera.Inst.DependenciesInspect(true);
@@ -737,35 +492,27 @@ public bool useFloatForScalingBuffers;
 
             if (inspectedItems == -1) {
 
-#if UNITY_EDITOR
-
-              
+                #if UNITY_EDITOR
+                
                 if ("Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay).nl())
                     MeshManager.Inst.DisconnectMesh();
+
+                "Hide documentation".toggleIcon(ref hideDocumentation).changes(ref changed);
+                MsgPainter.aboutDisableDocumentation.Documentation();
+                pegi.nl();
+
+                "Teaching Notifications".toggleIcon("Will show some notifications on the screen", ref showTeachingNotifications).nl();
+
+                "Where to save content".nl(PEGI_Styles.ListLabel);
+
+                "Textures".edit(60, ref texturesFolderName).nl();
+
+                "Atlases: {0}/".F(texturesFolderName).edit(120, ref atlasFolderName).nl();
+
+                "Materials".edit(60, ref materialsFolderName).nl();
+
+                "Meshes".edit(60, ref meshesFolderName).nl();
                 
-
-                    if (Painter && Painter.meshEditing == false)
-                        "Disable Non-Mesh Colliders in Play Mode".toggleIcon(ref disableNonMeshColliderInPlayMode).nl();
-
-                    "Teaching Notifications".toggleIcon("Will show some notifications on the screen", ref showTeachingNotifications).nl();
-
-                    "Where to save content".nl(PEGI_Styles.ListLabel);
-
-                    "Textures".edit(60, ref texturesFolderName).nl();
-
-                    "TileAble Atlases: {0}/".F(texturesFolderName).edit(120, ref atlasFolderName).nl();
-
-                    "Materials".edit(60, ref materialsFolderName).nl();
-
-                    "Meshes".edit(60, ref meshesFolderName).nl();
-
-                    "Hide documentation".toggleIcon(ref hideDocumentation).changes(ref changed);
-
-                    MsgPainter.aboutDisableDocumentation.Documentation();
-
-                    pegi.nl();
-                
-
                 if (icon.Discord.Click("Join Discord", 64))
                     PlaytimePainter.Open_Discord();
 
@@ -776,11 +523,9 @@ public bool useFloatForScalingBuffers;
                     PlaytimePainter.Open_Email();
 
                 pegi.nl();
-
-
-
+                
                 LazyTranslations.LanguageSelection().nl();
-#endif
+                #endif
 
             }
 
@@ -840,12 +585,12 @@ public bool useFloatForScalingBuffers;
 
         public void ManagedUpdate()
         {
-            weatherManager.Update();
+           
 
             WebCamUpdates();
         }
 
-        private void CheckShaders(bool forceReload = false)
+        public void CheckShaders(bool forceReload = false)
         {
 #if !UNITY_EDITOR
                 return;

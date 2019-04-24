@@ -14,8 +14,18 @@ namespace Playtime_Painter {
         #region Painting Buffers
         public static int renderBuffersSize = 2048;
 
-        public static RenderTexture[] bigRtPair;
+        private static RenderTexture[] bigRtPair;
         public static RenderTexture alphaBufferTexture;
+
+        public static RenderTexture GetPaintingBufferIfExist(int index) => bigRtPair.TryGet(index);
+                
+        public static RenderTexture[] GetOrCreatePaintingBuffers ()
+        {
+            if (bigRtPair.IsNullOrEmpty() || !bigRtPair[0])
+                InitBrushBuffers();
+
+            return bigRtPair;
+        }
 
         public static void DiscardPaintingBuffersContents()
         {
@@ -26,8 +36,10 @@ namespace Playtime_Painter {
 
         public static void ClearAlphaBuffer()
         {
-            alphaBufferTexture.DiscardContents();
-            Blit(Color.clear, alphaBufferTexture);
+            if (alphaBufferTexture) {
+                alphaBufferTexture.DiscardContents();
+                Blit(Color.clear, alphaBufferTexture);
+            }
         }
 
         public static int bigRtVersion;
@@ -45,7 +57,54 @@ namespace Playtime_Painter {
             secondBufferUpdated = true;
             bigRtVersion++;
         }
-        
+
+        public static void InitBrushBuffers()
+        {
+            if (!GotPaintingBuffers)
+            {
+                bigRtPair = new RenderTexture[2];
+                var tA = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
+                var tB = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
+                bigRtPair[0] = tA;
+                bigRtPair[1] = tB;
+                tA.useMipMap = false;
+                tB.useMipMap = false;
+                tA.wrapMode = TextureWrapMode.Repeat;
+                tB.wrapMode = TextureWrapMode.Repeat;
+                tA.name = "Painter Buffer 0 _ " + renderBuffersSize;
+                tB.name = "Painter Buffer 1 _ " + renderBuffersSize;
+            }
+
+            if (!alphaBufferTexture)
+            {
+                alphaBufferTexture = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
+                alphaBufferTexture.wrapMode = TextureWrapMode.Repeat;
+                alphaBufferTexture.name = "Painting Alpha Buffer _ " + renderBuffersSize;
+                alphaBufferTexture.useMipMap = false;
+            }
+        }
+
+        public static bool GotPaintingBuffers => !bigRtPair.IsNullOrEmpty();
+
+        static void DestroyPaintingBuffers()
+        {
+            if (bigRtPair!= null)
+            foreach (var b in bigRtPair)
+                b.DestroyWhatever();
+
+            bigRtPair = null;
+
+            alphaBufferTexture.DestroyWhatever();
+
+        }
+
+        public static void RefreshPaintingBuffers()
+        {
+            PainterCamera.Inst.EmptyBufferTarget();
+            DestroyPaintingBuffers();
+            PainterCamera.Inst.RecreateBuffersIfDestroyed();
+        }
+
         #endregion
 
         #region Scaling Buffers
@@ -100,7 +159,7 @@ namespace Playtime_Painter {
             return _squareBuffers[no];
         }
 
-        public static void ClearScalingBuffers()
+        public static void DestroyScalingBuffers()
         {
             foreach (var tex in _squareBuffers)
                 tex.DestroyWhateverUnityObject();
@@ -152,7 +211,7 @@ namespace Playtime_Painter {
 
         }
 
-        public static void ClearDepthBuffers()
+        public static void DestroyDepthBuffers()
         {
             _depthTargetForUsers.DestroyWhateverUnityObject();
             _depthTargetForUsers = null;
@@ -168,7 +227,7 @@ namespace Playtime_Painter {
             "Target Size".edit(ref sizeOfDepthBuffers).changes(ref changed);
             if (icon.Refresh.Click("Recreate Depth Texture").nl(ref changed))
             {
-                ClearDepthBuffers();
+                DestroyDepthBuffers();
                 UpdateDepthTarget();
             }
 
@@ -199,7 +258,7 @@ namespace Playtime_Painter {
             return renderTextureWithDepth;
         }
 
-        public static void ClearBuffersWithDepth()
+        public static void DestroyBuffersWithDepth()
         {
             renderTextureWithDepth.DestroyWhateverUnityObject();
             renderTextureWithDepth = null;
@@ -271,56 +330,11 @@ namespace Playtime_Painter {
 
         #endregion
         
-        public static bool GotBuffers => !bigRtPair.IsNullOrEmpty();
-        
-        static void ClearPaintingBuffers()
-        {
-            foreach (var b in bigRtPair)
-                b.DestroyWhatever();
-
-            bigRtPair = null;
-
-            alphaBufferTexture.DestroyWhatever();
-
-        }
-
-        public static void RefreshPaintingBuffers()
-        {
-            ClearPaintingBuffers();
-            PainterCamera.Inst.RecreateBuffersIfDestroyed();
-        }
-
-        public static void InitBrushBuffers()
-        {
-            if (!GotBuffers)
-            {
-                bigRtPair = new RenderTexture[2];
-                var tA = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
-                var tB = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
-                bigRtPair[0] = tA;
-                bigRtPair[1] = tB;
-                tA.useMipMap = false;
-                tB.useMipMap = false;
-                tA.wrapMode = TextureWrapMode.Repeat;
-                tB.wrapMode = TextureWrapMode.Repeat;
-                tA.name = "Painter Buffer 0 _ " + renderBuffersSize;
-                tB.name = "Painter Buffer 1 _ " + renderBuffersSize;
-            }
-
-            if (!alphaBufferTexture)
-            {
-                alphaBufferTexture = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
-                alphaBufferTexture.wrapMode = TextureWrapMode.Repeat;
-                alphaBufferTexture.name = "Painting Alpha Buffer _ " + renderBuffersSize;
-                alphaBufferTexture.useMipMap = false;
-            }
-        }
-
         public static void OnDisable() {
-            ClearScalingBuffers();
-            ClearPaintingBuffers();
-            ClearDepthBuffers();
-            ClearBuffersWithDepth();
+            DestroyScalingBuffers();
+            DestroyPaintingBuffers();
+            DestroyDepthBuffers();
+            DestroyBuffersWithDepth();
         }
 
         #region Inspector
@@ -339,30 +353,30 @@ namespace Playtime_Painter {
 
             if ("Panting Buffers".enter(ref inspectedElement, 0).nl()) {
 
-                if (icon.Delete.Click())
-                    ClearPaintingBuffers();
+                if (GotPaintingBuffers && icon.Delete.Click())
+                    DestroyPaintingBuffers();
 
-                if ("Buffer Size".selectPow2("Size of Buffers used for GPU painting", 90, ref renderBuffersSize, 64, 4096).nl()) {
-                    PainterCamera.Inst.EmptyBufferTarget();
-                    ClearPaintingBuffers();
-                    PainterCamera.Inst.RecreateBuffersIfDestroyed();
+                if ("Buffer Size".selectPow2("Size of Buffers used for GPU painting", 90, ref renderBuffersSize, 64, 4096).nl()) 
+                    RefreshPaintingBuffers();
+
+                if (GotPaintingBuffers)
+                {
+                    bigRtPair[0].write(200);
+                    pegi.nl();
+                    bigRtPair[1].write(200);
+
+                    pegi.nl();
                 }
-
-                bigRtPair[0].write(200);
-                pegi.nl();
-                bigRtPair[1].write(200);
-
-                pegi.nl();
             }
 
             if ("Scaling Buffers".enter(ref inspectedElement, 1).nl())
             {
 
                 if (icon.Delete.Click())
-                    ClearScalingBuffers();
+                    DestroyScalingBuffers();
 
                 if ("Use RGBAFloat for scaling".toggleIcon(ref Data.useFloatForScalingBuffers).nl(ref changed))
-                    ClearScalingBuffers();
+                    DestroyScalingBuffers();
 
                 for (int i = 0; i < squareBuffersCount; i++) {
 
@@ -381,10 +395,11 @@ namespace Playtime_Painter {
             if ("Depth Texture".enter(ref inspectedElement, 2).nl()) {
 
                 if (icon.Delete.Click())
-                    ClearDepthBuffers();
+                    DestroyDepthBuffers();
 
                 "For Camera".edit(ref depthTarget).nl();
                 depthTarget.write(250);
+                pegi.nl();
 
                 "Reusable for blits".edit(ref _depthTargetForUsers).nl();
                 _depthTargetForUsers.write(250);
@@ -393,7 +408,7 @@ namespace Playtime_Painter {
             if ("Render Textures with Depth buffer".enter(ref inspectedElement, 3).nl())
             {
                 if (icon.Delete.Click())
-                    ClearBuffersWithDepth();
+                    DestroyBuffersWithDepth();
 
                 "Reusable".edit(ref renderTextureWithDepth).nl();
                 renderTextureWithDepth.write(250);

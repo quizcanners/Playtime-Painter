@@ -17,6 +17,9 @@ namespace Playtime_Painter.Examples
         {
             if (!filter)
                 filter = GetComponent<MeshFilter>();
+
+            _previousColor = Color.gray;
+            _previousAlpha = 0.5f;
         }
 
         private void OnDisable()

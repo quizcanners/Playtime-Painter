@@ -206,14 +206,110 @@ namespace QuizCannersUtilities {
     }
 
     [Serializable]
-    public class Configuration
+    public class Configuration : AbstractCfg, IPEGI_ListInspect, IGotName
     {
         public string name;
         public string data;
 
-        public Configuration() {
-            name = "New Water Config";
+        public virtual Configuration ActiveConfiguration
+        {
+            get { return null; }
+            set { }
         }
+
+
+        public virtual void ReadConfigurationToData()
+        {
+        }
+
+        #region Inspect
+
+#if PEGI
+
+        public string NameForPEGI
+        {
+            get { return name; }
+            set { name = value; }
+            
+        }
+    
+
+    public virtual bool PEGI_inList(IList list, int ind, ref int edited) {
+
+            var changed = false;
+            var active = ActiveConfiguration;
+
+            bool allowOverride = active == null || active == this;
+
+            bool isActive = this == active;
+
+            if (isActive)
+                pegi.SetBgColor(Color.green);
+
+            if (!allowOverride && !data.IsNullOrEmpty() && icon.Delete.ClickUnFocus())
+                data = null;
+
+            pegi.edit(ref name);
+
+            if (isActive) {
+                if (icon.Red.ClickUnFocus())
+                    ActiveConfiguration = null;
+            }
+            else
+            {
+
+                if (!data.IsNullOrEmpty())  {
+                    if (icon.Play.ClickUnFocus())
+                        ActiveConfiguration = this;
+                    
+                }
+                else if (icon.SaveAsNew.ClickUnFocus())
+                    ReadConfigurationToData();
+            }
+
+          
+
+            if (allowOverride)
+            {
+                if (icon.Save.ClickUnFocus())
+                    ReadConfigurationToData();
+            }
+        
+
+            pegi.RestoreBGcolor();
+
+            return changed;
+        }
+
+
+#endif
+
+        #endregion
+
+        #region Encode & Decode
+
+        public override CfgEncoder Encode() => new CfgEncoder()
+            .Add_String("n", name)
+            .Add_IfNotEmpty("d", data);
+
+        public override bool Decode(string tg, string d) {
+            switch (tg) {
+                case "n": name = d; break;
+                case "d": data = d; break;
+                default: return false;   
+            }
+
+            return true;
+        }
+
+
+
+        #endregion
+
+        public Configuration() {
+            name = "New Config";
+        }
+
     }
 
     public class StdSimpleReferenceHolder : ICfgSerializeNestedReferences {

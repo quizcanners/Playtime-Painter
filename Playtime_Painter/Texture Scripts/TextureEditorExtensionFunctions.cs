@@ -174,7 +174,7 @@ namespace Playtime_Painter{
             return nid;
         }
 
-        public static bool IsBigRenderTexturePair(this Texture tex) => tex && (tex == RenderTextureBuffersManager.bigRtPair.TryGet(0));
+        public static bool IsBigRenderTexturePair(this Texture tex) => tex && (tex ==  RenderTextureBuffersManager.GetPaintingBufferIfExist(0));
 
         private static bool ContainsDuplicant(this IList<ImageMeta> textures, ImageMeta other)
         {
@@ -195,7 +195,8 @@ namespace Playtime_Painter{
             return id != null ? id.CurrentTexture() : texture;
         }
 
-        public static RenderTexture CurrentRenderTexture(this ImageMeta id) => (id == null) ?  null : (id.renderTexture ? id.renderTexture : PainterCamera.Inst.DoubleBufferCameraTarget);
+        public static RenderTexture CurrentRenderTexture(this ImageMeta id) => (id == null) ?  null :
+            (id.renderTexture ? id.renderTexture : PainterCamera.FrontBuffer);
         
         public static Texture ExclusiveTexture(this ImageMeta id)
         {
@@ -229,7 +230,7 @@ namespace Playtime_Painter{
                     if (id.renderTexture != null)
                         return id.renderTexture;
                     if (PainterCamera.Inst.imgMetaUsingRendTex == id)
-                        return PainterCamera.Inst.DoubleBufferCameraTarget;
+                        return PainterCamera.FrontBuffer;
                     id.destination = TexTarget.Texture2D;
                     return id.texture2D;
                 case TexTarget.Texture2D:

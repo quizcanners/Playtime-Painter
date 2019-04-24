@@ -2064,8 +2064,8 @@ namespace QuizCannersUtilities {
                 DisposeRequest();
             }
 
-#region Inspector
-#if PEGI
+            #region Inspector
+            #if PEGI
             public bool PEGI_inList(IList list, int ind, ref int edited)
             {
                 var changed = false;
@@ -2111,8 +2111,8 @@ namespace QuizCannersUtilities {
 
                 return false;
             }
-#endif
-#endregion
+            #endif
+            #endregion
         }
 
         public string GetURL(int ind) {

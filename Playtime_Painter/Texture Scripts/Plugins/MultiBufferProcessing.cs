@@ -350,12 +350,12 @@ namespace Playtime_Painter {
         {
             get
             {
-                PainterDataAndConfig.DESTINATION_BUFFER.GlobalValue = RenderTextureBuffersManager.bigRtPair[1];
-                return TexMgmt.DoubleBufferCameraTarget;
+                PainterDataAndConfig.DESTINATION_BUFFER.GlobalValue = PainterCamera.BackBuffer;
+                return PainterCamera.FrontBuffer;
             }
         }
 
-        public override Texture GetTextureDisplay => TexMgmt.DoubleBufferCameraTarget;
+        public override Texture GetTextureDisplay => PainterCamera.FrontBuffer;
 
         public override bool CanBeTarget => true;
 

@@ -616,7 +616,7 @@ namespace Playtime_Painter {
         
         #region Encode Decode
         public override CfgEncoder Encode() => new CfgEncoder()
-                .Add_Abstract("dyn", brushDynamic);
+                .Add("dyn", brushDynamic, BrushDynamic.all);
         
         public CfgEncoder EncodeStrokeFor(PlaytimePainter painter)
         {
@@ -715,7 +715,7 @@ namespace Playtime_Painter {
                 case "hard": hardness = data.ToFloat(); break;
                 case "Speed": _dSpeed.SetValue(data.ToFloat()); break;
                 case "dSpeed": _dSpeed.Decode(data); break;
-                case "dyn": data.DecodeInto(out brushDynamic, BrushDynamic.all); break;
+                case "dyn": data.Decode(out brushDynamic, BrushDynamic.all); break;
 
                 case "maskOff": maskOffset = data.ToVector2(); break;
                 default: return false;

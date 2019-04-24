@@ -412,7 +412,10 @@ namespace QuizCannersUtilities
 
             return this;
         }
-        
+
+        public CfgEncoder Add(string tag, IGotClassTag typeTag, TaggedTypesCfg cfg) => typeTag == null ? this :
+            Add(tag, new CfgEncoder().Add(typeTag.ClassTag, typeTag.Encode()));
+
         public CfgEncoder Add_Abstract(string tag, IGotClassTag typeTag) =>  typeTag == null ? this :
              Add(tag, new CfgEncoder().Add(typeTag.ClassTag, typeTag.Encode()));
         

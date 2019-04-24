@@ -136,7 +136,7 @@ namespace PlayerAndEditorGUI
                 clipping = TextClipping.Clip,
                 alignment = TextAnchor.MiddleLeft,
                 fontStyle = FontStyle.Italic,
-                contentOffset = new Vector2(0, 2),
+                contentOffset = new Vector2(0, -6),
                 normal = {textColor = new Color32(77, 77, 77, 255)},
             });
 

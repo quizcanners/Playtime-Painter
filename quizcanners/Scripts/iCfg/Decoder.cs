@@ -769,7 +769,8 @@ namespace QuizCannersUtilities {
         }
         #endregion
 
-        public static void DecodeInto<T>(this string data, out T val, TaggedTypesCfg typeList) where T : IGotClassTag {
+        public static void Decode<T>(this string data, out T val, TaggedTypesCfg typeList) where T : IGotClassTag
+        {
 
             val = default(T);
 
@@ -780,7 +781,8 @@ namespace QuizCannersUtilities {
             if (type != null)
                 val = cody.GetData().DecodeInto_Type<T>(type);
         }
-        
+
+
         #region Into Unity Objects
         public static ICfgSerializeNestedReferences Keeper { get { return CfgEncoder.keeper;  } set { CfgEncoder.keeper = value; } }
 

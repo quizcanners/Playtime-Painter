@@ -890,6 +890,8 @@ namespace Playtime_Painter
 
             if ("CPU blit options".conditional_enter(this.TargetIsTexture2D(), ref inspectedItems, 0).nl())
             {
+
+
                 "Disable Continious Lines".toggleIcon("If you see unwanted lines appearing on the texture as you paint, enable this." ,ref disableContiniousLine).nl(ref changed);
 
                 "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref _repaintDelay, 0.01f, 0.5f).nl(ref changed);
@@ -902,29 +904,15 @@ namespace Playtime_Painter
 
             }
 
-            if ("Save Textures In Game".enter(ref inspectedItems, 1).nl()) {
-
-                "Save Name".edit(70, ref saveName);
-                
-                if (icon.Folder.Click("Open Folder with textures").nl())
-                    FileExplorerUtils.OpenPersistentFolder(SavedImagesFolder);
-
-                if ("Save Playtime".Click("Will save to {0}/{1}".F(Application.persistentDataPath, saveName)).nl())
-                    SaveInPlayer();
-
-                if (Cfg && Cfg.playtimeSavedTextures.Count > 0)
-                    "Playtime Saved Textures".write_List(Cfg.playtimeSavedTextures, LoadTexturePegi);
-            }
-
+           
             #region Processors
 
             var newWidth = Cfg.SelectedWidthForNewTexture(); //PainterDataAndConfig.SizeIndexToSize(PainterCamera.Data.selectedWidthIndex);
             var newHeight = Cfg.SelectedHeightForNewTexture();
 
-            if ("Texture Processors".enter(ref inspectedItems, 6).nl_ifFolded()) {
+            if ("Texture Processors".enter(ref inspectedItems, 6).nl()) {
 
-
-                "<-Return".nl(PEGI_Styles.ListLabel);
+                
 
                 if (errorWhileReading)
                     "There was en error reading texture pixels, can't process it".writeWarning();
@@ -961,7 +949,7 @@ namespace Playtime_Painter
                         pegi.nl();
                     }
 
-                    if ("Clear ".enter(ref _inspectedProcess, 1))  {
+                    if ("Clear ".enter(ref _inspectedProcess, 1, false))  {
 
                         "Clear Color".edit(80, ref clearColor).nl();
                         if ("Clear Texture".Click().nl())
@@ -1072,6 +1060,25 @@ namespace Playtime_Painter
                             }
 
                         }
+                    }
+
+                    if ("Save Textures In Game ".enter(ref _inspectedProcess, 7).nl_ifFolded()) {
+
+                        "This is intended to test playtime saving. The functions to do so are quite simple. You can find them inside ImageData class."
+                            .fullWindowDocumentationClick();
+
+                        pegi.nl();
+
+                        "Save Name".edit(70, ref saveName);
+
+                        if (icon.Folder.Click("Open Folder with textures").nl())
+                            FileExplorerUtils.OpenPersistentFolder(SavedImagesFolder);
+
+                        if ("Save Playtime".Click("Will save to {0}/{1}".F(Application.persistentDataPath, saveName)).nl())
+                            SaveInPlayer();
+
+                        if (Cfg && Cfg.playtimeSavedTextures.Count > 0)
+                            "Playtime Saved Textures".write_List(Cfg.playtimeSavedTextures, LoadTexturePegi);
                     }
                 }
             }

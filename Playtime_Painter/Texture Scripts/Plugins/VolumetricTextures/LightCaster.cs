@@ -2,6 +2,7 @@
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using System.Collections;
+using Playtime_Painter.Examples;
 
 namespace Playtime_Painter
 {
@@ -13,6 +14,8 @@ namespace Playtime_Painter
         private static int freeIndex;
 
         public ProjectorCameraConfiguration cameraConfiguration;
+
+        public MeshColorSetter emissiveMesh;
 
         Vector3 CameraRootPositionOffset => -transform.forward * cameraConfiguration.nearPlane;
 
@@ -37,6 +40,37 @@ namespace Playtime_Painter
 
         public int IndexForPEGI { get { return index;  } set { index = value; } }
         public string NameForPEGI { get { return gameObject.name; } set { gameObject.name = value; } }
+
+        public void SetChannelIndex(int ind)
+        {
+
+           // Debug.Log("Setting mesh color "+ind);
+
+            if (!emissiveMesh)
+                return;
+
+            bool valid = ind >= 0 && ind <= 3;
+
+            emissiveMesh.colorAlpha = valid ? 1 : 0;
+            emissiveMesh.changeColor = true;
+
+            switch (ind) {
+                case 0: emissiveMesh.color = Color.red;
+                    break;
+                case 1:
+                    emissiveMesh.color = Color.green;
+                    break;
+                case 2:
+                    emissiveMesh.color = Color.blue;
+                    break;
+            }
+
+        }
+
+        private void OnAwake()
+        {
+            AllProbes[index] = this;
+        }
 
         private void OnEnable() {
 
@@ -84,7 +118,6 @@ namespace Playtime_Painter
         }
 
         #if PEGI
-
         private int inspectedElement = -1;
 
         public bool Inspect()
@@ -102,6 +135,8 @@ namespace Playtime_Painter
 
                 "Emission Color".edit(ref ecol).nl(ref changed);
                 "Brightness".edit(ref brightness).nl(ref changed);
+                if (!emissiveMesh)
+                    "Emissive Mesh".edit(ref emissiveMesh).nl(ref changed);
             }
 
             if ("Projection".enter(ref inspectedElement, 1).nl())
@@ -130,7 +165,7 @@ namespace Playtime_Painter
 
            return changed;
         }
-#endif
+        #endif
 
     }
 }

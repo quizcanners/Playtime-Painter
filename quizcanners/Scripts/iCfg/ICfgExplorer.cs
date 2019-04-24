@@ -296,6 +296,25 @@ namespace QuizCannersUtilities
             return false;
         }
 
+        public bool SelectType<T>(ref object obj, TaggedTypesCfg all, bool keepTypeConfig = false)
+        {
+            var changed = false;
+            
+            if (all == null)
+            {
+                "No Types Holder".writeWarning();
+                return false;
+            }
+
+            var type = obj?.GetType();
+
+            if (all.Select(ref type).nl(ref changed)) 
+                ChangeType(ref obj, type, all, keepTypeConfig);
+            
+            return changed;
+        }
+
+
         public bool SelectType<T>(ref object obj, bool keepTypeConfig = false) {
             var changed = false;
 

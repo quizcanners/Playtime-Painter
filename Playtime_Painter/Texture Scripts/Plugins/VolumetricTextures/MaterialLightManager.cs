@@ -138,11 +138,24 @@ namespace Playtime_Painter {
             
             pegi.nl();
         
+            if (changed)
+                SetIndexesOnLightSources();
+
             return changed;
         }
 
         #endif
         #endregion
+
+        public void SetIndexesOnLightSources()
+        {
+            for (int i = 0; i < maxLights; i++)
+            {
+                var l = GetLight(i);
+                if (l)
+                    l.SetChannelIndex(i);
+            }
+        }
 
         public void UpdateLightsGlobal() {
 
@@ -166,8 +179,8 @@ namespace Playtime_Painter {
             }
         }
 
-        public void UpdateLightOnMaterials(List<Material> materials)
-        {
+        public void UpdateLightOnMaterials(List<Material> materials) {
+            
             if (materials.Count <= 0) return;
             
             for (var c = 0; c < maxLights; c++) {

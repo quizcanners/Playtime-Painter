@@ -137,6 +137,11 @@ namespace Playtime_Painter
 
         }
 
+        protected override void OnBecomeActive()
+        {
+            lights.SetIndexesOnLightSources();
+        }
+
         protected override string PropertyNameRoot => "BakedRays";
 
 #endregion
@@ -157,7 +162,12 @@ namespace Playtime_Painter
             bakedDepthes.GlobalValue = _allBakedDepthesTexture;
         }
 
-     
+        public override void OnDisable()
+        {
+            base.OnDisable();
+
+
+        }
 
 
 #endregion

@@ -1856,7 +1856,8 @@ namespace Playtime_Painter {
         public bool Inspect() {
 
             #if UNITY_2019_1_OR_NEWER && UNITY_EDITOR
-            if (!Application.isPlaying && !IsCurrentTool) {
+            if (!Application.isPlaying && !IsCurrentTool)
+            {
                 MsgPainter.PleaseSelect.GetText().writeHint();
                 return false;
             }
@@ -2357,8 +2358,7 @@ namespace Playtime_Painter {
                                     true).changes(ref changed);
                             }
 
-                            if ("New Texture Config ".conditional_enter(!IsTerrainHeightTexture, ref inspectionIndex, 4).nl())
-                            {
+                            if ("New Texture ".conditional_enter(!IsTerrainHeightTexture, ref inspectionIndex, 4).nl()) {
 
                                 if (Cfg.newTextureIsColor)
                                     "Clear Color".edit(ref Cfg.newTextureClearColor).nl(ref changed);
@@ -2370,6 +2370,11 @@ namespace Playtime_Painter {
 
                                 "Size:".select_Index("Size of the new Texture", 40, ref PainterCamera.Data.selectedWidthIndex,
                                     PainterDataAndConfig.NewTextureSizeOptions).nl();
+
+                                "Click + next to texture field below to create texture using this parameters".writeHint();
+
+                                pegi.nl();
+
                             }
 
                             if (id != null)

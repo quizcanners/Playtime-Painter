@@ -13,96 +13,31 @@ MonoBehaviour:
   m_Name: Painter_Data
   m_EditorClassIdentifier: 
   nestedReferences:
-  - {fileID: 2800000, guid: 3a04021182f0c04438f85f8fbc1a4227, type: 3}
-  - {fileID: 2800000, guid: b7fdfbe5ad74fa04f962a034390a76f1, type: 3}
-  - {fileID: 2100000, guid: 2506b329c538c664fbc6261b7f8dc2bc, type: 2}
-  - {fileID: 2100000, guid: 5cb93a33baa05f24281e5e8cc2f8ff6a, type: 2}
-  - {fileID: 2100000, guid: c3f44a42a8321804fa7b29439994b177, type: 2}
-  - {fileID: 2100000, guid: 122ad79ee7336ca40aca8b9e1c8420da, type: 2}
-  - {fileID: 2100000, guid: 4111ec3737538d24eac860c521e3f96e, type: 2}
-  - {fileID: 2100000, guid: f90d3c8fe8280d043b64fa62d862113a, type: 2}
-  - {fileID: 2800000, guid: 963e34d7b4af5d64984565a55337d3fa, type: 3}
-  - {fileID: 2800000, guid: 8671e757076a11543bae831b732dbf94, type: 3}
-  - {fileID: 2800000, guid: c1df44ca67c151a4aaad1378882d4342, type: 3}
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
-  - {fileID: 2800000, guid: 3bfad2a70a3556e4c8e347ac64073ec3, type: 3}
-  - {fileID: 2800000, guid: 9820eefc57365ba41a96988a13bd9f69, type: 3}
-  - {fileID: 2800000, guid: a3e67397117199d4eb3654145b5929b2, type: 3}
-  - {fileID: 2100000, guid: af84e577a1dc2174eb6741aabad231bc, type: 2}
-  - {fileID: 2100000, guid: 0c0337dea5e3dfd42ae847d8281cc5dc, type: 3}
-  - {fileID: 2100000, guid: e17d57eb2df39b74ab8186c3f90dea99, type: 2}
-  - {fileID: 2800000, guid: 8cca21ca72514e54ea79d54daeca3a1c, type: 3}
-  - {fileID: 2800000, guid: 4791f09eb823f3e45b684b1e398f19c3, type: 3}
-  - {fileID: 2800000, guid: 57c6cfd0a1c50ab40be9174655af105a, type: 3}
-  - {fileID: 2800000, guid: c782a881ec42b0b4aa06580faa97ec6c, type: 3}
-  - {fileID: 2100000, guid: a3bf3836c84afc84db574e7aa9063025, type: 2}
-  - {fileID: 2100000, guid: 2046a5a76e445734093b82f21f96e4ff, type: 3}
-  - {fileID: 2800000, guid: b00d8620fbaed1b4da42cd1cbc5cef0c, type: 3}
-  - {fileID: 2800000, guid: b3991a486d0d0b74aa40554070531e55, type: 3}
-  - {fileID: 2100000, guid: 7ef3a043b49292e44ae5b2412749fa03, type: 2}
-  - {fileID: 2800000, guid: 423661158ebffdf419ba599ef9b2d6a1, type: 3}
-  - {fileID: 2800000, guid: e85ce6fcfe4b2a44ab588e77b517fe60, type: 3}
-  - {fileID: 2800000, guid: 42ba1bd83dabe934ea0686cc643df59d, type: 3}
-  - {fileID: 2800000, guid: 4b95950808947b24d8f153604e217819, type: 3}
-  - {fileID: 2100000, guid: 1e84cfe552db12f498e7f8c8ecdd87b1, type: 3}
-  - {fileID: 2100000, guid: c0cf4c3176b62b34db265bbdd473b0ad, type: 3}
-  - {fileID: 2100000, guid: 7d613ce911b9d1a4f868504903cce040, type: 2}
-  - {fileID: 2100000, guid: 6a70494075c005246b631675e1e20092, type: 3}
-  - {fileID: 2800000, guid: 7be468de03b86b34895c3b5b933c7570, type: 3}
-  - {fileID: 2800000, guid: 2cb438d5e132b2342aab2b3addeaa978, type: 3}
-  - {fileID: 2800000, guid: f83bdafb90f02a9499f128bdf88c928f, type: 3}
-  - {fileID: 2800000, guid: 8b2fe4538333fa54dbdd39883099a7dc, type: 3}
-  - {fileID: 2100000, guid: 01665c2561a330a4aba701cf6a7af470, type: 2}
-  - {fileID: 2100000, guid: 4b534f73a71dd6740bd84e1c04891254, type: 2}
-  - {fileID: 2800000, guid: 8a60d84551d677d4c80da223850fa66a, type: 3}
-  - {fileID: 2800000, guid: c03cb53c1ddab2e42ac0ee65244bf50e, type: 3}
-  - {fileID: 2100000, guid: 6a8d3b4142049174d97a301714f6851e, type: 2}
-  - {fileID: 2800000, guid: 1a4df380481a5904fae0cf5980c5a316, type: 3}
-  - {fileID: 2800000, guid: d2d73b76c77e44948aa22251d6b1a625, type: 3}
-  - {fileID: 2800000, guid: 507834b80a307ef42914caba414f2562, type: 3}
-  - {fileID: 2800000, guid: 7970328561c877744bd3aa4bcd918235, type: 3}
-  - {fileID: 2100000, guid: 40aab80c8c7dcad4886fe15bce9ccacf, type: 2}
-  - {fileID: 2800000, guid: efc92d92a157c64408590a5074069911, type: 3}
-  - {fileID: 2100000, guid: 0c392682e4aa52f46a3b5d5f1e464549, type: 2}
-  - {fileID: 2800000, guid: 4613714fe4f713847b47e9eec4cf961b, type: 3}
-  - {fileID: 2100000, guid: b3aa65f0d24922743ba481bae98623ff, type: 2}
-  - {fileID: 2800000, guid: 408b60a16ffa9ed42bad816d6f3e562b, type: 3}
-  - {fileID: 2100000, guid: 35427968aa38e7349838d4d86a395cb9, type: 2}
-  - {fileID: 2100000, guid: fd95feaa3ad0ee74cb32103811943b89, type: 2}
-  - {fileID: 2100000, guid: 3a80bef6fcc14674f82551d25e657dc0, type: 2}
-  - {fileID: 2100000, guid: d859af95b8546b742b276250081cf1d5, type: 2}
-  - {fileID: 2800000, guid: bbfabfafd51dbe34f983c6cb79af2cff, type: 3}
-  - {fileID: 2100000, guid: 9ae229dd8ceca9b4383f716fbdbe3a8c, type: 2}
-  - {fileID: 2800000, guid: 2fce8c8a1590e3043bcbed37b6979fbe, type: 3}
-  - {fileID: 2800000, guid: da1a23f944deca6489d4def47c8a3998, type: 3}
-  - {fileID: 2800000, guid: 801c4ecb03c62ed47b16175d06855e1a, type: 3}
-  - {fileID: 2100000, guid: 970868379a374e04e969f0c637e884d1, type: 2}
-  - {fileID: 2800000, guid: dd7c202806e7a03488df3f069ce73e9d, type: 3}
-  - {fileID: 2800000, guid: 050c58dde54a87547a680b69f0123c57, type: 3}
-  - {fileID: 2100014, guid: 2511bd7279babd042aa9e91d37ce31b4, type: 3}
-  - {fileID: 2100012, guid: 2511bd7279babd042aa9e91d37ce31b4, type: 3}
-  - {fileID: 2800000, guid: d702353e8cf6cb94ea3b81fab1638337, type: 3}
-  - {fileID: 2800000, guid: b12d1dd42242dc24e9238d26626887e9, type: 3}
-  - {fileID: 2100000, guid: 874a99b0d841dbc46a0328315c4ece9b, type: 2}
-  - {fileID: 2800000, guid: 35c200f47dffd51449fbe2275ec6f984, type: 3}
-  - {fileID: 2800000, guid: 86d8de332d0d87c48ad2aad44b546496, type: 3}
-  - {fileID: 2100000, guid: ffee63ee6fdcd3646b684583fed038c8, type: 2}
-  - {fileID: 2800000, guid: 424c2c32f8e84494e80a70b6bed6d52a, type: 3}
-  - {fileID: 2800000, guid: 81d613158f2ac7846912bb6cf802b72a, type: 3}
   - {fileID: 28915676057212530, guid: 3fa68bc81dc209c40abc9006e8e85222, type: 2}
-  - {fileID: 2800000, guid: b5c86d86f2ceeb54e81106bf46022245, type: 3}
-  - {fileID: 2100000, guid: 3ea56777a5e95d943a6f20d97eb61ff8, type: 2}
+  - {fileID: 2800000, guid: 3bfad2a70a3556e4c8e347ac64073ec3, type: 3}
+  - {fileID: 2800000, guid: b7fdfbe5ad74fa04f962a034390a76f1, type: 3}
+  - {fileID: 2800000, guid: 3a04021182f0c04438f85f8fbc1a4227, type: 3}
+  - {fileID: 2800000, guid: 507834b80a307ef42914caba414f2562, type: 3}
+  - {fileID: 2800000, guid: d2d73b76c77e44948aa22251d6b1a625, type: 3}
+  - {fileID: 2800000, guid: 8671e757076a11543bae831b732dbf94, type: 3}
+  - {fileID: 2800000, guid: 86d8de332d0d87c48ad2aad44b546496, type: 3}
+  - {fileID: 2800000, guid: 35c200f47dffd51449fbe2275ec6f984, type: 3}
+  - {fileID: 2800000, guid: efc92d92a157c64408590a5074069911, type: 3}
+  - {fileID: 2100000, guid: 4111ec3737538d24eac860c521e3f96e, type: 2}
+  - {fileID: 2100000, guid: 122ad79ee7336ca40aca8b9e1c8420da, type: 2}
+  - {fileID: 2100000, guid: 2506b329c538c664fbc6261b7f8dc2bc, type: 2}
+  - {fileID: 2100000, guid: c3f44a42a8321804fa7b29439994b177, type: 2}
+  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: f90d3c8fe8280d043b64fa62d862113a, type: 2}
+  - {fileID: 2100000, guid: 5cb93a33baa05f24281e5e8cc2f8ff6a, type: 2}
+  - {fileID: 2100000, guid: 54129aa7a5cbd2049a0c343b769107ed, type: 2}
+  - {fileID: 2800000, guid: 5c5a828014db78d43a3abf5451f9dce5, type: 3}
   explorer:
     states: []
     fileFolderHolder: STDEncodes
-  inspectedItems: 10
+  inspectedItems: -1
   inspectedReference: -1
   playtimePainterLayer: 30
-  weatherConfigurations:
-  - name: Red
-    data: sh|1|1|sdst|74|b|29|b|23|ch|1|y|lm|1|0|sp|3|500|||trgf|3|100|rng|1|y|min|2|10|max|4|1000||sc|36|r|5|0.887|g|5|0.631|b|5|0.456|a|1|1||fg|1|y|fogCol|35|r|4|0.66|g|5|0.502|b|5|0.502|a|1|1||fogD|76|b|29|b|23|ch|1|y|lm|1|0|sp|3|500|||trgf|3|100|rng|1|y|min|4|0.01|max|4|1000||fogDen|79|b|30|b|24|ch|1|y|lm|1|0|sp|4|0.01|||trgf|5|0.002|rng|1|y|min|5|1E-05|max|3|0.1||
-  - name: Blue
-    data: sh|1|1|sdst|76|b|29|b|23|ch|1|y|lm|1|0|sp|3|500|||trgf|5|103.5|rng|1|y|min|2|10|max|4|1000||sc|32|r|5|0.486|g|5|0.707|b|1|1|a|1|1||fg|1|y|fogCol|36|r|5|0.292|g|5|0.544|b|5|0.764|a|1|1||fogD|76|b|29|b|23|ch|1|y|lm|1|0|sp|3|500|||trgf|3|100|rng|1|y|min|4|0.01|max|4|1000||fogDen|79|b|30|b|24|ch|1|y|lm|1|0|sp|4|0.01|||trgf|5|0.002|rng|1|y|min|5|1E-05|max|3|0.1||
   additiveAlphaOutput: {fileID: 4800000, guid: 64fa7bd7d59cb1245a6603bb8dfb652b, type: 3}
   additiveAlphaAndUVOutput: {fileID: 4800000, guid: fff128497067a014b8c2b0f12b3fdf7b,
     type: 3}
@@ -139,7 +74,7 @@ MonoBehaviour:
   previewTerrain: {fileID: 4800000, guid: 0840191720be74e56b2ca8bb031fd010, type: 3}
   playtimeSavedTextures: []
   showRecentTextures: 0
-  showColorSchemes: 0
+  showColorSchemes: 1
   sourceTextures:
   - {fileID: 2800000, guid: 259e99e0e1eea324bb56a7e17dc2a4ed, type: 3}
   - {fileID: 2800000, guid: 477ec35c1664eae40ac12e5a85f43d4e, type: 3}
@@ -174,7 +109,7 @@ MonoBehaviour:
   texturesFolderName: Textures
   meshesFolderName: Models
   vectorsFolderName: Vectors
-  atlasFolderName: Textures/Atlases
+  atlasFolderName: Atlases
   enablePainterUIonPlay: 0
   brushConfig:
     _inGpuBrushType: 3
@@ -216,19 +151,19 @@ MonoBehaviour:
       min: 0.1
       max: 4.5
       value: 3.73
-    showingSize: 0
+    showingSize: 1
   showColorSliders: 0
   disableNonMeshColliderInPlayMode: 0
   previewAlphaChanel: 0
   moreOptions: 0
   allowExclusiveRenderTextures: 0
-  showConfig: 0
+  showConfig: 1
   showTeachingNotifications: 0
-  disableSecondBufferUpdateDebug: 0
   samplingMaskSize:
     x: 4
     y: 4
   useDepthForProjector: 0
+  useFloatForScalingBuffers: 0
   newTextureIsColor: 1
   newTextureClearColor: {r: 0, g: 0, b: 0, a: 1}
   newTextureClearNonColorValue: {r: 0.5, g: 0.5, b: 0.5, a: 0.5}
@@ -236,6 +171,10 @@ MonoBehaviour:
   selectedHeightIndex: 8
   recordingNames: []
   browsedRecord: 0
-  stdData: imgs|495|e|46|tex2D|2|76|w|3|512|h|3|512|sn|12|SplatAlpha 0||e|46|tex2D|2|12|w|4|2048|h|4|2048|sn|10|Dirt_COLOR||e|36|tex2D|1|1|w|3|256|h|3|256|sn|4|Cube||e|49|tex2D|1|0|w|4|2048|h|4|2048|sn|6|Volume|clear|0|||e|37|tex2D|2|46|w|2|16|h|2|16|sn|6|pixArt||e|40|tex2D|2|45|w|2|16|h|2|16|sn|9|SmoothBox||e|46|tex2D|1|9|w|4|2048|h|4|2048|sn|11|Diffuse_ATL||e|46|tex2D|2|72|w|4|1024|h|4|1024|sn|10|Rock_COLOR||e|49|tex2D|2|71|w|3|118|h|2|82|sn|16|PixelPerfectTest||e|40|tex2D|2|49|w|4|1024|h|4|1024|sn|5|mask0|||sch|1|0|mats|1434|e|75|mat|1|6|tfs|59|e|26|b|13|n|8|_MainTex||tgs|0|||e|21|b|9|n|4|_Map||tgs|0|||||e|109|mat|1|5|tfs|93|e|26|b|13|n|8|_MainTex||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|23|b|10|n|5|_Refl||tgs|0|||||e|442|mat|1|2|tfs|425|e|66|b|33|n|27|0_SplatAlpha
-    0_mergeControl||tgs|19|e|13|_mergeControl|||e|38|b|25|n|19|_mergeTerrainHeight||tgs|0|||e|33|b|20|n|14|_TerrainColors||tgs|0|||e|61|b|29|n|23|0_mergeSplat_Dirt_COLOR||tgs|18|e|12|_mergeSplat_|||e|62|b|30|n|24|1_mergeSplat_Grass_COLOR||tgs|18|e|12|_mergeSplat_|||e|61|b|29|n|23|2_mergeSplat_Sand_COLOR||tgs|18|e|12|_mergeSplat_|||e|62|b|30|n|24|3_mergeSplat_Tiles_COLOR||tgs|18|e|12|_mergeSplat_|||||e|176|mat|1|4|tfs|159|e|41|b|28|n|15|g_BakedRays_VOL|nm|1|y||tgs|0|||e|31|b|18|n|12|_MainTex_ATL||tgs|0|||e|32|b|19|n|13|_BumpMapC_ATL||tgs|0|||e|31|b|18|n|12|_Microdetail||tgs|0|||||e|361|mat|2|11|pv|1|y|tfs|336|e|26|b|13|n|8|_MainTex||tgs|0|||e|36|b|23|n|17|_MetallicGlossMap||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|31|b|18|n|12|_ParallaxMap||tgs|0|||e|32|b|19|n|13|_OcclusionMap||tgs|0|||e|31|b|18|n|12|_EmissionMap||tgs|0|||e|30|b|17|n|11|_DetailMask||tgs|0|||e|35|b|22|n|16|_DetailAlbedoMap||tgs|0|||e|35|b|22|n|16|_DetailNormalMap||tgs|0|||||e|176|mat|1|7|tfs|159|e|26|b|13|n|8|_MainTex||tgs|0|||e|23|b|10|n|5|_Bump||tgs|0|||e|25|b|12|n|7|_Smudge||tgs|0|||e|25|b|12|n|7|_BumpEx||tgs|0|||e|30|b|17|n|11|_BumpDetail||tgs|0|||||e|48|mat|1|3|tfs|32|e|26|b|13|n|8|_MainTex||tgs|0||||||pals|331|e|304|n|1|A|cols|288|e|36|r|5|0.611|g|5|0.685|b|5|0.586|a|1|1||e|32|r|5|0.943|g|1|1|b|5|0.969|a|1|1||e|34|r|5|0.467|g|3|0.4|b|5|0.541|a|1|1||e|36|r|5|0.243|g|5|0.458|b|5|0.633|a|1|1||e|36|r|5|0.243|g|5|0.458|b|5|0.633|a|1|1||e|36|r|5|0.243|g|5|0.458|b|5|0.891|a|1|1||e|36|r|5|0.243|g|5|0.914|b|5|0.891|a|1|1||||e|14|n|1|B|cols|0||||cam|318|mm|0||pl|293|_lstMeta|7|pi|1|2||_lst|264|ColBleed|22|br|4|0.49|bl|6|0.0001||CmbndMpsCntrl|13|cm|0||tps|0|||MltBffr|19|s|0||sc|0||gui|1|n||TilAtlCntrl|13|atl|0||am|0|||VolumePntng|121|rtr|1|y|cam|104|fov|3|120|p|39|x|8|91.44484|y|8|44.06712|z|8|141.8883||r|27|y|9|-0.707107|w|8|0.707107||n|3|0.1|f|3|100|||||rts|4|4096||Vpck|2041|e|298|n|6|Simple|sln|278|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|42|en|1|y|t|1|2|vals|20|e|0||e|0||e|0||e|0||||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|511|n|5|Bevel|sln|492|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|84|en|1|y|t|1|2|vals|62|e|7|t|2|12||e|13|t|2|12|v|1|1||e|13|t|2|12|v|1|2||e|7|t|2|15||||e|91|en|1|y|t|1|3|vals|69|e|7|t|2|13||e|13|t|2|13|v|1|1||e|13|t|2|13|v|1|2||e|13|t|2|15|v|1|1||||e|91|en|1|y|t|1|4|vals|69|e|7|t|2|14||e|13|t|2|14|v|1|1||e|13|t|2|14|v|1|2||e|13|t|2|15|v|1|2||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|370|n|16|AtlasedProjected|sln|339|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|60|en|1|y|t|1|2|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|2||||e|26|en|1|y|t|1|3|sameSize|1|8||e|27|en|1|y|t|1|4|sameSize|2|11||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|403|n|16|Standard_Atlased|sln|372|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|60|en|1|y|t|1|2|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|2||||e|26|en|1|y|t|1|3|sameSize|1|8||e|60|en|1|y|t|1|4|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|2||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|424|n|22|WithUV2_AndSharpNormal|sln|387|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|75|en|1|y|t|1|2|vals|53|e|6|t|1|2||e|12|t|1|2|v|1|1||e|7|t|2|10||e|7|t|2|10||||e|81|en|1|y|t|1|3|vals|59|e|6|t|1|5||e|12|t|1|5|v|1|1||e|12|t|1|5|v|1|2||e|7|t|2|10||||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6|||||is|2|10|
+  stdData: imgs|535|e|45|tex2D|1|1|w|4|2048|h|4|2048|sn|10|Dirt_COLOR||e|36|tex2D|1|2|w|3|256|h|3|256|sn|4|Cube||e|49|tex2D|1|3|w|4|2048|h|4|2048|sn|6|Volume|clear|0|||e|41|tex2D|2|18|w|3|512|h|3|512|sn|8|Cube
+    (1)||e|45|tex2D|1|0|w|3|512|h|3|512|sn|12|SplatAlpha 0||e|36|tex2D|1|4|w|2|16|h|2|16|sn|6|pixArt||e|39|tex2D|1|5|w|2|16|h|2|16|sn|9|SmoothBox||e|46|tex2D|1|6|w|4|2048|h|4|2048|sn|11|Diffuse_ATL||e|45|tex2D|1|7|w|4|1024|h|4|1024|sn|10|Rock_COLOR||e|48|tex2D|1|8|w|3|118|h|2|82|sn|16|PixelPerfectTest||e|39|tex2D|1|9|w|4|1024|h|4|1024|sn|5|mask0|||sch|1|0|mats|1801|e|177|mat|2|13|tfs|159|e|41|b|28|n|15|g_BakedRays_VOL|nm|1|y||tgs|0|||e|31|b|18|n|12|_MainTex_ATL||tgs|0|||e|32|b|19|n|13|_BumpMapC_ATL||tgs|0|||e|31|b|18|n|12|_Microdetail||tgs|0|||||e|354|mat|2|17|tfs|336|e|26|b|13|n|8|_MainTex||tgs|0|||e|36|b|23|n|17|_MetallicGlossMap||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|31|b|18|n|12|_ParallaxMap||tgs|0|||e|32|b|19|n|13|_OcclusionMap||tgs|0|||e|31|b|18|n|12|_EmissionMap||tgs|0|||e|30|b|17|n|11|_DetailMask||tgs|0|||e|35|b|22|n|16|_DetailAlbedoMap||tgs|0|||e|35|b|22|n|16|_DetailNormalMap||tgs|0|||||e|76|mat|2|10|tfs|59|e|26|b|13|n|8|_MainTex||tgs|0|||e|21|b|9|n|4|_Map||tgs|0|||||e|110|mat|2|11|tfs|93|e|26|b|13|n|8|_MainTex||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|23|b|10|n|5|_Refl||tgs|0|||||e|443|mat|2|12|tfs|425|e|66|b|33|n|27|0_SplatAlpha
+    0_mergeControl||tgs|19|e|13|_mergeControl|||e|38|b|25|n|19|_mergeTerrainHeight||tgs|0|||e|33|b|20|n|14|_TerrainColors||tgs|0|||e|61|b|29|n|23|0_mergeSplat_Dirt_COLOR||tgs|18|e|12|_mergeSplat_|||e|62|b|30|n|24|1_mergeSplat_Grass_COLOR||tgs|18|e|12|_mergeSplat_|||e|61|b|29|n|23|2_mergeSplat_Sand_COLOR||tgs|18|e|12|_mergeSplat_|||e|62|b|30|n|24|3_mergeSplat_Tiles_COLOR||tgs|18|e|12|_mergeSplat_|||||e|361|mat|2|14|pv|1|y|tfs|336|e|26|b|13|n|8|_MainTex||tgs|0|||e|36|b|23|n|17|_MetallicGlossMap||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|31|b|18|n|12|_ParallaxMap||tgs|0|||e|32|b|19|n|13|_OcclusionMap||tgs|0|||e|31|b|18|n|12|_EmissionMap||tgs|0|||e|30|b|17|n|11|_DetailMask||tgs|0|||e|35|b|22|n|16|_DetailAlbedoMap||tgs|0|||e|35|b|22|n|16|_DetailNormalMap||tgs|0|||||e|177|mat|2|15|tfs|159|e|26|b|13|n|8|_MainTex||tgs|0|||e|23|b|10|n|5|_Bump||tgs|0|||e|25|b|12|n|7|_Smudge||tgs|0|||e|25|b|12|n|7|_BumpEx||tgs|0|||e|30|b|17|n|11|_BumpDetail||tgs|0|||||e|49|mat|2|16|tfs|32|e|26|b|13|n|8|_MainTex||tgs|0||||||pals|331|e|304|n|1|A|cols|288|e|36|r|5|0.611|g|5|0.685|b|5|0.586|a|1|1||e|32|r|5|0.943|g|1|1|b|5|0.969|a|1|1||e|34|r|5|0.467|g|3|0.4|b|5|0.541|a|1|1||e|36|r|5|0.243|g|5|0.458|b|5|0.633|a|1|1||e|36|r|5|0.243|g|5|0.458|b|5|0.633|a|1|1||e|36|r|5|0.243|g|5|0.458|b|5|0.891|a|1|1||e|36|r|5|0.243|g|5|0.914|b|5|0.891|a|1|1||||e|14|n|1|B|cols|0||||cam|1581|mm|0||pl|1555|_lstMeta|75|insp|1|4|pi|1|4|ed|52|inds|6|e|1|1||vals|5|e|0|||last|1|0|add|1|n|del|1|n|||_lst|1456|CmbndMpsCntrl|13|cm|0||tps|0|||MltBffr|19|s|0||sc|0||gui|1|n||TilAtlCntrl|13|atl|0||am|0|||VolumePntng|121|rtr|1|y|cam|104|fov|3|120|p|39|x|8|91.44484|y|8|44.06712|z|8|141.8883||r|27|y|9|-0.707107|w|8|0.707107||n|3|0.1|f|3|100|||Color
+    Mgmt|1210|cfgs|1199|e|392|n|17|New WeatherConfig|d|362|sh|1|1|sdst|76|b|29|b|23|ch|1|y|lm|1|0|sp|3|500|||trgf|5|103.5|rng|1|y|min|2|10|max|4|1000||sc|35|r|4|0.83|g|5|0.112|b|5|0.051|a|1|1||fg|1|y|fogCol|35|r|5|0.765|g|5|0.446|b|4|0.29|a|1|1||fogD|76|b|29|b|23|ch|1|y|lm|1|0|sp|3|500|||trgf|3|100|rng|1|y|min|4|0.01|max|4|1000||fogDen|79|b|30|b|24|ch|1|y|lm|1|0|sp|4|0.01|||trgf|5|0.057|rng|1|y|min|5|1E-05|max|3|0.1||||e|393|n|18|New
+    WeatherConfig1|d|362|sh|1|1|sdst|76|b|29|b|23|ch|1|y|lm|1|0|sp|3|500|||trgf|5|103.5|rng|1|y|min|2|10|max|4|1000||sc|35|r|4|0.83|g|5|0.112|b|5|0.051|a|1|1||fg|1|y|fogCol|35|r|5|0.765|g|5|0.446|b|4|0.29|a|1|1||fogD|76|b|29|b|23|ch|1|y|lm|1|0|sp|3|500|||trgf|3|100|rng|1|y|min|4|0.01|max|4|1000||fogDen|79|b|30|b|24|ch|1|y|lm|1|0|sp|4|0.01|||trgf|5|0.057|rng|1|y|min|5|1E-05|max|3|0.1||||e|393|n|18|New
+    WeatherConfig2|d|362|sh|1|1|sdst|76|b|29|b|23|ch|1|y|lm|1|0|sp|3|500|||trgf|5|103.5|rng|1|y|min|2|10|max|4|1000||sc|35|r|4|0.83|g|5|0.112|b|5|0.051|a|1|1||fg|1|y|fogCol|35|r|5|0.765|g|5|0.446|b|4|0.29|a|1|1||fogD|76|b|29|b|23|ch|1|y|lm|1|0|sp|3|500|||trgf|3|100|rng|1|y|min|4|0.01|max|4|1000||fogDen|79|b|30|b|24|ch|1|y|lm|1|0|sp|4|0.01|||trgf|5|0.057|rng|1|y|min|5|1E-05|max|3|0.1||||||||rts|4|2048||Vpck|2041|e|298|n|6|Simple|sln|278|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|42|en|1|y|t|1|2|vals|20|e|0||e|0||e|0||e|0||||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|511|n|5|Bevel|sln|492|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|84|en|1|y|t|1|2|vals|62|e|7|t|2|12||e|13|t|2|12|v|1|1||e|13|t|2|12|v|1|2||e|7|t|2|15||||e|91|en|1|y|t|1|3|vals|69|e|7|t|2|13||e|13|t|2|13|v|1|1||e|13|t|2|13|v|1|2||e|13|t|2|15|v|1|1||||e|91|en|1|y|t|1|4|vals|69|e|7|t|2|14||e|13|t|2|14|v|1|1||e|13|t|2|14|v|1|2||e|13|t|2|15|v|1|2||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|370|n|16|AtlasedProjected|sln|339|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|60|en|1|y|t|1|2|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|2||||e|26|en|1|y|t|1|3|sameSize|1|8||e|27|en|1|y|t|1|4|sameSize|2|11||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|403|n|16|Standard_Atlased|sln|372|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|60|en|1|y|t|1|2|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|2||||e|26|en|1|y|t|1|3|sameSize|1|8||e|60|en|1|y|t|1|4|vals|38|e|0||e|6|v|1|1||e|6|v|1|2||e|6|v|1|2||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|424|n|22|WithUV2_AndSharpNormal|sln|387|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|75|en|1|y|t|1|2|vals|53|e|6|t|1|2||e|12|t|1|2|v|1|1||e|7|t|2|10||e|7|t|2|10||||e|81|en|1|y|t|1|3|vals|59|e|6|t|1|5||e|12|t|1|5|v|1|1||e|12|t|1|5|v|1|2||e|7|t|2|10||||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6|||||iid|1|0|
   systemLanguage: 38

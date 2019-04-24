@@ -19,7 +19,12 @@ namespace Playtime_Painter {
         protected VolumeTexture CurrentGlobal
         {
             get { return currentlyActiveVolumes.TryGet(MaterialPropertyNameGlobal);  }
-            set { currentlyActiveVolumes[MaterialPropertyNameGlobal] = value; }
+            set
+            {
+                currentlyActiveVolumes[MaterialPropertyNameGlobal] = value;
+                if (value)
+                    value.OnBecomeActive();
+            }
         }
 
         public static VolumeTexture GetGlobal(ShaderProperty.TextureValue propertyName)
@@ -313,6 +318,11 @@ namespace Playtime_Painter {
             ImageMeta.saveName = name + VolumePaintingPlugin.VolumeTextureTag + hSlices.ToString() + VolumePaintingPlugin.VolumeSlicesCountTag;
             if (ImageMeta.texture2D) ImageMeta.texture2D.name = ImageMeta.saveName;
             if (ImageMeta.renderTexture) ImageMeta.renderTexture.name = ImageMeta.saveName;
+        }
+
+        protected virtual void OnBecomeActive()
+        {
+
         }
 
         #region Inspect

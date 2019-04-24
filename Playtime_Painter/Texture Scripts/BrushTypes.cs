@@ -333,15 +333,12 @@ namespace Playtime_Painter
 
              if (st.CrossedASeam())
                  st.uvFrom = st.uvTo;
-
-             if (RenderTextureBuffersManager.bigRtPair == null) TexMGMT.RecreateBuffersIfDestroyed();
-
+             
              ImageMeta id = painter.ImgMeta;
-
-
+            
              bool alphaBuffer;
 
-            TexMGMT.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, st, painter, out alphaBuffer);
+             TexMGMT.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, st, painter, out alphaBuffer);
 
              RtBrush.localScale = Vector3.one * br.StrokeWidth(id.width, false);
 
@@ -372,15 +369,11 @@ namespace Playtime_Painter
         public static void Paint(Vector2 uv, BrushConfig br, RenderTexture rt)
         {
 
-            if (RenderTextureBuffersManager.bigRtPair == null)
-                TexMGMT.RecreateBuffersIfDestroyed();
-
             var id = rt.GetImgData();
             var stroke = new StrokeVector(uv) {
                 firstStroke = false
             };
-
-
+            
             bool alphaBuffer;
 
             TexMGMT.Shader_UpdateStrokeSegment(br, br.Speed * 0.05f, id, stroke, null, out alphaBuffer);
@@ -442,10 +435,7 @@ namespace Playtime_Painter
                     _previousUv = st.uvTo;
    
                 }
-
-                if (RenderTextureBuffersManager.bigRtPair == null) TexMGMT.RecreateBuffersIfDestroyed();
-
-
+                
                 bool alphaBuffer;
 
                 TexMGMT.Shader_UpdateStrokeSegment(br, 1, id, st, painter, out alphaBuffer);
@@ -639,9 +629,6 @@ namespace Playtime_Painter
             }
             var r = TexMGMT;
             
-            if (RenderTextureBuffersManager.bigRtPair == null)
-                TexMGMT.RecreateBuffersIfDestroyed();
-
             var meshWidth = br.StrokeWidth(id.width, false); 
             
             var tf = RtBrush;
@@ -707,8 +694,6 @@ namespace Playtime_Painter
 
         private static void PrepareSphereBrush(ImageMeta id, BrushConfig br, StrokeVector stroke, PlaytimePainter painter, out bool alphaBuffer)
         {
-            if (RenderTextureBuffersManager.bigRtPair.IsNullOrEmpty())
-                TexMGMT.RecreateBuffersIfDestroyed();
 
             if (stroke.mouseDwn)
                 stroke.posFrom = stroke.posTo;
