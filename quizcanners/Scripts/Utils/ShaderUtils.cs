@@ -368,6 +368,14 @@ namespace QuizCannersUtilities
 
             public Vector2 GetTiling(Material mat) => mat ? mat.GetTextureScale(id) : Vector2.one;
 
+            public void Set(Material mat, Rect value)
+            {
+                if (mat) {
+                    mat.SetTextureOffset(id, value.min);
+                    mat.SetTextureScale(id, value.size);
+                }
+            }
+
             public void SetOffset(Material mat, Vector2 value)
             {
                 if (mat)

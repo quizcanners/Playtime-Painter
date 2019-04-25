@@ -110,6 +110,8 @@ namespace Playtime_Painter {
         
         public bool disableSecondBufferUpdateDebug;
 
+        public Light mainDirectionalLight;
+
         public PlaytimePainter focusedPainter;
 
         public List<ImageMeta> blitJobsActive = new List<ImageMeta>();
@@ -1053,6 +1055,8 @@ namespace Playtime_Painter {
 
                 if (!showBuffers)
                 {
+
+                    "Main Directional Light".edit(ref mainDirectionalLight).nl(ref changed);
 
                     #if UNITY_EDITOR
                     if ("Refresh Brush Shaders".Click(14).nl())

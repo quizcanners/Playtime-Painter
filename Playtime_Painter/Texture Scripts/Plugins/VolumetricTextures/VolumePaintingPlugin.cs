@@ -264,6 +264,26 @@ namespace Playtime_Painter
 
             Color avg = Color.black;
 
+         /*   float half = (targetScale-1) * 0.5f;
+
+            float hy = -half;
+            for (int y = 0; y < targetScale; y++)
+            {
+
+                float hx = -half;
+                float hy2 = hy * hy;
+
+                for (int x = 0; x < targetScale; x++) {
+                    float dist = Mathf.Sqrt(hy2 + hx * hx);
+
+
+
+                    hx += 1;
+                }
+
+                hy += 1;
+            }*/
+
             foreach (var p in pix)
                 avg += p;
   
@@ -441,10 +461,10 @@ namespace Playtime_Painter
                 }
 
                 if (!cpuBlit)
-                   "Hardness:".edit("Makes edges more rough.", 70, ref br.hardness, 1f, 22f).nl(ref changed);
+                   MsgPainter.Hardness.GetText().edit(MsgPainter.Hardness.GetDescription(), 70, ref br.hardness, 1f, 22f).nl(ref changed);
 
                 var tmpSpeed = br._dSpeed.value;
-                if ("Speed".edit(40, ref tmpSpeed, 0.01f, 4.5f).nl(ref changed))
+                if (MsgPainter.Speed.GetText().edit(40, ref tmpSpeed, 0.01f, 4.5f).nl(ref changed))
                     br._dSpeed.value = tmpSpeed;
 
                 

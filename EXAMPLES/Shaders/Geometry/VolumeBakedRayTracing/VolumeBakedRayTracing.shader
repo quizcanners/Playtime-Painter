@@ -13,10 +13,8 @@
 	Category{
 		Tags{
 			"Queue" = "Geometry"
-			"IgnoreProjector" = "True"
 			"RenderType" = "Opaque"
 			"LightMode" = "ForwardBase"
-			"RayTrace" = "Opaque"
 			"Volume" = "g_BakedRays_VOL"
 		}
 
@@ -26,6 +24,8 @@
 				CGPROGRAM
 				#pragma vertex vert
 				#pragma fragment frag
+
+				#pragma multi_compile_fwdbase
 				#pragma multi_compile_fog
 				#pragma shader_feature  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
 				#pragma shader_feature  ___ UV_ATLASED
@@ -248,17 +248,33 @@
 					PointLightTrace(scatter, glossLight, directLight, o.worldPos.xyz - g_l2pos.xyz,
 						o.normal, o.viewDir.xyz, bake.b, shads.b,  g_l2col, power, ambientBlock);
 
-					col.rgb *= (	directLight + scatter * 0.01 * bumpMap.a) * (1-col.a);
+
+					float shadow = SHADOW_ATTENUATION(o);
+
+
+					float diff = saturate((dot(o.normal, _WorldSpaceLightPos0.xyz)));
+					diff = saturate(diff - ambientBlock * 4 * (1 - diff));
+					float direct = diff * shadow;
+					_LightColor0 *= direct;
+					directLight += _LightColor0*2;
+					float3 halfDirection = normalize(o.viewDir.xyz + _WorldSpaceLightPos0.xyz);
+					float NdotH = max(0.01, (dot(o.normal.xyz, halfDirection)));
+					float normTerm = pow(NdotH, power)*power;
+					glossLight += normTerm * _LightColor0;
+
+					col.rgb *= (directLight + scatter * 0.01 * bumpMap.a) * (1-col.a);
 
 					col.rgb += glossLight*0.002*col.a;
 
-					float3 mix = col.gbr + col.brg;
-					col.rgb += mix * mix*0.02; // Arbitrary value
+				
 
 					BleedAndBrightness(col, 1);
 
 					UNITY_APPLY_FOG(o.fogCoord, col);
 
+
+					
+					//return shadow;
 
 					return  col;
 

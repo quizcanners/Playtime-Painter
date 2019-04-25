@@ -7,7 +7,6 @@
 			"IgnoreProjector" = "True"
 			"RenderType" = "Opaque"
 			"LightMode" = "ForwardBase"
-			"RayTrace" = "Opaque"
 		}
 
 		//Cull Off

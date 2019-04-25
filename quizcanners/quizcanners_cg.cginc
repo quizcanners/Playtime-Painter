@@ -492,7 +492,7 @@ inline float2 WetSection(inout float4 terrainN, inout float colA, float3 fwpos, 
 	Metalic += (1 - Metalic)*0.5*wetSection;
 	
 
-	return float2(foamA_W.y*(0.5 + shadow)*(under), soil*(viewDir*above) + under);
+	return float2(foamA_W.y*(0.5 + shadow)*(under), under); //  soil*() + under);
 }
 
 inline void BleedAndBrightness(inout float4 col, float mod) {
@@ -569,7 +569,7 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 
 	float showWater = 1-wet.y;
 
-	float deWater = 1 - showWater;
+	float deWater = wet.y;
 
 	worldNormal.xyz = waterNrmAndSmooth.xyz * showWater + worldNormal.xyz * deWater;
 
@@ -655,16 +655,14 @@ inline void Terrain_Light(float3 tc_Control, float4 terrainN,
 	//col.rgb = reflected + 0.5;
 
 #if WATER_FOAM
-
-	
-
 	col.rgb += wet.x*0.3;//*fcol.rgb*fcol.a;
-	col.a = wet.y;
-	
+	//col.a = wet.y;
 #endif
 
 	BleedAndBrightness(col, fernel);
 
+	//col.rgb = deWater * smoothness;//showWater;
+	//smoothness; // Is affected by terrain under water
 
 }
 
@@ -679,12 +677,10 @@ inline void Terrain_4_Splats(float4 cont, float2 lowtiled, float2 tiled, float f
 	float4 splat2 = tex2Dlod(_mergeSplat_2, lt)*far + tex2Dlod(_mergeSplat_2, t)*deFar;
 	float4 splat3 = tex2Dlod(_mergeSplat_3, lt)*far + tex2Dlod(_mergeSplat_3, t)*deFar;
 
-
 	float4 splat0N = tex2Dlod(_mergeSplatN_0, lt)*far + tex2Dlod(_mergeSplatN_0, t)*deFar;
 	float4 splat1N = tex2Dlod(_mergeSplatN_1, lt)*far + tex2Dlod(_mergeSplatN_1, t)*deFar;
 	float4 splat2N = tex2Dlod(_mergeSplatN_2, lt)*far + tex2Dlod(_mergeSplatN_2, t)*deFar;
 	float4 splat3N = tex2Dlod(_mergeSplatN_3, lt)*far + tex2Dlod(_mergeSplatN_3, t)*deFar;
-
 
 	float newHeight = cont.r * triplanarY + splat0N.b;
 	float adiff = max(0, (newHeight - maxheight));
@@ -694,7 +690,6 @@ inline void Terrain_4_Splats(float4 cont, float2 lowtiled, float2 tiled, float f
 	terrainN = terrainN*(dAlpha)+splat0N*alpha;
 	maxheight += adiff;
 
-
 	newHeight = cont.g*triplanarY + splat1N.b;
 	adiff = max(0, (newHeight - maxheight));
 	alpha = min(1, adiff*(1 + MERGE_POWER*terrain.a*splat1.a));
@@ -702,7 +697,6 @@ inline void Terrain_4_Splats(float4 cont, float2 lowtiled, float2 tiled, float f
 	terrain = terrain*(dAlpha)+splat1*alpha;
 	terrainN = terrainN*(dAlpha)+splat1N*alpha;
 	maxheight += adiff;
-
 
 	newHeight = cont.b*triplanarY + splat2N.b;
 	adiff = max(0, (newHeight - maxheight));

@@ -91,6 +91,8 @@ namespace Playtime_Painter {
 
             pegi.nl();
             
+
+
             weatherManager.Inspect(ref weatherConfigurations).nl(ref changed);
             
             if (changed)  {
@@ -98,6 +100,8 @@ namespace Playtime_Painter {
                 UpdateShader();
                 this.SetToDirty_Obj();
             }
+
+
             return changed;
         }
 
@@ -137,6 +141,12 @@ namespace Playtime_Painter {
 
             #region Lerping
 
+           // private bool affectLightRotation;
+
+            LinkedLerp.ColorValue mainLightColor = new LinkedLerp.ColorValue("Light Color");
+            LinkedLerp.FloatValue mainLightIntensity = new LinkedLerp.FloatValue("Main Light Intensity");
+            LinkedLerp.QuaternionValue mainLightRotation = new LinkedLerp.QuaternionValue("Main light rotation");
+
             LinkedLerp.ColorValue fogColor = new LinkedLerp.ColorValue("Fog Color");
             LinkedLerp.ColorValue skyColor = new LinkedLerp.ColorValue("Sky Color");
             LinkedLerp.FloatValue shadowStrength = new LinkedLerp.FloatValue("Shadow Strength", 1);
@@ -158,6 +168,18 @@ namespace Playtime_Painter {
 
                 skyColor.TargetAndCurrentValue = RenderSettings.ambientSkyColor;
                 shadowDistance.TargetAndCurrentValue = QualitySettings.shadowDistance;
+
+                var mgmt = PainterCamera.Inst;
+                if (mgmt && mgmt.mainDirectionalLight)
+                {
+                    var l = mgmt.mainDirectionalLight;
+                    if (l)
+                    {
+                        mainLightColor.TargetAndCurrentValue = l.color;
+                        mainLightIntensity.TargetAndCurrentValue = l.intensity;
+                        mainLightRotation.TargetAndCurrentValue = l.transform.rotation;
+                    }
+                }
             }
 
             public void Update()
@@ -166,6 +188,8 @@ namespace Playtime_Painter {
                 {
                     ld.Reset();
 
+                    Light l = PainterCamera.Inst ? PainterCamera.Inst.mainDirectionalLight : null;
+
                     // Find slowest property
                     shadowStrength.Portion(ld);
                     shadowDistance.Portion(ld);
@@ -173,6 +197,16 @@ namespace Playtime_Painter {
                     skyColor.Portion(ld);
                     fogDensity.Portion(ld);
                     fogDistance.Portion(ld);
+                    if (l)
+                    {
+                        mainLightIntensity.Portion(ld);
+                        mainLightColor.Portion(ld);
+                      
+                        mainLightRotation.CurrentValue = l.transform.rotation;
+                        mainLightRotation.Portion(ld);
+
+                        
+                    }
 
                     // Lerp all the properties
                     shadowStrength.Lerp(ld);
@@ -181,6 +215,14 @@ namespace Playtime_Painter {
                     skyColor.Lerp(ld);
                     fogDensity.Lerp(ld);
                     fogDistance.Lerp(ld);
+
+                    if (l)
+                    {
+                        mainLightIntensity.Lerp(ld);
+                        mainLightColor.Lerp(ld);
+                       //if (affectLightRotation)
+                            mainLightRotation.Lerp(ld);
+                    }
 
                     RenderSettings.fogColor = fogColor.CurrentValue;
 
@@ -191,8 +233,18 @@ namespace Playtime_Painter {
                         RenderSettings.fogDensity = fogDensity.CurrentValue;
                     }
 
+
                     RenderSettings.ambientSkyColor = skyColor.CurrentValue;
                     QualitySettings.shadowDistance = shadowDistance.CurrentValue;
+
+                    if (l) {
+                        l.intensity = mainLightIntensity.CurrentValue;
+                        l.color = mainLightColor.CurrentValue;
+
+                        //if (affectLightRotation)
+                            l.transform.rotation = mainLightRotation.CurrentValue;
+                    }
+
                 }
 
             }
@@ -239,6 +291,35 @@ namespace Playtime_Painter {
                     "Sky Color".edit(60, ref skyColor.targetValue).nl(ref changed);
 
                 pegi.nl();
+
+
+                var mgmt = PainterCamera.Inst;
+                if (mgmt) {
+                    "Main Directional Light".edit(ref mgmt.mainDirectionalLight).nl(ref changed);
+
+                    var l = mgmt.mainDirectionalLight;
+
+                    if (l)
+                    {
+                     // "Rotation".toggleIcon(ref affectLightRotation).changes(ref changed);
+
+                      //  if (icon.Save.Click("Use current value"))
+                         //   mainLightRotation.targetValue = l.transform.rotation;
+
+                      //  if (affectLightRotation)
+                      //  {
+                            pegi.nl();
+                            mainLightRotation.Nested_Inspect().nl(ref changed); // targetValue).nl(ref changed);
+
+                      //  }
+
+                        pegi.nl();
+
+                        "Light Intensity".edit(ref mainLightIntensity.targetValue).nl(ref changed);
+                        "Light Color".edit(ref mainLightColor.targetValue).nl(ref changed);
+                    }
+
+                }
 
                 var newObj = "Configurations".edit_List(ref configurations, ref changed);
 
@@ -290,7 +371,14 @@ namespace Playtime_Painter {
                     .Add("sh", shadowStrength.targetValue)
                     .Add("sdst", shadowDistance)
                     .Add("sc", skyColor.targetValue)
-                    .Add_Bool("fg", RenderSettings.fog);
+                    .Add_Bool("fg", RenderSettings.fog)
+                    .Add("lcol", mainLightColor)
+                    .Add("lint", mainLightIntensity)
+                    //.Add_Bool("rot", affectLightRotation)
+                    ;
+
+               // if (affectLightRotation)
+                    cody.Add("lr", mainLightRotation);
 
                 if (RenderSettings.fog)
                     cody.Add("fogCol", fogColor.targetValue)
@@ -313,6 +401,10 @@ namespace Playtime_Painter {
                     case "fogD": fogDistance.Decode(data); break;
                     case "fogDen": fogDensity.Decode(data); break;
                     case "fogCol": fogColor.targetValue = data.ToColor(); break;
+                    case "lr": mainLightRotation.Decode(data); break;
+                    case "lcol": mainLightColor.Decode(data); break;
+                    case "lint": mainLightIntensity.Decode(data); break;
+                   // case "rot": affectLightRotation = data.ToBool(); break;
                     default: return false;
                 }
 

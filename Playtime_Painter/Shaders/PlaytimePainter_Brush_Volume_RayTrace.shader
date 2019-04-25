@@ -38,18 +38,40 @@
 					return o;
 				}
  
-				void ApplyStroke(float3 worldPos, float3 brushPos, float3 brushNormal, float3 brushCol, float deSize, inout float4 col) {
+				void ApplyStroke(float3 worldPos, float3 brushPos, float3 brushNormal, float3 brushCol, float deSize, inout float4 col, float hardness) {
+					
+					float speed = _brushForm.x;
+					float sharpness = _maskDynamics.y;
+					
 					float3 diff = worldPos - brushPos;
 					float dist = length(diff);
-					float preAlpha = saturate(deSize / (dist + 0.000001)) * saturate(dot(normalize(diff + brushNormal * deSize), brushNormal) * 2);
-					float alpha = saturate((preAlpha - col.a * 0.9)*2);
-					col.a = max(preAlpha, col.a);
-					col.rgb = brushCol.rgb * alpha + col.rgb * (1 - alpha);
+					float preAlpha = saturate(1 / (deSize*dist + 0.000001)) * saturate(dot(normalize(diff + brushNormal * deSize), brushNormal) * 2);
+					float alpha = saturate((preAlpha - col.a * hardness)*(2 + sharpness*0.1)*speed);
+					col.a = max(preAlpha, col.a*(1-0.005*alpha));
+					col.rgb = brushCol.rgb * alpha + max(col.rgb, brushCol.rgb*preAlpha) * (1 - alpha);
 				}
 
 				float4 frag(v2f o) : COLOR {
 
+					float sharpness = _maskDynamics.y;
+					float hardness = (1 - 0.1 / (1 + sharpness));
+
 					float3 worldPos = volumeUVtoWorld(o.texcoord.xy, VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
+
+					float offs = 0.5;
+
+					float4 up = SampleVolume(_DestBuffer, worldPos, VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH, float3(0, offs, 0));
+					float4 down = SampleVolume(_DestBuffer, worldPos, VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH, float3(0, -offs, 0));
+					float4 left = SampleVolume(_DestBuffer, worldPos, VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH, float3(offs, 0, 0));
+					float4 right = SampleVolume(_DestBuffer, worldPos, VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH, float3(-offs, 0, 0));
+					float4 fwd = SampleVolume(_DestBuffer, worldPos, VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH, float3(0, 0, offs));
+					float4 back = SampleVolume(_DestBuffer, worldPos, VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH, float3(0, 0, -offs));
+
+					float all = up.a + down.a + left.a + right.a + fwd.a + back.a + 0.0001;
+
+					float4 awg = up*up.a + down*down.a + left*left.a + right*right.a + fwd*fwd.a + back*back.a;
+
+					awg /= all;
 
 					float4 col = tex2Dlod(_DestBuffer, float4(o.texcoord.xy, 0, 0));
 
@@ -57,14 +79,11 @@
 
 					float3 brushNormal = VOLUME_BRUSH_DYRECTION.xyz;
 
-					ApplyStroke(worldPos.xyz, _brushWorldPosTo.xyz, brushNormal, _brushColor, deSize, col);
+					ApplyStroke(worldPos.xyz, _brushWorldPosTo.xyz, brushNormal, _brushColor, deSize, col, hardness);
 
-					/*float3 diff = worldPos - _brushWorldPosTo;
-					float dist = length(diff);
-					float preAlpha = saturate(1/(dist+0.000001)) * saturate(dot(normalize(diff + brushNormal * deSize), brushNormal) * 2);
-					float alpha = saturate((preAlpha - col.a * 0.9) * 5);
-					col.a = max(preAlpha, col.a);
-					col.rgb = _brushColor.rgb * alpha + col.rgb * (1 - alpha);*/
+					float portion = 0.5 + (col.a - awg.a)*0.25;
+
+					col.rgb = col.rgb*portion + awg.rgb*(1- portion);
 
 					return  col;
 

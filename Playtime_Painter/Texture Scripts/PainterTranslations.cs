@@ -82,8 +82,8 @@ namespace PlayerAndEditorGUI {
                         .From(ukr, "розмір");
                     break;
                 case MsgPainter.Hardness:
-                    msg.Translate("Sharpness")
-                        .From(ukr, "різкість");
+                    msg.Translate("Sharpness", "Makes edges more clear.")
+                        .From(ukr, "різкість", "Робить краї кісточки більш чіткими.");
                     break;
                 case MsgPainter.CopyFrom:
                     msg.Translate("Copy From")

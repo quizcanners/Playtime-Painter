@@ -4358,7 +4358,14 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region Vectors
-        
+
+        public static bool edit(this string label, ref Quaternion qt)
+        {
+            write(label, label.ApproximateLength());
+            return edit(ref qt);
+        }
+
+
         public static bool edit(this string label, int width, ref Quaternion qt) 
         {
             write(label, width);

@@ -9,7 +9,6 @@
 			"Queue" = "Transparent"
 			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
-			"RayTrace" = "Transparent"
 		}
 
 		//Cull Off

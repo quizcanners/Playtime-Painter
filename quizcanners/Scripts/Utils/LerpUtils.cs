@@ -415,6 +415,100 @@ namespace QuizCannersUtilities
             }
         }
 
+        public abstract class BaseQuaternionLerp : BaseAnyLerpValueGeneric<Quaternion>
+        {
+            public Quaternion targetValue;
+
+            protected override Quaternion TargetValue
+            {
+                get { return targetValue; }
+                set { targetValue = value; }
+            }
+
+            public override bool UsingLinkedThreshold => base.UsingLinkedThreshold && Enabled;
+
+            public override bool LerpInternal(float linkedPortion)
+            {
+                if (CurrentValue != targetValue || !defaultSet)
+                    CurrentValue = Quaternion.Lerp(CurrentValue, targetValue, linkedPortion);
+                else return false;
+
+                return true;
+            }
+
+            public override bool Portion(ref float linkedPortion)
+            {
+
+                var magnitude = Quaternion.Angle(CurrentValue, targetValue); 
+
+                return speedLimit.SpeedToMinPortion(magnitude, ref linkedPortion);
+            }
+
+            #region Inspector
+
+#if PEGI
+
+            public override bool PEGI_inList(IList list, int ind, ref int edited)
+            {
+                if (base.PEGI_inList(list, ind, ref edited)) {
+                    targetValue = CurrentValue;
+                    return true;
+                }
+
+                return false;
+            }
+
+            public override bool Inspect()
+            {
+                pegi.nl();
+
+                var changed = false;
+
+                if (base.Inspect().nl(ref changed))
+                    targetValue = CurrentValue;
+
+                if (lerpMode != LerpSpeedMode.LerpDisabled)
+                    "Target".edit(ref targetValue).nl(ref changed);
+
+
+                return changed;
+            }
+#endif
+
+            #endregion
+
+            #region Encode & Decode
+
+            public override CfgEncoder Encode()
+            {
+                var cody = new CfgEncoder()
+                    .Add("b", base.Encode);
+                if (allowChangeParameters)
+                    cody.Add("t", targetValue);
+
+                return cody;
+            }
+
+            public override bool Decode(string tg, string data)
+            {
+                switch (tg)
+                {
+                    case "b": data.Decode_Delegate(base.Decode); break;
+                    case "t": targetValue = data.ToQuaternion(); break;
+                    default: return false;
+                }
+
+                return true;
+            }
+
+            #endregion
+
+            protected BaseQuaternionLerp()
+            {
+                lerpMode = LerpSpeedMode.SpeedThreshold;
+            }
+        }
+        
         public abstract class BaseFloatLerp : BaseAnyLerpValueGeneric<float>, IPEGI_ListInspect
         {
 
@@ -489,12 +583,12 @@ namespace QuizCannersUtilities
                 get { return Mathf.Max(0, _targetTextures.Count - 1); }
                 set { }
             }
-
+            
             public override float CurrentValue
             {
                 get { return _portion; }
-                set
-                {
+                set {
+
                     _portion = value;
 
                     while (_portion >= 1)
@@ -502,7 +596,7 @@ namespace QuizCannersUtilities
                         _portion -= 1;
                         if (_targetTextures.Count > 1)
                         {
-                            _targetTextures.RemoveAt(0);
+                            RemovePreviousTexture();
                             Current = _targetTextures[0];
                             if (_targetTextures.Count > 1)
                                 Next = _targetTextures[1];
@@ -513,23 +607,23 @@ namespace QuizCannersUtilities
                 }
             }
 
-            private readonly List<Texture> _targetTextures = new List<Texture>();
+            protected readonly List<Texture> _targetTextures = new List<Texture>();
 
             public abstract Material Material { get; }
 
-            private Texture Current
-            {
-                get { return Material?.Get(currentTexturePrTextureValue); }
-                set { Material?.Set(currentTexturePrTextureValue, value); }
+            protected virtual Texture Current {
+                get { return Material.Get(currentTexturePrTextureValue); }
+                set { Material.Set(currentTexturePrTextureValue, value); }
             }
 
-            private Texture Next
-            {
+            protected virtual Texture Next {
                 get { return Material.Get(nextTexturePrTextureValue); }
                 set { Material.Set(nextTexturePrTextureValue, value); }
             }
 
-            public Texture TargetTexture
+            protected virtual void RemovePreviousTexture() => _targetTextures.RemoveAt(0);
+            
+            public virtual Texture TargetTexture
             {
                 get { return _targetTextures.TryGetLast(); }
 
@@ -668,6 +762,77 @@ namespace QuizCannersUtilities
 
             #endregion
         }
+
+        public abstract class BaseMaterialAtlasedTextureTransition : BaseMaterialTextureTransition {
+
+
+            Dictionary<Texture, Rect> offsets = new Dictionary<Texture, Rect>();
+
+            void NullOffset(Texture tex)
+            {
+                if (tex && offsets.ContainsKey(tex))
+                    offsets.Remove(tex);
+            }
+
+            
+
+            Rect GetRect(Texture tex) {
+                Rect rect;
+                if (tex && offsets.TryGetValue(tex, out rect))
+                    return rect;
+                else 
+                    return new Rect(0,0,1,1); 
+
+            }
+
+            public void SetTarget(Texture tex, Rect offset) {
+                TargetTexture = tex;
+                if (tex)
+                    offsets[tex] = offset;
+            }
+
+            public override Texture TargetTexture
+            {
+                get {  return base.TargetTexture; }
+
+                set
+                {
+                    NullOffset(value);
+                    base.TargetTexture = value;
+
+                }
+            }
+
+            protected override void RemovePreviousTexture()
+            {
+                
+                NullOffset(_targetTextures[0]);
+
+                base.RemovePreviousTexture();
+            }
+
+            protected override Texture Current
+            {
+                get { return base.Current; }
+                set
+                {
+                    base.Current = value;
+                    currentTexturePrTextureValue.Set(Material, GetRect(value));
+                }
+            }
+
+            protected override Texture Next
+            {
+                get { return base.Next; }
+                set
+                {
+                    base.Next = value;
+                    nextTexturePrTextureValue.Set(Material, GetRect(value));
+                }
+            }
+
+        }
+
 
         public abstract class BaseShaderValue : BaseAnyValue, IGotName
         {
@@ -924,6 +1089,100 @@ namespace QuizCannersUtilities
             }
 
         }
+
+        public class QuaternionValue : BaseQuaternionLerp, IGotName
+        {
+            private readonly string _name = "Rotation";
+            
+            Quaternion current = Quaternion.identity;
+
+            public override Quaternion CurrentValue
+            {
+                get { return current;}
+                set { current = value; }
+            }
+            
+            protected override string Name => _name;
+
+            #region Inspect
+            public string NameForPEGI
+            {
+                get { return _name; }
+                set { }
+            }
+
+            #if PEGI
+            public override bool PEGI_inList(IList list, int ind, ref int edited)
+            {
+                var changed = false;
+
+                if (allowChangeParameters)
+                {
+                    int width = _name.ApproximateLengthUnsafe();
+                    _name.edit(width, ref targetValue).changes(ref changed);
+                }
+
+                if (icon.Enter.Click())
+                    edited = ind;
+                
+                return changed;
+            }
+
+#endif
+            #endregion
+
+            #region Encode & Decode
+
+            public override CfgEncoder Encode()
+            {
+                var cody = new CfgEncoder()
+                    .Add("b", base.Encode)
+                    .Add("trgf", targetValue);
+
+                return cody;
+            }
+
+            public override bool Decode(string tg, string data)
+            {
+                switch (tg)
+                {
+                    case "b": data.Decode_Delegate(base.Decode); break;
+                    case "trgf": targetValue = data.ToQuaternion(); break;
+                    default: return false; 
+                }
+
+                return true;
+            }
+
+            #endregion
+
+            public QuaternionValue()
+            {
+            }
+
+            public QuaternionValue(string name)
+            {
+                _name = name;
+            }
+
+            public QuaternionValue(string name, Quaternion startValue)
+            {
+                _name = name;
+                targetValue = startValue;
+                CurrentValue = startValue;
+            }
+
+            public QuaternionValue(string name, Quaternion startValue, float lerpSpeed)
+            {
+                _name = name;
+                targetValue = startValue;
+                CurrentValue = startValue;
+                speedLimit = lerpSpeed;
+            }
+
+
+        }
+
 
         #endregion
 
@@ -1182,8 +1441,36 @@ namespace QuizCannersUtilities
                 }
             }
 
-            public override Material Material => _graphic?.material;
+            public override Material Material => _graphic ? _graphic.material : null;
         }
+
+        public class GraphicMaterialAtlasedTextureTransition : BaseMaterialAtlasedTextureTransition
+        {
+            protected override string Name => "AtTexture Transition";
+
+            private Graphic _graphic;
+
+            public GraphicMaterialAtlasedTextureTransition(float nSpeed = 1) : base()
+            {
+                speedLimit = nSpeed;
+            }
+
+            public Graphic Graphic
+            {
+                set
+                {
+                    if (value != _graphic)
+                    {
+                        _graphic = value;
+                        if (Application.isPlaying)
+                            _graphic.material = Object.Instantiate(_graphic.material);
+                    }
+                }
+            }
+
+            public override Material Material => _graphic ? _graphic.material : null;
+        }
+
 
         public class RendererMaterialTextureTransition : BaseMaterialTextureTransition
         {
@@ -1209,7 +1496,7 @@ namespace QuizCannersUtilities
                 }
             }
 
-            public override Material Material => _graphic?.MaterialWhatever();
+            public override Material Material => _graphic ? _graphic.MaterialWhatever() : null;
         }
 
         #endregion

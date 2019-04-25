@@ -28,13 +28,14 @@
 			#pragma fragment frag
 
 			#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
-
+			//#pragma target 3.0
 			#pragma multi_compile_fwdbase
 			#pragma multi_compile_fog
+
 			#pragma shader_feature  ___ UV_ATLASED
 			#pragma shader_feature  ___ UV_PROJECTED
 			#pragma shader_feature  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
-			#pragma multi_compile  ___ WATER_FOAM
+			//#pragma multi_compile  ___ WATER_FOAM
 
 			sampler2D _MainTex_ATL;
 			sampler2D _BumpMapC_ATL;
@@ -44,7 +45,7 @@
 			struct v2f {
 				float4 pos : SV_POSITION;
 				float4 vcol : COLOR0;
-				float3 worldPos : TEXCOORD0;
+				float3 wpos : TEXCOORD0;
 				float3 normal : TEXCOORD1;
 				float2 texcoord : TEXCOORD2;
 				float4 edge : TEXCOORD3;
@@ -54,21 +55,22 @@
 				float3 edgeNorm0 : TEXCOORD7;
 				float3 edgeNorm1 : TEXCOORD8;
 				float3 edgeNorm2 : TEXCOORD9;
-				#if UV_ATLASED
-				float4 atlasedUV : TEXCOORD10;
-				#endif
-
+				
 				#if !_BUMP_NONE
 				#if UV_PROJECTED
-				float4 bC : TEXCOORD11;
+				float4 bC : TEXCOORD10;
 				#else
-				float4 wTangent : TEXCOORD11;
+				float4 wTangent : TEXCOORD10;
 				#endif
 				#endif
-				UNITY_FOG_COORDS(12)
-				float3 tc_Control : TEXCOORD13;
+				UNITY_FOG_COORDS(11)
+				float3 tc_Control : TEXCOORD12;
 				#if WATER_FOAM
-				float4 fwpos : TEXCOORD14;
+				float4 fwpos : TEXCOORD13;
+				#endif
+
+				#if UV_ATLASED
+				float4 atlasedUV : TEXCOORD14;
 				#endif
 			};
 
@@ -76,11 +78,11 @@
 				v2f o;
 				o.pos = UnityObjectToClipPos(v.vertex);
 				UNITY_TRANSFER_FOG(o, o.pos);
-				o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
+				o.wpos = mul(unity_ObjectToWorld, v.vertex).xyz;
 				#if WATER_FOAM
-				o.fwpos = ComputeFoam(o.worldPos);
+				o.fwpos = ComputeFoam(o.wpos);
 				#endif
-				o.tc_Control.xyz = (o.worldPos.xyz - _mergeTeraPosition.xyz) / _mergeTerrainScale.xyz;
+				o.tc_Control.xyz = (o.wpos.xyz - _mergeTeraPosition.xyz) / _mergeTerrainScale.xyz;
 				o.normal.xyz = UnityObjectToWorldNormal(v.normal);
 
 				o.vcol = v.color;
@@ -96,7 +98,7 @@
 				o.snormal.xyz = normalize(o.edgeNorm0*deEdge.x + o.edgeNorm1*deEdge.y + o.edgeNorm2*deEdge.z);
 
 				#if UV_PROJECTED
-				normalAndPositionToUV(o.snormal.xyz, o.worldPos,
+				normalAndPositionToUV(o.snormal.xyz, o.wpos,
 				#if !_BUMP_NONE
 					o.bC,
 				#endif
@@ -126,18 +128,13 @@
 
 				i.viewDir.xyz = normalize(i.viewDir.xyz);
 
+				#if WATER_FOAM
+				float yDiff;
+				float4 nrmNdSm = SampleWaterNormal(i.viewDir.xyz, i.wpos.xyz, i.tc_Control.xyz, yDiff);
+				i.tc_Control.xz += nrmNdSm.xz * max(0, -yDiff)*0.0001;
+				#endif
 
-#if WATER_FOAM
-			float yDiff;
-
-			float4 nrmNdSm = SampleWaterNormal(i.viewDir.xyz, i.wpos.xyz, i.tc_Control.xyz, yDiff);
-
-			i.tc_Control.xz += nrmNdSm.xz * max(0, -yDiff)*0.0001;
-
-#endif
-
-
-				float dist = length(i.worldPos.xyz - _WorldSpaceCameraPos.xyz)+1;
+				float dist = length(i.wpos.xyz - _WorldSpaceCameraPos.xyz)+1;
 
 				float mip = 0;
 
@@ -200,7 +197,7 @@
 				// Terrain Start
 				float4 terrainN = 0;
 
-				Terrain_Trilanear(i.tc_Control, i.worldPos, dist, worldNormal, col, terrainN, bumpMap);
+				Terrain_Trilanear(i.tc_Control, i.wpos, dist, worldNormal, col, terrainN, bumpMap);
 	
 				float shadow = SHADOW_ATTENUATION(i);
 

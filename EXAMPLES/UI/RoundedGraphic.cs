@@ -89,7 +89,9 @@ namespace Playtime_Painter.Examples
             }
             var rctS = rectSize;
 
-            rctS = new Vector2(Mathf.Max(0, (rctS.x - rctS.y) / rctS.x), Mathf.Max(0, (rctS.y - rctS.x) / rctS.y));
+            float rectDiff = rctS.x - rctS.y;
+
+            rctS = new Vector2(Mathf.Max(0, rectDiff / rctS.x), Mathf.Max(0, (-rectDiff) / rctS.y));
 
             var scaleToSided = rctS.x - rctS.y; // If x>0 - positive, else - negative
 
@@ -627,7 +629,7 @@ namespace Playtime_Painter.Examples
 #endif
 #endregion
 
-#region Encode & Decode
+            #region Encode & Decode
 
             public override bool Decode(string tg, string data)
             {
@@ -649,7 +651,7 @@ namespace Playtime_Painter.Examples
                     .Add("crn", _roundedCorners)
                     .Add("hov", valueWhenOver)
                     .Add("nrm", valueWhenOff);
-#endregion
+            #endregion
 
            
         }
@@ -677,14 +679,14 @@ namespace Playtime_Painter.Examples
             #endif
             #endregion
 
-#region Encode & Decode
+            #region Encode & Decode
             public override CfgEncoder Encode() => this.EncodeUnrecognized();
 
             public override bool Decode(string tg, string data) => false;
-#endregion
+            #endregion
         }
         
-#endregion
+        #endregion
     }
 
 

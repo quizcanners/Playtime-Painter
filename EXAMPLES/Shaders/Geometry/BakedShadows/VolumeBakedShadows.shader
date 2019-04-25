@@ -18,7 +18,6 @@
 			"IgnoreProjector" = "True"
 			"RenderType" = "Opaque"
 			"LightMode" = "ForwardBase"
-			"RayTrace" = "Opaque"
 			"A_VertexColorRole" = "Second Atlas Texture"
 			"B_VertexColorRole" = "Additional Wetness"
 			"Volume" = "g_BakedShadow_VOL"
