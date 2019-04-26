@@ -309,7 +309,7 @@ namespace QuizCannersUtilities
         
         public static T GetRandom<T>(this List<T> list) => list.Count == 0 ? default(T) : list[UnityEngine.Random.Range(0, list.Count)];
         
-        public static void ForceSet<T>(this List<T> list, int index, T val) {
+        public static void ForceSet<T,G>(this List<T> list, int index, G val) where G:T {
             if (list == null || index < 0) return;
 
             while (list.Count <= index)

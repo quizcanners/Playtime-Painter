@@ -42,6 +42,8 @@ namespace Playtime_Painter
             var cody = this.EncodeUnrecognized()
                 .Add_IfTrue("ug", _useGrid)
                 .Add_IfTrue("rtr", _enableRayTracing)
+                .Add("mFiv", minFov)
+                .Add("mFov", maxFov) 
                 .Add("cam", rayTraceCameraConfiguration);
 
             return cody;
@@ -53,6 +55,8 @@ namespace Playtime_Painter
             {
                 case "ug": _useGrid = data.ToBool(); break;
                 case "rtr": _enableRayTracing = true; break;
+                case "mFiv": minFov = data.ToFloat(); break;
+                case "mFov": maxFov = data.ToFloat(); break;
                 case "cam": rayTraceCameraConfiguration.Decode(data); break;
                 default: return false;
             }
@@ -228,23 +232,13 @@ namespace Playtime_Painter
 
         private bool _enableRayTracing;
 
+        private float minFov = 60;
+
+        private float maxFov = 170;
+
         private float arbitraryBrightnessIncrease = 4;
 
-        const int targetScale = 8;
-
-        private static Texture2D GetMinSizeTexture()
-        {
-            if (tex)
-                return tex;
-
-            tex = new Texture2D(targetScale, targetScale, TextureFormat.RGBA32, false, true);
-
-            return tex;
-        }
-
-        private static Texture2D tex;
-
-        private BrushStrokePainterImage delayedPaintingConfiguration;
+ private BrushStrokePainterImage delayedPaintingConfiguration;
 
         private static ProjectorCameraConfiguration rayTraceCameraConfiguration = new ProjectorCameraConfiguration();
         
@@ -252,15 +246,22 @@ namespace Playtime_Painter
 
         public CameraMatrixParameters GetGlobalCameraMatrixParameters() => null;
 
-        public ProjectorCameraConfiguration GetProjectorCameraConfiguration() => rayTraceCameraConfiguration;
+        public ProjectorCameraConfiguration GetProjectorCameraConfiguration()
+        {
+            rayTraceCameraConfiguration.fieldOfView = minFov + UnityEngine.Random.Range(0, maxFov - minFov);
+            return rayTraceCameraConfiguration;
+        }
 
-        public void AfterCameraRender(RenderTexture texture) {
+        public void AfterCameraRender(RenderTexture texture)
+        {
 
-            const int pixelsCount = targetScale * targetScale;
+            var size = RenderTextureBuffersManager.tinyTextureSize;
 
-            var tiny = TexMGMT.GetDownscaleOf(texture, targetScale);
+            int pixelsCount = size * size;
 
-            var pix = GetMinSizeTexture().CopyFrom(tiny).GetPixels();
+            var tiny = TexMGMT.GetDownscaleOf(texture, RenderTextureBuffersManager.tinyTextureSize);
+
+            var pix = RenderTextureBuffersManager.GetMinSizeTexture().CopyFrom(tiny).GetPixels();
 
             Color avg = Color.black;
 
@@ -393,8 +394,16 @@ namespace Playtime_Painter
                     }
 
                     if ("Ray Trace Camera".conditional_enter(_enableRayTracing && PainterCamera.depthProjectorCamera,
-                        ref _exploreRayTaceCamera))
+                        ref _exploreRayTaceCamera).nl_ifFoldedOut())
+                    {
+                        
+                        "Min".edit(40, ref minFov, 60, maxFov-1).nl(ref changed);
+
+                        "Max".edit(40, ref maxFov, minFov+1, 170).nl(ref changed);
+
                         rayTraceCameraConfiguration.Nested_Inspect().nl(ref changed);
+
+                    }
 
                     if (_enableRayTracing && BrushConfig.showAdvanced)
                     {

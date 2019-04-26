@@ -67,6 +67,13 @@ namespace Playtime_Painter.Examples
         protected override void OnPopulateMesh(VertexHelper vh)
         {
 
+            if (!gameObject.activeSelf) {
+                if (Debug.isDebugBuild && Application.isEditor)
+                    Debug.LogError("On populate mesh is called for disabled UI element");
+
+                return;
+            }
+
             var rt = rectTransform;
             var piv = rt.pivot;
             var rectSize = rt.rect.size;

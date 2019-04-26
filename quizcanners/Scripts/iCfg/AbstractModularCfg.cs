@@ -33,6 +33,8 @@ namespace QuizCannersUtilities {
             tag = nTag;
             displayName = nDisplayName ?? tag;
         }
+
+      
     }
 
     public class TaggedTypesCfg

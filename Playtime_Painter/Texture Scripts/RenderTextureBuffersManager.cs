@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define debugInits
+
+using System;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using System.Collections.Generic;
@@ -10,6 +12,26 @@ namespace Playtime_Painter {
 
         public static PainterDataAndConfig Data =>
             PainterCamera.Data;
+
+        #region Tiny Texture
+
+        public const int tinyTextureSize = 8;
+
+        public static Texture2D GetMinSizeTexture()
+        {
+            if (tex)
+                return tex;
+
+
+
+            tex = new Texture2D(tinyTextureSize, tinyTextureSize, TextureFormat.RGBA32, false, true);
+
+            return tex;
+        }
+
+        private static Texture2D tex;
+
+        #endregion
 
         #region Painting Buffers
         public static int renderBuffersSize = 2048;
@@ -62,6 +84,12 @@ namespace Playtime_Painter {
         {
             if (!GotPaintingBuffers)
             {
+
+                #if debugInits
+                Debug.Log("Creating Painting buffers");
+                #endif
+
+
                 bigRtPair = new RenderTexture[2];
                 var tA = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
                 var tB = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
@@ -154,6 +182,12 @@ namespace Playtime_Painter {
                 sbf.autoGenerateMips = false;
 
                 _squareBuffers[no] = sbf;
+
+
+                #if debugInits
+                Debug.Log("Creating Scaling buffer {0}*{0}".F(width));
+                #endif
+
             }
 
             return _squareBuffers[no];
@@ -184,6 +218,10 @@ namespace Playtime_Painter {
 
             _depthTargetForUsers = GetDepthRenderTexture(1024);
 
+            #if debugInits
+            Debug.Log("Creating Reusable Depth Target {0}*{0}".F(1024));
+            #endif
+
             return _depthTargetForUsers;
         }
 
@@ -197,6 +235,8 @@ namespace Playtime_Painter {
 
         public static void UpdateDepthTarget()
         {
+            sizeOfDepthBuffers = Mathf.Max(sizeOfDepthBuffers, 16);
+
             if (depthTarget)
             {
                 if (depthTarget.width == sizeOfDepthBuffers)
@@ -205,9 +245,11 @@ namespace Playtime_Painter {
                     depthTarget.DestroyWhateverUnityObject();
             }
 
-            var sz = Mathf.Max(sizeOfDepthBuffers, 16);
+            depthTarget = GetDepthRenderTexture(sizeOfDepthBuffers);
 
-            depthTarget = GetDepthRenderTexture(sz);
+            #if debugInits
+            Debug.Log("Creating depth target {0}*{0}".F(sizeOfDepthBuffers));
+            #endif
 
         }
 
