@@ -65,12 +65,8 @@
 				#endif
 				UNITY_FOG_COORDS(11)
 				float3 tc_Control : TEXCOORD12;
-				#if WATER_FOAM
-				float4 fwpos : TEXCOORD13;
-				#endif
-
 				#if UV_ATLASED
-				float4 atlasedUV : TEXCOORD14;
+				float4 atlasedUV : TEXCOORD13;
 				#endif
 			};
 
@@ -129,9 +125,10 @@
 				i.viewDir.xyz = normalize(i.viewDir.xyz);
 
 				#if WATER_FOAM
-				float yDiff;
-				float4 nrmNdSm = SampleWaterNormal(i.viewDir.xyz, i.wpos.xyz, i.tc_Control.xyz, yDiff);
-				i.tc_Control.xz += nrmNdSm.xz * max(0, -yDiff)*0.0001;
+				float yDiff = _foamParams.z - i.wpos.y;
+				float3 projectedWpos;
+				float3 nrmNdSm = SampleWaterNormal(i.viewDir.xyz,  projectedWpos);
+				i.tc_Control.xz += nrmNdSm.xz * max(0, yDiff)*0.0001;
 				#endif
 
 				float dist = length(i.wpos.xyz - _WorldSpaceCameraPos.xyz)+1;
@@ -203,12 +200,14 @@
 
 				float Metalic = 0;
 
-				Terrain_Light(i.tc_Control, terrainN, worldNormal, i.viewDir.xyz, col, shadow, Metalic, 
+				float ambient = terrainN.a;
+
+				Terrain_Water_AndLight(i.tc_Control, ambient, worldNormal, i.viewDir.xyz, col, shadow, Metalic,
 		
 				#if WATER_FOAM
-					i.fwpos, nrmNdSm
+					saturate(yDiff), nrmNdSm, projectedWpos
 				#else
-					0, 0
+					0, 0, 0
 				#endif
 					);
 

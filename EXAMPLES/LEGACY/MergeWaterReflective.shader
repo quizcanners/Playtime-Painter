@@ -60,9 +60,9 @@
 					i.viewDir.xyz = normalize(i.viewDir.xyz);
 
 
-					float yDiff;
-					
-					float4 nrmNdSm = SampleWaterNormal(i.viewDir.xyz, i.wpos.xyz, i.tc_Control.xyz,  yDiff);
+					float yDiff = i.wpos.y - _foamParams.z;
+					float3 projectedWpos;
+					float3 nrmNdSm = SampleWaterNormal(i.viewDir.xyz,    projectedWpos);
 
 					float3 normal = nrmNdSm.xyz;
 

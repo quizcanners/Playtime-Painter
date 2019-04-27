@@ -49,17 +49,14 @@ Shader "Playtime Painter/Terrain Integration/Triplanar" {
 					float3 viewDir : TEXCOORD2;
 					float3 wpos : TEXCOORD3;
 					float3 tc_Control : TEXCOORD4;
-					#if WATER_FOAM
-					float4 fwpos : TEXCOORD5;
-					#endif
-					SHADOW_COORDS(6)
-					float2 texcoord : TEXCOORD7;
+					SHADOW_COORDS(5)
+					float2 texcoord : TEXCOORD6;
 					#if _BUMP_NONE
-					float3 normal : TEXCOORD8;
+					float3 normal : TEXCOORD7;
 					#else
-					float3 tspace0 : TEXCOORD8; 
-					float3 tspace1 : TEXCOORD9; 
-					float3 tspace2 : TEXCOORD10; 
+					float3 tspace0 : TEXCOORD7; 
+					float3 tspace1 : TEXCOORD8; 
+					float3 tspace2 : TEXCOORD9; 
 					#endif
 				};
 
@@ -78,10 +75,6 @@ Shader "Playtime Painter/Terrain Integration/Triplanar" {
 					TRANSFER_SHADOW(o);
 
 					float3 worldNormal = UnityObjectToWorldNormal(v.normal);
-
-					#if WATER_FOAM
-					o.fwpos = ComputeFoam(o.wpos);    
-					#endif
 
 					half3 wNormal = worldNormal;
 
@@ -106,8 +99,9 @@ Shader "Playtime Painter/Terrain Integration/Triplanar" {
 
 
 #if WATER_FOAM
-					float yDiff;
-					float4 nrmNdSm = SampleWaterNormal(i.viewDir.xyz, i.wpos.xyz, i.tc_Control.xyz, yDiff);
+					float yDiff = _foamParams.z - i.wpos.y;
+					float3 projectedWpos;
+					float3 nrmNdSm = SampleWaterNormal(i.viewDir.xyz, projectedWpos);
 #endif
 
 					float4 col = tex2D(_MainTex, i.texcoord.xy);
@@ -146,13 +140,13 @@ Shader "Playtime Painter/Terrain Integration/Triplanar" {
 
 					float Metalic = 0;
 
+					float ambient = terrainN.a;
 
-
-					Terrain_Light(i.tc_Control, terrainN, worldNormal, i.viewDir.xyz, col, shadow, Metalic,
+					Terrain_Water_AndLight(i.tc_Control, ambient, worldNormal, i.viewDir.xyz, col, shadow, Metalic,
 					#if WATER_FOAM
-						i.fwpos, nrmNdSm
+						saturate(yDiff), nrmNdSm, projectedWpos
 					#else
-					0, 0
+					0, 0, 0
 					#endif
 						);
 

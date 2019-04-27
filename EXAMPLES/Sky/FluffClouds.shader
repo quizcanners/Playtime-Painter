@@ -61,6 +61,13 @@
 
 				float4 frag (v2f i) : COLOR {
 
+
+					#if WATER_FOAM
+					float3 projectedWpos;
+					float3 nrmNdSm = SampleWaterNormal(normalize(i.viewDir.xyz), projectedWpos);
+					#endif
+
+
 					float vda = i.viewDir.a;
 					float dvda = 1 - i.viewDir.a/1024;
 					float2 v = i.viewDir.xz / (i.viewDir.y - vda*0.1)*dvda;

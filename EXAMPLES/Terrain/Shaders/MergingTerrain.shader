@@ -1,7 +1,6 @@
 ﻿Shader "Playtime Painter/Terrain Integration/Terrain Only" {
 	Properties
 	{
-		_HeightFix("_Test", Range(1,128)) = 1
 	}
 
 	Category{
@@ -37,73 +36,67 @@
 					float3 viewDir : TEXCOORD2; 
 					float3 wpos : TEXCOORD3;
 					float3 tc_Control : TEXCOORD4;
-					#if WATER_FOAM
+				/*	#if WATER_FOAM
 					float4 fwpos : TEXCOORD5;
-					#endif
-					SHADOW_COORDS(6) 
-					float3 normal : TEXCOORD7;
-					float2 texcoord : TEXCOORD8;
+					#endif*/
+					SHADOW_COORDS(5) 
+					float3 normal : TEXCOORD6;
+					float2 texcoord : TEXCOORD7;
 				};
 
 				v2f vert (appdata_full v) {
 					v2f o;
 
 					float4 worldPos = mul(unity_ObjectToWorld, v.vertex);
-					o.tc_Control.xyz = (worldPos.xyz - _mergeTeraPosition.xyz) / _mergeTerrainScale.xyz;
+					o.tc_Control.xyz = WORLD_POS_TO_TERRAIN_UV_3D(worldPos.xyz); // -_mergeTeraPosition.xyz) / _mergeTerrainScale.xyz;
 
 					o.pos = UnityObjectToClipPos(v.vertex);
+					
 					o.wpos = worldPos;
 					o.viewDir.xyz= (WorldSpaceViewDir(v.vertex));
 			
 					o.texcoord = v.texcoord;
+
+
 					UNITY_TRANSFER_FOG(o, o.pos);
 					TRANSFER_SHADOW(o);
+
+					
 
 					float3 worldNormal = UnityObjectToWorldNormal(v.normal);
 
 					o.normal =  normalize(worldNormal);
 
-					#if WATER_FOAM
+				/*	#if WATER_FOAM
 					o.fwpos = ComputeFoam(o.wpos);
-					#endif
+					#endif*/
 
 					return o;
 				}
 
-				float _HeightFix;
 
 				float4 frag (v2f i) : COLOR {
 					
 					i.viewDir.xyz = normalize(i.viewDir.xyz);
 
-				//_foamParams.z
+					float4 height = tex2D(_mergeTerrainHeight, i.tc_Control.xz + _mergeTerrainScale.w);
+					float aboveTerrain = saturate((((i.wpos.y - _mergeTeraPosition.y) - height.a*_mergeTerrainScale.y) - 0.5)*0.5);
+					float deAboveTerrain = 1 - aboveTerrain;
 
-				/*	float2 v = i.viewDir.xz / i.viewDir.y;
+					#if WATER_FOAM
+					float yDiff = _foamParams.z - i.wpos.y;
 
-					float toCam = _WorldSpaceCameraPos.y - _foamParams.z;
+					float3 projectedWpos;
 
-					const float waterTyling = 0.01;
+					float3 nrmNdSm = SampleWaterNormal(i.viewDir.xyz, projectedWpos);
 
-					float4 c = tex2D(_mergeSplat_4, (_WorldSpaceCameraPos.xz  - v * toCam) * waterTyling);
-					*/
-					//return c;
-
-				float4 height = tex2D(_mergeTerrainHeight, i.tc_Control.xz + _mergeTerrainScale.w);
-				float aboveTerrain = saturate((((i.wpos.y - _mergeTeraPosition.y) - height.a*_mergeTerrainScale.y) - 0.5)*0.5);
-				float deAboveTerrain = 1 - aboveTerrain;
-
-
-#if WATER_FOAM
-				float yDiff;
-				
-				float4 nrmNdSm = SampleWaterNormal(i.viewDir.xyz, i.wpos.xyz, i.tc_Control.xyz, yDiff);
-
-				i.tc_Control.xz += nrmNdSm.xz * max(0, -yDiff)*0.0001;
-
-#endif
+					i.tc_Control.xz += nrmNdSm.xz * max(0, yDiff)*0.0005 * (1-i.viewDir.y);
+					
+					#endif
 					
 
-				
+
+
 					float dist = length(i.wpos.xyz - _WorldSpaceCameraPos.xyz);
 
 					float far = min(1, dist*0.01);
@@ -111,8 +104,6 @@
 
 					float4 col = tex2D(_mergeControl, i.tc_Control.xz);
 					float3 bump = (height.rgb - 0.5)*2;
-
-			
 
 					bump = bump*deAboveTerrain + i.normal * aboveTerrain;
 
@@ -181,24 +172,22 @@
 
 					float Metallic = 0;
 
+					float ambient = terrainN.a;
 
-					//nrmNdSm
-
-
-
-
-					Terrain_Light(i.tc_Control, terrainN, worldNormal, i.viewDir.xyz, col, shadow , Metallic, 
+					Terrain_Water_AndLight(i.tc_Control, ambient, worldNormal, i.viewDir.xyz, col, shadow , Metallic,
 					#if WATER_FOAM
-					i.fwpos, nrmNdSm
+						saturate(yDiff), nrmNdSm, projectedWpos
 					#else
-					0, 0
+					0, 0, 0
 					#endif
 					);
 
-					//return col.a;
-
-
+#if WATER_FOAM
 					UNITY_APPLY_FOG(i.fogCoord, col);
+#else 
+					UNITY_APPLY_FOG(i.fogCoord, col);
+#endif
+
 
 					return col;
 				}

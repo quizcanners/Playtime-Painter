@@ -279,8 +279,18 @@ namespace Playtime_Painter {
                 MsgPainter.BrushType.Write();
                 pegi.select_Index(ref _inGpuBrushType, BrushType.AllTypes).changes(ref changed);
 
+
+
                 if (docsEnabled && brushType != null && pegi.DocumentationClick("About {0} brush type".F(brushType.NameForDisplayPEGI)))
                     pegi.FullWindwDocumentationOpen(brushType.ToolTip);
+
+                if (!brushType.ShowInDropdown())
+                {
+                    pegi.nl();
+                    "Selected brush type is not supported in context of this Painter".writeWarning();
+                    
+                }
+
             }
             
             var overrideBlitModePegi = false;
@@ -402,8 +412,7 @@ namespace Playtime_Painter {
 
             if (!PainterCamera.GotBuffers && icon.Refresh.Click("Refresh Main Camera Buffers"))
                 RenderTextureBuffersManager.RefreshPaintingBuffers();
-
-
+            
             if ((PainterCamera.GotBuffers || id.renderTexture) && id.texture2D)
             {
                 if ((cpuBlit ? icon.CPU : icon.GPU).Click(
@@ -413,8 +422,7 @@ namespace Playtime_Painter {
                     SetSupportedFor(cpuBlit, !id.renderTexture);
                 }
             }
-
-
+            
             if (cpuBlit) {
                 var smooth = _brushType(cpuBlit) != BrushTypePixel.Inst.index;
 

@@ -83,7 +83,10 @@
 
 					float portion = 0.5 + (col.a - awg.a)*0.5;
 
-					col.rgb = col.rgb*portion+ max(col.rgb, awg.rgb)*(1 - portion);
+					col.rgb = col.rgb*portion+ 
+						//max(col.rgb, awg.rgb)
+						awg.rgb
+						*(1 - portion);
 
 					return  col;
 
