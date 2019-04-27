@@ -9,7 +9,7 @@ namespace Playtime_Painter.Examples
     [ExecuteInEditMode]
     public class WaterController : MonoBehaviour, IPEGI
     {
-        private readonly ShaderProperty.VectorValue _foamDynamicsProperty = new ShaderProperty.VectorValue("_foamDynamics");
+       // private readonly ShaderProperty.VectorValue _foamDynamicsProperty = new ShaderProperty.VectorValue("_foamDynamics");
         private readonly ShaderProperty.VectorValue _foamParametersProperty = new ShaderProperty.VectorValue("_foamParams");
         private readonly ShaderProperty.TextureValue _foamTextureProperty = new ShaderProperty.TextureValue("_foam_MASK");
         private readonly ShaderProperty.TextureValue _pp_waterBumpMap = new ShaderProperty.TextureValue("_pp_WaterBump");
@@ -29,13 +29,13 @@ namespace Playtime_Painter.Examples
         public Texture waterBump;
         public Vector4 foamParameters;
         private float _myTime = 0;
-        public float thickness;
-        public float noise;
-        public float upscale;
+       // public float thickness;
+       // public float noise;
+       // public float upscale;
         public float wetAreaHeight;
 
         private void SetFoamDynamics() {
-            _foamDynamicsProperty.GlobalValue = new Vector4(thickness, noise, upscale, (300 - thickness));
+           // _foamDynamicsProperty.GlobalValue = new Vector4(thickness, noise, upscale, (300 - thickness));
             _foamTextureProperty.GlobalValue = foamMask;
             _pp_waterBumpMap.GlobalValue = waterBump;
         }
@@ -68,9 +68,9 @@ namespace Playtime_Painter.Examples
 
             "Bump".edit(70, ref waterBump).nl(ref changed);
             "Foam".edit(70, ref foamMask).nl(ref changed);
-            "Thickness:".edit(70, ref thickness, 5, 300).nl(ref changed);
+         /*   "Thickness:".edit(70, ref thickness, 5, 300).nl(ref changed);
             "Noise:".edit(50, ref noise, 0, 100).nl(ref changed);
-            "Upscale:".edit(50, ref upscale, 1, 64).nl(ref changed);
+            "Upscale:".edit(50, ref upscale, 1, 64).nl(ref changed);*/
             "Wet Area Height:".edit(50, ref wetAreaHeight, 0.1f, 10).nl(ref changed);
 
             if (changed) {

@@ -11,7 +11,7 @@
 		}
 		
 		LOD 200
-		ColorMask RGBA
+		ColorMask RGB
 
 
 		SubShader {
@@ -22,12 +22,12 @@
 				#pragma vertex vert
 				#pragma fragment frag
 				#pragma multi_compile_fog
+				#pragma multi_compile_fwdbase
+				#pragma multi_compile  ___ WATER_FOAM
 
 				#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
-				#pragma multi_compile_fwdbase
-
-				#pragma multi_compile  ___ WATER_FOAM
+		
 
 				struct v2f {
 					float4 pos : POSITION;
@@ -84,19 +84,16 @@
 					float deAboveTerrain = 1 - aboveTerrain;
 
 					#if WATER_FOAM
-					float yDiff = _foamParams.z - i.wpos.y;
+					float underWater = _foamParams.z - i.wpos.y;
 
 					float3 projectedWpos;
-
 					float3 nrmNdSm = SampleWaterNormal(i.viewDir.xyz, projectedWpos);
 
-					i.tc_Control.xz += nrmNdSm.xz * max(0, yDiff)*0.0005 * (1-i.viewDir.y);
+					i.tc_Control.xz += nrmNdSm.xz * max(0, underWater)*0.0005 * (1-i.viewDir.y);
 					
 					#endif
 					
-
-
-
+					
 					float dist = length(i.wpos.xyz - _WorldSpaceCameraPos.xyz);
 
 					float far = min(1, dist*0.01);
@@ -174,20 +171,31 @@
 
 					float ambient = terrainN.a;
 
-					Terrain_Water_AndLight(i.tc_Control, ambient, worldNormal, i.viewDir.xyz, col, shadow , Metallic,
-					#if WATER_FOAM
-						saturate(yDiff), nrmNdSm, projectedWpos
-					#else
-					0, 0, 0
-					#endif
-					);
+					float smoothness = col.a;
+
+					//col = 0;
 
 #if WATER_FOAM
-					UNITY_APPLY_FOG(i.fogCoord, col);
-#else 
-					UNITY_APPLY_FOG(i.fogCoord, col);
+					APPLY_PROJECTED_WATER(saturate(underWater), worldNormal, nrmNdSm, i.tc_Control, projectedWpos, i.viewDir.y, col, smoothness, ambient, shadow);
 #endif
 
+					//Terrain_Water_AndLight(wcol, WORLD_POS_TO_TERRAIN_UV_3D(projectedWpos), 1, 1, waterNormal, viewDir.xyz, 1, 0);
+
+
+					Terrain_Water_AndLight(col, i.tc_Control, 
+						
+						
+						//1,1 
+						ambient, smoothness
+						
+						
+						, worldNormal, i.viewDir.xyz,
+
+
+						//1, 0); 
+						shadow , Metallic);
+
+					UNITY_APPLY_FOG(i.fogCoord, col);
 
 					return col;
 				}

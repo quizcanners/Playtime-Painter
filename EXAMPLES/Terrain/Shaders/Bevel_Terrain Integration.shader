@@ -125,10 +125,10 @@
 				i.viewDir.xyz = normalize(i.viewDir.xyz);
 
 				#if WATER_FOAM
-				float yDiff = _foamParams.z - i.wpos.y;
+				float underWater = _foamParams.z - i.wpos.y;
 				float3 projectedWpos;
 				float3 nrmNdSm = SampleWaterNormal(i.viewDir.xyz,  projectedWpos);
-				i.tc_Control.xz += nrmNdSm.xz * max(0, yDiff)*0.0001;
+				i.tc_Control.xz += nrmNdSm.xz * max(0, underWater)*0.0001;
 				#endif
 
 				float dist = length(i.wpos.xyz - _WorldSpaceCameraPos.xyz)+1;
@@ -201,15 +201,15 @@
 				float Metalic = 0;
 
 				float ambient = terrainN.a;
+				float smoothness = col.a;
 
-				Terrain_Water_AndLight(i.tc_Control, ambient, worldNormal, i.viewDir.xyz, col, shadow, Metalic,
-		
-				#if WATER_FOAM
-					saturate(yDiff), nrmNdSm, projectedWpos
-				#else
-					0, 0, 0
-				#endif
-					);
+
+#if WATER_FOAM
+				APPLY_PROJECTED_WATER(saturate(underWater), worldNormal, nrmNdSm, i.tc_Control, projectedWpos, i.viewDir.y, col, smoothness, ambient, shadow);
+#endif
+
+
+				Terrain_Water_AndLight(col,  i.tc_Control, ambient, smoothness, worldNormal, i.viewDir.xyz,  shadow, Metalic);
 
 				UNITY_APPLY_FOG(i.fogCoord, col);
 

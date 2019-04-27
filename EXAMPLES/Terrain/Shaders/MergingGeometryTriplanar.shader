@@ -99,7 +99,7 @@ Shader "Playtime Painter/Terrain Integration/Triplanar" {
 
 
 #if WATER_FOAM
-					float yDiff = _foamParams.z - i.wpos.y;
+					float underWater = _foamParams.z - i.wpos.y;
 					float3 projectedWpos;
 					float3 nrmNdSm = SampleWaterNormal(i.viewDir.xyz, projectedWpos);
 #endif
@@ -142,13 +142,17 @@ Shader "Playtime Painter/Terrain Integration/Triplanar" {
 
 					float ambient = terrainN.a;
 
-					Terrain_Water_AndLight(i.tc_Control, ambient, worldNormal, i.viewDir.xyz, col, shadow, Metalic,
-					#if WATER_FOAM
-						saturate(yDiff), nrmNdSm, projectedWpos
-					#else
-					0, 0, 0
-					#endif
-						);
+					float smoothness = col.a;
+				
+
+#if WATER_FOAM
+					APPLY_PROJECTED_WATER(saturate(underWater), worldNormal, nrmNdSm, i.tc_Control, projectedWpos, i.viewDir.y, col, smoothness, ambient, shadow);
+#endif
+
+
+					Terrain_Water_AndLight(col, i.tc_Control, ambient, smoothness, worldNormal, i.viewDir.xyz,  shadow, Metalic);
+
+
 
 					UNITY_APPLY_FOG(i.fogCoord, col);
 

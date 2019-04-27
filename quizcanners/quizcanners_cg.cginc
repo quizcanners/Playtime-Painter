@@ -47,7 +47,7 @@ sampler2D _mergeSplatN_4;
 
 sampler2D _pp_WaterBump;
 float4 _foamParams;
-float4 _foamDynamics;
+//float4 _foamDynamics;
 
 float4 _Control_ST;
 float4 _mergeTerrainTiling;
@@ -516,7 +516,7 @@ inline void APPLY_PROJECTED_WATER(float showWater, inout float3 worldNormal, flo
 
 	tc_Control = WORLD_POS_TO_TERRAIN_UV_3D(waterPos) * showWater + tc_Control * deWater;
 
-	col.rgb *= saturate(viewDirY*0.5)*showWater + deWater;
+	col.rgb  *= saturate(viewDirY)*showWater + deWater;
 
 	smoothness = smoothness * deWater + showWater;
 
@@ -527,18 +527,12 @@ inline void APPLY_PROJECTED_WATER(float showWater, inout float3 worldNormal, flo
 
 }
 
-inline void Terrain_Water_AndLight(float3 tc_Control, float ambient,
-	float3 worldNormal, float3 viewDir, inout float4 col, float shadow, float Metallic, float showWater, float3 waterNrm, float3 waterPos) {
+inline void Terrain_Water_AndLight(inout float4 col, float3 tc_Control, float ambient, float smoothness, float3 worldNormal, float3 viewDir, float shadow, float Metallic) {
 
-	float smoothness = col.a;
-
-#if WATER_FOAM
-	APPLY_PROJECTED_WATER(showWater, worldNormal, waterNrm, tc_Control, waterPos, viewDir.y, col, smoothness, ambient, shadow);
-#endif
-
+	
 	float dotprod = max(0, dot(worldNormal, viewDir.xyz));
 
-	float fernel = 1.5 - dotprod;
+	float fernel =  (1.5 - dotprod)*0.66;
 	float3 reflected = normalize(viewDir.xyz - 2 * (dotprod)*worldNormal);// *fernel
 
 	float deSmoothness = (1 - smoothness);
@@ -551,15 +545,21 @@ inline void Terrain_Water_AndLight(float3 tc_Control, float ambient,
 	diff = saturate(diff - ambientBlock * 4 * (1 - diff));
 	float direct = diff*shadow;
 
+
+	float2 fromCenter = max(0,abs(tc_Control.xz - 0.5) - 0.5);
+
+	float inRange = max(0, 1 - (fromCenter.x + fromCenter.y)*128);
+	float outRange = 1 - inRange;
+
 	float3 teraBounce = TERABOUNCE;
 
-	float4 terrainAmbient = tex2Dlod(_TerrainColors, float4(tc_Control.xz + worldNormal.xz*0.003,0,0));
+	float4 terrainAmbient = tex2Dlod(_TerrainColors, float4(tc_Control.xz + worldNormal.xz*0.003, 0, 0)) * inRange; //outRange;
 
-	terrainAmbient.a = tex2Dlod(_TerrainColors, float4(tc_Control.xz, 0, 0)).a;
+	terrainAmbient.a = tex2Dlod(_TerrainColors, float4(tc_Control.xz, 0, 0)).a * inRange + outRange;
 
 	terrainAmbient.rgb *= teraBounce;
 	terrainAmbient.a *= ambient;
-	float4 terrainLrefl = tex2Dlod(_TerrainColors, float4(tc_Control.xz - reflected.xz*col.a*terrainAmbient.a*0.1, 0, 6*deSmoothness));
+	float4 terrainLrefl = tex2Dlod(_TerrainColors, float4(tc_Control.xz - reflected.xz*smoothness*terrainAmbient.a*0.1, 0, 6*deSmoothness))* inRange;
 
 	terrainLrefl.rgb *= teraBounce;
 
@@ -570,7 +570,11 @@ inline void Terrain_Water_AndLight(float3 tc_Control, float ambient,
 
 	float deMetalic = (1 - Metallic);
 
-	col.rgb = col.rgb* (_LightColor0*deSmoothness + (terrainAmbient.rgb + ambientCol)*fernel*terrainAmbient.a);
+
+
+	col.rgb = col.rgb* (_LightColor0 + (terrainAmbient.rgb + ambientCol)*fernel*terrainAmbient.a) *(0.5 + deSmoothness*0.5);
+
+	
 
 	float3 halfDirection = normalize(viewDir.xyz + _WorldSpaceLightPos0.xyz);
 

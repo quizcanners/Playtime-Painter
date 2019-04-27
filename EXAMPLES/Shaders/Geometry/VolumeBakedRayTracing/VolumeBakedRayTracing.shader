@@ -231,7 +231,7 @@
 
 					float3 reflected = normalize(o.viewDir.xyz - 2 * (dotprod)*o.normal);
 						
-					float4 bake = SampleVolume(g_BakedRays_VOL, o.worldPos.xyz + reflected * fernel * smoothness,  g_VOLUME_POSITION_N_SIZE,  g_VOLUME_H_SLICES, o.normal);
+					float4 bake = SampleVolume(g_BakedRays_VOL, o.worldPos.xyz - reflected * fernel * (0.25 + smoothness),  g_VOLUME_POSITION_N_SIZE,  g_VOLUME_H_SLICES, o.normal);
 
 					float power = smoothness * (128+ fernel*128);
 

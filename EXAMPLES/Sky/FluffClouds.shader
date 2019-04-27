@@ -6,9 +6,14 @@
 	}
 
 	Category {
-		Tags {  "RenderType" = "Opaque" }
+		Tags { 
+		"RenderType" = "Opaque"
+			"LightMode" = "ForwardBase"
+			"Queue" = "Geometry"
+		
+		}
 	 		 
-		ColorMask RGBA
+		ColorMask RGB
 		Cull Off
 		ZWrite Off
 	
@@ -20,6 +25,8 @@
 				#pragma vertex vert
 				#pragma fragment frag
 				#pragma multi_compile_fog
+				#pragma multi_compile_fwdbase
+				#pragma multi_compile  ___ WATER_FOAM
 
 				#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
@@ -63,8 +70,9 @@
 
 
 					#if WATER_FOAM
+					float3 viewDir = normalize(i.viewDir.xyz);
 					float3 projectedWpos;
-					float3 nrmNdSm = SampleWaterNormal(normalize(i.viewDir.xyz), projectedWpos);
+					float3 waterNormal = SampleWaterNormal(viewDir, projectedWpos);
 					#endif
 
 
@@ -136,17 +144,45 @@
 
 					col.rgb+=sun;
 
-					BleedAndBrightness(col, 1);
+					float deAlpha = 1 - alpha;
+
+
+
 
 					#if defined(FOG_LINEAR) || defined(FOG_EXP) || defined(FOG_EXP2)
-					col.rgb = col.rgb*(alpha)+unity_FogColor.rgb*(1 - alpha);
+					float3 fogColor = unity_FogColor.rgb;
 					#else
-					col.rgb = col.rgb*(alpha)+unity_AmbientEquator.rgb*(1 - alpha);
+					float3 fogColor = unity_AmbientEquator.rgb;
 					#endif
 
+				
+#if WATER_FOAM
+					
+					float4 wcol = 0;
+					
+					//wcol.rgb = fogColor;
+		
 
-					col.a = 0;
+					float showWater = max(0, viewDir.y * 4);
 
+					Terrain_Water_AndLight(wcol, WORLD_POS_TO_TERRAIN_UV_3D(projectedWpos), 1, 1, waterNormal, viewDir.xyz, 1, 0);
+
+					col = wcol * showWater + col * (1- showWater);
+
+					BleedAndBrightness(col, 1);
+
+					alpha = saturate(alpha + showWater);
+
+					deAlpha = 1 - alpha;
+					//return showFog;
+#endif
+
+
+					BleedAndBrightness(col, 1);
+
+					col.rgb = col.rgb*alpha + fogColor.rgb*deAlpha;
+
+			
 					return col;
 				}
 				ENDCG 
