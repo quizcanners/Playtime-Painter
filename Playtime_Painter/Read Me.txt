@@ -1,19 +1,23 @@
 Thank you for using Playtime Painter. 
-
-The Asset is being constantly developed and there are many features yet to come. 
+ 
 If something looks like a bug or just feels unintuitive, feel free to use one of the Contact options below to let me know.
-
 
 HOW TO USE:
 Attach PlaytimePainter Component to the GameObject you want to edit. Component's interface contains all the Texture editing
-and mesh editing functionality. There is an Online Documentation but most of it is being moved into Component inspector (the '?' icon next to a thing).
+and mesh editing functionality. There is an Online Documentation but most of it is being moved into Component inspector (the '?' icon).
+With Unity 2019 the Painter is now enabled using tool select menu at the top left.
 
 IMPORTANT TO KNOW:
 Component more often prioratizes time-saving over being cautious. For example, it will automatically set "Is readable" 
 for texture currently selected for editing and will create a .PNG RGBA copy of it to edit if current version is of a wrong format.
 I created it for a very specific goal: to try ideas out as fast as possible. It's easy to edit things, but as a result, it's possible
-to accidentally do an unwanted change to your Assets. Still, if something like that happens, I'll appreciate the feedback. 
-Also it's best not to move folders around. Some dependencies are location sensitive (Shader .cginclude files need to be referenced directly for example).
+to accidentally do an unwanted change to your Assets. Still, if something like that happens, I'll appreciate the feedback, there are always
+ways to mitigate the risks. 
+Also it's best not to move folders around. Some dependencies are location sensitive (Shader .cginclude files need to be referenced directly, for example).
+
+
+MESH EDITOR:
+Mesh editor is not yet well documented and may be unintuitive at times as it is not yet finilized.
 
 
 Hope you will enjoy the Asset, and please join a Discord channel (link below). 

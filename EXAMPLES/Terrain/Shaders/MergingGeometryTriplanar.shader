@@ -35,7 +35,7 @@ Shader "Playtime Painter/Terrain Integration/Triplanar" {
 				#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
 				#pragma multi_compile_fwdbase 
-				#pragma multi_compile  ___ WATER_FOAM
+			//	#pragma multi_compile  ___ WATER_FOAM
 				#pragma shader_feature  ___ _BUMP_NONE  _BUMP_COMBINED 
 				#pragma shader_feature  ___ CLIP_ALPHA
 
@@ -97,12 +97,12 @@ Shader "Playtime Painter/Terrain Integration/Triplanar" {
 					i.viewDir.xyz = normalize(i.viewDir.xyz);
 					float dist = length(i.wpos.xyz - _WorldSpaceCameraPos.xyz);
 
-
+					/*
 #if WATER_FOAM
 					float underWater = _foamParams.z - i.wpos.y;
 					float3 projectedWpos;
 					float3 nrmNdSm = SampleWaterNormal(i.viewDir.xyz, projectedWpos);
-#endif
+#endif*/
 
 					float4 col = tex2D(_MainTex, i.texcoord.xy);
 	
@@ -145,10 +145,10 @@ Shader "Playtime Painter/Terrain Integration/Triplanar" {
 					float smoothness = col.a;
 				
 
-#if WATER_FOAM
+/*#if WATER_FOAM
 					APPLY_PROJECTED_WATER(saturate(underWater), worldNormal, nrmNdSm, i.tc_Control, projectedWpos, i.viewDir.y, col, smoothness, ambient, shadow);
 #endif
-
+*/
 
 					Terrain_Water_AndLight(col, i.tc_Control, ambient, smoothness, worldNormal, i.viewDir.xyz,  shadow, Metalic);
 

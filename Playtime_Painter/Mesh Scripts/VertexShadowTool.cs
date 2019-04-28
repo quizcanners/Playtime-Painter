@@ -47,9 +47,9 @@ namespace Playtime_Painter
             }
             GlobalBrush.ColorSliders().nl();
 
-            var mat = InspectedPainter.Material;
+            /*var mat = InspectedPainter.Material;
 
-            if (mat)
+             if (mat)
             {
                 ShadowVolumeTexture shadVT = null;
 
@@ -75,7 +75,7 @@ namespace Playtime_Painter
 
                     "Ray Cast Complete".showNotificationIn3D_Views();
                 }
-            }
+            }*/
             return false;
         }
 #endif

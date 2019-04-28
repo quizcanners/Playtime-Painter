@@ -60,7 +60,7 @@ namespace Playtime_Painter
                 _allTools.Add(new VertexEdgeTool());
                 _allTools.Add(new TriangleAtlasTool());
                 _allTools.Add(new TriangleSubMeshTool());
-                _allTools.Add(new VertexShadowTool());
+                //_allTools.Add(new VertexShadowTool());
                 _allTools.Add(new VertexUVTool());
 
                 foreach (var t in _allTools)
