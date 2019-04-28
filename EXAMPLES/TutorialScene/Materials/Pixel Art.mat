@@ -93,7 +93,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Smudge:
-        m_Texture: {fileID: 2800000, guid: ed062b53cecf0ef41be7669ca48cea81, type: 3}
+        m_Texture: {fileID: 2800000, guid: 3130d10873306a14e9c7e09c42ee242f, type: 3}
         m_Scale: {x: 2, y: 2}
         m_Offset: {x: 0, y: 0}
     m_Floats:

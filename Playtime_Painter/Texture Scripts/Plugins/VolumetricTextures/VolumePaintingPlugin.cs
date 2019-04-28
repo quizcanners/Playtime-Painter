@@ -44,6 +44,7 @@ namespace Playtime_Painter
                 .Add_IfTrue("rtr", _enableRayTracing)
                 .Add("mFiv", minFov)
                 .Add("mFov", maxFov) 
+                .Add("brg", arbitraryBrightnessIncrease)
                 .Add("cam", rayTraceCameraConfiguration);
 
             return cody;
@@ -57,6 +58,7 @@ namespace Playtime_Painter
                 case "rtr": _enableRayTracing = true; break;
                 case "mFiv": minFov = data.ToFloat(); break;
                 case "mFov": maxFov = data.ToFloat(); break;
+                case "brg": arbitraryBrightnessIncrease = data.ToFloat(); break;
                 case "cam": rayTraceCameraConfiguration.Decode(data); break;
                 default: return false;
             }
@@ -236,7 +238,7 @@ namespace Playtime_Painter
 
         private float maxFov = 170;
 
-        private float arbitraryBrightnessIncrease = 4;
+        private float arbitraryBrightnessIncrease = 1.5f;
 
  private BrushStrokePainterImage delayedPaintingConfiguration;
 
@@ -404,6 +406,8 @@ namespace Playtime_Painter
                         rayTraceCameraConfiguration.Nested_Inspect().nl(ref changed);
 
                     }
+
+                    
 
                     if (_enableRayTracing && BrushConfig.showAdvanced)
                     {

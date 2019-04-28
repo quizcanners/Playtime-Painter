@@ -58,7 +58,7 @@
 
 					float3 worldPos = volumeUVtoWorld(o.texcoord.xy, VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
 
-					float offs = 0.5;
+					float offs = 0.25;
 
 					float4 up = SampleVolume(_DestBuffer, worldPos, VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH, float3(0, offs, 0));
 					float4 down = SampleVolume(_DestBuffer, worldPos, VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH, float3(0, -offs, 0));
