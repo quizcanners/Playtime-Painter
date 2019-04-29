@@ -262,7 +262,7 @@ namespace PlayerAndEditorGUI {
         }
 
 #if PEGI
-        public static bool Documentation(this MsgPainter msg) =>  PainterDataAndConfig.hideDocumentation ? false : msg.Get().Documentation();
+        public static bool DocumentationClick(this MsgPainter msg) =>  PainterDataAndConfig.hideDocumentation ? false : msg.Get().DocumentationClick();
 
         public static bool DocumentationWarning(this MsgPainter msg) => PainterDataAndConfig.hideDocumentation ? false : msg.Get().WarningDocumentation();
 #endif

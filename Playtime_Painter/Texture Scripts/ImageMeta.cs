@@ -1142,7 +1142,7 @@ namespace Playtime_Painter
 
                     MsgPainter.PreserveTransparency.GetText().toggleIcon(ref preserveTransparency).changes(ref changed);
 
-                    MsgPainter.PreserveTransparency.Documentation();
+                    MsgPainter.PreserveTransparency.DocumentationClick();
 
                     pegi.nl();
                 }

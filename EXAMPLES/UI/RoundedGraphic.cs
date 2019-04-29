@@ -246,7 +246,7 @@ namespace Playtime_Painter.Examples
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Gradient"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/PreserveAspect"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/PreserveAspect_InvertingFiller"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/PixelLine")));
+                .TryAdd(Shader.Find("Playtime Painter/UI/Primitives/PixelLine")));
 
         [SerializeField] private bool _showModules;
         [SerializeField] private int _inspectedModule;
@@ -270,12 +270,16 @@ namespace Playtime_Painter.Examples
             if (!_showModules)
             {
 
+                bool gotPixPerfTag = false;
+
                 #region Material Tags 
                 if (mat)
                 {
                     var pixPfTag = mat.Get(ShaderTags.PixelPerfectUi);
 
-                    if (pixPfTag.IsNullOrEmpty())
+                    gotPixPerfTag = !pixPfTag.IsNullOrEmpty();
+
+                    if (!gotPixPerfTag)
                         "{0} doesn't have {1} tag".F(shad.name, ShaderTags.PixelPerfectUi.NameForDisplayPEGI).writeWarning();
                     else
                     {
@@ -322,8 +326,8 @@ namespace Playtime_Painter.Examples
 
                 var linked = LinkedCorners;
 
-                "Material Is Unlinked: {0}".F(mat.IsKeywordEnabled(UNLINKED_VERTICES)).nl();
-
+                Msg.RoundedGraphic.DocumentationClick();  
+                
                 if (mat && (linked == mat.IsKeywordEnabled(UNLINKED_VERTICES)))
                     mat.SetShaderKeyword(UNLINKED_VERTICES, !linked);
 
@@ -384,47 +388,53 @@ namespace Playtime_Painter.Examples
 
                         pegi.nl();
 
-                        if (_positionDataType == PositionDataType.AtlasPosition){
+                        if (gotPixPerfTag)
+                        {
 
-                            if (expectedScreenPosition)
-                                "Shader is expecting Screen Position".writeWarning();
-                            
-                            if (rectTransform.localRotation.eulerAngles.magnitude > 1f) {
-                                "Shaders with Atlased position doesn't work with rotation well".writeWarning();
-                                if ("Zero rotation".Click())
-                                    rectTransform.localRotation = Quaternion.Euler(Vector3.zero);
+                            if (_positionDataType == PositionDataType.AtlasPosition) {
+
+                                if (expectedScreenPosition)
+                                    "Shader is expecting Screen Position".writeWarning();
                             }
-
-                        } else if (expectedAtlasedPosition)
-                            "Shader is expecting Atlased Position".writeWarning();
-
+                            else if (expectedAtlasedPosition)
+                                "Shader is expecting Atlased Position".writeWarning();
+                        }
                     }
 
                     pegi.nl();
                 }
 
-                if (feedPositionData)  {
+                if (gotPixPerfTag && feedPositionData)  {
                     if (!expectedScreenPosition && !expectedAtlasedPosition)
                         "Shader doesn't have any PixelPerfectUI Position Tags. Position updates may not be needed".writeWarning();
                  
                         pegi.nl();
 
-                        if (_positionDataType == PositionDataType.AtlasPosition)
-                        {
+                    if (rectTransform.pivot != Vector2.one * 0.5f) {
+                        "Pivot is expected to be in the center for position processing to work".writeWarning();
+                        pegi.nl();
+                        if ("Set Pivot to 0.5,0.5".Click().nl(ref changed))
+                            rectTransform.SetPivotTryKeepPosition(Vector2.one * 0.5f);
+                    }
+
+                    if (rectTransform.localScale != Vector3.one) {
+                        "Scale deformation can interfear with some shaders that use position".writeWarning();
+                        pegi.nl();
+                        if ("Set local scale to 1".Click().nl(ref changed))
+                            rectTransform.localScale = Vector3.one;
+                    }
+
+                    if (rectTransform.localRotation != Quaternion.identity)
+                    {
+                        "Rotation can compromise calculations in shaders that need position".writeWarning();
+                        if ("Reset Rotation".Click().nl(ref changed))
+                            rectTransform.localRotation = Quaternion.identity;
+                        
+                    }
+
+                    if (_positionDataType == PositionDataType.AtlasPosition) {
                             "UV:".edit(ref atlasedUVs).nl(ref changed);
                             pegi.edit01(ref atlasedUVs).nl(ref changed);
-
-
-
-                            if (rectTransform.pivot != Vector2.one * 0.5f)
-                            {
-                                "Pivot is expected to be in the center for Aspect Preservation to work".writeHint();
-                                pegi.nl();
-                                if ("Set Pivot to 0.5,0.5".Click().nl(ref changed))
-                                    rectTransform.SetPivotTryKeepPosition(Vector2.one * 0.5f);
-                            }
-
-
                     }
 
                 }
@@ -705,9 +715,7 @@ namespace Playtime_Painter.Examples
         {
             public static readonly ShaderTagValue Simple = new ShaderTagValue("Simple", PixelPerfectUi);
             public static readonly ShaderTagValue Position = new ShaderTagValue("Position", PixelPerfectUi);
-
-            public static readonly ShaderTagValue AtlasedPosition =
-                new ShaderTagValue("AtlasedPosition", PixelPerfectUi);
+            public static readonly ShaderTagValue AtlasedPosition = new ShaderTagValue("AtlasedPosition", PixelPerfectUi);
 
         }
 

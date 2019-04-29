@@ -6,7 +6,9 @@ using QuizCannersUtilities;
 namespace PlayerAndEditorGUI {
 
     public enum Msg  {Texture2D, RenderTexture,  editDelayed_HitEnter, InspectElement, 
-        HighlightElement, RemoveFromList, AddNewListElement, AddEmptyListElement, ReturnToList, MakeElementNull, NameNewBeforeInstancing_1p, New };
+        HighlightElement, RemoveFromList, AddNewListElement, AddEmptyListElement, ReturnToList, MakeElementNull, NameNewBeforeInstancing_1p, New,
+        RoundedGraphic
+    };
     
     public static partial class LazyTranslations {
 
@@ -57,7 +59,7 @@ namespace PlayerAndEditorGUI {
             return false;
         } 
 
-        public static bool Documentation(this LazyTranslation trnsl) {
+        public static bool DocumentationClick(this LazyTranslation trnsl) {
             if (pegi.DocumentationClick(trnsl.text))
             {
                 pegi.FullWindwDocumentationOpen(trnsl.details);
@@ -120,36 +122,6 @@ namespace PlayerAndEditorGUI {
         }
         #endregion
 
-        #region Implementation
-
-        static void Init() => _systemLanguage = (int)Application.systemLanguage;
-
-        public static string Get(this Msg s)
-        {
-
-            if (_systemLanguage == -1)
-                Init();
-
-            var tmp = s.GetIn(_systemLanguage);
-
-            return tmp ?? s.GetIn((int)SystemLanguage.English);
-        }
-
-        public static string GetIn(this Msg s, int l)
-        {
-            var lt = s.Get(l);
-
-            if (lt == null)  {
-                coreTranslations[(int) s][l] = new LazyTranslation(s.ToString());
-
-                lt = s.Get(l);
-            }
-
-            return lt.text;
-        }
-
-        static TranslationsEnum coreTranslations = new TranslationsEnum();
-
         public static LazyTranslation Get(this Msg msg, int lang)
         {
 
@@ -160,18 +132,22 @@ namespace PlayerAndEditorGUI {
 
             switch (msg)
             {
-                case Msg.New: msg.Translate("New").From(ukr, "Новий").From(trk, "Yeni");
+                case Msg.New:
+                    msg.Translate("New").From(ukr, "Новий").From(trk, "Yeni");
                     break;
 
-                case Msg.NameNewBeforeInstancing_1p: msg.Translate("Name for the new {0} you'll instantiate");
+                case Msg.NameNewBeforeInstancing_1p:
+                    msg.Translate("Name for the new {0} you'll instantiate");
                     break;
-                case Msg.Texture2D: msg.Translate("Texture")
+                case Msg.Texture2D:
+                    msg.Translate("Texture")
                         .From(ukr, "Текстура");
                     break;
-                case Msg.RenderTexture: msg.Translate("Render Texture")
+                case Msg.RenderTexture:
+                    msg.Translate("Render Texture")
                         .From(ukr, "Рендер Текстура");
                     break;
-       
+
                 case Msg.editDelayed_HitEnter:
                     msg.Translate("Press Enter to Complete Edit")
                         .From(ukr, "Натисніть Ентер щоб завершити введення");
@@ -211,25 +187,21 @@ namespace PlayerAndEditorGUI {
                     msg.Translate("Null this element.")
                         .From(ukr, "Забрати елемент зі списку");
                     break;
+                case Msg.RoundedGraphic:
+                    msg.Translate("Rounded Graphic",
+                        "Rounded Graphic component provides additional data to pixel perfect UI shaders. Those shaders will not display correctly in the scene view. " +
+                        "Also they may be tricky at times so take note of all the warnings and hints that my show in this inspector.");
+                    break;
             }
 
             return coreTranslations.GetWhenInited(index, lang);
         }
+        
+        #region Implementation of Extensions
+        
+        static void Init() => _systemLanguage = (int)Application.systemLanguage;
 
-        public static string GetText(this Msg msg)
-        {
-            var lt = msg.GetLt();
-            return lt != null ? lt.ToString() : msg.ToString();
-        }
-
-  
-        static LazyTranslation GetLt(this Msg msg)
-        {
-            if (_systemLanguage == -1)
-                Init();
-
-            return msg.Get(_systemLanguage);
-        }
+        static TranslationsEnum coreTranslations = new TranslationsEnum();
 
         static Countless<LazyTranslation> Translate(this Msg smg, string english)
         {
@@ -244,9 +216,48 @@ namespace PlayerAndEditorGUI {
             org[eng] = new LazyTranslation(english, englishDetails);
             return org;
         }
+        
+        public static string Get(this Msg s)
+        {
 
-#if PEGI
-        public static bool Documentation(this Msg msg) => msg.GetLt().Documentation();
+            if (_systemLanguage == -1)
+                Init();
+
+            var tmp = s.GetIn(_systemLanguage);
+
+            return tmp ?? s.GetIn((int)SystemLanguage.English);
+        }
+
+        public static string GetIn(this Msg s, int l)
+        {
+            var lt = s.Get(l);
+
+            if (lt == null)
+            {
+                coreTranslations[(int)s][l] = new LazyTranslation(s.ToString());
+
+                lt = s.Get(l);
+            }
+
+            return lt.text;
+        }
+        
+        public static string GetText(this Msg msg)
+        {
+            var lt = msg.GetLt();
+            return lt != null ? lt.ToString() : msg.ToString();
+        }
+        
+        static LazyTranslation GetLt(this Msg msg)
+        {
+            if (_systemLanguage == -1)
+                Init();
+
+            return msg.Get(_systemLanguage);
+        }
+        
+        #if PEGI
+        public static bool DocumentationClick(this Msg msg) => msg.GetLt().DocumentationClick();
         public static void Nl(this Msg m) { m.Get().nl(); }
         public static void Nl(this Msg m, int width) { m.Get().nl(width); }
         public static void Nl(this Msg m, string tip, int width) { m.Get().nl(tip, width); }
@@ -257,9 +268,9 @@ namespace PlayerAndEditorGUI {
         public static bool Click(this icon icon, Msg text, ref bool changed) => icon.ClickUnFocus(text.Get()).changes(ref changed);
         public static bool ClickUnFocus(this icon icon, Msg text, int size = pegi.defaultButtonSize) => pegi.ClickUnFocus(icon.GetIcon(), text.Get(), size);
         public static bool ClickUnFocus(this icon icon, Msg text, int width, int height) => pegi.ClickUnFocus(icon.GetIcon(), text.Get(), width, height);
-#endif
+        #endif
 
-#endregion
+        #endregion
 
     }
 }

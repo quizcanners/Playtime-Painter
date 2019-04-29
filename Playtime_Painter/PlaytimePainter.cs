@@ -1989,7 +1989,7 @@ namespace Playtime_Painter {
 
                 pegi.toggle(ref Cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config, "Settings");
 
-                MsgPainter.AboutPlaytimePainter.Documentation();
+                MsgPainter.AboutPlaytimePainter.DocumentationClick();
 
                 
                 #endregion
@@ -2096,7 +2096,7 @@ namespace Playtime_Painter {
                                         if (MeshProfile.Inspect().nl())
                                             MeshManager.editedMesh.Dirty = true;
 
-                                        MsgPainter.MeshProfileUsage.Documentation();
+                                        MsgPainter.MeshProfileUsage.DocumentationClick();
                                     }
                                 }
                                 else if (_inspectedMeshEditorItems == -1)
@@ -2236,7 +2236,7 @@ namespace Playtime_Painter {
                                 if (pegi.edit(ref col).changes(ref changed))
                                     GlobalBrush.Color = col;
 
-                                MsgPainter.SampleColor.Documentation();
+                                MsgPainter.SampleColor.DocumentationClick();
 
                             }
                             
@@ -2398,7 +2398,7 @@ namespace Playtime_Painter {
                                 "Preview Edited RGBA".toggleIcon(ref Cfg.previewAlphaChanel)
                                     .changes(ref changed);
 
-                                MsgPainter.previewRGBA.Documentation().nl();
+                                MsgPainter.previewRGBA.DocumentationClick().nl();
                             }
 
                             if (showToggles)
@@ -2410,7 +2410,7 @@ namespace Playtime_Painter {
                                         "Material will be changed based on the subMesh you are painting on",
                                         ref autoSelectMaterialByNumberOfPointedSubMesh).changes(ref changed);
                                     
-                                    MsgPainter.AutoSelectMaterial.Documentation().nl();
+                                    MsgPainter.AutoSelectMaterial.DocumentationClick().nl();
                                 }
                                 
                                 if (!IsUiGraphicPainter)

@@ -498,7 +498,7 @@ public bool useFloatForScalingBuffers;
                     MeshManager.Inst.DisconnectMesh();
 
                 "Hide documentation".toggleIcon(ref hideDocumentation).changes(ref changed);
-                MsgPainter.aboutDisableDocumentation.Documentation();
+                MsgPainter.aboutDisableDocumentation.DocumentationClick();
                 pegi.nl();
 
                 "Teaching Notifications".toggleIcon("Will show some notifications on the screen", ref showTeachingNotifications).nl();

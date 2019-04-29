@@ -1221,13 +1221,13 @@ namespace PlayerAndEditorGUI {
             ReorderableList.TryGetValue(list, out rl);
 
             if (rl != null) return rl;
-            
-            rl = new ReorderableList(list, typeof(T), metaDatas == null || metaDatas.allowReorder, true, false, metaDatas == null || metaDatas.allowDelete);
+
+            rl = new ReorderableList(list, typeof(T), metaDatas == null || metaDatas.allowReorder, true, false, false);//metaDatas == null || metaDatas.allowDelete);
             ReorderableList.Add(list, rl);
 
             rl.drawHeaderCallback += DrawHeader;
             rl.drawElementCallback += DrawElement;
-            rl.onRemoveCallback += RemoveItem;
+            //rl.onRemoveCallback += RemoveItem;
             
             return rl;
         }

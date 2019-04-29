@@ -340,7 +340,7 @@ namespace Playtime_Painter {
 
                     }
 
-                    MsgPainter.AlphaBufferBlit.Documentation().nl();
+                    MsgPainter.AlphaBufferBlit.DocumentationClick().nl();
 
                     pegi.nl();
                 }
