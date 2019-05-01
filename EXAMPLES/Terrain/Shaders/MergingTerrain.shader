@@ -195,7 +195,11 @@
 						//1, 0); 
 						shadow , Metallic);
 
-					UNITY_APPLY_FOG(i.fogCoord, col);
+		
+					float4 fogCol = col;
+					UNITY_APPLY_FOG(i.fogCoord, fogCol);
+
+					col = APPLY_HEIGHT_FOG(i.wpos.y, col, fogCol);
 
 					return col;
 				}

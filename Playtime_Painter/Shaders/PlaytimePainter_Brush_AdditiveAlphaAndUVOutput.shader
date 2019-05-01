@@ -31,18 +31,19 @@
 
 				struct v2f {
 					float4 pos : POSITION;
-					float4 texcoord : TEXCOORD0;
-					float4 worldPos : TEXCOORD1;
-					float4 shadowCoords : TEXCOORD2;
-					float2 srcTexAspect : TEXCOORD3;
+					float4 worldPos : TEXCOORD0;
+					float4 shadowCoords : TEXCOORD1;
+					float2 srcTexAspect : TEXCOORD2;
 				};
 
 				v2f vert(appdata_full v) {
 
 					v2f o;
-					float4 worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1));
+					float4 worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1.0f));
 
 					o.worldPos = worldPos;
+
+					o.shadowCoords = mul(pp_ProjectorMatrix, worldPos);
 
 					#if BRUSH_3D_TEXCOORD2
 						v.texcoord.xy = v.texcoord2.xy;
@@ -64,12 +65,6 @@
 
 					o.pos = UnityObjectToClipPos(v.vertex);
 
-					o.texcoord.xy = ComputeScreenPos(o.pos);
-
-					o.texcoord.zw = o.texcoord.xy - 0.5;
-
-					o.shadowCoords = mul(pp_ProjectorMatrix, o.worldPos);
-
 					return o;
 				}
 
@@ -82,7 +77,7 @@
 
 					alpha *= ProjectorSquareAlpha(o.shadowCoords);
 
-					float2 pUv = (o.shadowCoords.xy + 1) * 0.5;
+					float2 pUv =  (o.shadowCoords.xy + 1) * 0.5;
 
 					#if USE_DEPTH_FOR_PROJECTOR
 					alpha *= ProjectorDepthDifference(o.shadowCoords, o.worldPos, pUv);
@@ -91,6 +86,8 @@
 					pUv *= o.srcTexAspect;
 
 					alpha *= BrushClamp(pUv);
+
+					clip(alpha-0.001);
 
 					return float4(pUv, 0, alpha);
 

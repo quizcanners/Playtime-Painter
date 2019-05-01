@@ -255,6 +255,11 @@ namespace Playtime_Painter.Examples
 
             pegi.toggleDefaultInspector();
 
+            Msg.RoundedGraphic.DocumentationClick();
+
+            pegi.nl();
+
+
             var mat = material;
 
             var can = canvas;
@@ -326,8 +331,7 @@ namespace Playtime_Painter.Examples
 
                 var linked = LinkedCorners;
 
-                Msg.RoundedGraphic.DocumentationClick();  
-                
+              
                 if (mat && (linked == mat.IsKeywordEnabled(UNLINKED_VERTICES)))
                     mat.SetShaderKeyword(UNLINKED_VERTICES, !linked);
 
@@ -337,7 +341,7 @@ namespace Playtime_Painter.Examples
                 for (var i = 0; i < _roundedCorners.Length; i++) {
                     var crn = _roundedCorners[i];
 
-                    if ("Corner{0}".F(linked ? "s" : (" " + i)).edit(90, ref crn, 0, 1f).nl(ref changed))
+                    if ("Corner{0}".F(linked ? "s" : (" " + i)).edit(70, ref crn, 0, 1f).nl(ref changed))
                         _roundedCorners[i] = crn;
                 }
 

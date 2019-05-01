@@ -26,7 +26,7 @@
 				#pragma fragment frag
 				#pragma multi_compile_fog
 				#pragma multi_compile_fwdbase
-				#pragma multi_compile  ___ WATER_FOAM
+				//#pragma multi_compile  ___ WATER_FOAM
 
 				#include "Assets/Tools/quizcanners/quizcanners_cg.cginc"
 
@@ -68,12 +68,12 @@
 
 				float4 frag (v2f i) : COLOR {
 
-
+					/*
 					#if WATER_FOAM
 					float3 viewDir = normalize(i.viewDir.xyz);
 					float3 projectedWpos;
 					float3 waterNormal = SampleWaterNormal(viewDir, projectedWpos);
-					#endif
+					#endif*/
 
 
 					float vda = i.viewDir.a;
@@ -155,7 +155,7 @@
 					float3 fogColor = unity_AmbientEquator.rgb;
 					#endif
 
-				
+				/*
 #if WATER_FOAM
 					
 					float4 wcol = 0;
@@ -175,7 +175,7 @@
 
 					deAlpha = 1 - alpha;
 					//return showFog;
-#endif
+#endif*/
 
 
 					BleedAndBrightness(col, 1);

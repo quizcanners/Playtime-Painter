@@ -34,7 +34,7 @@
 				v2f vert(appdata_full v) {
 
 					v2f o;
-					float4 worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1));
+					float4 worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1.0f));
 
 					float t = _Time.w * 50;
 
@@ -87,6 +87,8 @@
 
 						pUv *= o.srcTexAspect;
 
+					
+		
 						float4 src = tex2Dlod(_SourceTexture, float4(pUv, 0, 0));
 
 						alpha *= src.a * BrushClamp(pUv);
@@ -94,6 +96,9 @@
 						clip(alpha - 0.000001);
 
 						_brushColor.rgb = SourceTextureByBrush(src.rgb);
+
+						// DEBUG
+						//return o.shadowCoords;
 
 					#if TARGET_TRANSPARENT_LAYER
 						return AlphaBlitTransparent(alpha, _brushColor,  o.texcoord.xy);

@@ -239,81 +239,7 @@ namespace Playtime_Painter {
         #endregion
 
         #region Buffer Scaling
-        RenderTexture SquareBuffer(int width)
-            => RenderTextureBuffersManager.GetSquareBuffer(width);
-        
-        public RenderTexture GetDownscaledBigRt(int width, int height) => Downscale_ToBuffer(FrontBuffer, width, height);
 
-        public RenderTexture GetDownscaleOf(Texture tex, int targetSize) {
-
-            if (!tex)
-                logger.Log_Interval(5, "Null texture as downscale source");
-            else if (tex.width != tex.height)
-                logger.Log_Interval(5, "Texture should be square");
-            else if (!Mathf.IsPowerOfTwo(tex.width))
-                logger.Log_Interval(5, "{0} is not a Power of two".F(tex));
-            else
-                return Downscale_ToBuffer(tex, targetSize, targetSize);
-            
-
-            return null;
-        }
-
-        public RenderTexture Downscale_ToBuffer(Texture tex, int width, int height, Material material = null, Shader shader = null)
-        {
-
-            if (!tex)
-                return null;
-
-            bool usingCustom = material || shader;
-
-            if (!shader)
-                shader = Data.pixPerfectCopy;
-
-            bool square = (width == height);
-            if (!square || !Mathf.IsPowerOfTwo(width))
-                return Render(tex, RenderTextureBuffersManager.GetNonSquareBuffer(width, height), shader);
-            else
-            {
-                int tmpWidth = Mathf.Max(tex.width / 2, width);
-
-                RenderTexture from = material
-                    ? Render(tex, SquareBuffer(tmpWidth), material) 
-                    : Render(tex, SquareBuffer(tmpWidth), shader);
-
-
-                while (tmpWidth > width) {
-
-                    if (!usingCustom && tmpWidth / 4 > width)
-                    {
-                        tmpWidth /= 8;
-                        from = Render(from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX8);
-                        from.DiscardContents();
-
-                    }
-                    else if (!usingCustom && tmpWidth / 2 > width)
-                    {
-                       
-                        tmpWidth /= 4;
-                        from = Render(from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX4);
-                        from.DiscardContents();
-                    }
-                    else
-                    {
-
-                        tmpWidth /= 2;
-                        from = material
-                            ? Render(from, SquareBuffer(tmpWidth), material)
-                            : Render(from, SquareBuffer(tmpWidth), shader);
-
-                        from.DiscardContents();
-
-                    }
-                }
-
-                return from;
-            }
-        }
         #endregion
 
         #region Buffers MGMT
@@ -658,9 +584,9 @@ namespace Playtime_Painter {
 
             if (trg == FrontBuffer)
                 RenderTextureBuffersManager.secondBufferUpdated = false;
-            //else if (trg == alphaBufferTexture)
-              //  alphaBufferDataTarget = trg.GetImgData();
 
+            sinceLastPainterCall = 0;
+            
             brushRenderer.AfterRender();
         }
         
@@ -922,7 +848,9 @@ namespace Playtime_Painter {
         #if UNITY_EDITOR
         private static int _scipFrames = 3;
         #endif
-      
+
+        public static float sinceLastPainterCall = 0;
+
         public void CombinedUpdate() {
 
             if (!Data)

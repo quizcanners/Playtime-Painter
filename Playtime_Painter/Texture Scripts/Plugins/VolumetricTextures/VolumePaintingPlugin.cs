@@ -5,8 +5,7 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
-namespace Playtime_Painter
-{
+namespace Playtime_Painter {
 
     [TaggedType(tag)]
     public class VolumePaintingPlugin : PainterSystemManagerPluginBase, IGotDisplayName,
@@ -261,7 +260,7 @@ namespace Playtime_Painter
 
             int pixelsCount = size * size;
 
-            var tiny = TexMGMT.GetDownscaleOf(texture, RenderTextureBuffersManager.tinyTextureSize);
+            var tiny = RenderTextureBuffersManager.GetDownscaleOf(texture, RenderTextureBuffersManager.tinyTextureSize);
 
             var pix = RenderTextureBuffersManager.GetMinSizeTexture().CopyFrom(tiny).GetPixels();
 
@@ -602,7 +601,10 @@ namespace Playtime_Painter
 
         public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue fieldName, PlaytimePainter painter)
         {
-            if (!fieldName.IsGlobalVolume()) return false;
+
+
+            if (!fieldName.IsGlobalVolume())
+                return false;
             var id = painter.ImgMeta;
             if (id == null) return true;
             id.tiling = Vector2.one;

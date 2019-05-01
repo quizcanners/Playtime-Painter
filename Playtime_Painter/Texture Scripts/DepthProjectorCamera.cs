@@ -134,6 +134,7 @@ namespace Playtime_Painter
             userToGetUpdate = proj;
             RequestRender(false);
             ReturnResults();
+            
         }
 
         private void LateUpdate()
@@ -144,6 +145,8 @@ namespace Playtime_Painter
 
         private float lastUserUpdateReturned = 0;
 
+        private float sinceLastPainterCall = 0;
+
         public void ManagedUpdate() {
 
             if (userToGetUpdate != null && (Time.time - lastUserUpdateReturned > 1))
@@ -152,10 +155,14 @@ namespace Playtime_Painter
                 userToGetUpdate = null;
             }
 
-            if (!pauseAutoUpdates && _projectorCamera && userToGetUpdate == null) {
-                TryGetNextUser();
+            if ((sinceLastPainterCall>0.25f) && _projectorCamera && userToGetUpdate == null) {
+                if (!pauseAutoUpdates)
+                    TryGetNextUser();
+
                 RequestRender(true);
             }
+
+            sinceLastPainterCall += Time.deltaTime;
 
         }
         
@@ -275,10 +282,9 @@ namespace Playtime_Painter
                 _projectorCamera.targetTexture = RenderTextureBuffersManager.depthTarget;
                
                 _painterDepthCameraMatrix.SetGlobalFrom(_projectorCamera);
-               
             }
 
-            if (userToGetUpdate != null || (TexMgmtData.useDepthForProjector && updatePainterIfNoUser))
+            if (userToGetUpdate != null || (TexMgmtData.useDepthForProjector && updatePainterIfNoUser && !pauseAutoUpdates))
                 _projectorCamera.Render();
   
         }
@@ -292,7 +298,10 @@ namespace Playtime_Painter
 
         void ReturnResults() {
 
-            if (userToGetUpdate != null) {
+            if (userToGetUpdate != null)
+            {
+
+                Debug.Log("Returning user "+userToGetUpdate.ToString());
 
                 try
                 {

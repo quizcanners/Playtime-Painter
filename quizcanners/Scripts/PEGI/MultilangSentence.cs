@@ -359,7 +359,7 @@ namespace PlayerAndEditorGUI {
         }
 
         public override string GetNext() {
-            index = Mathf.Clamp(index+1, 0, options.Count);
+            index = (index+1) % options.Count;
             return Valid ? Current.GetNext() : "null";
         }
 

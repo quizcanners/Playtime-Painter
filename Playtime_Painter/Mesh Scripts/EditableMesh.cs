@@ -881,17 +881,26 @@ namespace Playtime_Painter {
         {
             var dstA = Vector3.Distance(pos, a.localPos);
             var dstB = Vector3.Distance(pos, b.localPos);
+        
+
             var sum = dstA + dstB;
+
+            float weightA = dstB / sum;
+            float weightB = dstA / sum;
+
             pos = (a.localPos * dstB + b.localPos * dstA) / sum;
 
             var newVrt = new MeshPoint(pos);
 
             meshPoints.Add(newVrt);
 
-            var triangles = a.Triangles();
+            var pointTris = a.Triangles();
 
-            foreach (var tr in triangles)
+            for (int i = 0; i < pointTris.Count; i++)
             {
+
+                var tr = pointTris[i];
+
                 if (!tr.Includes(b)) continue;
 
                 var auv = tr.GetByVertex(a);
@@ -901,37 +910,29 @@ namespace Playtime_Painter {
 
                 if (auv == null || buv == null)
                 {
-                    Debug.Log("Didn't found a uv");
+                    Debug.LogError("Didn't found a uv");
                     continue;
                 }
 
-                var w = new Vector3();
+              //  var uv = (auv.GetUv(0) * weightA + buv.GetUv(0) * weightA);
+               // var uv1 = (auv.GetUv(1) * weightA + buv.GetUv(1) * weightA);
+                
+               // Vertex newUv = null;
 
-                var dst = dstA + dstB;
-                w[tr.NumberOf(auv)] = dstB / dst;
-                w[tr.NumberOf(buv)] = dstA / dst;
-
-                var uv = (auv.GetUv(0) * dstB + buv.GetUv(0) * dstA) / (dstA + dstB);
-                var uv1 = (auv.GetUv(1) * dstB + buv.GetUv(1) * dstA) / (dstA + dstB);
-
-
-                Vertex newUv = null;
-
-                if (Cfg.newVerticesUnique || newVrt.vertices.IsNullOrEmpty())
-                    newUv = new Vertex(newVrt, uv, uv1);
-                else
+                //               if (Cfg.newVerticesUnique || newVrt.vertices.IsNullOrEmpty())
+                //                 newUv = new Vertex(newVrt);
+                /*else
                 {
                     foreach (var t in newVrt.vertices)
                         if (t.SameUv(uv, uv1)) 
                             newUv = t;
-                }
+                }*/
 
-                if (newUv == null)
-                    newUv = new Vertex(newVrt, uv, uv1);
-                else
-                    newUv.SetUvIndexBy(uv, uv1);
-
-                tr.AssignWeightedData(newUv, w);
+                //if (newUv == null)
+                Vertex newUv = new Vertex(newVrt);
+            
+                
+                tr.AssignWeightedData(newUv, tr.DistanceToWeight(pos));
 
 
                 var trb = new Triangle(tr.vertexes).CopySettingsFrom(tr);
@@ -1019,12 +1020,12 @@ namespace Playtime_Painter {
 
             var w = a.DistanceToWeight(localPos);
 
-            var newV20 = a.vertexes[0].GetUv(0) * w.x + a.vertexes[1].GetUv(0) * w.y + a.vertexes[2].GetUv(0) * w.z;
-            var newV21 = a.vertexes[0].GetUv(1) * w.x + a.vertexes[1].GetUv(1) * w.y + a.vertexes[2].GetUv(1) * w.z;
+            //var newV20 = a.vertexes[0].GetUv(0) * w.x + a.vertexes[1].GetUv(0) * w.y + a.vertexes[2].GetUv(0) * w.z;
+            //var newV21 = a.vertexes[0].GetUv(1) * w.x + a.vertexes[1].GetUv(1) * w.y + a.vertexes[2].GetUv(1) * w.z;
             //Color col = a.uvpnts[0]._color * w.x + a.uvpnts[1]._color * w.y + a.uvpnts[2]._color * w.z;
             for (var i = 0; i < 3; i++)
             {
-                newUv[i] = new Vertex(newVrt, newV20, newV21);
+                newUv[i] = new Vertex(newVrt);//, newV20, newV21);
                 a.AssignWeightedData(newUv[i], w);
             }
 

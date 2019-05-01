@@ -153,8 +153,11 @@ Shader "Playtime Painter/Terrain Integration/Triplanar" {
 					Terrain_Water_AndLight(col, i.tc_Control, ambient, smoothness, worldNormal, i.viewDir.xyz,  shadow, Metalic);
 
 
+					float4 fogCol = col;
+					UNITY_APPLY_FOG(i.fogCoord, fogCol);
 
-					UNITY_APPLY_FOG(i.fogCoord, col);
+					col = APPLY_HEIGHT_FOG(i.wpos.y, col, fogCol);
+					//UNITY_APPLY_FOG(i.fogCoord, col);
 
 					return col;
 				}

@@ -7,7 +7,9 @@
 		_Microdetail("Microdetail (RG-bump B:Rough A:AO)", 2D) = "white" {}
 
 		[Toggle(UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
-		[NoScaleOffset]_AtlasTextures("_Textures In Row _ Atlas", float) = 1
+		_AtlasTextures("_Textures In Row _ Atlas", float) = 1
+
+		_Test ("_Textures In Row _ Atlas", Range(0,1)) = 1
 	}
 
 	Category{
@@ -39,6 +41,7 @@
 				uniform sampler2D _BumpMapC_ATL;
 				float4 _Microdetail_ST;
 				float _AtlasTextures;
+				float _Test;
 
 				struct v2f {
 					float4 pos : SV_POSITION;
@@ -97,7 +100,7 @@
 				}
 
 				inline void PointLightTrace(inout float3 scatter, inout float3 glossLight, inout float3 directLight,
-					float3 vec, float3 normal, float3 viewDir, float bake, float shadow, float4 lcol, float power, float ambientBlock) {
+					float3 vec, float3 normal, float3 viewDir, float bake, float shadow, float4 lcol, float power, float ambientBlock, float smoothness) {
 
 					float len = length(vec);
 					vec /= len;
@@ -110,7 +113,11 @@
 
 					float3 halfDirection = normalize(viewDir - vec);
 					float NdotH = max(0.01, (dot(normal, halfDirection)));
-					float normTerm = pow(NdotH, power); // GGXTerm(NdotH, power);
+					float normTerm =
+						//max(0, (NdotH - 0.99) *512) * smoothness + max(0, (NdotH - 0.5)) * (1 - smoothness);
+
+						//max(0,(NdotH-1+1/ power) * power);
+						pow(NdotH, power); 
 
 					scatter += bake * lcol.rgb;
 
@@ -240,13 +247,13 @@
 					float3 directLight = 0;
 
 					PointLightTrace(scatter, glossLight, directLight, o.worldPos.xyz - g_l0pos.xyz,
-						o.normal, o.viewDir.xyz, bake.r, shads.r,  g_l0col, power, ambientBlock);
+						o.normal, o.viewDir.xyz, bake.r, shads.r,  g_l0col, power, ambientBlock, smoothness);
 
 					PointLightTrace(scatter, glossLight, directLight, o.worldPos.xyz - g_l1pos.xyz,
-						o.normal, o.viewDir.xyz, bake.g, shads.g,  g_l1col, power, ambientBlock);
+						o.normal, o.viewDir.xyz, bake.g, shads.g,  g_l1col, power, ambientBlock, smoothness);
 
 					PointLightTrace(scatter, glossLight, directLight, o.worldPos.xyz - g_l2pos.xyz,
-						o.normal, o.viewDir.xyz, bake.b, shads.b,  g_l2col, power, ambientBlock);
+						o.normal, o.viewDir.xyz, bake.b, shads.b,  g_l2col, power, ambientBlock, smoothness);
 
 
 					float shadow = SHADOW_ATTENUATION(o);
@@ -264,17 +271,19 @@
 
 					col.rgb *= (directLight + scatter * 0.01 * bumpMap.a) * (1-col.a);
 
-					col.rgb += glossLight*0.002*col.a;
+					col.rgb += (glossLight*col.a 
+						+ ( scatter*fernel)  // Every surface has a bit of glossy reflection, this part simulates it
+						) * 0.002;
 
 				
 
 					BleedAndBrightness(col, 1);
 
-					UNITY_APPLY_FOG(o.fogCoord, col);
 
+					float4 fogCol = col;
+					UNITY_APPLY_FOG(o.fogCoord, fogCol);
 
-					
-					//return shadow;
+					col = APPLY_HEIGHT_FOG(o.worldPos.y, col, fogCol);
 
 					return  col;
 

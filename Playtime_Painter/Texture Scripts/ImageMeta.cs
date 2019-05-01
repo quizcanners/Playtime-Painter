@@ -292,7 +292,7 @@ namespace Playtime_Painter
 
                 height = newHeight;
 
-                texture2D.CopyFrom(PainterCamera.Inst.GetDownscaledBigRt(width, height));
+                texture2D.CopyFrom(RenderTextureBuffersManager.GetDownscaledBigRt(width, height));
 
                 PixelsFromTexture2D(texture2D);
 
@@ -370,7 +370,7 @@ namespace Playtime_Painter
             TexMGMT.ApplyAllChangesTo(this);
 
             if (!rt && TexMGMT.imgMetaUsingRendTex == this)
-                rt = PainterCamera.Inst.GetDownscaledBigRt(width, height);
+                rt = RenderTextureBuffersManager.GetDownscaledBigRt(width, height);
 
             if (!rt)
                 return;
@@ -606,7 +606,7 @@ namespace Playtime_Painter
 
             var rtp = PainterCamera.Inst;
             int size = RenderTextureBuffersManager.renderBuffersSize / 4;
-            RenderTexture.active = renderTexture ? renderTexture : rtp.GetDownscaledBigRt(size, size);
+            RenderTexture.active = renderTexture ? renderTexture : RenderTextureBuffersManager.GetDownscaledBigRt(size, size);
 
             if (!_sampler) _sampler = new Texture2D(8, 8);
 

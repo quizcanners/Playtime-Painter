@@ -147,8 +147,8 @@ namespace PlayerAndEditorGUI {
 
         public static bool toggleDefaultInspector() =>
             editorType == EditorType.Material 
-                ? pegi.toggle(ref PEGI_Inspector_Material.drawDefaultInspector, icon.Config, icon.Debug, "Toggle Between regular and PEGI Material inspector", 20).nl() 
-                : pegi.toggle(ref PEGI_Inspector_Base.drawDefaultInspector, icon.Config, icon.Debug, "Toggle Between regular and PEGI inspector", 20).nl();
+                ? pegi.toggle(ref PEGI_Inspector_Material.drawDefaultInspector, icon.Config, icon.Debug, "Toggle Between regular and PEGI Material inspector", 20) 
+                : pegi.toggle(ref PEGI_Inspector_Base.drawDefaultInspector, icon.Config, icon.Debug, "Toggle Between regular and PEGI inspector", 20);
           
         static void start(SerializedObject so = null) {
             _elementIndex = 0;

@@ -158,9 +158,9 @@ namespace Playtime_Painter
 
         public override bool ShowVertices => _detectionMode == DetectionMode.Points;
 
-        public override bool ShowLines => _detectionMode == DetectionMode.Lines;
+        public override bool ShowLines => _detectionMode == DetectionMode.Lines || (_addToTrianglesAndLines && _detectionMode == DetectionMode.Points);
 
-        public override bool ShowTriangles => _detectionMode == DetectionMode.Triangles;
+        public override bool ShowTriangles => _detectionMode == DetectionMode.Triangles || (_addToTrianglesAndLines && _detectionMode == DetectionMode.Points);
 
         private static List<MeshPoint> _draggedVertices => EditedMesh._draggedVertices; // new List<MeshPoint>();
 
@@ -198,7 +198,8 @@ namespace Playtime_Painter
         public override string Tooltip =>
 
                     ("Alt - Project Vertex To Grid {0}" +
-                    "LMB - Add Vertices/Make Triangles (Go Clockwise), Drag {0}"+
+                    "LMB - Drag {0} " +
+                  // "Alt + LMB - Disconnect dragged Vertex from point" +
                     "Scroll - Change Plane {0}"+
                     "U - make Triangle unique. {0}" + 
                     "M - merge with nearest while dragging {0}" +
@@ -231,7 +232,7 @@ namespace Playtime_Painter
 
             "Pixel-Perfect".toggleIcon("New vertex will have UV coordinate rounded to half a pixel.", ref Cfg.pixelPerfectMeshEditing).nl(ref changed);
 
-            "Add into mesh".toggleIcon("Will split triangles and edges by inserting vertices", ref _addToTrianglesAndLines).nl(ref changed);
+            "Insert vertices".toggleIcon("Will split triangles and edges by inserting vertices", ref _addToTrianglesAndLines).nl(ref changed);
 
             "Add Smooth:".toggleIcon( ref Cfg.newVerticesSmooth).nl(ref changed);
 
@@ -457,8 +458,16 @@ namespace Playtime_Painter
 
         public override void MouseEventPointedNothing()
         {
-            if (EditorInputManager.GetMouseButtonDown(0))
+            if (_addToTrianglesAndLines && EditorInputManager.GetMouseButtonDown(0))
                 MeshMGMT.AddPoint(MeshMGMT.onGridLocal);
+        }
+
+        void OnClickDetected()
+        {
+            var m = MeshMGMT;
+
+            if (ShowVertices && m.TriVertices < 3 && m.SelectedUv != null && !EditedMesh.IsInTriangleSet(m.SelectedUv.meshPoint))
+                EditedMesh.AddToTrisSet(m.SelectedUv);
         }
 
         public override void ManageDragging()
@@ -469,13 +478,13 @@ namespace Playtime_Painter
 
             if (EditorInputManager.GetMouseButtonUp(0) || !EditorInputManager.GetMouseButton(0))
             {
+
                 m.Dragging = false;
 
                 if (beforeCouldDrag)
                     EditedMesh.dirtyPosition = true;
-                else if (m.TriVertices < 3 && m.SelectedUv != null && !EditedMesh.IsInTriangleSet(m.SelectedUv.meshPoint))
-                    EditedMesh.AddToTrisSet(m.SelectedUv);
-
+                else
+                    OnClickDetected();
             }
             else
             {
@@ -1114,13 +1123,15 @@ namespace Playtime_Painter
 
         public override bool ShowVertices => !_editingFlexibleEdge;
 
+        public override bool ShowLines => true;
+
         #region Inspector
         
         public override string NameForDisplayPEGI => "vertex Edge";
         
         public override string Tooltip =>
              "Shift - invert edge value" + Environment.NewLine +
-             "This tool allows editing value if edge.w" + Environment.NewLine + "edge.xyz is used to store border information about the triangle. ANd the edge.w in Example shaders is used" +
+             "This tool allows editing value if edge.w" + Environment.NewLine + "edge.xyz is used to store border information about the triangle. And the edge.w in Example shaders is used" +
              "to mask texture color with vertex color. All vertices should be set as Unique for this to work." +
              "Line is drawn between vertices marked with line strength 1. A triangle can't have only 2 sides with Edge: it's ether side, or all 3 (2 points marked to create a line, or 3 points to create 3 lines).";
 
@@ -1136,7 +1147,7 @@ namespace Playtime_Painter
             if (_alsoDoColor)
                GlobalBrush.ColorSliders().nl(ref changed);
             
-            "Flexible Edge".toggleIcon("Edge type can be seen in Packaging profile (if any). Only Bevel shader doesn't have a Flexible edge.", ref _editingFlexibleEdge);
+            "Flexible Edge".toggleIcon("Edge type can be seen in Packaging profile (if any). Currently only Bevel shader doesn't have a Flexible edge.", ref _editingFlexibleEdge);
 
             return changed;
         }

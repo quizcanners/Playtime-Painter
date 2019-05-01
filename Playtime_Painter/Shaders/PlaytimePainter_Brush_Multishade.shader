@@ -77,6 +77,7 @@
 				v2f vert(appdata_full v) {
 					v2f o;
 
+
 					o.worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1));
 
 					o.pos = UnityObjectToClipPos(v.vertex);

@@ -26,6 +26,8 @@ namespace Playtime_Painter {
 
             tex = new Texture2D(tinyTextureSize, tinyTextureSize, TextureFormat.RGBA32, false, true);
 
+
+
             return tex;
         }
 
@@ -105,7 +107,7 @@ namespace Playtime_Painter {
 
             if (!alphaBufferTexture)
             {
-                alphaBufferTexture = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
+                alphaBufferTexture = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Linear);
                 alphaBufferTexture.wrapMode = TextureWrapMode.Repeat;
                 alphaBufferTexture.name = "Painting Alpha Buffer _ " + renderBuffersSize;
                 alphaBufferTexture.useMipMap = false;
@@ -176,7 +178,7 @@ namespace Playtime_Painter {
             if (!_squareBuffers[no])
             {
                 var sbf = new RenderTexture(width, width, 0, Data.useFloatForScalingBuffers ? RenderTextureFormat.ARGBFloat : RenderTextureFormat.ARGB32,
-                    RenderTextureReadWrite.Default);
+                    RenderTextureReadWrite.sRGB);
 
                 sbf.useMipMap = false;
                 sbf.autoGenerateMips = false;
@@ -200,6 +202,95 @@ namespace Playtime_Painter {
 
             foreach (var tex in nonSquareBuffers)
                 tex.DestroyWhateverUnityObject();
+
+            for (int i = 0; i < _squareBuffers.Length; i++)
+                _squareBuffers[i] = null;
+
+            nonSquareBuffers.Clear();
+        }
+
+        static RenderTexture SquareBuffer(int width) => GetSquareBuffer(width);
+
+        public static RenderTexture GetDownscaledBigRt(int width, int height) => Downscale_ToBuffer(GetOrCreatePaintingBuffers()[0], width, height);
+        
+        public static RenderTexture GetDownscaleOf(Texture tex, int targetSize)
+        {
+
+            if (!tex)
+                logger.Log_Interval(5, "Null texture as downscale source");
+            else if (tex.width != tex.height)
+                logger.Log_Interval(5, "Texture should be square");
+            else if (!Mathf.IsPowerOfTwo(tex.width))
+                logger.Log_Interval(5, "{0} is not a Power of two".F(tex));
+            else
+                return Downscale_ToBuffer(tex, targetSize, targetSize);
+
+
+            return null;
+        }
+
+        public static RenderTexture Downscale_ToBuffer(Texture tex, int width, int height, Material material = null, Shader shader = null)
+        {
+
+            if (!tex)
+                return null;
+
+            bool usingCustom = material || shader;
+
+            if (!shader)
+                shader = Data.pixPerfectCopy;
+
+            var cam = PainterCamera.Inst;
+
+            bool square = (width == height);
+            if (!square || !Mathf.IsPowerOfTwo(width))
+            {
+                return cam.Render(tex, GetNonSquareBuffer(width, height), shader);
+                 
+
+
+            }
+            else
+            {
+                int tmpWidth = Mathf.Max(tex.width / 2, width);
+
+                RenderTexture from = material
+                    ? cam.Render(tex, SquareBuffer(tmpWidth), material)
+                    : cam.Render(tex, SquareBuffer(tmpWidth), shader);
+
+
+                while (tmpWidth > width)
+                {
+
+                    if (!usingCustom && tmpWidth / 4 > width)
+                    {
+                        tmpWidth /= 8;
+                        from = cam.Render(from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX8);
+                        from.DiscardContents();
+
+                    }
+                    else if (!usingCustom && tmpWidth / 2 > width)
+                    {
+
+                        tmpWidth /= 4;
+                        from = cam.Render(from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX4);
+                        from.DiscardContents();
+                    }
+                    else
+                    {
+
+                        tmpWidth /= 2;
+                        from = material
+                            ? cam.Render(from, SquareBuffer(tmpWidth), material)
+                            : cam.Render(from, SquareBuffer(tmpWidth), shader);
+
+                        from.DiscardContents();
+
+                    }
+                }
+
+                return from;
+            }
         }
 
         #endregion
@@ -331,42 +422,45 @@ namespace Playtime_Painter {
             return mat;
         }
 
-        public static void Blit(Texture tex, ImageMeta id)
+        public static RenderTexture Blit(Texture tex, ImageMeta id)
         {
             if (!tex || id == null)
-                return;
+                return null;
             var mat = TempMaterial(Data.pixPerfectCopy);
             var dst = id.CurrentRenderTexture();
             Graphics.Blit(tex, dst, mat);
 
             AfterBlit(dst);
 
+            return dst;
         }
 
-        public static void Blit(Texture from, RenderTexture to) => Blit(from, to, Data.pixPerfectCopy);
+        public static RenderTexture Blit(Texture from, RenderTexture to) => Blit(from, to, Data.pixPerfectCopy);
 
-        public static void Blit(Texture from, RenderTexture to, Shader blitShader) {
+        public static RenderTexture Blit(Texture from, RenderTexture to, Shader blitShader) => Blit(from, to, TempMaterial(blitShader));
 
-            //if (!from)
-              //  logger.Log_Interval(5, "Possibly Blitting null texture");
-            
-            var mat = TempMaterial(blitShader);
-            Graphics.Blit(from, to, mat);
+        public static RenderTexture Blit(Texture from, RenderTexture to, Material blitMaterial) {
+            Graphics.Blit(from, to, blitMaterial);
             AfterBlit(to);
+            return to;
         }
 
         static void AfterBlit(Texture target) {
             if (target && target == bigRtPair[0])
                 secondBufferUpdated = false;
+
+            PainterCamera.sinceLastPainterCall = 0;
         }
 
-        public static void Blit(Color col, RenderTexture to)
+        public static RenderTexture Blit(Color col, RenderTexture to)
         {
             var tm = PainterCamera.Inst;
 
             var mat = tm.brushRenderer.Set(Data.bufferColorFill).Set(col).GetMaterial();
 
             Graphics.Blit(null, to, mat);
+
+            return to;
         }
 
 
@@ -409,6 +503,10 @@ namespace Playtime_Painter {
 
                     pegi.nl();
                 }
+
+                "Depth".edit(ref alphaBufferTexture).nl();
+
+
             }
 
             if ("Scaling Buffers".enter(ref inspectedElement, 1).nl())

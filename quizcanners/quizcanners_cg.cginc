@@ -74,6 +74,22 @@ float4 rt2_ProjectorPosition;
 float4 rt2_ProjectorClipPrecompute;
 float4 rt2_ProjectorConfiguration;
 
+
+
+
+float4 APPLY_HEIGHT_FOG(float viewDirY, float4 col, float4 fogCol) {
+
+
+	viewDirY = saturate((viewDirY - _foamParams.z) *0.01);
+
+	
+
+	return fogCol * (1 - viewDirY)  + col * viewDirY;
+
+
+
+}
+
 float3 WORLD_POS_TO_TERRAIN_UV_3D(float3 worldPos) {
 	return (worldPos.xyz - _mergeTeraPosition.xyz) / _mergeTerrainScale.xyz;
 }

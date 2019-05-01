@@ -306,7 +306,9 @@ namespace Playtime_Painter {
                 foreach (var pl in p.Plugins)
                     if (pl.BrushConfigPEGI().nl(ref changed))
                         pl.SetToDirty_Obj();
-                    
+
+
+            brushType.Inspect().nl(ref changed);
 
             if (blitMode.AllSetUp) {
 
@@ -321,7 +323,7 @@ namespace Playtime_Painter {
                     }
                 }
 
-                brushType.Inspect().nl(ref changed);
+              
 
                 if (!cpu && brushType.SupportsAlphaBufferPainting && blitMode.SupportsAlphaBufferPainting && (useAlphaBuffer || InspectAdvanced)) {
 

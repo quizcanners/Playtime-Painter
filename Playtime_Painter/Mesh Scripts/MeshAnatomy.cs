@@ -926,6 +926,11 @@ namespace Playtime_Painter
             to.meshPoint.shadowBake = vertexes[0].meshPoint.shadowBake * weight.x + vertexes[1].meshPoint.shadowBake * weight.y + vertexes[2].meshPoint.shadowBake * weight.z;
             var nearest = (Mathf.Max(weight.x, weight.y) > weight.z)  ? (weight.x > weight.y ? vertexes[0] : vertexes[1]) : vertexes[2];
 
+            var newV20 = vertexes[0].GetUv(0) * weight.x + vertexes[1].GetUv(0) * weight.y + vertexes[2].GetUv(0) * weight.z;
+            var newV21 = vertexes[0].GetUv(1) * weight.x + vertexes[1].GetUv(1) * weight.y + vertexes[2].GetUv(1) * weight.z;
+
+            to.SetUvIndexBy(newV20, newV21);
+
             to.boneWeight = nearest.boneWeight; 
         }
 

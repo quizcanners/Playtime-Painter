@@ -634,12 +634,13 @@ namespace Playtime_Painter {
             }
 
             
+            if (fieldName != null)
              foreach (var nt in Plugins)
                 if (nt.UpdateTilingFromMaterial(fieldName, this))
                     return;
 
-            if (!mat || fieldName == null || id == null) return;
-            
+             if (!mat || fieldName == null || id == null) return;
+
             id.tiling = mat.GetTiling(fieldName);
             id.offset = mat.GetOffset(fieldName);
         }
@@ -1577,7 +1578,8 @@ namespace Playtime_Painter {
         {
             get
             {
-                if (meshEditing) return true;
+                if (meshEditing || !TexMgmt)
+                    return true;
                 var i = ImgMeta; 
                 return i == null || i.lockEditing || i.other;
             }
@@ -2214,19 +2216,16 @@ namespace Playtime_Painter {
                                 if ("Undo".Click().nl())
                                     mat.DisableKeyword(PainterDataAndConfig.UV_PROJECTED);
                             }
-
-                            if (!cpu && id.texture2D && id.width != id.height)
-                                "Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality."
-                                    .writeWarning();
-
-                          //  if (meshCollider && meshRenderer && !meshCollider.sharedMesh)
-
+                            
 
                 #endregion
 
                 #region Brush
 
                             GlobalBrush.Nested_Inspect().changes(ref changed);
+
+                            if (!cpu && id.texture2D && id.width != id.height)
+                                icon.Warning.write("Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality.");
 
                             var mode = GlobalBrush.GetBlitMode(cpu);
                             var col = GlobalBrush.Color;

@@ -66,6 +66,13 @@
 
 				v2f vert(appdata_full v) {
 					v2f o;
+					o.worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1.0f));
+
+					#if BLIT_MODE_PROJECTION
+					o.shadowCoords = mul(pp_ProjectorMatrix, o.worldPos);
+					#endif
+
+
 					UNITY_SETUP_INSTANCE_ID(v);
 					o.pos = UnityObjectToClipPos(v.vertex);   
 
@@ -78,8 +85,7 @@
 					o.srcTexAspect = max(1, float2(suv.y/suv.x, suv.x / suv.y));
 
 					o.texcoord.xy = TRANSFORM_TEX(v.texcoord.xy, _PreviewTex);
-					o.worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz,1.0f));
-
+					
 					#if UV_ATLASED
 						float atY = floor(v.texcoord.z / _AtlasTextures);
 						float atX = v.texcoord.z - atY*_AtlasTextures;
@@ -89,9 +95,7 @@
 						o.atlasedUV.w = 1 / _AtlasTextures;
 					#endif
 
-				#if BLIT_MODE_PROJECTION
-						o.shadowCoords = mul(pp_ProjectorMatrix, o.worldPos);
-				#endif
+			
 
 					return o;
 				}
@@ -113,6 +117,9 @@
 
 						o.shadowCoords.xy /= o.shadowCoords.w;
 
+						//DEBUG
+						//return o.shadowCoords;
+
 						alpha = ProjectorSquareAlpha(o.shadowCoords);
 
 						float2 pUv = (o.shadowCoords.xy + 1) * 0.5;
@@ -122,6 +129,9 @@
 						//alpha *= depthDiff;
 
 						pUv *= o.srcTexAspect;
+
+						//DEBUG
+						//return float4(pUv, 0, 1);
 
 						float4 src = tex2Dlod(_SourceTexture, float4(pUv, 0, 0));
 

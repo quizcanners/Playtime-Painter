@@ -18,7 +18,7 @@ namespace Playtime_Painter
             m_IconContent = new GUIContent() {
                 image = icon.Painter.GetIcon(),
                 text = PainterDataAndConfig.ToolName,
-                tooltip = "Paint textures and repackage meshes with custom data"
+                tooltip = "Add Playtime Painter Component to objects to edit their textures/meshes"
             };
         }
 

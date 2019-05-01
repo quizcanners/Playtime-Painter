@@ -151,14 +151,13 @@ namespace Playtime_Painter {
 
         public bool Inspect(IPainterManagerPluginBrush plugin)
         {
-
-          
+            
             var changed = false;
 
+            Inspect();
+            
             if (AllSetUp) {
-
-                Inspect();
-
+                
 
                 var id = InspectedImageMeta;
                 var cpuBlit = id == null ? InspectedBrush.targetIsTex2D : id.destination == TexTarget.Texture2D;
@@ -587,7 +586,7 @@ namespace Playtime_Painter {
 
         protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_PROJECTION";
 
-        public override Shader ShaderForDoubleBuffer => TexMGMTdata.brushDoubleBufferProjector; // TODO: Test this
+        public override Shader ShaderForDoubleBuffer => TexMGMTdata.brushDoubleBufferProjector;
 
         public override Shader ShaderForAlphaBufferBlit => TexMGMTdata.projectorBrushBufferBlit;
         public override Shader ShaderForAlphaOutput => TexMGMTdata.additiveAlphaAndUVOutput;

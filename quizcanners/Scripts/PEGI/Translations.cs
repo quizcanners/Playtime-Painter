@@ -189,8 +189,9 @@ namespace PlayerAndEditorGUI {
                     break;
                 case Msg.RoundedGraphic:
                     msg.Translate("Rounded Graphic",
-                        "Rounded Graphic component provides additional data to pixel perfect UI shaders. Those shaders will not display correctly in the scene view. " +
-                        "Also they may be tricky at times so take note of all the warnings and hints that my show in this inspector.");
+                        "Rounded Graphic component provides additional data to pixel perfect UI shaders. Those shaders will often not display correctly in the scene view. " +
+                        "Also they may be tricky at times so take note of all the warnings and hints that my show in this inspector." +
+                        "");
                     break;
             }
 
