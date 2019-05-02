@@ -246,20 +246,23 @@ namespace Playtime_Painter.Examples
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Gradient"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/PreserveAspect"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/PreserveAspect_InvertingFiller"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/SubtractiveGraphic"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Primitives/PixelLine")));
 
         [SerializeField] private bool _showModules;
         [SerializeField] private int _inspectedModule;
+        public static RoundedGraphic inspected;
+
         public bool Inspect()
         {
+            inspected = this;
 
             pegi.toggleDefaultInspector();
-
+            
             Msg.RoundedGraphic.DocumentationClick();
 
             pegi.nl();
-
-
+            
             var mat = material;
 
             var can = canvas;
@@ -357,7 +360,7 @@ namespace Playtime_Painter.Examples
                     }
 
                     var n = mat.name;
-                    if ("Material".editDelayed(80, ref n))
+                    if ("Rename Material".editDelayed("Press Enter to finish renaming." ,120, ref n))
                         mat.RenameAsset(n);
                 }
 
@@ -462,19 +465,19 @@ namespace Playtime_Painter.Examples
                         spriteTag = "Sprite";
 
                     var sp = sprite;
-                    if (spriteTag.edit(90, ref sp).nl(ref changed))
+                    if (spriteTag.edit(90, ref sp).changes(ref changed))
                         sprite = sp;
                     
                     if (sp) {
 
                         var tex = sp.texture;
 
-                        if (tex && (tex.width != rectTransform.rect.width || sp.texture.height != rectTransform.rect.height) && "Set Native Size".Click().nl()) {
-                            var rect = rectTransform.rect;
-                            rect.width = sp.texture.width;
-                            rect.height = sp.texture.height;
-                        }
+                        if (tex && (tex.width != rectTransform.rect.width || sp.texture.height != rectTransform.rect.height) && icon.Size.Click("Set Native Size").nl()) 
+                            rectTransform.sizeDelta = new Vector2(tex.width, tex.height);
+                        
                     }
+
+                    pegi.nl();
 
                 }
 
@@ -592,10 +595,81 @@ namespace Playtime_Painter.Examples
             if (needsUpdate)
                 SetAllDirty();
         }
-        
+
         #region Rounded Button Modules
 
-        [TaggedType(Tag)]
+        [TaggedType(Tag, "Native Size from Tiled Texture")]
+        public class RoundedButtonNativeSizeForOverlayOffset : RoundedButtonModuleBase, IPEGI, IPEGI_ListInspect
+        {
+
+            private const string Tag = "TiledNatSize";
+
+            private ShaderProperty.TextureValue referenceTexture = new ShaderProperty.TextureValue("_MainTex");
+
+            public override string ClassTag => Tag;
+            
+            #region Inspect
+            #if PEGI
+            public bool PEGI_inList(IList list, int ind, ref int edited)
+            {
+
+                var mat = inspected.material;
+                if (mat)
+                {
+
+                    pegi.select_or_edit_TextureProperty(ref referenceTexture, mat);
+
+                    var tex = referenceTexture.Get(mat);
+
+                    if (tex) {
+                        if (icon.Size.Click("Set Native Size for Texture, using it's Tile/Offset")) {
+
+                            var size = new Vector2(tex.width, tex.height);
+                            //var off = referenceTexture.GetOffset(mat);
+                            var til = referenceTexture.GetTiling(mat);
+                            size *= til;
+
+                            inspected.rectTransform.sizeDelta = size;
+
+                        }
+                    }
+                } else "No Material".write();
+
+                return false;
+            }
+
+            public override bool Inspect()
+            {
+                var changed = base.Inspect();
+                
+
+                return changed;
+            }
+            #endif
+            #endregion
+
+            #region Encode & Decode
+
+            public override bool Decode(string tg, string data) {
+
+                switch (tg) {
+
+                    case "b": data.Decode_Base(base.Decode, this); break;
+                    case "mp": referenceTexture.Decode(data); break;
+                    default: return false;
+                }
+
+                return true;
+            }
+
+            public override CfgEncoder Encode() => this.EncodeUnrecognized()
+                    .Add("b", base.Encode())
+                    .Add("mp", referenceTexture);
+
+            #endregion
+        }
+
+        [TaggedType(Tag, "Change Corners on Click")]
         public class RoundedButtonCornersOnClick : RoundedButtonModuleBase, IPEGI, IPEGI_ListInspect {
 
             private const string Tag = "corners";
@@ -626,7 +700,8 @@ namespace Playtime_Painter.Examples
             }
 
             #region Inspect
-#if PEGI
+            #if PEGI
+
             public bool PEGI_inList(IList list, int ind, ref int edited) {
                 
                 "Normal".edit(50, ref valueWhenOff, 0, 1);
@@ -647,8 +722,8 @@ namespace Playtime_Painter.Examples
 
                 return changed;
             }
-#endif
-#endregion
+            #endif
+            #endregion
 
             #region Encode & Decode
 
@@ -673,8 +748,6 @@ namespace Playtime_Painter.Examples
                     .Add("hov", valueWhenOver)
                     .Add("nrm", valueWhenOff);
             #endregion
-
-           
         }
         
         public class RoundedButtonModuleAttribute : AbstractWithTaggedTypes
@@ -683,16 +756,19 @@ namespace Playtime_Painter.Examples
         }
 
         [RoundedButtonModule]
-        public abstract class RoundedButtonModuleBase : AbstractKeepUnrecognizedCfg, IGotClassTag
+        public abstract class RoundedButtonModuleBase : AbstractKeepUnrecognizedCfg, IGotClassTag, IGotDisplayName
         {
             public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(RoundedButtonModuleBase));
             public TaggedTypesCfg AllTypes => all;
             public abstract string ClassTag { get; }
-
+            
             public virtual bool Update(RoundedGraphic target) => false;
 
             #region Inspect
             #if PEGI
+
+            public virtual string NameForDisplayPEGI => ClassTag;
+            
             public override bool Inspect()
             {
                 return false;
@@ -733,26 +809,47 @@ namespace Playtime_Painter.Examples
     }
 
     public static class RoundedUiExtensions  {
-#if UNITY_EDITOR
+        #if UNITY_EDITOR
         [MenuItem("GameObject/UI/Playtime Painter/Rounded UI Graphic", false, 0)]
-        private static void CreateRoundedUiElement() {
+        private static void CreateRoundedUiElement()
+        {
 
+
+            bool createdForSelection = false;
+
+            if (Selection.gameObjects.Length > 0) {
+
+                foreach (var go in Selection.gameObjects) {
+                    if (go.GetComponentInParent<Canvas>()) {
+                        CreateRoundedUiElement(go);
+                        createdForSelection = true;
+                    }
+                }
+
+            }
+            
+            if (!createdForSelection) {
+
+                var canvas = Object.FindObjectOfType<Canvas>();
+
+                if (!canvas)
+                    canvas = new GameObject("Canvas").AddComponent<Canvas>();
+
+                CreateRoundedUiElement(canvas.gameObject);
+
+            }
+
+        }
+
+        private static void CreateRoundedUiElement(GameObject canvas) {
             var rg = new GameObject("Rounded UI Element").AddComponent<RoundedGraphic>();
-
             var go = rg.gameObject;
-
-            var canvas = Object.FindObjectOfType<Canvas>();
-
-            if (!canvas)
-                canvas = new GameObject("Canvas").AddComponent<Canvas>();
-
-            GameObjectUtility.SetParentAndAlign(go, canvas.gameObject);
+            GameObjectUtility.SetParentAndAlign(go, canvas);
             Undo.RegisterCreatedObjectUndo(go, "Create " + go.name);
             Selection.activeObject = go;
-
-            rg.material = Object.Instantiate(rg.material);
         }
-#endif
+
+        #endif
 
         public static UIVertex Set(this UIVertex vertex, float uvX, float uvY, Vector2 posX, Vector2 posY) {
             vertex.uv0 = new Vector2(uvX, uvY);
@@ -761,9 +858,10 @@ namespace Playtime_Painter.Examples
         }
     }
 
-#if UNITY_EDITOR
+    #region Inspector override
+    #if UNITY_EDITOR
     [CustomEditor(typeof(RoundedGraphic))]
     public class PixelPerfectShaderDrawer : PEGI_Inspector<RoundedGraphic> { }
-#endif
-
+    #endif
+    #endregion
 }

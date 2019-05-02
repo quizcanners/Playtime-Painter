@@ -403,7 +403,7 @@ namespace QuizCannersUtilities
             return list[index];
         }
 
-        public static object TryGet(this IList list, int index)
+        public static object TryGetObj(this IList list, int index)
         {
             if (list == null || index < 0 || index >= list.Count)
                 return null;

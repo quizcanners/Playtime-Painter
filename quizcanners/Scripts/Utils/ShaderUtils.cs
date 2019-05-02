@@ -17,7 +17,7 @@ namespace QuizCannersUtilities
         {
             protected int id;
             private string _name;
-            public bool nonMaterialProperty;
+            //public bool nonMaterialProperty;
 
             public override int GetHashCode() => id;
 
@@ -32,8 +32,6 @@ namespace QuizCannersUtilities
             }
 
             private void UpdateIndex() => id = Shader.PropertyToID(_name);
-
-            public string NameForDisplayPEGI => _name;
 
             public override string ToString() => _name;
 
@@ -57,7 +55,10 @@ namespace QuizCannersUtilities
                 return renderer;
             }
 
-#if PEGI
+            #region Inspector
+            public string NameForDisplayPEGI => _name;
+
+            #if PEGI
             public bool PEGI_inList(IList list, int ind, ref int edited)
             {
                 "[{0}] {1}".F(id, _name).write();
@@ -66,29 +67,29 @@ namespace QuizCannersUtilities
 
                 return false;
             }
-#endif
+            #endif
+            #endregion
 
+            #region Encode & Decode
             public override CfgEncoder Encode() => new CfgEncoder()
                 .Add_String("n", _name)
-                .Add_IfTrue("nm", nonMaterialProperty);
+                //.Add_IfTrue("nm", nonMaterialProperty)
+            ;
             
             public override bool Decode(string tg, string data)
             {
                 switch (tg)
                 {
-                    case "n":
-                        _name = data;
-                        UpdateIndex();
-                        break;
-                    case "nm":
-                        nonMaterialProperty = data.ToBool();
-                        break;
+                    case "n":  _name = data; UpdateIndex();  break;
+                   // case "nm": nonMaterialProperty = data.ToBool();  break;
                     default: return false;
                 }
 
                 return true;
             }
+            #endregion
 
+            #region Constructors
             protected BaseShaderPropertyIndex()
             {
             }
@@ -99,13 +100,13 @@ namespace QuizCannersUtilities
                 UpdateIndex();
             }
 
-            protected BaseShaderPropertyIndex(string name, bool isNonMaterialProperty)
+         /*   protected BaseShaderPropertyIndex(string name, bool isNonMaterialProperty)
             {
                 _name = name;
                 nonMaterialProperty = isNonMaterialProperty;
                 UpdateIndex();
-            }
-
+            }*/
+            #endregion
         }
 
         public static bool Has<T>(this Material mat, T property) where T : BaseShaderPropertyIndex =>
@@ -159,9 +160,9 @@ namespace QuizCannersUtilities
             {
             }
 
-            protected ShaderPropertyIndexGeneric(string name, bool nonMaterial) : base(name, nonMaterial)
+           /* protected ShaderPropertyIndexGeneric(string name, bool nonMaterial) : base(name, nonMaterial)
             {
-            }
+            }*/
         }
 
         public static MaterialPropertyBlock Set<T>(this MaterialPropertyBlock block, ShaderPropertyIndexGeneric<T> property)
@@ -220,9 +221,9 @@ namespace QuizCannersUtilities
             {
             }
 
-            public FloatValue(string name, bool nonMaterial) : base(name, nonMaterial)
+            /*public FloatValue(string name, bool nonMaterial) : base(name, nonMaterial)
             {
-            }
+            }*/
 
         }
 
@@ -261,9 +262,9 @@ namespace QuizCannersUtilities
                 lastValue = startingColor;
             }
 
-            public ColorValue(string name, bool nonMaterial) : base(name, nonMaterial)
+            /*public ColorValue(string name, bool nonMaterial) : base(name, nonMaterial)
             {
-            }
+            }*/
 
 
         }
@@ -295,9 +296,9 @@ namespace QuizCannersUtilities
             {
             }
 
-            public VectorValue(string name, bool nonMaterial) : base(name, nonMaterial)
+           /* public VectorValue(string name, bool nonMaterial) : base(name, nonMaterial)
             {
-            }
+            }*/
         }
 
         #endregion
@@ -328,9 +329,9 @@ namespace QuizCannersUtilities
             {
             }
 
-            public MatrixValue(string name, bool nonMaterial) : base(name, nonMaterial)
+            /*public MatrixValue(string name, bool nonMaterial) : base(name, nonMaterial)
             {
-            }
+            }*/
         }
 
         #endregion
@@ -390,6 +391,7 @@ namespace QuizCannersUtilities
 
             #endregion
 
+            #region Constructors
             public TextureValue()
             {
             }
@@ -403,9 +405,10 @@ namespace QuizCannersUtilities
             {
             }
 
-            public TextureValue(string name, bool nonMaterial) : base(name, nonMaterial)
+           /* public TextureValue(string name, bool nonMaterial) : base(name, nonMaterial)
             {
-            }
+            }*/
+            #endregion
 
             #region Encode & Decode
 

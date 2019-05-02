@@ -9,7 +9,7 @@ using QuizCannersUtilities;
 namespace Playtime_Painter.Examples
 {
 
-    public class InvisibleFunctionalButton : Graphic, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPEGI {
+    public class InvisibleButton : Graphic, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPEGI {
 
         public UnityEvent OnClick;
 

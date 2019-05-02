@@ -458,7 +458,7 @@ namespace Playtime_Painter {
                 pegi.nl();
 
 
-                if (!_exploreRayTaceCamera && PainterCamera.Data.showVolumeDetailsInPainter && (volTex.name + " " + id.texture2D.VolumeSize(volTex.hSlices)).foldout(ref _exploreVolumeData).nl())
+                if (!_exploreRayTaceCamera && PainterCamera.Data.showVolumeDetailsInPainter && (volTex.name + " " + VolumeEditingExtensions.VolumeSize(id.texture2D, volTex.hSlices)       ).foldout(ref _exploreVolumeData).nl())
                     volTex.Nested_Inspect().changes(ref changed);
 
                 if (volTex.NeedsToManageMaterials)
@@ -648,7 +648,7 @@ namespace Playtime_Painter {
             return null;
         }
 
-        public static Vector3 VolumeSize(this Texture2D tex, int slices)
+        public static Vector3 VolumeSize(Texture2D tex, int slices)
         {
             var w = tex.width / slices;
             return new Vector3(w, slices * slices, w);

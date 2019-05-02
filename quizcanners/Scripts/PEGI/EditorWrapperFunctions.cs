@@ -218,6 +218,23 @@ namespace PlayerAndEditorGUI {
             
         }
 
+        private static GUIContent textAndToolTip = new GUIContent();
+
+        private static GUIContent TextAndTip(string text, string tip)
+        {
+            textAndToolTip.text = text;
+            textAndToolTip.tooltip = tip;
+            return textAndToolTip;
+        }
+
+        private static GUIContent TextAndTip(string text)
+        {
+            textAndToolTip.text = text;
+            textAndToolTip.tooltip = text;
+            return textAndToolTip;
+        }
+
+
         #region Foldout
         private static bool IsFoldedOut { get { return pegi.isFoldedOutOrEntered; } set { pegi.isFoldedOutOrEntered = value; } }
 
@@ -229,7 +246,7 @@ namespace PlayerAndEditorGUI {
             textAndToolTip.text = txt;
             textAndToolTip.tooltip = hint;
           
-            foldedOut = EditorGUILayout.Foldout(foldedOut, textAndToolTip, true);
+            foldedOut = EditorGUILayout.Foldout(foldedOut, TextAndTip(txt, hint), true);
             EndCheckLine();
 
             return foldedOut; 
@@ -1280,8 +1297,6 @@ namespace PlayerAndEditorGUI {
         
         private static void DrawHeader(Rect rect) => GUI.Label(rect, "Ordering {0} {1}s".F(_currentReorderedList.Count.ToString(), _currentReorderedType.ToPegiStringType()));
 
-        private static GUIContent textAndToolTip = new GUIContent();
-
         private static void DrawElement(Rect rect, int index, bool active, bool focused) {
             
             var el = _currentReorderedList[index];
@@ -1302,9 +1317,8 @@ namespace PlayerAndEditorGUI {
 
                     textAndToolTip.text = "{0}:{1}".F(ty.ToPegiStringType(), el.ToPegiString());
                     textAndToolTip.tooltip = el.ToString();
-                 
-
-                    var uo = el as Object;
+         
+                   var uo = el as Object;
                     if (uo)
                     {
                         var mb = uo as Component;
@@ -1318,11 +1332,6 @@ namespace PlayerAndEditorGUI {
 
                             if (mbs.Length > 1) { 
 
-                                //rect.width = 100;
-                                //EditorGUI.ObjectField(rect, cont, uo, _currentReorderedType, true);
-                                //rect.x += 100;
-                                //rect.width = 100;
-
                                 if (select(ref mb, mbs, rect))
                                     _currentReorderedList[index] = mb;
                             }
@@ -1335,6 +1344,8 @@ namespace PlayerAndEditorGUI {
 
                         if (_currentReorderedListTypes != null)
                         {
+
+                            textAndToolTip.text = el.ToPegiString();
 
                             rect.width = 100;
                             EditorGUI.LabelField(rect, textAndToolTip);
@@ -1356,11 +1367,8 @@ namespace PlayerAndEditorGUI {
                     if (_currentTaggedTypes != null)
                     {
 
-                        textAndToolTip.text = "UNREC {0}".F(ed.unrecognizedUnderTag);
-                        textAndToolTip.tooltip = "Select New Class";
-                        
                         rect.width = 100;
-                        EditorGUI.LabelField(rect, textAndToolTip);
+                        EditorGUI.LabelField(rect, TextAndTip("UNREC {0}".F(ed.unrecognizedUnderTag), "Select New Class"));
                         rect.x += 100;
                         rect.width = 100;
 

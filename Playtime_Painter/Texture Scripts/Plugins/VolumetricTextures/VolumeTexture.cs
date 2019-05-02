@@ -66,7 +66,7 @@ namespace Playtime_Painter {
 
         public ShaderProperty.TextureValue MaterialPropertyName => new ShaderProperty.TextureValue(PropertyNameRoot + VolumePaintingPlugin.VolumeTextureTag);
 
-        public ShaderProperty.TextureValue MaterialPropertyNameGlobal => new ShaderProperty.TextureValue( PainterDataAndConfig.GlobalPropertyPrefix+ PropertyNameRoot + VolumePaintingPlugin.VolumeTextureTag, true);
+        public ShaderProperty.TextureValue MaterialPropertyNameGlobal => new ShaderProperty.TextureValue( PainterDataAndConfig.GlobalPropertyPrefix+ PropertyNameRoot + VolumePaintingPlugin.VolumeTextureTag);
         
         public List<Material> materials;
 

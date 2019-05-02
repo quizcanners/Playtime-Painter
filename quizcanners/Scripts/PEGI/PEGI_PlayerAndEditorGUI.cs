@@ -3138,7 +3138,7 @@ namespace PlayerAndEditorGUI {
                 return false;
             }
 
-            var ret = (inspected == -1 ? icon.List : icon.Next).enter(txt.AddCount(list, entered), ref entered);
+            var ret = (inspected == -1 ? icon.List : icon.Next).enter(txt.AddCount(list, entered), ref entered, false);
             ret |= list.enter_SkipToOnlyElement<T>(ref inspected, ref entered);
             return ret;
         }
@@ -5433,6 +5433,12 @@ namespace PlayerAndEditorGUI {
             return editDelayed(ref val);
         }
 
+        public static bool editDelayed(this string label, string hint, int width, ref string val)
+        {
+            write(label, hint, width);
+            return editDelayed(ref val);
+        }
+
         private const int maxStringSize = 1000;
 
         private static bool LengthIsTooLong(ref string label)
@@ -6101,7 +6107,7 @@ namespace PlayerAndEditorGUI {
         {
             
             foreach (var e in _copiedElements)
-                list.TryAdd(listCopyBuffer.TryGet(e));
+                list.TryAdd(listCopyBuffer.TryGetObj(e));
 
             for (var i = _copiedElements.Count - 1; i >= 0; i--)
                 listCopyBuffer.RemoveAt(_copiedElements[i]);
@@ -6312,7 +6318,7 @@ namespace PlayerAndEditorGUI {
                         if (!move && icon.Paste.ClickUnFocus("Try Past References Of {0} to here".F(listCopyBuffer.ToPegiString())))
                         {
                             foreach (var e in _copiedElements)
-                                list.TryAdd(listCopyBuffer.TryGet(e));
+                                list.TryAdd(listCopyBuffer.TryGetObj(e));
                         }
 
                         if (move && icon.Move.ClickUnFocus("Try Move References Of {0}".F(listCopyBuffer)))
@@ -6328,7 +6334,7 @@ namespace PlayerAndEditorGUI {
                             foreach (var e in _copiedElements)
                             {
 
-                                var istd = listCopyBuffer.TryGet(e) as ICfg;
+                                var istd = listCopyBuffer.TryGetObj(e) as ICfg;
 
                                 if (istd != null)
                                     list.TryAdd(istd.CloneStd());
@@ -6974,7 +6980,7 @@ namespace PlayerAndEditorGUI {
 
             if (inspected == -1)  {
 
-                changed |= list.edit_List_Order(listMeta);
+                list.edit_List_Order(listMeta).changes(ref changed);
 
                 if (list != editing_List_Order) {
                     
@@ -7107,7 +7113,7 @@ namespace PlayerAndEditorGUI {
 
         private static string lambda_string_role(string val)
         {
-            var role = listElementsRoles.TryGet(InspectedIndex);
+            var role = listElementsRoles.TryGetObj(InspectedIndex);
             if (role != null)
                 role.ToPegiString().edit(90, ref val);
             else edit(ref val);
@@ -7123,7 +7129,7 @@ namespace PlayerAndEditorGUI {
 
         private static T lambda_Obj_role<T>(T val) where T : UnityEngine.Object {
 
-            var role = listElementsRoles.TryGet(InspectedIndex);
+            var role = listElementsRoles.TryGetObj(InspectedIndex);
             if (!role.IsNullOrDestroyed_Obj())
                 role.ToPegiString().edit(90, ref val);
             else edit(ref val);

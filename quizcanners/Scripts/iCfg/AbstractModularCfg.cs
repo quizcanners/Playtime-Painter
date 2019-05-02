@@ -160,7 +160,7 @@ namespace QuizCannersUtilities {
 
           
 
-            var previous = list.TryGet(index);
+            var previous = list.TryGetObj(index);
 
             var el = previous;
 

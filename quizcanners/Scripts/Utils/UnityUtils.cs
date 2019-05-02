@@ -172,7 +172,19 @@ namespace QuizCannersUtilities {
         }
         
         public static T NullIfDestroyed<T>(this T obj) => obj.IsNullOrDestroyed_Obj() ? default(T) : obj;
-  
+
+        public static bool TrySetAlpha_DisableIfZero(this Graphic graphic, float alpha)
+        {
+            if (!graphic) return false;
+
+            var ret = graphic.TrySetAlpha(alpha);
+            
+            graphic.gameObject.SetActive(alpha>0.01f);
+            
+            return ret;
+
+        }
+        
         public static bool TrySetAlpha(this Graphic graphic, float alpha)
         {
             if (!graphic) return false;
@@ -185,6 +197,14 @@ namespace QuizCannersUtilities {
             graphic.color = col;
             return true;
                
+        }
+
+        public static void TrySetAlpha_DisableIfZero<T>(this List<T> graphics, float alpha) where T : Graphic
+        {
+            if (graphics.IsNullOrEmpty()) return;
+
+            foreach (var g in graphics)
+                g.TrySetAlpha_DisableIfZero(alpha);
         }
 
         public static void TrySetAlpha<T>(this List<T> graphics, float alpha) where T : Graphic
@@ -1829,6 +1849,7 @@ namespace QuizCannersUtilities {
     }
 
     #region Various Managers Classes
+
     public class PerformanceTimer : IPEGI_ListInspect, IGotDisplayName
     {
         private readonly string _name;
@@ -2162,8 +2183,7 @@ namespace QuizCannersUtilities {
 #endif
 #endregion
     }
-
-    // Work in progress
+    
     [Serializable]
     public class ScreenShootTaker : IPEGI {
 
@@ -2300,6 +2320,41 @@ namespace QuizCannersUtilities {
 
         #endregion
         
+    }
+
+    [Serializable]
+    public class MaterialPlaytimeInstancer
+    {
+        [SerializeField] public List<Graphic> materialUsers = new List<Graphic>();
+        [NonSerialized] private Material labelMaterialInstance;
+
+        public Material MaterialInstance
+        {
+            get
+            {
+                if (labelMaterialInstance)
+                    return labelMaterialInstance;
+
+                if (materialUsers.Count == 0)
+                    return null;
+
+                var first = materialUsers[0];
+
+                if (!first)
+                    return null;
+
+                if (!Application.isPlaying)
+                    return first.material;
+                
+                labelMaterialInstance = Object.Instantiate(first.material);
+
+                foreach (var u in materialUsers)
+                    if (u)
+                    u.material = labelMaterialInstance;
+
+                return labelMaterialInstance;
+            }
+        }
     }
 
     #endregion
