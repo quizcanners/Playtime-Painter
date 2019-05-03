@@ -536,7 +536,7 @@ namespace Playtime_Painter {
 
             if (alphaBufferDataTarget != null && (alphaBufferDataTarget != id || alphaBufferDataShader != shade))
             {
-                Debug.Log("Updating for " + alphaBufferDataTarget.ToPegiString() + " with " + alphaBufferDataShader);
+                //Debug.Log("Updating for " + alphaBufferDataTarget.ToPegiString() + " with " + alphaBufferDataShader);
                 UpdateFromAlphaBuffer(alphaBufferDataTarget.CurrentRenderTexture(), alphaBufferDataShader);
             }
 
@@ -565,13 +565,21 @@ namespace Playtime_Painter {
             
         }
 
-        void FinalizePreviousAlphaDataTarget() => UpdateFromAlphaBuffer(alphaBufferDataTarget.CurrentRenderTexture(), alphaBufferDataShader);
-        
+        public void FinalizePreviousAlphaDataTarget()
+        {
+            if (alphaBufferDataTarget != null)
+            {
+                UpdateFromAlphaBuffer(alphaBufferDataTarget.CurrentRenderTexture(), alphaBufferDataShader);
+            }
+        }
+
         #endregion
 
         #region Render
 
         public void Render()  {
+
+            //Debug.Log("Render call");
 
             transform.rotation = Quaternion.identity;
             cameraPosition_Property.GlobalValue = transform.position.ToVector4();
@@ -661,10 +669,6 @@ namespace Playtime_Painter {
             if (id != null && id == alphaBufferDataTarget)
                 DiscardAlphaBuffer();
             
-        }
-
-        public void OnPreviewSwitch() {
-            FinalizePreviousAlphaDataTarget();
         }
 
         public void OnBeforeBlitConfigurationChange() {
@@ -855,7 +859,7 @@ namespace Playtime_Painter {
 
             if (!Data)
                 return;
-
+            
             if (PlaytimePainter.IsCurrentTool && focusedPainter)
                 focusedPainter.ManagedUpdate();
             
@@ -876,8 +880,7 @@ namespace Playtime_Painter {
 #endif
 
             Data.ManagedUpdate();
-
-           
+            
             var l = PlaytimePainter.PlaybackPainters;
 
             if (l.Count > 0 && !StrokeVector.pausePlayback)
@@ -899,20 +902,12 @@ namespace Playtime_Painter {
             }
 #endif
 
-          /*  if (Application.isPlaying && Data && Data.disableNonMeshColliderInPlayMode && MainCamera) {
-                RaycastHit hit;
-                if (Physics.Raycast(MainCamera.ScreenPointToRay(Input.mousePosition), out hit))
-                {
-                    var c = hit.collider;
-                    if (c.GetType() != typeof(MeshCollider) && PlaytimePainter.CanEditWithTag(c.tag)) c.enabled = false;
-                }
-            }*/
-
             if (!uiPainter || !uiPainter.CanPaint()) {
 
                 var p = PlaytimePainter.currentlyPaintedObjectPainter;
 
-                if (p && !Application.isPlaying){
+                if (p && !Application.isPlaying && sinceLastPainterCall>0.016f)
+                {
                     if (p.ImgMeta == null)
                         PlaytimePainter.currentlyPaintedObjectPainter = null;
                     else {
@@ -934,8 +929,11 @@ namespace Playtime_Painter {
                 PainterSystemManagerPluginBase.RefreshPlugins();
             }
 
+            sinceLastPainterCall += Time.deltaTime;
+
+
         }
-        
+
 
         public static void CancelAllPlaybacks()
         {

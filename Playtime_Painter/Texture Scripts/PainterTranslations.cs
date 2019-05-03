@@ -9,7 +9,7 @@ namespace PlayerAndEditorGUI {
         BlitMode, BlitModeAlpha, BlitModeAdd, BlitModeSubtract, BlitModeCopy, BlitModeMin, BlitModeMax, BlitModeBlur,
         BlitModeOff, BlitModeBloom, BlitModeProjector, BlitModeFiller,
         LockToolToUseTransform, HideTransformTool, AboutPlaytimePainter,
-         MeshProfileUsage, Speed, Scale, Hardness, CopyFrom, FancyOptions, previewRGBA, AutoSelectMaterial,
+         MeshProfileUsage, Speed, Scale, Hardness, CopyFrom, TextureSettings, previewRGBA, AutoSelectMaterial,
          aboutDisableDocumentation, SampleColor, PreviewRecommended, AlphaBufferBlit, Opacity, SpreadSpeed, BlurAmount,
          Unnamed, TransparentLayer, PleaseSelect
 
@@ -54,13 +54,13 @@ namespace PlayerAndEditorGUI {
                     break;
                 case MsgPainter.AboutPlaytimePainter:
                     msg.Translate("About Playtime Painter Component",
-                        ("This Component allows you to paint on this object's renderer's material's texture (Yes, there is a bit of hierarchy). It can also edit the mesh. " +
-                         "All functions & configurations are accessible from within this inspector. " +
+                        ("This Component allows you to paint on this GameObject's Renderer's Material's Texture (Yes, there is a bit of hierarchy). It can also edit the mesh. " +
+                         "All tools & configurations are accessible from within this inspector. " +
                          "Any changes are applied only to working copy of the texture and will be lost on Entering/Exiting Play mode or restarting Unity." +
                          "Load button on the bottom can reload working copy from original image file." +
-                         "Save button will apply changes to the original file. To save as new file, change name before saving and click Save As New." +
+                         "Save button will apply changes to the Original .png image. To save as new image, change name before saving and click Save As New." +
                          "Use Ctrl + Left Mouse Button to sample color of the texture." +
-                         "I tried to integrate tutorial into the component (Click on blue '?') .You can hide them from the configuration. " +
+                         "Documentation is being integrated into the component (The blue '?' icons) .You can hide them from the Tool Settings. " +
                          "").F(pegi.EnvironmentNl))
                         .From(trk, "Playtime Painter Komponenti Hakkında" ,
                             "Bu komponent  sizin bu objenin işleyicisinin (renderer) materyalinin dokusunu ( material's texture) boyayabilmenizi sağlar ( Evet, burada biraz hiyerarşi var). Ayrıca meshi de düzenleyebilirsiniz.");
@@ -89,8 +89,8 @@ namespace PlayerAndEditorGUI {
                     msg.Translate("Copy From")
                         .From(ukr, "Копіювати з");
                     break;
-                case MsgPainter.FancyOptions:
-                    msg.Translate("Texture options")
+                case MsgPainter.TextureSettings:
+                    msg.Translate("Texture settings")
                         .From(ukr, "Налаштування текстури");
                     break;
                 case MsgPainter.previewRGBA:
@@ -243,6 +243,66 @@ namespace PlayerAndEditorGUI {
             return painterTranslations.GetWhenInited(index, lang);
         }
 
+
+        private static int inspectingSection = -1;
+        private static int inspectedFaqQuestion = -1;
+        private static int inspectedPerfTip = -1;
+
+
+        public static bool InspectPainterDocumentation()
+        {
+            var changed = false;
+
+            if (inspectingSection == -1)
+            MsgPainter.AboutPlaytimePainter.GetDescription().writeBig();
+
+            if ("FAQ".enter(ref inspectingSection, 0).nl()) {
+
+                if ("Can I integrate Painter into my game?".enter(ref inspectedFaqQuestion, 0).nl()) {
+
+                    ("There is no reason why you can't. This asset doesn't contain or depend on any plugins and does everything using Unity functions. " +
+                     "If you downloaded Examples folder, there should be simple scripts that use Paint functions. Usually you will encounter a component dependent workflow:" +
+                     "Attaching PlaytimePainter or Custom component to objects you want to be paintable. I try to make sure that all required information is provided trough the inspector" +
+                     "interface. It should show warnings/hints when something needs to be set up. ").writeBig();
+                }
+
+                if ("How do I Save/Load/Undo changes to textures?".enter(ref inspectedFaqQuestion, 1).nl()) {
+                    ("Undo/Redo needs to be enabled per texture in {0}. Otherwise there are just too many scenarios when lots of memory will be used due to unwanted backups and redo steps.".F(MsgPainter.TextureSettings.GetText()) +
+                      " It is possible to save texture during runtime. In Texture Setting -> Texture Processors there is a section to Save/Load textures during runtime. It is there for testing." +
+                      " The code used for saving texture is located inside ImgData class. While editing texture in editor, there is Save/Load buttons which can save changes to the actual .png file, or " +
+                      "load from it. Of not pressed, any changes to the texture will be lost once Unity is restarted, or texture reimported."  ).writeBig();
+                }
+             
+            }
+
+            if ("Performance/Quality tips".enter(ref inspectingSection, 1).nl())
+            {
+                if ("Slower in Editor in Android/iOS mode".enter(ref inspectedPerfTip, 0).nl())
+                {
+                    "If Editor is set for Android/iOS then Unity will try to emulate that API and as a result, painting will be slower."
+                        .writeBig();
+                }
+
+                if ("Use GPU brush, big brush for CPU is slow.".enter(ref inspectedPerfTip, 1).nl()) {
+                    "GPU brush is always faster for every task. CPU brush uses code written in C#, so it is much easier to add your own blit modes to it, but it gets slower the bigger the brush gets.".writeBig();
+                }
+
+                if ("Sphere brush is the best".enter(ref inspectedPerfTip, 2).nl()) {
+                   ( " Sphere brush is the best for editing complex models. It uses world space instead of texture space so the result is often more as one would expect." +
+                     " Since it is a GPU brush, performance should be good. It is possible to reduce the size of painting buffers in ToolSettings->PainterCamera->Buffers to increase performance." +
+                     " Sphere brush doesn't always work well with tyling though. So when you see a line where brush seams to be able to paint only one side of it at any given time - tyling is the reason." +
+                     " It is possible to slightly mitigate this issue by rendering multiple times. Option to do so may be added in future releases, but the option will" +
+                     " undoubtfully come with performance cost (when used)"   ).writeBig();
+                }
+
+            }
+
+
+            return changed;
+        }
+
+
+
 #if PEGI
         public static void Write(this MsgPainter m) { var txt = m.GetText(); txt.write(txt.ApproximateLengthUnsafe()); }
         public static void Write(this MsgPainter m, int width) { m.GetText().write(width); }
@@ -263,6 +323,8 @@ namespace PlayerAndEditorGUI {
 
 #if PEGI
         public static bool DocumentationClick(this MsgPainter msg) =>  PainterDataAndConfig.hideDocumentation ? false : msg.Get().DocumentationClick();
+
+
 
         public static bool DocumentationWarning(this MsgPainter msg) => PainterDataAndConfig.hideDocumentation ? false : msg.Get().WarningDocumentation();
 #endif

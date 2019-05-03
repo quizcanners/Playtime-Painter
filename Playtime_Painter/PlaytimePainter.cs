@@ -53,9 +53,7 @@ namespace Playtime_Painter {
                     else
                     {
 
-                        if (!UnityUtils.TryRestoreUnityTool())
-                        {
-
+                        if (!UnityUtils.TryRestoreUnityTool()) {
                             Tools.current = Tool.None;
                         }
                     }
@@ -285,7 +283,7 @@ namespace Playtime_Painter {
 
         #if UNITY_EDITOR
         public void OnMouseOverSceneView(RaycastHit hit, Event e) {
-
+            
             if (!CanPaint())
                 return;
 
@@ -409,6 +407,7 @@ namespace Playtime_Painter {
 
         private bool ProcessHit(RaycastHit hit, StrokeVector st)
         {
+    
 
             var subMesh = this.GetMesh().GetSubMeshNumber(hit.triangleIndex);
             if (subMesh != selectedSubMesh)
@@ -430,8 +429,7 @@ namespace Playtime_Painter {
             st.collisionNormal = hit.normal;
             st.unRepeatedUv = OffsetAndTileUv(hit);
             st.uvTo = st.unRepeatedUv.To01Space();
-
-
+            
             PreviewShader_StrokePosition_Update();
 
             return true;
@@ -611,7 +609,7 @@ namespace Playtime_Painter {
             previewHolderMaterial = null;
             
             if (TexMgmt)
-                TexMgmt.OnPreviewSwitch();
+                TexMgmt.FinalizePreviousAlphaDataTarget();
 
         }
 
@@ -1856,11 +1854,17 @@ namespace Playtime_Painter {
         private static int inspectedShowOptionsSubitem = -1;
 
         public bool Inspect() {
-
+            
             #if UNITY_2019_1_OR_NEWER && UNITY_EDITOR
             if (!Application.isPlaying && !IsCurrentTool)
             {
+                if (ActiveEditorTracker.sharedTracker.isLocked) 
+                    pegi.Lock_UnlockWindowClick(gameObject);
+
                 MsgPainter.PleaseSelect.GetText().writeHint();
+
+                SetOriginalShaderOnThis();
+
                 return false;
             }
             #endif
@@ -1922,15 +1926,17 @@ namespace Playtime_Painter {
 
 
                 if (
-                    #if UNITY_EDITOR
-                    #if UNITY_2019_1_OR_NEWER   
-                    Application.isPlaying &&
+                    #if UNITY_2019_1_OR_NEWER
+                    Application.isPlaying && (
+                    #else 
+                    (
                     #endif
                     
+                    #if UNITY_EDITOR
                     (IsCurrentTool && terrain && !Application.isPlaying &&
                      UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(terrain)) ||
                     #endif
-                    icon.On.Click("Click to Disable Tool"))
+                    icon.On.Click("Click to Disable Tool")))
                 {
                     IsCurrentTool = false;
                     WindowPosition.Collapse();
@@ -1952,9 +1958,7 @@ namespace Playtime_Painter {
                     textureWasChanged = true;
 
                 #region Top Buttons
-
-             
-
+                
                 if (MeshManager.target && (MeshManager.target != this))
                     MeshManager.DisconnectMesh();
 
@@ -1989,11 +1993,11 @@ namespace Playtime_Painter {
                     }
                 }
 
-                pegi.toggle(ref Cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config, "Settings");
-
-                MsgPainter.AboutPlaytimePainter.DocumentationClick();
-
+                pegi.toggle(ref Cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config, "Tool Configuration");
                 
+                if (!PainterDataAndConfig.hideDocumentation)
+                    pegi.fullWindowDocumentationClick(LazyTranslations.InspectPainterDocumentation, MsgPainter.AboutPlaytimePainter.GetText());
+    
                 #endregion
                 
                 if (Cfg.showConfig) {
@@ -2230,7 +2234,7 @@ namespace Playtime_Painter {
                             var mode = GlobalBrush.GetBlitMode(cpu);
                             var col = GlobalBrush.Color;
 
-                            if ((cpu || !mode.UsingSourceTexture || GlobalBrush.srcColorUsage != SourceTextureColorUsage.Copy) && !IsTerrainHeightTexture &&
+                            if ((cpu || !mode.UsingSourceTexture || GlobalBrush.srcColorUsage != SourceTextureColorUsage.Unchanged) && !IsTerrainHeightTexture &&
                                 !pegi.paintingPlayAreaGui) {
                                 if (pegi.edit(ref col).changes(ref changed))
                                     GlobalBrush.Color = col;
@@ -2285,7 +2289,7 @@ namespace Playtime_Painter {
                 #region Fancy Options
 
                         pegi.nl();
-                        MsgPainter.FancyOptions.GetText().foldout(ref Cfg.moreOptions);
+                        MsgPainter.TextureSettings.GetText().foldout(ref Cfg.moreOptions);
 
                         if (id != null && !Cfg.moreOptions)
                         {
@@ -2867,8 +2871,7 @@ namespace Playtime_Painter {
 
             if (textureWasChanged)
                 OnChangedTexture_OnMaterial();
-
-          
+            
             var id = ImgMeta;
             id?.Update(stroke.mouseUp);
             
@@ -2877,10 +2880,18 @@ namespace Playtime_Painter {
         private void PreviewShader_StrokePosition_Update()
         {
             CheckPreviewShader();
-            if (NotUsingPreview) return;
+
+            if (NotUsingPreview)
+                return;
             
             var hide = Application.isPlaying ? Input.GetMouseButton(0) : currentlyPaintedObjectPainter == this;
             PainterCamera.Shader_PerFrame_Update(stroke, hide, GlobalBrush.Size(this));
+
+            if (!Application.isPlaying)
+            {
+                UnityUtils.SetToDirty(this);
+                //EditorUtility.SetDirty(target);
+            }
             
         }
 

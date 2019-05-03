@@ -621,17 +621,19 @@ namespace PlayerAndEditorGUI {
                 textsShown++;
             }
 
-            private static void Confirm()
+            static void ClosePopUp()
             {
-                nl();
+                popUpText = null;
+                relatedLink = null;
+                relatedLinkName = null;
+                inspectDocumentationDelegate = null;
+            }
 
-                if (understoodPopUpText.Click(15).nl()) {
-                    popUpText = null;
-                    relatedLink = null;
-                    relatedLinkName = null;
-                    inspectDocumentationDelegate = null;
-                }
+            #region Elements
 
+            private static void ContactOptions()
+            {
+                pegi.nl();
                 "Didn't get the answer you need?".write();
                 if (icon.Discord.Click())
                     Application.OpenURL(DiscordServer);
@@ -641,36 +643,65 @@ namespace PlayerAndEditorGUI {
 
             }
 
-            public static bool ShowingPopup() {
+            private static void ConfirmLabel()
+            {
+                nl();
 
-                if (popUpTarget == null || popUpTarget != inspectedTarget)
-                    return false;
+                if (understoodPopUpText.Click(15).nl())
+                    ClosePopUp();
 
-                if (!popUpText.IsNullOrEmpty()) {
-                    
-                    if (!popUpHeader.IsNullOrEmpty()) {
-                        popUpHeader.write(PEGI_Styles.ListLabel);
-                        nl();
-                    }
-                    
-                    popUpText.writeBig("Click the blue text below to close this toolTip. This is basically a toolTip for a toolTip. It is the world we are living in now.");
+                ContactOptions();
+            }
 
-                    if (!relatedLink.IsNullOrEmpty() && relatedLinkName.Click(14))
-                                Application.OpenURL(relatedLink);
-                    
-                    Confirm();
-                    return true;
-                }
-
-                if (inspectDocumentationDelegate != null)  {
-                    inspectDocumentationDelegate();
-                    Confirm();
+            static bool WriteHeaderIfAny()
+            {
+                if (!popUpHeader.IsNullOrEmpty())
+                {
+                    popUpHeader.write(PEGI_Styles.ListLabel);
                     return true;
                 }
 
                 return false;
             }
 
+            public static bool ShowingPopup() {
+
+                if (popUpTarget == null || popUpTarget != inspectedTarget)
+                    return false;
+
+                if (!popUpText.IsNullOrEmpty())
+                {
+
+                    WriteHeaderIfAny().nl();
+
+                    popUpText.writeBig("Click the blue text below to close this toolTip. This is basically a toolTip for a toolTip. It is the world we are living in now.");
+
+                    if (!relatedLink.IsNullOrEmpty() && relatedLinkName.Click(14))
+                                Application.OpenURL(relatedLink);
+                    
+                    ConfirmLabel();
+                    return true;
+                }
+
+                if (inspectDocumentationDelegate != null)  {
+
+                    if (icon.Back.Click("Exit"))
+                        ClosePopUp();
+                    else
+                    {
+                        WriteHeaderIfAny().nl();
+
+                        inspectDocumentationDelegate();
+
+                        ContactOptions();
+                    }
+
+                    return true;
+                }
+
+                return false;
+            }
+            #endregion
         }
 
         #endregion
@@ -3601,7 +3632,18 @@ namespace PlayerAndEditorGUI {
             }
         #endif
         }
-        
+
+        public static void UnlockInspectorWindowIfLocked(GameObject go)
+        {
+#if UNITY_EDITOR
+            if (ActiveEditorTracker.sharedTracker.isLocked && (Selection.objects.IsNullOrEmpty() || Selection.objects.Contains(go)))
+            {
+                ActiveEditorTracker.sharedTracker.isLocked = false;
+                UnityUtils.FocusOn(go);
+            }
+#endif
+        }
+
         public static bool ClickLabel(this string label, string hint = "ClickAble Text", int width = -1, GUIStyle style = null)
         {
             SetBgColor(Color.clear);

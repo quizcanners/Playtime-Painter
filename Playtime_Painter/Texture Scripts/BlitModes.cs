@@ -610,6 +610,9 @@ namespace Playtime_Painter {
 
             if (!DepthProjectorCamera.Instance) {
 
+                "Projector brush needs Projector Camera to be in the scene".writeWarning();
+                pegi.nl();
+
                 if ("Create Projector Camera".Click().nl()) {
 
                     UnityUtils.Instantiate<DepthProjectorCamera>();

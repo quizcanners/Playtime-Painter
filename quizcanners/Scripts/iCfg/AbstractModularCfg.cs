@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using PlayerAndEditorGUI;
 using UnityEngine;
 
@@ -19,6 +20,17 @@ namespace QuizCannersUtilities {
     public abstract class AbstractWithTaggedTypes : Attribute
     {
         public abstract TaggedTypesCfg TaggedTypes { get; }
+
+        public AbstractWithTaggedTypes()
+        {
+
+        }
+
+        public AbstractWithTaggedTypes(params Type[] type)
+        {
+            TaggedTypes.Types = type.ToList();
+            
+        }
     }
 
     [AttributeUsage(AttributeTargets.Class)]
@@ -56,26 +68,41 @@ namespace QuizCannersUtilities {
 
         private Dictionary<string, Type> _dictionary;
 
-        private TaggedTypesCfg RefreshNodeTypesList() {
+        private TaggedTypesCfg RefreshNodeTypesList()
+        {
             if (_keys != null) return this;
-            
+
             _dictionary = new Dictionary<string, Type>();
 
             _keys = new List<string>();
+            
+            var atr = _coreType.TryGetClassAttribute<AbstractWithTaggedTypes>();
+            
+            List<Type> allTypes;
 
-            _types = new List<Type>();
+            if (_types == null)
+            {
+                _types = new List<Type>();
+                allTypes = _coreType.GetAllChildTypes();
+            }
+            else
+            {
+                allTypes = _types;
+                _types = new List<Type>();
+            }
 
             _displayNames = new List<string>();
-
-            var allTypes = _coreType.GetAllChildTypes();
-
-            foreach (var t in allTypes) {
+            
+            foreach (var t in allTypes)
+            {
                 var att = t.TryGetClassAttribute<TaggedType>();
 
-                if (att == null) continue;
-                
-                if (_dictionary.ContainsKey(att.tag)) 
-                    Debug.LogError("Class {0} and class {1} both share the same tag {2}".F(att.displayName, _dictionary[att.tag].ToString(), att.tag));
+                if (att == null)
+                    continue;
+
+                if (_dictionary.ContainsKey(att.tag))
+                    Debug.LogError("Class {0} and class {1} both share the same tag {2}".F(att.displayName,
+                        _dictionary[att.tag].ToString(), att.tag));
                 else
                 {
                     _dictionary.Add(att.tag, t);
@@ -92,12 +119,14 @@ namespace QuizCannersUtilities {
             RefreshNodeTypesList()._dictionary;
 
         public List<string> Keys =>
-                RefreshNodeTypesList()._keys;
+            RefreshNodeTypesList()._keys;
 
-        public List<Type> Types =>
-                RefreshNodeTypesList()._types;
+        public List<Type> Types {
+            get { return RefreshNodeTypesList()._types; }
+            set { _types = value; }
+        }
 
-        public IEnumerator<Type> GetEnumerator()
+    public IEnumerator<Type> GetEnumerator()
         {
             foreach (var t in Types)
                 yield return t;

@@ -423,7 +423,7 @@ namespace Playtime_Painter
             if (st.firstStroke || br.decalContentious)
             {
 
-                if (br.decalRotationMethod == DecalRotationMethod.StrokeDirection)
+                if (br.decalRotationMethod == DecalRotationMethod.FaceStrokeDirection)
                 {
                     var delta = st.uvTo - _previousUv;
 
@@ -450,7 +450,7 @@ namespace Playtime_Painter
 
                 var uv = st.uvTo;
 
-                if (br.decalRotationMethod == DecalRotationMethod.StrokeDirection && !st.firstStroke)
+                if (br.decalRotationMethod == DecalRotationMethod.FaceStrokeDirection && !st.firstStroke)
                 {
                     var length = Mathf.Max(deltaUv.magnitude * 2 * id.width / br.Size(false), 1);
                     var scale = tf.localScale;
@@ -500,7 +500,12 @@ namespace Playtime_Painter
             var decal = TexMGMTdata.decals.TryGet(InspectedBrush.selectedDecal);
 
             if (decal == null)
-                "Select a valid decal. You can add some in Config -> Lists.".fullWindowWarningDocumentationClick("No Decal selected");
+            {
+                "Select a valid decal. You can add some in Config -> Lists.".fullWindowWarningDocumentationClick(
+                    "No Decal selected");
+
+
+            }
 
             pegi.nl();
 
@@ -518,11 +523,11 @@ namespace Playtime_Painter
 
             switch (InspectedBrush.decalRotationMethod)
             {
-                case DecalRotationMethod.Set:
+                case DecalRotationMethod.Constant:
                     "Angle:".write("Decal rotation", 60);
                     changed |= pegi.edit(ref InspectedBrush.decalAngle, -90, 450);
                     break;
-                case DecalRotationMethod.StrokeDirection:
+                case DecalRotationMethod.FaceStrokeDirection:
                     "Ang Offset:".edit("Angle modifier after the rotation method is applied", 80, ref InspectedBrush.decalAngleModifier, -180f, 180f);
                     break;
             }

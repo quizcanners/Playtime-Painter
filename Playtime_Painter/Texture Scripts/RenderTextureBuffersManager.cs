@@ -1,4 +1,4 @@
-﻿#define debugInits
+﻿//#define debugInits
 
 using System;
 using PlayerAndEditorGUI;

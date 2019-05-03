@@ -15,9 +15,9 @@ namespace Playtime_Painter {
         public static bool HasFlag(this BrushMask mask, BrushMask flag) => (mask & flag) != 0;
     }
 
-    public enum DecalRotationMethod { Set, Random, StrokeDirection }
+    public enum DecalRotationMethod { Constant, Random, FaceStrokeDirection }
 
-    public enum SourceTextureColorUsage { Copy = 0, MultiplyByBrushColor = 1, UseBrushColor = 2}
+    public enum SourceTextureColorUsage { Unchanged = 0, MultiplyByBrushColor = 1, ReplaceWithBrushColor = 2}
 
     [Serializable]
     public class BrushConfig : PainterSystemCfg, IPEGI {
@@ -73,7 +73,7 @@ namespace Playtime_Painter {
 
         public bool ignoreSrcTextureTransparency;
 
-        public SourceTextureColorUsage srcColorUsage = SourceTextureColorUsage.Copy;
+        public SourceTextureColorUsage srcColorUsage = SourceTextureColorUsage.Unchanged;
 
         #endregion
 
@@ -268,7 +268,7 @@ namespace Playtime_Painter {
             if (pegi.select(ref blitMode, Playtime_Painter.BlitMode.AllModes).changes(ref changed)) 
                 SetBlitMode(cpu, blitMode);
 
-            pegi.toggle(ref showAdvanced, icon.FoldedOut, icon.Create, "Advanced Options", 25);
+            pegi.toggle(ref showAdvanced, icon.FoldedOut, icon.Create, "Brush Options", 25);
 
             if (docsEnabled && blitMode != null && pegi.DocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI)))
                 pegi.FullWindwDocumentationOpen(blitMode.ToolTip);
@@ -314,7 +314,7 @@ namespace Playtime_Painter {
 
                 if (blitMode.UsingSourceTexture) {
 
-                    "Src Texture Color".editEnum(80, ref srcColorUsage).nl(ref changed);
+                    "Texture Color".editEnum(120, ref srcColorUsage).nl(ref changed);
 
                     if (InspectAdvanced) {
                         "Clamp".toggleIcon(ref clampSourceTexture).nl(ref changed);
@@ -589,7 +589,7 @@ namespace Playtime_Painter {
                     if (painter.IsEditingThisMesh || id==null || !id.isATransparentLayer || colorLinear.a > 0)  {
 
                         var slider_copy = blitMode.UsingSourceTexture ?
-                            (srcColorUsage != SourceTextureColorUsage.Copy)
+                            (srcColorUsage != SourceTextureColorUsage.Unchanged)
                             :slider;
 
                         if (r) ChannelSlider(BrushMask.R, ref colorLinear.r, null, slider_copy).nl(ref changed);

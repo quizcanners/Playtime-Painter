@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
@@ -753,6 +754,11 @@ namespace Playtime_Painter.Examples
         public class RoundedButtonModuleAttribute : AbstractWithTaggedTypes
         {
             public override TaggedTypesCfg TaggedTypes => RoundedButtonModuleBase.all;
+
+            public RoundedButtonModuleAttribute() { }
+
+            public RoundedButtonModuleAttribute(params System.Type[] types) : base(types) { }
+
         }
 
         [RoundedButtonModule]
