@@ -1634,9 +1634,16 @@ namespace Playtime_Painter {
             }
 
             var rtp = FindObjectsOfType<PainterCamera>();
-            if (rtp != null)
+
+            if (!rtp.IsNullOrEmpty())
                 foreach (var rt in rtp)
                     rt.gameObject.DestroyWhatever();
+
+            var dc = FindObjectsOfType<DepthProjectorCamera>();
+
+            if (!dc.IsNullOrEmpty())
+                foreach (var d in dc)
+                    d.gameObject.DestroyWhatever();
 
             PainterSystem.applicationIsQuitting = false;
         }
@@ -1655,9 +1662,7 @@ namespace Playtime_Painter {
 
 #endif
 
-        public void OnDestroy()
-        {
-
+        public void OnDestroy() {
 
             var colliders = GetComponents<Collider>();
 
@@ -1670,7 +1675,8 @@ namespace Playtime_Painter {
                 if (c.GetType() != typeof(MeshCollider)) c.enabled = true;
 
             if (forcedMeshCollider && meshCollider)
-                meshCollider.enabled = false;
+                meshCollider.DestroyWhateverComponent();
+            
         }
         
         private void OnDisable()
@@ -1772,10 +1778,8 @@ namespace Playtime_Painter {
                     forcedMeshCollider = true;
                 }
                 else if (meshCollider.enabled == false)
-                {
                     meshCollider.enabled = true;
-                    forcedMeshCollider = true;
-                }
+                
 
             }
 
@@ -2779,9 +2783,9 @@ namespace Playtime_Painter {
             return changed;
 
         }
-#endif
+        #endif
 
-#if UNITY_EDITOR
+        #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
             if (!TexMgmt || this != TexMgmt.focusedPainter) return;

@@ -89,7 +89,8 @@ namespace Playtime_Painter {
                             _inst = Instantiate(go).GetComponent<PainterCamera>();
                             _inst.name = PainterDataAndConfig.PainterCameraName;
                             PainterSystemManagerPluginBase.RefreshPlugins();
-                        //#endif
+
+                            //#endif
 
                     }
                 }
@@ -797,25 +798,17 @@ namespace Playtime_Painter {
             
             PainterSystem.applicationIsQuitting = true;
             
-            DownloadManager.Dispose();
-
             BeforeClosing();
-
-            if (PainterSystemManagerPluginBase.plugins!= null)
-                foreach (var p in PainterSystemManagerPluginBase.plugins)
-                    p?.Disable();
-                
-
-            if (Data)
-                Data.ManagedOnDisable();
-
-            RenderTextureBuffersManager.OnDisable();
-
+            
         }
 
         private void BeforeClosing()
         {
+            DownloadManager.Dispose();
+            
             #if UNITY_EDITOR
+            EditorApplication.update -= CombinedUpdate;
+
             if (PlaytimePainter.previewHolderMaterial)
                 PlaytimePainter.previewHolderMaterial.shader = PlaytimePainter.previewHolderOriginalShader;
 
@@ -824,6 +817,14 @@ namespace Playtime_Painter {
             EmptyBufferTarget();
             #endif
 
+            if (PainterSystemManagerPluginBase.plugins != null)
+                foreach (var p in PainterSystemManagerPluginBase.plugins)
+                    p?.Disable();
+            
+            if (Data)
+                Data.ManagedOnDisable();
+
+            RenderTextureBuffersManager.OnDisable();
         }
 
         #if UNITY_EDITOR
@@ -832,15 +833,9 @@ namespace Playtime_Painter {
             // Debug.Log("On Scene Opening");
         }
 
-        public void BeforeSceneSaved(UnityEngine.SceneManagement.Scene scene, string path)
-        {
-            //public delegate void SceneSavingCallback(Scene scene, string path);
+        public void BeforeSceneSaved(UnityEngine.SceneManagement.Scene scene, string path) => BeforeClosing();
 
-
-            BeforeClosing();
-            // Debug.Log("Before Scene saved");
-
-        }
+        
         #endif
 
         public void Update() {
@@ -857,7 +852,7 @@ namespace Playtime_Painter {
 
         public void CombinedUpdate() {
 
-            if (!Data)
+            if (!this || !Data)
                 return;
             
             if (PlaytimePainter.IsCurrentTool && focusedPainter)

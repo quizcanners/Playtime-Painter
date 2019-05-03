@@ -272,6 +272,14 @@ namespace PlayerAndEditorGUI {
                       " The code used for saving texture is located inside ImgData class. While editing texture in editor, there is Save/Load buttons which can save changes to the actual .png file, or " +
                       "load from it. Of not pressed, any changes to the texture will be lost once Unity is restarted, or texture reimported."  ).writeBig();
                 }
+
+                if ("What should I be careful about?".enter(ref inspectedFaqQuestion, 2).nl())
+                {
+                    ("I tried to forsee as many scenarious as possible. So deleting something shouldn't be a problem for Playtime Painter." +
+                     "It's best not to move the Tools folder or it's contents though. As of now the userbase is not huge, and feedback is scares. " +
+                     "So I expect there to be issues, which can be easily fix, if reported. Clicking on SendEmail will open your email client with " +
+                     " support email already typed in, so don't shy away from reporting those nasty bugs. See something, say something.").writeBig();
+                }
              
             }
 
