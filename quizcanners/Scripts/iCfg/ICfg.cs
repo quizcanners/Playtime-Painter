@@ -384,11 +384,10 @@ namespace QuizCannersUtilities {
                 ResetInspector();
 
             this.ClickHighlight();
-
-            if (inspectedItems == -1)
-                pegi.nl();
-
-            if ("STD Saves: ".AddCount(explorer).enter(ref _inspectedDebugItems, 0).nl_ifNotEntered())
+            
+            pegi.nl();
+            
+            if ("Configs: ".AddCount(explorer).enter(ref _inspectedDebugItems, 0).nl_ifNotEntered())
                 explorer.Inspect(this);
 
             if (inspectedItems == -1)

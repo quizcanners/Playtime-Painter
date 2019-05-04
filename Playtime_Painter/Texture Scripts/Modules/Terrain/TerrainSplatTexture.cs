@@ -5,7 +5,7 @@ using QuizCannersUtilities;
 namespace Playtime_Painter {
 
     [TaggedType(tag)]
-    public class TerrainSplatTexture : PainterComponentPluginBase {
+    public class TerrainSplatTexture : PainterComponentModuleBase {
 
         const string tag = "TerSplat";
         public override string ClassTag => tag;

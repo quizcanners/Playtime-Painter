@@ -260,10 +260,12 @@ namespace PlayerAndEditorGUI {
 
                 if ("Can I integrate Painter into my game?".enter(ref inspectedFaqQuestion, 0).nl()) {
 
-                    ("There is no reason why you can't. This asset doesn't contain or depend on any plugins and does everything using Unity functions. " +
-                     "If you downloaded Examples folder, there should be simple scripts that use Paint functions. Usually you will encounter a component dependent workflow:" +
-                     "Attaching PlaytimePainter or Custom component to objects you want to be paintable. I try to make sure that all required information is provided trough the inspector" +
-                     "interface. It should show warnings/hints when something needs to be set up. ").writeBig();
+                    (" There is no reason why you can't. This asset doesn't contain or depend on any plugins and does everything using Unity functions. " +
+                     " If you downloaded Examples folder, there should be simple scripts that use Paint functions." +
+                     " Usually you will " +
+                     " attach PlaytimePainter or some custom script to objects you want to be paintable. " +
+                     " I try to make sure that all required information is provided trough the inspector" +
+                     " interface. It should show warnings/hints when something needs to be set up. ").writeBig();
                 }
 
                 if ("How do I Save/Load/Undo changes to textures?".enter(ref inspectedFaqQuestion, 1).nl()) {

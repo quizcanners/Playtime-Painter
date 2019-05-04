@@ -9,7 +9,7 @@
 		[Toggle(UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
 		_AtlasTextures("_Textures In Row _ Atlas", float) = 1
 
-		_Test ("_Textures In Row _ Atlas", Range(0,1)) = 1
+		_Test ("Test", Range(0,1)) = 1
 	}
 
 	Category{
@@ -272,7 +272,10 @@
 					col.rgb *= (directLight + scatter * 0.01 * bumpMap.a) * (1-col.a);
 
 					col.rgb += (glossLight*col.a 
-						+ ( scatter*fernel)  // Every surface has a bit of glossy reflection, this part simulates it
+						+ (scatter*fernel)    // Every surface has a bit of glossy reflection, this part simulates it
+#if !UNITY_COLORSPACE_GAMMA
+					* 0.1
+#endif
 						) * 0.002;
 
 				

@@ -90,7 +90,7 @@ namespace Playtime_Painter{
             
         }
 
-        public static bool ContainsInstanceType(this List<PainterComponentPluginBase> collection, Type type){
+        public static bool ContainsInstanceType(this List<PainterComponentModuleBase> collection, Type type){
 
 		foreach (var t in collection) 
 			if (t.GetType() == type) return true; 

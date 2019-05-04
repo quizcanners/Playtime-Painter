@@ -12,7 +12,7 @@ using UnityEditor;
 namespace Playtime_Painter {
 
     [TaggedType(tag)]
-    public class TileableAtlasingPainterPlugin : PainterComponentPluginBase {
+    public class TileableAtlasingPainterModule : PainterComponentModuleBase {
 
         const string tag = "TilAtlsPntr";
         public override string ClassTag => tag;
@@ -220,7 +220,7 @@ namespace Playtime_Painter {
         public int atlasCreatorId;
         public bool enabled;
         public Color col;
-        public AtlasTextureCreator AtlasCreator => TileableAtlasingControllerPlugin.inst.atlases.Count > atlasCreatorId ? TileableAtlasingControllerPlugin.inst.atlases[atlasCreatorId] : null; 
+        public AtlasTextureCreator AtlasCreator => TileableAtlasingControllerModule.inst.atlases.Count > atlasCreatorId ? TileableAtlasingControllerModule.inst.atlases[atlasCreatorId] : null; 
 
         #region Encode & Decode
         public override CfgEncoder Encode() => this.EncodeUnrecognized()
@@ -262,11 +262,11 @@ namespace Playtime_Painter {
             "Atlas".enter_Inspect(AtlasCreator, ref inspectedItems, 11).nl(ref changed);
 
             if (inspectedItems == -1) {
-                "Atlases".select_Index(70, ref atlasCreatorId, TileableAtlasingControllerPlugin.inst.atlases).changes(ref changed);
+                "Atlases".select_Index(70, ref atlasCreatorId, TileableAtlasingControllerModule.inst.atlases).changes(ref changed);
                 if (icon.Add.Click("Create new Atlas").nl(ref changed)) {
-                    atlasCreatorId = TileableAtlasingControllerPlugin.inst.atlases.Count;
+                    atlasCreatorId = TileableAtlasingControllerModule.inst.atlases.Count;
                     var ac = new AtlasTextureCreator(atlasedField + " for " + a.name);
-                    TileableAtlasingControllerPlugin.inst.atlases.Add(ac);
+                    TileableAtlasingControllerModule.inst.atlases.Add(ac);
                 }
             }
 
@@ -413,7 +413,7 @@ namespace Playtime_Painter {
             
                 var firstAtlasing = false;
 
-                var atlPlug = painter.GetPlugin<TileableAtlasingPainterPlugin>();
+                var atlPlug = painter.GetPlugin<TileableAtlasingPainterModule>();
 
                 if (atlPlug.preAtlasingMaterials == null)
                 {
@@ -476,7 +476,7 @@ namespace Playtime_Painter {
         {
             var texMGMT = PainterCamera.Inst;
 
-            var atlases = TileableAtlasingControllerPlugin.inst.atlases;
+            var atlases = TileableAtlasingControllerModule.inst.atlases;
             
             for (var a = 0; a < atlases.Count; a++)
             {
@@ -776,7 +776,7 @@ namespace Playtime_Painter {
         public AtlasTextureCreator(string newName)
         {
             NameForPEGI = newName;
-            NameForPEGI = NameForPEGI.GetUniqueName(TileableAtlasingControllerPlugin.inst.atlases);
+            NameForPEGI = NameForPEGI.GetUniqueName(TileableAtlasingControllerModule.inst.atlases);
             Init();
         }
 

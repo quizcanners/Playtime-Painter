@@ -100,8 +100,6 @@ namespace Playtime_Painter {
             set {
                 if (meshFilter) meshFilter.sharedMesh = value;
                 if (skinnedMeshRenderer) skinnedMeshRenderer.sharedMesh = value;
-
-                //UpdateMeshCollider(value);
             }
         }
 
@@ -174,38 +172,39 @@ namespace Playtime_Painter {
         
         public bool invertRayCast;
 
-        [NonSerialized] public List<PainterComponentPluginBase> plugins;
+        [NonSerialized] public List<PainterComponentModuleBase> modules;
         
-        public List<PainterComponentPluginBase> Plugins
+        public List<PainterComponentModuleBase> Modules
         {
             get
             {
 
-                if (!plugins.IsNullOrEmpty())
-                    return plugins;
+                if (!modules.IsNullOrEmpty())
+                    return modules;
                 
-                plugins = new List<PainterComponentPluginBase>();
+                modules = new List<PainterComponentModuleBase>();
 
-                PainterComponentPluginBase.UpdatePlugins(this);
+                PainterComponentModuleBase.UpdatePlugins(this);
 
-                return plugins;
+                return modules;
             }
         }
 
-        [NonSerialized] private PainterComponentPluginBase _lastFetchedPlugin;
-        public T GetPlugin<T>() where T : PainterComponentPluginBase
+        [NonSerialized] private PainterComponentModuleBase _lastFetchedModule;
+
+        public T GetPlugin<T>() where T : PainterComponentModuleBase
         {
 
             T returnPlug = null;
 
-            if (_lastFetchedPlugin != null && _lastFetchedPlugin.GetType() == typeof(T))
-                returnPlug = (T)_lastFetchedPlugin;
+            if (_lastFetchedModule != null && _lastFetchedModule.GetType() == typeof(T))
+                returnPlug = (T)_lastFetchedModule;
             else
-                foreach (var p in Plugins)
+                foreach (var p in Modules)
                     if (p.GetType() == typeof(T))
                         returnPlug = (T)p;
 
-            _lastFetchedPlugin = returnPlug;
+            _lastFetchedModule = returnPlug;
 
             return returnPlug;
         }
@@ -443,7 +442,7 @@ namespace Playtime_Painter {
 
             var uv = id.useTexCoord2 ? hit.textureCoord2 : hit.textureCoord;
 
-            foreach (var p in Plugins)
+            foreach (var p in Modules)
                 if (p.OffsetAndTileUv(hit, this, ref uv))
                     return uv;
 
@@ -561,7 +560,7 @@ namespace Playtime_Painter {
                 else
                 {
 
-                    foreach (var pl in PainterSystemManagerPluginBase.BrushPlugins)
+                    foreach (var pl in PainterSystemManagerModuleBase.BrushPlugins)
                     {
                         var ps = pl.GetPreviewShader(this);
                         if (!ps) continue;
@@ -633,7 +632,7 @@ namespace Playtime_Painter {
 
             
             if (fieldName != null)
-             foreach (var nt in Plugins)
+             foreach (var nt in Modules)
                 if (nt.UpdateTilingFromMaterial(fieldName, this))
                     return;
 
@@ -655,7 +654,7 @@ namespace Playtime_Painter {
                 return;
             }
             
-                foreach (var nt in Plugins)
+                foreach (var nt in Modules)
                     if (nt.UpdateTilingToMaterial(fieldName, this))
                         return;
 
@@ -925,7 +924,7 @@ namespace Playtime_Painter {
 
             MatDta.materialsTextureFields.Clear();
             
-            foreach (var nt in Plugins)
+            foreach (var nt in Modules)
                 if (nt != null)
                 nt.GetNonMaterialTextureNames(this, ref MatDta.materialsTextureFields);
 
@@ -965,7 +964,7 @@ namespace Playtime_Painter {
             if (fieldName == null)
                 return null;
             
-            foreach (var t in Plugins) {
+            foreach (var t in Modules) {
                 Texture tex = null;
                 if (t.GetTexture(fieldName, ref tex, this))
                     return tex;
@@ -1018,7 +1017,7 @@ namespace Playtime_Painter {
                 if (id != null)
                     Cfg.recentTextures.AddIfNew(property, id);
                 
-                foreach (var nt in Plugins)
+                foreach (var nt in Modules)
                     if (nt.SetTextureOnMaterial(property, id, this))
                         return id;
             }
@@ -1113,7 +1112,7 @@ namespace Playtime_Painter {
 
         public void UpdateShaderGlobals() {
        
-            foreach (var nt in Plugins)
+            foreach (var nt in Modules)
                 nt.OnUpdate(this);
         }
 
@@ -1253,7 +1252,7 @@ namespace Playtime_Painter {
 
         public TerrainHeight GetTerrainHeight()
         {
-            foreach (var nt in Plugins)
+            foreach (var nt in Modules)
                 if (nt.GetType() == typeof(TerrainHeight))
                     return ((TerrainHeight)nt);
             
@@ -1662,7 +1661,7 @@ namespace Playtime_Painter {
 
 #endif
 
-        public void OnDestroy() {
+        private void OnDestroy() {
 
             var colliders = GetComponents<Collider>();
 
@@ -1675,12 +1674,17 @@ namespace Playtime_Painter {
                 if (c.GetType() != typeof(MeshCollider)) c.enabled = true;
 
             if (forcedMeshCollider && meshCollider)
-                meshCollider.DestroyWhateverComponent();
-            
+            {
+                meshCollider.enabled = false; //DestroyWhateverComponent();
+                forcedMeshCollider = false;
+            }
         }
-        
+
+
         private void OnDisable()
         {
+
+      
 
             SetOriginalShader();
             
@@ -1693,15 +1697,13 @@ namespace Playtime_Painter {
                 if (id != null && id.CurrentTexture().IsBigRenderTexturePair())
                     UpdateOrSetTexTarget(TexTarget.Texture2D);
             }
-
-
+            
             this.SaveStdData();
-
+            
             if (!TexMgmt || MeshManager.target != this) return;
             
             MeshManager.Inst.DisconnectMesh();
-           
-
+            
         }
 
         public void OnEnable() {
@@ -1778,8 +1780,11 @@ namespace Playtime_Painter {
                     forcedMeshCollider = true;
                 }
                 else if (meshCollider.enabled == false)
+                {
                     meshCollider.enabled = true;
-                
+                    forcedMeshCollider = true;
+                }
+
 
             }
 
@@ -1830,7 +1835,7 @@ namespace Playtime_Painter {
             if (selectedInPlaytime == this)  {
                 WindowPosition.Render(this, Inspect, "{0} {1}".F(gameObject.name, GetMaterialTextureProperty));
 
-                foreach (var p in PainterSystemManagerPluginBase.GuiPlugins)
+                foreach (var p in PainterSystemManagerModuleBase.GuiPlugins)
                     p.OnGUI();
             }
             #endif
@@ -1956,6 +1961,10 @@ namespace Playtime_Painter {
 
                 var image = ImgMeta;
 
+                var texMgmt = TexMgmt;
+
+                var cfg = Cfg;
+
                 var tex = GetTextureOnMaterial();
                 if (!meshEditing && ((tex && image == null) || (image != null && !tex) ||
                                      (image != null && tex != image.texture2D && tex != image.CurrentTexture())))
@@ -1966,7 +1975,7 @@ namespace Playtime_Painter {
                 if (MeshManager.target && (MeshManager.target != this))
                     MeshManager.DisconnectMesh();
 
-                if (!Cfg.showConfig)
+                if (!cfg.showConfig)
                 {
                     if (meshEditing)
                     {
@@ -1976,7 +1985,7 @@ namespace Playtime_Painter {
                             meshEditing = false;
                             CheckPreviewShader();
                             MeshMgmt.DisconnectMesh();
-                            Cfg.showConfig = false;
+                            cfg.showConfig = false;
                             "Editing Texture".showNotificationIn3D_Views();
                         }
                     }
@@ -1988,7 +1997,7 @@ namespace Playtime_Painter {
 
                             SetOriginalShader();
                             UpdateOrSetTexTarget(TexTarget.Texture2D);
-                            Cfg.showConfig = false;
+                            cfg.showConfig = false;
                             "Editing Mesh".showNotificationIn3D_Views();
 
                             if (SavedEditableMesh != null)
@@ -1997,18 +2006,18 @@ namespace Playtime_Painter {
                     }
                 }
 
-                pegi.toggle(ref Cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config, "Tool Configuration");
+                pegi.toggle(ref cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config, "Tool Configuration");
                 
                 if (!PainterDataAndConfig.hideDocumentation)
                     pegi.fullWindowDocumentationClick(LazyTranslations.InspectPainterDocumentation, MsgPainter.AboutPlaytimePainter.GetText());
     
                 #endregion
                 
-                if (Cfg.showConfig) {
+                if (cfg.showConfig) {
 
                     pegi.newLine();
                     
-                      Cfg.Nested_Inspect();
+                      cfg.Nested_Inspect();
                     
                 }
                 else
@@ -2045,7 +2054,9 @@ namespace Playtime_Painter {
                             var mg = MeshMgmt;
                             mg.UndoRedoInspect().nl(ref changed);
 
-                            if (SharedMesh) {
+                            var sm = SharedMesh;
+
+                            if (sm) {
 
                                 if (this != MeshManager.target)
                                     if (SavedEditableMesh != null)
@@ -2067,6 +2078,15 @@ namespace Playtime_Painter {
                                                 .writeWarning();
 
                                         pegi.newLine();
+
+                                        "Mesh has {0} vertices".F(sm.vertexCount).nl();
+
+                                        if (sm.vertexCount > 2000)
+                                            "The mesh is really complex, mesh editor may be really slow at times".writeWarning();
+
+
+                                        pegi.nl();
+
 
                                         if ("Copy & Edit".Click())
                                             mg.EditMesh(this, true);
@@ -2098,8 +2118,8 @@ namespace Playtime_Painter {
 
                                 if ("Profile".enter( ref _inspectedMeshEditorItems, 0)) {
 
-                                    if ((Cfg.meshPackagingSolutions.Count > 1) && (icon.Delete.Click(25)))
-                                        Cfg.meshPackagingSolutions.RemoveAt(selectedMeshProfile);
+                                    if ((cfg.meshPackagingSolutions.Count > 1) && (icon.Delete.Click(25)))
+                                        cfg.meshPackagingSolutions.RemoveAt(selectedMeshProfile);
                                     else {
 
                                         pegi.newLine();
@@ -2111,14 +2131,14 @@ namespace Playtime_Painter {
                                 }
                                 else if (_inspectedMeshEditorItems == -1)
                                 {
-                                    if ((" : ".select_Index(20, ref selectedMeshProfile, Cfg.meshPackagingSolutions)) &&
+                                    if ((" : ".select_Index(20, ref selectedMeshProfile, cfg.meshPackagingSolutions)) &&
                                         (IsEditingThisMesh))
                                         MeshManager.editedMesh.Dirty = true;
 
                                     if (icon.Add.Click(25).nl())
                                     {
-                                        Cfg.meshPackagingSolutions.Add(new MeshPackagingProfile());
-                                        selectedMeshProfile = Cfg.meshPackagingSolutions.Count - 1;
+                                        cfg.meshPackagingSolutions.Add(new MeshPackagingProfile());
+                                        selectedMeshProfile = cfg.meshPackagingSolutions.Count - 1;
                                         MeshProfile.name = "New Profile {0}".F(selectedMeshProfile);
                                     }
                                 }
@@ -2145,7 +2165,7 @@ namespace Playtime_Painter {
                         if (!LockTextureEditing && painterWorks && !id.errorWhileReading)
                         {
 
-                            TexMgmt.DependenciesInspect().changes(ref changed);
+                            texMgmt.DependenciesInspect().changes(ref changed);
 
                 #region Undo/Redo & Recording
 
@@ -2174,26 +2194,26 @@ namespace Playtime_Painter {
                                 }
                                 else
                                 {
-                                    var gotVectors = Cfg.recordingNames.Count > 0;
+                                    var gotVectors = cfg.recordingNames.Count > 0;
 
-                                    Cfg.browsedRecord = Mathf.Max(0,
-                                        Mathf.Min(Cfg.browsedRecord, Cfg.recordingNames.Count - 1));
+                                    cfg.browsedRecord = Mathf.Max(0,
+                                        Mathf.Min(cfg.browsedRecord, cfg.recordingNames.Count - 1));
 
                                     if (gotVectors)
                                     {
-                                        pegi.select(ref Cfg.browsedRecord, Cfg.recordingNames);
+                                        pegi.select(ref cfg.browsedRecord, cfg.recordingNames);
                                         if (icon.Play.Click("Play stroke vectors on current mesh", ref changed, 18))
-                                            PlayByFilename(Cfg.recordingNames[Cfg.browsedRecord]);
+                                            PlayByFilename(cfg.recordingNames[cfg.browsedRecord]);
 
                                         if (icon.Record.Click("Continue Recording", 18))
                                         {
-                                            id.saveName = Cfg.recordingNames[Cfg.browsedRecord];
+                                            id.saveName = cfg.recordingNames[cfg.browsedRecord];
                                             id.ContinueRecording();
                                             "Recording resumed".showNotificationIn3D_Views();
                                         }
 
                                         if (icon.Delete.Click("Delete", ref changed, 18))
-                                            Cfg.recordingNames.RemoveAt(Cfg.browsedRecord);
+                                            cfg.recordingNames.RemoveAt(cfg.browsedRecord);
 
                                     }
 
@@ -2249,19 +2269,19 @@ namespace Playtime_Painter {
                             
                             pegi.nl();
 
-                            if (!Cfg.moreOptions)  {
+                            if (!cfg.moreOptions)  {
 
                                 GlobalBrush.ColorSliders().nl(ref changed);
 
-                                if (Cfg.showColorSchemes)
+                                if (cfg.showColorSchemes)
                                 {
 
-                                    var scheme = Cfg.colorSchemes.TryGet(Cfg.selectedColorScheme);
+                                    var scheme = cfg.colorSchemes.TryGet(cfg.selectedColorScheme);
 
                                     scheme?.PickerPEGI();
 
-                                    if (Cfg.showColorSchemes)
-                                        "Scheme".select_Index(60, ref Cfg.selectedColorScheme, Cfg.colorSchemes) .nl(ref changed);
+                                    if (cfg.showColorSchemes)
+                                        "Scheme".select_Index(60, ref cfg.selectedColorScheme, cfg.colorSchemes) .nl(ref changed);
 
                                 }
                             }
@@ -2293,16 +2313,18 @@ namespace Playtime_Painter {
                 #region Fancy Options
 
                         pegi.nl();
-                        MsgPainter.TextureSettings.GetText().foldout(ref Cfg.moreOptions);
+                        MsgPainter.TextureSettings.GetText().foldout(ref cfg.moreOptions);
 
-                        if (id != null && !Cfg.moreOptions)
+                        if (id != null && !cfg.moreOptions)
                         {
 
                            pegi.edit(ref id.clearColor, 50);
-                            if (icon.Clear.Click("Clear channels which are not ignored"))
+                            if (icon.Clear.Click("Clear channels which are not ignored").changes(ref changed))
                             {
                                 if (GlobalBrush.PaintingAllChannels)
                                 {
+                                    PainterCamera.Inst.DiscardAlphaBuffer();
+                                    
                                     id.Colorize(id.clearColor);
                                     id.SetApplyUpdateRenderTexture();
                                 }
@@ -2325,7 +2347,7 @@ namespace Playtime_Painter {
 
                         var inspectionIndex = id?.inspectedItems ?? _inspectedFancyItems;
 
-                        if (Cfg.moreOptions)
+                        if (cfg.moreOptions)
                         {
 
                             if (icon.Show.enter("Optional UI Elements", ref inspectionIndex, 7).nl()) {
@@ -2333,18 +2355,18 @@ namespace Playtime_Painter {
                                 "Show Previous Textures (if any) "
                                     .toggleVisibilityIcon(
                                         "Will show textures previously used for this material property.",
-                                        ref Cfg.showRecentTextures, true).nl();
+                                        ref cfg.showRecentTextures, true).nl();
 
                                 "Exclusive Render Textures"
                                     .toggleVisibilityIcon(
                                         "Allow creation of simple Render Textures - the have limited editing capabilities.",
-                                        ref Cfg.allowExclusiveRenderTextures, true).nl();
+                                        ref cfg.allowExclusiveRenderTextures, true).nl();
 
                                 "Color Sliders ".toggleVisibilityIcon("Should the color slider be shown ",
-                                    ref Cfg.showColorSliders, true).nl(ref changed);
+                                    ref cfg.showColorSliders, true).nl(ref changed);
 
-                                if ("Color Schemes".toggle_enter(ref Cfg.showColorSchemes, ref inspectedShowOptionsSubitem, 5, ref changed).nl_ifFolded())
-                                    Cfg.InspectColorSchemes();
+                                if ("Color Schemes".toggle_enter(ref cfg.showColorSchemes, ref inspectedShowOptionsSubitem, 5, ref changed).nl_ifFolded())
+                                    cfg.InspectColorSchemes();
 
                                 if (id != null)
                                 {
@@ -2361,19 +2383,19 @@ namespace Playtime_Painter {
                                     .toggleVisibilityIcon("Will modify scale and other values based on movement.",
                                         ref GlobalBrush.showBrushDynamics, true).nl(ref changed);
 
-                                "URL field".toggleVisibilityIcon("Option to load images by URL", ref Cfg.showUrlField,
+                                "URL field".toggleVisibilityIcon("Option to load images by URL", ref cfg.showUrlField,
                                     true).changes(ref changed);
                             }
 
                             if ("New Texture ".conditional_enter(!IsTerrainHeightTexture, ref inspectionIndex, 4).nl()) {
 
-                                if (Cfg.newTextureIsColor)
-                                    "Clear Color".edit(ref Cfg.newTextureClearColor).nl(ref changed);
+                                if (cfg.newTextureIsColor)
+                                    "Clear Color".edit(ref cfg.newTextureClearColor).nl(ref changed);
                                 else
-                                    "Clear Value".edit(ref Cfg.newTextureClearNonColorValue).nl(ref changed);
+                                    "Clear Value".edit(ref cfg.newTextureClearNonColorValue).nl(ref changed);
 
                                 "Color Texture".toggleIcon("Will the new texture be a Color Texture",
-                                    ref Cfg.newTextureIsColor).nl(ref changed);
+                                    ref cfg.newTextureIsColor).nl(ref changed);
 
                                 "Size:".select_Index("Size of the new Texture", 40, ref PainterCamera.Data.selectedWidthIndex,
                                     PainterDataAndConfig.NewTextureSizeOptions).nl();
@@ -2396,13 +2418,13 @@ namespace Playtime_Painter {
 
                         if (id != null)
                         {
-                            var showToggles = (id.inspectedItems == -1 && Cfg.moreOptions);
+                            var showToggles = (id.inspectedItems == -1 && cfg.moreOptions);
 
                             id.ComponentDependent_PEGI(showToggles, this).changes(ref changed);
 
-                            if (showToggles || (!NotUsingPreview && Cfg.previewAlphaChanel))
+                            if (showToggles || (!NotUsingPreview && cfg.previewAlphaChanel))
                             {
-                                "Preview Edited RGBA".toggleIcon(ref Cfg.previewAlphaChanel)
+                                "Preview Edited RGBA".toggleIcon(ref cfg.previewAlphaChanel)
                                     .changes(ref changed);
 
                                 MsgPainter.previewRGBA.DocumentationClick().nl();
@@ -2428,7 +2450,7 @@ namespace Playtime_Painter {
 
                             }
 
-                            if (Cfg.moreOptions)
+                            if (cfg.moreOptions)
                                 pegi.line(Color.red);
 
                             if (id.enableUndoRedo && id.backupManually && "Backup for UNDO".Click())
@@ -2443,7 +2465,7 @@ namespace Playtime_Painter {
                      
                 #region Save Load Options
 
-                        if (HasMaterialSource && !Cfg.showConfig)
+                        if (HasMaterialSource && !cfg.showConfig)
                         {
                 #region Material Clonning Options
 
@@ -2479,7 +2501,7 @@ namespace Playtime_Painter {
 
                 #region Texture Instantiation Options
 
-                            if (Cfg.showUrlField)
+                            if (cfg.showUrlField)
                             {
 
                                 "URL".edit(40, ref _tmpUrl);
@@ -2554,7 +2576,7 @@ namespace Playtime_Painter {
                                 var isTerrainHeight = IsTerrainHeightTexture;
 
                                 var texScale = !isTerrainHeight
-                                    ? Cfg.SelectedWidthForNewTexture()
+                                    ? cfg.SelectedWidthForNewTexture()
                                     : (terrain.terrainData.heightmapResolution - 1);
 
                                 var texNames = GetMaterialTextureNames();
@@ -2572,10 +2594,10 @@ namespace Playtime_Painter {
                                         if (isTerrainHeight)
                                             CreateTerrainHeightTexture(nameHolder);
                                         else
-                                            CreateTexture2D(texScale, nameHolder, Cfg.newTextureIsColor);
+                                            CreateTexture2D(texScale, nameHolder, cfg.newTextureIsColor);
                                     }
 
-                                    if (Cfg.showRecentTextures)
+                                    if (cfg.showRecentTextures)
                                     {
 
                                         var texName = GetMaterialTextureProperty;
@@ -2591,11 +2613,11 @@ namespace Playtime_Painter {
 
                                     }
 
-                                    if (id == null && Cfg.allowExclusiveRenderTextures &&
+                                    if (id == null && cfg.allowExclusiveRenderTextures &&
                                         "Create Render Texture".Click(ref changed))
                                         CreateRenderTexture(texScale, nameHolder);
 
-                                    if (id != null && Cfg.allowExclusiveRenderTextures)
+                                    if (id != null && cfg.allowExclusiveRenderTextures)
                                     {
                                         if (!id.renderTexture && "Add Render Tex".Click(ref changed))
                                             id.AddRenderTexture();
@@ -2720,7 +2742,7 @@ namespace Playtime_Painter {
                     pegi.nl();
                 #endregion
                     
-                    foreach (var p in PainterSystemManagerPluginBase.ComponentInspectionPlugins)
+                    foreach (var p in PainterSystemManagerModuleBase.ComponentInspectionPlugins)
                         p.ComponentInspector().nl(ref changed);
                     
                 }
@@ -2729,7 +2751,7 @@ namespace Playtime_Painter {
 
                 if (changed)
                 {
-                    TexMgmt.OnBeforeBlitConfigurationChange();
+                    texMgmt.OnBeforeBlitConfigurationChange();
                     Update_Brush_Parameters_For_Preview_Shader();
                 }
 
@@ -2800,7 +2822,7 @@ namespace Playtime_Painter {
                 Gizmos.DrawWireSphere(stroke.posTo, br.Size(true) * 0.5f
                                                     );
             
-            foreach (var p in PainterSystemManagerPluginBase.GizmoPlugins)
+            foreach (var p in PainterSystemManagerModuleBase.GizmoPlugins)
                 p.PlugIn_PainterGizmos(this);
         }
         #endif
@@ -2889,7 +2911,7 @@ namespace Playtime_Painter {
                 return;
             
             var hide = Application.isPlaying ? Input.GetMouseButton(0) : currentlyPaintedObjectPainter == this;
-            PainterCamera.Shader_PerFrame_Update(stroke, hide, GlobalBrush.Size(this));
+            PainterCamera.SHADER_POSITION_AND_PREVIEW_UPDATE(stroke, hide, GlobalBrush.Size(this));
 
             if (!Application.isPlaying)
             {
@@ -2905,9 +2927,9 @@ namespace Playtime_Painter {
 
             if (id == null || NotUsingPreview) return;
             
-            TexMgmt.Shader_UpdateBrushConfig(GlobalBrush, 1, id, this);
+            TexMgmt.SHADER_BRUSH_UPDATE(GlobalBrush, 1, id, this);
 
-            foreach (var p in Plugins)
+            foreach (var p in Modules)
                 p.Update_Brush_Parameters_For_Preview_Shader(this);
 
             
@@ -3000,7 +3022,7 @@ namespace Playtime_Painter {
         }
 
         public CfgEncoder Encode() => new CfgEncoder()
-            .Add("pgns", Plugins, PainterSystemManagerPluginBase.all)
+            .Add("pgns", Modules, PainterSystemManagerModuleBase.all)
             .Add_IfTrue("invCast", invertRayCast);
 
         public void Decode(string data) => new CfgDecoder(data).DecodeTagsFor(this);
@@ -3009,7 +3031,7 @@ namespace Playtime_Painter {
         {
             switch (tg)
             {
-                case "pgns": data.Decode_List_Abstract(out plugins, PainterComponentPluginBase.all); break;
+                case "pgns": data.Decode_List_Abstract(out modules, PainterComponentModuleBase.all); break;
                 case "invCast": invertRayCast = data.ToBool(); break;
                 default: return true;
             }

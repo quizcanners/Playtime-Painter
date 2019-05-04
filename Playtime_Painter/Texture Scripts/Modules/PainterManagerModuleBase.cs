@@ -10,7 +10,7 @@ namespace Playtime_Painter {
 
     public class PainterManagerPluginAttribute : AbstractWithTaggedTypes
     {
-        public override TaggedTypesCfg TaggedTypes => PainterSystemManagerPluginBase.all;
+        public override TaggedTypesCfg TaggedTypes => PainterSystemManagerModuleBase.all;
     }
 
     public interface IPainterManagerPluginOnGUI
@@ -18,19 +18,19 @@ namespace Playtime_Painter {
         void OnGUI();
     }
 
-    public interface IPainterManagerPluginComponentPEGI
+    public interface IPainterManagerModuleComponentPEGI
     {
         #if PEGI
         bool ComponentInspector();
         #endif
     }
 
-    public interface IPainterManagerPluginGizmis
+    public interface IPainterManagerModuleGizmis
     {
         bool PlugIn_PainterGizmos(PlaytimePainter painter);
     }
 
-    public interface IPainterManagerPluginBrush
+    public interface IPainterManagerModuleBrush
     {
         bool IsA3DBrush(PlaytimePainter painter, BrushConfig bc, ref bool overrideOther);
 
@@ -54,7 +54,7 @@ namespace Playtime_Painter {
         #endif
     }
 
-    public interface IPainterManagerPlugin_MeshToolShowVertex
+    public interface IPainterManagerModule_MeshToolShowVertex
     {
         void PlugIn_MeshToolShowVertex();
     }
@@ -67,17 +67,17 @@ namespace Playtime_Painter {
     }
 
     [PainterManagerPlugin]
-    public abstract class PainterSystemManagerPluginBase : PainterSystemKeepUnrecognizedCfg, IGotDisplayName, IGotClassTag, IPEGI_ListInspect {
+    public abstract class PainterSystemManagerModuleBase : PainterSystemKeepUnrecognizedCfg, IGotDisplayName, IGotClassTag, IPEGI_ListInspect {
 
-        public static List<PainterSystemManagerPluginBase> plugins;
+        public static List<PainterSystemManagerModuleBase> plugins;
 
-        public static readonly List<IPainterManagerPluginComponentPEGI> ComponentInspectionPlugins = new List<IPainterManagerPluginComponentPEGI>();
+        public static readonly List<IPainterManagerModuleComponentPEGI> ComponentInspectionPlugins = new List<IPainterManagerModuleComponentPEGI>();
 
-        public static readonly List<IPainterManagerPluginBrush> BrushPlugins = new List<IPainterManagerPluginBrush>();
+        public static readonly List<IPainterManagerModuleBrush> BrushPlugins = new List<IPainterManagerModuleBrush>();
 
-        public static readonly List<IPainterManagerPluginGizmis> GizmoPlugins = new List<IPainterManagerPluginGizmis>();
+        public static readonly List<IPainterManagerModuleGizmis> GizmoPlugins = new List<IPainterManagerModuleGizmis>();
 
-        public static readonly List<IPainterManagerPlugin_MeshToolShowVertex> MeshToolShowVertexPlugins = new List<IPainterManagerPlugin_MeshToolShowVertex>();
+        public static readonly List<IPainterManagerModule_MeshToolShowVertex> MeshToolShowVertexPlugins = new List<IPainterManagerModule_MeshToolShowVertex>();
 
         public static readonly List<IMeshToolPlugin> MeshToolPlugins = new List<IMeshToolPlugin>();
 
@@ -86,7 +86,7 @@ namespace Playtime_Painter {
         public static void RefreshPlugins() {
 
             if (plugins == null)
-                plugins = new List<PainterSystemManagerPluginBase>();
+                plugins = new List<PainterSystemManagerModuleBase>();
             else
                 for (var i = 0; i < plugins.Count; i++)
                     if (plugins[i] == null) { plugins.RemoveAt(i); i--; }
@@ -99,7 +99,7 @@ namespace Playtime_Painter {
                     if (p.GetType() == t) { contains = true; break; }
 
                 if (!contains)
-                    plugins.Add((PainterSystemManagerPluginBase)Activator.CreateInstance(t));
+                    plugins.Add((PainterSystemManagerModuleBase)Activator.CreateInstance(t));
 
             }
 
@@ -112,13 +112,13 @@ namespace Playtime_Painter {
 
             foreach (var t in plugins) {
 
-                ComponentInspectionPlugins.TryAdd(t as IPainterManagerPluginComponentPEGI);
+                ComponentInspectionPlugins.TryAdd(t as IPainterManagerModuleComponentPEGI);
 
-                BrushPlugins.TryAdd(t as IPainterManagerPluginBrush);
+                BrushPlugins.TryAdd(t as IPainterManagerModuleBrush);
 
-                GizmoPlugins.TryAdd(t as IPainterManagerPluginGizmis);
+                GizmoPlugins.TryAdd(t as IPainterManagerModuleGizmis);
 
-                MeshToolShowVertexPlugins.TryAdd(t as IPainterManagerPlugin_MeshToolShowVertex);
+                MeshToolShowVertexPlugins.TryAdd(t as IPainterManagerModule_MeshToolShowVertex);
 
                 MeshToolPlugins.TryAdd(t as IMeshToolPlugin);
 
@@ -128,7 +128,7 @@ namespace Playtime_Painter {
         
         #region Abstract Serialized
         public abstract string ClassTag { get; } 
-        public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(PainterSystemManagerPluginBase));
+        public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(PainterSystemManagerModuleBase));
         public TaggedTypesCfg AllTypes => all;
         #endregion
 

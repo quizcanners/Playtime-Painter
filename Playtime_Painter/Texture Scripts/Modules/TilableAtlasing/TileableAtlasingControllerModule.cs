@@ -11,13 +11,13 @@ namespace Playtime_Painter
 {
 
     [TaggedType(tag)]
-    public class TileableAtlasingControllerPlugin : PainterSystemManagerPluginBase, IMeshToolPlugin, IPainterManagerPluginBrush
+    public class TileableAtlasingControllerModule : PainterSystemManagerModuleBase, IMeshToolPlugin, IPainterManagerModuleBrush
     {
         const string tag = "TilAtlCntrl";
         public override string ClassTag => tag;
 
 
-        public static TileableAtlasingControllerPlugin inst;
+        public static TileableAtlasingControllerModule inst;
 
         public override string ToString() => "Tilable Atlasing";
         
@@ -114,7 +114,7 @@ namespace Playtime_Painter
 #endif
 
 
-                var atlPlug = p.GetPlugin<TileableAtlasingPainterPlugin>();
+                var atlPlug = p.GetPlugin<TileableAtlasingPainterModule>();
 
                 if ("Undo Atlasing".Click())
                 {
@@ -152,7 +152,7 @@ namespace Playtime_Painter
         #endregion
 
         public void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter) =>
-           painter.GetPlugin<TileableAtlasingPainterPlugin>()?.PaintTexture2D(stroke, brushAlpha, image, bc, painter);
+           painter.GetPlugin<TileableAtlasingPainterModule>()?.PaintTexture2D(stroke, brushAlpha, image, bc, painter);
         
         public bool IsA3DBrush(PlaytimePainter painter, BrushConfig bc, ref bool overrideOther) => false;
 

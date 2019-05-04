@@ -446,8 +446,8 @@ namespace QuizCannersUtilities
 
 #endregion
 
-#region Saved STD
-[Serializable]
+    #region Saved Cfg
+    [Serializable]
     public class ExploringCfg : AbstractCfg, IPEGI, IGotName, IPEGI_ListInspect, IGotCount
     {
 
@@ -489,7 +489,7 @@ namespace QuizCannersUtilities
         public bool Inspect()
         {
             if (_tags == null && data.Contains("|"))
-                Decode(data);//.DecodeTagsFor(this);
+                Decode(data);
 
             if (_tags != null)
                 tag.edit_List(ref _tags, ref inspectedTag).changes(ref dirty);

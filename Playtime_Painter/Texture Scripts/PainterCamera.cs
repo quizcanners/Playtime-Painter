@@ -82,13 +82,13 @@ namespace Playtime_Painter {
 
                        /* var go = new GameObject(PainterDataAndConfig.PainterCameraName);
                         _inst = go.AddComponent<PainterCamera>();
-                        PainterSystemManagerPluginBase.RefreshPlugins();
+                        PainterSystemManagerModuleBase.RefreshPlugins();
                         */
                         //#if UNITY_EDITOR
                             var go = Resources.Load("prefabs/" + PainterDataAndConfig.PainterCameraName) as GameObject;
                             _inst = Instantiate(go).GetComponent<PainterCamera>();
                             _inst.name = PainterDataAndConfig.PainterCameraName;
-                            PainterSystemManagerPluginBase.RefreshPlugins();
+                            PainterSystemManagerModuleBase.RefreshPlugins();
 
                             //#endif
 
@@ -119,18 +119,18 @@ namespace Playtime_Painter {
 
         public bool isLinearColorSpace;
 
-        #region Plugins
+        #region Modules
       
-        private ListMetaData _pluginsMeta = new ListMetaData("Plugins", true, true, true, false);
+        private ListMetaData _pluginsMeta = new ListMetaData("Modules", true, true, true, false);
 
-        public IEnumerable<PainterSystemManagerPluginBase> Plugins
+        public IEnumerable<PainterSystemManagerModuleBase> Plugins
         {
             get {
 
-                if (PainterSystemManagerPluginBase.plugins == null)
-                    PainterSystemManagerPluginBase.RefreshPlugins();
+                if (PainterSystemManagerModuleBase.plugins == null)
+                    PainterSystemManagerModuleBase.RefreshPlugins();
 
-                return PainterSystemManagerPluginBase.plugins;
+                return PainterSystemManagerModuleBase.plugins;
             }
         }
         
@@ -220,14 +220,14 @@ namespace Playtime_Painter {
 
         public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add("mm", MeshManager)
-            .Add_Abstract("pl", PainterSystemManagerPluginBase.plugins, _pluginsMeta)
+            .Add_Abstract("pl", PainterSystemManagerModuleBase.plugins, _pluginsMeta)
             .Add("rts", RenderTextureBuffersManager.renderBuffersSize);
 
         public override bool Decode(string tg, string data) {
             switch (tg) {
                 case "pl":
-                    data.Decode_List(out PainterSystemManagerPluginBase.plugins, ref _pluginsMeta, PainterSystemManagerPluginBase.all);
-                    PainterSystemManagerPluginBase.RefreshPlugins();
+                    data.Decode_List(out PainterSystemManagerModuleBase.plugins, ref _pluginsMeta, PainterSystemManagerModuleBase.all);
+                    PainterSystemManagerModuleBase.RefreshPlugins();
                     break;
                 case "mm": MeshManager.Decode(data); break;
                 case "rts": RenderTextureBuffersManager.renderBuffersSize = data.ToInt(); break;
@@ -338,46 +338,14 @@ namespace Playtime_Painter {
 
         #region Brush Shader MGMT
 
-        private readonly ShaderProperty.FloatValue _copyChannelTransparency =               new ShaderProperty.FloatValue("_pp_CopyBlitAlpha");
+ 
+      
 
-        private readonly ShaderProperty.TextureValue _decalHeightProperty =                 new ShaderProperty.TextureValue("_VolDecalHeight");
-        private readonly ShaderProperty.TextureValue _decalOverlayProperty =                new ShaderProperty.TextureValue("_VolDecalOverlay");
-        private readonly ShaderProperty.VectorValue _decalParametersProperty =              new ShaderProperty.VectorValue("_DecalParameters");
 
-        public void Shader_UpdateDecal(BrushConfig brush)
-        {
-
-            var vd = Data.decals.TryGet(brush.selectedDecal);
-
-            if (vd == null) return;
-
-            _decalHeightProperty.GlobalValue = vd.heightMap;
-            _decalOverlayProperty.GlobalValue = vd.overlay;
-            _decalParametersProperty.GlobalValue = new Vector4(
-                brush.decalAngle * Mathf.Deg2Rad, 
-                (vd.type == VolumetricDecalType.Add) ? 1 : -1,
-                Mathf.Clamp01(brush.Speed / 10f), 
-                0);
-
-        }
-
-        public static void Shader_PerFrame_Update(StrokeVector st, bool hidePreview, float size)
-        {
-
-            PainterDataAndConfig.BRUSH_POINTED_UV.GlobalValue = st.uvTo.ToVector4(0, _previewAlpha);
-
-            if (hidePreview && Math.Abs(_previewAlpha) < float.Epsilon)
-                return;
-
-            QcMath.IsLerpingBySpeed(ref _previewAlpha, hidePreview ? 0 : 1, 4f);
-
-            PainterDataAndConfig.BRUSH_WORLD_POS_FROM.GlobalValue = _prevPosPreview.ToVector4(size);
-            PainterDataAndConfig.BRUSH_WORLD_POS_TO.GlobalValue = st.posTo.ToVector4((st.posTo - _prevPosPreview).magnitude); //new Vector4(st.posTo.x, st.posTo.y, st.posTo.z, (st.posTo - prevPosPreview).magnitude));
-            _prevPosPreview = st.posTo;
-        }
+        private readonly ShaderProperty.FloatValue _copyChannelTransparency = new ShaderProperty.FloatValue("_pp_CopyBlitAlpha");
 
         private static readonly ShaderProperty.VectorValue ChannelCopySourceMask =          new ShaderProperty.VectorValue("_ChannelSourceMask");
-        public static readonly ShaderProperty.VectorValue BrushColorProperty =             new ShaderProperty.VectorValue("_brushColor");
+        public static readonly ShaderProperty.VectorValue BrushColorProperty =              new ShaderProperty.VectorValue("_brushColor");
         private static readonly ShaderProperty.VectorValue BrushMaskProperty =              new ShaderProperty.VectorValue("_brushMask");
         private static readonly ShaderProperty.VectorValue MaskDynamicsProperty =           new ShaderProperty.VectorValue("_maskDynamics");
         private static readonly ShaderProperty.VectorValue MaskOffsetProperty =             new ShaderProperty.VectorValue("_maskOffset");
@@ -391,7 +359,7 @@ namespace Playtime_Painter {
         private static readonly ShaderProperty.TextureValue TransparentLayerUnderProperty = new ShaderProperty.TextureValue("_TransparentLayerUnderlay");
         private static readonly ShaderProperty.TextureValue AlphaPaintingBuffer =           new ShaderProperty.TextureValue("_pp_AlphaBuffer");
 
-        public void Shader_UpdateBrushConfig(BrushConfig brush = null, float brushAlpha = 1, ImageMeta id = null, PlaytimePainter painter = null)
+        public void SHADER_BRUSH_UPDATE(BrushConfig brush = null, float brushAlpha = 1, ImageMeta id = null, PlaytimePainter painter = null)
         {
             if (brush == null)
                 brush = GlobalBrush;
@@ -414,7 +382,9 @@ namespace Playtime_Painter {
             var blitMode = brush.GetBlitMode(!rendTex);
 
             var is3DBrush = brush.IsA3DBrush(painter);
-            var isDecal = rendTex && brushType.IsUsingDecals;
+            //var isDecal = rendTex && brushType.IsUsingDecals;
+
+            var useAlphaBuffer = (brush.useAlphaBuffer && blitMode.SupportsAlphaBufferPainting && rendTex);
 
             BrushColorProperty.GlobalValue = brush.Color;
 
@@ -437,7 +407,10 @@ namespace Playtime_Painter {
             }
 
 
-            if (isDecal) Shader_UpdateDecal(brush);
+            brushType.OnShaderBrushUpdate(brush);
+
+            //if (isDecal)
+              //  SHADER_DECAL_UPDATE(brush);
 
             if (rendTex)
                 SourceMaskProperty.GlobalValue = brush.useMask ? Data.masks.TryGet(brush.selectedSourceMask) : null;
@@ -459,8 +432,10 @@ namespace Playtime_Painter {
             AlphaBufferConfigProperty.GlobalValue = new Vector4(
                 brush.alphaLimitForAlphaBuffer,
                 brush.worldSpaceBrushPixelJitter ? 1 : 0,
-                (brush.useAlphaBuffer && blitMode.SupportsAlphaBufferPainting && rendTex) ? 1 : 0,
+                useAlphaBuffer ? 1 : 0,
                 0);
+
+            AlphaPaintingBuffer.GlobalValue = AlphaBuffer;
 
             brushType.SetKeyword(id.useTexCoord2);
 
@@ -483,7 +458,7 @@ namespace Playtime_Painter {
             }
         }
 
-        public void Shader_UpdateStrokeSegment(BrushConfig bc, float brushAlpha, ImageMeta id, StrokeVector stroke, PlaytimePainter pntr, out bool alphaBuffer)
+        public void SHADER_STROKE_SEGMENT_UPDATE(BrushConfig bc, float brushAlpha, ImageMeta id, StrokeVector stroke, PlaytimePainter pntr, out bool alphaBuffer)
         {
             CheckPaintingBuffers();
             
@@ -497,7 +472,7 @@ namespace Playtime_Painter {
 
             Shader shd = null;
             if (pntr)
-                foreach (var pl in PainterSystemManagerPluginBase.BrushPlugins) {
+                foreach (var pl in PainterSystemManagerModuleBase.BrushPlugins) {
                     var bs = useSingle ? pl.GetBrushShaderSingleBuffer(pntr) : pl.GetBrushShaderDoubleBuffer(pntr);
                     if (!bs) continue;
                     shd = bs;
@@ -519,7 +494,7 @@ namespace Playtime_Painter {
                 RenderTextureBuffersManager.UpdateBufferTwo();
 
             if (stroke.firstStroke)
-                Shader_UpdateBrushConfig(bc, brushAlpha, id, pntr);
+                SHADER_BRUSH_UPDATE(bc, brushAlpha, id, pntr);
 
             TargetTexture = alphaBuffer ? AlphaBuffer : id.CurrentRenderTexture();
 
@@ -529,24 +504,37 @@ namespace Playtime_Painter {
             CurrentShader = shd;
         }
 
+        public static void SHADER_POSITION_AND_PREVIEW_UPDATE(StrokeVector st, bool hidePreview, float size)
+        {
+
+            PainterDataAndConfig.BRUSH_POINTED_UV.GlobalValue = st.uvTo.ToVector4(0, _previewAlpha);
+
+            if (hidePreview && Math.Abs(_previewAlpha) < float.Epsilon)
+                return;
+
+            QcMath.IsLerpingBySpeed(ref _previewAlpha, hidePreview ? 0 : 1, 4f);
+
+            PainterDataAndConfig.BRUSH_WORLD_POS_FROM.GlobalValue = _prevPosPreview.ToVector4(size);
+            PainterDataAndConfig.BRUSH_WORLD_POS_TO.GlobalValue = st.posTo.ToVector4((st.posTo - _prevPosPreview).magnitude); //new Vector4(st.posTo.x, st.posTo.y, st.posTo.z, (st.posTo - prevPosPreview).magnitude));
+            _prevPosPreview = st.posTo;
+        }
+
+
         #endregion
-        
+
         #region Alpha Buffer 
 
         public void AlphaBufferSetDirtyBeforeRender(ImageMeta id, Shader shade) {
 
             if (alphaBufferDataTarget != null && (alphaBufferDataTarget != id || alphaBufferDataShader != shade))
-            {
-                //Debug.Log("Updating for " + alphaBufferDataTarget.ToPegiString() + " with " + alphaBufferDataShader);
                 UpdateFromAlphaBuffer(alphaBufferDataTarget.CurrentRenderTexture(), alphaBufferDataShader);
-            }
-
+            
             alphaBufferDataTarget = id;
             alphaBufferDataShader = shade;
 
         }
 
-        void DiscardAlphaBuffer() {
+        public void DiscardAlphaBuffer() {
             RenderTextureBuffersManager.ClearAlphaBuffer(); 
             alphaBufferDataTarget = null;
         }
@@ -782,9 +770,9 @@ namespace Playtime_Painter {
 
             autodisabledBufferTarget = null;
 
-            PainterSystemManagerPluginBase.RefreshPlugins();
+            PainterSystemManagerModuleBase.RefreshPlugins();
 
-            foreach (var p in PainterSystemManagerPluginBase.plugins)
+            foreach (var p in PainterSystemManagerModuleBase.plugins)
                 p?.Enable();
             
             if (Data)
@@ -817,8 +805,8 @@ namespace Playtime_Painter {
             EmptyBufferTarget();
             #endif
 
-            if (PainterSystemManagerPluginBase.plugins != null)
-                foreach (var p in PainterSystemManagerPluginBase.plugins)
+            if (PainterSystemManagerModuleBase.plugins != null)
+                foreach (var p in PainterSystemManagerModuleBase.plugins)
                     p?.Disable();
             
             if (Data)
@@ -859,7 +847,7 @@ namespace Playtime_Painter {
                 focusedPainter.ManagedUpdate();
             
             if (GlobalBrush.previewDirty)
-                Shader_UpdateBrushConfig();
+                SHADER_BRUSH_UPDATE();
 
             PlaytimePainter uiPainter = null;
 
@@ -913,15 +901,15 @@ namespace Playtime_Painter {
             }
 
             var needRefresh = false;
-            if (PainterSystemManagerPluginBase.plugins!= null)
-                foreach (var pl in PainterSystemManagerPluginBase.plugins)
+            if (PainterSystemManagerModuleBase.plugins!= null)
+                foreach (var pl in PainterSystemManagerModuleBase.plugins)
                     if (pl != null)
                         pl.Update();
                     else needRefresh = true;
 
             if (needRefresh) {
-                Debug.Log("Refreshing plugins");
-                PainterSystemManagerPluginBase.RefreshPlugins();
+                Debug.Log("Refreshing modules");
+                PainterSystemManagerModuleBase.RefreshPlugins();
             }
 
             sinceLastPainterCall += Time.deltaTime;
@@ -1078,16 +1066,16 @@ namespace Playtime_Painter {
 
             var changed = false;
             
-            _pluginsMeta.edit_List(ref PainterSystemManagerPluginBase.plugins, PainterSystemManagerPluginBase.all).changes(ref changed);
+            _pluginsMeta.edit_List(ref PainterSystemManagerModuleBase.plugins, PainterSystemManagerModuleBase.all).changes(ref changed);
 
             if (!_pluginsMeta.Inspecting)
             {
 
-                if ("Find Plugins".Click())
-                    PainterSystemManagerPluginBase.RefreshPlugins();
+                if ("Find Modules".Click())
+                    PainterSystemManagerModuleBase.RefreshPlugins();
 
-                if ("Delete Plugins".Click().nl())
-                    PainterSystemManagerPluginBase.plugins = null;
+                if ("Delete Modules".Click().nl())
+                    PainterSystemManagerModuleBase.plugins = null;
 
             }
        

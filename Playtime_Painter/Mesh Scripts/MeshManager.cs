@@ -825,7 +825,7 @@ namespace Playtime_Painter
 
             mt.Inspect().nl(ref changed);
 
-            foreach (var p in PainterSystemManagerPluginBase.MeshToolPlugins)
+            foreach (var p in PainterSystemManagerModuleBase.MeshToolPlugins)
                 p.MeshToolInspection(mt).nl(ref changed);
             
             pegi.nl();

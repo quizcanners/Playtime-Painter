@@ -9,7 +9,7 @@ using UnityEditor;
 namespace Playtime_Painter {
 
     [TaggedType(tag)]
-    public class ColorBleedControllerPlugin : PainterSystemManagerPluginBase  {
+    public class ColorBleedControllerModule : PainterSystemManagerModuleBase  {
 
         const string tag = "Color Mgmt";
         public override string ClassTag => tag;

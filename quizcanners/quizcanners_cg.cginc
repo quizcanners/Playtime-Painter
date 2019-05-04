@@ -661,8 +661,6 @@ inline void Terrain_4_Splats(float4 cont, float2 lowtiled, float2 tiled, float f
 
 inline void Terrain_Trilanear(float3 tc_Control, float3 worldPos, float dist, inout float3 worldNormal, inout float4 col, inout float4 terrainN, float4 bumpMap) {
 
-
-
 	float far = min(1, dist*0.01);
 	float deFar = 1 - far;
 
@@ -670,13 +668,15 @@ inline void Terrain_Trilanear(float3 tc_Control, float3 worldPos, float dist, in
 	float4 height = tex2D(_mergeTerrainHeight, tc_Control.xz + _mergeTerrainScale.w);
 	float3 bump = (height.rgb - 0.5) * 2;
 
-	float aboveTerrainBump = ((((worldPos.y - _mergeTeraPosition.y) - height.a*_mergeTerrainScale.y)));
+	float above = worldPos.y - _mergeTeraPosition.y;
+
+	float aboveTerrainBump = above - height.a*_mergeTerrainScale.y;
 	float aboveTerrainBump01 = saturate(aboveTerrainBump);
 	float deAboveBump = 1 - aboveTerrainBump01;
 	bump = (bump * deAboveBump + worldNormal * aboveTerrainBump01);
 
 
-	float2 tiled = tc_Control.xz*_mergeTerrainTiling.xy + _mergeTerrainTiling.zw;
+	float2 tiled = tc_Control.xz*_mergeTerrainTiling.xy + _mergeTerrainTiling.zw; // -worldNormal.xz*saturate(above - 0.5);
 	float tiledY = tc_Control.y * _mergeTeraPosition.w * 2;
 
 	float2 lowtiled = tc_Control.xz*_mergeTerrainTiling.xy*0.1;
@@ -749,6 +749,8 @@ inline void Terrain_Trilanear(float3 tc_Control, float3 worldPos, float dist, in
 
 	terrainN.ba = terrainN.ba * deAboveTerrain +
 		aboveTerrain*bumpMap.ba;
+
+//	col = saturate((above-0.2)*1000);
 
 }
 

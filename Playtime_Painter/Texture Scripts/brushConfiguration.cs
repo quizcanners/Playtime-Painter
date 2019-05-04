@@ -149,7 +149,7 @@ namespace Playtime_Painter {
             var isA3D = false;
 
             if (painter)
-                foreach (var pl in PainterSystemManagerPluginBase.BrushPlugins)
+                foreach (var pl in PainterSystemManagerModuleBase.BrushPlugins)
                 {
                     isA3D = pl.IsA3DBrush(painter, this, ref overrideOther);
                     if (overrideOther) break;
@@ -211,7 +211,7 @@ namespace Playtime_Painter {
 
                 var rendered = false;
 
-                foreach (var pl in PainterSystemManagerPluginBase.BrushPlugins)
+                foreach (var pl in PainterSystemManagerModuleBase.BrushPlugins)
                     if (pl.IsEnabledFor(painter, imgData, this)) { 
                         pl.PaintRenderTexture(stroke, imgData, this, painter);
                         rendered = true;
@@ -242,12 +242,12 @@ namespace Playtime_Painter {
             var p = PlaytimePainter.inspected;
             var id = p.ImgMeta;
 
-            IPainterManagerPluginBrush plugin = null;
+            IPainterManagerModuleBrush module = null;
 
-            foreach (var b in PainterSystemManagerPluginBase.BrushPlugins)
+            foreach (var b in PainterSystemManagerModuleBase.BrushPlugins)
                 if (b.IsEnabledFor(p, id, this))
                 {
-                    plugin = b;
+                    module = b;
                     break;
                 }
 
@@ -297,13 +297,13 @@ namespace Playtime_Painter {
 
             pegi.nl();
 
-             plugin?.BrushConfigPEGI(ref overrideBlitModePegi, this);
+             module?.BrushConfigPEGI(ref overrideBlitModePegi, this);
 
-            //foreach (var b in PainterSystemManagerPluginBase.BrushPlugins)
+            //foreach (var b in PainterSystemManagerModuleBase.BrushPlugins)
               //  b.BrushConfigPEGI(ref overrideBlitModePegi, this).nl(ref changed);
 
             if (p)
-                foreach (var pl in p.Plugins)
+                foreach (var pl in p.Modules)
                     if (pl.BrushConfigPEGI().nl(ref changed))
                         pl.SetToDirty_Obj();
 
@@ -350,7 +350,7 @@ namespace Playtime_Painter {
 
             if (!overrideBlitModePegi && blitMode.ShowInDropdown())
             {
-                blitMode.Inspect(plugin).nl(ref changed);
+                blitMode.Inspect(module).nl(ref changed);
                 showingSize = true;
             }
 

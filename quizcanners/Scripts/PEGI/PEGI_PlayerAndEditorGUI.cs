@@ -1173,7 +1173,7 @@ namespace PlayerAndEditorGUI {
 
         public static void writeBig(this string text)
         {
-            text.write(PEGI_Styles.OverflowText);
+            text.write("",PEGI_Styles.OverflowText);
             nl();
         }
 

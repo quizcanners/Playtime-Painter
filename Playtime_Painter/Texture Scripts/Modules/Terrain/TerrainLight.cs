@@ -7,7 +7,7 @@ using QuizCannersUtilities;
 namespace Playtime_Painter {
 
     [TaggedType(tag)]
-    public class TerrainLight : PainterComponentPluginBase {
+    public class TerrainLight : PainterComponentModuleBase {
 
         const string tag = "TerLight";
         public override string ClassTag => tag;

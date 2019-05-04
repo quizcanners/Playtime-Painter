@@ -461,7 +461,11 @@ namespace Playtime_Painter
                         return;
 
                     if (!renderTexture)
+                    {
                         PainterCamera.Inst.EmptyBufferTarget();
+                        PainterCamera.Inst.DiscardAlphaBuffer();
+                       // Debug.Log("Discarding");
+                    }
                     else
                         if (painter.initialized) // To avoid Clear to black when exiting playmode
                         RenderTexture_To_Texture2D();

@@ -6,32 +6,32 @@ using QuizCannersUtilities;
 namespace Playtime_Painter
 {
     public class PainterPluginAttribute : AbstractWithTaggedTypes {
-        public override TaggedTypesCfg TaggedTypes => PainterComponentPluginBase.all;
+        public override TaggedTypesCfg TaggedTypes => PainterComponentModuleBase.all;
     }
     
     [PainterPlugin]
-    public class PainterComponentPluginBase : AbstractCfg, IGotClassTag {
+    public class PainterComponentModuleBase : AbstractCfg, IGotClassTag {
 
         #region Abstract Serialized
         public virtual string ClassTag => "Override me";
-        public static readonly TaggedTypesCfg all = new TaggedTypesCfg(typeof(PainterComponentPluginBase));
+        public static readonly TaggedTypesCfg all = new TaggedTypesCfg(typeof(PainterComponentModuleBase));
         public TaggedTypesCfg AllTypes => all;
         #endregion
 
         public static void UpdatePlugins(PlaytimePainter painter) {
 
            
-            for (var i = 0; i < painter.plugins.Count; i++) {
-                var nt = painter.plugins[i];
+            for (var i = 0; i < painter.modules.Count; i++) {
+                var nt = painter.modules[i];
 
                 if (nt != null) continue;
-                painter.plugins.RemoveAt(i);
+                painter.modules.RemoveAt(i);
                 i--;
             }
             
             foreach (var t in all) 
-                if (!painter.plugins.ContainsInstanceType(t)) 
-                    painter.plugins.Add((PainterComponentPluginBase)Activator.CreateInstance(t));  
+                if (!painter.modules.ContainsInstanceType(t)) 
+                    painter.modules.Add((PainterComponentModuleBase)Activator.CreateInstance(t));  
             
         }
 

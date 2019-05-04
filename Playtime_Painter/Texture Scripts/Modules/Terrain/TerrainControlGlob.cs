@@ -7,7 +7,7 @@ namespace Playtime_Painter
 {
 
     [TaggedType(tag)]
-    public class TerrainControlGlob : PainterComponentPluginBase {
+    public class TerrainControlGlob : PainterComponentModuleBase {
 
 
         const string tag = "TerCol";

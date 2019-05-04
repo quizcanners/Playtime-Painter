@@ -149,7 +149,7 @@ namespace Playtime_Painter {
             return false;
         }
 
-        public bool Inspect(IPainterManagerPluginBrush plugin)
+        public bool Inspect(IPainterManagerModuleBrush module)
         {
             
             var changed = false;
@@ -623,7 +623,7 @@ namespace Playtime_Painter {
             {
               
                 if (BrushConfig.showAdvanced)
-                    "Use Depth To Mask brush".toggleIcon(ref TexMGMTdata.useDepthForProjector).nl();
+                    "Paint only visible (by Projector)".toggleIcon(ref TexMGMTdata.useDepthForProjector).nl();
 
                 "First step is usually to position the projector camera. You can Lock it to current camera view.".writeOneTimeHint("posProjCam");
 

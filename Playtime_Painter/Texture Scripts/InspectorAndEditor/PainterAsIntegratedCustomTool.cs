@@ -1,25 +1,67 @@
-﻿using UnityEngine;
-using UnityEditor;
+﻿#if UNITY_EDITOR
+using System;
 using PlayerAndEditorGUI;
-using QuizCannersUtilities;
+using UnityEngine;
+using UnityEditor;
+using UnityEditor.EditorTools;
+using  QuizCannersUtilities;
 
-#if UNITY_EDITOR
-
-namespace Playtime_Painter {
-
-    [CustomEditor(typeof(PlaytimePainter))]
-    public class PlaytimePainterClassDrawer : PEGI_Inspector<PlaytimePainter> {
+namespace Playtime_Painter
+{
+#if UNITY_2019_1_OR_NEWER
+    // Tagging a class with the EditorTool attribute and no target type registers a global tool. Global tools are valid for any selection, and are accessible through the top left toolbar in the editor.
+    [EditorTool(PainterDataAndConfig.ToolName)]
+    class PainterAsIntegratedCustomTool : EditorTool {
         
-        public void GridUpdate(SceneView sceneView)
+        GUIContent m_IconContent;
+
+        void OnEnable() {
+            m_IconContent = new GUIContent() {
+                image = icon.Painter.GetIcon(),
+                text = PainterDataAndConfig.ToolName,
+                tooltip = "Add Playtime Painter Component to objects to edit their textures/meshes"
+            };
+        }
+
+        public override GUIContent toolbarIcon => m_IconContent;
+
+        public override void OnToolGUI(EditorWindow window) {
+            PlaytimePainterSceneViewEditor.OnSceneGuiCombined();
+        }
+    }
+#endif
+    
+    public static class PlaytimePainterSceneViewEditor
+    {
+
+        public static bool AllowEditing(PlaytimePainter targetPainter) =>
+            targetPainter && (Application.isPlaying || !targetPainter.IsUiGraphicPainter) &&
+            (!targetPainter.LockTextureEditing || targetPainter.IsEditingThisMesh);
+
+        public static void OnSceneGuiCombined()
+        {
+            if (AllowEditing(painter))
+            {
+                GridUpdate(SceneView.currentDrawingSceneView);
+
+                if (!navigating && PlaytimePainter.IsCurrentTool)
+                    HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
+            }
+
+
+            navigating = false;
+        }
+
+        public static void GridUpdate(SceneView sceneView)
         {
             var e = Event.current;
 
             if (e.isMouse || e.type == EventType.ScrollWheel)
                 EditorInputManager.FeedMouseEvent(e);
-            
+
             if (!PlaytimePainter.IsCurrentTool)
                 return;
-            
+
             if (e.isMouse)
             {
 
@@ -28,14 +70,14 @@ namespace Playtime_Painter {
                     lMouseDwn = (e.type == EventType.MouseDown) && (e.button == 0);
                     lMouseUp = (e.type == EventType.MouseUp) && (e.button == 0);
                 }
-                
+
                 mousePosition = Event.current.mousePosition;
 
                 var cam = Camera.current;
 
                 var offScreen = (!cam || (mousePosition.x < 0 || mousePosition.y < 0
-                    || mousePosition.x > cam.pixelWidth ||
-                       mousePosition.y > cam.pixelHeight));
+                                                              || mousePosition.x > cam.pixelWidth ||
+                                                              mousePosition.y > cam.pixelHeight));
 
                 if (!offScreen)
                 {
@@ -47,10 +89,10 @@ namespace Playtime_Painter {
                     mouseRayGui = HandleUtility.GUIPointToWorldRay(mousePosition);
 
                     EditorInputManager.mouseRaySceneView = mouseRayGui;
-                    
+
                     if (painter)
                         mouseRayGui = painter.PrepareRay(mouseRayGui);
-                      
+
                 }
 
             }
@@ -70,7 +112,7 @@ namespace Playtime_Painter {
                 if (lMouseDwn && e.button == 0 && refocus && isHit)
                 {
 
-                   // #if !UNITY_2019_1_OR_NEWER
+                    // #if !UNITY_2019_1_OR_NEWER
                     if (pp && pp == painter && AllowEditing(painter))
                         HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
                     //#endif
@@ -78,10 +120,10 @@ namespace Playtime_Painter {
                     UnityUtils.FocusOn(hit.transform.gameObject);
                 }
 
-                #if !UNITY_2019_1_OR_NEWER
+#if !UNITY_2019_1_OR_NEWER
                 if (!navigating && AllowEditing(painter))
                     e.Use();
-                #endif
+#endif
 
             }
 
@@ -89,10 +131,8 @@ namespace Playtime_Painter {
                 painter.ManagedUpdate();
         }
 
-
-        public bool AllowEditing(PlaytimePainter targetPainter) => targetPainter && (Application.isPlaying || !targetPainter.IsUiGraphicPainter) && (!targetPainter.LockTextureEditing || targetPainter.IsEditingThisMesh);
-        
-        public bool OnEditorRayHit(RaycastHit hit, Ray ray) {
+        public static bool OnEditorRayHit(RaycastHit hit, Ray ray)
+        {
 
             var tf = hit.transform;
             var pointedPainter = tf?.GetComponent<PlaytimePainter>();
@@ -106,17 +146,19 @@ namespace Playtime_Painter {
                 {
 
                     var edited = MeshManager.target;
-                    
+
                     if (pointedPainter && pointedPainter != edited && pointedPainter.meshEditing
-                        && !pointedPainter.SavedEditableMesh.IsNullOrEmpty() && lMouseDwn && e.button == 0) {
+                        && !pointedPainter.SavedEditableMesh.IsNullOrEmpty() && lMouseDwn && e.button == 0)
+                    {
                         MeshManager.Inst.EditMesh(pointedPainter, false);
                         allowRefocusing = true;
                     }
                     else allowRefocusing = false;
 
 
-                    if (((e.button == 1 && !MeshManager.Inst.Dragging) || e.button == 2) 
-                        && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag || e.type == EventType.MouseUp))
+                    if (((e.button == 1 && !MeshManager.Inst.Dragging) || e.button == 2)
+                        && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag ||
+                            e.type == EventType.MouseUp))
                         navigating = true;
 
                     return allowRefocusing;
@@ -125,8 +167,12 @@ namespace Playtime_Painter {
                 {
                     if (lMouseDwn) PlaytimePainter.currentlyPaintedObjectPainter = null;
 
-                    if (painter.NeedsGrid()) { pointedPainter = painter; allowRefocusing = false; }
-                    
+                    if (painter.NeedsGrid())
+                    {
+                        pointedPainter = painter;
+                        allowRefocusing = false;
+                    }
+
                     if (pointedPainter)
                     {
                         var st = pointedPainter.stroke;
@@ -141,15 +187,17 @@ namespace Playtime_Painter {
             if (lMouseUp)
                 PlaytimePainter.currentlyPaintedObjectPainter = null;
 
-            if ((e.button == 1 || e.button == 2) && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag || e.type == EventType.MouseUp))
+            if ((e.button == 1 || e.button == 2) && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag ||
+                                                     e.type == EventType.MouseUp))
                 navigating = true;
 
 
             return allowRefocusing;
         }
 
-        public void FeedEvents(Event e) {
-            
+        public static void FeedEvents(Event e)
+        {
+
             GridNavigator.Inst().FeedEvent(e);
 
             if (!painter) return;
@@ -157,52 +205,23 @@ namespace Playtime_Painter {
             painter.FeedEvents(e);
 
             if (painter.meshEditing)
-                MeshManager.Inst.UpdateInputEditorTime(e,  lMouseUp, lMouseDwn);
-        }
-
-        public virtual void OnSceneGUI() {
-
-#if !UNITY_2019_1_OR_NEWER
-            if (PlaytimePainter.IsCurrentTool && painter && !UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(painter))
-                PlaytimePainter.IsCurrentTool = false;
-#endif
-
-            if (AllowEditing(painter))
-            {
-                GridUpdate(SceneView.currentDrawingSceneView);
-
-                if (!navigating && PlaytimePainter.IsCurrentTool)
-                    HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
-            }
-
-
-            navigating = false;
+                MeshManager.Inst.UpdateInputEditorTime(e, lMouseUp, lMouseDwn);
         }
 
         public static Tool previousTool;
 
-        static PlaytimePainter painter;
+        public static PlaytimePainter painter;
 
-        public static bool navigating = false;
-
-        public virtual void OnEnable() =>  navigating = true;
-        
         public static bool lMouseDwn;
         public static bool lMouseUp;
-        
-        public Vector2 mousePosition;
-        public Ray mouseRayGui;
 
-        public override void OnInspectorGUI()
-        {
-            painter = (PlaytimePainter)target;
+        public static Vector2 mousePosition;
+        public static Ray mouseRayGui;
 
-            base.OnInspectorGUI();
-        }
+        public static bool navigating = false;
 
     }
 
 }
 
 #endif
-

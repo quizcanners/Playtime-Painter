@@ -9,12 +9,12 @@ namespace Playtime_Painter
 {
 
     [TaggedType(Tag)]
-    public class CombinedMapsControllerPlugin : PainterSystemManagerPluginBase
+    public class CombinedMapsControllerModule : PainterSystemManagerModuleBase
     {
         private const string Tag = "CmbndMpsCntrl";
         public override string ClassTag => Tag;
         
-        public static CombinedMapsControllerPlugin _inst;
+        public static CombinedMapsControllerModule _inst;
 
         private List<TextureSetForCombinedMaps> _textureSets = new List<TextureSetForCombinedMaps>();
         public List<TexturePackagingProfile> texturePackagingSolutions = new List<TexturePackagingProfile>();
@@ -54,7 +54,7 @@ namespace Playtime_Painter
 
     public class TextureSetForCombinedMaps : PainterSystemKeepUnrecognizedCfg, IGotName {
 
-        protected static CombinedMapsControllerPlugin Ctrl => CombinedMapsControllerPlugin._inst;
+        protected static CombinedMapsControllerModule Ctrl => CombinedMapsControllerModule._inst;
 
         public Texture2D diffuse;
         public Texture2D heightMap;

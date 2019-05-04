@@ -172,7 +172,6 @@
 				tnormal = float3(bumpMap.r, bumpMap.g, 1);
 				#endif
 
-
 				float3 preNorm = worldNormal;
 
 				#if UV_PROJECTED

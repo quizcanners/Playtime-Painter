@@ -4,7 +4,7 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using System;
 using System.Globalization;
-using static Playtime_Painter.ColorBleedControllerPlugin;
+using static Playtime_Painter.ColorBleedControllerModule;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -472,7 +472,7 @@ public bool useFloatForScalingBuffers;
 
             var rtp = PainterCamera.Inst;
             
-            if ("Plugins".enter(ref inspectedItems, 10, false).nl_ifNotEntered() && rtp.PluginsInspect().nl(ref changed))
+            if ("Modules".enter(ref inspectedItems, 10, false).nl_ifNotEntered() && rtp.PluginsInspect().nl(ref changed))
                 rtp.SetToDirty();
 
             if ("Lists".enter(ref inspectedItems, 11).nl(ref changed))

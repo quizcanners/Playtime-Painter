@@ -64,9 +64,9 @@ namespace Playtime_Painter {
 
         protected virtual string PropertyNameRoot => "DefaultVolume";
 
-        public ShaderProperty.TextureValue MaterialPropertyName => new ShaderProperty.TextureValue(PropertyNameRoot + VolumePaintingPlugin.VolumeTextureTag);
+        public ShaderProperty.TextureValue MaterialPropertyName => new ShaderProperty.TextureValue(PropertyNameRoot + VolumePaintingModule.VolumeTextureTag);
 
-        public ShaderProperty.TextureValue MaterialPropertyNameGlobal => new ShaderProperty.TextureValue( PainterDataAndConfig.GlobalPropertyPrefix+ PropertyNameRoot + VolumePaintingPlugin.VolumeTextureTag);
+        public ShaderProperty.TextureValue MaterialPropertyNameGlobal => new ShaderProperty.TextureValue( PainterDataAndConfig.GlobalPropertyPrefix+ PropertyNameRoot + VolumePaintingModule.VolumeTextureTag);
         
         public List<Material> materials;
 
@@ -315,7 +315,7 @@ namespace Playtime_Painter {
         {
             if (ImageMeta == null) return;
             ImageMeta.isAVolumeTexture = true;
-            ImageMeta.saveName = name + VolumePaintingPlugin.VolumeTextureTag + hSlices.ToString() + VolumePaintingPlugin.VolumeSlicesCountTag;
+            ImageMeta.saveName = name + VolumePaintingModule.VolumeTextureTag + hSlices.ToString() + VolumePaintingModule.VolumeSlicesCountTag;
             if (ImageMeta.texture2D) ImageMeta.texture2D.name = ImageMeta.saveName;
             if (ImageMeta.renderTexture) ImageMeta.renderTexture.name = ImageMeta.saveName;
         }
@@ -451,8 +451,8 @@ namespace Playtime_Painter {
 
             if (CurrentGlobal == this)
             {
-                VolumePaintingPlugin.VOLUME_POSITION_N_SIZE_Global.SetGlobal(PosSize4Shader);
-                VolumePaintingPlugin.VOLUME_H_SLICES_Global.SetGlobal(Slices4Shader);
+                VolumePaintingModule.VOLUME_POSITION_N_SIZE_Global.SetGlobal(PosSize4Shader);
+                VolumePaintingModule.VOLUME_H_SLICES_Global.SetGlobal(Slices4Shader);
                 MaterialPropertyNameGlobal.SetGlobal(ImageMeta.CurrentTexture());
             }
         }
