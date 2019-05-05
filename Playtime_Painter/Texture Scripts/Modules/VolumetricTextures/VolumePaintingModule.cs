@@ -192,6 +192,9 @@ namespace Playtime_Painter {
 
                 delayedPaintingConfiguration = new BrushStrokePainterImage(stroke, image, bc, painter);
 
+
+                //Debug.Log("Setting position: "+stroke.posTo);
+
                 PainterCamera.GetProjectorCamera().RenderRightNow(this);
             }
             else
@@ -215,7 +218,6 @@ namespace Playtime_Painter {
             VOLUME_H_SLICES_BRUSH.GlobalValue = vt.Slices4Shader;
             VOLUME_BRUSH_DIRECTION.GlobalValue = stroke.collisionNormal.ToVector4(0);
            
-
             image.useTexCoord2 = false;
             bool alphaBuffer;
             TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(bc, bc.Speed * 0.05f, image, stroke, painter, out alphaBuffer);
@@ -239,7 +241,7 @@ namespace Playtime_Painter {
 
         private float arbitraryBrightnessIncrease = 1.5f;
 
- private BrushStrokePainterImage delayedPaintingConfiguration;
+         private BrushStrokePainterImage delayedPaintingConfiguration;
 
         private static ProjectorCameraConfiguration rayTraceCameraConfiguration = new ProjectorCameraConfiguration();
         
@@ -249,7 +251,7 @@ namespace Playtime_Painter {
 
         public ProjectorCameraConfiguration GetProjectorCameraConfiguration()
         {
-            rayTraceCameraConfiguration.fieldOfView = minFov + UnityEngine.Random.Range(0, maxFov - minFov);
+            rayTraceCameraConfiguration.fieldOfView = minFov + Random.Range(0, maxFov - minFov);
             return rayTraceCameraConfiguration;
         }
 
@@ -288,8 +290,14 @@ namespace Playtime_Painter {
 
             foreach (var p in pix)
                 avg += p;
-  
-            GlobalBrush.Color = avg * arbitraryBrightnessIncrease / (float)pixelsCount;
+
+            //arbitraryBrightnessIncrease
+
+            var pcam = PainterCamera.GetProjectorCamera();
+
+            Debug.Log(avg + " for " + pcam.transform.position);
+
+            GlobalBrush.Color = avg / (float)pixelsCount;
 
             PainterCamera.BrushColorProperty.GlobalValue = GlobalBrush.Color;
 
@@ -411,10 +419,10 @@ namespace Playtime_Painter {
                     if (_enableRayTracing && BrushConfig.showAdvanced)
                     {
                         pegi.nl();
-                        "Bounced brightness mltpl".edit(ref arbitraryBrightnessIncrease, 1, 2).changes(ref changed);
+                       // "Bounced brightness mltpl".edit(ref arbitraryBrightnessIncrease, 1, 2).changes(ref changed);
 
-                        "A completely arbitrary value that increases the amount of bounced light. Used to utilize the full 0-1 range of the texture for increased percision"
-                            .fullWindowDocumentationClick();
+                        //"A completely arbitrary value that increases the amount of bounced light. Used to utilize the full 0-1 range of the texture for increased percision"
+                          //  .fullWindowDocumentationClick();
 
                         pegi.nl();
                     }

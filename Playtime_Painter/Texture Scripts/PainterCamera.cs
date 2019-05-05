@@ -750,7 +750,7 @@ namespace Playtime_Painter {
             painterCamera.orthographicSize = OrthographicSize;
             painterCamera.clearFlags = CameraClearFlags.Nothing;
             painterCamera.enabled = Application.isPlaying;
-            painterCamera.allowHDR = true;
+            painterCamera.allowHDR = false;
             painterCamera.allowMSAA = false;
             painterCamera.allowDynamicResolution = false;
             painterCamera.depth = 0;

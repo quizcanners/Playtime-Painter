@@ -247,6 +247,7 @@ namespace PlayerAndEditorGUI {
         private static int inspectingSection = -1;
         private static int inspectedFaqQuestion = -1;
         private static int inspectedPerfTip = -1;
+        private static int inspectedUseful = -1;
 
 
         public static bool InspectPainterDocumentation()
@@ -305,8 +306,30 @@ namespace PlayerAndEditorGUI {
                      " undoubtfully come with performance cost (when used)"   ).writeBig();
                 }
 
+                if ("Fold In Material".enter(ref inspectedPerfTip, 3).nl())
+                {
+                    ("This one may be a temporary issue, but I noticed that when Inspector is showing a material, in some cases Editor slows down." +
+                        "I often use the Lock icon on the Painter Component to hide other UI outside of component to maximize it's performance"
+                            ).writeBig();
+                }
+
             }
 
+            if ("Good to know, release notes".enter(ref inspectingSection, 2).nl()) {
+
+                if (inspectedUseful == -1) {
+                    ("This section will most often relate to various findings related to Unity engine. I will also list all nuances and issues that may relate" +
+                        " to current version only in most cases. ").writeBig();
+                }
+
+               // if ()
+
+                if ("MSAA + HDR results in one frame delay".enter(ref inspectedUseful, 0).nl())
+                {
+                   // ("When I use Ray-Tracing camera I notice that it ")
+                }
+
+            }
 
             return changed;
         }

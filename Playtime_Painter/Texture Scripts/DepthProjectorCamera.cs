@@ -133,7 +133,8 @@ namespace Playtime_Painter
 
             userToGetUpdate = proj;
             RequestRender(false);
-            ReturnResults();
+            // Returning results will give previous frame
+           // ReturnResults();
             
         }
 
@@ -284,15 +285,16 @@ namespace Playtime_Painter
                 _painterDepthCameraMatrix.SetGlobalFrom(_projectorCamera);
             }
 
-            if (userToGetUpdate != null || (TexMgmtData.useDepthForProjector && updatePainterIfNoUser && !pauseAutoUpdates))
+            if (userToGetUpdate != null ||
+                (TexMgmtData.useDepthForProjector && updatePainterIfNoUser && !pauseAutoUpdates))
                 _projectorCamera.Render();
-  
         }
 
         ChillLogger logger = new ChillLogger();
 
         void OnPostRender()
         {
+           // Debug.Log(transform.position);
             ReturnResults();
         }
 
@@ -301,7 +303,7 @@ namespace Playtime_Painter
             if (userToGetUpdate != null)
             {
 
-                Debug.Log("Returning user "+userToGetUpdate.ToString());
+                //Debug.Log("Returning user "+userToGetUpdate.ToString());
 
                 try
                 {
@@ -331,6 +333,8 @@ namespace Playtime_Painter
             _projectorCamera.depthTextureMode = DepthTextureMode.None;
             _projectorCamera.depth = -1000;
             _projectorCamera.clearFlags = CameraClearFlags.Depth;
+            _projectorCamera.allowMSAA = false;
+            _projectorCamera.allowHDR = false;
 
             var l = Cfg ? Cfg.playtimePainterLayer : 30;
 
