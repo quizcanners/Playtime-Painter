@@ -563,7 +563,7 @@ namespace PlayerAndEditorGUI {
         }
 
 
-        public static bool edit<T>(ref T field) where T : UnityEngine.Object
+        public static bool edit<T>(ref T field) where T : Object
         {
             BeginCheckLine();
             field = (T)EditorGUILayout.ObjectField(field, typeof(T), true);

@@ -19,6 +19,7 @@
 		ColorMask RGB
 		Cull Off
 		ZWrite Off
+		ZTest Off
 		Blend SrcAlpha OneMinusSrcAlpha
 
 		SubShader{

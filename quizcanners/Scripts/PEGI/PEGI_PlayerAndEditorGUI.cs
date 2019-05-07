@@ -1554,7 +1554,7 @@ namespace PlayerAndEditorGUI {
 
         #endregion
 
-        #region Object
+        #region UnityObject
 
         private static readonly Dictionary<Type, List<Object>> objectsInScene = new Dictionary<Type, List<Object>>();
 
@@ -1652,7 +1652,32 @@ namespace PlayerAndEditorGUI {
             return changed;
 
         }
-        
+
+        #endregion
+
+        #region Select Audio Clip
+
+        public static bool select(this string text, ref AudioClip clip, List<AudioClip> lst, bool showIndex = false, bool stripSlashes = false) =>
+            text.select(text, text.ApproximateLength(), ref clip, lst, showIndex, stripSlashes);
+
+        public static bool select(this string text, int width, ref AudioClip clip, List<AudioClip> lst, bool showIndex = false, bool stripSlashes = false) =>
+            text.select(text, width, ref clip, lst, showIndex, stripSlashes);
+
+        public static bool select(this string text, string tip, ref AudioClip clip, List<AudioClip> lst, bool showIndex = false, bool stripSlashes = false) =>
+            text.select(tip, text.ApproximateLength(), ref clip, lst, showIndex, stripSlashes);
+
+        public static bool select(this string text, string tip, int width, ref AudioClip clip, List<AudioClip> lst, bool showIndex = false, bool stripSlashes = false)
+        {
+            text.write(tip, width);
+
+           var ret = select(ref clip, lst, showIndex, stripSlashes);
+
+           if (clip && icon.Play.Click(20))
+               clip.Play();
+
+           return ret;
+        }
+
         #endregion
 
         #region Select Generic
@@ -3103,7 +3128,7 @@ namespace PlayerAndEditorGUI {
             return entered;
         }
 
-        private static bool enter_HeaderPart<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne, bool showLabelIfTrue = true) {
+        private static bool enter_HeaderPart<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne, bool showLabelIfTrue = false) {
 
             if (listIsNull(ref list)) {
                 if (enteredOne == thisOne)
@@ -3232,9 +3257,12 @@ namespace PlayerAndEditorGUI {
         }
         public static bool enter_Inspect(this icon ico, string txt, IPEGI var, ref int enteredOne, int thisOne, bool showLabelIfTrue = true)
         {
+            var changed = false;
+
             if (ico.enter(txt.TryAddCount(var), ref enteredOne, thisOne, showLabelIfTrue).nl_ifNotEntered()) 
-                var.Try_NameInspect();
-            return isFoldedOutOrEntered && var.Nested_Inspect();
+                var.Try_NameInspect().changes(ref changed);
+
+            return (isFoldedOutOrEntered && var.Nested_Inspect()) || changed;
         }
         
         public static bool enter_Inspect(this IPEGI var, ref int enteredOne, int thisOne)
@@ -3246,11 +3274,14 @@ namespace PlayerAndEditorGUI {
                 var.ToPegiString().enter_Inspect(var, ref enteredOne, thisOne);
         }
 
-        public static bool enter_Inspect(this string txt, IPEGI var, ref int enteredOne, int thisOne, bool showLabelIfTrue = true, GUIStyle enterLabelStyle = null) {
+        public static bool enter_Inspect(this string txt, IPEGI var, ref int enteredOne, int thisOne, bool showLabelIfTrue = true, GUIStyle enterLabelStyle = null)
+        {
+            var changed = false;
 
             if (txt.TryAddCount(var).enter(ref enteredOne, thisOne, showLabelIfTrue, enterLabelStyle))
-                var.Try_NameInspect();
-            return isFoldedOutOrEntered && var.Nested_Inspect();
+                var.Try_NameInspect().changes(ref changed);
+
+            return (isFoldedOutOrEntered && var.Nested_Inspect()) || changed;
         }
 
         public static bool enter_Inspect(this string label, int width, IPEGI_ListInspect var, ref int enteredOne, int thisOne)
@@ -3393,7 +3424,7 @@ namespace PlayerAndEditorGUI {
         {
 
             if (enteredOne == -1)
-                changed |= label.toggleIcon(ref val);
+                label.toggleIcon(ref val).changes(ref changed);
             
             if (val)
                 enter(ref enteredOne, thisOne);
@@ -3401,12 +3432,22 @@ namespace PlayerAndEditorGUI {
                 isFoldedOutOrEntered = false;
 
             if (enteredOne == thisOne)
-                changed |= label.toggleIcon(ref val);
+                label.toggleIcon(ref val).changes(ref changed);
 
             if (!val && enteredOne == thisOne)
                 enteredOne = -1;
 
             return isFoldedOutOrEntered;
+        }
+
+        public static bool enter_List<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne)
+        {
+            var changed = false;
+
+            if (meta.enter_HeaderPart(ref list, ref enteredOne, thisOne))
+                meta.edit_List(ref list).nl(ref changed);
+
+            return changed;
         }
         
         public static bool enter_List_UObj<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : UnityEngine.Object
@@ -3430,16 +3471,6 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-        public static bool enter_List<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne)
-        {
-            var changed = false;
-
-            if (meta.enter_HeaderPart(ref list, ref enteredOne, thisOne)) 
-                meta.edit_List(ref list).nl(ref changed);
-
-            return changed;
-        }
-
         public static bool enter_List_UObj<T>(this string label, ref List<T> list, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : UnityEngine.Object
         {
 
@@ -3451,7 +3482,30 @@ namespace PlayerAndEditorGUI {
 
             return changed;
         }
-        
+
+        public static bool enter_List_SO<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne) where T : ScriptableObject {
+
+            var changed = false;
+
+            if (meta.enter_HeaderPart(ref list, ref enteredOne, thisOne).changes(ref changed))
+                meta.edit_List_SO(ref list).nl(ref changed);
+
+            return changed;
+        }
+
+        public static bool enter_List<T>(this string label, ref List<T> list,  ref int enteredOne, int thisOne)
+        {
+            var tmp = default(T);
+
+            var changed = false;
+
+            if (enter_ListIcon(label, ref list,  ref enteredOne, thisOne)) 
+                tmp = label.edit_List(ref list,  ref changed);
+
+            return changed;
+        }
+
+
         public static bool enter_List<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) 
         {
             var changed = false;
@@ -3483,7 +3537,7 @@ namespace PlayerAndEditorGUI {
         {
             var tmp = default(T);
             
-            if (enter_ListIcon(label, ref list ,ref inspectedElement, ref enteredOne, thisOne)) //if (label.AddCount(list).enter(ref enteredOne, thisOne))
+            if (enter_ListIcon(label, ref list, ref inspectedElement, ref enteredOne, thisOne)) //if (label.AddCount(list).enter(ref enteredOne, thisOne))
                 tmp = label.edit_List(ref list, ref inspectedElement, ref changed);
 
             return tmp;
@@ -3557,7 +3611,7 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region Click
-        public const int defaultButtonSize = 25;
+        public const int defaultButtonSize = 26;
 
         private const int maxWidthForPlaytimeButtonText = 100;
 
@@ -3926,7 +3980,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
         
-        public static bool Click_Attention_Highlight<T>(this T obj, icon icon = icon.Enter, string hint = "", bool canBeNull = true) where T : UnityEngine.Object, INeedAttention
+        public static bool Click_Enter_Attention_Highlight<T>(this T obj, icon icon = icon.Enter, string hint = "", bool canBeNull = true) where T : UnityEngine.Object, INeedAttention
         {
             var ch = obj.Click_Enter_Attention(icon, hint, canBeNull);
             obj.ClickHighlight();
@@ -4238,9 +4292,7 @@ namespace PlayerAndEditorGUI {
         #region Edit
 
         #region UnityObject
-
-
-
+        
         public static bool edit<T>(ref T field, int width) where T : Object =>
         #if UNITY_EDITOR
                 !paintingPlayAreaGui ?  ef.edit(ref field, width) :
@@ -4253,7 +4305,7 @@ namespace PlayerAndEditorGUI {
         #endif
                 false;
         
-        public static bool edit<T>(this string label, ref T field) where T : UnityEngine.Object
+        public static bool edit<T>(this string label, ref T field) where T : Object
         {
     #if UNITY_EDITOR
             if (!paintingPlayAreaGui)  {
@@ -4339,7 +4391,7 @@ namespace PlayerAndEditorGUI {
 
         }
         
-        public static bool edit<T>(ref T field) where T : UnityEngine.Object =>
+        public static bool edit<T>(ref T field) where T : Object =>
 #if UNITY_EDITOR
             !paintingPlayAreaGui ? ef.edit(ref field) :
 #endif
@@ -4356,8 +4408,7 @@ namespace PlayerAndEditorGUI {
             if (entered == -1)
             {
 
-                if (obj)
-                    if (icon.Delete.Click("Null this object"))
+                if (obj && icon.Delete.Click("Null this object"))
                         obj = null;
 
                 if (selectFrom == null)
@@ -4376,10 +4427,10 @@ namespace PlayerAndEditorGUI {
 
             if (lst != null)
             {
-                if (lst.enter_Inspect_AsList(ref entered, current))
+                if (lst.enter_Inspect_AsList(ref entered, current).changes(ref changed))
                 {
-                    obj.Try_NameInspect(label);
-                    changed |= obj.Try_Nested_Inspect();
+                    obj.Try_NameInspect(label).changes(ref changed);
+                    obj.Try_Nested_Inspect().changes(ref changed);
                 }
             }
             else
@@ -4387,16 +4438,15 @@ namespace PlayerAndEditorGUI {
                 var pgi = obj.TryGet_fromObj<IPEGI>();
 
                 if (icon.Enter.conditional_enter(pgi != null, ref entered, current)) {
-                    obj.Try_NameInspect(label);
-                    changed |= pgi.Nested_Inspect();
+                    obj.Try_NameInspect(label).changes(ref changed);
+                    pgi.Nested_Inspect().changes(ref changed);
                 }
             }
         
 
         return changed;
         }
-
-
+        
         #endregion
 
         #region Vectors
@@ -4710,14 +4760,37 @@ namespace PlayerAndEditorGUI {
 
         #endregion
 
-        #region Unity Types
+        #region Audio Clip
 
-        public static bool edit(this string name, ref AnimationCurve val) =>
-    #if UNITY_EDITOR
-            !paintingPlayAreaGui ? ef.edit(name, ref val) :
-    #endif
-            false;
-        
+        public static bool edit(this string label, int width, ref AudioClip field)
+        {
+            label.write(width);
+            return edit(ref field);
+        }
+
+        public static bool edit(this string label, ref AudioClip field) {
+            label.write(label.ApproximateLength());
+            return edit(ref field);
+        }
+
+        public static bool edit(ref AudioClip clip) {
+
+            var ret =
+#if UNITY_EDITOR
+                !paintingPlayAreaGui ? ef.edit(ref clip) :
+#endif
+                    false;
+
+            if (clip && icon.Play.Click(20))
+                clip.Play();
+
+            return ret;
+        }
+
+        #endregion
+
+        #region Material
+
         public static bool editTexture(this Material mat, string name) => mat.editTexture(name, name);
 
         public static bool editTexture(this Material mat, string name, string display) {
@@ -4733,6 +4806,15 @@ namespace PlayerAndEditorGUI {
 
             return false;
         }
+
+        #endregion
+
+        #region Animation Curve
+        public static bool edit(this string name, ref AnimationCurve val) =>
+#if UNITY_EDITOR
+            !paintingPlayAreaGui ? ef.edit(name, ref val) :
+#endif
+                false;
 
         #endregion
 
@@ -6042,12 +6124,14 @@ namespace PlayerAndEditorGUI {
 
             currentListLabel = label;
 
-            if (inspected == -1)
+            bool inspecting = inspected != -1;
+
+            if (!inspecting)
                 searchData.ToggleSearch(lst);
 
             if (lst != null && inspected >= 0 && lst.Count > inspected) 
                 label = "{0}->{1}".F(label, lst[inspected].ToPegiString());
-            else label = label.AddCount(lst, true);
+            else label = (lst == null || lst.Count < 6) ? label : label.AddCount(lst, true);
 
             if (label.ClickLabel(label, -1, PEGI_Styles.ListLabel) && inspected != -1)
                 inspected = -1;
@@ -6060,13 +6144,15 @@ namespace PlayerAndEditorGUI {
             if (!ld.Inspecting)
                 ld.searchData.ToggleSearch(lst);
 
+
+
             if (lst != null && ld.inspected >= 0 && lst.Count > ld.inspected) {
 
                 var el = lst[ld.inspected];
 
                 currentListLabel = "{0}->{1}".F(ld.label, lst[ld.inspected].ToPegiString());
                 
-            } else currentListLabel = ld.label.AddCount(lst, true);
+            } else currentListLabel = (lst == null || lst.Count < 6) ? ld.label : ld.label.AddCount(lst, true);
 
             if (currentListLabel.ClickLabel(ld.label, RemainingLength(70), PEGI_Styles.ListLabel) && ld.inspected != -1)
                 ld.inspected = -1;
@@ -6376,10 +6462,18 @@ namespace PlayerAndEditorGUI {
                             foreach (var e in _copiedElements)
                             {
 
-                                var istd = listCopyBuffer.TryGetObj(e) as ICfg;
+                                var el = listCopyBuffer.TryGetObj(e);
 
-                                if (istd != null)
-                                    list.TryAdd(istd.CloneStd());
+                                if (el != null) {
+
+                                    var istd = el as ICfg;
+
+                                    if (istd != null)
+                                        list.TryAdd(istd.CloneStd());
+                                    else
+                                        list.TryAdd(JsonUtility.FromJson<T>(JsonUtility.ToJson(el))); 
+                                    
+                                }
                             }
                         }
 
@@ -6550,6 +6644,7 @@ namespace PlayerAndEditorGUI {
                     {
                         var so = uo as ScriptableObject;
                         var n = named.NameForPEGI;
+
                         if (so)
                         {
                             if (editDelayed(ref n).changes(ref changed))
@@ -6571,25 +6666,25 @@ namespace PlayerAndEditorGUI {
                         {
                             if (el.ToPegiString().ClickLabel("Inspect"))
                                 inspected = index;
-                        }
-                        else
-                        {
-                            Texture tex;
+                        } else  {
+                          
+                            if (uo) {
+                                Texture tex = uo as Texture;
 
-                            if (uo)
-                            {
-                                tex = uo as Texture;
-                                if (tex)
-                                {
+                                if (tex) {
                                     if (uo.ClickHighlight(tex))
                                         isPrevious = true;
 
                                     clickHighlightHandled = true;
                                 }
-                            }
-
-                            if (el.ToPegiString().ClickLabel())
+                                else if (uo.Try_NameInspect().changes(ref changed))
+                                        isPrevious = true;
+                                
+                            } else if (el.ToPegiString().ClickLabel())
+                            {
                                 inspected = index;
+                                isPrevious = true;
+                            }
                         }
                     }
                     
@@ -6752,7 +6847,7 @@ namespace PlayerAndEditorGUI {
         
         #endregion
 
-        #region SO
+        #region List of ScriptableObjects
 
         public static T edit_List_SO<T>(this string label, ref List<T> list, ref int inspected, ref bool changed) where T : ScriptableObject
         {
@@ -6819,9 +6914,9 @@ namespace PlayerAndEditorGUI {
             if (inspected == -1)
             {
 
-                changed |= list.edit_List_Order_Obj(listMeta);
+                list.edit_List_Order_Obj(listMeta).changes(ref changed);
 
-                changed |= list.ListAddEmptyClick(listMeta);
+                list.ListAddEmptyClick(listMeta).changes(ref changed);
 
                 if (listMeta != null && icon.Save.ClickUnFocus())
                     listMeta.SaveElementDataFrom(list);
@@ -6836,7 +6931,7 @@ namespace PlayerAndEditorGUI {
                             
                         }
                         else
-                            changed |= el.Name_ClickInspect_PEGI<T>(list, i, ref inspected, listMeta).nl(ref changed);
+                            el.Name_ClickInspect_PEGI(list, i, ref inspected, listMeta).nl(ref changed);
 
                     }
 
@@ -6856,7 +6951,7 @@ namespace PlayerAndEditorGUI {
         
         #endregion
 
-        #region Obj
+        #region List of Unity Objects
 
         public static bool edit_List_UObj<T>(this string label, ref List<T> list, ref int inspected, List<T> selectFrom = null) where T : UnityEngine.Object
         {
@@ -6931,10 +7026,10 @@ namespace PlayerAndEditorGUI {
             return changed;
 
         }
-        
+
         #endregion
 
-        #region OfNew
+        #region List of New()
 
         public static T edit<T>(this ListMetaData ld, ref List<T> list, ref bool changed)
         {
@@ -7129,7 +7224,7 @@ namespace PlayerAndEditorGUI {
 
         #endregion
 
-        #region Lambda
+        #region List by Lambda 
 
         #region SpecialLambdas
 
@@ -7368,8 +7463,8 @@ namespace PlayerAndEditorGUI {
         }
 
         #endregion
-        
-        #region NotNew
+
+        #region List of Not New()
 
         public static bool write_List<T>(this string label, List<T> list, Func<T, bool> lambda)
         {
@@ -7806,12 +7901,15 @@ namespace PlayerAndEditorGUI {
 
         #region Inspect Name
 
-        private static bool Try_NameInspect(this object obj, string label = "") {
+        public static bool Try_NameInspect(this object obj, string label = "", string tip = "") {
             bool could;
-            return obj.Try_NameInspect(out could, label);
+            return obj.Try_NameInspect(out could, label, tip);
         }
 
-        private static bool Try_NameInspect(this object obj, out bool couldInspect, string label = "") {
+        private static bool Try_NameInspect(this object obj, out bool couldInspect, string label = "", string tip = "")
+        {
+
+            var changed = false;
 
             bool gotLabel = !label.IsNullOrEmpty();
 
@@ -7820,46 +7918,48 @@ namespace PlayerAndEditorGUI {
             if (iname != null)
                 return iname.inspect_Name(label);
 
-            var uobj = obj.TryGetGameObjectFromObj(); 
-
-            if (uobj)
-            {
-                var n = uobj.name;
-                if (gotLabel ? label.editDelayed(80, ref n) : editDelayed(ref n)) {
-                    uobj.name = n;
-                    uobj.RenameAsset(n);
+            Object uObj = obj as ScriptableObject;
+                
+            if (!uObj)
+                uObj = obj.TryGetGameObjectFromObj(); 
+            
+            if (uObj) {
+                var n = uObj.name;
+                if (gotLabel ? label.editDelayed(tip, 80, ref n) : editDelayed(ref n)) {
+                    uObj.name = n;
+                    uObj.RenameAsset(n);
+                    changed = true;
                 }
             }
             else
-                couldInspect = false;
-
-
-
-            return false;
+                  couldInspect = false;
+            
+            return changed;
         }
-
+        
         public static bool inspect_Name(this IGotName obj) => obj.inspect_Name("", obj.ToPegiString());
 
         public static bool inspect_Name(this IGotName obj, string label) => obj.inspect_Name(label, label);
 
         public static bool inspect_Name(this IGotName obj, string label, string hint)
         {
+       
             var n = obj.NameForPEGI;
 
             bool gotLabel = !label.IsNullOrEmpty();
 
+            var uObj = obj as Object;
 
-            if (obj as UnityEngine.Object)
+            if (uObj)
             {
 
-                if ((gotLabel && label.editDelayed(80, ref n) || (!gotLabel && editDelayed(ref n))))
+                if ((gotLabel && label.editDelayed(80, ref n)) || (!gotLabel && editDelayed(ref n)))
                 {
                     obj.NameForPEGI = n;
+
                     return change;
                 }
             } else
-
-
             if ((gotLabel && label.edit(80, ref n) || (!gotLabel && edit(ref n))))
             {
                 obj.NameForPEGI = n;
@@ -7868,6 +7968,7 @@ namespace PlayerAndEditorGUI {
 
             return false;
         }
+        
         #endregion
 
         #region Searching

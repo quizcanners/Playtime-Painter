@@ -14,6 +14,7 @@
 
 		Blend SrcAlpha OneMinusSrcAlpha
 		Cull Off
+		ZTest Off
 		ZWrite Off
 
 		SubShader{

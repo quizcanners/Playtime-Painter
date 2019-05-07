@@ -19,6 +19,7 @@
 		LOD 200
 		ColorMask RGB
 		ZWrite Off
+		ZTest Off
 		Blend SrcAlpha OneMinusSrcAlpha
 
 		SubShader{

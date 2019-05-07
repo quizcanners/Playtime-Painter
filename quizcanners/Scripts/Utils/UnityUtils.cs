@@ -8,6 +8,9 @@ using System.Linq;
 using PlayerAndEditorGUI;
 using UnityEngine.Networking;
 using Object = UnityEngine.Object;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Runtime.Serialization.Formatters.Binary;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -17,7 +20,7 @@ namespace QuizCannersUtilities {
     public static class UnityUtils {
 
         #region External Communications
-        
+
         public static void SendEmail(string to) => Application.OpenURL("mailto:{0}".F(to));
 
         public static void SendEmail(string email, string subject, string body) =>
@@ -427,7 +430,38 @@ namespace QuizCannersUtilities {
         #endregion
 
         #region Unity Editor MGMT
+
+        private static MethodInfo playClipMethod;
+
+        public static void Play(this AudioClip clip, float volume = 1) => Play( clip, Vector3.zero, volume);
         
+        public static void Play(this AudioClip clip, Vector3 position, float volume = 1) {
+
+            if (!clip)
+                return;
+            
+            #if UNITY_EDITOR
+
+            if (playClipMethod == null) {
+                Assembly unityEditorAssembly = typeof(AudioImporter).Assembly;
+                Type audioUtilClass = unityEditorAssembly.GetType("UnityEditor.AudioUtil");
+                playClipMethod = audioUtilClass.GetMethod(
+                    "PlayClip",
+                    BindingFlags.Static | BindingFlags.Public,
+                    null,
+                    new Type[]  { typeof(AudioClip) },
+                    null
+                );
+            }
+
+            playClipMethod.Invoke(null, new object[] { clip } );
+            #else
+
+            AudioSource.PlayClipAtPoint(clip, position, volume);
+
+            #endif
+        }
+
         public static void Log(this string text)
         {
 

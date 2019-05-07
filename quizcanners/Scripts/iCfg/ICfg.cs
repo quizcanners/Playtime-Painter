@@ -510,7 +510,7 @@ namespace QuizCannersUtilities {
             if ((pegi.editDelayed(ref n) && n.Length > 0).changes(ref changed))
                 gameObject.name = n;
             
-            if (this.Click_Attention_Highlight())
+            if (this.Click_Enter_Attention_Highlight())
                 edited = ind;
             
 

@@ -10,6 +10,8 @@ using System.Linq;
 using System.Linq.Expressions;
 
 using PlayerAndEditorGUI;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace QuizCannersUtilities
 {
@@ -892,7 +894,6 @@ namespace QuizCannersUtilities
         }
 
         public static int CharToInt(this char c) => c - '0';
-        
 
         #region Type MGMT
         public static string GetMemberName<T>(Expression<Func<T>> memberExpression) => ((MemberExpression)memberExpression.Body).Member.Name;
