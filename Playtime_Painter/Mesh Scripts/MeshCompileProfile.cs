@@ -546,22 +546,7 @@ namespace Playtime_Painter
     public static class VertexDataTypes {
 
         #region Static
-
-        public static int GetMeshProfileByTag(this Material mat)
-        {
-            if (!mat)
-                return 0;
-
-            var name = mat.Get(ShaderTags.MeshSolution, false, "Standard");
-
-            var prf = PainterCamera.Data.meshPackagingSolutions;
-
-            for (var i = 0; i < prf.Count; i++)
-                if (prf[i].name.SameAs(name)) return i;
-
-            return 0;
-        }
-
+        
         private static MeshConstructor _curMeshDra;
 
         public static MeshConstructor CurMeshDta

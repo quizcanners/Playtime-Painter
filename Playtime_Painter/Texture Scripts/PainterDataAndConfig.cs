@@ -46,6 +46,11 @@ namespace Playtime_Painter
         public Shader bufferBlendRGB;
         public Shader bufferCopyDownscaleX4;
         public Shader bufferCopyDownscaleX8;
+        public Shader bufferCopyDownscaleX16_Approx;
+        public Shader bufferCopyDownscaleX32_Approx;
+        public Shader bufferCopyDownscaleX64_Approx;
+
+
 
         public Shader rayTraceOutput;
 
@@ -65,12 +70,12 @@ namespace Playtime_Painter
         public Shader previewTerrain;
 #endregion
 
-#region Constants
+        #region Constants
         
         public const string PainterCameraName = "PainterCamera";
         public const string ToolName = "Playtime_Painter";
         
-#region Shader Preperties
+        #region Shader Preperties
 
         public const string GlobalPropertyPrefix = "g_";
 
@@ -98,9 +103,9 @@ namespace Playtime_Painter
         public const string ATLASED_TEXTURES = "_AtlasTextures";
         public static readonly ShaderProperty.FloatValue TexturesInAtlasRow =               new ShaderProperty.FloatValue(ATLASED_TEXTURES);
         public static readonly ShaderProperty.FloatValue BufferCopyAspectRatio =            new ShaderProperty.FloatValue("_BufferCopyAspectRatio");
-#endregion
+        #endregion
         
-#region Shader Multicompile Keywords
+        #region Shader Multicompile Keywords
         public const string UV_NORMAL = "UV_NORMAL";
         public const string UV_ATLASED = "UV_ATLASED";
         public const string UV_PROJECTED = "UV_PROJECTED";
@@ -121,9 +126,9 @@ namespace Playtime_Painter
         public const string MESH_PREVIEW_NORMAL = "MESH_PREVIEW_NORMAL";
         public const string MESH_PREVIEW_VERTCOLOR = "MESH_PREVIEW_VERTCOLOR";
         public const string MESH_PREVIEW_PROJECTION = "MESH_PREVIEW_PROJECTION";
-#endregion
+        #endregion
 
-#endregion
+        #endregion
 
 #region Web Cam Utils
         [NonSerialized] public WebCamTexture webCamTexture;
@@ -647,9 +652,15 @@ public bool useFloatForScalingBuffers;
 
             CheckShader(ref bufferCopyDownscaleX8,      "Playtime Painter/Buffer Blit/DownScaleX8",             forceReload);
 
+            CheckShader(ref bufferCopyDownscaleX16_Approx, "Playtime Painter/Buffer Blit/DownScaleX16_Approx",  forceReload);
+
+            CheckShader(ref bufferCopyDownscaleX32_Approx, "Playtime Painter/Buffer Blit/DownScaleX32_Approx",  forceReload);
+
+            CheckShader(ref bufferCopyDownscaleX64_Approx, "Playtime Painter/Buffer Blit/DownScaleX64_Approx",  forceReload);
+            
             CheckShader(ref rayTraceOutput,             "Playtime Painter/Editor/Replacement/ShadowDataOutput", forceReload);
 
-#endif
+            #endif
         }
 
         private static void CheckShader(ref Shader shade, string path, bool forceReload = false) {

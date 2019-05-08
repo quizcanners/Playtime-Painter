@@ -265,6 +265,7 @@ namespace Playtime_Painter
         public float distanceToPointed;
         public Vector3 distanceToPointedV3;
         public static MeshPoint currentlyDecoded;
+        public bool stagedForDeletion;
 
         // Data to save:
         public List<Vector2[]> sharedV2S = new List<Vector2[]>();
@@ -275,6 +276,19 @@ namespace Playtime_Painter
         public List<List<BlendFrame>> shapes = new List<List<BlendFrame>>(); // not currently working
         public float edgeStrength;
         public int vertexGroup;
+
+
+        public void StripPointData_StageForDeleteFrom(MeshPoint pointB)
+        {
+            foreach (var buv in pointB.vertices) {
+                var uvs = new Vector2[] { buv.GetUv(0), buv.GetUv(1) };
+                vertices.Add(buv);
+                buv.meshPoint = this;
+                buv.SetUvIndexBy(uvs);
+            }
+
+            pointB.stagedForDeletion = true;
+        }
 
         public void UVto01Space() {
             int ind = MeshMGMT.EditedUV;
@@ -725,8 +739,6 @@ namespace Playtime_Painter
 
         public bool IsVertexIn(MeshPoint vrt) => vertexes.Any(v => v.meshPoint == vrt);
         
-
-
         public bool SetSmoothVertices (bool to) {
             var changed = false;
             for (var i = 0; i < 3; i++)

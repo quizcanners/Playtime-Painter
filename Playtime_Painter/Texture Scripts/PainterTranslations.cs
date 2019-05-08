@@ -1,5 +1,6 @@
 ﻿using Playtime_Painter;
 using QuizCannersUtilities;
+using UnityEditor;
 
 namespace PlayerAndEditorGUI {
 
@@ -11,7 +12,7 @@ namespace PlayerAndEditorGUI {
         LockToolToUseTransform, HideTransformTool, AboutPlaytimePainter,
          MeshProfileUsage, Speed, Scale, Hardness, CopyFrom, TextureSettings, previewRGBA, AutoSelectMaterial,
          aboutDisableDocumentation, SampleColor, PreviewRecommended, AlphaBufferBlit, Opacity, SpreadSpeed, BlurAmount,
-         Unnamed, TransparentLayer, PleaseSelect
+         Unnamed, TransparentLayer, PleaseSelect, MeshPoint, Vertex, MeshPointPositionTool
 
     };
 
@@ -238,18 +239,33 @@ namespace PlayerAndEditorGUI {
                         .From(ukr, "Щоб редагувати текстуру або модель, оберіть Playtime Painter серед інструментів" +
                                    " в лівому верхньому куті екрану.");
                     break;
+
+
+                case MsgPainter.MeshPoint:
+                    msg.Translate("Mesh Point", "Mesh Point contain a number of vertices which share the same position");
+                    break;
+                case MsgPainter.Vertex:
+                    msg.Translate("Vertex", "Each vertex can contain information like : position, UV sets, normal, tangent, color");
+                    break;
+                case MsgPainter.MeshPointPositionTool:
+                    msg.Translate("Points Position", ("Alt - Project {1} To Grid {0}" +
+                                                      "LMB - Drag {1} {0} " +
+                                                      "U - make Triangle unique. {0}" +
+                                                      "M - merge with nearest {1} while dragging {0}" +
+                                                      "This tool also contains functionality related to smoothing and sharpening of the edges.")
+                        .F(pegi.EnvironmentNl, MsgPainter.MeshPoint.GetText()));
+                    break;
+
             }
 
             return painterTranslations.GetWhenInited(index, lang);
         }
-
-
+        
         private static int inspectingSection = -1;
         private static int inspectedFaqQuestion = -1;
         private static int inspectedPerfTip = -1;
         private static int inspectedUseful = -1;
-
-
+        
         public static bool InspectPainterDocumentation()
         {
             var changed = false;

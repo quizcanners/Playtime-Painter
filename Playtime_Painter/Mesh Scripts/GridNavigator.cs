@@ -60,8 +60,7 @@ public class GridNavigator : PainterSystemMono {
     public MeshRenderer rendy;
 
     private readonly ShaderProperty.VectorValue _dotPositionProperty = new ShaderProperty.VectorValue("_GridDotPosition");
-
-
+    
     public void DeactivateVertices() {
 
         for (var i = 0; i < MeshManager.Inst.verticesShowMax; i++)
@@ -132,8 +131,7 @@ public class GridNavigator : PainterSystemMono {
             default: return Vector3.zero;
         }
     }
-
-
+    
     public float PerpendicularToPlaneVector(Vector3 f)
     {
         switch (gSide)
@@ -218,8 +216,7 @@ public class GridNavigator : PainterSystemMono {
             MeshMGMT.MeshTool.OnGridChange();
 
     }
-
-
+    
     public void UpdatePositions() {
 
         var m = MeshMGMT;
@@ -316,20 +313,33 @@ public class GridNavigator : PainterSystemMono {
             .Set(_sizeProp, dist / scale);
 
         if (MeshManager.target)
-            MeshMGMT.UpdateLocalSpaceV3S(); 
+            MeshMGMT.UpdateLocalSpaceMousePosition(); 
     }
 
     private readonly ShaderProperty.FloatValue _dxProp      = new ShaderProperty.FloatValue("_dx");
     private readonly ShaderProperty.FloatValue _dyProp      = new ShaderProperty.FloatValue("_dy");
     private readonly ShaderProperty.FloatValue _sizeProp    = new ShaderProperty.FloatValue("_Size");
-    
+
+    private const KeyCode verticalPlanesKey = KeyCode.Z;
+    private const KeyCode horisontalPlaneKey = KeyCode.X;
+
+    public static readonly string ToolTip = "{0} {1}: Toggle vertical grid orientations {0} {2}: Set grid horizontal {0} Scroll wheel can change grid projection while in play mode {0}".F(pegi.EnvironmentNl, verticalPlanesKey, horisontalPlaneKey); 
+
     private void Update() {
 
         if (!enabled)
             return;
 
-        if (Application.isPlaying) 
-            ScrollsProcess(Input.GetAxis("Mouse ScrollWheel"));
+        if (Application.isPlaying) {
+
+            if (Input.GetKeyDown(verticalPlanesKey))
+                ScrollsProcess(1);
+            else if (Input.GetKeyDown(horisontalPlaneKey))
+                ScrollsProcess(-1);
+            else
+                ScrollsProcess(Input.GetAxis("Mouse ScrollWheel"));
+        }
+
 
         if (!MeshManager.target && TexMgmtData)
             UpdatePositions();
@@ -343,13 +353,19 @@ public class GridNavigator : PainterSystemMono {
         if (!rendy || !rendy.enabled)
             return;
 
-        if (e.isMouse)
+        if (e.isMouse) 
             UpdatePositions();
 
-        if (e.type == EventType.ScrollWheel) {
-            ScrollsProcess(e.delta.y);
-            UpdatePositions();
-            e.Use();
+
+        if (e.type == EventType.KeyDown)  {
+
+            bool isHorisontal = e.keyCode == verticalPlanesKey;
+
+            if (isHorisontal || e.keyCode == horisontalPlaneKey) {
+                ScrollsProcess(isHorisontal ? 1 : -1);
+                UpdatePositions();
+                e.Use();
+            }
         }
 
         if (EditorInputManager.GetMouseButtonDown(2)) {

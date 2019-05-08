@@ -27,6 +27,28 @@ namespace Playtime_Painter
 
         public override void OnToolGUI(EditorWindow window) {
             PlaytimePainterSceneViewEditor.OnSceneGuiCombined();
+
+
+            var p = PlaytimePainterSceneViewEditor.painter;
+
+            if (Event.current.type == EventType.ScrollWheel)
+                Debug.Log("Got scroll wheel event");
+
+            if (p) {
+
+                p.FeedEvents(Event.current);
+
+/*                Event e = Event.current;
+                switch (e.type)
+                {
+                    case EventType.KeyDown:
+
+                        
+
+                        break;
+                }*/
+            }
+
         }
     }
 #endif
@@ -40,13 +62,17 @@ namespace Playtime_Painter
 
         public static void OnSceneGuiCombined()
         {
+         
+
             if (AllowEditing(painter))
             {
+
+            
                 GridUpdate(SceneView.currentDrawingSceneView);
 
                 if (!navigating && PlaytimePainter.IsCurrentTool)
                     HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
-            }
+            } 
 
 
             navigating = false;
@@ -56,7 +82,7 @@ namespace Playtime_Painter
         {
             var e = Event.current;
 
-            if (e.isMouse || e.type == EventType.ScrollWheel)
+            if (e.isMouse) // || e.type == EventType.ScrollWheel)
                 EditorInputManager.FeedMouseEvent(e);
 
             if (!PlaytimePainter.IsCurrentTool)

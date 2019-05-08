@@ -42,25 +42,21 @@ namespace QuizCannersUtilities
 
         public static string TimerEnd() => TimerEnd(null);
 
-        public static string TimerEnd(this string label) => label.TimerEnd(false);
+        public static string TimerEnd(this string label) => label.TimerEnd(true);
 
-        public static string TimerEnd(this string label, bool logIt) => TimerEnd(label, logIt, logIt);
+        public static string TimerEnd(this string label, bool logIt) => TimerEnd(label, logIt, false);
 
-        public static string TimerEnd(this string label, bool logIt, int threshold) => TimerEnd(label, logIt, logIt, threshold);
+        public static string TimerEnd(this string label, float threshold) => TimerEnd(label, true, false, threshold);
 
         public static string TimerEnd(this string label, bool logInEditor, bool logInPlayer) => TimerEnd(label, logInEditor, logInPlayer, 0);
 
-        public static string TimerEnd(this string label, bool logInEditor, bool logInPlayer, int logThreshold)
+        public static string TimerEnd(this string label, bool logInEditor, bool logInPlayer, float logThreshold)
         {
             StopWatch.Stop();
 
-            var ticks = StopWatch.ElapsedTicks;
+            float seconds = StopWatch.ElapsedTicks / TimeSpan.TicksPerSecond;
 
-            string timeText;
-
-            if (ticks < 10000)
-                timeText = ticks + " ticks";
-            else timeText = (ticks / 10000) + " ms " + (ticks % 10000) + " ticks";
+            string timeText = seconds.RoundTo(seconds > 10 ? 1 :(seconds > 2 ? 1 : (seconds > 1 ? 2 : 4))).ToString() + " s";
 
             var text = "";
             if (_timerStartLabel != null)
@@ -69,7 +65,7 @@ namespace QuizCannersUtilities
 
             _timerStartLabel = null;
 
-            if (ticks > logThreshold && (Application.isEditor && logInEditor) || (!Application.isEditor && logInPlayer))
+            if (seconds > logThreshold && ((Application.isEditor && logInEditor) || (!Application.isEditor && logInPlayer)))
                 UnityEngine.Debug.Log(text);
 
             StopWatch.Reset();
@@ -79,7 +75,7 @@ namespace QuizCannersUtilities
 
         public static string TimerEnd_Restart() => TimerEnd_Restart(null);
         
-        public static string TimerEnd_Restart(this string labelForEndedSection) => labelForEndedSection.TimerEnd_Restart(false);
+        public static string TimerEnd_Restart(this string labelForEndedSection) => labelForEndedSection.TimerEnd_Restart(true);
 
         public static string TimerEnd_Restart(this string labelForEndedSection, bool logIt) => labelForEndedSection.TimerEnd_Restart(logIt, logIt, 0);
 

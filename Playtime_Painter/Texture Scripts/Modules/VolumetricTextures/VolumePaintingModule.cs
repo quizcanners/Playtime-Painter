@@ -43,7 +43,7 @@ namespace Playtime_Painter {
                 .Add_IfTrue("rtr", _enableRayTracing)
                 .Add("mFiv", minFov)
                 .Add("mFov", maxFov) 
-                .Add("brg", arbitraryBrightnessIncrease)
+                //.Add("brg", arbitraryBrightnessIncrease)
                 .Add("cam", rayTraceCameraConfiguration);
 
             return cody;
@@ -57,7 +57,7 @@ namespace Playtime_Painter {
                 case "rtr": _enableRayTracing = true; break;
                 case "mFiv": minFov = data.ToFloat(); break;
                 case "mFov": maxFov = data.ToFloat(); break;
-                case "brg": arbitraryBrightnessIncrease = data.ToFloat(); break;
+                //case "brg": arbitraryBrightnessIncrease = data.ToFloat(); break;
                 case "cam": rayTraceCameraConfiguration.Decode(data); break;
                 default: return false;
             }
@@ -239,7 +239,7 @@ namespace Playtime_Painter {
 
         private float maxFov = 170;
 
-        private float arbitraryBrightnessIncrease = 1.5f;
+        //private float arbitraryBrightnessIncrease = 1.5f;
 
          private BrushStrokePainterImage delayedPaintingConfiguration;
 
@@ -262,40 +262,16 @@ namespace Playtime_Painter {
 
             int pixelsCount = size * size;
 
-            var tiny = RenderTextureBuffersManager.GetDownscaleOf(texture, RenderTextureBuffersManager.tinyTextureSize);
+            var tiny = RenderTextureBuffersManager.GetDownscaleOf(texture, RenderTextureBuffersManager.tinyTextureSize, true);
 
             var pix = RenderTextureBuffersManager.GetMinSizeTexture().CopyFrom(tiny).GetPixels();
 
             Color avg = Color.black;
 
-         /*   float half = (targetScale-1) * 0.5f;
-
-            float hy = -half;
-            for (int y = 0; y < targetScale; y++)
-            {
-
-                float hx = -half;
-                float hy2 = hy * hy;
-
-                for (int x = 0; x < targetScale; x++) {
-                    float dist = Mathf.Sqrt(hy2 + hx * hx);
-
-
-
-                    hx += 1;
-                }
-
-                hy += 1;
-            }*/
-
             foreach (var p in pix)
                 avg += p;
 
-            //arbitraryBrightnessIncrease
-
             var pcam = PainterCamera.GetProjectorCamera();
-
-            Debug.Log(avg + " for " + pcam.transform.position);
 
             GlobalBrush.Color = avg / (float)pixelsCount;
 

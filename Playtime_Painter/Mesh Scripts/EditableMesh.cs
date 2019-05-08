@@ -52,72 +52,112 @@ namespace Playtime_Painter {
         {
             if (!painter.SharedMesh) return;
 
-            if (painter.SavedEditableMesh != null)
-            {
+            if (!painter.SavedEditableMesh.IsNullOrEmpty()) {
+
                 Decode(painter.SavedEditableMesh);
                 if (triangles.Count == 0)
                     BreakMesh(painter.SharedMesh);
+                else return;
 
             }
             else
             {
                 BreakMesh(painter.SharedMesh);
-                painter.selectedMeshProfile = painter.Material.GetMeshProfileByTag();
             }
+
+            var mat = painter.Material;
+
+            if (!mat)
+                return;
+
+            var name = mat.Get(ShaderTags.MeshSolution, false, "Standard");
+
+            var prf = PainterCamera.Data.meshPackagingSolutions;
+
+            for (var i = 0; i < prf.Count; i++)
+                if (prf[i].name.SameAs(name)) painter.selectedMeshProfile = i;
 
         }
 
-        private void BreakMesh(Mesh nMesh)
+        private void BreakMesh(Mesh mesh)
         {
 
-            if (!nMesh)
+            if (!mesh)
                 return;
 
-            meshName = nMesh.name;
+            meshName = mesh.name;
 
-            actualMesh = nMesh;
+            "Breaking mesh".TimerStart();
 
-            var vCnt = actualMesh.vertices.Length;
+            var vCnt = mesh.vertices.Length;
 
             meshPoints = new List<MeshPoint>();
-            var vertices = actualMesh.vertices;
-            var gotUv1 = (actualMesh.uv != null) && (actualMesh.uv.Length == vCnt);
-            var gotUv2 = (actualMesh.uv2 != null) && (actualMesh.uv2.Length == vCnt);
-            var gotColors = (actualMesh.colors != null) && (actualMesh.colors.Length == vCnt);
-            gotBoneWeights = (actualMesh.boneWeights != null) && (actualMesh.boneWeights.Length == vCnt);
-            bindPoses = actualMesh.bindposes;
+            var vertices = mesh.vertices;
 
-            for (var i = 0; i < vCnt; i++)
-            {
+            var cols = mesh.colors;
+            var bW = mesh.boneWeights;
+            var uv1 = mesh.uv;
+            var uv2 = mesh.uv2;
+            bindPoses = mesh.bindposes;
+
+            var gotUv1 = (uv1 != null) && (uv1.Length == vCnt);
+            var gotUv2 = (uv2 != null) && (uv2.Length == vCnt);
+            var gotColors = (cols != null) && (cols.Length == vCnt);
+            gotBoneWeights = (bW != null) && (bW.Length == vCnt);
+         
+
+           // "Got Datas".TimerEnd_Restart();
+            
+            for (var i = 0; i < vCnt; i++) {
                 var v = new MeshPoint(vertices[i]);
-
                 meshPoints.Add(v);
-                var uv = new Vertex(meshPoints[i], gotUv1 ? actualMesh.uv[i] : Vector2.zero, gotUv2 ? actualMesh.uv2[i] : Vector2.zero);
-                if (gotColors)
-                    uv.color = actualMesh.colors[i];
-                if (gotBoneWeights)
-                    uv.boneWeight = actualMesh.boneWeights[i];
+                var uv = new Vertex(meshPoints[i], gotUv1 ? uv1[i] : Vector2.zero, gotUv2 ? uv2[i] : Vector2.zero);
+                //if (gotColors)
+                  //  uv.color = cols[i];
+                //if (gotBoneWeights)
+                   // uv.boneWeight = bW[i];
             }
+
+         //   "Got UV".TimerEnd_Restart();
+
+            if (gotColors)
+                for (var i = 0; i < vCnt; i++)
+                {
+                    var p = meshPoints[i];
+                    p.vertices[0].color = cols[i];
+                }
+
+         //   "Got Colors".TimerEnd_Restart();
+
+            if (gotBoneWeights)
+                for (var i = 0; i < vCnt; i++)
+                {
+                    var p = meshPoints[i];
+                    p.vertices[0].boneWeight = bW[i];
+                }
+
+
+         //   "Gote Bone Weights".TimerEnd_Restart();
 
             shapes = new List<string>();
 
-            for (var s = 0; s < actualMesh.blendShapeCount; s++)
+            for (var s = 0; s < mesh.blendShapeCount; s++)
             {
 
                 for (var v = 0; v < vCnt; v++)
                     meshPoints[v].shapes.Add(new List<BlendFrame>());
 
-                shapes.Add(actualMesh.GetBlendShapeName(s));
+                shapes.Add(mesh.GetBlendShapeName(s));
 
-                for (var f = 0; f < actualMesh.GetBlendShapeFrameCount(s); f++)
+                for (var f = 0; f < mesh.GetBlendShapeFrameCount(s); f++)
                 {
 
-                    blendWeights[s][f] = actualMesh.GetBlendShapeFrameWeight(s, f);
+                    blendWeights[s][f] = mesh.GetBlendShapeFrameWeight(s, f);
 
                     var normals = new Vector3[vCnt];
                     var pos = new Vector3[vCnt];
                     var tng = new Vector3[vCnt];
-                    actualMesh.GetBlendShapeFrameVertices(s, f, pos, normals, tng);
+                    mesh.GetBlendShapeFrameVertices(s, f, pos, normals, tng);
 
                     for (var v = 0; v < vCnt; v++)
                         meshPoints[v].shapes.Last().Add(new BlendFrame(pos[v], normals[v], tng[v]));
@@ -128,15 +168,17 @@ namespace Playtime_Painter {
             triangles = new List<Triangle>();
             var points = new Vertex[3];
 
-            subMeshCount = actualMesh.subMeshCount;
+            subMeshCount = mesh.subMeshCount;
             baseVertex = new List<uint>();
+
+         //   "Blend Shapes Done".TimerEnd_Restart();
 
             for (var s = 0; s < subMeshCount; s++)
             {
 
-                baseVertex.Add( actualMesh.GetBaseVertex(s)  );
+                baseVertex.Add( mesh.GetBaseVertex(s)  );
 
-                var indices = actualMesh.GetTriangles(s);
+                var indices = mesh.GetTriangles(s);
 
                 var tCnt = indices.Length / 3;
 
@@ -154,21 +196,89 @@ namespace Playtime_Painter {
                 }
             }
 
-            for (var i = 0; i < vCnt; i++) {
-                var main = meshPoints[i];
-                for (var j = i + 1; j < vCnt; j++) {
-                    if (!((meshPoints[j].localPos - main.localPos).magnitude < float.Epsilon)) continue;
-                    
-                    Merge(i, j);
-                    j--;
-                    vCnt = meshPoints.Count;
+         //   "Triangles done".TimerEnd_Restart();
+            
+            if (vCnt > 50) {
 
+            //    Debug.Log("Using caching to merge vertex points.");
+
+                var mSize = mesh.bounds;
+
+                float coef = 10000f / mesh.bounds.size.magnitude;
+
+                UnNullableLists<MeshPoint> distanceGroups = new UnNullableLists<MeshPoint>();
+
+                for (var i = 0; i < vCnt; i++) {
+                    var p = meshPoints[i];
+                    distanceGroups[Mathf.FloorToInt(p.localPos.magnitude * coef)].Add(p);
+                }
+
+                var grps = distanceGroups.GetAllObjsNoOrder();
+
+              //  Debug.Log("Got {0} groups".F(grps.Count));
+
+                foreach (var groupList in grps) {
+
+                    var cnt = groupList.Count;
+
+                    for (var aInd = 0; aInd < cnt; aInd++) {
+
+                        var aPoint = groupList[aInd];
+                        
+                        for (var bInd = aInd + 1; bInd < cnt; bInd++) {
+
+                            var bPoint = groupList[bInd];
+
+                            if (bPoint.localPos.Equals(aPoint.localPos)) {
+                                aPoint.StripPointData_StageForDeleteFrom(bPoint);
+                                groupList.RemoveAt(bInd);
+                                bInd--;
+                                cnt--;
+                            }
+                        }
+                    }
+                }
+                
+                distanceGroups.Clear();
+                
+                DeleteStagedMeshPoints();
+                
+            }
+            else
+            {
+
+                for (var i = 0; i < vCnt; i++) {
+
+                    var main = meshPoints[i];
+                    for (var j = i + 1; j < vCnt; j++) {
+
+                       // if (!((meshPoints[j].localPos - main.localPos).magnitude < float.Epsilon)) continue;
+
+                       if (meshPoints[j].localPos.Equals(main.localPos)) {
+                           Merge(i, j);
+                           j--;
+                           vCnt = meshPoints.Count;
+                       }
+                    }
                 }
             }
+            
+            "Breaking mesh done".TimerEnd(1);
 
-            actualMesh = new Mesh();
+            mesh = new Mesh();
 
             Dirty = true;
+        }
+
+        public void DeleteStagedMeshPoints()
+        {
+            var vCnt = meshPoints.Count;
+
+            for (var i = vCnt - 1; i >= 0; i--) {
+                var p = meshPoints[i];
+                if (p.stagedForDeletion)
+                    meshPoints.RemoveAt(i);
+            }
         }
 
         public EditableMesh()
@@ -176,14 +286,10 @@ namespace Playtime_Painter {
 
         }
 
-        public EditableMesh(PlaytimePainter painter)
-        {
-            Edit(painter);
-        }
-
-        #region Editing
-        public void Merge(MeshPoint pointA, MeshPoint pointB) => Merge(pointA, meshPoints.IndexOf(pointB));
+        public EditableMesh(PlaytimePainter painter) => Edit(painter);
         
+        #region Editing
+
         public void Merge(int indA, int indB) => Merge(meshPoints[indA], indB);
         
         public void Merge(MeshPoint pointA, int indB) {
@@ -193,17 +299,37 @@ namespace Playtime_Painter {
             if (pointA == pointB)
                 return;
 
-            foreach (var buv in pointB.vertices)
+            pointA.StripPointData_StageForDeleteFrom(pointB);
+
+            /*foreach (var buv in pointB.vertices)
             {
                 var uvs = new Vector2[] { buv.GetUv(0), buv.GetUv(1) };
                 pointA.vertices.Add(buv);
                 buv.meshPoint = pointA;
                 buv.SetUvIndexBy(uvs);
-            }
+            }*/
 
             meshPoints.RemoveAt(indB);
         }
 
+        public void Merge(MeshPoint pointA, MeshPoint pointB) {
+
+            if (pointA == pointB)
+                return;
+
+            pointA.StripPointData_StageForDeleteFrom(pointB);
+
+            /*foreach (var buv in pointB.vertices)
+            {
+                var uvs = new Vector2[] { buv.GetUv(0), buv.GetUv(1) };
+                pointA.vertices.Add(buv);
+                buv.meshPoint = pointA;
+                buv.SetUvIndexBy(uvs);
+            }*/
+
+            meshPoints.Remove(pointB);
+        }
+        
         public bool SetAllUVsShared(MeshPoint pnt)
         {
             if (pnt.vertices.Count == 1)
@@ -558,8 +684,7 @@ namespace Playtime_Painter {
             trs[1].Replace(trs[1].GetByVertex(b), nol0);
 
         }
-
-
+        
         public void MakeTriangleVertUnique(Triangle tris, Vertex pnt)
         {
 

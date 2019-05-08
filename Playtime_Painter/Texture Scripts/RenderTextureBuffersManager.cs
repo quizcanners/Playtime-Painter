@@ -211,9 +211,9 @@ namespace Playtime_Painter {
 
         static RenderTexture SquareBuffer(int width) => GetSquareBuffer(width);
 
-        public static RenderTexture GetDownscaledBigRt(int width, int height) => Downscale_ToBuffer(GetOrCreatePaintingBuffers()[0], width, height);
+        public static RenderTexture GetDownscaledBigRt(int width, int height, bool allowApprox = false) => Downscale_ToBuffer(GetOrCreatePaintingBuffers()[0], width, height, allowApprox: allowApprox);
         
-        public static RenderTexture GetDownscaleOf(Texture tex, int targetSize)
+        public static RenderTexture GetDownscaleOf(Texture tex, int targetSize, bool allowApprox = false)
         {
 
             if (!tex)
@@ -223,13 +223,13 @@ namespace Playtime_Painter {
             else if (!Mathf.IsPowerOfTwo(tex.width))
                 logger.Log_Interval(5, "{0} is not a Power of two".F(tex));
             else
-                return Downscale_ToBuffer(tex, targetSize, targetSize);
+                return Downscale_ToBuffer(tex, targetSize, targetSize, allowApprox: allowApprox);
 
 
             return null;
         }
 
-        public static RenderTexture Downscale_ToBuffer(Texture tex, int width, int height, Material material = null, Shader shader = null)
+        public static RenderTexture Downscale_ToBuffer(Texture tex, int width, int height, Material material = null, Shader shader = null, bool allowApprox = false)
         {
 
             if (!tex)
@@ -246,9 +246,6 @@ namespace Playtime_Painter {
             if (!square || !Mathf.IsPowerOfTwo(width))
             {
                 return cam.Render(tex, GetNonSquareBuffer(width, height), shader);
-                 
-
-
             }
             else
             {
@@ -257,36 +254,63 @@ namespace Playtime_Painter {
                 RenderTexture from = material
                     ? cam.Render(tex, SquareBuffer(tmpWidth), material)
                     : cam.Render(tex, SquareBuffer(tmpWidth), shader);
+                
+                while (tmpWidth > width) {
 
+                    bool jobDone = false;
 
-                while (tmpWidth > width)
-                {
+                    var previousFrom = from;
 
-                    if (!usingCustom && tmpWidth / 4 > width)
-                    {
-                        tmpWidth /= 8;
-                        from = cam.Render(from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX8);
-                        from.DiscardContents();
+                    if (!usingCustom) {
 
+                        if (allowApprox) {
+
+                            if (tmpWidth / 32 > width) {
+
+                                tmpWidth /= 64;
+                                from = cam.Render(from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX64_Approx);
+                                jobDone = true;
+
+                            } else if (tmpWidth / 16 > width) {
+
+                                tmpWidth /= 32;
+                                from = cam.Render(from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX32_Approx);
+                                jobDone = true;
+
+                            }
+                            else if (tmpWidth / 8 > width) {
+
+                                tmpWidth /= 16;
+                                from = cam.Render(from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX16_Approx);
+                                jobDone = true;
+
+                            }
+                        }
+
+                        if (!jobDone) {
+                            if (tmpWidth / 4 > width)
+                            {
+                                tmpWidth /= 8;
+                                from = cam.Render(from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX8);
+                                jobDone = true;
+                            }
+                            else if (tmpWidth / 2 > width)
+                            {
+                                tmpWidth /= 4;
+                                from = cam.Render(from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX4);
+                                jobDone = true;
+                            }
+                        }
                     }
-                    else if (!usingCustom && tmpWidth / 2 > width)
-                    {
 
-                        tmpWidth /= 4;
-                        from = cam.Render(from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX4);
-                        from.DiscardContents();
-                    }
-                    else
-                    {
-
+                    if (!jobDone) {
                         tmpWidth /= 2;
                         from = material
                             ? cam.Render(from, SquareBuffer(tmpWidth), material)
                             : cam.Render(from, SquareBuffer(tmpWidth), shader);
-
-                        from.DiscardContents();
-
                     }
+
+                    previousFrom.DiscardContents();
                 }
 
                 return from;

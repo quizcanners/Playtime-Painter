@@ -195,17 +195,18 @@ namespace Playtime_Painter
         public override Color VertexColor => Color.white;
 
         #region Inspector
-        public override string Tooltip =>
 
-                    ("Alt - Project Vertex To Grid {0}" +
+        public override string Tooltip => MsgPainter.MeshPointPositionTool.GetDescription();
+
+                  /*  ("Alt - Project Vertex To Grid {0}" +
                     "LMB - Drag {0} " +
                   // "Alt + LMB - Disconnect dragged Vertex from point" +
                     "Scroll - Change Plane {0}"+
                     "U - make Triangle unique. {0}" + 
                     "M - merge with nearest while dragging {0}" +
-                    "This tool also contains functionality related to smoothing and sharpening of the edges.").F(Environment.NewLine);
+                    "This tool also contains functionality related to smoothing and sharpening of the edges.").F(Environment.NewLine);*/
 
-        public override string NameForDisplayPEGI => "ADD & MOVE";
+        public override string NameForDisplayPEGI => MsgPainter.MeshPointPositionTool.GetText(); // "ADD & MOVE";
 
         #if PEGI
         public override bool Inspect()
@@ -459,7 +460,7 @@ namespace Playtime_Painter
         public override void MouseEventPointedNothing()
         {
             if (_addToTrianglesAndLines && EditorInputManager.GetMouseButtonDown(0))
-                MeshMGMT.AddPoint(MeshMGMT.onGridLocal);
+                MeshMGMT.CreatePointAndFocus(MeshMGMT.onGridLocal);
         }
 
         void OnClickDetected()

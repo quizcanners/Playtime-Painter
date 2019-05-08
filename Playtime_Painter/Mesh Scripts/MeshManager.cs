@@ -74,7 +74,7 @@ namespace Playtime_Painter
 
         #endregion
         
-        public void UpdateLocalSpaceV3S()
+        public void UpdateLocalSpaceMousePosition()
         {
             if (!target) return;
             
@@ -100,10 +100,6 @@ namespace Playtime_Painter
             Redraw();
             
             InitVerticesIfNull();
-
-            SelectedLine = null;
-            SelectedTriangle = null;
-            SelectedUv = null;
 
             UndoMoves.Clear();
             RedoMoves.Clear();
@@ -153,11 +149,9 @@ namespace Playtime_Painter
                 }  else {
                     var m = mc.Construct();
                     target.SharedMesh = m;
-                    target.UpdateMeshCollider(m); //meshCollider.AssignMeshAsCollider(m);
+                    target.UpdateMeshCollider(m); 
                 }
             }
-
-          
         }
 
         public static string GenerateMeshSavePath() => Path.Combine(Cfg.meshesFolderName, editedMesh.meshName + ".asset");
@@ -209,7 +203,7 @@ namespace Playtime_Painter
 
         public void MoveVertexToGrid(MeshPoint vp)
         {
-            UpdateLocalSpaceV3S();
+            UpdateLocalSpaceMousePosition();
 
             var diff = onGridLocal - vp.localPos;
 
@@ -261,7 +255,7 @@ namespace Playtime_Painter
             return true;
         }
 
-        public MeshPoint AddPoint(Vector3 pos)
+        public MeshPoint CreatePointAndFocus(Vector3 pos)
         {
             var hold = new MeshPoint(pos);
 
@@ -274,6 +268,10 @@ namespace Playtime_Painter
 
             if (Cfg.pixelPerfectMeshEditing)
                 hold.PixPerfect();
+
+            GridNavigator.collisionPos = pos;
+
+            UpdateLocalSpaceMousePosition();
 
             return hold;
         }
@@ -332,7 +330,7 @@ namespace Playtime_Painter
 
             editedMesh.TagTrianglesUnprocessed();
 
-            UpdateLocalSpaceV3S();
+            UpdateLocalSpaceMousePosition();
 
             foreach (var t1 in editedMesh.meshPoints)
             foreach (var uv in t1.vertices)
@@ -383,21 +381,21 @@ namespace Playtime_Painter
                     if (vertexIsPointed)
                     {
                         GridNavigator.collisionPos = hit.transform.position;
-                        UpdateLocalSpaceV3S();
+                        UpdateLocalSpaceMousePosition();
                         editedMesh.SortAround(collisionPosLocal, true);
 
                     }
                     else
                     {
                         GridNavigator.collisionPos = hit.point;
-                        UpdateLocalSpaceV3S();
+                        UpdateLocalSpaceMousePosition();
                         editedMesh.SortAround(collisionPosLocal, true);
                         GetPointedTriangleOrLine();
                     }
                 }
             }
             
-            UpdateLocalSpaceV3S();
+            UpdateLocalSpaceMousePosition();
             return vertexIsPointed;
         }
 
@@ -407,7 +405,7 @@ namespace Playtime_Painter
             if (EditorInputManager.GetMouseButtonDown(1))
             {
                 SelectedLine = new LineData(t, a, b);
-                UpdateLocalSpaceV3S();
+                UpdateLocalSpaceMousePosition();
             }
 
             PointedLine = new LineData(t, new Vertex[] { a, b });
@@ -501,7 +499,7 @@ namespace Playtime_Painter
             if (!Grid.vertices[0].go)
                 InitVerticesIfNull();
 
-            UpdateLocalSpaceV3S();
+            UpdateLocalSpaceMousePosition();
 
             editedMesh.SortAround(collisionPosLocal, false);
 
@@ -808,7 +806,7 @@ namespace Playtime_Painter
             }
 
             if (docsEnabled && pegi.DocumentationClick("About {0} tool".F(MeshTool.NameForDisplayPEGI)))
-                pegi.FullWindwDocumentationOpen(MeshTool.Tooltip);
+                pegi.FullWindwDocumentationOpen(MeshTool.Tooltip + (MeshTool.ShowGrid ? GridNavigator.ToolTip : ""));
             
 
     
