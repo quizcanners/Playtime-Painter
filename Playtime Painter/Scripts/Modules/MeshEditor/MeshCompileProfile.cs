@@ -56,7 +56,20 @@ namespace PlaytimePainter
         public virtual bool Inspect()
         {
             var changed = false;
-            
+
+            #if UNITY_EDITOR
+            UnityEngine.Object newProfile = null;
+
+            if ("Drop New Profile Here:".edit(ref newProfile).nl(ref changed)) {
+
+                var mSol = new MeshPackagingProfile();
+                mSol.Decode(FileLoadUtils.LoadTextAsset(newProfile));
+
+                PainterCamera.Data.meshPackagingSolutions.Add(mSol);
+                PlaytimePainter.inspected.selectedMeshProfile = PainterCamera.Data.meshPackagingSolutions.Count - 1;
+            }
+            #endif
+
             "Profile Name: ".edit(80, ref name);
 
             #if UNITY_EDITOR
@@ -69,15 +82,7 @@ namespace PlaytimePainter
             }
 
 
-            UnityEngine.Object myType = null;
-            if (pegi.edit(ref myType).nl(ref changed)) {
-               
-                var mSol = new MeshPackagingProfile();
-                mSol.Decode(FileLoadUtils.LoadTextAsset(myType));
-
-                PainterCamera.Data.meshPackagingSolutions.Add(mSol);
-                PlaytimePainter.inspected.selectedMeshProfile = PainterCamera.Data.meshPackagingSolutions.Count - 1;
-            }
+       
             #endif
 
             foreach (var s in dtaLnks) 

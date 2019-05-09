@@ -35,7 +35,6 @@ Shader "Playtime Painter/Terrain Integration/Triplanar" {
 				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
 				#pragma multi_compile_fwdbase 
-			//	#pragma multi_compile  ___ WATER_FOAM
 				#pragma shader_feature  ___ _BUMP_NONE  _BUMP_COMBINED 
 				#pragma shader_feature  ___ CLIP_ALPHA
 

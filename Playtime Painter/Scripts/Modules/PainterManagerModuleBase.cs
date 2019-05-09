@@ -156,7 +156,7 @@ namespace PlaytimePainter {
             if (NameForDisplayPEGI.ClickLabel())
                 edited = ind;
 
-            ToolTip.fullWindowDocumentationClick();
+            ToolTip.fullWindowDocumentationClickOpen();
 
             if (icon.Enter.Click())
                 edited = ind;

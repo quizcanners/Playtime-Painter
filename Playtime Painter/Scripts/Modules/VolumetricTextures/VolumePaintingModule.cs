@@ -313,7 +313,7 @@ namespace PlaytimePainter {
                 "Global Volume Expected".nl();
 
                 "Create a game object with one of the Volume scripts and set it as Global Parameter"
-                    .fullWindowDocumentationClick("About Global Volume Parameters");
+                    .fullWindowDocumentationClickOpen("About Global Volume Parameters");
 
             }
             else

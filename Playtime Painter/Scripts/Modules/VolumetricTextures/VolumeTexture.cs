@@ -349,7 +349,7 @@ namespace PlaytimePainter {
         {
             var changed = false;
             
-            pegi.fullWindowDocumentationClick(VolumeDocumentation);
+            pegi.fullWindowDocumentationClickOpen(VolumeDocumentation);
 
             if (inspectedElement == -1)
             {

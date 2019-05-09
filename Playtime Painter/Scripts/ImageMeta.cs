@@ -1069,7 +1069,7 @@ namespace PlaytimePainter
                     if ("Save Textures In Game ".enter(ref _inspectedProcess, 7).nl_ifFolded()) {
 
                         "This is intended to test playtime saving. The functions to do so are quite simple. You can find them inside ImageData class."
-                            .fullWindowDocumentationClick();
+                            .fullWindowDocumentationClickOpen();
 
                         pegi.nl();
 
@@ -1130,7 +1130,7 @@ namespace PlaytimePainter
                 MsgPainter.TransparentLayer.GetText().toggleIcon(ref isATransparentLayer).changes(ref changed);
                 //"Toggle this on if texture has transparent(invisible) areas which contains color you don't want to see"
                 MsgPainter.TransparentLayer.GetDescription()
-                .fullWindowDocumentationWithLinkClick("https://www.quizcanners.com/single-post/2018/09/30/Why-do-I-get-black-outline-around-the-stroke", "More About it");
+                .fullWindowDocumentationWithLinkClickOpen("https://www.quizcanners.com/single-post/2018/09/30/Why-do-I-get-black-outline-around-the-stroke", "More About it");
 
                 if (isATransparentLayer)
                     preserveTransparency = true;

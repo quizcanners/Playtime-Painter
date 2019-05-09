@@ -11,7 +11,6 @@ namespace PlaytimePainter.Examples
     {
        // private readonly ShaderProperty.VectorValue _foamDynamicsProperty = new ShaderProperty.VectorValue("_foamDynamics");
         private readonly ShaderProperty.VectorValue _foamParametersProperty = new ShaderProperty.VectorValue("_foamParams");
-        private readonly ShaderProperty.TextureValue _foamTextureProperty = new ShaderProperty.TextureValue("_foam_MASK");
         private readonly ShaderProperty.TextureValue _pp_waterBumpMap = new ShaderProperty.TextureValue("_pp_WaterBump");
 
         private void OnEnable()
@@ -24,19 +23,14 @@ namespace PlaytimePainter.Examples
         {
             Shader.DisableKeyword(PainterDataAndConfig.WATER_FOAM);
         }
-
-        public Texture foamMask;
+        
         public Texture waterBump;
         public Vector4 foamParameters;
         private float _myTime = 0;
-       // public float thickness;
-       // public float noise;
-       // public float upscale;
         public float wetAreaHeight;
 
         private void SetFoamDynamics() {
-           // _foamDynamicsProperty.GlobalValue = new Vector4(thickness, noise, upscale, (300 - thickness));
-            _foamTextureProperty.GlobalValue = foamMask;
+
             _pp_waterBumpMap.GlobalValue = waterBump;
         }
 
@@ -58,19 +52,17 @@ namespace PlaytimePainter.Examples
         public bool Inspect() {
             var changed = false;
 
-            ("This water works only with Merging Terrain shaders. The method is as follows: {0}" +
+            if (pegi.DocumentationClick("About Water Controller"))  
+            pegi.FullWindwDocumentationOpen("This water works only with Merging Terrain shaders. The method is as follows: {0}" +
             "Terrain shaders compare it's Y(up) position with water height and calculate where the foam should be." +
             "THos shaders paint foam onto themselves. Below the foam they pain screen alpha channel 1, and above - 0." +
             "Water just renders the plane, but multiplies it by screen's alpha rendered by underlying objects. " +
             "This is one of those methods I labeled as EXPERIMENTAL in the Asset description. And it will probably will stay in that category" +
             "since it is not a robust method. And I only recommend working on those method at the later stages of your project, " +
-            "when you can be sure it will not conflict with other effects.").fullWindowDocumentationClick("About Water Controller");
+            "when you can be sure it will not conflict with other effects.");
 
             "Bump".edit(70, ref waterBump).nl(ref changed);
-            "Foam".edit(70, ref foamMask).nl(ref changed);
-         /*   "Thickness:".edit(70, ref thickness, 5, 300).nl(ref changed);
-            "Noise:".edit(50, ref noise, 0, 100).nl(ref changed);
-            "Upscale:".edit(50, ref upscale, 1, 64).nl(ref changed);*/
+
             "Wet Area Height:".edit(50, ref wetAreaHeight, 0.1f, 10).nl(ref changed);
 
             if (changed) {

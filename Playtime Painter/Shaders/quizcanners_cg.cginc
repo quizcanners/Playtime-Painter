@@ -22,14 +22,13 @@ float4 g_l2col;
 
 sampler2D _Global_Noise_Lookup;
 
-float4 _lightControl;
+float4 pp_COLOR_BLEED;
 sampler2D _mergeTerrainHeight;
 float4 _mergeTerrainHeight_TexelSize;
 float4 _wrldOffset;
 
 sampler2D _TerrainColors;
 sampler2D _mergeControl;
-sampler2D _foam_MASK;
 
 sampler2D _mergeSplat_0;
 sampler2D _mergeSplat_1;
@@ -465,10 +464,10 @@ inline void leakColors (inout float4 col){
 
 inline void BleedAndBrightness(inout float4 col, float mod) {
 
-	col.rgb *= _lightControl.a;
+	col.rgb *= pp_COLOR_BLEED.a;
 
 	float3 mix = min(col.gbr + col.brg, 128)*mod;
-	col.rgb += mix * mix*_lightControl.r;
+	col.rgb += mix * mix*pp_COLOR_BLEED.r;
 
 }
 

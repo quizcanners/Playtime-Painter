@@ -1,5 +1,4 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
@@ -376,7 +375,7 @@ namespace PlaytimePainter.Examples
                     var sTip = mat.Get(QuizCannersUtilities.ShaderTags.ShaderTip);
 
                     if (!sTip.IsNullOrEmpty())
-                        sTip.fullWindowDocumentationClick("Tip from shader tag");
+                        sTip.fullWindowDocumentationClickOpen("Tip from shader tag");
 
                     if (icon.Refresh.Click("Refresh compatible Shaders list"))
                         _compatibleShaders = null;
@@ -392,7 +391,7 @@ namespace PlaytimePainter.Examples
                         "Position: ".editEnum(60, ref _positionDataType).changes(ref changed);
 
                         "Shaders that use position data often don't look right in the scene view."
-                            .fullWindowDocumentationClick("Camera dependancy warning");
+                            .fullWindowDocumentationClickOpen("Camera dependancy warning");
 
                         pegi.nl();
 
@@ -868,6 +867,48 @@ namespace PlaytimePainter.Examples
     #if UNITY_EDITOR
     [CustomEditor(typeof(RoundedGraphic))]
     public class PixelPerfectShaderDrawer : PEGI_Inspector<RoundedGraphic> { }
-    #endif
+#endif
+
+    public class PixelPerfectMaterialDrawer : PEGI_Inspector_Material
+    {
+
+        private static readonly ShaderProperty.FloatValue Softness = new ShaderProperty.FloatValue(RoundedGraphic.EDGE_SOFTNESS_FLOAT);
+
+        private static readonly ShaderProperty.TextureValue Outline = new ShaderProperty.TextureValue("_OutlineGradient");
+
+#if PEGI
+        public override bool Inspect(Material mat)
+        {
+
+            var changed = pegi.toggleDefaultInspector();
+
+            mat.edit(Softness, "Softness", 0, 1).nl(ref changed);
+
+            mat.edit(Outline).nl(ref changed);
+
+            if (mat.IsKeywordEnabled(RoundedGraphic.UNLINKED_VERTICES))
+                "UNLINKED VERTICES".nl();
+
+            var go = UnityUtils.GetFocusedGameObject();
+
+            if (go)
+            {
+
+                var rndd = go.GetComponent<RoundedGraphic>();
+
+                if (!rndd)
+                    "No RoundedGrahic.cs detected, shader needs custom data.".writeWarning();
+                else if (!rndd.enabled)
+                    "Controller is disabled".writeWarning();
+
+            }
+
+            return changed;
+        }
+#endif
+
+    }
+
+
     #endregion
 }

@@ -240,7 +240,7 @@ namespace PlaytimePainter {
         public bool Mode_Type_PEGI()
         {
             var p = PlaytimePainter.inspected;
-            var id = p.ImgMeta;
+            var id = p ? p.ImgMeta : null;
 
             IPainterManagerModuleBrush module = null;
 
@@ -319,7 +319,7 @@ namespace PlaytimePainter {
                     if (InspectAdvanced) {
                         "Clamp".toggleIcon(ref clampSourceTexture).nl(ref changed);
                         "Ignore Transparency".toggleIcon(ref ignoreSrcTextureTransparency).changes(ref changed);
-                        "Ignore transparency of the source texture. Otherwise the tool will only paint parts of the texture which are not transparent".fullWindowDocumentationClick().nl();
+                        "Ignore transparency of the source texture. Otherwise the tool will only paint parts of the texture which are not transparent".fullWindowDocumentationClickOpen().nl();
                     }
                 }
 

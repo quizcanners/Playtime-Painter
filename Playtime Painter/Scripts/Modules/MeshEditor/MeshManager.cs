@@ -813,7 +813,7 @@ namespace PlaytimePainter
             if (target.skinnedMeshRenderer) 
                 ("When using Skinned Mesh Renderer, the mesh will be transformed by it, so mesh points will not be in the correct position, and it is impossible to do any modifications on mesh with the mouse. It is still possible to do automatic processes like " +
                  "changing mesh profile and everything that doesn't require direct input from mouse over the object. It is recommended to edit the object separately from the skinned mesh."
-                    ).fullWindowWarningDocumentationClick("Skinned mesh detected");
+                    ).fullWindowWarningDocumentationClickOpen("Skinned mesh detected");
             
             pegi.nl();
 

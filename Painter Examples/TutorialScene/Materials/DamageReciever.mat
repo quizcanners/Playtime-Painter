@@ -4,11 +4,12 @@
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_Name: WaterMaterial
-  m_Shader: {fileID: 4800000, guid: 8989437aa1de686489df8c621d47fb7f, type: 3}
-  m_ShaderKeywords: _BUMP_NONE
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: DamageReciever
+  m_Shader: {fileID: 4800000, guid: 767b57d676e4ebd4a90d0075b9ed5f9a, type: 3}
+  m_ShaderKeywords: UV_ATLASED
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -18,12 +19,28 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
+    - _Bump:
+        m_Texture: {fileID: 2800000, guid: fc677faa1dbe03a4bb9d642ac9b2c96b, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpD:
+        m_Texture: {fileID: 2800000, guid: 2d35ddac88fdb3c43aebc3dac9bb2bbc, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _BumpD2:
+        m_Texture: {fileID: 2800000, guid: b3c0000cd6ab2854a8bad20b5b769c69, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _BumpMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
-    - _BumpMapC:
-        m_Texture: {fileID: 2800000, guid: 96758c7770745d34bab608805f65ded2, type: 3}
+    - _DamDiffuse:
+        m_Texture: {fileID: 2800000, guid: 3bfad2a70a3556e4c8e347ac64073ec3, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DamDiffuse2:
+        m_Texture: {fileID: 2800000, guid: 6454a6051debd404394d701039883a53, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _DetailAlbedoMap:
@@ -38,11 +55,19 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _Diffuse:
+        m_Texture: {fileID: 2800000, guid: 8671e757076a11543bae831b732dbf94, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _EmissionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex_ATL_UV2:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
@@ -59,33 +84,25 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
-    - _ATLASED: 0
-    - _AtlasTextures: 1
-    - _BUMP: 0
+    - _ATLASED: 1
+    - _AtlasTextures: 4
     - _BumpScale: 1
-    - _CLIP: 0
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _EDGE_WIDTH: 0
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
-    - _Merge: 1
     - _Metallic: 0
     - _Mode: 0
     - _OcclusionStrength: 1
-    - _PIXELATED: 0
-    - _PROJECTED: 0
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
-    - _noise: 0.4
-    - _thickness: 80
-    - _upscale: 1
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
+    - _WetColor: {r: 0.26, g: 0.16, b: 0.16, a: 0}

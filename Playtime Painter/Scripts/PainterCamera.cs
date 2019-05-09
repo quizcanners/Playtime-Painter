@@ -1017,7 +1017,7 @@ namespace PlaytimePainter {
                         dataHolder = ScriptableObject.CreateInstance<PainterDataAndConfig>();
 
                         AssetDatabase.CreateAsset(dataHolder,
-                            "Assets/Tools/Playtime_Painter/Resources/Painter_Data.asset");
+                            "Assets/Tools/Playtime Painter/Resources/Painter_Data.asset");
                         AssetDatabase.SaveAssets();
                         AssetDatabase.Refresh();
                     }

@@ -13,7 +13,7 @@
 				CGPROGRAM
 
 				#include "PlaytimePainter_cg.cginc"
-				#include "Assets/Tools/Playtime_Painter/Shaders/quizcanners_cg.cginc"
+				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
 				#pragma multi_compile  BLIT_MODE_ALPHABLEND  BLIT_MODE_ADD   BLIT_MODE_SUBTRACT   BLIT_MODE_COPY   BLIT_MODE_SAMPLE_DISPLACE
 

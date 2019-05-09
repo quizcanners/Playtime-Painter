@@ -16,7 +16,7 @@
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
-			#include "Assets/Tools/Playtime_Painter/Shaders/quizcanners_cg.cginc"
+			#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
 			struct v2f {
 				float4 pos : SV_POSITION;

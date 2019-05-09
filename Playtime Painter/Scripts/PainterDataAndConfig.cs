@@ -73,7 +73,7 @@ namespace PlaytimePainter
         #region Constants
         
         public const string PainterCameraName = "PainterCamera";
-        public const string ToolName = "Playtime_Painter";
+        public const string ToolName = "Playtime Painter";
         
         #region Shader Preperties
 
@@ -486,7 +486,7 @@ public bool useFloatForScalingBuffers;
             if ("Downloads".enter(ref inspectedItems, 13).nl_ifFolded(ref changed)) {
 
                 "You can enable URL field in the Optional UI elements to get texture directly from web"
-                    .fullWindowDocumentationClick();
+                    .fullWindowDocumentationClickOpen();
 
                 PainterCamera.DownloadManager.Nested_Inspect();
             }

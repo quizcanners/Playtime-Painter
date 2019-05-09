@@ -464,12 +464,12 @@ namespace PlayerAndEditorGUI {
 
         #region Pop UP Services
         
-        private static bool fullWindowDocumentationClick(string toolTip = "What is this?", int buttonSize = 20, icon clickIcon = icon.Question ) =>
+        private static bool fullWindowDocumentationClickOpen(string toolTip = "What is this?", int buttonSize = 20, icon clickIcon = icon.Question ) =>
             clickIcon.BgColor(Color.clear).Click(toolTip, buttonSize).PreviousBgColor();
         
-        public static bool fullWindowDocumentationClick(InspectionDelegate function, string toolTip = "What is this?", int buttonSize = 20)
+        public static bool fullWindowDocumentationClickOpen(InspectionDelegate function, string toolTip = "What is this?", int buttonSize = 20)
         {
-            if (fullWindowDocumentationClick(toolTip, buttonSize))
+            if (fullWindowDocumentationClickOpen(toolTip, buttonSize))
             {
                 PopUpService.inspectDocumentationDelegate = function;
                 PopUpService.InitiatePopUp();
@@ -480,7 +480,7 @@ namespace PlayerAndEditorGUI {
         }
 
         public static bool DocumentationClick(string toolTip, int buttonSize = 20, icon clickIcon = icon.Question) {
-            if (fullWindowDocumentationClick(toolTip, buttonSize, clickIcon)) {
+            if (fullWindowDocumentationClickOpen(toolTip, buttonSize, clickIcon)) {
                 PopUpService.popUpHeader = toolTip;
                 return true;
             }
@@ -496,10 +496,10 @@ namespace PlayerAndEditorGUI {
             PopUpService.InitiatePopUp();
         }
 
-        public static bool fullWindowWarningDocumentationClick(this string text, string toolTip = "What is this?",
-            int buttonSize = 20) => text.fullWindowDocumentationClick(toolTip, buttonSize, icon.Warning);
+        public static bool fullWindowWarningDocumentationClickOpen(this string text, string toolTip = "What is this?",
+            int buttonSize = 20) => text.fullWindowDocumentationClickOpen(toolTip, buttonSize, icon.Warning);
 
-        public static bool fullWindowDocumentationClick(this string text, string toolTip = "", int buttonSize = 20, icon clickIcon = icon.Question)
+        public static bool fullWindowDocumentationClickOpen(this string text, string toolTip = "", int buttonSize = 20, icon clickIcon = icon.Question)
         {
 
             bool gotHeadline = false;
@@ -508,7 +508,7 @@ namespace PlayerAndEditorGUI {
                 toolTip = "What is this ?";
             else gotHeadline = true;
 
-            if (fullWindowDocumentationClick(toolTip, buttonSize, clickIcon)) {
+            if (fullWindowDocumentationClickOpen(toolTip, buttonSize, clickIcon)) {
                 PopUpService.popUpText = text;
                 PopUpService.popUpHeader = gotHeadline ? toolTip : "";
                 PopUpService.InitiatePopUp();
@@ -518,10 +518,10 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        public static bool fullWindowDocumentationWithLinkClick(this string text, string link, string linkName = null, string tip = "What is this", int buttonSize = 20)
+        public static bool fullWindowDocumentationWithLinkClickOpen(this string text, string link, string linkName = null, string tip = "What is this", int buttonSize = 20)
         {
 
-            if (fullWindowDocumentationClick(tip, buttonSize))
+            if (fullWindowDocumentationClickOpen(tip, buttonSize))
             {
                 PopUpService.popUpText = text;
                 PopUpService.InitiatePopUp();

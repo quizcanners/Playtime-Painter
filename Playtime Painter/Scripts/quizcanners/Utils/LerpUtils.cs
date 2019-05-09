@@ -105,7 +105,7 @@ namespace QuizCannersUtilities
 
         #region Abstract Base
 
-        public abstract class BaseAnyValue : AbstractCfg, ILinkedLerping, IPEGI, IPEGI_ListInspect
+        public abstract class BaseLerp : AbstractCfg, ILinkedLerping, IPEGI, IPEGI_ListInspect
         {
 
             public LerpSpeedMode lerpMode = LerpSpeedMode.SpeedThreshold;
@@ -289,7 +289,7 @@ namespace QuizCannersUtilities
 
         }
 
-        public abstract class BaseAnyLerpValueGeneric<T> : BaseAnyValue {
+        public abstract class BaseLerpGeneric<T> : BaseLerp {
 
             protected abstract T TargetValue { get; set; }
             public abstract T CurrentValue { get; set; }
@@ -304,7 +304,7 @@ namespace QuizCannersUtilities
 
         }
 
-        public abstract class BaseVector2Lerp : BaseAnyLerpValueGeneric<Vector2>
+        public abstract class BaseVector2Lerp : BaseLerpGeneric<Vector2>
         {
             public Vector2 targetValue;
 
@@ -415,7 +415,7 @@ namespace QuizCannersUtilities
             }
         }
 
-        public abstract class BaseQuaternionLerp : BaseAnyLerpValueGeneric<Quaternion>
+        public abstract class BaseQuaternionLerp : BaseLerpGeneric<Quaternion>
         {
             public Quaternion targetValue;
 
@@ -509,7 +509,7 @@ namespace QuizCannersUtilities
             }
         }
         
-        public abstract class BaseFloatLerp : BaseAnyLerpValueGeneric<float>, IPEGI_ListInspect
+        public abstract class BaseFloatLerp : BaseLerpGeneric<float>, IPEGI_ListInspect
         {
 
             protected virtual bool CanLerp => true;
@@ -832,9 +832,8 @@ namespace QuizCannersUtilities
             }
 
         }
-
-
-        public abstract class BaseShaderValue : BaseAnyValue, IGotName
+        
+        public abstract class BaseShaderLerp : BaseLerp, IGotName
         {
 
             public Material material;
@@ -867,7 +866,7 @@ namespace QuizCannersUtilities
 
             public abstract void Set(Material on);
 
-            protected BaseShaderValue(float startingSpeed = 1, Material m = null, Renderer renderer = null)
+            protected BaseShaderLerp(float startingSpeed = 1, Material m = null, Renderer renderer = null)
             {
                 speedLimit = startingSpeed;
                 material = m;
@@ -875,7 +874,7 @@ namespace QuizCannersUtilities
             }
         }
 
-        public abstract class BaseColorValue : BaseAnyLerpValueGeneric<Color>
+        public abstract class BaseColorLerp : BaseLerpGeneric<Color>
         {
             protected override string Name => "Color";
             public Color targetValue = Color.white;
@@ -1062,7 +1061,7 @@ namespace QuizCannersUtilities
             }
         }
 
-        public class ColorValue : BaseColorValue, IGotName
+        public class ColorValue : BaseColorLerp, IGotName
         {
             private readonly string _name = "Float value";
 
@@ -1182,8 +1181,7 @@ namespace QuizCannersUtilities
 
 
         }
-
-
+        
         #endregion
 
         #region Transform
@@ -1218,7 +1216,7 @@ namespace QuizCannersUtilities
             }
         }
 
-        public class TransformLocalPosition : BaseAnyValue
+        public class TransformLocalPosition : BaseLerp
         {
             protected override string Name => "Local Position";
             public Transform transform;
@@ -1301,7 +1299,7 @@ namespace QuizCannersUtilities
 
         #region Material
 
-        public class MaterialFloat : BaseShaderValue
+        public class MaterialFloat : BaseShaderLerp
         {
             private readonly ShaderProperty.FloatValue _property;
 
@@ -1370,7 +1368,7 @@ namespace QuizCannersUtilities
 
         }
 
-        public class MaterialColor : BaseShaderValue
+        public class MaterialColor : BaseShaderLerp
         {
             private readonly ShaderProperty.ColorValue _property;
 
@@ -1598,7 +1596,7 @@ namespace QuizCannersUtilities
 
         }
 
-        public class GraphicColor : BaseColorValue
+        public class GraphicColor : BaseColorLerp
         {
 
             protected override string Name => "Graphic Color";

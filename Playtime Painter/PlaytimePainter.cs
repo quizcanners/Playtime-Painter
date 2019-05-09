@@ -2009,7 +2009,7 @@ namespace PlaytimePainter {
                 pegi.toggle(ref cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config, "Tool Configuration");
                 
                 if (!PainterDataAndConfig.hideDocumentation)
-                    pegi.fullWindowDocumentationClick(LazyTranslations.InspectPainterDocumentation, MsgPainter.AboutPlaytimePainter.GetText());
+                    pegi.fullWindowDocumentationClickOpen(LazyTranslations.InspectPainterDocumentation, MsgPainter.AboutPlaytimePainter.GetText());
     
                 #endregion
                 
@@ -2036,7 +2036,7 @@ namespace PlaytimePainter {
                         } else if (meshFilter && meshFilter.sharedMesh &&
                                    meshFilter.sharedMesh != meshCollider.sharedMesh) {
                             "Collider and filter have different meshes. Painting may not be able to obtain a correct UV coordinates."
-                                .fullWindowWarningDocumentationClick("Mesh collider mesh is different");
+                                .fullWindowWarningDocumentationClickOpen("Mesh collider mesh is different");
                         }
                         
                     }
@@ -2118,7 +2118,10 @@ namespace PlaytimePainter {
 
                                 if ("Profile".enter( ref _inspectedMeshEditorItems, 0)) {
 
-                                    if ((cfg.meshPackagingSolutions.Count > 1) && (icon.Delete.Click(25)))
+                                    MsgPainter.MeshProfileUsage.DocumentationClick();
+
+
+                                    if ((cfg.meshPackagingSolutions.Count > 1) && icon.Delete.Click(25))
                                         cfg.meshPackagingSolutions.RemoveAt(selectedMeshProfile);
                                     else {
 
@@ -2126,13 +2129,13 @@ namespace PlaytimePainter {
                                         if (MeshProfile.Inspect().nl())
                                             MeshManager.editedMesh.Dirty = true;
 
-                                        MsgPainter.MeshProfileUsage.DocumentationClick();
+                                       
                                     }
                                 }
                                 else if (_inspectedMeshEditorItems == -1)
                                 {
-                                    if ((" : ".select_Index(20, ref selectedMeshProfile, cfg.meshPackagingSolutions)) &&
-                                        (IsEditingThisMesh))
+                                    if (" : ".select_Index(20, ref selectedMeshProfile, cfg.meshPackagingSolutions, true) &&
+                                        IsEditingThisMesh)
                                         MeshManager.editedMesh.Dirty = true;
 
                                     if (icon.Add.Click(25).nl())

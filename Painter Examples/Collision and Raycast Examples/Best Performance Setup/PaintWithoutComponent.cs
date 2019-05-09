@@ -171,7 +171,7 @@ namespace PlaytimePainter.Examples
         {
             var changed = false;
 
-            pegi.fullWindowDocumentationClick(Documentation);
+            pegi.fullWindowDocumentationClickOpen(Documentation);
 
             "Bullets:".edit(50, ref shoots, 1, 50).nl(ref changed);
             "Spread:".edit(50, ref spread, 0f, 1f).nl(ref changed);

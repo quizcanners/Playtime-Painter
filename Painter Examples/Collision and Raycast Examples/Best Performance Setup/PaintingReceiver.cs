@@ -184,7 +184,7 @@ namespace PlaytimePainter.Examples {
 
         public virtual bool Inspect() {
             
-            "Works with PaintWithoutComponent script. This lets you configure how painting will be received".fullWindowDocumentationClick("About Painting Receiver");
+            "Works with PaintWithoutComponent script. This lets you configure how painting will be received".fullWindowDocumentationClickOpen("About Painting Receiver");
             
             var changes = false;
 
@@ -252,8 +252,6 @@ namespace PlaytimePainter.Examples {
                     "No Material Property Selected and no MainTex on Material".nl();
                 else
                 {
-
-                   
                     
                     if (texture)
                     {
