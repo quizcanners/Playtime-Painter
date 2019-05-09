@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Playtime_Painter.Examples {
+namespace PlaytimePainter.Examples {
 
     public class BrushConfig_Accessors : MonoBehaviour {
 

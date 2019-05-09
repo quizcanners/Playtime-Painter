@@ -7,7 +7,7 @@ using PlayerAndEditorGUI;
 using UnityEditor;
 #endif
 
-namespace Playtime_Painter {
+namespace PlaytimePainter {
 
     [ExecuteInEditMode]
     public class PixelArtMeshGenerator : MonoBehaviour, IPEGI {

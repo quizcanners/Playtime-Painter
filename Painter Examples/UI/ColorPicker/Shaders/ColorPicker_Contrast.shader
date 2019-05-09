@@ -22,7 +22,7 @@
 			Pass{
 
 				CGPROGRAM
-				#include "Assets/Tools/Playtime_Painter/Shaders/quizcanners_cg.cginc"
+				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
 				#pragma vertex vert
 				#pragma fragment frag

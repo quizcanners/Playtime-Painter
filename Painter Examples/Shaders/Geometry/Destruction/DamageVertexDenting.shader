@@ -34,7 +34,7 @@ Shader "Playtime Painter/Geometry/Destructible/Character" {
 				#include "UnityLightingCommon.cginc" 
 				#include "Lighting.cginc"
 				#include "AutoLight.cginc"
-				#include "Assets/Tools/Playtime_Painter/Shaders/quizcanners_cg.cginc"
+				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
 				#pragma multi_compile_fwdbase 
 

@@ -31,7 +31,7 @@
 				#pragma multi_compile_fog
 				#pragma shader_feature  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
 				#pragma shader_feature  ___ UV_ATLASED
-				#include "Assets/Tools/Playtime_Painter/Shaders/quizcanners_cg.cginc"
+				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
 
 				uniform sampler2D _MainTex_ATL;

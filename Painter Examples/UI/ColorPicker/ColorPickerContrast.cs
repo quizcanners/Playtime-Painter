@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using QuizCannersUtilities;
 
-namespace Playtime_Painter.Examples
+namespace PlaytimePainter.Examples
 {
     [ExecuteInEditMode]
     public class ColorPickerContrast : CoordinatePickerBase

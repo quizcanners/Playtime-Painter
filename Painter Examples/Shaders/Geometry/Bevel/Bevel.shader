@@ -23,7 +23,7 @@
 				#pragma multi_compile_fwdbase
 				#pragma target 3.0
 
-				#include "Assets/Tools/Playtime_Painter/Shaders/quizcanners_cg.cginc"
+				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
 				sampler2D _MainTex;
 				float4 _MainTex_TexelSize;

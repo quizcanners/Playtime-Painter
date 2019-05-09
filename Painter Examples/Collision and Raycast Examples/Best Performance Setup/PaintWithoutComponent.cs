@@ -4,7 +4,7 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
-namespace Playtime_Painter.Examples
+namespace PlaytimePainter.Examples
 {
 
     public class PaintWithoutComponent : MonoBehaviour, IPEGI

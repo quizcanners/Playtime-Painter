@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Playtime_Painter.Examples
+namespace PlaytimePainter.Examples
 {
 
     [ExecuteInEditMode]

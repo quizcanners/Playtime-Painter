@@ -27,7 +27,7 @@
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#include "Assets/Tools/Playtime_Painter/Shaders/quizcanners_cg.cginc"
+			#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 			//#pragma target 3.0
 			#pragma multi_compile_fwdbase
 			#pragma multi_compile_fog

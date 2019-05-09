@@ -28,7 +28,7 @@
 				#pragma multi_compile_fwdbase
 				//#pragma multi_compile  ___ WATER_FOAM
 
-				#include "Assets/Tools/Playtime_Painter/Shaders/quizcanners_cg.cginc"
+				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
 				sampler2D _MainTex;
 				sampler2D _FluffMask;

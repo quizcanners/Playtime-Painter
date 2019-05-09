@@ -3,7 +3,7 @@ using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
 
-namespace Playtime_Painter.Examples {
+namespace PlaytimePainter.Examples {
 
     [ExecuteInEditMode]
     public class NoiseTextureMGMT : MonoBehaviour, IPEGI

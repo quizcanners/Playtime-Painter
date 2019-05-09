@@ -15,7 +15,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
-namespace Playtime_Painter.Examples
+namespace PlaytimePainter.Examples
 {
 
     [ExecuteInEditMode]

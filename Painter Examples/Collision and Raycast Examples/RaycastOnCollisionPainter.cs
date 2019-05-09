@@ -3,7 +3,7 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
-namespace Playtime_Painter.Examples
+namespace PlaytimePainter.Examples
 {
     
     public class RaycastOnCollisionPainter : MonoBehaviour, IPEGI

@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using PlayerAndEditorGUI;
 
-namespace Playtime_Painter.Examples
+namespace PlaytimePainter.Examples
 {
 
     [ExecuteInEditMode]

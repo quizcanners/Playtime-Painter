@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using PlayerAndEditorGUI;
 // Note: Some weird constants in script and shader are theme to match Unity's picker.
 
-namespace Playtime_Painter.Examples {
+namespace PlaytimePainter.Examples {
 
     [ExecuteInEditMode]
     public class ColorPickerHUV : CoordinatePickerBase, IPEGI

@@ -32,7 +32,7 @@ Shader "Playtime Painter/Terrain Integration/Triplanar" {
 				#include "UnityLightingCommon.cginc" 
 				#include "Lighting.cginc"
 				#include "AutoLight.cginc"
-				#include "Assets/Tools/Playtime_Painter/Shaders/quizcanners_cg.cginc"
+				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
 				#pragma multi_compile_fwdbase 
 			//	#pragma multi_compile  ___ WATER_FOAM

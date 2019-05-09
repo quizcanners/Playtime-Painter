@@ -31,7 +31,7 @@
 				#pragma fragment frag
 				#pragma multi_compile_instancing
 
-				#include "Assets/Tools/Playtime_Painter/Shaders/quizcanners_cg.cginc"
+				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
 				sampler2D _MainTex_Current;
 				float4 _MainTex_Current_TexelSize;

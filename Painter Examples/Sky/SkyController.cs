@@ -2,7 +2,7 @@
 using UnityEngine;
 using QuizCannersUtilities;
 
-namespace Playtime_Painter.Examples
+namespace PlaytimePainter.Examples
 {
 
     [ExecuteInEditMode]

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace Playtime_Painter.Examples
+namespace PlaytimePainter.Examples
 {
 
     public class InvisibleUIGraphic : Graphic

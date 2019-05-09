@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
-using Playtime_Painter.Examples;
+using PlaytimePainter.Examples;
 
-namespace Playtime_Painter
+namespace PlaytimePainter
 {
 
 #if PEGI && UNITY_EDITOR
