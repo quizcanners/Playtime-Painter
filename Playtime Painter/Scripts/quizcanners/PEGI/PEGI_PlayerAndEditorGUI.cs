@@ -4192,7 +4192,6 @@ namespace PlayerAndEditorGUI {
             => (val ? labelIfTrue : labelIfFalse).toggleIcon(ref val);
 
         public static bool toggle(ref bool val, Texture2D TrueIcon, Texture2D FalseIcon, string tip, int width = defaultButtonSize, GUIStyle style = null) {
-            var before = val;
 
             if (val)  {
                 if (ClickImage(ImageAndTip(TrueIcon, tip), width, style))
@@ -6648,14 +6647,162 @@ namespace PlayerAndEditorGUI {
 
             list.TryComponentSelect(index).changes(ref changed);
 
-            el.Name_ClickInspectObj(list, index, ref inspected, listMeta).changes(ref changed);
+            el.InspectClassInList(list, index, ref inspected, listMeta).changes(ref changed);
             
             return changed;
         }*/
 
         private static object previouslyEntered;
 
-        public static bool Name_ClickInspectObj<T>(this object el, List<T> list, int index, ref int inspected, ListMetaData listMeta = null) {
+        public static bool InspectValueInList<T>(this T el, List<T> list, int index, ref int inspected, ListMetaData listMeta = null)
+        {
+            var changed = false;
+
+            var pl = el as IPEGI_ListInspect;
+
+            var isPrevious = (listMeta != null && listMeta.previousInspected == index);
+
+            if (isPrevious)
+                PreviousInspectedColor.SetBgColor();
+
+            if (pl != null)
+            {
+                var chBefore = GUI.changed;
+                if (pl.InspectInList(list, index, ref inspected).changes(ref changed) || (!chBefore && GUI.changed)) 
+                    list[index] = (T)pl;
+                
+                if (changed || inspected == index)
+                    isPrevious = true;
+
+            }
+            else
+            {
+
+                if (el.IsNullOrDestroyed_Obj())
+                {
+                    var ed = listMeta?[index];
+                    if (ed == null)
+                        "{0}: NULL {1}".F(index, typeof(T).ToPegiStringType()).write();
+                    else
+                    {
+                        object obj = (object) el;
+
+                        if (ed.PEGI_inList<T>(ref obj, index, ref inspected))
+                        {
+                            list[index] = (T) obj;
+                            isPrevious = true;
+                        }
+                    }
+                }
+                else
+                {
+
+                    var uo = el as Object;
+
+                    var pg = el as IPEGI; 
+
+                    var need = el as INeedAttention;
+                    var warningText = need?.NeedAttention();
+
+                    if (warningText != null)
+                        AttentionColor.SetBgColor();
+
+                    var clickHighlightHandled = false;
+
+                    var iind = el as IGotIndex;
+
+                    iind?.IndexForPEGI.ToString().write(20);
+
+                    var named = el as IGotName;
+                    if (named != null) {
+                        var so = uo as ScriptableObject;
+                        var n = named.NameForPEGI;
+
+                        if (so) {
+                            if (editDelayed(ref n).changes(ref changed)) {
+                                so.RenameAsset(n);
+                                named.NameForPEGI = n;
+                                isPrevious = true;
+                            }
+                        }
+                        else if (edit(ref n).changes(ref changed))
+                        {
+                            named.NameForPEGI = n;
+                            list[index] = (T) named;
+                            isPrevious = true;
+                        }
+                    }
+                    else
+                    {
+                        if (!uo && pg == null && listMeta == null)
+                        {
+                            if (el.ToPegiString().ClickLabel("Inspect"))
+                            {
+                                inspected = index;
+                                isPrevious = true;
+                            }
+                        }
+                        else
+                        {
+
+                            if (uo)
+                            {
+                                Texture tex = uo as Texture;
+
+                                if (tex)
+                                {
+                                    if (uo.ClickHighlight(tex))
+                                        isPrevious = true;
+
+                                    clickHighlightHandled = true;
+                                }
+                                else if (uo.Try_NameInspect().changes(ref changed))
+                                    isPrevious = true;
+
+
+                            }
+                            else if (el.ToPegiString().ClickLabel().changes(ref changed))
+                            {
+                                inspected = index;
+                                isPrevious = true;
+                            }
+                        }
+                    }
+
+                    if ((warningText == null &&
+                         (listMeta == null ? icon.Enter : listMeta.Icon).ClickUnFocus(Msg.InspectElement)) ||
+                        (warningText != null && icon.Warning.ClickUnFocus(warningText)))
+                    {
+                        inspected = index;
+                        isPrevious = true;
+                    }
+
+                    if (!clickHighlightHandled && uo.ClickHighlight())
+                        isPrevious = true;
+                }
+            }
+
+            RestoreBGcolor();
+
+            if (listMeta != null)
+            {
+                if (listMeta.inspected != -1)
+                    listMeta.previousInspected = listMeta.inspected;
+                else if (isPrevious)
+                    listMeta.previousInspected = index;
+
+            }
+            else if (isPrevious)
+            {
+                previouslyEntered = el;
+                //Debug.Log("Setting Previously entered to {0}".F(el));
+            }
+
+
+            return changed;
+        }
+        
+        public static bool InspectClassInList<T>(this object el, List<T> list, int index, ref int inspected, ListMetaData listMeta = null) where T : class {
             var changed = false;
 
             var pl = el as IPEGI_ListInspect;
@@ -6668,7 +6815,8 @@ namespace PlayerAndEditorGUI {
             
             if (pl != null)
             {
-                if (pl.InspectInList(list, index, ref inspected).changes(ref changed) || globChanged)
+                var chBefore = GUI.changed;
+                if (pl.InspectInList(list, index, ref inspected).changes(ref changed) || (!chBefore && GUI.changed))
                     pl.SetToDirty_Obj();
 
                 if (changed || inspected == index)
@@ -6904,7 +7052,7 @@ namespace PlayerAndEditorGUI {
                             }
                         }
                         else
-                            el.Name_ClickInspectObj(list, i, ref inspected, listMeta).changes(ref changed);
+                            el.InspectClassInList(list, i, ref inspected, listMeta).changes(ref changed);
                         
                         newLine();
                     }
@@ -7006,7 +7154,7 @@ namespace PlayerAndEditorGUI {
                             
                         }
                         else
-                            el.Name_ClickInspectObj(list, i, ref inspected, listMeta).nl(ref changed);
+                            el.InspectClassInList(list, i, ref inspected, listMeta).nl(ref changed);
 
                     }
 
@@ -7086,7 +7234,7 @@ namespace PlayerAndEditorGUI {
                                 list[i] = el;
                         }
                         else
-                            list[i].Name_ClickInspectObj(list, i, ref inspected, listMeta).changes(ref changed);
+                            list[i].InspectClassInList(list, i, ref inspected, listMeta).changes(ref changed);
 
                         newLine();
                     }
@@ -7183,13 +7331,12 @@ namespace PlayerAndEditorGUI {
                     return added;
             }
 
-            var before = inspected;
-
             if (inspected >= list.Count)
+            {
                 inspected = -1;
-
-            changed |= (inspected != before);
-
+                changed = true;
+            }
+            
             if (inspected == -1)  {
 
                 list.edit_List_Order(listMeta).changes(ref changed);
@@ -7202,15 +7349,13 @@ namespace PlayerAndEditorGUI {
 
                         var el = list[i];
                         if (el.IsNullOrDestroyed_Obj()) {
-                            if (!isMonoType(list, i))
-                            {
+                            if (!isMonoType(list, i)) {
                                 write(typeof(T).IsSubclassOf(typeof(UnityEngine.Object))
                                     ? "use edit_List_UObj"
                                     : "is NUll");
                             }
                         }
-                        else
-                            list[i].Name_ClickInspectObj(list, i, ref inspected, listMeta).changes(ref changed);
+                        else list[i].InspectValueInList(list, i, ref inspected, listMeta).changes(ref changed);
 
                         newLine();
                     }
@@ -7256,13 +7401,13 @@ namespace PlayerAndEditorGUI {
             else
                 return added;
         }
-
-        var before = inspected;
+        
         if (inspected >= list.Count)
+        {
             inspected = -1;
-
-        changed |= (inspected != before);
-
+            changed = true;
+        }
+        
         if (inspected == -1) {
 
             changed |= list.edit_List_Order(listMeta);
@@ -7281,7 +7426,7 @@ namespace PlayerAndEditorGUI {
                         }
                     }
                     else
-                        list[i].Name_ClickInspectObj(list, i, ref inspected, listMeta).changes(ref changed);
+                        list[i].InspectValueInList(list, i, ref inspected, listMeta).changes(ref changed);
 
                     newLine();
                 }
@@ -7484,7 +7629,6 @@ namespace PlayerAndEditorGUI {
 
                 foreach (var i in list.InspectionIndexes()) {
                     var el = list[i];
-                    var before = el;
                     var ch = GUI.changed;
                     el = lambda(el);
                     nl();
@@ -7520,7 +7664,6 @@ namespace PlayerAndEditorGUI {
                   
                 foreach (var i in list.InspectionIndexes()) {
                     var el = list[i];
-                    var before = el;
 
                     var ch = GUI.changed;
                     el = lambda(el);
@@ -7601,7 +7744,7 @@ namespace PlayerAndEditorGUI {
                     if (el == null)
                         write("NULL");
                     else
-                        list[i].Name_ClickInspectObj(list, i, ref edited).changes(ref changed);
+                        list[i].InspectValueInList(list, i, ref edited).changes(ref changed);
                     
                     nl();
                 }
@@ -7645,21 +7788,17 @@ namespace PlayerAndEditorGUI {
 
     #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-            {
                 return ef.edit(ref dic, atKey);
-            }
-            else
     #endif
-            {
-                string before = dic[atKey];
-                if (editDelayed(ref before, 40))
-                {
-                    dic[atKey] = before;
-                    return false;
-                }
-
+            
+            var val = dic[atKey];
+            if (editDelayed(ref val, 40)) {
+                dic[atKey] = val;
                 return false;
             }
+
+            return false;
+            
         }
 
         private static bool dicIsNull<G,T>(ref Dictionary<G,T> dic)
@@ -7904,7 +8043,7 @@ namespace PlayerAndEditorGUI {
                 if (array == _editingArrayOrder) return added;
 
                 for (var i = 0; i < array.Length; i++) 
-                    array[i].Name_ClickInspectObj<T>(null, i, ref inspected, metaDatas).nl(ref changed);
+                    array[i].InspectValueInList(null, i, ref inspected, metaDatas).nl(ref changed);
             }
 
             return added;

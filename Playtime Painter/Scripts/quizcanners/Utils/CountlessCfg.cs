@@ -304,7 +304,7 @@ namespace QuizCannersUtilities
                     else
                     {
                         "{0}".F(ind).write(20);
-                        el.Name_ClickInspectObj<T>(null, ind, ref _edited);
+                        el.InspectValueInList(null, ind, ref _edited);
                     }
 
                     pegi.nl();

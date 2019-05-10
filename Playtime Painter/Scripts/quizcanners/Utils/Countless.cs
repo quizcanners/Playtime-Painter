@@ -924,7 +924,7 @@ public class Countless<T> : CountlessBase {
                     if (icon.Delete.Click())
                         this[ind] = default(T);
                     else
-                        el.Name_ClickInspectObj<T>(null, ind, ref _edited);
+                        el.InspectValueInList<T>(null, ind, ref _edited);
                 }
 
             }
@@ -1268,7 +1268,7 @@ public class Countless<T> : CountlessBase {
                 foreach (var e in countless) {
                     if (icon.Delete.Click()) deleted = countless.currentEnumerationIndex;
                     "{0}: ".F(countless.currentEnumerationIndex).write(35);
-                    changed |= e.Name_ClickInspectObj<T>(null, countless.currentEnumerationIndex, ref inspected).nl();
+                    changed |= e.InspectValueInList<T>(null, countless.currentEnumerationIndex, ref inspected).nl();
                 }
             if (deleted != -1)
                 countless[deleted] = default(T);
