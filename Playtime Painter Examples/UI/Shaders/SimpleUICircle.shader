@@ -23,12 +23,11 @@
 
 				CGPROGRAM
 
+				#include "UnityCG.cginc"
 				#pragma vertex vert
 				#pragma fragment frag
 				#pragma multi_compile_instancing
 				#pragma multi_compile ___ FLIP_ALPHA
-
-				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
 				struct v2f {
 					float4 pos : POSITION;
@@ -37,10 +36,8 @@
 					float2 offUV : TEXCOORD3;
 				};
 
-
 				v2f vert(appdata_full v) {
 					v2f o;
-
 					o.texcoord = v.texcoord;
 					o.pos = UnityObjectToClipPos(v.vertex);
 					o.color = v.color;
@@ -73,5 +70,5 @@
 				ENDCG
 			}
 		}
-}
+	}
 }
