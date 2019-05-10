@@ -927,7 +927,7 @@ namespace PlayerAndEditorGUI {
 
         #region Property
 
-        public static bool edit_Property<T>(GUIContent textImageTip, int width, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
+        public static bool edit_Property<T>(int width, Expression<Func<T>> memberExpression, UnityEngine.Object obj, bool includeChildren)
         {
             var changes = false;
             
@@ -945,9 +945,9 @@ namespace PlayerAndEditorGUI {
             EditorGUI.BeginChangeCheck();
 
             if (width < 1)
-                EditorGUILayout.PropertyField(tps, textImageTip, true);
+                EditorGUILayout.PropertyField(tps, GUIContent.none, includeChildren);
             else
-                EditorGUILayout.PropertyField(tps, textImageTip, true, GUILayout.MaxWidth(width));
+                EditorGUILayout.PropertyField(tps, GUIContent.none, includeChildren, GUILayout.MaxWidth(width));
 
             if (!EditorGUI.EndChangeCheck()) return changes;
 

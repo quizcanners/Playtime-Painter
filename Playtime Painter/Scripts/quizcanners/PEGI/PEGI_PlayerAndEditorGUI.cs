@@ -5665,26 +5665,41 @@ namespace PlayerAndEditorGUI {
 
         #region Property
 
-        public static bool edit_Property<T>(this string label, Expression<Func<T>> memberExpression, Object obj)
-            => edit_Property(TextAndTip(label), -1, memberExpression, obj);
+        public static bool edit_Property<T>(Expression<Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true)
+            => edit_Property(memberExpression, fieldWidth, obj, includeChildren);
+        
 
-        public static bool edit_Property<T>(this string label, string tip, Expression<Func<T>> memberExpression, Object obj) 
-            => edit_Property(TextAndTip(label, tip), -1, memberExpression, obj);
+        public static bool edit_Property<T>(this string label, Expression<Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true) {
+            label.write();
+            return edit_Property(memberExpression, fieldWidth, obj, includeChildren);
+        }
 
-        public static bool edit_Property<T>(this string label, int width, Expression<Func<T>> memberExpression, Object obj)
-            => edit_Property(TextAndTip(label), width, memberExpression, obj);
+        public static bool edit_Property<T>(this string label, string tip, Expression<Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true) {
+            label.write(tip);
+            return edit_Property(memberExpression, fieldWidth, obj, includeChildren);
+        }
 
-        public static bool edit_Property<T>(this string label, string tip, int width, Expression<Func<T>> memberExpression, Object obj)
-            => edit_Property(TextAndTip(label, tip), width, memberExpression, obj);
+        public static bool edit_Property<T>(this string label, int width, Expression<Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true) {
+            label.write(width);
+            return edit_Property(memberExpression, fieldWidth, obj, includeChildren);
+        }
 
-        public static bool edit_Property<T>(this Texture tex, string tip, Expression<Func<T>> memberExpression, Object obj)
-            => edit_Property(ImageAndTip(tex, tip), -1, memberExpression, obj);
+        public static bool edit_Property<T>(this string label, string tip, int width, Expression<Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true) {
+            label.write(tip, width);
+            return edit_Property(memberExpression, fieldWidth, obj, includeChildren);
+        }
 
-        private static bool edit_Property<T>(GUIContent cnt, int width, Expression<Func<T>> memberExpression, Object obj) {
+        public static bool edit_Property<T>(this Texture tex, string tip, Expression<Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true) {
+            tex.write(tip);
+            return edit_Property(memberExpression, fieldWidth, obj, includeChildren);
+        }
+
+        private static bool edit_Property<T>(Expression<Func<T>> memberExpression, int width, Object obj, bool includeChildren) {
             #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-                return ef.edit_Property(cnt, width, memberExpression, obj);
-            #endif
+            if (!paintingPlayAreaGui) 
+                return ef.edit_Property(width, memberExpression, obj, includeChildren);
+            
+        #endif
             return false;
         }
 
