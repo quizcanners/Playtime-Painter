@@ -927,9 +927,7 @@ namespace PlayerAndEditorGUI {
 
         #region Property
 
-        private static GUIContent textImageTip = new GUIContent();
-
-        public static bool edit_Property<T>(string label, Texture image, string tip, int width, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
+        public static bool edit_Property<T>(GUIContent textImageTip, int width, Expression<Func<T>> memberExpression, UnityEngine.Object obj)
         {
             var changes = false;
             
@@ -939,10 +937,6 @@ namespace PlayerAndEditorGUI {
 
             var member = ((MemberExpression)memberExpression.Body).Member;
             var name = member.Name;
-
-            textImageTip.text = label;
-            textImageTip.image = image;
-            textImageTip.tooltip = tip;
             
             var tps = serializedObject.FindProperty(name);
 

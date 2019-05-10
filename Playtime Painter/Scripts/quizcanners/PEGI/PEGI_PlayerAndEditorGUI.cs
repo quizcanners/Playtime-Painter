@@ -5666,32 +5666,27 @@ namespace PlayerAndEditorGUI {
         #region Property
 
         public static bool edit_Property<T>(this string label, Expression<Func<T>> memberExpression, Object obj)
-        {
-            #if UNITY_EDITOR
-            if (!paintingPlayAreaGui) 
-                return ef.edit_Property(label, null, null, -1, memberExpression, obj);
-            #endif
-            return false;
-        }
+            => edit_Property(TextAndTip(label), -1, memberExpression, obj);
 
-        public static bool edit_Property<T>(this string label, string tip, Expression<Func<T>> memberExpression, Object obj)
-        {
-            #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-                return ef.edit_Property(label, null, tip, -1, memberExpression, obj);
-            #endif
+        public static bool edit_Property<T>(this string label, string tip, Expression<Func<T>> memberExpression, Object obj) 
+            => edit_Property(TextAndTip(label, tip), -1, memberExpression, obj);
 
-            return false;
-        }
+        public static bool edit_Property<T>(this string label, int width, Expression<Func<T>> memberExpression, Object obj)
+            => edit_Property(TextAndTip(label), width, memberExpression, obj);
 
-        public static bool edit_Property<T>(this Texture tex, string tip, Expression<Func<T>> memberExpression, Object obj) {
+        public static bool edit_Property<T>(this string label, string tip, int width, Expression<Func<T>> memberExpression, Object obj)
+            => edit_Property(TextAndTip(label, tip), width, memberExpression, obj);
+
+        public static bool edit_Property<T>(this Texture tex, string tip, Expression<Func<T>> memberExpression, Object obj)
+            => edit_Property(ImageAndTip(tex, tip), -1, memberExpression, obj);
+
+        private static bool edit_Property<T>(GUIContent cnt, int width, Expression<Func<T>> memberExpression, Object obj) {
             #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                return ef.edit_Property(null, tex, tip, -1, memberExpression, obj);
+                return ef.edit_Property(cnt, width, memberExpression, obj);
             #endif
             return false;
         }
-
 
 
         #endregion
