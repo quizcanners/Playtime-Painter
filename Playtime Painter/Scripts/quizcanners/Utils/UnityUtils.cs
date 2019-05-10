@@ -1935,7 +1935,7 @@ namespace QuizCannersUtilities {
         public string NameForDisplayPEGI => "Avg {0}: {1}/{2}sec [{3} - {4}] ({5}) ".F(_name,((float)_average).ToString("0.00"),  (Math.Abs(_intervalLength - 1d) > float.Epsilon) ? _intervalLength.ToString("0") : "", (int)_min, (int)_max, (int)_totalCount);
 
         #if PEGI
-        public bool PEGI_inList(IList list, int ind, ref int edited)
+        public bool InspectInList(IList list, int ind, ref int edited)
         {
             if (icon.Refresh.Click("Reset Stats"))
                 ResetStats();
@@ -2121,7 +2121,7 @@ namespace QuizCannersUtilities {
 
             #region Inspector
             #if PEGI
-            public bool PEGI_inList(IList list, int ind, ref int edited)
+            public bool InspectInList(IList list, int ind, ref int edited)
             {
                 var changed = false;
                 Texture tex;

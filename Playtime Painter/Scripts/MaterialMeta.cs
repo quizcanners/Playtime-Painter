@@ -59,9 +59,9 @@ namespace PlaytimePainter
         #region Inspector
         #if PEGI
 
-        public bool PEGI_inList(IList list, int ind, ref int edited)
+        public bool InspectInList(IList list, int ind, ref int edited)
         {
-            this.ToPegiString().write_obj(90, material);
+            this.ToPegiString().writeUobj(90, material);
             if (icon.Enter.Click())
                 edited = ind;
             material.ClickHighlight();
@@ -74,7 +74,7 @@ namespace PlaytimePainter
         {
             var changed = false;
             
-            "Material:".write_obj(60, material);
+            "Material:".writeUobj(60, material);
             pegi.nl();
 
             if (material)

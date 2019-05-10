@@ -2,15 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 using System;
 using System.Linq;
 
 using System.Linq.Expressions;
 using QuizCannersUtilities;
 using Object = UnityEngine.Object;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 // ReSharper disable InconsistentNaming
 #pragma warning disable 1692
@@ -30,7 +31,7 @@ namespace PlayerAndEditorGUI {
     public interface IPEGI_ListInspect
     {
     #if PEGI
-        bool PEGI_inList(IList list, int ind, ref int edited);
+        bool InspectInList(IList list, int ind, ref int edited);
     #endif
     }
 
@@ -950,7 +951,7 @@ namespace PlayerAndEditorGUI {
         #endif
         }
         
-        public static void write_obj<T>(T field, int width) where T : UnityEngine.Object
+        public static void writeUobj<T>(T field, int width) where T : UnityEngine.Object
         {
         #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
@@ -958,21 +959,21 @@ namespace PlayerAndEditorGUI {
         #endif
         }
 
-        public static void write_obj<T>(this string label, string tip, int width, T field) where T : UnityEngine.Object
+        public static void writeUobj<T>(this string label, string tip, int width, T field) where T : UnityEngine.Object
         {
             write(label, tip, width);
             write(field);
 
         }
 
-        public static void write_obj<T>(this string label, int width, T field) where T : UnityEngine.Object
+        public static void writeUobj<T>(this string label, int width, T field) where T : UnityEngine.Object
         {
             write(label, width);
             write(field);
 
         }
 
-        public static void write_obj<T>(this string label, T field) where T : UnityEngine.Object
+        public static void writeUobj<T>(this string label, T field) where T : UnityEngine.Object
         {
             write(label);
             write(field);
@@ -1261,9 +1262,66 @@ namespace PlayerAndEditorGUI {
             var edd = obj as IEditorDropdown;
             return (edd == null || edd.ShowInDropdown()) ? obj : default(T); 
         }
+
+        private static string _compileName<T>(bool showIndex, int index, T obj, bool stripSlashes = false)
+        {
+            var st = obj.ToPegiString();
+            if (stripSlashes)
+                st = st.SimplifyDirectory();
+
+            return (showIndex || st.Length == 0) ? "{0}: {1}".F(index, st) : st;
+        }
         
-        #region Select From Int
+        private static bool selectFinal(ref int val, ref int indexes, List<string> namesList)
+        {
+            var count = namesList.Count;
+
+            if (count == 0)
+                return edit(ref val);
+
+            if (indexes == -1)
+            {
+                indexes = namesList.Count;
+                namesList.Add("[{0}]".F(val.ToPegiString()));
+
+            }
+
+            var tmp = indexes;
+
+            if (select(ref tmp, namesList.ToArray()) && (tmp < count))
+            {
+                indexes = tmp;
+                return change;
+            }
+
+            return false;
+
+        }
+
+        private static bool selectFinal<T>(T val, ref int indexes, List<string> namesList)
+        {
+            var count = namesList.Count;
+
+            if (indexes == -1 && !val.IsNullOrDestroyed_Obj())
+            {
+                indexes = namesList.Count;
+                namesList.Add("[{0}]".F(val.ToPegiString()));
+
+            }
+
+            var tmp = indexes;
+
+            if (select(ref tmp, namesList.ToArray()) && tmp < count)
+            {
+                indexes = tmp;
+                return true;
+            }
+
+            return false;
+        }
         
+        #region Select From Int List
+
         public static bool selectPow2(this string label, ref int current, int min, int max) =>
             label.selectPow2(label, label.ApproximateLength(), ref current, min, max);
         
@@ -1420,6 +1478,23 @@ namespace PlayerAndEditorGUI {
 
         }
 
+        public static bool select(this string text, ref int value, List<string> list)
+        {
+            write(text, text.ApproximateLength());
+            return select(ref value, list);
+        }
+
+        public static bool select(this string text, int width, ref int value, List<string> list) {
+            write(text, width);
+            return select(ref value, list);
+        }
+
+        public static bool select(this string text, int width, ref int value, string[] array)
+        {
+            write(text, width);
+            return select(ref value, array);
+        }
+        
         public static bool select(ref int no, string[] from, int width = -1)
         {
 #if UNITY_EDITOR
@@ -1456,82 +1531,7 @@ namespace PlayerAndEditorGUI {
             return false;
 
         }
-
-        private static bool selectFinal(ref int val, ref int indexes, List<string> namesList)
-        {
-            var count = namesList.Count;
-
-            if (count == 0)
-                return edit(ref val);
-
-            if (indexes == -1)
-            {
-                indexes = namesList.Count;
-                namesList.Add("[{0}]".F(val.ToPegiString()));
-
-            }
-
-            var tmp = indexes;
-
-            if (select(ref tmp, namesList.ToArray()) && (tmp < count))
-            {
-                indexes = tmp;
-                return change;
-            }
-
-            return false;
-
-        }
-
-        private static bool selectFinal<T>(T val, ref int indexes, List<string> namesList)
-        {
-            var count = namesList.Count;
-
-            if (indexes == -1 && !val.IsNullOrDestroyed_Obj())
-            {
-                indexes = namesList.Count;
-                namesList.Add("[{0}]".F(val.ToPegiString()));
-
-            }
-
-            var tmp = indexes;
-
-            if (select(ref tmp, namesList.ToArray()) && tmp < count)
-            {
-                indexes = tmp;
-                return true;
-            }
-
-            return false;
-        }
-
-        private static string _compileName<T>(bool showIndex, int index, T obj, bool stripSlashes = false)
-        {
-            var st = obj.ToPegiString();
-            if (stripSlashes)
-                st = st.SimplifyDirectory();
-
-            return (showIndex || st.Length == 0) ? "{0}: {1}".F(index, st) : st;
-        }
-
-        public static bool select(this string text, ref string val, List<string> lst)
-        {
-            write(text);
-            return select(ref val, lst);
-        }
         
-        public static bool select(this string text, int width, ref int value, string[] array)
-        {
-            write(text, width);
-            return select(ref value, array);
-        }
-        
-        public static bool select(this string text, int width, ref string val, List<string> lst)
-        {
-            write(text, width);
-            return select(ref val, lst);
-        }
-
         public static bool select(ref string val, List<string> lst)
         {
             var ind = -1;
@@ -1550,6 +1550,18 @@ namespace PlayerAndEditorGUI {
             }
 
             return false;
+        }
+        
+        public static bool select(this string text, ref string val, List<string> lst)
+        {
+            write(text);
+            return select(ref val, lst);
+        }
+        
+        public static bool select(this string text, int width, ref string val, List<string> lst)
+        {
+            write(text, width);
+            return select(ref val, lst);
         }
 
         #endregion
@@ -3300,7 +3312,7 @@ namespace PlayerAndEditorGUI {
             if (!var.IsNullOrDestroyed_Obj()) {
 
                 if (outside)
-                    var.PEGI_inList(null, thisOne, ref enteredOne).changes(ref changed);
+                    var.InspectInList(null, thisOne, ref enteredOne).changes(ref changed);
                 else if (enteredOne == thisOne) {
                     if (icon.Exit.ClickUnFocus("Exit L {0}".F(var)))
                         enteredOne = -1;
@@ -6656,7 +6668,7 @@ namespace PlayerAndEditorGUI {
             
             if (pl != null)
             {
-                if (pl.PEGI_inList(list, index, ref inspected).changes(ref changed) || globChanged)
+                if (pl.InspectInList(list, index, ref inspected).changes(ref changed) || globChanged)
                     pl.SetToDirty_Obj();
 
                 if (changed || inspected == index)
@@ -8325,7 +8337,7 @@ namespace PlayerAndEditorGUI {
 
         public static bool Inspect_AsInList<T>(this T obj, List<T> list, int current, ref int inspected) where T : IPEGI_ListInspect
         {
-            var changes = obj.PEGI_inList(list, current, ref inspected);
+            var changes = obj.InspectInList(list, current, ref inspected);
 
             if (pegi.globChanged || changes)
             {
@@ -8341,7 +8353,7 @@ namespace PlayerAndEditorGUI {
         public static bool Inspect_AsInList(this IPEGI_ListInspect obj) 
         {
             var tmp = -1;
-            var changes = obj.PEGI_inList(null, 0, ref tmp);
+            var changes = obj.InspectInList(null, 0, ref tmp);
 
             if (pegi.globChanged || changes)
             {

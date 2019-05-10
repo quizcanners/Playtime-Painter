@@ -81,7 +81,9 @@
 
 					ApplyStroke(worldPos.xyz, _brushWorldPosTo.xyz, brushNormal, _brushColor, deSize, col, hardness);
 
-					float portion = 0.5 + (col.a - awg.a)*0.5;
+					float portion = 
+						saturate((col.a - awg.a)*10); 
+						// 0.5 + (col.a-awg.a)*0.5;
 
 					col.rgb = col.rgb*portion+ 
 						//max(col.rgb, awg.rgb)

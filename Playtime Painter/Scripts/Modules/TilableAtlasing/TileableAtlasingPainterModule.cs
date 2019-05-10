@@ -604,7 +604,7 @@ namespace PlaytimePainter {
                             OnChangeMaterial(painter);
                     }
                     else if (mats.Length > 0)
-                        "Source Material".write_obj("Sub Mesh which will be converted", 90, mats[0]);
+                        "Source Material".writeUobj("Sub Mesh which will be converted", 90, mats[0]);
                 }
                 pegi.nl();
                 pegi.space();
@@ -666,7 +666,7 @@ namespace PlaytimePainter {
 
         #region Inspector
         #if PEGI
-        public bool PEGI_inList(IList list, int ind, ref int edited)
+        public bool InspectInList(IList list, int ind, ref int edited)
         {
             (used ? icon.Active : icon.InActive).write();
 

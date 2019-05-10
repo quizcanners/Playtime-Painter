@@ -610,7 +610,7 @@ namespace PlaytimePainter.Examples
             
             #region Inspect
             #if PEGI
-            public bool PEGI_inList(IList list, int ind, ref int edited)
+            public bool InspectInList(IList list, int ind, ref int edited)
             {
 
                 var mat = inspected.material;
@@ -702,7 +702,7 @@ namespace PlaytimePainter.Examples
             #region Inspect
             #if PEGI
 
-            public bool PEGI_inList(IList list, int ind, ref int edited) {
+            public bool InspectInList(IList list, int ind, ref int edited) {
                 
                 "Normal".edit(50, ref valueWhenOff, 0, 1);
 

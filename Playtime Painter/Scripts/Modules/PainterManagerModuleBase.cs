@@ -150,7 +150,7 @@ namespace PlaytimePainter {
 
         public virtual string ToolTip => "Painter plugin";
 
-        public virtual bool PEGI_inList(IList list, int ind, ref int edited)
+        public virtual bool InspectInList(IList list, int ind, ref int edited)
         {
 
             if (NameForDisplayPEGI.ClickLabel())

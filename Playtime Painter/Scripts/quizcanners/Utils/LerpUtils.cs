@@ -66,7 +66,7 @@ namespace QuizCannersUtilities
             return changed;
         }
 
-        public bool PEGI_inList(IList list, int ind, ref int edited)
+        public bool InspectInList(IList list, int ind, ref int edited)
         {
             "Lerp DP: {0} [{1}]".F(dominantParameter, _resets).write();
 
@@ -218,7 +218,7 @@ namespace QuizCannersUtilities
             #region Inspector
 
             #if PEGI
-            public virtual bool PEGI_inList(IList list, int ind, ref int edited) {
+            public virtual bool InspectInList(IList list, int ind, ref int edited) {
 
                 var changed = false;
 
@@ -349,9 +349,9 @@ namespace QuizCannersUtilities
 
 #if PEGI
 
-            public override bool PEGI_inList(IList list, int ind, ref int edited)
+            public override bool InspectInList(IList list, int ind, ref int edited)
             {
-                if (base.PEGI_inList(list, ind, ref edited))
+                if (base.InspectInList(list, ind, ref edited))
                 {
                     targetValue = CurrentValue;
                     return true;
@@ -448,9 +448,9 @@ namespace QuizCannersUtilities
 
 #if PEGI
 
-            public override bool PEGI_inList(IList list, int ind, ref int edited)
+            public override bool InspectInList(IList list, int ind, ref int edited)
             {
-                if (base.PEGI_inList(list, ind, ref edited)) {
+                if (base.InspectInList(list, ind, ref edited)) {
                     targetValue = CurrentValue;
                     return true;
                 }
@@ -972,7 +972,7 @@ namespace QuizCannersUtilities
             }
 
 #if PEGI
-            public override bool PEGI_inList(IList list, int ind, ref int edited) {
+            public override bool InspectInList(IList list, int ind, ref int edited) {
                 var changed = false;
 
                 if (allowChangeParameters)
@@ -987,7 +987,7 @@ namespace QuizCannersUtilities
                 if (icon.Enter.Click())
                     edited = ind;
 
-                //base.PEGI_inList(list, ind, ref edited).changes(ref changed);
+                //base.InspectInList(list, ind, ref edited).changes(ref changed);
 
                 return changed;
             }
@@ -1111,7 +1111,7 @@ namespace QuizCannersUtilities
             }
 
             #if PEGI
-            public override bool PEGI_inList(IList list, int ind, ref int edited)
+            public override bool InspectInList(IList list, int ind, ref int edited)
             {
                 var changed = false;
 

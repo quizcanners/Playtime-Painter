@@ -102,7 +102,7 @@ namespace QuizCannersUtilities {
             int _inspected = -1;
             public bool Inspect() => "{0} Sub Tags".F(tag).edit_List(ref elements, ref _inspected);
 
-            public bool PEGI_inList(IList list, int ind, ref int edited)
+            public bool InspectInList(IList list, int ind, ref int edited)
             {
                 var changed = false;
 
@@ -234,7 +234,7 @@ namespace QuizCannersUtilities {
         }
     
 
-    public virtual bool PEGI_inList(IList list, int ind, ref int edited) {
+    public virtual bool InspectInList(IList list, int ind, ref int edited) {
 
             var changed = false;
             var active = ActiveConfiguration;
@@ -503,7 +503,7 @@ namespace QuizCannersUtilities {
 
         public virtual string NeedAttention() => null;
         
-        public virtual bool PEGI_inList(IList list, int ind, ref int edited)
+        public virtual bool InspectInList(IList list, int ind, ref int edited)
         {
             var changed = false;
             var n = gameObject.name;

@@ -24,7 +24,7 @@ namespace PlaytimePainter
 
         public string NameForPEGI { get { return paletteName; } set { paletteName = value; } }
 
-        public bool PEGI_inList(IList list, int ind, ref int edited)
+        public bool InspectInList(IList list, int ind, ref int edited)
         {
 
             var changed = this.inspect_Name();

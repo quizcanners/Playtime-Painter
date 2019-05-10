@@ -59,7 +59,7 @@ namespace QuizCannersUtilities
             public string NameForDisplayPEGI => _name;
 
             #if PEGI
-            public bool PEGI_inList(IList list, int ind, ref int edited)
+            public bool InspectInList(IList list, int ind, ref int edited)
             {
                 "[{0}] {1}".F(id, _name).write();
                 if (icon.Refresh.Click("Update Index (Shouldn't be necessary)"))

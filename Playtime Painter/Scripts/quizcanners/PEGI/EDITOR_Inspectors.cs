@@ -10,8 +10,8 @@ namespace PlayerAndEditorGUI {
 #if UNITY_EDITOR
 
     // Use this two lines to have Unity Inspector show drawer from IPEGI's Inspect functions
-    [CustomEditor(typeof(PEGI_SimpleInspectorsBrowser))]
-    public class PEGI_SimpleInspectorsBrowserDrawer : PEGI_Inspector<PEGI_SimpleInspectorsBrowser> { }
+    [CustomEditor(typeof(SimplePEGInspectorsBrowser))]
+    public class PEGI_SimpleInspectorsBrowserDrawer : PEGI_Inspector<SimplePEGInspectorsBrowser> { }
     
 #endif
 

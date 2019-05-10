@@ -152,7 +152,7 @@ namespace PlaytimePainter
             return changed;
         }
 
-        public bool PEGI_inList(IList list, int ind, ref int edited)
+        public bool InspectInList(IList list, int ind, ref int edited)
         {
             var changed = false;
            index.ToString().write(25);

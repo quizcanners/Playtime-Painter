@@ -526,7 +526,7 @@ namespace QuizCannersUtilities
             return dirty;
         }
 
-        public bool PEGI_inList(IList list, int ind, ref int edited)
+        public bool InspectInList(IList list, int ind, ref int edited)
         {
 
             bool changed = false;
@@ -644,7 +644,7 @@ namespace QuizCannersUtilities
             return changed;
         }
 
-        public bool PEGI_inList(IList list, int ind, ref int edited)
+        public bool InspectInList(IList list, int ind, ref int edited)
         {
             var changed = false;
 

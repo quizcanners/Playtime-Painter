@@ -146,7 +146,7 @@ namespace PlayerAndEditorGUI {
         #region Inspector
         #if PEGI
 
-        public bool PEGI_inList(IList list, int ind, ref int edited)
+        public bool InspectInList(IList list, int ind, ref int edited)
         {
             var changed = false;
 
@@ -267,7 +267,7 @@ namespace PlayerAndEditorGUI {
             return null;
         }
         
-        public virtual bool PEGI_inList(IList list, int ind, ref int edited) {
+        public virtual bool InspectInList(IList list, int ind, ref int edited) {
             var changed = this.inspect_Name();
 
             if (this.Click_Enter_Attention(icon.Hint, currentLanguage.ToPegiString()))
