@@ -1,12 +1,7 @@
-﻿// Note: I've commented out the Regulr BumpMap option because it was giving "Not Marked as Normal" warning on the material, which is annoying. 
-// It's safe to uncomment all comments:
-
-Shader "Playtime Painter/Terrain Integration/Triplanar" {
+﻿Shader "Playtime Painter/Terrain Integration/Triplanar" {
 	Properties{
 		[NoScaleOffset]_MainTex("Geometry Texture (RGB)", 2D) = "white" {}
-		//[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map", Float) = 0
-		[KeywordEnum(None, Combined)] _BUMP("Map", Float) = 0
-
+		[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map", Float) = 0
 		[NoScaleOffset]_Map("Geometry Combined Maps (RGBA)", 2D) = "gray" {}
 		_Merge("_Merge", Range(0.01,2)) = 1
 		[Toggle(CLIP_ALPHA)] _ALPHA("Clip Alpha", Float) = 0
@@ -100,7 +95,7 @@ Shader "Playtime Painter/Terrain Integration/Triplanar" {
 #if WATER_FOAM
 					float underWater = _foamParams.z - i.wpos.y;
 					float3 projectedWpos;
-					float3 nrmNdSm = SampleWaterNormal(i.viewDir.xyz, projectedWpos);
+					float3 nrmNdSm = SAMPLE_WATER_NORMAL(i.viewDir.xyz, projectedWpos);
 #endif*/
 
 					float4 col = tex2D(_MainTex, i.texcoord.xy);
@@ -117,13 +112,13 @@ Shader "Playtime Painter/Terrain Integration/Triplanar" {
 
 					float4 bumpMap = tex2D(_Map, i.texcoord.xy);
 					float3 tnormal;
-				/*#if _BUMP_REGULAR
+				#if _BUMP_REGULAR
 					tnormal = UnpackNormal(bumpMap);
 					bumpMap = float4(0, 0, 1, 1);
-				#else*/
+				#else
 					bumpMap.rg = (bumpMap.rg - 0.5) * 2;
 					tnormal = float3(bumpMap.r, bumpMap.g, 1);
-				//#endif
+				#endif
 
 					float3 worldNormal;
 					worldNormal.x = dot(i.tspace0, tnormal);
@@ -151,12 +146,10 @@ Shader "Playtime Painter/Terrain Integration/Triplanar" {
 
 					Terrain_Water_AndLight(col, i.tc_Control, ambient, smoothness, worldNormal, i.viewDir.xyz,  shadow, Metalic);
 
-
 					float4 fogCol = col;
 					UNITY_APPLY_FOG(i.fogCoord, fogCol);
 
 					col = APPLY_HEIGHT_FOG(i.wpos.y, col, fogCol);
-					//UNITY_APPLY_FOG(i.fogCoord, col);
 
 					return col;
 				}

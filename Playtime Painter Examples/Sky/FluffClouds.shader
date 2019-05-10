@@ -56,10 +56,10 @@
 				v2f vert (appdata_t v)
 				{
 					v2f o;
-					  o.pos = UnityObjectToClipPos(v.vertex);
-					  o.wpos = v.vertex;//mul(unity_ObjectToWorld, v.vertex).xyz;
-					  o.skyvDir =  _SunDirection.xyz * 1000;// WorldSpaceViewDir(mul(unity_WorldToObject, _SunDirection.xyz * 60000)).xyz;
-					  o.wpos = normalize(o.wpos);
+					o.pos = UnityObjectToClipPos(v.vertex);
+					o.wpos = v.vertex;//mul(unity_ObjectToWorld, v.vertex).xyz;
+					o.skyvDir =  _SunDirection.xyz * 1000;// WorldSpaceViewDir(mul(unity_WorldToObject, _SunDirection.xyz * 60000)).xyz;
+					o.wpos = normalize(o.wpos);
 					o.viewDir.xyz=WorldSpaceViewDir(v.vertex);
 					o.viewDir.a = _WorldSpaceCameraPos.y;
 					o.h = v.vertex.y;
@@ -72,7 +72,7 @@
 					#if WATER_FOAM
 					float3 viewDir = normalize(i.viewDir.xyz);
 					float3 projectedWpos;
-					float3 waterNormal = SampleWaterNormal(viewDir, projectedWpos);
+					float3 waterNormal = SAMPLE_WATER_NORMAL(viewDir, projectedWpos);
 					#endif*/
 
 

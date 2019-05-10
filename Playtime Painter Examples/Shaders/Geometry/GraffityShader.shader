@@ -19,8 +19,8 @@
 		#pragma vertex vert
 		#pragma surface surf Standard fullforwardshadows
 		#pragma multi_compile _____ _Metal
-		#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 		#pragma target 3.0
+		#include "UnityCG.cginc"
 
 		sampler2D _MainTex;
 		sampler2D _Overlay;

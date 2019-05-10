@@ -3,7 +3,6 @@
 	Properties{
 		[PerRendererData]_MainTex("Mask (RGB)", 2D) = "white" {}
 		[NoScaleOffset]_Arrow("Arrow", 2D) = "black" {}
-		//	_SomeSlider("Reflectiveness or something", Range(0,1)) = 0
 	}
 
 	Category{
@@ -22,7 +21,7 @@
 
 				CGPROGRAM
 
-				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
+				#include "UnityCG.cginc"
 
 				#pragma vertex vert
 				#pragma fragment frag
@@ -32,7 +31,9 @@
 
 				sampler2D _MainTex;
 				sampler2D _Arrow;
-			//	float _SomeSlider;
+				float _Picker_Brightness;
+				float _Picker_Contrast;
+				float _Picker_HUV;
 
 				struct v2f {
 					float4 pos : SV_POSITION;
@@ -44,6 +45,27 @@
 					o.pos = UnityObjectToClipPos(v.vertex);
 					o.texcoord = v.texcoord.xy;
 					return o;
+				}
+
+				inline float3 HUEtoColor(float hue) {
+
+					float val = frac(hue + 0.082) * 6;
+
+					float3 col;
+
+					col.r = saturate(2 - abs(val - 2));
+
+					val = fmod((val + 2), 6);
+
+					col.g = saturate(2 - abs(val - 2));
+
+					val = fmod((val + 2), 6);
+
+					col.b = saturate(2 - abs(val - 2));
+
+					col.rgb = pow(col.rgb, 2.2);
+
+					return col;
 				}
 
 				float4 frag(v2f i) : COLOR{
@@ -77,8 +99,6 @@
 					float4 arrow = tex2D(_Arrow, arrowUV);
 
 					arrow.a *= 1 - max(inside.x, inside.y);
-
-					//col.rgb += max(0, (1 - length((arrowUV - 0.5) * 2)));
 
 					col.rgb = arrow.rgb * arrow.a + col.rgb * (1 - arrow.a);
 

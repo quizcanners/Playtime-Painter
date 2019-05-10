@@ -1,7 +1,5 @@
 ﻿Shader "Playtime Painter/Terrain Integration/Terrain Only" {
-	Properties
-	{
-	}
+	Properties{}
 
 	Category{
 		Tags { 
@@ -12,7 +10,6 @@
 		
 		LOD 200
 		ColorMask RGB
-
 
 		SubShader {
 			Pass {
@@ -27,8 +24,6 @@
 
 				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
-		
-
 				struct v2f {
 					float4 pos : POSITION;
 			
@@ -36,9 +31,6 @@
 					float3 viewDir : TEXCOORD2; 
 					float3 wpos : TEXCOORD3;
 					float3 tc_Control : TEXCOORD4;
-				/*	#if WATER_FOAM
-					float4 fwpos : TEXCOORD5;
-					#endif*/
 					SHADOW_COORDS(5) 
 					float3 normal : TEXCOORD6;
 					float2 texcoord : TEXCOORD7;
@@ -57,19 +49,12 @@
 			
 					o.texcoord = v.texcoord;
 
-
 					UNITY_TRANSFER_FOG(o, o.pos);
 					TRANSFER_SHADOW(o);
-
-					
 
 					float3 worldNormal = UnityObjectToWorldNormal(v.normal);
 
 					o.normal =  normalize(worldNormal);
-
-				/*	#if WATER_FOAM
-					o.fwpos = ComputeFoam(o.wpos);
-					#endif*/
 
 					return o;
 				}
@@ -87,12 +72,11 @@
 					float underWater = _foamParams.z - i.wpos.y;
 
 					float3 projectedWpos;
-					float3 nrmNdSm = SampleWaterNormal(i.viewDir.xyz, projectedWpos);
+					float3 nrmNdSm = SAMPLE_WATER_NORMAL(i.viewDir.xyz, projectedWpos);
 
 					i.tc_Control.xz += nrmNdSm.xz * max(0, underWater)*0.0005 * (1-i.viewDir.y);
 					
 					#endif
-					
 					
 					float dist = length(i.wpos.xyz - _WorldSpaceCameraPos.xyz);
 
@@ -173,29 +157,15 @@
 
 					float smoothness = col.a;
 
-					//col = 0;
-
 #if WATER_FOAM
 					APPLY_PROJECTED_WATER(saturate(underWater), worldNormal, nrmNdSm, i.tc_Control, projectedWpos, i.viewDir.y, col, smoothness, ambient, shadow);
 #endif
 
-					//Terrain_Water_AndLight(wcol, WORLD_POS_TO_TERRAIN_UV_3D(projectedWpos), 1, 1, waterNormal, viewDir.xyz, 1, 0);
-
-
 					Terrain_Water_AndLight(col, i.tc_Control, 
-						
-						
-						//1,1 
 						ambient, smoothness
-						
-						
 						, worldNormal, i.viewDir.xyz,
-
-
-						//1, 0); 
 						shadow , Metallic);
 
-		
 					float4 fogCol = col;
 					UNITY_APPLY_FOG(i.fogCoord, fogCol);
 

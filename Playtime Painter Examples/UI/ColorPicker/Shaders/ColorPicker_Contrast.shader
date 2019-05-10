@@ -22,7 +22,8 @@
 			Pass{
 
 				CGPROGRAM
-				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
+
+				#include "UnityCG.cginc"
 
 				#pragma vertex vert
 				#pragma fragment frag
@@ -34,6 +35,9 @@
 				sampler2D _Circle;
 				sampler2D _NoiseMask;
 				float _SomeSlider;
+				float _Picker_Brightness;
+				float _Picker_Contrast;
+				float _Picker_HUV;
 
 				struct v2f {
 					float4 pos : SV_POSITION;
@@ -47,6 +51,27 @@
 					return o;
 				}
 
+				inline float3 HUEtoColor(float hue) {
+
+					float val = frac(hue + 0.082) * 6;
+
+					float3 col;
+
+					col.r = saturate(2 - abs(val - 2));
+
+					val = fmod((val + 2), 6);
+
+					col.g = saturate(2 - abs(val - 2));
+
+					val = fmod((val + 2), 6);
+
+					col.b = saturate(2 - abs(val - 2));
+
+					col.rgb = pow(col.rgb, 2.2);
+
+					return col;
+				}
+
 				float4 frag(v2f o) : COLOR{
 
 					float4 col = tex2D(_MainTex, o.texcoord);
@@ -57,9 +82,6 @@
 
 					float2 uv = saturate(o.texcoord.xy +(noise.xy - 0.5)*0.015);
 
-					//uv = (uv - 0.5)*2;
-					//uv = uv*abs(uv)*0.5+0.5;
-
 					uv = pow(uv,1.5);
 
 					col.rgb = uv.y + col.rgb*(1- uv.y);
@@ -68,17 +90,11 @@
 
 					float2 dist = (o.texcoord - float2(_Picker_Brightness, 1-_Picker_Contrast))*8;
 
-					
-
 					float ca = max(0, 1-max(0, length(abs(dist)) - 0.5) * 32);
-
-					//return ca;
 
 				    float4 circle = tex2D(_Circle, dist+0.5);
 
 					ca *=  circle.a;
-
-					//col.rgb += saturate(1 - length(dist));
 
 					col.rgb = col.rgb*(1 - ca) + circle.rgb*ca;
 

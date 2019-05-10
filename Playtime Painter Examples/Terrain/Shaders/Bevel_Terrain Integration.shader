@@ -127,7 +127,7 @@
 				#if WATER_FOAM
 				float underWater = _foamParams.z - i.wpos.y;
 				float3 projectedWpos;
-				float3 nrmNdSm = SampleWaterNormal(i.viewDir.xyz,  projectedWpos);
+				float3 nrmNdSm = SAMPLE_WATER_NORMAL(i.viewDir.xyz,  projectedWpos);
 				i.tc_Control.xz += nrmNdSm.xz * max(0, underWater)*0.0001;
 				#endif
 

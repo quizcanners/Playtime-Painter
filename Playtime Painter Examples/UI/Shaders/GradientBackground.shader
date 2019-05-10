@@ -25,7 +25,7 @@
 			Pass{
 
 				CGPROGRAM
-				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
+				#include "UnityCG.cginc"
 
 				#pragma vertex vert
 				#pragma fragment frag
@@ -78,23 +78,15 @@
 
 					center += center * (1 - center);
 
-#ifdef UNITY_COLORSPACE_GAMMA
+					#ifdef UNITY_COLORSPACE_GAMMA
 
 					float4 col = _BG_GRAD_COL_1 * _BG_GRAD_COL_1 *(1 - up) + _BG_GRAD_COL_2 * _BG_GRAD_COL_2 *(up);
 					col = col * (1 - center) + _BG_CENTER_COL * _BG_CENTER_COL*center;
 					col.rgb = sqrt(col.rgb);
-#else
+					#else
 					float4 col = _BG_GRAD_COL_1  *(1 - up) +  _BG_GRAD_COL_2 *(up);
 					col = col * (1 - center) +  _BG_CENTER_COL*center;
-					
-#endif
-
-				
-
-
-					//float3 mix = col.gbr + col.brg;
-
-					//col.rgb += mix * mix*0.025;
+					#endif
 
 					return col;
 				}

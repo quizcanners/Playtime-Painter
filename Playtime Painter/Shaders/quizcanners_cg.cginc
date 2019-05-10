@@ -6,10 +6,6 @@
 static const float MERGE_POWER = 512;
 static const float TERABOUNCE = 0.2;
 
-float _Picker_Brightness;
-float _Picker_Contrast;
-float _Picker_HUV;
-
 float4 g_VOLUME_H_SLICES;
 float4 g_VOLUME_POSITION_N_SIZE;
 
@@ -30,6 +26,12 @@ float4 _wrldOffset;
 sampler2D _TerrainColors;
 sampler2D _mergeControl;
 
+float4 _Control_ST;
+float4 _mergeTerrainTiling;
+float4 _mergeTeraPosition;
+float4 _mergeTerrainScale;
+float _Merge;
+
 sampler2D _mergeSplat_0;
 sampler2D _mergeSplat_1;
 sampler2D _mergeSplat_2;
@@ -46,13 +48,8 @@ sampler2D _mergeSplatN_4;
 
 sampler2D _pp_WaterBump;
 float4 _foamParams;
-//float4 _foamDynamics;
 
-float4 _Control_ST;
-float4 _mergeTerrainTiling;
-float4 _mergeTeraPosition;
-float4 _mergeTerrainScale;
-float _Merge;
+
 
 uniform sampler2D g_BakedRays_VOL;
 uniform sampler2D _pp_RayProjectorDepthes;
@@ -74,18 +71,11 @@ float4 rt2_ProjectorClipPrecompute;
 float4 rt2_ProjectorConfiguration;
 
 
-
-
 float4 APPLY_HEIGHT_FOG(float viewDirY, float4 col, float4 fogCol) {
-
 
 	viewDirY = saturate((viewDirY - _foamParams.z) *0.01);
 
-	
-
 	return fogCol * (1 - viewDirY)  + col * viewDirY;
-
-
 
 }
 
@@ -93,9 +83,7 @@ float3 WORLD_POS_TO_TERRAIN_UV_3D(float3 worldPos) {
 	return (worldPos.xyz - _mergeTeraPosition.xyz) / _mergeTerrainScale.xyz;
 }
 
-
-
-float3 SampleWaterNormal(float3 viewDir, out float3 projectedWpos) {
+float3 SAMPLE_WATER_NORMAL(float3 viewDir, out float3 projectedWpos) {
 
 	float2 v = viewDir.xz / viewDir.y;
 
