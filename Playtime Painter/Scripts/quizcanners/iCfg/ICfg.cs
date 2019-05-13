@@ -217,6 +217,9 @@ namespace QuizCannersUtilities {
             set { }
         }
 
+        public void SetAsCurrent() {
+            ActiveConfiguration = this;
+        }
 
         public virtual void ReadConfigurationToData()
         {

@@ -78,6 +78,8 @@
 
 			float4 mask = tex2D(_MainTex_ATL_UV2, i.uv2_MainTex_ATL_UV2);
 
+			//return mask;
+
 			bump.rg -= 0.5;
 
 			float maskr = tex2D(_MainTex_ATL_UV2, float2(i.uv2_MainTex_ATL_UV2.x,i.uv2_MainTex_ATL_UV2.y + _MainTex_ATL_UV2_TexelSize.y )).r;
@@ -111,7 +113,7 @@
 			o.Normal =normalize(float3((mask.r - maskg)*damAlpha2*4 + bump.r ,
 				-(maskr - mask.r)*damAlpha2*4+ bump.g, 0.1)*deWater +float3(0,0,1)*water);
 
-			o.Albedo = col.rgb * deWater + _WetColor.rgb*water;
+			o.Albedo = mask.rgb;//col.rgb * deWater + _WetColor.rgb*water;
 
 			o.Metallic = water;
 			o.Alpha = col.a;

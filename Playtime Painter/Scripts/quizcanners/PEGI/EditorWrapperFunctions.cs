@@ -512,6 +512,13 @@ namespace PlayerAndEditorGUI {
 
         #region Values
 
+        public static bool editTag(ref string tag)
+        {
+            BeginCheckLine();
+            tag = EditorGUILayout.TagField("Tag"); 
+            return EndCheckLine();
+        }
+
         public static bool editLayerMask(ref int val)
         {
             BeginCheckLine();

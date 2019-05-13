@@ -260,7 +260,10 @@ namespace PlayerAndEditorGUI {
 
             return painterTranslations.GetWhenInited(index, lang);
         }
-        
+
+
+#if PEGI
+
         private static int inspectingSection = -1;
         private static int inspectedFaqQuestion = -1;
         private static int inspectedPerfTip = -1;
@@ -352,7 +355,6 @@ namespace PlayerAndEditorGUI {
 
 
 
-#if PEGI
         public static void Write(this MsgPainter m) { var txt = m.GetText(); txt.write(txt.ApproximateLengthUnsafe()); }
         public static void Write(this MsgPainter m, int width) { m.GetText().write(width); }
         public static void Write(this MsgPainter m, string tip, int width) { m.GetText().write(tip, width); }

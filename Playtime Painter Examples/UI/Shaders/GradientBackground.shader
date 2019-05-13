@@ -1,9 +1,8 @@
-﻿Shader "Playtime Painter/Effects/GradientBackground" {
+﻿Shader "Playtime Painter/Effects/Screen-SpaceGradient" {
 	Properties{
 		[PerRendererData]_MainTex("Mask (RGB)", 2D) = "white" {}
 		_Center("Center Position", Range(0,2)) = 0
 		_CenterSharpness("Center Sharpness", Range(0,5)) = 0
-		[NoScaleOffset]_Noise_Mask("Noise Mask (RGB)", 2D) = "white" {}
 		_BG_GRAD_COL_1("Background Upper", Color) = (1,1,1,1)
 		_BG_CENTER_COL("Background Center", Color) = (1,1,1,1)
 		_BG_GRAD_COL_2("Background Lower", Color) = (1,1,1,1)
@@ -18,8 +17,6 @@
 
 		ColorMask RGB
 		Cull Off
-		ZWrite Off
-		ZTest Off
 
 		SubShader{
 			Pass{
@@ -32,34 +29,25 @@
 				#pragma multi_compile_fog
 				#pragma multi_compile_fwdbase
 				#pragma multi_compile_instancing
+				#pragma multi_compile ______ USE_NOISE_TEXTURE
 				#pragma target 3.0
 
 				struct v2f {
 					float4 pos : SV_POSITION;
-					float3 worldPos : TEXCOORD0;
-					float3 normal : TEXCOORD1;
-					float2 texcoord : TEXCOORD2;
-					float3 viewDir: TEXCOORD4;
-					float4 screenPos : TEXCOORD5;
-					float4 color: COLOR;
+					float4 screenPos : TEXCOORD1;
 				};
 
 				v2f vert(appdata_full v) {
 					v2f o;
 					UNITY_SETUP_INSTANCE_ID(v);
-					o.normal.xyz = UnityObjectToWorldNormal(v.normal);
 					o.pos = UnityObjectToClipPos(v.vertex);
-					o.worldPos = mul(unity_ObjectToWorld, v.vertex).xyz;
-					o.viewDir.xyz = WorldSpaceViewDir(v.vertex);
-					o.texcoord = v.texcoord.xy;
 					o.screenPos = ComputeScreenPos(o.pos);
-					o.color = v.color;
 					return o;
 				}
 
 				float _Center;
 				float _CenterSharpness;
-				sampler2D _Noise_Mask;
+				sampler2D _Global_Noise_Lookup;
 				float4 _BG_CENTER_COL;
 				float4 _BG_GRAD_COL_1;
 				float4 _BG_GRAD_COL_2;
@@ -68,9 +56,10 @@
 
 					float2 duv = i.screenPos.xy / i.screenPos.w;
 
-					float4 noise = tex2Dlod(_Noise_Mask, float4(duv * 5 + _Time.y * 5, 0, 0));
-
+					#if USE_NOISE_TEXTURE
+					float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(duv * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
 					duv += (noise.xy-0.5) * 0.01;
+					#endif
 
 					float up = saturate((_Center - duv.y)*(1 + _CenterSharpness));
 

@@ -78,8 +78,8 @@ namespace PlaytimePainter.Examples
 
                         };
 
-                        switch (receiver.type)
-                        {
+                        switch (receiver.type) {
+
                             case PaintingReceiver.RendererType.Skinned when receiver.skinnedMeshRenderer:
                                 BrushTypeSphere.Paint(rendTex, receiver.gameObject, receiver.skinnedMeshRenderer, brush, st, subMesh);
                                 break;

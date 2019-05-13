@@ -145,9 +145,9 @@ namespace PlaytimePainter {
         public virtual void Enable() { }
 
         public virtual void Disable() {  }
-        
-        #region Inspector
 
+        #region Inspector
+        #if PEGI
         public virtual string ToolTip => "Painter plugin";
 
         public virtual bool InspectInList(IList list, int ind, ref int edited)
@@ -163,7 +163,7 @@ namespace PlaytimePainter {
 
             return false;
         }
-
+        #endif
         #endregion
 
     }

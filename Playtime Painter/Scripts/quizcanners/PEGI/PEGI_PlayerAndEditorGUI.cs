@@ -4292,16 +4292,19 @@ namespace PlayerAndEditorGUI {
         
         public static bool toggleDefaultInspector() =>
             #if UNITY_EDITOR
-                 ef.toggleDefaultInspector(); 
-            #else
+                 ef.toggleDefaultInspector();
+#else
                 false;
-            #endif
-        
+#endif
 
-#endregion
+
+        #endregion
 
         #region Edit
 
+
+
+       
         #region UnityObject
         
         public static bool edit<T>(ref T field, int width) where T : Object =>
@@ -4407,24 +4410,39 @@ namespace PlayerAndEditorGUI {
             !paintingPlayAreaGui ? ef.edit(ref field) :
 #endif
                 false;
-        
-        public static bool edit_enter_Inspect<T>(this string label, ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : UnityEngine.Object
-            => label.edit_enter_Inspect(90, ref obj, ref entered, current, selectFrom);
+
+        public static bool edit_enter_Inspect<T>(ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : Object
+            => edit_enter_Inspect(null, -1, ref obj, ref entered, current, selectFrom);
+
+        public static bool edit_enter_Inspect<T>(this string label, ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : Object
+            => label.edit_enter_Inspect(-1, ref obj, ref entered, current, selectFrom);
 
         public static bool edit_enter_Inspect<T>(this string label, int width, ref T obj, ref int entered, int current,
             List<T> selectFrom = null) where T : Object
         {
             var changed = false;
 
-            if (entered == -1)
-            {
+            if (entered == -1) {
 
                 if (obj && icon.Delete.Click("Null this object"))
                         obj = null;
 
                 if (selectFrom == null)
                 {
-                    label.write(width);
+                    string lab = label;
+
+                    if (lab.IsNullOrEmpty()) {
+                        if (obj)
+                            lab = obj.ToPegiString();
+                        else
+                            lab = typeof(T).ToPegiStringType();
+                    }
+                
+                    if (width > 0)
+                        lab.write(width);
+                    else 
+                        lab.write();
+
                     if (!obj)
                         edit(ref obj).changes(ref changed);
                 }
@@ -4923,6 +4941,36 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region Int
+
+        public static bool editLayerMask(this string label, string tip, int width, ref string tag)
+        {
+            label.write(tip, width);
+            return editTag(ref tag);
+        }
+
+        public static bool editLayerMask(this string label, int width, ref string tag)
+        {
+            label.write(width);
+            return editTag(ref tag);
+        }
+
+        public static bool editLayerMask(this string label, ref string tag)
+        {
+            label.write(label.ApproximateLength());
+            return editTag(ref tag);
+        }
+
+        public static bool editTag(ref string tag)
+        {
+            #if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.editTag(ref tag);
+            #endif
+
+            return false;
+        }
+
+
 
         public static bool editLayerMask(this string label, ref int val)
         {

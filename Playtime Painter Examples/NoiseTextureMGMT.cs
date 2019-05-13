@@ -2,8 +2,12 @@
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
-namespace PlaytimePainter.Examples {
+namespace PlaytimePainter.Examples
+{
 
     [ExecuteInEditMode]
     public class NoiseTextureMGMT : MonoBehaviour, IPEGI
@@ -15,7 +19,8 @@ namespace PlaytimePainter.Examples {
         public Texture2D prerenderedNoiseTexture;
         readonly ShaderProperty.TextureValue _noiseTextureGlobal = new ShaderProperty.TextureValue("_Global_Noise_Lookup");
 
-        void UpdateShaderGlobal() {
+        void UpdateShaderGlobal()
+        {
             enableNoise = enableNoise && prerenderedNoiseTexture;
             UnityUtils.SetShaderKeyword(SHADER_NOISE_TEXTURE, enableNoise);
             _noiseTextureGlobal.SetGlobal(prerenderedNoiseTexture);
@@ -27,7 +32,7 @@ namespace PlaytimePainter.Examples {
         }
 
         #region Inspector
-        #if PEGI
+#if PEGI
         public bool Inspect()
         {
             var changed = false;
@@ -38,15 +43,21 @@ namespace PlaytimePainter.Examples {
             "Noise Texture".edit(90, ref prerenderedNoiseTexture).nl(ref changed);
 
             if (prerenderedNoiseTexture)
-            SHADER_NOISE_TEXTURE.toggleIcon(ref enableNoise).nl(ref changed);
+                SHADER_NOISE_TEXTURE.toggleIcon(ref enableNoise).nl(ref changed);
 
             if (changed)
                 UpdateShaderGlobal();
 
             return changed;
         }
-        #endif
+#endif
         #endregion
     }
+
+
+#if UNITY_EDITOR
+    [CustomEditor(typeof(NoiseTextureMGMT))]
+    public class NoiseTextureMGMTDrawer : PEGI_Inspector<NoiseTextureMGMT> { }
+#endif
 
 }
