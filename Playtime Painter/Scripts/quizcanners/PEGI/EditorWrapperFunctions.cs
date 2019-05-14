@@ -515,7 +515,7 @@ namespace PlayerAndEditorGUI {
         public static bool editTag(ref string tag)
         {
             BeginCheckLine();
-            tag = EditorGUILayout.TagField("Tag"); 
+            tag = EditorGUILayout.TagField(tag); 
             return EndCheckLine();
         }
 

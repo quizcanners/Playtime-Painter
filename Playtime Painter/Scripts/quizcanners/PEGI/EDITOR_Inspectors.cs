@@ -9,10 +9,10 @@ namespace PlayerAndEditorGUI {
 
 #if UNITY_EDITOR
 
-    // Use this two lines to have Unity Inspector show drawer from IPEGI's Inspect functions
+    // Use this two lines to override default Inspector with contents of Inspect() function (replacing SimplePEGInspectorsBrowser with YouClassName)
     [CustomEditor(typeof(SimplePEGInspectorsBrowser))]
-    public class PEGI_SimpleInspectorsBrowserDrawer : PEGI_Inspector<SimplePEGInspectorsBrowser> { }
-    
+    public class PEGI_SimpleInspectorsBrowserDrawer : PEGI_Inspector_Mono<SimplePEGInspectorsBrowser> { }
+
 #endif
 
     public abstract class PEGI_Inspector_Material
@@ -100,7 +100,7 @@ namespace PlayerAndEditorGUI {
 
     }
 
-    public abstract class PEGI_Inspector<T> : PEGI_Inspector_Base where T : MonoBehaviour
+    public abstract class PEGI_Inspector_Mono<T> : PEGI_Inspector_Base where T : MonoBehaviour
     {
 #if PEGI
         protected override ef.EditorType EditorType => ef.EditorType.Mono;
@@ -119,7 +119,7 @@ namespace PlayerAndEditorGUI {
     }
 
     [CustomEditor(typeof(PEGI_Styles))]
-    public class PEGI_StylesDrawer : PEGI_Inspector<PEGI_Styles>
+    public class PEGI_StylesDrawer : PEGI_Inspector_Mono<PEGI_Styles>
     {
 
 #if   NO_PEGI

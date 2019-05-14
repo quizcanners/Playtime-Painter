@@ -7,7 +7,7 @@ using QuizCannersUtilities;
 namespace PlaytimePainter {
 
     [CustomEditor(typeof(PlaytimePainter))]
-    public class PlaytimePainterClassDrawer : PEGI_Inspector<PlaytimePainter> {
+    public class PlaytimePainterClassDrawer : PEGI_Inspector_Mono<PlaytimePainter> {
 
      
         public virtual void OnSceneGUI() {

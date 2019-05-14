@@ -3682,7 +3682,7 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-        public static void Lock_UnlockWindowClick(GameObject go)
+        public static void Lock_UnlockWindowClick(UnityEngine.Object obj)
         {
         #if UNITY_EDITOR
             if (ActiveEditorTracker.sharedTracker.isLocked == false && icon.Unlock.ClickUnFocus("Lock Inspector Window"))
@@ -3694,7 +3694,7 @@ namespace PlayerAndEditorGUI {
             if (ActiveEditorTracker.sharedTracker.isLocked && icon.Lock.ClickUnFocus("Unlock Inspector Window"))
             {
                 ActiveEditorTracker.sharedTracker.isLocked = false;
-                UnityUtils.FocusOn(go);
+                UnityUtils.FocusOn(obj);
             }
         #endif
         }
@@ -4301,10 +4301,7 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region Edit
-
-
-
-       
+        
         #region UnityObject
         
         public static bool edit<T>(ref T field, int width) where T : Object =>
@@ -5716,29 +5713,29 @@ namespace PlayerAndEditorGUI {
         public static bool edit_Property<T>(Expression<Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true)
             => edit_Property(memberExpression, fieldWidth, obj, includeChildren);
         
-
         public static bool edit_Property<T>(this string label, Expression<Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true) {
-            label.write();
+            label.nl();
             return edit_Property(memberExpression, fieldWidth, obj, includeChildren);
         }
-
+        
         public static bool edit_Property<T>(this string label, string tip, Expression<Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true) {
-            label.write(tip);
+            label.nl(tip);
             return edit_Property(memberExpression, fieldWidth, obj, includeChildren);
         }
 
         public static bool edit_Property<T>(this string label, int width, Expression<Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true) {
-            label.write(width);
+            label.nl(width);
             return edit_Property(memberExpression, fieldWidth, obj, includeChildren);
         }
 
         public static bool edit_Property<T>(this string label, string tip, int width, Expression<Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true) {
-            label.write(tip, width);
+            label.nl(tip, width);
             return edit_Property(memberExpression, fieldWidth, obj, includeChildren);
         }
 
         public static bool edit_Property<T>(this Texture tex, string tip, Expression<Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true) {
             tex.write(tip);
+            nl();
             return edit_Property(memberExpression, fieldWidth, obj, includeChildren);
         }
 

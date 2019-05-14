@@ -127,17 +127,19 @@ namespace QuizCannersUtilities
 
             #region Encode & Decode
 
-            public override CfgEncoder Encode() {
+            public override CfgEncoder Encode()
+            {
 
                 var cody = new CfgEncoder()
                     .Add_Bool("ch", allowChangeParameters);
 
-                if (allowChangeParameters) {
+                if (allowChangeParameters)
+                {
 
                     if (EaseInOutImplemented)
                         cody.Add_Bool("eio", easeInOut);
 
-                    cody.Add("lm", (int) lerpMode);
+                    cody.Add("lm", (int)lerpMode);
 
                     if (lerpMode == LerpSpeedMode.SpeedThreshold)
                         cody.Add("sp", speedLimit);
@@ -157,7 +159,7 @@ namespace QuizCannersUtilities
                         speedLimit = data.ToFloat();
                         break;
                     case "lm":
-                        lerpMode = (LerpSpeedMode) data.ToInt();
+                        lerpMode = (LerpSpeedMode)data.ToInt();
                         break;
                     case "eio":
                         easeInOut = data.ToBool();
@@ -217,8 +219,9 @@ namespace QuizCannersUtilities
 
             #region Inspector
 
-            #if PEGI
-            public virtual bool InspectInList(IList list, int ind, ref int edited) {
+#if PEGI
+            public virtual bool InspectInList(IList list, int ind, ref int edited)
+            {
 
                 var changed = false;
 
@@ -277,24 +280,26 @@ namespace QuizCannersUtilities
                         (Name + " Mode").editEnum(ref lerpMode).changes(ref changed);
                         break;
                 }
-                
+
                 if (EaseInOutImplemented)
                     "Ease In/Out".toggleIcon(ref easeInOut).nl(ref changed);
 
                 return changed;
             }
-            #endif
+#endif
 
             #endregion
 
         }
 
-        public abstract class BaseLerpGeneric<T> : BaseLerp {
+        public abstract class BaseLerpGeneric<T> : BaseLerp
+        {
 
             protected abstract T TargetValue { get; set; }
             public abstract T CurrentValue { get; set; }
 
-            public T TargetAndCurrentValue {
+            public T TargetAndCurrentValue
+            {
                 set
                 {
                     TargetValue = value;
@@ -310,7 +315,7 @@ namespace QuizCannersUtilities
 
             protected override Vector2 TargetValue
             {
-                get { return targetValue;}
+                get { return targetValue; }
                 set { targetValue = value; }
             }
 
@@ -375,7 +380,7 @@ namespace QuizCannersUtilities
 
                 return changed;
             }
-            #endif
+#endif
 
             #endregion
 
@@ -409,10 +414,7 @@ namespace QuizCannersUtilities
 
             #endregion
 
-            protected BaseVector2Lerp()
-            {
-                lerpMode = LerpSpeedMode.LerpDisabled;
-            }
+
         }
 
         public abstract class BaseQuaternionLerp : BaseLerpGeneric<Quaternion>
@@ -439,7 +441,7 @@ namespace QuizCannersUtilities
             public override bool Portion(ref float linkedPortion)
             {
 
-                var magnitude = Quaternion.Angle(CurrentValue, targetValue); 
+                var magnitude = Quaternion.Angle(CurrentValue, targetValue);
 
                 return speedLimit.SpeedToMinPortion(magnitude, ref linkedPortion);
             }
@@ -450,7 +452,8 @@ namespace QuizCannersUtilities
 
             public override bool InspectInList(IList list, int ind, ref int edited)
             {
-                if (base.InspectInList(list, ind, ref edited)) {
+                if (base.InspectInList(list, ind, ref edited))
+                {
                     targetValue = CurrentValue;
                     return true;
                 }
@@ -508,7 +511,7 @@ namespace QuizCannersUtilities
                 lerpMode = LerpSpeedMode.SpeedThreshold;
             }
         }
-        
+
         public abstract class BaseFloatLerp : BaseLerpGeneric<float>, IPEGI_ListInspect
         {
 
@@ -583,11 +586,12 @@ namespace QuizCannersUtilities
                 get { return Mathf.Max(0, _targetTextures.Count - 1); }
                 set { }
             }
-            
+
             public override float CurrentValue
             {
                 get { return _portion; }
-                set {
+                set
+                {
 
                     _portion = value;
 
@@ -611,18 +615,20 @@ namespace QuizCannersUtilities
 
             public abstract Material Material { get; }
 
-            protected virtual Texture Current {
+            protected virtual Texture Current
+            {
                 get { return Material.Get(currentTexturePrTextureValue); }
                 set { Material.Set(currentTexturePrTextureValue, value); }
             }
 
-            protected virtual Texture Next {
+            protected virtual Texture Next
+            {
                 get { return Material.Get(nextTexturePrTextureValue); }
                 set { Material.Set(nextTexturePrTextureValue, value); }
             }
 
             protected virtual void RemovePreviousTexture() => _targetTextures.RemoveAt(0);
-            
+
             public virtual Texture TargetTexture
             {
                 get { return _targetTextures.TryGetLast(); }
@@ -715,7 +721,7 @@ namespace QuizCannersUtilities
                 var cody = new CfgEncoder().Add("b", base.Encode);
                 if (allowChangeParameters)
                 {
-                    cody.Add_IfNotZero("onStart", (int) _onStart);
+                    cody.Add_IfNotZero("onStart", (int)_onStart);
                     if (_onStart == OnStart.LoadCurrent)
                         cody.Add_Reference("s", _targetTextures.TryGetLast());
                 }
@@ -739,7 +745,7 @@ namespace QuizCannersUtilities
                         _onStart = OnStart.ClearTexture;
                         break;
                     case "onStart":
-                        _onStart = (OnStart) data.ToInt();
+                        _onStart = (OnStart)data.ToInt();
                         break;
                     default: return false;
                 }
@@ -763,7 +769,8 @@ namespace QuizCannersUtilities
             #endregion
         }
 
-        public abstract class BaseMaterialAtlasedTextureTransition : BaseMaterialTextureTransition {
+        public abstract class BaseMaterialAtlasedTextureTransition : BaseMaterialTextureTransition
+        {
 
 
             Dictionary<Texture, Rect> offsets = new Dictionary<Texture, Rect>();
@@ -774,18 +781,20 @@ namespace QuizCannersUtilities
                     offsets.Remove(tex);
             }
 
-            
 
-            Rect GetRect(Texture tex) {
+
+            Rect GetRect(Texture tex)
+            {
                 Rect rect;
                 if (tex && offsets.TryGetValue(tex, out rect))
                     return rect;
-                else 
-                    return new Rect(0,0,1,1); 
+                else
+                    return new Rect(0, 0, 1, 1);
 
             }
 
-            public void SetTarget(Texture tex, Rect offset) {
+            public void SetTarget(Texture tex, Rect offset)
+            {
                 TargetTexture = tex;
                 if (tex)
                     offsets[tex] = offset;
@@ -793,7 +802,7 @@ namespace QuizCannersUtilities
 
             public override Texture TargetTexture
             {
-                get {  return base.TargetTexture; }
+                get { return base.TargetTexture; }
 
                 set
                 {
@@ -805,7 +814,7 @@ namespace QuizCannersUtilities
 
             protected override void RemovePreviousTexture()
             {
-                
+
                 NullOffset(_targetTextures[0]);
 
                 base.RemovePreviousTexture();
@@ -832,7 +841,7 @@ namespace QuizCannersUtilities
             }
 
         }
-        
+
         public abstract class BaseShaderLerp : BaseLerp, IGotName
         {
 
@@ -872,6 +881,32 @@ namespace QuizCannersUtilities
                 material = m;
                 rendy = renderer;
             }
+
+
+            #region Encode & Decode
+
+            public override CfgEncoder Encode()
+            {
+
+                var cody = new CfgEncoder()
+                    .Add("b", base.Encode);
+
+                return cody;
+            }
+
+            public override bool Decode(string tg, string data)
+            {
+                switch (tg)
+                {
+                    case "b": data.Decode_Delegate(base.Decode); break;
+                    default: return false;
+                }
+
+                return true;
+            }
+
+            #endregion
+
         }
 
         public abstract class BaseColorLerp : BaseLerpGeneric<Color>
@@ -923,17 +958,17 @@ namespace QuizCannersUtilities
 
             #region Inspector
 
-            #if PEGI
+#if PEGI
             public override bool Inspect()
             {
 
                 var changed = base.Inspect();
 
                 pegi.edit(ref targetValue).nl(ref changed);
-                
+
                 return changed;
             }
-            #endif
+#endif
 
             #endregion
         }
@@ -972,7 +1007,8 @@ namespace QuizCannersUtilities
             }
 
 #if PEGI
-            public override bool InspectInList(IList list, int ind, ref int edited) {
+            public override bool InspectInList(IList list, int ind, ref int edited)
+            {
                 var changed = false;
 
                 if (allowChangeParameters)
@@ -993,7 +1029,7 @@ namespace QuizCannersUtilities
             }
 
 #endif
-#endregion
+            #endregion
 
             #region Encode & Decode
 
@@ -1010,19 +1046,21 @@ namespace QuizCannersUtilities
                 return cody;
             }
 
-            public override bool Decode(string tg, string data) {
-                switch (tg) {
-                    case "b":data.Decode_Delegate(base.Decode);break;
-                    case "trgf":targetValue = data.ToFloat();break;
+            public override bool Decode(string tg, string data)
+            {
+                switch (tg)
+                {
+                    case "b": data.Decode_Delegate(base.Decode); break;
+                    case "trgf": targetValue = data.ToFloat(); break;
                     case "rng": minMax = data.ToBool(); break;
                     case "min": min = data.ToFloat(); break;
                     case "max": max = data.ToFloat(); break;
-                    default: return base.Decode(tg,data); // For compatibility reasons, should return false
+                    default: return base.Decode(tg, data); // For compatibility reasons, should return false
                 }
 
                 return true;
             }
-            
+
             #endregion
 
             public FloatValue()
@@ -1078,12 +1116,13 @@ namespace QuizCannersUtilities
                 get { return _name; }
                 set { }
             }
-            
+
             public ColorValue()
             {
             }
 
-            public ColorValue(string name)  {
+            public ColorValue(string name)
+            {
                 _name = name;
             }
 
@@ -1092,15 +1131,15 @@ namespace QuizCannersUtilities
         public class QuaternionValue : BaseQuaternionLerp, IGotName
         {
             private readonly string _name = "Rotation";
-            
+
             Quaternion current = Quaternion.identity;
 
             public override Quaternion CurrentValue
             {
-                get { return current;}
+                get { return current; }
                 set { current = value; }
             }
-            
+
             protected override string Name => _name;
 
             #region Inspect
@@ -1110,7 +1149,7 @@ namespace QuizCannersUtilities
                 set { }
             }
 
-            #if PEGI
+#if PEGI
             public override bool InspectInList(IList list, int ind, ref int edited)
             {
                 var changed = false;
@@ -1123,7 +1162,7 @@ namespace QuizCannersUtilities
 
                 if (icon.Enter.Click())
                     edited = ind;
-                
+
                 return changed;
             }
 
@@ -1147,7 +1186,7 @@ namespace QuizCannersUtilities
                 {
                     case "b": data.Decode_Delegate(base.Decode); break;
                     case "trgf": targetValue = data.ToQuaternion(); break;
-                    default: return false; 
+                    default: return false;
                 }
 
                 return true;
@@ -1181,7 +1220,7 @@ namespace QuizCannersUtilities
 
 
         }
-        
+
         #endregion
 
         #region Transform
@@ -1326,7 +1365,7 @@ namespace QuizCannersUtilities
             public MaterialFloat(string nName, float startingValue, float startingSpeed = 1, Renderer renderer = null,
                 Material m = null) : base(startingSpeed, m, renderer)
             {
-                _property = new ShaderProperty.FloatValue(nName); 
+                _property = new ShaderProperty.FloatValue(nName);
                 targetValue = startingValue;
                 Value = startingValue;
             }
@@ -1365,7 +1404,32 @@ namespace QuizCannersUtilities
 
             #endregion
 
+            #region Encode & Decode
 
+            public override CfgEncoder Encode()
+            {
+
+                var cody = new CfgEncoder()
+                    .Add("b", base.Encode)
+                    .Add("f", targetValue);
+
+                return cody;
+            }
+
+            public override bool Decode(string tg, string data)
+            {
+                switch (tg)
+                {
+                    case "b": data.Decode_Delegate(base.Decode); break;
+                    case "f": targetValue = data.ToFloat(); break;
+
+                    default: return false;
+                }
+
+                return true;
+            }
+
+            #endregion
         }
 
         public class MaterialColor : BaseShaderLerp
@@ -1412,6 +1476,34 @@ namespace QuizCannersUtilities
 
             public override bool Portion(ref float portion) =>
                 speedLimit.SpeedToMinPortion(Value.DistanceRgba(targetValue), ref portion);
+
+
+            #region Encode & Decode
+
+            public override CfgEncoder Encode()
+            {
+
+                var cody = new CfgEncoder()
+                    .Add("b", base.Encode)
+                    .Add("c", targetValue);
+
+                return cody;
+            }
+
+            public override bool Decode(string tg, string data)
+            {
+                switch (tg)
+                {
+                    case "b": data.Decode_Delegate(base.Decode); break;
+                    case "c": targetValue = data.ToColor(); break;
+
+                    default: return false;
+                }
+
+                return true;
+            }
+
+            #endregion
 
         }
 
@@ -1579,7 +1671,7 @@ namespace QuizCannersUtilities
 
             #region Inspect
 
-            #if PEGI
+#if PEGI
             public override bool Inspect()
             {
 
@@ -1589,7 +1681,7 @@ namespace QuizCannersUtilities
 
                 return changed;
             }
-            #endif
+#endif
 
             #endregion
 
@@ -1688,7 +1780,7 @@ namespace QuizCannersUtilities
         public static readonly ShaderProperty.FloatValue TransitionPortion = new ShaderProperty.FloatValue("_Transition");
 
 
-        #if PEGI
+#if PEGI
         public static void Inspect()
         {
             "Image projection position".write_ForCopy(ImageProjectionPosition.NameForDisplayPEGI); pegi.nl();
@@ -1697,7 +1789,7 @@ namespace QuizCannersUtilities
 
             "Transition portion".write_ForCopy(TransitionPortion.NameForDisplayPEGI); pegi.nl();
         }
-        #endif
+#endif
     }
 
 
@@ -1811,7 +1903,7 @@ namespace QuizCannersUtilities
         public static float DistanceRgba(this Color col, Color other) =>
                 ((Mathf.Abs(col.r - other.r) + Mathf.Abs(col.g - other.g) + Mathf.Abs(col.b - other.b)) * 0.33f +
                  Mathf.Abs(col.a - other.a));
-        
+
         public static Color LerpBySpeed(this Color from, Color to, float speed) =>
             Color.LerpUnclamped(from, to, speed.SpeedToPortion(from.DistanceRgb(to)));
 

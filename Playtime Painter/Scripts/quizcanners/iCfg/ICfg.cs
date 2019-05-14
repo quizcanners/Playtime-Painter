@@ -210,7 +210,7 @@ namespace QuizCannersUtilities {
     {
         public string name;
         public string data;
-
+        
         public virtual Configuration ActiveConfiguration
         {
             get { return null; }
@@ -311,6 +311,11 @@ namespace QuizCannersUtilities {
 
         public Configuration() {
             name = "New Config";
+        }
+
+        public Configuration(string name)
+        {
+            this.name = name;
         }
 
     }
@@ -779,7 +784,7 @@ namespace QuizCannersUtilities {
 #if PEGI
             UnityEngine.Object myType = null;
             if (pegi.edit(ref myType)) {
-                txt = FileLoadUtils.LoadTextAsset(myType);
+                txt = FileLoadUtils.TryLoadAsTextAsset(myType);
                 ("Loaded " + myType.name).showNotificationIn3D_Views();
 
                 return true;
@@ -827,7 +832,7 @@ namespace QuizCannersUtilities {
         public static T LoadFromAssets<T>(this T s, string fullPath, string name) where T:ICfg, new() {
 			if (s == null)
 				s = new T ();
-            s.Decode(FileLoadUtils.LoadStoryFromAssets(fullPath, name));
+            s.Decode(FileLoadUtils.LoadBytesFromAssets(fullPath, name));
 			return s;
         }
 
@@ -845,7 +850,7 @@ namespace QuizCannersUtilities {
 
         public static bool LoadFromPersistentPath(this ICfg s, string path, string filename)
         {
-            var data = FileLoadUtils.LoadFromPersistentPath(path, filename);
+            var data = FileLoadUtils.LoadJsonFromPersistentPath(path, filename);
             if (data != null)
             {
                 s.Decode(data);
@@ -880,7 +885,7 @@ namespace QuizCannersUtilities {
 		public static T LoadFromResources<T>(this T s, string subFolder, string file)where T:ICfg, new() {
 			if (s == null)
 				s = new T ();
-			s.Decode(FileLoadUtils.LoadStoryFromResource(subFolder, file));
+			s.Decode(FileLoadUtils.LoadBytesFromResource(subFolder, file));
 			return s;
 		}
 

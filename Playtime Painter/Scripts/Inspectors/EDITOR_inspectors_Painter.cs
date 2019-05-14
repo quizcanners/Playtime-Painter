@@ -6,12 +6,12 @@ using UnityEditor;
 namespace PlaytimePainter {
     
     [CustomEditor(typeof(PainterCamera))]
-    public class RenderTexturePainterEditor : PEGI_Inspector<PainterCamera> { }
+    public class RenderTexturePainterEditor : PEGI_Inspector_Mono<PainterCamera> { }
 
     [CustomEditor(typeof(VolumeTexture))]
-    public class VolumeTextureEditor : PEGI_Inspector<VolumeTexture> { }
+    public class VolumeTextureEditor : PEGI_Inspector_Mono<VolumeTexture> { }
 
     [CustomEditor(typeof(DepthProjectorCamera))]
-    public class DepthProjectorCameraEditor : PEGI_Inspector<DepthProjectorCamera> { }
+    public class DepthProjectorCameraEditor : PEGI_Inspector_Mono<DepthProjectorCamera> { }
 }
 #endif

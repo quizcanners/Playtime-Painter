@@ -503,7 +503,7 @@ namespace QuizCannersUtilities
                 if (pegi.edit(ref myType))
                 {
                     dirty = true;
-                    data = FileLoadUtils.LoadTextAsset(myType);
+                    data = FileLoadUtils.TryLoadAsTextAsset(myType);
                 }
 
                 if (dirty)
@@ -721,7 +721,7 @@ namespace QuizCannersUtilities
                 if ("From File:".edit(65, ref myType))
                 {
                     added = new SavedIstd();
-                    added.dataExplorer.data = FileLoadUtils.LoadTextAsset(myType);
+                    added.dataExplorer.data = FileLoadUtils.TryLoadAsTextAsset(myType);
                     added.NameForPEGI = myType.name;
                     added.comment = DateTime.Now.ToString(CultureInfo.InvariantCulture);
                     states.Add(added);

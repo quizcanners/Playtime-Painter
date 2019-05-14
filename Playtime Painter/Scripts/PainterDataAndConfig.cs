@@ -332,7 +332,7 @@ public bool useFloatForScalingBuffers;
 
             if (!Recordings.TryGetValue(filename, out data))
             {
-                data = FileLoadUtils.LoadFromPersistentPath(vectorsFolderName, filename);
+                data = FileLoadUtils.LoadJsonFromPersistentPath(vectorsFolderName, filename);
                 Recordings.Add(filename, data);
             }
 
