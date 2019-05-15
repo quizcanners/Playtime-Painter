@@ -4301,9 +4301,63 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region Edit
+
+        #region Audio Clip
+
+        public static bool edit(this string label, int width, ref AudioClip field, float offset = 0)
+        {
+            label.write(width);
+            return edit(ref field, offset);
+        }
+
+        public static bool edit(this string label, ref AudioClip field, float offset = 0)
+        {
+            label.write(label.ApproximateLength());
+            return edit(ref field, offset);
+        }
+
+        public static bool edit(ref AudioClip clip, int width, float offset = 0)
+        {
+
+            var ret =
+            #if UNITY_EDITOR
+                !paintingPlayAreaGui ? ef.edit(ref clip, width) :
+            #endif
+                    false;
+
+            clip.PlayButton(offset);
+
+            return ret;
+        }
+
+        public static bool edit(ref AudioClip clip, float offset = 0)
+        {
+
+            var ret =
+                #if UNITY_EDITOR
+                !paintingPlayAreaGui ? ef.edit(ref clip) :
+                #endif
+                    false;
+
+            clip.PlayButton(offset);
+
+            return ret;
+        }
+
+        private static void PlayButton(this AudioClip clip, float offset = 0)
+        {
+            if (clip && icon.Play.Click(20))
+            {
+                var req = clip.Play();
+                if (offset > 0)
+                    req.FromTimeOffset(offset);
+            }
+        }
+
+        #endregion
         
         #region UnityObject
-        
+
         public static bool edit<T>(ref T field, int width) where T : Object =>
         #if UNITY_EDITOR
                 !paintingPlayAreaGui ?  ef.edit(ref field, width) :
@@ -4782,35 +4836,6 @@ namespace PlayerAndEditorGUI {
 
             write(label, tip, width);
             return edit(ref col);
-        }
-
-        #endregion
-
-        #region Audio Clip
-
-        public static bool edit(this string label, int width, ref AudioClip field)
-        {
-            label.write(width);
-            return edit(ref field);
-        }
-
-        public static bool edit(this string label, ref AudioClip field) {
-            label.write(label.ApproximateLength());
-            return edit(ref field);
-        }
-
-        public static bool edit(ref AudioClip clip) {
-
-            var ret =
-#if UNITY_EDITOR
-                !paintingPlayAreaGui ? ef.edit(ref clip) :
-#endif
-                    false;
-
-            if (clip && icon.Play.Click(20))
-                clip.Play();
-
-            return ret;
         }
 
         #endregion

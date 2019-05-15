@@ -1203,7 +1203,7 @@ namespace PlayerAndEditorGUI {
             var evt = Event.current;
             var drop_area = GUILayoutUtility.GetRect(0.0f, 50.0f, GUILayout.ExpandWidth(true));
             
-            GUILayout.Box("Drag & Drop");
+            GUILayout.Box("Drag & Drop area above");
 
             switch (evt.type)
             {

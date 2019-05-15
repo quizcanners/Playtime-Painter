@@ -221,7 +221,7 @@ namespace QuizCannersUtilities
             return null;
 
 #else
-        return LoadStoryFromResource( insideResourceFolder,  name);
+        return LoadBytesFromResource( insideResourceFolder,  name);
 #endif
         }
 
@@ -289,6 +289,7 @@ namespace QuizCannersUtilities
 
         public static bool LoadJsonFromUnityObjectOverride<T, G>(T target, G jsonFile) where G : UnityEngine.Object {
 
+#if UNITY_EDITOR
             var filePath = AssetDatabase.GetAssetPath(jsonFile);
 
             if (!filePath.IsNullOrEmpty()) {
@@ -296,7 +297,7 @@ namespace QuizCannersUtilities
                 JsonUtility.FromJsonOverwrite(File.ReadAllText(filePath), target);
                 return true;
             }
-
+#endif
             return false;
         }
 

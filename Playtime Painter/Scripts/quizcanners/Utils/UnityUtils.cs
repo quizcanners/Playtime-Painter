@@ -11,6 +11,7 @@ using Object = UnityEngine.Object;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Text;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -429,38 +430,218 @@ namespace QuizCannersUtilities {
 
         #endregion
 
-        #region Unity Editor MGMT
+        #region Audio 
+
+        private static Type audioUtilClass;
+
+#if UNITY_EDITOR
+        private static Type AudioUtilClass { get {
+                if (audioUtilClass == null) 
+                    audioUtilClass = typeof(AudioImporter).Assembly.GetType("UnityEditor.AudioUtil");
+                
+                return audioUtilClass;
+            }
+        }
+#endif
 
         private static MethodInfo playClipMethod;
 
-        public static void Play(this AudioClip clip, float volume = 1) => Play( clip, Vector3.zero, volume);
-        
-        public static void Play(this AudioClip clip, Vector3 position, float volume = 1) {
+        private static MethodInfo setClipSamplePositionMethod;
 
-            if (!clip)
-                return;
-            
+        public static EditorAudioPlayRequest Play(this AudioClip clip, float volume = 1) => Play(clip, Vector3.zero, volume);
+
+        public static EditorAudioPlayRequest Play(this AudioClip clip, Vector3 position, float volume = 1) {
+
+            var rqst = new EditorAudioPlayRequest(clip);
+
+            if (!clip) return rqst;
+
             #if UNITY_EDITOR
-
+            
             if (playClipMethod == null) {
-                Assembly unityEditorAssembly = typeof(AudioImporter).Assembly;
-                Type audioUtilClass = unityEditorAssembly.GetType("UnityEditor.AudioUtil");
-                playClipMethod = audioUtilClass.GetMethod(
-                    "PlayClip",
+                playClipMethod = AudioUtilClass.GetMethod("PlayClip",
                     BindingFlags.Static | BindingFlags.Public,
-                    null,
-                    new Type[]  { typeof(AudioClip) },
-                    null
+                    null, new Type[] { typeof(AudioClip) }, null
                 );
             }
+            
+            playClipMethod.Invoke(null, new object[] { clip });
 
-            playClipMethod.Invoke(null, new object[] { clip } );
             #else
 
             AudioSource.PlayClipAtPoint(clip, position, volume);
 
             #endif
+
+           
+
+            return rqst;
         }
+
+
+        /// <summary>
+        /// WAV utility for recording and audio playback functions in Unity.
+        /// Version: 1.0 alpha 1
+        ///
+        /// - Use "ToAudioClip" method for loading wav file / bytes.
+        /// Loads .wav (PCM uncompressed) files at 8,16,24 and 32 bits and converts data to Unity's AudioClip.
+        ///
+        /// - Use "FromAudioClip" method for saving wav file / bytes.
+        /// Converts an AudioClip's float data into wav byte array at 16 bit.
+        /// </summary>
+        /// <remarks>
+        /// For documentation and usage examples: https://github.com/deadlyfingers/UnityWav
+        /// </remarks>
+
+        public static AudioClip Cut(AudioClip clip, float _cutPoint)
+        {
+            if (!clip)
+                return clip;
+
+            return Cut(clip, _cutPoint, clip.length - _cutPoint);
+        }
+
+        public static AudioClip Cut(AudioClip sourceClip, float _cutPoint, float duration) {
+            
+            int targetCutPoint = Mathf.RoundToInt(_cutPoint * sourceClip.frequency) * sourceClip.channels;
+
+            int newSampleCount = sourceClip.samples - targetCutPoint;
+            float[] newSamples = new float[newSampleCount];
+            sourceClip.GetData(newSamples, targetCutPoint);
+
+            int croppedSampleCount = Mathf.Min(newSampleCount, Mathf.RoundToInt(duration * sourceClip.frequency) * sourceClip.channels);
+            float[] croppedSamples = new float[croppedSampleCount];
+
+            Array.Copy(newSamples, croppedSamples, croppedSampleCount);
+
+            AudioClip newClip = AudioClip.Create(sourceClip.name, croppedSampleCount, sourceClip.channels, sourceClip.frequency, false);
+
+            newClip.SetData(croppedSamples, 0);
+
+            return newClip;
+        }
+
+        public static AudioClip Override(AudioClip newClip, AudioClip oldClip)  {
+
+         
+            #if UNITY_EDITOR
+          
+            const int headerSize = 44;
+            UInt16 bitDepth = 16;
+            
+            MemoryStream stream = new MemoryStream();
+            
+            Write(ref stream, Encoding.ASCII.GetBytes("RIFF")); //, "ID");
+
+
+            const int BlockSize_16Bit = 2; // BlockSize (bitDepth)
+            int chunkSize = newClip.samples * BlockSize_16Bit + headerSize - 8; 
+            Write(ref stream, chunkSize); //, "CHUNK_SIZE");
+            
+            Write(ref stream, Encoding.ASCII.GetBytes("WAVE")); //, "FORMAT");
+            
+            byte[] id = Encoding.ASCII.GetBytes("fmt ");
+            Write(ref stream, id); //, "FMT_ID");
+
+            int subchunk1Size = 16; // 24 - 8
+            Write(ref stream, subchunk1Size); //, "SUBCHUNK_SIZE");
+
+            UInt16 audioFormat = 1;
+            Write(ref stream, audioFormat); //, "AUDIO_FORMAT");
+
+            var channels = newClip.channels;
+            Write(ref stream, Convert.ToUInt16(channels)); //, "CHANNELS");
+
+            var sampleRate = newClip.frequency;
+            Write(ref stream, sampleRate); //, "SAMPLE_RATE");
+            
+            Write(ref stream, sampleRate * channels * bitDepth / 8); //, "BYTE_RATE");
+
+            UInt16 blockAlign = Convert.ToUInt16(channels * bitDepth / 8);
+            Write(ref stream, blockAlign); //, "BLOCK_ALIGN");
+
+            Write(ref stream, bitDepth); //, "BITS_PER_SAMPLE");
+            
+            Write(ref stream, Encoding.ASCII.GetBytes("data")); //, "DATA_ID");
+
+            Write(ref stream, Convert.ToInt32(newClip.samples * BlockSize_16Bit)); //, "SAMPLES");
+            
+            float[] data = new float[newClip.samples * newClip.channels];
+            newClip.GetData(data, 0);
+
+            MemoryStream dataStream = new MemoryStream();
+            int x = sizeof(Int16);
+            Int16 maxValue = Int16.MaxValue;
+            int i = 0;
+            while (i < data.Length) {
+                dataStream.Write(BitConverter.GetBytes(Convert.ToInt16(data[i] * maxValue)), 0, x);
+                ++i;
+            }
+
+            Write(ref stream, dataStream.ToArray()); //, "DATA");
+            
+            dataStream.Dispose();
+
+
+            var path = AssetDatabase.GetAssetPath(oldClip);
+            
+            File.WriteAllBytes(path, stream.ToArray());
+            
+            stream.Dispose();
+
+            AssetDatabase.Refresh();
+
+            return AssetDatabase.LoadAssetAtPath<AudioClip>(path);
+#else 
+            
+            return newClip;
+#endif
+
+        }
+
+        private static int Write(ref MemoryStream stream, short val) => Write(ref stream, BitConverter.GetBytes(val));
+        
+        private static int Write(ref MemoryStream stream, int val) => Write(ref stream, BitConverter.GetBytes(val));
+
+        private static int Write(ref MemoryStream stream, ushort val) => Write(ref stream, BitConverter.GetBytes(val));
+
+
+        private static int Write(ref MemoryStream stream, byte[] bytes) {
+            int count = bytes.Length;
+            stream.Write(bytes, 0, count);
+            return count;
+        }
+        
+        public class EditorAudioPlayRequest {
+
+            public AudioClip clip;
+
+            public void FromTimeOffset(float timeOff) {
+
+                if (!clip)
+                    return;
+
+                #if UNITY_EDITOR
+                if (!Application.isPlaying) {
+                    if (setClipSamplePositionMethod == null)
+                        setClipSamplePositionMethod = AudioUtilClass.GetMethod("SetClipSamplePosition",
+                            BindingFlags.Static | BindingFlags.Public);
+
+                    int pos = (int) (clip.samples * Mathf.Clamp01(timeOff / clip.length));
+
+                    setClipSamplePositionMethod.Invoke(null, new object[] {clip, pos});
+                }
+                #endif
+            }
+
+            public EditorAudioPlayRequest(AudioClip clip) {
+                this.clip = clip;
+            }
+        }
+
+        #endregion
+
+        #region Unity Editor MGMT
 
         public static void Log(this string text)
         {
