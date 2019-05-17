@@ -467,7 +467,16 @@ namespace PlayerAndEditorGUI {
         
         private static bool fullWindowDocumentationClickOpen(string toolTip = "What is this?", int buttonSize = 20, icon clickIcon = icon.Question ) =>
             clickIcon.BgColor(Color.clear).Click(toolTip, buttonSize).PreviousBgColor();
-        
+
+        public static void fullWindowAreYouSureOpen(Action action, string header = "Are you sure?",
+            string text = "Click yes to confirm operation") {
+
+            PopUpService.areYouSureFunk = action;
+            PopUpService.popUpText = text;
+            PopUpService.popUpHeader = header;
+            PopUpService.InitiatePopUp();
+        }
+
         public static bool fullWindowDocumentationClickOpen(InspectionDelegate function, string toolTip = "What is this?", int buttonSize = 20)
         {
             if (fullWindowDocumentationClickOpen(toolTip, buttonSize))
@@ -554,7 +563,9 @@ namespace PlayerAndEditorGUI {
             private static string understoodPopUpText = "Got it";
 
             public static InspectionDelegate inspectDocumentationDelegate;
-            
+
+            public static Action areYouSureFunk;
+
             private static readonly List<string> gotItTexts = new List<string>()
             {
                 "I understand",
@@ -615,7 +626,7 @@ namespace PlayerAndEditorGUI {
                 switch (textsShown) {
                     case 0: understoodPopUpText = "OK";  break;
                     case 1: understoodPopUpText = "Got it!"; break;
-                    case 40: understoodPopUpText = "By clicking I confirm to selling my kidney"; break;
+                    case 666: understoodPopUpText = "By clicking I confirm to selling my kidney"; break;
                     default: understoodPopUpText = (textsShown < 20 ? gotItTexts : gotItTextsWeird).GetRandom();  break;
                 }
 
@@ -628,6 +639,7 @@ namespace PlayerAndEditorGUI {
                 relatedLink = null;
                 relatedLinkName = null;
                 inspectDocumentationDelegate = null;
+                areYouSureFunk = null;
             }
 
             #region Elements
@@ -670,8 +682,45 @@ namespace PlayerAndEditorGUI {
                 if (popUpTarget == null || popUpTarget != inspectedTarget)
                     return false;
 
-                if (!popUpText.IsNullOrEmpty())
-                {
+                if (areYouSureFunk != null) {
+
+                    if (icon.Close.Click("NO", 35))
+                        ClosePopUp();
+
+                    WriteHeaderIfAny();
+                    
+                    if (icon.Done.Click("YES", 35)) {
+                        try {
+                            areYouSureFunk();
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogError(ex.ToString());
+                        }
+                        ClosePopUp();
+                    }
+              
+
+                    nl();
+
+                    popUpText.writeBig();
+
+                    return true;
+
+                } else if (inspectDocumentationDelegate != null) {
+
+                    if (icon.Back.Click("Exit"))
+                        ClosePopUp();
+                    else {
+                        WriteHeaderIfAny().nl();
+
+                        inspectDocumentationDelegate();
+
+                        ContactOptions();
+                    }
+
+                    return true;
+                } else if (!popUpText.IsNullOrEmpty()) {
 
                     WriteHeaderIfAny().nl();
 
@@ -684,21 +733,7 @@ namespace PlayerAndEditorGUI {
                     return true;
                 }
 
-                if (inspectDocumentationDelegate != null)  {
-
-                    if (icon.Back.Click("Exit"))
-                        ClosePopUp();
-                    else
-                    {
-                        WriteHeaderIfAny().nl();
-
-                        inspectDocumentationDelegate();
-
-                        ContactOptions();
-                    }
-
-                    return true;
-                }
+             
 
                 return false;
             }
@@ -3093,7 +3128,7 @@ namespace PlayerAndEditorGUI {
 
             return isFoldedOutOrEntered;
         }
-
+        
         private static bool enter_SkipToOnlyElement<T>(this List<T> list, ref int inspected)
         {
 
@@ -3140,6 +3175,14 @@ namespace PlayerAndEditorGUI {
             return entered;
         }
 
+        private static bool enter_HeaderPart<T>(this ListMetaData meta, ref List<T> list, ref bool entered, bool showLabelIfTrue = false)
+        {
+            int tmpEntered = entered ? 1 : -1;
+            var ret = meta.enter_HeaderPart(ref list, ref tmpEntered, 1, showLabelIfTrue);
+            entered = tmpEntered == 1;
+            return ret;
+        }
+
         private static bool enter_HeaderPart<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne, bool showLabelIfTrue = false) {
 
             if (listIsNull(ref list)) {
@@ -3149,9 +3192,6 @@ namespace PlayerAndEditorGUI {
             }
 
             var entered = enteredOne == thisOne;
-
-           // if (entered)
-               // listMeta.searchData.ToggleSearch(list);
 
             var ret = meta.Icon.enter(meta.label.AddCount(list, entered), ref enteredOne, thisOne, showLabelIfTrue, list.Count == 0 ? PEGI_Styles.WrappingText : null);
             
@@ -3267,6 +3307,7 @@ namespace PlayerAndEditorGUI {
             }
             else return "{0} [1]".F(txt);
         }
+
         public static bool enter_Inspect(this icon ico, string txt, IPEGI var, ref int enteredOne, int thisOne, bool showLabelIfTrue = true)
         {
             var changed = false;
@@ -3286,6 +3327,25 @@ namespace PlayerAndEditorGUI {
                 var.ToPegiString().enter_Inspect(var, ref enteredOne, thisOne);
         }
 
+        public static bool enter_Inspect(this IPEGI var, ref bool entered)
+        {
+
+            var lst = var as IPEGI_ListInspect;
+
+            return lst != null ? lst.enter_Inspect_AsList(ref entered) :
+                var.ToPegiString().enter_Inspect(var, ref entered);
+        }
+
+        public static bool enter_Inspect(this string txt, IPEGI var, ref bool entered, bool showLabelIfTrue = true)
+        {
+            var changed = false;
+
+            if (txt.TryAddCount(var).enter(ref entered, showLabelIfTrue))
+                var.Try_NameInspect().changes(ref changed);
+
+            return (isFoldedOutOrEntered && var.Nested_Inspect()) || changed;
+        }
+
         public static bool enter_Inspect(this string txt, IPEGI var, ref int enteredOne, int thisOne, bool showLabelIfTrue = true, GUIStyle enterLabelStyle = null)
         {
             var changed = false;
@@ -3301,6 +3361,14 @@ namespace PlayerAndEditorGUI {
             if (enteredOne == -1)
                 label.TryAddCount(var).write(width);
             return var.enter_Inspect_AsList(ref enteredOne, thisOne);
+        }
+
+        public static bool enter_Inspect_AsList(this IPEGI_ListInspect var, ref bool entered)
+        {
+            var tmpEnt = entered ? 1 : -1;
+            var ret = var.enter_Inspect_AsList(ref tmpEnt, 1);
+            entered = tmpEnt == 1;
+            return ret;
         }
 
         public static bool enter_Inspect_AsList(this IPEGI_ListInspect var, ref int enteredOne, int thisOne)
@@ -3516,8 +3584,7 @@ namespace PlayerAndEditorGUI {
 
             return changed;
         }
-
-
+        
         public static bool enter_List<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) 
         {
             var changed = false;
@@ -3565,28 +3632,17 @@ namespace PlayerAndEditorGUI {
 
             return changed;
         }
-
-
+        
         #region Tagged Types
 
         public static T enter_List<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne, TaggedTypesCfg types, ref bool changed) =>
             meta.enter_HeaderPart(ref list, ref enteredOne, thisOne) ? meta.edit_List(ref list, types, ref changed) : default(T);
-        
 
-      /*  public static bool enter_List<T>(this string label, ref List<T> list, ref int enteredOne, int thisOne, TaggedTypes_STD types) {
+        public static T enter_List<T>(this ListMetaData meta, ref List<T> list, ref bool entered, TaggedTypesCfg types, ref bool changed) =>
+            meta.enter_HeaderPart(ref list, ref entered) ? meta.edit_List(ref list, types, ref changed) : default(T);
 
-            bool changed = false;
-            int insp = -1;
 
-             if (enter_ListIcon(label, ref list,ref insp, ref enteredOne, thisOne)) 
-                label.edit_List(ref list, types, ref changed);
-            
-
-            return changed;
-        }*/
-       
         #endregion
-
 
         public static bool conditional_enter_List<T>(this string label, bool canEnter, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) 
         {
@@ -3708,6 +3764,91 @@ namespace PlayerAndEditorGUI {
                 UnityUtils.FocusOn(go);
             }
 #endif
+        }
+        
+        private static string _confirmTag;
+        private static object _objectToConfirm;
+
+        private static void RequestConfirmation(string tag, object forObject = null)
+        {
+            _confirmTag = tag;
+            _objectToConfirm = forObject;
+        }
+
+        private static void CloseConfirmation()
+        {
+            _confirmTag = null;
+            _objectToConfirm = null;
+        }
+
+        private static bool IsConfirmRequestedFor(string confirmationTag, object obj) =>
+            confirmationTag.Equals(_confirmTag) && ((_objectToConfirm != null && _objectToConfirm.Equals(obj)) ||
+                                                    (obj == null && _objectToConfirm == null));
+
+        private static bool ConfirmClick() {
+
+
+            nl();
+
+            if (icon.Close.Click("NO", 30))
+                CloseConfirmation();
+            "Are you sure?".write();
+
+            if (icon.Done.Click("YES", 30))
+            {
+                CloseConfirmation();
+                return true;
+            }
+
+            nl();
+            
+
+            return false;
+        }
+
+        public static bool ClickConfirm(this string label, string confirmationTag) {
+
+            if (confirmationTag.Equals(_confirmTag))
+                return ConfirmClick();
+
+            if (label.ClickUnFocus())
+                RequestConfirmation(confirmationTag);
+
+            return false;
+        }
+
+        public static bool ClickConfirm(this Texture tex, string confirmationTag)
+        {
+
+            if (confirmationTag.Equals(_confirmTag))
+                return ConfirmClick();
+
+            if (tex.ClickUnFocus())
+                RequestConfirmation(confirmationTag);
+
+            return false;
+        }
+
+        public static bool ClickConfirm(this icon icon, string confirmationTag, string tip = "", int width = defaultButtonSize) {
+
+            if (confirmationTag.Equals(_confirmTag))
+                return ConfirmClick();
+
+            if (icon.ClickUnFocus(tip, width))
+                RequestConfirmation(confirmationTag);
+
+            return false;
+        }
+
+        public static bool ClickConfirm(this icon icon, string confirmationTag, object obj, string tip = "", int width = defaultButtonSize) {
+
+            if (IsConfirmRequestedFor(confirmationTag, obj))
+                return ConfirmClick();
+
+            if (icon.ClickUnFocus(tip, width))
+                RequestConfirmation(confirmationTag, obj);
+
+            return false;
         }
 
         public static bool ClickLabel(this string label, string hint = "ClickAble Text", int width = -1, GUIStyle style = null)
@@ -6635,7 +6776,7 @@ namespace PlayerAndEditorGUI {
 
                 if ((listMeta == null || listMeta.allowDelete) && list.Count > 0)
                 {
-                    if (selectedCount > 0 && icon.Delete.Click("Delete {0} Selected".F(selectedCount)))
+                    if (selectedCount > 0 && icon.Delete.ClickConfirm("delLstPegi", list,"Delete {0} Selected".F(selectedCount)))
                     {
                         if (listMeta == null)
                         {
@@ -8430,7 +8571,22 @@ namespace PlayerAndEditorGUI {
 
         #endregion
 
+        public static bool Nested_Inspect(pegi.InspectionDelegate function)
+        {
+
+            if (function())
+            {
+                function.Target.SetToDirty_Obj();
+                return true;
+            }
+
+            return false;
+        }
+
+
         #endif
+
+
 
     }
 
@@ -8511,8 +8667,7 @@ namespace PlayerAndEditorGUI {
 
         public static void ResetInspectedChain() => inspectionChain.Clear();
 
-        public static bool Nested_Inspect(this IPEGI pgi)
-        {
+        public static bool Nested_Inspect(this IPEGI pgi) {
 
             if (pgi.IsNullOrDestroyed_Obj())
                 return false;
@@ -8536,8 +8691,7 @@ namespace PlayerAndEditorGUI {
             }
             else
                 "3rd recursion".writeWarning();
-
-
+            
             if (changed || pegi.globChanged)
                 {
                     #if UNITY_EDITOR
@@ -8546,14 +8700,12 @@ namespace PlayerAndEditorGUI {
                     pgi.SetToDirty_Obj();
                 }
 
-                pegi.isFoldedOutOrEntered = isFOOE;
+            pegi.isFoldedOutOrEntered = isFOOE;
 
-                return changed;
+            return changed;
 
         }
-
-
-
+        
         public static bool Inspect_AsInList<T>(this T obj, List<T> list, int current, ref int inspected) where T : IPEGI_ListInspect
         {
             var changes = obj.InspectInList(list, current, ref inspected);

@@ -457,7 +457,6 @@ namespace QuizCannersUtilities {
             if (!clip) return rqst;
 
             #if UNITY_EDITOR
-            
             if (playClipMethod == null) {
                 playClipMethod = AudioUtilClass.GetMethod("PlayClip",
                     BindingFlags.Static | BindingFlags.Public,
@@ -604,8 +603,7 @@ namespace QuizCannersUtilities {
         private static int Write(ref MemoryStream stream, int val) => Write(ref stream, BitConverter.GetBytes(val));
 
         private static int Write(ref MemoryStream stream, ushort val) => Write(ref stream, BitConverter.GetBytes(val));
-
-
+        
         private static int Write(ref MemoryStream stream, byte[] bytes) {
             int count = bytes.Length;
             stream.Write(bytes, 0, count);
@@ -639,6 +637,31 @@ namespace QuizCannersUtilities {
             }
         }
 
+        public static float GetLoudestPoint(this AudioClip clip)
+        {
+            if (!clip)
+                return 0;
+
+            int length = clip.samples;
+            float[] data = new float[length];
+            clip.GetData(data, 0);
+
+            int maxSample = 0;
+            float maxVolume = 0;
+            
+            for (int i = 0; i < length; i++) {
+
+                var volume = Mathf.Abs(data[i]);
+
+                if (volume > maxVolume) {
+                    maxVolume = volume;
+                    maxSample = i;
+                }
+            }
+            
+            return ((float)maxSample) / ( (float)(clip.frequency * clip.channels));
+        }
+        
         #endregion
 
         #region Unity Editor MGMT
