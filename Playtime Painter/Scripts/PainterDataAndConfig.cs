@@ -498,9 +498,14 @@ public bool useFloatForScalingBuffers;
             if (inspectedItems == -1) {
 
                 #if UNITY_EDITOR
-                
+
                 if ("Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay).nl())
                     MeshManager.Inst.DisconnectMesh();
+
+                if (enablePainterUIonPlay) {
+                    "To have icons in your build move PlaytimePainter->Scripts->quizcanners->Editor->Resources outside of Editor folder (should be quizcanners->Resources)".writeHint();
+                    pegi.nl();
+                }
 
                 "Hide documentation".toggleIcon(ref hideDocumentation).changes(ref changed);
                 MsgPainter.aboutDisableDocumentation.DocumentationClick();

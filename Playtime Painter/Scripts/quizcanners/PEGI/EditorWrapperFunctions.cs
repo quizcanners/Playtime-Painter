@@ -21,7 +21,7 @@ namespace PlayerAndEditorGUI {
 
         public enum EditorType { Mono, ScriptableObject, Material, Unknown }
 
-        public static EditorType editorType = EditorType.Unknown;
+        public static EditorType editorTypeForDefaultInspector = EditorType.Unknown;
 
         private static bool _lineOpen = false;
         private static int _selectedFold = -1;
@@ -34,7 +34,7 @@ namespace PlayerAndEditorGUI {
             newLine();
 
             EditorGUI.BeginChangeCheck();
-            switch (editorType) {
+            switch (editorTypeForDefaultInspector) {
                 case EditorType.Material:  _materialEditor?.DrawDefaultInspector(); break;
                 default: if (_editor!= null) _editor.DrawDefaultInspector(); break;
             }
@@ -46,7 +46,7 @@ namespace PlayerAndEditorGUI {
         {
             _editor = editor;
 
-            editorType = EditorType.Mono;
+            editorTypeForDefaultInspector = EditorType.Mono;
 
             var o = (T)editor.target;
             var so = editor.serializedObject;
@@ -105,7 +105,7 @@ namespace PlayerAndEditorGUI {
         {
             _editor = editor;
 
-            editorType = EditorType.ScriptableObject;
+            editorTypeForDefaultInspector = EditorType.ScriptableObject;
 
             var o = (T)editor.target;
             var so = editor.serializedObject;
@@ -130,7 +130,7 @@ namespace PlayerAndEditorGUI {
 
             _materialEditor = editor;
 
-            editorType = EditorType.Material;
+            editorTypeForDefaultInspector = EditorType.Material;
 
             pegi.inspectedTarget = editor.unityMaterialEditor.target;
 
@@ -145,11 +145,33 @@ namespace PlayerAndEditorGUI {
             return changes || changed;
         }
 
-        public static bool toggleDefaultInspector() =>
-            editorType == EditorType.Material 
-                ? pegi.toggle(ref PEGI_Inspector_Material.drawDefaultInspector, icon.Config, icon.Debug, "Toggle Between regular and PEGI Material inspector", 20) 
-                : pegi.toggle(ref PEGI_Inspector_Base.drawDefaultInspector, icon.Config, icon.Debug, "Toggle Between regular and PEGI inspector", 20);
-          
+        public static bool toggleDefaultInspector()
+        {
+            var changed = false;
+
+            if (editorTypeForDefaultInspector == EditorType.Material)
+            {
+                pegi.toggle(ref PEGI_Inspector_Material.drawDefaultInspector, icon.Exit, icon.Debug,
+                    "Toggle Between regular and PEGI Material inspector", 20).changes(ref changed);
+
+                if (PEGI_Inspector_Material.drawDefaultInspector &&
+                    "Custom Inspector".ClickLabel(style: PEGI_Styles.ExitLabel).nl(ref changed))
+                    PEGI_Inspector_Material.drawDefaultInspector = false;
+            }
+            else
+            {
+                 pegi.toggle(ref PEGI_Inspector_Base.drawDefaultInspector, icon.Exit, icon.Debug,
+                    "Toggle Between regular and PEGI inspector", 20).changes(ref changed);
+
+                 if (PEGI_Inspector_Base.drawDefaultInspector &&
+                     "Custom Inspector".ClickLabel(style: PEGI_Styles.ExitLabel).nl(ref changed))
+                     PEGI_Inspector_Base.drawDefaultInspector = false;
+
+            }
+
+            return changed;
+        }
+
         static void start(SerializedObject so = null) {
             _elementIndex = 0;
             PEGI_Extensions.focusInd = 0;

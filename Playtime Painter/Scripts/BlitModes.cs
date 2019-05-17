@@ -95,7 +95,7 @@ namespace PlaytimePainter {
             return BlitFunctions.AlphaBlitOpaque;
         }
 
-        public virtual BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Alpha;
+        //public virtual BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Alpha;
 
         public virtual bool AllSetUp => true;
         public virtual bool SupportedByTex2D => true;
@@ -281,7 +281,7 @@ namespace PlaytimePainter {
         public override bool SupportedBySingleBuffer => false;
 
         public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.SubtractBlit;
-        public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Subtract;
+        //public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Subtract;
         
         public BlitModeSubtract(int ind) : base(ind) { }
 
@@ -316,7 +316,7 @@ namespace PlaytimePainter {
         public override bool SupportedByRenderTexturePair => false;
         public override bool SupportedBySingleBuffer => false;
         public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.MinBlit;
-        public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Min;
+        //public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Min;
 
         public BlitModeMin(int ind) : base(ind) { }
     }
@@ -334,7 +334,7 @@ namespace PlaytimePainter {
         public override bool SupportedByRenderTexturePair => false;
         public override bool SupportedBySingleBuffer => false;
         public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.MaxBlit;
-        public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Max;
+        //public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Max;
 
         //"Paints highest value between brush color and current texture color for each channel.";
         public BlitModeMax(int ind) : base(ind) { }

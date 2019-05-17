@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using System;
+using System.Globalization;
 using System.Linq;
 
 using System.Linq.Expressions;
@@ -1243,21 +1244,23 @@ namespace PlayerAndEditorGUI {
             
         }
 
-        public static void writeHint(this string text)
+        public static void writeHint(this string text, bool startNewLineAfter = true)
         {
         
         #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
             {
                 ef.writeHint(text, MessageType.Info);
-                ef.newLine();
+                if (startNewLineAfter)
+                    ef.newLine();
                 return;
             }
         #endif
             
             checkLine();
             GUILayout.Label(text);
-            newLine();
+            if (startNewLineAfter)
+                newLine();
             
 
         }
@@ -3312,8 +3315,9 @@ namespace PlayerAndEditorGUI {
         {
             var changed = false;
 
-            if (ico.enter(txt.TryAddCount(var), ref enteredOne, thisOne, showLabelIfTrue).nl_ifNotEntered()) 
-                var.Try_NameInspect().changes(ref changed);
+            //if (
+                    ico.enter(txt.TryAddCount(var), ref enteredOne, thisOne, showLabelIfTrue).nl_ifNotEntered();//) 
+                //var.Try_NameInspect().changes(ref changed);
 
             return (isFoldedOutOrEntered && var.Nested_Inspect()) || changed;
         }
@@ -3340,8 +3344,9 @@ namespace PlayerAndEditorGUI {
         {
             var changed = false;
 
-            if (txt.TryAddCount(var).enter(ref entered, showLabelIfTrue))
-                var.Try_NameInspect().changes(ref changed);
+            //if (
+                    txt.TryAddCount(var).enter(ref entered, showLabelIfTrue);//)
+               // var.Try_NameInspect().changes(ref changed);
 
             return (isFoldedOutOrEntered && var.Nested_Inspect()) || changed;
         }
@@ -3350,17 +3355,19 @@ namespace PlayerAndEditorGUI {
         {
             var changed = false;
 
-            if (txt.TryAddCount(var).enter(ref enteredOne, thisOne, showLabelIfTrue, enterLabelStyle))
-                var.Try_NameInspect().changes(ref changed);
+           // if (
+                    txt.TryAddCount(var).enter(ref enteredOne, thisOne, showLabelIfTrue, enterLabelStyle);//)
+                //var.Try_NameInspect().changes(ref changed);
 
             return (isFoldedOutOrEntered && var.Nested_Inspect()) || changed;
         }
 
-        public static bool enter_Inspect(this string label, int width, IPEGI_ListInspect var, ref int enteredOne, int thisOne)
+        public static bool enter_Inspect(this string label, IPEGI_ListInspect var, ref int enteredOne, int thisOne)
         {
-            if (enteredOne == -1)
-                label.TryAddCount(var).write(width);
-            return var.enter_Inspect_AsList(ref enteredOne, thisOne);
+            if (enteredOne == -1 && label.TryAddCount(var).ClickLabel(style: PEGI_Styles.EnterLabel))
+                enteredOne = thisOne;
+
+            return var.enter_Inspect_AsList(ref enteredOne, thisOne, label);
         }
 
         public static bool enter_Inspect_AsList(this IPEGI_ListInspect var, ref bool entered)
@@ -3371,7 +3378,7 @@ namespace PlayerAndEditorGUI {
             return ret;
         }
 
-        public static bool enter_Inspect_AsList(this IPEGI_ListInspect var, ref int enteredOne, int thisOne)
+        public static bool enter_Inspect_AsList(this IPEGI_ListInspect var, ref int enteredOne, int thisOne, string exitLabel = null)
         {
             var changed = false;
 
@@ -3381,8 +3388,13 @@ namespace PlayerAndEditorGUI {
 
                 if (outside)
                     var.InspectInList(null, thisOne, ref enteredOne).changes(ref changed);
-                else if (enteredOne == thisOne) {
-                    if (icon.Exit.ClickUnFocus("Exit L {0}".F(var)))
+                else if (enteredOne == thisOne)
+                {
+
+                    if (exitLabel.IsNullOrEmpty())
+                        exitLabel = var.ToPegiString();
+
+                    if (icon.Exit.ClickUnFocus("Exit L {0}".F(var)) || exitLabel.ClickLabel("Click to exit", style: PEGI_Styles.ExitLabel))
                         enteredOne = -1;
                     var.Try_Nested_Inspect().changes(ref changed);
                 }
@@ -3402,10 +3414,10 @@ namespace PlayerAndEditorGUI {
             var ilpgi = obj as IPEGI_ListInspect;
 
             if (ilpgi != null)
-                changed |= label.enter_Inspect(50, ilpgi, ref enteredOne, thisOne).nl_ifFolded();
+                label.enter_Inspect(ilpgi, ref enteredOne, thisOne).nl_ifFolded(ref changed);
             else {
                 var ipg = obj as IPEGI;
-                changed |= label.conditional_enter_inspect(ipg != null, ipg, ref enteredOne, thisOne).nl_ifFolded();
+                label.conditional_enter_inspect(ipg != null, ipg, ref enteredOne, thisOne).nl_ifFolded(ref changed);
             }
 
         
@@ -3413,13 +3425,18 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
 
-        public static bool conditional_enter(this icon ico, bool canEnter, ref int enteredOne, int thisOne) {
+        public static bool conditional_enter(this icon ico, bool canEnter, ref int enteredOne, int thisOne, string exitLabel = "") {
 
             if (!canEnter && enteredOne == thisOne)
                 enteredOne = -1;
 
             if (canEnter)
+            {
                 ico.enter(ref enteredOne, thisOne);
+                if (enteredOne == thisOne && !exitLabel.IsNullOrEmpty() &&
+                    exitLabel.ClickLabel("Click to exit", style: PEGI_Styles.ExitLabel))
+                    enteredOne = -1;
+            }
             else
                 isFoldedOutOrEntered = false;
 
@@ -3466,9 +3483,7 @@ namespace PlayerAndEditorGUI {
             {
                 if (icon.Back.Click() || "All Done here".Click(14))
                     entered = false;
-            }
-            else
-            {
+            } else {
 
                 if (canEnter)
                     label.enter(ref entered, showLabelIfTrue);
@@ -3640,8 +3655,7 @@ namespace PlayerAndEditorGUI {
 
         public static T enter_List<T>(this ListMetaData meta, ref List<T> list, ref bool entered, TaggedTypesCfg types, ref bool changed) =>
             meta.enter_HeaderPart(ref list, ref entered) ? meta.edit_List(ref list, types, ref changed) : default(T);
-
-
+        
         #endregion
 
         public static bool conditional_enter_List<T>(this string label, bool canEnter, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) 
@@ -3768,11 +3782,13 @@ namespace PlayerAndEditorGUI {
         
         private static string _confirmTag;
         private static object _objectToConfirm;
+        private static string _confirmationDetails;
 
-        private static void RequestConfirmation(string tag, object forObject = null)
+        private static void RequestConfirmation(string tag, object forObject = null, string details = "")
         {
             _confirmTag = tag;
             _objectToConfirm = forObject;
+            _confirmationDetails = details;
         }
 
         private static void CloseConfirmation()
@@ -3781,18 +3797,20 @@ namespace PlayerAndEditorGUI {
             _objectToConfirm = null;
         }
 
-        private static bool IsConfirmRequestedFor(string confirmationTag, object obj) =>
+        public static bool IsConfirmingRequestedFor(string tag) => (!_confirmTag.IsNullOrEmpty() && _confirmTag.Equals(tag));
+        
+        public static bool IsConfirmingRequestedFor(string confirmationTag, object obj) =>
             confirmationTag.Equals(_confirmTag) && ((_objectToConfirm != null && _objectToConfirm.Equals(obj)) ||
                                                     (obj == null && _objectToConfirm == null));
 
         private static bool ConfirmClick() {
-
-
+            
             nl();
 
             if (icon.Close.Click("NO", 30))
                 CloseConfirmation();
-            "Are you sure?".write();
+
+            (_confirmationDetails.IsNullOrEmpty() ? "Are you sure?" : _confirmationDetails).writeHint(false);
 
             if (icon.Done.Click("YES", 30))
             {
@@ -3802,17 +3820,6 @@ namespace PlayerAndEditorGUI {
 
             nl();
             
-
-            return false;
-        }
-
-        public static bool ClickConfirm(this string label, string confirmationTag) {
-
-            if (confirmationTag.Equals(_confirmTag))
-                return ConfirmClick();
-
-            if (label.ClickUnFocus())
-                RequestConfirmation(confirmationTag);
 
             return false;
         }
@@ -3828,6 +3835,17 @@ namespace PlayerAndEditorGUI {
 
             return false;
         }
+        
+        public static bool ClickConfirm(this string label, string confirmationTag, string tip = "") {
+
+            if (confirmationTag.Equals(_confirmTag))
+                return ConfirmClick();
+
+            if (label.ClickUnFocus(tip))
+                RequestConfirmation(confirmationTag, details: tip);
+
+            return false;
+        }
 
         public static bool ClickConfirm(this icon icon, string confirmationTag, string tip = "", int width = defaultButtonSize) {
 
@@ -3835,18 +3853,18 @@ namespace PlayerAndEditorGUI {
                 return ConfirmClick();
 
             if (icon.ClickUnFocus(tip, width))
-                RequestConfirmation(confirmationTag);
+                RequestConfirmation(confirmationTag, details: tip);
 
             return false;
         }
 
         public static bool ClickConfirm(this icon icon, string confirmationTag, object obj, string tip = "", int width = defaultButtonSize) {
 
-            if (IsConfirmRequestedFor(confirmationTag, obj))
+            if (IsConfirmingRequestedFor(confirmationTag, obj))
                 return ConfirmClick();
 
             if (icon.ClickUnFocus(tip, width))
-                RequestConfirmation(confirmationTag, obj);
+                RequestConfirmation(confirmationTag, obj, tip);
 
             return false;
         }
@@ -3899,6 +3917,18 @@ namespace PlayerAndEditorGUI {
             checkLine();
             return GUILayout.Button(text, GUILayout.MaxWidth(maxWidthForPlaytimeButtonText)).DirtyUnFocus();
         }
+
+        public static bool ClickUnFocus(this string text, string tip)
+        {
+
+            #if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.Click(text, tip).UnFocus();
+            #endif
+            checkLine();
+            return GUILayout.Button(TextAndTip(text,tip), GUILayout.MaxWidth(maxWidthForPlaytimeButtonText)).DirtyUnFocus();
+        }
+
 
         public static bool Click(this string label, int fontSize)
         {
@@ -4613,27 +4643,46 @@ namespace PlayerAndEditorGUI {
             List<T> selectFrom = null) where T : Object
         {
             var changed = false;
+            
+            var lst = obj as IPEGI_ListInspect;
 
+            if (lst != null) {
+
+                lst.enter_Inspect_AsList(ref entered, current, label).changes(ref changed); //)
+                //obj.Try_Nested_Inspect().changes(ref changed);
+
+            }
+            else
+            {
+                var pgi = obj.TryGet_fromObj<IPEGI>();
+
+                if (icon.Enter.conditional_enter(pgi != null, ref entered, current, label))
+                    pgi.Nested_Inspect().changes(ref changed);
+
+            }
+            
             if (entered == -1) {
 
-                if (obj && icon.Delete.Click("Null this object"))
-                        obj = null;
+                if (selectFrom == null) {
 
-                if (selectFrom == null)
-                {
                     string lab = label;
 
                     if (lab.IsNullOrEmpty()) {
+
                         if (obj)
                             lab = obj.ToPegiString();
                         else
                             lab = typeof(T).ToPegiStringType();
                     }
-                
+
                     if (width > 0)
-                        lab.write(width);
-                    else 
-                        lab.write();
+                    {
+                        if (lab.ClickLabel("Click to Inspect", width, PEGI_Styles.EnterLabel))
+                            entered = current;
+                    }
+                    else
+                    if (lab.ClickLabel("Click to Inspect", style: PEGI_Styles.EnterLabel))
+                        entered = current;
 
                     if (!obj)
                         edit(ref obj).changes(ref changed);
@@ -4642,30 +4691,14 @@ namespace PlayerAndEditorGUI {
                     label.select_or_edit(width, ref obj, selectFrom).changes(ref changed);
 
                 obj.ClickHighlight();
+
+                if (obj && icon.Delete.Click("Null this object"))
+                    obj = null;
             }
-
-            var lst = obj as IPEGI_ListInspect;
-
-            if (lst != null)
-            {
-                if (lst.enter_Inspect_AsList(ref entered, current).changes(ref changed))
-                {
-                    obj.Try_NameInspect(label).changes(ref changed);
-                    obj.Try_Nested_Inspect().changes(ref changed);
-                }
-            }
-            else
-            {
-                var pgi = obj.TryGet_fromObj<IPEGI>();
-
-                if (icon.Enter.conditional_enter(pgi != null, ref entered, current)) {
-                    obj.Try_NameInspect(label).changes(ref changed);
-                    pgi.Nested_Inspect().changes(ref changed);
-                }
-            }
-        
-
-        return changed;
+            
+           
+            
+            return changed;
         }
         
         #endregion
@@ -5933,7 +5966,6 @@ namespace PlayerAndEditorGUI {
         private static int _listSectionMax;
         private static int _listSectionStartIndex;
         private static readonly CountlessInt ListSectionOptimal = new CountlessInt();
-
         private static void SetOptimalSectionFor(int count)
         {
             const int listShowMax = 10;
@@ -6359,7 +6391,7 @@ namespace PlayerAndEditorGUI {
             bool inspecting = inspected != -1;
 
             if (!inspecting)
-                searchData.ToggleSearch(lst);
+                searchData.ToggleSearch(lst, label);
 
             if (lst != null && inspected >= 0 && lst.Count > inspected) 
                 label = "{0}->{1}".F(label, lst[inspected].ToPegiString());
@@ -6374,10 +6406,8 @@ namespace PlayerAndEditorGUI {
             currentListLabel = ld.label;
 
             if (!ld.Inspecting)
-                ld.searchData.ToggleSearch(lst);
-
-
-
+                ld.searchData.ToggleSearch(lst, ld.label);
+            
             if (lst != null && ld.inspected >= 0 && lst.Count > ld.inspected) {
 
                 var el = lst[ld.inspected];
@@ -7571,7 +7601,7 @@ namespace PlayerAndEditorGUI {
                         var el = list[i];
                         if (el.IsNullOrDestroyed_Obj()) {
                             if (!isMonoType(list, i)) {
-                                write(typeof(T).IsSubclassOf(typeof(UnityEngine.Object))
+                                write(typeof(T).IsSubclassOf(typeof(Object))
                                     ? "use edit_List_UObj"
                                     : "is NUll");
                             }
@@ -8511,7 +8541,7 @@ namespace PlayerAndEditorGUI {
             private string[] searchBys;
             public List<int> filteredListElements = new List<int>();
 
-            public void ToggleSearch(IList ld)
+            public void ToggleSearch(IList ld, string label = "")
             {
 
                 if (ld == null)
@@ -8524,7 +8554,7 @@ namespace PlayerAndEditorGUI {
                 if (active && icon.FoldedOut.Click("Hide Search {0}".F(ld), 20).changes(ref changed))
                     active = false;
 
-                if (!active && ld!=editing_List_Order && icon.Search.Click("Search {0}".F(ld), 20).changes(ref changed)) 
+                if (!active && ld!=editing_List_Order && icon.Search.Click("Search {0}".F(label.IsNullOrEmpty() ? ld.ToString() : label), 20).changes(ref changed)) 
                     active = true;
                 
                 if (!changed) return;

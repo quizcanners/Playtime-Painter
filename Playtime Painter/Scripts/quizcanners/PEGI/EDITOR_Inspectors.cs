@@ -41,7 +41,7 @@ namespace PlayerAndEditorGUI {
                 return;
             }
 
-            ef.editorType = ef.EditorType.Material;
+            ef.editorTypeForDefaultInspector = ef.EditorType.Material;
 
             pegi.toggleDefaultInspector();
 #endif
@@ -88,12 +88,12 @@ namespace PlayerAndEditorGUI {
                 Inspect(this).RestoreBGColor();
                 return;
             }
-            
-            ef.editorType = EditorType;
+
+            ef.editorTypeForDefaultInspector = EditorType;
 
             pegi.toggleDefaultInspector();
             #endif
-
+       
             DrawDefaultInspector();
         }
 

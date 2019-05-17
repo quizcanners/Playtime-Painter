@@ -2087,21 +2087,23 @@ namespace PlaytimePainter {
 
                                         pegi.nl();
 
+                                        const string confirmTag = "pp_EditThisMesh";
 
-                                        if ("Copy & Edit".Click())
-                                            mg.EditMesh(this, true);
+                                        if (!pegi.IsConfirmingRequestedFor(confirmTag)) {
+                                            if ("Copy & Edit".Click())
+                                                mg.EditMesh(this, true);
 
-                                        if ("New Mesh".Click()) {
-                                            Mesh = new Mesh();
-                                            SavedEditableMesh = null;
-                                            mg.EditMesh(this, false);
+                                            if ("New Mesh".Click()) {
+                                                Mesh = new Mesh();
+                                                SavedEditableMesh = null;
+                                                mg.EditMesh(this, false);
+                                            }
                                         }
 
-                                        if ("Edit this (Risky)".Click().nl())
+                                        if ("Edit this".ClickConfirm(confirmTag, "It is recommended to edit a copy of a mesh and then save it as new mesh. Are you sure you want to edit the original one?").nl())
                                             mg.EditMesh(this, false);
                                     }
                                 }
-
                             }
                             else if ("Add Mesh Filter/Renderer".Click().nl())
                             {
@@ -2588,11 +2590,10 @@ namespace PlaytimePainter {
                                 {
                                     var param = GetMaterialTextureProperty;
 
-                                    if (icon.NewTexture
-                                        .Click((id == null)
-                                            ? "Create new texture2D for " + param
-                                            : "Replace " + param + " with new Texture2D " + texScale + "*" + texScale)
-                                        .nl(ref changed))
+                                    const string newTexConfirmTag = "pp_nTex";
+
+                                    if ((((id == null) && icon.NewTexture.Click("Create new texture2D for " + param)) || 
+                                        (id != null && icon.NewTexture.ClickConfirm(newTexConfirmTag, id ,"Replace " + param + " with new Texture2D " + texScale + "*" + texScale) )).nl(ref changed))
                                     {
                                         if (isTerrainHeight)
                                             CreateTerrainHeightTexture(nameHolder);
@@ -2600,52 +2601,59 @@ namespace PlaytimePainter {
                                             CreateTexture2D(texScale, nameHolder, cfg.newTextureIsColor);
                                     }
 
-                                    if (cfg.showRecentTextures)
+                                    if (!pegi.IsConfirmingRequestedFor(newTexConfirmTag))
                                     {
 
-                                        var texName = GetMaterialTextureProperty;
+                                        if (cfg.showRecentTextures) {
 
-                                        List<ImageMeta> recentTexs;
-                                        if (texName != null &&
-                                            PainterCamera.Data.recentTextures.TryGetValue(texName, out recentTexs) &&
-                                            (recentTexs.Count > 0)
-                                            && (id == null || (recentTexs.Count > 1) ||
-                                                (id != recentTexs[0].texture2D.GetImgDataIfExists()))
-                                            && "Recent Textures:".select(100, ref id, recentTexs).nl(ref changed))
-                                            ChangeTexture(id.ExclusiveTexture());
+                                            var texName = GetMaterialTextureProperty;
 
-                                    }
+                                            List<ImageMeta> recentTexs;
+                                            if (texName != null &&
+                                                PainterCamera.Data.recentTextures.TryGetValue(texName,
+                                                    out recentTexs) &&
+                                                (recentTexs.Count > 0)
+                                                && (id == null || (recentTexs.Count > 1) ||
+                                                    (id != recentTexs[0].texture2D.GetImgDataIfExists()))
+                                                && "Recent Textures:".select(100, ref id, recentTexs).nl(ref changed))
+                                                ChangeTexture(id.ExclusiveTexture());
 
-                                    if (id == null && cfg.allowExclusiveRenderTextures &&
-                                        "Create Render Texture".Click(ref changed))
-                                        CreateRenderTexture(texScale, nameHolder);
+                                        }
 
-                                    if (id != null && cfg.allowExclusiveRenderTextures)
-                                    {
-                                        if (!id.renderTexture && "Add Render Tex".Click(ref changed))
-                                            id.AddRenderTexture();
+                                        if (id == null && cfg.allowExclusiveRenderTextures &&
+                                            "Create Render Texture".Click(ref changed))
+                                            CreateRenderTexture(texScale, nameHolder);
 
-                                        if (id.renderTexture)
+                                        if (id != null && cfg.allowExclusiveRenderTextures)
                                         {
+                                            if (!id.renderTexture && "Add Render Tex".Click(ref changed))
+                                                id.AddRenderTexture();
 
-                                            if ("Replace RendTex".Click(
-                                                "Replace " + param + " with Rend Tex size: " + texScale, ref changed))
-                                                CreateRenderTexture(texScale, nameHolder);
-
-                                            if ("Remove RendTex".Click().nl(ref changed))
+                                            if (id.renderTexture)
                                             {
 
-                                                if (id.texture2D)
-                                                {
-                                                    UpdateOrSetTexTarget(TexTarget.Texture2D);
-                                                    id.renderTexture = null;
-                                                }
-                                                else
-                                                    RemoveTextureFromMaterial();
+                                                if ("Replace RendTex".Click(
+                                                    "Replace " + param + " with Rend Tex size: " + texScale,
+                                                    ref changed))
+                                                    CreateRenderTexture(texScale, nameHolder);
 
+                                                if ("Remove RendTex".Click().nl(ref changed))
+                                                {
+
+                                                    if (id.texture2D)
+                                                    {
+                                                        UpdateOrSetTexTarget(TexTarget.Texture2D);
+                                                        id.renderTexture = null;
+                                                    }
+                                                    else
+                                                        RemoveTextureFromMaterial();
+
+                                                }
                                             }
                                         }
+
                                     }
+
                                 }
                                 else
                                     icon.Warning.nl("No Texture property selected");
