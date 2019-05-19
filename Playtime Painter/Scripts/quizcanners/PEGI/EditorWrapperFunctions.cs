@@ -1056,7 +1056,7 @@ namespace PlayerAndEditorGUI {
             checkLine();
             return GUILayout.Button(label) && change;
         }
-        
+
         public static bool Click(string label, GUIStyle style)
         {
             checkLine();

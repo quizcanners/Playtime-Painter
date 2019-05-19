@@ -3921,12 +3921,14 @@ namespace PlayerAndEditorGUI {
         public static bool ClickUnFocus(this string text, string tip)
         {
 
+            var cntnt = TextAndTip(text, tip);
+
             #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                return ef.Click(text, tip).UnFocus();
+                return ef.Click(cntnt).UnFocus();
             #endif
             checkLine();
-            return GUILayout.Button(TextAndTip(text,tip), GUILayout.MaxWidth(maxWidthForPlaytimeButtonText)).DirtyUnFocus();
+            return GUILayout.Button(cntnt, GUILayout.MaxWidth(maxWidthForPlaytimeButtonText)).DirtyUnFocus();
         }
 
 

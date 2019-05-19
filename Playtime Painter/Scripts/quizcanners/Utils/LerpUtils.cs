@@ -105,7 +105,7 @@ namespace QuizCannersUtilities
 
         #region Abstract Base
 
-        public abstract class BaseLerp : AbstractCfg, ILinkedLerping, IPEGI, IPEGI_ListInspect
+        public abstract class BaseLerp : AbstractCfg, ILinkedLerping, IPEGI, IPEGI_ListInspect, IGotDisplayName
         {
 
             public LerpSpeedMode lerpMode = LerpSpeedMode.SpeedThreshold;
@@ -123,7 +123,8 @@ namespace QuizCannersUtilities
             public float speedLimit = 1;
             protected bool allowChangeParameters = true;
 
-            protected abstract string Name { get; }
+            protected abstract string Name_Internal { get; }
+            public virtual string NameForDisplayPEGI => Name_Internal;
 
             #region Encode & Decode
 
@@ -206,7 +207,7 @@ namespace QuizCannersUtilities
             public virtual void Portion(LerpData ld)
             {
                 if (UsingLinkedThreshold && Portion(ref ld.linkedPortion))
-                    ld.dominantParameter = Name;
+                    ld.dominantParameter = Name_Internal;
                 else if (lerpMode == LerpSpeedMode.UnlinkedSpeed)
                 {
                     float portion = 1;
@@ -227,7 +228,7 @@ namespace QuizCannersUtilities
 
                 if (!allowChangeParameters)
                 {
-                    Name.toggleIcon("Will this config contain new parameters", ref allowChangeParameters)
+                    Name_Internal.toggleIcon("Will this config contain new parameters", ref allowChangeParameters)
                         .changes(ref changed);
                 }
                 else
@@ -238,13 +239,13 @@ namespace QuizCannersUtilities
                     switch (lerpMode)
                     {
                         case LerpSpeedMode.SpeedThreshold:
-                            (Name + " Thld").edit(ref speedLimit).changes(ref changed);
+                            (Name_Internal + " Thld").edit(ref speedLimit).changes(ref changed);
                             break;
                         case LerpSpeedMode.UnlinkedSpeed:
-                            (Name + " Speed").edit(ref speedLimit).changes(ref changed);
+                            (Name_Internal + " Speed").edit(ref speedLimit).changes(ref changed);
                             break;
                         default:
-                            (Name + " Mode").editEnum(ref lerpMode).changes(ref changed);
+                            (Name_Internal + " Mode").editEnum(ref lerpMode).changes(ref changed);
                             break;
                     }
                 }
@@ -271,13 +272,13 @@ namespace QuizCannersUtilities
                 switch (lerpMode)
                 {
                     case LerpSpeedMode.SpeedThreshold:
-                        (Name + " Thld").edit(ref speedLimit).changes(ref changed);
+                        (Name_Internal + " Thld").edit(ref speedLimit).changes(ref changed);
                         break;
                     case LerpSpeedMode.UnlinkedSpeed:
-                        (Name + " Speed").edit(ref speedLimit).changes(ref changed);
+                        (Name_Internal + " Speed").edit(ref speedLimit).changes(ref changed);
                         break;
                     default:
-                        (Name + " Mode").editEnum(ref lerpMode).changes(ref changed);
+                        (Name_Internal + " Mode").editEnum(ref lerpMode).changes(ref changed);
                         break;
                 }
 
@@ -769,10 +770,8 @@ namespace QuizCannersUtilities
             #endregion
         }
 
-        public abstract class BaseMaterialAtlasedTextureTransition : BaseMaterialTextureTransition
-        {
-
-
+        public abstract class BaseMaterialAtlasedTextureTransition : BaseMaterialTextureTransition {
+            
             Dictionary<Texture, Rect> offsets = new Dictionary<Texture, Rect>();
 
             void NullOffset(Texture tex)
@@ -780,9 +779,7 @@ namespace QuizCannersUtilities
                 if (tex && offsets.ContainsKey(tex))
                     offsets.Remove(tex);
             }
-
-
-
+            
             Rect GetRect(Texture tex)
             {
                 Rect rect;
@@ -842,21 +839,24 @@ namespace QuizCannersUtilities
 
         }
 
-        public abstract class BaseShaderLerp : BaseLerp, IGotName
+        public abstract class BaseShaderLerp : BaseLerp, IGotDisplayName
         {
 
             public Material material;
             public Renderer rendy;
-            protected string name;
 
             protected Material Material => material ? material : rendy.MaterialWhatever();
 
-            protected override string Name => name;
+            protected override string Name_Internal {
+                get
+                {
+                    if (material)
+                        return material.name;
+                    if (rendy)
+                        return rendy.name;
+                    return "?";
 
-            public string NameForPEGI
-            {
-                get { return name; }
-                set { name = value; }
+                }
             }
 
             public sealed override bool LerpInternal(float linkedPortion)
@@ -881,23 +881,18 @@ namespace QuizCannersUtilities
                 material = m;
                 rendy = renderer;
             }
-
-
+            
             #region Encode & Decode
 
-            public override CfgEncoder Encode()
-            {
-
+            public override CfgEncoder Encode() {
                 var cody = new CfgEncoder()
                     .Add("b", base.Encode);
 
                 return cody;
             }
 
-            public override bool Decode(string tg, string data)
-            {
-                switch (tg)
-                {
+            public override bool Decode(string tg, string data) {
+                switch (tg) {
                     case "b": data.Decode_Delegate(base.Decode); break;
                     default: return false;
                 }
@@ -911,7 +906,8 @@ namespace QuizCannersUtilities
 
         public abstract class BaseColorLerp : BaseLerpGeneric<Color>
         {
-            protected override string Name => "Color";
+            protected override string Name_Internal => "Color";
+
             public Color targetValue = Color.white;
 
             protected override Color TargetValue
@@ -997,7 +993,7 @@ namespace QuizCannersUtilities
                 set { targetValue = value; }
             }
 
-            protected override string Name => _name;
+            protected override string Name_Internal => _name;
 
             #region Inspect
             public string NameForPEGI
@@ -1128,11 +1124,12 @@ namespace QuizCannersUtilities
 
         }
 
-        public class QuaternionValue : BaseQuaternionLerp, IGotName
+        public class QuaternionValue : BaseQuaternionLerp
         {
-            private readonly string _name = "Rotation";
 
             Quaternion current = Quaternion.identity;
+
+            private string _name;
 
             public override Quaternion CurrentValue
             {
@@ -1140,24 +1137,19 @@ namespace QuizCannersUtilities
                 set { current = value; }
             }
 
-            protected override string Name => _name;
+            protected override string Name_Internal => _name;
 
             #region Inspect
-            public string NameForPEGI
-            {
-                get { return _name; }
-                set { }
-            }
 
-#if PEGI
+            #if PEGI
             public override bool InspectInList(IList list, int ind, ref int edited)
             {
                 var changed = false;
 
                 if (allowChangeParameters)
                 {
-                    int width = _name.ApproximateLengthUnsafe();
-                    _name.edit(width, ref targetValue).changes(ref changed);
+                    int width = Name_Internal.ApproximateLengthUnsafe();
+                    Name_Internal.edit(width, ref targetValue).changes(ref changed);
                 }
 
                 if (icon.Enter.Click())
@@ -1227,7 +1219,7 @@ namespace QuizCannersUtilities
 
         public class TransformLocalScale : TransformLocalPosition
         {
-            protected override string Name => "Local Scale";
+            protected override string Name_Internal => "Local Scale";
 
             public override Vector3 Value
             {
@@ -1242,7 +1234,7 @@ namespace QuizCannersUtilities
 
         public class TransformPosition : TransformLocalPosition
         {
-            protected override string Name => "Position";
+            protected override string Name_Internal => "Position";
 
             public override Vector3 Value
             {
@@ -1257,7 +1249,7 @@ namespace QuizCannersUtilities
 
         public class TransformLocalPosition : BaseLerp
         {
-            protected override string Name => "Local Position";
+            protected override string Name_Internal => "Local Position";
             public Transform transform;
             public Vector3 targetValue;
 
@@ -1293,14 +1285,31 @@ namespace QuizCannersUtilities
 
         #region Rect Transform
 
-        public class RectangleTransformAnchoredPositionValue : BaseVector2Lerp, IPEGI
+        public abstract class RectTransformVector2Value : BaseVector2Lerp, IPEGI
         {
             public RectTransform rectTransform;
 
             public override bool Enabled => base.Enabled && rectTransform;
 
-            protected override string Name => "Anchored Position";
+            protected override string Name_Internal => (rectTransform ? rectTransform.name : "?") + NameSuffix_Internal;
 
+            protected abstract string NameSuffix_Internal { get; }
+
+            public RectTransformVector2Value()
+            {
+            }
+
+            public RectTransformVector2Value(RectTransform rect, float nspeed) {
+                rectTransform = rect;
+                speedLimit = nspeed;
+            }
+        }
+
+        public class RectangleTransformAnchoredPositionValue : RectTransformVector2Value
+        {
+          
+            protected override string NameSuffix_Internal => " Anchored Position";
+            
             public override Vector2 CurrentValue
             {
                 get { return rectTransform ? rectTransform.anchoredPosition : targetValue; }
@@ -1311,17 +1320,15 @@ namespace QuizCannersUtilities
                 }
             }
 
-            public RectangleTransformAnchoredPositionValue(RectTransform rect, float nspeed)
-            {
-                rectTransform = rect;
-                speedLimit = nspeed;
-            }
+            public RectangleTransformAnchoredPositionValue() { }
+
+            public RectangleTransformAnchoredPositionValue(RectTransform rect, float nspeed) : base(rect, nspeed) { }
         }
 
-        public class RectangleTransformWidthHeight : RectangleTransformAnchoredPositionValue
+        public class RectangleTransformWidthHeight : RectTransformVector2Value
         {
 
-            protected override string Name => "Width Height";
+            protected override string NameSuffix_Internal => " Width Height";
 
             public override Vector2 CurrentValue
             {
@@ -1329,9 +1336,11 @@ namespace QuizCannersUtilities
                 set { rectTransform.sizeDelta = value; }
             }
 
-            public RectangleTransformWidthHeight(RectTransform rect, float speed) : base(rect, speed)
+            public RectangleTransformWidthHeight()
             {
             }
+
+            public RectangleTransformWidthHeight(RectTransform rect, float speed) : base(rect, speed) { }
         }
 
         #endregion
@@ -1341,7 +1350,7 @@ namespace QuizCannersUtilities
         public class MaterialFloat : BaseShaderLerp
         {
             private readonly ShaderProperty.FloatValue _property;
-
+            
             public float Value
             {
                 get { return _property.lastValue; }
@@ -1351,6 +1360,8 @@ namespace QuizCannersUtilities
                     defaultSet = false;
                 }
             }
+
+            protected override string Name_Internal => _property != null ? _property.NameForDisplayPEGI : "Material Float";
 
             public float targetValue;
 
@@ -1436,6 +1447,8 @@ namespace QuizCannersUtilities
         {
             private readonly ShaderProperty.ColorValue _property;
 
+            protected override string Name_Internal => _property != null ? _property.NameForDisplayPEGI : "Material Float";
+            
             public Color Value
             {
                 get { return _property.lastValue; }
@@ -1509,7 +1522,7 @@ namespace QuizCannersUtilities
 
         public class GraphicMaterialTextureTransition : BaseMaterialTextureTransition
         {
-            protected override string Name => "Texture Transition";
+            protected override string Name_Internal => "Texture Transition";
 
             private Graphic _graphic;
 
@@ -1536,7 +1549,7 @@ namespace QuizCannersUtilities
 
         public class GraphicMaterialAtlasedTextureTransition : BaseMaterialAtlasedTextureTransition
         {
-            protected override string Name => "AtTexture Transition";
+            protected override string Name_Internal => "AtTexture Transition";
 
             private Graphic _graphic;
 
@@ -1566,7 +1579,7 @@ namespace QuizCannersUtilities
         {
             private Renderer _graphic;
 
-            protected override string Name => "Renderer Texture Transition";
+            protected override string Name_Internal => "Renderer Texture Transition";
 
             public RendererMaterialTextureTransition(Renderer rendy, float nSpeed = 1) : base()
             {
@@ -1627,7 +1640,7 @@ namespace QuizCannersUtilities
                 set { graphic.TrySetAlpha(value); }
             }
 
-            protected override string Name => "Graphic Alpha";
+            protected override string Name_Internal => "Graphic Alpha";
 
             public GraphicAlpha()
             {
@@ -1691,7 +1704,7 @@ namespace QuizCannersUtilities
         public class GraphicColor : BaseColorLerp
         {
 
-            protected override string Name => "Graphic Color";
+            protected override string Name_Internal => "Graphic Color";
 
             public Graphic graphic;
 

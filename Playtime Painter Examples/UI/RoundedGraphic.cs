@@ -349,6 +349,12 @@ namespace PlaytimePainter.Examples
                 }
 
                 pegi.nl();
+
+                if (!linked)
+                    "UNLINKED_COURNERS is a material property. It is recommended to put UNLINKED into material name not to use same material on linked and unlinked UI"
+                        .writeOneTimeHint("unlNkd");
+
+                pegi.nl();
                 
                 if (mat) {
 

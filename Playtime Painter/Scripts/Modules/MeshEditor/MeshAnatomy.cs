@@ -32,18 +32,21 @@ namespace PlaytimePainter
                 toCopyFrom = verts[0];
 
             if (toCopyFrom != null)
+            {
                 boneWeight = toCopyFrom.boneWeight;
+                color = toCopyFrom.color;
+            }
+            else color = Color.white;
 
             nPoint.vertices.Add(this);
         }
 
         public Vertex()  {
             meshPoint = MeshPoint.currentlyDecoded;
+            color = Color.white;
         }
 
-        public Vertex(Vertex other)
-        {
-            color = other.color;
+        public Vertex(Vertex other) {
             AssignToPoint(other.meshPoint, other);
             uvIndex = other.uvIndex;
         }
@@ -73,7 +76,7 @@ namespace PlaytimePainter
 
         public Vertex(MeshPoint newVertex, Vertex other)
         {
-            color = other.color;
+           
             AssignToPoint(newVertex, other);
             SetUvIndexBy(other.GetUv(0), other.GetUv(1));
         }
