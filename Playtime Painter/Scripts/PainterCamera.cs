@@ -862,8 +862,6 @@ namespace PlaytimePainter {
                     j.CompleteJob();
 #endif
 
-            Data.ManagedUpdate();
-            
             var l = PlaytimePainter.PlaybackPainters;
 
             if (l.Count > 0 && !StrokeVector.pausePlayback)

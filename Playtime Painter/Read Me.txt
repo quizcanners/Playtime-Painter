@@ -1,23 +1,26 @@
 Thank you for using Playtime Painter. 
  
-If something looks like a bug or just feels unintuitive, feel free to use one of the Contact options below to let me know.
-
-HOW TO USE:
-Attach PlaytimePainter Component to the GameObject you want to edit. Component's interface contains all the Texture editing
-and mesh editing functionality. There is an Online Documentation but most of it is being moved into Component inspector (the '?' icon).
+HOW TO PLAYTIME PAINT:
+Attach PlaytimePainter Component to the GameObject you want to edit. Component's Inspector contains all the Texture
+and Mesh editing functionality of the Asset. There is an Online Documentation but most of it is being moved into the inspector (a '?' icons).
 With Unity 2019 the Painter is now enabled using tool select menu at the top left.
 
 IMPORTANT TO KNOW:
 Component more often prioratizes time-saving over being cautious. For example, it will automatically set "Is readable" 
 for texture currently selected for editing and will create a .PNG RGBA copy of it to edit if current version is of a wrong format.
+Also it creates an additional Camera in the scene and manages it.
 I created it for a very specific goal: to try ideas out as fast as possible. It's easy to edit things, but as a result, it's possible
 to accidentally do an unwanted change to your Assets. Still, if something like that happens, I'll appreciate the feedback, there are always
-ways to mitigate the risks. 
+ways to make it more safe. 
 Also it's best not to move folders around. Some dependencies are location sensitive (Shader .cginclude files need to be referenced directly, for example).
 
 
 MESH EDITOR:
-Mesh editor is not yet well documented and may be unintuitive at times as it is not yet finilized.
+Mesh editor is not yet well documented and is likely to be unintuitive as it is not yet finilized.
+It can be used for a range of mesh manipultions on which some of the shaders provided depend.
+
+
+If something looks like a bug or just feels wrong, feel free to use one of the Contact options below to let me know.
 
 
 Hope you will enjoy the Asset, and please join a Discord channel (link below). 

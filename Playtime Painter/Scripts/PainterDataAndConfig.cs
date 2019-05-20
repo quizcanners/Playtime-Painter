@@ -4,10 +4,6 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using System;
 using System.Globalization;
-using static PlaytimePainter.ColorBleedControllerModule;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace PlaytimePainter
 {
@@ -129,48 +125,6 @@ namespace PlaytimePainter
         #endregion
 
         #endregion
-
-#region Web Cam Utils
-        [NonSerialized] public WebCamTexture webCamTexture;
-
-        private void WebCamUpdates()
-        {
-            if (!webCamTexture || !webCamTexture.isPlaying) return;
-
-            _cameraUnusedTime += Time.deltaTime;
-
-            if (_cameraUnusedTime > 10f)
-                webCamTexture.Stop();
-        }
-
-  
-
-
-
-        public void StopCamera()
-        {
-            if (webCamTexture == null) return;
-            
-            webCamTexture.Stop();
-            webCamTexture.DestroyWhatever();
-            webCamTexture = null;
-            
-        }
-
-        private float _cameraUnusedTime;
-        public Texture GetWebCamTexture()
-        {
-            _cameraUnusedTime = 0;
-
-            if (!webCamTexture && WebCamTexture.devices.Length > 0)
-                webCamTexture = new WebCamTexture(WebCamTexture.devices[0].name, 512, 512, 30);
-
-            if (webCamTexture && !webCamTexture.isPlaying)
-                webCamTexture.Play();
-
-            return webCamTexture;
-        }
-#endregion
 
 #region DataLists
 
@@ -440,9 +394,9 @@ public bool useFloatForScalingBuffers;
             }
             return true;
         }
-        #endregion
+#endregion
 
-        #region Inspector
+#region Inspector
 
 
         [SerializeField] private int systemLanguage = -1;
@@ -497,7 +451,7 @@ public bool useFloatForScalingBuffers;
 
             if (inspectedItems == -1) {
 
-                #if UNITY_EDITOR
+#if UNITY_EDITOR
 
                 if ("Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay).nl())
                     MeshManager.Inst.DisconnectMesh();
@@ -535,7 +489,7 @@ public bool useFloatForScalingBuffers;
                 pegi.nl();
                 
                 LazyTranslations.LanguageSelection().nl();
-                #endif
+#endif
 
             }
 
@@ -552,8 +506,8 @@ public bool useFloatForScalingBuffers;
             return pegi.edit_List(ref colorSchemes, ref inspectedColorScheme);
         }
 
-        #endif
-        #endregion
+#endif
+#endregion
 
         private void Init() {
 
@@ -591,13 +545,6 @@ public bool useFloatForScalingBuffers;
             if (systemLanguage!= -1)
                 LazyTranslations._systemLanguage = systemLanguage;
 
-        }
-
-        public void ManagedUpdate()
-        {
-           
-
-            WebCamUpdates();
         }
 
         public void CheckShaders(bool forceReload = false)
@@ -665,7 +612,7 @@ public bool useFloatForScalingBuffers;
             
             CheckShader(ref rayTraceOutput,             "Playtime Painter/Editor/Replacement/ShadowDataOutput", forceReload);
 
-            #endif
+#endif
         }
 
         private static void CheckShader(ref Shader shade, string path, bool forceReload = false) {
@@ -686,10 +633,8 @@ public bool useFloatForScalingBuffers;
             Init();
         }
 
-        public void ManagedOnDisable()
-        {
-            StopCamera();
-            
+        public void ManagedOnDisable() {
+
             var cody = new CfgEncoder();
 
             var at = MeshToolBase.AllTools;

@@ -175,9 +175,11 @@ namespace PlayerAndEditorGUI {
 
                 paintingPlayAreaGui = false;
             }
-
+            
             public void Render(IPEGI p) => Render(p, p.Inspect, p.ToPegiString());
 
+            public void Render(IPEGI p, string windowName) => Render(p, p.Inspect, windowName);
+            
             public void Render(IPEGI target, WindowFunction doWindow, string c_windowName) {
 
                 inspectedTarget = target;
