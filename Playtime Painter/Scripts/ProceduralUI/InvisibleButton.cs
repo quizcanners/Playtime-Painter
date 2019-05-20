@@ -6,7 +6,7 @@ using System;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
-namespace PlaytimePainter.Examples
+namespace PlaytimePainter
 {
 
     public class InvisibleButton : Graphic, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPEGI {
