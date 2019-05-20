@@ -20,7 +20,7 @@ namespace PlayerAndEditorGUI
         Question,
         Painter, PreviewShader, OriginalShader, Undo, Redo, 
         UndoDisabled, RedoDisabled, Play, Record, Replace,  True, 
-        Load, Pause, Mesh, Move, Red, Green, Blue,  InActive, 
+        Load, Pause, Mesh, Move, Red, Green, Blue,  InActive, Insert,
         Hint, Home, Hide,  Paste,  Refresh, Up, UpLast,  Warning, Wait
       
 

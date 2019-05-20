@@ -195,16 +195,18 @@ namespace PlaytimePainter
 
 #endregion
 
-#region Mesh Editing
+        #region Mesh Editing
 
         public int meshTool;
         public MeshToolBase MeshTool { get { meshTool = Mathf.Min(meshTool, MeshToolBase.AllTools.Count - 1); return MeshToolBase.AllTools[meshTool]; } }
         public float bevelDetectionSensitivity = 6;
         public string meshToolsStd;
         public bool saveMeshUndos;
-#endregion
 
-#region User Settings
+        #endregion
+
+        #region User Settings
+
         public bool makeVerticesUniqueOnEdgeColoring;
         public int gridSize = 1;
         public bool snapToGrid;
@@ -233,11 +235,12 @@ namespace PlaytimePainter
         public bool showTeachingNotifications;
         public MyIntVec2 samplingMaskSize;
         public bool useDepthForProjector;
-#endregion
 
-#region New Texture Config
+        #endregion
 
-public bool useFloatForScalingBuffers;
+        #region New Texture Config
+
+        public bool useFloatForScalingBuffers;
 
         public bool newTextureIsColor = true;
 
@@ -271,9 +274,11 @@ public bool useFloatForScalingBuffers;
         public int SelectedHeightForNewTexture() => SizeIndexToSize(selectedHeightIndex);
 
         private static int SizeIndexToSize(int ind) => (int)Mathf.Pow(2, ind + MinPowerOfSize);
-#endregion
 
-#region BrushStrokeRecordings
+        #endregion
+
+        #region BrushStrokeRecordings
+
         public List<string> recordingNames = new List<string>();
 
         public int browsedRecord;
@@ -304,9 +309,9 @@ public bool useFloatForScalingBuffers;
             return strokes;
         }
 
-#endregion
+        #endregion
 
-#region Encode/Decode
+        #region Encode/Decode
 
         [SerializeField] private string stdData = "";
         public string ConfigStd
@@ -394,15 +399,16 @@ public bool useFloatForScalingBuffers;
             }
             return true;
         }
-#endregion
 
-#region Inspector
+        #endregion
 
-
+        #region Inspector
+        
         [SerializeField] private int systemLanguage = -1;
 
         public static bool hideDocumentation;
-#if PEGI
+
+        #if PEGI
         private int _inspectedImgData = -1;
         private int _inspectedItems = -1;
         private int _inspectedMaterial = -1;
@@ -451,7 +457,7 @@ public bool useFloatForScalingBuffers;
 
             if (inspectedItems == -1) {
 
-#if UNITY_EDITOR
+                #if UNITY_EDITOR
 
                 if ("Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay).nl())
                     MeshManager.Inst.DisconnectMesh();
@@ -489,7 +495,7 @@ public bool useFloatForScalingBuffers;
                 pegi.nl();
                 
                 LazyTranslations.LanguageSelection().nl();
-#endif
+                #endif
 
             }
 
@@ -506,8 +512,8 @@ public bool useFloatForScalingBuffers;
             return pegi.edit_List(ref colorSchemes, ref inspectedColorScheme);
         }
 
-#endif
-#endregion
+        #endif
+        #endregion
 
         private void Init() {
 
@@ -549,9 +555,10 @@ public bool useFloatForScalingBuffers;
 
         public void CheckShaders(bool forceReload = false)
         {
-#if !UNITY_EDITOR
+            #if !UNITY_EDITOR
                 return;
-#else
+            #else
+
             CheckShader(ref pixPerfectCopy,             "Playtime Painter/Buffer Blit/Pixel Perfect Copy",      forceReload);
 
             CheckShader(ref brushBlitSmoothed,          "Playtime Painter/Buffer Blit/Smooth",                  forceReload);
@@ -612,19 +619,19 @@ public bool useFloatForScalingBuffers;
             
             CheckShader(ref rayTraceOutput,             "Playtime Painter/Editor/Replacement/ShadowDataOutput", forceReload);
 
-#endif
+            #endif
         }
 
         private static void CheckShader(ref Shader shade, string path, bool forceReload = false) {
 
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (forceReload || !shade)
             {
                 shade = Shader.Find(path);
                 if (!shade)
                     Debug.LogError("Could not find {0}".F(path));
             }
-#endif
+            #endif
         }
 
         public void ManagedOnEnable()
@@ -651,7 +658,7 @@ public bool useFloatForScalingBuffers;
         }
     }
 
-#region Shader Tags
+    #region Shader Tags
     public static partial class ShaderTags
     {
 
@@ -683,6 +690,6 @@ public bool useFloatForScalingBuffers;
 
     }
 
-#endregion
+    #endregion
 
 }

@@ -1709,20 +1709,20 @@ namespace PlayerAndEditorGUI {
 
         #region Select Audio Clip
 
-        public static bool select(this string text, ref AudioClip clip, List<AudioClip> lst, bool showIndex = false, bool stripSlashes = false) =>
-            text.select(text, text.ApproximateLength(), ref clip, lst, showIndex, stripSlashes);
+        public static bool select(this string text, ref AudioClip clip, List<AudioClip> lst, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true) =>
+            text.select(text, text.ApproximateLength(), ref clip, lst, showIndex, stripSlashes, allowInsert);
 
-        public static bool select(this string text, int width, ref AudioClip clip, List<AudioClip> lst, bool showIndex = false, bool stripSlashes = false) =>
-            text.select(text, width, ref clip, lst, showIndex, stripSlashes);
+        public static bool select(this string text, int width, ref AudioClip clip, List<AudioClip> lst, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true) =>
+            text.select(text, width, ref clip, lst, showIndex, stripSlashes, allowInsert);
 
-        public static bool select(this string text, string tip, ref AudioClip clip, List<AudioClip> lst, bool showIndex = false, bool stripSlashes = false) =>
-            text.select(tip, text.ApproximateLength(), ref clip, lst, showIndex, stripSlashes);
+        public static bool select(this string text, string tip, ref AudioClip clip, List<AudioClip> lst, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true) =>
+            text.select(tip, text.ApproximateLength(), ref clip, lst, showIndex, stripSlashes, allowInsert);
 
-        public static bool select(this string text, string tip, int width, ref AudioClip clip, List<AudioClip> lst, bool showIndex = false, bool stripSlashes = false)
+        public static bool select(this string text, string tip, int width, ref AudioClip clip, List<AudioClip> lst, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true)
         {
             text.write(tip, width);
 
-           var ret = select(ref clip, lst, showIndex, stripSlashes);
+           var ret = select(ref clip, lst, showIndex, stripSlashes, allowInsert);
 
            if (clip && icon.Play.Click(20))
                clip.Play();
@@ -1734,16 +1734,16 @@ namespace PlayerAndEditorGUI {
 
         #region Select Generic
 
-        public static bool select<T>(this string text, int width, ref T value, List<T> lst, bool showIndex = false, bool stripSlashes = false)
+        public static bool select<T>(this string text, int width, ref T value, List<T> lst, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true)
         {
             write(text, width);
-            return select(ref value, lst, showIndex, stripSlashes);
+            return select(ref value, lst, showIndex, stripSlashes, allowInsert);
         }
 
-        public static bool select<T>(this string text, ref T value, List<T> list, bool showIndex = false)
+        public static bool select<T>(this string text, ref T value, List<T> list, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true)
         {
             write(text);
-            return select(ref value, list, showIndex);
+            return select(ref value, list, showIndex, stripSlashes, allowInsert);
         }
 
         public static bool select<T>(this string text, ref T value, T[] lst, bool showIndex = false)
@@ -1783,8 +1783,10 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static bool select<T>(ref T val, List<T> lst, bool showIndex = false, bool stripSlashes = false)
+        public static bool select<T>(ref T val, List<T> lst, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true)
         {
+            var changed = false;
+
             checkLine();
 
             var names = new List<string>();
@@ -1792,26 +1794,40 @@ namespace PlayerAndEditorGUI {
 
             var currentIndex = -1;
 
-            for (var i = 0; i < lst.Count; i++)
-            {
-                var tmp = lst[i];
-                if (tmp.filterEditorDropdown().IsDefaultOrNull()) continue;
+            bool notInTheList = true;
 
-                if (!val.IsDefaultOrNull() && tmp.Equals(val))
-                    currentIndex = names.Count;
+            var currentIsNull = val.IsDefaultOrNull();
 
-                names.Add(_compileName(showIndex, i, tmp, stripSlashes));
-                indexes.Add(i);
+            if (lst != null) {
+                for (var i = 0; i < lst.Count; i++) {
 
+                    var tmp = lst[i];
+                    if (tmp.filterEditorDropdown().IsDefaultOrNull()) continue;
+
+                    if (!currentIsNull && tmp.Equals(val))
+                    {
+                        currentIndex = names.Count;
+                        notInTheList = false;
+                    }
+
+                    names.Add(_compileName(showIndex, i, tmp, stripSlashes));
+                    indexes.Add(i);
+                }
+
+                if (selectFinal(val, ref currentIndex, names))
+                {
+                    val = lst[indexes[currentIndex]];
+                    changed = true;
+                }
+                else if (allowInsert && notInTheList && !currentIsNull && icon.Insert.Click("Insert into list"))
+                    lst.Add(val);
             }
+            else
+                val.ToPegiString().write(); 
 
-            if (selectFinal(val, ref currentIndex, names))
-            {
-                val = lst[indexes[currentIndex]];
-                return change;
-            }
 
-            return false;
+
+            return changed;
 
         }
 
@@ -2424,7 +2440,7 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region Dictionary
-        public static bool select<G, T>(ref T val, Dictionary<G, T> dic, bool showIndex = false) => select(ref val, new List<T>(dic.Values), showIndex);
+        public static bool select<G, T>(ref T val, Dictionary<G, T> dic, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true) => select(ref val, new List<T>(dic.Values), showIndex, stripSlashes, allowInsert);
 
         public static bool select(ref int current, Dictionary<int, string> from)
         {
@@ -2514,11 +2530,11 @@ namespace PlayerAndEditorGUI {
         public static bool select_or_edit_TextureProperty(ref ShaderProperty.TextureValue property, Material material)
         {
             var lst = material.MyGetTextureProperties();
-            return select(ref property, lst);
+            return select(ref property, lst, allowInsert:false);
 
         }
         
-        public static bool select_or_edit<T>(string text, string hint, int width, ref T obj, List<T> list, bool showIndex = false) where T : UnityEngine.Object
+        public static bool select_or_edit<T>(string text, string hint, int width, ref T obj, List<T> list, bool showIndex = false, bool stripSlahes = false, bool allowInsert = true) where T : Object
         {
             if (list.IsNullOrEmpty())
             {
@@ -2535,7 +2551,7 @@ namespace PlayerAndEditorGUI {
             if (text != null)
                 write(text, hint, width);
 
-            select(ref obj, list, showIndex).changes(ref changed);
+            select(ref obj, list, showIndex, stripSlahes, allowInsert).changes(ref changed);
 
             obj.ClickHighlight();
 
@@ -2556,7 +2572,7 @@ namespace PlayerAndEditorGUI {
         public static bool select_or_edit<T>(this string name, ref int val, List<T> list, bool showIndex = false) =>
              list.IsNullOrEmpty() ?  name.edit(ref val) : name.select_Index(ref val, list, showIndex);
         
-        public static bool select_or_edit(ref string val, List<string> list, bool showIndex = false)
+        public static bool select_or_edit(ref string val, List<string> list, bool showIndex = false, bool stripSlashes = true, bool allowInsert = true)
         {
             var changed = false;
 
@@ -2571,7 +2587,7 @@ namespace PlayerAndEditorGUI {
                 changed |= edit(ref val);
 
             if (gotList)
-                changed |= select(ref val, list, showIndex);
+                changed |= select(ref val, list, showIndex, stripSlashes, allowInsert);
 
             return changed;
         }
@@ -2602,7 +2618,6 @@ namespace PlayerAndEditorGUI {
         public static bool select_or_edit<T>(this string name, string hint, int width, ref int val, List<T> list, bool showIndex = false) =>
             list.IsNullOrEmpty()  ? name.edit(hint, width, ref val) : name.select_Index(hint, width, ref val, list, showIndex);
         
-
         public static bool select_SameClass_or_edit<T, G>(this string text, string hint, int width, ref T obj, List<G> list) where T : UnityEngine.Object where G : class
         {
             if (list.IsNullOrEmpty())
