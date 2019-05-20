@@ -268,19 +268,24 @@ namespace PlaytimePainter {
             if (pegi.select(ref blitMode, global::PlaytimePainter.BlitMode.AllModes).changes(ref changed)) 
                 SetBlitMode(cpu, blitMode);
 
-            pegi.toggle(ref showAdvanced, icon.FoldedOut, icon.Create, "Brush Options", 25);
-
             if (docsEnabled && blitMode != null && pegi.DocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI)))
                 pegi.FullWindwDocumentationOpen(blitMode.ToolTip);
-            
-            if (!cpu)
-            {
+
+            if (showAdvanced)
                 pegi.nl();
+
+            pegi.toggle(ref showAdvanced, icon.FoldedOut, icon.Create, "Brush Options", 25);
+
+            if (showAdvanced)
+                "Advanced options: (if any)".write();
+
+            pegi.nl();
+
+            if (!cpu)  {
+               
                 MsgPainter.BrushType.Write();
                 pegi.select_Index(ref _inGpuBrushType, BrushType.AllTypes).changes(ref changed);
-
-
-
+                
                 if (docsEnabled && brushType != null && pegi.DocumentationClick("About {0} brush type".F(brushType.NameForDisplayPEGI)))
                     pegi.FullWindwDocumentationOpen(brushType.ToolTip);
 
@@ -291,11 +296,12 @@ namespace PlaytimePainter {
                     
                 }
 
+                pegi.nl();
+
             }
             
             var overrideBlitModePegi = false;
 
-            pegi.nl();
 
              module?.BrushConfigPEGI(ref overrideBlitModePegi, this);
 
@@ -844,8 +850,6 @@ namespace PlaytimePainter {
 
         public override string ClassTag => classTag;
     }
-
-
     
     #endregion
 }

@@ -259,7 +259,7 @@ namespace PlaytimePainter.Examples
 
             pegi.toggleDefaultInspector();
             
-            Msg.RoundedGraphic.DocumentationClick();
+            MsgPainter.RoundedGraphic.DocumentationClick();
 
             pegi.nl();
             

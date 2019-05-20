@@ -1,11 +1,12 @@
 ﻿using PlaytimePainter;
 using QuizCannersUtilities;
 using UnityEditor;
+using static PlayerAndEditorGUI.LazyTranslations;
 
 namespace PlayerAndEditorGUI {
 
     public enum MsgPainter {
-        PreserveTransparency,
+        PreserveTransparency, RoundedGraphic,
         BrushType, BrushTypeNormal, BrushTypeDecal, BrushTypeLazy, BrushTypeSphere, BrushTypePixel,
         BlitMode, BlitModeAlpha, BlitModeAdd, BlitModeSubtract, BlitModeCopy, BlitModeMin, BlitModeMax, BlitModeBlur,
         BlitModeOff, BlitModeBloom, BlitModeProjector, BlitModeFiller,
@@ -16,7 +17,7 @@ namespace PlayerAndEditorGUI {
 
     };
 
-    public static partial class LazyTranslations {
+    public static class PainterLazyTranslations {
         
         static TranslationsEnum painterTranslations = new TranslationsEnum();
 
@@ -37,7 +38,8 @@ namespace PlayerAndEditorGUI {
                     break;
                 case MsgPainter.BrushType:
                     msg.Translate("Brush Type")
-                        .From(ukr, "Тип");
+                        .From(ukr, "Тип")
+                        .From(trk, "Fırça tipi", "Farklı tiplerde fırçalar vardır: bazısı yuvarlak, bazısı kare, bazısı daire çizer, bazısı resim boyar, vs.");
                     break;
 
                 case MsgPainter.BlitMode:
@@ -64,7 +66,14 @@ namespace PlayerAndEditorGUI {
                          "Documentation is being integrated into the component (The blue '?' icons) .You can hide them from the Tool Settings. " +
                          "").F(pegi.EnvironmentNl))
                         .From(trk, "Playtime Painter Komponenti Hakkında" ,
-                            "Bu komponent  sizin bu objenin işleyicisinin (renderer) materyalinin dokusunu ( material's texture) boyayabilmenizi sağlar ( Evet, burada biraz hiyerarşi var). Ayrıca meshi de düzenleyebilirsiniz.");
+                            "Bu komponent  sizin bu objenin işleyicisinin (renderer) materyalinin dokusunu ( material's texture) boyayabilmenizi sağlar ( Evet, burada biraz hiyerarşi var). Ayrıca meshi de düzenleyebilirsiniz." +
+                            "Bütün fonksiyonlar ve konfigurasyonlaraa bu inspektör üzerinden ulaşılabilir."+
+                            "Herhangi bir değişiklik sadece dokunun çalışan kopyasına uygulanır ve Giriş/ Çıkış  Oyun modu ya da Unity'i yeniden başlatmak buna etki etmez."+
+                            "En alttaki Load butonu çalışan kopyayı orjinal imge dosyasından yeniden yükler." +
+                            "Save butonu orjinal dosyaya yapılan değişiklikleri uygulayacaktır. Yeni dosya kaydetmek için, kayıt etmeden önce dosya adını değiştirin ve Yeni Olarak Kaydet'e tıklayın." +
+                            "Dokudan numune renk almak  için Ctrl + sol mouse butonuna tıklayın." +
+                            "Tutorialı komponente katmaya  çalıştım (Maviye'?' tıklayın).Konfigürasyondan gizleyebilirsiniz."
+                            );
                     break;
                 case MsgPainter.MeshProfileUsage:
                     msg.Translate("Mesh Profile usage", ("If using projected UV, place sharpNormal in TANGENT. {0}" +
@@ -75,20 +84,24 @@ namespace PlayerAndEditorGUI {
                     break;
                 case MsgPainter.Speed:
                     msg.Translate("Speed")
-                        .From(ukr, "швидкість");
+                        .From(ukr, "швидкість")
+                        .From(trk, "Hız", "Fırçanın ne kadar hızlı boyadığı." );
                     break;
 
                 case MsgPainter.Scale:
                     msg.Translate("Scale")
-                        .From(ukr, "розмір");
+                        .From(ukr, "розмір")
+                        .From(trk, "Boyut");
                     break;
                 case MsgPainter.Hardness:
                     msg.Translate("Sharpness", "Makes edges more clear.")
-                        .From(ukr, "різкість", "Робить краї кісточки більш чіткими.");
+                        .From(ukr, "різкість", "Робить краї кісточки більш чіткими.")
+                        .From(trk, "Keskinlik", "Fırçanın kenarlarının ne kadar kalın ya da yumuşak olduğu. Sprey boya tutmak gibi duvara yakın (keskin) ya da uzak ( yumuşak).");
                     break;
                 case MsgPainter.CopyFrom:
                     msg.Translate("Copy From")
-                        .From(ukr, "Копіювати з");
+                        .From(ukr, "Копіювати з")
+                        .From(trk, "Buradan kopyalama", "Hangi resimden kopyalayacağı.");
                     break;
                 case MsgPainter.TextureSettings:
                     msg.Translate("Texture settings")
@@ -256,6 +269,12 @@ namespace PlayerAndEditorGUI {
                                                         .F(pegi.EnvironmentNl, MsgPainter.MeshPoint.GetText()));
                     break;
 
+                case MsgPainter.RoundedGraphic:
+                    msg.Translate("Rounded Graphic",
+                        "Rounded Graphic component provides additional data to pixel perfect UI shaders. Those shaders will often not display correctly in the scene view. " +
+                        "Also they may be tricky at times so take note of all the warnings and hints that my show in this inspector." +
+                        "");
+                    break;
             }
 
             return painterTranslations.GetWhenInited(index, lang);
@@ -352,9 +371,7 @@ namespace PlayerAndEditorGUI {
 
             return changed;
         }
-
-
-
+        
         public static void Write(this MsgPainter m) { var txt = m.GetText(); txt.write(txt.ApproximateLengthUnsafe()); }
         public static void Write(this MsgPainter m, int width) { m.GetText().write(width); }
         public static void Write(this MsgPainter m, string tip, int width) { m.GetText().write(tip, width); }
@@ -372,23 +389,17 @@ namespace PlayerAndEditorGUI {
             return lt != null ? lt.details : msg.ToString();
         }
 
-#if PEGI
-        public static bool DocumentationClick(this MsgPainter msg) =>  PainterDataAndConfig.hideDocumentation ? false : msg.Get().DocumentationClick();
-
-
-
-        public static bool DocumentationWarning(this MsgPainter msg) => PainterDataAndConfig.hideDocumentation ? false : msg.Get().WarningDocumentation();
-#endif
-
         static LazyTranslation Get(this MsgPainter msg)
         {
+
             if (_systemLanguage == -1)
-                Init();
+                InitSystemLanguage();
 
             return msg.Get(_systemLanguage);
         }
-        
-        static Countless<LazyTranslation> Translate(this MsgPainter smg, string english) {
+
+        static Countless<LazyTranslation> Translate(this MsgPainter smg, string english)
+        {
             var org = painterTranslations[(int)smg];
             org[eng] = new LazyTranslation(english);
             return org;
@@ -401,6 +412,12 @@ namespace PlayerAndEditorGUI {
             return org;
         }
 
+
+#if PEGI
+        public static bool DocumentationClick(this MsgPainter msg) =>  PainterDataAndConfig.hideDocumentation ? false : msg.Get().DocumentationClick();
+        
+        public static bool DocumentationWarning(this MsgPainter msg) => PainterDataAndConfig.hideDocumentation ? false : msg.Get().WarningDocumentation();
+#endif
 
     }
 }

@@ -24,7 +24,7 @@ namespace PlaytimePainter
         private int _replacedLayer;
         public bool deformedBounds;
 
-        public Material GetMaterial() => meshRenderer.sharedMaterial;
+        public Material GetMaterial() =>  meshRenderer.sharedMaterial;
 
         public void AfterRender() {
 

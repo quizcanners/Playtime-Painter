@@ -27,27 +27,14 @@ namespace PlaytimePainter
 
         public override void OnToolGUI(EditorWindow window) {
             PlaytimePainterSceneViewEditor.OnSceneGuiCombined();
-
-
+            
             var p = PlaytimePainterSceneViewEditor.painter;
 
             if (Event.current.type == EventType.ScrollWheel)
                 Debug.Log("Got scroll wheel event");
 
-            if (p) {
-
+            if (p) 
                 p.FeedEvents(Event.current);
-
-/*                Event e = Event.current;
-                switch (e.type)
-                {
-                    case EventType.KeyDown:
-
-                        
-
-                        break;
-                }*/
-            }
 
         }
     }
@@ -60,21 +47,16 @@ namespace PlaytimePainter
             targetPainter && (Application.isPlaying || !targetPainter.IsUiGraphicPainter) &&
             (!targetPainter.LockTextureEditing || targetPainter.IsEditingThisMesh);
 
-        public static void OnSceneGuiCombined()
-        {
+        public static void OnSceneGuiCombined() {
          
+            if (AllowEditing(painter)) {
 
-            if (AllowEditing(painter))
-            {
-
-            
                 GridUpdate(SceneView.currentDrawingSceneView);
 
                 if (!navigating && PlaytimePainter.IsCurrentTool)
                     HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
             } 
-
-
+            
             navigating = false;
         }
 
@@ -82,17 +64,15 @@ namespace PlaytimePainter
         {
             var e = Event.current;
 
-            if (e.isMouse) // || e.type == EventType.ScrollWheel)
+            if (e.isMouse) 
                 EditorInputManager.FeedMouseEvent(e);
 
             if (!PlaytimePainter.IsCurrentTool)
                 return;
 
-            if (e.isMouse)
-            {
+            if (e.isMouse) {
 
-                if (e.button == 0)
-                {
+                if (e.button == 0) {
                     lMouseDwn = (e.type == EventType.MouseDown) && (e.button == 0);
                     lMouseUp = (e.type == EventType.MouseUp) && (e.button == 0);
                 }
@@ -105,8 +85,7 @@ namespace PlaytimePainter
                                                               || mousePosition.x > cam.pixelWidth ||
                                                               mousePosition.y > cam.pixelHeight));
 
-                if (!offScreen)
-                {
+                if (!offScreen) {
 
                     var camTf = cam.transform;
 
@@ -125,8 +104,7 @@ namespace PlaytimePainter
 
             FeedEvents(e);
 
-            if (e.isMouse)
-            {
+            if (e.isMouse) {
 
                 RaycastHit hit;
                 var isHit = Physics.Raycast(mouseRayGui, out hit);
@@ -135,21 +113,18 @@ namespace PlaytimePainter
 
                 var refocus = OnEditorRayHit(hit, mouseRayGui);
 
-                if (lMouseDwn && e.button == 0 && refocus && isHit)
-                {
-
-                    // #if !UNITY_2019_1_OR_NEWER
+                if (lMouseDwn && e.button == 0 && refocus && isHit) {
+                    
                     if (pp && pp == painter && AllowEditing(painter))
                         HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
-                    //#endif
-
+                
                     UnityUtils.FocusOn(hit.transform.gameObject);
                 }
 
-#if !UNITY_2019_1_OR_NEWER
+                #if !UNITY_2019_1_OR_NEWER
                 if (!navigating && AllowEditing(painter))
                     e.Use();
-#endif
+                #endif
 
             }
 

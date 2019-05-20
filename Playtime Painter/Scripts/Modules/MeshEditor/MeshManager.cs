@@ -1037,32 +1037,31 @@ namespace PlaytimePainter
             bool changed = false;
 
             if (UndoMoves.Count > 1) {
-                if (pegi.Click(icon.Undo.GetIcon(), 25).changes(ref changed)) {
+                if (icon.Undo.Click(25).changes(ref changed)) {
                     RedoMoves.Add(UndoMoves.RemoveLast());
                     UndoMoves.Last().DecodeInto(out editedMesh);
                     Redraw();
                 }
             }
             else
-                pegi.Click(icon.UndoDisabled.GetIcon(), "Nothing to Undo (set number of undo frames in config)", 25);
+                icon.UndoDisabled.Click("Nothing to Undo (set number of undo frames in config)", 25);
 
             if (RedoMoves.Count > 0) {
-                if (pegi.Click(icon.Redo.GetIcon(),  25).changes(ref changed)) {
+                if (icon.Redo.Click(25).changes(ref changed)) {
                     RedoMoves.Last().DecodeInto(out editedMesh);
                     UndoMoves.Add(RedoMoves.RemoveLast());
                     Redraw();
                 }
             }
             else
-                pegi.Click(icon.RedoDisabled.GetIcon(), "Nothing to Redo", 25);
+                icon.RedoDisabled.Click("Nothing to Redo", 25);
 
-            pegi.newLine();
+            pegi.nl();
 
             return changed;
         }
         
         #endif
-
         #endregion
 
         #region Editor Gizmos
@@ -1090,12 +1089,8 @@ namespace PlaytimePainter
             Line(v3b, v3b - diff, colB);
         }
 
-        private void Line(MeshPoint a, MeshPoint b, Color colA)
-        {
-
-            Line(a.WorldPos, b.WorldPos, colA);
-        }
-
+        private void Line(MeshPoint a, MeshPoint b, Color colA) => Line(a.WorldPos, b.WorldPos, colA);
+        
         public bool GizmoLines;
 
         private void Line(Vector3 from, Vector3 to, Color colA)
@@ -1256,8 +1251,7 @@ namespace PlaytimePainter
             DrawTransformedLine(tf, urb, ulb, col);
 
         }
-
-       
+        
         #endregion
 
     }

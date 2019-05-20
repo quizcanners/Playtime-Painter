@@ -2009,7 +2009,7 @@ namespace PlaytimePainter {
                 pegi.toggle(ref cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config, "Tool Configuration");
                 
                 if (!PainterDataAndConfig.hideDocumentation)
-                    pegi.fullWindowDocumentationClickOpen(LazyTranslations.InspectPainterDocumentation, MsgPainter.AboutPlaytimePainter.GetText());
+                    pegi.fullWindowDocumentationClickOpen(PainterLazyTranslations.InspectPainterDocumentation, MsgPainter.AboutPlaytimePainter.GetText());
     
                 #endregion
                 
