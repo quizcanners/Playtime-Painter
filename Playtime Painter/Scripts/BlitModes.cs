@@ -176,36 +176,34 @@ namespace PlaytimePainter {
 
                 InspectedBrush._dSpeed.Inspect().nl(ref changed);
                 
-          
+                MsgPainter.Scale.Write();
 
-                    MsgPainter.Scale.Write();
+                if (InspectedBrush.IsA3DBrush(InspectedPainter))
+                {
+                    var m = PlaytimePainter.inspected.GetMesh();
 
-                    if (InspectedBrush.IsA3DBrush(InspectedPainter))
-                    {
-                        var m = PlaytimePainter.inspected.GetMesh();
+                    var maxScale = (m ? m.bounds.max.magnitude : 1) * (!PlaytimePainter.inspected
+                                       ? 1
+                                       : PlaytimePainter.inspected.transform.lossyScale.magnitude);
 
-                        var maxScale = (m ? m.bounds.max.magnitude : 1) * (!PlaytimePainter.inspected
-                                           ? 1
-                                           : PlaytimePainter.inspected.transform.lossyScale.magnitude);
-
-                        pegi.edit(ref InspectedBrush.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f)
-                            .changes(ref changed);
-                    }
+                    pegi.edit(ref InspectedBrush.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f)
+                        .changes(ref changed);
+                }
+                else
+                {
+                    if (!brushType.IsPixelPerfect)
+                        pegi.edit(ref InspectedBrush.brush2DRadius, cpuBlit ? 1 : 0.1f,
+                            usingDecals ? 128 : id?.width * 0.5f ?? 256).changes(ref changed);
                     else
                     {
-                        if (!brushType.IsPixelPerfect)
-                            pegi.edit(ref InspectedBrush.brush2DRadius, cpuBlit ? 1 : 0.1f,
-                                usingDecals ? 128 : id?.width * 0.5f ?? 256).changes(ref changed);
-                        else
-                        {
-                            var val = (int) InspectedBrush.brush2DRadius;
-                            pegi.edit(ref val, (int) (cpuBlit ? 1 : 0.1f),
-                                (int) (usingDecals ? 128 : id?.width * 0.5f ?? 256)).changes(ref changed);
-                            InspectedBrush.brush2DRadius = val;
+                        var val = (int) InspectedBrush.brush2DRadius;
+                        pegi.edit(ref val, (int) (cpuBlit ? 1 : 0.1f),
+                            (int) (usingDecals ? 128 : id?.width * 0.5f ?? 256)).changes(ref changed);
+                        InspectedBrush.brush2DRadius = val;
 
-                        }
                     }
-                
+                }
+            
 
                 pegi.nl();
 

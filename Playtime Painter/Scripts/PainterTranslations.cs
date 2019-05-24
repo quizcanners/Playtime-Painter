@@ -83,8 +83,9 @@ namespace PlayerAndEditorGUI {
                                                    "I place Edge in UV3.{0}").F(pegi.EnvironmentNl));
                     break;
                 case MsgPainter.Speed:
-                    msg.Translate("Speed")
-                        .From(ukr, "швидкість")
+                    msg.Translate("Flow")
+                        .From(ukr, "Потік")
+                        .From(rus, "Скорость")
                         .From(trk, "Hız", "Fırçanın ne kadar hızlı boyadığı." );
                     break;
 

@@ -7,6 +7,7 @@ using System.Globalization;
 using System.Linq;
 
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using QuizCannersUtilities;
 using Object = UnityEngine.Object;
 
@@ -1552,7 +1553,20 @@ namespace PlayerAndEditorGUI {
             write(text, width);
             return select(ref value, array);
         }
-        
+
+
+        public static bool selectFlags(ref int no, string[] from, int width = -1) {
+
+            #if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return width > 0 ? ef.selectFlags(ref no, from, width) : ef.selectFlags(ref no, from);
+            #endif
+
+            "Flags Only in Editor for now".write();
+
+            return false;
+        }
+
         public static bool select(ref int no, string[] from, int width = -1)
         {
 #if UNITY_EDITOR
@@ -1567,8 +1581,7 @@ namespace PlayerAndEditorGUI {
 
             foldout(from.TryGet(no, "..."));
 
-            if (isFoldedOutOrEntered)
-            {
+            if (isFoldedOutOrEntered) {
 
                 if (from.Length > 1)
                     newLine();
@@ -2303,6 +2316,41 @@ namespace PlayerAndEditorGUI {
             if (!select(ref tmpVal, names, width)) return false;
 
             current = val[tmpVal];
+            return change;
+        }
+
+        public static bool selectEnumFlags(ref int current, Type type, int width = -1) {
+
+            checkLine();
+
+            var names = Enum.GetNames(type);
+            var values = (int[])Enum.GetValues(type);
+
+            Countless<string> sortedNames = new Countless<string>();
+
+            int currentPower = 0;
+
+            int toPow = 1;
+
+            for (var i = 0; i < values.Length; i++) {
+                var val = values[i];
+                while (val > toPow) {
+                    currentPower++;
+                    toPow = (int)Mathf.Pow(2, currentPower);
+                }
+
+                if (val == toPow)
+                    sortedNames[currentPower] = names[i];
+            }
+
+            string[] snms = new string[currentPower+1];
+
+            for (int i = 0; i <= currentPower; i++)
+                snms[i] = sortedNames[i];
+
+            if (!selectFlags(ref current, snms, width))
+                return false;
+            
             return change;
         }
 
@@ -4674,19 +4722,13 @@ namespace PlayerAndEditorGUI {
             
             var lst = obj as IPEGI_ListInspect;
 
-            if (lst != null) {
-
-                lst.enter_Inspect_AsList(ref entered, current, label).changes(ref changed); //)
-                //obj.Try_Nested_Inspect().changes(ref changed);
-
-            }
-            else
-            {
+            if (lst != null) 
+                lst.enter_Inspect_AsList(ref entered, current, label).changes(ref changed);
+            else {
                 var pgi = obj.TryGet_fromObj<IPEGI>();
-
+                
                 if (icon.Enter.conditional_enter(pgi != null, ref entered, current, label))
                     pgi.Nested_Inspect().changes(ref changed);
-
             }
             
             if (entered == -1) {
@@ -4703,8 +4745,10 @@ namespace PlayerAndEditorGUI {
                             lab = typeof(T).ToPegiStringType();
                     }
 
-                    if (width > 0)
-                    {
+                    lab = lab.TryAddCount(obj);
+
+                    if (width > 0) {
+
                         if (lab.ClickLabel(Msg.ClickToInspect.GetText(), width, PEGI_Styles.EnterLabel))
                             entered = current;
                     }
@@ -5697,7 +5741,7 @@ namespace PlayerAndEditorGUI {
             return change;
 
         }
-        
+
         #endregion
 
         #region Enum
@@ -5730,7 +5774,37 @@ namespace PlayerAndEditorGUI {
 
             return false;
         }
-        
+
+        public static bool editEnumFlags<T>(this string text, string tip, int width, ref T eval)
+        {
+            write(text, tip, width);
+            return editEnumFlags(ref eval);
+        }
+
+        public static bool editEnumFlags<T>(this string text, int width, ref T eval)
+        {
+            write(text, width);
+            return editEnumFlags(ref eval);
+        }
+
+        public static bool editEnumFlags<T>(this string text, ref T eval)
+        {
+            write(text);
+            return editEnumFlags(ref eval);
+        }
+
+        public static bool editEnumFlags<T>(ref T eval, int width = -1)
+        {
+            var val = Convert.ToInt32(eval);
+
+            if (selectEnumFlags(ref val, typeof(T), width)) {
+                eval = (T)((object)val);
+                return true;
+            }
+
+            return false;
+        }
+
         public static bool editEnum<T>(ref int current, Type type, int width = -1)
                 => selectEnum(ref current, typeof(T), width);
 
@@ -6399,10 +6473,9 @@ namespace PlayerAndEditorGUI {
 
             return val;
         }
-        public static T listLabel_Used<T>(this T val)
-        {
-            currentListLabel = "";
 
+        public static T listLabel_Used<T>(this T val) {
+            currentListLabel = "";
             return val;
         }
 
@@ -6488,7 +6561,8 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        private static bool list_DropOption<T>(this List<T> list) where T : UnityEngine.Object
+        private static bool allowDuplicants;
+        private static bool list_DropOption<T>(this List<T> list, ListMetaData meta = null) where T : UnityEngine.Object
         {
             var changed = false;
         #if UNITY_EDITOR
@@ -6505,10 +6579,21 @@ namespace PlayerAndEditorGUI {
 
             }
 
+            var dpl = meta!= null ? meta.allowDuplicants : allowDuplicants;
+            
             foreach (var ret in ef.DropAreaGUI<T>())  {
-                list.Add(ret);
-                changed = true;
+                if (dpl || !list.Contains(ret)) {
+                    list.Add(ret);
+                    changed = true;
+                }
             }
+
+            "Duplicants".toggle("Will add elements to the list even if they are already there", 80, ref dpl).nl(ref changed);
+            
+            if (meta != null)
+                meta.allowDuplicants = dpl;
+            else allowDuplicants = dpl;
+            
         #endif
             return changed;
         }
@@ -6555,31 +6640,25 @@ namespace PlayerAndEditorGUI {
 
             else if (icon.Done.ClickUnFocus(Msg.FinishMovingCollectionElements.GetText(), 28).nl(ref changed))
                 _editingArrayOrder = null;
-
-
+            
             if (array != _editingArrayOrder) return changed;
 
             var derivedClasses = typeof(T).TryGetDerivedClasses();
 
             for (var i = 0; i< array.Length; i++) {
 
-                if (listMeta == null || listMeta.allowReorder)
-                {
+                if (listMeta == null || listMeta.allowReorder) {
 
-                    if (i > 0)
-                    {
+                    if (i > 0) {
                         if (icon.Up.ClickUnFocus("Move up").changes(ref changed))
                             CsharpUtils.Swap(ref array, i, i - 1);
-                            
                     }
                     else
                         icon.UpLast.write("Last");
 
-                    if (i < array.Length - 1)
-                    {
+                    if (i < array.Length - 1) {
                         if (icon.Down.ClickUnFocus("Move down").changes(ref changed))
                             CsharpUtils.Swap(ref array, i, i + 1);
-                            
                     }
                     else icon.DownLast.write();
                 }
@@ -6589,13 +6668,10 @@ namespace PlayerAndEditorGUI {
                 var isNull = el.IsNullOrDestroyed_Obj();
 
                 if (listMeta == null || listMeta.allowDelete) {
-                    if (!isNull && typeof(T).IsUnityObject())
-                    {
+                    if (!isNull && typeof(T).IsUnityObject()) {
                         if (icon.Delete.ClickUnFocus(Msg.MakeElementNull).changes(ref changed))
                             array[i] = default(T);
-                    }
-                    else
-                    {
+                    }  else {
                         if (icon.Close.ClickUnFocus(Msg.RemoveFromCollection).changes(ref changed)) {
                             CsharpUtils.Remove(ref array, i);
                             i--;
@@ -6632,8 +6708,7 @@ namespace PlayerAndEditorGUI {
                     editing_List_Order = list;
             } else if (icon.Done.ClickUnFocus(Msg.FinishMovingCollectionElements, 28).changes(ref changed))
                 editing_List_Order = null;
-
-
+            
             if (list != editing_List_Order) return changed;
 
 #if UNITY_EDITOR
@@ -6644,7 +6719,7 @@ namespace PlayerAndEditorGUI {
             }
             else
 #endif
-                #region Playtime UI reordering
+            #region Playtime UI reordering
             {
                 var derivedClasses = typeof(T).TryGetDerivedClasses();
 
@@ -6722,17 +6797,40 @@ namespace PlayerAndEditorGUI {
             else for (var i = 0; i < list.Count; i++)
                 if (listMeta.GetIsSelected(i)) selectedCount++;
 
-            if (selectedCount > 0 && icon.DeSelectAll.Click())
+            if (selectedCount > 0 && icon.DeSelectAll.Click(icon.DeSelectAll.GetText()))
                 SetSelected(listMeta, list, false);
 
-            if (selectedCount == 0 && icon.SelectAll.Click())
+            if (selectedCount == 0 && icon.SelectAll.Click(icon.SelectAll.GetText()))
                 SetSelected(listMeta, list, true);
 
 
             #endregion
 
             #region Copy, Cut, Paste, Move 
-             
+
+            if (list.Count > 1 && typeof(IGotIndex).IsAssignableFrom(typeof(T)))
+            {
+
+                bool down = false;
+
+                if (icon.Down.Click("Sort Ascending").changes(ref down) || icon.Up.Click("Sort Descending"))
+                {
+                    changed = true;
+
+                    list.Sort((emp1, emp2) => {
+
+                        var igc1 = emp1 as IGotIndex;
+                        var igc2 = emp2 as IGotIndex;
+
+                        if (igc1 == null || igc2 == null)
+                            return 0;
+
+                        return (down ? 1 : -1) * (igc1.IndexForPEGI - igc2.IndexForPEGI);
+
+                    });
+                } 
+            }
+
             if (listCopyBuffer != null) {
 
                 if (icon.Close.ClickUnFocus("Clean buffer"))
@@ -6810,7 +6908,7 @@ namespace PlayerAndEditorGUI {
             #endregion
 
             #region Clean & Delete
-
+            
             if (list != listCopyBuffer)
             {
 
@@ -6881,56 +6979,7 @@ namespace PlayerAndEditorGUI {
         }
 
         private static IList listCopyBuffer;
-
-        /*
-        private static bool TryComponentSelect<T>(this List<T> list, int index) where T : UnityEngine.Object {
-
-            if (typeof(T).IsSubclassOf(typeof(Component)))  {
-
-                var obj = list[index];
-
-                if (TryComponentSelect(ref obj))
-                {
-                    var cmp = obj as T;
-                    if (cmp) {
-                        list[index] = cmp;
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
-        private static bool TryComponentSelect<T>(ref T uo) where T: Object {
-
-            var cmp = uo as Component;
-
-            if (cmp) {
-
-                var par = cmp.transform;
-
-                var cmps = par.GetComponents<T>();
-
-                if (cmps.Length>1)
-                if (select(ref uo, cmps, true))
-                    return true;
-            }
-
-            return false;
-        }
-
-        public static bool Name_ClickInspectUobj<T>(this object el, List<T> list, int index, ref int inspected,  ListMetaData listMeta = null) where T: UnityEngine.Object  {
-
-            var changed = false;
-
-            list.TryComponentSelect(index).changes(ref changed);
-
-            el.InspectClassInList(list, index, ref inspected, listMeta).changes(ref changed);
-            
-            return changed;
-        }*/
-
+        
         private static object previouslyEntered;
 
         public static bool InspectValueInList<T>(this T el, List<T> list, int index, ref int inspected, ListMetaData listMeta = null)
@@ -7300,7 +7349,7 @@ namespace PlayerAndEditorGUI {
             {
                 list.ListAddEmptyClick(listMeta).changes(ref changed);
 
-                if (listMeta != null && icon.Save.ClickUnFocus())
+                if (listMeta != null && icon.Save.ClickUnFocus("Save GUID & Names data to ListMeta"))
                     listMeta.SaveElementDataFrom(list);
 
                 list.edit_List_Order_Obj(listMeta).changes(ref changed);
@@ -7331,7 +7380,7 @@ namespace PlayerAndEditorGUI {
                     }
                 }
                 else
-                    list.list_DropOption();
+                    list.list_DropOption(listMeta);
 
             }
             else list.ExitOrDrawPEGI(ref inspected).changes(ref changed);
@@ -7414,7 +7463,7 @@ namespace PlayerAndEditorGUI {
 
                 list.ListAddEmptyClick(listMeta).changes(ref changed);
 
-                if (listMeta != null && icon.Save.ClickUnFocus())
+                if (listMeta != null && icon.Save.ClickUnFocus("Save GUID & Names to ListMeta"))
                     listMeta.SaveElementDataFrom(list);
 
                 if (list != editing_List_Order) {
@@ -7437,7 +7486,7 @@ namespace PlayerAndEditorGUI {
                     nl();
 
                 }
-                else list.list_DropOption();
+                else list.list_DropOption(listMeta);
             }
             else list.ExitOrDrawPEGI(ref inspected).changes(ref changed);
 
@@ -7487,7 +7536,7 @@ namespace PlayerAndEditorGUI {
 
             if (inspected == -1) {
 
-                if (listMeta != null && icon.Save.ClickUnFocus())
+                if (listMeta != null && icon.Save.ClickUnFocus("Save GUID & Names to List MEta"))
                     listMeta.SaveElementDataFrom(list);
 
                 list.edit_List_Order(listMeta).changes(ref changed);
@@ -7513,7 +7562,7 @@ namespace PlayerAndEditorGUI {
                     }
                 }
                 else
-                    list.list_DropOption();
+                    list.list_DropOption(listMeta);
 
             }
             else list.ExitOrDrawPEGI(ref inspected).changes(ref changed);

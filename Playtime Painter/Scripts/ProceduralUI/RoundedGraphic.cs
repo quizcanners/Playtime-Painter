@@ -809,8 +809,7 @@ namespace PlaytimePainter
             public static readonly ShaderTagValue AtlasedPosition = new ShaderTagValue("AtlasedPosition", PixelPerfectUi);
 
         }
-
-
+        
         public static readonly ShaderTag SpriteRole = new ShaderTag("SpriteRole");
 
         public static class SpriteRoles

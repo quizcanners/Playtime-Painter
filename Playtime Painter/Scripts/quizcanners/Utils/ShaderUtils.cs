@@ -235,6 +235,8 @@ namespace QuizCannersUtilities
         public class ColorValue : ShaderPropertyIndexGeneric<Color>
         {
 
+            public static readonly ColorValue tintColor = new ColorValue("_TintColor");
+
             public override void SetOn(Material material) => material.SetColor(id, lastValue);
 
             public override Color Get(Material material) => material.GetColor(id);
@@ -261,11 +263,6 @@ namespace QuizCannersUtilities
             {
                 lastValue = startingColor;
             }
-
-            /*public ColorValue(string name, bool nonMaterial) : base(name, nonMaterial)
-            {
-            }*/
-
 
         }
 
@@ -340,6 +337,8 @@ namespace QuizCannersUtilities
 
         public class TextureValue : ShaderPropertyIndexGeneric<Texture>
         {
+
+            public static readonly TextureValue mainTexture = new TextureValue("_MainTex");
 
             public override Texture Get(Material mat) => mat.GetTexture(id);
 

@@ -15,7 +15,8 @@ using Object = UnityEngine.Object;
 
 #pragma warning disable IDE1006 // Naming Styles
 
-namespace PlayerAndEditorGUI {
+namespace PlayerAndEditorGUI
+{
 
     public static class ef {
 
@@ -30,16 +31,38 @@ namespace PlayerAndEditorGUI {
         private static Editor _editor;
         private static PEGI_Inspector_Material _materialEditor;
 
-        public static bool DefaultInspector() {
+        public static bool DefaultInspector()
+        {
             newLine();
 
             EditorGUI.BeginChangeCheck();
-            switch (editorTypeForDefaultInspector) {
-                case EditorType.Material:  _materialEditor?.DrawDefaultInspector(); break;
-                default: if (_editor!= null) _editor.DrawDefaultInspector(); break;
+            switch (editorTypeForDefaultInspector)
+            {
+                case EditorType.Material: _materialEditor?.DrawDefaultInspector(); break;
+                default: if (_editor != null) _editor.DrawDefaultInspector(); break;
             }
             return EditorGUI.EndChangeCheck();
 
+        }
+        
+        public static bool Inspect_Prop<T>(T val, SerializedProperty prop) {
+            var changed = false;
+            
+            start();
+
+            var pgi = val as IPEGI;
+
+            if (pgi != null)
+                pgi.Inspect();
+            else {
+                var lpgi = val as IPEGI_ListInspect;
+                if (lpgi != null)
+                    lpgi.Inspect_AsInList();
+            }
+
+            newLine();
+            
+            return changed;
         }
 
         public static bool Inspect<T>(Editor editor) where T : MonoBehaviour
@@ -53,16 +76,18 @@ namespace PlayerAndEditorGUI {
             pegi.inspectedTarget = editor.target;
 
             var go = o.gameObject;
-            
+
             var pgi = o as IPEGI;
 
-            if (pgi != null && !go.IsPrefab()) {
+            if (pgi != null && !go.IsPrefab())
+            {
 
                 start(so);
 
-                if (!pegi.PopUpService.ShowingPopup()) {
+                if (!pegi.PopUpService.ShowingPopup())
+                {
 
-                    #if UNITY_2018_3_OR_NEWER
+#if UNITY_2018_3_OR_NEWER
                     var isPrefab = PrefabUtility.IsPartOfAnyPrefab(o);
 
                     if (isPrefab &&
@@ -70,29 +95,29 @@ namespace PlayerAndEditorGUI {
                             false) &&
                         icon.Save.Click("Update Prefab"))
                         PrefabUtility.ApplyPrefabInstance(go, InteractionMode.UserAction);
-                    #endif
+#endif
 
                     if (pgi.Inspect())
                         ClearFromPooledSerializedObjects(o);
 
-                    #if UNITY_2018_3_OR_NEWER
+#if UNITY_2018_3_OR_NEWER
                     if (changes && isPrefab)
                         PrefabUtility.RecordPrefabInstancePropertyModifications(o);
-                    #endif
+#endif
                 }
 
                 if (changes)
                 {
-                    if (!Application.isPlaying) 
+                    if (!Application.isPlaying)
                         EditorSceneManager.MarkSceneDirty(go ? SceneManager.GetActiveScene() : go.scene);
-                    
+
                     EditorUtility.SetDirty(o);
 
                     EditorUtility.SetDirty(go);
                 }
 
                 newLine();
-                
+
                 return changes;
             }
 
@@ -115,7 +140,7 @@ namespace PlayerAndEditorGUI {
             if (pgi != null)
             {
                 start(so);
-              
+
                 var changed = !pegi.PopUpService.ShowingPopup() && pgi.Inspect();
                 end(o);
                 return changed;
@@ -125,7 +150,7 @@ namespace PlayerAndEditorGUI {
 
             return false;
         }
-        
+
         public static bool Inspect_Material(PEGI_Inspector_Material editor) {
 
             _materialEditor = editor;
@@ -141,10 +166,10 @@ namespace PlayerAndEditorGUI {
             var changed = !pegi.PopUpService.ShowingPopup() && editor.Inspect(mat);
 
             end(mat);
-            
+
             return changes || changed;
         }
-
+        
         public static bool toggleDefaultInspector()
         {
             var changed = false;
@@ -160,27 +185,34 @@ namespace PlayerAndEditorGUI {
             }
             else
             {
-                 pegi.toggle(ref PEGI_Inspector_Base.drawDefaultInspector, icon.Exit, icon.Debug,
-                    "Toggle Between regular and PEGI inspector", 20).changes(ref changed);
+                pegi.toggle(ref PEGI_Inspector_Base.drawDefaultInspector, icon.Exit, icon.Debug,
+                   "Toggle Between regular and PEGI inspector", 20).changes(ref changed);
 
-                 if (PEGI_Inspector_Base.drawDefaultInspector &&
-                     "Custom Inspector".ClickLabel(style: PEGI_Styles.ExitLabel).nl(ref changed))
-                     PEGI_Inspector_Base.drawDefaultInspector = false;
+                if (PEGI_Inspector_Base.drawDefaultInspector &&
+                    "Custom Inspector".ClickLabel(style: PEGI_Styles.ExitLabel).nl(ref changed))
+                    PEGI_Inspector_Base.drawDefaultInspector = false;
 
             }
 
             return changed;
         }
 
-        static void start(SerializedObject so = null) {
+        static void start(SerializedObject so = null)
+        {
+            start();
+            serObj = so;
+        }
+
+        static void start()
+        {
             _elementIndex = 0;
             PEGI_Extensions.focusInd = 0;
             _lineOpen = false;
-            serObj = so;
             pegi.globChanged = false;
         }
 
-        public static T ClearFromPooledSerializedObjects<T>(T obj) where T : Object {
+        public static T ClearFromPooledSerializedObjects<T>(T obj) where T : Object
+        {
             if (obj && SerializedObjects.ContainsKey(obj))
                 SerializedObjects.Remove(obj);
 
@@ -203,7 +235,7 @@ namespace PlayerAndEditorGUI {
 
             return changes;
         }
-        
+
         private static bool change { get { pegi.globChanged = true; return true; } }
 
         private static bool Dirty(this bool val) { pegi.globChanged |= val; return val; }
@@ -219,25 +251,25 @@ namespace PlayerAndEditorGUI {
 
         private static void BeginCheckLine() { checkLine(); EditorGUI.BeginChangeCheck(); }
 
-        private static bool EndCheckLine() => EditorGUI.EndChangeCheck().Dirty(); 
+        private static bool EndCheckLine() => EditorGUI.EndChangeCheck().Dirty();
 
         public static void checkLine()
         {
             if (_lineOpen) return;
-            
+
             pegi.tabIndex = 0;
             EditorGUILayout.BeginHorizontal();
             _lineOpen = true;
-            
+
         }
 
         public static void newLine()
         {
             if (!_lineOpen) return;
-            
+
             _lineOpen = false;
             EditorGUILayout.EndHorizontal();
-            
+
         }
 
         private static GUIContent textAndToolTip = new GUIContent();
@@ -267,11 +299,11 @@ namespace PlayerAndEditorGUI {
 
             textAndToolTip.text = txt;
             textAndToolTip.tooltip = hint;
-          
+
             foldedOut = EditorGUILayout.Foldout(foldedOut, TextAndTip(txt, hint), true);
             EndCheckLine();
 
-            return foldedOut; 
+            return foldedOut;
         }
 
         public static bool foldout(string txt, ref bool state)
@@ -295,7 +327,7 @@ namespace PlayerAndEditorGUI {
 
             return IsFoldedOut;
         }
-        
+
         public static bool foldout(string txt)
         {
             IsFoldedOut = foldout(txt, ref _selectedFold, _elementIndex);
@@ -308,6 +340,20 @@ namespace PlayerAndEditorGUI {
         #endregion
 
         #region Select
+
+        public static bool selectFlags(ref int no, string[] from, int width) {
+            BeginCheckLine();
+            no = EditorGUILayout.MaskField(no, from, GUILayout.MaxWidth(width));
+            return EndCheckLine();
+        }
+
+        public static bool selectFlags(ref int no, string[] from)
+        {
+            BeginCheckLine();
+            no = EditorGUILayout.MaskField(no, from);
+            return EndCheckLine();
+        }
+
         public static bool select<T>(ref int no, List<T> lst, int width)
         {
 
@@ -319,15 +365,16 @@ namespace PlayerAndEditorGUI {
             for (var j = 0; j < lst.Count; j++)
             {
                 if (lst[j] == null) continue;
-                
+
                 if (no == j)
                     current = listIndexes.Count;
-                listNames.Add("{0}: {1}".F(j,lst[j].ToPegiString()));
+                listNames.Add("{0}: {1}".F(j, lst[j].ToPegiString()));
                 listIndexes.Add(j);
 
             }
 
-            if (select(ref current, listNames.ToArray(), width)) {
+            if (select(ref current, listNames.ToArray(), width))
+            {
                 no = listIndexes[current];
                 return true;
             }
@@ -336,13 +383,13 @@ namespace PlayerAndEditorGUI {
 
         }
 
-        public static bool select<T>(ref int no, CountlessCfg<T> tree) where T : ICfg , new()
+        public static bool select<T>(ref int no, CountlessCfg<T> tree) where T : ICfg, new()
         {
             List<int> indexes;
             var objs = tree.GetAllObjs(out indexes);
             var filtered = new List<string>();
             var current = -1;
-            
+
             for (var i = 0; i < objs.Count; i++)
             {
                 if (no == indexes[i])
@@ -364,7 +411,7 @@ namespace PlayerAndEditorGUI {
             var objs = tree.GetAllObjs(out indexes);
             var filtered = new List<string>();
             var current = -1;
-            
+
             for (var i = 0; i < objs.Count; i++)
             {
                 if (no == indexes[i])
@@ -379,7 +426,7 @@ namespace PlayerAndEditorGUI {
             }
             return false;
         }
-        
+
         public static bool select(ref int no, string[] from, int width)
         {
             BeginCheckLine();
@@ -394,7 +441,7 @@ namespace PlayerAndEditorGUI {
             no = EditorGUILayout.Popup(no, from);
             return EndCheckLine();
         }
-        
+
         public static bool select(ref int no, Dictionary<int, string> from)
         {
             var options = new string[from.Count];
@@ -412,10 +459,10 @@ namespace PlayerAndEditorGUI {
             BeginCheckLine();
             var newInd = EditorGUILayout.Popup(ind, options, EditorStyles.toolbarDropDown);
             if (!EndCheckLine()) return false;
-            
+
             no = from.ElementAt(newInd).Key;
             return true;
-            
+
         }
 
         public static bool select(ref int no, Dictionary<int, string> from, int width)
@@ -436,16 +483,16 @@ namespace PlayerAndEditorGUI {
             BeginCheckLine();
             var newInd = EditorGUILayout.Popup(ind, options, EditorStyles.toolbarDropDown, GUILayout.MaxWidth(width));
             if (!EndCheckLine()) return false;
-            
+
             no = from.ElementAt(newInd).Key;
             return true;
-            
+
         }
-        
+
         public static bool select(ref int index, Texture[] tex)
         {
             if (tex.Length == 0) return false;
-            
+
             var before = index;
             var texNames = new List<string>();
             var texIndexes = new List<int>();
@@ -468,7 +515,7 @@ namespace PlayerAndEditorGUI {
 
             return (before != index);
         }
-   
+
         private static bool select_Type(ref Type current, IReadOnlyList<Type> others, Rect rect)
         {
 
@@ -489,7 +536,7 @@ namespace PlayerAndEditorGUI {
             var newNo = EditorGUI.Popup(rect, ind, names);
 
             if (!EndCheckLine()) return false;
-            
+
             current = others[newNo];
             return change;
         }
@@ -504,7 +551,7 @@ namespace PlayerAndEditorGUI {
             for (var i = 0; i < others.Count; i++)
             {
                 var el = others[i];
-                names[i] = i+": "+el.GetType().ToPegiStringType();
+                names[i] = i + ": " + el.GetType().ToPegiStringType();
                 if (el && el == current)
                     ind = i;
             }
@@ -533,11 +580,39 @@ namespace PlayerAndEditorGUI {
         #region Edit
 
         #region Values
+/*
+        public static bool editEnum(ref Enum val)
+        {
+            BeginCheckLine();
+            val = EditorGUILayout.EnumPopup(val);
+            return EndCheckLine();
+        }
+
+        public static bool editEnum(ref Enum val, int width) 
+        {
+            BeginCheckLine();
+            val = EditorGUILayout.EnumPopup(val, GUILayout.MaxWidth(width));
+            return EndCheckLine();
+        }
+
+        public static bool editEnumFlags(ref Enum val) 
+        {
+            BeginCheckLine();
+            val = EditorGUILayout.EnumFlagsField(val);
+            return EndCheckLine();
+        }
+
+        public static bool editEnumFlags(ref Enum val, int width) 
+        {
+            BeginCheckLine();
+            val = EditorGUILayout.EnumFlagsField(val, GUILayout.MaxWidth(width));
+            return EndCheckLine();
+        }*/
 
         public static bool editTag(ref string tag)
         {
             BeginCheckLine();
-            tag = EditorGUILayout.TagField(tag); 
+            tag = EditorGUILayout.TagField(tag);
             return EndCheckLine();
         }
 
@@ -582,16 +657,14 @@ namespace PlayerAndEditorGUI {
             i = Mathf.ClosestPowerOfTwo((int)Mathf.Clamp(EditorGUILayout.IntField(i), min, max));
             return EndCheckLine();
         }
-
-
+        
         public static bool editBig(ref string text)
         {
             BeginCheckLine();
             text = EditorGUILayout.TextArea(text, GUILayout.MaxHeight(100));
             return EndCheckLine();
         }
-
-
+        
         public static bool edit<T>(ref T field) where T : Object
         {
             BeginCheckLine();
@@ -612,7 +685,7 @@ namespace PlayerAndEditorGUI {
             field = (T)EditorGUILayout.ObjectField(field, typeof(T), allowDrop);
             return EndCheckLine();
         }
-        
+
         public static bool edit(string label, ref float val)
         {
             BeginCheckLine();
@@ -626,7 +699,7 @@ namespace PlayerAndEditorGUI {
             val = EditorGUILayout.FloatField(val);
             return EndCheckLine();
         }
-        
+
         public static bool edit(ref float val, int width)
         {
             BeginCheckLine();
@@ -647,7 +720,7 @@ namespace PlayerAndEditorGUI {
             val = EditorGUILayout.DoubleField(val);
             return EndCheckLine();
         }
-        
+
         public static bool edit(ref int val, int min, int max)
         {
             BeginCheckLine();
@@ -661,7 +734,7 @@ namespace PlayerAndEditorGUI {
             val = (uint)EditorGUILayout.IntSlider((int)val, (int)min, (int)max); //Slider(val, min, max);
             return EndCheckLine();
         }
-        
+
         public static bool editPOW(ref float val, float min, float max)
         {
 
@@ -705,7 +778,7 @@ namespace PlayerAndEditorGUI {
         {
 
             BeginCheckLine();
-            col = EditorGUILayout.ColorField(cnt ,col, GUILayout.MaxWidth(width));
+            col = EditorGUILayout.ColorField(cnt, col, GUILayout.MaxWidth(width));
             return EndCheckLine();
 
         }
@@ -717,10 +790,10 @@ namespace PlayerAndEditorGUI {
 
             if (editDelayed(ref key, 40))
                 return dic.TryChangeKey(before, key) ? change : false;
-  
+
             return false;
         }
-        
+
         public static bool edit(ref Dictionary<int, string> dic, int atKey)
         {
             var before = dic[atKey];
@@ -752,31 +825,33 @@ namespace PlayerAndEditorGUI {
             val = EditorGUILayout.IntField(val, GUILayout.MaxWidth(width));
             return EndCheckLine();
         }
-        
+
         public static bool edit(ref uint val, int width)
         {
             BeginCheckLine();
             val = (uint)EditorGUILayout.IntField((int)val, GUILayout.MaxWidth(width));
             return EndCheckLine();
         }
-        
-        public static bool edit(string name, ref AnimationCurve val) {
+
+        public static bool edit(string name, ref AnimationCurve val)
+        {
 
             BeginCheckLine();
-            val = EditorGUILayout.CurveField(name,val);
+            val = EditorGUILayout.CurveField(name, val);
             return EndCheckLine();
         }
 
         public static bool edit(string label, ref Vector4 val)
         {
             BeginCheckLine();
-            
+
             val = EditorGUILayout.Vector4Field(label, val);
 
             return EndCheckLine();
         }
 
-        public static bool edit(string label, ref Vector2 val) {
+        public static bool edit(string label, ref Vector2 val)
+        {
 
             BeginCheckLine();
             val = EditorGUILayout.Vector2Field(label, val);
@@ -784,20 +859,20 @@ namespace PlayerAndEditorGUI {
         }
 
         public static bool edit(ref Vector2 val) => edit(ref val.x) || edit(ref val.y);
-        
+
         public static bool edit(ref MyIntVec2 val) => edit(ref val.x) || edit(ref val.y);
-        
+
         public static bool edit(ref MyIntVec2 val, int min, int max) => edit(ref val.x, min, max) || edit(ref val.y, min, max);
-        
+
         public static bool edit(ref MyIntVec2 val, int min, MyIntVec2 max) => edit(ref val.x, min, max.x) || edit(ref val.y, min, max.y);
-        
+
         public static bool edit(ref Vector4 val) => "X".edit(ref val.x).nl() || "Y".edit(ref val.y).nl() || "Z".edit(ref val.z).nl() || "W".edit(ref val.w).nl();
         #endregion
 
         #region Delayed
 
-       // private static string _editedText;
-       // private static string _editedHash = "";
+        // private static string _editedText;
+        // private static string _editedHash = "";
         public static bool editDelayed(ref string text)
         {
 
@@ -805,25 +880,25 @@ namespace PlayerAndEditorGUI {
             text = EditorGUILayout.DelayedTextField(text);
             return EndCheckLine();
 
-          /*  if (KeyCode.Return.IsDown())
-            {
-                if (text.GetHashCode().ToString() == _editedHash)
-                {
-                    checkLine();
-                    EditorGUILayout.TextField(text);
-                    text = _editedText;
-                    return change;
-                }
-            }
+            /*  if (KeyCode.Return.IsDown())
+              {
+                  if (text.GetHashCode().ToString() == _editedHash)
+                  {
+                      checkLine();
+                      EditorGUILayout.TextField(text);
+                      text = _editedText;
+                      return change;
+                  }
+              }
 
-            var tmp = text;
-            if (edit(ref tmp).ignoreChanges())
-            {
-                _editedText = tmp;
-                _editedHash = text.GetHashCode().ToString();
-            }
-            
-            return false;//(String.Compare(before, text) != 0);*/
+              var tmp = text;
+              if (edit(ref tmp).ignoreChanges())
+              {
+                  _editedText = tmp;
+                  _editedHash = text.GetHashCode().ToString();
+              }
+
+              return false;//(String.Compare(before, text) != 0);*/
         }
 
         public static bool editDelayed(ref string text, int width)
@@ -864,33 +939,33 @@ namespace PlayerAndEditorGUI {
         }
 
         // static int editedIntegerIndex;
-            // static int editedInteger;
-            public static bool editDelayed(ref int val, int width)
+        // static int editedInteger;
+        public static bool editDelayed(ref int val, int width)
         {
 
             BeginCheckLine();
             val = EditorGUILayout.DelayedIntField(val, GUILayout.MaxWidth(width));
             return EndCheckLine();
 
-           /* if (KeyCode.Return.IsDown() && (_elementIndex == editedIntegerIndex))
-            {
-                checkLine();
-                EditorGUILayout.IntField(val, GUILayout.Width(width));
-                val = editedInteger;
-                _elementIndex++; editedIntegerIndex = -1;
-                return change;
-            }
+            /* if (KeyCode.Return.IsDown() && (_elementIndex == editedIntegerIndex))
+             {
+                 checkLine();
+                 EditorGUILayout.IntField(val, GUILayout.Width(width));
+                 val = editedInteger;
+                 _elementIndex++; editedIntegerIndex = -1;
+                 return change;
+             }
 
-            var tmp = val;
-            if (edit(ref tmp).ignoreChanges())
-            {
-                editedInteger = tmp;
-                editedIntegerIndex = _elementIndex;
-            }
+             var tmp = val;
+             if (edit(ref tmp).ignoreChanges())
+             {
+                 editedInteger = tmp;
+                 editedIntegerIndex = _elementIndex;
+             }
 
-            _elementIndex++;
+             _elementIndex++;
 
-            return false;*/
+             return false;*/
         }
 
         //private static int _editedFloatIndex;
@@ -911,26 +986,26 @@ namespace PlayerAndEditorGUI {
             val = EditorGUILayout.DelayedFloatField(val, GUILayout.MaxWidth(width));
             return EndCheckLine();
 
-           /* if (KeyCode.Return.IsDown() && (_elementIndex == _editedFloatIndex))
-            {
-                checkLine();
-                EditorGUILayout.FloatField(val, GUILayout.Width(width));
-                val = _editedFloat;
-                _elementIndex++;
-                _editedFloatIndex = -1;
-                return change;
-            }
+            /* if (KeyCode.Return.IsDown() && (_elementIndex == _editedFloatIndex))
+             {
+                 checkLine();
+                 EditorGUILayout.FloatField(val, GUILayout.Width(width));
+                 val = _editedFloat;
+                 _elementIndex++;
+                 _editedFloatIndex = -1;
+                 return change;
+             }
 
-            var tmp = val;
-            if (edit(ref tmp, width).ignoreChanges())
-            {
-                _editedFloat = tmp;
-                _editedFloatIndex = _elementIndex;
-            }
+             var tmp = val;
+             if (edit(ref tmp, width).ignoreChanges())
+             {
+                 _editedFloat = tmp;
+                 _editedFloatIndex = _elementIndex;
+             }
 
-            _elementIndex++;
+             _elementIndex++;
 
-            return false;*/
+             return false;*/
         }
 
         public static bool editDelayed(ref double val)
@@ -948,7 +1023,7 @@ namespace PlayerAndEditorGUI {
             val = EditorGUILayout.DelayedDoubleField(val, GUILayout.MaxWidth(width));
             return EndCheckLine();
 
-           
+
         }
 
 
@@ -959,14 +1034,14 @@ namespace PlayerAndEditorGUI {
         public static bool edit_Property<T>(int width, Expression<Func<T>> memberExpression, UnityEngine.Object obj, bool includeChildren)
         {
             var changes = false;
-            
-            var serializedObject = (!obj ? ef.serObj : GetSerObj(obj)); 
+
+            var serializedObject = (!obj ? ef.serObj : GetSerObj(obj));
 
             if (serializedObject == null) return false;
 
             var member = ((MemberExpression)memberExpression.Body).Member;
             var name = member.Name;
-            
+
             var tps = serializedObject.FindProperty(name);
 
             if (tps == null) return changes;
@@ -986,7 +1061,7 @@ namespace PlayerAndEditorGUI {
 
             return changes;
         }
-        
+
         private static readonly Dictionary<Object, SerializedObject> SerializedObjects = new Dictionary<UnityEngine.Object, SerializedObject>();
 
         private static SerializedObject GetSerObj(Object obj)
@@ -1081,7 +1156,8 @@ namespace PlayerAndEditorGUI {
             return GUILayout.Button(content, style, GUILayout.MaxWidth(width)) && change;
         }
 
-        public static bool Click(Texture image, int width, GUIStyle style = null)   {
+        public static bool Click(Texture image, int width, GUIStyle style = null)
+        {
             if (style == null)
                 style = PEGI_Styles.ImageButton;
 
@@ -1090,7 +1166,7 @@ namespace PlayerAndEditorGUI {
         }
 
         public static bool ClickImage(GUIContent cnt, int width, GUIStyle style = null) => ClickImage(cnt, width, width, style);
-        
+
         public static bool ClickImage(GUIContent cnt, int width, int height, GUIStyle style = null)
         {
             if (style == null)
@@ -1133,7 +1209,8 @@ namespace PlayerAndEditorGUI {
             EditorGUILayout.ObjectField(field, typeof(T), false, GUILayout.MaxWidth(width));
         }
 
-        public static void write(GUIContent cnt, int width, int height)  {
+        public static void write(GUIContent cnt, int width, int height)
+        {
 
             checkLine();
             GUI.enabled = false;
@@ -1159,9 +1236,9 @@ namespace PlayerAndEditorGUI {
 
         public static void write(Texture tex, int width)
         {
-           checkLine();
+            checkLine();
 
-           GUILayout.Label(tex, GUILayout.MaxWidth(width), GUILayout.MaxHeight(width));
+            GUILayout.Label(tex, GUILayout.MaxWidth(width), GUILayout.MaxHeight(width));
         }
 
         public static void write(Texture tex, string tip, int width)
@@ -1190,12 +1267,14 @@ namespace PlayerAndEditorGUI {
             EditorGUILayout.LabelField(text, PEGI_Styles.WrappingText);
         }
 
-        public static void write(string text, GUIStyle style )  {
+        public static void write(string text, GUIStyle style)
+        {
             checkLine();
             EditorGUILayout.LabelField(text, style);
         }
 
-        public static void write(string text, int width, GUIStyle style) {
+        public static void write(string text, int width, GUIStyle style)
+        {
             checkLine();
             EditorGUILayout.LabelField(text, style, GUILayout.MaxWidth(width));
         }
@@ -1212,20 +1291,30 @@ namespace PlayerAndEditorGUI {
             EditorGUILayout.LabelField(cnt, style);
         }
 
-        public static void writeHint(string text, MessageType type)  {
+        public static void writeHint(string text, MessageType type)
+        {
             checkLine();
             EditorGUILayout.HelpBox(text, type);
         }
         #endregion
 
-        public static IEnumerable<T> DropAreaGUI<T>() where T : UnityEngine.Object
+        private static bool searchInChildren = false;
+
+        public static IEnumerable<T> DropAreaGUI<T>() where T : Object
         {
             newLine();
 
             var evt = Event.current;
             var drop_area = GUILayoutUtility.GetRect(0.0f, 50.0f, GUILayout.ExpandWidth(true));
-            
-            GUILayout.Box("Drag & Drop area above");
+
+            bool isComponent = typeof(Component).IsAssignableFrom(typeof(T));
+
+            if (isComponent) {
+                GUILayout.Box("Drag & Drop area for Game Object with {0} is above".F(pegi.GetCurrentListLabel<T>()));
+                "Search in children".toggle(120, ref searchInChildren).nl();
+            }
+            else
+                GUILayout.Box("Drag & Drop area for {o} is above".F(pegi.GetCurrentListLabel<T>()));
 
             switch (evt.type)
             {
@@ -1234,25 +1323,35 @@ namespace PlayerAndEditorGUI {
                     if (!drop_area.Contains(evt.mousePosition))
                         yield break;
 
-                    DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+                DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
 
-                    if (evt.type == EventType.DragPerform)
-                    {
-                        DragAndDrop.AcceptDrag();
+                if (evt.type == EventType.DragPerform) {
 
-                        foreach (var o in DragAndDrop.objectReferences)
-                        {
-                            var cnvrt = o as T;
-                            if (cnvrt)
-                                yield return cnvrt;
+                    DragAndDrop.AcceptDrag();
+
+                    foreach (var o in DragAndDrop.objectReferences) {
+                        var cnvrt = o as T;
+                        if (cnvrt)
+                            yield return cnvrt;
+                        else {
+                            var go = o as GameObject;
+                                
+                            if (go)
+                            foreach (var c in (searchInChildren
+                                ? go.GetComponentsInChildren(typeof(T))
+                                : go.GetComponents(typeof(T)))) {
+
+                                    yield return c as T;
+                            }
                         }
                     }
-                    break;
+                }
+                break;
             }
         }
-        
+
         #region Reordable List
-        
+
         private static readonly Dictionary<IList, ReorderableList> ReorderableList = new Dictionary<IList, ReorderableList>();
 
         static ReorderableList GetReordable<T>(this List<T> list, ListMetaData metaDatas)
@@ -1268,10 +1367,10 @@ namespace PlayerAndEditorGUI {
             rl.drawHeaderCallback += DrawHeader;
             rl.drawElementCallback += DrawElement;
             //rl.onRemoveCallback += RemoveItem;
-            
+
             return rl;
         }
-        
+
         private static IList _currentReorderedList;
         private static Type _currentReorderedType;
         private static List<Type> _currentReorderedListTypes;
@@ -1280,17 +1379,18 @@ namespace PlayerAndEditorGUI {
 
         private static bool GetIsSelected(int ind) => (_listMetaData != null) ? _listMetaData.GetIsSelected(ind) : pegi.selectedEls[ind];
 
-        private static void SetIsSelected(int ind, bool val) {
+        private static void SetIsSelected(int ind, bool val)
+        {
             if (_listMetaData != null)
                 _listMetaData.SetIsSelected(ind, val);
             else
                 pegi.selectedEls[ind] = val;
         }
-        
+
         public static bool reorder_List<T>(List<T> l, ListMetaData metas)
         {
             _listMetaData = metas;
-    
+
             EditorGUI.BeginChangeCheck();
 
             if (_currentReorderedList != l) {
@@ -1313,15 +1413,17 @@ namespace PlayerAndEditorGUI {
             }
 
 
+           
 
             l.GetReordable(metas).DoLayoutList();
             return EditorGUI.EndChangeCheck();
         }
-        
+
         private static void DrawHeader(Rect rect) => GUI.Label(rect, "Ordering {0} {1}s".F(_currentReorderedList.Count.ToString(), _currentReorderedType.ToPegiStringType()));
 
-        private static void DrawElement(Rect rect, int index, bool active, bool focused) {
-            
+        private static void DrawElement(Rect rect, int index, bool active, bool focused)
+        {
+
             var el = _currentReorderedList[index];
 
             var selected = GetIsSelected(index);
@@ -1334,58 +1436,62 @@ namespace PlayerAndEditorGUI {
             rect.x += 30;
             rect.width -= 30;
 
-            if (el != null) {
-                
-                    var ty = el.GetType();
+            if (el != null)
+            {
 
-                    textAndToolTip.text = "{0}:{1}".F(ty.ToPegiStringType(), el.ToPegiString());
-                    textAndToolTip.tooltip = el.ToString();
-         
-                   var uo = el as Object;
-                    if (uo)
-                    {
-                        var mb = uo as Component;
-                        var go = mb ? mb.gameObject : uo as GameObject;
+                var ty = el.GetType();
 
-                        if (!go)
-                            EditorGUI.ObjectField(rect, textAndToolTip, uo, _currentReorderedType, true);
-                        else
-                        {
-                            var mbs = go.GetComponents<Component>();
+                textAndToolTip.text = "{0}:{1}".F(ty.ToPegiStringType(), el.ToPegiString());
+                textAndToolTip.tooltip = el.ToString();
 
-                            if (mbs.Length > 1) { 
+                var uo = el as Object;
+                if (uo)
+                {
+                    var mb = uo as Component;
+                    var go = mb ? mb.gameObject : uo as GameObject;
 
-                                if (select(ref mb, mbs, rect))
-                                    _currentReorderedList[index] = mb;
-                            }
-                            else
-                                EditorGUI.ObjectField(rect, textAndToolTip, uo, _currentReorderedType, true);
-                        }
-                    }
+                    if (!go)
+                        EditorGUI.ObjectField(rect, textAndToolTip, uo, _currentReorderedType, true);
                     else
                     {
+                        var mbs = go.GetComponents<Component>();
 
-                        if (_currentReorderedListTypes != null)
+                        if (mbs.Length > 1)
                         {
 
-                            textAndToolTip.text = el.ToPegiString();
-
-                            rect.width = 100;
-                            EditorGUI.LabelField(rect, textAndToolTip);
-                            rect.x += 100;
-                            rect.width = 100;
-
-                            if (select_Type(ref ty, _currentReorderedListTypes, rect))
-                                _currentReorderedList.TryChangeObjectType(index, ty, _listMetaData);
-                        } else
-                            EditorGUI.LabelField(rect, textAndToolTip);
+                            if (select(ref mb, mbs, rect))
+                                _currentReorderedList[index] = mb;
+                        }
+                        else
+                            EditorGUI.ObjectField(rect, textAndToolTip, uo, _currentReorderedType, true);
                     }
+                }
+                else
+                {
+
+                    if (_currentReorderedListTypes != null)
+                    {
+
+                        textAndToolTip.text = el.ToPegiString();
+
+                        rect.width = 100;
+                        EditorGUI.LabelField(rect, textAndToolTip);
+                        rect.x += 100;
+                        rect.width = 100;
+
+                        if (select_Type(ref ty, _currentReorderedListTypes, rect))
+                            _currentReorderedList.TryChangeObjectType(index, ty, _listMetaData);
+                    }
+                    else
+                        EditorGUI.LabelField(rect, textAndToolTip);
+                }
             }
             else
             {
                 var ed = _listMetaData.TryGetElement(index);
-                
-                if (ed != null && ed.unrecognized) {
+
+                if (ed != null && ed.unrecognized)
+                {
 
                     if (_currentTaggedTypes != null)
                     {
@@ -1397,23 +1503,25 @@ namespace PlayerAndEditorGUI {
 
                         Type ty = null;
 
-                        if (select_Type(ref ty, _currentReorderedListTypes, rect)) {
+                        if (select_Type(ref ty, _currentReorderedListTypes, rect))
+                        {
                             el = Activator.CreateInstance(ty);
                             _currentReorderedList[index] = el;
 
                             var std = el as ICfg;
 
-                            if (std != null) 
-                                 std.Decode(ed.SetRecognized().stdDta);
-                            
+                            if (std != null)
+                                std.Decode(ed.SetRecognized().stdDta);
+
                         }
                     }
-                    
-                } else 
-                EditorGUI.LabelField(rect, "Empty {0}".F(_currentReorderedType.ToPegiStringType()));
+
+                }
+                else
+                    EditorGUI.LabelField(rect, "Empty {0}".F(_currentReorderedType.ToPegiStringType()));
             }
         }
-        
+
         private static void RemoveItem(ReorderableList list)
         {
             var i = list.index;
@@ -1423,7 +1531,7 @@ namespace PlayerAndEditorGUI {
             else
                 _currentReorderedList.RemoveAt(i);
         }
-        
+
         #endregion
 
     }

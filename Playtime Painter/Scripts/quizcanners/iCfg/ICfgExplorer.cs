@@ -25,6 +25,7 @@ namespace QuizCannersUtilities
         public bool keepTypeData;
         public bool allowDelete;
         public bool allowReorder;
+        public bool allowDuplicants;
         public readonly bool allowCreate;
         private readonly icon icon;
         public icon Icon => inspected == -1 ? icon : icon.Next;
@@ -122,6 +123,7 @@ namespace QuizCannersUtilities
         {
             switch (tg)
             {
+                case "adl": allowDuplicants = data.ToBool(); break;
                 case "ed": data.DecodeInto(out elementDatas); break;
                 case "insp": inspected = data.ToInt(); break;
                 case "pi": previousInspected = data.ToInt(); break;
@@ -144,6 +146,7 @@ namespace QuizCannersUtilities
                 .Add_IfNotNegative("insp", inspected)
                 .Add_IfNotNegative("pi", previousInspected)
                 .Add_IfNotZero("st", listSectionStartIndex)
+                .Add_IfTrue("adl", allowDuplicants)
                 #if PEGI
                 .Add_IfNotDefault("s", searchData)
                 #endif

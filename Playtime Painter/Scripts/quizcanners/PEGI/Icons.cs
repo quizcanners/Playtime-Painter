@@ -49,48 +49,32 @@ namespace PlayerAndEditorGUI {
 
     public static class Icons_MGMT {
 
-        private static List<Texture2D> _managementIcons;
+        private static Countless<Texture2D> _managementIcons = new Countless<Texture2D>();
 
         public static Texture2D GetIcon(this icon icon)
         {
 
-            if (_managementIcons == null) _managementIcons = new List<Texture2D>();
-
             var ind = (int) icon;
-            while (_managementIcons.Count <= ind) _managementIcons.Add(null);
 
-            if (_managementIcons[ind] != null) return (_managementIcons[ind]);
+            var ico = _managementIcons[ind];
 
-            switch (icon)
-            {
+            if (ico)
+                return ico;
+
+            switch (icon) {
                 case icon.Red: return ColorIcon(0) as Texture2D;
                 case icon.Green: return ColorIcon(1) as Texture2D;
                 case icon.Blue: return ColorIcon(2) as Texture2D;
                 case icon.Alpha: return ColorIcon(3) as Texture2D;
-                default: return icon.Load();
-            }
+                default:
+                    var tmp = Resources.Load("icons/" + Enum.GetName(typeof(icon), ind)) as Texture2D;
 
+                    _managementIcons[ind] = tmp ? tmp : Texture2D.whiteTexture;
+
+                    return tmp;
+            }
         }
         
-        private static Texture2D LoadIcoRes(int ind, string name)
-        {
-            if (_loads > _managementIcons.Count)
-                Debug.Log("Loading " + name);
-
-            _loads++;
-            _managementIcons[ind] = Resources.Load("icons/" + name) as Texture2D;
-            return _managementIcons[ind];
-        }
-
-        private static Texture2D Load(this icon ico)
-        {
-            var ind = (int) ico;
-            return LoadIcoRes(ind, Enum.GetName(typeof(icon), ind));
-        }
-
-        private static int _loads;
-        private static int _bgLoads;
-
         #region Color Icons
 
         private static List<Texture2D> _painterIcons;
@@ -269,12 +253,11 @@ namespace PlayerAndEditorGUI {
             return org;
         }
 
-#if PEGI
-        public static string F(this icon msg, Msg other) =>
-            msg.GetText() + " " + other.GetText();
-        public static string F(this Msg msg, icon other) =>
-            msg.GetText() + " " + other.GetText();
-#endif
+        #if PEGI
+        public static string F(this icon msg, Msg other) =>  "{0} {1}".F(msg.GetText(), other.GetText());
+
+        public static string F(this Msg msg, icon other) => "{0} {1}".F(msg.GetText(), other.GetText());
+        #endif
 
     }
 
