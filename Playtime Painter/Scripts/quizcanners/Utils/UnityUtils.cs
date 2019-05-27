@@ -491,11 +491,11 @@ namespace QuizCannersUtilities
             {
                 playClipMethod = AudioUtilClass.GetMethod("PlayClip",
                     BindingFlags.Static | BindingFlags.Public,
-                    null, new Type[] {typeof(AudioClip)}, null
+                    null, new Type[] { typeof(AudioClip) }, null
                 );
             }
 
-            playClipMethod.Invoke(null, new object[] {clip});
+            playClipMethod.Invoke(null, new object[] { clip });
 
 #else
 
@@ -654,9 +654,9 @@ namespace QuizCannersUtilities
                         setClipSamplePositionMethod = AudioUtilClass.GetMethod("SetClipSamplePosition",
                             BindingFlags.Static | BindingFlags.Public);
 
-                    int pos = (int) (clip.samples * Mathf.Clamp01(timeOff / clip.length));
+                    int pos = (int)(clip.samples * Mathf.Clamp01(timeOff / clip.length));
 
-                    setClipSamplePositionMethod.Invoke(null, new object[] {clip, pos});
+                    setClipSamplePositionMethod.Invoke(null, new object[] { clip, pos });
                 }
 #endif
             }
@@ -695,7 +695,7 @@ namespace QuizCannersUtilities
                 }
             }
 
-            return ((float) maxSample) / ((float) (clip.frequency * clip.channels));
+            return ((float)maxSample) / ((float)(clip.frequency * clip.channels));
         }
 
         #endregion
@@ -1069,12 +1069,69 @@ namespace QuizCannersUtilities
 
         }
 
+#if UNITY_EDITOR
+        public static void DuplicateResource(string assetFolder, string insideAssetFolder, string oldName,
+            string newName)
+        {
+            var path = Path.Combine("Assets", Path.Combine(assetFolder, Path.Combine("Resources", insideAssetFolder)));
+            AssetDatabase.CopyAsset(Path.Combine(path, oldName) + FileSaveUtils.bytesFileType,
+                Path.Combine(path, newName) + FileSaveUtils.bytesFileType);
+        }
+#endif
+
+
+
+        #endregion
+
+        #region Scriptable Objects
+
+        public static T CreateScriptableObjectInTheSameFolder<T>(this ScriptableObject el, string name, bool refreshDatabase = true) where T : ScriptableObject
+        {
+
+            T added;
+
+#if UNITY_EDITOR
+
+            
+
+            var path = AssetDatabase.GetAssetPath(el);
+
+            if (path.IsNullOrEmpty()) return null;
+
+            added = ScriptableObject.CreateInstance<T>();
+
+            var oldName = Path.GetFileName(path);
+
+            if (oldName.IsNullOrEmpty())
+                return added;
+
+            path = path.Replace(oldName, "");
+
+            var assetPathAndName =
+                AssetDatabase.GenerateUniqueAssetPath(Path.Combine(path + name) + ".asset");
+
+            AssetDatabase.CreateAsset(added, assetPathAndName);
+
+            added.name = name;
+
+            if (!refreshDatabase)
+            {
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
+#else
+            added = ScriptableObject.CreateInstance<T>();
+#endif
+
+            return added;
+        }
+        
         public static T DuplicateScriptableObject<T>(this T el) where T : ScriptableObject
         {
             T added;
 
-
 #if UNITY_EDITOR
+
             var path = AssetDatabase.GetAssetPath(el);
 
             if (path.IsNullOrEmpty()) return null;
@@ -1088,7 +1145,7 @@ namespace QuizCannersUtilities
             path = path.Replace(oldName, "");
 
             var assetPathAndName =
-                AssetDatabase.GenerateUniqueAssetPath(path + oldName.Substring(0, oldName.Length - 6) + ".asset");
+                AssetDatabase.GenerateUniqueAssetPath(Path.Combine(path + oldName.Substring(0, oldName.Length - 6)) + ".asset");
 
             AssetDatabase.CreateAsset(added, assetPathAndName);
 
@@ -1096,6 +1153,7 @@ namespace QuizCannersUtilities
 
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
+
 #else
             added = ScriptableObject.CreateInstance(el.GetType()) as T;
 #endif
@@ -1106,18 +1164,8 @@ namespace QuizCannersUtilities
         public static T CreateAndAddScriptableObjectAsset<T>(this List<T> objs, string path, string name)
             where T : ScriptableObject => CreateScriptableObjectAsset<T, T>(path, name, objs);
 
-#if UNITY_EDITOR
-        public static void DuplicateResource(string assetFolder, string insideAssetFolder, string oldName,
-            string newName)
-        {
-            var path = Path.Combine("Assets", Path.Combine(assetFolder, Path.Combine("Resources", insideAssetFolder)));
-            AssetDatabase.CopyAsset(Path.Combine(path, oldName) + FileSaveUtils.bytesFileType,
-                Path.Combine(path, newName) + FileSaveUtils.bytesFileType);
-        }
-#endif
-
         public static T CreateScriptableObjectAsset<T>(this List<T> list, string path, string name, Type t)
-            where T : ScriptableObject
+    where T : ScriptableObject
         {
 
             var asset = ScriptableObject.CreateInstance(t) as T;
@@ -1183,10 +1231,8 @@ namespace QuizCannersUtilities
             if (!path.Contains("Assets"))
                 path = Path.Combine("Assets", path);
 
-            var fullPath = Path.Combine(
-                FileSaveUtils
-                    .OutsideOfAssetsFolder // Application.dataPath.Substring(0, Application.dataPath.Length - 6) +
-                , path);
+            var fullPath = Path.Combine(FileSaveUtils.OutsideOfAssetsFolder, path);
+
             try
             {
                 Directory.CreateDirectory(fullPath);
@@ -1212,7 +1258,6 @@ namespace QuizCannersUtilities
             }
 #endif
         }
-
 
         #endregion
 
@@ -1432,15 +1477,15 @@ namespace QuizCannersUtilities
 
             var src = tex.GetPixels();
 
-            var dX = (float) tex.width / (float) width;
-            var dY = (float) tex.height / (float) height;
+            var dX = (float)tex.width / (float)width;
+            var dY = (float)tex.height / (float)height;
 
             for (var y = 0; y < height; y++)
             {
                 var dstIndex = y * width;
-                var srcIndex = ((int) (y * dY)) * tex.width;
+                var srcIndex = ((int)(y * dY)) * tex.width;
                 for (var x = 0; x < width; x++)
-                    dst[dstIndex + x] = src[srcIndex + (int) (x * dX)];
+                    dst[dstIndex + x] = src[srcIndex + (int)(x * dX)];
 
             }
 
@@ -1836,7 +1881,7 @@ namespace QuizCannersUtilities
 
             AssetDatabase.Refresh(ImportAssetOptions.ForceUncompressedImport);
 
-            var result = (Texture2D) AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
+            var result = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
 
             result.CopyImportSettingFrom(tex);
 
@@ -1860,7 +1905,7 @@ namespace QuizCannersUtilities
 
             AssetDatabase.Refresh(ImportAssetOptions.ForceUncompressedImport);
 
-            var result = (Texture2D) AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
+            var result = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
 
             result.CopyImportSettingFrom(tex);
 
@@ -1890,7 +1935,7 @@ namespace QuizCannersUtilities
 
             AssetDatabase.Refresh(ImportAssetOptions.ForceUncompressedImport);
 
-            var result = (Texture2D) AssetDatabase.LoadAssetAtPath(relativePath, typeof(Texture2D));
+            var result = (Texture2D)AssetDatabase.LoadAssetAtPath(relativePath, typeof(Texture2D));
 
             textureName = result.name;
 
@@ -1930,7 +1975,7 @@ namespace QuizCannersUtilities
 
             AssetDatabase.Refresh();
 
-            var tex = (Texture2D) AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
+            var tex = (Texture2D)AssetDatabase.LoadAssetAtPath("Assets" + dest, typeof(Texture2D));
 
             var imp = tex.GetTextureImporter();
             bool needReimport = imp.WasNotReadable();
@@ -2200,8 +2245,8 @@ namespace QuizCannersUtilities
 
             _timer -= _intervalLength;
 
-            _max = Mathf.Max((float) _perIntervalCount, (float) _max);
-            _min = Mathf.Min((float) _perIntervalCount, (float) _min);
+            _max = Mathf.Max((float)_perIntervalCount, (float)_max);
+            _min = Mathf.Min((float)_perIntervalCount, (float)_min);
 
             _totalCount += 1;
 
@@ -2227,9 +2272,9 @@ namespace QuizCannersUtilities
         #region Inspector
 
         public string NameForDisplayPEGI => "Avg {0}: {1}/{2}sec [{3} - {4}] ({5}) ".F(_name,
-            ((float) _average).ToString("0.00"),
-            (Math.Abs(_intervalLength - 1d) > float.Epsilon) ? _intervalLength.ToString("0") : "", (int) _min,
-            (int) _max, (int) _totalCount);
+            ((float)_average).ToString("0.00"),
+            (Math.Abs(_intervalLength - 1d) > float.Epsilon) ? _intervalLength.ToString("0") : "", (int)_min,
+            (int)_max, (int)_totalCount);
 
 #if PEGI
         public bool InspectInList(IList list, int ind, ref int edited)
@@ -2394,7 +2439,7 @@ namespace QuizCannersUtilities
                     {
                         if (_texture)
                             _texture.DestroyWhatever();
-                        _texture = ((DownloadHandlerTexture) _request.downloadHandler).texture;
+                        _texture = ((DownloadHandlerTexture)_request.downloadHandler).texture;
                         DisposeRequest();
                         tex = _texture;
 
@@ -2754,12 +2799,13 @@ namespace QuizCannersUtilities
 #endif*/
 
     [Serializable]
-    public class MeshMaterialPlaytimeInstancer {
+    public class MeshMaterialPlaytimeInstancer
+    {
 
         [SerializeField] public List<MeshRenderer> materialUsers = new List<MeshRenderer>();
         [NonSerialized] private Material labelMaterialInstance;
 
-        
+
         public Material MaterialInstance
         {
             get

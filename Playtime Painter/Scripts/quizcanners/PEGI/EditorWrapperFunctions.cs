@@ -1314,7 +1314,7 @@ namespace PlayerAndEditorGUI
                 "Search in children".toggle(120, ref searchInChildren).nl();
             }
             else
-                GUILayout.Box("Drag & Drop area for {o} is above".F(pegi.GetCurrentListLabel<T>()));
+                GUILayout.Box("Drag & Drop area for {0} is above".F(pegi.GetCurrentListLabel<T>()));
 
             switch (evt.type)
             {
