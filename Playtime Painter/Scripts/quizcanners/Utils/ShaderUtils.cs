@@ -17,7 +17,6 @@ namespace QuizCannersUtilities
         {
             protected int id;
             private string _name;
-            //public bool nonMaterialProperty;
 
             public override int GetHashCode() => id;
 
@@ -61,10 +60,9 @@ namespace QuizCannersUtilities
             #if PEGI
             public bool InspectInList(IList list, int ind, ref int edited)
             {
-                "[{0}] {1}".F(id, _name).write();
-                if (icon.Refresh.Click("Update Index (Shouldn't be necessary)"))
-                    UpdateIndex();
-
+                "Id: {0}".F(id).write(50);
+                _name.write_ForCopy();
+               
                 return false;
             }
             #endif

@@ -1241,10 +1241,14 @@ namespace PlayerAndEditorGUI {
             nl();
         }
 
-        public static bool write_ForCopy(string val) => edit(ref val);
+        public static bool write_ForCopy(this string val) => edit(ref val);
+        
         public static bool write_ForCopy(this string label, int width, string val) => edit(label, width, ref val);
+
         public static bool write_ForCopy(this string label, string val) => edit(label, ref val);
+        
         public static bool write_ForCopy_Big(string val) => editBig(ref val);
+
         public static bool write_ForCopy_Big(this string label, string val) => label.editBig(ref val);
 
         #region Warning & Hints
@@ -4239,10 +4243,10 @@ namespace PlayerAndEditorGUI {
             return false;
         }
         
-        public static bool Click_Enter_Attention_Highlight<T>(this T obj, icon icon = icon.Enter, string hint = "", bool canBeNull = true) where T : UnityEngine.Object, INeedAttention
+        public static bool Click_Enter_Attention_Highlight<T>(this T obj, ref bool changed, icon icon = icon.Enter, string hint = "", bool canBeNull = true) where T : UnityEngine.Object, INeedAttention
         {
-            var ch = obj.Click_Enter_Attention(icon, hint, canBeNull);
-            obj.ClickHighlight();
+            var ch = obj.Click_Enter_Attention(icon, hint, canBeNull).changes(ref changed);
+            obj.ClickHighlight().changes(ref changed);
             return ch;
         }
 

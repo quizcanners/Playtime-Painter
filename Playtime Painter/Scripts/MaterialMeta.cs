@@ -68,8 +68,7 @@ namespace PlaytimePainter
 
             return false;
         }
-
-
+        
         public override bool Inspect()
         {
             var changed = false;
@@ -78,11 +77,31 @@ namespace PlaytimePainter
             pegi.nl();
 
             if (material)
-                ("Shader: " + material.shader).nl();
+            {
+                ("Shader: " + material.shader).write();
+                if (material.shader)
+                    material.shader.ClickHighlight().nl(ref changed);
+            }
 
             "Color to Vertex color on Merge".toggleIcon(ref colorToVertexColorOnMerge).nl(ref changed);
 
             "Textures".edit_List(ref materialsTextureFields).changes(ref changed);
+
+            if (material) {
+                var colorFields = material.GetColorProperties();
+                if (colorFields.Count > 0)
+                {
+                    "Colors".nl(PEGI_Styles.ListLabel);
+
+                    foreach (var colorField in colorFields)
+                    {
+                        colorField.write_ForCopy();
+                        pegi.nl();
+                    }
+
+                    //"Colors".write_List(colorFields).nl();
+                }
+            }
 
             return false;
         }

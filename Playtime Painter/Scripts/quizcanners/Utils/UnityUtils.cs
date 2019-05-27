@@ -1085,37 +1085,28 @@ namespace QuizCannersUtilities
 
         #region Scriptable Objects
 
+        private const string ScrObjExt = ".asset";
+
         public static T CreateScriptableObjectInTheSameFolder<T>(this ScriptableObject el, string name, bool refreshDatabase = true) where T : ScriptableObject
         {
 
             T added;
 
-#if UNITY_EDITOR
-
+            #if UNITY_EDITOR
             
-
             var path = AssetDatabase.GetAssetPath(el);
 
             if (path.IsNullOrEmpty()) return null;
 
             added = ScriptableObject.CreateInstance<T>();
 
-            var oldName = Path.GetFileName(path);
-
-            if (oldName.IsNullOrEmpty())
-                return added;
-
-            path = path.Replace(oldName, "");
-
-            var assetPathAndName =
-                AssetDatabase.GenerateUniqueAssetPath(Path.Combine(path + name) + ".asset");
+            var assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(path.Replace(Path.GetFileName(path), name + ScrObjExt));
 
             AssetDatabase.CreateAsset(added, assetPathAndName);
 
             added.name = name;
 
-            if (!refreshDatabase)
-            {
+            if (!refreshDatabase) {
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
             }
@@ -1126,11 +1117,11 @@ namespace QuizCannersUtilities
             return added;
         }
         
-        public static T DuplicateScriptableObject<T>(this T el) where T : ScriptableObject
+        public static T DuplicateScriptableObject<T>(this T el, bool refreshDatabase = true) where T : ScriptableObject
         {
             T added;
 
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
 
             var path = AssetDatabase.GetAssetPath(el);
 
@@ -1142,17 +1133,24 @@ namespace QuizCannersUtilities
 
             if (oldName.IsNullOrEmpty()) return added;
 
-            path = path.Replace(oldName, "");
-
+            int len = oldName.Length;
+    
             var assetPathAndName =
-                AssetDatabase.GenerateUniqueAssetPath(Path.Combine(path + oldName.Substring(0, oldName.Length - 6)) + ".asset");
+                AssetDatabase.GenerateUniqueAssetPath(
+                    Path.Combine(
+                        path.Substring(0, path.Length - len) , 
+                        oldName.Substring(0, len - ScrObjExt.Length) + ScrObjExt));
 
             AssetDatabase.CreateAsset(added, assetPathAndName);
 
-            added.name = assetPathAndName.Substring(path.Length, assetPathAndName.Length - path.Length - 6);
+            var newName = Path.GetFileName(assetPathAndName);
 
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
+            added.name = newName.Substring(0, newName.Length - ScrObjExt.Length);
+
+            if (refreshDatabase) {
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
 
 #else
             added = ScriptableObject.CreateInstance(el.GetType()) as T;
@@ -1164,10 +1162,8 @@ namespace QuizCannersUtilities
         public static T CreateAndAddScriptableObjectAsset<T>(this List<T> objs, string path, string name)
             where T : ScriptableObject => CreateScriptableObjectAsset<T, T>(path, name, objs);
 
-        public static T CreateScriptableObjectAsset<T>(this List<T> list, string path, string name, Type t)
-    where T : ScriptableObject
+        public static T CreateScriptableObjectAsset<T>(this List<T> list, string path, string name, Type t) where T : ScriptableObject
         {
-
             var asset = ScriptableObject.CreateInstance(t) as T;
 
             SaveScriptableObjectAsAsset(asset, path, name, list);
@@ -1184,8 +1180,7 @@ namespace QuizCannersUtilities
             return asset;
         }
 
-        public static T CreateScriptableObjectAsset<T, TG>(string path, string name, List<TG> optionalList = null)
-            where T : TG where TG : ScriptableObject
+        public static T CreateScriptableObjectAsset<T, TG>(string path, string name, List<TG> optionalList = null) where T : TG where TG : ScriptableObject
         {
             var asset = ScriptableObject.CreateInstance<T>();
 
@@ -1195,16 +1190,14 @@ namespace QuizCannersUtilities
         }
 
         static void SaveScriptableObjectAsAsset<T, TG>(T asset, string path, string name, List<TG> optionalList = null)
-            where T : TG where TG : ScriptableObject
-        {
+            where T : TG where TG : ScriptableObject {
 
 #if PEGI
             var nm = asset as IGotName;
             if (nm != null)
                 nm.NameForPEGI = name;
 
-            if (optionalList != null)
-            {
+            if (optionalList != null) {
 
                 var ind = asset as IGotIndex;
 
@@ -1233,8 +1226,7 @@ namespace QuizCannersUtilities
 
             var fullPath = Path.Combine(FileSaveUtils.OutsideOfAssetsFolder, path);
 
-            try
-            {
+            try {
                 Directory.CreateDirectory(fullPath);
             }
             catch (Exception ex)
@@ -1245,9 +1237,7 @@ namespace QuizCannersUtilities
 
             var assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(path, name + ".asset"));
 
-            try
-            {
-
+            try {
                 AssetDatabase.CreateAsset(asset, assetPathAndName);
                 AssetDatabase.SaveAssets();
                 AssetDatabase.Refresh();
@@ -1326,8 +1316,7 @@ namespace QuizCannersUtilities
         private static bool _orbitingFocused;
 
         private static float _spinStartTime = 0;
-
-        // Use this for initialization
+        
         public static void SpinAround(Vector3 pos, Transform cameraman)
         {
             if (Input.GetMouseButtonDown(2))
@@ -1380,19 +1369,20 @@ namespace QuizCannersUtilities
 
         #region Material MGMT
 
-        public static bool
-            HasTag(this Material mat, string tag, bool searchFallbacks = false, string defaultValue = "") =>
+        public static bool HasTag(this Material mat, string tag, bool searchFallbacks = false, string defaultValue = "") =>
             mat && !mat.GetTag(tag, searchFallbacks, defaultValue).IsNullOrEmpty();
 
         public static Material MaterialWhatever(this Renderer renderer) =>
             !renderer ? null : (Application.isPlaying ? renderer.material : renderer.sharedMaterial);
 
-#if UNITY_EDITOR
         private static List<string> GetFields(this Material m, MaterialProperty.PropType type)
         {
             var fNames = new List<string>();
 
-            if (!m) return fNames;
+
+#if UNITY_EDITOR
+            if (!m)
+                return fNames;
 
             var mat = new Material[1];
             mat[0] = m;
@@ -1409,35 +1399,27 @@ namespace QuizCannersUtilities
 
             if (props == null) return fNames;
             fNames.AddRange(from p in props where p.type == type select p.name);
+#endif
 
             return fNames;
         }
-#endif
+
         public static List<string> GetFloatFields(this Material m)
         {
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             var l = m.GetFields(MaterialProperty.PropType.Float);
             l.AddRange(m.GetFields(MaterialProperty.PropType.Range));
             return l;
-#else
+            #else
             return new List<string>();
-#endif
+            #endif
         }
 
-        public static List<string> MyGetTexturePropertiesNames(this Material m)
-        {
-#if UNITY_EDITOR
-
-            return m.GetFields(MaterialProperty.PropType.Texture);
-
-#else
-            return new List<string>();
-#endif
-        }
-
+        public static List<string> MyGetTexturePropertiesNames(this Material m) => m.GetFields(MaterialProperty.PropType.Texture);
+        
         public static List<ShaderProperty.TextureValue> MyGetTextureProperties(this Material m)
         {
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             {
                 var lst = new List<ShaderProperty.TextureValue>();
                 foreach (var n in m.GetFields(MaterialProperty.PropType.Texture))
@@ -1445,24 +1427,13 @@ namespace QuizCannersUtilities
 
                 return lst;
             }
-#else
+            #else
             return new List<ShaderProperty.TextureValue>();
-#endif
+            #endif
         }
 
-        public static List<string> GetColorProperties(this Material m)
-        {
-
-#if UNITY_EDITOR
-            return m.GetFields(MaterialProperty.PropType.Color);
-#else
-                    return new List<string>();
-#endif
-
-        }
-
-
-
+        public static List<string> GetColorProperties(this Material m) => m.GetFields(MaterialProperty.PropType.Color);
+        
         #endregion
 
         #region Texture MGMT
@@ -1492,8 +1463,7 @@ namespace QuizCannersUtilities
 
             return dst;
         }
-
-
+        
         public static Texture2D CopyFrom(this Texture2D tex, RenderTexture rt)
         {
             if (!rt || !tex)
@@ -1515,15 +1485,13 @@ namespace QuizCannersUtilities
             return tex;
         }
 
-        public static bool TextureHasAlpha(this Texture2D tex)
-        {
+        public static bool TextureHasAlpha(this Texture2D tex) {
 
             if (!tex) return false;
 
             // May not cover all cases
-
-            switch (tex.format)
-            {
+           
+            switch (tex.format) {
                 case TextureFormat.ARGB32: return true;
                 case TextureFormat.RGBA32: return true;
                 case TextureFormat.ARGB4444: return true;
@@ -1531,6 +1499,7 @@ namespace QuizCannersUtilities
                 case TextureFormat.PVRTC_RGBA4: return true;
                 case TextureFormat.RGBAFloat: return true;
                 case TextureFormat.RGBAHalf: return true;
+                case TextureFormat.Alpha8: return true;
             }
 
             return false;
@@ -1543,20 +1512,20 @@ namespace QuizCannersUtilities
 
         public static bool IsColorTexture(this Texture2D tex)
         {
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (!tex) return true;
 
             TextureImporter importer = tex.GetTextureImporter();
 
             if (importer != null)
                 return importer.sRGBTexture;
-#endif
+            #endif
             return true;
         }
 
         public static Texture2D CopyImportSettingFrom(this Texture2D dest, Texture2D original)
         {
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             var dst = dest.GetTextureImporter();
             var org = original.GetTextureImporter();
 
@@ -1585,13 +1554,12 @@ namespace QuizCannersUtilities
                 dst.textureCompression = org.textureCompression;
                 dst.SaveAndReimport();
             }
-#endif
+            #endif
 
             return dest;
         }
-
-
-#if UNITY_EDITOR
+        
+        #if UNITY_EDITOR
 
         public static TextureImporter GetTextureImporter(this Texture2D tex) =>
             AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(tex)) as TextureImporter;
@@ -2381,25 +2349,25 @@ namespace QuizCannersUtilities
 
     }
 
-    public class TextureDownloadManager : IPEGI
-    {
+    public class TextureDownloadManager : IPEGI {
+
         readonly List<WebRequestMeta> _loadedTextures = new List<WebRequestMeta>();
 
-        class WebRequestMeta : IGotName, IPEGI_ListInspect, IPEGI
-        {
+        class WebRequestMeta : IGotName, IPEGI_ListInspect, IPEGI {
 
-#if QC_USE_NETWORKING
+            #if QC_USE_NETWORKING
             private UnityWebRequest _request;
-#endif
-            private string _address;
-            public string URL => _address;
+            #endif
+
+            private string url;
+            public string URL => url;
             private Texture _texture;
             private bool _failed = false;
 
             public string NameForPEGI
             {
-                get { return _address; }
-                set { _address = value; }
+                get { return url; }
+                set { url = value; }
             }
 
             private Texture Take()
@@ -2459,16 +2427,16 @@ namespace QuizCannersUtilities
 
 #if QC_USE_NETWORKING
                 _request?.Dispose();
-                _request = UnityWebRequestTexture.GetTexture(_address);
+                _request = UnityWebRequestTexture.GetTexture(url);
                 _request.SendWebRequest();
                 _failed = false;
-                Debug.Log("Loading {0}".F(_address));
+                Debug.Log("Loading {0}".F(url));
 #endif
             }
 
             public WebRequestMeta(string URL)
             {
-                _address = URL;
+                url = URL;
                 Start();
             }
 
@@ -2521,7 +2489,7 @@ namespace QuizCannersUtilities
                     {
                         if (icon.Refresh.Click("Failed"))
                             Start();
-                        "Failed ".F(_address).write(40);
+                        "Failed ".F(url).write(40);
                     }
                     else
                     {
@@ -2533,7 +2501,7 @@ namespace QuizCannersUtilities
 #else
                 "QC_USE_NETWORKING is disabled (to prevent unwanted android permissions)".writeWarning();
 #endif
-                _address.write();
+                url.write();
                 return changed;
             }
 
@@ -2608,25 +2576,40 @@ namespace QuizCannersUtilities
     }
 
     [Serializable]
-    public class ScreenShootTaker : IPEGI
-    {
+    public class ScreenShootTaker : IPEGI {
 
         #region ScreenShot
 
-#if PEGI
-        public bool Inspect()
-        {
+        #if PEGI
+
+        public bool Inspect() {
+
+            "Up Scale".edit(60, ref UpScale).nl();
+            "Alpha".toggleIcon(ref AlphaBackground).nl();
+
+            "Img Name".edit(90, ref screenShotName).nl();
+            
             "Camera ".edit(60, ref cameraToTakeScreenShotFrom);
 
             // "On Post render is only called when script is attached to camera. Not finished implementation ... ".writeHint();
 
             if (cameraToTakeScreenShotFrom && icon.SaveAsNew.Click("From Camera"))
-                ToRenderTextureFirst();
+                RenderToTextureManually();
 
-            //  if (icon.Show.Click("Grab screen"))
-            //    grab = true;
+            pegi.nl();
 
-            if (icon.Copy.Click("Screen Capture"))
+            if (!grab)  {
+                if ("On Post Render()".Click())
+                    grab = true;
+            } else 
+                ("To grab screen-shot at Post-Render call OnPostRender() of this class from OnPostRender() of the script attached to camera." +
+                  " Refer to Unity documentation to learn more about OnPostRender() call")
+                    .writeHint();
+            
+            
+            pegi.nl();
+
+            if ("Take Screen Shot".Click().nl())
                 ScreenCapture.CaptureScreenshot("ScreenShots/{0}".F(screenShotName), UpScale);
 
             if (icon.Refresh.Click("Refresh Asset Database"))
@@ -2634,14 +2617,9 @@ namespace QuizCannersUtilities
 
             pegi.nl();
 
-            "Up Scale".edit(60, ref UpScale).nl();
-            "Alpha".toggleIcon(ref AlphaBackground).nl();
-
-            "Img Name".edit(90, ref screenShotName).nl();
-
             return false;
         }
-#endif
+        #endif
 
         private bool grab;
 
@@ -2652,8 +2630,7 @@ namespace QuizCannersUtilities
         [NonSerialized] private RenderTexture forScreenRenderTexture;
         [NonSerialized] private Texture2D screenShotTexture2D;
 
-        public void ToRenderTextureFirst()
-        {
+        public void RenderToTextureManually() {
 
             var cam = cameraToTakeScreenShotFrom;
             var w = cam.pixelWidth * UpScale;
@@ -2683,16 +2660,11 @@ namespace QuizCannersUtilities
             FileSaveUtils.SaveTextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png",
                 screenShotTexture2D);
         }
-
-        // Needs to be a part of a camera
-        public void OnPostRender()
-        {
-            if (grab)
-            {
+        
+        public void OnPostRender() {
+            if (grab)  {
 
                 grab = false;
-
-                //Debug.Log("post Render Grab");
 
                 var w = Screen.width;
                 var h = Screen.height;
@@ -2708,7 +2680,7 @@ namespace QuizCannersUtilities
             }
         }
 
-        public void CheckRenderTexture(int w, int h)
+        private void CheckRenderTexture(int w, int h)
         {
             if (!forScreenRenderTexture || forScreenRenderTexture.width != w || forScreenRenderTexture.height != h)
             {
@@ -2721,7 +2693,7 @@ namespace QuizCannersUtilities
 
         }
 
-        public void CheckTexture2D(int w, int h)
+        private void CheckTexture2D(int w, int h)
         {
             if (!screenShotTexture2D || screenShotTexture2D.width != w || screenShotTexture2D.height != h)
             {
@@ -2735,11 +2707,12 @@ namespace QuizCannersUtilities
 
         private string screenShotName;
 
-        public string GetScreenShotName()
+        private string GetScreenShotName()
         {
             var name = screenShotName;
 
-            if (name.IsNullOrEmpty()) name = "SS-" + DateTime.Now.ToString("yyyy.MM.dd.HH.mm.ss");
+            if (name.IsNullOrEmpty())
+                name = "SS-" + DateTime.Now.ToString("yyyy.MM.dd.HH.mm.ss");
 
             return name;
         }
