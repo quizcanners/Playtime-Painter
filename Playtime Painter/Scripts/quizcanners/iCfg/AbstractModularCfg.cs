@@ -41,9 +41,12 @@ namespace QuizCannersUtilities {
 
         public string displayName;
 
-        public TaggedType(string nTag, string nDisplayName = null) {
-            tag = nTag;
-            displayName = nDisplayName ?? tag;
+        public bool allowMultiplePerList;
+
+        public TaggedType(string tag, string nDisplayName = null, bool allowMultiplePerList = true) {
+            this.tag = tag;
+            this.displayName = displayName ?? tag;
+            this.allowMultiplePerList = allowMultiplePerList;
         }
 
       
@@ -61,6 +64,25 @@ namespace QuizCannersUtilities {
         }
 
         private List<string> _keys;
+
+        public CountlessBool _disallowMultiplePerList = new CountlessBool();
+
+        public bool CanAdd(int typeIndex, IList toList) {
+
+            RefreshNodeTypesList();
+
+            if (!_disallowMultiplePerList[typeIndex])
+                return true;
+
+            var t = _types[typeIndex];
+
+            foreach (var el in toList) {
+                if (el!= null && (el.GetType().Equals(t)))
+                    return false;
+            }
+
+            return true;
+        }
 
         private List<Type> _types;
 
@@ -92,9 +114,11 @@ namespace QuizCannersUtilities {
             }
 
             _displayNames = new List<string>();
-            
-            foreach (var t in allTypes)
-            {
+
+            int cnt = 0;
+
+            foreach (var t in allTypes) {
+
                 var att = t.TryGetClassAttribute<TaggedType>();
 
                 if (att == null)
@@ -105,10 +129,14 @@ namespace QuizCannersUtilities {
                         _dictionary[att.tag].ToString(), att.tag));
                 else
                 {
+                   
+
                     _dictionary.Add(att.tag, t);
                     _displayNames.Add(att.displayName);
                     _keys.Add(att.tag);
                     _types.Add(t);
+                    _disallowMultiplePerList[cnt] = !att.allowMultiplePerList;
+                    cnt++;
                 }
             }
 

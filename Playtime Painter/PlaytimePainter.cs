@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using STD_Logic;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
@@ -1896,7 +1897,7 @@ namespace PlaytimePainter {
                 canInspect = false;
             }
 
-            if (canInspect && gameObject.IsPrefab()) {
+            if (canInspect && UnityUtils.IsPrefab(gameObject)) {
                 "Inspecting a prefab.".nl();
                 canInspect = false;
             }
@@ -2472,7 +2473,7 @@ namespace PlaytimePainter {
 
                         if (HasMaterialSource && !cfg.showConfig)
                         {
-                #region Material Clonning Options
+                            #region Material Clonning Options
 
                             pegi.nl();
 
@@ -2491,6 +2492,9 @@ namespace PlaytimePainter {
                             }
 
                             var mater = Material;
+
+                            if (Application.isEditor && mater && mater.shader)
+                                mater.shader.ClickHighlight("Highlight Shader");
 
                             if (pegi.edit(ref mater).changes(ref changed))
                                 Material = mater;

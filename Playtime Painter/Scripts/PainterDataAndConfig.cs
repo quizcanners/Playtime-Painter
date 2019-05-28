@@ -342,7 +342,7 @@ namespace PlaytimePainter
                     for (var index = 0; index < matMetas.Count; index++)
                     {
                         var md = matMetas[index];
-                        if (md.material && md.material.SavedAsAsset()) continue;
+                        if (UnityUtils.SavedAsAsset(md.material)) continue;
                         
                         matMetas.Remove(md);
                         index--;

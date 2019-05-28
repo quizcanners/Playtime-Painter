@@ -2587,6 +2587,7 @@ namespace PlayerAndEditorGUI {
 
         public static bool select_or_edit_ColorProperty(ref string property, Material material)
         {
+
             var lst = material.GetColorProperties();
             return lst.Count == 0 ?  edit(ref property) : select(ref property, lst);
         }
@@ -4231,7 +4232,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        public static bool ClickHighlight(this Object obj, string hint, icon icon = icon.Enter, int width = defaultButtonSize)
+        public static bool ClickHighlight(this Object obj, string hint, icon icon = icon.Search, int width = defaultButtonSize)
         {
         #if UNITY_EDITOR
             if (obj && icon.Click(hint)) {
@@ -4729,7 +4730,7 @@ namespace PlayerAndEditorGUI {
             if (lst != null) 
                 lst.enter_Inspect_AsList(ref entered, current, label).changes(ref changed);
             else {
-                var pgi = obj.TryGet_fromObj<IPEGI>();
+                var pgi = UnityUtils.TryGet_fromObj<IPEGI>(obj);
                 
                 if (icon.Enter.conditional_enter(pgi != null, ref entered, current, label))
                     pgi.Nested_Inspect().changes(ref changed);
@@ -6157,8 +6158,7 @@ namespace PlayerAndEditorGUI {
                     else if (addingNewOptionsInspected == lst)
                         addingNewOptionsInspected = null;
 
-                    if (selectingDerrived)
-                    {
+                    if (selectingDerrived) {
                         if (indTypes != null)
                         foreach (var t in indTypes) {
                             write(t.ToPegiStringType());
@@ -6170,13 +6170,25 @@ namespace PlayerAndEditorGUI {
                         {
                             var k = tagTypes.Keys;
 
+                            int optionsPresented = 0;
+
                             for (var i=0; i<k.Count; i++) {
 
-                                write(tagTypes.DisplayNames[i]);
-                                if (icon.Create.ClickUnFocus().nl(ref changed)) 
-                                    added = lst.CreateScriptableObjectAsset("Assets/ScriptableObjects/", addingNewNameHolder, tagTypes.TaggedTypes.TryGet(k[i]));
+                                if (tagTypes.CanAdd(i, lst))
+                                {
+                                    optionsPresented++;
+                                    write(tagTypes.DisplayNames[i]);
+                                    if (icon.Create.ClickUnFocus().nl(ref changed))
+                                        added = lst.CreateScriptableObjectAsset("Assets/ScriptableObjects/",
+                                            addingNewNameHolder, tagTypes.TaggedTypes.TryGet(k[i]));
+                                }
 
                             }
+
+                            if (optionsPresented == 0)
+                                (k.Count == 0 ? "There no types derrived from {0}".F(typeof(T).ToString()) :
+                                        "Existing types are restricted to one instance per list").writeHint();
+
                         }
                     }
                 }
@@ -6186,7 +6198,7 @@ namespace PlayerAndEditorGUI {
             return changed;
 
         }
-
+        
         private static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added, ListMetaData ld)
         {
             if (ld != null && !ld.allowCreate)
@@ -6204,7 +6216,7 @@ namespace PlayerAndEditorGUI {
 
             var changed = false;
 
-            var hasName = typeof(T).IsSubclassOf(typeof(UnityEngine.Object)) || typeof(IGotName).IsAssignableFrom(typeof(T));
+            var hasName = typeof(T).IsSubclassOf(typeof(Object)) || typeof(IGotName).IsAssignableFrom(typeof(T));
 
             if (hasName)
                 listInstantiateNewName<T>();
@@ -6233,22 +6245,34 @@ namespace PlayerAndEditorGUI {
                         }
                     }
 
-                if (tagTypes != null) {
-                    var k = tagTypes.Keys;
+                    if (tagTypes != null) {
+                        var k = tagTypes.Keys;
 
-                    for (var i = 0; i < k.Count; i++)
-                    {
+                        int availableOptions = 0;
 
-                        write(tagTypes.DisplayNames[i]);
-                        if (icon.Create.ClickUnFocus().nl(ref changed)) {
-                            added = (T)Activator.CreateInstance(tagTypes.TaggedTypes.TryGet((k[i])));
-                            lst.AddWithUniqueNameAndIndex(added, addingNewNameHolder);
+                        for (var i = 0; i < k.Count; i++)
+                        {
+                            if (tagTypes.CanAdd(i, lst))
+                            {
+                                availableOptions++;
+
+                                write(tagTypes.DisplayNames[i]);
+                                if (icon.Create.ClickUnFocus().nl(ref changed))
+                                {
+                                    added = (T) Activator.CreateInstance(tagTypes.TaggedTypes.TryGet(k[i]));
+                                    lst.AddWithUniqueNameAndIndex(added, addingNewNameHolder);
+                                }
+                            }
+
                         }
 
-                    }
-                }
+                        if (availableOptions == 0)
+                            (k.Count == 0 ? "There no types derrived from {0}".F(typeof(T).ToString()) :
+                                "Existing types are restricted to one instance per list").writeHint();
 
                     }
+
+                }
             }
             else
                 icon.Add.GetText().write("Input a name for a new element", 40);
@@ -6478,7 +6502,7 @@ namespace PlayerAndEditorGUI {
             return val;
         }
 
-        public static T listLabel_Used<T>(this T val) {
+        private static T listLabel_Used<T>(this T val) {
             currentListLabel = "";
             return val;
         }
@@ -8544,13 +8568,13 @@ namespace PlayerAndEditorGUI {
 
             } else {
 
-                if ((obj.TryGet_fromObj<IPEGI_Searchable>()).SearchMatch_Internal(text, ref matched))
+                if ((UnityUtils.TryGet_fromObj<IPEGI_Searchable>(obj)).SearchMatch_Internal(text, ref matched))
                     return true;
 
-                if (obj.TryGet_fromObj<IGotName>().SearchMatch_Internal(text, ref matched))
+                if (UnityUtils.TryGet_fromObj<IGotName>(obj).SearchMatch_Internal(text, ref matched))
                     return true;
 
-                if (obj.TryGet_fromObj<IGotDisplayName>().SearchMatch_Internal(text, ref matched))
+                if (UnityUtils.TryGet_fromObj<IGotDisplayName>(obj).SearchMatch_Internal(text, ref matched))
                     return true;
 
                 if (obj.ToString().SearchMatch_Internal(text, ref matched))

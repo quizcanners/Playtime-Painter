@@ -5,11 +5,9 @@ using System.Collections.Generic;
 using QuizCannersUtilities;
 using UnityEngine;
 
-namespace QuizCannersUtilities
-{
+namespace QuizCannersUtilities {
 
-    public static class ShaderProperty
-    {
+    public static class ShaderProperty {
 
         #region Base
 
@@ -529,14 +527,14 @@ namespace QuizCannersUtilities
 }
 
 
-namespace PlayerAndEditorGUI
-{
-    // ReSharper disable InconsistentNaming
-#pragma warning disable 1692
-#pragma warning disable IDE1006
+namespace PlayerAndEditorGUI {
 
-    public static partial class pegi
-    {
+    // ReSharper disable InconsistentNaming
+    #pragma warning disable 1692
+    #pragma warning disable IDE1006
+
+    public static partial class pegi {
+
         #if PEGI
         public static bool toggle(this Material mat, string keyword)
         {

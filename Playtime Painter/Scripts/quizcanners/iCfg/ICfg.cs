@@ -810,7 +810,7 @@ namespace QuizCannersUtilities {
             if (iK != null)
                 iK.SaveStdData();
 
-            go.UpdatePrefab();
+            UnityUtils.UpdatePrefab(go);
         }
 
         public static void SaveStdData(this IKeepMyCfg s) {

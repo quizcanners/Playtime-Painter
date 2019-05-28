@@ -103,7 +103,7 @@ namespace QuizCannersUtilities
             var fullPath = Path.Combine(Application.dataPath, folder);
             Directory.CreateDirectory(fullPath);
 
-            AssetDatabase.CreateAsset(obj, obj.SetUniqueObjectName(folder, extension));
+            AssetDatabase.CreateAsset(obj, UnityUtils.SetUniqueObjectName(obj, folder, extension));
 
             if (refreshAfter)
                 AssetDatabase.Refresh();

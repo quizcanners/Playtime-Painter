@@ -581,7 +581,7 @@ namespace QuizCannersUtilities
 
         public CfgEncoder TryAdd<T>(string tag, T obj) {
 
-            var objStd = obj.TryGet_fromObj<ICfg>(); 
+            var objStd = UnityUtils.TryGet_fromObj<ICfg>(obj); 
             return (objStd != null) ? Add(tag, objStd) : this;
         }
 

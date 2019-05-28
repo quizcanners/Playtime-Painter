@@ -719,7 +719,7 @@ namespace QuizCannersUtilities {
         }
 
         public static bool TryDecodeInto<T>(this string data, T val) =>
-            val.TryGet_fromObj<ICfg>().Decode_ifNotNull(data);
+            UnityUtils.TryGet_fromObj<ICfg>(val).Decode_ifNotNull(data);
         
         public static bool Decode_ifNotNull(this ICfg istd, string data)
         {
@@ -787,7 +787,7 @@ namespace QuizCannersUtilities {
         public static ICfgSerializeNestedReferences Keeper { get { return CfgEncoder.keeper;  } set { CfgEncoder.keeper = value; } }
 
         public static bool TryDecodeInto<T>(this string data, T val, ICfgSerializeNestedReferences referencesKeeper) {
-            var std = val.TryGet_fromObj<ICfg>();
+            var std = UnityUtils.TryGet_fromObj<ICfg>(val);
            
             if (std == null) return false;
             

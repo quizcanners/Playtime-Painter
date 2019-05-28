@@ -633,7 +633,7 @@ namespace QuizCannersUtilities
                     var uObj = Cfg as UnityEngine.Object;
 
                     if (uObj && icon.Done.Click("Use the same directory as current object.", ref changed))
-                        Mgmt.fileFolderHolder = uObj.GetAssetFolder();
+                        Mgmt.fileFolderHolder = UnityUtils.GetAssetFolder(uObj);
 
                     uObj.ClickHighlight().nl(ref changed);
                 }

@@ -35,7 +35,7 @@ namespace PlaytimePainter
         private bool _useTexCoord2AutoAssigned;
         public bool lockEditing;
         public bool isATransparentLayer;
-        public bool NeedsToBeSaved => (texture2D && texture2D.SavedAsAsset()) || (renderTexture && renderTexture.SavedAsAsset());
+        public bool NeedsToBeSaved => UnityUtils.SavedAsAsset(texture2D) || UnityUtils.SavedAsAsset(renderTexture);
         public bool showRecording;
         public bool enableUndoRedo;
         public bool pixelsDirty;

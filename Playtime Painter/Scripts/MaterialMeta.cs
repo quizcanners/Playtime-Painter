@@ -4,8 +4,7 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
-namespace PlaytimePainter
-{
+namespace PlaytimePainter {
 
     public class MaterialMeta : PainterSystemKeepUnrecognizedCfg, IPEGI, IPEGI_ListInspect, IGotDisplayName {
         
@@ -69,16 +68,17 @@ namespace PlaytimePainter
             return false;
         }
         
-        public override bool Inspect()
-        {
+        public override bool Inspect() {
+
             var changed = false;
             
             "Material:".writeUobj(60, material);
             pegi.nl();
 
-            if (material)
-            {
+            if (material) {
+
                 ("Shader: " + material.shader).write();
+
                 if (material.shader)
                     material.shader.ClickHighlight().nl(ref changed);
             }
@@ -88,9 +88,11 @@ namespace PlaytimePainter
             "Textures".edit_List(ref materialsTextureFields).changes(ref changed);
 
             if (material) {
+
                 var colorFields = material.GetColorProperties();
-                if (colorFields.Count > 0)
-                {
+
+                if (colorFields.Count > 0) {
+
                     "Colors".nl(PEGI_Styles.ListLabel);
 
                     foreach (var colorField in colorFields)
@@ -106,8 +108,7 @@ namespace PlaytimePainter
             return false;
         }
         
-
-#endif
+        #endif
         #endregion
     }
 

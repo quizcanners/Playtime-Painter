@@ -1742,7 +1742,8 @@ namespace QuizCannersUtilities
         public static void Lerp<T>(this T[] list, LerpData ld, bool canTeleport = false) where T : ILinkedLerping
         {
             foreach (var e in list)
-                e.NullIfDestroyed()?.Lerp(ld, canTeleport);
+                if (!e.IsNullOrDestroyed_Obj())
+                    e.Lerp(ld, canTeleport);
         }
 
         public static void Portion<T>(this List<T> list, LerpData ld) where T : ILinkedLerping
@@ -1757,7 +1758,8 @@ namespace QuizCannersUtilities
         public static void Lerp<T>(this List<T> list, LerpData ld, bool canTeleport = false) where T : ILinkedLerping
         {
             foreach (var e in list)
-                e.NullIfDestroyed()?.Lerp(ld, canTeleport);
+                if (!e.IsNullOrDestroyed_Obj())
+                    e.Lerp(ld, canTeleport);
         }
 
         public static void FadeAway<T>(this List<T> list) where T : IManageFading
@@ -1765,7 +1767,8 @@ namespace QuizCannersUtilities
             if (list == null) return;
 
             foreach (var e in list)
-                e.NullIfDestroyed()?.FadeAway();
+                if (!e.IsNullOrDestroyed_Obj())
+                    e.FadeAway();
         }
 
         public static bool TryFadeIn<T>(this List<T> list) where T : IManageFading

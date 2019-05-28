@@ -177,7 +177,7 @@ namespace QuizCannersUtilities
             return go;
         }
 
-        public static T TryGet_fromObj<T>(this object obj) where T : class
+        public static T TryGet_fromObj<T>(object obj) where T : class
         {
 
             if (obj.IsNullOrDestroyed_Obj())
@@ -204,7 +204,7 @@ namespace QuizCannersUtilities
             return obj == null;
         }
 
-        public static T NullIfDestroyed<T>(this T obj) => obj.IsNullOrDestroyed_Obj() ? default(T) : obj;
+       // public static T NullIfDestroyed<T>(this T obj) => obj.IsNullOrDestroyed_Obj() ? default(T) : obj;
 
         public static bool TrySetAlpha_DisableIfZero(this Graphic graphic, float alpha)
         {
@@ -890,26 +890,26 @@ namespace QuizCannersUtilities
 #endif
         }
 
-        public static UnityEngine.Object GetPrefab(this UnityEngine.Object obj) =>
+        public static Object GetPrefab(Object obj) =>
 
 #if UNITY_EDITOR
 
 #if UNITY_2018_2_OR_NEWER
             PrefabUtility.GetCorrespondingObjectFromSource(obj);
-#else
+            #else
                  PrefabUtility.GetPrefabParent(obj);
-#endif
-#else
+            #endif
+            #else
                  null;
-#endif
+            #endif
 
 
-        public static void UpdatePrefab(this GameObject gameObject)
+        public static void UpdatePrefab(GameObject gameObject)
         {
 #if PEGI && UNITY_EDITOR
 
 #if UNITY_2018_3_OR_NEWER
-            var pf = gameObject.IsPrefab() ? gameObject : PrefabUtility.GetPrefabInstanceHandle(gameObject);
+            var pf = UnityUtils.IsPrefab(gameObject) ? gameObject : PrefabUtility.GetPrefabInstanceHandle(gameObject);
 #else
             var pf = PrefabUtility.GetPrefabObject(gameObject);
 #endif
@@ -930,7 +930,7 @@ namespace QuizCannersUtilities
                         PrefabUtility.SaveAsPrefabAssetAndConnect(gameObject, path, InteractionMode.AutomatedAction);
                 }
 #else
-                PrefabUtility.ReplacePrefab(gameObject, gameObject.GetPrefab(), ReplacePrefabOptions.ConnectToPrefab);
+                PrefabUtility.ReplacePrefab(gameObject, GetPrefab(gameObject), ReplacePrefabOptions.ConnectToPrefab);
                    (gameObject.name + " prefab Updated").showNotificationIn3D_Views();
 #endif
 
@@ -944,9 +944,9 @@ namespace QuizCannersUtilities
 #endif
         }
 
-        public static bool IsPrefab(this GameObject go) => go.scene.name == null;
+        public static bool IsPrefab(GameObject go) => go.scene.name == null;
 
-        public static string SetUniqueObjectName(this UnityEngine.Object obj, string folderName, string extension)
+        public static string SetUniqueObjectName(Object obj, string folderName, string extension)
         {
 
             folderName = Path.Combine("Assets", folderName); //.AddPreSlashIfNotEmpty());
@@ -964,11 +964,11 @@ namespace QuizCannersUtilities
             return fullPath;
         }
 
-        public static string GetAssetFolder(this UnityEngine.Object obj)
+        public static string GetAssetFolder(Object obj)
         {
 #if UNITY_EDITOR
 
-            var parentObject = obj.GetPrefab();
+            var parentObject = GetPrefab(obj);
             if (parentObject)
                 obj = parentObject;
 
@@ -988,14 +988,14 @@ namespace QuizCannersUtilities
 #endif
         }
 
-        public static bool SavedAsAsset(this UnityEngine.Object go) =>
+        public static bool SavedAsAsset(Object obj) =>
 #if UNITY_EDITOR
-            !AssetDatabase.GetAssetPath(go).IsNullOrEmpty();
-#else
-            true;
-#endif
+            obj && (!AssetDatabase.GetAssetPath(obj).IsNullOrEmpty());
+        #else
+            obj;
+        #endif
 
-        public static string GetGuid(this UnityEngine.Object obj, string current)
+        public static string GetGuid(this Object obj, string current)
         {
             if (!obj)
                 return current;
@@ -1014,45 +1014,11 @@ namespace QuizCannersUtilities
             var path = AssetDatabase.GUIDToAssetPath(guid);
             return path.IsNullOrEmpty() ? null : AssetDatabase.LoadAssetAtPath<T>(path);
         }
-#else
+        #else
                => null;
-#endif
+            #endif
 
-        public static string GetGuid(this UnityEngine.Object obj) => obj.GetGuid(null);
-
-        public static void AddResourceIfNew(this List<string> l, string assetFolder, string insideAssetsFolder)
-        {
-
-#if UNITY_EDITOR
-
-            try
-            {
-                var path = Path.Combine(Application.dataPath,
-                    Path.Combine(assetFolder, Path.Combine("Resources", insideAssetsFolder)));
-
-                if (!Directory.Exists(path)) return;
-
-                var dirInfo = new DirectoryInfo(path);
-
-                var fileInfo = dirInfo.GetFiles("*.*", SearchOption.TopDirectoryOnly);
-
-                l = new List<string>();
-
-                foreach (var file in fileInfo)
-                {
-                    var name = file.Name.Substring(0, file.Name.Length - FileSaveUtils.bytesFileType.Length);
-                    if (file.Extension == FileSaveUtils.bytesFileType && !l.Contains(name))
-                        l.Add(name);
-                }
-
-            }
-            catch (Exception ex)
-            {
-                Debug.Log(ex.ToString());
-            }
-
-#endif
-        }
+        public static string GetGuid(this Object obj) => obj.GetGuid(null);
 
         public static void RenameAsset<T>(this T obj, string newName) where T : UnityEngine.Object
         {
@@ -1068,18 +1034,6 @@ namespace QuizCannersUtilities
             obj.name = newName;
 
         }
-
-#if UNITY_EDITOR
-        public static void DuplicateResource(string assetFolder, string insideAssetFolder, string oldName,
-            string newName)
-        {
-            var path = Path.Combine("Assets", Path.Combine(assetFolder, Path.Combine("Resources", insideAssetFolder)));
-            AssetDatabase.CopyAsset(Path.Combine(path, oldName) + FileSaveUtils.bytesFileType,
-                Path.Combine(path, newName) + FileSaveUtils.bytesFileType);
-        }
-#endif
-
-
 
         #endregion
 
@@ -1375,7 +1329,25 @@ namespace QuizCannersUtilities
         public static Material MaterialWhatever(this Renderer renderer) =>
             !renderer ? null : (Application.isPlaying ? renderer.material : renderer.sharedMaterial);
 
-        private static List<string> GetFields(this Material m, MaterialProperty.PropType type)
+        public static List<string> GetColorProperties(this Material m) =>
+#if UNITY_EDITOR
+            m.GetProperties(MaterialProperty.PropType.Color);
+#else
+            new List<String>();
+#endif
+
+        public static List<string> MyGetTexturePropertiesNames(this Material m) =>
+#if UNITY_EDITOR
+             m.GetProperties(MaterialProperty.PropType.Texture);
+#else
+             new List<String>();
+#endif
+
+
+
+#if UNITY_EDITOR
+
+        private static List<string> GetProperties(this Material m, MaterialProperty.PropType type)
         {
             var fNames = new List<string>();
 
@@ -1404,39 +1376,37 @@ namespace QuizCannersUtilities
             return fNames;
         }
 
-        public static List<string> GetFloatFields(this Material m)
+       
+#endif
+        public static List<string> GetFloatProperties(this Material m)
         {
-            #if UNITY_EDITOR
-            var l = m.GetFields(MaterialProperty.PropType.Float);
-            l.AddRange(m.GetFields(MaterialProperty.PropType.Range));
+#if UNITY_EDITOR
+            var l = m.GetProperties(MaterialProperty.PropType.Float);
+            l.AddRange(m.GetProperties(MaterialProperty.PropType.Range));
             return l;
-            #else
+#else
             return new List<string>();
-            #endif
+#endif
         }
-
-        public static List<string> MyGetTexturePropertiesNames(this Material m) => m.GetFields(MaterialProperty.PropType.Texture);
         
         public static List<ShaderProperty.TextureValue> MyGetTextureProperties(this Material m)
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             {
                 var lst = new List<ShaderProperty.TextureValue>();
-                foreach (var n in m.GetFields(MaterialProperty.PropType.Texture))
+                foreach (var n in m.GetProperties(MaterialProperty.PropType.Texture))
                     lst.Add(new ShaderProperty.TextureValue(n));
 
                 return lst;
             }
-            #else
+#else
             return new List<ShaderProperty.TextureValue>();
-            #endif
+#endif
         }
 
-        public static List<string> GetColorProperties(this Material m) => m.GetFields(MaterialProperty.PropType.Color);
-        
-        #endregion
+#endregion
 
-        #region Texture MGMT
+#region Texture MGMT
 
         public static Color[] GetPixels(this Texture2D tex, int width, int height)
         {
@@ -1506,26 +1476,26 @@ namespace QuizCannersUtilities
 
         }
 
-        #endregion
+#endregion
 
-        #region Texture Import Settings
+#region Texture Import Settings
 
         public static bool IsColorTexture(this Texture2D tex)
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             if (!tex) return true;
 
             TextureImporter importer = tex.GetTextureImporter();
 
             if (importer != null)
                 return importer.sRGBTexture;
-            #endif
+#endif
             return true;
         }
 
         public static Texture2D CopyImportSettingFrom(this Texture2D dest, Texture2D original)
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             var dst = dest.GetTextureImporter();
             var org = original.GetTextureImporter();
 
@@ -1554,12 +1524,12 @@ namespace QuizCannersUtilities
                 dst.textureCompression = org.textureCompression;
                 dst.SaveAndReimport();
             }
-            #endif
+#endif
 
             return dest;
         }
         
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
 
         public static TextureImporter GetTextureImporter(this Texture2D tex) =>
             AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(tex)) as TextureImporter;
@@ -1805,9 +1775,9 @@ namespace QuizCannersUtilities
 
 #endif
 
-        #endregion
+#endregion
 
-        #region Texture Saving
+#region Texture Saving
 
         public static string GetPathWithout_Assets_Word(this Texture2D tex)
         {
@@ -1957,9 +1927,9 @@ namespace QuizCannersUtilities
         }
 #endif
 
-        #endregion
+#endregion
 
-        #region Terrain Layers
+#region Terrain Layers
 
         public static void SetSplashPrototypeTexture(this Terrain terrain, Texture2D tex, int index)
         {
@@ -2038,11 +2008,11 @@ namespace QuizCannersUtilities
                 }
 #endif
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region Shaders
+#region Shaders
 
         public static void SetShaderKeyword(this Material mat, string keyword, bool isTrue)
         {
@@ -2074,9 +2044,9 @@ namespace QuizCannersUtilities
         public static bool GetKeyword(this Material mat, string keyword) =>
             Array.IndexOf(mat.shaderKeywords, keyword) != -1;
 
-        #endregion
+#endregion
 
-        #region Meshes
+#region Meshes
 
         public static void SetColor(this MeshFilter mf, Color col)
         {
@@ -2186,10 +2156,10 @@ namespace QuizCannersUtilities
             c.sharedMesh = mesh;
         }
 
-        #endregion
+#endregion
     }
 
-    #region Various Managers Classes
+#region Various Managers Classes
 
     public class PerformanceTimer : IPEGI_ListInspect, IGotDisplayName
     {
@@ -2237,7 +2207,7 @@ namespace QuizCannersUtilities
             _totalCount = 0;
         }
 
-        #region Inspector
+#region Inspector
 
         public string NameForDisplayPEGI => "Avg {0}: {1}/{2}sec [{3} - {4}] ({5}) ".F(_name,
             ((float)_average).ToString("0.00"),
@@ -2259,7 +2229,7 @@ namespace QuizCannersUtilities
         }
 #endif
 
-        #endregion
+#endregion
 
         public PerformanceTimer(string name = "Speed", float interval = 1f)
         {
@@ -2355,9 +2325,9 @@ namespace QuizCannersUtilities
 
         class WebRequestMeta : IGotName, IPEGI_ListInspect, IPEGI {
 
-            #if QC_USE_NETWORKING
+#if QC_USE_NETWORKING
             private UnityWebRequest _request;
-            #endif
+#endif
 
             private string url;
             public string URL => url;
@@ -2457,7 +2427,7 @@ namespace QuizCannersUtilities
                 DisposeRequest();
             }
 
-            #region Inspector
+#region Inspector
 
 #if PEGI
             public bool InspectInList(IList list, int ind, ref int edited)
@@ -2517,7 +2487,7 @@ namespace QuizCannersUtilities
             }
 #endif
 
-            #endregion
+#endregion
         }
 
         public string GetURL(int ind)
@@ -2554,7 +2524,7 @@ namespace QuizCannersUtilities
             _loadedTextures.Clear();
         }
 
-        #region Inspector
+#region Inspector
 
 #if PEGI
         int inspected = -1;
@@ -2572,15 +2542,15 @@ namespace QuizCannersUtilities
         }
 #endif
 
-        #endregion
+#endregion
     }
 
     [Serializable]
     public class ScreenShootTaker : IPEGI {
 
-        #region ScreenShot
+#region ScreenShot
 
-        #if PEGI
+#if PEGI
 
         public bool Inspect() {
 
@@ -2619,7 +2589,7 @@ namespace QuizCannersUtilities
 
             return false;
         }
-        #endif
+#endif
 
         private bool grab;
 
@@ -2717,7 +2687,7 @@ namespace QuizCannersUtilities
             return name;
         }
 
-        #endregion
+#endregion
 
     }
 
@@ -2809,7 +2779,7 @@ namespace QuizCannersUtilities
     }
 
 
-    #endregion
+#endregion
 
 }
 

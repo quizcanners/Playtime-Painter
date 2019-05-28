@@ -73,13 +73,7 @@
 					float deCourners =		o.precompute.w;
 
 
-					#if USE_NOISE_TEXTURE
-
-					float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
-
-					o.offUV.xy += (noise.xy - 0.5)*0.005;
-
-					#endif
+				
 
 					
 					float2 uv = abs(o.offUV.xy) * 2;
@@ -94,6 +88,14 @@
 
 					col.a *= pow(clipp, _Edges + 1) *saturate((1 - clipp) * 10) * o.offUV.z;
 
+
+					#if USE_NOISE_TEXTURE
+
+					float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
+
+					col.rgb += (noise.rgb - 0.5)*0.0075;
+
+					#endif
 
 
 					return col;

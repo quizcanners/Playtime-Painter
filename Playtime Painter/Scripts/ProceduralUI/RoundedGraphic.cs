@@ -259,10 +259,8 @@ namespace PlaytimePainter
 
             pegi.toggleDefaultInspector();
             
-            MsgPainter.RoundedGraphic.DocumentationClick();
+            MsgPainter.RoundedGraphic.DocumentationClick().nl();
 
-            pegi.nl();
-            
             var mat = material;
 
             var can = canvas;
@@ -275,8 +273,7 @@ namespace PlaytimePainter
 
             var expectedAtlasedPosition = false;
 
-            if (!_showModules)
-            {
+            if (!_showModules) {
 
                 bool gotPixPerfTag = false;
 
@@ -356,11 +353,13 @@ namespace PlaytimePainter
 
                 pegi.nl();
                 
+
+
                 if (mat) {
 
                     if (!Application.isPlaying) {
 
-                        var path = mat.GetAssetFolder();
+                        var path = UnityUtils.GetAssetFolder(mat);
                         if (path.IsNullOrEmpty())
                             "Material is not saved as asset. Click COPY next to it to save as asset".writeHint();
                     }
@@ -373,7 +372,11 @@ namespace PlaytimePainter
                 if (pegi.edit(ref mat, 60).changes(ref changed) || pegi.ClickDuplicate(ref mat, gameObject.name).nl(ref changed))
                     material = mat;
 
-                if (mat) {
+                if (mat)
+                {
+
+                    if (shad)
+                        shad.ClickHighlight();
 
                     if ("Shaders".select(60, ref shad, CompatibleShaders, false, true).changes(ref changed))
                         mat.shader = shad;
@@ -503,46 +506,6 @@ namespace PlaytimePainter
         #endif
         #endregion
 
-        #region Modules
-        
-        private List<RoundedButtonModuleBase> _modules = new List<RoundedButtonModuleBase>();
-        
-        [SerializeField] private string _modulesStd = "";
-
-        public string ConfigStd
-        {
-            get { return _modulesStd;  }
-            set { _modulesStd = value; }
-        }
-
-        protected override void OnEnable() {
-            base.OnEnable();
-            this.LoadStdData();
-        }
-
-        protected override void OnDisable() {
-            base.OnDisable();
-            if (!Application.isPlaying)
-                this.SaveStdData();
-        }
-        
-        public CfgEncoder Encode() => new CfgEncoder()
-            .Add_Abstract("mdls", _modules);
-
-        public void Decode(string data) => data.DecodeTagsFor(this);
-
-        public bool Decode(string tg, string data) {
-
-            switch (tg) {
-                case "mdls": data.Decode_List(out _modules, RoundedButtonModuleBase.all); break;
-                default: return false;
-            }
-
-            return true;
-        }
-
-        #endregion
-
         #region Mouse Press
 
         public UnityEvent OnClick;
@@ -602,10 +565,118 @@ namespace PlaytimePainter
                 SetAllDirty();
         }
 
-        #region Rounded Button Modules
+        #region  Modules
 
-        [TaggedType(Tag, "Native Size from Tiled Texture")]
-        public class RoundedButtonNativeSizeForOverlayOffset : RoundedButtonModuleBase, IPEGI, IPEGI_ListInspect
+        private List<RoundedButtonModuleBase> _modules = new List<RoundedButtonModuleBase>();
+        
+        [SerializeField] private string _modulesStd = "";
+
+        public string ConfigStd
+        {
+            get { return _modulesStd; }
+            set { _modulesStd = value; }
+        }
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            this.LoadStdData();
+        }
+
+        protected override void OnDisable()
+        {
+            base.OnDisable();
+            if (!Application.isPlaying)
+                this.SaveStdData();
+        }
+
+        public CfgEncoder Encode() => new CfgEncoder()
+            .Add_Abstract("mdls", _modules);
+
+        public void Decode(string data) => data.DecodeTagsFor(this);
+
+        public bool Decode(string tg, string data)
+        {
+
+            switch (tg)
+            {
+                case "mdls": data.Decode_List(out _modules, RoundedButtonModuleBase.all); break;
+                default: return false;
+            }
+
+            return true;
+        }
+        
+        [TaggedType(Tag, "Uniform offset for stretched graphic", false)]
+        protected class RoundedButtonStretchedUniformOffset : RoundedButtonModuleBase, IPEGI, IPEGI_ListInspect {
+
+            private const string Tag = "StretchedOffset";
+
+            public override string ClassTag => Tag;
+
+            private float size = 100;
+
+            #region Encode & Decode
+
+            public override bool Decode(string tg, string data)
+            {
+
+                switch (tg)
+                {
+                    case "b": data.Decode_Base(base.Decode, this); break;
+                    case "s": size = data.ToFloat(); break;
+                    default: return false;
+                }
+
+                return true;
+            }
+
+            public override CfgEncoder Encode() => this.EncodeUnrecognized()
+                .Add("b", base.Encode())
+                .Add("s", size);
+
+            #endregion
+
+            #region Inspect
+#if PEGI
+            public bool InspectInList(IList list, int ind, ref int edited)
+            {
+                var tg = inspected;
+
+                var rt = inspected.rectTransform;
+
+                if ((rt.anchorMin != Vector2.zero || rt.anchorMax != Vector2.one)) {
+
+                    if ("Stretch Anchors".Click()) {
+                        rt.anchorMin = Vector2.zero;
+                        rt.anchorMax = Vector2.one;
+                    }
+                } else {
+
+                    var offset = rt.offsetMin.x;
+
+                    var rect = rt.rect;
+
+                    if (icon.Refresh.Click("Refresh size ({0})".F(size)))
+                        size = Mathf.Max(Mathf.Abs(rect.width), Mathf.Abs(rect.height));
+
+                    if ("Offset".edit(ref offset, -size, size)) {
+                        rt.offsetMin = Vector2.one * offset;
+                        rt.offsetMax = -Vector2.one * offset;
+                    }
+                }
+
+
+            return false;
+        }
+            
+            #endif
+            #endregion
+
+        }
+        
+        [TaggedType(Tag, "Native Size from Tiled Texture", false)]
+        protected class RoundedButtonNativeSizeForOverlayOffset : RoundedButtonModuleBase, IPEGI, IPEGI_ListInspect
         {
 
             private const string Tag = "TiledNatSize";
@@ -631,7 +702,6 @@ namespace PlaytimePainter
                         if (icon.Size.Click("Set Native Size for Texture, using it's Tile/Offset")) {
 
                             var size = new Vector2(tex.width, tex.height);
-                            //var off = referenceTexture.GetOffset(mat);
                             var til = referenceTexture.GetTiling(mat);
                             size *= til;
 
@@ -675,8 +745,8 @@ namespace PlaytimePainter
             #endregion
         }
 
-        [TaggedType(Tag, "Change Corners on Click")]
-        public class RoundedButtonCornersOnClick : RoundedButtonModuleBase, IPEGI, IPEGI_ListInspect {
+        [TaggedType(Tag, "Change Corners on Click", false)]
+        protected class RoundedButtonCornersOnClick : RoundedButtonModuleBase, IPEGI, IPEGI_ListInspect {
 
             private const string Tag = "corners";
 
@@ -755,8 +825,8 @@ namespace PlaytimePainter
                     .Add("nrm", valueWhenOff);
             #endregion
         }
-        
-        public class RoundedButtonModuleAttribute : AbstractWithTaggedTypes
+
+        protected class RoundedButtonModuleAttribute : AbstractWithTaggedTypes
         {
             public override TaggedTypesCfg TaggedTypes => RoundedButtonModuleBase.all;
 
@@ -767,7 +837,7 @@ namespace PlaytimePainter
         }
 
         [RoundedButtonModule]
-        public abstract class RoundedButtonModuleBase : AbstractKeepUnrecognizedCfg, IGotClassTag, IGotDisplayName
+        protected abstract class RoundedButtonModuleBase : AbstractKeepUnrecognizedCfg, IGotClassTag, IGotDisplayName
         {
             public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(RoundedButtonModuleBase));
             public TaggedTypesCfg AllTypes => all;
@@ -819,11 +889,10 @@ namespace PlaytimePainter
     }
 
     public static class RoundedUiExtensions  {
+
         #if UNITY_EDITOR
         [MenuItem("GameObject/UI/Playtime Painter/Rounded UI Graphic", false, 0)]
-        private static void CreateRoundedUiElement()
-        {
-
+        private static void CreateRoundedUiElement() {
 
             bool createdForSelection = false;
 
@@ -835,7 +904,6 @@ namespace PlaytimePainter
                         createdForSelection = true;
                     }
                 }
-
             }
             
             if (!createdForSelection) {
@@ -872,18 +940,16 @@ namespace PlaytimePainter
     #if UNITY_EDITOR
     [CustomEditor(typeof(RoundedGraphic))]
     public class PixelPerfectShaderDrawer : PEGI_Inspector_Mono<RoundedGraphic> { }
-#endif
+    #endif
 
-    public class PixelPerfectMaterialDrawer : PEGI_Inspector_Material
-    {
+    public class PixelPerfectMaterialDrawer : PEGI_Inspector_Material {
 
         private static readonly ShaderProperty.FloatValue Softness = new ShaderProperty.FloatValue(RoundedGraphic.EDGE_SOFTNESS_FLOAT);
 
         private static readonly ShaderProperty.TextureValue Outline = new ShaderProperty.TextureValue("_OutlineGradient");
 
-#if PEGI
-        public override bool Inspect(Material mat)
-        {
+        #if PEGI
+        public override bool Inspect(Material mat) {
 
             var changed = pegi.toggleDefaultInspector();
 
@@ -896,8 +962,7 @@ namespace PlaytimePainter
 
             var go = UnityUtils.GetFocusedGameObject();
 
-            if (go)
-            {
+            if (go) {
 
                 var rndd = go.GetComponent<RoundedGraphic>();
 
@@ -910,10 +975,9 @@ namespace PlaytimePainter
 
             return changed;
         }
-#endif
+        #endif
 
     }
-
-
+    
     #endregion
 }
