@@ -73,7 +73,6 @@
 					float deCourners =		o.precompute.w;
 					float2 uv =				abs(o.offUV);
 
-
 					uv = max(0, uv - _ProjTexPos.zw) * o.precompute.xy;
 
 					float2 forFade = uv;

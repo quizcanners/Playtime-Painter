@@ -333,7 +333,6 @@ namespace QuizCannersUtilities {
 
         public class TextureValue : ShaderPropertyIndexGeneric<Texture>
         {
-
             public static readonly TextureValue mainTexture = new TextureValue("_MainTex");
 
             public override Texture Get(Material mat) => mat.GetTexture(id);

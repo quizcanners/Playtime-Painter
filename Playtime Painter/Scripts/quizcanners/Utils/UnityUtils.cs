@@ -59,8 +59,7 @@ namespace QuizCannersUtilities
 
         public static bool TimePassedAbove(this double value, float interval) =>
             (TimeSinceStartup() - value) > interval;
-
-
+        
         #endregion
 
         #region Raycasts
@@ -1332,61 +1331,26 @@ namespace QuizCannersUtilities
         public static List<string> GetColorProperties(this Material m) =>
 #if UNITY_EDITOR
             m.GetProperties(MaterialProperty.PropType.Color);
-#else
+            #else
             new List<String>();
-#endif
+            #endif
 
         public static List<string> MyGetTexturePropertiesNames(this Material m) =>
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
              m.GetProperties(MaterialProperty.PropType.Texture);
-#else
-             new List<String>();
-#endif
-
-
-
-#if UNITY_EDITOR
-
-        private static List<string> GetProperties(this Material m, MaterialProperty.PropType type)
-        {
-            var fNames = new List<string>();
-
-
-#if UNITY_EDITOR
-            if (!m)
-                return fNames;
-
-            var mat = new Material[1];
-            mat[0] = m;
-            MaterialProperty[] props;
-
-            try
-            {
-                props = MaterialEditor.GetMaterialProperties(mat);
-            }
-            catch
-            {
-                return fNames = new List<string>();
-            }
-
-            if (props == null) return fNames;
-            fNames.AddRange(from p in props where p.type == type select p.name);
-#endif
-
-            return fNames;
-        }
-
-       
-#endif
+            #else
+            new List<String>();
+            #endif
+ 
         public static List<string> GetFloatProperties(this Material m)
         {
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             var l = m.GetProperties(MaterialProperty.PropType.Float);
             l.AddRange(m.GetProperties(MaterialProperty.PropType.Range));
             return l;
-#else
+            #else
             return new List<string>();
-#endif
+            #endif
         }
         
         public static List<ShaderProperty.TextureValue> MyGetTextureProperties(this Material m)
@@ -1404,9 +1368,38 @@ namespace QuizCannersUtilities
 #endif
         }
 
-#endregion
+#if UNITY_EDITOR
+        private static List<string> GetProperties(this Material m, MaterialProperty.PropType type)
+        {
+            var fNames = new List<string>();
 
-#region Texture MGMT
+
+            #if UNITY_EDITOR
+            if (!m)
+                return fNames;
+
+            var mat = new Material[1];
+            mat[0] = m;
+            MaterialProperty[] props;
+
+            try {
+                props = MaterialEditor.GetMaterialProperties(mat);
+            }
+            catch {
+                return fNames = new List<string>();
+            }
+
+            if (props == null) return fNames;
+            fNames.AddRange(from p in props where p.type == type select p.name);
+#endif
+
+            return fNames;
+        }
+#endif
+        
+        #endregion
+
+        #region Texture MGMT
 
         public static Color[] GetPixels(this Texture2D tex, int width, int height)
         {
@@ -1929,7 +1922,7 @@ namespace QuizCannersUtilities
 
 #endregion
 
-#region Terrain Layers
+        #region Terrain Layers
 
         public static void SetSplashPrototypeTexture(this Terrain terrain, Texture2D tex, int index)
         {
@@ -1984,7 +1977,7 @@ namespace QuizCannersUtilities
 #endif
         }
 
-#if !UNITY_2018_3_OR_NEWER
+        #if !UNITY_2018_3_OR_NEWER
                 public static SplatPrototype[] GetCopyOfSplashPrototypes(this Terrain terrain)
                 {
 
@@ -2016,8 +2009,7 @@ namespace QuizCannersUtilities
 
         public static void SetShaderKeyword(this Material mat, string keyword, bool isTrue)
         {
-            if (!keyword.IsNullOrEmpty() && mat)
-            {
+            if (mat && !keyword.IsNullOrEmpty()) {
                 if (isTrue)
                     mat.EnableKeyword(keyword);
                 else
@@ -2048,49 +2040,42 @@ namespace QuizCannersUtilities
 
 #region Meshes
 
-        public static void SetColor(this MeshFilter mf, Color col)
-        {
+        public static void SetColor(this MeshFilter mf, Color col) {
 
-            if (mf)
-            {
+            if (!mf) return;
 
-                var m = mf.mesh;
+            var m = mf.mesh;
 
-                var cols = new Color[m.vertexCount];
+            var cols = new Color[m.vertexCount];
 
-                for (int i = 0; i < m.vertexCount; i++)
-                    cols[i] = col;
+            for (int i = 0; i < m.vertexCount; i++)
+                cols[i] = col;
 
-                mf.mesh.colors = cols;
-
-            }
+            mf.mesh.colors = cols;
         }
 
-        public static void SetColor_RGB(this MeshFilter mf, Color col)
-        {
+        public static void SetColor_RGB(this MeshFilter mf, Color col) {
 
-            if (mf)
+            if (!mf) return;
+            
+            var m = mf.mesh;
+
+            List<Color> colors = new List<Color>();
+
+            m.GetColors(colors);
+
+            if (colors.Count < m.vertexCount)
+                mf.SetColor(col);
+            else
             {
-
-                var m = mf.mesh;
-
-                List<Color> colors = new List<Color>();
-
-                m.GetColors(colors);
-
-                if (colors.Count < m.vertexCount)
-                    mf.SetColor(col);
-                else
-                {
-                    for (int i = 0; i < m.vertexCount; i++)
-                    {
-                        col.a = colors[i].a;
-                        colors[i] = col;
-                    }
-
-                    mf.mesh.colors = colors.ToArray();
+                for (int i = 0; i < m.vertexCount; i++) {
+                    col.a = colors[i].a;
+                    colors[i] = col;
                 }
+
+                mf.mesh.colors = colors.ToArray();
             }
+            
         }
 
 
@@ -2105,9 +2090,14 @@ namespace QuizCannersUtilities
             var cols = mesh.colors;
 
             if (cols.IsNullOrEmpty())
+            {
                 cols = new Color[m.vertexCount];
 
-            for (var i = 0; i < m.vertexCount; i++)
+                for (var i = 0; i < m.vertexCount; i++)
+                    cols[i] = Color.white;
+
+
+            } else for (var i = 0; i < m.vertexCount; i++)
                 cols[i].a = alpha;
 
             mf.mesh.colors = cols;
@@ -2115,26 +2105,24 @@ namespace QuizCannersUtilities
 
         public static int GetSubMeshNumber(this Mesh m, int triangleIndex)
         {
-            if (!m) return 0;
+            if (!m)
+                return 0;
 
             if (m.subMeshCount == 1)
                 return 0;
 
-            if (!m.isReadable)
-            {
+            if (!m.isReadable) {
                 Debug.Log("Mesh {0} is not readable. Enable for submesh material editing.".F(m.name));
                 return 0;
             }
 
-            var triangles = new int[]
-            {
+            var triangles = new int[] {
                 m.triangles[triangleIndex * 3],
                 m.triangles[triangleIndex * 3 + 1],
                 m.triangles[triangleIndex * 3 + 2]
             };
 
-            for (var i = 0; i < m.subMeshCount; i++)
-            {
+            for (var i = 0; i < m.subMeshCount; i++) {
 
                 if (i == m.subMeshCount - 1)
                     return i;
@@ -2150,13 +2138,13 @@ namespace QuizCannersUtilities
             return 0;
         }
 
-        public static void AssignMeshAsCollider(this MeshCollider c, Mesh mesh)
-        {
+        public static void AssignMeshAsCollider(this MeshCollider c, Mesh mesh) {
+            // One version of Unity had a bug so this is to counter it, may be not needed anymore
             c.sharedMesh = null;
             c.sharedMesh = mesh;
         }
 
-#endregion
+        #endregion
     }
 
 #region Various Managers Classes

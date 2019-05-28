@@ -1354,7 +1354,7 @@ namespace PlayerAndEditorGUI {
             if (select(ref tmp, namesList.ToArray()) && (tmp < count))
             {
                 indexes = tmp;
-                return change;
+                return true;
             }
 
             return false;
@@ -1531,7 +1531,7 @@ namespace PlayerAndEditorGUI {
                     {
                         no = i;
                         foldIn();
-                        return change;
+                        return true;
                     }
             }
 
@@ -1621,7 +1621,7 @@ namespace PlayerAndEditorGUI {
             if (select(ref ind, lst))
             {
                 val = lst[ind];
-                return change;
+                return true;
             }
 
             return false;
@@ -1811,7 +1811,7 @@ namespace PlayerAndEditorGUI {
             if (selectFinal(val, ref current, namesList))
             {
                 val = lst[indexList[current]];
-                return change;
+                return true;
             }
 
             return false;
@@ -1982,7 +1982,7 @@ namespace PlayerAndEditorGUI {
             if (selectFinal(ind, ref current, namesList))
             {
                 ind = indexes[current];
-                return change;
+                return true;
             }
 
             return false;
@@ -2071,7 +2071,7 @@ namespace PlayerAndEditorGUI {
             if (selectFinal(val, ref current, names))
             {
                 val = indexes[current];
-                return change;
+                return true;
             }
 
             return false;
@@ -2104,7 +2104,7 @@ namespace PlayerAndEditorGUI {
             if (selectFinal(ref val, ref current, names))
             {
                 val = indexes[current];
-                return change;
+                return true;
             }
 
             return false;
@@ -2220,7 +2220,7 @@ namespace PlayerAndEditorGUI {
             if (select(ref tmpindex, filtered.ToArray()))
             {
                 no = inds[tmpindex];
-                return change;
+                return true;
             }
             return false;
 
@@ -2259,7 +2259,7 @@ namespace PlayerAndEditorGUI {
             if (selectFinal(no, ref current, namesList))
             {
                 no = indexes[current];
-                return change;
+                return true;
             }
             return false;
 
@@ -2273,7 +2273,7 @@ namespace PlayerAndEditorGUI {
             if (select(ref value, from))
             {
                 cint[ind] = value;
-                return change;
+                return true;
             }
             return false;
         }
@@ -2320,7 +2320,7 @@ namespace PlayerAndEditorGUI {
             if (!select(ref tmpVal, names, width)) return false;
 
             current = val[tmpVal];
-            return change;
+            return true;
         }
 
         public static bool selectEnumFlags(ref int current, Type type, int width = -1) {
@@ -2352,10 +2352,7 @@ namespace PlayerAndEditorGUI {
             for (int i = 0; i <= currentPower; i++)
                 snms[i] = sortedNames[i];
 
-            if (!selectFlags(ref current, snms, width))
-                return false;
-            
-            return change;
+            return selectFlags(ref current, snms, width);
         }
 
         public static bool selectEnum(ref int current, Type type, List<int> options, int width = -1)
@@ -2376,7 +2373,7 @@ namespace PlayerAndEditorGUI {
             if (width == -1 ? select(ref tmpVal, names) : select_Index(ref tmpVal, names, width))
             {
                 current = options[tmpVal];
-                return change;
+                return true;
             }
 
             return false;
@@ -2428,7 +2425,7 @@ namespace PlayerAndEditorGUI {
             if (select(ref current, names.ToArray()) && (current < indexes.Count))
             {
                 val = lst[indexes[current]];
-                return change;
+                return true;
             }
 
             return false;
@@ -2460,7 +2457,7 @@ namespace PlayerAndEditorGUI {
             if (selectType_Obj<T>(ref obj, types, ed, keepTypeConfig))
             {
                 el = obj as T;
-                return change;
+                return true;
             }
             return false;
 
@@ -2472,7 +2469,7 @@ namespace PlayerAndEditorGUI {
 
             if (selectType_Obj<T>(ref obj, ed, keepTypeConfig)) {
                 el = obj as T;
-                return change;
+                return true;
             }
             return false;
         }
@@ -2488,7 +2485,7 @@ namespace PlayerAndEditorGUI {
                 var previous = obj;
                 obj = (T)Activator.CreateInstance(type);
                 StdExtensions.TryCopy_Std_AndOtherData(previous, obj);
-                return change;
+                return true;
             }
 
             return false;
@@ -2507,7 +2504,7 @@ namespace PlayerAndEditorGUI {
                 var previous = obj;
                 obj = (T)Activator.CreateInstance(type);
                 StdExtensions.TryCopy_Std_AndOtherData(previous, obj);
-                return change;
+                return true;
             }
 
             return false;
@@ -2542,7 +2539,7 @@ namespace PlayerAndEditorGUI {
             if (select(ref ind, options))
             {
                 current = from.ElementAt(ind).Key;
-                return change;
+                return true;
             }
             return false;
 
@@ -2570,7 +2567,7 @@ namespace PlayerAndEditorGUI {
             if (select(ref ind, options, width))
             {
                 current = from.ElementAt(ind).Key;
-                return change;
+                return true;
             }
             return false;
 
@@ -2585,9 +2582,7 @@ namespace PlayerAndEditorGUI {
             return select_or_edit_TexturePropertyName(ref property, material);
         }
 
-        public static bool select_or_edit_ColorProperty(ref string property, Material material)
-        {
-
+        public static bool select_or_edit_ColorProperty(ref string property, Material material) {
             var lst = material.GetColorProperties();
             return lst.Count == 0 ?  edit(ref property) : select(ref property, lst);
         }
@@ -2598,15 +2593,12 @@ namespace PlayerAndEditorGUI {
             return select_or_edit_TexturePropertyName(ref property, material);
         }
 
-        public static bool select_or_edit_TexturePropertyName(ref string property, Material material)
-        {
+        public static bool select_or_edit_TexturePropertyName(ref string property, Material material) {
             var lst = material.MyGetTexturePropertiesNames();
             return lst.Count == 0 ? edit(ref property) : select(ref property, lst);
-
         }
 
-        public static bool select_or_edit_TextureProperty(ref ShaderProperty.TextureValue property, Material material)
-        {
+        public static bool select_or_edit_TextureProperty(ref ShaderProperty.TextureValue property, Material material) {
             var lst = material.MyGetTextureProperties();
             return select(ref property, lst, allowInsert:false);
 
@@ -2614,8 +2606,7 @@ namespace PlayerAndEditorGUI {
         
         public static bool select_or_edit<T>(string text, string hint, int width, ref T obj, List<T> list, bool showIndex = false, bool stripSlahes = false, bool allowInsert = true) where T : Object
         {
-            if (list.IsNullOrEmpty())
-            {
+            if (list.IsNullOrEmpty()) {
                 if (text != null)
                     write(text, hint, width);
 
@@ -2634,13 +2625,11 @@ namespace PlayerAndEditorGUI {
             obj.ClickHighlight();
 
             return changed;
-            
         }
 
         public static bool select_or_edit<T>(this string name, ref T obj, List<T> list, bool showIndex = false) where T : UnityEngine.Object 
             =>  select_or_edit(name, null, 0, ref obj, list, showIndex);
         
-
         public static bool select_or_edit<T>(this string name, int width, ref T obj, List<T> list, bool showIndex = false) where T : UnityEngine.Object
         => select_or_edit(name, null, width, ref obj, list, showIndex);
 
@@ -2658,14 +2647,14 @@ namespace PlayerAndEditorGUI {
 
             var gotValue = !val.IsNullOrEmpty();
 
-            if (gotList && gotValue && icon.Delete.ClickUnFocus())
+            if (gotList && gotValue && icon.Delete.ClickUnFocus(ref changed))
                 val = "";
 
             if (!gotValue || !gotList)
-                changed |= edit(ref val);
+                edit(ref val).changes(ref changed);
 
             if (gotList)
-                changed |= select(ref val, list, showIndex, stripSlashes, allowInsert);
+                select(ref val, list, showIndex, stripSlashes, allowInsert).changes(ref changed);
 
             return changed;
         }
@@ -2678,14 +2667,14 @@ namespace PlayerAndEditorGUI {
 
             var gotValue = !val.IsNullOrEmpty();
 
-            if (gotList && gotValue && icon.Delete.ClickUnFocus())
+            if (gotList && gotValue && icon.Delete.ClickUnFocus(ref changed))
                 val = "";
 
             if (!gotValue || !gotList)
-                changed |= name.edit(ref val);
+                name.edit(ref val).changes(ref changed);
 
             if (gotList)
-                changed |= name.select(ref val, list, showIndex);
+                name.select(ref val, list, showIndex).changes(ref changed);
 
             return changed;
         }
@@ -2779,7 +2768,7 @@ namespace PlayerAndEditorGUI {
             if (selectFinal(ind, ref current, names))
             {
                 ind = indexes[current];
-                return change;
+                return true;
             }
 
             return false;
@@ -3240,7 +3229,7 @@ namespace PlayerAndEditorGUI {
             if (el != null && ico.Click(msg + el.ToPegiString())) {
                 inspected = tmp;
                 isFoldedOutOrEntered = true;
-                return change;
+                return true;
             }
             return false;
         }
@@ -4184,7 +4173,7 @@ namespace PlayerAndEditorGUI {
             if (sp  && sp.Click(Msg.HighlightElement.GetText(), width))
             {
                 EditorGUIUtility.PingObject(sp);
-                return change;
+                return true;
             }
         #endif
             return false;
@@ -4196,7 +4185,7 @@ namespace PlayerAndEditorGUI {
             if (tex && tex.Click(Msg.HighlightElement.GetText(), width))
             {
                 EditorGUIUtility.PingObject(tex);
-                return change;
+                return true;
             }
         #endif
 
@@ -4212,7 +4201,7 @@ namespace PlayerAndEditorGUI {
             if (obj && tex.Click(Msg.HighlightElement.GetText()))
             {
                 EditorGUIUtility.PingObject(obj);
-                return change;
+                return true;
             }
 #endif
 
@@ -4225,7 +4214,7 @@ namespace PlayerAndEditorGUI {
             if (obj && icon.Click(Msg.HighlightElement.GetText()))
             {
                 EditorGUIUtility.PingObject(obj);
-                return change;
+                return true;
             }
         #endif
 
@@ -4237,7 +4226,7 @@ namespace PlayerAndEditorGUI {
         #if UNITY_EDITOR
             if (obj && icon.Click(hint)) {
                 EditorGUIUtility.PingObject(obj);
-                return change;
+                return true;
             }
         #endif
 
@@ -5931,13 +5920,16 @@ namespace PlayerAndEditorGUI {
         {
             if (label == null || label.Length < maxStringSize)
                 return false;
-           
+
             if (icon.Delete.ClickUnFocus())
+            {
                 label = "";
+                return false;
+            }
             else
                 write("String is too long {0}".F(label.Substring(0, 10)));
         
-            return change;
+            return true;
         }
 
         public static bool edit(ref string val) {
@@ -6582,7 +6574,7 @@ namespace PlayerAndEditorGUI {
                 if ("Initialize list".ClickUnFocus().nl())
                     list = new List<T>();
                 else
-                    return change;
+                    return true;
                 
             }
 
@@ -7317,7 +7309,7 @@ namespace PlayerAndEditorGUI {
                 else
                     added = list.AddWithUniqueNameAndIndex();
 
-                return change;
+                return true;
             }
 
             return false;
@@ -7335,7 +7327,7 @@ namespace PlayerAndEditorGUI {
             if (icon.Add.ClickUnFocus(Msg.AddNewCollectionElement.GetText()))
             {
                 list.Add(default(T));
-                return change;
+                return true;
             }
             return false;
         }
@@ -8520,13 +8512,13 @@ namespace PlayerAndEditorGUI {
                 {
                     obj.NameForPEGI = n;
 
-                    return change;
+                    return true;
                 }
             } else
             if ((gotLabel && label.edit(80, ref n) || (!gotLabel && edit(ref n))))
             {
                 obj.NameForPEGI = n;
-                return change;
+                return true;
             }
 
             return false;

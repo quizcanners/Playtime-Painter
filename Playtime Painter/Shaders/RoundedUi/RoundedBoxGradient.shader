@@ -116,17 +116,14 @@
 					_ColorE.rgb *= _ColorE.rgb;
 #endif
 
+					o.color.rgb = _ColorE.rgb * (mid)+_ColorC.rgb * (1 - mid);
+
+
 					#if USE_NOISE_TEXTURE
 
 					float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
 
-					noise.xy = (noise.xy -0.5) * 0.01;
-
-					o.color.rgb = _ColorE.rgb * (mid + noise.x) + _ColorC.rgb * (1 - mid + noise.y);
-
-					#else
-
-					o.color.rgb = _ColorE.rgb * (mid) + _ColorC.rgb * (1 - mid);
+					o.color.rgb += (noise.rgb - 0.5)*0.0075;
 
 					#endif
 
