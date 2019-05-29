@@ -1480,7 +1480,7 @@ namespace PlayerAndEditorGUI
                         rect.width = 100;
 
                         if (select_Type(ref ty, _currentReorderedListTypes, rect))
-                            _currentReorderedList.TryChangeObjectType(index, ty, _listMetaData);
+                            TaggedTypes.TryChangeObjectType(_currentReorderedList, index, ty, _listMetaData);
                     }
                     else
                         EditorGUI.LabelField(rect, textAndToolTip);

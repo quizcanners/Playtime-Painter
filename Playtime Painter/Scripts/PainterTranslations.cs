@@ -59,9 +59,10 @@ namespace PlayerAndEditorGUI {
                     msg.Translate("About Playtime Painter Component",
                         ("This Component allows you to paint on this GameObject's Renderer's Material's Texture (Yes, there is a bit of hierarchy). It can also edit the mesh. " +
                          "All tools & configurations are accessible from within this inspector. " +
-                         "Any changes are applied only to working copy of the texture and will be lost on Entering/Exiting Play mode or restarting Unity." +
-                         "Load button on the bottom can reload working copy from original image file." +
-                         "Save button will apply changes to the Original .png image. To save as new image, change name before saving and click Save As New." +
+                         "Painting is applied to the texture in RAM. When Entering/Exiting Play mode or restarting Unity changes to texture will be reverted." +
+                         "Load button on the bottom can reload pixels from original image file (Same as opening/closng Unity)." +
+                         "Save button will apply changes to the original .png image. To save as new image, change name before saving and click Save As New. {0}" +
+                         "Sometimes Painter's UI offers to change import settings, they will persist. "+
                          "Use Ctrl + Left Mouse Button to sample color of the texture." +
                          "Documentation is being integrated into the component (The blue '?' icons) .You can hide them from the Tool Settings. " +
                          "").F(pegi.EnvironmentNl))

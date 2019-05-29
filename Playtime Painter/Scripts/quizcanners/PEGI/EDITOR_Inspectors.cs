@@ -165,37 +165,31 @@ namespace PlayerAndEditorGUI {
     }
 
     [CustomEditor(typeof(PEGI_Styles))]
-    public class PEGI_StylesDrawer : PEGI_Inspector_Mono<PEGI_Styles>
-    {
+    public class PEGI_StylesDrawer : PEGI_Inspector_Mono<PEGI_Styles> {
+        
+        #if   NO_PEGI
+            [MenuItem("Tools/" + "PEGI" + "/Enable")]
+            public static void EnablePegi() {
+                UnityUtils.SetDefine("NO_PEGI", false);
+            }
+        #else 
+        
+            #if   PEGI
+                [MenuItem("Tools/" + "PEGI" + "/Disable")]
+                public static void DisablePegi() => UnityUtils.SetDefine("PEGI", false);
+            #else
+                [MenuItem("Tools/" + "PEGI" + "/Enable")]
+                public static void EnablePegi() {
+                    UnityUtils.SetDefine("PEGI", true);
+                }
 
-#if   NO_PEGI
-        [MenuItem("Tools/" + "PEGI" + "/Enable")]
-        public static void EnablePegi() {
-            UnityUtils.SetDefine("NO_PEGI", false);
-        }
-#else 
+                [MenuItem("Tools/" + "PEGI" + "/Disable")]
+                public static void DisablePegi() {
+                    UnityUtils.SetDefine("NO_PEGI", true);
+                }
+            #endif
 
-
-#if   PEGI
-        [MenuItem("Tools/" + "PEGI" + "/Disable")]
-        public static void DisablePegi()
-        {
-            UnityUtils.SetDefine("PEGI", false);
-        }
-#else
-
-        [MenuItem("Tools/" + "PEGI" + "/Enable")]
-        public static void EnablePegi() {
-            UnityUtils.SetDefine("PEGI", true);
-        }
-
-        [MenuItem("Tools/" + "PEGI" + "/Disable")]
-        public static void DisablePegi() {
-            UnityUtils.SetDefine("NO_PEGI", true);
-        }
-#endif
-
-#endif
+        #endif
     }
 
 

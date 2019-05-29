@@ -43,7 +43,7 @@ namespace QuizCannersUtilities {
 
         public bool allowMultiplePerList;
 
-        public TaggedType(string tag, string nDisplayName = null, bool allowMultiplePerList = true) {
+        public TaggedType(string tag, string displayName = null, bool allowMultiplePerList = true) {
             this.tag = tag;
             this.displayName = displayName ?? tag;
             this.allowMultiplePerList = allowMultiplePerList;
@@ -154,37 +154,38 @@ namespace QuizCannersUtilities {
             set { _types = value; }
         }
 
-    public IEnumerator<Type> GetEnumerator()
-        {
+        public IEnumerator<Type> GetEnumerator() {
             foreach (var t in Types)
                 yield return t;
         }
 
-        public List<string> DisplayNames =>
-                RefreshNodeTypesList()._displayNames;
+        public List<string> DisplayNames => RefreshNodeTypesList()._displayNames;
 
         public string Tag (Type type) {
 
-                int ind = Types.IndexOf(type);
-                if (ind >= 0)
-                    return _keys[ind];
+            int ind = Types.IndexOf(type);
+            if (ind >= 0)
+                return _keys[ind];
             
             return null;
         }
 
 #if PEGI
-        public bool Select(ref Type type) {
+        public bool Select(ref Type type)
+        {
+
+            var changed = false;
 
             var ind = type != null ? Types.IndexOf(type) : -1;
-            if (pegi.select(ref ind, DisplayNames)) {
-
+            if (pegi.select(ref ind, DisplayNames).changes(ref changed)) 
                 type = _types[ind];
-
-                return true;
-            }
-            return false;
+            
+            return changed;
         }
 #endif
+
+       
+
 
     }
 
@@ -211,11 +212,10 @@ namespace QuizCannersUtilities {
     */
     #endregion
 
-    public static class AbstractTaggedStdExtensions {
+    public static class TaggedTypes {
 
-        public static void TryChangeObjectType(this IList list, int index, Type type, ListMetaData ld = null) {
-
-          
+        public static void TryChangeObjectType(IList list, int index, Type type, ListMetaData ld = null)
+        {
 
             var previous = list.TryGetObj(index);
 
@@ -226,10 +226,11 @@ namespace QuizCannersUtilities {
             var std = (el as ICfg);
 
             var ed = ld.TryGetElement(index);
-            
+
             if (ed != null && ld.keepTypeData && iTag != null)
                 ed.ChangeType(ref el, type, iTag.GetTaggedTypes_Safe(), ld.keepTypeData);
-            else  {
+            else
+            {
                 el = std.TryDecodeInto<object>(type);
                 StdExtensions.TryCopy_Std_AndOtherData(previous, el);
             }
@@ -238,23 +239,21 @@ namespace QuizCannersUtilities {
 
         }
         
-        public static void Replace_IfDifferent<T>(this TaggedTypesCfg cfg, ref T obj, Type newType) {
-            if (obj.GetType() != newType)
-                obj = (T)Activator.CreateInstance(newType);
-        }
-        
-        public static T TryGetByTag <T>(this List<T> lst, string tag) where T: IGotClassTag {
-            
+        public static T TryGetByTag<T> (List<T> lst, string tag) where T : IGotClassTag
+        {
+
             if (lst == null || tag == null || tag.Length <= 0) return default(T);
-            
-            foreach (var e in lst) {
+
+            foreach (var e in lst)
+            {
                 if (e != null && e.ClassTag.SameAs(tag))
                     return e;
             }
-            
+
             return default(T);
 
         }
+
     }
 
 }

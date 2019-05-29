@@ -141,12 +141,10 @@ namespace QuizCannersUtilities
 
         #region Components & GameObjects
 
-        public static void SetActive<T>(this List<T> list, bool to) where T : Component
-        {
+        public static void SetActive<T>(this List<T> list, bool to) where T : Component {
             if (list != null)
                 foreach (var e in list)
-                    if (e)
-                        e.gameObject.SetActive(to);
+                    if (e) e.gameObject.SetActive(to);
         }
 
         public static void SetActive(this List<GameObject> list, bool to)
@@ -202,8 +200,6 @@ namespace QuizCannersUtilities
 
             return obj == null;
         }
-
-       // public static T NullIfDestroyed<T>(this T obj) => obj.IsNullOrDestroyed_Obj() ? default(T) : obj;
 
         public static bool TrySetAlpha_DisableIfZero(this Graphic graphic, float alpha)
         {
@@ -882,6 +878,26 @@ namespace QuizCannersUtilities
 
         #region Assets Management
 
+        public static bool FocusOnAsset<T>() where T: Object
+        {
+            #if UNITY_EDITOR
+
+            var ass = AssetDatabase.FindAssets("t:{0}".F(typeof(T).ToString()));
+            if (ass.Length > 0) {
+
+                var all = new Object[ass.Length];
+
+                for (int i = 0; i < ass.Length; i++)
+                    all[i] = GuidToAsset<T>(ass[i]);
+
+                Selection.objects = all;
+
+                return true;
+            }
+            #endif
+            return false;
+        }
+
         public static void RefreshAssetDatabase()
         {
 #if UNITY_EDITOR
@@ -1007,7 +1023,7 @@ namespace QuizCannersUtilities
             return current;
         }
 
-        public static T GuidToAsset<T>(string guid) where T : UnityEngine.Object
+        public static T GuidToAsset<T>(string guid) where T : Object
 #if UNITY_EDITOR
         {
             var path = AssetDatabase.GUIDToAssetPath(guid);
@@ -1642,7 +1658,7 @@ namespace QuizCannersUtilities
 
             var importer = tex.GetTextureImporter();
 
-            if ((importer != null) && (importer.WasWrongIsColor(value)))
+            if (importer && (importer.WasWrongIsColor(value)))
                 importer.SaveAndReimport();
         }
 
@@ -1666,7 +1682,7 @@ namespace QuizCannersUtilities
 
             var importer = tex.GetTextureImporter();
 
-            if ((importer != null) && (importer.WasNotSingleChanel()))
+            if (importer  && importer.WasNotSingleChanel())
                 importer.SaveAndReimport();
 
         }
@@ -2005,7 +2021,7 @@ namespace QuizCannersUtilities
 
 #endregion
 
-#region Shaders
+        #region Shaders
 
         public static void SetShaderKeyword(this Material mat, string keyword, bool isTrue)
         {
@@ -2036,9 +2052,9 @@ namespace QuizCannersUtilities
         public static bool GetKeyword(this Material mat, string keyword) =>
             Array.IndexOf(mat.shaderKeywords, keyword) != -1;
 
-#endregion
+        #endregion
 
-#region Meshes
+        #region Meshes
 
         public static void SetColor(this MeshFilter mf, Color col) {
 
@@ -2077,8 +2093,7 @@ namespace QuizCannersUtilities
             }
             
         }
-
-
+        
         public static void SetAlpha(this MeshFilter mf, float alpha)
         {
             if (!mf) return;
@@ -2147,7 +2162,7 @@ namespace QuizCannersUtilities
         #endregion
     }
 
-#region Various Managers Classes
+    #region Various Managers Classes
 
     public class PerformanceTimer : IPEGI_ListInspect, IGotDisplayName
     {
@@ -2536,10 +2551,9 @@ namespace QuizCannersUtilities
     [Serializable]
     public class ScreenShootTaker : IPEGI {
 
-#region ScreenShot
+        #region ScreenShot
 
-#if PEGI
-
+        #if PEGI
         public bool Inspect() {
 
             "Up Scale".edit(60, ref UpScale).nl();
@@ -2577,7 +2591,7 @@ namespace QuizCannersUtilities
 
             return false;
         }
-#endif
+        #endif
 
         private bool grab;
 
@@ -2675,7 +2689,7 @@ namespace QuizCannersUtilities
             return name;
         }
 
-#endregion
+        #endregion
 
     }
 
@@ -2712,13 +2726,13 @@ namespace QuizCannersUtilities
                 return labelMaterialInstance;
             }
         }
-#if PEGI
+        #if PEGI
         public bool InspectInList(IList list, int ind, ref int edited)
         {
             "works".write();
             return false;
         }
-#endif
+        #endif
     }
 
     /*
@@ -2765,9 +2779,8 @@ namespace QuizCannersUtilities
             }
         }
     }
-
-
-#endregion
+    
+    #endregion
 
 }
 

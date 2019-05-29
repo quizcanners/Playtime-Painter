@@ -440,14 +440,13 @@ namespace PlaytimePainter {
 
             pegi.nl();
 
-            if (showBrushDynamics)
-            {
+            if (showBrushDynamics) {
                 if ("Brush Dynamic".selectType( 90, ref brushDynamic, brushDynamicsConfigs, true).nl(ref changed))
                     brushDynamic?.Nested_Inspect().nl(ref changed);
             }
-            else
-                brushDynamic.AllTypes.Replace_IfDifferent(ref brushDynamic, typeof(BrushDynamic_None));
-
+            else if (brushDynamic.GetType() != typeof(BrushDynamic_None))
+                    brushDynamic = (BrushDynamic_None)Activator.CreateInstance(typeof(BrushDynamic_None));
+            
 #if UNITY_EDITOR
 
 #if !UNITY_2019_1_OR_NEWER

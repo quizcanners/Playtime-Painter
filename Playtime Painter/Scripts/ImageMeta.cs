@@ -854,7 +854,7 @@ namespace PlaytimePainter
         private int _inspectedProcess = -1;
         public int inspectedItems = -1;
 
-#if PEGI
+        #if PEGI
 
         void ReturnToRenderTexture()
         {
@@ -1068,8 +1068,8 @@ namespace PlaytimePainter
 
                     if ("Save Textures In Game ".enter(ref _inspectedProcess, 7).nl_ifFolded()) {
 
-                        "This is intended to test playtime saving. The functions to do so are quite simple. You can find them inside ImageData class."
-                            .fullWindowDocumentationClickOpen();
+                        "This is intended to test playtime saving. The functions to do so are quite simple. You can find them inside ImageData.cs class."
+                            .writeHint();
 
                         pegi.nl();
 
@@ -1083,6 +1083,31 @@ namespace PlaytimePainter
 
                         if (Cfg && Cfg.playtimeSavedTextures.Count > 0)
                             "Playtime Saved Textures".write_List(Cfg.playtimeSavedTextures, LoadTexturePegi);
+                    }
+
+                    if ("Fade edges".enter(ref _inspectedProcess, 8).nl()) {
+
+                        ("This will make edges pixels of the texture transparent. Useful when wrap mode " +
+                         "is set to clamp.").writeHint();
+                        
+                        if (texture2D) {
+
+                            #if UNITY_EDITOR
+                            var ti = texture2D.GetTextureImporter();
+                            if (ti) {
+                                if (ti.wrapMode != TextureWrapMode.Clamp && "Change wrap mode from {0} to Clamp"
+                                        .F(ti.wrapMode).Click().nl(ref changed)) {
+                                    ti.wrapMode = TextureWrapMode.Clamp;
+                                    ti.SaveAndReimport();
+                                }
+                            }
+                            #endif
+
+                            if ("Set edges to transparent".Click()) {
+
+                            }
+
+                        }
                     }
                 }
             }
