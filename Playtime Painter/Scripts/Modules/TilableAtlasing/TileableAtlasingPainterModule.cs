@@ -820,9 +820,6 @@ namespace PlaytimePainter {
 
             var cnt = aSize / tSize;
 
-            var tmp = new LinearColor();
-
-
             for (var ty = 0; ty < cnt; ty++)
             {
                 var startY = ty * tSize * aSize;
@@ -832,18 +829,17 @@ namespace PlaytimePainter {
                     var startX = tx * tSize;
                     var lastX = startX + tSize - 1;
 
+                    Color tmp = Color.clear;
+                    
+                    tmp += col[startY + startX].linear;
+                    tmp += col[startY + lastX].linear;
+                    tmp += col[lastY + startX].linear;
+                    tmp += col[lastY + lastX].linear;
 
-                    tmp.Zero();
-                    tmp.Add(col[startY + startX]);
-                    tmp.Add(col[startY + lastX]);
-                    tmp.Add(col[lastY + startX]);
-                    tmp.Add(col[lastY + lastX]);
+                    tmp *= 0.25f;
 
-                    tmp.MultiplyBy(0.25f);
-
-                    var tmpC = tmp.ToGamma();
-
-
+                    var tmpC = tmp.gamma;
+                    
                     col[startY + startX] = tmpC;
                     col[startY + lastX] = tmpC;
                     col[lastY + startX] = tmpC;
@@ -852,26 +848,26 @@ namespace PlaytimePainter {
 
                     for (var x = startX + 1; x < lastX; x++)
                     {
-                        tmp.Zero();
-                        tmp.Add(col[startY + x]);
-                        tmp.Add(col[lastY + x]);
-                        tmp.MultiplyBy(0.5f);
-                        tmpC = tmp.ToGamma();
+                        tmp = Color.clear;
+                        tmp += col[startY + x].linear;
+                        tmp += col[lastY + x].linear;
+                        tmp *= 0.5f;
+                        tmpC = tmp.gamma;
                         col[startY + x] = tmpC;
                         col[lastY + x] = tmpC;
                     }
 
                     for (var y = startY + aSize; y < lastY; y += aSize)
                     {
-                        tmp.Zero();
-                        tmp.Add(col[y + startX]);
-                        tmp.Add(col[y + lastX]);
-                        tmp.MultiplyBy(0.5f);
-                        tmpC = tmp.ToGamma();
+                        tmp = Color.clear;
+
+                        tmp += col[y + startX].linear;
+                        tmp += col[y + lastX].linear;
+                        tmp *= 0.5f;
+                        tmpC = tmp.gamma;
                         col[y + startX] = tmpC;
                         col[y + lastX] = tmpC;
                     }
-
                 }
             }
 
@@ -881,8 +877,7 @@ namespace PlaytimePainter {
         private void ReconstructAtlas()
         {
 
-            if ((aTexture) && (aTexture.width != _atlasSize))
-            {
+            if (aTexture && (aTexture.width != _atlasSize)) {
                 Object.DestroyImmediate(aTexture);
                 aTexture = null;
             }
@@ -891,31 +886,31 @@ namespace PlaytimePainter {
                 aTexture = new Texture2D(_atlasSize, _atlasSize, TextureFormat.ARGB32, true, !_sRgb);
 
             var texturesInRow = _atlasSize / _textureSize;
-
-
+            
             var curIndex = 0;
 
             var defaultCol = new Color(0.5f, 0.5f, 0.5f, 0.5f);
 
             for (var y = 0; y < texturesInRow; y++)
-                for (var x = 0; x < texturesInRow; x++)
-                {
-                    var t = textures[curIndex];
-                    if ((textures.Count > curIndex) && (t != null) && (t.used))
+                for (var x = 0; x < texturesInRow; x++) {
+                    var atlField = textures[curIndex];
+                    if ((textures.Count > curIndex) && (atlField != null) && atlField.used)
                     {
-                        if (t.texture)
-                        {
+
+                        var tex = atlField.texture;
+
+                        if (tex) {
 #if UNITY_EDITOR
-                            t.texture.Reimport_IfNotReadale();
+                            tex.Reimport_IfNotReadale();
 #endif
 
-                            var from = t.texture.GetPixels(_textureSize, _textureSize);
+                            var from = tex.GetPixels(_textureSize, _textureSize);
 
                             aTexture.SetPixels(x * _textureSize, y * _textureSize, _textureSize, _textureSize, from);
 
                         }
                         else
-                            ColorToAtlas(t.color, x, y);
+                            ColorToAtlas(atlField.color, x, y);
                     }
                     else
                         ColorToAtlas(defaultCol, x, y);
@@ -936,7 +931,7 @@ namespace PlaytimePainter {
                 SmoothBorders(aTexture, m);
 
             aTexture.Apply(false);
-
+            
             var bytes = aTexture.EncodeToPNG();
 
             var lastPart = Path.Combine(Cfg.texturesFolderName, Cfg.atlasFolderName);
@@ -948,7 +943,7 @@ namespace PlaytimePainter {
             fullPath += fileName;
 
             File.WriteAllBytes(fullPath, bytes);
-
+            
             AssetDatabase.Refresh(); // few times caused color of the texture to get updated to earlier state for some reason
 
             aTexture = (Texture2D)AssetDatabase.LoadAssetAtPath(relativePath, typeof(Texture2D));
@@ -956,16 +951,18 @@ namespace PlaytimePainter {
             TextureImporter other = null;
 
             foreach (var t in textures)
-                if ((t != null) && (t.texture))
-                {
+                if ((t != null) && t.texture) {
                     other = t.texture.GetTextureImporter();
                     break;
                 }
 
             var ti = aTexture.GetTextureImporter();
+
             var needReimport = ti.WasNotReadable();
+
             if (other != null)
                 needReimport |= ti.WasWrongIsColor(other.sRGBTexture);
+
             needReimport |= ti.WasClamped();
 
             if (needReimport) ti.SaveAndReimport();

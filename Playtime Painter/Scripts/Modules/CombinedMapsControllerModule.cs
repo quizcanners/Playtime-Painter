@@ -194,7 +194,7 @@ namespace PlaytimePainter
         public float bumpNoiseInGlossFraction = 0.1f;
         private List<TextureChannel> _channel;
         private string _name;
-        public LinearColor fillColor;
+        public Color fillColor;
         private bool _glossNoiseFromBump;
         public bool glossNoiseFromHeight;
 
@@ -210,7 +210,7 @@ namespace PlaytimePainter
                 case "c": _isColor = data.ToBool(); break;
                 case "n": _name = data; break;
                 case "b": bumpStrength = data.ToFloat(); break;
-                case "fc": fillColor = data.ToLinearColor(); break;
+                case "fc": fillColor = data.ToColor(); break;
                 default: return false;
             }
             return true;
@@ -671,7 +671,7 @@ namespace PlaytimePainter
             var width = noID ? set.width : id.width;
             var height = noID ? set.height : id.height;
 
-            var col = set.Profile.fillColor.ToGamma();
+            var col = set.Profile.fillColor;
             var size = width * height;
             pixels = new Color[size];
             for (var i = 0; i < size; i++)

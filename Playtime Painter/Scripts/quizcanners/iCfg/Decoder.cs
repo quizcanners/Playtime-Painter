@@ -6,6 +6,13 @@ using UnityEngine;
 
 namespace QuizCannersUtilities {
 
+#pragma warning disable IDE1006 // Naming Styles
+    // ReSharper disable InconsistentNaming
+#pragma warning disable 1692
+#pragma warning disable IDE0034 // Simplify 'default' expression
+#pragma warning disable IDE0019 // Use pattern matching
+#pragma warning disable IDE0018 // Inline variable declaration
+
     public static class DecodeExtensions {
 
         #region Non-Instancible
@@ -243,13 +250,6 @@ namespace QuizCannersUtilities {
             return val;
         }
 
-        public static LinearColor ToLinearColor(this string data)
-        {
-            var lc = new LinearColor();
-            lc.Decode(data);
-            return lc;
-        }
-
         public static Color ToColor(this string data)
         {
             var cody = new CfgDecoder(data);
@@ -360,7 +360,7 @@ namespace QuizCannersUtilities {
         {
 
             if (tag == CfgEncoder.NullTag) return default(T);
-            
+
             var type = tps.TaggedTypes.TryGet(tag);
             
             if (type != null)
@@ -1027,3 +1027,9 @@ namespace QuizCannersUtilities {
     }
 
 }
+
+#pragma warning restore IDE1006 // Naming Styles
+#pragma warning restore 1692
+#pragma warning restore IDE0034 // Simplify 'default' expression
+#pragma warning restore IDE0019 // Use pattern matching
+#pragma warning restore IDE0018 // Inline variable declaration

@@ -12,7 +12,8 @@ namespace PlaytimePainter
                 if (PointedUv.SameAsLastFrame)
                     return true;
                 var bcf = Cfg.brushConfig;
-                bcf.colorLinear.ToV4(ref PointedVertex.shadowBake, bcf.mask);
+                //bcf.colorLinear.ToV4(ref PointedVertex.shadowBake, bcf.mask);
+                bcf.mask.SetValuesOn(ref PointedVertex.shadowBake, bcf.Color);
                 EditedMesh.Dirty = true;
                 return true;
             }
@@ -27,7 +28,8 @@ namespace PlaytimePainter
                     return true;
                 BrushConfig bcf = Cfg.brushConfig;
                 foreach (var uv in PointedTriangle.vertexes)
-                bcf.colorLinear.ToV4(ref uv.meshPoint.shadowBake, bcf.mask);
+                //bcf.colorLinear.ToV4(ref uv.meshPoint.shadowBake, bcf.mask);
+                bcf.mask.SetValuesOn(ref uv.meshPoint.shadowBake, bcf.Color);
                 EditedMesh.Dirty = true;
                 return true;
             }
@@ -42,7 +44,7 @@ namespace PlaytimePainter
             if ("Paint All".Click().nl())
             {
                 foreach (var v in EditedMesh.meshPoints)
-                    msk.Transfer(ref v.shadowBake, col);
+                    msk.SetValuesOn(ref v.shadowBake, col);
                 EditedMesh.Dirty = true;
             }
             GlobalBrush.ColorSliders().nl();

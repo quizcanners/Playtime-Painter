@@ -421,7 +421,7 @@ namespace PlaytimePainter {
 
             if (!MeshToolBase.AllTools.IsNullOrEmpty())
                 foreach (var t in MeshToolBase.allToolsWithPerMeshData)
-                    cody.Add((t as MeshToolBase).stdTag, t.EncodePerMeshData());
+                    cody.Add((t as MeshToolBase).StdTag, t.EncodePerMeshData());
 
 
             return cody;
@@ -457,7 +457,7 @@ namespace PlaytimePainter {
 
                     foreach (var t in MeshToolBase.allToolsWithPerMeshData){
                         var mt = t as MeshToolBase;
-                        if (mt == null || !mt.stdTag.Equals(tg)) continue;
+                        if (mt == null || !mt.StdTag.Equals(tg)) continue;
                         mt.Decode(data);
                         return true;
 
@@ -931,24 +931,21 @@ namespace PlaytimePainter {
             return index;
         }
         
-        public void PaintAll(LinearColor col)
+        public void PaintAll(Color c)
         {
             var bm = Cfg.brushConfig.mask;//glob.getBrush().brushMask;
-            var c = col.ToGamma();
             foreach (var point in meshPoints)
                 foreach (var vertex in point.vertices)
-                   bm.Transfer(ref vertex.color, c);
+                   bm.SetValuesOn(ref vertex.color, c);
 
             Dirty = true;
         }
 
-        public void SetShadowAll(LinearColor col)
-        {
-            var bm = Cfg.brushConfig.mask;//glob.getBrush().brushMask;
-            var c = col.ToGamma();
+        public void SetShadowAll(Color col) {
+            var bm = Cfg.brushConfig.mask;
 
             foreach (var v in meshPoints)
-                bm.Transfer(ref v.shadowBake, c); 
+                bm.SetValuesOn(ref v.shadowBake, col); 
                
             Dirty = true;
         }
@@ -1225,7 +1222,7 @@ namespace PlaytimePainter {
         {
             set
             {
-                PaintAll(new LinearColor(value));
+                PaintAll(value);
             }
         }
 

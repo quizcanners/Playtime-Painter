@@ -5,6 +5,14 @@ using UnityEngine;
 
 namespace QuizCannersUtilities
 {
+
+    // ReSharper disable InconsistentNaming
+    #pragma warning disable IDE1006 // Naming Styles
+    #pragma warning disable IDE0034 // Simplify 'default' expression
+    #pragma warning disable IDE0019 // Use pattern matching
+    #pragma warning disable IDE0018 // Inline variable declaration
+
+
     public class CountlessCfg<T> : CfgCountlessBase where T : ICfg , new() {
         
         protected T[] objs = new T[0];

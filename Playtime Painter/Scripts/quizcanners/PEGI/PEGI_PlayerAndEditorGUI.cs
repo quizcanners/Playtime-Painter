@@ -14,8 +14,11 @@ using UnityEditor;
 #endif
 
 // ReSharper disable InconsistentNaming
-#pragma warning disable 1692
-#pragma warning disable IDE1006
+#pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable IDE0034 // Simplify 'default' expression
+#pragma warning disable IDE0019 // Use pattern matching
+#pragma warning disable IDE0018 // Inline variable declaration
+
 
 namespace PlayerAndEditorGUI {
 
@@ -7193,7 +7196,7 @@ namespace PlayerAndEditorGUI {
                     var iind = el as IGotIndex;
 
                     iind?.IndexForPEGI.ToString().write(20);
-
+                    
                     var named = el as IGotName;
                     if (named != null)
                     {
@@ -9075,5 +9078,10 @@ namespace PlayerAndEditorGUI {
         }
     }
     #endregion
+
+#pragma warning restore IDE1006 // Naming Styles
+#pragma warning restore IDE0034 // Simplify 'default' expression
+#pragma warning restore IDE0019 // Use pattern matching
+#pragma warning restore IDE0018 // Inline variable declaration
 
 }

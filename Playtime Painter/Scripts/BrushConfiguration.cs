@@ -87,9 +87,6 @@ namespace PlaytimePainter {
         public bool flipMaskAlpha;
         public float maskTiling = 1;
         
-        public void MaskToggle(BrushMask flag) =>
-            mask ^= flag;
-
         public void MaskSet(BrushMask flag, bool to)
         {
             if (to)
@@ -103,8 +100,7 @@ namespace PlaytimePainter {
         public bool PaintingAllChannels => BrushExtensions.HasFlag(mask, BrushMask.R) && BrushExtensions.HasFlag(mask, BrushMask.G) && BrushExtensions.HasFlag(mask, BrushMask.B) && BrushExtensions.HasFlag(mask, BrushMask.A);
 
         public bool PaintingRGB => BrushExtensions.HasFlag(mask, BrushMask.R) && BrushExtensions.HasFlag(mask, BrushMask.G) && BrushExtensions.HasFlag(mask, BrushMask.B) && (!BrushExtensions.HasFlag(mask, BrushMask.A));
-
-
+        
         #endregion
 
         [NonSerialized] public bool previewDirty = false;
@@ -132,16 +128,13 @@ namespace PlaytimePainter {
         public float brush2DRadius = 16;
         public bool useAlphaBuffer;
         
-
         public float alphaLimitForAlphaBuffer = 1;
 
         public bool worldSpaceBrushPixelJitter;
 
         public float Size(bool worldSpace) => (worldSpace ? brush3DRadius : brush2DRadius);
-        public LinearColor colorLinear;
+        public Color Color;
 
-        public Color Color { get { return colorLinear.ToGamma(); } set { colorLinear.From(value); } }
-  
         public virtual bool IsA3DBrush(PlaytimePainter painter)
         {
             var overrideOther = false;
@@ -175,7 +168,7 @@ namespace PlaytimePainter {
         #endregion
         
         public BrushConfig() {
-            colorLinear = new LinearColor(Color.green);
+            Color = Color.green;
             mask = new BrushMask();
             mask |= BrushMask.R | BrushMask.G | BrushMask.B;
         }
@@ -478,45 +471,61 @@ namespace PlaytimePainter {
             return changed;
         }
 
-        public bool ChannelSlider(BrushMask m, ref float channel)
+        public bool ChannelSlider(ColorChanel chan, ref Color col)
         {
-            m.GetIcon().write();
-            return pegi.edit(ref channel, 0, 1).nl();
+
+            chan.GetIcon().write();
+            float val = chan.GetValueFrom(col);
+            if (pegi.edit(ref val, 0, 1).nl())
+            {
+                chan.SetValueOn(ref col, val);
+                return true;
+            }
+
+            return false;
+
+
         }
 
-        public bool ChannelSlider(BrushMask m, ref float chanel, Texture icon, bool slider) {
+        public bool ChannelSlider(BrushMask inspectedMask, ref Color col, Texture icon, bool slider) {
 
             var changed = false;
 
-            if (!icon)
-                icon = m.GetIcon();
+            var channel = inspectedMask.ToColorChannel();
 
-            var letter = m.ToText();
-            var maskVal = mask.HasFlag(m);
+            if (!icon)
+                icon = channel.GetIcon();
+
+            var label = inspectedMask.ToText();
+            var channelEnabled = mask.HasFlag(inspectedMask);
 
             if (InspectedPainter && InspectedPainter.meshEditing && MeshMGMT.MeshTool == VertexColorTool.inst) {
 
                 var mat = InspectedPainter.Material;
                 if (mat)
                 {
-                    var tag = mat.Get(m.ToString(), ShaderTags.VertexColorRole);
+                    var tag = mat.Get(inspectedMask.ToString(), ShaderTags.VertexColorRole);
 
                     if (!tag.IsNullOrEmpty()) {
 
-                        if (maskVal)
+                        if (channelEnabled)
                             (tag + ":").nl();
                         else
-                            letter = tag + " ";
+                            label = tag + " ";
                     }
                 }
             }
 
-            if (maskVal ? icon.Click(letter) : "{0} channel ignored".F(letter).toggleIcon(ref maskVal, true).changes(ref changed)) 
-                MaskToggle(m);
-            
-            if (slider && mask.HasFlag(m))
-                pegi.edit(ref chanel, 0, 1).nl(ref changed);
-            
+            if (channelEnabled ? icon.Click(label) : "{0} channel ignored".F(label).toggleIcon(ref channelEnabled, true).changes(ref changed))
+                 mask ^= inspectedMask;
+
+            if (slider && channelEnabled) {
+
+                float val = channel.GetValueFrom(col);
+                if (pegi.edit(ref val, 0, 1).nl(ref changed))
+                    channel.SetValueOn(ref col, val);
+            }
+
             return changed;
         }
 
@@ -527,16 +536,15 @@ namespace PlaytimePainter {
 
             var changed = false;
 
-            var col = Color;
-            if (pegi.edit(ref col).nl(ref changed))
-                Color = col;
 
+            pegi.edit(ref Color).nl(ref changed);
+            
             if (!Cfg.showColorSliders) return changed;
 
-            ChannelSlider(BrushMask.R, ref colorLinear.r, null, true).nl(ref changed);
-            ChannelSlider(BrushMask.G, ref colorLinear.g, null, true).nl(ref changed);
-            ChannelSlider(BrushMask.B, ref colorLinear.b, null, true).nl(ref changed);
-            ChannelSlider(BrushMask.A, ref colorLinear.a, null, true).nl(ref changed);
+            ChannelSlider(BrushMask.R, ref Color, null, true).nl(ref changed);
+            ChannelSlider(BrushMask.G, ref Color, null, true).nl(ref changed);
+            ChannelSlider(BrushMask.B, ref Color, null, true).nl(ref changed);
+            ChannelSlider(BrushMask.A, ref Color, null, true).nl(ref changed);
 
             return changed;
         }
@@ -565,17 +573,17 @@ namespace PlaytimePainter {
 
             if (painter && painter.IsTerrainHeightTexture)
             {
-                ChannelSlider(BrushMask.A, ref colorLinear.a, null, true).changes(ref changed);
+                ChannelSlider(BrushMask.A, ref Color, null, true).changes(ref changed);
             }
             else if (painter && painter.IsTerrainControlTexture)
             {
-                if (r) ChannelSlider(BrushMask.R, ref colorLinear.r, painter.terrain.GetSplashPrototypeTexture(0), slider)
+                if (r) ChannelSlider(BrushMask.R, ref Color, painter.terrain.GetSplashPrototypeTexture(0), slider)
                     .nl(ref changed);
-                if (g) ChannelSlider(BrushMask.G, ref colorLinear.g, painter.terrain.GetSplashPrototypeTexture(1), slider)
+                if (g) ChannelSlider(BrushMask.G, ref Color, painter.terrain.GetSplashPrototypeTexture(1), slider)
                     .nl(ref changed);
-                if (b) ChannelSlider(BrushMask.B, ref colorLinear.b, painter.terrain.GetSplashPrototypeTexture(2), slider)
+                if (b) ChannelSlider(BrushMask.B, ref Color, painter.terrain.GetSplashPrototypeTexture(2), slider)
                     .nl(ref changed);
-                if (a) ChannelSlider(BrushMask.A, ref colorLinear.a, painter.terrain.GetSplashPrototypeTexture(3), slider)
+                if (a) ChannelSlider(BrushMask.A, ref Color, painter.terrain.GetSplashPrototypeTexture(3), slider)
                     .nl(ref changed);
             }
             else
@@ -583,23 +591,23 @@ namespace PlaytimePainter {
                
                 if (id.TargetIsRenderTexture() && id.renderTexture)
                 {
-                    if (r) ChannelSlider(BrushMask.R, ref colorLinear.r).nl(ref changed);
-                    if (g) ChannelSlider(BrushMask.G, ref colorLinear.g).nl(ref changed);
-                    if (b) ChannelSlider(BrushMask.B, ref colorLinear.b).nl(ref changed);
+                    if (r) ChannelSlider(ColorChanel.R, ref Color).nl(ref changed);
+                    if (g) ChannelSlider(ColorChanel.G, ref Color).nl(ref changed);
+                    if (b) ChannelSlider(ColorChanel.B, ref Color).nl(ref changed);
 
                 }
                 else
                 {
 
-                    if (painter.IsEditingThisMesh || id==null || !id.isATransparentLayer || colorLinear.a > 0)  {
+                    if (painter.IsEditingThisMesh || id==null || !id.isATransparentLayer || Color.a > 0)  {
 
                         var slider_copy = blitMode.UsingSourceTexture ?
                             (srcColorUsage != SourceTextureColorUsage.Unchanged)
                             :slider;
 
-                        if (r) ChannelSlider(BrushMask.R, ref colorLinear.r, null, slider_copy).nl(ref changed);
-                        if (g) ChannelSlider(BrushMask.G, ref colorLinear.g, null, slider_copy).nl(ref changed);
-                        if (b) ChannelSlider(BrushMask.B, ref colorLinear.b, null, slider_copy).nl(ref changed);
+                        if (r) ChannelSlider(BrushMask.R, ref Color, null, slider_copy).nl(ref changed);
+                        if (g) ChannelSlider(BrushMask.G, ref Color, null, slider_copy).nl(ref changed);
+                        if (b) ChannelSlider(BrushMask.B, ref Color, null, slider_copy).nl(ref changed);
                     }
                     
                     var gotAlpha = painter.meshEditing || id == null || id.texture2D.TextureHasAlpha();
@@ -608,7 +616,7 @@ namespace PlaytimePainter {
                         if (!gotAlpha)
                             icon.Warning.write("Texture as no alpha, clicking save will fix it");
 
-                        if (a) ChannelSlider(BrushMask.A, ref colorLinear.a, null, slider).nl(ref changed);
+                        if (a) ChannelSlider(BrushMask.A, ref Color, null, slider).nl(ref changed);
                     }
                 }
             }
@@ -616,11 +624,11 @@ namespace PlaytimePainter {
 
             if (!painter.IsEditingThisMesh && id!=null && id.isATransparentLayer) {
 
-                var erase = colorLinear.a < 0.5f;
+                var erase = Color.a < 0.5f;
 
                 "Erase".toggleIcon(ref erase).nl(ref changed);
 
-                colorLinear.a = erase ? 0 : 1;
+                Color.a = erase ? 0 : 1;
 
             }
 
@@ -664,7 +672,7 @@ namespace PlaytimePainter {
             if (useMask)
                 cody.Add("mask", (int)mask);
 
-            cody.Add("bc", colorLinear);
+            cody.Add("bc", Color);
 
             if (mode.UsingSourceTexture)
                 cody.Add_IfNotZero("source", selectedSourceTexture);
@@ -714,7 +722,7 @@ namespace PlaytimePainter {
                 case "modeCPU": _inCpuBlitMode = data.ToInt(); break;
                 case "modeGPU": _inGpuBlitMode = data.ToInt(); break;
 
-                case "bc": colorLinear.Decode(data); break;
+                case "bc": Color = data.ToColor(); break;
 
                 case "source": selectedSourceTexture = data.ToInt(); break;
 

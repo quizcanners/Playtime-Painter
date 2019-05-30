@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
+using PlaytimePainter;
 using QuizCannersUtilities;
 
 namespace PlayerAndEditorGUI {
@@ -49,7 +50,7 @@ namespace PlayerAndEditorGUI {
 
     public static class Icons_MGMT {
 
-        private static Countless<Texture2D> _managementIcons = new Countless<Texture2D>();
+        private static readonly Countless<Texture2D> _managementIcons = new Countless<Texture2D>();
 
         public static Texture2D GetIcon(this icon icon)
         {
@@ -107,41 +108,30 @@ namespace PlayerAndEditorGUI {
 
         public static Texture GetIcon(this ColorChanel icon) => ColorIcon((int) icon);
         
-        public static string ToText(this BrushMask icon)
-        {
-
-            switch (icon)
-            {
+        public static string ToText(this BrushMask icon) {
+            switch (icon) {
                 case BrushMask.R: return "Red";
                 case BrushMask.G: return "Green";
                 case BrushMask.B: return "Blue";
                 case BrushMask.A: return "Alpha";
+                case BrushMask.Color: return "RGB";
+                case BrushMask.All: return "All";
                 default: return "Unknown channel";
             }
-
-
         }
 
-        public static Texture GetIcon(this BrushMask icon)
-        {
-            var ind = 0;
-            switch (icon)
-            {
-                case BrushMask.G:
-                    ind = 1;
-                    break;
-                case BrushMask.B:
-                    ind = 2;
-                    break;
-                case BrushMask.A:
-                    ind = 3;
-                    break;
+        public static string ToText(this ColorChanel icon) {
+            switch (icon) {
+                case ColorChanel.R: return "Red";
+                case ColorChanel.G: return "Green";
+                case ColorChanel.B: return "Blue";
+                case ColorChanel.A: return "Alpha";
+                default: return "Unknown channel";
             }
-
-            return ColorIcon(ind);
-
         }
 
+        public static Texture GetIcon(this BrushMask icon) => icon.ToColorChannel().GetIcon();
+        
         #endregion
 
     }

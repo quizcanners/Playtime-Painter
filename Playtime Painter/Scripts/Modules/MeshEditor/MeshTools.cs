@@ -19,7 +19,7 @@ namespace PlaytimePainter
 
         protected enum DetectionMode { Points, Lines, Triangles }
 
-        public virtual string stdTag => "t_noStd";
+        public virtual string StdTag => "t_noStd";
 
         public delegate bool MeshToolPlugBool(MeshToolBase tool, out bool val);
 
@@ -150,7 +150,7 @@ namespace PlaytimePainter
 
     public class VertexPositionTool : MeshToolBase
     {
-        public override string stdTag => "t_pos";
+        public override string StdTag => "t_pos";
 
         private bool _addToTrianglesAndLines;
 
@@ -538,7 +538,7 @@ namespace PlaytimePainter
 
     public class SharpFacesTool : MeshToolBase
     {
-        public override string stdTag => "t_shF";
+        public override string StdTag => "t_shF";
         
         public static SharpFacesTool inst;
 
@@ -748,7 +748,7 @@ namespace PlaytimePainter
     #region Vertex Smoothing
     public class SmoothingTool : MeshToolBase
     {
-        public override string stdTag => "t_vSm";
+        public override string StdTag => "t_vSm";
 
         private bool _mergeUnMerge;
 
@@ -940,7 +940,7 @@ namespace PlaytimePainter
     #region Color
     public class VertexColorTool : MeshToolBase
     {
-        public override string stdTag => "t_vCol";
+        public override string StdTag => "t_vCol";
 
         public static VertexColorTool inst;
 
@@ -966,7 +966,7 @@ namespace PlaytimePainter
             var p = InspectedPainter;
 
             if (("Paint All with Brush Color").Click().nl(ref changed))
-                em.PaintAll(br.colorLinear);
+                em.PaintAll(br.Color);
 
             "Make Vertex Unique On Paint".toggleIcon(ref Cfg.makeVerticesUniqueOnEdgeColoring).nl(ref changed);
             
@@ -1017,11 +1017,11 @@ namespace PlaytimePainter
             {
                 if (EditorInputManager.Control)
 
-                    bcf.mask.Transfer(ref m.PointedUv.color, bcf.Color);
+                    bcf.mask.SetValuesOn(ref m.PointedUv.color, bcf.Color);
 
                 else
                     foreach (var uvi in m.PointedUv.meshPoint.vertices)
-                        bcf.mask.Transfer(ref uvi.color, Cfg.brushConfig.Color);
+                        bcf.mask.SetValuesOn(ref uvi.color, Cfg.brushConfig.Color);
 
                 EditedMesh.dirtyColor = true;
             }
@@ -1062,7 +1062,7 @@ namespace PlaytimePainter
 
             foreach (var u in PointedTriangle.vertexes)
             foreach (var vuv in u.meshPoint.vertices)
-                bcf.mask.Transfer(ref vuv.color, c);
+                bcf.mask.SetValuesOn(ref vuv.color, c);
 
             EditedMesh.dirtyColor = true;
             return true;
@@ -1112,7 +1112,7 @@ namespace PlaytimePainter
     #region Edges (Experimental tech)
     public class VertexEdgeTool : MeshToolBase {
 
-        public override string stdTag => "t_edgs";
+        public override string StdTag => "t_edgs";
 
         private static bool _alsoDoColor;
         private static bool _editingFlexibleEdge;
@@ -1180,7 +1180,7 @@ namespace PlaytimePainter
                 {
                     var col = GlobalBrush.Color;
                     foreach (var uvi in PointedUv.meshPoint.vertices)
-                        GlobalBrush.mask.Transfer(ref uvi.color, col);
+                        GlobalBrush.mask.SetValuesOn(ref uvi.color, col);
                 }
                 EditedMesh.Dirty = true;
 
@@ -1254,9 +1254,9 @@ namespace PlaytimePainter
             {
                 var col = GlobalBrush.Color;
                 foreach (var uvi in vrtA.vertices)
-                    GlobalBrush.mask.Transfer(ref uvi.color, col);
+                    GlobalBrush.mask.SetValuesOn(ref uvi.color, col);
                 foreach (var uvi in vrtB.vertices)
-                    GlobalBrush.mask.Transfer(ref uvi.color, col);
+                    GlobalBrush.mask.SetValuesOn(ref uvi.color, col);
             }
 
             EditedMesh.Dirty = true;
@@ -1288,7 +1288,7 @@ namespace PlaytimePainter
     #region Submesh
     public class TriangleSubMeshTool : MeshToolBase
     {
-        public override string stdTag => "t_sbmsh";
+        public override string StdTag => "t_sbmsh";
 
         private int _curSubMesh;
         
@@ -1371,7 +1371,7 @@ namespace PlaytimePainter
     public class VertexGroupTool : MeshToolBase
     {
 
-        public override string stdTag => "t_vrtGr";
+        public override string StdTag => "t_vrtGr";
 
         public override string NameForDisplayPEGI => "Vertex Group";
     }

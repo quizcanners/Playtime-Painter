@@ -69,7 +69,7 @@ namespace PlaytimePainter {
     [PainterManagerPlugin]
     public abstract class PainterSystemManagerModuleBase : PainterSystemKeepUnrecognizedCfg, IGotDisplayName, IGotClassTag, IPEGI_ListInspect {
 
-        public static List<PainterSystemManagerModuleBase> plugins;
+        public static List<PainterSystemManagerModuleBase> modules;
 
         public static readonly List<IPainterManagerModuleComponentPEGI> ComponentInspectionPlugins = new List<IPainterManagerModuleComponentPEGI>();
 
@@ -85,22 +85,21 @@ namespace PlaytimePainter {
 
         public static void RefreshPlugins() {
 
-            if (plugins == null)
-                plugins = new List<PainterSystemManagerModuleBase>();
+            if (modules == null)
+                modules = new List<PainterSystemManagerModuleBase>();
             else
-                for (var i = 0; i < plugins.Count; i++)
-                    if (plugins[i] == null) { plugins.RemoveAt(i); i--; }
+                for (var i = modules.Count-1; i >=0 ; i--)
+                    if (modules[i] == null)
+                        modules.RemoveAt(i); 
             
-            foreach (var t in all)
-            {
+            foreach (var t in all) {
                 var contains = false;
                 
-                foreach (var p in plugins)
-                    if (p.GetType() == t) { contains = true; break; }
+                foreach (var m in modules)
+                    if (m.GetType() == t) { contains = true; break; }
 
                 if (!contains)
-                    plugins.Add((PainterSystemManagerModuleBase)Activator.CreateInstance(t));
-
+                    modules.Add((PainterSystemManagerModuleBase)Activator.CreateInstance(t));
             }
 
             ComponentInspectionPlugins.Clear();
@@ -110,7 +109,7 @@ namespace PlaytimePainter {
             MeshToolPlugins.Clear();
             GuiPlugins.Clear();
 
-            foreach (var t in plugins) {
+            foreach (var t in modules) {
 
                 ComponentInspectionPlugins.TryAdd(t as IPainterManagerModuleComponentPEGI);
 
@@ -150,8 +149,7 @@ namespace PlaytimePainter {
         #if PEGI
         public virtual string ToolTip => "Painter plugin";
 
-        public virtual bool InspectInList(IList list, int ind, ref int edited)
-        {
+        public virtual bool InspectInList(IList list, int ind, ref int edited) {
 
             if (NameForDisplayPEGI.ClickLabel())
                 edited = ind;

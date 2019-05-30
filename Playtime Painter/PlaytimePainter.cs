@@ -6,6 +6,8 @@ using UnityEditor;
 using UnityEditor.EditorTools;
 #endif
 
+
+
 using System;
 using System.IO;
 using System.Linq;
@@ -16,7 +18,11 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 namespace PlaytimePainter {
-
+    
+    #pragma warning disable IDE0034 // Simplify 'default' expression
+    #pragma warning disable IDE0019 // Use pattern matching
+    #pragma warning disable IDE0018 // Inline variable declaration
+    
     [AddComponentMenu("Mesh/Playtime Painter")]
     [HelpURL(OnlineManual)]
     [DisallowMultipleComponent]
@@ -489,7 +495,7 @@ namespace PlaytimePainter {
         public void SampleTexture(Vector2 uv)
         {
             TexMgmt.OnBeforeBlitConfigurationChange();
-            GlobalBrush.colorLinear.From(ImgMeta.SampleAt(uv), GlobalBrush.mask);
+            GlobalBrush.mask.SetValuesOn(ref GlobalBrush.Color, ImgMeta.SampleAt(uv));
             Update_Brush_Parameters_For_Preview_Shader();
         }
 
@@ -1725,8 +1731,10 @@ namespace PlaytimePainter {
 
             if (!colliderForSkinnedMesh)
             {
-                colliderForSkinnedMesh = new Mesh();
-                colliderForSkinnedMesh.name = "Generated Collider for "+name;
+                colliderForSkinnedMesh = new Mesh
+                {
+                    name = "Generated Collider for " + name
+                };
             }
 
             skinnedMeshRenderer.BakeMesh(colliderForSkinnedMesh);

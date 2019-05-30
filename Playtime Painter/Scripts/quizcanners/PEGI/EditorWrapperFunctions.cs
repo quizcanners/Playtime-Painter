@@ -13,7 +13,13 @@ using UnityEditorInternal;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
+
+// ReSharper disable InconsistentNaming
 #pragma warning disable IDE1006 // Naming Styles
+#pragma warning disable IDE0034 // Simplify 'default' expression
+#pragma warning disable IDE0019 // Use pattern matching
+#pragma warning disable IDE0018 // Inline variable declaration
+
 
 namespace PlayerAndEditorGUI
 {
@@ -1536,5 +1542,11 @@ namespace PlayerAndEditorGUI
 
     }
 }
+
+
 #pragma warning restore IDE1006 // Naming Styles
+#pragma warning restore IDE0034 // Simplify 'default' expression
+#pragma warning restore IDE0019 // Use pattern matching
+#pragma warning restore IDE0018 // Inline variable declaration
+
 #endif

@@ -22,7 +22,7 @@ namespace PlaytimePainter{
                 text.showNotificationIn3D_Views();
         }
 
-        public static float GetChanel(this Color col, ColorChanel chan)
+        public static float GetValueFrom(this ColorChanel chan, Color col)
         {
             switch (chan)
             {
@@ -37,7 +37,7 @@ namespace PlaytimePainter{
             }
         }
 
-        public static void SetChanel(this ColorChanel chan,  ref Color col,  float value)
+        public static void SetValueOn(this ColorChanel chan,  ref Color col,  float value)
         {
             switch (chan)
             {
@@ -56,28 +56,45 @@ namespace PlaytimePainter{
             }
         }
 
-        public static void Transfer(this BrushMask bm, ref Color col, Color c)
+        public static void SetValuesOn(this BrushMask bm, ref Color target, Color source)
         {
             if ((bm & BrushMask.R) != 0)
-                col.r = c.r;
+                target.r = source.r;
             if ((bm & BrushMask.G) != 0)
-                col.g =  c.g;
+                target.g = source.g;
             if ((bm & BrushMask.B) != 0)
-                col.b =  c.b;
+                target.b = source.b;
             if ((bm & BrushMask.A) != 0)
-                col.a =  c.a;
+                target.a = source.a;
         }
-    
-        public static void Transfer(this BrushMask bm, ref Vector4 col, Color c)
+        
+        public static ColorChanel ToColorChannel(this BrushMask bm)
+        {
+            switch (bm)
+            {
+                case BrushMask.R:
+                    return ColorChanel.R;
+                case BrushMask.G:
+                    return ColorChanel.G;
+                case BrushMask.B:
+                    return ColorChanel.B;
+                case BrushMask.A:
+                    return ColorChanel.A;
+            }
+
+            return ColorChanel.A;
+        }
+
+        public static void SetValuesOn(this BrushMask bm, ref Vector4 target, Color source)
         {
             if ((bm & BrushMask.R) != 0)
-                col.x = c.r;
+                target.x = source.r;
             if ((bm & BrushMask.G) != 0)
-                col.y = c.g;
+                target.y = source.g;
             if ((bm & BrushMask.B) != 0)
-                col.z = c.b;
+                target.z = source.b;
             if ((bm & BrushMask.A) != 0)
-                col.w = c.a;
+                target.w = source.a;
         }
     
         public static Mesh GetMesh(this PlaytimePainter p) {
@@ -190,7 +207,6 @@ namespace PlaytimePainter{
 
         public static Texture GetDestinationTexture(this Texture texture)
         {
-
             var id = texture.GetImgDataIfExists();
             return id != null ? id.CurrentTexture() : texture;
         }
@@ -239,8 +255,7 @@ namespace PlaytimePainter{
             return null;
         }
 
-        public static MaterialMeta GetMaterialPainterMeta (this Material mat) {
-            return  PainterCamera.Data?.GetMaterialDataFor(mat);
-        }
+        public static MaterialMeta GetMaterialPainterMeta (this Material mat) =>  PainterCamera.Data?.GetMaterialDataFor(mat);
+        
     }
 }

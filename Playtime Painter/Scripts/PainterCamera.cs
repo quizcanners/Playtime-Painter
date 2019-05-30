@@ -121,16 +121,16 @@ namespace PlaytimePainter {
 
         #region Modules
       
-        private ListMetaData _pluginsMeta = new ListMetaData("Modules", true, true, true, false);
+        private ListMetaData _modulesMeta = new ListMetaData("Modules", true, true, true, false);
 
         public IEnumerable<PainterSystemManagerModuleBase> Plugins
         {
             get {
 
-                if (PainterSystemManagerModuleBase.plugins == null)
+                if (PainterSystemManagerModuleBase.modules == null)
                     PainterSystemManagerModuleBase.RefreshPlugins();
 
-                return PainterSystemManagerModuleBase.plugins;
+                return PainterSystemManagerModuleBase.modules;
             }
         }
         
@@ -220,13 +220,13 @@ namespace PlaytimePainter {
 
         public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add("mm", MeshManager)
-            .Add_Abstract("pl", PainterSystemManagerModuleBase.plugins, _pluginsMeta)
+            .Add_Abstract("pl", PainterSystemManagerModuleBase.modules, _modulesMeta)
             .Add("rts", RenderTextureBuffersManager.renderBuffersSize);
 
         public override bool Decode(string tg, string data) {
             switch (tg) {
                 case "pl":
-                    data.Decode_List(out PainterSystemManagerModuleBase.plugins, ref _pluginsMeta, PainterSystemManagerModuleBase.all);
+                    data.Decode_List(out PainterSystemManagerModuleBase.modules, ref _modulesMeta, PainterSystemManagerModuleBase.all);
                     PainterSystemManagerModuleBase.RefreshPlugins();
                     break;
                 case "mm": MeshManager.Decode(data); break;
@@ -772,7 +772,7 @@ namespace PlaytimePainter {
 
             PainterSystemManagerModuleBase.RefreshPlugins();
 
-            foreach (var p in PainterSystemManagerModuleBase.plugins)
+            foreach (var p in PainterSystemManagerModuleBase.modules)
                 p?.Enable();
             
             if (Data)
@@ -805,8 +805,8 @@ namespace PlaytimePainter {
             EmptyBufferTarget();
             #endif
 
-            if (PainterSystemManagerModuleBase.plugins != null)
-                foreach (var p in PainterSystemManagerModuleBase.plugins)
+            if (PainterSystemManagerModuleBase.modules != null)
+                foreach (var p in PainterSystemManagerModuleBase.modules)
                     p?.Disable();
             
             if (Data)
@@ -899,8 +899,8 @@ namespace PlaytimePainter {
             }
 
             var needRefresh = false;
-            if (PainterSystemManagerModuleBase.plugins!= null)
-                foreach (var pl in PainterSystemManagerModuleBase.plugins)
+            if (PainterSystemManagerModuleBase.modules!= null)
+                foreach (var pl in PainterSystemManagerModuleBase.modules)
                     if (pl != null)
                         pl.Update();
                     else needRefresh = true;
@@ -950,54 +950,53 @@ namespace PlaytimePainter {
             return changed;
         }
 
-        private bool showBuffers;
+        private int _inspectedDependecy = -1;
 
         public bool DependenciesInspect(bool showAll = false) {
 
             var changed = false;
 
-            if (showAll)
-            {
+            if (showAll) {
+
+                "Download Manager".enter_Inspect(DownloadManager, ref _inspectedDependecy, 0).changes(ref changed);
+
+                if (_inspectedDependecy == -1)
+                    "You can enable URL field in the Optional UI elements to get texture directly from web"
+                        .fullWindowDocumentationClickOpen();
+
                 pegi.nl();
 
-                if (!showBuffers)
+                if (_inspectedDependecy == -1)
                 {
 
                     "Main Directional Light".edit(ref mainDirectionalLight).nl(ref changed);
 
-                    #if UNITY_EDITOR
+#if UNITY_EDITOR
                     if ("Refresh Brush Shaders".Click(14).nl())
                     {
                         Data.CheckShaders(true);
                         "Shaders Refreshed".showNotificationIn3D_Views();
                     }
-                    #endif
+#endif
 
                     "Using layer:".editLayerMask(ref Data.playtimePainterLayer).nl(ref changed);
                 }
-            }
-
-            if (showAll && "Buffers".enter(ref showBuffers).nl())  {
-             
-                RenderTextureBuffersManager.Inspect().nl(ref changed);
 
 
+                if ("Buffers".enter(ref _inspectedDependecy, 1).nl()) {
+
+                    RenderTextureBuffersManager.Inspect().nl(ref changed);
+                    
 #if UNITY_EDITOR
-                "Disable Second Buffer Update (Debug Mode)".toggleIcon(ref disableSecondBufferUpdateDebug).nl();
+                    "Disable Second Buffer Update (Debug Mode)".toggleIcon(ref disableSecondBufferUpdateDebug).nl();
 #endif
 
+                    return changed;
+                }
 
-
-
-
-
-                return changed;
             }
-            
-
 #if UNITY_EDITOR
-            if (!Data)
-            {
+            if (!Data)  {
                 pegi.nl();
                 "No data Holder".edit(60, ref dataHolder).nl(ref changed);
 
@@ -1060,24 +1059,22 @@ namespace PlaytimePainter {
             return changed;
         }
 
-        public bool PluginsInspect() {
+        public bool ModulsInspect() {
 
             var changed = false;
             
-            _pluginsMeta.edit_List(ref PainterSystemManagerModuleBase.plugins, PainterSystemManagerModuleBase.all).changes(ref changed);
+            _modulesMeta.edit_List(ref PainterSystemManagerModuleBase.modules, PainterSystemManagerModuleBase.all).changes(ref changed);
 
-            if (!_pluginsMeta.Inspecting)
-            {
+            if (!_modulesMeta.Inspecting) {
 
                 if ("Find Modules".Click())
                     PainterSystemManagerModuleBase.RefreshPlugins();
 
                 if ("Delete Modules".Click().nl())
-                    PainterSystemManagerModuleBase.plugins = null;
+                    PainterSystemManagerModuleBase.modules = null;
 
             }
        
-
             return changed;
         }
 

@@ -709,6 +709,42 @@ namespace PlaytimePainter
             return result;
         }
 
+        public void SetEdges(Color col) => SetEdges(col, BrushMask.All);
+        
+
+        
+
+        public void SetEdges(Color col, BrushMask mask) {
+            
+            if (!Pixels.IsNullOrEmpty()) {
+
+                for (int XSection = 0; XSection <= 1; XSection++)
+                {
+                    int x = XSection * width - 1;
+                    for (int y = 0; y < height; y++)
+                    {
+                        var pix = PixelUnSafe(x, y);
+                        mask.SetValuesOn(ref pix, col);
+                        SetPixelUnSafe(x, y, pix);
+                    }
+                }
+
+                for (int YSection = 0; YSection <= 1; YSection++)
+                {
+                    int y = YSection * height - 1;
+                    for (int x = 0; x < height; x++)
+                    {
+                        var pix = PixelUnSafe(x, y);
+                        mask.SetValuesOn(ref pix, col);
+                        SetPixelUnSafe(x, y, pix);
+                    }
+                }
+
+            }
+
+
+        }
+
         #endregion
 
         #region BlitJobs
@@ -894,8 +930,6 @@ namespace PlaytimePainter
 
             if ("CPU blit options".conditional_enter(this.TargetIsTexture2D(), ref inspectedItems, 0).nl())
             {
-
-
                 "Disable Continious Lines".toggleIcon("If you see unwanted lines appearing on the texture as you paint, enable this." ,ref disableContiniousLine).nl(ref changed);
 
                 "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref _repaintDelay, 0.01f, 0.5f).nl(ref changed);
@@ -907,17 +941,14 @@ namespace PlaytimePainter
                     "Is A volume texture".toggleIcon(ref isAVolumeTexture).nl(ref changed);
 
             }
-
-           
+            
             #region Processors
 
             var newWidth = Cfg.SelectedWidthForNewTexture(); //PainterDataAndConfig.SizeIndexToSize(PainterCamera.Data.selectedWidthIndex);
             var newHeight = Cfg.SelectedHeightForNewTexture();
 
             if ("Texture Processors".enter(ref inspectedItems, 6).nl()) {
-
                 
-
                 if (errorWhileReading)
                     "There was en error reading texture pixels, can't process it".writeWarning();
                 else
@@ -941,12 +972,13 @@ namespace PlaytimePainter
 
                             if (rescale)
                                 Resize(newWidth, newHeight);
+
                         }
                         pegi.nl();
                     }
 
-                    if (_inspectedProcess == -1)
-                    {
+                    if (_inspectedProcess == -1) {
+
                         if ((newWidth != width || newHeight != height) && icon.Replace.Click("Resize").nl(ref changed))
                             Resize(newWidth, newHeight);
 
@@ -956,8 +988,8 @@ namespace PlaytimePainter
                     if ("Clear ".enter(ref _inspectedProcess, 1, false))  {
 
                         "Clear Color".edit(80, ref clearColor).nl();
-                        if ("Clear Texture".Click().nl())
-                        {
+
+                        if ("Clear Texture".Click().nl()) {
                             Colorize(clearColor);
                             SetApplyUpdateRenderTexture();
                         }
@@ -968,11 +1000,11 @@ namespace PlaytimePainter
                         SetApplyUpdateRenderTexture();
                     }
 
-                    if ("Color to Alpha".enter(ref _inspectedProcess, 2).nl())
-                    {
+                    if ("Color to Alpha".enter(ref _inspectedProcess, 2).nl()) {
+
                         "Background Color".edit(80, ref clearColor).nl();
-                        if (Pixels != null)
-                        {
+                        if (Pixels != null) {
+
                             if ("Color to Alpha".Click("Will Convert Background Color with transparency").nl())
                             {
                                 bool wasRt = WasRenderTexture();
@@ -1087,7 +1119,7 @@ namespace PlaytimePainter
 
                     if ("Fade edges".enter(ref _inspectedProcess, 8).nl()) {
 
-                        ("This will make edges pixels of the texture transparent. Useful when wrap mode " +
+                        ("This will cahange pixels on the edges of the texture. Useful when wrap mode " +
                          "is set to clamp.").writeHint();
                         
                         if (texture2D) {
@@ -1103,10 +1135,16 @@ namespace PlaytimePainter
                             }
                             #endif
 
-                            if ("Set edges to transparent".Click()) {
-
+                            if ("Set edges to transparent".Click().nl(ref changed)) {
+                                SetEdges(Color.clear, BrushMask.A);
+                                SetAndApply(true);
                             }
 
+                            if ("Set edges to Clear Black".Click().nl(ref changed)) {
+                                SetEdges(Color.clear);
+                                SetAndApply(true);
+                            }
+                            
                         }
                     }
                 }
@@ -1125,9 +1163,9 @@ namespace PlaytimePainter
                 if (_numberOfTexture2DBackups > 50 || _numberOfRenderTextureBackups > 50)
                     "Too big of a number will eat up lot of memory".writeWarning();
 
-              "Creating more backups will eat more memory".writeOneTimeHint("backupIsMem");
-               "This are not connected to Unity's Undo/Redo because when you run out of backups you will by accident start undoing other operations.".writeOneTimeHint("noNativeUndo");
-               "Use Z/X to undo/redo".writeOneTimeHint("ZxUndoRedo");
+                "Creating more backups will eat more memory".writeOneTimeHint("backupIsMem");
+                "This are not connected to Unity's Undo/Redo because when you run out of backups you will by accident start undoing other operations.".writeOneTimeHint("noNativeUndo");
+                "Use Z/X to undo/redo".writeOneTimeHint("ZxUndoRedo");
 
             }
             

@@ -16,7 +16,7 @@ namespace PlaytimePainter.Examples {
 
         public float Size3D { get { return Brush.brush3DRadius; } set { Brush.brush3DRadius = value; Brush.previewDirty = true; } }
 
-        public float ColorAlpha { get { return Brush.colorLinear.a; } set { Brush.colorLinear.a = value; Brush.previewDirty = true; } }
+        public float ColorAlpha { get { return Brush.Color.a; } set { Brush.Color.a = value; Brush.previewDirty = true; } }
 
         public float Speed { get { return Brush.Speed; } set { Brush.Speed = value; Brush.previewDirty = true; } }
 

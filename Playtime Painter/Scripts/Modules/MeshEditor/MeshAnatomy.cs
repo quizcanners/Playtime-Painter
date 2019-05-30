@@ -213,15 +213,15 @@ namespace PlaytimePainter
             for (var i = 0; i < 3; i++)
             {
                 var c = (ColorChanel)i;
-                c.SetChanel(ref color, c == chan ? 0 : 1);
+                c.SetValueOn(ref color, c == chan ? 0 : 1);
             }
         }
 
         public void FlipChanel(ColorChanel chan)
         {
-            var val = color.GetChanel(chan);
+            var val = chan.GetValueFrom(color);
             val = (val > 0.9f) ? 0 : 1;
-            chan.SetChanel(ref color, val);
+            chan.SetValueOn(ref color, val);
         }
 
         private ColorChanel GetZeroChanelIfOne(ref int count)
@@ -229,7 +229,7 @@ namespace PlaytimePainter
             count = 0;
             var ch = ColorChanel.A;
             for (var i = 0; i < 3; i++)
-                if (color.GetChanel((ColorChanel)i) > 0.9f)
+                if (((ColorChanel)i).GetValueFrom(color) > 0.9f)
                     count++;
                 else ch = (ColorChanel)i;
 
@@ -491,14 +491,14 @@ namespace PlaytimePainter
 
         public void ClearColor(BrushMask bm) {
             foreach (var uvi in vertices)
-                bm.Transfer(ref uvi.color, Color.black);
+                bm.SetValuesOn(ref uvi.color, Color.black);
         }
 
         private void SetChanel(ColorChanel chan, MeshPoint other, float val)
         {
             foreach (var u in vertices)
                 if (u.ConnectedTo(other))
-                    chan.SetChanel(ref u.color, val);
+                    chan.SetValueOn(ref u.color, val);
         }
 
         public bool FlipChanelOnLine(ColorChanel chan, MeshPoint other)
@@ -510,7 +510,7 @@ namespace PlaytimePainter
 
             foreach (var u in vertices)
                 if (u.ConnectedTo(other))
-                    val *= u.color.GetChanel(chan) * u.GetConnectedUVinVertex(other).color.GetChanel(chan);
+                    val *= chan.GetValueFrom(u.color) *  chan.GetValueFrom(u.GetConnectedUVinVertex(other).color);
 
             val = (val > 0.9f) ? 0 : 1;
 
@@ -526,7 +526,7 @@ namespace PlaytimePainter
         {
             foreach (var u in vertices)
                 if (u.ConnectedTo(other))
-                    bm.Transfer(ref u.color, col);   //val *= u._color.GetChanel01(chan) * u.GetConnectedUVinVertex(other)._color.GetChanel01(chan);
+                    bm.SetValuesOn(ref u.color, col);   //val *= u._color.GetChanel01(chan) * u.GetConnectedUVinVertex(other)._color.GetChanel01(chan);
 
         }
 
@@ -539,12 +539,12 @@ namespace PlaytimePainter
                         var ouv = u.GetConnectedUVinVertex(other);
                         var ch = (ColorChanel)i;
 
-                        var val = u.color.GetChanel(ch) * ouv.color.GetChanel(ch);
+                        var val =  ch.GetValueFrom(u.color) * ch.GetValueFrom(ouv.color);
 
                         if (!(val > 0.9f)) continue;
 
-                        ch.SetChanel(ref u.color, 0);
-                        ch.SetChanel(ref ouv.color, 0);
+                        ch.SetValueOn(ref u.color, 0);
+                        ch.SetValueOn(ref ouv.color, 0);
                     }
 
         }

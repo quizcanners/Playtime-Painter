@@ -437,19 +437,11 @@ namespace PlaytimePainter
 
             var rtp = PainterCamera.Inst;
             
-            if ("Modules".enter(ref inspectedItems, 10, false).nl_ifNotEntered() && rtp.PluginsInspect().nl(ref changed))
+            if ("Modules".enter(ref inspectedItems, 10, false).nl_ifNotEntered() && rtp.ModulsInspect().nl(ref changed))
                 rtp.SetToDirty();
 
             if ("Lists".enter(ref inspectedItems, 11).nl(ref changed))
                 InspectData().changes(ref changed);
-
-            if ("Downloads".enter(ref inspectedItems, 13).nl_ifFolded(ref changed)) {
-
-                "You can enable URL field in the Optional UI elements to get texture directly from web"
-                    .fullWindowDocumentationClickOpen();
-
-                PainterCamera.DownloadManager.Nested_Inspect();
-            }
 
             if ("Painter Camera".enter(ref inspectedItems, 14).nl_ifNotEntered())
                 PainterCamera.Inst.DependenciesInspect(true);
@@ -541,7 +533,7 @@ namespace PlaytimePainter
             foreach (var tag in decoder) {
                 var d = decoder.GetData();
                 foreach (var m in MeshToolBase.AllTools)
-                    if (m.stdTag.SameAs(tag))
+                    if (m.StdTag.SameAs(tag))
                     {
                         m.Decode(d);
                         break;
@@ -647,7 +639,7 @@ namespace PlaytimePainter
             var at = MeshToolBase.AllTools;
             if (!at.IsNullOrEmpty())  {
                 foreach (var t in at)
-                    cody.Add(t.stdTag, t.Encode());
+                    cody.Add(t.StdTag, t.Encode());
 
                 meshToolsStd = cody.ToString();
             }

@@ -10,11 +10,8 @@ namespace QuizCannersUtilities {
     public static partial class QcMath {
 
         #region Checks
-        public static bool IsNaN(this Vector3 q)
-        {
-            return float.IsNaN(q.x) || float.IsNaN(q.y) || float.IsNaN(q.z);
-        }
-
+        public static bool IsNaN(this Vector3 q) => float.IsNaN(q.x) || float.IsNaN(q.y) || float.IsNaN(q.z);
+        
         public static bool IsNaN(this float f) => float.IsNaN(f);
         
         #endregion
@@ -35,8 +32,8 @@ namespace QuizCannersUtilities {
 
         public static Vector2 ToM11Space(this Vector2 v2) => (v2 - new Vector2(Mathf.Floor(v2.x), Mathf.Floor(v2.y)));
 
-        public static Vector2 To01Space(this Vector2 v2)
-        {
+        public static Vector2 To01Space(this Vector2 v2) {
+
             v2.x = v2.x % 1;
             v2.y = v2.y % 1;
 
@@ -58,7 +55,7 @@ namespace QuizCannersUtilities {
 
         public static bool ClampIndexToLength(this Array ar, ref int value, int min = 0)
         {
-            if (ar != null && ar.Length > 0) {
+            if (!ar.IsNullOrEmpty()) {
                 value = Mathf.Max(min, Mathf.Min(value, ar.Length - 1));
                 return true;
             }
@@ -67,7 +64,7 @@ namespace QuizCannersUtilities {
 
         public static bool ClampIndexToCount(this IList list, ref int value, int min = 0)
         {
-            if (list != null && list.Count > 0) {
+            if (!list.IsNullOrEmpty()) {
                 value = Mathf.Max(min, Mathf.Min(value, list.Count - 1));
                 return true;
             }
@@ -109,7 +106,7 @@ namespace QuizCannersUtilities {
 
             if (randomNormalized.Count < maxRands)
             {
-                var newOne = Vector3.one.OnSpherePosition();
+                var newOne = UnityEngine.Random.insideUnitSphere;
                 randomNormalized.Add(newOne);
                 v3.Scale(newOne);
             }
@@ -129,33 +126,11 @@ namespace QuizCannersUtilities {
             return Vector3.LerpUnclamped(m1, m2, portion);
         }
 
-        public static float Angle(this Vector2 vec)
-        {
-            if (vec.x < 0)
-            {
-                return 360 - (Mathf.Atan2(vec.x, vec.y) * Mathf.Rad2Deg * -1);
-            }
-            else
-            {
-                return Mathf.Atan2(vec.x, vec.y) * Mathf.Rad2Deg;
-            }
-        }
-
-        public static Vector3 OnSpherePosition(this Vector3 vec)
-        {
-
-            var v3 = new Vector3(
-                UnityEngine.Random.Range(-10f, 10f),
-                  UnityEngine.Random.Range(-10f, 10f),
-                  UnityEngine.Random.Range(-10f, 10f)
-                );
-
-            v3.Normalize();
-            v3.Scale(vec);
-
-            return v3;
-        }
+        public static float Angle(this Vector2 vec) =>
+             (vec.x < 0) ? 360 - (Mathf.Atan2(vec.x, vec.y) * Mathf.Rad2Deg * -1) :
+             Mathf.Atan2(vec.x, vec.y) * Mathf.Rad2Deg;
         
+
         public static bool IsAcute(float a, float b, float c)
         {
             if (c == 0) return true;
@@ -198,25 +173,25 @@ namespace QuizCannersUtilities {
         
         public static float HeronHforBase(float _base, float a, float b)
         {
-            if (_base > a + b)
-                _base = (a + b) * 0.98f;
+            float sidesSum = a + b;
 
-            float s = (_base + a + b) * 0.5f;
+            if (_base > sidesSum)
+                _base = sidesSum * 0.98f;
+
+            float s = (_base + sidesSum) * 0.5f;
             float area = Mathf.Sqrt(s * (s - _base) * (s - a) * (s - b));
-            float h = area / (0.5f * _base);
-            return h;
+            return area / (0.5f * _base);
         }
 
         public static bool LinePlaneIntersection(out Vector3 intersection, Vector3 linePoint, Vector3 lineVec, Vector3 planeNormal, Vector3 planePoint)
         {
-
-
-            float dotNumerator = Vector3.Dot((planePoint - linePoint), planeNormal);
+            
+            float dotNumerator = Vector3.Dot(planePoint - linePoint, planeNormal);
             float dotDenominator = Vector3.Dot(lineVec, planeNormal);
 
             //line and plane are not parallel
-            if (dotDenominator != 0.0f)
-            {
+            if (dotDenominator != 0.0f) {
+
                 float length = dotNumerator / dotDenominator;
 
                 //get the coordinates of the line-plane intersection point
@@ -226,12 +201,10 @@ namespace QuizCannersUtilities {
             }
 
             //output not valid
-            else
-            {
-                intersection = Vector3.zero;
+            intersection = Vector3.zero;
 
-                return false;
-            }
+            return false;
+            
         }
 
         public static Vector3 GetNormalOfTheTriangle(Vector3 a, Vector3 b, Vector3 c)
@@ -345,10 +318,7 @@ namespace QuizCannersUtilities {
             return v;
         }
 
-        public static Vector4 ToVector4(this Color col)
-        {
-            return new Vector4(col.r, col.g, col.b, col.a);
-        }
+        public static Vector4 ToVector4(this Color col) => new Vector4(col.r, col.g, col.b, col.a);
         
         public static Vector2 XY(this Vector3 vec) => new Vector2(vec.x, vec.y);
 
@@ -372,7 +342,7 @@ namespace QuizCannersUtilities {
     public enum ColorChanel { R = 0, G = 1, B = 2, A = 3 }
 
     [Flags]
-    public enum BrushMask { R = 1, G = 2, B = 4, A = 8 }
+    public enum BrushMask { R = 1, G = 2, B = 4, A = 8, Color = 7, All = 15 }
 
     [Serializable]
     public struct MyIntVec2
@@ -382,51 +352,39 @@ namespace QuizCannersUtilities {
 
         public int Max => x > y ? x : y;
 
-        public override string ToString()
-        {
-            return "x:" + x + " y:" + y;
-        }
-
-        public void Clamp(int min, int max)
-        {
+        public override string ToString() => "x:" + x + " y:" + y;
+        
+        public void Clamp(int min, int max)  {
             x = Mathf.Clamp(x, min, max);
             y = Mathf.Clamp(y, min, max);
         }
 
-        public void Clamp(int min, MyIntVec2 max)
-        {
+        public void Clamp(int min, MyIntVec2 max) {
             x = Mathf.Clamp(x, min, max.x);
             y = Mathf.Clamp(y, min, max.y);
         }
 
-        public MyIntVec2 MultiplyBy(int val)
-        {
+        public MyIntVec2 MultiplyBy(int val) {
             x *= val;
             y *= val;
             return this;
         }
 
-        public MyIntVec2 Subtract(MyIntVec2 other)
-        {
+        public MyIntVec2 Subtract(MyIntVec2 other) {
             x -= other.x;
             y -= other.y;
             return this;
         }
 
-        public Vector2 ToFloat()
-        {
-            return new Vector2(x, y);
-        }
-
-        public MyIntVec2 From(Vector2 vec)
-        {
+        public Vector2 ToFloat() => new Vector2(x, y);
+        
+        public MyIntVec2 From(Vector2 vec) {
             x = (int)vec.x;
             y = (int)vec.y;
             return this;
         }
 
-        public MyIntVec2(MyIntVec2 other)
-        {
+        public MyIntVec2(MyIntVec2 other) {
             x = other.x;
             y = other.y;
         }
@@ -455,32 +413,6 @@ namespace QuizCannersUtilities {
     {
         public float r, g, b, a;
 
-        public float this[int index]
-        {
-            get
-            {
-                switch (index)
-                {
-                    case 0: return r;
-                    case 1: return g;
-                    case 2: return b;
-                    case 3: return a;
-                }
-
-                return a;
-            }
-            set
-            {
-                switch (index)
-                {
-                    case 0: r = value; break;
-                    case 1: g = value; break;
-                    case 2: b = value; break;
-                    case 3: a = value; break;
-                }
-            }
-        }
-        
         Color LCol => new Color(r, g, b, a);
 
         public override CfgEncoder Encode() => new CfgEncoder()
@@ -504,54 +436,7 @@ namespace QuizCannersUtilities {
 
         }
         
-        public LinearColor GetCopy()
-        {
-            return new LinearColor(this);
-        }
-
-        public float GetChanel(ColorChanel chan)
-        {
-
-            switch (chan)
-            {
-                case ColorChanel.R:
-                    return r;
-                case ColorChanel.G:
-                    return g;
-                case ColorChanel.B:
-                    return b;
-                default:
-                    return a;
-            }
-        }
-
-        public float GetChanel01(ColorChanel chan)
-        {
-            return Mathf.Abs(Mathf.Sqrt(GetChanel(chan)));
-        }
-        
-        public void SetChanelFrom01(ColorChanel chan, float value)
-        {
-            value *= value;
-            switch (chan)
-            {
-                case ColorChanel.R:
-                    r = value;
-                    break;
-                case ColorChanel.G:
-                    g = value;
-                    break;
-                case ColorChanel.B:
-                    b = value;
-                    break;
-                case ColorChanel.A:
-                    a = value;
-                    break;
-            }
-        }
-
-        public void From(Color c)
-        {
+        public void From(Color c) {
             c = c.linear;
             r = c.r;
             g = c.g;
@@ -559,8 +444,7 @@ namespace QuizCannersUtilities {
             a = c.a;
         }
 
-        public void From(Color c, BrushMask bm)
-        {
+        public void From(Color c, BrushMask bm) {
             c = c.linear;
             if ((bm & BrushMask.R) != 0)
                 r = c.r;
@@ -571,41 +455,11 @@ namespace QuizCannersUtilities {
             if ((bm & BrushMask.A) != 0)
                 a = c.a;
         }
-
-        public void From(LinearColor c, BrushMask bm)
-        {
-            if ((bm & BrushMask.R) != 0)
-                r = c.r;
-            if ((bm & BrushMask.G) != 0)
-                g = c.g;
-            if ((bm & BrushMask.B) != 0)
-                b = c.b;
-            if ((bm & BrushMask.A) != 0)
-                a = c.a;
-        }
-
-        public void CopyFrom(LinearColor col)
-        {
-            r = col.r;
-            g = col.g;
-            b = col.b;
-            a = col.a;
-        }
-
-        public Color ToGamma(float alpha)
-        {
-            Color tmp = LCol.gamma;
-            tmp.a = alpha;
-            return tmp;
-        }
         
         public Color ToGamma() => LCol.gamma;
         
-        public void ToGamma(ref Color tmp)
-        {
-            tmp = LCol.gamma;
-        }
-
+        public void ToGamma(ref Color tmp) => tmp = LCol.gamma;
+        
         public Vector4 Vector4 => new Vector4(r, g, b, a);
 
         public void ToV4(ref Vector4 to, BrushMask bm)
@@ -620,91 +474,10 @@ namespace QuizCannersUtilities {
                 to.w = a;
         }
 
-        public void Add(LinearColor other)
-        {
-            r += other.r;
-            g += other.g;
-            b += other.b;
-            a += other.a;
-        }
-
-        public void Add(Color other)
-        {
-            other = other.linear;
-            r += other.r;
-            g += other.g;
-            b += other.b;
-            a += other.a;
-        }
-
-
-        public void LerpTo(LinearColor other, float portion)
-        {
-            r += (other.r - r) * portion;
-            g += (other.g - g) * portion;
-            b += (other.b - b) * portion;
-            a += (other.a - a) * portion;
-
-        }
-
-        public void AddPortion(LinearColor other, Color portion)
-        {
-            r += other.r * portion.r;
-            g += other.g * portion.g;
-            b += other.b * portion.b;
-            a += other.a * portion.a;
-        }
-
-        public void AddPortion(LinearColor other, float portion)
-        {
-            r += other.r * portion;
-            g += other.g * portion;
-            b += other.b * portion;
-            a += other.a * portion;
-        }
-
-        public void MultiplyBy(float val)
-        {
-            r *= val;
-            g *= val;
-            b *= val;
-            a *= val;
-        }
-
-        public void MultiplyBy(Color val)
-        {
-            r *= val.r;
-            g *= val.g;
-            b *= val.b;
-            a *= val.a;
-        }
-
-        public static Color Multiply(LinearColor a, LinearColor b)
-        {
-            Color tmp = a.LCol.gamma * b.LCol.gamma;
-            return tmp;
-        }
-
-        public void Zero()
-        {
-            r = g = b = a = 0;
-        }
-
-        public LinearColor()
-        {
-            r = g = b = a = 0;
-        }
-
         public LinearColor(Color col)
         {
             From(col);
         }
-
-        public LinearColor(LinearColor col)
-        {
-            CopyFrom(col);
-        }
-
     }
 
     [Serializable]
@@ -822,6 +595,11 @@ namespace QuizCannersUtilities {
 namespace PlayerAndEditorGUI
 {
 #if PEGI
+
+    // ReSharper disable InconsistentNaming
+#pragma warning disable 1692
+#pragma warning disable IDE1006
+
     public static partial class pegi
     {
 
@@ -872,24 +650,7 @@ namespace PlayerAndEditorGUI
             nl();
             return edit(ref val);
         }
-
-        public static bool edit(ref LinearColor col)
-        {
-            var c = col.ToGamma();
-            if (edit(ref c))
-            {
-                col.From(c);
-                return true;
-            }
-            return false;
-        }
-
-        public static bool edit(this string label, ref LinearColor col)
-        {
-            write(label);
-            return edit(ref col);
-        }
-
+        
         public static bool edit(this string label, int width, ref MyIntVec2 val, int min, int max)
         {
             write(label, width);

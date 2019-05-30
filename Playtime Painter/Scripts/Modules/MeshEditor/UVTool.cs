@@ -8,7 +8,7 @@ namespace PlaytimePainter
     public class VertexUVTool : MeshToolBase, IMeshToolWithPerMeshData
     {
 
-        public override string stdTag => "t_uv";
+        public override string StdTag => "t_uv";
         
         public static VertexUVTool inst;
 

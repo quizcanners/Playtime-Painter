@@ -23,9 +23,14 @@ using UnityEngine.Networking;
 using UnityEditor;
 #endif
 
-namespace QuizCannersUtilities
-{
+namespace QuizCannersUtilities {
 
+    // ReSharper disable InconsistentNaming
+    #pragma warning disable IDE1006 // Naming Styles
+    #pragma warning disable IDE0034 // Simplify 'default' expression
+    #pragma warning disable IDE0019 // Use pattern matching
+    #pragma warning disable IDE0018 // Inline variable declaration
+        
     public static class UnityUtils
     {
 
@@ -2244,7 +2249,7 @@ namespace QuizCannersUtilities
     public class ChillLogger : IGotDisplayName
     {
         private bool _logged;
-        private bool _disabled;
+        private readonly bool _disabled;
         private float _lastLogged;
         private int _calls;
         private readonly string message = "error";
@@ -2551,8 +2556,7 @@ namespace QuizCannersUtilities
     [Serializable]
     public class ScreenShootTaker : IPEGI {
 
-        #region ScreenShot
-
+  
         #if PEGI
         public bool Inspect() {
 
@@ -2613,10 +2617,16 @@ namespace QuizCannersUtilities
 
             cam.targetTexture = forScreenRenderTexture;
             var clearFlags = cam.clearFlags;
-            if (AlphaBackground)
-            {
+
+            if (AlphaBackground) {
                 cam.clearFlags = CameraClearFlags.SolidColor;
                 cam.backgroundColor = new Color(0, 0, 0, 0);
+            }
+            else
+            {
+                var col = cam.backgroundColor;
+                col.a = 1;
+                cam.backgroundColor = col;
             }
 
             cam.Render();
@@ -2688,8 +2698,6 @@ namespace QuizCannersUtilities
 
             return name;
         }
-
-        #endregion
 
     }
 
@@ -2779,8 +2787,15 @@ namespace QuizCannersUtilities
             }
         }
     }
-    
+
     #endregion
+
+#pragma warning restore IDE1006 // Naming Styles
+#pragma warning restore 1692
+#pragma warning restore IDE0034 // Simplify 'default' expression
+#pragma warning restore IDE0019 // Use pattern matching
+#pragma warning restore IDE0018 // Inline variable declaration
+
 
 }
 
