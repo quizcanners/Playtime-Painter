@@ -261,7 +261,7 @@ namespace PlaytimePainter {
             if (pegi.select(ref blitMode, global::PlaytimePainter.BlitMode.AllModes).changes(ref changed)) 
                 SetBlitMode(cpu, blitMode);
 
-            if (docsEnabled && blitMode != null && pegi.DocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI)))
+            if (DocsEnabled && blitMode != null && pegi.DocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI)))
                 pegi.FullWindwDocumentationOpen(blitMode.ToolTip);
 
             if (showAdvanced)
@@ -279,7 +279,7 @@ namespace PlaytimePainter {
                 MsgPainter.BrushType.Write();
                 pegi.select_Index(ref _inGpuBrushType, BrushType.AllTypes).changes(ref changed);
                 
-                if (docsEnabled && brushType != null && pegi.DocumentationClick("About {0} brush type".F(brushType.NameForDisplayPEGI)))
+                if (DocsEnabled && brushType != null && pegi.DocumentationClick("About {0} brush type".F(brushType.NameForDisplayPEGI)))
                     pegi.FullWindwDocumentationOpen(brushType.ToolTip);
 
                 if (!brushType.ShowInDropdown())
@@ -394,7 +394,7 @@ namespace PlaytimePainter {
                 if ("Update Collider from Skinned Mesh".Click())
                     p.UpdateMeshCollider();
 
-                if (docsEnabled && pegi.DocumentationClick("Why Update Collider from skinned mesh?"))
+                if (DocsEnabled && pegi.DocumentationClick("Why Update Collider from skinned mesh?"))
                     pegi.FullWindwDocumentationOpen(
                         ("To paint an object a collision detection is needed. Mesh Collider is not being animated. To paint it, update Mesh Collider with Update Collider button." +
                         " For ingame painting it is preferable to use simple colliders like Speheres to avoid per frame updates for collider mesh."

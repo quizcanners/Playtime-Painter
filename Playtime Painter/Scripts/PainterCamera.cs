@@ -587,7 +587,8 @@ namespace PlaytimePainter {
             brushRenderer.AfterRender();
         }
         
-        void SetChannelCopySourceMask(ColorChanel sourceChannel) => ChannelCopySourceMask.GlobalValue = new Vector4(
+        void SetSourceMaskToCopyAChannel(ColorChanel sourceChannel) 
+            => ChannelCopySourceMask.GlobalValue = new Vector4(
                 sourceChannel == ColorChanel.R ? 1 : 0,
                 sourceChannel == ColorChanel.G ? 1 : 0,
                 sourceChannel == ColorChanel.B ? 1 : 0,
@@ -595,12 +596,13 @@ namespace PlaytimePainter {
         );
 
         public RenderTexture Render(Texture from, RenderTexture to, ColorChanel sourceChannel, ColorChanel intoChannel) {
-            SetChannelCopySourceMask(sourceChannel);
-            Render(from, to, Data.CopyIntoTargetChannelShader(intoChannel));
+            SetSourceMaskToCopyAChannel(sourceChannel);
+            Render(from, to, Data.GetShaderToWriteInto(intoChannel));
             return to;
         }
 
-        public RenderTexture RenderDepth(Texture from, RenderTexture to, ColorChanel intoChannel) => Render(from, to, ColorChanel.R, intoChannel);
+        public RenderTexture RenderDepth(Texture from, RenderTexture to, ColorChanel intoChannel) 
+            => Render(from, to, ColorChanel.R, intoChannel);
 
         public RenderTexture Render(Texture from, RenderTexture to, float alpha) {
 
@@ -927,8 +929,8 @@ namespace PlaytimePainter {
         #endregion
 
         #region Inspector
-        
-        ChillLogger logger = new ChillLogger("error");
+
+        readonly ChillLogger logger = new ChillLogger("error");
 
         #if PEGI
 

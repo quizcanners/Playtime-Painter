@@ -6,6 +6,9 @@ using QuizCannersUtilities;
 
 namespace PlayerAndEditorGUI {
 
+    // ReSharper disable InconsistentNaming
+    #pragma warning disable IDE1006 // Naming Styles
+
     public enum icon
     {
         Alpha, Active, Add, Animation, Audio,
@@ -47,6 +50,7 @@ namespace PlayerAndEditorGUI {
         Warning,
         Wait
     }
+    #pragma warning restore IDE1006 // Naming Styles
 
     public static class Icons_MGMT {
 

@@ -320,8 +320,7 @@ namespace PlaytimePainter
         }
 
         #endregion
-
-        private bool _rebuild;
+        
         private const float Width = 1;
         private const float Size = 1;
         public Vector3 pos1;

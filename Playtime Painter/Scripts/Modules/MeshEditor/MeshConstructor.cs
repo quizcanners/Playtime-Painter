@@ -19,7 +19,7 @@ namespace PlaytimePainter {
         private Vector3[] _sharpNormals;
 
         private BoneWeight[] _boneWeights;
-        private Matrix4x4[] _bindPoses;
+        //private Matrix4x4[] _bindPoses;
 
         public Vector4[] tangents;
 

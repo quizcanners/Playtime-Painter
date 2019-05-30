@@ -8,6 +8,11 @@ using UnityEngine;
 
 namespace PlaytimePainter {
 
+#pragma warning disable IDE0034 // Simplify 'default' expression
+#pragma warning disable IDE0019 // Use pattern matching
+#pragma warning disable IDE0018 // Inline variable declaration
+
+
     public static class RenderTextureBuffersManager {
 
         public static PainterDataAndConfig Data =>
@@ -107,10 +112,12 @@ namespace PlaytimePainter {
 
             if (!alphaBufferTexture)
             {
-                alphaBufferTexture = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Linear);
-                alphaBufferTexture.wrapMode = TextureWrapMode.Repeat;
-                alphaBufferTexture.name = "Painting Alpha Buffer _ " + renderBuffersSize;
-                alphaBufferTexture.useMipMap = false;
+                alphaBufferTexture = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Linear)
+                {
+                    wrapMode = TextureWrapMode.Repeat,
+                    name = "Painting Alpha Buffer _ " + renderBuffersSize,
+                    useMipMap = false
+                };
             }
         }
 
@@ -178,10 +185,11 @@ namespace PlaytimePainter {
             if (!_squareBuffers[no])
             {
                 var sbf = new RenderTexture(width, width, 0, Data.useFloatForScalingBuffers ? RenderTextureFormat.ARGBFloat : RenderTextureFormat.ARGB32,
-                    RenderTextureReadWrite.sRGB);
-
-                sbf.useMipMap = false;
-                sbf.autoGenerateMips = false;
+                    RenderTextureReadWrite.sRGB)
+                {
+                    useMipMap = false,
+                    autoGenerateMips = false
+                };
 
                 _squareBuffers[no] = sbf;
 
@@ -405,10 +413,11 @@ namespace PlaytimePainter {
             if (!renderTextureWithDepth)
             {
                 renderTextureWithDepth = new RenderTexture(512, 512, 16, RenderTextureFormat.ARGB32,
-                    RenderTextureReadWrite.Linear);
-
-                renderTextureWithDepth.useMipMap = false;
-                renderTextureWithDepth.autoGenerateMips = false;
+                    RenderTextureReadWrite.Linear)
+                {
+                    useMipMap = false,
+                    autoGenerateMips = false
+                };
 
             }
 

@@ -7,9 +7,16 @@ using QuizCannersUtilities;
 
 namespace QuizCannersUtilities {
 
+#pragma warning disable IDE0034 // Simplify 'default' expression
+#pragma warning disable IDE0019 // Use pattern matching
+#pragma warning disable IDE0018 // Inline variable declaration
+
     public static partial class QcMath {
 
         #region Checks
+
+
+
         public static bool IsNaN(this Vector3 q) => float.IsNaN(q.x) || float.IsNaN(q.y) || float.IsNaN(q.z);
         
         public static bool IsNaN(this float f) => float.IsNaN(f);
@@ -591,81 +598,3 @@ namespace QuizCannersUtilities {
 
 }
 
-#region Inspection
-namespace PlayerAndEditorGUI
-{
-#if PEGI
-
-    // ReSharper disable InconsistentNaming
-#pragma warning disable 1692
-#pragma warning disable IDE1006
-
-    public static partial class pegi
-    {
-
-        public static bool edit(ref MyIntVec2 val)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-                return ef.edit(ref val);
-#endif
-
-            return edit(ref val.x) || edit(ref val.y);
-        }
-
-        public static bool edit(ref MyIntVec2 val, int min, int max)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-                return ef.edit(ref val, min, max);
-#endif
-
-            return edit(ref val.x, min, max) || edit(ref val.y, min, max);
-
-        }
-
-        public static bool edit(ref MyIntVec2 val, int min, MyIntVec2 max)
-        {
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-                return ef.edit(ref val, min, max);
-#endif
-
-            return edit(ref val.x, min, max.x) || edit(ref val.y, min, max.y);
-        }
-
-        public static bool edit(this string label, ref MyIntVec2 val)
-        {
-            write(label);
-            nl();
-            return edit(ref val);
-        }
-
-        public static bool edit(this string label, int width, ref MyIntVec2 val)
-        {
-            write(label, width);
-            nl();
-            return edit(ref val);
-        }
-        
-        public static bool edit(this string label, int width, ref MyIntVec2 val, int min, int max)
-        {
-            write(label, width);
-            nl();
-            return edit(ref val, min, max);
-        }
-
-        public static bool edit(this string label, int width, ref MyIntVec2 val, int min, MyIntVec2 max)
-        {
-            write(label, width);
-            nl();
-            return edit(ref val, min, max);
-        }
-
-    }
-#endif
-}
-#endregion

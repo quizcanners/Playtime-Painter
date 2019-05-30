@@ -295,15 +295,17 @@ namespace PlaytimePainter {
 
                 if (lerpsList == null)
                 {
-                    lerpsList = new List<LinkedLerp.BaseLerp>();
-                    lerpsList.Add(shadowStrength);
-                    lerpsList.Add(shadowDistance);
-                    lerpsList.Add(fogColor);
-                    lerpsList.Add(skyColor);
-                    lerpsList.Add(fogDensity);
-                    lerpsList.Add(fogDistance);
-                    lerpsList.Add(colorBleed);
-                    lerpsList.Add(brightness);
+                    lerpsList = new List<LinkedLerp.BaseLerp>
+                    {
+                        shadowStrength,
+                        shadowDistance,
+                        fogColor,
+                        skyColor,
+                        fogDensity,
+                        fogDistance,
+                        colorBleed,
+                        brightness
+                    };
                 }
 
                 lerpsList.Portion(ld);

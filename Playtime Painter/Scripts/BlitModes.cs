@@ -88,14 +88,11 @@ namespace PlaytimePainter {
             UnityUtils.ToggleShaderKeywords(TexMGMTdata.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
         }
 
-        public virtual BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id)
-        {
+        public virtual BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) {
             if (id.isATransparentLayer)
                 return BlitFunctions.AlphaBlitTransparent;
             return BlitFunctions.AlphaBlitOpaque;
         }
-
-        //public virtual BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Alpha;
 
         public virtual bool AllSetUp => true;
         public virtual bool SupportedByTex2D => true;
@@ -119,8 +116,7 @@ namespace PlaytimePainter {
         public virtual string ToolTip => Translation.GetDescription();
 
         #if PEGI
-        public virtual bool ShowInDropdown()
-        {
+        public virtual bool ShowInDropdown() {
 
             var cpu = BrushConfig.InspectedIsCpuBrush;
 
@@ -134,23 +130,16 @@ namespace PlaytimePainter {
 
             var br = GlobalBrush;
 
-           // if (!cpu && br.useAlphaBuffer && !SupportsAlphaBufferPainting && br.GetBrushType(false).SupportsAlphaBufferPainting)
-             //   return false;
-
             return ((id.destination == TexTarget.Texture2D) && (SupportedByTex2D)) ||
                 ((id.destination == TexTarget.RenderTexture) &&
                     ((SupportedByRenderTexturePair && (!id.renderTexture))
                         || (SupportedBySingleBuffer && (id.renderTexture))));
         }
 
-        protected virtual bool Inspect()
-        {
+        protected virtual bool Inspect() => false;
+        
 
-            return false;
-        }
-
-        public bool Inspect(IPainterManagerModuleBrush module)
-        {
+        public bool Inspect(IPainterManagerModuleBrush module) {
             
             var changed = false;
 
@@ -158,7 +147,6 @@ namespace PlaytimePainter {
             
             if (AllSetUp) {
                 
-
                 var id = InspectedImageMeta;
                 var cpuBlit = id == null ? InspectedBrush.targetIsTex2D : id.destination == TexTarget.Texture2D;
                 var brushType = InspectedBrush.GetBrushType(cpuBlit);
@@ -204,7 +192,6 @@ namespace PlaytimePainter {
                     }
                 }
             
-
                 pegi.nl();
 
                 if (blitMode.UsingSourceTexture && (id == null || id.TargetIsRenderTexture()))
@@ -279,8 +266,7 @@ namespace PlaytimePainter {
         public override bool SupportedBySingleBuffer => false;
 
         public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.SubtractBlit;
-        //public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Subtract;
-        
+
         public BlitModeSubtract(int ind) : base(ind) { }
 
     }
@@ -314,7 +300,6 @@ namespace PlaytimePainter {
         public override bool SupportedByRenderTexturePair => false;
         public override bool SupportedBySingleBuffer => false;
         public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.MinBlit;
-        //public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Min;
 
         public BlitModeMin(int ind) : base(ind) { }
     }

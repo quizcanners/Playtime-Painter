@@ -79,9 +79,11 @@ namespace PlaytimePainter
         public RenderTexture GetAllBakedDepths() {
 
             if (!_allBakedDepthesTexture) {
-                _allBakedDepthesTexture = new RenderTexture(1024, 1024, 0, RenderTextureFormat.ARGBFloat);
-                _allBakedDepthesTexture.autoGenerateMips = false;
-                _allBakedDepthesTexture.useMipMap = false;
+                _allBakedDepthesTexture = new RenderTexture(1024, 1024, 0, RenderTextureFormat.ARGBFloat)
+                {
+                    autoGenerateMips = false,
+                    useMipMap = false
+                };
                 bakedDepthes.GlobalValue = _allBakedDepthesTexture;
             }
 
@@ -91,9 +93,11 @@ namespace PlaytimePainter
         public RenderTexture GetBakedDepthsBuffer() {
             if (!allBakedDepthesBufferTexture)
             {
-                allBakedDepthesBufferTexture = new RenderTexture(1024, 1024, 0, RenderTextureFormat.ARGB32);
-                allBakedDepthesBufferTexture.autoGenerateMips = false;
-                allBakedDepthesBufferTexture.useMipMap = false;
+                allBakedDepthesBufferTexture = new RenderTexture(1024, 1024, 0, RenderTextureFormat.ARGB32)
+                {
+                    autoGenerateMips = false,
+                    useMipMap = false
+                };
             }
 
             return allBakedDepthesBufferTexture;

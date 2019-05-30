@@ -7,6 +7,11 @@ using UnityEngine;
 
 namespace QuizCannersUtilities {
 
+    #region Interfaces
+    #pragma warning disable IDE0034 // Simplify 'default' expression
+    #pragma warning disable IDE0019 // Use pattern matching
+    #pragma warning disable IDE0018 // Inline variable declaration
+
     public interface ICanChangeClass {
         void OnClassTypeChange(object previousInstance);
     }
@@ -15,6 +20,8 @@ namespace QuizCannersUtilities {
         string ClassTag { get; }
         TaggedTypesCfg AllTypes { get; }
     }
+
+    #endregion
 
     [AttributeUsage(AttributeTargets.Class)]
     public abstract class AbstractWithTaggedTypes : Attribute

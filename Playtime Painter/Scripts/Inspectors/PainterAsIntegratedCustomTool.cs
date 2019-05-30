@@ -8,6 +8,13 @@ using  QuizCannersUtilities;
 
 namespace PlaytimePainter
 {
+
+
+#pragma warning disable IDE0034 // Simplify 'default' expression
+#pragma warning disable IDE0019 // Use pattern matching
+#pragma warning disable IDE0018 // Inline variable declaration
+
+
 #if UNITY_2019_1_OR_NEWER
     // Tagging a class with the EditorTool attribute and no target type registers a global tool. Global tools are valid for any selection, and are accessible through the top left toolbar in the editor.
     [EditorTool(PainterDataAndConfig.ToolName)]

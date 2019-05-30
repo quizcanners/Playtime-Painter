@@ -6,6 +6,11 @@ using UnityEngine;
 namespace PlaytimePainter
 {
 
+#pragma warning disable IDE0034 // Simplify 'default' expression
+#pragma warning disable IDE0019 // Use pattern matching
+#pragma warning disable IDE0018 // Inline variable declaration
+
+
     public class TextureBackup {
         public int order;
         public List<string> strokeRecord;
@@ -49,9 +54,11 @@ namespace PlaytimePainter
         public RenderTextureBackup (ImageMeta from, int globalOrder){
 			RenderTexture frt = from.CurrentRenderTexture ();
 
-			rt = new RenderTexture(from.width, from.height, 0, RenderTextureFormat.ARGB32, 
-				frt.sRGB ? RenderTextureReadWrite.sRGB : RenderTextureReadWrite.Linear);
-			rt.filterMode = frt.filterMode;
+            rt = new RenderTexture(from.width, from.height, 0, RenderTextureFormat.ARGB32,
+                frt.sRGB ? RenderTextureReadWrite.sRGB : RenderTextureReadWrite.Linear)
+            {
+                filterMode = frt.filterMode
+            };
             Set (from, globalOrder);
 		}
 

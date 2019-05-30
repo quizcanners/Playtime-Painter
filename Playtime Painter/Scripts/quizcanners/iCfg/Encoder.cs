@@ -7,6 +7,11 @@ using System.Globalization;
 namespace QuizCannersUtilities
 {
 
+#pragma warning disable IDE0034 // Simplify 'default' expression
+#pragma warning disable IDE0019 // Use pattern matching
+#pragma warning disable IDE0018 // Inline variable declaration
+
+
     public static class EncodeExtensions {
 
         public static void AppendSplit(this StringBuilder builder, string value) => builder.Append(value).Append(CfgEncoder.Splitter);

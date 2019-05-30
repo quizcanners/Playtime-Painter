@@ -12,6 +12,11 @@ using UnityEditor;
 namespace PlaytimePainter
 {
 
+#pragma warning disable IDE0034 // Simplify 'default' expression
+#pragma warning disable IDE0019 // Use pattern matching
+#pragma warning disable IDE0018 // Inline variable declaration
+
+
     public class MeshManager : PainterSystemKeepUnrecognizedCfg {
 
         #region Getters Setters
@@ -805,7 +810,7 @@ namespace PlaytimePainter
                 MeshTool.OnSelectTool();
             }
 
-            if (docsEnabled && pegi.DocumentationClick("About {0} tool".F(MeshTool.NameForDisplayPEGI)))
+            if (DocsEnabled && pegi.DocumentationClick("About {0} tool".F(MeshTool.NameForDisplayPEGI)))
                 pegi.FullWindwDocumentationOpen(MeshTool.Tooltip + (MeshTool.ShowGrid ? GridNavigator.ToolTip : ""));
             
 

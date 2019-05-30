@@ -9,6 +9,11 @@ using Object = UnityEngine.Object;
 namespace QuizCannersUtilities
 {
 
+#pragma warning disable IDE0034 // Simplify 'default' expression
+#pragma warning disable IDE0019 // Use pattern matching
+#pragma warning disable IDE0018 // Inline variable declaration
+
+
     public interface ILinkedLerping
     {
         void Portion(LerpData ld);
@@ -1129,7 +1134,7 @@ namespace QuizCannersUtilities
 
             Quaternion current = Quaternion.identity;
 
-            private string _name;
+            private readonly string _name;
 
             public override Quaternion CurrentValue
             {

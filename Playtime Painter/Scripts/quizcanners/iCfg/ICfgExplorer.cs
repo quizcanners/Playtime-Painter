@@ -12,6 +12,11 @@ namespace QuizCannersUtilities
 {
     #region List Data
 
+
+    #pragma warning disable IDE0034 // Simplify 'default' expression
+    #pragma warning disable IDE0019 // Use pattern matching
+    #pragma warning disable IDE0018 // Inline variable declaration
+
     public class ListMetaData : AbstractCfg, IPEGI {
         
         private const string DefaultFolderToSearch = "Assets/";

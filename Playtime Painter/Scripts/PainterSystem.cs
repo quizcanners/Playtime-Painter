@@ -67,7 +67,7 @@ namespace PlaytimePainter
         protected static GridNavigator Grid => GridNavigator.Inst();
         protected static MeshManager MeshMGMT => MeshManager.Inst;
         protected static EditableMesh EditedMesh => MeshManager.editedMesh;
-        protected static bool docsEnabled => !PainterDataAndConfig.hideDocumentation;
+        protected static bool DocsEnabled => !PainterDataAndConfig.hideDocumentation;
         public static bool applicationIsQuitting;
 
     }

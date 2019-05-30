@@ -6050,6 +6050,72 @@ namespace PlayerAndEditorGUI {
 
         #endregion
 
+        #region MyIntVector2
+
+        public static bool edit(ref MyIntVec2 val)
+        {
+
+            #if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.edit(ref val);
+            #endif
+
+            return edit(ref val.x) || edit(ref val.y);
+        }
+
+        public static bool edit(ref MyIntVec2 val, int min, int max)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.edit(ref val, min, max);
+#endif
+
+            return edit(ref val.x, min, max) || edit(ref val.y, min, max);
+
+        }
+
+        public static bool edit(ref MyIntVec2 val, int min, MyIntVec2 max)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.edit(ref val, min, max);
+#endif
+
+            return edit(ref val.x, min, max.x) || edit(ref val.y, min, max.y);
+        }
+
+        public static bool edit(this string label, ref MyIntVec2 val)
+        {
+            write(label);
+            nl();
+            return edit(ref val);
+        }
+
+        public static bool edit(this string label, int width, ref MyIntVec2 val)
+        {
+            write(label, width);
+            nl();
+            return edit(ref val);
+        }
+
+        public static bool edit(this string label, int width, ref MyIntVec2 val, int min, int max)
+        {
+            write(label, width);
+            nl();
+            return edit(ref val, min, max);
+        }
+
+        public static bool edit(this string label, int width, ref MyIntVec2 val, int min, MyIntVec2 max)
+        {
+            write(label, width);
+            nl();
+            return edit(ref val, min, max);
+        }
+
+        #endregion
+
         #endregion
 
         #region LISTS

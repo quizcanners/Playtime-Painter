@@ -8,6 +8,11 @@ using System.Globalization;
 namespace PlaytimePainter
 {
 
+#pragma warning disable IDE0034 // Simplify 'default' expression
+#pragma warning disable IDE0019 // Use pattern matching
+#pragma warning disable IDE0018 // Inline variable declaration
+
+
     public class PainterDataAndConfig : CfgReferencesHolder, IKeepMyCfg
     {
         private static PlaytimePainter Painter => PlaytimePainter.inspected;
@@ -45,12 +50,10 @@ namespace PlaytimePainter
         public Shader bufferCopyDownscaleX16_Approx;
         public Shader bufferCopyDownscaleX32_Approx;
         public Shader bufferCopyDownscaleX64_Approx;
-
-
-
+        
         public Shader rayTraceOutput;
 
-        public Shader CopyIntoTargetChannelShader(ColorChanel chan)  {
+        public Shader GetShaderToWriteInto(ColorChanel chan)  {
             switch (chan) {
                 case ColorChanel.R: return bufferCopyR;
                 case ColorChanel.G: return bufferCopyG;

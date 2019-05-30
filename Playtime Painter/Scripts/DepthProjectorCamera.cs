@@ -113,8 +113,7 @@ namespace PlaytimePainter
         private IUseDepthProjector userToGetUpdate;
 
         [NonSerialized] private static List<IUseDepthProjector> depthUsers = new List<IUseDepthProjector>();
-        
-        CountlessBool disabledUser = new CountlessBool();
+        readonly CountlessBool disabledUser = new CountlessBool();
 
         public static bool TrySubscribeToDepthCamera(IUseDepthProjector pj) {
             if (!depthUsers.Contains(pj)) {
