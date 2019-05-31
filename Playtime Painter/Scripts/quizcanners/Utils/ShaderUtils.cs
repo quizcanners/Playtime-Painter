@@ -117,8 +117,7 @@ namespace QuizCannersUtilities {
 
         #region Generic Extensions
 
-        public abstract class ShaderPropertyIndexGeneric<T> : BaseShaderPropertyIndex
-        {
+        public abstract class ShaderPropertyIndexGeneric<T> : BaseShaderPropertyIndex {
 
             public T lastValue;
 
@@ -161,9 +160,6 @@ namespace QuizCannersUtilities {
             {
             }
 
-           /* protected ShaderPropertyIndexGeneric(string name, bool nonMaterial) : base(name, nonMaterial)
-            {
-            }*/
         }
 
         public static MaterialPropertyBlock Set<T>(this MaterialPropertyBlock block, ShaderPropertyIndexGeneric<T> property)
@@ -400,13 +396,8 @@ namespace QuizCannersUtilities {
                 AddUsageTag(tag);
             }
 
-            public TextureValue(string name) : base(name)
-            {
-            }
+            public TextureValue(string name) : base(name) { }
 
-           /* public TextureValue(string name, bool nonMaterial) : base(name, nonMaterial)
-            {
-            }*/
             #endregion
 
             #region Encode & Decode

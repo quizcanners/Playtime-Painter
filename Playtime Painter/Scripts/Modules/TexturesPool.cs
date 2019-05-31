@@ -18,6 +18,8 @@ namespace PlaytimePainter
 
         public int width = 256;
 
+        public int texturesCreated = 0;
+
         [NonSerialized] private readonly List<RenderTexture> _rtList = new List<RenderTexture>();
         [NonSerialized] private readonly List<Texture2D> _t2DList = new List<Texture2D>();
 
@@ -25,18 +27,24 @@ namespace PlaytimePainter
         {
             if (_t2DList.Count > 0)
                 return _t2DList.RemoveLast();
-            
+
+            texturesCreated++;
+
             return new Texture2D(width, width, TextureFormat.ARGB32, false) {
                 wrapMode = TextureWrapMode.Repeat,
                 name = "Tex2D_fromPool"
             };
-            
+
+          
+
         }
 
         public RenderTexture GetRenderTexture() {
             if (_rtList.Count > 0)
                 return _rtList.RemoveLast();
-            
+
+            texturesCreated++;
+
            return new RenderTexture(width, width, 0) {
                 wrapMode = TextureWrapMode.Repeat,
                 useMipMap = false,

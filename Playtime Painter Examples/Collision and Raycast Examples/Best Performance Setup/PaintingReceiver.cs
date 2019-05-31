@@ -18,6 +18,7 @@ namespace PlaytimePainter.Examples {
 
         [SerializeField]
         public int materialIndex;
+        [HideInInspector]
         [SerializeField]
         private string textureField = "";
 
@@ -89,12 +90,13 @@ namespace PlaytimePainter.Examples {
             if (!Application.isPlaying)
                 Refresh();
 
-            if (Application.isPlaying && (originalTexture) && (texture) && (texture.GetType() == typeof(RenderTexture)))
+            if (Application.isPlaying && originalTexture && texture && (texture.GetType() == typeof(RenderTexture)))
                 RenderTextureBuffersManager.Blit(originalTexture, (RenderTexture)texture);
             
         }
 
         public Texture GetTexture() {
+
             if (texture)
                 return texture;
 
@@ -130,7 +132,7 @@ namespace PlaytimePainter.Examples {
 
         public void Restore() {
             
-            if ((fromRtManager) && (originalMaterial)) {
+            if (fromRtManager && (originalMaterial)) {
                 fromRtManager = false;
                 Material = originalMaterial;
                 originalMaterial = null;
