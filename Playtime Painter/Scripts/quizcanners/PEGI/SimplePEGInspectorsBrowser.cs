@@ -33,7 +33,7 @@ namespace QuizCannersUtilities
             this.EncodeUnrecognized().Add("ld", referencesMeta);
 
         #region Inspector
-#if PEGI
+#if !NO_PEGI
         public override bool Inspect()
         {
             var changed = base.Inspect();

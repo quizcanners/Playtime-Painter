@@ -34,39 +34,18 @@ namespace PlaytimePainter {
         
         public static bool IsCurrentTool
         {
-            get
-            {
+            get {
 
                 #if UNITY_EDITOR && UNITY_2019_1_OR_NEWER
-                if (!Application.isPlaying) {
-                    
+                if (!Application.isPlaying) 
                     return EditorTools.activeToolType == typeof(PainterAsIntegratedCustomTool);
-
-                }
+                
                 #endif
 
                 return PainterDataAndConfig.toolEnabled;
             }
             set
             {
-                #if UNITY_EDITOR && UNITY_2019_1_OR_NEWER
-                if (!Application.isPlaying)
-                {
-                    if (value) {
-         
-                        EditorTools.SetActiveTool<PainterAsIntegratedCustomTool>();
-                        Tools.current = Tool.Custom;
-                    }
-                    else
-                    {
-
-                        if (!UnityUtils.TryRestoreUnityTool()) {
-                            Tools.current = Tool.None;
-                        }
-                    }
-                }
-                #endif
-                
                 PainterDataAndConfig.toolEnabled = value;
             }
         }
@@ -179,38 +158,67 @@ namespace PlaytimePainter {
         
         public bool invertRayCast;
 
-        [NonSerialized] public List<PainterComponentModuleBase> modules;
-        
+        PainterModules modulesContainer = new PainterModules();
+
         public List<PainterComponentModuleBase> Modules
         {
             get
             {
+                modulesContainer.painter = this;
+                return modulesContainer.Modules;
+            }
+        }
+
+        public class PainterModules : TaggedModulesList<PainterComponentModuleBase> {
+
+            protected override void OnInitialize() {
+                foreach (var p in modules)
+                  p.parentComponent = painter;
+            }
+
+            public PlaytimePainter painter;
+
+            public PainterModules() { }
+        }
+
+        /*[NonSerialized] private List<PainterComponentModuleBase> modules;
+        
+        public List<PainterComponentModuleBase> Modules {
+            get {
 
                 if (!modules.IsNullOrEmpty())
                     return modules;
                 
                 modules = new List<PainterComponentModuleBase>();
+                
+                for (var i = modules.Count - 1; i >= 0; i--)
+                    if (modules[i] == null) 
+                        modules.RemoveAt(i);
+                
+                if (modules.Count < PainterComponentModuleBase.all.Types.Count)
+                    foreach (var t in PainterComponentModuleBase.all)
+                        if (!modules.ContainsInstanceOfType(t))
+                            modules.Add((PainterComponentModuleBase)Activator.CreateInstance(t));
 
-                PainterComponentModuleBase.UpdatePlugins(this);
+                foreach (var p in modules)
+                    p.parentComponent = this;
 
                 return modules;
             }
-        }
+        }*/
 
         [NonSerialized] private PainterComponentModuleBase _lastFetchedModule;
 
-        public T GetPlugin<T>() where T : PainterComponentModuleBase
+        public T GetModule<T>() where T : PainterComponentModuleBase
         {
 
             T returnPlug = null;
 
             if (_lastFetchedModule != null && _lastFetchedModule.GetType() == typeof(T))
-                returnPlug = (T)_lastFetchedModule;
+                returnPlug = (T) _lastFetchedModule;
             else
-                foreach (var p in Modules)
-                    if (p.GetType() == typeof(T))
-                        returnPlug = (T)p;
-
+                returnPlug = Modules.GetInstanceOf<T>();
+            
             _lastFetchedModule = returnPlug;
 
             return returnPlug;
@@ -241,6 +249,8 @@ namespace PlaytimePainter {
                 return;
             }
 
+            
+
             stroke.mouseUp = Input.GetMouseButtonUp(0);
             stroke.mouseDwn = Input.GetMouseButtonDown(0);
             var mouseButton = Input.GetMouseButton(0);
@@ -257,9 +267,7 @@ namespace PlaytimePainter {
             CheckPreviewShader();
 
             var mousePos = Input.mousePosition;
-
-
-
+            
             if (uiGraphic) {
                 if (!CastRayPlaytime_UI())
                     return;
@@ -280,8 +288,9 @@ namespace PlaytimePainter {
 
             if (!stroke.mouseDwn || CanPaintOnMouseDown())
                 GlobalBrush.Paint(stroke, this);
-            else RecordingMgmt();
-
+            else foreach (var module in ImgMeta.Modules)
+                    module.OnPaintingDrag(this);
+            
             if (stroke.mouseUp)
                 currentlyPaintedObjectPainter = null;
  
@@ -310,7 +319,7 @@ namespace PlaytimePainter {
 
             ProcessMouseDrag(control);
             
-            if (currentlyPaintedObjectPainter == this) {
+            if (this == currentlyPaintedObjectPainter) {
 
                 if (!stroke.mouseDwn || CanPaintOnMouseDown()) {
                     GlobalBrush.Paint(stroke, this);
@@ -318,12 +327,10 @@ namespace PlaytimePainter {
                     ManagedUpdate();
                 }
                 else
-                    RecordingMgmt();
+                    foreach (var module in ImgMeta.Modules)
+                        module.OnPaintingDrag(this);
 
             }
-
-            //if (currentlyPaintedObjectPainter != this)
-              //  currentlyPaintedObjectPainter = null;
 
             stroke.mouseDwn = false;
 
@@ -351,7 +358,7 @@ namespace PlaytimePainter {
 
             if (ImgMeta != null) return true;
             
-#if PEGI
+#if !NO_PEGI
             if (stroke.mouseDwn)
                 "No texture to edit".showNotificationIn3D_Views();
 #endif
@@ -535,7 +542,7 @@ namespace PlaytimePainter {
             if (previewHolderMaterial)
             {
                 if (previewHolderMaterial != mat)
-                    SetOriginalShader();
+                    CheckSetOriginalShader();
                 else
                     return;
             }
@@ -602,10 +609,10 @@ namespace PlaytimePainter {
         public void SetOriginalShaderOnThis()
         {
             if (previewHolderMaterial && previewHolderMaterial == Material)
-                SetOriginalShader();
+                CheckSetOriginalShader();
         }
 
-        public static void SetOriginalShader()
+        public static void CheckSetOriginalShader()
         {
             if (!previewHolderMaterial)
                 return;
@@ -695,7 +702,7 @@ namespace PlaytimePainter {
 
                     if (extension != "png")
                     {
-                        #if PEGI
+                        #if !NO_PEGI
                         "Converting {0} to .png".F(assetPath).showNotificationIn3D_Views();
                         #endif
                         texture = t2D.CreatePngSameDirectory(t2D.name);
@@ -986,7 +993,7 @@ namespace PlaytimePainter {
             Material result = null;
 
             if (original)
-                SetOriginalShader();
+                CheckSetOriginalShader();
 
             if (meshRenderer) {
                 if (meshRenderer.sharedMaterials.ClampIndexToLength(ref selectedSubMesh))
@@ -1059,7 +1066,7 @@ namespace PlaytimePainter {
         public Material InstantiateMaterial(bool saveIt)
         {
 
-            SetOriginalShader();
+            CheckSetOriginalShader();
 
             if (ImgMeta != null && Material)
                 UpdateOrSetTexTarget(TexTarget.Texture2D);
@@ -1103,7 +1110,7 @@ namespace PlaytimePainter {
 
             if (id != null && Material)
                 UpdateOrSetTexTarget(id.destination);
-#if PEGI
+#if !NO_PEGI
             "Instantiating Material on {0}".F(gameObject.name).showNotificationIn3D_Views();
 #endif
             return Material;
@@ -1257,186 +1264,9 @@ namespace PlaytimePainter {
             }
         }
 
-        public TerrainHeightModule GetTerrainHeight()
-        {
-            foreach (var nt in Modules)
-                if (nt.GetType() == typeof(TerrainHeightModule))
-                    return ((TerrainHeightModule)nt);
-            
-            return null;
-
-        }
-
+        public TerrainHeightModule GetTerrainHeight() => Modules.GetInstanceOf<TerrainHeightModule>();
+       
         public bool IsTerrainControlTexture => ImgMeta != null && terrain && GetMaterialTextureProperty.HasUsageTag(PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE);
-
-        #endregion
-
-        #region Playback & Recoding
-
-        public static readonly List<PlaytimePainter> PlaybackPainters = new List<PlaytimePainter>();
-
-        public List<string> playbackVectors = new List<string>();
-
-        public static CfgDecoder cody = new CfgDecoder("");
-
-        private void PlayByFilename(string recordingName)
-        {
-            if (!PlaybackPainters.Contains(this))
-                PlaybackPainters.Add(this);
-            StrokeVector.pausePlayback = false;
-            playbackVectors.AddRange(Cfg.StrokeRecordingsFromFile(recordingName));
-        }
-
-        public void PlaybackVectors()
-        {
-            if (cody.GotData)
-                DecodeStroke(cody.GetTag(), cody.GetData());
-            else
-            {
-                if (playbackVectors.Count > 0)
-                {
-                    cody = new CfgDecoder(playbackVectors[0]);
-                    playbackVectors.RemoveAt(0);
-                }
-                else
-                    PlaybackPainters.Remove(this);
-            }
-
-        }
-
-        private Vector2 _prevDir;
-        private Vector2 _lastUv;
-        private Vector3 _prevPosDir;
-        private Vector3 _lastPos;
-
-        private float _strokeDistance;
-
-        public void RecordingMgmt()
-        {
-            var curImgData = ImgMeta;
-
-            if (!curImgData.recording) return;
-            
-            if (stroke.mouseDwn)
-            {
-                _prevDir = Vector2.zero;
-                _prevPosDir = Vector3.zero;
-            }
-
-            var canRecord = stroke.mouseDwn || stroke.mouseUp;
-
-            var worldSpace = GlobalBrush.IsA3DBrush(this);
-
-            if (!canRecord)
-            {
-
-                var size = GlobalBrush.Size(worldSpace);
-
-                if (worldSpace)
-                {
-                    var dir = stroke.posTo - _lastPos;
-
-                    var dot = Vector3.Dot(dir.normalized, _prevPosDir);
-
-                    canRecord |= (_strokeDistance > size * 10) ||
-                        ((dir.magnitude > size * 0.01f) && (_strokeDistance > size) && (dot < 0.9f));
-
-                    var fullDist = _strokeDistance + dir.magnitude;
-
-                    _prevPosDir = (_prevPosDir * _strokeDistance + dir).normalized;
-
-                    _strokeDistance = fullDist;
-
-                }
-                else
-                {
-
-                    size /= curImgData.width;
-
-                    var dir = stroke.uvTo - _lastUv;
-
-                    var dot = Vector2.Dot(dir.normalized, _prevDir);
-
-                    canRecord |= (_strokeDistance > size * 5) || (_strokeDistance * curImgData.width > 10) ||
-                        ((dir.magnitude > size * 0.01f) && (dot < 0.8f));
-
-
-                    var fullDist = _strokeDistance + dir.magnitude;
-
-                    _prevDir = (_prevDir * _strokeDistance + dir).normalized;
-
-                    _strokeDistance = fullDist;
-
-                }
-            }
-
-            if (canRecord)
-            {
-
-                var hold = stroke.uvTo;
-                var holdV3 = stroke.posTo;
-
-                if (!stroke.mouseDwn)
-                {
-                    stroke.uvTo = _lastUv;
-                    stroke.posTo = _lastPos;
-                }
-
-                _strokeDistance = 0;
-
-                var data = EncodeStroke().ToString();
-                curImgData.recordedStrokes.Add(data);
-                curImgData.recordedStrokesForUndoRedo.Add(data);
-
-                if (!stroke.mouseDwn)
-                {
-                    stroke.uvTo = hold;
-                    stroke.posTo = holdV3;
-                }
-
-            }
-
-            _lastUv = stroke.uvTo;
-            _lastPos = stroke.posTo;
-
-            
-        }
-
-        public CfgEncoder EncodeStroke()
-        {
-            var encoder = new CfgEncoder();
-
-            var id = ImgMeta;
-
-            if (stroke.mouseDwn)
-            {
-                encoder.Add("brush", GlobalBrush.EncodeStrokeFor(this)) // Brush is unlikely to change mid stroke
-                .Add_String("trg", id.TargetIsTexture2D() ? "C" : "G");
-            }
-
-            encoder.Add("s", stroke.Encode(id.TargetIsRenderTexture() && GlobalBrush.IsA3DBrush(this)));
-
-            return encoder;
-        }
-
-        public bool DecodeStroke(string tg, string data)
-        {
-
-            switch (tg)
-            {
-                case "trg": UpdateOrSetTexTarget(data.Equals("C") ? TexTarget.Texture2D : TexTarget.RenderTexture); break;
-                case "brush":
-                    var id = ImgMeta;
-                    GlobalBrush.Decode(data);
-                    GlobalBrush.brush2DRadius *= id?.width ?? 256; break;
-                case "s":
-                    stroke.Decode(data);
-                    GlobalBrush.Paint(stroke, this);
-                    break;
-                default: return false;
-            }
-            return true;
-        }
 
         #endregion
 
@@ -1456,7 +1286,7 @@ namespace PlaytimePainter {
 
             var id = ImgMeta;
 
-            TexMgmt.DiscardChanges(id);
+            TexMgmt.TryDiscardBufferChangesTo(id);
 
             importer.SaveAndReimport();
             if (id.TargetIsRenderTexture())
@@ -1654,7 +1484,7 @@ namespace PlaytimePainter {
             PainterSystem.applicationIsQuitting = false;
         }
 
-#if PEGI
+#if !NO_PEGI
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Join Discord")]
         public static void Open_Discord() => Application.OpenURL(pegi.PopUpService.DiscordServer);
         
@@ -1693,7 +1523,7 @@ namespace PlaytimePainter {
 
       
 
-            SetOriginalShader();
+            CheckSetOriginalShader();
             
             initialized = false; // Should be before restoring to texture2D to avoid Clear to black.
             
@@ -1840,7 +1670,7 @@ namespace PlaytimePainter {
             
             if (!selectedInPlaytime)
                 selectedInPlaytime = this;
-            #if PEGI
+            #if !NO_PEGI
             if (selectedInPlaytime == this)  {
                 WindowPosition.Render(this, Inspect, "{0} {1}".F(gameObject.name, GetMaterialTextureProperty));
 
@@ -1858,7 +1688,7 @@ namespace PlaytimePainter {
 
         public static PlaytimePainter selectedInPlaytime;
 
-        #if PEGI
+        #if !NO_PEGI
         private static readonly pegi.WindowPositionData_PEGI_GUI WindowPosition = new pegi.WindowPositionData_PEGI_GUI();
 
         private const string DefaultImageLoadUrl = "https://picsbuffet.com/pixabay/";
@@ -1941,8 +1771,7 @@ namespace PlaytimePainter {
             if (canInspect) {
 
                 TexMgmt.focusedPainter = this;
-
-
+                
                 if (
                     #if UNITY_2019_1_OR_NEWER
                     Application.isPlaying && (
@@ -1990,7 +1819,7 @@ namespace PlaytimePainter {
                     {
                         if (icon.Painter.Click("Edit Texture", ref changed))
                         {
-                            SetOriginalShader();
+                            CheckSetOriginalShader();
                             meshEditing = false;
                             CheckPreviewShader();
                             MeshMgmt.DisconnectMesh();
@@ -2004,7 +1833,7 @@ namespace PlaytimePainter {
                         {
                             meshEditing = true;
 
-                            SetOriginalShader();
+                            CheckSetOriginalShader();
                             UpdateOrSetTexTarget(TexTarget.Texture2D);
                             cfg.showConfig = false;
                             "Editing Mesh".showNotificationIn3D_Views();
@@ -2184,68 +2013,7 @@ namespace PlaytimePainter {
                 #region Undo/Redo & Recording
 
                             id.Undo_redo_PEGI();
-
-                            if (id.showRecording && !id.recording)
-                            {
-
-                                pegi.nl();
-
-                                if (PlaybackPainters.Count > 0)
-                                {
-                                    "Playback In progress".nl();
-
-                                    if (icon.Close.Click("Cancel All Playbacks", 20))
-                                        PainterCamera.CancelAllPlaybacks();
-
-                                    if (StrokeVector.pausePlayback)
-                                    {
-                                        if (icon.Play.Click("Continue Playback", 20))
-                                            StrokeVector.pausePlayback = false;
-                                    }
-                                    else if (icon.Pause.Click("Pause Playback", 20))
-                                        StrokeVector.pausePlayback = true;
-
-                                }
-                                else
-                                {
-                                    var gotVectors = cfg.recordingNames.Count > 0;
-
-                                    cfg.browsedRecord = Mathf.Max(0,
-                                        Mathf.Min(cfg.browsedRecord, cfg.recordingNames.Count - 1));
-
-                                    if (gotVectors)
-                                    {
-                                        pegi.select(ref cfg.browsedRecord, cfg.recordingNames);
-                                        if (icon.Play.Click("Play stroke vectors on current mesh", ref changed, 18))
-                                            PlayByFilename(cfg.recordingNames[cfg.browsedRecord]);
-
-                                        if (icon.Record.Click("Continue Recording", 18))
-                                        {
-                                            id.saveName = cfg.recordingNames[cfg.browsedRecord];
-                                            id.ContinueRecording();
-                                            "Recording resumed".showNotificationIn3D_Views();
-                                        }
-
-                                        if (icon.Delete.Click("Delete", ref changed, 18))
-                                            cfg.recordingNames.RemoveAt(cfg.browsedRecord);
-
-                                    }
-
-                                    if ((gotVectors && icon.Add.Click("Start new Vector recording", 18)) ||
-                                        (!gotVectors && "New Vector Recording".Click("Start New recording")))
-                                    {
-                                        id.saveName = "Unnamed";
-                                        id.StartRecording();
-                                        "Recording started".showNotificationIn3D_Views();
-                                    }
-                                }
-
-                                pegi.nl();
-                                pegi.space();
-                                pegi.nl();
-                            }
-
-
+                            
                             pegi.nl();
 
                             var cpu = id.TargetIsTexture2D();
@@ -2381,15 +2149,14 @@ namespace PlaytimePainter {
 
                                 if ("Color Schemes".toggle_enter(ref cfg.showColorSchemes, ref inspectedShowOptionsSubitem, 5, ref changed).nl_ifFolded())
                                     cfg.InspectColorSchemes();
+                                
+                                if (id != null)  {
 
-                                if (id != null)
-                                {
-                                    "Recording/Playback".toggleVisibilityIcon("Show options for brush recording",
-                                        ref id.showRecording, true).nl(ref changed);
+                                    foreach (var module in id.Modules)
+                                        module.ShowHideSectionInspect().nl(ref changed);
 
                                     if (id.isAVolumeTexture)
-                                        "Show Volume Data in Painter"
-                                            .toggleIcon(ref PainterCamera.Data.showVolumeDetailsInPainter).nl(ref changed);
+                                        "Show Volume Data in Painter".toggleIcon(ref PainterCamera.Data.showVolumeDetailsInPainter).nl(ref changed);
 
                                 }
 
@@ -2572,13 +2339,6 @@ namespace PlaytimePainter {
                                     CheckPreviewShader();
                                     if (LockTextureEditing)
                                         UpdateOrSetTexTarget(TexTarget.Texture2D);
-
-#if UNITY_EDITOR
-                                    if (id.lockEditing)
-                                        UnityUtils.TryRestoreUnityTool();
-                                    else
-                                        UnityUtils.HideUnityTool();
-#endif
                                 }
                             }
 
@@ -2922,7 +2682,9 @@ namespace PlaytimePainter {
                 OnChangedTexture_OnMaterial();
             
             var id = ImgMeta;
-            id?.Update(stroke.mouseUp);
+                id?.ManagedUpdate(this);
+
+
             
         }
 
@@ -3045,16 +2807,14 @@ namespace PlaytimePainter {
         }
 
         public CfgEncoder Encode() => new CfgEncoder()
-            .Add("pgns", Modules, PainterSystemManagerModuleBase.all)
+            .Add("mdls", modulesContainer)
             .Add_IfTrue("invCast", invertRayCast);
 
         public void Decode(string data) => new CfgDecoder(data).DecodeTagsFor(this);
 
-        public bool Decode(string tg, string data)
-        {
-            switch (tg)
-            {
-                case "pgns": data.Decode_List_Abstract(out modules, PainterComponentModuleBase.all); break;
+        public bool Decode(string tg, string data) {
+            switch (tg) {
+                case "mdls": modulesContainer.Decode(data); break;
                 case "invCast": invertRayCast = data.ToBool(); break;
                 default: return true;
             }

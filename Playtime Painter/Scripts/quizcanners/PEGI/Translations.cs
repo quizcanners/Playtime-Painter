@@ -170,7 +170,7 @@ namespace PlayerAndEditorGUI {
         }
 
         #region Inspector
-        #if PEGI
+        #if !NO_PEGI
 
         private static readonly List<int> supportedLanguages = new List<int>() {eng, ukr, trk};
 
@@ -308,7 +308,7 @@ namespace PlayerAndEditorGUI {
             return msg.Get(_systemLanguage);
         }
         
-        #if PEGI
+        #if !NO_PEGI
         public static string F(this Msg msg, Msg other) =>
             msg.GetText() + " " + other.GetText();
         public static bool DocumentationClick(this Msg msg) => msg.GetLt().DocumentationClick();

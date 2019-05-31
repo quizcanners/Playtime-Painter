@@ -177,7 +177,7 @@ namespace QuizCannersUtilities {
             return null;
         }
 
-#if PEGI
+#if !NO_PEGI
         public bool Select(ref Type type)
         {
 
@@ -261,6 +261,71 @@ namespace QuizCannersUtilities {
 
         }
 
+    }
+
+
+    public class TaggedModulesList<T> : AbstractCfg where T : IGotClassTag {
+
+        public static readonly TaggedTypesCfg all = new TaggedTypesCfg(typeof(T));
+
+        protected List<T> modules = new List<T>();
+
+        private bool initialized = false;
+
+        public virtual List<T> Modules {
+            get {
+
+                if (initialized)
+                    return modules;
+
+                initialized = true;
+
+                for (var i = modules.Count - 1; i >= 0; i--)
+                    if (modules[i] == null)
+                        modules.RemoveAt(i);
+
+                if (modules.Count < all.Types.Count)
+                    foreach (var t in all)
+                        if (!modules.ContainsInstanceOfType(t))
+                            modules.Add((T)Activator.CreateInstance(t));
+                
+                OnInitialize();
+
+                return modules;
+            }
+        }
+
+        protected virtual void OnInitialize() { }
+
+        [NonSerialized] private T _lastFetchedModule;
+
+        public G GetModule<G>() where G : T {
+
+            G returnPlug = default(G);
+
+            if (_lastFetchedModule != null && _lastFetchedModule.GetType() == typeof(G))
+                returnPlug = (G)_lastFetchedModule;
+            else
+                returnPlug = Modules.GetInstanceOf<G>();
+
+            _lastFetchedModule = returnPlug;
+
+            return returnPlug;
+        }
+
+        public override CfgEncoder Encode()  
+            => new CfgEncoder()
+            .Add("pgns", Modules, all);
+        
+        public override bool Decode(string tg, string data) {
+            switch (tg) {
+                case "pgns": data.Decode_List_Abstract(out modules, all); break;
+                default: return true;
+            }
+
+            return false;
+
+        }
     }
 
 }

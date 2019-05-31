@@ -191,7 +191,11 @@ namespace PlaytimePainter {
             blitMode.PrePaint(painter, this, stroke);
 
             if (cpu) {
-                painter.RecordingMgmt();
+
+                foreach (var module in imgData.Modules)
+                    module.OnPainting(painter);
+                
+                
                 brushType.PaintToTexture2D(painter, this, stroke);
             } else {
 
@@ -213,7 +217,8 @@ namespace PlaytimePainter {
 
                 if (!painter.terrain || brushType.SupportedForTerrainRt) {
 
-                    painter.RecordingMgmt();
+                    foreach (var module in imgData.Modules)
+                        module.OnPainting(painter);
 
                     if (!rendered)
                         brushType.PaintRenderTexture(painter, this, stroke);
@@ -229,18 +234,18 @@ namespace PlaytimePainter {
         public static bool showAdvanced = false;
         public static BrushConfig _inspectedBrush;
         public static bool InspectedIsCpuBrush => PlaytimePainter.inspected ? InspectedImageMeta.TargetIsTexture2D() : _inspectedBrush.targetIsTex2D;
-        #if PEGI
+        #if !NO_PEGI
         public bool Mode_Type_PEGI()
         {
             var p = PlaytimePainter.inspected;
             var id = p ? p.ImgMeta : null;
 
-            IPainterManagerModuleBrush module = null;
+            IPainterManagerModuleBrush cameraModule = null;
 
             foreach (var b in PainterSystemManagerModuleBase.BrushPlugins)
                 if (b.IsEnabledFor(p, id, this))
                 {
-                    module = b;
+                    cameraModule = b;
                     break;
                 }
 
@@ -296,18 +301,20 @@ namespace PlaytimePainter {
             var overrideBlitModePegi = false;
 
 
-             module?.BrushConfigPEGI(ref overrideBlitModePegi, this);
+             cameraModule?.BrushConfigPEGI(ref overrideBlitModePegi, this);
 
-            //foreach (var b in PainterSystemManagerModuleBase.BrushPlugins)
-              //  b.BrushConfigPEGI(ref overrideBlitModePegi, this).nl(ref changed);
+              if (p)  {
+                  foreach (var pl in p.Modules)
+                      if (pl.BrushConfigPEGI().nl(ref changed))
+                          pl.SetToDirty_Obj();
 
-            if (p)
-                foreach (var pl in p.Modules)
-                    if (pl.BrushConfigPEGI().nl(ref changed))
-                        pl.SetToDirty_Obj();
+                  if (id != null)
+                      foreach (var mod in id.Modules)
+                          mod.BrushConfigPEGI(p).nl(ref changed);
+              }
 
 
-            brushType.Inspect().nl(ref changed);
+              brushType.Inspect().nl(ref changed);
 
             if (blitMode.AllSetUp) {
 
@@ -349,7 +356,7 @@ namespace PlaytimePainter {
 
             if (!overrideBlitModePegi && blitMode.ShowInDropdown())
             {
-                blitMode.Inspect(module).nl(ref changed);
+                blitMode.Inspect(cameraModule).nl(ref changed);
                 showingSize = true;
             }
 
@@ -785,7 +792,7 @@ namespace PlaytimePainter {
         #region Inspector
         int testValue = -1;
 
-#if PEGI
+#if !NO_PEGI
         public virtual bool Inspect() => false;  /*
         {
             bool changed = false;
@@ -821,7 +828,7 @@ namespace PlaytimePainter {
         }
 
         #region Inspector
-        #if PEGI
+        #if !NO_PEGI
         public override bool Inspect() =>
        // {
          //   var changed = false;

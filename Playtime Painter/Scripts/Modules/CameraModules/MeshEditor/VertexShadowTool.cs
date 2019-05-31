@@ -36,7 +36,7 @@ namespace PlaytimePainter
             return false;
         }
 
-        #if PEGI
+        #if !NO_PEGI
         public override bool Inspect()
         {
             var col = GlobalBrush.Color;

@@ -52,7 +52,7 @@ namespace PlaytimePainter
         #region Inspect
         public string NameForPEGI { get { return name; } set { name = value;  } }
 
-        #if PEGI
+        #if !NO_PEGI
         public virtual bool Inspect()
         {
             var changed = false;
@@ -340,7 +340,7 @@ namespace PlaytimePainter
         #endregion
 
         #region Inspector
-#if PEGI
+#if !NO_PEGI
         public virtual bool Inspect()
         {
             var changed = false;

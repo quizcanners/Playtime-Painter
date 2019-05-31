@@ -2,6 +2,8 @@
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using System;
+using Random = UnityEngine.Random;
 
 namespace PlaytimePainter
 {
@@ -92,7 +94,7 @@ namespace PlaytimePainter
 
         protected virtual MsgPainter Translation => MsgPainter.Unnamed;
 
-        #if PEGI
+        #if !NO_PEGI
         
         public virtual bool ShowInDropdown()
         {
@@ -523,7 +525,7 @@ namespace PlaytimePainter
 
         protected override MsgPainter Translation => MsgPainter.BrushTypeDecal;
 
-        #if PEGI
+        #if !NO_PEGI
         public override bool Inspect()
         {
 
@@ -574,6 +576,39 @@ namespace PlaytimePainter
 
         }
         #endif
+        #endregion
+    }
+
+    public enum VolumetricDecalType { Add, Dent }
+
+    [Serializable]
+    public class VolumetricDecal : IEditorDropdown, IPEGI, IGotName, IGotDisplayName
+    {
+        public string decalName;
+        public VolumetricDecalType type;
+        public Texture2D heightMap;
+        public Texture2D overlay;
+
+        #region Inspector
+#if !NO_PEGI
+        public bool ShowInDropdown() => heightMap && overlay;
+
+        public string NameForPEGI { get { return decalName; } set { decalName = value; } }
+
+        public bool Inspect()
+        {
+            var changed = this.inspect_Name().nl();
+
+            "GetBrushType".editEnum(40, ref type).nl(ref changed);
+            "Height Map".edit(ref heightMap).nl(ref changed);
+            "Overlay".edit(ref overlay).nl(ref changed);
+
+            return changed;
+        }
+
+        public string NameForDisplayPEGI => "{0} ({1})".F(decalName, type);
+
+#endif
         #endregion
     }
 
@@ -811,7 +846,7 @@ namespace PlaytimePainter
 
         protected override MsgPainter Translation => MsgPainter.BrushTypeSphere;
 
-        #if PEGI
+        #if !NO_PEGI
         public override bool Inspect()
         {
 

@@ -32,7 +32,7 @@ namespace PlaytimePainter.Examples
 
                     var receivers = hit.transform.GetComponentsInParent<PaintingReceiver>();
                     
-                    if (receivers.Length <= 0) continue;
+                    if (receivers.Length == 0) continue;
                     
                     int subMesh;
                     var receiver = receivers[0];
@@ -43,8 +43,7 @@ namespace PlaytimePainter.Examples
 
                         subMesh = ((MeshCollider)hit.collider).sharedMesh.GetSubMeshNumber(hit.triangleIndex);
 
-                        if (receivers.Length > 1)
-                        {
+                        if (receivers.Length > 1) {
 
                             var mats = receiver.Renderer.materials;
 
@@ -91,7 +90,9 @@ namespace PlaytimePainter.Examples
                                         receiver.originalMesh ? receiver.originalMesh : receiver.meshFilter.sharedMesh, brush, st, new List<int> { subMesh }, (int)mat.GetFloat(PainterDataAndConfig.ATLASED_TEXTURES));
                                 else
                                     BrushTypeSphere.Paint(rendTex, receiver.gameObject,
-                                        receiver.originalMesh ? receiver.originalMesh : receiver.meshFilter.sharedMesh, brush, st, new List<int> { subMesh } );
+                                        receiver.originalMesh ? receiver.originalMesh : 
+                                            receiver.meshFilter.sharedMesh, brush, st, 
+                                        new List<int> { subMesh } );
                                 break;
                             }
                         }
@@ -122,8 +123,7 @@ namespace PlaytimePainter.Examples
         }
 
 #if UNITY_EDITOR
-        private void OnDrawGizmosSelected()
-        {
+        private void OnDrawGizmosSelected() {
 
             var tf = transform;
 
@@ -148,7 +148,7 @@ namespace PlaytimePainter.Examples
             }
         }
 #endif
-#if PEGI
+#if !NO_PEGI
 
         bool Documentation()
         {
@@ -182,6 +182,20 @@ namespace PlaytimePainter.Examples
             brush.Targets_PEGI().nl(ref changed);
             brush.Mode_Type_PEGI().nl(ref changed);
             brush.ColorSliders().nl(ref changed);
+
+            if (brush.targetIsTex2D) {
+                "Script expects Render Texture terget".writeWarning();
+                pegi.nl();
+
+                if ("Switch to Render Texture".Click())
+                    brush.targetIsTex2D = false;
+            } else if (brush.GetBrushType(false).GetType() != typeof(BrushTypeSphere))
+            {
+                "This script works with Sphere Brush only".writeWarning();
+                if ("Switch to Sphere Brush".Click())
+                    brush.SetBrushType(false, BrushTypeSphere.Inst);
+            }
+            
 
             if (!brush.PaintingRGB)
                 "Enable RGB, disable A to use faster Brush Shader (if painting to RenderTexture).".writeHint();

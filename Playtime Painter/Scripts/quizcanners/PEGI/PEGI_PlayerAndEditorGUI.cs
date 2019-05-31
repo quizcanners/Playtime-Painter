@@ -26,69 +26,69 @@ namespace PlayerAndEditorGUI {
 
     public interface IPEGI
     {
-    #if PEGI
+    #if !NO_PEGI
         bool Inspect();
     #endif
     }
 
     public interface IPEGI_ListInspect
     {
-    #if PEGI
+    #if !NO_PEGI
         bool InspectInList(IList list, int ind, ref int edited);
     #endif
     }
 
     public interface IPEGI_Searchable
     {
-    #if PEGI
+    #if !NO_PEGI
         bool String_SearchMatch(string searchString);
     #endif
     }
 
     public interface INeedAttention
     {
-    #if PEGI
+    #if !NO_PEGI
         string NeedAttention();
     #endif
     }
 
     public interface IGotName
     {
-    #if PEGI
+    #if !NO_PEGI
         string NameForPEGI { get; set; }
     #endif
     }
 
     public interface IGotDisplayName
     {
-    #if PEGI
+    #if !NO_PEGI
         string NameForDisplayPEGI { get; }
     #endif
     }
 
     public interface IGotIndex
     {
-    #if PEGI
+    #if !NO_PEGI
         int IndexForPEGI { get; set; }
     #endif
     }
 
     public interface IGotCount
     {
-    #if PEGI
+    #if !NO_PEGI
         int CountForInspector { get; }
     #endif
     }
 
     public interface IEditorDropdown
     {
-    #if PEGI
+    #if !NO_PEGI
         bool ShowInDropdown();
     #endif
     }
 
     public interface IPegiReleaseGuiManager {
-        #if PEGI
+        #if !NO_PEGI
         void Inspect();
         void Write(string label);
         bool Click(string label);
@@ -109,7 +109,7 @@ namespace PlayerAndEditorGUI {
             set { if (value) mouseOverUi = Time.frameCount; }
         }
 
-        #if PEGI
+        #if !NO_PEGI
 
         #region UI Modes
 
@@ -8782,7 +8782,7 @@ namespace PlayerAndEditorGUI {
         static bool ToPegiStringInterfacePart(this object obj, out string name)
         {
             name = null;
-            #if PEGI
+            #if !NO_PEGI
             var dn = obj as IGotDisplayName;
             if (dn != null) {
                 name = dn.NameForDisplayPEGI;
@@ -8844,7 +8844,7 @@ namespace PlayerAndEditorGUI {
             return (obj.ToPegiStringInterfacePart(out tmp)) ? tmp : obj.ToString().SimplifyTypeName();
         }
 
-        #if PEGI
+        #if !NO_PEGI
 
         public static int focusInd;
 
@@ -9060,7 +9060,7 @@ namespace PlayerAndEditorGUI {
 
         public static T GetByIGotIndex<T>(this List<T> lst, int index) where T : IGotIndex
         {
-#if PEGI
+#if !NO_PEGI
             if (lst != null)
                 foreach (var el in lst)
                     if (!el.IsNullOrDestroyed_Obj() && el.IndexForPEGI == index)
@@ -9071,7 +9071,7 @@ namespace PlayerAndEditorGUI {
 
         public static T GetByIGotIndex<T, G>(this List<T> lst, int index) where T : IGotIndex where G : T
         {
-#if PEGI
+#if !NO_PEGI
             if (lst != null)
                 foreach (var el in lst)
                     if (!el.IsNullOrDestroyed_Obj() && el.IndexForPEGI == index && el.GetType() == typeof(G))
@@ -9083,7 +9083,7 @@ namespace PlayerAndEditorGUI {
         public static T GetByIGotName<T>(this List<T> lst, string name) where T : IGotName
         {
 
-#if PEGI
+#if !NO_PEGI
             if (lst != null)
                 foreach (var el in lst)
                     if (!el.IsNullOrDestroyed_Obj() && el.NameForPEGI.SameAs(name))
@@ -9096,7 +9096,7 @@ namespace PlayerAndEditorGUI {
         public static T GetByIGotName<T>(this List<T> lst, T other) where T : IGotName
         {
 
-#if PEGI
+#if !NO_PEGI
             if (lst != null && !other.IsNullOrDestroyed_Obj())
                 foreach (var el in lst)
                     if (!el.IsNullOrDestroyed_Obj() && el.NameForPEGI.SameAs(other.NameForPEGI))
@@ -9108,7 +9108,7 @@ namespace PlayerAndEditorGUI {
         
         public static G GetByIGotName<T, G>(this List<T> lst, string name) where T : IGotName where G : class, T
         {
-#if PEGI
+#if !NO_PEGI
             if (lst != null)
                 foreach (var el in lst)
                     if (!el.IsNullOrDestroyed_Obj() && el.NameForPEGI.SameAs(name) && el.GetType() == typeof(G))

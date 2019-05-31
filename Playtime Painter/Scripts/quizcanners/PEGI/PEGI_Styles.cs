@@ -198,7 +198,7 @@ namespace PlayerAndEditorGUI
         public GUIStyle testImageButton;
         public GUISkin skin;
 
-        #if PEGI
+        #if !NO_PEGI
         public bool Inspect()
         {
             var changed = false;

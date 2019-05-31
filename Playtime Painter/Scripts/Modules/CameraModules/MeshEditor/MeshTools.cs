@@ -208,7 +208,7 @@ namespace PlaytimePainter
 
         public override string NameForDisplayPEGI => MsgPainter.MeshPointPositionTool.GetText(); // "ADD & MOVE";
 
-        #if PEGI
+        #if !NO_PEGI
         public override bool Inspect()
         {
 
@@ -306,7 +306,7 @@ namespace PlaytimePainter
                 m.SelectedUv.meshPoint.MergeWithNearest(EditedMesh);
                 m.Dragging = false;
                 EditedMesh.Dirty = true;
-#if PEGI
+#if !NO_PEGI
                 "M - merge with nearest".TeachingNotification();
 #endif
             }
@@ -580,7 +580,7 @@ namespace PlaytimePainter
             
     }
 
-#if PEGI
+#if !NO_PEGI
         public override bool Inspect()
         {
 
@@ -768,7 +768,7 @@ namespace PlaytimePainter
 
         public override string NameForDisplayPEGI => "Vertex Smoothing";
 
-#if PEGI
+#if !NO_PEGI
         public override bool Inspect()
         {
 
@@ -955,7 +955,7 @@ namespace PlaytimePainter
 
         public override string NameForDisplayPEGI => "vertex Color";
 
-        #if PEGI
+        #if !NO_PEGI
         public override bool Inspect()
         {
             var changed = false;
@@ -1137,7 +1137,7 @@ namespace PlaytimePainter
              "Line is drawn between vertices marked with line strength 1. A triangle can't have only 2 sides with Edge: it's ether side, or all 3 (2 points marked to create a line, or 3 points to create 3 lines).";
 
 
-        #if PEGI
+        #if !NO_PEGI
 
         public override bool Inspect()
         {
@@ -1159,7 +1159,7 @@ namespace PlaytimePainter
         {
             if ((!EditorInputManager.GetMouseButton(0))) return false;
             
-            #if PEGI
+            #if !NO_PEGI
             if (!PointedUv.meshPoint.AllPointsUnique())
                 "Shared points found, Edge requires All Unique".showNotificationIn3D_Views();
             #endif
@@ -1302,7 +1302,7 @@ namespace PlaytimePainter
             if (EditorInputManager.GetMouseButtonDown(0) && EditorInputManager.Control)
             {
                 _curSubMesh = MeshMGMT.PointedTriangle.subMeshIndex;
-#if PEGI
+#if !NO_PEGI
                 ("SubMesh " + _curSubMesh).showNotificationIn3D_Views();
 #endif
             }
@@ -1325,7 +1325,7 @@ namespace PlaytimePainter
         public override string Tooltip => "Ctrl+LMB - sample" + Environment.NewLine + "LMB on triangle - set sub mesh";
         public override string NameForDisplayPEGI => "triangle Sub Mesh index";
         
-        #if PEGI
+        #if !NO_PEGI
 
         public override bool Inspect() {
             "Sub Mesh: ".select(60, ref _curSubMesh, 0, EditedMesh.subMeshCount).nl();

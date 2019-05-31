@@ -207,7 +207,7 @@ namespace QuizCannersUtilities
 
         private static void AssignUniqueNameIn<T>(this T el, IReadOnlyCollection<T> list)
         {
-#if PEGI
+#if !NO_PEGI
             var named = el as IGotName;
             if (named == null) return;
 
@@ -447,7 +447,7 @@ namespace QuizCannersUtilities
         public static void AssignUniqueIndex<T>(this List<T> list, T el)
         {
 
-#if PEGI
+#if !NO_PEGI
             var ind = el as IGotIndex;
             if (ind == null) return;
             var maxIndex = ind.IndexForPEGI;
@@ -465,7 +465,7 @@ namespace QuizCannersUtilities
         public static bool IsNew(this Type t) => t.IsValueType || (!t.IsUnityObject() && !t.IsAbstract && t.GetConstructor(Type.EmptyTypes) != null);
 
         public static T AddWithUniqueNameAndIndex<T>(this List<T> list) => list.AddWithUniqueNameAndIndex("New "
-#if PEGI
+#if !NO_PEGI
             + typeof(T).ToPegiStringType()
 #endif
             );
@@ -477,7 +477,7 @@ namespace QuizCannersUtilities
         {
             list.AssignUniqueIndex(e);
             list.Add(e);
-#if PEGI
+#if !NO_PEGI
             var named = e as IGotName;
             if (named != null)
                 named.NameForPEGI = name;
@@ -903,6 +903,24 @@ namespace QuizCannersUtilities
 
         public static List<Type> GetAllChildTypes(this Type type) => Assembly.GetAssembly(type).GetTypes().Where(t => t.IsSubclassOf(type) && t.IsClass && !t.IsAbstract && (t != type)).ToList();
         
+        public static bool ContainsInstanceOfType<T>(this List<T> collection, Type type)
+        {
+
+            foreach (var t in collection)
+                if (t.GetType() == type) return true;
+
+            return false;
+        }
+
+        public static T GetInstanceOf<T>(this IList list) {
+
+            foreach (var i in list) {
+                if (i.GetType() == typeof(T))
+                    return (T)i;
+            }
+
+            return default(T);
+        }
 
         public static List<List<Type>> GetAllChildTypesOf(List<Type> baseTypes)
         {

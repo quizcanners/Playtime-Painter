@@ -326,7 +326,7 @@ namespace PlaytimePainter {
         }
 
         #region Inspect
-        #if PEGI
+        #if !NO_PEGI
         protected int inspectedElement = -1;
 
         protected int inspectedMaterial = -1;

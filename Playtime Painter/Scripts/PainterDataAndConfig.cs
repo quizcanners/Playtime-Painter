@@ -362,7 +362,7 @@ namespace PlaytimePainter
                         .Add("Vpck", meshPackagingSolutions)
                         .Add_IfTrue("hd", hideDocumentation)
 
-#if PEGI
+#if !NO_PEGI
                         .Add_IfNotNegative("iid", _inspectedImgData)
                         .Add_IfNotNegative("isfs", _inspectedItems)
                         .Add_IfNotNegative("im", _inspectedMaterial)
@@ -390,7 +390,7 @@ namespace PlaytimePainter
                 case "cam": if (PainterCamera.Inst) PainterCamera.Inst.Decode(data); break;
                 case "Vpck": data.Decode_List(out meshPackagingSolutions); break;
                 case "hd": hideDocumentation = data.ToBool(); break;
-#if PEGI
+#if !NO_PEGI
                 case "iid": _inspectedImgData = data.ToInt(); break;
                 case "isfs": _inspectedItems = data.ToInt(); break;
                 case "im": _inspectedMaterial = data.ToInt(); break;
@@ -411,7 +411,7 @@ namespace PlaytimePainter
 
         public static bool hideDocumentation;
 
-        #if PEGI
+        #if !NO_PEGI
         private int _inspectedImgData = -1;
         private int _inspectedItems = -1;
         private int _inspectedMaterial = -1;

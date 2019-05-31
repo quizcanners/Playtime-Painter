@@ -39,7 +39,7 @@ namespace PlaytimePainter
         private bool _foldOut;
         private int _inspectedUser = -1;
 
-        #if PEGI
+        #if !NO_PEGI
 
         public override bool Inspect()
         {
@@ -479,7 +479,7 @@ namespace PlaytimePainter
         }
 
         #region Inspector
-#if PEGI
+#if !NO_PEGI
         [SerializeField] private Camera camera;
         public bool Inspect() {
             var changed = false;

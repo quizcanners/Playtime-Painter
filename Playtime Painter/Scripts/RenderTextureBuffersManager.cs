@@ -385,7 +385,7 @@ namespace PlaytimePainter {
             depthTarget = null;
         }
 
-#if PEGI
+#if !NO_PEGI
         public static bool InspectDepthTarget()
         {
             var changed = false;
@@ -510,7 +510,7 @@ namespace PlaytimePainter {
 
         static ChillLogger logger = new ChillLogger("error");
         
-        #if PEGI
+        #if !NO_PEGI
 
         private static int inspectedElement = -1;
 

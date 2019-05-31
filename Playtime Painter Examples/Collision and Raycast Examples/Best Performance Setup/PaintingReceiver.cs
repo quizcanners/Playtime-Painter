@@ -180,7 +180,7 @@ namespace PlaytimePainter.Examples {
         #region Inspector
         [SerializeField] private bool _showOptional;
         
-        #if PEGI
+        #if !NO_PEGI
 
         public virtual bool Inspect() {
             

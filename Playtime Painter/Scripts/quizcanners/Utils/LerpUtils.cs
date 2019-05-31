@@ -55,7 +55,7 @@ namespace QuizCannersUtilities
 
         #region Inspector
 
-#if PEGI
+#if !NO_PEGI
         public bool Inspect()
         {
             var changed = false;
@@ -225,7 +225,7 @@ namespace QuizCannersUtilities
 
             #region Inspector
 
-#if PEGI
+#if !NO_PEGI
             public virtual bool InspectInList(IList list, int ind, ref int edited)
             {
 
@@ -358,7 +358,7 @@ namespace QuizCannersUtilities
 
             #region Inspector
 
-#if PEGI
+#if !NO_PEGI
 
             public override bool InspectInList(IList list, int ind, ref int edited)
             {
@@ -454,7 +454,7 @@ namespace QuizCannersUtilities
 
             #region Inspector
 
-#if PEGI
+#if !NO_PEGI
 
             public override bool InspectInList(IList list, int ind, ref int edited)
             {
@@ -537,7 +537,7 @@ namespace QuizCannersUtilities
 
             #region Inspect
 
-#if PEGI
+#if !NO_PEGI
             public override bool Inspect()
             {
                 var ret = base.Inspect();
@@ -696,7 +696,7 @@ namespace QuizCannersUtilities
 
             #region Inspector
 
-#if PEGI
+#if !NO_PEGI
             public override bool Inspect()
             {
                 var changed = base.Inspect();
@@ -959,7 +959,7 @@ namespace QuizCannersUtilities
 
             #region Inspector
 
-#if PEGI
+#if !NO_PEGI
             public override bool Inspect()
             {
 
@@ -1007,7 +1007,7 @@ namespace QuizCannersUtilities
                 set { }
             }
 
-#if PEGI
+#if !NO_PEGI
             public override bool InspectInList(IList list, int ind, ref int edited)
             {
                 var changed = false;
@@ -1146,7 +1146,7 @@ namespace QuizCannersUtilities
 
             #region Inspect
 
-            #if PEGI
+            #if !NO_PEGI
             public override bool InspectInList(IList list, int ind, ref int edited)
             {
                 var changed = false;
@@ -1402,7 +1402,7 @@ namespace QuizCannersUtilities
 
             #region Inspector
 
-#if PEGI
+#if !NO_PEGI
 
             public override bool Inspect()
             {
@@ -1689,7 +1689,7 @@ namespace QuizCannersUtilities
 
             #region Inspect
 
-#if PEGI
+#if !NO_PEGI
             public override bool Inspect()
             {
 
@@ -1801,7 +1801,7 @@ namespace QuizCannersUtilities
         public static readonly ShaderProperty.FloatValue TransitionPortion = new ShaderProperty.FloatValue("_Transition");
 
 
-#if PEGI
+#if !NO_PEGI
         public static void Inspect()
         {
             "Image projection position".write_ForCopy(ImageProjectionPosition.NameForDisplayPEGI); pegi.nl();

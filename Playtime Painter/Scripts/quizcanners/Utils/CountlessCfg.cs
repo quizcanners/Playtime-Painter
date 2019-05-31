@@ -281,7 +281,7 @@ namespace QuizCannersUtilities
         public virtual T GetIfExists(int ind) => Get(ind);
 
 
-#if PEGI
+#if !NO_PEGI
         public override bool Inspect()
         {
             var changed = false;

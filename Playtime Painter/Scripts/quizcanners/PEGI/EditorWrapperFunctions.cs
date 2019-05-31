@@ -1,4 +1,4 @@
-﻿#if PEGI && UNITY_EDITOR
+﻿#if !NO_PEGI && UNITY_EDITOR
 
 using UnityEngine;
 using UnityEditor;

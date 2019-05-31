@@ -116,7 +116,7 @@ namespace PlaytimePainter
             AllProbes[index] = this;
         }
 
-        #if PEGI
+        #if !NO_PEGI
         private int inspectedElement = -1;
 
         public bool Inspect()

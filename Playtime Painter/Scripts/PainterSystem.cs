@@ -11,7 +11,7 @@ namespace PlaytimePainter
     {
         public UnrecognizedTagsList UnrecognizedStd { get; } = new UnrecognizedTagsList();
 
-        #if PEGI
+        #if !NO_PEGI
         public virtual bool Inspect() => UnrecognizedStd.Nested_Inspect();
         #endif
     }
@@ -46,12 +46,11 @@ namespace PlaytimePainter
         protected static MeshManager MeshMGMT => MeshManager.Inst;
         protected static bool ApplicationIsQuitting => PainterSystem.applicationIsQuitting;
 
-#if PEGI
+#if !NO_PEGI
         public virtual bool Inspect() => _uTags.Inspect();  
 #endif
 
     }
-
     
     public class PainterSystem {
         protected static bool InspectAdvanced => BrushConfig.showAdvanced;

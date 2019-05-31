@@ -650,7 +650,7 @@ namespace PlaytimePainter
 
         public void UpdateInputPlaytime()
         {
-            #if PEGI
+            #if !NO_PEGI
             if (pegi.MouseOverPlaytimePainterUI)
                 return;
             #endif
@@ -787,7 +787,7 @@ namespace PlaytimePainter
         #endregion
 
         #region Inspector
-        #if PEGI
+        #if !NO_PEGI
         private int _inspectedMeshItems = -1;
 
         public override bool Inspect()  {

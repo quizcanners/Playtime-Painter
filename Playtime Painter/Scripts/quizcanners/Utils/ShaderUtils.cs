@@ -60,7 +60,7 @@ namespace QuizCannersUtilities {
             #region Inspector
             public string NameForDisplayPEGI => _name;
 
-            #if PEGI
+            #if !NO_PEGI
             public bool InspectInList(IList list, int ind, ref int edited)
             {
                 "Id: {0}".F(id).write(50);
@@ -539,7 +539,7 @@ namespace PlayerAndEditorGUI {
 
     public static partial class pegi {
 
-        #if PEGI
+        #if !NO_PEGI
         public static bool toggle(this Material mat, string keyword)
         {
             var val = Array.IndexOf(mat.shaderKeywords, keyword) != -1;

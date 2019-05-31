@@ -13,13 +13,15 @@ namespace PlaytimePainter
 
     public class TextureBackup {
         public int order;
+        // Will replace with Dictionary of Encodings 
         public List<string> strokeRecord;
 
         protected void SetB(ImageMeta from, int globalOrder) {
             order = globalOrder;
-            strokeRecord = from.recordedStrokesForUndoRedo;
-            from.recordedStrokesForUndoRedo = new List<string>();
-
+          
+            foreach (var module in from.Modules)
+                module.OnTextureBackup(this);
+            
         }
     }
 
@@ -106,9 +108,7 @@ namespace PlaytimePainter
 			var fromRt = (tex2D.Count == 0) || ((rTex.Count > 0) && (tex2D [tex2D.Count - 1].order < rTex [rTex.Count - 1].order));
 
 			var toRt = id.destination == TexTarget.RenderTexture;
-
-            var toClear = id.recordedStrokesForUndoRedo.Count;
-
+            
             if (toRt) 
                 otherDirection.BackupRenderTexture(int.MaxValue, id);
              else 
@@ -117,13 +117,14 @@ namespace PlaytimePainter
             var rtBackup = fromRt ? TakeRenderTexture () : null;
             var pixBackup = fromRt ? null : TakeTexture2D ();
             var backup = fromRt ? rtBackup : (TextureBackup)pixBackup;
-            
-            if (!isUndo)
-                id.recordedStrokes.AddRange(backup.strokeRecord);
-            else 
-                id.recordedStrokes.RemoveLast(toClear);
-            
-            id.recordedStrokesForUndoRedo = backup.strokeRecord;
+
+            if (isUndo)
+            {
+                foreach (var module in id.Modules)
+                    module.OnUndo(backup);
+            } else
+                foreach (var module in id.Modules)
+                    module.OnRedo(backup);
 
 			if (!fromRt) {
                 id.Pixels = pixBackup.pixels;
@@ -183,10 +184,10 @@ namespace PlaytimePainter
 			if (tex2D.Count < maxTextures)
 				tex2D.Add (new Texture2DBackup (copyPix, id, _order));
 			else 
-				tex2D.MoveFirstToLast ().Set (copyPix, id, _order);
+				tex2D.MoveFirstToLast().Set (copyPix, id, _order);
 
-			id.recordedStrokesForUndoRedo = new List<string>();
-
+           
+            
 			_order++;
 
         }

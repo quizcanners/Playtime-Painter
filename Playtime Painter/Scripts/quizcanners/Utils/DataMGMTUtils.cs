@@ -77,7 +77,7 @@ namespace QuizCannersUtilities
         {
             if (File.Exists(path))
             {
-#if PEGI && UNITY_EDITOR
+#if !NO_PEGI && UNITY_EDITOR
                 "Deleting {0}".F(path).showNotificationIn3D_Views();
 #endif
 
@@ -131,7 +131,7 @@ namespace QuizCannersUtilities
             var full = CreateDirectoryPathBytes(fullDirectoryPath, filename);
             using (var file = File.Create(full))
             {
-#if PEGI
+#if !NO_PEGI
                 if (!Application.isPlaying)
                     ("Saved To " + full).showNotificationIn3D_Views();
 #endif

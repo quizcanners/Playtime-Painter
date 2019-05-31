@@ -6,34 +6,22 @@ using QuizCannersUtilities;
 namespace PlaytimePainter
 {
     public class PainterPluginAttribute : AbstractWithTaggedTypes {
-        public override TaggedTypesCfg TaggedTypes => PainterComponentModuleBase.all;
+        public override TaggedTypesCfg TaggedTypes => TaggedModulesList<PainterComponentModuleBase>.all;
     }
     
     [PainterPlugin]
-    public class PainterComponentModuleBase : AbstractCfg, IGotClassTag {
+    public abstract class PainterComponentModuleBase : PainterSystemCfg, IGotClassTag
+    {
+
+        public PlaytimePainter parentComponent;
+
+        protected ImageMeta ImgMeta => parentComponent ? parentComponent.ImgMeta : null; 
 
         #region Abstract Serialized
-        public virtual string ClassTag => "Override me";
-        public static readonly TaggedTypesCfg all = new TaggedTypesCfg(typeof(PainterComponentModuleBase));
-        public TaggedTypesCfg AllTypes => all;
+        public abstract string ClassTag { get; }
+        public TaggedTypesCfg AllTypes => TaggedModulesList<PainterComponentModuleBase>.all;        
         #endregion
 
-        public static void UpdatePlugins(PlaytimePainter painter) {
-
-           
-            for (var i = 0; i < painter.modules.Count; i++) {
-                var nt = painter.modules[i];
-
-                if (nt != null) continue;
-                painter.modules.RemoveAt(i);
-                i--;
-            }
-            
-            foreach (var t in all) 
-                if (!painter.modules.ContainsInstanceType(t)) 
-                    painter.modules.Add((PainterComponentModuleBase)Activator.CreateInstance(t));  
-            
-        }
 
         public virtual bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter) => false;
         
@@ -49,8 +37,13 @@ namespace PlaytimePainter
         {
         }
 
+        #region Inspector
+
         public virtual bool BrushConfigPEGI() => false;
-        
+
+
+        #endregion
+
         public virtual bool OffsetAndTileUv(RaycastHit hit, PlaytimePainter p, ref Vector2 uv) => false; 
 
         public virtual void Update_Brush_Parameters_For_Preview_Shader(PlaytimePainter p) { }
@@ -62,6 +55,8 @@ namespace PlaytimePainter
         public virtual void AfterGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushType type) {
 
         }
+
+
 
         #region Encode & Decode
         public override CfgEncoder Encode() => new CfgEncoder();

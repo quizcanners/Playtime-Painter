@@ -3,7 +3,7 @@ using UnityEngine;
 using System;
 using QuizCannersUtilities;
 using PlayerAndEditorGUI;
-
+using UnityEngine.Rendering;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -303,7 +303,7 @@ namespace PlaytimePainter {
             if (newTarget != imgMetaUsingRendTex)  {
 
                 if (materialsUsingRenderTexture.Count > 0)
-                    PlaytimePainter.SetOriginalShader();
+                    PlaytimePainter.CheckSetOriginalShader();
 
                 if (imgMetaUsingRendTex != null) {
 
@@ -364,9 +364,6 @@ namespace PlaytimePainter {
             if (brush == null)
                 brush = GlobalBrush;
 
-            if (!painter)
-                painter = PlaytimePainter.selectedInPlaytime;
-            
             if (id == null && painter)
                 id = painter.ImgMeta;
             
@@ -377,40 +374,29 @@ namespace PlaytimePainter {
 
             float textureWidth = id.width;
             var rendTex = id.TargetIsRenderTexture();
-
             var brushType = brush.GetBrushType(!rendTex);
             var blitMode = brush.GetBlitMode(!rendTex);
-
             var is3DBrush = brush.IsA3DBrush(painter);
-            //var isDecal = rendTex && brushType.IsUsingDecals;
-
             var useAlphaBuffer = (brush.useAlphaBuffer && blitMode.SupportsAlphaBufferPainting && rendTex);
 
             BrushColorProperty.GlobalValue = brush.Color;
 
-            BrushMaskProperty.GlobalValue = new Vector4(
-                BrushExtensions.HasFlag(brush.mask, BrushMask.R) ? 1 : 0,
-                BrushExtensions.HasFlag(brush.mask, BrushMask.G) ? 1 : 0,
-                BrushExtensions.HasFlag(brush.mask, BrushMask.B) ? 1 : 0,
-                BrushExtensions.HasFlag(brush.mask, BrushMask.A) ? 1 : 0);
+            BrushMaskProperty.GlobalValue = brush.mask.ToVector4(); 
 
             float useTransparentLayerBackground = 0;
 
-            if (id.isATransparentLayer)
-            {
+            if (id.isATransparentLayer) {
+
                 var md = painter.MatDta;
-                if (md != null && md.usePreviewShader && md.material) {
-                    var mt = md.material.mainTexture;
+                var mat = md.material;
+                if (md != null && md.usePreviewShader && mat) {
+                    var mt = mat.mainTexture;
                     TransparentLayerUnderProperty.GlobalValue = mt;
                     useTransparentLayerBackground = (mt && (id != mt.GetImgDataIfExists())) ? 1 : 0;
                 }
             }
-
-
+            
             brushType.OnShaderBrushUpdate(brush);
-
-            //if (isDecal)
-              //  SHADER_DECAL_UPDATE(brush);
 
             if (rendTex)
                 SourceMaskProperty.GlobalValue = brush.useMask ? Data.masks.TryGet(brush.selectedSourceMask) : null;
@@ -493,8 +479,8 @@ namespace PlaytimePainter {
             if (!useSingle && !RenderTextureBuffersManager.secondBufferUpdated)
                 RenderTextureBuffersManager.UpdateBufferTwo();
 
-            if (stroke.firstStroke)
-                SHADER_BRUSH_UPDATE(bc, brushAlpha, id, pntr);
+            //if (stroke.firstStroke)
+            SHADER_BRUSH_UPDATE(bc, brushAlpha, id, pntr);
 
             TargetTexture = alphaBuffer ? AlphaBuffer : id.CurrentRenderTexture();
 
@@ -646,16 +632,14 @@ namespace PlaytimePainter {
 
         #region Updates
 
-        public void ApplyAllChangesTo(ImageMeta id) {
+        public void TryApplyBufferChangesTo(ImageMeta id) {
 
-            if (id != null) {
-                if (id == alphaBufferDataTarget)
-                    FinalizePreviousAlphaDataTarget();
-            } 
-
+            if ((id != null) && (id == alphaBufferDataTarget))
+                FinalizePreviousAlphaDataTarget();
+            
         }
 
-        public void DiscardChanges(ImageMeta id) {
+        public void TryDiscardBufferChangesTo(ImageMeta id) {
 
             if (id != null && id == alphaBufferDataTarget)
                 DiscardAlphaBuffer();
@@ -693,9 +677,6 @@ namespace PlaytimePainter {
             EditorSceneManager.sceneSaving -= BeforeSceneSaved;
             EditorSceneManager.sceneSaving += BeforeSceneSaved;
 
-            EditorSceneManager.sceneOpening -= OnSceneOpening;
-            EditorSceneManager.sceneOpening += OnSceneOpening;
-
             if (!defaultMaterial)
                 defaultMaterial = AssetDatabase.GetBuiltinExtraResource<Material>("Default-Material.mat");
 
@@ -706,12 +687,10 @@ namespace PlaytimePainter {
             EditorApplication.update -= CombinedUpdate;
             if (!UnityUtils.ApplicationIsAboutToEnterPlayMode())
                 EditorApplication.update += CombinedUpdate;
-
-
+            
             if (!brushPrefab) {
                 var go = Resources.Load("prefabs/RenderCameraBrush") as GameObject;
-                if (go)
-                {
+                if (go) {
                     brushPrefab = go.GetComponent<RenderBrush>();
                     if (!brushPrefab)
                         Debug.Log("Couldn't find brush prefab.");
@@ -719,30 +698,22 @@ namespace PlaytimePainter {
                 else
                     Debug.LogError("Couldn't load brush Prefab");
             }
-
-           
-
+            
             #endif
 
-            if (!brushRenderer)
-            {
+            if (!brushRenderer){
                 brushRenderer = GetComponentInChildren<RenderBrush>();
                 if (!brushRenderer)
-                {
-                    brushRenderer = Instantiate(brushPrefab.gameObject).GetComponent<RenderBrush>();
-                    brushRenderer.transform.parent = transform;
-                }
+                    brushRenderer = Instantiate(brushPrefab.gameObject, transform).GetComponent<RenderBrush>();
+                    //brushRenderer.transform.parent = transform;
+                
             }
          
-
-
-
             transform.position = Vector3.up * 3000;
             transform.localScale = Vector3.one;
             transform.rotation = Quaternion.identity;
 
-            if (!painterCamera)
-            {
+            if (!painterCamera) {
                 painterCamera = GetComponent<Camera>();
                 if (!painterCamera)
                     painterCamera = gameObject.AddComponent<Camera>();
@@ -768,8 +739,7 @@ namespace PlaytimePainter {
 #endif
 
             RecreateBuffersIfDestroyed();
-
-
+            
             autodisabledBufferTarget = null;
 
             PainterSystemManagerModuleBase.RefreshPlugins();
@@ -800,14 +770,16 @@ namespace PlaytimePainter {
             EditorApplication.update -= CombinedUpdate;
 
             if (PlaytimePainter.previewHolderMaterial)
-                PlaytimePainter.previewHolderMaterial.shader = PlaytimePainter.previewHolderOriginalShader;
-
+                PlaytimePainter.CheckSetOriginalShader();
+            
             if (materialsUsingRenderTexture.Count > 0)
                 autodisabledBufferTarget = materialsUsingRenderTexture[0].painterTarget;
+
             EmptyBufferTarget();
+
             #endif
 
-            if (PainterSystemManagerModuleBase.modules != null)
+            if (!PainterSystemManagerModuleBase.modules.IsNullOrEmpty())
                 foreach (var p in PainterSystemManagerModuleBase.modules)
                     p?.Disable();
             
@@ -818,14 +790,8 @@ namespace PlaytimePainter {
         }
 
         #if UNITY_EDITOR
-        public void OnSceneOpening(string path, OpenSceneMode mode)
-        {
-            // Debug.Log("On Scene Opening");
-        }
-
-        public void BeforeSceneSaved(UnityEngine.SceneManagement.Scene scene, string path) => BeforeClosing();
-
         
+        public void BeforeSceneSaved(UnityEngine.SceneManagement.Scene scene, string path) => BeforeClosing(); 
         #endif
 
         public void Update() {
@@ -863,17 +829,7 @@ namespace PlaytimePainter {
                 if (j.jobHandle.IsCompleted)
                     j.CompleteJob();
 #endif
-
-            var l = PlaytimePainter.PlaybackPainters;
-
-            if (l.Count > 0 && !StrokeVector.pausePlayback)
-            {
-                if (!l.Last())
-                    l.RemoveLast(1);
-                else
-                    l.Last().PlaybackVectors();
-            }
-
+            
 #if UNITY_EDITOR
             if (refocusOnThis) {
                 _scipFrames--;
@@ -916,23 +872,14 @@ namespace PlaytimePainter {
 
 
         }
-
-
-        public static void CancelAllPlaybacks()
-        {
-            foreach (var p in PlaytimePainter.PlaybackPainters)
-                p.playbackVectors.Clear();
-
-            PlaytimePainter.cody = new CfgDecoder(null);
-        }
-
+        
         #endregion
 
         #region Inspector
 
         readonly ChillLogger logger = new ChillLogger("error");
 
-        #if PEGI
+        #if !NO_PEGI
 
         public AnimationCurve InspectAnimationCurve(string role) {
             role.edit_Property(() => tmpCurve, this);
@@ -940,15 +887,13 @@ namespace PlaytimePainter {
             return tmpCurve;
         }
 
-        public override bool Inspect()
-        {
+        public override bool Inspect() {
 
             var changed = false;
 
             if (Data)
                 Data.Nested_Inspect().nl(ref changed);
-
-
+            
             return changed;
         }
 
@@ -958,7 +903,12 @@ namespace PlaytimePainter {
 
             var changed = false;
 
-            if (showAll) {
+
+
+            if (showAll)
+            {
+
+                pegi.nl();
 
                 "Download Manager".enter_Inspect(DownloadManager, ref _inspectedDependecy, 0).changes(ref changed);
 

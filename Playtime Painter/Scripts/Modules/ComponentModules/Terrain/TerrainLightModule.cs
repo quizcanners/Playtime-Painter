@@ -99,7 +99,7 @@ namespace PlaytimePainter {
 
         }
 
-#if PEGI
+#if !NO_PEGI
         public override bool BrushConfigPEGI()
         {
             var changed = false;

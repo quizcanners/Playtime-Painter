@@ -20,7 +20,7 @@ namespace PlaytimePainter {
 
     public interface IPainterManagerModuleComponentPEGI
     {
-        #if PEGI
+        #if !NO_PEGI
         bool ComponentInspector();
         #endif
     }
@@ -49,7 +49,7 @@ namespace PlaytimePainter {
         bool IsEnabledFor(PlaytimePainter p, ImageMeta image, BrushConfig cfg);
 
 
-#if PEGI
+#if !NO_PEGI
         bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br);
         #endif
     }
@@ -61,7 +61,7 @@ namespace PlaytimePainter {
 
     public interface IMeshToolPlugin
     {
-        #if PEGI
+        #if !NO_PEGI
         bool MeshToolInspection(MeshToolBase currentTool);
         #endif
     }
@@ -146,7 +146,7 @@ namespace PlaytimePainter {
         public virtual void Disable() {  }
 
         #region Inspector
-        #if PEGI
+        #if !NO_PEGI
         public virtual string ToolTip => "Painter plugin";
 
         public virtual bool InspectInList(IList list, int ind, ref int edited) {

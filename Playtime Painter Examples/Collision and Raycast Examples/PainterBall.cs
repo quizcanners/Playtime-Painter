@@ -82,9 +82,7 @@ namespace PlaytimePainter.Examples {
             }
         }
 
-#if PEGI
-
-        private bool _showInfo;
+#if !NO_PEGI
 
         public bool Inspect()
         {

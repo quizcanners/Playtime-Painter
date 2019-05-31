@@ -1248,7 +1248,7 @@ namespace PlaytimePainter {
         #endregion
 
         #region Inspector
-        #if PEGI
+        #if !NO_PEGI
         public bool Inspect()
         {
             var changed = false;

@@ -147,7 +147,7 @@ namespace QuizCannersUtilities {
         public virtual bool IsDefault => count == 0;
 
 
-#if PEGI
+#if !NO_PEGI
         public virtual bool Inspect()
         {
             ("Depth: " + depth).nl();
@@ -705,7 +705,7 @@ public class Countless<T> : CountlessBase {
         {
             get { return Get(index); }
             set {
-#if PEGI
+#if !NO_PEGI
                 var igi = value as IGotIndex;
                 if (igi != null && igi.IndexForPEGI != index)
                 {
@@ -903,7 +903,7 @@ public class Countless<T> : CountlessBase {
 
 
         #region Inspector
-#if PEGI
+#if !NO_PEGI
         public T this[IGotIndex i]
         {
             get { return Get(i.IndexForPEGI); }
@@ -1255,7 +1255,7 @@ public class Countless<T> : CountlessBase {
     {
 
         #region Inspector
-#if PEGI
+#if !NO_PEGI
         public static bool Inspect<TG, T>(this TG countless, ref int inspected) where TG : CountlessCfg<T> where T: ICfg, IPEGI, new() {
 
             var changed = false;

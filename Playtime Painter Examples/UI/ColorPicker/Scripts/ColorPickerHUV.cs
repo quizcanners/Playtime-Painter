@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using PlayerAndEditorGUI;
-// Note: Some weird constants in script and shader are theme to match Unity's picker.
+// Note: Some seamingly arbitraru constants in script and shader are there to match Unity's picker (For Editor UI).
 
 namespace PlaytimePainter.Examples {
 
@@ -95,7 +95,7 @@ namespace PlaytimePainter.Examples {
             return true;
         }
 
-#if PEGI
+#if !NO_PEGI
         public bool Inspect()
         {
             var changed = false;

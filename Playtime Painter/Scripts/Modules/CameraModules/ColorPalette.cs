@@ -20,7 +20,7 @@ namespace PlaytimePainter
 
 
         #region Inspector
-#if PEGI
+#if !NO_PEGI
 
         public string NameForPEGI { get { return paletteName; } set { paletteName = value; } }
 

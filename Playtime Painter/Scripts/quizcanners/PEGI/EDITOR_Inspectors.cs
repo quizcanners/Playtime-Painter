@@ -36,7 +36,7 @@ namespace PlayerAndEditorGUI {
 
 
 
-            #if PEGI
+            #if !NO_PEGI
               PEGI_Extensions.ResetInspectedChain();
 
             if (!drawDefaultInspector) {
@@ -65,7 +65,7 @@ namespace PlayerAndEditorGUI {
 
 
 
-#if PEGI
+#if !NO_PEGI
         public abstract bool Inspect(Material mat);
 #endif
 
@@ -120,13 +120,13 @@ namespace PlayerAndEditorGUI {
     {
         public static bool drawDefaultInspector;
 
-        #if PEGI
+        #if !NO_PEGI
         protected abstract bool Inspect(Editor editor);
         protected abstract ef.EditorType EditorType { get;  }
         #endif
 
         public override void OnInspectorGUI() {
-            #if PEGI
+            #if !NO_PEGI
             
             PEGI_Extensions.ResetInspectedChain();
 
@@ -148,7 +148,7 @@ namespace PlayerAndEditorGUI {
 
     public abstract class PEGI_Inspector_Mono<T> : PEGI_Inspector_Base where T : MonoBehaviour
     {
-#if PEGI
+#if !NO_PEGI
         protected override ef.EditorType EditorType => ef.EditorType.Mono;
 
         protected override bool Inspect(Editor editor) => ef.Inspect<T>(editor);
@@ -157,7 +157,7 @@ namespace PlayerAndEditorGUI {
 
     public abstract class PEGI_Inspector_SO<T> : PEGI_Inspector_Base where T : ScriptableObject
     {
-#if PEGI
+#if !NO_PEGI
         protected override ef.EditorType EditorType => ef.EditorType.ScriptableObject;
 
         protected override bool Inspect(Editor editor) => ef.Inspect_so<T>(editor);

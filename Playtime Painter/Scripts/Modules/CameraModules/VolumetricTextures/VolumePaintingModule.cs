@@ -299,7 +299,7 @@ namespace PlaytimePainter {
         float BrushScaleMaxForCpu(VolumeTexture volTex) => volTex.size * volTex.Width * 0.025f;
 
   
-        #if PEGI
+        #if !NO_PEGI
         public override string NameForDisplayPEGI => "Volume Painting";
 
         public bool ComponentInspector()

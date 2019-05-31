@@ -502,7 +502,7 @@ namespace QuizCannersUtilities {
         }
 
         #region Inspector
-        #if PEGI
+        #if !NO_PEGI
         private bool _showRange;
 
         public bool Inspect() {
@@ -590,7 +590,7 @@ namespace QuizCannersUtilities {
             this.min = min;
             this.max = max;
             this.value = value;
-#if PEGI
+#if !NO_PEGI
             _showRange = false;
 #endif
         }

@@ -32,7 +32,7 @@ namespace PlaytimePainter.Examples
         }
 
         #region Inspector
-#if PEGI
+#if !NO_PEGI
         public bool Inspect()
         {
             var changed = false;

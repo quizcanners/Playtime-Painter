@@ -58,7 +58,7 @@ namespace QuizCannersUtilities
         public ElementData this[int i] => elementDatas.TryGet(i);
 
         #region Inspector
-        #if PEGI
+        #if !NO_PEGI
 
         public readonly pegi.SearchData searchData = new pegi.SearchData();
 
@@ -137,7 +137,7 @@ namespace QuizCannersUtilities
                 case "del": allowDelete = data.ToBool(); break;
                 case "reord": allowReorder = data.ToBool(); break;
                 case "st": listSectionStartIndex = data.ToInt(); break;
-#if PEGI
+#if !NO_PEGI
                 case "s": searchData.Decode(data); break;
 #endif
                 default: return false;
@@ -152,7 +152,7 @@ namespace QuizCannersUtilities
                 .Add_IfNotNegative("pi", previousInspected)
                 .Add_IfNotZero("st", listSectionStartIndex)
                 .Add_IfTrue("adl", allowDuplicants)
-                #if PEGI
+                #if !NO_PEGI
                 .Add_IfNotDefault("s", searchData)
                 #endif
                 ;
@@ -282,7 +282,7 @@ namespace QuizCannersUtilities
         }
 
         #region Inspector
-        #if PEGI
+        #if !NO_PEGI
 
         public bool String_SearchMatch(string searchString)
         {
@@ -485,7 +485,7 @@ namespace QuizCannersUtilities
         }
 
 #region Inspector
-#if PEGI
+#if !NO_PEGI
 
         public int CountForInspector => _tags.IsNullOrEmpty() ? data.Length : _tags.CountForInspector();
         
@@ -607,7 +607,7 @@ namespace QuizCannersUtilities
 #region Inspector
         public string NameForPEGI { get { return dataExplorer.tag; } set { dataExplorer.tag = value; } }
 
-#if PEGI
+#if !NO_PEGI
         public static StdExplorerData Mgmt => StdExplorerData.inspected;
 
         public int CountForInspector => dataExplorer.CountForInspector;
@@ -686,7 +686,7 @@ namespace QuizCannersUtilities
         public static ICfg inspectedCfg;
 
 #region Inspector
-#if PEGI
+#if !NO_PEGI
         public int CountForInspector => states.Count;
         
         public static bool PEGI_Static(ICfg target)

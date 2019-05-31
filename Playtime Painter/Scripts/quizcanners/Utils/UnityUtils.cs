@@ -286,7 +286,7 @@ namespace QuizCannersUtilities {
 
             var name = go.name;
 
-#if PEGI
+#if !NO_PEGI
             var parent = go.transform.parent;
 
             while (parent && maxLook > 0 && maxLength > 0)
@@ -804,41 +804,7 @@ namespace QuizCannersUtilities {
             Selection.objects = tmp;
 #endif
         }
-
-#if UNITY_EDITOR
-        private static Tool _previousEditorTool = Tool.None;
-#endif
-
-        public static bool TryRestoreUnityTool()
-        {
-#if UNITY_EDITOR
-
-            if (_previousEditorTool != Tool.None)
-            {
-                Tools.current = _previousEditorTool;
-                _previousEditorTool = Tool.None;
-                return true;
-            }
-#endif
-
-            return false;
-        }
-
-        public static void HideUnityTool()
-        {
-#if UNITY_EDITOR
-
-            Debug.Log("Hiding Unity tool");
-
-            if (Tools.current == Tool.None) return;
-
-            _previousEditorTool = Tools.current;
-            Tools.current = Tool.None;
-
-#endif
-        }
-
-
+        
         public static void FocusOnGame()
         {
 #if UNITY_EDITOR
@@ -926,7 +892,7 @@ namespace QuizCannersUtilities {
 
         public static void UpdatePrefab(GameObject gameObject)
         {
-#if PEGI && UNITY_EDITOR
+#if !NO_PEGI && UNITY_EDITOR
 
 #if UNITY_2018_3_OR_NEWER
             var pf = UnityUtils.IsPrefab(gameObject) ? gameObject : PrefabUtility.GetPrefabInstanceHandle(gameObject);
@@ -1166,7 +1132,7 @@ namespace QuizCannersUtilities {
         static void SaveScriptableObjectAsAsset<T, TG>(T asset, string path, string name, List<TG> optionalList = null)
             where T : TG where TG : ScriptableObject {
 
-#if PEGI
+#if !NO_PEGI
             var nm = asset as IGotName;
             if (nm != null)
                 nm.NameForPEGI = name;
@@ -2222,7 +2188,7 @@ namespace QuizCannersUtilities {
             (Math.Abs(_intervalLength - 1d) > float.Epsilon) ? _intervalLength.ToString("0") : "", (int)_min,
             (int)_max, (int)_totalCount);
 
-#if PEGI
+#if !NO_PEGI
         public bool InspectInList(IList list, int ind, ref int edited)
         {
             if (icon.Refresh.Click("Reset Stats"))
@@ -2437,7 +2403,7 @@ namespace QuizCannersUtilities {
 
 #region Inspector
 
-#if PEGI
+#if !NO_PEGI
             public bool InspectInList(IList list, int ind, ref int edited)
             {
                 var changed = false;
@@ -2534,7 +2500,7 @@ namespace QuizCannersUtilities {
 
 #region Inspector
 
-#if PEGI
+#if !NO_PEGI
         int inspected = -1;
         string tmp = "";
         public bool Inspect()
@@ -2557,7 +2523,7 @@ namespace QuizCannersUtilities {
     public class ScreenShootTaker : IPEGI {
 
   
-        #if PEGI
+        #if !NO_PEGI
         public bool Inspect() {
 
             "Up Scale".edit(60, ref UpScale).nl();
@@ -2734,7 +2700,7 @@ namespace QuizCannersUtilities {
                 return labelMaterialInstance;
             }
         }
-        #if PEGI
+        #if !NO_PEGI
         public bool InspectInList(IList list, int ind, ref int edited)
         {
             "works".write();
@@ -2744,7 +2710,7 @@ namespace QuizCannersUtilities {
     }
 
     /*
-#if PEGI && UNITY_EDITOR
+#if !NO_PEGI && UNITY_EDITOR
     [CustomPropertyDrawer(typeof(MaterialPlaytimeInstancer))]
     // Work in progress...
     public class MatInstancerPropertDrawer : PEGI_PropertyDrawer<MaterialPlaytimeInstancer>

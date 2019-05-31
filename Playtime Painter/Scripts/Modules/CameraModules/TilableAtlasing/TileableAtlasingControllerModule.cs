@@ -50,7 +50,7 @@ namespace PlaytimePainter
 
   
 
-#if PEGI
+#if !NO_PEGI
         public bool MeshToolInspection(MeshToolBase currentTool) {
 
             if (currentTool is VertexEdgeTool && MeshManager.target.IsAtlased()) {
@@ -85,7 +85,7 @@ namespace PlaytimePainter
         public override void Enable() => inst = this;
         
 
-#if PEGI
+#if !NO_PEGI
 
         int InspectedItems = -1;
 
@@ -114,7 +114,7 @@ namespace PlaytimePainter
 #endif
 
 
-                var atlPlug = p.GetPlugin<TileableAtlasingPainterModule>();
+                var atlPlug = p.GetModule<TileableAtlasingPainterModule>();
 
                 if ("Undo Atlasing".Click())
                 {
@@ -152,7 +152,7 @@ namespace PlaytimePainter
         #endregion
 
         public void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter) =>
-           painter.GetPlugin<TileableAtlasingPainterModule>()?.PaintTexture2D(stroke, brushAlpha, image, bc, painter);
+           painter.GetModule<TileableAtlasingPainterModule>()?.PaintTexture2D(stroke, brushAlpha, image, bc, painter);
         
         public bool IsA3DBrush(PlaytimePainter painter, BrushConfig bc, ref bool overrideOther) => false;
 
@@ -208,7 +208,7 @@ namespace PlaytimePainter
         #region Inspecotr
         public override string Tooltip => "Select Texture Number and paint on triangles and lines. Texture an be selected with number keys, and sampled with Ctrl+LMB.";
 
-#if PEGI
+#if !NO_PEGI
         public override bool Inspect()
         {
 

@@ -72,7 +72,7 @@ namespace PlaytimePainter
         }
 
         #region Inspector
-#if PEGI
+#if !NO_PEGI
         int inspectedElement = -1;
         public bool Inspect()
         {
@@ -159,7 +159,7 @@ namespace PlaytimePainter
 
             #region Inspector
             public string NameForPEGI { get => productName; set => productName = value; }
-#if PEGI
+#if !NO_PEGI
 
             public bool InspectInList(IList list, int ind, ref int edited)
             {

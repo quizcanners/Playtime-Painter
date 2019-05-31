@@ -36,7 +36,7 @@ namespace PlaytimePainter
         public bool lockEditing;
         public bool isATransparentLayer;
         public bool NeedsToBeSaved => UnityUtils.SavedAsAsset(texture2D) || UnityUtils.SavedAsAsset(renderTexture);
-        public bool showRecording;
+      
         public bool enableUndoRedo;
         public bool pixelsDirty;
         public bool preserveTransparency = true;
@@ -68,6 +68,29 @@ namespace PlaytimePainter
             set { _pixels = value; }
         }
         
+        ImgMetaModules modulesContainer = new ImgMetaModules();
+
+        public List<ImageMetaModuleBase> Modules {
+            get {
+                modulesContainer.meta = this;
+                return modulesContainer.Modules;
+            }
+        }
+
+        public class ImgMetaModules : TaggedModulesList<ImageMetaModuleBase>
+        {
+
+            protected override void OnInitialize()
+            {
+                foreach (var p in modules)
+                    p.parentMeta = meta;
+            }
+
+            public ImageMeta meta;
+
+            public ImgMetaModules() { }
+        }
+        
         #endregion
 
         #region SAVE IN PLAYER
@@ -94,7 +117,7 @@ namespace PlaytimePainter
             var msg = $"Saved {saveName} to {fullPath}";
 
             Cfg.playtimeSavedTextures.Add(fullPath);
-#if PEGI
+#if !NO_PEGI
             msg.showNotificationIn3D_Views();
 #endif
             Debug.Log(msg);
@@ -115,7 +138,7 @@ namespace PlaytimePainter
 
                 if (texture2D.LoadImage(fileData))
                     Init(texture2D);
-#if PEGI
+#if !NO_PEGI
                 else "Couldn't Load Image ".showNotificationIn3D_Views();
 #endif
             }
@@ -123,13 +146,14 @@ namespace PlaytimePainter
 
         #endregion
 
-        #region Encode Decode
+        #region Encoding
 
         public bool IsDefault => !NeedsToBeSaved;
 
         public override CfgEncoder Encode()
         {
             var cody = this.EncodeUnrecognized()
+            .Add("mods",  modulesContainer)
             .Add_IfNotZero("dst", (int)destination)
             .Add_Reference("tex2D", texture2D)
             .Add_Reference("other", other)
@@ -141,7 +165,6 @@ namespace PlaytimePainter
             .Add_IfNotOne("tl", tiling)
             .Add_IfNotZero("off", offset)
             .Add_IfNotEmpty("sn", saveName)
-            .Add_IfTrue("rec", showRecording)
             .Add_IfTrue("trnsp", isATransparentLayer)
             .Add_IfTrue("bu", enableUndoRedo)
             .Add_IfTrue("tc2Auto", _useTexCoord2AutoAssigned)
@@ -183,6 +206,7 @@ namespace PlaytimePainter
         {
             switch (tg)
             {
+                case "mods":  modulesContainer.Decode(data); break;
                 case "dst": destination = (TexTarget)data.ToInt(); break;
                 case "tex2D": data.Decode_Reference(ref texture2D); break;
                 case "other": data.Decode_Reference(ref other); break;
@@ -197,7 +221,7 @@ namespace PlaytimePainter
                 case "off": offset = data.ToVector2(); break;
                 case "sn": saveName = data; break;
                 case "trnsp": isATransparentLayer = data.ToBool(); break;
-                case "rec": showRecording = data.ToBool(); break;
+               
                 case "bu": enableUndoRedo = data.ToBool(); break;
                 case "dumm": dontRedoMipMaps = data.ToBool(); break;
                 case "dCnt": disableContiniousLine = data.ToBool(); break;
@@ -236,38 +260,6 @@ namespace PlaytimePainter
             }
 
             cache.redo.Clear();
-
-        }
-        #endregion
-
-        #region Recordings
-        public List<string> recordedStrokes = new List<string>();
-        public List<string> recordedStrokesForUndoRedo = new List<string>(); // to sync strokes recording with Undo Redo
-        public bool recording;
-
-        public void StartRecording()
-        {
-            recordedStrokes = new List<string>();
-            recordedStrokesForUndoRedo = new List<string>();
-            recording = true;
-        }
-
-        public void ContinueRecording()
-        {
-            StartRecording();
-            recordedStrokes.AddRange(Cfg.StrokeRecordingsFromFile(saveName));
-        }
-
-        public void SaveRecording()
-        {
-
-            var allStrokes = new CfgEncoder().Add("strokes", recordedStrokes).ToString();
-
-            FileSaveUtils.SaveJsonToPersistentPath(Cfg.vectorsFolderName, saveName, allStrokes);
-
-            Cfg.recordingNames.Add(saveName);
-
-            recording = false;
 
         }
         #endregion
@@ -367,7 +359,7 @@ namespace PlaytimePainter
 
             var rt = renderTexture;
 
-            TexMGMT.ApplyAllChangesTo(this);
+            TexMGMT.TryApplyBufferChangesTo(this);
 
             if (!rt && TexMGMT.imgMetaUsingRendTex == this)
                 rt = RenderTextureBuffersManager.GetDownscaledBigRt(width, height);
@@ -890,7 +882,7 @@ namespace PlaytimePainter
         private int _inspectedProcess = -1;
         public int inspectedItems = -1;
 
-        #if PEGI
+        #if !NO_PEGI
 
         void ReturnToRenderTexture()
         {
@@ -979,7 +971,7 @@ namespace PlaytimePainter
 
                     if (_inspectedProcess == -1) {
 
-                        if ((newWidth != width || newHeight != height) && icon.Replace.Click("Resize").nl(ref changed))
+                        if ((newWidth != width || newHeight != height) && icon.Size.Click("Resize").nl(ref changed))
                             Resize(newWidth, newHeight);
 
                         pegi.nl();
@@ -1098,7 +1090,7 @@ namespace PlaytimePainter
                         }
                     }
 
-                    if ("Save Textures In Game ".enter(ref _inspectedProcess, 7).nl_ifFolded()) {
+                    if ("Save Textures In Game ".enter(ref _inspectedProcess, 7).nl()) {
 
                         "This is intended to test playtime saving. The functions to do so are quite simple. You can find them inside ImageData.cs class."
                             .writeHint();
@@ -1241,8 +1233,6 @@ namespace PlaytimePainter
             var changed = false;
             
             if (cache == null) cache = new UndoCache();
-            if (recordedStrokes == null) recordedStrokes = new List<string>();
-            if (recordedStrokesForUndoRedo == null) recordedStrokesForUndoRedo = new List<string>(); // to sync strokes recording with Undo Redo
 
             if (cache.undo.GotData) {
                 if (icon.Undo.Click("Press Z to undo (Scene View)",ref changed))
@@ -1259,20 +1249,6 @@ namespace PlaytimePainter
                 icon.RedoDisabled.write("Nothing to Redo");
 
             pegi.nl();
-
-#if UNITY_EDITOR
-            if (recording) {
-                ("Recording... " + recordedStrokes.Count + " vectors").nl();
-                "Will Save As ".edit(70, ref saveName);
-
-                if (icon.Close.Click("Stop, don't save"))
-                    recording = false;
-                if (icon.Done.Click("Finish & Save"))
-                    SaveRecording();
-
-                pegi.newLine();
-            }
-#endif
           
             return changed;
         }
@@ -1297,22 +1273,30 @@ namespace PlaytimePainter
         #endif
         #endregion
 
-        private float _repaintTimer;
-        public void Update(bool mouseUp)
-        {
+      
+        public void ManagedUpdate(PlaytimePainter painter) {
 
+            RepaintMgmt(painter);
+
+            foreach (var m in Modules)
+                m.ManagedUpdate();
+        }
+
+        private float _repaintTimer;
+        private void RepaintMgmt(PlaytimePainter painter) {
             if (!pixelsDirty) return;
-            
+
             _repaintTimer -= Application.isPlaying ? Time.deltaTime : 0.016f;
 
-            if (_repaintTimer >= 0 && !mouseUp) return;
-            
+            if (_repaintTimer >= 0 && !painter.stroke.mouseUp) return;
+
             if (texture2D)
                 SetAndApply(!dontRedoMipMaps);
 
             pixelsDirty = false;
             _repaintTimer = _repaintDelay;
         }
+
     }
 
 }

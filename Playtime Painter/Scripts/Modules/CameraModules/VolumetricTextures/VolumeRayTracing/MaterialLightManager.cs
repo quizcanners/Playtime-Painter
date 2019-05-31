@@ -63,7 +63,7 @@ namespace PlaytimePainter {
         }
 
         #region Inspector
-        #if PEGI
+        #if !NO_PEGI
 
         public static int probeChanged = -1;
 

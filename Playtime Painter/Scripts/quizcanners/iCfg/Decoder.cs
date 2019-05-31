@@ -629,8 +629,7 @@ namespace QuizCannersUtilities {
 #endif
 
             var cody = new CfgDecoder(data);
-
-        
+            
             foreach (var tag in cody)
             {
                 var tmp = cody.DecodeData<T>(taggedTypes);

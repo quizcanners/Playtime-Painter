@@ -74,6 +74,12 @@ namespace PlaytimePainter{
                 target.a = source.a;
         }
         
+        public static Vector4 ToVector4 (this BrushMask mask) => new Vector4(
+            BrushExtensions.HasFlag(mask, BrushMask.R) ? 1 : 0,
+            BrushExtensions.HasFlag(mask, BrushMask.G) ? 1 : 0,
+            BrushExtensions.HasFlag(mask, BrushMask.B) ? 1 : 0,
+            BrushExtensions.HasFlag(mask, BrushMask.A) ? 1 : 0);
+
         public static ColorChanel ToColorChannel(this BrushMask bm)
         {
             switch (bm)
@@ -112,15 +118,7 @@ namespace PlaytimePainter{
             return p.SharedMesh;
             
         }
-
-        public static bool ContainsInstanceType(this List<PainterComponentModuleBase> collection, Type type){
-
-		foreach (var t in collection) 
-			if (t.GetType() == type) return true; 
-		
-		return false;
-	}
-
+        
 		public static float StrokeWidth (this BrushConfig br, float pixWidth, bool world) => br.Size(world) / (pixWidth) * 2 * PainterCamera.OrthographicSize;
 		
         public static bool IsSingleBufferBrush(this BrushConfig b) => (PainterCamera.Inst.isLinearColorSpace && b.GetBlitMode(false).SupportedBySingleBuffer && b.GetBrushType(false).SupportedBySingleBuffer && b.PaintingRGB);

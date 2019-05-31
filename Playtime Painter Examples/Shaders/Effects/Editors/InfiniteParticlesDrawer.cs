@@ -4,7 +4,7 @@ using QuizCannersUtilities;
 
 public class InfiniteParticlesDrawerGUI : PEGI_Inspector_Material {
 
-#if PEGI
+#if !NO_PEGI
 
 
     public const string FadeOutTag = "_FADEOUT";

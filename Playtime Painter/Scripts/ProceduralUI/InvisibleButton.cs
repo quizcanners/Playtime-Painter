@@ -80,7 +80,7 @@ namespace PlaytimePainter
 
         }
 
-#if PEGI
+#if !NO_PEGI
 
         public bool Inspect()
         {

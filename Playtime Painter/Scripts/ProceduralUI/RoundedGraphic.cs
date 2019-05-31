@@ -231,7 +231,7 @@ namespace PlaytimePainter
         #endregion
 
         #region Inspector
-        #if PEGI
+        #if !NO_PEGI
 
         private static List<Shader> _compatibleShaders;
 
@@ -638,7 +638,7 @@ namespace PlaytimePainter
             #endregion
 
             #region Inspect
-#if PEGI
+#if !NO_PEGI
             public bool InspectInList(IList list, int ind, ref int edited)
             {
                 var tg = inspected;
@@ -686,7 +686,7 @@ namespace PlaytimePainter
             public override string ClassTag => Tag;
             
             #region Inspect
-            #if PEGI
+            #if !NO_PEGI
             public bool InspectInList(IList list, int ind, ref int edited)
             {
 
@@ -776,7 +776,7 @@ namespace PlaytimePainter
             }
 
             #region Inspect
-            #if PEGI
+            #if !NO_PEGI
 
             public bool InspectInList(IList list, int ind, ref int edited) {
                 
@@ -846,7 +846,7 @@ namespace PlaytimePainter
             public virtual bool Update(RoundedGraphic target) => false;
 
             #region Inspect
-            #if PEGI
+            #if !NO_PEGI
 
             public virtual string NameForDisplayPEGI => ClassTag;
             
@@ -948,7 +948,7 @@ namespace PlaytimePainter
 
         private static readonly ShaderProperty.TextureValue Outline = new ShaderProperty.TextureValue("_OutlineGradient");
 
-        #if PEGI
+        #if !NO_PEGI
         public override bool Inspect(Material mat) {
 
             var changed = pegi.toggleDefaultInspector();

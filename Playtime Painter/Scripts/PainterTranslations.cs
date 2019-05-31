@@ -283,7 +283,7 @@ namespace PlayerAndEditorGUI {
         }
 
 
-#if PEGI
+#if !NO_PEGI
 
         private static int inspectingSection = -1;
         private static int inspectedFaqQuestion = -1;
@@ -415,7 +415,7 @@ namespace PlayerAndEditorGUI {
         }
 
 
-#if PEGI
+#if !NO_PEGI
         public static bool DocumentationClick(this MsgPainter msg) =>  PainterDataAndConfig.hideDocumentation ? false : msg.Get().DocumentationClick();
         
         public static bool DocumentationWarning(this MsgPainter msg) => PainterDataAndConfig.hideDocumentation ? false : msg.Get().WarningDocumentation();

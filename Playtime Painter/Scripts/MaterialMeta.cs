@@ -56,7 +56,7 @@ namespace PlaytimePainter {
         public string NameForDisplayPEGI => material == null ? "Error" : material.name;
 
         #region Inspector
-        #if PEGI
+        #if !NO_PEGI
 
         public bool InspectInList(IList list, int ind, ref int edited)
         {

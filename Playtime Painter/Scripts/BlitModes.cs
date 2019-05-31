@@ -115,7 +115,7 @@ namespace PlaytimePainter {
 
         public virtual string ToolTip => Translation.GetDescription();
 
-        #if PEGI
+        #if !NO_PEGI
         public virtual bool ShowInDropdown() {
 
             var cpu = BrushConfig.InspectedIsCpuBrush;
@@ -341,7 +341,7 @@ namespace PlaytimePainter {
 
         protected override MsgPainter Translation => MsgPainter.BlitModeBlur;
 
-#if PEGI
+#if !NO_PEGI
         protected override bool Inspect()
         {
             var changed = base.Inspect().nl();
@@ -403,7 +403,7 @@ namespace PlaytimePainter {
 
         protected override MsgPainter Translation => MsgPainter.BlitModeOff;
 
-#if PEGI
+#if !NO_PEGI
         protected override bool Inspect()
         {
             bool changed = base.Inspect();
@@ -537,7 +537,7 @@ namespace PlaytimePainter {
         #region Inspector
         protected override MsgPainter Translation => MsgPainter.BlitModeBloom;
 
-#if PEGI
+#if !NO_PEGI
         protected override bool Inspect() {
 
             var changed = base.Inspect().nl();
@@ -586,7 +586,7 @@ namespace PlaytimePainter {
         protected override MsgPainter Translation => MsgPainter.BlitModeProjector;
 
 
-#if PEGI
+#if !NO_PEGI
         protected override bool Inspect()
         {
             var changed = false;
@@ -645,7 +645,7 @@ namespace PlaytimePainter {
 
         protected override MsgPainter Translation => MsgPainter.BlitModeFiller;
 
-#if PEGI
+#if !NO_PEGI
         protected override bool Inspect()
         {
             var changed = base.Inspect().nl();
