@@ -24,13 +24,11 @@ using UnityEditor;
 #endif
 
 namespace QuizCannersUtilities {
+    
+#pragma warning disable IDE0034 // Simplify 'default' expression
+#pragma warning disable IDE0019 // Use pattern matching
+#pragma warning disable IDE0018 // Inline variable declaration
 
-    // ReSharper disable InconsistentNaming
-    #pragma warning disable IDE1006 // Naming Styles
-    #pragma warning disable IDE0034 // Simplify 'default' expression
-    #pragma warning disable IDE0019 // Use pattern matching
-    #pragma warning disable IDE0018 // Inline variable declaration
-        
     public static class UnityUtils
     {
 
@@ -2652,9 +2650,9 @@ namespace QuizCannersUtilities {
                 screenShotTexture2D = new Texture2D(w, h, TextureFormat.ARGB32, false);
             }
         }
-
-        private string screenShotName;
-
+        
+        public string screenShotName;
+        
         private string GetScreenShotName()
         {
             var name = screenShotName;

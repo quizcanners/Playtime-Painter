@@ -10,7 +10,7 @@ using UnityEditor;
 #endif
 
 namespace PlaytimePainter {
-
+    
     [TaggedType(tag)]
     public class TileableAtlasingPainterModule : PainterComponentModuleBase {
 
@@ -292,7 +292,11 @@ namespace PlaytimePainter {
         public string name;
 
         public Material originalMaterial;
+
+        #pragma warning disable IDE0044 // Add readonly modifier
         private Shader _originalShader;
+        #pragma warning restore IDE0044 // Add readonly modifier
+
         public List<ShaderProperty.TextureValue> originalTextures;
         private Material _atlasedMaterial;
 
@@ -324,11 +328,14 @@ namespace PlaytimePainter {
         public string NameForPEGI { get { return name; } set { name = value; } }
 
         private readonly List<FieldAtlas> _fields = new List<FieldAtlas>();
-        private int _matAtlasProfile;
+
+        #pragma warning disable IDE0044 // Add readonly modifier
+        private int _matAtlasProfile = 0;
+        #pragma warning restore IDE0044 // Add readonly modifier
 
         private void ConvertToAtlased(PlaytimePainter painter)
         {
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
 
             if (!_atlasedMaterial)
                 _atlasedMaterial = painter.InstantiateMaterial(true);
@@ -502,9 +509,9 @@ namespace PlaytimePainter {
             }
         }
 
-        private void OnChangeMaterial(PlaytimePainter painter)
-        {
-#if UNITY_EDITOR
+        private void OnChangeMaterial(PlaytimePainter painter) {
+
+            #if UNITY_EDITOR
 
             if (originalMaterial)
                 originalTextures = originalMaterial.MyGetTextureProperties();

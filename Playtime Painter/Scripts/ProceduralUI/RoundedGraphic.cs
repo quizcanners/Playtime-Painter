@@ -28,7 +28,9 @@ namespace PlaytimePainter
 
         private enum PositionDataType { ScreenPosition, AtlasPosition }
 
-        [SerializeField] private PositionDataType _positionDataType;
+        #pragma warning disable IDE0044 // Add readonly modifier
+        [SerializeField] private PositionDataType _positionDataType = PositionDataType.ScreenPosition;
+        #pragma warning restore IDE0044 // Add readonly modifier
 
         [SerializeField] private float[] _roundedCorners = new float[1];
         

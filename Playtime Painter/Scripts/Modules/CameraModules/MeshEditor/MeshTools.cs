@@ -547,7 +547,7 @@ namespace PlaytimePainter
             inst = this;
         }
 
-        private bool _setTo = true;
+        public bool _setTo = true;
 
         private DetectionMode _detectionMode;
         
@@ -750,7 +750,7 @@ namespace PlaytimePainter
     {
         public override string StdTag => "t_vSm";
 
-        private bool _mergeUnMerge;
+        public bool _mergeUnMerge = false;
 
         private static SmoothingTool _inst;
         

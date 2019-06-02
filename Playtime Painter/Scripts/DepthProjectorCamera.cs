@@ -7,6 +7,8 @@ using UnityEngine.Assertions.Comparers;
 
 namespace PlaytimePainter
 {
+
+
     [ExecuteInEditMode]
     public class DepthProjectorCamera : PainterSystemMono {
 
@@ -18,7 +20,7 @@ namespace PlaytimePainter
                 if (!triedToFindDepthCamera)
                 {
                     PainterCamera.depthProjectorCamera = FindObjectOfType<DepthProjectorCamera>();
-                    triedToFindDepthCamera = false;
+                    triedToFindDepthCamera = true;
                 }
 
                 return PainterCamera.depthProjectorCamera;
@@ -29,18 +31,19 @@ namespace PlaytimePainter
         public static bool triedToFindDepthCamera;
 
         [SerializeField] private Camera _projectorCamera;
-        
-        [SerializeField] private bool _projectFromMainCamera;
-        [SerializeField] private bool _centerOnMousePosition;
-        [SerializeField] public bool pauseAutoUpdates;
- 
-       
+
+        public bool _projectFromMainCamera = false;
+        public bool _centerOnMousePosition = false;
+        public bool pauseAutoUpdates = false;
+
         #region Inspector
-        private bool _foldOut;
-        private int _inspectedUser = -1;
 
         #if !NO_PEGI
 
+        public bool _foldOut;
+        
+        private int _inspectedUser = -1;
+        
         public override bool Inspect()
         {
             var changed = false;
@@ -80,7 +83,7 @@ namespace PlaytimePainter
             return changed;
         }
 
-        #endif
+#endif
         #endregion
 
         private void OnEnable() {

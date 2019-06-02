@@ -5,15 +5,19 @@ using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
 namespace PlaytimePainter.Examples {
-    
+
+#pragma warning disable IDE0034 // Simplify 'default' expression
+#pragma warning disable IDE0019 // Use pattern matching
+#pragma warning disable IDE0018 // Inline variable declaration
+
     [ExecuteInEditMode]
     public class GodMode : MonoBehaviour, IPEGI {
 
         public float speed = 20;
         public float sensitivity = 5;
-        private bool _disableRotation;
+        public bool _disableRotation;
         public bool rotateWithoutRmb;
-        private bool simulateFlying;
+        public bool simulateFlying = false;
 
         private bool Rotate() {
 

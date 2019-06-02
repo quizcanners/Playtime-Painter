@@ -681,12 +681,14 @@ namespace QuizCannersUtilities
     public class StdExplorerData : IGotCount
     {
         public List<SavedIstd> states = new List<SavedIstd>();
-        [NonSerialized] private int inspectedState = -1;
         public string fileFolderHolder = "STDEncodes";
         public static ICfg inspectedCfg;
 
-#region Inspector
-#if !NO_PEGI
+        #region Inspector
+        #if !NO_PEGI
+        
+        [NonSerialized] private int inspectedState = -1;
+
         public int CountForInspector => states.Count;
         
         public static bool PEGI_Static(ICfg target)
@@ -764,7 +766,7 @@ namespace QuizCannersUtilities
             return changed;
         }
 #endif
-#endregion
+        #endregion
     }
-#endregion
+    #endregion
 }

@@ -503,6 +503,10 @@ namespace QuizCannersUtilities {
             }
         }
 
+        [HideInInspector]
+        [SerializeField] public int inspectedItems = -1;
+
+
         #if !NO_PEGI
         [ContextMenu("Reset Inspector")]
         private void Reset() => ResetInspector();
@@ -528,8 +532,6 @@ namespace QuizCannersUtilities {
 
             return changed;
         }
-        [HideInInspector]
-        [SerializeField] public int inspectedItems = -1;
 
         private int _inspectedDebugItems = -1;
         public virtual bool Inspect() {
@@ -577,7 +579,7 @@ namespace QuizCannersUtilities {
            
             return changed;
         }
-        #endif
+#endif
         #endregion
 
         #region Encoding & Decoding
@@ -598,13 +600,15 @@ namespace QuizCannersUtilities {
 
         public virtual bool Decode(string tg, string data)
         {
+
             switch (tg) {
-            #if !NO_PEGI
+          
                 case "db": inspectedItems = data.ToInt(); break;
-            #endif
                 default: return false;
             }
+            
             return true;
+
         }
 
         public virtual CfgEncoder Encode() => this.EncodeUnrecognized()
@@ -623,7 +627,7 @@ namespace QuizCannersUtilities {
 
 #endregion
 
-    #region Extensions
+#region Extensions
     public static class StdExtensions {
 
         private const string StdStart = "<-<-<";

@@ -8,19 +8,21 @@ using UnityEngine;
 
 namespace PlaytimePainter
 {
-    
+
     public class ColorScheme : AbstractCfg, IPEGI, IGotName, IPEGI_ListInspect
     {
         private static PainterDataAndConfig Cfg => PainterCamera.Data;
         private static BrushConfig GlobalBrush => Cfg.brushConfig;
 
-        private int _lastPicked = -1;
+       
         public string paletteName;
         private List<Color> _colors = new List<Color>();
 
 
         #region Inspector
-#if !NO_PEGI
+        #if !NO_PEGI
+
+         private int _lastPicked = -1;
 
         public string NameForPEGI { get { return paletteName; } set { paletteName = value; } }
 
