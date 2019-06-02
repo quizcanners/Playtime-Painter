@@ -178,9 +178,10 @@
 #endif*/
 
 
-					BleedAndBrightness(col, 1);
-
+				
 					col.rgb = col.rgb*alpha + fogColor.rgb*deAlpha;
+
+					BleedAndBrightness(col, 1);
 
 			
 					return col;

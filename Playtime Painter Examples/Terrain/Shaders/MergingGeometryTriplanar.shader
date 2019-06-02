@@ -1,7 +1,7 @@
 ﻿Shader "Playtime Painter/Terrain Integration/Triplanar" {
 	Properties{
 		[NoScaleOffset]_MainTex("Geometry Texture (RGB)", 2D) = "white" {}
-		[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map", Float) = 0
+		[KeywordEnum(None, Regular, Combined)] _BUMP("Map", Float) = 0
 		[NoScaleOffset]_Map("Geometry Combined Maps (RGBA)", 2D) = "gray" {}
 		_Merge("_Merge", Range(0.01,2)) = 1
 		[Toggle(CLIP_ALPHA)] _ALPHA("Clip Alpha", Float) = 0
@@ -150,6 +150,8 @@
 					UNITY_APPLY_FOG(i.fogCoord, fogCol);
 
 					col = APPLY_HEIGHT_FOG(i.wpos.y, col, fogCol);
+
+					BleedAndBrightness(col, 1);
 
 					return col;
 				}

@@ -212,6 +212,8 @@
 
 				UNITY_APPLY_FOG(i.fogCoord, col);
 
+				BleedAndBrightness(col, 1);
+
 				return col;
 
 			}

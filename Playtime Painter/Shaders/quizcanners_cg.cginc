@@ -505,7 +505,6 @@ inline void Simple_Light(float4 terrainN,float3 worldNormal, float3 viewDir, ino
 
 	col.rgb += reflResult;
 
-	BleedAndBrightness(col, fernel);
 
 }
 
@@ -573,11 +572,7 @@ inline void Terrain_Water_AndLight(inout float4 col, float3 tc_Control, float am
 
 	float deMetalic = (1 - Metallic);
 
-
-
 	col.rgb = col.rgb* (_LightColor0 + (terrainAmbient.rgb + ambientCol)*fernel*terrainAmbient.a) *(0.5 + deSmoothness*0.5);
-
-	
 
 	float3 halfDirection = normalize(viewDir.xyz + _WorldSpaceLightPos0.xyz);
 
@@ -591,7 +586,6 @@ inline void Terrain_Water_AndLight(inout float4 col, float3 tc_Control, float am
 
 	col.rgb += reflResult* (deMetalic + col.rgb*Metallic);
 
-	BleedAndBrightness(col, fernel);
 
 }
 

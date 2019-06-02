@@ -113,7 +113,7 @@
 			o.Normal =normalize(float3((mask.r - maskg)*damAlpha2*4 + bump.r ,
 				-(maskr - mask.r)*damAlpha2*4+ bump.g, 0.1)*deWater +float3(0,0,1)*water);
 
-			o.Albedo = mask.rgb;//col.rgb * deWater + _WetColor.rgb*water;
+			o.Albedo = col.rgb;// *deWater + _WetColor.rgb*water;
 
 			o.Metallic = water;
 			o.Alpha = col.a;

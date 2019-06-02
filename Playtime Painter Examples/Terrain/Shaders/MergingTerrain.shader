@@ -171,6 +171,8 @@
 
 					col = APPLY_HEIGHT_FOG(i.wpos.y, col, fogCol);
 
+					BleedAndBrightness(col, 1);
+
 					return col;
 				}
 				ENDCG
