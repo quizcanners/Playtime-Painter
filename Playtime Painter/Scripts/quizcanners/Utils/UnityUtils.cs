@@ -2719,16 +2719,27 @@ namespace QuizCannersUtilities {
     public class MeshMaterialPlaytimeInstancer
     {
 
+        [SerializeField] public bool instantiateInEditor = false;
         [SerializeField] public List<MeshRenderer> materialUsers = new List<MeshRenderer>();
-        [NonSerialized] private Material labelMaterialInstance;
+        [NonSerialized] private Material materialInstance;
 
+        public Material GetMaterialInstance(MeshRenderer rendy)
+        {
+            if (materialInstance)
+                return materialInstance;
 
+            materialUsers.Clear();
+            materialUsers.Add(rendy);
+
+            return MaterialInstance;
+        }
+        
         public Material MaterialInstance
         {
             get
             {
-                if (labelMaterialInstance)
-                    return labelMaterialInstance;
+                if (materialInstance)
+                    return materialInstance;
 
                 if (materialUsers.Count == 0)
                     return null;
@@ -2738,17 +2749,29 @@ namespace QuizCannersUtilities {
                 if (!first)
                     return null;
 
-                if (!Application.isPlaying)
+                if (!Application.isPlaying && !instantiateInEditor)
                     return first.sharedMaterial;
 
-                labelMaterialInstance = Object.Instantiate(first.material);
+                materialInstance = Object.Instantiate(first.sharedMaterial);
+
+                materialInstance.name = "Instanced material of {0}".F(first.name);
 
                 foreach (var u in materialUsers)
                     if (u)
-                        u.sharedMaterial = labelMaterialInstance;
+                        u.sharedMaterial = materialInstance;
 
-                return labelMaterialInstance;
+                return materialInstance;
             }
+        }
+
+        public MeshMaterialPlaytimeInstancer()
+        {
+
+        }
+
+        public MeshMaterialPlaytimeInstancer(bool instantiateInEditor)
+        {
+            this.instantiateInEditor = instantiateInEditor;
         }
     }
 

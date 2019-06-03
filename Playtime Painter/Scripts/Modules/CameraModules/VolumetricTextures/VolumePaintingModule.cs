@@ -227,7 +227,7 @@ namespace PlaytimePainter {
             
             stroke.SetWorldPosInShader();
             
-            RenderTextureBuffersManager.Blit(null, image.CurrentRenderTexture(), TexMGMT.brushRenderer.meshRenderer.sharedMaterial.shader);
+            RenderTextureBuffersManager.Blit(null, image.CurrentRenderTexture(), TexMGMT.brushRenderer.GetMaterial().shader);
 
             BrushTypeSphere.Inst.AfterStroke_Painter(painter, bc, stroke, alphaBuffer, image);
 

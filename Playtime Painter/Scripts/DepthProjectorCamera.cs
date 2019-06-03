@@ -30,7 +30,7 @@ namespace PlaytimePainter
 
         public static bool triedToFindDepthCamera;
 
-        [SerializeField] private Camera _projectorCamera;
+        [SerializeField] public Camera _projectorCamera;
 
         public bool _projectFromMainCamera = false;
         public bool _centerOnMousePosition = false;

@@ -11,21 +11,25 @@ namespace PlaytimePainter
     public class RenderBrush : PainterSystemMono
     {
 
-        public MeshRenderer meshRenderer;
+        [SerializeField] private MeshRenderer meshRenderer;
         public MeshFilter meshFilter;
-        [NonSerialized] private Mesh _modifiedMesh;
         public Bounds modifiedBound;
 
+
+        [NonSerialized] private Mesh _modifiedMesh;
         private SkinnedMeshRenderer _changedSkinnedMeshRenderer;
         private GameObject _changedGameObject;
+        
         private Material _replacedTargetsMaterial;
         private Material[] _replacedBrushesMaterials;
         private int _modifiedSubMesh;
         private int _replacedLayer;
         public bool deformedBounds;
 
-        public Material GetMaterial() =>  meshRenderer.sharedMaterial;
+        [NonSerialized] MeshMaterialPlaytimeInstancer materialInstancer = new MeshMaterialPlaytimeInstancer(true);
 
+        public Material GetMaterial() => materialInstancer.GetMaterialInstance(meshRenderer);
+        
         public void AfterRender() {
 
             if (!deformedBounds)
@@ -135,7 +139,7 @@ namespace PlaytimePainter
 
         public RenderBrush Set(Shader shade)
         {
-            meshRenderer.sharedMaterial.shader = shade;
+            GetMaterial().shader = shade;
             return this;
         }
 
@@ -145,12 +149,12 @@ namespace PlaytimePainter
 
         public RenderBrush Set(Texture tex)
         {
-            meshRenderer.sharedMaterial.Set(_mainTex, tex);
+            GetMaterial().Set(_mainTex, tex);
             return this;
         }
 
         public RenderBrush Set(Color col) {
-            meshRenderer.sharedMaterial.Set(_colorVal, col);
+            GetMaterial().Set(_colorVal, col);
             return this;
         }
 

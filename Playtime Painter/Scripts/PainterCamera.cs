@@ -184,6 +184,8 @@ namespace PlaytimePainter {
             }
         }
         
+        
+
         [SerializeField] private Camera painterCamera;
 
         public RenderTexture TargetTexture
@@ -201,7 +203,7 @@ namespace PlaytimePainter {
         {
             get
             {
-               return brushRenderer.meshRenderer.sharedMaterial;
+               return brushRenderer.GetMaterial();
             }
         }
 
@@ -982,19 +984,23 @@ namespace PlaytimePainter {
                 "no painter camera".writeWarning();
                 pegi.nl();
             }
-            
-            if (showAll || !MainCamera) {
+
+            Camera depthCamera = depthProjectorCamera ? depthProjectorCamera._projectorCamera : null;
+
+            bool depthAsMain = depthCamera && (depthCamera == MainCamera);
+
+            if (showAll || !MainCamera || depthAsMain) {
                 pegi.nl();
 
                 var cam = MainCamera;
-
-                if (!cam)
-                    icon.Warning.write("No Main Camera found. Playtime Painting will not be possible");
-
+                
                 var cams = new List<Camera>(FindObjectsOfType<Camera>());
 
                 if (painterCamera && cams.Contains(painterCamera))
                     cams.Remove(painterCamera);
+
+                if (depthCamera && cams.Contains(depthCamera))
+                    cams.Remove(depthCamera);
 
                 if ("Main Camera".select(60, ref cam, cams).changes(ref changed))
                     MainCamera = cam;
@@ -1006,6 +1012,17 @@ namespace PlaytimePainter {
                 }
 
                 pegi.nl();
+
+                if (depthAsMain) {
+                    "Depth projector camera is set as Main Camera - this is likely a mistake".writeWarning();
+                    pegi.nl();
+                }
+
+                if (!cam)
+                    icon.Warning.write("No Main Camera found. Playtime Painting will not be possible");
+
+                pegi.nl();
+
             }
 
             return changed;
