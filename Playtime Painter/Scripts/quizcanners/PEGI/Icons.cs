@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
-using PlaytimePainter;
 using QuizCannersUtilities;
 
 namespace PlayerAndEditorGUI {
@@ -112,14 +111,14 @@ namespace PlayerAndEditorGUI {
 
         public static Texture GetIcon(this ColorChanel icon) => ColorIcon((int) icon);
         
-        public static string ToText(this BrushMask icon) {
+        public static string ToText(this ColorMask icon) {
             switch (icon) {
-                case BrushMask.R: return "Red";
-                case BrushMask.G: return "Green";
-                case BrushMask.B: return "Blue";
-                case BrushMask.A: return "Alpha";
-                case BrushMask.Color: return "RGB";
-                case BrushMask.All: return "All";
+                case ColorMask.R: return "Red";
+                case ColorMask.G: return "Green";
+                case ColorMask.B: return "Blue";
+                case ColorMask.A: return "Alpha";
+                case ColorMask.Color: return "RGB";
+                case ColorMask.All: return "All";
                 default: return "Unknown channel";
             }
         }
@@ -134,7 +133,7 @@ namespace PlayerAndEditorGUI {
             }
         }
 
-        public static Texture GetIcon(this BrushMask icon) => icon.ToColorChannel().GetIcon();
+        public static Texture GetIcon(this ColorMask icon) => icon.ToColorChannel().GetIcon();
         
         #endregion
 

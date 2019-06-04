@@ -2562,7 +2562,7 @@ namespace PlaytimePainter {
                     SetOriginalShaderOnThis();
 
                 }
-                PainterCamera.Data.brushConfig.MaskSet(BrushMask.A, true);
+                PainterCamera.Data.brushConfig.MaskSet(ColorMask.A, true);
 
                 if (tht.GetImgData() != null && NotUsingPreview && icon.OriginalShader.Click("Applies changes made in Unity terrain Editor", 45).changes(ref changed))
                 {

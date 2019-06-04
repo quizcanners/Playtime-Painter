@@ -123,10 +123,10 @@ namespace PlaytimePainter {
 
             var m = bc.mask;
 
-            r = m.HasFlag(BrushMask.R);
-            g = m.HasFlag(BrushMask.G);
-            b = m.HasFlag(BrushMask.B);
-            a = m.HasFlag(BrushMask.A);
+            r = m.HasFlag(ColorMask.R);
+            g = m.HasFlag(ColorMask.G);
+            b = m.HasFlag(ColorMask.B);
+            a = m.HasFlag(ColorMask.A);
 
             cSrc = bc.Color;
 

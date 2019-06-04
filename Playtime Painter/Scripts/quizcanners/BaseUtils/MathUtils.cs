@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using PlayerAndEditorGUI;
+//using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
 namespace QuizCannersUtilities {
@@ -349,7 +349,92 @@ namespace QuizCannersUtilities {
     public enum ColorChanel { R = 0, G = 1, B = 2, A = 3 }
 
     [Flags]
-    public enum BrushMask { R = 1, G = 2, B = 4, A = 8, Color = 7, All = 15 }
+    public enum ColorMask { R = 1, G = 2, B = 4, A = 8, Color = 7, All = 15 }
+
+    public static class ColorChannelAndMaskExtensions
+    {
+
+        public static float GetValueFrom(this ColorChanel chan, Color col)
+        {
+            switch (chan)
+            {
+                case ColorChanel.R:
+                    return col.r;
+                case ColorChanel.G:
+                    return col.g;
+                case ColorChanel.B:
+                    return col.b;
+                default:
+                    return col.a;
+            }
+        }
+
+        public static void SetValueOn(this ColorChanel chan, ref Color col, float value)
+        {
+            switch (chan)
+            {
+                case ColorChanel.R:
+                    col.r = value;
+                    break;
+                case ColorChanel.G:
+                    col.g = value;
+                    break;
+                case ColorChanel.B:
+                    col.b = value;
+                    break;
+                case ColorChanel.A:
+                    col.a = value;
+                    break;
+            }
+        }
+
+        public static void SetValuesOn(this ColorMask bm, ref Color target, Color source)
+        {
+            if ((bm & ColorMask.R) != 0)
+                target.r = source.r;
+            if ((bm & ColorMask.G) != 0)
+                target.g = source.g;
+            if ((bm & ColorMask.B) != 0)
+                target.b = source.b;
+            if ((bm & ColorMask.A) != 0)
+                target.a = source.a;
+        }
+
+        public static Vector4 ToVector4(this ColorMask mask) => new Vector4(
+            mask.HasFlag(ColorMask.R) ? 1 : 0,
+            mask.HasFlag(ColorMask.G) ? 1 : 0,
+            mask.HasFlag(ColorMask.B) ? 1 : 0,
+            mask.HasFlag( ColorMask.A) ? 1 : 0);
+
+        public static ColorChanel ToColorChannel(this ColorMask bm)
+        {
+            switch (bm)
+            {
+                case ColorMask.R:
+                    return ColorChanel.R;
+                case ColorMask.G:
+                    return ColorChanel.G;
+                case ColorMask.B:
+                    return ColorChanel.B;
+                case ColorMask.A:
+                    return ColorChanel.A;
+            }
+
+            return ColorChanel.A;
+        }
+
+        public static void SetValuesOn(this ColorMask bm, ref Vector4 target, Color source)
+        {
+            if ((bm & ColorMask.R) != 0)
+                target.x = source.r;
+            if ((bm & ColorMask.G) != 0)
+                target.y = source.g;
+            if ((bm & ColorMask.B) != 0)
+                target.z = source.b;
+            if ((bm & ColorMask.A) != 0)
+                target.w = source.a;
+        }
+    }
 
     [Serializable]
     public struct MyIntVec2
@@ -415,6 +500,7 @@ namespace QuizCannersUtilities {
 
     }
     
+    /*
     [Serializable]
     public class LinearColor : AbstractCfg
     {
@@ -451,15 +537,15 @@ namespace QuizCannersUtilities {
             a = c.a;
         }
 
-        public void From(Color c, BrushMask bm) {
+        public void From(Color c, ColorMask bm) {
             c = c.linear;
-            if ((bm & BrushMask.R) != 0)
+            if ((bm & ColorMask.R) != 0)
                 r = c.r;
-            if ((bm & BrushMask.G) != 0)
+            if ((bm & ColorMask.G) != 0)
                 g = c.g;
-            if ((bm & BrushMask.B) != 0)
+            if ((bm & ColorMask.B) != 0)
                 b = c.b;
-            if ((bm & BrushMask.A) != 0)
+            if ((bm & ColorMask.A) != 0)
                 a = c.a;
         }
         
@@ -469,15 +555,15 @@ namespace QuizCannersUtilities {
         
         public Vector4 Vector4 => new Vector4(r, g, b, a);
 
-        public void ToV4(ref Vector4 to, BrushMask bm)
+        public void ToV4(ref Vector4 to, ColorMask bm)
         {
-            if ((bm & BrushMask.R) != 0)
+            if ((bm & ColorMask.R) != 0)
                 to.x = r;
-            if ((bm & BrushMask.G) != 0)
+            if ((bm & ColorMask.G) != 0)
                 to.y = g;
-            if ((bm & BrushMask.B) != 0)
+            if ((bm & ColorMask.B) != 0)
                 to.z = b;
-            if ((bm & BrushMask.A) != 0)
+            if ((bm & ColorMask.A) != 0)
                 to.w = a;
         }
 
@@ -486,115 +572,8 @@ namespace QuizCannersUtilities {
             From(col);
         }
     }
+    */
 
-    [Serializable]
-    public struct DynamicRangeFloat : ICfg {
-
-        [SerializeField] public float min;
-        [SerializeField] public float max;
-        [SerializeField] public float value;
-
-        public void SetValue(float nVal)
-        {
-            value = nVal;
-            min = Mathf.Min(min, value);
-            max = Mathf.Max(max, value);
-        }
-
-        #region Inspector
-        #if !NO_PEGI
-        private bool _showRange;
-
-        public bool Inspect() {
-            var changed = false;
-            var rangeChanged = false;
-
-            var tmp = value;
-            if (pegi.edit(ref tmp, min, max).changes(ref changed))
-                value = tmp;
-            
-            if (!_showRange && icon.Edit.ClickUnFocus("Edit Range", 20))
-                _showRange = true;
-
-            if (_showRange)  {
-                pegi.nl();
-
-                if (icon.FoldedOut.ClickUnFocus("Hide Range"))
-                    _showRange = false;
-
-                "Range: [".write(60);
-
-                var before = min;
-
-                tmp = min;
-
-                if (pegi.editDelayed(ref tmp, 40).changes(ref rangeChanged))
-                {
-                    min = tmp;
-                    if (min >= max)
-                        max = min + (max - before);
-                }
-
-                "-".write(10);
-                tmp = max;
-                if (pegi.editDelayed(ref tmp, 40).changes(ref rangeChanged))
-                {
-                    max = tmp;
-                    min = Mathf.Min(min, max);
-
-                }
-
-                "]".write(10);
-
-                pegi.nl();
-
-                "Tap Enter to apply Range change in the field (will Clamp current value)".writeHint();
-
-                pegi.nl();
-                
-                if (rangeChanged)
-                    value = Mathf.Clamp(value, min, max);
-            }
-
-
-            return changed | rangeChanged;
-        }
-        #endif
-        #endregion
-
-        #region Encode & Decode
-
-        public CfgEncoder Encode() => new CfgEncoder()
-            .Add_IfNotEpsilon("m", min)
-            .Add_IfNotEpsilon("v", value)
-            .Add_IfNotEpsilon("x", max);
-
-        public void Decode(string data) => data.DecodeTagsFor(this);
-
-        public bool Decode(string tg, string data)
-        {
-            switch (tg)
-            {
-                case "m": min = data.ToFloat(); break;
-                case "v": value = data.ToFloat(); break;
-                case "x": max = data.ToFloat(); break;
-                default: return false;
-            }
-
-            return true;
-        }
-        #endregion
-        
-        public DynamicRangeFloat(float min = 0, float max = 1, float value = 0.5f)
-        {
-            this.min = min;
-            this.max = max;
-            this.value = value;
-#if !NO_PEGI
-            _showRange = false;
-#endif
-        }
-    }
 
 }
 

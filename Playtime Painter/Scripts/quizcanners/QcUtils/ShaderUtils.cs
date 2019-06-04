@@ -4,6 +4,9 @@ using System.Collections;
 using System.Collections.Generic;
 using QuizCannersUtilities;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace QuizCannersUtilities {
 
@@ -435,7 +438,25 @@ namespace QuizCannersUtilities {
         public static void SetTiling(this Material mat, TextureValue property, Vector2 value) =>
             property.SetTiling(mat, value);
 
+        public static List<TextureValue> MyGetTextureProperties(this Material m)
+        {
+            #if UNITY_EDITOR
+            {
+                var lst = new List<TextureValue>();
+                foreach (var n in m.GetProperties(MaterialProperty.PropType.Texture))
+                    lst.Add(new TextureValue(n));
+
+                return lst;
+            }
+            #else
+            return new List<TextureValue>();
+            #endif
+        }
+
         #endregion
+
+
+
     }
 
     #region Shader Tags
@@ -528,7 +549,7 @@ namespace PlayerAndEditorGUI {
     #pragma warning disable 1692
     #pragma warning disable IDE1006
 
-    public static partial class pegi {
+    public static class ShaderUtilInspectExtensions {
 
         #if !NO_PEGI
         public static bool toggle(this Material mat, string keyword)
@@ -552,7 +573,7 @@ namespace PlayerAndEditorGUI {
             if (name.IsNullOrEmpty())
                 name = property.NameForDisplayPEGI;
 
-            if (name.edit(name.Length * letterSizeInPixels, ref val))
+            if (name.edit(name.Length * pegi.letterSizeInPixels, ref val))
             {
                 mat.Set(property, val);
                 return true;
@@ -568,7 +589,7 @@ namespace PlayerAndEditorGUI {
             if (name.IsNullOrEmpty())
                 name = property.NameForDisplayPEGI;
 
-            if (name.edit(name.Length * letterSizeInPixels, ref val, min, max))
+            if (name.edit(name.Length * pegi.letterSizeInPixels, ref val, min, max))
             {
                 mat.Set(property, val);
                 return true;
@@ -584,7 +605,7 @@ namespace PlayerAndEditorGUI {
             if (name.IsNullOrEmpty())
                 name = property.NameForDisplayPEGI;
 
-            if (name.edit(name.Length * letterSizeInPixels, ref val))
+            if (name.edit(name.Length * pegi.letterSizeInPixels, ref val))
             {
                 mat.Set(property, val);
                 return true;
@@ -616,7 +637,7 @@ namespace PlayerAndEditorGUI {
             if (name.IsNullOrEmpty())
                 name = property.NameForDisplayPEGI;
 
-            if (name.edit(name.Length * letterSizeInPixels, ref val))
+            if (name.edit(name.Length * pegi.letterSizeInPixels, ref val))
             {
                 mat.Set(property, val);
                 return true;

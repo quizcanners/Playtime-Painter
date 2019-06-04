@@ -11,8 +11,7 @@ using UnityEditor;
 namespace QuizCannersUtilities
 {
     #region List Data
-
-
+    
     #pragma warning disable IDE0034 // Simplify 'default' expression
     #pragma warning disable IDE0019 // Use pattern matching
     #pragma warning disable IDE0018 // Inline variable declaration
@@ -448,6 +447,8 @@ namespace QuizCannersUtilities
 
     public static class StdListDataExtensions {
 
+        public static T TryGet<T>(this List<T> list, ListMetaData meta) => list.TryGet(meta.inspected);
+        
         public static ElementData TryGetElement(this ListMetaData ld, int ind) => ld?.elementDatas.TryGet(ind);
 
     }
@@ -769,4 +770,6 @@ namespace QuizCannersUtilities
         #endregion
     }
     #endregion
+
+
 }

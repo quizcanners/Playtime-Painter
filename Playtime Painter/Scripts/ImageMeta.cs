@@ -553,13 +553,13 @@ namespace PlaytimePainter
                 p[i] = col;
         }
 
-        public ImageMeta SetPixels(Color col, BrushMask mask) {
+        public ImageMeta SetPixels(Color col, ColorMask mask) {
             var p = Pixels;
 
-            bool r = mask.HasFlag(BrushMask.R);
-            bool g = mask.HasFlag(BrushMask.G);
-            bool b = mask.HasFlag(BrushMask.B);
-            bool a = mask.HasFlag(BrushMask.A);
+            bool r = mask.HasFlag(ColorMask.R);
+            bool g = mask.HasFlag(ColorMask.G);
+            bool b = mask.HasFlag(ColorMask.B);
+            bool a = mask.HasFlag(ColorMask.A);
 
             for (var i = 0; i < p.Length; i++)
             {
@@ -701,12 +701,12 @@ namespace PlaytimePainter
             return result;
         }
 
-        public void SetEdges(Color col) => SetEdges(col, BrushMask.All);
+        public void SetEdges(Color col) => SetEdges(col, ColorMask.All);
         
 
         
 
-        public void SetEdges(Color col, BrushMask mask) {
+        public void SetEdges(Color col, ColorMask mask) {
             
             if (!Pixels.IsNullOrEmpty()) {
 
@@ -1128,7 +1128,7 @@ namespace PlaytimePainter
                             #endif
 
                             if ("Set edges to transparent".Click().nl(ref changed)) {
-                                SetEdges(Color.clear, BrushMask.A);
+                                SetEdges(Color.clear, ColorMask.A);
                                 SetAndApply(true);
                             }
 

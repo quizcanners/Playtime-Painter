@@ -489,7 +489,7 @@ namespace PlaytimePainter
             smoothNormal = Cfg.newVerticesSmooth;
         }
 
-        public void ClearColor(BrushMask bm) {
+        public void ClearColor(ColorMask bm) {
             foreach (var uvi in vertices)
                 bm.SetValuesOn(ref uvi.color, Color.black);
         }
@@ -522,7 +522,7 @@ namespace PlaytimePainter
             return (val == 1);
         }
 
-        public void SetColorOnLine(Color col, BrushMask bm, MeshPoint other)
+        public void SetColorOnLine(Color col, ColorMask bm, MeshPoint other)
         {
             foreach (var u in vertices)
                 if (u.ConnectedTo(other))

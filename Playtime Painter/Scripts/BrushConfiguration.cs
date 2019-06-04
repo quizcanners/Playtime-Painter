@@ -10,9 +10,9 @@ using QuizCannersUtilities;
 namespace PlaytimePainter {
 
     public static class BrushExtensions {
-        public static bool HasFlag(this BrushMask mask, int flag) => (mask & (BrushMask)(Mathf.Pow(2, flag))) != 0;
+        public static bool HasFlag(this ColorMask mask, int flag) => (mask & (ColorMask)(Mathf.Pow(2, flag))) != 0;
 
-        public static bool HasFlag(this BrushMask mask, BrushMask flag) => (mask & flag) != 0;
+        public static bool HasFlag(this ColorMask mask, ColorMask flag) => (mask & flag) != 0;
     }
 
     public enum DecalRotationMethod { Constant, Random, FaceStrokeDirection }
@@ -87,7 +87,7 @@ namespace PlaytimePainter {
         public bool flipMaskAlpha;
         public float maskTiling = 1;
         
-        public void MaskSet(BrushMask flag, bool to)
+        public void MaskSet(ColorMask flag, bool to)
         {
             if (to)
                 mask |= flag;
@@ -95,11 +95,11 @@ namespace PlaytimePainter {
                 mask &= ~flag;
         }
 
-        public BrushMask mask;
+        public ColorMask mask;
 
-        public bool PaintingAllChannels => BrushExtensions.HasFlag(mask, BrushMask.R) && BrushExtensions.HasFlag(mask, BrushMask.G) && BrushExtensions.HasFlag(mask, BrushMask.B) && BrushExtensions.HasFlag(mask, BrushMask.A);
+        public bool PaintingAllChannels => BrushExtensions.HasFlag(mask, ColorMask.R) && BrushExtensions.HasFlag(mask, ColorMask.G) && BrushExtensions.HasFlag(mask, ColorMask.B) && BrushExtensions.HasFlag(mask, ColorMask.A);
 
-        public bool PaintingRGB => BrushExtensions.HasFlag(mask, BrushMask.R) && BrushExtensions.HasFlag(mask, BrushMask.G) && BrushExtensions.HasFlag(mask, BrushMask.B) && (!BrushExtensions.HasFlag(mask, BrushMask.A));
+        public bool PaintingRGB => BrushExtensions.HasFlag(mask, ColorMask.R) && BrushExtensions.HasFlag(mask, ColorMask.G) && BrushExtensions.HasFlag(mask, ColorMask.B) && (!BrushExtensions.HasFlag(mask, ColorMask.A));
         
         #endregion
 
@@ -169,8 +169,8 @@ namespace PlaytimePainter {
         
         public BrushConfig() {
             Color = Color.green;
-            mask = new BrushMask();
-            mask |= BrushMask.R | BrushMask.G | BrushMask.B;
+            mask = new ColorMask();
+            mask |= ColorMask.R | ColorMask.G | ColorMask.B;
         }
         
         public PlaytimePainter Paint(StrokeVector stroke, PlaytimePainter painter) {
@@ -461,7 +461,7 @@ namespace PlaytimePainter {
 
 
             if (Mode_Type_PEGI().changes(ref changed) && GetBrushType(cpuBlit) == BrushTypeDecal.Inst)
-                    MaskSet(BrushMask.A, true);
+                    MaskSet(ColorMask.A, true);
 
             if (p.terrain) {
 
@@ -494,7 +494,7 @@ namespace PlaytimePainter {
 
         }
 
-        public bool ChannelSlider(BrushMask inspectedMask, ref Color col, Texture icon, bool slider) {
+        public bool ChannelSlider(ColorMask inspectedMask, ref Color col, Texture icon, bool slider) {
 
             var changed = false;
 
@@ -548,10 +548,10 @@ namespace PlaytimePainter {
             
             if (!Cfg.showColorSliders) return changed;
 
-            ChannelSlider(BrushMask.R, ref Color, null, true).nl(ref changed);
-            ChannelSlider(BrushMask.G, ref Color, null, true).nl(ref changed);
-            ChannelSlider(BrushMask.B, ref Color, null, true).nl(ref changed);
-            ChannelSlider(BrushMask.A, ref Color, null, true).nl(ref changed);
+            ChannelSlider(ColorMask.R, ref Color, null, true).nl(ref changed);
+            ChannelSlider(ColorMask.G, ref Color, null, true).nl(ref changed);
+            ChannelSlider(ColorMask.B, ref Color, null, true).nl(ref changed);
+            ChannelSlider(ColorMask.A, ref Color, null, true).nl(ref changed);
 
             return changed;
         }
@@ -570,27 +570,27 @@ namespace PlaytimePainter {
             var changed = false;
 
            // if (Cfg.showColorSliders) {
-           bool r = Cfg.showColorSliders || !mask.HasFlag(BrushMask.R);
-           bool g = Cfg.showColorSliders || !mask.HasFlag(BrushMask.G);
-           bool b = Cfg.showColorSliders || !mask.HasFlag(BrushMask.B);
-           bool a = Cfg.showColorSliders || !mask.HasFlag(BrushMask.A);
+           bool r = Cfg.showColorSliders || !mask.HasFlag(ColorMask.R);
+           bool g = Cfg.showColorSliders || !mask.HasFlag(ColorMask.G);
+           bool b = Cfg.showColorSliders || !mask.HasFlag(ColorMask.B);
+           bool a = Cfg.showColorSliders || !mask.HasFlag(ColorMask.A);
 
 
             var slider = GetBlitMode(cpu).ShowColorSliders;
 
             if (painter && painter.IsTerrainHeightTexture)
             {
-                ChannelSlider(BrushMask.A, ref Color, null, true).changes(ref changed);
+                ChannelSlider(ColorMask.A, ref Color, null, true).changes(ref changed);
             }
             else if (painter && painter.IsTerrainControlTexture)
             {
-                if (r) ChannelSlider(BrushMask.R, ref Color, painter.terrain.GetSplashPrototypeTexture(0), slider)
+                if (r) ChannelSlider(ColorMask.R, ref Color, painter.terrain.GetSplashPrototypeTexture(0), slider)
                     .nl(ref changed);
-                if (g) ChannelSlider(BrushMask.G, ref Color, painter.terrain.GetSplashPrototypeTexture(1), slider)
+                if (g) ChannelSlider(ColorMask.G, ref Color, painter.terrain.GetSplashPrototypeTexture(1), slider)
                     .nl(ref changed);
-                if (b) ChannelSlider(BrushMask.B, ref Color, painter.terrain.GetSplashPrototypeTexture(2), slider)
+                if (b) ChannelSlider(ColorMask.B, ref Color, painter.terrain.GetSplashPrototypeTexture(2), slider)
                     .nl(ref changed);
-                if (a) ChannelSlider(BrushMask.A, ref Color, painter.terrain.GetSplashPrototypeTexture(3), slider)
+                if (a) ChannelSlider(ColorMask.A, ref Color, painter.terrain.GetSplashPrototypeTexture(3), slider)
                     .nl(ref changed);
             }
             else
@@ -612,9 +612,9 @@ namespace PlaytimePainter {
                             (srcColorUsage != SourceTextureColorUsage.Unchanged)
                             :slider;
 
-                        if (r) ChannelSlider(BrushMask.R, ref Color, null, slider_copy).nl(ref changed);
-                        if (g) ChannelSlider(BrushMask.G, ref Color, null, slider_copy).nl(ref changed);
-                        if (b) ChannelSlider(BrushMask.B, ref Color, null, slider_copy).nl(ref changed);
+                        if (r) ChannelSlider(ColorMask.R, ref Color, null, slider_copy).nl(ref changed);
+                        if (g) ChannelSlider(ColorMask.G, ref Color, null, slider_copy).nl(ref changed);
+                        if (b) ChannelSlider(ColorMask.B, ref Color, null, slider_copy).nl(ref changed);
                     }
                     
                     var gotAlpha = painter.meshEditing || id == null || id.texture2D.TextureHasAlpha();
@@ -623,7 +623,7 @@ namespace PlaytimePainter {
                         if (!gotAlpha)
                             icon.Warning.write("Texture as no alpha, clicking save will fix it");
 
-                        if (a) ChannelSlider(BrushMask.A, ref Color, null, slider).nl(ref changed);
+                        if (a) ChannelSlider(ColorMask.A, ref Color, null, slider).nl(ref changed);
                     }
                 }
             }
@@ -724,7 +724,7 @@ namespace PlaytimePainter {
 
                 case "useMask": useMask = data.ToBool(); break;
 
-                case "mask": mask = (BrushMask)data.ToInt(); break;
+                case "mask": mask = (ColorMask)data.ToInt(); break;
 
                 case "modeCPU": _inCpuBlitMode = data.ToInt(); break;
                 case "modeGPU": _inGpuBlitMode = data.ToInt(); break;

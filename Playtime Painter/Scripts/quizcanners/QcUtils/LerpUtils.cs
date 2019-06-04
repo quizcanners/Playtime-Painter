@@ -1734,88 +1734,9 @@ namespace QuizCannersUtilities
 
     }
 
-    public static class LinkedLerpingExtensions
+    public static class LerpUtils
     {
 
-        public static void Portion<T>(this T[] list, LerpData ld) where T : ILinkedLerping
-        {
-            foreach (var e in list)
-                if (!e.IsNullOrDestroyed_Obj())
-                    e.Portion(ld);
-        }
-
-        public static void Lerp<T>(this T[] list, LerpData ld, bool canTeleport = false) where T : ILinkedLerping
-        {
-            foreach (var e in list)
-                if (!e.IsNullOrDestroyed_Obj())
-                    e.Lerp(ld, canTeleport);
-        }
-
-        public static void Portion<T>(this List<T> list, LerpData ld) where T : ILinkedLerping
-        {
-
-            foreach (var e in list)
-                if (!e.IsNullOrDestroyed_Obj())
-                    e.Portion(ld);
-
-        }
-
-        public static void Lerp<T>(this List<T> list, LerpData ld, bool canTeleport = false) where T : ILinkedLerping
-        {
-            foreach (var e in list)
-                if (!e.IsNullOrDestroyed_Obj())
-                    e.Lerp(ld, canTeleport);
-        }
-
-        public static void FadeAway<T>(this List<T> list) where T : IManageFading
-        {
-            if (list == null) return;
-
-            foreach (var e in list)
-                if (!e.IsNullOrDestroyed_Obj())
-                    e.FadeAway();
-        }
-
-        public static bool TryFadeIn<T>(this List<T> list) where T : IManageFading
-        {
-
-
-            if (list == null) return false;
-
-            var fadedIn = false;
-
-
-            foreach (var e in list)
-                if (!e.IsNullOrDestroyed_Obj())
-                    fadedIn |= e.TryFadeIn();
-
-            return fadedIn;
-        }
-    }
-
-    public static class CustomShaderParameters
-    {
-        public static readonly ShaderProperty.VectorValue ImageProjectionPosition = new ShaderProperty.VectorValue("_imgProjPos");
-        public static readonly ShaderProperty.TextureValue NextTexture = new ShaderProperty.TextureValue("_Next_MainTex");
-        public static readonly ShaderProperty.TextureValue CurrentTexture = new ShaderProperty.TextureValue("_MainTex_Current");
-        public static readonly ShaderProperty.FloatValue TransitionPortion = new ShaderProperty.FloatValue("_Transition");
-
-
-#if !NO_PEGI
-        public static void Inspect()
-        {
-            "Image projection position".write_ForCopy(ImageProjectionPosition.NameForDisplayPEGI); pegi.nl();
-
-            "Next Texture".write_ForCopy(NextTexture.NameForDisplayPEGI); pegi.nl();
-
-            "Transition portion".write_ForCopy(TransitionPortion.NameForDisplayPEGI); pegi.nl();
-        }
-#endif
-    }
-
-
-    public static partial class QcMath
-    {
         #region Lerps
 
         public static float SpeedToPortion(this float speed, float dist) =>
@@ -1986,5 +1907,81 @@ namespace QuizCannersUtilities
 
         #endregion
 
+
+        public static void Portion<T>(this T[] list, LerpData ld) where T : ILinkedLerping
+        {
+            foreach (var e in list)
+                if (!e.IsNullOrDestroyed_Obj())
+                    e.Portion(ld);
+        }
+
+        public static void Lerp<T>(this T[] list, LerpData ld, bool canTeleport = false) where T : ILinkedLerping
+        {
+            foreach (var e in list)
+                if (!e.IsNullOrDestroyed_Obj())
+                    e.Lerp(ld, canTeleport);
+        }
+
+        public static void Portion<T>(this List<T> list, LerpData ld) where T : ILinkedLerping
+        {
+
+            foreach (var e in list)
+                if (!e.IsNullOrDestroyed_Obj())
+                    e.Portion(ld);
+
+        }
+
+        public static void Lerp<T>(this List<T> list, LerpData ld, bool canTeleport = false) where T : ILinkedLerping
+        {
+            foreach (var e in list)
+                if (!e.IsNullOrDestroyed_Obj())
+                    e.Lerp(ld, canTeleport);
+        }
+
+        public static void FadeAway<T>(this List<T> list) where T : IManageFading
+        {
+            if (list == null) return;
+
+            foreach (var e in list)
+                if (!e.IsNullOrDestroyed_Obj())
+                    e.FadeAway();
+        }
+
+        public static bool TryFadeIn<T>(this List<T> list) where T : IManageFading
+        {
+
+
+            if (list == null) return false;
+
+            var fadedIn = false;
+
+
+            foreach (var e in list)
+                if (!e.IsNullOrDestroyed_Obj())
+                    fadedIn |= e.TryFadeIn();
+
+            return fadedIn;
+        }
     }
+
+    public static class CustomShaderParameters
+    {
+        public static readonly ShaderProperty.VectorValue ImageProjectionPosition = new ShaderProperty.VectorValue("_imgProjPos");
+        public static readonly ShaderProperty.TextureValue NextTexture = new ShaderProperty.TextureValue("_Next_MainTex");
+        public static readonly ShaderProperty.TextureValue CurrentTexture = new ShaderProperty.TextureValue("_MainTex_Current");
+        public static readonly ShaderProperty.FloatValue TransitionPortion = new ShaderProperty.FloatValue("_Transition");
+
+
+#if !NO_PEGI
+        public static void Inspect()
+        {
+            "Image projection position".write_ForCopy(ImageProjectionPosition.NameForDisplayPEGI); pegi.nl();
+
+            "Next Texture".write_ForCopy(NextTexture.NameForDisplayPEGI); pegi.nl();
+
+            "Transition portion".write_ForCopy(TransitionPortion.NameForDisplayPEGI); pegi.nl();
+        }
+#endif
+    }
+
 }

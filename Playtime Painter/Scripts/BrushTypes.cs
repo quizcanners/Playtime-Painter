@@ -569,7 +569,7 @@ namespace PlaytimePainter
             }
 
             pegi.newLine();
-            if (!BrushExtensions.HasFlag(InspectedBrush.mask, BrushMask.A))
+            if (!BrushExtensions.HasFlag(InspectedBrush.mask, ColorMask.A))
                 "! Alpha chanel is disabled. Decals may not render properly".writeHint();
 
             return changed;

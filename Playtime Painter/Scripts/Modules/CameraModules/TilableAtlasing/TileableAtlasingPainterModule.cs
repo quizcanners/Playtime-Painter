@@ -90,10 +90,10 @@ namespace PlaytimePainter {
 
             BlitFunctions.alpha = 1;
 
-            BlitFunctions.r = BrushExtensions.HasFlag(bc.mask, BrushMask.R);
-            BlitFunctions.g = BrushExtensions.HasFlag(bc.mask, BrushMask.G);
-            BlitFunctions.b = BrushExtensions.HasFlag(bc.mask, BrushMask.B);
-            BlitFunctions.a = BrushExtensions.HasFlag(bc.mask, BrushMask.A);
+            BlitFunctions.r = BrushExtensions.HasFlag(bc.mask, ColorMask.R);
+            BlitFunctions.g = BrushExtensions.HasFlag(bc.mask, ColorMask.G);
+            BlitFunctions.b = BrushExtensions.HasFlag(bc.mask, ColorMask.B);
+            BlitFunctions.a = BrushExtensions.HasFlag(bc.mask, ColorMask.A);
 
             BlitFunctions.cSrc = bc.Color;
 
@@ -585,7 +585,9 @@ namespace PlaytimePainter {
                 _originalShader = mat.shader;
                 OnChangeMaterial(painter);
             }
-            changed |= "Name".edit(50, ref name).nl();
+
+            "Name".edit(50, ref name).nl(ref changed);
+
             if ("Hint".foldout(ref _showHint).nl())
             {
 
@@ -595,7 +597,7 @@ namespace PlaytimePainter {
                     "Also if light looks smudged, rebuild the light.").writeHint();
             }
 
-            if ((("Atlased Material:".edit(90, ref _atlasedMaterial).nl()) ||
+            if (("Atlased Material:".edit(90, ref _atlasedMaterial).nl() ||
                 (_atlasedMaterial && _atlasedMaterial.shader != _atlasedShader)).changes(ref changed)) 
                 OnChangeMaterial(painter);
             
@@ -624,9 +626,10 @@ namespace PlaytimePainter {
             pegi.nl();
 
             foreach (var f in _fields)
-                changed |= f.Nested_Inspect();
+                f.Nested_Inspect().nl(ref changed);
 
-            changed |= "Mesh Profiles [{0}]".F(PainterCamera.Data.meshPackagingSolutions.Count).select_Index(140, ref _matAtlasProfile, PainterCamera.Data.meshPackagingSolutions).nl();
+            "Mesh Profiles [{0}]".F(PainterCamera.Data.meshPackagingSolutions.Count)
+                .select_Index(140, ref _matAtlasProfile, PainterCamera.Data.meshPackagingSolutions).nl(ref changed);
 
             if (DestinationMaterial && !DestinationMaterial.HasProperty(PainterDataAndConfig.isAtlasedProperty))
             {

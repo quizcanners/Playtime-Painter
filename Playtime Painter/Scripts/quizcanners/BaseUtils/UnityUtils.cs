@@ -9,7 +9,6 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using PlayerAndEditorGUI;
 
 using Object = UnityEngine.Object;
 using System.Reflection;
@@ -32,23 +31,180 @@ namespace QuizCannersUtilities {
     public static class UnityUtils
     {
 
+        public static T Instantiate<T>(string name = null) where T : MonoBehaviour
+        {
+
+            var go = new GameObject(name.IsNullOrEmpty() ? typeof(T).ToPegiStringType() : name);
+            return go.AddComponent<T>();
+        }
+
+        #region Scriptable Objects
+
+        private const string ScrObjExt = ".asset";
+
+        public static T CreateScriptableObjectInTheSameFolder<T>(this ScriptableObject el, string name, bool refreshDatabase = true) where T : ScriptableObject
+        {
+
+            T added;
+
+#if UNITY_EDITOR
+
+            var path = AssetDatabase.GetAssetPath(el);
+
+            if (path.IsNullOrEmpty()) return null;
+
+            added = ScriptableObject.CreateInstance<T>();
+
+            var assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(path.Replace(Path.GetFileName(path), name + ScrObjExt));
+
+            AssetDatabase.CreateAsset(added, assetPathAndName);
+
+            added.name = name;
+
+            if (!refreshDatabase)
+            {
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
+#else
+            added = ScriptableObject.CreateInstance<T>();
+#endif
+
+            return added;
+        }
+
+        public static T DuplicateScriptableObject<T>(this T el, bool refreshDatabase = true) where T : ScriptableObject
+        {
+            T added;
+
+#if UNITY_EDITOR
+
+            var path = AssetDatabase.GetAssetPath(el);
+
+            if (path.IsNullOrEmpty()) return null;
+
+            added = ScriptableObject.CreateInstance(el.GetType()) as T;
+
+            var oldName = Path.GetFileName(path);
+
+            if (oldName.IsNullOrEmpty()) return added;
+
+            int len = oldName.Length;
+
+            var assetPathAndName =
+                AssetDatabase.GenerateUniqueAssetPath(
+                    Path.Combine(
+                        path.Substring(0, path.Length - len),
+                        oldName.Substring(0, len - ScrObjExt.Length) + ScrObjExt));
+
+            AssetDatabase.CreateAsset(added, assetPathAndName);
+
+            var newName = Path.GetFileName(assetPathAndName);
+
+            added.name = newName.Substring(0, newName.Length - ScrObjExt.Length);
+
+            if (refreshDatabase)
+            {
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
+
+#else
+            added = ScriptableObject.CreateInstance(el.GetType()) as T;
+#endif
+
+            return added;
+        }
+
+        public static T CreateAndAddScriptableObjectAsset<T>(this List<T> objs, string path, string name)
+            where T : ScriptableObject => CreateScriptableObjectAsset<T, T>(path, name, objs);
+
+        public static T CreateScriptableObjectAsset<T>(this List<T> list, string path, string name, Type t) where T : ScriptableObject
+        {
+            var asset = ScriptableObject.CreateInstance(t) as T;
+
+            SaveScriptableObjectAsAsset(asset, path, name, list);
+
+            return asset;
+        }
+
+        public static T CreateScriptableObjectAsset<T>(string path, string name) where T : ScriptableObject
+        {
+            var asset = ScriptableObject.CreateInstance<T>();
+
+            SaveScriptableObjectAsAsset<T, T>(asset, path, name);
+
+            return asset;
+        }
+
+        public static T CreateScriptableObjectAsset<T, TG>(string path, string name, List<TG> optionalList = null) where T : TG where TG : ScriptableObject
+        {
+            var asset = ScriptableObject.CreateInstance<T>();
+
+            SaveScriptableObjectAsAsset(asset, path, name, optionalList);
+
+            return asset;
+        }
+
+        static void SaveScriptableObjectAsAsset<T, TG>(T asset, string path, string name, List<TG> optionalList = null)
+            where T : TG where TG : ScriptableObject  {
+
+  
+            if (optionalList != null) 
+                optionalList.Add(asset);
+            
+#if UNITY_EDITOR
+
+            if (!path.Contains("Assets"))
+                path = Path.Combine("Assets", path);
+
+            var fullPath = Path.Combine(FileSaveUtils.OutsideOfAssetsFolder, path);
+
+            try
+            {
+                Directory.CreateDirectory(fullPath);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(string.Format("Couldn't create Directory {0} : {1}", fullPath, ex.ToString()));
+                return;
+            }
+
+            var assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(path, name + ".asset"));
+
+            try
+            {
+                AssetDatabase.CreateAsset(asset, assetPathAndName);
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(string.Format("Couldn't create Scriptable Object {0} : {1}", assetPathAndName, ex.ToString()));
+            }
+#endif
+        }
+
+        #endregion
+
         #region External Communications
 
-        public static void SendEmail(string to) => Application.OpenURL("mailto:{0}".F(to));
+        public static void SendEmail(string to) => Application.OpenURL("mailto:"+to);
 
         public static void SendEmail(string email, string subject, string body) =>
-            Application.OpenURL("mailto:{0}?subject={1}&body={2}".F(email, subject.MyEscapeUrl(), body.MyEscapeUrl()));
+            Application.OpenURL(string.Format("mailto:{0}?subject={1}&body={2}",email, subject.MyEscapeUrl(), body.MyEscapeUrl()));
 
         static string MyEscapeUrl(this string url) =>
 #if QC_USE_NETWORKING
             UnityWebRequest.EscapeURL(url).Replace("+", "%20");
 #else
-        url.Replace("+", "%20");
+            url.Replace("+", "%20");
 #endif
 
         public static void OpenBrowser(string address) => Application.OpenURL(address);
 
         #endregion
+
 
         #region Timing
 
@@ -157,13 +313,7 @@ namespace QuizCannersUtilities {
                     if (go)
                         go.SetActive(to);
         }
-
-        public static T Instantiate<T>(string name = null) where T : MonoBehaviour
-        {
-            var go = new GameObject(name.IsNullOrEmpty() ? typeof(T).ToPegiStringType() : name);
-            return go.AddComponent<T>();
-        }
-
+        
         public static GameObject TryGetGameObjectFromObj(this object obj)
         {
             var go = obj as GameObject;
@@ -851,7 +1001,7 @@ namespace QuizCannersUtilities {
         {
             #if UNITY_EDITOR
 
-            var ass = AssetDatabase.FindAssets("t:{0}".F(typeof(T).ToString()));
+            var ass = AssetDatabase.FindAssets("t:"+typeof(T).ToString());
             if (ass.Length > 0) {
 
                 var all = new Object[ass.Length];
@@ -909,7 +1059,7 @@ namespace QuizCannersUtilities {
                         .GetAssetPath(pf); //PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(pf);
 
                     if (path.IsNullOrEmpty())
-                        "Path is null, Update prefab manually".showNotificationIn3D_Views();
+                        Debug.LogError("Path is null, Update prefab manually");
                     else
                         PrefabUtility.SaveAsPrefabAssetAndConnect(gameObject, path, InteractionMode.AutomatedAction);
                 }
@@ -921,7 +1071,7 @@ namespace QuizCannersUtilities {
             }
             else
             {
-                (gameObject.name + " Not a prefab").showNotificationIn3D_Views();
+                Debug.LogError(gameObject.name + " Not a prefab");
             }
 
             gameObject.SetToDirty();
@@ -1021,174 +1171,7 @@ namespace QuizCannersUtilities {
 
         #endregion
 
-        #region Scriptable Objects
-
-        private const string ScrObjExt = ".asset";
-
-        public static T CreateScriptableObjectInTheSameFolder<T>(this ScriptableObject el, string name, bool refreshDatabase = true) where T : ScriptableObject
-        {
-
-            T added;
-
-            #if UNITY_EDITOR
-            
-            var path = AssetDatabase.GetAssetPath(el);
-
-            if (path.IsNullOrEmpty()) return null;
-
-            added = ScriptableObject.CreateInstance<T>();
-
-            var assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(path.Replace(Path.GetFileName(path), name + ScrObjExt));
-
-            AssetDatabase.CreateAsset(added, assetPathAndName);
-
-            added.name = name;
-
-            if (!refreshDatabase) {
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
-            }
-#else
-            added = ScriptableObject.CreateInstance<T>();
-#endif
-
-            return added;
-        }
-        
-        public static T DuplicateScriptableObject<T>(this T el, bool refreshDatabase = true) where T : ScriptableObject
-        {
-            T added;
-
-            #if UNITY_EDITOR
-
-            var path = AssetDatabase.GetAssetPath(el);
-
-            if (path.IsNullOrEmpty()) return null;
-
-            added = ScriptableObject.CreateInstance(el.GetType()) as T;
-
-            var oldName = Path.GetFileName(path);
-
-            if (oldName.IsNullOrEmpty()) return added;
-
-            int len = oldName.Length;
-    
-            var assetPathAndName =
-                AssetDatabase.GenerateUniqueAssetPath(
-                    Path.Combine(
-                        path.Substring(0, path.Length - len) , 
-                        oldName.Substring(0, len - ScrObjExt.Length) + ScrObjExt));
-
-            AssetDatabase.CreateAsset(added, assetPathAndName);
-
-            var newName = Path.GetFileName(assetPathAndName);
-
-            added.name = newName.Substring(0, newName.Length - ScrObjExt.Length);
-
-            if (refreshDatabase) {
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
-            }
-
-#else
-            added = ScriptableObject.CreateInstance(el.GetType()) as T;
-#endif
-
-            return added;
-        }
-
-        public static T CreateAndAddScriptableObjectAsset<T>(this List<T> objs, string path, string name)
-            where T : ScriptableObject => CreateScriptableObjectAsset<T, T>(path, name, objs);
-
-        public static T CreateScriptableObjectAsset<T>(this List<T> list, string path, string name, Type t) where T : ScriptableObject
-        {
-            var asset = ScriptableObject.CreateInstance(t) as T;
-
-            SaveScriptableObjectAsAsset(asset, path, name, list);
-
-            return asset;
-        }
-
-        public static T CreateScriptableObjectAsset<T>(string path, string name) where T : ScriptableObject
-        {
-            var asset = ScriptableObject.CreateInstance<T>();
-
-            SaveScriptableObjectAsAsset<T, T>(asset, path, name);
-
-            return asset;
-        }
-
-        public static T CreateScriptableObjectAsset<T, TG>(string path, string name, List<TG> optionalList = null) where T : TG where TG : ScriptableObject
-        {
-            var asset = ScriptableObject.CreateInstance<T>();
-
-            SaveScriptableObjectAsAsset(asset, path, name, optionalList);
-
-            return asset;
-        }
-
-        static void SaveScriptableObjectAsAsset<T, TG>(T asset, string path, string name, List<TG> optionalList = null)
-            where T : TG where TG : ScriptableObject {
-
-#if !NO_PEGI
-            var nm = asset as IGotName;
-            if (nm != null)
-                nm.NameForPEGI = name;
-
-            if (optionalList != null) {
-
-                var ind = asset as IGotIndex;
-
-                if (ind != null)
-                {
-                    var maxInd = 0;
-                    foreach (var o in optionalList)
-                    {
-                        var io = o as IGotIndex;
-                        if (io != null)
-                            maxInd = Mathf.Max(io.IndexForPEGI + 1, maxInd);
-                    }
-
-                    ind.IndexForPEGI = maxInd;
-                }
-
-                optionalList.Add(asset);
-
-            }
-#endif
-
-#if UNITY_EDITOR
-
-            if (!path.Contains("Assets"))
-                path = Path.Combine("Assets", path);
-
-            var fullPath = Path.Combine(FileSaveUtils.OutsideOfAssetsFolder, path);
-
-            try {
-                Directory.CreateDirectory(fullPath);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError("Couldn't create Directory {0} : {1}".F(fullPath, ex.ToString()));
-                return;
-            }
-
-            var assetPathAndName = AssetDatabase.GenerateUniqueAssetPath(Path.Combine(path, name + ".asset"));
-
-            try {
-                AssetDatabase.CreateAsset(asset, assetPathAndName);
-                AssetDatabase.SaveAssets();
-                AssetDatabase.Refresh();
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError("Couldn't create Scriptable Object {0} : {1}".F(assetPathAndName, ex.ToString()));
-            }
-#endif
-        }
-
-        #endregion
-
+ 
         #region Input MGMT
 
         /// <summary>
@@ -1246,63 +1229,7 @@ namespace QuizCannersUtilities {
 
         #endregion
 
-        #region Spin Around
-
-        private static Vector2 _camOrbit;
-        private static Vector3 _spinningAround;
-        private static float _orbitDistance = 0;
-        private static bool _orbitingFocused;
-
-        private static float _spinStartTime = 0;
-        
-        public static void SpinAround(Vector3 pos, Transform cameraman)
-        {
-            if (Input.GetMouseButtonDown(2))
-            {
-                var before = cameraman.rotation; //cam.transform.rotation;
-                cameraman.transform.LookAt(pos);
-                var rotE = cameraman.rotation.eulerAngles;
-                _camOrbit.x = rotE.y;
-                _camOrbit.y = rotE.x;
-                _orbitDistance = (pos - cameraman.position).magnitude;
-                _spinningAround = pos;
-                cameraman.rotation = before;
-                _orbitingFocused = false;
-                _spinStartTime = Time.time;
-            }
-
-            if (Input.GetMouseButtonUp(2))
-                _orbitDistance = 0;
-
-            if ((!(Math.Abs(_orbitDistance) > float.Epsilon)) || !Input.GetMouseButton(2)) return;
-
-            _camOrbit.x += Input.GetAxis("Mouse X") * 5;
-            _camOrbit.y -= Input.GetAxis("Mouse Y") * 5;
-
-            if (_camOrbit.y <= -360)
-                _camOrbit.y += 360;
-            if (_camOrbit.y >= 360)
-                _camOrbit.y -= 360;
-
-            var rot = Quaternion.Euler(_camOrbit.y, _camOrbit.x, 0);
-            var campos = rot *
-                         (new Vector3(0.0f, 0.0f, -_orbitDistance)) +
-                         _spinningAround;
-
-            cameraman.position = campos;
-            if ((Time.time - _spinStartTime) < 0.2f) return;
-
-            if (!_orbitingFocused)
-            {
-                cameraman.transform.rotation = cameraman.rotation.LerpBySpeed(rot, 300);
-                if (Quaternion.Angle(cameraman.rotation, rot) < 1)
-                    _orbitingFocused = true;
-            }
-            else cameraman.rotation = rot;
-        }
-
-        #endregion
-
+       
         #region Textures
 
         #region Material MGMT
@@ -1338,23 +1265,10 @@ namespace QuizCannersUtilities {
             #endif
         }
         
-        public static List<ShaderProperty.TextureValue> MyGetTextureProperties(this Material m)
-        {
-#if UNITY_EDITOR
-            {
-                var lst = new List<ShaderProperty.TextureValue>();
-                foreach (var n in m.GetProperties(MaterialProperty.PropType.Texture))
-                    lst.Add(new ShaderProperty.TextureValue(n));
-
-                return lst;
-            }
-#else
-            return new List<ShaderProperty.TextureValue>();
-#endif
-        }
+      
 
 #if UNITY_EDITOR
-        private static List<string> GetProperties(this Material m, MaterialProperty.PropType type)
+        public static List<string> GetProperties(this Material m, MaterialProperty.PropType type)
         {
             var fNames = new List<string>();
 
@@ -2096,7 +2010,7 @@ namespace QuizCannersUtilities {
                 return 0;
 
             if (!m.isReadable) {
-                Debug.Log("Mesh {0} is not readable. Enable for submesh material editing.".F(m.name));
+                Debug.Log(string.Format("Mesh {0} is not readable. Enable for submesh material editing.",m.name));
                 return 0;
             }
 
@@ -2131,654 +2045,8 @@ namespace QuizCannersUtilities {
         #endregion
     }
 
-    #region Various Managers Classes
+ 
 
-    public class PerformanceTimer : IPEGI_ListInspect, IGotDisplayName
-    {
-        private readonly string _name;
-        private float _timer;
-        private double _perIntervalCount;
-        private double _max;
-        private double _min = float.PositiveInfinity;
-        private double _average;
-        private double _totalCount;
-        private readonly float _intervalLength = 1f;
-
-        public void Update(float add = 0)
-        {
-            _timer += Time.deltaTime;
-            if (Math.Abs(add) > float.Epsilon)
-                Add(add);
-
-            if (_timer <= _intervalLength) return;
-
-
-            _timer -= _intervalLength;
-
-            _max = Mathf.Max((float)_perIntervalCount, (float)_max);
-            _min = Mathf.Min((float)_perIntervalCount, (float)_min);
-
-            _totalCount += 1;
-
-            var portion = 1d / _totalCount;
-            _average = _average * (1d - portion) + _perIntervalCount * portion;
-
-            _perIntervalCount = 0;
-
-        }
-
-        public void Add(float result = 1) => _perIntervalCount += result;
-
-        public void ResetStats()
-        {
-            _timer = 0;
-            _perIntervalCount = 0;
-            _max = 0;
-            _min = float.PositiveInfinity;
-            _average = 0;
-            _totalCount = 0;
-        }
-
-#region Inspector
-
-        public string NameForDisplayPEGI => "Avg {0}: {1}/{2}sec [{3} - {4}] ({5}) ".F(_name,
-            ((float)_average).ToString("0.00"),
-            (Math.Abs(_intervalLength - 1d) > float.Epsilon) ? _intervalLength.ToString("0") : "", (int)_min,
-            (int)_max, (int)_totalCount);
-
-#if !NO_PEGI
-        public bool InspectInList(IList list, int ind, ref int edited)
-        {
-            if (icon.Refresh.Click("Reset Stats"))
-                ResetStats();
-
-            //   "_name interval".edit(80, ref intervalLength);
-
-            NameForDisplayPEGI.write();
-
-
-            return false;
-        }
-#endif
-
-#endregion
-
-        public PerformanceTimer(string name = "Speed", float interval = 1f)
-        {
-            _name = name;
-            _intervalLength = interval;
-        }
-    }
-
-    public class ChillLogger : IGotDisplayName
-    {
-        private bool _logged;
-        private readonly bool _disabled;
-        private float _lastLogged;
-        private int _calls;
-        private readonly string message = "error";
-
-        public string NameForDisplayPEGI => message + (_disabled ? " Disabled" : " Enabled");
-
-        public ChillLogger(string msg, bool logInBuild = false)
-        {
-            message = msg;
-#if !UNITY_EDITOR
-            _disabled = (!logInBuild);
-#else
-            _disabled = false;
-#endif
-        }
-
-        public ChillLogger()
-        {
-
-        }
-
-        public void Log_Now(string msg, bool asError, UnityEngine.Object obj = null)
-        {
-
-            //  if (disabled)
-            //  return;
-
-            if (msg == null)
-                msg = message;
-
-            if (_calls > 0)
-                msg += " [+ {0} calls]".F(_calls);
-
-            if (_lastLogged > 0)
-                msg += " [{0} s. later]".F(Time.time - _lastLogged);
-            else
-                msg += " [at {0}]".F(Time.time);
-
-            if (asError)
-                Debug.LogError(msg, obj);
-            else
-                Debug.Log(msg, obj);
-
-            _lastLogged = Time.time;
-            _calls = 0;
-            _logged = true;
-        }
-
-        public void Log_Once(string msg = null, bool asError = true, UnityEngine.Object obj = null)
-        {
-
-            if (!_logged)
-                Log_Now(msg, asError, obj);
-            else
-                _calls++;
-        }
-
-        public void Log_Interval(float seconds, string msg = null, bool asError = true, UnityEngine.Object obj = null)
-        {
-
-            if (!_logged || (Time.time - _lastLogged > seconds))
-                Log_Now(msg, asError, obj);
-            else
-                _calls++;
-        }
-
-        public void Log_Every(int callCount, string msg = null, bool asError = true, UnityEngine.Object obj = null)
-        {
-
-            if (!_logged || (_calls > callCount))
-                Log_Now(msg, asError, obj);
-            else
-                _calls++;
-        }
-
-    }
-
-    public class TextureDownloadManager : IPEGI {
-
-        readonly List<WebRequestMeta> _loadedTextures = new List<WebRequestMeta>();
-
-        class WebRequestMeta : IGotName, IPEGI_ListInspect, IPEGI {
-
-#if QC_USE_NETWORKING
-            private UnityWebRequest _request;
-#endif
-
-            private string url;
-            public string URL => url;
-            private Texture _texture;
-            private bool _failed = false;
-
-            public string NameForPEGI
-            {
-                get { return url; }
-                set { url = value; }
-            }
-
-            private Texture Take()
-            {
-                var tmp = _texture;
-                _texture = null;
-                _failed = false;
-                DisposeRequest();
-                return tmp;
-            }
-
-            public bool TryGetTexture(out Texture tex, bool remove = false)
-            {
-                tex = _texture;
-
-                if (remove && _texture) Take();
-
-                if (_failed) return true;
-
-
-#if QC_USE_NETWORKING
-                if (_request != null)
-                {
-                    if (_request.isNetworkError || _request.isHttpError)
-                    {
-
-                        _failed = true;
-
-#if UNITY_EDITOR
-                        Debug.Log(_request.error);
-#endif
-                        DisposeRequest();
-                        return true;
-                    }
-
-                    if (_request.isDone)
-                    {
-                        if (_texture)
-                            _texture.DestroyWhatever();
-                        _texture = ((DownloadHandlerTexture)_request.downloadHandler).texture;
-                        DisposeRequest();
-                        tex = _texture;
-
-                        if (remove && _texture)
-                            Take();
-                    }
-                    else return false;
-                }
-                else if (!_texture) Start();
-#endif
-
-                return true;
-            }
-
-            void Start()
-            {
-
-#if QC_USE_NETWORKING
-                _request?.Dispose();
-                _request = UnityWebRequestTexture.GetTexture(url);
-                _request.SendWebRequest();
-                _failed = false;
-                Debug.Log("Loading {0}".F(url));
-#endif
-            }
-
-            public WebRequestMeta(string URL)
-            {
-                url = URL;
-                Start();
-            }
-
-            private void DisposeRequest()
-            {
-
-#if QC_USE_NETWORKING
-                _request?.Dispose();
-                _request = null;
-#endif
-            }
-
-            public void Dispose()
-            {
-                if (_texture)
-                    _texture.DestroyWhatever();
-
-                DisposeRequest();
-            }
-
-#region Inspector
-
-#if !NO_PEGI
-            public bool InspectInList(IList list, int ind, ref int edited)
-            {
-                var changed = false;
-                Texture tex;
-                TryGetTexture(out tex);
-
-
-#if QC_USE_NETWORKING
-                if (_request != null)
-                    "Loading".write(60);
-                if (_failed)
-                    "Failed".write(50);
-
-                if (_texture)
-                {
-                    if (icon.Refresh.Click())
-                        Start();
-
-                    if (_texture.Click())
-                        edited = ind;
-
-                }
-                else
-                {
-
-                    if (_failed)
-                    {
-                        if (icon.Refresh.Click("Failed"))
-                            Start();
-                        "Failed ".F(url).write(40);
-                    }
-                    else
-                    {
-                        icon.Active.write();
-                        "Loading ".write(40);
-                    }
-
-                }
-#else
-                "QC_USE_NETWORKING is disabled (to prevent unwanted android permissions)".writeWarning();
-#endif
-                url.write();
-                return changed;
-            }
-
-            public bool Inspect()
-            {
-                Texture tex;
-                TryGetTexture(out tex);
-
-                if (_texture)
-                    pegi.write(_texture, 200);
-
-                return false;
-            }
-#endif
-
-#endregion
-        }
-
-        public string GetURL(int ind)
-        {
-            var el = _loadedTextures.TryGet(ind);
-            return (el == null) ? "" : el.URL;
-        }
-
-        public bool TryGetTexture(int ind, out Texture tex, bool remove = false)
-        {
-            tex = null;
-            var el = _loadedTextures.TryGet(ind);
-            return (el != null) ? el.TryGetTexture(out tex, remove) : true;
-        }
-
-        public int StartDownload(string address)
-        {
-            var el = _loadedTextures.GetByIGotName(address);
-
-            if (el == null)
-            {
-                el = new WebRequestMeta(address);
-                _loadedTextures.Add(el);
-            }
-
-            return _loadedTextures.IndexOf(el);
-        }
-
-        public void Dispose()
-        {
-            foreach (var t in _loadedTextures)
-                t.Dispose();
-
-            _loadedTextures.Clear();
-        }
-
-#region Inspector
-
-#if !NO_PEGI
-        int inspected = -1;
-        string tmp = "";
-        public bool Inspect()
-        {
-
-            var changed = "Textures and Requests".write_List(_loadedTextures, ref inspected);
-
-            "URL".edit(30, ref tmp);
-            if (tmp.Length > 0 && icon.Add.Click().nl())
-                StartDownload(tmp);
-
-            return changed;
-        }
-#endif
-
-#endregion
-    }
-
-    [Serializable]
-    public class ScreenShootTaker : IPEGI {
-
-  
-        #if !NO_PEGI
-        public bool Inspect() {
-
-            "Up Scale".edit(60, ref UpScale).nl();
-            "Alpha".toggleIcon(ref AlphaBackground).nl();
-
-            "Img Name".edit(90, ref screenShotName).nl();
-            
-            "Camera ".edit(60, ref cameraToTakeScreenShotFrom);
-
-            // "On Post render is only called when script is attached to camera. Not finished implementation ... ".writeHint();
-
-            if (cameraToTakeScreenShotFrom && icon.SaveAsNew.Click("From Camera"))
-                RenderToTextureManually();
-
-            pegi.nl();
-
-            if (!grab)  {
-                if ("On Post Render()".Click())
-                    grab = true;
-            } else 
-                ("To grab screen-shot at Post-Render call OnPostRender() of this class from OnPostRender() of the script attached to camera." +
-                  " Refer to Unity documentation to learn more about OnPostRender() call")
-                    .writeHint();
-            
-            
-            pegi.nl();
-
-            if ("Take Screen Shot".Click().nl())
-                ScreenCapture.CaptureScreenshot("ScreenShots/{0}".F(screenShotName), UpScale);
-
-            if (icon.Refresh.Click("Refresh Asset Database"))
-                UnityUtils.RefreshAssetDatabase();
-
-            pegi.nl();
-
-            return false;
-        }
-        #endif
-
-        private bool grab;
-
-        public Camera cameraToTakeScreenShotFrom;
-        public int UpScale = 4;
-        public bool AlphaBackground = true;
-
-        [NonSerialized] private RenderTexture forScreenRenderTexture;
-        [NonSerialized] private Texture2D screenShotTexture2D;
-
-        public void RenderToTextureManually() {
-
-            var cam = cameraToTakeScreenShotFrom;
-            var w = cam.pixelWidth * UpScale;
-            var h = cam.pixelHeight * UpScale;
-
-            CheckRenderTexture(w, h);
-            CheckTexture2D(w, h);
-
-            cam.targetTexture = forScreenRenderTexture;
-            var clearFlags = cam.clearFlags;
-
-            if (AlphaBackground) {
-                cam.clearFlags = CameraClearFlags.SolidColor;
-                cam.backgroundColor = new Color(0, 0, 0, 0);
-            }
-            else
-            {
-                var col = cam.backgroundColor;
-                col.a = 1;
-                cam.backgroundColor = col;
-            }
-
-            cam.Render();
-            RenderTexture.active = forScreenRenderTexture;
-            screenShotTexture2D.ReadPixels(new Rect(0, 0, w, h), 0, 0);
-            screenShotTexture2D.Apply();
-
-            cam.targetTexture = null;
-            RenderTexture.active = null;
-
-            cam.clearFlags = clearFlags;
-
-            FileSaveUtils.SaveTextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png",
-                screenShotTexture2D);
-        }
-        
-        public void OnPostRender() {
-            if (grab)  {
-
-                grab = false;
-
-                var w = Screen.width;
-                var h = Screen.height;
-
-                CheckTexture2D(w, h);
-
-                screenShotTexture2D.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0, false);
-                screenShotTexture2D.Apply();
-
-                FileSaveUtils.SaveTextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png",
-                    screenShotTexture2D);
-
-            }
-        }
-
-        private void CheckRenderTexture(int w, int h)
-        {
-            if (!forScreenRenderTexture || forScreenRenderTexture.width != w || forScreenRenderTexture.height != h)
-            {
-
-                if (forScreenRenderTexture)
-                    forScreenRenderTexture.DestroyWhatever();
-
-                forScreenRenderTexture = new RenderTexture(w, h, 32);
-            }
-
-        }
-
-        private void CheckTexture2D(int w, int h)
-        {
-            if (!screenShotTexture2D || screenShotTexture2D.width != w || screenShotTexture2D.height != h)
-            {
-
-                if (screenShotTexture2D)
-                    screenShotTexture2D.DestroyWhatever();
-
-                screenShotTexture2D = new Texture2D(w, h, TextureFormat.ARGB32, false);
-            }
-        }
-        
-        public string screenShotName;
-        
-        private string GetScreenShotName()
-        {
-            var name = screenShotName;
-
-            if (name.IsNullOrEmpty())
-                name = "SS-" + DateTime.Now.ToString("yyyy.MM.dd.HH.mm.ss");
-
-            return name;
-        }
-
-    }
-
-    [Serializable]
-    public class MaterialPlaytimeInstancer : IPEGI_ListInspect
-    {
-        [SerializeField] public List<Graphic> materialUsers = new List<Graphic>();
-        [NonSerialized] private Material labelMaterialInstance;
-
-        public Material MaterialInstance
-        {
-            get
-            {
-                if (labelMaterialInstance)
-                    return labelMaterialInstance;
-
-                if (materialUsers.Count == 0)
-                    return null;
-
-                var first = materialUsers[0];
-
-                if (!first)
-                    return null;
-
-                if (!Application.isPlaying)
-                    return first.material;
-
-                labelMaterialInstance = Object.Instantiate(first.material);
-
-                foreach (var u in materialUsers)
-                    if (u)
-                        u.material = labelMaterialInstance;
-
-                return labelMaterialInstance;
-            }
-        }
-        #if !NO_PEGI
-        public bool InspectInList(IList list, int ind, ref int edited)
-        {
-            "works".write();
-            return false;
-        }
-        #endif
-    }
-
-    /*
-#if !NO_PEGI && UNITY_EDITOR
-    [CustomPropertyDrawer(typeof(MaterialPlaytimeInstancer))]
-    // Work in progress...
-    public class MatInstancerPropertDrawer : PEGI_PropertyDrawer<MaterialPlaytimeInstancer>
-        { }
-#endif*/
-
-    [Serializable]
-    public class MeshMaterialPlaytimeInstancer
-    {
-
-        [SerializeField] public bool instantiateInEditor = false;
-        [SerializeField] public List<MeshRenderer> materialUsers = new List<MeshRenderer>();
-        [NonSerialized] private Material materialInstance;
-
-        public Material GetMaterialInstance(MeshRenderer rendy)
-        {
-            if (materialInstance)
-                return materialInstance;
-
-            materialUsers.Clear();
-            materialUsers.Add(rendy);
-
-            return MaterialInstance;
-        }
-        
-        public Material MaterialInstance
-        {
-            get
-            {
-                if (materialInstance)
-                    return materialInstance;
-
-                if (materialUsers.Count == 0)
-                    return null;
-
-                var first = materialUsers[0];
-
-                if (!first)
-                    return null;
-
-                if (!Application.isPlaying && !instantiateInEditor)
-                    return first.sharedMaterial;
-
-                materialInstance = Object.Instantiate(first.sharedMaterial);
-
-                materialInstance.name = "Instanced material of {0}".F(first.name);
-
-                foreach (var u in materialUsers)
-                    if (u)
-                        u.sharedMaterial = materialInstance;
-
-                return materialInstance;
-            }
-        }
-
-        public MeshMaterialPlaytimeInstancer()
-        {
-
-        }
-
-        public MeshMaterialPlaytimeInstancer(bool instantiateInEditor)
-        {
-            this.instantiateInEditor = instantiateInEditor;
-        }
-    }
-
-    #endregion
-
-#pragma warning restore IDE1006 // Naming Styles
-#pragma warning restore 1692
 #pragma warning restore IDE0034 // Simplify 'default' expression
 #pragma warning restore IDE0019 // Use pattern matching
 #pragma warning restore IDE0018 // Inline variable declaration

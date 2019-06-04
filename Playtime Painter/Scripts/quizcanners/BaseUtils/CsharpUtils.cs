@@ -9,18 +9,12 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 
-using PlayerAndEditorGUI;
-
-
-namespace QuizCannersUtilities
-{
+namespace QuizCannersUtilities {
 
     #pragma warning disable IDE0034 // Simplify 'default' expression
     #pragma warning disable IDE0019 // Use pattern matching
     #pragma warning disable IDE0018 // Inline variable declaration
-
-
-
+    
     public static class CsharpUtils {
 
         public static string ThisMethodName() => ThisMethodName(1);
@@ -98,102 +92,7 @@ namespace QuizCannersUtilities
 
         #endregion
 
-        #region TextOperations
 
-        private const string BadFormat = "!Bad format: ";
-
-        public static string F(this string format, Type type)
-        {
-            try
-            {
-                return string.Format(format, type.ToPegiStringType());
-            }
-            catch
-            {
-                return BadFormat + format + " " + (type == null ? "null type" : type.ToString());
-            }
-        }
-        public static string F(this string format, string obj)
-        {
-            try
-            {
-                return string.Format(format, obj);
-            }
-            catch 
-            {
-                return BadFormat + format + " "+obj;
-            }
-        }
-        public static string F(this string format, object obj1)
-        {
-            try
-            {
-                return string.Format(format, obj1.ToPegiString());
-            }
-            catch 
-            {
-                return BadFormat + format + " " + obj1.ToPegiString();
-            }
-        }
-        public static string F(this string format, string obj1, string obj2)
-        {
-            try
-            {
-                return string.Format(format, obj1, obj2);
-            }
-            catch 
-            {
-                return BadFormat + format + " " + obj1 + " " + obj2;
-            }
-        }
-        public static string F(this string format, object obj1, object obj2)
-        {
-            try
-            {
-                return string.Format(format, obj1.ToPegiString(), obj2.ToPegiString());
-            }
-            catch 
-            {
-                return BadFormat + format;
-            }
-        }
-        public static string F(this string format, string obj1, string obj2, string obj3)
-        {
-            try
-            {
-                return string.Format(format, obj1, obj2, obj3);
-            }
-            catch 
-            {
-                return BadFormat + format;
-            }
-        }
-        public static string F(this string format, object obj1, object obj2, object obj3)
-        {
-            try
-            {
-                return string.Format(format, obj1.ToPegiString(), obj2.ToPegiString(), obj3.ToPegiString());
-            }
-            catch 
-            {
-                return BadFormat + format;
-            }
-        }
-        public static string F(this string format, params object[] objs)
-        {
-            try
-            {
-                return string.Format(format, objs);
-            }
-            catch 
-            {
-                return BadFormat + format;
-            }
-        }
-
-        public static string ToSuccessString(this bool value) => value ? "Success" : "Failed";
-
-        #endregion
 
         public static T TryGetClassAttribute<T>(this Type type, bool inherit = false) where T : Attribute
         {
@@ -203,37 +102,6 @@ namespace QuizCannersUtilities
             var attrs = type.GetCustomAttributes(typeof(T), inherit);
             return (attrs.Length > 0) ? (T) attrs[0] : null;
 
-        }
-
-        private static void AssignUniqueNameIn<T>(this T el, IReadOnlyCollection<T> list)
-        {
-#if !NO_PEGI
-            var named = el as IGotName;
-            if (named == null) return;
-
-            var tmpName = named.NameForPEGI;
-            var duplicate = true;
-            var counter = 0;
-
-            while (duplicate)
-            {
-                duplicate = false;
-
-                foreach (var e in list)
-                {
-                    var other = e as IGotName;
-                    if (other == null || e.Equals(el) || !tmpName.Equals(other.NameForPEGI))
-                        continue;
-                    
-                    duplicate = true;
-                    counter++;
-                    tmpName = named.NameForPEGI + counter;
-                    break;
-                }
-            }
-
-            named.NameForPEGI = tmpName;
-#endif
         }
 
         #region List Management
@@ -321,55 +189,7 @@ namespace QuizCannersUtilities
             list[index] = val;
         }
 
-        public static bool CanAdd<T>(this List<T> list, ref object obj, out T conv, bool onlyIfNew = true) {
-            conv = default(T);
-
-            if (obj == null || list == null)
-                return false;
-            
-            if (!(obj is T)) {
-
-                GameObject go;
-
-                if (typeof(T).IsSubclassOf(typeof(MonoBehaviour)))
-                    go = (obj as MonoBehaviour)?.gameObject;
-                else go = obj as GameObject;
-
-                if (go)
-                    conv = go.GetComponent<T>();
-            }
-            else conv = (T)obj;
-
-            if (conv == null || conv.Equals(default(T))) return false;
-            
-            var objType = obj.GetType();
-
-            var dl = typeof(T).TryGetDerivedClasses();
-            if (dl != null) {
-                if (!dl.Contains(objType))
-                    return false;
-
-            } else {
-
-                var tc = typeof(T).TryGetTaggedClasses();
-
-                if (tc != null && !tc.Types.Contains(objType))
-                    return false;
-            }
-
-            return !onlyIfNew || !list.Contains(conv);
-        }
-
-        public static List<T> TryAdd<T>(this List<T> list, object ass, bool onlyIfNew = true) {
-
-            T toAdd;
-
-            if (list.CanAdd(ref ass, out toAdd, onlyIfNew))
-                list.Add(toAdd);
-
-            return list;
-
-        }
+      
 
         public static bool AddIfNew<T>(this List<T> list, T val)
         {
@@ -396,9 +216,7 @@ namespace QuizCannersUtilities
             return list[list.Count - 1];
 
         }
-
-        public static T TryGet<T>(this List<T> list, ListMetaData meta) => list.TryGet(meta.inspected);
-
+        
         public static T TryGet<T>(this List<T> list, int index)
         {
             if (list == null || index < 0 || index >= list.Count)
@@ -444,48 +262,10 @@ namespace QuizCannersUtilities
             return ind;
         }
 
-        public static void AssignUniqueIndex<T>(this List<T> list, T el)
-        {
 
-#if !NO_PEGI
-            var ind = el as IGotIndex;
-            if (ind == null) return;
-            var maxIndex = ind.IndexForPEGI;
-            foreach (var o in list)
-                if (!el.Equals(o))
-                {
-                    var oInd = o as IGotIndex;
-                    if (oInd != null)
-                        maxIndex = Mathf.Max(maxIndex, oInd.IndexForPEGI + 1);
-                }
-            ind.IndexForPEGI = maxIndex;
-#endif
-        }
 
         public static bool IsNew(this Type t) => t.IsValueType || (!t.IsUnityObject() && !t.IsAbstract && t.GetConstructor(Type.EmptyTypes) != null);
 
-        public static T AddWithUniqueNameAndIndex<T>(this List<T> list) => list.AddWithUniqueNameAndIndex("New "
-#if !NO_PEGI
-            + typeof(T).ToPegiStringType()
-#endif
-            );
-
-        public static T AddWithUniqueNameAndIndex<T>(this List<T> list, string name) =>
-                list.AddWithUniqueNameAndIndex((T)Activator.CreateInstance(typeof(T)), name);
-
-        public static T AddWithUniqueNameAndIndex<T>(this List<T> list, T e, string name) 
-        {
-            list.AssignUniqueIndex(e);
-            list.Add(e);
-#if !NO_PEGI
-            var named = e as IGotName;
-            if (named != null)
-                named.NameForPEGI = name;
-#endif
-            e.AssignUniqueNameIn(list);
-            return e;
-        }
-        
         public static void Move<T>(this List<T> list, int oldIndex, int newIndex) {
             if (oldIndex == newIndex) return;
 
@@ -733,6 +513,8 @@ namespace QuizCannersUtilities
         #endregion
 
         #region String Editing
+
+        public static string ToPegiStringType(this Type type) => type.ToString().SimplifyTypeName();
 
         public static string SimplifyTypeName(this string name)
         {

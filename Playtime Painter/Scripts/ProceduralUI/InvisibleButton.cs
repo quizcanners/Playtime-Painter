@@ -71,7 +71,7 @@ namespace PlaytimePainter
                 
                 var target = _mouseDown ? 0.75f : 1;
 
-                a = QcMath.LerpBySpeed(a, target, 5);
+                a = LerpUtils.LerpBySpeed(a, target, 5);
 
                 clickVisualFeedTarget.TrySetAlpha(a);
 

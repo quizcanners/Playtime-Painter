@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using PlayerAndEditorGUI;
 using System;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
@@ -71,14 +70,14 @@ namespace QuizCannersUtilities
 
 
         public static bool DeleteFile_PersistentFolder(string subPath, string fileName)
-            => DeleteFile(Path.Combine(Application.persistentDataPath, subPath, Path.Combine(Application.persistentDataPath, subPath, "{0}{1}".F(fileName, FileSaveUtils.JsonFileType))));
+            => DeleteFile(Path.Combine(Application.persistentDataPath, subPath, Path.Combine(Application.persistentDataPath, subPath, fileName + FileSaveUtils.JsonFileType)));
 
         public static bool DeleteFile(string path)
         {
             if (File.Exists(path))
             {
 #if !NO_PEGI && UNITY_EDITOR
-                "Deleting {0}".F(path).showNotificationIn3D_Views();
+                Debug.LogError("Deleting" + path);
 #endif
 
                 File.Delete(path);
@@ -133,7 +132,7 @@ namespace QuizCannersUtilities
             {
 #if !NO_PEGI
                 if (!Application.isPlaying)
-                    ("Saved To " + full).showNotificationIn3D_Views();
+                    Debug.LogError("Saved To " + full);
 #endif
                 Formatter.Serialize(file, data);
             }
@@ -341,7 +340,7 @@ namespace QuizCannersUtilities
         }
 
         private static string JsonPersistantPath(string subPath, string fileName) 
-            => Path.Combine(Application.persistentDataPath, subPath, "{0}{1}".F(fileName, FileSaveUtils.JsonFileType));
+            => Path.Combine(Application.persistentDataPath, subPath, fileName + FileSaveUtils.JsonFileType);
 
         public static bool TryLoadJsonFromStreamingAssets<T>(string fileName, ref T dta)
         {

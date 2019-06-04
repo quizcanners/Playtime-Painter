@@ -500,7 +500,7 @@ namespace PlaytimePainter {
             if (hidePreview && Math.Abs(_previewAlpha) < float.Epsilon)
                 return;
 
-            QcMath.IsLerpingBySpeed(ref _previewAlpha, hidePreview ? 0 : 1, 4f);
+            LerpUtils.IsLerpingBySpeed(ref _previewAlpha, hidePreview ? 0 : 1, 4f);
 
             PainterDataAndConfig.BRUSH_WORLD_POS_FROM.GlobalValue = _prevPosPreview.ToVector4(size);
             PainterDataAndConfig.BRUSH_WORLD_POS_TO.GlobalValue = st.posTo.ToVector4((st.posTo - _prevPosPreview).magnitude); //new Vector4(st.posTo.x, st.posTo.y, st.posTo.z, (st.posTo - prevPosPreview).magnitude));

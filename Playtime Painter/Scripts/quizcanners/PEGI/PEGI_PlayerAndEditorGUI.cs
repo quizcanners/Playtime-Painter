@@ -992,7 +992,7 @@ namespace PlayerAndEditorGUI
 
 #endregion
 
-        private const int letterSizeInPixels = 8;
+        public const int letterSizeInPixels = 8;
 
         public static int ApproximateLengthUnsafe(this string label) => letterSizeInPixels * label.Length;
         
@@ -8801,7 +8801,7 @@ namespace PlayerAndEditorGUI
             return false;
         }
         
-        public static string ToPegiStringType(this Type type) => type.ToString().SimplifyTypeName();
+        
            
         public static string ToPegiStringUObj<T>(this T obj) where T: Object {
             if (obj == null)
