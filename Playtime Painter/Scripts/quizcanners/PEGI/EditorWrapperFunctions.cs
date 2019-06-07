@@ -212,7 +212,7 @@ namespace PlayerAndEditorGUI
         static void start()
         {
             _elementIndex = 0;
-            PEGI_Extensions.focusInd = 0;
+            pegi.focusInd = 0;
             _lineOpen = false;
             pegi.globChanged = false;
         }

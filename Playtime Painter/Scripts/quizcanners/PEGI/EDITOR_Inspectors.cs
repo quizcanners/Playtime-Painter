@@ -37,7 +37,7 @@ namespace PlayerAndEditorGUI {
 
 
             #if !NO_PEGI
-              PEGI_Extensions.ResetInspectedChain();
+              pegi.ResetInspectedChain();
 
             if (!drawDefaultInspector) {
                 ef.Inspect_Material(this).RestoreBGColor();
@@ -128,7 +128,7 @@ namespace PlayerAndEditorGUI {
         public override void OnInspectorGUI() {
             #if !NO_PEGI
             
-            PEGI_Extensions.ResetInspectedChain();
+            pegi.ResetInspectedChain();
 
             if (!drawDefaultInspector) {
                 Inspect(this).RestoreBGColor();
