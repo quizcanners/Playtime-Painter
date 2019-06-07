@@ -32,6 +32,7 @@
 				#pragma multi_compile_fwdbase 
 				#pragma shader_feature  ___ _BUMP_NONE  _BUMP_COMBINED 
 				#pragma shader_feature  ___ CLIP_ALPHA
+				//#pragma multi_compile ______ USE_NOISE_TEXTURE
 
 				sampler2D _MainTex;
 				sampler2D _Map;
@@ -151,7 +152,7 @@
 
 					col = APPLY_HEIGHT_FOG(i.wpos.y, col, fogCol);
 
-					BleedAndBrightness(col, 1);
+					BleedAndBrightness(col, 1, i.texcoord.xy);
 
 					return col;
 				}

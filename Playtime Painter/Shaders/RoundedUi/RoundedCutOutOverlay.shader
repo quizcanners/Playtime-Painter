@@ -8,7 +8,7 @@
 	}
 		Category{
 			Tags{
-				"Queue" = "Transparent+10"
+				"Queue" = "Transparent"
 				"IgnoreProjector" = "True"
 				"RenderType" = "Transparent"
 				"PixelPerfectUI" = "Simple"

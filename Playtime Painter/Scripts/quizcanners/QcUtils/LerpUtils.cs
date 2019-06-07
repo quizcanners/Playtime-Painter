@@ -17,27 +17,33 @@ namespace QuizCannersUtilities
     public interface ILinkedLerping
     {
         void Portion(LerpData ld);
-        void Lerp(LerpData ld, bool canTeleport);
+        void Lerp(LerpData ld, bool canSkipLerpIfPossible);
     }
 
     public class LerpData : IPEGI, IGotName, IGotCount, IPEGI_ListInspect
     {
-        public float linkedPortion = 1;
-        public float teleportPortion;
-        private float _minPortion = 1;
-        private int _resets;
+        private float linkedPortion = 1;
+        public bool skipLerpPossible;
         public string dominantParameter = "None";
 
-        public float Portion(bool canTeleport = false) =>
-            canTeleport ? Mathf.Max(teleportPortion, linkedPortion) : linkedPortion;
+        public float Portion(bool canSkipLerpIfPossible = false) =>
+            (canSkipLerpIfPossible && skipLerpPossible) ? 1 : linkedPortion;
 
         public float MinPortion
         {
-            get { return Mathf.Min(_minPortion, linkedPortion); }
-            set { _minPortion = Mathf.Min(_minPortion, value); }
+            get { return linkedPortion; }
+            set { linkedPortion = Mathf.Min(linkedPortion, value); }
+        }
+        
+        public void Reset()
+        {
+            skipLerpPossible = false;
+            linkedPortion = 1;
+            _resets++;
         }
 
-        public int CountForInspector => _resets;
+        #region Inspector
+        private int _resets;
 
         public string NameForPEGI
         {
@@ -45,17 +51,10 @@ namespace QuizCannersUtilities
             set { dominantParameter = value; }
         }
 
-        public void Reset()
-        {
-            teleportPortion = 0;
-            linkedPortion = 1;
-            _minPortion = 1;
-            _resets++;
-        }
+        #if !NO_PEGI
 
-        #region Inspector
-
-#if !NO_PEGI
+        public int CountForInspector => _resets;
+        
         public bool Inspect()
         {
             var changed = false;
@@ -63,10 +62,6 @@ namespace QuizCannersUtilities
             "Dominant Parameter".edit(ref dominantParameter).nl(ref changed);
 
             "Reboot calls".edit(ref _resets).nl(ref changed);
-
-            "teleport portion: {0}".F(teleportPortion).nl();
-
-            "min Portion {0} ".F(_minPortion).nl();
 
             return changed;
         }
@@ -178,7 +173,7 @@ namespace QuizCannersUtilities
 
             #endregion
 
-            public void Lerp(LerpData ld, bool canTeleport = false)
+            public void Lerp(LerpData ld, bool canSkipLerpIfPossible = false)
             {
                 if (!Enabled) return;
 
@@ -194,12 +189,12 @@ namespace QuizCannersUtilities
                         if (Application.isPlaying)
                             Portion(ref p);
 
-                        if (canTeleport)
-                            p = Mathf.Max(p, ld.teleportPortion);
+                        if (canSkipLerpIfPossible && ld.skipLerpPossible)
+                            p = 1;
 
                         break;
                     default:
-                        p = ld.Portion(canTeleport);
+                        p = ld.Portion(canSkipLerpIfPossible);
                         break;
                 }
 
@@ -211,8 +206,13 @@ namespace QuizCannersUtilities
 
             public virtual void Portion(LerpData ld)
             {
-                if (UsingLinkedThreshold && Portion(ref ld.linkedPortion))
+                var lp = ld.MinPortion;
+
+                if (UsingLinkedThreshold && Portion(ref lp))
+                {
                     ld.dominantParameter = Name_Internal;
+                    ld.MinPortion = lp;
+                }
                 else if (lerpMode == LerpSpeedMode.UnlinkedSpeed)
                 {
                     float portion = 1;
@@ -318,7 +318,7 @@ namespace QuizCannersUtilities
         public abstract class BaseVector2Lerp : BaseLerpGeneric<Vector2>
         {
             public Vector2 targetValue;
-
+            
             protected override Vector2 TargetValue
             {
                 get { return targetValue; }
@@ -1742,6 +1742,23 @@ namespace QuizCannersUtilities
         public static float SpeedToPortion(this float speed, float dist) =>
             dist != 0 ? Mathf.Clamp01(speed * Time.deltaTime / Mathf.Abs(dist)) : 1;
 
+        public static bool SpeedToMinPortion(this float speed, float dist, LerpData ld)
+        {
+
+            var nPortion = speed.SpeedToPortion(dist);
+
+            var prt = ld.Portion();
+
+            if (nPortion < prt)  {
+
+                ld.MinPortion = prt;
+
+                return dist > 0;
+            }
+
+            return false;
+        }
+
         public static bool SpeedToMinPortion(this float speed, float dist, ref float portion)
         {
 
@@ -1906,8 +1923,7 @@ namespace QuizCannersUtilities
         }
 
         #endregion
-
-
+        
         public static void Portion<T>(this T[] list, LerpData ld) where T : ILinkedLerping
         {
             foreach (var e in list)
@@ -1915,11 +1931,11 @@ namespace QuizCannersUtilities
                     e.Portion(ld);
         }
 
-        public static void Lerp<T>(this T[] list, LerpData ld, bool canTeleport = false) where T : ILinkedLerping
+        public static void Lerp<T>(this T[] list, LerpData ld, bool canSkipLerp = false) where T : ILinkedLerping
         {
             foreach (var e in list)
                 if (!e.IsNullOrDestroyed_Obj())
-                    e.Lerp(ld, canTeleport);
+                    e.Lerp(ld, canSkipLerp);
         }
 
         public static void Portion<T>(this List<T> list, LerpData ld) where T : ILinkedLerping
@@ -1931,11 +1947,11 @@ namespace QuizCannersUtilities
 
         }
 
-        public static void Lerp<T>(this List<T> list, LerpData ld, bool canTeleport = false) where T : ILinkedLerping
+        public static void Lerp<T>(this List<T> list, LerpData ld, bool canSkipLerp = false) where T : ILinkedLerping
         {
             foreach (var e in list)
                 if (!e.IsNullOrDestroyed_Obj())
-                    e.Lerp(ld, canTeleport);
+                    e.Lerp(ld, canSkipLerp);
         }
 
         public static void FadeAway<T>(this List<T> list) where T : IManageFading

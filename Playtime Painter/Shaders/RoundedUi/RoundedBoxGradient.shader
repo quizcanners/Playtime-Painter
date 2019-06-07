@@ -9,10 +9,11 @@
 		[KeywordEnum(Hor, Vert)] _GRAD("Gradient Direction (Feature)", Float) = 0
 		[KeywordEnum(Once, Mirror)] _GRADS("Gradient Spread (Feature)", Float) = 0
 		[Toggle(_UNLINKED)] unlinked("Linked Corners", Float) = 0
+		[Toggle(TRIMMED)] trimmed("Trimmed Corners", Float) = 0
 	}
 	Category{
 		Tags{
-			"Queue" = "Transparent+10"
+			"Queue" = "Transparent"
 			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
 			"PixelPerfectUI" = "Simple"
@@ -38,6 +39,7 @@
 				#pragma multi_compile_instancing
 				#pragma multi_compile ____  _UNLINKED 
 				#pragma multi_compile ___ USE_NOISE_TEXTURE
+				#pragma shader_feature __ TRIMMED
 
 				#pragma shader_feature _GRAD_HOR _GRAD_VERT 
 				#pragma shader_feature _GRADS_ONCE _GRADS_MIRROR
@@ -56,7 +58,6 @@
 				float4 _ColorC;
 				float4 _ColorE;
 				sampler2D _Global_Noise_Lookup;
-				//sampler2D _NoiseTex;
 
 				v2f vert(appdata_full v) {
 					v2f o;
@@ -137,11 +138,19 @@
 
 					uv = max(0, uv - _Courners) * deCourners;
 
+					#if TRIMMED
+						float dist = (uv.x + uv.y);
+					#else
+						float dist = dot(uv, uv);
+					#endif
+
 					#if _UNLINKED
-					forFade *= forFade;
-					float clipp = max(0, 1 - max(max(forFade.x, forFade.y), dot(uv, uv)));
+						#if !TRIMMED
+						forFade *= forFade;
+						#endif
+					float clipp = max(0, 1 - max(max(forFade.x, forFade.y), dist));
 					#else 
-					float clipp = max(0, 1 - dot(uv, uv));
+					float clipp = max(0, 1 - dist);
 					#endif
 
 					clipp = min(1, pow(clipp * o.precompute.z, o.texcoord.z));

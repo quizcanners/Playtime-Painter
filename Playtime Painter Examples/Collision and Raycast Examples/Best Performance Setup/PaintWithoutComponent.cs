@@ -156,12 +156,9 @@ namespace PlaytimePainter.Examples
             "Mesh Collider + any Texture".nl();
             "Skinned Mesh + any Collider + Render Texture".nl();
             "Also its better to use textures without mipMaps".nl();
-            "Render Texture Painting will fail if material has tiling or offset".nl();
+            "Render Texture Painting may have artifacts if material has tiling or offset".nl();
             "Editing will be symmetrical if mesh is symmetrical".nl();
             "Brush type should be Sphere".nl();
-
-            ("I was going to make only one component painting method at first, but later it became clear that it's best to have this set up on both: receiving and shooting ends." +
-             "This doesn't need PlaytimePainter component but still needs Painting Receiver script").writeHint();
 
             return false;
         }

@@ -450,12 +450,21 @@ inline void leakColors (inout float4 col){
 
 }
 
-inline void BleedAndBrightness(inout float4 col, float mod) {
+inline void BleedAndBrightness(inout float4 col, float mod, float2 noiseUV) {
 
 	col.rgb *= pp_COLOR_BLEED.a;
 
 	float3 mix = min(col.gbr + col.brg, 128)*mod;
 	col.rgb += mix * mix*pp_COLOR_BLEED.r;
+
+	#if USE_NOISE_TEXTURE
+
+	float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(noiseUV * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
+
+	col.rgb += (noise.rgb - 0.5)*0.1*(mix.r + mix.g);
+
+	#endif
+
 
 }
 

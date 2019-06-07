@@ -8,8 +8,8 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: DefaultRoundedGraphicMaterial
-  m_Shader: {fileID: 4800000, guid: dd05376b705db7b4c9b2f4333a17e23e, type: 3}
-  m_ShaderKeywords: 
+  m_Shader: {fileID: 4800000, guid: 9869b05639be2634289810e7c1e2ff37, type: 3}
+  m_ShaderKeywords: TRIMMED
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -64,7 +64,7 @@ Material:
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
-    - _Edges: 0.5
+    - _Edges: 0.377
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
@@ -75,8 +75,10 @@ Material:
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _Thickness: 0.99
     - _UVSec: 0
     - _ZWrite: 1
+    - trimmed: 1
     - unlinked: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}

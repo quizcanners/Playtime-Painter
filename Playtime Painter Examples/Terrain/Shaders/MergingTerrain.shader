@@ -21,6 +21,7 @@
 				#pragma multi_compile_fog
 				#pragma multi_compile_fwdbase
 				#pragma multi_compile  ___ WATER_FOAM
+				#pragma multi_compile ______ USE_NOISE_TEXTURE
 
 				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
@@ -171,7 +172,7 @@
 
 					col = APPLY_HEIGHT_FOG(i.wpos.y, col, fogCol);
 
-					BleedAndBrightness(col, 1);
+					BleedAndBrightness(col, 1, i.texcoord.xy*10000);
 
 					return col;
 				}

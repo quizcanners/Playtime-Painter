@@ -35,6 +35,7 @@
 			#pragma shader_feature  ___ UV_ATLASED
 			#pragma shader_feature  ___ UV_PROJECTED
 			#pragma shader_feature  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
+			//#pragma multi_compile ______ USE_NOISE_TEXTURE
 			//#pragma multi_compile  ___ WATER_FOAM
 
 			sampler2D _MainTex_ATL;
@@ -212,7 +213,7 @@
 
 				UNITY_APPLY_FOG(i.fogCoord, col);
 
-				BleedAndBrightness(col, 1);
+				BleedAndBrightness(col, 1, i.texcoord.xy*100);
 
 				return col;
 

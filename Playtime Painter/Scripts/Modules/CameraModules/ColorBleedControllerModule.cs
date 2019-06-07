@@ -253,7 +253,7 @@ namespace PlaytimePainter {
 
             if (Application.isPlaying)
             {
-                if (ld.linkedPortion < 1)
+                if (ld.MinPortion < 1)
                 {
                     "Lerping {0}".F(ld.dominantParameter).write();
                     ("Each parameter has a transition speed. THis text shows which parameter sets speed for others (the slowest one). " +

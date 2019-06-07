@@ -21,6 +21,7 @@
 				#pragma vertex vert
 				#pragma fragment frag
 				#pragma multi_compile_fwdbase
+				#pragma multi_compile ______ USE_NOISE_TEXTURE
 				#pragma target 3.0
 
 				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
@@ -88,7 +89,7 @@
 					Simple_Light(float4 (0, 0, col.a, 1),
 						normal, i.viewDir.xyz, col, shadow, 1);
 
-					BleedAndBrightness(col, 1);
+					BleedAndBrightness(col, 1, i.texcoord.xy);
 
 					return col;
 		

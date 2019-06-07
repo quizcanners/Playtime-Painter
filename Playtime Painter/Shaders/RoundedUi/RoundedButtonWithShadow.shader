@@ -9,7 +9,7 @@
 	Category{
 		
 		Tags{
-			"Queue" = "Geometry"
+			"Queue" = "Transparent"
 			"IgnoreProjector" = "True"
 			"PixelPerfectUI" = "Simple"
 			"SpriteRole" = "Hide"

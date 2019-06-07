@@ -4,10 +4,11 @@
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
 		_Edges("Sharpness", Range(0,1)) = 0.5
 		[Toggle(_UNLINKED)] unlinked("Linked Corners", Float) = 0
+		[Toggle(TRIMMED)] trimmed("Trimmed Corners", Float) = 0
 	}
 	Category{
 		Tags{
-			"Queue" = "Transparent+10"
+			"Queue" = "Transparent"
 			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
 			"PixelPerfectUI" = "Simple"
@@ -31,8 +32,8 @@
 				#pragma fragment frag
 
 				#pragma multi_compile_instancing
-				#pragma multi_compile ____  _UNLINKED 
-				#pragma target 3.0
+				#pragma shader_feature __ _UNLINKED 
+				#pragma shader_feature __ TRIMMED
 
 				struct v2f {
 					float4 pos : SV_POSITION;
@@ -79,16 +80,27 @@
 
 					uv = max(0, uv - _Courners) * deCourners;
 
-					#if _UNLINKED
-					forFade *= forFade;
-					float clipp = max(0, 1 - max(max(forFade.x, forFade.y), dot(uv, uv)));
-					#else 
-					float clipp = max(0, 1 - dot(uv, uv));
+					
+					#if TRIMMED
+					float dist = (uv.x + uv.y); 
+					#else
+					float dist = dot(uv, uv);
 					#endif
 
-					clipp = min(1, pow(clipp * o.precompute.z, o.texcoord.z));
+					#if _UNLINKED
+						#if !TRIMMED
+							forFade *= forFade;
+						#endif
 
-					o.color.a *= clipp;
+						float alpha = max(0, 1 - max(max(forFade.x, forFade.y), dist));
+
+					#else 
+						float alpha = max(0, 1 - dist);
+					#endif
+
+					alpha = min(1, pow(alpha * o.precompute.z, o.texcoord.z));
+
+					o.color.a *= alpha;
 
 					return o.color;
 				}

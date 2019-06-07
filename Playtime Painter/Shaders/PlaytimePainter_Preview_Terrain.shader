@@ -159,7 +159,7 @@
 
 					col.rgb = cont.rgb*_LightColor0*direct;
 
-					BleedAndBrightness(col, 1);
+					BleedAndBrightness(col, 1, tiled*100);
 
 					return col;
 				}

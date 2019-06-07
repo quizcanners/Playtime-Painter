@@ -31,6 +31,7 @@
 				#pragma multi_compile_fog
 				#pragma shader_feature  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
 				#pragma shader_feature  ___ UV_ATLASED
+				#pragma multi_compile ______ USE_NOISE_TEXTURE
 				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
 
@@ -287,7 +288,7 @@
 
 					col = APPLY_HEIGHT_FOG(o.worldPos.y, col, fogCol);
 
-					BleedAndBrightness(col, 1);
+					BleedAndBrightness(col, 1, o.texcoord.xy);
 
 
 					return  col;

@@ -26,6 +26,7 @@
 				#pragma fragment frag
 				#pragma multi_compile_fog
 				#pragma multi_compile_fwdbase
+				#pragma multi_compile ______ USE_NOISE_TEXTURE
 				//#pragma multi_compile  ___ WATER_FOAM
 
 				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
@@ -169,8 +170,6 @@
 
 					col = wcol * showWater + col * (1- showWater);
 
-					BleedAndBrightness(col, 1);
-
 					alpha = saturate(alpha + showWater);
 
 					deAlpha = 1 - alpha;
@@ -181,7 +180,7 @@
 				
 					col.rgb = col.rgb*alpha + fogColor.rgb*deAlpha;
 
-					BleedAndBrightness(col, 1);
+					BleedAndBrightness(col, 1, v);
 
 			
 					return col;

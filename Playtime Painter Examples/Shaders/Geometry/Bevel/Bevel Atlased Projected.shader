@@ -35,6 +35,7 @@
 			#pragma shader_feature  ___ UV_ATLASED
 			#pragma shader_feature  ___ UV_PROJECTED
 			#pragma shader_feature  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
+			#pragma multi_compile ______ USE_NOISE_TEXTURE
 
 			sampler2D _MainTex_ATL;
 			sampler2D _BumpMapC;
@@ -208,7 +209,7 @@
 				col.rgb += (pow(dott, 4096 * power)*(_LightColor0.rgb )* power
 					 * 8 * direct  +ShadeSH9(float4(-reflected, 1)))*col.a;
 
-				BleedAndBrightness(col, fernel);
+				BleedAndBrightness(col, fernel, i.texcoord.xy);
 
 				return col;
 
