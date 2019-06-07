@@ -71,18 +71,27 @@
 
 					float4 _ProjTexPos =	o.projPos;
 					float _Courners =		o.texcoord.w;
-					float deCourners =		o.precompute.w;
+					float deCourners = 1 - _Courners;
+					float something =		o.precompute.w;
 					float2 uv =				abs(o.offUV);
 
 					uv = max(0, uv - _ProjTexPos.zw) * o.precompute.xy;
 
 					float2 forFade = uv;
 
-					uv = max(0, uv - _Courners) * deCourners;
+					uv = max(0, uv - _Courners) * something;
 
 					
 					#if TRIMMED
 					float dist = (uv.x + uv.y); 
+
+
+						#if _UNLINKED
+							dist = dist * (deCourners * 0.7) + deCourners * 0.25 + _Courners * 0.9;
+						#else
+							dist = dist * (deCourners * 0.85) + deCourners * 0.25 + _Courners * 0.9;
+						#endif
+
 					#else
 					float dist = dot(uv, uv);
 					#endif
