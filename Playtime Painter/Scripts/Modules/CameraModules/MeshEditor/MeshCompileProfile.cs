@@ -345,7 +345,7 @@ namespace PlaytimePainter
         {
             var changed = false;
 
-            (Destination.ToPegiString() + ":").toggle(80, ref enabled).changes(ref changed);
+            (Destination.GetNameForInspector() + ":").toggle(80, ref enabled).changes(ref changed);
 
             if (!enabled) return changed;
 
@@ -353,7 +353,7 @@ namespace PlaytimePainter
             var nms = new string[tps.Count + 1];
 
             for (var i = 0; i < tps.Count; i++)
-                nms[i] = tps[i].ToPegiString();
+                nms[i] = tps[i].GetNameForInspector();
 
             nms[tps.Count] = "Custom";
 
@@ -428,7 +428,7 @@ namespace PlaytimePainter
             }
             catch (Exception ex)
             {
-                Debug.LogError("Exception in {0}  :  {1}".F(Destination.ToPegiString(), ex.ToString()));
+                Debug.LogError("Exception in {0}  :  {1}".F(Destination.GetNameForInspector(), ex.ToString()));
             }
         }
 
@@ -1417,7 +1417,7 @@ namespace PlaytimePainter
             _typesNames = new string[DataTypes.Length];
 
             for (var i = 0; i < DataTypes.Length; i++)
-                _typesNames[i] = DataTypes[i].ToPegiString();
+                _typesNames[i] = DataTypes[i].GetNameForInspector();
 
             return _typesNames;
         }

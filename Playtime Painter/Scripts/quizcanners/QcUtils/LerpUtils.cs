@@ -1927,14 +1927,14 @@ namespace QuizCannersUtilities
         public static void Portion<T>(this T[] list, LerpData ld) where T : ILinkedLerping
         {
             foreach (var e in list)
-                if (!e.IsNullOrDestroyed_Obj())
+                if (!UnityUtils.IsNullOrDestroyed_Obj(e))
                     e.Portion(ld);
         }
 
         public static void Lerp<T>(this T[] list, LerpData ld, bool canSkipLerp = false) where T : ILinkedLerping
         {
             foreach (var e in list)
-                if (!e.IsNullOrDestroyed_Obj())
+                if (!UnityUtils.IsNullOrDestroyed_Obj(e))
                     e.Lerp(ld, canSkipLerp);
         }
 
@@ -1942,7 +1942,7 @@ namespace QuizCannersUtilities
         {
 
             foreach (var e in list)
-                if (!e.IsNullOrDestroyed_Obj())
+                if (!UnityUtils.IsNullOrDestroyed_Obj(e))
                     e.Portion(ld);
 
         }
@@ -1950,7 +1950,7 @@ namespace QuizCannersUtilities
         public static void Lerp<T>(this List<T> list, LerpData ld, bool canSkipLerp = false) where T : ILinkedLerping
         {
             foreach (var e in list)
-                if (!e.IsNullOrDestroyed_Obj())
+                if (!UnityUtils.IsNullOrDestroyed_Obj(e))
                     e.Lerp(ld, canSkipLerp);
         }
 
@@ -1959,7 +1959,7 @@ namespace QuizCannersUtilities
             if (list == null) return;
 
             foreach (var e in list)
-                if (!e.IsNullOrDestroyed_Obj())
+                if (!UnityUtils.IsNullOrDestroyed_Obj(e))
                     e.FadeAway();
         }
 
@@ -1973,7 +1973,7 @@ namespace QuizCannersUtilities
 
 
             foreach (var e in list)
-                if (!e.IsNullOrDestroyed_Obj())
+                if (!UnityUtils.IsNullOrDestroyed_Obj(e))
                     fadedIn |= e.TryFadeIn();
 
             return fadedIn;

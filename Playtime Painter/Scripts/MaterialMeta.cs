@@ -60,7 +60,7 @@ namespace PlaytimePainter {
 
         public bool InspectInList(IList list, int ind, ref int edited)
         {
-            this.ToPegiString().writeUobj(90, material);
+            this.GetNameForInspector().writeUobj(90, material);
             if (icon.Enter.Click())
                 edited = ind;
             material.ClickHighlight();

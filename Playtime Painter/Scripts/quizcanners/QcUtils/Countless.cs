@@ -25,6 +25,7 @@ namespace QuizCannersUtilities {
         private static int _frPoolMax;
         protected static readonly int BranchSize = 8;
 
+     
         protected void DiscardFruit(VariableBranch b, int no)
         {
             if ((_frPoolMax + 1) >= _fruitPool.Length)
@@ -721,7 +722,7 @@ public class Countless<T> : CountlessBase {
             
             if (ind >= max)
             {
-                if (obj.IsDefaultOrNull())
+                if (CsharpUtils.IsDefaultOrNull(obj))
                     return;
                 while (ind >= max)
                 {
@@ -740,7 +741,7 @@ public class Countless<T> : CountlessBase {
             var vb = br;
             var subSize = max;
 
-            if (!obj.IsDefaultOrNull())
+            if (!CsharpUtils .IsDefaultOrNull(obj))
             {
                 while (d > 0)
                 {
@@ -758,7 +759,7 @@ public class Countless<T> : CountlessBase {
                     vb.value += 1;
 
                     var cnt = objs.Length;
-                    while (_firstFreeObj < cnt && !objs[_firstFreeObj].IsDefaultOrNull()) _firstFreeObj++;
+                    while (_firstFreeObj < cnt && !CsharpUtils.IsDefaultOrNull(objs[_firstFreeObj])) _firstFreeObj++;
                     if (_firstFreeObj >= cnt)
                         Expand(ref objs, BranchSize);
 
@@ -830,7 +831,7 @@ public class Countless<T> : CountlessBase {
             return vb.br[ind] == null ? default(T) : objs[vb.br[ind].value];
         }
 
-        public List<T> GetAllObjsNoOrder() => objs.Where(t => !t.IsDefaultOrNull()).ToList();
+        public List<T> GetAllObjsNoOrder() => objs.Where(t => !CsharpUtils.IsDefaultOrNull(t)).ToList();
         
         public List<T> GetAllObjs(out List<int> inds)
         {
@@ -891,7 +892,7 @@ public class Countless<T> : CountlessBase {
             var all = GetAllObjs(out indx);
             for (var i = 0; i < all.Count; i++) {
                 var e = all[i];
-                if (e.IsDefaultOrNull()) continue;
+                if (CsharpUtils.IsDefaultOrNull(e)) continue;
                 currentEnumerationIndex = indx[i];
                 yield return e;
             }
@@ -930,7 +931,7 @@ public class Countless<T> : CountlessBase {
                     if (icon.Delete.Click())
                         this[ind] = default(T);
                     else
-                        el.InspectValueInList<T>(null, ind, ref _edited);
+                        pegi.InspectValueInList<T>(el, null, ind, ref _edited);
                 }
 
             }
@@ -939,7 +940,7 @@ public class Countless<T> : CountlessBase {
                 if (icon.List.Click("Back to elements window", ref changed))
                     _edited = -1;
                 else
-                    this[_edited].Try_Nested_Inspect();
+                    pegi.Try_Nested_Inspect(this[_edited]);
             }
             return changed;
         }
@@ -1241,7 +1242,7 @@ public class Countless<T> : CountlessBase {
             _firstFreeObj = 0;
         }
 
-        public IEnumerator GetEnumerator() => _objs.Where(e => !e.IsDefaultOrNull()).GetEnumerator();
+        public IEnumerator GetEnumerator() => _objs.Where(e => !CsharpUtils.IsDefaultOrNull(e)).GetEnumerator();
         
     }
 
@@ -1255,17 +1256,17 @@ public class Countless<T> : CountlessBase {
     {
 
         #region Inspector
-#if !NO_PEGI
-        public static bool Inspect<TG, T>(this TG countless, ref int inspected) where TG : CountlessCfg<T> where T: ICfg, IPEGI, new() {
+        #if !NO_PEGI
+        public static bool Inspect<TG, T>(TG countless, ref int inspected) where TG : CountlessCfg<T> where T: ICfg, IPEGI, new() {
 
             var changed = false;
             
             if (inspected > -1) {
                 var e = countless[inspected];
-                if (e.IsDefaultOrNull() || icon.Back.ClickUnFocus())
+                if (CsharpUtils.IsDefaultOrNull(e) || icon.Back.ClickUnFocus())
                     inspected = -1;
                 else
-                    changed |= e.Try_Nested_Inspect();
+                    pegi.Try_Nested_Inspect(e).changes(ref changed);
             }
 
             var deleted = -1;
@@ -1274,7 +1275,7 @@ public class Countless<T> : CountlessBase {
                 foreach (var e in countless) {
                     if (icon.Delete.Click()) deleted = countless.currentEnumerationIndex;
                     "{0}: ".F(countless.currentEnumerationIndex).write(35);
-                    changed |= e.InspectValueInList<T>(null, countless.currentEnumerationIndex, ref inspected).nl();
+                    pegi.InspectValueInList<T>(e, null, countless.currentEnumerationIndex, ref inspected).nl(ref changed);
                 }
             if (deleted != -1)
                 countless[deleted] = default(T);
@@ -1296,15 +1297,6 @@ public class Countless<T> : CountlessBase {
             return cody;
         }
 
-        public static void DecodeInto_Countless(this string data, out Countless<string> c)
-        {
-            c = new Countless<string>();
-            var cody = new CfgDecoder(data);
-            foreach (var tag in cody)
-                c[tag.ToInt()] = cody.GetData();
-
-        }
-
         public static CfgEncoder Encode(this Countless<float> c)
         {
             var cody = new CfgEncoder();
@@ -1315,7 +1307,7 @@ public class Countless<T> : CountlessBase {
             return cody;
         }
 
-        public static void DecodeInto_Countless(this string data, out Countless<float> c)
+        public static void DecodeInto(this string data, out Countless<float> c)
         {
             c = new Countless<float>();
             var cody = new CfgDecoder(data);
@@ -1337,7 +1329,7 @@ public class Countless<T> : CountlessBase {
             return cody;
         }
 
-        public static void DecodeInto_Countless(this string data, out Countless<Vector3> c)
+        public static void DecodeInto(this string data, out Countless<Vector3> c)
         {
             c = new Countless<Vector3>();
             var cody = new CfgDecoder(data);
@@ -1356,7 +1348,7 @@ public class Countless<T> : CountlessBase {
             return cody;
         }
 
-        public static void DecodeInto_Countless(this string data, out Countless<Quaternion> c)
+        public static void DecodeInto(this string data, out Countless<Quaternion> c)
         {
             c = new Countless<Quaternion>();
             var cody = new CfgDecoder(data);
@@ -1367,24 +1359,6 @@ public class Countless<T> : CountlessBase {
 
         #endregion
 
-        /*
-        public static int Get(this UnNullableCfg<CountlessInt> unn, int group, int index)
-        {
-            var tg = TryGet(unn, group);
-            return tg?[index] ?? 0;
-        }
-
-        public static bool Get(this UnNullableCfg<CountlessBool> unn, int group, int index) {
-            var tg = TryGet(unn, group);
-            return tg != null && tg[index];
-        }
-
-        public static T Get<T>(this UnNullableCfg<CountlessCfg<T>> unn, int group, int index) where T: ISTD, new()
-        {
-            var tg = TryGet(unn, group);
-            return tg == null ? default(T) : tg[index];
-        }
-*/
         public static T TryGet<T>(this UnNullableCfg<T> unn, int index) where T : ICfg, new() => unn != null ? unn.GetIfExists(index) : default(T);
         
 

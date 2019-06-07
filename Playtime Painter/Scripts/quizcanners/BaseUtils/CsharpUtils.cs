@@ -628,7 +628,7 @@ namespace QuizCannersUtilities {
 
         #endregion
 
-        public static bool IsDefaultOrNull<T>(this T obj) => (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
+        public static bool IsDefaultOrNull<T>(T obj) => (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
         
         public static float RoundTo(this float val, int digits) => (float)Math.Round(val, digits);
         
@@ -638,7 +638,7 @@ namespace QuizCannersUtilities {
         {
 
             for (var i = 0; i < list.Count; i++)
-                if (list[i].IsDefaultOrNull())
+                if (UnityUtils.IsNullOrDestroyed_Obj(list[i]))
                 {
                     list.RemoveAt(i);
                     i--;

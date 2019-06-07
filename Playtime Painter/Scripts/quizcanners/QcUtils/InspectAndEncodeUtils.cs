@@ -60,11 +60,11 @@ namespace QuizCannersUtilities
         {
             try
             {
-                return string.Format(format, obj1.ToPegiString());
+                return string.Format(format, obj1.GetNameForInspector());
             }
             catch
             {
-                return BadFormat + format + " " + obj1.ToPegiString();
+                return BadFormat + format + " " + obj1.GetNameForInspector();
             }
         }
         public static string F(this string format, string obj1, string obj2)
@@ -82,7 +82,7 @@ namespace QuizCannersUtilities
         {
             try
             {
-                return string.Format(format, obj1.ToPegiString(), obj2.ToPegiString());
+                return string.Format(format, obj1.GetNameForInspector(), obj2.GetNameForInspector());
             }
             catch
             {
@@ -104,7 +104,7 @@ namespace QuizCannersUtilities
         {
             try
             {
-                return string.Format(format, obj1.ToPegiString(), obj2.ToPegiString(), obj3.ToPegiString());
+                return string.Format(format, obj1.GetNameForInspector(), obj2.GetNameForInspector(), obj3.GetNameForInspector());
             }
             catch
             {

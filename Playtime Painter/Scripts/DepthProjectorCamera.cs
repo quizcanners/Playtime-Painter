@@ -191,7 +191,7 @@ namespace PlaytimePainter
                 {
                     userToGetUpdate = depthUsers[lastUpdatedUser];
 
-                    if (userToGetUpdate.IsNullOrDestroyed_Obj())
+                    if ( UnityUtils.IsNullOrDestroyed_Obj(userToGetUpdate))
                     {
                         gotNull = true;
                         userToGetUpdate = null;
@@ -209,7 +209,7 @@ namespace PlaytimePainter
                 if (gotNull)
                     for (int i = depthUsers.Count - 1; i >= 0; i--)
                     {
-                        if (depthUsers[i].IsNullOrDestroyed_Obj())
+                        if ( UnityUtils.IsNullOrDestroyed_Obj(depthUsers[i]))
                             depthUsers.RemoveAt(i);
                     }
             }

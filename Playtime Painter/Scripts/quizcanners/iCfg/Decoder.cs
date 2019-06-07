@@ -700,7 +700,7 @@ namespace QuizCannersUtilities {
 
         #region STD class
         public static ICfg DecodeTagsFor<T>(this string data, T val) where T : ICfg
-        => (val.IsNullOrDestroyed_Obj()) ? val : new CfgDecoder(data).DecodeTagsFor(val);
+        => (UnityUtils.IsNullOrDestroyed_Obj(val)) ? val : new CfgDecoder(data).DecodeTagsFor(val);
       
         public static T DecodeInto<T>(this string data, out T val) where T : ICfg, new()
         {

@@ -374,7 +374,7 @@ namespace PlayerAndEditorGUI
 
                 if (no == j)
                     current = listIndexes.Count;
-                listNames.Add("{0}: {1}".F(j, lst[j].ToPegiString()));
+                listNames.Add("{0}: {1}".F(j, lst[j].GetNameForInspector()));
                 listIndexes.Add(j);
 
             }
@@ -400,7 +400,7 @@ namespace PlayerAndEditorGUI
             {
                 if (no == indexes[i])
                     current = i;
-                filtered.Add("{0}: {1}".F(i, objs[i].ToPegiString()));
+                filtered.Add("{0}: {1}".F(i, objs[i].GetNameForInspector()));
             }
 
             if (select(ref current, filtered.ToArray()))
@@ -422,7 +422,7 @@ namespace PlayerAndEditorGUI
             {
                 if (no == indexes[i])
                     current = i;
-                filtered.Add(objs[i].ToPegiString());
+                filtered.Add(objs[i].GetNameForInspector());
             }
 
             if (select(ref current, filtered.ToArray()))
@@ -1447,7 +1447,7 @@ namespace PlayerAndEditorGUI
 
                 var ty = el.GetType();
 
-                textAndToolTip.text = "{0}:{1}".F(ty.ToPegiStringType(), el.ToPegiString());
+                textAndToolTip.text = "{0}:{1}".F(ty.ToPegiStringType(), el.GetNameForInspector());
                 textAndToolTip.tooltip = el.ToString();
 
                 var uo = el as Object;
@@ -1478,7 +1478,7 @@ namespace PlayerAndEditorGUI
                     if (_currentReorderedListTypes != null)
                     {
 
-                        textAndToolTip.text = el.ToPegiString();
+                        textAndToolTip.text = el.GetNameForInspector();
 
                         rect.width = 100;
                         EditorGUI.LabelField(rect, textAndToolTip);

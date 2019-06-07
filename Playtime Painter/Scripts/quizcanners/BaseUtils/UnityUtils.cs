@@ -314,7 +314,7 @@ namespace QuizCannersUtilities {
                         go.SetActive(to);
         }
         
-        public static GameObject TryGetGameObjectFromObj(this object obj)
+        public static GameObject TryGetGameObjectFromObj(object obj)
         {
             var go = obj as GameObject;
 
@@ -330,7 +330,7 @@ namespace QuizCannersUtilities {
         public static T TryGet_fromObj<T>(object obj) where T : class
         {
 
-            if (obj.IsNullOrDestroyed_Obj())
+            if (IsNullOrDestroyed_Obj(obj))
                 return null;
 
             var pgi = obj as T;
@@ -338,7 +338,7 @@ namespace QuizCannersUtilities {
             if (pgi != null)
                 return pgi;
 
-            var go = obj.TryGetGameObjectFromObj();
+            var go = TryGetGameObjectFromObj(obj);
 
             return go ? go.TryGet<T>() : null;
         }
@@ -346,9 +346,9 @@ namespace QuizCannersUtilities {
         public static T TryGet<T>(this GameObject go) where T : class =>
             go ? go.GetComponents<Component>().OfType<T>().FirstOrDefault() : null;
 
-        public static bool IsNullOrDestroyed_Obj(this object obj)
+        public static bool IsNullOrDestroyed_Obj(object obj)
         {
-            if (obj as UnityEngine.Object)
+            if (obj as Object)
                 return false;
 
             return obj == null;
@@ -461,7 +461,7 @@ namespace QuizCannersUtilities {
 
 #if UNITY_EDITOR
             var tmp = Selection.objects;
-            return !tmp.IsNullOrEmpty() ? tmp[0].TryGetGameObjectFromObj() : null;
+            return !tmp.IsNullOrEmpty() ? UnityUtils.TryGetGameObjectFromObj(tmp[0]) : null;
 #else
             return null;
 #endif
@@ -931,16 +931,6 @@ namespace QuizCannersUtilities {
 #endif
 
 #endif
-            return obj;
-        }
-
-        public static object SetToDirty_Obj(this object obj)
-        {
-
-#if UNITY_EDITOR
-            SetToDirty(obj as UnityEngine.Object);
-#endif
-
             return obj;
         }
 

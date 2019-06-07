@@ -157,7 +157,7 @@ namespace PlayerAndEditorGUI
                     globChanged = false;
                     _elementIndex = 0;
                     _lineOpen = false;
-                    PEGI_Extensions.focusInd = 0;
+                    focusInd = 0;
 
                     if (!PopUpService.ShowingPopup())
                         function();
@@ -179,7 +179,7 @@ namespace PlayerAndEditorGUI
                 paintingPlayAreaGui = false;
             }
             
-            public void Render(IPEGI p) => Render(p, p.Inspect, p.ToPegiString());
+            public void Render(IPEGI p) => Render(p, p.Inspect, p.GetNameForInspector());
 
             public void Render(IPEGI p, string windowName) => Render(p, p.Inspect, windowName);
             
@@ -400,7 +400,7 @@ namespace PlayerAndEditorGUI
                         
                         if (what == null) continue;
                         
-                        LastNeedAttentionMessage = " {0} on {1}:{2}".F(what, i, need.ToPegiString());
+                        LastNeedAttentionMessage = " {0} on {1}:{2}".F(what, i, need.GetNameForInspector());
                         LastNeedAttentionIndex = i;
 
                         return LastNeedAttentionMessage;
@@ -431,11 +431,11 @@ namespace PlayerAndEditorGUI
 
         public static int NameNextUnique(ref string name)
         {
-            name += PEGI_Extensions.focusInd.ToString();
+            name += focusInd.ToString();
             GUI.SetNextControlName(name);
-            PEGI_Extensions.focusInd++;
+            focusInd++;
 
-            return (PEGI_Extensions.focusInd - 1);
+            return (focusInd - 1);
         }
 
         public static string nameFocused => GUI.GetNameOfFocusedControl(); 
@@ -1330,7 +1330,7 @@ namespace PlayerAndEditorGUI
 
         private static string _compileName<T>(bool showIndex, int index, T obj, bool stripSlashes = false)
         {
-            var st = obj.ToPegiString();
+            var st = obj.GetNameForInspector();
             if (stripSlashes)
                 st = st.SimplifyDirectory();
 
@@ -1347,7 +1347,7 @@ namespace PlayerAndEditorGUI
             if (indexes == -1)
             {
                 indexes = namesList.Count;
-                namesList.Add("[{0}]".F(val.ToPegiString()));
+                namesList.Add("[{0}]".F(val.GetNameForInspector()));
 
             }
 
@@ -1370,7 +1370,7 @@ namespace PlayerAndEditorGUI
             if (indexes == -1 && !val.IsNullOrDestroyed_Obj())
             {
                 indexes = namesList.Count;
-                namesList.Add("[{0}]".F(val.ToPegiString()));
+                namesList.Add("[{0}]".F(val.GetNameForInspector()));
 
             }
 
@@ -1806,7 +1806,7 @@ namespace PlayerAndEditorGUI
                 if (!val.IsDefaultOrNull() && val.Equals(tmp))
                     current = namesList.Count;
 
-                namesList.Add(_compileName(showIndex, j, tmp)); //showIndex ? "{0}: {1}".F(j, tmp.ToPegiString()) : tmp.ToPegiString());
+                namesList.Add(_compileName(showIndex, j, tmp)); //showIndex ? "{0}: {1}".F(j, tmp.GetNameForInspector()) : tmp.GetNameForInspector());
                 indexList.Add(j);
             }
 
@@ -1860,7 +1860,7 @@ namespace PlayerAndEditorGUI
                     lst.Add(val);
             }
             else
-                val.ToPegiString().write(); 
+                val.GetNameForInspector().write(); 
 
 
 
@@ -1896,7 +1896,7 @@ namespace PlayerAndEditorGUI
                     notInTheList = false;
                 }
 
-                namesList.Add(_compileName(showIndex, j, tmp)); //"{0}: {1}".F(j, tmp.ToPegiString()));
+                namesList.Add(_compileName(showIndex, j, tmp)); //"{0}: {1}".F(j, tmp.GetNameForInspector()));
                 indexList.Add(j);
             }
 
@@ -1977,7 +1977,7 @@ namespace PlayerAndEditorGUI
                 {
                     if (ind == j)
                         current = indexes.Count;
-                    namesList.Add(_compileName(showIndex, j, lst[j])); //lst[j].ToPegiString());
+                    namesList.Add(_compileName(showIndex, j, lst[j])); //lst[j].GetNameForInspector());
                     indexes.Add(j);
                 }
 
@@ -2065,7 +2065,7 @@ namespace PlayerAndEditorGUI
 
                 if (val == j)
                     current = names.Count;
-                names.Add(_compileName(showIndex, j, tmp));//showIndex ? "{0}: {1}".F(j, tmp.ToPegiString()) : tmp.ToPegiString());
+                names.Add(_compileName(showIndex, j, tmp));//showIndex ? "{0}: {1}".F(j, tmp.GetNameForInspector()) : tmp.GetNameForInspector());
                 indexes.Add(j);
             }
 
@@ -2098,7 +2098,7 @@ namespace PlayerAndEditorGUI
 
                 if (val == ind)
                     current = names.Count;
-                names.Add(_compileName(showIndex, ind, tmp));//showIndex ? "{0}: {1}".F(ind, tmp.ToPegiString()) : tmp.ToPegiString());
+                names.Add(_compileName(showIndex, ind, tmp));//showIndex ? "{0}: {1}".F(ind, tmp.GetNameForInspector()) : tmp.GetNameForInspector());
                 indexes.Add(ind);
 
             }
@@ -2173,11 +2173,11 @@ namespace PlayerAndEditorGUI
             {
                 if (no == inds[i])
                     tmpindex = i;
-                filtered.Add(objs[i].ToPegiString());
+                filtered.Add(objs[i].GetNameForInspector());
             }
 
             if (tmpindex == -1)
-                filtered.Add(">>{0}<<".F(no.ToPegiString()));
+                filtered.Add(">>{0}<<".F(no.GetNameForInspector()));
 
             if (select(ref tmpindex, filtered.ToArray()) && tmpindex < inds.Count)
             {
@@ -2216,7 +2216,7 @@ namespace PlayerAndEditorGUI
             {
                 if (no == inds[i])
                     tmpindex = i;
-                filtered.Add(objs[i].ToPegiString());
+                filtered.Add(objs[i].GetNameForInspector());
             }
 
             if (select(ref tmpindex, filtered.ToArray()))
@@ -2253,7 +2253,7 @@ namespace PlayerAndEditorGUI
                 if (no == indexes[j])
                     current = j;
 
-                namesList.Add(objects[i].ToPegiString());
+                namesList.Add(objects[i].GetNameForInspector());
                 j++;
             }
 
@@ -2762,7 +2762,7 @@ namespace PlayerAndEditorGUI
 
                     if (ind == index)
                         current = indexes.Count;
-                    names.Add((showIndex ? index + ": " : "") + el.ToPegiString());
+                    names.Add((showIndex ? index + ": " : "") + el.GetNameForInspector());
                     indexes.Add(index);
 
                 }
@@ -2831,7 +2831,7 @@ namespace PlayerAndEditorGUI
                     current = indexes.Count;
                     val = g;
                 }
-                names.Add(el.ToPegiString());
+                names.Add(el.GetNameForInspector());
                 indexes.Add(index);
                 els.Add(g);
 
@@ -3228,7 +3228,7 @@ namespace PlayerAndEditorGUI
 
             var el = list.TryGet(tmp) as IPEGI;
 
-            if (el != null && ico.Click(msg + el.ToPegiString())) {
+            if (el != null && ico.Click(msg + el.GetNameForInspector())) {
                 inspected = tmp;
                 isFoldedOutOrEntered = true;
                 return true;
@@ -3374,7 +3374,7 @@ namespace PlayerAndEditorGUI
                     if (n != null)
                         return "{0}: {1}".F(txt, n.NameForPEGI);
                     
-                    return "{0}: {1}".F(txt, el.ToPegiString());
+                    return "{0}: {1}".F(txt, el.GetNameForInspector());
                     
                 }
                 else return "{0} one Null Element".F(txt);
@@ -3399,7 +3399,7 @@ namespace PlayerAndEditorGUI
             var lst = var as IPEGI_ListInspect;
             
             return lst!=null ? lst.enter_Inspect_AsList(ref enteredOne, thisOne) : 
-                var.ToPegiString().enter_Inspect(var, ref enteredOne, thisOne);
+                var.GetNameForInspector().enter_Inspect(var, ref enteredOne, thisOne);
         }
 
         public static bool enter_Inspect(this IPEGI var, ref bool entered)
@@ -3408,7 +3408,7 @@ namespace PlayerAndEditorGUI
             var lst = var as IPEGI_ListInspect;
 
             return lst != null ? lst.enter_Inspect_AsList(ref entered) :
-                var.ToPegiString().enter_Inspect(var, ref entered);
+                var.GetNameForInspector().enter_Inspect(var, ref entered);
         }
 
         public static bool enter_Inspect(this string txt, IPEGI var, ref bool entered, bool showLabelIfTrue = true)
@@ -3463,12 +3463,12 @@ namespace PlayerAndEditorGUI
                 {
 
                     if (exitLabel.IsNullOrEmpty())
-                        exitLabel = var.ToPegiString();
+                        exitLabel = var.GetNameForInspector();
 
                     if (icon.Exit.ClickUnFocus("{0} L {1}".F(icon.Exit.GetText(), var))
                         || exitLabel.ClickLabel(icon.Exit.GetDescription(), style: PEGI_Styles.ExitLabel))
                         enteredOne = -1;
-                    var.Try_Nested_Inspect().changes(ref changed);
+                    Try_Nested_Inspect(var).changes(ref changed);
                 }
             }
             else if (enteredOne == thisOne)
@@ -4158,7 +4158,7 @@ namespace PlayerAndEditorGUI
 
         public static bool Click(this Color col, string tip, int size = defaultButtonSize) => icon.Empty.GUIColor(col).BgColor(Color.clear).Click(tip, size).RestoreGUIColor().RestoreBGColor();
 
-        public static bool TryClickHighlight(this object obj, int width = defaultButtonSize)
+        public static bool TryClickHighlight(object obj, int width = defaultButtonSize)
         {
 #if UNITY_EDITOR
             var uo = obj as UnityEngine.Object;
@@ -4736,7 +4736,7 @@ namespace PlayerAndEditorGUI
                     if (lab.IsNullOrEmpty()) {
 
                         if (obj)
-                            lab = obj.ToPegiString();
+                            lab = obj.GetNameForInspector();
                         else
                             lab = typeof(T).ToPegiStringType();
                     }
@@ -6583,7 +6583,7 @@ namespace PlayerAndEditorGUI
                 searchData.ToggleSearch(lst, label);
 
             if (lst != null && inspected >= 0 && lst.Count > inspected) 
-                label = "{0}->{1}".F(label, lst[inspected].ToPegiString());
+                label = "{0}->{1}".F(label, lst[inspected].GetNameForInspector());
             else label = (lst == null || lst.Count < 6) ? label : label.AddCount(lst, true);
 
             if (label.ClickLabel(label, -1, PEGI_Styles.ListLabel) && inspected != -1)
@@ -6601,7 +6601,7 @@ namespace PlayerAndEditorGUI
 
                 var el = lst[ld.inspected];
 
-                currentListLabel = "{0}->{1}".F(ld.label, lst[ld.inspected].ToPegiString());
+                currentListLabel = "{0}->{1}".F(ld.label, lst[ld.inspected].GetNameForInspector());
                 
             } else currentListLabel = (lst == null || lst.Count < 6) ? ld.label : ld.label.AddCount(lst, true);
 
@@ -6617,7 +6617,7 @@ namespace PlayerAndEditorGUI
                 if (array == null || index >= array.Length || icon.List.ClickUnFocus("Return to {0} array".F(GetCurrentListLabel<T>(ld))).nl())
                     index = -1;
                 else
-                    changed |= array[index].Try_Nested_Inspect();
+                    Try_Nested_Inspect(array[index]).changes(ref changed);
             }
 
             return changed;
@@ -6630,7 +6630,7 @@ namespace PlayerAndEditorGUI
             if (icon.List.ClickUnFocus("{0}[{1}] of {2}".F(Msg.ReturnToCollection.GetText(), list.Count, GetCurrentListLabel<T>(ld))).nl())
                 index = -1;
             else
-                list[index].Try_Nested_Inspect().changes(ref changed);
+                Try_Nested_Inspect(list[index]).changes(ref changed);
 
             return changed;
         }
@@ -6769,12 +6769,12 @@ namespace PlayerAndEditorGUI
 
                 if (!isNull && derivedClasses != null) {
                     var ty = el.GetType();
-                    if (@select(ref ty, derivedClasses, el.ToPegiString()))
+                    if (@select(ref ty, derivedClasses, el.GetNameForInspector()))
                         array[i] = (el as ICfg).TryDecodeInto<T>(ty);
                 }
 
                 if (!isNull)
-                    write(el.ToPegiString());
+                    write(el.GetNameForInspector());
                 else
                     "{0} {1}".F(icon.Empty.GetText() ,typeof(T).ToPegiStringType()).write();
 
@@ -6859,12 +6859,12 @@ namespace PlayerAndEditorGUI
                     if (!isNull && derivedClasses != null)
                     {
                         var ty = el.GetType();
-                        if (@select(ref ty, derivedClasses, el.ToPegiString()))
+                        if (@select(ref ty, derivedClasses, el.GetNameForInspector()))
                             list[i] = (el as ICfg).TryDecodeInto<T>(ty);
                     }
 
                     if (!isNull)
-                        write(el.ToPegiString());
+                        write(el.GetNameForInspector());
                     else
                         "{0} {1}".F(icon.Empty.GetText(), typeof(T).ToPegiStringType()).write();
 
@@ -6931,7 +6931,7 @@ namespace PlayerAndEditorGUI
 ;
                 if (typeof(T).IsUnityObject()) {
 
-                    if (!cutPaste && icon.Paste.ClickUnFocus(same ? Msg.TryDuplicateSelected.GetText() : "{0} Of {1} to here".F(Msg.TryDuplicateSelected.GetText(), listCopyBuffer.ToPegiString())))
+                    if (!cutPaste && icon.Paste.ClickUnFocus(same ? Msg.TryDuplicateSelected.GetText() : "{0} Of {1} to here".F(Msg.TryDuplicateSelected.GetText(), listCopyBuffer.GetNameForInspector())))
                     {
                         foreach (var e in _copiedElements)
                             list.TryAdd(listCopyBuffer.TryGetObj(e));
@@ -6944,7 +6944,7 @@ namespace PlayerAndEditorGUI
                 else
                 {
 
-                    if (!cutPaste && icon.Paste.ClickUnFocus(same ? "Try to duplicate selected references" : "Try Add Deep Copy {0}".F(listCopyBuffer.ToPegiString())))
+                    if (!cutPaste && icon.Paste.ClickUnFocus(same ? "Try to duplicate selected references" : "Try Add Deep Copy {0}".F(listCopyBuffer.GetNameForInspector())))
                     {
 
                         foreach (var e in _copiedElements)
@@ -7070,7 +7070,7 @@ namespace PlayerAndEditorGUI
         
         private static object previouslyEntered;
 
-        public static bool InspectValueInList<T>(this T el, List<T> list, int index, ref int inspected, ListMetaData listMeta = null)
+        public static bool InspectValueInList<T>(T el, List<T> list, int index, ref int inspected, ListMetaData listMeta = null)
         {
             var changed = false;
 
@@ -7152,7 +7152,7 @@ namespace PlayerAndEditorGUI
                     {
                         if (!uo && pg == null && listMeta == null)
                         {
-                            if (el.ToPegiString().ClickLabel(Msg.InspectElement.GetText()))
+                            if (el.GetNameForInspector().ClickLabel(Msg.InspectElement.GetText()))
                             {
                                 inspected = index;
                                 isPrevious = true;
@@ -7172,12 +7172,12 @@ namespace PlayerAndEditorGUI
 
                                     clickHighlightHandled = true;
                                 }
-                                else if (uo.Try_NameInspect().changes(ref changed))
+                                else if (Try_NameInspect(uo).changes(ref changed))
                                     isPrevious = true;
 
 
                             }
-                            else if (el.ToPegiString().ClickLabel().changes(ref changed))
+                            else if (el.GetNameForInspector().ClickLabel().changes(ref changed))
                             {
                                 inspected = index;
                                 isPrevious = true;
@@ -7214,7 +7214,7 @@ namespace PlayerAndEditorGUI
             return changed;
         }
         
-        public static bool InspectClassInList<T>(this object el, List<T> list, int index, ref int inspected, ListMetaData listMeta = null) where T : class {
+        private static bool InspectClassInList<T>(this object el, List<T> list, int index, ref int inspected, ListMetaData listMeta = null) where T : class {
             var changed = false;
 
             var pl = el as IPEGI_ListInspect;
@@ -7289,7 +7289,7 @@ namespace PlayerAndEditorGUI
                     {
                         if (!uo && pg == null && listMeta == null)
                         {
-                            if (el.ToPegiString().ClickLabel(Msg.InspectElement.GetText()))
+                            if (el.GetNameForInspector().ClickLabel(Msg.InspectElement.GetText()))
                             {
                                 inspected = index;
                                 isPrevious = true;
@@ -7305,11 +7305,11 @@ namespace PlayerAndEditorGUI
 
                                     clickHighlightHandled = true;
                                 }
-                                else if (uo.Try_NameInspect().changes(ref changed))
+                                else if (pegi.Try_NameInspect(uo).changes(ref changed))
                                         isPrevious = true;
                                 
 
-                            } else if (el.ToPegiString().ClickLabel().changes(ref changed))
+                            } else if (el.GetNameForInspector().ClickLabel().changes(ref changed))
                             {
                                 inspected = index;
                                 isPrevious = true;
@@ -7765,7 +7765,7 @@ namespace PlayerAndEditorGUI
                                     : "is NUll");
                             }
                         }
-                        else list[i].InspectValueInList(list, i, ref inspected, listMeta).changes(ref changed);
+                        else InspectValueInList(list[i], list, i, ref inspected, listMeta).changes(ref changed);
 
                         newLine();
                     }
@@ -7836,7 +7836,7 @@ namespace PlayerAndEditorGUI
                         }
                     }
                     else
-                        list[i].InspectValueInList(list, i, ref inspected, listMeta).changes(ref changed);
+                        InspectValueInList(list[i], list, i, ref inspected, listMeta).changes(ref changed);
 
                     newLine();
                 }
@@ -7882,7 +7882,7 @@ namespace PlayerAndEditorGUI
         {
             var role = listElementsRoles.TryGetObj(InspectedIndex);
             if (role != null)
-                role.ToPegiString().edit(90, ref val);
+                role.GetNameForInspector().edit(90, ref val);
             else edit(ref val);
 
             return val;
@@ -7898,7 +7898,7 @@ namespace PlayerAndEditorGUI
 
             var role = listElementsRoles.TryGetObj(InspectedIndex);
             if (!role.IsNullOrDestroyed_Obj())
-                role.ToPegiString().edit(90, ref val);
+                role.GetNameForInspector().edit(90, ref val);
             else edit(ref val);
 
             return val;
@@ -8154,7 +8154,7 @@ namespace PlayerAndEditorGUI
                     if (el == null)
                         write("NULL");
                     else
-                        list[i].InspectValueInList(list, i, ref edited).changes(ref changed);
+                        InspectValueInList(list[i], list, i, ref edited).changes(ref changed);
                     
                     nl();
                 }
@@ -8260,7 +8260,7 @@ namespace PlayerAndEditorGUI
                                 named.NameForPEGI = n;
                         }
                         else
-                            write(el.ToPegiString(), 120);
+                            write(el.GetNameForInspector(), 120);
 
                         if ((el is IPEGI) && icon.Enter.ClickUnFocus(Msg.InspectElement, 25))
                             inspected = i;
@@ -8273,7 +8273,7 @@ namespace PlayerAndEditorGUI
                 if (icon.Back.ClickUnFocus(25).nl().changes(ref changed))
                     inspected = -1;
                 else
-                    changed |= dic.ElementAt(inspected).Value.Try_Nested_Inspect();
+                    Try_Nested_Inspect(dic.ElementAt(inspected).Value).changes(ref changed);
             }
 
             newLine();
@@ -8320,7 +8320,7 @@ namespace PlayerAndEditorGUI
                     dic.Remove(itemKey);
                 else {
                     if (showKey)
-                        itemKey.ToPegiString().write(50);
+                        itemKey.GetNameForInspector().write(50);
 
                     var el = item.Value;
                     var ch = GUI.changed;
@@ -8453,7 +8453,7 @@ namespace PlayerAndEditorGUI
                 if (array == _editingArrayOrder) return added;
 
                 for (var i = 0; i < array.Length; i++) 
-                    array[i].InspectValueInList(null, i, ref inspected, metaDatas).nl(ref changed);
+                    InspectValueInList(array[i], null, i, ref inspected, metaDatas).nl(ref changed);
             }
 
             return added;
@@ -8525,7 +8525,7 @@ namespace PlayerAndEditorGUI
 
 #region Inspect Name
 
-        public static bool Try_NameInspect(this object obj, string label = "", string tip = "") {
+        public static bool Try_NameInspect(object obj, string label = "", string tip = "") {
             bool could;
             return obj.Try_NameInspect(out could, label, tip);
         }
@@ -8544,7 +8544,7 @@ namespace PlayerAndEditorGUI
             Object uObj = obj as ScriptableObject;
                 
             if (!uObj)
-                uObj = obj.TryGetGameObjectFromObj(); 
+                uObj = UnityUtils.TryGetGameObjectFromObj(obj); 
             
             if (uObj) {
                 var n = uObj.name;
@@ -8560,7 +8560,7 @@ namespace PlayerAndEditorGUI
             return changed;
         }
         
-        public static bool inspect_Name(this IGotName obj) => obj.inspect_Name("", obj.ToPegiString());
+        public static bool inspect_Name(this IGotName obj) => obj.inspect_Name("", obj.GetNameForInspector());
 
         public static bool inspect_Name(this IGotName obj, string label) => obj.inspect_Name(label, label);
 
@@ -8596,16 +8596,16 @@ namespace PlayerAndEditorGUI
 
 #region Searching
 
-        public static bool SearchMatch (this IList list, string searchText) => list.Cast<object>().Any(e => e.SearchMatch_Obj(searchText));
+        public static bool SearchMatch (this IList list, string searchText) => list.Cast<object>().Any(e => Try_SearchMatch_Obj(e, searchText));
         
-        public static bool SearchMatch_Obj (this object obj, string searchText) => SearchMatch_Obj_Internal(obj, new string[] { searchText });
+        public static bool Try_SearchMatch_Obj (object obj, string searchText) => SearchMatch_Obj_Internal(obj, new string[] { searchText });
 
         private static bool SearchMatch_Obj_Internal(this object obj, string[] text, int[] indexes = null) {
 
             if (obj.IsNullOrDestroyed_Obj())
                 return false;
 
-            var go = obj.TryGetGameObjectFromObj();
+            var go = UnityUtils.TryGetGameObjectFromObj(obj);
 
             var matched = new bool[text.Length];
 
@@ -8771,80 +8771,17 @@ namespace PlayerAndEditorGUI
 
             return false;
         }
-        
-#endif
-    }
 
-#region Extensions
-    public static class PEGI_Extensions
-    {
 
-        static bool ToPegiStringInterfacePart(this object obj, out string name)
+        private static object SetToDirty_Obj(this object obj)
         {
-            name = null;
-#if !NO_PEGI
-            var dn = obj as IGotDisplayName;
-            if (dn != null) {
-                name = dn.NameForDisplayPEGI;
-                if (!name.IsNullOrEmpty())
-                    return true;
-            }
 
+            #if UNITY_EDITOR
+                UnityUtils.SetToDirty(obj as UnityEngine.Object);
+            #endif
 
-            var sn = obj as IGotName;
-            if (sn != null) {
-                name = sn.NameForPEGI;
-                if (!name.IsNullOrEmpty())
-                return true;
-            }
-#endif
-            return false;
+            return obj;
         }
-        
-        
-           
-        public static string ToPegiStringUObj<T>(this T obj) where T: Object {
-            if (obj == null)
-                return "NULL UObj {0}".F(typeof(T).ToPegiStringType());
-
-            if (!obj)
-                return "Destroyed UObj {0}".F(typeof(T).ToPegiStringType());
-
-            string tmp;
-            if (obj.ToPegiStringInterfacePart(out tmp)) return tmp;
-                
-            var cmp =  obj as Component;
-            return cmp ? "{0} on {1}".F(cmp.GetType().ToPegiStringType(), cmp.gameObject.name ) : obj.name;
-        }
-
-        public static string ToPegiString<T>(this T obj) {
-
-            if (obj == null)
-                return "NULL {0}".F(typeof(T).ToPegiStringType());
-
-            if (obj.GetType().IsUnityObject())
-                return (obj as UnityEngine.Object).ToPegiStringUObj();
-
-            string tmp;
-            return (obj.ToPegiStringInterfacePart(out tmp)) ? tmp : obj.ToString().SimplifyTypeName();
-        }
-
-        public static string ToPegiString(this object obj) {
-
-            if (obj is string)
-                return (string)obj;
-
-            if (obj == null) return "NULL";
-
-            if (obj.GetType().IsUnityObject())
-                return (obj as Object).ToPegiStringUObj();
-
-            string tmp;
-
-            return (obj.ToPegiStringInterfacePart(out tmp)) ? tmp : obj.ToString().SimplifyTypeName();
-        }
-
-#if !NO_PEGI
 
         public static int focusInd;
 
@@ -8852,7 +8789,8 @@ namespace PlayerAndEditorGUI
 
         public static void ResetInspectedChain() => inspectionChain.Clear();
 
-        public static bool Nested_Inspect(this IPEGI pgi) {
+        public static bool Nested_Inspect(this IPEGI pgi)
+        {
 
             if (pgi.IsNullOrDestroyed_Obj())
                 return false;
@@ -8863,11 +8801,12 @@ namespace PlayerAndEditorGUI
 
             int recurses;
 
-            if (!inspectionChain.TryGetValue(pgi, out recurses) || recurses < 2) {
+            if (!inspectionChain.TryGetValue(pgi, out recurses) || recurses < 2)
+            {
 
                 inspectionChain[pgi] = recurses + 1;
                 pgi.Inspect().RestoreBGColor().changes(ref changed);
-           
+
                 var count = inspectionChain[pgi];
                 if (count == 1)
                     inspectionChain.Remove(pgi);
@@ -8876,21 +8815,21 @@ namespace PlayerAndEditorGUI
             }
             else
                 "3rd recursion".writeWarning();
-            
+
             if (changed || pegi.globChanged)
-                {
+            {
 #if UNITY_EDITOR
-                    ef.ClearFromPooledSerializedObjects(pgi as Object);
+                ef.ClearFromPooledSerializedObjects(pgi as Object);
 #endif
-                    pgi.SetToDirty_Obj();
-                }
+                pgi.SetToDirty_Obj();
+            }
 
             pegi.isFoldedOutOrEntered = isFOOE;
 
             return changed;
 
         }
-        
+
         public static bool Inspect_AsInList<T>(this T obj, List<T> list, int current, ref int inspected) where T : IPEGI_ListInspect
         {
             var changes = obj.InspectInList(list, current, ref inspected);
@@ -8906,7 +8845,7 @@ namespace PlayerAndEditorGUI
             return changes;
         }
 
-        public static bool Inspect_AsInList(this IPEGI_ListInspect obj) 
+        public static bool Inspect_AsInList(this IPEGI_ListInspect obj)
         {
             var tmp = -1;
             var changes = obj.InspectInList(null, 0, ref tmp);
@@ -8926,7 +8865,8 @@ namespace PlayerAndEditorGUI
         private static readonly Dictionary<Type, Editor> defaultEditors = new Dictionary<Type, Editor>();
 #endif
 
-        private static bool TryDefaultInspect(this object obj) {
+        private static bool TryDefaultInspect(this object obj)
+        {
 
 #if UNITY_EDITOR
             if (pegi.paintingPlayAreaGui) return false;
@@ -8962,7 +8902,8 @@ namespace PlayerAndEditorGUI
 
             if (pgi != null)
                 pgi.Nested_Inspect().RestoreBGColor().changes(ref changed);
-            else {
+            else
+            {
                 var mbs = go.GetComponents<Component>();
 
                 foreach (var m in mbs)
@@ -8975,15 +8916,15 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool Try_Nested_Inspect(this Component cmp ) => cmp && cmp.gameObject.Try_Nested_Inspect();
+        public static bool Try_Nested_Inspect(this Component cmp) => cmp && cmp.gameObject.Try_Nested_Inspect();
 
-        public static bool Try_Nested_Inspect(this object obj)
+        public static bool Try_Nested_Inspect(object obj)
         {
             var pgi = obj as IPEGI; //.TryGet_fromObj<IPEGI>();
             return pgi?.Nested_Inspect() ?? obj.TryDefaultInspect();
         }
-        
-        public static bool Try_enter_Inspect(this object obj, ref int enteredOne, int thisOne)
+
+        public static bool Try_enter_Inspect(object obj, ref int enteredOne, int thisOne)
         {
 
             var changed = false;
@@ -9011,7 +8952,7 @@ namespace PlayerAndEditorGUI
                 }
 
 
-                return p.ToPegiString()
+                return p.GetNameForInspector()
                     .enter_Inspect(p, ref enteredOne, thisOne); //p.enter_Inspect(ref enteredOne, thisOne);
             }
 
@@ -9028,7 +8969,8 @@ namespace PlayerAndEditorGUI
             return el?.PEGI_inList_Obj(ref obj) ?? pegi.edit(ref obj);
         }
 
-        public static int CountForInspector<T>(this List<T> lst) where T : IGotCount  {
+        public static int CountForInspector<T>(this List<T> lst) where T : IGotCount
+        {
             var count = 0;
 
             foreach (var e in lst)
@@ -9056,6 +8998,17 @@ namespace PlayerAndEditorGUI
             return count;
         }
 
+        private static bool IsNullOrDestroyed_Obj(this object obj)
+        {
+            if (obj as UnityEngine.Object)
+                return false;
+
+            return obj == null;
+        }
+
+        private static bool IsDefaultOrNull<T>(this T obj) => (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
+
+
 #endif
 
         public static T GetByIGotIndex<T>(this List<T> lst, int index) where T : IGotIndex
@@ -9067,6 +9020,74 @@ namespace PlayerAndEditorGUI
                         return el;
 #endif
             return default(T);
+        }
+
+        static bool ToPegiStringInterfacePart(this object obj, out string name)
+        {
+            name = null;
+#if !NO_PEGI
+            var dn = obj as IGotDisplayName;
+            if (dn != null)
+            {
+                name = dn.NameForDisplayPEGI;
+                if (!name.IsNullOrEmpty())
+                    return true;
+            }
+
+
+            var sn = obj as IGotName;
+            if (sn != null)
+            {
+                name = sn.NameForPEGI;
+                if (!name.IsNullOrEmpty())
+                    return true;
+            }
+#endif
+            return false;
+        }
+
+        public static string ToPegiStringUObj<T>(this T obj) where T : Object
+        {
+            if (obj == null)
+                return "NULL UObj {0}".F(typeof(T).ToPegiStringType());
+
+            if (!obj)
+                return "Destroyed UObj {0}".F(typeof(T).ToPegiStringType());
+
+            string tmp;
+            if (obj.ToPegiStringInterfacePart(out tmp)) return tmp;
+
+            var cmp = obj as Component;
+            return cmp ? "{0} on {1}".F(cmp.GetType().ToPegiStringType(), cmp.gameObject.name) : obj.name;
+        }
+
+        public static string GetNameForInspector<T>(this T obj)
+        {
+
+            if (obj == null)
+                return "NULL {0}".F(typeof(T).ToPegiStringType());
+
+            if (obj.GetType().IsUnityObject())
+                return (obj as UnityEngine.Object).ToPegiStringUObj();
+
+            string tmp;
+            return (obj.ToPegiStringInterfacePart(out tmp)) ? tmp : obj.ToString().SimplifyTypeName();
+        }
+
+        public static string GetNameForInspector(this object obj)
+        {
+
+            if (obj is string)
+                return (string)obj;
+
+            if (obj == null) return "NULL";
+
+            if (obj.GetType().IsUnityObject())
+                return (obj as Object).ToPegiStringUObj();
+
+            string tmp;
+
+            return (obj.ToPegiStringInterfacePart(out tmp)) ? tmp : obj.ToString().SimplifyTypeName();
         }
 
         public static T GetByIGotIndex<T, G>(this List<T> lst, int index) where T : IGotIndex where G : T
@@ -9105,7 +9126,7 @@ namespace PlayerAndEditorGUI
 
             return default(T);
         }
-        
+
         public static G GetByIGotName<T, G>(this List<T> lst, string name) where T : IGotName where G : class, T
         {
 #if !NO_PEGI
@@ -9139,11 +9160,14 @@ namespace PlayerAndEditorGUI
                 foreach (var w in lst)
                     w.ShowNotification(new GUIContent(text));
 
-            }  
+            }
 #endif
         }
+
+
     }
-#endregion
+
+
 
 #pragma warning restore IDE1006 // Naming Styles
 #pragma warning restore IDE0034 // Simplify 'default' expression

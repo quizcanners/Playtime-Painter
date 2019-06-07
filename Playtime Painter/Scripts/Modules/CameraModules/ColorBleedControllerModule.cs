@@ -109,11 +109,9 @@ namespace PlaytimePainter {
             
             Inspect(ref weatherConfigurations).nl(ref changed);
             
-            if (changed)  {
+            if (changed)  
                 UnityUtils.RepaintViews();
-                this.SetToDirty_Obj();
-            }
-            
+             
             return changed;
         }
 

@@ -19,6 +19,9 @@ namespace QuizCannersUtilities
         private bool _allowAdd;
         private bool _allowDelete;
 
+        protected static bool IsDefaultOrNull(T obj) => (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
+
+
         #region Encode & Decode
 
         private static List<int> _tmpDecodeInds;
@@ -266,7 +269,7 @@ namespace QuizCannersUtilities
 
                 var e = all[i];
 
-                if (e.IsDefaultOrNull()) continue;
+                if (IsDefaultOrNull(e)) continue;
                 
                 currentEnumerationIndex = indexes[i];
                 
@@ -292,7 +295,7 @@ namespace QuizCannersUtilities
                 var allElements = GetAllObjs(out indexes);
 
                 if (_allowAdd && icon.Add.Click("Add "+typeof(T).ToPegiStringType(), ref changed)) {
-                    while (!GetIfExists(lastFreeIndex).IsDefaultOrNull())
+                    while (!IsDefaultOrNull(GetIfExists(lastFreeIndex)))
                         lastFreeIndex++;
 
                     this[lastFreeIndex] = new T();
@@ -310,7 +313,7 @@ namespace QuizCannersUtilities
                     else
                     {
                         "{0}".F(ind).write(20);
-                        el.InspectValueInList(null, ind, ref _edited);
+                        pegi.InspectValueInList(el, null, ind, ref _edited);
                     }
 
                     pegi.nl();
@@ -322,7 +325,7 @@ namespace QuizCannersUtilities
                 if (icon.List.Click("Back to elements window"))
                     _edited = -1;
                 else
-                    this[_edited].Try_Nested_Inspect();
+                    pegi.Try_Nested_Inspect(this[_edited]);
             }
             return changed;
         }

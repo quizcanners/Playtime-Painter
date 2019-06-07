@@ -303,10 +303,11 @@ namespace PlaytimePainter {
 
              cameraModule?.BrushConfigPEGI(ref overrideBlitModePegi, this);
 
-              if (p)  {
+              if (p)
+              {
                   foreach (var pl in p.Modules)
-                      if (pl.BrushConfigPEGI().nl(ref changed))
-                          pl.SetToDirty_Obj();
+                      pl.BrushConfigPEGI().nl(ref changed);
+                        
 
                   if (id != null)
                       foreach (var mod in id.Modules)

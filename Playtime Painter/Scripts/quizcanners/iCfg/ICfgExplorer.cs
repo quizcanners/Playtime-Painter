@@ -242,7 +242,7 @@ namespace QuizCannersUtilities
 
         public void Save<T>(T el)
         {
-            name = el.ToPegiString();
+            name = el.GetNameForInspector();
 
             var cmp = el as Component;
             if (cmp != null)
@@ -632,7 +632,7 @@ namespace QuizCannersUtilities
                 if (Cfg != null)
                 {
                     if (dataExplorer.tag.Length == 0)
-                        dataExplorer.tag = Cfg.ToPegiString() + " config";
+                        dataExplorer.tag = Cfg.GetNameForInspector() + " config";
 
                     "Save To:".edit(50, ref Mgmt.fileFolderHolder).changes(ref changed);
 
@@ -661,11 +661,11 @@ namespace QuizCannersUtilities
 
             if (Cfg != null)
             {
-                if (icon.Load.ClickUnFocus("Decode Data into " + Cfg.ToPegiString()).changes(ref changed)) {
+                if (icon.Load.ClickUnFocus("Decode Data into " + Cfg.GetNameForInspector()).changes(ref changed)) {
                     dataExplorer.UpdateData();
                     Cfg.Decode(dataExplorer.data);
                 }
-                if (icon.Save.ClickUnFocus("Save data from " + Cfg.ToPegiString()).changes(ref changed))
+                if (icon.Save.ClickUnFocus("Save data from " + Cfg.GetNameForInspector()).changes(ref changed))
                     dataExplorer = new ExploringCfg(dataExplorer.tag, Cfg.Encode().ToString());
             }
 
@@ -722,7 +722,7 @@ namespace QuizCannersUtilities
             if (added != null && target != null)
             {
                 added.dataExplorer.data = target.Encode().ToString();
-                added.NameForPEGI = target.ToPegiString();
+                added.NameForPEGI = target.GetNameForInspector();
                 added.comment = DateTime.Now.ToString(CultureInfo.InvariantCulture);
             }
 

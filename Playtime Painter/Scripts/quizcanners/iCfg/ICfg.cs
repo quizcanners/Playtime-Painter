@@ -550,7 +550,7 @@ namespace QuizCannersUtilities {
 
             pegi.toggleDefaultInspector().nl();
             
-            "{0} Debug ".F(this.ToPegiString()).nl();
+            "{0} Debug ".F(this.GetNameForInspector()).nl();
 
             if (("STD Saves: " + explorer.states.Count).enter(ref _inspectedDebugItems, 0).nl_ifNotEntered())
                 explorer.Inspect(this);
@@ -666,7 +666,7 @@ namespace QuizCannersUtilities {
             
             var changed = false;
             
-            if (_toCopy == null && icon.Copy.Click("Copy {0}".F(cfg.ToPegiString())).changes(ref changed))
+            if (_toCopy == null && icon.Copy.Click("Copy {0}".F(cfg.GetNameForInspector())).changes(ref changed))
                 _toCopy = cfg;
 
             if (_toCopy == null) return changed;
@@ -731,7 +731,7 @@ namespace QuizCannersUtilities {
             }
 
             var ch = into as ICanChangeClass;
-            if (ch != null && !from.IsNullOrDestroyed_Obj())
+            if (ch != null && !UnityUtils.IsNullOrDestroyed_Obj(from))
                 ch.OnClassTypeChange(from);
 
             
@@ -876,7 +876,7 @@ namespace QuizCannersUtilities {
         public static T CloneStd<T>(this T obj, ICfgSerializeNestedReferences nested = null) where T : ICfg
         {
 
-            if (obj.IsNullOrDestroyed_Obj()) return default(T);
+            if (UnityUtils.IsNullOrDestroyed_Obj(obj)) return default(T);
             
             var ret = (T)Activator.CreateInstance(obj.GetType());
 

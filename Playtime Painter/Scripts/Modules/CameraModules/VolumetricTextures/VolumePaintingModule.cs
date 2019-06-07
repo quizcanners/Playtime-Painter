@@ -494,7 +494,6 @@ namespace PlaytimePainter {
                 }*/
 
             }
-            if (changed) this.SetToDirty_Obj();
 
             return changed;
         }
