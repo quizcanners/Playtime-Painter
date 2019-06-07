@@ -2,7 +2,7 @@
 {
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
-		_Edges("Sharpness", Range(0.2,1)) = 0.5
+		_Edges("Sharpness", Range(0.2,5)) = 0.5
 		_Thickness("Thinnesss", Range(0.2,5)) = 1
 		[Toggle(_UNLINKED)] unlinked("Linked Corners", Float) = 0
 		[Toggle(TRIMMED)] trimmed("Trimmed Corners", Float) = 0
@@ -124,8 +124,9 @@
 						
 					#endif
 
+						float outside = saturate((1 - uvy) * 2);
 						
-						o.color.a *= min(1, saturate((1 - uvy) * 2) * //interior
+						o.color.a *= min(1, outside * 
 							min(clipp * _Edges  * (1 - _Blur)*exterior, 1)//*(2 - _Edges)
 							*(3 - uvy));
 
