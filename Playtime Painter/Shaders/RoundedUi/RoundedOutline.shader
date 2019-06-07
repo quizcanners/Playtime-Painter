@@ -89,7 +89,7 @@
 
 					#if TRIMMED
 
-					float dist = (uv.x + uv.y);
+						float dist = (uv.x + uv.y);
 
 						#if _UNLINKED
 							dist = dist * (deCourners * 0.7) + deCourners * 0.25 + _Courners*0.9;
@@ -103,22 +103,29 @@
 
 					float exterior = 15;
 
-					#if !TRIMMED
-						forFade *= forFade;
+					#if !TRIMMED 
+						#if _UNLINKED
+							forFade *= forFade;
+						#else 
+							forFade = 0;
+						#endif
 					#endif
 
-							float fade = max(forFade.x, forFade.y);
+					float fade = max(forFade.x, forFade.y);
+
+					float alpha =  1 - max(fade, dist);
 
 					#if _UNLINKED
 
-							float clipp = max(0, min(1 - fade, 1 - dist) * _Thickness);
+						alpha = max(0, alpha * _Thickness);
 
-							float uvy = saturate(clipp * 8 *(1 + _Edges));
+						float uvy = saturate(alpha * 8 *(1 + _Edges));
 
 					#else 
 
-						float clipp = max(0, 1 - dist)* _Thickness;
-						float uvy = saturate(clipp * (8 - _Courners * 7)*(1 + _Edges));
+						alpha = max(0, alpha)* _Thickness;
+
+						float uvy = saturate(alpha * (8 - _Courners * 7)*(1 + _Edges));
 					
 						exterior *= something;
 						
@@ -127,7 +134,7 @@
 						float outside = saturate((1 - uvy) * 2);
 						
 						o.color.a *= min(1, outside * 
-							min(clipp * _Edges  * (1 - _Blur)*exterior, 1)//*(2 - _Edges)
+							min(alpha * _Edges  * (1 - _Blur)*exterior, 1)//*(2 - _Edges)
 							*(3 - uvy));
 
 					return o.color;

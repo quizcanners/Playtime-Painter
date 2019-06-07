@@ -37,7 +37,7 @@
 				#pragma fragment frag
 
 				#pragma multi_compile_instancing
-				#pragma multi_compile ____  _UNLINKED 
+				#pragma multi_compile ___ _UNLINKED 
 				#pragma multi_compile ___ USE_NOISE_TEXTURE
 				#pragma shader_feature __ TRIMMED
 
@@ -62,18 +62,18 @@
 				v2f vert(appdata_full v) {
 					v2f o;
 					UNITY_SETUP_INSTANCE_ID(v);
-					o.pos = UnityObjectToClipPos(v.vertex);
-					o.texcoord.xy = v.texcoord.xy;
-					o.color = v.color;
+					o.pos =				UnityObjectToClipPos(v.vertex);
+					o.texcoord.xy =		v.texcoord.xy;
+					o.color =			v.color;
 
-					o.texcoord.zw = v.texcoord1.xy;
-					o.texcoord.z = 3 - _Edges * 2;
-					o.projPos.xy = v.normal.xy;
-					o.projPos.zw = max(0, float2(v.texcoord1.x, -v.texcoord1.x));
+					o.texcoord.zw =		v.texcoord1.xy;
+					o.texcoord.z =		4 - _Edges * 3;
+					o.projPos.xy =		v.normal.xy;
+					o.projPos.zw =		max(0, float2(v.texcoord1.x, -v.texcoord1.x));
 
-					o.precompute.w = 1 / (1.0001 - o.texcoord.w);
-					o.precompute.xy = 1 / (1.0001 - o.projPos.zw);
-					o.precompute.z = (1 + _Edges*32);
+					o.precompute.w =	1 / (1.0001 - o.texcoord.w);
+					o.precompute.xy =	1 / (1.0001 - o.projPos.zw);
+					o.precompute.z =	1 + _Edges*32;
 
 					o.offUV.xy = (o.texcoord.xy - 0.5) * 2;
 
@@ -88,7 +88,8 @@
 
 					float4 _ProjTexPos =	o.projPos;
 					float _Courners =		o.texcoord.w;
-					float deCourners =		o.precompute.w;
+					float deCourners = 1 - _Courners;
+					float something =		o.precompute.w;
 					float2 uv =				abs(o.offUV);
 
 					#if _GRADS_ONCE 
@@ -129,33 +130,45 @@
 					#endif
 
 					#ifdef UNITY_COLORSPACE_GAMMA
-					o.color.rgb = sqrt(o.color.rgb);
+						o.color.rgb = sqrt(o.color.rgb);
 					#endif
 
 					uv = max(0, uv - _ProjTexPos.zw) * o.precompute.xy;
 									
 					float2 forFade = uv;
 
-					uv = max(0, uv - _Courners) * deCourners;
+					uv = max(0, uv - _Courners) * something;
 
 					#if TRIMMED
 						float dist = (uv.x + uv.y);
+
+						#if _UNLINKED
+							dist = dist * (deCourners * 0.7) + deCourners * 0.25 + _Courners * 0.9;
+						#else
+							dist = dist * (deCourners * 0.85) + deCourners * 0.25 + _Courners * 0.9;
+						#endif
+
 					#else
 						float dist = dot(uv, uv);
 					#endif
 
-					#if _UNLINKED
-						#if !TRIMMED
-						forFade *= forFade;
+					#if !TRIMMED 
+						#if _UNLINKED
+							forFade *= forFade;
+						#else 
+							forFade = 0;
 						#endif
-					float clipp = max(0, 1 - max(max(forFade.x, forFade.y), dist));
-					#else 
-					float clipp = max(0, 1 - dist);
 					#endif
 
-					clipp = min(1, pow(clipp * o.precompute.z, o.texcoord.z));
 
-					o.color.a *= clipp;
+
+					float fade = max(forFade.x, forFade.y);
+
+					float alpha = max(0, 1 - max(fade, dist));
+
+					alpha = min(1, pow(alpha * o.precompute.z, o.texcoord.z));
+
+					o.color.a *= alpha;
 
 					return o.color;
 				}

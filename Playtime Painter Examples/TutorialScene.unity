@@ -2276,7 +2276,7 @@ MonoBehaviour:
     height: 1
   _positionDataType: 0
   _roundedCorners:
-  - 0.535
+  - 0.442
   _showModules: 0
   _inspectedModule: 0
   OnClick:
@@ -5869,7 +5869,7 @@ MonoBehaviour:
   picture: {fileID: 1144922678}
   pill: {fileID: 2050424860}
   cube: {fileID: 1815085830}
-  timer: -1416.5647
+  timer: -2577.2195
   style:
     m_Name: Hint Style
     m_Normal:
