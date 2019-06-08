@@ -7070,8 +7070,8 @@ namespace PlayerAndEditorGUI
         
         private static object previouslyEntered;
 
-        public static bool InspectValueInList<T>(T el, List<T> list, int index, ref int inspected, ListMetaData listMeta = null)
-        {
+        public static bool InspectValueInList<T>(T el, List<T> list, int index, ref int inspected, ListMetaData listMeta = null) {
+
             var changed = false;
 
             var pl = el as IPEGI_ListInspect;
@@ -7084,7 +7084,7 @@ namespace PlayerAndEditorGUI
             if (pl != null)
             {
                 var chBefore = GUI.changed;
-                if (pl.InspectInList(list, index, ref inspected).changes(ref changed) || (!chBefore && GUI.changed)) 
+                if ((pl.InspectInList(list, index, ref inspected).changes(ref changed) || (!chBefore && GUI.changed)) && (typeof(T).IsValueType)) 
                     list[index] = (T)pl;
                 
                 if (changed || inspected == index)
@@ -7144,7 +7144,9 @@ namespace PlayerAndEditorGUI
                         else if (edit(ref n).changes(ref changed))
                         {
                             named.NameForPEGI = n;
-                            list[index] = (T) named;
+                            if (typeof(T).IsValueType)
+                                list[index] = (T) named;
+
                             isPrevious = true;
                         }
                     }
@@ -7765,8 +7767,10 @@ namespace PlayerAndEditorGUI
                                     : "is NUll");
                             }
                         }
-                        else InspectValueInList(list[i], list, i, ref inspected, listMeta).changes(ref changed);
-
+                        else
+                            InspectValueInList(list[i], list, i, ref inspected, listMeta).changes(ref changed);
+                        
+                        
                         newLine();
                     }
 
