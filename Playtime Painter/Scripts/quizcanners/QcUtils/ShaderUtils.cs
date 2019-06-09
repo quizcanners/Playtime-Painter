@@ -494,6 +494,8 @@ namespace QuizCannersUtilities {
         public bool Has(Material mat, ShaderProperty.BaseShaderPropertyIndex property, bool searchFallBacks = false) =>
             value.Equals(tag.Get(mat, property, searchFallBacks));
 
+        public bool Equals(string tag) => value.Equals(tag);
+        
         public ShaderTagValue(string newValue, ShaderTag nTag)
         {
             value = newValue;
@@ -501,9 +503,8 @@ namespace QuizCannersUtilities {
         }
     }
 
-    public static partial class ShaderTags
-    {
-
+    public static partial class ShaderTags {
+        
         public static readonly ShaderTag ShaderTip = new ShaderTag("ShaderTip");
 
         public static readonly ShaderTag Queue = new ShaderTag("Queue");

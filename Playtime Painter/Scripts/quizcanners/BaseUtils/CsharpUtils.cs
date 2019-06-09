@@ -634,17 +634,6 @@ namespace QuizCannersUtilities {
         
         public static float RoundTo6Dec(this float val) => Mathf.Round(val * 1000000f) * 0.000001f;
         
-        public static void RemoveEmpty<T>(this List<T> list)
-        {
-
-            for (var i = 0; i < list.Count; i++)
-                if (UnityUtils.IsNullOrDestroyed_Obj(list[i]))
-                {
-                    list.RemoveAt(i);
-                    i--;
-                }
-        }
-        
         public static void SetMaximumLength<T>(this List<T> list, int length)
         {
             while (list.Count > length)

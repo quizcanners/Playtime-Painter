@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/UI/Rounded/Gradient"
+﻿Shader "Playtime Painter/UI/Rounded/Unlinked/Gradient Unlinked"
 {
 	Properties{
 		[PerRendererData][NoScaleOffset]_MainTex("Noise (RGB)", 2D) = "gray" {}
@@ -17,7 +17,7 @@
 			"RenderType" = "Transparent"
 			"PixelPerfectUI" = "Simple"
 			"SpriteRole" = "Hide"
-			"PerEdgeData" = "Linked"
+			"PerEdgeData" = "Unlinked"
 		}
 
 		ColorMask RGB
@@ -70,6 +70,10 @@
 					o.projPos.xy =		v.normal.xy;
 					o.projPos.zw =		max(0, float2(v.texcoord1.x, -v.texcoord1.x));
 
+					#if TRIMMED
+						o.texcoord.w *= 0.9f;
+					#endif
+
 					o.precompute.w =	1 / (1.0001 - o.texcoord.w);
 					o.precompute.xy =	1 / (1.0001 - o.projPos.zw);
 					o.precompute.z =	1 + _Edges*32;
@@ -112,12 +116,13 @@
 					mid = (mid*mid)/4;
 					#endif
 
-					#ifdef UNITY_COLORSPACE_GAMMA
-						_ColorC.rgb *= _ColorC.rgb;
-						_ColorE.rgb *= _ColorE.rgb;
-					#endif
+#ifdef UNITY_COLORSPACE_GAMMA
+					_ColorC.rgb *= _ColorC.rgb;
+					_ColorE.rgb *= _ColorE.rgb;
+#endif
 
 					o.color.rgb = _ColorE.rgb * (mid)+_ColorC.rgb * (1 - mid);
+
 
 					#if USE_NOISE_TEXTURE
 
@@ -133,15 +138,23 @@
 
 					uv = max(0, uv - _ProjTexPos.zw) * o.precompute.xy;
 									
+					float2 forFade = uv;
+
 					uv = max(0, uv - _Courners) * something;
 
 					#if TRIMMED
 						float dist = (uv.x + uv.y);
+
+						dist = dist * (deCourners * 0.7) + deCourners * 0.25 + _Courners * 0.9;
+					
 					#else
 						float dist = dot(uv, uv);
+						forFade *= forFade;
 					#endif
 
-					float alpha = saturate(1 -  dist);
+					float fade = max(forFade.x, forFade.y);
+
+					float alpha = max(0, 1 - max(fade, dist));
 
 					alpha = min(1, pow(alpha * o.precompute.z, o.texcoord.z));
 

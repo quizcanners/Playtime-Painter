@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/UI/Rounded/Outline"
+﻿Shader "Playtime Painter/UI/Rounded/Unlinked/Outline Unlinked"
 {
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
@@ -13,7 +13,7 @@
 			"RenderType" = "Transparent"
 			"PixelPerfectUI" = "Simple"
 			"SpriteRole" = "Hide"
-			"PerEdgeData" = "Linked"
+			"PerEdgeData" = "Unlinked"
 		}
 
 		ColorMask RGB
@@ -61,6 +61,10 @@
 					o.projPos.xy =		v.normal.xy;
 					o.projPos.zw =		max(0, float2(v.texcoord1.x, -v.texcoord1.x));
 
+					#if TRIMMED
+						o.texcoord.w *= 0.9f;
+					#endif
+
 					o.precompute.w =	1 / (1.0001 - o.texcoord.w);
 					o.precompute.xy =	1 / (1.0001 - o.projPos.zw);
 					o.precompute.z =	(1 + _Edges * 32);
@@ -82,24 +86,32 @@
 					float _Blur = (1 - o.color.a);
 					uv = max(0, uv - _ProjTexPos.zw) * o.precompute.xy;
 
+					float2 forFade = uv;
+
 					uv = max(0, uv - _Courners) * something;
 
 					#if TRIMMED
+
 						float dist = (uv.x + uv.y);
+
+						dist = dist * (deCourners * 0.7) + deCourners * 0.25 + _Courners*0.9;
+					
 					#else
 						float dist = dot(uv, uv);
+						forFade *= forFade;
 					#endif
 
 					float exterior = 15;
 
-					float alpha =  saturate(1 - dist);
+					float fade = max(forFade.x, forFade.y);
 
-					alpha = max(0, alpha)* _Thickness;
+					float alpha =  1 - max(fade, dist);
 
-					float uvy = saturate(alpha * (8 - _Courners * 7)*(1 + _Edges));
-					
-					exterior *= something;
-						
+			
+					alpha = max(0, alpha * _Thickness);
+
+					float uvy = saturate(alpha * 8 *(1 + _Edges));
+
 					float outside = saturate((1 - uvy) * 2);
 						
 					o.color.a *= min(1, outside * 

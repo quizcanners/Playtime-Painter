@@ -38,6 +38,22 @@ namespace QuizCannersUtilities {
             return go.AddComponent<T>();
         }
 
+        public static void RemoveEmpty<T>(this List<T> list) where T : Object {
+
+            for (var i = list.Count-1; i >=0 ; i--)
+                if (!list[i]) 
+                    list.RemoveAt(i);
+                
+        }
+
+        public static void RemoveEmpty_Obj<T>(this List<T> list) {
+
+            for (var i = list.Count - 1; i >= 0; i--)
+                if (IsNullOrDestroyed_Obj(list[i]))
+                    list.RemoveAt(i);
+                
+        }
+
         #region Scriptable Objects
 
         private const string ScrObjExt = ".asset";
@@ -204,8 +220,7 @@ namespace QuizCannersUtilities {
         public static void OpenBrowser(string address) => Application.OpenURL(address);
 
         #endregion
-
-
+        
         #region Timing
 
         public static double TimeSinceStartup() =>
@@ -1160,8 +1175,7 @@ namespace QuizCannersUtilities {
         }
 
         #endregion
-
- 
+        
         #region Input MGMT
 
         /// <summary>
@@ -1218,8 +1232,7 @@ namespace QuizCannersUtilities {
         }
 
         #endregion
-
-       
+        
         #region Textures
 
         #region Material MGMT

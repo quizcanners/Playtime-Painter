@@ -3,7 +3,6 @@
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
 		_Edges("Sharpness", Range(0,1)) = 0.5
-		[Toggle(_UNLINKED)] unlinked("Linked Corners", Float) = 0
 		[Toggle(TRIMMED)] trimmed("Trimmed Corners", Float) = 0
 	}
 	Category{
@@ -13,6 +12,7 @@
 			"RenderType" = "Transparent"
 			"PixelPerfectUI" = "Simple"
 			"SpriteRole" = "Hide"
+			"PerEdgeData" = "Linked"
 		}
 
 		ColorMask RGB
@@ -32,7 +32,6 @@
 				#pragma fragment frag
 
 				#pragma multi_compile_instancing
-				#pragma shader_feature __ _UNLINKED 
 				#pragma shader_feature __ TRIMMED
 
 				struct v2f {
@@ -77,35 +76,17 @@
 
 					uv = max(0, uv - _ProjTexPos.zw) * o.precompute.xy;
 
-					float2 forFade = uv;
-
 					uv = max(0, uv - _Courners) * something;
 
 					#if TRIMMED
-						float dist = (uv.x + uv.y); 
 
-						#if _UNLINKED
-							dist = dist * (deCourners * 0.7) + deCourners * 0.25 + _Courners * 0.9;
-						#else
-							dist = dist * (deCourners * 0.85) + deCourners * 0.25 + _Courners * 0.9;
-						#endif
+						float dist = (uv.x + uv.y); 
 
 					#else
 						float dist = dot(uv, uv);
 					#endif
 
-					#if !TRIMMED 
-						#if _UNLINKED
-							forFade *= forFade;
-						#else 
-							forFade = 0;
-						#endif
-					#endif
-
-					float fade = max(forFade.x, forFade.y);
-
-					float alpha = max(0, 1 - max(fade, dist));
-
+					float alpha = saturate(1 - dist);
 
 					alpha = min(1, pow(alpha * o.precompute.z, o.texcoord.z));
 

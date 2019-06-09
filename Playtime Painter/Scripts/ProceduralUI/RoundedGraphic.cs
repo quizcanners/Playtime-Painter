@@ -237,32 +237,41 @@ namespace PlaytimePainter
 
         private static List<Shader> _compatibleShaders;
 
-        public static List<Shader> CompatibleShaders =>
+        private static List<Shader> CompatibleShaders =>
             _compatibleShaders ?? (_compatibleShaders = new List<Shader>()
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/BumpedButton"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Box"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Unlinked/Box Unlinked"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/PixelPerfect"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Outline"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Unlinked/Outline Unlinked"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/ButtonWithShadow"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Shadow"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Gradient"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Unlinked/Gradient Unlinked"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/PreserveAspect"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/PreserveAspect_InvertingFiller"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/SubtractiveGraphic"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Primitives/PixelLine")));
 
+        private static List<Material> _compatibleMaterials = new List<Material>();
+
         [SerializeField] private bool _showModules;
         [SerializeField] private int _inspectedModule;
         public static RoundedGraphic inspected;
+
+        private const string info =
+            "Rounded Graphic component provides additional data to pixel perfect UI shaders. Those shaders will often not display correctly in the scene view. " +
+            "Also they may be tricky at times so take note of all the warnings and hints that my show in this inspector.";
 
         public bool Inspect()
         {
             inspected = this;
 
             pegi.toggleDefaultInspector();
-            
-            MsgPainter.RoundedGraphic.DocumentationClick().nl();
 
+            info.fullWindowDocumentationClickOpen("About Rounded Graphic").nl();
+            
             var mat = material;
 
             var can = canvas;
@@ -288,8 +297,7 @@ namespace PlaytimePainter
 
                     if (!gotPixPerfTag)
                         "{0} doesn't have {1} tag".F(shad.name, ShaderTags.PixelPerfectUi.NameForDisplayPEGI).writeWarning();
-                    else
-                    {
+                    else  {
 
                         expectedScreenPosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.Position.NameForDisplayPEGI);
 
@@ -300,13 +308,13 @@ namespace PlaytimePainter
                             "No Canvas".writeWarning();
                         else
                         {
-                            if ((can.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord1) == 0)
-                            {
+                            if ((can.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord1) == 0) {
 
                                 "Material requires Canvas to pass Edges data trough Texture Coordinate 1 data channel"
                                     .writeWarning();
                                 if ("Fix Canvas Texture Coordinate 1".Click().nl())
                                     can.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord1;
+
                             }
 
                             if (feedPositionData &&
@@ -332,8 +340,7 @@ namespace PlaytimePainter
                 #endregion
 
                 var linked = LinkedCorners;
-
-              
+                
                 if (mat && (linked == mat.IsKeywordEnabled(UNLINKED_VERTICES)))
                     mat.SetShaderKeyword(UNLINKED_VERTICES, !linked);
 
@@ -349,30 +356,70 @@ namespace PlaytimePainter
 
                 pegi.nl();
 
-                if (!linked)
-                    "UNLINKED_COURNERS is a material property. It is recommended to put UNLINKED into material name not to use same material on linked and unlinked UI"
-                        .writeOneTimeHint("unlNkd");
+                if (mat)
+                {
+                    var needLink = ShaderTags.PerEdgeData.Get(mat);
+                    if (!needLink.IsNullOrEmpty()) {
+                        if (ShaderTags.PerEdgeRoles.LinkedCourners.Equals(needLink))
+                        {
+                            if (!linked)
+                            {
+                                "Material expects edge data to be linked".writeWarning();
+                                if ("FIX".Click(ref changed))
+                                    LinkedCorners = true;
+                            }
+                        }
+                        else
+                        {
+                            if (linked)
+                            {
+                                "Material expects edge data to be Unlinked".writeWarning();
+                                if ("FIX".Click(ref changed))
+                                    LinkedCorners = false;
+                            }
+                        }
+                    }
+                }
 
                 pegi.nl();
-                
 
+                _compatibleMaterials.RemoveEmpty();
+
+                if (mat && gotPixPerfTag)
+                    _compatibleMaterials.AddIfNew(mat);
+
+                bool showingSelection = false;
+
+                var cmpCnt = _compatibleMaterials.Count;
+                if (cmpCnt > 0 && ((cmpCnt > 1) || (!_compatibleMaterials[0].Equals(mat)))) {
+
+                    showingSelection = true;
+
+                    if (pegi.select(ref mat, _compatibleMaterials, true))
+                        material = mat;
+                }
 
                 if (mat) {
 
                     if (!Application.isPlaying) {
-
                         var path = UnityUtils.GetAssetFolder(mat);
                         if (path.IsNullOrEmpty())
                             "Material is not saved as asset. Click COPY next to it to save as asset".writeHint();
                     }
 
-                    var n = mat.name;
-                    if ("Rename Material".editDelayed("Press Enter to finish renaming." ,120, ref n))
-                        mat.RenameAsset(n);
+                    if (!showingSelection) {
+                        var n = mat.name;
+                        if ("Rename Material".editDelayed("Press Enter to finish renaming.", 120, ref n))
+                            mat.RenameAsset(n);
+                    }
                 }
 
-                if (pegi.edit(ref mat, 60).changes(ref changed) || pegi.ClickDuplicate(ref mat, gameObject.name).nl(ref changed))
+                if (pegi.edit(ref mat, 60).changes(ref changed) ||
+                    pegi.ClickDuplicate(ref mat, gameObject.name).nl(ref changed)) {
                     material = mat;
+                    if (mat)
+                        _compatibleMaterials.AddIfNew(mat);
+                }
 
                 if (mat)
                 {
@@ -888,6 +935,15 @@ namespace PlaytimePainter
         {
             public static readonly ShaderTagValue Hide = new ShaderTagValue("Hide", SpriteRole);
         }
+
+        public static readonly ShaderTag PerEdgeData = new ShaderTag("PerEdgeData");
+
+        public static class PerEdgeRoles
+        {
+            public static readonly ShaderTagValue UnlinkedCourners = new ShaderTagValue("Unlinked", PerEdgeData);
+            public static readonly ShaderTagValue LinkedCourners = new ShaderTagValue("Linked", PerEdgeData);
+        }
+
     }
 
     public static class RoundedUiExtensions  {
