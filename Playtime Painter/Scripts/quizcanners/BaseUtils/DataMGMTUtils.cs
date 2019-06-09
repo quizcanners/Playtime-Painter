@@ -20,12 +20,15 @@ namespace QuizCannersUtilities
 
     public static class FileExplorerUtils
     {
-        public static List<string> ListFileNamesFromPersistentFolder(string subPath)
-        {
-            var lst = new List<string>(Directory.GetFiles(Path.Combine(Application.persistentDataPath, subPath)));
+        public static List<string> GetFileNamesFromPersistentFolder(string subPath) 
+            => GetFileNamesFrom(Path.Combine(Application.persistentDataPath, subPath));
+        
+        public static List<string> GetFileNamesFrom(string fullPath) {
 
-            for (var i = 0; i < lst.Count; i++)
-            {
+            var lst = new List<string>(Directory.GetFiles(fullPath));
+
+            for (var i = 0; i < lst.Count; i++) {
+
                 var txt = lst[i].Replace(@"\", @"/");
                 txt = txt.Substring(txt.LastIndexOf("/") + 1);
                 txt = txt.Substring(0, txt.Length - FileSaveUtils.JsonFileType.Length);
@@ -34,7 +37,25 @@ namespace QuizCannersUtilities
 
             return lst;
         }
-        
+
+        public static List<string> GetFolderNamesFromPersistentFolder(string subPath)
+            => GetFolderNamesFrom(Path.Combine(Application.persistentDataPath, subPath));
+
+
+        public static List<string> GetFolderNamesFrom(string fullPath) {
+
+            var lst = new List<string>(Directory.GetDirectories(fullPath));
+
+            for (var i = 0; i < lst.Count; i++) {
+                var txt = lst[i].Replace(@"\", @"/");
+                txt = txt.Substring(txt.LastIndexOf("/") + 1);
+                lst[i] = txt;
+            }
+
+            return lst;
+        }
+
+
         public static void OpenPersistentFolder() => OpenPath(Application.persistentDataPath);
 
         public static void OpenPersistentFolder(string folder) =>
@@ -42,18 +63,17 @@ namespace QuizCannersUtilities
 
         public static void OpenPath(string path)
         {
-#if UNITY_EDITOR
-            EditorUtility.RevealInFinder(path);
-#else
-            Process.Start(path.TrimEnd(new[]{'\\', '/'}));
-#endif
+            #if UNITY_EDITOR
+                EditorUtility.RevealInFinder(path);
+            #else
+                Process.Start(path.TrimEnd(new[]{'\\', '/'}));
+            #endif
         }
     }
 
-    public static class FileDeleteUtils
-    {
+    public static class FileDeleteUtils {
 
-        public static void DeleteResource(string assetFolder, string insideAssetFolderAndName)
+        public static void DeleteResource_Bytes(string assetFolder, string insideAssetFolderAndName)
         {
 #if UNITY_EDITOR
             try
@@ -67,20 +87,19 @@ namespace QuizCannersUtilities
             }
 #endif
         }
-
-
-        public static bool DeleteFile_PersistentFolder(string subPath, string fileName)
+        
+        public static bool Delete_PersistentFolder_Json(string subPath, string fileName)
             => DeleteFile(Path.Combine(Application.persistentDataPath, subPath, Path.Combine(Application.persistentDataPath, subPath, fileName + FileSaveUtils.JsonFileType)));
 
-        public static bool DeleteFile(string path)
+        public static bool DeleteFile(string fullPath)
         {
-            if (File.Exists(path))
+            if (File.Exists(fullPath))
             {
 #if !NO_PEGI && UNITY_EDITOR
-                Debug.LogError("Deleting" + path);
+                Debug.LogError("Deleting" + fullPath);
 #endif
 
-                File.Delete(path);
+                File.Delete(fullPath);
                 return true;
             }
             else
@@ -126,16 +145,9 @@ namespace QuizCannersUtilities
 
         public static void SaveBytesByFullPath(string fullDirectoryPath, string filename, string data)
         {
-
-            var full = CreateDirectoryPathBytes(fullDirectoryPath, filename);
-            using (var file = File.Create(full))
-            {
-#if !NO_PEGI
-                if (!Application.isPlaying)
-                    Debug.LogError("Saved To " + full);
-#endif
+            using (var file = File.Create(CreateDirectoryPathBytes(fullDirectoryPath, filename))) 
                 Formatter.Serialize(file, data);
-            }
+            
 
         }
 

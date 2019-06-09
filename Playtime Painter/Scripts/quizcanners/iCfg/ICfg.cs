@@ -150,7 +150,6 @@ namespace QuizCannersUtilities {
     
         public int Count => _elements.CountForInspector();
     
-    
         private int _inspected = -1;
         public bool Inspect()
         {
@@ -552,7 +551,7 @@ namespace QuizCannersUtilities {
             
             "{0} Debug ".F(this.GetNameForInspector()).nl();
 
-            if (("STD Saves: " + explorer.states.Count).enter(ref _inspectedDebugItems, 0).nl_ifNotEntered())
+            if (("Cfg Saves: " + explorer.states.Count).enter(ref _inspectedDebugItems, 0).nl())
                 explorer.Inspect(this);
 
             if (inspectedItems == -1)
@@ -850,13 +849,13 @@ namespace QuizCannersUtilities {
             return s;
         }
 
-        public static ICfg SaveToPersistentPath(this ICfg s, string path, string filename)
+        public static ICfg SaveToPersistentPath_Json(this ICfg s, string path, string filename)
         {
             FileSaveUtils.SaveJsonToPersistentPath(path, filename, s.Encode().ToString());
             return s;
         }
 
-        public static bool LoadFromPersistentPath(this ICfg s, string path, string filename)
+        public static bool LoadFromPersistentPath_Json(this ICfg s, string path, string filename)
         {
             var data = FileLoadUtils.LoadJsonFromPersistentPath(path, filename);
             if (data != null)
@@ -867,7 +866,7 @@ namespace QuizCannersUtilities {
             return false;
         }
 
-        public static ICfg SaveToResources(this ICfg s, string resFolderPath, string insideResPath, string filename)
+        public static ICfg SaveToResources_Bytes(this ICfg s, string resFolderPath, string insideResPath, string filename)
         {
             FileSaveUtils.SaveBytesToResources(resFolderPath, insideResPath, filename, s.Encode().ToString());
             return s;
@@ -889,18 +888,28 @@ namespace QuizCannersUtilities {
             
 
         }
-        
-		public static T LoadFromResources<T>(this T s, string subFolder, string file)where T:ICfg, new() {
+
+        public static bool TryLoadFromResources_Bytes<T>(this T s, string subFolder, string file) where T : ICfg
+        {
+            var load = FileLoadUtils.LoadBytesFromResource(subFolder, file);
+
+            if (load == null)
+                return false;
+
+            s.Decode(load);
+
+            return true;
+        }
+
+        public static T LoadFromResources<T>(this T s, string subFolder, string file)where T:ICfg, new() {
 			if (s == null)
 				s = new T ();
 			s.Decode(FileLoadUtils.LoadBytesFromResource(subFolder, file));
 			return s;
 		}
 
-        public static CfgEncoder EncodeUnrecognized(this IKeepUnrecognizedCfg ur) {
-            return ur.UnrecognizedStd.Encode();
-        }
-
+        public static CfgEncoder EncodeUnrecognized(this IKeepUnrecognizedCfg ur) => ur.UnrecognizedStd.Encode();
+        
         public static bool Decode(this ICfg cfg, string data, ICfgSerializeNestedReferences keeper) => data.DecodeInto(cfg, keeper);
     }
 #endregion

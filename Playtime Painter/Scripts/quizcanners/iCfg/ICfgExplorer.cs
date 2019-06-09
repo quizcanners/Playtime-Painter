@@ -605,10 +605,10 @@ namespace QuizCannersUtilities
         public string comment;
         public ExploringCfg dataExplorer = new ExploringCfg("", "");
 
-#region Inspector
+        #region Inspector
         public string NameForPEGI { get { return dataExplorer.tag; } set { dataExplorer.tag = value; } }
 
-#if !NO_PEGI
+        #if !NO_PEGI
         public static StdExplorerData Mgmt => StdExplorerData.inspected;
 
         public int CountForInspector => dataExplorer.CountForInspector;
@@ -661,11 +661,11 @@ namespace QuizCannersUtilities
 
             if (Cfg != null)
             {
-                if (icon.Load.ClickUnFocus("Decode Data into " + Cfg.GetNameForInspector()).changes(ref changed)) {
+                if (icon.Load.ClickConfirm("sfgLoad","Decode Data into " + Cfg.GetNameForInspector()).changes(ref changed)) {
                     dataExplorer.UpdateData();
                     Cfg.Decode(dataExplorer.data);
                 }
-                if (icon.Save.ClickUnFocus("Save data from " + Cfg.GetNameForInspector()).changes(ref changed))
+                if (icon.Save.ClickConfirm("cfgSave" ,"Save data from " + Cfg.GetNameForInspector()).changes(ref changed))
                     dataExplorer = new ExploringCfg(dataExplorer.tag, Cfg.Encode().ToString());
             }
 

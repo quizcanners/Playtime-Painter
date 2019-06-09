@@ -8793,6 +8793,9 @@ namespace PlayerAndEditorGUI
 
         public static void ResetInspectedChain() => inspectionChain.Clear();
 
+        public static bool Nested_Inspect(this IPEGI pgi, ref bool changed) =>
+            pgi.Nested_Inspect().changes(ref changed);
+
         public static bool Nested_Inspect(this IPEGI pgi)
         {
 

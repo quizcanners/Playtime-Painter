@@ -1024,9 +1024,9 @@ namespace QuizCannersUtilities {
 
         public static void RefreshAssetDatabase()
         {
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             AssetDatabase.Refresh();
-#endif
+            #endif
         }
 
         public static Object GetPrefab(Object obj) =>

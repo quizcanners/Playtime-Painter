@@ -3,6 +3,7 @@ using UnityEngine;
 using System;
 using System.Text;
 using System.Globalization;
+using System.Runtime.Remoting.Messaging;
 
 namespace QuizCannersUtilities
 {
@@ -394,7 +395,11 @@ namespace QuizCannersUtilities
 
             return Add(tag, cody);
         }
+
+        public CfgEncoder Add_IfNotEmpty<T>(string tag, List<T> val, ListMetaData ld, TaggedTypesCfg tts) where T : IGotClassTag =>
+            val.IsNullOrEmpty() ? this : Add_Abstract(tag, val, ld);
         
+
         public CfgEncoder Add<T>(string tag, List<T> val, ListMetaData ld, TaggedTypesCfg tts) where T : IGotClassTag  => Add_Abstract(tag, val, ld);
 
         public CfgEncoder Add_Abstract<T>(string tag, List<T> val, ListMetaData ld) where T : IGotClassTag {
@@ -515,6 +520,9 @@ namespace QuizCannersUtilities
             return Add(tag, cody);
 
         }
+
+        public CfgEncoder Add_IfNotEmpty<T>(string tag, List<T> lst, ListMetaData ld) where T : ICfg, new() =>
+            lst.IsNullOrEmpty() ? this : Add(tag, lst, ld);
 
         public CfgEncoder Add<T>(string tag, List<T> lst, ListMetaData ld) where T : ICfg, new() {
 
