@@ -415,11 +415,17 @@ namespace PlaytimePainter
                 }
 
                 if (pegi.edit(ref mat, 60).changes(ref changed) ||
-                    pegi.ClickDuplicate(ref mat, gameObject.name).nl(ref changed)) {
+                    pegi.ClickDuplicate(ref mat, gameObject.name).changes(ref changed)) {
                     material = mat;
                     if (mat)
                         _compatibleMaterials.AddIfNew(mat);
                 }
+
+                if (icon.Refresh.Click("Find All Compatible Materials in Assets"))
+                    _compatibleMaterials = ShaderTags.PixelPerfectUi.GetTaggedMaterialsFromAssets();
+                
+
+                pegi.nl();
 
                 if (mat)
                 {

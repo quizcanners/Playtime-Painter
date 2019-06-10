@@ -1002,6 +1002,23 @@ namespace QuizCannersUtilities {
 
         #region Assets Management
 
+        public static List<T> FindAssetsByType<T>() where T : Object
+        {
+            List<T> assets = new List<T>();
+            
+            #if UNITY_EDITOR
+            var typeName = typeof(T).ToString().Replace("UnityEngine.", "");
+            string[] guids = AssetDatabase.FindAssets(string.Format("t:{0}", typeName));
+            foreach (var guid in guids) { 
+                T asset = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid));
+                if (asset)
+                    assets.Add(asset);
+            }
+            #endif
+
+            return assets;
+        }
+
         public static bool FocusOnAsset<T>() where T: Object
         {
             #if UNITY_EDITOR

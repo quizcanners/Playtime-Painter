@@ -3,6 +3,7 @@ using PlayerAndEditorGUI;
 using System.Collections;
 using System.Collections.Generic;
 using QuizCannersUtilities;
+using Unity.Collections;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -479,6 +480,23 @@ namespace QuizCannersUtilities {
             tag = nTag;
         }
 
+        public List<Material> GetTaggedMaterialsFromAssets()
+        {
+            var mats = new List<Material>();
+
+#if UNITY_EDITOR
+
+            var tmpMats = UnityUtils.FindAssetsByType<Material>();
+
+            foreach (var mat in tmpMats)
+                if (Has(mat))
+                    mats.AddIfNew(mat);
+            
+
+#endif
+
+            return mats;
+        }
 
     }
 
