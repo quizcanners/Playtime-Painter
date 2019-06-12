@@ -275,9 +275,12 @@ namespace PlayerAndEditorGUI
 
             _lineOpen = false;
             EditorGUILayout.EndHorizontal();
-
         }
 
+        public static void Indent(int amount = 1) => EditorGUI.indentLevel+= amount;
+        
+        public static void UnIndent(int amount = 1) => EditorGUI.indentLevel = Mathf.Max(0, EditorGUI.indentLevel - amount);
+        
         private static GUIContent textAndToolTip = new GUIContent();
 
         private static GUIContent TextAndTip(string text, string tip)

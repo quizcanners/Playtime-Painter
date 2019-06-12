@@ -77,6 +77,7 @@ namespace PlayerAndEditorGUI {
 
     //[CustomPropertyDrawer(typeof(Ingredient))]
     // Work in progress...
+    /*
     public class PEGI_PropertyDrawer<T> : PropertyDrawer where T : class {
 
         private T GetActualObjectForSerializedProperty(FieldInfo fieldInfo, SerializedProperty property) 
@@ -115,7 +116,7 @@ namespace PlayerAndEditorGUI {
             EditorGUI.EndProperty();
         }
     }
-
+    */
     public abstract class PEGI_Inspector_Base  : Editor
     {
         public static bool drawDefaultInspector;

@@ -4,6 +4,9 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using System;
 using System.Globalization;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -771,5 +774,376 @@ namespace QuizCannersUtilities
     }
     #endregion
 
+    #region JsonExplorer
 
+    public class EncodedJson : AbstractCfg, IPEGI {
+
+        protected JsonBase json;
+        
+        protected static bool DecodeOrInspectJson(ref JsonBase j, bool foldedOut)
+        {
+
+            var str = j as JsonString;
+            
+            if (str != null && icon.Create.Click("Decode"))
+            {
+                var tmp = str.TryDecodeString();
+                if (tmp != null)
+                    j = tmp as JsonBase;
+            }
+
+            pegi.nl();
+
+
+            if (!foldedOut)
+                return false;
+
+            var changed = j.Inspect().nl();
+
+         
+
+            return changed;
+        }
+
+        [DerivedList(typeof(JsonString), typeof(JsonClass), typeof(JsonProperty), typeof(JsonList))]
+        protected class JsonString : JsonBase, IGotDisplayName {
+            public string data;
+
+            public string Data
+            {
+                set
+                {
+                    data = Regex.Replace(value, @"\t|\n|\r", "");
+                    data = Regex.Replace(data, "{", "{"+Environment.NewLine);
+                    data = Regex.Replace(data, ",", ","+Environment.NewLine);
+                }
+            }
+
+            public string NameForDisplayPEGI => data.IsNullOrEmpty() ? "Empty" : data.Substring(0, Mathf.Min(50, data.Length));
+
+            public JsonString() { }
+
+            public JsonString(string data) { Data = data; }
+            
+            public override bool Inspect() {
+
+                var changed = false;
+
+                pegi.editBig(ref data);
+                
+                return changed;
+            }
+            
+            enum JsonDecodingStage { DataTypeDecision , ExpectingVariableName, ReadingVariableName, ExpectingTwoDots, ReadingData, ReadingList  }
+
+            public JsonBase TryDecodeString()
+            {
+                if (data.IsNullOrEmpty())
+                {
+                    Debug.LogError("Data is null or empty");
+                    return null;
+                }
+
+                data = Regex.Replace(data, @"\t|\n|\r", "");
+
+                StringBuilder sb = new StringBuilder();
+                int textIndex = 0;
+                int openBrackets = 0;
+                bool insideTextData = false;
+                string variableName = "";
+
+                List<JsonProperty> properties = new List<JsonProperty>();
+
+                List<JsonString> vals = new List<JsonString>();
+
+                var stage = JsonDecodingStage.DataTypeDecision;
+
+                bool isaList = false;
+
+
+                while (textIndex < data.Length) {
+
+                    var c = data[textIndex];
+
+
+                    switch (stage) {
+
+                        case JsonDecodingStage.DataTypeDecision:
+
+                            if (c != ' ') {
+
+                                if (c == '{')
+                                    isaList = false;
+                                else if (c == '[')
+                                    isaList = true;
+                                else
+                                {
+                                    Debug.LogError("Is not collection. First symbol: "+c);
+                                    return null;
+                                }
+
+                                stage = isaList
+                                    ? JsonDecodingStage.ReadingData
+                                    : JsonDecodingStage.ExpectingVariableName;
+
+                            }
+
+                            break;
+                            
+
+                        case JsonDecodingStage.ExpectingVariableName:
+                            if (c != ' ')
+                            {
+
+                                if (c == '}' || c == ']')
+                                {
+
+                                    int left = data.Length - textIndex;
+
+                                    if (left > 5)
+                                        Debug.LogError("End of collection detected a bit too early. Left {0} symbols: {1}".F(left, data.Substring(textIndex)));
+                                    // End of collection instead of new element
+                                    break;
+                                }
+
+
+
+                                if (c == '"')
+                                {
+                                    stage = JsonDecodingStage.ReadingVariableName;
+                                    sb.Clear();
+                                }
+                                else {
+                                    Debug.LogError("Was expecting variable name: {0} ".F(data.Substring(textIndex)));
+                                    return null;
+                                }
+                            }
+
+                            break;
+                        case JsonDecodingStage.ReadingVariableName:
+
+                            if (c != '"')
+                                sb.Append(c);
+                            else
+                            {
+                                variableName = sb.ToString();
+                                stage = JsonDecodingStage.ExpectingTwoDots;
+                            }
+                            
+                            break;
+
+                        case JsonDecodingStage.ExpectingTwoDots:
+
+                            if (c == ':')
+                            {
+                                sb.Clear();
+                                insideTextData = false;
+                                stage = JsonDecodingStage.ReadingData;
+                            }
+                            else if (c != ' ')
+                            {
+                                Debug.LogError("Was Expecting two dots " +data.Substring(textIndex));
+                                return null;
+                            }
+                            
+
+                            break;
+                        case JsonDecodingStage.ReadingData:
+
+                        if (c == '"')
+                            insideTextData = !insideTextData;
+
+                        if (!insideTextData && (c != ' ')) {
+
+                            if (c == '{' || c == '[')
+                                openBrackets++;
+
+                            else
+                            {
+
+                                var comma = c == ',';
+
+                                if (comma || c == '}' || c == ']') {
+
+                                    if (!comma)
+                                        openBrackets--;
+
+                                    if (openBrackets <= 0) {
+                                        if (isaList)
+                                            vals.Add(new JsonString(sb.ToString()));
+                                                else 
+                                            properties.Add(new JsonProperty(variableName, sb.ToString()));
+                                        
+                                        stage = isaList ? JsonDecodingStage.ReadingData : JsonDecodingStage.ExpectingVariableName;
+                                    }
+                                }
+
+                            }
+                        }
+                            
+                        sb.Append(c);
+
+                        break;
+                    }
+
+
+
+                    textIndex++;
+                }
+
+
+                if (stage == JsonDecodingStage.ReadingData)
+                    properties.Add(new JsonProperty(variableName, sb.ToString()));
+                else 
+                    Debug.Log("Ended on stage: "+stage.ToString().SimplifyTypeName());
+
+                if (isaList)
+                    return new JsonList(vals);
+                else
+                    return properties.Count > 0 ? new JsonClass(properties) : null;
+                    
+                    
+            }
+
+        }
+        
+        protected class JsonProperty : JsonBase  {
+
+            public string name;
+            
+            public JsonBase data;
+
+            public JsonProperty()
+            {
+                data = new JsonString();
+            }
+
+            public JsonProperty(string name, string data)
+            {
+                this.name = name;
+                this.data = new JsonString(data);
+            }
+
+            private bool foldedOut = false;
+
+
+            public override bool Inspect()
+            {
+
+                var changed = false;
+
+                (name + ": " + data.GetNameForInspector()).foldout(ref foldedOut);
+
+                DecodeOrInspectJson(ref data, foldedOut).changes(ref changed);
+                
+                pegi.nl();
+
+                return changed;
+            }
+        }
+        
+        protected class JsonList : JsonBase {
+
+            public List<JsonBase> values;
+
+            public override bool Inspect() {
+
+                var changed = false;
+                
+                pegi.Indent();
+
+                for (int i = 0; i < values.Count; i++) {
+
+                    var val = values[i];
+                    DecodeOrInspectJson(ref val, true);
+                    values[i] = val;
+
+                }
+
+                pegi.UnIndent();
+
+
+                return changed;
+            }
+
+            public JsonList()  { values = new List<JsonBase>(); }
+
+            public JsonList(List<JsonString> values) { this.values = values.ToList<JsonBase>(); }
+        }
+
+        protected class JsonClass : JsonBase
+        {
+            public List<JsonProperty> properties;
+
+            public override bool Inspect()
+            {
+
+                var changed = false;
+                
+                pegi.Indent();
+
+                for (int i = 0; i < properties.Count; i++)
+                    properties[i].Nested_Inspect();
+
+                pegi.UnIndent();
+
+
+                return changed;
+            }
+
+            public JsonClass()
+            {
+                properties = new List<JsonProperty>();
+            }
+
+            public JsonClass(List<JsonProperty> properties)
+            {
+                this.properties = properties;
+            }
+        }
+
+
+        protected abstract class JsonBase : AbstractCfg, IPEGI {
+          
+            public override CfgEncoder Encode() => new CfgEncoder();
+
+            public override bool Decode(string tg, string data)
+            {
+               /* switch (tg)
+                {
+                    case "j": json.Decode(data); break;
+                    default: return false;
+                }(*/
+
+                return true;
+            }
+
+            public abstract bool Inspect();
+        }
+
+
+        public EncodedJson() { json = new JsonString(); }
+
+        public EncodedJson(string data) { json = new JsonString(data); }
+
+        public bool Inspect() {
+            
+            return DecodeOrInspectJson(ref json, true);
+        }
+
+
+        public override CfgEncoder Encode() => new CfgEncoder().Add("j", json);
+        
+        public override bool Decode(string tg, string data)  {
+            switch (tg)  {
+                case "j": json.Decode(data); break;
+                default: return false;
+            }
+
+            return true;
+        }
+    }
+
+
+    #endregion
 }

@@ -940,7 +940,11 @@ public class Countless<T> : CountlessBase {
                 if (icon.List.Click("Back to elements window", ref changed))
                     _edited = -1;
                 else
-                    pegi.Try_Nested_Inspect(this[_edited]);
+                {
+                    object el = this[_edited];
+                    if (pegi.Nested_Inspect(ref el))
+                        this[_edited] = (T)el;
+                }
             }
             return changed;
         }
@@ -1267,6 +1271,7 @@ public class Countless<T> : CountlessBase {
                     inspected = -1;
                 else
                     pegi.Try_Nested_Inspect(e).changes(ref changed);
+                
             }
 
             var deleted = -1;

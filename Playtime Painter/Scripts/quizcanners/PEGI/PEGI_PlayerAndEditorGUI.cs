@@ -145,7 +145,7 @@ namespace PlayerAndEditorGUI
         public class WindowPositionData_PEGI_GUI
         {
             private WindowFunction function;
-            public Rect windowRect;
+            private Rect windowRect;
 
             private void DrawFunction(int windowID)
             {
@@ -163,6 +163,8 @@ namespace PlayerAndEditorGUI
                         function();
 
                     nl();
+
+                    UnIndent();
 
                     "{0}:{1}".F(Msg.ToolTip.GetText(),GUI.tooltip).nl();
 
@@ -799,6 +801,49 @@ namespace PlayerAndEditorGUI
 #endregion
 
 #region New Line
+
+        private static int IndentLevel
+        {
+            get
+            {
+                #if UNITY_EDITOR
+                if (!paintingPlayAreaGui)
+                   return EditorGUI.indentLevel;
+                #endif
+
+                return 0;
+            }
+
+            set
+            {
+                #if UNITY_EDITOR
+                if (!paintingPlayAreaGui)
+                    EditorGUI.indentLevel = Mathf.Max(0, value);
+                #endif
+            }
+        } 
+
+        public static void UnIndent(int width = 1)
+        {
+            #if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+            {
+                ef.UnIndent(width);
+                return;
+            }
+            #endif
+            
+        }
+
+        public static void Indent(int width = 1) {
+            #if UNITY_EDITOR
+            if (!paintingPlayAreaGui) {
+                ef.Indent(width);
+                return;
+            }
+            #endif
+          
+        }
 
         public static void newLine()
         {
@@ -3385,10 +3430,12 @@ namespace PlayerAndEditorGUI
         public static bool enter_Inspect(this icon ico, string txt, IPEGI var, ref int enteredOne, int thisOne, bool showLabelIfTrue = true)
         {
             var changed = false;
+            
+            var il = IndentLevel;
 
-            //if (
-                    ico.enter(txt.TryAddCount(var), ref enteredOne, thisOne, showLabelIfTrue).nl_ifNotEntered();//) 
-                //var.Try_NameInspect().changes(ref changed);
+            ico.enter(txt.TryAddCount(var), ref enteredOne, thisOne, showLabelIfTrue).nl_ifNotEntered();//) 
+
+            IndentLevel = il;
 
             return (isFoldedOutOrEntered && var.Nested_Inspect()) || changed;
         }
@@ -3425,11 +3472,9 @@ namespace PlayerAndEditorGUI
         public static bool enter_Inspect(this string txt, IPEGI var, ref int enteredOne, int thisOne, bool showLabelIfTrue = true, GUIStyle enterLabelStyle = null)
         {
             var changed = false;
-
-           // if (
-                    txt.TryAddCount(var).enter(ref enteredOne, thisOne, showLabelIfTrue, enterLabelStyle);//)
-                //var.Try_NameInspect().changes(ref changed);
-
+            
+            txt.TryAddCount(var).enter(ref enteredOne, thisOne, showLabelIfTrue, enterLabelStyle);//)
+           
             return (isFoldedOutOrEntered && var.Nested_Inspect()) || changed;
         }
 
@@ -3660,12 +3705,11 @@ namespace PlayerAndEditorGUI
 
         public static bool enter_List<T>(this string label, ref List<T> list,  ref int enteredOne, int thisOne)
         {
-            var tmp = default(T);
 
             var changed = false;
 
             if (enter_ListIcon(label, ref list,  ref enteredOne, thisOne)) 
-                tmp = label.edit_List(ref list,  ref changed);
+                    label.edit_List(ref list,  ref changed);
 
             return changed;
         }
@@ -6121,7 +6165,7 @@ namespace PlayerAndEditorGUI
 
 #region LISTS
 
-#region List MGMT Functions 
+        #region List MGMT Functions 
 
         private const int listLabelWidth = 105;
 
@@ -6567,13 +6611,13 @@ namespace PlayerAndEditorGUI
             return val;
         }
 
-        public static void write_Search_ListLabel(this string label, IList lst = null)
+        private static void write_Search_ListLabel(this string label, IList lst = null)
         {
             var notInsp = -1;
             label.write_Search_ListLabel(ref notInsp, lst);
         }
 
-        public static void write_Search_ListLabel(this string label, ref int inspected, IList lst) {
+        private static void write_Search_ListLabel(this string label, ref int inspected, IList lst) {
 
             currentListLabel = label;
 
@@ -6590,7 +6634,7 @@ namespace PlayerAndEditorGUI
                 inspected = -1;
         }
 
-        public static void write_Search_ListLabel(this ListMetaData ld, IList lst) {
+        private static void write_Search_ListLabel(this ListMetaData ld, IList lst) {
 
             currentListLabel = ld.label;
 
@@ -6617,7 +6661,11 @@ namespace PlayerAndEditorGUI
                 if (array == null || index >= array.Length || icon.List.ClickUnFocus("Return to {0} array".F(GetCurrentListLabel<T>(ld))).nl())
                     index = -1;
                 else
-                    Try_Nested_Inspect(array[index]).changes(ref changed);
+                {
+                    object obj = array[index];
+                    if (Nested_Inspect(ref obj).changes(ref changed))
+                        array[index] = (T)obj;
+                }
             }
 
             return changed;
@@ -6630,7 +6678,11 @@ namespace PlayerAndEditorGUI
             if (icon.List.ClickUnFocus("{0}[{1}] of {2}".F(Msg.ReturnToCollection.GetText(), list.Count, GetCurrentListLabel<T>(ld))).nl())
                 index = -1;
             else
-                Try_Nested_Inspect(list[index]).changes(ref changed);
+            {
+                object obj = list[index];
+                if (Nested_Inspect(ref obj).changes(ref changed))
+                    list[index] = (T)obj;
+            }
 
             return changed;
         }
@@ -7372,12 +7424,20 @@ namespace PlayerAndEditorGUI
             if ((typeof(T).TryGetClassAttribute<DerivedListAttribute>() != null || typeof(T).TryGetTaggedClasses() != null))
                 return false;
 
-            if (icon.Add.ClickUnFocus(Msg.AddNewCollectionElement.GetText()))
-            {
-                if (typeof(T).IsSubclassOf(typeof(UnityEngine.Object))) 
+
+            string name = null;
+
+            var sd = ld == null ? searchData : ld.searchData;
+
+            if (sd.filteredList == list)
+                name = sd.searchedText;
+
+            if (icon.Add.ClickUnFocus(Msg.AddNewCollectionElement.GetText() + (name.IsNullOrEmpty() ? "" : " Named {0}".F(name)))) {
+                if (typeof(T).IsSubclassOf(typeof(Object))) 
                     list.Add(default(T));
-                else
-                    added = list.AddWithUniqueNameAndIndex();
+                else {
+                    added = name.IsNullOrEmpty() ? list.AddWithUniqueNameAndIndex() : list.AddWithUniqueNameAndIndex(name);
+                }
 
                 return true;
             }
@@ -7402,12 +7462,12 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-#endregion
+        #endregion
 
-#region List of MonoBehaviour
+        #region List of MonoBehaviour
 
-        public static bool edit_List_MB<T>(this string label, ref List<T> list, ref int inspected, ref T added) where T : MonoBehaviour
-        {
+
+        public static bool edit_List_MB<T>(this string label, ref List<T> list, ref int inspected) where T : MonoBehaviour {
             label.write_Search_ListLabel( ref inspected, list);
             var changed = false;
             edit_List_MB(ref list, ref inspected, ref changed).listLabel_Used();
@@ -8277,7 +8337,14 @@ namespace PlayerAndEditorGUI
                 if (icon.Back.ClickUnFocus(25).nl().changes(ref changed))
                     inspected = -1;
                 else
-                    Try_Nested_Inspect(dic.ElementAt(inspected).Value).changes(ref changed);
+                {
+                    var el = dic.ElementAt(inspected);
+
+                    object obj = el.Value;
+
+                    if (Nested_Inspect(ref obj).changes(ref changed))
+                        dic[el.Key] = (T)obj;
+                }
             }
 
             newLine();
@@ -8764,19 +8831,20 @@ namespace PlayerAndEditorGUI
 
 #endregion
 
-        public static bool Nested_Inspect(pegi.InspectionDelegate function)
+        public static bool Nested_Inspect(InspectionDelegate function)
         {
+            var changed = false;
 
-            if (function())
-            {
+            var il = IndentLevel;
+
+            if (function().changes(ref changed))  
                 function.Target.SetToDirty_Obj();
-                return true;
-            }
-
-            return false;
+            
+            IndentLevel = il;
+            
+            return changed;
         }
-
-
+        
         private static object SetToDirty_Obj(this object obj)
         {
 
@@ -8802,17 +8870,21 @@ namespace PlayerAndEditorGUI
             if (pgi.IsNullOrDestroyed_Obj())
                 return false;
 
-            var isFOOE = pegi.isFoldedOutOrEntered;
+            var isFOOE = isFoldedOutOrEntered;
 
             var changed = false;
 
             int recurses;
 
-            if (!inspectionChain.TryGetValue(pgi, out recurses) || recurses < 2)
-            {
-
+            if (!inspectionChain.TryGetValue(pgi, out recurses) || recurses < 2) {
+                
                 inspectionChain[pgi] = recurses + 1;
+
+                var indent = IndentLevel;
+
                 pgi.Inspect().RestoreBGColor().changes(ref changed);
+
+                IndentLevel = indent;
 
                 var count = inspectionChain[pgi];
                 if (count == 1)
@@ -8823,7 +8895,7 @@ namespace PlayerAndEditorGUI
             else
                 "3rd recursion".writeWarning();
 
-            if (changed || pegi.globChanged)
+            if (changed || globChanged)
             {
 #if UNITY_EDITOR
                 ef.ClearFromPooledSerializedObjects(pgi as Object);
@@ -8831,7 +8903,7 @@ namespace PlayerAndEditorGUI
                 pgi.SetToDirty_Obj();
             }
 
-            pegi.isFoldedOutOrEntered = isFOOE;
+            isFoldedOutOrEntered = isFOOE;
 
             return changed;
 
@@ -8839,9 +8911,14 @@ namespace PlayerAndEditorGUI
 
         public static bool Inspect_AsInList<T>(this T obj, List<T> list, int current, ref int inspected) where T : IPEGI_ListInspect
         {
-            var changes = obj.InspectInList(list, current, ref inspected);
 
-            if (pegi.globChanged || changes)
+            var il = IndentLevel;
+            
+            var changes = obj.InspectInList(list, current, ref inspected);
+            
+            IndentLevel = il;
+
+            if (globChanged || changes)
             {
 #if UNITY_EDITOR
                 ef.ClearFromPooledSerializedObjects(obj as Object);
@@ -8855,9 +8932,14 @@ namespace PlayerAndEditorGUI
         public static bool Inspect_AsInList(this IPEGI_ListInspect obj)
         {
             var tmp = -1;
-            var changes = obj.InspectInList(null, 0, ref tmp);
 
-            if (pegi.globChanged || changes)
+            var il = IndentLevel;
+
+            var changes = obj.InspectInList(null, 0, ref tmp);
+            IndentLevel = il;
+
+
+            if (globChanged || changes)
             {
 #if UNITY_EDITOR
                 ef.ClearFromPooledSerializedObjects(obj as Object);
@@ -8872,40 +8954,93 @@ namespace PlayerAndEditorGUI
         private static readonly Dictionary<Type, Editor> defaultEditors = new Dictionary<Type, Editor>();
 #endif
 
-        private static bool TryDefaultInspect(this object obj)
+        private static bool TryDefaultInspect(Object uObj) {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGui && uObj)   {
+
+
+                Editor ed;
+                var t = uObj.GetType();
+                if (!defaultEditors.TryGetValue(t, out ed))
+                {
+                    ed = Editor.CreateEditor(uObj);
+                    defaultEditors.Add(t, ed);
+                }
+
+                if (ed == null)
+                    return false;
+
+                nl();
+                EditorGUI.BeginChangeCheck();
+                ed.DrawDefaultInspector();
+                return EditorGUI.EndChangeCheck();
+                
+            }
+#endif
+
+
+            return false;
+
+        }
+
+
+        private static bool TryDefaultInspect(ref object obj)
         {
 
 #if UNITY_EDITOR
-            if (pegi.paintingPlayAreaGui) return false;
+            if (!paintingPlayAreaGui) {
+                
+                var uObj = obj as Object;
 
-            var uObj = obj as UnityEngine.Object;
+                if (uObj) {
 
-            if (!uObj) return false;
 
-            Editor ed;
-            var t = uObj.GetType();
-            if (!defaultEditors.TryGetValue(t, out ed))
-            {
-                ed = Editor.CreateEditor(uObj);
-                defaultEditors.Add(t, ed);
+                    Editor ed;
+                    var t = uObj.GetType();
+                    if (!defaultEditors.TryGetValue(t, out ed)) {
+                        ed = Editor.CreateEditor(uObj);
+                        defaultEditors.Add(t, ed);
+                    }
+
+                    if (ed == null)
+                        return false;
+
+                    nl();
+                    EditorGUI.BeginChangeCheck();
+                    ed.DrawDefaultInspector();
+                    return EditorGUI.EndChangeCheck();
+                }
+            }
+#endif
+
+
+
+            if (obj!= null && obj is string) {
+                var txt = obj as string;
+                if (editBig(ref txt))
+                {
+                    obj = txt;
+                    return true;
+                }
             }
 
-            if (ed == null) return false;
 
-            pegi.nl();
-            EditorGUI.BeginChangeCheck();
-            ed.DrawDefaultInspector();
-            return EditorGUI.EndChangeCheck();
-#else
             return false;
-#endif
+
         }
 
-        public static bool Try_Nested_Inspect(this GameObject go)
+        public static bool Try_Nested_Inspect(this GameObject go, Component cmp = null)
         {
             var changed = false;
 
-            var pgi = go.TryGet<IPEGI>();
+            IPEGI pgi = null;
+            
+            if (cmp)
+                pgi = cmp as IPEGI;
+            
+            if (pgi == null)
+                pgi = go.TryGet<IPEGI>();
 
             if (pgi != null)
                 pgi.Nested_Inspect().RestoreBGColor().changes(ref changed);
@@ -8914,8 +9049,11 @@ namespace PlayerAndEditorGUI
                 var mbs = go.GetComponents<Component>();
 
                 foreach (var m in mbs)
-                    m.TryDefaultInspect().changes(ref changed);
+                    TryDefaultInspect(m).changes(ref changed);
             }
+
+            nl();
+            UnIndent();
 
             if (changed)
                 go.SetToDirty();
@@ -8923,12 +9061,30 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool Try_Nested_Inspect(this Component cmp) => cmp && cmp.gameObject.Try_Nested_Inspect();
+        public static bool Try_Nested_Inspect(this Component cmp) => cmp && cmp.gameObject.Try_Nested_Inspect(cmp);
 
         public static bool Try_Nested_Inspect(object obj)
         {
-            var pgi = obj as IPEGI; //.TryGet_fromObj<IPEGI>();
-            return pgi?.Nested_Inspect() ?? obj.TryDefaultInspect();
+            var pgi = obj as IPEGI;
+            var ch = pgi?.Nested_Inspect() ?? TryDefaultInspect(ref obj);
+
+            nl();
+
+            UnIndent();
+
+            return ch;
+        }
+
+        public static bool Nested_Inspect(ref object obj)
+        {
+            var pgi = obj as IPEGI;
+            var ch = pgi?.Nested_Inspect() ?? TryDefaultInspect(ref obj);
+
+            nl();
+
+            UnIndent();
+
+            return ch;
         }
 
         public static bool Try_enter_Inspect(object obj, ref int enteredOne, int thisOne)
@@ -8936,19 +9092,17 @@ namespace PlayerAndEditorGUI
 
             var changed = false;
 
-            var l = obj as IPEGI_ListInspect;//.TryGet_fromObj<IPEGI_ListInspect>();
+            var l = obj as IPEGI_ListInspect;
 
             if (l != null)
                 return l.enter_Inspect_AsList(ref enteredOne, thisOne);
 
-            var p = obj as IPEGI;//.TryGet_fromObj<IPEGI>();
+            var p = obj as IPEGI;
 
-            if (p != null)
-            {
+            if (p != null)  {
                 var name = obj as IGotName;
 
-                if (name != null)
-                {
+                if (name != null) {
 
                     name.inspect_Name().changes(ref changed);
 
@@ -8957,10 +9111,9 @@ namespace PlayerAndEditorGUI
 
                     return changed;
                 }
-
-
+                
                 return p.GetNameForInspector()
-                    .enter_Inspect(p, ref enteredOne, thisOne); //p.enter_Inspect(ref enteredOne, thisOne);
+                    .enter_Inspect(p, ref enteredOne, thisOne); 
             }
 
             if (enteredOne == thisOne)
@@ -9016,7 +9169,7 @@ namespace PlayerAndEditorGUI
         private static bool IsDefaultOrNull<T>(this T obj) => (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
 
 
-#endif
+        #endif
 
         public static T GetByIGotIndex<T>(this List<T> lst, int index) where T : IGotIndex
         {

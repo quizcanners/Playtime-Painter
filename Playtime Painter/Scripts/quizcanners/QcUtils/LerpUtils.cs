@@ -23,11 +23,9 @@ namespace QuizCannersUtilities
     public class LerpData : IPEGI, IGotName, IGotCount, IPEGI_ListInspect
     {
         private float linkedPortion = 1;
-        public bool skipLerpPossible;
         public string dominantParameter = "None";
 
-        public float Portion(bool canSkipLerpIfPossible = false) =>
-            (canSkipLerpIfPossible && skipLerpPossible) ? 1 : linkedPortion;
+        public float Portion(bool skipLerp = false) => skipLerp ? 1 : linkedPortion;
 
         public float MinPortion
         {
@@ -37,7 +35,6 @@ namespace QuizCannersUtilities
         
         public void Reset()
         {
-            skipLerpPossible = false;
             linkedPortion = 1;
             _resets++;
         }
@@ -189,7 +186,7 @@ namespace QuizCannersUtilities
                         if (Application.isPlaying)
                             Portion(ref p);
 
-                        if (canSkipLerpIfPossible && ld.skipLerpPossible)
+                        if (canSkipLerpIfPossible)
                             p = 1;
 
                         break;

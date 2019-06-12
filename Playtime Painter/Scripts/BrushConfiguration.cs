@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
+#if UNITY_2019_1_OR_NEWER
 using UnityEditor.EditorTools;
+#endif
 #endif
 using System;
 using PlayerAndEditorGUI;

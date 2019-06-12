@@ -325,7 +325,11 @@ namespace QuizCannersUtilities
                 if (icon.List.Click("Back to elements window"))
                     _edited = -1;
                 else
-                    pegi.Try_Nested_Inspect(this[_edited]);
+                {
+                    object el = this[_edited];
+                    if (pegi.Nested_Inspect(ref el))
+                        this[_edited] = (T)el;
+                }
             }
             return changed;
         }

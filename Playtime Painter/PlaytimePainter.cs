@@ -3,7 +3,9 @@ using UnityEngine;
 
 #if UNITY_EDITOR
 using UnityEditor;
+#if UNITY_2019_1_OR_NEWER
 using UnityEditor.EditorTools;
+#endif
 #endif
 
 using System;
@@ -688,8 +690,10 @@ namespace PlaytimePainter {
             textureWasChanged = false;
 
 #if UNITY_EDITOR
-            if (texture && texture is Texture2D t2D)
-            {
+
+            var t2D = texture as Texture2D;
+
+            if (t2D) {
                 var imp = t2D.GetTextureImporter();
                 if (imp)
                 {

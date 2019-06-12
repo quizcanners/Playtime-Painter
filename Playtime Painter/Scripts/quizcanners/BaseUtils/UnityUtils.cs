@@ -865,6 +865,14 @@ namespace QuizCannersUtilities {
 
         #region Unity Editor MGMT
 
+        public static string GetDataPathWithout_Assets_Word() {
+            #if UNITY_EDITOR
+                return Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length);
+            #else
+                    return null;
+            #endif
+        }
+
         public static void Log(this string text)
         {
 
@@ -1007,9 +1015,8 @@ namespace QuizCannersUtilities {
             List<T> assets = new List<T>();
             
             #if UNITY_EDITOR
-            var typeName = typeof(T).ToString().Replace("UnityEngine.", "");
-            string[] guids = AssetDatabase.FindAssets(string.Format("t:{0}", typeName));
-            foreach (var guid in guids) { 
+            var typeName = typeof(T).ToPegiStringType(); 
+            foreach (var guid in AssetDatabase.FindAssets(string.Format("t:{0}", typeName))) { 
                 T asset = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid));
                 if (asset)
                     assets.Add(asset);
@@ -1087,7 +1094,7 @@ namespace QuizCannersUtilities {
                 }
 #else
                 PrefabUtility.ReplacePrefab(gameObject, GetPrefab(gameObject), ReplacePrefabOptions.ConnectToPrefab);
-                   (gameObject.name + " prefab Updated").showNotificationIn3D_Views();
+                   //(gameObject.name + " prefab Updated").showNotificationIn3D_Views();
 #endif
 
             }
@@ -1390,7 +1397,7 @@ namespace QuizCannersUtilities {
 
 #endregion
 
-#region Texture Import Settings
+        #region Texture Import Settings
 
         public static bool IsColorTexture(this Texture2D tex)
         {
@@ -1693,12 +1700,12 @@ namespace QuizCannersUtilities {
 
         public static string GetPathWithout_Assets_Word(this Texture2D tex)
         {
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             var path = AssetDatabase.GetAssetPath(tex);
             return string.IsNullOrEmpty(path) ? null : path.Replace("Assets", "");
-#else
+            #else
                     return null;
-#endif
+            #endif
         }
 
 #if UNITY_EDITOR

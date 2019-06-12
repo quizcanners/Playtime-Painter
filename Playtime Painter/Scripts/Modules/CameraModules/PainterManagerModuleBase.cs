@@ -137,7 +137,7 @@ namespace PlaytimePainter {
         public override bool Decode(string tg, string data) => false;
         #endregion
 
-        public virtual string NameForDisplayPEGI => ToString();
+        public virtual string NameForDisplayPEGI => ToString().SimplifyTypeName();
         
         public virtual void Update() { }
 

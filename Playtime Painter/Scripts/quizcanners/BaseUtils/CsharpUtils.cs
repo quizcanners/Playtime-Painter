@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.IO;
 
 namespace QuizCannersUtilities {
 
@@ -105,7 +106,14 @@ namespace QuizCannersUtilities {
         }
 
         #region List Management
-        
+
+        public static List<string> TryAddIfNewAndNotAmpty(this List<string> lst, string text) {
+            if (!text.IsNullOrEmpty() && !lst.Contains(text))
+                lst.Add(text);
+
+            return lst;
+        }
+
         public static bool TryAddUObjIfNew<T>(this List<T> list, UnityEngine.Object ass) where T : UnityEngine.Object
         {
             if (!ass)
@@ -513,6 +521,8 @@ namespace QuizCannersUtilities {
         #endregion
 
         #region String Editing
+
+        public static string FirstLine(this string str) => new StringReader(str).ReadLine();
 
         public static string ToPegiStringType(this Type type) => type.ToString().SimplifyTypeName();
 

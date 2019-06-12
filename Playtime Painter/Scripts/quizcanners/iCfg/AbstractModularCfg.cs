@@ -105,7 +105,7 @@ namespace QuizCannersUtilities {
 
             _keys = new List<string>();
             
-            var atr = _coreType.TryGetClassAttribute<AbstractWithTaggedTypes>();
+            //var atr = _coreType.TryGetClassAttribute<AbstractWithTaggedTypes>();
             
             List<Type> allTypes;
 

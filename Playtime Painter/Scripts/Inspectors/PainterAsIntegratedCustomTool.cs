@@ -3,8 +3,10 @@ using System;
 using PlayerAndEditorGUI;
 using UnityEngine;
 using UnityEditor;
+#if UNITY_2019_1_OR_NEWER
 using UnityEditor.EditorTools;
-using  QuizCannersUtilities;
+#endif
+using QuizCannersUtilities;
 
 namespace PlaytimePainter
 {

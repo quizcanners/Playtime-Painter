@@ -5,9 +5,9 @@ using PlayerAndEditorGUI;
 using System;
 using Object = UnityEngine.Object;
 using UnityEngine.UI;
+using System.IO;
 #if UNITY_EDITOR
 using UnityEditor;
-using System.IO;
 #endif
 
 namespace QuizCannersUtilities
@@ -694,49 +694,65 @@ namespace QuizCannersUtilities
     public class ScreenShootTaker : IPEGI
     {
 
+        [SerializeField] public string folderName = "ScreenShoots";
+
 
 #if !NO_PEGI
+
+        private bool _showAdditionalOptions;
         public bool Inspect()
         {
 
             "Up Scale".edit(60, ref UpScale).nl();
             "Alpha".toggleIcon(ref AlphaBackground).nl();
 
-            "Img Name".edit(90, ref screenShotName).nl();
+            "Img Name".edit(90, ref screenShotName);
+
+            var path = Path.Combine(UnityUtils.GetDataPathWithout_Assets_Word(), folderName);
+
+            if (icon.Folder.Click("Open Screen Shots Folder : {0}".F(path)))
+                FileExplorerUtils.OpenPath(path);
+            
+            pegi.nl();
 
             "Camera ".edit(60, ref cameraToTakeScreenShotFrom);
 
-            // "On Post render is only called when script is attached to camera. Not finished implementation ... ".writeHint();
-
-            if (cameraToTakeScreenShotFrom && icon.SaveAsNew.Click("From Camera"))
+            if (cameraToTakeScreenShotFrom && "Take".Click("Render Screenshoot from camera"))
                 RenderToTextureManually();
 
             pegi.nl();
 
-            if (!grab)
+            if ("Other Options".foldout(ref _showAdditionalOptions).nl())
             {
-                if ("On Post Render()".Click())
-                    grab = true;
+
+                if (!grab)  {
+                    if ("On Post Render()".Click())
+                        grab = true;
+                }
+                else
+                    ("To grab screen-shot from Post-Render, OnPostRender() of this class should be called from OnPostRender() of the script attached to a camera." +
+                     " Refer to Unity documentation to learn more about OnPostRender() call")
+                        .writeHint();
+
+
+                pegi.nl();
+
+                if ("Take Screen Shot".Click()) 
+                    ScreenCapture.CaptureScreenshot("{0}".F(GetScreenShotName() + ".png"), UpScale);
+                
+
+                if (icon.Folder.Click())
+                    FileExplorerUtils.OpenPath(UnityUtils.GetDataPathWithout_Assets_Word());
+
+                "Game View Needs to be open for this to work".fullWindowDocumentationClickOpen();
+                
             }
-            else
-                ("To grab screen-shot at Post-Render call OnPostRender() of this class from OnPostRender() of the script attached to camera." +
-                  " Refer to Unity documentation to learn more about OnPostRender() call")
-                    .writeHint();
-
-
-            pegi.nl();
-
-            if ("Take Screen Shot".Click().nl())
-                ScreenCapture.CaptureScreenshot("ScreenShots/{0}".F(screenShotName), UpScale);
-
-            if (icon.Refresh.Click("Refresh Asset Database"))
-                UnityUtils.RefreshAssetDatabase();
 
             pegi.nl();
 
             return false;
         }
-#endif
+        #endif
 
         private bool grab;
 
@@ -763,7 +779,9 @@ namespace QuizCannersUtilities
             if (AlphaBackground)
             {
                 cam.clearFlags = CameraClearFlags.SolidColor;
-                cam.backgroundColor = new Color(0, 0, 0, 0);
+                var col = cam.backgroundColor;
+                col.a = 0;
+                cam.backgroundColor = col;
             }
             else
             {
@@ -782,8 +800,7 @@ namespace QuizCannersUtilities
 
             cam.clearFlags = clearFlags;
 
-            FileSaveUtils.SaveTextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png",
-                screenShotTexture2D);
+            FileSaveUtils.SaveTextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png", screenShotTexture2D);
         }
 
         public void OnPostRender()

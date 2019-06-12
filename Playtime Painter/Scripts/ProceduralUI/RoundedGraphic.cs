@@ -696,11 +696,11 @@ namespace PlaytimePainter
 #if !NO_PEGI
             public bool InspectInList(IList list, int ind, ref int edited)
             {
-                var tg = inspected;
+               // var tg = inspected;
 
                 var rt = inspected.rectTransform;
 
-                if ((rt.anchorMin != Vector2.zero || rt.anchorMax != Vector2.one)) {
+                if (rt.anchorMin != Vector2.zero || rt.anchorMax != Vector2.one) {
 
                     if ("Stretch Anchors".Click()) {
                         rt.anchorMin = Vector2.zero;
