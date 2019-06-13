@@ -824,10 +824,11 @@ namespace QuizCannersUtilities
         }
 
         [DerivedList(typeof(JsonString), typeof(JsonClass), typeof(JsonProperty), typeof(JsonList))]
-        protected class JsonString : JsonBase, IGotDisplayName
-        {
+        protected class JsonString : JsonBase, IGotDisplayName {
 
             public bool dataOnly = false;
+
+            public override bool HasNestedData => !dataOnly;
 
             public string data;
 
@@ -1057,7 +1058,7 @@ namespace QuizCannersUtilities
         protected class JsonProperty : JsonBase  {
 
             public string name;
-            
+
             public JsonBase data;
 
             public JsonProperty()
@@ -1076,17 +1077,19 @@ namespace QuizCannersUtilities
             public override int CountForInspector => 1;
 
             public override bool DecodeAll(ref JsonBase thisJson) => data.DecodeAll(ref data);
-            
+
+            public static JsonProperty inspected;
+
             public override bool Inspect()
             {
+
+                inspected = this;
 
                 var changed = false;
 
                 if (data.CountForInspector > 0) {
-
-                    var str = data as JsonString;
-
-                    if (str == null || !str.dataOnly)
+                    
+                    if (data.HasNestedData)
                         (name + ": " + data.GetNameForInspector()).foldout(ref foldedOut);
 
                     DecodeOrInspectJson(ref data, foldedOut, name).changes(ref changed);
@@ -1095,6 +1098,8 @@ namespace QuizCannersUtilities
 
                 pegi.nl();
 
+                inspected = null;
+
                 return changed;
             }
         }
@@ -1102,6 +1107,8 @@ namespace QuizCannersUtilities
         protected class JsonList : JsonBase, IGotDisplayName {
 
             public List<JsonBase> values;
+
+            Countless<bool> foldedOut = new Countless<bool>();
 
             public override int CountForInspector => values.Count;
 
@@ -1113,10 +1120,29 @@ namespace QuizCannersUtilities
                 
                 pegi.Indent();
 
+                string nameForElemenet = "";
+
+                var jp = JsonProperty.inspected;
+
+                if (jp != null) {
+                    string name = jp.name;
+                    if (name[name.Length - 1] == 's') {
+                        nameForElemenet = name.Substring(0, name.Length - 1);
+                    }
+                }
+
                 for (int i = 0; i < values.Count; i++) {
 
                     var val = values[i];
-                    DecodeOrInspectJson(ref val, true);
+                    
+                    bool fo = foldedOut[i];
+
+                    if (val.HasNestedData) {
+                        "{0} {1}".F(nameForElemenet, i).foldout(ref fo);
+                        foldedOut[i] = fo;
+                    }
+                    
+                    DecodeOrInspectJson(ref val, fo);
                     values[i] = val;
 
                 }
@@ -1126,8 +1152,6 @@ namespace QuizCannersUtilities
 
                 return changed;
             }
-
-            public JsonList()  { values = new List<JsonBase>(); }
 
             public override bool DecodeAll(ref JsonBase thisJson)
             {
@@ -1145,6 +1169,8 @@ namespace QuizCannersUtilities
                 return changes;
             }
 
+            public JsonList() { values = new List<JsonBase>(); }
+            
             public JsonList(List<JsonString> values) { this.values = values.ToList<JsonBase>(); }
         }
 
@@ -1152,7 +1178,7 @@ namespace QuizCannersUtilities
         {
             public List<JsonProperty> properties;
 
-            public string NameForDisplayPEGI => " {0} ".F(properties.Count);
+            public string NameForDisplayPEGI => " "; //"{0} ".F(properties.Count);
 
             public override int CountForInspector => properties.Count;
 
@@ -1200,7 +1226,9 @@ namespace QuizCannersUtilities
             public abstract int CountForInspector { get;  }
 
             public abstract bool DecodeAll(ref JsonBase thisJson);
-            
+
+            public virtual bool HasNestedData => true;
+
             public override CfgEncoder Encode() => new CfgEncoder();
 
             public override bool Decode(string tg, string data)
@@ -1224,9 +1252,12 @@ namespace QuizCannersUtilities
         private bool triedToDecodeAll = false;
 
         public bool Inspect() {
-            
+
             if (icon.Delete.Click())
+            {
                 json = new JsonString();
+                triedToDecodeAll = false;
+            }
 
             if (!triedToDecodeAll && "Decode All".Click())
             {
