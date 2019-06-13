@@ -33,15 +33,6 @@ namespace PlaytimePainter
             return changed;
         }
 
-        public override bool InspectInList(IList list, int ind, ref int edited)
-        {
-
-            if (screenShots.cameraToTakeScreenShotFrom && icon.SaveAsNew.Click("Capture"))
-                screenShots.RenderToTextureManually();
-
-            return base.InspectInList(list, ind, ref edited);
-            
-        }
 
 #endif
 

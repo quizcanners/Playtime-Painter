@@ -798,7 +798,7 @@ namespace QuizCannersUtilities
         protected static bool DecodeOrInspectJson(ref JsonBase j, bool foldedOut, string name = "")
         {
 
-            var str = j as JsonString;
+            var str = j.AsJsonString;
 
             if (str != null) {
 
@@ -827,6 +827,8 @@ namespace QuizCannersUtilities
         protected class JsonString : JsonBase, IGotDisplayName {
 
             public bool dataOnly = false;
+
+            public override JsonString AsJsonString => this;
 
             public override bool HasNestedData => !dataOnly;
 
@@ -1072,7 +1074,7 @@ namespace QuizCannersUtilities
                 this.data = new JsonString(data);
             }
 
-            private bool foldedOut = false;
+            public bool foldedOut = false;
 
             public override int CountForInspector => 1;
 
@@ -1090,11 +1092,11 @@ namespace QuizCannersUtilities
                 if (data.CountForInspector > 0) {
                     
                     if (data.HasNestedData)
-                        (name + ": " + data.GetNameForInspector()).foldout(ref foldedOut);
+                        (name + " " + data.GetNameForInspector()).foldout(ref foldedOut);
 
                     DecodeOrInspectJson(ref data, foldedOut, name).changes(ref changed);
                 } else
-                    (name + ": " + data.GetNameForInspector()).write();
+                    (name + " " + data.GetNameForInspector()).write();
 
                 pegi.nl();
 
@@ -1178,7 +1180,8 @@ namespace QuizCannersUtilities
         {
             public List<JsonProperty> properties;
 
-            public string NameForDisplayPEGI => " "; //"{0} ".F(properties.Count);
+            public string NameForDisplayPEGI => JsonProperty.inspected == null ? "  " : 
+                (JsonProperty.inspected.foldedOut ? "{" : (" {" + CountForInspector.ToString() + "} ")); 
 
             public override int CountForInspector => properties.Count;
 
@@ -1221,7 +1224,12 @@ namespace QuizCannersUtilities
             }
         }
         
-        protected abstract class JsonBase : AbstractCfg, IPEGI, IGotCount {
+        protected abstract class JsonBase : AbstractCfg, IPEGI, IGotCount
+        {
+
+            public JsonBase AsBase => this;
+
+            public virtual JsonString AsJsonString => null;
 
             public abstract int CountForInspector { get;  }
 
@@ -1253,28 +1261,21 @@ namespace QuizCannersUtilities
 
         public bool Inspect() {
 
-            if (icon.Delete.Click())
-            {
+            if (icon.Delete.Click()) {
                 json = new JsonString();
                 triedToDecodeAll = false;
             }
 
-            if (!triedToDecodeAll && "Decode All".Click())
-            {
+            if (!triedToDecodeAll && "Decode All".Click()) {
 
                 triedToDecodeAll = true;
 
                 bool decoding = false;
                 do {
-
                     decoding = json.DecodeAll(ref json);
-
                 } while (decoding);
-
-
+                
                 pegi.nl();
-
-
             }
 
             return DecodeOrInspectJson(ref json, true);

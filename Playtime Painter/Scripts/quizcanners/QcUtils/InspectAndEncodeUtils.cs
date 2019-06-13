@@ -700,29 +700,39 @@ namespace QuizCannersUtilities
 #if !NO_PEGI
 
         private bool _showAdditionalOptions;
+
         public bool Inspect()
         {
 
-            "Up Scale".edit(60, ref UpScale).nl();
-            "Alpha".toggleIcon(ref AlphaBackground).nl();
-
-            "Img Name".edit(90, ref screenShotName);
-
-            var path = Path.Combine(UnityUtils.GetDataPathWithout_Assets_Word(), folderName);
-
-            if (icon.Folder.Click("Open Screen Shots Folder : {0}".F(path)))
-                FileExplorerUtils.OpenPath(path);
-            
-            pegi.nl();
-
             "Camera ".edit(60, ref cameraToTakeScreenShotFrom);
 
-            if (cameraToTakeScreenShotFrom && "Take".Click("Render Screenshoot from camera"))
-                RenderToTextureManually();
+            pegi.nl();
+
+            "Transparent Background".toggleIcon(ref AlphaBackground).nl();
+
+            "Img Name".edit(90, ref screenShotName);
+            var path = Path.Combine(UnityUtils.GetDataPathWithout_Assets_Word(), folderName);
+            if (icon.Folder.Click("Open Screen Shots Folder : {0}".F(path)))
+                FileExplorerUtils.OpenPath(path);
 
             pegi.nl();
 
-            if ("Other Options".foldout(ref _showAdditionalOptions).nl())
+            "Up Scale".edit("Resolution of the texture will be multiplied by a given value", 60, ref UpScale);
+
+            if (UpScale <= 0)
+                "Scale value needs to be positive".writeWarning();
+            else 
+            if (cameraToTakeScreenShotFrom) {
+
+                if (UpScale > 4) {
+                    if ("Take Very large ScreenShot".ClickConfirm("tbss","This will try to take a very large screen shot. Are we sure?").nl())
+                        RenderToTextureManually();
+                }
+                else if ("Take Screen Shoot".Click("Render Screenshoot from camera").nl())
+                    RenderToTextureManually();
+            }
+
+        if ("Other Options".foldout(ref _showAdditionalOptions).nl())
             {
 
                 if (!grab)  {

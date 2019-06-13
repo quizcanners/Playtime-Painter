@@ -920,13 +920,25 @@ namespace PlaytimePainter {
 
                 pegi.nl();
 
+                if ("Buffers".enter(ref _inspectedDependecy, 1).nl())
+                {
+
+                    RenderTextureBuffersManager.Inspect().nl(ref changed);
+
+#if UNITY_EDITOR
+                    "Disable Second Buffer Update (Debug Mode)".toggleIcon(ref disableSecondBufferUpdateDebug).nl();
+#endif
+
+                    return changed;
+                }
+
                 if (_inspectedDependecy == -1)
                 {
 
                     "Main Directional Light".edit(ref mainDirectionalLight).nl(ref changed);
 
 #if UNITY_EDITOR
-                    if ("Refresh Brush Shaders".Click(14).nl())
+                    if ("Refresh Brush Shaders".Click().nl())
                     {
                         Data.CheckShaders(true);
                         "Shaders Refreshed".showNotificationIn3D_Views();
@@ -937,16 +949,7 @@ namespace PlaytimePainter {
                 }
 
 
-                if ("Buffers".enter(ref _inspectedDependecy, 1).nl()) {
-
-                    RenderTextureBuffersManager.Inspect().nl(ref changed);
-                    
-#if UNITY_EDITOR
-                    "Disable Second Buffer Update (Debug Mode)".toggleIcon(ref disableSecondBufferUpdateDebug).nl();
-#endif
-
-                    return changed;
-                }
+              
 
             }
 #if UNITY_EDITOR

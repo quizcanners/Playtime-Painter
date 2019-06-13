@@ -384,6 +384,8 @@ namespace QuizCannersUtilities {
         [SerializeField] public int inspectedItems = -1;
         private int _inspectedDebugItems = -1;
         [SerializeField] private int inspectedReference = -1;
+        EncodedJsonInspector  _jsonInspector = new EncodedJsonInspector();
+
         public virtual bool Inspect()
         {
 
@@ -398,13 +400,13 @@ namespace QuizCannersUtilities {
             
             pegi.nl();
             
-            if ("Configs: ".AddCount(explorer).enter(ref _inspectedDebugItems, 0).nl_ifNotEntered())
+            if ("Configs: ".AddCount(explorer).enter(ref _inspectedDebugItems, 0).nl())
                 explorer.Inspect(this);
 
             if (inspectedItems == -1)
                 pegi.nl();
 
-            if (("Object References: " + nestedReferences.Count).enter(ref _inspectedDebugItems, 1).nl_ifNotEntered())
+            if (("Object References: " + nestedReferences.Count).enter(ref _inspectedDebugItems, 1).nl())
             {
                 _listMetaData.edit_List_UObj(ref nestedReferences);
 
@@ -418,7 +420,11 @@ namespace QuizCannersUtilities {
                 pegi.nl();
 
             if (("Unrecognized Tags: " + UnrecognizedStd.Count).enter(ref _inspectedDebugItems, 2).nl_ifNotEntered())
-                changed |= UnrecognizedStd.Nested_Inspect();
+                UnrecognizedStd.Nested_Inspect(ref changed);
+
+            if ("Json Inspector ".enter(ref _inspectedDebugItems, 3).nl())
+                _jsonInspector.Nested_Inspect().nl(ref changed);
+            
 
             if (inspectedItems == -1)
                 pegi.nl();
@@ -532,6 +538,7 @@ namespace QuizCannersUtilities {
             return changed;
         }
 
+      
         private int _inspectedDebugItems = -1;
         public virtual bool Inspect() {
 
@@ -570,7 +577,7 @@ namespace QuizCannersUtilities {
                 pegi.nl();
 
             if (("Unrecognized Tags: " + UnrecognizedStd.Count).enter(ref _inspectedDebugItems, 2).nl_ifNotEntered())
-                changed |= UnrecognizedStd.Nested_Inspect();
+                UnrecognizedStd.Nested_Inspect().changes(ref changed);
 
             if (inspectedItems == -1)
                 pegi.nl();
