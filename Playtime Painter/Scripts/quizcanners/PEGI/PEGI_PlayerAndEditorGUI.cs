@@ -5981,10 +5981,10 @@ namespace PlayerAndEditorGUI
         public static bool edit(ref string val) {
             if (LengthIsTooLong(ref val)) return false;
 
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
                 return ef.edit(ref val);
-#endif
+            #endif
 
             bc();
             val = GUILayout.TextField(val);
@@ -6032,10 +6032,17 @@ namespace PlayerAndEditorGUI
             return editBig(ref val);
         }
         
-        public static bool edit(this string label, ref string val)
-        {
-            write(label);
-            return edit(ref val);
+        public static bool edit(this string label, ref string val) {
+
+            if (LengthIsTooLong(ref val)) return false;
+
+            #if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.edit(label, ref val);
+            #endif
+            
+             write(label);
+             return edit(ref val);
         }
 
         public static bool edit(this string label, int width, ref string val)

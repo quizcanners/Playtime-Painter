@@ -639,6 +639,13 @@ namespace PlayerAndEditorGUI
             return EndCheckLine();
         }
 
+        public static bool edit(string label, ref string text)
+        {
+            BeginCheckLine();
+            text = EditorGUILayout.TextField(label, text);
+            return EndCheckLine();
+        }
+
         public static bool edit(ref string text, int width)
         {
             BeginCheckLine();

@@ -776,20 +776,38 @@ namespace QuizCannersUtilities
 
     #region JsonExplorer
 
-    public class EncodedJson : AbstractCfg, IPEGI {
+    public class EncodedJsonInspector : AbstractCfg, IPEGI {
 
         protected JsonBase json;
-        
-        protected static bool DecodeOrInspectJson(ref JsonBase j, bool foldedOut)
+
+        protected static bool TryDecode(ref JsonBase j) {
+
+            var str = j as JsonString;
+
+            if (str != null) {
+                var tmp = str.TryDecodeString();
+                if (tmp != null) {
+                    j = tmp as JsonBase;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        protected static bool DecodeOrInspectJson(ref JsonBase j, bool foldedOut, string name = "")
         {
 
             var str = j as JsonString;
-            
-            if (str != null && icon.Create.Click("Decode"))
-            {
-                var tmp = str.TryDecodeString();
-                if (tmp != null)
-                    j = tmp as JsonBase;
+
+            if (str != null) {
+
+                if (str.dataOnly)
+                {
+                    if (!foldedOut)
+                        name.edit(ref str.data);
+                } else if (foldedOut && "Decode 1 layer".Click())
+                    TryDecode(ref j);
             }
 
             pegi.nl();
@@ -806,20 +824,33 @@ namespace QuizCannersUtilities
         }
 
         [DerivedList(typeof(JsonString), typeof(JsonClass), typeof(JsonProperty), typeof(JsonList))]
-        protected class JsonString : JsonBase, IGotDisplayName {
+        protected class JsonString : JsonBase, IGotDisplayName
+        {
+
+            public bool dataOnly = false;
+
             public string data;
 
-            public string Data
-            {
-                set
-                {
+            public string Data {
+                set {
                     data = Regex.Replace(value, @"\t|\n|\r", "");
-                    data = Regex.Replace(data, "{", "{"+Environment.NewLine);
-                    data = Regex.Replace(data, ",", ","+Environment.NewLine);
+
+                    foreach (var c in data)
+                        if (c != ' ') {
+                            dataOnly = (c != '[' && c != '{');
+                            break;
+                        }
+
+                    if (!dataOnly) {
+                        data = Regex.Replace(data, "{", "{" + Environment.NewLine);
+                        data = Regex.Replace(data, ",", "," + Environment.NewLine);
+                    }
                 }
             }
 
-            public string NameForDisplayPEGI => data.IsNullOrEmpty() ? "Empty" : data.Substring(0, Mathf.Min(50, data.Length));
+            public override int CountForInspector => data.Length;
+
+            public string NameForDisplayPEGI => data.IsNullOrEmpty() ? "Empty" : data.FirstLine(); 
 
             public JsonString() { }
 
@@ -829,17 +860,34 @@ namespace QuizCannersUtilities
 
                 var changed = false;
 
-                pegi.editBig(ref data);
+                if (dataOnly)
+                    pegi.edit(ref data).changes(ref changed);
+                else 
+                    pegi.editBig(ref data).changes(ref changed);
                 
                 return changed;
             }
             
             enum JsonDecodingStage { DataTypeDecision , ExpectingVariableName, ReadingVariableName, ExpectingTwoDots, ReadingData, ReadingList  }
 
+            public override bool DecodeAll(ref JsonBase thisJson) {
+
+                if (!dataOnly)
+                {
+                    var tmp = TryDecodeString();
+                    if (tmp != null)
+                    {
+                        thisJson = tmp as JsonBase;
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
             public JsonBase TryDecodeString()
             {
-                if (data.IsNullOrEmpty())
-                {
+                if (data.IsNullOrEmpty()) {
                     Debug.LogError("Data is null or empty");
                     return null;
                 }
@@ -860,24 +908,20 @@ namespace QuizCannersUtilities
 
                 bool isaList = false;
 
-
                 while (textIndex < data.Length) {
 
                     var c = data[textIndex];
-
-
+                    
                     switch (stage) {
-
                         case JsonDecodingStage.DataTypeDecision:
 
                             if (c != ' ') {
 
-                                if (c == '{')
+                                if (c == '{') 
                                     isaList = false;
                                 else if (c == '[')
                                     isaList = true;
-                                else
-                                {
+                                else  {
                                     Debug.LogError("Is not collection. First symbol: "+c);
                                     return null;
                                 }
@@ -892,11 +936,8 @@ namespace QuizCannersUtilities
                             
 
                         case JsonDecodingStage.ExpectingVariableName:
-                            if (c != ' ')
-                            {
-
-                                if (c == '}' || c == ']')
-                                {
+                            if (c != ' ') {
+                                if (c == '}' || c == ']')  {
 
                                     int left = data.Length - textIndex;
 
@@ -904,12 +945,9 @@ namespace QuizCannersUtilities
                                         Debug.LogError("End of collection detected a bit too early. Left {0} symbols: {1}".F(left, data.Substring(textIndex)));
                                     // End of collection instead of new element
                                     break;
-                                }
-
-
-
-                                if (c == '"')
-                                {
+                                }  
+                                
+                                if (c == '"') {
                                     stage = JsonDecodingStage.ReadingVariableName;
                                     sb.Clear();
                                 }
@@ -924,8 +962,7 @@ namespace QuizCannersUtilities
 
                             if (c != '"')
                                 sb.Append(c);
-                            else
-                            {
+                            else  {
                                 variableName = sb.ToString();
                                 stage = JsonDecodingStage.ExpectingTwoDots;
                             }
@@ -934,14 +971,12 @@ namespace QuizCannersUtilities
 
                         case JsonDecodingStage.ExpectingTwoDots:
 
-                            if (c == ':')
-                            {
+                            if (c == ':') {
                                 sb.Clear();
                                 insideTextData = false;
                                 stage = JsonDecodingStage.ReadingData;
                             }
-                            else if (c != ' ')
-                            {
+                            else if (c != ' ') {
                                 Debug.LogError("Was Expecting two dots " +data.Substring(textIndex));
                                 return null;
                             }
@@ -950,38 +985,47 @@ namespace QuizCannersUtilities
                             break;
                         case JsonDecodingStage.ReadingData:
 
-                        if (c == '"')
-                            insideTextData = !insideTextData;
+                            bool needsClear = false;
 
-                        if (!insideTextData && (c != ' ')) {
+                            if (c == '"')
+                                insideTextData = !insideTextData;
 
-                            if (c == '{' || c == '[')
-                                openBrackets++;
+                            if (!insideTextData && (c != ' ')) {
 
-                            else
-                            {
+                                if (c == '{' || c == '[')
+                                    openBrackets++;
+                                else  {
 
-                                var comma = c == ',';
+                                    var comma = c == ',';
 
-                                if (comma || c == '}' || c == ']') {
+                                    var closed = !comma && (c == '}' || c == ']'); 
 
-                                    if (!comma)
+                                    if (closed) 
                                         openBrackets--;
+                                    
+                                    if ((closed && openBrackets < 0) || (comma && openBrackets<=0)) {
 
-                                    if (openBrackets <= 0) {
-                                        if (isaList)
-                                            vals.Add(new JsonString(sb.ToString()));
-                                                else 
+                                        if (isaList) {
+                                            var data = sb.ToString();
+                                            if (data.Length>0)
+                                                vals.Add(new JsonString(sb.ToString()));
+                                        }
+                                        else
                                             properties.Add(new JsonProperty(variableName, sb.ToString()));
-                                        
-                                        stage = isaList ? JsonDecodingStage.ReadingData : JsonDecodingStage.ExpectingVariableName;
-                                    }
-                                }
 
+                                        needsClear = true;
+
+                                        stage = isaList ? JsonDecodingStage.ReadingData : JsonDecodingStage.ExpectingVariableName;
+                                    } 
+                                       
+                                }
                             }
-                        }
+
+                            if (!needsClear)
+                                sb.Append(c);
+                            else
+                                sb.Clear();
                             
-                        sb.Append(c);
 
                         break;
                     }
@@ -992,10 +1036,13 @@ namespace QuizCannersUtilities
                 }
 
 
-                if (stage == JsonDecodingStage.ReadingData)
-                    properties.Add(new JsonProperty(variableName, sb.ToString()));
-                else 
-                    Debug.Log("Ended on stage: "+stage.ToString().SimplifyTypeName());
+               /* if (stage == JsonDecodingStage.ReadingData)
+                {
+                    if (isaList)
+                        vals.Add(new JsonString(sb.ToString()));
+                    else
+                        properties.Add(new JsonProperty(variableName, sb.ToString()));
+                }*/
 
                 if (isaList)
                     return new JsonList(vals);
@@ -1026,25 +1073,39 @@ namespace QuizCannersUtilities
 
             private bool foldedOut = false;
 
+            public override int CountForInspector => 1;
 
+            public override bool DecodeAll(ref JsonBase thisJson) => data.DecodeAll(ref data);
+            
             public override bool Inspect()
             {
 
                 var changed = false;
 
-                (name + ": " + data.GetNameForInspector()).foldout(ref foldedOut);
+                if (data.CountForInspector > 0) {
 
-                DecodeOrInspectJson(ref data, foldedOut).changes(ref changed);
-                
+                    var str = data as JsonString;
+
+                    if (str == null || !str.dataOnly)
+                        (name + ": " + data.GetNameForInspector()).foldout(ref foldedOut);
+
+                    DecodeOrInspectJson(ref data, foldedOut, name).changes(ref changed);
+                } else
+                    (name + ": " + data.GetNameForInspector()).write();
+
                 pegi.nl();
 
                 return changed;
             }
         }
         
-        protected class JsonList : JsonBase {
+        protected class JsonList : JsonBase, IGotDisplayName {
 
             public List<JsonBase> values;
+
+            public override int CountForInspector => values.Count;
+
+            public string NameForDisplayPEGI => "[{0}]".F(values.Count);
 
             public override bool Inspect() {
 
@@ -1068,12 +1129,32 @@ namespace QuizCannersUtilities
 
             public JsonList()  { values = new List<JsonBase>(); }
 
+            public override bool DecodeAll(ref JsonBase thisJson)
+            {
+
+                bool changes = false;
+
+                for (int i = 0; i < values.Count; i++) {
+                    var val = values[i];
+                    if (val.DecodeAll(ref val)) {
+                        values[i] = val;
+                        changes = true;
+                    }
+                }
+
+                return changes;
+            }
+
             public JsonList(List<JsonString> values) { this.values = values.ToList<JsonBase>(); }
         }
 
-        protected class JsonClass : JsonBase
+        protected class JsonClass : JsonBase, IGotDisplayName
         {
             public List<JsonProperty> properties;
+
+            public string NameForDisplayPEGI => " {0} ".F(properties.Count);
+
+            public override int CountForInspector => properties.Count;
 
             public override bool Inspect()
             {
@@ -1096,15 +1177,30 @@ namespace QuizCannersUtilities
                 properties = new List<JsonProperty>();
             }
 
+            public override bool DecodeAll(ref JsonBase thisJson)  {
+
+                bool changes = false;
+
+                for (int i = 0; i < properties.Count; i++) {
+                    var val = properties[i] as JsonBase;
+                    changes |= val.DecodeAll(ref val);
+                }
+
+                return changes;
+            }
+
             public JsonClass(List<JsonProperty> properties)
             {
                 this.properties = properties;
             }
         }
+        
+        protected abstract class JsonBase : AbstractCfg, IPEGI, IGotCount {
 
+            public abstract int CountForInspector { get;  }
 
-        protected abstract class JsonBase : AbstractCfg, IPEGI {
-          
+            public abstract bool DecodeAll(ref JsonBase thisJson);
+            
             public override CfgEncoder Encode() => new CfgEncoder();
 
             public override bool Decode(string tg, string data)
@@ -1120,14 +1216,36 @@ namespace QuizCannersUtilities
 
             public abstract bool Inspect();
         }
+        
+        public EncodedJsonInspector() { json = new JsonString(); }
 
+        public EncodedJsonInspector(string data) { json = new JsonString(data); }
 
-        public EncodedJson() { json = new JsonString(); }
-
-        public EncodedJson(string data) { json = new JsonString(data); }
+        private bool triedToDecodeAll = false;
 
         public bool Inspect() {
             
+            if (icon.Delete.Click())
+                json = new JsonString();
+
+            if (!triedToDecodeAll && "Decode All".Click())
+            {
+
+                triedToDecodeAll = true;
+
+                bool decoding = false;
+                do {
+
+                    decoding = json.DecodeAll(ref json);
+
+                } while (decoding);
+
+
+                pegi.nl();
+
+
+            }
+
             return DecodeOrInspectJson(ref json, true);
         }
 
