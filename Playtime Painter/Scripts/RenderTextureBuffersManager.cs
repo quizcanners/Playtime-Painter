@@ -507,7 +507,7 @@ namespace PlaytimePainter {
 
         #region Inspector
 
-        static ChillLogger logger = new ChillLogger("error");
+        static QcUtils.ChillLogger logger = new QcUtils.ChillLogger("error");
         
         #if !NO_PEGI
 

@@ -63,7 +63,7 @@ namespace PlaytimePainter
             if ("Drop New Profile Here:".edit(ref newProfile).nl(ref changed)) {
 
                 var mSol = new MeshPackagingProfile();
-                mSol.Decode(FileLoadUtils.TryLoadAsTextAsset(newProfile));
+                mSol.Decode(QcFileLoadUtils.TryLoadAsTextAsset(newProfile));
 
                 PainterCamera.Data.meshPackagingSolutions.Add(mSol);
                 PlaytimePainter.inspected.selectedMeshProfile = PainterCamera.Data.meshPackagingSolutions.Count - 1;
@@ -77,7 +77,7 @@ namespace PlaytimePainter
             
             if (icon.Save.Click("Save To:" + path, 25).nl()) {
                 this.SaveToAssets(path, name);
-                UnityUtils.RefreshAssetDatabase();
+                QcUnity.RefreshAssetDatabase();
                 (name + " Saved to " + path).showNotificationIn3D_Views();
             }
 

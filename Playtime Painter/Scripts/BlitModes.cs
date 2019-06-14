@@ -70,9 +70,9 @@ namespace PlaytimePainter {
         public BlitMode SetKeyword(ImageMeta id) {
 
             foreach (var bs in AllModes)
-                UnityUtils.SetShaderKeyword(bs.ShaderKeyword(id), false);
+                QcUnity.SetShaderKeyword(bs.ShaderKeyword(id), false);
 
-            UnityUtils.SetShaderKeyword(ShaderKeyword(id), true);
+            QcUnity.SetShaderKeyword(ShaderKeyword(id), true);
 
             return this;
 
@@ -85,7 +85,7 @@ namespace PlaytimePainter {
         public virtual void SetGlobalShaderParameters()
         {
             Shader.DisableKeyword("PREVIEW_SAMPLING_DISPLACEMENT");
-            UnityUtils.ToggleShaderKeywords(TexMGMTdata.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
+            QcUnity.ToggleShaderKeywords(TexMGMTdata.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
         }
 
         public virtual BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) {
@@ -577,7 +577,7 @@ namespace PlaytimePainter {
         public override void SetGlobalShaderParameters()
         {
             base.SetGlobalShaderParameters();
-            UnityUtils.SetShaderKeyword(PainterDataAndConfig.USE_DEPTH_FOR_PROJECTOR, TexMGMTdata.useDepthForProjector);
+            QcUnity.SetShaderKeyword(PainterDataAndConfig.USE_DEPTH_FOR_PROJECTOR, TexMGMTdata.useDepthForProjector);
         }
 
         public override bool NeedsWorldSpacePosition => true;
@@ -598,7 +598,7 @@ namespace PlaytimePainter {
 
                 if ("Create Projector Camera".Click().nl()) {
 
-                    UnityUtils.Instantiate<DepthProjectorCamera>();
+                    QcUnity.Instantiate<DepthProjectorCamera>();
                     "posProjCam".resetOneTimeHint();
                 }
             }

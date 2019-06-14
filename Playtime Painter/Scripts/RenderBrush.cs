@@ -26,7 +26,7 @@ namespace PlaytimePainter
         private int _replacedLayer;
         public bool deformedBounds;
 
-        [NonSerialized] MeshMaterialPlaytimeInstancer materialInstancer = new MeshMaterialPlaytimeInstancer(true);
+        [NonSerialized] QcUtils.MeshMaterialPlaytimeInstancer materialInstancer = new QcUtils.MeshMaterialPlaytimeInstancer(true);
 
         public Material GetMaterial() => materialInstancer.GetMaterialInstance(meshRenderer);
         

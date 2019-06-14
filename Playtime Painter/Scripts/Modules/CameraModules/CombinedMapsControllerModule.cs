@@ -170,7 +170,7 @@ namespace PlaytimePainter
             pegi.select_Index(ref selectedProfile, Ctrl.texturePackagingSolutions);
 
             if (icon.Add.Click("New Texture Packaging Profile").nl()) {
-                Ctrl.texturePackagingSolutions.AddWithUniqueNameAndIndex();
+                QcUtils.AddWithUniqueNameAndIndex(Ctrl.texturePackagingSolutions);
                 selectedProfile = Ctrl.texturePackagingSolutions.Count - 1;
             }
 
@@ -248,7 +248,7 @@ namespace PlaytimePainter
             if (icon.Save.Click("Will save to " + path).nl())
             {
                 this.SaveToAssets(path, _name);
-                UnityUtils.RefreshAssetDatabase();
+                QcUnity.RefreshAssetDatabase();
                 (_name + " was saved to " + path).showNotificationIn3D_Views();
             }
             pegi.nl();

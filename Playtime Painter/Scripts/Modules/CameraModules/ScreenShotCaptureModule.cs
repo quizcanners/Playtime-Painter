@@ -14,7 +14,7 @@ namespace PlaytimePainter
 
         public override string ClassTag => tag;
         
-        public ScreenShootTaker screenShots = new ScreenShootTaker();
+        public QcUtils.ScreenShootTaker screenShots = new QcUtils.ScreenShootTaker();
 
         #if !NO_PEGI
 

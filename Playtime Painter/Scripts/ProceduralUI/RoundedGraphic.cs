@@ -383,7 +383,7 @@ namespace PlaytimePainter
 
                 pegi.nl();
 
-                _compatibleMaterials.RemoveEmpty();
+                 QcUnity.RemoveEmpty(_compatibleMaterials);
 
                 if (mat && gotPixPerfTag)
                     _compatibleMaterials.AddIfNew(mat);
@@ -402,7 +402,7 @@ namespace PlaytimePainter
                 if (mat) {
 
                     if (!Application.isPlaying) {
-                        var path = UnityUtils.GetAssetFolder(mat);
+                        var path = QcUnity.GetAssetFolder(mat);
                         if (path.IsNullOrEmpty())
                             "Material is not saved as asset. Click COPY next to it to save as asset".writeHint();
                     }
@@ -1024,7 +1024,7 @@ namespace PlaytimePainter
             if (mat.IsKeywordEnabled(RoundedGraphic.UNLINKED_VERTICES))
                 "UNLINKED VERTICES".nl();
 
-            var go = UnityUtils.GetFocusedGameObject();
+            var go = QcUnity.GetFocusedGameObject();
 
             if (go) {
 

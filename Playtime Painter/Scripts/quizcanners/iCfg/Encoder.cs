@@ -81,7 +81,7 @@ namespace QuizCannersUtilities
             }
             else
                 foreach (var v in arr) {
-                if (!UnityUtils.IsNullOrDestroyed_Obj(v))
+                if (!QcUnity.IsNullOrDestroyed_Obj(v))
                     cody.Add(CfgDecoder.ListElementTag, v.Encode());
                 else
                     cody.Add_String(CfgEncoder.NullTag, "");
@@ -324,7 +324,7 @@ namespace QuizCannersUtilities
 
             var el = ld.elementDatas.GetIfExists(index);
 
-            if (!UnityUtils.IsNullOrDestroyed_Obj(val))
+            if (!QcUnity.IsNullOrDestroyed_Obj(val))
             {
                 var typeIndex = types.IndexOf(val.GetType());
                 if (typeIndex != -1)
@@ -368,7 +368,7 @@ namespace QuizCannersUtilities
 
         public CfgEncoder Add<T>(T v, List<Type> types) where T : ICfg
         {
-            if (UnityUtils.IsNullOrDestroyed_Obj(v))  return Add_String(NullTag, "");
+            if (QcUnity.IsNullOrDestroyed_Obj(v))  return Add_String(NullTag, "");
             
             var typeIndex = types.IndexOf(v.GetType());
             return Add(typeIndex != -1 ? typeIndex.ToString() : UnrecognizedTag, v.Encode());
@@ -433,7 +433,7 @@ namespace QuizCannersUtilities
 
         public CfgEncoder Add(string tag, ICfg other)
         {
-            if (UnityUtils.IsNullOrDestroyed_Obj(other)) return this;
+            if (QcUnity.IsNullOrDestroyed_Obj(other)) return this;
             
             var safe = other as ICfgSafeEncoding;
             
@@ -594,7 +594,7 @@ namespace QuizCannersUtilities
 
         public CfgEncoder TryAdd<T>(string tag, T obj) {
 
-            var objStd = UnityUtils.TryGet_fromObj<ICfg>(obj); 
+            var objStd = QcUnity.TryGet_fromObj<ICfg>(obj); 
             return (objStd != null) ? Add(tag, objStd) : this;
         }
 
@@ -604,11 +604,11 @@ namespace QuizCannersUtilities
   
         public CfgEncoder Add_IfFalse(string tag, bool val) => (!val) ? Add_Bool(tag, false) :  this;
         
-        public CfgEncoder Add_IfNotDefault(string tag, ICanBeDefaultCfg cfg) => (!UnityUtils.IsNullOrDestroyed_Obj(cfg) && !cfg.IsDefault) ? Add(tag, cfg): this;
+        public CfgEncoder Add_IfNotDefault(string tag, ICanBeDefaultCfg cfg) => (!QcUnity.IsNullOrDestroyed_Obj(cfg) && !cfg.IsDefault) ? Add(tag, cfg): this;
 
         public CfgEncoder Add_IfNotDefault(string tag, ICfg cfg)
         {
-            if (UnityUtils.IsNullOrDestroyed_Obj(cfg)) return this;
+            if (QcUnity.IsNullOrDestroyed_Obj(cfg)) return this;
             
             var def = cfg as ICanBeDefaultCfg;
 

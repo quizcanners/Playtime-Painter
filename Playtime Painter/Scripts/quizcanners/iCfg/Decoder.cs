@@ -700,7 +700,7 @@ namespace QuizCannersUtilities {
 
         #region STD class
         public static ICfg DecodeTagsFor<T>(this string data, T val) where T : ICfg
-        => (UnityUtils.IsNullOrDestroyed_Obj(val)) ? val : new CfgDecoder(data).DecodeTagsFor(val);
+        => (QcUnity.IsNullOrDestroyed_Obj(val)) ? val : new CfgDecoder(data).DecodeTagsFor(val);
       
         public static T DecodeInto<T>(this string data, out T val) where T : ICfg, new()
         {
@@ -716,7 +716,7 @@ namespace QuizCannersUtilities {
         }
 
         public static bool TryDecodeInto<T>(this string data, T val) =>
-            UnityUtils.TryGet_fromObj<ICfg>(val).Decode_ifNotNull(data);
+            QcUnity.TryGet_fromObj<ICfg>(val).Decode_ifNotNull(data);
         
         public static bool Decode_ifNotNull(this ICfg istd, string data)
         {
@@ -784,7 +784,7 @@ namespace QuizCannersUtilities {
         public static ICfgSerializeNestedReferences Keeper { get { return CfgEncoder.keeper;  } set { CfgEncoder.keeper = value; } }
 
         public static bool TryDecodeInto<T>(this string data, T val, ICfgSerializeNestedReferences referencesKeeper) {
-            var std = UnityUtils.TryGet_fromObj<ICfg>(val);
+            var std = QcUnity.TryGet_fromObj<ICfg>(val);
            
             if (std == null) return false;
             
@@ -882,7 +882,7 @@ namespace QuizCannersUtilities {
 
         public static void TryReplaceAssetByGuid<T>(this string data, ref T val) where T : UnityEngine.Object
         {
-            var ass = UnityUtils.GuidToAsset<T>(data);
+            var ass = QcUnity.GuidToAsset<T>(data);
             if (ass)
                 val = ass;
         }

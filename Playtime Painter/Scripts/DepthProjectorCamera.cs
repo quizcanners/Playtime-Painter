@@ -191,7 +191,7 @@ namespace PlaytimePainter
                 {
                     userToGetUpdate = depthUsers[lastUpdatedUser];
 
-                    if ( UnityUtils.IsNullOrDestroyed_Obj(userToGetUpdate))
+                    if ( QcUnity.IsNullOrDestroyed_Obj(userToGetUpdate))
                     {
                         gotNull = true;
                         userToGetUpdate = null;
@@ -209,7 +209,7 @@ namespace PlaytimePainter
                 if (gotNull)
                     for (int i = depthUsers.Count - 1; i >= 0; i--)
                     {
-                        if ( UnityUtils.IsNullOrDestroyed_Obj(depthUsers[i]))
+                        if ( QcUnity.IsNullOrDestroyed_Obj(depthUsers[i]))
                             depthUsers.RemoveAt(i);
                     }
             }
@@ -292,7 +292,7 @@ namespace PlaytimePainter
                 _projectorCamera.Render();
         }
 
-        ChillLogger logger = new ChillLogger();
+        QcUtils.ChillLogger logger = new QcUtils.ChillLogger();
 
         void OnPostRender()
         {

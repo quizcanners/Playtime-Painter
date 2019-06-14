@@ -60,7 +60,7 @@ namespace PlaytimePainter
                     Shader.DisableKeyword(name);
             }
             
-            UnityUtils.SetShaderKeyword(ShaderKeyword(texcoord2), true);
+            QcUnity.SetShaderKeyword(ShaderKeyword(texcoord2), true);
 
         }
 

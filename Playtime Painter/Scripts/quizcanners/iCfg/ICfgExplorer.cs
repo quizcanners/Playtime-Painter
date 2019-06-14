@@ -260,7 +260,7 @@ namespace QuizCannersUtilities
         
         public bool TryGetByGuid<T>(ref T field) where T : UnityEngine.Object {
 
-            var obj = UnityUtils.GuidToAsset<T>(_guid);
+            var obj = QcUnity.GuidToAsset<T>(_guid);
 
             field = null;
 
@@ -515,7 +515,7 @@ namespace QuizCannersUtilities
                 if (pegi.edit(ref myType))
                 {
                     dirty = true;
-                    data = FileLoadUtils.TryLoadAsTextAsset(myType);
+                    data = QcFileLoadUtils.TryLoadAsTextAsset(myType);
                 }
 
                 if (dirty)
@@ -626,8 +626,8 @@ namespace QuizCannersUtilities
                 this.inspect_Name();
                 if (Cfg != null && dataExplorer.tag.Length > 0 && icon.Save.Click("Save To Assets", ref changed))
                 {
-                    FileSaveUtils.SaveBytesToAssetsByRelativePath(Mgmt.fileFolderHolder, dataExplorer.tag, dataExplorer.data);
-                    UnityUtils.RefreshAssetDatabase();
+                    QcFileSaveUtils.SaveBytesToAssetsByRelativePath(Mgmt.fileFolderHolder, dataExplorer.tag, dataExplorer.data);
+                    QcUnity.RefreshAssetDatabase();
                 }
 
                 pegi.nl();
@@ -642,7 +642,7 @@ namespace QuizCannersUtilities
                     var uObj = Cfg as UnityEngine.Object;
 
                     if (uObj && icon.Done.Click("Use the same directory as current object.", ref changed))
-                        Mgmt.fileFolderHolder = UnityUtils.GetAssetFolder(uObj);
+                        Mgmt.fileFolderHolder = QcUnity.GetAssetFolder(uObj);
 
                     uObj.ClickHighlight().nl(ref changed);
                 }
@@ -735,7 +735,7 @@ namespace QuizCannersUtilities
                 if ("From File:".edit(65, ref myType))
                 {
                     added = new SavedIstd();
-                    added.dataExplorer.data = FileLoadUtils.TryLoadAsTextAsset(myType);
+                    added.dataExplorer.data = QcFileLoadUtils.TryLoadAsTextAsset(myType);
                     added.NameForPEGI = myType.name;
                     added.comment = DateTime.Now.ToString(CultureInfo.InvariantCulture);
                     states.Add(added);

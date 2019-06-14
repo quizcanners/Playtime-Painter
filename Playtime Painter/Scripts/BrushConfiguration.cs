@@ -159,7 +159,7 @@ namespace PlaytimePainter {
             return isA3D;
         }
 
-        [SerializeField] public DynamicRangeFloat _dSpeed = new DynamicRangeFloat(0.1f, 4.5f, 3f );
+        [SerializeField] public QcUtils.DynamicRangeFloat _dSpeed = new QcUtils.DynamicRangeFloat(0.1f, 4.5f, 3f );
 
         public float Speed
         {
@@ -456,7 +456,7 @@ namespace PlaytimePainter {
             if ( Tools.current != Tool.None ) {
                 MsgPainter.LockToolToUseTransform.GetText().writeWarning();
                 if (MsgPainter.HideTransformTool.GetText().Click().nl())
-                    UnityUtils.HideUnityTool();
+                    QcUnity.HideUnityTool();
             }
 #endif
 

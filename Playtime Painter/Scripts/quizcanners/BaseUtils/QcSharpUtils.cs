@@ -16,7 +16,7 @@ namespace QuizCannersUtilities {
     #pragma warning disable IDE0019 // Use pattern matching
     #pragma warning disable IDE0018 // Inline variable declaration
     
-    public static class CsharpUtils {
+    public static class QcSharp {
 
         public static string ThisMethodName() => ThisMethodName(1);
 
@@ -108,41 +108,12 @@ namespace QuizCannersUtilities {
         #region List Management
 
         public static List<string> TryAddIfNewAndNotAmpty(this List<string> lst, string text) {
-            if (!text.IsNullOrEmpty() && !lst.Contains(text))
+            if (!text.IsNullOrEmpty() && (lst.IndexOf(text) == -1))
                 lst.Add(text);
 
             return lst;
         }
 
-        public static bool TryAddUObjIfNew<T>(this List<T> list, UnityEngine.Object ass) where T : UnityEngine.Object
-        {
-            if (!ass)
-                return false;
-
-            if (typeof(T).IsSubclassOf(typeof(MonoBehaviour)))
-            {
-                var go = ass as GameObject;
-                if (!go) return false;
-
-                var cmp = go.GetComponent<T>();
-
-                if (!cmp || list.Contains(cmp)) return false;
-
-                list.Add(cmp);
-                return true;
-            }
-
-            if (ass.GetType() != typeof(T) && !ass.GetType().IsSubclassOf(typeof(T))) return false;
-
-            var cst = ass as T;
-
-            if (list.Contains(cst)) return false;
-
-            list.Add(cst);
-
-            return true;
-        }
-        
         public static T TryTake<T>(this List<T> list, int index) {
 
             if (list.IsNullOrEmpty() || list.Count<= index)
@@ -196,9 +167,7 @@ namespace QuizCannersUtilities {
 
             list[index] = val;
         }
-
-      
-
+        
         public static bool AddIfNew<T>(this List<T> list, T val)
         {
             if (list.Contains(val)) return false;

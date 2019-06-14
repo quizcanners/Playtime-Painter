@@ -39,7 +39,7 @@ namespace PlaytimePainter
         public int EditedUV
         {
             get { return _editedUv; }
-            set { _editedUv = value; UnityUtils.SetShaderKeyword(PainterDataAndConfig._MESH_PREVIEW_UV2, _editedUv == 1); }
+            set { _editedUv = value; QcUnity.SetShaderKeyword(PainterDataAndConfig._MESH_PREVIEW_UV2, _editedUv == 1); }
         }
 
         #endregion
@@ -166,12 +166,12 @@ namespace PlaytimePainter
         public double DragDelay {
             get
             {
-                return _dragStartTime - UnityUtils.TimeSinceStartup();   
+                return _dragStartTime - QcUnity.TimeSinceStartup();   
             }
 
             set {
 
-                _dragStartTime = UnityUtils.TimeSinceStartup() + value;
+                _dragStartTime = QcUnity.TimeSinceStartup() + value;
 
             }
 
@@ -510,11 +510,11 @@ namespace PlaytimePainter
 
             const float scaling = 16;
 
-            Grid.selectedVertex.go.SetActiveTo(false);
-            Grid.pointedVertex.go.SetActiveTo(false);
+            Grid.selectedVertex.go.SetActive(false);
+            Grid.pointedVertex.go.SetActive(false);
 
             for (var i = 0; i < verticesShowMax; i++)
-                Grid.vertices[i].go.SetActiveTo(false);
+                Grid.vertices[i].go.SetActive(false);
 
             if (!MeshTool.ShowVertices) return;
 
@@ -546,7 +546,7 @@ namespace PlaytimePainter
                 var tf = go.transform;
 
 
-                go.SetActiveTo(true);
+                go.SetActive(true);
                 tf.position = worldPos;
                 tf.rotation = camTf.rotation;
                 tf.localScale = new Vector3((editedMesh.IsInTriangleSet(point) ? 1.5f : 1) * tmpScale, tmpScale, tmpScale);
@@ -556,7 +556,7 @@ namespace PlaytimePainter
                 tmpRay.direction = tf.position - tmpRay.origin;
 
                 if (Physics.Raycast(tmpRay, out hit, 1000) && (!meshEditorIgnore.Contains(hit.transform.tag)))
-                    mark.go.SetActiveTo(false);
+                    mark.go.SetActive(false);
 
                 mark.textm.color = SameTriangleAsPointed(point) ? Color.white : Color.gray;
 
@@ -1285,7 +1285,7 @@ namespace PlaytimePainter
                 selected = _allModes[0];
 
             foreach (MeshShaderMode s in _allModes)
-                UnityUtils.SetShaderKeyword(s.value, selected == s);
+                QcUnity.SetShaderKeyword(s.value, selected == s);
 
         }
     }

@@ -366,7 +366,7 @@ namespace PlaytimePainter {
             
         }
 
-        private readonly ChillLogger _logger = new ChillLogger("");
+        private readonly QcUtils.ChillLogger _logger = new QcUtils.ChillLogger("");
 
         private bool CastRayPlaytime(StrokeVector st, Vector3 mousePos) {
 
@@ -1490,7 +1490,7 @@ namespace PlaytimePainter {
         public static void Open_Discord() => Application.OpenURL(pegi.PopUpService.DiscordServer);
         
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Send an Email")]
-        public static void Open_Email() => UnityUtils.SendEmail(pegi.PopUpService.SupportEmail, "About your Playtime Painter",
+        public static void Open_Email() => QcUnity.SendEmail(pegi.PopUpService.SupportEmail, "About your Playtime Painter",
             "Hello Yuri, we need to talk. I purchased your asset and expect an excellent quality, but ...");
 #endif
 
@@ -1643,7 +1643,7 @@ namespace PlaytimePainter {
 
             }
 
-            if ((this == TexMgmt.autodisabledBufferTarget) && (!LockTextureEditing) && (!UnityUtils.ApplicationIsAboutToEnterPlayMode()))
+            if ((this == TexMgmt.autodisabledBufferTarget) && (!LockTextureEditing) && (!QcUnity.ApplicationIsAboutToEnterPlayMode()))
                 ReEnableRenderTexture();
 
         }
@@ -1652,7 +1652,7 @@ namespace PlaytimePainter {
         {
 
 #if UNITY_EDITOR
-            UnityUtils.FocusOn(gameObject);
+            QcUnity.FocusOn(gameObject);
 #endif
             selectedInPlaytime = this;
             //TexMgmt.OnBeforeBlitConfigurationChange();
@@ -1736,7 +1736,7 @@ namespace PlaytimePainter {
                 canInspect = false;
             }
 
-            if (canInspect && UnityUtils.IsPrefab(gameObject)) {
+            if (canInspect && QcUnity.IsPrefab(gameObject)) {
                 "Inspecting a prefab.".nl();
                 canInspect = false;
             }
@@ -1757,7 +1757,7 @@ namespace PlaytimePainter {
                         if (c.GetType() != typeof(PlaytimePainter))
                             UnityEditorInternal.InternalEditorUtility.SetIsInspectorExpanded(c, false);
 
-                    UnityUtils.FocusOn(null);
+                    QcUnity.FocusOn(null);
                     PainterCamera.refocusOnThis = gameObject;
                     #endif
 
@@ -2701,7 +2701,7 @@ namespace PlaytimePainter {
 
             if (!Application.isPlaying)
             {
-                UnityUtils.SetToDirty(this);
+                QcUnity.SetToDirty(this);
                 //EditorUtility.SetDirty(target);
             }
             

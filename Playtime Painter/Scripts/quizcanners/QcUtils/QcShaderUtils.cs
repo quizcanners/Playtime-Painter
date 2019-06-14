@@ -486,7 +486,7 @@ namespace QuizCannersUtilities {
 
 #if UNITY_EDITOR
 
-            var tmpMats = UnityUtils.FindAssetsByType<Material>();
+            var tmpMats = QcUnity.FindAssetsByType<Material>();
 
             foreach (var mat in tmpMats)
                 if (Has(mat))

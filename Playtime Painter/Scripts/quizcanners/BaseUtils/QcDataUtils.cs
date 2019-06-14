@@ -18,7 +18,7 @@ namespace QuizCannersUtilities
 #pragma warning disable IDE0018 // Inline variable declaration
 
 
-    public static class FileExplorerUtils
+    public static class QcFileExplorerUtils
     {
         public static List<string> GetFileNamesFromPersistentFolder(string subPath) 
             => GetFileNamesFrom(Path.Combine(Application.persistentDataPath, subPath));
@@ -31,7 +31,7 @@ namespace QuizCannersUtilities
 
                 var txt = lst[i].Replace(@"\", @"/");
                 txt = txt.Substring(txt.LastIndexOf("/") + 1);
-                txt = txt.Substring(0, txt.Length - FileSaveUtils.JsonFileType.Length);
+                txt = txt.Substring(0, txt.Length - QcFileSaveUtils.JsonFileType.Length);
                 lst[i] = txt;
             }
 
@@ -71,14 +71,14 @@ namespace QuizCannersUtilities
         }
     }
 
-    public static class FileDeleteUtils {
+    public static class QcFileDeleteUtils {
 
         public static void DeleteResource_Bytes(string assetFolder, string insideAssetFolderAndName)
         {
 #if UNITY_EDITOR
             try
             {
-                var path = Path.Combine("Assets", Path.Combine(assetFolder, Path.Combine("Resources", insideAssetFolderAndName))) + FileSaveUtils.bytesFileType;
+                var path = Path.Combine("Assets", Path.Combine(assetFolder, Path.Combine("Resources", insideAssetFolderAndName))) + QcFileSaveUtils.bytesFileType;
                 AssetDatabase.DeleteAsset(path);
             }
             catch (Exception e)
@@ -89,7 +89,7 @@ namespace QuizCannersUtilities
         }
         
         public static bool Delete_PersistentFolder_Json(string subPath, string fileName)
-            => DeleteFile(Path.Combine(Application.persistentDataPath, subPath, Path.Combine(Application.persistentDataPath, subPath, fileName + FileSaveUtils.JsonFileType)));
+            => DeleteFile(Path.Combine(Application.persistentDataPath, subPath, Path.Combine(Application.persistentDataPath, subPath, fileName + QcFileSaveUtils.JsonFileType)));
 
         public static bool DeleteFile(string fullPath)
         {
@@ -107,7 +107,7 @@ namespace QuizCannersUtilities
         }
     }
     
-    public static class FileSaveUtils
+    public static class QcFileSaveUtils
     {
 
         public static string OutsideOfAssetsFolder =
@@ -127,7 +127,7 @@ namespace QuizCannersUtilities
             var fullPath = Path.Combine(Application.dataPath, folder);
             Directory.CreateDirectory(fullPath);
 
-            AssetDatabase.CreateAsset(obj, UnityUtils.SetUniqueObjectName(obj, folder, extension));
+            AssetDatabase.CreateAsset(obj, QcUnity.SetUniqueObjectName(obj, folder, extension));
 
             if (refreshAfter)
                 AssetDatabase.Refresh();
@@ -211,7 +211,7 @@ namespace QuizCannersUtilities
 
     }
 
-    public static class FileLoadUtils
+    public static class QcFileLoadUtils
     {
         private static readonly BinaryFormatter Formatter = new BinaryFormatter();
         
@@ -220,7 +220,7 @@ namespace QuizCannersUtilities
             #if UNITY_EDITOR
 
             var resourceName = Path.Combine(insideResourceFolder, name);
-            var path = Path.Combine(Application.dataPath, Path.Combine(resourceFolderLocation, Path.Combine("Resources",  resourceName + FileSaveUtils.bytesFileType)));
+            var path = Path.Combine(Application.dataPath, Path.Combine(resourceFolderLocation, Path.Combine("Resources",  resourceName + QcFileSaveUtils.bytesFileType)));
 
             if (!File.Exists(path)) return null;
 
@@ -266,7 +266,7 @@ namespace QuizCannersUtilities
         public static string LoadBytesFromAssets(string folder, string name)
         {
             #if UNITY_EDITOR
-            var path = Path.Combine(Application.dataPath, folder, name + FileSaveUtils.bytesFileType);
+            var path = Path.Combine(Application.dataPath, folder, name + QcFileSaveUtils.bytesFileType);
 
             if (!File.Exists(path)) return null;
 
@@ -352,11 +352,11 @@ namespace QuizCannersUtilities
         }
 
         private static string JsonPersistantPath(string subPath, string fileName) 
-            => Path.Combine(Application.persistentDataPath, subPath, fileName + FileSaveUtils.JsonFileType);
+            => Path.Combine(Application.persistentDataPath, subPath, fileName + QcFileSaveUtils.JsonFileType);
 
         public static bool TryLoadJsonFromStreamingAssets<T>(string fileName, ref T dta)
         {
-            var filePath = Path.Combine(Application.streamingAssetsPath, fileName + FileSaveUtils.JsonFileType);
+            var filePath = Path.Combine(Application.streamingAssetsPath, fileName + QcFileSaveUtils.JsonFileType);
 
             if (!File.Exists(filePath)) return false;
 
@@ -370,7 +370,7 @@ namespace QuizCannersUtilities
         public static bool LoadResource<T>(string pathNdName, ref T arrangement)
         {
             #if UNITY_EDITOR
-            var path = Application.dataPath + "/Resources/" + pathNdName + FileSaveUtils.bytesFileType;
+            var path = Application.dataPath + "/Resources/" + pathNdName + QcFileSaveUtils.bytesFileType;
 
             if (File.Exists(path))
             {
@@ -415,7 +415,7 @@ namespace QuizCannersUtilities
 
         public static bool LoadBytesFrom<T>(string path, string name, ref T dta)
         {
-            var fullPath = Path.Combine(path, name + FileSaveUtils.bytesFileType);
+            var fullPath = Path.Combine(path, name + QcFileSaveUtils.bytesFileType);
             
             if (!File.Exists(fullPath)) return false;
             
@@ -460,12 +460,12 @@ namespace QuizCannersUtilities
         }
     }
     
-    public class ResourceLoaderAssync<T>
+    public class QcResourceLoaderAssync<T>
     {
         ResourceRequest _rqst;
 
-        public bool TryUnpackAsset(ref T arrangement)
-        {
+        public bool TryUnpackAsset(ref T arrangement) {
+
             if (!_rqst.isDone) return false;
             
             var asset = _rqst.asset as TextAsset;
@@ -473,8 +473,7 @@ namespace QuizCannersUtilities
             if (asset == null)
                 return true;
                 
-            try
-            {
+            try {
                 using (var ms = new MemoryStream(asset.bytes))
                     arrangement = (T) ((new BinaryFormatter()).Deserialize(ms));
             }
@@ -487,8 +486,7 @@ namespace QuizCannersUtilities
 
         }
 
-        public bool RequestLoad(string pathNdName)
-        {
+        public bool RequestLoad(string pathNdName) {
             _rqst = Resources.LoadAsync(pathNdName);
             return _rqst != null;
         }

@@ -22,7 +22,7 @@ namespace PlaytimePainter.Examples
         void UpdateShaderGlobal()
         {
             enableNoise = enableNoise && prerenderedNoiseTexture;
-            UnityUtils.SetShaderKeyword(SHADER_NOISE_TEXTURE, enableNoise);
+            QcUnity.SetShaderKeyword(SHADER_NOISE_TEXTURE, enableNoise);
             _noiseTextureGlobal.SetGlobal(prerenderedNoiseTexture);
         }
 

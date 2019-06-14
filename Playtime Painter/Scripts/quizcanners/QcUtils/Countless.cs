@@ -722,7 +722,7 @@ public class Countless<T> : CountlessBase {
             
             if (ind >= max)
             {
-                if (CsharpUtils.IsDefaultOrNull(obj))
+                if (QcSharp.IsDefaultOrNull(obj))
                     return;
                 while (ind >= max)
                 {
@@ -741,7 +741,7 @@ public class Countless<T> : CountlessBase {
             var vb = br;
             var subSize = max;
 
-            if (!CsharpUtils .IsDefaultOrNull(obj))
+            if (!QcSharp .IsDefaultOrNull(obj))
             {
                 while (d > 0)
                 {
@@ -759,7 +759,7 @@ public class Countless<T> : CountlessBase {
                     vb.value += 1;
 
                     var cnt = objs.Length;
-                    while (_firstFreeObj < cnt && !CsharpUtils.IsDefaultOrNull(objs[_firstFreeObj])) _firstFreeObj++;
+                    while (_firstFreeObj < cnt && !QcSharp.IsDefaultOrNull(objs[_firstFreeObj])) _firstFreeObj++;
                     if (_firstFreeObj >= cnt)
                         Expand(ref objs, BranchSize);
 
@@ -831,7 +831,7 @@ public class Countless<T> : CountlessBase {
             return vb.br[ind] == null ? default(T) : objs[vb.br[ind].value];
         }
 
-        public List<T> GetAllObjsNoOrder() => objs.Where(t => !CsharpUtils.IsDefaultOrNull(t)).ToList();
+        public List<T> GetAllObjsNoOrder() => objs.Where(t => !QcSharp.IsDefaultOrNull(t)).ToList();
         
         public List<T> GetAllObjs(out List<int> inds)
         {
@@ -892,7 +892,7 @@ public class Countless<T> : CountlessBase {
             var all = GetAllObjs(out indx);
             for (var i = 0; i < all.Count; i++) {
                 var e = all[i];
-                if (CsharpUtils.IsDefaultOrNull(e)) continue;
+                if (QcSharp.IsDefaultOrNull(e)) continue;
                 currentEnumerationIndex = indx[i];
                 yield return e;
             }
@@ -1246,7 +1246,7 @@ public class Countless<T> : CountlessBase {
             _firstFreeObj = 0;
         }
 
-        public IEnumerator GetEnumerator() => _objs.Where(e => !CsharpUtils.IsDefaultOrNull(e)).GetEnumerator();
+        public IEnumerator GetEnumerator() => _objs.Where(e => !QcSharp.IsDefaultOrNull(e)).GetEnumerator();
         
     }
 
@@ -1267,7 +1267,7 @@ public class Countless<T> : CountlessBase {
             
             if (inspected > -1) {
                 var e = countless[inspected];
-                if (CsharpUtils.IsDefaultOrNull(e) || icon.Back.ClickUnFocus())
+                if (QcSharp.IsDefaultOrNull(e) || icon.Back.ClickUnFocus())
                     inspected = -1;
                 else
                     pegi.Try_Nested_Inspect(e).changes(ref changed);

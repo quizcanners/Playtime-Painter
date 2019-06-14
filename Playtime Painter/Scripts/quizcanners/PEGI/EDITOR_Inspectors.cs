@@ -171,22 +171,22 @@ namespace PlayerAndEditorGUI {
         #if   NO_PEGI
             [MenuItem("Tools/" + "PEGI" + "/Enable")]
             public static void EnablePegi() {
-                UnityUtils.SetDefine("NO_PEGI", false);
+                QcUnity.SetDefine("NO_PEGI", false);
             }
         #else 
         
             #if   PEGI
                 [MenuItem("Tools/" + "PEGI" + "/Disable")]
-                public static void DisablePegi() => UnityUtils.SetDefine("PEGI", false);
+                public static void DisablePegi() => QcUnity.SetDefine("PEGI", false);
             #else
                 [MenuItem("Tools/" + "PEGI" + "/Enable")]
                 public static void EnablePegi() {
-                    UnityUtils.SetDefine("PEGI", true);
+                    QcUnity.SetDefine("PEGI", true);
                 }
 
                 [MenuItem("Tools/" + "PEGI" + "/Disable")]
                 public static void DisablePegi() {
-                    UnityUtils.SetDefine("NO_PEGI", true);
+                    QcUnity.SetDefine("NO_PEGI", true);
                 }
             #endif
 

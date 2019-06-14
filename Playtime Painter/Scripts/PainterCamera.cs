@@ -25,7 +25,7 @@ namespace PlaytimePainter {
                     return depthProjectorCamera;
 
                 if (!DepthProjectorCamera.Instance)
-                    depthProjectorCamera = UnityUtils.Instantiate<DepthProjectorCamera>();
+                    depthProjectorCamera = QcUnity.Instantiate<DepthProjectorCamera>();
 
                 return depthProjectorCamera;
             
@@ -35,7 +35,7 @@ namespace PlaytimePainter {
 
         public static readonly MeshManager MeshManager = new MeshManager();
 
-        public static readonly TextureDownloadManager DownloadManager = new TextureDownloadManager();
+        public static readonly QcUtils.TextureDownloadManager DownloadManager = new QcUtils.TextureDownloadManager();
 
         public AnimationCurve tmpCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(0.5f, 0.5f), new Keyframe(1, 1));
         
@@ -152,7 +152,7 @@ namespace PlaytimePainter {
             if (painterCamera)
                 painterCamera.cullingMask = flag;
 
-            UnityUtils.RenamingLayer(l, "Playtime Painter's Layer");
+            QcUnity.RenamingLayer(l, "Playtime Painter's Layer");
 
             if (brushRenderer)
                 brushRenderer.gameObject.layer = l;
@@ -427,10 +427,10 @@ namespace PlaytimePainter {
 
             brushType.SetKeyword(id.useTexCoord2);
 
-            UnityUtils.SetShaderKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2, id.useTexCoord2);
+            QcUnity.SetShaderKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2, id.useTexCoord2);
 
             if (blitMode.SupportsTransparentLayer)
-                UnityUtils.SetShaderKeyword(PainterDataAndConfig.TARGET_TRANSPARENT_LAYER, id.isATransparentLayer);
+                QcUnity.SetShaderKeyword(PainterDataAndConfig.TARGET_TRANSPARENT_LAYER, id.isATransparentLayer);
 
             blitMode.SetKeyword(id).SetGlobalShaderParameters();
 
@@ -687,7 +687,7 @@ namespace PlaytimePainter {
             isLinearColorSpace = PlayerSettings.colorSpace == ColorSpace.Linear;
 
             EditorApplication.update -= CombinedUpdate;
-            if (!UnityUtils.ApplicationIsAboutToEnterPlayMode())
+            if (!QcUnity.ApplicationIsAboutToEnterPlayMode())
                 EditorApplication.update += CombinedUpdate;
             
             if (!brushPrefab) {
@@ -836,7 +836,7 @@ namespace PlaytimePainter {
             if (refocusOnThis) {
                 _scipFrames--;
                 if (_scipFrames == 0) {
-                    UnityUtils.FocusOn(refocusOnThis);
+                    QcUnity.FocusOn(refocusOnThis);
                     refocusOnThis = null;
                     _scipFrames = 3;
                 }
@@ -879,7 +879,7 @@ namespace PlaytimePainter {
 
         #region Inspector
 
-        readonly ChillLogger logger = new ChillLogger("error");
+        readonly QcUtils.ChillLogger logger = new QcUtils.ChillLogger("error");
 
         #if !NO_PEGI
 

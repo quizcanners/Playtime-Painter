@@ -28,7 +28,7 @@ namespace QuizCannersUtilities {
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 
-    public static class UnityUtils
+    public static class QcUnity
     {
 
         public static T Instantiate<T>(string name = null) where T : MonoBehaviour
@@ -37,8 +37,9 @@ namespace QuizCannersUtilities {
             var go = new GameObject(name.IsNullOrEmpty() ? typeof(T).ToPegiStringType() : name);
             return go.AddComponent<T>();
         }
-
-        public static void RemoveEmpty<T>(this List<T> list) where T : Object {
+        
+        #region Lists
+        public static void RemoveEmpty<T>(List<T> list) where T : Object {
 
             for (var i = list.Count-1; i >=0 ; i--)
                 if (!list[i]) 
@@ -46,13 +47,43 @@ namespace QuizCannersUtilities {
                 
         }
 
-        public static void RemoveEmpty_Obj<T>(this List<T> list) {
+        public static void RemoveEmpty_Obj<T>(List<T> list) {
 
             for (var i = list.Count - 1; i >= 0; i--)
                 if (IsNullOrDestroyed_Obj(list[i]))
                     list.RemoveAt(i);
                 
         }
+        
+        public static bool TryAddUObjIfNew<T>(this List<T> list, UnityEngine.Object ass) where T : UnityEngine.Object
+        {
+            if (!ass)
+                return false;
+
+            if (typeof(T).IsSubclassOf(typeof(MonoBehaviour)))
+            {
+                var go = ass as GameObject;
+                if (!go) return false;
+
+                var cmp = go.GetComponent<T>();
+
+                if (!cmp || list.Contains(cmp)) return false;
+
+                list.Add(cmp);
+                return true;
+            }
+
+            if (ass.GetType() != typeof(T) && !ass.GetType().IsSubclassOf(typeof(T))) return false;
+
+            var cst = ass as T;
+
+            if (list.Contains(cst)) return false;
+
+            list.Add(cst);
+
+            return true;
+        }
+        #endregion
 
         #region Scriptable Objects
 
@@ -174,7 +205,7 @@ namespace QuizCannersUtilities {
             if (!path.Contains("Assets"))
                 path = Path.Combine("Assets", path);
 
-            var fullPath = Path.Combine(FileSaveUtils.OutsideOfAssetsFolder, path);
+            var fullPath = Path.Combine(QcFileSaveUtils.OutsideOfAssetsFolder, path);
 
             try
             {
@@ -211,11 +242,11 @@ namespace QuizCannersUtilities {
             Application.OpenURL(string.Format("mailto:{0}?subject={1}&body={2}",email, subject.MyEscapeUrl(), body.MyEscapeUrl()));
 
         static string MyEscapeUrl(this string url) =>
-#if QC_USE_NETWORKING
+            #if QC_USE_NETWORKING
             UnityWebRequest.EscapeURL(url).Replace("+", "%20");
-#else
+            #else
             url.Replace("+", "%20");
-#endif
+            #endif
 
         public static void OpenBrowser(string address) => Application.OpenURL(address);
 
@@ -230,21 +261,18 @@ namespace QuizCannersUtilities {
                 :
 #endif
                 Time.realtimeSinceStartup;
-
-        public static bool TimePassedAbove(this double value, float interval) =>
-            (TimeSinceStartup() - value) > interval;
         
         #endregion
 
         #region Raycasts
 
-        public static bool RayCastGotHit(this Vector3 from, Vector3 vPos)
+        public static bool CastRay(this Vector3 from, Vector3 vPos)
         {
             var ray = from - vPos;
             return Physics.Raycast(new Ray(vPos, ray), ray.magnitude);
         }
 
-        public static bool RayCastGotHit(this Vector3 from, Vector3 vPos, float safeGap)
+        public static bool CastRay(this Vector3 from, Vector3 vPos, float safeGap)
         {
             var ray = vPos - from;
 
@@ -253,7 +281,7 @@ namespace QuizCannersUtilities {
             return (!(magnitude <= 0)) && Physics.Raycast(new Ray(@from, ray), magnitude);
         }
 
-        public static bool RayCastHit(this Vector3 from, Vector3 to, out RaycastHit hit)
+        public static bool CastRay(this Vector3 from, Vector3 to, out RaycastHit hit)
         {
             var ray = to - from;
             return Physics.Raycast(new Ray(from, ray), out hit);
@@ -273,17 +301,13 @@ namespace QuizCannersUtilities {
 
         #region Transformations 
 
-        public static void TrySetLocalScale<T>(this List<T> graphics, float size) where T : Graphic
-        {
-
+        public static void TrySetLocalScale<T>(this List<T> graphics, float size) where T : Graphic {
             foreach (var g in graphics)
                 if (g)
                     g.rectTransform.localScale = Vector3.one * size;
-
         }
 
-        public static Color ToOpaque(this Color col)
-        {
+        public static Color ToOpaque(this Color col)  {
             col.a = 1;
             return col;
         }
@@ -316,17 +340,16 @@ namespace QuizCannersUtilities {
         #region Components & GameObjects
 
         public static void SetActive<T>(this List<T> list, bool to) where T : Component {
-            if (list != null)
+            if (!list.IsNullOrEmpty())
                 foreach (var e in list)
                     if (e) e.gameObject.SetActive(to);
         }
 
         public static void SetActive(this List<GameObject> list, bool to)
         {
-            if (list != null)
+            if (!list.IsNullOrEmpty())
                 foreach (var go in list)
-                    if (go)
-                        go.SetActive(to);
+                    if (go) go.SetActive(to);
         }
         
         public static GameObject TryGetGameObjectFromObj(object obj)
@@ -469,14 +492,14 @@ namespace QuizCannersUtilities {
             return name;
         }
 
-        public static bool IsUnityObject(this Type t) => typeof(UnityEngine.Object).IsAssignableFrom(t);
+        public static bool IsUnityObject(this Type t) => typeof(Object).IsAssignableFrom(t);
 
         public static GameObject GetFocusedGameObject()
         {
 
 #if UNITY_EDITOR
             var tmp = Selection.objects;
-            return !tmp.IsNullOrEmpty() ? UnityUtils.TryGetGameObjectFromObj(tmp[0]) : null;
+            return !tmp.IsNullOrEmpty() ? QcUnity.TryGetGameObjectFromObj(tmp[0]) : null;
 #else
             return null;
 #endif
@@ -580,7 +603,7 @@ namespace QuizCannersUtilities {
             return co;
         }
 
-        public static void DestroyWhateverUnityObject(this UnityEngine.Object obj)
+        public static void DestroyWhateverUnityObject(this Object obj)
         {
             if (!obj) return;
 
@@ -596,11 +619,11 @@ namespace QuizCannersUtilities {
 
         public static void DestroyWhateverComponent(this Component cmp) => cmp.DestroyWhateverUnityObject();
 
-        public static void SetActiveTo(this GameObject go, bool setTo)
+       /* public static void SetActiveTo(this GameObject go, bool setTo)
         {
             if (go.activeSelf != setTo)
                 go.SetActive(setTo);
-        }
+        }*/
 
         public static void EnabledUpdate(this Renderer c, bool setTo)
         {
@@ -873,14 +896,6 @@ namespace QuizCannersUtilities {
             #endif
         }
 
-        public static void Log(this string text)
-        {
-
-#if UNITY_EDITOR
-            Debug.Log(text);
-#endif
-        }
-
         public static bool GetDefine(this string define)
         {
 
@@ -928,26 +943,25 @@ namespace QuizCannersUtilities {
 #endif
         }
 
-        public static List<UnityEngine.Object> SetToDirty(this List<UnityEngine.Object> objs)
+        public static List<Object> SetToDirty(this List<UnityEngine.Object> objs)
         {
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (objs.IsNullOrEmpty()) return objs;
 
             foreach (var o in objs)
                 o.SetToDirty();
-#endif
+            #endif
             return objs;
 
         }
 
-        public static UnityEngine.Object SetToDirty(this UnityEngine.Object obj)
+        public static Object SetToDirty(this Object obj)
         {
 #if UNITY_EDITOR
             if (!obj) return obj;
 
             EditorUtility.SetDirty(obj);
-
-
+            
 #if UNITY_2018_3_OR_NEWER
             if (PrefabUtility.IsPartOfAnyPrefab(obj))
                 PrefabUtility.RecordPrefabInstancePropertyModifications(obj);
@@ -959,27 +973,33 @@ namespace QuizCannersUtilities {
 
         public static void FocusOn(Object go)
         {
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             var tmp = new Object[1];
             tmp[0] = go;
             Selection.objects = tmp;
-#endif
+            #endif
         }
-        
+
+        private static Type gameViewType;
+
         public static void FocusOnGame()
         {
-#if UNITY_EDITOR
-            var assembly = typeof(EditorWindow).Assembly;
-            var type = assembly.GetType("UnityEditor.GameView");
-            var gameView = EditorWindow.GetWindow(type);
+            #if UNITY_EDITOR
+            if (gameViewType == null)
+            {
+                var assembly = typeof(EditorWindow).Assembly;
+                gameViewType = assembly.GetType("UnityEditor.GameView");
+            }
+
+            var gameView = EditorWindow.GetWindow(gameViewType);
             gameView.Focus();
-#endif
+            #endif
 
         }
 
         public static void RenamingLayer(int index, string name)
         {
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (Application.isPlaying) return;
 
             var tagManager =
@@ -1072,7 +1092,7 @@ namespace QuizCannersUtilities {
 #if !NO_PEGI && UNITY_EDITOR
 
 #if UNITY_2018_3_OR_NEWER
-            var pf = UnityUtils.IsPrefab(gameObject) ? gameObject : PrefabUtility.GetPrefabInstanceHandle(gameObject);
+            var pf = QcUnity.IsPrefab(gameObject) ? gameObject : PrefabUtility.GetPrefabInstanceHandle(gameObject);
 #else
             var pf = PrefabUtility.GetPrefabObject(gameObject);
 #endif
@@ -1199,7 +1219,7 @@ namespace QuizCannersUtilities {
         }
 
         #endregion
-        
+
         #region Input MGMT
 
         /// <summary>
@@ -1207,56 +1227,72 @@ namespace QuizCannersUtilities {
         /// </summary>
         /// <param name="e"></param>
         /// <returns>Return -1 if no numeric key was pressed</returns>
-        public static int NumericKeyDown(this Event e)
-        {
+
+        public static int NumericKeyDown(this Event e)  {
 
             if (Application.isPlaying && (!Input.anyKeyDown)) return -1;
 
-            if (!Application.isPlaying && (e.type != EventType.KeyDown)) return -1;
+            if (!Application.isPlaying && (e.type != UnityEngine.EventType.KeyDown)) return -1;
 
-            if (KeyCode.Alpha0.IsDown()) return 0;
-            if (KeyCode.Alpha1.IsDown()) return 1;
-            if (KeyCode.Alpha2.IsDown()) return 2;
-            if (KeyCode.Alpha3.IsDown()) return 3;
-            if (KeyCode.Alpha4.IsDown()) return 4;
-            if (KeyCode.Alpha5.IsDown()) return 5;
-            if (KeyCode.Alpha6.IsDown()) return 6;
-            if (KeyCode.Alpha7.IsDown()) return 7;
-            if (KeyCode.Alpha8.IsDown()) return 8;
-            if (KeyCode.Alpha9.IsDown()) return 9;
+            if (Application.isPlaying) {
+                if (Input.GetKeyDown(KeyCode.Alpha0)) return 0;
+                if (Input.GetKeyDown(KeyCode.Alpha1)) return 1;
+                if (Input.GetKeyDown(KeyCode.Alpha2)) return 2;
+                if (Input.GetKeyDown(KeyCode.Alpha3)) return 3;
+                if (Input.GetKeyDown(KeyCode.Alpha4)) return 4;
+                if (Input.GetKeyDown(KeyCode.Alpha5)) return 5;
+                if (Input.GetKeyDown(KeyCode.Alpha6)) return 6;
+                if (Input.GetKeyDown(KeyCode.Alpha7)) return 7;
+                if (Input.GetKeyDown(KeyCode.Alpha8)) return 8;
+                if (Input.GetKeyDown(KeyCode.Alpha9)) return 9;
+            }
+            else
+            {
+                if (Event.current != null && Event.current.isKey && Event.current.type == UnityEngine.EventType.KeyDown) {
+
+                    var code = (int)Event.current.keyCode;
+
+                    int diff = code - ((int)KeyCode.Alpha0);
+
+                    if (code >= 0 && code <= 9)
+                        return code;
+                }
+            }
 
             return -1;
         }
 
         public static bool IsDown(this KeyCode k)
         {
-            var down = false;
-#if UNITY_EDITOR
-            down |= (Event.current != null && Event.current.isKey && Event.current.type == EventType.KeyDown &&
-                     Event.current.keyCode == k);
+            var down = k.EventType(UnityEngine.EventType.KeyDown);
+         
             if (Application.isPlaying)
-#endif
                 down |= Input.GetKeyDown(k);
 
             return down;
         }
 
-        public static bool IsUp(this KeyCode k)
-        {
+        public static bool IsUp(this KeyCode k) {
 
-            var up = false;
-#if UNITY_EDITOR
-            up |= (Event.current != null && Event.current.isKey && Event.current.type == EventType.KeyUp &&
-                   Event.current.keyCode == k);
+            var up = k.EventType(UnityEngine.EventType.KeyUp);
+
             if (Application.isPlaying)
-#endif
                 up |= Input.GetKeyUp(k);
 
             return up;
         }
 
+        public static bool EventType(this KeyCode k, EventType type) {
+            
+            #if UNITY_EDITOR
+            return (Event.current != null && Event.current.isKey && Event.current.type == type && Event.current.keyCode == k);
+            #else
+            return false;
+            #endif
+        }
+
         #endregion
-        
+
         #region Textures
 
         #region Material MGMT
@@ -1866,7 +1902,7 @@ namespace QuizCannersUtilities {
 
             if (newProtos.Length <= index)
             {
-                CsharpUtils.AddAndInit(ref newProtos, index + 1 - newProtos.Length);
+                QcSharp.AddAndInit(ref newProtos, index + 1 - newProtos.Length);
             }
 
             newProtos[index].texture = tex;

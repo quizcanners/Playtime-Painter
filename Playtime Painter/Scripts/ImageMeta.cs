@@ -35,7 +35,7 @@ namespace PlaytimePainter
         private bool _useTexCoord2AutoAssigned;
         public bool lockEditing;
         public bool isATransparentLayer;
-        public bool NeedsToBeSaved => UnityUtils.SavedAsAsset(texture2D) || UnityUtils.SavedAsAsset(renderTexture);
+        public bool NeedsToBeSaved => QcUnity.SavedAsAsset(texture2D) || QcUnity.SavedAsAsset(renderTexture);
       
         public bool enableUndoRedo;
         public bool pixelsDirty;
@@ -1100,7 +1100,7 @@ namespace PlaytimePainter
                         "Save Name".edit(70, ref saveName);
 
                         if (icon.Folder.Click("Open Folder with textures").nl())
-                            FileExplorerUtils.OpenPersistentFolder(SavedImagesFolder);
+                            QcFileExplorerUtils.OpenPersistentFolder(SavedImagesFolder);
 
                         if ("Save Playtime".Click("Will save to {0}/{1}".F(Application.persistentDataPath, saveName)).nl())
                             SaveInPlayer();

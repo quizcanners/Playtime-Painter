@@ -677,7 +677,7 @@ namespace PlayerAndEditorGUI
                 if (icon.Discord.Click())
                     Application.OpenURL(DiscordServer);
                 if (icon.Email.Click())
-                    UnityUtils.SendEmail(SupportEmail, "About this hint",
+                    QcUnity.SendEmail(SupportEmail, "About this hint",
                         "The toolTip:{0}***{0} {1} {0}***{0} haven't answered some of the questions I had on my mind. Specifically: {0}".F(EnvironmentNl, popUpText));
 
             }
@@ -3871,14 +3871,14 @@ namespace PlayerAndEditorGUI
 #if UNITY_EDITOR
             if (ActiveEditorTracker.sharedTracker.isLocked == false && icon.Unlock.ClickUnFocus("Lock Inspector Window"))
             {
-                UnityUtils.FocusOn(ef.serObj.targetObject);
+                QcUnity.FocusOn(ef.serObj.targetObject);
                 ActiveEditorTracker.sharedTracker.isLocked = true;
             }
         
             if (ActiveEditorTracker.sharedTracker.isLocked && icon.Lock.ClickUnFocus("Unlock Inspector Window"))
             {
                 ActiveEditorTracker.sharedTracker.isLocked = false;
-                UnityUtils.FocusOn(obj);
+                QcUnity.FocusOn(obj);
             }
 #endif
         }
@@ -3889,7 +3889,7 @@ namespace PlayerAndEditorGUI
             if (ActiveEditorTracker.sharedTracker.isLocked && (Selection.objects.IsNullOrEmpty() || Selection.objects.Contains(go)))
             {
                 ActiveEditorTracker.sharedTracker.isLocked = false;
-                UnityUtils.FocusOn(go);
+                QcUnity.FocusOn(go);
             }
 #endif
         }
@@ -4765,7 +4765,7 @@ namespace PlayerAndEditorGUI
             if (lst != null) 
                 lst.enter_Inspect_AsList(ref entered, current, label).changes(ref changed);
             else {
-                var pgi = UnityUtils.TryGet_fromObj<IPEGI>(obj);
+                var pgi = QcUnity.TryGet_fromObj<IPEGI>(obj);
                 
                 if (icon.Enter.conditional_enter(pgi != null, ref entered, current, label))
                     pgi.Nested_Inspect().changes(ref changed);
@@ -6352,7 +6352,7 @@ namespace PlayerAndEditorGUI
                         write(t.ToPegiStringType());
                         if (icon.Create.ClickUnFocus().nl(ref changed))  {
                             added = (T)Activator.CreateInstance(t);
-                            lst.AddWithUniqueNameAndIndex(added, addingNewNameHolder);
+                             QcUtils.AddWithUniqueNameAndIndex(lst, added, addingNewNameHolder);
                         }
                     }
 
@@ -6371,7 +6371,7 @@ namespace PlayerAndEditorGUI
                                 if (icon.Create.ClickUnFocus().nl(ref changed))
                                 {
                                     added = (T) Activator.CreateInstance(tagTypes.TaggedTypes.TryGet(k[i]));
-                                    lst.AddWithUniqueNameAndIndex(added, addingNewNameHolder);
+                                    QcUtils.AddWithUniqueNameAndIndex(lst, added, addingNewNameHolder);
                                 }
                             }
 
@@ -6429,7 +6429,7 @@ namespace PlayerAndEditorGUI
                             write(types.DisplayNames[i]);
                             if (icon.Create.ClickUnFocus().nl(ref changed)) {
                                 added = (T)Activator.CreateInstance(types.TaggedTypes.TryGet(k[i]));
-                                lst.AddWithUniqueNameAndIndex(added, addingNewNameHolder);
+                                QcUtils.AddWithUniqueNameAndIndex(lst, added, addingNewNameHolder);
                             }
                         }
                 }
@@ -6722,7 +6722,7 @@ namespace PlayerAndEditorGUI
 
                 var mb = ef.serObj.targetObject as MonoBehaviour;
 
-                UnityUtils.FocusOn(mb ? mb.gameObject : ef.serObj.targetObject);
+                QcUnity.FocusOn(mb ? mb.gameObject : ef.serObj.targetObject);
 
             }
 
@@ -6798,14 +6798,14 @@ namespace PlayerAndEditorGUI
 
                     if (i > 0) {
                         if (icon.Up.ClickUnFocus("Move up").changes(ref changed))
-                            CsharpUtils.Swap(ref array, i, i - 1);
+                            QcSharp.Swap(ref array, i, i - 1);
                     }
                     else
                         icon.UpLast.write("Last");
 
                     if (i < array.Length - 1) {
                         if (icon.Down.ClickUnFocus("Move down").changes(ref changed))
-                            CsharpUtils.Swap(ref array, i, i + 1);
+                            QcSharp.Swap(ref array, i, i + 1);
                     }
                     else icon.DownLast.write();
                 }
@@ -6820,7 +6820,7 @@ namespace PlayerAndEditorGUI
                             array[i] = default(T);
                     }  else {
                         if (icon.Close.ClickUnFocus(Msg.RemoveFromCollection).changes(ref changed)) {
-                            CsharpUtils.Remove(ref array, i);
+                            QcSharp.Remove(ref array, i);
                             i--;
                         }
                     }
@@ -7443,7 +7443,7 @@ namespace PlayerAndEditorGUI
                 if (typeof(T).IsSubclassOf(typeof(Object))) 
                     list.Add(default(T));
                 else {
-                    added = name.IsNullOrEmpty() ? list.AddWithUniqueNameAndIndex() : list.AddWithUniqueNameAndIndex(name);
+                    added = name.IsNullOrEmpty() ? QcUtils.AddWithUniqueNameAndIndex(list) : QcUtils.AddWithUniqueNameAndIndex(list, name);
                 }
 
                 return true;
@@ -8524,7 +8524,7 @@ namespace PlayerAndEditorGUI
                     if (icon.Add.ClickUnFocus(Msg.AddEmptyCollectionElement))
                         array = array.ExpandBy(1);
                 } else if (icon.Create.ClickUnFocus(Msg.AddNewCollectionElement))
-                    CsharpUtils.AddAndInit(ref array, 1);
+                    QcSharp.AddAndInit(ref array, 1);
                     
                 edit_Array_Order(ref array, metaDatas).nl(ref changed);
 
@@ -8622,7 +8622,7 @@ namespace PlayerAndEditorGUI
             Object uObj = obj as ScriptableObject;
                 
             if (!uObj)
-                uObj = UnityUtils.TryGetGameObjectFromObj(obj); 
+                uObj = QcUnity.TryGetGameObjectFromObj(obj); 
             
             if (uObj) {
                 var n = uObj.name;
@@ -8683,7 +8683,7 @@ namespace PlayerAndEditorGUI
             if (obj.IsNullOrDestroyed_Obj())
                 return false;
 
-            var go = UnityUtils.TryGetGameObjectFromObj(obj);
+            var go = QcUnity.TryGetGameObjectFromObj(obj);
 
             var matched = new bool[text.Length];
 
@@ -8706,13 +8706,13 @@ namespace PlayerAndEditorGUI
 
             } else {
 
-                if ((UnityUtils.TryGet_fromObj<IPEGI_Searchable>(obj)).SearchMatch_Internal(text, ref matched))
+                if ((QcUnity.TryGet_fromObj<IPEGI_Searchable>(obj)).SearchMatch_Internal(text, ref matched))
                     return true;
 
-                if (UnityUtils.TryGet_fromObj<IGotName>(obj).SearchMatch_Internal(text, ref matched))
+                if (QcUnity.TryGet_fromObj<IGotName>(obj).SearchMatch_Internal(text, ref matched))
                     return true;
 
-                if (UnityUtils.TryGet_fromObj<IGotDisplayName>(obj).SearchMatch_Internal(text, ref matched))
+                if (QcUnity.TryGet_fromObj<IGotDisplayName>(obj).SearchMatch_Internal(text, ref matched))
                     return true;
 
                 if (obj.ToString().SearchMatch_Internal(text, ref matched))
@@ -8856,7 +8856,7 @@ namespace PlayerAndEditorGUI
         {
 
             #if UNITY_EDITOR
-                UnityUtils.SetToDirty(obj as UnityEngine.Object);
+                QcUnity.SetToDirty(obj as UnityEngine.Object);
             #endif
 
             return obj;

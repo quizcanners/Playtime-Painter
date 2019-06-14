@@ -294,7 +294,7 @@ namespace PlaytimePainter
 
             if (!Recordings.TryGetValue(filename, out data))
             {
-                data = FileLoadUtils.LoadJsonFromPersistentPath(vectorsFolderName, filename);
+                data = QcFileLoadUtils.LoadJsonFromPersistentPath(vectorsFolderName, filename);
                 Recordings.Add(filename, data);
             }
 
@@ -345,7 +345,7 @@ namespace PlaytimePainter
                     for (var index = 0; index < matMetas.Count; index++)
                     {
                         var md = matMetas[index];
-                        if (UnityUtils.SavedAsAsset(md.material)) continue;
+                        if (QcUnity.SavedAsAsset(md.material)) continue;
                         
                         matMetas.Remove(md);
                         index--;

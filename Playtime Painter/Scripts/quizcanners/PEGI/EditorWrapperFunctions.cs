@@ -85,7 +85,7 @@ namespace PlayerAndEditorGUI
 
             var pgi = o as IPEGI;
 
-            if (pgi != null && !UnityUtils.IsPrefab(go))
+            if (pgi != null && !QcUnity.IsPrefab(go))
             {
 
                 start(so);

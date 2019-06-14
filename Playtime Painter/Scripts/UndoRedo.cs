@@ -65,7 +65,7 @@ namespace PlaytimePainter
 		}
 
 		public void DestroyRtex(){
-			UnityUtils.DestroyWhatever(rt);
+			QcUnity.DestroyWhatever(rt);
 
 		}
 

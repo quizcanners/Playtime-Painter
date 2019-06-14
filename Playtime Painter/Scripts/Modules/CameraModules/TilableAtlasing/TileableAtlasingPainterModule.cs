@@ -59,7 +59,7 @@ namespace PlaytimePainter {
         }
 
         public override void Update_Brush_Parameters_For_Preview_Shader(PlaytimePainter p) =>
-            UnityUtils.ToggleShaderKeywords(!p.IsAtlased(), PainterDataAndConfig.UV_NORMAL, PainterDataAndConfig.UV_ATLASED);
+            QcUnity.ToggleShaderKeywords(!p.IsAtlased(), PainterDataAndConfig.UV_NORMAL, PainterDataAndConfig.UV_ATLASED);
         
         public bool PaintTexture2D(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter) {
             

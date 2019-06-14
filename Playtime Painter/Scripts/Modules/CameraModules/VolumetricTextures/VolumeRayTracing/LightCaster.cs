@@ -147,7 +147,7 @@ namespace PlaytimePainter
                 cameraConfiguration.nearPlane = 5;
 
 
-            if (changed) UnityUtils.RepaintViews();
+            if (changed) QcUnity.RepaintViews();
 
             return changed;
         }

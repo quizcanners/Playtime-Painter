@@ -48,7 +48,7 @@ namespace PlaytimePainter
 
             var allStrokes = new CfgEncoder().Add("strokes", recordedStrokes).ToString();
 
-            FileSaveUtils.SaveJsonToPersistentPath(Cfg.vectorsFolderName, parentMeta.saveName, allStrokes);
+            QcFileSaveUtils.SaveJsonToPersistentPath(Cfg.vectorsFolderName, parentMeta.saveName, allStrokes);
 
             Cfg.recordingNames.Add(parentMeta.saveName);
 

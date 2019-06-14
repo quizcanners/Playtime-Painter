@@ -49,7 +49,7 @@ namespace PlaytimePainter
                 _allTools = new List<MeshToolBase>();
                 allToolsWithPerMeshData = new List<IMeshToolWithPerMeshData>();
                 /* 
-                  var tps = CsharpUtils.GetAllChildTypesOf<MeshToolBase>();
+                  var tps = QcSharp.GetAllChildTypesOf<MeshToolBase>();
 
                   foreach (var t in tps)
                       _allTools.Add((MeshToolBase)Activator.CreateInstance(t));*/
