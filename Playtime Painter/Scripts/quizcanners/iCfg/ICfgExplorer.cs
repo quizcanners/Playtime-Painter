@@ -1262,20 +1262,13 @@ namespace QuizCannersUtilities
         public bool Inspect() {
 
             if (icon.Delete.Click()) {
-                json = new JsonString();
                 triedToDecodeAll = false;
+                json = new JsonString();
             }
 
             if (!triedToDecodeAll && "Decode All".Click()) {
-
                 triedToDecodeAll = true;
-
-                bool decoding = false;
-                do {
-                    decoding = json.DecodeAll(ref json);
-                } while (decoding);
-                
-                pegi.nl();
+                do {} while (json.DecodeAll(ref json));
             }
 
             return DecodeOrInspectJson(ref json, true);
