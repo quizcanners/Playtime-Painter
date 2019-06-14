@@ -349,7 +349,7 @@ namespace QuizCannersUtilities
 
             #region Inspector
 
-            public string NameForDisplayPEGI => "Avg {0}: {1}/{2}sec [{3} - {4}] ({5}) ".F(_name,
+            public string NameForDisplayPEGI()=> "Avg {0}: {1}/{2}sec [{3} - {4}] ({5}) ".F(_name,
                 ((float)_average).ToString("0.00"),
                 (Math.Abs(_intervalLength - 1d) > float.Epsilon) ? _intervalLength.ToString("0") : "", (int)_min,
                 (int)_max, (int)_totalCount);
@@ -362,7 +362,7 @@ namespace QuizCannersUtilities
 
                 //   "_name interval".edit(80, ref intervalLength);
 
-                NameForDisplayPEGI.write();
+                NameForDisplayPEGI().write();
 
 
                 return false;
@@ -386,7 +386,7 @@ namespace QuizCannersUtilities
             private int _calls;
             private readonly string message = "error";
 
-            public string NameForDisplayPEGI => message + (_disabled ? " Disabled" : " Enabled");
+            public string NameForDisplayPEGI()=> message + (_disabled ? " Disabled" : " Enabled");
 
             public ChillLogger(string msg, bool logInBuild = false)
             {

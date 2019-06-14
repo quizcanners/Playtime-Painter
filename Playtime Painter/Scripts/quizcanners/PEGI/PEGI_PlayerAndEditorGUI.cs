@@ -63,7 +63,7 @@ namespace PlayerAndEditorGUI
     public interface IGotDisplayName
     {
     #if !NO_PEGI
-        string NameForDisplayPEGI { get; }
+        string NameForDisplayPEGI();
     #endif
     }
 
@@ -77,8 +77,8 @@ namespace PlayerAndEditorGUI
     public interface IGotCount
     {
     #if !NO_PEGI
-        int CountForInspector { get; }
-    #endif
+        int CountForInspector();
+#endif
     }
 
     public interface IEditorDropdown
@@ -1289,6 +1289,8 @@ namespace PlayerAndEditorGUI
         }
 
         public static bool write_ForCopy(this string val) => edit(ref val);
+
+        public static bool write_ForCopy(this string val, int width) => edit(ref val, width);
         
         public static bool write_ForCopy(this string label, int width, string val) => edit(label, width, ref val);
 
@@ -3331,7 +3333,7 @@ namespace PlayerAndEditorGUI
 
         public static bool enter(this string txt, ref int enteredOne, int thisOne, IGotCount forAddCount) =>
             icon.Enter.enter(txt.AddCount(forAddCount), ref enteredOne, thisOne, enterLabelStyle: forAddCount.IsNullOrDestroyed_Obj() ? PEGI_Styles.EnterLabel :
-                (forAddCount.CountForInspector > 0 ? PEGI_Styles.EnterLabel : PEGI_Styles.WrappingText));
+                (forAddCount.CountForInspector() > 0 ? PEGI_Styles.EnterLabel : PEGI_Styles.WrappingText));
 
         private static bool enter_ListIcon<T>(this string txt, ref List<T> list, ref int enteredOne, int thisOne)
         {
@@ -3376,7 +3378,7 @@ namespace PlayerAndEditorGUI
         private static string TryAddCount(this string txt, object obj) {
             var c = obj as IGotCount;
             if (!c.IsNullOrDestroyed_Obj())
-                txt += " [{0}]".F(c.CountForInspector);
+                txt += " [{0}]".F(c.CountForInspector());
 
             return txt;
         }
@@ -3384,7 +3386,7 @@ namespace PlayerAndEditorGUI
         public static string AddCount(this string txt, IGotCount obj) {
             var isNull = obj.IsNullOrDestroyed_Obj();
 
-            var cnt = !isNull ? obj.CountForInspector : 0;
+            var cnt = !isNull ? obj.CountForInspector() : 0;
             return "{0} {1}".F(txt, !isNull ?
             (cnt > 0 ?
             (cnt == 1 ? "|" : "[{0}]".F(cnt))
@@ -3412,7 +3414,7 @@ namespace PlayerAndEditorGUI
                     var nm = el as IGotDisplayName;
 
                     if (nm!= null)
-                        return "{0}: {1}".F(txt, nm.NameForDisplayPEGI);
+                        return "{0}: {1}".F(txt, nm.NameForDisplayPEGI());
 
                     var n = el as IGotName;
 
@@ -6538,6 +6540,8 @@ namespace PlayerAndEditorGUI
 
                     InspectedIndex = -1;
                     
+
+
                     if (filteredCount > _listSectionStartIndex + sectionIndex)
                         InspectedIndex = filtered[_listSectionStartIndex + sectionIndex];
                     else {
@@ -6546,9 +6550,18 @@ namespace PlayerAndEditorGUI
                             //TODO: Finish this too, search by Meta
                            // var mta = listMeta.TryGetElement(sd.uncheckedElement);
 
-                            if (list[sd.uncheckedElement].SearchMatch_Obj_Internal(searchby)) {
-                                InspectedIndex = sd.uncheckedElement;
-                                sd.filteredListElements.Add(InspectedIndex);
+                            var el = list[sd.uncheckedElement];
+
+                            var na = el as INeedAttention;
+
+                            var msg = na?.NeedAttention();
+
+                            if (!sd.filterByNeedAttention || !msg.IsNullOrEmpty()) {
+                                if (el.SearchMatch_Obj_Internal(searchby))
+                                {
+                                    InspectedIndex = sd.uncheckedElement;
+                                    sd.filteredListElements.Add(InspectedIndex);
+                                }
                             }
 
                             sd.uncheckedElement++;
@@ -8701,6 +8714,9 @@ namespace PlayerAndEditorGUI
                 if (go.name.SearchMatch_Internal(text, ref matched))
                     return true;
 
+                if (go.TryGet<INeedAttention>().SearchMatch_Internal(text, ref matched))
+                    return true;
+
                 if (!indexes.IsNullOrEmpty() && go.TryGet<IGotIndex>().SearchMatch_Internal(indexes))
                     return true;
 
@@ -8713,6 +8729,9 @@ namespace PlayerAndEditorGUI
                     return true;
 
                 if (QcUnity.TryGet_fromObj<IGotDisplayName>(obj).SearchMatch_Internal(text, ref matched))
+                    return true;
+
+                if (QcUnity.TryGet_fromObj<INeedAttention>(obj).SearchMatch_Internal(text, ref matched))
                     return true;
 
                 if (obj.ToString().SearchMatch_Internal(text, ref matched))
@@ -8742,24 +8761,28 @@ namespace PlayerAndEditorGUI
 
         }
 
+        private static bool SearchMatch_Internal(this INeedAttention needAttention, string[] text, ref bool[] matched)
+            => needAttention?.NeedAttention().SearchMatch_Internal(text, ref matched) ?? false;
+        
         private static bool SearchMatch_Internal(this IGotName gotName, string[] text, ref bool[] matched)
             =>  gotName?.NameForPEGI.SearchMatch_Internal(text, ref matched) ?? false;
        
         private static bool SearchMatch_Internal(this IGotDisplayName gotDisplayName, string[] text, ref bool[] matched) =>
-             gotDisplayName?.NameForDisplayPEGI.SearchMatch_Internal(text, ref matched) ?? false;
+             gotDisplayName?.NameForDisplayPEGI().SearchMatch_Internal(text, ref matched) ?? false;
             
         private static bool SearchMatch_Internal(this string label, string[] text, ref bool[] matched)
         {
          
             var fullMatch = true;
 
-            for (var i = 0; i < text.Length; i++)
-                if (!matched[i]) {
-                    if (!text[i].IsSubstringOf(label))
-                        fullMatch = false;
-                    else
-                        matched[i] = true;
-                }
+            if (!label.IsNullOrEmpty())
+                for (var i = 0; i < text.Length; i++)
+                    if (!matched[i]) {
+                        if (!text[i].IsSubstringOf(label))
+                            fullMatch = false;
+                        else
+                            matched[i] = true;
+                    }
 
             return fullMatch;
             
@@ -8775,6 +8798,7 @@ namespace PlayerAndEditorGUI
             public IList filteredList;
             public string searchedText;
             public int uncheckedElement = 0;
+            public bool filterByNeedAttention = false;
             private string[] searchBys;
             public List<int> filteredListElements = new List<int>();
 
@@ -8793,7 +8817,14 @@ namespace PlayerAndEditorGUI
 
                 if (!active && ld!=editing_List_Order && icon.Search.Click("{0} {1}".F(icon.Search.GetText(), label.IsNullOrEmpty() ? ld.ToString() : label), 20).changes(ref changed)) 
                     active = true;
-                
+
+
+                if (active) {
+                    icon.Warning.write("Filter by warnings");
+                    if (toggle(ref filterByNeedAttention))
+                        Refresh();
+                }
+
                 if (!changed) return;
 
                 filteredList = active ? ld : null;
@@ -8807,16 +8838,23 @@ namespace PlayerAndEditorGUI
                 if (list == filteredList) {
 
                     nl();
-                    if (edit(ref searchedText) || icon.Refresh.Click("Search again", 20).nl()) {
-                        filteredListElements.Clear();
+                    if (edit(ref searchedText) || icon.Refresh.Click("Search again", 20).nl())
+                    {
+                        Refresh();
                         searchBys = searchedText.Split(splitCharacters, StringSplitOptions.RemoveEmptyEntries);
-                        uncheckedElement = 0;
+                        
                     }
 
                     searching = !searchBys.IsNullOrEmpty();
                 }
 
                 searchBy = searchBys;
+            }
+
+            public void Refresh()
+            {
+                filteredListElements.Clear();
+                uncheckedElement = 0;
             }
 
             public override CfgEncoder Encode() => new CfgEncoder().Add_String("s", searchedText);
@@ -9142,7 +9180,7 @@ namespace PlayerAndEditorGUI
 
             foreach (var e in lst)
                 if (!e.IsNullOrDestroyed_Obj())
-                    count += e.CountForInspector;
+                    count += e.CountForInspector();
 
             return count;
         }
@@ -9159,7 +9197,7 @@ namespace PlayerAndEditorGUI
             {
                 var cnt = e as IGotCount;
                 if (!cnt.IsNullOrDestroyed_Obj())
-                    count += cnt.CountForInspector;
+                    count += cnt.CountForInspector();
             }
 
             return count;
@@ -9196,7 +9234,7 @@ namespace PlayerAndEditorGUI
             var dn = obj as IGotDisplayName;
             if (dn != null)
             {
-                name = dn.NameForDisplayPEGI;
+                name = dn.NameForDisplayPEGI();
                 if (!name.IsNullOrEmpty())
                     return true;
             }

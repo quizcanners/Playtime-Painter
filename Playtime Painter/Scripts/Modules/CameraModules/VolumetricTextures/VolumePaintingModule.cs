@@ -300,7 +300,7 @@ namespace PlaytimePainter {
 
   
         #if !NO_PEGI
-        public override string NameForDisplayPEGI => "Volume Painting";
+        public override string NameForDisplayPEGI()=> "Volume Painting";
 
         public bool ComponentInspector()
         {
@@ -310,7 +310,7 @@ namespace PlaytimePainter {
             
             var inspectedProperty = InspectedPainter.GetMaterialTextureProperty;
             
-            if (inspectedProperty == null || !inspectedProperty.NameForDisplayPEGI.Contains(VolumeTextureTag)) return false;
+            if (inspectedProperty == null || !inspectedProperty.NameForDisplayPEGI().Contains(VolumeTextureTag)) return false;
 
             if (inspectedProperty.IsGlobalVolume()) {
                 "Global Volume Expected".nl();
@@ -545,7 +545,7 @@ namespace PlaytimePainter {
 
                     var mp = v.MaterialPropertyNameGlobal;
 
-                    if (mp.NameForDisplayPEGI.Equals(tg))
+                    if (mp.NameForDisplayPEGI().Equals(tg))
                     {
 
                         dest.Add(mp);
@@ -604,7 +604,7 @@ namespace PlaytimePainter {
 
         public static bool IsGlobalVolume(this ShaderProperty.TextureValue field) {
             
-            string name = field.NameForDisplayPEGI;
+            string name = field.NameForDisplayPEGI();
             if (name.Contains(PainterDataAndConfig.GlobalPropertyPrefix) &&
                 name.Contains(VolumePaintingModule.VolumeTextureTag))
                 return true;

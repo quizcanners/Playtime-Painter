@@ -169,7 +169,7 @@ namespace PlaytimePainter
         public byte channelsHas;
         public int myIndex;
 
-        public abstract string NameForDisplayPEGI { get; }
+        public abstract string NameForDisplayPEGI();
 
         public virtual void Set(Vector3[] dta)
         {
@@ -220,7 +220,7 @@ namespace PlaytimePainter
         public byte channelsNeed;
         public int myIndex;
 
-        public abstract string NameForDisplayPEGI { get; }
+        public abstract string NameForDisplayPEGI();
 
         public virtual string GetFieldName(int ind)
         {
@@ -589,7 +589,7 @@ namespace PlaytimePainter
                 
             }
 
-            public override string NameForDisplayPEGI => "position";
+            public override string NameForDisplayPEGI()=> "position";
             
             public override void SetDefaults(VertexDataLink to)
             {
@@ -642,7 +642,7 @@ namespace PlaytimePainter
                 }
             }
 
-            public override string NameForDisplayPEGI => "UV" + MyUvChanel().ToString();
+            public override string NameForDisplayPEGI()=> "UV" + MyUvChanel().ToString();
             
             public override void SetDefaults(VertexDataLink to)
             {
@@ -684,7 +684,7 @@ namespace PlaytimePainter
                 CurMeshDta.mesh.tangents = dta;
             }
 
-             public override string NameForDisplayPEGI => "tangent";
+             public override string NameForDisplayPEGI()=> "tangent";
             
             public override void SetDefaults(VertexDataLink to)
             {
@@ -705,7 +705,7 @@ namespace PlaytimePainter
 
             public override void Set(Vector3[] dta) =>  CurMeshDta.mesh.normals = dta;
             
-            public override string NameForDisplayPEGI => "normal";
+            public override string NameForDisplayPEGI()=> "normal";
             
             public override void SetDefaults(VertexDataLink to)
             {
@@ -733,7 +733,7 @@ namespace PlaytimePainter
                 CurMeshDta.mesh.colors = cols;
             }
 
-            public override string NameForDisplayPEGI => "color";
+            public override string NameForDisplayPEGI()=> "color";
             
             public override string GetFieldName(int ind)
             {
@@ -796,7 +796,7 @@ namespace PlaytimePainter
             public override Vector3[] GetV3(VertexDataDestination trg) => _vertices;
             
 
-            public override string NameForDisplayPEGI => "position";
+            public override string NameForDisplayPEGI()=> "position";
             
             public VertexPos(int index) : base(dataSize, index)
             {
@@ -836,7 +836,7 @@ namespace PlaytimePainter
                 v2s = null;
             }
 
-            public override string NameForDisplayPEGI => "uv" + _myUvIndex.ToString();
+            public override string NameForDisplayPEGI()=> "uv" + _myUvIndex.ToString();
 
             public VertexUv(int index) : base(dataSize, index)
             {
@@ -881,7 +881,7 @@ namespace PlaytimePainter
 
             public override void Clear() => v4s = null;
             
-            public override string NameForDisplayPEGI => "tangent";
+            public override string NameForDisplayPEGI()=> "tangent";
             
             public VertexTangent(int index) : base(dataSize, index)
             {
@@ -918,7 +918,7 @@ namespace PlaytimePainter
 
             public override void Clear() => v3norms = null;
             
-            public override string NameForDisplayPEGI => "normal";
+            public override string NameForDisplayPEGI()=> "normal";
             
             public VertexNormal(int index) : base(dataSize, index)
             {
@@ -953,7 +953,7 @@ namespace PlaytimePainter
             
             public override void Clear() => v3norms = null;
             
-            public override string NameForDisplayPEGI => "SharpNormal";
+            public override string NameForDisplayPEGI()=> "SharpNormal";
             
             public VertexSharpNormal(int index) : base(dataSize, index)
             {
@@ -991,7 +991,7 @@ namespace PlaytimePainter
                 return _chanelMedium;
             }
 
-            public override string NameForDisplayPEGI => "Color";
+            public override string NameForDisplayPEGI()=> "Color";
             
             public override string GetFieldName(int ind)
             {
@@ -1038,7 +1038,7 @@ namespace PlaytimePainter
             
             public override string GetFieldName(int ind) => "index";
             
-            public override string NameForDisplayPEGI => "vertexIndex";
+            public override string NameForDisplayPEGI()=> "vertexIndex";
             
             public VertexIndex(int index) : base(dataSize, index)
             {
@@ -1074,7 +1074,7 @@ namespace PlaytimePainter
 
             public override string GetFieldName(int ind) => "light " + ind;
             
-            public override string NameForDisplayPEGI => "shadow";
+            public override string NameForDisplayPEGI()=> "shadow";
             
             public VertexShadow(int index) : base(dataSize, index)
             {
@@ -1117,7 +1117,7 @@ namespace PlaytimePainter
 
             public override string GetFieldName(int ind) => "tex " + ind;
             
-            public override string NameForDisplayPEGI => "Atlas Texture";
+            public override string NameForDisplayPEGI()=> "Atlas Texture";
             
             public VertexAtlasTextures(int index) : base(dataSize, index)
             {
@@ -1138,7 +1138,7 @@ namespace PlaytimePainter
             
             public override string GetFieldName(int ind) => "null";
             
-            public override string NameForDisplayPEGI => "null";
+            public override string NameForDisplayPEGI()=> "null";
             
             public VertexNull(int index) : base(dataSize, index)
             {
@@ -1175,7 +1175,7 @@ namespace PlaytimePainter
                 return _chanelMedium;
             }
 
-            public override string NameForDisplayPEGI => "Edge";
+            public override string NameForDisplayPEGI()=> "Edge";
             
             public override string GetFieldName(int ind)
             {
@@ -1221,7 +1221,7 @@ namespace PlaytimePainter
                 return _chanelMedium;
             }
 
-            public override string NameForDisplayPEGI => "Edge * weight";
+            public override string NameForDisplayPEGI()=> "Edge * weight";
             
             public override string GetFieldName(int ind)
             {
@@ -1271,7 +1271,7 @@ namespace PlaytimePainter
                 return _chanelMedium;
             }
 
-            public override string NameForDisplayPEGI => "LineNormal_0";
+            public override string NameForDisplayPEGI()=> "LineNormal_0";
             
 
             public override string GetFieldName(int ind)
@@ -1322,7 +1322,7 @@ namespace PlaytimePainter
                 return _chanelMedium;
             }
 
-            public override string NameForDisplayPEGI => "LineNormal_1";
+            public override string NameForDisplayPEGI()=> "LineNormal_1";
             
 
             public override string GetFieldName(int ind)
@@ -1370,7 +1370,7 @@ namespace PlaytimePainter
                 return _chanelMedium;
             }
 
-            public override string NameForDisplayPEGI => "LineNormal_2";
+            public override string NameForDisplayPEGI()=> "LineNormal_2";
             
 
             public override string GetFieldName(int ind)

@@ -96,7 +96,7 @@ namespace PlaytimePainter {
         #endregion
 
         #region Inspector
-        public override string NameForDisplayPEGI => "Bleed & Brightness";
+        public override string NameForDisplayPEGI()=> "Bleed & Brightness";
 
 
         #if !NO_PEGI

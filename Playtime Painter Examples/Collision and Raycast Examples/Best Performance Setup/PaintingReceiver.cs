@@ -227,7 +227,7 @@ namespace PlaytimePainter.Examples {
                 var lst = Material.MyGetTextureProperties();
 
                 if ("   Property".select(80, ref _textureProperty, lst).nl())
-                    TexturePropertyName = _textureProperty.NameForDisplayPEGI;
+                    TexturePropertyName = _textureProperty.NameForDisplayPEGI();
             }
             
             if (gameObject.isStatic && !originalMesh) {                

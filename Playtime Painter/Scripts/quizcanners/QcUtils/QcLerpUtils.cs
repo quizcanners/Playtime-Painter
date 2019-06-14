@@ -50,7 +50,7 @@ namespace QuizCannersUtilities
 
         #if !NO_PEGI
 
-        public int CountForInspector => _resets;
+        public int CountForInspector() => _resets;
         
         public bool Inspect()
         {
@@ -121,7 +121,7 @@ namespace QuizCannersUtilities
             protected bool allowChangeParameters = true;
 
             protected abstract string Name_Internal { get; }
-            public virtual string NameForDisplayPEGI => Name_Internal;
+            public virtual string NameForDisplayPEGI()=> Name_Internal;
 
             #region Encode & Decode
 
@@ -1363,7 +1363,7 @@ namespace QuizCannersUtilities
                 }
             }
 
-            protected override string Name_Internal => _property != null ? _property.NameForDisplayPEGI : "Material Float";
+            protected override string Name_Internal => _property != null ? _property.NameForDisplayPEGI(): "Material Float";
 
             public float targetValue;
 
@@ -1449,7 +1449,7 @@ namespace QuizCannersUtilities
         {
             private readonly ShaderProperty.ColorValue _property;
 
-            protected override string Name_Internal => _property != null ? _property.NameForDisplayPEGI : "Material Float";
+            protected override string Name_Internal => _property != null ? _property.NameForDisplayPEGI(): "Material Float";
             
             public Color Value
             {
@@ -1988,11 +1988,11 @@ namespace QuizCannersUtilities
 #if !NO_PEGI
         public static void Inspect()
         {
-            "Image projection position".write_ForCopy(ImageProjectionPosition.NameForDisplayPEGI); pegi.nl();
+            "Image projection position".write_ForCopy(ImageProjectionPosition.NameForDisplayPEGI()); pegi.nl();
 
-            "Next Texture".write_ForCopy(NextTexture.NameForDisplayPEGI); pegi.nl();
+            "Next Texture".write_ForCopy(NextTexture.NameForDisplayPEGI()); pegi.nl();
 
-            "Transition portion".write_ForCopy(TransitionPortion.NameForDisplayPEGI); pegi.nl();
+            "Transition portion".write_ForCopy(TransitionPortion.NameForDisplayPEGI()); pegi.nl();
         }
 #endif
     }

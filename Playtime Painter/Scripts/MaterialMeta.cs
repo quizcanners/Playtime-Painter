@@ -53,7 +53,7 @@ namespace PlaytimePainter {
 
         public MaterialMeta()  {   }
 
-        public string NameForDisplayPEGI => material == null ? "Error" : material.name;
+        public string NameForDisplayPEGI()=> material == null ? "Error" : material.name;
 
         #region Inspector
         #if !NO_PEGI

@@ -726,7 +726,7 @@ namespace PlaytimePainter {
             if (id == null)
             {
                 id = new ImageMeta().Init(texture);
-                id.useTexCoord2 = field.NameForDisplayPEGI.Contains(PainterDataAndConfig.isUV2DisaplyNameTag);
+                id.useTexCoord2 = field.NameForDisplayPEGI().Contains(PainterDataAndConfig.isUV2DisaplyNameTag);
             }
 
             SetTextureOnMaterial(texture);
@@ -950,7 +950,7 @@ namespace PlaytimePainter {
                 var tmp = Material.MyGetTextureProperties();
 
                 foreach (var t in tmp)
-                    if ((!t.NameForDisplayPEGI.Contains("_Splat")) && (!t.NameForDisplayPEGI.Contains("_Normal")))
+                    if ((!t.NameForDisplayPEGI().Contains("_Splat")) && (!t.NameForDisplayPEGI().Contains("_Normal")))
                         MatDta.materialsTextureFields.Add(t);
                 
             }

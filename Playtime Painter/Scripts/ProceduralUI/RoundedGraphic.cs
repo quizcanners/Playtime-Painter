@@ -296,13 +296,13 @@ namespace PlaytimePainter
                     gotPixPerfTag = !pixPfTag.IsNullOrEmpty();
 
                     if (!gotPixPerfTag)
-                        "{0} doesn't have {1} tag".F(shad.name, ShaderTags.PixelPerfectUi.NameForDisplayPEGI).writeWarning();
+                        "{0} doesn't have {1} tag".F(shad.name, ShaderTags.PixelPerfectUi.NameForDisplayPEGI()).writeWarning();
                     else  {
 
-                        expectedScreenPosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.Position.NameForDisplayPEGI);
+                        expectedScreenPosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.Position.NameForDisplayPEGI());
 
                         if (!expectedScreenPosition)
-                        expectedAtlasedPosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.AtlasedPosition.NameForDisplayPEGI);
+                        expectedAtlasedPosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.AtlasedPosition.NameForDisplayPEGI());
 
                         if (!can)
                             "No Canvas".writeWarning();
@@ -523,7 +523,7 @@ namespace PlaytimePainter
 
                 var noTag = spriteTag.IsNullOrEmpty();
 
-                if (noTag || !spriteTag.SameAs(ShaderTags.SpriteRoles.Hide.NameForDisplayPEGI)) {
+                if (noTag || !spriteTag.SameAs(ShaderTags.SpriteRoles.Hide.NameForDisplayPEGI())) {
 
                     if (noTag)
                         spriteTag = "Sprite";
@@ -903,7 +903,7 @@ namespace PlaytimePainter
             #region Inspect
             #if !NO_PEGI
 
-            public virtual string NameForDisplayPEGI => ClassTag;
+            public virtual string NameForDisplayPEGI()=> ClassTag;
             
             public override bool Inspect()
             {

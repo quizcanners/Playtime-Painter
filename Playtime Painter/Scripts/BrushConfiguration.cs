@@ -268,7 +268,7 @@ namespace PlaytimePainter {
             if (pegi.select(ref blitMode, global::PlaytimePainter.BlitMode.AllModes).changes(ref changed)) 
                 SetBlitMode(cpu, blitMode);
 
-            if (DocsEnabled && blitMode != null && pegi.DocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI)))
+            if (DocsEnabled && blitMode != null && pegi.DocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI())))
                 pegi.FullWindwDocumentationOpen(blitMode.ToolTip);
 
             if (showAdvanced)
@@ -286,7 +286,7 @@ namespace PlaytimePainter {
                 MsgPainter.BrushType.Write();
                 pegi.select_Index(ref _inGpuBrushType, BrushType.AllTypes).changes(ref changed);
                 
-                if (DocsEnabled && brushType != null && pegi.DocumentationClick("About {0} brush type".F(brushType.NameForDisplayPEGI)))
+                if (DocsEnabled && brushType != null && pegi.DocumentationClick("About {0} brush type".F(brushType.NameForDisplayPEGI())))
                     pegi.FullWindwDocumentationOpen(brushType.ToolTip);
 
                 if (!brushType.ShowInDropdown())

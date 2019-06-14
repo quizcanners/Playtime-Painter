@@ -88,9 +88,9 @@ namespace PlaytimePainter
         
         #region Inspect
 
-        public virtual string NameForDisplayPEGI => Translation.GetText();
+        public virtual string NameForDisplayPEGI()=> Translation.GetText();
 
-        public virtual string ToolTip => Translation.GetDescription(); //NameForDisplayPEGI + " (No Tooltip)";
+        public virtual string ToolTip => Translation.GetDescription(); //NameForDisplayPEGI()+ " (No Tooltip)";
 
         protected virtual MsgPainter Translation => MsgPainter.Unnamed;
 
@@ -606,7 +606,7 @@ namespace PlaytimePainter
             return changed;
         }
 
-        public string NameForDisplayPEGI => "{0} ({1})".F(decalName, type);
+        public string NameForDisplayPEGI()=> "{0} ({1})".F(decalName, type);
 
 #endif
         #endregion

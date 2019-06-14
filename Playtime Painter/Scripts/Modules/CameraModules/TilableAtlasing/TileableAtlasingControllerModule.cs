@@ -176,7 +176,7 @@ namespace PlaytimePainter
     public class TriangleAtlasTool : MeshToolBase
     {
 
-        public override string NameForDisplayPEGI => "triangle Atlas Textures"; 
+        public override string NameForDisplayPEGI()=> "triangle Atlas Textures"; 
 
         public override bool ShowLines=> false;
 

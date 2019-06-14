@@ -4,7 +4,7 @@ using QuizCannersUtilities;
 namespace PlaytimePainter
 {
     public class VertexShadowTool : MeshToolBase {
-        public override string NameForDisplayPEGI => "vertex Shadow";
+        public override string NameForDisplayPEGI()=> "vertex Shadow";
 
         public override bool MouseEventPointedVertex() {
            

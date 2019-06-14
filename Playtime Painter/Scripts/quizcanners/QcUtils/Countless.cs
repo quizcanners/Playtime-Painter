@@ -143,7 +143,7 @@ namespace QuizCannersUtilities {
 
         #region Inspector
 
-        public int CountForInspector => count;
+        public int CountForInspector() => count;
 
         public virtual bool IsDefault => count == 0;
 

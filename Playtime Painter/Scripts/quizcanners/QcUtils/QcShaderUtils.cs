@@ -62,7 +62,7 @@ namespace QuizCannersUtilities {
             }
 
             #region Inspector
-            public string NameForDisplayPEGI => _name;
+            public string NameForDisplayPEGI()=> _name;
 
             #if !NO_PEGI
             public bool InspectInList(IList list, int ind, ref int edited)
@@ -464,13 +464,13 @@ namespace QuizCannersUtilities {
     public class ShaderTag : IGotDisplayName
     {
         public readonly string tag;
-        public string NameForDisplayPEGI => tag;
+        public string NameForDisplayPEGI()=> tag;
         public bool Has(Material mat) => mat.HasTag(tag);
         public string Get(Material mat, bool searchFallBacks = false, string defaultValue = "") => mat.GetTag(tag, searchFallBacks, defaultValue);
 
         public string Get(Material mat, ShaderProperty.BaseShaderPropertyIndex property,
             bool searchFallBacks = false) =>
-            Get(mat, property.NameForDisplayPEGI, searchFallBacks);
+            Get(mat, property.NameForDisplayPEGI(), searchFallBacks);
 
         public string Get(Material mat, string prefix, bool searchFallBacks = false) =>
             mat.GetTag(prefix + tag, searchFallBacks);
@@ -503,7 +503,7 @@ namespace QuizCannersUtilities {
     public class ShaderTagValue : IGotDisplayName
     {
         public ShaderTag tag;
-        public string NameForDisplayPEGI => value;
+        public string NameForDisplayPEGI()=> value;
         public readonly string value;
 
         public bool Has(Material mat, bool searchFallBacks = false) =>
@@ -590,7 +590,7 @@ namespace PlayerAndEditorGUI {
             var val = mat.Get(property);
 
             if (name.IsNullOrEmpty())
-                name = property.NameForDisplayPEGI;
+                name = property.NameForDisplayPEGI();
 
             if (name.edit(name.Length * pegi.letterSizeInPixels, ref val))
             {
@@ -606,7 +606,7 @@ namespace PlayerAndEditorGUI {
             var val = mat.Get(property);
 
             if (name.IsNullOrEmpty())
-                name = property.NameForDisplayPEGI;
+                name = property.NameForDisplayPEGI();
 
             if (name.edit(name.Length * pegi.letterSizeInPixels, ref val, min, max))
             {
@@ -622,7 +622,7 @@ namespace PlayerAndEditorGUI {
             var val = mat.Get(property);
 
             if (name.IsNullOrEmpty())
-                name = property.NameForDisplayPEGI;
+                name = property.NameForDisplayPEGI();
 
             if (name.edit(name.Length * pegi.letterSizeInPixels, ref val))
             {
@@ -638,7 +638,7 @@ namespace PlayerAndEditorGUI {
             var val = mat.Get(property);
 
             if (name.IsNullOrEmpty())
-                name = property.NameForDisplayPEGI;
+                name = property.NameForDisplayPEGI();
 
             if (name.edit(ref val))
             {
@@ -654,7 +654,7 @@ namespace PlayerAndEditorGUI {
             var val = mat.Get(property);
 
             if (name.IsNullOrEmpty())
-                name = property.NameForDisplayPEGI;
+                name = property.NameForDisplayPEGI();
 
             if (name.edit(name.Length * pegi.letterSizeInPixels, ref val))
             {

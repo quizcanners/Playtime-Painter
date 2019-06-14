@@ -111,7 +111,7 @@ namespace PlaytimePainter {
 
         protected virtual MsgPainter Translation => MsgPainter.Unnamed;
 
-        public virtual string NameForDisplayPEGI => Translation.GetText();
+        public virtual string NameForDisplayPEGI()=> Translation.GetText();
 
         public virtual string ToolTip => Translation.GetDescription();
 

@@ -359,7 +359,7 @@ namespace PlaytimePainter {
                     var contains = false;
 
                     foreach (var p in texProperties)
-                        if (p.NameForDisplayPEGI.Equals(originalTextures[f.originField].NameForDisplayPEGI))
+                        if (p.NameForDisplayPEGI().Equals(originalTextures[f.originField].NameForDisplayPEGI()))
                         {
                             contains = true;
                             break;
@@ -524,7 +524,7 @@ namespace PlaytimePainter {
                 {
                     var ac = new FieldAtlas();
                     _fields.Add(ac);
-                    ac.atlasedField = t.NameForDisplayPEGI;
+                    ac.atlasedField = t.NameForDisplayPEGI();
                 }
 
 #if !NO_PEGI
@@ -546,7 +546,7 @@ namespace PlaytimePainter {
                     var orTexts = originalMaterial.MyGetTextureProperties();
                     foreach (var f in _fields)
                         for (var i = 0; i < orTexts.Count; i++)
-                            if (orTexts[i].NameForDisplayPEGI.SameAs(f.atlasedField))
+                            if (orTexts[i].NameForDisplayPEGI().SameAs(f.atlasedField))
                                 f.originField = i;
 
 
@@ -1046,7 +1046,7 @@ namespace PlaytimePainter {
 
         public static bool IsAtlased(this Material mat, string property) => mat.IsAtlased() && property.Contains(PainterDataAndConfig.isAtlasableDisaplyNameTag);
         
-        public static bool IsAtlased(this Material mat, ShaderProperty.TextureValue property) => mat.IsAtlased() && property.NameForDisplayPEGI.Contains(PainterDataAndConfig.isAtlasableDisaplyNameTag);
+        public static bool IsAtlased(this Material mat, ShaderProperty.TextureValue property) => mat.IsAtlased() && property.NameForDisplayPEGI().Contains(PainterDataAndConfig.isAtlasableDisaplyNameTag);
 
         
         public static bool IsAtlased(this Material mat) => mat && mat.shaderKeywords.Contains(PainterDataAndConfig.UV_ATLASED);

@@ -101,7 +101,7 @@ namespace QuizCannersUtilities {
 
             #region Inspector
 #if !NO_PEGI
-            public int CountForInspector => elements.Count == 0 ? 1 : elements.CountForInspector();
+            public int CountForInspector() => elements.Count == 0 ? 1 : elements.CountForInspector();
             
             int _inspected = -1;
             public bool Inspect() => "{0} Sub Tags".F(tag).edit_List(ref elements, ref _inspected);
@@ -116,7 +116,7 @@ namespace QuizCannersUtilities {
                     changed |= pegi.edit(ref data);
                 else
                 {
-                    "+[{0}]".F(CountForInspector).write(50);
+                    "+[{0}]".F(CountForInspector()).write(50);
                     if (icon.Enter.Click())
                         edited = ind;
                 }

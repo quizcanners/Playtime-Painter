@@ -50,7 +50,7 @@ namespace PlaytimePainter
         #endregion
 
         #region Inspect
-        public override string NameForDisplayPEGI => "vertex UV";
+        public override string NameForDisplayPEGI()=> "vertex UV";
 
         public override string Tooltip =>"When Starting UV Projection, entire mesh will show a preview. UVs still need to be applied manually by painting them. " +
                                          "Alternativelly it is possible to use Auto Apply Treshold to map to all using Normal Treshold. " +

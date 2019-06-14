@@ -23,7 +23,7 @@ namespace PlaytimePainter
             _inst = this;
         }
 
-        public override string NameForDisplayPEGI => "Combined Maps [{0}]".F(_textureSets.Count);
+        public override string NameForDisplayPEGI()=> "Combined Maps [{0}]".F(_textureSets.Count);
 
         #region Encode & Decode
         public override CfgEncoder Encode() => this.EncodeUnrecognized()
@@ -521,7 +521,7 @@ namespace PlaytimePainter
         protected virtual List<string> GetChannels => Chennels;
         protected virtual Color DefaultColor => IsColor ? Color.white : Color.grey;
 
-        public abstract string NameForDisplayPEGI { get; }
+        public abstract string NameForDisplayPEGI();
         static readonly List<string> Chennels = new List<string> { "R", "G", "B", "A" };
 
         protected void ExtractPixels(Texture2D tex, int width, int height)
@@ -633,7 +633,7 @@ namespace PlaytimePainter
     public class TextureRoleResult : TextureRole
     {
         private static TextureRoleResult _inst;
-        public override string NameForDisplayPEGI => "Result";
+        public override string NameForDisplayPEGI()=> "Result";
 
         public TextureRoleResult(int index) : base(index)
         {
@@ -661,7 +661,7 @@ namespace PlaytimePainter
 
         public override bool UsingColorSelector => true;
 
-        public override string NameForDisplayPEGI => "Fill Color";
+        public override string NameForDisplayPEGI()=> "Fill Color";
 
         public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
         {
@@ -690,7 +690,7 @@ namespace PlaytimePainter
     {
         protected override bool IsColor => true;
 
-        public override string NameForDisplayPEGI => "Color";
+        public override string NameForDisplayPEGI()=> "Color";
 
         public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id) {
             if (pixels == null)
@@ -707,7 +707,7 @@ namespace PlaytimePainter
     public class TextureRole_Gloss : TextureRole
     {
 
-        public override string NameForDisplayPEGI => "Gloss";
+        public override string NameForDisplayPEGI()=> "Gloss";
 
         public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
         {
@@ -801,7 +801,7 @@ namespace PlaytimePainter
     public class TextureRoleReflectivity : TextureRole
     {
 
-        public override string NameForDisplayPEGI => "Reflectivity";
+        public override string NameForDisplayPEGI()=> "Reflectivity";
 
         public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
         {
@@ -820,7 +820,7 @@ namespace PlaytimePainter
     public class TextureRoleAmbient : TextureRole
     {
 
-        public override string NameForDisplayPEGI => "Ambient";
+        public override string NameForDisplayPEGI()=> "Ambient";
 
         public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
         {
@@ -838,7 +838,7 @@ namespace PlaytimePainter
 
     public class TextureRoleHeight : TextureRole
     {
-        public override string NameForDisplayPEGI => "Height";
+        public override string NameForDisplayPEGI()=> "Height";
         public override bool UsingBumpStrengthSlider(int channel) { return channel < 2; }
 
         protected override List<string> GetChannels => Channels;
@@ -909,7 +909,7 @@ namespace PlaytimePainter
 
     public class TextureRole_Normal : TextureRole
     {
-        public override string NameForDisplayPEGI => "Normal";
+        public override string NameForDisplayPEGI()=> "Normal";
 
         public override bool UsingBumpStrengthSlider(int channel) => true; 
 

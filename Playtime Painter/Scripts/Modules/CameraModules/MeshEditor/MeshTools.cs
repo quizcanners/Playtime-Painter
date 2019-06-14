@@ -139,7 +139,7 @@ namespace PlaytimePainter
         #region Inspector
         public virtual string Tooltip => "No toolTip";
 
-        public virtual string NameForDisplayPEGI => " No Name ";
+        public virtual string NameForDisplayPEGI()=> " No Name ";
 
         public virtual bool Inspect() => false;
         #endregion
@@ -206,7 +206,7 @@ namespace PlaytimePainter
                     "M - merge with nearest while dragging {0}" +
                     "This tool also contains functionality related to smoothing and sharpening of the edges.").F(Environment.NewLine);*/
 
-        public override string NameForDisplayPEGI => MsgPainter.MeshPointPositionTool.GetText(); // "ADD & MOVE";
+        public override string NameForDisplayPEGI()=> MsgPainter.MeshPointPositionTool.GetText(); // "ADD & MOVE";
 
         #if !NO_PEGI
         public override bool Inspect()
@@ -559,7 +559,7 @@ namespace PlaytimePainter
 
         #region Inspector
 
-        public override string NameForDisplayPEGI => "Dominant Faces";
+        public override string NameForDisplayPEGI()=> "Dominant Faces";
 
         public override string Tooltip {
 
@@ -766,7 +766,7 @@ namespace PlaytimePainter
         #region Inspector
         public override string Tooltip => "Click to set vertex as smooth/sharp" + Environment.NewLine;
 
-        public override string NameForDisplayPEGI => "Vertex Smoothing";
+        public override string NameForDisplayPEGI()=> "Vertex Smoothing";
 
 #if !NO_PEGI
         public override bool Inspect()
@@ -953,7 +953,7 @@ namespace PlaytimePainter
                                           "2. Only if shader outputs vertex color, changes will be visible. " +
                                           "1234 on Line - apply RGBA for Border.").F(pegi.EnvironmentNl);
 
-        public override string NameForDisplayPEGI => "vertex Color";
+        public override string NameForDisplayPEGI()=> "vertex Color";
 
         #if !NO_PEGI
         public override bool Inspect()
@@ -1128,7 +1128,7 @@ namespace PlaytimePainter
 
         #region Inspector
         
-        public override string NameForDisplayPEGI => "vertex Edge";
+        public override string NameForDisplayPEGI()=> "vertex Edge";
         
         public override string Tooltip =>
              "Shift - invert edge value" + Environment.NewLine +
@@ -1323,7 +1323,7 @@ namespace PlaytimePainter
         #region Inspector
 
         public override string Tooltip => "Ctrl+LMB - sample" + Environment.NewLine + "LMB on triangle - set sub mesh";
-        public override string NameForDisplayPEGI => "triangle Sub Mesh index";
+        public override string NameForDisplayPEGI()=> "triangle Sub Mesh index";
         
         #if !NO_PEGI
 
@@ -1373,6 +1373,6 @@ namespace PlaytimePainter
 
         public override string StdTag => "t_vrtGr";
 
-        public override string NameForDisplayPEGI => "Vertex Group";
+        public override string NameForDisplayPEGI()=> "Vertex Group";
     }
 }

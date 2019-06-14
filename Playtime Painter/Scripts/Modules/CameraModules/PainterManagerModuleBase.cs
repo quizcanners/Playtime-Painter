@@ -137,7 +137,7 @@ namespace PlaytimePainter {
         public override bool Decode(string tg, string data) => false;
         #endregion
 
-        public virtual string NameForDisplayPEGI => ToString().SimplifyTypeName();
+        public virtual string NameForDisplayPEGI()=> ToString().SimplifyTypeName();
         
         public virtual void Update() { }
 
@@ -151,7 +151,7 @@ namespace PlaytimePainter {
 
         public virtual bool InspectInList(IList list, int ind, ref int edited) {
 
-            if (NameForDisplayPEGI.ClickLabel())
+            if (NameForDisplayPEGI().ClickLabel())
                 edited = ind;
 
             ToolTip.fullWindowDocumentationClickOpen();

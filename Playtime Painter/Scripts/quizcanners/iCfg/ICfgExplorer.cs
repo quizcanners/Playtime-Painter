@@ -491,7 +491,7 @@ namespace QuizCannersUtilities
 #region Inspector
 #if !NO_PEGI
 
-        public int CountForInspector => _tags.IsNullOrEmpty() ? data.Length : _tags.CountForInspector();
+        public int CountForInspector() => _tags.IsNullOrEmpty() ? data.Length : _tags.CountForInspector();
         
         public string NameForPEGI  {
             get  {  return tag; }
@@ -543,7 +543,7 @@ namespace QuizCannersUtilities
 
             bool changed = false;
 
-            CountForInspector.ToString().write(50);
+            CountForInspector().ToString().write(50);
 
             if (data != null && data.Contains("|"))
             {
@@ -614,7 +614,7 @@ namespace QuizCannersUtilities
         #if !NO_PEGI
         public static StdExplorerData Mgmt => StdExplorerData.inspected;
 
-        public int CountForInspector => dataExplorer.CountForInspector;
+        public int CountForInspector() => dataExplorer.CountForInspector();
 
         public bool Inspect()
         {
@@ -660,7 +660,7 @@ namespace QuizCannersUtilities
         {
             var changed = false;
 
-            CountForInspector.ToString().edit(60, ref dataExplorer.tag).changes(ref changed);
+            CountForInspector().ToString().edit(60, ref dataExplorer.tag).changes(ref changed);
 
             if (Cfg != null)
             {
@@ -693,7 +693,7 @@ namespace QuizCannersUtilities
         
         [NonSerialized] private int inspectedState = -1;
 
-        public int CountForInspector => states.Count;
+        public int CountForInspector() => states.Count;
         
         public static bool PEGI_Static(ICfg target)
         {
@@ -776,7 +776,10 @@ namespace QuizCannersUtilities
 
     #region JsonExplorer
 
-    public class EncodedJsonInspector : AbstractCfg, IPEGI {
+    public class EncodedJsonInspector : AbstractCfg, IPEGI
+    {
+
+        protected string jsonDestination = "";
 
         protected JsonBase json;
 
@@ -786,10 +789,12 @@ namespace QuizCannersUtilities
 
             if (str != null) {
                 var tmp = str.TryDecodeString();
-                if (tmp != null) {
+                if (tmp != null)
+                {
                     j = tmp as JsonBase;
                     return true;
                 }
+                else str.dataOnly = true;
             }
 
             return false;
@@ -851,9 +856,9 @@ namespace QuizCannersUtilities
                 }
             }
 
-            public override int CountForInspector => data.Length;
+            public override int CountForInspector() => data.Length;
 
-            public string NameForDisplayPEGI => data.IsNullOrEmpty() ? "Empty" : data.FirstLine(); 
+            public string NameForDisplayPEGI()=> data.IsNullOrEmpty() ? "Empty" : data.FirstLine(); 
 
             public JsonString() { }
 
@@ -867,7 +872,10 @@ namespace QuizCannersUtilities
                     pegi.edit(ref data).changes(ref changed);
                 else 
                     pegi.editBig(ref data).changes(ref changed);
-                
+
+                if (changed)
+                    dataOnly = false;
+
                 return changed;
             }
             
@@ -883,6 +891,7 @@ namespace QuizCannersUtilities
                         thisJson = tmp as JsonBase;
                         return true;
                     }
+                    else dataOnly = true;
                 }
 
                 return false;
@@ -1076,7 +1085,7 @@ namespace QuizCannersUtilities
 
             public bool foldedOut = false;
 
-            public override int CountForInspector => 1;
+            public override int CountForInspector() => 1;
 
             public override bool DecodeAll(ref JsonBase thisJson) => data.DecodeAll(ref data);
 
@@ -1089,7 +1098,7 @@ namespace QuizCannersUtilities
 
                 var changed = false;
 
-                if (data.CountForInspector > 0) {
+                if (data.CountForInspector() > 0) {
                     
                     if (data.HasNestedData)
                         (name + " " + data.GetNameForInspector()).foldout(ref foldedOut);
@@ -1109,12 +1118,11 @@ namespace QuizCannersUtilities
         protected class JsonList : JsonBase, IGotDisplayName {
 
             public List<JsonBase> values;
+            readonly Countless<bool> foldedOut = new Countless<bool>();
 
-            Countless<bool> foldedOut = new Countless<bool>();
+            public override int CountForInspector() => values.Count;
 
-            public override int CountForInspector => values.Count;
-
-            public string NameForDisplayPEGI => "[{0}]".F(values.Count);
+            public string NameForDisplayPEGI()=> "[{0}]".F(values.Count);
 
             public override bool Inspect() {
 
@@ -1180,10 +1188,10 @@ namespace QuizCannersUtilities
         {
             public List<JsonProperty> properties;
 
-            public string NameForDisplayPEGI => JsonProperty.inspected == null ? "  " : 
-                (JsonProperty.inspected.foldedOut ? "{" : (" {" + CountForInspector.ToString() + "} ")); 
+            public string NameForDisplayPEGI()=> JsonProperty.inspected == null ? "  " : 
+                (JsonProperty.inspected.foldedOut ? "{" : (" {" + CountForInspector().ToString() + "} ")); 
 
-            public override int CountForInspector => properties.Count;
+            public override int CountForInspector() => properties.Count;
 
             public override bool Inspect()
             {
@@ -1231,7 +1239,7 @@ namespace QuizCannersUtilities
 
             public virtual JsonString AsJsonString => null;
 
-            public abstract int CountForInspector { get;  }
+            public abstract int CountForInspector();
 
             public abstract bool DecodeAll(ref JsonBase thisJson);
 
@@ -1264,12 +1272,41 @@ namespace QuizCannersUtilities
             if (icon.Delete.Click()) {
                 triedToDecodeAll = false;
                 json = new JsonString();
+                jsonDestination = "";
             }
 
-            if (!triedToDecodeAll && "Decode All".Click()) {
+            if (!triedToDecodeAll && "Decode All".Click())
+            {
+                
+
+
+                var str = json.AsJsonString;
+
+                if (str != null) {
+
+                    str.dataOnly = false;
+
+                    var sb = new StringBuilder();
+
+                    int index = 0;
+
+                    while (index < str.data.Length && str.data[index] != '{') {
+                        sb.Append(str.data[index]);
+                        index++;
+                    }
+
+                    jsonDestination = sb.ToString();
+
+                    str.data = str.data.Substring(index);
+                }
+                
                 triedToDecodeAll = true;
+
                 do {} while (json.DecodeAll(ref json));
             }
+
+            if (jsonDestination.Length>5)
+                jsonDestination.write();
 
             return DecodeOrInspectJson(ref json, true);
         }

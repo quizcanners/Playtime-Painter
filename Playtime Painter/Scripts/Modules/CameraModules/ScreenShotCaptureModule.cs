@@ -18,7 +18,7 @@ namespace PlaytimePainter
 
         #if !NO_PEGI
 
-        public override string NameForDisplayPEGI => "HD Screen Shots";
+        public override string NameForDisplayPEGI()=> "HD Screen Shots";
 
         public override bool Inspect()
         {
