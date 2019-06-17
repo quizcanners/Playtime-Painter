@@ -36,7 +36,8 @@ namespace PlaytimePainter
             return _quad;
         }
 
-        #region Lazy Brush {
+        #region Lazy Brush
+
         public enum SectionType { Head, Tail, Center }
 
         private const int SegmentsCount = 4;

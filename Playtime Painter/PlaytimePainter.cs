@@ -59,7 +59,7 @@ namespace PlaytimePainter {
 
         private static BrushConfig GlobalBrush => Cfg.brushConfig;
 
-        public BrushType GlobalBrushType => GlobalBrush.GetBrushType(ImgMeta.TargetIsTexture2D());
+        public BrushTypes.Base GlobalBrushType => GlobalBrush.GetBrushType(ImgMeta.TargetIsTexture2D());
 
         private bool NeedsGrid => this.NeedsGrid();
         
@@ -1518,6 +1518,14 @@ namespace PlaytimePainter {
             }
         }
 
+        public void TrySetOriginalTexture() {
+
+            var id = GetTextureOnMaterial().GetImgDataIfExists();
+
+            if (id != null && id.CurrentTexture().IsBigRenderTexturePair())
+                UpdateOrSetTexTarget(TexTarget.Texture2D);
+
+        }
 
         private void OnDisable()
         {
@@ -1527,14 +1535,9 @@ namespace PlaytimePainter {
             CheckSetOriginalShader();
             
             initialized = false; // Should be before restoring to texture2D to avoid Clear to black.
-            
-            if (Application.isPlaying) {
 
-                var id = GetTextureOnMaterial().GetImgDataIfExists();
-
-                if (id != null && id.CurrentTexture().IsBigRenderTexturePair())
-                    UpdateOrSetTexTarget(TexTarget.Texture2D);
-            }
+            if (Application.isPlaying)
+                TrySetOriginalTexture();
             
             this.SaveStdData();
             
@@ -1712,7 +1715,11 @@ namespace PlaytimePainter {
 
                 MsgPainter.PleaseSelect.GetText().writeHint();
 
+                TrySetOriginalTexture();
+
                 SetOriginalShaderOnThis();
+
+                
 
                 return false;
             }

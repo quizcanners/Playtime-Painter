@@ -4,11 +4,14 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
+
 namespace PlaytimePainter.Examples
 {
 
     public class PaintWithoutComponent : MonoBehaviour, IPEGI
     {
+
+        #pragma warning disable IDE0018 // Inline variable declaration
 
         public BrushConfig brush = new BrushConfig();
         public int shoots = 1;
@@ -80,16 +83,16 @@ namespace PlaytimePainter.Examples
                         switch (receiver.type) {
 
                             case PaintingReceiver.RendererType.Skinned when receiver.skinnedMeshRenderer:
-                                BrushTypeSphere.Paint(rendTex, receiver.gameObject, receiver.skinnedMeshRenderer, brush, st, subMesh);
+                                BrushTypes.Sphere.Paint(rendTex, receiver.gameObject, receiver.skinnedMeshRenderer, brush, st, subMesh);
                                 break;
                             case PaintingReceiver.RendererType.Regular when receiver.meshFilter:
                             {
                                 var mat = receiver.Material;
                                 if (mat && mat.IsAtlased())
-                                    BrushTypeSphere.PaintAtlased (rendTex, receiver.gameObject,
+                                    BrushTypes.Sphere.PaintAtlased (rendTex, receiver.gameObject,
                                         receiver.originalMesh ? receiver.originalMesh : receiver.meshFilter.sharedMesh, brush, st, new List<int> { subMesh }, (int)mat.GetFloat(PainterDataAndConfig.ATLASED_TEXTURES));
                                 else
-                                    BrushTypeSphere.Paint(rendTex, receiver.gameObject,
+                                    BrushTypes.Sphere.Paint(rendTex, receiver.gameObject,
                                         receiver.originalMesh ? receiver.originalMesh : 
                                             receiver.meshFilter.sharedMesh, brush, st, 
                                         new List<int> { subMesh } );
@@ -186,11 +189,11 @@ namespace PlaytimePainter.Examples
 
                 if ("Switch to Render Texture".Click())
                     brush.targetIsTex2D = false;
-            } else if (brush.GetBrushType(false).GetType() != typeof(BrushTypeSphere))
+            } else if (brush.GetBrushType(false).GetType() != typeof(BrushTypes.Sphere))
             {
                 "This script works with Sphere Brush only".writeWarning();
                 if ("Switch to Sphere Brush".Click())
-                    brush.SetBrushType(false, BrushTypeSphere.Inst);
+                    brush.SetBrushType(false, BrushTypes.Sphere.Inst);
             }
             
 

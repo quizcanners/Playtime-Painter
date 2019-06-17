@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using QuizCannersUtilities;
 
+
 namespace PlaytimePainter {
 
 #pragma warning disable IDE0034 // Simplify 'default' expression
@@ -110,7 +111,7 @@ namespace PlaytimePainter {
         {
             half = (bc.Size(false)) / 2;
 
-            var smooth = bc.GetBrushType(true) != BrushTypePixel.Inst;
+            var smooth = bc.GetBrushType(true) != BrushTypes.Pixel.Inst;
 
             if (smooth)
                 alphaMode = CircleAlpha;
@@ -160,7 +161,7 @@ namespace PlaytimePainter {
 
             var tmp = image.UvToPixelNumber(uvCoords, out offset);
 
-            var smooth = bc.GetBrushType(true) != BrushTypePixel.Inst;
+            var smooth = bc.GetBrushType(true) != BrushTypes.Pixel.Inst;
             if (smooth) {
                 iHalf += 1;
                 offset = Vector2.zero;
@@ -195,9 +196,7 @@ namespace PlaytimePainter {
             }
             
         }
-
-
-
+        
         #region Processors
 
         public static Color ColorToAlpha(Color pix, Color colBG) {
@@ -260,7 +259,6 @@ namespace PlaytimePainter {
         }
 
         #endregion
-
-
+        
     }
 }

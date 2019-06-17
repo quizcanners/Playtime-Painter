@@ -374,12 +374,16 @@ namespace PlayerAndEditorGUI {
 
             if ("Useful Links".enter(ref inspectingSection, 3).nl()) {
                 " Something I often use when writing shaders. ".writeBig();
-
+                
                 if ("Simple circle shader template".Click(15).nl())
                     Application.OpenURL("https://gist.github.com/quizcanners/b90d2644d7b990d0574307218478383a");
 
-                if ("Vert-frag cheat-sheet".Click(15).nl())
+                if ("Shader Cheat-Sheet".Click(15).nl())
                     Application.OpenURL("https://gist.github.com/quizcanners/0da1cbad4b1e2187af73f6ab52a6dabb");
+
+                if ("Shader commands".Click(15).nl())
+                    Application.OpenURL("https://gist.github.com/quizcanners/6bc0b06172977c1a324e81e626079fb2");
+
 
             }
 

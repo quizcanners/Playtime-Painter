@@ -1375,11 +1375,14 @@ namespace PlayerAndEditorGUI
             return (edd == null || edd.ShowInDropdown()) ? obj : default(T); 
         }
 
-        private static string _compileName<T>(bool showIndex, int index, T obj, bool stripSlashes = false)
-        {
+        private static string CompileSelectionName<T>(int index, T obj, bool showIndex,  bool stripSlashes = false, bool dotsToSlashes = true) {
             var st = obj.GetNameForInspector();
+            
             if (stripSlashes)
                 st = st.SimplifyDirectory();
+
+            if (dotsToSlashes)
+                st = st.Replace('.', '/');
 
             return (showIndex || st.Length == 0) ? "{0}: {1}".F(index, st) : st;
         }
@@ -1432,7 +1435,7 @@ namespace PlayerAndEditorGUI
             return false;
         }
         
-#region Select From Int List
+        #region Select From Int List
 
         public static bool selectPow2(this string label, ref int current, int min, int max) =>
             label.selectPow2(label, label.ApproximateLength(), ref current, min, max);
@@ -1529,7 +1532,7 @@ namespace PlayerAndEditorGUI
             return select(ref ind, arr, showIndex);
         }
 
-        public static bool select(ref int val, int[] arr, bool showIndex = false) {
+        public static bool select(ref int val, int[] arr, bool showIndex = false, bool stripSlashes = false, bool dotsToSlashes = true) {
 
             checkLine();
 
@@ -1543,7 +1546,7 @@ namespace PlayerAndEditorGUI
                     var el = arr[i];
                     if (el == val)
                         tmp = i;
-                    lnms.Add(_compileName(showIndex, i, el));
+                    lnms.Add(CompileSelectionName(i, el, showIndex, stripSlashes, dotsToSlashes ));
                 }
             
             if (selectFinal(val, ref tmp, lnms))  {
@@ -1836,7 +1839,7 @@ namespace PlayerAndEditorGUI
             return select(ref value, lst, showIndex);
         }
 
-        public static bool select<T>(ref T val, T[] lst, bool showIndex = false)
+        public static bool select<T>(ref T val, T[] lst, bool showIndex = false, bool stripSlashes = false, bool dotsToSlashes = true)
         {
             checkLine();
 
@@ -1853,7 +1856,7 @@ namespace PlayerAndEditorGUI
                 if (!val.IsDefaultOrNull() && val.Equals(tmp))
                     current = namesList.Count;
 
-                namesList.Add(_compileName(showIndex, j, tmp)); //showIndex ? "{0}: {1}".F(j, tmp.GetNameForInspector()) : tmp.GetNameForInspector());
+                namesList.Add(CompileSelectionName(j, tmp, showIndex, stripSlashes, dotsToSlashes)); 
                 indexList.Add(j);
             }
 
@@ -1867,7 +1870,7 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool select<T>(ref T val, List<T> lst, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true)
+        public static bool select<T>(ref T val, List<T> lst, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true )
         {
             var changed = false;
 
@@ -1894,7 +1897,7 @@ namespace PlayerAndEditorGUI
                         notInTheList = false;
                     }
 
-                    names.Add(_compileName(showIndex, i, tmp, stripSlashes));
+                    names.Add(CompileSelectionName(i, tmp, showIndex, stripSlashes));
                     indexes.Add(i);
                 }
 
@@ -1943,7 +1946,7 @@ namespace PlayerAndEditorGUI
                     notInTheList = false;
                 }
 
-                namesList.Add(_compileName(showIndex, j, tmp)); //"{0}: {1}".F(j, tmp.GetNameForInspector()));
+                namesList.Add(CompileSelectionName(j, tmp, showIndex));
                 indexList.Add(j);
             }
 
@@ -2009,7 +2012,7 @@ namespace PlayerAndEditorGUI
 #endif
                 select_Index(ref ind, lst);
         
-        public static bool select_Index<T>(ref int ind, List<T> lst, bool showIndex = false)
+        public static bool select_Index<T>(ref int ind, List<T> lst, bool showIndex = false, bool stripSlashes = false, bool dotsToSlashes = true)
         {
 
             checkLine();
@@ -2024,7 +2027,7 @@ namespace PlayerAndEditorGUI
                 {
                     if (ind == j)
                         current = indexes.Count;
-                    namesList.Add(_compileName(showIndex, j, lst[j])); //lst[j].GetNameForInspector());
+                    namesList.Add(CompileSelectionName(j, lst[j], showIndex, stripSlashes, dotsToSlashes)); 
                     indexes.Add(j);
                 }
 
@@ -2038,7 +2041,7 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool select_Index<T>(ref int ind, T[] arr, bool showIndex = false)
+        public static bool select_Index<T>(ref int ind, T[] arr, bool showIndex = false, bool stripSlashes = false, bool dotsToSlashes = true)
         {
 
             checkLine();
@@ -2048,7 +2051,7 @@ namespace PlayerAndEditorGUI
             if (arr.ClampIndexToLength(ref ind))
             {
                 for (var i = 0; i < arr.Length; i++)
-                    lnms.Add(_compileName(showIndex, i, arr[i]));
+                    lnms.Add(CompileSelectionName(i, arr[i], showIndex, stripSlashes, dotsToSlashes));
             }
 
             return selectFinal(ind, ref ind, lnms);
@@ -2094,7 +2097,7 @@ namespace PlayerAndEditorGUI
             return select(ref val, list, lambda, showIndex);
         }
         
-        public static bool select<T>(ref int val, List<T> lst, Func<T, bool> lambda, bool showIndex = false)
+        public static bool select<T>(ref int val, List<T> lst, Func<T, bool> lambda, bool showIndex = false, bool stripSlashes = false, bool dotsToSlashes = true)
         {
 
             checkLine();
@@ -2112,7 +2115,7 @@ namespace PlayerAndEditorGUI
 
                 if (val == j)
                     current = names.Count;
-                names.Add(_compileName(showIndex, j, tmp));//showIndex ? "{0}: {1}".F(j, tmp.GetNameForInspector()) : tmp.GetNameForInspector());
+                names.Add(CompileSelectionName(j, tmp, showIndex, stripSlashes, dotsToSlashes));
                 indexes.Add(j);
             }
 
@@ -2126,7 +2129,7 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static bool select_IGotIndex<T>(ref int val, List<T> lst, Func<T, bool> lambda, bool showIndex = false) where T : IGotIndex
+        public static bool select_IGotIndex<T>(ref int val, List<T> lst, Func<T, bool> lambda, bool showIndex = false, bool stripSlashes = false, bool dotsToSlashes = true) where T : IGotIndex
         {
 
             checkLine();
@@ -2145,7 +2148,7 @@ namespace PlayerAndEditorGUI
 
                 if (val == ind)
                     current = names.Count;
-                names.Add(_compileName(showIndex, ind, tmp));//showIndex ? "{0}: {1}".F(ind, tmp.GetNameForInspector()) : tmp.GetNameForInspector());
+                names.Add(CompileSelectionName(ind, tmp, showIndex, stripSlashes, dotsToSlashes));
                 indexes.Add(ind);
 
             }
@@ -2159,7 +2162,7 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static bool select<T>(ref T val, List<T> lst, Func<T, bool> lambda, bool showIndex = false)
+        public static bool select<T>(ref T val, List<T> lst, Func<T, bool> lambda, bool showIndex = false, bool stripSlashes = false, bool dotsToSlashes = true)
         {
             var changed = false;
             
@@ -2178,7 +2181,7 @@ namespace PlayerAndEditorGUI
                 if (current == -1 && tmp.Equals(val))
                     current = namesList.Count;
 
-                namesList.Add(_compileName(showIndex, j, tmp));
+                namesList.Add(CompileSelectionName(j, tmp, showIndex, stripSlashes, dotsToSlashes));
                 indexList.Add(j);
             }
 
@@ -2447,7 +2450,7 @@ namespace PlayerAndEditorGUI
 
 #region Select Type
 
-        public static bool select(ref Type val, List<Type> lst, string textForCurrent, bool showIndex = false)
+        public static bool select(ref Type val, List<Type> lst, string textForCurrent, bool showIndex = false, bool stripSlashes = false, bool dotsToSlashes = true)
         {
             checkLine();
 
@@ -2463,7 +2466,7 @@ namespace PlayerAndEditorGUI
 
                 if ((!val.IsDefaultOrNull()) && tmp == val)
                     current = names.Count;
-                names.Add(_compileName(showIndex, j, tmp));
+                names.Add(CompileSelectionName(j, tmp, showIndex, stripSlashes, dotsToSlashes));
                 indexes.Add(j);
 
             }
@@ -6182,28 +6185,28 @@ namespace PlayerAndEditorGUI
 
         private const int UpDownWidth = 120;
         private const int UpDownHeight = 30;
-        private static int _sectionSizeOptimal;
-        private static int _listSectionMax;
+       // private static int _sectionSizeOptimal;
+        //private static int _listSectionMax;
+        private static int _lastElementToShow;
         private static int _listSectionStartIndex;
         private static readonly CountlessInt ListSectionOptimal = new CountlessInt();
-        private static void SetOptimalSectionFor(int count)
+        private static int GetOptimalSectionFor(int count)
         {
+            int _sectionSizeOptimal;
+
             const int listShowMax = 10;
 
-            if (count < listShowMax) {
-                _sectionSizeOptimal = listShowMax;
-                return;
-            }
+            if (count < listShowMax) 
+                return listShowMax;
+            
             
             if (count > listShowMax * 3)
-            {
-                _sectionSizeOptimal = listShowMax;
-                return;
-            }
-
+                return listShowMax;
+            
             _sectionSizeOptimal = ListSectionOptimal[count];
 
-            if (_sectionSizeOptimal != 0) return;
+            if (_sectionSizeOptimal != 0)
+                return _sectionSizeOptimal;
             
             var bestdifference = 999;
 
@@ -6223,7 +6226,8 @@ namespace PlayerAndEditorGUI
 
 
             ListSectionOptimal[count] = _sectionSizeOptimal;
-        
+
+            return _sectionSizeOptimal;
 
         }
 
@@ -6448,77 +6452,75 @@ namespace PlayerAndEditorGUI
         private static IEnumerable<int> InspectionIndexes<T>(this List<T> list, ListMetaData listMeta = null) {
             
             var sd = listMeta == null? searchData : listMeta.searchData;
-            
-#region Inspect Start
 
+            #region Inspect Start
+
+            var changed = false;
             bool searching;
             string[] searchby;
             sd.SearchString(list, out searching, out searchby);
-  
-            _listSectionStartIndex = 0;
 
-            _listSectionMax = list.Count;
+            int _listSectionStartIndex = 0;
 
-            SetOptimalSectionFor(_listSectionMax);
+            if (listMeta != null)
+                _listSectionStartIndex = listMeta.listSectionStartIndex;
+            else if (!ListInspectionIndexes.TryGetValue(list, out _listSectionStartIndex))
+                ListInspectionIndexes.Add(list, 0);
+            
+            var listCount = list.Count;
 
-            if (_listSectionMax >= _sectionSizeOptimal * 2) {
+            _lastElementToShow = listCount;
 
-                if (listMeta != null)
-                    _listSectionStartIndex = listMeta.listSectionStartIndex;
-                else if (!ListInspectionIndexes.TryGetValue(list, out _listSectionStartIndex))
-                    ListInspectionIndexes.Add(list, 0);
+            var _sectionSizeOptimal = GetOptimalSectionFor(listCount);
 
-                if (_listSectionMax > _sectionSizeOptimal)
-                {
-                    var changed = false;
-
-                    while (_listSectionStartIndex > 0 && _listSectionStartIndex >= _listSectionMax) {
-                        changed = true;
+            if (listCount >= _sectionSizeOptimal * 2) {
+                
+                if (listCount > _sectionSizeOptimal) {
+                 
+                    while ((_listSectionStartIndex > 0 && _listSectionStartIndex >= listCount).changes(ref changed)) 
                         _listSectionStartIndex = Mathf.Max(0, _listSectionStartIndex - _sectionSizeOptimal);
-                    }
+                    
 
                     nl();
-                    if (_listSectionStartIndex > 0)
-                    {
-                        if (icon.Up.ClickUnFocus("To previous elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed))
-                        {
+                    if (_listSectionStartIndex > 0) {
+                        
+                        if (_listSectionStartIndex > _sectionSizeOptimal && icon.UpLast.ClickUnFocus("To First element").changes(ref changed))
+                            _listSectionStartIndex = 0;
+
+                        if (icon.Up.ClickUnFocus("To previous elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed)) {
                             _listSectionStartIndex = Mathf.Max(0, _listSectionStartIndex - _sectionSizeOptimal+1);
                             if (_listSectionStartIndex == 1)
                                 _listSectionStartIndex = 0;
                         }
+ 
                     }
                     else
                         icon.UpLast.write("Is the first section of the list.", UpDownWidth, UpDownHeight);
+
+                    
                     nl();
 
-                    if (changed)
-                    {
-                        if (listMeta != null)
-                            listMeta.listSectionStartIndex = _listSectionStartIndex;
-                        else 
-                            ListInspectionIndexes[list] = _listSectionStartIndex;
-                    }
+                  
                 }
                 else line(Color.gray);
 
 
-                _listSectionMax = Mathf.Min(_listSectionMax, _listSectionStartIndex + _sectionSizeOptimal);
+                _lastElementToShow = Mathf.Min(listCount, _listSectionStartIndex + _sectionSizeOptimal);
             }
             else if (list.Count > 0)
                 line(Color.gray);
 
             nl();
 
-#endregion
+            #endregion
 
-            var cnt = list.Count;
-            
-            var filteredCount = cnt;
+
+            var filteredCount = listCount;
 
             if (!searching)
             {
 
-                for (InspectedIndex = _listSectionStartIndex; InspectedIndex < _listSectionMax; InspectedIndex++)
+                for (InspectedIndex = _listSectionStartIndex; InspectedIndex < _lastElementToShow; InspectedIndex++)
                 {
                    
                     SetListElementReadabilityBackground(InspectedIndex);
@@ -6536,19 +6538,15 @@ namespace PlayerAndEditorGUI
 
                 var filtered = sd.filteredListElements;
 
-                while (sd.uncheckedElement <= cnt && sectionIndex < _listSectionMax) {
+                while (sd.uncheckedElement <= listCount && sectionIndex < _lastElementToShow) {
 
                     InspectedIndex = -1;
                     
-
-
                     if (filteredCount > _listSectionStartIndex + sectionIndex)
                         InspectedIndex = filtered[_listSectionStartIndex + sectionIndex];
                     else {
-                        while (sd.uncheckedElement < cnt && InspectedIndex == -1)
+                        while (sd.uncheckedElement < listCount && InspectedIndex == -1)
                         {
-                            //TODO: Finish this too, search by Meta
-                           // var mta = listMeta.TryGetElement(sd.uncheckedElement);
 
                             var el = list[sd.uncheckedElement];
 
@@ -6557,11 +6555,13 @@ namespace PlayerAndEditorGUI
                             var msg = na?.NeedAttention();
 
                             if (!sd.filterByNeedAttention || !msg.IsNullOrEmpty()) {
+
                                 if (el.SearchMatch_Obj_Internal(searchby))
                                 {
                                     InspectedIndex = sd.uncheckedElement;
                                     sd.filteredListElements.Add(InspectedIndex);
                                 }
+
                             }
 
                             sd.uncheckedElement++;
@@ -6585,26 +6585,36 @@ namespace PlayerAndEditorGUI
             }
 
 
-            if (_listSectionStartIndex > 0 || filteredCount > _listSectionMax)
+            if (_listSectionStartIndex > 0 || filteredCount > _lastElementToShow)
             {
 
                 nl();
-                if (cnt > _listSectionMax)
+                if (listCount > _lastElementToShow)
                 {
-                    if (icon.Down.ClickUnFocus("To next elements of the list. ", UpDownWidth, UpDownHeight)) {
+                    if (icon.Down.ClickUnFocus("To next elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed)) 
                         _listSectionStartIndex += _sectionSizeOptimal-1;
-                        ListInspectionIndexes[list] = _listSectionStartIndex;
-                    }
+                    
+
+                    if (icon.DownLast.ClickUnFocus("To Last element").changes(ref changed))
+                        _listSectionStartIndex = listCount - _sectionSizeOptimal;
+                    
                 }
                 else if (_listSectionStartIndex > 0)
                     icon.DownLast.write("Is the last section of the list. ", UpDownWidth, UpDownHeight);
 
             }
-            else if (list.Count > 0)
+            else if (listCount > 0)
                 line(Color.gray);
+            
 
-            if (listMeta != null)
-                listMeta.listSectionStartIndex = _listSectionStartIndex;
+            if (changed)
+            {
+                if (listMeta != null)
+                    listMeta.listSectionStartIndex = _listSectionStartIndex;
+                else
+                    ListInspectionIndexes[list] = _listSectionStartIndex;
+            }
+
         }
 
         private static void SetListElementReadabilityBackground(int index)
@@ -6922,7 +6932,7 @@ namespace PlayerAndEditorGUI
                             {
                                 list.RemoveAt(InspectedIndex);
                                 InspectedIndex--;
-                                _listSectionMax--;
+                                _lastElementToShow--;
                             }
                         }
                     }
@@ -8772,17 +8782,19 @@ namespace PlayerAndEditorGUI
             
         private static bool SearchMatch_Internal(this string label, string[] text, ref bool[] matched)
         {
-         
-            var fullMatch = true;
 
-            if (!label.IsNullOrEmpty())
-                for (var i = 0; i < text.Length; i++)
-                    if (!matched[i]) {
-                        if (!text[i].IsSubstringOf(label))
-                            fullMatch = false;
-                        else
-                            matched[i] = true;
-                    }
+            if (label.IsNullOrEmpty())
+                return false;
+
+            var fullMatch = true;
+            
+            for (var i = 0; i < text.Length; i++)
+                if (!matched[i]) {
+                    if (!text[i].IsSubstringOf(label))
+                        fullMatch = false;
+                    else
+                        matched[i] = true;
+                }
 
             return fullMatch;
             
@@ -8845,7 +8857,7 @@ namespace PlayerAndEditorGUI
                         
                     }
 
-                    searching = !searchBys.IsNullOrEmpty();
+                    searching = filterByNeedAttention || !searchBys.IsNullOrEmpty();
                 }
 
                 searchBy = searchBys;
@@ -8874,8 +8886,10 @@ namespace PlayerAndEditorGUI
 
         }
 
-#endregion
+        #endregion
 
+
+        #region Inspect Extensions
         public static bool Nested_Inspect(InspectionDelegate function)
         {
             var changed = false;
@@ -8995,9 +9009,9 @@ namespace PlayerAndEditorGUI
             return changes;
         }
 
-#if UNITY_EDITOR
+        #if UNITY_EDITOR
         private static readonly Dictionary<Type, Editor> defaultEditors = new Dictionary<Type, Editor>();
-#endif
+        #endif
 
         private static bool TryDefaultInspect(Object uObj) {
 
@@ -9213,9 +9227,11 @@ namespace PlayerAndEditorGUI
 
         private static bool IsDefaultOrNull<T>(this T obj) => (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
 
+        #endregion
 
-        #endif
+#endif
 
+        #region Inspect Utils
         public static T GetByIGotIndex<T>(this List<T> lst, int index) where T : IGotIndex
         {
 #if !NO_PEGI
@@ -9369,6 +9385,7 @@ namespace PlayerAndEditorGUI
 #endif
         }
 
+        #endregion
 
     }
 

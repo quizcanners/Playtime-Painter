@@ -10,223 +10,251 @@ namespace PlaytimePainter
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 
+    public class PaintingUndoRedo
+    {
 
-    public class TextureBackup {
-        public int order;
-        // Will replace with Dictionary of Encodings 
-        public List<string> strokeRecord;
+        public class TextureBackup
+        {
+            public int order;
 
-        protected void SetB(ImageMeta from, int globalOrder) {
-            order = globalOrder;
-          
-            foreach (var module in from.Modules)
-                module.OnTextureBackup(this);
-            
+            // Will replace with Dictionary of Encodings 
+            public List<string> strokeRecord;
+
+            protected void SetB(ImageMeta from, int globalOrder)
+            {
+                order = globalOrder;
+
+                foreach (var module in from.Modules)
+                    module.OnTextureBackup(this);
+
+            }
         }
-    }
 
-    public class Texture2DBackup : TextureBackup {
-		public Color[] pixels;
+        public class Texture2DBackup : TextureBackup
+        {
+            public Color[] pixels;
 
-        public void Set(Color[] texturePixels,ImageMeta from, int globalOrder){
-
-            SetB(from,globalOrder);
-			pixels = texturePixels;
-		}
-
-        public Texture2DBackup (Color[] texturePixels, ImageMeta from, int globalOrder){
-            Set (texturePixels, from, globalOrder);
-		}
-
-	}
-
-    public class RenderTextureBackup : TextureBackup {
-		public RenderTexture rt;
-        public bool exclusive;
-
-		public void Set (ImageMeta from, int globalOrder){
-
-            RenderTextureBuffersManager.Blit(from.CurrentRenderTexture(), rt);
-
-            SetB(from, globalOrder);
-
-            exclusive = from.renderTexture != null;
-		}
-
-        public RenderTextureBackup (ImageMeta from, int globalOrder){
-			RenderTexture frt = from.CurrentRenderTexture ();
-
-            rt = new RenderTexture(from.width, from.height, 0, RenderTextureFormat.ARGB32,
-                frt.sRGB ? RenderTextureReadWrite.sRGB : RenderTextureReadWrite.Linear)
+            public void Set(Color[] texturePixels, ImageMeta from, int globalOrder)
             {
-                filterMode = frt.filterMode
-            };
-            Set (from, globalOrder);
-		}
 
-		public void DestroyRtex(){
-			QcUnity.DestroyWhatever(rt);
+                SetB(from, globalOrder);
+                pixels = texturePixels;
+            }
 
-		}
-
-	}
-
-	
-	public class BackupsLineup {
-		private static PainterCamera Rtp => PainterCamera.Inst;
-		public readonly bool isUndo;
-		private int _order;
-
-		public readonly List<Texture2DBackup> tex2D = new List<Texture2DBackup>();
-		public readonly List<RenderTextureBackup> rTex = new List<RenderTextureBackup>();	
-
-		public BackupsLineup otherDirection;
-
-		public string currentStep = "";
-
-		public bool GotData => (tex2D.Count > 0) || (rTex.Count>0);
-		
-		public void Clear(){
-			foreach (var r in rTex)
-				r.DestroyRtex ();
-		
-			tex2D.Clear ();
-			rTex.Clear ();
-		}
-
-		private void ClearRenderTexturesTill(int maxTextures){
-			var toClear = rTex.Count - maxTextures;
-
-			for (var i = 0; i < toClear; i++)
-				rTex [i].DestroyRtex ();
-
-			rTex.SetMaximumLength (maxTextures);
-		}
-
-		public void ApplyTo (ImageMeta id) {
-
-			var fromRt = (tex2D.Count == 0) || ((rTex.Count > 0) && (tex2D [tex2D.Count - 1].order < rTex [rTex.Count - 1].order));
-
-			var toRt = id.destination == TexTarget.RenderTexture;
-            
-            if (toRt) 
-                otherDirection.BackupRenderTexture(int.MaxValue, id);
-             else 
-                otherDirection.BackupTexture2D(int.MaxValue, id);
-            
-            var rtBackup = fromRt ? TakeRenderTexture () : null;
-            var pixBackup = fromRt ? null : TakeTexture2D ();
-            var backup = fromRt ? rtBackup : (TextureBackup)pixBackup;
-
-            if (isUndo)
+            public Texture2DBackup(Color[] texturePixels, ImageMeta from, int globalOrder)
             {
-                foreach (var module in id.Modules)
-                    module.OnUndo(backup);
-            } else
-                foreach (var module in id.Modules)
-                    module.OnRedo(backup);
+                Set(texturePixels, from, globalOrder);
+            }
 
-			if (!fromRt) {
-                id.Pixels = pixBackup.pixels;
-				id.SetAndApply();
-			}
+        }
 
-			if (toRt) {
-				if (fromRt) 
-					Rtp.Render (rtBackup.rt, id);
-				else 
-					Rtp.Render (id.texture2D, id);
-				
-			} else if (fromRt) {
-					id.texture2D.CopyFrom (rtBackup.rt);
-                    id.PixelsFromTexture2D (id.texture2D);
+        public class RenderTextureBackup : TextureBackup
+        {
+            public RenderTexture rt;
+            public bool exclusive;
 
-                var converted = false;
+            public void Set(ImageMeta from, int globalOrder)
+            {
 
-                if ((PainterCamera.Inst.isLinearColorSpace) && !rtBackup.exclusive) {
-                    converted = true;
-                    id.PixelsToGamma();
+                RenderTextureBuffersManager.Blit(from.CurrentRenderTexture(), rt);
+
+                SetB(from, globalOrder);
+
+                exclusive = from.renderTexture != null;
+            }
+
+            public RenderTextureBackup(ImageMeta from, int globalOrder)
+            {
+                RenderTexture frt = from.CurrentRenderTexture();
+
+                rt = new RenderTexture(from.width, from.height, 0, RenderTextureFormat.ARGB32,
+                    frt.sRGB ? RenderTextureReadWrite.sRGB : RenderTextureReadWrite.Linear)
+                {
+                    filterMode = frt.filterMode
+                };
+                Set(from, globalOrder);
+            }
+
+            public void DestroyRtex()
+            {
+                QcUnity.DestroyWhatever(rt);
+
+            }
+
+        }
+
+        public class BackupsLineup
+        {
+            private static PainterCamera Rtp => PainterCamera.Inst;
+            public readonly bool isUndo;
+            private int _order;
+
+            public readonly List<Texture2DBackup> tex2D = new List<Texture2DBackup>();
+            public readonly List<RenderTextureBackup> rTex = new List<RenderTextureBackup>();
+
+            public BackupsLineup otherDirection;
+
+            public string currentStep = "";
+
+            public bool GotData => (tex2D.Count > 0) || (rTex.Count > 0);
+
+            public void Clear()
+            {
+                foreach (var r in rTex)
+                    r.DestroyRtex();
+
+                tex2D.Clear();
+                rTex.Clear();
+            }
+
+            private void ClearRenderTexturesTill(int maxTextures)
+            {
+                var toClear = rTex.Count - maxTextures;
+
+                for (var i = 0; i < toClear; i++)
+                    rTex[i].DestroyRtex();
+
+                rTex.SetMaximumLength(maxTextures);
+            }
+
+            public void ApplyTo(ImageMeta id)
+            {
+
+                var fromRt = (tex2D.Count == 0) ||
+                             ((rTex.Count > 0) && (tex2D[tex2D.Count - 1].order < rTex[rTex.Count - 1].order));
+
+                var toRt = id.destination == TexTarget.RenderTexture;
+
+                if (toRt)
+                    otherDirection.BackupRenderTexture(int.MaxValue, id);
+                else
+                    otherDirection.BackupTexture2D(int.MaxValue, id);
+
+                var rtBackup = fromRt ? TakeRenderTexture() : null;
+                var pixBackup = fromRt ? null : TakeTexture2D();
+                var backup = fromRt ? rtBackup : (TextureBackup) pixBackup;
+
+                if (isUndo)
+                {
+                    foreach (var module in id.Modules)
+                        module.OnUndo(backup);
+                }
+                else
+                    foreach (var module in id.Modules)
+                        module.OnRedo(backup);
+
+                if (!fromRt)
+                {
+                    id.Pixels = pixBackup.pixels;
+                    id.SetAndApply();
                 }
 
-                if (converted)
-                    id.SetAndApply();
+                if (toRt)
+                {
+                    if (fromRt)
+                        Rtp.Render(rtBackup.rt, id);
+                    else
+                        Rtp.Render(id.texture2D, id);
+
+                }
+                else if (fromRt)
+                {
+                    id.texture2D.CopyFrom(rtBackup.rt);
+                    id.PixelsFromTexture2D(id.texture2D);
+
+                    var converted = false;
+
+                    if ((PainterCamera.Inst.isLinearColorSpace) && !rtBackup.exclusive)
+                    {
+                        converted = true;
+                        id.PixelsToGamma();
+                    }
+
+                    if (converted)
+                        id.SetAndApply();
+                    else
+                        id.texture2D.Apply(true);
+                }
+
+                if (fromRt)
+                    rtBackup.DestroyRtex();
+
+            }
+
+            private Texture2DBackup TakeTexture2D()
+            {
+                var index = tex2D.Count - 1;
+                var pixels = tex2D[index];
+                tex2D.RemoveAt(index);
+                return pixels;
+            }
+
+            private RenderTextureBackup TakeRenderTexture()
+            {
+                var index = rTex.Count - 1;
+                var rt = rTex[index];
+                rTex.RemoveAt(index);
+                return rt;
+            }
+
+            public void BackupTexture2D(int maxTextures, ImageMeta id)
+            {
+
+                tex2D.SetMaximumLength(maxTextures);
+
+                if (maxTextures <= 0) return;
+
+                var copyPix = (Color[]) id.Pixels.Clone();
+
+                if (tex2D.Count < maxTextures)
+                    tex2D.Add(new Texture2DBackup(copyPix, id, _order));
                 else
-                    id.texture2D.Apply(true);
-            } 
+                    tex2D.MoveFirstToLast().Set(copyPix, id, _order);
 
-			if (fromRt)
-				rtBackup.DestroyRtex ();
 
-		}
 
-		private Texture2DBackup TakeTexture2D (){
-			var index = tex2D.Count - 1;
-			var pixels = tex2D [index];
-			tex2D.RemoveAt (index);
-			return pixels;
-		}
+                _order++;
 
-		private RenderTextureBackup TakeRenderTexture (){
-			var index = rTex.Count - 1;
-			var rt = rTex [index];
-			rTex.RemoveAt (index);
-			return rt;
-		}
+            }
 
-        public void BackupTexture2D (int maxTextures, ImageMeta id){
+            public void BackupRenderTexture(int maxTextures, ImageMeta from)
+            {
 
-			tex2D.SetMaximumLength (maxTextures);
+                ClearRenderTexturesTill(maxTextures);
 
-			if (maxTextures <= 0) return;
-			
-			var copyPix = (Color[])id.Pixels.Clone ();
+                if (maxTextures <= 0) return;
 
-			if (tex2D.Count < maxTextures)
-				tex2D.Add (new Texture2DBackup (copyPix, id, _order));
-			else 
-				tex2D.MoveFirstToLast().Set (copyPix, id, _order);
+                if (rTex.Count < maxTextures)
+                    rTex.Add(new RenderTextureBackup(@from, _order));
+                else
+                    rTex.MoveFirstToLast().Set(@from, _order);
 
-           
-            
-			_order++;
+                _order++;
+
+            }
+
+            public BackupsLineup(bool undo)
+            {
+                isUndo = undo;
+            }
 
         }
 
-		public void BackupRenderTexture (int maxTextures, ImageMeta from){
+        public class UndoCache
+        {
 
-			ClearRenderTexturesTill (maxTextures);
+            public readonly BackupsLineup undo;
+            public readonly BackupsLineup redo;
 
-			if (maxTextures <= 0) return;
-			
-			if (rTex.Count < maxTextures)
-				rTex.Add (new RenderTextureBackup (@from, _order));
-			else 
-				rTex.MoveFirstToLast ().Set (@from, _order);
+            public UndoCache()
+            {
+                undo = new BackupsLineup(true);
+                redo = new BackupsLineup(false);
 
-			_order++;
+                undo.otherDirection = redo;
+                redo.otherDirection = undo;
+            }
 
-		}
-
-        public BackupsLineup(bool undo) {
-            isUndo = undo;
         }
-
-	}
-
-
-	public class UndoCache {
-
-		public readonly BackupsLineup undo;
-		public readonly BackupsLineup redo;
-
-		public UndoCache (){
-			undo = new BackupsLineup(true);
-			redo = new BackupsLineup(false);
-
-			undo.otherDirection = redo;
-			redo.otherDirection = undo;
-		}
-
-	}
-
+    }
 }

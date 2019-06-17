@@ -3,6 +3,7 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
+
 namespace PlaytimePainter.Examples { 
 
     [ExecuteInEditMode]
@@ -49,7 +50,7 @@ namespace PlaytimePainter.Examples {
         public void OnCollisionExit(Collision exitedCollider) => TryRemove(exitedCollider.gameObject);
         
         public void OnEnable()  {
-            brush.SetBrushType(false, BrushTypeSphere.Inst);
+            brush.SetBrushType(false, BrushTypes.Sphere.Inst);
 
             if (!rendy) 
                 rendy = GetComponent<MeshRenderer>();
@@ -122,7 +123,7 @@ namespace PlaytimePainter.Examples {
                 if (brush.targetIsTex2D || !brush.IsA3DBrush(null))
                 {
                     brush.targetIsTex2D = false;
-                    brush.SetBrushType(false, BrushTypeSphere.Inst);
+                    brush.SetBrushType(false, BrushTypes.Sphere.Inst);
 
                     "PaintBall_brushHint".resetOneTimeHint();
                 }

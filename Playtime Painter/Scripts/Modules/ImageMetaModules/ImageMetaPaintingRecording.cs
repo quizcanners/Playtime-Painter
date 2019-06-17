@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using QuizCannersUtilities;
 using PlayerAndEditorGUI;
+using static PlaytimePainter.PaintingUndoRedo;
 
 namespace PlaytimePainter
 {

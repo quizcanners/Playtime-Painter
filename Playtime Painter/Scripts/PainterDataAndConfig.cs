@@ -184,7 +184,7 @@ namespace PlaytimePainter
 
         public List<Texture> masks = new List<Texture>();
 
-        public List<VolumetricDecal> decals = new List<VolumetricDecal>();
+        public List<BrushTypes.VolumetricDecal> decals = new List<BrushTypes.VolumetricDecal>();
 
         public List<MeshPackagingProfile> meshPackagingSolutions = new List<MeshPackagingProfile>();
 

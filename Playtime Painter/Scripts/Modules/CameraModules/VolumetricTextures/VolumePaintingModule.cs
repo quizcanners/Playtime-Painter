@@ -4,6 +4,7 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
+
 namespace PlaytimePainter {
     
     #pragma warning disable IDE0034 // Simplify 'default' expression
@@ -127,7 +128,7 @@ namespace PlaytimePainter {
             var pixels = image.Pixels;
 
             var iHalf = (int)(BlitFunctions.half - 0.5f);
-            var smooth = bc.GetBrushType(true) != BrushTypePixel.Inst;
+            var smooth = bc.GetBrushType(true) != BrushTypes.Pixel.Inst;
             if (smooth) iHalf += 1;
 
             BlitFunctions.alphaMode = BlitFunctions.SphereAlpha;
@@ -215,7 +216,7 @@ namespace PlaytimePainter {
             var vt = painter.GetVolumeTexture();
             stroke.posFrom = stroke.posTo;
 
-            BrushTypeSphere.Inst.BeforeStroke(painter, bc, stroke);
+            BrushTypes.Sphere.Inst.BeforeStroke(painter, bc, stroke);
 
             VOLUME_POSITION_N_SIZE_BRUSH.GlobalValue = vt.PosSize4Shader;
             VOLUME_H_SLICES_BRUSH.GlobalValue = vt.Slices4Shader;
@@ -229,7 +230,7 @@ namespace PlaytimePainter {
             
             RenderTextureBuffersManager.Blit(null, image.CurrentRenderTexture(), TexMGMT.brushRenderer.GetMaterial().shader);
 
-            BrushTypeSphere.Inst.AfterStroke_Painter(painter, bc, stroke, alphaBuffer, image);
+            BrushTypes.Sphere.Inst.AfterStroke_Painter(painter, bc, stroke, alphaBuffer, image);
 
             return true;
         }
@@ -438,7 +439,7 @@ namespace PlaytimePainter {
                         "Only World space brush can edit volumes".writeHint();
                         pegi.nl();
                         if ("Change to Sphere brush".Click())
-                            br.SetBrushType(false, BrushTypeSphere.Inst);
+                            br.SetBrushType(false, BrushTypes.Sphere.Inst);
                     }
                 }
 

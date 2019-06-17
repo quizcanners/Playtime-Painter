@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using static PlaytimePainter.PainterMesh;
 
 namespace PlaytimePainter {
 

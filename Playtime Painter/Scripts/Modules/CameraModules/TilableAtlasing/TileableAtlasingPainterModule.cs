@@ -5,6 +5,7 @@ using PlayerAndEditorGUI;
 using System.IO;
 using System.Linq;
 using QuizCannersUtilities;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -77,7 +78,7 @@ namespace PlaytimePainter {
             BlitFunctions.half = (bc.Size(false)) / 2;
             var iHalf = Mathf.FloorToInt(BlitFunctions.half - 0.5f);
 
-            var smooth = bc.GetBrushType(true) != BrushTypePixel.Inst;
+            var smooth = bc.GetBrushType(true) != BrushTypes.Pixel.Inst;
 
             if (smooth)
                 BlitFunctions.alphaMode = BlitFunctions.CircleAlpha;
@@ -197,7 +198,7 @@ namespace PlaytimePainter {
         #endif
         #endregion
 
-        public override void BeforeGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushType type)
+        public override void BeforeGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushTypes.Base type)
         {
             if (!br.IsA3DBrush(painter) || !painter.IsAtlased()) return;
             
@@ -205,7 +206,7 @@ namespace PlaytimePainter {
             PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(ats.x, ats.y, atlasRows, 1);
         }
 
-        public override void AfterGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushType type) {
+        public override void AfterGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushTypes.Base type) {
             if (br.IsA3DBrush(painter) && painter.IsAtlased())
                PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
         }

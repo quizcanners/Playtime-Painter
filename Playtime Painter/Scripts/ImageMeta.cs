@@ -12,6 +12,7 @@ using QuizCannersUtilities;
 using System.IO;
 using Unity.Collections;
 using Unity.Jobs;
+using static PlaytimePainter.PaintingUndoRedo;
 
 namespace PlaytimePainter
 {

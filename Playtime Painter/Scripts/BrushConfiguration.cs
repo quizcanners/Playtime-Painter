@@ -9,6 +9,7 @@ using System;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
+
 namespace PlaytimePainter {
 
     public static class BrushExtensions {
@@ -31,18 +32,18 @@ namespace PlaytimePainter {
         [SerializeField] private int _inGpuBrushType;
         [SerializeField] private int _inCpuBrushType;
         private int _brushType(bool cpu) => cpu ? _inCpuBrushType : _inGpuBrushType;
-        public void SetBrushType(bool cpu, BrushType t) { if (cpu) _inCpuBrushType = t.index; else _inGpuBrushType = t.index; }
-        public BrushType GetBrushType(PlaytimePainter painter) => GetBrushType(IsCpu(painter));
-        public BrushType GetBrushType(bool cpu) => BrushType.AllTypes[_brushType(cpu)];
+        public void SetBrushType(bool cpu, BrushTypes.Base t) { if (cpu) _inCpuBrushType = t.index; else _inGpuBrushType = t.index; }
+        public BrushTypes.Base GetBrushType(PlaytimePainter painter) => GetBrushType(IsCpu(painter));
+        public BrushTypes.Base GetBrushType(bool cpu) => BrushTypes.Base.AllTypes[_brushType(cpu)];
 
         [SerializeField] private int _inGpuBlitMode;
         [SerializeField] private int _inCpuBlitMode;
 
         public int BlitMode(bool cpu) => cpu ? _inCpuBlitMode : _inGpuBlitMode;
-        public BlitMode GetBlitMode(bool cpu) => global::PlaytimePainter.BlitMode.AllModes[BlitMode(cpu)];
-        public BlitMode GetBlitMode(PlaytimePainter painter) => global::PlaytimePainter.BlitMode.AllModes[BlitMode(IsCpu(painter))];
+        public BlitModes.Base GetBlitMode(bool cpu) => BlitModes.Base.AllModes[BlitMode(cpu)];
+        public BlitModes.Base GetBlitMode(PlaytimePainter painter) => BlitModes.Base.AllModes[BlitMode(IsCpu(painter))];
         
-        public void SetBlitMode(bool cpu, BlitMode mode)
+        public void SetBlitMode(bool cpu, BlitModes.Base mode)
         {
             if (cpu) _inCpuBlitMode = mode.index;
             else _inGpuBlitMode = mode.index;
@@ -53,16 +54,16 @@ namespace PlaytimePainter {
         private void SetSupportedFor(bool cpu, bool rtDoubleBuffer) {
             if (!cpu) {
                 if (rtDoubleBuffer) {
-                    if (!GetBrushType(false).SupportedByRenderTexturePair) foreach (var t in BrushType.AllTypes) { if (t.SupportedByRenderTexturePair) { SetBrushType(false, t); break; } }
-                    if (!GetBlitMode(false).SupportedByRenderTexturePair) foreach (var t in global::PlaytimePainter.BlitMode.AllModes) { if (t.SupportedByRenderTexturePair) { SetBlitMode(false, t); break; } }
+                    if (!GetBrushType(false).SupportedByRenderTexturePair) foreach (var t in BrushTypes.Base.AllTypes) { if (t.SupportedByRenderTexturePair) { SetBrushType(false, t); break; } }
+                    if (!GetBlitMode(false).SupportedByRenderTexturePair) foreach (var t in BlitModes.Base.AllModes) { if (t.SupportedByRenderTexturePair) { SetBlitMode(false, t); break; } }
                 } else {
-                    if (!GetBrushType(false).SupportedBySingleBuffer) foreach (var t in BrushType.AllTypes) { if (t.SupportedBySingleBuffer) { SetBrushType(false, t); break; } }
-                    if (!GetBlitMode(false).SupportedBySingleBuffer) foreach (var t in global::PlaytimePainter.BlitMode.AllModes) { if (t.SupportedBySingleBuffer) { SetBlitMode(false, t); break; } }
+                    if (!GetBrushType(false).SupportedBySingleBuffer) foreach (var t in BrushTypes.Base.AllTypes) { if (t.SupportedBySingleBuffer) { SetBrushType(false, t); break; } }
+                    if (!GetBlitMode(false).SupportedBySingleBuffer) foreach (var t in BlitModes.Base.AllModes) { if (t.SupportedBySingleBuffer) { SetBlitMode(false, t); break; } }
                 }
             } else
             {
-                if (!GetBrushType(true).SupportedByTex2D) foreach (var t in BrushType.AllTypes) { if (t.SupportedByTex2D) { SetBrushType(true, t); break; } }
-                if (!GetBlitMode(true).SupportedByTex2D) foreach (var t in global::PlaytimePainter.BlitMode.AllModes) { if (t.SupportedByTex2D) { SetBlitMode(true, t); break; } }
+                if (!GetBrushType(true).SupportedByTex2D) foreach (var t in BrushTypes.Base.AllTypes) { if (t.SupportedByTex2D) { SetBrushType(true, t); break; } }
+                if (!GetBlitMode(true).SupportedByTex2D) foreach (var t in BlitModes.Base.AllModes) { if (t.SupportedByTex2D) { SetBlitMode(true, t); break; } }
             }
         }
         
@@ -251,8 +252,8 @@ namespace PlaytimePainter {
                     break;
                 }
 
-            BrushType.AllTypes.ClampIndexToCount(ref _inCpuBrushType);
-            BrushType.AllTypes.ClampIndexToCount(ref _inGpuBrushType);
+            BrushTypes.Base.AllTypes.ClampIndexToCount(ref _inCpuBrushType);
+            BrushTypes.Base.AllTypes.ClampIndexToCount(ref _inGpuBrushType);
             
             _inspectedBrush = this;
             var changed = false;
@@ -265,7 +266,7 @@ namespace PlaytimePainter {
 
             MsgPainter.BlitMode.Write("How final color will be calculated");
 
-            if (pegi.select(ref blitMode, global::PlaytimePainter.BlitMode.AllModes).changes(ref changed)) 
+            if (pegi.select(ref blitMode, BlitModes.Base.AllModes).changes(ref changed)) 
                 SetBlitMode(cpu, blitMode);
 
             if (DocsEnabled && blitMode != null && pegi.DocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI())))
@@ -284,7 +285,7 @@ namespace PlaytimePainter {
             if (!cpu)  {
                
                 MsgPainter.BrushType.Write();
-                pegi.select_Index(ref _inGpuBrushType, BrushType.AllTypes).changes(ref changed);
+                pegi.select_Index(ref _inGpuBrushType, BrushTypes.Base.AllTypes).changes(ref changed);
                 
                 if (DocsEnabled && brushType != null && pegi.DocumentationClick("About {0} brush type".F(brushType.NameForDisplayPEGI())))
                     pegi.FullWindwDocumentationOpen(brushType.ToolTip);
@@ -379,11 +380,11 @@ namespace PlaytimePainter {
                 SetSupportedFor(targetIsTex2D, true);
             }
 
-            var smooth = GetBrushType(targetIsTex2D) != BrushTypePixel.Inst;
+            var smooth = GetBrushType(targetIsTex2D) != BrushTypes.Pixel.Inst;
 
             if (targetIsTex2D && 
                 pegi.toggle(ref smooth, icon.Round.GetIcon(), icon.Square.GetIcon(), "Smooth/Pixels Brush", 45).changes(ref changed))
-                SetBrushType(targetIsTex2D, smooth ? BrushTypeNormal.Inst : (BrushType)BrushTypePixel.Inst);
+                SetBrushType(targetIsTex2D, smooth ? BrushTypes.Normal.Inst : BrushTypes.Pixel.Inst.AsBase);
             
 
             return changed;
@@ -435,10 +436,10 @@ namespace PlaytimePainter {
             }
             
             if (cpuBlit) {
-                var smooth = _brushType(cpuBlit) != BrushTypePixel.Inst.index;
+                var smooth = _brushType(cpuBlit) != BrushTypes.Pixel.Inst.index;
 
                 if (pegi.toggle(ref smooth, icon.Round, icon.Square, "Smooth/Pixels Brush", 45).changes(ref changed))
-                    SetBrushType(cpuBlit, smooth ? BrushTypeNormal.Inst : (BrushType)BrushTypePixel.Inst);
+                    SetBrushType(cpuBlit, smooth ? BrushTypes.Normal.Inst : BrushTypes.Pixel.Inst.AsBase);
             }
 
             pegi.nl();
@@ -463,7 +464,7 @@ namespace PlaytimePainter {
 #endif
 
 
-            if (Mode_Type_PEGI().changes(ref changed) && GetBrushType(cpuBlit) == BrushTypeDecal.Inst)
+            if (Mode_Type_PEGI().changes(ref changed) && GetBrushType(cpuBlit) == BrushTypes.Decal.Inst)
                     MaskSet(ColorMask.A, true);
 
             if (p.terrain) {
@@ -690,7 +691,7 @@ namespace PlaytimePainter {
             if (rt)
             {
 
-                if ((mode.GetType() == typeof(BlitModeBlur)))
+                if ((mode.GetType() == typeof(BlitModes.Blur)))
                     cody.Add("blur", blurAmount);
 
                 if (type.IsUsingDecals)

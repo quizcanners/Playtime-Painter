@@ -16,7 +16,7 @@ namespace PlaytimePainter
         public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter)
         {
             if (!painter.terrain || !field.HasUsageTag(PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE)) return false;
-            tex = painter.terrain.terrainData.alphamapTextures[field.NameForDisplayPEGI[0].CharToInt()];
+            tex = painter.terrain.terrainData.alphamapTextures[field.NameForDisplayPEGI()[0].CharToInt()];
             return true;
         }
 
@@ -49,7 +49,7 @@ namespace PlaytimePainter
 
             if (!field.HasUsageTag(PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE)) return false;
             
-            var no = field.NameForDisplayPEGI[0].CharToInt();
+            var no = field.NameForDisplayPEGI()[0].CharToInt();
 
             if (no == 0)
                 PainterDataAndConfig.TerrainControlMain.GlobalValue = tex;

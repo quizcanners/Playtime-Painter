@@ -2,6 +2,7 @@
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using static PlaytimePainter.PainterMesh;
 
 #if UNITY_EDITOR
 using UnityEditor;

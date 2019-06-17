@@ -48,11 +48,11 @@ namespace PlaytimePainter
 
         public virtual void Update_Brush_Parameters_For_Preview_Shader(PlaytimePainter p) { }
 
-        public virtual void BeforeGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushType type) {
+        public virtual void BeforeGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushTypes.Base type) {
 
         }
 
-        public virtual void AfterGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushType type) {
+        public virtual void AfterGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushTypes.Base type) {
 
         }
 
