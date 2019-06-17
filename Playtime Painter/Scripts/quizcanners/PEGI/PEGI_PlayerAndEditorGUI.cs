@@ -6462,25 +6462,27 @@ namespace PlayerAndEditorGUI
 
             int _listSectionStartIndex = 0;
 
-            if (listMeta != null)
+            if (searching)
+                _listSectionStartIndex = sd.inspectionIndexStart;
+            else if (listMeta != null)
                 _listSectionStartIndex = listMeta.listSectionStartIndex;
             else if (!ListInspectionIndexes.TryGetValue(list, out _listSectionStartIndex))
                 ListInspectionIndexes.Add(list, 0);
             
+
             var listCount = list.Count;
 
             _lastElementToShow = listCount;
 
             var _sectionSizeOptimal = GetOptimalSectionFor(listCount);
 
-            if (listCount >= _sectionSizeOptimal * 2) {
+            if (listCount >= _sectionSizeOptimal * 2 || _listSectionStartIndex > 0) {
                 
                 if (listCount > _sectionSizeOptimal) {
                  
                     while ((_listSectionStartIndex > 0 && _listSectionStartIndex >= listCount).changes(ref changed)) 
                         _listSectionStartIndex = Mathf.Max(0, _listSectionStartIndex - _sectionSizeOptimal);
                     
-
                     nl();
                     if (_listSectionStartIndex > 0) {
                         
@@ -6492,7 +6494,9 @@ namespace PlayerAndEditorGUI
                             if (_listSectionStartIndex == 1)
                                 _listSectionStartIndex = 0;
                         }
- 
+
+                        ".. {0}; ".F(_listSectionStartIndex-1).write();
+
                     }
                     else
                         icon.UpLast.write("Is the first section of the list.", UpDownWidth, UpDownHeight);
@@ -6504,8 +6508,8 @@ namespace PlayerAndEditorGUI
                 }
                 else line(Color.gray);
 
+              
 
-                _lastElementToShow = Mathf.Min(listCount, _listSectionStartIndex + _sectionSizeOptimal);
             }
             else if (list.Count > 0)
                 line(Color.gray);
@@ -6519,6 +6523,7 @@ namespace PlayerAndEditorGUI
 
             if (!searching)
             {
+                _lastElementToShow = Mathf.Min(listCount, _listSectionStartIndex + _sectionSizeOptimal);
 
                 for (InspectedIndex = _listSectionStartIndex; InspectedIndex < _lastElementToShow; InspectedIndex++)
                 {
@@ -6528,25 +6533,47 @@ namespace PlayerAndEditorGUI
                     yield return InspectedIndex;
 
                     RestoreBGcolor();
+                }
+
+
+                if ((_listSectionStartIndex > 0) || (filteredCount > _lastElementToShow)) {
+
+                    nl();
+                    if (listCount > _lastElementToShow) {
+
+                        if (icon.Down.ClickUnFocus("To next elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed))
+                            _listSectionStartIndex += _sectionSizeOptimal - 1;
+                        
+                        if (icon.DownLast.ClickUnFocus("To Last element").changes(ref changed))
+                            _listSectionStartIndex = listCount - _sectionSizeOptimal;
+                        
+                        "+ {0}".F(listCount - _lastElementToShow).write();
+
+                    }
+                    else if (_listSectionStartIndex > 0)
+                        icon.DownLast.write("Is the last section of the list. ", UpDownWidth, UpDownHeight);
 
                 }
+                else if (listCount > 0)
+                    line(Color.gray);
+
+
             } else {
 
-                var sectionIndex = 0;
-                
-                filteredCount = sd.filteredListElements.Count;
+                var sectionIndex = _listSectionStartIndex;
 
-                var filtered = sd.filteredListElements;
+                var flst = sd.filteredListElements;
 
-                while (sd.uncheckedElement <= listCount && sectionIndex < _lastElementToShow) {
+                _lastElementToShow = Mathf.Min(list.Count, _listSectionStartIndex + _sectionSizeOptimal);
+
+                while ((sd.uncheckedElement <= listCount) && (sectionIndex < _lastElementToShow)) {
 
                     InspectedIndex = -1;
                     
-                    if (filteredCount > _listSectionStartIndex + sectionIndex)
-                        InspectedIndex = filtered[_listSectionStartIndex + sectionIndex];
+                    if (flst.Count > sectionIndex)
+                        InspectedIndex = flst[sectionIndex];
                     else {
-                        while (sd.uncheckedElement < listCount && InspectedIndex == -1)
-                        {
+                        while (sd.uncheckedElement < listCount && InspectedIndex == -1) {
 
                             var el = list[sd.uncheckedElement];
 
@@ -6555,21 +6582,17 @@ namespace PlayerAndEditorGUI
                             var msg = na?.NeedAttention();
 
                             if (!sd.filterByNeedAttention || !msg.IsNullOrEmpty()) {
-
-                                if (el.SearchMatch_Obj_Internal(searchby))
-                                {
+                                if (searchby.IsNullOrEmpty() || el.SearchMatch_Obj_Internal(searchby)) {
                                     InspectedIndex = sd.uncheckedElement;
-                                    sd.filteredListElements.Add(InspectedIndex);
+                                    flst.Add(InspectedIndex);
                                 }
-
                             }
 
                             sd.uncheckedElement++;
                         }
                     }
                     
-                    if (InspectedIndex != -1)
-                    {
+                    if (InspectedIndex != -1) {
 
                         SetListElementReadabilityBackground(sectionIndex);
                         
@@ -6580,41 +6603,50 @@ namespace PlayerAndEditorGUI
                         sectionIndex++;
                     }
                     else break;
+                }
+
+
+                bool gotUnchecked = (sd.uncheckedElement < listCount - 1);
+
+                bool gotToShow = (flst.Count > _lastElementToShow) || gotUnchecked;
+
+                if (_listSectionStartIndex > 0 || gotToShow) {
+
+                    nl();
+                    if (gotToShow) {
+
+                        if (icon.Down.ClickUnFocus("To next elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed))
+                            _listSectionStartIndex += _sectionSizeOptimal - 1;
+
+                        if (icon.DownLast.ClickUnFocus("To Last element").changes(ref changed))
+                            _listSectionStartIndex = Mathf.Max(0, flst.Count - _sectionSizeOptimal);
+
+                        if (!gotUnchecked)
+                            "+ {0}".F(flst.Count - _lastElementToShow).write();
+
+                    }
+                    else if (_listSectionStartIndex > 0)
+                        icon.DownLast.write("Is the last section of the list. ", UpDownWidth, UpDownHeight);
 
                 }
+                else if (listCount > 0)
+                    line(Color.gray);
+
             }
 
 
-            if (_listSectionStartIndex > 0 || filteredCount > _lastElementToShow)
-            {
 
-                nl();
-                if (listCount > _lastElementToShow)
-                {
-                    if (icon.Down.ClickUnFocus("To next elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed)) 
-                        _listSectionStartIndex += _sectionSizeOptimal-1;
-                    
 
-                    if (icon.DownLast.ClickUnFocus("To Last element").changes(ref changed))
-                        _listSectionStartIndex = listCount - _sectionSizeOptimal;
-                    
-                }
-                else if (_listSectionStartIndex > 0)
-                    icon.DownLast.write("Is the last section of the list. ", UpDownWidth, UpDownHeight);
-
-            }
-            else if (listCount > 0)
-                line(Color.gray);
-            
-
-            if (changed)
-            {
-                if (listMeta != null)
+            #region Finilize
+            if (changed)  {
+                if (searching)
+                    sd.inspectionIndexStart = _listSectionStartIndex;
+                else if (listMeta != null)
                     listMeta.listSectionStartIndex = _listSectionStartIndex;
                 else
                     ListInspectionIndexes[list] = _listSectionStartIndex;
             }
-
+            #endregion
         }
 
         private static void SetListElementReadabilityBackground(int index)
@@ -8810,6 +8842,7 @@ namespace PlayerAndEditorGUI
             public IList filteredList;
             public string searchedText;
             public int uncheckedElement = 0;
+            public int inspectionIndexStart = 0;
             public bool filterByNeedAttention = false;
             private string[] searchBys;
             public List<int> filteredListElements = new List<int>();
@@ -8842,7 +8875,10 @@ namespace PlayerAndEditorGUI
                 filteredList = active ? ld : null;
 
             }
-            
+
+            public bool Searching(IList list) =>
+                list == filteredList && (filterByNeedAttention || !searchBys.IsNullOrEmpty());
+
             public void SearchString(IList list, out bool searching, out string[] searchBy)
             {
                 searching = false;
@@ -8867,6 +8903,7 @@ namespace PlayerAndEditorGUI
             {
                 filteredListElements.Clear();
                 uncheckedElement = 0;
+                inspectionIndexStart = 0;
             }
 
             public override CfgEncoder Encode() => new CfgEncoder().Add_String("s", searchedText);

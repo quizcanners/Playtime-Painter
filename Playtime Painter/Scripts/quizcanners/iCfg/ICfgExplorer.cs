@@ -27,7 +27,7 @@ namespace QuizCannersUtilities
         private string folderToSearch = DefaultFolderToSearch;
         public int inspected = -1;
         public int previousInspected = -1;
-        public int listSectionStartIndex;
+        public int listSectionStartIndex = 0;
         public bool Inspecting { get { return inspected != -1; } set { if (value == false) inspected = -1; } }
         public bool keepTypeData;
         public bool allowDelete;
@@ -187,7 +187,7 @@ namespace QuizCannersUtilities
         }
     }
 
-    public class ElementData : AbstractCfg, IPEGI, IGotName, IPEGI_Searchable {
+    public class ElementData : AbstractCfg, IPEGI, IGotName {
 
 
         public string name;
@@ -285,12 +285,6 @@ namespace QuizCannersUtilities
 
         #region Inspector
         #if !NO_PEGI
-
-        public bool String_SearchMatch(string searchString)
-        {
-            //TODO: Finish this
-            return false;
-        }
 
         public string NameForPEGI { get { return name; } set { name = value; } }
 
