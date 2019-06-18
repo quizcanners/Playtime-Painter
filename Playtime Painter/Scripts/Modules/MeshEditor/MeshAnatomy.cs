@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using QuizCannersUtilities;
 using static PlaytimePainter.PainterMesh;
+using static QuizCannersUtilities.QcMath;
 
 namespace PlaytimePainter
 {
@@ -534,9 +535,9 @@ namespace PlaytimePainter
             {
                 var trg = MeshManager.target;
 
-                if (trg && (trg.ImgMeta != null))
+                if (trg && (trg.TexMeta != null))
                 {
-                    var id = trg.ImgMeta;
+                    var id = trg.TexMeta;
                     var width = id.width * 2;
                     var height = id.height * 2;
 

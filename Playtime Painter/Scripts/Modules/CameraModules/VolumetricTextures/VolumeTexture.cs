@@ -56,9 +56,9 @@ namespace PlaytimePainter {
 
         [SerializeField] public Texture2D texture;
 
-        public ImageMeta ImageMeta
+        public TextureMeta ImageMeta
         {
-            get { return texture.GetImgData(); }
+            get { return texture.GetTextureData(); }
             set { texture = value?.texture2D; }
         }
 
@@ -158,7 +158,7 @@ namespace PlaytimePainter {
             {
 
                 if (TexturesPool.inst != null)
-                    ImageMeta = TexturesPool.inst.GetTexture2D().GetImgData();
+                    ImageMeta = TexturesPool.inst.GetTexture2D().GetTextureData();
                 else
                 {
                     Debug.Log("No Texture for Volume");
@@ -209,7 +209,7 @@ namespace PlaytimePainter {
             {
 
                 if (TexturesPool.inst)
-                    ImageMeta = TexturesPool.inst.GetTexture2D().GetImgData();
+                    ImageMeta = TexturesPool.inst.GetTexture2D().GetTextureData();
                 else {
                     Debug.Log("No Texture for Volume");
                     return;
@@ -379,7 +379,7 @@ namespace PlaytimePainter {
                     ImageMeta = null;
 
                 if ("Texture".edit(60, ref tex).nl(ref changed))
-                    ImageMeta = tex ? tex.GetImgData() : null;
+                    ImageMeta = tex ? tex.GetTextureData() : null;
 
                 "Volume Scale".edit(70, ref size).nl(ref changed);
                 size = Mathf.Max(0.0001f, size);
@@ -399,7 +399,7 @@ namespace PlaytimePainter {
                         }
                     }
                     else if ("Get From Pool".Click().nl(ref changed))
-                        ImageMeta = TexturesPool.inst.GetTexture2D().GetImgData();
+                        ImageMeta = TexturesPool.inst.GetTexture2D().GetTextureData();
 
 
                 }

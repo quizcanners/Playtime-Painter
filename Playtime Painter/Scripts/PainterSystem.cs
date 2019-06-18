@@ -62,7 +62,7 @@ namespace PlaytimePainter
         protected static BrushConfig InspectedBrush => BrushConfig._inspectedBrush;
         protected static BrushConfig GlobalBrush => TexMGMTdata.brushConfig;
         protected static PlaytimePainter InspectedPainter => PlaytimePainter.inspected; 
-        protected static ImageMeta InspectedImageMeta { get { var ip = InspectedPainter; return ip ? ip.ImgMeta : null; } }
+        protected static TextureMeta InspectedImageMeta { get { var ip = InspectedPainter; return ip ? ip.TexMeta : null; } }
         protected static GridNavigator Grid => GridNavigator.Inst();
         protected static MeshManager MeshMGMT => MeshManager.Inst;
         protected static EditableMesh EditedMesh => MeshManager.editedMesh;

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using QuizCannersUtilities;
 using Object = UnityEngine.Object;
+using static QuizCannersUtilities.QcMath;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -3848,7 +3849,7 @@ namespace PlayerAndEditorGUI
                     if (!newName.IsNullOrEmpty())
                         obj.name = newName;
 
-                    obj.SaveAsset(folder, extension, true);
+                    QcFile.SaveUtils.SaveAsset(obj, folder, extension, true);
                 }
                 else
                 {

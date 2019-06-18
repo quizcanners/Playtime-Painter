@@ -1860,6 +1860,12 @@ namespace QuizCannersUtilities
                 ((Mathf.Abs(col.r - other.r) + Mathf.Abs(col.g - other.g) + Mathf.Abs(col.b - other.b)) * 0.33f +
                  Mathf.Abs(col.a - other.a));
 
+        public static float DistanceRgba(this Color col, Color other, QcMath.ColorMask mask) =>
+             (mask.HasFlag(QcMath.ColorMask.R) ? Mathf.Abs(col.r - other.r) : 0) +
+             (mask.HasFlag(QcMath.ColorMask.G) ? Mathf.Abs(col.g - other.g) : 0) +
+             (mask.HasFlag(QcMath.ColorMask.B) ? Mathf.Abs(col.b - other.b) : 0) +
+             (mask.HasFlag(QcMath.ColorMask.A) ? Mathf.Abs(col.a - other.a) : 0);
+
         public static Color LerpBySpeed(this Color from, Color to, float speed) =>
             Color.LerpUnclamped(from, to, speed.SpeedToPortion(from.DistanceRgb(to)));
 

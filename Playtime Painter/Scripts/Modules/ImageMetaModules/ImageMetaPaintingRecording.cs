@@ -14,7 +14,7 @@ namespace PlaytimePainter
 
         public override string ClassTag => tag;
 
-        public static readonly List<ImageMeta> playbackMetas = new List<ImageMeta>();
+        public static readonly List<TextureMeta> playbackMetas = new List<TextureMeta>();
 
         public static CfgDecoder cody = new CfgDecoder("");
 
@@ -49,7 +49,7 @@ namespace PlaytimePainter
 
             var allStrokes = new CfgEncoder().Add("strokes", recordedStrokes).ToString();
 
-            QcFileSaveUtils.SaveJsonToPersistentPath(Cfg.vectorsFolderName, parentMeta.saveName, allStrokes);
+            QcFile.SaveUtils.SaveJsonToPersistentPath(Cfg.vectorsFolderName, parentMeta.saveName, allStrokes);
 
             Cfg.recordingNames.Add(parentMeta.saveName);
 

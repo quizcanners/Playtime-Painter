@@ -86,7 +86,7 @@ namespace PlaytimePainter.Examples
                 case HintStage.UnlockTexture:
                     if (cube) {
                         var painter = cube.GetComponent<PlaytimePainter>();
-                        if (painter && painter.ImgMeta != null && !painter.ImgMeta.lockEditing)
+                        if (painter && painter.TexMeta != null && !painter.TexMeta.lockEditing)
                             SetStage(HintStage.Draw);
                     }
                     break;
@@ -98,9 +98,9 @@ namespace PlaytimePainter.Examples
                     if (picture.GetComponent<PlaytimePainter>()) { SetStage(HintStage.AddTexture); }
                     break;
                 case HintStage.AddTexture:
-                    if (PillPainter && PillPainter.ImgMeta != null) SetStage(HintStage.RenderTexture); break;
+                    if (PillPainter && PillPainter.TexMeta != null) SetStage(HintStage.RenderTexture); break;
                 case HintStage.RenderTexture:
-                    if (PillPainter && PillPainter.ImgMeta != null && PillPainter.ImgMeta.TargetIsRenderTexture()) SetStage(HintStage.WellDone); break;
+                    if (PillPainter && PillPainter.TexMeta != null && PillPainter.TexMeta.TargetIsRenderTexture()) SetStage(HintStage.WellDone); break;
             }
 
         }

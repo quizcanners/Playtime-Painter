@@ -42,7 +42,7 @@ namespace PlaytimePainter {
         }
         #endregion
 
-        public void SetTextureOnLastTarget(ImageMeta id) {
+        public void SetTextureOnLastTarget(TextureMeta id) {
             if (painterTarget)
                 painterTarget.SetTextureOnMaterial(bufferParameterTarget, id.CurrentTexture(), material);
         }

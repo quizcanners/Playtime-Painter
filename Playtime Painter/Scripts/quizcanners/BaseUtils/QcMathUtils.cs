@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-//using PlayerAndEditorGUI;
-using QuizCannersUtilities;
 
 namespace QuizCannersUtilities {
 
@@ -14,9 +12,7 @@ namespace QuizCannersUtilities {
     public static partial class QcMath {
 
         #region Checks
-
-
-
+        
         public static bool IsNaN(this Vector3 q) => float.IsNaN(q.x) || float.IsNaN(q.y) || float.IsNaN(q.z);
         
         public static bool IsNaN(this float f) => float.IsNaN(f);
@@ -344,15 +340,37 @@ namespace QuizCannersUtilities {
         public static Rect ToRect(this Vector4 v4) => new Rect(v4.x,v4.y,v4.z,v4.w);
 
         #endregion
-    }
-    
-    public enum ColorChanel { R = 0, G = 1, B = 2, A = 3 }
 
-    [Flags]
-    public enum ColorMask { R = 1, G = 2, B = 4, A = 8, Color = 7, All = 15 }
 
-    public static class ColorChannelAndMaskExtensions
-    {
+        #region Color Channel and Mask
+
+
+        public static string ToText(this ColorMask icon)
+        {
+            switch (icon)
+            {
+                case ColorMask.R: return "Red";
+                case ColorMask.G: return "Green";
+                case ColorMask.B: return "Blue";
+                case ColorMask.A: return "Alpha";
+                case ColorMask.Color: return "RGB";
+                case ColorMask.All: return "All";
+                default: return "Unknown channel";
+            }
+        }
+
+        public static string ToText(this ColorChanel icon)
+        {
+            switch (icon)
+            {
+                case ColorChanel.R: return "Red";
+                case ColorChanel.G: return "Green";
+                case ColorChanel.B: return "Blue";
+                case ColorChanel.A: return "Alpha";
+                default: return "Unknown channel";
+            }
+        }
+
 
         public static float GetValueFrom(this ColorChanel chan, Color col)
         {
@@ -404,7 +422,7 @@ namespace QuizCannersUtilities {
             mask.HasFlag(ColorMask.R) ? 1 : 0,
             mask.HasFlag(ColorMask.G) ? 1 : 0,
             mask.HasFlag(ColorMask.B) ? 1 : 0,
-            mask.HasFlag( ColorMask.A) ? 1 : 0);
+            mask.HasFlag(ColorMask.A) ? 1 : 0);
 
         public static ColorChanel ToColorChannel(this ColorMask bm)
         {
@@ -434,146 +452,90 @@ namespace QuizCannersUtilities {
             if ((bm & ColorMask.A) != 0)
                 target.w = source.a;
         }
-    }
 
-    [Serializable]
-    public struct MyIntVec2
-    {
-        public int x;
-        public int y;
+        public static bool HasFlag(this ColorMask mask, int flag) => (mask & (ColorMask)(Mathf.Pow(2, flag))) != 0;
 
-        public int Max => x > y ? x : y;
+        public static bool HasFlag(this ColorMask mask, ColorMask flag) => (mask & flag) != 0;
 
-        public override string ToString() => "x:" + x + " y:" + y;
-        
-        public void Clamp(int min, int max)  {
-            x = Mathf.Clamp(x, min, max);
-            y = Mathf.Clamp(y, min, max);
-        }
+        public enum ColorChanel { R = 0, G = 1, B = 2, A = 3 }
 
-        public void Clamp(int min, MyIntVec2 max) {
-            x = Mathf.Clamp(x, min, max.x);
-            y = Mathf.Clamp(y, min, max.y);
-        }
+        [Flags]
+        public enum ColorMask { R = 1, G = 2, B = 4, A = 8, Color = 7, All = 15 }
 
-        public MyIntVec2 MultiplyBy(int val) {
-            x *= val;
-            y *= val;
-            return this;
-        }
+        #endregion
 
-        public MyIntVec2 Subtract(MyIntVec2 other) {
-            x -= other.x;
-            y -= other.y;
-            return this;
-        }
-
-        public Vector2 ToFloat() => new Vector2(x, y);
-        
-        public MyIntVec2 From(Vector2 vec) {
-            x = (int)vec.x;
-            y = (int)vec.y;
-            return this;
-        }
-
-        public MyIntVec2(MyIntVec2 other) {
-            x = other.x;
-            y = other.y;
-        }
-
-        public MyIntVec2(float nx, float ny)
+        [Serializable]
+        public struct MyIntVec2
         {
-            x = (int)nx;
-            y = (int)ny;
-        }
+            public int x;
+            public int y;
 
-        public MyIntVec2(int nx, int ny)
-        {
-            x = nx;
-            y = ny;
-        }
+            public int Max => x > y ? x : y;
 
-        public MyIntVec2(int val)
-        {
-            x = y = val;
-        }
+            public override string ToString() => "x:" + x + " y:" + y;
 
-    }
-    
-    /*
-    [Serializable]
-    public class LinearColor : AbstractCfg
-    {
-        public float r, g, b, a;
-
-        Color LCol => new Color(r, g, b, a);
-
-        public override CfgEncoder Encode() => new CfgEncoder()
-            .Add("r", r)
-            .Add("g", g)
-            .Add("b", b)
-            .Add("a", a);
-
-        public override bool Decode(string tg, string data)
-        {
-
-            switch (tg)
+            public void Clamp(int min, int max)
             {
-                case "r": r = data.ToFloat(); break;
-                case "g": g = data.ToFloat(); break;
-                case "b": b = data.ToFloat(); break;
-                case "a": a = data.ToFloat(); break;
-                default: return false;
+                x = Mathf.Clamp(x, min, max);
+                y = Mathf.Clamp(y, min, max);
             }
-            return true;
 
-        }
-        
-        public void From(Color c) {
-            c = c.linear;
-            r = c.r;
-            g = c.g;
-            b = c.b;
-            a = c.a;
-        }
+            public void Clamp(int min, MyIntVec2 max)
+            {
+                x = Mathf.Clamp(x, min, max.x);
+                y = Mathf.Clamp(y, min, max.y);
+            }
 
-        public void From(Color c, ColorMask bm) {
-            c = c.linear;
-            if ((bm & ColorMask.R) != 0)
-                r = c.r;
-            if ((bm & ColorMask.G) != 0)
-                g = c.g;
-            if ((bm & ColorMask.B) != 0)
-                b = c.b;
-            if ((bm & ColorMask.A) != 0)
-                a = c.a;
-        }
-        
-        public Color ToGamma() => LCol.gamma;
-        
-        public void ToGamma(ref Color tmp) => tmp = LCol.gamma;
-        
-        public Vector4 Vector4 => new Vector4(r, g, b, a);
+            public MyIntVec2 MultiplyBy(int val)
+            {
+                x *= val;
+                y *= val;
+                return this;
+            }
 
-        public void ToV4(ref Vector4 to, ColorMask bm)
-        {
-            if ((bm & ColorMask.R) != 0)
-                to.x = r;
-            if ((bm & ColorMask.G) != 0)
-                to.y = g;
-            if ((bm & ColorMask.B) != 0)
-                to.z = b;
-            if ((bm & ColorMask.A) != 0)
-                to.w = a;
-        }
+            public MyIntVec2 Subtract(MyIntVec2 other)
+            {
+                x -= other.x;
+                y -= other.y;
+                return this;
+            }
 
-        public LinearColor(Color col)
-        {
-            From(col);
+            public Vector2 ToFloat() => new Vector2(x, y);
+
+            public MyIntVec2 From(Vector2 vec)
+            {
+                x = (int)vec.x;
+                y = (int)vec.y;
+                return this;
+            }
+
+            public MyIntVec2(MyIntVec2 other)
+            {
+                x = other.x;
+                y = other.y;
+            }
+
+            public MyIntVec2(float nx, float ny)
+            {
+                x = (int)nx;
+                y = (int)ny;
+            }
+
+            public MyIntVec2(int nx, int ny)
+            {
+                x = nx;
+                y = ny;
+            }
+
+            public MyIntVec2(int val)
+            {
+                x = y = val;
+            }
+
         }
     }
-    */
 
-
+   
+    
 }
 

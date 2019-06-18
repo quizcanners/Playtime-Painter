@@ -12,6 +12,8 @@ namespace PlaytimePainter
     [ExecuteInEditMode]
     public class DepthProjectorCamera : PainterSystemMono {
 
+        public enum Mode { Clear, ReplacementShader }
+        
         public static DepthProjectorCamera Instance {
             get  {
                 if (PainterCamera.depthProjectorCamera)
@@ -127,7 +129,7 @@ namespace PlaytimePainter
             return false;
         }
 
-        private ProjectorMode currentMode = ProjectorMode.Clear;
+        private Mode currentMode = Mode.Clear;
         
         #endregion
 
@@ -249,7 +251,7 @@ namespace PlaytimePainter
 
                         switch (mode)
                         {
-                            case ProjectorMode.ReplacementShader:
+                            case Mode.ReplacementShader:
 
                                 var repl = userToGetUpdate as IUseReplacementCamera;
 
@@ -396,7 +398,6 @@ namespace PlaytimePainter
 
     }
 
-    public enum ProjectorMode { Clear, ReplacementShader }
 
     public interface IUseDepthProjector {
         bool ProjectorReady();
@@ -404,7 +405,7 @@ namespace PlaytimePainter
         ProjectorCameraConfiguration GetProjectorCameraConfiguration();
         void AfterCameraRender(RenderTexture depthTexture);
         RenderTexture GetTargetTexture();
-        ProjectorMode GetMode();
+        DepthProjectorCamera.Mode GetMode();
     }
 
     public interface IUseReplacementCamera {

@@ -34,9 +34,9 @@ namespace PlaytimePainter {
     {
         bool IsA3DBrush(PlaytimePainter painter, BrushConfig bc, ref bool overrideOther);
 
-        void PaintRenderTexture(StrokeVector stroke, ImageMeta image, BrushConfig bc, PlaytimePainter painter);
+        void PaintRenderTexture(StrokeVector stroke, TextureMeta image, BrushConfig bc, PlaytimePainter painter);
 
-        void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter);
+        void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, TextureMeta image, BrushConfig bc, PlaytimePainter painter);
 
         bool NeedsGrid(PlaytimePainter p);
 
@@ -46,7 +46,7 @@ namespace PlaytimePainter {
 
         Shader GetBrushShaderSingleBuffer(PlaytimePainter p);
 
-        bool IsEnabledFor(PlaytimePainter p, ImageMeta image, BrushConfig cfg);
+        bool IsEnabledFor(PlaytimePainter p, TextureMeta image, BrushConfig cfg);
 
 
 #if !NO_PEGI

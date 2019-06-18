@@ -176,11 +176,11 @@ namespace PlaytimePainter {
     public class BrushStrokePainterImage
     {
         public StrokeVector stroke;
-        public ImageMeta image;
+        public TextureMeta image;
         public BrushConfig brush;
         public PlaytimePainter painter;
 
-        public BrushStrokePainterImage(StrokeVector s, ImageMeta id, BrushConfig br, PlaytimePainter pp)
+        public BrushStrokePainterImage(StrokeVector s, TextureMeta id, BrushConfig br, PlaytimePainter pp)
         {
             stroke = s;
             image = id;

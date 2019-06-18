@@ -8,26 +8,20 @@ using UnityEditor.EditorTools;
 using System;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-
+using static QuizCannersUtilities.QcMath;
 
 namespace PlaytimePainter {
 
-    public static class BrushExtensions {
-        public static bool HasFlag(this ColorMask mask, int flag) => (mask & (ColorMask)(Mathf.Pow(2, flag))) != 0;
 
-        public static bool HasFlag(this ColorMask mask, ColorMask flag) => (mask & flag) != 0;
-    }
-
-    public enum DecalRotationMethod { Constant, Random, FaceStrokeDirection }
-
-    public enum SourceTextureColorUsage { Unchanged = 0, MultiplyByBrushColor = 1, ReplaceWithBrushColor = 2}
-
+  
     [Serializable]
     public class BrushConfig : PainterSystemCfg, IPEGI {
 
+        public enum SourceTextureColorUsage { Unchanged = 0, MultiplyByBrushColor = 1, ReplaceWithBrushColor = 2 }
+        
         #region Modes & Types
 
-        public bool IsCpu(PlaytimePainter painter) => painter ? painter.ImgMeta.TargetIsTexture2D() : targetIsTex2D;
+        public bool IsCpu(PlaytimePainter painter) => painter ? painter.TexMeta.TargetIsTexture2D() : targetIsTex2D;
         
         [SerializeField] private int _inGpuBrushType;
         [SerializeField] private int _inCpuBrushType;
@@ -100,9 +94,11 @@ namespace PlaytimePainter {
 
         public ColorMask mask;
 
-        public bool PaintingAllChannels => BrushExtensions.HasFlag(mask, ColorMask.R) && BrushExtensions.HasFlag(mask, ColorMask.G) && BrushExtensions.HasFlag(mask, ColorMask.B) && BrushExtensions.HasFlag(mask, ColorMask.A);
+        public bool PaintingAllChannels => mask.HasFlag(ColorMask.R) && mask.HasFlag( ColorMask.G) 
+                                        && mask.HasFlag( ColorMask.B) && mask.HasFlag( ColorMask.A);
 
-        public bool PaintingRGB => BrushExtensions.HasFlag(mask, ColorMask.R) && BrushExtensions.HasFlag(mask, ColorMask.G) && BrushExtensions.HasFlag(mask, ColorMask.B) && (!BrushExtensions.HasFlag(mask, ColorMask.A));
+        public bool PaintingRGB => mask.HasFlag(ColorMask.R) && mask.HasFlag( ColorMask.G)
+                                && mask.HasFlag(ColorMask.B) && (!mask.HasFlag( ColorMask.A));
         
         #endregion
 
@@ -111,7 +107,7 @@ namespace PlaytimePainter {
         #region Decal
         public int selectedDecal;
         public float decalAngle;
-        public DecalRotationMethod decalRotationMethod;
+        public BrushTypes.Decal.RotationMethod rotationMethod;
         public bool decalContentious;
         public float decalAngleModifier;
         #endregion
@@ -121,7 +117,7 @@ namespace PlaytimePainter {
         public bool showBrushDynamics;
         public ElementData brushDynamicsConfigs = new ElementData();
 
-        public BrushDynamic brushDynamic = new BrushDynamic_None();
+        public BrushDynamic.Base brushDynamic = new BrushDynamic.None();
         #endregion
 
         #region Brush Parameters
@@ -178,11 +174,11 @@ namespace PlaytimePainter {
         
         public PlaytimePainter Paint(StrokeVector stroke, PlaytimePainter painter) {
 
-            var imgData = painter.ImgMeta;
+            var imgData = painter.TexMeta;
 
             if (imgData == null) {
                 painter.InitIfNotInitialized();
-                imgData = painter.ImgMeta;
+                imgData = painter.TexMeta;
                 if (imgData == null)
                     return painter;
             }
@@ -197,7 +193,6 @@ namespace PlaytimePainter {
 
                 foreach (var module in imgData.Modules)
                     module.OnPainting(painter);
-                
                 
                 brushType.PaintToTexture2D(painter, this, stroke);
             } else {
@@ -241,13 +236,12 @@ namespace PlaytimePainter {
         public bool Mode_Type_PEGI()
         {
             var p = PlaytimePainter.inspected;
-            var id = p ? p.ImgMeta : null;
+            var id = p ? p.TexMeta : null;
 
             IPainterManagerModuleBrush cameraModule = null;
 
             foreach (var b in PainterSystemManagerModuleBase.BrushPlugins)
-                if (b.IsEnabledFor(p, id, this))
-                {
+                if (b.IsEnabledFor(p, id, this)) {
                     cameraModule = b;
                     break;
                 }
@@ -415,7 +409,7 @@ namespace PlaytimePainter {
             }
 
 
-            var id = p.ImgMeta;
+            var id = p.TexMeta;
 
             var changed = false;
             var cpuBlit = id.destination == TexTarget.Texture2D;
@@ -448,8 +442,8 @@ namespace PlaytimePainter {
                 if ("Brush Dynamic".selectType( 90, ref brushDynamic, brushDynamicsConfigs, true).nl(ref changed))
                     brushDynamic?.Nested_Inspect().nl(ref changed);
             }
-            else if (brushDynamic.GetType() != typeof(BrushDynamic_None))
-                    brushDynamic = (BrushDynamic_None)Activator.CreateInstance(typeof(BrushDynamic_None));
+            else if (brushDynamic.GetType() != typeof(BrushDynamic.None))
+                    brushDynamic = (BrushDynamic.None)Activator.CreateInstance(typeof(BrushDynamic.None));
             
 #if UNITY_EDITOR
 
@@ -469,7 +463,7 @@ namespace PlaytimePainter {
 
             if (p.terrain) {
 
-                if (p.ImgMeta != null && p.IsTerrainHeightTexture && p.NotUsingPreview)
+                if (p.TexMeta != null && p.IsTerrainHeightTexture && p.NotUsingPreview)
                     "Preview Shader is needed to see changes to terrain height.".writeWarning();
 
                 pegi.nl();
@@ -564,7 +558,7 @@ namespace PlaytimePainter {
 
            
             var painter = PlaytimePainter.inspected;
-            var id = painter.ImgMeta;
+            var id = painter.TexMeta;
             var cpu = id.TargetIsTexture2D();
             var blitMode = GetBlitMode(cpu);
 
@@ -650,12 +644,12 @@ namespace PlaytimePainter {
         
         #region Encode Decode
         public override CfgEncoder Encode() => new CfgEncoder()
-                .Add("dyn", brushDynamic, BrushDynamic.all);
+                .Add("dyn", brushDynamic, BrushDynamic.Base.all);
         
         public CfgEncoder EncodeStrokeFor(PlaytimePainter painter)
         {
 
-            var id = painter.ImgMeta;
+            var id = painter.TexMeta;
 
             var rt = id.TargetIsRenderTexture();
 
@@ -749,7 +743,7 @@ namespace PlaytimePainter {
                 case "hard": hardness = data.ToFloat(); break;
                 case "Speed": _dSpeed.SetValue(data.ToFloat()); break;
                 case "dSpeed": _dSpeed.Decode(data); break;
-                case "dyn": data.Decode(out brushDynamic, BrushDynamic.all); break;
+                case "dyn": data.Decode(out brushDynamic, BrushDynamic.Base.all); break;
 
                 case "maskOff": maskOffset = data.ToVector2(); break;
                 default: return false;
@@ -764,40 +758,51 @@ namespace PlaytimePainter {
 
     #region Dynamics
 
-    public class BrushDynamicAttribute : AbstractWithTaggedTypes
-    {
-        public override TaggedTypesCfg TaggedTypes => BrushDynamic.all;
-    }
+    public class BrushDynamic {
 
-    [BrushDynamic]
-    public abstract class BrushDynamic : AbstractCfg, IPEGI, IGotClassTag {
-
-        public virtual void OnPrepareRay(PlaytimePainter p, BrushConfig bc, ref Ray ray) { }
-
-        #region Encode & Decode
-        public abstract string ClassTag { get; }
-
-        public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(BrushDynamic));
-        public TaggedTypesCfg AllTypes => all;
-        
-        public override bool Decode(string tg, string data) {
-            switch (tg) {
-                case "t": testValue = data.ToInt(); break;
-                default: return false;
-            }
-
-            return true;
+        public class BrushDynamicAttribute : AbstractWithTaggedTypes
+        {
+            public override TaggedTypesCfg TaggedTypes => Base.all;
         }
 
-        public override CfgEncoder Encode() => new CfgEncoder().Add("t", testValue);
+        [BrushDynamic]
+        public abstract class Base : AbstractCfg, IPEGI, IGotClassTag
+        {
 
-        #endregion
+            public virtual void OnPrepareRay(PlaytimePainter p, BrushConfig bc, ref Ray ray)
+            {
+            }
 
-        #region Inspector
-        int testValue = -1;
+            #region Encode & Decode
+
+            public abstract string ClassTag { get; }
+
+            public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(Base));
+            public TaggedTypesCfg AllTypes => all;
+
+            public override bool Decode(string tg, string data)
+            {
+                switch (tg)
+                {
+                    case "t":
+                        testValue = data.ToInt();
+                        break;
+                    default: return false;
+                }
+
+                return true;
+            }
+
+            public override CfgEncoder Encode() => new CfgEncoder().Add("t", testValue);
+
+            #endregion
+
+            #region Inspector
+
+            int testValue = -1;
 
 #if !NO_PEGI
-        public virtual bool Inspect() => false;  /*
+            public virtual bool Inspect() => false; /*
         {
             bool changed = false;
 
@@ -807,67 +812,78 @@ namespace PlaytimePainter {
         }*/
 #endif
 
-        #endregion
-    }
-
-    [TaggedType(classTag, "None")]
-    public class BrushDynamic_None : BrushDynamic {
-        const string classTag = "none";
-
-        public override string ClassTag => classTag;
-    }
-
-    [TaggedType(classTag, "Jitter")]
-    public class BrushDynamic_Jitter : BrushDynamic {
-        const string classTag = "gitter";
-        public override string ClassTag => classTag;
-
-        private float jitterStrength = 0.1f;
-
-        public override void OnPrepareRay(PlaytimePainter p, BrushConfig bc, ref Ray rey)
-        {
-            // Quaternion * Vector3
-
-            rey.direction = Vector3.Lerp( rey.direction, UnityEngine.Random.rotation * rey.direction, jitterStrength); //  Quaternion.Lerp(cameraConfiguration.rotation, , camShake);
+            #endregion
         }
 
-        #region Inspector
-        #if !NO_PEGI
-        public override bool Inspect() =>
-       // {
-         //   var changed = false;
-
-            "Strength".edit(ref jitterStrength, 0.00001f, 0.25f);
-
-          //  return changed;
-
-      //  }
-        #endif
-        #endregion
-
-        #region Encode & Decode
-        public override bool Decode(string tg, string data)
+        [TaggedType(classTag, "None")]
+        public class None : Base
         {
-            switch (tg)
+            const string classTag = "none";
+
+            public override string ClassTag => classTag;
+        }
+
+        [TaggedType(classTag, "Jitter")]
+        public class Jitter : Base
+        {
+            const string classTag = "gitter";
+            public override string ClassTag => classTag;
+
+            private float jitterStrength = 0.1f;
+
+            public override void OnPrepareRay(PlaytimePainter p, BrushConfig bc, ref Ray rey)
             {
-                case "j": jitterStrength = data.ToFloat(); break;
-                default: return false;
+                // Quaternion * Vector3
+
+                rey.direction = Vector3.Lerp(rey.direction, UnityEngine.Random.rotation * rey.direction,
+                    jitterStrength); //  Quaternion.Lerp(cameraConfiguration.rotation, , camShake);
             }
 
-            return true;
+            #region Inspector
+
+#if !NO_PEGI
+            public override bool Inspect() =>
+                // {
+                //   var changed = false;
+
+                "Strength".edit(ref jitterStrength, 0.00001f, 0.25f);
+
+            //  return changed;
+
+            //  }
+#endif
+
+            #endregion
+
+            #region Encode & Decode
+
+            public override bool Decode(string tg, string data)
+            {
+                switch (tg)
+                {
+                    case "j":
+                        jitterStrength = data.ToFloat();
+                        break;
+                    default: return false;
+                }
+
+                return true;
+            }
+
+            public override CfgEncoder Encode() => new CfgEncoder().Add("j", jitterStrength);
+
+            #endregion
+
         }
 
-        public override CfgEncoder Encode() => new CfgEncoder().Add("j", jitterStrength);    
-        #endregion
+        [TaggedType(classTag, "Size from Speed")]
+        public class SpeedToSize : Base
+        {
+            const string classTag = "sts";
 
+            public override string ClassTag => classTag;
+        }
     }
 
-    [TaggedType(classTag, "Size from Speed")]
-    public class BrushDynamic_SpeedToSize : BrushDynamic {
-        const string classTag = "sts";
-
-        public override string ClassTag => classTag;
-    }
-    
     #endregion
 }

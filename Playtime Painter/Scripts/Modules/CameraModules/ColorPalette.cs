@@ -13,12 +13,10 @@ namespace PlaytimePainter
     {
         private static PainterDataAndConfig Cfg => PainterCamera.Data;
         private static BrushConfig GlobalBrush => Cfg.brushConfig;
-
-       
+        
         public string paletteName;
         private List<Color> _colors = new List<Color>();
-
-
+        
         #region Inspector
         #if !NO_PEGI
 
@@ -52,11 +50,13 @@ namespace PlaytimePainter
         }
 
         public bool Inspect() {
+
             var changed = false;
 
-            changed |= paletteName.edit_List(ref _colors, EditColor);
+            paletteName.edit_List(ref _colors, EditColor).changes(ref changed);
 
             return changed;
+
         }
 
         public void PickerPEGI() {

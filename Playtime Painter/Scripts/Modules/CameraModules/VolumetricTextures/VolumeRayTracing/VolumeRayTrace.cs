@@ -121,13 +121,13 @@ namespace PlaytimePainter
 
         public RenderTexture GetTargetTexture() => RenderTextureBuffersManager.GetReusableDepthTarget();
 
-        public ProjectorMode GetMode() => ProjectorMode.Clear;
+        public DepthProjectorCamera.Mode GetMode() => DepthProjectorCamera.Mode.Clear;
 
         public void AfterCameraRender(RenderTexture depthTexture) {
 
             var buff = GetBakedDepthsBuffer();
 
-            PainterCamera.Inst.RenderDepth(depthTexture, buff, (ColorChanel) lastUpdatedLight);
+            PainterCamera.Inst.RenderDepth(depthTexture, buff, (QcMath.ColorChanel) lastUpdatedLight);
             depthTexture.DiscardContents();
 
             lastUpdatedLight += 1;

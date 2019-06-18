@@ -24,7 +24,7 @@ namespace PlaytimePainter.Examples
                 Paint();
         }
 
-        readonly List<ImageMeta> _texturesNeedUpdate = new List<ImageMeta>();
+        readonly List<TextureMeta> _texturesNeedUpdate = new List<TextureMeta>();
 
         private void Paint() {
 
@@ -107,7 +107,7 @@ namespace PlaytimePainter.Examples
                             Debug.Log("Can't get UV coordinates from a Non-Mesh Collider");
 
                         BlitFunctions.Paint(receiver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord, 1, (Texture2D)receiver.texture, Vector2.zero, Vector2.one, brush, null);
-                        var id = receiver.texture.GetImgData();
+                        var id = receiver.texture.GetTextureData();
                         _texturesNeedUpdate.AddIfNew(id);
 
                     }

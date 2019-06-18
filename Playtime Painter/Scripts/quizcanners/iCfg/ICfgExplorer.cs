@@ -509,7 +509,7 @@ namespace QuizCannersUtilities
                 if (pegi.edit(ref myType))
                 {
                     dirty = true;
-                    data = QcFileLoadUtils.TryLoadAsTextAsset(myType);
+                    data = QcFile.LoadUtils.TryLoadAsTextAsset(myType);
                 }
 
                 if (dirty)
@@ -620,7 +620,7 @@ namespace QuizCannersUtilities
                 this.inspect_Name();
                 if (Cfg != null && dataExplorer.tag.Length > 0 && icon.Save.Click("Save To Assets", ref changed))
                 {
-                    QcFileSaveUtils.SaveBytesToAssetsByRelativePath(Mgmt.fileFolderHolder, dataExplorer.tag, dataExplorer.data);
+                    QcFile.SaveUtils.SaveBytesToAssetsByRelativePath(Mgmt.fileFolderHolder, dataExplorer.tag, dataExplorer.data);
                     QcUnity.RefreshAssetDatabase();
                 }
 
@@ -729,7 +729,7 @@ namespace QuizCannersUtilities
                 if ("From File:".edit(65, ref myType))
                 {
                     added = new SavedIstd();
-                    added.dataExplorer.data = QcFileLoadUtils.TryLoadAsTextAsset(myType);
+                    added.dataExplorer.data = QcFile.LoadUtils.TryLoadAsTextAsset(myType);
                     added.NameForPEGI = myType.name;
                     added.comment = DateTime.Now.ToString(CultureInfo.InvariantCulture);
                     states.Add(added);

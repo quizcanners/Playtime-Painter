@@ -15,7 +15,7 @@ namespace PlaytimePainter
 
         public PlaytimePainter parentComponent;
 
-        protected ImageMeta ImgMeta => parentComponent ? parentComponent.ImgMeta : null; 
+        protected TextureMeta ImgMeta => parentComponent ? parentComponent.TexMeta : null; 
 
         #region Abstract Serialized
         public abstract string ClassTag { get; }
@@ -27,7 +27,7 @@ namespace PlaytimePainter
         
         public virtual void OnUpdate(PlaytimePainter painter)  { }
 
-        public virtual bool SetTextureOnMaterial(ShaderProperty.TextureValue field, ImageMeta id, PlaytimePainter painter) => false;
+        public virtual bool SetTextureOnMaterial(ShaderProperty.TextureValue field, TextureMeta id, PlaytimePainter painter) => false;
         
         public virtual bool UpdateTilingToMaterial(ShaderProperty.TextureValue  fieldName, PlaytimePainter painter) => false;
         

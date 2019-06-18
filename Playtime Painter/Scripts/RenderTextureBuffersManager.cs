@@ -454,7 +454,7 @@ namespace PlaytimePainter {
             return mat;
         }
 
-        public static RenderTexture Blit(Texture tex, ImageMeta id)
+        public static RenderTexture Blit(Texture tex, TextureMeta id)
         {
             if (!tex || id == null)
                 return null;
@@ -638,14 +638,14 @@ namespace PlaytimePainter {
             return painter.GlobalBrushType.NeedsGrid;
         }
 
-        public static void AddIfNew<T>(this Dictionary<T, List<ImageMeta>> dic, T property, ImageMeta texture) where T : ShaderProperty.BaseShaderPropertyIndex
+        public static void AddIfNew<T>(this Dictionary<T, List<TextureMeta>> dic, T property, TextureMeta texture) where T : ShaderProperty.BaseShaderPropertyIndex
         {
 
-            List<ImageMeta> mgmt;
+            List<TextureMeta> mgmt;
 
             if (!dic.TryGetValue(property, out mgmt))
             {
-                mgmt = new List<ImageMeta>();
+                mgmt = new List<TextureMeta>();
                 dic.Add(property, mgmt);
             }
 
@@ -654,11 +654,11 @@ namespace PlaytimePainter {
 
         }
 
-        public static bool TargetIsTexture2D(this ImageMeta id) => id != null && id.destination == TexTarget.Texture2D;
+        public static bool TargetIsTexture2D(this TextureMeta id) => id != null && id.destination == TexTarget.Texture2D;
 
-        public static bool TargetIsRenderTexture(this ImageMeta id) => id != null && id.destination == TexTarget.RenderTexture;
+        public static bool TargetIsRenderTexture(this TextureMeta id) => id != null && id.destination == TexTarget.RenderTexture;
 
-        public static ImageMeta GetImgDataIfExists(this Texture texture)
+        public static TextureMeta GetImgDataIfExists(this Texture texture)
         {
             if (!texture || !PainterCamera.Data)
                 return null;
@@ -666,7 +666,7 @@ namespace PlaytimePainter {
             if (texture.IsBigRenderTexturePair() && PainterCamera.Inst.imgMetaUsingRendTex != null)
                 return PainterCamera.Inst.imgMetaUsingRendTex;
 
-            ImageMeta rid = null;
+            TextureMeta rid = null;
 
             var lst = PainterCamera.Data.imgMetas;
 
@@ -687,19 +687,19 @@ namespace PlaytimePainter {
             return rid;
         }
 
-        public static ImageMeta GetImgData(this Texture texture)
+        public static TextureMeta GetTextureData(this Texture texture)
         {
             if (!texture)
                 return null;
 
-            var nid = texture.GetImgDataIfExists() ?? new ImageMeta().Init(texture);
+            var nid = texture.GetImgDataIfExists() ?? new TextureMeta().Init(texture);
 
             return nid;
         }
 
         public static bool IsBigRenderTexturePair(this Texture tex) => tex && (tex == RenderTextureBuffersManager.GetPaintingBufferIfExist(0));
 
-        private static bool ContainsDuplicant(this IList<ImageMeta> textures, ImageMeta other)
+        private static bool ContainsDuplicant(this IList<TextureMeta> textures, TextureMeta other)
         {
 
             if (other == null)
@@ -717,10 +717,10 @@ namespace PlaytimePainter {
             return id != null ? id.CurrentTexture() : texture;
         }
 
-        public static RenderTexture CurrentRenderTexture(this ImageMeta id) => (id == null) ? null :
+        public static RenderTexture CurrentRenderTexture(this TextureMeta id) => (id == null) ? null :
             (id.renderTexture ? id.renderTexture : PainterCamera.FrontBuffer);
 
-        public static Texture ExclusiveTexture(this ImageMeta id)
+        public static Texture ExclusiveTexture(this TextureMeta id)
         {
             if (id == null)
                 return null;
@@ -738,7 +738,7 @@ namespace PlaytimePainter {
             return null;
         }
 
-        public static Texture CurrentTexture(this ImageMeta id)
+        public static Texture CurrentTexture(this TextureMeta id)
         {
             if (id == null)
                 return null;

@@ -103,7 +103,7 @@ namespace PlaytimePainter {
             return true;
         }
 
-        public void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter) {
+        public void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, TextureMeta image, BrushConfig bc, PlaytimePainter painter) {
 
             var volume = image.texture2D.GetVolumeTextureData();
 
@@ -176,9 +176,9 @@ namespace PlaytimePainter {
             
         }
 
-        public bool IsEnabledFor(PlaytimePainter painter, ImageMeta img, BrushConfig cfg) => img.IsVolumeTexture();
+        public bool IsEnabledFor(PlaytimePainter painter, TextureMeta img, BrushConfig cfg) => img.IsVolumeTexture();
 
-        public void PaintRenderTexture(StrokeVector stroke, ImageMeta image, BrushConfig bc, PlaytimePainter painter)
+        public void PaintRenderTexture(StrokeVector stroke, TextureMeta image, BrushConfig bc, PlaytimePainter painter)
         {
             var vt = painter.GetVolumeTexture();
 
@@ -288,7 +288,7 @@ namespace PlaytimePainter {
         
         public RenderTexture GetTargetTexture() => RenderTextureBuffersManager.GetRenderTextureWithDepth();
 
-        public ProjectorMode GetMode() => ProjectorMode.ReplacementShader;
+        public DepthProjectorCamera.Mode GetMode() => DepthProjectorCamera.Mode.ReplacementShader;
 
         public string ProjectorTagToReplace => "RenderType";
 
@@ -305,7 +305,7 @@ namespace PlaytimePainter {
 
         public bool ComponentInspector()
         {
-            var id = InspectedPainter.ImgMeta;
+            var id = InspectedPainter.TexMeta;
             
             if (id != null) return false;
             
@@ -360,7 +360,7 @@ namespace PlaytimePainter {
 
                 overrideBlitMode = true;
 
-                var id = p.ImgMeta;
+                var id = p.TexMeta;
                 
                 if (BrushConfig.showAdvanced) 
                     "Grid".toggle(50, ref _useGrid).nl();
@@ -512,7 +512,7 @@ namespace PlaytimePainter {
 
         public bool PlugIn_PainterGizmos(PlaytimePainter painter)
         {
-            var volume = painter.ImgMeta.GetVolumeTextureData();
+            var volume = painter.TexMeta.GetVolumeTextureData();
 
             if (volume && !painter.LockTextureEditing)
                 return volume.DrawGizmosOnPainter(painter);
@@ -557,7 +557,7 @@ namespace PlaytimePainter {
 
         }
 
-        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue field, ImageMeta id, PlaytimePainter painter)
+        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue field, TextureMeta id, PlaytimePainter painter)
         {
             if (!field.IsGlobalVolume()) return false;
 
@@ -592,7 +592,7 @@ namespace PlaytimePainter {
 
             if (!fieldName.IsGlobalVolume())
                 return false;
-            var id = painter.ImgMeta;
+            var id = painter.TexMeta;
             if (id == null) return true;
             id.tiling = Vector2.one;
             id.offset = Vector2.zero;
@@ -618,7 +618,7 @@ namespace PlaytimePainter {
             if (!p)
                 return null;
 
-            var id = p.ImgMeta;
+            var id = p.TexMeta;
 
             if (id != null && id.texture2D)
                 return id.GetVolumeTextureData();
@@ -626,7 +626,7 @@ namespace PlaytimePainter {
             return null;
         }
 
-        public static VolumeTexture IsVolumeTexture(this ImageMeta id)
+        public static VolumeTexture IsVolumeTexture(this TextureMeta id)
         {
      
             if (id != null && id.texture2D) 
@@ -664,11 +664,11 @@ namespace PlaytimePainter {
                 }
         }
 
-        public static VolumeTexture GetVolumeTextureData(this Texture tex) => GetVolumeTextureData(tex.GetImgData());
+        public static VolumeTexture GetVolumeTextureData(this Texture tex) => GetVolumeTextureData(tex.GetTextureData());
         
         private static VolumeTexture _lastFetchedVt;
 
-        public static VolumeTexture GetVolumeTextureData(this ImageMeta id)
+        public static VolumeTexture GetVolumeTextureData(this TextureMeta id)
         {
             if (VolumePaintingModule._inst == null || id == null)
                 return null;

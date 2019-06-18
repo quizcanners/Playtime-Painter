@@ -2,6 +2,7 @@
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using static QuizCannersUtilities.QcMath;
 
 namespace PlaytimePainter {
 
@@ -67,9 +68,7 @@ namespace PlaytimePainter {
 
             #endregion
 
-            public virtual bool SupportsTransparentLayer => false;
-
-            public Base SetKeyword(ImageMeta id)
+            public Base SetKeyword(TextureMeta id)
             {
 
                 foreach (var bs in AllModes)
@@ -81,7 +80,7 @@ namespace PlaytimePainter {
 
             }
 
-            protected virtual string ShaderKeyword(ImageMeta id) => null;
+            protected virtual string ShaderKeyword(TextureMeta id) => null;
 
             public virtual List<string> ShaderKeywords => null;
 
@@ -91,7 +90,7 @@ namespace PlaytimePainter {
                 QcUnity.ToggleShaderKeywords(TexMGMTdata.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
             }
 
-            public virtual BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id)
+            public virtual BlitFunctions.BlitModeFunction BlitFunctionTex2D(TextureMeta id)
             {
                 if (id.isATransparentLayer)
                     return BlitFunctions.AlphaBlitTransparent;
@@ -232,15 +231,14 @@ namespace PlaytimePainter {
         public class Alpha : Base
         {
 
-            protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_ALPHABLEND";
+            protected override string ShaderKeyword(TextureMeta id) => "BLIT_MODE_ALPHABLEND";
 
             protected override MsgPainter Translation => MsgPainter.BlitModeAlpha;
 
             public Alpha(int ind) : base(ind)
             {
             }
-
-            public override bool SupportsTransparentLayer => true;
+            
         }
 
         #endregion
@@ -259,15 +257,23 @@ namespace PlaytimePainter {
                     return _inst;
                 }
             }
-
-
-
-            protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_ADD";
+            
+            protected override string ShaderKeyword(TextureMeta id) => "BLIT_MODE_ADD";
 
             public override Shader ShaderForSingleBuffer => TexMGMTdata.brushAdd;
-            public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.AddBlit;
+            public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(TextureMeta id) => BlitFunctions.AddBlit;
 
             protected override MsgPainter Translation => MsgPainter.BlitModeAdd;
+
+            protected override bool Inspect()
+            {
+                var changed = base.Inspect();
+
+                if (GlobalBrush.Color.DistanceRgba(Color.clear, GlobalBrush.mask) < 0.1f)
+                    "Color value is very low. Increase if flow of painting is slower then expected. ".writeWarning();
+
+                return changed;
+            }
 
 
             public Add(int ind) : base(ind)
@@ -285,15 +291,25 @@ namespace PlaytimePainter {
 
             protected override MsgPainter Translation => MsgPainter.BlitModeSubtract;
 
-            protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_SUBTRACT";
+            protected override string ShaderKeyword(TextureMeta id) => "BLIT_MODE_SUBTRACT";
 
             public override bool SupportedBySingleBuffer => false;
 
-            public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) =>
+            public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(TextureMeta id) =>
                 BlitFunctions.SubtractBlit;
 
             public Subtract(int ind) : base(ind)
             {
+            }
+
+            protected override bool Inspect()
+            {
+                var changed = base.Inspect();
+
+                if (GlobalBrush.Color.DistanceRgba(Color.clear, GlobalBrush.mask) < 0.1f)
+                    "Color value is very low. Subtraction effect will accumulate slowly. ".writeWarning();
+
+                return changed;
             }
 
         }
@@ -306,7 +322,7 @@ namespace PlaytimePainter {
         {
             protected override MsgPainter Translation => MsgPainter.BlitModeCopy;
 
-            protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_COPY";
+            protected override string ShaderKeyword(TextureMeta id) => "BLIT_MODE_COPY";
             public override bool ShowColorSliders => false;
 
             public override bool SupportedByTex2D => false;
@@ -328,7 +344,7 @@ namespace PlaytimePainter {
 
             public override bool SupportedByRenderTexturePair => false;
             public override bool SupportedBySingleBuffer => false;
-            public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.MinBlit;
+            public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(TextureMeta id) => BlitFunctions.MinBlit;
 
             public Min(int ind) : base(ind)
             {
@@ -348,7 +364,7 @@ namespace PlaytimePainter {
             public override bool SupportedByRenderTexturePair => false;
             public override bool SupportedBySingleBuffer => false;
 
-            public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(ImageMeta id) => BlitFunctions.MaxBlit;
+            public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(TextureMeta id) => BlitFunctions.MaxBlit;
             //public override BlitJobBlitMode BlitJobFunction() => BlitJobBlitMode.Max;
 
             //"Paints highest value between brush color and current texture color for each channel.";
@@ -363,7 +379,7 @@ namespace PlaytimePainter {
 
         public class Blur : Base
         {
-            protected override string ShaderKeyword(ImageMeta id) => "BRUSH_BLUR";
+            protected override string ShaderKeyword(TextureMeta id) => "BRUSH_BLUR";
             public override bool ShowColorSliders => false;
             public override bool SupportedBySingleBuffer => false;
             public override bool SupportedByTex2D => false;
@@ -405,7 +421,7 @@ namespace PlaytimePainter {
             {
             }
 
-            protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_SAMPLE_DISPLACE";
+            protected override string ShaderKeyword(TextureMeta id) => "BLIT_MODE_SAMPLE_DISPLACE";
 
             public enum ColorSetMethod
             {
@@ -573,7 +589,7 @@ namespace PlaytimePainter {
 
         public class Bloom : Base
         {
-            protected override string ShaderKeyword(ImageMeta id) => "BRUSH_BLOOM";
+            protected override string ShaderKeyword(TextureMeta id) => "BRUSH_BLOOM";
 
             public override bool ShowColorSliders => false;
             public override bool SupportedBySingleBuffer => false;
@@ -620,7 +636,7 @@ namespace PlaytimePainter {
 
             public override bool AllSetUp => PainterCamera.depthProjectorCamera;
 
-            protected override string ShaderKeyword(ImageMeta id) => "BLIT_MODE_PROJECTION";
+            protected override string ShaderKeyword(TextureMeta id) => "BLIT_MODE_PROJECTION";
 
             public override Shader ShaderForDoubleBuffer => TexMGMTdata.brushDoubleBufferProjector;
 

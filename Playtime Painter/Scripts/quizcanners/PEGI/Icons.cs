@@ -2,6 +2,7 @@
 using UnityEngine;
 using System;
 using QuizCannersUtilities;
+using static QuizCannersUtilities.QcMath;
 
 namespace PlayerAndEditorGUI {
 
@@ -78,8 +79,6 @@ namespace PlayerAndEditorGUI {
                     return tmp;
             }
         }
-        
-        #region Color Icons
 
         private static List<Texture2D> _painterIcons;
 
@@ -110,33 +109,10 @@ namespace PlayerAndEditorGUI {
         }
 
         public static Texture GetIcon(this ColorChanel icon) => ColorIcon((int) icon);
-        
-        public static string ToText(this ColorMask icon) {
-            switch (icon) {
-                case ColorMask.R: return "Red";
-                case ColorMask.G: return "Green";
-                case ColorMask.B: return "Blue";
-                case ColorMask.A: return "Alpha";
-                case ColorMask.Color: return "RGB";
-                case ColorMask.All: return "All";
-                default: return "Unknown channel";
-            }
-        }
-
-        public static string ToText(this ColorChanel icon) {
-            switch (icon) {
-                case ColorChanel.R: return "Red";
-                case ColorChanel.G: return "Green";
-                case ColorChanel.B: return "Blue";
-                case ColorChanel.A: return "Alpha";
-                default: return "Unknown channel";
-            }
-        }
 
         public static Texture GetIcon(this ColorMask icon) => icon.ToColorChannel().GetIcon();
         
-        #endregion
-
+ 
     }
     
     public static partial class LazyTranslations {

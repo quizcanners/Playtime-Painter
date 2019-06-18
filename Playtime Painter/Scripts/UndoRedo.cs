@@ -20,7 +20,7 @@ namespace PlaytimePainter
             // Will replace with Dictionary of Encodings 
             public List<string> strokeRecord;
 
-            protected void SetB(ImageMeta from, int globalOrder)
+            protected void SetB(TextureMeta from, int globalOrder)
             {
                 order = globalOrder;
 
@@ -34,14 +34,14 @@ namespace PlaytimePainter
         {
             public Color[] pixels;
 
-            public void Set(Color[] texturePixels, ImageMeta from, int globalOrder)
+            public void Set(Color[] texturePixels, TextureMeta from, int globalOrder)
             {
 
                 SetB(from, globalOrder);
                 pixels = texturePixels;
             }
 
-            public Texture2DBackup(Color[] texturePixels, ImageMeta from, int globalOrder)
+            public Texture2DBackup(Color[] texturePixels, TextureMeta from, int globalOrder)
             {
                 Set(texturePixels, from, globalOrder);
             }
@@ -53,7 +53,7 @@ namespace PlaytimePainter
             public RenderTexture rt;
             public bool exclusive;
 
-            public void Set(ImageMeta from, int globalOrder)
+            public void Set(TextureMeta from, int globalOrder)
             {
 
                 RenderTextureBuffersManager.Blit(from.CurrentRenderTexture(), rt);
@@ -63,7 +63,7 @@ namespace PlaytimePainter
                 exclusive = from.renderTexture != null;
             }
 
-            public RenderTextureBackup(ImageMeta from, int globalOrder)
+            public RenderTextureBackup(TextureMeta from, int globalOrder)
             {
                 RenderTexture frt = from.CurrentRenderTexture();
 
@@ -117,7 +117,7 @@ namespace PlaytimePainter
                 rTex.SetMaximumLength(maxTextures);
             }
 
-            public void ApplyTo(ImageMeta id)
+            public void ApplyTo(TextureMeta id)
             {
 
                 var fromRt = (tex2D.Count == 0) ||
@@ -197,7 +197,7 @@ namespace PlaytimePainter
                 return rt;
             }
 
-            public void BackupTexture2D(int maxTextures, ImageMeta id)
+            public void BackupTexture2D(int maxTextures, TextureMeta id)
             {
 
                 tex2D.SetMaximumLength(maxTextures);
@@ -217,7 +217,7 @@ namespace PlaytimePainter
 
             }
 
-            public void BackupRenderTexture(int maxTextures, ImageMeta from)
+            public void BackupRenderTexture(int maxTextures, TextureMeta from)
             {
 
                 ClearRenderTexturesTill(maxTextures);

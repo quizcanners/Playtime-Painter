@@ -152,12 +152,12 @@ namespace PlaytimePainter
 #endif
         #endregion
 
-        public void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter) =>
+        public void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, TextureMeta image, BrushConfig bc, PlaytimePainter painter) =>
            painter.GetModule<TileableAtlasingPainterModule>()?.PaintTexture2D(stroke, brushAlpha, image, bc, painter);
         
         public bool IsA3DBrush(PlaytimePainter painter, BrushConfig bc, ref bool overrideOther) => false;
 
-        public void PaintRenderTexture(StrokeVector stroke, ImageMeta image, BrushConfig bc, PlaytimePainter painter)
+        public void PaintRenderTexture(StrokeVector stroke, TextureMeta image, BrushConfig bc, PlaytimePainter painter)
         { }
 
         public bool NeedsGrid(PlaytimePainter p) => false;
@@ -170,7 +170,7 @@ namespace PlaytimePainter
 
         public bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br) => false;
 
-        public bool IsEnabledFor(PlaytimePainter painter, ImageMeta id, BrushConfig cfg) => painter.IsAtlased() && !id.TargetIsRenderTexture();
+        public bool IsEnabledFor(PlaytimePainter painter, TextureMeta id, BrushConfig cfg) => painter.IsAtlased() && !id.TargetIsRenderTexture();
 
     }
 

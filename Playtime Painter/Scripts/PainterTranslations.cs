@@ -305,7 +305,7 @@ namespace PlayerAndEditorGUI {
                     (" There is no reason why you can't. This asset doesn't contain or depend on any plugins and does everything using Unity functions. " +
                      " If you downloaded Examples folder, there should be simple scripts that use Paint functions." +
                      " Usually you will " +
-                     " attach PlaytimePainter or some custom script to objects you want to be paintable. " +
+                     " attach PlaytimePainter or some custom script to objects you want to paint on. " +
                      " I try to make sure that all required information is provided trough the inspector" +
                      " interface. It should show warnings/hints when something needs to be set up. ").writeBig();
                 }
@@ -363,11 +363,9 @@ namespace PlayerAndEditorGUI {
                         " to current version only in most cases. ").writeBig();
                 }
 
-               // if ()
+      
+                if ("MSAA + HDR results in one frame delay".enter(ref inspectedUseful, 0).nl()) {
 
-                if ("MSAA + HDR results in one frame delay".enter(ref inspectedUseful, 0).nl())
-                {
-                   // ("When I use Ray-Tracing camera I notice that it ")
                 }
 
             }
@@ -390,8 +388,8 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
         
-        public static void Write(this MsgPainter m) { var txt = m.GetText(); txt.write(txt.ApproximateLengthUnsafe()); }
-        public static void Write(this MsgPainter m, int width) { m.GetText().write(width); }
+        public static void Write(this MsgPainter m) { var txt = m.GetText(); txt.write(m.GetDescription() ,txt.ApproximateLengthUnsafe()); }
+        public static void Write(this MsgPainter m, int width) { m.GetText().write(m.GetDescription(),width); }
         public static void Write(this MsgPainter m, string tip, int width) { m.GetText().write(tip, width); }
         public static void Write(this MsgPainter m, string tip) { var txt = m.GetText(); txt.write(tip, txt.ApproximateLengthUnsafe()); }
 #endif

@@ -55,14 +55,14 @@ namespace PlaytimePainter {
             var width = terrainData.size.x / l.tileSize.x;
             var length = terrainData.size.z / l.tileSize.y;
 
-            var id = painter.ImgMeta;
+            var id = painter.TexMeta;
             id.tiling = new Vector2(width, length);
             id.offset = l.tileOffset;
 
             return true;
         }
 
-        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue  field, ImageMeta id, PlaytimePainter painter)
+        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue  field, TextureMeta id, PlaytimePainter painter)
         {
             var tex = id.CurrentTexture();
             if (!painter.terrain) return false;

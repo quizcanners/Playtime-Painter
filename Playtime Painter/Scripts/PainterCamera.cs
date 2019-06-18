@@ -4,6 +4,7 @@ using System;
 using QuizCannersUtilities;
 using PlayerAndEditorGUI;
 using UnityEngine.Rendering;
+using static QuizCannersUtilities.QcMath;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -115,7 +116,7 @@ namespace PlaytimePainter {
 
         public PlaytimePainter focusedPainter;
 
-        public List<ImageMeta> blitJobsActive = new List<ImageMeta>();
+        public List<TextureMeta> blitJobsActive = new List<TextureMeta>();
 
         public bool isLinearColorSpace;
 
@@ -216,6 +217,7 @@ namespace PlaytimePainter {
         public Material defaultMaterial;
 
         private static Vector3 _prevPosPreview;
+
         private static float _previewAlpha = 1;
 
         #region Encode & Decode
@@ -247,14 +249,14 @@ namespace PlaytimePainter {
 
         #region Buffers MGMT
 
-        [NonSerialized] private ImageMeta alphaBufferDataTarget;
+        [NonSerialized] private TextureMeta alphaBufferDataTarget;
         [NonSerialized] private Shader alphaBufferDataShader;
 
         public MeshRenderer secondBufferDebug;
 
         public MeshRenderer alphaBufferDebug;
 
-        public ImageMeta imgMetaUsingRendTex;
+        public TextureMeta imgMetaUsingRendTex;
         public List<MaterialMeta> materialsUsingRenderTexture = new List<MaterialMeta>();
         public PlaytimePainter autodisabledBufferTarget;
 
@@ -299,7 +301,7 @@ namespace PlaytimePainter {
             RenderTextureBuffersManager.DiscardPaintingBuffersContents();
         }
 
-        public void ChangeBufferTarget(ImageMeta newTarget, MaterialMeta mat, ShaderProperty.TextureValue parameter, PlaytimePainter painter)
+        public void ChangeBufferTarget(TextureMeta newTarget, MaterialMeta mat, ShaderProperty.TextureValue parameter, PlaytimePainter painter)
         {
 
             if (newTarget != imgMetaUsingRendTex)  {
@@ -361,13 +363,13 @@ namespace PlaytimePainter {
         private static readonly ShaderProperty.TextureValue TransparentLayerUnderProperty = new ShaderProperty.TextureValue("_TransparentLayerUnderlay");
         private static readonly ShaderProperty.TextureValue AlphaPaintingBuffer =           new ShaderProperty.TextureValue("_pp_AlphaBuffer");
 
-        public void SHADER_BRUSH_UPDATE(BrushConfig brush = null, float brushAlpha = 1, ImageMeta id = null, PlaytimePainter painter = null)
+        public void SHADER_BRUSH_UPDATE(BrushConfig brush = null, float brushAlpha = 1, TextureMeta id = null, PlaytimePainter painter = null)
         {
             if (brush == null)
                 brush = GlobalBrush;
 
             if (id == null && painter)
-                id = painter.ImgMeta;
+                id = painter.TexMeta;
             
             brush.previewDirty = false;
 
@@ -429,8 +431,8 @@ namespace PlaytimePainter {
 
             QcUnity.SetShaderKeyword(PainterDataAndConfig.BRUSH_TEXCOORD_2, id.useTexCoord2);
 
-            if (blitMode.SupportsTransparentLayer)
-                QcUnity.SetShaderKeyword(PainterDataAndConfig.TARGET_TRANSPARENT_LAYER, id.isATransparentLayer);
+            //if (blitMode.SupportsTransparentLayer)
+            QcUnity.SetShaderKeyword(PainterDataAndConfig.TARGET_TRANSPARENT_LAYER, id.isATransparentLayer);
 
             blitMode.SetKeyword(id).SetGlobalShaderParameters();
 
@@ -446,7 +448,7 @@ namespace PlaytimePainter {
             }
         }
 
-        public void SHADER_STROKE_SEGMENT_UPDATE(BrushConfig bc, float brushAlpha, ImageMeta id, StrokeVector stroke, PlaytimePainter pntr, out bool alphaBuffer)
+        public void SHADER_STROKE_SEGMENT_UPDATE(BrushConfig bc, float brushAlpha, TextureMeta id, StrokeVector stroke, PlaytimePainter pntr, out bool alphaBuffer)
         {
             CheckPaintingBuffers();
             
@@ -512,7 +514,7 @@ namespace PlaytimePainter {
 
         #region Alpha Buffer 
 
-        public void AlphaBufferSetDirtyBeforeRender(ImageMeta id, Shader shade) {
+        public void AlphaBufferSetDirtyBeforeRender(TextureMeta id, Shader shade) {
 
             if (alphaBufferDataTarget != null && (alphaBufferDataTarget != id || alphaBufferDataShader != shade))
                 UpdateFromAlphaBuffer(alphaBufferDataTarget.CurrentRenderTexture(), alphaBufferDataShader);
@@ -606,9 +608,9 @@ namespace PlaytimePainter {
          
         public RenderTexture Render(Texture from, RenderTexture to) => Render(from, to, Data.brushBufferCopy);
 
-        public RenderTexture Render(ImageMeta from, RenderTexture to) => Render(from.CurrentTexture(), to, Data.brushBufferCopy);
+        public RenderTexture Render(TextureMeta from, RenderTexture to) => Render(from.CurrentTexture(), to, Data.brushBufferCopy);
 
-        public RenderTexture Render(Texture from, ImageMeta to) => Render(from, to.CurrentRenderTexture(), Data.brushBufferCopy);
+        public RenderTexture Render(Texture from, TextureMeta to) => Render(from, to.CurrentRenderTexture(), Data.brushBufferCopy);
 
         public void Render(Color col, RenderTexture to)
         {
@@ -634,14 +636,14 @@ namespace PlaytimePainter {
 
         #region Updates
 
-        public void TryApplyBufferChangesTo(ImageMeta id) {
+        public void TryApplyBufferChangesTo(TextureMeta id) {
 
             if ((id != null) && (id == alphaBufferDataTarget))
                 FinalizePreviousAlphaDataTarget();
             
         }
 
-        public void TryDiscardBufferChangesTo(ImageMeta id) {
+        public void TryDiscardBufferChangesTo(TextureMeta id) {
 
             if (id != null && id == alphaBufferDataTarget)
                 DiscardAlphaBuffer();
@@ -849,7 +851,7 @@ namespace PlaytimePainter {
 
                 if (p && !Application.isPlaying && sinceLastPainterCall>0.016f)
                 {
-                    if (p.ImgMeta == null)
+                    if (p.TexMeta == null)
                         PlaytimePainter.currentlyPaintedObjectPainter = null;
                     else {
                         TexMgmtData.brushConfig.Paint(p.stroke, p);

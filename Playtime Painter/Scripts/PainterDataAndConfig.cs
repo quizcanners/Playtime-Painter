@@ -4,6 +4,7 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using System;
 using System.Globalization;
+using static QuizCannersUtilities.QcMath;
 
 namespace PlaytimePainter
 {
@@ -133,7 +134,7 @@ namespace PlaytimePainter
 
         public List<string> playtimeSavedTextures = new List<string>();
         
-        public List<ImageMeta> imgMetas = new List<ImageMeta>();
+        public List<TextureMeta> imgMetas = new List<TextureMeta>();
 
         public List<MaterialMeta> matMetas = new List<MaterialMeta>();
 
@@ -178,7 +179,7 @@ namespace PlaytimePainter
 
         public bool showColorSchemes;
         [NonSerialized]
-        public readonly Dictionary<ShaderProperty.TextureValue, List<ImageMeta>> recentTextures = new Dictionary<ShaderProperty.TextureValue, List<ImageMeta>>();
+        public readonly Dictionary<ShaderProperty.TextureValue, List<TextureMeta>> recentTextures = new Dictionary<ShaderProperty.TextureValue, List<TextureMeta>>();
 
         public List<Texture> sourceTextures = new List<Texture>();
 
@@ -294,7 +295,7 @@ namespace PlaytimePainter
 
             if (!Recordings.TryGetValue(filename, out data))
             {
-                data = QcFileLoadUtils.LoadJsonFromPersistentPath(vectorsFolderName, filename);
+                data = QcFile.LoadUtils.LoadJsonFromPersistentPath(vectorsFolderName, filename);
                 Recordings.Add(filename, data);
             }
 

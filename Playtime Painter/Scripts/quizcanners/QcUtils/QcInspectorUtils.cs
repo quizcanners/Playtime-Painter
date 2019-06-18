@@ -710,7 +710,7 @@ namespace QuizCannersUtilities
                 "Img Name".edit(90, ref screenShotName);
                 var path = Path.Combine(QcUnity.GetDataPathWithout_Assets_Word(), folderName);
                 if (icon.Folder.Click("Open Screen Shots Folder : {0}".F(path)))
-                    QcFileExplorerUtils.OpenPath(path);
+                    QcFile.ExplorerUtils.OpenPath(path);
 
                 pegi.nl();
 
@@ -752,7 +752,7 @@ namespace QuizCannersUtilities
 
 
                     if (icon.Folder.Click())
-                        QcFileExplorerUtils.OpenPath(QcUnity.GetDataPathWithout_Assets_Word());
+                        QcFile.ExplorerUtils.OpenPath(QcUnity.GetDataPathWithout_Assets_Word());
 
                     "Game View Needs to be open for this to work".fullWindowDocumentationClickOpen();
 
@@ -810,7 +810,7 @@ namespace QuizCannersUtilities
 
                 cam.clearFlags = clearFlags;
 
-                QcFileSaveUtils.SaveTextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png", screenShotTexture2D);
+                QcFile.SaveUtils.SaveTextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png", screenShotTexture2D);
             }
 
             public void OnPostRender()
@@ -828,7 +828,7 @@ namespace QuizCannersUtilities
                     screenShotTexture2D.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0, false);
                     screenShotTexture2D.Apply();
 
-                    QcFileSaveUtils.SaveTextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png",
+                    QcFile.SaveUtils.SaveTextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png",
                         screenShotTexture2D);
 
                 }

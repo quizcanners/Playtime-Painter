@@ -14,7 +14,7 @@ namespace PlaytimePainter
     [ImageMetaModule]
     public abstract class ImageMetaModuleBase : PainterSystemCfg, IGotClassTag {
 
-        public ImageMeta parentMeta;
+        public TextureMeta parentMeta;
         
         #region Abstract Serialized
 

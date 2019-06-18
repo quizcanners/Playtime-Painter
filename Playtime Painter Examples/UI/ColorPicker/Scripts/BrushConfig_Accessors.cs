@@ -35,10 +35,10 @@ namespace PlaytimePainter.Examples {
         #region Painter Configurations
         public PlaytimePainter painterComponent;
         
-        ImageMeta GetCurrentImage() {
+        TextureMeta GetCurrentImage() {
 
             if (painterComponent) {
-                var img = painterComponent.ImgMeta;
+                var img = painterComponent.TexMeta;
 
                 if (img != null)
                     return img;

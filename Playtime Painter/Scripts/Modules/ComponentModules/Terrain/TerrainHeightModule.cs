@@ -34,14 +34,14 @@ namespace PlaytimePainter {
         {
             if (!CorrectField(field, painter)) return false;
 
-            var id = painter.ImgMeta;
+            var id = painter.TexMeta;
             if (id == null) return true;
             id.tiling = Vector2.one;
             id.offset = Vector2.zero;
             return true;
         }
 
-        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue  field, ImageMeta id, PlaytimePainter painter)
+        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue  field, TextureMeta id, PlaytimePainter painter)
         {
             if (!CorrectField(field, painter)) return false;
 

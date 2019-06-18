@@ -205,7 +205,7 @@ namespace QuizCannersUtilities {
             if (!path.Contains("Assets"))
                 path = Path.Combine("Assets", path);
 
-            var fullPath = Path.Combine(QcFileSaveUtils.OutsideOfAssetsFolder, path);
+            var fullPath = Path.Combine(QcFile.OutsideOfAssetsFolder, path);
 
             try
             {
@@ -2107,8 +2107,6 @@ namespace QuizCannersUtilities {
 
         #endregion
     }
-
- 
 
 #pragma warning restore IDE0034 // Simplify 'default' expression
 #pragma warning restore IDE0019 // Use pattern matching

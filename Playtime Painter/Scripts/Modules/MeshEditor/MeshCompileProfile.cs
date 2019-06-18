@@ -63,7 +63,7 @@ namespace PlaytimePainter
             if ("Drop New Profile Here:".edit(ref newProfile).nl(ref changed)) {
 
                 var mSol = new MeshPackagingProfile();
-                mSol.Decode(QcFileLoadUtils.TryLoadAsTextAsset(newProfile));
+                mSol.Decode(QcFile.LoadUtils.TryLoadAsTextAsset(newProfile));
 
                 PainterCamera.Data.meshPackagingSolutions.Add(mSol);
                 PlaytimePainter.inspected.selectedMeshProfile = PainterCamera.Data.meshPackagingSolutions.Count - 1;

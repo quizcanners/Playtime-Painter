@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using QuizCannersUtilities;
-
+using static QuizCannersUtilities.QcMath;
 
 namespace PlaytimePainter {
 
@@ -12,9 +12,18 @@ namespace PlaytimePainter {
     public static class BlitFunctions {
 
         public delegate void BlitModeFunction(ref Color dst);
-        public delegate void PaintTexture2DMethod(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter);
+        public delegate void PaintTexture2DMethod(StrokeVector stroke, float brushAlpha, TextureMeta image, BrushConfig bc, PlaytimePainter painter);
 
         public delegate bool AlphaModeDlg();
+
+        public static void Set(ColorMask mask) {
+
+            r = mask.HasFlag(ColorMask.R);
+            g = mask.HasFlag(ColorMask.G);
+            b = mask.HasFlag(ColorMask.B);
+            a = mask.HasFlag(ColorMask.A);
+
+        }
 
         public static bool r;
         public static bool g;
@@ -107,7 +116,7 @@ namespace PlaytimePainter {
             if (a) cDst.a -= alpha * Mathf.Max(0, cDst.a - cSrc.a);
         }
 
-        public static void PrepareCpuBlit(this BrushConfig bc, ImageMeta id)
+        public static void PrepareCpuBlit(this BrushConfig bc, TextureMeta id)
         {
             half = (bc.Size(false)) / 2;
 
@@ -122,12 +131,7 @@ namespace PlaytimePainter {
 
             alpha = 1;
 
-            var m = bc.mask;
-
-            r = m.HasFlag(ColorMask.R);
-            g = m.HasFlag(ColorMask.G);
-            b = m.HasFlag(ColorMask.B);
-            a = m.HasFlag(ColorMask.A);
+            Set(bc.mask);
 
             cSrc = bc.Color;
 
@@ -135,15 +139,15 @@ namespace PlaytimePainter {
 
         public static void Paint(Vector2 uvCoords, float brushAlpha, Texture2D texture, Vector2 offset, Vector2 tiling, BrushConfig bc, PlaytimePainter pntr)
         {
-            var id = texture.GetImgData();
+            var id = texture.GetTextureData();
 
             id.offset = offset;
             id.tiling = tiling;
 
-            Paint(new StrokeVector(uvCoords), brushAlpha, texture.GetImgData(), bc, pntr);
+            Paint(new StrokeVector(uvCoords), brushAlpha, texture.GetTextureData(), bc, pntr);
         }
 
-        public static void Paint(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter)
+        public static void Paint(StrokeVector stroke, float brushAlpha, TextureMeta image, BrushConfig bc, PlaytimePainter painter)
         {
 
             if (image?.Pixels == null)

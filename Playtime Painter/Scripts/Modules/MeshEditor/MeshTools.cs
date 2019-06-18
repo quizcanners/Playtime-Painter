@@ -1078,7 +1078,7 @@ namespace PlaytimePainter
 
             if ((ind > 0) && (ind < 5))
             {
-                a.meshPoint.FlipChanelOnLine((ColorChanel)(ind - 1), b.meshPoint);
+                a.meshPoint.FlipChanelOnLine((QcMath.ColorChanel)(ind - 1), b.meshPoint);
                 EditedMesh.Dirty = true;
                 Event.current.Use();
             }

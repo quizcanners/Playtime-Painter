@@ -262,7 +262,7 @@ namespace PlaytimePainter
             for (var c = 0; c < 4; c++)
             {
                 var ch = _channel[c];
-                changed |= ((ColorChanel)c).GetIcon().toggle(ref ch.enabled);
+                changed |= ((QcMath.ColorChanel)c).GetIcon().toggle(ref ch.enabled);
 
                 if (ch.enabled)
                 {
@@ -320,7 +320,7 @@ namespace PlaytimePainter
             TextureRole.Clear();
 
             int size;
-            var id = p?.ImgMeta;
+            var id = p?.TexMeta;
             Color[] dst;
             Texture2D tex = null;
 
@@ -560,7 +560,7 @@ namespace PlaytimePainter
 
         }
 
-        public virtual Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
+        public virtual Color[] GetPixels(TextureSetForCombinedMaps set, TextureMeta id)
         {
             if (pixels == null)
                 ExtractPixels(set.diffuse, 
@@ -570,7 +570,7 @@ namespace PlaytimePainter
             return pixels;
         }
 
-        public List<Color[]> GetMipPixels(TextureSetForCombinedMaps set, ImageMeta id)
+        public List<Color[]> GetMipPixels(TextureSetForCombinedMaps set, TextureMeta id)
         {
             if (mipLevels != null) return mipLevels;
             
@@ -640,7 +640,7 @@ namespace PlaytimePainter
             _inst = this;
         }
 
-        public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
+        public override Color[] GetPixels(TextureSetForCombinedMaps set, TextureMeta id)
         {
 
             if (id != null)
@@ -663,7 +663,7 @@ namespace PlaytimePainter
 
         public override string NameForDisplayPEGI()=> "Fill Color";
 
-        public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
+        public override Color[] GetPixels(TextureSetForCombinedMaps set, TextureMeta id)
         {
             if (pixels != null) return pixels;
             
@@ -692,7 +692,7 @@ namespace PlaytimePainter
 
         public override string NameForDisplayPEGI()=> "Color";
 
-        public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id) {
+        public override Color[] GetPixels(TextureSetForCombinedMaps set, TextureMeta id) {
             if (pixels == null)
                 ExtractPixels(set.diffuse, id?.width ?? set.width, id?.height ?? set.height);
 
@@ -709,7 +709,7 @@ namespace PlaytimePainter
 
         public override string NameForDisplayPEGI()=> "Gloss";
 
-        public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
+        public override Color[] GetPixels(TextureSetForCombinedMaps set, TextureMeta id)
         {
             if (pixels != null) return pixels;
             
@@ -803,7 +803,7 @@ namespace PlaytimePainter
 
         public override string NameForDisplayPEGI()=> "Reflectivity";
 
-        public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
+        public override Color[] GetPixels(TextureSetForCombinedMaps set, TextureMeta id)
         {
             if (pixels != null) return pixels;
             
@@ -822,7 +822,7 @@ namespace PlaytimePainter
 
         public override string NameForDisplayPEGI()=> "Ambient";
 
-        public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
+        public override Color[] GetPixels(TextureSetForCombinedMaps set, TextureMeta id)
         {
             var width = id?.width ?? set.width;
             var height = id?.height ?? set.height;
@@ -863,7 +863,7 @@ namespace PlaytimePainter
         {
         }
 
-        public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
+        public override Color[] GetPixels(TextureSetForCombinedMaps set, TextureMeta id)
         {
             if (pixels != null) return pixels;
             
@@ -938,7 +938,7 @@ namespace PlaytimePainter
 
         }
 
-        public override Color[] GetPixels(TextureSetForCombinedMaps set, ImageMeta id)
+        public override Color[] GetPixels(TextureSetForCombinedMaps set, TextureMeta id)
         {
           
             if (pixels == null)

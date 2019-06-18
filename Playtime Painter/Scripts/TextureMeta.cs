@@ -13,13 +13,14 @@ using System.IO;
 using Unity.Collections;
 using Unity.Jobs;
 using static PlaytimePainter.PaintingUndoRedo;
+using static QuizCannersUtilities.QcMath;
 
 namespace PlaytimePainter
 {
 
     public enum TexTarget { Texture2D, RenderTexture }
 
-    public class ImageMeta : PainterSystemKeepUnrecognizedCfg, IPEGI_ListInspect, IGotName, INeedAttention, ICanBeDefaultCfg
+    public class TextureMeta : PainterSystemKeepUnrecognizedCfg, IPEGI_ListInspect, IGotName, INeedAttention, ICanBeDefaultCfg
     {
 
         #region Values
@@ -87,7 +88,7 @@ namespace PlaytimePainter
                     p.parentMeta = meta;
             }
 
-            public ImageMeta meta;
+            public TextureMeta meta;
 
             public ImgMetaModules() { }
         }
@@ -554,7 +555,7 @@ namespace PlaytimePainter
                 p[i] = col;
         }
 
-        public ImageMeta SetPixels(Color col, ColorMask mask) {
+        public TextureMeta SetPixels(Color col, ColorMask mask) {
             var p = Pixels;
 
             bool r = mask.HasFlag(ColorMask.R);
@@ -777,7 +778,7 @@ namespace PlaytimePainter
 
         #region Init
 
-        public ImageMeta Init(int renderTextureSize)
+        public TextureMeta Init(int renderTextureSize)
         {
             width = renderTextureSize;
             height = renderTextureSize;
@@ -787,7 +788,7 @@ namespace PlaytimePainter
             return this;
         }
 
-        public ImageMeta Init(Texture tex)
+        public TextureMeta Init(Texture tex)
         {
 
             var t2D = tex as Texture2D;
@@ -1101,7 +1102,7 @@ namespace PlaytimePainter
                         "Save Name".edit(70, ref saveName);
 
                         if (icon.Folder.Click("Open Folder with textures").nl())
-                            QcFileExplorerUtils.OpenPersistentFolder(SavedImagesFolder);
+                            QcFile.ExplorerUtils.OpenPersistentFolder(SavedImagesFolder);
 
                         if ("Save Playtime".Click("Will save to {0}/{1}".F(Application.persistentDataPath, saveName)).nl())
                             SaveInPlayer();
@@ -1184,7 +1185,7 @@ namespace PlaytimePainter
             if (showToggles || (isATransparentLayer && !hasAlphaLayerTag) || forceOpenUTransparentLayer)
             {
                 MsgPainter.TransparentLayer.GetText().toggleIcon(ref isATransparentLayer).changes(ref changed);
-                //"Toggle this on if texture has transparent(invisible) areas which contains color you don't want to see"
+
                 MsgPainter.TransparentLayer.GetDescription()
                 .fullWindowDocumentationWithLinkClickOpen("https://www.quizcanners.com/single-post/2018/09/30/Why-do-I-get-black-outline-around-the-stroke", "More About it");
 

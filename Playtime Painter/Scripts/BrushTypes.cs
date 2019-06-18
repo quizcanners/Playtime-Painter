@@ -4,6 +4,7 @@ using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using System;
 using Random = UnityEngine.Random;
+using static QuizCannersUtilities.QcMath;
 
 namespace PlaytimePainter
 {
@@ -220,7 +221,7 @@ namespace PlaytimePainter
 
                 var worldSpace = painter.NeedsGrid();
 
-                var id = painter.ImgMeta;
+                var id = painter.TexMeta;
 
                 var deltaPos = st.DeltaWorldPos;
 
@@ -283,7 +284,7 @@ namespace PlaytimePainter
                 if (st.CrossedASeam())
                     st.uvFrom = st.uvTo;
 
-                var id = painter.ImgMeta;
+                var id = painter.TexMeta;
 
                 bool alphaBuffer;
 
@@ -320,7 +321,7 @@ namespace PlaytimePainter
             }
 
             public virtual void AfterStroke_Painter(PlaytimePainter painter, BrushConfig br, StrokeVector st,
-                bool alphaBuffer, ImageMeta id)
+                bool alphaBuffer, TextureMeta id)
             {
 
                 painter.AfterStroke(st);
@@ -394,7 +395,7 @@ namespace PlaytimePainter
                 if (st.CrossedASeam())
                     st.uvFrom = st.uvTo;
 
-                ImageMeta id = painter.ImgMeta;
+                TextureMeta id = painter.TexMeta;
 
                 bool alphaBuffer;
 
@@ -442,7 +443,7 @@ namespace PlaytimePainter
             public static void Paint(Vector2 uv, BrushConfig br, RenderTexture rt)
             {
 
-                var id = rt.GetImgData();
+                var id = rt.GetTextureData();
                 var stroke = new StrokeVector(uv)
                 {
                     firstStroke = false
@@ -471,6 +472,8 @@ namespace PlaytimePainter
         public class Decal : Base
         {
 
+            public enum RotationMethod { Constant, Random, FaceStrokeDirection }
+            
             private static Decal _inst;
 
             public Decal()
@@ -530,12 +533,12 @@ namespace PlaytimePainter
 
                 BeforeStroke(painter, br, st);
 
-                var id = painter.ImgMeta;
+                var id = painter.TexMeta;
 
                 if (st.firstStroke || br.decalContentious)
                 {
 
-                    if (br.decalRotationMethod == DecalRotationMethod.FaceStrokeDirection)
+                    if (br.rotationMethod == RotationMethod.FaceStrokeDirection)
                     {
                         var delta = st.uvTo - _previousUv;
 
@@ -562,7 +565,7 @@ namespace PlaytimePainter
 
                     var uv = st.uvTo;
 
-                    if (br.decalRotationMethod == DecalRotationMethod.FaceStrokeDirection && !st.firstStroke)
+                    if (br.rotationMethod == RotationMethod.FaceStrokeDirection && !st.firstStroke)
                     {
                         var length = Mathf.Max(deltaUv.magnitude * 2 * id.width / br.Size(false), 1);
                         var scale = tf.localScale;
@@ -588,11 +591,11 @@ namespace PlaytimePainter
             }
 
             public override void AfterStroke_Painter(PlaytimePainter painter, BrushConfig br, StrokeVector st,
-                bool alphaBuffer, ImageMeta id)
+                bool alphaBuffer, TextureMeta id)
             {
                 base.AfterStroke_Painter(painter, br, st, alphaBuffer, id);
 
-                if (br.decalRotationMethod != DecalRotationMethod.Random) return;
+                if (br.rotationMethod != RotationMethod.Random) return;
 
                 br.decalAngle = Random.Range(-90f, 450f);
                 OnShaderBrushUpdate(Cfg.brushConfig);
@@ -635,22 +638,22 @@ namespace PlaytimePainter
 
                 "Rotation".write("Rotation method", 60);
 
-                pegi.editEnum(ref InspectedBrush.decalRotationMethod).nl(ref changed);
+                pegi.editEnum(ref InspectedBrush.rotationMethod).nl(ref changed);
 
-                switch (InspectedBrush.decalRotationMethod)
+                switch (InspectedBrush.rotationMethod)
                 {
-                    case DecalRotationMethod.Constant:
+                    case RotationMethod.Constant:
                         "Angle:".write("Decal rotation", 60);
                         changed |= pegi.edit(ref InspectedBrush.decalAngle, -90, 450);
                         break;
-                    case DecalRotationMethod.FaceStrokeDirection:
+                    case RotationMethod.FaceStrokeDirection:
                         "Ang Offset:".edit("Angle modifier after the rotation method is applied", 80,
                             ref InspectedBrush.decalAngleModifier, -180f, 180f);
                         break;
                 }
 
                 pegi.newLine();
-                if (!BrushExtensions.HasFlag(InspectedBrush.mask, ColorMask.A))
+                if (!InspectedBrush.mask.HasFlag(ColorMask.A))
                     "! Alpha chanel is disabled. Decals may not render properly".writeHint();
 
                 return changed;
@@ -739,7 +742,7 @@ namespace PlaytimePainter
                 var deltaUv = st.DeltaUv; //uv - st.uvFrom;//.Previous_uv;
                 var magnitude = deltaUv.magnitude;
 
-                var id = painter.ImgMeta;
+                var id = painter.TexMeta;
 
                 var width = br.Size(false) / id.width * 4;
 
@@ -889,7 +892,7 @@ namespace PlaytimePainter
 
             public override bool NeedsGrid => Cfg.useGridForBrush;
 
-            private static void PrepareSphereBrush(ImageMeta id, BrushConfig br, StrokeVector stroke,
+            private static void PrepareSphereBrush(TextureMeta id, BrushConfig br, StrokeVector stroke,
                 PlaytimePainter painter, out bool alphaBuffer)
             {
 
@@ -910,7 +913,7 @@ namespace PlaytimePainter
             public override void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st)
             {
 
-                var id = painter.ImgMeta;
+                var id = painter.TexMeta;
 
                 BeforeStroke(painter, br, st);
 
@@ -934,7 +937,7 @@ namespace PlaytimePainter
 
                 bool alphaBuffer;
 
-                PrepareSphereBrush(rt.GetImgData(), br, st, null, out alphaBuffer);
+                PrepareSphereBrush(rt.GetTextureData(), br, st, null, out alphaBuffer);
                 TexMGMT.brushRenderer.UseSkinMeshAsBrush(go, skinner, subMeshIndex);
                 TexMGMT.Render();
                 AfterStroke_NoPainter(br, alphaBuffer, rt);
@@ -947,7 +950,7 @@ namespace PlaytimePainter
 
                 bool alphaBuffer;
 
-                PrepareSphereBrush(rt.GetImgData(), br, st, null, out alphaBuffer);
+                PrepareSphereBrush(rt.GetTextureData(), br, st, null, out alphaBuffer);
                 TexMGMT.brushRenderer.UseMeshAsBrush(go, mesh, subMeshIndex);
                 TexMGMT.Render();
                 AfterStroke_NoPainter(br, alphaBuffer, rt);
@@ -962,7 +965,7 @@ namespace PlaytimePainter
                 PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, aTexturesInRow, 1);
 
                 bool alphaBuffer;
-                PrepareSphereBrush(rt.GetImgData(), br, st, null, out alphaBuffer);
+                PrepareSphereBrush(rt.GetTextureData(), br, st, null, out alphaBuffer);
                 TexMGMT.brushRenderer.UseMeshAsBrush(go, mesh, subMeshIndex);
                 TexMGMT.Render();
 

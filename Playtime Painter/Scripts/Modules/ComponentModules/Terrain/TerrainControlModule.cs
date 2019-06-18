@@ -33,7 +33,7 @@ namespace PlaytimePainter
         {
             if (!painter.terrain) return false;
             if (!fieldName.HasUsageTag(PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE)) return false;
-            var id = painter.ImgMeta;
+            var id = painter.TexMeta;
             if (id == null) return true;
             
             id.tiling = Vector2.one;
@@ -42,7 +42,7 @@ namespace PlaytimePainter
             return true;
         }
 
-        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue  field, ImageMeta id, PlaytimePainter painter)
+        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue  field, TextureMeta id, PlaytimePainter painter)
         {
             var tex = id.CurrentTexture();
             if (!painter.terrain) return false;

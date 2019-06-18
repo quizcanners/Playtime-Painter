@@ -7,7 +7,7 @@
  * The MIT license applies only to this class which was originally named SDFTextureGenerator.cs.
  *
  *
- * I modified it to work with Playtime Painter's ImageMeta class, but the underlying technique remains the same. 
+ * I modified it to work with Playtime Painter's TextureMeta class, but the underlying technique remains the same. 
  */
 
 using UnityEngine;
@@ -26,7 +26,7 @@ namespace PlaytimePainter {
 		
 		private static int width, height;
 		private static Pixel[,] pixels;
-        private static ImageMeta img;
+        private static TextureMeta img;
 
         /// <param name="maxInside">
         /// Maximum pixel distance measured inside the edge, resulting in an alpha value of 1.
@@ -51,7 +51,7 @@ namespace PlaytimePainter {
         }
 
 		public static void Generate (
-            ImageMeta image,
+            TextureMeta image,
 			float maxInside,
 			float maxOutside,
 			float postProcessDistance) {

@@ -5,6 +5,7 @@ using PlayerAndEditorGUI;
 using System.IO;
 using System.Linq;
 using QuizCannersUtilities;
+using static QuizCannersUtilities.QcMath;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -62,7 +63,7 @@ namespace PlaytimePainter {
         public override void Update_Brush_Parameters_For_Preview_Shader(PlaytimePainter p) =>
             QcUnity.ToggleShaderKeywords(!p.IsAtlased(), PainterDataAndConfig.UV_NORMAL, PainterDataAndConfig.UV_ATLASED);
         
-        public bool PaintTexture2D(StrokeVector stroke, float brushAlpha, ImageMeta image, BrushConfig bc, PlaytimePainter painter) {
+        public bool PaintTexture2D(StrokeVector stroke, float brushAlpha, TextureMeta image, BrushConfig bc, PlaytimePainter painter) {
             
             if (!painter.IsAtlased()) return false;
             
@@ -91,10 +92,8 @@ namespace PlaytimePainter {
 
             BlitFunctions.alpha = 1;
 
-            BlitFunctions.r = BrushExtensions.HasFlag(bc.mask, ColorMask.R);
-            BlitFunctions.g = BrushExtensions.HasFlag(bc.mask, ColorMask.G);
-            BlitFunctions.b = BrushExtensions.HasFlag(bc.mask, ColorMask.B);
-            BlitFunctions.a = BrushExtensions.HasFlag(bc.mask, ColorMask.A);
+
+            BlitFunctions.Set(bc.mask);
 
             BlitFunctions.cSrc = bc.Color;
 
@@ -183,7 +182,7 @@ namespace PlaytimePainter {
             if ("Undo".Click().nl(ref changed ))
                 m.DisableKeyword(PainterDataAndConfig.UV_ATLASED);
 
-            var id = p.ImgMeta;
+            var id = p.TexMeta;
 
             if (id.TargetIsRenderTexture())
                 "Watch out, Render Texture Brush can change neighboring textures on the Atlas.".writeOneTimeHint("rtOnAtlas");
