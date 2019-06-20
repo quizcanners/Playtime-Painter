@@ -1125,6 +1125,26 @@ namespace PlaytimePainter
                             
                         }
                     }
+
+                    if ("Add Background".enter(ref _inspectedProcess, 9).nl()) {
+
+                        "Background Color".edit(80, ref clearColor).nl();
+                        
+                        if ("Add Background".Click("Will Add Beckground color and make everything non transparent").nl()) {
+
+                            bool wasRt = WasRenderTexture();
+
+                            for (int i = 0; i < _pixels.Length; i++)
+                                _pixels[i] = BlitFunctions.AddBackground(_pixels[i], clearColor);
+
+                            SetAndApply();
+
+                            if (wasRt)
+                                ReturnToRenderTexture();
+                        }
+                        
+                    }
+
                 }
             }
 
@@ -1257,10 +1277,9 @@ namespace PlaytimePainter
             return null;
         }
 
-#endif
+        #endif
         #endregion
-
-
+        
         private float _repaintTime;
 
         public void ManagedUpdate(PlaytimePainter painter) {
@@ -1279,9 +1298,7 @@ namespace PlaytimePainter
             foreach (var m in Modules)
                 m.ManagedUpdate();
         }
-
-      
-
+        
     }
 
 }

@@ -203,10 +203,18 @@ namespace PlaytimePainter {
         
         #region Processors
 
+
+        public static Color AddBackground(Color pix, Color colBG) {
+
+            pix = pix * pix.a + colBG * (1 - pix.a);
+
+            pix.a = 1;
+
+            return pix;
+        }
+
         public static Color ColorToAlpha(Color pix, Color colBG) {
-
             
-
             double pixR = pix.r;
             double pixG = pix.g;
             double pixB = pix.b;
