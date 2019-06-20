@@ -998,7 +998,7 @@ namespace PlaytimePainter {
                 AdjustListSize();
             }
 
-            _texturesMeta.enter_List(ref textures, ref inspectedItems, 11).changes(ref changed);
+            _texturesMeta.enter_List(ref textures, ref inspectedItems, 11).nl(ref changed);
 
             if ("Textures:".foldout().nl()) {
                 AdjustListSize();
@@ -1019,7 +1019,7 @@ namespace PlaytimePainter {
             }
 
             pegi.newLine();
-            "Is Color Atlas:".toggle(80, ref _sRgb).nl(ref changed);
+            "Is Color Atlas:".toggleIcon(ref _sRgb).nl(ref changed);
 
             if ("Generate".Click().nl(ref changed))
                 ReconstructAsset();

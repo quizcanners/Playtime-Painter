@@ -16,11 +16,10 @@ namespace PlaytimePainter
     {
         const string tag = "TilAtlCntrl";
         public override string ClassTag => tag;
-
-
+        
         public static TileableAtlasingControllerModule inst;
 
-        public override string ToString() => "Tilable Atlasing";
+        public override string NameForDisplayPEGI() => "Tilable Atlasing";
         
         public List<AtlasTextureCreator> atlases = new List<AtlasTextureCreator>(); 
 

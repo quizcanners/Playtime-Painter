@@ -2036,7 +2036,7 @@ namespace PlaytimePainter {
 
                             texMgmt.DependenciesInspect().changes(ref changed);
 
-                #region Undo/Redo & Recording
+                            #region Undo/Redo & Recording
 
                             id.Undo_redo_PEGI();
                             
@@ -2054,35 +2054,37 @@ namespace PlaytimePainter {
                             }
                             
 
-                #endregion
+                            #endregion
 
-                #region Brush
+                            #region Brush
 
-                            GlobalBrush.Nested_Inspect().changes(ref changed);
+                            if (!cfg.moreOptions) {
 
-                            if (!cpu && id.texture2D && id.width != id.height)
-                                icon.Warning.write("Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality.");
+                                GlobalBrush.Nested_Inspect().changes(ref changed);
 
-                            var mode = GlobalBrush.GetBlitMode(cpu);
-                            var col = GlobalBrush.Color;
+                                if (!cpu && id.texture2D && id.width != id.height)
+                                    icon.Warning.write(
+                                        "Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality.");
 
-                            if ((cpu || !mode.UsingSourceTexture || GlobalBrush.srcColorUsage != BrushConfig.SourceTextureColorUsage.Unchanged) && !IsTerrainHeightTexture &&
-                                !pegi.paintingPlayAreaGui) {
-                                if (pegi.edit(ref col).changes(ref changed))
-                                    GlobalBrush.Color = col;
+                                var mode = GlobalBrush.GetBlitMode(cpu);
+                                var col = GlobalBrush.Color;
 
-                                MsgPainter.SampleColor.DocumentationClick();
+                                if ((cpu || !mode.UsingSourceTexture || GlobalBrush.srcColorUsage !=
+                                     BrushConfig.SourceTextureColorUsage.Unchanged) && !IsTerrainHeightTexture &&
+                                    !pegi.paintingPlayAreaGui)
+                                {
+                                    if (pegi.edit(ref col).changes(ref changed))
+                                        GlobalBrush.Color = col;
 
-                            }
+                                    MsgPainter.SampleColor.DocumentationClick();
+
+                                }
                             
-                            pegi.nl();
-
-                            if (!cfg.moreOptions)  {
-
+                                pegi.nl();
+                            
                                 GlobalBrush.ColorSliders().nl(ref changed);
 
-                                if (cfg.showColorSchemes)
-                                {
+                                if (cfg.showColorSchemes) {
 
                                     var scheme = cfg.colorSchemes.TryGet(cfg.selectedColorScheme);
 

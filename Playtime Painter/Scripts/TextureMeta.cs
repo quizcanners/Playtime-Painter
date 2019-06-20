@@ -1150,7 +1150,7 @@ namespace PlaytimePainter
 
             #endregion
 
-            if ("Enable Undo for {0}".F(NameForPEGI).toggle_enter(ref enableUndoRedo, ref inspectedItems, 2, ref changed).nl())
+            if ("Enable Undo for '{0}'".F(NameForPEGI).toggle_enter(ref enableUndoRedo, ref inspectedItems, 2, ref changed).nl())
             {
                 
                 "UNDOs: Tex2D".edit(80, ref _numberOfTexture2DBackups).changes(ref changed);
