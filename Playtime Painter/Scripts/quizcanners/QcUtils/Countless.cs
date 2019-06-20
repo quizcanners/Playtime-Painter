@@ -1150,8 +1150,7 @@ public class Countless<T> : CountlessBase {
         }
 
         public List<List<T>> GetAllObjsNoOrder() => _objs.Where(t => t != null).ToList();
-
-
+        
         public List<List<T>> GetAllObjs(out List<int> inds)
         {
             var objects = new List<List<T>>();
@@ -1292,6 +1291,30 @@ public class Countless<T> : CountlessBase {
         #endregion
 
         #region Encode & Decode
+
+        public static CfgEncoder Encode(this Countless<Color> c)
+        {
+            var cody = new CfgEncoder();
+            if (c != null)
+            {
+                List<int> inds;
+                List<Color> vals = c.GetAllObjs(out inds);
+                for (int i = 0; i < inds.Count; i++)
+                    cody.Add(inds[i].ToString(), vals[i]);
+            }
+            return cody;
+        }
+
+        public static void DecodeInto(this string data, out Countless<Color> c)
+        {
+            c = new Countless<Color>();
+            var cody = new CfgDecoder(data);
+            foreach (var tag in cody)
+                c[tag.ToInt()] = cody.GetData().ToColor();
+
+        }
+
+
         public static CfgEncoder Encode(this Countless<string> c)
         {
             var cody = new CfgEncoder();

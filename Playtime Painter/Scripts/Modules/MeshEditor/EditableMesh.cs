@@ -32,6 +32,8 @@ namespace PlaytimePainter {
         public bool dirtyUvs;
         public int vertexCount;
 
+        public int maxGroupIndex;
+
         public bool firstBuildRun;
         public bool gotBoneWeights;
         public int subMeshCount;
@@ -39,6 +41,8 @@ namespace PlaytimePainter {
         public int uv2DistributeCurrent;
 
         public List<uint> baseVertex = new List<uint>();
+
+        public Countless<Color> groupColors = new Countless<Color>();
 
         public List<string> shapes;
 
@@ -112,19 +116,11 @@ namespace PlaytimePainter {
             gotBoneWeights = (bW != null) && (bW.Length == vCnt);
          
 
-           // "Got Datas".TimerEnd_Restart();
-            
             for (var i = 0; i < vCnt; i++) {
                 var v = new MeshPoint(vertices[i]);
                 meshPoints.Add(v);
                 var uv = new Vertex(meshPoints[i], gotUv1 ? uv1[i] : Vector2.zero, gotUv2 ? uv2[i] : Vector2.zero);
-                //if (gotColors)
-                  //  uv.color = cols[i];
-                //if (gotBoneWeights)
-                   // uv.boneWeight = bW[i];
             }
-
-         //   "Got UV".TimerEnd_Restart();
 
             if (gotColors)
                 for (var i = 0; i < vCnt; i++)
@@ -409,11 +405,13 @@ namespace PlaytimePainter {
         public override CfgEncoder Encode() {
             var cody = new CfgEncoder()
             .Add_String("n", meshName)
+            .Add_IfNotZero("grM", maxGroupIndex)
             .Add_IfNotEmpty("vrt",meshPoints)
             .Add_IfNotEmpty("tri",triangles)
             .Add("sub", subMeshCount)
             .Add_IfTrue("wei", gotBoneWeights)
             .Add("bv", baseVertex)
+            .Add("gcls", groupColors.Encode())
             .Add("biP", bindPoses);
 
             if (uv2DistributeRow > 0) {
@@ -449,8 +447,11 @@ namespace PlaytimePainter {
                 case "vrt":  data.Decode_List(out meshPoints); break;
                 case "tri": data.Decode_List(out triangles); break;
                 case "n": meshName = data; break;
+                case "grM": maxGroupIndex = data.ToInt(); break;
                 case "sub":  subMeshCount = data.ToInt(); break;
                 case "wei": gotBoneWeights = data.ToBool(); break;
+
+                case "gcls": data.DecodeInto(out groupColors); break;
 
                 case "bv": data.Decode_List(out baseVertex); break;
                 case "biP": data.Decode_Array(out bindPoses);  break;
@@ -466,10 +467,8 @@ namespace PlaytimePainter {
                         if (mt == null || !mt.StdTag.Equals(tg)) continue;
                         mt.Decode(data);
                         return true;
-
                     }
-
-
+                    
                     return false;
             }
             return true;
@@ -751,16 +750,22 @@ namespace PlaytimePainter {
                 edm.TileAndOffsetUVs(offset, tile, 1);
                 uv2DistributeCurrent++;
             }
-
-
+            
             triangles.AddRange(edm.triangles);
 
             var tf = other.transform;
 
-            foreach (var v in edm.meshPoints)
-            {
-                v.WorldPos = tf.TransformPoint(v.localPos);
-                meshPoints.Add(v);
+            int groupOffset = maxGroupIndex +1;
+
+            foreach (var point in edm.meshPoints) {
+
+                foreach (var vertex in point.vertices) {
+                    vertex.groupIndex += groupOffset;
+                    maxGroupIndex = Mathf.Max(maxGroupIndex, vertex.groupIndex);
+                }
+
+                point.WorldPos = tf.TransformPoint(point.localPos);
+                meshPoints.Add(point);
             }
 
         }
@@ -1020,7 +1025,7 @@ namespace PlaytimePainter {
 
             pos = (a.localPos * dstB + b.localPos * dstA) / sum;
 
-            var newVrt = new MeshPoint(pos);
+            var newVrt = new MeshPoint(a, pos);
 
             meshPoints.Add(newVrt);
 
@@ -1109,7 +1114,7 @@ namespace PlaytimePainter {
         public MeshPoint InsertIntoTriangle(Triangle a, Vector3 pos)
         {
             // Debug.Log("Inserting into triangle");
-            var newVrt = new MeshPoint(pos);
+            var newVrt = new MeshPoint(a.vertexes[0].meshPoint, pos);
 
             var w = a.DistanceToWeight(pos);
 
@@ -1143,7 +1148,7 @@ namespace PlaytimePainter {
         public MeshPoint InsertIntoTriangleUniqueVertices(Triangle a, Vector3 localPos)
         {
 
-            var newVrt = new MeshPoint(localPos);
+            var newVrt = new MeshPoint(a.vertexes[0].meshPoint, localPos);
             meshPoints.Add(newVrt);
 
             var newUv = new Vertex[3]; // (newVrt);

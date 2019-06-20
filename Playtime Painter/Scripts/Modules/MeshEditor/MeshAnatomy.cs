@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using QuizCannersUtilities;
+using Unity.Transforms;
 using static PlaytimePainter.PainterMesh;
 using static QuizCannersUtilities.QcMath;
 
@@ -11,14 +12,17 @@ namespace PlaytimePainter
     public class PainterMesh
     {
 
-        public class Vertex : PainterSystemKeepUnrecognizedCfg
-        {
+        public class Vertex : PainterSystemKeepUnrecognizedCfg {
+
             protected PlaytimePainter Painter => MeshManager.target;
 
+
+            public BoneWeight boneWeight;
+            public Color color;
             public int uvIndex;
             public int finalIndex;
-            public Color color;
-            public BoneWeight boneWeight;
+            public int groupIndex;
+            
 
             public bool hasVertex;
             public List<Triangle> triangles = new List<Triangle>();
@@ -40,6 +44,7 @@ namespace PlaytimePainter
                 {
                     boneWeight = toCopyFrom.boneWeight;
                     color = toCopyFrom.color;
+                    groupIndex = toCopyFrom.groupIndex;
                 }
                 else color = Color.white;
 
@@ -113,6 +118,7 @@ namespace PlaytimePainter
             {
                 var cody = new CfgEncoder()
                     .Add("i", finalIndex)
+                    .Add_IfNotZero("cg", groupIndex)
                     .Add_IfNotZero("uvi", uvIndex)
                     .Add_IfNotBlack("col", color)
                     .Add("bw", boneWeight);
@@ -122,21 +128,15 @@ namespace PlaytimePainter
 
             public override bool Decode(string tg, string data)
             {
-                switch (tg)
-                {
+                switch (tg) {
                     case "i":
                         finalIndex = data.ToInt();
                         EditableMesh.decodedEditableMesh.uvsByFinalIndex[finalIndex] = this;
                         break;
-                    case "uvi":
-                        uvIndex = data.ToInt();
-                        break;
-                    case "col":
-                        color = data.ToColor();
-                        break;
-                    case "bw":
-                        boneWeight = data.ToBoneWeight();
-                        break;
+                    case "cg": groupIndex = data.ToInt(); break;
+                    case "uvi": uvIndex = data.ToInt(); break;
+                    case "col": color = data.ToColor(); break;
+                    case "bw": boneWeight = data.ToBoneWeight(); break;
                     default: return false;
                 }
 
@@ -311,7 +311,7 @@ namespace PlaytimePainter
             public Vector4 shadowBake;
             public List<List<BlendFrame>> shapes = new List<List<BlendFrame>>(); // not currently working
             public float edgeStrength;
-            public int vertexGroup;
+          
 
 
             public void StripPointData_StageForDeleteFrom(MeshPoint pointB)
@@ -422,8 +422,7 @@ namespace PlaytimePainter
 
 
                     .Add_IfNotEpsilon("edge", edgeStrength)
-                    .Add_IfNotEmpty("bs", shapes)
-                    .Add_IfNotZero("gr", vertexGroup);
+                    .Add_IfNotEmpty("bs", shapes);
 
                 return cody;
             }
@@ -457,9 +456,6 @@ namespace PlaytimePainter
                         break;
                     case "bs":
                         data.Decode_ListOfList(out shapes);
-                        break;
-                    case "gr":
-                        vertexGroup = data.ToInt();
                         break;
                     default: return false;
                 }
@@ -526,9 +522,33 @@ namespace PlaytimePainter
                 Reboot(Vector3.zero);
             }
 
-            public MeshPoint(Vector3 npos)
+            public MeshPoint(Vector3 npos, bool editing = false)
             {
                 Reboot(npos);
+
+                if (editing)
+                    smoothNormal = Cfg.newVerticesSmooth;
+            }
+
+            void CopyFrom(MeshPoint other)
+            {
+                smoothNormal = other.smoothNormal;
+
+                edgeStrength = other.edgeStrength;
+            }
+
+            public MeshPoint(MeshPoint other)
+            {
+                Reboot(other.localPos);
+                CopyFrom(other);
+
+
+            }
+
+            public MeshPoint(MeshPoint other, Vector3 pos)
+            {
+                Reboot(pos);
+                CopyFrom(other);
             }
 
             public void PixPerfect()
@@ -562,7 +582,6 @@ namespace PlaytimePainter
                 localPos = nPos;
                 vertices = new List<Vertex>();
 
-                smoothNormal = Cfg.newVerticesSmooth;
             }
 
             public void ClearColor(ColorMask bm)

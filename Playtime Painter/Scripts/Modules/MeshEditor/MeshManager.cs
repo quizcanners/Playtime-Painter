@@ -198,7 +198,7 @@ namespace PlaytimePainter
         {
             Debug.Log("Disconnecting dragged");
 
-            var temp = new MeshPoint(SelectedUv.LocalPos);
+            var temp = new MeshPoint(SelectedUv.meshPoint);
 
             editedMesh.meshPoints.Add(temp);
 
@@ -263,8 +263,8 @@ namespace PlaytimePainter
 
         public MeshPoint CreatePointAndFocus(Vector3 pos)
         {
-            var hold = new MeshPoint(pos);
-
+            var hold = new MeshPoint(pos, true);
+            
             new Vertex(hold);
 
             editedMesh.meshPoints.Add(hold);
@@ -763,8 +763,8 @@ namespace PlaytimePainter
         {
             var mats = target.Materials;
 
-            for (var i = 0; i < mats.Length; i++)
-            {
+            for (var i = 0; i < mats.Length; i++) {
+
                 var m = mats[i];
 
                 if (!m) continue;
@@ -981,8 +981,7 @@ namespace PlaytimePainter
                 }
 
                 var mats = target.Materials;
-                if ("Combining Sub Meshes".conditional_enter(mats.Length > 1, ref _inspectedMeshItems, 4).nl())
-                {
+                if ("Combining Sub Meshes".conditional_enter(mats.Length > 1, ref _inspectedMeshItems, 4).nl()) {
 
                     "Select which materials should transfer color into vertex color".writeHint();
 
@@ -996,12 +995,9 @@ namespace PlaytimePainter
                         else {
                             var md = m.GetMaterialPainterMeta();
                             
-                           // pegi.toggleIcon(ref md.selectedForMerge);
-                            
                             "{0} color to vertex color".F(m.name).toggleIcon(ref md.colorToVertexColorOnMerge, true);
 
-                            if (md.colorToVertexColorOnMerge)
-                            {
+                            if (md.colorToVertexColorOnMerge) {
                                 var col = m.color;
                                 if (pegi.edit(ref col))
                                     m.color = col;

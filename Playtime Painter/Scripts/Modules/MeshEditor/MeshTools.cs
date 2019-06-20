@@ -10,6 +10,9 @@ using static PlaytimePainter.PainterMesh;
 namespace PlaytimePainter
 {
 
+
+    #pragma warning disable IDE0034 // Simplify 'default' expression
+
     public interface IMeshToolWithPerMeshData {
         CfgEncoder EncodePerMeshData();
     }
@@ -949,6 +952,8 @@ namespace PlaytimePainter
 
         public int selectedSubMesh = 0;
 
+        private bool constantUpdateOnGroupColors = false;
+
         #region Inspector
         public override string Tooltip => (" Vertex Color {0} 1. Make sure mesh Profile has Color enabled {0}" +
                                           "2. Only if shader outputs vertex color, changes will be visible. " +
@@ -966,13 +971,10 @@ namespace PlaytimePainter
             var col = br.Color;
             var p = InspectedPainter;
 
-            if (("Paint All with Brush Color").Click().nl(ref changed))
-                em.PaintAll(br.Color);
-
+       
             "Make Vertex Unique On Paint".toggleIcon(ref Cfg.makeVerticesUniqueOnEdgeColoring).nl(ref changed);
             
-            if (em.subMeshCount > 1)
-            {
+            if (em.subMeshCount > 1) {
 
                 var cnt = em.subMeshCount;
                 var mats = InspectedPainter.Materials;
@@ -990,9 +992,6 @@ namespace PlaytimePainter
 
             }
             
-            //if (pegi.edit(ref col).nl(ref changed))
-              //  br.Color = col;
-            
             br.ColorSliders().nl();
             
             if (!p.MeshProfile.UsesColor)
@@ -1000,9 +999,61 @@ namespace PlaytimePainter
             if (!p.MeshProfile.WritesColor)
                 "Selected Mesh Profile doesn't write to Color.".writeHint();
 
+
+
+            if (("Paint All with Brush Color").Click().nl(ref changed))
+                em.PaintAll(br.Color);
+
+            "Vertex Groups".nl(PEGI_Styles.ListLabel);
+
+                "Recolor on edit".toggleIcon(ref constantUpdateOnGroupColors).nl(ref changed);
+
+                for (int i = 0; i <= em.maxGroupIndex; i++) {
+                    var c = em.groupColors[i];
+
+                if (icon.Refresh.Click("Get Actual color") || c == default(Color))
+                {
+                    c = GetGroupColor(i);
+                        em.groupColors[i] = c;
+                    }
+
+                    if (pegi.edit(ref c)) {
+                        em.groupColors[i] = c;
+                        if (constantUpdateOnGroupColors)
+                            SetGroupColor( i , c);
+                    }
+
+                    if (!constantUpdateOnGroupColors && icon.Clear.Click("Fill group {0} "))
+                        SetGroupColor(i, c);
+
+                }
+
             return changed;
         }
-        #endif
+
+
+        private Color GetGroupColor(int index) {
+
+            foreach (var p in EditedMesh.meshPoints)
+                foreach (var u in p.vertices)
+                    if (u.groupIndex == index)
+                        return u.color;
+
+            return Color.white;
+        }
+
+        private void SetGroupColor(int index, Color col) {
+
+            foreach (var p in EditedMesh.meshPoints)
+                foreach (var u in p.vertices)
+                    if (u.groupIndex == index)
+                        u.color = col;
+
+            EditedMesh.dirtyColor = true;
+
+        }
+
+#endif
         #endregion
 
         public override bool MouseEventPointedVertex()
