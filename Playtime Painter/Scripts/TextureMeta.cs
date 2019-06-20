@@ -338,22 +338,6 @@ namespace PlaytimePainter
 
         public void RenderTexture_To_Texture2D() => RenderTexture_To_Texture2D(texture2D);
 
-        public Texture2D NewTexture2D()
-        {
-
-            Texture2D newTex = new Texture2D(width, height, TextureFormat.RGBA32, true);
-            
-            newTex.SetPixels(Pixels);
-
-            newTex.Apply();
-
-            newTex.name = texture2D.name + "_A";
-
-            texture2D = newTex;
-            
-            return newTex;
-        }
-
         public void RenderTexture_To_Texture2D(Texture2D tex)
         {
             if (!texture2D)
@@ -421,7 +405,7 @@ namespace PlaytimePainter
 
                 if (renderTexture != null) {
                     PixelsToGamma();
-                converted = true;
+                    converted = true;
                 }
 #endif
             }
@@ -742,7 +726,7 @@ namespace PlaytimePainter
         #endregion
 
         #region BlitJobs
-#if UNITY_2018_1_OR_NEWER
+        #if UNITY_2018_1_OR_NEWER
         public NativeArray<Color> pixelsForJob;
         public JobHandle jobHandle;
 
@@ -773,7 +757,7 @@ namespace PlaytimePainter
                 SetAndApply();
             }
         }
-#endif
+        #endif
         #endregion
 
         #region Init
@@ -836,7 +820,7 @@ namespace PlaytimePainter
             }
         }
         
-        void UseRenderTexture(RenderTexture rt)
+        private void UseRenderTexture(RenderTexture rt)
         {
             renderTexture = rt;
             width = rt.width;
@@ -856,7 +840,7 @@ namespace PlaytimePainter
                 saveName = "New img";
         }
 
-        void UseTex2D(Texture2D tex)
+        private void UseTex2D(Texture2D tex)
         {
 
             From(tex);
@@ -1191,6 +1175,7 @@ namespace PlaytimePainter
 
                 if (isATransparentLayer)
                     preserveTransparency = true;
+                
 
                 pegi.nl();
             }
@@ -1272,32 +1257,30 @@ namespace PlaytimePainter
             return null;
         }
 
-        #endif
+#endif
         #endregion
 
-      
-        public void ManagedUpdate(PlaytimePainter painter) {
 
-            RepaintMgmt(painter);
+        private float _repaintTime;
+
+        public void ManagedUpdate(PlaytimePainter painter) {
+            
+            if (pixelsDirty) {
+                
+                if ((Time.time - _repaintTime < _repaintDelay) && !painter.stroke.mouseUp) return;
+
+                if (texture2D)
+                    SetAndApply(!dontRedoMipMaps);
+
+                pixelsDirty = false;
+                _repaintTime = Time.time;
+            }
 
             foreach (var m in Modules)
                 m.ManagedUpdate();
         }
 
-        private float _repaintTimer;
-        private void RepaintMgmt(PlaytimePainter painter) {
-            if (!pixelsDirty) return;
-
-            _repaintTimer -= Application.isPlaying ? Time.deltaTime : 0.016f;
-
-            if (_repaintTimer >= 0 && !painter.stroke.mouseUp) return;
-
-            if (texture2D)
-                SetAndApply(!dontRedoMipMaps);
-
-            pixelsDirty = false;
-            _repaintTimer = _repaintDelay;
-        }
+      
 
     }
 

@@ -79,7 +79,7 @@
 				float4 frag(v2f i) : COLOR{
 
 					float2 uv = i.texcoord.xy;
-					float2 d = _DestBuffer_TexelSize.xy*_brushForm.w;
+					float2 d = _TargetTexture_TexelSize.xy*_brushForm.w;
 
 					#if UNITY_COLORSPACE_GAMMA
 

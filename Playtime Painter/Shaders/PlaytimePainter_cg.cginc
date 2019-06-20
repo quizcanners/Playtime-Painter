@@ -3,6 +3,8 @@
 static const float GAMMA_TO_LINEAR = 2.2;
 static const float LINEAR_TO_GAMMA = 1 / GAMMA_TO_LINEAR;
 
+float4 _TargetTexture_TexelSize;
+
 sampler2D _SourceTexture;
 float4 _SourceTexture_TexelSize;
 float4 _srcTextureUsage;
@@ -12,7 +14,6 @@ float4 _pp_AlphaBuffer_TexelSize;
 float4 _pp_AlphaBufferCfg;
 
 sampler2D _DestBuffer;
-float4 _DestBuffer_TexelSize;
 sampler2D _SourceMask;
 sampler2D _VolDecalHeight;
 sampler2D _VolDecalOverlay;
@@ -196,7 +197,11 @@ inline float alphaFromUV(float4 texcoord) {
 
 inline float calculateAlpha (float a, float fromMask){
 	float hardmod = _maskDynamics.y/512;
-	return saturate(pow( a*(1-hardmod)+(a*(fromMask)*3*hardmod) ,(1+_maskDynamics.y*0.1))*_brushForm.x);
+	return saturate(pow( 
+		a*(1-hardmod) + (a * fromMask * 3 *hardmod) ,
+		(1+_maskDynamics.y*0.1)) 
+		*_brushForm.x/(1 + _maskDynamics.y)
+	);
 }
 
 inline float SampleAlphaBuffer(float2 uv) {
@@ -284,12 +289,12 @@ inline float prepareAlphaSquare(float2 texcoord) {
 
 	float4 tc = float4(texcoord.xy, 0, 0);
 
-	float2 perfTex = (floor(tc.xy*_DestBuffer_TexelSize.z) + 0.5) * _DestBuffer_TexelSize.x;
+	float2 perfTex = (floor(tc.xy*_TargetTexture_TexelSize.z) + 0.5) * _TargetTexture_TexelSize.x;
 	float2 off = (tc.xy - perfTex);
 
 	float n = 4;
 
-	float2 offset = saturate((abs(off) * _DestBuffer_TexelSize.z)*(n * 2 + 2) - n);
+	float2 offset = saturate((abs(off) * _TargetTexture_TexelSize.z)*(n * 2 + 2) - n);
 
 	off = off * offset;
 

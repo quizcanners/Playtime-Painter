@@ -38,7 +38,7 @@
 
 					float t = _Time.w * 50;
 
-					float2 jitter = _pp_AlphaBufferCfg.y * _DestBuffer_TexelSize.xy * float2(sin(t), cos(t*1.3));
+					float2 jitter = _pp_AlphaBufferCfg.y * _TargetTexture_TexelSize.xy * float2(sin(t), cos(t*1.3));
 
 					o.worldPos = worldPos;
 

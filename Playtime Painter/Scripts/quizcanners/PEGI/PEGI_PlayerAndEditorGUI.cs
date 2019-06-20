@@ -3390,7 +3390,7 @@ namespace PlayerAndEditorGUI
         public static string AddCount(this string txt, IGotCount obj) {
             var isNull = obj.IsNullOrDestroyed_Obj();
 
-            var cnt = !isNull ? obj.CountForInspector() : 0;
+            var cnt = isNull ? 0: obj.CountForInspector();
             return "{0} {1}".F(txt, !isNull ?
             (cnt > 0 ?
             (cnt == 1 ? "|" : "[{0}]".F(cnt))

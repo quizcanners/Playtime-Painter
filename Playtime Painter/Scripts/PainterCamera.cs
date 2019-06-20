@@ -357,6 +357,7 @@ namespace PlaytimePainter {
         private static readonly ShaderProperty.VectorValue TextureSourceParameters =        new ShaderProperty.VectorValue("_srcTextureUsage");
         private static readonly ShaderProperty.VectorValue cameraPosition_Property =        new ShaderProperty.VectorValue("_RTcamPosition");
         private static readonly ShaderProperty.VectorValue AlphaBufferConfigProperty =      new ShaderProperty.VectorValue("_pp_AlphaBufferCfg");
+        private static readonly ShaderProperty.VectorValue OriginalTextureTexelSize =       new ShaderProperty.VectorValue("_TargetTexture_TexelSize");
 
         private static readonly ShaderProperty.TextureValue SourceMaskProperty =            new ShaderProperty.TextureValue("_SourceMask");
         private static readonly ShaderProperty.TextureValue SourceTextureProperty =         new ShaderProperty.TextureValue("_SourceTexture");
@@ -389,6 +390,13 @@ namespace PlaytimePainter {
 
             float useTransparentLayerBackground = 0;
 
+            OriginalTextureTexelSize.GlobalValue = new Vector4(
+                1f/id.width,
+                1f/id.height,
+                id.width,
+                id.height
+                );
+
             if (id.isATransparentLayer) {
 
                 var md = painter.MatDta;
@@ -408,7 +416,7 @@ namespace PlaytimePainter {
             MaskDynamicsProperty.GlobalValue = new Vector4(
                 brush.maskTiling,
                 rendTex ? brush.hardness * brush.hardness : 0,       // y - Hardness is 0 to do correct preview for Texture2D brush 
-                ((brush.flipMaskAlpha || brush.useMask) ? 0 : 1) ,
+                ((brush.flipMaskAlpha && brush.useMask) ? 0 : 1) ,  // z - flip mask if any
                 (brush.maskFromGreyscale && brush.useMask) ? 1 : 0);
 
             MaskOffsetProperty.GlobalValue = brush.maskOffset.ToVector4();
@@ -849,8 +857,8 @@ namespace PlaytimePainter {
 
                 var p = PlaytimePainter.currentlyPaintedObjectPainter;
 
-                if (p && !Application.isPlaying && sinceLastPainterCall>0.016f)
-                {
+                if (p && !Application.isPlaying && sinceLastPainterCall>0.016f) {
+
                     if (p.TexMeta == null)
                         PlaytimePainter.currentlyPaintedObjectPainter = null;
                     else {

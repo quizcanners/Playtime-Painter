@@ -617,7 +617,7 @@ namespace PlaytimePainter {
                     
                     var gotAlpha = painter.meshEditing || id == null || id.texture2D.TextureHasAlpha();
 
-                    if (id == null ||  (!painter.IsEditingThisMesh &&  (gotAlpha || id.preserveTransparency) && !id.isATransparentLayer)) {
+                    if (id == null ||  (!painter.IsEditingThisMesh &&  (gotAlpha || id.preserveTransparency) && (!id.isATransparentLayer || !mask.HasFlag(ColorMask.A)))) {
                         if (!gotAlpha)
                             icon.Warning.write("Texture as no alpha, clicking save will fix it");
 

@@ -1308,6 +1308,8 @@ namespace PlaytimePainter {
         private string GenerateTextureSavePath() =>
             Path.Combine(Cfg.texturesFolderName, TexMeta.saveName + ".png");
         
+        LoopLock _loopLock = new LoopLock();
+
         private bool OnBeforeSaveTexture(TextureMeta id) {
           
             if (id.TargetIsRenderTexture()) 
@@ -1315,15 +1317,29 @@ namespace PlaytimePainter {
 
             var tex = id.texture2D;
 
-            if (id. preserveTransparency && !tex.TextureHasAlpha()) {
-                
-                ChangeTexture(id.NewTexture2D());
-                
-                Debug.Log("Old Texture had no Alpha channel, creating new");
+            if (id.preserveTransparency && !tex.TextureHasAlpha()) {
 
-                id.texture2D = id.texture2D.SaveTextureAsAsset(Cfg.texturesFolderName, ref id.saveName, false);
 
-                id.texture2D.CopyImportSettingFrom(tex).Reimport_IfNotReadale();
+                if (_loopLock.Unlocked)
+                    using (_loopLock.Lock())
+                    {
+                        //ChangeTexture(id.NewTexture2D());
+
+                        //id.texture2D.name = id.texture2D.name + "_A";
+
+                        Debug.Log("Old Texture had no Alpha channel, creating new");
+
+                        string tname = id.texture2D.name + "_A";
+                        
+                        id.texture2D = id.texture2D.CreatePngSameDirectory(tname);
+
+                        id.saveName = tname;
+
+                        id.texture2D.CopyImportSettingFrom(tex).Reimport_IfNotReadale();
+                        
+                        SetTextureOnMaterial(id);
+                    }
+
 
                 return false;
             }
