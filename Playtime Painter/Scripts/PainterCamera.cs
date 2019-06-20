@@ -218,7 +218,7 @@ namespace PlaytimePainter {
 
         private static Vector3 _prevPosPreview;
 
-        private static float _previewAlpha = 1;
+        public static float _previewAlpha = 1;
 
         #region Encode & Decode
 

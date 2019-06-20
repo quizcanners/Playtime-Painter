@@ -196,11 +196,18 @@ inline float alphaFromUV(float4 texcoord) {
 }
 
 inline float calculateAlpha (float a, float fromMask){
+
+	//float hardmod = _maskDynamics.y / 512;
+
+
+	//return saturate(pow(a, (1 + _maskDynamics.y * 0.1)));
+
+
 	float hardmod = _maskDynamics.y/512;
 	return saturate(pow( 
 		a*(1-hardmod) + (a * fromMask * 3 *hardmod) ,
 		(1+_maskDynamics.y*0.1)) 
-		*_brushForm.x/(1 + _maskDynamics.y)
+		*_brushForm.x/(1 + pow(_maskDynamics.y,2))
 	);
 }
 

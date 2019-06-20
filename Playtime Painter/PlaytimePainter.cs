@@ -2732,10 +2732,9 @@ namespace PlaytimePainter {
             
         }
 
-        private void Update_Brush_Parameters_For_Preview_Shader(TextureMeta id = null)
+        private void Update_Brush_Parameters_For_Preview_Shader()
         {
-            if (id == null)
-                id = TexMeta;
+            var id = TexMeta;
 
             if (id == null || NotUsingPreview) return;
             
@@ -2744,7 +2743,8 @@ namespace PlaytimePainter {
             foreach (var p in Modules)
                 p.Update_Brush_Parameters_For_Preview_Shader(this);
 
-            
+            PainterCamera._previewAlpha = 1;
+
         }
 
         #endregion
