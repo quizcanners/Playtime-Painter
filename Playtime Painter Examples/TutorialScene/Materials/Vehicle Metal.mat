@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Vehicle Metal
   m_Shader: {fileID: 4800000, guid: 5ebc3bbd9fcb9cd46b7ad6275c0e1158, type: 3}
-  m_ShaderKeywords: _BUMP_NONE _LIGHTMAPPING_DYNAMIC_LIGHTMAPS _UVSEC_UV1
+  m_ShaderKeywords: _BUMP_COMBINED _LIGHTMAPPING_DYNAMIC_LIGHTMAPS _UVSEC_UV1
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -92,7 +92,7 @@ Material:
     - _ATLASED: 0
     - _AlphaTestRef: 0.5
     - _AtlasTextures: 4
-    - _BUMP: 0
+    - _BUMP: 2
     - _BumpScale: 1
     - _CLIP: 0
     - _Cutoff: 0.5

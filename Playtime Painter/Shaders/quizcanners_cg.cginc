@@ -461,7 +461,7 @@ inline void BleedAndBrightness(inout float4 col, float mod, float2 noiseUV) {
 
 	float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(noiseUV * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
 
-	col.rgb += (noise.rgb - 0.5)*0.1*(mix.r + mix.g);
+	col.rgb += (noise.rgb - 0.5)*0.05*(mix.r + mix.g);
 
 	#endif
 

@@ -103,7 +103,7 @@ Material:
     - _ALPHA: 0
     - _ATLASED: 0
     - _AtlasTextures: 1
-    - _BUMP: 1
+    - _BUMP: 2
     - _BumpScale: 1
     - _CLIP: 0
     - _Cutoff: 0.5
