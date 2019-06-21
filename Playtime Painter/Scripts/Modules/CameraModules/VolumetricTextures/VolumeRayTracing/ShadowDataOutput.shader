@@ -3,30 +3,69 @@
 	SubShader{
 
 		Tags{
-			"Queue" = "Geometry"
-			"IgnoreProjector" = "True"
-			"RenderType" = "Opaque"
+			"RenderType" = "Background"
 			"LightMode" = "ForwardBase"
+			"Queue" = "Background"
 		}
 
-		//Cull Off
+		Pass{
+
+			CGPROGRAM
+			#pragma vertex vertBg
+			#pragma fragment fragBg
+			#pragma multi_compile_fog
+			#pragma multi_compile_fwdbase
+
+				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
+
+
+			struct v2fbg {
+				float4 pos : SV_POSITION;
+				float3 viewDir: TEXCOORD0;
+			};
+
+			v2fbg vertBg(appdata_full v) {
+				v2fbg o;
+				o.pos = UnityObjectToClipPos(v.vertex);
+				o.viewDir.xyz = WorldSpaceViewDir(v.vertex);
+				return o;
+			}
+
+			float4 fragBg(v2fbg o) : COLOR{
+				return float4(0,0,1,1);
+			}
+
+			ENDCG
+		}
+
+	}
+
+	SubShader{
+
+		Tags{
+			"RenderType" = "Opaque"
+			"Queue" = "Geometry"
+			"IgnoreProjector" = "True"
+			"LightMode" = "ForwardBase"
+		}
 
 		Pass{
 
 			CGPROGRAM
 			#pragma vertex vert
 			#pragma fragment frag
+			#pragma multi_compile_fwdbase
 			#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
 			struct v2f {
 				float4 pos : SV_POSITION;
 				float4 worldPos : TEXCOORD0;
 				float3 normal : TEXCOORD1;
-				SHADOW_COORDS(3)
-				float3 viewDir: TEXCOORD4;
-				float4 shadowCoords0 : TEXCOORD5;
-				float4 shadowCoords1 : TEXCOORD6;
-				float4 shadowCoords2 : TEXCOORD7;
+				SHADOW_COORDS(2)
+				float3 viewDir: TEXCOORD3;
+				float4 shadowCoords0 : TEXCOORD4;
+				float4 shadowCoords1 : TEXCOORD5;
+				float4 shadowCoords2 : TEXCOORD6;
 			};
 
 			v2f vert(appdata_full v) {
@@ -66,17 +105,18 @@
 
 				o.viewDir.xyz = normalize(o.viewDir.xyz);
 
-				float3 shads = GetRayTracedShadows(o.worldPos.xyz, o.normal, o.shadowCoords0, o.shadowCoords1, o.shadowCoords2);
+				float shad = GetRayTracedShadows(o.worldPos.xyz, o.normal, o.shadowCoords1,
+					rt1_ProjectorConfiguration, rt1_ProjectorClipPrecompute, rt1_ProjectorPosition, float4(0,1,0,0) );
 
+
+				//float4 rt_ProjectorConfiguration, float4 rt_ProjectorClipPrecompute,
+				//	float4 rt_ProjectorPosition, float4 sampleMask
 	
 				/*float dotprod = dot(o.viewDir.xyz, o.normal);
 				float fernel = (1.5 - dotprod);
 				float3 reflected = normalize(o.viewDir.xyz - 2 * (dotprod)*o.normal);
 				*/
 				float4 bake = SampleVolume(g_BakedRays_VOL, o.worldPos.xyz,  g_VOLUME_POSITION_N_SIZE,  g_VOLUME_H_SLICES, o.normal);
-
-
-				float3 vec = o.worldPos.xyz - g_l0pos.xyz;
 
 				//bake *= bake.a;
 				//float direct = max(0, dot(o.normal.xyz, -vec));
@@ -85,17 +125,23 @@
 				//float NdotH = max(0.01, (dot(normal, halfDirection)));
 				//float normTerm = pow(NdotH, power);
 
-
 			//	return  float4(vec,1);
-
 
 			//	return BounceAngle(vec, o.normal, o.viewDir.xyz, 64);
 
-				shads.r = BounceAngle(shads.r, vec, o.normal, o.viewDir.xyz, 64, bake.r);
+			
+			
 
-				shads.g = BounceAngle(shads.g, o.worldPos.xyz - g_l1pos.xyz, o.normal, o.viewDir.xyz, 64, bake.g);
+				float3 shads = 0;
 
-				shads.b = BounceAngle(shads.b, o.worldPos.xyz - g_l2pos.xyz, o.normal, o.viewDir.xyz, 64, bake.b);
+				float drctnl = 0;
+
+				shads.r = BounceAngle(drctnl, _WorldSpaceLightPos0.xyz, o.normal, o.viewDir.xyz, 64, bake.r);
+
+				shads.g = BounceAngle(shad, o.worldPos.xyz - g_l1pos.xyz, o.normal, o.viewDir.xyz, 64, bake.g);
+
+				float skyShadow = 0;
+				shads.b = BounceAngle(skyShadow, o.worldPos.xyz - g_l2pos.xyz, o.normal, o.viewDir.xyz, 64, bake.b);
 
 				//return float4(o.viewDir.xyz,1);
 

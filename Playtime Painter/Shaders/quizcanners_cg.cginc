@@ -154,33 +154,38 @@ float4 ProjectorUvDepthAlpha(float4 shadowCoords, float3 worldPos, float3 lightP
 }
 
 
-float3 GetRayTracedShadows(float3 posNrm, float3 norm, float4 shadowCoords0, float4 shadowCoords1, float4 shadowCoords2 ) {
+float GetRayTracedShadows(float3 posNrm, float3 norm, float4 shadowCoords, float4 rt_ProjectorConfiguration, float4 rt_ProjectorClipPrecompute, 
+	float4 rt_ProjectorPosition, float4 sampleMask
+	) { //, float4 shadowCoords1, float4 shadowCoords2 ) {
 
-	float near = rt0_ProjectorConfiguration.z;
+	float near = rt_ProjectorConfiguration.z;
 
-	float3 shads;
+	//float3 shads;
 
-	float distance = rt0_ProjectorClipPrecompute.w;
+	float distance = rt_ProjectorClipPrecompute.w;
 
-	float4 shUv0 = ProjectorUvDepthAlpha(
-		shadowCoords0, posNrm //+ norm * 0.1 * distance
+	float4 shUv = ProjectorUvDepthAlpha(
+		shadowCoords, posNrm //+ norm * 0.1 * distance
 		,
-		rt0_ProjectorPosition.rgb,
-		rt0_ProjectorConfiguration,
-		rt0_ProjectorClipPrecompute);
+		rt_ProjectorPosition.rgb,
+		rt_ProjectorConfiguration,
+		rt_ProjectorClipPrecompute);
 	
 	const float sharpness = 1024;
 
-	float depth = tex2Dlod(_pp_RayProjectorDepthes, float4(shUv0.xy, 0, 0)).r;
+	float4 depthAll = tex2Dlod(_pp_RayProjectorDepthes, float4(shUv.xy, 0, 0)) * sampleMask;
 
-	shads.r = (1 - saturate((depth - shUv0.z) * sharpness / near)) * shUv0.w;
+	float depth = depthAll.r + depthAll.g + depthAll.b + depthAll.a;
 
-	near = rt1_ProjectorConfiguration.z;
+	//shads.r = 
+	return (1 - saturate((depth - shUv.z) * sharpness / near)) * shUv.w;
+
+	/*near = rt1_ProjectorConfiguration.z;
 
 	distance = rt1_ProjectorClipPrecompute.w;
 
 	float4 shUv1 = ProjectorUvDepthAlpha(
-		shadowCoords1, posNrm //+ norm * 0.1 * distance
+		shadowCoords1, posNrm 
 		,
 		rt1_ProjectorPosition.rgb,
 		rt1_ProjectorConfiguration,
@@ -205,7 +210,7 @@ float3 GetRayTracedShadows(float3 posNrm, float3 norm, float4 shadowCoords0, flo
 
 	shads.b = (1 - saturate((depth - shUv2.z) * sharpness / (near * (1- depth)))) * shUv2.w;
 
-	return shads;
+	return shads;*/
 
 }
 

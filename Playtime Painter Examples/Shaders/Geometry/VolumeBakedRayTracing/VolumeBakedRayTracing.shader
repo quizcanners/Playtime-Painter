@@ -26,7 +26,6 @@
 				CGPROGRAM
 				#pragma vertex vert
 				#pragma fragment frag
-
 				#pragma multi_compile_fwdbase
 				#pragma multi_compile_fog
 				#pragma shader_feature  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
@@ -55,7 +54,7 @@
 					float3 viewDir: TEXCOORD4;
 					float4 edge : TEXCOORD5;
 					UNITY_FOG_COORDS(6)
-					float4 shadowCoords0 : TEXCOORD7;
+					//float4 shadowCoords0 : TEXCOORD7; // Replacing R with directional light
 					float4 shadowCoords1 : TEXCOORD8;
 					float4 shadowCoords2 : TEXCOORD9;
 #if defined(UV_ATLASED)
@@ -82,8 +81,8 @@
 					o.edge = v.texcoord3;
 
 					TRANSFER_SHADOW(o);
-
-					o.shadowCoords0 = mul(rt0_ProjectorMatrix, o.worldPos);
+					
+					//o.shadowCoords0 = mul(rt0_ProjectorMatrix, o.worldPos);
 					o.shadowCoords1 = mul(rt1_ProjectorMatrix, o.worldPos);
 					o.shadowCoords2 = mul(rt2_ProjectorMatrix, o.worldPos);
 
@@ -225,7 +224,6 @@
 					float dotprod = dot(o.viewDir.xyz, o.normal);
 					float fernel = (1.5 - dotprod);
 
-					//float smoothness = bumpMap.b;
 					float ambient = bumpMap.a;
 					
 					ambientBlock *= (1 - ambient);
@@ -233,9 +231,10 @@
 					float smoothness = saturate(pow(col.a, 5 - fernel));
 					float deDmoothness = 1 - smoothness;
 
-					// Ray Traing part
+					// Ray Tracing part
 
-					float3 shads = GetRayTracedShadows(o.worldPos.xyz, o.normal, o.shadowCoords0, o.shadowCoords1, o.shadowCoords2);
+					float shad_G = GetRayTracedShadows(o.worldPos.xyz, o.normal, o.shadowCoords1,
+						rt1_ProjectorConfiguration, rt1_ProjectorClipPrecompute, rt1_ProjectorPosition, float4(0, 1, 0, 0));
 
 					float3 reflected = normalize(o.viewDir.xyz - 2 * (dotprod)*o.normal);
 						
@@ -247,36 +246,55 @@
 					float3 glossLight = 0;
 					float3 directLight = 0;
 
-					PointLightTrace(scatter, glossLight, directLight, o.worldPos.xyz - g_l0pos.xyz,
-						o.normal, o.viewDir.xyz, bake.r, shads.r,  g_l0col, power, ambientBlock, smoothness);
-
-					PointLightTrace(scatter, glossLight, directLight, o.worldPos.xyz - g_l1pos.xyz,
-						o.normal, o.viewDir.xyz, bake.g, shads.g,  g_l1col, power, ambientBlock, smoothness);
-
-					PointLightTrace(scatter, glossLight, directLight, o.worldPos.xyz - g_l2pos.xyz,
-						o.normal, o.viewDir.xyz, bake.b, shads.b,  g_l2col, power, ambientBlock, smoothness);
-
-
 					float shadow = SHADOW_ATTENUATION(o);
 
 
+					// Directional sun/Moon
+					//PointLightTrace(scatter, glossLight, directLight, o.worldPos.xyz - g_l0pos.xyz,
+						//o.normal, o.viewDir.xyz, bake.r, shadow,  g_l0col, power, ambientBlock, smoothness);
+
+					PointLightTrace(scatter, glossLight, directLight, o.worldPos.xyz - g_l1pos.xyz,
+						o.normal, o.viewDir.xyz, bake.g, shad_G,  g_l1col, power, ambientBlock, smoothness);
+
+
+					//Ambient
+					//PointLightTrace(scatter, glossLight, directLight, o.worldPos.xyz - g_l2pos.xyz,
+						//o.normal, o.viewDir.xyz, bake.b, 0,  g_l2col, power, ambientBlock, smoothness);
+
+					//return bake;
+					
+					directLight += unity_AmbientSky.rgb * bake.b 
+#if !UNITY_COLORSPACE_GAMMA
+						*4
+#endif
+						
+						;
+
+					// Sun light
 					float diff = saturate((dot(o.normal, _WorldSpaceLightPos0.xyz)));
 					diff = saturate(diff - ambientBlock * 4 * (1 - diff));
-					float direct = diff * shadow;
-					_LightColor0 *= direct;
-					directLight += _LightColor0*2;
+	
+					float3 directSun = _LightColor0.rgb * diff * shadow;
+
+					directLight += directSun;
+					
+					scatter += _LightColor0.rgb * bake.r;
+
 					float3 halfDirection = normalize(o.viewDir.xyz + _WorldSpaceLightPos0.xyz);
 					float NdotH = max(0.01, (dot(o.normal.xyz, halfDirection)));
 					float normTerm = pow(NdotH, power)*power;
-					glossLight += normTerm * _LightColor0;
 
-					col.rgb *= (directLight + scatter * 0.01 * bumpMap.a) * (1-col.a);
+					glossLight += normTerm * directSun;
 
-					col.rgb += (glossLight*col.a 
+					float glossy = col.a;
+
+					col.rgb *= (directLight + scatter * 0.01 * ambient) * (1- glossy);
+
+					col.rgb += (glossLight*glossy
 						+ (scatter*fernel)    // Every surface has a bit of glossy reflection, this part simulates it
-#if !UNITY_COLORSPACE_GAMMA
+					#if !UNITY_COLORSPACE_GAMMA
 					* 0.1
-#endif
+					#endif
 						) * 0.002;
 
 				

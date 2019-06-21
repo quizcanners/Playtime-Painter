@@ -171,11 +171,6 @@ namespace PlaytimePainter
 
         }
         
-        private void CallRenderReplacement() {
-            _projectorCamera.SetReplacementShader(TexMgmtData.rayTraceOutput, "RenderType");
-            _projectorCamera.ResetReplacementShader();
-        }
-
         private void TryGetNextUser()
         {
             if (lastUpdatedUser >= depthUsers.Count)
@@ -257,11 +252,12 @@ namespace PlaytimePainter
 
                                 if (repl != null)
                                 {
-                                    _projectorCamera.SetReplacementShader(repl.ProjectorShaderToReplaceWith,
-                                        repl.ProjectorTagToReplace);
+                                    _projectorCamera.SetReplacementShader(repl.ProjectorShaderToReplaceWith(),
+                                        repl.ProjectorTagToReplace());
                                     _projectorCamera.clearFlags = CameraClearFlags.Color;
-                                    _projectorCamera.backgroundColor = Color.black;
-                                    
+                                    _projectorCamera.backgroundColor = repl.CameraReplacementClearColor();
+                                    _projectorCamera.farClipPlane = 3000;
+
                                 }
 
                                 break;
@@ -408,9 +404,11 @@ namespace PlaytimePainter
         DepthProjectorCamera.Mode GetMode();
     }
 
-    public interface IUseReplacementCamera {
-        string ProjectorTagToReplace { get; }
-        Shader ProjectorShaderToReplaceWith { get; }
+    public interface IUseReplacementCamera
+    {
+        string ProjectorTagToReplace();
+        Shader ProjectorShaderToReplaceWith();
+        Color CameraReplacementClearColor();
     }
 
     [Serializable]

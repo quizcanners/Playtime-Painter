@@ -6,10 +6,11 @@
 	}
 
 	Category {
+
 		Tags { 
-		"RenderType" = "Opaque"
+			"RenderType" = "Background"
 			"LightMode" = "ForwardBase"
-			"Queue" = "Geometry"
+			"Queue" = "Background"
 		
 		}
 	 		 

@@ -290,10 +290,12 @@ namespace PlaytimePainter {
 
         public DepthProjectorCamera.Mode GetMode() => DepthProjectorCamera.Mode.ReplacementShader;
 
-        public string ProjectorTagToReplace => "RenderType";
+        public string ProjectorTagToReplace() => "RenderType";
 
-        public Shader ProjectorShaderToReplaceWith => TexMGMTdata.rayTraceOutput;
-        
+        public Shader ProjectorShaderToReplaceWith() => TexMGMTdata.rayTraceOutput;
+
+        public Color CameraReplacementClearColor() => new Color(0,0,1,1);
+
         #endregion
 
         #region Inspector
@@ -519,6 +521,8 @@ namespace PlaytimePainter {
 
             return false;
         }
+
+    
         #endregion
 
     }
