@@ -20,6 +20,7 @@ namespace PlaytimePainter {
             get {
                 return  dirtyColor || dirtyVertexIndexes || dirtyPosition || dirtyUvs;
             } set {
+                
                 dirtyVertexIndexes = value;
                 dirtyColor = value;
                 dirtyPosition = value;

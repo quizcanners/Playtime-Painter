@@ -442,11 +442,13 @@ namespace PlaytimePainter
                     {
                         PainterCamera.Inst.EmptyBufferTarget();
                         PainterCamera.Inst.DiscardAlphaBuffer();
-                       // Debug.Log("Discarding");
-                    }
-                    else
-                        if (painter.initialized) // To avoid Clear to black when exiting playmode
+                    }   
+                    else if (painter.initialized && !painter.isBeingDisabled)
+                    {
+                        // To avoid Clear to black when exiting playmode
                         RenderTexture_To_Texture2D();
+                        Debug.Log("Is being switched to Tex2D");
+                    }
 
                 }
                 destination = changeTo;

@@ -580,7 +580,7 @@ namespace PlaytimePainter {
             if (trg == FrontBuffer)
                 RenderTextureBuffersManager.secondBufferUpdated = false;
 
-            sinceLastPainterCall = 0;
+            lastPainterCall = Time.time;
             
             brushRenderer.AfterRender();
         }
@@ -734,7 +734,7 @@ namespace PlaytimePainter {
             painterCamera.orthographic = true;
             painterCamera.orthographicSize = OrthographicSize;
             painterCamera.clearFlags = CameraClearFlags.Nothing;
-            painterCamera.enabled = Application.isPlaying;
+            painterCamera.enabled = false; //Application.isPlaying;
             painterCamera.allowHDR = false;
             painterCamera.allowMSAA = false;
             painterCamera.allowDynamicResolution = false;
@@ -816,13 +816,17 @@ namespace PlaytimePainter {
         private static int _scipFrames = 3;
         #endif
 
-        public static float sinceLastPainterCall = 0;
+        public static float lastPainterCall = 0;
+
+        public static float lastManagedUpdate = 0;
 
         public void CombinedUpdate() {
 
             if (!this || !Data)
                 return;
-            
+
+            lastManagedUpdate = Time.time;
+
             if (PlaytimePainter.IsCurrentTool && focusedPainter)
                 focusedPainter.ManagedUpdate();
             
@@ -857,7 +861,7 @@ namespace PlaytimePainter {
 
                 var p = PlaytimePainter.currentlyPaintedObjectPainter;
 
-                if (p && !Application.isPlaying && sinceLastPainterCall>0.016f) {
+                if (p && !Application.isPlaying && ((Time.time - lastPainterCall)>0.016f)) {
 
                     if (p.TexMeta == null)
                         PlaytimePainter.currentlyPaintedObjectPainter = null;
@@ -880,7 +884,7 @@ namespace PlaytimePainter {
                 PainterSystemManagerModuleBase.RefreshPlugins();
             }
 
-            sinceLastPainterCall += Time.deltaTime;
+            lastPainterCall = Time.time;
 
 
         }

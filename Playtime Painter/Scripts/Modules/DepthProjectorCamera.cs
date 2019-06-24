@@ -156,7 +156,8 @@ namespace PlaytimePainter
 
             if (userToGetUpdate != null && (Time.time - lastUserUpdateReturned > 1))
             {
-                Debug.LogError("Could not return to user {0}".F(userToGetUpdate));
+                logger.Log_Interval(60, "Could not return to user {0}".F(userToGetUpdate));
+                
                 userToGetUpdate = null;
             }
 

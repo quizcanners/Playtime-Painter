@@ -1030,8 +1030,7 @@ namespace PlaytimePainter
 
             return changed;
         }
-
-
+        
         private Color GetGroupColor(int index) {
 
             foreach (var p in EditedMesh.meshPoints)
@@ -1053,7 +1052,7 @@ namespace PlaytimePainter
 
         }
 
-#endif
+        #endif
         #endregion
 
         public override bool MouseEventPointedVertex()

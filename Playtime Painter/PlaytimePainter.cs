@@ -1547,10 +1547,12 @@ namespace PlaytimePainter {
 
         }
 
+        public bool isBeingDisabled = false;
+
         private void OnDisable()
         {
 
-      
+            isBeingDisabled = true;
 
             CheckSetOriginalShader();
             
@@ -1567,7 +1569,10 @@ namespace PlaytimePainter {
             
         }
 
-        public void OnEnable() {
+        public void OnEnable()
+        {
+
+            isBeingDisabled = false;
 
             PainterSystem.applicationIsQuitting = false;
             
@@ -1793,8 +1798,24 @@ namespace PlaytimePainter {
 
                 canInspect = false;
             }
-            
+
+            float sinceUpdate = Time.time - PainterCamera.lastManagedUpdate;
+
+         
+
             if (canInspect) {
+
+                if (!TexMgmt.enabled)
+                {
+                    "Painter Camera is disabled".writeWarning();
+                    if ("Enable".Click())
+                        TexMgmt.enabled = true;
+                } else if (!TexMgmt.gameObject.activeSelf) {
+                    "Painter Camera Game Object is disabled".writeWarning();
+                    if ("Enable".Click())
+                        TexMgmt.gameObject.SetActive(true);
+                } else if (sinceUpdate > 1)
+                    "It's been {0} seconds since the last managed update".F(sinceUpdate).writeWarning();
 
                 TexMgmt.focusedPainter = this;
                 
