@@ -7,6 +7,7 @@ using System.Linq;
 
 using System.Linq.Expressions;
 using QuizCannersUtilities;
+using Unity.Collections.LowLevel.Unsafe;
 using Object = UnityEngine.Object;
 using static QuizCannersUtilities.QcMath;
 
@@ -1289,19 +1290,73 @@ namespace PlayerAndEditorGUI
             nl();
         }
 
-        public static bool write_ForCopy(this string val) => edit(ref val);
+        public static bool write_ForCopy(this string val, bool showCopyButton = false)
+        {
+            var ret = edit(ref val);
 
-        public static bool write_ForCopy(this string val, int width) => edit(ref val, width);
-        
-        public static bool write_ForCopy(this string label, int width, string val) => edit(label, width, ref val);
+            if (showCopyButton && icon.Copy.Click("Copy text to clipboard"))
+                GUIUtility.systemCopyBuffer = val;
+            
+            return ret;
+        }
 
-        public static bool write_ForCopy(this string label, string val) => edit(label, ref val);
-        
-        public static bool write_ForCopy_Big(string val) => editBig(ref val);
+        public static bool write_ForCopy(this string val, int width, bool showCopyButton = false)
+        {
+            var ret = edit(ref val, width);
 
-        public static bool write_ForCopy_Big(this string label, string val) => label.editBig(ref val);
+            if (showCopyButton && icon.Copy.Click("Copy text to clipboard"))
+                GUIUtility.systemCopyBuffer = val;
+            
+            return ret;
 
-#region Warning & Hints
+        }
+
+        public static bool write_ForCopy(this string label, int width, string val, bool showCopyButton = false)
+        {
+            var ret = edit(label, width, ref val);
+
+            if (showCopyButton && icon.Copy.Click("Copy {0} to clipboard".F(label)))
+                GUIUtility.systemCopyBuffer = val;
+
+            return ret;
+
+        }
+
+        public static bool write_ForCopy(this string label, string val, bool showCopyButton = false)
+        {
+            var ret = edit(label, ref val);
+
+            if (showCopyButton && icon.Copy.Click("Copy {0} to clipboard".F(label)))
+                GUIUtility.systemCopyBuffer = val;
+
+            return ret;
+
+        }
+
+        public static bool write_ForCopy_Big(string val, bool showCopyButton = false)
+        {
+
+            if (showCopyButton && "Copy text to clipboard".Click().nl())
+                GUIUtility.systemCopyBuffer = val;
+
+            return editBig(ref val);
+        }
+
+        public static bool write_ForCopy_Big(this string label, string val, bool showCopyButton = false) {
+
+            label.write();
+            if (showCopyButton && icon.Copy.Click("Copy {0} to clipboard".F(label)))
+                GUIUtility.systemCopyBuffer = val;
+            nl();
+
+            var ret = editBig(ref val);
+
+           
+
+            return ret;
+        }
+
+        #region Warning & Hints
         public static void writeWarning(this string text)
         {
 
@@ -4582,7 +4637,21 @@ namespace PlayerAndEditorGUI
             write(text, tip, width);
             return toggle(ref val);
         }
-        
+
+        public static bool toggle_CompileDirective(string text, string keyword)
+        {
+            var changed = false;
+
+            #if UNITY_EDITOR
+            var val = QcUnity.GetPlatformDirective(keyword);
+
+            if (text.toggleIcon(keyword, ref val))
+                QcUnity.SetPlatformDirective(keyword, val);
+            #endif
+
+            return changed;
+        }
+
         public static bool toggleDefaultInspector() =>
 #if UNITY_EDITOR
                  ef.toggleDefaultInspector();
@@ -6034,7 +6103,7 @@ namespace PlayerAndEditorGUI
         }
 
         public static bool editBig(this string name, ref string val) {
-            write(name);
+            write(name + ":");
             return editBig(ref val);
         }
         
@@ -6693,7 +6762,7 @@ namespace PlayerAndEditorGUI
                 label = "{0}->{1}".F(label, lst[inspected].GetNameForInspector());
             else label = (lst == null || lst.Count < 6) ? label : label.AddCount(lst, true);
 
-            if (label.ClickLabel(label, -1, PEGI_Styles.ListLabel) && inspected != -1)
+            if (label.ClickLabel(label, RemainingLength(defaultButtonSize * 2 + 10) , PEGI_Styles.ListLabel) && inspected != -1)
                 inspected = -1;
         }
 
@@ -6701,7 +6770,7 @@ namespace PlayerAndEditorGUI
 
             currentListLabel = ld.label;
 
-            if (!ld.Inspecting)
+            if (!ld.Inspecting && ld.showSearchButton)
                 ld.searchData.ToggleSearch(lst, ld.label);
             
             if (lst != null && ld.inspected >= 0 && lst.Count > ld.inspected) {
@@ -6712,10 +6781,10 @@ namespace PlayerAndEditorGUI
                 
             } else currentListLabel = (lst == null || lst.Count < 6) ? ld.label : ld.label.AddCount(lst, true);
 
-            if (currentListLabel.ClickLabel(ld.label, RemainingLength(70), PEGI_Styles.ListLabel) && ld.inspected != -1)
+            if (currentListLabel.ClickLabel(ld.label, RemainingLength(defaultButtonSize * 2 + 10), PEGI_Styles.ListLabel) && ld.inspected != -1)
                 ld.inspected = -1;
         }
-
+        
         private static bool ExitOrDrawPEGI<T>(T[] array, ref int index, ListMetaData ld = null)
         {
             var changed = false;
@@ -6837,7 +6906,7 @@ namespace PlayerAndEditorGUI
             var changed = false;
             
             if (array != _editingArrayOrder) {
-                if (icon.Edit.ClickUnFocus(Msg.MoveCollectionElements, 28))
+                if ((listMeta == null || listMeta.showEditListButton) && icon.Edit.ClickUnFocus(Msg.MoveCollectionElements, 28))
                     _editingArrayOrder = array;
             }
 
@@ -6907,7 +6976,7 @@ namespace PlayerAndEditorGUI
 
             if (list != editing_List_Order)
             {
-                if (sd.filteredList != list && icon.Edit.ClickUnFocus(Msg.MoveCollectionElements, 28))  
+                if (sd.filteredList != list && (listMeta == null || listMeta.showEditListButton) && icon.Edit.ClickUnFocus(Msg.MoveCollectionElements, 28))  
                     editing_List_Order = list;
             } else if (icon.Done.ClickUnFocus(Msg.FinishMovingCollectionElements, 28).changes(ref changed))
                 editing_List_Order = null;
@@ -7269,7 +7338,7 @@ namespace PlayerAndEditorGUI
                     {
                         if (!uo && pg == null && listMeta == null)
                         {
-                            if (el.GetNameForInspector().ClickLabel(Msg.InspectElement.GetText()))
+                            if (el.GetNameForInspector().ClickLabel(Msg.InspectElement.GetText(), RemainingLength(defaultButtonSize * 2 + 10)))
                             {
                                 inspected = index;
                                 isPrevious = true;
@@ -7294,7 +7363,7 @@ namespace PlayerAndEditorGUI
 
 
                             }
-                            else if (el.GetNameForInspector().ClickLabel().changes(ref changed))
+                            else if (el.GetNameForInspector().ClickLabel("Inspect", RemainingLength(defaultButtonSize *2 + 10)).changes(ref changed))
                             {
                                 inspected = index;
                                 isPrevious = true;
@@ -7406,7 +7475,7 @@ namespace PlayerAndEditorGUI
                     {
                         if (!uo && pg == null && listMeta == null)
                         {
-                            if (el.GetNameForInspector().ClickLabel(Msg.InspectElement.GetText()))
+                            if (el.GetNameForInspector().ClickLabel(Msg.InspectElement.GetText(), RemainingLength(defaultButtonSize * 2 + 10)))
                             {
                                 inspected = index;
                                 isPrevious = true;
@@ -7422,11 +7491,11 @@ namespace PlayerAndEditorGUI
 
                                     clickHighlightHandled = true;
                                 }
-                                else if (pegi.Try_NameInspect(uo).changes(ref changed))
+                                else if (Try_NameInspect(uo).changes(ref changed))
                                         isPrevious = true;
                                 
 
-                            } else if (el.GetNameForInspector().ClickLabel().changes(ref changed))
+                            } else if (el.GetNameForInspector().ClickLabel("Inspect", RemainingLength(defaultButtonSize * 2 + 10)).changes(ref changed))
                             {
                                 inspected = index;
                                 isPrevious = true;

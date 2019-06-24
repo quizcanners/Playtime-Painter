@@ -28,8 +28,7 @@ namespace QuizCannersUtilities {
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 
-    public static class QcUnity
-    {
+    public static class QcUnity {
 
         public static T Instantiate<T>(string name = null) where T : MonoBehaviour
         {
@@ -896,31 +895,34 @@ namespace QuizCannersUtilities {
             #endif
         }
 
-        public static bool GetDefine(this string define)
+        public static bool GetPlatformDirective(this string define)
         {
 
 #if UNITY_EDITOR
             var buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
-            var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
+            var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup).Split(';');
             return defines.Contains(define);
 #else
                 return true;
 #endif
         }
 
-        public static void SetDefine(this string val, bool to)
+        public static void SetPlatformDirective(this string val, bool to)
         {
 
 #if UNITY_EDITOR
             var buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
             var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
 
-            if (defines.Contains(val) == to) return;
+            if (defines.Contains(val) == to)
+                return;
 
             if (to)
-                defines += " ; " + val;
+                defines += ";" + val;
             else
-                defines = defines.Replace(val, "");
+            {
+                defines = defines.Replace(val, "").Replace(";;", ";");
+            }
 
             PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, defines);
 #endif

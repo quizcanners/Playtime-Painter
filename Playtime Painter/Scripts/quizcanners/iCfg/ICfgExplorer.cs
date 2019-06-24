@@ -33,6 +33,8 @@ namespace QuizCannersUtilities
         public bool allowDelete;
         public bool allowReorder;
         public bool allowDuplicants;
+        public bool showEditListButton;
+        public bool showSearchButton;
         public readonly bool allowCreate;
         private readonly icon icon;
         public icon Icon => inspected == -1 ? icon : icon.Next;
@@ -176,13 +178,21 @@ namespace QuizCannersUtilities
             keepTypeData = false;
         }
 
-        public ListMetaData(string nameMe, bool allowDeleting = true, bool allowReordering = true, bool keepTypeData = false, bool allowCreating = true, icon enterIcon = icon.Enter)
-        {
+        public ListMetaData(string nameMe, bool allowDeleting = true,
+            bool allowReordering = true,
+            bool keepTypeData = false, 
+            bool allowCreating = true,
+            bool showEditListButton = true,
+            bool showSearchButton = true,
+            icon enterIcon = icon.Enter) {
+
             allowCreate = allowCreating;
             allowDelete = allowDeleting;
             allowReorder = allowReordering;
             label = nameMe;
             this.keepTypeData = keepTypeData;
+            this.showEditListButton = showEditListButton;
+            this.showSearchButton = showSearchButton;
             icon = enterIcon;
         }
     }
@@ -894,7 +904,7 @@ namespace QuizCannersUtilities
             public JsonBase TryDecodeString()
             {
                 if (data.IsNullOrEmpty()) {
-                    Debug.LogError("Data is null or empty");
+                    //Debug.LogError("Data is null or empty");
                     return null;
                 }
 
