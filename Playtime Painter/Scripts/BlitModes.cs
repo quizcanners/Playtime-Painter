@@ -6,7 +6,7 @@ using static QuizCannersUtilities.QcMath;
 
 namespace PlaytimePainter {
 
-    public partial class BlitModes {
+    public static partial class BlitModes {
 
         public abstract class Base : PainterSystem, IEditorDropdown, IGotDisplayName {
 
