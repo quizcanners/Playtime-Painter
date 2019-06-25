@@ -74,7 +74,7 @@
 
 				#else
 
-				v2f vert(appdata_full v) {
+				v2f vert(appdata_full_qc v) {
 					v2f o;
 
 

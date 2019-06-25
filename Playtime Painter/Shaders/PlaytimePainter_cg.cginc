@@ -1,5 +1,4 @@
-#include "UnityCG.cginc"	
-	
+
 static const float GAMMA_TO_LINEAR = 2.2;
 static const float LINEAR_TO_GAMMA = 1 / GAMMA_TO_LINEAR;
 
@@ -35,7 +34,6 @@ float4 _brushPointedUV_Untiled;
 float4 _ChannelSourceMask;
 float _BufferCopyAspectRatio = 1;
 
-
 sampler2D pp_DepthProjection;
 float4 pp_DepthProjection_TexelSize;
 
@@ -43,6 +41,18 @@ float4x4 pp_ProjectorMatrix;
 float4 pp_ProjectorPosition;
 float4 pp_ProjectorClipPrecompute;
 float4 pp_ProjectorConfiguration;
+
+struct appdata_full_qc
+{
+	float4 vertex    : POSITION;  // The vertex position in model space.
+	float3 normal    : NORMAL;    // The vertex normal in model space.
+	float4 texcoord  : TEXCOORD0; // The first UV coordinate.
+	float4 texcoord1 : TEXCOORD1; // The second UV coordinate.
+	float4 tangent   : TANGENT;   // The tangent vector in Model Space (used for normal mapping).
+	float4 color     : COLOR;     // Per-vertex color
+};
+
+#define TRANSFORM_TEX_QC(tex,name) (tex.xy * name##_ST.xy + name##_ST.zw)
 
 inline float3 SourceTextureByBrush(float3 src) {
 

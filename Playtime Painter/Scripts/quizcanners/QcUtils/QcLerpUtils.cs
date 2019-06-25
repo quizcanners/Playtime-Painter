@@ -89,7 +89,7 @@ namespace QuizCannersUtilities
         bool TryFadeIn();
     }
 
-    public class LinkedLerp
+    public static class LinkedLerp
     {
 
         public enum LerpSpeedMode

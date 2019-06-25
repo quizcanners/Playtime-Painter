@@ -33,7 +33,6 @@
 				#pragma multi_compile  ___ UV_ATLASED
 				#pragma multi_compile  ___ BRUSH_TEXCOORD_2
 				#pragma multi_compile  ___ TARGET_TRANSPARENT_LAYER
-				#pragma multi_compile_instancing
 
 				sampler2D _PreviewTex;
 				float _AtlasTextures;
@@ -64,7 +63,7 @@
 					return (max(0, 0.5 * log2(max(dot(px, px), dot(py, py)))));
 				}
 
-				v2f vert(appdata_full v) {
+				v2f vert(appdata_full_qc v) {
 					v2f o;
 					o.worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1.0f));
 
@@ -73,7 +72,6 @@
 					#endif
 
 
-					UNITY_SETUP_INSTANCE_ID(v);
 					o.pos = UnityObjectToClipPos(v.vertex);   
 
 					#if BRUSH_TEXCOORD_2
@@ -84,7 +82,7 @@
 
 					o.srcTexAspect = max(1, float2(suv.y/suv.x, suv.x / suv.y));
 
-					o.texcoord.xy = TRANSFORM_TEX(v.texcoord.xy, _PreviewTex);
+					o.texcoord.xy = TRANSFORM_TEX_QC(v.texcoord.xy, _PreviewTex);
 					
 					#if UV_ATLASED
 						float atY = floor(v.texcoord.z / _AtlasTextures);
@@ -94,8 +92,6 @@
 						o.atlasedUV.z = edge;										
 						o.atlasedUV.w = 1 / _AtlasTextures;
 					#endif
-
-			
 
 					return o;
 				}
@@ -114,7 +110,6 @@
 
 					#if BLIT_MODE_PROJECTION
 					
-
 						o.shadowCoords.xy /= o.shadowCoords.w;
 
 						//DEBUG

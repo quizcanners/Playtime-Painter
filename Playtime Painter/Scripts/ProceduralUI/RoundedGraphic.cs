@@ -34,14 +34,32 @@ namespace PlaytimePainter
 
         [SerializeField] private float[] _roundedCorners = new float[1];
         
-        private float GetCorner(int index) => _roundedCorners[index % _roundedCorners.Length];
+        public float GetCorner(int index) => _roundedCorners[index % _roundedCorners.Length];
 
-        private void SetCorner(int index, float value) => _roundedCorners[index % _roundedCorners.Length] = value;
+        public void SetCorner(int index, float value) {
 
-        private void SetCorners(float value)
-        {
-            for (int i=0; i< _roundedCorners.Length; i++)
-                _roundedCorners[i] = value;
+            index %= _roundedCorners.Length;
+
+            if (_roundedCorners[index] != value) {
+                _roundedCorners[index] = value;
+                SetVerticesDirty();
+            }
+
+        }
+
+        private void SetCorners(float value) {
+
+            bool changed = false;
+
+            for (int i = 0; i < _roundedCorners.Length; i++) {
+                if (_roundedCorners[i] != value) {
+                    _roundedCorners[i] = value;
+                    changed = true;
+                }
+            }
+
+            if (changed)
+                SetVerticesDirty();
         }
 
         public bool LinkedCorners
