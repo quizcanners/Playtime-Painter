@@ -1815,7 +1815,14 @@ namespace PlaytimePainter {
                     if ("Enable".Click())
                         TexMgmt.gameObject.SetActive(true);
                 } else if (sinceUpdate > 1)
+                {
                     "It's been {0} seconds since the last managed update".F(sinceUpdate).writeWarning();
+
+                    if ("Resubscribe camera to updates".Click())
+                        TexMgmt.SubscribeToEditorUpdates();
+
+                    return false;
+                }
 
                 TexMgmt.focusedPainter = this;
                 

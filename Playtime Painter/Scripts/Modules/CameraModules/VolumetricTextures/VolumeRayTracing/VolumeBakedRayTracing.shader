@@ -256,6 +256,7 @@
 					PointLightTrace(scatter, glossLight, directLight, o.worldPos.xyz - g_l1pos.xyz,
 						o.normal, o.viewDir.xyz, bake.g, shad_G,  g_l1col, power, ambientBlock, smoothness);
 
+					scatter *= 0.01;
 
 					//Ambient
 					//PointLightTrace(scatter, glossLight, directLight, o.worldPos.xyz - g_l2pos.xyz,
@@ -263,9 +264,9 @@
 
 					//return bake;
 					
-					directLight += unity_AmbientSky.rgb * bake.b 
+					scatter += unity_AmbientSky.rgb * bake.b
 #if !UNITY_COLORSPACE_GAMMA
-						*4
+						*16
 #endif
 						
 						;
@@ -278,7 +279,7 @@
 
 					directLight += directSun;
 					
-					scatter += _LightColor0.rgb * bake.r;
+					scatter += _LightColor0.rgb * bake.r * 100;
 
 					float3 halfDirection = normalize(o.viewDir.xyz + _WorldSpaceLightPos0.xyz);
 					float NdotH = max(0.01, (dot(o.normal.xyz, halfDirection)));
@@ -288,7 +289,7 @@
 
 					float glossy = col.a;
 
-					col.rgb *= (directLight + scatter * 0.01 * ambient) * (1- glossy);
+					col.rgb *= (directLight + scatter * ambient) * (1- glossy);
 
 					col.rgb += (glossLight*glossy
 						+ (scatter*fernel)    // Every surface has a bit of glossy reflection, this part simulates it

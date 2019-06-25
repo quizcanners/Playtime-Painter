@@ -662,6 +662,8 @@ namespace PlaytimePainter {
             FinalizePreviousAlphaDataTarget();
         }
 
+        public void SubscribeToEditorUpdates() => EditorApplication.update += CombinedUpdate;
+
         private void OnEnable() {
 
             if (!MainCamera)
@@ -698,8 +700,9 @@ namespace PlaytimePainter {
 
             EditorApplication.update -= CombinedUpdate;
             if (!QcUnity.ApplicationIsAboutToEnterPlayMode())
-                EditorApplication.update += CombinedUpdate;
-            
+                SubscribeToEditorUpdates();
+
+
             if (!brushPrefab) {
                 var go = Resources.Load("prefabs/RenderCameraBrush") as GameObject;
                 if (go) {

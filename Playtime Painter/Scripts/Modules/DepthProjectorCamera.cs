@@ -257,7 +257,7 @@ namespace PlaytimePainter
                                         repl.ProjectorTagToReplace());
                                     _projectorCamera.clearFlags = CameraClearFlags.Color;
                                     _projectorCamera.backgroundColor = repl.CameraReplacementClearColor();
-                                    _projectorCamera.farClipPlane = 3000;
+                                  // _projectorCamera.farClipPlane = 3000;
 
                                 }
 
@@ -316,6 +316,9 @@ namespace PlaytimePainter
                 }
 
                 lastUserUpdateReturned = Time.time;
+
+                if (userToGetUpdate as VolumeRayTrace != null)
+                    Debug.Log("Returning result");
 
                 userToGetUpdate = null;
 

@@ -8,6 +8,8 @@
 			"Queue" = "Background"
 		}
 
+		Cull Off
+
 		Pass{
 
 			CGPROGRAM
@@ -16,23 +18,31 @@
 			#pragma multi_compile_fog
 			#pragma multi_compile_fwdbase
 
-				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
+			#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
+
+			float4 _SunDirection;
 
 			struct v2fbg {
 				float4 pos : SV_POSITION;
-				float3 viewDir: TEXCOORD0;
+				float3 viewDir : TEXCOORD0;
 			};
 
 			v2fbg vertBg(appdata_full v) {
 				v2fbg o;
 				o.pos = UnityObjectToClipPos(v.vertex);
-				o.viewDir.xyz = WorldSpaceViewDir(v.vertex);
+				o.viewDir = WorldSpaceViewDir(v.vertex);
 				return o;
 			}
 
 			float4 fragBg(v2fbg o) : COLOR{
-				return float4(0,0,1,1);
+
+				float3 wd = normalize(o.viewDir.xyz);
+
+				float dott = max(0, dot(_SunDirection.xyz, -wd.xyz));
+
+
+				return  float4(pow(dott, 512)*1024,0,1,1);
 			}
 
 			ENDCG
@@ -118,7 +128,8 @@
 				*/
 				float4 bake = SampleVolume(g_BakedRays_VOL, o.worldPos.xyz,  g_VOLUME_POSITION_N_SIZE,  g_VOLUME_H_SLICES, o.normal);
 
-				//bake *= bake.a;
+				bake *= bake.a*bake.a;
+				
 				//float direct = max(0, dot(o.normal.xyz, -vec));
 
 				//float3 halfDirection = normalize(o.viewDir.xyz - vec);
@@ -129,14 +140,11 @@
 
 			//	return BounceAngle(vec, o.normal, o.viewDir.xyz, 64);
 
-			
-			
-
 				float3 shads = 0;
 
 				float drctnl = 0;
 
-				shads.r = BounceAngle(drctnl, _WorldSpaceLightPos0.xyz, o.normal, o.viewDir.xyz, 64, bake.r);
+				shads.r = BounceAngle(drctnl, _WorldSpaceLightPos0.xyz, o.normal, o.viewDir.xyz, 64, bake.r*4);
 
 				shads.g = BounceAngle(shad, o.worldPos.xyz - g_l1pos.xyz, o.normal, o.viewDir.xyz, 64, bake.g);
 
