@@ -1032,6 +1032,28 @@ namespace QuizCannersUtilities {
 
         #region Assets Management
 
+        public static List<T> FindAssets<T>(string name, string path = null) where T : Object {
+
+            List<T> assets = new List<T>();
+
+            #if UNITY_EDITOR
+
+            string searchBy = "{0} t:{1}".F(name, typeof(T).ToPegiStringType());
+
+            var guids = path.IsNullOrEmpty() ? AssetDatabase.FindAssets(searchBy) :  AssetDatabase.FindAssets(searchBy, new[] { path });
+
+            foreach (var guid in guids) {
+                var tmp = AssetDatabase.LoadAssetAtPath<T>(AssetDatabase.GUIDToAssetPath(guid));
+                if (tmp)
+                    assets.Add(tmp);
+            }
+            
+            #endif
+
+            return assets;
+
+        }
+
         public static List<T> FindAssetsByType<T>() where T : Object
         {
             List<T> assets = new List<T>();

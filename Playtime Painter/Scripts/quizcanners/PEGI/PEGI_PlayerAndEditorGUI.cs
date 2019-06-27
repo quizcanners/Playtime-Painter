@@ -3764,8 +3764,16 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool enter_List<T>(this string label, ref List<T> list,  ref int enteredOne, int thisOne)
-        {
+        public static bool enter_List(this string label, ref List<string> list, ref int enteredOne, int thisOne) {
+
+ 
+            if (enter_ListIcon(label, ref list, ref enteredOne, thisOne))
+                return label.edit_List(ref list);
+
+            return false;
+        }
+
+        public static bool enter_List<T>(this string label, ref List<T> list,  ref int enteredOne, int thisOne) {
 
             var changed = false;
 
@@ -3774,7 +3782,9 @@ namespace PlayerAndEditorGUI
 
             return changed;
         }
-        
+
+   
+
         public static bool enter_List<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) 
         {
             var changed = false;
@@ -7891,11 +7901,13 @@ namespace PlayerAndEditorGUI
             return changes;
         }
 
+
         public static T edit_List<T>(this string label, ref List<T> list, ref bool changed)
         {
             label.write_Search_ListLabel(list);
             return edit_List(ref list, ref changed).listLabel_Used();
         }
+
 
         public static T edit_List<T>(ref List<T> list, ref bool changed)
         {
