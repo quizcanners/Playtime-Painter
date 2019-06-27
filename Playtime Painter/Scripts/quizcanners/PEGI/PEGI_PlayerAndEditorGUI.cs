@@ -5930,28 +5930,28 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static bool editEnum<T>(ref int current, Type type, int width = -1)
-                => selectEnum(ref current, typeof(T), width);
+        public static bool editEnum(ref int current, Type type, int width = -1)
+                => selectEnum(ref current, type, width);
 
         public static bool editEnum<T>(this string text, string tip, int width, ref int eval)
         {
             write(text, tip, width);
-            return editEnum<T>(ref eval, typeof(T), -1);
+            return editEnum(ref eval, typeof(T));
         }
 
         public static bool editEnum<T>(this string text, int width, ref int eval)
         {
             write(text, width);
-            return editEnum<T>(ref eval, typeof(T), -1);
+            return editEnum(ref eval, typeof(T));
         }
 
         public static bool editEnum<T>(this string text, ref int eval)
         {
             write(text);
-            return editEnum<T>(ref eval, typeof(T), -1);
+            return editEnum(ref eval, typeof(T));
         }
         
-        public static bool editEnum<T>(ref int eval) => editEnum<T>(ref eval, typeof(T));
+        public static bool editEnum<T>(ref int eval) => editEnum(ref eval, typeof(T));
         
 #endregion
 
