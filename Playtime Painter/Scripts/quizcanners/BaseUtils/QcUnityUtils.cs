@@ -306,6 +306,13 @@ namespace QuizCannersUtilities {
                     g.rectTransform.localScale = Vector3.one * size;
         }
 
+        public static Color Alpha(this Color col, float alpha)
+        {
+            col.a = alpha;
+            return col;
+        }
+
+
         public static Color ToOpaque(this Color col)  {
             col.a = 1;
             return col;
@@ -895,7 +902,7 @@ namespace QuizCannersUtilities {
             #endif
         }
 
-        public static bool GetPlatformDirective(this string define)
+        public static bool GetPlatformDirective(string define)
         {
 
 #if UNITY_EDITOR
@@ -907,7 +914,7 @@ namespace QuizCannersUtilities {
 #endif
         }
 
-        public static void SetPlatformDirective(this string val, bool to)
+        public static void SetPlatformDirective(string val, bool to)
         {
 
 #if UNITY_EDITOR

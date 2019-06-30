@@ -398,7 +398,6 @@ namespace QuizCannersUtilities
         public CfgEncoder Add_IfNotEmpty<T>(string tag, List<T> val, ListMetaData ld, TaggedTypesCfg tts) where T : IGotClassTag =>
             val.IsNullOrEmpty() ? this : Add_Abstract(tag, val, ld);
         
-
         public CfgEncoder Add<T>(string tag, List<T> val, ListMetaData ld, TaggedTypesCfg tts) where T : IGotClassTag  => Add_Abstract(tag, val, ld);
 
         public CfgEncoder Add_Abstract<T>(string tag, List<T> val, ListMetaData ld) where T : IGotClassTag {

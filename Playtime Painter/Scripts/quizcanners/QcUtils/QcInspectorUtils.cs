@@ -6,6 +6,11 @@ using System;
 using Object = UnityEngine.Object;
 using UnityEngine.UI;
 using System.IO;
+
+#if QC_USE_NETWORKING
+using UnityEngine.Networking;
+#endif
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -542,7 +547,8 @@ namespace QuizCannersUtilities
                 _request = UnityWebRequestTexture.GetTexture(url);
                 _request.SendWebRequest();
                 _failed = false;
-                Debug.Log("Loading {0}".F(url));
+#else
+                Debug.Log("Can't Load {0} : QC_USE_NETWORKING is disabled".F(url));
 #endif
                 }
 
@@ -612,6 +618,12 @@ namespace QuizCannersUtilities
                 }
 #else
                     "QC_USE_NETWORKING is disabled (to prevent unwanted android permissions)".writeWarning();
+
+                    pegi.nl();
+
+                    if ("Enable QC_USE_NETWORKING".Click())
+                        QcUnity.SetPlatformDirective("QC_USE_NETWORKING", true);
+
 #endif
                     url.write();
                     return changed;

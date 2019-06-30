@@ -17,7 +17,7 @@ namespace QuizCannersUtilities
     public interface ILinkedLerping
     {
         void Portion(LerpData ld);
-        void Lerp(LerpData ld, bool canSkipLerpIfPossible);
+        void Lerp(LerpData ld, bool canSkipLerp);
     }
 
     public class LerpData : IPEGI, IGotName, IGotCount, IPEGI_ListInspect
@@ -170,7 +170,7 @@ namespace QuizCannersUtilities
 
             #endregion
 
-            public void Lerp(LerpData ld, bool canSkipLerpIfPossible = false)
+            public void Lerp(LerpData ld, bool canSkipLerp = false)
             {
                 if (!Enabled) return;
 
@@ -186,12 +186,12 @@ namespace QuizCannersUtilities
                         if (Application.isPlaying)
                             Portion(ref p);
 
-                        if (canSkipLerpIfPossible)
+                        if (canSkipLerp)
                             p = 1;
 
                         break;
                     default:
-                        p = ld.Portion(canSkipLerpIfPossible);
+                        p = ld.Portion(canSkipLerp);
                         break;
                 }
 
