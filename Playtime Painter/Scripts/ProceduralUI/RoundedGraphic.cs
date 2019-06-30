@@ -417,15 +417,23 @@ namespace PlaytimePainter
                         material = mat;
                 }
 
+                bool mayBeDefaultMaterial = true;
+
                 if (mat) {
 
                     if (!Application.isPlaying) {
                         var path = QcUnity.GetAssetFolder(mat);
                         if (path.IsNullOrEmpty())
-                            "Material is not saved as asset. Click COPY next to it to save as asset".writeHint();
+                        {
+                            pegi.nl();
+                            "Material is not saved as asset. Click COPY next to it to save as asset. Or Click 'Refresh' to find compatible materials in your assets ".writeHint();
+                            pegi.nl();
+                        }
+                        else
+                            mayBeDefaultMaterial = false;
                     }
 
-                    if (!showingSelection) {
+                    if (!showingSelection && !mayBeDefaultMaterial) {
                         var n = mat.name;
                         if ("Rename Material".editDelayed("Press Enter to finish renaming.", 120, ref n))
                             mat.RenameAsset(n);
@@ -445,7 +453,7 @@ namespace PlaytimePainter
 
                 pegi.nl();
 
-                if (mat)
+                if (mat && !mayBeDefaultMaterial)
                 {
 
                     if (shad)

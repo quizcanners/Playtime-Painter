@@ -1458,7 +1458,9 @@ namespace PlayerAndEditorGUI
 
                 var ty = el.GetType();
 
-                textAndToolTip.text = "{0}:{1}".F(ty.ToPegiStringType(), el.GetNameForInspector());
+                bool exactType = ty == _currentReorderedType;
+
+                textAndToolTip.text = "{0} {1}".F(exactType ? "" : (ty.ToPegiStringType() + ":" ), el.GetNameForInspector());
                 textAndToolTip.tooltip = el.ToString();
 
                 var uo = el as Object;
