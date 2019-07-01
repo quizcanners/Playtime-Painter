@@ -270,6 +270,7 @@ namespace PlaytimePainter
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/PreserveAspect"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/PreserveAspect_InvertingFiller"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/SubtractiveGraphic"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Image"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Primitives/PixelLine")));
 
         private static List<Material> _compatibleMaterials = new List<Material>();
@@ -966,6 +967,8 @@ namespace PlaytimePainter
         public static class SpriteRoles
         {
             public static readonly ShaderTagValue Hide = new ShaderTagValue("Hide", SpriteRole);
+            public static readonly ShaderTagValue Tile = new ShaderTagValue("Tile", SpriteRole);
+            public static readonly ShaderTagValue Normal = new ShaderTagValue("Normal", SpriteRole);
         }
 
         public static readonly ShaderTag PerEdgeData = new ShaderTag("PerEdgeData");
