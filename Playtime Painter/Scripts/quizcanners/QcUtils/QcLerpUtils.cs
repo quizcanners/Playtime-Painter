@@ -1927,57 +1927,118 @@ namespace QuizCannersUtilities
 
         #endregion
         
-        public static void Portion<T>(this T[] list, LerpData ld) where T : ILinkedLerping
-        {
-            foreach (var e in list)
-                if (!QcUnity.IsNullOrDestroyed_Obj(e))
+        public static void Portion<T>(this T[] list, LerpData ld) where T : ILinkedLerping {
+
+            if (typeof(Object).IsAssignableFrom(typeof(T))) {
+                for (int i = list.Length - 1; i >= 0; i--) {
+
+                    var e = list[i];
+                    if (!QcUnity.IsNullOrDestroyed_Obj(e))
+                        e.Portion(ld);
+                }
+            }
+            else for (int i = list.Length - 1; i >= 0; i--) {
+                var e = list[i];
+                if (e != null)
                     e.Portion(ld);
+            }
         }
 
-        public static void Lerp<T>(this T[] list, LerpData ld, bool canSkipLerp = false) where T : ILinkedLerping
-        {
-            foreach (var e in list)
-                if (!QcUnity.IsNullOrDestroyed_Obj(e))
+        public static void Lerp<T>(this T[] list, LerpData ld, bool canSkipLerp = false) where T : ILinkedLerping {
+
+            if (typeof(Object).IsAssignableFrom(typeof(T))) {
+                for (int i = list.Length - 1; i >= 0; i--) {
+                    var e = list[i];
+                    if (!QcUnity.IsNullOrDestroyed_Obj(e))
+                        e.Lerp(ld, canSkipLerp);
+                }
+
+            }
+            else for (int i = list.Length - 1; i >= 0; i--)
+            {
+                var e = list[i];
+                if (e != null)
                     e.Lerp(ld, canSkipLerp);
+            }
         }
 
-        public static void Portion<T>(this List<T> list, LerpData ld) where T : ILinkedLerping
-        {
+        public static void Portion<T>(this List<T> list, LerpData ld) where T : ILinkedLerping {
 
-            foreach (var e in list)
-                if (!QcUnity.IsNullOrDestroyed_Obj(e))
+            if (typeof(Object).IsAssignableFrom(typeof(T))) {
+                for (int i = list.Count - 1; i >= 0; i--) {
+                    var e = list[i];
+                    if (!QcUnity.IsNullOrDestroyed_Obj(e))
+                        e.Portion(ld);
+                }
+
+            }
+            else for (int i = list.Count - 1; i >= 0; i--)
+            {
+                var e = list[i];
+                if (e != null)
                     e.Portion(ld);
+            }
 
         }
+        
+        public static void Lerp<T>(this List<T> list, LerpData ld, bool canSkipLerp = false) where T : ILinkedLerping {
 
-        public static void Lerp<T>(this List<T> list, LerpData ld, bool canSkipLerp = false) where T : ILinkedLerping
-        {
-            foreach (var e in list)
-                if (!QcUnity.IsNullOrDestroyed_Obj(e))
+            if (typeof(Object).IsAssignableFrom(typeof(T))) {
+                for (int i = list.Count - 1; i >= 0; i--) {
+                    var e = list[i];
+                    if (!QcUnity.IsNullOrDestroyed_Obj(e))
+                        e.Lerp(ld, canSkipLerp);
+                }
+
+            } else for (int i = list.Count - 1; i >= 0; i--) {
+                var e = list[i];
+                if (e!= null)
                     e.Lerp(ld, canSkipLerp);
+            }
         }
 
         public static void FadeAway<T>(this List<T> list) where T : IManageFading
         {
             if (list == null) return;
 
-            foreach (var e in list)
-                if (!QcUnity.IsNullOrDestroyed_Obj(e))
+            if (typeof(Object).IsAssignableFrom(typeof(T)))
+            {
+                for (int i = list.Count - 1; i >= 0; i--)
+                {
+                    var e = list[i];
+                    if (!QcUnity.IsNullOrDestroyed_Obj(e))
+                        e.FadeAway();
+                }
+
+            }
+            else for (int i = list.Count - 1; i >= 0; i--)
+            {
+                var e = list[i];
+                if (e != null)
                     e.FadeAway();
+            }
         }
 
-        public static bool TryFadeIn<T>(this List<T> list) where T : IManageFading
-        {
-
-
+        public static bool TryFadeIn<T>(this List<T> list) where T : IManageFading {
+            
             if (list == null) return false;
 
             var fadedIn = false;
+            
+            if (typeof(Object).IsAssignableFrom(typeof(T))) {
+                for (int i = list.Count - 1; i >= 0; i--)
+                {
+                    var e = list[i];
+                    if (!QcUnity.IsNullOrDestroyed_Obj(e))
+                        fadedIn |= e.TryFadeIn();
+                }
 
+            } else for (int i = list.Count - 1; i >= 0; i--) {
 
-            foreach (var e in list)
-                if (!QcUnity.IsNullOrDestroyed_Obj(e))
+                var e = list[i];
+                if (e != null)
                     fadedIn |= e.TryFadeIn();
+            }
 
             return fadedIn;
         }

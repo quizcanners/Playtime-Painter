@@ -116,7 +116,7 @@ namespace PlayerAndEditorGUI
                 if (changes)
                 {
                     if (!Application.isPlaying)
-                        EditorSceneManager.MarkSceneDirty(go ? SceneManager.GetActiveScene() : go.scene);
+                        EditorSceneManager.MarkSceneDirty(go ? go.scene : SceneManager.GetActiveScene());
 
                     EditorUtility.SetDirty(o);
 

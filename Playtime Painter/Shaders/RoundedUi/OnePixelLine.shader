@@ -1,6 +1,7 @@
 ﻿Shader "Playtime Painter/UI/Primitives/PixelLine" {
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
+		[KeywordEnum(Sides, Right, left, Inside)] _GRADS("Softening ", Float) = 0
 	}
 
 	Category{
@@ -31,14 +32,15 @@
 				#pragma multi_compile_fog
 				#pragma multi_compile_fwdbase
 				#pragma multi_compile_instancing
+				#pragma shader_feature _GRADS_SIDES _GRADS_RIGHT _GRADS_LEFT _GRADS_INSIDE 
 				#pragma target 3.0
 
 				struct v2f {
 					float4 pos :		SV_POSITION;
 					//float2 texcoord :	TEXCOORD0;
-					float2 courners	:	TEXCOORD0;
-					float4 screenPos :	TEXCOORD1;
-					float4 projPos :	TEXCOORD2;
+					float2 courners	:	TEXCOORD1;
+					float4 screenPos :	TEXCOORD2;
+					float4 projPos :	TEXCOORD3;
 					float4 color:		COLOR;
 				};
 
@@ -53,13 +55,21 @@
 					o.projPos.xy =		v.normal.xy;
 					o.projPos.zw =		min(1, max(0, float2(v.texcoord1.x, -v.texcoord1.x))*2048);
 								
-					float2 tc			= (v.texcoord.xy - 0.5)*o.projPos.zw;
+					float2 tc			= v.texcoord.xy*o.projPos.zw;
 
-					tc.x=				(tc.x + tc.y)*2;
+					float sides =				(tc.x + tc.y);
+
+					#if  !_GRADS_RIGHT && !_GRADS_LEFT
+						sides = (sides - 0.5) * 2;
+					#endif
+
+					#if _GRADS_LEFT
+						sides = 1 - sides;
+					#endif
 
 					o.projPos.zw *= _ScreenParams.yx;
 
-					o.courners = float2(tc.x, v.texcoord1.y);
+					o.courners = float2(sides, v.texcoord1.y);
 
 					return o;
 				}
@@ -74,10 +84,19 @@
 
 					float2 inPix =   (screenUV - _ProjTexPos.xy) * _ProjTexPos.wz;
 
-					float sides = abs(o.courners.x);
+					float sides = o.courners.x;
 
-					sides = 1 - pow(sides, 1 + _Courners*16)*saturate((1- _Courners)*32);
+					#if _GRADS_INSIDE || _GRADS_SIDES
+						sides = abs(sides);
+					#endif
 
+					
+					sides = 1 - pow(sides, 1 + _Courners * 16)*saturate((1 - _Courners) * 32);
+
+					#if  _GRADS_INSIDE
+						sides = 1 - sides;
+					#endif
+				
 					o.color.a *= max(0,  round(1-abs(inPix.x + inPix.y)))*sides;
 				
 					return o.color;
