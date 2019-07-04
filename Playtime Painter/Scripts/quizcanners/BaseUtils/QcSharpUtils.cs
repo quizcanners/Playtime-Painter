@@ -100,11 +100,10 @@ namespace QuizCannersUtilities {
 
         public static string HtmlTag(string tag) => "<{0}>".F(tag);
         
-        public static string HtmlTagWrap (string tag, string value, string content) => "<{0}={1}>{2}</{0}>".F(tag, value, content);
+        public static string HtmlTagWrap (string tag, string value, string content) => content.IsNullOrEmpty() ? "" : "<{0}={1}>{2}</{0}>".F(tag, value, content);
 
-        public static string HtmlTagWrap(string tag, string content) => "<{0}>{1}</{0}>".F(tag, content);
-
-
+        public static string HtmlTagWrap(string tag, string content) => content.IsNullOrEmpty() ? "" : "<{0}>{1}</{0}>".F(tag, content);
+        
         public static StringBuilder AppendHtmlTag(this StringBuilder bld, string tag) => bld.Append(HtmlTag(tag));
         
         public static StringBuilder AppendHtmlTag(this StringBuilder bld, string tag, string value) => bld.Append(HtmlTag(tag, value));
@@ -118,7 +117,7 @@ namespace QuizCannersUtilities {
         
         public static StringBuilder AppendHtmlItalics(this StringBuilder bld, string content) => bld.Append(HtmlTagWrap("i", content));
 
-        public static StringBuilder AppendHtml(this StringBuilder bld, string text, Color col) => bld.AppendHtmlText("color", "#"+ColorUtility.ToHtmlStringRGBA(col), text);
+        public static StringBuilder AppendHtml(this StringBuilder bld, string content, Color col) => content.IsNullOrEmpty() ? bld : bld.AppendHtmlText("color", "#"+ColorUtility.ToHtmlStringRGBA(col), content);
 
 
         #endregion
