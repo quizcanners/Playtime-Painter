@@ -17,7 +17,7 @@ using Object = UnityEngine.Object;
 namespace PlaytimePainter
 {
 
-    [ExecuteInEditMode]
+    [ExecuteAlways]
     public class RoundedGraphic : Image, IKeepMyCfg, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPEGI {
 
         #region Shader MGMT
@@ -26,11 +26,9 @@ namespace PlaytimePainter
 
         [SerializeField] private Rect atlasedUVs = new Rect(0,0,1,1);
 
-        private enum PositionDataType { ScreenPosition, AtlasPosition }
-
-        #pragma warning disable IDE0044 // Add readonly modifier
-        [SerializeField] private PositionDataType _positionDataType = PositionDataType.ScreenPosition;
-        #pragma warning restore IDE0044 // Add readonly modifier
+        protected enum PositionDataType { ScreenPosition, AtlasPosition }
+        
+        [SerializeField] protected PositionDataType _positionDataType = PositionDataType.ScreenPosition;
 
         [SerializeField] private float[] _roundedCorners = new float[1];
         
@@ -83,9 +81,8 @@ namespace PlaytimePainter
                     _roundedCorners[i] = tmp;
             }
         }
-
-        protected override void OnPopulateMesh(VertexHelper vh)
-        {
+        
+        protected override void OnPopulateMesh(VertexHelper vh) {
 
             if (!gameObject.activeSelf) {
                 if (Debug.isDebugBuild && Application.isEditor)
@@ -109,11 +106,9 @@ namespace PlaytimePainter
 
             var myCanvas = canvas;
 
-            if (feedPositionData) {
-               
+            if (feedPositionData) 
                 pos = RectTransformUtility.WorldToScreenPoint(IsOverlay ? null : (myCanvas ? myCanvas.worldCamera : null), rt.position);
                
-            }
             var rctS = rectSize;
 
             float rectDiff = rctS.x - rctS.y;
@@ -146,38 +141,41 @@ namespace PlaytimePainter
                 atlasedAspectX = (pixelsToShow.x * (1f - scaleX)) / truePixSizeX;
                 
                 if (feedAtlasedPosition) {
+
                     var atlasedOffCenter = (new Vector2(atlasedUVs.width + atlasedUVs.x, atlasedUVs.height + atlasedUVs.y)  - Vector2.one)*0.5f;
 
                     pos -= atlasedOffCenter * texturePixelSize / atlasedAspectX;
+
                 }
             }
 
             if (feedPositionData)
                 pos.Scale(new Vector2(1f / Screen.width, 1f / Screen.height));
-            
-            vertex.normal = new Vector3(pos.x, pos.y, atlasedAspectX);
 
+            vertex.uv2 = pos;
+            vertex.uv3 = new Vector2(atlasedAspectX, 0);
+            
             vertex.uv1 = new Vector2(scaleToSided, GetCorner(0));  
             vertex.color = color;
             
             vertex.uv0 = new Vector2(0, 0);
             vertex.position = new Vector2(corner1.x, corner1.y);
-            vh.AddVert(vertex);
+            vh.AddFull(vertex);
 
             vertex.uv0 = new Vector2(0, 1);
             vertex.uv1.y = GetCorner(1);
             vertex.position = new Vector2(corner1.x, corner2.y);
-            vh.AddVert(vertex);
+            vh.AddFull(vertex);
             
             vertex.uv0 = new Vector2(1, 1);
             vertex.uv1.y = GetCorner(2);
             vertex.position = new Vector2(corner2.x, corner2.y);
-            vh.AddVert(vertex);
+            vh.AddFull(vertex);
             
             vertex.uv0 = new Vector2(1, 0);
             vertex.uv1.y = GetCorner(3);
             vertex.position = new Vector2(corner2.x, corner1.y);
-            vh.AddVert(vertex);
+            vh.AddFull(vertex);
 
             if (LinkedCorners)
             {
@@ -196,32 +194,32 @@ namespace PlaytimePainter
                 var cornMid = (corner1 + corner2) * 0.5f;
                 
                 vertex.uv1.y = GetCorner(0);
-                vh.AddVert(vertex.Set(0, 0.5f, corner1, cornMid)); //4
-                vh.AddVert(vertex.Set(0.5f, 0, cornMid, corner1)); //5
+                vh.AddFull(vertex.Set(0, 0.5f, corner1, cornMid)); //4
+                vh.AddFull(vertex.Set(0.5f, 0, cornMid, corner1)); //5
 
                 vertex.uv1.y = GetCorner(1);
-                vh.AddVert(vertex.Set(0.5f, 1, cornMid, corner2)); //6
-                vh.AddVert(vertex.Set(0, 0.5f, corner1, cornMid)); //7
+                vh.AddFull(vertex.Set(0.5f, 1, cornMid, corner2)); //6
+                vh.AddFull(vertex.Set(0, 0.5f, corner1, cornMid)); //7
 
                 vertex.uv1.y = GetCorner(2);
-                vh.AddVert(vertex.Set(1, 0.5f, corner2, cornMid)); //8
-                vh.AddVert(vertex.Set(0.5f, 1, cornMid, corner2)); //9
+                vh.AddFull(vertex.Set(1, 0.5f, corner2, cornMid)); //8
+                vh.AddFull(vertex.Set(0.5f, 1, cornMid, corner2)); //9
 
                 vertex.uv1.y = GetCorner(3);
-                vh.AddVert(vertex.Set(0.5f, 0, cornMid, corner1)); //10
-                vh.AddVert(vertex.Set(1, 0.5f, corner2, cornMid)); //11
+                vh.AddFull(vertex.Set(0.5f, 0, cornMid, corner1)); //10
+                vh.AddFull(vertex.Set(1, 0.5f, corner2, cornMid)); //11
 
                 vertex.uv1.y = GetCorner(0);
-                vh.AddVert(vertex.Set(0.5f, 0.5f, cornMid, cornMid)); //12
+                vh.AddFull(vertex.Set(0.5f, 0.5f, cornMid, cornMid)); //12
 
                 vertex.uv1.y = GetCorner(1);
-                vh.AddVert(vertex.Set(0.5f, 0.5f, cornMid, cornMid)); //13
+                vh.AddFull(vertex.Set(0.5f, 0.5f, cornMid, cornMid)); //13
 
                 vertex.uv1.y = GetCorner(2);
-                vh.AddVert(vertex.Set(0.5f, 0.5f, cornMid, cornMid)); //14
+                vh.AddFull(vertex.Set(0.5f, 0.5f, cornMid, cornMid)); //14
 
                 vertex.uv1.y = GetCorner(3);
-                vh.AddVert(vertex.Set(0.5f, 0.5f, cornMid, cornMid)); //15
+                vh.AddFull(vertex.Set(0.5f, 0.5f, cornMid, cornMid)); //15
 
                 vh.AddTriangle(0, 4, 5);
                 vh.AddTriangle(1, 6, 7);
@@ -307,6 +305,10 @@ namespace PlaytimePainter
 
                 bool gotPixPerfTag = false;
 
+                bool mayBeDefaultMaterial = true;
+
+                bool expectingPosition = false;
+
                 #region Material Tags 
                 if (mat)
                 {
@@ -316,18 +318,23 @@ namespace PlaytimePainter
 
                     if (!gotPixPerfTag)
                         "{0} doesn't have {1} tag".F(shad.name, ShaderTags.PixelPerfectUi.NameForDisplayPEGI()).writeWarning();
-                    else  {
+                    else {
+
+                        mayBeDefaultMaterial = false;
 
                         expectedScreenPosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.Position.NameForDisplayPEGI());
 
                         if (!expectedScreenPosition)
-                        expectedAtlasedPosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.AtlasedPosition.NameForDisplayPEGI());
+                            expectedAtlasedPosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.AtlasedPosition.NameForDisplayPEGI());
+
+                        expectingPosition = expectedAtlasedPosition || expectedScreenPosition;
 
                         if (!can)
                             "No Canvas".writeWarning();
                         else
                         {
-                            if ((can.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord1) == 0) {
+                            if ((can.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord1) == 0)
+                            {
 
                                 "Material requires Canvas to pass Edges data trough Texture Coordinate 1 data channel"
                                     .writeWarning();
@@ -336,16 +343,24 @@ namespace PlaytimePainter
 
                             }
 
-                            if (feedPositionData &&
-                                ((can.additionalShaderChannels & AdditionalCanvasShaderChannels.Normal) == 0))
+                            if (expectingPosition)
                             {
-                                "Material requires Canvas to pass Position Data trough Normal channel".writeWarning();
-                                if ("Fix Canvas ".Click().nl())
-                                    can.additionalShaderChannels |= AdditionalCanvasShaderChannels.Normal;
+                                if ((can.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord2) == 0) {
+                                    "Material requires Canvas to pass Position Data trough Texcoord2 channel"
+                                        .writeWarning();
+                                    if ("Fix Canvas ".Click().nl())
+                                        can.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord2;
+                                } else if (expectedAtlasedPosition  && (can.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord3) == 0) {
+
+                                    "Material requires Canvas to pass Atlased aspect trough Texoord3 channel".writeWarning();
+                                    if ("Fix Canvas".Click().nl())
+                                        can.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord3;
+                                }
+
                             }
 
                             if (can.renderMode == RenderMode.WorldSpace) {
-                                "Rounded UI isn't working on world space UI yet.".writeWarning();
+                                "Rounded UI isn't always working on world space UI yet.".writeWarning();
                                 if ("Change to Overlay".Click())
                                     can.renderMode = RenderMode.ScreenSpaceOverlay;
                                 if ("Change to Camera".Click())
@@ -414,11 +429,11 @@ namespace PlaytimePainter
 
                     showingSelection = true;
 
-                    if (pegi.select(ref mat, _compatibleMaterials, true))
+                    if (pegi.select(ref mat, _compatibleMaterials, allowInsert: !mayBeDefaultMaterial))
                         material = mat;
                 }
 
-                bool mayBeDefaultMaterial = true;
+              
 
                 if (mat) {
 
@@ -442,13 +457,13 @@ namespace PlaytimePainter
                 }
 
                 if (pegi.edit(ref mat, 60).changes(ref changed) ||
-                    pegi.ClickDuplicate(ref mat, gameObject.name).changes(ref changed)) {
+                    (!Application.isPlaying && pegi.ClickDuplicate(ref mat, gameObject.name).changes(ref changed))) {
                     material = mat;
                     if (mat)
                         _compatibleMaterials.AddIfNew(mat);
                 }
 
-                if (icon.Refresh.Click("Find All Compatible Materials in Assets"))
+                if (!Application.isPlaying && icon.Refresh.Click("Find All Compatible Materials in Assets"))
                     _compatibleMaterials = ShaderTags.PixelPerfectUi.GetTaggedMaterialsFromAssets();
                 
 
@@ -476,8 +491,9 @@ namespace PlaytimePainter
 
                 #region Position Data
 
-                if (expectedScreenPosition || expectedAtlasedPosition || feedPositionData) {
+                if (expectingPosition || feedPositionData) {
                     "Position Data".toggleIcon(ref feedPositionData, true).changes(ref changed);
+
                     if (feedPositionData) {
                         "Position: ".editEnum(60, ref _positionDataType).changes(ref changed);
 
@@ -485,9 +501,14 @@ namespace PlaytimePainter
                             .fullWindowDocumentationClickOpen("Camera dependancy warning");
 
                         pegi.nl();
+                    } else if (expectingPosition) 
+                        "Shader expects Position data".writeWarning();
+                        
+                    
 
-                        if (gotPixPerfTag)
-                        {
+                    if (gotPixPerfTag) {
+                        
+                        if (feedPositionData) {
 
                             if (_positionDataType == PositionDataType.AtlasPosition) {
 
@@ -505,29 +526,33 @@ namespace PlaytimePainter
                 if (gotPixPerfTag && feedPositionData)  {
                     if (!expectedScreenPosition && !expectedAtlasedPosition)
                         "Shader doesn't have any PixelPerfectUI Position Tags. Position updates may not be needed".writeWarning();
-                 
-                        pegi.nl();
-
-                    if (rectTransform.pivot != Vector2.one * 0.5f) {
-                        "Pivot is expected to be in the center for position processing to work".writeWarning();
-                        pegi.nl();
-                        if ("Set Pivot to 0.5,0.5".Click().nl(ref changed))
-                            rectTransform.SetPivotTryKeepPosition(Vector2.one * 0.5f);
-                    }
-
-                    if (rectTransform.localScale != Vector3.one) {
-                        "Scale deformation can interfear with some shaders that use position".writeWarning();
-                        pegi.nl();
-                        if ("Set local scale to 1".Click().nl(ref changed))
-                            rectTransform.localScale = Vector3.one;
-                    }
-
-                    if (rectTransform.localRotation != Quaternion.identity)
+                    else
                     {
-                        "Rotation can compromise calculations in shaders that need position".writeWarning();
-                        if ("Reset Rotation".Click().nl(ref changed))
-                            rectTransform.localRotation = Quaternion.identity;
-                        
+                        pegi.nl();
+
+                        if (rectTransform.pivot != Vector2.one * 0.5f)
+                        {
+                            "Pivot is expected to be in the center for position processing to work".writeWarning();
+                            pegi.nl();
+                            if ("Set Pivot to 0.5,0.5".Click().nl(ref changed))
+                                rectTransform.SetPivotTryKeepPosition(Vector2.one * 0.5f);
+                        }
+
+                        if (rectTransform.localScale != Vector3.one)
+                        {
+                            "Scale deformation can interfear with some shaders that use position".writeWarning();
+                            pegi.nl();
+                            if ("Set local scale to 1".Click().nl(ref changed))
+                                rectTransform.localScale = Vector3.one;
+                        }
+
+                        if (rectTransform.localRotation != Quaternion.identity)
+                        {
+                            "Rotation can compromise calculations in shaders that need position".writeWarning();
+                            if ("Reset Rotation".Click().nl(ref changed))
+                                rectTransform.localRotation = Quaternion.identity;
+
+                        }
                     }
 
                     if (_positionDataType == PositionDataType.AtlasPosition) {
@@ -983,6 +1008,8 @@ namespace PlaytimePainter
 
     public static class RoundedUiExtensions  {
 
+        public static void AddFull(this VertexHelper vh, UIVertex vert) => vh.AddVert(vert.position, vert.color, vert.uv0, vert.uv1, vert.uv2, vert.uv3, vert.normal, vert.tangent);
+        
         #if UNITY_EDITOR
         [MenuItem("GameObject/UI/Playtime Painter/Rounded UI Graphic", false, 0)]
         private static void CreateRoundedUiElement() {

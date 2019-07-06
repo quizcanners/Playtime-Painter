@@ -13,6 +13,7 @@
 			"IgnoreProjector" = "True"
 			"PixelPerfectUI" = "Simple"
 			"SpriteRole" = "Hide"
+			"PerEdgeData" = "Linked"
 		}
 
 		ColorMask RGB

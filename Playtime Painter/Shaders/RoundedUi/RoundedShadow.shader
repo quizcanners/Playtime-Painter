@@ -9,6 +9,7 @@
 			"IgnoreProjector" = "True"
 			"PixelPerfectUI" = "Simple"
 			"SpriteRole" = "Hide"
+			"PerEdgeData" = "Linked"
 		}
 
 		ColorMask RGB
@@ -22,7 +23,7 @@
 
 				CGPROGRAM
 
-				#include "UnityCG.cginc"
+				//#include "UnityCG.cginc"
 
 				#pragma vertex vert
 				#pragma fragment frag
@@ -41,16 +42,24 @@
 					float4 color: COLOR;
 				};
 
-				v2f vert(appdata_full v) {
+				struct appdata_ui_qc
+				{
+					float4 vertex    : POSITION;  // The vertex position in model space.
+					float2 texcoord  : TEXCOORD0; // The first UV coordinate.
+					float2 texcoord1 : TEXCOORD1; // The second UV coordinate.
+					float2 texcoord2 : TEXCOORD2; // The third UV coordinate.
+					float4 color     : COLOR;     // Per-vertex color
+				};
+
+				v2f vert(appdata_ui_qc v) {
 					v2f o;
-					UNITY_SETUP_INSTANCE_ID(v);
 					o.pos = UnityObjectToClipPos(v.vertex);
 					o.texcoord.xy = v.texcoord.xy;
 					o.color = v.color;
 
 					o.texcoord.zw = v.texcoord1.xy;
 					o.texcoord.z = abs(o.texcoord.z)*10;
-					o.projPos.xy = v.normal.xy;
+					o.projPos.xy = v.texcoord2;
 					o.projPos.zw = max(0, float2(v.texcoord1.x, -v.texcoord1.x));
 
 					o.precompute.w = 1 / (1.0001 - o.texcoord.w);

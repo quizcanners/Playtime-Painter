@@ -317,8 +317,8 @@ namespace PlaytimePainter
 
                 lastUserUpdateReturned = Time.time;
 
-                if (userToGetUpdate as VolumeRayTrace != null)
-                    Debug.Log("Returning result");
+                //if (userToGetUpdate as VolumeRayTrace != null)
+                //Debug.Log("Returning result");
 
                 userToGetUpdate = null;
 

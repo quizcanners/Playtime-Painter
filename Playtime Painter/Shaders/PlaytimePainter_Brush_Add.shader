@@ -27,16 +27,17 @@
 				#pragma vertex vert
 				#pragma fragment frag
 				#pragma target 3.0
-				#include "UnityCG.cginc"
-				#include "UnityLightingCommon.cginc"
+				//#include "UnityCG.cginc"
+				//#include "UnityLightingCommon.cginc"
 
 				#if BRUSH_2D || BRUSH_DECAL || BRUSH_SQUARE
+
 				struct v2f {
 					float4 pos : POSITION;
 					float4 texcoord : TEXCOORD0;  
 				};
 
-				v2f vert(appdata_full v) {
+				v2f vert(appdata_full_qc v) {
 					v2f o;
 					o.pos = UnityObjectToClipPos(v.vertex);   
 					o.texcoord = brushTexcoord (v.texcoord.xy, v.vertex);
@@ -53,7 +54,7 @@
 				};
 
 
-				v2f vert(appdata_full v) {
+				v2f vert(appdata_brush_qc v) {
 
 					v2f o;
 					float4 worldPos = mul(unity_ObjectToWorld, v.vertex);

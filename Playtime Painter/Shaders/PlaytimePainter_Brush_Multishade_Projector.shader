@@ -15,6 +15,7 @@
 				CGPROGRAM
 
 				#include "PlaytimePainter_cg.cginc"
+				#include "UnityCg.cginc"
 
 				#pragma multi_compile  BRUSH_3D    BRUSH_3D_TEXCOORD2
 				#pragma multi_compile  ____ TARGET_TRANSPARENT_LAYER
@@ -31,7 +32,7 @@
 					float2 srcTexAspect : TEXCOORD3;
 				};
 
-				v2f vert(appdata_full v) {
+				v2f vert(appdata_brush_qc v) {
 
 					v2f o;
 					float4 worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1.0f));

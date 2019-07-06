@@ -13,6 +13,7 @@
 
 				CGPROGRAM
 
+				#include "UnityCG.cginc"
 				#include "PlaytimePainter_cg.cginc"
 
 				#pragma multi_compile  _FILL_TRANSPARENT  _FILL_NON_INKED 
@@ -32,7 +33,7 @@
 
 				#if BRUSH_3D || BRUSH_3D_TEXCOORD2
 
-				v2f vert(appdata_full v) {
+				v2f vert(appdata_brush_qc v) {
 
 					v2f o;
 
@@ -75,7 +76,7 @@
 
 				#else
 
-				v2f vert(appdata_full v) {
+				v2f vert(appdata_brush_qc v) {
 					v2f o;
 
 					o.worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1));

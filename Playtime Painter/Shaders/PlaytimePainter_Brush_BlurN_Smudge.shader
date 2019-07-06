@@ -14,6 +14,7 @@
 				CGPROGRAM
 
 				#include "PlaytimePainter_cg.cginc"
+				#include "UnityCG.cginc"
 
 				#pragma multi_compile  BRUSH_2D  BRUSH_3D   BRUSH_3D_TEXCOORD2  //BRUSH_DECAL
 				#pragma multi_compile  BRUSH_BLUR  BRUSH_BLOOM//BLIT_MODE_ALPHABLEND BLIT_MODE_ADD BLIT_MODE_COPY 
@@ -27,7 +28,7 @@
 					float4 texcoord : TEXCOORD0;  
 				};
 
-				v2f vert(appdata_full v) {
+				v2f vert(appdata_brush_qc v) {
 					v2f o;
 					o.pos = UnityObjectToClipPos(v.vertex);   
 					o.texcoord = brushTexcoord (v.texcoord.xy, v.vertex);
@@ -43,7 +44,7 @@
 					float3 worldPos : TEXCOORD1;
 				};
 
-				v2f vert(appdata_full v) {
+				v2f vert(appdata_full_qc v) {
 
 					v2f o;
 					float4 worldPos = mul(unity_ObjectToWorld, v.vertex);

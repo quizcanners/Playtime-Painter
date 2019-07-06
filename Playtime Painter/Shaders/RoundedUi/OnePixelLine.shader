@@ -12,6 +12,7 @@
 			"PixelPerfectUI" = "Position"
 			"SpriteRole" = "Hide"
 			"ShaderTip" = "If it disappears, try increasing the WIDTH of the line (or Height if line is vertical). "
+			"PerEdgeData" = "Linked"
 		}
 
 		ColorMask RGB
@@ -29,20 +30,28 @@
 
 				#pragma vertex vert
 				#pragma fragment frag
-				#pragma multi_compile_fog
-				#pragma multi_compile_fwdbase
+				//#pragma multi_compile_fwdbase
 				#pragma multi_compile_instancing
 				#pragma shader_feature _GRADS_SIDES _GRADS_RIGHT _GRADS_LEFT _GRADS_INSIDE 
 				#pragma target 3.0
 
 				struct v2f {
 					float4 pos :		SV_POSITION;
-					//float2 texcoord :	TEXCOORD0;
 					float2 courners	:	TEXCOORD1;
 					float4 screenPos :	TEXCOORD2;
 					float4 projPos :	TEXCOORD3;
 					float4 color:		COLOR;
 				};
+
+				struct appdata_ui_qc
+				{
+					float4 vertex    : POSITION;  // The vertex position in model space.
+					float2 texcoord  : TEXCOORD0; // The first UV coordinate.
+					float2 texcoord1 : TEXCOORD1; // The second UV coordinate.
+					float2 texcoord2 : TEXCOORD2; // The third UV coordinate.
+					float4 color     : COLOR;     // Per-vertex color
+				};
+
 
 				v2f vert(appdata_full v) {
 					v2f o;
@@ -52,7 +61,7 @@
 					o.color =			v.color;
 					//o.texcoord =		v.texcoord;
 
-					o.projPos.xy =		v.normal.xy;
+					o.projPos.xy =		v.texcoord2.xy;
 					o.projPos.zw =		min(1, max(0, float2(v.texcoord1.x, -v.texcoord1.x))*2048);
 								
 					float2 tc			= v.texcoord.xy*o.projPos.zw;

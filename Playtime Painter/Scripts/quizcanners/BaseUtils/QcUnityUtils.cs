@@ -345,13 +345,13 @@ namespace QuizCannersUtilities {
 
         #region Components & GameObjects
 
-        public static void SetActive<T>(this List<T> list, bool to) where T : Component {
+        public static void SetActive_List<T>(this List<T> list, bool to) where T : Component {
             if (!list.IsNullOrEmpty())
                 foreach (var e in list)
                     if (e) e.gameObject.SetActive(to);
         }
 
-        public static void SetActive(this List<GameObject> list, bool to)
+        public static void SetActive_List(this List<GameObject> list, bool to)
         {
             if (!list.IsNullOrEmpty())
                 foreach (var go in list)

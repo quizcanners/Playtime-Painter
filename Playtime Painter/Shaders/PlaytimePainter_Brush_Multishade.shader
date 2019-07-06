@@ -14,6 +14,7 @@
 
 				CGPROGRAM
 
+				#include "UnityCG.cginc"
 				#include "PlaytimePainter_cg.cginc"
 
 				#pragma multi_compile  BRUSH_SQUARE    BRUSH_2D    BRUSH_3D    BRUSH_3D_TEXCOORD2  BRUSH_DECAL
@@ -31,7 +32,7 @@
 				};
 
 				#if BRUSH_3D || BRUSH_3D_TEXCOORD2
-				v2f vert(appdata_full v) {
+				v2f vert(appdata_full_qc v) {
 
 					v2f o;
 

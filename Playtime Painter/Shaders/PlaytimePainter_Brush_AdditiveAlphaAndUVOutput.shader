@@ -36,7 +36,7 @@
 					float2 srcTexAspect : TEXCOORD2;
 				};
 
-				v2f vert(appdata_full v) {
+				v2f vert(appdata_brush_qc v) {
 
 					v2f o;
 					float4 worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1.0f));

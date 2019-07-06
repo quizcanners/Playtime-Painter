@@ -14,6 +14,7 @@
 			"RenderType" = "Transparent"
 			"PixelPerfectUI" = "Simple"
 			"SpriteRole" = "Hide"
+			"PerEdgeData" = "Linked"
 		}
 
 		ColorMask RGBA

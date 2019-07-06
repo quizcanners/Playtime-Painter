@@ -56,6 +56,17 @@
 				float4 _MainTex_TexelSize;
 				float _Edges;
 
+				struct appdata_ui_qc
+				{
+					float4 vertex    : POSITION;  // The vertex position in model space.
+					float2 texcoord  : TEXCOORD0; // The first UV coordinate.
+					float2 texcoord1 : TEXCOORD1; // The second UV coordinate.
+					float2 texcoord2 : TEXCOORD2; // The third UV coordinate.
+					float2 texcoord3 : TEXCOORD3; // The fourth UV coordinate.
+					float4 color     : COLOR;     // Per-vertex color
+				};
+
+
 				v2f vert(appdata_full v) {
 					v2f o;
 					UNITY_SETUP_INSTANCE_ID(v);
@@ -68,8 +79,8 @@
 					o.texcoord.zw = v.texcoord1.xy;
 					o.texcoord.z = _Edges;
 
-					o.projPos.xy = floor(v.normal.xy * _ScreenParams.xy);
-					o.atlasedUpscale = v.normal.z;
+					o.projPos.xy = floor(v.texcoord2.xy * _ScreenParams.xy);
+					o.atlasedUpscale = v.texcoord3.x;
 					o.projPos.zw = max(0, float2(v.texcoord1.x, -v.texcoord1.x));
 
 					o.precompute.w = 1 / (1.0001 - o.texcoord.w);

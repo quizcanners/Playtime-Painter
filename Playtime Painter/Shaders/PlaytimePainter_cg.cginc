@@ -42,6 +42,14 @@ float4 pp_ProjectorPosition;
 float4 pp_ProjectorClipPrecompute;
 float4 pp_ProjectorConfiguration;
 
+
+struct appdata_brush_qc
+{
+	float4 vertex    : POSITION;  // The vertex position in model space.
+	float4 texcoord  : TEXCOORD0; // The first UV coordinate.
+	float4 texcoord2  : TEXCOORD1; // The first UV coordinate.
+};
+
 struct appdata_full_qc
 {
 	float4 vertex    : POSITION;  // The vertex position in model space.
