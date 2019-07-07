@@ -100,9 +100,17 @@ namespace QuizCannersUtilities {
 
         public static string HtmlTag(string tag) => "<{0}>".F(tag);
         
-        public static string HtmlTagWrap (string tag, string value, string content) => content.IsNullOrEmpty() ? "" : "<{0}={1}>{2}</{0}>".F(tag, value, content);
-
         public static string HtmlTagWrap(string tag, string content) => content.IsNullOrEmpty() ? "" : "<{0}>{1}</{0}>".F(tag, content);
+
+        public static string HtmlTagWrap(string tag, string value, string content) => content.IsNullOrEmpty() ? "" : "<{0}={1}>{2}</{0}>".F(tag, value, content);
+
+        public static string HtmlTagWrap(string content, Color color) => content.IsNullOrEmpty() ? "" : "<{0}={1}>{2}</{0}>".F("color", "#" + ColorUtility.ToHtmlStringRGBA(color), content);
+
+        public static string HtmlTagAlpha(float alpha01) => HtmlTag("alpha", "#" + Mathf.FloorToInt(Mathf.Clamp01(alpha01) * 255).ToString("X2"));
+
+
+        public static string HtmlTagWrapAlpha(string content, float alpha01) => HtmlTagAlpha(alpha01) + content + HtmlTagAlpha(1f); 
+
         
         public static StringBuilder AppendHtmlTag(this StringBuilder bld, string tag) => bld.Append(HtmlTag(tag));
         
@@ -112,12 +120,18 @@ namespace QuizCannersUtilities {
 
         public static StringBuilder AppendHtmlText(this StringBuilder bld, string tag, string content) => bld.Append(HtmlTagWrap(tag, content));
 
-
+        public static StringBuilder AppendHtmlAlpha(this StringBuilder bld, string content, float alpha) => bld.Append(HtmlTagWrapAlpha(content, alpha));
+        
         public static StringBuilder AppendHtmlBold(this StringBuilder bld, string content) => bld.Append(HtmlTagWrap("b", content));
         
         public static StringBuilder AppendHtmlItalics(this StringBuilder bld, string content) => bld.Append(HtmlTagWrap("i", content));
 
-        public static StringBuilder AppendHtml(this StringBuilder bld, string content, Color col) => content.IsNullOrEmpty() ? bld : bld.AppendHtmlText("color", "#"+ColorUtility.ToHtmlStringRGBA(col), content);
+        public static StringBuilder AppendHtml(this StringBuilder bld, string content, Color col) => bld.Append(HtmlTagWrap(content, col)); //content.IsNullOrEmpty() ? bld : bld.AppendHtmlText("color", "#"+ColorUtility.ToHtmlStringRGBA(col), content);
+
+        public static StringBuilder AppendHtmlLink(this StringBuilder bld, string content) => content.IsNullOrEmpty() ? bld : bld.AppendHtmlText("link", "dummy", content);
+
+        public static StringBuilder AppendHtmlLink(this StringBuilder bld, string content, Color col) => content.IsNullOrEmpty() ? bld : 
+            bld.AppendHtmlText("link", "dummy", HtmlTagWrap(content, col));
 
 
         #endregion
@@ -532,6 +546,23 @@ namespace QuizCannersUtilities {
         {
             var ind = name.LastIndexOf("/", StringComparison.Ordinal);
             return (ind == -1 || ind > name.Length - 2) ? name : name.Substring(ind + 1);
+        }
+
+        public static string ToElipsisString(this string text, int maxLength) {
+
+            if (text == null)
+                return "null";
+
+            int index = text.IndexOf(Environment.NewLine);
+
+            if (index > 10)
+                text = text.Substring(0, index);
+
+            if (text.Length < (maxLength+3))
+                return text;
+
+            return text.Substring(0, maxLength) + "…";
+
         }
 
         public static bool SameAs(this string s, string other) => s?.Equals(other) ?? other==null;

@@ -2185,39 +2185,6 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static bool select_IGotIndex<T>(ref int val, List<T> lst, Func<T, bool> lambda, bool showIndex = false, bool stripSlashes = false, bool dotsToSlashes = true) where T : IGotIndex
-        {
-
-            checkLine();
-
-            var names = new List<string>();
-            var indexes = new List<int>();
-
-            var current = -1;
-
-            foreach (var tmp in lst)
-            {
-
-                if (tmp.filterEditorDropdown().IsDefaultOrNull() || !lambda(tmp)) continue;
-
-                var ind = tmp.IndexForPEGI;
-
-                if (val == ind)
-                    current = names.Count;
-                names.Add(CompileSelectionName(ind, tmp, showIndex, stripSlashes, dotsToSlashes));
-                indexes.Add(ind);
-
-            }
-
-            if (selectFinal(ref val, ref current, names))
-            {
-                val = indexes[current];
-                return true;
-            }
-
-            return false;
-        }
-
         public static bool select<T>(ref T val, List<T> lst, Func<T, bool> lambda, bool showIndex = false, bool stripSlashes = false, bool dotsToSlashes = true)
         {
             var changed = false;
@@ -2882,6 +2849,39 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
+        public static bool select_iGotIndex<T>(ref int val, List<T> lst, Func<T, bool> lambda, bool showIndex = false, bool stripSlashes = false, bool dotsToSlashes = true) where T : IGotIndex
+        {
+
+            checkLine();
+
+            var names = new List<string>();
+            var indexes = new List<int>();
+
+            var current = -1;
+
+            foreach (var tmp in lst)
+            {
+
+                if (tmp.filterEditorDropdown().IsDefaultOrNull() || !lambda(tmp)) continue;
+
+                var ind = tmp.IndexForPEGI;
+
+                if (val == ind)
+                    current = names.Count;
+                names.Add(CompileSelectionName(ind, tmp, showIndex, stripSlashes, dotsToSlashes));
+                indexes.Add(ind);
+
+            }
+
+            if (selectFinal(ref val, ref current, names))
+            {
+                val = indexes[current];
+                return true;
+            }
+
+            return false;
+        }
+        
         public static bool select_iGotIndex_SameClass<T, G>(this string label, string tip, int width, ref int ind, List<T> lst) where G : class, T where T : IGotIndex
         {
             write(label, tip, width);

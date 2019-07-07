@@ -45,9 +45,13 @@
 					
 					float3 diff = worldPos - brushPos;
 					float dist = length(diff);
-					float preAlpha = saturate(1 / (deSize*dist + 0.000001)) * saturate(dot(normalize(diff + brushNormal * deSize), brushNormal) * 2);
+
+					float forward = saturate(dot(normalize(diff //- brushNormal * deSize
+					), brushNormal) * 128);
+
+					float preAlpha = saturate(1 / (deSize*dist + 0.000001)) * forward;
 					float alpha = saturate((preAlpha - col.a * hardness)*(2 + sharpness*0.1)*speed);
-					col.a = max(preAlpha, col.a*(1-0.005*alpha));
+					col.a = max(preAlpha, col.a*(1-0.01*alpha));
 					col.rgb = brushCol.rgb * alpha + max(col.rgb, brushCol.rgb*preAlpha) * (1 - alpha);
 				}
 
@@ -82,8 +86,9 @@
 					ApplyStroke(worldPos.xyz, _brushWorldPosTo.xyz, brushNormal, _brushColor, deSize, col, hardness);
 
 					float portion = 
-						saturate((col.a - awg.a*0.9)*10); 
-						// 0.5 + (col.a-awg.a)*0.5;
+						saturate((col.a - awg.a*0.8)*10);
+
+
 
 					col.rgb = col.rgb*portion+ 
 						//max(col.rgb, awg.rgb)
