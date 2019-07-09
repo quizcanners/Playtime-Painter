@@ -91,12 +91,13 @@
 				float4 frag(v2f i) : COLOR{
 					i.viewDir.xyz = normalize(i.viewDir.xyz);
 					float dist = length(i.wpos.xyz - _WorldSpaceCameraPos.xyz);
-
+					float caustics = 0;
 					/*
 #if WATER_FOAM
 					float underWater = _foamParams.z - i.wpos.y;
 					float3 projectedWpos;
-					float3 nrmNdSm = SAMPLE_WATER_NORMAL(i.viewDir.xyz, projectedWpos);
+						
+					float3 nrmNdSm = SAMPLE_WATER_NORMAL(i.viewDir.xyz,  projectedWpos, i.tc_Control, caustics, underWater);
 #endif*/
 
 					float4 col = tex2D(_MainTex, i.texcoord.xy);

@@ -279,7 +279,8 @@ namespace PlaytimePainter
 
         private const string info =
             "Rounded Graphic component provides additional data to pixel perfect UI shaders. Those shaders will often not display correctly in the scene view. " +
-            "Also they may be tricky at times so take note of all the warnings and hints that my show in this inspector.";
+            "Also they may be tricky at times so take note of all the warnings and hints that my show in this inspector. " +
+            "When Canvas is set To ScreenSpace-Camera it will also provide adjustive softening when scaled";
 
         public bool Inspect()
         {

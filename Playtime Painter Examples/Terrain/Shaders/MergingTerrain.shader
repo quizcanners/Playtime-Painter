@@ -69,14 +69,19 @@
 					float aboveTerrain = saturate((((i.wpos.y - _mergeTeraPosition.y) - height.a*_mergeTerrainScale.y) - 0.5)*0.5);
 					float deAboveTerrain = 1 - aboveTerrain;
 
+					float caustics = 0;
+
 					#if WATER_FOAM
-					float underWater = _foamParams.z - i.wpos.y;
+					float underWater = max(0, _foamParams.z - i.wpos.y);
 
 					float3 projectedWpos;
-					float3 nrmNdSm = SAMPLE_WATER_NORMAL(i.viewDir.xyz, projectedWpos);
-
-					i.tc_Control.xz += nrmNdSm.xz * max(0, underWater)*0.0005 * (1-i.viewDir.y);
 					
+					float3 nrmNdSm = SAMPLE_WATER_NORMAL(i.viewDir.xyz,  projectedWpos, i.tc_Control, caustics, underWater);
+
+					underWater = min(1, underWater);
+
+					caustics *= underWater;
+
 					#endif
 					
 					float dist = length(i.wpos.xyz - _WorldSpaceCameraPos.xyz);
@@ -85,6 +90,7 @@
 					float deFar = 1 - far;
 
 					float4 col = tex2D(_mergeControl, i.tc_Control.xz);
+
 					float3 bump = (height.rgb - 0.5)*2;
 
 					bump = bump*deAboveTerrain + i.normal * aboveTerrain;
@@ -158,8 +164,10 @@
 
 					float smoothness = col.a;
 
+					//return caustics;
+
 #if WATER_FOAM
-					APPLY_PROJECTED_WATER(saturate(underWater), worldNormal, nrmNdSm, i.tc_Control, projectedWpos, i.viewDir.y, col, smoothness, ambient, shadow);
+					APPLY_PROJECTED_WATER(underWater, worldNormal, nrmNdSm, i.tc_Control, projectedWpos, i.viewDir.y, col, smoothness, ambient, shadow, caustics);
 #endif
 
 					Terrain_Water_AndLight(col, i.tc_Control, 

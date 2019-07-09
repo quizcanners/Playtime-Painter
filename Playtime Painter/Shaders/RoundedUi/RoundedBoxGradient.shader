@@ -85,6 +85,12 @@
 
 				float4 frag(v2f o) : COLOR{
 
+					float dx = abs(ddx(o.texcoord.x));
+					float dy = abs(ddy(o.texcoord.y));
+					float mip = (dx + dy) * 200;
+
+					_Edges /= 1 + mip * mip; //LOD
+
 					float4 _ProjTexPos =	o.projPos;
 					float _Courners =		o.texcoord.w;
 					float deCourners = 1 - _Courners;
@@ -120,11 +126,12 @@
 					o.color.rgb = _ColorE.rgb * (mid)+_ColorC.rgb * (1 - mid);
 
 					#if USE_NOISE_TEXTURE
-
 					float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
-
+					#ifdef UNITY_COLORSPACE_GAMMA
+					o.color.rgb += (noise.rgb - 0.5)*0.02;
+					#else
 					o.color.rgb += (noise.rgb - 0.5)*0.0075;
-
+					#endif
 					#endif
 
 					#ifdef UNITY_COLORSPACE_GAMMA

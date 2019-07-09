@@ -75,27 +75,33 @@
 
 				sampler2D _Global_Noise_Lookup;
 
-				float4 frag(v2f i) : COLOR{
+				float4 frag(v2f o) : COLOR{
 
-					float4 _ProjTexPos =	i.projPos;
-					float _Courners =		i.texcoord.w;
-					float deCourners =		i.precompute.w;
+					float dx = abs(ddx(o.texcoord.x));
+					float dy = abs(ddy(o.texcoord.y));
+					float mip = (dx + dy) * 200;
+
+					_Edges /= 1 + mip * mip; //LOD
+
+					float4 _ProjTexPos =	o.projPos;
+					float _Courners =		o.texcoord.w;
+					float deCourners =		o.precompute.w;
 
 #if USE_NOISE_TEXTURE
 
-					float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(i.texcoord.xy * 13.5
+					float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5
 						+ float2(_SinTime.w, _CosTime.w)*32, 0, 0));
 #endif
 
-					float2 uv = abs(i.offUV.xy);
+					float2 uv = abs(o.offUV.xy);
 
-					uv = max(0, uv - _ProjTexPos.zw) * i.precompute.xy - _Courners;
+					uv = max(0, uv - _ProjTexPos.zw) * o.precompute.xy - _Courners;
 
 					uv = max(0, uv) * deCourners;
 
 					float clipp = max(0, 1 - dot(uv,uv));
 
-					float4 col = i.color;
+					float4 col = o.color;
 
 					float button = pow(clipp, 1 + _Shadow);
 

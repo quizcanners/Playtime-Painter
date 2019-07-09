@@ -273,6 +273,7 @@ namespace PlaytimePainter {
 
             if (showAdvanced)
                 "Advanced options: (if any)".write();
+            
 
             pegi.nl();
 
@@ -357,6 +358,7 @@ namespace PlaytimePainter {
                 blitMode.Inspect(cameraModule).nl(ref changed);
                 showingSize = true;
             }
+            
 
             _inspectedBrush = null;
 

@@ -2153,6 +2153,9 @@ namespace PlaytimePainter {
                         pegi.nl();
                         MsgPainter.TextureSettings.GetText().foldout(ref cfg.moreOptions);
 
+                        if (cfg.moreOptions)
+                            pegi.Indent();
+
                         if (id != null && !cfg.moreOptions)
                         {
 
@@ -2251,8 +2254,7 @@ namespace PlaytimePainter {
                             else _inspectedFancyItems = inspectionIndex;
 
                         }
-
-
+                        
                         if (id != null)
                         {
                             var showToggles = (id.inspectedItems == -1 && cfg.moreOptions);
@@ -2296,6 +2298,8 @@ namespace PlaytimePainter {
                             if (id.dontRedoMipMaps && icon.Refresh.Click("Update Mipmaps now").nl())
                                 id.SetAndApply();
                         }
+
+                        pegi.UnIndent();
 
                 #endregion
 

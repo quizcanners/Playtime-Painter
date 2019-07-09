@@ -2,7 +2,7 @@
 {
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
-		_Edges("Sharpness", Range(0.2,5)) = 0.5
+		_Edges("Sharpness", Range(0.2,10)) = 0.5
 		_Thickness("Thinnesss", Range(0.2,5)) = 1
 		[Toggle(TRIMMED)] trimmed("Trimmed Corners", Float) = 0
 	}
@@ -73,6 +73,13 @@
 
 				float4 frag(v2f o) : COLOR{
 					
+					float dx = abs(ddx(o.texcoord.x));
+					float dy = abs(ddy(o.texcoord.y));
+
+					float mip = (dx + dy) * 200;
+
+					_Edges /= 1 + mip* mip; //LOD
+
 					float4 _ProjTexPos = o.projPos;
 					float _Courners = o.texcoord.w;
 					float deCourners = 1 - _Courners;

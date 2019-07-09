@@ -75,7 +75,7 @@
 					#if WATER_FOAM
 					float3 viewDir = normalize(i.viewDir.xyz);
 					float3 projectedWpos;
-					float3 waterNormal = SAMPLE_WATER_NORMAL(viewDir, projectedWpos);
+					float3 waterNormal = SAMPLE_WATER_NORMAL(viewDir,i.wpos, projectedWpos, out float caustics);
 					#endif*/
 
 

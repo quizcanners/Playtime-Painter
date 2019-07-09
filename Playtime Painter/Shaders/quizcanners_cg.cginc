@@ -83,7 +83,8 @@ float3 WORLD_POS_TO_TERRAIN_UV_3D(float3 worldPos) {
 	return (worldPos.xyz - _mergeTeraPosition.xyz) / _mergeTerrainScale.xyz;
 }
 
-float3 SAMPLE_WATER_NORMAL(float3 viewDir, out float3 projectedWpos) {
+float3 SAMPLE_WATER_NORMAL(float3 viewDir, out float3 projectedWpos, inout float3 tc_Control, out float caustics, float underWater) {
+
 
 	float2 v = viewDir.xz / viewDir.y;
 
@@ -125,7 +126,21 @@ float3 SAMPLE_WATER_NORMAL(float3 viewDir, out float3 projectedWpos) {
 
 	bump.rg = (bump2.rg + bump.rg)*deFar + (bump2B.rg*bump.a + bumpB.rg*bump2.a)*0.5;
 
-	return normalize(float3(bump.r, 1, bump.g));
+	float3 normal = normalize(float3(bump.r, 1, bump.g));
+
+	tc_Control.xz += normal.xz *underWater*0.0005 * (1 - viewDir.y);
+
+
+	float4 bump2c = tex2D(_pp_WaterBump, tc_Control.xz * 129 - float2(1,0.8)*_Time.y*0.02);
+	//bump2c.rg = abs(bump2c.rg - 0.5);
+
+	float4 bumpc = tex2D(_pp_WaterBump, tc_Control.xz * 134 - bump2c.rg*0.02 + _Time.y*0.032);
+	//bumpc.rg = abs(bumpc.rg - 0.5);
+
+
+	caustics = pow(1 - bumpc.b* bump2c.b, 16);
+
+	return normal;
 }
 
 float4 ProjectorUvDepthAlpha(float4 shadowCoords, float3 worldPos, float3 lightPos, float4 cfg, float4 precompute) {
@@ -233,8 +248,8 @@ inline void vert_atlasedTexture(float _AtlasTextures, float atlasNumber, float _
 
 inline float getLOD(float2 uv, float4 _TexelSize) {
 
-	float2 px = _TexelSize.z * ddx(uv);
-	float2 py = _TexelSize.w * ddy(uv);
+	float2 px = _TexelSize.z * abs(ddx(uv.x));
+	float2 py = _TexelSize.w * abs(ddy(uv.y));
 
 	return max(0, 0.5 * log2(max(dot(px, px), dot(py, py))));
 }
@@ -250,8 +265,8 @@ inline float getLOD(float2 uv, float4 _TexelSize, float mod) {
 inline float atlasUVlod(inout float2 uv, out float lod, float4 _TexelSize,  float4 atlasedUV) {
 
 	_TexelSize.zw *= 0.5 * atlasedUV.w;
-	float2 px = _TexelSize.z * ddx(uv);
-	float2 py = _TexelSize.w * ddy(uv);
+	float2 px = _TexelSize.z * abs(ddx(uv.x));
+	float2 py = _TexelSize.w * abs(ddy(uv.y));
 	
 	lod = max(0, 0.5 * log2(max(dot(px, px), dot(py, py))));
 	
@@ -348,8 +363,8 @@ inline void rotate ( inout float2 uv, float angle){
 inline void smoothedPixelsSampling (inout float2 texcoord, float4 _TexelSize, out float mip) {
 
 
-		float2 px = _TexelSize.z * ddx(texcoord);
-		float2 py = _TexelSize.w * ddy(texcoord);
+		float2 px = _TexelSize.z * abs(ddx(texcoord.x));
+		float2 py = _TexelSize.w * abs(ddy(texcoord.y));
 
 
 
@@ -524,7 +539,7 @@ inline void Simple_Light(float4 terrainN,float3 worldNormal, float3 viewDir, ino
 
 
 inline void APPLY_PROJECTED_WATER(float showWater, inout float3 worldNormal, float3 waterNrm, inout float3 tc_Control, float3 waterPos, 
-	float viewDirY, inout float4 col, inout float smoothness, inout float ambient, inout float shadow) {
+	float viewDirY, inout float4 col, inout float smoothness, inout float ambient, inout float shadow, float caustics) {
 
 	float deWater = 1 - showWater;
 
@@ -532,7 +547,7 @@ inline void APPLY_PROJECTED_WATER(float showWater, inout float3 worldNormal, flo
 
 	tc_Control = WORLD_POS_TO_TERRAIN_UV_3D(waterPos) * showWater + tc_Control * deWater;
 
-	col.rgb  *= saturate(viewDirY)*showWater + deWater;
+	col.rgb  *= ((caustics * _LightColor0.rgb * 45 + 1)*saturate(viewDirY)*showWater) + deWater;
 
 	smoothness = smoothness * deWater + showWater;
 
@@ -545,7 +560,6 @@ inline void APPLY_PROJECTED_WATER(float showWater, inout float3 worldNormal, flo
 
 inline void Terrain_Water_AndLight(inout float4 col, float3 tc_Control, float ambient, float smoothness, float3 worldNormal, float3 viewDir, float shadow, float Metallic) {
 
-	
 	float dotprod = max(0, dot(worldNormal, viewDir.xyz));
 
 	float fernel =  (1.5 - dotprod)*0.66;
@@ -586,7 +600,7 @@ inline void Terrain_Water_AndLight(inout float4 col, float3 tc_Control, float am
 
 	float deMetalic = (1 - Metallic);
 
-	col.rgb = col.rgb* (_LightColor0 + (terrainAmbient.rgb + ambientCol)*fernel*terrainAmbient.a) *(0.5 + deSmoothness*0.5);
+	col.rgb = col.rgb * (_LightColor0  + (terrainAmbient.rgb + ambientCol)*fernel*terrainAmbient.a) *(0.5 + deSmoothness*0.5);
 
 	float3 halfDirection = normalize(viewDir.xyz + _WorldSpaceLightPos0.xyz);
 
@@ -598,8 +612,8 @@ inline void Terrain_Water_AndLight(inout float4 col, float3 tc_Control, float am
 
 	float3 reflResult = (normTerm *_LightColor0 + (terrainLrefl.rgb + ambientRefl.rgb)*ambient)* smoothness;
 
-	col.rgb += reflResult* (deMetalic + col.rgb*Metallic);
 
+	col.rgb += reflResult* (deMetalic + col.rgb*Metallic);
 
 }
 

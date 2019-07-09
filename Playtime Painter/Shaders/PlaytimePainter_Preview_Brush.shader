@@ -57,8 +57,8 @@
 
 				inline float getLOD(float2 uv, float4 _TexelSize) {
 
-					float2 px = _TexelSize.z * ddx(uv);
-					float2 py = _TexelSize.w * ddy(uv);
+					float2 px = _TexelSize.z * ddx(uv.x);
+					float2 py = _TexelSize.w * ddy(uv.y);
 
 					return (max(0, 0.5 * log2(max(dot(px, px), dot(py, py)))));
 				}

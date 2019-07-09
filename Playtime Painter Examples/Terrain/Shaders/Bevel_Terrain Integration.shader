@@ -125,11 +125,18 @@
 
 				i.viewDir.xyz = normalize(i.viewDir.xyz);
 
+				float caustics = 0;
+
 				#if WATER_FOAM
-				float underWater = _foamParams.z - i.wpos.y;
+				float underWater = max(0, _foamParams.z - i.wpos.y);
 				float3 projectedWpos;
-				float3 nrmNdSm = SAMPLE_WATER_NORMAL(i.viewDir.xyz,  projectedWpos);
-				i.tc_Control.xz += nrmNdSm.xz * max(0, underWater)*0.0001;
+			
+				float3 nrmNdSm = SAMPLE_WATER_NORMAL(i.viewDir.xyz,   projectedWpos, i.tc_Control, caustics, underWater);
+
+				underWater = min(1, underWater);
+
+				caustics *= underWater;
+
 				#endif
 
 				float dist = length(i.wpos.xyz - _WorldSpaceCameraPos.xyz)+1;
@@ -205,7 +212,9 @@
 
 
 #if WATER_FOAM
-				APPLY_PROJECTED_WATER(saturate(underWater), worldNormal, nrmNdSm, i.tc_Control, projectedWpos, i.viewDir.y, col, smoothness, ambient, shadow);
+				col.rgb += 
+
+				APPLY_PROJECTED_WATER(saturate(underWater), worldNormal, nrmNdSm, i.tc_Control, projectedWpos, i.viewDir.y, col, smoothness, ambient, shadow, caustics);
 #endif
 
 
