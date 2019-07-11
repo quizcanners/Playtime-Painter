@@ -705,16 +705,7 @@ public class Countless<T> : CountlessBase {
         public T this[int index]
         {
             get { return Get(index); }
-            set {
-#if !NO_PEGI
-                var igi = value as IGotIndex;
-                if (igi != null && igi.IndexForPEGI != index)
-                {
-                    Debug.Log("setting "+value.ToString() + " with ind " + igi.IndexForPEGI + " at "+index);
-                 //   igi.index = index;
-                }
-#endif
-                Set(index, value); }
+            set { Set(index, value); }
         }
         
         protected virtual void Set(int ind, T obj)

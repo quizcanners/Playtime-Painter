@@ -4972,10 +4972,10 @@ namespace PlayerAndEditorGUI
         }
 
         public static bool edit(this string label, ref Rect val) {
-            var v4 = val.ToVector4();
+            var v4 = val.ToVector4(true);
 
             if (label.edit(ref v4)) {
-                val = v4.ToRect();
+                val = v4.ToRect(true);
                 return true;
             }
 

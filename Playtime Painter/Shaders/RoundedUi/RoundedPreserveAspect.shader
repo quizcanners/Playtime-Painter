@@ -122,10 +122,10 @@
 					uv = max(0, uv - _Courners) * deCourners;
 
 					#if _UNLINKED
-					forFade *= forFade;
-					float clipp = max(0, 1 - max(max(forFade.x, forFade.y), dot(uv, uv)));
+						forFade *= forFade;
+						float clipp = max(0, 1 - max(max(forFade.x, forFade.y), dot(uv, uv)));
 					#else 
-					float clipp = max(0, 1 - dot(uv, uv));
+						float clipp = max(0, 1 - dot(uv, uv));
 					#endif
 
 					float uvy = clipp * (1 + _Edges * 8);
@@ -139,6 +139,15 @@
 					col.rgb *= o.color.rgb;
 
 					col.rgb = col.rgb*(1 - outline.a) + outline.rgb* (outline.a);
+
+					#if USE_NOISE_TEXTURE
+						float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
+						#ifdef UNITY_COLORSPACE_GAMMA
+							col.rgb += (noise.rgb - 0.5)*0.02*(3 - col.a * 2);
+						#else
+							col.rgb += (noise.rgb - 0.5)*0.0075*(3 - col.a * 2);
+						#endif
+					#endif
 
 					col.a = max(col.a, outline.a);
 

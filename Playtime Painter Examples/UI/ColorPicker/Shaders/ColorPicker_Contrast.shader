@@ -30,6 +30,7 @@
 				#pragma multi_compile_fwdbase
 				#pragma multi_compile_instancing
 				#pragma target 3.0
+				#pragma multi_compile ___ USE_NOISE_TEXTURE
 
 				sampler2D _MainTex;
 				sampler2D _Circle;
@@ -38,6 +39,7 @@
 				float _Picker_Brightness;
 				float _Picker_Contrast;
 				float _Picker_HUV;
+				sampler2D _Global_Noise_Lookup;
 
 				struct v2f {
 					float4 pos : SV_POSITION;
@@ -78,9 +80,7 @@
 
 					col.rgb = HUEtoColor(1-_Picker_HUV + 0.2463);
 
-					float4 noise = tex2Dlod(_NoiseMask, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
-
-					float2 uv = saturate(o.texcoord.xy +(noise.xy - 0.5)*0.015);
+					float2 uv = o.texcoord.xy;
 
 					uv = pow(uv,1.5);
 
@@ -97,6 +97,16 @@
 					ca *=  circle.a;
 
 					col.rgb = col.rgb*(1 - ca) + circle.rgb*ca;
+
+					#if USE_NOISE_TEXTURE
+						float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
+						#ifdef UNITY_COLORSPACE_GAMMA
+							col.rgb += (noise.rgb - 0.5)*0.02;
+						#else
+							col.rgb += (noise.rgb - 0.5)*0.0075;
+						#endif
+					#endif
+
 
 					return col;
 				}

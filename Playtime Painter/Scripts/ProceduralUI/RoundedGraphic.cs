@@ -3,7 +3,7 @@ using System.Collections;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using System.Collections.Generic;
-
+using System.Runtime.Remoting.Messaging;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -13,44 +13,54 @@ using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
+using UnityEngine.U2D;
 
 namespace PlaytimePainter
 {
 
     [ExecuteAlways]
-    public class RoundedGraphic : Image, IKeepMyCfg, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler, IPEGI {
+    public class RoundedGraphic : Image, IKeepMyCfg, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,
+        IPointerUpHandler, IPEGI
+    {
 
         #region Shader MGMT
 
         public bool feedPositionData = true;
 
-        [SerializeField] private Rect atlasedUVs = new Rect(0,0,1,1);
+        protected enum PositionDataType
+        {
+            ScreenPosition,
+            AtlasPosition
+        }
 
-        protected enum PositionDataType { ScreenPosition, AtlasPosition }
-        
         [SerializeField] protected PositionDataType _positionDataType = PositionDataType.ScreenPosition;
 
         [SerializeField] private float[] _roundedCorners = new float[1];
-        
+
         public float GetCorner(int index) => _roundedCorners[index % _roundedCorners.Length];
 
-        public void SetCorner(int index, float value) {
+        public void SetCorner(int index, float value)
+        {
 
             index %= _roundedCorners.Length;
 
-            if (_roundedCorners[index] != value) {
+            if (_roundedCorners[index] != value)
+            {
                 _roundedCorners[index] = value;
                 SetVerticesDirty();
             }
 
         }
 
-        private void SetCorners(float value) {
+        private void SetCorners(float value)
+        {
 
             bool changed = false;
 
-            for (int i = 0; i < _roundedCorners.Length; i++) {
-                if (_roundedCorners[i] != value) {
+            for (int i = 0; i < _roundedCorners.Length; i++)
+            {
+                if (_roundedCorners[i] != value)
+                {
                     _roundedCorners[i] = value;
                     changed = true;
                 }
@@ -71,7 +81,7 @@ namespace PlaytimePainter
                 if (targetValue == _roundedCorners.Length) return;
 
                 if (material)
-                    material.SetShaderKeyword(UNLINKED_VERTICES, targetValue>1);
+                    material.SetShaderKeyword(UNLINKED_VERTICES, targetValue > 1);
 
                 var tmp = _roundedCorners[0];
 
@@ -81,7 +91,22 @@ namespace PlaytimePainter
                     _roundedCorners[i] = tmp;
             }
         }
-        
+
+        private Rect SpriteRect {
+            get {
+
+                var sp = sprite;
+
+                if (!sp)
+                    return Rect.MinMaxRect(0, 0, 100, 100);
+
+                if (!Application.isPlaying)
+                    return sp.rect;
+                
+                return (sp.packed && sp.packingMode != SpritePackingMode.Tight) ? sp.textureRect : sp.rect;
+            }
+        }
+
         protected override void OnPopulateMesh(VertexHelper vh) {
 
             if (!gameObject.activeSelf) {
@@ -122,43 +147,39 @@ namespace PlaytimePainter
             float atlasedAspectX = 0;
             
             var sp = sprite;
-            if (sp) {
+            if (sp && sp.texture) {
                 var tex = sp.texture;
 
                 var texturePixelSize = new Vector2(tex.width, tex.height);
 
-                var pixelsToShow = texturePixelSize;
- 
-                if (feedAtlasedPosition)
-                    pixelsToShow *= new Vector2( (atlasedUVs.width - atlasedUVs.x), (atlasedUVs.height - atlasedUVs.y));
-                
-                var sizeByPixels = rectSize / pixelsToShow;
+                var atlased = SpriteRect;
+
+                var sizeByPixels = rectSize / atlased.size;
 
                 var scaleX = Mathf.Max(0, (sizeByPixels.y - sizeByPixels.x) / sizeByPixels.y);
 
-                var truePixSizeX = (rectSize.x * (myCanvas ? myCanvas.scaleFactor : 1)); 
-                
-                atlasedAspectX = (pixelsToShow.x * (1f - scaleX)) / truePixSizeX;
+                var truePixSizeX = (rectSize.x * (myCanvas ? myCanvas.scaleFactor : 1));
+
+                atlasedAspectX = (atlased.width * (1f - scaleX)) / truePixSizeX;
                 
                 if (feedAtlasedPosition) {
 
-                    var atlasedOffCenter = (new Vector2(atlasedUVs.width + atlasedUVs.x, atlasedUVs.height + atlasedUVs.y)  - Vector2.one)*0.5f;
+                    var atlasedOffCenter = new Vector2(atlased.center.x, atlased.center.y) - texturePixelSize*0.5f;
 
-                    pos -= atlasedOffCenter * texturePixelSize / atlasedAspectX;
+                    pos -= atlasedOffCenter / atlasedAspectX;
 
                 }
             }
 
             if (feedPositionData)
                 pos.Scale(new Vector2(1f / Screen.width, 1f / Screen.height));
-
+            
+            vertex.color = color;
             vertex.uv2 = pos;
             vertex.uv3 = new Vector2(atlasedAspectX, 0);
             
-            vertex.uv1 = new Vector2(scaleToSided, GetCorner(0));  
-            vertex.color = color;
-            
             vertex.uv0 = new Vector2(0, 0);
+            vertex.uv1 = new Vector2(scaleToSided, GetCorner(0));
             vertex.position = new Vector2(corner1.x, corner1.y);
             vh.AddFull(vertex);
 
@@ -190,6 +211,8 @@ namespace PlaytimePainter
                 //7  13  14   8
                 //4  12  15   11
                 //0    5,10   3
+
+                // TODO: Implement atlasing for Unlinked
 
                 var cornMid = (corner1 + corner2) * 0.5f;
                 
@@ -515,6 +538,12 @@ namespace PlaytimePainter
 
                                 if (expectedScreenPosition)
                                     "Shader is expecting Screen Position".writeWarning();
+                                else if (sprite && sprite.packed) {
+                                    if (sprite.packingMode == SpritePackingMode.Tight)
+                                        "Tight Packing is not supported by rounded UI".writeWarning();
+                                    else if (sprite.packingRotation != SpritePackingRotation.None)
+                                        "Packing rotation is not supported by Rounded UI".writeWarning();
+                                }
                             }
                             else if (expectedAtlasedPosition)
                                 "Shader is expecting Atlased Position".writeWarning();
@@ -530,7 +559,7 @@ namespace PlaytimePainter
                     else
                     {
                         pegi.nl();
-
+                        /*
                         if (rectTransform.pivot != Vector2.one * 0.5f)
                         {
                             "Pivot is expected to be in the center for position processing to work".writeWarning();
@@ -553,13 +582,13 @@ namespace PlaytimePainter
                             if ("Reset Rotation".Click().nl(ref changed))
                                 rectTransform.localRotation = Quaternion.identity;
 
-                        }
+                        }*/
                     }
 
-                    if (_positionDataType == PositionDataType.AtlasPosition) {
-                            "UV:".edit(ref atlasedUVs).nl(ref changed);
-                            pegi.edit01(ref atlasedUVs).nl(ref changed);
-                    }
+                   // if (_positionDataType == PositionDataType.AtlasPosition) {
+                          //  "UV:".edit(ref atlasedUVs).nl(ref changed);
+                         //   pegi.edit01(ref atlasedUVs).nl(ref changed);
+                   // }
 
                 }
 
@@ -589,9 +618,16 @@ namespace PlaytimePainter
 
                         var tex = sp.texture;
 
-                        if (tex && (tex.width != rectTransform.rect.width || sp.texture.height != rectTransform.rect.height) && icon.Size.Click("Set Native Size").nl()) 
-                            rectTransform.sizeDelta = new Vector2(tex.width, tex.height);
-                        
+                        var rct = SpriteRect;
+
+                        if (tex && (rct.width != rectTransform.rect.width || rct.height != rectTransform.rect.height)
+                                && icon.Size.Click("Set Native Size").nl())
+                        {
+                            rectTransform.sizeDelta = SpriteRect.size;
+                            this.SetToDirty();
+                        }
+
+
                     }
 
                     pegi.nl();

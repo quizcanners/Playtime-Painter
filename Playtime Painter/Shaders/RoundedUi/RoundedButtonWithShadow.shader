@@ -87,12 +87,6 @@
 					float _Courners =		o.texcoord.w;
 					float deCourners =		o.precompute.w;
 
-#if USE_NOISE_TEXTURE
-
-					float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5
-						+ float2(_SinTime.w, _CosTime.w)*32, 0, 0));
-#endif
-
 					float2 uv = abs(o.offUV.xy);
 
 					uv = max(0, uv - _ProjTexPos.zw) * o.precompute.xy - _Courners;
@@ -113,9 +107,14 @@
 					
 					float mtp = 0.25*(1 - button);
 
-#if USE_NOISE_TEXTURE
-					mtp *= 1+noise.x-0.5 + noise.y*(1-button);
-#endif
+					#if USE_NOISE_TEXTURE
+						float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
+						#ifdef UNITY_COLORSPACE_GAMMA
+							col.rgb += (noise.rgb - 0.5)*0.02*(3 - col.a * 2);
+						#else
+							col.rgb += (noise.rgb - 0.5)*0.0075*(3 - col.a * 2);
+						#endif
+					#endif
 
 					col.a = inner + (1- inner)* button* (1+mtp);
 

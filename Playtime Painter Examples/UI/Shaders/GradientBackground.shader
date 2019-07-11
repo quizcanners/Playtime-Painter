@@ -56,10 +56,7 @@
 
 					float2 duv = i.screenPos.xy / i.screenPos.w;
 
-					#if USE_NOISE_TEXTURE
-					float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(duv * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
-					duv += (noise.xy-0.5) * 0.01;
-					#endif
+				
 
 					float up = saturate((_Center - duv.y)*(1 + _CenterSharpness));
 
@@ -75,6 +72,15 @@
 					#else
 					float4 col = _BG_GRAD_COL_1  *(1 - up) +  _BG_GRAD_COL_2 *(up);
 					col = col * (1 - center) +  _BG_CENTER_COL*center;
+					#endif
+
+					#if USE_NOISE_TEXTURE
+						float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
+						#ifdef UNITY_COLORSPACE_GAMMA
+							col.rgb += (noise.rgb - 0.5)*0.02;
+						#else
+							col.rgb += (noise.rgb - 0.5)*0.0075;
+						#endif
 					#endif
 
 					return col;

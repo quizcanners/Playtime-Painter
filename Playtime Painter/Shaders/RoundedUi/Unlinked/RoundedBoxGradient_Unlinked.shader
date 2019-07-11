@@ -130,14 +130,6 @@
 					o.color.rgb = _ColorE.rgb * (mid)+_ColorC.rgb * (1 - mid);
 
 
-					#if USE_NOISE_TEXTURE
-
-					float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
-
-					o.color.rgb += (noise.rgb - 0.5)*0.0075;
-
-					#endif
-
 					#ifdef UNITY_COLORSPACE_GAMMA
 						o.color.rgb = sqrt(o.color.rgb);
 					#endif
@@ -165,6 +157,16 @@
 					alpha = min(1, pow(alpha * o.precompute.z, o.texcoord.z));
 
 					o.color.a *= alpha;
+
+					#if USE_NOISE_TEXTURE
+						float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
+						#ifdef UNITY_COLORSPACE_GAMMA
+							o.color.rgb += (noise.rgb - 0.5)*0.02;
+						#else
+							o.color.rgb += (noise.rgb - 0.5)*0.0075;
+						#endif
+					#endif
+
 
 					return o.color;
 				}

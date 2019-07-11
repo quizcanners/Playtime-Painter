@@ -335,9 +335,11 @@ namespace QuizCannersUtilities {
 
         public static Vector4 ToVector4(this Vector2 v2xy, Vector2 v2zw) => new Vector4(v2xy.x, v2xy.y, v2zw.x, v2zw.y);
 
-        public static Vector4 ToVector4(this Rect rect) => new Vector4(rect.x, rect.y, rect.width, rect.height);
+        public static Vector4 ToVector4(this Rect rect, bool useMinMax) =>
+            useMinMax ? new Vector4(rect.xMin, rect.yMin, rect.xMax, rect.yMax) : new Vector4(rect.x, rect.y, rect.width, rect.height);
 
-        public static Rect ToRect(this Vector4 v4) => new Rect(v4.x,v4.y,v4.z,v4.w);
+        public static Rect ToRect(this Vector4 v4, bool usingMinMax) 
+            => usingMinMax ? Rect.MinMaxRect(v4.x, v4.y, v4.z, v4.w) :  new Rect(v4.x,v4.y,v4.z,v4.w);
 
         #endregion
 

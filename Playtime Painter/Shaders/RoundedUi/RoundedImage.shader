@@ -86,7 +86,7 @@
 					float something =		o.precompute.w;
 					float2 uv =				abs(o.offUV);
 
-					o.color *= tex2Dlod(_MainTex, float4(o.texcoord.xy, 0, 0));
+					float4 col = o.color * tex2Dlod(_MainTex, float4(o.texcoord.xy, 0, 0));
 
 					uv = max(0, uv - _ProjTexPos.zw) * o.precompute.xy;
 
@@ -102,19 +102,19 @@
 
 					alpha = min(1, pow(alpha * o.precompute.z, o.texcoord.z));
 
-					o.color.a *= alpha;
+					col.a *= alpha;
 
 
 					#if USE_NOISE_TEXTURE
-					float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
-					#ifdef UNITY_COLORSPACE_GAMMA
-						o.color.rgb += (noise.rgb - 0.5)*0.02;
-					#else
-						o.color.rgb += (noise.rgb - 0.5)*0.0075;
-					#endif
+						float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
+						#ifdef UNITY_COLORSPACE_GAMMA
+							col.rgb += (noise.rgb - 0.5)*0.02*(3 - col.a * 2);
+						#else
+							col.rgb += (noise.rgb - 0.5)*0.0075*(3 - col.a * 2);
+						#endif
 					#endif
 
-					return o.color;
+					return col;
 				}
 				ENDCG
 			}
