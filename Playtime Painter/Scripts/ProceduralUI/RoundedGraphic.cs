@@ -278,21 +278,22 @@ namespace PlaytimePainter
 
         private static List<Shader> CompatibleShaders =>
             _compatibleShaders ?? (_compatibleShaders = new List<Shader>()
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/BumpedButton"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Lit Button"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Box"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Unlinked/Box Unlinked"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/PixelPerfect"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Pixel Perfect"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Outline"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Unlinked/Outline Unlinked"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/ButtonWithShadow"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Button With Shadow"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Shadow"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Gradient"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Unlinked/Gradient Unlinked"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/PreserveAspect"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/PreserveAspect_InvertingFiller"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Preserve Aspect"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Preserve Aspect Inverting Filler"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/SubtractiveGraphic"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Image"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Primitives/PixelLine")));
+                .TryAdd(Shader.Find("Playtime Painter/UI/Primitives/Pixel Line"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Primitives/Pixel Line With Shadow")));
 
         private static List<Material> _compatibleMaterials = new List<Material>();
 

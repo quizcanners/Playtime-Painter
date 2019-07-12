@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/UI/Rounded/PreserveAspect"
+﻿Shader "Playtime Painter/UI/Rounded/Preserve Aspect"
 {
 	Properties{
 		  [PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}

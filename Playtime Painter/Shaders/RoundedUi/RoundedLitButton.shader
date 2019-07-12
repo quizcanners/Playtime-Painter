@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/UI/Rounded/BumpedButton" {
+﻿Shader "Playtime Painter/UI/Rounded/Lit Button" {
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "gray" {}
 		[NoScaleOffset]_NoiseTex("Albedo (RGB)", 2D) = "gray" {}

@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/UI/Rounded/PreserveAspect_InvertingFiller"
+﻿Shader "Playtime Painter/UI/Rounded/Preserve Aspect Inverting Filler"
 {
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}

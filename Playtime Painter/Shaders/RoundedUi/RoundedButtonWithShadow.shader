@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/UI/Rounded/ButtonWithShadow" {
+﻿Shader "Playtime Painter/UI/Rounded/Button With Shadow" {
 	
 	Properties{
 		[PerRendererData] _MainTex("Albedo (RGB)", 2D) = "black" {}

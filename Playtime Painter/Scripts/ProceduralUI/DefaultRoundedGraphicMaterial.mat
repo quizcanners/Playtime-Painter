@@ -8,8 +8,8 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: DefaultRoundedGraphicMaterial
-  m_Shader: {fileID: 4800000, guid: 51381ef3375e06f4186e61a4116f7c56, type: 3}
-  m_ShaderKeywords: _GRADS_ONCE _GRADS_SIDES _GRAD_HOR
+  m_Shader: {fileID: 4800000, guid: 66b089f6dba32d745a4af375fa021950, type: 3}
+  m_ShaderKeywords: _GRADS_INSIDE _GRADS_ONCE _GRAD_HOR
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -74,7 +74,7 @@ Material:
     - _DstBlend: 0
     - _Edges: 0.322
     - _GRAD: 0
-    - _GRADS: 0
+    - _GRADS: 3
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1

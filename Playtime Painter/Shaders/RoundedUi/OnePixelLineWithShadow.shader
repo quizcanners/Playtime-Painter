@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/UI/Primitives/Pixel Line" {
+﻿Shader "Playtime Painter/UI/Primitives/Pixel Line With Shadow" {
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
 		[KeywordEnum(Sides, Right, left, Inside)] _GRADS("Softening ", Float) = 0
@@ -99,13 +99,14 @@
 						sides = abs(sides);
 					#endif
 
-					
 					sides = 1 - pow(sides, 1 + _Courners * 16)*saturate((1 - _Courners) * 32);
 
 					#if  _GRADS_INSIDE
 						sides = 1 - sides;
 					#endif
 				
+					return  max(inPix.x, inPix.y);
+
 					o.color.a *= max(0,  round(1-abs(inPix.x + inPix.y)))*sides;
 				
 					return o.color;
