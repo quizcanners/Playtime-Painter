@@ -120,8 +120,7 @@ namespace PlaytimePainter {
             public virtual string NameForDisplayPEGI() => Translation.GetText();
 
             public virtual string ToolTip => Translation.GetDescription();
-
-#if !NO_PEGI
+            
             public virtual bool ShowInDropdown()
             {
 
@@ -144,8 +143,7 @@ namespace PlaytimePainter {
             }
 
             protected virtual bool Inspect() => false;
-
-
+            
             public bool Inspect(IPainterManagerModuleBrush module)
             {
 
@@ -215,7 +213,6 @@ namespace PlaytimePainter {
 
                 return changed;
             }
-#endif
 
             #endregion
 
@@ -390,8 +387,7 @@ namespace PlaytimePainter {
             #region Inspector
 
             protected override MsgPainter Translation => MsgPainter.BlitModeBlur;
-
-#if !NO_PEGI
+            
             protected override bool Inspect()
             {
                 var changed = base.Inspect().nl();
@@ -401,7 +397,6 @@ namespace PlaytimePainter {
                 txt.edit(txt.ApproximateLengthUnsafe(), ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
                 return changed;
             }
-#endif
 
             #endregion
 
@@ -461,8 +456,7 @@ namespace PlaytimePainter {
             #region Inspector
 
             protected override MsgPainter Translation => MsgPainter.BlitModeOff;
-
-#if !NO_PEGI
+            
             protected override bool Inspect()
             {
                 bool changed = base.Inspect();
@@ -546,7 +540,6 @@ namespace PlaytimePainter {
 
                 return changed;
             }
-#endif
 
             #endregion
 
@@ -601,8 +594,7 @@ namespace PlaytimePainter {
             #region Inspector
 
             protected override MsgPainter Translation => MsgPainter.BlitModeBloom;
-
-#if !NO_PEGI
+            
             protected override bool Inspect()
             {
 
@@ -610,7 +602,6 @@ namespace PlaytimePainter {
                 "Bloom Radius".edit(70, ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
                 return changed;
             }
-#endif
 
             #endregion
 
@@ -655,9 +646,7 @@ namespace PlaytimePainter {
             #region Inspector
 
             protected override MsgPainter Translation => MsgPainter.BlitModeProjector;
-
-
-#if !NO_PEGI
+            
             protected override bool Inspect()
             {
                 var changed = false;
@@ -696,8 +685,6 @@ namespace PlaytimePainter {
                 return changed;
             }
 
-#endif
-
             #endregion
 
             public Projector(int ind) : base(ind)
@@ -723,8 +710,7 @@ namespace PlaytimePainter {
             #region Inspector
 
             protected override MsgPainter Translation => MsgPainter.BlitModeFiller;
-
-#if !NO_PEGI
+            
             protected override bool Inspect()
             {
                 var changed = base.Inspect().nl();
@@ -735,7 +721,6 @@ namespace PlaytimePainter {
 
                 return changed;
             }
-#endif
 
             #endregion
 

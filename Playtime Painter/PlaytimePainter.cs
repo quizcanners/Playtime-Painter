@@ -358,10 +358,8 @@ namespace PlaytimePainter {
 
             if (TexMeta != null) return true;
             
-#if !NO_PEGI
             if (stroke.mouseDwn)
                 "No texture to edit".showNotificationIn3D_Views();
-#endif
 
                 return false;
             
@@ -707,9 +705,8 @@ namespace PlaytimePainter {
 
                     if (extension != "png")
                     {
-                        #if !NO_PEGI
                         "Converting {0} to .png".F(assetPath).showNotificationIn3D_Views();
-                        #endif
+                        
                         texture = t2D.CreatePngSameDirectory(t2D.name);
                     }
 
@@ -1115,9 +1112,9 @@ namespace PlaytimePainter {
 
             if (id != null && Material)
                 UpdateOrSetTexTarget(id.destination);
-#if !NO_PEGI
+
             "Instantiating Material on {0}".F(gameObject.name).showNotificationIn3D_Views();
-#endif
+
             return Material;
 
 
@@ -1504,15 +1501,13 @@ namespace PlaytimePainter {
 
             PainterSystem.applicationIsQuitting = false;
         }
-
-#if !NO_PEGI
+        
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Join Discord")]
         public static void Open_Discord() => Application.OpenURL(pegi.PopUpService.DiscordServer);
         
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Send an Email")]
         public static void Open_Email() => QcUnity.SendEmail(pegi.PopUpService.SupportEmail, "About your Playtime Painter",
             "Hello Yuri, we need to talk. I purchased your asset and expect an excellent quality, but ...");
-#endif
 
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Open Manual")]
         public static void OpenWWW_Documentation() => Application.OpenURL(OnlineManual);
@@ -1699,14 +1694,13 @@ namespace PlaytimePainter {
             
             if (!selectedInPlaytime)
                 selectedInPlaytime = this;
-            #if !NO_PEGI
+            
             if (selectedInPlaytime == this)  {
                 WindowPosition.Render(this, Inspect, "{0} {1}".F(gameObject.name, GetMaterialTextureProperty));
 
                 foreach (var p in PainterSystemManagerModuleBase.GuiPlugins)
                     p.OnGUI();
             }
-            #endif
       
 
         }
@@ -1716,8 +1710,7 @@ namespace PlaytimePainter {
         [NonSerialized] public readonly Dictionary<int, ShaderProperty.TextureValue> loadingOrder = new Dictionary<int, ShaderProperty.TextureValue>();
 
         public static PlaytimePainter selectedInPlaytime;
-
-        #if !NO_PEGI
+        
         private static readonly pegi.WindowPositionData_PEGI_GUI WindowPosition = new pegi.WindowPositionData_PEGI_GUI();
 
         private const string DefaultImageLoadUrl = "https://picsbuffet.com/pixabay/";
@@ -2648,8 +2641,7 @@ namespace PlaytimePainter {
             return changed;
 
         }
-        #endif
-
+   
         #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {

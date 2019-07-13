@@ -1099,9 +1099,9 @@ namespace QuizCannersUtilities
 
         public class ColorValue : BaseColorLerp, IGotName
         {
-            private readonly string _name = "Float value";
+            protected readonly string _name = "Float value";
 
-            private Color currentValue;
+            protected Color currentValue;
 
             public override Color CurrentValue
             {
@@ -1125,6 +1125,25 @@ namespace QuizCannersUtilities
             }
 
         }
+
+        public class ShaderColorValueGlobal : ColorValue {
+
+            protected ShaderProperty.ColorValue shaderValue; 
+            
+            public override Color CurrentValue
+            {
+                get { return currentValue; }
+                set { currentValue = value;
+                    shaderValue.GlobalValue = value;
+                }
+            }
+
+            public ShaderColorValueGlobal(string name) {
+                shaderValue = new ShaderProperty.ColorValue(name);
+            }
+
+        }
+
 
         public class QuaternionValue : BaseQuaternionLerp
         {

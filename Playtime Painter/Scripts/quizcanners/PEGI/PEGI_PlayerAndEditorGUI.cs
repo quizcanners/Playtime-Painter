@@ -27,75 +27,28 @@ namespace PlayerAndEditorGUI
 
     #region interfaces & Attributes
 
-    public interface IPEGI
-    {
-    #if !NO_PEGI
-        bool Inspect();
-    #endif
-    }
+    public interface IPEGI { bool Inspect(); }
 
-    public interface IPEGI_ListInspect
-    {
-    #if !NO_PEGI
-        bool InspectInList(IList list, int ind, ref int edited);
-    #endif
-    }
+    public interface IPEGI_ListInspect { bool InspectInList(IList list, int ind, ref int edited); }
 
-    public interface IPEGI_Searchable
-    {
-    #if !NO_PEGI
-        bool String_SearchMatch(string searchString);
-    #endif
-    }
+    public interface IPEGI_Searchable { bool String_SearchMatch(string searchString); }
 
-    public interface INeedAttention
-    {
-    #if !NO_PEGI
-        string NeedAttention();
-    #endif
-    }
+    public interface INeedAttention { string NeedAttention(); }
 
-    public interface IGotName
-    {
-    #if !NO_PEGI
-        string NameForPEGI { get; set; }
-    #endif
-    }
+    public interface IGotName { string NameForPEGI { get; set; } }
 
-    public interface IGotDisplayName
-    {
-    #if !NO_PEGI
-        string NameForDisplayPEGI();
-    #endif
-    }
+    public interface IGotDisplayName { string NameForDisplayPEGI(); }
 
-    public interface IGotIndex
-    {
-    #if !NO_PEGI
-        int IndexForPEGI { get; set; }
-    #endif
-    }
+    public interface IGotIndex { int IndexForPEGI { get; set; } }
 
-    public interface IGotCount
-    {
-    #if !NO_PEGI
-        int CountForInspector();
-#endif
-    }
+    public interface IGotCount { int CountForInspector(); }
 
-    public interface IEditorDropdown
-    {
-    #if !NO_PEGI
-        bool ShowInDropdown();
-    #endif
-    }
+    public interface IEditorDropdown { bool ShowInDropdown(); }
 
     public interface IPegiReleaseGuiManager {
-        #if !NO_PEGI
         void Inspect();
         void Write(string label);
         bool Click(string label);
-        #endif
     }
 
 
@@ -111,8 +64,6 @@ namespace PlayerAndEditorGUI
             get { return mouseOverUi >= Time.frameCount - 1; }
             set { if (value) mouseOverUi = Time.frameCount; }
         }
-
-#if !NO_PEGI
 
 #region UI Modes
 
@@ -9405,24 +9356,21 @@ namespace PlayerAndEditorGUI
 
         #endregion
 
-#endif
-
         #region Inspect Utils
         public static T GetByIGotIndex<T>(this List<T> lst, int index) where T : IGotIndex
         {
-#if !NO_PEGI
             if (lst != null)
                 foreach (var el in lst)
                     if (!el.IsNullOrDestroyed_Obj() && el.IndexForPEGI == index)
                         return el;
-#endif
+
             return default(T);
         }
 
         static bool ToPegiStringInterfacePart(this object obj, out string name)
         {
             name = null;
-#if !NO_PEGI
+
             var dn = obj as IGotDisplayName;
             if (dn != null)
             {
@@ -9430,16 +9378,15 @@ namespace PlayerAndEditorGUI
                 if (!name.IsNullOrEmpty())
                     return true;
             }
-
-
+            
             var sn = obj as IGotName;
-            if (sn != null)
-            {
+
+            if (sn != null) {
                 name = sn.NameForPEGI;
                 if (!name.IsNullOrEmpty())
                     return true;
             }
-#endif
+
             return false;
         }
 
@@ -9489,49 +9436,42 @@ namespace PlayerAndEditorGUI
 
         public static T GetByIGotIndex<T, G>(this List<T> lst, int index) where T : IGotIndex where G : T
         {
-#if !NO_PEGI
             if (lst != null)
                 foreach (var el in lst)
                     if (!el.IsNullOrDestroyed_Obj() && el.IndexForPEGI == index && el.GetType() == typeof(G))
                         return el;
-#endif
+
             return default(T);
         }
 
         public static T GetByIGotName<T>(this List<T> lst, string name) where T : IGotName
         {
-
-#if !NO_PEGI
+            
             if (lst != null)
                 foreach (var el in lst)
                     if (!el.IsNullOrDestroyed_Obj() && el.NameForPEGI.SameAs(name))
                         return el;
-#endif
+
 
             return default(T);
         }
 
         public static T GetByIGotName<T>(this List<T> lst, T other) where T : IGotName
         {
-
-#if !NO_PEGI
             if (lst != null && !other.IsNullOrDestroyed_Obj())
                 foreach (var el in lst)
                     if (!el.IsNullOrDestroyed_Obj() && el.NameForPEGI.SameAs(other.NameForPEGI))
                         return el;
-#endif
 
             return default(T);
         }
 
-        public static G GetByIGotName<T, G>(this List<T> lst, string name) where T : IGotName where G : class, T
-        {
-#if !NO_PEGI
+        public static G GetByIGotName<T, G>(this List<T> lst, string name) where T : IGotName where G : class, T {
+
             if (lst != null)
                 foreach (var el in lst)
                     if (!el.IsNullOrDestroyed_Obj() && el.NameForPEGI.SameAs(name) && el.GetType() == typeof(G))
                         return el as G;
-#endif
 
             return default(G);
         }

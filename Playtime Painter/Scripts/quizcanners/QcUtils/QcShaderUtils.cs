@@ -233,8 +233,7 @@ namespace QuizCannersUtilities {
 
         #region Color
 
-        public class ColorValue : ShaderPropertyIndexGeneric<Color>
-        {
+        public class ColorValue : ShaderPropertyIndexGeneric<Color> {
 
             public static readonly ColorValue tintColor = new ColorValue("_TintColor");
 

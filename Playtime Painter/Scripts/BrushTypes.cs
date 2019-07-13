@@ -110,8 +110,6 @@ namespace PlaytimePainter
 
             protected virtual MsgPainter Translation => MsgPainter.Unnamed;
 
-#if !NO_PEGI
-
             public virtual bool ShowInDropdown()
             {
                 var p = PlaytimePainter.inspected;
@@ -197,7 +195,6 @@ namespace PlaytimePainter
 
                 return changed;
             }
-#endif
 
             #endregion
 

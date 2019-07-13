@@ -110,11 +110,11 @@ namespace QuizCannersUtilities
 
             public static bool DeleteFile(string fullPath)
             {
-                if (File.Exists(fullPath))
-                {
-#if !NO_PEGI && UNITY_EDITOR
-                    Debug.LogError("Deleting" + fullPath);
-#endif
+                if (File.Exists(fullPath)) {
+
+                    #if UNITY_EDITOR
+                    Debug.Log("Deleting" + fullPath);
+                    #endif
 
                     File.Delete(fullPath);
                     return true;

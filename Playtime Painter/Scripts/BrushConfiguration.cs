@@ -232,7 +232,7 @@ namespace PlaytimePainter {
         public static bool showAdvanced = false;
         public static BrushConfig _inspectedBrush;
         public static bool InspectedIsCpuBrush => PlaytimePainter.inspected ? InspectedImageMeta.TargetIsTexture2D() : _inspectedBrush.targetIsTex2D;
-        #if !NO_PEGI
+     
         public bool Mode_Type_PEGI()
         {
             var p = PlaytimePainter.inspected;
@@ -641,7 +641,7 @@ namespace PlaytimePainter {
 
             return changed;
         }
-#endif
+
         #endregion
         
         #region Encode Decode
@@ -802,8 +802,7 @@ namespace PlaytimePainter {
             #region Inspector
 
             int testValue = -1;
-
-#if !NO_PEGI
+            
             public virtual bool Inspect() => false; /*
         {
             bool changed = false;
@@ -812,7 +811,7 @@ namespace PlaytimePainter {
 
             return changed;
         }*/
-#endif
+
 
             #endregion
         }
@@ -842,8 +841,7 @@ namespace PlaytimePainter {
             }
 
             #region Inspector
-
-#if !NO_PEGI
+            
             public override bool Inspect() =>
                 // {
                 //   var changed = false;
@@ -853,7 +851,6 @@ namespace PlaytimePainter {
             //  return changed;
 
             //  }
-#endif
 
             #endregion
 
