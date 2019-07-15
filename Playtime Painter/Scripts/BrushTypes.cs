@@ -994,6 +994,9 @@ namespace PlaytimePainter
                     pegi.nl();
                 }
 
+                if (InspectedPainter && !InspectedPainter.GetMesh())
+                    "No mesh for sphere painting detected.".writeWarning();
+
                 base.Inspect().nl(ref changed);
 
                 return changed;

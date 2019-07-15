@@ -9,13 +9,15 @@
 		[KeywordEnum(Hor, Vert)] _GRAD("Gradient Direction (Feature)", Float) = 0
 		[KeywordEnum(Once, Mirror)] _GRADS("Gradient Spread (Feature)", Float) = 0
 		[Toggle(TRIMMED)] trimmed("Trimmed Corners", Float) = 0
+		[Toggle(FADE)] faded("Fade", Float) = 0
+			_FadeEdge("Fade Sharpness", Range(0,200)) = 10
 	}
 	Category{
 		Tags{
 			"Queue" = "Transparent"
 			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
-			"PixelPerfectUI" = "Simple"
+			"PixelPerfectUI" = "FadePosition"
 			"SpriteRole" = "Hide"
 			"PerEdgeData" = "Unlinked"
 		}
@@ -39,6 +41,7 @@
 				#pragma multi_compile_instancing
 				#pragma multi_compile ___ USE_NOISE_TEXTURE
 				#pragma shader_feature __ TRIMMED
+				#pragma shader_feature __ FADE
 
 				#pragma shader_feature _GRAD_HOR _GRAD_VERT 
 				#pragma shader_feature _GRADS_ONCE _GRADS_MIRROR
@@ -50,9 +53,14 @@
 					float4 projPos : TEXCOORD1;
 					float4 precompute : TEXCOORD2;
 					float4 offUV : TEXCOORD3;
+#if FADE
+					float4 fade : TEXCOORD4;
+					float4 screenPos :	TEXCOORD5;
+#endif
 					float4 color: COLOR;
 				};
 
+				float _FadeEdge;
 				float _Edges;
 				float4 _ColorC;
 				float4 _ColorE;
@@ -69,6 +77,11 @@
 					o.texcoord.z =		4 - _Edges * 3;
 					o.projPos.xy =		v.normal.xy;
 					o.projPos.zw =		max(0, float2(v.texcoord1.x, -v.texcoord1.x));
+
+					#if FADE
+					o.screenPos = ComputeScreenPos(o.pos);
+					o.fade = float4(v.texcoord2.xy, v.texcoord3.xy);
+					#endif
 
 					#if TRIMMED
 						o.texcoord.w *= 0.9f;
@@ -156,19 +169,35 @@
 
 					alpha = min(1, pow(alpha * o.precompute.z, o.texcoord.z));
 
-					o.color.a *= alpha;
+					float4 col = o.color;
+
+					col.a *= alpha;
 
 					#if USE_NOISE_TEXTURE
 						float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
 						#ifdef UNITY_COLORSPACE_GAMMA
-							o.color.rgb += (noise.rgb - 0.5)*0.02;
+							col.rgb += (noise.rgb - 0.5)*0.02;
 						#else
-							o.color.rgb += (noise.rgb - 0.5)*0.0075;
+							col.rgb += (noise.rgb - 0.5)*0.0075;
 						#endif
 					#endif
 
+					#if FADE
 
-					return o.color;
+							float2 sUV = o.screenPos.xy / o.screenPos.w;
+
+							col.a *=  
+								saturate((sUV.x - o.fade.x) * _FadeEdge)
+								* saturate((sUV.y - o.fade.y) * _FadeEdge)
+								* saturate((o.fade.z - sUV.x) * _FadeEdge)
+								* saturate((o.fade.w - sUV.y) * _FadeEdge)
+								;
+							
+							//o.fade = float4(v.texcoord2.xy, v.texcoord3.zw);
+					#endif
+
+
+					return col;
 				}
 				ENDCG
 			}

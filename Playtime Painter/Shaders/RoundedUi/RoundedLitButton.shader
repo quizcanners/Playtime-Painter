@@ -1,7 +1,6 @@
 ﻿Shader "Playtime Painter/UI/Rounded/Lit Button" {
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "gray" {}
-		[NoScaleOffset]_NoiseTex("Albedo (RGB)", 2D) = "gray" {}
 		_Edges("Edge Sharpness", Range(0.1,1)) = 0.5
 		_LightDirection("Light Direction Vector", Vector) = (0,0,0,0)
 		[Toggle(_UNLINKED)] unlinked("Linked Corners", Float) = 0
@@ -32,7 +31,7 @@
 
 				#pragma vertex vert
 				#pragma fragment frag
-
+				#pragma multi_compile ___ USE_NOISE_TEXTURE
 				#pragma multi_compile_instancing
 				#pragma multi_compile ____  _UNLINKED 		
 
@@ -46,9 +45,9 @@
 					float4 color: COLOR;
 				};
 
-				sampler2D _NoiseTex;
 				float _Edges;
 				float4 _LightDirection;
+				sampler2D _Global_Noise_Lookup;
 
 				v2f vert(appdata_full v) {
 					v2f o;
@@ -104,10 +103,8 @@
 					clipp = min(1, pow(clipp * o.precompute.z, o.texcoord.z));
 					o.color.a *= clipp;
 
-					float4 noise = tex2Dlod(_NoiseTex, float4(o.offUV.zw, 0, 0));
-					
 					float2 dir = o.texcoord.xy - 0.5;
-					dir = uv.xy * sign(dir) + (noise.xy - 0.5)*0.1;
+					dir = uv.xy * sign(dir);
 
 					float3 norm = normalize(float3(dir.x, dir.y, 0.5));
 
@@ -115,7 +112,16 @@
 
 					o.color.rgb *= 0.8+ min(1, angle)*0.3;
 
-					o.color.rgb += angle * angle*(0.2+noise.y*0.01);
+					o.color.rgb += angle * angle * 0.2;
+
+					#if USE_NOISE_TEXTURE
+						float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
+						#ifdef UNITY_COLORSPACE_GAMMA
+							o.color.rgb += (noise.rgb - 0.5)*0.02;
+						#else
+							o.color.rgb += (noise.rgb - 0.5)*0.0075;
+						#endif
+					#endif
 
 					return o.color;
 				}

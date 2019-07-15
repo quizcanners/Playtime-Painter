@@ -38,19 +38,6 @@
 				#pragma multi_compile_instancing
 				#pragma target 3.0
 
-				struct v2f {
-					float4 pos :			SV_POSITION;
-					float4 texcoord :		TEXCOORD0;
-					float4 screenPos :		TEXCOORD1;
-					float4 projPos :		TEXCOORD2;
-					float4 precompute :		TEXCOORD3;
-					float4 precompute2 :	TEXCOORD4;
-					float4 offUV :			TEXCOORD5;
-					float atlasedUpscale :	TEXCOORD6;
-					float4 color:			COLOR;
-
-				};
-
 				sampler2D _MainTex;
 				sampler2D _OutlineGradient;
 				float4 _MainTex_TexelSize;
@@ -66,31 +53,44 @@
 					float4 color     : COLOR;     // Per-vertex color
 				};
 
+				struct v2f {
+					float4 pos :			SV_POSITION;
+					float4 texcoord :		TEXCOORD0;
+					float4 projPos :		TEXCOORD1;
+					float4 precompute :		TEXCOORD2;
+					float4 precompute2 :	TEXCOORD3;
+					float4 offUV :			TEXCOORD4;
+					float4 color:			COLOR;
+
+				};
 
 				v2f vert(appdata_full v) {
 					v2f o;
 					UNITY_SETUP_INSTANCE_ID(v);
 					o.pos = UnityObjectToClipPos(v.vertex);
 					o.texcoord.xy = v.texcoord.xy;
-					o.screenPos = ComputeScreenPos(o.pos);
-					o.screenPos.xy *= _ScreenParams.xy;
 					o.color = v.color;
 
 					o.texcoord.zw = v.texcoord1.xy;
 					o.texcoord.z = _Edges;
 
-					o.projPos.xy = floor(v.texcoord2.xy * _ScreenParams.xy);
-					o.atlasedUpscale = v.texcoord3.x;
+					o.offUV.xy = o.texcoord.xy - 0.5;
+
+					o.projPos.xy = v.texcoord2.xy + o.offUV.xy*v.texcoord3.xy;
+
+
+
 					o.projPos.zw = max(0, float2(v.texcoord1.x, -v.texcoord1.x));
 
 					o.precompute.w = 1 / (1.0001 - o.texcoord.w);
 					o.precompute.xy = 1 / (1.0001 - o.projPos.zw);
 					o.precompute.z = (1 + _Edges * 16);
 
-					o.precompute2 = 0;
+				
 					o.precompute2.x = 3 - _Edges * 2;
+					o.precompute2.yzw = 0;
 
-					o.offUV.xy = o.texcoord.xy - 0.5;
+					
 					o.offUV.zw = _MainTex_TexelSize.xy*0.5*(_MainTex_TexelSize.zw % 2);
 
 					return o;
@@ -110,10 +110,8 @@
 					float deCourners = o.precompute.w;
 					float2 uv = abs(o.offUV) * 2;
 
-					float2 inPix = o.screenPos.xy / o.screenPos.w - _ProjTexPos.xy;
-					float2 texUV = inPix * _MainTex_TexelSize.xy*o.atlasedUpscale + o.offUV.zw;
 
-					float4 col = tex2Dlod(_MainTex, float4( texUV + 0.5,0,0));
+					float4 col = tex2Dlod(_MainTex, float4(_ProjTexPos.xy,0,0));
 
 					uv = max(0, uv - _ProjTexPos.zw) * o.precompute.xy;
 

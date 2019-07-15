@@ -341,6 +341,23 @@ namespace QuizCannersUtilities {
             rectTransform.localPosition -= deltaPosition;
         }
 
+        public static Rect TryGetAtlasedAtlasedUvs(this Sprite sprite) {
+
+                if (!Application.isPlaying || !sprite)
+                    return Rect.MinMaxRect(0, 0, 1, 1);
+
+                var tex = sprite.texture;
+            
+                var rect = (sprite.packed && sprite.packingMode != SpritePackingMode.Tight) ? sprite.textureRect : sprite.rect;
+
+                var scaler = new Vector2(1f/tex.width, 1f/tex.height);
+            
+                rect.size = rect.size * scaler;
+                rect.position = rect.position * scaler;
+
+                return rect;
+        }
+
         #endregion
 
         #region Components & GameObjects

@@ -2,6 +2,7 @@
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
 		_Edges("Softness", Range(1,32)) = 2
+		[Toggle(FILL)] trimmed("Fill inside", Float) = 0
 	}
 	Category{
 		Tags{
@@ -27,7 +28,7 @@
 
 				#pragma vertex vert
 				#pragma fragment frag
-
+				#pragma shader_feature __ FILL
 				#pragma multi_compile ___ USE_NOISE_TEXTURE
 				#pragma multi_compile_fwdbase
 				#pragma multi_compile_instancing
@@ -97,7 +98,11 @@
 
 					float4 col = o.color;
 
-					col.a *= pow(clipp, _Edges + 1) *saturate((1 - clipp) * 10) * o.offUV.z;
+					col.a *= pow(clipp, _Edges + 1) 
+					#if !FILL
+						*saturate((1 - clipp) * 10) 
+					#endif
+					* o.offUV.z;
 
 					#if USE_NOISE_TEXTURE
 						float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));

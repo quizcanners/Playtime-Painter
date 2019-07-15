@@ -2050,10 +2050,9 @@ namespace PlaytimePainter {
 
                         var id = TexMeta;
 
-                        var painterWorks = Application.isPlaying || !IsUiGraphicPainter;
+                        var painterNotUiOrPlaying = Application.isPlaying || !IsUiGraphicPainter;
 
-                        if (!LockTextureEditing && painterWorks && !id.errorWhileReading)
-                        {
+                        if (!LockTextureEditing && painterNotUiOrPlaying && !id.errorWhileReading) {
 
                             texMgmt.DependenciesInspect().changes(ref changed);
 
@@ -2076,7 +2075,7 @@ namespace PlaytimePainter {
                             
 
                             #endregion
-
+                            
                             #region Brush
 
                             if (!cfg.moreOptions) {
@@ -2125,7 +2124,7 @@ namespace PlaytimePainter {
                             if (!NotUsingPreview)
                                 PreviewShaderToggleInspect();
 
-                            if (!painterWorks) {
+                            if (!painterNotUiOrPlaying) {
                                 pegi.nl();
                                 "UI Element editing only works in Game View during Play.".writeWarning();
                             }
@@ -2822,10 +2821,11 @@ namespace PlaytimePainter {
         private bool DataUpdate(Vector2 position, Camera cam)
         {
             Vector2 localCursor;
-            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(uiGraphic.rectTransform, position, cam, out localCursor))
+            var rt = uiGraphic.rectTransform;
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(rt, position, cam, out localCursor))
                 return false;
 
-            _uiUv = (localCursor / uiGraphic.rectTransform.rect.size) + Vector2.one * 0.5f;
+            _uiUv = (localCursor / rt.rect.size) + rt.pivot; //Vector2.one * 0.5f;
 
             return true;
         }

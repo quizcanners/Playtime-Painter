@@ -99,8 +99,11 @@
 						sides = abs(sides);
 					#endif
 
-					
-					sides = 1 - pow(sides, 1 + _Courners * 16)*saturate((1 - _Courners) * 32);
+					#if  _GRADS_RIGHT || _GRADS_LEFT
+						sides = pow(1.001 - sides, 1 + _Courners * 16)*saturate((1 - _Courners) * 32);
+					#else
+						sides = 1 - pow(sides, 1 + _Courners * 16)*saturate((1 - _Courners) * 32);
+					#endif
 
 					#if  _GRADS_INSIDE
 						sides = 1 - sides;

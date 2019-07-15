@@ -34,7 +34,7 @@ namespace QuizCannersUtilities {
 
                 var bi = obj as BaseShaderPropertyIndex;
 
-                return bi != null ? bi.id == id : _name.SameAs(obj.ToString());
+                return bi != null ? bi.id == id : _name.Equals(obj.ToString());
             }
 
             private void UpdateIndex() => id = Shader.PropertyToID(_name);

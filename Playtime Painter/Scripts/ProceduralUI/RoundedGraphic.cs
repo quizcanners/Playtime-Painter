@@ -3,6 +3,7 @@ using System.Collections;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Runtime.Remoting.Messaging;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -20,8 +21,7 @@ namespace PlaytimePainter
 
     [ExecuteAlways]
     public class RoundedGraphic : Image, IKeepMyCfg, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,
-        IPointerUpHandler, IPEGI
-    {
+        IPointerUpHandler, IPEGI {
 
         #region Shader MGMT
 
@@ -30,7 +30,8 @@ namespace PlaytimePainter
         protected enum PositionDataType
         {
             ScreenPosition,
-            AtlasPosition
+            AtlasPosition,
+            FadeOutPosition
         }
 
         [SerializeField] protected PositionDataType _positionDataType = PositionDataType.ScreenPosition;
@@ -92,6 +93,8 @@ namespace PlaytimePainter
             }
         }
 
+        [SerializeField] private Rect faeOutUvPosition = new Rect(0,0,1,1);
+
         private Rect SpriteRect {
             get {
 
@@ -120,20 +123,12 @@ namespace PlaytimePainter
             var piv = rt.pivot;
             var rectSize = rt.rect.size;
            
-            var corner1 = (Vector2.zero - piv) * rectSize;
-            var corner2 = (Vector2.one - piv) * rectSize;
-
+       
             vh.Clear();
 
             var vertex = UIVertex.simpleVert;
 
-            var pos = Vector2.zero;
 
-            var myCanvas = canvas;
-
-            if (feedPositionData) 
-                pos = RectTransformUtility.WorldToScreenPoint(IsOverlay ? null : (myCanvas ? myCanvas.worldCamera : null), rt.position);
-               
             var rctS = rectSize;
 
             float rectDiff = rctS.x - rctS.y;
@@ -142,42 +137,62 @@ namespace PlaytimePainter
 
             var scaleToSided = rctS.x - rctS.y; // If x>0 - positive, else - negative
 
-            var feedAtlasedPosition = feedPositionData && _positionDataType == PositionDataType.AtlasPosition;
+     
+            if (feedPositionData) {
 
-            float atlasedAspectX = 0;
-            
-            var sp = sprite;
-            if (sp && sp.texture) {
-                var tex = sp.texture;
+                var pos = Vector2.zero;
 
-                var texturePixelSize = new Vector2(tex.width, tex.height);
+                switch (_positionDataType)
+                {
+                    case PositionDataType.AtlasPosition:
+                        
+                        var sp = sprite;
 
-                var atlased = SpriteRect;
+                        if (sp) {
 
-                var sizeByPixels = rectSize / atlased.size;
+                            var tex = sp.texture;
 
-                var scaleX = Mathf.Max(0, (sizeByPixels.y - sizeByPixels.x) / sizeByPixels.y);
+                            if (tex) {
 
-                var truePixSizeX = (rectSize.x * (myCanvas ? myCanvas.scaleFactor : 1));
+                                var texturePixelSize = new Vector2(tex.width, tex.height);
 
-                atlasedAspectX = (atlased.width * (1f - scaleX)) / truePixSizeX;
-                
-                if (feedAtlasedPosition) {
+                                var atlased = SpriteRect;
 
-                    var atlasedOffCenter = new Vector2(atlased.center.x, atlased.center.y) - texturePixelSize*0.5f;
+                                pos = atlased.center / texturePixelSize;
 
-                    pos -= atlasedOffCenter / atlasedAspectX;
+                                vertex.uv3 = atlased.size / texturePixelSize;
+                            }
+                        }
+                    
+                        break;
+                    case PositionDataType.ScreenPosition: 
+                        
 
+                        pos = RectTransformUtility.WorldToScreenPoint(
+                            IsOverlay ? null : (canvas ? canvas.worldCamera : null), rt.position);
+
+                        pos.Scale(new Vector2(1f / Screen.width, 1f / Screen.height));
+
+                        break;
+
+                    case PositionDataType.FadeOutPosition:
+
+                        pos = faeOutUvPosition.min;
+
+                        vertex.uv3 = faeOutUvPosition.max;
+
+                        break;
                 }
+
+                vertex.uv2 = pos;
+                
             }
 
-            if (feedPositionData)
-                pos.Scale(new Vector2(1f / Screen.width, 1f / Screen.height));
+            var corner1 = (Vector2.zero - piv) * rectSize;
+            var corner2 = (Vector2.one - piv) * rectSize;
             
             vertex.color = color;
-            vertex.uv2 = pos;
-            vertex.uv3 = new Vector2(atlasedAspectX, 0);
-            
+         
             vertex.uv0 = new Vector2(0, 0);
             vertex.uv1 = new Vector2(scaleToSided, GetCorner(0));
             vertex.position = new Vector2(corner1.x, corner1.y);
@@ -198,8 +213,8 @@ namespace PlaytimePainter
             vertex.position = new Vector2(corner2.x, corner1.y);
             vh.AddFull(vertex);
 
-            if (LinkedCorners)
-            {
+            if (LinkedCorners) {
+
                 //1  2
                 //0  3
                 vh.AddTriangle(0, 1, 2);
@@ -289,7 +304,6 @@ namespace PlaytimePainter
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Gradient"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Unlinked/Gradient Unlinked"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Preserve Aspect"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Preserve Aspect Inverting Filler"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/SubtractiveGraphic"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Image"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Primitives/Pixel Line"))
@@ -334,6 +348,12 @@ namespace PlaytimePainter
 
                 bool expectingPosition = false;
 
+                bool possiblePositionData = false;
+
+                bool possibleFadePosition = false;
+
+                bool needThirdUv = false;
+
                 #region Material Tags 
                 if (mat)
                 {
@@ -349,10 +369,19 @@ namespace PlaytimePainter
 
                         expectedScreenPosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.Position.NameForDisplayPEGI());
 
-                        if (!expectedScreenPosition)
+                        if (!expectedScreenPosition) {
+
                             expectedAtlasedPosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.AtlasedPosition.NameForDisplayPEGI());
 
+                            if (!expectedAtlasedPosition)
+                                possibleFadePosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.FadePosition.NameForDisplayPEGI());
+                        }
+
+                        needThirdUv = expectedAtlasedPosition || (possibleFadePosition && feedPositionData);
+
                         expectingPosition = expectedAtlasedPosition || expectedScreenPosition;
+
+                        possiblePositionData = expectingPosition || possibleFadePosition;
 
                         if (!can)
                             "No Canvas".writeWarning();
@@ -368,16 +397,16 @@ namespace PlaytimePainter
 
                             }
 
-                            if (expectingPosition)
+                            if (possiblePositionData && feedPositionData)
                             {
                                 if ((can.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord2) == 0) {
                                     "Material requires Canvas to pass Position Data trough Texcoord2 channel"
                                         .writeWarning();
                                     if ("Fix Canvas ".Click().nl())
                                         can.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord2;
-                                } else if (expectedAtlasedPosition  && (can.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord3) == 0) {
+                                } else if (needThirdUv && (can.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord3) == 0) {
 
-                                    "Material requires Canvas to pass Atlased aspect trough Texoord3 channel".writeWarning();
+                                    "Material requires Canvas to pass Texoord3 channel".writeWarning();
                                     if ("Fix Canvas".Click().nl())
                                         can.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord3;
                                 }
@@ -457,15 +486,12 @@ namespace PlaytimePainter
                     if (pegi.select(ref mat, _compatibleMaterials, allowInsert: !mayBeDefaultMaterial))
                         material = mat;
                 }
-
-              
-
+                
                 if (mat) {
 
                     if (!Application.isPlaying) {
                         var path = QcUnity.GetAssetFolder(mat);
-                        if (path.IsNullOrEmpty())
-                        {
+                        if (path.IsNullOrEmpty()) {
                             pegi.nl();
                             "Material is not saved as asset. Click COPY next to it to save as asset. Or Click 'Refresh' to find compatible materials in your assets ".writeHint();
                             pegi.nl();
@@ -494,8 +520,7 @@ namespace PlaytimePainter
 
                 pegi.nl();
 
-                if (mat && !mayBeDefaultMaterial)
-                {
+                if (mat && !mayBeDefaultMaterial) {
 
                     if (shad)
                         shad.ClickHighlight();
@@ -516,7 +541,8 @@ namespace PlaytimePainter
 
                 #region Position Data
 
-                if (expectingPosition || feedPositionData) {
+                if (possiblePositionData || feedPositionData) {
+
                     "Position Data".toggleIcon(ref feedPositionData, true).changes(ref changed);
 
                     if (feedPositionData) {
@@ -529,25 +555,35 @@ namespace PlaytimePainter
                     } else if (expectingPosition) 
                         "Shader expects Position data".writeWarning();
                         
-                    
-
                     if (gotPixPerfTag) {
                         
                         if (feedPositionData) {
 
-                            if (_positionDataType == PositionDataType.AtlasPosition) {
+                            switch (_positionDataType)
+                            {
+                                case PositionDataType.ScreenPosition:
+                                    
+                                    if (expectedAtlasedPosition)
+                                        "Shader is expecting Atlased Position".writeWarning();
+                                    
+                                    break;
+                                case PositionDataType.AtlasPosition:
+                                    if (expectedScreenPosition)
+                                        "Shader is expecting Screen Position".writeWarning();
+                                    else if (sprite && sprite.packed) {
+                                        if (sprite.packingMode == SpritePackingMode.Tight)
+                                            "Tight Packing is not supported by rounded UI".writeWarning();
+                                        else if (sprite.packingRotation != SpritePackingRotation.None)
+                                            "Packing rotation is not supported by Rounded UI".writeWarning();
+                                    }
+                                    
+                                    break;
+                                case PositionDataType.FadeOutPosition:
 
-                                if (expectedScreenPosition)
-                                    "Shader is expecting Screen Position".writeWarning();
-                                else if (sprite && sprite.packed) {
-                                    if (sprite.packingMode == SpritePackingMode.Tight)
-                                        "Tight Packing is not supported by rounded UI".writeWarning();
-                                    else if (sprite.packingRotation != SpritePackingRotation.None)
-                                        "Packing rotation is not supported by Rounded UI".writeWarning();
-                                }
+                                    "Fade out at".edit(ref faeOutUvPosition).nl(ref changed);
+
+                                    break;
                             }
-                            else if (expectedAtlasedPosition)
-                                "Shader is expecting Atlased Position".writeWarning();
                         }
                     }
 
@@ -555,7 +591,7 @@ namespace PlaytimePainter
                 }
 
                 if (gotPixPerfTag && feedPositionData)  {
-                    if (!expectedScreenPosition && !expectedAtlasedPosition)
+                    if (!possiblePositionData)
                         "Shader doesn't have any PixelPerfectUI Position Tags. Position updates may not be needed".writeWarning();
                     else
                     {
@@ -1022,6 +1058,7 @@ namespace PlaytimePainter
             public static readonly ShaderTagValue Simple = new ShaderTagValue("Simple", PixelPerfectUi);
             public static readonly ShaderTagValue Position = new ShaderTagValue("Position", PixelPerfectUi);
             public static readonly ShaderTagValue AtlasedPosition = new ShaderTagValue("AtlasedPosition", PixelPerfectUi);
+            public static readonly ShaderTagValue FadePosition = new ShaderTagValue("FadePosition", PixelPerfectUi);
 
         }
         
