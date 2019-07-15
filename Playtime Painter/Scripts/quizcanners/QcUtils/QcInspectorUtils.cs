@@ -178,8 +178,6 @@ namespace QuizCannersUtilities
         
         private static void AssignUniqueIndex<T>(List<T> list, T el)
         {
-
-#if !NO_PEGI
             var ind = el as IGotIndex;
             if (ind == null) return;
             var maxIndex = ind.IndexForPEGI;
@@ -191,14 +189,10 @@ namespace QuizCannersUtilities
                         maxIndex = Mathf.Max(maxIndex, oInd.IndexForPEGI + 1);
                 }
             ind.IndexForPEGI = maxIndex;
-#endif
+
         }
 
-        public static T AddWithUniqueNameAndIndex<T>(List<T> list) => AddWithUniqueNameAndIndex(list, "New "
-            #if !NO_PEGI
-          + typeof(T).ToPegiStringType()
-            #endif
-        );
+        public static T AddWithUniqueNameAndIndex<T>(List<T> list) => AddWithUniqueNameAndIndex(list, "New "+ typeof(T).ToPegiStringType());
 
         public static T AddWithUniqueNameAndIndex<T>(List<T> list, string name) =>
             AddWithUniqueNameAndIndex(list, (T)Activator.CreateInstance(typeof(T)), name);
@@ -207,18 +201,15 @@ namespace QuizCannersUtilities
         {
             AssignUniqueIndex(list, e);
             list.Add(e);
-#if !NO_PEGI
             var named = e as IGotName;
             if (named != null)
                 named.NameForPEGI = name;
-#endif
             e.AssignUniqueNameIn(list);
             return e;
         }
         
-        private static void AssignUniqueNameIn<T>(this T el, IReadOnlyCollection<T> list)
-        {
-#if !NO_PEGI
+        private static void AssignUniqueNameIn<T>(this T el, IReadOnlyCollection<T> list) {
+
             var named = el as IGotName;
             if (named == null) return;
 
@@ -244,7 +235,7 @@ namespace QuizCannersUtilities
             }
 
             named.NameForPEGI = tmpName;
-#endif
+
         }
         
         #region Spin Around
@@ -358,8 +349,7 @@ namespace QuizCannersUtilities
                 ((float)_average).ToString("0.00"),
                 (Math.Abs(_intervalLength - 1d) > float.Epsilon) ? _intervalLength.ToString("0") : "", (int)_min,
                 (int)_max, (int)_totalCount);
-
-#if !NO_PEGI
+            
             public bool InspectInList(IList list, int ind, ref int edited)
             {
                 if (icon.Refresh.Click("Reset Stats"))
@@ -372,7 +362,6 @@ namespace QuizCannersUtilities
 
                 return false;
             }
-#endif
 
             #endregion
 
@@ -576,8 +565,7 @@ namespace QuizCannersUtilities
                 }
 
                 #region Inspector
-
-#if !NO_PEGI
+                
                 public bool InspectInList(IList list, int ind, ref int edited)
                 {
                     var changed = false;
@@ -639,7 +627,6 @@ namespace QuizCannersUtilities
 
                     return false;
                 }
-#endif
 
                 #endregion
             }
@@ -679,8 +666,7 @@ namespace QuizCannersUtilities
             }
 
             #region Inspector
-
-#if !NO_PEGI
+            
             int inspected = -1;
             string tmp = "";
             public bool Inspect()
@@ -694,7 +680,6 @@ namespace QuizCannersUtilities
 
                 return changed;
             }
-#endif
 
             #endregion
         }
@@ -704,9 +689,6 @@ namespace QuizCannersUtilities
         {
 
             [SerializeField] public string folderName = "ScreenShoots";
-
-
-#if !NO_PEGI
 
             private bool _showAdditionalOptions;
 
@@ -774,7 +756,6 @@ namespace QuizCannersUtilities
 
                 return false;
             }
-#endif
 
             private bool grab;
 
@@ -918,13 +899,13 @@ namespace QuizCannersUtilities
                     return labelMaterialInstance;
                 }
             }
-#if !NO_PEGI
+
             public bool InspectInList(IList list, int ind, ref int edited)
             {
                 "works".write();
                 return false;
             }
-#endif
+
         }
 
         [Serializable]
@@ -1004,8 +985,7 @@ namespace QuizCannersUtilities
             }
 
             #region Inspector
-
-#if !NO_PEGI
+            
             private bool _showRange;
 
             public bool Inspect()
@@ -1064,7 +1044,6 @@ namespace QuizCannersUtilities
 
                 return changed | rangeChanged;
             }
-#endif
 
             #endregion
 
@@ -1103,9 +1082,9 @@ namespace QuizCannersUtilities
                 this.min = min;
                 this.max = max;
                 this.value = value;
-#if !NO_PEGI
+
                 _showRange = false;
-#endif
+
             }
         }
 

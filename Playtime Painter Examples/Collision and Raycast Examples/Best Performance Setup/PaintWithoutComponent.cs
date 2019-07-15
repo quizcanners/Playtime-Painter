@@ -151,7 +151,6 @@ namespace PlaytimePainter.Examples
             }
         }
 #endif
-#if !NO_PEGI
 
         bool Documentation()
         {
@@ -165,7 +164,6 @@ namespace PlaytimePainter.Examples
 
             return false;
         }
-
         
         public bool Inspect()
         {
@@ -202,6 +200,6 @@ namespace PlaytimePainter.Examples
             
             return changed;
         }
-#endif
+
     }
 }

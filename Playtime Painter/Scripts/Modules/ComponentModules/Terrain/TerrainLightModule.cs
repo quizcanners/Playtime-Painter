@@ -98,8 +98,7 @@ namespace PlaytimePainter {
             mergingTerrain.UpdateTextures();
 
         }
-
-#if !NO_PEGI
+        
         public override bool BrushConfigPEGI()
         {
             var changed = false;
@@ -113,7 +112,6 @@ namespace PlaytimePainter {
 
             return changed;
         }
-#endif
     }
 
 }

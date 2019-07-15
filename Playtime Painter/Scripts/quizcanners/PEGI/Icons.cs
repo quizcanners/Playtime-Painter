@@ -221,13 +221,11 @@ namespace PlayerAndEditorGUI {
             org[eng] = new LazyTranslation(english, englishDetails);
             return org;
         }
-
-        #if !NO_PEGI
+        
         public static string F(this icon msg, Msg other) =>  "{0} {1}".F(msg.GetText(), other.GetText());
 
         public static string F(this Msg msg, icon other) => "{0} {1}".F(msg.GetText(), other.GetText());
-        #endif
-
+     
     }
 
 

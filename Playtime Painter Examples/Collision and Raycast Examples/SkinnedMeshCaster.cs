@@ -2,9 +2,9 @@
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
-namespace PlaytimePainter.Examples
-{
+namespace PlaytimePainter.Examples {
 
+#pragma warning disable IDE0018 // Inline variable declaration
     public class SkinnedMeshCaster : MonoBehaviour, IPEGI {
 
         public BrushConfig brush = new BrushConfig();
@@ -90,9 +90,6 @@ namespace PlaytimePainter.Examples
 
         }
 
-#if !NO_PEGI
-
-        
         public bool Inspect()
         {
             var changed = false;
@@ -117,6 +114,5 @@ namespace PlaytimePainter.Examples
 
             return changed;
         }
-#endif
     }
 }

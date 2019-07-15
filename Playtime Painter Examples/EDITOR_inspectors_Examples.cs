@@ -7,7 +7,7 @@ using PlaytimePainter.Examples;
 namespace PlaytimePainter
 {
 
-#if !NO_PEGI && UNITY_EDITOR
+#if UNITY_EDITOR
     using UnityEditor;
 
     [CustomEditor(typeof(NoiseTextureMGMT))]

@@ -1,4 +1,4 @@
-﻿#if !NO_PEGI && UNITY_EDITOR
+﻿#if UNITY_EDITOR
 
 using UnityEngine;
 using UnityEditor;

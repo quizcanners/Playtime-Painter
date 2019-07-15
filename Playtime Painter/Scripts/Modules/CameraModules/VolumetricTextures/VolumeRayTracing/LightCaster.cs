@@ -115,8 +115,7 @@ namespace PlaytimePainter
 
             AllProbes[index] = this;
         }
-
-        #if !NO_PEGI
+        
         private int inspectedElement = -1;
 
         public bool Inspect()
@@ -164,7 +163,7 @@ namespace PlaytimePainter
 
            return changed;
         }
-        #endif
+     
 
     }
 }

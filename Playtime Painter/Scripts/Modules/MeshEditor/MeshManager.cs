@@ -651,11 +651,9 @@ namespace PlaytimePainter
 
         public void UpdateInputPlaytime()
         {
-            #if !NO_PEGI
             if (pegi.MouseOverPlaytimePainterUI)
                 return;
-            #endif
-
+      
             ProcessMouseActions();
             ProcessKeyInputs();
         }
@@ -788,7 +786,7 @@ namespace PlaytimePainter
         #endregion
 
         #region Inspector
-        #if !NO_PEGI
+
         private int _inspectedMeshItems = -1;
 
         public override bool Inspect()  {
@@ -1063,7 +1061,6 @@ namespace PlaytimePainter
             return changed;
         }
         
-        #endif
         #endregion
 
         #region Editor Gizmos

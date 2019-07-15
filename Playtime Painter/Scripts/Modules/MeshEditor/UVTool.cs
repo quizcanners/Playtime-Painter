@@ -57,8 +57,7 @@ namespace PlaytimePainter
                                          "Alternativelly it is possible to use Auto Apply Treshold to map to all using Normal Treshold. " +
                                          "It is recommended to Set all vertices Unique (with Add & Move tool) before applying UVs. And after, merge them if UVs are same." +
                                          "You project UV and adjust by dragging individual vertices (UVs will change, not the position)."  ;
-
-        #if !NO_PEGI
+        
         public override bool Inspect() {
 
             var changed = false;
@@ -119,7 +118,7 @@ namespace PlaytimePainter
             return changed;
 
         }
-        #endif
+     
         #endregion
 
         private void UpdateUvPreview(bool useThreshold = false)

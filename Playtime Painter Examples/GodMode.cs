@@ -144,7 +144,6 @@ namespace PlaytimePainter.Examples {
         }
 
         #region Inspector
-        #if !NO_PEGI
         public bool Inspect()
         {
 
@@ -174,7 +173,6 @@ namespace PlaytimePainter.Examples {
 
             return false;
         }
-#endif
 #endregion
     }
 }

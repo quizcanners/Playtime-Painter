@@ -63,8 +63,7 @@ namespace QuizCannersUtilities {
 
             #region Inspector
             public string NameForDisplayPEGI()=> _name;
-
-            #if !NO_PEGI
+            
             public bool InspectInList(IList list, int ind, ref int edited)
             {
                 "Id: {0}".F(id).write(50);
@@ -72,7 +71,7 @@ namespace QuizCannersUtilities {
                
                 return false;
             }
-            #endif
+           
             #endregion
 
             #region Encode & Decode
@@ -568,8 +567,7 @@ namespace PlayerAndEditorGUI {
     #pragma warning disable IDE1006
 
     public static class ShaderUtilInspectExtensions {
-
-        #if !NO_PEGI
+        
         public static bool toggle(this Material mat, string keyword)
         {
             var val = Array.IndexOf(mat.shaderKeywords, keyword) != -1;
@@ -663,7 +661,7 @@ namespace PlayerAndEditorGUI {
 
             return false;
         }
-        #endif
+        
     }
 
 }

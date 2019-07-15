@@ -176,8 +176,7 @@ namespace QuizCannersUtilities {
             
             return null;
         }
-
-#if !NO_PEGI
+        
         public bool Select(ref Type type)
         {
 
@@ -189,10 +188,6 @@ namespace QuizCannersUtilities {
             
             return changed;
         }
-#endif
-
-       
-
 
     }
 

@@ -11,7 +11,7 @@ namespace PlaytimePainter
         public MaterialLightManager lights = new MaterialLightManager();
 
         #region Inspect
-#if !NO_PEGI
+
         public override bool Inspect()
         {
             var changed = base.Inspect();
@@ -48,8 +48,7 @@ namespace PlaytimePainter
             return changed;
         }
 
-
-#endif
+        
 #endregion
 
         public override void Update()

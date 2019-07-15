@@ -490,12 +490,10 @@ namespace QuizCannersUtilities {
         }
 
 
-        public static string GetMeaningfulHierarchyName(this GameObject go, int maxLook, int maxLength)
-        {
+        public static string GetMeaningfulHierarchyName(this GameObject go, int maxLook, int maxLength) {
 
             var name = go.name;
-
-#if !NO_PEGI
+            
             var parent = go.transform.parent;
 
             while (parent && maxLook > 0 && maxLength > 0)
@@ -511,7 +509,7 @@ namespace QuizCannersUtilities {
                 parent = parent.parent;
                 maxLook--;
             }
-#endif
+
             return name;
         }
 
@@ -1137,7 +1135,7 @@ namespace QuizCannersUtilities {
 
         public static void UpdatePrefab(GameObject gameObject)
         {
-#if !NO_PEGI && UNITY_EDITOR
+#if UNITY_EDITOR
 
 #if UNITY_2018_3_OR_NEWER
             var pf = QcUnity.IsPrefab(gameObject) ? gameObject : PrefabUtility.GetPrefabInstanceHandle(gameObject);

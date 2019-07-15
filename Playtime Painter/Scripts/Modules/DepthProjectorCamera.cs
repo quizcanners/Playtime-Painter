@@ -40,8 +40,6 @@ namespace PlaytimePainter
 
         #region Inspector
 
-        #if !NO_PEGI
-
         public bool _foldOut;
         
         private int _inspectedUser = -1;
@@ -84,8 +82,7 @@ namespace PlaytimePainter
             
             return changed;
         }
-
-#endif
+        
         #endregion
 
         private void OnEnable() {
@@ -485,7 +482,6 @@ namespace PlaytimePainter
         }
 
         #region Inspector
-#if !NO_PEGI
         [SerializeField] private Camera camera;
         public bool Inspect() {
             var changed = false;
@@ -514,8 +510,7 @@ namespace PlaytimePainter
 
             return changed;
         }
-
-#endif
+        
 #endregion
 
 #region Encode & Decode

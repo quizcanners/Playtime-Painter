@@ -300,9 +300,7 @@ namespace PlaytimePainter {
 
         #region Inspector
         float BrushScaleMaxForCpu(VolumeTexture volTex) => volTex.size * volTex.Width * 0.025f;
-
-  
-        #if !NO_PEGI
+        
         public override string NameForDisplayPEGI()=> "Volume Painting";
 
         public bool ComponentInspector()
@@ -510,8 +508,7 @@ namespace PlaytimePainter {
 
             return changes;
         }
-        #endif
-
+     
         public bool PlugIn_PainterGizmos(PlaytimePainter painter)
         {
             var volume = painter.TexMeta.GetVolumeTextureData();

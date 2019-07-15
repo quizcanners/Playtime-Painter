@@ -48,7 +48,6 @@ namespace QuizCannersUtilities
             set { dominantParameter = value; }
         }
 
-        #if !NO_PEGI
 
         public int CountForInspector() => _resets;
         
@@ -78,7 +77,6 @@ namespace QuizCannersUtilities
 
             return false;
         }
-#endif
 
         #endregion
     }
@@ -221,8 +219,7 @@ namespace QuizCannersUtilities
             public abstract bool Portion(ref float linkedPortion);
 
             #region Inspector
-
-#if !NO_PEGI
+            
             public virtual bool InspectInList(IList list, int ind, ref int edited)
             {
 
@@ -289,7 +286,6 @@ namespace QuizCannersUtilities
 
                 return changed;
             }
-#endif
 
             #endregion
 
@@ -355,8 +351,6 @@ namespace QuizCannersUtilities
 
             #region Inspector
 
-#if !NO_PEGI
-
             public override bool InspectInList(IList list, int ind, ref int edited)
             {
                 if (base.InspectInList(list, ind, ref edited))
@@ -383,7 +377,6 @@ namespace QuizCannersUtilities
 
                 return changed;
             }
-#endif
 
             #endregion
 
@@ -451,8 +444,6 @@ namespace QuizCannersUtilities
 
             #region Inspector
 
-#if !NO_PEGI
-
             public override bool InspectInList(IList list, int ind, ref int edited)
             {
                 if (base.InspectInList(list, ind, ref edited))
@@ -479,7 +470,6 @@ namespace QuizCannersUtilities
 
                 return changed;
             }
-#endif
 
             #endregion
 
@@ -533,8 +523,7 @@ namespace QuizCannersUtilities
                 speedLimit.SpeedToMinPortion(CurrentValue - TargetValue, ref linkedPortion);
 
             #region Inspect
-
-#if !NO_PEGI
+            
             public override bool Inspect()
             {
                 var ret = base.Inspect();
@@ -542,7 +531,6 @@ namespace QuizCannersUtilities
                     "{0} => {1}".F(CurrentValue, TargetValue).nl();
                 return ret;
             }
-#endif
 
             #endregion
 
@@ -692,8 +680,7 @@ namespace QuizCannersUtilities
             }
 
             #region Inspector
-
-#if !NO_PEGI
+            
             public override bool Inspect()
             {
                 var changed = base.Inspect();
@@ -712,7 +699,6 @@ namespace QuizCannersUtilities
 
                 return changed;
             }
-#endif
 
             #endregion
 
@@ -955,8 +941,7 @@ namespace QuizCannersUtilities
             #endregion
 
             #region Inspector
-
-#if !NO_PEGI
+            
             public override bool Inspect()
             {
 
@@ -966,7 +951,6 @@ namespace QuizCannersUtilities
 
                 return changed;
             }
-#endif
 
             #endregion
         }
@@ -1003,8 +987,7 @@ namespace QuizCannersUtilities
                 get { return _name; }
                 set { }
             }
-
-#if !NO_PEGI
+            
             public override bool InspectInList(IList list, int ind, ref int edited)
             {
                 var changed = false;
@@ -1026,7 +1009,7 @@ namespace QuizCannersUtilities
                 return changed;
             }
 
-#endif
+
             #endregion
 
             #region Encode & Decode
@@ -1161,8 +1144,7 @@ namespace QuizCannersUtilities
             protected override string Name_Internal => _name;
 
             #region Inspect
-
-            #if !NO_PEGI
+            
             public override bool InspectInList(IList list, int ind, ref int edited)
             {
                 var changed = false;
@@ -1179,7 +1161,6 @@ namespace QuizCannersUtilities
                 return changed;
             }
 
-#endif
             #endregion
 
             #region Encode & Decode
@@ -1417,9 +1398,7 @@ namespace QuizCannersUtilities
             }
 
             #region Inspector
-
-#if !NO_PEGI
-
+            
             public override bool Inspect()
             {
                 var changed = base.Inspect();
@@ -1431,8 +1410,6 @@ namespace QuizCannersUtilities
 
                 return changed;
             }
-
-#endif
 
             #endregion
 
@@ -1704,8 +1681,7 @@ namespace QuizCannersUtilities
             #endregion
 
             #region Inspect
-
-#if !NO_PEGI
+            
             public override bool Inspect()
             {
 
@@ -1715,7 +1691,6 @@ namespace QuizCannersUtilities
 
                 return changed;
             }
-#endif
 
             #endregion
 
@@ -2069,9 +2044,7 @@ namespace QuizCannersUtilities
         public static readonly ShaderProperty.TextureValue NextTexture = new ShaderProperty.TextureValue("_Next_MainTex");
         public static readonly ShaderProperty.TextureValue CurrentTexture = new ShaderProperty.TextureValue("_MainTex_Current");
         public static readonly ShaderProperty.FloatValue TransitionPortion = new ShaderProperty.FloatValue("_Transition");
-
-
-#if !NO_PEGI
+        
         public static void Inspect()
         {
             "Image projection position".write_ForCopy(ImageProjectionPosition.NameForDisplayPEGI()); pegi.nl();
@@ -2080,7 +2053,7 @@ namespace QuizCannersUtilities
 
             "Transition portion".write_ForCopy(TransitionPortion.NameForDisplayPEGI()); pegi.nl();
         }
-#endif
+
     }
 
 }

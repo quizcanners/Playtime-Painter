@@ -162,7 +162,7 @@ namespace PlaytimePainter {
         }
 
         #region Inspector
-        #if !NO_PEGI
+
         public override bool BrushConfigPEGI()
         {
             var p = PlaytimePainter.inspected;
@@ -194,7 +194,7 @@ namespace PlaytimePainter {
             pegi.nl();
             return changed;
         }
-        #endif
+       
         #endregion
 
         public override void BeforeGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushTypes.Base type)
@@ -245,7 +245,7 @@ namespace PlaytimePainter {
         #endregion
 
         #region Inspector
-#if !NO_PEGI
+
         public override bool Inspect() {
             var changed = false;
 
@@ -283,7 +283,7 @@ namespace PlaytimePainter {
             return changed;
 
         }
-#endif
+
         #endregion
     }
     
@@ -376,9 +376,9 @@ namespace PlaytimePainter {
                     if (!tex)
                     {
                         var note = painter.name + " no " + original + " texture. Using Color.";
-#if !NO_PEGI
+
                         note.showNotificationIn3D_Views();
-#endif
+
                         Debug.Log(note);
                     }
                     else
@@ -526,10 +526,9 @@ namespace PlaytimePainter {
                     _fields.Add(ac);
                     ac.atlasedField = t.NameForDisplayPEGI();
                 }
-
-#if !NO_PEGI
+                
                 _atlasedShader = DestinationMaterial.shader;
-#endif
+
 
                 foreach (var p in MaterialEditor.GetMaterialProperties(new Object[] { DestinationMaterial }))
                     if (p.displayName.Contains(PainterDataAndConfig.isAtlasableDisaplyNameTag))
@@ -562,7 +561,7 @@ namespace PlaytimePainter {
             }
 
         #region Inspector
-        #if !NO_PEGI
+
         private Shader _atlasedShader;
         public static MaterialAtlases inspectedAtlas;
         private bool _showHint;
@@ -655,7 +654,7 @@ namespace PlaytimePainter {
             return changed;
 
         }
-        #endif
+       
         #endregion
     }
     
@@ -675,7 +674,7 @@ namespace PlaytimePainter {
         }
 
         #region Inspector
-        #if !NO_PEGI
+
         public bool InspectInList(IList list, int ind, ref int edited)
         {
             (used ? icon.Active : icon.InActive).write();
@@ -687,7 +686,7 @@ namespace PlaytimePainter {
 
             return changed;
         }
-        #endif
+        
         #endregion
 
         #region Encode & Decode
@@ -980,7 +979,6 @@ namespace PlaytimePainter {
         }
 #endif
 
-#if !NO_PEGI
 
         public override bool Inspect() {
             var changed = false;
@@ -1031,7 +1029,7 @@ namespace PlaytimePainter {
 
             return changed;
         }
-#endif
+
     }
 
     public static class AtlasingExtensions

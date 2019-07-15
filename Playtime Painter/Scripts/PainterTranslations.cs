@@ -284,8 +284,6 @@ namespace PlayerAndEditorGUI {
         }
 
 
-#if !NO_PEGI
-
         private static int inspectingSection = -1;
         private static int inspectedFaqQuestion = -1;
         private static int inspectedPerfTip = -1;
@@ -392,7 +390,7 @@ namespace PlayerAndEditorGUI {
         public static void Write(this MsgPainter m, int width) { m.GetText().write(m.GetDescription(),width); }
         public static void Write(this MsgPainter m, string tip, int width) { m.GetText().write(tip, width); }
         public static void Write(this MsgPainter m, string tip) { var txt = m.GetText(); txt.write(tip, txt.ApproximateLengthUnsafe()); }
-#endif
+
         public static string GetText(this MsgPainter msg)
         {
              var lt =   msg.Get();
@@ -428,12 +426,10 @@ namespace PlayerAndEditorGUI {
             return org;
         }
 
-
-#if !NO_PEGI
+        
         public static bool DocumentationClick(this MsgPainter msg) =>  PainterDataAndConfig.hideDocumentation ? false : msg.Get().DocumentationClick();
         
         public static bool DocumentationWarning(this MsgPainter msg) => PainterDataAndConfig.hideDocumentation ? false : msg.Get().WarningDocumentation();
-#endif
 
     }
 }

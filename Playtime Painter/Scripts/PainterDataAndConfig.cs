@@ -362,14 +362,11 @@ namespace PlaytimePainter
                         .Add("cam", PainterCamera.Inst)
                         .Add("Vpck", meshPackagingSolutions)
                         .Add_IfTrue("hd", hideDocumentation)
-
-#if !NO_PEGI
                         .Add_IfNotNegative("iid", _inspectedImgData)
                         .Add_IfNotNegative("isfs", _inspectedItems)
                         .Add_IfNotNegative("im", _inspectedMaterial)
                         .Add_IfNotNegative("id", _inspectedDecal)
                         .Add_IfNotNegative("is", inspectedItems)
-#endif
                         .Add_IfTrue("e", toolEnabled);
 
                     return cody;
@@ -391,13 +388,11 @@ namespace PlaytimePainter
                 case "cam": if (PainterCamera.Inst) PainterCamera.Inst.Decode(data); break;
                 case "Vpck": data.Decode_List(out meshPackagingSolutions); break;
                 case "hd": hideDocumentation = data.ToBool(); break;
-#if !NO_PEGI
                 case "iid": _inspectedImgData = data.ToInt(); break;
                 case "isfs": _inspectedItems = data.ToInt(); break;
                 case "im": _inspectedMaterial = data.ToInt(); break;
                 case "id": _inspectedDecal = data.ToInt(); break;
                 case "is": inspectedItems = data.ToInt(); break;
-#endif
                 case "e": toolEnabled = data.ToBool(); break;
                 default: return false;
             }
@@ -411,8 +406,7 @@ namespace PlaytimePainter
         [SerializeField] private int systemLanguage = -1;
 
         public static bool hideDocumentation;
-
-        #if !NO_PEGI
+        
         private int _inspectedImgData = -1;
         private int _inspectedItems = -1;
         private int _inspectedMaterial = -1;
@@ -507,8 +501,7 @@ namespace PlaytimePainter
 
             return pegi.edit_List(ref colorSchemes, ref inspectedColorScheme);
         }
-
-        #endif
+        
         #endregion
 
         private void Init() {

@@ -228,9 +228,6 @@ namespace PlaytimePainter
 
         #region Inspect
 
-#if !NO_PEGI
-
-
         public override bool ShowHideSectionInspect()
         {
             bool changed = false;
@@ -328,7 +325,7 @@ namespace PlaytimePainter
 
             return changed;
         }
-#endif
+
 #endregion
 
 #region Encoding

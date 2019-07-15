@@ -62,7 +62,6 @@ namespace QuizCannersUtilities
         public ElementData this[int i] => elementDatas.TryGet(i);
 
         #region Inspector
-        #if !NO_PEGI
 
         public readonly pegi.SearchData searchData = new pegi.SearchData();
 
@@ -123,7 +122,7 @@ namespace QuizCannersUtilities
 #endif
             return changed;
         }
-        #endif
+        
         #endregion
 
         #region Encode & Decode
@@ -141,9 +140,7 @@ namespace QuizCannersUtilities
                 case "del": allowDelete = data.ToBool(); break;
                 case "reord": allowReorder = data.ToBool(); break;
                 case "st": listSectionStartIndex = data.ToInt(); break;
-#if !NO_PEGI
                 case "s": searchData.Decode(data); break;
-#endif
                 default: return false;
             }
             return true;
@@ -156,9 +153,7 @@ namespace QuizCannersUtilities
                 .Add_IfNotNegative("pi", previousInspected)
                 .Add_IfNotZero("st", listSectionStartIndex)
                 .Add_IfTrue("adl", allowDuplicants)
-                #if !NO_PEGI
                 .Add_IfNotDefault("s", searchData)
-                #endif
                 ;
             
             if (!folderToSearch.SameAs(DefaultFolderToSearch))
@@ -294,7 +289,6 @@ namespace QuizCannersUtilities
         }
 
         #region Inspector
-        #if !NO_PEGI
 
         public string NameForPEGI { get { return name; } set { name = value; } }
 
@@ -327,7 +321,6 @@ namespace QuizCannersUtilities
             
             return changed;
         }
-
 
         public bool SelectType<T>(ref object obj, bool keepTypeConfig = false) {
             var changed = false;
@@ -408,8 +401,8 @@ namespace QuizCannersUtilities
 
             return changed;
         }
-#endif
-#endregion
+
+        #endregion
 
 #region Encode & Decode
         public override bool Decode(string tg, string data) {
@@ -493,7 +486,6 @@ namespace QuizCannersUtilities
         }
 
 #region Inspector
-#if !NO_PEGI
 
         public int CountForInspector() => _tags.IsNullOrEmpty() ? data.Length : _tags.CountForInspector();
         
@@ -576,8 +568,7 @@ namespace QuizCannersUtilities
 
             return dirty | changed;
         }
-
-#endif
+        
 #endregion
 
 #region Encode & Decode
@@ -614,8 +605,7 @@ namespace QuizCannersUtilities
 
         #region Inspector
         public string NameForPEGI { get { return dataExplorer.tag; } set { dataExplorer.tag = value; } }
-
-        #if !NO_PEGI
+        
         public static StdExplorerData Mgmt => StdExplorerData.inspected;
 
         public int CountForInspector() => dataExplorer.CountForInspector();
@@ -681,7 +671,7 @@ namespace QuizCannersUtilities
 
             return changed;
         }
-#endif
+
 #endregion
     }
 
@@ -693,8 +683,7 @@ namespace QuizCannersUtilities
         public static ICfg inspectedCfg;
 
         #region Inspector
-        #if !NO_PEGI
-        
+
         [NonSerialized] private int inspectedState = -1;
 
         public int CountForInspector() => states.Count;
@@ -773,7 +762,7 @@ namespace QuizCannersUtilities
 
             return changed;
         }
-#endif
+
         #endregion
     }
     #endregion

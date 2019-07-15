@@ -10,10 +10,9 @@ namespace PlaytimePainter
     public abstract class PainterSystemKeepUnrecognizedCfg : PainterSystemCfg, IKeepUnrecognizedCfg, IPEGI
     {
         public UnrecognizedTagsList UnrecognizedStd { get; } = new UnrecognizedTagsList();
-
-        #if !NO_PEGI
+        
         public virtual bool Inspect() => UnrecognizedStd.Nested_Inspect();
-        #endif
+      
     }
     
     public abstract class PainterSystemCfg : PainterSystem, ICfg  
@@ -45,10 +44,8 @@ namespace PlaytimePainter
         protected static PlaytimePainter InspectedPainter => PlaytimePainter.inspected;
         protected static MeshManager MeshMGMT => MeshManager.Inst;
         protected static bool ApplicationIsQuitting => PainterSystem.applicationIsQuitting;
-
-#if !NO_PEGI
+        
         public virtual bool Inspect() => _uTags.Inspect();  
-#endif
 
     }
     

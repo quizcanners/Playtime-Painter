@@ -326,7 +326,7 @@ namespace PlaytimePainter {
         }
 
         #region Inspect
-        #if !NO_PEGI
+
         protected int inspectedElement = -1;
 
         protected int inspectedMaterial = -1;
@@ -436,8 +436,7 @@ namespace PlaytimePainter {
 
             return changed;
         }
-
-        #endif
+        
         #endregion
 
         public virtual void UpdateMaterials() {

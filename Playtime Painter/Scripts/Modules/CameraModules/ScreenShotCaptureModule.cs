@@ -15,9 +15,7 @@ namespace PlaytimePainter
         public override string ClassTag => tag;
         
         public QcUtils.ScreenShootTaker screenShots = new QcUtils.ScreenShootTaker();
-
-        #if !NO_PEGI
-
+        
         public override string NameForDisplayPEGI()=> "HD Screen Shots";
 
         public override bool Inspect()
@@ -32,10 +30,6 @@ namespace PlaytimePainter
             
             return changed;
         }
-
-
-#endif
-
-
-        }
+        
+    }
 }

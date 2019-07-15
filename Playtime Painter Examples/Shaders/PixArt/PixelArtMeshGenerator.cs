@@ -178,7 +178,6 @@ namespace PlaytimePainter {
         #endif
 
         #region Inspector
-        #if !NO_PEGI
         public bool Inspect()
         {
             bool changed = false;
@@ -203,7 +202,6 @@ namespace PlaytimePainter {
 
             return changed;
         }
-        #endif
         #endregion
 
     }

@@ -197,8 +197,7 @@ namespace PlayerAndEditorGUI
         public GUIStyle testListLabel;
         public GUIStyle testImageButton;
         public GUISkin skin;
-
-        #if !NO_PEGI
+        
         public bool Inspect()
         {
             var changed = false;
@@ -216,7 +215,6 @@ namespace PlayerAndEditorGUI
 
             return changed;
         }
-        #endif
 
         private void Refresh()
         {

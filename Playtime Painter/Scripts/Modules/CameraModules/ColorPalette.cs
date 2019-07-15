@@ -18,7 +18,6 @@ namespace PlaytimePainter
         private List<Color> _colors = new List<Color>();
         
         #region Inspector
-        #if !NO_PEGI
 
          private int _lastPicked = -1;
 
@@ -94,9 +93,7 @@ namespace PlaytimePainter
             pegi.nl();
 
         }
-
-
-#endif
+        
         #endregion
 
         #region Encode/Decode

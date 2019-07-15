@@ -83,8 +83,6 @@ namespace PlaytimePainter.Examples {
             }
         }
 
-#if !NO_PEGI
-
         public bool Inspect()
         {
 
@@ -134,7 +132,7 @@ namespace PlaytimePainter.Examples {
 
             return false;
         }
-#endif
+
     }
 
     public class PaintingCollision

@@ -898,8 +898,6 @@ namespace PlaytimePainter {
 
         readonly QcUtils.ChillLogger logger = new QcUtils.ChillLogger("error");
 
-        #if !NO_PEGI
-
         public AnimationCurve InspectAnimationCurve(string role) {
             role.edit_Property(() => tmpCurve, this);
 
@@ -1066,8 +1064,7 @@ namespace PlaytimePainter {
        
             return changed;
         }
-
-        #endif
+        
         #endregion
 
     }

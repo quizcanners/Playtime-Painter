@@ -601,8 +601,7 @@ namespace PlaytimePainter
             #region Inspector
 
             protected override MsgPainter Translation => MsgPainter.BrushTypeDecal;
-
-#if !NO_PEGI
+            
             public override bool Inspect()
             {
 
@@ -656,7 +655,6 @@ namespace PlaytimePainter
                 return changed;
 
             }
-#endif
 
             #endregion
         }
@@ -676,8 +674,7 @@ namespace PlaytimePainter
             public Texture2D overlay;
 
             #region Inspector
-
-#if !NO_PEGI
+            
             public bool ShowInDropdown() => heightMap && overlay;
 
             public string NameForPEGI
@@ -698,8 +695,6 @@ namespace PlaytimePainter
             }
 
             public string NameForDisplayPEGI() => "{0} ({1})".F(decalName, type);
-
-#endif
 
             #endregion
         }
@@ -975,7 +970,6 @@ namespace PlaytimePainter
 
             protected override MsgPainter Translation => MsgPainter.BrushTypeSphere;
 
-#if !NO_PEGI
             public override bool Inspect()
             {
 
@@ -1001,7 +995,6 @@ namespace PlaytimePainter
 
                 return changed;
             }
-#endif
 
             #endregion
         }

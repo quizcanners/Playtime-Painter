@@ -48,7 +48,7 @@ namespace PlaytimePainter.Examples
         }
 
         #region Inspector
-        #if !NO_PEGI
+
         public bool Inspect() {
             var changed = false;
 
@@ -74,8 +74,7 @@ namespace PlaytimePainter.Examples
             return changed;
         }
 
-
-        #endif
+        
         #endregion
 
 

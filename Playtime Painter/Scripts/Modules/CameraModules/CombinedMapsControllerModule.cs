@@ -44,11 +44,9 @@ namespace PlaytimePainter
         #endregion
 
         #region Inspector
-        #if !NO_PEGI
 
         private int _browsedTextureSet = -1;
         public override bool Inspect() => "Surfaces".edit_List(ref _textureSets, ref _browsedTextureSet);
-        #endif
         #endregion
     }
 
@@ -130,7 +128,7 @@ namespace PlaytimePainter
         #endregion
 
         #region Inspect
-#if !NO_PEGI
+
         public override bool Inspect() {
 
             var changed = false;
@@ -179,7 +177,7 @@ namespace PlaytimePainter
 
             return changed;
         }
-#endif
+
         #endregion
 
         public int selectedProfile = 0;
@@ -230,9 +228,7 @@ namespace PlaytimePainter
         }
 
         private const string FolderName = "TexSolution";
-
-
-#if !NO_PEGI
+        
         public virtual bool Inspect() => Inspect(null);
 
         public bool Inspect(TextureSetForCombinedMaps sets)
@@ -312,9 +308,7 @@ namespace PlaytimePainter
 
             return changed;
         }
-
-#endif
-
+        
         private void Combine(TextureSetForCombinedMaps set, PlaytimePainter p) {
 
             TextureRole.Clear();
@@ -449,7 +443,6 @@ namespace PlaytimePainter
         #endregion
         
         #region Inspect
-        #if !NO_PEGI
 
         public virtual bool Inspect()
         {
@@ -469,8 +462,7 @@ namespace PlaytimePainter
 
             return changed;
         }
-
-        #endif
+        
         #endregion
 
         public const string StdTag = "TexChan";
@@ -617,7 +609,6 @@ namespace PlaytimePainter
             return mipLevels;
         }
 
-#if !NO_PEGI
 
         public bool Inspect(ref int selectedChannel, TextureChannel tc)
         {
@@ -625,8 +616,7 @@ namespace PlaytimePainter
 
             return changed;
         }
-
-#endif
+        
 
     }
 

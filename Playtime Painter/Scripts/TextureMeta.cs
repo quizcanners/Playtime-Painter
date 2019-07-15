@@ -119,9 +119,9 @@ namespace PlaytimePainter
             var msg = $"Saved {saveName} to {fullPath}";
 
             Cfg.playtimeSavedTextures.Add(fullPath);
-#if !NO_PEGI
+
             msg.showNotificationIn3D_Views();
-#endif
+
             Debug.Log(msg);
 
             return fullPath;
@@ -140,9 +140,9 @@ namespace PlaytimePainter
 
                 if (texture2D.LoadImage(fileData))
                     Init(texture2D);
-#if !NO_PEGI
+
                 else "Couldn't Load Image ".showNotificationIn3D_Views();
-#endif
+
             }
         }
 
@@ -870,8 +870,6 @@ namespace PlaytimePainter
         private int _inspectedProcess = -1;
         public int inspectedItems = -1;
 
-        #if !NO_PEGI
-
         void ReturnToRenderTexture()
         {
             var p = PlaytimePainter.inspected;
@@ -1278,8 +1276,7 @@ namespace PlaytimePainter
                 return "Too many backups";
             return null;
         }
-
-        #endif
+        
         #endregion
         
         private float _repaintTime;

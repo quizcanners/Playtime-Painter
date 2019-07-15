@@ -80,8 +80,6 @@ namespace PlaytimePainter
 
         }
 
-#if !NO_PEGI
-
         public bool Inspect()
         {
             var changed = false;
@@ -104,7 +102,6 @@ namespace PlaytimePainter
 
             return changed;
         }
-#endif
 
     }
 }

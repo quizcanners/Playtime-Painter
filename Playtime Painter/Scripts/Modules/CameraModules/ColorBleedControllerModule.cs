@@ -98,9 +98,6 @@ namespace PlaytimePainter {
         #region Inspector
         public override string NameForDisplayPEGI()=> "Bleed & Brightness";
 
-
-        #if !NO_PEGI
-
         public override string ToolTip =>
             "This is not a postprocess effect. Color Bleed and Brightness modifies Global Shader Parameter used by Custom shaders included with the asset.";            
         
@@ -114,8 +111,7 @@ namespace PlaytimePainter {
              
             return changed;
         }
-
-        #endif
+        
         #endregion
 
 
@@ -173,7 +169,6 @@ namespace PlaytimePainter {
         #endregion
 
         #region Inspector
-        #if !NO_PEGI
         private int inspectedProperty = -1;
 
         public bool Inspect(ref List<WeatherConfig> configurations)
@@ -277,8 +272,7 @@ namespace PlaytimePainter {
 
             return changed;
         }
-
-        #endif
+        
         #endregion
         
         public override void Update()

@@ -65,10 +65,11 @@ namespace PlaytimePainter.Examples
 
                 var cp = collision.contacts[0];
                 
-                RaycastHit hit;
+            
 
                 var ray = new Ray(cp.point+ cp.normal*0.1f, -cp.normal);
 
+                RaycastHit hit;
                 if (!collision.collider.Raycast(ray, out hit, 2f)) return;
 
                 var v = pCont.vector;
@@ -82,8 +83,6 @@ namespace PlaytimePainter.Examples
         }
 
         #region Inspector
-#if !NO_PEGI
-
 
         public bool Inspect()
         {
@@ -101,7 +100,7 @@ namespace PlaytimePainter.Examples
             
             return changed;
         }
-        #endif
+       
         #endregion
     }
 }

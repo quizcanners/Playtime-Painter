@@ -383,8 +383,7 @@ namespace PlaytimePainter {
             depthTarget.DestroyWhateverUnityObject();
             depthTarget = null;
         }
-
-#if !NO_PEGI
+        
         public static bool InspectDepthTarget()
         {
             var changed = false;
@@ -397,7 +396,6 @@ namespace PlaytimePainter {
 
             return changed;
         }
-#endif
 
 
 
@@ -509,8 +507,6 @@ namespace PlaytimePainter {
 
         static QcUtils.ChillLogger logger = new QcUtils.ChillLogger("error");
         
-        #if !NO_PEGI
-
         private static int inspectedElement = -1;
 
         public static bool Inspect() {
@@ -591,8 +587,7 @@ namespace PlaytimePainter {
 
             return changed;
         }
-
-        #endif
+        
         #endregion
 
     }

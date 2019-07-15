@@ -282,9 +282,7 @@ namespace QuizCannersUtilities
         private int _edited = -1;
 
         public virtual T GetIfExists(int ind) => Get(ind);
-
-
-#if !NO_PEGI
+        
         public override bool Inspect()
         {
             var changed = false;
@@ -333,7 +331,7 @@ namespace QuizCannersUtilities
             }
             return changed;
         }
-#endif
+
     }
     
     

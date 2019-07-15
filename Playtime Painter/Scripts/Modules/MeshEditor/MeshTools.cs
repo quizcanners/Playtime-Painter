@@ -211,8 +211,7 @@ namespace PlaytimePainter
                     "This tool also contains functionality related to smoothing and sharpening of the edges.").F(Environment.NewLine);*/
 
         public override string NameForDisplayPEGI()=> MsgPainter.MeshPointPositionTool.GetText(); // "ADD & MOVE";
-
-        #if !NO_PEGI
+        
         public override bool Inspect()
         {
 
@@ -288,7 +287,7 @@ namespace PlaytimePainter
 
             return changed;
         }
-        #endif
+      
         #endregion
 
         #region Kyboard
@@ -310,9 +309,9 @@ namespace PlaytimePainter
                 m.SelectedUv.meshPoint.MergeWithNearest(EditedMesh);
                 m.Dragging = false;
                 EditedMesh.Dirty = true;
-#if !NO_PEGI
+
                 "M - merge with nearest".TeachingNotification();
-#endif
+
             }
         }
 
@@ -583,8 +582,7 @@ namespace PlaytimePainter
             }
             
     }
-
-#if !NO_PEGI
+        
         public override bool Inspect()
         {
 
@@ -620,7 +618,7 @@ namespace PlaytimePainter
             return changed;
 
         }
-        #endif
+      
         #endregion
 
         public override bool MouseEventPointedTriangle()
@@ -771,8 +769,7 @@ namespace PlaytimePainter
         public override string Tooltip => "Click to set vertex as smooth/sharp" + Environment.NewLine;
 
         public override string NameForDisplayPEGI()=> "Vertex Smoothing";
-
-#if !NO_PEGI
+        
         public override bool Inspect()
         {
 
@@ -818,7 +815,7 @@ namespace PlaytimePainter
             return false;
 
         }
-#endif
+
         #endregion
 
         public override bool MouseEventPointedTriangle()
@@ -960,8 +957,7 @@ namespace PlaytimePainter
                                           "1234 on Line - apply RGBA for Border.").F(pegi.EnvironmentNl);
 
         public override string NameForDisplayPEGI()=> "vertex Color";
-
-        #if !NO_PEGI
+        
         public override bool Inspect()
         {
             var changed = false;
@@ -1051,8 +1047,7 @@ namespace PlaytimePainter
             EditedMesh.dirtyColor = true;
 
         }
-
-        #endif
+        
         #endregion
 
         public override bool MouseEventPointedVertex()
@@ -1187,9 +1182,6 @@ namespace PlaytimePainter
              "to mask texture color with vertex color. All vertices should be set as Unique for this to work." +
              "Line is drawn between vertices marked with line strength 1. A triangle can't have only 2 sides with Edge: it's ether side, or all 3 (2 points marked to create a line, or 3 points to create 3 lines).";
 
-
-        #if !NO_PEGI
-
         public override bool Inspect()
         {
             var changed = false;
@@ -1203,18 +1195,16 @@ namespace PlaytimePainter
 
             return changed;
         }
-        #endif
+       
         #endregion
 
         public override bool MouseEventPointedVertex()
         {
             if ((!EditorInputManager.GetMouseButton(0))) return false;
             
-            #if !NO_PEGI
             if (!PointedUv.meshPoint.AllPointsUnique())
                 "Shared points found, Edge requires All Unique".showNotificationIn3D_Views();
-            #endif
-            
+   
             if (EditorInputManager.Control)
             {
                 _edgeValue = MeshMGMT.PointedUv.meshPoint.edgeStrength;
@@ -1353,9 +1343,7 @@ namespace PlaytimePainter
             if (EditorInputManager.GetMouseButtonDown(0) && EditorInputManager.Control)
             {
                 _curSubMesh = MeshMGMT.PointedTriangle.subMeshIndex;
-#if !NO_PEGI
                 ("SubMesh " + _curSubMesh).showNotificationIn3D_Views();
-#endif
             }
 
             if (!EditorInputManager.GetMouseButton(0) || EditorInputManager.Control ||
@@ -1375,8 +1363,6 @@ namespace PlaytimePainter
 
         public override string Tooltip => "Ctrl+LMB - sample" + Environment.NewLine + "LMB on triangle - set sub mesh";
         public override string NameForDisplayPEGI()=> "triangle Sub Mesh index";
-        
-        #if !NO_PEGI
 
         public override bool Inspect() {
             "Sub Mesh: ".select(60, ref _curSubMesh, 0, EditedMesh.subMeshCount).nl();
@@ -1393,7 +1379,7 @@ namespace PlaytimePainter
 
             return false;
         }
-        #endif
+
         #endregion
 
         #region Encode & Decode

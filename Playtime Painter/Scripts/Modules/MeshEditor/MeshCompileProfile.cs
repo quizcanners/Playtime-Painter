@@ -51,8 +51,7 @@ namespace PlaytimePainter
 
         #region Inspect
         public string NameForPEGI { get { return name; } set { name = value;  } }
-
-        #if !NO_PEGI
+        
         public virtual bool Inspect()
         {
             var changed = false;
@@ -90,7 +89,7 @@ namespace PlaytimePainter
 
             return changed;
         }
-        #endif
+       
         #endregion
 
         public bool Repack(MeshConstructor sm)
@@ -340,7 +339,7 @@ namespace PlaytimePainter
         #endregion
 
         #region Inspector
-#if !NO_PEGI
+
         public virtual bool Inspect()
         {
             var changed = false;
@@ -397,7 +396,7 @@ namespace PlaytimePainter
 
             return changed;
         }
-#endif
+
         #endregion
 
         public VertexDataLink() { }

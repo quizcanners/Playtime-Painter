@@ -287,7 +287,6 @@ namespace PlaytimePainter
         #endregion
 
         #region Inspector
-        #if !NO_PEGI
 
         private static List<Shader> _compatibleShaders;
 
@@ -684,7 +683,7 @@ namespace PlaytimePainter
             
             return changed;
         }
-        #endif
+     
         #endregion
 
         #region Mouse Press
@@ -819,7 +818,6 @@ namespace PlaytimePainter
             #endregion
 
             #region Inspect
-#if !NO_PEGI
             public bool InspectInList(IList list, int ind, ref int edited)
             {
                // var tg = inspected;
@@ -850,8 +848,6 @@ namespace PlaytimePainter
 
             return false;
         }
-            
-            #endif
             #endregion
 
         }
@@ -867,7 +863,6 @@ namespace PlaytimePainter
             public override string ClassTag => Tag;
             
             #region Inspect
-            #if !NO_PEGI
             public bool InspectInList(IList list, int ind, ref int edited)
             {
 
@@ -894,7 +889,6 @@ namespace PlaytimePainter
 
                 return false;
             }
-
             public override bool Inspect()
             {
                 var changed = base.Inspect();
@@ -902,7 +896,6 @@ namespace PlaytimePainter
 
                 return changed;
             }
-            #endif
             #endregion
 
             #region Encode & Decode
@@ -957,8 +950,6 @@ namespace PlaytimePainter
             }
 
             #region Inspect
-            #if !NO_PEGI
-
             public bool InspectInList(IList list, int ind, ref int edited) {
                 
                 "Normal".edit(50, ref valueWhenOff, 0, 1);
@@ -979,7 +970,6 @@ namespace PlaytimePainter
 
                 return changed;
             }
-            #endif
             #endregion
 
             #region Encode & Decode
@@ -1027,15 +1017,12 @@ namespace PlaytimePainter
             public virtual bool Update(RoundedGraphic target) => false;
 
             #region Inspect
-            #if !NO_PEGI
-
             public virtual string NameForDisplayPEGI()=> ClassTag;
             
             public override bool Inspect()
             {
                 return false;
             }
-            #endif
             #endregion
 
             #region Encode & Decode
@@ -1142,8 +1129,7 @@ namespace PlaytimePainter
         private static readonly ShaderProperty.FloatValue Softness = new ShaderProperty.FloatValue(RoundedGraphic.EDGE_SOFTNESS_FLOAT);
 
         private static readonly ShaderProperty.TextureValue Outline = new ShaderProperty.TextureValue("_OutlineGradient");
-
-        #if !NO_PEGI
+        
         public override bool Inspect(Material mat) {
 
             var changed = pegi.toggleDefaultInspector();
@@ -1170,8 +1156,7 @@ namespace PlaytimePainter
 
             return changed;
         }
-        #endif
-
+  
     }
     
     #endregion

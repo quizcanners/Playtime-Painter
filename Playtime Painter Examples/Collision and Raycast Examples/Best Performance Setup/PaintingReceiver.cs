@@ -181,8 +181,6 @@ namespace PlaytimePainter.Examples {
 
         #region Inspector
         [SerializeField] private bool _showOptional;
-        
-        #if !NO_PEGI
 
         public virtual bool Inspect() {
             
@@ -357,7 +355,7 @@ namespace PlaytimePainter.Examples {
 
             return changes;
         }
-        #endif
+
         #endregion
     }
 

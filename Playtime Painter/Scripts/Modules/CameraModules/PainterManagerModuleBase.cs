@@ -20,9 +20,7 @@ namespace PlaytimePainter {
 
     public interface IPainterManagerModuleComponentPEGI
     {
-        #if !NO_PEGI
         bool ComponentInspector();
-        #endif
     }
 
     public interface IPainterManagerModuleGizmis
@@ -48,10 +46,9 @@ namespace PlaytimePainter {
 
         bool IsEnabledFor(PlaytimePainter p, TextureMeta image, BrushConfig cfg);
 
-
-#if !NO_PEGI
+        
         bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br);
-        #endif
+       
     }
 
     public interface IPainterManagerModule_MeshToolShowVertex
@@ -61,9 +58,8 @@ namespace PlaytimePainter {
 
     public interface IMeshToolPlugin
     {
-        #if !NO_PEGI
         bool MeshToolInspection(MeshToolBase currentTool);
-        #endif
+       
     }
 
     [PainterManagerPlugin]
@@ -146,7 +142,7 @@ namespace PlaytimePainter {
         public virtual void Disable() {  }
 
         #region Inspector
-        #if !NO_PEGI
+
         public virtual string ToolTip => "Painter plugin";
 
         public virtual bool InspectInList(IList list, int ind, ref int edited) {
@@ -161,7 +157,7 @@ namespace PlaytimePainter {
 
             return false;
         }
-        #endif
+        
         #endregion
 
     }

@@ -4,9 +4,6 @@ using QuizCannersUtilities;
 
 public class InfiniteParticlesDrawerGUI : PEGI_Inspector_Material {
 
-#if !NO_PEGI
-
-
     public const string FadeOutTag = "_FADEOUT";
      
     public override bool Inspect(Material mat) {
@@ -47,13 +44,11 @@ public class InfiniteParticlesDrawerGUI : PEGI_Inspector_Material {
 
         return changed;
     }
-
-
+    
     private static readonly ShaderProperty.FloatValue speed = new ShaderProperty.FloatValue("_Speed");
     private static readonly ShaderProperty.FloatValue time = new ShaderProperty.FloatValue("_CustomTime");
     private static readonly ShaderProperty.FloatValue tiling = new ShaderProperty.FloatValue("_Tiling");
     private static readonly ShaderProperty.FloatValue upscale = new ShaderProperty.FloatValue("_Upscale");
-
-#endif
+    
 }
 

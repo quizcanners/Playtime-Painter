@@ -33,14 +33,12 @@ namespace QuizCannersUtilities
             this.EncodeUnrecognized().Add("ld", referencesMeta);
 
         #region Inspector
-#if !NO_PEGI
         public override bool Inspect()
         {
             var changed = base.Inspect();
             referencesMeta.enter_List_UObj(ref objects, ref inspectedItems, 3);
             return changed;
         }
-#endif
         #endregion
     }
 

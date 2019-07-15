@@ -170,7 +170,6 @@ namespace PlayerAndEditorGUI {
         }
 
         #region Inspector
-        #if !NO_PEGI
 
         private static readonly List<int> supportedLanguages = new List<int>() {eng, ukr, trk};
 
@@ -204,7 +203,6 @@ namespace PlayerAndEditorGUI {
             return false;
         }
         
-        #endif
         #endregion
 
         #region Translation Class
@@ -308,7 +306,6 @@ namespace PlayerAndEditorGUI {
             return msg.Get(_systemLanguage);
         }
         
-        #if !NO_PEGI
         public static string F(this Msg msg, Msg other) =>
             msg.GetText() + " " + other.GetText();
         public static bool DocumentationClick(this Msg msg) => msg.GetLt().DocumentationClick();
@@ -322,7 +319,6 @@ namespace PlayerAndEditorGUI {
         public static bool Click(this icon icon, Msg text, ref bool changed) => icon.ClickUnFocus(text.GetText()).changes(ref changed);
         public static bool ClickUnFocus(this icon icon, Msg text, int size = pegi.defaultButtonSize) => pegi.ClickUnFocus(icon.GetIcon(), text.GetText(), size);
         public static bool ClickUnFocus(this icon icon, Msg text, int width, int height) => pegi.ClickUnFocus(icon.GetIcon(), text.GetText(), width, height);
-        #endif
 
         #endregion
 

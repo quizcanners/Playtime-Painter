@@ -64,7 +64,6 @@ namespace PlaytimePainter {
         }
 
         #region Inspector
-        #if !NO_PEGI
 
         public static int probeChanged = -1;
 
@@ -144,8 +143,7 @@ namespace PlaytimePainter {
 
             return changed;
         }
-
-        #endif
+        
         #endregion
 
         public void SetIndexesOnLightSources()

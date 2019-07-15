@@ -72,7 +72,7 @@ namespace PlaytimePainter
         }
 
         #region Inspector
-#if !NO_PEGI
+
         int inspectedElement = -1;
         public bool Inspect()
         {
@@ -100,8 +100,7 @@ namespace PlaytimePainter
 
             return changed;
         }
-
-
+        
         public static bool PluginInspectPart() {
 
             const bool changed = false;
@@ -125,9 +124,7 @@ namespace PlaytimePainter
 
             return changed;
         }
-
-
-#endif
+        
         #endregion
 
         [Serializable]
@@ -159,7 +156,6 @@ namespace PlaytimePainter
 
             #region Inspector
             public string NameForPEGI { get => productName; set => productName = value; }
-#if !NO_PEGI
 
             public bool InspectInList(IList list, int ind, ref int edited)
             {
@@ -212,7 +208,7 @@ namespace PlaytimePainter
 
                 return changed;
             }
-#endif
+
             #endregion
 
         }

@@ -100,7 +100,6 @@ namespace QuizCannersUtilities {
 
 
             #region Inspector
-#if !NO_PEGI
             public int CountForInspector() => elements.Count == 0 ? 1 : elements.CountForInspector();
             
             int _inspected = -1;
@@ -122,7 +121,7 @@ namespace QuizCannersUtilities {
                 }
                 return changed;
             }
-#endif
+
             #endregion
         }
 
@@ -146,8 +145,7 @@ namespace QuizCannersUtilities {
 
         public CfgEncoder Encode() => locked ? new CfgEncoder() : _elements.Encode().Lock(this);
 
-        #if !NO_PEGI
-    
+   
         public int Count => _elements.CountForInspector();
     
         private int _inspected = -1;
@@ -163,8 +161,7 @@ namespace QuizCannersUtilities {
     
             return changed;
         }
-        #endif
-
+    
     }
 
 
@@ -176,8 +173,7 @@ namespace QuizCannersUtilities {
         public List<Configuration> configurations = new List<Configuration>();
 
         #region Inspector
-        #if !NO_PEGI
-
+ 
         public virtual bool Inspect() => "Configurations".edit_List(ref configurations); 
         
         public static bool Inspect<T>(ref T configs, Func<T, T> func) where T : ConfigurationsListBase {
@@ -202,8 +198,7 @@ namespace QuizCannersUtilities {
 
             return changed;
         }
-
-        #endif
+        
         #endregion
 
     }
@@ -229,8 +224,6 @@ namespace QuizCannersUtilities {
         }
 
         #region Inspect
-
-#if !NO_PEGI
 
         public string NameForPEGI
         {
@@ -286,10 +279,7 @@ namespace QuizCannersUtilities {
 
             return changed;
         }
-
-
-#endif
-
+       
         #endregion
 
         #region Encode & Decode
@@ -368,8 +358,7 @@ namespace QuizCannersUtilities {
         public StdExplorerData explorer = new StdExplorerData();
 
         #region Inspector
-        #if !NO_PEGI
-
+ 
         [ContextMenu("Reset Inspector")] // Because ContextMenu doesn't accepts overrides
         private void Reset() => ResetInspector();
 
@@ -432,8 +421,7 @@ namespace QuizCannersUtilities {
             
             return changed;
         }
-
-        #endif
+        
         #endregion
     }
 
@@ -466,8 +454,7 @@ namespace QuizCannersUtilities {
         }
 
         public int inspectedItems = -1;
-
-        #if !NO_PEGI
+        
         public virtual bool Inspect() {
             var changed = false;
 
@@ -482,7 +469,7 @@ namespace QuizCannersUtilities {
 
             return changed;
         }
-        #endif
+      
         #endregion
     }
 
@@ -510,9 +497,7 @@ namespace QuizCannersUtilities {
 
         [HideInInspector]
         [SerializeField] public int inspectedItems = -1;
-
-
-        #if !NO_PEGI
+        
         [ContextMenu("Reset Inspector")]
         private void Reset() => ResetInspector();
 
@@ -537,8 +522,7 @@ namespace QuizCannersUtilities {
 
             return changed;
         }
-
-      
+        
         private int _inspectedDebugItems = -1;
         public virtual bool Inspect() {
 
@@ -585,7 +569,7 @@ namespace QuizCannersUtilities {
            
             return changed;
         }
-#endif
+
         #endregion
 
         #region Encoding & Decoding
@@ -617,11 +601,7 @@ namespace QuizCannersUtilities {
 
         }
 
-        public virtual CfgEncoder Encode() => this.EncodeUnrecognized()
-#if !NO_PEGI
-            .Add_IfNotNegative("db", inspectedItems)
-#endif
-            ;
+        public virtual CfgEncoder Encode() => this.EncodeUnrecognized().Add_IfNotNegative("db", inspectedItems) ;
 
         public virtual void Decode(string data) {
             UnrecognizedStd.Clear();
@@ -662,8 +642,7 @@ namespace QuizCannersUtilities {
             return data;
 
         }
-
-#if !NO_PEGI
+        
         private static ICfg _toCopy;
 
         public static bool CopyPasteStdPegi(this ICfg cfg) {
@@ -709,7 +688,6 @@ namespace QuizCannersUtilities {
 
             return false;
         }
-#endif
 
         private static readonly StdSimpleReferenceHolder TmpHolder = new StdSimpleReferenceHolder();
 
@@ -795,7 +773,7 @@ namespace QuizCannersUtilities {
         public static bool LoadOnDrop(out string txt) {
 
             txt = null;
-#if !NO_PEGI
+
             UnityEngine.Object myType = null;
             if (pegi.edit(ref myType)) {
                 txt = QcFile.LoadUtils.TryLoadAsTextAsset(myType);
@@ -803,7 +781,6 @@ namespace QuizCannersUtilities {
 
                 return true;
             }
-#endif
             return false;
         }
 
