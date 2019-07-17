@@ -917,8 +917,8 @@ public class Countless<T> : CountlessBase {
 
                     if (icon.Delete.Click())
                         this[ind] = default(T);
-                    else
-                        pegi.InspectValueInList<T>(el, null, ind, ref _edited);
+                    else if (pegi.InspectValueInCollection(ref el, null, ind, ref _edited) && typeof(T).IsValueType)
+                        this[ind] = el;
                 }
 
             }
@@ -1260,11 +1260,22 @@ public class Countless<T> : CountlessBase {
             var deleted = -1;
 
             if (inspected == -1)
-                foreach (var e in countless) {
-                    if (icon.Delete.Click()) deleted = countless.currentEnumerationIndex;
-                    "{0}: ".F(countless.currentEnumerationIndex).write(35);
-                    pegi.InspectValueInList<T>(e, null, countless.currentEnumerationIndex, ref inspected).nl(ref changed);
+            {
+                List<int> indexes;
+                var all = countless.GetAllObjs(out indexes);
+                for (int i = 0; i < all.Count; i++)
+                {
+                    var el = all[i];
+                    var ind = indexes[i];
+                    if (icon.Delete.Click())
+                        countless[ind] = default(T);
+
+                    "{0}: ".F(ind).write(35);
+                    if (pegi.InspectValueInCollection(ref el, null, ind, ref inspected).nl(ref changed) && typeof(T).IsValueType)
+                        countless[indexes[i]] = el;
                 }
+            }
+
             if (deleted != -1)
                 countless[deleted] = default(T);
             

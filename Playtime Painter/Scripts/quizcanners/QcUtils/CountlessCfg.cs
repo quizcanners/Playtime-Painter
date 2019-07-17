@@ -311,7 +311,9 @@ namespace QuizCannersUtilities
                     else
                     {
                         "{0}".F(ind).write(20);
-                        pegi.InspectValueInList(el, null, ind, ref _edited);
+                        if (pegi.InspectValueInCollection(ref el, null, ind, ref _edited) && typeof(T).IsValueType)
+                            this[ind] = el;
+
                     }
 
                     pegi.nl();

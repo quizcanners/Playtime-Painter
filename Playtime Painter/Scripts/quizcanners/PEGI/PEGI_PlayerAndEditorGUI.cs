@@ -6771,6 +6771,26 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
+        private static bool ExitOrDrawPEGI<K,T>(this Dictionary<K,T> dic, ref int index, ListMetaData ld = null)
+        {
+            var changed = false;
+
+            if (icon.List.ClickUnFocus("{0}[{1}] of {2}".F(Msg.ReturnToCollection.GetText(), dic.Count, GetCurrentListLabel<T>(ld))).nl())
+                index = -1;
+            else
+            {
+
+                var item = dic.ElementAt(index);
+                var key = item.Key;
+
+                object obj = dic[key];
+                if (Nested_Inspect(ref obj).changes(ref changed))
+                    dic[key] = (T)obj;
+            }
+
+            return changed;
+        }
+
         private static bool ExitOrDrawPEGI<T>(this List<T> list, ref int index, ListMetaData ld = null)
         {
             var changed = false;
@@ -7270,7 +7290,42 @@ namespace PlayerAndEditorGUI
         
         private static object previouslyEntered;
 
-        public static bool InspectValueInList<T>(T el, List<T> list, int index, ref int inspected, ListMetaData listMeta = null) {
+        public static bool InspectValueInDictionary<K, T>(ref T el, Dictionary<K, T> dic, int index, ref int inspected, ListMetaData listMeta = null) {
+
+            var changed = InspectValueInCollection(ref el, null, index, ref inspected, listMeta);
+
+            if (changed && typeof(T).IsValueType) { 
+                var pair = dic.ElementAt(index);
+
+                dic[pair.Key] = el;
+            }
+
+            return changed;
+        }
+
+        public static bool InspectValueInArray<T>(ref T el, T[] array, int index, ref int inspected, ListMetaData listMeta = null) {
+
+            var changed = InspectValueInCollection(ref el, array , index, ref inspected, listMeta);
+
+            if (changed && typeof(T).IsValueType)
+                array[index] = el;
+            
+            return changed;
+        }
+
+        public static bool InspectValueInList<T>(ref T el, List<T> list, int index, ref int inspected,
+            ListMetaData listMeta = null) {
+
+            var changed = InspectValueInCollection(ref el, list , index, ref inspected, listMeta);
+
+            if (changed && typeof(T).IsValueType)
+                list[index] = el;
+
+            return changed;
+
+        }
+
+        public static bool InspectValueInCollection<T>(ref T el, IList collection, int index, ref int inspected, ListMetaData listMeta = null) {
 
             var changed = false;
 
@@ -7284,16 +7339,13 @@ namespace PlayerAndEditorGUI
             if (pl != null)
             {
                 var chBefore = GUI.changed;
-                if ((pl.InspectInList(list, index, ref inspected).changes(ref changed) || (!chBefore && GUI.changed)) && (typeof(T).IsValueType)) 
-                    list[index] = (T)pl;
+                if ((pl.InspectInList(collection, index, ref inspected).changes(ref changed) || (!chBefore && GUI.changed)) && (typeof(T).IsValueType))
+                    el = (T)pl;
                 
                 if (changed || inspected == index)
                     isPrevious = true;
 
-            }
-            else
-            {
-
+            } else {
                 if (el.IsNullOrDestroyed_Obj())
                 {
                     var ed = listMeta?[index];
@@ -7305,7 +7357,7 @@ namespace PlayerAndEditorGUI
 
                         if (ed.PEGI_inList<T>(ref obj, index, ref inspected))
                         {
-                            list[index] = (T) obj;
+                            el = (T) obj;
                             isPrevious = true;
                         }
                     }
@@ -7345,7 +7397,7 @@ namespace PlayerAndEditorGUI
                         {
                             named.NameForPEGI = n;
                             if (typeof(T).IsValueType)
-                                list[index] = (T) named;
+                                el = (T) named;
 
                             isPrevious = true;
                         }
@@ -7978,7 +8030,7 @@ namespace PlayerAndEditorGUI
                             }
                         }
                         else
-                            InspectValueInList(list[i], list, i, ref inspected, listMeta).changes(ref changed);
+                            InspectValueInList(ref el, list, i, ref inspected, listMeta).changes(ref changed);
                         
                         
                         newLine();
@@ -8050,7 +8102,7 @@ namespace PlayerAndEditorGUI
                         }
                     }
                     else
-                        InspectValueInList(list[i], list, i, ref inspected, listMeta).changes(ref changed);
+                        InspectValueInList(ref el, list, i, ref inspected, listMeta).changes(ref changed);
 
                     newLine();
                 }
@@ -8368,7 +8420,7 @@ namespace PlayerAndEditorGUI
                     if (el == null)
                         write("NULL");
                     else
-                        InspectValueInList(list[i], list, i, ref edited).changes(ref changed);
+                        InspectValueInList(ref el, list, i, ref edited).changes(ref changed);
                     
                     nl();
                 }
@@ -8443,7 +8495,7 @@ namespace PlayerAndEditorGUI
             return edit_Dictionary_Values(ref dic, ref inspected);
         }
 
-        public static bool edit_Dictionary_Values<G, T>(ref Dictionary<G, T> dic, ref int inspected, ListMetaData ld = null)
+        public static bool edit_Dictionary_Values<G, T>(ref Dictionary<G, T> dic, ref int inspected, ListMetaData listMeta = null)
         {
             bool changed = false;
 
@@ -8460,44 +8512,21 @@ namespace PlayerAndEditorGUI
                     InspectedIndex = i;
 
 
-                    if ((ld == null || ld.allowDelete) && icon.Delete.ClickUnFocus(25).changes(ref changed))
-                    {
+                    if ((listMeta == null || listMeta.allowDelete) && icon.Delete.ClickUnFocus(25).changes(ref changed)) {
                         dic.Remove(itemKey);
                         i--;
                     } else {
 
                         var el = item.Value;
 
-                        var named = el as IGotName;
-                        if (named != null)
-                        {
-                            var n = named.NameForPEGI;
-                            if (edit(ref n, 120))
-                                named.NameForPEGI = n;
-                        }
-                        else
-                            write(el.GetNameForInspector(), 120);
+                        InspectValueInDictionary(ref el, dic, i, ref inspected, listMeta).changes(ref changed);
 
-                        if ((el is IPEGI) && icon.Enter.ClickUnFocus(Msg.InspectElement, 25))
-                            inspected = i;
                     }
                     newLine();
                 }
             }
             else
-            {
-                if (icon.Back.ClickUnFocus(25).nl().changes(ref changed))
-                    inspected = -1;
-                else
-                {
-                    var el = dic.ElementAt(inspected);
-
-                    object obj = el.Value;
-
-                    if (Nested_Inspect(ref obj).changes(ref changed))
-                        dic[el.Key] = (T)obj;
-                }
-            }
+                dic.ExitOrDrawPEGI(ref inspected).changes(ref changed);
 
             newLine();
             return changed;
@@ -8522,8 +8551,7 @@ namespace PlayerAndEditorGUI
             return edit_Dictionary_Values(ref dic, lambda, showKey, ld);
         }
 
-        public static bool edit_Dictionary_Values<G, T>(ref Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true ,ListMetaData ld = null)
-        {
+        public static bool edit_Dictionary_Values<G, T>(ref Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true ,ListMetaData ld = null) {
            
 
             if (dicIsNull(ref dic))
@@ -8651,8 +8679,10 @@ namespace PlayerAndEditorGUI
             return changes;
         }
 
-        public static T edit_Array<T>(ref T[] array, ref int inspected, ref bool changed, ListMetaData metaDatas = null)  {
+        public static T edit_Array<T>(ref T[] array, ref int inspected, ref bool changed, ListMetaData metaDatas = null) {
 
+
+            nl();
 
             var added = default(T);
 
@@ -8675,8 +8705,13 @@ namespace PlayerAndEditorGUI
 
                 if (array == _editingArrayOrder) return added;
 
-                for (var i = 0; i < array.Length; i++) 
-                    InspectValueInList(array[i], null, i, ref inspected, metaDatas).nl(ref changed);
+                for (var i = 0; i < array.Length; i++)
+                {
+                    var el = array[i];
+                    if (InspectValueInArray(ref el, array, i, ref inspected, metaDatas).nl(ref changed) &&
+                        typeof(T).IsValueType)
+                        array[i] = el;
+                }
             }
 
             return added;
