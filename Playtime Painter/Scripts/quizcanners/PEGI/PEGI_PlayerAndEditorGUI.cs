@@ -8489,15 +8489,17 @@ namespace PlayerAndEditorGUI
             
         }
 
-        public static bool edit_Dictionary_Values<G, T>(this string label, ref Dictionary<G, T> dic, ref int inspected)
+        public static bool edit_Dictionary_Values<G, T>(this string label, Dictionary<G, T> dic, ref int inspected)
         {
             label.write_Search_ListLabel(ref inspected, null);
-            return edit_Dictionary_Values(ref dic, ref inspected);
+            return edit_Dictionary_Values(dic, ref inspected);
         }
 
-        public static bool edit_Dictionary_Values<G, T>(ref Dictionary<G, T> dic, ref int inspected, ListMetaData listMeta = null)
+        public static bool edit_Dictionary_Values<G, T>(Dictionary<G, T> dic, ref int inspected, ListMetaData listMeta = null)
         {
             bool changed = false;
+
+            nl();
 
             int before = inspected;
             inspected = Mathf.Clamp(inspected, -1, dic.Count - 1);
@@ -8532,32 +8534,33 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool edit_Dictionary_Values(this string label, ref Dictionary<int, string> dic, List<string> roles)
+        public static bool edit_Dictionary_Values(this string label, Dictionary<int, string> dic, List<string> roles)
         {
             write_Search_ListLabel(label, dic.ToList());
-            return edit_Dictionary_Values(ref dic, roles);
+            return edit_Dictionary_Values(dic, roles);
         }
 
-        public static bool edit_Dictionary_Values(ref Dictionary<int, string> dic, List<string> roles) {
+        public static bool edit_Dictionary_Values(Dictionary<int, string> dic, List<string> roles) {
             listElementsRoles = roles;
-            var ret = edit_Dictionary_Values(ref dic, lambda_string_role, false);
+            var ret = edit_Dictionary_Values(dic, lambda_string_role, false);
             listElementsRoles = null;
             return ret;
         }
 
-        public static bool edit_Dictionary_Values<G, T>(this string label, ref Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true, ListMetaData ld = null)
+        public static bool edit_Dictionary_Values<G, T>(this string label, Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true, ListMetaData ld = null)
         {
             write_Search_ListLabel(label);
-            return edit_Dictionary_Values(ref dic, lambda, showKey, ld);
+            return edit_Dictionary_Values(dic, lambda, showKey, ld);
         }
 
-        public static bool edit_Dictionary_Values<G, T>(ref Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true ,ListMetaData ld = null) {
+        public static bool edit_Dictionary_Values<G, T>(Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true ,ListMetaData ld = null) {
            
+           if (dic == null) {
+                "Dictionary is null".writeHint();
+               return false;
+           }
 
-            if (dicIsNull(ref dic))
-                return false;
-
-            nl();
+           nl();
 
             var changed = false;
 

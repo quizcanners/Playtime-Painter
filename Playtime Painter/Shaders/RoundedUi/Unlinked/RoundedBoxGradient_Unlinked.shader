@@ -173,29 +173,33 @@
 
 					col.a *= alpha;
 
-					#if USE_NOISE_TEXTURE
-						float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
-						#ifdef UNITY_COLORSPACE_GAMMA
-							col.rgb += (noise.rgb - 0.5)*0.02;
-						#else
-							col.rgb += (noise.rgb - 0.5)*0.0075;
-						#endif
-					#endif
-
 					#if FADE
 
 							float2 sUV = o.screenPos.xy / o.screenPos.w;
 
-							col.a *=  
+							float edge =  1-
 								saturate((sUV.x - o.fade.x) * _FadeEdge)
 								* saturate((sUV.y - o.fade.y) * _FadeEdge)
 								* saturate((o.fade.z - sUV.x) * _FadeEdge)
 								* saturate((o.fade.w - sUV.y) * _FadeEdge)
 								;
 							
+							edge *= edge;
+
+							col.a *= 1- edge;
+
 							//o.fade = float4(v.texcoord2.xy, v.texcoord3.zw);
 					#endif
 
+
+					#if USE_NOISE_TEXTURE
+							float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
+						#ifdef UNITY_COLORSPACE_GAMMA
+							col.rgb += (noise.rgb - 0.5)*0.02*(3 - col.a * 2);;
+						#else
+							col.rgb += (noise.rgb - 0.5)*0.0075*(3 - col.a * 2);
+						#endif
+					#endif
 
 					return col;
 				}
