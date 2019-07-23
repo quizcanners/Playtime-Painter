@@ -7254,7 +7254,7 @@ namespace PlayerAndEditorGUI
                 listMeta.Nested_Inspect();
             else if (typeof(Object).IsAssignableFrom(typeof(T)) || !listCopyBuffer.IsNullOrEmpty()) {
                 "Allow Duplicants".toggle("Will add elements to the list even if they are already there", 120, ref duplicants)
-                    .nl(ref changed);
+                    .changes(ref changed);
             
                 if (listMeta != null)
                     listMeta.allowDuplicants = duplicants;

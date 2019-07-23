@@ -10,6 +10,7 @@ using UnityEditor;
 #endif
 
 using UnityEngine;
+using UnityEngine.Assertions.Comparers;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -40,6 +41,10 @@ namespace PlaytimePainter
 
         public float GetCorner(int index) => _roundedCorners[index % _roundedCorners.Length];
 
+        public float GetCorner(bool upper, bool right) => GetCorner(upper ? (right ? 2 : 1) : (right ? 3 : 0));
+
+        public void SetCorner(bool upper, bool right, float value) => SetCorner(upper ? (right ? 2 : 1) : (right ? 3 : 0), value);
+        
         public void SetCorner(int index, float value)
         {
 
@@ -90,6 +95,59 @@ namespace PlaytimePainter
 
                 for (var i = 0; i < _roundedCorners.Length; i++)
                     _roundedCorners[i] = tmp;
+            }
+        }
+
+        public float FadeFromX {
+            set {
+                var min =faeOutUvPosition.min;
+                if (min.x != value) {
+                    min.x = value;
+                    faeOutUvPosition.min = min;
+                    SetVerticesDirty();
+                }
+            }
+        }
+
+        public float FadeToX
+        {
+            set
+            {
+                var max = faeOutUvPosition.max;
+                if (max.x != value)
+                {
+                    max.x = value;
+                    faeOutUvPosition.max = max;
+                    SetVerticesDirty();
+                }
+            }
+        }
+
+        public float FadeFromY
+        {
+            set
+            {
+                Vector2 min = faeOutUvPosition.min;
+                if (min.y != value)
+                {
+                    min.y = value;
+                    faeOutUvPosition.min = min;
+                    SetVerticesDirty();
+                }
+            }
+        }
+
+        public float FadeToY
+        {
+            set
+            {
+                Vector2 max = faeOutUvPosition.max;
+                if (max.y != value)
+                {
+                    max.y = value;
+                    faeOutUvPosition.max = max;
+                    SetVerticesDirty();
+                }
             }
         }
 

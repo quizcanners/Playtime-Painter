@@ -3,6 +3,7 @@ using UnityEngine;
 using System;
 using System.Text;
 using System.Globalization;
+using Object = UnityEngine.Object;
 
 namespace QuizCannersUtilities
 {
@@ -59,6 +60,8 @@ namespace QuizCannersUtilities
             CfgEncoder.keeper = keeper;
 
             var ret = cfg.Encode();
+
+            (keeper as UnityEngine.Object).SetToDirty();
 
             CfgEncoder.keeper = prevKeeper;
             return ret;
@@ -265,7 +268,9 @@ namespace QuizCannersUtilities
             var prevKeeper = keeper;
             keeper = referencesKeeper;
 
-            Add(tag, other);   
+            Add(tag, other);
+
+            (referencesKeeper as Object).SetToDirty();
 
             keeper = prevKeeper;
             
@@ -279,6 +284,7 @@ namespace QuizCannersUtilities
 
             TryAdd(tag, obj);
 
+            (referencesKeeper as Object).SetToDirty();
             keeper = prevKeeper;
             return this;
         }
@@ -289,6 +295,8 @@ namespace QuizCannersUtilities
             keeper = referencesKeeper;
 
             Add(tag, other);
+
+            (referencesKeeper as Object).SetToDirty();
 
             keeper = prevKeeper;
             return this;

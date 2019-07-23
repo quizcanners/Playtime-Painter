@@ -10,9 +10,11 @@
 		[KeywordEnum(Once, Mirror)] _GRADS("Gradient Spread (Feature)", Float) = 0
 		[Toggle(TRIMMED)] trimmed("Trimmed Corners", Float) = 0
 		[Toggle(FADE)] faded("Fade", Float) = 0
-			_FadeEdge("Fade Sharpness", Range(0,200)) = 10
+		_FadeEdge("Fade Sharpness", Range(0,200)) = 10
 	}
+
 	Category{
+
 		Tags{
 			"Queue" = "Transparent"
 			"IgnoreProjector" = "True"
