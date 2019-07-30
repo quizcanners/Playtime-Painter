@@ -68,8 +68,11 @@
 					o.precompute.z = (1 + o.texcoord.z);
 
 					o.offUV.xy = o.texcoord.xy - 0.5;
+#if !FILL
 					o.offUV.z = saturate((o.color.a - 0.8) * 5);
-
+#else
+					o.offUV.z = o.color.a;
+#endif
 					return o;
 				}
 

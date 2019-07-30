@@ -41,17 +41,21 @@ namespace QuizCannersUtilities {
             StopWatch.Start();
         }
 
-        public static string TimerEnd() => TimerEnd(null);
+        public static float TimerGetMiliseconds() => StopWatch.ElapsedMilliseconds;
 
-        public static string TimerEnd(this string label) => label.TimerEnd(true);
+        public static float TimerGetSeconds() => StopWatch.ElapsedMilliseconds/1000f;
 
-        public static string TimerEnd(this string label, bool logIt) => TimerEnd(label, logIt, false);
+        public static string TimerEnd() => TimerEnd(null, false);
 
-        public static string TimerEnd(this string label, float threshold) => TimerEnd(label, true, false, threshold);
+        public static string TimerEnd(string label) => TimerEnd(label, true);
 
-        public static string TimerEnd(this string label, bool logInEditor, bool logInPlayer) => TimerEnd(label, logInEditor, logInPlayer, 0);
+        public static string TimerEnd(string label, bool logIt) => TimerEnd(label, logIt, false);
 
-        public static string TimerEnd(this string label, bool logInEditor, bool logInPlayer, float logThreshold)
+        public static string TimerEnd(string label, float threshold) => TimerEnd(label, true, false, threshold);
+
+        public static string TimerEnd(string label, bool logInEditor, bool logInPlayer) => TimerEnd(label, logInEditor, logInPlayer, 0);
+
+        public static string TimerEnd(string label, bool logInEditor, bool logInPlayer, float logThreshold)
         {
             StopWatch.Stop();
 
@@ -74,17 +78,17 @@ namespace QuizCannersUtilities {
             return text;
         }
 
-        public static string TimerEnd_Restart() => TimerEnd_Restart(null);
+        public static string TimerEnd_Restart() => TimerEnd_Restart(null, false);
         
-        public static string TimerEnd_Restart(this string labelForEndedSection) => labelForEndedSection.TimerEnd_Restart(true);
+        public static string TimerEnd_Restart(string labelForEndedSection) => TimerEnd_Restart(labelForEndedSection, true);
 
-        public static string TimerEnd_Restart(this string labelForEndedSection, bool logIt) => labelForEndedSection.TimerEnd_Restart(logIt, logIt, 0);
+        public static string TimerEnd_Restart(string labelForEndedSection, bool logIt) => TimerEnd_Restart(labelForEndedSection, logIt, logIt, 0);
 
-        public static string TimerEnd_Restart(this string labelForEndedSection, bool logIt, int logThreshold) => labelForEndedSection.TimerEnd_Restart(logIt, logIt, logThreshold);
+        public static string TimerEnd_Restart(string labelForEndedSection, bool logIt, int logThreshold) => TimerEnd_Restart(labelForEndedSection, logIt, logIt, logThreshold);
 
-        public static string TimerEnd_Restart(this string labelForEndedSection, bool logInEditor, bool logInPlayer) => labelForEndedSection.TimerEnd_Restart(logInEditor, logInPlayer, 0);
+        public static string TimerEnd_Restart(string labelForEndedSection, bool logInEditor, bool logInPlayer) => TimerEnd_Restart(labelForEndedSection, logInEditor, logInPlayer, 0);
 
-        public static string TimerEnd_Restart(this string labelForEndedSection, bool logInEditor, bool logInPlayer, int logThreshold)
+        public static string TimerEnd_Restart(string labelForEndedSection, bool logInEditor, bool logInPlayer, int logThreshold)
         {
             StopWatch.Stop();
             var txt = TimerEnd(labelForEndedSection, logInEditor, logInPlayer, logThreshold);

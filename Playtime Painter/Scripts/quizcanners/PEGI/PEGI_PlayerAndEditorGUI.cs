@@ -3343,7 +3343,8 @@ namespace PlayerAndEditorGUI
 
         public static bool enter(this string txt, ref bool state, bool showLabelIfTrue = true) => icon.Enter.enter(txt, ref state, showLabelIfTrue);
 
-        public static bool enter(this string txt, ref int enteredOne, int thisOne, bool showLabelIfTrue = true, GUIStyle enterLabelStyle = null) => icon.Enter.enter(txt, ref enteredOne, thisOne, showLabelIfTrue, enterLabelStyle);
+        public static bool enter(this string txt, ref int enteredOne, int thisOne, bool showLabelIfTrue = true, GUIStyle enterLabelStyle = null) 
+            => icon.Enter.enter(txt, ref enteredOne, thisOne, showLabelIfTrue, enterLabelStyle);
 
         public static bool enter(this string txt, ref int enteredOne, int thisOne, IList forAddCount) =>
             icon.Enter.enter(txt.AddCount(forAddCount), ref enteredOne, thisOne, enterLabelStyle: forAddCount.IsNullOrEmpty() ? PEGI_Styles.WrappingText : PEGI_Styles.EnterLabel);
@@ -3740,9 +3741,7 @@ namespace PlayerAndEditorGUI
 
             return changed;
         }
-
-   
-
+        
         public static bool enter_List<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) 
         {
             var changed = false;
@@ -3790,7 +3789,17 @@ namespace PlayerAndEditorGUI
 
             return changed;
         }
-        
+
+        public static bool enter_Dictionary<G, T>(this ListMetaData meta, Dictionary<G, T> dictionary,
+            ref int enteredOne, int thisOne) {
+            var changed = false;
+
+            if (meta.label.enter(ref enteredOne, thisOne, false))
+                meta.edit_Dictionary_Values(dictionary).nl(ref changed);
+
+            return changed;
+        }
+
 #region Tagged Types
 
         public static T enter_List<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne, TaggedTypesCfg types, ref bool changed) =>
@@ -8495,8 +8504,13 @@ namespace PlayerAndEditorGUI
             return edit_Dictionary_Values(dic, ref inspected);
         }
 
-        public static bool edit_Dictionary_Values<G, T>(Dictionary<G, T> dic, ref int inspected, ListMetaData listMeta = null)
+        public static bool edit_Dictionary_Values<G, T>(this ListMetaData listMeta, Dictionary<G, T> dic)
         {
+            listMeta.label.write_Search_ListLabel(ref listMeta.inspected, null);
+            return edit_Dictionary_Values(dic, ref listMeta.inspected, listMeta);
+        }
+        
+        public static bool edit_Dictionary_Values<G, T>(Dictionary<G, T> dic, ref int inspected, ListMetaData listMeta = null) {
             bool changed = false;
 
             nl();
@@ -9207,8 +9221,7 @@ namespace PlayerAndEditorGUI
             return false;
 
         }
-
-
+        
         private static bool TryDefaultInspect(ref object obj)
         {
 
@@ -9254,7 +9267,7 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool Try_Nested_Inspect(this GameObject go, Component cmp = null)
+        public static bool Try_Nested_Inspect(GameObject go, Component cmp = null)
         {
             var changed = false;
 
@@ -9285,7 +9298,7 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool Try_Nested_Inspect(this Component cmp) => cmp && cmp.gameObject.Try_Nested_Inspect(cmp);
+        public static bool Try_Nested_Inspect(Component cmp) => cmp && Try_Nested_Inspect(cmp.gameObject, cmp);
 
         public static bool Try_Nested_Inspect(object obj)
         {
@@ -9428,7 +9441,7 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static string ToPegiStringUObj<T>(this T obj) where T : Object
+        public static string GetNameForInspector_Uobj<T>(this T obj) where T : Object
         {
             if (obj == null)
                 return "NULL UObj {0}".F(typeof(T).ToPegiStringType());
@@ -9446,31 +9459,31 @@ namespace PlayerAndEditorGUI
         public static string GetNameForInspector<T>(this T obj)
         {
 
-            if (obj == null)
+            if (obj.IsNullOrDestroyed_Obj())
                 return "NULL {0}".F(typeof(T).ToPegiStringType());
 
             if (obj.GetType().IsUnityObject())
-                return (obj as Object).ToPegiStringUObj();
+                return (obj as Object).GetNameForInspector_Uobj();
 
             string tmp;
             return (obj.ToPegiStringInterfacePart(out tmp)) ? tmp : obj.ToString().SimplifyTypeName();
         }
 
-        public static string GetNameForInspector(this object obj)
+       /* public static string GetNameForInspector(this object obj)
         {
 
             if (obj is string)
                 return (string)obj;
 
-            if (obj == null) return "NULL";
+            if (obj.IsNullOrDestroyed_Obj()) return "NULL";
 
             if (obj.GetType().IsUnityObject())
-                return (obj as Object).ToPegiStringUObj();
+                return (obj as Object).GetNameForInspector_Uobj();
 
             string tmp;
 
             return (obj.ToPegiStringInterfacePart(out tmp)) ? tmp : obj.ToString().SimplifyTypeName();
-        }
+        }*/
 
         public static T GetByIGotIndex<T, G>(this List<T> lst, int index) where T : IGotIndex where G : T
         {
