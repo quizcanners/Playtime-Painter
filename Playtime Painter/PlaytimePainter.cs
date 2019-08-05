@@ -137,7 +137,7 @@ namespace PlaytimePainter {
                 else if (terrain)
                 {
                     terrain.materialTemplate = value;
-                    terrain.materialType = value ? Terrain.MaterialType.Custom : Terrain.MaterialType.BuiltInStandard;
+                    //terrain.materialType = value ? Terrain.MaterialType.Custom : Terrain.MaterialType.BuiltInStandard;
                 }
                 else if (uiGraphic)
                     uiGraphic.material = value;
@@ -1082,7 +1082,7 @@ namespace PlaytimePainter {
                 mat = new Material(Cfg.previewTerrain);
 
                 terrain.materialTemplate = mat;
-                terrain.materialType = Terrain.MaterialType.Custom;
+                //terrain.materialType = Terrain.MaterialType.Custom;
                 mat.name += "_Terrain material";
             }
             else

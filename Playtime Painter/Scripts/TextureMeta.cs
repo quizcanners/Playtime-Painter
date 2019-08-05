@@ -698,20 +698,19 @@ namespace PlaytimePainter
             
             if (!Pixels.IsNullOrEmpty()) {
 
-                for (int XSection = 0; XSection <= 1; XSection++)
+                for (int XSection = 0; XSection < 2; XSection++)
                 {
-                    int x = XSection * width - 1;
-                    for (int y = 0; y < height; y++)
-                    {
-                        var pix = PixelUnSafe(x, y);
-                        mask.SetValuesOn(ref pix, col);
-                        SetPixelUnSafe(x, y, pix);
+                    int x = XSection * (width - 1);
+                    for (int y = 0; y < height; y++) {
+                            var pix = PixelUnSafe(x, y);
+                            mask.SetValuesOn(ref pix, col);
+                            SetPixelUnSafe(x, y, pix);
                     }
                 }
 
                 for (int YSection = 0; YSection <= 1; YSection++)
                 {
-                    int y = YSection * height - 1;
+                    int y = YSection * (height - 1);
                     for (int x = 0; x < height; x++)
                     {
                         var pix = PixelUnSafe(x, y);

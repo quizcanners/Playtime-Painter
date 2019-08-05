@@ -1250,7 +1250,7 @@ namespace PlayerAndEditorGUI
             checkLine();
             EditorGUILayout.LabelField(cnt, PEGI_Styles.WrappingText);
         }
-
+        
         public static void write(Texture tex, int width)
         {
             checkLine();

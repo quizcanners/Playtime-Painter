@@ -1,4 +1,6 @@
 
+#include "UnityCG.cginc"
+
 static const float GAMMA_TO_LINEAR = 2.2;
 static const float LINEAR_TO_GAMMA = 1 / GAMMA_TO_LINEAR;
 
@@ -221,12 +223,18 @@ inline float calculateAlpha (float a, float fromMask){
 	//return saturate(pow(a, (1 + _maskDynamics.y * 0.1)));
 
 
-	float hardmod = _maskDynamics.y/512;
-	return saturate(pow( 
-		a*(1-hardmod) + (a * fromMask * 3 *hardmod) ,
-		(1+_maskDynamics.y*0.1)) 
+	//float hardmod = _maskDynamics.y/512;
+
+	return saturate((a*fromMask)*_maskDynamics.y)*_brushForm.x;
+
+	/*return saturate(
+		pow( a*(1-hardmod) 
+		+ (a * fromMask * 3 *hardmod) 
+		,
+		(1+_maskDynamics.y*0.1))
+
 		*_brushForm.x/(1 + pow(_maskDynamics.y,2))
-	);
+	);*/
 }
 
 inline float SampleAlphaBuffer(float2 uv) {

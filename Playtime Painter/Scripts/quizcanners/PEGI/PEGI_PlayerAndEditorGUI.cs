@@ -1037,6 +1037,52 @@ namespace PlayerAndEditorGUI
 
         }
 
+        public static void write(this Sprite sprite, int width = defaultButtonSize) {
+            if (!sprite) {
+                icon.Empty.write(width);
+            }
+            else {
+
+                checkLine();
+
+                Rect c = sprite.textureRect;
+
+                float max = Mathf.Max(c.width, c.height);
+
+                float scale = defaultButtonSize / max;
+
+                float spriteW = c.width * scale;
+                float spriteH = c.height * scale;
+                Rect rect = GUILayoutUtility.GetRect(spriteW, spriteH, GUILayout.ExpandWidth(false)); //GetRect(spriteW, spriteW, spriteH, spriteH);
+
+                if (Event.current.type == EventType.Repaint) {
+
+                    var tex = sprite.texture;
+                    c.xMin /= tex.width;
+                    c.xMax /= tex.width;
+                    c.yMin /= tex.height;
+                    c.yMax /= tex.height;
+                    GUI.DrawTextureWithTexCoords(rect, tex, c);
+                }
+            }
+        }
+        
+        public static void write(this Sprite img, string toolTip, int width = defaultButtonSize)
+        {
+            if (img)
+                img.texture.write(toolTip, width);
+            else
+                icon.Empty.write(toolTip, width);
+        }
+
+        public static void write(this Sprite img, string toolTip, int width, int height)
+        {
+            if (img)
+                img.texture.write(toolTip, width, height);
+            else
+                icon.Empty.write(toolTip, width, height);
+        }
+        
         public static void write(this Texture img, int width = defaultButtonSize)
         {
             if (!img)
@@ -1078,9 +1124,8 @@ namespace PlayerAndEditorGUI
             }
 
         }
-
-        public static void write(this Texture img, string toolTip, int width, int height)
-        {
+        
+        public static void write(this Texture img, string toolTip, int width, int height) {
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
@@ -1394,25 +1439,25 @@ namespace PlayerAndEditorGUI
             return (showIndex || st.Length == 0) ? "{0}: {1}".F(index, st) : st;
         }
         
-        private static bool selectFinal(ref int val, ref int indexes, List<string> namesList)
+        private static bool selectFinal(ref int val, ref int index, List<string> namesList)
         {
             var count = namesList.Count;
 
             if (count == 0)
                 return edit(ref val);
 
-            if (indexes == -1)
+            if (index == -1)
             {
-                indexes = namesList.Count;
+                index = namesList.Count;
                 namesList.Add("[{0}]".F(val.GetNameForInspector()));
 
             }
 
-            var tmp = indexes;
+            var tmp = index;
 
             if (select(ref tmp, namesList.ToArray()) && (tmp < count))
             {
-                indexes = tmp;
+                index = tmp;
                 return true;
             }
 
@@ -1420,22 +1465,22 @@ namespace PlayerAndEditorGUI
 
         }
 
-        private static bool selectFinal<T>(T val, ref int indexes, List<string> namesList)
+        private static bool selectFinal<T>(T val, ref int index, List<string> namesList)
         {
             var count = namesList.Count;
 
-            if (indexes == -1 && !val.IsNullOrDestroyed_Obj())
+            if (index == -1 && !val.IsNullOrDestroyed_Obj())
             {
-                indexes = namesList.Count;
+                index = namesList.Count;
                 namesList.Add("[{0}]".F(val.GetNameForInspector()));
 
             }
 
-            var tmp = indexes;
+            var tmp = index;
 
             if (select(ref tmp, namesList.ToArray()) && tmp < count)
             {
-                indexes = tmp;
+                index = tmp;
                 return true;
             }
 
@@ -1708,8 +1753,7 @@ namespace PlayerAndEditorGUI
         }
 
         #endregion
-
-
+        
         #region UnityObject
 
         private static readonly Dictionary<Type, List<Object>> objectsInScene = new Dictionary<Type, List<Object>>();
@@ -2075,6 +2119,7 @@ namespace PlayerAndEditorGUI
 
         }
         
+
 #endregion
 
 #region With Lambda
@@ -2592,8 +2637,7 @@ namespace PlayerAndEditorGUI
 
             var ind = current;
 
-            for (var i = 0; i < from.Count; i++)
-            {
+            for (var i = 0; i < from.Count; i++) {
                 var e = from.ElementAt(i);
                 options[i] = e.Value;
                 if (current == e.Key)
@@ -2609,9 +2653,54 @@ namespace PlayerAndEditorGUI
 
         }
 
-#endregion
-        
-#region Select Or Edit
+        public static bool select<T>(this string text, int width, ref int key, Dictionary<int, T> from)
+        {
+            write(text, width);
+            return select(ref key, from);
+        }
+
+        public static bool select<T>(this string text, ref int key, Dictionary<int, T> from) {
+            write(text);
+            return select(ref key, from);
+        }
+
+        public static bool select<T>(ref int key, Dictionary<int, T> from) {
+
+
+            checkLine();
+
+            var namesList = new List<string>();
+            var indexes = new List<int>();
+
+            int elementIndex = -1;
+
+            T val = default(T);
+
+            for (var i = 0; i < from.Count; i++) {
+
+                var pair = from.ElementAt(i);
+
+
+                    if (key == pair.Key)
+                        elementIndex = i;
+
+                    namesList.Add("{0}: {1}".F(pair.Key.ToString(), pair.Value.GetNameForInspector()));
+                    indexes.Add(i);
+                
+            }
+
+            if (selectFinal(val, ref elementIndex, namesList)) {
+                key = from.ElementAt(elementIndex).Key;
+                return true;
+            }
+
+            return false;
+
+        }
+
+        #endregion
+
+        #region Select Or Edit
         public static bool select_or_edit_ColorPropertyName(this string name, int width, ref string property, Material material)
         {
             name.write(width);
@@ -8509,7 +8598,13 @@ namespace PlayerAndEditorGUI
             listMeta.label.write_Search_ListLabel(ref listMeta.inspected, null);
             return edit_Dictionary_Values(dic, ref listMeta.inspected, listMeta);
         }
-        
+
+        public static bool edit_Dictionary_Values<G, T>(this ListMetaData listMeta, Dictionary<G, T> dic, Func<T, T> lambda) {
+
+            listMeta.label.write_Search_ListLabel(ref listMeta.inspected, null);
+            return edit_Dictionary_Values(dic, lambda, ld: listMeta);
+        }
+
         public static bool edit_Dictionary_Values<G, T>(Dictionary<G, T> dic, ref int inspected, ListMetaData listMeta = null) {
             bool changed = false;
 
@@ -8519,8 +8614,8 @@ namespace PlayerAndEditorGUI
             inspected = Mathf.Clamp(inspected, -1, dic.Count - 1);
             changed |= (inspected != before);
 
-            if (inspected == -1)
-            {
+            if (inspected == -1) {
+
                 for (int i = 0; i < dic.Count; i++)
                 {
                     var item = dic.ElementAt(i);
@@ -8550,8 +8645,20 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_Dictionary_Values(this string label, Dictionary<int, string> dic, List<string> roles)
         {
-            write_Search_ListLabel(label, dic.ToList());
+            write_Search_ListLabel(label);
             return edit_Dictionary_Values(dic, roles);
+        }
+
+        public static bool edit_Dictionary_Values(this ListMetaData listMeta, Dictionary<string, string> dic) {
+
+            listMeta.label.write_Search_ListLabel(ref listMeta.inspected, null);
+            return edit_Dictionary_Values(dic, lambda_string, ld: listMeta);
+        }
+
+        public static bool edit_Dictionary_Values(this string label, Dictionary<string, string> dic)
+        {
+            write_Search_ListLabel(label);
+            return edit_Dictionary_Values(dic, lambda_string);
         }
 
         public static bool edit_Dictionary_Values(Dictionary<int, string> dic, List<string> roles) {
@@ -8578,25 +8685,46 @@ namespace PlayerAndEditorGUI
 
             var changed = false;
 
-            for (var i = 0; i < dic.Count; i++) {
+            if (ld != null && ld.Inspecting) {
+
+                if (icon.Exit.Click("Exit " + ld.label))
+                    ld.Inspecting = false;
+
+                if (ld.Inspecting && (dic.Count > ld.inspected)) {
+
+                    var el = dic.ElementAt(ld.inspected);
+
+                    var val = el.Value;
+
+                    var ch = GUI.changed;
+
+                    Try_Nested_Inspect(val);
+
+                    if ((!ch && GUI.changed).changes(ref changed))
+                         dic[el.Key] = val;
+                }
+                
+            } else for (var i = 0; i < dic.Count; i++) {
                 var item = dic.ElementAt(i);
                 var itemKey = item.Key;
 
-                InspectedIndex = i; ////Convert.ToInt32(itemKey);
+                InspectedIndex = i;
 
                 if ((ld == null || ld.allowDelete) && icon.Delete.ClickUnFocus(25).changes(ref changed)) 
                     dic.Remove(itemKey);
                 else {
                     if (showKey)
-                        itemKey.GetNameForInspector().write(50);
+                        itemKey.GetNameForInspector().write_ForCopy(50);
 
                     var el = item.Value;
                     var ch = GUI.changed;
                     el = lambda(el);
                     
-                    if (!ch && GUI.changed)
+                    if ((!ch && GUI.changed).changes(ref changed))
                         dic[itemKey] = el;
-                    
+
+                    if (ld != null && icon.Enter.Click("Enter " + el.ToString()))
+                        ld.inspected = i;
                 }
                 nl();
             }

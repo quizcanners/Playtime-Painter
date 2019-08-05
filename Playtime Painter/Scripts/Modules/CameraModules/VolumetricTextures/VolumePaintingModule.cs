@@ -461,7 +461,7 @@ namespace PlaytimePainter {
                 }
 
                 if (!cpuBlit)
-                   MsgPainter.Hardness.GetText().edit(MsgPainter.Hardness.GetDescription(), 70, ref br.hardness, 1f, 22f).nl(ref changed);
+                   MsgPainter.Hardness.GetText().edit(MsgPainter.Hardness.GetDescription(), 70, ref br.hardness, 1f, 5f).nl(ref changed);
 
                 var tmpSpeed = br._dSpeed.value;
                 if (MsgPainter.Speed.GetText().edit(40, ref tmpSpeed, 0.01f, 4.5f).nl(ref changed))

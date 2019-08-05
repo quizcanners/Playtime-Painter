@@ -32,13 +32,13 @@ namespace QuizCannersUtilities {
         public static void TimerStart()
         {
             _timerStartLabel = null;
-            StopWatch.Start();
+            
+            StopWatch.Restart();
         }
 
-        public static void TimerStart(this string label)
-        {
+        public static void TimerStart(this string label) {
             _timerStartLabel = label;
-            StopWatch.Start();
+            StopWatch.Restart();
         }
 
         public static float TimerGetMiliseconds() => StopWatch.ElapsedMilliseconds;
@@ -59,18 +59,26 @@ namespace QuizCannersUtilities {
         {
             StopWatch.Stop();
 
-            float seconds = StopWatch.ElapsedTicks / TimeSpan.TicksPerSecond;
+            string timedText = "";
 
-            string timeText = seconds.RoundTo(seconds > 10 ? 1 :(seconds > 2 ? 1 : (seconds > 1 ? 2 : 4))).ToString() + " s";
-
+            var elapsed = StopWatch.ElapsedTicks;
+            
+            if (elapsed < TimeSpan.TicksPerMillisecond)
+                timedText = elapsed.ToString() + " ticks  (0.{0} ms)".F(Mathf.RoundToInt(elapsed*100/TimeSpan.TicksPerMillisecond).ToString());
+            else if (elapsed < TimeSpan.TicksPerSecond) 
+                timedText = (elapsed / TimeSpan.TicksPerMillisecond).ToString() + " miliseconds  (0.{0} s)".F(Mathf.RoundToInt(elapsed * 100 / TimeSpan.TicksPerSecond).ToString());       
+            else if (elapsed < TimeSpan.TicksPerMinute)
+                timedText = elapsed / TimeSpan.TicksPerSecond + " seconds  (0.{0} min)".F(Mathf.RoundToInt(elapsed * 100 / TimeSpan.TicksPerMinute).ToString());
+            
+  
             var text = "";
             if (_timerStartLabel != null)
                 text += _timerStartLabel + "->";
-            text += label + (label.IsNullOrEmpty() ? "" : ": ") + timeText;
+            text += label + (label.IsNullOrEmpty() ? "" : ": ") + timedText;
 
             _timerStartLabel = null;
 
-            if (seconds > logThreshold && ((Application.isEditor && logInEditor) || (!Application.isEditor && logInPlayer)))
+            if ((logThreshold == 0 || ((elapsed / TimeSpan.TicksPerSecond) > logThreshold)) && ((Application.isEditor && logInEditor) || (!Application.isEditor && logInPlayer)))
                 UnityEngine.Debug.Log(text);
 
             StopWatch.Reset();
