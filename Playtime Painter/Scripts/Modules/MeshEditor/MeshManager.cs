@@ -1019,7 +1019,7 @@ namespace PlaytimePainter
 
                 if (!Application.isPlaying && "Debug".foldout(ref _inspectedMeshItems, 10).nl())
                 {
-                    "vertexPointMaterial".writeUobj(Grid.vertexPointMaterial);
+                    "vertexPointMaterial".write(Grid.vertexPointMaterial);
                     pegi.nl();
                     "vertexPrefab".edit(ref Grid.vertPrefab).nl();
                     "Max Vertex Markers ".edit(ref verticesShowMax).nl();

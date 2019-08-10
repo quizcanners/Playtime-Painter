@@ -675,10 +675,10 @@ namespace PlayerAndEditorGUI
             return EndCheckLine();
         }
         
-        public static bool editBig(ref string text)
+        public static bool editBig(ref string text, int height = 100)
         {
             BeginCheckLine();
-            text = EditorGUILayout.TextArea(text, GUILayout.MaxHeight(100));
+            text = EditorGUILayout.TextArea(text, GUILayout.MaxHeight(height));
             return EndCheckLine();
         }
         
@@ -836,12 +836,28 @@ namespace PlayerAndEditorGUI
             return EndCheckLine();
         }
 
+        public static bool edit(ref long val)
+        {
+            BeginCheckLine();
+            val = EditorGUILayout.LongField(val);
+            return EndCheckLine();
+        }
+
+
         public static bool edit(ref int val, int width)
         {
             BeginCheckLine();
             val = EditorGUILayout.IntField(val, GUILayout.MaxWidth(width));
             return EndCheckLine();
         }
+
+        public static bool edit(ref long val, int width)
+        {
+            BeginCheckLine();
+            val = EditorGUILayout.LongField(val, GUILayout.MaxWidth(width));
+            return EndCheckLine();
+        }
+
 
         public static bool edit(ref uint val, int width)
         {

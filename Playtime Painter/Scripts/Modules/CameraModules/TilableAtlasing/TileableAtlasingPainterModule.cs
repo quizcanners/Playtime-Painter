@@ -612,7 +612,7 @@ namespace PlaytimePainter {
                             OnChangeMaterial(painter);
                     }
                     else if (mats.Length > 0)
-                        "Source Material".writeUobj("Sub Mesh which will be converted", 90, mats[0]);
+                        "Source Material".write("Sub Mesh which will be converted", 90, mats[0]);
                 }
                 pegi.nl();
                 pegi.space();

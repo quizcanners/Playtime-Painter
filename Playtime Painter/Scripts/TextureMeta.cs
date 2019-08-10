@@ -1261,7 +1261,7 @@ namespace PlaytimePainter
 
         public bool InspectInList(IList list, int ind, ref int edited)
         {
-            this.GetNameForInspector().writeUobj(60, texture2D);
+            this.GetNameForInspector().write(60, texture2D);
             if (this.Click_Enter_Attention())
                 edited = ind;
             texture2D.ClickHighlight();

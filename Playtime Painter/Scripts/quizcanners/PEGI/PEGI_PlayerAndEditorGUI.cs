@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using QuizCannersUtilities;
 using Unity.Collections.LowLevel.Unsafe;
+using UnityEngine.U2D;
 using Object = UnityEngine.Object;
 using static QuizCannersUtilities.QcMath;
 
@@ -166,7 +167,7 @@ namespace PlayerAndEditorGUI
         public delegate bool WindowFunction();
 #endregion
 
-#region Inspection Progress
+#region Inspection Variables
 
         public static object inspectedTarget;
 
@@ -314,19 +315,6 @@ namespace PlayerAndEditorGUI
             }
         }
         
-        public static bool UnFocus(this bool anyChanges)
-        {
-            if (anyChanges)
-                FocusControl("_");
-            return anyChanges;
-        }
-
-        private static bool DirtyUnFocus(this bool anyChanges) {
-            if (anyChanges)
-                FocusControl("_");
-            return anyChanges.Dirty();
-        }
-
         public static string LastNeedAttentionMessage;
         public static int LastNeedAttentionIndex;
 
@@ -372,29 +360,6 @@ namespace PlayerAndEditorGUI
             return LastNeedAttentionMessage;
         }
 
-        public static void FocusControl(string name)
-        {
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-                EditorGUI.FocusTextInControl(name);
-            else
-#endif
-                GUI.FocusControl(name);
-        }
-        
-        public static void NameNext(string name) => GUI.SetNextControlName(name);
-
-        public static int NameNextUnique(ref string name)
-        {
-            name += focusInd.ToString();
-            GUI.SetNextControlName(name);
-            focusInd++;
-
-            return (focusInd - 1);
-        }
-
-        public static string nameFocused => GUI.GetNameOfFocusedControl(); 
-
         public static void space()
         {
 
@@ -411,7 +376,7 @@ namespace PlayerAndEditorGUI
         }
 
         public static void line() => line(paintingPlayAreaGui ? Color.white : Color.black);
-  
+
         public static void line(Color col)
         {
             nl();
@@ -422,9 +387,54 @@ namespace PlayerAndEditorGUI
             GUI.color = c;
         }
 
-#endregion
+        #endregion
 
-#region Pop UP Services
+        #region Focus MGMT
+
+        public static bool UnFocus(this bool anyChanges)
+        {
+            if (anyChanges)
+                FocusControl("_");
+            return anyChanges;
+        }
+
+        private static bool DirtyUnFocus(this bool anyChanges)
+        {
+            if (anyChanges)
+                FocusControl("_");
+            return anyChanges.Dirty();
+        }
+
+        public static void FocusControl(string name)
+        {
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                EditorGUI.FocusTextInControl(name);
+            else
+#endif
+                GUI.FocusControl(name);
+        }
+
+        public static void NameNext(string name) => GUI.SetNextControlName(name);
+
+        /*
+        public static int NameNextUnique(ref string name) {
+            name += focusInd.ToString();
+            GUI.SetNextControlName(name);
+            focusInd++;
+
+            return (focusInd - 1);
+        }*/
+
+        public static string FocusedName
+        {
+            get { return GUI.GetNameOfFocusedControl(); }
+            set { GUI.FocusControl(value); }
+        }
+
+        #endregion
+
+        #region Pop UP Services
 
         private static bool fullWindowDocumentationClickOpen(string toolTip = "", int buttonSize = 20,
             icon clickIcon = icon.Question)
@@ -999,45 +1009,38 @@ namespace PlayerAndEditorGUI
         private static int ApproximateLength(this string label, int otherElements) => Mathf.Min(label.IsNullOrEmpty() ? 1 : letterSizeInPixels * label.Length, Screen.width - otherElements);
 
         private static int RemainingLength(int otherElements) => Screen.width - otherElements;
-        
-#region Unity Object
-        public static void write<T>(T field) where T : UnityEngine.Object {
-#if UNITY_EDITOR
+
+        #region Unity Object
+
+        public static void write<T>(T field) where T : Object {
+            #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
                 ef.write(field);
-#endif
+            #endif
         }
         
-        public static void writeUobj<T>(T field, int width) where T : UnityEngine.Object
-        {
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-                ef.write(field, width);
-#endif
-        }
-
-        public static void writeUobj<T>(this string label, string tip, int width, T field) where T : UnityEngine.Object
+        public static void write<T>(this string label, string tip, int width, T field) where T : Object
         {
             write(label, tip, width);
             write(field);
 
         }
 
-        public static void writeUobj<T>(this string label, int width, T field) where T : UnityEngine.Object
+        public static void write<T>(this string label, int width, T field) where T : Object
         {
             write(label, width);
             write(field);
 
         }
 
-        public static void writeUobj<T>(this string label, T field) where T : UnityEngine.Object
+        public static void write<T>(this string label, T field) where T : Object
         {
             write(label);
             write(field);
 
         }
 
-        public static void write(this Sprite sprite, int width = defaultButtonSize) {
+        public static void write(this Sprite sprite, int width = defaultButtonSize, bool alphaBlend = false) {
             if (!sprite) {
                 icon.Empty.write(width);
             }
@@ -1056,29 +1059,28 @@ namespace PlayerAndEditorGUI
                 Rect rect = GUILayoutUtility.GetRect(spriteW, spriteH, GUILayout.ExpandWidth(false)); //GetRect(spriteW, spriteW, spriteH, spriteH);
 
                 if (Event.current.type == EventType.Repaint) {
-
                     var tex = sprite.texture;
                     c.xMin /= tex.width;
                     c.xMax /= tex.width;
                     c.yMin /= tex.height;
                     c.yMax /= tex.height;
-                    GUI.DrawTextureWithTexCoords(rect, tex, c);
+                    GUI.DrawTextureWithTexCoords(rect, tex, c, alphaBlend);
                 }
             }
         }
         
-        public static void write(this Sprite img, string toolTip, int width = defaultButtonSize)
+        public static void write(this Sprite sprite, string toolTip, int width = defaultButtonSize)
         {
-            if (img)
-                img.texture.write(toolTip, width);
+            if (sprite)
+                sprite.texture.write(toolTip, width);
             else
                 icon.Empty.write(toolTip, width);
         }
 
-        public static void write(this Sprite img, string toolTip, int width, int height)
+        public static void write(this Sprite sprite, string toolTip, int width, int height)
         {
-            if (img)
-                img.texture.write(toolTip, width, height);
+            if (sprite)
+                sprite.texture.write(toolTip, width, height);
             else
                 icon.Empty.write(toolTip, width, height);
         }
@@ -1753,8 +1755,49 @@ namespace PlayerAndEditorGUI
         }
 
         #endregion
-        
+
         #region UnityObject
+
+        public static bool select(this string label, int width, ref string spriteName, SpriteAtlas atlas)
+        {
+            label.write(width);
+            return select(ref spriteName, atlas);
+        }
+
+        public static bool select(this string label, ref string spriteName, SpriteAtlas atlas) {
+            label.write();
+            return select(ref spriteName, atlas);
+        }
+        
+
+        public static bool select(ref string spriteName, SpriteAtlas atlas)
+        {
+
+            if (!atlas) {
+                "No Atlas".write();
+                return false;
+            }
+
+            List<string> names = new List<string>();
+
+            Sprite[] sprites = new Sprite[atlas.spriteCount];
+
+            atlas.GetSprites(sprites);
+
+            foreach (var sp in sprites)
+            {
+                var n = sp.name;
+                int cut = n.LastIndexOf('(');
+                if (cut > 0)
+                    n = n.Substring(cut);
+
+                names.Add(n);
+
+            }
+
+            return select(ref spriteName, names);
+
+        }
 
         private static readonly Dictionary<Type, List<Object>> objectsInScene = new Dictionary<Type, List<Object>>();
 
@@ -3359,47 +3402,52 @@ namespace PlayerAndEditorGUI
             return isFoldedOutOrEntered;
         }
         
-        private static bool enter_SkipToOnlyElement<T>(this List<T> list, ref int inspected)
+        private static bool enter_DirectlyToElement<T>(this List<T> list, ref int inspected)
         {
 
-            if (inspected != -1 || list.Count == 0) return false;
+            if ((inspected == -1 && list.Count>1) || list.Count == 0) return false;
 
-            int tmp;
+            int suggestedIndex = Mathf.Max(inspected, 0);
+
+            if (suggestedIndex >= list.Count)
+                suggestedIndex = 0;
+
             icon ico;
             string msg;
 
             if (list.NeedsAttention()) {
-                tmp = LastNeedAttentionIndex;
+                if (inspected == -1)
+                    suggestedIndex = LastNeedAttentionIndex;
+
                 ico = icon.Warning;
                 msg = LastNeedAttentionMessage;
             }
             else {
-                tmp = 0;
                 ico = icon.Next;
                 msg = "->";
             }
 
-            var el = list.TryGet(tmp) as IPEGI;
+            var el = list.TryGet(suggestedIndex);// as IPEGI;
 
-            if (el != null && ico.Click(msg + el.GetNameForInspector())) {
-                inspected = tmp;
+            if (ico.Click(msg + el.GetNameForInspector())) {
+                inspected = suggestedIndex;
                 isFoldedOutOrEntered = true;
                 return true;
             }
             return false;
         }
 
-        private static bool enter_SkipToOnlyElement<T>(this List<T> list, ref int inspected, ref int enteredOne, int thisOne) {
+        private static bool enter_DirectlyToElement<T>(this List<T> list, ref int inspected, ref int enteredOne, int thisOne) {
             
-            if (enteredOne == -1 && list.enter_SkipToOnlyElement(ref inspected)) 
+            if (enteredOne == -1 && list.enter_DirectlyToElement(ref inspected)) 
                         enteredOne = thisOne;
 
             return enteredOne == thisOne;
         }
 
-        private static bool enter_SkipToOnlyElement<T>(this List<T> list, ref int inspected, ref bool entered) {
+        private static bool enter_DirectlyToElement<T>(this List<T> list, ref int inspected, ref bool entered) {
 
-            if (!entered && list.enter_SkipToOnlyElement(ref inspected)) 
+            if (!entered && list.enter_DirectlyToElement(ref inspected)) 
                 entered = true;
 
             return entered;
@@ -3425,7 +3473,7 @@ namespace PlayerAndEditorGUI
 
             var ret = meta.Icon.enter(meta.label.AddCount(list, entered), ref enteredOne, thisOne, showLabelIfTrue, list.Count == 0 ? PEGI_Styles.WrappingText : null);
             
-            ret |= list.enter_SkipToOnlyElement<T>(ref meta.inspected, ref enteredOne, thisOne);
+            ret |= list.enter_DirectlyToElement<T>(ref meta.inspected, ref enteredOne, thisOne);
             
             return ret;
         }
@@ -3461,11 +3509,15 @@ namespace PlayerAndEditorGUI
                 return false;
             }
 
-            var entered = enteredOne == thisOne;
+            var before = enteredOne == thisOne;
+            
+            if (icon.List.enter(txt.AddCount(list, before), ref enteredOne, thisOne, false,
+                list.Count == 0 ? PEGI_Styles.WrappingText : null) && (!before) && (enteredOne == thisOne))
+                    inspected = -1;
+            
+            list.enter_DirectlyToElement<T>(ref inspected, ref enteredOne, thisOne);
 
-            var ret = (inspected == -1 ? icon.List : icon.Next).enter(txt.AddCount(list, entered), ref enteredOne, thisOne, false, list.Count == 0 ? PEGI_Styles.WrappingText : null);
-            ret |= list.enter_SkipToOnlyElement<T>(ref inspected, ref enteredOne, thisOne);
-            return ret;
+            return enteredOne == thisOne;
         }
 
         private static bool enter_ListIcon<T>(this string txt, ref List<T> list, ref int inspected, ref bool entered)
@@ -3477,9 +3529,14 @@ namespace PlayerAndEditorGUI
                 return false;
             }
 
-            var ret = (inspected == -1 ? icon.List : icon.Next).enter(txt.AddCount(list, entered), ref entered, false);
-            ret |= list.enter_SkipToOnlyElement<T>(ref inspected, ref entered);
-            return ret;
+            bool before = entered;
+
+            if (icon.List.enter(txt.AddCount(list, entered), ref entered, false) && (before != entered))
+                inspected = -1;
+            
+            list.enter_DirectlyToElement<T>(ref inspected, ref entered);
+
+            return entered;
         }
 
         private static string TryAddCount(this string txt, object obj) {
@@ -4252,7 +4309,7 @@ namespace PlayerAndEditorGUI
 
         public static bool Click(this Sprite img, string tip, int width, int height)
             => img.GetTexture_orEmpty().Click(tip, width, height);
-        
+
         public static bool Click(this Texture img, int size = defaultButtonSize )
         {
 
@@ -5389,7 +5446,7 @@ namespace PlayerAndEditorGUI
 
 #endregion
 
-#region Int
+        #region Int
 
         public static bool editLayerMask(this string label, string tip, int width, ref string tag)
         {
@@ -5570,10 +5627,68 @@ namespace PlayerAndEditorGUI
             return edit(ref val);
         }
 
-#endregion
+        #endregion
 
-#region Float
-        
+        #region Long
+
+        public static bool edit(ref long val)
+        {
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.edit(ref val);
+#endif
+
+            bc();
+            var intText = GUILayout.TextField(val.ToString());
+            if (!ec()) return false;
+
+            long newValue;
+
+            if (long.TryParse(intText, out newValue))
+                val = newValue;
+
+            return true;
+        }
+
+        public static bool edit(ref long val, int width)
+        {
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.edit(ref val, width);
+#endif
+
+            bc();
+
+            var newValText = GUILayout.TextField(val.ToString(), GUILayout.MaxWidth(width));
+
+            if (!ec()) return false;
+
+            long newValue;
+            if (long.TryParse(newValText, out newValue))
+                val = newValue;
+
+            return change;
+
+        }
+
+        public static bool edit(this string label, ref long val)
+        {
+            write(label);
+            return edit(ref val);
+        }
+
+        public static bool edit(this string label, int width, ref long val)
+        {
+            write(label, width);
+            return edit(ref val);
+        }
+
+
+        #endregion
+
+        #region Float
+
         public static bool edit(ref float val)
         {
 
@@ -6153,24 +6268,24 @@ namespace PlayerAndEditorGUI
             
         }
 
-        public static bool editBig(ref string val)  {
+        public static bool editBig(ref string val, int height = 100)  {
 
             nl();
 
 #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
-                return ef.editBig(ref val).nl();
+                return ef.editBig(ref val, height).nl();
 #endif
 
             bc();
-            val = GUILayout.TextArea(val);
+            val = GUILayout.TextArea(val, GUILayout.MaxHeight(height));
             return ec();
 
         }
 
-        public static bool editBig(this string name, ref string val) {
+        public static bool editBig(this string name, ref string val, int height = 100) {
             write(name + ":");
-            return editBig(ref val);
+            return editBig(ref val, height);
         }
         
         public static bool edit(this string label, ref string val) {
@@ -7733,9 +7848,9 @@ namespace PlayerAndEditorGUI
             if (icon.Add.ClickUnFocus(Msg.AddNewCollectionElement.GetText() + (name.IsNullOrEmpty() ? "" : " Named {0}".F(name)))) {
                 if (typeof(T).IsSubclassOf(typeof(Object))) 
                     list.Add(default(T));
-                else {
+                else 
                     added = name.IsNullOrEmpty() ? QcUtils.AddWithUniqueNameAndIndex(list) : QcUtils.AddWithUniqueNameAndIndex(list, name);
-                }
+                
 
                 return true;
             }
@@ -8056,15 +8171,13 @@ namespace PlayerAndEditorGUI
             edit_List(ref list, ref edited, ref changes);
             return changes;
         }
-
-
+        
         public static T edit_List<T>(this string label, ref List<T> list, ref bool changed)
         {
             label.write_Search_ListLabel(list);
             return edit_List(ref list, ref changed).listLabel_Used();
         }
-
-
+        
         public static T edit_List<T>(ref List<T> list, ref bool changed)
         {
             var edited = -1;
@@ -8097,7 +8210,7 @@ namespace PlayerAndEditorGUI
             var added = default(T);
 
             if (list == null) {
-                if (Msg.Init.F(Msg.List).ClickUnFocus())
+                if (Msg.Init.F(Msg.List).ClickUnFocus().nl())
                     list = new List<T>();
                 else 
                     return added;
@@ -8170,7 +8283,7 @@ namespace PlayerAndEditorGUI
 
         if (list == null)
         {
-            if (Msg.Init.F(Msg.List).ClickUnFocus())
+            if (Msg.Init.F(Msg.List).ClickUnFocus().nl())
                 list = new List<T>();
             else
                 return added;
@@ -9107,7 +9220,7 @@ namespace PlayerAndEditorGUI
         private static SearchData searchData = new SearchData();
 
         private static readonly char[] splitCharacters = { ' ', '.' };
-        
+
         public class SearchData: AbstractCfg, ICanBeDefaultCfg {
             public IList filteredList;
             public string searchedText;
@@ -9117,6 +9230,8 @@ namespace PlayerAndEditorGUI
             private string[] searchBys;
             public List<int> filteredListElements = new List<int>();
 
+            private const string searchFiledFocusName = "_pegiSearchField";
+            
             public void ToggleSearch(IList ld, string label = "")
             {
 
@@ -9130,8 +9245,14 @@ namespace PlayerAndEditorGUI
                 if (active && icon.FoldedOut.Click("{0} {1} {2}".F(icon.Hide.GetText(), icon.Search.GetText() ,ld), 20).changes(ref changed))
                     active = false;
 
-                if (!active && ld!=editing_List_Order && icon.Search.Click("{0} {1}".F(icon.Search.GetText(), label.IsNullOrEmpty() ? ld.ToString() : label), 20).changes(ref changed)) 
+                if (!active && ld != editing_List_Order && icon.Search
+                        .Click("{0} {1}".F(icon.Search.GetText(), label.IsNullOrEmpty() ? ld.ToString() : label), 20)
+                        .changes(ref changed))
+                {
                     active = true;
+                    FocusedName = searchFiledFocusName;
+
+                }
 
 
                 if (active) {
@@ -9149,6 +9270,7 @@ namespace PlayerAndEditorGUI
             public bool Searching(IList list) =>
                 list == filteredList && (filterByNeedAttention || !searchBys.IsNullOrEmpty());
 
+         
             public void SearchString(IList list, out bool searching, out string[] searchBy)
             {
                 searching = false;
@@ -9156,8 +9278,10 @@ namespace PlayerAndEditorGUI
                 if (list == filteredList) {
 
                     nl();
-                    if (edit(ref searchedText) || icon.Refresh.Click("Search again", 20).nl())
-                    {
+                    
+                    pegi.NameNext(searchFiledFocusName);
+
+                    if (edit(ref searchedText) || icon.Refresh.Click("Search again", 20).nl()) {
                         Refresh();
                         searchBys = searchedText.Split(splitCharacters, StringSplitOptions.RemoveEmptyEntries);
                         
@@ -9383,7 +9507,7 @@ namespace PlayerAndEditorGUI
 
             if (obj!= null && obj is string) {
                 var txt = obj as string;
-                if (editBig(ref txt))
+                if (editBig(ref txt, 40))
                 {
                     obj = txt;
                     return true;
