@@ -530,7 +530,7 @@ namespace QuizCannersUtilities
         public CfgEncoder Add_IfNotEmpty<T>(string tag, List<T> lst, ListMetaData ld) where T : ICfg, new() =>
             lst.IsNullOrEmpty() ? this : Add(tag, lst, ld);
 
-        public CfgEncoder Add<T>(string tag, List<T> lst, ListMetaData ld) where T : ICfg, new() {
+        public CfgEncoder Add<T>(string tag, List<T> lst, ListMetaData ld) where T : ICfg {
 
             var cody = new CfgEncoder();
 

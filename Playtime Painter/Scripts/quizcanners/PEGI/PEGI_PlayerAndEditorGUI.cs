@@ -1288,22 +1288,42 @@ namespace PlayerAndEditorGUI
             nl();
         }
 
-        public static bool write_ForCopy(this string val, bool showCopyButton = false)
-        {
-            var ret = edit(ref val);
+        public static bool write_ForCopy(this string text, bool showCopyButton = false) {
+
+            var ret = false;
+
+#if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                ef.write_ForCopy(text);
+            else
+#endif
+            {
+                ret = edit(ref text);
+            }
+
+           
 
             if (showCopyButton && icon.Copy.Click("Copy text to clipboard"))
-                GUIUtility.systemCopyBuffer = val;
+                GUIUtility.systemCopyBuffer = text;
             
             return ret;
         }
 
-        public static bool write_ForCopy(this string val, int width, bool showCopyButton = false)
+        public static bool write_ForCopy(this string text, int width, bool showCopyButton = false)
         {
-            var ret = edit(ref val, width);
+            var ret = false;
+
+            #if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                ef.write_ForCopy(text);
+            else
+            #endif
+            {
+                ret = edit(ref text);
+            }
 
             if (showCopyButton && icon.Copy.Click("Copy text to clipboard"))
-                GUIUtility.systemCopyBuffer = val;
+                GUIUtility.systemCopyBuffer = text;
             
             return ret;
 
@@ -5063,8 +5083,14 @@ namespace PlayerAndEditorGUI
 
         public static bool edit(this string label, ref Quaternion qt)
         {
-            write(label, label.ApproximateLength());
-            return edit(ref qt);
+            var eul = qt.eulerAngles;
+
+            if (edit(label, ref eul)) {
+                qt.eulerAngles = eul;
+                return true;
+            }
+
+            return false;
         }
 
 
@@ -5086,6 +5112,7 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
+   
         public static bool edit(ref Vector4 val)
         {
 
@@ -5159,10 +5186,15 @@ namespace PlayerAndEditorGUI
         }
 
         public static bool edit(ref Vector3 val) =>
-            "X".edit(15, ref val.x) ||  "Y".edit(15, ref val.y) || "Z".edit(15, ref val.z);
+           "X".edit(15, ref val.x) ||  "Y".edit(15, ref val.y) || "Z".edit(15, ref val.z);
 
         public static bool edit(this string label, ref Vector3 val)
         {
+            #if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                return ef.edit(label, ref val);
+            #endif
+
             write(label);
             nl();
             return edit(ref val);
@@ -6281,6 +6313,7 @@ namespace PlayerAndEditorGUI
         }
 
         public static bool edit(ref string val) {
+
             if (LengthIsTooLong(ref val)) return false;
 
             #if UNITY_EDITOR

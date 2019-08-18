@@ -782,6 +782,15 @@ namespace PlayerAndEditorGUI
 
         }
 
+        public static bool edit(string label, ref Vector3 vec)
+        {
+
+            BeginCheckLine();
+            vec = EditorGUILayout.Vector3Field(label, vec);
+            return EndCheckLine();
+
+        }
+        
         public static bool edit(ref Color col, int width)
         {
 
@@ -1254,11 +1263,15 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static void write(string text, int width)
-        {
-
+        public static void write(string text, int width) {
             checkLine();
             EditorGUILayout.LabelField(text, EditorStyles.miniLabel, GUILayout.MaxWidth(width));
+        }
+
+        public static void write_ForCopy(string text, int width)
+        {
+            checkLine();
+            EditorGUILayout.SelectableLabel(text, GUILayout.MaxWidth(width));
         }
 
         public static void write(GUIContent cnt)
@@ -1299,6 +1312,13 @@ namespace PlayerAndEditorGUI
             checkLine();
             EditorGUILayout.LabelField(text, PEGI_Styles.WrappingText);
         }
+
+        public static void write_ForCopy(string text)
+        {
+            checkLine();
+            EditorGUILayout.SelectableLabel(text);
+        }
+
 
         public static void write(string text, GUIStyle style)
         {

@@ -856,8 +856,7 @@ namespace QuizCannersUtilities {
             return s;
         }
 
-        public static T CloneStd<T>(this T obj, ICfgSerializeNestedReferences nested = null) where T : ICfg
-        {
+        public static T CloneStd<T>(this T obj, ICfgSerializeNestedReferences nested = null) where T : ICfg {
 
             if (QcUnity.IsNullOrDestroyed_Obj(obj)) return default(T);
             
@@ -869,8 +868,6 @@ namespace QuizCannersUtilities {
                 ret.Decode(obj.Encode().ToString());
 
             return ret;
-            
-
         }
 
         public static bool TryLoadFromResources_Bytes<T>(this T s, string subFolder, string file) where T : ICfg

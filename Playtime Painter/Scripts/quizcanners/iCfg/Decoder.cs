@@ -522,7 +522,40 @@ namespace QuizCannersUtilities {
 
             return l;
         }
-        
+
+        public static List<T> Decode_List_Derived<T>(this string data, out List<T> l, ref ListMetaData ld) where T : ICfg
+        {
+
+            if (ld == null)
+                ld = new ListMetaData();
+            l = new List<T>();
+
+            var tps = typeof(T).TryGetDerivedClasses();
+
+            var overCody = new CfgDecoder(data);
+            foreach (var tag in overCody)
+            {
+
+                switch (tag)
+                {
+
+                    case CfgEncoder.ListMetaTag: ld.Decode(overCody.GetData()); break;
+
+                    case CfgEncoder.ListTag:
+                        var cody = new CfgDecoder(overCody.GetData());
+                        if (tps != null)
+                            foreach (var t in cody)
+                                l.Add(cody.DecodeData<T>(tps, ld));
+                        break;
+
+                    default: l.Add(overCody.DecodeData<T>(tps, ld)); break;
+                }
+            }
+
+            return l;
+        }
+
+
         public static List<T> Decode_List<T>(this string data, out List<T> l) where T : ICfg, new() {
 
             var cody = new CfgDecoder(data);
