@@ -3049,9 +3049,21 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-#endregion
+        #endregion
 
-#region Select IGotName
+        #region Select IGotName
+
+        public static bool select_iGotDisplayName<T>(this string label, int width, ref string name, List<T> lst) where T : IGotDisplayName
+        {
+            write(label, width);
+            return select_iGotDisplayName(ref name, lst);
+        }
+
+        public static bool select_iGotDisplayName<T>(this string label, string tip, ref string name, List<T> lst) where T : IGotDisplayName
+        {
+            write(label, tip);
+            return select_iGotDisplayName(ref name, lst);
+        }
 
         public static bool select_iGotName<T>(this string label, string tip, ref string name, List<T> lst) where T : IGotName
         {
@@ -3108,11 +3120,45 @@ namespace PlayerAndEditorGUI
 
             return false;
         }
-#endregion
 
-#endregion
+        public static bool select_iGotDisplayName<T>(ref string val, List<T> lst) where T : IGotDisplayName
+        {
 
-#region Foldout    
+            if (lst == null)
+                return false;
+
+            var namesList = new List<string>();
+
+            var current = -1;
+
+            foreach (var el in lst)
+                if (!el.filterEditorDropdown().IsNullOrDestroyed_Obj())
+                {
+                    var name = el.NameForDisplayPEGI();
+
+                    if (name == null) continue;
+
+                    if (val != null && val.SameAs(name))
+                        current = namesList.Count;
+                    namesList.Add(name);
+
+                }
+
+            if (selectFinal(val, ref current, namesList))
+            {
+                val = namesList[current];
+                return true;
+            }
+
+            return false;
+        }
+
+
+        #endregion
+
+        #endregion
+
+        #region Foldout    
         public static bool foldout(this string txt, ref bool state, ref bool changed)
         {
             var before = state;

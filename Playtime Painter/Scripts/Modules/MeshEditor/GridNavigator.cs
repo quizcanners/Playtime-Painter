@@ -87,9 +87,16 @@ public class GridNavigator : PainterSystemMono {
             selectedVertex.go.SetActive(false);
     }
 
+    public void EnabledUpdate(Renderer c, bool setTo)
+    {
+        //There were some update when enabled state is changed
+        if (c && c.enabled != setTo)
+            c.enabled = setTo;
+    }
+
     public void SetEnabled(bool gridEn, bool dotEn) {
-        rendy.EnabledUpdate(gridEn);
-            dot.EnabledUpdate(dotEn);
+        EnabledUpdate(rendy, gridEn);
+        EnabledUpdate(dot, dotEn);
     }
 
     private float AngleClamp(Quaternion ang) {

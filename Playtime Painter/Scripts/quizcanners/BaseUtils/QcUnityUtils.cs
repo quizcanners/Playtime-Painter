@@ -433,7 +433,7 @@ namespace QuizCannersUtilities {
 
             var col = graphic.color;
 
-            if (Math.Abs(col.a - alpha) < float.Epsilon) return false;
+            if (col.a == alpha) return true;
 
             col.a = alpha;
             graphic.color = col;
@@ -489,7 +489,7 @@ namespace QuizCannersUtilities {
                 g.TrySetColor_RGBA(color);
         }
 
-
+        /*
         public static string GetMeaningfulHierarchyName(this GameObject go, int maxLook, int maxLength) {
 
             var name = go.name;
@@ -511,7 +511,7 @@ namespace QuizCannersUtilities {
             }
 
             return name;
-        }
+        }*/
 
         public static bool IsUnityObject(this Type t) => typeof(Object).IsAssignableFrom(t);
 
@@ -520,7 +520,7 @@ namespace QuizCannersUtilities {
 
 #if UNITY_EDITOR
             var tmp = Selection.objects;
-            return !tmp.IsNullOrEmpty() ? QcUnity.TryGetGameObjectFromObj(tmp[0]) : null;
+            return !tmp.IsNullOrEmpty() ? TryGetGameObjectFromObj(tmp[0]) : null;
 #else
             return null;
 #endif
@@ -586,7 +586,7 @@ namespace QuizCannersUtilities {
             if (cam)
                 return cam.transform;
 
-            cam = UnityEngine.Object.FindObjectOfType<Camera>();
+            cam = Object.FindObjectOfType<Camera>();
 
             return cam ? cam.transform : go.transform;
         }
@@ -629,9 +629,9 @@ namespace QuizCannersUtilities {
             if (!obj) return;
 
             if (Application.isPlaying)
-                UnityEngine.Object.Destroy(obj);
+                Object.Destroy(obj);
             else
-                UnityEngine.Object.DestroyImmediate(obj);
+                Object.DestroyImmediate(obj);
         }
 
         public static void DestroyWhatever(this Texture tex) => tex.DestroyWhateverUnityObject();
@@ -639,25 +639,11 @@ namespace QuizCannersUtilities {
         public static void DestroyWhatever(this GameObject go) => go.DestroyWhateverUnityObject();
 
         public static void DestroyWhateverComponent(this Component cmp) => cmp.DestroyWhateverUnityObject();
-
-       /* public static void SetActiveTo(this GameObject go, bool setTo)
-        {
-            if (go.activeSelf != setTo)
-                go.SetActive(setTo);
-        }*/
-
-        public static void EnabledUpdate(this Renderer c, bool setTo)
-        {
-            //There were some update when enabled state is changed
-            if (c && c.enabled != setTo)
-                c.enabled = setTo;
-        }
-
+        
         public static bool HasParameter(this Animator animator, string paramName) =>
             animator && animator.parameters.Any(param => param.name.SameAs(paramName));
 
-        public static bool
-            HasParameter(this Animator animator, string paramName, AnimatorControllerParameterType type) =>
+        public static bool HasParameter(this Animator animator, string paramName, AnimatorControllerParameterType type) =>
             animator && animator.parameters.Any(param => param.name.SameAs(paramName) && param.type == type);
 
         #endregion
@@ -757,7 +743,7 @@ namespace QuizCannersUtilities {
 #if UNITY_EDITOR
 
             const int headerSize = 44;
-            UInt16 bitDepth = 16;
+            ushort bitDepth = 16;
 
             MemoryStream stream = new MemoryStream();
 
@@ -776,7 +762,7 @@ namespace QuizCannersUtilities {
             int subchunk1Size = 16; // 24 - 8
             Write(ref stream, subchunk1Size); //, "SUBCHUNK_SIZE");
 
-            UInt16 audioFormat = 1;
+            ushort audioFormat = 1;
             Write(ref stream, audioFormat); //, "AUDIO_FORMAT");
 
             var channels = newClip.channels;
@@ -787,7 +773,7 @@ namespace QuizCannersUtilities {
 
             Write(ref stream, sampleRate * channels * bitDepth / 8); //, "BYTE_RATE");
 
-            UInt16 blockAlign = Convert.ToUInt16(channels * bitDepth / 8);
+            ushort blockAlign = Convert.ToUInt16(channels * bitDepth / 8);
             Write(ref stream, blockAlign); //, "BLOCK_ALIGN");
 
             Write(ref stream, bitDepth); //, "BITS_PER_SAMPLE");
@@ -800,8 +786,8 @@ namespace QuizCannersUtilities {
             newClip.GetData(data, 0);
 
             MemoryStream dataStream = new MemoryStream();
-            int x = sizeof(Int16);
-            Int16 maxValue = Int16.MaxValue;
+            int x = sizeof(short);
+            short maxValue = short.MaxValue;
             int i = 0;
             while (i < data.Length)
             {
@@ -1138,7 +1124,7 @@ namespace QuizCannersUtilities {
 #if UNITY_EDITOR
 
 #if UNITY_2018_3_OR_NEWER
-            var pf = QcUnity.IsPrefab(gameObject) ? gameObject : PrefabUtility.GetPrefabInstanceHandle(gameObject);
+            var pf = IsPrefab(gameObject) ? gameObject : PrefabUtility.GetPrefabInstanceHandle(gameObject);
 #else
             var pf = PrefabUtility.GetPrefabObject(gameObject);
 #endif
