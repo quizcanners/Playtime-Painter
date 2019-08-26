@@ -1919,6 +1919,25 @@ namespace QuizCannersUtilities
             return changing;
         }
 
+        public static void LerpAlpha_DisableIfZero(this LineRenderer linkRenderer, float target, float speed) {
+
+            var col = linkRenderer.startColor;
+            float alpha = col.a;
+            if (IsLerpingBySpeed(ref alpha, target, speed))
+                linkRenderer.startColor = col.Alpha(alpha);
+
+            col = linkRenderer.endColor;
+            float alpha2 = col.a;
+            if (IsLerpingBySpeed(ref alpha2, target, speed))
+                linkRenderer.endColor = col.Alpha(alpha2);
+
+            bool active = alpha > 0 || alpha2 > 0;
+
+            //if (linkRenderer.gameObject.activeSelf != active)
+                linkRenderer.gameObject.SetActive(active);
+
+        }
+
         #endregion
         
         public static void Portion<T>(this T[] list, LerpData ld) where T : ILinkedLerping {

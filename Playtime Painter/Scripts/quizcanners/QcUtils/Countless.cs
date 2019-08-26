@@ -1309,6 +1309,15 @@ public class Countless<T> : CountlessBase {
 
         }
 
+        public static void DecodeInto(this string data, out Countless<string> c)
+        {
+            c = new Countless<string>();
+            var cody = new CfgDecoder(data);
+            foreach (var tag in cody)
+                c[tag.ToInt()] = cody.GetData();
+
+        }
+
 
         public static CfgEncoder Encode(this Countless<string> c)
         {

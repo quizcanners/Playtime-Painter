@@ -746,6 +746,8 @@ namespace PlaytimePainter
 
         #region Mouse Press
 
+        public bool ClickPossible => _mouseDown && ((Time.time - _mouseDownTime) < maxHoldForClick);
+
         public UnityEvent OnClick;
 
         public float maxHoldForClick = 0.3f;
@@ -772,7 +774,7 @@ namespace PlaytimePainter
 
         public void OnPointerUp(PointerEventData eventData) {
 
-            if (_mouseDown && Time.time - _mouseDownTime < maxHoldForClick) {
+            if (ClickPossible) {
 
                 var diff = _mouseDownPosition - Input.mousePosition.ToVector2();
 
