@@ -98,7 +98,7 @@ namespace PlaytimePainter {
 
             meshName = mesh.name;
 
-            "Breaking mesh".TimerStart();
+            QcSharp.timer.Start("Breaking mesh");
 
             var vCnt = mesh.vertices.Length;
 
@@ -266,7 +266,7 @@ namespace PlaytimePainter {
                 }
             }
             
-            QcSharp.TimerEnd("Breaking mesh done", 1);
+            QcSharp.timer.End("Breaking mesh done", 1);
 
             mesh = new Mesh();
 

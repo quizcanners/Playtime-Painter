@@ -25,83 +25,145 @@ namespace QuizCannersUtilities {
 
         #region Timer
 
-        private static readonly Stopwatch StopWatch = new Stopwatch();
+        public static Timer timer = new Timer();
 
-        private static string _timerStartLabel;
+        public class Timer : IDisposable {
 
-        public static void TimerStart()
-        {
-            _timerStartLabel = null;
+            private readonly Stopwatch StopWatch = new Stopwatch();
+
+            private string _timerStartLabel;
+
+            public Timer Start()
+            {
+                _timerStartLabel = null;
+
+                StopWatch.Restart();
+
+                return this;
+            }
+
+            public Timer Start(string label)
+            {
+                _timerStartLabel = label;
+                StopWatch.Restart();
+
+
+                return this;
+            }
+
+            public float GetMiliseconds() => StopWatch.ElapsedMilliseconds;
+
+            public float GetSeconds() => StopWatch.ElapsedMilliseconds / 1000f;
+
+            public string End() => End(null, false);
+
+            public string End(string label) => End(label, true);
+
+            public string End(string label, bool logIt) => End(label, logIt, false);
+
+            public string End(string label, float threshold) => End(label, true, false, threshold);
+
+            public string End(string label, bool logInEditor, bool logInPlayer) =>
+                End(label, logInEditor, logInPlayer, 0);
+
+            public string End(string label, bool logInEditor, bool logInPlayer, float logThreshold)
+            {
+                StopWatch.Stop();
+
+                string timedText = "";
+
+                var elapsed = StopWatch.ElapsedTicks;
+
+                if (elapsed < TimeSpan.TicksPerMillisecond)
+                    timedText = elapsed.ToString() +
+                                " ticks  (0.{0} ms)".F(Mathf.RoundToInt(elapsed * 100 / TimeSpan.TicksPerMillisecond)
+                                    .ToString());
+                else if (elapsed < TimeSpan.TicksPerSecond)
+                    timedText = (elapsed / TimeSpan.TicksPerMillisecond).ToString() +
+                                " miliseconds  (0.{0} s)".F(Mathf.RoundToInt(elapsed * 100 / TimeSpan.TicksPerSecond)
+                                    .ToString());
+                else if (elapsed < TimeSpan.TicksPerMinute)
+                    timedText = elapsed / TimeSpan.TicksPerSecond +
+                                " seconds  (0.{0} min)".F(Mathf.RoundToInt(elapsed * 100 / TimeSpan.TicksPerMinute)
+                                    .ToString());
+
+
+                if (label == null)
+                    label = "";
+
+                var text = "";
+                if (_timerStartLabel != null)
+                    text += _timerStartLabel + "->";
+                text += label + (label.IsNullOrEmpty() ? "" : ": ") + timedText;
+
+                _timerStartLabel = null;
+
+                if ((logThreshold == 0 || ((elapsed / TimeSpan.TicksPerSecond) > logThreshold)) &&
+                    ((Application.isEditor && logInEditor) || (!Application.isEditor && logInPlayer)))
+                    UnityEngine.Debug.Log(text);
+
+                StopWatch.Reset();
+
+                return text;
+            }
+
+            public string End_Restart(string labelForEndedSection = null) =>
+                End_Restart(labelForEndedSection, true);
+
+            public string End_Restart(string labelForEndedSection, bool logIt) =>
+                End_Restart(labelForEndedSection, logIt, logIt, 0);
+
+            public string End_Restart(string labelForEndedSection, bool logIt, int logThreshold) =>
+                End_Restart(labelForEndedSection, logIt, logIt, logThreshold);
+
+            public string End_Restart(string labelForEndedSection, bool logInEditor, bool logInPlayer) =>
+                End_Restart(labelForEndedSection, logInEditor, logInPlayer, 0);
+
+            public string End_Restart(string labelForEndedSection, bool logInEditor, bool logInPlayer,
+                int logThreshold) {
+                StopWatch.Stop();
+                var txt = End(labelForEndedSection, logInEditor, logInPlayer, logThreshold);
+                StopWatch.Start();
+                return txt;
+            }
             
-            StopWatch.Restart();
-        }
+            private string _timingKey = "?";
+            private Dictionary<string, string> _timingLogDictionary;
 
-        public static void TimerStart(this string label) {
-            _timerStartLabel = label;
-            StopWatch.Restart();
-        }
+            public Timer Start_Dictionary(Dictionary<string, string> logDictionary,
+                string keyForNextMeasurment)
+            {
+                _timingLogDictionary = logDictionary;
+                NextDictionaryMeasurment(keyForNextMeasurment);
+                Start();
 
-        public static float TimerGetMiliseconds() => StopWatch.ElapsedMilliseconds;
+                return this;
+            }
 
-        public static float TimerGetSeconds() => StopWatch.ElapsedMilliseconds/1000f;
+            public void End_Restart_Dictionary(string keyForNextMeasurment) {
+                _timingLogDictionary[_timingKey] = End_Restart(null, false);
+                NextDictionaryMeasurment(keyForNextMeasurment);
+            }
 
-        public static string TimerEnd() => TimerEnd(null, false);
+            private void NextDictionaryMeasurment(string key)
+            {
+                _timingKey = key;
+                _timingLogDictionary[_timingKey] = "...";
+            }
 
-        public static string TimerEnd(string label) => TimerEnd(label, true);
+            public void End_Dictionary()
+            {
+                _timingLogDictionary[_timingKey] = End(null, false);
+                _timingLogDictionary = null;
+            }
 
-        public static string TimerEnd(string label, bool logIt) => TimerEnd(label, logIt, false);
+            public void Dispose() {
+                if (_timingLogDictionary!= null)
+                    End_Dictionary();
+                else
+                    End();
+            }
 
-        public static string TimerEnd(string label, float threshold) => TimerEnd(label, true, false, threshold);
-
-        public static string TimerEnd(string label, bool logInEditor, bool logInPlayer) => TimerEnd(label, logInEditor, logInPlayer, 0);
-
-        public static string TimerEnd(string label, bool logInEditor, bool logInPlayer, float logThreshold)
-        {
-            StopWatch.Stop();
-
-            string timedText = "";
-
-            var elapsed = StopWatch.ElapsedTicks;
-            
-            if (elapsed < TimeSpan.TicksPerMillisecond)
-                timedText = elapsed.ToString() + " ticks  (0.{0} ms)".F(Mathf.RoundToInt(elapsed*100/TimeSpan.TicksPerMillisecond).ToString());
-            else if (elapsed < TimeSpan.TicksPerSecond) 
-                timedText = (elapsed / TimeSpan.TicksPerMillisecond).ToString() + " miliseconds  (0.{0} s)".F(Mathf.RoundToInt(elapsed * 100 / TimeSpan.TicksPerSecond).ToString());       
-            else if (elapsed < TimeSpan.TicksPerMinute)
-                timedText = elapsed / TimeSpan.TicksPerSecond + " seconds  (0.{0} min)".F(Mathf.RoundToInt(elapsed * 100 / TimeSpan.TicksPerMinute).ToString());
-            
-  
-            var text = "";
-            if (_timerStartLabel != null)
-                text += _timerStartLabel + "->";
-            text += label + (label.IsNullOrEmpty() ? "" : ": ") + timedText;
-
-            _timerStartLabel = null;
-
-            if ((logThreshold == 0 || ((elapsed / TimeSpan.TicksPerSecond) > logThreshold)) && ((Application.isEditor && logInEditor) || (!Application.isEditor && logInPlayer)))
-                UnityEngine.Debug.Log(text);
-
-            StopWatch.Reset();
-
-            return text;
-        }
-
-        public static string TimerEnd_Restart() => TimerEnd_Restart(null, false);
-        
-        public static string TimerEnd_Restart(string labelForEndedSection) => TimerEnd_Restart(labelForEndedSection, true);
-
-        public static string TimerEnd_Restart(string labelForEndedSection, bool logIt) => TimerEnd_Restart(labelForEndedSection, logIt, logIt, 0);
-
-        public static string TimerEnd_Restart(string labelForEndedSection, bool logIt, int logThreshold) => TimerEnd_Restart(labelForEndedSection, logIt, logIt, logThreshold);
-
-        public static string TimerEnd_Restart(string labelForEndedSection, bool logInEditor, bool logInPlayer) => TimerEnd_Restart(labelForEndedSection, logInEditor, logInPlayer, 0);
-
-        public static string TimerEnd_Restart(string labelForEndedSection, bool logInEditor, bool logInPlayer, int logThreshold)
-        {
-            StopWatch.Stop();
-            var txt = TimerEnd(labelForEndedSection, logInEditor, logInPlayer, logThreshold);
-            StopWatch.Start();
-            return txt;
         }
 
         #endregion

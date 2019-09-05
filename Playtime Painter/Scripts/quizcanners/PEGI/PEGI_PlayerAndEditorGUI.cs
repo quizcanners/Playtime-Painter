@@ -7,7 +7,6 @@ using System.Linq;
 
 using System.Linq.Expressions;
 using QuizCannersUtilities;
-using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine.U2D;
 using Object = UnityEngine.Object;
 using static QuizCannersUtilities.QcMath;
@@ -146,21 +145,24 @@ namespace PlayerAndEditorGUI
                 windowRect.x = Mathf.Clamp(windowRect.x, 0, Screen.width - 10);
                 windowRect.y = Mathf.Clamp(windowRect.y, 0, Screen.height - 10);
 
+               // windowRect.width = Mathf.Clamp(windowRect.x, 0, Screen.width*0.5f);
+              //  windowRect.height = Mathf.Clamp(windowRect.y, 0, Screen.height - 30);
+
                 function = doWindow;
-                windowRect = GUILayout.Window(0, windowRect, DrawFunction, c_windowName);
+                windowRect = GUILayout.Window(0, windowRect, DrawFunction, c_windowName, GUILayout.MaxWidth(350), GUILayout.ExpandWidth(false));
             }
 
             public void Collapse()
             {
-                windowRect.width = 10;
-                windowRect.height = 10;
-                windowRect.x = 10;
-                windowRect.y = 10;
+                windowRect.width = 250;
+                windowRect.height = 350;
+                windowRect.x = 20;
+                windowRect.y = 50;
             }
 
             public WindowPositionData_PEGI_GUI()
             {
-                windowRect = new Rect(20, 20, 350, 400);
+                windowRect = new Rect(20, 50, 350, 400);
             }
         }
 
@@ -391,6 +393,14 @@ namespace PlayerAndEditorGUI
 
         #region Focus MGMT
 
+        private static void RepaintEditor()
+        {
+            #if UNITY_EDITOR
+            if (!paintingPlayAreaGui)
+                ef.RepaintEditor();
+            #endif
+        }
+
         public static bool UnFocus(this bool anyChanges)
         {
             if (anyChanges)
@@ -407,11 +417,11 @@ namespace PlayerAndEditorGUI
 
         public static void FocusControl(string name)
         {
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (!paintingPlayAreaGui)
                 EditorGUI.FocusTextInControl(name);
             else
-#endif
+            #endif
                 GUI.FocusControl(name);
         }
 
@@ -1198,7 +1208,7 @@ namespace PlayerAndEditorGUI
 #endif
             {
                 checkLine();
-                GUILayout.Label(textAndTip, style);
+                GUILayout.Label(textAndTip);
             }
         }
 
@@ -1216,7 +1226,7 @@ namespace PlayerAndEditorGUI
 #endif
             
             checkLine();
-            GUILayout.Label(textAndTip, style, GUILayout.MaxWidth(width));
+            GUILayout.Label(textAndTip, GUILayout.MaxWidth(width));
             
         }
 
@@ -1235,7 +1245,7 @@ namespace PlayerAndEditorGUI
 #endif
             
             checkLine();
-            GUILayout.Label(textAndTip, style, GUILayout.MaxWidth(width));
+            GUILayout.Label(textAndTip, GUILayout.MaxWidth(width));
             
         }
 
@@ -3537,8 +3547,11 @@ namespace PlayerAndEditorGUI
 
             var entered = enteredOne == thisOne;
 
-            var ret = meta.Icon.enter(meta.label.AddCount(list, entered), ref enteredOne, thisOne, showLabelIfTrue, list.Count == 0 ? PEGI_Styles.WrappingText : null);
-            
+            var ret = meta.icon.enter(meta.label.AddCount(list, entered), ref enteredOne, thisOne, showLabelIfTrue, list.Count == 0 ? PEGI_Styles.WrappingText : null);
+
+            if (!entered && ret)
+                meta.inspected = -1;
+
             ret |= list.enter_DirectlyToElement<T>(ref meta.inspected, ref enteredOne, thisOne);
             
             return ret;
@@ -4250,7 +4263,7 @@ namespace PlayerAndEditorGUI
             
             checkLine();
 
-            return (width ==-1 ? GUILayout.Button(textAndTip, style) : GUILayout.Button(textAndTip, style, GUILayout.MaxWidth(width))).DirtyUnFocus().PreviousBgColor();
+            return (width ==-1 ? GUILayout.Button(textAndTip) : GUILayout.Button(textAndTip, GUILayout.MaxWidth(width))).DirtyUnFocus().PreviousBgColor();
         }
 
         public static bool ClickUnFocus(this Texture tex, int width = defaultButtonSize)
@@ -4315,7 +4328,7 @@ namespace PlayerAndEditorGUI
                 return ef.Click(content, style);
 #endif
             checkLine();
-            return GUILayout.Button(content, style, GUILayout.MaxWidth(maxWidthForPlaytimeButtonText)).Dirty();
+            return GUILayout.Button(content, GUILayout.MaxWidth(maxWidthForPlaytimeButtonText)).Dirty();
         }
 
         private static bool ClickImage(this GUIContent content, int width, GUIStyle style) =>
@@ -4334,10 +4347,7 @@ namespace PlayerAndEditorGUI
              //   style = PEGI_Styles.ImageButton;
             
 
-            return (style != null ? 
-                    GUILayout.Button(content, style, GUILayout.MaxWidth(width+5),  GUILayout.MaxHeight(height)) :
-                    GUILayout.Button(content,  GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(height)))
-                .Dirty();
+            return GUILayout.Button(content,  GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(height)).Dirty();
         }
 
         public static bool Click(this string text, ref bool changed) => text.Click().changes(ref changed);
@@ -7732,7 +7742,7 @@ namespace PlayerAndEditorGUI
                     }
 
                     if ((warningText == null &&
-                         (listMeta == null ? icon.Enter : listMeta.Icon).ClickUnFocus(Msg.InspectElement)) ||
+                         (listMeta == null ? icon.Enter : listMeta.icon).ClickUnFocus(Msg.InspectElement)) ||
                         (warningText != null && icon.Warning.ClickUnFocus(warningText)))
                     {
                         inspected = index;
@@ -7864,7 +7874,7 @@ namespace PlayerAndEditorGUI
                     }
 
                     if ((warningText == null &&
-                         (listMeta == null ? icon.Enter : listMeta.Icon).ClickUnFocus(Msg.InspectElement)) ||
+                         (listMeta == null ? icon.Enter : listMeta.icon).ClickUnFocus(Msg.InspectElement)) ||
                         (warningText != null && icon.Warning.ClickUnFocus(warningText)))
                     {
                         inspected = index;
@@ -9309,8 +9319,10 @@ namespace PlayerAndEditorGUI
             private string[] searchBys;
             public List<int> filteredListElements = new List<int>();
 
-            private const string searchFiledFocusName = "_pegiSearchField";
-            
+            private const string searchFieldFocusName = "_pegiSearchField";
+
+            private int focusOnSearchBarIn;
+
             public void ToggleSearch(IList ld, string label = "")
             {
 
@@ -9321,19 +9333,18 @@ namespace PlayerAndEditorGUI
 
                 var changed = false;
 
-                if (active && icon.FoldedOut.Click("{0} {1} {2}".F(icon.Hide.GetText(), icon.Search.GetText() ,ld), 20).changes(ref changed))
+                if (active && icon.FoldedOut.ClickUnFocus("{0} {1} {2}".F(icon.Hide.GetText(), icon.Search.GetText() ,ld), 20).changes(ref changed))
                     active = false;
-
-                if (!active && ld != editing_List_Order && icon.Search
-                        .Click("{0} {1}".F(icon.Search.GetText(), label.IsNullOrEmpty() ? ld.ToString() : label), 20)
-                        .changes(ref changed))
-                {
+                
+                if (!active && ld != editing_List_Order && 
+                    (icon.Search
+                        .ClickUnFocus("{0} {1}".F(icon.Search.GetText(), label.IsNullOrEmpty() ? ld.ToString() : label), 20) || KeyCode.DownArrow.IsDown())
+                        .changes(ref changed)) {
                     active = true;
-                    FocusedName = searchFiledFocusName;
-
+                    focusOnSearchBarIn = 2;
+                    FocusedName = searchFieldFocusName;
                 }
-
-
+                
                 if (active) {
                     icon.Warning.write("Filter by warnings");
                     if (toggle(ref filterByNeedAttention))
@@ -9358,13 +9369,26 @@ namespace PlayerAndEditorGUI
 
                     nl();
                     
-                    pegi.NameNext(searchFiledFocusName);
-
+                    NameNext(searchFieldFocusName);
+                    
                     if (edit(ref searchedText) || icon.Refresh.Click("Search again", 20).nl()) {
                         Refresh();
                         searchBys = searchedText.Split(splitCharacters, StringSplitOptions.RemoveEmptyEntries);
                         
                     }
+
+                   // FocusedName = searchFiledFocusName;
+
+                     if (focusOnSearchBarIn > 0)
+                     {
+                         focusOnSearchBarIn--;
+                         if (focusOnSearchBarIn == 0)
+                         {
+                             FocusedName = searchFieldFocusName;
+                            RepaintEditor();
+                          
+                         }
+                     }
 
                     searching = filterByNeedAttention || !searchBys.IsNullOrEmpty();
                 }
@@ -9748,7 +9772,7 @@ namespace PlayerAndEditorGUI
 
             return default(T);
         }
-
+       
         static bool ToPegiStringInterfacePart(this object obj, out string name)
         {
             name = null;
@@ -9756,7 +9780,7 @@ namespace PlayerAndEditorGUI
             var dn = obj as IGotDisplayName;
             if (dn != null)
             {
-                name = dn.NameForDisplayPEGI();
+                name = dn.NameForDisplayPEGI().FirstLine();
                 if (!name.IsNullOrEmpty())
                     return true;
             }
@@ -9764,7 +9788,7 @@ namespace PlayerAndEditorGUI
             var sn = obj as IGotName;
 
             if (sn != null) {
-                name = sn.NameForPEGI;
+                name = sn.NameForPEGI.FirstLine();
                 if (!name.IsNullOrEmpty())
                     return true;
             }

@@ -36,8 +36,7 @@ namespace QuizCannersUtilities
         public bool showEditListButton;
         public bool showSearchButton;
         public readonly bool allowCreate;
-        private readonly icon icon;
-        public icon Icon => inspected == -1 ? icon : icon.Next;
+        public readonly icon icon;
         public UnNullableCfg<ElementData> elementDatas = new UnNullableCfg<ElementData>();
       
 

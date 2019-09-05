@@ -38,6 +38,13 @@ namespace PlayerAndEditorGUI
         private static Editor _editor;
         private static PEGI_Inspector_Material _materialEditor;
 
+        public static void RepaintEditor() {
+            if (_editor)
+                _editor.Repaint();
+            if (_materialEditor!= null)
+                _materialEditor.unityMaterialEditor.Repaint();
+        }
+
         public static bool DefaultInspector()
         {
             newLine();
