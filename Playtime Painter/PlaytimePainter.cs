@@ -998,7 +998,7 @@ namespace PlaytimePainter {
                 CheckSetOriginalShader();
 
             if (meshRenderer) {
-                if (meshRenderer.sharedMaterials.ClampIndexToLength(ref selectedSubMesh))
+                if (meshRenderer.sharedMaterials.ClampIndexToCount(ref selectedSubMesh))
                     result = meshRenderer.sharedMaterials[selectedSubMesh];
             }
             else if (uiGraphic)

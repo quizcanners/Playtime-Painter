@@ -99,6 +99,22 @@ namespace PlayerAndEditorGUI
         {
             private WindowFunction function;
             private Rect windowRect;
+            private Vector2 scrollPosition = Vector2.zero;
+
+            /*
+             
+                 scrollPosition = GUI.BeginScrollView(new Rect(10, 300, 100, 100), scrollPosition, new Rect(0, 0, 220, 200));
+
+        // Make four buttons - one in each corner. The coordinate system is defined
+        // by the last parameter to BeginScrollView.
+        GUI.Button(new Rect(0, 0, 100, 20), "Top-left");
+        GUI.Button(new Rect(120, 0, 100, 20), "Top-right");
+        GUI.Button(new Rect(0, 180, 100, 20), "Bottom-left");
+        GUI.Button(new Rect(120, 180, 100, 20), "Bottom-right");
+
+        // End the scroll view that we began above.
+        GUI.EndScrollView();
+             */
 
             private void DrawFunction(int windowID)
             {
@@ -112,6 +128,9 @@ namespace PlayerAndEditorGUI
                     _lineOpen = false;
                     focusInd = 0;
 
+                    //scrollPosition = GUI.BeginScrollView(new Rect(10, 300, 100, 100), scrollPosition, windowRect);
+
+
                     if (!PopUpService.ShowingPopup())
                         function();
 
@@ -123,6 +142,8 @@ namespace PlayerAndEditorGUI
 
                     if (windowRect.Contains(Input.mousePosition))
                         MouseOverPlaytimePainterUI = true;
+
+                    //GUI.EndScrollView();
 
                     GUI.DragWindow(new Rect(0, 0, 10000, 20));
                 }
@@ -1367,21 +1388,19 @@ namespace PlayerAndEditorGUI
             if (showCopyButton && "Copy text to clipboard".Click().nl())
                 GUIUtility.systemCopyBuffer = val;
 
-            return editBig(ref val);
+            if (paintingPlayAreaGui && !val.IsNullOrEmpty() && val.ContainsAtLeast('\n', 5)) // Due to MGUI BUG
+                ".....   Big Text Has Many Lines: {0}".F(val.FirstLine()).write();
+            else
+               return editBig(ref val);
+            
+            return false;
         }
 
         public static bool write_ForCopy_Big(this string label, string val, bool showCopyButton = false) {
 
             label.write();
-            if (showCopyButton && icon.Copy.Click("Copy {0} to clipboard".F(label)))
-                GUIUtility.systemCopyBuffer = val;
-            nl();
-
-            var ret = editBig(ref val);
-
-           
-
-            return ret;
+          
+            return write_ForCopy_Big(val, showCopyButton);
         }
 
         #region Warning & Hints
@@ -2182,7 +2201,7 @@ namespace PlayerAndEditorGUI
 
             var lnms = new List<string>();
 
-            if (arr.ClampIndexToLength(ref ind))
+            if (arr.ClampIndexToCount(ref ind))
             {
                 for (var i = 0; i < arr.Length; i++)
                     lnms.Add(CompileSelectionName(i, arr[i], showIndex, stripSlashes, dotsToSlashes));
@@ -3562,7 +3581,7 @@ namespace PlayerAndEditorGUI
         public static bool enter(this string txt, ref int enteredOne, int thisOne, bool showLabelIfTrue = true, GUIStyle enterLabelStyle = null) 
             => icon.Enter.enter(txt, ref enteredOne, thisOne, showLabelIfTrue, enterLabelStyle);
 
-        public static bool enter(this string txt, ref int enteredOne, int thisOne, IList forAddCount) =>
+        public static bool enter<T>(this string txt, ref int enteredOne, int thisOne, ICollection<T> forAddCount) =>
             icon.Enter.enter(txt.AddCount(forAddCount), ref enteredOne, thisOne, enterLabelStyle: forAddCount.IsNullOrEmpty() ? PEGI_Styles.WrappingText : PEGI_Styles.EnterLabel);
 
         public static bool enter(this string txt, ref int enteredOne, int thisOne, IGotCount forAddCount) =>
@@ -3636,7 +3655,7 @@ namespace PlayerAndEditorGUI
             : "") : "null");
         }
 
-        public static string AddCount(this string txt, IList lst, bool entered = false)
+        public static string AddCount<T>(this string txt, ICollection<T> lst, bool entered = false)
         {
             if (lst == null)
                 return "{0} is NULL".F(txt);
@@ -3649,10 +3668,9 @@ namespace PlayerAndEditorGUI
 
             if (!entered)  {
 
-                var el = lst[0];
+                var el = lst.ElementAt(0);
 
-                if (!el.IsNullOrDestroyed_Obj())
-                {
+                if (!el.IsNullOrDestroyed_Obj()) {
 
                     var nm = el as IGotDisplayName;
 
@@ -6521,7 +6539,7 @@ namespace PlayerAndEditorGUI
 
         private const int listLabelWidth = 105;
 
-        private static readonly Dictionary<IList, int> ListInspectionIndexes = new Dictionary<IList, int>();
+        private static readonly Dictionary<IEnumerable, int> ListInspectionIndexes = new Dictionary<IEnumerable, int>();
 
         private const int UpDownWidth = 120;
         private const int UpDownHeight = 30;
@@ -6788,8 +6806,8 @@ namespace PlayerAndEditorGUI
         }
 
         public static int InspectedIndex { get; private set; } = -1;
-
-        private static IEnumerable<int> InspectionIndexes<T>(this List<T> list, ListMetaData listMeta = null) {
+        
+        private static IEnumerable<int> InspectionIndexes<T>(this ICollection<T> list, ListMetaData listMeta = null) {
             
             var sd = listMeta == null? searchData : listMeta.searchData;
 
@@ -6840,16 +6858,12 @@ namespace PlayerAndEditorGUI
                     }
                     else
                         icon.UpLast.write("Is the first section of the list.", UpDownWidth, UpDownHeight);
-
                     
                     nl();
-
-                  
+                    
                 }
                 else line(Color.gray);
-
-              
-
+                
             }
             else if (list.Count > 0)
                 line(Color.gray);
@@ -6915,7 +6929,7 @@ namespace PlayerAndEditorGUI
                     else {
                         while (sd.uncheckedElement < listCount && InspectedIndex == -1) {
 
-                            var el = list[sd.uncheckedElement];
+                            var el = list.ElementAt(sd.uncheckedElement);
 
                             var na = el as INeedAttention;
 
@@ -6973,10 +6987,7 @@ namespace PlayerAndEditorGUI
                     line(Color.gray);
 
             }
-
-
-
-
+            
             #region Finilize
             if (changed)  {
                 if (searching)
@@ -7013,13 +7024,13 @@ namespace PlayerAndEditorGUI
             return val;
         }
 
-        private static void write_Search_ListLabel(this string label, IList lst = null)
+        private static void write_Search_ListLabel<T>(this string label, ICollection<T> lst = null)
         {
             var notInsp = -1;
             label.write_Search_ListLabel(ref notInsp, lst);
         }
 
-        private static void write_Search_ListLabel(this string label, ref int inspected, IList lst) {
+        private static void write_Search_ListLabel<T>(this string label, ref int inspected, ICollection<T> lst) {
 
             currentListLabel = label;
 
@@ -7029,14 +7040,14 @@ namespace PlayerAndEditorGUI
                 searchData.ToggleSearch(lst, label);
 
             if (lst != null && inspected >= 0 && lst.Count > inspected) 
-                label = "{0}->{1}".F(label, lst[inspected].GetNameForInspector());
+                label = "{0}->{1}".F(label, lst.ElementAt(inspected).GetNameForInspector());
             else label = (lst == null || lst.Count < 6) ? label : label.AddCount(lst, true);
 
             if (label.ClickLabel(label, RemainingLength(defaultButtonSize * 2 + 10) , PEGI_Styles.ListLabel) && inspected != -1)
                 inspected = -1;
         }
 
-        private static void write_Search_ListLabel(this ListMetaData ld, IList lst) {
+        private static void write_Search_ListLabel<T>(this ListMetaData ld, ICollection<T> lst) {
 
             currentListLabel = ld.label;
 
@@ -7045,9 +7056,9 @@ namespace PlayerAndEditorGUI
             
             if (lst != null && ld.inspected >= 0 && lst.Count > ld.inspected) {
 
-                var el = lst[ld.inspected];
+                var el = lst.ElementAt(ld.inspected);
 
-                currentListLabel = "{0}->{1}".F(ld.label, lst[ld.inspected].GetNameForInspector());
+                currentListLabel = "{0}->{1}".F(ld.label, el.GetNameForInspector());
                 
             } else currentListLabel = (lst == null || lst.Count < 6) ? ld.label : ld.label.AddCount(lst, true);
 
@@ -7554,7 +7565,7 @@ namespace PlayerAndEditorGUI
 
             if (listMeta != null && icon.Config.enter(ref listMeta.inspectListMeta))
                 listMeta.Nested_Inspect();
-            else if (typeof(Object).IsAssignableFrom(typeof(T)) || !listCopyBuffer.IsNullOrEmpty()) {
+            else if (typeof(Object).IsAssignableFrom(typeof(T)) || !listCopyBuffer.IsNullOrEmptyCollection()) {
                 "Allow Duplicants".toggle("Will add elements to the list even if they are already there", 120, ref duplicants)
                     .changes(ref changed);
             
@@ -8366,7 +8377,7 @@ namespace PlayerAndEditorGUI
         return edit_List(ref list, ref inspected, types, ref changed).listLabel_Used();
     }
         
-    public static T edit_List<T>(ref List<T> list, ref int inspected, TaggedTypesCfg types, ref bool changed, ListMetaData listMeta = null) {
+    private static T edit_List<T>(ref List<T> list, ref int inspected, TaggedTypesCfg types, ref bool changed, ListMetaData listMeta = null) {
 
         var added = default(T);
 
@@ -8791,20 +8802,20 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_Dictionary_Values<G, T>(this string label, Dictionary<G, T> dic, ref int inspected)
         {
-            label.write_Search_ListLabel(ref inspected, null);
+            label.write_Search_ListLabel(ref inspected, dic);
             return edit_Dictionary_Values(dic, ref inspected);
         }
 
         public static bool edit_Dictionary_Values<G, T>(this ListMetaData listMeta, Dictionary<G, T> dic)
         {
-            listMeta.label.write_Search_ListLabel(ref listMeta.inspected, null);
+            listMeta.label.write_Search_ListLabel(ref listMeta.inspected, dic);
             return edit_Dictionary_Values(dic, ref listMeta.inspected, listMeta);
         }
 
         public static bool edit_Dictionary_Values<G, T>(this ListMetaData listMeta, Dictionary<G, T> dic, Func<T, T> lambda) {
 
-            listMeta.label.write_Search_ListLabel(ref listMeta.inspected, null);
-            return edit_Dictionary_Values(dic, lambda, ld: listMeta);
+            listMeta.label.write_Search_ListLabel(ref listMeta.inspected, dic);
+            return edit_Dictionary_Values(dic, lambda, listMeta: listMeta);
         }
 
         public static bool edit_Dictionary_Values<G, T>(Dictionary<G, T> dic, ref int inspected, ListMetaData listMeta = null) {
@@ -8818,8 +8829,11 @@ namespace PlayerAndEditorGUI
 
             if (inspected == -1) {
 
-                for (int i = 0; i < dic.Count; i++)
+                foreach (var i in dic.InspectionIndexes(listMeta))
                 {
+
+                   // for (int i = 0; i < dic.Count; i++)
+              //  {
                     var item = dic.ElementAt(i);
                     var itemKey = item.Key;
                     InspectedIndex = i;
@@ -8827,7 +8841,7 @@ namespace PlayerAndEditorGUI
 
                     if ((listMeta == null || listMeta.allowDelete) && icon.Delete.ClickUnFocus(25).changes(ref changed)) {
                         dic.Remove(itemKey);
-                        i--;
+                        //i--;
                     } else {
 
                         var el = item.Value;
@@ -8847,19 +8861,19 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_Dictionary_Values(this string label, Dictionary<int, string> dic, List<string> roles)
         {
-            write_Search_ListLabel(label);
+            write_Search_ListLabel(label, dic);
             return edit_Dictionary_Values(dic, roles);
         }
 
         public static bool edit_Dictionary_Values(this ListMetaData listMeta, Dictionary<string, string> dic) {
 
-            listMeta.label.write_Search_ListLabel(ref listMeta.inspected, null);
-            return edit_Dictionary_Values(dic, lambda_string, ld: listMeta);
+            listMeta.label.write_Search_ListLabel(ref listMeta.inspected, dic);
+            return edit_Dictionary_Values(dic, lambda_string, listMeta: listMeta);
         }
 
         public static bool edit_Dictionary_Values(this string label, Dictionary<string, string> dic)
         {
-            write_Search_ListLabel(label);
+            write_Search_ListLabel(label, dic);
             return edit_Dictionary_Values(dic, lambda_string);
         }
 
@@ -8872,11 +8886,11 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_Dictionary_Values<G, T>(this string label, Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true, ListMetaData ld = null)
         {
-            write_Search_ListLabel(label);
+            write_Search_ListLabel(label, dic);
             return edit_Dictionary_Values(dic, lambda, showKey, ld);
         }
 
-        public static bool edit_Dictionary_Values<G, T>(Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true ,ListMetaData ld = null) {
+        public static bool edit_Dictionary_Values<G, T>(Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true ,ListMetaData listMeta = null) {
            
            if (dic == null) {
                 "Dictionary is null".writeHint();
@@ -8887,14 +8901,14 @@ namespace PlayerAndEditorGUI
 
             var changed = false;
 
-            if (ld != null && ld.Inspecting) {
+            if (listMeta != null && listMeta.Inspecting) {
 
-                if (icon.Exit.Click("Exit " + ld.label))
-                    ld.Inspecting = false;
+                if (icon.Exit.Click("Exit " + listMeta.label))
+                    listMeta.Inspecting = false;
 
-                if (ld.Inspecting && (dic.Count > ld.inspected)) {
+                if (listMeta.Inspecting && (dic.Count > listMeta.inspected)) {
 
-                    var el = dic.ElementAt(ld.inspected);
+                    var el = dic.ElementAt(listMeta.inspected);
 
                     var val = el.Value;
 
@@ -8906,29 +8920,36 @@ namespace PlayerAndEditorGUI
                          dic[el.Key] = val;
                 }
                 
-            } else for (var i = 0; i < dic.Count; i++) {
-                var item = dic.ElementAt(i);
-                var itemKey = item.Key;
+            } else {
 
-                InspectedIndex = i;
+                foreach (var i in dic.InspectionIndexes(listMeta)) {
 
-                if ((ld == null || ld.allowDelete) && icon.Delete.ClickUnFocus(25).changes(ref changed)) 
-                    dic.Remove(itemKey);
-                else {
-                    if (showKey)
-                        itemKey.GetNameForInspector().write_ForCopy(50);
+                    var item = dic.ElementAt(i);
+                    var itemKey = item.Key;
 
-                    var el = item.Value;
-                    var ch = GUI.changed;
-                    el = lambda(el);
+                    InspectedIndex = i;
+
+                    if ((listMeta == null || listMeta.allowDelete) && icon.Delete.ClickUnFocus(25).changes(ref changed))
+                        dic.Remove(itemKey);
+                    else {
+                        if (showKey)
+                            itemKey.GetNameForInspector().write_ForCopy(50);
+
+                        var el = item.Value;
+                        var ch = GUI.changed;
+                        el = lambda(el);
+
+                        if ((!ch && GUI.changed).changes(ref changed))
+                            dic[itemKey] = el;
+
+                        if (listMeta != null && icon.Enter.Click("Enter " + el.ToString()))
+                            listMeta.inspected = i;
+                    }
+
+                    nl();
                     
-                    if ((!ch && GUI.changed).changes(ref changed))
-                        dic[itemKey] = el;
-
-                    if (ld != null && icon.Enter.Click("Enter " + el.ToString()))
-                        ld.inspected = i;
                 }
-                nl();
+
             }
 
             return changed;
@@ -8936,7 +8957,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_Dictionary(this string label, ref Dictionary<int, string> dic)
         {
-            write_Search_ListLabel(label);
+            write_Search_ListLabel(label, dic);
             return edit_Dictionary(ref dic);
         }
 
@@ -8947,8 +8968,8 @@ namespace PlayerAndEditorGUI
             if (dicIsNull(ref dic))
                 return changed;
 
-            for (int i = 0; i < dic.Count; i++) {
-
+            foreach (var i in dic.InspectionIndexes()) {
+                
                 var e = dic.ElementAt(i);
                 InspectedIndex = e.Key;
 
@@ -9201,7 +9222,7 @@ namespace PlayerAndEditorGUI
 
 #region Searching
 
-        public static bool SearchMatch (this IList list, string searchText) => list.Cast<object>().Any(e => Try_SearchMatch_Obj(e, searchText));
+        public static bool SearchMatch (this IEnumerable list, string searchText) => list.Cast<object>().Any(e => Try_SearchMatch_Obj(e, searchText));
         
         public static bool Try_SearchMatch_Obj (object obj, string searchText) => SearchMatch_Obj_Internal(obj, new string[] { searchText });
 
@@ -9247,7 +9268,7 @@ namespace PlayerAndEditorGUI
 
                 if (QcUnity.TryGet_fromObj<INeedAttention>(obj).SearchMatch_Internal(text, ref matched))
                     return true;
-
+                
                 if (obj.ToString().SearchMatch_Internal(text, ref matched))
                     return true;
 
@@ -9311,7 +9332,7 @@ namespace PlayerAndEditorGUI
         private static readonly char[] splitCharacters = { ' ', '.' };
 
         public class SearchData: AbstractCfg, ICanBeDefaultCfg {
-            public IList filteredList;
+            public IEnumerable filteredList;
             public string searchedText;
             public int uncheckedElement = 0;
             public int inspectionIndexStart = 0;
@@ -9323,7 +9344,7 @@ namespace PlayerAndEditorGUI
 
             private int focusOnSearchBarIn;
 
-            public void ToggleSearch(IList ld, string label = "")
+            public void ToggleSearch(IEnumerable ld, string label = "")
             {
 
                 if (ld == null)
@@ -9361,7 +9382,7 @@ namespace PlayerAndEditorGUI
                 list == filteredList && (filterByNeedAttention || !searchBys.IsNullOrEmpty());
 
          
-            public void SearchString(IList list, out bool searching, out string[] searchBy)
+            public void SearchString(IEnumerable list, out bool searching, out string[] searchBy)
             {
                 searching = false;
                

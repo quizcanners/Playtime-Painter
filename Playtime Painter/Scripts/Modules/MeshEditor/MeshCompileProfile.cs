@@ -374,10 +374,9 @@ namespace PlaytimePainter
 
             var allDataNames = VertexDataTypes.GetAllTypesNames();
 
-            if (SameSizeValue == null)
-            {
-                for (var i = 0; i < links.Count; i++)
-                {
+            if (SameSizeValue == null) {
+
+                for (var i = 0; i < links.Count; i++) {
                     var v = links[i];
 
                     changed |= Destination.GetFieldName(i).select(40, ref v.srcIndex, allDataNames);
@@ -389,7 +388,7 @@ namespace PlaytimePainter
 
                     changed |= pegi.select(ref v.dstIndex, typeFields).nl();
 
-                    typeFields.ClampIndexToLength(ref v.dstIndex);
+                    typeFields.ClampIndexToCount(ref v.dstIndex);
                 }
             }
             "**************************************************".nl();

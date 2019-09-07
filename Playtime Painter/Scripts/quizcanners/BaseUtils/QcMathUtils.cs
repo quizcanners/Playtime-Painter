@@ -56,18 +56,18 @@ namespace QuizCannersUtilities {
             return value;
         }
 
-        public static bool ClampIndexToLength(this Array ar, ref int value, int min = 0)
+      /*  public static bool ClampIndexToLength(this Array ar, ref int value, int min = 0)
         {
             if (!ar.IsNullOrEmpty()) {
                 value = Mathf.Max(min, Mathf.Min(value, ar.Length - 1));
                 return true;
             }
             return false;
-        }
+        }*/
 
-        public static bool ClampIndexToCount(this IList list, ref int value, int min = 0)
+        public static bool ClampIndexToCount(this ICollection list, ref int value, int min = 0)
         {
-            if (!list.IsNullOrEmpty()) {
+            if (!list.IsNullOrEmptyCollection()) {
                 value = Mathf.Max(min, Mathf.Min(value, list.Count - 1));
                 return true;
             }

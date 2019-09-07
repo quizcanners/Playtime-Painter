@@ -353,9 +353,7 @@ namespace QuizCannersUtilities {
             ind = list.Count - 1;
             return ind;
         }
-
-
-
+        
         public static bool IsNew(this Type t) => t.IsValueType || (!t.IsUnityObject() && !t.IsAbstract && t.GetConstructor(Type.EmptyTypes) != null);
 
         public static void Move<T>(this List<T> list, int oldIndex, int newIndex) {
@@ -407,7 +405,7 @@ namespace QuizCannersUtilities {
             return last;
         }
 
-        public static T Last<T>(this List<T> list) => list.Count > 0 ? list[list.Count - 1] : default(T);
+        public static T Last<T>(this ICollection<T> list) => list.Count > 0 ? list.ElementAt(list.Count - 1) : default(T);
 
         public static void Swap<T>(this List<T> list, int indexOfFirst)
         {
@@ -423,7 +421,9 @@ namespace QuizCannersUtilities {
             list[indexB] = tmp;
         }
 
-        public static bool IsNullOrEmpty(this IList list) => list == null || list.Count == 0;
+        public static bool IsNullOrEmpty<T>(this ICollection<T> list) => list == null || list.Count == 0;
+
+        public static bool IsNullOrEmptyCollection(this ICollection list) => list == null || list.Count == 0;
 
         public static List<T> NullIfEmpty<T>(this List<T> list) => (list == null || list.Count == 0) ? null : list;
 
@@ -605,6 +605,22 @@ namespace QuizCannersUtilities {
         #endregion
 
         #region String Editing
+
+        public static bool ContainsAtLeast(this string text, char symbols = '\n', int occurances = 1) {
+
+            if (text.IsNullOrEmpty())
+                return false;
+
+            foreach (var c in text) {
+                if (c == symbols) {
+                    occurances--;
+                    if (occurances <= 0)
+                        return true;
+                }
+            }
+
+            return false;
+        }
 
         public static string FirstLine(this string str) => new StringReader(str).ReadLine();
 
