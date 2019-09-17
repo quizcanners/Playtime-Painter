@@ -31,8 +31,7 @@ namespace PlaytimePainter
     [CustomEditor(typeof(PaintingReceiver))]
     public class PaintingReceiverEditor : PEGI_Inspector_Mono<PaintingReceiver>  { }
 
-    [CustomEditor(typeof(PaintWithoutComponent))]
-    public class PaintWithoutComponentEditor : PEGI_Inspector_Mono<PaintWithoutComponent>  { }
+
 
     [CustomEditor(typeof(RaycastOnCollisionPainter))]
     public class PainterCasterEditor : PEGI_Inspector_Mono<RaycastOnCollisionPainter> { }

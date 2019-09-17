@@ -3,7 +3,9 @@ using System.Linq;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace PlaytimePainter.Examples
 {
@@ -169,6 +171,8 @@ namespace PlaytimePainter.Examples
         {
             var changed = false;
 
+            pegi.toggleDefaultInspector();
+
             pegi.fullWindowDocumentationClickOpen(Documentation);
 
             "Bullets:".edit(50, ref shoots, 1, 50).nl(ref changed);
@@ -202,4 +206,9 @@ namespace PlaytimePainter.Examples
         }
 
     }
+
+#if UNITY_EDITOR
+    [CustomEditor(typeof(PaintWithoutComponent))]
+    public class PaintWithoutComponentEditor : PEGI_Inspector_Mono<PaintWithoutComponent> { }
+#endif
 }

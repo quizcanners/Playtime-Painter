@@ -12,9 +12,12 @@ namespace PlaytimePainter
 
         public static TexturesPool inst;
         public static TexturesPool Inst { get {
-                if (inst == null && !ApplicationIsQuitting)
-                    new GameObject().AddComponent<TexturesPool>().gameObject.name = "Textures Pool";
-                return inst; } }
+            if (!inst && !ApplicationIsQuitting) {
+                var obj = new GameObject().AddComponent<TexturesPool>(); 
+                    obj.gameObject.name = "Textures Pool";
+            }
+
+            return inst; } }
 
         public int width = 256;
 

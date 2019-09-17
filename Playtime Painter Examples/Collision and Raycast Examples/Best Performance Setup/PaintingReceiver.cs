@@ -182,8 +182,20 @@ namespace PlaytimePainter.Examples {
         #region Inspector
         [SerializeField] private bool _showOptional;
 
-        public virtual bool Inspect() {
-            
+        public virtual bool Inspect()
+        {
+
+         
+            if (!PainterCamera.Inst) {
+                "No Painter Camera found".writeWarning();
+
+                if ("Refresh".Click())
+                    PainterSystem.applicationIsQuitting = false;
+
+                return false;
+            }
+
+
             "Works with PaintWithoutComponent script. This lets you configure how painting will be received".fullWindowDocumentationClickOpen("About Painting Receiver");
             
             var changes = false;
