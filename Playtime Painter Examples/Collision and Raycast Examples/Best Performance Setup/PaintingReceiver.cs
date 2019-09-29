@@ -25,8 +25,7 @@ namespace PlaytimePainter.Examples {
         
         private ShaderProperty.TextureValue _textureProperty;
 
-        private string TexturePropertyName
-        {
+        private string TexturePropertyName{
             set
             {
                 textureField = value;
@@ -35,8 +34,6 @@ namespace PlaytimePainter.Examples {
         }
 
         private ShaderProperty.TextureValue TextureId {
-
-
             get
             {
                 
@@ -44,8 +41,7 @@ namespace PlaytimePainter.Examples {
                     _textureProperty = new ShaderProperty.TextureValue(textureField);
                 
                 return _textureProperty;
-            }                    
-            
+            }                   
         }
 
 
@@ -125,7 +121,7 @@ namespace PlaytimePainter.Examples {
 
             MatTex = texture;
 
-            texture.GetTextureData().useTexCoord2 = useTexcoord2;
+            texture.GetTextureMeta().useTexCoord2 = useTexcoord2;
 
             return texture;
         }
@@ -196,7 +192,9 @@ namespace PlaytimePainter.Examples {
             }
 
 
-            "Works with PaintWithoutComponent script. This lets you configure how painting will be received".fullWindowDocumentationClickOpen("About Painting Receiver");
+            ("Works with PaintWithoutComponent script. This lets you configure how painting will be received." +
+                " PaintWithoutComponent.cs is usually attached to a main camera (if painting in first person).")
+                .fullWindowDocumentationClickOpen("About Painting Receiver");
             
             var changes = false;
 
@@ -255,7 +253,7 @@ namespace PlaytimePainter.Examples {
 
 
             if ("  Use second texture coordinates".toggleIcon("If shader uses texcoord2 (Baked Light) to display damage, turn this ON.", ref useTexcoord2).nl() && texture)
-                texture.GetTextureData().useTexCoord2 = useTexcoord2;
+                texture.GetTextureMeta().useTexCoord2 = useTexcoord2;
             
             if (Material)
             {

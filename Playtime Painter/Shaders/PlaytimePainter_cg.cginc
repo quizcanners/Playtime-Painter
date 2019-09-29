@@ -120,7 +120,7 @@ inline float random(float2 st) {
 }
 
 inline bool isAcute(float a, float b, float c) {
-    if (c == 0) return true;
+    if (c < 0.0001) return true;
     float longest = max(a, b);
     longest *= longest;
     float side = min(a, b);
@@ -187,6 +187,7 @@ inline float positionToAlpha(float3 worldPos) {
 	float b = length(_brushWorldPosTo - worldPos);
 	float c = _brushWorldPosTo.w;
 	float dist = 0;
+
 
 	if (isAcute(a, b, c)) dist = min(a, b);
 	else {
@@ -303,7 +304,7 @@ inline float4 SampleUV_AlphaBuffer(float2 uv) {
 
 
 inline float prepareAlphaSphere (float2 texcoord, float3 worldPos){
-	float mask = getMaskedAlpha (texcoord);
+	float mask = getMaskedAlpha(texcoord);
 
 	float alpha = positionToAlpha (worldPos);
 

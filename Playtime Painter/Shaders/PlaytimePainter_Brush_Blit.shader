@@ -94,6 +94,7 @@
 
 					#if BRUSH_3D  ||   BRUSH_3D_TEXCOORD2
 					float alpha = prepareAlphaSphere (i.texcoord, i.worldPos);
+					
 					clip(alpha - 0.000001);
 					#endif
 
@@ -122,6 +123,8 @@
 
 					_brushColor.a = alpha;
 
+
+		
 					return  _brushColor;
 
 				}

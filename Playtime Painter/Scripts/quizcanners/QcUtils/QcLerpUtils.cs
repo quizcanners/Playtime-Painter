@@ -1443,7 +1443,7 @@ namespace QuizCannersUtilities
 
         public class MaterialColor : BaseShaderLerp
         {
-            private readonly ShaderProperty.ColorValue _property;
+            private readonly ShaderProperty.IndexGeneric<Color> _property;
 
             protected override string Name_Internal => _property != null ? _property.NameForDisplayPEGI(): "Material Float";
             
@@ -1474,6 +1474,13 @@ namespace QuizCannersUtilities
                 Value = startingValue;
             }
 
+            public MaterialColor(string nName, Color startingValue, string shaderFeatureDirective, float startingSpeed = 1, Material m = null,
+                Renderer renderer = null) : base(startingSpeed, m, renderer)
+            {
+                _property = new ShaderProperty.ColorFeature(nName, shaderFeatureDirective);
+                Value = startingValue;
+            }
+
             protected override bool LerpSubInternal(float portion)
             {
                 if (Value != targetValue || !defaultSet)
@@ -1487,8 +1494,7 @@ namespace QuizCannersUtilities
 
             public override bool Portion(ref float portion) =>
                 speedLimit.SpeedToMinPortion(Value.DistanceRgba(targetValue), ref portion);
-
-
+            
             #region Encode & Decode
 
             public override CfgEncoder Encode()

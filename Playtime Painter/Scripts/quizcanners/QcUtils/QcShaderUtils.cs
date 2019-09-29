@@ -18,7 +18,7 @@ namespace QuizCannersUtilities {
 
     public static class ShaderProperty {
 
-        #region Base
+        #region Base Abstract
 
         public abstract class BaseShaderPropertyIndex : AbstractCfg, IGotDisplayName, IPEGI_ListInspect
         {
@@ -118,9 +118,9 @@ namespace QuizCannersUtilities {
 
         #endregion
 
-        #region Generic Extensions
+        #region Generics
 
-        public abstract class ShaderPropertyIndexGeneric<T> : BaseShaderPropertyIndex {
+        public abstract class IndexGeneric<T> : BaseShaderPropertyIndex {
 
             public T lastValue;
 
@@ -138,14 +138,14 @@ namespace QuizCannersUtilities {
                 return material;
             }
 
-            public Renderer SetOn(Renderer renderer, T value)
+            public virtual Renderer SetOn(Renderer renderer, T value)
             {
                 lastValue = value;
                 SetOn(renderer);
                 return renderer;
             }
 
-            public void SetOn(MaterialPropertyBlock block, T value)
+            public virtual void SetOn(MaterialPropertyBlock block, T value)
             {
                 lastValue = value;
                 SetOn(block);
@@ -155,47 +155,89 @@ namespace QuizCannersUtilities {
 
             public T GetGlobal(T value) => GlobalValue;
 
-            protected ShaderPropertyIndexGeneric()
+            protected IndexGeneric()
             {
             }
 
-            protected ShaderPropertyIndexGeneric(string name) : base(name)
+            protected IndexGeneric(string name) : base(name)
             {
             }
 
         }
 
-        public static MaterialPropertyBlock Set<T>(this MaterialPropertyBlock block, ShaderPropertyIndexGeneric<T> property)
+        public abstract class IndexWithShaderFeatureGeneric<T> : IndexGeneric<T> {
+
+            private readonly string _featureDirective;
+
+            private bool _directiveGlobalValue;
+
+            private bool GlobalDirectiveChanged()
+            {
+                if (_directiveGlobalValue != DirectiveEnabledForLastValue) {
+                    _directiveGlobalValue = DirectiveEnabledForLastValue;
+                    return true;
+                } else
+                    return false;
+            }
+
+            public override T GlobalValue {
+                set {
+                    if (GlobalDirectiveChanged()) 
+                        QcUnity.SetShaderKeyword(_featureDirective, _directiveGlobalValue);
+                }
+            }
+
+            public override Material SetOn(Material material, T value) {
+
+                var ret =  base.SetOn(material, value);
+                
+                material.SetShaderKeyword(_featureDirective, DirectiveEnabledForLastValue);
+
+                return ret;
+            }
+
+            protected IndexWithShaderFeatureGeneric(string name, string featureDirective) : base(name)
+            {
+
+                _featureDirective = featureDirective;
+
+            }
+
+            protected abstract bool DirectiveEnabledForLastValue { get; }
+
+        }
+
+        public static MaterialPropertyBlock Set<T>(this MaterialPropertyBlock block, IndexGeneric<T> property)
         {
             property.SetOn(block);
             return block;
         }
 
-        public static MaterialPropertyBlock Set<T>(this MaterialPropertyBlock block, ShaderPropertyIndexGeneric<T> property, T value)
+        public static MaterialPropertyBlock Set<T>(this MaterialPropertyBlock block, IndexGeneric<T> property, T value)
         {
             property.SetOn(block, value);
             return block;
         }
 
-        public static Material Set<T>(this Material mat, ShaderPropertyIndexGeneric<T> property)
+        public static Material Set<T>(this Material mat, IndexGeneric<T> property)
         {
             property.SetOn(mat);
             return mat;
         }
 
-        public static Material Set<T>(this Material mat, ShaderPropertyIndexGeneric<T> property, T value) =>
+        public static Material Set<T>(this Material mat, IndexGeneric<T> property, T value) =>
             property.SetOn(mat, value);
 
-        public static Renderer Set<T>(this Renderer renderer, ShaderPropertyIndexGeneric<T> property, T value) =>
+        public static Renderer Set<T>(this Renderer renderer, IndexGeneric<T> property, T value) =>
             property.SetOn(renderer, value);
 
-        public static T Get<T>(this Material mat, ShaderPropertyIndexGeneric<T> property) => property.Get(mat);
+        public static T Get<T>(this Material mat, IndexGeneric<T> property) => property.Get(mat);
 
         #endregion
 
         #region Float
 
-        public class FloatValue : ShaderPropertyIndexGeneric<float> {
+        public class FloatValue : IndexGeneric<float> {
 
             public override void SetOn(Material material) => material.SetFloat(id, lastValue);
 
@@ -232,7 +274,31 @@ namespace QuizCannersUtilities {
 
         #region Color
 
-        public class ColorValue : ShaderPropertyIndexGeneric<Color> {
+        public class ColorFeature : IndexWithShaderFeatureGeneric<Color> {
+
+            public static readonly ColorValue tintColor = new ColorValue("_TintColor");
+
+            public override void SetOn(Material material) => material.SetColor(id, lastValue);
+            
+            public override Color Get(Material material) => material.GetColor(id);
+
+            public override void SetOn(MaterialPropertyBlock block) => block.SetColor(id, lastValue);
+
+            public override Color GlobalValue
+            {
+                get { return Shader.GetGlobalColor(id); }
+                set {
+                    base.GlobalValue = value;
+                    Shader.SetGlobalColor(id, value);
+                }
+            }
+
+            protected override bool DirectiveEnabledForLastValue => lastValue.a > 0.01f;
+            
+            public ColorFeature(string name, string featureDirective) : base(name, featureDirective) { }
+        }
+
+        public class ColorValue : IndexGeneric<Color> {
 
             public static readonly ColorValue tintColor = new ColorValue("_TintColor");
 
@@ -269,7 +335,7 @@ namespace QuizCannersUtilities {
 
         #region Vector
 
-        public class VectorValue : ShaderPropertyIndexGeneric<Vector4>
+        public class VectorValue : IndexGeneric<Vector4>
         {
 
             public override void SetOn(Material material) => material.SetVector(id, lastValue);
@@ -301,7 +367,7 @@ namespace QuizCannersUtilities {
 
         #region Matrix
 
-        public class MatrixValue : ShaderPropertyIndexGeneric<Matrix4x4>
+        public class MatrixValue : IndexGeneric<Matrix4x4>
         {
 
             public override void SetOn(Material material) => material.SetMatrix(id, lastValue);
@@ -334,7 +400,7 @@ namespace QuizCannersUtilities {
 
         #region Texture
 
-        public class TextureValue : ShaderPropertyIndexGeneric<Texture>
+        public class TextureValue : IndexGeneric<Texture>
         {
             public static readonly TextureValue mainTexture = new TextureValue("_MainTex");
 

@@ -1,4 +1,5 @@
-﻿using PlaytimePainter;
+﻿using System;
+using PlaytimePainter;
 using QuizCannersUtilities;
 using UnityEditor;
 using UnityEngine;
@@ -300,10 +301,9 @@ namespace PlayerAndEditorGUI {
 
                 if ("Can I integrate Painter into my game?".enter(ref inspectedFaqQuestion, 0).nl()) {
 
-                    (" There is no reason why you can't. This asset doesn't contain or depend on any plugins and does everything using Unity functions. " +
-                     " If you downloaded Examples folder, there should be simple scripts that use Paint functions." +
-                     " Usually you will " +
-                     " attach PlaytimePainter or some custom script to objects you want to paint on. " +
+                    (" There is no reason why you can't. This asset doesn't contain or depend on any plugins and does everything using Unity functions. " + Environment.NewLine +
+                     " If you have downloaded Examples folder, there should be a simple scripts that use Paint functions." + Environment.NewLine +
+                     " Usually you will attach PlaytimePainter or some custom script to objects you want to paint on. " + Environment.NewLine +
                      " I try to make sure that all required information is provided trough the inspector" +
                      " interface. It should show warnings/hints when something needs to be set up. ").writeBig();
                 }
@@ -312,7 +312,7 @@ namespace PlayerAndEditorGUI {
                     ("Undo/Redo needs to be enabled per texture in {0}. Otherwise there are just too many scenarios when lots of memory will be used due to unwanted backups and redo steps.".F(MsgPainter.TextureSettings.GetText()) +
                       " It is possible to save texture during runtime. In Texture Setting -> Texture Processors there is a section to Save/Load textures during runtime. It is there for testing." +
                       " The code used for saving texture is located inside ImgData class. While editing texture in editor, there is Save/Load buttons which can save changes to the actual .png file, or " +
-                      "load from it. Of not pressed, any changes to the texture will be lost once Unity is restarted, or texture reimported."  ).writeBig();
+                      "load from it. If not saved, any changes to the texture will be lost once Unity is restarted, or texture reimported."  ).writeBig();
                 }
 
                 if ("What should I be careful about?".enter(ref inspectedFaqQuestion, 2).nl())

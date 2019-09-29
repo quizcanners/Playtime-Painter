@@ -131,7 +131,7 @@ namespace PlaytimePainter {
 
         public bool worldSpaceBrushPixelJitter;
 
-        public float Size(bool worldSpace) => (worldSpace ? brush3DRadius : brush2DRadius);
+        public float Size(bool worldSpace) => Mathf.Max(0.01f, worldSpace ? brush3DRadius : brush2DRadius);
         public Color Color;
 
         public virtual bool IsA3DBrush(PlaytimePainter painter)

@@ -1235,7 +1235,7 @@ namespace QuizCannersUtilities {
 
         public static string GetGuid(this Object obj) => obj.GetGuid(null);
 
-        public static void RenameAsset<T>(this T obj, string newName) where T : UnityEngine.Object
+        public static void RenameAsset<T>(this T obj, string newName) where T : Object
         {
 
             if (newName.IsNullOrEmpty() || !obj) return;

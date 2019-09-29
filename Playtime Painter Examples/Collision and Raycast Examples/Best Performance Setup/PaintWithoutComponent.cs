@@ -9,31 +9,38 @@ using UnityEditor;
 
 namespace PlaytimePainter.Examples
 {
+#pragma warning disable IDE0018 // Inline variable declaration
 
-    public class PaintWithoutComponent : MonoBehaviour, IPEGI
-    {
-
-        #pragma warning disable IDE0018 // Inline variable declaration
-
+    public class PaintWithoutComponent : MonoBehaviour, IPEGI {
+        
         public BrushConfig brush = new BrushConfig();
+        private StrokeVector continiousStroke = new StrokeVector(); // For continious
+        private PaintingReceiver previousTargetForContinious;
         public int shoots = 1;
+        public bool continious = false;
         public float spread;
-
-
+        
         private void Update()
         {
             if (Input.GetMouseButton(0))
                 Paint();
+            else if (continious)
+                continiousStroke.OnMouseUnPressed();
         }
 
-        readonly List<TextureMeta> _texturesNeedUpdate = new List<TextureMeta>();
+        private static readonly List<TextureMeta> _texturesNeedUpdate = new List<TextureMeta>();
 
         private void Paint() {
 
             RaycastHit hit;
 
-            for (var i = 0; i < shoots; i++)
-                if (Physics.Raycast(new Ray(transform.position, transform.forward + transform.right * Random.Range(-spread, spread) + transform.up * Random.Range(-spread, spread)), out hit)) {
+            for (var i = 0; i < (continious ? 1 : shoots); i++)
+                if (Physics.Raycast(new Ray(transform.position, transform.forward  + 
+                                (continious ? Vector3.zero :  
+                                (transform.right* Random.Range(-spread, spread) 
+                                + transform.up * Random.Range(-spread, spread)))
+                                )
+                    , out hit)) {
 
                     var receivers = hit.transform.GetComponentsInParent<PaintingReceiver>();
                     
@@ -42,7 +49,7 @@ namespace PlaytimePainter.Examples
                     int subMesh;
                     var receiver = receivers[0];
 
-                    // IF FEW SubMeshes
+                    #region Multiple Submeshes
                     if (hit.collider.GetType() == typeof(MeshCollider))
                     {
 
@@ -60,7 +67,9 @@ namespace PlaytimePainter.Examples
                     else
                         subMesh = receiver.materialIndex;
 
-                    // ACTUAL PAINTING
+                    #endregion
+
+                    
 
                     if (!receiver) continue;
                     
@@ -70,18 +79,29 @@ namespace PlaytimePainter.Examples
                     
                     var rendTex = (receiver.texture.GetType() == typeof(RenderTexture)) ? (RenderTexture)receiver.texture : null;
 
-                    // WORLD SPACE BRUSH
+                    #region  WORLD SPACE BRUSH
+
+                    if (continious) {
+                        if (previousTargetForContinious && (receiver != previousTargetForContinious))
+                            continiousStroke.OnMouseUnPressed();
+                         
+                        previousTargetForContinious = receiver;
+                    }
 
                     if (rendTex)
                     {
-                        var st = new StrokeVector(hit.point)
-                        {
-                            unRepeatedUv = hit.collider.GetType() == typeof(MeshCollider) ?
-                                (receiver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord).Floor() : receiver.meshUvOffset,
-                                        
 
-                        };
+           
+                        var st = continious ? continiousStroke :
+                            new StrokeVector(hit, receiver.useTexcoord2);
 
+                        st.unRepeatedUv = hit.collider.GetType() == typeof(MeshCollider)
+                            ? (receiver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord).Floor()
+                            : receiver.meshUvOffset; 
+
+                        if (continious)
+                            st.OnMousePressed(hit, receiver.useTexcoord2);
+                        
                         switch (receiver.type) {
 
                             case PaintingReceiver.RendererType.Skinned when receiver.skinnedMeshRenderer:
@@ -89,31 +109,43 @@ namespace PlaytimePainter.Examples
                                 break;
                             case PaintingReceiver.RendererType.Regular when receiver.meshFilter:
                             {
-                                var mat = receiver.Material;
-                                if (mat && mat.IsAtlased())
-                                    BrushTypes.Sphere.PaintAtlased (rendTex, receiver.gameObject,
-                                        receiver.originalMesh ? receiver.originalMesh : receiver.meshFilter.sharedMesh, brush, st, new List<int> { subMesh }, (int)mat.GetFloat(PainterDataAndConfig.ATLASED_TEXTURES));
+                                if (brush.GetBrushType(false) == BrushTypes.Sphere.Inst) {
+                                    var mat = receiver.Material;
+                                    if (mat && mat.IsAtlased())
+                                        BrushTypes.Sphere.PaintAtlased(rendTex, receiver.gameObject,
+                                            receiver.originalMesh
+                                                ? receiver.originalMesh
+                                                : receiver.meshFilter.sharedMesh, brush, st, new List<int> {subMesh},
+                                            (int) mat.GetFloat(PainterDataAndConfig.ATLASED_TEXTURES));
+                                    else
+                                        BrushTypes.Sphere.Paint(rendTex, receiver.gameObject,
+                                            receiver.originalMesh
+                                                ? receiver.originalMesh
+                                                : receiver.meshFilter.sharedMesh, brush, st,
+                                            new List<int> {subMesh});
+                                }
                                 else
-                                    BrushTypes.Sphere.Paint(rendTex, receiver.gameObject,
-                                        receiver.originalMesh ? receiver.originalMesh : 
-                                            receiver.meshFilter.sharedMesh, brush, st, 
-                                        new List<int> { subMesh } );
+                                    BrushTypes.Normal.Paint(rendTex, brush, st);
+                                
                                 break;
                             }
                         }
                     }
-                    // TEXTURE SPACE BRUSH
+                    #endregion
+                    #region TEXTURE SPACE BRUSH
                     else if (receiver.texture is Texture2D) {
 
                         if (hit.collider.GetType() != typeof(MeshCollider))
                             Debug.Log("Can't get UV coordinates from a Non-Mesh Collider");
 
                         BlitFunctions.Paint(receiver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord, 1, (Texture2D)receiver.texture, Vector2.zero, Vector2.one, brush, null);
-                        var id = receiver.texture.GetTextureData();
+                        var id = receiver.texture.GetTextureMeta();
                         _texturesNeedUpdate.AddIfNew(id);
 
                     }
+                    #endregion
                     else Debug.Log(receiver.gameObject.name + " doesn't have any combination of paintable things setup on his PainterReciver.");
+
                 }
     
         }
@@ -127,6 +159,7 @@ namespace PlaytimePainter.Examples
             _texturesNeedUpdate.Clear();
         }
 
+        #region Inspector
 #if UNITY_EDITOR
         private void OnDrawGizmosSelected() {
 
@@ -175,8 +208,12 @@ namespace PlaytimePainter.Examples
 
             pegi.fullWindowDocumentationClickOpen(Documentation);
 
-            "Bullets:".edit(50, ref shoots, 1, 50).nl(ref changed);
-            "Spread:".edit(50, ref spread, 0f, 1f).nl(ref changed);
+            "Continious".toggleIcon(ref continious).nl();
+
+            if (!continious) {
+                "Bullets:".edit(50, ref shoots, 1, 50).nl(ref changed);
+                "Spread:".edit(50, ref spread, 0f, 1f).nl(ref changed);
+            }
 
             if ("Fire!".Click().nl())
                 Paint();
@@ -193,9 +230,9 @@ namespace PlaytimePainter.Examples
                     brush.targetIsTex2D = false;
             } else if (brush.GetBrushType(false).GetType() != typeof(BrushTypes.Sphere))
             {
-                "This script works with Sphere Brush only".writeWarning();
-                if ("Switch to Sphere Brush".Click())
-                    brush.SetBrushType(false, BrushTypes.Sphere.Inst);
+                "This component works best with Sphere Brush? also supports Normal Brush.".writeHint();
+                //if ("Switch to Sphere Brush".Click())
+                  //  brush.SetBrushType(false, BrushTypes.Sphere.Inst);
             }
             
 
@@ -204,7 +241,7 @@ namespace PlaytimePainter.Examples
             
             return changed;
         }
-
+        #endregion
     }
 
 #if UNITY_EDITOR

@@ -139,12 +139,12 @@ namespace PlaytimePainter {
 
         public static void Paint(Vector2 uvCoords, float brushAlpha, Texture2D texture, Vector2 offset, Vector2 tiling, BrushConfig bc, PlaytimePainter pntr)
         {
-            var id = texture.GetTextureData();
+            var id = texture.GetTextureMeta();
 
             id.offset = offset;
             id.tiling = tiling;
 
-            Paint(new StrokeVector(uvCoords), brushAlpha, texture.GetTextureData(), bc, pntr);
+            Paint(new StrokeVector(uvCoords), brushAlpha, texture.GetTextureMeta(), bc, pntr);
         }
 
         public static void Paint(StrokeVector stroke, float brushAlpha, TextureMeta image, BrushConfig bc, PlaytimePainter painter)

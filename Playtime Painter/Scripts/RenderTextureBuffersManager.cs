@@ -682,7 +682,7 @@ namespace PlaytimePainter {
             return rid;
         }
 
-        public static TextureMeta GetTextureData(this Texture texture)
+        public static TextureMeta GetTextureMeta(this Texture texture)
         {
             if (!texture)
                 return null;

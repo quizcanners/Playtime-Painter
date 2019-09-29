@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System;
+using System.Runtime.CompilerServices;
 using QuizCannersUtilities;
 
 namespace PlaytimePainter {
@@ -19,9 +20,11 @@ namespace PlaytimePainter {
 	    public bool mouseDwn;
 	    public bool firstStroke; // For cases like Lazy Brush, when painting doesn't start on the first frame.
 	    public bool mouseUp;
+        public bool mouseHeld;
 
         public static bool pausePlayback;
 
+        public override string ToString() => "Pos: {0} UV: {1}".F(DeltaWorldPos, DeltaUv); 
 
 	    public Vector2 DeltaUv => uvTo - uvFrom;
         public Vector3 DeltaWorldPos => posTo - posFrom;
@@ -44,6 +47,7 @@ namespace PlaytimePainter {
 
             }
 
+        #region Encode & Decode
         public override CfgEncoder Encode() {
 
             var s = new CfgEncoder();
@@ -85,8 +89,8 @@ namespace PlaytimePainter {
         public override bool Decode(string tg, string data) {
 
             switch (tg) {
-                case "fU": Dwn(data.ToVector2());  break;
-                case "fP": Dwn(data.ToVector3());  break;
+                case "fU": Down(data.ToVector2());  break;
+                case "fP": Down(data.ToVector3());  break;
                 case "tU": uvTo = data.ToVector2(); break;
                 case "tP": posTo = data.ToVector3(); break;
                 case "Up": mouseUp = true; break;
@@ -95,23 +99,86 @@ namespace PlaytimePainter {
             return true;
 
         }
+        #endregion
 
-        private void Dwn( Vector3 pos) {
+        public void OnMouseUnPressed() {
 
-            Dwn();
+            mouseUp = mouseHeld;
+
+            mouseDwn = false;
+            mouseHeld = false;
+        }
+
+        public void OnMousePressed(Vector2 pos)
+        {
+            if (!mouseHeld)
+                Down(pos);
+            else
+            {
+                uvFrom = uvTo;
+                mouseHeld = true;
+                mouseDwn = false;
+            }
+
+            uvTo = pos;
+        }
+
+        public void OnMousePressed(Vector3 pos) {
+            if (!mouseHeld) 
+                Down(pos);
+            else {
+                posFrom = posTo;
+                mouseHeld = true;
+                mouseDwn = false;
+            }
+
+            posTo = pos;
+        }
+
+        public void OnMousePressed(RaycastHit hit, bool texcoord2)
+        {
+
+            var pos = hit.point;
+            var uv = (texcoord2 ? hit.textureCoord2 : hit.textureCoord).To01Space();
+            
+            if (!mouseHeld)
+                Down(pos, uv);
+            else {
+                posFrom = posTo;
+                uvFrom = uvTo;
+                mouseHeld = true;
+                mouseDwn = false;
+            }
+
+            posTo = pos;
+            uvTo = uv;
+        }
+
+        private void Down(RaycastHit hit, bool texcoord2) =>
+            Down(hit.point, (texcoord2 ? hit.textureCoord2 : hit.textureCoord).To01Space());
+        
+        private void Down(Vector3 pos, Vector2 uv) {
+            Down_Internal();
+            uvFrom = uv;
             posFrom = pos;
         }
 
-        private void Dwn(Vector2 uv) {
-            Dwn();
+        private void Down( Vector3 pos) { 
+            Down_Internal();
+            posFrom = pos;
+        }
+
+        private void Down( Vector2 uv) {
+            Down_Internal();
             uvFrom  = uv;
         }
 
-        private void Dwn() {
+        private void Down_Internal() {
+
             firstStroke = true;
             mouseDwn = true;
             mouseUp = false;
-            
+            mouseHeld = true;
         }
 
         public void SetWorldPosInShader()
@@ -132,25 +199,27 @@ namespace PlaytimePainter {
 
         public StrokeVector()
         {
-            Dwn();
+            Down_Internal();
         }
 
         public StrokeVector (RaycastHit hit, bool texcoord2) {
-            uvFrom = uvTo = (texcoord2 ? hit.textureCoord : hit.textureCoord2).To01Space();
+            uvFrom = uvTo = (texcoord2 ? hit.textureCoord2 : hit.textureCoord).To01Space();
             posFrom = posTo = hit.point;
-            Dwn();
+            Down_Internal();
         }
+
+
 
         public StrokeVector(Vector3 pos)
         {
             posFrom = posTo = pos;
-            Dwn();
+            Down_Internal();
         }
 
         public StrokeVector(Vector2 uv)
         {
             uvFrom = uvTo = uv;
-            Dwn();
+            Down_Internal();
         }
 
         public StrokeVector(StrokeVector  other)
@@ -169,7 +238,7 @@ namespace PlaytimePainter {
             firstStroke = other.firstStroke ; // For cases like Lazy Brush, when painting doesn't start on the first frame.
             mouseUp = other.mouseDwn;
 
-            Dwn();
+            Down_Internal();
         }
     }
 

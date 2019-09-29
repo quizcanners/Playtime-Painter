@@ -146,7 +146,7 @@ namespace PlaytimePainter {
 
         public MaterialMeta MatDta => Material.GetMaterialPainterMeta();
 
-        public TextureMeta TexMeta => GetTextureOnMaterial().GetTextureData();
+        public TextureMeta TexMeta => GetTextureOnMaterial().GetTextureMeta();
 
         private bool HasMaterialSource => meshRenderer || terrain || uiGraphic;
 
@@ -1026,7 +1026,7 @@ namespace PlaytimePainter {
         public TextureMeta SetTextureOnMaterial(ShaderProperty.TextureValue property, Texture tex, Material mat)
         {
 
-            var id = tex.GetTextureData();
+            var id = tex.GetTextureMeta();
 
             if (property != null)
             {
@@ -1054,7 +1054,7 @@ namespace PlaytimePainter {
             if (meshEditing) return;
         
             var mat = Material;
-            var id = tex.GetTextureData();
+            var id = tex.GetTextureMeta();
 
             PainterDataAndConfig.PreviewTexture.SetOn(mat, id.CurrentTexture());
             
@@ -1192,7 +1192,7 @@ namespace PlaytimePainter {
 
             var oid = TexMeta;
 
-            var id = terrainHeightTexture.GetTextureData();
+            var id = terrainHeightTexture.GetTextureMeta();
 
             var current = id == oid;
             var rendTex = current && oid.TargetIsRenderTexture();
@@ -2619,7 +2619,7 @@ namespace PlaytimePainter {
                 }
                 PainterCamera.Data.brushConfig.MaskSet(ColorMask.A, true);
 
-                if (tht.GetTextureData() != null && NotUsingPreview && icon.OriginalShader.Click("Applies changes made in Unity terrain Editor", 45).changes(ref changed))
+                if (tht.GetTextureMeta() != null && NotUsingPreview && icon.OriginalShader.Click("Applies changes made in Unity terrain Editor", 45).changes(ref changed))
                 {
                     Unity_To_Preview();
                     SetPreviewShader();

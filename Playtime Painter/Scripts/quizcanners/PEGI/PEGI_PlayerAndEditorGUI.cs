@@ -4117,7 +4117,7 @@ namespace PlayerAndEditorGUI
             
 #if UNITY_EDITOR
             var path = AssetDatabase.GetAssetPath(obj);
-            if (icon.Copy.Click("{0} Duplicate at {1}".F(obj, path)).changes(ref changed)) {
+            if (icon.Copy.ClickConfirm("dpl"+obj+"|"+path,"{0} Duplicate at {1}".F(obj, path)).changes(ref changed)) {
                 if (path.IsNullOrEmpty())
                 {
                     obj = Object.Instantiate(obj);

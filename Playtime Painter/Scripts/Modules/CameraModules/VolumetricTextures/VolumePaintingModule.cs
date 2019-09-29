@@ -216,7 +216,7 @@ namespace PlaytimePainter {
             var vt = painter.GetVolumeTexture();
             stroke.posFrom = stroke.posTo;
 
-            BrushTypes.Sphere.Inst.BeforeStroke(painter, bc, stroke);
+            BrushTypes.Sphere.Inst.BeforeStroke(bc, stroke, painter);
 
             VOLUME_POSITION_N_SIZE_BRUSH.GlobalValue = vt.PosSize4Shader;
             VOLUME_H_SLICES_BRUSH.GlobalValue = vt.Slices4Shader;
@@ -224,7 +224,7 @@ namespace PlaytimePainter {
            
             image.useTexCoord2 = false;
             bool alphaBuffer;
-            TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(bc, bc.Speed * 0.05f, image, stroke, painter, out alphaBuffer);
+            TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(bc, bc.Speed * 0.05f, image, stroke, out alphaBuffer, painter);
             
             stroke.SetWorldPosInShader();
             
@@ -665,7 +665,7 @@ namespace PlaytimePainter {
                 }
         }
 
-        public static VolumeTexture GetVolumeTextureData(this Texture tex) => GetVolumeTextureData(tex.GetTextureData());
+        public static VolumeTexture GetVolumeTextureData(this Texture tex) => GetVolumeTextureData(tex.GetTextureMeta());
         
         private static VolumeTexture _lastFetchedVt;
 

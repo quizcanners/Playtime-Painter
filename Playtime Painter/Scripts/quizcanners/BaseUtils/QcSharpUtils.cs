@@ -25,6 +25,30 @@ namespace QuizCannersUtilities {
 
         #region Timer
 
+
+
+        public static string SecondsToReadableString(long seconds) => TicksToReadableString(seconds * TimeSpan.TicksPerSecond);
+
+        public static string TicksToReadableString(long elapsed) {
+
+            if (elapsed < TimeSpan.TicksPerMillisecond)
+                return elapsed.ToString() +
+                            " ticks  ({0} ms)".F(((double)elapsed / TimeSpan.TicksPerMillisecond).ToString("0.00")); 
+            else if (elapsed < TimeSpan.TicksPerSecond)
+                return (elapsed / TimeSpan.TicksPerMillisecond).ToString() +
+                            " miliseconds  ({0} s)".F(((double)elapsed / TimeSpan.TicksPerSecond).ToString("0.00")); 
+            else if (elapsed < TimeSpan.TicksPerMinute)
+                return elapsed / TimeSpan.TicksPerSecond +
+                            " seconds  ({0} min)".F(((double)elapsed / TimeSpan.TicksPerMinute).ToString("0.00")); 
+            else if (elapsed < TimeSpan.TicksPerHour)
+                return elapsed / TimeSpan.TicksPerMinute +
+                       " minutes  ({0} hours)".F(((double)elapsed / TimeSpan.TicksPerHour).ToString("0.00")); 
+            else //if (elapsed < TimeSpan.TicksPerDay)
+                return elapsed / TimeSpan.TicksPerHour +
+                       " hours  ({0} days)".F(((double)elapsed / TimeSpan.TicksPerDay).ToString("0.00")); 
+
+        }
+
         public static Timer timer = new Timer();
 
         public class Timer : IDisposable {
@@ -66,28 +90,16 @@ namespace QuizCannersUtilities {
             public string End(string label, bool logInEditor, bool logInPlayer) =>
                 End(label, logInEditor, logInPlayer, 0);
 
+             
+
             public string End(string label, bool logInEditor, bool logInPlayer, float logThreshold)
             {
                 StopWatch.Stop();
-
-                string timedText = "";
-
+                
                 var elapsed = StopWatch.ElapsedTicks;
 
-                if (elapsed < TimeSpan.TicksPerMillisecond)
-                    timedText = elapsed.ToString() +
-                                " ticks  (0.{0} ms)".F(Mathf.RoundToInt(elapsed * 100 / TimeSpan.TicksPerMillisecond)
-                                    .ToString());
-                else if (elapsed < TimeSpan.TicksPerSecond)
-                    timedText = (elapsed / TimeSpan.TicksPerMillisecond).ToString() +
-                                " miliseconds  (0.{0} s)".F(Mathf.RoundToInt(elapsed * 100 / TimeSpan.TicksPerSecond)
-                                    .ToString());
-                else if (elapsed < TimeSpan.TicksPerMinute)
-                    timedText = elapsed / TimeSpan.TicksPerSecond +
-                                " seconds  (0.{0} min)".F(Mathf.RoundToInt(elapsed * 100 / TimeSpan.TicksPerMinute)
-                                    .ToString());
-
-
+                var timedText = TicksToReadableString(elapsed);
+                
                 if (label == null)
                     label = "";
 
