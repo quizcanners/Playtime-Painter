@@ -24,7 +24,7 @@ namespace PlaytimePainter {
         public static CfgEncoder EncodeWeather()
         {
             var cody = new CfgEncoder()
-                    .Add("sh", shadowStrength.targetValue)
+                    .Add("sh", shadowStrength.TargetValue)
                     .Add("sdst", shadowDistance)
                     .Add("sc", skyColor.targetValue)
                     .Add_Bool("fg", RenderSettings.fog)
@@ -49,7 +49,7 @@ namespace PlaytimePainter {
         {
             switch (tg)
             {
-                case "sh": shadowStrength.targetValue = data.ToFloat(); break;
+                case "sh": shadowStrength.TargetValue = data.ToFloat(); break;
                 case "sdst": shadowDistance.Decode(data); break;
                 case "sc": skyColor.targetValue = data.ToColor(); break;
                 case "fg": RenderSettings.fog = data.ToBool(); break;

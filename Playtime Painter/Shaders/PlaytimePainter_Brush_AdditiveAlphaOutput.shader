@@ -41,7 +41,7 @@
 					o.worldPos = worldPos;
 
 					#if BRUSH_3D_TEXCOORD2
-					v.texcoord.xy = v.texcoord2.xy;
+					v.texcoord.xy = v.texcoord1.xy;
 					#endif
 
 					// ATLASED CALCULATION

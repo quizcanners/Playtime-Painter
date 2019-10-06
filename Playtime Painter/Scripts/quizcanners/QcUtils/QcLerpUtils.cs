@@ -216,7 +216,7 @@ namespace QuizCannersUtilities
                 }
             }
 
-            public abstract bool Portion(ref float linkedPortion);
+            protected abstract bool Portion(ref float linkedPortion);
 
             #region Inspector
             
@@ -294,7 +294,7 @@ namespace QuizCannersUtilities
         public abstract class BaseLerpGeneric<T> : BaseLerp
         {
 
-            protected abstract T TargetValue { get; set; }
+            public abstract T TargetValue { get; set; }
             public abstract T CurrentValue { get; set; }
 
             public T TargetAndCurrentValue
@@ -306,13 +306,17 @@ namespace QuizCannersUtilities
                 }
             }
 
+            public virtual void Portion(LerpData ld, T targetValue) {
+                TargetValue = targetValue;
+                Portion(ld);
+            }
         }
 
         public abstract class BaseVector2Lerp : BaseLerpGeneric<Vector2>
         {
             public Vector2 targetValue;
             
-            protected override Vector2 TargetValue
+            public override Vector2 TargetValue
             {
                 get { return targetValue; }
                 set { targetValue = value; }
@@ -333,7 +337,7 @@ namespace QuizCannersUtilities
                 return true;
             }
 
-            public override bool Portion(ref float linkedPortion)
+            protected override bool Portion(ref float linkedPortion)
             {
 
                 var magnitude = (CurrentValue - targetValue).magnitude;
@@ -415,9 +419,9 @@ namespace QuizCannersUtilities
 
         public abstract class BaseQuaternionLerp : BaseLerpGeneric<Quaternion>
         {
-            public Quaternion targetValue;
+            protected Quaternion targetValue;
 
-            protected override Quaternion TargetValue
+            public override Quaternion TargetValue
             {
                 get { return targetValue; }
                 set { targetValue = value; }
@@ -434,7 +438,7 @@ namespace QuizCannersUtilities
                 return true;
             }
 
-            public override bool Portion(ref float linkedPortion)
+            protected override bool Portion(ref float linkedPortion)
             {
 
                 var magnitude = Quaternion.Angle(CurrentValue, targetValue);
@@ -519,7 +523,7 @@ namespace QuizCannersUtilities
                 return true;
             }
 
-            public override bool Portion(ref float linkedPortion) =>
+            protected override bool Portion(ref float linkedPortion) =>
                 speedLimit.SpeedToMinPortion(CurrentValue - TargetValue, ref linkedPortion);
 
             #region Inspect
@@ -572,7 +576,7 @@ namespace QuizCannersUtilities
 
             private OnStart _onStart = OnStart.Nothing;
 
-            protected override float TargetValue
+            public override float TargetValue
             {
                 get { return Mathf.Max(0, _targetTextures.Count - 1); }
                 set { }
@@ -827,7 +831,7 @@ namespace QuizCannersUtilities
 
         }
 
-        public abstract class BaseShaderLerp : BaseLerp, IGotDisplayName
+        public abstract class BaseShaderLerp<T> : BaseLerpGeneric<T>, IGotDisplayName
         {
 
             public Material material;
@@ -898,13 +902,13 @@ namespace QuizCannersUtilities
 
             public Color targetValue = Color.white;
 
-            protected override Color TargetValue
+            public override Color TargetValue
             {
                 get { return targetValue; }
                 set { targetValue = value; }
             }
 
-            public override bool Portion(ref float linkedPortion) =>
+            protected override bool Portion(ref float linkedPortion) =>
                 speedLimit.SpeedToMinPortion(CurrentValue.DistanceRgba(targetValue), ref linkedPortion);
 
             public sealed override bool LerpInternal(float linkedPortion)
@@ -973,7 +977,7 @@ namespace QuizCannersUtilities
 
             public override float CurrentValue { get; set; }
 
-            protected override float TargetValue
+            public override float TargetValue
             {
                 get { return targetValue; }
                 set { targetValue = value; }
@@ -1126,8 +1130,7 @@ namespace QuizCannersUtilities
             }
 
         }
-
-
+        
         public class QuaternionValue : BaseQuaternionLerp
         {
 
@@ -1278,7 +1281,7 @@ namespace QuizCannersUtilities
                 return true;
             }
 
-            public override bool Portion(ref float portion) =>
+            protected override bool Portion(ref float portion) =>
                 speedLimit.SpeedToMinPortion((Value - targetValue).magnitude, ref portion);
 
         }
@@ -1349,30 +1352,34 @@ namespace QuizCannersUtilities
 
         #region Material
 
-        public class MaterialFloat : BaseShaderLerp
+        public class MaterialFloat : BaseShaderLerp<float>
         {
             private readonly ShaderProperty.FloatValue _property;
-            
-            public float Value
+
+            protected override string Name_Internal =>
+                _property != null ? _property.NameForDisplayPEGI() : "Material Float";
+
+            public override float TargetValue
             {
-                get { return _property.lastValue; }
-                set
-                {
-                    _property.lastValue = value;
+                get { return targetValue; }
+                set { targetValue = value; }
+            }
+
+            public override float CurrentValue { 
+                get {return _property.latestValue;}
+                set{_property.latestValue = value;
                     defaultSet = false;
                 }
             }
 
-            protected override string Name_Internal => _property != null ? _property.NameForDisplayPEGI(): "Material Float";
-
-            public float targetValue;
+            protected float targetValue;
 
             public override void Set(Material mat)
             {
                 if (mat)
                     mat.Set(_property);
                 else
-                    _property.GlobalValue = _property.lastValue;
+                    _property.GlobalValue = _property.latestValue;
             }
 
             public MaterialFloat(string nName, float startingValue, float startingSpeed = 1, Renderer renderer = null,
@@ -1380,17 +1387,17 @@ namespace QuizCannersUtilities
             {
                 _property = new ShaderProperty.FloatValue(nName);
                 targetValue = startingValue;
-                Value = startingValue;
+                CurrentValue = startingValue;
             }
 
-            public override bool Portion(ref float linkedPortion) =>
-                speedLimit.SpeedToMinPortion(Value - targetValue, ref linkedPortion);
+            protected override bool Portion(ref float linkedPortion) =>
+                speedLimit.SpeedToMinPortion(CurrentValue - targetValue, ref linkedPortion);
 
             protected override bool LerpSubInternal(float portion)
             {
-                if (Enabled && (Value != targetValue || !defaultSet))
+                if (Enabled && (CurrentValue != targetValue || !defaultSet))
                 {
-                    _property.lastValue = Mathf.Lerp(Value, targetValue, portion);
+                    _property.latestValue = Mathf.Lerp(CurrentValue, targetValue, portion);
                     return true;
                 }
 
@@ -1405,7 +1412,7 @@ namespace QuizCannersUtilities
 
                 "Target".edit(70, ref targetValue).nl(ref changed);
 
-                if ("Value".edit(ref _property.lastValue).nl(ref changed))
+                if ("Value".edit(ref _property.latestValue).nl(ref changed))
                     Set();
 
                 return changed;
@@ -1441,18 +1448,24 @@ namespace QuizCannersUtilities
             #endregion
         }
 
-        public class MaterialColor : BaseShaderLerp
+        public class MaterialColor : BaseShaderLerp<Color>
         {
             private readonly ShaderProperty.IndexGeneric<Color> _property;
 
             protected override string Name_Internal => _property != null ? _property.NameForDisplayPEGI(): "Material Float";
-            
-            public Color Value
+
+            public override Color TargetValue
             {
-                get { return _property.lastValue; }
+                get { return targetValue; }
+                set { targetValue = value; }
+            }
+
+            public override Color CurrentValue
+            {
+                get { return _property.latestValue; }
                 set
                 {
-                    _property.lastValue = value;
+                    _property.latestValue = value;
                     defaultSet = false;
                 }
             }
@@ -1464,36 +1477,36 @@ namespace QuizCannersUtilities
                 if (mat)
                     mat.Set(_property);
                 else
-                    _property.GlobalValue = Value;
+                    _property.GlobalValue = CurrentValue;
             }
 
             public MaterialColor(string nName, Color startingValue, float startingSpeed = 1, Material m = null,
                 Renderer renderer = null) : base(startingSpeed, m, renderer)
             {
                 _property = new ShaderProperty.ColorValue(nName);
-                Value = startingValue;
+                CurrentValue = startingValue;
             }
 
             public MaterialColor(string nName, Color startingValue, string shaderFeatureDirective, float startingSpeed = 1, Material m = null,
                 Renderer renderer = null) : base(startingSpeed, m, renderer)
             {
                 _property = new ShaderProperty.ColorFeature(nName, shaderFeatureDirective);
-                Value = startingValue;
+                CurrentValue = startingValue;
             }
 
             protected override bool LerpSubInternal(float portion)
             {
-                if (Value != targetValue || !defaultSet)
+                if (CurrentValue != targetValue || !defaultSet)
                 {
-                    _property.lastValue = Color.Lerp(Value, targetValue, portion);
+                    _property.latestValue = Color.Lerp(CurrentValue, targetValue, portion);
                     return true;
                 }
 
                 return false;
             }
 
-            public override bool Portion(ref float portion) =>
-                speedLimit.SpeedToMinPortion(Value.DistanceRgba(targetValue), ref portion);
+            protected override bool Portion(ref float portion) =>
+                speedLimit.SpeedToMinPortion(CurrentValue.DistanceRgba(targetValue), ref portion);
             
             #region Encode & Decode
 
@@ -1523,6 +1536,87 @@ namespace QuizCannersUtilities
             #endregion
 
         }
+
+        public class MaterialVector4 : BaseShaderLerp<Vector4>
+        {
+            private readonly ShaderProperty.IndexGeneric<Vector4> _property;
+
+            protected override string Name_Internal => _property != null ? _property.NameForDisplayPEGI() : "Material Float4";
+
+            public override Vector4 TargetValue
+            {
+                get { return targetValue; }
+                set { targetValue = value; }
+            }
+
+            public override Vector4 CurrentValue
+            {
+                get { return _property.latestValue; }
+                set
+                {
+                    _property.latestValue = value;
+                    defaultSet = false;
+                }
+            }
+
+            public Vector4 targetValue;
+
+            public override void Set(Material mat)
+            {
+                if (mat)
+                    mat.Set(_property);
+                else
+                    _property.GlobalValue = CurrentValue;
+            }
+
+            public MaterialVector4(string nName, Vector4 startingValue, float startingSpeed = 1, Material m = null,
+                Renderer renderer = null) : base(startingSpeed, m, renderer)
+            {
+                _property = new ShaderProperty.VectorValue(nName);
+                CurrentValue = startingValue;
+            }
+
+            protected override bool LerpSubInternal(float portion) {
+                if (CurrentValue != targetValue || !defaultSet) {
+                    _property.latestValue = Vector4.Lerp(CurrentValue, targetValue, portion);
+                    return true;
+                }
+
+                return false;
+            }
+
+            protected override bool Portion(ref float portion) =>
+                speedLimit.SpeedToMinPortion((CurrentValue - targetValue).magnitude, ref portion);
+
+            #region Encode & Decode
+
+            public override CfgEncoder Encode()
+            {
+
+                var cody = new CfgEncoder()
+                    .Add("b", base.Encode)
+                    .Add("v4", targetValue);
+
+                return cody;
+            }
+
+            public override bool Decode(string tg, string data)
+            {
+                switch (tg)
+                {
+                    case "b": data.Decode_Delegate(base.Decode); break;
+                    case "v4": targetValue = data.ToColor(); break;
+
+                    default: return false;
+                }
+
+                return true;
+            }
+
+            #endregion
+
+        }
+
 
         public class GraphicMaterialTextureTransition : BaseMaterialTextureTransition
         {
@@ -1629,10 +1723,10 @@ namespace QuizCannersUtilities
                 }
             }
 
-            public float targetValue;
+            protected float targetValue;
             public bool setZeroOnStart = true;
 
-            protected override float TargetValue
+            public override float TargetValue
             {
                 get { return targetValue; }
                 set { targetValue = value; }

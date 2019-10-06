@@ -992,13 +992,14 @@ namespace PlaytimePainter
 
             private readonly LinkedLerp.FloatValue _roundedCorners = new LinkedLerp.FloatValue();
 
+            LerpData ld = new LerpData();
+
             public override bool Update(RoundedGraphic target){
 
-                _roundedCorners.targetValue = target._mouseOver ? valueWhenOver : valueWhenOff;
+                ld.Reset();
 
-                var ld = new LerpData();
+                _roundedCorners.Portion(ld, target._mouseOver ? valueWhenOver : valueWhenOff);
 
-                _roundedCorners.Portion(ld);
                 _roundedCorners.Lerp(ld);
 
                 if (_roundedCorners.CurrentValue != target.GetCorner(0)) {

@@ -8,6 +8,7 @@
 	Category{
 		Tags{
 			"RenderType" = "Transparent"
+			"PreviewType" = "Plane"
 			"LightMode" = "ForwardBase"
 			"Queue" = "Transparent"
 		}

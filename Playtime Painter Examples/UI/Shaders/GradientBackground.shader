@@ -12,6 +12,7 @@
 	Category{
 		Tags{
 			"Queue" = "Background"
+			"PreviewType" = "Plane"
 			"IgnoreProjector" = "True"
 		}
 

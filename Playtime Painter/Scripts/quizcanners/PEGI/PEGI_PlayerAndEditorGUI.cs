@@ -9478,8 +9478,17 @@ namespace PlayerAndEditorGUI
         public static bool Nested_Inspect(this IPEGI pgi, ref bool changed) =>
             pgi.Nested_Inspect().changes(ref changed);
 
-        public static bool Nested_Inspect(this IPEGI pgi)
-        {
+        public static bool Nested_Inspect(this IPEGI pgi, Object objToSetDirty) {
+
+            if (pgi.Nested_Inspect()) {
+                objToSetDirty.SetToDirty();
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool Nested_Inspect(this IPEGI pgi) {
 
             if (pgi.IsNullOrDestroyed_Obj())
                 return false;
@@ -9495,7 +9504,7 @@ namespace PlayerAndEditorGUI
                 inspectionChain[pgi] = recurses + 1;
 
                 var indent = IndentLevel;
-
+                
                 pgi.Inspect().RestoreBGColor().changes(ref changed);
 
                 IndentLevel = indent;
@@ -9519,7 +9528,7 @@ namespace PlayerAndEditorGUI
 
             isFoldedOutOrEntered = isFOOE;
 
-            return changed;
+            return changed || globChanged;
 
         }
 

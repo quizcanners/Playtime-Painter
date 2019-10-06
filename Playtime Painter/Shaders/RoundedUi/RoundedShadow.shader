@@ -8,9 +8,11 @@
 		Tags{
 			"Queue" = "Transparent"
 			"IgnoreProjector" = "True"
+			"PreviewType" = "Plane"
 			"PixelPerfectUI" = "Simple"
 			"SpriteRole" = "Hide"
 			"PerEdgeData" = "Linked"
+			
 		}
 
 		ColorMask RGB

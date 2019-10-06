@@ -457,6 +457,24 @@ namespace QuizCannersUtilities {
                 g.TrySetAlpha(alpha);
         }
 
+        public static bool TrySetEnabled(this Behaviour component, bool value)
+        {
+            if (!component) return false;
+
+            component.enabled = value;
+
+            return true;
+
+        }
+
+        public static void TrySetEnabled<T>(this List<T> components, bool value) where T : Behaviour
+        {
+            if (components.IsNullOrEmpty()) return;
+
+            foreach (var c in components)
+                c.TrySetEnabled(value);
+        }
+        
         public static bool TrySetColor_RGB(this Graphic graphic, Color color)
         {
             if (!graphic) return false;

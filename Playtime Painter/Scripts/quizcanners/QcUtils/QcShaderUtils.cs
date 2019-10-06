@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using QuizCannersUtilities;
 using Unity.Collections;
 using UnityEngine;
+using static QuizCannersUtilities.ShaderProperty;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -22,7 +23,9 @@ namespace QuizCannersUtilities {
 
         public abstract class BaseShaderPropertyIndex : AbstractCfg, IGotDisplayName, IPEGI_ListInspect
         {
+            [NonSerialized]
             protected int id;
+            [NonSerialized]
             private string _name;
 
             public override int GetHashCode() => id;
@@ -121,16 +124,16 @@ namespace QuizCannersUtilities {
         #region Generics
 
         public abstract class IndexGeneric<T> : BaseShaderPropertyIndex {
-
-            public T lastValue;
+            
+            public T latestValue;
 
             public abstract T Get(Material mat);
-
+            
             public abstract T GlobalValue { get; set; }
 
             public virtual Material SetOn(Material material, T value)
             {
-                lastValue = value;
+                latestValue = value;
 
                 if (material)
                     SetOn(material);
@@ -140,14 +143,14 @@ namespace QuizCannersUtilities {
 
             public virtual Renderer SetOn(Renderer renderer, T value)
             {
-                lastValue = value;
+                latestValue = value;
                 SetOn(renderer);
                 return renderer;
             }
 
             public virtual void SetOn(MaterialPropertyBlock block, T value)
             {
-                lastValue = value;
+                latestValue = value;
                 SetOn(block);
             }
 
@@ -239,11 +242,11 @@ namespace QuizCannersUtilities {
 
         public class FloatValue : IndexGeneric<float> {
 
-            public override void SetOn(Material material) => material.SetFloat(id, lastValue);
+            public override void SetOn(Material material) => material.SetFloat(id, latestValue);
 
             public override float Get(Material material) => material.GetFloat(id);
 
-            public override void SetOn(MaterialPropertyBlock block) => block.SetFloat(id, lastValue);
+            public override void SetOn(MaterialPropertyBlock block) => block.SetFloat(id, latestValue);
 
             public override float GlobalValue
             {
@@ -251,7 +254,7 @@ namespace QuizCannersUtilities {
                 set
                 {
                     Shader.SetGlobalFloat(id, value);
-                    lastValue = value;
+                    latestValue = value;
                 }
             }
 
@@ -278,11 +281,11 @@ namespace QuizCannersUtilities {
 
             public static readonly ColorValue tintColor = new ColorValue("_TintColor");
 
-            public override void SetOn(Material material) => material.SetColor(id, lastValue);
+            public override void SetOn(Material material) => material.SetColor(id, latestValue);
             
             public override Color Get(Material material) => material.GetColor(id);
 
-            public override void SetOn(MaterialPropertyBlock block) => block.SetColor(id, lastValue);
+            public override void SetOn(MaterialPropertyBlock block) => block.SetColor(id, latestValue);
 
             public override Color GlobalValue
             {
@@ -293,7 +296,7 @@ namespace QuizCannersUtilities {
                 }
             }
 
-            protected override bool DirectiveEnabledForLastValue => lastValue.a > 0.01f;
+            protected override bool DirectiveEnabledForLastValue => latestValue.a > 0.01f;
             
             public ColorFeature(string name, string featureDirective) : base(name, featureDirective) { }
         }
@@ -302,11 +305,11 @@ namespace QuizCannersUtilities {
 
             public static readonly ColorValue tintColor = new ColorValue("_TintColor");
 
-            public override void SetOn(Material material) => material.SetColor(id, lastValue);
+            public override void SetOn(Material material) => material.SetColor(id, latestValue);
 
             public override Color Get(Material material) => material.GetColor(id);
 
-            public override void SetOn(MaterialPropertyBlock block) => block.SetColor(id, lastValue);
+            public override void SetOn(MaterialPropertyBlock block) => block.SetColor(id, latestValue);
 
             public override Color GlobalValue
             {
@@ -316,17 +319,17 @@ namespace QuizCannersUtilities {
 
             public ColorValue()
             {
-                lastValue = Color.grey;
+                latestValue = Color.grey;
             }
 
             public ColorValue(string name) : base(name)
             {
-                lastValue = Color.grey;
+                latestValue = Color.grey;
             }
 
             public ColorValue(string name, Color startingColor) : base(name)
             {
-                lastValue = startingColor;
+                latestValue = startingColor;
             }
 
         }
@@ -338,9 +341,9 @@ namespace QuizCannersUtilities {
         public class VectorValue : IndexGeneric<Vector4>
         {
 
-            public override void SetOn(Material material) => material.SetVector(id, lastValue);
+            public override void SetOn(Material material) => material.SetVector(id, latestValue);
 
-            public override void SetOn(MaterialPropertyBlock block) => block.SetVector(id, lastValue);
+            public override void SetOn(MaterialPropertyBlock block) => block.SetVector(id, latestValue);
 
             public override Vector4 Get(Material mat) => mat.GetVector(id);
 
@@ -370,9 +373,9 @@ namespace QuizCannersUtilities {
         public class MatrixValue : IndexGeneric<Matrix4x4>
         {
 
-            public override void SetOn(Material material) => material.SetMatrix(id, lastValue);
+            public override void SetOn(Material material) => material.SetMatrix(id, latestValue);
 
-            public override void SetOn(MaterialPropertyBlock block) => block.SetMatrix(id, lastValue);
+            public override void SetOn(MaterialPropertyBlock block) => block.SetMatrix(id, latestValue);
 
             public override Matrix4x4 Get(Material mat) => mat.GetMatrix(id);
 
@@ -400,15 +403,16 @@ namespace QuizCannersUtilities {
 
         #region Texture
 
+        [Serializable]
         public class TextureValue : IndexGeneric<Texture>
         {
             public static readonly TextureValue mainTexture = new TextureValue("_MainTex");
 
             public override Texture Get(Material mat) => mat.GetTexture(id);
 
-            public override void SetOn(Material material) => material.SetTexture(id, lastValue);
+            public override void SetOn(Material material) => material.SetTexture(id, latestValue);
 
-            public override void SetOn(MaterialPropertyBlock block) => block.SetTexture(id, lastValue);
+            public override void SetOn(MaterialPropertyBlock block) => block.SetTexture(id, latestValue);
 
             public override Texture GlobalValue
             {
@@ -416,8 +420,11 @@ namespace QuizCannersUtilities {
                 set { Shader.SetGlobalTexture(id, value); }
             }
 
+            public void SetGlobal() => GlobalValue = latestValue;
+
             #region Texture Specific
 
+            [NonSerialized]
             private List<string> _usageTags = new List<string>();
 
             public TextureValue AddUsageTag(string value)
@@ -623,6 +630,21 @@ namespace QuizCannersUtilities {
             val.Has(mat, propertyPrefix, searchFallBacks);
     }
     #endregion
+
+
+
+#if UNITY_EDITOR
+    [CustomPropertyDrawer(typeof(TextureValue))]
+    public class ScaledCurveDrawer : PropertyDrawer {
+
+        public override void OnGUI(Rect pos, SerializedProperty prop, GUIContent label) {
+            if (prop.Inspect("latestValue", pos, label))
+                prop.GetValue<TextureValue>().SetGlobal();
+        }
+
+    }
+#endif
+
 }
 
 

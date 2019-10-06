@@ -663,7 +663,12 @@ namespace PlaytimePainter {
             FinalizePreviousAlphaDataTarget();
         }
 
-        public void SubscribeToEditorUpdates() => EditorApplication.update += CombinedUpdate;
+        public void SubscribeToEditorUpdates()
+        {
+            #if UNITY_EDITOR
+            EditorApplication.update += CombinedUpdate;
+            #endif
+        }
 
         private void OnEnable() {
 

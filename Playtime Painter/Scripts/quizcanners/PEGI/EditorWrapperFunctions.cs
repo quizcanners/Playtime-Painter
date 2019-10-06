@@ -744,18 +744,25 @@ namespace PlayerAndEditorGUI
             val = EditorGUILayout.DoubleField(val);
             return EndCheckLine();
         }
-
+        
         public static bool edit(ref int val, int min, int max)
         {
             BeginCheckLine();
-            val = EditorGUILayout.IntSlider(val, min, max); //Slider(val, min, max);
+            val = EditorGUILayout.IntSlider(val, min, max); 
             return EndCheckLine();
         }
+
+       /* public static bool edit(ref int val, int min, int max)
+        {
+            BeginCheckLine();
+            val = (int)EditorGUILayout.Slider((float)val, (float)min, (float)max); 
+            return EndCheckLine();
+        }*/
 
         public static bool edit(ref uint val, uint min, uint max)
         {
             BeginCheckLine();
-            val = (uint)EditorGUILayout.IntSlider((int)val, (int)min, (int)max); //Slider(val, min, max);
+            val = (uint)EditorGUILayout.IntSlider((int)val, (int)min, (int)max); 
             return EndCheckLine();
         }
 

@@ -8,6 +8,7 @@
 	Category{
 		Tags{
 			"Queue" = "Transparent"
+			"PreviewType" = "Plane"
 			"IgnoreProjector" = "True"
 		}
 

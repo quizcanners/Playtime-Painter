@@ -75,7 +75,7 @@
 					o.pos = UnityObjectToClipPos(v.vertex);   
 
 					#if BRUSH_TEXCOORD_2
-						v.texcoord.xy = v.texcoord2.xy;
+						v.texcoord.xy = v.texcoord1.xy;
 					#endif
 
 					float2 suv = _SourceTexture_TexelSize.zw;

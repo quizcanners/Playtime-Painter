@@ -7,6 +7,7 @@
 		Category{
 			Tags{
 				"Queue" = "AlphaTest"
+				"PreviewType" = "Plane"
 				"IgnoreProjector" = "True"
 				"RenderType" = "Transparent"
 			}

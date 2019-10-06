@@ -9,6 +9,7 @@
 		Tags{
 			"Queue" = "Transparent"
 			"IgnoreProjector" = "True"
+			"PreviewType" = "Plane"
 			"RenderType" = "Transparent"
 			"PixelPerfectUI" = "Simple"
 			"SpriteRole" = "Hide"

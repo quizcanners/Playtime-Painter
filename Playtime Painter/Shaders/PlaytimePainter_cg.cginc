@@ -49,7 +49,7 @@ struct appdata_brush_qc
 {
 	float4 vertex    : POSITION;  // The vertex position in model space.
 	float4 texcoord  : TEXCOORD0; // The first UV coordinate.
-	float4 texcoord2  : TEXCOORD1; // The first UV coordinate.
+	float4 texcoord1  : TEXCOORD1; // The second UV coordinate.
 };
 
 struct appdata_full_qc

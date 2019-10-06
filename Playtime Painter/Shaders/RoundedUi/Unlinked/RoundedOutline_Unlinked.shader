@@ -12,6 +12,7 @@
 		Tags{
 			"Queue" = "Transparent"
 			"IgnoreProjector" = "True"
+			"PreviewType" = "Plane"
 			"RenderType" = "Transparent"
 			"PixelPerfectUI" = "FadePosition"
 			"SpriteRole" = "Hide"
