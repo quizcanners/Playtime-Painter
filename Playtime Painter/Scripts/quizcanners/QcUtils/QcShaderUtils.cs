@@ -301,6 +301,8 @@ namespace QuizCannersUtilities {
             public ColorFeature(string name, string featureDirective) : base(name, featureDirective) { }
         }
 
+        [Serializable]
+
         public class ColorValue : IndexGeneric<Color> {
 
             public static readonly ColorValue tintColor = new ColorValue("_TintColor");
@@ -316,6 +318,8 @@ namespace QuizCannersUtilities {
                 get { return Shader.GetGlobalColor(id); }
                 set { Shader.SetGlobalColor(id, value); }
             }
+
+            public void SetGlobal() => GlobalValue = latestValue;
 
             public ColorValue()
             {
@@ -527,7 +531,34 @@ namespace QuizCannersUtilities {
 
         #endregion
 
+        #region Keyword
 
+        public class ShaderKeyword : IPEGI {
+
+            private string _name;
+
+            private bool lastValue;
+
+            public bool GlobalValue {
+                get { return lastValue; }
+                set { lastValue = value; QcUnity.SetShaderKeyword(_name, value); }
+            }
+
+            public ShaderKeyword(string name) {
+                _name = name;
+            }
+
+            public bool Inspect()
+            {
+                var changed = false;
+                if (_name.toggleIcon(ref lastValue).changes(ref changed))
+                    GlobalValue = lastValue;
+
+                return changed;
+            }
+        }
+
+        #endregion
 
     }
 
@@ -635,7 +666,7 @@ namespace QuizCannersUtilities {
 
 #if UNITY_EDITOR
     [CustomPropertyDrawer(typeof(TextureValue))]
-    public class ScaledCurveDrawer : PropertyDrawer {
+    public class TextureValueDrawer : PropertyDrawer {
 
         public override void OnGUI(Rect pos, SerializedProperty prop, GUIContent label) {
             if (prop.Inspect("latestValue", pos, label))
@@ -643,6 +674,20 @@ namespace QuizCannersUtilities {
         }
 
     }
+
+
+    [CustomPropertyDrawer(typeof(ColorValue))]
+    public class ColorValueDrawer : PropertyDrawer
+    {
+
+        public override void OnGUI(Rect pos, SerializedProperty prop, GUIContent label)
+        {
+            if (prop.Inspect("latestValue", pos, label))
+                prop.GetValue<ColorValue>().SetGlobal();
+        }
+
+    }
+
 #endif
 
 }
@@ -670,7 +715,7 @@ namespace PlayerAndEditorGUI {
             return true;
         }
 
-        public static bool edit(this Material mat, ShaderProperty.FloatValue property, string name = null)
+        public static bool edit(this Material mat, FloatValue property, string name = null)
         {
             var val = mat.Get(property);
 
@@ -686,7 +731,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        public static bool edit(this Material mat, ShaderProperty.FloatValue property, string name, float min, float max)
+        public static bool edit(this Material mat, FloatValue property, string name, float min, float max)
         {
             var val = mat.Get(property);
 
@@ -702,7 +747,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        public static bool edit(this Material mat, ShaderProperty.ColorValue property, string name = null)
+        public static bool edit(this Material mat, ColorValue property, string name = null)
         {
             var val = mat.Get(property);
 
@@ -718,7 +763,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        public static bool edit(this Material mat, ShaderProperty.VectorValue property, string name = null)
+        public static bool edit(this Material mat, VectorValue property, string name = null)
         {
             var val = mat.Get(property);
 
@@ -734,7 +779,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        public static bool edit(this Material mat, ShaderProperty.TextureValue property, string name = null)
+        public static bool edit(this Material mat, TextureValue property, string name = null)
         {
             var val = mat.Get(property);
 

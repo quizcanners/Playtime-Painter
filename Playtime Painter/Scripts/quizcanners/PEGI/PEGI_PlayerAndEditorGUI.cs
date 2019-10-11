@@ -6465,7 +6465,7 @@ namespace PlayerAndEditorGUI
 
 #endregion
 
-#region MyIntVector2
+#region Custom classes
 
         public static bool edit(ref MyIntVec2 val)
         {
@@ -6528,12 +6528,25 @@ namespace PlayerAndEditorGUI
             nl();
             return edit(ref val, min, max);
         }
+        
+        public static bool edit(this string label, BoolDefine boolDefine) {
+            label.write();
+            return boolDefine.Inspect();
+        }
 
-#endregion
+        public static bool edit(this string label, int width, BoolDefine boolDefine)
+        {
+            label.write(width);
+            return boolDefine.Inspect();
+        }
 
-#endregion
+        #endregion
 
-#region LISTS
+
+
+        #endregion
+
+        #region LISTS
 
         #region List MGMT Functions 
 
@@ -9222,7 +9235,7 @@ namespace PlayerAndEditorGUI
 
 #region Searching
 
-        public static bool SearchMatch (this IEnumerable list, string searchText) => list.Cast<object>().Any(e => Try_SearchMatch_Obj(e, searchText));
+        public static bool SearchMatch_ObjectList (this IEnumerable list, string searchText) => list.Cast<object>().Any(e => Try_SearchMatch_Obj(e, searchText));
         
         public static bool Try_SearchMatch_Obj (object obj, string searchText) => SearchMatch_Obj_Internal(obj, new string[] { searchText });
 

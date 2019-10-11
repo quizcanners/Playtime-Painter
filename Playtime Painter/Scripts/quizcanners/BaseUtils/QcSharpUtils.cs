@@ -10,6 +10,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.IO;
 using System.Text;
+using PlayerAndEditorGUI;
+using Debug = UnityEngine.Debug;
 
 namespace QuizCannersUtilities {
 
@@ -853,6 +855,7 @@ namespace QuizCannersUtilities {
         }
         #endregion
 
+      
     }
     
     public class LoopLock
@@ -903,6 +906,54 @@ namespace QuizCannersUtilities {
             UnityEngine.Debug.LogError(msg);
             _loopErrorLogged = true;
         }
+
+    }
+
+    [Serializable]
+    public class BoolDefine : IPEGI {
+
+        [SerializeField] private sbyte val;
+
+        public bool IsTrue => val == 1;
+      
+        public bool IsFalse => val == -1;
+
+        public void Set(bool value) => val = (sbyte)(value ? 1 : -1);
+        
+        public bool IsDefined {
+            get { return val != 0; }
+            set {
+                if (value) 
+                    Debug.LogError("Can only define bool by providing a value");
+                else val = 0;
+            }
+        }
+
+        #region Inspector
+
+        public bool Inspect() {
+
+            var changed = false;
+
+            if (IsDefined) {
+                var value = IsTrue;
+                if (pegi.toggleIcon(ref value).changes(ref changed))
+                    Set(value);
+                if (icon.Clear.Click("Make value Undefined"))
+                    IsDefined = false;
+            }
+            else {
+                if (icon.Done.Click("Set Undefined Boolean to True"))
+                    Set(true);
+                if (icon.Close.Click("Seto Undefined Boolean to false"))
+                    Set(false);
+            }
+
+
+            return changed;
+        }
+
+        #endregion
 
     }
 }

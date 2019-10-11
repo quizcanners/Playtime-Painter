@@ -1915,8 +1915,8 @@ namespace QuizCannersUtilities
 
         public static Vector2 LerpBySpeed(this Vector2 from, Vector2 to, float speed, out float portion)
         {
-            portion = speed.SpeedToPortion(Vector3.Distance(from, to));
-            return Vector3.LerpUnclamped(from, to, portion);
+            portion = speed.SpeedToPortion(Vector2.Distance(from, to));
+            return Vector2.LerpUnclamped(from, to, portion);
         }
 
         public static Vector3 LerpBySpeed(this Vector3 from, Vector3 to, float speed) =>
