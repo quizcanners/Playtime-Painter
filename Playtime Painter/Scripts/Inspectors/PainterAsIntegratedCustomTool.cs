@@ -39,8 +39,8 @@ namespace PlaytimePainter
             
             var p = PlaytimePainterSceneViewEditor.painter;
 
-            if (Event.current.type == EventType.ScrollWheel)
-                Debug.Log("Got scroll wheel event");
+            //if (Event.current.type == EventType.ScrollWheel)
+              //  Debug.Log("Got scroll wheel event");
 
             if (p) 
                 p.FeedEvents(Event.current);

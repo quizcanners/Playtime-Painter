@@ -581,7 +581,7 @@ namespace PlaytimePainter
             return needsReColorizingAfterSave;
         }
 
-        public Color SampleAt(Vector2 uv) => (destination == TexTarget.Texture2D) ? PixelSafe(UvToPixelNumber(uv)) : SampleRenderTexture(uv);
+        public Color SampleAt(Vector2 uv) => (destination == TexTarget.Texture2D) ? PixelSafe_Slow(UvToPixelNumber(uv)) : SampleRenderTexture(uv);
 
         private Color SampleRenderTexture(Vector2 uv)
         {
@@ -635,48 +635,23 @@ namespace PlaytimePainter
             }
         }
 
-        public Color PixelSafe(MyIntVec2 v)
-        {
-            v.x %= width;
-            while (v.x < 0)
-                v.x += width;
-
-            v.y %= height;
-            while (v.y < 0)
-                v.y += height;
-
-            return Pixels[v.y * width + v.x];
-        }
-
-        public Color PixelUnSafe(int x, int y) => Pixels[y * width + x];
-
-        public Color SetPixelUnSafe(int x, int y, Color col) => Pixels[y * width + x] = col;
+        private Color PixelSafe_Slow(MyIntVec2 v) => Pixels[PixelNo(v.x, v.y)];
         
-        public int PixelNo(MyIntVec2 v)
-        {
-            int x = v.x;
-            int y = v.y;
+        public Color PixelUnSafe(int x, int y) => _pixels[y * width + x];
 
-            x %= width;
-            if (x < 0)
-                x += width;
-            y %= height;
-            if (y < 0)
-                y += height;
+        public Color SetPixelUnSafe(int x, int y, Color col) => _pixels[y * width + x] = col;
+        
+        public int PixelNo(MyIntVec2 v) => PixelNo(v.x, v.y);
+        
+        public int PixelNo(int x, int y) {
+
+            x = ((x % width) + width) % width;
+
+            y = ((y % height) + height) % height;
+
             return y * width + x;
         }
-
-        public int PixelNo(int x, int y)
-        {
-            x %= width;
-            if (x < 0)
-                x += width;
-            y %= height;
-            if (y < 0)
-                y += height;
-            return y * width + x;
-        }
-
+        
         public MyIntVec2 UvToPixelNumber(Vector2 uv) => new MyIntVec2(Mathf.Round(uv.x * width), Mathf.Round(uv.y * height));
 
         public MyIntVec2 UvToPixelNumber(Vector2 uv, out Vector2 pixelOffset)
@@ -691,9 +666,6 @@ namespace PlaytimePainter
 
         public void SetEdges(Color col) => SetEdges(col, ColorMask.All);
         
-
-        
-
         public void SetEdges(Color col, ColorMask mask) {
             
             if (!Pixels.IsNullOrEmpty()) {
@@ -722,6 +694,41 @@ namespace PlaytimePainter
             }
 
 
+        }
+        
+        private int _offsetByX = 0;
+        private int _offsetByY = 0;
+
+        private void OffsetPixels() => OffsetPixels(_offsetByX, _offsetByY);
+
+        public void OffsetPixels(int dx, int dy) {
+
+            if (Pixels == null) {
+                Debug.LogError("Pixels are null");
+                return;
+            }
+
+            var pixelsCopy = _pixels.GetCopy();
+
+            dx = ((dx % width) + width) % width;
+            dy = ((dy % height) + height) % height;
+
+            for (int y = 0; y < height; y++)
+            {
+                var srcOff = y * width;
+                var dstOff = ((y + dy) % height) * width;
+
+                for (int x = 0; x < width; x++) {
+
+                    var srcInd = srcOff + x;
+                    
+                    var dstInd = dstOff + ((x + dx) % width);
+
+                    _pixels[srcInd] = pixelsCopy[dstInd];
+                    
+
+                }
+            }
         }
 
         #endregion
@@ -1142,6 +1149,31 @@ namespace PlaytimePainter
                                 ReturnToRenderTexture();
                         }
                         
+                    }
+
+                    if ("Offset".enter(ref _inspectedProcess, 10).nl())
+                    {
+
+                        "X:".edit(ref _offsetByX);
+
+                        if ((_offsetByX != width / 2) && "{0}/{1}".F(width / 2, width).Click())
+                            _offsetByX = width / 2;
+
+                        pegi.nl();
+
+                        "Y:".edit(ref _offsetByY);
+
+                        if ((_offsetByY != height / 2) && "{0}/{1}".F(height / 2, height).Click())
+                            _offsetByY = height / 2;
+
+                        pegi.nl();
+
+                        if (((_offsetByX % width != 0) || (_offsetByY % height != 0)) && "Apply Offset".Click())
+                        {
+                            OffsetPixels();
+                            SetAndApply();
+                        }
+
                     }
 
                 }
