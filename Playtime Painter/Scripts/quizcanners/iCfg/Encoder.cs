@@ -673,6 +673,9 @@ namespace QuizCannersUtilities
 
         public CfgEncoder Add_IfNotBlack(string tag, Color col) => col == Color.black ? this : Add(tag, col);
 
+        public CfgEncoder Add_IfNotWhite(string tag, Color col) => col == Color.white ? this : Add(tag, col);
+
+
         #endregion
     }
 

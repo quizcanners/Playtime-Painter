@@ -8,21 +8,18 @@ using static QuizCannersUtilities.QcMath;
 namespace PlaytimePainter
 {
 
-    public class PainterMesh
-    {
+    public class PainterMesh {
 
         public class Vertex : PainterSystemKeepUnrecognizedCfg {
 
             protected PlaytimePainter Painter => MeshManager.target;
-
-
+            
             public BoneWeight boneWeight;
             public Color color;
             public int uvIndex;
             public int finalIndex;
             public int groupIndex;
             
-
             public bool hasVertex;
             public List<Triangle> triangles = new List<Triangle>();
             public Vertex myLastCopy;
@@ -119,7 +116,7 @@ namespace PlaytimePainter
                     .Add("i", finalIndex)
                     .Add_IfNotZero("cg", groupIndex)
                     .Add_IfNotZero("uvi", uvIndex)
-                    .Add_IfNotBlack("col", color)
+                    .Add_IfNotWhite("col", color)
                     .Add("bw", boneWeight);
 
                 return cody;
