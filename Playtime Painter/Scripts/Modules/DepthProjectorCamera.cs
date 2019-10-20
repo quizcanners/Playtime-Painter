@@ -482,7 +482,7 @@ namespace PlaytimePainter
         }
 
         #region Inspector
-        [SerializeField] private Camera camera;
+        private Camera inspectedCamera;
         public bool Inspect() {
             var changed = false;
 
@@ -495,13 +495,13 @@ namespace PlaytimePainter
             "Range".edit_Range(ref nearPlane, ref farPlane).nl(ref changed);
 
 
-            "Tmp Camera".edit(ref camera).changes(ref changed);
+            "Tmp Camera".edit(ref inspectedCamera).changes(ref changed);
 
-            if (camera) {
+            if (inspectedCamera) {
                 if (icon.Load.Click("Load configuration into camera", ref changed))
-                    To(camera);
+                    To(inspectedCamera);
                 if (icon.Save.Click("Save configuration from camera", ref changed))
-                    From(camera);
+                    From(inspectedCamera);
             }
 
             pegi.nl();
@@ -511,9 +511,9 @@ namespace PlaytimePainter
             return changed;
         }
         
-#endregion
+        #endregion
 
-#region Encode & Decode
+        #region Encode & Decode
 
         public override bool Decode(string tg, string data) {
             switch (tg) {
@@ -537,7 +537,7 @@ namespace PlaytimePainter
             .Add("f", farPlane)
             .Add_IfTrue("l", localTransform);
         
-#endregion
+        #endregion
 
     }
 

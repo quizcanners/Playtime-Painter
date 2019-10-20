@@ -5,6 +5,7 @@ using QuizCannersUtilities;
 using PlayerAndEditorGUI;
 using UnityEngine.Rendering;
 using static QuizCannersUtilities.QcMath;
+using static QuizCannersUtilities.ShaderProperty;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -346,23 +347,23 @@ namespace PlaytimePainter {
       
 
 
-        private readonly ShaderProperty.FloatValue _copyChannelTransparency = new ShaderProperty.FloatValue("_pp_CopyBlitAlpha");
+        private readonly FloatValue _copyChannelTransparency = new FloatValue("_pp_CopyBlitAlpha");
 
-        private static readonly ShaderProperty.VectorValue ChannelCopySourceMask =          new ShaderProperty.VectorValue("_ChannelSourceMask");
-        public static readonly ShaderProperty.VectorValue BrushColorProperty =              new ShaderProperty.VectorValue("_brushColor");
-        private static readonly ShaderProperty.VectorValue BrushMaskProperty =              new ShaderProperty.VectorValue("_brushMask");
-        private static readonly ShaderProperty.VectorValue MaskDynamicsProperty =           new ShaderProperty.VectorValue("_maskDynamics");
-        private static readonly ShaderProperty.VectorValue MaskOffsetProperty =             new ShaderProperty.VectorValue("_maskOffset");
-        private static readonly ShaderProperty.VectorValue BrushFormProperty =              new ShaderProperty.VectorValue("_brushForm");
-        private static readonly ShaderProperty.VectorValue TextureSourceParameters =        new ShaderProperty.VectorValue("_srcTextureUsage");
-        private static readonly ShaderProperty.VectorValue cameraPosition_Property =        new ShaderProperty.VectorValue("_RTcamPosition");
-        private static readonly ShaderProperty.VectorValue AlphaBufferConfigProperty =      new ShaderProperty.VectorValue("_pp_AlphaBufferCfg");
-        private static readonly ShaderProperty.VectorValue OriginalTextureTexelSize =       new ShaderProperty.VectorValue("_TargetTexture_TexelSize");
+        private static readonly VectorValue ChannelCopySourceMask =          new VectorValue("_ChannelSourceMask");
+        public static readonly VectorValue BrushColorProperty =              new VectorValue("_brushColor");
+        private static readonly VectorValue BrushMaskProperty =              new VectorValue("_brushMask");
+        private static readonly VectorValue MaskDynamicsProperty =           new VectorValue("_maskDynamics");
+        private static readonly VectorValue MaskOffsetProperty =             new VectorValue("_maskOffset");
+        private static readonly VectorValue BrushFormProperty =              new VectorValue("_brushForm");
+        private static readonly VectorValue TextureSourceParameters =        new VectorValue("_srcTextureUsage");
+        private static readonly VectorValue cameraPosition_Property =        new VectorValue("_RTcamPosition");
+        private static readonly VectorValue AlphaBufferConfigProperty =      new VectorValue("_pp_AlphaBufferCfg");
+        private static readonly VectorValue OriginalTextureTexelSize =       new VectorValue("_TargetTexture_TexelSize");
 
-        private static readonly ShaderProperty.TextureValue SourceMaskProperty =            new ShaderProperty.TextureValue("_SourceMask");
-        private static readonly ShaderProperty.TextureValue SourceTextureProperty =         new ShaderProperty.TextureValue("_SourceTexture");
-        private static readonly ShaderProperty.TextureValue TransparentLayerUnderProperty = new ShaderProperty.TextureValue("_TransparentLayerUnderlay");
-        private static readonly ShaderProperty.TextureValue AlphaPaintingBuffer =           new ShaderProperty.TextureValue("_pp_AlphaBuffer");
+        private static readonly TextureValue SourceMaskProperty =            new TextureValue("_SourceMask");
+        private static readonly TextureValue SourceTextureProperty =         new TextureValue("_SourceTexture");
+        private static readonly TextureValue TransparentLayerUnderProperty = new TextureValue("_TransparentLayerUnderlay");
+        private static readonly TextureValue AlphaPaintingBuffer =           new TextureValue("_pp_AlphaBuffer");
 
         public void SHADER_BRUSH_UPDATE(BrushConfig brush = null, float brushAlpha = 1, TextureMeta id = null, PlaytimePainter painter = null)
         {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-
+using static QuizCannersUtilities.ShaderProperty;
 
 namespace PlaytimePainter {
     
@@ -18,22 +18,25 @@ namespace PlaytimePainter {
         const string tag = "VolumePntng";
         public override string ClassTag => tag;
 
-        public static ShaderProperty.VectorValue VOLUME_H_SLICES = new ShaderProperty.VectorValue("VOLUME_H_SLICES");
-        public static ShaderProperty.VectorValue VOLUME_POSITION_N_SIZE = new ShaderProperty.VectorValue("VOLUME_POSITION_N_SIZE");
+        public static VectorValue VOLUME_H_SLICES = new VectorValue("VOLUME_H_SLICES");
+        public static VectorValue VOLUME_POSITION_N_SIZE = new VectorValue("VOLUME_POSITION_N_SIZE");
 
-        public static ShaderProperty.VectorValue VOLUME_H_SLICES_Global = new ShaderProperty.VectorValue( PainterDataAndConfig.GlobalPropertyPrefix + "VOLUME_H_SLICES");
-        public static ShaderProperty.VectorValue VOLUME_POSITION_N_SIZE_Global = new ShaderProperty.VectorValue(PainterDataAndConfig.GlobalPropertyPrefix + "VOLUME_POSITION_N_SIZE");
+        public static VectorValue VOLUME_H_SLICES_Global = new VectorValue( PainterDataAndConfig.GlobalPropertyPrefix + "VOLUME_H_SLICES");
+        public static VectorValue VOLUME_POSITION_N_SIZE_Global = new VectorValue(PainterDataAndConfig.GlobalPropertyPrefix + "VOLUME_POSITION_N_SIZE");
         
-        public static ShaderProperty.VectorValue VOLUME_H_SLICES_BRUSH = new ShaderProperty.VectorValue("VOLUME_H_SLICES_BRUSH");
-        public static ShaderProperty.VectorValue VOLUME_POSITION_N_SIZE_BRUSH = new ShaderProperty.VectorValue("VOLUME_POSITION_N_SIZE_BRUSH");
+        public static VectorValue VOLUME_H_SLICES_BRUSH = new VectorValue("VOLUME_H_SLICES_BRUSH");
+        public static VectorValue VOLUME_POSITION_N_SIZE_BRUSH = new VectorValue("VOLUME_POSITION_N_SIZE_BRUSH");
 
-        public static ShaderProperty.VectorValue VOLUME_BRUSH_DIRECTION = new ShaderProperty.VectorValue("VOLUME_BRUSH_DYRECTION");
+        public static VectorValue VOLUME_BRUSH_DIRECTION = new VectorValue("VOLUME_BRUSH_DYRECTION");
         
+        public static ShaderProperty.ShaderKeyword UseSmoothing = new ShaderKeyword("_SMOOTHING");
+
         public const string VolumeTextureTag = "_VOL";
         public const string VolumeSlicesCountTag = "_slices";
 
         private bool _useGrid;
-        
+        private float smoothing = 0;
+
         private static Shader _preview;
         private static Shader _brush;
         private static Shader _brushShaderFroRayTrace;
@@ -47,6 +50,7 @@ namespace PlaytimePainter {
                 .Add_IfTrue("rtr", _enableRayTracing)
                 .Add("mFiv", minFov)
                 .Add("mFov", maxFov) 
+                .Add_IfNotEpsilon("smth", smoothing)
                 //.Add("brg", arbitraryBrightnessIncrease)
                 .Add("cam", rayTraceCameraConfiguration);
 
@@ -61,6 +65,7 @@ namespace PlaytimePainter {
                 case "rtr": _enableRayTracing = true; break;
                 case "mFiv": minFov = data.ToFloat(); break;
                 case "mFov": maxFov = data.ToFloat(); break;
+                case "smth": smoothing = data.ToFloat(); break;
                 //case "brg": arbitraryBrightnessIncrease = data.ToFloat(); break;
                 case "cam": rayTraceCameraConfiguration.Decode(data); break;
                 default: return false;
@@ -220,8 +225,10 @@ namespace PlaytimePainter {
 
             VOLUME_POSITION_N_SIZE_BRUSH.GlobalValue = vt.PosSize4Shader;
             VOLUME_H_SLICES_BRUSH.GlobalValue = vt.Slices4Shader;
-            VOLUME_BRUSH_DIRECTION.GlobalValue = stroke.collisionNormal.ToVector4(0);
-           
+            VOLUME_BRUSH_DIRECTION.GlobalValue = stroke.collisionNormal.ToVector4(smoothing);
+
+            UseSmoothing.GlobalValue = smoothing > 0;
+
             image.useTexCoord2 = false;
             bool alphaBuffer;
             TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(bc, bc.Speed * 0.05f, image, stroke, out alphaBuffer, painter);
@@ -356,7 +363,26 @@ namespace PlaytimePainter {
 
             var volTex = p.GetVolumeTexture();
 
-            if (volTex) {
+            if (volTex)
+            {
+
+                var tex = volTex.texture;
+
+                if (tex && tex.IsColorTexture()) {
+                    "Volume Texture is a color texture".writeWarning();
+
+#if UNITY_EDITOR
+
+                    pegi.nl();
+                    var imp = tex.GetTextureImporter();
+
+                    if ((imp!= null) && "FIX texture".Click() && (imp.WasWrongIsColor(false))) 
+                        imp.SaveAndReimport();
+#endif
+
+
+                        pegi.nl();
+                } 
 
                 overrideBlitMode = true;
 
@@ -383,8 +409,7 @@ namespace PlaytimePainter {
                     }
 
                     if ("Ray Trace Camera".conditional_enter(_enableRayTracing && PainterCamera.depthProjectorCamera,
-                        ref _exploreRayTaceCamera).nl_ifFoldedOut())
-                    {
+                        ref _exploreRayTaceCamera).nl_ifFoldedOut()) {
                         
                         "Min".edit(40, ref minFov, 60, maxFov-1).nl(ref changed);
 
@@ -394,11 +419,23 @@ namespace PlaytimePainter {
 
                     }
 
-                    
-
-                    if (_enableRayTracing && BrushConfig.showAdvanced)
+                    if (smoothing > 0 || BrushConfig.showAdvanced)
                     {
                         pegi.nl();
+                        "Smoothing".edit(70, ref smoothing, 0, 1).changes(ref changed);
+                        "Best used in the end".fullWindowDocumentationClickOpen();
+
+                        pegi.nl();
+                    }
+
+                    if (_enableRayTracing && BrushConfig.showAdvanced) {
+
+                      
+
+                      
+
+                     
+
                        // "Bounced brightness mltpl".edit(ref arbitraryBrightnessIncrease, 1, 2).changes(ref changed);
 
                         //"A completely arbitrary value that increases the amount of bounced light. Used to utilize the full 0-1 range of the texture for increased percision"

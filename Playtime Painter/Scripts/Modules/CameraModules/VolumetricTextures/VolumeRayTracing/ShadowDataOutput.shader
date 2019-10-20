@@ -146,10 +146,10 @@
 
 				shads.r = BounceAngle(drctnl, _WorldSpaceLightPos0.xyz, o.normal, o.viewDir.xyz, 64, bake.r*4);
 
-				shads.g = BounceAngle(shad, o.worldPos.xyz - g_l1pos.xyz, o.normal, o.viewDir.xyz, 64, bake.g);
+				shads.g = BounceAngle(shad, o.worldPos.xyz - g_l1pos.xyz, o.normal, o.viewDir.xyz, 64, bake.g*0.2);
 
 				float skyShadow = 0;
-				shads.b = BounceAngle(skyShadow, o.worldPos.xyz - g_l2pos.xyz, o.normal, o.viewDir.xyz, 64, bake.b);
+				shads.b = BounceAngle(skyShadow, o.worldPos.xyz - g_l2pos.xyz, o.normal, o.viewDir.xyz, 64, bake.b*0.5);
 
 				//return float4(o.viewDir.xyz,1);
 

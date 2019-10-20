@@ -1027,6 +1027,19 @@ namespace PlaytimePainter
                     if ("Signed Distance Filelds generator".enter(ref _inspectedProcess, 4).nl())
                     {
 
+                        if (texture2D.IsColorTexture())
+                        {
+                            "Texture is a color texture, best to switch to non-color for SDF".writeWarning();
+
+#if UNITY_EDITOR
+                            var ai = texture2D.GetTextureImporter();
+
+                            if (ai != null && "Convert to non-Color".Click() && ai.WasWrongIsColor(false))
+                                ai.SaveAndReimport();
+
+#endif
+                        }
+
                         "Will convert black and white color to black and white signed field".nl();
 
                         "SDF Max Inside".edit(ref sdfMaxInside).nl();
