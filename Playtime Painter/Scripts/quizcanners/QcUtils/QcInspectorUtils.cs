@@ -970,22 +970,41 @@ namespace QuizCannersUtilities
 
 
         [Serializable]
-        public struct DynamicRangeFloat : ICfg
-        {
+        public struct DynamicRangeFloat : ICfg, IPEGI {
 
             [SerializeField] public float min;
             [SerializeField] public float max;
-            [SerializeField] public float value;
 
-            public void SetValue(float nVal)
-            {
-                value = nVal;
-                min = Mathf.Min(min, value);
-                max = Mathf.Max(max, value);
+            [SerializeField] private float _value;
+
+            public float Value {
+                get { return _value; }
+
+                set {
+                    _value = value;
+                    min = Mathf.Min(min, value);
+                    max = Mathf.Max(max, value);
+                    UpdateRange(1);
+                }
+            }
+         
+            #region Inspector
+
+            private float dynamicMin;
+            private float DynamicMin { set { dynamicMin = Mathf.Clamp(dynamicMin, min, max); } }
+            private float dynamicMax;
+            private float DynamicMax { set { dynamicMax = Mathf.Clamp(dynamicMax, min, max); } }
+            
+            private void UpdateRange(float by = 1) {
+
+                float width = dynamicMax - dynamicMin;
+
+                width *= by * 0.5f;
+
+                dynamicMin = Mathf.Max(min, _value - width);
+                dynamicMax = Mathf.Min(max, _value + width);
             }
 
-            #region Inspector
-            
             private bool _showRange;
 
             public bool Inspect()
@@ -993,40 +1012,41 @@ namespace QuizCannersUtilities
                 var changed = false;
                 var rangeChanged = false;
 
-                var tmp = value;
-                if (pegi.edit(ref tmp, min, max).changes(ref changed))
-                    value = tmp;
-
+                pegi.edit(ref _value, dynamicMin, dynamicMax).changes(ref changed);
+                //    Value = _value;
+                
+                if ("<>".Click())
+                    UpdateRange(1.5f);
+                if ("><".Click())
+                    UpdateRange(0.75f);
+                
                 if (!_showRange && icon.Edit.ClickUnFocus("Edit Range", 20))
                     _showRange = true;
 
-                if (_showRange)
-                {
+                if (_showRange) {
                     pegi.nl();
 
                     if (icon.FoldedOut.ClickUnFocus("Hide Range"))
                         _showRange = false;
 
+                    "Temporary range (<> ><): [{0} : {1}]".F(dynamicMin, dynamicMax).nl();
+
                     "Range: [".write(60);
 
                     var before = min;
 
-                    tmp = min;
-
-                    if (pegi.editDelayed(ref tmp, 40).changes(ref rangeChanged))
-                    {
-                        min = tmp;
+                   
+                    if (pegi.editDelayed(ref min, 40).changes(ref rangeChanged)) {
                         if (min >= max)
                             max = min + (max - before);
+
+                      
                     }
 
                     "-".write(10);
-                    tmp = max;
-                    if (pegi.editDelayed(ref tmp, 40).changes(ref rangeChanged))
-                    {
-                        max = tmp;
-                        min = Mathf.Min(min, max);
 
+                    if (pegi.editDelayed(ref max, 40).changes(ref rangeChanged)) {
+                        min = Mathf.Min(min, max);
                     }
 
                     "]".write(10);
@@ -1037,8 +1057,9 @@ namespace QuizCannersUtilities
 
                     pegi.nl();
 
-                    if (rangeChanged)
-                        value = Mathf.Clamp(value, min, max);
+                    if (rangeChanged) 
+                        Value = Mathf.Clamp(_value, min, max);
+                    
                 }
 
 
@@ -1051,10 +1072,15 @@ namespace QuizCannersUtilities
 
             public CfgEncoder Encode() => new CfgEncoder()
                 .Add_IfNotEpsilon("m", min)
-                .Add_IfNotEpsilon("v", value)
+                .Add_IfNotEpsilon("v", Value)
                 .Add_IfNotEpsilon("x", max);
 
-            public void Decode(string data) => data.DecodeTagsFor(this);
+            public void Decode(string data)
+            {
+                data.DecodeTagsFor(this);
+                dynamicMin = min;
+                dynamicMax = max;
+            }
 
             public bool Decode(string tg, string data)
             {
@@ -1064,7 +1090,7 @@ namespace QuizCannersUtilities
                         min = data.ToFloat();
                         break;
                     case "v":
-                        value = data.ToFloat();
+                        Value = data.ToFloat();
                         break;
                     case "x":
                         max = data.ToFloat();
@@ -1081,7 +1107,9 @@ namespace QuizCannersUtilities
             {
                 this.min = min;
                 this.max = max;
-                this.value = value;
+                dynamicMin = min;
+                dynamicMax = max;
+                _value = value;
 
                 _showRange = false;
 

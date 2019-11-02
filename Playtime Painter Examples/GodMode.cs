@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using static QuizCannersUtilities.QcUtils;
 
 namespace PlaytimePainter.Examples {
 
@@ -19,43 +20,133 @@ namespace PlaytimePainter.Examples {
         public bool rotateWithoutRmb;
         public bool simulateFlying = false;
 
-        private bool Rotate() {
 
-            #if !UNITY_IOS && !UNITY_ANDROID
-            return (rotateWithoutRmb || Input.GetMouseButton(1));
-            #else
-            return true;
-            #endif
+        #region Camera Smoothing
+
+        // private float trackingInitiating = 0;
+        [NonSerialized] private Vector3 cameraSmoothedVelocity;
+        [NonSerialized] private Vector3 mainCameraVelocity;
+        [NonSerialized] private Vector3 cameraSmoothingOffset;
+
+        private void UpdateCameraSmoothing()
+        {
+
+            var offset = cameraSmoothedVelocity - mainCameraVelocity - cameraSmoothingOffset * 16;
+
+            var magn = offset.magnitude;
+
+          //  offset -= cameraSmoothingOffset * (3 + Mathf.Clamp01(magn/speed)*Vector3.Dot(offset.normalized, cameraSmoothingOffset.normalized));
+          
+            
+            cameraSmoothedVelocity = cameraSmoothedVelocity.LerpBySpeed_DirectionFirst(mainCameraVelocity, magn * 0.8f);
+
+            cameraSmoothingOffset = cameraSmoothingOffset.LerpBySpeed_DirectionFirst(offset, magn);
+
+
+
+
         }
+
+        #endregion
+
+
+        #region Advanced Camera
+        public bool advancedCamera;
+
+        [SerializeField] private DynamicRangeFloat targetHeight = new DynamicRangeFloat(0.1f, 10, 1);
+
+        private float CameraWindowNearClip()
+        {
+            float val = (targetHeight.Value) / Mathf.Tan(Mathf.Deg2Rad*_mainCam.fieldOfView * 0.5f);
+            
+            return val;
+        }
+
+        public float CameraWindowHeight {
+
+            get { return targetHeight.Value; }
+            set { targetHeight.Value = Mathf.Max(0.1f,  value);
+                AdjustCamera();
+            }
+
+        }
+
+        private float CameraClipDistance
+        {
+            get
+            {
+                return _mainCam.farClipPlane - _mainCam.nearClipPlane;
+                
+            }
+            set { _mainCam.farClipPlane = _mainCam.nearClipPlane + value; }
+        }
+
+        void AdjustCamera() {
+
+            if (advancedCamera)
+            {
+                float clipRange = CameraClipDistance;
+
+                float clip = CameraWindowNearClip();
+                _mainCam.transform.position = transform.position - _mainCam.transform.forward * clip;
+                _mainCam.nearClipPlane = clip;
+                _mainCam.farClipPlane = clip + CameraClipDistance;
+
+
+            } else {
+                _mainCam.transform.localPosition = Vector3.zero;
+                _mainCam.nearClipPlane = 0.3f;
+            }
+
+            _mainCam.transform.position += cameraSmoothingOffset;
+
+        }
+
+
+        #endregion
+
 
         private float _rotationY;
 
-        public virtual void Update()
+        void OnEnable()
         {
+            cameraSmoothedVelocity = Vector3.zero;
+            mainCameraVelocity = Vector3.zero;
+            cameraSmoothingOffset  = Vector3.zero;
+        }
 
+        public virtual void Update() {
+
+            if (!_mainCam)
+                return;
+            
             var add = Vector3.zero;
 
-            var tf = transform;
-            
-            if (Input.GetKey(KeyCode.W)) add += tf.forward;
-            if (Input.GetKey(KeyCode.A)) add -= tf.right;
-            if (Input.GetKey(KeyCode.S)) add -= tf.forward;
-            if (Input.GetKey(KeyCode.D)) add += tf.right;
+            var opratorTf = transform;
+            var camTf = _mainCam.transform;
+
+            if (Input.GetKey(KeyCode.W)) add += camTf.forward;
+            if (Input.GetKey(KeyCode.A)) add -= camTf.right;
+            if (Input.GetKey(KeyCode.S)) add -= camTf.forward;
+            if (Input.GetKey(KeyCode.D)) add += camTf.right;
 
             if (!simulateFlying)
                 add.y = 0;
-
+            
             if (Input.GetKey(KeyCode.Q)) add += Vector3.down;
             if (Input.GetKey(KeyCode.E)) add += Vector3.up;
 
+            add.Normalize();
 
-            tf.position += add * speed * Time.deltaTime * (Input.GetKey(KeyCode.LeftShift) ? 3f: 1f);
+            mainCameraVelocity = add * speed * (Input.GetKey(KeyCode.LeftShift) ? 3f : 1f);
+
+            opratorTf.position += mainCameraVelocity * Time.deltaTime ;
 
             if (!Application.isPlaying || _disableRotation) return;
             
-            if (rotateWithoutRmb || Input.GetMouseButton(1))
-            {
-                var eul = tf.localEulerAngles;
+            if (rotateWithoutRmb || Input.GetMouseButton(1)) {
+
+                var eul = camTf.localEulerAngles;
                 
                 var rotationX = eul.y;
                 _rotationY = eul.x;
@@ -65,11 +156,16 @@ namespace PlaytimePainter.Examples {
 
                 _rotationY = _rotationY < 120 ? Mathf.Min(_rotationY, 85) : Mathf.Max(_rotationY, 270);
 
-                tf.localEulerAngles = new Vector3(_rotationY, rotationX, 0);
+                camTf.localEulerAngles = new Vector3(_rotationY, rotationX, 0);
 
             }
 
             SpinAround();
+
+            UpdateCameraSmoothing();
+
+            AdjustCamera();
+
         }
         
         public Vector2 camOrbit;
@@ -88,13 +184,12 @@ namespace PlaytimePainter.Examples {
             }
         }
         
-        private void SpinAround()
-        {
-
-            var camTr = gameObject.TryGetCameraTransform(MainCam);
+        private void SpinAround() {
             
-            if (Input.GetMouseButtonDown(2) && _mainCam)
-            {
+            var camTr = _mainCam.transform;
+
+            if (Input.GetMouseButtonDown(2)) {
+                
                 var ray = MainCam.ScreenPointToRay(Input.mousePosition);
                 
                 RaycastHit hit;
@@ -103,11 +198,11 @@ namespace PlaytimePainter.Examples {
                 else return;
                 
                 var before = camTr.rotation;
-                camTr.transform.LookAt(spinCenter);
+                camTr.LookAt(spinCenter);
                 var rot = camTr.rotation.eulerAngles;
                 camOrbit.x = rot.y;
                 camOrbit.y = rot.x;
-                _orbitDistance = (spinCenter - camTr.position).magnitude;
+                _orbitDistance = (spinCenter - transform.position).magnitude;
 
                 camTr.rotation = before;
                 orbitingFocused = false;
@@ -132,7 +227,7 @@ namespace PlaytimePainter.Examples {
                                  (new Vector3(0.0f, 0.0f, -_orbitDistance)) +
                                  spinCenter;
 
-                camTr.position = campos;
+                transform.position = campos;
                 if (!orbitingFocused)
                 {
                     camTr.rotation = camTr.rotation.LerpBySpeed(rot, 200);
@@ -144,16 +239,20 @@ namespace PlaytimePainter.Examples {
         }
 
         #region Inspector
-        public bool Inspect()
-        {
+        public bool Inspect() {
 
             var changed = false;
+
+            "WASD - move {0} Q, E - Dwn, Up {0} Shift - faster {0} {1} {0} MMB - Orbit Collider".F(pegi.EnvironmentNl,
+                _disableRotation ? "" : (rotateWithoutRmb ? "RMB - rotation" : "Mouse to rotate")).fullWindowDocumentationClickOpen();
+            
+            pegi.nl();
 
             if (!_mainCam)  {
                 "Main Camera".selectInScene(ref _mainCam).nl();
                 "Camera is missing, spin around will not work".writeWarning();
             }
-             
+          
             "Speed:".edit("Speed of movement", ref speed).nl();
 
             "Sensitivity:".edit("How fast camera will rotate", ref sensitivity).nl(ref changed);
@@ -164,15 +263,69 @@ namespace PlaytimePainter.Examples {
 
             if (!_disableRotation)
                 "Rotate without RMB".toggleIcon(ref rotateWithoutRmb).nl(ref changed);
+            
+            "Smoothing offset: {0}".F(cameraSmoothingOffset).nl();
 
-            "WASD - move {0} Q, E - Dwn, Up {0} Shift - faster {0} {1} {0} MMB - Orbit Collider".F(pegi.EnvironmentNl,
-                _disableRotation ? "" : (rotateWithoutRmb ? "RMB - rotation" : "Mouse to rotate"));
+            "Smoothing velocity: {0}".F(cameraSmoothedVelocity).nl();
 
-            if (MainCam)
+            if (MainCam) {
+
                 "Main Camera".edit(ref _mainCam).nl(ref changed);
+
+                if ("Advanced Camera".toggleIcon(ref advancedCamera).nl())
+                    AdjustCamera();
+                
+                if (advancedCamera) {
+
+                    if (!_mainCam.transform.IsChildOf(transform) || (_mainCam.transform == transform)) {
+
+                        "Make main camera a child object of this script".writeWarning();
+
+                        if (transform.childCount == 0) {
+
+                            if ("Add Empty Child".Click().nl()) {
+
+                                var go = new GameObject("Advanced Camera");
+                                var tf = go.transform;
+                                tf.SetParent(transform, false);
+                            }
+
+                        }
+                        else
+                            "Delete Main Camera and create one on a child".writeHint();
+
+                    } else {
+
+                        bool cameraDirty = false;
+
+                        float fov = _mainCam.fieldOfView;
+                        
+                        "FOV".edit(ref fov, 5, 170).nl(ref cameraDirty);
+                            _mainCam.fieldOfView = fov;
+
+                        float clipDistance = CameraClipDistance;
+
+                        if ("Clip Range".editDelayed(ref clipDistance).nl()) 
+
+                            CameraClipDistance = Mathf.Clamp(clipDistance, 0.03f, 100000);
+
+                        
+
+                        "Height:".write(60);
+                        targetHeight.Inspect().nl(ref cameraDirty);
+                        
+                        "Clip Distance: {0}".F(CameraWindowNearClip()).nl();
+                        
+                        if (cameraDirty)
+                            AdjustCamera();
+
+                    }
+                }
+            }
 
             return false;
         }
-#endregion
+        
+        #endregion
     }
 }

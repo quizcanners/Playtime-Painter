@@ -6,8 +6,10 @@ namespace PlaytimePainter.Examples
 {
 
     [ExecuteInEditMode]
-    public class SkyController : MonoBehaviour
-    {
+    public class SkyController : MonoBehaviour {
+
+
+        [Header("Can Set Main Camera to Don't clear")]
 
         public Light directional;
         public MeshRenderer skeRenderer;

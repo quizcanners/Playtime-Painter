@@ -1140,7 +1140,7 @@ namespace QuizCannersUtilities
                     bool fo = foldedOut[i];
 
                     if (val.HasNestedData) {
-                        "{0} {1}".F(nameForElemenet, i).foldout(ref fo);
+                        "{0}  {1}".F(nameForElemenet, i).foldout(ref fo);
                         foldedOut[i] = fo;
                     }
                     

@@ -642,6 +642,11 @@ namespace QuizCannersUtilities {
 
         public static string SimplifyTypeName(this string name)
         {
+            if (name == null)
+                return "TYPE IS A NULL STRING";
+            else if (name.Length == 0)
+                return "TYPE IS EMPTY STRING";
+
             var ind = Mathf.Max(name.LastIndexOf(".", StringComparison.Ordinal), name.LastIndexOf("+", StringComparison.Ordinal));
             return (ind == -1 || ind > name.Length - 5) ? name : name.Substring(ind + 1);
         }

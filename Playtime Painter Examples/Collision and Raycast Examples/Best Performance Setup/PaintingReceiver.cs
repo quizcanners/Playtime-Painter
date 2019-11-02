@@ -88,7 +88,10 @@ namespace PlaytimePainter.Examples {
 
             if (Application.isPlaying && originalTexture && texture && (texture.GetType() == typeof(RenderTexture)))
                 RenderTextureBuffersManager.Blit(originalTexture, (RenderTexture)texture);
-            
+
+            if (Material && !Material.Has(TextureId))
+                _textureProperty = null;
+
         }
 
         public Texture GetTexture() {
@@ -193,7 +196,7 @@ namespace PlaytimePainter.Examples {
 
 
             ("Works with PaintWithoutComponent script. This lets you configure how painting will be received." +
-                " PaintWithoutComponent.cs is usually attached to a main camera (if painting in first person).")
+                " PaintWithoutComponent.cs is usually attached to a main camera (if painting in first person). Current Texture: " + TextureId.ToString())
                 .fullWindowDocumentationClickOpen("About Painting Receiver");
             
             var changes = false;
@@ -249,32 +252,34 @@ namespace PlaytimePainter.Examples {
 
             if (gameObject.isStatic)
                 "  Original Mesh".edit("Static objects use Combined mesh, so original one will be needed for painting", 50, ref originalMesh).nl();
-
-
-
+            
             if ("  Use second texture coordinates".toggleIcon("If shader uses texcoord2 (Baked Light) to display damage, turn this ON.", ref useTexcoord2).nl() && texture)
                 texture.GetTextureMeta().useTexCoord2 = useTexcoord2;
             
-            if (Material)
-            {
+            if (Material) {
+
+
+
 
                 if (!Material.Has(TextureId) && !Material.mainTexture )
                     "No Material Property Selected and no MainTex on Material".nl();
-                else
-                {
-                    
-                    if (texture)
-                    {
-                        
+                else {
+
+                    var current = Material.Get(TextureId);
+
+                    if (current) {
+
+                    }
+
+
+                    if (texture) {
                         
                         var t2D = texture as Texture2D;
                         
-                        if (t2D)
-                        {
+                        if (t2D) {
+
                             icon.Done.write();
                             "CPU brush will work if object has MeshCollider".nl();
-
-                          
                             
                             if (originalTexture) {
 

@@ -1872,20 +1872,6 @@ namespace QuizCannersUtilities
             return true;
         }
 
-        public static bool LerpBySpeed(ref float from, float to, float speed, out float portion)
-        {
-            if (from == to)
-            {
-                portion = 1;
-                return false;
-            }
-
-            portion = speed.SpeedToPortion(Mathf.Abs(from - to));
-            from = Mathf.LerpUnclamped(from, to, portion);
-
-            return true;
-        }
-
         public static float LerpBySpeed(float from, float to, float speed)
             => Mathf.LerpUnclamped(from, to, speed.SpeedToPortion(Mathf.Abs(from - to)));
 
@@ -1926,6 +1912,53 @@ namespace QuizCannersUtilities
         {
             portion = speed.SpeedToPortion(Vector3.Distance(from, to));
             return Vector3.LerpUnclamped(from, to, portion);
+        }
+
+        public static Vector3 LerpBySpeed_DirectionFirst(this Vector3 from, Vector3 to, float speed) {
+
+            const float precision = float.Epsilon * 10;
+            
+            var fromMagn = from.magnitude;
+            var toMagn = to.magnitude;
+
+            float dist = Vector3.Distance(from, to);
+            
+            float pathThisFrame = speed * Time.deltaTime;
+
+            if (pathThisFrame >= dist)
+                return to;
+
+            if (fromMagn * toMagn < precision)
+                return from.LerpBySpeed(to, speed);
+
+            var toNormalized = to.normalized;
+
+            var targetDirection = toNormalized * (fromMagn+toMagn)*0.5f;
+
+            var toTargetDirection = targetDirection - from;
+
+            float rotDiffMagn = toTargetDirection.magnitude;
+
+
+            if (pathThisFrame > rotDiffMagn) {
+
+                pathThisFrame -= rotDiffMagn;
+
+                from = targetDirection;
+
+                var newDiff = to - from;
+
+                from += newDiff.normalized * pathThisFrame;
+
+                //from *=1+ pathThisFrame * (targetDirection.magnitude > toMagn ? -1 : 1);
+
+
+            }
+            else
+                from += toTargetDirection * pathThisFrame / rotDiffMagn;
+
+
+            return from;
         }
 
         public static Vector4 LerpBySpeed(this Vector4 from, Vector4 to, float speed) =>
@@ -2039,7 +2072,17 @@ namespace QuizCannersUtilities
         }
 
         #endregion
-        
+
+        public static void SkipLerp<T>(this T obj) where T : ILinkedLerping {
+
+            var ld = new LerpData();
+
+            obj.Portion(ld);
+            ld.MinPortion = 1;
+            obj.Lerp(ld, true);
+
+        }
+
         public static void Portion<T>(this T[] list, LerpData ld) where T : ILinkedLerping {
 
             if (typeof(Object).IsAssignableFrom(typeof(T))) {

@@ -1044,7 +1044,7 @@ namespace PlaytimePainter {
                 }
 
                 if (!cam)
-                    icon.Warning.write("No Main Camera found. Playtime Painting will not be possible");
+                    "No Main Camera found. Playtime Painting will not be possible".writeWarning();
 
                 pegi.nl();
 

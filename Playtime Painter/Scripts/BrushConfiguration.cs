@@ -160,8 +160,8 @@ namespace PlaytimePainter {
 
         public float Speed
         {
-            get { return _dSpeed.value * _dSpeed.value; }
-            set { _dSpeed.value = Mathf.Sqrt(value); }
+            get { return _dSpeed.Value * _dSpeed.Value; }
+            set { _dSpeed.Value = Mathf.Sqrt(value); }
         }
 
         #endregion
@@ -743,7 +743,7 @@ namespace PlaytimePainter {
                 case "maskFlip": flipMaskAlpha = data.ToBool(); break;
 
                 case "hard": hardness = data.ToFloat(); break;
-                case "Speed": _dSpeed.SetValue(data.ToFloat()); break;
+                case "Speed": _dSpeed.Value = data.ToFloat(); break;
                 case "dSpeed": _dSpeed.Decode(data); break;
                 case "dyn": data.Decode(out brushDynamic, BrushDynamic.Base.all); break;
 

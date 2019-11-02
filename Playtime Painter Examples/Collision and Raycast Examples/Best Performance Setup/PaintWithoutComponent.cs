@@ -42,6 +42,7 @@ namespace PlaytimePainter.Examples
                                 )
                     , out hit)) {
 
+
                     var receivers = hit.transform.GetComponentsInParent<PaintingReceiver>();
                     
                     if (receivers.Length == 0) continue;
@@ -78,7 +79,7 @@ namespace PlaytimePainter.Examples
                     if (!tex) continue;
                     
                     var rendTex = (receiver.texture.GetType() == typeof(RenderTexture)) ? (RenderTexture)receiver.texture : null;
-
+                    
                     #region  WORLD SPACE BRUSH
 
                     if (continious) {
@@ -150,6 +151,7 @@ namespace PlaytimePainter.Examples
     
         }
 
+      
 
         private void LateUpdate()
         {

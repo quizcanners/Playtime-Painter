@@ -5216,6 +5216,12 @@ namespace PlayerAndEditorGUI
         public static bool edit(ref Vector3 val) =>
            "X".edit(15, ref val.x) ||  "Y".edit(15, ref val.y) || "Z".edit(15, ref val.z);
 
+        public static bool edit(ref Vector3 val, float min, float max) =>
+            "X".edit(10, ref val.x, min, max) ||
+            "Y".edit(10, ref val.y, min, max) ||
+            "Z".edit(10, ref val.z, min, max);
+
+
         public static bool edit(this string label, ref Vector3 val)
         {
             #if UNITY_EDITOR
@@ -9823,17 +9829,22 @@ namespace PlayerAndEditorGUI
             var dn = obj as IGotDisplayName;
             if (dn != null)
             {
-                name = dn.NameForDisplayPEGI().FirstLine();
-                if (!name.IsNullOrEmpty())
+                name = dn.NameForDisplayPEGI(); 
+                if (!name.IsNullOrEmpty()) {
+                    name = name.FirstLine();
                     return true;
+                }
+
             }
             
             var sn = obj as IGotName;
 
             if (sn != null) {
-                name = sn.NameForPEGI.FirstLine();
-                if (!name.IsNullOrEmpty())
+                name = sn.NameForPEGI;
+                if (!name.IsNullOrEmpty()) {
+                    name = name.FirstLine();
                     return true;
+                }
             }
 
             return false;
@@ -9854,8 +9865,16 @@ namespace PlayerAndEditorGUI
             return cmp ? "{0} on {1}".F(cmp.GetType().ToPegiStringType(), cmp.gameObject.name) : obj.name;
         }
 
-        public static string GetNameForInspector<T>(this T obj)
-        {
+        public static string GetNameForInspector<T>(this T obj) {
+
+            if (obj is string)
+            {
+             var str = obj as string;
+             if (str == null)
+                 return "NULL String";
+             else if (str.Length == 0)
+                 return str;
+            }
 
             if (obj.IsNullOrDestroyed_Obj())
                 return "NULL {0}".F(typeof(T).ToPegiStringType());
