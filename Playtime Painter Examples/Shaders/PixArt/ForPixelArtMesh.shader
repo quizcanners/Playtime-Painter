@@ -14,7 +14,7 @@
 		LOD 200
 
 		CGPROGRAM
-			 #include "UnityPBSLighting.cginc"
+		#include "UnityPBSLighting.cginc"
 		#pragma vertex vert
 		#pragma surface surf SimpleLambert fullforwardshadows finalcolor:mycolor
 		#pragma target 3.0
@@ -51,6 +51,7 @@
 		};
 
 		void vert(inout appdata_full v, out Input o) {
+
 			UNITY_INITIALIZE_OUTPUT(Input, o);
 
 			o.perfuv.xy = (floor(v.texcoord.zw*_MainTex_TexelSize.z) + 0.5)* _MainTex_TexelSize.x;

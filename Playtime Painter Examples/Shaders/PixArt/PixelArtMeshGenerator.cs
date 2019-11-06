@@ -12,11 +12,14 @@ namespace PlaytimePainter {
     [ExecuteInEditMode]
     public class PixelArtMeshGenerator : MonoBehaviour, IPEGI {
 
+
+
         static int width = 8;
         static float halfPix = 0;
         static Vert[] verts;
         static List<int> tris = new List<int>();
 
+      //  public Vector4 uvSector = new Vector4(0, 0, 1, 1);
         public int testWidth = 8;
         public float thickness = 0;
         
@@ -54,6 +57,8 @@ namespace PlaytimePainter {
 
                 uv.x += offf.x;
                 uv.y += offf.y;
+                
+
 
             }
         }
@@ -185,6 +190,22 @@ namespace PlaytimePainter {
             "Mesh Collider".edit(ref meshCollider).nl(ref changed);
             "Width: ".edit(ref testWidth).nl(ref changed);
             "Thickness ".edit(ref thickness).nl(ref changed);
+                /*   "UV Sector".edit(ref uvSector).changes(ref changed);
+            if (uvSector != new Vector4(0,0,1,1) && icon.Refresh.Click())
+                uvSector = new Vector4(0,0,1,1);
+                */
+
+                if (!meshFilter)
+                    meshFilter = gameObject.GetComponent<MeshFilter>();
+
+            if (!meshFilter)
+            {
+
+
+                if ("Add Mesh filter".Click().nl())
+                    gameObject.AddComponent<MeshFilter>();
+            } else 
+
             if ("Generate".Click()) {
                
                 meshFilter.mesh = GenerateMesh(testWidth * 2);
@@ -197,6 +218,10 @@ namespace PlaytimePainter {
             if (meshFilter && meshFilter.sharedMesh && "Save".Click())
                 Save();
 #endif
+
+
+
+            pegi.nl();
 
             "For Pix Art shader set width equal to texture size, and thickness - 0".writeHint();
 
