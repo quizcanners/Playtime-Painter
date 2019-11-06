@@ -1,7 +1,7 @@
 Thank you for using Playtime Painter. 
 
 INSTALLING
-	SHould be in Assets/Tools
+	The directory should be as follows: Assets/Tools/Playtime Painter... Not critical, but a few shaders depend on .cginclude which can only be referenced by a path (relative to Assets folder).
  
 HOW TO PAINT:
 	* Attach PlaytimePainter Component to the GameObject you want to edit. Component's Inspector contains all the Texture
