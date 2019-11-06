@@ -1,4 +1,7 @@
 Thank you for using Playtime Painter. 
+
+INSTALLING
+	SHould be in Assets/Tools
  
 HOW TO PAINT:
 	* Attach PlaytimePainter Component to the GameObject you want to edit. Component's Inspector contains all the Texture
