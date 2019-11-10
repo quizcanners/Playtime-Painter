@@ -289,6 +289,19 @@ inline void frag_atlasedTexture(float4 atlasedUV, float mip, inout float2 uv) {
 	uv = fractal + atlasedUV.xy;
 }
 
+inline float3 GetParallax(float4 tangent, float3 normal, float4 vertex ) {
+
+	float3x3 objectToTangent = float3x3(
+		tangent.xyz,
+		cross(normal, tangent.xyz) * tangent.w,
+		normal
+		);
+
+	float3 tangentViewDir = mul(objectToTangent, ObjSpaceViewDir(vertex));
+
+	return tangentViewDir;
+}
+
 inline void applyTangent (inout float3 normal, float3 tnormal, float4 wTangent){
 	float3 wBitangent = cross(normal, wTangent.xyz) * wTangent.w;
 

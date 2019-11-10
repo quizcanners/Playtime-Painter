@@ -151,6 +151,8 @@
 			float2 border = (abs(float2(bumpUV.x, bumpUV.y)) - 0.4) * 10;
 			float bord = max(0, max(border.x*i.hold.x, border.y*i.hold.y)*i.hold.w + i.hold.z*min(border.x, border.y));
 
+			bord *= bord;
+
 			float deBord = 1 - bord;
 
 			bumpUV.x = bumpUV.x*max(i.hold.x, i.hold.z);
@@ -161,12 +163,16 @@
 			
 			float3 nn = UnpackNormal(tex2Dlod(_Bump, float4(bumpUV, 0, 0)) *(1 - i.hold.z)+ tex2Dlod(_BumpEx, float4(bumpUV, 0, 0)) *(i.hold.z));
 
-			float3 nn2 = UnpackNormal(tex2Dlod(_BumpDetail, float4(i.uv_BumpDetail*(4 + nn.xy), 0, 0)));
-			nn += nn2 * ( 2 - c.a)*0.05;
+			float3 nn2 = UnpackNormal(tex2D(_BumpDetail, i.uv_BumpDetail*((1.5-c.a)*8 + nn.xy)));
+			nn += nn2 * (2 - c.a) * 0.1;
+
+			nn.xy *= deBord;
 
 			//nn = normalize(nn*(1 - bord) + float3(0, 0, bord));
 
-			o.Normal = nn;
+			nn = normalize(nn);
+
+			o.Normal = nn; 
 
 			float smudge = tex2D(_Smudge, i.uv_Smudge).a;
 			float deSmudge = 1 - smudge;
@@ -176,8 +182,9 @@
 
 			float4 light = (tex2Dlod(_MainTex, float4(pixuv + (nn.xy)*(_MainTex_TexelSize.xy * (1+0.3* smudge)), 0, 0)));
 
-			float gloss = _Glossiness * smudge * (c.a);
+			float gloss = _Glossiness * smudge * (c.a) * deBord;
 
+		
 			float4 col = ((c + c * light// *(1 - gloss*0.5)
 				//+ light * gloss*0.5 // Would have been to cool to add this as light b
 				
@@ -186,7 +193,7 @@
 			float3 bgr = col.gbr + col.brg;
 			bgr *= bgr;
 
-			col.rgb += bgr * 0.1;
+			col.rgb += bgr * 0.02;
 
 			o.Albedo =col.rgb;
 			o.selfEmission = light.rgb;
