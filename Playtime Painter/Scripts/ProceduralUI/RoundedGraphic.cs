@@ -3,26 +3,27 @@ using System.Collections;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Runtime.Remoting.Messaging;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 using UnityEngine;
-using UnityEngine.Assertions.Comparers;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
-using UnityEngine.U2D;
 
 namespace PlaytimePainter
 {
 
+#if UNITY_2019_1_OR_NEWER
     [ExecuteAlways]
+#else
+    [ExecuteInEditMode]
+#endif
     public class RoundedGraphic : Image, IKeepMyCfg, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,
-        IPointerUpHandler, IPEGI {
+        IPointerUpHandler, IPEGI
+    {
 
         #region Shader MGMT
 
@@ -44,7 +45,7 @@ namespace PlaytimePainter
         public float GetCorner(bool upper, bool right) => GetCorner(upper ? (right ? 2 : 1) : (right ? 3 : 0));
 
         public void SetCorner(bool upper, bool right, float value) => SetCorner(upper ? (right ? 2 : 1) : (right ? 3 : 0), value);
-        
+
         public void SetCorner(int index, float value)
         {
 
@@ -98,10 +99,13 @@ namespace PlaytimePainter
             }
         }
 
-        public float FadeFromX {
-            set {
-                var min =faeOutUvPosition.min;
-                if (min.x != value) {
+        public float FadeFromX
+        {
+            set
+            {
+                var min = faeOutUvPosition.min;
+                if (min.x != value)
+                {
                     min.x = value;
                     faeOutUvPosition.min = min;
                     SetVerticesDirty();
@@ -151,10 +155,12 @@ namespace PlaytimePainter
             }
         }
 
-        [SerializeField] private Rect faeOutUvPosition = new Rect(0,0,1,1);
+        [SerializeField] private Rect faeOutUvPosition = new Rect(0, 0, 1, 1);
 
-        private Rect SpriteRect {
-            get {
+        private Rect SpriteRect
+        {
+            get
+            {
 
                 var sp = sprite;
 
@@ -163,14 +169,16 @@ namespace PlaytimePainter
 
                 if (!Application.isPlaying)
                     return sp.rect;
-                
+
                 return (sp.packed && sp.packingMode != SpritePackingMode.Tight) ? sp.textureRect : sp.rect;
             }
         }
 
-        protected override void OnPopulateMesh(VertexHelper vh) {
+        protected override void OnPopulateMesh(VertexHelper vh)
+        {
 
-            if (!gameObject.activeSelf) {
+            if (!gameObject.activeSelf)
+            {
                 if (Debug.isDebugBuild && Application.isEditor)
                     Debug.LogError("On populate mesh is called for disabled UI element");
 
@@ -180,8 +188,8 @@ namespace PlaytimePainter
             var rt = rectTransform;
             var piv = rt.pivot;
             var rectSize = rt.rect.size;
-           
-       
+
+
             vh.Clear();
 
             var vertex = UIVertex.simpleVert;
@@ -195,22 +203,25 @@ namespace PlaytimePainter
 
             var scaleToSided = rctS.x - rctS.y; // If x>0 - positive, else - negative
 
-     
-            if (feedPositionData) {
+
+            if (feedPositionData)
+            {
 
                 var pos = Vector2.zero;
 
                 switch (_positionDataType)
                 {
                     case PositionDataType.AtlasPosition:
-                        
+
                         var sp = sprite;
 
-                        if (sp) {
+                        if (sp)
+                        {
 
                             var tex = sp.texture;
 
-                            if (tex) {
+                            if (tex)
+                            {
 
                                 var texturePixelSize = new Vector2(tex.width, tex.height);
 
@@ -221,10 +232,10 @@ namespace PlaytimePainter
                                 vertex.uv3 = atlased.size / texturePixelSize;
                             }
                         }
-                    
+
                         break;
-                    case PositionDataType.ScreenPosition: 
-                        
+                    case PositionDataType.ScreenPosition:
+
 
                         pos = RectTransformUtility.WorldToScreenPoint(
                             IsOverlay ? null : (canvas ? canvas.worldCamera : null), rt.position);
@@ -243,14 +254,14 @@ namespace PlaytimePainter
                 }
 
                 vertex.uv2 = pos;
-                
+
             }
 
             var corner1 = (Vector2.zero - piv) * rectSize;
             var corner2 = (Vector2.one - piv) * rectSize;
-            
+
             vertex.color = color;
-         
+
             vertex.uv0 = new Vector2(0, 0);
             vertex.uv1 = new Vector2(scaleToSided, GetCorner(0));
             vertex.position = new Vector2(corner1.x, corner1.y);
@@ -260,18 +271,19 @@ namespace PlaytimePainter
             vertex.uv1.y = GetCorner(1);
             vertex.position = new Vector2(corner1.x, corner2.y);
             vh.AddFull(vertex);
-            
+
             vertex.uv0 = new Vector2(1, 1);
             vertex.uv1.y = GetCorner(2);
             vertex.position = new Vector2(corner2.x, corner2.y);
             vh.AddFull(vertex);
-            
+
             vertex.uv0 = new Vector2(1, 0);
             vertex.uv1.y = GetCorner(3);
             vertex.position = new Vector2(corner2.x, corner1.y);
             vh.AddFull(vertex);
 
-            if (LinkedCorners) {
+            if (LinkedCorners)
+            {
 
                 //1  2
                 //0  3
@@ -288,7 +300,7 @@ namespace PlaytimePainter
                 // TODO: Implement atlasing for Unlinked
 
                 var cornMid = (corner1 + corner2) * 0.5f;
-                
+
                 vertex.uv1.y = GetCorner(0);
                 vh.AddFull(vertex.Set(0, 0.5f, corner1, cornMid)); //4
                 vh.AddFull(vertex.Set(0.5f, 0, cornMid, corner1)); //5
@@ -329,7 +341,7 @@ namespace PlaytimePainter
 
             }
         }
-        
+
         private bool IsOverlay
         {
             get
@@ -338,10 +350,10 @@ namespace PlaytimePainter
                 return c && (c.renderMode == RenderMode.ScreenSpaceOverlay || !c.worldCamera);
             }
         }
-        
+
         public const string UNLINKED_VERTICES = "_UNLINKED";
         public const string EDGE_SOFTNESS_FLOAT = "_Edges";
-        
+
         #endregion
 
         #region Inspector
@@ -384,20 +396,21 @@ namespace PlaytimePainter
             pegi.toggleDefaultInspector();
 
             info.fullWindowDocumentationClickOpen("About Rounded Graphic").nl();
-            
+
             var mat = material;
 
             var can = canvas;
-            
+
             var shad = mat.shader;
-            
+
             var changed = false;
 
             var expectedScreenPosition = false;
 
             var expectedAtlasedPosition = false;
 
-            if (!_showModules) {
+            if (!_showModules)
+            {
 
                 bool gotPixPerfTag = false;
 
@@ -420,13 +433,15 @@ namespace PlaytimePainter
 
                     if (!gotPixPerfTag)
                         "{0} doesn't have {1} tag".F(shad.name, ShaderTags.PixelPerfectUi.NameForDisplayPEGI()).writeWarning();
-                    else {
+                    else
+                    {
 
                         mayBeDefaultMaterial = false;
 
                         expectedScreenPosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.Position.NameForDisplayPEGI());
 
-                        if (!expectedScreenPosition) {
+                        if (!expectedScreenPosition)
+                        {
 
                             expectedAtlasedPosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.AtlasedPosition.NameForDisplayPEGI());
 
@@ -456,12 +471,15 @@ namespace PlaytimePainter
 
                             if (possiblePositionData && feedPositionData)
                             {
-                                if ((can.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord2) == 0) {
+                                if ((can.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord2) == 0)
+                                {
                                     "Material requires Canvas to pass Position Data trough Texcoord2 channel"
                                         .writeWarning();
                                     if ("Fix Canvas ".Click().nl())
                                         can.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord2;
-                                } else if (needThirdUv && (can.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord3) == 0) {
+                                }
+                                else if (needThirdUv && (can.additionalShaderChannels & AdditionalCanvasShaderChannels.TexCoord3) == 0)
+                                {
 
                                     "Material requires Canvas to pass Texoord3 channel".writeWarning();
                                     if ("Fix Canvas".Click().nl())
@@ -470,7 +488,8 @@ namespace PlaytimePainter
 
                             }
 
-                            if (can.renderMode == RenderMode.WorldSpace) {
+                            if (can.renderMode == RenderMode.WorldSpace)
+                            {
                                 "Rounded UI isn't always working on world space UI yet.".writeWarning();
                                 if ("Change to Overlay".Click())
                                     can.renderMode = RenderMode.ScreenSpaceOverlay;
@@ -485,14 +504,15 @@ namespace PlaytimePainter
                 #endregion
 
                 var linked = LinkedCorners;
-                
+
                 if (mat && (linked == mat.IsKeywordEnabled(UNLINKED_VERTICES)))
                     mat.SetShaderKeyword(UNLINKED_VERTICES, !linked);
 
                 if (pegi.toggle(ref linked, icon.Link, icon.UnLinked).changes(ref changed))
                     LinkedCorners = linked;
 
-                for (var i = 0; i < _roundedCorners.Length; i++) {
+                for (var i = 0; i < _roundedCorners.Length; i++)
+                {
                     var crn = _roundedCorners[i];
 
                     if ("Corner{0}".F(linked ? "s" : (" " + i)).edit(70, ref crn, 0, 1f).nl(ref changed))
@@ -504,7 +524,8 @@ namespace PlaytimePainter
                 if (mat)
                 {
                     var needLink = ShaderTags.PerEdgeData.Get(mat);
-                    if (!needLink.IsNullOrEmpty()) {
+                    if (!needLink.IsNullOrEmpty())
+                    {
                         if (ShaderTags.PerEdgeRoles.LinkedCourners.Equals(needLink))
                         {
                             if (!linked)
@@ -528,7 +549,7 @@ namespace PlaytimePainter
 
                 pegi.nl();
 
-                 QcUnity.RemoveEmpty(_compatibleMaterials);
+                QcUnity.RemoveEmpty(_compatibleMaterials);
 
                 if (mat && gotPixPerfTag)
                     _compatibleMaterials.AddIfNew(mat);
@@ -536,19 +557,23 @@ namespace PlaytimePainter
                 bool showingSelection = false;
 
                 var cmpCnt = _compatibleMaterials.Count;
-                if (cmpCnt > 0 && ((cmpCnt > 1) || (!_compatibleMaterials[0].Equals(mat)))) {
+                if (cmpCnt > 0 && ((cmpCnt > 1) || (!_compatibleMaterials[0].Equals(mat))))
+                {
 
                     showingSelection = true;
 
                     if (pegi.select(ref mat, _compatibleMaterials, allowInsert: !mayBeDefaultMaterial))
                         material = mat;
                 }
-                
-                if (mat) {
 
-                    if (!Application.isPlaying) {
+                if (mat)
+                {
+
+                    if (!Application.isPlaying)
+                    {
                         var path = QcUnity.GetAssetFolder(mat);
-                        if (path.IsNullOrEmpty()) {
+                        if (path.IsNullOrEmpty())
+                        {
                             pegi.nl();
                             "Material is not saved as asset. Click COPY next to it to save as asset. Or Click 'Refresh' to find compatible materials in your assets ".writeHint();
                             pegi.nl();
@@ -557,7 +582,8 @@ namespace PlaytimePainter
                             mayBeDefaultMaterial = false;
                     }
 
-                    if (!showingSelection && !mayBeDefaultMaterial) {
+                    if (!showingSelection && !mayBeDefaultMaterial)
+                    {
                         var n = mat.name;
                         if ("Rename Material".editDelayed("Press Enter to finish renaming.", 120, ref n))
                             mat.RenameAsset(n);
@@ -565,7 +591,8 @@ namespace PlaytimePainter
                 }
 
                 if (pegi.edit(ref mat, 60).changes(ref changed) ||
-                    (!Application.isPlaying && pegi.ClickDuplicate(ref mat, gameObject.name).changes(ref changed))) {
+                    (!Application.isPlaying && pegi.ClickDuplicate(ref mat, gameObject.name).changes(ref changed)))
+                {
                     material = mat;
                     if (mat)
                         _compatibleMaterials.AddIfNew(mat);
@@ -573,18 +600,19 @@ namespace PlaytimePainter
 
                 if (!Application.isPlaying && icon.Refresh.Click("Find All Compatible Materials in Assets"))
                     _compatibleMaterials = ShaderTags.PixelPerfectUi.GetTaggedMaterialsFromAssets();
-                
+
 
                 pegi.nl();
 
-                if (mat && !mayBeDefaultMaterial) {
+                if (mat && !mayBeDefaultMaterial)
+                {
 
                     if (shad)
                         shad.ClickHighlight();
 
                     if ("Shaders".select(60, ref shad, CompatibleShaders, false, true).changes(ref changed))
                         mat.shader = shad;
-                    
+
                     var sTip = mat.Get(QuizCannersUtilities.ShaderTags.ShaderTip);
 
                     if (!sTip.IsNullOrEmpty())
@@ -598,42 +626,48 @@ namespace PlaytimePainter
 
                 #region Position Data
 
-                if (possiblePositionData || feedPositionData) {
+                if (possiblePositionData || feedPositionData)
+                {
 
                     "Position Data".toggleIcon(ref feedPositionData, true).changes(ref changed);
 
-                    if (feedPositionData) {
+                    if (feedPositionData)
+                    {
                         "Position: ".editEnum(60, ref _positionDataType).changes(ref changed);
 
                         "Shaders that use position data often don't look right in the scene view."
                             .fullWindowDocumentationClickOpen("Camera dependancy warning");
 
                         pegi.nl();
-                    } else if (expectingPosition) 
+                    }
+                    else if (expectingPosition)
                         "Shader expects Position data".writeWarning();
-                        
-                    if (gotPixPerfTag) {
-                        
-                        if (feedPositionData) {
+
+                    if (gotPixPerfTag)
+                    {
+
+                        if (feedPositionData)
+                        {
 
                             switch (_positionDataType)
                             {
                                 case PositionDataType.ScreenPosition:
-                                    
+
                                     if (expectedAtlasedPosition)
                                         "Shader is expecting Atlased Position".writeWarning();
-                                    
+
                                     break;
                                 case PositionDataType.AtlasPosition:
                                     if (expectedScreenPosition)
                                         "Shader is expecting Screen Position".writeWarning();
-                                    else if (sprite && sprite.packed) {
+                                    else if (sprite && sprite.packed)
+                                    {
                                         if (sprite.packingMode == SpritePackingMode.Tight)
                                             "Tight Packing is not supported by rounded UI".writeWarning();
                                         else if (sprite.packingRotation != SpritePackingRotation.None)
                                             "Packing rotation is not supported by Rounded UI".writeWarning();
                                     }
-                                    
+
                                     break;
                                 case PositionDataType.FadeOutPosition:
 
@@ -647,7 +681,8 @@ namespace PlaytimePainter
                     pegi.nl();
                 }
 
-                if (gotPixPerfTag && feedPositionData)  {
+                if (gotPixPerfTag && feedPositionData)
+                {
                     if (!possiblePositionData)
                         "Shader doesn't have any PixelPerfectUI Position Tags. Position updates may not be needed".writeWarning();
                     else
@@ -679,10 +714,10 @@ namespace PlaytimePainter
                         }*/
                     }
 
-                   // if (_positionDataType == PositionDataType.AtlasPosition) {
-                          //  "UV:".edit(ref atlasedUVs).nl(ref changed);
-                         //   pegi.edit01(ref atlasedUVs).nl(ref changed);
-                   // }
+                    // if (_positionDataType == PositionDataType.AtlasPosition) {
+                    //  "UV:".edit(ref atlasedUVs).nl(ref changed);
+                    //   pegi.edit01(ref atlasedUVs).nl(ref changed);
+                    // }
 
                 }
 
@@ -691,7 +726,7 @@ namespace PlaytimePainter
                 var rt = raycastTarget;
                 if ("Click-able".toggleIcon("Is RayCast Target", ref rt).nl(ref changed))
                     raycastTarget = rt;
-                
+
                 if (rt)
                     "On Click".edit_Property(() => OnClick, this).nl(ref changed);
 
@@ -699,7 +734,8 @@ namespace PlaytimePainter
 
                 var noTag = spriteTag.IsNullOrEmpty();
 
-                if (noTag || !spriteTag.SameAs(ShaderTags.SpriteRoles.Hide.NameForDisplayPEGI())) {
+                if (noTag || !spriteTag.SameAs(ShaderTags.SpriteRoles.Hide.NameForDisplayPEGI()))
+                {
 
                     if (noTag)
                         spriteTag = "Sprite";
@@ -707,8 +743,9 @@ namespace PlaytimePainter
                     var sp = sprite;
                     if (spriteTag.edit(90, ref sp).changes(ref changed))
                         sprite = sp;
-                    
-                    if (sp) {
+
+                    if (sp)
+                    {
 
                         var tex = sp.texture;
 
@@ -732,16 +769,16 @@ namespace PlaytimePainter
                 if (pegi.edit(ref col).nl(ref changed))
                     color = col;
             }
-            
+
             if ("Modules".enter_List(ref _modules, ref _inspectedModule, ref _showModules).nl(ref changed))
                 this.SaveStdData();
-            
+
             if (changed)
                 SetVerticesDirty();
-            
+
             return changed;
         }
-     
+
         #endregion
 
         #region Mouse Press
@@ -752,7 +789,7 @@ namespace PlaytimePainter
 
         public float maxHoldForClick = 0.3f;
         public float maxMousePositionPixOffsetForClick = 20f;
-        
+
         [NonSerialized] private bool _mouseDown;
         [NonSerialized] private float _mouseDownTime;
         [NonSerialized] private Vector2 _mouseDownPosition;
@@ -764,17 +801,20 @@ namespace PlaytimePainter
         {
             _mouseDown = false;
             _mouseOver = false;
-        } 
+        }
 
-        public void OnPointerDown(PointerEventData eventData) {
+        public void OnPointerDown(PointerEventData eventData)
+        {
             _mouseDownPosition = Input.mousePosition;
             _mouseDown = true;
             _mouseDownTime = Time.time;
         }
 
-        public void OnPointerUp(PointerEventData eventData) {
+        public void OnPointerUp(PointerEventData eventData)
+        {
 
-            if (ClickPossible) {
+            if (ClickPossible)
+            {
 
                 var diff = _mouseDownPosition - Input.mousePosition.ToVector2();
 
@@ -786,17 +826,19 @@ namespace PlaytimePainter
         }
 
         #endregion
-        
+
         private Vector3 _previousPos = Vector3.zero;
-        
-        private void Update() {
+
+        private void Update()
+        {
 
             var needsUpdate = false;
 
             foreach (var m in _modules)
                 needsUpdate |= m.Update(this);
 
-            if (feedPositionData && rectTransform.position != _previousPos)  {
+            if (feedPositionData && rectTransform.position != _previousPos)
+            {
                 needsUpdate = true;
                 _previousPos = rectTransform.position;
             }
@@ -808,7 +850,7 @@ namespace PlaytimePainter
         #region  Modules
 
         private List<RoundedButtonModuleBase> _modules = new List<RoundedButtonModuleBase>();
-        
+
         [SerializeField] private string _modulesStd = "";
 
         public string ConfigStd
@@ -846,9 +888,10 @@ namespace PlaytimePainter
 
             return true;
         }
-        
+
         [TaggedType(Tag, "Uniform offset for stretched graphic", false)]
-        protected class RoundedButtonStretchedUniformOffset : RoundedButtonModuleBase, IPEGI, IPEGI_ListInspect {
+        protected class RoundedButtonStretchedUniformOffset : RoundedButtonModuleBase, IPEGI, IPEGI_ListInspect
+        {
 
             private const string Tag = "StretchedOffset";
 
@@ -880,17 +923,21 @@ namespace PlaytimePainter
             #region Inspect
             public bool InspectInList(IList list, int ind, ref int edited)
             {
-               // var tg = inspected;
+                // var tg = inspected;
 
                 var rt = inspected.rectTransform;
 
-                if (rt.anchorMin != Vector2.zero || rt.anchorMax != Vector2.one) {
+                if (rt.anchorMin != Vector2.zero || rt.anchorMax != Vector2.one)
+                {
 
-                    if ("Stretch Anchors".Click()) {
+                    if ("Stretch Anchors".Click())
+                    {
                         rt.anchorMin = Vector2.zero;
                         rt.anchorMax = Vector2.one;
                     }
-                } else {
+                }
+                else
+                {
 
                     var offset = rt.offsetMin.x;
 
@@ -899,19 +946,20 @@ namespace PlaytimePainter
                     if (icon.Refresh.Click("Refresh size ({0})".F(size)))
                         size = Mathf.Max(Mathf.Abs(rect.width), Mathf.Abs(rect.height));
 
-                    if ("Offset".edit(ref offset, -size, size)) {
+                    if ("Offset".edit(ref offset, -size, size))
+                    {
                         rt.offsetMin = Vector2.one * offset;
                         rt.offsetMax = -Vector2.one * offset;
                     }
                 }
 
 
-            return false;
-        }
+                return false;
+            }
             #endregion
 
         }
-        
+
         [TaggedType(Tag, "Native Size from Tiled Texture", false)]
         protected class RoundedButtonNativeSizeForOverlayOffset : RoundedButtonModuleBase, IPEGI, IPEGI_ListInspect
         {
@@ -921,7 +969,7 @@ namespace PlaytimePainter
             private ShaderProperty.TextureValue referenceTexture = new ShaderProperty.TextureValue("_MainTex");
 
             public override string ClassTag => Tag;
-            
+
             #region Inspect
             public bool InspectInList(IList list, int ind, ref int edited)
             {
@@ -934,8 +982,10 @@ namespace PlaytimePainter
 
                     var tex = referenceTexture.Get(mat);
 
-                    if (tex) {
-                        if (icon.Size.Click("Set Native Size for Texture, using it's Tile/Offset")) {
+                    if (tex)
+                    {
+                        if (icon.Size.Click("Set Native Size for Texture, using it's Tile/Offset"))
+                        {
 
                             var size = new Vector2(tex.width, tex.height);
                             var til = referenceTexture.GetTiling(mat);
@@ -945,14 +995,15 @@ namespace PlaytimePainter
 
                         }
                     }
-                } else "No Material".write();
+                }
+                else "No Material".write();
 
                 return false;
             }
             public override bool Inspect()
             {
                 var changed = base.Inspect();
-                
+
 
                 return changed;
             }
@@ -960,9 +1011,11 @@ namespace PlaytimePainter
 
             #region Encode & Decode
 
-            public override bool Decode(string tg, string data) {
+            public override bool Decode(string tg, string data)
+            {
 
-                switch (tg) {
+                switch (tg)
+                {
 
                     case "b": data.Decode_Base(base.Decode, this); break;
                     case "mp": referenceTexture.Decode(data); break;
@@ -980,7 +1033,8 @@ namespace PlaytimePainter
         }
 
         [TaggedType(Tag, "Change Corners on Click", false)]
-        protected class RoundedButtonCornersOnClick : RoundedButtonModuleBase, IPEGI, IPEGI_ListInspect {
+        protected class RoundedButtonCornersOnClick : RoundedButtonModuleBase, IPEGI, IPEGI_ListInspect
+        {
 
             private const string Tag = "corners";
 
@@ -994,7 +1048,8 @@ namespace PlaytimePainter
 
             LerpData ld = new LerpData();
 
-            public override bool Update(RoundedGraphic target){
+            public override bool Update(RoundedGraphic target)
+            {
 
                 ld.Reset();
 
@@ -1002,7 +1057,8 @@ namespace PlaytimePainter
 
                 _roundedCorners.Lerp(ld);
 
-                if (_roundedCorners.CurrentValue != target.GetCorner(0)) {
+                if (_roundedCorners.CurrentValue != target.GetCorner(0))
+                {
                     target.SetCorners(_roundedCorners.CurrentValue);
                     return true;
                 }
@@ -1011,12 +1067,13 @@ namespace PlaytimePainter
             }
 
             #region Inspect
-            public bool InspectInList(IList list, int ind, ref int edited) {
-                
+            public bool InspectInList(IList list, int ind, ref int edited)
+            {
+
                 "Normal".edit(50, ref valueWhenOff, 0, 1);
 
                 "On Hover".edit(50, ref valueWhenOver, 0, 1).nl();
-                
+
                 if (icon.Enter.Click())
                     edited = ind;
 
@@ -1042,7 +1099,7 @@ namespace PlaytimePainter
                 {
                     case "b": data.Decode_Base(base.Decode, this); break;
                     case "crn": _roundedCorners.Decode(data); break;
-                    case "hov": valueWhenOver = data.ToFloat();  break;
+                    case "hov": valueWhenOver = data.ToFloat(); break;
                     case "nrm": valueWhenOff = data.ToFloat(); break;
                     default: return false;
                 }
@@ -1074,12 +1131,12 @@ namespace PlaytimePainter
             public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(RoundedButtonModuleBase));
             public TaggedTypesCfg AllTypes => all;
             public abstract string ClassTag { get; }
-            
+
             public virtual bool Update(RoundedGraphic target) => false;
 
             #region Inspect
-            public virtual string NameForDisplayPEGI()=> ClassTag;
-            
+            public virtual string NameForDisplayPEGI() => ClassTag;
+
             public override bool Inspect()
             {
                 return false;
@@ -1092,7 +1149,7 @@ namespace PlaytimePainter
             public override bool Decode(string tg, string data) => false;
             #endregion
         }
-        
+
         #endregion
     }
 
@@ -1109,7 +1166,7 @@ namespace PlaytimePainter
             public static readonly ShaderTagValue FadePosition = new ShaderTagValue("FadePosition", PixelPerfectUi);
 
         }
-        
+
         public static readonly ShaderTag SpriteRole = new ShaderTag("SpriteRole");
 
         public static class SpriteRoles
@@ -1129,27 +1186,38 @@ namespace PlaytimePainter
 
     }
 
-    public static class RoundedUiExtensions  {
+    public static class RoundedUiExtensions
+    {
 
-        public static void AddFull(this VertexHelper vh, UIVertex vert) => vh.AddVert(vert.position, vert.color, vert.uv0, vert.uv1, vert.uv2, vert.uv3, vert.normal, vert.tangent);
-        
-        #if UNITY_EDITOR
+        public static void AddFull(this VertexHelper vh, UIVertex vert) =>
+#if UNITY_2019_1_OR_NEWER
+         vh.AddVert(vert.position, vert.color, vert.uv0, vert.uv1, vert.uv2, vert.uv3, vert.normal, vert.tangent);
+#else
+         vh.AddVert(vert.position, vert.color, vert.uv0, vert.uv1, vert.normal, vert.tangent);
+#endif
+
+#if UNITY_EDITOR
         [MenuItem("GameObject/UI/Playtime Painter/Rounded UI Graphic", false, 0)]
-        private static void CreateRoundedUiElement() {
+        private static void CreateRoundedUiElement()
+        {
 
             bool createdForSelection = false;
 
-            if (Selection.gameObjects.Length > 0) {
+            if (Selection.gameObjects.Length > 0)
+            {
 
-                foreach (var go in Selection.gameObjects) {
-                    if (go.GetComponentInParent<Canvas>()) {
+                foreach (var go in Selection.gameObjects)
+                {
+                    if (go.GetComponentInParent<Canvas>())
+                    {
                         CreateRoundedUiElement(go);
                         createdForSelection = true;
                     }
                 }
             }
-            
-            if (!createdForSelection) {
+
+            if (!createdForSelection)
+            {
 
                 var canvas = Object.FindObjectOfType<Canvas>();
 
@@ -1162,7 +1230,8 @@ namespace PlaytimePainter
 
         }
 
-        private static void CreateRoundedUiElement(GameObject canvas) {
+        private static void CreateRoundedUiElement(GameObject canvas)
+        {
             var rg = new GameObject("Rounded UI Element").AddComponent<RoundedGraphic>();
             var go = rg.gameObject;
             GameObjectUtility.SetParentAndAlign(go, canvas);
@@ -1170,9 +1239,10 @@ namespace PlaytimePainter
             Selection.activeObject = go;
         }
 
-        #endif
+#endif
 
-        public static UIVertex Set(this UIVertex vertex, float uvX, float uvY, Vector2 posX, Vector2 posY) {
+        public static UIVertex Set(this UIVertex vertex, float uvX, float uvY, Vector2 posX, Vector2 posY)
+        {
             vertex.uv0 = new Vector2(uvX, uvY);
             vertex.position = new Vector2(posX.x, posY.y);
             return vertex;
@@ -1180,18 +1250,20 @@ namespace PlaytimePainter
     }
 
     #region Inspector override
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
     [CustomEditor(typeof(RoundedGraphic))]
     public class PixelPerfectShaderDrawer : PEGI_Inspector_Mono<RoundedGraphic> { }
-    #endif
+#endif
 
-    public class PixelPerfectMaterialDrawer : PEGI_Inspector_Material {
+    public class PixelPerfectMaterialDrawer : PEGI_Inspector_Material
+    {
 
         private static readonly ShaderProperty.FloatValue Softness = new ShaderProperty.FloatValue(RoundedGraphic.EDGE_SOFTNESS_FLOAT);
 
         private static readonly ShaderProperty.TextureValue Outline = new ShaderProperty.TextureValue("_OutlineGradient");
-        
-        public override bool Inspect(Material mat) {
+
+        public override bool Inspect(Material mat)
+        {
 
             var changed = pegi.toggleDefaultInspector();
 
@@ -1204,7 +1276,8 @@ namespace PlaytimePainter
 
             var go = QcUnity.GetFocusedGameObject();
 
-            if (go) {
+            if (go)
+            {
 
                 var rndd = go.GetComponent<RoundedGraphic>();
 
@@ -1217,8 +1290,8 @@ namespace PlaytimePainter
 
             return changed;
         }
-  
+
     }
-    
+
     #endregion
 }

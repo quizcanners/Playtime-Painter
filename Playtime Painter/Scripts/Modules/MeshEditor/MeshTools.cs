@@ -3,15 +3,18 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using PlayerAndEditorGUI;
-
 using QuizCannersUtilities;
-using static PlaytimePainter.PainterMesh;
-
-namespace PlaytimePainter
-{
 
 
-    #pragma warning disable IDE0034 // Simplify 'default' expression
+
+namespace PlaytimePainter {
+
+    using LineData = PainterMesh.LineData;
+    using Triangle = PainterMesh.Triangle;
+    using Vertex = PainterMesh.Vertex;
+    using MeshPoint = PainterMesh.MeshPoint;
+
+#pragma warning disable IDE0034 // Simplify 'default' expression
 
     public interface IMeshToolWithPerMeshData {
         CfgEncoder EncodePerMeshData();
@@ -1123,7 +1126,7 @@ namespace PlaytimePainter
 
             if ((ind > 0) && (ind < 5))
             {
-                a.meshPoint.FlipChanelOnLine((QcMath.ColorChanel)(ind - 1), b.meshPoint);
+                a.meshPoint.FlipChanelOnLine((ColorChanel)(ind - 1), b.meshPoint);
                 EditedMesh.Dirty = true;
                 Event.current.Use();
             }

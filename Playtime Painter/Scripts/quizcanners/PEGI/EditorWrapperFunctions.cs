@@ -12,7 +12,6 @@ using QuizCannersUtilities;
 using UnityEditorInternal;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
-using static QuizCannersUtilities.QcMath;
 
 
 // ReSharper disable InconsistentNaming

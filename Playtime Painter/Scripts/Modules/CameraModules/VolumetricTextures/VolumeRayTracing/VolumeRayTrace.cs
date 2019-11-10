@@ -126,7 +126,7 @@ namespace PlaytimePainter
 
             var buff = GetBakedDepthsBuffer();
 
-            PainterCamera.Inst.RenderDepth(depthTexture, buff, (QcMath.ColorChanel) lastUpdatedLight);
+            PainterCamera.Inst.RenderDepth(depthTexture, buff, (ColorChanel) lastUpdatedLight);
             depthTexture.DiscardContents();
 
             lastUpdatedLight += 1;

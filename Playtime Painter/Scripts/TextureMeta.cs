@@ -12,11 +12,11 @@ using QuizCannersUtilities;
 using System.IO;
 using Unity.Collections;
 using Unity.Jobs;
-using static PlaytimePainter.PaintingUndoRedo;
-using static QuizCannersUtilities.QcMath;
 
 namespace PlaytimePainter
 {
+
+    using UndoCache = PaintingUndoRedo.UndoCache;
 
     public enum TexTarget { Texture2D, RenderTexture }
 
@@ -38,7 +38,7 @@ namespace PlaytimePainter
         public bool lockEditing;
         public bool isATransparentLayer;
         public bool NeedsToBeSaved => QcUnity.SavedAsAsset(texture2D) || QcUnity.SavedAsAsset(renderTexture);
-      
+
         public bool enableUndoRedo;
         public bool pixelsDirty;
         public bool preserveTransparency = true;
@@ -46,7 +46,7 @@ namespace PlaytimePainter
         public bool errorWhileReading;
         public bool dontRedoMipMaps;
         public bool disableContiniousLine;
-     
+
         private float sdfMaxInside = 1f;
         private float sdfMaxOutside = 1f;
         private float sdfPostProcessDistance = 1f;
@@ -69,11 +69,13 @@ namespace PlaytimePainter
             get { if (_pixels == null) PixelsFromTexture2D(texture2D); return _pixels; }
             set { _pixels = value; }
         }
-        
+
         ImgMetaModules modulesContainer = new ImgMetaModules();
 
-        public List<ImageMetaModuleBase> Modules {
-            get {
+        public List<ImageMetaModuleBase> Modules
+        {
+            get
+            {
                 modulesContainer.meta = this;
                 return modulesContainer.Modules;
             }
@@ -92,7 +94,7 @@ namespace PlaytimePainter
 
             public ImgMetaModules() { }
         }
-        
+
         #endregion
 
         #region SAVE IN PLAYER
@@ -102,7 +104,7 @@ namespace PlaytimePainter
         public string SaveInPlayer()
         {
             if (texture2D == null) return "Save Failed";
-            
+
             if (destination == TexTarget.RenderTexture)
                 RenderTexture_To_Texture2D();
 
@@ -155,7 +157,7 @@ namespace PlaytimePainter
         public override CfgEncoder Encode()
         {
             var cody = this.EncodeUnrecognized()
-            .Add("mods",  modulesContainer)
+            .Add("mods", modulesContainer)
             .Add_IfNotZero("dst", (int)destination)
             .Add_Reference("tex2D", texture2D)
             .Add_Reference("other", other)
@@ -172,20 +174,20 @@ namespace PlaytimePainter
             .Add_IfTrue("tc2Auto", _useTexCoord2AutoAssigned)
             .Add_IfTrue("dumm", dontRedoMipMaps)
             .Add_IfTrue("dCnt", disableContiniousLine)
-           
+
             .Add_IfNotBlack("clear", clearColor)
             .Add_IfNotEmpty("URL", url)
             .Add_IfNotNegative("is", inspectedItems)
             .Add_IfNotNegative("ip", _inspectedProcess)
             .Add_IfFalse("alpha", preserveTransparency);
-            
-           if (sdfMaxInside != 1f)
-               cody.Add("sdfMI", sdfMaxInside);
-           if (sdfMaxOutside != 1f)
-               cody.Add("sdfMO", sdfMaxOutside);
-           if (sdfPostProcessDistance != 1f)
-               cody.Add("sdfMD", sdfPostProcessDistance);
-           
+
+            if (sdfMaxInside != 1f)
+                cody.Add("sdfMI", sdfMaxInside);
+            if (sdfMaxOutside != 1f)
+                cody.Add("sdfMO", sdfMaxOutside);
+            if (sdfPostProcessDistance != 1f)
+                cody.Add("sdfMD", sdfPostProcessDistance);
+
             if (enableUndoRedo)
                 cody.Add("2dUndo", _numberOfTexture2DBackups)
                 .Add("rtBackups", _numberOfRenderTextureBackups);
@@ -197,18 +199,19 @@ namespace PlaytimePainter
         {
             base.Decode(data);
 
-            if (texture2D) {
+            if (texture2D)
+            {
                 width = texture2D.width;
                 height = texture2D.height;
             }
-            
+
         }
 
         public override bool Decode(string tg, string data)
         {
             switch (tg)
             {
-                case "mods":  modulesContainer.Decode(data); break;
+                case "mods": modulesContainer.Decode(data); break;
                 case "dst": destination = (TexTarget)data.ToInt(); break;
                 case "tex2D": data.Decode_Reference(ref texture2D); break;
                 case "other": data.Decode_Reference(ref other); break;
@@ -223,7 +226,7 @@ namespace PlaytimePainter
                 case "off": offset = data.ToVector2(); break;
                 case "sn": saveName = data; break;
                 case "trnsp": isATransparentLayer = data.ToBool(); break;
-               
+
                 case "bu": enableUndoRedo = data.ToBool(); break;
                 case "dumm": dontRedoMipMaps = data.ToBool(); break;
                 case "dCnt": disableContiniousLine = data.ToBool(); break;
@@ -291,7 +294,7 @@ namespace PlaytimePainter
                 PixelsFromTexture2D(texture2D);
 
                 SetAndApply();
-                
+
                 renderTexture = tmp;
 
                 Debug.Log("Resize Complete");
@@ -425,7 +428,8 @@ namespace PlaytimePainter
         public void ChangeDestination(TexTarget changeTo, MaterialMeta mat, ShaderProperty.TextureValue parameter, PlaytimePainter painter)
         {
 
-            if (changeTo != destination) {
+            if (changeTo != destination)
+            {
 
                 if (changeTo == TexTarget.RenderTexture)
                 {
@@ -442,7 +446,7 @@ namespace PlaytimePainter
                     {
                         PainterCamera.Inst.EmptyBufferTarget();
                         PainterCamera.Inst.DiscardAlphaBuffer();
-                    }   
+                    }
                     else if (painter.initialized && !painter.isBeingDisabled)
                     {
                         // To avoid Clear to black when exiting playmode
@@ -475,8 +479,9 @@ namespace PlaytimePainter
         }
 
         public void ApplyToTexture2D(bool mipMaps = true) => texture2D.Apply(mipMaps, false);
-        
-        public void SetAndApply(bool mipMaps = true) {
+
+        public void SetAndApply(bool mipMaps = true)
+        {
             if (_pixels == null) return;
             SetPixelsInRam();
             ApplyToTexture2D(mipMaps);
@@ -490,10 +495,11 @@ namespace PlaytimePainter
         }
 
         #endregion
-        
+
         #region Pixels MGMT
 
-        public void UnsetAlphaSavePixel() {
+        public void UnsetAlphaSavePixel()
+        {
             if (_alphaPreservePixelSet)
             {
                 _pixels[0].a = 1;
@@ -501,9 +507,10 @@ namespace PlaytimePainter
             }
         }
 
-        public void SetAlphaSavePixel()  {
+        public void SetAlphaSavePixel()
+        {
             if (!preserveTransparency || !(Math.Abs(Pixels[0].a - 1) < float.Epsilon)) return;
-            
+
             _pixels[0].a = 0.9f;
             _alphaPreservePixelSet = true;
             SetPixel_InRAM(0, 0);
@@ -511,7 +518,7 @@ namespace PlaytimePainter
         }
 
         public void SetPixel_InRAM(int x, int y) => texture2D.SetPixel(x, y, _pixels[PixelNo(x, y)]);
-        
+
         public void PixelsToGamma()
         {
             var p = Pixels;
@@ -541,7 +548,8 @@ namespace PlaytimePainter
                 p[i] = col;
         }
 
-        public TextureMeta SetPixels(Color col, ColorMask mask) {
+        public TextureMeta SetPixels(Color col, ColorMask mask)
+        {
             var p = Pixels;
 
             bool r = mask.HasFlag(ColorMask.R);
@@ -556,7 +564,7 @@ namespace PlaytimePainter
                 pix.g = g ? col.g : pix.g;
                 pix.b = b ? col.b : pix.b;
                 pix.a = a ? col.a : pix.a;
-                p[i] = pix; 
+                p[i] = pix;
             }
 
             return this;
@@ -567,14 +575,15 @@ namespace PlaytimePainter
             // When first creating texture Alpha value should not be 1 otherwise texture will be encoded to RGB and not RGBA 
             var needsReColorizingAfterSave = false;
 
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
 
-            if (creatingNewTexture && Math.Abs(col.a - 1) < float.Epsilon) {
+            if (creatingNewTexture && Math.Abs(col.a - 1) < float.Epsilon)
+            {
                 needsReColorizingAfterSave = true;
                 col.a = 0.5f;
             }
 
-            #endif
+#endif
 
             SetPixels(col);
 
@@ -613,7 +622,8 @@ namespace PlaytimePainter
             return pix;
         }
 
-        public void PixelsFromTexture2D(Texture2D tex, bool userClickedRetry = false) {
+        public void PixelsFromTexture2D(Texture2D tex, bool userClickedRetry = false)
+        {
 
             if (userClickedRetry || !errorWhileReading)
             {
@@ -636,14 +646,15 @@ namespace PlaytimePainter
         }
 
         private Color PixelSafe_Slow(MyIntVec2 v) => Pixels[PixelNo(v.x, v.y)];
-        
+
         public Color PixelUnSafe(int x, int y) => _pixels[y * width + x];
 
         public Color SetPixelUnSafe(int x, int y, Color col) => _pixels[y * width + x] = col;
-        
+
         public int PixelNo(MyIntVec2 v) => PixelNo(v.x, v.y);
-        
-        public int PixelNo(int x, int y) {
+
+        public int PixelNo(int x, int y)
+        {
 
             x = ((x % width) + width) % width;
 
@@ -651,7 +662,7 @@ namespace PlaytimePainter
 
             return y * width + x;
         }
-        
+
         public MyIntVec2 UvToPixelNumber(Vector2 uv) => new MyIntVec2(Mathf.Round(uv.x * width), Mathf.Round(uv.y * height));
 
         public MyIntVec2 UvToPixelNumber(Vector2 uv, out Vector2 pixelOffset)
@@ -665,18 +676,21 @@ namespace PlaytimePainter
         }
 
         public void SetEdges(Color col) => SetEdges(col, ColorMask.All);
-        
-        public void SetEdges(Color col, ColorMask mask) {
-            
-            if (!Pixels.IsNullOrEmpty()) {
+
+        public void SetEdges(Color col, ColorMask mask)
+        {
+
+            if (!Pixels.IsNullOrEmpty())
+            {
 
                 for (int XSection = 0; XSection < 2; XSection++)
                 {
                     int x = XSection * (width - 1);
-                    for (int y = 0; y < height; y++) {
-                            var pix = PixelUnSafe(x, y);
-                            mask.SetValuesOn(ref pix, col);
-                            SetPixelUnSafe(x, y, pix);
+                    for (int y = 0; y < height; y++)
+                    {
+                        var pix = PixelUnSafe(x, y);
+                        mask.SetValuesOn(ref pix, col);
+                        SetPixelUnSafe(x, y, pix);
                     }
                 }
 
@@ -695,15 +709,17 @@ namespace PlaytimePainter
 
 
         }
-        
+
         private int _offsetByX = 0;
         private int _offsetByY = 0;
 
         private void OffsetPixels() => OffsetPixels(_offsetByX, _offsetByY);
 
-        public void OffsetPixels(int dx, int dy) {
+        public void OffsetPixels(int dx, int dy)
+        {
 
-            if (Pixels == null) {
+            if (Pixels == null)
+            {
                 Debug.LogError("Pixels are null");
                 return;
             }
@@ -718,14 +734,15 @@ namespace PlaytimePainter
                 var srcOff = y * width;
                 var dstOff = ((y + dy) % height) * width;
 
-                for (int x = 0; x < width; x++) {
+                for (int x = 0; x < width; x++)
+                {
 
                     var srcInd = srcOff + x;
-                    
+
                     var dstInd = dstOff + ((x + dx) % width);
 
                     _pixels[srcInd] = pixelsCopy[dstInd];
-                    
+
 
                 }
             }
@@ -734,7 +751,7 @@ namespace PlaytimePainter
         #endregion
 
         #region BlitJobs
-        #if UNITY_2018_1_OR_NEWER
+#if UNITY_2018_1_OR_NEWER
         public NativeArray<Color> pixelsForJob;
         public JobHandle jobHandle;
 
@@ -765,7 +782,7 @@ namespace PlaytimePainter
                 SetAndApply();
             }
         }
-        #endif
+#endif
         #endregion
 
         #region Init
@@ -784,7 +801,7 @@ namespace PlaytimePainter
         {
 
             var t2D = tex as Texture2D;
-            
+
             if (t2D)
                 UseTex2D(t2D);
             else
@@ -797,37 +814,41 @@ namespace PlaytimePainter
                 TexMGMTdata.imgMetas.Insert(0, this);
             return this;
         }
-        
+
         public void FromRenderTextureToNewTexture2D()
         {
             texture2D = new Texture2D(width, height);
             RenderTexture_To_Texture2D();
         }
 
-        public void From(Texture2D texture, bool userClickedRetry = false) {
+        public void From(Texture2D texture, bool userClickedRetry = false)
+        {
 
             texture2D = texture;
             saveName = texture.name;
 
-            if (userClickedRetry || !errorWhileReading) {
+            if (userClickedRetry || !errorWhileReading)
+            {
 
-                #if UNITY_EDITOR
-                if (texture) {
+#if UNITY_EDITOR
+                if (texture)
+                {
 
                     var imp = texture.GetTextureImporter();
-                    if (imp != null) {
+                    if (imp != null)
+                    {
 
                         isATransparentLayer = imp.alphaIsTransparency;
 
                         texture.Reimport_IfNotReadale();
                     }
                 }
-                #endif
+#endif
 
                 PixelsFromTexture2D(texture2D, userClickedRetry);
             }
         }
-        
+
         private void UseRenderTexture(RenderTexture rt)
         {
             renderTexture = rt;
@@ -872,7 +893,7 @@ namespace PlaytimePainter
 
             set { saveName = value; }
         }
-        
+
         private int _inspectedProcess = -1;
         public int inspectedItems = -1;
 
@@ -914,10 +935,10 @@ namespace PlaytimePainter
 
             if ("CPU blit options".conditional_enter(this.TargetIsTexture2D(), ref inspectedItems, 0).nl())
             {
-                "Disable Continious Lines".toggleIcon("If you see unwanted lines appearing on the texture as you paint, enable this." ,ref disableContiniousLine).nl(ref changed);
+                "Disable Continious Lines".toggleIcon("If you see unwanted lines appearing on the texture as you paint, enable this.", ref disableContiniousLine).nl(ref changed);
 
                 "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref _repaintDelay, 0.01f, 0.5f).nl(ref changed);
-                
+
                 "Don't update mipMaps".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",
                     ref dontRedoMipMaps).changes(ref changed);
 
@@ -925,14 +946,15 @@ namespace PlaytimePainter
                     "Is A volume texture".toggleIcon(ref isAVolumeTexture).nl(ref changed);
 
             }
-            
+
             #region Processors
 
             var newWidth = Cfg.SelectedWidthForNewTexture(); //PainterDataAndConfig.SizeIndexToSize(PainterCamera.Data.selectedWidthIndex);
             var newHeight = Cfg.SelectedHeightForNewTexture();
 
-            if ("Texture Processors".enter(ref inspectedItems, 6).nl()) {
-                
+            if ("Texture Processors".enter(ref inspectedItems, 6).nl())
+            {
+
                 if (errorWhileReading)
                     "There was en error reading texture pixels, can't process it".writeWarning();
                 else
@@ -942,8 +964,9 @@ namespace PlaytimePainter
                         "New Width ".select(60, ref PainterCamera.Data.selectedWidthIndex, PainterDataAndConfig.NewTextureSizeOptions).nl(ref changed);
 
                         "New Height ".select(60, ref PainterCamera.Data.selectedHeightIndex, PainterDataAndConfig.NewTextureSizeOptions).nl(ref changed);
-                        
-                        if (newWidth != width || newHeight != height) {
+
+                        if (newWidth != width || newHeight != height)
+                        {
 
                             bool rescale;
 
@@ -961,7 +984,8 @@ namespace PlaytimePainter
                         pegi.nl();
                     }
 
-                    if (_inspectedProcess == -1) {
+                    if (_inspectedProcess == -1)
+                    {
 
                         if ((newWidth != width || newHeight != height) && icon.Size.Click("Resize").nl(ref changed))
                             Resize(newWidth, newHeight);
@@ -969,25 +993,30 @@ namespace PlaytimePainter
                         pegi.nl();
                     }
 
-                    if ("Clear ".enter(ref _inspectedProcess, 1, false))  {
+                    if ("Clear ".enter(ref _inspectedProcess, 1, false))
+                    {
 
                         "Clear Color".edit(80, ref clearColor).nl();
 
-                        if ("Clear Texture".Click().nl()) {
+                        if ("Clear Texture".Click().nl())
+                        {
                             Colorize(clearColor);
                             SetApplyUpdateRenderTexture();
                         }
                     }
 
-                    if (_inspectedProcess == -1 && icon.Refresh.Click("Apply color {0}".F(clearColor)).nl()) {
+                    if (_inspectedProcess == -1 && icon.Refresh.Click("Apply color {0}".F(clearColor)).nl())
+                    {
                         Colorize(clearColor);
                         SetApplyUpdateRenderTexture();
                     }
 
-                    if ("Color to Alpha".enter(ref _inspectedProcess, 2).nl()) {
+                    if ("Color to Alpha".enter(ref _inspectedProcess, 2).nl())
+                    {
 
                         "Background Color".edit(80, ref clearColor).nl();
-                        if (Pixels != null) {
+                        if (Pixels != null)
+                        {
 
                             if ("Color to Alpha".Click("Will Convert Background Color with transparency").nl())
                             {
@@ -1007,7 +1036,8 @@ namespace PlaytimePainter
 
                                 bool wasRt = WasRenderTexture();
 
-                                for (int i = 0; i < _pixels.Length; i++) {
+                                for (int i = 0; i < _pixels.Length; i++)
+                                {
                                     var col = _pixels[i];
 
                                     col.a = BlitFunctions.ColorToAlpha(_pixels[i], clearColor).a;
@@ -1068,10 +1098,13 @@ namespace PlaytimePainter
                     {
                         var crv = TexMGMT.InspectAnimationCurve("Channel");
 
-                        if (Pixels != null) {
+                        if (Pixels != null)
+                        {
 
-                            if ("Remap Alpha".Click()) {
-                                for (int i = 0; i < _pixels.Length; i++)  {
+                            if ("Remap Alpha".Click())
+                            {
+                                for (int i = 0; i < _pixels.Length; i++)
+                                {
                                     var col = _pixels[i];
                                     col.a = crv.Evaluate(col.a);
                                     _pixels[i] = col;
@@ -1095,7 +1128,8 @@ namespace PlaytimePainter
                         }
                     }
 
-                    if ("Save Textures In Game ".enter(ref _inspectedProcess, 7).nl()) {
+                    if ("Save Textures In Game ".enter(ref _inspectedProcess, 7).nl())
+                    {
 
                         "This is intended to test playtime saving. The functions to do so are quite simple. You can find them inside ImageData.cs class."
                             .writeHint();
@@ -1114,42 +1148,50 @@ namespace PlaytimePainter
                             "Playtime Saved Textures".write_List(Cfg.playtimeSavedTextures, LoadTexturePegi);
                     }
 
-                    if ("Fade edges".enter(ref _inspectedProcess, 8).nl()) {
+                    if ("Fade edges".enter(ref _inspectedProcess, 8).nl())
+                    {
 
                         ("This will cahange pixels on the edges of the texture. Useful when wrap mode " +
                          "is set to clamp.").writeHint();
-                        
-                        if (texture2D) {
 
-                            #if UNITY_EDITOR
+                        if (texture2D)
+                        {
+
+#if UNITY_EDITOR
                             var ti = texture2D.GetTextureImporter();
-                            if (ti) {
+                            if (ti)
+                            {
                                 if (ti.wrapMode != TextureWrapMode.Clamp && "Change wrap mode from {0} to Clamp"
-                                        .F(ti.wrapMode).Click().nl(ref changed)) {
+                                        .F(ti.wrapMode).Click().nl(ref changed))
+                                {
                                     ti.wrapMode = TextureWrapMode.Clamp;
                                     ti.SaveAndReimport();
                                 }
                             }
-                            #endif
+#endif
 
-                            if ("Set edges to transparent".Click().nl(ref changed)) {
+                            if ("Set edges to transparent".Click().nl(ref changed))
+                            {
                                 SetEdges(Color.clear, ColorMask.A);
                                 SetAndApply(true);
                             }
 
-                            if ("Set edges to Clear Black".Click().nl(ref changed)) {
+                            if ("Set edges to Clear Black".Click().nl(ref changed))
+                            {
                                 SetEdges(Color.clear);
                                 SetAndApply(true);
                             }
-                            
+
                         }
                     }
 
-                    if ("Add Background".enter(ref _inspectedProcess, 9).nl()) {
+                    if ("Add Background".enter(ref _inspectedProcess, 9).nl())
+                    {
 
                         "Background Color".edit(80, ref clearColor).nl();
-                        
-                        if ("Add Background".Click("Will Add Beckground color and make everything non transparent").nl()) {
+
+                        if ("Add Background".Click("Will Add Beckground color and make everything non transparent").nl())
+                        {
 
                             bool wasRt = WasRenderTexture();
 
@@ -1161,7 +1203,7 @@ namespace PlaytimePainter
                             if (wasRt)
                                 ReturnToRenderTexture();
                         }
-                        
+
                     }
 
                     if ("Offset".enter(ref _inspectedProcess, 10).nl())
@@ -1196,7 +1238,7 @@ namespace PlaytimePainter
 
             if ("Enable Undo for '{0}'".F(NameForPEGI).toggle_enter(ref enableUndoRedo, ref inspectedItems, 2, ref changed).nl())
             {
-                
+
                 "UNDOs: Tex2D".edit(80, ref _numberOfTexture2DBackups).changes(ref changed);
                 "RendTex".edit(60, ref _numberOfRenderTextureBackups).nl(ref changed);
 
@@ -1210,7 +1252,7 @@ namespace PlaytimePainter
                 "Use Z/X to undo/redo".writeOneTimeHint("ZxUndoRedo");
 
             }
-            
+
             return changed;
         }
 
@@ -1225,7 +1267,8 @@ namespace PlaytimePainter
             var hasAlphaLayerTag =
                 painter.Material.Has(property, ShaderTags.LayerTypes.Transparent);//GetTag(PainterDataAndConfig.ShaderTagLayerType + property, false).Equals("Transparent");
 
-            if (!isATransparentLayer && hasAlphaLayerTag) {
+            if (!isATransparentLayer && hasAlphaLayerTag)
+            {
                 "Material Field {0} is a Transparent Layer ".F(property).writeHint();
                 forceOpenUTransparentLayer = true;
             }
@@ -1239,16 +1282,18 @@ namespace PlaytimePainter
 
                 if (isATransparentLayer)
                     preserveTransparency = true;
-                
+
 
                 pegi.nl();
             }
-            
-            if (showToggles) {
+
+            if (showToggles)
+            {
 
                 if (isATransparentLayer)
                     preserveTransparency = true;
-                else {
+                else
+                {
 
                     MsgPainter.PreserveTransparency.GetText().toggleIcon(ref preserveTransparency).changes(ref changed);
 
@@ -1261,7 +1306,8 @@ namespace PlaytimePainter
             var forceOpenUv2 = false;
             var hasUv2Tag = painter.Material.Has(property, ShaderTags.SamplingModes.Uv2);
 
-            if (!useTexCoord2 && hasUv2Tag) {
+            if (!useTexCoord2 && hasUv2Tag)
+            {
 
                 if (!_useTexCoord2AutoAssigned)
                 {
@@ -1278,29 +1324,31 @@ namespace PlaytimePainter
 
             return changed;
         }
-        
+
         public bool Undo_redo_PEGI()
         {
             var changed = false;
-            
+
             if (cache == null) cache = new UndoCache();
 
-            if (cache.undo.GotData) {
-                if (icon.Undo.Click("Press Z to undo (Scene View)",ref changed))
+            if (cache.undo.GotData)
+            {
+                if (icon.Undo.Click("Press Z to undo (Scene View)", ref changed))
                     cache.undo.ApplyTo(this);
             }
             else
                 icon.UndoDisabled.write("Nothing to Undo (set number of undo frames in config)");
 
-            if (cache.redo.GotData) {
-                if (icon.Redo.Click("X to Redo", ref changed ))
+            if (cache.redo.GotData)
+            {
+                if (icon.Redo.Click("X to Redo", ref changed))
                     cache.redo.ApplyTo(this);
             }
             else
                 icon.RedoDisabled.write("Nothing to Redo");
 
             pegi.nl();
-          
+
             return changed;
         }
 
@@ -1320,15 +1368,17 @@ namespace PlaytimePainter
                 return "Too many backups";
             return null;
         }
-        
+
         #endregion
-        
+
         private float _repaintTime;
 
-        public void ManagedUpdate(PlaytimePainter painter) {
-            
-            if (pixelsDirty) {
-                
+        public void ManagedUpdate(PlaytimePainter painter)
+        {
+
+            if (pixelsDirty)
+            {
+
                 if ((Time.time - _repaintTime < _repaintDelay) && !painter.stroke.mouseUp) return;
 
                 if (texture2D)
@@ -1341,7 +1391,7 @@ namespace PlaytimePainter
             foreach (var m in Modules)
                 m.ManagedUpdate();
         }
-        
+
     }
 
 }

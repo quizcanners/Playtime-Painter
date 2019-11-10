@@ -2,7 +2,7 @@
 using UnityEngine;
 using System;
 using QuizCannersUtilities;
-using static QuizCannersUtilities.QcMath;
+
 
 namespace PlayerAndEditorGUI {
 

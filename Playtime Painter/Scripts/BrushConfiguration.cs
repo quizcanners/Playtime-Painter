@@ -8,7 +8,6 @@ using UnityEditor.EditorTools;
 using System;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-using static QuizCannersUtilities.QcMath;
 
 namespace PlaytimePainter {
 
@@ -447,19 +446,6 @@ namespace PlaytimePainter {
             else if (brushDynamic.GetType() != typeof(BrushDynamic.None))
                     brushDynamic = (BrushDynamic.None)Activator.CreateInstance(typeof(BrushDynamic.None));
             
-#if UNITY_EDITOR
-
-#if !UNITY_2019_1_OR_NEWER
-            if ( Tools.current != Tool.None ) {
-                MsgPainter.LockToolToUseTransform.GetText().writeWarning();
-                if (MsgPainter.HideTransformTool.GetText().Click().nl())
-                    QcUnity.HideUnityTool();
-            }
-#endif
-
-#endif
-
-
             if (Mode_Type_PEGI().changes(ref changed) && GetBrushType(cpuBlit) == BrushTypes.Decal.Inst)
                     MaskSet(ColorMask.A, true);
 

@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using QuizCannersUtilities;
 using Unity.Collections;
 using UnityEngine;
-using static QuizCannersUtilities.ShaderProperty;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -16,6 +15,9 @@ namespace QuizCannersUtilities {
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 
+    using TextureValue = ShaderProperty.TextureValue;
+    using ColorValue = ShaderProperty.ColorValue;
+ 
 
     public static class ShaderProperty {
 
@@ -699,8 +701,15 @@ namespace PlayerAndEditorGUI {
     #pragma warning disable 1692
     #pragma warning disable IDE1006
 
+    using FloatValue = ShaderProperty.FloatValue;
+    using VectorValue = ShaderProperty.VectorValue;
+    using ColorValue = ShaderProperty.ColorValue;
+    using TextureValue = ShaderProperty.TextureValue;
+
     public static class ShaderUtilInspectExtensions {
-        
+
+    
+
         public static bool toggle(this Material mat, string keyword)
         {
             var val = Array.IndexOf(mat.shaderKeywords, keyword) != -1;

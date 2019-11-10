@@ -15,7 +15,7 @@ using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
-using static QuizCannersUtilities.QcMath;
+
 
 namespace PlaytimePainter {
     
@@ -1894,7 +1894,7 @@ namespace PlaytimePainter {
                 pegi.toggle(ref cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config, "Tool Configuration");
                 
                 if (!PainterDataAndConfig.hideDocumentation)
-                    pegi.fullWindowDocumentationClickOpen(PainterLazyTranslations.InspectPainterDocumentation, MsgPainter.AboutPlaytimePainter.GetText());
+                    pegi.fullWindowDocumentationClickOpen(LazyTranslations.InspectPainterDocumentation, MsgPainter.AboutPlaytimePainter.GetText());
     
                 #endregion
                 

@@ -4,7 +4,7 @@ using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using System;
 using Random = UnityEngine.Random;
-using static QuizCannersUtilities.QcMath;
+
 
 namespace PlaytimePainter
 {

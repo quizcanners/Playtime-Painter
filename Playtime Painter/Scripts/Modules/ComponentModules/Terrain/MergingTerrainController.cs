@@ -13,7 +13,8 @@ namespace PlaytimePainter
 {
 
     [ExecuteInEditMode]
-    public class MergingTerrainController : MonoBehaviour, IPEGI {
+    public class MergingTerrainController : MonoBehaviour, IPEGI
+    {
 
         [FormerlySerializedAs("mergeSubmasks")] public List<ChannelSetsForDefaultMaps> mergeSubMasks;
         [HideInInspector]
@@ -43,12 +44,14 @@ namespace PlaytimePainter
                 return;
 
             if (mergeSubMasks.IsNullOrEmpty()) return;
-            
+
+#if UNITY_2019_1_OR_NEWER
             var ls = terrain.terrainData.terrainLayers;
 
             var terrainLayersCount = ls?.Length ?? 0;
-                
-            for (var i = 0; i < mergeSubMasks.Count; i++) {
+
+            for (var i = 0; i < mergeSubMasks.Count; i++)
+            {
 
                 var mergeSubMask = mergeSubMasks[i];
 
@@ -56,16 +59,16 @@ namespace PlaytimePainter
                     Shader.SetGlobalTexture(PainterDataAndConfig.TERRAIN_NORMAL_MAP + i, mergeSubMask.Product_combinedBump.GetDestinationTexture());
 
                 if (!mergeSubMask.Product_colorWithAlpha) continue;
-                
+
                 Shader.SetGlobalTexture(PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE + i, mergeSubMask.Product_colorWithAlpha.GetDestinationTexture());
 
-                if (ls != null && (i < terrainLayersCount && ls[i]!= null))
+                if (ls != null && (i < terrainLayersCount && ls[i] != null))
                     ls[i].diffuseTexture = mergeSubMask.Product_colorWithAlpha;
             }
 
             if (terrain)
                 terrain.terrainData.terrainLayers = ls;
-
+#endif
 
 
 
@@ -78,13 +81,14 @@ namespace PlaytimePainter
         {
             var changed = false;
 
-            if ("Merge Sub Masks".edit_List(ref mergeSubMasks, ref inspectedElement).nl(ref changed)) {
+            if ("Merge Sub Masks".edit_List(ref mergeSubMasks, ref inspectedElement).nl(ref changed))
+            {
                 UpdateTextures();
                 painter.UpdateShaderGlobals();
             }
 
             if (inspectedElement != -1) return changed;
-            
+
             if (painter)
                 if ("Height Texture".edit(70, ref painter.terrainHeightTexture).nl(ref changed))
                     painter.SetToDirty();
@@ -100,31 +104,33 @@ namespace PlaytimePainter
 
             return changed;
         }
-        
-        public static bool PluginInspectPart() {
+
+        public static bool PluginInspectPart()
+        {
 
             const bool changed = false;
 
             var ptr = PlaytimePainter.inspected;
 
             if (!ptr || !ptr.terrain) return changed;
-            
+
             var td = ptr.terrain.terrainData;
 
             if (td == null)
                 "Terrain doesn't have terrain data".writeWarning();
             else
             {
+#if UNITY_2019_1_OR_NEWER
                 var layers = td.terrainLayers;
                 if (layers == null)
                     "Terrain layers are null".writeWarning();
-              
+#endif
             }
 
 
             return changed;
         }
-        
+
         #endregion
 
         [Serializable]
@@ -155,7 +161,12 @@ namespace PlaytimePainter
             }
 
             #region Inspector
-            public string NameForPEGI { get => productName; set => productName = value; }
+
+            public string NameForPEGI
+            {
+                get { return productName; }
+                set { productName = value; }
+            }
 
             public bool InspectInList(IList list, int ind, ref int edited)
             {

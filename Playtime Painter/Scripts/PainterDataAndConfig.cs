@@ -4,7 +4,6 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using System;
 using System.Globalization;
-using static QuizCannersUtilities.QcMath;
 
 namespace PlaytimePainter
 {

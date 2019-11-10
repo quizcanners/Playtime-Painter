@@ -3,16 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-using static QuizCannersUtilities.QcUtils;
 
-namespace PlaytimePainter.Examples {
+namespace PlaytimePainter.Examples
+{
 
 #pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 
     [ExecuteInEditMode]
-    public class GodMode : MonoBehaviour, IPEGI {
+    public class GodMode : MonoBehaviour, IPEGI
+    {
 
         public float speed = 20;
         public float sensitivity = 5;
@@ -35,9 +36,9 @@ namespace PlaytimePainter.Examples {
 
             var magn = offset.magnitude;
 
-          //  offset -= cameraSmoothingOffset * (3 + Mathf.Clamp01(magn/speed)*Vector3.Dot(offset.normalized, cameraSmoothingOffset.normalized));
-          
-            
+            //  offset -= cameraSmoothingOffset * (3 + Mathf.Clamp01(magn/speed)*Vector3.Dot(offset.normalized, cameraSmoothingOffset.normalized));
+
+
             cameraSmoothedVelocity = cameraSmoothedVelocity.LerpBySpeed_DirectionFirst(mainCameraVelocity, magn * 0.8f);
 
             cameraSmoothingOffset = cameraSmoothingOffset.LerpBySpeed_DirectionFirst(offset, magn);
@@ -53,19 +54,22 @@ namespace PlaytimePainter.Examples {
         #region Advanced Camera
         public bool advancedCamera;
 
-        [SerializeField] private DynamicRangeFloat targetHeight = new DynamicRangeFloat(0.1f, 10, 1);
+        [SerializeField] private QcUtils.DynamicRangeFloat targetHeight = new QcUtils.DynamicRangeFloat(0.1f, 10, 1);
 
         private float CameraWindowNearClip()
         {
-            float val = (targetHeight.Value) / Mathf.Tan(Mathf.Deg2Rad*_mainCam.fieldOfView * 0.5f);
-            
+            float val = (targetHeight.Value) / Mathf.Tan(Mathf.Deg2Rad * _mainCam.fieldOfView * 0.5f);
+
             return val;
         }
 
-        public float CameraWindowHeight {
+        public float CameraWindowHeight
+        {
 
             get { return targetHeight.Value; }
-            set { targetHeight.Value = Mathf.Max(0.1f,  value);
+            set
+            {
+                targetHeight.Value = Mathf.Max(0.1f, value);
                 AdjustCamera();
             }
 
@@ -76,12 +80,13 @@ namespace PlaytimePainter.Examples {
             get
             {
                 return _mainCam.farClipPlane - _mainCam.nearClipPlane;
-                
+
             }
             set { _mainCam.farClipPlane = _mainCam.nearClipPlane + value; }
         }
 
-        void AdjustCamera() {
+        void AdjustCamera()
+        {
 
             if (advancedCamera)
             {
@@ -93,7 +98,9 @@ namespace PlaytimePainter.Examples {
                 _mainCam.farClipPlane = clip + CameraClipDistance;
 
 
-            } else {
+            }
+            else
+            {
                 _mainCam.transform.localPosition = Vector3.zero;
                 _mainCam.nearClipPlane = 0.3f;
             }
@@ -112,14 +119,15 @@ namespace PlaytimePainter.Examples {
         {
             cameraSmoothedVelocity = Vector3.zero;
             mainCameraVelocity = Vector3.zero;
-            cameraSmoothingOffset  = Vector3.zero;
+            cameraSmoothingOffset = Vector3.zero;
         }
 
-        public virtual void Update() {
+        public virtual void Update()
+        {
 
             if (!_mainCam)
                 return;
-            
+
             var add = Vector3.zero;
 
             var opratorTf = transform;
@@ -132,7 +140,7 @@ namespace PlaytimePainter.Examples {
 
             if (!simulateFlying)
                 add.y = 0;
-            
+
             if (Input.GetKey(KeyCode.Q)) add += Vector3.down;
             if (Input.GetKey(KeyCode.E)) add += Vector3.up;
 
@@ -140,14 +148,15 @@ namespace PlaytimePainter.Examples {
 
             mainCameraVelocity = add * speed * (Input.GetKey(KeyCode.LeftShift) ? 3f : 1f);
 
-            opratorTf.position += mainCameraVelocity * Time.deltaTime ;
+            opratorTf.position += mainCameraVelocity * Time.deltaTime;
 
             if (!Application.isPlaying || _disableRotation) return;
-            
-            if (rotateWithoutRmb || Input.GetMouseButton(1)) {
+
+            if (rotateWithoutRmb || Input.GetMouseButton(1))
+            {
 
                 var eul = camTf.localEulerAngles;
-                
+
                 var rotationX = eul.y;
                 _rotationY = eul.x;
 
@@ -167,7 +176,7 @@ namespace PlaytimePainter.Examples {
             AdjustCamera();
 
         }
-        
+
         public Vector2 camOrbit;
         public Vector3 spinCenter;
         private float _orbitDistance;
@@ -175,28 +184,32 @@ namespace PlaytimePainter.Examples {
         public float spinStartTime;
 
         [SerializeField] private Camera _mainCam;
-        
-        private Camera MainCam {
-            get {
+
+        private Camera MainCam
+        {
+            get
+            {
                 if (!_mainCam)
                     _mainCam = Camera.main;
                 return _mainCam;
             }
         }
-        
-        private void SpinAround() {
-            
+
+        private void SpinAround()
+        {
+
             var camTr = _mainCam.transform;
 
-            if (Input.GetMouseButtonDown(2)) {
-                
+            if (Input.GetMouseButtonDown(2))
+            {
+
                 var ray = MainCam.ScreenPointToRay(Input.mousePosition);
-                
+
                 RaycastHit hit;
                 if (Physics.Raycast(ray, out hit))
                     spinCenter = hit.point;
                 else return;
-                
+
                 var before = camTr.rotation;
                 camTr.LookAt(spinCenter);
                 var rot = camTr.rotation.eulerAngles;
@@ -239,51 +252,58 @@ namespace PlaytimePainter.Examples {
         }
 
         #region Inspector
-        public bool Inspect() {
+        public bool Inspect()
+        {
 
             var changed = false;
 
             "WASD - move {0} Q, E - Dwn, Up {0} Shift - faster {0} {1} {0} MMB - Orbit Collider".F(pegi.EnvironmentNl,
                 _disableRotation ? "" : (rotateWithoutRmb ? "RMB - rotation" : "Mouse to rotate")).fullWindowDocumentationClickOpen();
-            
+
             pegi.nl();
 
-            if (!_mainCam)  {
+            if (!_mainCam)
+            {
                 "Main Camera".selectInScene(ref _mainCam).nl();
                 "Camera is missing, spin around will not work".writeWarning();
             }
-          
+
             "Speed:".edit("Speed of movement", ref speed).nl();
 
             "Sensitivity:".edit("How fast camera will rotate", ref sensitivity).nl(ref changed);
 
-            "Flying".toggleIcon("Looking up/down will make camera move up/down.",ref simulateFlying).nl(ref changed);
+            "Flying".toggleIcon("Looking up/down will make camera move up/down.", ref simulateFlying).nl(ref changed);
 
-            "Disable Rotation".toggleIcon( ref _disableRotation).nl(ref changed);
+            "Disable Rotation".toggleIcon(ref _disableRotation).nl(ref changed);
 
             if (!_disableRotation)
                 "Rotate without RMB".toggleIcon(ref rotateWithoutRmb).nl(ref changed);
-            
+
             "Smoothing offset: {0}".F(cameraSmoothingOffset).nl();
 
             "Smoothing velocity: {0}".F(cameraSmoothedVelocity).nl();
 
-            if (MainCam) {
+            if (MainCam)
+            {
 
                 "Main Camera".edit(ref _mainCam).nl(ref changed);
 
                 if ("Advanced Camera".toggleIcon(ref advancedCamera).nl())
                     AdjustCamera();
-                
-                if (advancedCamera) {
 
-                    if (!_mainCam.transform.IsChildOf(transform) || (_mainCam.transform == transform)) {
+                if (advancedCamera)
+                {
+
+                    if (!_mainCam.transform.IsChildOf(transform) || (_mainCam.transform == transform))
+                    {
 
                         "Make main camera a child object of this script".writeWarning();
 
-                        if (transform.childCount == 0) {
+                        if (transform.childCount == 0)
+                        {
 
-                            if ("Add Empty Child".Click().nl()) {
+                            if ("Add Empty Child".Click().nl())
+                            {
 
                                 var go = new GameObject("Advanced Camera");
                                 var tf = go.transform;
@@ -294,28 +314,30 @@ namespace PlaytimePainter.Examples {
                         else
                             "Delete Main Camera and create one on a child".writeHint();
 
-                    } else {
+                    }
+                    else
+                    {
 
                         bool cameraDirty = false;
 
                         float fov = _mainCam.fieldOfView;
-                        
+
                         "FOV".edit(ref fov, 5, 170).nl(ref cameraDirty);
-                            _mainCam.fieldOfView = fov;
+                        _mainCam.fieldOfView = fov;
 
                         float clipDistance = CameraClipDistance;
 
-                        if ("Clip Range".editDelayed(ref clipDistance).nl()) 
+                        if ("Clip Range".editDelayed(ref clipDistance).nl())
 
                             CameraClipDistance = Mathf.Clamp(clipDistance, 0.03f, 100000);
 
-                        
+
 
                         "Height:".write(60);
                         targetHeight.Inspect().nl(ref cameraDirty);
-                        
+
                         "Clip Distance: {0}".F(CameraWindowNearClip()).nl();
-                        
+
                         if (cameraDirty)
                             AdjustCamera();
 
@@ -325,7 +347,7 @@ namespace PlaytimePainter.Examples {
 
             return false;
         }
-        
+
         #endregion
     }
 }

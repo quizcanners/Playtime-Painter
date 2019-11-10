@@ -2,13 +2,15 @@
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
-namespace PlaytimePainter.Examples {
-    
-    [ExecuteInEditMode]
-    public class PaintingReceiver : MonoBehaviour, IPEGI {
+namespace PlaytimePainter.Examples
+{
 
-        public enum RendererType {Regular, Skinned }
-        
+    [ExecuteInEditMode]
+    public class PaintingReceiver : MonoBehaviour, IPEGI
+    {
+
+        public enum RendererType { Regular, Skinned }
+
         public RendererType type;
 
         public Mesh originalMesh;
@@ -22,10 +24,11 @@ namespace PlaytimePainter.Examples {
         [SerializeField]
         private string textureField = "";
 
-        
+
         private ShaderProperty.TextureValue _textureProperty;
 
-        private string TexturePropertyName{
+        private string TexturePropertyName
+        {
             set
             {
                 textureField = value;
@@ -33,48 +36,58 @@ namespace PlaytimePainter.Examples {
             }
         }
 
-        private ShaderProperty.TextureValue TextureId {
+        private ShaderProperty.TextureValue TextureId
+        {
             get
             {
-                
+
                 if (_textureProperty == null)
                     _textureProperty = new ShaderProperty.TextureValue(textureField);
-                
+
                 return _textureProperty;
-            }                   
+            }
         }
 
 
         private Mesh Mesh => skinnedMeshRenderer ? skinnedMeshRenderer.sharedMesh : (meshFilter ? meshFilter.sharedMesh : null);
         public Renderer Renderer => meshRenderer ? meshRenderer : skinnedMeshRenderer;
 
-        public Material Material { 
+        public Material Material
+        {
             get
             {
                 var rend = Renderer;
-                
+
                 return rend ? rend.sharedMaterials.TryGet(materialIndex) : null;
             }
-            
-            
-            private set {
+
+
+            private set
+            {
                 if (materialIndex >= Renderer.sharedMaterials.Length) return;
-                
+
                 var mats = Renderer.sharedMaterials;
                 mats[materialIndex] = value;
                 Renderer.materials = mats;
             }
         }
 
-        private Texture MatTex { get {
+        private Texture MatTex
+        {
+            get
+            {
                 if (!Material) return null;
                 return Material.Has(TextureId) ? Material.Get(TextureId) : Material.mainTexture;
 
-            } set {
+            }
+            set
+            {
                 if (Material.Has(TextureId))
                     Material.Set(TextureId, value);
-                else Material.mainTexture = value;   } }
-        
+                else Material.mainTexture = value;
+            }
+        }
+
         public Texture texture;
         public Texture originalTexture;
         public bool useTexcoord2;
@@ -82,7 +95,8 @@ namespace PlaytimePainter.Examples {
         public Vector2 meshUvOffset;
         public Material originalMaterial;
 
-        private void OnEnable()  {
+        private void OnEnable()
+        {
             if (!Application.isPlaying)
                 Refresh();
 
@@ -94,33 +108,35 @@ namespace PlaytimePainter.Examples {
 
         }
 
-        public Texture GetTexture() {
+        public Texture GetTexture()
+        {
 
             if (texture)
                 return texture;
 
             var rtm = TexturesPool.inst;
 
-            if (!Material) {
+            if (!Material)
+            {
                 Debug.Log("No Material ");
                 return null;
             }
 
             if (!rtm) return texture;
-            
+
             originalMaterial = Material;
 
             texture = rtm.GetRenderTexture();
 
             fromRtManager = true;
-             
+
             Material = Instantiate(originalMaterial);
 
             var tex = originalTexture ? originalTexture : MatTex;
             if (tex)
-                RenderTextureBuffersManager.Blit( tex , (RenderTexture) texture);
+                RenderTextureBuffersManager.Blit(tex, (RenderTexture)texture);
             else
-                PainterCamera.Inst.Render(Color.black , (RenderTexture)texture);
+                PainterCamera.Inst.Render(Color.black, (RenderTexture)texture);
 
             MatTex = texture;
 
@@ -129,9 +145,11 @@ namespace PlaytimePainter.Examples {
             return texture;
         }
 
-        public void Restore() {
-            
-            if (fromRtManager && (originalMaterial)) {
+        public void Restore()
+        {
+
+            if (fromRtManager && (originalMaterial))
+            {
                 fromRtManager = false;
                 Material = originalMaterial;
                 originalMaterial = null;
@@ -147,16 +165,20 @@ namespace PlaytimePainter.Examples {
             {
                 Debug.Log("Original Texture is not defined");
                 return;
-            } else if (originalTexture.GetType() != typeof(Texture2D)) {
+            }
+            else if (originalTexture.GetType() != typeof(Texture2D))
+            {
                 Debug.Log("There was no original Texture assigned to edit.");
             }
 
             var t2D = texture as Texture2D;
-            
-            if (t2D) {
+
+            if (t2D)
+            {
                 t2D.SetPixels(((Texture2D)originalTexture).GetPixels());
                 t2D.Apply(true);
-            } else
+            }
+            else
                 RenderTextureBuffersManager.Blit(originalTexture, (RenderTexture)texture);
 
         }
@@ -172,10 +194,11 @@ namespace PlaytimePainter.Examples {
             if (!skinnedMeshRenderer)
                 skinnedMeshRenderer = GetComponent<SkinnedMeshRenderer>();
         }
-        
-        private void OnDisable() {
+
+        private void OnDisable()
+        {
             if (fromRtManager) Restore();
-           
+
         }
 
         #region Inspector
@@ -184,8 +207,9 @@ namespace PlaytimePainter.Examples {
         public virtual bool Inspect()
         {
 
-         
-            if (!PainterCamera.Inst) {
+
+            if (!PainterCamera.Inst)
+            {
                 "No Painter Camera found".writeWarning();
 
                 if ("Refresh".Click())
@@ -198,7 +222,7 @@ namespace PlaytimePainter.Examples {
             ("Works with PaintWithoutComponent script. This lets you configure how painting will be received." +
                 " PaintWithoutComponent.cs is usually attached to a main camera (if painting in first person). Current Texture: " + TextureId.ToString())
                 .fullWindowDocumentationClickOpen("About Painting Receiver");
-            
+
             var changes = false;
 
             if (icon.Refresh.Click("Find Components automatically"))
@@ -206,88 +230,100 @@ namespace PlaytimePainter.Examples {
 
             if ("Renderer GetBrushType:".editEnum(90, ref type).nl())
             {
-                switch (type)
+
+                if (type == RendererType.Skinned && !skinnedMeshRenderer)
+                    skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
+
+                if (type == RendererType.Regular && !meshFilter)
                 {
-                    case RendererType.Skinned when (!skinnedMeshRenderer):
-                        skinnedMeshRenderer = GetComponentInChildren<SkinnedMeshRenderer>();
-                        break;
-                    case RendererType.Regular when (!meshFilter):
-                        meshFilter = GetComponent<MeshFilter>();
-                        meshRenderer = GetComponent<MeshRenderer>();
-                        break;
+                    meshFilter = GetComponent<MeshFilter>();
+                    meshRenderer = GetComponent<MeshRenderer>();
                 }
+
+
             }
 
-            switch (type) {
+            switch (type)
+            {
                 case RendererType.Skinned:
-                "   Skinned Mesh Renderer".edit(90, ref skinnedMeshRenderer).nl(ref changes);
+                    "   Skinned Mesh Renderer".edit(90, ref skinnedMeshRenderer).nl(ref changes);
                     break;
 
                 case RendererType.Regular:
-                "   Mesh Filter".edit(90, ref meshFilter).nl(ref changes);
-                "   Renderer".edit(90, ref meshRenderer).nl(ref changes);
+                    "   Mesh Filter".edit(90, ref meshFilter).nl(ref changes);
+                    "   Renderer".edit(90, ref meshRenderer).nl(ref changes);
                     break;
             }
 
             var r = Renderer;
 
-            if ((r && r.sharedMaterials.Length > 1) || materialIndex != 0) 
+            if ((r && r.sharedMaterials.Length > 1) || materialIndex != 0)
                 "   Material".select_Index(80, ref materialIndex, r.sharedMaterials).nl();
-            
-            if (Material) {
+
+            if (Material)
+            {
                 var lst = Material.MyGetTextureProperties();
 
                 if ("   Property".select(80, ref _textureProperty, lst).nl())
                     TexturePropertyName = _textureProperty.NameForDisplayPEGI();
             }
-            
-            if (gameObject.isStatic && !originalMesh) {                
+
+            if (gameObject.isStatic && !originalMesh)
+            {
                 "For STATIC Game Objects original mesh is needed:".writeHint();
 
                 pegi.nl();
 
-                if (meshFilter && icon.Search.Click("Find mesh")) 
-                        originalMesh = meshFilter.sharedMesh;
+                if (meshFilter && icon.Search.Click("Find mesh"))
+                    originalMesh = meshFilter.sharedMesh;
             }
 
             if (gameObject.isStatic)
                 "  Original Mesh".edit("Static objects use Combined mesh, so original one will be needed for painting", 50, ref originalMesh).nl();
-            
+
             if ("  Use second texture coordinates".toggleIcon("If shader uses texcoord2 (Baked Light) to display damage, turn this ON.", ref useTexcoord2).nl() && texture)
                 texture.GetTextureMeta().useTexCoord2 = useTexcoord2;
-            
-            if (Material) {
+
+            if (Material)
+            {
 
 
 
 
-                if (!Material.Has(TextureId) && !Material.mainTexture )
+                if (!Material.Has(TextureId) && !Material.mainTexture)
                     "No Material Property Selected and no MainTex on Material".nl();
-                else {
+                else
+                {
 
                     var current = Material.Get(TextureId);
 
-                    if (current) {
+                    if (current)
+                    {
 
                     }
 
 
-                    if (texture) {
-                        
+                    if (texture)
+                    {
+
                         var t2D = texture as Texture2D;
-                        
-                        if (t2D) {
+
+                        if (t2D)
+                        {
 
                             icon.Done.write();
                             "CPU brush will work if object has MeshCollider".nl();
-                            
-                            if (originalTexture) {
+
+                            if (originalTexture)
+                            {
 
                                 var ot2D = originalTexture as Texture2D;
-                                
-                                if (ot2D) {
 
-                                    if ((ot2D.width == t2D.width) && (ot2D.height == t2D.height)) {
+                                if (ot2D)
+                                {
+
+                                    if ((ot2D.width == t2D.width) && (ot2D.height == t2D.height))
+                                    {
                                         if (("Undo Changes".Click()).nl())
                                             Restore();
                                     }
@@ -295,7 +331,7 @@ namespace PlaytimePainter.Examples {
                                 }
                                 else "Original Texture is not a Texture 2D".nl();
                             }
-                   
+
                         }
                         else
                         {
@@ -320,10 +356,12 @@ namespace PlaytimePainter.Examples {
                     {
                         var rtm = TexturesPool.inst;
 
-                        if (rtm) {
+                        if (rtm)
+                        {
                             "Render Texture Pool will be used to get texture".nl();
                             if (!Renderer) "! Renderer needs to be Assigned.".nl();
-                            else {
+                            else
+                            {
                                 icon.Done.write();
                                 "COMPONENT SET UP CORRECTLY".write();
                                 if (fromRtManager && "Restore".Click())
@@ -335,23 +373,25 @@ namespace PlaytimePainter.Examples {
                         {
                             "No Render Texture Pool found".write();
                             if ("Create".Click().nl())
-                                (TexturesPool.Inst.gameObject.name + " created").showNotificationIn3D_Views(); 
+                                (TexturesPool.Inst.gameObject.name + " created").showNotificationIn3D_Views();
                         }
                     }
                 }
             }
             else "No material found".nl();
 
-            if ("Advanced".foldout(ref _showOptional).nl()) {
+            if ("Advanced".foldout(ref _showOptional).nl())
+            {
 
                 if (texture || !MatTex)
                     "Start Texture:".edit("Copy of this texture will be modified.", 110, ref originalTexture).nl(ref changes);
-                
+
                 "Target Texture".edit("If not using Render Textures Pool", 120, ref texture);
                 if (Renderer && Material && "Find".Click().nl())
                     texture = MatTex;
 
-                if (!texture || texture.GetType() == typeof(RenderTexture)) {
+                if (!texture || texture.GetType() == typeof(RenderTexture))
+                {
 
                     "Mesh UV Offset".edit("Some Meshes have UV coordinates with displacement for some reason. " +
                         "If your object doesn't use a mesh collider to provide a UV offset, this will be used.", 80, ref meshUvOffset).nl();

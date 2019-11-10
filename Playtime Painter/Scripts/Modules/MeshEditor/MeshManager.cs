@@ -5,7 +5,7 @@ using System.IO;
 using System.Linq;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-using static PlaytimePainter.PainterMesh;
+
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -13,9 +13,14 @@ using UnityEditor;
 namespace PlaytimePainter
 {
 
-#pragma warning disable IDE0034 // Simplify 'default' expression
-#pragma warning disable IDE0019 // Use pattern matching
-#pragma warning disable IDE0018 // Inline variable declaration
+    using Vertex = PainterMesh.Vertex;
+    using Triangle = PainterMesh.Triangle;
+    using MeshPoint = PainterMesh.MeshPoint;
+    using LineData = PainterMesh.LineData;
+
+    #pragma warning disable IDE0034 // Simplify 'default' expression
+    #pragma warning disable IDE0019 // Use pattern matching
+    #pragma warning disable IDE0018 // Inline variable declaration
 
 
     public class MeshManager : PainterSystemKeepUnrecognizedCfg {

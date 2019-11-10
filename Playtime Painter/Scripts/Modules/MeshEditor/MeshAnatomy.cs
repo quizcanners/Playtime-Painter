@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using QuizCannersUtilities;
-using static PlaytimePainter.PainterMesh;
-using static QuizCannersUtilities.QcMath;
+
 
 namespace PlaytimePainter
 {
+
 
     public class PainterMesh {
 
@@ -1514,7 +1514,7 @@ namespace PlaytimePainter
     public static class MeshAnatomyExtensions
     {
 
-        public static Vector3 SmoothVector(this List<Triangle> td)
+        public static Vector3 SmoothVector(this List<PainterMesh.Triangle> td)
         {
 
             var v = Vector3.zero;
@@ -1526,9 +1526,9 @@ namespace PlaytimePainter
 
         }
 
-        public static bool Contains(this List<MeshPoint> lst, LineData ld) => lst.Contains(ld.points[0].meshPoint) && lst.Contains(ld.points[1].meshPoint);
+        public static bool Contains(this List<PainterMesh.MeshPoint> lst, PainterMesh.LineData ld) => lst.Contains(ld.points[0].meshPoint) && lst.Contains(ld.points[1].meshPoint);
 
-        public static bool Contains(this List<MeshPoint> lst, Triangle ld) => ld.vertexes.All(p => lst.Contains(p.meshPoint));
+        public static bool Contains(this List<PainterMesh.MeshPoint> lst, PainterMesh.Triangle ld) => ld.vertexes.All(p => lst.Contains(p.meshPoint));
         
     }
 }

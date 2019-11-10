@@ -3,7 +3,6 @@ using PlaytimePainter;
 using QuizCannersUtilities;
 using UnityEditor;
 using UnityEngine;
-using static PlayerAndEditorGUI.LazyTranslations;
 
 namespace PlayerAndEditorGUI {
 
@@ -19,7 +18,7 @@ namespace PlayerAndEditorGUI {
 
     };
 
-    public static class PainterLazyTranslations {
+    public static partial class LazyTranslations {
         
         static TranslationsEnum painterTranslations = new TranslationsEnum();
 
@@ -283,8 +282,7 @@ namespace PlayerAndEditorGUI {
 
             return painterTranslations.GetWhenInited(index, lang);
         }
-
-
+        
         private static int inspectingSection = -1;
         private static int inspectedFaqQuestion = -1;
         private static int inspectedPerfTip = -1;

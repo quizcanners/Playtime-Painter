@@ -258,7 +258,7 @@ namespace PlaytimePainter
             for (var c = 0; c < 4; c++)
             {
                 var ch = _channel[c];
-                changed |= ((QcMath.ColorChanel)c).GetIcon().toggle(ref ch.enabled);
+                changed |= ((ColorChanel)c).GetIcon().toggle(ref ch.enabled);
 
                 if (ch.enabled)
                 {

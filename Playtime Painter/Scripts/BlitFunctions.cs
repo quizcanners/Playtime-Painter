@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using QuizCannersUtilities;
-using static QuizCannersUtilities.QcMath;
 
 namespace PlaytimePainter {
 

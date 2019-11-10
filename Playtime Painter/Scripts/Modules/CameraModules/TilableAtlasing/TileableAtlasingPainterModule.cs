@@ -5,7 +5,6 @@ using PlayerAndEditorGUI;
 using System.IO;
 using System.Linq;
 using QuizCannersUtilities;
-using static QuizCannersUtilities.QcMath;
 
 #if UNITY_EDITOR
 using UnityEditor;

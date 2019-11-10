@@ -2,7 +2,7 @@
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-using static PlaytimePainter.PainterMesh;
+
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -281,7 +281,7 @@ namespace PlaytimePainter
         public void SetAllTrianglesTextureTo(int no, int chanel)
         {
 
-            foreach (Triangle t in EditedMesh.triangles)
+            foreach (PainterMesh.Triangle t in EditedMesh.triangles)
                 t.textureNo[chanel] = no;
 
             EditedMesh.Dirty = true;
@@ -290,7 +290,7 @@ namespace PlaytimePainter
         public void SetAllTrianglesTextureTo(int no, int chanel, int submesh)
         {
 
-            foreach (Triangle t in EditedMesh.triangles)
+            foreach (PainterMesh.Triangle t in EditedMesh.triangles)
                 if (t.subMeshIndex == submesh)
                     t.textureNo[chanel] = no;
 

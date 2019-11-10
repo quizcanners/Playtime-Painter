@@ -3,15 +3,17 @@ using UnityEngine;
 using System;
 using QuizCannersUtilities;
 using PlayerAndEditorGUI;
-using UnityEngine.Rendering;
-using static QuizCannersUtilities.QcMath;
-using static QuizCannersUtilities.ShaderProperty;
+
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
 #endif
 
 namespace PlaytimePainter {
+    
+    using VectorValue = ShaderProperty.VectorValue;
+    using TextureValue = ShaderProperty.TextureValue;
+    using FloatValue = ShaderProperty.FloatValue;
 
     [HelpURL(PlaytimePainter.OnlineManual)]
     [DisallowMultipleComponent]

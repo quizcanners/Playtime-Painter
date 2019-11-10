@@ -415,7 +415,7 @@ namespace QuizCannersUtilities {
             return obj == null;
         }
 
-        public static bool TrySetAlpha_DisableIfZero(this Graphic graphic, float alpha)
+        public static bool TrySetAlpha_DisableGameObjectIfZero(this Graphic graphic, float alpha)
         {
             if (!graphic) return false;
 
@@ -441,12 +441,12 @@ namespace QuizCannersUtilities {
 
         }
 
-        public static void TrySetAlpha_DisableIfZero<T>(this List<T> graphics, float alpha) where T : Graphic
+        public static void TrySetAlpha_DisableGameObjectIfZero<T>(this List<T> graphics, float alpha) where T : Graphic
         {
             if (graphics.IsNullOrEmpty()) return;
 
             foreach (var g in graphics)
-                g.TrySetAlpha_DisableIfZero(alpha);
+                g.TrySetAlpha_DisableGameObjectIfZero(alpha);
         }
 
         public static void TrySetAlpha<T>(this List<T> graphics, float alpha) where T : Graphic

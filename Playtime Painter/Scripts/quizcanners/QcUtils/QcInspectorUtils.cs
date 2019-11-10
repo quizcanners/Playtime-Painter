@@ -21,7 +21,8 @@ namespace QuizCannersUtilities
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 
-    public static class QcUtils {
+    public static class QcUtils
+    {
 
         public static List<T> TryAdd<T>(this List<T> list, object ass, bool onlyIfNew = true)
         {
@@ -175,7 +176,7 @@ namespace QuizCannersUtilities
 
             return !onlyIfNew || !list.Contains(conv);
         }
-        
+
         private static void AssignUniqueIndex<T>(List<T> list, T el)
         {
             var ind = el as IGotIndex;
@@ -192,7 +193,7 @@ namespace QuizCannersUtilities
 
         }
 
-        public static T AddWithUniqueNameAndIndex<T>(List<T> list) => AddWithUniqueNameAndIndex(list, "New "+ typeof(T).ToPegiStringType());
+        public static T AddWithUniqueNameAndIndex<T>(List<T> list) => AddWithUniqueNameAndIndex(list, "New " + typeof(T).ToPegiStringType());
 
         public static T AddWithUniqueNameAndIndex<T>(List<T> list, string name) =>
             AddWithUniqueNameAndIndex(list, (T)Activator.CreateInstance(typeof(T)), name);
@@ -207,8 +208,9 @@ namespace QuizCannersUtilities
             e.AssignUniqueNameIn(list);
             return e;
         }
-        
-        private static void AssignUniqueNameIn<T>(this T el, IReadOnlyCollection<T> list) {
+
+        private static void AssignUniqueNameIn<T>(this T el, IReadOnlyCollection<T> list)
+        {
 
             var named = el as IGotName;
             if (named == null) return;
@@ -237,7 +239,7 @@ namespace QuizCannersUtilities
             named.NameForPEGI = tmpName;
 
         }
-        
+
         #region Spin Around
 
         private static Vector2 _camOrbit;
@@ -345,11 +347,11 @@ namespace QuizCannersUtilities
 
             #region Inspector
 
-            public string NameForDisplayPEGI()=> "Avg {0}: {1}/{2}sec [{3} - {4}] ({5}) ".F(_name,
+            public string NameForDisplayPEGI() => "Avg {0}: {1}/{2}sec [{3} - {4}] ({5}) ".F(_name,
                 ((float)_average).ToString("0.00"),
                 (Math.Abs(_intervalLength - 1d) > float.Epsilon) ? _intervalLength.ToString("0") : "", (int)_min,
                 (int)_max, (int)_totalCount);
-            
+
             public bool InspectInList(IList list, int ind, ref int edited)
             {
                 if (icon.Refresh.Click("Reset Stats"))
@@ -380,7 +382,7 @@ namespace QuizCannersUtilities
             private int _calls;
             private readonly string message = "error";
 
-            public string NameForDisplayPEGI()=> message + (_disabled ? " Disabled" : " Enabled");
+            public string NameForDisplayPEGI() => message + (_disabled ? " Disabled" : " Enabled");
 
             public ChillLogger(string msg, bool logInBuild = false)
             {
@@ -462,7 +464,7 @@ namespace QuizCannersUtilities
             {
 
 #if QC_USE_NETWORKING
-            private UnityWebRequest _request;
+                private UnityWebRequest _request;
 #endif
 
                 private string url;
@@ -495,34 +497,34 @@ namespace QuizCannersUtilities
 
 
 #if QC_USE_NETWORKING
-                if (_request != null)
-                {
-                    if (_request.isNetworkError || _request.isHttpError)
+                    if (_request != null)
                     {
+                        if (_request.isNetworkError || _request.isHttpError)
+                        {
 
-                        _failed = true;
+                            _failed = true;
 
 #if UNITY_EDITOR
-                        Debug.Log(_request.error);
+                            Debug.Log(_request.error);
 #endif
-                        DisposeRequest();
-                        return true;
-                    }
+                            DisposeRequest();
+                            return true;
+                        }
 
-                    if (_request.isDone)
-                    {
-                        if (_texture)
-                            _texture.DestroyWhatever();
-                        _texture = ((DownloadHandlerTexture)_request.downloadHandler).texture;
-                        DisposeRequest();
-                        tex = _texture;
+                        if (_request.isDone)
+                        {
+                            if (_texture)
+                                _texture.DestroyWhatever();
+                            _texture = ((DownloadHandlerTexture)_request.downloadHandler).texture;
+                            DisposeRequest();
+                            tex = _texture;
 
-                        if (remove && _texture)
-                            Take();
+                            if (remove && _texture)
+                                Take();
+                        }
+                        else return false;
                     }
-                    else return false;
-                }
-                else if (!_texture) Start();
+                    else if (!_texture) Start();
 #endif
 
                     return true;
@@ -532,10 +534,10 @@ namespace QuizCannersUtilities
                 {
 
 #if QC_USE_NETWORKING
-                _request?.Dispose();
-                _request = UnityWebRequestTexture.GetTexture(url);
-                _request.SendWebRequest();
-                _failed = false;
+                    _request?.Dispose();
+                    _request = UnityWebRequestTexture.GetTexture(url);
+                    _request.SendWebRequest();
+                    _failed = false;
 #else
                 Debug.Log("Can't Load {0} : QC_USE_NETWORKING is disabled".F(url));
 #endif
@@ -551,8 +553,8 @@ namespace QuizCannersUtilities
                 {
 
 #if QC_USE_NETWORKING
-                _request?.Dispose();
-                _request = null;
+                    _request?.Dispose();
+                    _request = null;
 #endif
                 }
 
@@ -565,7 +567,7 @@ namespace QuizCannersUtilities
                 }
 
                 #region Inspector
-                
+
                 public bool InspectInList(IList list, int ind, ref int edited)
                 {
                     var changed = false;
@@ -574,36 +576,36 @@ namespace QuizCannersUtilities
 
 
 #if QC_USE_NETWORKING
-                if (_request != null)
-                    "Loading".write(60);
-                if (_failed)
-                    "Failed".write(50);
-
-                if (_texture)
-                {
-                    if (icon.Refresh.Click())
-                        Start();
-
-                    if (_texture.Click())
-                        edited = ind;
-
-                }
-                else
-                {
-
+                    if (_request != null)
+                        "Loading".write(60);
                     if (_failed)
+                        "Failed".write(50);
+
+                    if (_texture)
                     {
-                        if (icon.Refresh.Click("Failed"))
+                        if (icon.Refresh.Click())
                             Start();
-                        "Failed ".F(url).write(40);
+
+                        if (_texture.Click())
+                            edited = ind;
+
                     }
                     else
                     {
-                        icon.Active.write();
-                        "Loading ".write(40);
-                    }
 
-                }
+                        if (_failed)
+                        {
+                            if (icon.Refresh.Click("Failed"))
+                                Start();
+                            "Failed ".F(url).write(40);
+                        }
+                        else
+                        {
+                            icon.Active.write();
+                            "Loading ".write(40);
+                        }
+
+                    }
 #else
                     "QC_USE_NETWORKING is disabled (to prevent unwanted android permissions)".writeWarning();
 
@@ -666,7 +668,7 @@ namespace QuizCannersUtilities
             }
 
             #region Inspector
-            
+
             int inspected = -1;
             string tmp = "";
             public bool Inspect()
@@ -970,32 +972,36 @@ namespace QuizCannersUtilities
 
 
         [Serializable]
-        public struct DynamicRangeFloat : ICfg, IPEGI {
+        public struct DynamicRangeFloat : ICfg, IPEGI
+        {
 
             [SerializeField] public float min;
             [SerializeField] public float max;
 
             [SerializeField] private float _value;
 
-            public float Value {
+            public float Value
+            {
                 get { return _value; }
 
-                set {
+                set
+                {
                     _value = value;
                     min = Mathf.Min(min, value);
                     max = Mathf.Max(max, value);
                     UpdateRange(1);
                 }
             }
-         
+
             #region Inspector
 
             private float dynamicMin;
             private float DynamicMin { set { dynamicMin = Mathf.Clamp(dynamicMin, min, max); } }
             private float dynamicMax;
             private float DynamicMax { set { dynamicMax = Mathf.Clamp(dynamicMax, min, max); } }
-            
-            private void UpdateRange(float by = 1) {
+
+            private void UpdateRange(float by = 1)
+            {
 
                 float width = dynamicMax - dynamicMin;
 
@@ -1014,16 +1020,17 @@ namespace QuizCannersUtilities
 
                 pegi.edit(ref _value, dynamicMin, dynamicMax).changes(ref changed);
                 //    Value = _value;
-                
+
                 if ("<>".Click())
                     UpdateRange(1.5f);
                 if ("><".Click())
                     UpdateRange(0.75f);
-                
+
                 if (!_showRange && icon.Edit.ClickUnFocus("Edit Range", 20))
                     _showRange = true;
 
-                if (_showRange) {
+                if (_showRange)
+                {
                     pegi.nl();
 
                     if (icon.FoldedOut.ClickUnFocus("Hide Range"))
@@ -1035,17 +1042,19 @@ namespace QuizCannersUtilities
 
                     var before = min;
 
-                   
-                    if (pegi.editDelayed(ref min, 40).changes(ref rangeChanged)) {
+
+                    if (pegi.editDelayed(ref min, 40).changes(ref rangeChanged))
+                    {
                         if (min >= max)
                             max = min + (max - before);
 
-                      
+
                     }
 
                     "-".write(10);
 
-                    if (pegi.editDelayed(ref max, 40).changes(ref rangeChanged)) {
+                    if (pegi.editDelayed(ref max, 40).changes(ref rangeChanged))
+                    {
                         min = Mathf.Min(min, max);
                     }
 
@@ -1057,9 +1066,9 @@ namespace QuizCannersUtilities
 
                     pegi.nl();
 
-                    if (rangeChanged) 
+                    if (rangeChanged)
                         Value = Mathf.Clamp(_value, min, max);
-                    
+
                 }
 
 

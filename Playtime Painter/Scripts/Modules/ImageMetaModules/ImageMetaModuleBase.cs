@@ -2,7 +2,6 @@
 using UnityEngine;
 using System;
 using QuizCannersUtilities;
-using static PlaytimePainter.PaintingUndoRedo;
 
 namespace PlaytimePainter
 {
@@ -27,11 +26,11 @@ namespace PlaytimePainter
 
         public virtual void OnPaintingDrag(PlaytimePainter painter) { }
 
-        public virtual void OnUndo(TextureBackup backup) { }
+        public virtual void OnUndo(PaintingUndoRedo.TextureBackup backup) { }
 
-        public virtual void OnRedo(TextureBackup backup) { }
+        public virtual void OnRedo(PaintingUndoRedo.TextureBackup backup) { }
 
-        public virtual void OnTextureBackup(TextureBackup backup) { }
+        public virtual void OnTextureBackup(PaintingUndoRedo.TextureBackup backup) { }
 
         public virtual void ManagedUpdate() { }
 

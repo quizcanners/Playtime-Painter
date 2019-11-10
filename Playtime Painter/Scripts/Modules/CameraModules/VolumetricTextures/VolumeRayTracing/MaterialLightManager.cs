@@ -2,10 +2,10 @@
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-using static QuizCannersUtilities.QcMath;
 
-namespace PlaytimePainter {
-    
+namespace PlaytimePainter
+{
+
     [System.Serializable]
     public class MaterialLightManager : PainterSystem, IPEGI
     {
@@ -13,7 +13,7 @@ namespace PlaytimePainter {
 
         public int[] probes;
 
-        public LightCaster GetLight (int number) => LightCaster.AllProbes[probes[number]];
+        public LightCaster GetLight(int number) => LightCaster.AllProbes[probes[number]];
 
         public LightCaster GetNextLight(ref int index)
         {
@@ -25,7 +25,8 @@ namespace PlaytimePainter {
 
                 var l = GetLight(tmpIndex);
 
-                if (l != null) {
+                if (l != null)
+                {
                     index = tmpIndex;
                     return l;
                 }
@@ -40,17 +41,20 @@ namespace PlaytimePainter {
         private static List<ShaderProperty.VectorValue> _colorVectorProperties;
         private static List<ShaderProperty.VectorValue> _positionPropertiesGlobal;
         private static List<ShaderProperty.VectorValue> _colorVectorPropertiesGlobal;
-        
-        public MaterialLightManager() {
 
-            if (_positionProperties.IsNullOrEmpty()) {
+        public MaterialLightManager()
+        {
+
+            if (_positionProperties.IsNullOrEmpty())
+            {
 
                 _positionProperties = new List<ShaderProperty.VectorValue>();
                 _colorVectorProperties = new List<ShaderProperty.VectorValue>();
                 _positionPropertiesGlobal = new List<ShaderProperty.VectorValue>();
                 _colorVectorPropertiesGlobal = new List<ShaderProperty.VectorValue>();
 
-                for (var c = 0; c < maxLights; c++) {
+                for (var c = 0; c < maxLights; c++)
+                {
                     _positionProperties.Add(new ShaderProperty.VectorValue("l{0}pos".F(c)));
                     _colorVectorProperties.Add(new ShaderProperty.VectorValue("l{0}col".F(c)));
 
@@ -59,7 +63,7 @@ namespace PlaytimePainter {
                 }
             }
 
-            if (probes == null) 
+            if (probes == null)
                 probes = new int[maxLights];
         }
 
@@ -69,7 +73,8 @@ namespace PlaytimePainter {
 
         private int inspectedProbe = -1;
 
-        public virtual bool Inspect() {
+        public virtual bool Inspect()
+        {
 
             var changed = false;
 
@@ -88,7 +93,7 @@ namespace PlaytimePainter {
 
                     if (ind < 0)
                     {
-                        pegi.write(((ColorChanel) c).GetIcon());
+                        pegi.write(((ColorChanel)c).GetIcon());
                         if (icon.Add.Click().nl(ref changed))
                         {
                             probes[c] = 0;
@@ -115,7 +120,7 @@ namespace PlaytimePainter {
                             probes[c] = ind;
                             probeChanged = c;
                         }
-                        
+
                         if (prb)
                             prb.Inspect_AsInList(null, ind, ref inspectedProbe);
 
@@ -135,15 +140,15 @@ namespace PlaytimePainter {
                 if (prb)
                     prb.Nested_Inspect();
             }
-            
+
             pegi.nl();
-        
+
             if (changed)
                 SetIndexesOnLightSources();
 
             return changed;
         }
-        
+
         #endregion
 
         public void SetIndexesOnLightSources()
@@ -156,16 +161,19 @@ namespace PlaytimePainter {
             }
         }
 
-        public void UpdateLightsGlobal() {
+        public void UpdateLightsGlobal()
+        {
 
-            for (var c = 0; c < maxLights; c++)  {
+            for (var c = 0; c < maxLights; c++)
+            {
 
                 var col = Color.black;
                 var pos = Vector3.zero;
 
                 var l = GetLight(c);
 
-                if (l) {
+                if (l)
+                {
                     col = l.ecol * l.brightness;
                     pos = l.transform.position;
                 }
@@ -174,22 +182,25 @@ namespace PlaytimePainter {
 
                 _colorVectorPropertiesGlobal[c].SetGlobal(col.ToVector4());
                 _positionPropertiesGlobal[c].SetGlobal(pos);
-                    
+
             }
         }
 
-        public void UpdateLightOnMaterials(List<Material> materials) {
-            
+        public void UpdateLightOnMaterials(List<Material> materials)
+        {
+
             if (materials.Count <= 0) return;
-            
-            for (var c = 0; c < maxLights; c++) {
+
+            for (var c = 0; c < maxLights; c++)
+            {
 
                 var col = Color.black;
                 var pos = Vector3.zero;
 
                 var l = GetLight(c);
 
-                if (l) {
+                if (l)
+                {
                     col = l.ecol * l.brightness;
                     pos = l.transform.position;
                 }
@@ -197,7 +208,8 @@ namespace PlaytimePainter {
                 col.a = 0;
 
                 foreach (var m in materials)
-                    if (m) {
+                    if (m)
+                    {
                         m.Set(_colorVectorProperties[c], col.ToVector4());
                         m.Set(_positionProperties[c], pos);
                     }

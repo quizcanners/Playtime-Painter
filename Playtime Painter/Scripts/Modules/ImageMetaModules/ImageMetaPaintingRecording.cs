@@ -3,10 +3,12 @@ using System.Linq;
 using UnityEngine;
 using QuizCannersUtilities;
 using PlayerAndEditorGUI;
-using static PlaytimePainter.PaintingUndoRedo;
+
 
 namespace PlaytimePainter
 {
+    using TextureBackup = PaintingUndoRedo.TextureBackup;
+
     [TaggedType(tag)]
     public class ImageMetaPaintingRecording : ImageMetaModuleBase
     {

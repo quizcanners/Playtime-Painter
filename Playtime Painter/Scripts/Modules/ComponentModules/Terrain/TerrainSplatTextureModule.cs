@@ -2,10 +2,12 @@
 using UnityEngine;
 using QuizCannersUtilities;
 
-namespace PlaytimePainter {
+namespace PlaytimePainter
+{
 
     [TaggedType(tag)]
-    public class TerrainSplatTextureModule : PainterComponentModuleBase {
+    public class TerrainSplatTextureModule : PainterComponentModuleBase
+    {
 
         const string tag = "TerSplat";
         public override string ClassTag => tag;
@@ -15,28 +17,46 @@ namespace PlaytimePainter {
             if (!painter.terrain || (!field.HasUsageTag(PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE))) return false;
             var no = field.NameForDisplayPEGI()[0].CharToInt();
 
+#if UNITY_2019_1_OR_NEWER
             var l = painter.terrain.terrainData.terrainLayers;
 
             if (l.Length > no)
                 tex = l[no].diffuseTexture;
-            
+#else
+            tex = painter.terrain.GetSplashPrototypeTexture(no);
+
+#endif
+
             return true;
         }
 
-        public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<ShaderProperty.TextureValue> dest) {
+        public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<ShaderProperty.TextureValue> dest)
+        {
             if (!painter.terrain) return;
 
+#if UNITY_2019_1_OR_NEWER
             var sp = painter.terrain.terrainData.terrainLayers;
 
-            for (var i = 0; i < sp.Length; i++) {
+            for (var i = 0; i < sp.Length; i++)
+            {
                 var l = sp.TryGet(i);
                 if (l != null)
-                    dest.Add(new ShaderProperty.TextureValue( i + PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE + l.diffuseTexture.name, PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE));
+                    dest.Add(new ShaderProperty.TextureValue(i + PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE + l.diffuseTexture.name, PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE));
             }
-
+#else
+            for (int i = 0; i < painter.terrain.terrainData.splatPrototypes.Length; i++)
+            {
+                var spl = painter.terrain.terrainData.splatPrototypes[i];
+                var tex = spl.texture;
+            
+                dest.Add(new ShaderProperty.TextureValue(
+                    i + PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE + (tex ? tex.name : "NULL"),
+                    PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE));
+            }
+#endif
         }
 
-        public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue  fieldName, PlaytimePainter painter)
+        public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue fieldName, PlaytimePainter painter)
         {
             if (!painter.terrain) return false;
 
@@ -44,25 +64,37 @@ namespace PlaytimePainter {
 
             var no = fieldName.NameForDisplayPEGI()[0].CharToInt();
 
+            var id = painter.TexMeta;
+
+            var terrainData = painter.terrain.terrainData;
+
+#if UNITY_2019_1_OR_NEWER
             var ls = painter.terrain.terrainData.terrainLayers;
 
-        
+
             if (ls.Length <= no) return true;
 
             var l = ls.TryGet(no);
 
-            var terrainData = painter.terrain.terrainData;
+
+
+#else
+            var l = painter.terrain.terrainData.splatPrototypes.TryGet(no);
+            if (l == null)
+                return true;
+#endif
+
             var width = terrainData.size.x / l.tileSize.x;
             var length = terrainData.size.z / l.tileSize.y;
 
-            var id = painter.TexMeta;
+
             id.tiling = new Vector2(width, length);
             id.offset = l.tileOffset;
 
             return true;
         }
 
-        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue  field, TextureMeta id, PlaytimePainter painter)
+        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue field, TextureMeta id, PlaytimePainter painter)
         {
             var tex = id.CurrentTexture();
             if (!painter.terrain) return false;
@@ -74,7 +106,7 @@ namespace PlaytimePainter {
             else
             {
 
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
                 var texImporter = ((Texture2D)tex).GetTextureImporter();
                 if (texImporter == null) return true;
                 var needReimport = texImporter.WasClamped();
@@ -82,7 +114,7 @@ namespace PlaytimePainter {
 
                 if (needReimport)
                     texImporter.SaveAndReimport();
-            #endif
+#endif
 
             }
             return true;
