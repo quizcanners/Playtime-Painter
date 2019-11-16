@@ -2273,12 +2273,18 @@ namespace PlaytimePainter {
                                     MsgPainter.AutoSelectMaterial.DocumentationClick().nl();
                                 }
                                 
+                               
+
+                            }
+
+                            if (showToggles || invertRayCast) {
+
                                 if (!IsUiGraphicPainter)
-                                    "Invert RayCast" .toggleIcon("Will rayCast into the camera (for cases when editing from inside a sphere, mask for 360 video for example.)",
-                                            ref invertRayCast).nl(ref changed);
+                                    "Invert RayCast".toggleIcon(
+                                        "Will rayCast into the camera (for cases when editing from inside a sphere, mask for 360 video for example.)",
+                                        ref invertRayCast).nl(ref changed);
                                 else
                                     invertRayCast = false;
-
                             }
 
                             if (cfg.moreOptions)

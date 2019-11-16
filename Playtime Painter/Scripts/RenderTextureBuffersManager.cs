@@ -540,7 +540,7 @@ namespace PlaytimePainter {
             if ("Scaling Buffers".enter(ref inspectedElement, 1).nl())
             {
 
-                if (icon.Delete.Click())
+                if (icon.Delete.Click().nl())
                     DestroyScalingBuffers();
 
                 if ("Use RGBAFloat for scaling".toggleIcon(ref Data.useFloatForScalingBuffers).nl(ref changed))

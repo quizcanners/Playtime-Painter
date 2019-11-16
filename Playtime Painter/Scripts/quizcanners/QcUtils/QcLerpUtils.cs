@@ -1222,11 +1222,40 @@ namespace QuizCannersUtilities
 
         #region Transform
 
-        public class TransformLocalScale : TransformLocalPosition
+        public abstract class TransformVector3Base : BaseLerpGeneric<Vector3> {
+
+            public override bool Enabled => base.Enabled && transform;
+
+            public Transform transform;
+
+            public Vector3 targetValue;
+
+            public override Vector3 TargetValue { get { return targetValue; } set { targetValue = value; } }
+
+            public TransformVector3Base(Transform transform, float nspeed)
+            {
+                this.transform = transform;
+                speedLimit = nspeed;
+            }
+
+            public override bool LerpInternal(float portion)
+            {
+                if (Enabled && CurrentValue != targetValue)
+                    CurrentValue = Vector3.Lerp(CurrentValue, targetValue, portion);
+                else return false;
+
+                return true;
+            }
+
+            protected override bool Portion(ref float portion) =>
+                speedLimit.SpeedToMinPortion((CurrentValue - targetValue).magnitude, ref portion);
+        }
+
+        public class TransformLocalScale : TransformVector3Base
         {
             protected override string Name_Internal => "Local Scale";
 
-            public override Vector3 Value
+            public override Vector3 CurrentValue
             {
                 get { return transform.localScale; }
                 set { transform.localScale = value; }
@@ -1237,52 +1266,31 @@ namespace QuizCannersUtilities
             }
         }
 
-        public class TransformPosition : TransformLocalPosition
+        public class TransformPosition : TransformVector3Base
         {
             protected override string Name_Internal => "Position";
 
-            public override Vector3 Value
+            public override Vector3 CurrentValue
             {
                 get { return transform.position; }
                 set { transform.position = value; }
             }
 
-            public TransformPosition(Transform transform, float nspeed) : base(transform, nspeed)
-            {
-            }
+            public TransformPosition(Transform transform, float nspeed) : base(transform, nspeed) { }
         }
 
-        public class TransformLocalPosition : BaseLerp
+        public class TransformLocalPosition : TransformVector3Base
         {
             protected override string Name_Internal => "Local Position";
-            public Transform transform;
-            public Vector3 targetValue;
-
-            public override bool Enabled => base.Enabled && transform;
-
-            public virtual Vector3 Value
+        
+            public override Vector3 CurrentValue
             {
                 get { return transform.localPosition; }
                 set { transform.localPosition = value; }
             }
 
-            public TransformLocalPosition(Transform transform, float nspeed)
-            {
-                this.transform = transform;
-                speedLimit = nspeed;
-            }
+            public TransformLocalPosition(Transform transform, float nspeed) : base(transform, nspeed) { }
 
-            public override bool LerpInternal(float portion)
-            {
-                if (Enabled && Value != targetValue)
-                    Value = Vector3.Lerp(Value, targetValue, portion);
-                else return false;
-
-                return true;
-            }
-
-            protected override bool Portion(ref float portion) =>
-                speedLimit.SpeedToMinPortion((Value - targetValue).magnitude, ref portion);
 
         }
 

@@ -3660,7 +3660,7 @@ namespace PlayerAndEditorGUI
         private static bool enter_HeaderPart<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne, bool showLabelIfTrue = false)
         {
 
-            if (listIsNull(ref list))
+            if (collectionInspector.listIsNull(ref list))
             {
                 if (enteredOne == thisOne)
                     enteredOne = -1;
@@ -3693,7 +3693,7 @@ namespace PlayerAndEditorGUI
 
         private static bool enter_ListIcon<T>(this string txt, ref List<T> list, ref int enteredOne, int thisOne)
         {
-            if (listIsNull(ref list))
+            if (collectionInspector.listIsNull(ref list))
             {
                 if (enteredOne == thisOne)
                     enteredOne = -1;
@@ -3705,7 +3705,7 @@ namespace PlayerAndEditorGUI
 
         private static bool enter_ListIcon<T>(this string txt, ref List<T> list, ref int inspected, ref int enteredOne, int thisOne)
         {
-            if (listIsNull(ref list))
+            if (collectionInspector.listIsNull(ref list))
             {
                 if (enteredOne == thisOne)
                     enteredOne = -1;
@@ -3725,7 +3725,7 @@ namespace PlayerAndEditorGUI
 
         private static bool enter_ListIcon<T>(this string txt, ref List<T> list, ref int inspected, ref bool entered)
         {
-            if (listIsNull(ref list))
+            if (collectionInspector.listIsNull(ref list))
             {
                 if (entered)
                     entered = false;
@@ -5074,6 +5074,20 @@ namespace PlayerAndEditorGUI
 
         #region UnityObject
 
+        public static bool edit(ref SortingLayer sortingLayer) => select(ref sortingLayer, SortingLayer.layers);
+
+        public static bool edit(this string label, ref SortingLayer sortingLayer)
+        {
+            label.write();
+            return select(ref sortingLayer, SortingLayer.layers);
+        }
+
+        public static bool edit(this string label, int width, ref SortingLayer sortingLayer)
+        {
+            label.write(width);
+            return select(ref sortingLayer, SortingLayer.layers);
+        }
+
         public static bool edit<T>(ref T field, int width) where T : Object =>
 #if UNITY_EDITOR
                 !paintingPlayAreaGui ? ef.edit(ref field, width) :
@@ -5248,9 +5262,9 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        #endregion
+#endregion
 
-        #region Vectors
+#region Vectors
 
         public static bool edit(this string label, ref Quaternion qt)
         {
@@ -5465,9 +5479,9 @@ namespace PlayerAndEditorGUI
             write(label, tip, width);
             return edit(ref v3);
         }
-        #endregion
+#endregion
 
-        #region Color
+#region Color
 
         public static bool edit(ref Color32 col)
         {
@@ -5583,9 +5597,9 @@ namespace PlayerAndEditorGUI
             return edit(ref col);
         }
 
-        #endregion
+#endregion
 
-        #region Material
+#region Material
 
         public static bool editTexture(this Material mat, string name) => mat.editTexture(name, name);
 
@@ -5604,18 +5618,18 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        #endregion
+#endregion
 
-        #region Animation Curve
+#region Animation Curve
         public static bool edit(this string name, ref AnimationCurve val) =>
 #if UNITY_EDITOR
             !paintingPlayAreaGui ? ef.edit(name, ref val) :
 #endif
                 false;
 
-        #endregion
+#endregion
 
-        #region UInt
+#region UInt
 
         public static bool edit(ref uint val)
         {
@@ -5706,9 +5720,9 @@ namespace PlayerAndEditorGUI
             return edit(ref val);
         }
 
-        #endregion
+#endregion
 
-        #region Int
+#region Int
 
         public static bool editLayerMask(this string label, string tip, int width, ref string tag)
         {
@@ -5891,9 +5905,9 @@ namespace PlayerAndEditorGUI
             return edit(ref val);
         }
 
-        #endregion
+#endregion
 
-        #region Long
+#region Long
 
         public static bool edit(ref long val)
         {
@@ -5949,9 +5963,9 @@ namespace PlayerAndEditorGUI
         }
 
 
-        #endregion
+#endregion
 
-        #region Float
+#region Float
 
         public static bool edit(ref float val)
         {
@@ -6175,9 +6189,9 @@ namespace PlayerAndEditorGUI
             return edit(ref val);
         }
 
-        #endregion
+#endregion
 
-        #region Double
+#region Double
 
         public static bool editDelayed(this string label, string tip, int width, ref double val)
         {
@@ -6304,9 +6318,9 @@ namespace PlayerAndEditorGUI
 
         }
 
-        #endregion
+#endregion
 
-        #region Enum
+#region Enum
 
         public static bool editEnum<T>(this string text, string tip, int width, ref T eval)
         {
@@ -6393,9 +6407,9 @@ namespace PlayerAndEditorGUI
 
         public static bool editEnum<T>(ref int eval) => editEnum(ref eval, typeof(T));
 
-        #endregion
+#endregion
 
-        #region String
+#region String
 
         private static string editedText;
         private static string editedHash = "";
@@ -6587,9 +6601,9 @@ namespace PlayerAndEditorGUI
             return edit(ref val);
         }
 
-        #endregion
+#endregion
 
-        #region Property
+#region Property
 
         public static bool edit_Property<T>(Expression<Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true)
             => edit_Property(memberExpression, fieldWidth, obj, includeChildren);
@@ -6636,9 +6650,9 @@ namespace PlayerAndEditorGUI
         }
 
 
-        #endregion
+#endregion
 
-        #region Custom classes
+#region Custom classes
 
         public static bool edit(ref MyIntVec2 val)
         {
@@ -6724,99 +6738,228 @@ namespace PlayerAndEditorGUI
 
         #region List MGMT Functions 
 
-        private const int listLabelWidth = 105;
+        public static int InspectedIndex {
+            get { return collectionInspector.Index; }
+            private set { collectionInspector.Index = value; }
+        }
 
-        private static readonly Dictionary<IEnumerable, int> ListInspectionIndexes = new Dictionary<IEnumerable, int>();
-
-        private const int UpDownWidth = 120;
-        private const int UpDownHeight = 30;
-        // private static int _sectionSizeOptimal;
-        //private static int _listSectionMax;
-        private static int _lastElementToShow;
-        private static int _listSectionStartIndex;
-        private static readonly CountlessInt ListSectionOptimal = new CountlessInt();
-        private static int GetOptimalSectionFor(int count)
+        private static T listLabel_Used<T>(this T val)
         {
-            int _sectionSizeOptimal;
-
-            const int listShowMax = 10;
-
-            if (count < listShowMax)
-                return listShowMax;
+            collectionInspector.listLabel_Used();
+            return val;
+        }
 
 
-            if (count > listShowMax * 3)
-                return listShowMax;
+        public static string GetCurrentListLabel<T>(ListMetaData meta = null) => collectionInspector.GetCurrentListLabel<T>(meta);
 
-            _sectionSizeOptimal = ListSectionOptimal[count];
+        public static void UnselectAll() => collectionInspector.selectedEls.Clear();
+        
+        public static bool Getselected(int index) => collectionInspector.selectedEls[index];
 
-            if (_sectionSizeOptimal != 0)
-                return _sectionSizeOptimal;
+        public static void SetSelected(int index, bool value) => collectionInspector.selectedEls[index] = value;
 
-            var bestdifference = 999;
+        private static CollectionInspector collectionInspector = new CollectionInspector();
 
-            for (var i = listShowMax - 2; i < listShowMax + 2; i++)
+
+        private class CollectionInspector {
+
+            private const int UpDownWidth = 120;
+            private const int UpDownHeight = 30;
+            private readonly Dictionary<IEnumerable, int> Indexes = new Dictionary<IEnumerable, int>();
+            
+            public int Index { get; set; } = -1;
+
+            private bool _searching;
+
+            private List<int> flst;
+
+            private int _sectionSizeOptimal;
+
+            private int _count;
+
+            public IList reordering;
+            
+            private bool allowDuplicants;
+
+            private int _lastElementToShow;
+
+            private int _sectionStartIndex;
+
+            
+            private readonly CountlessInt SectionOptimal = new CountlessInt();
+            private int GetOptimalSectionFor(int count)
             {
-                var difference = i - (count % i);
+                int _sectionSizeOptimal;
 
-                if (difference < bestdifference)
+                const int listShowMax = 10;
+
+                if (count < listShowMax)
+                    return listShowMax;
+
+
+                if (count > listShowMax * 3)
+                    return listShowMax;
+
+                _sectionSizeOptimal = SectionOptimal[count];
+
+                if (_sectionSizeOptimal != 0)
+                    return _sectionSizeOptimal;
+
+                var bestdifference = 999;
+
+                for (var i = listShowMax - 2; i < listShowMax + 2; i++)
                 {
-                    _sectionSizeOptimal = i;
-                    bestdifference = difference;
-                    if (difference == 0)
-                        break;
+                    var difference = i - (count % i);
+
+                    if (difference < bestdifference)
+                    {
+                        _sectionSizeOptimal = i;
+                        bestdifference = difference;
+                        if (difference == 0)
+                            break;
+                    }
+
                 }
+
+
+                SectionOptimal[count] = _sectionSizeOptimal;
+
+                return _sectionSizeOptimal;
 
             }
 
+            private static IList addingNewOptionsInspected;
+            private string addingNewNameHolder = "Name";
 
-            ListSectionOptimal[count] = _sectionSizeOptimal;
-
-            return _sectionSizeOptimal;
-
-        }
-
-        private static IList addingNewOptionsInspected;
-        static string addingNewNameHolder = "Name";
-
-        private static void listInstantiateNewName<T>()
-        {
-            Msg.New.GetText().write(Msg.NameNewBeforeInstancing_1p.GetText().F(typeof(T).ToPegiStringType()), 30, PEGI_Styles.ExitLabel);
-            edit(ref addingNewNameHolder);
-        }
-
-        private static bool PEGI_InstantiateOptions_SO<T>(this List<T> lst, ref T added, ListMetaData ld) where T : ScriptableObject
-        {
-            if (ld != null && !ld.allowCreate)
-                return false;
-
-            if (editing_List_Order != null && editing_List_Order == lst)
-                return false;
-
-            var indTypes = typeof(T).TryGetDerivedClasses();
-
-            var tagTypes = typeof(T).TryGetTaggedClasses();
-
-            if (indTypes == null && tagTypes == null && typeof(T).IsAbstract)
-                return false;
-
-            var changed = false;
-
-            // "New {0} ".F(typeof(T).ToPegiStringType()).edit(80, ref addingNewNameHolder);
-            listInstantiateNewName<T>();
-
-            if (addingNewNameHolder.Length > 1)
+            public void listInstantiateNewName<T>()
             {
-                if (indTypes == null && tagTypes == null)
+                Msg.New.GetText().write(Msg.NameNewBeforeInstancing_1p.GetText().F(typeof(T).ToPegiStringType()), 30, PEGI_Styles.ExitLabel);
+                edit(ref addingNewNameHolder);
+            }
+
+            public bool PEGI_InstantiateOptions_SO<T>(List<T> lst, ref T added, ListMetaData ld) where T : ScriptableObject
+            {
+                if (ld != null && !ld.allowCreate)
+                    return false;
+
+                if (reordering != null && reordering == lst)
+                    return false;
+
+                var indTypes = typeof(T).TryGetDerivedClasses();
+
+                var tagTypes = typeof(T).TryGetTaggedClasses();
+
+                if (indTypes == null && tagTypes == null && typeof(T).IsAbstract)
+                    return false;
+
+                var changed = false;
+                
+                listInstantiateNewName<T>();
+
+                if (addingNewNameHolder.Length > 1)
                 {
-                    if (icon.Create.ClickUnFocus(Msg.AddNewCollectionElement).nl(ref changed))
-                        added = lst.CreateAndAddScriptableObjectAsset("Assets/ScriptableObjects/", addingNewNameHolder);
+                    if (indTypes == null && tagTypes == null)
+                    {
+                        if (icon.Create.ClickUnFocus(Msg.AddNewCollectionElement).nl(ref changed))
+                        {
+                            added = QcUnity.CreateAndAddScriptableObjectAsset(lst, "Assets/ScriptableObjects/",
+                                addingNewNameHolder);
+                            SkrollToBottom();
+                        }
+                    }
+                    else
+                    {
+                        var selectingDerrived = lst == addingNewOptionsInspected;
+
+                        icon.Create.foldout("Instantiate Class Options", ref selectingDerrived).nl();
+
+                        if (selectingDerrived)
+                            addingNewOptionsInspected = lst;
+                        else if (addingNewOptionsInspected == lst)
+                            addingNewOptionsInspected = null;
+
+                        if (selectingDerrived)
+                        {
+                            if (indTypes != null)
+                                foreach (var t in indTypes)
+                                {
+                                    write(t.ToPegiStringType());
+                                    if (icon.Create.ClickUnFocus().nl(ref changed))
+                                    {
+                                        added = QcUnity.CreateScriptableObjectAsset(lst, "Assets/ScriptableObjects/",
+                                            addingNewNameHolder, t);
+                                        SkrollToBottom();
+                                    }
+                                }
+
+                            if (tagTypes != null)
+                            {
+                                var k = tagTypes.Keys;
+
+                                int optionsPresented = 0;
+
+                                for (var i = 0; i < k.Count; i++)
+                                {
+
+                                    if (tagTypes.CanAdd(i, lst))
+                                    {
+                                        optionsPresented++;
+                                        write(tagTypes.DisplayNames[i]);
+                                        if (icon.Create.ClickUnFocus().nl(ref changed))
+                                        {
+                                            added = QcUnity.CreateScriptableObjectAsset(lst, "Assets/ScriptableObjects/",
+                                                addingNewNameHolder, tagTypes.TaggedTypes.TryGet(k[i]));
+
+                                            SkrollToBottom();
+                                        }
+                                    }
+
+                                }
+
+                                if (optionsPresented == 0)
+                                    (k.Count == 0 ? "There no types derrived from {0}".F(typeof(T).ToString()) :
+                                            "Existing types are restricted to one instance per list").writeHint();
+
+                            }
+                        }
+                    }
                 }
+                nl();
+
+                return changed;
+
+            }
+
+            public bool PEGI_InstantiateOptions<T>(List<T> lst, ref T added, ListMetaData ld)
+            {
+                if (ld != null && !ld.allowCreate)
+                    return false;
+
+                if (reordering != null && reordering == lst)
+                    return false;
+
+                var intTypes = typeof(T).TryGetDerivedClasses();
+
+                var tagTypes = typeof(T).TryGetTaggedClasses();
+
+                if (intTypes == null && tagTypes == null)
+                    return false;
+
+                var changed = false;
+
+                var hasName = typeof(T).IsSubclassOf(typeof(Object)) || typeof(IGotName).IsAssignableFrom(typeof(T));
+
+                if (hasName)
+                    listInstantiateNewName<T>();
                 else
+                    (intTypes == null ? "Create new {0}".F(typeof(T).ToPegiStringType()) : "Create Derrived from {0}".F(typeof(T).ToPegiStringType())).write();
+
+                if (!hasName || addingNewNameHolder.Length > 1)
                 {
+
                     var selectingDerrived = lst == addingNewOptionsInspected;
 
-                    icon.Create.foldout("Instantiate Class Options", ref selectingDerrived).nl();
+                    icon.Add.foldout("Instantiate Class Options", ref selectingDerrived).nl();
 
                     if (selectingDerrived)
                         addingNewOptionsInspected = lst;
@@ -6825,740 +6968,590 @@ namespace PlayerAndEditorGUI
 
                     if (selectingDerrived)
                     {
-                        if (indTypes != null)
-                            foreach (var t in indTypes)
+                        if (intTypes != null)
+                            foreach (var t in intTypes)
                             {
                                 write(t.ToPegiStringType());
                                 if (icon.Create.ClickUnFocus().nl(ref changed))
-                                    added = lst.CreateScriptableObjectAsset("Assets/ScriptableObjects/", addingNewNameHolder, t);
+                                {
+                                    added = (T)Activator.CreateInstance(t);
+                                    QcUtils.AddWithUniqueNameAndIndex(lst, added, addingNewNameHolder);
+                                    SkrollToBottom();
+                                }
                             }
 
                         if (tagTypes != null)
                         {
                             var k = tagTypes.Keys;
 
-                            int optionsPresented = 0;
+                            int availableOptions = 0;
 
                             for (var i = 0; i < k.Count; i++)
                             {
-
                                 if (tagTypes.CanAdd(i, lst))
                                 {
-                                    optionsPresented++;
+                                    availableOptions++;
+
                                     write(tagTypes.DisplayNames[i]);
                                     if (icon.Create.ClickUnFocus().nl(ref changed))
-                                        added = lst.CreateScriptableObjectAsset("Assets/ScriptableObjects/",
-                                            addingNewNameHolder, tagTypes.TaggedTypes.TryGet(k[i]));
+                                    {
+                                        added = (T)Activator.CreateInstance(tagTypes.TaggedTypes.TryGet(k[i]));
+                                        QcUtils.AddWithUniqueNameAndIndex(lst, added, addingNewNameHolder);
+                                        SkrollToBottom();
+                                    }
                                 }
 
                             }
 
-                            if (optionsPresented == 0)
+                            if (availableOptions == 0)
                                 (k.Count == 0 ? "There no types derrived from {0}".F(typeof(T).ToString()) :
-                                        "Existing types are restricted to one instance per list").writeHint();
+                                    "Existing types are restricted to one instance per list").writeHint();
 
                         }
+
                     }
                 }
+                else
+                    icon.Add.GetText().write("Input a name for a new element", 40);
+                nl();
+
+                return changed;
             }
-            nl();
 
-            return changed;
-
-        }
-
-        private static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added, ListMetaData ld)
-        {
-            if (ld != null && !ld.allowCreate)
-                return false;
-
-            if (editing_List_Order != null && editing_List_Order == lst)
-                return false;
-
-            var intTypes = typeof(T).TryGetDerivedClasses();
-
-            var tagTypes = typeof(T).TryGetTaggedClasses();
-
-            if (intTypes == null && tagTypes == null)
-                return false;
-
-            var changed = false;
-
-            var hasName = typeof(T).IsSubclassOf(typeof(Object)) || typeof(IGotName).IsAssignableFrom(typeof(T));
-
-            if (hasName)
-                listInstantiateNewName<T>();
-            else
-                (intTypes == null ? "Create new {0}".F(typeof(T).ToPegiStringType()) : "Create Derrived from {0}".F(typeof(T).ToPegiStringType())).write();
-
-            if (!hasName || addingNewNameHolder.Length > 1)
+            public bool PEGI_InstantiateOptions<T>(List<T> lst, ref T added, TaggedTypesCfg types, ListMetaData ld)
             {
+                if (ld != null && !ld.allowCreate)
+                    return false;
 
-                var selectingDerrived = lst == addingNewOptionsInspected;
+                if (reordering != null && reordering == lst)
+                    return false;
 
-                icon.Add.foldout("Instantiate Class Options", ref selectingDerrived).nl();
+                var changed = false;
 
-                if (selectingDerrived)
-                    addingNewOptionsInspected = lst;
-                else if (addingNewOptionsInspected == lst)
-                    addingNewOptionsInspected = null;
+                var hasName = typeof(T).IsSubclassOf(typeof(UnityEngine.Object)) || typeof(IGotName).IsAssignableFrom(typeof(T));
 
-                if (selectingDerrived)
+                if (hasName)
+                    listInstantiateNewName<T>();
+                else
+                    "Create new {0}".F(typeof(T).ToPegiStringType()).write();
+
+                if (!hasName || addingNewNameHolder.Length > 1)
                 {
-                    if (intTypes != null)
-                        foreach (var t in intTypes)
-                        {
-                            write(t.ToPegiStringType());
-                            if (icon.Create.ClickUnFocus().nl(ref changed))
-                            {
-                                added = (T)Activator.CreateInstance(t);
-                                QcUtils.AddWithUniqueNameAndIndex(lst, added, addingNewNameHolder);
-                            }
-                        }
 
-                    if (tagTypes != null)
+                    var selectingDerrived = lst == addingNewOptionsInspected;
+
+                    icon.Add.foldout("Instantiate Class Options", ref selectingDerrived).nl();
+
+                    if (selectingDerrived)
+                        addingNewOptionsInspected = lst;
+                    else if (addingNewOptionsInspected == lst)
+                        addingNewOptionsInspected = null;
+
+                    if (selectingDerrived)
                     {
-                        var k = tagTypes.Keys;
 
-                        int availableOptions = 0;
-
+                        var k = types.Keys;
                         for (var i = 0; i < k.Count; i++)
                         {
-                            if (tagTypes.CanAdd(i, lst))
-                            {
-                                availableOptions++;
 
-                                write(tagTypes.DisplayNames[i]);
-                                if (icon.Create.ClickUnFocus().nl(ref changed))
-                                {
-                                    added = (T)Activator.CreateInstance(tagTypes.TaggedTypes.TryGet(k[i]));
-                                    QcUtils.AddWithUniqueNameAndIndex(lst, added, addingNewNameHolder);
-                                }
+                            write(types.DisplayNames[i]);
+                            if (icon.Create.ClickUnFocus().nl(ref changed))
+                            {
+                                added = (T)Activator.CreateInstance(types.TaggedTypes.TryGet(k[i]));
+                                QcUtils.AddWithUniqueNameAndIndex(lst, added, addingNewNameHolder);
+                                SkrollToBottom();
+                            }
+                        }
+                    }
+                }
+                else
+                    icon.Add.GetText().write("Input a name for a new element", 40);
+                nl();
+
+                return changed;
+            }
+
+            private SearchData searchData;
+
+            public IEnumerable<int> InspectionIndexes<T>(ICollection<T> list, ListMetaData listMeta = null)
+            {
+
+                searchData = listMeta == null ? pegi.searchData : listMeta.searchData;
+
+                #region Inspect Start
+                
+                var changed = false;
+
+                if (_scrollDownRequested)
+                    searchData.CloseSearch();
+
+                string[] searchby;
+                searchData.SearchString(list, out _searching, out searchby);
+
+                _sectionStartIndex = 0;
+
+              
+
+                if (_searching)
+                    _sectionStartIndex = searchData.inspectionIndexStart;
+                else if (listMeta != null)
+                    _sectionStartIndex = listMeta.listSectionStartIndex;
+                else if (!Indexes.TryGetValue(list, out _sectionStartIndex))
+                    Indexes.Add(list, 0);
+
+
+                _count = list.Count;
+
+                _lastElementToShow = _count;
+
+                _sectionSizeOptimal = GetOptimalSectionFor(_count);
+
+
+                if (_scrollDownRequested) {
+                    changed = true;
+                    SkrollToBottomInternal();
+                }
+
+
+                if (_count >= _sectionSizeOptimal * 2 || _sectionStartIndex > 0)
+                {
+
+                    if (_count > _sectionSizeOptimal)
+                    {
+
+                        while ((_sectionStartIndex > 0 && _sectionStartIndex >= _count).changes(ref changed))
+                            _sectionStartIndex = Mathf.Max(0, _sectionStartIndex - _sectionSizeOptimal);
+
+                        nl();
+                        if (_sectionStartIndex > 0)
+                        {
+
+                            if (_sectionStartIndex > _sectionSizeOptimal && icon.UpLast.ClickUnFocus("To First element").changes(ref changed))
+                                _sectionStartIndex = 0;
+
+                            if (icon.Up.ClickUnFocus("To previous elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed))
+                            {
+                                _sectionStartIndex = Mathf.Max(0, _sectionStartIndex - _sectionSizeOptimal + 1);
+                                if (_sectionStartIndex == 1)
+                                    _sectionStartIndex = 0;
                             }
 
+                            ".. {0}; ".F(_sectionStartIndex - 1).write();
+
                         }
+                        else
+                            icon.UpLast.write("Is the first section of the list.", UpDownWidth, UpDownHeight);
 
-                        if (availableOptions == 0)
-                            (k.Count == 0 ? "There no types derrived from {0}".F(typeof(T).ToString()) :
-                                "Existing types are restricted to one instance per list").writeHint();
-
-                    }
-
-                }
-            }
-            else
-                icon.Add.GetText().write("Input a name for a new element", 40);
-            nl();
-
-            return changed;
-        }
-
-        private static bool PEGI_InstantiateOptions<T>(this List<T> lst, ref T added, TaggedTypesCfg types, ListMetaData ld)
-        {
-            if (ld != null && !ld.allowCreate)
-                return false;
-
-            if (editing_List_Order != null && editing_List_Order == lst)
-                return false;
-
-            var changed = false;
-
-            var hasName = typeof(T).IsSubclassOf(typeof(UnityEngine.Object)) || typeof(IGotName).IsAssignableFrom(typeof(T));
-
-            if (hasName)
-                listInstantiateNewName<T>();
-            else
-                "Create new {0}".F(typeof(T).ToPegiStringType()).write();
-
-            if (!hasName || addingNewNameHolder.Length > 1)
-            {
-
-                var selectingDerrived = lst == addingNewOptionsInspected;
-
-                icon.Add.foldout("Instantiate Class Options", ref selectingDerrived).nl();
-
-                if (selectingDerrived)
-                    addingNewOptionsInspected = lst;
-                else if (addingNewOptionsInspected == lst)
-                    addingNewOptionsInspected = null;
-
-                if (selectingDerrived)
-                {
-
-                    var k = types.Keys;
-                    for (var i = 0; i < k.Count; i++)
-                    {
-
-                        write(types.DisplayNames[i]);
-                        if (icon.Create.ClickUnFocus().nl(ref changed))
-                        {
-                            added = (T)Activator.CreateInstance(types.TaggedTypes.TryGet(k[i]));
-                            QcUtils.AddWithUniqueNameAndIndex(lst, added, addingNewNameHolder);
-                        }
-                    }
-                }
-            }
-            else
-                icon.Add.GetText().write("Input a name for a new element", 40);
-            nl();
-
-            return changed;
-        }
-
-        public static int InspectedIndex { get; private set; } = -1;
-
-        private static IEnumerable<int> InspectionIndexes<T>(this ICollection<T> list, ListMetaData listMeta = null)
-        {
-
-            var sd = listMeta == null ? searchData : listMeta.searchData;
-
-            #region Inspect Start
-
-            var changed = false;
-            bool searching;
-            string[] searchby;
-            sd.SearchString(list, out searching, out searchby);
-
-            int _listSectionStartIndex = 0;
-
-            if (searching)
-                _listSectionStartIndex = sd.inspectionIndexStart;
-            else if (listMeta != null)
-                _listSectionStartIndex = listMeta.listSectionStartIndex;
-            else if (!ListInspectionIndexes.TryGetValue(list, out _listSectionStartIndex))
-                ListInspectionIndexes.Add(list, 0);
-
-
-            var listCount = list.Count;
-
-            _lastElementToShow = listCount;
-
-            var _sectionSizeOptimal = GetOptimalSectionFor(listCount);
-
-            if (listCount >= _sectionSizeOptimal * 2 || _listSectionStartIndex > 0)
-            {
-
-                if (listCount > _sectionSizeOptimal)
-                {
-
-                    while ((_listSectionStartIndex > 0 && _listSectionStartIndex >= listCount).changes(ref changed))
-                        _listSectionStartIndex = Mathf.Max(0, _listSectionStartIndex - _sectionSizeOptimal);
-
-                    nl();
-                    if (_listSectionStartIndex > 0)
-                    {
-
-                        if (_listSectionStartIndex > _sectionSizeOptimal && icon.UpLast.ClickUnFocus("To First element").changes(ref changed))
-                            _listSectionStartIndex = 0;
-
-                        if (icon.Up.ClickUnFocus("To previous elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed))
-                        {
-                            _listSectionStartIndex = Mathf.Max(0, _listSectionStartIndex - _sectionSizeOptimal + 1);
-                            if (_listSectionStartIndex == 1)
-                                _listSectionStartIndex = 0;
-                        }
-
-                        ".. {0}; ".F(_listSectionStartIndex - 1).write();
+                        nl();
 
                     }
-                    else
-                        icon.UpLast.write("Is the first section of the list.", UpDownWidth, UpDownHeight);
-
-                    nl();
+                    else line(Color.gray);
 
                 }
-                else line(Color.gray);
-
-            }
-            else if (list.Count > 0)
-                line(Color.gray);
-
-            nl();
-
-            #endregion
-
-
-            var filteredCount = listCount;
-
-            if (!searching)
-            {
-                _lastElementToShow = Mathf.Min(listCount, _listSectionStartIndex + _sectionSizeOptimal);
-
-                for (InspectedIndex = _listSectionStartIndex; InspectedIndex < _lastElementToShow; InspectedIndex++)
-                {
-
-                    SetListElementReadabilityBackground(InspectedIndex);
-
-                    yield return InspectedIndex;
-
-                    RestoreBGcolor();
-                }
-
-
-                if ((_listSectionStartIndex > 0) || (filteredCount > _lastElementToShow))
-                {
-
-                    nl();
-                    if (listCount > _lastElementToShow)
-                    {
-
-                        if (icon.Down.ClickUnFocus("To next elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed))
-                            _listSectionStartIndex += _sectionSizeOptimal - 1;
-
-                        if (icon.DownLast.ClickUnFocus("To Last element").changes(ref changed))
-                            _listSectionStartIndex = listCount - _sectionSizeOptimal;
-
-                        "+ {0}".F(listCount - _lastElementToShow).write();
-
-                    }
-                    else if (_listSectionStartIndex > 0)
-                        icon.DownLast.write("Is the last section of the list. ", UpDownWidth, UpDownHeight);
-
-                }
-                else if (listCount > 0)
+                else if (list.Count > 0)
                     line(Color.gray);
 
+                nl();
 
-            }
-            else
-            {
+                #endregion
 
-                var sectionIndex = _listSectionStartIndex;
 
-                var flst = sd.filteredListElements;
+                var filteredCount = _count;
 
-                _lastElementToShow = Mathf.Min(list.Count, _listSectionStartIndex + _sectionSizeOptimal);
-
-                while ((sd.uncheckedElement <= listCount) && (sectionIndex < _lastElementToShow))
+                if (!_searching)
                 {
+                    _lastElementToShow = Mathf.Min(_count, _sectionStartIndex + _sectionSizeOptimal);
 
-                    InspectedIndex = -1;
-
-                    if (flst.Count > sectionIndex)
-                        InspectedIndex = flst[sectionIndex];
-                    else
-                    {
-                        while (sd.uncheckedElement < listCount && InspectedIndex == -1)
-                        {
-
-                            var el = list.ElementAt(sd.uncheckedElement);
-
-                            var na = el as INeedAttention;
-
-                            var msg = na?.NeedAttention();
-
-                            if (!sd.filterByNeedAttention || !msg.IsNullOrEmpty())
-                            {
-                                if (searchby.IsNullOrEmpty() || el.SearchMatch_Obj_Internal(searchby))
-                                {
-                                    InspectedIndex = sd.uncheckedElement;
-                                    flst.Add(InspectedIndex);
-                                }
-                            }
-
-                            sd.uncheckedElement++;
-                        }
-                    }
-
-                    if (InspectedIndex != -1)
+                    for (Index = _sectionStartIndex; Index < _lastElementToShow; Index++)
                     {
 
-                        SetListElementReadabilityBackground(sectionIndex);
+                        SetListElementReadabilityBackground(Index);
 
-                        yield return InspectedIndex;
+                        yield return Index;
 
                         RestoreBGcolor();
-
-                        sectionIndex++;
                     }
-                    else break;
-                }
 
 
-                bool gotUnchecked = (sd.uncheckedElement < listCount - 1);
-
-                bool gotToShow = (flst.Count > _lastElementToShow) || gotUnchecked;
-
-                if (_listSectionStartIndex > 0 || gotToShow)
-                {
-
-                    nl();
-                    if (gotToShow)
+                    if ((_sectionStartIndex > 0) || (filteredCount > _lastElementToShow))
                     {
 
-                        if (icon.Down.ClickUnFocus("To next elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed))
-                            _listSectionStartIndex += _sectionSizeOptimal - 1;
+                        nl();
+                        if (_count > _lastElementToShow)
+                        {
 
-                        if (icon.DownLast.ClickUnFocus("To Last element").changes(ref changed))
-                            _listSectionStartIndex = Mathf.Max(0, flst.Count - _sectionSizeOptimal);
+                            if (icon.Down.ClickUnFocus("To next elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed))
+                                _sectionStartIndex += _sectionSizeOptimal - 1;
 
-                        if (!gotUnchecked)
-                            "+ {0}".F(flst.Count - _lastElementToShow).write();
+                            if (icon.DownLast.ClickUnFocus("To Last element").changes(ref changed))
+                                SkrollToBottomInternal();
+
+                            "+ {0}".F(_count - _lastElementToShow).write();
+
+                        }
+                        else if (_sectionStartIndex > 0)
+                            icon.DownLast.write("Is the last section of the list. ", UpDownWidth, UpDownHeight);
 
                     }
-                    else if (_listSectionStartIndex > 0)
-                        icon.DownLast.write("Is the last section of the list. ", UpDownWidth, UpDownHeight);
+                    else if (_count > 0)
+                        line(Color.gray);
+
 
                 }
-                else if (listCount > 0)
-                    line(Color.gray);
-
-            }
-
-            #region Finilize
-            if (changed)
-            {
-                if (searching)
-                    sd.inspectionIndexStart = _listSectionStartIndex;
-                else if (listMeta != null)
-                    listMeta.listSectionStartIndex = _listSectionStartIndex;
                 else
-                    ListInspectionIndexes[list] = _listSectionStartIndex;
+                {
+
+                    var sectionIndex = _sectionStartIndex;
+
+                    flst = searchData.filteredListElements;
+
+                    _lastElementToShow = Mathf.Min(list.Count, _sectionStartIndex + _sectionSizeOptimal);
+
+                    while ((searchData.uncheckedElement <= _count) && (sectionIndex < _lastElementToShow))
+                    {
+
+                        Index = -1;
+
+                        if (flst.Count > sectionIndex)
+                            Index = flst[sectionIndex];
+                        else
+                        {
+                            while (searchData.uncheckedElement < _count && Index == -1)
+                            {
+
+                                var el = list.ElementAt(searchData.uncheckedElement);
+
+                                var na = el as INeedAttention;
+
+                                var msg = na?.NeedAttention();
+
+                                if (!searchData.filterByNeedAttention || !msg.IsNullOrEmpty())
+                                {
+                                    if (searchby.IsNullOrEmpty() || el.SearchMatch_Obj_Internal(searchby))
+                                    {
+                                        Index = searchData.uncheckedElement;
+                                        flst.Add(Index);
+                                    }
+                                }
+
+                                searchData.uncheckedElement++;
+                            }
+                        }
+
+                        if (Index != -1)
+                        {
+
+                            SetListElementReadabilityBackground(sectionIndex);
+
+                            yield return Index;
+
+                            RestoreBGcolor();
+
+                            sectionIndex++;
+                        }
+                        else break;
+                    }
+
+
+                    bool gotUnchecked = (searchData.uncheckedElement < _count - 1);
+
+                    bool gotToShow = (flst.Count > _lastElementToShow) || gotUnchecked;
+
+                    if (_sectionStartIndex > 0 || gotToShow)
+                    {
+
+                        nl();
+                        if (gotToShow)
+                        {
+
+                            if (icon.Down.ClickUnFocus("To next elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed))
+                                _sectionStartIndex += _sectionSizeOptimal - 1;
+
+                            if (icon.DownLast.ClickUnFocus("To Last element").changes(ref changed))
+                                SkrollToBottomInternal();
+
+                            if (!gotUnchecked)
+                                "+ {0}".F(flst.Count - _lastElementToShow).write();
+
+                        }
+                        else if (_sectionStartIndex > 0)
+                            icon.DownLast.write("Is the last section of the list. ", UpDownWidth, UpDownHeight);
+
+                    }
+                    else if (_count > 0)
+                        line(Color.gray);
+
+                }
+
+                #region Finilize
+                if (changed)
+                    SaveSection(list, listMeta);
+
+                #endregion
             }
-            #endregion
-        }
 
-        private static void SetListElementReadabilityBackground(int index)
-        {
-            switch (index % 4)
-            {
-                case 1: PEGI_Styles.listReadabilityBlue.SetBgColor(); break;
-                case 3: PEGI_Styles.listReadabilityRed.SetBgColor(); break;
+            private void SaveSection<T>(ICollection<T> list, ListMetaData listMeta) {
+                if (_searching)
+                    searchData.inspectionIndexStart = _sectionStartIndex;
+                else if (listMeta != null)
+                    listMeta.listSectionStartIndex = _sectionStartIndex;
+                else
+                    Indexes[list] = _sectionStartIndex;
             }
-        }
 
-        private static string currentListLabel = "";
-        public static string GetCurrentListLabel<T>(ListMetaData ld = null) => ld != null ? ld.label :
-                    (currentListLabel.IsNullOrEmpty() ? typeof(T).ToPegiStringType() : currentListLabel);
+            private bool _scrollDownRequested = false;
 
-        private static bool listLabel_Used(this bool val)
-        {
-            currentListLabel = "";
-
-            return val;
-        }
-
-        private static T listLabel_Used<T>(this T val)
-        {
-            currentListLabel = "";
-            return val;
-        }
-
-        private static void write_Search_ListLabel<T>(this string label, ICollection<T> lst = null)
-        {
-            var notInsp = -1;
-            label.write_Search_ListLabel(ref notInsp, lst);
-        }
-
-        private static void write_Search_ListLabel<T>(this string label, ref int inspected, ICollection<T> lst)
-        {
-
-            currentListLabel = label;
-
-            bool inspecting = inspected != -1;
-
-            if (!inspecting)
-                searchData.ToggleSearch(lst, label);
-
-            if (lst != null && inspected >= 0 && lst.Count > inspected)
-                label = "{0}->{1}".F(label, lst.ElementAt(inspected).GetNameForInspector());
-            else label = (lst == null || lst.Count < 6) ? label : label.AddCount(lst, true);
-
-            if (label.ClickLabel(label, RemainingLength(defaultButtonSize * 2 + 10), PEGI_Styles.ListLabel) && inspected != -1)
-                inspected = -1;
-        }
-
-        private static void write_Search_ListLabel<T>(this ListMetaData ld, ICollection<T> lst)
-        {
-
-            currentListLabel = ld.label;
-
-            if (!ld.Inspecting && ld.showSearchButton)
-                ld.searchData.ToggleSearch(lst, ld.label);
-
-            if (lst != null && ld.inspected >= 0 && lst.Count > ld.inspected)
+            public void SkrollToBottom()
             {
-
-                var el = lst.ElementAt(ld.inspected);
-
-                currentListLabel = "{0}->{1}".F(ld.label, el.GetNameForInspector());
-
+                _scrollDownRequested = true;
             }
-            else currentListLabel = (lst == null || lst.Count < 6) ? ld.label : ld.label.AddCount(lst, true);
 
-            if (currentListLabel.ClickLabel(ld.label, RemainingLength(defaultButtonSize * 2 + 10), PEGI_Styles.ListLabel) && ld.inspected != -1)
-                ld.inspected = -1;
-        }
+            private void SkrollToBottomInternal() {
 
-        private static bool ExitOrDrawPEGI<T>(T[] array, ref int index, ListMetaData ld = null)
-        {
-            var changed = false;
+                if (!_searching)
+                    _sectionStartIndex = _count - _sectionSizeOptimal;
+                else 
+                    _sectionStartIndex = Mathf.Max(0, flst.Count - _sectionSizeOptimal);
 
-            if (index >= 0)
+                _scrollDownRequested = false;
+            }
+
+            private void SetListElementReadabilityBackground(int index)
             {
-                if (array == null || index >= array.Length || icon.List.ClickUnFocus("Return to {0} array".F(GetCurrentListLabel<T>(ld))).nl())
+                switch (index % 4)
+                {
+                    case 1: PEGI_Styles.listReadabilityBlue.SetBgColor(); break;
+                    case 3: PEGI_Styles.listReadabilityRed.SetBgColor(); break;
+                }
+            }
+
+            private string currentListLabel = "";
+            public string GetCurrentListLabel<T>(ListMetaData ld = null) => ld != null ? ld.label :
+                        (currentListLabel.IsNullOrEmpty() ? typeof(T).ToPegiStringType() : currentListLabel);
+            
+            public void listLabel_Used() {
+                currentListLabel = "";
+            }
+
+            public void write_Search_ListLabel<T>(string label, ICollection<T> lst = null)
+            {
+                var notInsp = -1;
+                collectionInspector.write_Search_ListLabel(label, ref notInsp, lst);
+            }
+
+            public void write_Search_ListLabel<T>(string label, ref int inspected, ICollection<T> lst)
+            {
+
+                currentListLabel = label;
+
+                bool inspecting = inspected != -1;
+
+                if (!inspecting)
+                    pegi.searchData.ToggleSearch(lst, label);
+
+                if (lst != null && inspected >= 0 && lst.Count > inspected)
+                    label = "{0}->{1}".F(label, lst.ElementAt(inspected).GetNameForInspector());
+                else label = (lst == null || lst.Count < 6) ? label : label.AddCount(lst, true);
+
+                if (label.ClickLabel(label, RemainingLength(defaultButtonSize * 2 + 10), PEGI_Styles.ListLabel) && inspected != -1)
+                    inspected = -1;
+            }
+
+            public void write_Search_ListLabel<T>(ListMetaData ld, ICollection<T> lst)
+            {
+
+                currentListLabel = ld.label;
+
+                if (!ld.Inspecting && ld.showSearchButton)
+                    ld.searchData.ToggleSearch(lst, ld.label);
+
+                if (lst != null && ld.inspected >= 0 && lst.Count > ld.inspected)
+                {
+
+                    var el = lst.ElementAt(ld.inspected);
+
+                    currentListLabel = "{0}->{1}".F(ld.label, el.GetNameForInspector());
+
+                }
+                else currentListLabel = (lst == null || lst.Count < 6) ? ld.label : ld.label.AddCount(lst, true);
+
+                if (currentListLabel.ClickLabel(ld.label, RemainingLength(defaultButtonSize * 2 + 10), PEGI_Styles.ListLabel) && ld.inspected != -1)
+                    ld.inspected = -1;
+            }
+
+            public bool ExitOrDrawPEGI<T>(T[] array, ref int index, ListMetaData ld = null)
+            {
+                var changed = false;
+
+                if (index >= 0)
+                {
+                    if (array == null || index >= array.Length || icon.List.ClickUnFocus("Return to {0} array".F(GetCurrentListLabel<T>(ld))).nl())
+                        index = -1;
+                    else
+                    {
+                        object obj = array[index];
+                        if (Nested_Inspect(ref obj).changes(ref changed))
+                            array[index] = (T)obj;
+                    }
+                }
+
+                return changed;
+            }
+
+            public bool ExitOrDrawPEGI<K, T>(Dictionary<K, T> dic, ref int index, ListMetaData ld = null)
+            {
+                var changed = false;
+
+                if (icon.List.ClickUnFocus("{0}[{1}] of {2}".F(Msg.ReturnToCollection.GetText(), dic.Count, GetCurrentListLabel<T>(ld))).nl())
                     index = -1;
                 else
                 {
-                    object obj = array[index];
+
+                    var item = dic.ElementAt(index);
+                    var key = item.Key;
+
+                    object obj = dic[key];
                     if (Nested_Inspect(ref obj).changes(ref changed))
-                        array[index] = (T)obj;
+                        dic[key] = (T)obj;
                 }
+
+                return changed;
             }
 
-            return changed;
-        }
-
-        private static bool ExitOrDrawPEGI<K, T>(this Dictionary<K, T> dic, ref int index, ListMetaData ld = null)
-        {
-            var changed = false;
-
-            if (icon.List.ClickUnFocus("{0}[{1}] of {2}".F(Msg.ReturnToCollection.GetText(), dic.Count, GetCurrentListLabel<T>(ld))).nl())
-                index = -1;
-            else
+            public bool ExitOrDrawPEGI<T>(List<T> list, ref int index, ListMetaData ld = null)
             {
+                var changed = false;
 
-                var item = dic.ElementAt(index);
-                var key = item.Key;
-
-                object obj = dic[key];
-                if (Nested_Inspect(ref obj).changes(ref changed))
-                    dic[key] = (T)obj;
-            }
-
-            return changed;
-        }
-
-        private static bool ExitOrDrawPEGI<T>(this List<T> list, ref int index, ListMetaData ld = null)
-        {
-            var changed = false;
-
-            if (icon.List.ClickUnFocus("{0}[{1}] of {2}".F(Msg.ReturnToCollection.GetText(), list.Count, GetCurrentListLabel<T>(ld))).nl())
-                index = -1;
-            else
-            {
-                object obj = list[index];
-                if (Nested_Inspect(ref obj).changes(ref changed))
-                    list[index] = (T)obj;
-            }
-
-            return changed;
-        }
-
-        private static IList editing_List_Order;
-
-        private static bool listIsNull<T>(ref List<T> list)
-        {
-            if (list == null)
-            {
-                if ("Initialize list".ClickUnFocus().nl())
-                    list = new List<T>();
+                if (icon.List.ClickUnFocus("{0}[{1}] of {2}".F(Msg.ReturnToCollection.GetText(), list.Count, GetCurrentListLabel<T>(ld))).nl())
+                    index = -1;
                 else
-                    return true;
+                {
+                    object obj = list[index];
+                    if (Nested_Inspect(ref obj).changes(ref changed))
+                        list[index] = (T)obj;
+                }
 
+                return changed;
             }
 
-            return false;
-        }
+            public bool listIsNull<T>(ref List<T> list)
+            {
+                if (list == null)
+                {
+                    if ("Initialize list".ClickUnFocus().nl())
+                        list = new List<T>();
+                    else
+                        return true;
 
-        private static bool allowDuplicants;
-        private static bool list_DropOption<T>(this List<T> list, ListMetaData meta = null) where T : UnityEngine.Object
-        {
-            var changed = false;
+                }
+
+                return false;
+            }
+
+            public bool list_DropOption<T>(List<T> list, ListMetaData meta = null) where T : UnityEngine.Object
+            {
+                var changed = false;
 #if UNITY_EDITOR
 
-            if (ActiveEditorTracker.sharedTracker.isLocked == false && icon.Unlock.ClickUnFocus("Lock Inspector Window"))
-                ActiveEditorTracker.sharedTracker.isLocked = true;
+                if (ActiveEditorTracker.sharedTracker.isLocked == false && icon.Unlock.ClickUnFocus("Lock Inspector Window"))
+                    ActiveEditorTracker.sharedTracker.isLocked = true;
 
-            if (ActiveEditorTracker.sharedTracker.isLocked && icon.Lock.ClickUnFocus("Unlock Inspector Window"))
-            {
-                ActiveEditorTracker.sharedTracker.isLocked = false;
-
-                var mb = ef.serObj.targetObject as MonoBehaviour;
-
-                QcUnity.FocusOn(mb ? mb.gameObject : ef.serObj.targetObject);
-
-            }
-
-            var dpl = meta != null ? meta.allowDuplicants : allowDuplicants;
-
-            foreach (var ret in ef.DropAreaGUI<T>())
-            {
-                if (dpl || !list.Contains(ret))
+                if (ActiveEditorTracker.sharedTracker.isLocked && icon.Lock.ClickUnFocus("Unlock Inspector Window"))
                 {
-                    list.Add(ret);
-                    changed = true;
+                    ActiveEditorTracker.sharedTracker.isLocked = false;
+
+                    var mb = ef.serObj.targetObject as MonoBehaviour;
+
+                    QcUnity.FocusOn(mb ? mb.gameObject : ef.serObj.targetObject);
+
                 }
-            }
+
+                var dpl = meta != null ? meta.allowDuplicants : allowDuplicants;
+
+                foreach (var ret in ef.DropAreaGUI<T>())
+                {
+                    if (dpl || !list.Contains(ret))
+                    {
+                        list.Add(ret);
+                        changed = true;
+                    }
+                }
 
 
 
 #endif
-            return changed;
-        }
-
-        static Array _editingArrayOrder;
-
-        public static CountlessBool selectedEls = new CountlessBool();
-
-        private static List<int> _copiedElements = new List<int>();
-
-        private static bool cutPaste;
-
-        private static void SetSelected<T>(ListMetaData meta, List<T> list, bool val)
-        {
-            if (meta == null)
-            {
-                for (var i = 0; i < list.Count; i++)
-                    selectedEls[i] = val;
-            }
-            else for (var i = 0; i < list.Count; i++)
-                    meta.SetIsSelected(i, val);
-        }
-
-        private static void TryMoveCopiedElement<T>(this List<T> list, bool allowDuplicants)
-        {
-
-            //    foreach (var e in _copiedElements)
-            //   list.TryAdd(listCopyBuffer.TryGetObj(e));
-
-            bool errorShown = false;
-
-            for (var i = _copiedElements.Count - 1; i >= 0; i--)
-            {
-
-                var srcInd = _copiedElements[i];
-                var e = listCopyBuffer.TryGetObj(srcInd);
-
-                T conv;
-                if (list.CanAdd(ref e, out conv, !allowDuplicants))
-                {
-                    list.Add(conv);
-                    listCopyBuffer.RemoveAt(srcInd);
-                }
-                else if (!errorShown)
-                {
-                    errorShown = true;
-                    Debug.LogError("Couldn't add some of the elements");
-                }
+                return changed;
             }
 
-            if (!errorShown)
-                listCopyBuffer = null;
-        }
+            public Array _editingArrayOrder;
 
-        private static bool edit_Array_Order<T>(ref T[] array, ListMetaData listMeta = null)
-        {
+            public CountlessBool selectedEls = new CountlessBool();
 
-            var changed = false;
+            private List<int> _copiedElements = new List<int>();
 
-            if (array != _editingArrayOrder)
+            private bool cutPaste;
+
+            private void SetSelected<T>(ListMetaData meta, List<T> list, bool val)
             {
-                if ((listMeta == null || listMeta.showEditListButton) && icon.Edit.ClickUnFocus(Msg.MoveCollectionElements, 28))
-                    _editingArrayOrder = array;
+                if (meta == null)
+                {
+                    for (var i = 0; i < list.Count; i++)
+                        selectedEls[i] = val;
+                }
+                else for (var i = 0; i < list.Count; i++)
+                        meta.SetIsSelected(i, val);
             }
 
-            else if (icon.Done.ClickUnFocus(Msg.FinishMovingCollectionElements.GetText(), 28).nl(ref changed))
-                _editingArrayOrder = null;
-
-            if (array != _editingArrayOrder) return changed;
-
-            var derivedClasses = typeof(T).TryGetDerivedClasses();
-
-            for (var i = 0; i < array.Length; i++)
+            private void TryMoveCopiedElement<T>(List<T> list, bool allowDuplicants)
             {
 
-                if (listMeta == null || listMeta.allowReorder)
+                //    foreach (var e in _copiedElements)
+                //   list.TryAdd(listCopyBuffer.TryGetObj(e));
+
+                bool errorShown = false;
+
+                for (var i = _copiedElements.Count - 1; i >= 0; i--)
                 {
 
-                    if (i > 0)
+                    var srcInd = _copiedElements[i];
+                    var e = listCopyBuffer.TryGetObj(srcInd);
+
+                    T conv;
+                    if (list.CanAdd(ref e, out conv, !allowDuplicants))
                     {
-                        if (icon.Up.ClickUnFocus("Move up").changes(ref changed))
-                            QcSharp.Swap(ref array, i, i - 1);
+                        list.Add(conv);
+                        listCopyBuffer.RemoveAt(srcInd);
                     }
-                    else
-                        icon.UpLast.write("Last");
-
-                    if (i < array.Length - 1)
+                    else if (!errorShown)
                     {
-                        if (icon.Down.ClickUnFocus("Move down").changes(ref changed))
-                            QcSharp.Swap(ref array, i, i + 1);
-                    }
-                    else icon.DownLast.write();
-                }
-
-                var el = array[i];
-
-                var isNull = el.IsNullOrDestroyed_Obj();
-
-                if (listMeta == null || listMeta.allowDelete)
-                {
-                    if (!isNull && typeof(T).IsUnityObject())
-                    {
-                        if (icon.Delete.ClickUnFocus(Msg.MakeElementNull).changes(ref changed))
-                            array[i] = default(T);
-                    }
-                    else
-                    {
-                        if (icon.Close.ClickUnFocus(Msg.RemoveFromCollection).changes(ref changed))
-                        {
-                            QcSharp.Remove(ref array, i);
-                            i--;
-                        }
+                        errorShown = true;
+                        Debug.LogError("Couldn't add some of the elements");
                     }
                 }
 
-                if (!isNull && derivedClasses != null)
+                if (!errorShown)
+                    listCopyBuffer = null;
+            }
+
+            public bool edit_Array_Order<T>(ref T[] array, ListMetaData listMeta = null)
+            {
+
+                var changed = false;
+
+                if (array != _editingArrayOrder)
                 {
-                    var ty = el.GetType();
-                    if (@select(ref ty, derivedClasses, el.GetNameForInspector()))
-                        array[i] = (el as ICfg).TryDecodeInto<T>(ty);
+                    if ((listMeta == null || listMeta.showEditListButton) && icon.Edit.ClickUnFocus(Msg.MoveCollectionElements, 28))
+                        _editingArrayOrder = array;
                 }
 
-                if (!isNull)
-                    write(el.GetNameForInspector());
-                else
-                    "{0} {1}".F(icon.Empty.GetText(), typeof(T).ToPegiStringType()).write();
+                else if (icon.Done.ClickUnFocus(Msg.FinishMovingCollectionElements.GetText(), 28).nl(ref changed))
+                    _editingArrayOrder = null;
 
-                nl();
-            }
+                if (array != _editingArrayOrder) return changed;
 
-            return changed;
-        }
-
-        private static bool edit_List_Order<T>(this List<T> list, ListMetaData listMeta = null)
-        {
-
-            var changed = false;
-
-            var sd = listMeta == null ? searchData : listMeta.searchData;
-
-            if (list != editing_List_Order)
-            {
-                if (sd.filteredList != list && (listMeta == null || listMeta.showEditListButton) &&
-                    icon.Edit.ClickUnFocus(Msg.MoveCollectionElements, 28))
-                    editing_List_Order = list;
-            }
-            else if (icon.Done.ClickUnFocus(Msg.FinishMovingCollectionElements, 28).changes(ref changed))
-                editing_List_Order = null;
-
-            if (list != editing_List_Order) return changed;
-
-#if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
-            {
-                nl();
-                ef.reorder_List(list, listMeta).changes(ref changed);
-            }
-            else
-#endif
-
-            #region Playtime UI reordering
-
-            {
                 var derivedClasses = typeof(T).TryGetDerivedClasses();
 
-                foreach (var i in list.InspectionIndexes(listMeta))
+                for (var i = 0; i < array.Length; i++)
                 {
 
                     if (listMeta == null || listMeta.allowReorder)
@@ -7567,49 +7560,45 @@ namespace PlayerAndEditorGUI
                         if (i > 0)
                         {
                             if (icon.Up.ClickUnFocus("Move up").changes(ref changed))
-                                list.Swap(i - 1);
-
+                                QcSharp.Swap(ref array, i, i - 1);
                         }
                         else
                             icon.UpLast.write("Last");
 
-                        if (i < list.Count - 1)
+                        if (i < array.Length - 1)
                         {
                             if (icon.Down.ClickUnFocus("Move down").changes(ref changed))
-                                list.Swap(i);
+                                QcSharp.Swap(ref array, i, i + 1);
                         }
                         else icon.DownLast.write();
                     }
 
-                    var el = list[i];
+                    var el = array[i];
 
                     var isNull = el.IsNullOrDestroyed_Obj();
 
                     if (listMeta == null || listMeta.allowDelete)
                     {
-
                         if (!isNull && typeof(T).IsUnityObject())
                         {
-                            if (icon.Delete.ClickUnFocus(Msg.MakeElementNull))
-                                list[i] = default(T);
+                            if (icon.Delete.ClickUnFocus(Msg.MakeElementNull).changes(ref changed))
+                                array[i] = default(T);
                         }
                         else
                         {
                             if (icon.Close.ClickUnFocus(Msg.RemoveFromCollection).changes(ref changed))
                             {
-                                list.RemoveAt(InspectedIndex);
-                                InspectedIndex--;
-                                _lastElementToShow--;
+                                QcSharp.Remove(ref array, i);
+                                i--;
                             }
                         }
                     }
-
 
                     if (!isNull && derivedClasses != null)
                     {
                         var ty = el.GetType();
                         if (@select(ref ty, derivedClasses, el.GetNameForInspector()))
-                            list[i] = (el as ICfg).TryDecodeInto<T>(ty);
+                            array[i] = (el as ICfg).TryDecodeInto<T>(ty);
                     }
 
                     if (!isNull)
@@ -7620,236 +7609,555 @@ namespace PlayerAndEditorGUI
                     nl();
                 }
 
+                return changed;
             }
 
-            #endregion
-
-            #region Select
-
-            var selectedCount = 0;
-
-            if (listMeta == null)
-            {
-                for (var i = 0; i < list.Count; i++)
-                    if (selectedEls[i])
-                        selectedCount++;
-            }
-            else
-                for (var i = 0; i < list.Count; i++)
-                    if (listMeta.GetIsSelected(i))
-                        selectedCount++;
-
-            if (selectedCount > 0 && icon.DeSelectAll.Click(icon.DeSelectAll.GetText()))
-                SetSelected(listMeta, list, false);
-
-            if (selectedCount == 0 && icon.SelectAll.Click(icon.SelectAll.GetText()))
-                SetSelected(listMeta, list, true);
-
-
-            #endregion
-
-            #region Copy, Cut, Paste, Move 
-
-
-            var duplicants = listMeta != null ? listMeta.allowDuplicants : allowDuplicants;
-
-            if (list.Count > 1 && typeof(IGotIndex).IsAssignableFrom(typeof(T)))
+            public bool edit_List_Order<T>(List<T> list, ListMetaData listMeta = null)
             {
 
-                bool down = false;
+                var changed = false;
 
-                if (icon.Down.Click("Sort Ascending").changes(ref down) || icon.Up.Click("Sort Descending"))
+                var sd = listMeta == null ? pegi.searchData : listMeta.searchData;
+
+                if (list != collectionInspector.reordering)
                 {
-                    changed = true;
-
-                    list.Sort((emp1, emp2) =>
-                    {
-
-                        var igc1 = emp1 as IGotIndex;
-                        var igc2 = emp2 as IGotIndex;
-
-                        if (igc1 == null || igc2 == null)
-                            return 0;
-
-                        return (down ? 1 : -1) * (igc1.IndexForPEGI - igc2.IndexForPEGI);
-
-                    });
+                    if (sd.filteredList != list && (listMeta == null || listMeta.showEditListButton) &&
+                        icon.Edit.ClickUnFocus(Msg.MoveCollectionElements, 28))
+                        reordering = list;
                 }
-            }
+                else if (icon.Done.ClickUnFocus(Msg.FinishMovingCollectionElements, 28).changes(ref changed))
+                    reordering = null;
 
-            if (listCopyBuffer != null)
-            {
+                if (list != collectionInspector.reordering) return changed;
 
-                if (icon.Close.ClickUnFocus("Clean buffer"))
-                    listCopyBuffer = null;
-
-                bool same = listCopyBuffer == list;
-
-                if (same && !cutPaste)
-                    "DUPLICATE:".write("Selected elements are from this list", 60);
-                ;
-                if (typeof(T).IsUnityObject())
+#if UNITY_EDITOR
+                if (!paintingPlayAreaGui)
                 {
+                    nl();
+                    ef.reorder_List(list, listMeta).changes(ref changed);
+                }
+                else
+#endif
 
-                    if (!cutPaste && icon.Paste.ClickUnFocus(same
-                            ? Msg.TryDuplicateSelected.GetText()
-                            : "{0} Of {1} to here".F(Msg.TryDuplicateSelected.GetText(),
-                                listCopyBuffer.GetNameForInspector())))
+                #region Playtime UI reordering
+
+                {
+                    var derivedClasses = typeof(T).TryGetDerivedClasses();
+
+                    foreach (var i in collectionInspector.InspectionIndexes(list, listMeta))
                     {
-                        foreach (var e in _copiedElements)
-                            list.TryAdd(listCopyBuffer.TryGetObj(e), !duplicants);
+
+                        if (listMeta == null || listMeta.allowReorder)
+                        {
+
+                            if (i > 0)
+                            {
+                                if (icon.Up.ClickUnFocus("Move up").changes(ref changed))
+                                    list.Swap(i - 1);
+
+                            }
+                            else
+                                icon.UpLast.write("Last");
+
+                            if (i < list.Count - 1)
+                            {
+                                if (icon.Down.ClickUnFocus("Move down").changes(ref changed))
+                                    list.Swap(i);
+                            }
+                            else icon.DownLast.write();
+                        }
+
+                        var el = list[i];
+
+                        var isNull = el.IsNullOrDestroyed_Obj();
+
+                        if (listMeta == null || listMeta.allowDelete)
+                        {
+
+                            if (!isNull && typeof(T).IsUnityObject())
+                            {
+                                if (icon.Delete.ClickUnFocus(Msg.MakeElementNull))
+                                    list[i] = default(T);
+                            }
+                            else
+                            {
+                                if (icon.Close.ClickUnFocus(Msg.RemoveFromCollection).changes(ref changed))
+                                {
+                                    list.RemoveAt(Index);
+                                    Index--;
+                                    _lastElementToShow--;
+                                }
+                            }
+                        }
+
+
+                        if (!isNull && derivedClasses != null)
+                        {
+                            var ty = el.GetType();
+                            if (@select(ref ty, derivedClasses, el.GetNameForInspector()))
+                                list[i] = (el as ICfg).TryDecodeInto<T>(ty);
+                        }
+
+                        if (!isNull)
+                            write(el.GetNameForInspector());
+                        else
+                            "{0} {1}".F(icon.Empty.GetText(), typeof(T).ToPegiStringType()).write();
+
+                        nl();
                     }
 
-                    if (!same && cutPaste && icon.Move.ClickUnFocus("Try Move References Of {0}".F(listCopyBuffer)))
-                        list.TryMoveCopiedElement(duplicants);
+                }
+
+                #endregion
+
+                #region Select
+
+                var selectedCount = 0;
+
+                if (listMeta == null)
+                {
+                    for (var i = 0; i < list.Count; i++)
+                        if (selectedEls[i])
+                            selectedCount++;
+                }
+                else
+                    for (var i = 0; i < list.Count; i++)
+                        if (listMeta.GetIsSelected(i))
+                            selectedCount++;
+
+                if (selectedCount > 0 && icon.DeSelectAll.Click(icon.DeSelectAll.GetText()))
+                    SetSelected(listMeta, list, false);
+
+                if (selectedCount == 0 && icon.SelectAll.Click(icon.SelectAll.GetText()))
+                    SetSelected(listMeta, list, true);
+
+
+                #endregion
+
+                #region Copy, Cut, Paste, Move 
+
+
+                var duplicants = listMeta != null ? listMeta.allowDuplicants : allowDuplicants;
+
+                if (list.Count > 1 && typeof(IGotIndex).IsAssignableFrom(typeof(T)))
+                {
+
+                    bool down = false;
+
+                    if (icon.Down.Click("Sort Ascending").changes(ref down) || icon.Up.Click("Sort Descending"))
+                    {
+                        changed = true;
+
+                        list.Sort((emp1, emp2) =>
+                        {
+
+                            var igc1 = emp1 as IGotIndex;
+                            var igc2 = emp2 as IGotIndex;
+
+                            if (igc1 == null || igc2 == null)
+                                return 0;
+
+                            return (down ? 1 : -1) * (igc1.IndexForPEGI - igc2.IndexForPEGI);
+
+                        });
+                    }
+                }
+
+                if (listCopyBuffer != null)
+                {
+
+                    if (icon.Close.ClickUnFocus("Clean buffer"))
+                        listCopyBuffer = null;
+
+                    bool same = listCopyBuffer == list;
+
+                    if (same && !cutPaste)
+                        "DUPLICATE:".write("Selected elements are from this list", 60);
+                    ;
+                    if (typeof(T).IsUnityObject())
+                    {
+
+                        if (!cutPaste && icon.Paste.ClickUnFocus(same
+                                ? Msg.TryDuplicateSelected.GetText()
+                                : "{0} Of {1} to here".F(Msg.TryDuplicateSelected.GetText(),
+                                    listCopyBuffer.GetNameForInspector())))
+                        {
+                            foreach (var e in _copiedElements)
+                                list.TryAdd(listCopyBuffer.TryGetObj(e), !duplicants);
+                        }
+
+                        if (!same && cutPaste && icon.Move.ClickUnFocus("Try Move References Of {0}".F(listCopyBuffer)))
+                            collectionInspector.TryMoveCopiedElement(list, duplicants);
+
+                    }
+                    else
+                    {
+
+                        if (!cutPaste && icon.Paste.ClickUnFocus(same
+                                ? "Try to duplicate selected references"
+                                : "Try Add Deep Copy {0}".F(listCopyBuffer.GetNameForInspector())))
+                        {
+
+                            foreach (var e in _copiedElements)
+                            {
+
+                                var el = listCopyBuffer.TryGetObj(e);
+
+                                if (el != null)
+                                {
+
+                                    var istd = el as ICfg;
+
+                                    if (istd != null)
+                                        list.TryAdd(istd.CloneStd());
+                                    else
+                                        list.TryAdd(JsonUtility.FromJson<T>(JsonUtility.ToJson(el)));
+                                }
+                            }
+                        }
+
+                        if (!same && cutPaste && icon.Move.ClickUnFocus("Try Move {0}".F(listCopyBuffer)))
+                            collectionInspector.TryMoveCopiedElement(list, duplicants);
+                    }
+
+                }
+                else if (selectedCount > 0)
+                {
+                    var copyOrMove = false;
+
+                    if (icon.Copy.ClickUnFocus("Copy selected elements"))
+                    {
+                        cutPaste = false;
+                        copyOrMove = true;
+                    }
+
+                    if (icon.Cut.ClickUnFocus("Cut selected elements"))
+                    {
+                        cutPaste = true;
+                        copyOrMove = true;
+                    }
+
+                    if (copyOrMove)
+                    {
+                        listCopyBuffer = list;
+                        _copiedElements = listMeta != null ? listMeta.GetSelectedElements() : selectedEls.GetItAll();
+                    }
+                }
+
+
+                #endregion
+
+                #region Clean & Delete
+
+                if (list != listCopyBuffer)
+                {
+
+                    if ((listMeta == null || listMeta.allowDelete) && list.Count > 0)
+                    {
+                        var nullOrDestroyedCount = 0;
+
+                        for (var i = 0; i < list.Count; i++)
+                            if (list[i].IsNullOrDestroyed_Obj())
+                                nullOrDestroyedCount++;
+
+                        if (nullOrDestroyedCount > 0 && icon.Refresh.ClickUnFocus("Remove all null elements"))
+                        {
+                            for (var i = list.Count - 1; i >= 0; i--)
+                                if (list[i].IsNullOrDestroyed_Obj())
+                                    list.RemoveAt(i);
+
+                            SetSelected(listMeta, list, false);
+                        }
+                    }
+
+                    if ((listMeta == null || listMeta.allowDelete) && list.Count > 0)
+                    {
+                        if (selectedCount > 0 &&
+                            icon.Delete.ClickConfirm("delLstPegi", list, "Delete {0} Selected".F(selectedCount)))
+                        {
+                            if (listMeta == null)
+                            {
+                                for (var i = list.Count - 1; i >= 0; i--)
+                                    if (selectedEls[i])
+                                        list.RemoveAt(i);
+                            }
+                            else
+                                for (var i = list.Count - 1; i >= 0; i--)
+                                    if (listMeta.GetIsSelected(i))
+                                        list.RemoveAt(i);
+
+                            SetSelected(listMeta, list, false);
+
+                        }
+                    }
+                }
+
+                #endregion
+
+                if (listMeta != null && icon.Config.enter(ref listMeta.inspectListMeta))
+                    listMeta.Nested_Inspect();
+                else if (typeof(Object).IsAssignableFrom(typeof(T)) || !listCopyBuffer.IsNullOrEmptyCollection())
+                {
+                    "Allow Duplicants".toggle("Will add elements to the list even if they are already there", 120, ref duplicants)
+                        .changes(ref changed);
+
+                    if (listMeta != null)
+                        listMeta.allowDuplicants = duplicants;
+                    else allowDuplicants = duplicants;
+                }
+
+                return changed;
+            }
+
+            public bool edit_List_Order_Obj<T>(List<T> list, ListMetaData listMeta = null) where T : Object
+            {
+
+                var changed = collectionInspector.edit_List_Order(list, listMeta);
+
+                if (list != collectionInspector.reordering || listMeta == null) return changed;
+
+                if (!icon.Search.ClickUnFocus("Find objects by GUID")) return changed;
+
+                for (var i = 0; i < list.Count; i++)
+                    if (list[i] == null)
+                    {
+                        var dta = listMeta.elementDatas.TryGet(i);
+                        if (dta == null) continue;
+
+                        T tmp = null;
+                        if (dta.TryGetByGuid(ref tmp))
+                            list[i] = tmp;
+
+                    }
+
+                return changed;
+            }
+
+            private IList listCopyBuffer;
+
+            public object previouslyEntered;
+
+            public bool InspectClassInList<T>(List<T> list, int index, ref int inspected, ListMetaData listMeta = null) where T : class
+            {
+                var el = list[index];
+                var changed = false;
+
+                var pl = el as IPEGI_ListInspect;
+                var isPrevious = (listMeta != null && listMeta.previousInspected == index)
+                                 || (listMeta == null && collectionInspector.previouslyEntered != null && el == collectionInspector.previouslyEntered);
+
+                if (isPrevious)
+                    PreviousInspectedColor.SetBgColor();
+
+                if (pl != null)
+                {
+                    var chBefore = GUI.changed;
+                    if (pl.InspectInList(list, index, ref inspected).changes(ref changed) || (!chBefore && GUI.changed))
+                        pl.SetToDirty_Obj();
+
+                    if (changed || inspected == index)
+                        isPrevious = true;
 
                 }
                 else
                 {
 
-                    if (!cutPaste && icon.Paste.ClickUnFocus(same
-                            ? "Try to duplicate selected references"
-                            : "Try Add Deep Copy {0}".F(listCopyBuffer.GetNameForInspector())))
+                    if (el.IsNullOrDestroyed_Obj())
+                    {
+                        var ed = listMeta?[index];
+                        if (ed == null)
+                            "{0}: NULL {1}".F(index, typeof(T).ToPegiStringType()).write();
+                        else
+                        {
+                            var elObj = (object)el;
+                            if (ed.PEGI_inList<T>(ref elObj, index, ref inspected)) {
+                                isPrevious = true;
+                                list[index] = elObj as T;
+                            }
+
+                        }
+                    }
+                    else
                     {
 
-                        foreach (var e in _copiedElements)
+                        var uo = el as Object;
+
+                        var pg = el as IPEGI;
+
+                        var need = el as INeedAttention;
+                        var warningText = need?.NeedAttention();
+
+                        if (warningText != null)
+                            AttentionColor.SetBgColor();
+
+                        var clickHighlightHandled = false;
+
+                        var iind = el as IGotIndex;
+
+                        iind?.IndexForPEGI.ToString().write(20);
+
+                        var named = el as IGotName;
+                        if (named != null)
                         {
+                            var so = uo as ScriptableObject;
+                            var n = named.NameForPEGI;
 
-                            var el = listCopyBuffer.TryGetObj(e);
-
-                            if (el != null)
+                            if (so)
                             {
-
-                                var istd = el as ICfg;
-
-                                if (istd != null)
-                                    list.TryAdd(istd.CloneStd());
-                                else
-                                    list.TryAdd(JsonUtility.FromJson<T>(JsonUtility.ToJson(el)));
+                                if (editDelayed(ref n).changes(ref changed))
+                                {
+                                    so.RenameAsset(n);
+                                    named.NameForPEGI = n;
+                                    isPrevious = true;
+                                }
+                            }
+                            else if (edit(ref n).changes(ref changed))
+                            {
+                                named.NameForPEGI = n;
+                                isPrevious = true;
                             }
                         }
-                    }
-
-                    if (!same && cutPaste && icon.Move.ClickUnFocus("Try Move {0}".F(listCopyBuffer)))
-                        list.TryMoveCopiedElement(duplicants);
-                }
-
-            }
-            else if (selectedCount > 0)
-            {
-                var copyOrMove = false;
-
-                if (icon.Copy.ClickUnFocus("Copy selected elements"))
-                {
-                    cutPaste = false;
-                    copyOrMove = true;
-                }
-
-                if (icon.Cut.ClickUnFocus("Cut selected elements"))
-                {
-                    cutPaste = true;
-                    copyOrMove = true;
-                }
-
-                if (copyOrMove)
-                {
-                    listCopyBuffer = list;
-                    _copiedElements = listMeta != null ? listMeta.GetSelectedElements() : selectedEls.GetItAll();
-                }
-            }
-
-
-            #endregion
-
-            #region Clean & Delete
-
-            if (list != listCopyBuffer)
-            {
-
-                if ((listMeta == null || listMeta.allowDelete) && list.Count > 0)
-                {
-                    var nullOrDestroyedCount = 0;
-
-                    for (var i = 0; i < list.Count; i++)
-                        if (list[i].IsNullOrDestroyed_Obj())
-                            nullOrDestroyedCount++;
-
-                    if (nullOrDestroyedCount > 0 && icon.Refresh.ClickUnFocus("Remove all null elements"))
-                    {
-                        for (var i = list.Count - 1; i >= 0; i--)
-                            if (list[i].IsNullOrDestroyed_Obj())
-                                list.RemoveAt(i);
-
-                        SetSelected(listMeta, list, false);
-                    }
-                }
-
-                if ((listMeta == null || listMeta.allowDelete) && list.Count > 0)
-                {
-                    if (selectedCount > 0 &&
-                        icon.Delete.ClickConfirm("delLstPegi", list, "Delete {0} Selected".F(selectedCount)))
-                    {
-                        if (listMeta == null)
-                        {
-                            for (var i = list.Count - 1; i >= 0; i--)
-                                if (selectedEls[i])
-                                    list.RemoveAt(i);
-                        }
                         else
-                            for (var i = list.Count - 1; i >= 0; i--)
-                                if (listMeta.GetIsSelected(i))
-                                    list.RemoveAt(i);
+                        {
+                            if (!uo && pg == null && listMeta == null)
+                            {
+                                if (el.GetNameForInspector().ClickLabel(Msg.InspectElement.GetText(), RemainingLength(defaultButtonSize * 2 + 10)))
+                                {
+                                    inspected = index;
+                                    isPrevious = true;
+                                }
+                            }
+                            else
+                            {
 
-                        SetSelected(listMeta, list, false);
+                                if (uo)
+                                {
+                                    Texture tex = uo as Texture;
 
+                                    if (tex)
+                                    {
+                                        if (uo.ClickHighlight(tex))
+                                            isPrevious = true;
+
+                                        clickHighlightHandled = true;
+                                    }
+                                    else if (Try_NameInspect(uo).changes(ref changed))
+                                        isPrevious = true;
+
+
+                                }
+                                else if (el.GetNameForInspector().ClickLabel("Inspect", RemainingLength(defaultButtonSize * 2 + 10)).changes(ref changed))
+                                {
+                                    inspected = index;
+                                    isPrevious = true;
+                                }
+                            }
+                        }
+
+                        if ((warningText == null &&
+                             (listMeta == null ? icon.Enter : listMeta.icon).ClickUnFocus(Msg.InspectElement)) ||
+                            (warningText != null && icon.Warning.ClickUnFocus(warningText)))
+                        {
+                            inspected = index;
+                            isPrevious = true;
+                        }
+
+                        if (!clickHighlightHandled && uo.ClickHighlight())
+                            isPrevious = true;
                     }
                 }
-            }
 
-            #endregion
-
-            if (listMeta != null && icon.Config.enter(ref listMeta.inspectListMeta))
-                listMeta.Nested_Inspect();
-            else if (typeof(Object).IsAssignableFrom(typeof(T)) || !listCopyBuffer.IsNullOrEmptyCollection())
-            {
-                "Allow Duplicants".toggle("Will add elements to the list even if they are already there", 120, ref duplicants)
-                    .changes(ref changed);
+                RestoreBGcolor();
 
                 if (listMeta != null)
-                    listMeta.allowDuplicants = duplicants;
-                else allowDuplicants = duplicants;
-            }
-
-            return changed;
-        }
-
-        private static bool edit_List_Order_Obj<T>(this List<T> list, ListMetaData listMeta = null) where T : Object
-        {
-
-            var changed = list.edit_List_Order(listMeta);
-
-            if (list != editing_List_Order || listMeta == null) return changed;
-
-            if (!icon.Search.ClickUnFocus("Find objects by GUID")) return changed;
-
-            for (var i = 0; i < list.Count; i++)
-                if (list[i] == null)
                 {
-                    var dta = listMeta.elementDatas.TryGet(i);
-                    if (dta == null) continue;
-
-                    T tmp = null;
-                    if (dta.TryGetByGuid(ref tmp))
-                        list[i] = tmp;
+                    if (listMeta.inspected != -1)
+                        listMeta.previousInspected = listMeta.inspected;
+                    else if (isPrevious)
+                        listMeta.previousInspected = index;
 
                 }
+                else if (isPrevious)
+                    collectionInspector.previouslyEntered = el;
 
-            return changed;
+
+
+                return changed;
+            }
+
+            public bool isMonoType<T>(IList<T> list, int i)
+            {
+                if (!(typeof(MonoBehaviour)).IsAssignableFrom(typeof(T))) return false;
+
+                GameObject mb = null;
+                if (edit(ref mb))
+                {
+                    list[i] = mb.GetComponent<T>();
+                    if (list[i] == null) (typeof(T).ToString() + " Component not found").showNotificationIn3D_Views();
+                }
+                return true;
+
+            }
+
+            public bool ListAddNewClick<T>(List<T> list, ref T added, ListMetaData ld = null)
+            {
+
+                if (ld != null && !ld.allowCreate)
+                    return false;
+
+                if (!typeof(T).IsNew())
+                    return collectionInspector.ListAddEmptyClick(list, ld);
+
+                if ((typeof(T).TryGetClassAttribute<DerivedListAttribute>() != null || typeof(T).TryGetTaggedClasses() != null))
+                    return false;
+
+
+                string name = null;
+
+                var sd = ld == null ? pegi.searchData : ld.searchData;
+
+                if (sd.filteredList == list)
+                    name = sd.searchedText;
+
+                if (icon.Add.ClickUnFocus(Msg.AddNewCollectionElement.GetText() + (name.IsNullOrEmpty() ? "" : " Named {0}".F(name))))
+                {
+                    if (typeof(T).IsSubclassOf(typeof(Object)))
+                        list.Add(default(T));
+                    else
+                        added = name.IsNullOrEmpty() ? QcUtils.AddWithUniqueNameAndIndex(list) : QcUtils.AddWithUniqueNameAndIndex(list, name);
+
+                    SkrollToBottom();
+
+                    return true;
+                }
+
+                return false;
+            }
+
+            public bool ListAddEmptyClick<T>(IList<T> list, ListMetaData ld = null)
+            {
+
+                if (ld != null && !ld.allowCreate)
+                    return false;
+
+                if (!typeof(T).IsUnityObject() && (typeof(T).TryGetClassAttribute<DerivedListAttribute>() != null || typeof(T).TryGetTaggedClasses() != null))
+                    return false;
+
+                if (icon.Add.ClickUnFocus(Msg.AddNewCollectionElement.GetText()))
+                {
+                    list.Add(default(T));
+                    collectionInspector.SkrollToBottom();
+                    return true;
+                }
+                return false;
+            }
+
         }
 
-        private static IList listCopyBuffer;
 
-        private static object previouslyEntered;
+
+
+
 
         public static bool InspectValueInDictionary<K, T>(ref T el, Dictionary<K, T> dic, int index, ref int inspected, ListMetaData listMeta = null)
         {
@@ -8034,228 +8342,21 @@ namespace PlayerAndEditorGUI
 
             }
             else if (isPrevious)
-                previouslyEntered = el;
+                collectionInspector.previouslyEntered = el;
 
             return changed;
         }
 
-        private static bool InspectClassInList<T>(this object el, List<T> list, int index, ref int inspected, ListMetaData listMeta = null) where T : class
-        {
-            var changed = false;
+     
 
-            var pl = el as IPEGI_ListInspect;
+#endregion
 
-            var isPrevious = (listMeta != null && listMeta.previousInspected == index)
-                             || (listMeta == null && previouslyEntered != null && el == previouslyEntered);
-
-            if (isPrevious)
-                PreviousInspectedColor.SetBgColor();
-
-            if (pl != null)
-            {
-                var chBefore = GUI.changed;
-                if (pl.InspectInList(list, index, ref inspected).changes(ref changed) || (!chBefore && GUI.changed))
-                    pl.SetToDirty_Obj();
-
-                if (changed || inspected == index)
-                    isPrevious = true;
-
-            }
-            else
-            {
-
-                if (el.IsNullOrDestroyed_Obj())
-                {
-                    var ed = listMeta?[index];
-                    if (ed == null)
-                        "{0}: NULL {1}".F(index, typeof(T).ToPegiStringType()).write();
-                    else if (ed.PEGI_inList<T>(ref el, index, ref inspected))
-                        isPrevious = true;
-                }
-                else
-                {
-
-                    var uo = el as Object;
-
-                    var pg = el as IPEGI; //el.TryGet_fromObj<IPEGI>();
-
-                    if (pg != null)
-                        el = pg;
-
-                    var need = el as INeedAttention;
-                    var warningText = need?.NeedAttention();
-
-                    if (warningText != null)
-                        AttentionColor.SetBgColor();
-
-                    var clickHighlightHandled = false;
-
-                    var iind = el as IGotIndex;
-
-                    iind?.IndexForPEGI.ToString().write(20);
-
-                    var named = el as IGotName;
-                    if (named != null)
-                    {
-                        var so = uo as ScriptableObject;
-                        var n = named.NameForPEGI;
-
-                        if (so)
-                        {
-                            if (editDelayed(ref n).changes(ref changed))
-                            {
-                                so.RenameAsset(n);
-                                named.NameForPEGI = n;
-                                isPrevious = true;
-                            }
-                        }
-                        else if (edit(ref n).changes(ref changed))
-                        {
-                            named.NameForPEGI = n;
-                            isPrevious = true;
-                        }
-                    }
-                    else
-                    {
-                        if (!uo && pg == null && listMeta == null)
-                        {
-                            if (el.GetNameForInspector().ClickLabel(Msg.InspectElement.GetText(), RemainingLength(defaultButtonSize * 2 + 10)))
-                            {
-                                inspected = index;
-                                isPrevious = true;
-                            }
-                        }
-                        else
-                        {
-
-                            if (uo)
-                            {
-                                Texture tex = uo as Texture;
-
-                                if (tex)
-                                {
-                                    if (uo.ClickHighlight(tex))
-                                        isPrevious = true;
-
-                                    clickHighlightHandled = true;
-                                }
-                                else if (Try_NameInspect(uo).changes(ref changed))
-                                    isPrevious = true;
-
-
-                            }
-                            else if (el.GetNameForInspector().ClickLabel("Inspect", RemainingLength(defaultButtonSize * 2 + 10)).changes(ref changed))
-                            {
-                                inspected = index;
-                                isPrevious = true;
-                            }
-                        }
-                    }
-
-                    if ((warningText == null &&
-                         (listMeta == null ? icon.Enter : listMeta.icon).ClickUnFocus(Msg.InspectElement)) ||
-                        (warningText != null && icon.Warning.ClickUnFocus(warningText)))
-                    {
-                        inspected = index;
-                        isPrevious = true;
-                    }
-
-                    if (!clickHighlightHandled && uo.ClickHighlight())
-                        isPrevious = true;
-                }
-            }
-
-            RestoreBGcolor();
-
-            if (listMeta != null)
-            {
-                if (listMeta.inspected != -1)
-                    listMeta.previousInspected = listMeta.inspected;
-                else if (isPrevious)
-                    listMeta.previousInspected = index;
-
-            }
-            else if (isPrevious)
-                previouslyEntered = el;
-
-
-
-            return changed;
-        }
-
-        private static bool isMonoType<T>(IList<T> list, int i)
-        {
-            if (!(typeof(MonoBehaviour)).IsAssignableFrom(typeof(T))) return false;
-
-            GameObject mb = null;
-            if (edit(ref mb))
-            {
-                list[i] = mb.GetComponent<T>();
-                if (list[i] == null) (typeof(T).ToString() + " Component not found").showNotificationIn3D_Views();
-            }
-            return true;
-
-        }
-
-        private static bool ListAddNewClick<T>(this List<T> list, ref T added, ListMetaData ld = null)
-        {
-
-            if (ld != null && !ld.allowCreate)
-                return false;
-
-            if (!typeof(T).IsNew())
-                return list.ListAddEmptyClick(ld);
-
-            if ((typeof(T).TryGetClassAttribute<DerivedListAttribute>() != null || typeof(T).TryGetTaggedClasses() != null))
-                return false;
-
-
-            string name = null;
-
-            var sd = ld == null ? searchData : ld.searchData;
-
-            if (sd.filteredList == list)
-                name = sd.searchedText;
-
-            if (icon.Add.ClickUnFocus(Msg.AddNewCollectionElement.GetText() + (name.IsNullOrEmpty() ? "" : " Named {0}".F(name))))
-            {
-                if (typeof(T).IsSubclassOf(typeof(Object)))
-                    list.Add(default(T));
-                else
-                    added = name.IsNullOrEmpty() ? QcUtils.AddWithUniqueNameAndIndex(list) : QcUtils.AddWithUniqueNameAndIndex(list, name);
-
-
-                return true;
-            }
-
-            return false;
-        }
-
-        private static bool ListAddEmptyClick<T>(this List<T> list, ListMetaData ld = null)
-        {
-
-            if (ld != null && !ld.allowCreate)
-                return false;
-
-            if (!typeof(T).IsUnityObject() && (typeof(T).TryGetClassAttribute<DerivedListAttribute>() != null || typeof(T).TryGetTaggedClasses() != null))
-                return false;
-
-            if (icon.Add.ClickUnFocus(Msg.AddNewCollectionElement.GetText()))
-            {
-                list.Add(default(T));
-                return true;
-            }
-            return false;
-        }
-
-        #endregion
-
-        #region List of MonoBehaviour
+#region List of MonoBehaviour
 
 
         public static bool edit_List_MB<T>(this string label, ref List<T> list, ref int inspected) where T : MonoBehaviour
         {
-            label.write_Search_ListLabel(ref inspected, list);
+            collectionInspector.write_Search_ListLabel(label,ref inspected, list);
             var changed = false;
             edit_List_MB(ref list, ref inspected, ref changed).listLabel_Used();
             return changed;
@@ -8263,7 +8364,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_List_MB<T>(this ListMetaData metaDatas, ref List<T> list) where T : MonoBehaviour
         {
-            metaDatas.write_Search_ListLabel(list);
+            collectionInspector.write_Search_ListLabel(metaDatas, list);
             bool changed = false;
             edit_List_MB(ref list, ref metaDatas.inspected, ref changed, metaDatas).listLabel_Used();
             return changed;
@@ -8272,7 +8373,7 @@ namespace PlayerAndEditorGUI
         public static T edit_List_MB<T>(ref List<T> list, ref int inspected, ref bool changed, ListMetaData listMeta = null) where T : MonoBehaviour
         {
 
-            if (listIsNull(ref list))
+            if (collectionInspector.listIsNull(ref list))
                 return null;
 
             var added = default(T);
@@ -8285,17 +8386,17 @@ namespace PlayerAndEditorGUI
 
             if (inspected == -1)
             {
-                list.ListAddEmptyClick(listMeta).changes(ref changed);
+                collectionInspector.ListAddEmptyClick(list, listMeta).changes(ref changed);
 
                 if (listMeta != null && icon.Save.ClickUnFocus("Save GUID & Names data to ListMeta"))
                     listMeta.SaveElementDataFrom(list);
 
-                list.edit_List_Order_Obj(listMeta).changes(ref changed);
+                collectionInspector.edit_List_Order_Obj(list, listMeta).changes(ref changed);
 
-                if (list != editing_List_Order)
+                if (list != collectionInspector.reordering)
                 {
 
-                    foreach (var i in list.InspectionIndexes(listMeta))
+                    foreach (var i in collectionInspector.InspectionIndexes(list, listMeta))
                     {
 
                         var el = list[i];
@@ -8313,29 +8414,29 @@ namespace PlayerAndEditorGUI
                             }
                         }
                         else
-                            el.InspectClassInList(list, i, ref inspected, listMeta).changes(ref changed);
+                            collectionInspector.InspectClassInList(list, i, ref inspected, listMeta).changes(ref changed);
 
                         newLine();
                     }
                 }
                 else
-                    list.list_DropOption(listMeta);
+                    collectionInspector.list_DropOption(list,listMeta);
 
             }
-            else list.ExitOrDrawPEGI(ref inspected).changes(ref changed);
+            else collectionInspector.ExitOrDrawPEGI(list, ref inspected).changes(ref changed);
 
             newLine();
 
             return added;
         }
 
-        #endregion
+#endregion
 
-        #region List of ScriptableObjects
+#region List of ScriptableObjects
 
         public static T edit_List_SO<T>(this string label, ref List<T> list, ref int inspected, ref bool changed) where T : ScriptableObject
         {
-            label.write_Search_ListLabel(ref inspected, list);
+            collectionInspector.write_Search_ListLabel(label,ref inspected, list);
 
             return edit_List_SO(ref list, ref inspected, ref changed).listLabel_Used();
         }
@@ -8351,7 +8452,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_List_SO<T>(this string label, ref List<T> list, ref int inspected) where T : ScriptableObject
         {
-            label.write_Search_ListLabel(ref inspected, list);
+            collectionInspector.write_Search_ListLabel(label,ref inspected, list);
 
             var changed = false;
 
@@ -8362,7 +8463,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_List_SO<T>(this string label, ref List<T> list) where T : ScriptableObject
         {
-            label.write_Search_ListLabel(list);
+            collectionInspector.write_Search_ListLabel(label,list);
 
             var changed = false;
 
@@ -8375,7 +8476,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_List_SO<T>(this ListMetaData listMeta, ref List<T> list) where T : ScriptableObject
         {
-            write_Search_ListLabel(listMeta, list);
+            collectionInspector.write_Search_ListLabel(listMeta, list);
 
             var changed = false;
 
@@ -8386,7 +8487,7 @@ namespace PlayerAndEditorGUI
 
         public static T edit_List_SO<T>(ref List<T> list, ref int inspected, ref bool changed, ListMetaData listMeta = null) where T : ScriptableObject
         {
-            if (listIsNull(ref list))
+            if (collectionInspector.listIsNull(ref list))
                 return null;
 
             var added = default(T);
@@ -8398,16 +8499,16 @@ namespace PlayerAndEditorGUI
             if (inspected == -1)
             {
 
-                list.edit_List_Order_Obj(listMeta).changes(ref changed);
+                collectionInspector.edit_List_Order_Obj(list, listMeta).changes(ref changed);
 
-                list.ListAddEmptyClick(listMeta).changes(ref changed);
+                collectionInspector.ListAddEmptyClick(list, listMeta).changes(ref changed);
 
                 if (listMeta != null && icon.Save.ClickUnFocus("Save GUID & Names to ListMeta"))
                     listMeta.SaveElementDataFrom(list);
 
-                if (list != editing_List_Order)
+                if (list != collectionInspector.reordering)
                 {
-                    foreach (var i in list.InspectionIndexes(listMeta))
+                    foreach (var i in collectionInspector.InspectionIndexes(list, listMeta))
                     {
                         var el = list[i];
                         if (!el)
@@ -8417,31 +8518,31 @@ namespace PlayerAndEditorGUI
 
                         }
                         else
-                            el.InspectClassInList(list, i, ref inspected, listMeta).nl(ref changed);
+                            collectionInspector.InspectClassInList(list, i, ref inspected, listMeta).nl(ref changed);
 
                     }
 
                     if (typeof(T).TryGetDerivedClasses() != null)
-                        list.PEGI_InstantiateOptions_SO(ref added, listMeta).nl(ref changed);
+                        collectionInspector.PEGI_InstantiateOptions_SO(list, ref added, listMeta).nl(ref changed);
 
                     nl();
 
                 }
-                else list.list_DropOption(listMeta);
+                else collectionInspector.list_DropOption(list, listMeta);
             }
-            else list.ExitOrDrawPEGI(ref inspected).changes(ref changed);
+            else collectionInspector.ExitOrDrawPEGI(list, ref inspected).changes(ref changed);
 
             newLine();
             return added;
         }
 
-        #endregion
+#endregion
 
-        #region List of Unity Objects
+#region List of Unity Objects
 
         public static bool edit_List_UObj<T>(this string label, ref List<T> list, ref int inspected, List<T> selectFrom = null) where T : UnityEngine.Object
         {
-            label.write_Search_ListLabel(ref inspected, list);
+            collectionInspector.write_Search_ListLabel(label,ref inspected, list);
             return edit_or_select_List_UObj(ref list, selectFrom, ref inspected);
         }
 
@@ -8450,7 +8551,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_List_UObj<T>(this string label, ref List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object
         {
-            label.write_Search_ListLabel(list);
+            collectionInspector.write_Search_ListLabel(label,list);
             return list.edit_List_UObj(selectFrom).listLabel_Used();
         }
 
@@ -8462,13 +8563,13 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_List_UObj<T>(this ListMetaData listMeta, ref List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object
         {
-            listMeta.write_Search_ListLabel(list);
+            collectionInspector.write_Search_ListLabel(listMeta, list);
             return edit_or_select_List_UObj(ref list, selectFrom, ref listMeta.inspected, listMeta).listLabel_Used();
         }
 
         public static bool edit_or_select_List_UObj<T, G>(ref List<T> list, List<G> from, ref int inspected, ListMetaData listMeta = null) where T : G where G : UnityEngine.Object
         {
-            if (listIsNull(ref list))
+            if (collectionInspector.listIsNull(ref list))
                 return false;
 
             var changed = false;
@@ -8483,13 +8584,13 @@ namespace PlayerAndEditorGUI
                 if (listMeta != null && icon.Save.ClickUnFocus("Save GUID & Names to List MEta"))
                     listMeta.SaveElementDataFrom(list);
 
-                list.edit_List_Order(listMeta).changes(ref changed);
+                collectionInspector.edit_List_Order(list, listMeta).changes(ref changed);
 
-                if (list != editing_List_Order)
+                if (list != collectionInspector.reordering)
                 {
-                    list.ListAddEmptyClick(listMeta).changes(ref changed);
+                    collectionInspector.ListAddEmptyClick(list, listMeta).changes(ref changed);
 
-                    foreach (var i in list.InspectionIndexes(listMeta))
+                    foreach (var i in collectionInspector.InspectionIndexes(list, listMeta))
                     {
                         var el = list[i];
                         if (!el)
@@ -8501,35 +8602,35 @@ namespace PlayerAndEditorGUI
                                 list[i] = el;
                         }
                         else
-                            list[i].InspectClassInList(list, i, ref inspected, listMeta).changes(ref changed);
+                            collectionInspector.InspectClassInList(list, i, ref inspected, listMeta).changes(ref changed);
 
                         newLine();
                     }
                 }
                 else
-                    list.list_DropOption(listMeta);
+                    collectionInspector.list_DropOption(list, listMeta);
 
             }
-            else list.ExitOrDrawPEGI(ref inspected).changes(ref changed);
+            else collectionInspector.ExitOrDrawPEGI(list, ref inspected).changes(ref changed);
 
             newLine();
             return changed;
 
         }
 
-        #endregion
+#endregion
 
-        #region List of New()
+#region List of New()
 
         public static T edit<T>(this ListMetaData ld, ref List<T> list, ref bool changed)
         {
-            ld.write_Search_ListLabel(list);
+            collectionInspector.write_Search_ListLabel(ld, list);
             return edit_List(ref list, ref ld.inspected, ref changed, ld).listLabel_Used();
         }
 
         public static bool edit_List<T>(this string label, ref List<T> list, ref int inspected)
         {
-            label.write_Search_ListLabel(ref inspected, list);
+            collectionInspector.write_Search_ListLabel(label,ref inspected, list);
             return edit_List(ref list, ref inspected).listLabel_Used();
         }
 
@@ -8542,7 +8643,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_List<T>(this string label, ref List<T> list)
         {
-            label.write_Search_ListLabel(list);
+            collectionInspector.write_Search_ListLabel(label,list);
             return edit_List(ref list).listLabel_Used();
         }
 
@@ -8556,7 +8657,7 @@ namespace PlayerAndEditorGUI
 
         public static T edit_List<T>(this string label, ref List<T> list, ref bool changed)
         {
-            label.write_Search_ListLabel(list);
+            collectionInspector.write_Search_ListLabel(label,list);
             return edit_List(ref list, ref changed).listLabel_Used();
         }
 
@@ -8568,25 +8669,27 @@ namespace PlayerAndEditorGUI
 
         public static T edit_List<T>(this string label, ref List<T> list, ref int inspected, ref bool changed)
         {
-            label.write_Search_ListLabel(ref inspected, list);
+            collectionInspector.write_Search_ListLabel(label,ref inspected, list);
             return edit_List(ref list, ref inspected, ref changed).listLabel_Used();
         }
 
         public static bool edit_List<T>(this ListMetaData listMeta, ref List<T> list)
         {
 
-            write_Search_ListLabel(listMeta, list);
+            collectionInspector.write_Search_ListLabel(listMeta, list);
             var changed = false;
-            edit_List(ref list, ref listMeta.inspected, ref changed, listMeta).listLabel_Used();
+            edit_List(ref list, ref listMeta.inspected, ref changed, listMeta);
+            collectionInspector.listLabel_Used();
             return changed;
         }
 
         public static T edit_List<T>(this ListMetaData listMeta, ref List<T> list, ref bool changed)
         {
 
-            write_Search_ListLabel(listMeta, list);
-            return edit_List(ref list, ref listMeta.inspected, ref changed, listMeta).listLabel_Used();
-
+            collectionInspector.write_Search_ListLabel(listMeta, list);
+            var ret = edit_List(ref list, ref listMeta.inspected, ref changed, listMeta);
+            collectionInspector.listLabel_Used();
+            return ret;
         }
 
         public static T edit_List<T>(ref List<T> list, ref int inspected, ref bool changed, ListMetaData listMeta = null)
@@ -8611,20 +8714,20 @@ namespace PlayerAndEditorGUI
             if (inspected == -1)
             {
 
-                list.edit_List_Order(listMeta).changes(ref changed);
+                collectionInspector.edit_List_Order(list, listMeta).changes(ref changed);
 
-                if (list != editing_List_Order)
+                if (list != collectionInspector.reordering)
                 {
 
-                    list.ListAddNewClick(ref added, listMeta).changes(ref changed);
+                    collectionInspector.ListAddNewClick(list, ref added, listMeta).changes(ref changed);
 
-                    foreach (var i in list.InspectionIndexes(listMeta))
+                    foreach (var i in collectionInspector.InspectionIndexes(list, listMeta))
                     {
 
                         var el = list[i];
                         if (el.IsNullOrDestroyed_Obj())
                         {
-                            if (!isMonoType(list, i))
+                            if (!collectionInspector.isMonoType(list, i))
                             {
                                 write(typeof(T).IsSubclassOf(typeof(Object))
                                     ? "use edit_List_UObj"
@@ -8638,27 +8741,29 @@ namespace PlayerAndEditorGUI
                         newLine();
                     }
 
-                    list.PEGI_InstantiateOptions(ref added, listMeta).nl(ref changed);
+                    collectionInspector.PEGI_InstantiateOptions(list, ref added, listMeta).nl(ref changed);
                 }
             }
-            else list.ExitOrDrawPEGI(ref inspected).changes(ref changed);
+            else collectionInspector.ExitOrDrawPEGI(list,ref inspected).changes(ref changed);
 
             newLine();
             return added;
         }
 
-        #region Tagged Types
+#region Tagged Types
 
         public static T edit_List<T>(this ListMetaData listMeta, ref List<T> list, TaggedTypesCfg types, ref bool changed)
         {
-            write_Search_ListLabel(listMeta, list);
-            return edit_List(ref list, ref listMeta.inspected, types, ref changed, listMeta).listLabel_Used();
+            collectionInspector.write_Search_ListLabel(listMeta, list);
+            var ret = edit_List(ref list, ref listMeta.inspected, types, ref changed, listMeta);
+            collectionInspector.listLabel_Used();
+            return ret;
         }
 
         public static bool edit_List<T>(this ListMetaData listMeta, ref List<T> list, TaggedTypesCfg types)
         {
             bool changed = false;
-            write_Search_ListLabel(listMeta, list);
+            collectionInspector.write_Search_ListLabel(listMeta, list);
 
             edit_List(ref list, ref listMeta.inspected, types, ref changed, listMeta).listLabel_Used();
             return changed;
@@ -8666,7 +8771,7 @@ namespace PlayerAndEditorGUI
 
         public static T edit_List<T>(this string label, ref List<T> list, ref int inspected, TaggedTypesCfg types, ref bool changed)
         {
-            label.write_Search_ListLabel(ref inspected, list);
+            collectionInspector.write_Search_ListLabel(label,ref inspected, list);
             return edit_List(ref list, ref inspected, types, ref changed).listLabel_Used();
         }
 
@@ -8692,19 +8797,19 @@ namespace PlayerAndEditorGUI
             if (inspected == -1)
             {
 
-                changed |= list.edit_List_Order(listMeta);
+                changed |= collectionInspector.edit_List_Order(list, listMeta);
 
-                if (list != editing_List_Order)
+                if (list != collectionInspector.reordering)
                 {
 
-                    foreach (var i in list.InspectionIndexes(listMeta))
+                    foreach (var i in collectionInspector.InspectionIndexes(list,listMeta))
                     {
 
                         var el = list[i];
                         if (el == null)
                         {
 
-                            if (!isMonoType(list, i))
+                            if (!collectionInspector.isMonoType(list, i))
                             {
                                 write(typeof(T).IsSubclassOf(typeof(Object))
                                     ? "use edit_List_UObj"
@@ -8717,22 +8822,22 @@ namespace PlayerAndEditorGUI
                         newLine();
                     }
 
-                    list.PEGI_InstantiateOptions(ref added, types, listMeta).nl(ref changed);
+                    collectionInspector.PEGI_InstantiateOptions(list, ref added, types, listMeta).nl(ref changed);
                 }
             }
-            else list.ExitOrDrawPEGI(ref inspected).changes(ref changed);
+            else collectionInspector.ExitOrDrawPEGI(list, ref inspected).changes(ref changed);
 
             newLine();
             return added;
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region List by Lambda 
+#region List by Lambda 
 
-        #region SpecialLambdas
+#region SpecialLambdas
 
         private static IList listElementsRoles;
 
@@ -8756,7 +8861,7 @@ namespace PlayerAndEditorGUI
 
         private static string lambda_string_role(string val)
         {
-            var role = listElementsRoles.TryGetObj(InspectedIndex);
+            var role = listElementsRoles.TryGetObj(collectionInspector.Index);
             if (role != null)
                 role.GetNameForInspector().edit(90, ref val);
             else edit(ref val);
@@ -8773,7 +8878,7 @@ namespace PlayerAndEditorGUI
         private static T lambda_Obj_role<T>(T val) where T : UnityEngine.Object
         {
 
-            var role = listElementsRoles.TryGetObj(InspectedIndex);
+            var role = listElementsRoles.TryGetObj(collectionInspector.Index);
             if (!role.IsNullOrDestroyed_Obj())
                 role.GetNameForInspector().edit(90, ref val);
             else edit(ref val);
@@ -8801,18 +8906,18 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_List_WithRoles<T>(this string label, ref List<T> list, IList roles) where T : UnityEngine.Object
         {
-            label.write_Search_ListLabel(list);
+            collectionInspector.write_Search_ListLabel(label,list);
             listElementsRoles = roles;
             var ret = edit_List_UObj(ref list, lambda_Obj_role);
             listElementsRoles = null;
             return ret;
         }
 
-        #endregion
+#endregion
 
         public static T edit_List<T>(this string label, ref List<T> list, ref bool changed, Func<T, T> lambda) where T : new()
         {
-            label.write_Search_ListLabel(list);
+            collectionInspector.write_Search_ListLabel(label,list);
             return edit_List(ref list, ref changed, lambda).listLabel_Used();
         }
 
@@ -8821,17 +8926,17 @@ namespace PlayerAndEditorGUI
 
             var added = default(T);
 
-            if (listIsNull(ref list))
+            if (collectionInspector.listIsNull(ref list))
                 return added;
 
-            list.edit_List_Order().changes(ref changed);
+            collectionInspector.edit_List_Order(list).changes(ref changed);
 
-            if (list != editing_List_Order)
+            if (list != collectionInspector.reordering)
             {
 
-                list.ListAddNewClick(ref added).changes(ref changed);
+                collectionInspector.ListAddNewClick(list, ref added).changes(ref changed);
 
-                foreach (var i in list.InspectionIndexes())
+                foreach (var i in collectionInspector.InspectionIndexes(list))
                 {
                     var el = list[i];
 
@@ -8854,13 +8959,13 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_List<T>(this string label, ref List<T> list, Func<T, T> lambda) where T : new()
         {
-            label.write_Search_ListLabel(list);
+            collectionInspector.write_Search_ListLabel(label,list);
             return edit_List(ref list, lambda).listLabel_Used();
         }
 
         public static T edit_List<T>(this string label, ref List<T> list, Func<T, T> lambda, ref bool changed) where T : new()
         {
-            label.write_Search_ListLabel(list);
+            collectionInspector.write_Search_ListLabel(label,list);
             return edit_List(ref list, lambda, ref changed).listLabel_Used();
         }
 
@@ -8876,17 +8981,17 @@ namespace PlayerAndEditorGUI
         {
             var added = default(T);
 
-            if (listIsNull(ref list))
+            if (collectionInspector.listIsNull(ref list))
                 return added;
 
-            list.edit_List_Order().changes(ref changed);
+            collectionInspector.edit_List_Order(list).changes(ref changed);
 
-            if (list != editing_List_Order)
+            if (list != collectionInspector.reordering)
             {
 
-                list.ListAddNewClick(ref added).changes(ref changed);
+                collectionInspector.ListAddNewClick(list, ref added).changes(ref changed);
 
-                foreach (var i in list.InspectionIndexes())
+                foreach (var i in collectionInspector.InspectionIndexes(list))
                 {
                     var el = list[i];
                     var ch = GUI.changed;
@@ -8908,17 +9013,17 @@ namespace PlayerAndEditorGUI
 
             var changed = false;
 
-            if (listIsNull(ref list))
+            if (collectionInspector.listIsNull(ref list))
                 return changed;
 
-            list.edit_List_Order().changes(ref changed);
-
-            if (list != editing_List_Order)
+            collectionInspector.edit_List_Order(list).changes(ref changed);
+            //collectionInspector.
+            if (list != collectionInspector.reordering)
             {
 
-                list.ListAddEmptyClick().changes(ref changed);
+                collectionInspector.ListAddEmptyClick(list).changes(ref changed);
 
-                foreach (var i in list.InspectionIndexes())
+                foreach (var i in collectionInspector.InspectionIndexes(list))
                 {
                     var el = list[i];
                     var ch = GUI.changed;
@@ -8938,24 +9043,27 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_List(this string name, ref List<string> list, Func<string, string> lambda)
         {
-            name.write_Search_ListLabel(list);
+            collectionInspector.write_Search_ListLabel(name, list);
             return edit_List(ref list, lambda).listLabel_Used();
         }
 
         public static bool edit_List(ref List<string> list, Func<string, string> lambda)
         {
 
-            if (listIsNull(ref list))
+            if (collectionInspector.listIsNull(ref list))
                 return false;
 
-            var changed = list.edit_List_Order();
+            var changed = collectionInspector.edit_List_Order(list);
 
-            if (list != editing_List_Order)
+            if (list != collectionInspector.reordering)
             {
                 if (icon.Add.ClickUnFocus().changes(ref changed))
+                {
                     list.Add("");
+                    collectionInspector.SkrollToBottom();
+                }
 
-                foreach (var i in list.InspectionIndexes())
+                foreach (var i in collectionInspector.InspectionIndexes(list))
                 {
                     var el = list[i];
 
@@ -8974,13 +9082,13 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        #endregion
+#endregion
 
-        #region List of Not New()
+#region List of Not New()
 
         public static bool write_List<T>(this string label, List<T> list, Func<T, bool> lambda)
         {
-            label.write_Search_ListLabel(list);
+            collectionInspector.write_Search_ListLabel(label,list);
             return list.write_List(lambda).listLabel_Used();
 
         }
@@ -8996,7 +9104,7 @@ namespace PlayerAndEditorGUI
 
             var changed = false;
 
-            foreach (var i in list.InspectionIndexes())
+            foreach (var i in collectionInspector.InspectionIndexes(list))
                 lambda(list[i]).nl(ref changed);
 
             nl();
@@ -9007,14 +9115,14 @@ namespace PlayerAndEditorGUI
         public static bool write_List<T>(this string label, List<T> list)
         {
             var edited = -1;
-            label.write_Search_ListLabel(list);
+            collectionInspector.write_Search_ListLabel(label,list);
             return list.write_List<T>(ref edited).listLabel_Used();
         }
 
         public static bool write_List<T>(this string label, List<T> list, ref int inspected)
         {
             nl();
-            label.write_Search_ListLabel(ref inspected, list);
+            collectionInspector.write_Search_ListLabel(label,ref inspected, list);
 
             return list.write_List<T>(ref inspected).listLabel_Used();
         }
@@ -9046,18 +9154,18 @@ namespace PlayerAndEditorGUI
                 }
             }
             else
-                list.ExitOrDrawPEGI(ref edited).changes(ref changed);
+                collectionInspector.ExitOrDrawPEGI(list, ref edited).changes(ref changed);
 
 
             newLine();
             return changed;
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region Dictionaries
+#region Dictionaries
 
         public static bool editKey(ref Dictionary<int, string> dic, int key)
         {
@@ -9113,20 +9221,20 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_Dictionary_Values<G, T>(this string label, Dictionary<G, T> dic, ref int inspected)
         {
-            label.write_Search_ListLabel(ref inspected, dic);
+            collectionInspector.write_Search_ListLabel(label,ref inspected, dic);
             return edit_Dictionary_Values(dic, ref inspected);
         }
 
         public static bool edit_Dictionary_Values<G, T>(this ListMetaData listMeta, Dictionary<G, T> dic)
         {
-            listMeta.label.write_Search_ListLabel(ref listMeta.inspected, dic);
+            collectionInspector.write_Search_ListLabel(listMeta.label, ref listMeta.inspected, dic);
             return edit_Dictionary_Values(dic, ref listMeta.inspected, listMeta);
         }
 
         public static bool edit_Dictionary_Values<G, T>(this ListMetaData listMeta, Dictionary<G, T> dic, Func<T, T> lambda)
         {
 
-            listMeta.label.write_Search_ListLabel(ref listMeta.inspected, dic);
+            collectionInspector.write_Search_ListLabel(listMeta.label, ref listMeta.inspected, dic);
             return edit_Dictionary_Values(dic, lambda, listMeta: listMeta);
         }
 
@@ -9143,14 +9251,14 @@ namespace PlayerAndEditorGUI
             if (inspected == -1)
             {
 
-                foreach (var i in dic.InspectionIndexes(listMeta))
+                foreach (var i in collectionInspector.InspectionIndexes(dic, listMeta))
                 {
 
                     // for (int i = 0; i < dic.Count; i++)
                     //  {
                     var item = dic.ElementAt(i);
                     var itemKey = item.Key;
-                    InspectedIndex = i;
+                    collectionInspector.Index = i;
 
 
                     if ((listMeta == null || listMeta.allowDelete) && icon.Delete.ClickUnFocus(25).changes(ref changed))
@@ -9170,7 +9278,7 @@ namespace PlayerAndEditorGUI
                 }
             }
             else
-                dic.ExitOrDrawPEGI(ref inspected).changes(ref changed);
+                collectionInspector.ExitOrDrawPEGI(dic, ref inspected).changes(ref changed);
 
             newLine();
             return changed;
@@ -9178,20 +9286,20 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_Dictionary_Values(this string label, Dictionary<int, string> dic, List<string> roles)
         {
-            write_Search_ListLabel(label, dic);
+            collectionInspector.write_Search_ListLabel(label, dic);
             return edit_Dictionary_Values(dic, roles);
         }
 
         public static bool edit_Dictionary_Values(this ListMetaData listMeta, Dictionary<string, string> dic)
         {
 
-            listMeta.label.write_Search_ListLabel(ref listMeta.inspected, dic);
+            collectionInspector.write_Search_ListLabel(listMeta.label, ref listMeta.inspected, dic);
             return edit_Dictionary_Values(dic, lambda_string, listMeta: listMeta);
         }
 
         public static bool edit_Dictionary_Values(this string label, Dictionary<string, string> dic)
         {
-            write_Search_ListLabel(label, dic);
+            collectionInspector.write_Search_ListLabel(label, dic);
             return edit_Dictionary_Values(dic, lambda_string);
         }
 
@@ -9205,7 +9313,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_Dictionary_Values<G, T>(this string label, Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true, ListMetaData ld = null)
         {
-            write_Search_ListLabel(label, dic);
+            collectionInspector.write_Search_ListLabel(label, dic);
             return edit_Dictionary_Values(dic, lambda, showKey, ld);
         }
 
@@ -9247,13 +9355,13 @@ namespace PlayerAndEditorGUI
             else
             {
 
-                foreach (var i in dic.InspectionIndexes(listMeta))
+                foreach (var i in collectionInspector.InspectionIndexes(dic, listMeta))
                 {
 
                     var item = dic.ElementAt(i);
                     var itemKey = item.Key;
 
-                    InspectedIndex = i;
+                    collectionInspector.Index = i;
 
                     if ((listMeta == null || listMeta.allowDelete) && icon.Delete.ClickUnFocus(25).changes(ref changed))
                         dic.Remove(itemKey);
@@ -9284,7 +9392,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_Dictionary(this string label, ref Dictionary<int, string> dic)
         {
-            write_Search_ListLabel(label, dic);
+            collectionInspector.write_Search_ListLabel(label, dic);
             return edit_Dictionary(ref dic);
         }
 
@@ -9296,11 +9404,11 @@ namespace PlayerAndEditorGUI
             if (dicIsNull(ref dic))
                 return changed;
 
-            foreach (var i in dic.InspectionIndexes())
+            foreach (var i in collectionInspector.InspectionIndexes(dic))
             {
 
                 var e = dic.ElementAt(i);
-                InspectedIndex = e.Key;
+                collectionInspector.Index = e.Key;
 
                 if (icon.Delete.ClickUnFocus(20))
                     changed |= dic.Remove(e.Key);
@@ -9325,15 +9433,17 @@ namespace PlayerAndEditorGUI
         private static bool newElement(this Dictionary<int, string> dic)
         {
             bool changed = false;
-            newLine();
-            "______New [Key, Value]".nl();
-            changed |= edit(ref newEnumKey, 50);
-            changed |= edit(ref newEnumName);
-            string dummy;
-            bool isNewIndex = !dic.TryGetValue(newEnumKey, out dummy);
-            bool isNewValue = !dic.ContainsValue(newEnumName);
+            nl();
 
-            if ((isNewIndex) && (isNewValue) && (icon.Add.ClickUnFocus(Msg.AddNewCollectionElement, 25).changes(ref changed)))
+            "______New [Key, Value]".nl();
+            edit(ref newEnumKey, 50).changes(ref changed);
+            edit(ref newEnumName).changes(ref changed);
+
+            string dummy;
+            var isNewIndex = !dic.TryGetValue(newEnumKey, out dummy);
+            var isNewValue = !dic.ContainsValue(newEnumName);
+
+            if (isNewIndex && isNewValue && icon.Add.ClickUnFocus(Msg.AddNewCollectionElement, 25).changes(ref changed))
             {
                 dic.Add(newEnumKey, newEnumName);
                 newEnumKey = 1;
@@ -9346,27 +9456,27 @@ namespace PlayerAndEditorGUI
             if (!isNewIndex)
                 "Index Takken by {0}".F(dummy).write();
             else if (!isNewValue)
-                write("Value already assigned ");
+                "Value already assigned ".write();
 
             newLine();
 
             return changed;
         }
 
-        #endregion
+#endregion
 
-        #region Arrays
+#region Arrays
 
         public static bool edit_Array<T>(this string label, ref T[] array)
         {
             int inspected = -1;
-            label.write_Search_ListLabel(array);
+            collectionInspector.write_Search_ListLabel(label,array);
             return edit_Array(ref array, ref inspected).listLabel_Used();
         }
 
         public static bool edit_Array<T>(this string label, ref T[] array, ref int inspected)
         {
-            label.write_Search_ListLabel(ref inspected, array);
+            collectionInspector.write_Search_ListLabel(label,ref inspected, array);
             return edit_Array(ref array, ref inspected).listLabel_Used();
         }
 
@@ -9393,21 +9503,24 @@ namespace PlayerAndEditorGUI
             else
             {
 
-                ExitOrDrawPEGI(array, ref inspected).changes(ref changed);
+                collectionInspector.ExitOrDrawPEGI(array, ref inspected).changes(ref changed);
 
                 if (inspected != -1) return added;
 
                 if (!typeof(T).IsNew())
                 {
                     if (icon.Add.ClickUnFocus(Msg.AddEmptyCollectionElement))
+                    {
                         array = array.ExpandBy(1);
+                        collectionInspector.SkrollToBottom();
+                    }
                 }
                 else if (icon.Create.ClickUnFocus(Msg.AddNewCollectionElement))
                     QcSharp.AddAndInit(ref array, 1);
 
-                edit_Array_Order(ref array, metaDatas).nl(ref changed);
+                collectionInspector.edit_Array_Order(ref array, metaDatas).nl(ref changed);
 
-                if (array == _editingArrayOrder) return added;
+                if (array == collectionInspector._editingArrayOrder) return added;
 
                 for (var i = 0; i < array.Length; i++)
                 {
@@ -9421,9 +9534,9 @@ namespace PlayerAndEditorGUI
             return added;
         }
 
-        #endregion
+#endregion
 
-        #region Transform
+#region Transform
 
         private static bool _editLocalSpace = false;
         public static bool PEGI_CopyPaste(this Transform tf, ref bool editLocalSpace)
@@ -9484,9 +9597,9 @@ namespace PlayerAndEditorGUI
         }
         public static bool inspect(this Transform tf) => tf.inspect(_editLocalSpace);
 
-        #endregion
+#endregion
 
-        #region Inspect Name
+#region Inspect Name
 
         public static bool Try_NameInspect(object obj, string label = "", string tip = "")
         {
@@ -9560,9 +9673,9 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        #endregion
+#endregion
 
-        #region Searching
+#region Searching
 
         public static bool SearchMatch_ObjectList(this IEnumerable list, string searchText) => list.Cast<object>().Any(e => Try_SearchMatch_Obj(e, searchText));
 
@@ -9694,6 +9807,8 @@ namespace PlayerAndEditorGUI
 
             private int focusOnSearchBarIn;
 
+            public void CloseSearch() => filteredList = null;
+
             public void ToggleSearch(IEnumerable ld, string label = "")
             {
 
@@ -9707,7 +9822,7 @@ namespace PlayerAndEditorGUI
                 if (active && icon.FoldedOut.ClickUnFocus("{0} {1} {2}".F(icon.Hide.GetText(), icon.Search.GetText(), ld), 20).changes(ref changed))
                     active = false;
 
-                if (!active && ld != editing_List_Order &&
+                if (!active && ld != collectionInspector.reordering &&
                     (icon.Search
                         .ClickUnFocus("{0} {1}".F(icon.Search.GetText(), label.IsNullOrEmpty() ? ld.ToString() : label), 20) || KeyCode.DownArrow.IsDown())
                         .changes(ref changed))
@@ -9796,10 +9911,10 @@ namespace PlayerAndEditorGUI
 
         }
 
-        #endregion
+#endregion
 
 
-        #region Inspect Extensions
+#region Inspect Extensions
         public static bool Nested_Inspect(InspectionDelegate function)
         {
             var changed = false;
@@ -10157,9 +10272,9 @@ namespace PlayerAndEditorGUI
 
         private static bool IsDefaultOrNull<T>(this T obj) => (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
 
-        #endregion
+#endregion
 
-        #region Inspect Utils
+#region Inspect Utils
         public static T GetByIGotIndex<T>(this List<T> lst, int index) where T : IGotIndex
         {
             if (lst != null)
@@ -10323,7 +10438,7 @@ namespace PlayerAndEditorGUI
 #endif
         }
 
-        #endregion
+#endregion
 
     }
 

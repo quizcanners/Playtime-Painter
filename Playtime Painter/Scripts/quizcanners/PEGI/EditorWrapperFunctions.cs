@@ -1086,6 +1086,8 @@ namespace PlayerAndEditorGUI
 
         #region Property
 
+     
+
         public static bool edit_Property<T>(int width, Expression<Func<T>> memberExpression, UnityEngine.Object obj, bool includeChildren)
         {
             var changes = false;
@@ -1443,14 +1445,14 @@ namespace PlayerAndEditorGUI
         private static TaggedTypesCfg _currentTaggedTypes;
         private static ListMetaData _listMetaData;
 
-        private static bool GetIsSelected(int ind) => (_listMetaData != null) ? _listMetaData.GetIsSelected(ind) : pegi.selectedEls[ind];
+        private static bool GetIsSelected(int ind) => (_listMetaData != null) ? _listMetaData.GetIsSelected(ind) : pegi.Getselected(ind);
 
         private static void SetIsSelected(int ind, bool val)
         {
             if (_listMetaData != null)
                 _listMetaData.SetIsSelected(ind, val);
             else
-                pegi.selectedEls[ind] = val;
+                pegi.SetSelected(ind, val);
         }
 
         public static bool reorder_List<T>(List<T> l, ListMetaData metas)
@@ -1474,7 +1476,7 @@ namespace PlayerAndEditorGUI
                 _currentReorderedType = typeof(T);
                 _currentReorderedList = l;
                 if (metas == null)
-                    pegi.selectedEls.Clear();
+                    pegi.UnselectAll();
 
             }
 

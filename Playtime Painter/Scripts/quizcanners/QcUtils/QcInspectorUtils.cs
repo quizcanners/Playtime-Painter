@@ -177,7 +177,7 @@ namespace QuizCannersUtilities
             return !onlyIfNew || !list.Contains(conv);
         }
 
-        private static void AssignUniqueIndex<T>(List<T> list, T el)
+        private static void AssignUniqueIndex<T>(IList<T> list, T el)
         {
             var ind = el as IGotIndex;
             if (ind == null) return;
@@ -193,12 +193,12 @@ namespace QuizCannersUtilities
 
         }
 
-        public static T AddWithUniqueNameAndIndex<T>(List<T> list) => AddWithUniqueNameAndIndex(list, "New " + typeof(T).ToPegiStringType());
+        public static T AddWithUniqueNameAndIndex<T>(IList<T> list) => AddWithUniqueNameAndIndex(list, "New " + typeof(T).ToPegiStringType());
 
-        public static T AddWithUniqueNameAndIndex<T>(List<T> list, string name) =>
+        public static T AddWithUniqueNameAndIndex<T>(IList<T> list, string name) =>
             AddWithUniqueNameAndIndex(list, (T)Activator.CreateInstance(typeof(T)), name);
 
-        public static T AddWithUniqueNameAndIndex<T>(List<T> list, T e, string name)
+        public static T AddWithUniqueNameAndIndex<T>(IList<T> list, T e, string name)
         {
             AssignUniqueIndex(list, e);
             list.Add(e);
@@ -209,7 +209,7 @@ namespace QuizCannersUtilities
             return e;
         }
 
-        private static void AssignUniqueNameIn<T>(this T el, IReadOnlyCollection<T> list)
+        private static void AssignUniqueNameIn<T>(this T el, IList<T> list)
         {
 
             var named = el as IGotName;
