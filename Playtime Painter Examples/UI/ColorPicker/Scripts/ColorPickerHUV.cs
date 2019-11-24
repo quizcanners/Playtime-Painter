@@ -66,7 +66,7 @@ namespace PlaytimePainter.Examples {
                     float V;
                     Color.RGBToHSV(col, out H, out S, out V);
 
-                    if (!H.IsNaN()) {
+                    if (!float.IsNaN(H)) {
                         hue = H;
                         Saturation = S;
                         Value = V;
@@ -88,7 +88,7 @@ namespace PlaytimePainter.Examples {
         public override bool UpdateFromUV(Vector2 clickUV) {
             var tmp = (((clickUV.YX() - 0.5f * Vector2.one).Angle() + 360) % 360) / 360f;
 
-            if (!tmp.IsNaN()) {
+            if (!float.IsNaN(tmp)) {
                 hue = tmp;
                 UpdateBrushColor();
             }

@@ -236,6 +236,18 @@ namespace QuizCannersUtilities {
 
         #region List Management
 
+        public static List<T> TryAdd<T>(this List<T> list, object ass, bool onlyIfNew = true)
+        {
+
+            T toAdd;
+
+            if (list.CanAdd(ref ass, out toAdd, onlyIfNew))
+                list.Add(toAdd);
+
+            return list;
+
+        }
+
         public static List<string> TryAddIfNewAndNotAmpty(this List<string> lst, string text) {
             if (!text.IsNullOrEmpty() && (lst.IndexOf(text) == -1))
                 lst.Add(text);

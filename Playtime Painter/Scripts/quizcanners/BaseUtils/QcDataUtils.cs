@@ -219,7 +219,6 @@ namespace QuizCannersUtilities
 #endif
             }
 
-
             #region Json
 
             public static bool LoadJsonFromUnityObjectOverride<T, G>(T target, G jsonFile) where G : UnityEngine.Object
@@ -289,53 +288,6 @@ namespace QuizCannersUtilities
             }
 
             #endregion
-
-            /*
-            public static bool LoadResource<T>(string pathNdName, ref T arrangement)
-            {
-                #if UNITY_EDITOR
-                var path = Application.dataPath + "/Resources/" + pathNdName + QcFile.SaveUtils.bytesFileType;
-    
-                if (File.Exists(path))
-                {
-                    try
-                    {
-                        using (var file = File.Open(path, FileMode.Open))
-                            arrangement = (T) Formatter.Deserialize(file);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.Log(path + "is Busted !" + ex);
-                        return false;
-                    }
-    
-                    return true;
-                }
-    
-                Debug.Log(path + " not found");
-                return false;
-            #else
-            {
-                var asset = Resources.Load(pathNdName) as TextAsset;
-    
-            try {
-                    if (asset != null) {
-                       
-                        using (var ms = new MemoryStream(asset.bytes)) 
-                            arrangement = (T)Formatter.Deserialize(ms);
-                        
-                        return true;
-                    }
-                    
-                    return false;
-                    
-                } finally{
-                 Resources.UnloadAsset(asset);
-                }
-            }
-            #endif
-     
-            }*/
 
             public static bool LoadBytesFrom<T>(string path, string name, ref T dta)
             {
@@ -419,16 +371,10 @@ namespace QuizCannersUtilities
             }
         }
 
-        public class SaveUtils
-        {
-
-      
-
+        public class SaveUtils {
+            
             private static readonly BinaryFormatter Formatter = new BinaryFormatter();
-
-
-
-
+            
             #region Assets
             public static void SaveAsset(UnityEngine.Object obj, string folder, string extension, bool refreshAfter = false)
             {

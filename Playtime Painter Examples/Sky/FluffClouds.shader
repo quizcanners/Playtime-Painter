@@ -184,6 +184,7 @@
 
 					BleedAndBrightness(col, 1, v);
 
+					col.a = 1;
 			
 					return col;
 				}

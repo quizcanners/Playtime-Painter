@@ -355,7 +355,7 @@ namespace QuizCannersUtilities {
         }
         #endregion
 
-        public StdExplorerData explorer = new StdExplorerData();
+        public ICfgObjectExplorer explorer = new ICfgObjectExplorer();
 
         #region Inspector
  
@@ -373,7 +373,7 @@ namespace QuizCannersUtilities {
         [SerializeField] public int inspectedItems = -1;
         private int _inspectedDebugItems = -1;
         [SerializeField] private int inspectedReference = -1;
-        EncodedJsonInspector  _jsonInspector = new EncodedJsonInspector();
+      
 
         public virtual bool Inspect()
         {
@@ -411,10 +411,6 @@ namespace QuizCannersUtilities {
             if (("Unrecognized Tags: " + UnrecognizedStd.Count).enter(ref _inspectedDebugItems, 2).nl_ifNotEntered())
                 UnrecognizedStd.Nested_Inspect(ref changed);
 
-            if ("Json Inspector ".enter(ref _inspectedDebugItems, 3).nl())
-                _jsonInspector.Nested_Inspect().nl(ref changed);
-            
-
             if (inspectedItems == -1)
                 pegi.nl();
 
@@ -442,7 +438,7 @@ namespace QuizCannersUtilities {
 #if !UNITY_EDITOR
         [NonSerialized]
         #endif
-        private readonly StdExplorerData _explorer = new StdExplorerData();
+        private readonly ICfgObjectExplorer _explorer = new ICfgObjectExplorer();
         
         public override CfgEncoder Encode() => this.EncodeUnrecognized();
 
@@ -478,7 +474,7 @@ namespace QuizCannersUtilities {
 #if !UNITY_EDITOR
         [NonSerialized]
 #endif
-        public StdExplorerData explorer = new StdExplorerData();
+        public ICfgObjectExplorer explorer = new ICfgObjectExplorer();
 
         #region Inspector
 
@@ -542,7 +538,7 @@ namespace QuizCannersUtilities {
             
             "{0} Debug ".F(this.GetNameForInspector()).nl();
 
-            if (("Cfg Saves: " + explorer.states.Count).enter(ref _inspectedDebugItems, 0).nl())
+            if (("Cfg Saves: " + explorer.CountForInspector()).enter(ref _inspectedDebugItems, 0).nl())
                 explorer.Inspect(this);
 
             if (inspectedItems == -1)
@@ -635,7 +631,7 @@ namespace QuizCannersUtilities {
             if (!data.Contains(StdStart)) return data;
             
             var start = data.IndexOf(StdStart, StringComparison.Ordinal) + StdStart.Length;
-            var end = data.IndexOf(StdEnd, StringComparison.Ordinal);
+            var end = data.LastIndexOf(StdEnd, StringComparison.Ordinal);
 
             data = data.Substring(start, end - start);
                 

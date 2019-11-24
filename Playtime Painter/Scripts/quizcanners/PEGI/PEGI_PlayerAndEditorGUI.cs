@@ -7311,7 +7311,9 @@ namespace PlayerAndEditorGUI
                 if (!_searching)
                     _sectionStartIndex = _count - _sectionSizeOptimal;
                 else 
-                    _sectionStartIndex = Mathf.Max(0, flst.Count - _sectionSizeOptimal);
+                    _sectionStartIndex = flst.Count - _sectionSizeOptimal;
+
+                _sectionStartIndex = Mathf.Max(0, _sectionStartIndex);
 
                 _scrollDownRequested = false;
             }
@@ -7348,6 +7350,12 @@ namespace PlayerAndEditorGUI
 
                 if (!inspecting)
                     pegi.searchData.ToggleSearch(lst, label);
+                else{
+                    exitOptionHandled = true;
+                    if (icon.List.ClickUnFocus("{0} [1]".F(Msg.ReturnToCollection.GetText(), lst.Count)))
+                        inspected = -1;
+
+                }
 
                 if (lst != null && inspected >= 0 && lst.Count > inspected)
                     label = "{0}->{1}".F(label, lst.ElementAt(inspected).GetNameForInspector());
@@ -7375,9 +7383,19 @@ namespace PlayerAndEditorGUI
                 }
                 else currentListLabel = (lst == null || lst.Count < 6) ? ld.label : ld.label.AddCount(lst, true);
 
+
+                if (ld.Inspecting)
+                {
+                    exitOptionHandled = true; 
+                    if (icon.List.ClickUnFocus("{0} {1} [2]".F(Msg.ReturnToCollection.GetText(), currentListLabel, lst.Count)))
+                        ld.Inspecting = false;
+                }
+
                 if (currentListLabel.ClickLabel(ld.label, RemainingLength(defaultButtonSize * 2 + 10), PEGI_Styles.ListLabel) && ld.inspected != -1)
                     ld.inspected = -1;
             }
+
+            private bool exitOptionHandled;
 
             public bool ExitOrDrawPEGI<T>(T[] array, ref int index, ListMetaData ld = null)
             {
@@ -7385,15 +7403,19 @@ namespace PlayerAndEditorGUI
 
                 if (index >= 0)
                 {
-                    if (array == null || index >= array.Length || icon.List.ClickUnFocus("Return to {0} array".F(GetCurrentListLabel<T>(ld))).nl())
+                    if (!exitOptionHandled && (array == null || index >= array.Length || icon.List.ClickUnFocus("Return to {0} array".F(GetCurrentListLabel<T>(ld))).nl()))
                         index = -1;
                     else
                     {
+                        nl();
+
                         object obj = array[index];
                         if (Nested_Inspect(ref obj).changes(ref changed))
                             array[index] = (T)obj;
                     }
                 }
+
+                exitOptionHandled = false;
 
                 return changed;
             }
@@ -7402,10 +7424,11 @@ namespace PlayerAndEditorGUI
             {
                 var changed = false;
 
-                if (icon.List.ClickUnFocus("{0}[{1}] of {2}".F(Msg.ReturnToCollection.GetText(), dic.Count, GetCurrentListLabel<T>(ld))).nl())
+                if (!exitOptionHandled && icon.List.ClickUnFocus("{0}[{1}] of {2}".F(Msg.ReturnToCollection.GetText(), dic.Count, GetCurrentListLabel<T>(ld))).nl())
                     index = -1;
                 else
                 {
+                    nl();
 
                     var item = dic.ElementAt(index);
                     var key = item.Key;
@@ -7415,6 +7438,8 @@ namespace PlayerAndEditorGUI
                         dic[key] = (T)obj;
                 }
 
+                exitOptionHandled = false;
+
                 return changed;
             }
 
@@ -7422,14 +7447,18 @@ namespace PlayerAndEditorGUI
             {
                 var changed = false;
 
-                if (icon.List.ClickUnFocus("{0}[{1}] of {2}".F(Msg.ReturnToCollection.GetText(), list.Count, GetCurrentListLabel<T>(ld))).nl())
+                if (!exitOptionHandled && icon.List.ClickUnFocus("{0}[{1}] of {2}".F(Msg.ReturnToCollection.GetText(), list.Count, GetCurrentListLabel<T>(ld))).nl())
                     index = -1;
                 else
                 {
+                    nl();
+
                     object obj = list[index];
                     if (Nested_Inspect(ref obj).changes(ref changed))
                         list[index] = (T)obj;
                 }
+
+                exitOptionHandled = false;
 
                 return changed;
             }

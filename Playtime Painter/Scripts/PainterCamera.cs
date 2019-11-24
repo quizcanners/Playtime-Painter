@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Collections;
 using QuizCannersUtilities;
 using PlayerAndEditorGUI;
 
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
+
 #endif
 
 namespace PlaytimePainter {
@@ -39,8 +41,8 @@ namespace PlaytimePainter {
 
         public static readonly MeshManager MeshManager = new MeshManager();
 
-        public static readonly QcUtils.TextureDownloadManager DownloadManager = new QcUtils.TextureDownloadManager();
-
+        public static readonly TextureDownloadManager DownloadManager = new TextureDownloadManager();
+        
         public AnimationCurve tmpCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(0.5f, 0.5f), new Keyframe(1, 1));
         
         #region Painter Data
@@ -188,8 +190,6 @@ namespace PlaytimePainter {
             }
         }
         
-        
-
         [SerializeField] private Camera painterCamera;
 
         public RenderTexture TargetTexture
@@ -845,6 +845,8 @@ namespace PlaytimePainter {
             if (GlobalBrush.previewDirty)
                 SHADER_BRUSH_UPDATE();
 
+            QcAsync.UpdateManagedCoroutines();
+
             PlaytimePainter uiPainter = null;
 
             MeshManager.CombinedUpdate();
@@ -924,12 +926,12 @@ namespace PlaytimePainter {
         }
 
         private int _inspectedDependecy = -1;
-
+        
         public bool DependenciesInspect(bool showAll = false) {
 
             var changed = false;
 
-
+          
 
             if (showAll)
             {
@@ -956,6 +958,10 @@ namespace PlaytimePainter {
                     return changed;
                 }
 
+
+                if ("Inspector & Debug".enter(ref _inspectedDependecy, 2).nl())
+                    QcUtils.InspectInspector();
+                
                 if (_inspectedDependecy == -1)
                 {
 
@@ -976,6 +982,9 @@ namespace PlaytimePainter {
               
 
             }
+
+            bool showOthers = showAll && _inspectedDependecy == -1;
+
 #if UNITY_EDITOR
             if (!Data)  {
                 pegi.nl();
@@ -1003,7 +1012,7 @@ namespace PlaytimePainter {
             }
             #endif
 
-            if (showAll || !RenderTextureBuffersManager.GotPaintingBuffers)
+            if (showOthers || !RenderTextureBuffersManager.GotPaintingBuffers)
                 (RenderTextureBuffersManager.GotPaintingBuffers ? "No buffers" : "Using HDR buffers " + ((!FrontBuffer) ? "uninitialized" : "initialized")).nl();
             
             if (!painterCamera) {
@@ -1016,7 +1025,7 @@ namespace PlaytimePainter {
 
             bool depthAsMain = depthCamera && (depthCamera == MainCamera);
 
-            if (showAll || !MainCamera || depthAsMain) {
+            if (showOthers || !MainCamera || depthAsMain) {
                 pegi.nl();
 
                 var cam = MainCamera;

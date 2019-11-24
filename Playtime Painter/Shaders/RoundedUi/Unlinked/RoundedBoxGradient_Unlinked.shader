@@ -56,9 +56,10 @@
 					float4 projPos : TEXCOORD1;
 					float4 precompute : TEXCOORD2;
 					float4 offUV : TEXCOORD3;
+					float4 screenPos :	TEXCOORD5;
 #if FADE
 					float4 fade : TEXCOORD4;
-					float4 screenPos :	TEXCOORD5;
+					
 #endif
 					float4 color: COLOR;
 				};
@@ -81,8 +82,10 @@
 					o.projPos.xy =		v.normal.xy;
 					o.projPos.zw =		max(0, float2(v.texcoord1.x, -v.texcoord1.x));
 
-					#if FADE
 					o.screenPos = ComputeScreenPos(o.pos);
+
+					#if FADE
+					
 					o.fade = float4(v.texcoord2.xy, v.texcoord3.xy);
 					#endif
 
@@ -176,9 +179,11 @@
 
 					col.a *= alpha;
 
+					float2 sUV = o.screenPos.xy / o.screenPos.w;
+
 					#if FADE
 
-							float2 sUV = o.screenPos.xy / o.screenPos.w;
+							
 
 							float edge =  1-
 								saturate((sUV.x - o.fade.x) * _FadeEdge)
@@ -196,7 +201,7 @@
 
 
 					#if USE_NOISE_TEXTURE
-							float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(o.texcoord.xy * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
+							float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(sUV * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
 						#ifdef UNITY_COLORSPACE_GAMMA
 							col.rgb += (noise.rgb - 0.5)*0.02*(3 - col.a * 2);;
 						#else

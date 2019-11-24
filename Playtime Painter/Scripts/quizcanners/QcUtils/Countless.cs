@@ -12,11 +12,6 @@ namespace QuizCannersUtilities {
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 
-
-    public interface ICountlessIndex
-    {
-        int CountlessIndex { get; set; }
-    }
     
     public abstract class CountlessBase : IPEGI, IGotCount {
         private static VariableBranch[] _branchPool = new VariableBranch[32];
@@ -43,15 +38,13 @@ namespace QuizCannersUtilities {
         protected static void DiscardBranch(VariableBranch b, int no)
         {
             if ((_brPoolMax + 1) >= _branchPool.Length)
-            {
                 _branchPool = _branchPool.ExpandBy(32);
-            }
-            //Debug.Log("Deleting branch ");
+            
             _branchPool[_brPoolMax] = b.br[no];
             VariableBranch vb = _branchPool[_brPoolMax];
             if (vb.value != 0)
-                Debug.Log("Value is " + vb.value + " on delete ");
-            //vb.value = 0;
+                Debug.LogError("Value is " + vb.value + " on delete ");
+
             b.value--;
             b.br[no] = null;
             _brPoolMax++;
@@ -60,7 +53,6 @@ namespace QuizCannersUtilities {
         {
             while ((br.value < 2) && (br.br[0] != null) && (depth > 0))
             {
-                // if (br.value < 1) Debug.Log("Reducing depth on branch with " + br.value);
                 _branchPool[_brPoolMax] = br;
                 _brPoolMax++;
                 var tmp = br.br[0];
@@ -69,8 +61,6 @@ namespace QuizCannersUtilities {
                 br = tmp;
                 depth--;
                 max /= BranchSize;
-
-                // Debug.Log("Reducing depth to " + depth + " new Range: " + Max);
             }
         }
 
@@ -101,12 +91,12 @@ namespace QuizCannersUtilities {
             {
                 var vb = new VariableBranch() {
                     br = new VariableBranch[BranchSize]
-            };
-                //Debug.Log("Creating new branch ");
+                };
+
                 return vb;
             }
+
             _brPoolMax--;
-            //Debug.Log("Returning existing branch");
             return _branchPool[_brPoolMax];
         }
      
@@ -117,12 +107,12 @@ namespace QuizCannersUtilities {
             if (_frPoolMax == 0)
             {
                 var vb = new VariableBranch();
-                //   Debug.Log("Creating new fruit ");
+
                 return vb;
             }
             _frPoolMax--;
             count++;
-            // Debug.Log("Returning existing fruit");
+
             return _fruitPool[_frPoolMax];
         }
 
@@ -161,8 +151,7 @@ namespace QuizCannersUtilities {
             max = BranchSize;
             br = GetNewBranch();
         }
-
-      //  public delegate void VariableTreeFunk(ref int dst, int ind, int val);
+        
     }
 
 
@@ -170,7 +159,6 @@ namespace QuizCannersUtilities {
     {
         public override bool IsDefault { get {
                 var def = (br == null || br.value == 0);
-              //  if (def) Debug.Log("Found default Countless");
                 return def;
 
             }
@@ -433,9 +421,7 @@ namespace QuizCannersUtilities {
 
     public class CountlessBool : CfgCountlessBase
     {
-
- 
-
+        
         #region Encode & Decode
         public override bool Decode(string tg, string data)
         {

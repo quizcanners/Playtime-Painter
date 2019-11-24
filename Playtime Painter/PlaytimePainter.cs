@@ -2054,70 +2054,84 @@ namespace PlaytimePainter {
 
                         if (!LockTextureEditing && painterNotUiOrPlaying && !id.errorWhileReading) {
 
-                            texMgmt.DependenciesInspect().changes(ref changed);
 
-                            #region Undo/Redo & Recording
-
-                            id.Undo_redo_PEGI();
-                            
-                            pegi.nl();
-
-                            var cpu = id.TargetIsTexture2D();
-
-                            var mat = Material;
-                            if (mat.IsProjected())
-                            {
-
-                                "Projected UV Shader detected. Painting may not work properly".writeWarning();
-                                if ("Undo".Click().nl())
-                                    mat.DisableKeyword(PainterDataAndConfig.UV_PROJECTED);
-                            }
-                            
-
-                            #endregion
-                            
-                            #region Brush
-
-                            if (!cfg.moreOptions) {
-
-                                GlobalBrush.Nested_Inspect().changes(ref changed);
-
-                                if (!cpu && id.texture2D && id.width != id.height)
-                                    icon.Warning.write(
-                                        "Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality.");
-
-                                var mode = GlobalBrush.GetBlitMode(cpu);
-                                var col = GlobalBrush.Color;
-
-                                if ((cpu || !mode.UsingSourceTexture || GlobalBrush.srcColorUsage !=
-                                     BrushConfig.SourceTextureColorUsage.Unchanged) && !IsTerrainHeightTexture &&
-                                    !pegi.paintingPlayAreaGui)
+                            if (id.ProcessEnumerator != null) {
+                                if (!cfg.moreOptions)
                                 {
-                                    if (pegi.edit(ref col).changes(ref changed))
-                                        GlobalBrush.Color = col;
-
-                                    MsgPainter.SampleColor.DocumentationClick();
-
+                                    pegi.nl();
+                                    "Processing Texture".nl();
+                                    id.ProcessEnumerator.Inspect_AsInList().nl();
                                 }
-                            
+                            }
+                            else {
+
+                                texMgmt.DependenciesInspect().changes(ref changed);
+
+                                #region Undo/Redo & Recording
+
+                                id.Undo_redo_PEGI();
+
                                 pegi.nl();
-                            
-                                GlobalBrush.ColorSliders().nl(ref changed);
 
-                                if (cfg.showColorSchemes) {
+                                var cpu = id.TargetIsTexture2D();
 
-                                    var scheme = cfg.colorSchemes.TryGet(cfg.selectedColorScheme);
+                                var mat = Material;
+                                if (mat.IsProjected())
+                                {
 
-                                    scheme?.PickerPEGI();
+                                    "Projected UV Shader detected. Painting may not work properly".writeWarning();
+                                    if ("Undo".Click().nl())
+                                        mat.DisableKeyword(PainterDataAndConfig.UV_PROJECTED);
+                                }
+
+
+                                #endregion
+
+                                #region Brush
+
+                                if (!cfg.moreOptions)
+                                {
+
+                                    GlobalBrush.Nested_Inspect().changes(ref changed);
+
+                                    if (!cpu && id.texture2D && id.width != id.height)
+                                        icon.Warning.write(
+                                            "Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality.");
+
+                                    var mode = GlobalBrush.GetBlitMode(cpu);
+                                    var col = GlobalBrush.Color;
+
+                                    if ((cpu || !mode.UsingSourceTexture || GlobalBrush.srcColorUsage !=
+                                         BrushConfig.SourceTextureColorUsage.Unchanged) && !IsTerrainHeightTexture &&
+                                        !pegi.paintingPlayAreaGui)
+                                    {
+                                        if (pegi.edit(ref col).changes(ref changed))
+                                            GlobalBrush.Color = col;
+
+                                        MsgPainter.SampleColor.DocumentationClick();
+
+                                    }
+
+                                    pegi.nl();
+
+                                    GlobalBrush.ColorSliders().nl(ref changed);
 
                                     if (cfg.showColorSchemes)
-                                        "Scheme".select_Index(60, ref cfg.selectedColorScheme, cfg.colorSchemes) .nl(ref changed);
+                                    {
 
+                                        var scheme = cfg.colorSchemes.TryGet(cfg.selectedColorScheme);
+
+                                        scheme?.PickerPEGI();
+
+                                        if (cfg.showColorSchemes)
+                                            "Scheme".select_Index(60, ref cfg.selectedColorScheme, cfg.colorSchemes)
+                                                .nl(ref changed);
+
+                                    }
                                 }
-                            }
-                            
-                #endregion
 
+                                #endregion
+                            }
                         }
                         else
                         {

@@ -304,7 +304,7 @@ namespace PlaytimePainter
 
         public bool Contains(Texture tex)
         {
-            return tex != null && ((texture2D && tex == texture2D) || (renderTexture && renderTexture == tex) || (other && tex == other));
+            return tex && ((texture2D && tex == texture2D) || (renderTexture && renderTexture == tex) || (other && tex == other));
         }
 
         public RenderTexture AddRenderTexture() => AddRenderTexture(width, height, RenderTextureFormat.ARGB32, RenderTextureReadWrite.Default, FilterMode.Bilinear, null);
@@ -928,8 +928,28 @@ namespace PlaytimePainter
             return changed;
         }
 
-        public override bool Inspect()
+        private QcAsync.TimedEnumeration _processEnumerator;
+
+        public QcAsync.TimedEnumeration ProcessEnumerator
         {
+            get
+            {
+                if (_processEnumerator != null && _processEnumerator.Done)
+                    _processEnumerator = null;
+
+                return _processEnumerator;
+            }
+        }
+
+        public override bool Inspect() {
+
+            if (ProcessEnumerator != null) {
+                
+                "Running Coroutine".nl();
+                _processEnumerator.Inspect_AsInList();
+                return false;
+                
+            }
 
             var changed = false;
 
@@ -1059,12 +1079,12 @@ namespace PlaytimePainter
 
                         if (texture2D.IsColorTexture())
                         {
-                            "Texture is a color texture, best to switch to non-color for SDF".writeWarning();
+                            "Texture is a color texture, best to switch to non-color for SDF. Save any changes first, as the texture will reimport.".writeWarning();
 
 #if UNITY_EDITOR
                             var ai = texture2D.GetTextureImporter();
 
-                            if (ai != null && "Convert to non-Color".Click() && ai.WasWrongIsColor(false))
+                            if (ai != null && "Convert to non-Color".ClickConfirm("SDFnc", "This will undo any unsaved changes. Proceed?") && ai.WasWrongIsColor(false))
                                 ai.SaveAndReimport();
 
 #endif
@@ -1076,21 +1096,25 @@ namespace PlaytimePainter
                         "SDF Max Outside".edit(ref sdfMaxOutside).nl();
                         "SDF Post Process".edit(ref sdfPostProcessDistance).nl();
 
-                        if ("Generate".Click())
-                        {
+                        if ("Generate Assync".Click("Will take a bit longer but you'll be able to use Unity")) {
+
                             bool wasRt = WasRenderTexture();
 
                             var p = PlaytimePainter.inspected;
                             if (p)
                                 p.UpdateOrSetTexTarget(TexTarget.Texture2D);
 
-                            DistanceFieldProcessor.Generate(this, sdfMaxInside, sdfMaxOutside, sdfPostProcessDistance);
+                            _processEnumerator = QcAsync.StartManagedCoroutine(
+                                DistanceFieldProcessor.Generate(this, sdfMaxInside, sdfMaxOutside,
+                                    sdfPostProcessDistance), () => {
 
-                            SetAndApply();
-
-                            if (wasRt)
-                                ReturnToRenderTexture();
+                                    SetAndApply();
+                                    if (wasRt)
+                                        ReturnToRenderTexture();
+                                });
                         }
+
+                        pegi.nl();
 
                     }
 

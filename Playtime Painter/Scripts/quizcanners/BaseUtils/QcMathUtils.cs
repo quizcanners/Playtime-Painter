@@ -22,20 +22,18 @@ namespace QuizCannersUtilities
         #region Checks
 
         public static bool IsNaN(this Vector3 q) => float.IsNaN(q.x) || float.IsNaN(q.y) || float.IsNaN(q.z);
-
-        public static bool IsNaN(this float f) => float.IsNaN(f);
-
+        
         #endregion
 
         #region Time
 
-        public static double Miliseconds_To_Seconds(this double interval) => (interval * 0.001);
+        public static double Miliseconds_To_Seconds(double interval) => (interval * 0.001);
 
-        public static double Seconds_To_Miliseconds(this double interval) => (interval * 1000);
+        public static double Seconds_To_Miliseconds(double interval) => (interval * 1000);
 
-        public static float Miliseconds_To_Seconds(this float interval) => (interval * 0.001f);
+        public static float Miliseconds_To_Seconds(float interval) => (interval * 0.001f);
 
-        public static float Seconds_To_Miliseconds(this float interval) => (interval * 1000);
+        public static float Seconds_To_Miliseconds(float interval) => (interval * 1000);
 
         #endregion
 
@@ -109,7 +107,7 @@ namespace QuizCannersUtilities
         #endregion
 
         #region Trigonometry
-        static List<Vector3> randomNormalized = new List<Vector3>();
+        static List<Vector3> randomPoint = new List<Vector3>();
         static int currentNormalized = 0;
 
         public static Vector3 GetRandomPointWithin(this Vector3 v3)
@@ -117,16 +115,16 @@ namespace QuizCannersUtilities
 
             const int maxRands = 512;
 
-            if (randomNormalized.Count < maxRands)
+            if (randomPoint.Count < maxRands)
             {
                 var newOne = UnityEngine.Random.insideUnitSphere;
-                randomNormalized.Add(newOne);
+                randomPoint.Add(newOne);
                 v3.Scale(newOne);
             }
             else
             {
                 currentNormalized = (currentNormalized + 1) % maxRands;
-                v3.Scale(randomNormalized[currentNormalized]);
+                v3.Scale(randomPoint[currentNormalized]);
             }
 
             return v3;
@@ -142,8 +140,7 @@ namespace QuizCannersUtilities
         public static float Angle(this Vector2 vec) =>
              (vec.x < 0) ? 360 - (Mathf.Atan2(vec.x, vec.y) * Mathf.Rad2Deg * -1) :
              Mathf.Atan2(vec.x, vec.y) * Mathf.Rad2Deg;
-
-
+        
         public static bool IsAcute(float a, float b, float c)
         {
             if (c == 0) return true;
@@ -276,7 +273,7 @@ namespace QuizCannersUtilities
             return v3;
         }
 
-        public static Vector3 Clamp01(this Vector4 v4)
+        public static Vector4 Clamp01(this Vector4 v4)
         {
             v4.x = Mathf.Clamp01(v4.x);
             v4.y = Mathf.Clamp01(v4.y);
@@ -355,11 +352,9 @@ namespace QuizCannersUtilities
             => usingMinMax ? Rect.MinMaxRect(v4.x, v4.y, v4.z, v4.w) : new Rect(v4.x, v4.y, v4.z, v4.w);
 
         #endregion
-
-
+        
         #region Color Channel and Mask
-
-
+        
         public static string ToText(this ColorMask icon)
         {
             switch (icon)
@@ -385,8 +380,7 @@ namespace QuizCannersUtilities
                 default: return "Unknown channel";
             }
         }
-
-
+        
         public static float GetValueFrom(this ColorChanel chan, Color col)
         {
             switch (chan)
@@ -471,11 +465,9 @@ namespace QuizCannersUtilities
         public static bool HasFlag(this ColorMask mask, int flag) => (mask & (ColorMask)(Mathf.Pow(2, flag))) != 0;
 
         public static bool HasFlag(this ColorMask mask, ColorMask flag) => (mask & flag) != 0;
-
-
+        
         #endregion
-
-       
+        
     }
 
     [Serializable]

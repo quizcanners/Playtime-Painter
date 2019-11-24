@@ -155,12 +155,8 @@ namespace QuizCannersUtilities
 
                 if (vb.br[ind] == null)
                     return;
-
-
+                
                 var ar = vb.br[ind].value;
-
-                //  if (ar == 0)
-                //    Debug.Log("ar is zero");
 
                 objs[ar] = default(T);
                 _firstFreeObj = Mathf.Min(_firstFreeObj, ar);
@@ -218,7 +214,7 @@ namespace QuizCannersUtilities
             {
 
                 if (range != BranchSize)
-                    Debug.Log("Error in range: " + range);
+                    Debug.LogError("Error in range: " + range);
 
                 for (var i = 0; i < 8; i++)
                     if (b.br[i] != null)
@@ -387,7 +383,6 @@ namespace QuizCannersUtilities
 
         public override T GetIfExists(int ind)
         {
-            // int originalIndex = ind;
 
             if (ind >= max)
                 return default(T);
@@ -441,8 +436,6 @@ namespace QuizCannersUtilities
             return cody;
         }
 
-        //   public const string storyTag = "TreeObj";
-        //  public override string getDefaultTagName() { return storyTag; }
     }
 
     

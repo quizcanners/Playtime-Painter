@@ -1331,7 +1331,7 @@ namespace PlayerAndEditorGUI
         public static void write_ForCopy(string text)
         {
             checkLine();
-            EditorGUILayout.SelectableLabel(text);
+            EditorGUILayout.SelectableLabel(text, PEGI_Styles.WrappingText);
         }
 
 

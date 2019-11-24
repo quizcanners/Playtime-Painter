@@ -678,13 +678,19 @@ namespace QuizCannersUtilities
 
             protected BaseMaterialTextureTransition()
             {
-                transitionProperty = CustomShaderParameters.TransitionPortion;
-                currentTexturePrTextureValue = CustomShaderParameters.CurrentTexture;
-                nextTexturePrTextureValue = CustomShaderParameters.NextTexture;
+                transitionProperty = TransitionPortion;
+                currentTexturePrTextureValue = CurrentTexture;
+                nextTexturePrTextureValue = NextTexture;
             }
 
+            static readonly ShaderProperty.VectorValue ImageProjectionPosition = new ShaderProperty.VectorValue("_imgProjPos");
+            static readonly ShaderProperty.TextureValue NextTexture = new ShaderProperty.TextureValue("_Next_MainTex");
+            static readonly ShaderProperty.TextureValue CurrentTexture = new ShaderProperty.TextureValue("_MainTex_Current");
+            static readonly ShaderProperty.FloatValue TransitionPortion = new ShaderProperty.FloatValue("_Transition");
+
+
             #region Inspector
-            
+
             public override bool Inspect()
             {
                 var changed = base.Inspect();
@@ -2206,24 +2212,6 @@ namespace QuizCannersUtilities
 
             return fadedIn;
         }
-    }
-
-    public static class CustomShaderParameters
-    {
-        public static readonly ShaderProperty.VectorValue ImageProjectionPosition = new ShaderProperty.VectorValue("_imgProjPos");
-        public static readonly ShaderProperty.TextureValue NextTexture = new ShaderProperty.TextureValue("_Next_MainTex");
-        public static readonly ShaderProperty.TextureValue CurrentTexture = new ShaderProperty.TextureValue("_MainTex_Current");
-        public static readonly ShaderProperty.FloatValue TransitionPortion = new ShaderProperty.FloatValue("_Transition");
-        
-        public static void Inspect()
-        {
-            "Image projection position".write_ForCopy(ImageProjectionPosition.NameForDisplayPEGI()); pegi.nl();
-
-            "Next Texture".write_ForCopy(NextTexture.NameForDisplayPEGI()); pegi.nl();
-
-            "Transition portion".write_ForCopy(TransitionPortion.NameForDisplayPEGI()); pegi.nl();
-        }
-
     }
 
 }
