@@ -215,7 +215,7 @@ namespace PlaytimePainter.Examples
         {
             var changed = false;
 
-            pegi.toggleDefaultInspector();
+            pegi.toggleDefaultInspector(this);
 
             pegi.fullWindowDocumentationClickOpen(Documentation);
 

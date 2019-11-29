@@ -104,7 +104,7 @@ namespace PlaytimePainter {
 
             //INSIDE
             if (maxInside > 0f){
-                
+
                 for (var e = ComputeEdgeGradients(); e.MoveNext();)
                     yield return e.Current;
                 

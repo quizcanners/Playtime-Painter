@@ -2,9 +2,20 @@
 	Properties{
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
 		[KeywordEnum(Sides, Right, left, Inside)] _GRADS("Softening ", Float) = 0
+
+
+		_StencilComp("Stencil Comparison", Float) = 8
+		_Stencil("Stencil ID", Float) = 0
+		_StencilOp("Stencil Operation", Float) = 0
+		_StencilWriteMask("Stencil Write Mask", Float) = 255
+		_StencilReadMask("Stencil Read Mask", Float) = 255
+
+		_ColorMask("Color Mask", Float) = 15
+
 	}
 
 	Category{
+
 		Tags{
 			"Queue" = "Transparent"
 			"IgnoreProjector" = "True"
@@ -16,10 +27,20 @@
 			"PerEdgeData" = "Linked"
 		}
 
-		ColorMask RGB
+
+		Stencil
+		{
+			Ref[_Stencil]
+			Comp[_StencilComp]
+			Pass[_StencilOp]
+			ReadMask[_StencilReadMask]
+			WriteMask[_StencilWriteMask]
+		}
+
+		ColorMask[_ColorMask]
 		Cull Off
 		ZWrite Off
-		ZTest Off
+		ZTest[unity_GUIZTestMode]
 		Blend SrcAlpha OneMinusSrcAlpha
 
 		SubShader{
@@ -33,16 +54,10 @@
 				#pragma fragment frag
 				//#pragma multi_compile_fwdbase
 				#pragma multi_compile_instancing
+				#pragma multi_compile_local _ UNITY_UI_CLIP_RECT
+				#pragma multi_compile_local _ UNITY_UI_ALPHACLIP
 				#pragma shader_feature _GRADS_SIDES _GRADS_RIGHT _GRADS_LEFT _GRADS_INSIDE 
-				#pragma target 3.0
-
-				struct v2f {
-					float4 pos :		SV_POSITION;
-					float2 courners	:	TEXCOORD1;
-					float4 screenPos :	TEXCOORD2;
-					float4 projPos :	TEXCOORD3;
-					float4 color:		COLOR;
-				};
+				#pragma target 2.0
 
 				struct appdata_ui_qc
 				{
@@ -51,12 +66,24 @@
 					float2 texcoord1 : TEXCOORD1; // The second UV coordinate.
 					float2 texcoord2 : TEXCOORD2; // The third UV coordinate.
 					float4 color     : COLOR;     // Per-vertex color
+					UNITY_VERTEX_INPUT_INSTANCE_ID
 				};
 
+				struct v2f {
+					float4 pos :		SV_POSITION;
+					float2 courners	:	TEXCOORD1;
+					float4 screenPos :	TEXCOORD2;
+					float4 projPos :	TEXCOORD3;
+					float4 color:		COLOR;
+					UNITY_VERTEX_OUTPUT_STEREO
+				
+				};
 
 				v2f vert(appdata_full v) {
 					v2f o;
 					UNITY_SETUP_INSTANCE_ID(v);
+					UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
+
 					o.pos =				UnityObjectToClipPos(v.vertex);
 					o.screenPos =		ComputeScreenPos(o.pos);
 					o.color =			v.color;
@@ -112,6 +139,14 @@
 				
 					o.color.a *= max(0,  round(1-abs(inPix.x + inPix.y)))*sides;
 				
+					#ifdef UNITY_UI_CLIP_RECT
+						color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);
+					#endif
+
+					#ifdef UNITY_UI_ALPHACLIP
+						clip(color.a - 0.001);
+					#endif
+
 					return o.color;
 				}
 				ENDCG

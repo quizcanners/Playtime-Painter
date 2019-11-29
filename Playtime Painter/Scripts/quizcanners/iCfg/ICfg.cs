@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
+using Object = UnityEngine.Object;
 
 namespace QuizCannersUtilities {
 
@@ -534,7 +535,7 @@ namespace QuizCannersUtilities {
 
             this.CopyPasteStdPegi().nl(ref changed);
 
-            pegi.toggleDefaultInspector().nl();
+            pegi.toggleDefaultInspector(this).nl();
             
             "{0} Debug ".F(this.GetNameForInspector()).nl();
 
@@ -802,8 +803,10 @@ namespace QuizCannersUtilities {
 
         public static void SaveStdData(this IKeepMyCfg s) {
             if (s != null)
+            {
                 s.ConfigStd = s.Encode().ToString();
-            
+                (s as Object).SetToDirty();
+            }
         }
 
         public static bool LoadStdData(this IKeepMyCfg s)

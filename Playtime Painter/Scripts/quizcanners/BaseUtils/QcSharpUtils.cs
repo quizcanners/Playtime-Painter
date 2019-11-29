@@ -875,7 +875,7 @@ namespace QuizCannersUtilities {
       
     }
     
-    public class LoopLock
+    public class LoopLock : IEnumerator
     {
         private volatile bool _lLock;
 
@@ -890,7 +890,9 @@ namespace QuizCannersUtilities {
         }
 
         public bool Unlocked => !_lLock;
-        
+
+        public object Current => _lLock;
+
         public void Run(Action action)
         {
             if (!Unlocked) return;
@@ -924,6 +926,9 @@ namespace QuizCannersUtilities {
             _loopErrorLogged = true;
         }
 
+        public bool MoveNext() => _lLock;
+
+        public void Reset() { }
     }
 
     [Serializable]

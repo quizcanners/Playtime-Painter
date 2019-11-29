@@ -102,8 +102,8 @@ namespace PlaytimePainter {
             }
         }
 
-        public string savedMeshData;
-        public Mesh meshDataSavedFor;
+        [SerializeField] private string savedMeshData;
+        [SerializeField] private Mesh meshDataSavedFor;
         public string SavedEditableMesh
         {
             get
@@ -1273,9 +1273,42 @@ namespace PlaytimePainter {
         #endregion
 
         #region Saving
+        
+        [SerializeField] private string _pluginStd;
+
+        public string ConfigStd
+        {
+            get { return _pluginStd; }
+            set { _pluginStd = value; }
+        }
+
+        public CfgEncoder Encode() => new CfgEncoder()
+            .Add("mdls", modulesContainer)
+            .Add_IfTrue("invCast", invertRayCast);
+
+        public CfgEncoder EncodeMeshStuff() => new CfgEncoder()
+            .Add_String("m", SavedEditableMesh)
+            .Add("pr", selectedMeshProfile);
+        
+        public bool Decode(string tg, string data)
+        {
+            switch (tg)
+            {
+                case "mdls": modulesContainer.Decode(data); break;
+                case "invCast": invertRayCast = data.ToBool(); break;
+                case "m": SavedEditableMesh = data; break;
+                case "pr": selectedMeshProfile = data.ToInt(); break;
+                default: return true;
+            }
+
+            return false;
+        }
+
+        public void Decode(string data) => new CfgDecoder(data).DecodeTagsFor(this);
+
 
         #if UNITY_EDITOR
-
+        
         private void ForceReimportMyTexture(string path)
         {
 
@@ -2809,6 +2842,7 @@ namespace PlaytimePainter {
 
         private static MeshManager MeshManager => MeshManager.Inst; 
 
+
         #endregion
 
         #region UI Elements Painting
@@ -2869,32 +2903,6 @@ namespace PlaytimePainter {
 
         #endregion
 
-        #region Encode & Decode
-
-        [SerializeField] private string _pluginStd;
-
-        public string ConfigStd
-        {
-            get { return _pluginStd;}
-            set { _pluginStd = value; }
-        }
-
-        public CfgEncoder Encode() => new CfgEncoder()
-            .Add("mdls", modulesContainer)
-            .Add_IfTrue("invCast", invertRayCast);
-
-        public void Decode(string data) => new CfgDecoder(data).DecodeTagsFor(this);
-
-        public bool Decode(string tg, string data) {
-            switch (tg) {
-                case "mdls": modulesContainer.Decode(data); break;
-                case "invCast": invertRayCast = data.ToBool(); break;
-                default: return true;
-            }
-
-            return false;
-        }
-        #endregion
 
     }
 }

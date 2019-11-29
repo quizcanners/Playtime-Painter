@@ -27,7 +27,14 @@ namespace QuizCannersUtilities
 
         public static TimedEnumeration.CallAgain CallAfter(float seconds, string message) =>
             new TimedEnumeration.CallAgain(task: Task.Delay(TimeSpan.FromMilliseconds(QcMath.Seconds_To_Miliseconds(seconds))), message: message);
-        
+
+        public static TimedEnumeration.CallAgain CallAfter(TimeSpan timeSpan) =>
+            new TimedEnumeration.CallAgain(task: Task.Delay(timeSpan));
+
+        public static TimedEnumeration.CallAgain CallAfter(TimeSpan timeSpan, string message) =>
+            new TimedEnumeration.CallAgain(task: Task.Delay(timeSpan), message: message);
+
+
         public static TimedEnumeration.CallAgain CallAfter_Thread(Action afterThisTask) =>
             new TimedEnumeration.CallAgain(task: Task.Run(afterThisTask));
 
@@ -40,10 +47,25 @@ namespace QuizCannersUtilities
         
         public static TimedEnumeration StartManagedCoroutine(IEnumerator enumerator, Action onDone = null) {
 
-            var enm = new TimedEnumeration(enumerator, onDone);
+            var enm = new TimedEnumeration(enumerator);
+            enm.onDoneFully = onDone;
             enumerators.Insert(0, enm);
             return enm;
         }
+
+        public static TimedEnumeration<T> StartManagedCoroutine<T>(IEnumerator enumerator, Action<T> onDone = null)
+        {
+            var enm = new TimedEnumeration<T>(enumerator);
+            enm.onDoneFullyReturnData = onDone;
+            enumerators.Insert(0, enm);
+            return enm;
+        }
+        
+        public static Coroutine StartTimedCoroutine(this IEnumerator enumerator, MonoBehaviour behaviour, Action onDone = null) =>
+            behaviour.StartCoroutine(new TimedEnumeration(enumerator).Start(onDone));
+
+        public static Coroutine StartTimedCoroutine<T>(this IEnumerator enumerator, MonoBehaviour behaviour, Action<T> onDone = null) =>
+            behaviour.StartCoroutine(new TimedEnumeration<T>(enumerator).Start(onDone));
 
         public static void UpdateManagedCoroutines() {
 
@@ -123,11 +145,9 @@ namespace QuizCannersUtilities
 
             int sum = 0;
 
-            for (int i = 0; i < 10000; i++) {
-
-                var pi = CalculatePi(50);
-
-              //  Debug.Log("{0}  {1}".F(i, pi));
+            for (int i = 0; i < 1000; i++)
+            {
+                sum += i;
 
                 yield return CallAgain();
             }
@@ -136,29 +156,36 @@ namespace QuizCannersUtilities
 
         }
 
-        private static IEnumerator TestCoroutine() {
+        public static IEnumerator TestCoroutine() {
 
-          /*  for (int i = 0; i < 5; i++) { 
+            for (int i = 0; i < 5; i++) { 
                 Debug.Log("{0}: Frame: {1}".F(i, Time.frameCount));
-                yield return CallAgain("Asking to execute this function again if we have enough time this frame");
+                yield return CallAgain("Asking to execute this function again if we have enough time this frame"); // Communication token
             }
 
             for (int i = 0; i < 5; i++) {
                 Debug.Log("With wait {0}. Frame: {1}".F(i, Time.frameCount));
-                yield return CallAfter(0.5f);
-            }*/
+                yield return CallAfter(0.3f, "Sending communication token that will ask to delay execution by 0.3 seconds");
+            }
 
-            for (var e = NestedCoroutine(); e.MoveNext();)
-                yield return e.Current;
-            
+            Debug.Log("Will start Nested Coroutine. Works only if using MonoBehaviour's StartCoroutine");
+
+            yield return NestedCoroutine();
+
+
+          //  for (var e = NestedCoroutine(); e.MoveNext();)
+             //   yield return e.Current;
+
+            Debug.Log("Calculating Pi");
+
             string pi = "";
 
-           /* yield return CallAfter_Thread(()=>
+            yield return CallAfter_Thread(()=>
             {
-                pi = CalculatePi(100000);
+                pi = CalculatePi(10000);
             },"Now we are calculating Pi in a task");
-            */
-          //  yield return CallAgain_StoreReturnData(pi);
+            
+            yield return CallAgain_StoreReturnData(pi);
 
             Debug.Log("Done calculating Pi");
 
@@ -171,17 +198,13 @@ namespace QuizCannersUtilities
         public static bool InspectManagedCoroutines() {
 
             var changed = false;
+            
+            if (!coroutinesListMeta.Inspecting) {
 
-
-            if (!coroutinesListMeta.Inspecting)
-            {
-
-                if ("Run an Example Managed  Coroutine".Click().nl()) {
-                    TimedEnumeration mngd = null;
-
-                    mngd = StartManagedCoroutine(TestCoroutine(),
-                        () => { Debug.Log("Finished Managed Coroutine. The Pi is: {0}".F(mngd.returnedData)); });
-                }
+                if ("Run an Example Managed  Coroutine".Click().nl()) 
+                        StartManagedCoroutine(TestCoroutine(),
+                        (string returnValue) => { Debug.Log("Finished Managed Coroutine. The Pi is: {0}".F(returnValue)); });
+                
             }
 
             coroutinesListMeta.edit_List(ref enumerators).nl();
@@ -205,6 +228,29 @@ namespace QuizCannersUtilities
         }
 
         #endregion
+
+        public class TimedEnumeration<T> : TimedEnumeration
+        {
+            public Action<T> onDoneFullyReturnData;
+
+            protected override void OnDone()
+            {
+                if (!stopAndCancel)
+                    onDoneFullyReturnData?.Invoke((T)returnedData);
+            }
+
+            public IEnumerator Start(Action<T> onDoneFully = null)
+            {
+                onDoneFullyReturnData = onDoneFully;
+
+                for (var e = base.Start(); e.MoveNext();)
+                    yield return e.Current;
+
+            }
+
+            public TimedEnumeration(IEnumerator enumerator, bool logUnoptimizedSections = false) : base(enumerator, logUnoptimizedSections) { }
+
+        }
 
         public class TimedEnumeration : IPEGI_ListInspect
         {
@@ -243,9 +289,7 @@ namespace QuizCannersUtilities
                     this.returnData = returnData;
                 }
             }
-
-          
-
+            
             private Stopwatch timer = new Stopwatch();
 
             private const float maxMilisecondsPerFrame = 1000f * 0.5f / 60f;
@@ -258,7 +302,7 @@ namespace QuizCannersUtilities
 
             public bool Done { get; private set; }
 
-            private bool logUnoptimizedSections;
+            protected bool logUnoptimizedSections;
 
             public int EnumeratorVersion { get; private set; }
 
@@ -280,7 +324,7 @@ namespace QuizCannersUtilities
 
             private object _current;
 
-            private void OnDone()
+            protected virtual void OnDone()
             {
 
                 Done = true;
@@ -294,8 +338,7 @@ namespace QuizCannersUtilities
                 else
                     state = "Stopped and cancelled after " + state;
             }
-
-
+            
             private bool NextYieldInternal()
             {
 
@@ -470,18 +513,12 @@ namespace QuizCannersUtilities
                 this.logUnoptimizedSections = logUnoptimizedSections;
                 Reset(enumerator);
             }
-
-            public TimedEnumeration(IEnumerator enumerator, Action onDoneFully, bool logUnoptimizedSections = false)
-            {
-                this.logUnoptimizedSections = logUnoptimizedSections;
-                this.onDoneFully = onDoneFully;
-                Reset(enumerator);
-            }
-
+            
             public void Reset(IEnumerator enumerator)
             {
                 EnumeratorVersion += 1;
                 _enumerator = enumerator;
+                returnedData = null;
             }
         }
 

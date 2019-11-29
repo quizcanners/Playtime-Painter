@@ -275,7 +275,9 @@
 					float diff = saturate((dot(o.normal, _WorldSpaceLightPos0.xyz)));
 					diff = saturate(diff - ambientBlock * 4 * (1 - diff));
 	
-					float3 directSun = _LightColor0.rgb * diff * shadow;
+					float3 directSun = _LightColor0.rgb * diff * shadow * (1 - bake.a);
+
+
 
 					directLight += directSun;
 					

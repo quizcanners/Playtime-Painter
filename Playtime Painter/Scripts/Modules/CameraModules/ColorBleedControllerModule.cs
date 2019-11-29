@@ -120,16 +120,16 @@ namespace PlaytimePainter {
 
         private void UpdateShader() => _lightProperty.GlobalValue = new Vector4(colorBleed.CurrentValue, 0, 0, brightness.CurrentValue);
         
-        static readonly LinkedLerp.FloatValue brightness = new LinkedLerp.FloatValue("Brightness", 1, 1);
-        static readonly LinkedLerp.FloatValue colorBleed = new LinkedLerp.FloatValue("Color Bleed", 0, 0.1f);
+        static readonly LinkedLerp.FloatValue brightness = new LinkedLerp.FloatValue( 1, 1, "Brightness");
+        static readonly LinkedLerp.FloatValue colorBleed = new LinkedLerp.FloatValue( 0, 0.1f, "Color Bleed");
 
         static readonly LinkedLerp.ColorValue mainLightColor = new LinkedLerp.ColorValue("Light Color");
-        static readonly LinkedLerp.FloatValue mainLightIntensity = new LinkedLerp.FloatValue("Main Light Intensity");
+        static readonly LinkedLerp.FloatValue mainLightIntensity = new LinkedLerp.FloatValue(name: "Main Light Intensity");
         static readonly LinkedLerp.QuaternionValue mainLightRotation = new LinkedLerp.QuaternionValue("Main light rotation");
 
         static readonly LinkedLerp.ColorValue fogColor = new LinkedLerp.ColorValue("Fog Color");
         static readonly LinkedLerp.ColorValue skyColor = new LinkedLerp.ColorValue("Sky Color");
-        static readonly LinkedLerp.FloatValue shadowStrength = new LinkedLerp.FloatValue("Shadow Strength", 1);
+        static readonly LinkedLerp.FloatValue shadowStrength = new LinkedLerp.FloatValue( 1, name: "Shadow Strength");
         static readonly LinkedLerp.FloatValue shadowDistance = new LinkedLerp.FloatValue("Shadow Distance", 100, 500, 10, 1000);
         static readonly LinkedLerp.FloatValue fogDistance = new LinkedLerp.FloatValue("Fog Distance", 100, 500, 0.01f, 1000);
         static readonly LinkedLerp.FloatValue fogDensity = new LinkedLerp.FloatValue("Fog Density", 0.01f, 0.01f, 0.00001f, 0.1f);

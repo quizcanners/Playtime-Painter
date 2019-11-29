@@ -960,8 +960,14 @@ namespace PlaytimePainter {
 
 
                 if ("Inspector & Debug".enter(ref _inspectedDependecy, 2).nl())
+                {
                     QcUtils.InspectInspector();
-                
+
+                   // if ("Test Coroutine".Click())
+                     //   QcAsync.TestCoroutine().StartTimedCoroutine(this, (string value) => Debug.Log("Coroutine returned {0}".F(value)));
+
+                }
+
                 if (_inspectedDependecy == -1)
                 {
 

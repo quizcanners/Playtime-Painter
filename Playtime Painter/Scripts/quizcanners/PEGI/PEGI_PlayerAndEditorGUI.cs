@@ -3915,6 +3915,25 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
+        public static bool TryEnter_Inspect(this string label, object obj, ref bool entered)
+        {
+            var changed = false;
+
+            var ilpgi = obj as IPEGI_ListInspect;
+
+            int enteredOne = entered ? 1 : -1;
+
+            if (ilpgi != null)
+                label.enter_Inspect(ilpgi, ref enteredOne, 1).nl_ifFolded(ref changed);
+            else
+            {
+                var ipg = obj as IPEGI;
+                label.conditional_enter_inspect(ipg != null, ipg, ref entered).nl_ifFolded(ref changed);
+            }
+
+            return changed;
+        }
+
         public static bool conditional_enter(this icon ico, bool canEnter, ref int enteredOne, int thisOne, string exitLabel = "")
         {
 
@@ -4007,6 +4026,16 @@ namespace PlayerAndEditorGUI
                 return obj.Nested_Inspect();
 
             isFoldedOutOrEntered = enteredOne == thisOne;
+
+            return false;
+        }
+
+        public static bool conditional_enter_inspect(this string label, bool canEnter, IPEGI obj, ref bool entered)
+        {
+            if (label.TryAddCount(obj).conditional_enter(canEnter, ref entered))
+                return obj.Nested_Inspect();
+
+            isFoldedOutOrEntered = entered;
 
             return false;
         }
@@ -5006,9 +5035,9 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool toggleDefaultInspector() =>
+        public static bool toggleDefaultInspector(Object target) =>
 #if UNITY_EDITOR
-                 ef.toggleDefaultInspector();
+                 ef.toggleDefaultInspector(target);
 #else
                 false;
 #endif
@@ -6771,7 +6800,7 @@ namespace PlayerAndEditorGUI
 
             private bool _searching;
 
-            private List<int> flst;
+            private List<int> filteredList;
 
             private int _sectionSizeOptimal;
 
@@ -7203,7 +7232,7 @@ namespace PlayerAndEditorGUI
 
                     var sectionIndex = _sectionStartIndex;
 
-                    flst = searchData.filteredListElements;
+                    filteredList = searchData.filteredListElements;
 
                     _lastElementToShow = Mathf.Min(list.Count, _sectionStartIndex + _sectionSizeOptimal);
 
@@ -7212,8 +7241,8 @@ namespace PlayerAndEditorGUI
 
                         Index = -1;
 
-                        if (flst.Count > sectionIndex)
-                            Index = flst[sectionIndex];
+                        if (filteredList.Count > sectionIndex)
+                            Index = filteredList[sectionIndex];
                         else
                         {
                             while (searchData.uncheckedElement < _count && Index == -1)
@@ -7230,7 +7259,7 @@ namespace PlayerAndEditorGUI
                                     if (searchby.IsNullOrEmpty() || el.SearchMatch_Obj_Internal(searchby))
                                     {
                                         Index = searchData.uncheckedElement;
-                                        flst.Add(Index);
+                                        filteredList.Add(Index);
                                     }
                                 }
 
@@ -7255,7 +7284,7 @@ namespace PlayerAndEditorGUI
 
                     bool gotUnchecked = (searchData.uncheckedElement < _count - 1);
 
-                    bool gotToShow = (flst.Count > _lastElementToShow) || gotUnchecked;
+                    bool gotToShow = (filteredList.Count > _lastElementToShow) || gotUnchecked;
 
                     if (_sectionStartIndex > 0 || gotToShow)
                     {
@@ -7271,7 +7300,7 @@ namespace PlayerAndEditorGUI
                                 SkrollToBottomInternal();
 
                             if (!gotUnchecked)
-                                "+ {0}".F(flst.Count - _lastElementToShow).write();
+                                "+ {0}".F(filteredList.Count - _lastElementToShow).write();
 
                         }
                         else if (_sectionStartIndex > 0)
@@ -7311,7 +7340,7 @@ namespace PlayerAndEditorGUI
                 if (!_searching)
                     _sectionStartIndex = _count - _sectionSizeOptimal;
                 else 
-                    _sectionStartIndex = flst.Count - _sectionSizeOptimal;
+                    _sectionStartIndex = filteredList.Count - _sectionSizeOptimal;
 
                 _sectionStartIndex = Mathf.Max(0, _sectionStartIndex);
 
@@ -9836,7 +9865,11 @@ namespace PlayerAndEditorGUI
 
             private int focusOnSearchBarIn;
 
+            public static bool unityFocusNameWillWork = false; // Focus name bug on first focus
+
             public void CloseSearch() => filteredList = null;
+
+
 
             public void ToggleSearch(IEnumerable ld, string label = "")
             {
@@ -9891,6 +9924,7 @@ namespace PlayerAndEditorGUI
 
                     if (edit(ref searchedText) || icon.Refresh.Click("Search again", 20).nl())
                     {
+                        unityFocusNameWillWork = true;
                         Refresh();
                         searchBys = searchedText.Split(splitCharacters, StringSplitOptions.RemoveEmptyEntries);
 

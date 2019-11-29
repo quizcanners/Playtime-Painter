@@ -4,6 +4,7 @@
 		[PerRendererData]_MainTex("Albedo (RGB)", 2D) = "black" {}
 		_Edges("Sharpness", Range(0,1)) = 0.5
 		[Toggle(TRIMMED)] trimmed("Trimmed Corners", Float) = 0
+		[Toggle(_SOFT_FADE)] softfade("Soft Fade", Float) = 0
 	}
 	Category{
 		Tags{
@@ -34,6 +35,7 @@
 
 				#pragma multi_compile_instancing
 				#pragma shader_feature __ TRIMMED
+				#pragma shader_feature __ _SOFT_FADE
 
 				struct v2f {
 					float4 pos : SV_POSITION;
@@ -53,6 +55,9 @@
 					o.texcoord.xy =		v.texcoord.xy;
 					o.color =			v.color;
 
+#if _SOFT_FADE
+					_Edges *= o.color.a * o.color.a;
+#endif
 					o.texcoord.zw =		v.texcoord1.xy;
 					o.texcoord.z =		4 - _Edges * 3;
 					o.projPos.xy =		v.normal.xy;
@@ -72,6 +77,10 @@
 					float dx = abs(ddx(o.texcoord.x));
 					float dy = abs(ddy(o.texcoord.y));
 					float mip = (dx + dy) * 200;
+
+					#if _SOFT_FADE
+						_Edges *= o.color.a * o.color.a;
+					#endif
 
 					_Edges /= 1 + mip * mip; //LOD
 

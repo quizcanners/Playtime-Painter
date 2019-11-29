@@ -815,7 +815,7 @@ namespace QuizCannersUtilities
                         
                         name.edit(ref str.data);
 
-                        if (icon.Copy.Click("Copy name to clipboard",15))
+                        if (name.Length > 7 && icon.Copy.Click("Copy name to clipboard",15))
                             GUIUtility.systemCopyBuffer = name;
 
                     }
@@ -1161,7 +1161,10 @@ namespace QuizCannersUtilities
                             previewFoldout = true;
 
                         if (previewFoldout && previewValue.Length > 0 && icon.Close.Click())
+                        {
                             previewValue = "";
+                            previewFoldout = false;
+                        }
 
                         pegi.nl();
 
@@ -1346,7 +1349,38 @@ namespace QuizCannersUtilities
 
         public EncodedJsonInspector(string data) { json = new JsonString(data); }
 
-        private bool triedToDecodeAll = false;
+        public bool triedToDecodeAll = false;
+
+        public void TryToDecodeAll() {
+
+            triedToDecodeAll = true;
+
+            var str = json.AsJsonString;
+
+            if (str != null)
+            {
+
+                str.dataOnly = false;
+
+                var sb = new StringBuilder();
+
+                int index = 0;
+
+                while (index < str.data.Length && (str.data[index] != '{'))
+                {
+                    sb.Append(str.data[index]);
+                    index++;
+                }
+
+                jsonDestination = sb.ToString();
+
+                str.data = str.data.Substring(index);
+            }
+
+          
+
+            do { } while (json.DecodeAll(ref json));
+        }
 
         public bool Inspect()
         {
@@ -1359,33 +1393,9 @@ namespace QuizCannersUtilities
                 jsonDestination = "";
             }
 
-            if (!triedToDecodeAll && "Decode All".Click()) {
-                
-                var str = json.AsJsonString;
-
-                if (str != null) {
-
-                    str.dataOnly = false;
-
-                    var sb = new StringBuilder();
-
-                    int index = 0;
-
-                    while (index < str.data.Length && (str.data[index] != '{')) {
-                        sb.Append(str.data[index]);
-                        index++;
-                    }
-
-                    jsonDestination = sb.ToString();
-
-                    str.data = str.data.Substring(index);
-                }
-                
-                triedToDecodeAll = true;
-
-                do {} while (json.DecodeAll(ref json));
-            }
-
+            if (!triedToDecodeAll && "Decode All".Click())
+                TryToDecodeAll();
+            
             if (jsonDestination.Length>5)
                 jsonDestination.write();
 

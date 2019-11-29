@@ -646,9 +646,11 @@ inline void Terrain_4_Splats(float4 cont, float2 lowtiled, float2 tiled, float f
 	float4 splat2N = tex2Dlod(_mergeSplatN_2, lt)*far + tex2Dlod(_mergeSplatN_2, t)*deFar;
 	float4 splat3N = tex2Dlod(_mergeSplatN_3, lt)*far + tex2Dlod(_mergeSplatN_3, t)*deFar;
 
+	float merge = MERGE_POWER * (0.1 + deFar*0.9);
+
 	float newHeight = cont.r * triplanarY + splat0N.b;
 	float adiff = max(0, (newHeight - maxheight));
-	float alpha = min(1, adiff*(1 + MERGE_POWER*terrain.a*splat0.a));
+	float alpha = min(1, adiff*(1 + merge *terrain.a*splat0.a));
 	float dAlpha = (1 - alpha);
 	terrain = terrain*(dAlpha)+splat0*alpha;
 	terrainN = terrainN*(dAlpha)+splat0N*alpha;
@@ -656,7 +658,7 @@ inline void Terrain_4_Splats(float4 cont, float2 lowtiled, float2 tiled, float f
 
 	newHeight = cont.g*triplanarY + splat1N.b;
 	adiff = max(0, (newHeight - maxheight));
-	alpha = min(1, adiff*(1 + MERGE_POWER*terrain.a*splat1.a));
+	alpha = min(1, adiff*(1 + merge *terrain.a*splat1.a));
 	dAlpha = (1 - alpha);
 	terrain = terrain*(dAlpha)+splat1*alpha;
 	terrainN = terrainN*(dAlpha)+splat1N*alpha;
@@ -664,7 +666,7 @@ inline void Terrain_4_Splats(float4 cont, float2 lowtiled, float2 tiled, float f
 
 	newHeight = cont.b*triplanarY + splat2N.b;
 	adiff = max(0, (newHeight - maxheight));
-	alpha = min(1, adiff*(1 + MERGE_POWER*terrain.a*splat2.a));
+	alpha = min(1, adiff*(1 + merge *terrain.a*splat2.a));
 	dAlpha = (1 - alpha);
 	terrain = terrain*(dAlpha)+splat2*alpha;
 	terrainN = terrainN*(dAlpha)+splat2N*alpha;
@@ -672,7 +674,7 @@ inline void Terrain_4_Splats(float4 cont, float2 lowtiled, float2 tiled, float f
 
 	newHeight = cont.a*triplanarY + splat3N.b;
 	adiff = max(0, (newHeight - maxheight));
-	alpha = min(1, adiff*(1 + MERGE_POWER*terrain.a*splat3.a));
+	alpha = min(1, adiff*(1 + merge *terrain.a*splat3.a));
 	dAlpha = (1 - alpha);
 	terrain = terrain*(dAlpha)+splat3*alpha;
 	terrainN = terrainN*(dAlpha)+splat3N*alpha;

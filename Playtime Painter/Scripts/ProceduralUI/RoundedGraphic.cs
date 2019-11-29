@@ -393,7 +393,7 @@ namespace PlaytimePainter
         {
             inspected = this;
 
-            pegi.toggleDefaultInspector();
+            pegi.toggleDefaultInspector(this);
 
             info.fullWindowDocumentationClickOpen("About Rounded Graphic").nl();
 
@@ -624,6 +624,10 @@ namespace PlaytimePainter
 
                 pegi.nl();
 
+                var col = color;
+                if (pegi.edit(ref col).nl(ref changed))
+                    color = col;
+
                 #region Position Data
 
                 if (possiblePositionData || feedPositionData)
@@ -765,13 +769,13 @@ namespace PlaytimePainter
 
                 }
 
-                var col = color;
-                if (pegi.edit(ref col).nl(ref changed))
-                    color = col;
+             
             }
 
             if ("Modules".enter_List(ref _modules, ref _inspectedModule, ref _showModules).nl(ref changed))
                 this.SaveStdData();
+
+            
 
             if (changed)
                 SetVerticesDirty();
@@ -1265,7 +1269,7 @@ namespace PlaytimePainter
         public override bool Inspect(Material mat)
         {
 
-            var changed = pegi.toggleDefaultInspector();
+            var changed = pegi.toggleDefaultInspector(mat);
 
             mat.edit(Softness, "Softness", 0, 1).nl(ref changed);
 

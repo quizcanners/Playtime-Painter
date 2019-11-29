@@ -44,7 +44,7 @@ namespace PlayerAndEditorGUI {
 
             ef.editorTypeForDefaultInspector = ef.EditorType.Material;
 
-            pegi.toggleDefaultInspector();
+            pegi.toggleDefaultInspector(materialEditor.target);
 
             DrawDefaultInspector();
 
@@ -69,7 +69,7 @@ namespace PlayerAndEditorGUI {
     
     public abstract class PEGI_Inspector_Base  : Editor
     {
-        public static bool drawDefaultInspector;
+        public static UnityEngine.Object drawDefaultInspector;
         
         protected abstract bool Inspect(Editor editor);
         protected abstract ef.EditorType EditorType { get;  }
@@ -78,16 +78,15 @@ namespace PlayerAndEditorGUI {
 
             pegi.ResetInspectedChain();
 
-            if (!drawDefaultInspector) {
+            if (target != drawDefaultInspector) {
                 Inspect(this).RestoreBGColor();
                 return;
             }
 
             ef.editorTypeForDefaultInspector = EditorType;
 
-            pegi.toggleDefaultInspector();
+            pegi.toggleDefaultInspector(target);
           
-       
             DrawDefaultInspector();
         }
 

@@ -110,7 +110,7 @@ namespace PlaytimePainter
 
             Redraw();
             
-            InitVerticesIfNull();
+            InitGridIfNull();
 
             UndoMoves.Clear();
             RedoMoves.Clear();
@@ -508,7 +508,7 @@ namespace PlaytimePainter
                 return;
 
             if (!Grid.vertices[0].go)
-                InitVerticesIfNull();
+                InitGridIfNull();
 
             UpdateLocalSpaceMousePosition();
 
@@ -680,7 +680,7 @@ namespace PlaytimePainter
             return false;
         }
 
-        private void InitVerticesIfNull()
+        private void InitGridIfNull()
         {
             if (!Grid)
                 return;
@@ -708,7 +708,7 @@ namespace PlaytimePainter
 
         public void OnEnable()
         {
-            InitVerticesIfNull();
+            InitGridIfNull();
 
         
             TriVertices = 0;

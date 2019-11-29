@@ -1054,23 +1054,8 @@ namespace QuizCannersUtilities
 
             #endregion
 
-            public FloatValue()
-            {
-            }
 
-            public FloatValue(string name)
-            {
-                _name = name;
-            }
-
-            public FloatValue(string name, float startValue)
-            {
-                _name = name;
-                targetValue = startValue;
-                CurrentValue = startValue;
-            }
-
-            public FloatValue(string name, float startValue, float lerpSpeed)
+            public FloatValue(float startValue = 1, float lerpSpeed = 1, string name = "Float Value")
             {
                 _name = name;
                 targetValue = startValue;
@@ -1088,6 +1073,7 @@ namespace QuizCannersUtilities
                 this.min = min;
                 this.max = max;
             }
+
         }
 
         public class ColorValue : BaseColorLerp, IGotName

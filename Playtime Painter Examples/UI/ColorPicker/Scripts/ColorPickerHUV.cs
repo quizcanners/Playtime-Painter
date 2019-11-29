@@ -99,7 +99,7 @@ namespace PlaytimePainter.Examples {
         {
             var changed = false;
 
-            pegi.toggleDefaultInspector();
+            pegi.toggleDefaultInspector(this);
             "HUE: {0}".F(hue).nl();
             "Saturateion: {0}".F(Saturation).nl();
             "Value: {0}".F(Saturation).nl();

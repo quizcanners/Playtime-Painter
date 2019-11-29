@@ -183,7 +183,7 @@ namespace PlayerAndEditorGUI
             return changes || changed;
         }
         
-        public static bool toggleDefaultInspector()
+        public static bool toggleDefaultInspector(Object target)
         {
             var changed = false;
 
@@ -198,12 +198,14 @@ namespace PlayerAndEditorGUI
             }
             else
             {
-                pegi.toggle(ref PEGI_Inspector_Base.drawDefaultInspector, icon.Exit, icon.Debug,
-                   "Toggle Between regular and PEGI inspector", 20).changes(ref changed);
+                bool isDefault = target == PEGI_Inspector_Base.drawDefaultInspector;
 
-                if (PEGI_Inspector_Base.drawDefaultInspector &&
-                    "Custom Inspector".ClickLabel(style: PEGI_Styles.ExitLabel).nl(ref changed))
-                    PEGI_Inspector_Base.drawDefaultInspector = false;
+                if (pegi.toggle(ref isDefault, icon.Exit, icon.Debug,
+                    "Toggle Between regular and PEGI inspector", 20).changes(ref changed))
+                    PEGI_Inspector_Base.drawDefaultInspector = isDefault ? target : null;
+
+                if (isDefault && "Custom Inspector".ClickLabel(style: PEGI_Styles.ExitLabel).nl(ref changed))
+                    PEGI_Inspector_Base.drawDefaultInspector = null;
 
             }
 
