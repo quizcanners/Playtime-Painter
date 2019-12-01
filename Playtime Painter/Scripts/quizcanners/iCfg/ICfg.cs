@@ -447,15 +447,17 @@ namespace QuizCannersUtilities {
         #region Inspector
 
         public virtual void ResetInspector() {
-            inspectedItems = -1;
+            _inspectedItems = -1;
         }
 
-        public int inspectedItems = -1;
-        
+        public int _inspectedItems = -1;
+
+        public bool InspectingVisuals() => _inspectedItems == 21;
+
         public virtual bool Inspect() {
             var changed = false;
 
-            if (icon.Debug.enter(ref inspectedItems, 0)) {
+            if (icon.Debug.enter(ref _inspectedItems, 0)) {
                 if (icon.Refresh.Click("Reset Inspector"))
                     ResetInspector();
                 this.CopyPasteStdPegi().nl(ref changed);

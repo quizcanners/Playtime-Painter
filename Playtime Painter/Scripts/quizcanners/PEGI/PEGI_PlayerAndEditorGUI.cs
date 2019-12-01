@@ -5103,6 +5103,22 @@ namespace PlayerAndEditorGUI
 
         #region UnityObject
 
+        public static bool edit_ifNull<T>(this GameObject parent, ref T component) where T : Component
+        {
+            if (component)
+                return false;
+
+            var changed = false;
+
+            typeof(T).ToString().SimplifyTypeName().write();
+            if (icon.Refresh.Click("Get Component()").changes(ref changed))
+                component = parent.GetComponent<T>();
+            if (icon.Add.Click("Add Component").changes(ref changed))
+                component = parent.AddComponent<T>();
+
+            return changed;
+        }
+
         public static bool edit(ref SortingLayer sortingLayer) => select(ref sortingLayer, SortingLayer.layers);
 
         public static bool edit(this string label, ref SortingLayer sortingLayer)

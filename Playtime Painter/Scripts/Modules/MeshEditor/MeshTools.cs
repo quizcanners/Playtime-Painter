@@ -87,13 +87,13 @@ namespace PlaytimePainter {
         {
             get
             {
-                if (MeshManager.previewEdMesh == null)
+                if (MeshEditorManager.previewEdMesh == null)
                 {
-                    MeshManager.previewEdMesh = new EditableMesh();
-                    MeshManager.previewEdMesh.Decode(EditedMesh.Encode().ToString());
+                    MeshEditorManager.previewEdMesh = new EditableMesh();
+                    MeshEditorManager.previewEdMesh.Decode(EditedMesh.Encode().ToString());
                     //Debug.Log("Recreating preview");
                 }
-                return MeshManager.previewEdMesh;
+                return MeshEditorManager.previewEdMesh;
             }
         }
         
@@ -228,7 +228,7 @@ namespace PlaytimePainter {
 
             "Mode".editEnum(40, ref _detectionMode).nl(ref changed);
 
-            if (mgm.MeshTool.ShowGrid) {
+            if (MeshEditorManager.MeshTool.ShowGrid) {
                 "Snap to grid:".toggleIcon(ref sd.snapToGrid).nl(ref changed);
 
                 if (sd.snapToGrid)

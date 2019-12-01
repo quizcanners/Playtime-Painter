@@ -258,9 +258,9 @@ namespace PlaytimePainter {
 
             pegi.space();
 
-            "Atlas".enter_Inspect(AtlasCreator, ref inspectedItems, 11).nl(ref changed);
+            "Atlas".enter_Inspect(AtlasCreator, ref _inspectedItems, 11).nl(ref changed);
 
-            if (inspectedItems == -1) {
+            if (_inspectedItems == -1) {
                 "Atlases".select_Index(70, ref atlasCreatorId, TileableAtlasingControllerModule.inst.atlases).changes(ref changed);
                 if (icon.Add.Click("Create new Atlas").nl(ref changed)) {
                     atlasCreatorId = TileableAtlasingControllerModule.inst.atlases.Count;
@@ -447,22 +447,22 @@ namespace PlaytimePainter {
                     _atlasedMaterial.SetTexture(f.atlasedField, ac.aTexture);
                 }
 
-                MeshManager.Inst.EditMesh(painter, true);
+                MeshEditorManager.Inst.EditMesh(painter, true);
 
                 if (firstAtlasing)
-                    atlPlug.preAtlasingSavedMesh = MeshManager.editedMesh.Encode().ToString();
+                    atlPlug.preAtlasingSavedMesh = MeshEditorManager.editedMesh.Encode().ToString();
 
                 painter.selectedMeshProfile = _matAtlasProfile;
 
                 if (tiling != Vector2.one || offset != Vector2.zero)
                 {
-                    MeshManager.editedMesh.TileAndOffsetUVs(offset, tiling, 0);
+                    MeshEditorManager.editedMesh.TileAndOffsetUVs(offset, tiling, 0);
                     Debug.Log("offsetting " + offset + " tiling " + tiling);
                 }
 
                 TriangleAtlasTool.Inst.SetAllTrianglesTextureTo(index, 0, painter.selectedSubMesh);
-                MeshManager.Inst.Redraw();
-                MeshManager.Inst.DisconnectMesh();
+                MeshEditorManager.Inst.Redraw();
+                MeshEditorManager.Inst.StopEditingMesh();
 
                 _atlasedMaterial.SetFloat(PainterDataAndConfig.ATLASED_TEXTURES, atlPlug.atlasRows);
                 painter.Material = _atlasedMaterial;
@@ -983,7 +983,7 @@ namespace PlaytimePainter {
             var changed = false;
 #if UNITY_EDITOR
 
-            if (inspectedItems == -1) {
+            if (_inspectedItems == -1) {
 
                 "Atlas size:".editDelayed(ref _atlasSize, 80).nl(ref changed);
                     _atlasSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(_atlasSize, 512, 4096));
@@ -995,7 +995,7 @@ namespace PlaytimePainter {
                 AdjustListSize();
             }
 
-            _texturesMeta.enter_List(ref textures, ref inspectedItems, 11).nl(ref changed);
+            _texturesMeta.enter_List(ref textures, ref _inspectedItems, 11).nl(ref changed);
 
             if ("Textures:".foldout().nl()) {
                 AdjustListSize();

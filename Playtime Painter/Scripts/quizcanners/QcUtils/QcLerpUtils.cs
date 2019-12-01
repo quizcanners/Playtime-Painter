@@ -1830,7 +1830,7 @@ namespace QuizCannersUtilities
 
         #region Lerps
 
-        public static float SpeedToPortion(this float speed, float dist) =>
+        private static float SpeedToPortion(this float speed, float dist) =>
             dist != 0 ? Mathf.Clamp01(speed * Time.deltaTime / Mathf.Abs(dist)) : 1;
 
         public static bool SpeedToMinPortion(this float speed, float dist, LerpData ld)
@@ -1970,12 +1970,12 @@ namespace QuizCannersUtilities
             return Vector4.LerpUnclamped(from, to, portion);
         }
 
-        public static Quaternion LerpBySpeed(this Quaternion from, Quaternion to, float speed) =>
-            Quaternion.LerpUnclamped(from, to, speed.SpeedToPortion(Quaternion.Angle(from, to)));
+        public static Quaternion LerpBySpeed(this Quaternion from, Quaternion to, float speedInDegrees) =>
+            Quaternion.LerpUnclamped(from, to, speedInDegrees.SpeedToPortion(Quaternion.Angle(from, to)));
 
-        public static Quaternion LerpBySpeed(this Quaternion from, Quaternion to, float speed, out float portion)
+        public static Quaternion LerpBySpeed(this Quaternion from, Quaternion to, float speedInDegrees, out float portion)
         {
-            portion = speed.SpeedToPortion(Quaternion.Angle(from, to));
+            portion = speedInDegrees.SpeedToPortion(Quaternion.Angle(from, to));
             return Quaternion.LerpUnclamped(from, to, portion);
         }
 

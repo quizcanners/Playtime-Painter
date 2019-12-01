@@ -492,7 +492,7 @@ namespace PlaytimePainter {
             var label = inspectedMask.ToText();
             var channelEnabled = mask.HasFlag(inspectedMask);
 
-            if (InspectedPainter && InspectedPainter.meshEditing && MeshMGMT.MeshTool == VertexColorTool.inst) {
+            if (InspectedPainter && InspectedPainter.meshEditing && MeshEditorManager.MeshTool == VertexColorTool.inst) {
 
                 var mat = InspectedPainter.Material;
                 if (mat)

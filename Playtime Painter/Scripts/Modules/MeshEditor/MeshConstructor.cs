@@ -349,7 +349,16 @@ namespace PlaytimePainter {
                 return _originalIndex;
             }
         }
-        
+
+        public MeshConstructor(PlaytimePainter painter)
+        {
+            profile = painter.MeshProfile;
+            this.edMesh = new EditableMesh(painter);
+            mesh = painter.SharedMesh;
+            if (!mesh)
+                mesh = new Mesh();
+        }
+
         public MeshConstructor(EditableMesh edMesh, MeshPackagingProfile solution, Mesh freshMesh)
         {
             profile = solution;
@@ -493,6 +502,19 @@ namespace PlaytimePainter {
             }
 
             return mesh;
+        }
+
+        public Mesh Construct(PlaytimePainter p)
+        {
+            var m = Construct();
+
+            if (m)
+            {
+                p.SharedMesh = m;
+                p.UpdateMeshCollider(m);
+            }
+
+            return m;
         }
 
         public Mesh Construct() {

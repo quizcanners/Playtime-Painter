@@ -12,7 +12,7 @@ namespace PlaytimePainter
 
         public class Vertex : PainterSystemKeepUnrecognizedCfg {
 
-            protected PlaytimePainter Painter => MeshManager.target;
+            protected PlaytimePainter Painter => MeshEditorManager.target;
             
             public BoneWeight boneWeight;
             public Color color;
@@ -371,16 +371,16 @@ namespace PlaytimePainter
 
 
                     //  if (!emc.AnimatedVertices())  
-                    return MeshManager.targetTransform.TransformPoint(localPos);
+                    return MeshEditorManager.targetTransform.TransformPoint(localPos);
 
                     // var animNo = emc.GetVertexAnimationNumber();
                     //  return emc.transform.TransformPoint(localPos + anim[animNo]);
 
                 }
-                set { localPos = MeshManager.targetTransform.InverseTransformPoint(value); }
+                set { localPos = MeshEditorManager.targetTransform.InverseTransformPoint(value); }
             }
 
-            public Vector3 GetWorldNormal() => MeshManager.targetTransform.TransformDirection(GetNormal());
+            public Vector3 GetWorldNormal() => MeshEditorManager.targetTransform.TransformDirection(GetNormal());
 
             private Vector3 GetNormal()
             {
@@ -549,7 +549,7 @@ namespace PlaytimePainter
 
             public void PixPerfect()
             {
-                var trg = MeshManager.target;
+                var trg = MeshEditorManager.target;
 
                 if (trg && (trg.TexMeta != null))
                 {

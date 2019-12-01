@@ -49,7 +49,7 @@ namespace PlaytimePainter
 
         public bool firstBuildRun;
         public bool gotBoneWeights;
-        public int subMeshCount;
+        public int subMeshCount = 1;
         public int uv2DistributeRow;
         public int uv2DistributeCurrent;
 
@@ -185,7 +185,7 @@ namespace PlaytimePainter
             triangles = new List<Triangle>();
             var points = new Vertex[3];
 
-            subMeshCount = mesh.subMeshCount;
+            subMeshCount = Mathf.Max(1, mesh.subMeshCount);
             baseVertex = new List<uint>();
 
             //   "Blend Shapes Done".TimerEnd_Restart();

@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace PlaytimePainter
 {
@@ -42,9 +45,12 @@ namespace PlaytimePainter
         protected static PainterCamera TexMGMT => PainterCamera.Inst;
         protected static BrushConfig GlobalBrush => TexMgmtData.brushConfig;
         protected static PlaytimePainter InspectedPainter => PlaytimePainter.inspected;
-        protected static MeshManager MeshMGMT => MeshManager.Inst;
+        protected static MeshEditorManager MeshMGMT => MeshEditorManager.Inst;
         protected static bool ApplicationIsQuitting => PainterSystem.applicationIsQuitting;
-        
+
+        protected static Transform CurrentViewTransform(Transform defaultTransform = null) =>
+            PainterSystem.CurrentViewTransform(defaultTransform);
+
         public virtual bool Inspect() => _uTags.Inspect();  
 
     }
@@ -61,10 +67,30 @@ namespace PlaytimePainter
         protected static PlaytimePainter InspectedPainter => PlaytimePainter.inspected; 
         protected static TextureMeta InspectedImageMeta { get { var ip = InspectedPainter; return ip ? ip.TexMeta : null; } }
         protected static GridNavigator Grid => GridNavigator.Inst();
-        protected static MeshManager MeshMGMT => MeshManager.Inst;
-        protected static EditableMesh EditedMesh => MeshManager.editedMesh;
+        protected static MeshEditorManager MeshMGMT => MeshEditorManager.Inst;
+        protected static EditableMesh EditedMesh => MeshEditorManager.editedMesh;
         protected static bool DocsEnabled => !PainterDataAndConfig.hideDocumentation;
         public static bool applicationIsQuitting;
+
+
+
+        public static Transform CurrentViewTransform(Transform defaultTransform = null)
+        {
+
+            if (Application.isPlaying)
+            {
+                return TexMGMT.MainCamera.transform;
+
+            }
+
+#if UNITY_EDITOR
+            else if (SceneView.lastActiveSceneView != null)
+                return SceneView.lastActiveSceneView.camera.transform;
+#endif
+
+
+            return defaultTransform;
+        }
 
     }
 

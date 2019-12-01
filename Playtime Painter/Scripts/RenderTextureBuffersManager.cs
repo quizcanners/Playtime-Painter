@@ -625,7 +625,7 @@ namespace PlaytimePainter {
             if (!painter || !painter.enabled) return false;
 
             if (painter.meshEditing)
-                return MeshManager.target == painter && PainterCamera.Data.MeshTool.ShowGrid;
+                return MeshEditorManager.target == painter && PainterCamera.Data.MeshTool.ShowGrid;
 
             if (painter.LockTextureEditing || PainterCamera.Data.showConfig || !PlaytimePainter.IsCurrentTool)
                 return false;

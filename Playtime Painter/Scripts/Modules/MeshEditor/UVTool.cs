@@ -130,11 +130,11 @@ namespace PlaytimePainter
 
             var m = MeshMGMT;
 
-            if (!MeshManager.target || EditedMesh.meshPoints.IsNullOrEmpty()) return;
+            if (!MeshEditorManager.target || EditedMesh.meshPoints.IsNullOrEmpty()) return;
 
             var prMesh = GetPreviewMesh;
 
-            var trgPos = MeshManager.targetTransform.position;
+            var trgPos = MeshEditorManager.targetTransform.position;
             
               if (!useThreshold) {
                   foreach (var v in prMesh.meshPoints)  {
@@ -146,7 +146,7 @@ namespace PlaytimePainter
               else
                   AutoProjectUVs(prMesh);
 
-              var trg = MeshManager.target;
+              var trg = MeshEditorManager.target;
 
             new MeshConstructor(prMesh, trg.MeshProfile, trg.SharedMesh).UpdateMesh<VertexDataTypes.VertexUv>();
         }
@@ -183,7 +183,7 @@ namespace PlaytimePainter
 
             Vector2 uv  = Vector2.zero;
 
-            var trgPos = MeshManager.targetTransform.position;
+            var trgPos = MeshEditorManager.targetTransform.position;
 
             var diffs = new Vector3[3];
 
@@ -241,7 +241,7 @@ namespace PlaytimePainter
             if (point.vertices.Count > 1 || vrt == point)
             {
 
-                var tex = MeshManager.target.meshRenderer.sharedMaterial.mainTexture;
+                var tex = MeshEditorManager.target.meshRenderer.sharedMaterial.mainTexture;
 
                 if (vrt == point)
                 {
@@ -323,7 +323,7 @@ namespace PlaytimePainter
                 MeshMGMT.SelectedUv = EditedMesh.meshPoints[0].vertices[0];
 
             if (!EditorInputManager.Control) {
-                var trgPos = MeshManager.targetTransform.position;
+                var trgPos = MeshEditorManager.targetTransform.position;
 
                 for (var i = 0; i < 3; i++) {
                     var v = PointedTriangle.vertexes[i];
@@ -337,7 +337,7 @@ namespace PlaytimePainter
 
         private void AutoProjectUVs(EditableMesh eMesh) {
 
-            var trgPos = MeshManager.targetTransform.position;
+            var trgPos = MeshEditorManager.targetTransform.position;
 
             var gn = GridNavigator.Inst();
 
@@ -382,7 +382,7 @@ namespace PlaytimePainter
                 var isChanged = newUv != _lastCalculatedUv;
                 _lastCalculatedUv = newUv;
 
-                var trg = MeshManager.target;
+                var trg = MeshEditorManager.target;
 
                 if (isChanged && !EditorInputManager.GetMouseButtonUp(0))
                 {

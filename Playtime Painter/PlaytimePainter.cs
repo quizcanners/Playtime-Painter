@@ -54,7 +54,7 @@ namespace PlaytimePainter {
 
         private static PainterCamera TexMgmt => PainterCamera.Inst;
 
-        private static MeshManager MeshMgmt => MeshManager.Inst;
+        private static MeshEditorManager MeshMgmt => MeshEditorManager.Inst;
 
         protected static GridNavigator Grid => GridNavigator.Inst();
 
@@ -84,8 +84,11 @@ namespace PlaytimePainter {
 
             get { return meshFilter ? meshFilter.sharedMesh : (skinnedMeshRenderer ? skinnedMeshRenderer.sharedMesh : null); }
             set {
-                if (meshFilter) meshFilter.sharedMesh = value;
-                if (skinnedMeshRenderer) skinnedMeshRenderer.sharedMesh = value;
+                if (meshFilter)
+                    meshFilter.sharedMesh = value;
+                else
+                if (skinnedMeshRenderer)
+                    skinnedMeshRenderer.sharedMesh = value;
             }
         }
 
@@ -108,16 +111,24 @@ namespace PlaytimePainter {
         {
             get
             {
-
-                if (meshDataSavedFor != this.GetMesh())
+                if ((savedMeshData != null) && (savedMeshData.Length == 0 || (meshDataSavedFor != this.GetMesh())))
                     savedMeshData = null;
-
-                if ((savedMeshData != null) && (savedMeshData.Length == 0))
-                    savedMeshData = null;
-
+                
                 return savedMeshData;
             }
-            set { meshDataSavedFor = this.GetMesh(); savedMeshData = value; }
+            set
+            {
+                meshDataSavedFor = this.GetMesh();
+                if (!meshDataSavedFor)
+                {
+                    var m = new Mesh();
+                    meshDataSavedFor = m;
+                    Mesh = m;
+                }
+                savedMeshData = value;
+                
+       
+            }
 
         }
 
@@ -350,7 +361,7 @@ namespace PlaytimePainter {
             if (IsTerrainHeightTexture && NotUsingPreview)
                 return false;
 
-            if (MeshManager.target)
+            if (MeshEditorManager.target)
                 return false;
 
             if (stroke.mouseDwn || stroke.mouseUp)
@@ -545,7 +556,7 @@ namespace PlaytimePainter {
                     return;
             }
 
-            if (meshEditing && (MeshManager.target != this))
+            if (meshEditing && (MeshEditorManager.target != this))
                 return;
 
             var id = TexMeta;
@@ -1286,10 +1297,16 @@ namespace PlaytimePainter {
             .Add("mdls", modulesContainer)
             .Add_IfTrue("invCast", invertRayCast);
 
-        public CfgEncoder EncodeMeshStuff() => new CfgEncoder()
-            .Add_String("m", SavedEditableMesh)
-            .Add("pr", selectedMeshProfile);
-        
+        public CfgEncoder EncodeMeshStuff()
+        {
+            if (IsEditingThisMesh)
+                MeshEditorManager.Inst.StopEditingMesh();
+
+              return new CfgEncoder()
+                    .Add_String("m", SavedEditableMesh)
+                    .Add("pr", selectedMeshProfile);
+        }
+
         public bool Decode(string tg, string data)
         {
             switch (tg)
@@ -1438,7 +1455,7 @@ namespace PlaytimePainter {
                 
                 Directory.CreateDirectory(Path.Combine("Assets", Cfg.meshesFolderName));
 
-                AssetDatabase.CreateAsset(sm, Path.Combine("Assets",MeshManager.GenerateMeshSavePath()));
+                AssetDatabase.CreateAsset(sm, Path.Combine("Assets",MeshEditorManager.GenerateMeshSavePath()));
 
                 AssetDatabase.SaveAssets();
 
@@ -1477,7 +1494,7 @@ namespace PlaytimePainter {
 
         public const string OnlineManual = "https://docs.google.com/document/d/170k_CE-rowVW9nsAo3EUqVIAWlZNahC0ua11t1ibMBo/edit?usp=sharing";
 
-        private static readonly List<string> TextureEditorIgnore = new List<string> { MeshManager.VertexEditorUiElementTag, MeshManager.ToolComponentTag, "o" };
+        private static readonly List<string> TextureEditorIgnore = new List<string> { MeshEditorManager.VertexEditorUiElementTag, MeshEditorManager.ToolComponentTag, "o" };
 
         public static bool CanEditWithTag(string tag)
         {
@@ -1591,13 +1608,13 @@ namespace PlaytimePainter {
             
             this.SaveStdData();
             
-            if (!TexMgmt || MeshManager.target != this) return;
+            if (!TexMgmt || MeshEditorManager.target != this) return;
             
-            MeshManager.Inst.DisconnectMesh();
+            MeshEditorManager.Inst.StopEditingMesh();
             
         }
 
-        public void OnEnable()
+        private void OnEnable()
         {
 
             isBeingDisabled = false;
@@ -1612,6 +1629,11 @@ namespace PlaytimePainter {
 
             this.LoadStdData();
             
+        }
+
+        public void Reset()
+        {
+            InitIfNotInitialized();
         }
 
         private void UpdateColliderForSkinnedMesh() {
@@ -1867,7 +1889,7 @@ namespace PlaytimePainter {
                 {
                     IsCurrentTool = false;
                     WindowPosition.Collapse();
-                    MeshManager.Inst.DisconnectMesh();
+                    MeshEditorManager.Inst.StopEditingMesh();
                     SetOriginalShaderOnThis();
                     UpdateOrSetTexTarget(TexTarget.Texture2D);
                    
@@ -1890,8 +1912,8 @@ namespace PlaytimePainter {
 
                 #region Top Buttons
                 
-                if (MeshManager.target && (MeshManager.target != this))
-                    MeshManager.DisconnectMesh();
+                if (MeshEditorManager.target && (MeshEditorManager.target != this))
+                    MeshManager.StopEditingMesh();
 
                 if (!cfg.showConfig)
                 {
@@ -1902,7 +1924,7 @@ namespace PlaytimePainter {
                             CheckSetOriginalShader();
                             meshEditing = false;
                             CheckPreviewShader();
-                            MeshMgmt.DisconnectMesh();
+                            MeshMgmt.StopEditingMesh();
                             cfg.showConfig = false;
                             "Editing Texture".showNotificationIn3D_Views();
                         }
@@ -1976,13 +1998,13 @@ namespace PlaytimePainter {
 
                             if (sm) {
 
-                                if (this != MeshManager.target)
+                                if (this != MeshEditorManager.target)
                                     if (SavedEditableMesh != null)
                                         "Component has saved mesh data.".nl();
                                 
                                 "Warning, this will change (or mess up) your model.".writeOneTimeHint("MessUpMesh");
 
-                                if (MeshManager.target != this) {
+                                if (MeshEditorManager.target != this) {
 
                                     var ent = gameObject.GetComponent($"pb_Entity");
                                     var obj = gameObject.GetComponent($"pb_Object");
@@ -1999,10 +2021,6 @@ namespace PlaytimePainter {
 
                                         "Mesh has {0} vertices".F(sm.vertexCount).nl();
 
-                                        if (sm.vertexCount > 2000)
-                                            "The mesh is really complex, mesh editor may be really slow at times".writeWarning();
-
-
                                         pegi.nl();
 
                                         const string confirmTag = "pp_EditThisMesh";
@@ -2011,23 +2029,27 @@ namespace PlaytimePainter {
                                             if ("Copy & Edit".Click())
                                                 mg.EditMesh(this, true);
 
-                                            if ("New Mesh".Click()) {
+                                            if ("New Mesh".ClickConfirm("newMesh", SavedEditableMesh==null ? "This will erase existing editable mesh. Proceed?" : "Create a mesh?")) {
                                                 Mesh = new Mesh();
                                                 SavedEditableMesh = null;
                                                 mg.EditMesh(this, false);
                                             }
                                         }
 
-                                        if ("Edit this".ClickConfirm(confirmTag, "It is recommended to edit a copy of a mesh and then save it as new mesh. Are you sure you want to edit the original one?").nl())
+                                        if ("Edit this".ClickConfirm(confirmTag, "Are you sure you want to edit the original one instead of editing a copy(safer)?").nl())
                                             mg.EditMesh(this, false);
                                     }
                                 }
                             }
-                            else if ("Add Mesh Filter/Renderer".Click().nl())
+                            else
                             {
-                                meshFilter = gameObject.AddComponent<MeshFilter>();
-                                if (!meshRenderer)
-                                    meshRenderer = gameObject.AddComponent<MeshRenderer>();
+                                gameObject.edit_ifNull(ref meshFilter ).nl(ref changed);
+
+                                gameObject.edit_ifNull(ref meshRenderer).nl(ref changed);
+
+                                if (!sm && "Create Mesh".Click())
+                                    Mesh = new Mesh();
+
                             }
 
                             if (IsEditingThisMesh)
@@ -2047,7 +2069,7 @@ namespace PlaytimePainter {
 
                                         pegi.newLine();
                                         if (MeshProfile.Inspect().nl())
-                                            MeshManager.editedMesh.Dirty = true;
+                                            MeshEditorManager.editedMesh.Dirty = true;
 
                                        
                                     }
@@ -2056,7 +2078,7 @@ namespace PlaytimePainter {
                                 {
                                     if (" : ".select_Index(20, ref selectedMeshProfile, cfg.meshPackagingSolutions, true) &&
                                         IsEditingThisMesh)
-                                        MeshManager.editedMesh.Dirty = true;
+                                        MeshEditorManager.editedMesh.Dirty = true;
 
                                     if (icon.Add.Click(25).nl())
                                     {
@@ -2700,7 +2722,7 @@ namespace PlaytimePainter {
             if (!TexMgmt || this != TexMgmt.focusedPainter) return;
 
             if (meshEditing && !Application.isPlaying)
-                    MeshManager.Inst.DRAW_Lines(true);
+                    MeshEditorManager.Inst.DRAW_Lines(true);
 
             var br = GlobalBrush;
 
@@ -2780,7 +2802,7 @@ namespace PlaytimePainter {
             #endregion
 
             if (Application.isPlaying && IsEditingThisMesh)
-                MeshManager.Inst.DRAW_Lines(false);
+                MeshEditorManager.Inst.DRAW_Lines(false);
 
             if (textureWasChanged)
                 OnChangedTexture_OnMaterial();
@@ -2838,9 +2860,9 @@ namespace PlaytimePainter {
 
         }
 
-        public bool IsEditingThisMesh => IsCurrentTool && meshEditing && (MeshManager.target == this); 
+        public bool IsEditingThisMesh => IsCurrentTool && meshEditing && (MeshEditorManager.target == this); 
 
-        private static MeshManager MeshManager => MeshManager.Inst; 
+        private static MeshEditorManager MeshManager => MeshEditorManager.Inst; 
 
 
         #endregion

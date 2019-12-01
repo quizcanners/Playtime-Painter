@@ -39,7 +39,7 @@ namespace PlaytimePainter {
 
         public static readonly BrushMeshGenerator BrushMeshGenerator = new BrushMeshGenerator();
 
-        public static readonly MeshManager MeshManager = new MeshManager();
+        public static readonly MeshEditorManager MeshManager = new MeshEditorManager();
 
         public static readonly TextureDownloadManager DownloadManager = new TextureDownloadManager();
         

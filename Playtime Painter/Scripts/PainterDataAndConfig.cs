@@ -449,7 +449,7 @@ namespace PlaytimePainter
                 #if UNITY_EDITOR
 
                 if ("Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay).nl())
-                    MeshManager.Inst.DisconnectMesh();
+                    MeshEditorManager.Inst.StopEditingMesh();
 
                 if (enablePainterUIonPlay) {
                     "To have icons in your build move PlaytimePainter->Scripts->quizcanners->Editor->Resources outside of Editor folder (should be quizcanners->Resources)".writeHint();

@@ -155,18 +155,18 @@ namespace PlaytimePainter
                 if (painter.meshEditing)
                 {
 
-                    var edited = MeshManager.target;
+                    var edited = MeshEditorManager.target;
 
                     if (pointedPainter && pointedPainter != edited && pointedPainter.meshEditing
                         && !pointedPainter.SavedEditableMesh.IsNullOrEmpty() && lMouseDwn && e.button == 0)
                     {
-                        MeshManager.Inst.EditMesh(pointedPainter, false);
+                        MeshEditorManager.Inst.EditMesh(pointedPainter, false);
                         allowRefocusing = true;
                     }
                     else allowRefocusing = false;
 
 
-                    if (((e.button == 1 && !MeshManager.Inst.Dragging) || e.button == 2)
+                    if (((e.button == 1 && !MeshEditorManager.Inst.Dragging) || e.button == 2)
                         && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag ||
                             e.type == EventType.MouseUp))
                         navigating = true;
@@ -215,7 +215,7 @@ namespace PlaytimePainter
             painter.FeedEvents(e);
 
             if (painter.meshEditing)
-                MeshManager.Inst.UpdateInputEditorTime(e, lMouseUp, lMouseDwn);
+                MeshEditorManager.Inst.UpdateInputEditorTime(e, lMouseUp, lMouseDwn);
         }
 
         public static Tool previousTool;

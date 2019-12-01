@@ -588,29 +588,7 @@ namespace QuizCannersUtilities {
             return mc;
 
         }
-
-        public static Transform TryGetCameraTransform(this GameObject go, Camera cam = null)
-        {
-
-            if (Application.isPlaying)
-            {
-                if (!cam)
-                    cam = Camera.main;
-            }
-
-#if UNITY_EDITOR
-            else if (SceneView.lastActiveSceneView != null)
-                cam = SceneView.lastActiveSceneView.camera;
-#endif
-
-            if (cam)
-                return cam.transform;
-
-            cam = Object.FindObjectOfType<Camera>();
-
-            return cam ? cam.transform : go.transform;
-        }
-
+        
         public static void SetLayerRecursively(GameObject go, int layerNumber)
         {
             foreach (var trans in go.GetComponentsInChildren<Transform>(true))

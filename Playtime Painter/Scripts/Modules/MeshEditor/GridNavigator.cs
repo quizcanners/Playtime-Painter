@@ -37,8 +37,6 @@ public class GridNavigator : PainterSystemMono {
         return _inst;
     }
 
-    private Transform Camera => gameObject.TryGetCameraTransform(TexMGMT.MainCamera);
-    
     public Material vertexPointMaterial;
     public GameObject vertPrefab;
     public MarkerWithText[] vertices;
@@ -67,7 +65,7 @@ public class GridNavigator : PainterSystemMono {
     
     public void DeactivateVertices() {
 
-        for (var i = 0; i < MeshManager.Inst.verticesShowMax; i++)
+        for (var i = 0; i < MeshEditorManager.Inst.verticesShowMax; i++)
         {
             var v = vertices[i];
             
@@ -100,7 +98,7 @@ public class GridNavigator : PainterSystemMono {
     }
 
     private float AngleClamp(Quaternion ang) {
-        var res = Quaternion.Angle(Camera.rotation, ang);
+        var res = Quaternion.Angle(CurrentViewTransform().rotation, ang);
         if (res > 90)
             res = 180 - res;
         return res;
@@ -108,7 +106,7 @@ public class GridNavigator : PainterSystemMono {
 
     public float AngGridToCamera(Vector3 hitPos)
     {
-        var ang = (Vector3.Angle(GetGridPerpendicularVector(), hitPos - Camera.position));
+        var ang = (Vector3.Angle(GetGridPerpendicularVector(), hitPos - CurrentViewTransform().position));
         if (ang > 90)
             ang = 180 - ang;
         return ang;
@@ -200,7 +198,7 @@ public class GridNavigator : PainterSystemMono {
 
     private void ClosestAxis(bool horToo)
     {
-        var ang = Camera.rotation.x;
+        var ang = CurrentViewTransform().rotation.x;
         if (!horToo || (ang < 35 || ang > 300))
         {
             var x = AngleClamp(XGrid);
@@ -223,8 +221,8 @@ public class GridNavigator : PainterSystemMono {
         else if (delta < 0)
             gSide = Gridside.xz;
 
-        if (before != gSide && MeshManager.target)
-            MeshMGMT.MeshTool.OnGridChange();
+        if (before != gSide && MeshEditorManager.target)
+            MeshEditorManager.MeshTool.OnGridChange();
 
     }
     
@@ -236,7 +234,7 @@ public class GridNavigator : PainterSystemMono {
         if (!cfg)
             return;
 
-        var showGrid = MeshManager.target.NeedsGrid() || TexMGMT.focusedPainter.NeedsGrid(); 
+        var showGrid = MeshEditorManager.target.NeedsGrid() || TexMGMT.focusedPainter.NeedsGrid(); 
 
         SetEnabled(showGrid, cfg.snapToGrid && showGrid);
 
@@ -299,9 +297,9 @@ public class GridNavigator : PainterSystemMono {
         
         _dotPositionProperty.GlobalValue = new Vector4(onGridPos.x, onGridPos.y, onGridPos.z);
 
-        dotTf.rotation = Camera.rotation;
+        dotTf.rotation = CurrentViewTransform().rotation;
 
-        var cam = Camera;
+        var cam = CurrentViewTransform();
 
         var dist = Mathf.Max(0.1f, (cam.position - position).magnitude * 2);
 
@@ -323,7 +321,7 @@ public class GridNavigator : PainterSystemMono {
             .Set(_dyProp, dy / dist)
             .Set(_sizeProp, dist / scale);
 
-        if (MeshManager.target)
+        if (MeshEditorManager.target)
             MeshMGMT.UpdateLocalSpaceMousePosition(); 
     }
 
@@ -352,7 +350,7 @@ public class GridNavigator : PainterSystemMono {
         }
 
 
-        if (!MeshManager.target && TexMgmtData)
+        if (!MeshEditorManager.target && TexMgmtData)
             UpdatePositions();
         
     }

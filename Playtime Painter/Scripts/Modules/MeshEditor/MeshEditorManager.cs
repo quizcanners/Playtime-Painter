@@ -23,16 +23,14 @@ namespace PlaytimePainter
     #pragma warning disable IDE0018 // Inline variable declaration
 
 
-    public class MeshManager : PainterSystemKeepUnrecognizedCfg {
+    public class MeshEditorManager : PainterSystemKeepUnrecognizedCfg {
 
         #region Getters Setters
-        public static MeshManager Inst => PainterCamera.MeshManager;
+        public static MeshEditorManager Inst => PainterCamera.MeshManager;
 
         public static Transform Transform => PainterCamera.Inst?.transform;
 
-        private static Transform CameraTransform => Transform.gameObject.TryGetCameraTransform();
-
-        public MeshToolBase MeshTool => PainterCamera.Data.MeshTool;
+        public static MeshToolBase MeshTool => PainterCamera.Data.MeshTool;
 
         public Vertex SelectedUv { get { return editedMesh.selectedUv; } set { editedMesh.selectedUv = value; } }
         public LineData SelectedLine { get { return editedMesh.selectedLine; } set { editedMesh.selectedLine = value; } }
@@ -99,7 +97,7 @@ namespace PlaytimePainter
                 return;
 
             if (target)
-                DisconnectMesh();
+                StopEditingMesh();
 
             target = painter;
             targetTransform = painter.transform;
@@ -121,7 +119,7 @@ namespace PlaytimePainter
 
         }
 
-        public void DisconnectMesh()
+        public void StopEditingMesh()
         {
 
             if (target) {
@@ -302,7 +300,7 @@ namespace PlaytimePainter
             t.wasProcessed = true;
             const float precision = 0.05f;
 
-            var acc = (targetTransform.InverseTransformPoint(CameraTransform.position) - collisionPosLocal).magnitude;
+            var acc = (targetTransform.InverseTransformPoint(CurrentViewTransform().position) - collisionPosLocal).magnitude;
 
             acc *= precision;
 
@@ -524,7 +522,7 @@ namespace PlaytimePainter
 
             if (!MeshTool.ShowVertices) return;
 
-            var camTf = CameraTransform;
+            var camTf = CurrentViewTransform();
 
             for (var i = 0; i < verticesShowMax; i++)
             {
@@ -582,7 +580,7 @@ namespace PlaytimePainter
                 return;
 
             if (!target.enabled)  {
-                DisconnectMesh();
+                StopEditingMesh();
                 return;
             }
 
@@ -635,18 +633,13 @@ namespace PlaytimePainter
                 switch (e.keyCode)
                 {
 
-                    case KeyCode.Delete: //Debug.Log("Use Backspace to delete vertices"); goto case KeyCode.Backspace;
+                    case KeyCode.Delete: 
                     case KeyCode.Backspace: e.Use(); break;
                 }
             }
             
             if (e.isMouse || (e.type == EventType.ScrollWheel)) 
                 ProcessMouseActions();
-           /* else if (_dragging) {
-                Debug.Log("Setting dirty manually");
-                editedMesh.dirty_Position = true;
-                _dragging = false;
-            }*/
             
             SortAndUpdate();
 

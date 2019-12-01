@@ -50,7 +50,7 @@ namespace PlaytimePainter
         
         public bool MeshToolInspection(MeshToolBase currentTool) {
 
-            if (currentTool is VertexEdgeTool && MeshManager.target.IsAtlased()) {
+            if (currentTool is VertexEdgeTool && MeshEditorManager.target.IsAtlased()) {
                 "ATL_tex_Chanal:".edit(80,ref TriangleAtlasTool.Inst.curAtlasChanel);
 
                 if ("Auto Edge".Click().nl())

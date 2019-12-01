@@ -12,7 +12,7 @@ namespace PlaytimePainter.Examples
 #pragma warning disable IDE0018 // Inline variable declaration
 
     [ExecuteInEditMode]
-    public class GodMode : MonoBehaviour, IPEGI
+    public class GodMode : MonoBehaviour, IPEGI, ICfg
     {
 
         public float speed = 20;
@@ -20,6 +20,28 @@ namespace PlaytimePainter.Examples
         public bool _disableRotation;
         public bool rotateWithoutRmb;
         public bool simulateFlying = false;
+
+        #region Encode & Decode
+
+        public CfgEncoder Encode() => new CfgEncoder()
+                .Add("pos", transform.localPosition)
+                .Add("rot", transform.localRotation);
+        
+        public void Decode(string data) => new CfgDecoder(data).DecodeTagsFor(this);
+
+        public bool Decode(string tg, string data)
+        {
+            switch (tg)
+            {
+                case "pos": transform.localPosition = data.ToVector3(); break;
+                case "rot": transform.localRotation = data.ToQuaternion(); break;
+                default: return false;
+            }
+
+            return true;
+        }
+
+        #endregion
 
 
         #region Camera Smoothing
@@ -52,7 +74,7 @@ namespace PlaytimePainter.Examples
 
 
         #region Advanced Camera
-        public bool advancedCamera;
+      //  public bool advancedCamera;
 
         [SerializeField] private QcUtils.DynamicRangeFloat targetHeight = new QcUtils.DynamicRangeFloat(0.1f, 10, 1);
 
@@ -88,8 +110,8 @@ namespace PlaytimePainter.Examples
         void AdjustCamera()
         {
 
-            if (advancedCamera)
-            {
+           // if (advancedCamera)
+          //  {
                 float clipRange = CameraClipDistance;
 
                 float clip = CameraWindowNearClip();
@@ -98,12 +120,12 @@ namespace PlaytimePainter.Examples
                 _mainCam.farClipPlane = clip + CameraClipDistance;
 
 
-            }
+           /* }
             else
             {
                 _mainCam.transform.localPosition = Vector3.zero;
                 _mainCam.nearClipPlane = 0.3f;
-            }
+            }*/
 
             _mainCam.transform.position += cameraSmoothingOffset;
 
@@ -120,6 +142,8 @@ namespace PlaytimePainter.Examples
             cameraSmoothedVelocity = Vector3.zero;
             mainCameraVelocity = Vector3.zero;
             cameraSmoothingOffset = Vector3.zero;
+
+       
         }
 
         public virtual void Update()
@@ -130,7 +154,7 @@ namespace PlaytimePainter.Examples
 
             var add = Vector3.zero;
 
-            var opratorTf = transform;
+            var operatorTf = transform;
             var camTf = _mainCam.transform;
 
             if (Input.GetKey(KeyCode.W)) add += camTf.forward;
@@ -148,10 +172,13 @@ namespace PlaytimePainter.Examples
 
             mainCameraVelocity = add * speed * (Input.GetKey(KeyCode.LeftShift) ? 3f : 1f);
 
-            opratorTf.position += mainCameraVelocity * Time.deltaTime;
+            operatorTf.localPosition += mainCameraVelocity * Time.deltaTime;
+
+         //  if (advancedCamera)
+                operatorTf.localRotation = operatorTf.localRotation.LerpBySpeed(Quaternion.identity, 160);
 
             if (!Application.isPlaying || _disableRotation) return;
-
+            
             if (rotateWithoutRmb || Input.GetMouseButton(1))
             {
 
@@ -210,9 +237,9 @@ namespace PlaytimePainter.Examples
                     spinCenter = hit.point;
                 else return;
 
-                var before = camTr.rotation;
+                var before = camTr.localRotation;
                 camTr.LookAt(spinCenter);
-                var rot = camTr.rotation.eulerAngles;
+                var rot = camTr.localRotation.eulerAngles;
                 camOrbit.x = rot.y;
                 camOrbit.y = rot.x;
                 _orbitDistance = (spinCenter - transform.position).magnitude;
@@ -243,11 +270,11 @@ namespace PlaytimePainter.Examples
                 transform.position = campos;
                 if (!orbitingFocused)
                 {
-                    camTr.rotation = camTr.rotation.LerpBySpeed(rot, 200);
-                    if (Quaternion.Angle(camTr.rotation, rot) < 1)
+                    camTr.localRotation = camTr.localRotation.LerpBySpeed(rot, 200);
+                    if (Quaternion.Angle(camTr.localRotation, rot) < 1)
                         orbitingFocused = true;
                 }
-                else camTr.rotation = rot;
+                else camTr.localRotation = rot;
             }
         }
 
@@ -288,11 +315,10 @@ namespace PlaytimePainter.Examples
 
                 "Main Camera".edit(ref _mainCam).nl(ref changed);
 
-                if ("Advanced Camera".toggleIcon(ref advancedCamera).nl())
-                    AdjustCamera();
+               // if ("Advanced Camera".toggleIcon(ref advancedCamera).nl())
+                //    AdjustCamera();
 
-                if (advancedCamera)
-                {
+             //   if (advancedCamera) {
 
                     if (!_mainCam.transform.IsChildOf(transform) || (_mainCam.transform == transform))
                     {
@@ -342,7 +368,7 @@ namespace PlaytimePainter.Examples
                             AdjustCamera();
 
                     }
-                }
+              //  }
             }
 
             return false;
