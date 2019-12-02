@@ -410,6 +410,7 @@ namespace PlaytimePainter
         private int _inspectedItems = -1;
         private int _inspectedMaterial = -1;
         private int _inspectedDecal = -1;
+        private int _inspectedMeshPackSol = -1;
 
         private bool InspectData()
         {
@@ -424,6 +425,8 @@ namespace PlaytimePainter
             "Masks".enter_List_UObj(ref masks, ref _inspectedItems, 3).nl(ref changes);
 
             "Decals".enter_List(ref decals, ref _inspectedDecal, ref _inspectedItems, 4).nl(ref changes);
+
+            "Mesh Packaging solutions".enter_List(ref meshPackagingSolutions, ref _inspectedMeshPackSol, ref _inspectedItems, 5).nl(ref changes);
 
             return changes;
         }
@@ -503,43 +506,7 @@ namespace PlaytimePainter
         
         #endregion
 
-        private void Init() {
 
-            if (brushConfig == null)
-                brushConfig = new BrushConfig();
-
-            if (meshPackagingSolutions.IsNullOrEmpty())
-            {
-                Debug.Log("Recreating mash packaging solutions");
-                meshPackagingSolutions = new List<MeshPackagingProfile>
-                {
-                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "Simple"),
-                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "Bevel"),
-                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "AtlasedProjected"),
-                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "Standard_Atlased")
-                };
-            }
-            if (samplingMaskSize.x == 0)
-                samplingMaskSize = new MyIntVec2(4);
-            
-            CheckShaders();
-
-            var decoder = new CfgDecoder(meshToolsStd);
-
-            foreach (var tag in decoder) {
-                var d = decoder.GetData();
-                foreach (var m in MeshToolBase.AllTools)
-                    if (m.StdTag.SameAs(tag))
-                    {
-                        m.Decode(d);
-                        break;
-                    }
-            }
-
-            if (systemLanguage!= -1)
-                LazyTranslations._systemLanguage = systemLanguage;
-
-        }
 
         public void CheckShaders(bool forceReload = false)
         {
@@ -625,7 +592,41 @@ namespace PlaytimePainter
         public void ManagedOnEnable()
         {
             Decode(stdData);
-            Init();
+
+            if (brushConfig == null)
+                brushConfig = new BrushConfig();
+
+            if (meshPackagingSolutions.IsNullOrEmpty())
+            {
+                Debug.Log("Recreating mash packaging solutions");
+                meshPackagingSolutions = new List<MeshPackagingProfile>
+                {
+                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "Simple"),
+                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "Bevel"),
+                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "AtlasedProjected"),
+                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "Standard_Atlased")
+                };
+            }
+            if (samplingMaskSize.x == 0)
+                samplingMaskSize = new MyIntVec2(4);
+
+            CheckShaders();
+
+            var decoder = new CfgDecoder(meshToolsStd);
+
+            foreach (var tag in decoder)
+            {
+                var d = decoder.GetData();
+                foreach (var m in MeshToolBase.AllTools)
+                    if (m.StdTag.SameAs(tag))
+                    {
+                        m.Decode(d);
+                        break;
+                    }
+            }
+
+            if (systemLanguage != -1)
+                LazyTranslations._systemLanguage = systemLanguage;
         }
 
         public void ManagedOnDisable() {

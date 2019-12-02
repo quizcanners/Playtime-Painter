@@ -100,8 +100,8 @@ namespace PlaytimePainter {
         public MeshPackagingProfile MeshProfile
         {
             get { 
-                selectedMeshProfile = Mathf.Max(0, Mathf.Min(selectedMeshProfile, Cfg.meshPackagingSolutions.Count - 1)); 
-                return Cfg.meshPackagingSolutions[selectedMeshProfile]; 
+                selectedMeshProfile = Mathf.Clamp(selectedMeshProfile,0, Cfg.meshPackagingSolutions.Count); 
+                return Cfg.meshPackagingSolutions.TryGet(selectedMeshProfile); 
             }
         }
 

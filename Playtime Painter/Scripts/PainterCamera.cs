@@ -672,8 +672,8 @@ namespace PlaytimePainter {
             EditorApplication.update += CombinedUpdate;
             #endif
         }
-
-        private void OnEnable() {
+        
+        public void OnEnable() {
 
             if (!MainCamera)
                 MainCamera = Camera.main;

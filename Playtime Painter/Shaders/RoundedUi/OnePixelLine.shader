@@ -137,17 +137,19 @@
 						sides = 1 - sides;
 					#endif
 				
-					o.color.a *= max(0,  round(1-abs(inPix.x + inPix.y)))*sides;
+					float4 col = o.color;
+
+					col.a *= max(0,  round(1-abs(inPix.x + inPix.y)))*sides;
 				
 					#ifdef UNITY_UI_CLIP_RECT
-						color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);
+						col.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);
 					#endif
 
 					#ifdef UNITY_UI_ALPHACLIP
-						clip(color.a - 0.001);
+						clip(col.a - 0.001);
 					#endif
 
-					return o.color;
+					return col;
 				}
 				ENDCG
 			}
