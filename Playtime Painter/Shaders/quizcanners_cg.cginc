@@ -485,10 +485,12 @@ inline void leakColors (inout float4 col){
 
 inline void BleedAndBrightness(inout float4 col, float mod, float2 noiseUV) {
 
-	col.rgb *= pp_COLOR_BLEED.a;
+	float brightness = pp_COLOR_BLEED.a;
+
+	col.rgb *= 1 + brightness;
 
 	float3 mix = min(col.gbr + col.brg, 128)*mod;
-	col.rgb += mix * mix*pp_COLOR_BLEED.r;
+	col.rgb += mix * mix * pp_COLOR_BLEED.r;
 
 	#if USE_NOISE_TEXTURE
 

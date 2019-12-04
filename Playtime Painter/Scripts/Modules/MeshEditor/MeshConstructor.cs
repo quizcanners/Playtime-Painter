@@ -519,6 +519,12 @@ namespace PlaytimePainter {
 
         public Mesh Construct() {
 
+            if (profile == null)
+            {
+                Debug.LogError("NoMesh Packaging profile to generate mesh");
+                return mesh;
+            }
+
             GenerateTriangles();
 
             var valid = profile.Repack(this);

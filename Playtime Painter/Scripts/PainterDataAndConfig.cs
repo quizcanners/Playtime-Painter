@@ -188,6 +188,17 @@ namespace PlaytimePainter
 
         public List<MeshPackagingProfile> meshPackagingSolutions = new List<MeshPackagingProfile>();
 
+        public MeshPackagingProfile GetMeshPackagingProfile(string name)
+        {
+            foreach (var profile in meshPackagingSolutions)
+            {
+                if (profile.name.Equals(name))
+                    return profile;
+            }
+
+            return meshPackagingSolutions[0];
+        }
+
         public List<ColorScheme> colorSchemes = new List<ColorScheme>();
 
         public int selectedColorScheme;
@@ -427,6 +438,19 @@ namespace PlaytimePainter
             "Decals".enter_List(ref decals, ref _inspectedDecal, ref _inspectedItems, 4).nl(ref changes);
 
             "Mesh Packaging solutions".enter_List(ref meshPackagingSolutions, ref _inspectedMeshPackSol, ref _inspectedItems, 5).nl(ref changes);
+            if (_inspectedItems == 5)
+            {
+#if UNITY_EDITOR
+                UnityEngine.Object newProfile = null;
+
+                if ("Drop New Profile Here:".edit(ref newProfile).nl())
+                {
+                    var mSol = new MeshPackagingProfile();
+                    mSol.Decode(QcFile.LoadUtils.TryLoadAsTextAsset(newProfile));
+                   meshPackagingSolutions.Add(mSol);
+                }
+#endif
+            }
 
             return changes;
         }
@@ -589,6 +613,17 @@ namespace PlaytimePainter
             #endif
         }
 
+        private void ResetMeshPackagingProfiles()
+        {
+            meshPackagingSolutions = new List<MeshPackagingProfile>
+            {
+                (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "Simple"),
+                (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "Bevel"),
+                (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "AtlasedProjected"),
+                (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "Standard_Atlased")
+            };
+        }
+
         public void ManagedOnEnable()
         {
             Decode(stdData);
@@ -597,16 +632,8 @@ namespace PlaytimePainter
                 brushConfig = new BrushConfig();
 
             if (meshPackagingSolutions.IsNullOrEmpty())
-            {
-                Debug.Log("Recreating mash packaging solutions");
-                meshPackagingSolutions = new List<MeshPackagingProfile>
-                {
-                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "Simple"),
-                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "Bevel"),
-                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "AtlasedProjected"),
-                    (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "Standard_Atlased")
-                };
-            }
+                ResetMeshPackagingProfiles();
+
             if (samplingMaskSize.x == 0)
                 samplingMaskSize = new MyIntVec2(4);
 

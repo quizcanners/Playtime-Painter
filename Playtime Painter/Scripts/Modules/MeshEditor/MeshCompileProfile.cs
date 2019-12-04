@@ -56,20 +56,9 @@ namespace PlaytimePainter
         {
             var changed = false;
 
-            #if UNITY_EDITOR
-            UnityEngine.Object newProfile = null;
 
-            if ("Drop New Profile Here:".edit(ref newProfile).nl(ref changed)) {
 
-                var mSol = new MeshPackagingProfile();
-                mSol.Decode(QcFile.LoadUtils.TryLoadAsTextAsset(newProfile));
-
-                PainterCamera.Data.meshPackagingSolutions.Add(mSol);
-                PlaytimePainter.inspected.selectedMeshProfile = PainterCamera.Data.meshPackagingSolutions.Count - 1;
-            }
-            #endif
-
-            "Profile Name: ".edit(80, ref name);
+            "Profile Name: ".editDelayed(80, ref name);
 
             #if UNITY_EDITOR
             var path = Path.Combine(PainterCamera.Data.meshesFolderName, FolderName);

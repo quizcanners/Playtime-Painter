@@ -872,7 +872,7 @@ namespace PlaytimePainter
 
                 if ("Center".enter(ref _inspectedMeshItems, 2).nl())
                 {
-                    "center".edit(ref _offset).nl();
+                    "Offset Center by:".edit(ref _offset).nl();
                     if ("Modify".Click().nl())
                     {
                         foreach (var v in EditedMesh.meshPoints)

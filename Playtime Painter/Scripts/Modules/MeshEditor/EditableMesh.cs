@@ -99,7 +99,7 @@ namespace PlaytimePainter
             var prf = PainterCamera.Data.meshPackagingSolutions;
 
             for (var i = 0; i < prf.Count; i++)
-                if (prf[i].name.SameAs(name)) painter.selectedMeshProfile = i;
+                if (prf[i].name.SameAs(name)) painter.selectedMeshProfile = name;
 
         }
 

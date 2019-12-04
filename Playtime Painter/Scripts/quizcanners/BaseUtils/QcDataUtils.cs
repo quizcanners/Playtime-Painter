@@ -25,7 +25,7 @@ namespace QuizCannersUtilities
 
         public const string bytesFileType = ".bytes";
 
-        public const string JsonFileType = ".json";
+        public const string JsonFileType = ".bytes";
 
         public class ExplorerUtils
         {
@@ -128,7 +128,7 @@ namespace QuizCannersUtilities
         {
             private static readonly BinaryFormatter Formatter = new BinaryFormatter();
 
-            public static string LoadBytesFromResource(string resourceFolderLocation, string insideResourceFolder,
+            public static string LoadStringFromResource(string resourceFolderLocation, string insideResourceFolder,
                 string name)
             {
 
@@ -159,7 +159,7 @@ namespace QuizCannersUtilities
 #endif
             }
 
-            public static string LoadBytesFromResource(string insideResourceFolder, string name)
+            public static string LoadStringFromResource(string insideResourceFolder, string name)
             {
                 var resourcePathAndName = insideResourceFolder + (insideResourceFolder.Length > 0 ? "/" : "") + name;
 
@@ -180,7 +180,7 @@ namespace QuizCannersUtilities
                 }
             }
 
-            public static string LoadBytesFromAssets(string folder, string name)
+            public static string LoadStringFromAssets(string folder, string name)
             {
 #if UNITY_EDITOR
                 var path = Path.Combine(Application.dataPath, folder, name + bytesFileType);
@@ -221,44 +221,6 @@ namespace QuizCannersUtilities
 
             #region Json
 
-            public static bool LoadJsonFromUnityObjectOverride<T, G>(T target, G jsonFile) where G : UnityEngine.Object
-            {
-
-#if UNITY_EDITOR
-                var filePath = AssetDatabase.GetAssetPath(jsonFile);
-
-                if (!filePath.IsNullOrEmpty())
-                {
-
-                    JsonUtility.FromJsonOverwrite(File.ReadAllText(filePath), target);
-                    return true;
-                }
-#endif
-                return false;
-            }
-
-            public static bool LoadJsonFromPersistentPathOverride<T>(T target, string filename, params string[] folders)
-            {
-
-                var filePath = JsonPersistantPath(Path.Combine(folders), filename);
-
-                if (File.Exists(filePath))
-                {
-                    try
-                    {
-                        JsonUtility.FromJsonOverwrite(File.ReadAllText(filePath), target);
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogError("Could load Json: " + ex.ToString());
-                        return false;
-                    }
-
-                    return true;
-                }
-
-                return false;
-            }
 
             public static T LoadJsonFromPersistentPath<T>(string filename, params string[] subFolders)
             {

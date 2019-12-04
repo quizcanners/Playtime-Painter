@@ -824,7 +824,7 @@ namespace QuizCannersUtilities {
         public static T LoadFromAssets<T>(this T s, string fullPath, string name) where T:ICfg, new() {
 			if (s == null)
 				s = new T ();
-            s.Decode(QcFile.LoadUtils.LoadBytesFromAssets(fullPath, name));
+            s.Decode(QcFile.LoadUtils.LoadStringFromAssets(fullPath, name));
 			return s;
         }
 
@@ -873,7 +873,7 @@ namespace QuizCannersUtilities {
 
         public static bool TryLoadFromResources_Bytes<T>(this T s, string subFolder, string file) where T : ICfg
         {
-            var load = QcFile.LoadUtils.LoadBytesFromResource(subFolder, file);
+            var load = QcFile.LoadUtils.LoadStringFromResource(subFolder, file);
 
             if (load == null)
                 return false;
@@ -886,7 +886,7 @@ namespace QuizCannersUtilities {
         public static T LoadFromResources<T>(this T s, string subFolder, string file)where T:ICfg, new() {
 			if (s == null)
 				s = new T ();
-			s.Decode(QcFile.LoadUtils.LoadBytesFromResource(subFolder, file));
+			s.Decode(QcFile.LoadUtils.LoadStringFromResource(subFolder, file));
 			return s;
 		}
 

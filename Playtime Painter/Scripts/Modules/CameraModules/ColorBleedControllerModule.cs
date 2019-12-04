@@ -180,7 +180,7 @@ namespace PlaytimePainter {
 
             "Bleed".edit(60, ref colorBleed.targetValue, 0f, 0.3f).nl(ref changed);
 
-            "Brightness".edit(90, ref brightness.targetValue, 0.0001f, 8f).nl(ref changed);
+            "Brightness".edit(90, ref brightness.targetValue, 0f, 8f).nl(ref changed);
 
             shadowDistance.enter_Inspect_AsList(ref inspectedProperty, 3).nl(ref changed);
 

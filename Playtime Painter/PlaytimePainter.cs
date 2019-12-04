@@ -96,12 +96,12 @@ namespace PlaytimePainter {
         
         public bool meshEditing;
 
-        public int selectedMeshProfile;
+        public string selectedMeshProfile;
         public MeshPackagingProfile MeshProfile
         {
             get { 
-                selectedMeshProfile = Mathf.Clamp(selectedMeshProfile,0, Cfg.meshPackagingSolutions.Count); 
-                return Cfg.meshPackagingSolutions.TryGet(selectedMeshProfile); 
+                //selectedMeshProfile = Mathf.Clamp(selectedMeshProfile,0, Cfg.meshPackagingSolutions.Count); 
+                return Cfg.GetMeshPackagingProfile(selectedMeshProfile); //.TryGet(selectedMeshProfile); 
             }
         }
 
@@ -1304,7 +1304,7 @@ namespace PlaytimePainter {
 
               return new CfgEncoder()
                     .Add_String("m", SavedEditableMesh)
-                    .Add("pr", selectedMeshProfile);
+                    .Add_String("prn", selectedMeshProfile);
         }
 
         public bool Decode(string tg, string data)
@@ -1314,7 +1314,7 @@ namespace PlaytimePainter {
                 case "mdls": modulesContainer.Decode(data); break;
                 case "invCast": invertRayCast = data.ToBool(); break;
                 case "m": SavedEditableMesh = data; break;
-                case "pr": selectedMeshProfile = data.ToInt(); break;
+                case "prn": selectedMeshProfile =  data; break;
                 default: return true;
             }
 
@@ -1915,36 +1915,35 @@ namespace PlaytimePainter {
                 if (MeshEditorManager.target && (MeshEditorManager.target != this))
                     MeshManager.StopEditingMesh();
 
-                if (!cfg.showConfig)
+
+                if (meshEditing)
                 {
-                    if (meshEditing)
+                    if (icon.Painter.Click("Edit Texture", ref changed))
                     {
-                        if (icon.Painter.Click("Edit Texture", ref changed))
-                        {
-                            CheckSetOriginalShader();
-                            meshEditing = false;
-                            CheckPreviewShader();
-                            MeshMgmt.StopEditingMesh();
-                            cfg.showConfig = false;
-                            "Editing Texture".showNotificationIn3D_Views();
-                        }
-                    }
-                    else
-                    {
-                        if (icon.Mesh.Click("Edit Mesh", ref changed))
-                        {
-                            meshEditing = true;
-
-                            CheckSetOriginalShader();
-                            UpdateOrSetTexTarget(TexTarget.Texture2D);
-                            cfg.showConfig = false;
-                            "Editing Mesh".showNotificationIn3D_Views();
-
-                            if (SavedEditableMesh != null)
-                                MeshMgmt.EditMesh(this, false);
-                        }
+                        CheckSetOriginalShader();
+                        meshEditing = false;
+                        CheckPreviewShader();
+                        MeshMgmt.StopEditingMesh();
+                        cfg.showConfig = false;
+                        "Editing Texture".showNotificationIn3D_Views();
                     }
                 }
+                else
+                {
+                    if (icon.Mesh.Click("Edit Mesh", ref changed))
+                    {
+                        meshEditing = true;
+
+                        CheckSetOriginalShader();
+                        UpdateOrSetTexTarget(TexTarget.Texture2D);
+                        cfg.showConfig = false;
+                        "Editing Mesh".showNotificationIn3D_Views();
+
+                        if (SavedEditableMesh != null)
+                            MeshMgmt.EditMesh(this, false);
+                    }
+                }
+                
 
                 pegi.toggle(ref cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config, "Tool Configuration");
                 
@@ -2026,9 +2025,7 @@ namespace PlaytimePainter {
                                         const string confirmTag = "pp_EditThisMesh";
 
                                         if (!pegi.IsConfirmingRequestedFor(confirmTag)) {
-                                            if ("Copy & Edit".Click())
-                                                mg.EditMesh(this, true);
-
+                                        
                                             if ("New Mesh".ClickConfirm("newMesh", SavedEditableMesh==null ? "This will erase existing editable mesh. Proceed?" : "Create a mesh?")) {
                                                 Mesh = new Mesh();
                                                 SavedEditableMesh = null;
@@ -2036,8 +2033,20 @@ namespace PlaytimePainter {
                                             }
                                         }
 
-                                        if ("Edit this".ClickConfirm(confirmTag, "Are you sure you want to edit the original one instead of editing a copy(safer)?").nl())
-                                            mg.EditMesh(this, false);
+                                        if (SharedMesh && SharedMesh.vertexCount == 0)
+                                        {
+                                            pegi.nl();
+                                            "Shared Mesh has no vertices, you may want to create a new mesh"
+                                                .writeHint();
+                                        }
+                                        else
+                                        {
+                                            if (!pegi.IsConfirmingRequestedFor(confirmTag) && "Copy & Edit".Click())
+                                                    mg.EditMesh(this, true);
+                                            
+                                            if ("Edit this".ClickConfirm(confirmTag, "Are you sure you want to edit the original one instead of editing a copy(safer)?").nl())
+                                                mg.EditMesh(this, false);
+                                        }
                                     }
                                 }
                             }
@@ -2055,6 +2064,8 @@ namespace PlaytimePainter {
                             if (IsEditingThisMesh)
                             {
 
+
+
                                 if (_inspectedMeshEditorItems == -1)
                                     MeshMgmt.Inspect().nl();
 
@@ -2064,26 +2075,51 @@ namespace PlaytimePainter {
 
 
                                     if ((cfg.meshPackagingSolutions.Count > 1) && icon.Delete.Click(25))
-                                        cfg.meshPackagingSolutions.RemoveAt(selectedMeshProfile);
+                                    {
+                                        for (int i=0; i<cfg.meshPackagingSolutions.Count; i++)
+                                        {
+                                            var pr = cfg.meshPackagingSolutions[i];
+                                            if (pr.name.Equals(selectedMeshProfile))
+                                            {
+                                                cfg.meshPackagingSolutions.RemoveAt(i);
+                                                break;
+                                            }
+                                        }
+                                    }
                                     else {
 
                                         pegi.newLine();
-                                        if (MeshProfile.Inspect().nl())
-                                            MeshEditorManager.editedMesh.Dirty = true;
+                                        var mpf = MeshProfile;
+                                        if (mpf == null)
+                                            "There are no Mesh packaging profiles in the PainterDataObject".writeWarning();
+                                        else
+                                        {
+                                            if (!mpf.name.Equals(selectedMeshProfile))
+                                                "Mesh profile {0} not found, using default one".writeWarning();
 
-                                       
+                                            pegi.nl();
+
+
+                                            if (mpf.Inspect().nl())
+                                            {
+                                                selectedMeshProfile = mpf.name;
+                                                MeshEditorManager.editedMesh.Dirty = true;
+                                            }
+                                        }
+
                                     }
                                 }
                                 else if (_inspectedMeshEditorItems == -1)
                                 {
-                                    if (" : ".select_Index(20, ref selectedMeshProfile, cfg.meshPackagingSolutions, true) &&
+                                    if (" : ".select_iGotName("Select Profile" ,ref selectedMeshProfile, cfg.meshPackagingSolutions) &&
                                         IsEditingThisMesh)
                                         MeshEditorManager.editedMesh.Dirty = true;
 
                                     if (icon.Add.Click(25).nl())
                                     {
-                                        cfg.meshPackagingSolutions.Add(new MeshPackagingProfile());
-                                        selectedMeshProfile = cfg.meshPackagingSolutions.Count - 1;
+                                        var sol = new MeshPackagingProfile();
+                                        cfg.meshPackagingSolutions.Add(sol);
+                                        selectedMeshProfile = sol.name;
                                         MeshProfile.name = "New Profile {0}".F(selectedMeshProfile);
                                     }
                                 }

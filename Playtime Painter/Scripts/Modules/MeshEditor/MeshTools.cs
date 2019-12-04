@@ -993,11 +993,15 @@ namespace PlaytimePainter {
             
             br.ColorSliders().nl();
             
-            if (!p.MeshProfile.UsesColor)
-                "Selected Mesh Profile does not appear to be using Color".writeWarning();
-            if (!p.MeshProfile.WritesColor)
-                "Selected Mesh Profile doesn't write to Color.".writeHint();
-
+            if (p.MeshProfile == null)
+                "No Mesh Packaging profile selected".writeWarning();
+            else
+            {
+                if (!p.MeshProfile.UsesColor)
+                    "Selected Mesh Profile does not appear to be using Color".writeWarning();
+                if (!p.MeshProfile.WritesColor)
+                    "Selected Mesh Profile doesn't write to Color.".writeHint();
+            }
 
 
             if (("Paint All with Brush Color").Click().nl(ref changed))

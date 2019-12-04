@@ -327,10 +327,8 @@ namespace PlaytimePainter {
         public string NameForPEGI { get { return name; } set { name = value; } }
 
         private readonly List<FieldAtlas> _fields = new List<FieldAtlas>();
-
-        #pragma warning disable IDE0044 // Add readonly modifier
-        private int _matAtlasProfile = 0;
-        #pragma warning restore IDE0044 // Add readonly modifier
+        
+        private string _matAtlasProfile;
 
         private void ConvertToAtlased(PlaytimePainter painter)
         {
@@ -627,7 +625,7 @@ namespace PlaytimePainter {
                 f.Nested_Inspect().nl(ref changed);
 
             "Mesh Profiles [{0}]".F(PainterCamera.Data.meshPackagingSolutions.Count)
-                .select_Index(140, ref _matAtlasProfile, PainterCamera.Data.meshPackagingSolutions).nl(ref changed);
+                .select_iGotName(ref _matAtlasProfile, PainterCamera.Data.meshPackagingSolutions).nl(ref changed);
 
             if (DestinationMaterial && !DestinationMaterial.HasProperty(PainterDataAndConfig.isAtlasedProperty))
             {
