@@ -146,10 +146,20 @@ namespace PlaytimePainter {
             var m = p.GetMesh();
 
             if (!m) return false;
-            
+
+            var col = p.meshCollider;
+
+            if (!col || m != col)
+            {
+                QcUtils.ChillLogger.LogErrorOnce("mncol", "Painter mesh and collider do not match on {0}".F(p.gameObject.name), p);
+            }
+
             var vertex = m.triangles[hit.triangleIndex * 3];
+
             var v4L = new List<Vector4>();
+
             m.GetUVs(0, v4L);
+
             if (v4L.Count > vertex)
                 _inAtlasIndex = (int)v4L[vertex].z;
 

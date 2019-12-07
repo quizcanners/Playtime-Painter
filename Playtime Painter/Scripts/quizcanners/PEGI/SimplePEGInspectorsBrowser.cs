@@ -15,9 +15,9 @@ namespace QuizCannersUtilities
 
         public string ConfigStd { get { return stdData; } set { stdData = value; } }
 
-        private void OnEnable() => this.LoadStdData();
+        private void OnEnable() => this.LoadCfgData();
 
-        private void OnDisable() => this.SaveStdData();
+        private void OnDisable() => this.SaveCfgData();
 
         public override bool Decode(string tg, string data)
         {

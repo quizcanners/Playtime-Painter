@@ -773,7 +773,7 @@ namespace PlaytimePainter
             }
 
             if ("Modules".enter_List(ref _modules, ref _inspectedModule, ref _showModules).nl(ref changed))
-                this.SaveStdData();
+                this.SaveCfgData();
 
             
 
@@ -866,14 +866,14 @@ namespace PlaytimePainter
         protected override void OnEnable()
         {
             base.OnEnable();
-            this.LoadStdData();
+            this.LoadCfgData();
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
             if (!Application.isPlaying)
-                this.SaveStdData();
+                this.SaveCfgData();
         }
 
         public CfgEncoder Encode() => new CfgEncoder()

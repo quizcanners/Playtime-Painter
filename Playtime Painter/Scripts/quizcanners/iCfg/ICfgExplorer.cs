@@ -476,7 +476,7 @@ namespace QuizCannersUtilities
             var changed = false;
             
             "Load File:".write(90);
-            target.LoadOnDrop().nl(ref changed);
+            target.LoadCfgOnDrop().nl(ref changed);
 
             if (icon.Copy.Click("Copy Component Data").nl())
                 StdExtensions.copyBufferValue = target.Encode().ToString();
@@ -520,7 +520,7 @@ namespace QuizCannersUtilities
                 if (selfStd != null)
                 {
                     if (icon.Save.Click("Save itself (IKeepMySTD)"))
-                        selfStd.SaveStdData();
+                        selfStd.SaveCfgData();
                     var slfData = selfStd.ConfigStd;
                     if (!string.IsNullOrEmpty(slfData)) {
 
@@ -715,7 +715,7 @@ namespace QuizCannersUtilities
                     this.inspect_Name();
                     if (Cfg != null && dataExplorer.tag.Length > 0 && icon.Save.Click("Save To Assets", ref changed))
                     {
-                        QcFile.SaveUtils.SaveBytesToAssetsByRelativePath(Mgmt.fileFolderHolder, dataExplorer.tag, dataExplorer.data);
+                        QcFile.SaveUtils.SaveToAssets(Mgmt.fileFolderHolder, dataExplorer.tag, dataExplorer.data);
                         QcUnity.RefreshAssetDatabase();
                     }
 

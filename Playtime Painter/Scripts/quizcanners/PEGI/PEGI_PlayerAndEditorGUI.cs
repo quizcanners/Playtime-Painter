@@ -4262,7 +4262,7 @@ namespace PlayerAndEditorGUI
 
         public static bool ClickDuplicate(ref Material mat, string newName = null, string folder = "Materials") => ClickDuplicate(ref mat, folder, ".mat", newName);
 
-        public static bool ClickDuplicate<T>(ref T obj, string folder, string extension, string newName = null) where T : UnityEngine.Object
+        private static bool ClickDuplicate<T>(ref T obj, string folder, string extension, string newName = null) where T : Object
         {
 
             if (!obj) return false;
@@ -7883,7 +7883,7 @@ namespace PlayerAndEditorGUI
                                     var istd = el as ICfg;
 
                                     if (istd != null)
-                                        list.TryAdd(istd.CloneStd());
+                                        list.TryAdd(istd.CloneCfg());
                                     else
                                         list.TryAdd(JsonUtility.FromJson<T>(JsonUtility.ToJson(el)));
                                 }

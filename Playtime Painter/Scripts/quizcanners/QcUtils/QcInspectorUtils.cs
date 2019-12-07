@@ -372,6 +372,20 @@ namespace QuizCannersUtilities
                     _calls++;
             }
 
+            private static List<string> loggedErrors = new List<string>();
+            public static void LogErrorOnce(string key, string msg, Object target = null)
+            {
+                if (loggedErrors.Contains(key))
+                    return;
+
+                loggedErrors.Add(key);
+
+                if (target)
+                    Debug.LogError(msg, target);
+                else 
+                    Debug.LogError(msg);
+            }
+
         }
 
         [Serializable]

@@ -679,7 +679,7 @@ namespace QuizCannersUtilities {
                 QcUnity.RefreshAssetDatabase();
             }
 
-            if (LoadOnDrop(out data))
+            if (DropStringObject(out data))
                 return true;
 
 
@@ -769,7 +769,7 @@ namespace QuizCannersUtilities {
         public static string copyBufferValue;
         public static string copyBufferTag;
 
-        public static bool LoadOnDrop(out string txt) {
+        public static bool DropStringObject(out string txt) {
 
             txt = null;
 
@@ -783,10 +783,10 @@ namespace QuizCannersUtilities {
             return false;
         }
 
-        public static bool LoadOnDrop<T>(this T obj) where T: ICfg
+        public static bool LoadCfgOnDrop<T>(this T obj) where T: ICfg
         {
             string txt;
-            if (LoadOnDrop(out txt)) {
+            if (DropStringObject(out txt)) {
                 obj.Decode(txt);
                 return true;
             }
@@ -794,16 +794,16 @@ namespace QuizCannersUtilities {
             return false;
         }
 
-        public static void UpdatePrefab (this ICfg s, GameObject go) {
+        public static void UpdateCfgPrefab (this ICfg s, GameObject go) {
             var iK = s as IKeepMyCfg;
 
             if (iK != null)
-                iK.SaveStdData();
+                iK.SaveCfgData();
 
             QcUnity.UpdatePrefab(go);
         }
 
-        public static void SaveStdData(this IKeepMyCfg s) {
+        public static void SaveCfgData(this IKeepMyCfg s) {
             if (s != null)
             {
                 s.ConfigStd = s.Encode().ToString();
@@ -811,7 +811,7 @@ namespace QuizCannersUtilities {
             }
         }
 
-        public static bool LoadStdData(this IKeepMyCfg s)
+        public static bool LoadCfgData(this IKeepMyCfg s)
         {
             if (s == null)
                 return false;
@@ -824,25 +824,25 @@ namespace QuizCannersUtilities {
         public static T LoadFromAssets<T>(this T s, string fullPath, string name) where T:ICfg, new() {
 			if (s == null)
 				s = new T ();
-            s.Decode(QcFile.LoadUtils.LoadStringFromAssets(fullPath, name));
+            s.Decode(QcFile.LoadUtils.LoadFromAssets(fullPath, name));
 			return s;
         }
 
         public static ICfg SaveToAssets(this ICfg s, string path, string filename)
         {
-            QcFile.SaveUtils.SaveBytesToAssetsByRelativePath(path, filename, s.Encode().ToString());
+            QcFile.SaveUtils.SaveToAssets(path, filename, s.Encode().ToString());
             return s;
         }
 
-        public static ICfg SaveToPersistentPath_Json(this ICfg s, string path, string filename)
+        public static ICfg SaveToPersistentPath(this ICfg s, string path, string filename)
         {
-            QcFile.SaveUtils.SaveJsonToPersistentPath(path, filename, s.Encode().ToString());
+            QcFile.SaveUtils.SaveToPersistentPath(path, filename, s.Encode().ToString());
             return s;
         }
 
-        public static bool LoadFromPersistentPath_Json(this ICfg s, string path, string filename)
+        public static bool LoadFromPersistentPath(this ICfg s, string path, string filename)
         {
-            var data = QcFile.LoadUtils.LoadJsonFromPersistentPath(path, filename);
+            var data = QcFile.LoadUtils.LoadFromPersistentPath(path, filename);
             if (data != null)
             {
                 s.Decode(data);
@@ -851,13 +851,13 @@ namespace QuizCannersUtilities {
             return false;
         }
 
-        public static ICfg SaveToResources_Bytes(this ICfg s, string resFolderPath, string insideResPath, string filename)
+        public static ICfg SaveToResources(this ICfg s, string resFolderPath, string insideResPath, string filename)
         {
-            QcFile.SaveUtils.SaveBytesToResources(resFolderPath, insideResPath, filename, s.Encode().ToString());
+            QcFile.SaveUtils.SaveToResources(resFolderPath, insideResPath, filename, s.Encode().ToString());
             return s;
         }
 
-        public static T CloneStd<T>(this T obj, ICfgSerializeNestedReferences nested = null) where T : ICfg {
+        public static T CloneCfg<T>(this T obj, ICfgSerializeNestedReferences nested = null) where T : ICfg {
 
             if (QcUnity.IsNullOrDestroyed_Obj(obj)) return default(T);
             
@@ -871,7 +871,7 @@ namespace QuizCannersUtilities {
             return ret;
         }
 
-        public static bool TryLoadFromResources_Bytes<T>(this T s, string subFolder, string file) where T : ICfg
+        public static bool TryLoadFromResources<T>(this T s, string subFolder, string file) where T : ICfg
         {
             var load = QcFile.LoadUtils.LoadStringFromResource(subFolder, file);
 

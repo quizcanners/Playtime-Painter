@@ -1606,7 +1606,7 @@ namespace PlaytimePainter {
             if (Application.isPlaying)
                 TrySetOriginalTexture();
             
-            this.SaveStdData();
+            this.SaveCfgData();
             
             if (!TexMgmt || MeshEditorManager.target != this) return;
             
@@ -1627,7 +1627,7 @@ namespace PlaytimePainter {
             if (!meshRenderer)
                 meshRenderer = GetComponent<MeshRenderer>();
 
-            this.LoadStdData();
+            this.LoadCfgData();
             
         }
 
