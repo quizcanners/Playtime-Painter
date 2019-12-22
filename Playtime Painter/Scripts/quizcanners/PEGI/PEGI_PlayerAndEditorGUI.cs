@@ -7116,6 +7116,36 @@ namespace PlayerAndEditorGUI
                 return changed;
             }
 
+            private int GetNextFiltered<T>(ICollection<T> list, string[] searchby)
+            {
+
+                while (searchData.uncheckedElement < _count)
+                {
+
+                    int index = searchData.uncheckedElement;
+                    
+                    searchData.uncheckedElement++;
+
+                    var el = list.ElementAt(index);
+
+                    var na = el as INeedAttention;
+
+                    var msg = na?.NeedAttention();
+
+                    if (!searchData.filterByNeedAttention || !msg.IsNullOrEmpty())
+                    {
+                        if (searchby.IsNullOrEmpty() || el.SearchMatch_Obj_Internal(searchby))
+                        {
+                            filteredList.Add(index);
+                            return index;
+                        }
+                    }
+
+                }
+
+                return -1;
+            }
+
             private SearchData searchData;
 
             public IEnumerable<int> InspectionIndexes<T>(ICollection<T> list, ListMetaData listMeta = null)
@@ -7124,7 +7154,7 @@ namespace PlayerAndEditorGUI
                 searchData = listMeta == null ? pegi.searchData : listMeta.searchData;
 
                 #region Inspect Start
-                
+
                 var changed = false;
 
                 if (_scrollDownRequested)
@@ -7134,9 +7164,7 @@ namespace PlayerAndEditorGUI
                 searchData.SearchString(list, out _searching, out searchby);
 
                 _sectionStartIndex = 0;
-
-              
-
+                
                 if (_searching)
                     _sectionStartIndex = searchData.inspectionIndexStart;
                 else if (listMeta != null)
@@ -7200,9 +7228,6 @@ namespace PlayerAndEditorGUI
 
                 #endregion
 
-
-                var filteredCount = _count;
-
                 if (!_searching)
                 {
                     _lastElementToShow = Mathf.Min(_count, _sectionStartIndex + _sectionSizeOptimal);
@@ -7218,7 +7243,7 @@ namespace PlayerAndEditorGUI
                     }
 
 
-                    if ((_sectionStartIndex > 0) || (filteredCount > _lastElementToShow))
+                    if ((_sectionStartIndex > 0) || (_count > _lastElementToShow))
                     {
 
                         nl();
@@ -7252,7 +7277,7 @@ namespace PlayerAndEditorGUI
 
                     _lastElementToShow = Mathf.Min(list.Count, _sectionStartIndex + _sectionSizeOptimal);
 
-                    while ((searchData.uncheckedElement <= _count) && (sectionIndex < _lastElementToShow))
+                    while (sectionIndex < _lastElementToShow)
                     {
 
                         Index = -1;
@@ -7260,28 +7285,8 @@ namespace PlayerAndEditorGUI
                         if (filteredList.Count > sectionIndex)
                             Index = filteredList[sectionIndex];
                         else
-                        {
-                            while (searchData.uncheckedElement < _count && Index == -1)
-                            {
-
-                                var el = list.ElementAt(searchData.uncheckedElement);
-
-                                var na = el as INeedAttention;
-
-                                var msg = na?.NeedAttention();
-
-                                if (!searchData.filterByNeedAttention || !msg.IsNullOrEmpty())
-                                {
-                                    if (searchby.IsNullOrEmpty() || el.SearchMatch_Obj_Internal(searchby))
-                                    {
-                                        Index = searchData.uncheckedElement;
-                                        filteredList.Add(Index);
-                                    }
-                                }
-
-                                searchData.uncheckedElement++;
-                            }
-                        }
+                            Index = GetNextFiltered(list, searchby);
+                        
 
                         if (Index != -1)
                         {
@@ -7313,7 +7318,13 @@ namespace PlayerAndEditorGUI
                                 _sectionStartIndex += _sectionSizeOptimal - 1;
 
                             if (icon.DownLast.ClickUnFocus("To Last element").changes(ref changed))
+                            {
+                                if (_searching)
+                                    while (GetNextFiltered(list, searchby) != -1) { }
+                                           
+                                    
                                 SkrollToBottomInternal();
+                            }
 
                             if (!gotUnchecked)
                                 "+ {0}".F(filteredList.Count - _lastElementToShow).write();
@@ -7330,12 +7341,12 @@ namespace PlayerAndEditorGUI
 
                 #region Finilize
                 if (changed)
-                    SaveSection(list, listMeta);
+                    SaveSectionIndex(list, listMeta);
 
                 #endregion
             }
 
-            private void SaveSection<T>(ICollection<T> list, ListMetaData listMeta) {
+            private void SaveSectionIndex<T>(ICollection<T> list, ListMetaData listMeta) {
                 if (_searching)
                     searchData.inspectionIndexStart = _sectionStartIndex;
                 else if (listMeta != null)
@@ -9293,6 +9304,14 @@ namespace PlayerAndEditorGUI
 
         }
 
+        public static bool edit_Dictionary_Values<G, T>(this string label, Dictionary<G, T> dic)
+        {
+            int inspected = -1;
+
+            collectionInspector.write_Search_ListLabel(label, ref inspected, dic);
+            return edit_Dictionary_Values(dic, ref inspected);
+        }
+        
         public static bool edit_Dictionary_Values<G, T>(this string label, Dictionary<G, T> dic, ref int inspected)
         {
             collectionInspector.write_Search_ListLabel(label,ref inspected, dic);
@@ -9897,7 +9916,7 @@ namespace PlayerAndEditorGUI
 
                 var changed = false;
 
-                if (active && icon.FoldedOut.ClickUnFocus("{0} {1} {2}".F(icon.Hide.GetText(), icon.Search.GetText(), ld), 20).changes(ref changed))
+                if (active && icon.FoldedOut.ClickUnFocus("{0} {1} {2}".F(icon.Hide.GetText(), icon.Search.GetText(), ld), 20).changes(ref changed) || KeyCode.UpArrow.IsDown())
                     active = false;
 
                 if (!active && ld != collectionInspector.reordering &&
@@ -10024,10 +10043,10 @@ namespace PlayerAndEditorGUI
 
         public static void ResetInspectedChain() => inspectionChain.Clear();
 
-        public static bool Nested_Inspect(this IPEGI pgi, ref bool changed) =>
+        public static bool Nested_Inspect<T>(this T pgi, ref bool changed) where T: class, IPEGI =>
             pgi.Nested_Inspect().changes(ref changed);
 
-        public static bool Nested_Inspect(this IPEGI pgi, Object objToSetDirty)
+        public static bool Nested_Inspect<T>(this T pgi, Object objToSetDirty) where T: class, IPEGI
         {
 
             if (pgi.Nested_Inspect())
@@ -10039,7 +10058,7 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static bool Nested_Inspect(this IPEGI pgi)
+        public static bool Nested_Inspect<T>(this T pgi) where T: class, IPEGI
         {
 
             if (pgi.IsNullOrDestroyed_Obj())
@@ -10050,7 +10069,7 @@ namespace PlayerAndEditorGUI
             var changed = false;
 
             int recurses;
-
+            
             if (!inspectionChain.TryGetValue(pgi, out recurses) || recurses < 2)
             {
 
@@ -10073,12 +10092,12 @@ namespace PlayerAndEditorGUI
 
             if (changed || globChanged)
             {
-#if UNITY_EDITOR
+                #if UNITY_EDITOR
                 ef.ClearFromPooledSerializedObjects(pgi as Object);
-#endif
+                #endif
                 pgi.SetToDirty_Obj();
             }
-
+            
             isFoldedOutOrEntered = isFOOE;
 
             return changed || globChanged;

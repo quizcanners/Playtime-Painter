@@ -170,14 +170,27 @@ namespace QuizCannersUtilities {
 
     #region Abstract Implementations
 
-    public class ConfigurationsListBase : ScriptableObject, IPEGI {
-        public List<Configuration> configurations = new List<Configuration>();
+    public abstract class ConfigurationsListGeneric<T> : ConfigurationsListBase where T : Configuration
+    {
+
+        public List<T> configurations = new List<T>();
 
         #region Inspector
- 
-        public virtual bool Inspect() => "Configurations".edit_List(ref configurations); 
-        
-        public static bool Inspect<T>(ref T configs, Func<T, T> func) where T : ConfigurationsListBase {
+
+        public override bool Inspect() => "Configurations".edit_List(ref configurations);
+
+        #endregion
+
+    }
+
+
+    public abstract class ConfigurationsListBase : ScriptableObject, IPEGI
+    {
+
+        public virtual bool Inspect() => false;
+
+        public static bool Inspect<T>(ref T configs) where T : ConfigurationsListBase
+        {
             var changed = false;
 
             if (configs)
@@ -192,37 +205,29 @@ namespace QuizCannersUtilities {
                 "Configs".edit(90, ref configs);
 
                 if (icon.Create.Click("Create new Config"))
-                    configs = QcUnity.CreateScriptableObjectAsset<T>("Tools/Configs", "Config");
+                    configs = QcUnity.CreateScriptableObjectAsset<T>("ScriptableObjects/Configs", "Config");
 
                 pegi.nl();
             }
 
             return changed;
         }
-        
-        #endregion
 
     }
 
     [Serializable]
-    public class Configuration : AbstractCfg, IPEGI_ListInspect, IGotName
+    public abstract class Configuration : AbstractCfg, IPEGI_ListInspect, IGotName
     {
         public string name;
         public string data;
         
-        public virtual Configuration ActiveConfiguration
-        {
-            get { return null; }
-            set { }
-        }
+        public abstract Configuration ActiveConfiguration { get; set; }
 
         public void SetAsCurrent() {
             ActiveConfiguration = this;
         }
 
-        public virtual void ReadConfigurationToData()
-        {
-        }
+        public abstract CfgEncoder EncodeData();
 
         #region Inspect
 
@@ -230,11 +235,9 @@ namespace QuizCannersUtilities {
         {
             get { return name; }
             set { name = value; }
-            
         }
-    
-
-    public virtual bool InspectInList(IList list, int ind, ref int edited) {
+        
+        public virtual bool InspectInList(IList list, int ind, ref int edited) {
 
             var changed = false;
             var active = ActiveConfiguration;
@@ -264,17 +267,17 @@ namespace QuizCannersUtilities {
                     
                 }
                 else if (icon.SaveAsNew.ClickUnFocus())
-                    ReadConfigurationToData();
+                    data = EncodeData().ToString();
             }
 
-          
+
 
             if (allowOverride)
             {
                 if (icon.Save.ClickUnFocus())
-                    ReadConfigurationToData();
+                    data = EncodeData().ToString();
             }
-        
+
 
             pegi.RestoreBGcolor();
 
@@ -316,10 +319,10 @@ namespace QuizCannersUtilities {
 
     public class StdSimpleReferenceHolder : ICfgSerializeNestedReferences {
         
-        public readonly List<UnityEngine.Object> nestedReferences = new List<UnityEngine.Object>();
-        public int GetReferenceIndex(UnityEngine.Object obj) => nestedReferences.TryGetIndexOrAdd(obj);
+        public readonly List<Object> nestedReferences = new List<Object>();
+        public int GetReferenceIndex(Object obj) => nestedReferences.TryGetIndexOrAdd(obj);
 
-        public T GetReferenced<T>(int index) where T : UnityEngine.Object => nestedReferences.TryGet(index) as T;
+        public T GetReferenced<T>(int index) where T : Object => nestedReferences.TryGet(index) as T;
 
     }
 
@@ -334,10 +337,10 @@ namespace QuizCannersUtilities {
 
         private readonly ListMetaData _listMetaData = new ListMetaData("References");
 
-        [SerializeField] protected List<UnityEngine.Object> nestedReferences = new List<UnityEngine.Object>();
-        public virtual int GetReferenceIndex(UnityEngine.Object obj) => nestedReferences.TryGetIndexOrAdd(obj);
+        [SerializeField] protected List<Object> nestedReferences = new List<Object>();
+        public virtual int GetReferenceIndex(Object obj) => nestedReferences.TryGetIndexOrAdd(obj);
 
-        public virtual T GetReferenced<T>(int index) where T : UnityEngine.Object => nestedReferences.TryGet(index) as T;
+        public virtual T GetReferenced<T>(int index) where T : Object => nestedReferences.TryGet(index) as T;
 
 
         public virtual CfgEncoder Encode() => this.EncodeUnrecognized()

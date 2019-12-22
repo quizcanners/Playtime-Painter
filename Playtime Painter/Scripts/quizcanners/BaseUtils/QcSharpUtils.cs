@@ -26,9 +26,7 @@ namespace QuizCannersUtilities {
         public static string ThisMethodName(int up) => (new StackFrame(up)).GetMethod()?.Name;
 
         #region Timer
-
-
-
+        
         public static string SecondsToReadableString(long seconds) => TicksToReadableString(seconds * TimeSpan.TicksPerSecond);
 
         public static string TicksToReadableString(long elapsed) {
@@ -81,40 +79,36 @@ namespace QuizCannersUtilities {
 
             public float GetSeconds() => StopWatch.ElapsedMilliseconds / 1000f;
 
+            public override string ToString()
+            {
+                var text = (_timerStartLabel != null) ? (_timerStartLabel + "->") : "";
+
+                text += TicksToReadableString(StopWatch.ElapsedTicks);
+
+                _timerStartLabel = null;
+
+                return text;
+            }
+
+
             public string End() => End(null, false);
 
-            public string End(string label) => End(label, true);
-
-            public string End(string label, bool logIt) => End(label, logIt, false);
+            public string End(string label, bool logIt = true) => End(label, logIt, false);
 
             public string End(string label, float threshold) => End(label, true, false, threshold);
 
             public string End(string label, bool logInEditor, bool logInPlayer) =>
                 End(label, logInEditor, logInPlayer, 0);
 
-             
-
             public string End(string label, bool logInEditor, bool logInPlayer, float logThreshold)
             {
                 StopWatch.Stop();
+
+                var text = label + (label.IsNullOrEmpty() ? "" : ": ") + ToString();
                 
-                var elapsed = StopWatch.ElapsedTicks;
-
-                var timedText = TicksToReadableString(elapsed);
-                
-                if (label == null)
-                    label = "";
-
-                var text = "";
-                if (_timerStartLabel != null)
-                    text += _timerStartLabel + "->";
-                text += label + (label.IsNullOrEmpty() ? "" : ": ") + timedText;
-
-                _timerStartLabel = null;
-
-                if ((logThreshold == 0 || ((elapsed / TimeSpan.TicksPerSecond) > logThreshold)) &&
+                if ((logThreshold == 0 || ((StopWatch.ElapsedTicks / TimeSpan.TicksPerSecond) > logThreshold)) &&
                     ((Application.isEditor && logInEditor) || (!Application.isEditor && logInPlayer)))
-                    UnityEngine.Debug.Log(text);
+                    Debug.Log(text);
 
                 StopWatch.Reset();
 

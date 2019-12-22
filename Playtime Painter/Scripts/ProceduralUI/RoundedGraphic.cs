@@ -1201,11 +1201,24 @@ namespace PlaytimePainter
 #endif
 
 #if UNITY_EDITOR
+
+        [MenuItem("GameObject/UI/Playtime Painter/Invisible Raycat Target", false, 0)]
+        private static void CreateInvisibleRaycastTarget()
+        {
+            var els = QcUnity.CreateUiElement<InvisibleUIGraphic>(Selection.gameObjects);
+
+            foreach (var el in els)
+            {
+                el.name = "[]";
+            }
+
+        }
+
         [MenuItem("GameObject/UI/Playtime Painter/Rounded UI Graphic", false, 0)]
         private static void CreateRoundedUiElement()
         {
-
-            bool createdForSelection = false;
+            QcUnity.CreateUiElement<RoundedGraphic>(Selection.gameObjects);
+           /* bool createdForSelection = false;
 
             if (Selection.gameObjects.Length > 0)
             {
@@ -1231,17 +1244,20 @@ namespace PlaytimePainter
                 CreateRoundedUiElement(canvas.gameObject);
 
             }
-
+            */
         }
 
-        private static void CreateRoundedUiElement(GameObject canvas)
-        {
-            var rg = new GameObject("Rounded UI Element").AddComponent<RoundedGraphic>();
-            var go = rg.gameObject;
-            GameObjectUtility.SetParentAndAlign(go, canvas);
-            Undo.RegisterCreatedObjectUndo(go, "Create " + go.name);
-            Selection.activeObject = go;
-        }
+      
+
+
+        /*   private static void CreateRoundedUiElement(GameObject canvas)
+           {
+               var rg = new GameObject("Rounded UI Element").AddComponent<RoundedGraphic>();
+               var go = rg.gameObject;
+               GameObjectUtility.SetParentAndAlign(go, canvas);
+               Undo.RegisterCreatedObjectUndo(go, "Created " + go.name);
+               Selection.activeObject = go;
+           }*/
 
 #endif
 

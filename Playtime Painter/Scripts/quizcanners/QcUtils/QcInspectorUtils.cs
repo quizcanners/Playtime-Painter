@@ -787,7 +787,8 @@ namespace QuizCannersUtilities
 
             public void Decode(string data)
             {
-                data.DecodeTagsFor(this);
+              
+                new CfgDecoder(data).DecodeTagsFor(ref this);
                 dynamicMin = min;
                 dynamicMax = max;
             }

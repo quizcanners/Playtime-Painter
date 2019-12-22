@@ -1063,7 +1063,7 @@ namespace QuizCannersUtilities
                 speedLimit = lerpSpeed;
             }
 
-            public FloatValue(string name, float startValue, float lerpSpeed, float min, float max)
+            public FloatValue(float startValue, float lerpSpeed, float min, float max, string name)
             {
                 _name = name;
                 targetValue = startValue;
@@ -1830,8 +1830,15 @@ namespace QuizCannersUtilities
 
         #region Lerps
 
+        
+
         private static float SpeedToPortion(this float speed, float dist) =>
             dist != 0 ? Mathf.Clamp01(speed * Time.deltaTime / Mathf.Abs(dist)) : 1;
+
+
+        private static double SpeedToPortion(this double speed, double dist) =>
+            dist != 0 ? QcMath.Clamp01(speed * Time.deltaTime / Math.Abs(dist)) : 1;
+
 
         public static bool SpeedToMinPortion(this float speed, float dist, LerpData ld)
         {
@@ -1870,6 +1877,31 @@ namespace QuizCannersUtilities
 
             from = Mathf.LerpUnclamped(from, to, speed.SpeedToPortion(Mathf.Abs(from - to)));
             return true;
+        }
+
+        public static bool IsLerpingBySpeed(ref double from, double to, double speed)
+        {
+            if (from == to)
+                return false;
+
+            double diff = to - from;
+
+            double dist = Math.Abs(diff);
+
+            from += diff * QcMath.Clamp01(speed * Time.deltaTime / dist);
+            return true;
+        }
+
+        public static double LerpBySpeed(double from, double to, double speed)
+        {
+            if (from == to)
+                return from;
+
+            double diff = to - from;
+
+            double dist = Math.Abs(diff);
+
+            return from + diff * QcMath.Clamp01(speed * Time.deltaTime / dist);
         }
 
         public static float LerpBySpeed(float from, float to, float speed)

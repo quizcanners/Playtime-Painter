@@ -19,6 +19,14 @@ namespace QuizCannersUtilities
     public static partial class QcMath
     {
 
+        #region Double
+
+        public static double Clamp(double value, double min, double max) => value < min ? min : (value > max ? max : value);
+
+        public static double Clamp01(double value) => value < 0 ? 0 : (value > 1 ? 1 : value);
+
+        #endregion
+
         #region Checks
 
         public static bool IsNaN(this Vector3 q) => float.IsNaN(q.x) || float.IsNaN(q.y) || float.IsNaN(q.z);

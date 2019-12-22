@@ -35,7 +35,7 @@ SpriteAtlas:
     bindAsDefault: 1
     storedHash:
       serializedVersion: 2
-      Hash: 775b2ed7dbdad9aa2990fdf4b4e74675
+      Hash: 4e0a5bfd2e417c9b35b8855c66ccb0da
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
   - {fileID: 21300000, guid: 2f003b1043d1baa419de7829cf855d48, type: 3}

@@ -732,7 +732,7 @@ namespace QuizCannersUtilities {
         #endregion
 
         #region STD class
-        public static ICfg DecodeTagsFor<T>(this string data, T val) where T : ICfg
+        public static ICfg DecodeTagsFor<T>(this string data, T val) where T : class, ICfg
         => (QcUnity.IsNullOrDestroyed_Obj(val)) ? val : new CfgDecoder(data).DecodeTagsFor(val);
       
         public static T DecodeInto<T>(this string data, out T val) where T : ICfg, new()
@@ -967,7 +967,24 @@ namespace QuizCannersUtilities {
            
         }
 
-        public T DecodeTagsFor<T>(T std) where T : ICfg {
+        public void DecodeTagsFor<T>(ref T std) where T : struct, ICfg
+        {
+
+            var unrecognizedKeeper = (std as IKeepUnrecognizedCfg)?.UnrecognizedStd;
+
+            if (unrecognizedKeeper == null)
+                foreach (var tag in this)
+                    std.Decode(tag, GetData());
+            else
+                foreach (var tag in this)
+                {
+                    var d = GetData();
+                    if (!std.Decode(tag, d))
+                        unrecognizedKeeper.Add(tag, d);
+                }
+        }
+
+        public T DecodeTagsFor<T>(T std) where T : class, ICfg {
 
             var unrecognizedKeeper = (std as IKeepUnrecognizedCfg)?.UnrecognizedStd;
 

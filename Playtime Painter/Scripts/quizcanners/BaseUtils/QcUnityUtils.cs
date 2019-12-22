@@ -364,6 +364,54 @@ namespace QuizCannersUtilities {
 
 #region Components & GameObjects
 
+        public static List<T> CreateUiElement<T>(GameObject[] targets = null) where T : Component
+        {
+
+            List <T> created = new List<T>();
+
+            bool createdForSelection = false;
+
+            if (targets.Length > 0)
+            {
+                foreach (var go in targets)
+                {
+                    if (go.GetComponentInParent<Canvas>())
+                    {
+                        created.Add(CreateUiElement<T>(go));
+                        createdForSelection = true;
+                    }
+                }
+            }
+
+            if (!createdForSelection)
+            {
+                var canvas = Object.FindObjectOfType<Canvas>();
+
+                if (!canvas)
+                    canvas = new GameObject("Canvas").AddComponent<Canvas>();
+
+                created.Add(CreateUiElement<T>(canvas.gameObject));
+            }
+
+            return created;
+        }
+
+        private static T CreateUiElement<T>(GameObject parent) where T: Component
+        {
+            var rg = new GameObject(typeof(T).ToString().SimplifyTypeName()).AddComponent<T>();
+            var go = rg.gameObject;
+            go.GetComponent<CanvasRenderer>().cullTransparentMesh = true;
+
+            #if UNITY_EDITOR
+                GameObjectUtility.SetParentAndAlign(go, parent);
+                Undo.RegisterCreatedObjectUndo(go, "Created " + go.name);
+                Selection.activeObject = go;
+            #endif
+
+            return rg;
+        }
+
+
         public static void SetActive_List<T>(this List<T> list, bool to) where T : Component {
             if (!list.IsNullOrEmpty())
                 foreach (var e in list)

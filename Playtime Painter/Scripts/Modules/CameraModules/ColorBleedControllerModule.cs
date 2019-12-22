@@ -130,9 +130,9 @@ namespace PlaytimePainter {
         static readonly LinkedLerp.ColorValue fogColor = new LinkedLerp.ColorValue("Fog Color");
         static readonly LinkedLerp.ColorValue skyColor = new LinkedLerp.ColorValue("Sky Color");
         static readonly LinkedLerp.FloatValue shadowStrength = new LinkedLerp.FloatValue( 1, name: "Shadow Strength");
-        static readonly LinkedLerp.FloatValue shadowDistance = new LinkedLerp.FloatValue("Shadow Distance", 100, 500, 10, 1000);
-        static readonly LinkedLerp.FloatValue fogDistance = new LinkedLerp.FloatValue("Fog Distance", 100, 500, 0.01f, 1000);
-        static readonly LinkedLerp.FloatValue fogDensity = new LinkedLerp.FloatValue("Fog Density", 0.01f, 0.01f, 0.00001f, 0.1f);
+        static readonly LinkedLerp.FloatValue shadowDistance = new LinkedLerp.FloatValue(100, 500, 10, 1000, "Shadow Distance");
+        static readonly LinkedLerp.FloatValue fogDistance = new LinkedLerp.FloatValue(100, 500, 0.01f, 1000, "Fog Distance");
+        static readonly LinkedLerp.FloatValue fogDensity = new LinkedLerp.FloatValue(0.01f, 0.01f, 0.00001f, 0.1f, "Fog Density");
 
         private LerpData ld = new LerpData();
 
@@ -357,7 +357,8 @@ namespace PlaytimePainter {
                 }
             }
 
-            public override void ReadConfigurationToData() => data = EncodeWeather().ToString();
+            public override CfgEncoder EncodeData() => EncodeWeather();
+            
         }
     }
 }

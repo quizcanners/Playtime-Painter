@@ -124,8 +124,7 @@ namespace QuizCannersUtilities
         {
             private static readonly BinaryFormatter Formatter = new BinaryFormatter();
 
-            public static string LoadStringFromResource(string resourceFolderLocation, string insideResourceFolder,
-                string name)
+            public static string LoadStringFromResource(string resourceFolderLocation, string insideResourceFolder, string name)
             {
 
 #if UNITY_EDITOR
@@ -151,7 +150,7 @@ namespace QuizCannersUtilities
                 return null;
 
 #else
-        return LoadBytesFromResource( insideResourceFolder,  name);
+                return LoadStringFromResource( insideResourceFolder,  name);
 #endif
             }
 
