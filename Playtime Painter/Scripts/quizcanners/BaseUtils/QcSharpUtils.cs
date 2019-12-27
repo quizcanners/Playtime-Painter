@@ -26,21 +26,28 @@ namespace QuizCannersUtilities {
         public static string ThisMethodName(int up) => (new StackFrame(up)).GetMethod()?.Name;
 
         #region Timer
-        
+
+        public static string SecondsToReadableString(int seconds) => TicksToReadableString(seconds * TimeSpan.TicksPerSecond);
+
+        public static string SecondsToReadableString(float seconds) => TicksToReadableString((long)seconds * TimeSpan.TicksPerSecond);
+
         public static string SecondsToReadableString(long seconds) => TicksToReadableString(seconds * TimeSpan.TicksPerSecond);
 
-        public static string TicksToReadableString(long elapsed) {
+        public static string TicksToReadableString(long elapsed)
+        {
+            
+            long absElapsed = Math.Abs(elapsed);
 
-            if (elapsed < TimeSpan.TicksPerMillisecond)
+            if (absElapsed < TimeSpan.TicksPerMillisecond)
                 return elapsed.ToString() +
                             " ticks  ({0} ms)".F(((double)elapsed / TimeSpan.TicksPerMillisecond).ToString("0.00")); 
-            else if (elapsed < TimeSpan.TicksPerSecond)
+            else if (absElapsed < TimeSpan.TicksPerSecond)
                 return (elapsed / TimeSpan.TicksPerMillisecond).ToString() +
                             " miliseconds  ({0} s)".F(((double)elapsed / TimeSpan.TicksPerSecond).ToString("0.00")); 
-            else if (elapsed < TimeSpan.TicksPerMinute)
+            else if (absElapsed < TimeSpan.TicksPerMinute)
                 return elapsed / TimeSpan.TicksPerSecond +
                             " seconds  ({0} min)".F(((double)elapsed / TimeSpan.TicksPerMinute).ToString("0.00")); 
-            else if (elapsed < TimeSpan.TicksPerHour)
+            else if (absElapsed < TimeSpan.TicksPerHour)
                 return elapsed / TimeSpan.TicksPerMinute +
                        " minutes  ({0} hours)".F(((double)elapsed / TimeSpan.TicksPerHour).ToString("0.00")); 
             else //if (elapsed < TimeSpan.TicksPerDay)
