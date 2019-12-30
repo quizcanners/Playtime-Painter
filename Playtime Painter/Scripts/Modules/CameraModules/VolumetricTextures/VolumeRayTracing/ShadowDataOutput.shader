@@ -126,7 +126,7 @@
 				float fernel = (1.5 - dotprod);
 				float3 reflected = normalize(o.viewDir.xyz - 2 * (dotprod)*o.normal);
 				*/
-				float4 bake = SampleVolume(g_BakedRays_VOL, o.worldPos.xyz,  g_VOLUME_POSITION_N_SIZE,  g_VOLUME_H_SLICES, o.normal);
+				float4 bake = SampleVolume(g_BakedRays_VOL, o.worldPos.xyz + o.normal,  g_VOLUME_POSITION_N_SIZE,  g_VOLUME_H_SLICES);
 
 				bake *= bake.a*bake.a;
 				

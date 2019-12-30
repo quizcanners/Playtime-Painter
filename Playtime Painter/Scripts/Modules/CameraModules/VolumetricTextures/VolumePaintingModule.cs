@@ -23,21 +23,14 @@ namespace PlaytimePainter {
 
         public static VectorValue VOLUME_H_SLICES = new VectorValue("VOLUME_H_SLICES");
         public static VectorValue VOLUME_POSITION_N_SIZE = new VectorValue("VOLUME_POSITION_N_SIZE");
-
-        public static VectorValue VOLUME_H_SLICES_Global = new VectorValue( PainterDataAndConfig.GlobalPropertyPrefix + "VOLUME_H_SLICES");
-        public static VectorValue VOLUME_POSITION_N_SIZE_Global = new VectorValue(PainterDataAndConfig.GlobalPropertyPrefix + "VOLUME_POSITION_N_SIZE");
         
         public static VectorValue VOLUME_H_SLICES_BRUSH = new VectorValue("VOLUME_H_SLICES_BRUSH");
         public static VectorValue VOLUME_POSITION_N_SIZE_BRUSH = new VectorValue("VOLUME_POSITION_N_SIZE_BRUSH");
 
         public static VectorValue VOLUME_BRUSH_DIRECTION = new VectorValue("VOLUME_BRUSH_DYRECTION");
         
-        public static ShaderProperty.ShaderKeyword UseSmoothing = new ShaderKeyword("_SMOOTHING");
-
-        public const string VolumeTextureTag = "_VOL";
-        public const string VolumeSlicesCountTag = "_slices";
-
-        private bool _useGrid;
+        public static ShaderKeyword UseSmoothing = new ShaderKeyword("_SMOOTHING");
+        
         private float smoothing = 0;
 
         private static Shader _preview;
@@ -49,12 +42,10 @@ namespace PlaytimePainter {
         public override CfgEncoder Encode()
         {
             var cody = this.EncodeUnrecognized()
-                .Add_IfTrue("ug", _useGrid)
                 .Add_IfTrue("rtr", _enableRayTracing)
                 .Add("mFiv", minFov)
                 .Add("mFov", maxFov) 
                 .Add_IfNotEpsilon("smth", smoothing)
-                //.Add("brg", arbitraryBrightnessIncrease)
                 .Add("cam", rayTraceCameraConfiguration);
 
             return cody;
@@ -64,12 +55,10 @@ namespace PlaytimePainter {
         {
             switch (tg)
             {
-                case "ug": _useGrid = data.ToBool(); break;
                 case "rtr": _enableRayTracing = true; break;
                 case "mFiv": minFov = data.ToFloat(); break;
                 case "mFov": maxFov = data.ToFloat(); break;
                 case "smth": smoothing = data.ToFloat(); break;
-                //case "brg": arbitraryBrightnessIncrease = data.ToFloat(); break;
                 case "cam": rayTraceCameraConfiguration.Decode(data); break;
                 default: return false;
             }
@@ -102,8 +91,6 @@ namespace PlaytimePainter {
 
         public Shader GetBrushShaderSingleBuffer(PlaytimePainter p) => null;
 
-        public bool NeedsGrid(PlaytimePainter p) => _useGrid && p.GetVolumeTexture();
-        
         public bool IsA3DBrush(PlaytimePainter painter, BrushConfig bc, ref bool overrideOther)
         {
             if (!painter.GetVolumeTexture()) return false;
@@ -116,9 +103,6 @@ namespace PlaytimePainter {
             var volume = image.texture2D.GetVolumeTextureData();
 
             if (!volume) return;
-            
-            if (volume.VolumeJobIsRunning)
-                return;
 
             bc.brush3DRadius = Mathf.Min(BrushScaleMaxForCpu(volume), bc.brush3DRadius);
 
@@ -184,7 +168,7 @@ namespace PlaytimePainter {
             
         }
 
-        public bool IsEnabledFor(PlaytimePainter painter, TextureMeta img, BrushConfig cfg) => img.IsVolumeTexture();
+        public bool IsEnabledFor(PlaytimePainter painter, TextureMeta img, BrushConfig cfg) => img.GetVolumeTextureController();
 
         public void PaintRenderTexture(StrokeVector stroke, TextureMeta image, BrushConfig bc, PlaytimePainter painter)
         {
@@ -203,9 +187,6 @@ namespace PlaytimePainter {
                 bc.useAlphaBuffer = false;
 
                 delayedPaintingConfiguration = new BrushStrokePainterImage(stroke, image, bc, painter);
-
-
-                //Debug.Log("Setting position: "+stroke.posTo);
 
                 PainterCamera.GetProjectorCamera().RenderRightNow(this);
             }
@@ -315,43 +296,20 @@ namespace PlaytimePainter {
 
         public bool ComponentInspector()
         {
-            var id = InspectedPainter.TexMeta;
-            
-            if (id != null) return false;
-            
-            var inspectedProperty = InspectedPainter.GetMaterialTextureProperty;
-            
-            if (inspectedProperty == null || !inspectedProperty.NameForDisplayPEGI().Contains(VolumeTextureTag)) return false;
+            var vt = InspectedPainter.GetModule<VolumeTextureManagement>().volumeTexture;
 
-            if (inspectedProperty.IsGlobalVolume()) {
-                "Global Volume Expected".nl();
+            if (!vt)
+                return false;
 
-                "Create a game object with one of the Volume scripts and set it as Global Parameter"
-                    .fullWindowDocumentationClickOpen("About Global Volume Parameters");
+            var id = vt.ImageMeta;
 
-            }
-            else
+            if (id == null)
             {
-                "Volume Texture Expected".nl();
-
-                var tmp = -1;
-
-                if (!"Available:".select_Index(60, ref tmp, VolumeTexture.all))
-                {
-                    var vol = VolumeTexture.all.TryGet(tmp);
-
-                    if (!vol) return false;
-
-                    if (vol.ImageMeta != null)
-                        vol.AddIfNew(InspectedPainter);
-                    else
-                        "Volume Has No Texture".showNotificationIn3D_Views();
-
-                    return true;
-                }
+                "Volume has no texture".writeWarning();
+                return false;
             }
 
-            return false;
+            return true;
         }
 
         private bool _exploreVolumeData;
@@ -371,34 +329,35 @@ namespace PlaytimePainter {
 
                 var tex = volTex.texture;
 
-                if (tex && tex.IsColorTexture()) {
-                    "Volume Texture is a color texture".writeWarning();
+                if (tex) {
+
+                    "Volume is a {0} texture".F(tex.IsColorTexture() ? "Color" : "Non-Color Data").write();
 
 #if UNITY_EDITOR
+                    if (tex.IsColorTexture())
+                    {
+                        pegi.nl();
+                        var imp = tex.GetTextureImporter();
 
-                    pegi.nl();
-                    var imp = tex.GetTextureImporter();
-
-                    if ((imp!= null) && "FIX texture".Click() && (imp.WasWrongIsColor(false))) 
-                        imp.SaveAndReimport();
+                        if ((imp != null) && "FIX texture".Click() && (imp.WasWrongIsColor(false)))
+                            imp.SaveAndReimport();
+                    }
 #endif
 
 
                         pegi.nl();
                 } 
+                else
+                    "Volume has no texture".writeWarning();
 
                 overrideBlitMode = true;
 
                 var id = p.TexMeta;
                 
-                if (BrushConfig.showAdvanced) 
-                    "Grid".toggle(50, ref _useGrid).nl();
-
                 var cpuBlit = id.TargetIsTexture2D().nl();
 
                 br.showingSize = !_enableRayTracing || cpuBlit;
-
-
+                
                 if (!cpuBlit)  {
 
                     if (BrushConfig.showAdvanced || _enableRayTracing)
@@ -431,22 +390,6 @@ namespace PlaytimePainter {
                         pegi.nl();
                     }
 
-                    if (_enableRayTracing && BrushConfig.showAdvanced) {
-
-                      
-
-                      
-
-                     
-
-                       // "Bounced brightness mltpl".edit(ref arbitraryBrightnessIncrease, 1, 2).changes(ref changed);
-
-                        //"A completely arbitrary value that increases the amount of bounced light. Used to utilize the full 0-1 range of the texture for increased percision"
-                          //  .fullWindowDocumentationClick();
-
-                        pegi.nl();
-                    }
-
                     if (!_exploreRayTaceCamera && _enableRayTracing) {
                         var dp = PainterCamera.depthProjectorCamera;
 
@@ -466,13 +409,7 @@ namespace PlaytimePainter {
                     }
                 }
                 
-                if (cpuBlit)
-                {
-                    /*if (_enableRayTracing)
-                        icon.Warning.write("CPU Brush is slow for volumes");*/
-                }
-                else
-                {
+                if (!cpuBlit) { 
                     pegi.nl();
 
                     if (!br.GetBrushType(false).IsAWorldSpaceBrush) {
@@ -486,17 +423,21 @@ namespace PlaytimePainter {
                 pegi.nl();
 
 
-                if (!_exploreRayTaceCamera && PainterCamera.Data.showVolumeDetailsInPainter && (volTex.name + " " + VolumeEditingExtensions.VolumeSize(id.texture2D, volTex.hSlices)       ).foldout(ref _exploreVolumeData).nl())
+                if (!_exploreRayTaceCamera && PainterCamera.Data.showVolumeDetailsInPainter &&
+                    (volTex.name + " " + VolumeEditingExtensions.VolumeSize(id.texture2D, volTex.hSlices))
+                    .foldout(ref _exploreVolumeData).nl()) {
+
                     volTex.Nested_Inspect().changes(ref changed);
 
-                if (volTex.NeedsToManageMaterials)
-                {
-                    var painterMaterial = InspectedPainter.Material;
-                    if (painterMaterial != null)
+                    if (volTex.NeedsToManageMaterials)
                     {
-                        if (!volTex.materials.Contains(painterMaterial))
-                            if ("Add This Material".Click().nl())
-                                volTex.AddIfNew(p);
+                        var painterMaterial = InspectedPainter.Material;
+                        if (painterMaterial)
+                        {
+                            if (!volTex.materials.Contains(painterMaterial))
+                                if ("Add This Material".Click().nl())
+                                    volTex.AddIfNew(p);
+                        }
                     }
                 }
 
@@ -520,21 +461,7 @@ namespace PlaytimePainter {
                 }
 
                 pegi.nl();
-
-                /*
-                if (br.GetBlitMode(cpuBlit).UsingSourceTexture && id.TargetIsRenderTexture())
-                {
-                    if (TexMGMTdata.sourceTextures.Count > 0)
-                    {
-                        "Copy From:".write(70);
-                        changed |= pegi.selectOrAdd(ref br.selectedSourceTexture, ref TexMGMTdata.sourceTextures);
-                    }
-                    else
-                        "Add Textures to Render Camera to copy from".nl();
-                }*/
-
             }
-
             return changed;
         }
 
@@ -570,70 +497,33 @@ namespace PlaytimePainter {
         private const string Tag = "VolTexM";
         public override string ClassTag => Tag;
 
+        public VolumeTexture volumeTexture;
+
         public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<ShaderProperty.TextureValue> dest)
         {
-            var mat = painter.Material;
-
-            if (!mat) 
-                return;
-                    
-            var tg = mat.GetTag("Volume", false, "");
-
-            if (!tg.IsNullOrEmpty()) {
-
-                foreach (var v in VolumeTexture.all)
-                {
-
-                    var mp = v.MaterialPropertyNameGlobal;
-
-                    if (mp.NameForDisplayPEGI().Equals(tg))
-                    {
-
-                        dest.Add(mp);
-                        return;
-                    }
-                }
-            }
-
-        }
-
-        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue field, TextureMeta id, PlaytimePainter painter)
-        {
-            if (!field.IsGlobalVolume()) return false;
-
-            var gl = VolumeTexture.GetGlobal(field);
-
-            if (gl != null)
-            {
-                gl.ImageMeta = id;
-                gl.UpdateMaterials();
-            }
-
-            return true;
+            if (volumeTexture)
+                dest.Add(volumeTexture.TextureInShaderProperty);
         }
 
         public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter)
         {
-            if (!field.IsGlobalVolume()) return false;
+            if (volumeTexture && field.Equals(volumeTexture.TextureInShaderProperty))
+            {
+                tex = volumeTexture.texture;
+                return true;
+            }
 
-            var gl = VolumeTexture.GetGlobal(field);
-
-            if (gl != null)
-                tex = gl.ImageMeta.CurrentTexture();
-            else
-                tex = null;
-
-            return true;
+            return false;
         }
 
         public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue fieldName, PlaytimePainter painter)
         {
-
-
-            if (!fieldName.IsGlobalVolume())
+            if (!volumeTexture)
                 return false;
+
             var id = painter.TexMeta;
-            if (id == null) return true;
+            if (id == null || !id.isAVolumeTexture)
+                return false;
             id.tiling = Vector2.one;
             id.offset = Vector2.zero;
             return true;
@@ -643,16 +533,6 @@ namespace PlaytimePainter {
     public static class VolumeEditingExtensions
     {
 
-        public static bool IsGlobalVolume(this ShaderProperty.TextureValue field) {
-            
-            string name = field.NameForDisplayPEGI();
-            if (name.Contains(PainterDataAndConfig.GlobalPropertyPrefix) &&
-                name.Contains(VolumePaintingModule.VolumeTextureTag))
-                return true;
-            return false;
-            
-        }
-
         public static VolumeTexture GetVolumeTexture(this PlaytimePainter p)
         {
             if (!p)
@@ -660,16 +540,16 @@ namespace PlaytimePainter {
 
             var id = p.TexMeta;
 
-            if (id != null && id.texture2D)
+            if (id != null && id.isAVolumeTexture)
                 return id.GetVolumeTextureData();
 
             return null;
         }
 
-        public static VolumeTexture IsVolumeTexture(this TextureMeta id)
+        public static VolumeTexture GetVolumeTextureController(this TextureMeta id)
         {
      
-            if (id != null && id.texture2D) 
+            if (id != null && id.isAVolumeTexture) 
                 return id.GetVolumeTextureData();
 
             return null;
@@ -693,7 +573,7 @@ namespace PlaytimePainter {
 
             var pnS = vt.PosSize4Shader;
             var vhS = vt.Slices4Shader;
-            var tex = vt.MaterialPropertyName;
+            var tex = vt.TextureInShaderProperty;
             
             foreach (var m in materials)
                 if (m)
@@ -719,8 +599,10 @@ namespace PlaytimePainter {
             for (var i = 0; i < VolumeTexture.all.Count; i++)
             {
                 var vt = VolumeTexture.all[i];
-                if (vt == null) { VolumeTexture.all.RemoveAt(i); i--; }
-
+                if (!vt) {
+                    VolumeTexture.all.RemoveAt(i);
+                    i--;
+                }
                 else if (vt.ImageMeta != null && id == vt.ImageMeta)
                 {
                     _lastFetchedVt = vt;

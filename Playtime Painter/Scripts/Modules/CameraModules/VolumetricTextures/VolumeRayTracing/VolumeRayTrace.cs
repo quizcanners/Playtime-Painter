@@ -55,19 +55,16 @@ namespace PlaytimePainter
         {
 
             base.Update();
-
-            if (IsCurrentGlobalVolume)
-                lights.UpdateLightsGlobal();
+            
+            lights.UpdateLightsGlobal();
 
         }
 
         public override void UpdateMaterials() {
 
             base.UpdateMaterials();
-
-            if (IsCurrentGlobalVolume)
-                lights.UpdateLightsGlobal();
-
+            
+            lights.UpdateLightsGlobal();
         }
 
 #region ProjectionUpdates
@@ -105,7 +102,7 @@ namespace PlaytimePainter
         private int lastUpdatedLight = 0;
 
         public bool ProjectorReady() 
-            => IsCurrentGlobalVolume && lights.GetNextLight(ref lastUpdatedLight);
+            => lights.GetNextLight(ref lastUpdatedLight);
         
         private static List<CameraMatrixParameters> projectorCameraParams;
 
@@ -144,9 +141,7 @@ namespace PlaytimePainter
         {
             lights.SetIndexesOnLightSources();
         }
-
-        protected override string PropertyNameRoot => "BakedRays";
-
+        
 #endregion
         
 #region Initialization

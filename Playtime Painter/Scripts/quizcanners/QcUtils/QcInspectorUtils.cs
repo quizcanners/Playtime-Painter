@@ -853,7 +853,16 @@ namespace QuizCannersUtilities
             if ("ICfg Inspector".enter(ref inspectedSection, 3).nl())
                 iCfgExplorer.Inspect(null).nl(ref changed);
 
-            return changed;
+            if (inspectedSection == -1)
+            {
+                if ("Player Data Folder".Click().nl())
+                    QcFile.ExplorerUtils.OpenPersistentFolder();
+                
+                if (Application.isEditor && "Editor Data Folder".Click().nl())
+                    QcFile.ExplorerUtils.OpenPath("C:/Users/{0}/AppData/Local/Unity/Editor/Editor.log".F(Environment.UserName));
+            }
+
+        return changed;
         }
 
     }

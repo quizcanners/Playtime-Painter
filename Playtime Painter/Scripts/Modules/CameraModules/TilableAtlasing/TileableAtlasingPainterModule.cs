@@ -1052,7 +1052,6 @@ namespace PlaytimePainter {
         public static bool IsAtlased(this Material mat, string property) => mat.IsAtlased() && property.Contains(PainterDataAndConfig.isAtlasableDisaplyNameTag);
         
         public static bool IsAtlased(this Material mat, ShaderProperty.TextureValue property) => mat.IsAtlased() && property.NameForDisplayPEGI().Contains(PainterDataAndConfig.isAtlasableDisaplyNameTag);
-
         
         public static bool IsAtlased(this Material mat) => mat && mat.shaderKeywords.Contains(PainterDataAndConfig.UV_ATLASED);
       

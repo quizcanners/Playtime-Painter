@@ -72,6 +72,15 @@ namespace PlaytimePainter
 
         ImgMetaModules modulesContainer = new ImgMetaModules();
 
+        public void Rename(string newName)
+        {
+            saveName = newName;
+            if (texture2D)
+                texture2D.name = newName;
+            if (renderTexture)
+                renderTexture.name = newName;
+        }
+
         public List<ImageMetaModuleBase> Modules
         {
             get

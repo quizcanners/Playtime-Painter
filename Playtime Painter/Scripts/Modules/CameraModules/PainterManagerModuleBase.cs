@@ -36,7 +36,7 @@ namespace PlaytimePainter {
 
         void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, TextureMeta image, BrushConfig bc, PlaytimePainter painter);
 
-        bool NeedsGrid(PlaytimePainter p);
+        //bool NeedsGrid(PlaytimePainter p);
 
         Shader GetPreviewShader(PlaytimePainter p);
 

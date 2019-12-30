@@ -4,55 +4,25 @@ using System;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using Unity.Collections;
-using UnityEngine.Serialization;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace PlaytimePainter {
-    
+
     [ExecuteInEditMode]
     [Serializable]
-    public class VolumeTexture : PainterSystemMono, IGotName {
+    public class VolumeTexture : PainterSystemMono, IGotName
+    {
 
         [SerializeField] public bool setForGlobal;
 
-        public static Dictionary<ShaderProperty.TextureValue, VolumeTexture> currentlyActiveVolumes = new Dictionary<ShaderProperty.TextureValue, VolumeTexture>();
-
-        protected VolumeTexture CurrentGlobal
-        {
-            get { return currentlyActiveVolumes.TryGet(MaterialPropertyNameGlobal);  }
-            set
-            {
-                currentlyActiveVolumes[MaterialPropertyNameGlobal] = value;
-                if (value)
-                    value.OnBecomeActive();
-            }
-        }
-
-        public static VolumeTexture GetGlobal(ShaderProperty.TextureValue propertyName)
-        {
-            foreach (var v in currentlyActiveVolumes)
-            {
-                var val = v.Value;
-                if (val && val.MaterialPropertyNameGlobal.Equals(propertyName))
-                    return val;
-            }
-
-            return null;
-        }
-
-        protected bool IsCurrentGlobalVolume => setForGlobal && this == currentlyActiveVolumes.TryGet(MaterialPropertyNameGlobal);
-        
         public static List<VolumeTexture> all = new List<VolumeTexture>();
-
-        public virtual bool VolumeJobIsRunning => volumeIsProcessed;
-
-        public bool volumeIsProcessed = false;
 
         private static int _tmpWidth = 1024;
 
         public int hSlices = 1;
         public float size = 1;
-
-        [NonSerialized] protected NativeArray<Color> unsortedVolume;
 
         [SerializeField] public Texture2D texture;
 
@@ -62,15 +32,63 @@ namespace PlaytimePainter {
             set { texture = value?.texture2D; }
         }
 
-        protected virtual string PropertyNameRoot => "DefaultVolume";
+        private ShaderProperty.TextureValue _textureInShader;
+        private ShaderProperty.VectorValue _slicesInShader;
+        private ShaderProperty.VectorValue _positionNsizeInShader;
 
-        public ShaderProperty.TextureValue MaterialPropertyName => new ShaderProperty.TextureValue(PropertyNameRoot + VolumePaintingModule.VolumeTextureTag);
+        public ShaderProperty.TextureValue TextureInShaderProperty
+        {
+            get
+            {
+                if (_textureInShader != null)
+                    return _textureInShader;
 
-        public ShaderProperty.TextureValue MaterialPropertyNameGlobal => new ShaderProperty.TextureValue( PainterDataAndConfig.GlobalPropertyPrefix+ PropertyNameRoot + VolumePaintingModule.VolumeTextureTag);
-        
+                _textureInShader = new ShaderProperty.TextureValue(name);
+
+                return _textureInShader;
+            }
+        }
+
+        public ShaderProperty.VectorValue SlicesShadeProperty
+        {
+            get
+            {
+                if (_slicesInShader != null)
+                    return _slicesInShader;
+
+                _slicesInShader = new ShaderProperty.VectorValue(name + "VOLUME_H_SLICES");
+
+                return _slicesInShader;
+            }
+        }
+
+        public ShaderProperty.VectorValue PositionAndScaleProperty
+        {
+            get
+            {
+                if (_positionNsizeInShader != null)
+                    return _positionNsizeInShader;
+
+                _positionNsizeInShader = new ShaderProperty.VectorValue(name + "VOLUME_POSITION_N_SIZE");
+
+                return _positionNsizeInShader;
+            }
+        }
+    
         public List<Material> materials;
 
-        public string NameForPEGI { get { return name; } set { name = value; } }
+        public string NameForPEGI
+        {
+            get
+            {
+                return name;
+            }
+            set
+            {
+                name = value;
+                _textureInShader = null;
+            }
+        }
 
         public int Height => hSlices * hSlices;
 
@@ -83,54 +101,7 @@ namespace PlaytimePainter {
 
         public virtual bool NeedsToManageMaterials => true;
 
-        public virtual Color GetColorFor(Vector3 pos) => Color.white * (Width * size * 0.5f - (LastCenterPosTMP - pos).magnitude);
-
         public virtual void AddIfNew(PlaytimePainter p) => AddIfNew(p.Material);
-
-        Vector3 LastCenterPosTMP;
-        public virtual void RecalculateVolume()
-        {
-            var center = transform.position;
-            LastCenterPosTMP = center;
-            var w = Width;
-
-            CheckVolume();
-
-            var hw = Width / 2;
-
-            var pos = Vector3.zero;
-
-            for (var h = 0; h < Height; h++)
-            {
-                pos.y = center.y + h * size;
-                for (var y = 0; y < w; y++)
-                {
-                    pos.z = center.z + (y - hw) * size;
-                    var index = (h * Width + y) * Width;
-
-                    for (var x = 0; x < w; x++)
-                    {
-                        pos.x = center.x + (x - hw) * size;
-                        unsortedVolume[index + x] = GetColorFor(pos);
-                    }
-                }
-            }
-        }
-
-        private bool CheckSizeChange()
-        {
-            var volumeLength = Width * Width * Height;
-
-            if (unsortedVolume.IsCreated && unsortedVolume.Length == volumeLength) return false;
-            
-            if (unsortedVolume.IsCreated)
-                unsortedVolume.Dispose();
-
-            unsortedVolume = new NativeArray<Color>(volumeLength, Allocator.Persistent, NativeArrayOptions.UninitializedMemory);
-            return true;
-
-
-        }
 
         private bool AddIfNew(Material mat)
         {
@@ -144,180 +115,12 @@ namespace PlaytimePainter {
             return true;
         }
 
-        protected void CheckVolume()
+        private void UpdateImageMeta()
         {
-            if (CheckSizeChange())
-                VolumeFromTexture();
-        }
-
-        #region Volume Processing 
-        public virtual void VolumeFromTexture()
-        {
-
             if (ImageMeta == null)
-            {
-
-                if (TexturesPool.inst != null)
-                    ImageMeta = TexturesPool.inst.GetTexture2D().GetTextureMeta();
-                else
-                {
-                    Debug.Log("No Texture for Volume");
-                    return;
-                }
-                UpdateTextureName();
-            }
-
-            CheckSizeChange();
-
-            Color[] pixels = ImageMeta.Pixels;
-
-            int texSectorW = ImageMeta.width / hSlices;
-            int w = Width;
-
-            for (int hy = 0; hy < hSlices; hy++)
-            {
-                for (int hx = 0; hx < hSlices; hx++)
-                {
-
-                    int hTex_index = (hy * ImageMeta.width + hx) * texSectorW;
-
-                    int h = hy * hSlices + hx;
-
-                    for (int y = 0; y < w; y++)
-                    {
-                        int yTex_index = hTex_index + y * ImageMeta.width;
-
-                        int yVolIndex = h * w * w + y * w;
-
-                        for (int x = 0; x < w; x++)
-                        {
-                            int texIndex = yTex_index + x;
-                            int volIndex = yVolIndex + x;
-
-                            unsortedVolume[volIndex] = pixels[texIndex];
-                        }
-                    }
-                }
-            }
-
-        }
-
-        public virtual void VolumeToTexture()
-        {
-
-            if (ImageMeta == null)
-            {
-
-                if (TexturesPool.inst)
-                    ImageMeta = TexturesPool.inst.GetTexture2D().GetTextureMeta();
-                else {
-                    Debug.Log("No Texture for Volume");
-                    return;
-                }
-                UpdateTextureName();
-            }
-
-            var im = ImageMeta;
-
-            var pixels = im.Pixels;
-
-            var texSectorW = im.width / hSlices;
-            var w = Width;
-
-            for (var hy = 0; hy < hSlices; hy++)
-            {
-                for (var hx = 0; hx < hSlices; hx++)
-                {
-
-                    var hTexIndex = (hy * im.width + hx) * texSectorW;
-
-                    var h = hy * hSlices + hx;
-
-                    for (var y = 0; y < w; y++)
-                    {
-                        var yTexIndex = hTexIndex + y * im.width;
-
-                        var yVolIndex = h * w * w + y * w;
-
-                        for (var x = 0; x < w; x++)
-                        {
-                            var texIndex = yTexIndex + x;
-                            var volIndex = yVolIndex + x;
-
-                            pixels[texIndex] = unsortedVolume[volIndex];
-                        }
-                    }
-                }
-            }
-
-            im.SetAndApply(false);
-            UpdateTextureName();
-        }
-
-        public int PositionToVolumeIndex(Vector3 pos)
-        {
-            pos /= size;
-            int hw = Width / 2;
-
-            var y = (int)Mathf.Clamp(pos.y, 0, Height - 1);
-            var z = (int)Mathf.Clamp(pos.z + hw, 0, hw - 1);
-            var x = (int)Mathf.Clamp(pos.x + hw, 0, hw - 1);
-
-            return (y * Width + z) * Width + x;
-        }
-
-        public int PositionToPixelIndex(Vector3 pos)
-        {
-            pos /= size;
-            int hw = Width / 2;
-
-            var y = (int)Mathf.Clamp(pos.y, 0, Height - 1);
-            var z = (int)Mathf.Clamp(pos.z + hw, 0, hw - 1);
-            var x = (int)Mathf.Clamp(pos.x + hw, 0, hw - 1);
-
-            int hy = y / hSlices;
-            int hx = y % hSlices;
-
-            return VolumeToPixelIndex(hx, hy, z, x);
-        }
-
-        public int VolumeToPixelIndex(int hx, int hy, int y, int x)
-        {
-
-            int hTex_index = (hy * ImageMeta.width + hx) * ImageMeta.width / hSlices;
-
-            int yTex_index = hTex_index + (y) * ImageMeta.width;
-
-            int texIndex = yTex_index + x;
-
-            return texIndex;
-        }
-
-        public Vector3 VolumeIndexToPosition(int index)
-        {
-
-            int plane = Width * Width;
-            int y = index / plane;
-            int z = (index - y * plane);
-
-            int x = z;
-            z /= Width;
-            x -= z * Width;
-
-            int hw = Width / 2;
-            Vector3 v3 = new Vector3(x - hw, y - hw, z - hw) * size;
-
-            return v3;
-        }
-        #endregion
-
-        private void UpdateTextureName()
-        {
-            if (ImageMeta == null) return;
+                return;
             ImageMeta.isAVolumeTexture = true;
-            ImageMeta.saveName = name + VolumePaintingModule.VolumeTextureTag + hSlices.ToString() + VolumePaintingModule.VolumeSlicesCountTag;
-            if (ImageMeta.texture2D) ImageMeta.texture2D.name = ImageMeta.saveName;
-            if (ImageMeta.renderTexture) ImageMeta.renderTexture.name = ImageMeta.saveName;
+            ImageMeta.Rename(name + hSlices.ToString());
         }
 
         protected virtual void OnBecomeActive()
@@ -326,6 +129,9 @@ namespace PlaytimePainter {
         }
 
         #region Inspect
+
+        private bool searchedForPainter = false;
+        [SerializeField] private PlaytimePainter _painter;
 
         protected int inspectedElement = -1;
 
@@ -348,19 +154,38 @@ namespace PlaytimePainter {
         public override bool Inspect()
         {
             var changed = false;
-            
+
+            if (searchedForPainter)
+                _painter = GetComponent<PlaytimePainter>();
+
+            if (!_painter)
+            {
+                "Painter [None]".write();
+                if ("Search".Click())
+                    _painter = GetComponent<PlaytimePainter>();
+
+                if (icon.Add.Click())
+                {
+                    _painter = GetComponent<PlaytimePainter>();
+                    if (!_painter)
+                        _painter = gameObject.AddComponent<PlaytimePainter>();
+                }
+
+                pegi.nl();
+
+            }
+            else
+            {
+                var mod = _painter.GetModule<VolumeTextureManagement>();
+                if (!mod.volumeTexture && "Assign volume texture to painter".Click())
+                    mod.volumeTexture = this;
+            }
+
             pegi.fullWindowDocumentationClickOpen(VolumeDocumentation);
 
             if (inspectedElement == -1)
             {
                 "Also set for Global shader parameters".toggleIcon(ref setForGlobal, true).changes(ref changed);
-                if (setForGlobal)
-                {
-                    "Current for {0} is {1}".F(MaterialPropertyNameGlobal, CurrentGlobal).nl();
-                    if (this != CurrentGlobal && "Clear".Click(ref changed))
-                        CurrentGlobal = null;
-
-                }
 
                 pegi.nl();
             }
@@ -369,9 +194,17 @@ namespace PlaytimePainter {
             {
 
                 var n = name;
-
                 if ("Name".editDelayed(50, ref n).nl(ref changed))
                     name = n;
+
+                if (setForGlobal)
+                {
+                    "FOR GLOBAL ONLY:".nl();
+
+                    PositionAndScaleProperty.NameForDisplayPEGI().write_ForCopy().nl();
+
+                    SlicesShadeProperty.NameForDisplayPEGI().write_ForCopy().nl();
+                }
 
                 var tex = ImageMeta.CurrentTexture();
 
@@ -398,9 +231,14 @@ namespace PlaytimePainter {
                             TexturesPool.Inst.width = _tmpWidth;
                         }
                     }
-                    else if ("Get From Pool".Click().nl(ref changed))
-                        ImageMeta = TexturesPool.inst.GetTexture2D().GetTextureMeta();
+                    else
+                    {
+                        if ("Get From Pool".Click().nl(ref changed))
+                            ImageMeta = TexturesPool.inst.GetTexture2D().GetTextureMeta();
 
+                        TexturesPool.Inst.Nested_Inspect().nl();
+                    }
+                
 
                 }
                 pegi.nl();
@@ -408,13 +246,13 @@ namespace PlaytimePainter {
                 "Slices:".edit("How texture will be sliced for height", 80, ref hSlices, 1, 8).nl(ref changed);
 
                 if (changed)
-                    UpdateTextureName();
+                    UpdateImageMeta();
 
                 var w = Width;
                 ("Will result in X:" + w + " Z:" + w + " Y:" + Height + "volume").nl();
             }
 
-            if ("Materials".enter(ref inspectedElement, 2).nl_ifFoldedOut()) {
+            if ("Materials [{0}]".F(materials.Count).enter(ref inspectedElement, 2).nl_ifFoldedOut()) {
 
                 "Materials".edit_List_UObj(ref materials, ref inspectedMaterial);
 
@@ -424,12 +262,9 @@ namespace PlaytimePainter {
                     if (pMat != null && materials.Contains(pMat) && "Remove This Material".Click().nl(ref changed))
                         materials.Remove(pMat);
                 }
-
-                if (changed || (inspectedMaterial == -1 && "Update Materials".Click().nl(ref changed)))
-                    UpdateMaterials();
             }
 
-            if (inspectedElement == -1 && icon.Refresh.Click("Update Materials"))
+            if (changed && icon.Refresh.Click("Update Materials"))
                 UpdateMaterials();
 
             pegi.nl();
@@ -444,16 +279,11 @@ namespace PlaytimePainter {
             materials.SetVolumeTexture(this);
 
             if (!setForGlobal) return;
-
-            if (!CurrentGlobal)
-                CurrentGlobal = this;
-
-            if (CurrentGlobal == this)
-            {
-                VolumePaintingModule.VOLUME_POSITION_N_SIZE_Global.SetGlobal(PosSize4Shader);
-                VolumePaintingModule.VOLUME_H_SLICES_Global.SetGlobal(Slices4Shader);
-                MaterialPropertyNameGlobal.SetGlobal(ImageMeta.CurrentTexture());
-            }
+            
+            PositionAndScaleProperty.SetGlobal(PosSize4Shader);
+            SlicesShadeProperty.SetGlobal(Slices4Shader);
+            TextureInShaderProperty.SetGlobal(ImageMeta.CurrentTexture());
+            
         }
 
         private Vector3 _previousWorldPosition = Vector3.zero;
@@ -476,16 +306,15 @@ namespace PlaytimePainter {
             all.Add(this);
 
             UpdateMaterials();
+
+            if (_painter)
+                _painter.GetModule<VolumeTextureManagement>().volumeTexture = this;
         }
 
         public virtual void OnDisable()
         {
             if (all.Contains(this))
                 all.Remove(this);
-            if (unsortedVolume.IsCreated)
-                unsortedVolume.Dispose();
-            if (this == CurrentGlobal)
-                CurrentGlobal = null;
         }
 
         public virtual void OnDrawGizmosSelected()
@@ -501,4 +330,10 @@ namespace PlaytimePainter {
         public virtual bool DrawGizmosOnPainter(PlaytimePainter painter) => false; 
 
     }
+
+#if UNITY_EDITOR
+    [CustomEditor(typeof(VolumeTexture))]
+    public class VolumeTextureDrawer : PEGI_Inspector_Mono<VolumeTexture> { }
+#endif
+
 }

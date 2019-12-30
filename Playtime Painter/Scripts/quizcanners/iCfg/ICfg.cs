@@ -565,6 +565,9 @@ namespace QuizCannersUtilities {
             if (("Unrecognized Tags: " + UnrecognizedStd.Count).enter(ref _inspectedDebugItems, 2).nl_ifNotEntered())
                 UnrecognizedStd.Nested_Inspect().changes(ref changed);
 
+            if ("Inspect Inspector".enter(ref _inspectedDebugItems, 3).nl())
+                QcUtils.InspectInspector();
+
             if (inspectedItems == -1)
                 pegi.nl();
             

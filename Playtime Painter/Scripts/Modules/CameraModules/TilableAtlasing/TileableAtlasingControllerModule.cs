@@ -151,7 +151,7 @@ namespace PlaytimePainter
         public void PaintRenderTexture(StrokeVector stroke, TextureMeta image, BrushConfig bc, PlaytimePainter painter)
         { }
 
-        public bool NeedsGrid(PlaytimePainter p) => false;
+       // public bool NeedsGrid(PlaytimePainter p) => false;
 
         public Shader GetPreviewShader(PlaytimePainter p) => null;
 
@@ -161,7 +161,8 @@ namespace PlaytimePainter
 
         public bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br) => false;
 
-        public bool IsEnabledFor(PlaytimePainter painter, TextureMeta id, BrushConfig cfg) => painter.IsAtlased() && !id.TargetIsRenderTexture();
+        public bool IsEnabledFor(PlaytimePainter painter, TextureMeta id, BrushConfig cfg) => 
+            painter.IsAtlased() && !id.TargetIsRenderTexture();
 
     }
 

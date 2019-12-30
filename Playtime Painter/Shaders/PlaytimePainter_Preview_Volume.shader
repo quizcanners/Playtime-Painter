@@ -58,7 +58,7 @@
 				float srcAlpha = 1;
 
 					#if BLIT_MODE_COPY
-					_brushColor = SampleVolume(_SourceTexture, i.worldPos, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES, float3(0, 0, 0));
+					_brushColor = SampleVolume(_SourceTexture, i.worldPos, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES);
 					srcAlpha = _brushColor.a;
 					#endif
 
@@ -67,7 +67,7 @@
 
 					alpha *= checkersFromWorldPosition(i.worldPos.xyz,dist);
 
-					col = SampleVolume(_PreviewTex, i.worldPos, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES, float3(0,0,0));
+					col = SampleVolume(_PreviewTex, i.worldPos, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES);
 
 					alpha *= saturate(positionToAlpha(i.worldPos));
 

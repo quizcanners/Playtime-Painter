@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
+using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
 
@@ -8,7 +9,7 @@ namespace PlaytimePainter
 {
 
     [ExecuteInEditMode]
-    public class TexturesPool : PainterSystemMono  {
+    public class TexturesPool : PainterSystemMono, IPEGI  {
 
         public static TexturesPool inst;
         public static TexturesPool Inst { get {
@@ -23,6 +24,8 @@ namespace PlaytimePainter
 
         public int texturesCreated = 0;
 
+        public bool nonColorData = true;
+
         [NonSerialized] private readonly List<RenderTexture> _rtList = new List<RenderTexture>();
         [NonSerialized] private readonly List<Texture2D> _t2DList = new List<Texture2D>();
 
@@ -33,7 +36,7 @@ namespace PlaytimePainter
 
             texturesCreated++;
 
-            return new Texture2D(width, width, TextureFormat.ARGB32, false) {
+            return new Texture2D(width, width, TextureFormat.ARGB32, false, linear: nonColorData) {
                 wrapMode = TextureWrapMode.Repeat,
                 name = "Tex2D_fromPool"
             };
@@ -65,6 +68,15 @@ namespace PlaytimePainter
         {
             inst = this;
             width = Mathf.ClosestPowerOfTwo(width);
+        }
+
+        public override bool Inspect()
+        {
+            var changed = false;
+
+            "Data (Non Color) Texture".toggleIcon(ref nonColorData).nl();
+
+            return changed;
         }
     }
 }
