@@ -2,7 +2,7 @@
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-
+using PlaytimePainter.CameraModules;
 
 namespace PlaytimePainter {
 
@@ -544,7 +544,9 @@ namespace PlaytimePainter {
             #endregion
 
             private readonly ShaderProperty.VectorValue _pointedUvUnTiledProperty =
-                new ShaderProperty.VectorValue("_brushPointedUV_Untiled");
+                new ShaderProperty.VectorValue("_qcPp_brushPointedUV_Untiled");
+
+            private static readonly ShaderProperty.VectorValue BRUSH_SAMPLING_DISPLACEMENT = new ShaderProperty.VectorValue("_qcPp_brushSamplingDisplacement");
 
             public override void PrePaint(PlaytimePainter painter, BrushConfig br, StrokeVector st)
             {
@@ -567,7 +569,7 @@ namespace PlaytimePainter {
                 else if (method == (ColorSetMethod.MDownPosition))
                     FromUv(st.uvTo);
 
-                PainterDataAndConfig.BRUSH_SAMPLING_DISPLACEMENT.GlobalValue = new Vector4(
+                BRUSH_SAMPLING_DISPLACEMENT.GlobalValue = new Vector4(
                     (currentPixel.x + 0.5f) / Cfg.samplingMaskSize.x,
 
                     (currentPixel.y + 0.5f) / Cfg.samplingMaskSize.y,
@@ -637,7 +639,7 @@ namespace PlaytimePainter {
             public override void SetGlobalShaderParameters()
             {
                 base.SetGlobalShaderParameters();
-                QcUnity.SetShaderKeyword(PainterDataAndConfig.USE_DEPTH_FOR_PROJECTOR,
+                QcUnity.SetShaderKeyword(PainterShaderVariables.USE_DEPTH_FOR_PROJECTOR,
                     TexMGMTdata.useDepthForProjector);
             }
 

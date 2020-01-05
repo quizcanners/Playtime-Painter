@@ -4,7 +4,8 @@ using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using System;
 using Random = UnityEngine.Random;
-
+using PlaytimePainter.CameraModules;
+using PlaytimePainter.MeshEditing;
 
 namespace PlaytimePainter
 {
@@ -190,6 +191,7 @@ namespace PlaytimePainter
                     }
                 }
 
+                pegi.nl();
                 if (InspectAdvanced && p.NeedsGrid() && "Center Grid On Object".Click().nl())
                     GridNavigator.onGridPos = p.transform.position;
 
@@ -247,7 +249,7 @@ namespace PlaytimePainter
 
                 BlitFunctions.PaintTexture2DMethod blitMethod = null;
 
-                foreach (var p in PainterSystemManagerModuleBase.BrushPlugins)
+                foreach (var p in CameraModuleBase.BrushPlugins)
                     if (p.IsEnabledFor(painter, id, br))
                     {
                         p.PaintPixelsInRam(st, alpha, id, br, painter);
@@ -904,9 +906,9 @@ namespace PlaytimePainter
 
                 stroke.SetWorldPosInShader();
 
-                PainterDataAndConfig.BRUSH_EDITED_UV_OFFSET.GlobalValue =
+                PainterShaderVariables.BRUSH_EDITED_UV_OFFSET.GlobalValue =
                     new Vector4(id.tiling.x, id.tiling.y, offset.x, offset.y);
-                PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
+                PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
             }
 
             public override void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st)
@@ -961,7 +963,7 @@ namespace PlaytimePainter
 
                 br.GetBlitMode(false).PrePaint(null, br, st);
 
-                PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, aTexturesInRow, 1);
+                PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, aTexturesInRow, 1);
 
                 bool alphaBuffer;
                 PrepareSphereBrush(rt.GetTextureMeta(), br, st, out alphaBuffer);
@@ -970,7 +972,7 @@ namespace PlaytimePainter
 
                 AfterStroke_NoPainter(br, alphaBuffer, rt);
 
-                PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
+                PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
             }
 
             #region Inspector
@@ -985,7 +987,7 @@ namespace PlaytimePainter
                 var br = InspectedBrush;
 
                 if (InspectAdvanced || Cfg.useGridForBrush)
-                    "Paint On Grid".toggleIcon(ref Cfg.useGridForBrush, true).nl();
+                    "Paint On Grid".toggleIcon(ref Cfg.useGridForBrush).nl();
 
                 if (!br.useAlphaBuffer && (br.worldSpaceBrushPixelJitter || InspectAdvanced))
                 {

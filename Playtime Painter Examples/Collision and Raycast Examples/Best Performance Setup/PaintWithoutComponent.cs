@@ -122,7 +122,7 @@ namespace PlaytimePainter.Examples
                                         receiver.originalMesh
                                             ? receiver.originalMesh
                                             : receiver.meshFilter.sharedMesh, brush, st, new List<int> { subMesh },
-                                        (int)mat.GetFloat(PainterDataAndConfig.ATLASED_TEXTURES));
+                                        (int)mat.GetFloat(PainterShaderVariables.ATLASED_TEXTURES));
                                 else
                                     BrushTypes.Sphere.Paint(rendTex, receiver.gameObject,
                                         receiver.originalMesh

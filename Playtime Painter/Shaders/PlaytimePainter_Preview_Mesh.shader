@@ -1,7 +1,7 @@
 ﻿Shader "Playtime Painter/Editor/Preview/Mesh" {
 	Properties {
 		_MainTex("_MainTex", 2D) = "white" {}
-		_AtlasTextures("_Textures In Row _ Atlas", float) = 1
+		_qcPp_AtlasTextures("_Textures In Row _ Atlas", float) = 1
 	}
 
 	Category {
@@ -21,9 +21,9 @@
 
 				#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
 
-				#pragma multi_compile  MESH_PREVIEW_LIT MESH_PREVIEW_NORMAL MESH_PREVIEW_VERTCOLOR MESH_PREVIEW_PROJECTION MESH_PREVIEW_SHARP_NORMAL
+				#pragma multi_compile  _qcPp_MESH_PREVIEW_LIT _qcPp_MESH_PREVIEW_NORMAL _qcPp_MESH_PREVIEW_VERTCOLOR _qcPp_MESH_PREVIEW_PROJECTION MESH_PREVIEW_SHARP_NORMAL
 		
-				#pragma multi_compile ____ _MESH_PREVIEW_UV2
+				#pragma multi_compile ____ _qcPp_MESH_PREVIEW_UV2
 
 				struct appdata_t {
 					float4 vertex : POSITION;
@@ -47,7 +47,7 @@
 				sampler2D _MainTex;
 				float4 _MainTex_TexelSize;
 				float4 _GridDotPosition;
-				float _AtlasTextures;
+				float _qcPp_AtlasTextures;
 
 				v2f vert (appdata_full v)  {
 					v2f o;
@@ -60,13 +60,13 @@
 
 					normalAndPositionToUV(v.texcoord2.xyz, o.scenepos.xyz, o.bC, o.texcoord.zw);
 
-					#if !_MESH_PREVIEW_UV2
+					#if !_qcPp_MESH_PREVIEW_UV2
 						o.texcoord.xy = v.texcoord.xy;
 					#else
 						o.texcoord.xy = v.texcoord1.xy;
 					#endif
 
-					#if !MESH_PREVIEW_PROJECTION
+					#if !_qcPp_MESH_PREVIEW_PROJECTION
 						o.texcoord.zw = o.texcoord.xy;
 					#endif
 
@@ -77,13 +77,13 @@
 			
 					float atlasNumber = v.texcoord.z;
 				
-					float atY = floor(atlasNumber / _AtlasTextures);
-					float atX = atlasNumber - atY*_AtlasTextures;
+					float atY = floor(atlasNumber / _qcPp_AtlasTextures);
+					float atX = atlasNumber - atY*_qcPp_AtlasTextures;
 					float edge = _MainTex_TexelSize.x;
 
-					o.atlasedUV.xy = float2(atX, atY) / _AtlasTextures;			
+					o.atlasedUV.xy = float2(atX, atY) / _qcPp_AtlasTextures;			
 					o.atlasedUV.z = edge;										
-					o.atlasedUV.w = 1 / _AtlasTextures;
+					o.atlasedUV.w = 1 / _qcPp_AtlasTextures;
 
 					TRANSFER_SHADOW(o);
 
@@ -131,17 +131,17 @@
 
 					col = saturate(col)*val*0.95 + val*0.05;
 
-					#if MESH_PREVIEW_VERTCOLOR
+					#if _qcPp_MESH_PREVIEW_VERTCOLOR
 						return i.vcol;
 					#endif
 
-					#if MESH_PREVIEW_PROJECTION
+					#if _qcPp_MESH_PREVIEW_PROJECTION
 						col.r = frac(i.texcoord.z);
 						col.g = frac(i.texcoord.w);
 						col.b = 0.1;
 					#endif
 
-					#if MESH_PREVIEW_NORMAL
+					#if _qcPp_MESH_PREVIEW_NORMAL
 						col.rgb = i.normal.xyz; 
 						col.rgb += 0.5;
 					#endif

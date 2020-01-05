@@ -1,7 +1,7 @@
 ﻿using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
-namespace PlaytimePainter
+namespace PlaytimePainter.MeshEditing
 {
     public class VertexShadowTool : MeshToolBase {
         public override string NameForDisplayPEGI()=> "vertex Shadow";

@@ -18,7 +18,6 @@ namespace QuizCannersUtilities {
     using TextureValue = ShaderProperty.TextureValue;
     using ColorValue = ShaderProperty.ColorValue;
  
-
     public static class ShaderProperty {
 
         #region Base Abstract
@@ -541,7 +540,7 @@ namespace QuizCannersUtilities {
 
             private bool lastValue;
 
-            public bool GlobalValue {
+            public bool Enabled {
                 get { return lastValue; }
                 set { lastValue = value; QcUnity.SetShaderKeyword(_name, value); }
             }
@@ -554,7 +553,7 @@ namespace QuizCannersUtilities {
             {
                 var changed = false;
                 if (_name.toggleIcon(ref lastValue).changes(ref changed))
-                    GlobalValue = lastValue;
+                    Enabled = lastValue;
 
                 return changed;
             }

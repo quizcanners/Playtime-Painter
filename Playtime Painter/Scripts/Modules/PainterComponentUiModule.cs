@@ -7,7 +7,7 @@ using PlayerAndEditorGUI;
 namespace PlaytimePainter {
 
     [TaggedType(Tag)]
-    public class PainterComponentUiModule : PainterComponentModuleBase
+    public class PainterComponentUiModule : ComponentModuleBase
     {
         private const string Tag = "UiMdl";
         public override string ClassTag => Tag;

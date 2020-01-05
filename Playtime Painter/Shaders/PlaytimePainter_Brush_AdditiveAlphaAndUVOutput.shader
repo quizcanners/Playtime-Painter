@@ -24,7 +24,7 @@
 
 				#pragma multi_compile BRUSH_3D BRUSH_3D_TEXCOORD2
 
-				#pragma multi_compile ___  USE_DEPTH_FOR_PROJECTOR
+				#pragma multi_compile ___  _qcPp_USE_DEPTH_FOR_PROJECTOR
 
 				#pragma vertex vert
 				#pragma fragment frag
@@ -49,17 +49,17 @@
 						v.texcoord.xy = v.texcoord1.xy;
 					#endif
 
-					float2 suv = _SourceTexture_TexelSize.zw;
+					float2 suv = _qcPp_SourceTexture_TexelSize.zw;
 					o.srcTexAspect = max(1, float2(suv.y / suv.x, suv.x / suv.y));
 
-					float atY = floor(v.texcoord.z / _brushAtlasSectionAndRows.z);
-					float atX = v.texcoord.z - atY * _brushAtlasSectionAndRows.z;
-					v.texcoord.xy = (float2(atX, atY) + v.texcoord.xy) / _brushAtlasSectionAndRows.z
-						* _brushAtlasSectionAndRows.w + v.texcoord.xy * (1 - _brushAtlasSectionAndRows.w);
+					float atY = floor(v.texcoord.z / _qcPp_brushAtlasSectionAndRows.z);
+					float atX = v.texcoord.z - atY * _qcPp_brushAtlasSectionAndRows.z;
+					v.texcoord.xy = (float2(atX, atY) + v.texcoord.xy) / _qcPp_brushAtlasSectionAndRows.z
+						* _qcPp_brushAtlasSectionAndRows.w + v.texcoord.xy * (1 - _qcPp_brushAtlasSectionAndRows.w);
 
-					worldPos.xyz = _RTcamPosition.xyz;
+					worldPos.xyz = _qcPp_RTcamPosition.xyz;
 					worldPos.z += 100;
-					worldPos.xy += (v.texcoord.xy*_brushEditedUVoffset.xy + _brushEditedUVoffset.zw - 0.5) * 256;
+					worldPos.xy += (v.texcoord.xy*_qcPp_brushEditedUVoffset.xy + _qcPp_brushEditedUVoffset.zw - 0.5) * 256;
 
 					v.vertex = mul(unity_WorldToObject, float4(worldPos.xyz, v.vertex.w));
 
@@ -79,7 +79,7 @@
 
 					float2 pUv =  (o.shadowCoords.xy + 1) * 0.5;
 
-					#if USE_DEPTH_FOR_PROJECTOR
+					#if _qcPp_USE_DEPTH_FOR_PROJECTOR
 					alpha *= ProjectorDepthDifference(o.shadowCoords, o.worldPos, pUv);
 					#endif
 

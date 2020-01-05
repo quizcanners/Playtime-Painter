@@ -8,6 +8,8 @@ using UnityEditor.EditorTools;
 using System;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using PlaytimePainter.CameraModules;
+using PlaytimePainter.MeshEditing;
 
 namespace PlaytimePainter {
 
@@ -140,7 +142,7 @@ namespace PlaytimePainter {
             var isA3D = false;
 
             if (painter)
-                foreach (var pl in PainterSystemManagerModuleBase.BrushPlugins)
+                foreach (var pl in CameraModuleBase.BrushPlugins)
                 {
                     isA3D = pl.IsA3DBrush(painter, this, ref overrideOther);
                     if (overrideOther) break;
@@ -205,7 +207,7 @@ namespace PlaytimePainter {
 
                 var rendered = false;
 
-                foreach (var pl in PainterSystemManagerModuleBase.BrushPlugins)
+                foreach (var pl in CameraModuleBase.BrushPlugins)
                     if (pl.IsEnabledFor(painter, imgData, this)) { 
                         pl.PaintRenderTexture(stroke, imgData, this, painter);
                         rendered = true;
@@ -239,7 +241,7 @@ namespace PlaytimePainter {
 
             IPainterManagerModuleBrush cameraModule = null;
 
-            foreach (var b in PainterSystemManagerModuleBase.BrushPlugins)
+            foreach (var b in CameraModuleBase.BrushPlugins)
                 if (b.IsEnabledFor(p, id, this)) {
                     cameraModule = b;
                     break;

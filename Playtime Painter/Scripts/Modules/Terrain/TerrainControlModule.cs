@@ -7,7 +7,7 @@ namespace PlaytimePainter
 {
 
     [TaggedType(tag)]
-    public class TerrainControlModule : PainterComponentModuleBase {
+    public class TerrainControlModule : ComponentModuleBase {
 
 
         const string tag = "TerCol";
@@ -15,7 +15,7 @@ namespace PlaytimePainter
 
         public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter)
         {
-            if (!painter.terrain || !field.HasUsageTag(PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE)) return false;
+            if (!painter.terrain || !field.HasUsageTag(PainterShaderVariables.TERRAIN_CONTROL_TEXTURE)) return false;
             tex = painter.terrain.terrainData.alphamapTextures[field.NameForDisplayPEGI()[0].CharToInt()];
             return true;
         }
@@ -26,13 +26,13 @@ namespace PlaytimePainter
 
             var d = painter.terrain.terrainData.alphamapTextures;
 
-            dest.AddRange(d.Select((t, i) => new ShaderProperty.TextureValue(i + "_" + t.name + PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE, PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE)));
+            dest.AddRange(d.Select((t, i) => new ShaderProperty.TextureValue(i + "_" + t.name + "_Control", PainterShaderVariables.TERRAIN_CONTROL_TEXTURE)));
         }
 
         public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue fieldName, PlaytimePainter painter)
         {
             if (!painter.terrain) return false;
-            if (!fieldName.HasUsageTag(PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE)) return false;
+            if (!fieldName.HasUsageTag(PainterShaderVariables.TERRAIN_CONTROL_TEXTURE)) return false;
             var id = painter.TexMeta;
             if (id == null) return true;
             
@@ -47,12 +47,12 @@ namespace PlaytimePainter
             var tex = id.CurrentTexture();
             if (!painter.terrain) return false;
 
-            if (!field.HasUsageTag(PainterDataAndConfig.TERRAIN_CONTROL_TEXTURE)) return false;
+            if (!field.HasUsageTag(PainterShaderVariables.TERRAIN_CONTROL_TEXTURE)) return false;
             
             var no = field.NameForDisplayPEGI()[0].CharToInt();
 
             if (no == 0)
-                PainterDataAndConfig.TerrainControlMain.GlobalValue = tex;
+                PainterShaderVariables.TerrainControlMain.GlobalValue = tex;
 
             painter.terrain.terrainData.alphamapTextures[no] = id.texture2D;
 
@@ -79,18 +79,18 @@ namespace PlaytimePainter
             {
                 var tilingX = tds.x / sp[0].tileSize.x;
                 var tilingZ = tds.z / sp[0].tileSize.y;
-                PainterDataAndConfig.TerrainTiling.GlobalValue = new Vector4(tilingX, tilingZ, sp[0].tileOffset.x, sp[0].tileOffset.y);
+                PainterShaderVariables.TerrainTiling.GlobalValue = new Vector4(tilingX, tilingZ, sp[0].tileOffset.x, sp[0].tileOffset.y);
 
                 painter.tilingY = td.size.y / sp[0].tileSize.x;
             }
 
-            PainterDataAndConfig.TerrainScale.GlobalValue = new Vector4(tds.x, tds.y, tds.z, 0.5f / td.heightmapResolution);
+            PainterShaderVariables.TerrainScale.GlobalValue = new Vector4(tds.x, tds.y, tds.z, 0.5f / td.heightmapResolution);
 
             painter.UpdateTerrainPosition();
 
             var alphaMapTextures = td.alphamapTextures;
             if (!alphaMapTextures.IsNullOrEmpty())
-                PainterDataAndConfig.TerrainControlMain.GlobalValue = alphaMapTextures[0].GetDestinationTexture();
+                PainterShaderVariables.TerrainControlMain.GlobalValue = alphaMapTextures[0].GetDestinationTexture();
 
         }
 

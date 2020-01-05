@@ -6,7 +6,7 @@ namespace PlaytimePainter
 {
 
     [TaggedType(tag)]
-    public class TerrainSplatTextureModule : PainterComponentModuleBase
+    public class TerrainSplatTextureModule : ComponentModuleBase
     {
 
         const string tag = "TerSplat";
@@ -14,7 +14,7 @@ namespace PlaytimePainter
 
         public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter)
         {
-            if (!painter.terrain || (!field.HasUsageTag(PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE))) return false;
+            if (!painter.terrain || (!field.HasUsageTag(PainterShaderVariables.TERRAIN_SPLAT_DIFFUSE))) return false;
             var no = field.NameForDisplayPEGI()[0].CharToInt();
 
 #if UNITY_2019_1_OR_NEWER
@@ -41,7 +41,7 @@ namespace PlaytimePainter
             {
                 var l = sp.TryGet(i);
                 if (l != null)
-                    dest.Add(new ShaderProperty.TextureValue(i + PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE + l.diffuseTexture.name, PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE));
+                    dest.Add(new ShaderProperty.TextureValue(i + PainterShaderVariables.TERRAIN_SPLAT_DIFFUSE + l.diffuseTexture.name, PainterShaderVariables.TERRAIN_SPLAT_DIFFUSE));
             }
 #else
             for (int i = 0; i < painter.terrain.terrainData.splatPrototypes.Length; i++)
@@ -60,7 +60,7 @@ namespace PlaytimePainter
         {
             if (!painter.terrain) return false;
 
-            if (!fieldName.HasUsageTag(PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE)) return false;
+            if (!fieldName.HasUsageTag(PainterShaderVariables.TERRAIN_SPLAT_DIFFUSE)) return false;
 
             var no = fieldName.NameForDisplayPEGI()[0].CharToInt();
 
@@ -98,7 +98,7 @@ namespace PlaytimePainter
         {
             var tex = id.CurrentTexture();
             if (!painter.terrain) return false;
-            if (!field.HasUsageTag(PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE)) return false;
+            if (!field.HasUsageTag(PainterShaderVariables.TERRAIN_SPLAT_DIFFUSE)) return false;
             var no = field.NameForDisplayPEGI()[0].CharToInt();
             painter.terrain.SetSplashPrototypeTexture(id.texture2D, no);
             if (tex.GetType() != typeof(Texture2D))

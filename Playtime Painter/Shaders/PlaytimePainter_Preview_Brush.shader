@@ -1,7 +1,7 @@
 ﻿Shader "Playtime Painter/Editor/Preview/Brush" {
 	Properties {
-		_PreviewTex ("Base (RGB)", 2D) = "white" { }
-		_AtlasTextures("_Textures In Row _ Atlas", float) = 1
+		_qcPp_PreviewTex ("Base (RGB)", 2D) = "white" { }
+		_qcPp_AtlasTextures("_Textures In Row _ Atlas", float) = 1
 	}
 	Category{
 		
@@ -30,21 +30,21 @@
 				#pragma multi_compile  PREVIEW_RGB PREVIEW_ALPHA  PREVIEW_SAMPLING_DISPLACEMENT
 				#pragma multi_compile  BRUSH_2D  BRUSH_3D  BRUSH_3D_TEXCOORD2  BRUSH_SQUARE  BRUSH_DECAL
 				#pragma multi_compile  BLIT_MODE_ALPHABLEND BLIT_MODE_ADD BLIT_MODE_SUBTRACT BLIT_MODE_COPY  BLIT_MODE_PROJECTION
-				#pragma multi_compile  ___ UV_ATLASED
-				#pragma multi_compile  ___ BRUSH_TEXCOORD_2
-				#pragma multi_compile  ___ TARGET_TRANSPARENT_LAYER
+				#pragma multi_compile  ___ _qcPp_UV_ATLASED
+				#pragma multi_compile  ___ _qcPp_BRUSH_TEXCOORD_2
+				#pragma multi_compile  ___ _qcPp_TARGET_TRANSPARENT_LAYER
 
-				sampler2D _PreviewTex;
-				float _AtlasTextures;
-				float4 _PreviewTex_ST;
-				float4 _PreviewTex_TexelSize;
+				sampler2D _qcPp_PreviewTex;
+				float _qcPp_AtlasTextures;
+				float4 _qcPp_PreviewTex_ST;
+				float4 _qcPp_PreviewTex_TexelSize;
 	
 				struct v2f {
 				float4 pos : SV_POSITION;
 				float2 texcoord : TEXCOORD0;  
 				float4 worldPos : TEXCOORD1;
 
-				#if UV_ATLASED
+				#if _qcPp_UV_ATLASED
 					float4 atlasedUV : TEXCOORD2;
 				#endif
 
@@ -74,23 +74,23 @@
 
 					o.pos = UnityObjectToClipPos(v.vertex);   
 
-					#if BRUSH_TEXCOORD_2
+					#if _qcPp_BRUSH_TEXCOORD_2
 						v.texcoord.xy = v.texcoord1.xy;
 					#endif
 
-					float2 suv = _SourceTexture_TexelSize.zw;
+					float2 suv = _qcPp_SourceTexture_TexelSize.zw;
 
 					o.srcTexAspect = max(1, float2(suv.y/suv.x, suv.x / suv.y));
 
-					o.texcoord.xy = TRANSFORM_TEX_QC(v.texcoord.xy, _PreviewTex);
+					o.texcoord.xy = TRANSFORM_TEX_QC(v.texcoord.xy, _qcPp_PreviewTex);
 					
-					#if UV_ATLASED
-						float atY = floor(v.texcoord.z / _AtlasTextures);
-						float atX = v.texcoord.z - atY*_AtlasTextures;
-						float edge = _PreviewTex_TexelSize.x;
-						o.atlasedUV.xy = float2(atX, atY) / _AtlasTextures;			
+					#if _qcPp_UV_ATLASED
+						float atY = floor(v.texcoord.z / _qcPp_AtlasTextures);
+						float atX = v.texcoord.z - atY*_qcPp_AtlasTextures;
+						float edge = _qcPp_PreviewTex_TexelSize.x;
+						o.atlasedUV.xy = float2(atX, atY) / _qcPp_AtlasTextures;			
 						o.atlasedUV.z = edge;										
-						o.atlasedUV.w = 1 / _AtlasTextures;
+						o.atlasedUV.w = 1 / _qcPp_AtlasTextures;
 					#endif
 
 					return o;
@@ -102,7 +102,7 @@
 
 					float4 col = 0;
 					float alpha = 1;
-					float ignoreSrcAlpha = _srcTextureUsage.w;
+					float ignoreSrcAlpha = _qcPp_srcTextureUsage.w;
 
 					float dist = length(o.worldPos.xyz - _WorldSpaceCameraPos.xyz);
 
@@ -128,28 +128,28 @@
 						//DEBUG
 						//return float4(pUv, 0, 1);
 
-						float4 src = tex2Dlod(_SourceTexture, float4(pUv, 0, 0));
+						float4 src = tex2Dlod(_qcPp_SourceTexture, float4(pUv, 0, 0));
 
 						alpha *= (ignoreSrcAlpha + src.a * (1- ignoreSrcAlpha)) * BrushClamp(pUv);
 						float pr_shadow = alpha;
 
-						float par = _srcTextureUsage.x;
+						float par = _qcPp_srcTextureUsage.x;
 					
 						//src.rgb *= (1 + pow(depthDiff, 64)) * 0.5;
 
-						_brushColor.rgb = SourceTextureByBrush(src.rgb);
+						_qcPp_brushColor.rgb = SourceTextureByBrush(src.rgb);
 						srcAlpha = src.a;
 					#endif
 
-					#if UV_ATLASED
+					#if _qcPp_UV_ATLASED
 						float seam = (o.atlasedUV.z)*pow(2, (log2(dist)));
 						float2 fractal = (frac(o.texcoord.xy)*(o.atlasedUV.w - seam) + seam*0.5);
 						o.texcoord.xy = fractal + o.atlasedUV.xy;
 					#endif
 
 					#if BLIT_MODE_COPY
-						float4 src = tex2Dlod(_SourceTexture, float4(o.texcoord.xy*o.srcTexAspect, 0, 0));
-						_brushColor.rgb = SourceTextureByBrush(src.rgb);
+						float4 src = tex2Dlod(_qcPp_SourceTexture, float4(o.texcoord.xy*o.srcTexAspect, 0, 0));
+						_qcPp_brushColor.rgb = SourceTextureByBrush(src.rgb);
 						//alpha *= ignoreSrcAlpha + src.a*(1- ignoreSrcAlpha);
 
 						srcAlpha = src.a;
@@ -159,12 +159,12 @@
 					float4 tc = float4(o.texcoord.xy, 0, 0);
 
 					#if BRUSH_SQUARE
-						float2 perfTex = (floor(tc.xy*_PreviewTex_TexelSize.zw) + 0.5) * _PreviewTex_TexelSize.xy;
+						float2 perfTex = (floor(tc.xy*_qcPp_PreviewTex_TexelSize.zw) + 0.5) * _qcPp_PreviewTex_TexelSize.xy;
 						float2 off = (tc.xy - perfTex);
 
 						float n = max(4,30 - dist); 
 
-						float2 offset = saturate((abs(off) * _PreviewTex_TexelSize.zw)*(n*2+2) - n);
+						float2 offset = saturate((abs(off) * _qcPp_PreviewTex_TexelSize.zw)*(n*2+2) - n);
 
 						off = off * offset;
 
@@ -172,19 +172,19 @@
 
 						tc.zw = previewTexcoord(tc.xy);
 
-						col = tex2Dlod(_PreviewTex, float4(tc.xy,0,0));
+						col = tex2Dlod(_qcPp_PreviewTex, float4(tc.xy,0,0));
 
 						float2 off2 = tc.zw*tc.zw;
 
 						float fromCenter = 0.5*sqrt(off2.x+off2.y);
 					
-						float lod = getLOD(tc.xy, _PreviewTex_TexelSize);
+						float lod = getLOD(tc.xy, _qcPp_PreviewTex_TexelSize);
 
 						float border = (1-saturate(fromCenter)) * max(offset.x, offset.y) * max(0, 1- lod*16);
 
 						col = col*(1-border) + (0.5 - col * 0.5)*border;
 
-						_brushPointedUV.xy = (floor (_brushPointedUV.xy*_PreviewTex_TexelSize.zw)+ 0.5) * _PreviewTex_TexelSize.xy;
+						_qcPp_brushPointedUV.xy = (floor (_qcPp_brushPointedUV.xy*_qcPp_PreviewTex_TexelSize.zw)+ 0.5) * _qcPp_PreviewTex_TexelSize.xy;
 
 					#else
 					
@@ -196,7 +196,7 @@
 					#if  !BRUSH_SQUARE 	
 						alpha *= checkersFromWorldPosition(o.worldPos.xyz,dist); 
 
-						col =  tex2Dlod(_PreviewTex, float4(tc.xy, 0, 0));
+						col =  tex2Dlod(_qcPp_PreviewTex, float4(tc.xy, 0, 0));
 					#endif
 
 					#if BRUSH_3D  || BRUSH_3D_TEXCOORD2
@@ -207,18 +207,18 @@
 
 						#if (!BRUSH_SQUARE)
 							alpha *= prepareAlphaSmoothPreview (tc);
-							float differentColor = min(0.5, (abs(col.g-_brushColor.g)+abs(col.r-_brushColor.r)+abs(col.b-_brushColor.b))*8);
-							_brushColor = _brushColor*(differentColor+0.5);
+							float differentColor = min(0.5, (abs(col.g-_qcPp_brushColor.g)+abs(col.r-_qcPp_brushColor.r)+abs(col.b-_qcPp_brushColor.b))*8);
+							_qcPp_brushColor = _qcPp_brushColor*(differentColor+0.5);
 						#else
 							alpha *= prepareAlphaSquarePreview(tc);
 						#endif
 					#endif
 
 
-						//	return _brushColor;
+						//	return _qcPp_brushColor;
 
 					#if BRUSH_DECAL
-						float2 decalUV = (tc.xy - _brushPointedUV.xy)*256/_brushForm.y;
+						float2 decalUV = (tc.xy - _qcPp_brushPointedUV.xy)*256/_qcPp_brushForm.y;
 
 	 					float sinX = sin ( _DecalParameters.x );
 						float cosX = cos ( _DecalParameters.x );
@@ -233,7 +233,7 @@
 
 						float changeColor = _DecalParameters.z;
 
-						_brushColor = overlay*overlay.a + (changeColor * _brushColor+ col* (1-changeColor))*(1-overlay.a);
+						_qcPp_brushColor = overlay*overlay.a + (changeColor * _qcPp_brushColor+ col* (1-changeColor))*(1-overlay.a);
 
 						decalUV = max(0,(abs(decalUV)-0.5));
 						alpha *= difference*saturate(1-(decalUV.x+decalUV.y)*999999);
@@ -244,41 +244,41 @@
 						float resX = (tc.x + (col.r - 0.5) * 2);
 						float resY = (tc.y + (col.g - 0.5) * 2);
 
-						float edge = abs(0.5-((resX*_brushSamplingDisplacement.z) % 1)) + abs(0.5 - (resY*_brushSamplingDisplacement.w) % 1);
+						float edge = abs(0.5-((resX*_qcPp_brushSamplingDisplacement.z) % 1)) + abs(0.5 - (resY*_qcPp_brushSamplingDisplacement.w) % 1);
 
-						float distX = (resX - _brushSamplingDisplacement.x);
-						float distY = (resY - _brushSamplingDisplacement.y);
+						float distX = (resX - _qcPp_brushSamplingDisplacement.x);
+						float distY = (resY - _qcPp_brushSamplingDisplacement.y);
 						col.rgb = saturate(1 - sqrt(distX*distX + distY * distY)*8) + saturate(edge);
 					#endif
 
 					#if PREVIEW_ALPHA
-						col = col*_brushMask + 0.5*(1 - _brushMask)+col.a*_brushMask.a;
+						col = col*_qcPp_brushMask + 0.5*(1 - _qcPp_brushMask)+col.a*_qcPp_brushMask.a;
 					#endif
 	
 					
 					#if BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY || BLIT_MODE_PROJECTION
 
-					#if TARGET_TRANSPARENT_LAYER
+					#if _qcPp_TARGET_TRANSPARENT_LAYER
 						
-						col = AlphaBlitTransparentPreview(alpha, _brushColor, tc.xy, col, srcAlpha);
+						col = AlphaBlitTransparentPreview(alpha, _qcPp_brushColor, tc.xy, col, srcAlpha);
 
-						float showBG = _srcTextureUsage.z * (1-col.a);
+						float showBG = _qcPp_srcTextureUsage.z * (1-col.a);
 
 						col.a += showBG; 
 
-						col.rgb = col.rgb * (1 - showBG) + tex2D(_TransparentLayerUnderlay, tc.xy).rgb*showBG;
+						col.rgb = col.rgb * (1 - showBG) + tex2D(_qcPp_TransparentLayerUnderlay, tc.xy).rgb*showBG;
 
 					#else
-						col = AlphaBlitOpaquePreview(alpha, _brushColor, tc.xy, col, srcAlpha);
+						col = AlphaBlitOpaquePreview(alpha, _qcPp_brushColor, tc.xy, col, srcAlpha);
 
 						col.a = 1;
 					#endif
 
 					#if BLIT_MODE_PROJECTION
 
-						float pa = (_brushPointedUV.w)*pr_shadow*0.8;
+						float pa = (_qcPp_brushPointedUV.w)*pr_shadow*0.8;
 
-						col = col * (1-pa) + _brushColor*(pa);
+						col = col * (1-pa) + _qcPp_brushColor*(pa);
 					#endif
 
 
@@ -287,14 +287,14 @@
 						//return alpha;
 
 					#if BLIT_MODE_ADD
-						col =  addWithDestBufferPreview (alpha*0.4, _brushColor, tc.xy, col, srcAlpha);
+						col =  addWithDestBufferPreview (alpha*0.4, _qcPp_brushColor, tc.xy, col, srcAlpha);
 					#endif
     
 					#if BLIT_MODE_SUBTRACT
-						col =  subtractFromDestBufferPreview (alpha*0.4, _brushColor, tc.xy, col);
+						col =  subtractFromDestBufferPreview (alpha*0.4, _qcPp_brushColor, tc.xy, col);
 					#endif
 
-					#if !TARGET_TRANSPARENT_LAYER
+					#if !_qcPp_TARGET_TRANSPARENT_LAYER
 						col.a = 1;
 					#endif
 

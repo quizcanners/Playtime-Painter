@@ -19,40 +19,40 @@ float4 g_l2col;
 sampler2D _Global_Noise_Lookup;
 
 float4 pp_COLOR_BLEED;
-sampler2D _mergeTerrainHeight;
-float4 _mergeTerrainHeight_TexelSize;
+sampler2D _qcPp_mergeTerrainHeight;
+float4 _qcPp_mergeTerrainHeight_TexelSize;
 float4 _wrldOffset;
 
-sampler2D _TerrainColors;
-sampler2D _mergeControl;
+sampler2D _qcPp_TerrainColors;
+sampler2D _qcPp_mergeControl;
 
 float4 _Control_ST;
-float4 _mergeTerrainTiling;
-float4 _mergeTeraPosition;
-float4 _mergeTerrainScale;
+float4 _qcPp_mergeTerrainTiling;
+float4 _qcPp_mergeTeraPosition;
+float4 _qcPp_mergeTerrainScale;
 float _Merge;
 
-sampler2D _mergeSplat_0;
-sampler2D _mergeSplat_1;
-sampler2D _mergeSplat_2;
-sampler2D _mergeSplat_3;
-sampler2D _mergeSplat_4;
+sampler2D _qcPp_mergeSplat_0;
+sampler2D _qcPp_mergeSplat_1;
+sampler2D _qcPp_mergeSplat_2;
+sampler2D _qcPp_mergeSplat_3;
+sampler2D _qcPp_mergeSplat_4;
 
-float4 _mergeSplat_4_TexelSize;
+float4 _qcPp_mergeSplat_4_TexelSize;
 
-sampler2D _mergeSplatN_0;
-sampler2D _mergeSplatN_1;
-sampler2D _mergeSplatN_2;
-sampler2D _mergeSplatN_3;
-sampler2D _mergeSplatN_4;
+sampler2D _qcPp_mergeSplatN_0;
+sampler2D _qcPp_mergeSplatN_1;
+sampler2D _qcPp_mergeSplatN_2;
+sampler2D _qcPp_mergeSplatN_3;
+sampler2D _qcPp_mergeSplatN_4;
 
-sampler2D _pp_WaterBump;
-float4 _foamParams;
+sampler2D _qcPp_WaterBump;
+float4 _qcPp_foamParams;
 
 
 
 uniform sampler2D g_BakedRays_VOL;
-uniform sampler2D _pp_RayProjectorDepthes;
+uniform sampler2D _qcPp_RayProjectorDepthes;
 float4 g_BakedRays_VOL_TexelSize;
 
 float4x4 rt0_ProjectorMatrix;
@@ -73,14 +73,14 @@ float4 rt2_ProjectorConfiguration;
 
 float4 APPLY_HEIGHT_FOG(float viewDirY, float4 col, float4 fogCol) {
 
-	viewDirY = saturate((viewDirY - _foamParams.z) *0.01);
+	viewDirY = saturate((viewDirY - _qcPp_foamParams.z) *0.01);
 
 	return fogCol * (1 - viewDirY)  + col * viewDirY;
 
 }
 
 float3 WORLD_POS_TO_TERRAIN_UV_3D(float3 worldPos) {
-	return (worldPos.xyz - _mergeTeraPosition.xyz) / _mergeTerrainScale.xyz;
+	return (worldPos.xyz - _qcPp_mergeTeraPosition.xyz) / _qcPp_mergeTerrainScale.xyz;
 }
 
 float3 SAMPLE_WATER_NORMAL(float3 viewDir, out float3 projectedWpos, inout float3 tc_Control, out float caustics, float underWater) {
@@ -90,9 +90,9 @@ float3 SAMPLE_WATER_NORMAL(float3 viewDir, out float3 projectedWpos, inout float
 
 	const float waterTyling = 0.025;
 
-	float2 projectedxz = (_WorldSpaceCameraPos.xz - v * (_WorldSpaceCameraPos.y - _foamParams.z));
+	float2 projectedxz = (_WorldSpaceCameraPos.xz - v * (_WorldSpaceCameraPos.y - _qcPp_foamParams.z));
 
-	projectedWpos = float3(projectedxz.x, _foamParams.z, projectedxz.y);
+	projectedWpos = float3(projectedxz.x, _qcPp_foamParams.z, projectedxz.y);
 
 	float3 otcControl = WORLD_POS_TO_TERRAIN_UV_3D(projectedWpos);
 
@@ -103,24 +103,24 @@ float3 SAMPLE_WATER_NORMAL(float3 viewDir, out float3 projectedWpos, inout float
 	float far = min(1, dist*0.01);
 	float deFar = 1 - far;
 
-	float height = max(0, tex2D(_mergeTerrainHeight, otcControl.xz).a);
+	float height = max(0, tex2D(_qcPp_mergeTerrainHeight, otcControl.xz).a);
 
 	float2 waterUV = projectedxz; 
 	float2 waterUV2 = waterUV.yx + height* waterTyling*100;//*0.01;
 
 	waterUV -= height;
 
-	float4 bump2B = tex2D(_pp_WaterBump, waterUV * 0.1 + _Time.y*0.0041);
+	float4 bump2B = tex2D(_qcPp_WaterBump, waterUV * 0.1 + _Time.y*0.0041);
 	bump2B.rg -= 0.5;
 
-	float4 bumpB = tex2D(_pp_WaterBump, waterUV2 * 0.1 - _Time.y*0.005);
+	float4 bumpB = tex2D(_qcPp_WaterBump, waterUV2 * 0.1 - _Time.y*0.005);
 	bumpB.rg -= 0.5;
 
-	float4 bump2 = tex2Dlod(_pp_WaterBump, float4(waterUV + bumpB.rg*0.01
+	float4 bump2 = tex2Dlod(_qcPp_WaterBump, float4(waterUV + bumpB.rg*0.01
 		- _Time.y*0.02, 0, bump2B.a*bumpB.a * 2));
 	bump2.rg -= 0.5;
 
-	float4 bump = tex2Dlod(_pp_WaterBump, float4(waterUV2 - bump2.rg*0.02
+	float4 bump = tex2Dlod(_qcPp_WaterBump, float4(waterUV2 - bump2.rg*0.02
 		+ bump2.rg*0.01 + _Time.y*0.032, 0, bumpB.a *bump2B.a * 2));
 	bump.rg -= 0.5;
 
@@ -131,10 +131,10 @@ float3 SAMPLE_WATER_NORMAL(float3 viewDir, out float3 projectedWpos, inout float
 	tc_Control.xz += normal.xz *underWater*0.0005 * (1 - viewDir.y);
 
 
-	float4 bump2c = tex2D(_pp_WaterBump, tc_Control.xz * 129 - float2(1,0.8)*_Time.y*0.02);
+	float4 bump2c = tex2D(_qcPp_WaterBump, tc_Control.xz * 129 - float2(1,0.8)*_Time.y*0.02);
 	//bump2c.rg = abs(bump2c.rg - 0.5);
 
-	float4 bumpc = tex2D(_pp_WaterBump, tc_Control.xz * 134 - bump2c.rg*0.02 + _Time.y*0.032);
+	float4 bumpc = tex2D(_qcPp_WaterBump, tc_Control.xz * 134 - bump2c.rg*0.02 + _Time.y*0.032);
 	//bumpc.rg = abs(bumpc.rg - 0.5);
 
 
@@ -188,7 +188,7 @@ float GetRayTracedShadows(float3 posNrm, float3 norm, float4 shadowCoords, float
 	
 	const float sharpness = 1024;
 
-	float4 depthAll = tex2Dlod(_pp_RayProjectorDepthes, float4(shUv.xy, 0, 0)) * sampleMask;
+	float4 depthAll = tex2Dlod(_qcPp_RayProjectorDepthes, float4(shUv.xy, 0, 0)) * sampleMask;
 
 	float depth = depthAll.r + depthAll.g + depthAll.b + depthAll.a;
 
@@ -206,7 +206,7 @@ float GetRayTracedShadows(float3 posNrm, float3 norm, float4 shadowCoords, float
 		rt1_ProjectorConfiguration,
 		rt1_ProjectorClipPrecompute);
 
-	depth = tex2Dlod(_pp_RayProjectorDepthes, float4(shUv1.xy, 0, 0)).g;
+	depth = tex2Dlod(_qcPp_RayProjectorDepthes, float4(shUv1.xy, 0, 0)).g;
 
 	shads.g = (1 - saturate((depth - shUv1.z) * sharpness / near)) * shUv1.w;
 
@@ -221,7 +221,7 @@ float GetRayTracedShadows(float3 posNrm, float3 norm, float4 shadowCoords, float
 		rt2_ProjectorConfiguration,
 		rt2_ProjectorClipPrecompute);
 
-	depth = tex2Dlod(_pp_RayProjectorDepthes, float4(shUv2.xy, 0, 0)).b;
+	depth = tex2Dlod(_qcPp_RayProjectorDepthes, float4(shUv2.xy, 0, 0)).b;
 
 	shads.b = (1 - saturate((depth - shUv2.z) * sharpness / (near * (1- depth)))) * shUv2.w;
 
@@ -229,21 +229,21 @@ float GetRayTracedShadows(float3 posNrm, float3 norm, float4 shadowCoords, float
 
 }
 
-inline void vert_atlasedTexture(float _AtlasTextures, float atlasNumber, out float4 atlasedUV) {
-	float atY = floor(atlasNumber / _AtlasTextures);
-	float atX = atlasNumber - atY * _AtlasTextures;
-	atlasedUV.xy = float2(atX, atY) / _AtlasTextures;				
-	atlasedUV.z = _AtlasTextures;										
-	atlasedUV.w = 1 / _AtlasTextures;
+inline void vert_atlasedTexture(float _qcPp_AtlasTextures, float atlasNumber, out float4 atlasedUV) {
+	float atY = floor(atlasNumber / _qcPp_AtlasTextures);
+	float atX = atlasNumber - atY * _qcPp_AtlasTextures;
+	atlasedUV.xy = float2(atX, atY) / _qcPp_AtlasTextures;				
+	atlasedUV.z = _qcPp_AtlasTextures;										
+	atlasedUV.w = 1 / _qcPp_AtlasTextures;
 }
 
 // Old depricated
-inline void vert_atlasedTexture(float _AtlasTextures, float atlasNumber, float _TexelSizeX, out float4 atlasedUV) {
-	float atY = floor(atlasNumber / _AtlasTextures);
-	float atX = atlasNumber - atY*_AtlasTextures;
-	atlasedUV.xy = float2(atX, atY) / _AtlasTextures;				//+edge;
-	atlasedUV.z = _TexelSizeX;										//(1) / _AtlasTextures - edge * 2;
-	atlasedUV.w = 1 / _AtlasTextures;
+inline void vert_atlasedTexture(float _qcPp_AtlasTextures, float atlasNumber, float _TexelSizeX, out float4 atlasedUV) {
+	float atY = floor(atlasNumber / _qcPp_AtlasTextures);
+	float atX = atlasNumber - atY*_qcPp_AtlasTextures;
+	atlasedUV.xy = float2(atX, atY) / _qcPp_AtlasTextures;				//+edge;
+	atlasedUV.z = _TexelSizeX;										//(1) / _qcPp_AtlasTextures - edge * 2;
+	atlasedUV.w = 1 / _qcPp_AtlasTextures;
 }
 
 inline float getLOD(float2 uv, float4 _TexelSize) {
@@ -598,13 +598,13 @@ inline void Terrain_Water_AndLight(inout float4 col, float3 tc_Control, float am
 
 	float3 teraBounce = TERABOUNCE;
 
-	float4 terrainAmbient = tex2Dlod(_TerrainColors, float4(tc_Control.xz + worldNormal.xz*0.003, 0, 0)) * inRange; //outRange;
+	float4 terrainAmbient = tex2Dlod(_qcPp_TerrainColors, float4(tc_Control.xz + worldNormal.xz*0.003, 0, 0)) * inRange; //outRange;
 
-	terrainAmbient.a = tex2Dlod(_TerrainColors, float4(tc_Control.xz, 0, 0)).a * inRange + outRange;
+	terrainAmbient.a = tex2Dlod(_qcPp_TerrainColors, float4(tc_Control.xz, 0, 0)).a * inRange + outRange;
 
 	terrainAmbient.rgb *= teraBounce;
 	terrainAmbient.a *= ambient;
-	float4 terrainLrefl = tex2Dlod(_TerrainColors, float4(tc_Control.xz - reflected.xz*smoothness*terrainAmbient.a*0.1, 0, 6*deSmoothness))* inRange;
+	float4 terrainLrefl = tex2Dlod(_qcPp_TerrainColors, float4(tc_Control.xz - reflected.xz*smoothness*terrainAmbient.a*0.1, 0, 6*deSmoothness))* inRange;
 
 	terrainLrefl.rgb *= teraBounce;
 
@@ -635,18 +635,18 @@ inline void Terrain_Water_AndLight(inout float4 col, float3 tc_Control, float am
 inline void Terrain_4_Splats(float4 cont, float2 lowtiled, float2 tiled, float far, float deFar, inout float4 terrain, float triplanarY, inout float4 terrainN, inout float maxheight)
 {
 
-	float4 lt = float4(lowtiled, 0, getLOD(lowtiled, _mergeSplat_4_TexelSize));
-	float4 t = float4(tiled, 0, getLOD(tiled, _mergeSplat_4_TexelSize));
+	float4 lt = float4(lowtiled, 0, getLOD(lowtiled, _qcPp_mergeSplat_4_TexelSize));
+	float4 t = float4(tiled, 0, getLOD(tiled, _qcPp_mergeSplat_4_TexelSize));
 
-	float4 splat0 = tex2Dlod(_mergeSplat_0, lt)*far + tex2Dlod(_mergeSplat_0, t)*deFar;
-	float4 splat1 = tex2Dlod(_mergeSplat_1, lt)*far + tex2Dlod(_mergeSplat_1, t)*deFar;
-	float4 splat2 = tex2Dlod(_mergeSplat_2, lt)*far + tex2Dlod(_mergeSplat_2, t)*deFar;
-	float4 splat3 = tex2Dlod(_mergeSplat_3, lt)*far + tex2Dlod(_mergeSplat_3, t)*deFar;
+	float4 splat0 = tex2Dlod(_qcPp_mergeSplat_0, lt)*far + tex2Dlod(_qcPp_mergeSplat_0, t)*deFar;
+	float4 splat1 = tex2Dlod(_qcPp_mergeSplat_1, lt)*far + tex2Dlod(_qcPp_mergeSplat_1, t)*deFar;
+	float4 splat2 = tex2Dlod(_qcPp_mergeSplat_2, lt)*far + tex2Dlod(_qcPp_mergeSplat_2, t)*deFar;
+	float4 splat3 = tex2Dlod(_qcPp_mergeSplat_3, lt)*far + tex2Dlod(_qcPp_mergeSplat_3, t)*deFar;
 
-	float4 splat0N = tex2Dlod(_mergeSplatN_0, lt)*far + tex2Dlod(_mergeSplatN_0, t)*deFar;
-	float4 splat1N = tex2Dlod(_mergeSplatN_1, lt)*far + tex2Dlod(_mergeSplatN_1, t)*deFar;
-	float4 splat2N = tex2Dlod(_mergeSplatN_2, lt)*far + tex2Dlod(_mergeSplatN_2, t)*deFar;
-	float4 splat3N = tex2Dlod(_mergeSplatN_3, lt)*far + tex2Dlod(_mergeSplatN_3, t)*deFar;
+	float4 splat0N = tex2Dlod(_qcPp_mergeSplatN_0, lt)*far + tex2Dlod(_qcPp_mergeSplatN_0, t)*deFar;
+	float4 splat1N = tex2Dlod(_qcPp_mergeSplatN_1, lt)*far + tex2Dlod(_qcPp_mergeSplatN_1, t)*deFar;
+	float4 splat2N = tex2Dlod(_qcPp_mergeSplatN_2, lt)*far + tex2Dlod(_qcPp_mergeSplatN_2, t)*deFar;
+	float4 splat3N = tex2Dlod(_qcPp_mergeSplatN_3, lt)*far + tex2Dlod(_qcPp_mergeSplatN_3, t)*deFar;
 
 	float merge = MERGE_POWER * (0.1 + deFar*0.9);
 
@@ -690,33 +690,33 @@ inline void Terrain_Trilanear(float3 tc_Control, float3 worldPos, float dist, in
 	float far = min(1, dist*0.01);
 	float deFar = 1 - far;
 
-	float4 cont = tex2D(_mergeControl, tc_Control.xz);
-	float4 height = tex2D(_mergeTerrainHeight, tc_Control.xz + _mergeTerrainScale.w);
+	float4 cont = tex2D(_qcPp_mergeControl, tc_Control.xz);
+	float4 height = tex2D(_qcPp_mergeTerrainHeight, tc_Control.xz + _qcPp_mergeTerrainScale.w);
 	float3 bump = (height.rgb - 0.5) * 2;
 
-	float above = worldPos.y - _mergeTeraPosition.y;
+	float above = worldPos.y - _qcPp_mergeTeraPosition.y;
 
-	float aboveTerrainBump = above - height.a*_mergeTerrainScale.y;
+	float aboveTerrainBump = above - height.a*_qcPp_mergeTerrainScale.y;
 	float aboveTerrainBump01 = saturate(aboveTerrainBump);
 	float deAboveBump = 1 - aboveTerrainBump01;
 	bump = (bump * deAboveBump + worldNormal * aboveTerrainBump01);
 
 
-	float2 tiled = tc_Control.xz*_mergeTerrainTiling.xy + _mergeTerrainTiling.zw; // -worldNormal.xz*saturate(above - 0.5);
-	float tiledY = tc_Control.y * _mergeTeraPosition.w * 2;
+	float2 tiled = tc_Control.xz*_qcPp_mergeTerrainTiling.xy + _qcPp_mergeTerrainTiling.zw; // -worldNormal.xz*saturate(above - 0.5);
+	float tiledY = tc_Control.y * _qcPp_mergeTeraPosition.w * 2;
 
-	float2 lowtiled = tc_Control.xz*_mergeTerrainTiling.xy*0.1;
+	float2 lowtiled = tc_Control.xz*_qcPp_mergeTerrainTiling.xy*0.1;
 
 	
-	float4 splaty = tex2D(_mergeSplat_4, lowtiled);//*far +//tex2D(_mergeSplat_4, tiled)	*deFar;
-	float4 splatz = tex2D(_mergeSplat_4, float2(tiled.x, tiledY)*0.1)*far + tex2D(_mergeSplat_4, float2(tiled.x, tiledY))*deFar;
-	float4 splatx = tex2D(_mergeSplat_4, float2(tiled.y, tiledY)*0.1)*far + tex2D(_mergeSplat_4, float2(tiled.y, tiledY))*deFar;
+	float4 splaty = tex2D(_qcPp_mergeSplat_4, lowtiled);//*far +//tex2D(_qcPp_mergeSplat_4, tiled)	*deFar;
+	float4 splatz = tex2D(_qcPp_mergeSplat_4, float2(tiled.x, tiledY)*0.1)*far + tex2D(_qcPp_mergeSplat_4, float2(tiled.x, tiledY))*deFar;
+	float4 splatx = tex2D(_qcPp_mergeSplat_4, float2(tiled.y, tiledY)*0.1)*far + tex2D(_qcPp_mergeSplat_4, float2(tiled.y, tiledY))*deFar;
 
 
 	// Splat 4 is a base layer:
-	float4 splatNy = tex2D(_mergeSplatN_4, lowtiled);//*far + tex2D(_mergeSplatN_4, tiled)*deFar;
-	float4 splatNz = tex2D(_mergeSplatN_4, float2(tiled.x, tiledY)*0.1)*far + tex2D(_mergeSplatN_4, float2(tiled.x, tiledY))*deFar;
-	float4 splatNx = tex2D(_mergeSplatN_4, float2(tiled.y, tiledY)*0.1)*far + tex2D(_mergeSplatN_4, float2(tiled.y, tiledY))*deFar;
+	float4 splatNy = tex2D(_qcPp_mergeSplatN_4, lowtiled);//*far + tex2D(_qcPp_mergeSplatN_4, tiled)*deFar;
+	float4 splatNz = tex2D(_qcPp_mergeSplatN_4, float2(tiled.x, tiledY)*0.1)*far + tex2D(_qcPp_mergeSplatN_4, float2(tiled.x, tiledY))*deFar;
+	float4 splatNx = tex2D(_qcPp_mergeSplatN_4, float2(tiled.y, tiledY)*0.1)*far + tex2D(_qcPp_mergeSplatN_4, float2(tiled.y, tiledY))*deFar;
 
 	const float edge = MERGE_POWER;
 

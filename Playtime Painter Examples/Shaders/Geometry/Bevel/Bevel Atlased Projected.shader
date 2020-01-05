@@ -3,12 +3,12 @@
 		[NoScaleOffset]							_MainTex_ATL	("Base texture (ATL)", 2D) = "white" {}
 		[KeywordEnum(None, Regular, Combined)]	_BUMP			("Bump Map", Float) = 0
 		[NoScaleOffset]							_BumpMapC		("Combined Maps Atlas (RGB)", 2D) = "gray" {}
-		[Toggle(UV_PROJECTED)]					_PROJECTED		("Projected UV", Float) = 0
-		[Toggle(UV_ATLASED)]					_ATLASED		("Is Atlased", Float) = 0
-		[NoScaleOffset]							_AtlasTextures	("_Textures In Row _ Atlas", float) = 1
-		[Toggle(EDGE_WIDTH_FROM_COL_A)]			_EDGE_WIDTH		("Color A as Edge Width", Float) = 0
+		[Toggle(_qcPp_UV_PROJECTED)]					_PROJECTED		("Projected UV", Float) = 0
+		[Toggle(_qcPp_UV_ATLASED)]					_ATLASED		("Is Atlased", Float) = 0
+		[NoScaleOffset]							_qcPp_AtlasTextures	("_Textures In Row _ Atlas", float) = 1
+		[Toggle(_qcPp_EDGE_WIDTH_FROM_COL_A)]			_EDGE_WIDTH		("Color A as Edge Width", Float) = 0
 		[Toggle(CLIP_EDGES)]					_CLIP			("Clip Edges", Float) = 0
-		[Toggle(UV_PIXELATED)]					_PIXELATED		("Smooth Pixelated", Float) = 0
+		[Toggle(_qcPp_UV_PIXELATED)]					_PIXELATED		("Smooth Pixelated", Float) = 0
 	}
 
 	
@@ -32,15 +32,15 @@
 
 			#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
-			#pragma shader_feature  ___ UV_ATLASED
-			#pragma shader_feature  ___ UV_PROJECTED
+			#pragma shader_feature  ___ _qcPp_UV_ATLASED
+			#pragma shader_feature  ___ _qcPp_UV_PROJECTED
 			#pragma shader_feature  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
 			#pragma multi_compile ______ USE_NOISE_TEXTURE
 
 			sampler2D _MainTex_ATL;
 			sampler2D _BumpMapC;
 			float4 _MainTex_ATL_TexelSize;
-			float _AtlasTextures;
+			float _qcPp_AtlasTextures;
 
 			struct v2f {
 				float4 pos :		SV_POSITION;
@@ -55,12 +55,12 @@
 				float3 edgeNorm0 :	TEXCOORD7;
 				float3 edgeNorm1 :	TEXCOORD8;
 				float3 edgeNorm2 :	TEXCOORD9;
-				#if defined(UV_ATLASED)
+				#if defined(_qcPp_UV_ATLASED)
 					float4 atlasedUV : TEXCOORD10;
 				#endif
 
 				#if !_BUMP_NONE
-					#if UV_PROJECTED
+					#if _qcPp_UV_PROJECTED
 						float4 bC : TEXCOORD11;
 					#else
 						float4 wTangent : TEXCOORD11;
@@ -96,7 +96,7 @@
 
 				o.snormal.xyz = normalize(o.edgeNorm0*deEdge.x + o.edgeNorm1*deEdge.y + o.edgeNorm2*deEdge.z);
 
-				#if defined(UV_PROJECTED)
+				#if defined(_qcPp_UV_PROJECTED)
 					normalAndPositionToUV(o.snormal.xyz, o.worldPos, 
 					#if !_BUMP_NONE
 						o.bC, 
@@ -115,8 +115,8 @@
 
 				TRANSFER_SHADOW(o);
 
-				#if defined(UV_ATLASED)
-				vert_atlasedTexture(_AtlasTextures, v.texcoord.z, _MainTex_ATL_TexelSize.x, o.atlasedUV);
+				#if defined(_qcPp_UV_ATLASED)
+				vert_atlasedTexture(_qcPp_AtlasTextures, v.texcoord.z, _MainTex_ATL_TexelSize.x, o.atlasedUV);
 				#endif
 
 				return o;
@@ -127,15 +127,15 @@
 
 				float mip = 0;
 
-				#if defined(UV_ATLASED)
+				#if defined(_qcPp_UV_ATLASED)
 				float dist = length(i.worldPos.xyz - _WorldSpaceCameraPos.xyz);
-				#if	!UV_PIXELATED
+				#if	!_qcPp_UV_PIXELATED
 				mip = (log2(dist));
 				#endif
 				frag_atlasedTexture(i.atlasedUV, mip, i.texcoord.xy);
 				#endif
 
-				#if UV_ATLASED 
+				#if _qcPp_UV_ATLASED 
 				float4 col = tex2Dlod(_MainTex_ATL, float4(i.texcoord,0,mip));
 				#else
 				float4 col = tex2D(_MainTex_ATL, i.texcoord);
@@ -153,7 +153,7 @@
 
 				#if !_BUMP_NONE
 
-				#if UV_ATLASED 
+				#if _qcPp_UV_ATLASED 
 					float4 bumpMap = tex2Dlod(_BumpMapC, float4(i.texcoord, 0, mip));
 				#else
 					float4 bumpMap = tex2D(_BumpMapC, i.texcoord);
@@ -171,7 +171,7 @@
 
 				float3 preNorm = normal;
 
-				#if UV_PROJECTED
+				#if _qcPp_UV_PROJECTED
 					applyTangentNonNormalized(i.bC, normal, bumpMap.rg);
 					normal = normalize(normal);
 				#else

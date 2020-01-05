@@ -20,7 +20,7 @@
 				#pragma fragment frag
 				#pragma multi_compile_fog
 				#pragma multi_compile_fwdbase
-				#pragma multi_compile  ___ WATER_FOAM
+				#pragma multi_compile  ___ _qcPp_WATER_FOAM
 				#pragma multi_compile ______ USE_NOISE_TEXTURE
 
 				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
@@ -41,7 +41,7 @@
 					v2f o;
 
 					float4 worldPos = mul(unity_ObjectToWorld, v.vertex);
-					o.tc_Control.xyz = WORLD_POS_TO_TERRAIN_UV_3D(worldPos.xyz); // -_mergeTeraPosition.xyz) / _mergeTerrainScale.xyz;
+					o.tc_Control.xyz = WORLD_POS_TO_TERRAIN_UV_3D(worldPos.xyz); // -_qcPp_mergeTeraPosition.xyz) / _qcPp_mergeTerrainScale.xyz;
 
 					o.pos = UnityObjectToClipPos(v.vertex);
 					
@@ -65,14 +65,14 @@
 					
 					i.viewDir.xyz = normalize(i.viewDir.xyz);
 
-					float4 height = tex2D(_mergeTerrainHeight, i.tc_Control.xz + _mergeTerrainScale.w);
-					float aboveTerrain = saturate((((i.wpos.y - _mergeTeraPosition.y) - height.a*_mergeTerrainScale.y) - 0.5)*0.5);
+					float4 height = tex2D(_qcPp_mergeTerrainHeight, i.tc_Control.xz + _qcPp_mergeTerrainScale.w);
+					float aboveTerrain = saturate((((i.wpos.y - _qcPp_mergeTeraPosition.y) - height.a*_qcPp_mergeTerrainScale.y) - 0.5)*0.5);
 					float deAboveTerrain = 1 - aboveTerrain;
 
 					float caustics = 0;
 
-					#if WATER_FOAM
-					float underWater = max(0, _foamParams.z - i.wpos.y);
+					#if _qcPp_WATER_FOAM
+					float underWater = max(0, _qcPp_foamParams.z - i.wpos.y);
 
 					float3 projectedWpos;
 					
@@ -89,25 +89,25 @@
 					float far = min(1, dist*0.01);
 					float deFar = 1 - far;
 
-					float4 col = tex2D(_mergeControl, i.tc_Control.xz);
+					float4 col = tex2D(_qcPp_mergeControl, i.tc_Control.xz);
 
 					float3 bump = (height.rgb - 0.5)*2;
 
 					bump = bump*deAboveTerrain + i.normal * aboveTerrain;
 
-					float2 tiled = i.tc_Control.xz*_mergeTerrainTiling.xy+ _mergeTerrainTiling.zw;
-					float tiledY = i.tc_Control.y*_mergeTeraPosition.w*2;
+					float2 tiled = i.tc_Control.xz*_qcPp_mergeTerrainTiling.xy+ _qcPp_mergeTerrainTiling.zw;
+					float tiledY = i.tc_Control.y*_qcPp_mergeTeraPosition.w*2;
 
-					float2 lowtiled = i.tc_Control.xz*_mergeTerrainTiling.xy*0.1;
+					float2 lowtiled = i.tc_Control.xz*_qcPp_mergeTerrainTiling.xy*0.1;
 
-					float4 splaty = tex2D(_mergeSplat_4, lowtiled);
-					float4 splatz = tex2D(_mergeSplat_4, float2(tiled.x, tiledY)*0.1)*far + tex2D(_mergeSplat_4, float2(tiled.x, tiledY))*deFar;
-					float4 splatx = tex2D(_mergeSplat_4, float2(tiled.y, tiledY)*0.1)*far + tex2D(_mergeSplat_4, float2(tiled.y, tiledY))*deFar;
+					float4 splaty = tex2D(_qcPp_mergeSplat_4, lowtiled);
+					float4 splatz = tex2D(_qcPp_mergeSplat_4, float2(tiled.x, tiledY)*0.1)*far + tex2D(_qcPp_mergeSplat_4, float2(tiled.x, tiledY))*deFar;
+					float4 splatx = tex2D(_qcPp_mergeSplat_4, float2(tiled.y, tiledY)*0.1)*far + tex2D(_qcPp_mergeSplat_4, float2(tiled.y, tiledY))*deFar;
 
 					// Splat 4 is a base layer:
-					float4 splatNy = tex2D(_mergeSplatN_4, lowtiled);
-					float4 splatNz = tex2D(_mergeSplatN_4, float2(tiled.x, tiledY)*0.1)*far + tex2D(_mergeSplatN_4, float2(tiled.x, tiledY))*deFar;
-					float4 splatNx = tex2D(_mergeSplatN_4, float2(tiled.y, tiledY)*0.1)*far + tex2D(_mergeSplatN_4, float2(tiled.y, tiledY))*deFar;
+					float4 splatNy = tex2D(_qcPp_mergeSplatN_4, lowtiled);
+					float4 splatNz = tex2D(_qcPp_mergeSplatN_4, float2(tiled.x, tiledY)*0.1)*far + tex2D(_qcPp_mergeSplatN_4, float2(tiled.x, tiledY))*deFar;
+					float4 splatNx = tex2D(_qcPp_mergeSplatN_4, float2(tiled.y, tiledY)*0.1)*far + tex2D(_qcPp_mergeSplatN_4, float2(tiled.y, tiledY))*deFar;
 
 					float edge = MERGE_POWER;
 
@@ -166,7 +166,7 @@
 
 					//return caustics;
 
-#if WATER_FOAM
+#if _qcPp_WATER_FOAM
 					APPLY_PROJECTED_WATER(underWater, worldNormal, nrmNdSm, i.tc_Control, projectedWpos, i.viewDir.y, col, smoothness, ambient, shadow, caustics);
 #endif
 

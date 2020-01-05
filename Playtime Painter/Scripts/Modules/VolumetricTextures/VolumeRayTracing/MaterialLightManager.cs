@@ -58,8 +58,8 @@ namespace PlaytimePainter
                     _positionProperties.Add(new ShaderProperty.VectorValue("l{0}pos".F(c)));
                     _colorVectorProperties.Add(new ShaderProperty.VectorValue("l{0}col".F(c)));
 
-                    _positionPropertiesGlobal.Add(new ShaderProperty.VectorValue("{0}l{1}pos".F(PainterDataAndConfig.GlobalPropertyPrefix, c)));
-                    _colorVectorPropertiesGlobal.Add(new ShaderProperty.VectorValue("{0}l{1}col".F(PainterDataAndConfig.GlobalPropertyPrefix, c)));
+                    _positionPropertiesGlobal.Add(new ShaderProperty.VectorValue("{0}l{1}pos".F(PainterShaderVariables.GlobalPropertyPrefix, c)));
+                    _colorVectorPropertiesGlobal.Add(new ShaderProperty.VectorValue("{0}l{1}col".F(PainterShaderVariables.GlobalPropertyPrefix, c)));
                 }
             }
 

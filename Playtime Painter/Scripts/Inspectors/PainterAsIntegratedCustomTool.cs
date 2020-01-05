@@ -3,6 +3,7 @@ using System;
 using PlayerAndEditorGUI;
 using UnityEngine;
 using UnityEditor;
+using PlaytimePainter.MeshEditing;
 #if UNITY_2019_1_OR_NEWER
 using UnityEditor.EditorTools;
 #endif
@@ -138,7 +139,7 @@ namespace PlaytimePainter
             }
 
             if (painter && painter.textureWasChanged)
-                painter.ManagedUpdate();
+                painter.ManagedUpdateOnFocused();
         }
 
         public static bool OnEditorRayHit(RaycastHit hit, Ray ray)

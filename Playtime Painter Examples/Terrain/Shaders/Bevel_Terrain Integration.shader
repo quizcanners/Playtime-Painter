@@ -3,10 +3,10 @@
 		[NoScaleOffset]_MainTex_ATL("Base texture (_ATL)", 2D) = "white" {}
 		[KeywordEnum(None, Regular, Combined)] _BUMP("Bump Map", Float) = 0
 		[NoScaleOffset]_BumpMapC_ATL("Combined Maps (_ATL) (RGB)", 2D) = "white" {}
-		[Toggle(UV_PROJECTED)] _PROJECTED("Projected UV", Float) = 0
+		[Toggle(_qcPp_UV_PROJECTED)] _PROJECTED("Projected UV", Float) = 0
 		_Merge("_Merge", Range(0.01,2)) = 1
-		[Toggle(UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
-		[NoScaleOffset]_AtlasTextures("_Textures In Row _ Atlas", float) = 1
+		[Toggle(_qcPp_UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
+		[NoScaleOffset]_qcPp_AtlasTextures("_Textures In Row _ Atlas", float) = 1
 	}
 
 	SubShader{
@@ -32,16 +32,16 @@
 			#pragma multi_compile_fwdbase
 			#pragma multi_compile_fog
 
-			#pragma shader_feature  ___ UV_ATLASED
-			#pragma shader_feature  ___ UV_PROJECTED
+			#pragma shader_feature  ___ _qcPp_UV_ATLASED
+			#pragma shader_feature  ___ _qcPp_UV_PROJECTED
 			#pragma shader_feature  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
 			//#pragma multi_compile ______ USE_NOISE_TEXTURE
-			//#pragma multi_compile  ___ WATER_FOAM
+			//#pragma multi_compile  ___ _qcPp_WATER_FOAM
 
 			sampler2D _MainTex_ATL;
 			sampler2D _BumpMapC_ATL;
 			float4 _MainTex_ATL_TexelSize;
-			float _AtlasTextures;
+			float _qcPp_AtlasTextures;
 
 			struct v2f {
 				float4 pos : SV_POSITION;
@@ -58,7 +58,7 @@
 				float3 edgeNorm2 : TEXCOORD9;
 				
 				#if !_BUMP_NONE
-				#if UV_PROJECTED
+				#if _qcPp_UV_PROJECTED
 				float4 bC : TEXCOORD10;
 				#else
 				float4 wTangent : TEXCOORD10;
@@ -66,7 +66,7 @@
 				#endif
 				UNITY_FOG_COORDS(11)
 				float3 tc_Control : TEXCOORD12;
-				#if UV_ATLASED
+				#if _qcPp_UV_ATLASED
 				float4 atlasedUV : TEXCOORD13;
 				#endif
 			};
@@ -76,10 +76,10 @@
 				o.pos = UnityObjectToClipPos(v.vertex);
 				UNITY_TRANSFER_FOG(o, o.pos);
 				o.wpos = mul(unity_ObjectToWorld, v.vertex).xyz;
-				#if WATER_FOAM
+				#if _qcPp_WATER_FOAM
 				o.fwpos = ComputeFoam(o.wpos);
 				#endif
-				o.tc_Control.xyz = (o.wpos.xyz - _mergeTeraPosition.xyz) / _mergeTerrainScale.xyz;
+				o.tc_Control.xyz = (o.wpos.xyz - _qcPp_mergeTeraPosition.xyz) / _qcPp_mergeTerrainScale.xyz;
 				o.normal.xyz = UnityObjectToWorldNormal(v.normal);
 
 				o.vcol = v.color;
@@ -94,7 +94,7 @@
 
 				o.snormal.xyz = normalize(o.edgeNorm0*deEdge.x + o.edgeNorm1*deEdge.y + o.edgeNorm2*deEdge.z);
 
-				#if UV_PROJECTED
+				#if _qcPp_UV_PROJECTED
 				normalAndPositionToUV(o.snormal.xyz, o.wpos,
 				#if !_BUMP_NONE
 					o.bC,
@@ -114,8 +114,8 @@
 
 				TRANSFER_SHADOW(o);
 
-				#if UV_ATLASED
-				vert_atlasedTexture(_AtlasTextures, v.texcoord.z, o.atlasedUV);
+				#if _qcPp_UV_ATLASED
+				vert_atlasedTexture(_qcPp_AtlasTextures, v.texcoord.z, o.atlasedUV);
 				#endif
 
 				return o;
@@ -127,8 +127,8 @@
 
 				float caustics = 0;
 
-				#if WATER_FOAM
-				float underWater = max(0, _foamParams.z - i.wpos.y);
+				#if _qcPp_WATER_FOAM
+				float underWater = max(0, _qcPp_foamParams.z - i.wpos.y);
 				float3 projectedWpos;
 			
 				float3 nrmNdSm = SAMPLE_WATER_NORMAL(i.viewDir.xyz,   projectedWpos, i.tc_Control, caustics, underWater);
@@ -143,11 +143,11 @@
 
 				float mip = 0;
 
-				#if UV_ATLASED
+				#if _qcPp_UV_ATLASED
 				atlasUVlod(i.texcoord.xy, mip, _MainTex_ATL_TexelSize, i.atlasedUV);
 				#endif
 
-				#if UV_ATLASED
+				#if _qcPp_UV_ATLASED
 				float4 col = tex2Dlod(_MainTex_ATL, float4(i.texcoord,0,mip));
 				#else
 				float4 col = tex2D(_MainTex_ATL, i.texcoord);
@@ -164,7 +164,7 @@
 				col = col*deWeight + i.vcol*weight;
 
 				#if !_BUMP_NONE
-				#if UV_ATLASED  
+				#if _qcPp_UV_ATLASED  
 					float4 bumpMap = tex2Dlod(_BumpMapC_ATL, float4(i.texcoord, 0, mip));
 				#else
 					float4 bumpMap = tex2D(_BumpMapC_ATL, i.texcoord);
@@ -182,7 +182,7 @@
 
 				float3 preNorm = worldNormal;
 
-				#if UV_PROJECTED
+				#if _qcPp_UV_PROJECTED
 				applyTangentNonNormalized(i.bC, worldNormal, bumpMap.rg);
 				worldNormal = normalize(worldNormal);
 				#else
@@ -211,7 +211,7 @@
 				float smoothness = col.a;
 
 
-#if WATER_FOAM
+#if _qcPp_WATER_FOAM
 				col.rgb += 
 
 				APPLY_PROJECTED_WATER(saturate(underWater), worldNormal, nrmNdSm, i.tc_Control, projectedWpos, i.viewDir.y, col, smoothness, ambient, shadow, caustics);

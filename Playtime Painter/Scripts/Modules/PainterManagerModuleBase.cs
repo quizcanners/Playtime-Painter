@@ -5,13 +5,7 @@ using System.Collections.Generic;
 using System;
 using System.Collections;
 
-namespace PlaytimePainter {
-
-
-    public class PainterManagerPluginAttribute : AbstractWithTaggedTypes
-    {
-        public override TaggedTypesCfg TaggedTypes => PainterSystemManagerModuleBase.all;
-    }
+namespace PlaytimePainter.CameraModules {
 
     public interface IPainterManagerPluginOnGUI
     {
@@ -36,8 +30,6 @@ namespace PlaytimePainter {
 
         void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, TextureMeta image, BrushConfig bc, PlaytimePainter painter);
 
-        //bool NeedsGrid(PlaytimePainter p);
-
         Shader GetPreviewShader(PlaytimePainter p);
 
         Shader GetBrushShaderDoubleBuffer(PlaytimePainter p);
@@ -58,14 +50,13 @@ namespace PlaytimePainter {
 
     public interface IMeshToolPlugin
     {
-        bool MeshToolInspection(MeshToolBase currentTool);
+        bool MeshToolInspection(MeshEditing.MeshToolBase currentTool);
        
     }
+    
+    public abstract class CameraModuleBase : PainterSystemKeepUnrecognizedCfg, IGotDisplayName, IGotClassTag, IPEGI_ListInspect {
 
-    [PainterManagerPlugin]
-    public abstract class PainterSystemManagerModuleBase : PainterSystemKeepUnrecognizedCfg, IGotDisplayName, IGotClassTag, IPEGI_ListInspect {
-
-        public static List<PainterSystemManagerModuleBase> modules;
+        public static List<CameraModuleBase> modules;
 
         public static readonly List<IPainterManagerModuleComponentPEGI> ComponentInspectionPlugins = new List<IPainterManagerModuleComponentPEGI>();
 
@@ -82,7 +73,7 @@ namespace PlaytimePainter {
         public static void RefreshPlugins() {
 
             if (modules == null)
-                modules = new List<PainterSystemManagerModuleBase>();
+                modules = new List<CameraModuleBase>();
             else
                 for (var i = modules.Count-1; i >=0 ; i--)
                     if (modules[i] == null)
@@ -95,7 +86,7 @@ namespace PlaytimePainter {
                     if (m.GetType() == t) { contains = true; break; }
 
                 if (!contains)
-                    modules.Add((PainterSystemManagerModuleBase)Activator.CreateInstance(t));
+                    modules.Add((CameraModuleBase)Activator.CreateInstance(t));
             }
 
             ComponentInspectionPlugins.Clear();
@@ -123,7 +114,7 @@ namespace PlaytimePainter {
         
         #region Abstract Serialized
         public abstract string ClassTag { get; } 
-        public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(PainterSystemManagerModuleBase));
+        public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(CameraModuleBase));
         public TaggedTypesCfg AllTypes => all;
         #endregion
 

@@ -59,7 +59,7 @@
 					v2f o;
 
 					float4 worldPos = mul(unity_ObjectToWorld, v.vertex);
-					o.tc_Control.xyz = (worldPos.xyz - _mergeTeraPosition.xyz) / _mergeTerrainScale.xyz;
+					o.tc_Control.xyz = (worldPos.xyz - _qcPp_mergeTeraPosition.xyz) / _qcPp_mergeTerrainScale.xyz;
 
 					o.pos = UnityObjectToClipPos(v.vertex);
 					o.wpos = worldPos;
@@ -93,8 +93,8 @@
 					float dist = length(i.wpos.xyz - _WorldSpaceCameraPos.xyz);
 					float caustics = 0;
 					/*
-#if WATER_FOAM
-					float underWater = _foamParams.z - i.wpos.y;
+#if _qcPp_WATER_FOAM
+					float underWater = _qcPp_foamParams.z - i.wpos.y;
 					float3 projectedWpos;
 						
 					float3 nrmNdSm = SAMPLE_WATER_NORMAL(i.viewDir.xyz,  projectedWpos, i.tc_Control, caustics, underWater);
@@ -141,7 +141,7 @@
 					float smoothness = col.a;
 				
 
-/*#if WATER_FOAM
+/*#if _qcPp_WATER_FOAM
 					APPLY_PROJECTED_WATER(saturate(underWater), worldNormal, nrmNdSm, i.tc_Control, projectedWpos, i.viewDir.y, col, smoothness, ambient, shadow);
 #endif
 */

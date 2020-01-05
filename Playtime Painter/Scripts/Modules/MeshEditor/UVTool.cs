@@ -3,7 +3,7 @@ using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
 
-namespace PlaytimePainter
+namespace PlaytimePainter.MeshEditing
 {
     
     using Triangle = PainterMesh.Triangle;

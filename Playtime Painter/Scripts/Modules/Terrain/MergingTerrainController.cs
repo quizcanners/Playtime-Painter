@@ -56,11 +56,11 @@ namespace PlaytimePainter
                 var mergeSubMask = mergeSubMasks[i];
 
                 if (mergeSubMask.Product_combinedBump)
-                    Shader.SetGlobalTexture(PainterDataAndConfig.TERRAIN_NORMAL_MAP + i, mergeSubMask.Product_combinedBump.GetDestinationTexture());
+                    Shader.SetGlobalTexture(PainterShaderVariables.TERRAIN_NORMAL_MAP + i, mergeSubMask.Product_combinedBump.GetDestinationTexture());
 
                 if (!mergeSubMask.Product_colorWithAlpha) continue;
 
-                Shader.SetGlobalTexture(PainterDataAndConfig.TERRAIN_SPLAT_DIFFUSE + i, mergeSubMask.Product_colorWithAlpha.GetDestinationTexture());
+                Shader.SetGlobalTexture(PainterShaderVariables.TERRAIN_SPLAT_DIFFUSE + i, mergeSubMask.Product_colorWithAlpha.GetDestinationTexture());
 
                 if (ls != null && (i < terrainLayersCount && ls[i] != null))
                     ls[i].diffuseTexture = mergeSubMask.Product_colorWithAlpha;

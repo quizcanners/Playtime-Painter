@@ -6,7 +6,7 @@ using QuizCannersUtilities;
 namespace PlaytimePainter {
 
     [TaggedType(tag)]
-    public class TerrainLightModule : PainterComponentModuleBase {
+    public class TerrainLightModule : ComponentModuleBase {
 
         const string tag = "TerLight";
         public override string ClassTag => tag;
@@ -22,7 +22,7 @@ namespace PlaytimePainter {
 
         public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter)
         {
-            if (!painter.terrain || !field.Equals(PainterDataAndConfig.TerrainLight)) return false;
+            if (!painter.terrain || !field.Equals(PainterShaderVariables.TerrainLight)) return false;
             
             tex = mergingTerrain.lightTexture;
             return true;
@@ -33,13 +33,13 @@ namespace PlaytimePainter {
             FindMergingTerrain(painter);
 
             if (painter.terrain && mergingTerrain)
-                dest.Add(PainterDataAndConfig.TerrainLight);
+                dest.Add(PainterShaderVariables.TerrainLight);
         }
 
         public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue fieldName, PlaytimePainter painter)
         {
             if (!painter.terrain || fieldName == null ||
-                !fieldName.Equals(PainterDataAndConfig.TerrainLight)) return false;
+                !fieldName.Equals(PainterShaderVariables.TerrainLight)) return false;
             
             var id = painter.TexMeta;
             if (id == null) return true;
@@ -54,7 +54,7 @@ namespace PlaytimePainter {
 
             var tex = id.CurrentTexture();
             
-            if (!painter.terrain || !field.Equals(PainterDataAndConfig.TerrainLight)) return false;
+            if (!painter.terrain || !field.Equals(PainterShaderVariables.TerrainLight)) return false;
             
             FindMergingTerrain(painter);
                 if (mergingTerrain  && id!= null)
@@ -78,11 +78,9 @@ namespace PlaytimePainter {
                 }
 #endif
 
-                PainterDataAndConfig.TerrainLight.GlobalValue = tex;
-
-
-
-                return true;
+            PainterShaderVariables.TerrainLight.GlobalValue = tex;
+            
+            return true;
         }
 
         public override void OnUpdate(PlaytimePainter painter)
@@ -93,7 +91,7 @@ namespace PlaytimePainter {
             if (!mergingTerrain) return;
             
             if (mergingTerrain.lightTexture)
-                PainterDataAndConfig.TerrainLight.GlobalValue = mergingTerrain.lightTexture.GetDestinationTexture();
+                PainterShaderVariables.TerrainLight.GlobalValue = mergingTerrain.lightTexture.GetDestinationTexture();
 
             mergingTerrain.UpdateTextures();
 

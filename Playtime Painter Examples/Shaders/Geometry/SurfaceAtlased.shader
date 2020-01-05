@@ -5,8 +5,8 @@
 		[NoScaleOffset] _CombinedMap("Normal Map (ATL)", 2D) = "gray" {}
 		//_Glossiness("Glossiness ", Range(0.1,0.9)) = 0.5
 		_OcclusionMap("Occlusion (ATL)", 2D) = "white" {}
-		[Toggle(UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
-		_AtlasTextures("_Textures In Row _ Atlas", float) = 1
+		[Toggle(_qcPp_UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
+		_qcPp_AtlasTextures("_Textures In Row _ Atlas", float) = 1
 	}
 
 	SubShader {
@@ -18,7 +18,7 @@
 		// Physically based Standard lighting model, and enable shadows on all light types
 		#pragma surface surf Standard fullforwardshadows
 		#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
-		#pragma multi_compile  ___ UV_ATLASED
+		#pragma multi_compile  ___ _qcPp_UV_ATLASED
 		#pragma multi_compile  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
 
 		#pragma target 3.0
@@ -27,20 +27,20 @@
 		sampler2D _CombinedMap;
 		sampler2D _OcclusionMap;
 	//	float _Glossiness;
-		float _AtlasTextures;
+		float _qcPp_AtlasTextures;
 		float4 _MainTex_ATL_TexelSize;
 
 		struct Input {
 			float2 uv_MainTex_ATL;
-			#if defined(UV_ATLASED)
+			#if defined(_qcPp_UV_ATLASED)
 			float4 atlasedUV : TEXCOORD6;
 			#endif
 		};
 
 		void vert(inout appdata_full v, out Input o) {
 			UNITY_INITIALIZE_OUTPUT(Input, o);
-			#if defined(UV_ATLASED)
-			vert_atlasedTexture(_AtlasTextures, v.texcoord.z, o.atlasedUV);
+			#if defined(_qcPp_UV_ATLASED)
+			vert_atlasedTexture(_qcPp_AtlasTextures, v.texcoord.z, o.atlasedUV);
 			#endif
 		}
 
@@ -53,7 +53,7 @@
 
 		void surf (Input i, inout SurfaceOutputStandard o) {
 
-			#if UV_ATLASED
+			#if _qcPp_UV_ATLASED
 			float mip = 0;
 			atlasUVlod(i.uv_MainTex_ATL.xy, mip, _MainTex_ATL_TexelSize, i.atlasedUV);
 			float4 uvMip = float4 (i.uv_MainTex_ATL, 0, mip);

@@ -6,8 +6,8 @@
 
 		_Microdetail("Microdetail (RG-bump B:Rough A:AO)", 2D) = "white" {}
 
-		[Toggle(UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
-		_AtlasTextures("_Textures In Row _ Atlas", float) = 1
+		[Toggle(_qcPp_UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
+		_qcPp_AtlasTextures("_Textures In Row _ Atlas", float) = 1
 
 		_Test ("Test", Range(0,1)) = 1
 	}
@@ -28,7 +28,7 @@
 				#pragma multi_compile_fwdbase
 				#pragma multi_compile_fog
 				#pragma shader_feature  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
-				#pragma shader_feature  ___ UV_ATLASED
+				#pragma shader_feature  ___ _qcPp_UV_ATLASED
 				#pragma multi_compile ______ USE_NOISE_TEXTURE
 				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
@@ -39,7 +39,7 @@
 				float4 _MainTex_ATL_TexelSize;
 				uniform sampler2D _BumpMapC_ATL;
 				float4 _Microdetail_ST;
-				float _AtlasTextures;
+				float _qcPp_AtlasTextures;
 				float _Test;
 
 				struct v2f {
@@ -56,7 +56,7 @@
 					//float4 shadowCoords0 : TEXCOORD7; // Replacing R with directional light
 					float4 shadowCoords1 : TEXCOORD8;
 					float4 shadowCoords2 : TEXCOORD9;
-#if defined(UV_ATLASED)
+#if defined(_qcPp_UV_ATLASED)
 					float4 atlasedUV : TEXCOORD10;
 					float4 atlasedUV2 : TEXCOORD11;
 #endif
@@ -85,9 +85,9 @@
 					o.shadowCoords1 = mul(rt1_ProjectorMatrix, o.worldPos);
 					o.shadowCoords2 = mul(rt2_ProjectorMatrix, o.worldPos);
 
-					#if defined(UV_ATLASED)
-					vert_atlasedTexture(_AtlasTextures, v.texcoord.z, _MainTex_ATL_TexelSize.x, o.atlasedUV);
-					vert_atlasedTexture(_AtlasTextures, v.texcoord.w, _MainTex_ATL_TexelSize.x, o.atlasedUV2);
+					#if defined(_qcPp_UV_ATLASED)
+					vert_atlasedTexture(_qcPp_AtlasTextures, v.texcoord.z, _MainTex_ATL_TexelSize.x, o.atlasedUV);
+					vert_atlasedTexture(_qcPp_AtlasTextures, v.texcoord.w, _MainTex_ATL_TexelSize.x, o.atlasedUV2);
 					#endif
 
 					#if !_BUMP_NONE
@@ -142,7 +142,7 @@
 					border.x = max(border.y, border.x);
 					float deBorder = 1 - border.x;
 
-#if UV_ATLASED
+#if _qcPp_UV_ATLASED
 
 					float2 tc1 = o.texcoord.xy;
 					float2 tc2 = o.texcoord.xy;
@@ -203,7 +203,7 @@
 
 					tnormal.rg += (micro.rg - 0.5)*(1 - col.a);
 
-#if !UV_ATLASED
+#if !_qcPp_UV_ATLASED
 					tnormal = tnormal * deBorder + float3(0, 0, 1)*border.x;
 					micro.b = micro.b*deBorder + 0.5*border.x;
 #endif
@@ -216,7 +216,7 @@
 
 					bumpMap.a *= micro.a;
 
-#if !UV_ATLASED
+#if !_qcPp_UV_ATLASED
 					bumpMap.ba = bumpMap.ba*deBorder + float2(1, 1)*border.x;
 #endif
 

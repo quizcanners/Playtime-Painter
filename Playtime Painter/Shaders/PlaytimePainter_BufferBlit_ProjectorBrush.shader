@@ -16,7 +16,7 @@
 
 				 #include "PlaytimePainter_cg.cginc"
 
-				 #pragma multi_compile ____ TARGET_TRANSPARENT_LAYER
+				 #pragma multi_compile ____ _qcPp_TARGET_TRANSPARENT_LAYER
 
 				 #pragma vertex vert
 				 #pragma fragment frag
@@ -50,20 +50,20 @@
 
 					//return buff.a;
 
-					float4 src = tex2Dlod(_SourceTexture, float4(uv, 0, 0));
+					float4 src = tex2Dlod(_qcPp_SourceTexture, float4(uv, 0, 0));
 
 
 
-					float ignoreSrcAlpha = _srcTextureUsage.w;
+					float ignoreSrcAlpha = _qcPp_srcTextureUsage.w;
 
 					float alpha = min(1,buff.a)*(ignoreSrcAlpha + src.a * (1- ignoreSrcAlpha));
 
-					_brushColor.rgb = SourceTextureByBrush(src.rgb);
+					_qcPp_brushColor.rgb = SourceTextureByBrush(src.rgb);
 
-					#if TARGET_TRANSPARENT_LAYER
-						return AlphaBlitTransparent(alpha, _brushColor,  o.texcoord.xy);
+					#if _qcPp_TARGET_TRANSPARENT_LAYER
+						return AlphaBlitTransparent(alpha, _qcPp_brushColor,  o.texcoord.xy);
 					#else
-						return AlphaBlitOpaque(alpha, _brushColor,  o.texcoord.xy);
+						return AlphaBlitOpaque(alpha, _qcPp_brushColor,  o.texcoord.xy);
 					#endif
 				}
 				 ENDCG

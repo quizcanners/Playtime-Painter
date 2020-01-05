@@ -64,18 +64,18 @@
 					#endif
 
 					// ATLASED CALCULATION
-					float atY = floor(v.texcoord.z / _brushAtlasSectionAndRows.z);
-					float atX = v.texcoord.z - atY * _brushAtlasSectionAndRows.z;
-					v.texcoord.xy = (float2(atX, atY) + v.texcoord.xy) / _brushAtlasSectionAndRows.z
-						* _brushAtlasSectionAndRows.w + v.texcoord.xy * (1 - _brushAtlasSectionAndRows.w);
+					float atY = floor(v.texcoord.z / _qcPp_brushAtlasSectionAndRows.z);
+					float atX = v.texcoord.z - atY * _qcPp_brushAtlasSectionAndRows.z;
+					v.texcoord.xy = (float2(atX, atY) + v.texcoord.xy) / _qcPp_brushAtlasSectionAndRows.z
+						* _qcPp_brushAtlasSectionAndRows.w + v.texcoord.xy * (1 - _qcPp_brushAtlasSectionAndRows.w);
 
 					o.worldPos = worldPos.xyz;
 
 					float2 tmp;
 
-					worldPos.xyz = _RTcamPosition.xyz;
+					worldPos.xyz = _qcPp_RTcamPosition.xyz;
 					worldPos.z+=100;
-					worldPos.xy+= (v.texcoord.xy*_brushEditedUVoffset.xy+_brushEditedUVoffset.zw-0.5)*256;
+					worldPos.xy+= (v.texcoord.xy*_qcPp_brushEditedUVoffset.xy+_qcPp_brushEditedUVoffset.zw-0.5)*256;
 
 					v.vertex = mul(unity_WorldToObject, float4(worldPos.xyz,v.vertex.w));
 
@@ -89,9 +89,9 @@
 
 				float4 frag(v2f i) : COLOR{
 
-					float ignoreSrcAlpha = _srcTextureUsage.w;
+					float ignoreSrcAlpha = _qcPp_srcTextureUsage.w;
 
-	 				_brushColor = tex2Dlod(_SourceTexture, float4(i.texcoord.xy, 0, 0));
+	 				_qcPp_brushColor = tex2Dlod(_qcPp_SourceTexture, float4(i.texcoord.xy, 0, 0));
 
 					#if BRUSH_3D || BRUSH_3D_TEXCOORD2
 					float alpha = prepareAlphaSphere (i.texcoord, i.worldPos);
@@ -110,20 +110,20 @@
 					float2 decalUV =i.texcoord.zw+0.5;
 					float Height = tex2D(_VolDecalHeight, decalUV).a;
 					float4 overlay = tex2D(_VolDecalOverlay, decalUV);
-					float4 dest =  tex2Dlod(_DestBuffer, float4(i.texcoord.xy, 0, 0));
+					float4 dest =  tex2Dlod(_qcPp_DestBuffer, float4(i.texcoord.xy, 0, 0));
 					float alpha = saturate((Height-dest.a) * 8*_DecalParameters.y-0.01);
 
-					float4 col = tex2Dlod(_DestBuffer, float4(i.texcoord.xy, 0, 0));
+					float4 col = tex2Dlod(_qcPp_DestBuffer, float4(i.texcoord.xy, 0, 0));
 
 					float changeColor = _DecalParameters.z;
-					_brushColor = overlay*overlay.a +  (_brushColor*changeColor + col*(1-changeColor))*(1-overlay.a);
+					_qcPp_brushColor = overlay*overlay.a +  (_qcPp_brushColor*changeColor + col*(1-changeColor))*(1-overlay.a);
 
-					_brushColor.a = Height;
+					_qcPp_brushColor.a = Height;
 					#endif
 
-					_brushColor.a = alpha * (ignoreSrcAlpha + _brushColor.a * (1- ignoreSrcAlpha));
+					_qcPp_brushColor.a = alpha * (ignoreSrcAlpha + _qcPp_brushColor.a * (1- ignoreSrcAlpha));
 
-					return  _brushColor;
+					return  _qcPp_brushColor;
 				}
 				ENDCG
 			}

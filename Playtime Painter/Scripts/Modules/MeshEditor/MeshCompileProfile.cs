@@ -6,7 +6,7 @@ using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
 
-namespace PlaytimePainter
+namespace PlaytimePainter.MeshEditing
 {
     
     public class MeshPackagingProfile : AbstractCfg, IPEGI, IGotName

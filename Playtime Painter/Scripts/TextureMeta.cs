@@ -54,6 +54,7 @@ namespace PlaytimePainter
         public bool isAVolumeTexture;
 
         private float _repaintDelay = 0.016f;
+        public bool updateTex2DafterStroke;
         private int _numberOfTexture2DBackups = 10;
         private int _numberOfRenderTextureBackups = 10;
         public bool backupManually;
@@ -179,6 +180,8 @@ namespace PlaytimePainter
             .Add_IfNotZero("off", offset)
             .Add_IfNotEmpty("sn", saveName)
             .Add_IfTrue("trnsp", isATransparentLayer)
+            .Add_IfTrue("vol", isAVolumeTexture)
+            .Add_IfTrue("updT2D", updateTex2DafterStroke)
             .Add_IfTrue("bu", enableUndoRedo)
             .Add_IfTrue("tc2Auto", _useTexCoord2AutoAssigned)
             .Add_IfTrue("dumm", dontRedoMipMaps)
@@ -235,6 +238,8 @@ namespace PlaytimePainter
                 case "off": offset = data.ToVector2(); break;
                 case "sn": saveName = data; break;
                 case "trnsp": isATransparentLayer = data.ToBool(); break;
+                case "vol": isAVolumeTexture = data.ToBool(); break;
+                case "updT2D": updateTex2DafterStroke = data.ToBool(); break;
 
                 case "bu": enableUndoRedo = data.ToBool(); break;
                 case "dumm": dontRedoMipMaps = data.ToBool(); break;
@@ -759,41 +764,6 @@ namespace PlaytimePainter
 
         #endregion
 
-        #region BlitJobs
-#if UNITY_2018_1_OR_NEWER
-        public NativeArray<Color> pixelsForJob;
-        public JobHandle jobHandle;
-
-        public bool CanUsePixelsForJob()
-        {
-            if (!pixelsForJob.IsCreated && _pixels != null)
-            {
-
-                pixelsForJob = new NativeArray<Color>(_pixels, Allocator.Persistent);
-
-                TexMGMT.blitJobsActive.Add(this);
-
-                return true;
-            }
-
-            return false;
-        }
-
-        public void CompleteJob()
-        {
-            if (pixelsForJob.IsCreated)
-            {
-
-                jobHandle.Complete();
-                _pixels = pixelsForJob.ToArray();
-                pixelsForJob.Dispose();
-                TexMGMT.blitJobsActive.Remove(this);
-                SetAndApply();
-            }
-        }
-#endif
-        #endregion
-
         #region Init
 
         public TextureMeta Init(int renderTextureSize)
@@ -971,9 +941,13 @@ namespace PlaytimePainter
                 "Don't update mipMaps".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",
                     ref dontRedoMipMaps).changes(ref changed);
 
-                if (isAVolumeTexture)
-                    "Is A volume texture".toggleIcon(ref isAVolumeTexture).nl(ref changed);
+          
 
+            }
+
+            if ("GPU blit options".enter(ref inspectedItems, 1).nl())
+            {
+                "Update Texture2D after every stroke".toggleIcon(ref updateTex2DafterStroke).nl();
             }
 
             #region Processors
@@ -1284,6 +1258,12 @@ namespace PlaytimePainter
                 "This are not connected to Unity's Undo/Redo because when you run out of backups you will by accident start undoing other operations.".writeOneTimeHint("noNativeUndo");
                 "Use Z/X to undo/redo".writeOneTimeHint("ZxUndoRedo");
 
+            }
+
+            if (inspectedItems == -1)
+            {
+                if (isAVolumeTexture)
+                    "Is A volume texture".toggleIcon(ref isAVolumeTexture).nl(ref changed);
             }
 
             return changed;

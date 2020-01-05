@@ -54,18 +54,18 @@
 					#endif
 
 					// ATLASED CALCULATION
-					float atY = floor(v.texcoord.z / _brushAtlasSectionAndRows.z);
-					float atX = v.texcoord.z - atY * _brushAtlasSectionAndRows.z;
-					v.texcoord.xy = (float2(atX, atY) + v.texcoord.xy) / _brushAtlasSectionAndRows.z
-						* _brushAtlasSectionAndRows.w + v.texcoord.xy * (1 - _brushAtlasSectionAndRows.w);
+					float atY = floor(v.texcoord.z / _qcPp_brushAtlasSectionAndRows.z);
+					float atX = v.texcoord.z - atY * _qcPp_brushAtlasSectionAndRows.z;
+					v.texcoord.xy = (float2(atX, atY) + v.texcoord.xy) / _qcPp_brushAtlasSectionAndRows.z
+						* _qcPp_brushAtlasSectionAndRows.w + v.texcoord.xy * (1 - _qcPp_brushAtlasSectionAndRows.w);
 
 					o.worldPos = worldPos.xyz;
 
 					float2 tmp;
 
-					worldPos.xyz = _RTcamPosition.xyz;
+					worldPos.xyz = _qcPp_RTcamPosition.xyz;
 					worldPos.z+=100;
-					worldPos.xy+= (v.texcoord.xy*_brushEditedUVoffset.xy+_brushEditedUVoffset.zw-0.5)*256;
+					worldPos.xy+= (v.texcoord.xy*_qcPp_brushEditedUVoffset.xy+_qcPp_brushEditedUVoffset.zw-0.5)*256;
 
 					v.vertex = mul(unity_WorldToObject, float4(worldPos.xyz,v.vertex.w));
 
@@ -80,40 +80,40 @@
 				float4 frag(v2f i) : COLOR{
 
 					float2 uv = i.texcoord.xy;
-					float2 d = _TargetTexture_TexelSize.xy*_brushForm.w;
+					float2 d = _qcPp_TargetTexture_TexelSize.xy*_qcPp_brushForm.w;
 
 					#if UNITY_COLORSPACE_GAMMA
 
 
 
-					/*_brushColor = pow(tex2Dlod(_DestBuffer, float4(uv.x, uv.y, 0, 0)), GAMMA_TO_LINEAR);
-	  				_brushColor += pow(tex2Dlod(_DestBuffer, float4(uv.x + d.x*1.5, uv.y + d.y*0.5, 0, 0)), GAMMA_TO_LINEAR);
-	  				_brushColor += pow(tex2Dlod(_DestBuffer, float4(uv.x - d.x*0.5, uv.y + d.y*1.5, 0, 0)), GAMMA_TO_LINEAR);
-	  				_brushColor += pow(tex2Dlod(_DestBuffer, float4(uv.x - d.x*1.5, uv.y - d.y*0.5, 0, 0)), GAMMA_TO_LINEAR);
-	  				_brushColor += pow(tex2Dlod(_DestBuffer, float4(uv.x + d.x*0.5, uv.y - d.y*1.5, 0, 0)), GAMMA_TO_LINEAR);
+					/*_qcPp_brushColor = pow(tex2Dlod(_qcPp_DestBuffer, float4(uv.x, uv.y, 0, 0)), GAMMA_TO_LINEAR);
+	  				_qcPp_brushColor += pow(tex2Dlod(_qcPp_DestBuffer, float4(uv.x + d.x*1.5, uv.y + d.y*0.5, 0, 0)), GAMMA_TO_LINEAR);
+	  				_qcPp_brushColor += pow(tex2Dlod(_qcPp_DestBuffer, float4(uv.x - d.x*0.5, uv.y + d.y*1.5, 0, 0)), GAMMA_TO_LINEAR);
+	  				_qcPp_brushColor += pow(tex2Dlod(_qcPp_DestBuffer, float4(uv.x - d.x*1.5, uv.y - d.y*0.5, 0, 0)), GAMMA_TO_LINEAR);
+	  				_qcPp_brushColor += pow(tex2Dlod(_qcPp_DestBuffer, float4(uv.x + d.x*0.5, uv.y - d.y*1.5, 0, 0)), GAMMA_TO_LINEAR);
 
-					_brushColor *= 0.2;
-	  				_brushColor = pow(_brushColor, LINEAR_TO_GAMMA);*/
-
-
+					_qcPp_brushColor *= 0.2;
+	  				_qcPp_brushColor = pow(_qcPp_brushColor, LINEAR_TO_GAMMA);*/
 
 
-					#define GRABPIXELX(weight,kernel) pow(tex2Dlod( _DestBuffer, float4(uv + float2(kernel*xker, 0)  ,0,0)), GAMMA_TO_LINEAR) * weight
 
-					#define GRABPIXELY(weight,kernel) pow(tex2Dlod( _DestBuffer, float4(uv + float2(0, kernel*yker)  ,0,0)), GAMMA_TO_LINEAR) * weight
+
+					#define GRABPIXELX(weight,kernel) pow(tex2Dlod( _qcPp_DestBuffer, float4(uv + float2(kernel*xker, 0)  ,0,0)), GAMMA_TO_LINEAR) * weight
+
+					#define GRABPIXELY(weight,kernel) pow(tex2Dlod( _qcPp_DestBuffer, float4(uv + float2(0, kernel*yker)  ,0,0)), GAMMA_TO_LINEAR) * weight
 
 					#else 
 
-					#define GRABPIXELX(weight,kernel) tex2Dlod( _DestBuffer, float4(uv + float2(kernel*xker, 0)  ,0,0)) * weight
+					#define GRABPIXELX(weight,kernel) tex2Dlod( _qcPp_DestBuffer, float4(uv + float2(kernel*xker, 0)  ,0,0)) * weight
 
-					#define GRABPIXELY(weight,kernel) tex2Dlod( _DestBuffer, float4(uv + float2(0, kernel*yker)  ,0,0)) * weight
+					#define GRABPIXELY(weight,kernel) tex2Dlod( _qcPp_DestBuffer, float4(uv + float2(0, kernel*yker)  ,0,0)) * weight
 
 					#endif
 
 				
 					float4 sum = 0;
 
-					float xker = 0.0001*_brushForm.w;
+					float xker = 0.0001*_qcPp_brushForm.w;
 				
 					sum += GRABPIXELX(0.05, -4.0);
 					sum += GRABPIXELX(0.09, -3.0);
@@ -125,7 +125,7 @@
 					sum += GRABPIXELX(0.09, +3.0);
 					sum += GRABPIXELX(0.05, +4.0);
 
-					float yker = 0.0001*_brushForm.w;
+					float yker = 0.0001*_qcPp_brushForm.w;
 
 				
 					sum += GRABPIXELY(0.05, -4.0);
@@ -142,17 +142,17 @@
 
 				
 
-					/*_brushColor = tex2Dlod(_DestBuffer, float4(uv.x, uv.y, 0, 0))
-								+ tex2Dlod(_DestBuffer, float4(uv.x+d.x*1.5, uv.y+d.y*0.5, 0, 0))
-								+ tex2Dlod(_DestBuffer, float4(uv.x-d.x*0.5, uv.y+d.y*1.5, 0, 0))
-								+ tex2Dlod(_DestBuffer, float4(uv.x-d.x*1.5, uv.y-d.y*0.5, 0, 0))
-								+ tex2Dlod(_DestBuffer, float4(uv.x+d.x*0.5, uv.y-d.y*1.5, 0, 0));*/
-					//_brushColor *= 0.2;
+					/*_qcPp_brushColor = tex2Dlod(_qcPp_DestBuffer, float4(uv.x, uv.y, 0, 0))
+								+ tex2Dlod(_qcPp_DestBuffer, float4(uv.x+d.x*1.5, uv.y+d.y*0.5, 0, 0))
+								+ tex2Dlod(_qcPp_DestBuffer, float4(uv.x-d.x*0.5, uv.y+d.y*1.5, 0, 0))
+								+ tex2Dlod(_qcPp_DestBuffer, float4(uv.x-d.x*1.5, uv.y-d.y*0.5, 0, 0))
+								+ tex2Dlod(_qcPp_DestBuffer, float4(uv.x+d.x*0.5, uv.y-d.y*1.5, 0, 0));*/
+					//_qcPp_brushColor *= 0.2;
 
 					#if UNITY_COLORSPACE_GAMMA
-					_brushColor = pow(sum, LINEAR_TO_GAMMA);
+					_qcPp_brushColor = pow(sum, LINEAR_TO_GAMMA);
 					#else
-					_brushColor = sum;
+					_qcPp_brushColor = sum;
 					#endif
 
 					#if BRUSH_3D || BRUSH_3D_TEXCOORD2
@@ -165,11 +165,11 @@
 					#endif
 
 					#if BRUSH_BLUR
-					return AlphaBlitOpaque (alpha, _brushColor,  i.texcoord.xy);
+					return AlphaBlitOpaque (alpha, _qcPp_brushColor,  i.texcoord.xy);
 					#endif
 
 					#if BRUSH_BLOOM
-					return addWithDestBuffer (alpha, _brushColor*0.1,  i.texcoord.xy);
+					return addWithDestBuffer (alpha, _qcPp_brushColor*0.1,  i.texcoord.xy);
 					#endif
 
 				}

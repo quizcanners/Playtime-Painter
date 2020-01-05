@@ -43,7 +43,7 @@
 				}
 
 				float4 frag(v2f i) : COLOR{
-					float4 col = tex2Dlod(_MainTex, float4(i.texcoord.xy, 0, 0))* _ChannelSourceMask;
+					float4 col = tex2Dlod(_MainTex, float4(i.texcoord.xy, 0, 0))* _qcPp_ChannelSourceMask;
 					return col.r + col.g + col.b + col.a;
 				}
 				ENDCG

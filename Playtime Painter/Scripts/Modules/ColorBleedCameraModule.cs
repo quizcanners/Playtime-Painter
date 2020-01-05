@@ -7,10 +7,10 @@ using System.Collections.Generic;
 using UnityEditor;
 #endif
 
-namespace PlaytimePainter {
+namespace PlaytimePainter.CameraModules {
 
     [TaggedType(tag)]
-    public class ColorBleedControllerModule : PainterSystemManagerModuleBase
+    public class ColorBleedCameraModule : CameraModuleBase
     {
 
         const string tag = "Color Mgmt";

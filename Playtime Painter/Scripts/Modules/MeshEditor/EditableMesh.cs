@@ -5,7 +5,7 @@ using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
 
-namespace PlaytimePainter
+namespace PlaytimePainter.MeshEditing
 {
 
     using Vertex = PainterMesh.Vertex;

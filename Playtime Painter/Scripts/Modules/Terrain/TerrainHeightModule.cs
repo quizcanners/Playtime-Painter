@@ -5,17 +5,17 @@ using UnityEngine;
 namespace PlaytimePainter {
 
     [TaggedType(Tag)]
-    public class TerrainHeightModule : PainterComponentModuleBase
+    public class TerrainHeightModule : ComponentModuleBase
     {
         private const string Tag = "TerHeight";
         public override string ClassTag => Tag;
 
-        private bool CorrectField(ShaderProperty.TextureValue field) => field.Equals(PainterDataAndConfig.TerrainHeight);
+        private bool CorrectField(ShaderProperty.TextureValue field) => field.Equals(PainterShaderVariables.TerrainHeight);
 
 
         private bool CorrectField(ShaderProperty.TextureValue field, PlaytimePainter painter) => 
             painter.terrain &&
-            field.Equals(PainterDataAndConfig.TerrainHeight);
+            field.Equals(PainterShaderVariables.TerrainHeight);
 
 
         public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter) {
@@ -27,7 +27,7 @@ namespace PlaytimePainter {
         public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<ShaderProperty.TextureValue> dest)
         {
             if (painter.terrain)
-                dest.Add(PainterDataAndConfig.TerrainHeight);
+                dest.Add(PainterShaderVariables.TerrainHeight);
         }
 
         public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue field, PlaytimePainter painter)
@@ -50,13 +50,13 @@ namespace PlaytimePainter {
 
             var tex = id.CurrentTexture();
 
-            PainterDataAndConfig.TerrainHeight.GlobalValue = tex;
+            PainterShaderVariables.TerrainHeight.GlobalValue = tex;
             return true;
         }
 
         public override void OnUpdate(PlaytimePainter painter) {
             if (painter.terrainHeightTexture)
-                PainterDataAndConfig.TerrainHeight.GlobalValue = painter.terrainHeightTexture.GetDestinationTexture();
+                PainterShaderVariables.TerrainHeight.GlobalValue = painter.terrainHeightTexture.GetDestinationTexture();
         }
     }
 }

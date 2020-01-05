@@ -4,8 +4,8 @@
 		_WetColor("Wetness Color", Color) = (0.26,0.16,0.16,0.0)
 		_Diffuse("ATL_Diffuse (_ATL)", 2D) = "white" {}
 		[NoScaleOffset]_Bump("ATL_Bump (_ATL)", 2D) = "gray" {}
-		[Toggle(UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
-		_AtlasTextures("_Textures In Row _ Atlas", float) = 1
+		[Toggle(_qcPp_UV_ATLASED)] _ATLASED("Is Atlased", Float) = 0
+		_qcPp_AtlasTextures("_Textures In Row _ Atlas", float) = 1
 		_DamDiffuse("Damaged Diffuse", 2D) = "white" {}
 		[NoScaleOffset]_BumpD("Bump Damage", 2D) = "gray" {}
 		_DamDiffuse2("Damaged Diffuse Deep", 2D) = "white" {}
@@ -20,7 +20,7 @@
 		CGPROGRAM
 		#pragma vertex vert
 		#pragma surface surf Standard fullforwardshadows
-		#pragma multi_compile  ___ UV_ATLASED
+		#pragma multi_compile  ___ _qcPp_UV_ATLASED
 		#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 		#pragma target 3.0
 
@@ -33,22 +33,22 @@
 		sampler2D _BumpD2;
 		float4 _MainTex_ATL_UV2_TexelSize;
 		float4 _WetColor;
-		float _AtlasTextures;
+		float _qcPp_AtlasTextures;
 
 		struct Input {
 			float2 uv2_MainTex_ATL_UV2;
 			float2 uv_Diffuse;
 			float2 uv_DamDiffuse;
 			float2 uv_DamDiffuse2;
-			#if defined(UV_ATLASED)
+			#if defined(_qcPp_UV_ATLASED)
 			float4 atlasedUV : TEXCOORD6;
 			#endif
 		};
 
 		void vert(inout appdata_full v, out Input o) {
 			UNITY_INITIALIZE_OUTPUT(Input, o);
-			#if defined(UV_ATLASED)
-			vert_atlasedTexture(_AtlasTextures, v.texcoord.z, o.atlasedUV);
+			#if defined(_qcPp_UV_ATLASED)
+			vert_atlasedTexture(_qcPp_AtlasTextures, v.texcoord.z, o.atlasedUV);
 			#endif
 		}
 
@@ -58,7 +58,7 @@
 
 		void surf (Input i, inout SurfaceOutputStandard o) {
 
-			#if UV_ATLASED
+			#if _qcPp_UV_ATLASED
 
 			i.uv2_MainTex_ATL_UV2.xy = (frac(i.uv2_MainTex_ATL_UV2.xy)*(i.atlasedUV.w) + i.atlasedUV.xy);
 			

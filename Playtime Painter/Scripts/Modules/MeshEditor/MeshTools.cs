@@ -7,7 +7,7 @@ using QuizCannersUtilities;
 
 
 
-namespace PlaytimePainter {
+namespace PlaytimePainter.MeshEditing {
 
     using LineData = PainterMesh.LineData;
     using Triangle = PainterMesh.Triangle;

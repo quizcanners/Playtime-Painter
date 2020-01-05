@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using PlaytimePainter.MeshEditing;
+using static QuizCannersUtilities.ShaderProperty;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -56,6 +58,7 @@ namespace PlaytimePainter
     }
     
     public class PainterSystem {
+
         protected static bool InspectAdvanced => BrushConfig.showAdvanced;
         protected static PainterDataAndConfig TexMGMTdata => PainterCamera.Data;
         protected static PainterDataAndConfig Cfg => PainterCamera.Data;
@@ -71,9 +74,7 @@ namespace PlaytimePainter
         protected static EditableMesh EditedMesh => MeshEditorManager.editedMesh;
         protected static bool DocsEnabled => !PainterDataAndConfig.hideDocumentation;
         public static bool applicationIsQuitting;
-
-
-
+        
         public static Transform CurrentViewTransform(Transform defaultTransform = null)
         {
 
@@ -91,7 +92,5 @@ namespace PlaytimePainter
 
             return defaultTransform;
         }
-
     }
-
 }

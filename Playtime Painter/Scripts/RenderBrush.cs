@@ -201,7 +201,7 @@ namespace PlaytimePainter
             tf.localRotation = Quaternion.identity;
             meshFilter.mesh = PainterCamera.BrushMeshGenerator.GetQuad();
 
-            PainterDataAndConfig.BufferCopyAspectRatio.GlobalValue = 1f / aspectRatio;
+            PainterShaderVariables.BufferCopyAspectRatio.GlobalValue = 1f / aspectRatio;
 
             if (material)
             {
@@ -224,7 +224,7 @@ namespace PlaytimePainter
 
 
             if (Math.Abs(aspectRatio - 1) > float.Epsilon)
-                PainterDataAndConfig.BufferCopyAspectRatio.GlobalValue = 1;
+                PainterShaderVariables.BufferCopyAspectRatio.GlobalValue = 1;
 
             return onto;
         }
@@ -259,7 +259,7 @@ namespace PlaytimePainter
 
             gameObject.layer = Cfg.playtimePainterLayer;
 
-            PainterDataAndConfig.BufferCopyAspectRatio.GlobalValue = 1f;
+            PainterShaderVariables.BufferCopyAspectRatio.GlobalValue = 1f;
         }
     }
 }

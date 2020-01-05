@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using QuizCannersUtilities;
 
 
-namespace PlaytimePainter {
+namespace PlaytimePainter.MeshEditing {
 
     public class MeshConstructor {
 

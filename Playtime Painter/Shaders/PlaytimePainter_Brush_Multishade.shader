@@ -19,7 +19,7 @@
 
 				#pragma multi_compile  BRUSH_SQUARE    BRUSH_2D    BRUSH_3D    BRUSH_3D_TEXCOORD2  BRUSH_DECAL
 				#pragma multi_compile  BLIT_MODE_ALPHABLEND    BLIT_MODE_ADD   BLIT_MODE_SUBTRACT   BLIT_MODE_COPY   BLIT_MODE_SAMPLE_DISPLACE
-				#pragma multi_compile  ____ TARGET_TRANSPARENT_LAYER
+				#pragma multi_compile  ____ _qcPp_TARGET_TRANSPARENT_LAYER
 
 				#pragma vertex vert
 				#pragma fragment frag
@@ -38,7 +38,7 @@
 
 					float t = _Time.w * 50;
 
-					float2 jitter = _pp_AlphaBufferCfg.y * _TargetTexture_TexelSize.xy * float2(sin(t), cos(t*1.3));
+					float2 jitter = _qcPp_AlphaBufferCfg.y * _qcPp_TargetTexture_TexelSize.xy * float2(sin(t), cos(t*1.3));
 
 					float4 worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1));
 
@@ -48,18 +48,18 @@
 					v.texcoord.xy = v.texcoord1.xy;
 					#endif
 
-					float2 suv = _SourceTexture_TexelSize.zw;
+					float2 suv = _qcPp_SourceTexture_TexelSize.zw;
 					o.srcTexAspect = max(1, float2(suv.y / suv.x, suv.x / suv.y));
 
 					// ATLASED CALCULATION
-					float atY = floor(v.texcoord.z / _brushAtlasSectionAndRows.z);
-					float atX = v.texcoord.z - atY * _brushAtlasSectionAndRows.z;
-					v.texcoord.xy = (float2(atX, atY) + v.texcoord.xy) / _brushAtlasSectionAndRows.z
-						* _brushAtlasSectionAndRows.w + v.texcoord.xy * (1 - _brushAtlasSectionAndRows.w);
+					float atY = floor(v.texcoord.z / _qcPp_brushAtlasSectionAndRows.z);
+					float atX = v.texcoord.z - atY * _qcPp_brushAtlasSectionAndRows.z;
+					v.texcoord.xy = (float2(atX, atY) + v.texcoord.xy) / _qcPp_brushAtlasSectionAndRows.z
+						* _qcPp_brushAtlasSectionAndRows.w + v.texcoord.xy * (1 - _qcPp_brushAtlasSectionAndRows.w);
 
-					worldPos.xyz = _RTcamPosition.xyz;
+					worldPos.xyz = _qcPp_RTcamPosition.xyz;
 					worldPos.z += 100;
-					worldPos.xy += (v.texcoord.xy*_brushEditedUVoffset.xy + _brushEditedUVoffset.zw - 0.5 + jitter) * 256;
+					worldPos.xy += (v.texcoord.xy*_qcPp_brushEditedUVoffset.xy + _qcPp_brushEditedUVoffset.zw - 0.5 + jitter) * 256;
 
 					v.vertex = mul(unity_WorldToObject, float4(worldPos.xyz, v.vertex.w));
 
@@ -84,7 +84,7 @@
 					o.pos = UnityObjectToClipPos(v.vertex);
 					o.texcoord = brushTexcoord(v.texcoord.xy, v.vertex);	
 
-					float2 suv = _SourceTexture_TexelSize.zw;
+					float2 suv = _qcPp_SourceTexture_TexelSize.zw;
 					o.srcTexAspect = max(1, float2(suv.y / suv.x, suv.x / suv.y));
 
 					return o;
@@ -114,46 +114,46 @@
 						float2 decalUV = o.texcoord.zw + 0.5;
 						float Height = tex2D(_VolDecalHeight, decalUV).a;
 						float4 overlay = tex2D(_VolDecalOverlay, decalUV);
-						float4 dest = tex2Dlod(_DestBuffer, float4(o.texcoord.xy, 0, 0));
+						float4 dest = tex2Dlod(_qcPp_DestBuffer, float4(o.texcoord.xy, 0, 0));
 						float alpha = saturate((Height - dest.a) * 16 * _DecalParameters.y - 0.01);
-						float4 col = tex2Dlod(_DestBuffer, float4(o.texcoord.xy, 0, 0));
+						float4 col = tex2Dlod(_qcPp_DestBuffer, float4(o.texcoord.xy, 0, 0));
 						float changeColor = _DecalParameters.z;
-						_brushColor = overlay * overlay.a + (_brushColor*changeColor + col * (1 - changeColor))*(1 - overlay.a);
-						_brushColor.a = Height;
+						_qcPp_brushColor = overlay * overlay.a + (_qcPp_brushColor*changeColor + col * (1 - changeColor))*(1 - overlay.a);
+						_qcPp_brushColor.a = Height;
 					#endif
 
 						// Brush Modes
 
 					#if BLIT_MODE_COPY
 
-						float ignoreSrcAlpha = _srcTextureUsage.w;
+						float ignoreSrcAlpha = _qcPp_srcTextureUsage.w;
 
-						float4 src = tex2Dlod(_SourceTexture, float4(o.texcoord.xy*o.srcTexAspect, 0, 0));
+						float4 src = tex2Dlod(_qcPp_SourceTexture, float4(o.texcoord.xy*o.srcTexAspect, 0, 0));
 						alpha *= ignoreSrcAlpha + src.a*(1- ignoreSrcAlpha);
-						_brushColor.rgb = SourceTextureByBrush(src.rgb);
+						_qcPp_brushColor.rgb = SourceTextureByBrush(src.rgb);
 					#endif
 
 					#if BLIT_MODE_SAMPLE_DISPLACE
-						_brushColor.r = (_brushSamplingDisplacement.x - o.texcoord.x - _brushPointedUV_Untiled.z) / 2 + 0.5;
-						_brushColor.g = (_brushSamplingDisplacement.y - o.texcoord.y - _brushPointedUV_Untiled.w) / 2 + 0.5;
+						_qcPp_brushColor.r = (_qcPp_brushSamplingDisplacement.x - o.texcoord.x - _qcPp_brushPointedUV_Untiled.z) / 2 + 0.5;
+						_qcPp_brushColor.g = (_qcPp_brushSamplingDisplacement.y - o.texcoord.y - _qcPp_brushPointedUV_Untiled.w) / 2 + 0.5;
 					#endif
 
 					#if BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY || BLIT_MODE_SAMPLE_DISPLACE 
 
-					#if (BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY) && TARGET_TRANSPARENT_LAYER
-						return AlphaBlitTransparent(alpha, _brushColor,  o.texcoord.xy);
+					#if (BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY) && _qcPp_TARGET_TRANSPARENT_LAYER
+						return AlphaBlitTransparent(alpha, _qcPp_brushColor,  o.texcoord.xy);
 					#else
-						return AlphaBlitOpaque(alpha, _brushColor,  o.texcoord.xy);
+						return AlphaBlitOpaque(alpha, _qcPp_brushColor,  o.texcoord.xy);
 					#endif
 
 					#endif
 
 					#if BLIT_MODE_ADD
-						return  addWithDestBuffer(alpha*0.04, _brushColor,  o.texcoord.xy);
+						return  addWithDestBuffer(alpha*0.04, _qcPp_brushColor,  o.texcoord.xy);
 					#endif
 
 					#if BLIT_MODE_SUBTRACT
-						return  subtractFromDestBuffer(alpha*0.04, _brushColor,  o.texcoord.xy);
+						return  subtractFromDestBuffer(alpha*0.04, _qcPp_brushColor,  o.texcoord.xy);
 					#endif
 
 				}

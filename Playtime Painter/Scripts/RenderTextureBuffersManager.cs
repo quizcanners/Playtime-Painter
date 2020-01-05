@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using System.Linq;
-
+using PlaytimePainter.MeshEditing;
 
 namespace PlaytimePainter {
 
@@ -618,7 +618,7 @@ namespace PlaytimePainter {
 
         public static bool IsSingleBufferBrush(this BrushConfig b) => (PainterCamera.Inst.isLinearColorSpace && b.GetBlitMode(false).SupportedBySingleBuffer && b.GetBrushType(false).SupportedBySingleBuffer && b.PaintingRGB);
 
-        public static bool IsProjected(this Material mat) => mat && mat.shaderKeywords.Contains(PainterDataAndConfig.UV_PROJECTED);
+        public static bool IsProjected(this Material mat) => mat && mat.shaderKeywords.Contains(PainterShaderVariables.UV_PROJECTED);
 
         public static bool NeedsGrid(this PlaytimePainter painter)
         {
@@ -627,7 +627,7 @@ namespace PlaytimePainter {
             if (painter.meshEditing)
                 return MeshEditorManager.target == painter && PainterCamera.Data.MeshTool.ShowGrid;
 
-            if (painter.LockTextureEditing || PainterCamera.Data.showConfig || !PlaytimePainter.IsCurrentTool)
+            if (!PlaytimePainter.IsCurrentTool || painter.LockTextureEditing || PainterCamera.Data.showConfig)
                 return false;
 
             return painter.GlobalBrushType.NeedsGrid;

@@ -42,8 +42,8 @@
  
 				void ApplyStroke(float3 brushCol, float deSize, inout float4 col, float hardness, float forward, float dist){
 					
-					float speed = _brushForm.x;
-					float sharpness = _maskDynamics.y;
+					float speed = _qcPp_brushForm.x;
+					float sharpness = _qcPp_maskDynamics.y;
 					
 					float calculatedAlpha = saturate(1 / (deSize*dist + 0.000001)) * forward;
 					float useNewColor = saturate((calculatedAlpha - col.a*0.75)*(2 + sharpness)*speed);
@@ -53,35 +53,35 @@
 
 				float4 frag(v2f o) : COLOR {
 
-					float sharpness = _maskDynamics.y;
+					float sharpness = _qcPp_maskDynamics.y;
 					float hardness = (1 - 0.1 / (1 + sharpness));
 
 					float3 worldPos = volumeUVtoWorld(o.texcoord.xy, VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
 
 
-					float3 diff = worldPos - _brushWorldPosTo; //;
+					float3 diff = worldPos - _qcPp_brushWorldPosTo; //;
 					float dist = length(diff);
 
 					float forward = saturate(dot(normalize(diff), VOLUME_BRUSH_DYRECTION.xyz) * 128);
 
 
-					float4 col = tex2Dlod(_DestBuffer, float4(o.texcoord.xy, 0, 0));
+					float4 col = tex2Dlod(_qcPp_DestBuffer, float4(o.texcoord.xy, 0, 0));
 
 					float deSize = VOLUME_POSITION_N_SIZE_BRUSH.w;
 
-					ApplyStroke(_brushColor, deSize, col, hardness, forward, dist);
+					ApplyStroke(_qcPp_brushColor, deSize, col, hardness, forward, dist);
 
 
 
 					#if _SMOOTHING
 					const float offs = 1;
 
-					float4 up = SampleVolume(_DestBuffer, worldPos + float3(0, offs, 0), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
-					float4 down = SampleVolume(_DestBuffer, worldPos + float3(0, -offs, 0), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
-					float4 left = SampleVolume(_DestBuffer, worldPos + float3(offs, 0, 0), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
-					float4 right = SampleVolume(_DestBuffer, worldPos + float3(-offs, 0, 0), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
-					float4 fwd = SampleVolume(_DestBuffer, worldPos + float3(0, 0, offs), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
-					float4 back = SampleVolume(_DestBuffer, worldPos + float3(0, 0, -offs), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
+					float4 up = SampleVolume(_qcPp_DestBuffer, worldPos + float3(0, offs, 0), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
+					float4 down = SampleVolume(_qcPp_DestBuffer, worldPos + float3(0, -offs, 0), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
+					float4 left = SampleVolume(_qcPp_DestBuffer, worldPos + float3(offs, 0, 0), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
+					float4 right = SampleVolume(_qcPp_DestBuffer, worldPos + float3(-offs, 0, 0), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
+					float4 fwd = SampleVolume(_qcPp_DestBuffer, worldPos + float3(0, 0, offs), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
+					float4 back = SampleVolume(_qcPp_DestBuffer, worldPos + float3(0, 0, -offs), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
 
 					float all = up.a + down.a + left.a + right.a + fwd.a + back.a + 0.0001;
 

@@ -12,10 +12,10 @@ namespace PlaytimePainter
     public class TexturesPool : PainterSystemMono, IPEGI  {
 
         public static TexturesPool inst;
-        public static TexturesPool Inst { get {
+        public static TexturesPool GetOrCreateInstance { get {
             if (!inst && !ApplicationIsQuitting) {
-                var obj = new GameObject().AddComponent<TexturesPool>(); 
-                    obj.gameObject.name = "Textures Pool";
+                inst = new GameObject().AddComponent<TexturesPool>();
+                inst.gameObject.name = "Textures Pool";
             }
 
             return inst; } }

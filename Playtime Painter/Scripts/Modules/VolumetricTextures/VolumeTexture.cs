@@ -4,6 +4,7 @@ using System;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using Unity.Collections;
+using PlaytimePainter.CameraModules;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -228,7 +229,7 @@ namespace PlaytimePainter {
                         if ("Create Pool".Click().nl(ref changed))
                         {
                             _tmpWidth = Mathf.ClosestPowerOfTwo(Mathf.Clamp(_tmpWidth, 128, 2048));
-                            TexturesPool.Inst.width = _tmpWidth;
+                            TexturesPool.GetOrCreateInstance.width = _tmpWidth;
                         }
                     }
                     else
@@ -236,7 +237,7 @@ namespace PlaytimePainter {
                         if ("Get From Pool".Click().nl(ref changed))
                             ImageMeta = TexturesPool.inst.GetTexture2D().GetTextureMeta();
 
-                        TexturesPool.Inst.Nested_Inspect().nl();
+                        TexturesPool.inst.Nested_Inspect().nl();
                     }
                 
 

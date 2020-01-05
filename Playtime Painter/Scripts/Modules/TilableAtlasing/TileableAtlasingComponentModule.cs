@@ -5,6 +5,8 @@ using PlayerAndEditorGUI;
 using System.IO;
 using System.Linq;
 using QuizCannersUtilities;
+using PlaytimePainter.CameraModules;
+using PlaytimePainter.MeshEditing;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -13,7 +15,7 @@ using UnityEditor;
 namespace PlaytimePainter {
     
     [TaggedType(tag)]
-    public class TileableAtlasingPainterModule : PainterComponentModuleBase {
+    public class TileableAtlasingComponentModule : ComponentModuleBase {
 
         const string tag = "TilAtlsPntr";
         public override string ClassTag => tag;
@@ -60,7 +62,7 @@ namespace PlaytimePainter {
         }
 
         public override void Update_Brush_Parameters_For_Preview_Shader(PlaytimePainter p) =>
-            QcUnity.ToggleShaderKeywords(!p.IsAtlased(), PainterDataAndConfig.UV_NORMAL, PainterDataAndConfig.UV_ATLASED);
+            QcUnity.ToggleShaderKeywords(!p.IsAtlased(), PainterShaderVariables.UV_NORMAL, PainterShaderVariables.UV_ATLASED);
         
         public bool PaintTexture2D(StrokeVector stroke, float brushAlpha, TextureMeta image, BrushConfig bc, PlaytimePainter painter) {
             
@@ -182,14 +184,14 @@ namespace PlaytimePainter {
             
             var m = p.Material;
             if (p.NotUsingPreview) {
-                if (m.HasProperty(PainterDataAndConfig.ATLASED_TEXTURES))
-                    atlasRows = m.GetInt(PainterDataAndConfig.ATLASED_TEXTURES);
+                if (m.HasProperty(PainterShaderVariables.ATLASED_TEXTURES))
+                    atlasRows = m.GetInt(PainterShaderVariables.ATLASED_TEXTURES);
             }
 
             "Atlased Texture {0}*{0}".F(atlasRows).write("Shader has _ATLASED define");
 
             if ("Undo".Click().nl(ref changed ))
-                m.DisableKeyword(PainterDataAndConfig.UV_ATLASED);
+                m.DisableKeyword(PainterShaderVariables.UV_ATLASED);
 
             var id = p.TexMeta;
 
@@ -211,12 +213,12 @@ namespace PlaytimePainter {
             if (!br.IsA3DBrush(painter) || !painter.IsAtlased()) return;
             
             var ats = GetAtlasedSection();
-            PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(ats.x, ats.y, atlasRows, 1);
+            PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(ats.x, ats.y, atlasRows, 1);
         }
 
         public override void AfterGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushTypes.Base type) {
             if (br.IsA3DBrush(painter) && painter.IsAtlased())
-               PainterDataAndConfig.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
+                PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
         }
     }
     
@@ -229,7 +231,7 @@ namespace PlaytimePainter {
         public int atlasCreatorId;
         public bool enabled;
         public Color col;
-        public AtlasTextureCreator AtlasCreator => TileableAtlasingControllerModule.inst.atlases.Count > atlasCreatorId ? TileableAtlasingControllerModule.inst.atlases[atlasCreatorId] : null; 
+        public AtlasTextureCreator AtlasCreator => TileableAtlasingCameraModule.inst.atlases.Count > atlasCreatorId ? TileableAtlasingCameraModule.inst.atlases[atlasCreatorId] : null; 
 
         #region Encode & Decode
         public override CfgEncoder Encode() => this.EncodeUnrecognized()
@@ -271,11 +273,11 @@ namespace PlaytimePainter {
             "Atlas".enter_Inspect(AtlasCreator, ref _inspectedItems, 11).nl(ref changed);
 
             if (_inspectedItems == -1) {
-                "Atlases".select_Index(70, ref atlasCreatorId, TileableAtlasingControllerModule.inst.atlases).changes(ref changed);
+                "Atlases".select_Index(70, ref atlasCreatorId, TileableAtlasingCameraModule.inst.atlases).changes(ref changed);
                 if (icon.Add.Click("Create new Atlas").nl(ref changed)) {
-                    atlasCreatorId = TileableAtlasingControllerModule.inst.atlases.Count;
+                    atlasCreatorId = TileableAtlasingCameraModule.inst.atlases.Count;
                     var ac = new AtlasTextureCreator(atlasedField + " for " + a.name);
-                    TileableAtlasingControllerModule.inst.atlases.Add(ac);
+                    TileableAtlasingCameraModule.inst.atlases.Add(ac);
                 }
             }
 
@@ -427,7 +429,7 @@ namespace PlaytimePainter {
             
                 var firstAtlasing = false;
 
-                var atlPlug = painter.GetModule<TileableAtlasingPainterModule>();
+                var atlPlug = painter.GetModule<TileableAtlasingComponentModule>();
 
                 if (atlPlug.preAtlasingMaterials == null)
                 {
@@ -472,7 +474,7 @@ namespace PlaytimePainter {
                 MeshEditorManager.Inst.Redraw();
                 MeshEditorManager.Inst.StopEditingMesh();
 
-                _atlasedMaterial.SetFloat(PainterDataAndConfig.ATLASED_TEXTURES, atlPlug.atlasRows);
+                _atlasedMaterial.SetFloat(PainterShaderVariables.ATLASED_TEXTURES, atlPlug.atlasRows);
                 painter.Material = _atlasedMaterial;
 
                 if (firstAtlasing)
@@ -481,7 +483,7 @@ namespace PlaytimePainter {
                     m.name = m.name + "_Atlased_" + index;
                 }
  
-                _atlasedMaterial.EnableKeyword(PainterDataAndConfig.UV_ATLASED);
+                _atlasedMaterial.EnableKeyword(PainterShaderVariables.UV_ATLASED);
             
 #endif
                     }
@@ -490,7 +492,7 @@ namespace PlaytimePainter {
         {
             var texMGMT = PainterCamera.Inst;
 
-            var atlases = TileableAtlasingControllerModule.inst.atlases;
+            var atlases = TileableAtlasingCameraModule.inst.atlases;
             
             for (var a = 0; a < atlases.Count; a++)
             {
@@ -523,7 +525,7 @@ namespace PlaytimePainter {
             if (originalMaterial)
                 originalTextures = originalMaterial.MyGetTextureProperties();
 
-            if ((DestinationMaterial) && (DestinationMaterial.HasProperty(PainterDataAndConfig.isAtlasedProperty)))
+            if ((DestinationMaterial) && (DestinationMaterial.HasProperty(PainterShaderVariables.isAtlasedProperty)))
             {
                 var aTextures = DestinationMaterial.MyGetTextureProperties();
                 _fields.Clear();
@@ -538,7 +540,7 @@ namespace PlaytimePainter {
 
 
                 foreach (var p in MaterialEditor.GetMaterialProperties(new Object[] { DestinationMaterial }))
-                    if (p.displayName.Contains(PainterDataAndConfig.isAtlasableDisaplyNameTag))
+                    if (p.displayName.Contains(PainterShaderVariables.isAtlasableDisaplyNameTag))
                         foreach (var f in _fields)
                             if (f.atlasedField.SameAs(p.name))
                                 f.enabled = true;
@@ -637,7 +639,7 @@ namespace PlaytimePainter {
             "Mesh Profiles [{0}]".F(PainterCamera.Data.meshPackagingSolutions.Count)
                 .select_iGotName(ref _matAtlasProfile, PainterCamera.Data.meshPackagingSolutions).nl(ref changed);
 
-            if (DestinationMaterial && !DestinationMaterial.HasProperty(PainterDataAndConfig.isAtlasedProperty))
+            if (DestinationMaterial && !DestinationMaterial.HasProperty(PainterShaderVariables.isAtlasedProperty))
             {
                 if (!_atlasedMaterial) "Original Material doesn't have isAtlased property, change shader or add Destination Atlased Material".writeHint();
                 else "Atlased Material doesn't have isAtlased property".writeHint();
@@ -792,7 +794,7 @@ namespace PlaytimePainter {
         public AtlasTextureCreator(string newName)
         {
             NameForPEGI = newName;
-            NameForPEGI = NameForPEGI.GetUniqueName(TileableAtlasingControllerModule.inst.atlases);
+            NameForPEGI = NameForPEGI.GetUniqueName(CameraModules.TileableAtlasingCameraModule.inst.atlases);
             Init();
         }
 
@@ -1049,11 +1051,11 @@ namespace PlaytimePainter {
         }
         public static bool IsProjected(this PlaytimePainter p) { return p.Material.IsProjected(); }
 
-        public static bool IsAtlased(this Material mat, string property) => mat.IsAtlased() && property.Contains(PainterDataAndConfig.isAtlasableDisaplyNameTag);
+        public static bool IsAtlased(this Material mat, string property) => mat.IsAtlased() && property.Contains(PainterShaderVariables.isAtlasableDisaplyNameTag);
         
-        public static bool IsAtlased(this Material mat, ShaderProperty.TextureValue property) => mat.IsAtlased() && property.NameForDisplayPEGI().Contains(PainterDataAndConfig.isAtlasableDisaplyNameTag);
+        public static bool IsAtlased(this Material mat, ShaderProperty.TextureValue property) => mat.IsAtlased() && property.NameForDisplayPEGI().Contains(PainterShaderVariables.isAtlasableDisaplyNameTag);
         
-        public static bool IsAtlased(this Material mat) => mat && mat.shaderKeywords.Contains(PainterDataAndConfig.UV_ATLASED);
+        public static bool IsAtlased(this Material mat) => mat && mat.shaderKeywords.Contains(PainterShaderVariables.UV_ATLASED);
       
         public static bool Contains(this IEnumerable<AtlasTextureField> lst, Texture2D tex) => lst.All(ef => (ef == null) || (!ef.texture) || (ef.texture != tex));
         

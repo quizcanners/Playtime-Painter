@@ -5,12 +5,13 @@ using System.IO;
 using System.Linq;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using PlaytimePainter.CameraModules;
 
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace PlaytimePainter
+namespace PlaytimePainter.MeshEditing
 {
 
     using Vertex = PainterMesh.Vertex;
@@ -43,7 +44,7 @@ namespace PlaytimePainter
         public int EditedUV
         {
             get { return _editedUv; }
-            set { _editedUv = value; QcUnity.SetShaderKeyword(PainterDataAndConfig._MESH_PREVIEW_UV2, _editedUv == 1); }
+            set { _editedUv = value; QcUnity.SetShaderKeyword(PainterShaderVariables.MESH_PREVIEW_UV2, _editedUv == 1); }
         }
 
         #endregion
@@ -825,7 +826,7 @@ namespace PlaytimePainter
 
             mt.Inspect().nl(ref changed);
 
-            foreach (var p in PainterSystemManagerModuleBase.MeshToolPlugins)
+            foreach (var p in CameraModuleBase.MeshToolPlugins)
                 p.MeshToolInspection(mt).nl(ref changed);
             
             pegi.nl();
@@ -1261,10 +1262,10 @@ namespace PlaytimePainter
 
         private MeshShaderMode(string value) { this.value = value; _allModes.Add(this); }
 
-        public static MeshShaderMode lit = new          MeshShaderMode(PainterDataAndConfig.MESH_PREVIEW_LIT);
-        public static MeshShaderMode normVector = new   MeshShaderMode(PainterDataAndConfig.MESH_PREVIEW_NORMAL);
-        public static MeshShaderMode vertexColor = new  MeshShaderMode(PainterDataAndConfig.MESH_PREVIEW_VERTCOLOR);
-        public static MeshShaderMode projection = new   MeshShaderMode(PainterDataAndConfig.MESH_PREVIEW_PROJECTION);
+        public static MeshShaderMode lit = new          MeshShaderMode(PainterShaderVariables.MESH_PREVIEW_LIT);
+        public static MeshShaderMode normVector = new   MeshShaderMode(PainterShaderVariables.MESH_PREVIEW_NORMAL);
+        public static MeshShaderMode vertexColor = new  MeshShaderMode(PainterShaderVariables.MESH_PREVIEW_VERTCOLOR);
+        public static MeshShaderMode projection = new   MeshShaderMode(PainterShaderVariables.MESH_PREVIEW_PROJECTION);
 
         public static MeshShaderMode selected;
 

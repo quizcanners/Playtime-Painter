@@ -9,19 +9,20 @@ namespace PlaytimePainter.Examples
     [ExecuteInEditMode]
     public class WaterController : MonoBehaviour, IPEGI
     {
-       // private readonly ShaderProperty.VectorValue _foamDynamicsProperty = new ShaderProperty.VectorValue("_foamDynamics");
-        private readonly ShaderProperty.VectorValue _foamParametersProperty = new ShaderProperty.VectorValue("_foamParams");
-        private readonly ShaderProperty.TextureValue _pp_waterBumpMap = new ShaderProperty.TextureValue("_pp_WaterBump");
+        private readonly ShaderProperty.VectorValue _foamParametersProperty = new ShaderProperty.VectorValue("_qcPp_foamParams");
+        private readonly ShaderProperty.TextureValue _qcPp_waterBumpMap = new ShaderProperty.TextureValue("_qcPp_WaterBump");
+        private readonly ShaderProperty.ShaderKeyword _waterFoam = new ShaderProperty.ShaderKeyword("_qcPp_WATER_FOAM");
+        
 
         private void OnEnable()
         {
             SetFoamDynamics();
-            Shader.EnableKeyword(PainterDataAndConfig.WATER_FOAM);
+            _waterFoam.Enabled = true;
         }
 
         private void OnDisable()
         {
-            Shader.DisableKeyword(PainterDataAndConfig.WATER_FOAM);
+            _waterFoam.Enabled = false;
         }
         
         public Texture waterBump;
@@ -31,7 +32,7 @@ namespace PlaytimePainter.Examples
 
         private void SetFoamDynamics() {
 
-            _pp_waterBumpMap.GlobalValue = waterBump;
+            _qcPp_waterBumpMap.GlobalValue = waterBump;
         }
 
         private void Update() {

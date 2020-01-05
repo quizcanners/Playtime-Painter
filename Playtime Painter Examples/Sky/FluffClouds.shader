@@ -29,7 +29,7 @@
 				#pragma multi_compile_fog
 				#pragma multi_compile_fwdbase
 				#pragma multi_compile ______ USE_NOISE_TEXTURE
-				//#pragma multi_compile  ___ WATER_FOAM
+				//#pragma multi_compile  ___ _qcPp_WATER_FOAM
 
 				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
@@ -72,7 +72,7 @@
 				float4 frag (v2f i) : COLOR {
 
 					/*
-					#if WATER_FOAM
+					#if _qcPp_WATER_FOAM
 					float3 viewDir = normalize(i.viewDir.xyz);
 					float3 projectedWpos;
 					float3 waterNormal = SAMPLE_WATER_NORMAL(viewDir,i.wpos, projectedWpos, out float caustics);
@@ -159,7 +159,7 @@
 					#endif
 
 				/*
-#if WATER_FOAM
+#if _qcPp_WATER_FOAM
 					
 					float4 wcol = 0;
 					

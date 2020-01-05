@@ -5,16 +5,16 @@ using System;
 using System.IO;
 using QuizCannersUtilities;
 
-namespace PlaytimePainter
+namespace PlaytimePainter.CameraModules
 {
 
     [TaggedType(Tag)]
-    public class CombinedMapsControllerModule : PainterSystemManagerModuleBase
+    public class CombinedMapsCameraModule : CameraModuleBase
     {
         private const string Tag = "CmbndMpsCntrl";
         public override string ClassTag => Tag;
         
-        public static CombinedMapsControllerModule _inst;
+        public static CombinedMapsCameraModule _inst;
 
         private List<TextureSetForCombinedMaps> _textureSets = new List<TextureSetForCombinedMaps>();
         public List<TexturePackagingProfile> texturePackagingSolutions = new List<TexturePackagingProfile>();
@@ -52,7 +52,7 @@ namespace PlaytimePainter
 
     public class TextureSetForCombinedMaps : PainterSystemKeepUnrecognizedCfg, IGotName {
 
-        protected static CombinedMapsControllerModule Ctrl => CombinedMapsControllerModule._inst;
+        protected static CombinedMapsCameraModule Ctrl => CombinedMapsCameraModule._inst;
 
         public Texture2D diffuse;
         public Texture2D heightMap;

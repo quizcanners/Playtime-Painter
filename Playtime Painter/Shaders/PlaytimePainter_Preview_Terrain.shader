@@ -39,17 +39,17 @@
 
 					float4 worldPos = mul(unity_ObjectToWorld, v.vertex);
 
-					o.tc_Control.xyz = (worldPos.xyz - _mergeTeraPosition.xyz) / _mergeTerrainScale.xyz;
+					o.tc_Control.xyz = (worldPos.xyz - _qcPp_mergeTeraPosition.xyz) / _qcPp_mergeTerrainScale.xyz;
 
-					float height = tex2Dlod(_mergeTerrainHeight, float4(o.tc_Control.xz, 0, 0)).a;
-					float2 ts = _mergeTerrainHeight_TexelSize.xy;
-					float up    = tex2Dlod(_mergeTerrainHeight, float4(o.tc_Control.x,        o.tc_Control.z+ts.y , 0, 0)).a;
-					float right = tex2Dlod(_mergeTerrainHeight, float4(o.tc_Control.x+ts.x,   o.tc_Control.z , 0, 0)).a;
+					float height = tex2Dlod(_qcPp_mergeTerrainHeight, float4(o.tc_Control.xz, 0, 0)).a;
+					float2 ts = _qcPp_mergeTerrainHeight_TexelSize.xy;
+					float up    = tex2Dlod(_qcPp_mergeTerrainHeight, float4(o.tc_Control.x,        o.tc_Control.z+ts.y , 0, 0)).a;
+					float right = tex2Dlod(_qcPp_mergeTerrainHeight, float4(o.tc_Control.x+ts.x,   o.tc_Control.z , 0, 0)).a;
 
-					worldPos.y = _mergeTeraPosition.y + height*_mergeTerrainScale.y;
+					worldPos.y = _qcPp_mergeTeraPosition.y + height*_qcPp_mergeTerrainScale.y;
 					v.vertex = mul(unity_WorldToObject, float4(worldPos.xyz, v.vertex.w));
 
-					o.tc_Control.xyz = (worldPos.xyz - _mergeTeraPosition.xyz) / _mergeTerrainScale.xyz;
+					o.tc_Control.xyz = (worldPos.xyz - _qcPp_mergeTeraPosition.xyz) / _qcPp_mergeTerrainScale.xyz;
 
 					o.pos = UnityObjectToClipPos(v.vertex);
 					o.wpos = worldPos;
@@ -67,28 +67,28 @@
 
 				float4 frag (v2f i) : COLOR {
 
-					float4 cont = tex2D(_mergeControl, i.tc_Control.xz);
-					float4 height = tex2D(_mergeTerrainHeight, i.tc_Control.xz + _mergeTerrainScale.w);
+					float4 cont = tex2D(_qcPp_mergeControl, i.tc_Control.xz);
+					float4 height = tex2D(_qcPp_mergeTerrainHeight, i.tc_Control.xz + _qcPp_mergeTerrainScale.w);
 					height.rgb = i.normal+0.5;
 					float3 bump = (height.rgb - 0.5)*2;
 
-					float aboveTerrain = saturate((((i.wpos.y - _mergeTeraPosition.y) - height.a*_mergeTerrainScale.y) - 0.5)*0.5);
+					float aboveTerrain = saturate((((i.wpos.y - _qcPp_mergeTeraPosition.y) - height.a*_qcPp_mergeTerrainScale.y) - 0.5)*0.5);
 					float deAboveTerrain = 1 - aboveTerrain;
 
 					bump = bump*deAboveTerrain + i.normal * aboveTerrain;
 
-					float2 tiled = i.tc_Control.xz*_mergeTerrainTiling.xy+ _mergeTerrainTiling.zw;
-					float tiledY = i.tc_Control.y*_mergeTeraPosition.w*2;
+					float2 tiled = i.tc_Control.xz*_qcPp_mergeTerrainTiling.xy+ _qcPp_mergeTerrainTiling.zw;
+					float tiledY = i.tc_Control.y*_qcPp_mergeTeraPosition.w*2;
 
-					float4 splat0 =  tex2D(_mergeSplat_0, tiled);
-					float4 splat1 =  tex2D(_mergeSplat_1, tiled);
-					float4 splat2 =  tex2D(_mergeSplat_2, tiled);
-					float4 splat3 =  tex2D(_mergeSplat_3, tiled);
+					float4 splat0 =  tex2D(_qcPp_mergeSplat_0, tiled);
+					float4 splat1 =  tex2D(_qcPp_mergeSplat_1, tiled);
+					float4 splat2 =  tex2D(_qcPp_mergeSplat_2, tiled);
+					float4 splat3 =  tex2D(_qcPp_mergeSplat_3, tiled);
             
-					float4 splat0N =  tex2D(_mergeSplatN_0, tiled);
-					float4 splat1N =  tex2D(_mergeSplatN_1, tiled);
-					float4 splat2N =  tex2D(_mergeSplatN_2, tiled);
-					float4 splat3N =  tex2D(_mergeSplatN_3, tiled);
+					float4 splat0N =  tex2D(_qcPp_mergeSplatN_0, tiled);
+					float4 splat1N =  tex2D(_qcPp_mergeSplatN_1, tiled);
+					float4 splat2N =  tex2D(_qcPp_mergeSplatN_2, tiled);
+					float4 splat3N =  tex2D(_qcPp_mergeSplatN_3, tiled);
 
 					float edge = MERGE_POWER;
 

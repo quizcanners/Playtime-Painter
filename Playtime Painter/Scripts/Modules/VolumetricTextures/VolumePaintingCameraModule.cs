@@ -5,7 +5,7 @@ using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
 
-namespace PlaytimePainter {
+namespace PlaytimePainter.CameraModules {
 
     using VectorValue = ShaderProperty.VectorValue;
     using ShaderKeyword = ShaderProperty.ShaderKeyword;
@@ -15,7 +15,7 @@ namespace PlaytimePainter {
 #pragma warning disable IDE0018 // Inline variable declaration
 
     [TaggedType(tag)]
-    public class VolumePaintingModule : PainterSystemManagerModuleBase, IGotDisplayName,
+    public class VolumePaintingCameraModule : CameraModuleBase, IGotDisplayName,
         IPainterManagerModuleComponentPEGI, IPainterManagerModuleBrush, IPainterManagerModuleGizmis, IUseDepthProjector, IUseReplacementCamera {
 
         const string tag = "VolumePntng";
@@ -67,7 +67,7 @@ namespace PlaytimePainter {
 
         #endregion
 
-        public static VolumePaintingModule _inst;
+        public static VolumePaintingCameraModule _inst;
 
         public override void Enable()
         {
@@ -211,7 +211,7 @@ namespace PlaytimePainter {
             VOLUME_H_SLICES_BRUSH.GlobalValue = vt.Slices4Shader;
             VOLUME_BRUSH_DIRECTION.GlobalValue = stroke.collisionNormal.ToVector4(smoothing);
 
-            UseSmoothing.GlobalValue = smoothing > 0;
+            UseSmoothing.Enabled = smoothing > 0;
 
             image.useTexCoord2 = false;
             bool alphaBuffer;
@@ -270,7 +270,7 @@ namespace PlaytimePainter {
 
             GlobalBrush.Color = avg / (float)pixelsCount;
 
-            PainterCamera.BrushColorProperty.GlobalValue = GlobalBrush.Color;
+            PainterShaderVariables.BrushColorProperty.GlobalValue = GlobalBrush.Color;
 
             PaintRenderTexture(delayedPaintingConfiguration);
 
@@ -492,7 +492,7 @@ namespace PlaytimePainter {
 
 
     [TaggedType(Tag)]
-    public class VolumeTextureManagement : PainterComponentModuleBase
+    public class VolumeTextureManagement : ComponentModuleBase
     {
         private const string Tag = "VolTexM";
         public override string ClassTag => Tag;
@@ -578,8 +578,8 @@ namespace PlaytimePainter {
             foreach (var m in materials)
                 if (m)
                 {
-                    VolumePaintingModule.VOLUME_POSITION_N_SIZE.SetOn(m, pnS);
-                    VolumePaintingModule.VOLUME_H_SLICES.SetOn(m, vhS);
+                    VolumePaintingCameraModule.VOLUME_POSITION_N_SIZE.SetOn(m, pnS);
+                    VolumePaintingCameraModule.VOLUME_H_SLICES.SetOn(m, vhS);
                     tex.SetOn(m, imd.CurrentTexture());
                 }
         }
@@ -590,7 +590,7 @@ namespace PlaytimePainter {
 
         public static VolumeTexture GetVolumeTextureData(this TextureMeta id)
         {
-            if (VolumePaintingModule._inst == null || id == null)
+            if (VolumePaintingCameraModule._inst == null || id == null)
                 return null;
 
             if (_lastFetchedVt != null && _lastFetchedVt.ImageMeta != null && _lastFetchedVt.ImageMeta == id)

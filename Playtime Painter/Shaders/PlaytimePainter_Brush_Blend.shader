@@ -28,7 +28,7 @@
 
 			sampler2D _MainTex;
 			float4 _MainTex_TexelSize;
-			float _pp_CopyBlitAlpha;
+			float _qcPp_CopyBlitAlpha;
 
 
 			struct v2f {
@@ -66,7 +66,7 @@
 
 					;
 
-				col.a = _pp_CopyBlitAlpha;
+				col.a = _qcPp_CopyBlitAlpha;
 
 				return col;
 			}

@@ -40,12 +40,12 @@
 					float3 worldPos = volumeUVtoWorld(i.texcoord.xy, VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
 
 					#if BLIT_MODE_COPY
-					_brushColor = tex2Dlod(_SourceTexture, float4(i.texcoord.xy, 0, 0));
+					_qcPp_brushColor = tex2Dlod(_qcPp_SourceTexture, float4(i.texcoord.xy, 0, 0));
 					#endif
 
 					#if BLIT_MODE_SAMPLE_DISPLACE
-					_brushColor.r = (_brushSamplingDisplacement.x - i.texcoord.x - _brushPointedUV_Untiled.z) / 2 + 0.5;
-					_brushColor.g = (_brushSamplingDisplacement.y - i.texcoord.y - _brushPointedUV_Untiled.w) / 2 + 0.5;
+					_qcPp_brushColor.r = (_qcPp_brushSamplingDisplacement.x - i.texcoord.x - _qcPp_brushPointedUV_Untiled.z) / 2 + 0.5;
+					_qcPp_brushColor.g = (_qcPp_brushSamplingDisplacement.y - i.texcoord.y - _qcPp_brushPointedUV_Untiled.w) / 2 + 0.5;
 					#endif
 
 					float alpha = prepareAlphaSphere(i.texcoord.xy, worldPos);
@@ -53,15 +53,15 @@
 					//clip(alpha);
 
 					#if BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY || BLIT_MODE_SAMPLE_DISPLACE
-					return AlphaBlitOpaque(alpha, _brushColor,  i.texcoord.xy);
+					return AlphaBlitOpaque(alpha, _qcPp_brushColor,  i.texcoord.xy);
 					#endif
 
 					#if BLIT_MODE_ADD
-					return  addWithDestBuffer(alpha*0.04, _brushColor,  i.texcoord.xy);
+					return  addWithDestBuffer(alpha*0.04, _qcPp_brushColor,  i.texcoord.xy);
 					#endif
 
 					#if BLIT_MODE_SUBTRACT
-					return  subtractFromDestBuffer(alpha*0.04, _brushColor,  i.texcoord.xy);
+					return  subtractFromDestBuffer(alpha*0.04, _qcPp_brushColor,  i.texcoord.xy);
 					#endif
 
 				}

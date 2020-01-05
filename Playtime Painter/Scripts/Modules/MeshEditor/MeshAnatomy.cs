@@ -3,11 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using QuizCannersUtilities;
 
-
-namespace PlaytimePainter
+namespace PlaytimePainter.MeshEditing
 {
-
-
+    
     public class PainterMesh {
 
         public class Vertex : PainterSystemKeepUnrecognizedCfg {
@@ -1411,8 +1409,10 @@ namespace PlaytimePainter
                 var a = lineA.points[0].LocalPos - lineA.points[1].LocalPos;
                 var b = lineB.points[1].LocalPos - lineB.points[0].LocalPos;
 
-                var fromVector2 = GridNavigator.Inst().InPlaneVector(a);
-                var toVector2 = GridNavigator.Inst().InPlaneVector(b);
+                var grid = GridNavigator.Inst();
+
+                var fromVector2 = grid.InPlaneVector(a);
+                var toVector2 = grid.InPlaneVector(b);
 
                 var mid = (fromVector2.normalized + toVector2.normalized).normalized;
 
@@ -1421,7 +1421,7 @@ namespace PlaytimePainter
                 if (cross.z > 0)
                     mid = -mid;
 
-                return GridNavigator.Inst().PlaneToWorldVector(mid).normalized;
+                return grid.PlaneToWorldVector(mid).normalized;
             }
 
             public override bool Equals(object obj)

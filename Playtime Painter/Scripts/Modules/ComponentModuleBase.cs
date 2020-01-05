@@ -6,11 +6,11 @@ using QuizCannersUtilities;
 namespace PlaytimePainter
 {
     public class PainterPluginAttribute : AbstractWithTaggedTypes {
-        public override TaggedTypesCfg TaggedTypes => TaggedModulesList<PainterComponentModuleBase>.all;
+        public override TaggedTypesCfg TaggedTypes => TaggedModulesList<ComponentModuleBase>.all;
     }
     
     [PainterPlugin]
-    public abstract class PainterComponentModuleBase : PainterSystemCfg, IGotClassTag
+    public abstract class ComponentModuleBase : PainterSystemCfg, IGotClassTag
     {
 
         public PlaytimePainter parentComponent;
@@ -19,7 +19,7 @@ namespace PlaytimePainter
 
         #region Abstract Serialized
         public abstract string ClassTag { get; }
-        public TaggedTypesCfg AllTypes => TaggedModulesList<PainterComponentModuleBase>.all;        
+        public TaggedTypesCfg AllTypes => TaggedModulesList<ComponentModuleBase>.all;        
         #endregion
 
 
