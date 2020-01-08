@@ -148,7 +148,7 @@ namespace QuizCannersUtilities
             else
             {
 
-                var tc = typeof(T).TryGetTaggedClasses();
+                var tc = TaggedTypesCfg.TryGetOrCreate(typeof(T));
 
                 if (tc != null && !tc.Types.Contains(objType))
                     return false;
@@ -400,7 +400,7 @@ namespace QuizCannersUtilities
             {
                 pegi.nl();
 
-                "Camera ".edit(60, ref cameraToTakeScreenShotFrom);
+                "Camera ".selectInScene(ref cameraToTakeScreenShotFrom);
 
                 pegi.nl();
 
@@ -429,6 +429,8 @@ namespace QuizCannersUtilities
                     else if ("Take Screen Shoot".Click("Render Screenshoot from camera").nl())
                         RenderToTextureManually();
                 }
+
+                pegi.nl();
 
                 if ("Other Options".foldout(ref _showAdditionalOptions).nl())
                 {
@@ -466,7 +468,7 @@ namespace QuizCannersUtilities
 
             public Camera cameraToTakeScreenShotFrom;
             public int UpScale = 4;
-            public bool AlphaBackground = true;
+            public bool AlphaBackground;
 
             [NonSerialized] private RenderTexture forScreenRenderTexture;
             [NonSerialized] private Texture2D screenShotTexture2D;
@@ -501,6 +503,21 @@ namespace QuizCannersUtilities
                 cam.Render();
                 RenderTexture.active = forScreenRenderTexture;
                 screenShotTexture2D.ReadPixels(new Rect(0, 0, w, h), 0, 0);
+
+                if (!AlphaBackground)
+                {
+                    var pixels = screenShotTexture2D.GetPixels32();
+
+                    for (int i=0; i<pixels.Length; i++)
+                    {
+                        var col = pixels[i];
+                        col.a = 255;
+                        pixels[i] = col;
+                    }
+
+                    screenShotTexture2D.SetPixels32(pixels);
+                }
+
                 screenShotTexture2D.Apply();
 
                 cam.targetTexture = null;

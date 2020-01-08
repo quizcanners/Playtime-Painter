@@ -748,14 +748,8 @@ namespace PlaytimePainter {
 
     #region Dynamics
 
-    public class BrushDynamic {
-
-        public class BrushDynamicAttribute : AbstractWithTaggedTypes
-        {
-            public override TaggedTypesCfg TaggedTypes => Base.all;
-        }
-
-        [BrushDynamic]
+    public static class BrushDynamic {
+        
         public abstract class Base : AbstractCfg, IPEGI, IGotClassTag
         {
 

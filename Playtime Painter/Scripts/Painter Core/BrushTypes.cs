@@ -986,7 +986,18 @@ namespace PlaytimePainter
 
                 var br = InspectedBrush;
 
-                if (InspectAdvanced || Cfg.useGridForBrush)
+                bool suggestGrid = false;
+
+                if (InspectedPainter && !InspectedPainter.GetMesh())
+                {
+                    if (!Cfg.useGridForBrush)
+                    {
+                        "No mesh for sphere painting detected.".writeWarning();
+                        suggestGrid = true;
+                    }
+                }
+
+                if (InspectAdvanced || Cfg.useGridForBrush || suggestGrid)
                     "Paint On Grid".toggleIcon(ref Cfg.useGridForBrush).nl();
 
                 if (!br.useAlphaBuffer && (br.worldSpaceBrushPixelJitter || InspectAdvanced))
@@ -997,8 +1008,7 @@ namespace PlaytimePainter
                     pegi.nl();
                 }
 
-                if (InspectedPainter && !InspectedPainter.GetMesh())
-                    "No mesh for sphere painting detected.".writeWarning();
+              
 
                 base.Inspect().nl(ref changed);
 

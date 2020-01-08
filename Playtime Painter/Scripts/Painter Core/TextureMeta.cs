@@ -70,9 +70,8 @@ namespace PlaytimePainter
             get { if (_pixels == null) PixelsFromTexture2D(texture2D); return _pixels; }
             set { _pixels = value; }
         }
-
-        ImgMetaModules modulesContainer = new ImgMetaModules();
-
+        
+   
         public void Rename(string newName)
         {
             saveName = newName;
@@ -82,14 +81,26 @@ namespace PlaytimePainter
                 renderTexture.name = newName;
         }
 
-        public List<ImageMetaModuleBase> Modules
+
+        #endregion
+
+        #region Modules
+
+        ImgMetaModules _modulesContainer;
+
+        public ImgMetaModules Modules
         {
             get
             {
-                modulesContainer.meta = this;
-                return modulesContainer.Modules;
+                if (_modulesContainer == null)
+                    _modulesContainer = new ImgMetaModules(this);
+
+                return _modulesContainer;
             }
         }
+
+        public T GetModule<T>() where T : ImageMetaModuleBase => Modules.GetModule<T>();
+
 
         public class ImgMetaModules : TaggedModulesList<ImageMetaModuleBase>
         {
@@ -102,8 +113,12 @@ namespace PlaytimePainter
 
             public TextureMeta meta;
 
-            public ImgMetaModules() { }
+            public ImgMetaModules(TextureMeta meta)
+            {
+                this.meta = meta;
+            }
         }
+
 
         #endregion
 
@@ -167,7 +182,7 @@ namespace PlaytimePainter
         public override CfgEncoder Encode()
         {
             var cody = this.EncodeUnrecognized()
-            .Add("mods", modulesContainer)
+            .Add("mods", Modules)
             .Add_IfNotZero("dst", (int)destination)
             .Add_Reference("tex2D", texture2D)
             .Add_Reference("other", other)
@@ -223,7 +238,7 @@ namespace PlaytimePainter
         {
             switch (tg)
             {
-                case "mods": modulesContainer.Decode(data); break;
+                case "mods": Modules.Decode(data); break;
                 case "dst": destination = (TexTarget)data.ToInt(); break;
                 case "tex2D": data.Decode_Reference(ref texture2D); break;
                 case "other": data.Decode_Reference(ref other); break;
@@ -1277,8 +1292,12 @@ namespace PlaytimePainter
 
             var forceOpenUTransparentLayer = false;
 
+            var material = painter.Material;
+            
             var hasAlphaLayerTag =
-                painter.Material.Has(property, ShaderTags.LayerTypes.Transparent);//GetTag(PainterDataAndConfig.ShaderTagLayerType + property, false).Equals("Transparent");
+                material.Has(property,
+                    ShaderTags.LayerTypes
+                        .Transparent); //GetTag(PainterDataAndConfig.ShaderTagLayerType + property, false).Equals("Transparent");
 
             if (!isATransparentLayer && hasAlphaLayerTag)
             {
@@ -1291,7 +1310,9 @@ namespace PlaytimePainter
                 MsgPainter.TransparentLayer.GetText().toggleIcon(ref isATransparentLayer).changes(ref changed);
 
                 MsgPainter.TransparentLayer.GetDescription()
-                .fullWindowDocumentationWithLinkClickOpen("https://www.quizcanners.com/single-post/2018/09/30/Why-do-I-get-black-outline-around-the-stroke", "More About it");
+                    .fullWindowDocumentationWithLinkClickOpen(
+                        "https://www.quizcanners.com/single-post/2018/09/30/Why-do-I-get-black-outline-around-the-stroke",
+                        "More About it");
 
                 if (isATransparentLayer)
                     preserveTransparency = true;
@@ -1299,6 +1320,7 @@ namespace PlaytimePainter
 
                 pegi.nl();
             }
+            
 
             if (showToggles)
             {

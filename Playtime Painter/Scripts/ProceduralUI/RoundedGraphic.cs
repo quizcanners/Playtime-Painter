@@ -1119,7 +1119,7 @@ namespace PlaytimePainter
             #endregion
         }
 
-        protected class RoundedButtonModuleAttribute : AbstractWithTaggedTypes
+      /*  protected class RoundedButtonModuleAttribute : AbstractWithTaggedTypes
         {
             public override TaggedTypesCfg TaggedTypes => RoundedButtonModuleBase.all;
 
@@ -1129,7 +1129,7 @@ namespace PlaytimePainter
 
         }
 
-        [RoundedButtonModule]
+        [RoundedButtonModule]*/
         protected abstract class RoundedButtonModuleBase : AbstractKeepUnrecognizedCfg, IGotClassTag, IGotDisplayName
         {
             public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(RoundedButtonModuleBase));

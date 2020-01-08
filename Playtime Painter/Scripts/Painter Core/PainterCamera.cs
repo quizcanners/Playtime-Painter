@@ -10,15 +10,10 @@ using PlaytimePainter.MeshEditing;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
-
 #endif
 
 namespace PlaytimePainter {
     
-    using VectorValue = ShaderProperty.VectorValue;
-    using TextureValue = ShaderProperty.TextureValue;
-    using FloatValue = ShaderProperty.FloatValue;
-
     [HelpURL(PlaytimePainter.OnlineManual)]
     [DisallowMultipleComponent]
     [ExecuteInEditMode]
@@ -330,9 +325,12 @@ namespace PlaytimePainter {
                 imgMetaUsingRendTex = newTarget;
             }
 
-            mat.bufferParameterTarget = parameter;
-            mat.painterTarget = painter;
-            materialsUsingRenderTexture.Add(mat);
+            if (mat != null)
+            {
+                mat.bufferParameterTarget = parameter;
+                mat.painterTarget = painter;
+                materialsUsingRenderTexture.Add(mat);
+            }
         }
 
  
@@ -885,7 +883,10 @@ namespace PlaytimePainter {
             return tmpCurve;
         }
 
-        public override bool Inspect() {
+        public override bool Inspect()
+        {
+
+            pegi.toggleDefaultInspector(this).nl();
 
             var changed = false;
 
@@ -900,19 +901,9 @@ namespace PlaytimePainter {
         public bool DependenciesInspect(bool showAll = false) {
 
             var changed = false;
-
-          
-
+            
             if (showAll)
             {
-
-                pegi.nl();
-
-                "Download Manager".enter_Inspect(DownloadManager, ref _inspectedDependecy, 0).changes(ref changed);
-
-                if (_inspectedDependecy == -1)
-                    "You can enable URL field in the Optional UI elements to get texture directly from web"
-                        .fullWindowDocumentationClickOpen();
 
                 pegi.nl();
 
@@ -927,16 +918,15 @@ namespace PlaytimePainter {
 
                     return changed;
                 }
+                
+                pegi.nl();
 
+                "Download Manager".enter_Inspect(DownloadManager, ref _inspectedDependecy, 0).nl(ref changed);
 
-                if ("Inspector & Debug".enter(ref _inspectedDependecy, 2).nl())
-                {
-                    QcUtils.InspectInspector();
+                if (_inspectedDependecy == -1)
+                    "You can enable URL field in the Optional UI elements to get texture directly from web"
+                        .fullWindowDocumentationClickOpen();
 
-                   // if ("Test Coroutine".Click())
-                     //   QcAsync.TestCoroutine().StartTimedCoroutine(this, (string value) => Debug.Log("Coroutine returned {0}".F(value)));
-
-                }
 
                 if (_inspectedDependecy == -1)
                 {
@@ -953,10 +943,7 @@ namespace PlaytimePainter {
 
                     "Using layer:".editLayerMask(ref Data.playtimePainterLayer).nl(ref changed);
                 }
-
-
-              
-
+                
             }
 
             bool showOthers = showAll && _inspectedDependecy == -1;
@@ -988,9 +975,7 @@ namespace PlaytimePainter {
             }
             #endif
 
-            if (showOthers || !RenderTextureBuffersManager.GotPaintingBuffers)
-                (RenderTextureBuffersManager.GotPaintingBuffers ? "No buffers" : "Using HDR buffers " + ((!FrontBuffer) ? "uninitialized" : "initialized")).nl();
-            
+           
             if (!painterCamera) {
                 pegi.nl();
                 "no painter camera".writeWarning();
@@ -1014,7 +999,7 @@ namespace PlaytimePainter {
                 if (depthCamera && cams.Contains(depthCamera))
                     cams.Remove(depthCamera);
 
-                if ("Main Camera".select(60, ref cam, cams).changes(ref changed))
+                if ("Main Camera".select(90, ref cam, cams).changes(ref changed))
                     MainCamera = cam;
                 
                 if (icon.Refresh.Click("Try to find camera tagged as Main Camera", ref changed)) {
@@ -1062,4 +1047,12 @@ namespace PlaytimePainter {
         #endregion
 
     }
+
+
+
+#if UNITY_EDITOR
+    [CustomEditor(typeof(PainterCamera))]
+    public class PainterCameraDrawer : PEGI_Inspector_Mono<PainterCamera> { }
+#endif
+
 }

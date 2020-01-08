@@ -17,6 +17,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using PlaytimePainter.CameraModules;
 using PlaytimePainter.MeshEditing;
+using PlaytimePainter.ComponentModules;
 
 namespace PlaytimePainter {
     
@@ -85,14 +86,16 @@ namespace PlaytimePainter {
 
         #region Modules
 
-        PainterModules modulesContainer = new PainterModules();
+        PainterModules _modulesContainer;
 
-        public List<ComponentModuleBase> Modules
+        public PainterModules Modules
         {
             get
             {
-                modulesContainer.painter = this;
-                return modulesContainer.Modules;
+                if (_modulesContainer == null)
+                    _modulesContainer = new PainterModules(this);
+
+                return _modulesContainer;
             }
         }
 
@@ -105,25 +108,13 @@ namespace PlaytimePainter {
 
             public PlaytimePainter painter;
 
-            public PainterModules() { }
+            public PainterModules(PlaytimePainter painter)
+            {
+                this.painter = painter;
+            }
         }
 
-        [NonSerialized] private ComponentModuleBase _lastFetchedModule;
-
-        public T GetModule<T>() where T : ComponentModuleBase
-        {
-
-            T returnPlug = null;
-
-            if (_lastFetchedModule != null && _lastFetchedModule.GetType() == typeof(T))
-                returnPlug = (T) _lastFetchedModule;
-            else
-                returnPlug = Modules.GetInstanceOf<T>();
-            
-            _lastFetchedModule = returnPlug;
-
-            return returnPlug;
-        }
+        public T GetModule<T>() where T : ComponentModuleBase => Modules.GetModule<T>();
 
         #endregion
 
@@ -871,40 +862,55 @@ namespace PlaytimePainter {
 
         public List<string> GetMaterialsNames() => Materials.Select((mt, i) => mt ? mt.name : "Null material {0}".F(i)).ToList();
         
-        private List<ShaderProperty.TextureValue> GetMaterialTextureNames()
+        private MaterialMeta _lastFetchedTextureNamesFor;
+        private List<ShaderProperty.TextureValue> _lastTextureNames = new List<ShaderProperty.TextureValue>();
+
+        private List<ShaderProperty.TextureValue> GetAllTextureNames()
         {
+            var materialData = MatDta;
 
-            #if UNITY_EDITOR
+            bool sameAsBefore = _lastFetchedTextureNamesFor == materialData && _lastTextureNames.Count>0;
 
-            if (MatDta == null)
-                return new List<ShaderProperty.TextureValue>();
-
-            if (!NotUsingPreview)
-                return MatDta.materialsTextureFields;
-
-            MatDta.materialsTextureFields.Clear();
-            
-            foreach (var nt in Modules)
-                if (nt != null)
-                nt.GetNonMaterialTextureNames(this, ref MatDta.materialsTextureFields);
-
-            if (!terrain)
-                MatDta.materialsTextureFields.AddRange(Material.MyGetTextureProperties());
-            else
+            if (NotUsingPreview && (Application.isEditor || !sameAsBefore))
             {
-                var tmp = Material.MyGetTextureProperties();
 
-                foreach (var t in tmp)
-                    if ((!t.NameForDisplayPEGI().Contains("_Splat")) && (!t.NameForDisplayPEGI().Contains("_Normal")))
-                        MatDta.materialsTextureFields.Add(t);
+                _lastTextureNames.Clear();
                 
-            }
-#endif
+                #if UNITY_EDITOR
+                
+                if (!terrain)
+                    _lastTextureNames.AddRange(Material.MyGetTextureProperties_Editor());
+                else
+                {
+                    var tmp = Material.MyGetTextureProperties_Editor();
 
-            return MatDta.materialsTextureFields;
+                    foreach (var t in tmp)
+                        if ((!t.NameForDisplayPEGI().Contains("_Splat")) &&
+                            (!t.NameForDisplayPEGI().Contains("_Normal")))
+                            _lastTextureNames.Add(t);
+
+                }
+
+                #endif
+
+                foreach (var nt in Modules)
+                    if (nt != null)
+                        nt.GetNonMaterialTextureNames(this, ref _lastTextureNames);
+
+                _lastFetchedTextureNamesFor = materialData;
+
+                if (materialData != null)
+                    materialData.materialsTextureFields = _lastTextureNames;
+
+
+            } else if (!sameAsBefore)
+                _lastTextureNames.Clear();
+
+
+            return _lastTextureNames;
         }
 
-        public ShaderProperty.TextureValue GetMaterialTextureProperty => GetMaterialTextureNames().TryGet(SelectedTexture);
+        public ShaderProperty.TextureValue GetMaterialTextureProperty => GetAllTextureNames().TryGet(SelectedTexture);
 
         private Texture GetTextureOnMaterial()
         {
@@ -1253,7 +1259,7 @@ namespace PlaytimePainter {
             }
         }
 
-        public TerrainHeightModule GetTerrainHeight() => Modules.GetInstanceOf<TerrainHeightModule>();
+        public TerrainHeightModule GetTerrainHeight() => GetModule<TerrainHeightModule>();
        
         public bool IsTerrainControlTexture => TexMeta != null && terrain && GetMaterialTextureProperty.HasUsageTag(PainterShaderVariables.TERRAIN_CONTROL_TEXTURE);
 
@@ -1331,7 +1337,7 @@ namespace PlaytimePainter {
         }
 
         public CfgEncoder Encode() => new CfgEncoder()
-            .Add("mdls", modulesContainer)
+            .Add("mdls", Modules)
             .Add_IfTrue("invCast", invertRayCast);
 
         public CfgEncoder EncodeMeshStuff()
@@ -1348,7 +1354,7 @@ namespace PlaytimePainter {
         {
             switch (tg)
             {
-                case "mdls": modulesContainer.Decode(data); break;
+                case "mdls": Modules.Decode(data); break;
                 case "invCast": invertRayCast = data.ToBool(); break;
                 case "m": SavedEditableMesh = data; break;
                 case "prn": selectedMeshProfile =  data; break;
@@ -1977,8 +1983,7 @@ namespace PlaytimePainter {
 
             if (canInspect && !IsCurrentTool)
             {
-
-
+                
                 if (icon.Off.Click("Click to Enable Tool").changes(ref changed))
                 {
                     IsCurrentTool = true;
@@ -2004,9 +2009,7 @@ namespace PlaytimePainter {
             }
 
             float sinceUpdate = Time.time - PainterCamera.lastManagedUpdate;
-
-
-
+            
             if (canInspect)
             {
 
@@ -2320,8 +2323,7 @@ namespace PlaytimePainter {
 
                         if (!LockTextureEditing && painterNotUiOrPlaying && !id.errorWhileReading)
                         {
-
-
+                            
                             if (id.ProcessEnumerator != null)
                             {
                                 if (!cfg.moreOptions)
@@ -2525,6 +2527,9 @@ namespace PlaytimePainter {
 
                             }
 
+                            if ("Painter Modules".enter(ref inspectionIndex, 5).nl())
+                                Modules.Nested_Inspect().nl();
+
                             if (id != null)
                             {
                                 id.inspectedItems = inspectionIndex;
@@ -2629,7 +2634,7 @@ namespace PlaytimePainter {
 
                             #endregion
 
-                            #region Texture Instantiation Options
+                            #region Texture 
 
                             if (cfg.showUrlField)
                             {
@@ -2654,7 +2659,7 @@ namespace PlaytimePainter {
 
 
                             var ind = SelectedTexture;
-                            if (pegi.select_Index(ref ind, GetMaterialTextureNames()).changes(ref changed))
+                            if (pegi.select_Index(ref ind, GetAllTextureNames()).changes(ref changed))
                             {
                                 SetOriginalShaderOnThis();
                                 SelectedTexture = ind;
@@ -2702,7 +2707,7 @@ namespace PlaytimePainter {
                                     ? cfg.SelectedWidthForNewTexture()
                                     : (terrain.terrainData.heightmapResolution - 1);
 
-                                var texNames = GetMaterialTextureNames();
+                                var texNames = GetAllTextureNames();
 
                                 if (texNames.Count > SelectedTexture)
                                 {

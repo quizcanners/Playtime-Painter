@@ -18,12 +18,12 @@ namespace QuizCannersUtilities {
 
     public interface IGotClassTag : ICfg {
         string ClassTag { get; }
-        TaggedTypesCfg AllTypes { get; }
+      //  TaggedTypesCfg AllTypes { get; }
     }
 
     #endregion
 
-    [AttributeUsage(AttributeTargets.Class)]
+    /*[AttributeUsage(AttributeTargets.Class)]
     public abstract class AbstractWithTaggedTypes : Attribute
     {
         public abstract TaggedTypesCfg TaggedTypes { get; }
@@ -36,14 +36,12 @@ namespace QuizCannersUtilities {
         public AbstractWithTaggedTypes(params Type[] type)
         {
             TaggedTypes.Types = type.ToList();
-            
         }
-    }
+    }*/
 
     [AttributeUsage(AttributeTargets.Class)]
     public class TaggedType : Attribute
     {
-
         public string tag;
 
         public string displayName;
@@ -55,12 +53,35 @@ namespace QuizCannersUtilities {
             this.displayName = displayName ?? tag;
             this.allowMultiplePerList = allowMultiplePerList;
         }
-
-      
     }
 
     public class TaggedTypesCfg
     {
+
+        public static Dictionary<Type, TaggedTypesCfg> _configs = new Dictionary<Type, TaggedTypesCfg>();
+
+        public static TaggedTypesCfg TryGetOrCreate(Type type)
+        {
+
+            if (!typeof(IGotClassTag).IsAssignableFrom(type))
+            {
+               // QcUtils.ChillLogger.LogErrorOnce("notGotTag{0}".F(type.ToString()), "{0} doesn't implement IGotClassTag".F(type.ToString()));
+
+                return null;
+            }
+
+            TaggedTypesCfg cfg;
+
+            if (_configs.TryGetValue(type, out cfg))
+                return cfg;
+
+            cfg = new TaggedTypesCfg(type);
+
+            _configs[type] = cfg;
+
+            return cfg;
+        }
+
         private readonly Type _coreType;
 
         public Type CoreType => _coreType;
@@ -68,6 +89,7 @@ namespace QuizCannersUtilities {
         public TaggedTypesCfg(Type type)
         {
             _coreType = type;
+            _configs[type] = this;
         }
 
         private List<string> _keys;
@@ -190,33 +212,10 @@ namespace QuizCannersUtilities {
         }
 
     }
-
-
-    #region Example
-    /* Implementation Template
-    public class MYCLASSAttribute : AbstractWithTaggedTypes {
-        public override TaggedTypesCfg TaggedTypes => MYCLASSBase.all;
-    }
-
-    [MYCLASS]
-    public abstract class MYCLASSBase : AbstractKeepUnrecognizedCfg, IGotClassTag {
-        public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(MYCLASSBase));
-        public TaggedTypesCfg AllTypes => all;
-        public abstract string ClassTag { get; }
-    }
-
-    [TaggedType(Tag)]
-    public class MYCLASSimplementationA : MYCLASSBase
-    {
-        private const string Tag = "SomeClassA";
-        public override string ClassTag => Tag;
-    }
-    */
-    #endregion
-
+    
     public static class TaggedTypes {
 
-        public static void TryChangeObjectType(IList list, int index, Type type, ListMetaData ld = null)
+        public static void TryChangeObjectType(IList list, int index, Type type, TaggedTypesCfg cfg, ListMetaData ld = null)
         {
 
             var previous = list.TryGetObj(index);
@@ -230,7 +229,7 @@ namespace QuizCannersUtilities {
             var ed = ld.TryGetElement(index);
 
             if (ed != null && ld.keepTypeData && iTag != null)
-                ed.ChangeType(ref el, type, iTag.GetTaggedTypes_Safe(), ld.keepTypeData);
+                ed.ChangeType(ref el, type, cfg, ld.keepTypeData);
             else
             {
                 el = std.TryDecodeInto<object>(type);
@@ -259,21 +258,21 @@ namespace QuizCannersUtilities {
     }
 
 
-    public class TaggedModulesList<T> : AbstractCfg where T : IGotClassTag {
-
-        public static readonly TaggedTypesCfg all = new TaggedTypesCfg(typeof(T));
-
+    public class TaggedModulesList<T> : AbstractCfg, IPEGI, IEnumerable<T> where T : IGotClassTag {
+        
         protected List<T> modules = new List<T>();
-
-        private bool initialized = false;
-
-        public virtual List<T> Modules {
+        
+        protected virtual List<T> Modules {
             get {
 
                 if (initialized)
                     return modules;
 
                 initialized = true;
+
+              //  fatched = false;
+
+            //    _lastFetchedModule = default(T);
 
                 for (var i = modules.Count - 1; i >= 0; i--)
                     if (modules[i] == null)
@@ -289,38 +288,74 @@ namespace QuizCannersUtilities {
                 return modules;
             }
         }
+        
+        public IEnumerator<T> GetEnumerator() => modules.GetEnumerator();
 
-        protected virtual void OnInitialize() { }
+        IEnumerator IEnumerable.GetEnumerator() => modules.GetEnumerator();
 
+        private bool initialized = false;
+    /*    private bool fatched = false;
         [NonSerialized] private T _lastFetchedModule;
+        [NonSerialized] private Type lastFetchedType;*/
 
         public G GetModule<G>() where G : T {
 
             G returnPlug = default(G);
 
-            if (_lastFetchedModule != null && _lastFetchedModule.GetType() == typeof(G))
+            var targetType = typeof(G);
+            
+         /*   if (initialized && fatched && lastFetchedType == targetType)
                 returnPlug = (G)_lastFetchedModule;
             else
-                returnPlug = Modules.GetInstanceOf<G>();
+            {*/
+                foreach (var i in Modules)
+                    if (i.GetType() == targetType)
+                    {
+                        returnPlug = (G)i;
+                        break;
+                    }
+         /*   }
 
-            _lastFetchedModule = returnPlug;
+            fatched = true;
+            lastFetchedType = targetType;
+            _lastFetchedModule = returnPlug;*/
 
             return returnPlug;
         }
 
+
+
+        #region Encode & Decode
+        public static readonly TaggedTypesCfg all = new TaggedTypesCfg(typeof(T));
+        
         public override CfgEncoder Encode()  
             => new CfgEncoder()
             .Add("pgns", Modules, all);
         
         public override bool Decode(string tg, string data) {
             switch (tg) {
-                case "pgns": data.Decode_List_Abstract(out modules, all); break;
+                case "pgns": data.Decode_List(out modules, all); break;
                 default: return true;
             }
 
             return false;
 
         }
+        #endregion
+
+        protected virtual void OnInitialize() { }
+
+        #region Inspector
+        
+        private ListMetaData modulesMeta = new ListMetaData("Modules", allowDeleting: false, allowCreating:false, allowReordering: false, showEditListButton:false);
+
+        public bool Inspect()
+        {
+            modulesMeta.edit_List(ref modules).nl();
+
+            return false;
+        }
+        #endregion
     }
 
 }

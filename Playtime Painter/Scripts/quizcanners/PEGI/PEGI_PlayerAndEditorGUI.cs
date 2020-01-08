@@ -2674,12 +2674,6 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool selectType<T>(this string text, string hint, int width, ref T el, ElementData ed = null, bool keepTypeConfig = true) where T : class, IGotClassTag
-        {
-            text.write(hint, width);
-            return selectType(ref el, ed, keepTypeConfig);
-        }
-
         public static bool selectType<T>(this string text, int width, ref T el, ElementData ed = null, bool keepTypeConfig = true) where T : class, IGotClassTag
         {
             text.write(width);
@@ -2710,7 +2704,9 @@ namespace PlayerAndEditorGUI
         {
             object obj = el;
 
-            if (selectType_Obj<T>(ref obj, ed, keepTypeConfig))
+            var cfg = TaggedTypesCfg.TryGetOrCreate(typeof(T));
+
+            if (selectType_Obj<T>(ref obj, cfg, ed, keepTypeConfig))
             {
                 el = obj as T;
                 return true;
@@ -2718,34 +2714,15 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static bool selectType_Obj<T>(ref object obj, ElementData ed = null, bool keepTypeConfig = true) where T : IGotClassTag
+        private static bool selectType_Obj<T>(ref object obj, TaggedTypesCfg cfg, ElementData ed = null, bool keepTypeConfig = true) where T : IGotClassTag
         {
 
             if (ed != null)
-                return ed.SelectType<T>(ref obj, keepTypeConfig);
+                return ed.SelectType<T>(ref obj, cfg, keepTypeConfig);
 
             var type = obj?.GetType();
 
-            if (typeof(T).TryGetTaggedClasses().Select(ref type).nl())
-            {
-                var previous = obj;
-                obj = (T)Activator.CreateInstance(type);
-                StdExtensions.TryCopy_Std_AndOtherData(previous, obj);
-                return true;
-            }
-
-            return false;
-        }
-
-        public static bool selectType_Obj<T>(ref object obj, TaggedTypesCfg types, ElementData ed = null, bool keepTypeConfig = true) where T : IGotClassTag
-        {
-
-            if (ed != null)
-                return ed.SelectType<T>(ref obj, types, keepTypeConfig);
-
-            var type = obj?.GetType();
-
-            if (types.Select(ref type).nl())
+            if (cfg.Select(ref type).nl())
             {
                 var previous = obj;
                 obj = (T)Activator.CreateInstance(type);
@@ -2897,7 +2874,7 @@ namespace PlayerAndEditorGUI
 
         public static bool select_or_edit_TextureProperty(ref ShaderProperty.TextureValue property, Material material)
         {
-            var lst = material.MyGetTextureProperties();
+            var lst = material.MyGetTextureProperties_Editor();
             return select(ref property, lst, allowInsert: false);
 
         }
@@ -5872,7 +5849,7 @@ namespace PlayerAndEditorGUI
 
         private static int editedInteger;
         private static int editedIntegerIndex;
-        public static bool editDelayed(ref int val, int width)
+        public static bool editDelayed(ref int val, int width = -1)
         {
 
 #if UNITY_EDITOR
@@ -5912,6 +5889,12 @@ namespace PlayerAndEditorGUI
         {
             write(label, Msg.EditDelayed_HitEnter.GetText());
             return editDelayed(ref val, width);
+        }
+
+        public static bool editDelayed(this string label, ref int val)
+        {
+            write(label, Msg.EditDelayed_HitEnter.GetText());
+            return editDelayed(ref val);
         }
 
         public static bool edit(this string label, ref int val)
@@ -6890,9 +6873,11 @@ namespace PlayerAndEditorGUI
                 if (reordering != null && reordering == lst)
                     return false;
 
-                var indTypes = typeof(T).TryGetDerivedClasses();
+                var type = typeof(T);
 
-                var tagTypes = typeof(T).TryGetTaggedClasses();
+                var indTypes = type.TryGetDerivedClasses();
+
+                var tagTypes = TaggedTypesCfg.TryGetOrCreate(type); 
 
                 if (indTypes == null && tagTypes == null && typeof(T).IsAbstract)
                     return false;
@@ -6983,9 +6968,11 @@ namespace PlayerAndEditorGUI
                 if (reordering != null && reordering == lst)
                     return false;
 
-                var intTypes = typeof(T).TryGetDerivedClasses();
+                var type = typeof(T);
 
-                var tagTypes = typeof(T).TryGetTaggedClasses();
+                var intTypes = type.TryGetDerivedClasses();
+
+                var tagTypes = TaggedTypesCfg.TryGetOrCreate(type);  
 
                 if (intTypes == null && tagTypes == null)
                     return false;
@@ -8189,14 +8176,15 @@ namespace PlayerAndEditorGUI
 
                 if (ld != null && !ld.allowCreate)
                     return false;
+                
+                var type = typeof(T);
 
-                if (!typeof(T).IsNew())
+                if (!type.IsNew())
                     return collectionInspector.ListAddEmptyClick(list, ld);
 
-                if ((typeof(T).TryGetClassAttribute<DerivedListAttribute>() != null || typeof(T).TryGetTaggedClasses() != null))
+                if (type.TryGetClassAttribute<DerivedListAttribute>() != null || type is IGotClassTag)
                     return false;
-
-
+                
                 string name = null;
 
                 var sd = ld == null ? pegi.searchData : ld.searchData;
@@ -8225,7 +8213,9 @@ namespace PlayerAndEditorGUI
                 if (ld != null && !ld.allowCreate)
                     return false;
 
-                if (!typeof(T).IsUnityObject() && (typeof(T).TryGetClassAttribute<DerivedListAttribute>() != null || typeof(T).TryGetTaggedClasses() != null))
+                var type = typeof(T);
+
+                if (!type.IsUnityObject() && (type.TryGetClassAttribute<DerivedListAttribute>() != null || type is IGotClassTag))
                     return false;
 
                 if (icon.Add.ClickUnFocus(Msg.AddNewCollectionElement.GetText()))
@@ -10013,14 +10003,19 @@ namespace PlayerAndEditorGUI
 
 
 #region Inspect Extensions
-        public static bool Nested_Inspect(InspectionDelegate function)
+        public static bool Nested_Inspect(InspectionDelegate function, UnityEngine.Object target = null)
         {
             var changed = false;
 
             var il = IndentLevel;
 
             if (function().changes(ref changed))
-                function.Target.SetToDirty_Obj();
+            {
+                if (target)
+                    target.SetToDirty();
+                else
+                    function.Target.SetToDirty_Obj();
+            }
 
             IndentLevel = il;
 

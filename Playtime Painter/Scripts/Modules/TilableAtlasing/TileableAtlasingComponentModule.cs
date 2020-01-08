@@ -12,7 +12,7 @@ using PlaytimePainter.MeshEditing;
 using UnityEditor;
 #endif
 
-namespace PlaytimePainter {
+namespace PlaytimePainter.ComponentModules {
     
     [TaggedType(tag)]
     public class TileableAtlasingComponentModule : ComponentModuleBase {
@@ -354,7 +354,7 @@ namespace PlaytimePainter {
             painter.UpdateOrSetTexTarget(TexTarget.Texture2D);
 
             var mat = painter.Material;
-            var texProperties = mat.MyGetTextureProperties();
+            var texProperties = mat.MyGetTextureProperties_Editor();
 
             var index = 0;
             var passedFields = new List<FieldAtlas>();
@@ -523,11 +523,11 @@ namespace PlaytimePainter {
             #if UNITY_EDITOR
 
             if (originalMaterial)
-                originalTextures = originalMaterial.MyGetTextureProperties();
+                originalTextures = originalMaterial.MyGetTextureProperties_Editor();
 
             if ((DestinationMaterial) && (DestinationMaterial.HasProperty(PainterShaderVariables.isAtlasedProperty)))
             {
-                var aTextures = DestinationMaterial.MyGetTextureProperties();
+                var aTextures = DestinationMaterial.MyGetTextureProperties_Editor();
                 _fields.Clear();
                 foreach (var t in aTextures)
                 {
@@ -551,7 +551,7 @@ namespace PlaytimePainter {
                         _fields[i].originField = i;
                 else if (originalMaterial)
                 {
-                    var orTexts = originalMaterial.MyGetTextureProperties();
+                    var orTexts = originalMaterial.MyGetTextureProperties_Editor();
                     foreach (var f in _fields)
                         for (var i = 0; i < orTexts.Count; i++)
                             if (orTexts[i].NameForDisplayPEGI().SameAs(f.atlasedField))

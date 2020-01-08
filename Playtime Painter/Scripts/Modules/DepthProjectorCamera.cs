@@ -3,10 +3,15 @@ using System.Collections.Generic;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using UnityEngine;
-using UnityEngine.Assertions.Comparers;
+
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 
 namespace PlaytimePainter
 {
+
 
 
     [ExecuteInEditMode]
@@ -43,8 +48,27 @@ namespace PlaytimePainter
         public bool _foldOut;
         
         private int _inspectedUser = -1;
-        
+
         public override bool Inspect()
+        {
+            var changed = false;
+
+            pegi.toggleDefaultInspector(this);
+            
+            if (icon.Delete.Click("Delete Projector Camera"))
+                gameObject.DestroyWhatever();
+            
+            pegi.toggle(ref pauseAutoUpdates, icon.Play, icon.Pause,
+                pauseAutoUpdates ? "Resume Updates" : "Pause Updates").changes(ref changed);
+
+            this.ClickHighlight().nl();
+            
+            "Requested updates".edit_List(ref depthUsers, ref _inspectedUser).nl();
+
+            return changed;
+        }
+
+        public bool InspectShortcuts()
         {
             var changed = false;
 
@@ -72,12 +96,8 @@ namespace PlaytimePainter
 
                         _projectorCamera.fieldOfView = fov;
                     }
-
                 }
-
-                if (!PlaytimePainter.inspected)
-                    "Requested updates".edit_List(ref depthUsers, ref _inspectedUser).nl();
-
+                
             } else this.ClickHighlight().nl();
             
             return changed;
@@ -493,8 +513,7 @@ namespace PlaytimePainter
             "FOV".edit(40, ref fieldOfView, 60, 180).nl(ref changed);
 
             "Range".edit_Range(ref nearPlane, ref farPlane).nl(ref changed);
-
-
+            
             "Tmp Camera".edit(ref inspectedCamera).changes(ref changed);
 
             if (inspectedCamera) {
@@ -583,5 +602,10 @@ namespace PlaytimePainter
             _camParams = new ShaderProperty.VectorValue(prefix + "ProjectorConfiguration");
         }
     }
+
+#if UNITY_EDITOR
+    [CustomEditor(typeof(DepthProjectorCamera))]
+    public class DepthProjectorCameraDrawer : PEGI_Inspector_Mono<DepthProjectorCamera> { }
+#endif
 
 }

@@ -645,13 +645,12 @@ namespace QuizCannersUtilities {
 
         #region Abstract 
 
-        public static List<T> Decode_List_Abstract<T>(this string data, out List<T> l, TaggedTypesCfg taggedTypes) where T : IGotClassTag
+      /*  public static List<T> Decode_List_Abstract<T>(this string data, out List<T> l, TaggedTypesCfg taggedTypes) where T : IGotClassTag
         {
 
             l = new List<T>();
-
-
-#if UNITY_EDITOR
+            
+            #if UNITY_EDITOR
 
             var ct = taggedTypes.CoreType;
             var lt = typeof(T);
@@ -659,7 +658,7 @@ namespace QuizCannersUtilities {
                 Debug.LogError("Type of {0} is not a subclass of {1}".F(lt.ToPegiStringType(), ct.ToPegiStringType()));
                 return l;
             }
-#endif
+            #endif
 
             var cody = new CfgDecoder(data);
             
@@ -671,7 +670,7 @@ namespace QuizCannersUtilities {
             }
 
             return l;
-        }
+        }*/
 
         public static List<T> Decode_List<T>(this string data, out List<T> l, TaggedTypesCfg tps) where T : IGotClassTag {
             var cody = new CfgDecoder(data);

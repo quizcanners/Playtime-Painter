@@ -90,7 +90,7 @@ namespace PlaytimePainter
                     playbackMetas.RemoveLast(1);
                 else
                 {
-                   var last = playbackMetas.Last().Modules.GetInstanceOf<ImageMetaPaintingRecording>();
+                   var last = playbackMetas.Last().GetModule<ImageMetaPaintingRecording>();
 
                    if (last != null) {
                        if (cody.GotData)

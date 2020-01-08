@@ -3,7 +3,7 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
-namespace PlaytimePainter {
+namespace PlaytimePainter.ComponentModules {
 
     [TaggedType(tag)]
     public class TerrainLightModule : ComponentModuleBase {

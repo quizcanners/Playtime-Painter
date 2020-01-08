@@ -4,7 +4,7 @@ using QuizCannersUtilities;
 using UnityEngine.UI;
 using PlayerAndEditorGUI;
 
-namespace PlaytimePainter {
+namespace PlaytimePainter.ComponentModules {
 
     [TaggedType(Tag)]
     public class PainterComponentUiModule : ComponentModuleBase

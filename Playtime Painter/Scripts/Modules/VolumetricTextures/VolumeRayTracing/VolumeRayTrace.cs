@@ -11,7 +11,7 @@ namespace PlaytimePainter
         public MaterialLightManager lights = new MaterialLightManager();
 
         #region Inspect
-
+        
         public override bool Inspect()
         {
             var changed = base.Inspect();
@@ -159,14 +159,6 @@ namespace PlaytimePainter
 
             bakedDepthes.GlobalValue = _allBakedDepthesTexture;
         }
-
-        public override void OnDisable()
-        {
-            base.OnDisable();
-
-
-        }
-
 
 #endregion
     }

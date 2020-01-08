@@ -321,7 +321,7 @@ namespace PlaytimePainter
                         .Add("Vpck", meshPackagingSolutions)
                         .Add_IfTrue("hd", hideDocumentation)
                         .Add_IfNotNegative("iid", _inspectedImgData)
-                        .Add_IfNotNegative("isfs", _inspectedItems)
+                        .Add_IfNotNegative("isfs", _inspectedList)
                         .Add_IfNotNegative("im", _inspectedMaterial)
                         .Add_IfNotNegative("id", _inspectedDecal)
                         .Add_IfNotNegative("is", inspectedItems)
@@ -347,7 +347,7 @@ namespace PlaytimePainter
                 case "Vpck": data.Decode_List(out meshPackagingSolutions); break;
                 case "hd": hideDocumentation = data.ToBool(); break;
                 case "iid": _inspectedImgData = data.ToInt(); break;
-                case "isfs": _inspectedItems = data.ToInt(); break;
+                case "isfs": _inspectedList = data.ToInt(); break;
                 case "im": _inspectedMaterial = data.ToInt(); break;
                 case "id": _inspectedDecal = data.ToInt(); break;
                 case "is": inspectedItems = data.ToInt(); break;
@@ -366,27 +366,27 @@ namespace PlaytimePainter
         public static bool hideDocumentation;
         
         private int _inspectedImgData = -1;
-        private int _inspectedItems = -1;
+        private int _inspectedList = -1;
         private int _inspectedMaterial = -1;
         private int _inspectedDecal = -1;
         private int _inspectedMeshPackSol = -1;
 
-        private bool InspectData()
+        private bool InspectLists()
         {
             var changes = false;
 
-            "Img Metas".enter_List(ref imgMetas, ref _inspectedImgData, ref _inspectedItems, 0).nl(ref changes);
+            "Img Metas".enter_List(ref imgMetas, ref _inspectedImgData, ref _inspectedList, 0).nl(ref changes);
 
-            "Mat Metas".enter_List(ref matMetas, ref _inspectedMaterial, ref _inspectedItems, 1).nl(ref changes);
+            "Mat Metas".enter_List(ref matMetas, ref _inspectedMaterial, ref _inspectedList, 1).nl(ref changes);
 
-            "Source Textures".enter_List_UObj(ref sourceTextures, ref _inspectedItems, 2).nl(ref changes);
+            "Source Textures".enter_List_UObj(ref sourceTextures, ref _inspectedList, 2).nl(ref changes);
 
-            "Masks".enter_List_UObj(ref masks, ref _inspectedItems, 3).nl(ref changes);
+            "Masks".enter_List_UObj(ref masks, ref _inspectedList, 3).nl(ref changes);
 
-            "Decals".enter_List(ref decals, ref _inspectedDecal, ref _inspectedItems, 4).nl(ref changes);
+            "Decals".enter_List(ref decals, ref _inspectedDecal, ref _inspectedList, 4).nl(ref changes);
 
-            "Mesh Packaging solutions".enter_List(ref meshPackagingSolutions, ref _inspectedMeshPackSol, ref _inspectedItems, 5).nl(ref changes);
-            if (_inspectedItems == 5)
+            "Mesh Packaging solutions".enter_List(ref meshPackagingSolutions, ref _inspectedMeshPackSol, ref _inspectedList, 5).nl(ref changes);
+            if (_inspectedList == 5)
             {
 #if UNITY_EDITOR
                 UnityEngine.Object newProfile = null;
@@ -413,12 +413,23 @@ namespace PlaytimePainter
                 rtp.SetToDirty();
 
             if ("Lists".enter(ref inspectedItems, 11).nl(ref changed))
-                InspectData().changes(ref changed);
+                InspectLists().changes(ref changed);
 
             if ("Painter Camera".enter(ref inspectedItems, 14).nl_ifNotEntered())
                 PainterCamera.Inst.DependenciesInspect(true);
 
+            if ("Depth Projector Camera".enter(ref inspectedItems, 15).nl())
+            {
+                if (DepthProjectorCamera.Instance)
+                {
+                    DepthProjectorCamera.Instance.Nested_Inspect().nl();
+                } else if ("Instantiate".Click())
+                    PainterCamera.GetProjectorCamera();
+            }
 
+            if ("Inspector & Debug".enter(ref inspectedItems, 16).nl())
+                QcUtils.InspectInspector();
+            
             if (inspectedItems == -1) {
 
                 #if UNITY_EDITOR

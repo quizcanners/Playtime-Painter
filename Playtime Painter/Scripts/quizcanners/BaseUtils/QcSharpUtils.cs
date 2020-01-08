@@ -841,17 +841,7 @@ namespace QuizCannersUtilities {
 
             return false;
         }
-
-        public static T GetInstanceOf<T>(this IList list) {
-
-            foreach (var i in list) {
-                if (i.GetType() == typeof(T))
-                    return (T)i;
-            }
-
-            return default(T);
-        }
-
+        
         public static List<List<Type>> GetAllChildTypesOf(List<Type> baseTypes)
         {
             var types = new List<List<Type>>();

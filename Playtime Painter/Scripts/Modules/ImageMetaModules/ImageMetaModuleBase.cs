@@ -6,11 +6,11 @@ using QuizCannersUtilities;
 namespace PlaytimePainter
 {
 
-    public class ImageMetaModuleAttribute : AbstractWithTaggedTypes {
+   /* public class ImageMetaModuleAttribute : AbstractWithTaggedTypes {
         public override TaggedTypesCfg TaggedTypes => TaggedModulesList<ImageMetaModuleBase>.all;
     }
 
-    [ImageMetaModule]
+    [ImageMetaModule]*/
     public abstract class ImageMetaModuleBase : PainterSystemCfg, IGotClassTag {
 
         public TextureMeta parentMeta;
@@ -19,7 +19,7 @@ namespace PlaytimePainter
 
         public abstract string ClassTag { get;  }
     
-        public TaggedTypesCfg AllTypes => TaggedModulesList<ImageMetaModuleBase>.all; 
+       // public TaggedTypesCfg AllTypes => TaggedModulesList<ImageMetaModuleBase>.all; 
         #endregion
 
         public virtual bool ShowHideSectionInspect() => false;

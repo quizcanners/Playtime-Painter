@@ -123,7 +123,7 @@ namespace QuizCannersUtilities {
         #endregion
 
         #region Generics
-
+ 
         public abstract class IndexGeneric<T> : BaseShaderPropertyIndex {
             
             public T latestValue;
@@ -154,6 +154,8 @@ namespace QuizCannersUtilities {
                 latestValue = value;
                 SetOn(block);
             }
+
+            public void SetGlobal() => GlobalValue = latestValue;
 
             public void SetGlobal(T value) => GlobalValue = value;
 
@@ -320,7 +322,7 @@ namespace QuizCannersUtilities {
                 set { Shader.SetGlobalColor(id, value); }
             }
 
-            public void SetGlobal() => GlobalValue = latestValue;
+           // public void SetGlobal() => GlobalValue = latestValue;
 
             public ColorValue()
             {
@@ -408,7 +410,7 @@ namespace QuizCannersUtilities {
 
         #region Texture
 
-        [Serializable]
+      //  [Serializable]
         public class TextureValue : IndexGeneric<Texture>
         {
             public static readonly TextureValue mainTexture = new TextureValue("_MainTex");
@@ -424,8 +426,6 @@ namespace QuizCannersUtilities {
                 get { return Shader.GetGlobalTexture(id); }
                 set { Shader.SetGlobalTexture(id, value); }
             }
-
-            public void SetGlobal() => GlobalValue = latestValue;
 
             #region Texture Specific
 
@@ -515,7 +515,7 @@ namespace QuizCannersUtilities {
         public static void SetTiling(this Material mat, TextureValue property, Vector2 value) =>
             property.SetTiling(mat, value);
 
-        public static List<TextureValue> MyGetTextureProperties(this Material m)
+        public static List<TextureValue> MyGetTextureProperties_Editor(this Material m)
         {
             #if UNITY_EDITOR
             {
@@ -613,7 +613,7 @@ namespace QuizCannersUtilities {
             value.Equals(tag.Get(mat, searchFallBacks));
 
         public bool Has(Material mat, ShaderProperty.BaseShaderPropertyIndex property, bool searchFallBacks = false) =>
-            value.Equals(tag.Get(mat, property, searchFallBacks));
+            mat && value.Equals(tag.Get(mat, property, searchFallBacks));
 
         public bool Equals(string tag) => value.Equals(tag);
         

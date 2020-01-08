@@ -2,7 +2,7 @@
 using QuizCannersUtilities;
 using UnityEngine;
 
-namespace PlaytimePainter {
+namespace PlaytimePainter.ComponentModules {
 
     [TaggedType(Tag)]
     public class TerrainHeightModule : ComponentModuleBase

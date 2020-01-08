@@ -678,7 +678,7 @@ namespace PlaytimePainter {
                     if (icon.Delete.Click("Delete Projector Camera"))
                         DepthProjectorCamera.Instance.gameObject.DestroyWhatever();
                     else
-                        DepthProjectorCamera.Instance.Nested_Inspect().nl(ref changed);
+                       pegi.Nested_Inspect(DepthProjectorCamera.Instance.InspectShortcuts).nl(ref changed);
                 }
 
                 base.Inspect().nl(ref changed);

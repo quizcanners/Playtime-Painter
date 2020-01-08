@@ -321,41 +321,54 @@ namespace QuizCannersUtilities
             return changed;
         }
 
-        public bool SelectType<T>(ref object obj, bool keepTypeConfig = false) {
+        /*  public bool SelectType<T>(ref object obj, bool keepTypeConfig = false) {
+              var changed = false;
+
+              var all = typeof(T).TryGetTaggedClasses();
+
+              if (all == null) {
+                  "No Types Holder".writeWarning();
+                  return false;
+              }
+
+             // var previous = obj;
+
+              var type = obj?.GetType();
+
+              if (all.Select(ref type).nl(ref changed)) {
+                  ChangeType(ref obj, type, all, keepTypeConfig);
+              }
+
+              return changed;
+          }*/
+
+     /*   private bool PEGI_inList<T>(ref object obj, int ind, ref int edited, TaggedTypesCfg cfg)
+        {
+
             var changed = false;
 
-            var all = typeof(T).TryGetTaggedClasses();
-
-            if (all == null) {
-                "No Types Holder".writeWarning();
-                return false;
+            if (typeof(T).IsUnityObject())
+            {
+                var uo = obj as UnityEngine.Object;
+                if (PEGI_inList_Obj(ref uo).changes(ref changed))
+                    obj = uo;
             }
+            else
+            {
 
-           // var previous = obj;
+                if (unrecognized)
+                    unrecognizedUnderTag.write("Type Tag {0} was unrecognized during decoding".F(unrecognizedUnderTag), 40);
 
-            var type = obj?.GetType();
+                if (!name.IsNullOrEmpty())
+                    name.write();
 
-            if (all.Select(ref type).nl(ref changed)) {
-
-                ChangeType(ref obj, type, all, keepTypeConfig);
-
-
-                /* if (keepTypeConfig && tobj != null)
-                     perTypeConfig[tobj.ClassTag] = tobj.Encode().ToString();
-
-                 string data;
-
-                 if (!perTypeConfig.TryGetValue(all.Tag(type), out data) && tobj != null)
-                         data = tobj.Encode().ToString();
-
-                 obj = data.TryDecodeInto_Type<T>(type);*/
-
+                SelectType<T>(ref obj, cfg);
 
             }
 
             return changed;
         }
-
+        */
         public bool PEGI_inList<T>(ref object obj, int ind, ref int edited) {
 
             var changed = false;
@@ -375,7 +388,7 @@ namespace QuizCannersUtilities
                     name.write();
 
                 if (typeof(T) is IGotClassTag)
-                    SelectType<T>(ref obj);
+                    SelectType<T>(ref obj, TaggedTypesCfg.TryGetOrCreate(typeof(T)));
 
             }
 

@@ -2,7 +2,7 @@
 using UnityEngine;
 using QuizCannersUtilities;
 
-namespace PlaytimePainter
+namespace PlaytimePainter.ComponentModules
 {
 
     [TaggedType(tag)]

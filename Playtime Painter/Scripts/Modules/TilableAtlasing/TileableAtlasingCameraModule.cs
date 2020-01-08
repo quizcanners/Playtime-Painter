@@ -3,6 +3,7 @@ using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using PlaytimePainter.MeshEditing;
+using PlaytimePainter.ComponentModules;
 
 
 #if UNITY_EDITOR

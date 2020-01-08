@@ -1,16 +1,18 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
+using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 
-namespace PlaytimePainter
+namespace PlaytimePainter.ComponentModules
 {
-    public class PainterPluginAttribute : AbstractWithTaggedTypes {
+
+   /* public class PainterPluginAttribute : AbstractWithTaggedTypes {
         public override TaggedTypesCfg TaggedTypes => TaggedModulesList<ComponentModuleBase>.all;
     }
     
-    [PainterPlugin]
-    public abstract class ComponentModuleBase : PainterSystemCfg, IGotClassTag
+    [PainterPlugin]*/
+    public abstract class ComponentModuleBase : PainterSystemCfg, IGotClassTag, IPEGI
     {
 
         public PlaytimePainter parentComponent;
@@ -19,7 +21,7 @@ namespace PlaytimePainter
 
         #region Abstract Serialized
         public abstract string ClassTag { get; }
-        public TaggedTypesCfg AllTypes => TaggedModulesList<ComponentModuleBase>.all;        
+        //public TaggedTypesCfg AllTypes => TaggedModulesList<ComponentModuleBase>.all;        
         #endregion
 
 
@@ -41,6 +43,12 @@ namespace PlaytimePainter
 
         public virtual bool BrushConfigPEGI() => false;
 
+        public virtual bool Inspect()
+        {
+
+
+            return false;
+        }
 
         #endregion
 
@@ -62,6 +70,7 @@ namespace PlaytimePainter
         public override CfgEncoder Encode() => new CfgEncoder();
 
         public override bool Decode(string tg, string data) => false;
+
         #endregion
     }
 }

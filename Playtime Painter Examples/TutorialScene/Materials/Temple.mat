@@ -10,6 +10,7 @@ Material:
   m_Name: Temple
   m_Shader: {fileID: 4800000, guid: dda90552a8c36ca4ca505f9459776cef, type: 3}
   m_ShaderKeywords: UV_ATLASED VERT_SHADOW _BUMP_COMBINED _DEBUG _SMOOTHNESS_TEXTURE_ALBEDO_CHANNEL_A
+    _qcPp_UV_ATLASED
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
   m_DoubleSidedGI: 0
@@ -121,10 +122,11 @@ Material:
     - _SmoothnessTextureChannel: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 1
-    - _Test: 0.12
+    - _Test: 0.357
     - _Thickness: 0
     - _UVSec: 0
     - _ZWrite: 1
+    - _qcPp_AtlasTextures: 4
     - _vertShad: 1
     - debugOn: 1
     m_Colors:
@@ -138,3 +140,4 @@ Material:
     - l1pos: {r: 1.7026837, g: 0.0009999275, b: -11.513889, a: 0}
     - l2col: {r: 0.36172545, g: 11.326735, b: 23.06, a: 0}
     - l2pos: {r: -10.506894, g: -0.63999987, b: -20.061317, a: 0}
+  m_BuildTextureStacks: []

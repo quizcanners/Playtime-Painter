@@ -751,9 +751,9 @@ namespace QuizCannersUtilities {
             return cody;
         }
 
-        public static TaggedTypesCfg GetTaggedTypes_Safe<T>(this T obj) where T : IGotClassTag => obj != null ? obj.AllTypes : typeof(T).TryGetTaggedClasses();
+        //public static TaggedTypesCfg GetTaggedTypes_Safe<T>(this T obj) where T : IGotClassTag => obj != null ? obj.AllTypes : typeof(T).TryGetTaggedClasses();
         
-        public static TaggedTypesCfg TryGetTaggedClasses(this Type type)
+       /* public static TaggedTypesCfg TryGetTaggedClasses(this Type type)
         {
 
             if (!typeof(IGotClassTag).IsAssignableFrom(type)) return null;
@@ -767,7 +767,7 @@ namespace QuizCannersUtilities {
                 Debug.Log("{0} does not have Abstract_WithTaggedTypes Attribute");
             
             return null;
-        }
+        }*/
 
         public static List<Type> TryGetDerivedClasses (this Type t) => t.TryGetClassAttribute<DerivedListAttribute>()?.derivedTypes.NullIfEmpty();
             

@@ -5,6 +5,7 @@ using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using Unity.Collections;
 using PlaytimePainter.CameraModules;
+using PlaytimePainter.ComponentModules;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -33,7 +34,7 @@ namespace PlaytimePainter {
             set { texture = value?.texture2D; }
         }
 
-        private ShaderProperty.TextureValue _textureInShader;
+        private ShaderProperty.TextureValue _textureInShaderr;
         private ShaderProperty.VectorValue _slicesInShader;
         private ShaderProperty.VectorValue _positionNsizeInShader;
 
@@ -41,12 +42,12 @@ namespace PlaytimePainter {
         {
             get
             {
-                if (_textureInShader != null)
-                    return _textureInShader;
+                if (_textureInShaderr != null)
+                    return _textureInShaderr;
+                
+                _textureInShaderr = new ShaderProperty.TextureValue(name);
 
-                _textureInShader = new ShaderProperty.TextureValue(name);
-
-                return _textureInShader;
+                return _textureInShaderr;
             }
         }
 
@@ -87,7 +88,7 @@ namespace PlaytimePainter {
             set
             {
                 name = value;
-                _textureInShader = null;
+                _textureInShaderr = null;
             }
         }
 
@@ -155,10 +156,20 @@ namespace PlaytimePainter {
         public override bool Inspect()
         {
             var changed = false;
+            
+            pegi.toggleDefaultInspector(this);
+
+            if (_textureInShaderr != null)
+            {
+                if (icon.Delete.Click())
+                    _textureInShaderr = null;
+
+                _textureInShaderr.GetNameForInspector().nl();
+            }
 
             if (searchedForPainter)
                 _painter = GetComponent<PlaytimePainter>();
-
+            
             if (!_painter)
             {
                 "Painter [None]".write();
@@ -177,16 +188,35 @@ namespace PlaytimePainter {
             }
             else
             {
-                var mod = _painter.GetModule<VolumeTextureManagement>();
-                if (!mod.volumeTexture && "Assign volume texture to painter".Click())
+                if (_painter.gameObject != gameObject)
+                {
+                    "Painter is on a different Game Object".writeWarning();
+                    if ("Disconnect".Click())
+                        _painter = null;
+                }
+
+                var mod = _painter.GetModule<VolumeTextureComponentModule>();
+                if (!mod.volumeTexture && "Assign volume texture to painter".Click().nl())
                     mod.volumeTexture = this;
+
+                if (mod.volumeTexture)
+                {
+                    if (mod.volumeTexture == this)
+                        "This volume texture is attached".write();
+
+                    if (icon.UnLinked.Click("Unlink"))
+                        mod.volumeTexture = null;
+
+                }
+
+                pegi.nl();
             }
 
             pegi.fullWindowDocumentationClickOpen(VolumeDocumentation);
 
             if (inspectedElement == -1)
             {
-                "Also set for Global shader parameters".toggleIcon(ref setForGlobal, true).changes(ref changed);
+                "Also set for Global shader parameters".toggleIcon(ref setForGlobal).changes(ref changed);
 
                 pegi.nl();
             }
@@ -194,9 +224,11 @@ namespace PlaytimePainter {
             if ("Volume Texture".enter(ref inspectedElement, 1).nl())
             {
 
-                var n = name;
+                var n = NameForPEGI;
                 if ("Name".editDelayed(50, ref n).nl(ref changed))
-                    name = n;
+                {
+                    NameForPEGI = n;
+                }
 
                 if (setForGlobal)
                 {
@@ -265,7 +297,7 @@ namespace PlaytimePainter {
                 }
             }
 
-            if (changed && icon.Refresh.Click("Update Materials"))
+            if (changed || icon.Refresh.Click("Update Materials"))
                 UpdateMaterials();
 
             pegi.nl();
@@ -309,7 +341,7 @@ namespace PlaytimePainter {
             UpdateMaterials();
 
             if (_painter)
-                _painter.GetModule<VolumeTextureManagement>().volumeTexture = this;
+                _painter.GetModule<VolumeTextureComponentModule>().volumeTexture = this;
         }
 
         public virtual void OnDisable()

@@ -3,6 +3,7 @@ using System.Linq;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using PlaytimePainter.ComponentModules;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif

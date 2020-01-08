@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using UnityEditor.SceneManagement;
 using QuizCannersUtilities;
 using UnityEditorInternal;
@@ -997,11 +998,16 @@ namespace PlayerAndEditorGUI
 
         // static int editedIntegerIndex;
         // static int editedInteger;
-        public static bool editDelayed(ref int val, int width)
+        public static bool editDelayed(ref int val, int width = -1)
         {
 
             BeginCheckLine();
-            val = EditorGUILayout.DelayedIntField(val, GUILayout.MaxWidth(width));
+
+            if (width > 0)
+                val = EditorGUILayout.DelayedIntField(val, GUILayout.MaxWidth(width));
+            else
+                val = EditorGUILayout.DelayedIntField(val);
+
             return EndCheckLine();
 
             /* if (KeyCode.Return.IsDown() && (_elementIndex == editedIntegerIndex))
@@ -1463,19 +1469,22 @@ namespace PlayerAndEditorGUI
 
             EditorGUI.BeginChangeCheck();
 
-            if (_currentReorderedList != l) {
+            if (_currentReorderedList != l)
+            {
 
-                _currentReorderedListTypes = typeof(T).TryGetDerivedClasses();
+                var type = typeof(T);
+
+                _currentReorderedListTypes = type.TryGetDerivedClasses();
 
                 if (_currentReorderedListTypes == null)
                 {
-                    _currentTaggedTypes = typeof(T).TryGetTaggedClasses();
+                    _currentTaggedTypes = TaggedTypesCfg.TryGetOrCreate(type); //typeof(T).TryGetTaggedClasses();
                     if (_currentTaggedTypes != null)
                         _currentReorderedListTypes = _currentTaggedTypes.Types;
                 }
                 else _currentTaggedTypes = null;
 
-                _currentReorderedType = typeof(T);
+                _currentReorderedType = type;
                 _currentReorderedList = l;
                 if (metas == null)
                     pegi.UnselectAll();
@@ -1552,7 +1561,7 @@ namespace PlayerAndEditorGUI
                         rect.width = 100;
 
                         if (select_Type(ref ty, _currentReorderedListTypes, rect))
-                            TaggedTypes.TryChangeObjectType(_currentReorderedList, index, ty, _listMetaData);
+                            TaggedTypes.TryChangeObjectType(_currentReorderedList, index, ty, _currentTaggedTypes ,_listMetaData);
                     }
                     else
                         EditorGUI.LabelField(rect, textAndToolTip);

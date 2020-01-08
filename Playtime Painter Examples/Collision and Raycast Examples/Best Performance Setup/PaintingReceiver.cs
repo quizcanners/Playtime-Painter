@@ -262,7 +262,7 @@ namespace PlaytimePainter.Examples
 
             if (Material)
             {
-                var lst = Material.MyGetTextureProperties();
+                var lst = Material.MyGetTextureProperties_Editor();
 
                 if ("   Property".select(80, ref _textureProperty, lst).nl())
                     TexturePropertyName = _textureProperty.NameForDisplayPEGI();
