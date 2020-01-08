@@ -270,10 +270,6 @@ namespace QuizCannersUtilities {
 
                 initialized = true;
 
-              //  fatched = false;
-
-            //    _lastFetchedModule = default(T);
-
                 for (var i = modules.Count - 1; i >= 0; i--)
                     if (modules[i] == null)
                         modules.RemoveAt(i);
@@ -289,14 +285,11 @@ namespace QuizCannersUtilities {
             }
         }
         
-        public IEnumerator<T> GetEnumerator() => modules.GetEnumerator();
+        public IEnumerator<T> GetEnumerator() => Modules.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator() => modules.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => Modules.GetEnumerator();
 
         private bool initialized = false;
-    /*    private bool fatched = false;
-        [NonSerialized] private T _lastFetchedModule;
-        [NonSerialized] private Type lastFetchedType;*/
 
         public G GetModule<G>() where G : T {
 
@@ -304,21 +297,12 @@ namespace QuizCannersUtilities {
 
             var targetType = typeof(G);
             
-         /*   if (initialized && fatched && lastFetchedType == targetType)
-                returnPlug = (G)_lastFetchedModule;
-            else
-            {*/
-                foreach (var i in Modules)
-                    if (i.GetType() == targetType)
-                    {
-                        returnPlug = (G)i;
-                        break;
-                    }
-         /*   }
-
-            fatched = true;
-            lastFetchedType = targetType;
-            _lastFetchedModule = returnPlug;*/
+            foreach (var i in Modules)
+                if (i.GetType() == targetType)
+                {
+                    returnPlug = (G)i;
+                    break;
+                }
 
             return returnPlug;
         }

@@ -60,9 +60,9 @@ namespace PlaytimePainter.ComponentModules
         }
 
 
-        public override void OnUpdate(PlaytimePainter painter)
+        public override void OnComponentDirty()
         {
-            var t = painter.terrain;
+            var t = parentComponent.terrain;
 
             if (!t) return;
 
@@ -72,7 +72,7 @@ namespace PlaytimePainter.ComponentModules
             SplatPrototype[] sp = t.terrainData.splatPrototypes;
 #endif
 
-            var td = painter.terrain.terrainData;
+            var td = parentComponent.terrain.terrainData;
             var tds = td.size;
 
             if (sp.Length != 0 && sp[0] != null)
@@ -81,12 +81,12 @@ namespace PlaytimePainter.ComponentModules
                 var tilingZ = tds.z / sp[0].tileSize.y;
                 PainterShaderVariables.TerrainTiling.GlobalValue = new Vector4(tilingX, tilingZ, sp[0].tileOffset.x, sp[0].tileOffset.y);
 
-                painter.tilingY = td.size.y / sp[0].tileSize.x;
+                parentComponent.tilingY = td.size.y / sp[0].tileSize.x;
             }
 
             PainterShaderVariables.TerrainScale.GlobalValue = new Vector4(tds.x, tds.y, tds.z, 0.5f / td.heightmapResolution);
 
-            painter.UpdateTerrainPosition();
+            parentComponent.UpdateTerrainPosition();
 
             var alphaMapTextures = td.alphamapTextures;
             if (!alphaMapTextures.IsNullOrEmpty())

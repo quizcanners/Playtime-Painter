@@ -6,16 +6,6 @@
 static const float MERGE_POWER = 512;
 static const float TERABOUNCE = 0.2;
 
-float4 g_VOLUME_H_SLICES;
-float4 g_VOLUME_POSITION_N_SIZE;
-
-float4 g_l0pos;
-float4 g_l0col;
-float4 g_l1pos;
-float4 g_l1col;
-float4 g_l2pos;
-float4 g_l2col;
-
 sampler2D _Global_Noise_Lookup;
 
 float4 pp_COLOR_BLEED;
@@ -49,11 +39,7 @@ sampler2D _qcPp_mergeSplatN_4;
 sampler2D _qcPp_WaterBump;
 float4 _qcPp_foamParams;
 
-
-
-uniform sampler2D g_BakedRays_VOL;
 uniform sampler2D _qcPp_RayProjectorDepthes;
-float4 g_BakedRays_VOL_TexelSize;
 
 float4x4 rt0_ProjectorMatrix;
 float4 rt0_ProjectorPosition;

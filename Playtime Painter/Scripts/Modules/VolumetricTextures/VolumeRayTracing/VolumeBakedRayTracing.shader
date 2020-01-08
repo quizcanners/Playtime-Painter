@@ -42,6 +42,19 @@
 				float _qcPp_AtlasTextures;
 				float _Test;
 
+				float4 g_BakedRays_VOLVOLUME_H_SLICES; //g_VOLUME_H_SLICES;
+				float4 g_BakedRays_VOLVOLUME_POSITION_N_SIZE; //g_VOLUME_POSITION_N_SIZE;
+
+				uniform sampler2D g_BakedRays_VOL;
+				float4 g_BakedRays_VOL_TexelSize;
+
+				float4 g_l0pos;
+				float4 g_l0col;
+				float4 g_l1pos;
+				float4 g_l1col;
+				float4 g_l2pos;
+				float4 g_l2col;
+
 				struct v2f {
 					float4 pos : SV_POSITION;
 					float4 vcol : COLOR0;
@@ -60,6 +73,7 @@
 					float4 atlasedUV : TEXCOORD10;
 					float4 atlasedUV2 : TEXCOORD11;
 #endif
+
 #if !_BUMP_NONE
 					float4 wTangent : TEXCOORD12;
 #endif
@@ -81,7 +95,6 @@
 
 					TRANSFER_SHADOW(o);
 					
-					//o.shadowCoords0 = mul(rt0_ProjectorMatrix, o.worldPos);
 					o.shadowCoords1 = mul(rt1_ProjectorMatrix, o.worldPos);
 					o.shadowCoords2 = mul(rt2_ProjectorMatrix, o.worldPos);
 
@@ -112,11 +125,7 @@
 
 					float3 halfDirection = normalize(viewDir - vec);
 					float NdotH = max(0.01, (dot(normal, halfDirection)));
-					float normTerm =
-						//max(0, (NdotH - 0.99) *512) * smoothness + max(0, (NdotH - 0.5)) * (1 - smoothness);
-
-						//max(0,(NdotH-1+1/ power) * power);
-						pow(NdotH, power); 
+					float normTerm = pow(NdotH, power); 
 
 					scatter += bake * lcol.rgb;
 
@@ -134,9 +143,7 @@
 
 					o.viewDir.xyz = normalize(o.viewDir.xyz);
 
-
 					float ambientBlock = max(0, dot(o.normal.xyz, o.viewDir.xyz));
-
 
 					float2 border = DetectEdge(o.edge);
 					border.x = max(border.y, border.x);
@@ -237,7 +244,13 @@
 
 					float3 reflected = normalize(o.viewDir.xyz - 2 * (dotprod)*o.normal);
 						
-					float4 bake = SampleVolume(g_BakedRays_VOL, o.worldPos.xyz + o.normal - reflected * fernel * (0.25 + smoothness),  g_VOLUME_POSITION_N_SIZE,  g_VOLUME_H_SLICES);
+					//float4 g_BakedRays_VOLVOLUME_H_SLICES; //g_VOLUME_H_SLICES;
+					//float4 g_BakedRays_VOLVOLUME_POSITION_N_SIZE; //g_VOLUME_POSITION_N_SIZE;
+
+
+					float4 bake = SampleVolume(g_BakedRays_VOL, o.worldPos.xyz + o.normal - reflected * fernel * (0.25 + smoothness), 
+						g_BakedRays_VOLVOLUME_POSITION_N_SIZE,
+						g_BakedRays_VOLVOLUME_H_SLICES);
 
 					float power = smoothness * (128+ fernel*128);
 

@@ -30,7 +30,7 @@ namespace PlaytimePainter
                 painter = GetComponent<PlaytimePainter>();
 
             if (!painter)
-                painter = this.gameObject.AddComponent<PlaytimePainter>();
+                painter = gameObject.AddComponent<PlaytimePainter>();
 
             UpdateTextures();
         }
@@ -84,7 +84,7 @@ namespace PlaytimePainter
             if ("Merge Sub Masks".edit_List(ref mergeSubMasks, ref inspectedElement).nl(ref changed))
             {
                 UpdateTextures();
-                painter.UpdateShaderGlobals();
+                painter.UpdateModules();
             }
 
             if (inspectedElement != -1) return changed;
@@ -93,13 +93,13 @@ namespace PlaytimePainter
                 if ("Height Texture".edit(70, ref painter.terrainHeightTexture).nl(ref changed))
                     painter.SetToDirty();
 
-            changed |= "Light Texture ".edit(70, ref lightTexture).nl();
+            "Light Texture ".edit(70, ref lightTexture).nl(ref changed);
 
 
             if (changed || "Update".Click())
             {
                 UpdateTextures();
-                painter.UpdateShaderGlobals();
+                painter.UpdateModules();
             }
 
             return changed;

@@ -99,6 +99,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _qcPp_PreviewTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
     - _ATLASED: 0
     - _AtlasTextures: 4
@@ -124,6 +128,7 @@ Material:
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
+    - _qcPp_AtlasTextures: 1
     - _vertShad: 0
     m_Colors:
     - VOLUME_H_SLICES: {r: 0, g: 0, b: 0, a: 0}

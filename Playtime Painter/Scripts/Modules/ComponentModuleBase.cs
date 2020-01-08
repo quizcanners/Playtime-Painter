@@ -27,7 +27,7 @@ namespace PlaytimePainter.ComponentModules
 
         public virtual bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter) => false;
         
-        public virtual void OnUpdate(PlaytimePainter painter)  { }
+        public virtual void OnComponentDirty()  { }
 
         public virtual bool SetTextureOnMaterial(ShaderProperty.TextureValue field, TextureMeta id, PlaytimePainter painter) => false;
         
@@ -63,9 +63,7 @@ namespace PlaytimePainter.ComponentModules
         public virtual void AfterGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushTypes.Base type) {
 
         }
-
-
-
+        
         #region Encode & Decode
         public override CfgEncoder Encode() => new CfgEncoder();
 

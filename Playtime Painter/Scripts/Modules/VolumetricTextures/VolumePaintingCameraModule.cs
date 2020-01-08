@@ -541,6 +541,11 @@ namespace PlaytimePainter {
 
             public VolumeTexture volumeTexture;
 
+            public override void OnComponentDirty()
+            {
+
+            }
+
             public override void GetNonMaterialTextureNames(PlaytimePainter painter,
                 ref List<ShaderProperty.TextureValue> dest)
             {

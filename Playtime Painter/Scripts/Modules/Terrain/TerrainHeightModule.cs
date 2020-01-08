@@ -54,9 +54,9 @@ namespace PlaytimePainter.ComponentModules {
             return true;
         }
 
-        public override void OnUpdate(PlaytimePainter painter) {
-            if (painter.terrainHeightTexture)
-                PainterShaderVariables.TerrainHeight.GlobalValue = painter.terrainHeightTexture.GetDestinationTexture();
+        public override void OnComponentDirty() {
+            if (parentComponent.terrainHeightTexture)
+                PainterShaderVariables.TerrainHeight.GlobalValue = parentComponent.terrainHeightTexture.GetDestinationTexture();
         }
     }
 }

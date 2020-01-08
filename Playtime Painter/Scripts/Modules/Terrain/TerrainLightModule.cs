@@ -83,10 +83,10 @@ namespace PlaytimePainter.ComponentModules {
             return true;
         }
 
-        public override void OnUpdate(PlaytimePainter painter)
+        public override void OnComponentDirty()
         {
 
-            FindMergingTerrain(painter);
+            FindMergingTerrain(parentComponent);
 
             if (!mergingTerrain) return;
             

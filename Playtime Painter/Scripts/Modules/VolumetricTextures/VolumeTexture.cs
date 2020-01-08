@@ -321,8 +321,20 @@ namespace PlaytimePainter {
 
         private Vector3 _previousWorldPosition = Vector3.zero;
 
+        private Texture _previousTarget;
+
         public virtual void Update()
         {
+
+            var currentTexture = ImageMeta.CurrentTexture();
+
+            if (currentTexture != _previousTarget)
+            {
+                _previousTarget = currentTexture;
+
+                UpdateMaterials();
+            }
+
             if (_previousWorldPosition == transform.position)
                 return;
             

@@ -395,32 +395,11 @@ namespace PlaytimePainter {
                 "No Painter Detected".nl();
                 return false;
             }
-
-            pegi.nl();
-
-            if (p.skinnedMeshRenderer) {
-                if ("Update Collider from Skinned Mesh".Click())
-                    p.UpdateMeshCollider();
-
-                if (DocsEnabled && pegi.DocumentationClick("Why Update Collider from skinned mesh?"))
-                    pegi.FullWindwDocumentationOpen(
-                        ("To paint an object a collision detection is needed. Mesh Collider is not being animated. To paint it, update Mesh Collider with Update Collider button." +
-                        " For ingame painting it is preferable to use simple colliders like Speheres to avoid per frame updates for collider mesh."
-                        ));
-
-                pegi.nl();
-            }
-
-
+            
             var id = p.TexMeta;
 
             var changed = false;
             var cpuBlit = id.destination == TexTarget.Texture2D;
-            
-            p.PreviewShaderToggleInspect().changes(ref changed);
-
-            if (!PainterCamera.GotBuffers && icon.Refresh.Click("Refresh Main Camera Buffers"))
-                RenderTextureBuffersManager.RefreshPaintingBuffers();
             
             if ((PainterCamera.GotBuffers || id.renderTexture) && id.texture2D)
             {
@@ -459,7 +438,7 @@ namespace PlaytimePainter {
                 pegi.nl();
 
                 if (p.terrain && "Update Terrain".Click("Will Set Terrain texture as global shader values.").nl())
-                    p.UpdateShaderGlobals();
+                    p.UpdateModules();
 
             }
 
@@ -468,7 +447,6 @@ namespace PlaytimePainter {
 
         public bool ChannelSlider(ColorChanel chan, ref Color col)
         {
-
             chan.GetIcon().write();
             float val = chan.GetValueFrom(col);
             if (pegi.edit(ref val, 0, 1).nl())
@@ -478,8 +456,6 @@ namespace PlaytimePainter {
             }
 
             return false;
-
-
         }
 
         public bool ChannelSlider(ColorMask inspectedMask, ref Color col, Texture icon, bool slider) {
@@ -530,11 +506,11 @@ namespace PlaytimePainter {
                 return ColorSliders_PlaytimePainter();
 
             var changed = false;
-
-
+            
             pegi.edit(ref Color).nl(ref changed);
             
-            if (!Cfg.showColorSliders) return changed;
+            if (!Cfg.showColorSliders)
+                return changed;
 
             ChannelSlider(ColorMask.R, ref Color, null, true).nl(ref changed);
             ChannelSlider(ColorMask.G, ref Color, null, true).nl(ref changed);
@@ -615,7 +591,6 @@ namespace PlaytimePainter {
                     }
                 }
             }
-          //  }
 
             if (!painter.IsEditingThisMesh && id!=null && id.isATransparentLayer) {
 

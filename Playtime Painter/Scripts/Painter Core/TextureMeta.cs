@@ -278,7 +278,7 @@ namespace PlaytimePainter
         #region Undo & Redo
         public UndoCache cache = new UndoCache();
 
-        public void Backup()
+        public void OnStrokeMouseDown_CheckBackup()
         {
             if (backupManually) return;
 

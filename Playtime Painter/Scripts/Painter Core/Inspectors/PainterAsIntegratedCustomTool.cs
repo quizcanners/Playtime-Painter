@@ -39,10 +39,7 @@ namespace PlaytimePainter
             PlaytimePainterSceneViewEditor.OnSceneGuiCombined();
             
             var p = PlaytimePainterSceneViewEditor.painter;
-
-            //if (Event.current.type == EventType.ScrollWheel)
-              //  Debug.Log("Got scroll wheel event");
-
+            
             if (p) 
                 p.FeedEvents(Event.current);
 
@@ -121,7 +118,7 @@ namespace PlaytimePainter
 
                 var pp = isHit ? hit.transform.GetComponent<PlaytimePainter>() : null;
 
-                var refocus = OnEditorRayHit(hit, mouseRayGui);
+                var refocus = OnEditorRayHit_AllowRefocusing(hit, mouseRayGui);
 
                 if (lMouseDwn && e.button == 0 && refocus && isHit) {
                     
@@ -142,7 +139,7 @@ namespace PlaytimePainter
                 painter.ManagedUpdateOnFocused();
         }
 
-        public static bool OnEditorRayHit(RaycastHit hit, Ray ray)
+        public static bool OnEditorRayHit_AllowRefocusing(RaycastHit hit, Ray ray)
         {
 
             var tf = hit.transform;
@@ -176,9 +173,10 @@ namespace PlaytimePainter
                 }
                 else
                 {
-                    if (lMouseDwn) PlaytimePainter.currentlyPaintedObjectPainter = null;
+                    if (lMouseDwn)
+                        PlaytimePainter.currentlyPaintedObjectPainter = null;
 
-                    if (painter.NeedsGrid())
+                    if (painter.NeedsGrid() || painter.GlobalBrushType.IsAWorldSpaceBrush)
                     {
                         pointedPainter = painter;
                         allowRefocusing = false;

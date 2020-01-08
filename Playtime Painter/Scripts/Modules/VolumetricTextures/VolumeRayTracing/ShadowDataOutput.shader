@@ -20,7 +20,7 @@
 
 			#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
-
+					
 			float4 _SunDirection;
 
 			struct v2fbg {
@@ -66,6 +66,19 @@
 			#pragma fragment frag
 			#pragma multi_compile_fwdbase
 			#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
+
+				uniform sampler2D g_BakedRays_VOL;
+				float4 g_BakedRays_VOLVOLUME_H_SLICES; //g_VOLUME_H_SLICES;
+				float4 g_BakedRays_VOLVOLUME_POSITION_N_SIZE; //g_VOLUME_POSITION_N_SIZE;
+
+				float4 g_BakedRays_VOL_TexelSize;
+
+				float4 g_l0pos;
+				float4 g_l0col;
+				float4 g_l1pos;
+				float4 g_l1col;
+				float4 g_l2pos;
+				float4 g_l2col;
 
 			struct v2f {
 				float4 pos : SV_POSITION;
@@ -126,7 +139,13 @@
 				float fernel = (1.5 - dotprod);
 				float3 reflected = normalize(o.viewDir.xyz - 2 * (dotprod)*o.normal);
 				*/
-				float4 bake = SampleVolume(g_BakedRays_VOL, o.worldPos.xyz + o.normal,  g_VOLUME_POSITION_N_SIZE,  g_VOLUME_H_SLICES);
+
+			//	float4 g_BakedRays_VOLVOLUME_H_SLICES; //g_VOLUME_H_SLICES;
+			//	float4 g_BakedRays_VOLVOLUME_POSITION_N_SIZE; //g_VOLUME_POSITION_N_SIZE;
+
+				float4 bake = SampleVolume(g_BakedRays_VOL, o.worldPos.xyz + o.normal, 
+					g_BakedRays_VOLVOLUME_POSITION_N_SIZE,
+					g_BakedRays_VOLVOLUME_H_SLICES);
 
 				bake *= bake.a*bake.a;
 				
