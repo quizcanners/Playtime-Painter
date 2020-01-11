@@ -101,7 +101,10 @@ namespace PlaytimePainter {
 
         public class PainterModules : TaggedModulesList<ComponentModuleBase> {
 
-            protected override void OnInitialize() {
+            public override void OnInitialize() {
+
+                Debug.Log("Initializing Painter Modules");
+
                 foreach (var p in modules)
                   p.parentComponent = painter;
             }
@@ -1120,9 +1123,16 @@ namespace PlaytimePainter {
         public float tilingY = 8;
 
         public void UpdateModules() {
-       
+
             foreach (var nt in Modules)
+            {
+                if (!nt.parentComponent)
+                {
+                    Debug.LogError("Parnt Component in {0} is not assigned".F(nt.GetType().ToString().SimplifyTypeName()));
+                    nt.parentComponent = this;
+                }
                 nt.OnComponentDirty();
+            }
         }
 
         public void UpdateTerrainPosition() => PainterShaderVariables.TerrainPosition.GlobalValue = transform.position.ToVector4(tilingY);
@@ -1354,7 +1364,7 @@ namespace PlaytimePainter {
         {
             switch (tg)
             {
-                case "mdls": Modules.Decode(data); break;
+                case "mdls": Modules.Decode(data);  break;
                 case "invCast": invertRayCast = data.ToBool(); break;
                 case "m": SavedEditableMesh = data; break;
                 case "prn": selectedMeshProfile =  data; break;
@@ -2828,6 +2838,7 @@ namespace PlaytimePainter {
                                     if (texMeta.texture2D)
                                     {
                                         orig = texMeta.texture2D.GetPathWithout_Assets_Word();
+
                                         if (orig != null && icon.Load.ClickUnFocus("Will reload " + orig))
                                         {
                                             ForceReimportMyTexture(orig);

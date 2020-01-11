@@ -3,7 +3,9 @@ using UnityEngine;
 using System;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace PlaytimePainter
 {
@@ -26,8 +28,8 @@ namespace PlaytimePainter
 
         public bool nonColorData = true;
 
-        [NonSerialized] private readonly List<RenderTexture> _rtList = new List<RenderTexture>();
-        [NonSerialized] private readonly List<Texture2D> _t2DList = new List<Texture2D>();
+        [NonSerialized] private List<RenderTexture> _rtList = new List<RenderTexture>();
+        [NonSerialized] private List<Texture2D> _t2DList = new List<Texture2D>();
 
         public Texture2D GetTexture2D()
         {
@@ -76,8 +78,19 @@ namespace PlaytimePainter
 
             "Data (Non Color) Texture".toggleIcon(ref nonColorData).nl();
 
+            "Textures 2D".edit_List_UObj(ref _t2DList).nl();
+
+            "Render Textures".edit_List_UObj(ref _rtList).nl();
+
+
             return changed;
         }
     }
+
+    #if UNITY_EDITOR
+    [CustomEditor(typeof(TexturesPool))]
+    public class TexturesPoolDrawer : PEGI_Inspector_Mono<TexturesPool> { }
+    #endif
+
 }
 

@@ -1898,7 +1898,7 @@ namespace PlayerAndEditorGUI
                 var n = sp.name;
                 int cut = n.LastIndexOf('(');
                 if (cut > 0)
-                    n = n.Substring(cut);
+                    n = n.Substring(0, cut);
 
                 names.Add(n);
 
@@ -8621,28 +8621,28 @@ namespace PlayerAndEditorGUI
             return edit_or_select_List_UObj(ref list, selectFrom, ref inspected);
         }
 
-        public static bool edit_List_UObj<T>(ref List<T> list, ref int inspected, List<T> selectFrom = null) where T : UnityEngine.Object
+        public static bool edit_List_UObj<T>(ref List<T> list, ref int inspected, List<T> selectFrom = null) where T : Object
             => edit_or_select_List_UObj(ref list, selectFrom, ref inspected);
 
-        public static bool edit_List_UObj<T>(this string label, ref List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object
+        public static bool edit_List_UObj<T>(this string label, ref List<T> list, List<T> selectFrom = null) where T : Object
         {
             collectionInspector.write_Search_ListLabel(label,list);
             return list.edit_List_UObj(selectFrom).listLabel_Used();
         }
 
-        public static bool edit_List_UObj<T>(this List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object
+        public static bool edit_List_UObj<T>(this List<T> list, List<T> selectFrom = null) where T : Object
         {
             var edited = -1;
             return edit_or_select_List_UObj(ref list, selectFrom, ref edited);
         }
 
-        public static bool edit_List_UObj<T>(this ListMetaData listMeta, ref List<T> list, List<T> selectFrom = null) where T : UnityEngine.Object
+        public static bool edit_List_UObj<T>(this ListMetaData listMeta, ref List<T> list, List<T> selectFrom = null) where T : Object
         {
             collectionInspector.write_Search_ListLabel(listMeta, list);
             return edit_or_select_List_UObj(ref list, selectFrom, ref listMeta.inspected, listMeta).listLabel_Used();
         }
 
-        public static bool edit_or_select_List_UObj<T, G>(ref List<T> list, List<G> from, ref int inspected, ListMetaData listMeta = null) where T : G where G : UnityEngine.Object
+        public static bool edit_or_select_List_UObj<T, G>(ref List<T> list, List<G> from, ref int inspected, ListMetaData listMeta = null) where T : G where G : Object
         {
             if (collectionInspector.listIsNull(ref list))
                 return false;

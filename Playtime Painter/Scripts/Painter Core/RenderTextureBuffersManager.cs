@@ -139,6 +139,7 @@ namespace PlaytimePainter {
             PainterCamera.Inst.EmptyBufferTarget();
             DestroyPaintingBuffers();
             PainterCamera.Inst.RecreateBuffersIfDestroyed();
+            GetOrCreatePaintingBuffers();
         }
 
         #endregion

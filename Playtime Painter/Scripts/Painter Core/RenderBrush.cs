@@ -145,7 +145,7 @@ namespace PlaytimePainter
 
         private readonly ShaderProperty.TextureValue _mainTex = new ShaderProperty.TextureValue("_MainTex");
 
-        private readonly ShaderProperty.ColorValue _colorVal = new ShaderProperty.ColorValue("_Color");
+        private readonly ShaderProperty.ColorFloat4Value _colorVal = new ShaderProperty.ColorFloat4Value("_Color");
 
         public RenderBrush Set(Texture tex)
         {

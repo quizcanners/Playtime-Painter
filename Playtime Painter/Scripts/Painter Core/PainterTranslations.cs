@@ -107,8 +107,8 @@ namespace PlayerAndEditorGUI {
                         .From(trk, "Buradan kopyalama", "Hangi resimden kopyalayacağı.");
                     break;
                 case MsgPainter.TextureSettings:
-                    msg.Translate("Texture settings")
-                        .From(ukr, "Налаштування текстури");
+                    msg.Translate("Fancy options")
+                        .From(ukr, "Додатково");
                     break;
                 case MsgPainter.previewRGBA:
                     msg.Translate("Preview Edited RGBA", 

@@ -96,6 +96,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: ca84f29055b9edb4791171ba3b212379, type: 3}
         m_Scale: {x: 2, y: 2}
         m_Offset: {x: 0, y: 0}
+    - _qcPp_PreviewTex:
+        m_Texture: {fileID: 2800000, guid: 507834b80a307ef42914caba414f2562, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
     - _AlphaTestRef: 0.5
     - _AtlasTextures: 1
@@ -119,9 +123,11 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     - _parallax: 4.5
+    - _qcPp_AtlasTextures: 1
     - _val0: 12
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 0.99999994}
     - _EmissionColorUI: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionColorWithMapUI: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []

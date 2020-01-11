@@ -15,9 +15,6 @@ namespace QuizCannersUtilities {
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 
-    using TextureValue = ShaderProperty.TextureValue;
-    using ColorValue = ShaderProperty.ColorValue;
- 
     public static class ShaderProperty {
 
         #region Base Abstract
@@ -129,8 +126,21 @@ namespace QuizCannersUtilities {
             public T latestValue;
 
             public abstract T Get(Material mat);
-            
-            public abstract T GlobalValue { get; set; }
+
+            public abstract T GlobalValue_Internal { get; set; }
+
+            public T GlobalValue
+            {
+                get
+                {
+                    return GlobalValue_Internal; }
+                set
+                {
+                    latestValue = value;
+                    GlobalValue_Internal = value;
+                }
+
+            }
 
             public virtual Material SetOn(Material material, T value)
             {
@@ -186,7 +196,8 @@ namespace QuizCannersUtilities {
                     return false;
             }
 
-            public override T GlobalValue {
+            public override T GlobalValue_Internal
+            {
                 set {
                     if (GlobalDirectiveChanged()) 
                         QcUnity.SetShaderKeyword(_featureDirective, _directiveGlobalValue);
@@ -251,14 +262,10 @@ namespace QuizCannersUtilities {
 
             public override void SetOn(MaterialPropertyBlock block) => block.SetFloat(id, latestValue);
 
-            public override float GlobalValue
+            public override float GlobalValue_Internal
             {
                 get { return Shader.GetGlobalFloat(id); }
-                set
-                {
-                    Shader.SetGlobalFloat(id, value);
-                    latestValue = value;
-                }
+                set{ Shader.SetGlobalFloat(id, value); }
             }
 
             public FloatValue()
@@ -282,7 +289,7 @@ namespace QuizCannersUtilities {
 
         public class ColorFeature : IndexWithShaderFeatureGeneric<Color> {
 
-            public static readonly ColorValue tintColor = new ColorValue("_TintColor");
+            public static readonly ColorFloat4Value tintColor = new ColorFloat4Value("_TintColor");
 
             public override void SetOn(Material material) => material.SetColor(id, latestValue);
             
@@ -290,11 +297,11 @@ namespace QuizCannersUtilities {
 
             public override void SetOn(MaterialPropertyBlock block) => block.SetColor(id, latestValue);
 
-            public override Color GlobalValue
+            public override Color GlobalValue_Internal
             {
                 get { return Shader.GetGlobalColor(id); }
                 set {
-                    base.GlobalValue = value;
+                    base.GlobalValue_Internal = value;
                     Shader.SetGlobalColor(id, value);
                 }
             }
@@ -306,9 +313,9 @@ namespace QuizCannersUtilities {
 
         [Serializable]
 
-        public class ColorValue : IndexGeneric<Color> {
+        public class ColorFloat4Value : IndexGeneric<Color> {
 
-            public static readonly ColorValue tintColor = new ColorValue("_TintColor");
+            public static readonly ColorFloat4Value tintColor = new ColorFloat4Value("_TintColor");
 
             public override void SetOn(Material material) => material.SetColor(id, latestValue);
 
@@ -316,7 +323,7 @@ namespace QuizCannersUtilities {
 
             public override void SetOn(MaterialPropertyBlock block) => block.SetColor(id, latestValue);
 
-            public override Color GlobalValue
+            public override Color GlobalValue_Internal
             {
                 get { return Shader.GetGlobalColor(id); }
                 set { Shader.SetGlobalColor(id, value); }
@@ -324,17 +331,17 @@ namespace QuizCannersUtilities {
 
            // public void SetGlobal() => GlobalValue = latestValue;
 
-            public ColorValue()
+            public ColorFloat4Value()
             {
                 latestValue = Color.grey;
             }
 
-            public ColorValue(string name) : base(name)
+            public ColorFloat4Value(string name) : base(name)
             {
                 latestValue = Color.grey;
             }
 
-            public ColorValue(string name, Color startingColor) : base(name)
+            public ColorFloat4Value(string name, Color startingColor) : base(name)
             {
                 latestValue = startingColor;
             }
@@ -354,7 +361,7 @@ namespace QuizCannersUtilities {
 
             public override Vector4 Get(Material mat) => mat.GetVector(id);
 
-            public override Vector4 GlobalValue
+            public override Vector4 GlobalValue_Internal
             {
                 get { return Shader.GetGlobalVector(id); }
                 set { Shader.SetGlobalVector(id, value); }
@@ -386,7 +393,7 @@ namespace QuizCannersUtilities {
 
             public override Matrix4x4 Get(Material mat) => mat.GetMatrix(id);
 
-            public override Matrix4x4 GlobalValue
+            public override Matrix4x4 GlobalValue_Internal
             {
                 get { return Shader.GetGlobalMatrix(id); }
                 set { Shader.SetGlobalMatrix(id, value); }
@@ -421,7 +428,7 @@ namespace QuizCannersUtilities {
 
             public override void SetOn(MaterialPropertyBlock block) => block.SetTexture(id, latestValue);
 
-            public override Texture GlobalValue
+            public override Texture GlobalValue_Internal
             {
                 get { return Shader.GetGlobalTexture(id); }
                 set { Shader.SetGlobalTexture(id, value); }
@@ -664,7 +671,7 @@ namespace QuizCannersUtilities {
     #endregion
 
 
-
+    /*
 #if UNITY_EDITOR
     [CustomPropertyDrawer(typeof(TextureValue))]
     public class TextureValueDrawer : PropertyDrawer {
@@ -690,7 +697,7 @@ namespace QuizCannersUtilities {
     }
 
 #endif
-
+    */
 }
 
 
@@ -702,7 +709,6 @@ namespace PlayerAndEditorGUI {
 
     using FloatValue = ShaderProperty.FloatValue;
     using VectorValue = ShaderProperty.VectorValue;
-    using ColorValue = ShaderProperty.ColorValue;
     using TextureValue = ShaderProperty.TextureValue;
 
     public static class ShaderUtilInspectExtensions {
@@ -755,7 +761,7 @@ namespace PlayerAndEditorGUI {
             return false;
         }
 
-        public static bool edit(this Material mat, ColorValue property, string name = null)
+        public static bool edit(this Material mat, ShaderProperty.ColorFloat4Value property, string name = null)
         {
             var val = mat.Get(property);
 

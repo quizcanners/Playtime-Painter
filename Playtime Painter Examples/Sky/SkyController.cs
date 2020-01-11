@@ -40,7 +40,7 @@ namespace PlaytimePainter.Examples
         public float skyDynamics = 0.1f;
 
         private readonly ShaderProperty.VectorValue _sunDirectionProperty = new ShaderProperty.VectorValue("_SunDirection");
-        private readonly ShaderProperty.ColorValue _directionalColorProperty = new ShaderProperty.ColorValue("_Directional");
+        private readonly ShaderProperty.ColorFloat4Value _directionalColorProperty = new ShaderProperty.ColorFloat4Value("_Directional");
         private readonly ShaderProperty.VectorValue _offsetProperty = new ShaderProperty.VectorValue("_Off");
 
         [SerializeField] private Camera _mainCam;

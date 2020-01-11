@@ -258,7 +258,7 @@ namespace QuizCannersUtilities {
     }
 
 
-    public class TaggedModulesList<T> : AbstractCfg, IPEGI, IEnumerable<T> where T : IGotClassTag {
+    public class TaggedModulesList<T> : AbstractCfg, IPEGI, IEnumerable<T> where T : class, IGotClassTag {
         
         protected List<T> modules = new List<T>();
         
@@ -267,7 +267,7 @@ namespace QuizCannersUtilities {
 
                 if (initialized)
                     return modules;
-
+                
                 initialized = true;
 
                 for (var i = modules.Count - 1; i >= 0; i--)
@@ -291,9 +291,9 @@ namespace QuizCannersUtilities {
 
         private bool initialized = false;
 
-        public G GetModule<G>() where G : T {
+        public G GetModule<G>() where G : class, T {
 
-            G returnPlug = default(G);
+            G returnPlug = null;
 
             var targetType = typeof(G);
             
@@ -306,9 +306,7 @@ namespace QuizCannersUtilities {
 
             return returnPlug;
         }
-
-
-
+        
         #region Encode & Decode
         public static readonly TaggedTypesCfg all = new TaggedTypesCfg(typeof(T));
         
@@ -318,7 +316,9 @@ namespace QuizCannersUtilities {
         
         public override bool Decode(string tg, string data) {
             switch (tg) {
-                case "pgns": data.Decode_List(out modules, all); break;
+                case "pgns": data.Decode_List(out modules, all);
+                    OnInitialize();
+                    break;
                 default: return true;
             }
 
@@ -327,7 +327,7 @@ namespace QuizCannersUtilities {
         }
         #endregion
 
-        protected virtual void OnInitialize() { }
+        public virtual void OnInitialize() { }
 
         #region Inspector
         

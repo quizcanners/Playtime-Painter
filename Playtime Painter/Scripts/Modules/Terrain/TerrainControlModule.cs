@@ -62,6 +62,12 @@ namespace PlaytimePainter.ComponentModules
 
         public override void OnComponentDirty()
         {
+            if (!parentComponent)
+            {
+                Debug.LogError("Parent component is null in TerrainControlModule");
+                return;
+            }
+
             var t = parentComponent.terrain;
 
             if (!t) return;

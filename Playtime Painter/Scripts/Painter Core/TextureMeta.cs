@@ -105,7 +105,7 @@ namespace PlaytimePainter
         public class ImgMetaModules : TaggedModulesList<ImageMetaModuleBase>
         {
 
-            protected override void OnInitialize()
+            public override void OnInitialize()
             {
                 foreach (var p in modules)
                     p.parentMeta = meta;

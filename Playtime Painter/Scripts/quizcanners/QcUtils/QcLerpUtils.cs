@@ -1107,7 +1107,7 @@ namespace QuizCannersUtilities
 
         public class ShaderColorValueGlobal : ColorValue {
 
-            protected ShaderProperty.ColorValue shaderValue; 
+            protected ShaderProperty.ColorFloat4Value shaderValue; 
             
             public override Color CurrentValue
             {
@@ -1118,7 +1118,7 @@ namespace QuizCannersUtilities
             }
 
             public ShaderColorValueGlobal(string name) {
-                shaderValue = new ShaderProperty.ColorValue(name);
+                shaderValue = new ShaderProperty.ColorFloat4Value(name);
             }
 
         }
@@ -1483,7 +1483,7 @@ namespace QuizCannersUtilities
             public MaterialColor(string nName, Color startingValue, float startingSpeed = 1, Material m = null,
                 Renderer renderer = null) : base(startingSpeed, m, renderer)
             {
-                _property = new ShaderProperty.ColorValue(nName);
+                _property = new ShaderProperty.ColorFloat4Value(nName);
                 CurrentValue = startingValue;
             }
 
