@@ -12,7 +12,7 @@ namespace PlaytimePainter.ComponentModules
         const string tag = "TerSplat";
         public override string ClassTag => tag;
 
-        public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter)
+        public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex)
         {
             if (!painter.terrain || (!field.HasUsageTag(PainterShaderVariables.TERRAIN_SPLAT_DIFFUSE))) return false;
             var no = field.NameForDisplayPEGI()[0].CharToInt();
@@ -23,14 +23,14 @@ namespace PlaytimePainter.ComponentModules
             if (l.Length > no)
                 tex = l[no].diffuseTexture;
 #else
-            tex = painter.terrain.GetSplashPrototypeTexture(no);
+            tex = parentComponent.terrain.GetSplashPrototypeTexture(no);
 
 #endif
 
             return true;
         }
 
-        public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<ShaderProperty.TextureValue> dest)
+        public override void GetNonMaterialTextureNames(ref List<ShaderProperty.TextureValue> dest)
         {
             if (!painter.terrain) return;
 
@@ -44,9 +44,9 @@ namespace PlaytimePainter.ComponentModules
                     dest.Add(new ShaderProperty.TextureValue(i + PainterShaderVariables.TERRAIN_SPLAT_DIFFUSE + l.diffuseTexture.name, PainterShaderVariables.TERRAIN_SPLAT_DIFFUSE));
             }
 #else
-            for (int i = 0; i < painter.terrain.terrainData.splatPrototypes.Length; i++)
+            for (int i = 0; i < parentComponent.terrain.terrainData.splatPrototypes.Length; i++)
             {
-                var spl = painter.terrain.terrainData.splatPrototypes[i];
+                var spl = parentComponent.terrain.terrainData.splatPrototypes[i];
                 var tex = spl.texture;
             
                 dest.Add(new ShaderProperty.TextureValue(
@@ -56,7 +56,7 @@ namespace PlaytimePainter.ComponentModules
 #endif
         }
 
-        public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue fieldName, PlaytimePainter painter)
+        public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue fieldName)
         {
             if (!painter.terrain) return false;
 
@@ -79,7 +79,7 @@ namespace PlaytimePainter.ComponentModules
 
 
 #else
-            var l = painter.terrain.terrainData.splatPrototypes.TryGet(no);
+            var l = parentComponent.terrain.terrainData.splatPrototypes.TryGet(no);
             if (l == null)
                 return true;
 #endif
@@ -94,7 +94,7 @@ namespace PlaytimePainter.ComponentModules
             return true;
         }
 
-        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue field, TextureMeta id, PlaytimePainter painter)
+        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue field, TextureMeta id)
         {
             var tex = id.CurrentTexture();
             if (!painter.terrain) return false;

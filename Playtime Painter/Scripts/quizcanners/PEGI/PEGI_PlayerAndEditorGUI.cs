@@ -10427,41 +10427,43 @@ namespace PlayerAndEditorGUI
         public static string GetNameForInspector<T>(this T obj)
         {
 
-            if (obj is string)
-            {
-                var str = obj as string;
-                if (str == null)
-                    return "NULL String";
-                // else if (str.Length == 0)
-                return str;
-
-            }
 
             if (obj.IsNullOrDestroyed_Obj())
                 return "NULL {0}".F(typeof(T).ToPegiStringType());
 
-            if (obj.GetType().IsUnityObject())
-                return (obj as Object).GetNameForInspector_Uobj();
+            var type = obj.GetType();
 
-            string tmp;
-            return (obj.ToPegiStringInterfacePart(out tmp)) ? tmp : obj.ToString().SimplifyTypeName();
+            if (type.IsClass)
+            {
+
+                if (obj is string)
+                {
+                    var str = obj as string;
+                    if (str == null)
+                        return "NULL String";
+                    return str;
+                }
+
+                if (obj.GetType().IsUnityObject())
+                    return (obj as Object).GetNameForInspector_Uobj();
+                
+                string tmp;
+                return (obj.ToPegiStringInterfacePart(out tmp)) ? tmp : obj.ToString().SimplifyTypeName();
+
+            }
+            else
+            {
+
+               if (!type.IsPrimitive)
+               {
+                   string tmp;
+                   return (obj.ToPegiStringInterfacePart(out tmp)) ? tmp : obj.ToString();
+               }
+
+               return obj.ToString();
+
+            }
         }
-
-        /* public static string GetNameForInspector(this object obj)
-         {
-
-             if (obj is string)
-                 return (string)obj;
-
-             if (obj.IsNullOrDestroyed_Obj()) return "NULL";
-
-             if (obj.GetType().IsUnityObject())
-                 return (obj as Object).GetNameForInspector_Uobj();
-
-             string tmp;
-
-             return (obj.ToPegiStringInterfacePart(out tmp)) ? tmp : obj.ToString().SimplifyTypeName();
-         }*/
 
         public static T GetByIGotIndex<T, G>(this List<T> lst, int index) where T : IGotIndex where G : T
         {

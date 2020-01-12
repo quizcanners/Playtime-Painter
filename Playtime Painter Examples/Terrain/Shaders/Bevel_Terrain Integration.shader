@@ -27,16 +27,14 @@
 			#pragma vertex vert
 			#pragma fragment frag
 
-			#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
-			//#pragma target 3.0
+			#include "qc_terrain_cg.cginc"
+
 			#pragma multi_compile_fwdbase
 			#pragma multi_compile_fog
 
 			#pragma shader_feature  ___ _qcPp_UV_ATLASED
 			#pragma shader_feature  ___ _qcPp_UV_PROJECTED
 			#pragma shader_feature  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
-			//#pragma multi_compile ______ USE_NOISE_TEXTURE
-			//#pragma multi_compile  ___ _qcPp_WATER_FOAM
 
 			sampler2D _MainTex_ATL;
 			sampler2D _BumpMapC_ATL;
@@ -218,7 +216,7 @@
 #endif
 
 
-				Terrain_Water_AndLight(col,  i.tc_Control, ambient, smoothness, worldNormal, i.viewDir.xyz,  shadow, Metalic);
+				Terrain_Water_AndLight(col,  i.tc_Control, ambient, smoothness, worldNormal, i.viewDir.xyz,  shadow);
 
 				UNITY_APPLY_FOG(i.fogCoord, col);
 

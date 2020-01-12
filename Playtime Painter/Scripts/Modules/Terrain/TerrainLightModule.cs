@@ -20,7 +20,7 @@ namespace PlaytimePainter.ComponentModules {
                 mergingTerrain = painter.GetComponent<MergingTerrainController>();
         }
 
-        public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter)
+        public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex)
         {
             if (!painter.terrain || !field.Equals(PainterShaderVariables.TerrainLight)) return false;
             
@@ -28,7 +28,7 @@ namespace PlaytimePainter.ComponentModules {
             return true;
         }
 
-        public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<ShaderProperty.TextureValue> dest)
+        public override void GetNonMaterialTextureNames(ref List<ShaderProperty.TextureValue> dest)
         {
             FindMergingTerrain(painter);
 
@@ -36,7 +36,7 @@ namespace PlaytimePainter.ComponentModules {
                 dest.Add(PainterShaderVariables.TerrainLight);
         }
 
-        public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue fieldName, PlaytimePainter painter)
+        public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue fieldName)
         {
             if (!painter.terrain || fieldName == null ||
                 !fieldName.Equals(PainterShaderVariables.TerrainLight)) return false;
@@ -49,7 +49,7 @@ namespace PlaytimePainter.ComponentModules {
 
         }
 
-        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue field, TextureMeta id, PlaytimePainter painter)
+        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue field, TextureMeta id)
         {
 
             var tex = id.CurrentTexture();
@@ -86,7 +86,7 @@ namespace PlaytimePainter.ComponentModules {
         public override void OnComponentDirty()
         {
 
-            FindMergingTerrain(parentComponent);
+            FindMergingTerrain(painter);
 
             if (!mergingTerrain) return;
             

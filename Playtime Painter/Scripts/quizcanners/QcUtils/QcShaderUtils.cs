@@ -317,19 +317,44 @@ namespace QuizCannersUtilities {
 
             public static readonly ColorFloat4Value tintColor = new ColorFloat4Value("_TintColor");
 
-            public override void SetOn(Material material) => material.SetColor(id, latestValue);
+            public bool ConvertToLinear
+            {
+                get
+                {
+                    if (!_colorSpaceChecked)
+                        CheckColorSpace();
+                    return _convertToLinear;
+                }
+                set
+                {
+                    _colorSpaceChecked = true;
+                    _convertToLinear = value;
+                }
+            }
+            private bool _convertToLinear;
+            private bool _colorSpaceChecked = false;
+
+            private Color ConvertedColor => ConvertToLinear ? latestValue.linear : latestValue;
+
+            public override void SetOn(Material material) => material.SetColor(id, ConvertedColor);
 
             public override Color Get(Material material) => material.GetColor(id);
 
-            public override void SetOn(MaterialPropertyBlock block) => block.SetColor(id, latestValue);
+            public override void SetOn(MaterialPropertyBlock block) => block.SetColor(id, ConvertedColor);
 
             public override Color GlobalValue_Internal
             {
                 get { return Shader.GetGlobalColor(id); }
-                set { Shader.SetGlobalColor(id, value); }
+                set { Shader.SetGlobalColor(id, ConvertedColor); }
             }
 
-           // public void SetGlobal() => GlobalValue = latestValue;
+            void CheckColorSpace()
+            {
+                _colorSpaceChecked = true;
+                #if UNITY_EDITOR
+                ConvertToLinear = PlayerSettings.colorSpace == ColorSpace.Linear;
+                #endif
+            }
 
             public ColorFloat4Value()
             {
@@ -339,6 +364,19 @@ namespace QuizCannersUtilities {
             public ColorFloat4Value(string name) : base(name)
             {
                 latestValue = Color.grey;
+            }
+
+
+            public ColorFloat4Value(string name, bool convertToLinear) : base(name)
+            {
+                latestValue = Color.grey;
+                ConvertToLinear = convertToLinear;
+            }
+
+            public ColorFloat4Value(string name, Color startingColor, bool convertToLinear) : base(name)
+            {
+                latestValue = startingColor;
+                ConvertToLinear = convertToLinear;
             }
 
             public ColorFloat4Value(string name, Color startingColor) : base(name)

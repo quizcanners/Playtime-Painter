@@ -14,10 +14,10 @@ namespace PlaytimePainter.ComponentModules {
 
         private static readonly ShaderProperty.TextureValue textureName = new ShaderProperty.TextureValue("_UiSprite");
 
-        private Sprite GetSprite(ShaderProperty.TextureValue field, PlaytimePainter painter) 
-            => field.Equals(textureName) ? GetSprite(painter) : null;
+        private Sprite GetSprite(ShaderProperty.TextureValue field) 
+            => field.Equals(textureName) ? GetSprite() : null;
     
-        private Sprite GetSprite(PlaytimePainter painter) {
+        private Sprite GetSprite() {
 
             if (painter.IsUiGraphicPainter) {
                 var image = painter.uiGraphic as Image;
@@ -60,9 +60,9 @@ namespace PlaytimePainter.ComponentModules {
             return changed;
         }
 
-        public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter)
+        public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex)
         {
-            var sp = GetSprite(field, painter);
+            var sp = GetSprite(field);
 
             if (!sp)
                 return false;
@@ -72,18 +72,17 @@ namespace PlaytimePainter.ComponentModules {
             return true;
         }
 
-        public override void GetNonMaterialTextureNames(PlaytimePainter painter,
-            ref List<ShaderProperty.TextureValue> dest)
+        public override void GetNonMaterialTextureNames(ref List<ShaderProperty.TextureValue> dest)
         {
-            var sp = GetSprite(painter);
+            var sp = GetSprite();
 
             if (sp)
                 dest.Add(textureName);
         }
 
-        public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue field, PlaytimePainter painter) {
+        public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue field) {
 
-            var sp = GetSprite(field, painter);
+            var sp = GetSprite(field);
             if (sp) {
 
                 var id = painter.TexMeta;

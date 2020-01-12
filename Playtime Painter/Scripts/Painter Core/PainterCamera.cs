@@ -117,10 +117,23 @@ namespace PlaytimePainter {
         public Light mainDirectionalLight;
 
         public PlaytimePainter focusedPainter;
-
-        public List<TextureMeta> blitJobsActive = new List<TextureMeta>();
-
-        public bool isLinearColorSpace;
+        
+        public bool IsLinearColorSpace
+        {
+            get
+            {
+                #if UNITY_EDITOR
+                      return PlayerSettings.colorSpace == ColorSpace.Linear;
+                #else
+                      return Data.isLineraColorSpace;
+                #endif
+            }
+            set
+            {
+                if (Data)
+                    Data.isLineraColorSpace = value;
+            }
+        }
 
         #region Modules
       
@@ -332,8 +345,7 @@ namespace PlaytimePainter {
                 materialsUsingRenderTexture.Add(mat);
             }
         }
-
- 
+        
         public static RenderTexture FrontBuffer => RenderTextureBuffersManager.GetOrCreatePaintingBuffers()[0];
 
         public static RenderTexture BackBuffer => RenderTextureBuffersManager.GetOrCreatePaintingBuffers()[1];
@@ -344,9 +356,7 @@ namespace PlaytimePainter {
         #endregion
 
         #region Brush Shader MGMT
-
-
-
+        
         public void SHADER_BRUSH_UPDATE(BrushConfig brush = null, float brushAlpha = 1, TextureMeta id = null, PlaytimePainter painter = null)
         {
             if (brush == null)
@@ -685,7 +695,7 @@ namespace PlaytimePainter {
 
             if (!defaultMaterial) Debug.Log("Default Material not found.");
 
-            isLinearColorSpace = PlayerSettings.colorSpace == ColorSpace.Linear;
+            IsLinearColorSpace = PlayerSettings.colorSpace == ColorSpace.Linear;
 
             EditorApplication.update -= CombinedUpdate;
             if (!QcUnity.ApplicationIsAboutToEnterPlayMode())
@@ -753,6 +763,8 @@ namespace PlaytimePainter {
                 Data.ManagedOnEnable();
 
             UpdateCullingMask();
+
+            PainterShaderVariables.BrushColorProperty.ConvertToLinear = IsLinearColorSpace;
 
         }
 
@@ -883,6 +895,8 @@ namespace PlaytimePainter {
             return tmpCurve;
         }
 
+        private int _inspectedDependecy = -1;
+        
         public override bool Inspect()
         {
 
@@ -895,8 +909,6 @@ namespace PlaytimePainter {
             
             return changed;
         }
-
-        private int _inspectedDependecy = -1;
         
         public bool DependenciesInspect(bool showAll = false) {
 
@@ -931,6 +943,8 @@ namespace PlaytimePainter {
                 if (_inspectedDependecy == -1)
                 {
 
+                    (IsLinearColorSpace ? "Linear" : "Gamma").nl();
+                 
                     "Main Directional Light".edit(ref mainDirectionalLight).nl(ref changed);
 
 #if UNITY_EDITOR

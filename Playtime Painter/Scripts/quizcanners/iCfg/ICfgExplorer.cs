@@ -406,7 +406,7 @@ namespace QuizCannersUtilities
             if (_guid != null && icon.Search.Click("Find Object " + componentType + " by guid").nl()) {
 
                 if (!TryGetByGuid(ref field))
-                    (typeof(T).ToString() + " Not found ").showNotificationIn3D_Views();
+                    (typeof(T).ToPegiStringType() + " Not found ").showNotificationIn3D_Views();
                 else changed = true;
             }
 #endif

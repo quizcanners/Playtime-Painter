@@ -32,7 +32,7 @@ namespace PlaytimePainter
 
         public static readonly FloatValue CopyColorTransparency         = new FloatValue("_qcPp_CopyBlitAlpha");
 
-        public static readonly VectorValue BrushColorProperty           = new VectorValue("_qcPp_brushColor");
+        public static readonly ColorFloat4Value BrushColorProperty           = new ColorFloat4Value("_qcPp_brushColor");
 
         public static readonly VectorValue ChannelCopySourceMask        = new VectorValue("_qcPp_ChannelSourceMask");
         public static readonly VectorValue BrushMaskProperty            = new VectorValue("_qcPp_brushMask");

@@ -102,11 +102,8 @@ namespace PlaytimePainter {
         public class PainterModules : TaggedModulesList<ComponentModuleBase> {
 
             public override void OnInitialize() {
-
-                Debug.Log("Initializing Painter Modules");
-
                 foreach (var p in modules)
-                  p.parentComponent = painter;
+                  p.painter = painter;
             }
 
             public PlaytimePainter painter;
@@ -134,8 +131,8 @@ namespace PlaytimePainter {
 
         private void StrokeStateFromInputs()
         {
-            stroke.mouseUp = Input.GetMouseButtonUp(0);
-            stroke.mouseDwn = Input.GetMouseButtonDown(0);
+            stroke.MouseUpEvent = Input.GetMouseButtonUp(0);
+            stroke.MouseDownEvent = Input.GetMouseButtonDown(0);
         }
 
         private void StrokeFromGrid()
@@ -155,7 +152,7 @@ namespace PlaytimePainter {
             {
                 // Sampling Texture
 
-                if (!stroke.mouseDwn)
+                if (!stroke.MouseDownEvent)
                     return;
 
                 SampleTexture(stroke.uvTo);
@@ -164,7 +161,7 @@ namespace PlaytimePainter {
             }
             else
             {
-                if (stroke.mouseDwn)
+                if (stroke.MouseDownEvent)
                 {
                     stroke.firstStroke = true;
                     stroke.SetPreviousValues();
@@ -183,13 +180,13 @@ namespace PlaytimePainter {
 
                     if (id == null) return;
 
-                    if (stroke.mouseDwn)
+                    if (stroke.MouseDownEvent)
                         id.OnStrokeMouseDown_CheckBackup();
 
-                    if (IsTerrainHeightTexture && stroke.mouseUp)
+                    if (IsTerrainHeightTexture && stroke.MouseUpEvent)
                         Preview_To_UnityTerrain();
 
-                    if (!stroke.mouseDwn || CanPaintOnMouseDown())
+                    if (!stroke.MouseDownEvent || CanPaintOnMouseDown())
                         GlobalBrush.Paint(stroke, this);
                     else
                         foreach (var module in TexMeta.Modules)
@@ -197,9 +194,9 @@ namespace PlaytimePainter {
                 }
             }
 
-            stroke.mouseDwn = false;
+            stroke.MouseDownEvent = false;
 
-            if (stroke.mouseUp)
+            if (stroke.MouseUpEvent)
                 currentlyPaintedObjectPainter = null;
         }
         
@@ -210,7 +207,7 @@ namespace PlaytimePainter {
 
             if ((pegi.MouseOverPlaytimePainterUI || (_mouseOverPaintableGraphicElement && this!=_mouseOverPaintableGraphicElement)) ||
                 (!IsUiGraphicPainter && EventSystem.current && EventSystem.current.IsPointerOverGameObject())) {
-                stroke.mouseDwn = false;
+                stroke.MouseDownEvent = false;
                 return;
             }
 
@@ -267,12 +264,12 @@ namespace PlaytimePainter {
             if (MeshEditorManager.target)
                 return false;
 
-            if (stroke.mouseDwn || stroke.mouseUp)
+            if (stroke.MouseDownEvent || stroke.MouseUpEvent)
                 InitIfNotInitialized();
 
             if (TexMeta != null) return true;
             
-            if (stroke.mouseDwn)
+            if (stroke.MouseDownEvent)
                 "No texture to edit".showNotificationIn3D_Views();
 
                 return false;
@@ -357,7 +354,7 @@ namespace PlaytimePainter {
             var uv = id.useTexCoord2 ? hit.textureCoord2 : hit.textureCoord;
 
             foreach (var p in Modules)
-                if (p.OffsetAndTileUv(hit, this, ref uv))
+                if (p.OffsetAndTileUv(hit, ref uv))
                     return uv;
 
             uv.Scale(id.tiling);
@@ -376,13 +373,13 @@ namespace PlaytimePainter {
         public void AfterStroke(StrokeVector st) {
             st.SetPreviousValues();
             st.firstStroke = false;
-            st.mouseDwn = false;
+            st.MouseDownEvent = false;
 
             var tex = TexMeta;
 
             if (tex.TargetIsTexture2D())
                 tex.pixelsDirty = true;
-            else if (tex.updateTex2DafterStroke && st.mouseUp)
+            else if (tex.updateTex2DafterStroke && st.MouseUpEvent)
             {
                 tex.RenderTexture_To_Texture2D();
             }
@@ -532,7 +529,7 @@ namespace PlaytimePainter {
             
             if (fieldName != null)
              foreach (var nt in Modules)
-                if (nt.UpdateTilingFromMaterial(fieldName, this))
+                if (nt.UpdateTilingFromMaterial(fieldName))
                     return;
 
              if (!mat || fieldName == null || id == null) return;
@@ -553,10 +550,6 @@ namespace PlaytimePainter {
                 return;
             }
             
-                foreach (var nt in Modules)
-                    if (nt.UpdateTilingToMaterial(fieldName, this))
-                        return;
-
             if (!mat || fieldName == null || id == null) return;
             mat.SetTiling(fieldName, id.tiling);
             mat.SetOffset(fieldName, id.offset);
@@ -898,7 +891,7 @@ namespace PlaytimePainter {
 
                 foreach (var nt in Modules)
                     if (nt != null)
-                        nt.GetNonMaterialTextureNames(this, ref _lastTextureNames);
+                        nt.GetNonMaterialTextureNames(ref _lastTextureNames);
 
                 _lastFetchedTextureNamesFor = materialData;
 
@@ -932,10 +925,11 @@ namespace PlaytimePainter {
 
             if (fieldName == null)
                 return null;
-            
+
+            Texture tex = null;
+
             foreach (var t in Modules) {
-                Texture tex = null;
-                if (t.GetTexture(fieldName, ref tex, this))
+                if (t.GetTexture(fieldName, ref tex))
                     return tex;
             }
 
@@ -966,7 +960,7 @@ namespace PlaytimePainter {
                     Cfg.recentTextures.AddIfNew(property, id);
                 
                 foreach (var nt in Modules)
-                    if (nt.SetTextureOnMaterial(property, id, this))
+                    if (nt.SetTextureOnMaterial(property, id))
                         return id;
             }
 
@@ -1126,10 +1120,10 @@ namespace PlaytimePainter {
 
             foreach (var nt in Modules)
             {
-                if (!nt.parentComponent)
+                if (!nt.painter)
                 {
                     Debug.LogError("Parnt Component in {0} is not assigned".F(nt.GetType().ToString().SimplifyTypeName()));
-                    nt.parentComponent = this;
+                    nt.painter = this;
                 }
                 nt.OnComponentDirty();
             }
@@ -1374,10 +1368,10 @@ namespace PlaytimePainter {
             return false;
         }
 
-        public void Decode(string data) => new CfgDecoder(data).DecodeTagsFor(this);
-        
-        #if UNITY_EDITOR
-        
+        public void Decode(string data) => this.DecodeTagsFrom(data);
+
+#if UNITY_EDITOR
+
         private void ForceReimportMyTexture(string path)
         {
 
@@ -1815,7 +1809,9 @@ namespace PlaytimePainter {
 
         }
         #endif
-        
+
+        private float _debugTimeOfLastUpdate;
+
         public void ManagedUpdateOnFocused() {
             
             if (this == _mouseOverPaintableGraphicElement) {
@@ -1860,7 +1856,9 @@ namespace PlaytimePainter {
 
             if (textureWasChanged)
                 OnChangedTexture_OnMaterial();
-            
+
+            _debugTimeOfLastUpdate = Time.time;
+
             var id = TexMeta;
                 id?.ManagedUpdate(this);
 
@@ -1900,7 +1898,7 @@ namespace PlaytimePainter {
             TexMgmt.SHADER_BRUSH_UPDATE(GlobalBrush, 1, id, this);
 
             foreach (var p in Modules)
-                p.Update_Brush_Parameters_For_Preview_Shader(this);
+                p.Update_Brush_Parameters_For_Preview_Shader();
 
             PainterCamera._previewAlpha = 1;
 
@@ -2390,8 +2388,8 @@ namespace PlaytimePainter {
                                     if (texMeta!=null)
                                         PreviewShaderToggleInspect().changes(ref changed);
 
-                                    if (!PainterCamera.GotBuffers && icon.Refresh.Click("Refresh Main Camera Buffers"))
-                                        RenderTextureBuffersManager.RefreshPaintingBuffers();
+                                    //if (!PainterCamera.GotBuffers && icon.Refresh.Click("Refresh Main Camera Buffers"))
+                                      //  RenderTextureBuffersManager.RefreshPaintingBuffers();
 
 
                                     GlobalBrush.Nested_Inspect().changes(ref changed);
@@ -2402,9 +2400,8 @@ namespace PlaytimePainter {
                                     var mode = GlobalBrush.GetBlitMode(cpu);
                                     var col = GlobalBrush.Color;
 
-                                    if ((cpu || !mode.UsingSourceTexture || GlobalBrush.srcColorUsage !=
-                                         BrushConfig.SourceTextureColorUsage.Unchanged) && !IsTerrainHeightTexture &&
-                                        !pegi.paintingPlayAreaGui)
+                                    if ((cpu || !mode.UsingSourceTexture || GlobalBrush.srcColorUsage != BrushConfig.SourceTextureColorUsage.Unchanged)
+                                        && !IsTerrainHeightTexture && !pegi.paintingPlayAreaGui)
                                     {
                                         if (pegi.edit(ref col).changes(ref changed))
                                             GlobalBrush.Color = col;
@@ -2556,7 +2553,7 @@ namespace PlaytimePainter {
 
                             }
 
-                            if ("Painter Modules".enter(ref inspectionIndex, 5).nl())
+                            if ("Painter Modules (Debug)".enter(ref inspectionIndex, 5).nl())
                                 Modules.Nested_Inspect().nl();
 
                             if (texMeta != null)
@@ -2831,9 +2828,11 @@ namespace PlaytimePainter {
                                 if (!IsTerrainControlTexture)
                                 {
 
+                                    "Unless saved, the texture will loose all changes when scene is offloaded or Unity Editor closed.".writeOneTimeHint("_pp_hint_saveTex").nl();
+
                                     texMeta = TexMeta;
 
-#if UNITY_EDITOR
+                                    #if UNITY_EDITOR
                                     string orig = null;
                                     if (texMeta.texture2D)
                                     {

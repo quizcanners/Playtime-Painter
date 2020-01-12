@@ -17,10 +17,7 @@
 				#pragma vertex vert
 				#pragma fragment frag
 				#pragma multi_compile_fog
-				#include "UnityLightingCommon.cginc" 
-				#include "Lighting.cginc"
-				#include "UnityCG.cginc"
-				#include "AutoLight.cginc"
+
 				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
 				#pragma multi_compile_fwdbase 
@@ -90,7 +87,7 @@
 					float4 splat2N =  tex2D(_qcPp_mergeSplatN_2, tiled);
 					float4 splat3N =  tex2D(_qcPp_mergeSplatN_3, tiled);
 
-					float edge = MERGE_POWER;
+					float edge = 128;
 
 					float4 terrain = splat0;
 					float4 terrainN = splat0N;

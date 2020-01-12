@@ -15,60 +15,47 @@ namespace PlaytimePainter.ComponentModules
     public abstract class ComponentModuleBase : PainterSystemCfg, IGotClassTag, IPEGI
     {
 
-        public PlaytimePainter parentComponent;
+        public PlaytimePainter painter;
 
-        protected TextureMeta ImgMeta => parentComponent ? parentComponent.TexMeta : null; 
+        protected TextureMeta ImgMeta => painter ? painter.TexMeta : null; 
 
         #region Abstract Serialized
-        public abstract string ClassTag { get; }
-        //public TaggedTypesCfg AllTypes => TaggedModulesList<ComponentModuleBase>.all;        
+        public abstract string ClassTag { get; }    
         #endregion
 
 
-        public virtual bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter) => false;
+        public virtual bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex) => false;
         
         public virtual void OnComponentDirty()  { }
 
-        public virtual bool SetTextureOnMaterial(ShaderProperty.TextureValue field, TextureMeta id, PlaytimePainter painter) => false;
+        public virtual bool SetTextureOnMaterial(ShaderProperty.TextureValue field, TextureMeta id) => false;
         
-        public virtual bool UpdateTilingToMaterial(ShaderProperty.TextureValue  fieldName, PlaytimePainter painter) => false;
+        public virtual bool UpdateTilingFromMaterial(ShaderProperty.TextureValue  fieldName) => false;
         
-        public virtual bool UpdateTilingFromMaterial(ShaderProperty.TextureValue  fieldName, PlaytimePainter painter) => false;
+        public virtual void GetNonMaterialTextureNames(ref List<ShaderProperty.TextureValue> dest) { }
         
-        public virtual void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<ShaderProperty.TextureValue> dest)
-        {
-        }
+        public virtual bool OffsetAndTileUv(RaycastHit hit, ref Vector2 uv) => false; 
 
-        #region Inspector
+        public virtual void Update_Brush_Parameters_For_Preview_Shader() { }
 
-        public virtual bool BrushConfigPEGI() => false;
+        public virtual void BeforeGpuStroke(BrushConfig br, StrokeVector st, BrushTypes.Base type) { }
 
-        public virtual bool Inspect()
-        {
-
-
-            return false;
-        }
-
-        #endregion
-
-        public virtual bool OffsetAndTileUv(RaycastHit hit, PlaytimePainter p, ref Vector2 uv) => false; 
-
-        public virtual void Update_Brush_Parameters_For_Preview_Shader(PlaytimePainter p) { }
-
-        public virtual void BeforeGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushTypes.Base type) {
-
-        }
-
-        public virtual void AfterGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushTypes.Base type) {
+        public virtual void AfterGpuStroke(BrushConfig br, StrokeVector st, BrushTypes.Base type) {
 
         }
         
         #region Encode & Decode
         public override CfgEncoder Encode() => new CfgEncoder();
 
-        public override bool Decode(string tg, string data) => false;
+        public override bool Decode(string tg, string data) => true;
+        #endregion
 
+        #region Inspector
+
+        public virtual bool BrushConfigPEGI() => false;
+
+        public virtual bool Inspect() => false;
+        
         #endregion
     }
 }

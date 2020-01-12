@@ -139,7 +139,7 @@ Shader "Playtime Painter/Geometry/Destructible/Character" {
 					float deSmoothness = 1 - smoothness;
 
 					float ambientBlock = 1 - ambientOcclusion;
-					float3 teraBounce = _LightColor0.rgb*TERABOUNCE;
+					float3 teraBounce = _LightColor0.rgb;
 
 					float diff = saturate((dot(worldNormal, _WorldSpaceLightPos0.xyz)));
 			

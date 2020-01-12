@@ -425,7 +425,7 @@ namespace PlaytimePainter
             */
 
 
-            if (PainterCamera.Inst.isLinearColorSpace)
+            if (PainterCamera.Inst.IsLinearColorSpace)
             {
                 if (!tex.IsColorTexture())
                 {
@@ -645,7 +645,7 @@ namespace PlaytimePainter
 
             var pix = _sampler.GetPixel(0, 0);
 
-            if (PainterCamera.Inst.isLinearColorSpace)
+            if (PainterCamera.Inst.IsLinearColorSpace)
                 pix = pix.linear;
 
             return pix;
@@ -1414,7 +1414,7 @@ namespace PlaytimePainter
             if (pixelsDirty)
             {
 
-                if ((Time.time - _repaintTime < _repaintDelay) && !painter.stroke.mouseUp) return;
+                if ((Time.time - _repaintTime < _repaintDelay) && !painter.stroke.MouseUpEvent) return;
 
                 if (texture2D)
                     SetAndApply(!dontRedoMipMaps);

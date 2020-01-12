@@ -16,10 +16,32 @@ namespace PlaytimePainter {
         
         public Vector2 previousDelta;
 	    public float avgBrushSpeed;
-     
-	    public bool mouseDwn;
+
+        private bool _mouseDownEvent;
+        private bool _mouseUpEvent;
+
+        public bool MouseDownEvent
+        {
+            get { return _mouseDownEvent; }
+            set
+            {
+                _mouseDownEvent = value;
+                if (value)
+                    _mouseUpEvent = false;
+            }
+        }
 	    public bool firstStroke; // For cases like Lazy Brush, when painting doesn't start on the first frame.
-	    public bool mouseUp;
+
+        public bool MouseUpEvent
+        {
+            get { return _mouseUpEvent; }
+            set
+            {
+                _mouseUpEvent = value;
+                if (value)
+                    _mouseDownEvent = false;
+            }
+        }
         public bool mouseHeld;
 
         public static bool pausePlayback;
@@ -34,7 +56,7 @@ namespace PlaytimePainter {
 
         public bool CrossedASeam() {
 
-            if (mouseDwn)
+            if (MouseDownEvent)
                 return false;
 
             var newDelta = uvTo - uvFrom;
@@ -52,13 +74,13 @@ namespace PlaytimePainter {
 
             var s = new CfgEncoder();
 
-            if (mouseDwn) s.Add("fU", uvFrom, 4);
-            if (mouseDwn) s.Add("fP", posFrom, 4);
+            if (MouseDownEvent) s.Add("fU", uvFrom, 4);
+            if (MouseDownEvent) s.Add("fP", posFrom, 4);
 
             s.Add("tU", uvTo, 4);
             s.Add("tP", posTo, 4);
 
-            if (mouseUp)
+            if (MouseUpEvent)
                 s.Add_String("Up", "_");
 
             return s;
@@ -68,7 +90,7 @@ namespace PlaytimePainter {
 
             var s = new CfgEncoder();
 
-            if (mouseDwn) {
+            if (MouseDownEvent) {
                 if (worldSpace)
                     s.Add("fP", posFrom, 4);
                 else
@@ -80,7 +102,7 @@ namespace PlaytimePainter {
             else
                 s.Add("tU", uvTo, 4);
 
-            if (mouseUp)
+            if (MouseUpEvent)
                 s.Add_String("Up", "_");
 
             return s;
@@ -93,7 +115,7 @@ namespace PlaytimePainter {
                 case "fP": Down(data.ToVector3());  break;
                 case "tU": uvTo = data.ToVector2(); break;
                 case "tP": posTo = data.ToVector3(); break;
-                case "Up": mouseUp = true; break;
+                case "Up": MouseUpEvent = true; break;
                 default: return false;
             }
             return true;
@@ -103,9 +125,9 @@ namespace PlaytimePainter {
 
         public void OnMouseUnPressed() {
 
-            mouseUp = mouseHeld;
+            MouseUpEvent = mouseHeld;
 
-            mouseDwn = false;
+            MouseDownEvent = false;
             mouseHeld = false;
         }
 
@@ -117,7 +139,7 @@ namespace PlaytimePainter {
             {
                 uvFrom = uvTo;
                 mouseHeld = true;
-                mouseDwn = false;
+                MouseDownEvent = false;
             }
 
             uvTo = pos;
@@ -129,7 +151,7 @@ namespace PlaytimePainter {
             else {
                 posFrom = posTo;
                 mouseHeld = true;
-                mouseDwn = false;
+                MouseDownEvent = false;
             }
 
             posTo = pos;
@@ -147,7 +169,7 @@ namespace PlaytimePainter {
                 posFrom = posTo;
                 uvFrom = uvTo;
                 mouseHeld = true;
-                mouseDwn = false;
+                MouseDownEvent = false;
             }
 
             posTo = pos;
@@ -176,8 +198,7 @@ namespace PlaytimePainter {
         private void Down_Internal() {
 
             firstStroke = true;
-            mouseDwn = true;
-            mouseUp = false;
+            MouseDownEvent = true;
             mouseHeld = true;
         }
 
@@ -192,7 +213,7 @@ namespace PlaytimePainter {
         public  Vector3 BrushWorldPosition => BrushWorldPositionFrom(uvTo);
         
         public void SetPreviousValues() {
-            previousDelta = mouseDwn ? Vector2.zero : (uvTo - uvFrom);
+            previousDelta = MouseDownEvent ? Vector2.zero : (uvTo - uvFrom);
 		    uvFrom = uvTo;
             posFrom = posTo;
         }
@@ -234,9 +255,9 @@ namespace PlaytimePainter {
             previousDelta = other.previousDelta;
             avgBrushSpeed = other.avgBrushSpeed;
             
-            mouseDwn = other.mouseDwn;
+            MouseDownEvent = other.MouseDownEvent;
             firstStroke = other.firstStroke ; // For cases like Lazy Brush, when painting doesn't start on the first frame.
-            mouseUp = other.mouseDwn;
+            MouseUpEvent = other.MouseDownEvent;
 
             Down_Internal();
         }

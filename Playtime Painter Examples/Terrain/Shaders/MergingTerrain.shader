@@ -23,7 +23,7 @@
 				#pragma multi_compile  ___ _qcPp_WATER_FOAM
 				#pragma multi_compile ______ USE_NOISE_TEXTURE
 
-				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
+				#include "qc_terrain_cg.cginc"
 
 				struct v2f {
 					float4 pos : POSITION;
@@ -164,16 +164,15 @@
 
 					float smoothness = col.a;
 
-					//return caustics;
-
 #if _qcPp_WATER_FOAM
 					APPLY_PROJECTED_WATER(underWater, worldNormal, nrmNdSm, i.tc_Control, projectedWpos, i.viewDir.y, col, smoothness, ambient, shadow, caustics);
 #endif
 
+
 					Terrain_Water_AndLight(col, i.tc_Control, 
 						ambient, smoothness
 						, worldNormal, i.viewDir.xyz,
-						shadow , Metallic);
+						shadow);
 
 					float4 fogCol = col;
 					UNITY_APPLY_FOG(i.fogCoord, fogCol);
@@ -181,6 +180,8 @@
 					col = APPLY_HEIGHT_FOG(i.wpos.y, col, fogCol);
 
 					BleedAndBrightness(col, 1, i.texcoord.xy*10000);
+
+				
 
 					return col;
 				}

@@ -33,7 +33,7 @@ namespace PlaytimePainter.Examples
         {
             var p = GetPainterFrom(collision.gameObject);
             if (p == null) return;
-            p.vector.mouseUp = true;
+            p.vector.MouseUpEvent = true;
             Paint(collision, p);
         }
 
@@ -42,7 +42,7 @@ namespace PlaytimePainter.Examples
 
             var p = GetPainterFrom(collision.gameObject);
             if (p == null) return;
-            p.vector.mouseDwn = true;
+            p.vector.MouseDownEvent = true;
             Paint(collision, p);
         }
 
@@ -61,7 +61,7 @@ namespace PlaytimePainter.Examples
 
                 var v = pCont.vector;
                 v.posTo = transform.position;
-                if (v.mouseDwn) v.posFrom = v.posTo;
+                if (v.MouseDownEvent) v.posFrom = v.posTo;
                 brush.Paint(v, pCont.painter);
 
             }
@@ -82,7 +82,7 @@ namespace PlaytimePainter.Examples
                 var v = pCont.vector;
 
                 v.uvTo = hit.textureCoord;
-                if (v.mouseDwn) v.uvFrom = v.uvTo;
+                if (v.MouseDownEvent) v.uvFrom = v.uvTo;
 
                 brush.Paint(pCont.vector, pCont.painter.SetTexTarget(brush));
             }

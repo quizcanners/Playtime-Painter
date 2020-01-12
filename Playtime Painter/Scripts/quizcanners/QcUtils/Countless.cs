@@ -171,7 +171,7 @@ namespace QuizCannersUtilities {
         public void Decode(string data)
         {
             Clear();
-            data.DecodeTagsFor(this);
+            this.DecodeTagsFrom(data);
         }
     }
 

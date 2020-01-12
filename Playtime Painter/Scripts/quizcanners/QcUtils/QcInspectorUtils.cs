@@ -386,6 +386,20 @@ namespace QuizCannersUtilities
                     Debug.LogError(msg);
             }
 
+            private static List<string> loggedWarnings = new List<string>();
+            public static void LogWarningOnce(string key, string msg, Object target = null)
+            {
+                if (loggedWarnings.Contains(key))
+                    return;
+
+                loggedWarnings.Add(key);
+
+                if (target)
+                    Debug.LogWarning(msg, target);
+                else
+                    Debug.LogWarning(msg);
+            }
+
         }
 
         [Serializable]
@@ -744,12 +758,14 @@ namespace QuizCannersUtilities
 
                 if (_showRange)
                 {
-                    pegi.nl();
+                  
 
                     if (icon.FoldedOut.ClickUnFocus("Hide Range"))
                         _showRange = false;
 
-                    "Temporary range (<> ><): [{0} : {1}]".F(dynamicMin, dynamicMax).nl();
+                    pegi.nl();
+
+                    "[{0} : {1}] - {2}".F(dynamicMin, dynamicMax, "Focused Range").nl();
 
                     "Range: [".write(60);
 
@@ -776,6 +792,13 @@ namespace QuizCannersUtilities
                     "Use >< to shrink range around current value for more precision. And <> to expand range."
                         .fullWindowDocumentationClickOpen("About <> & ><");
 
+                    if (icon.Refresh.Click())
+                    {
+                        dynamicMin = min;
+                        dynamicMax = max;
+
+                    }
+
                     pegi.nl();
 
                     "Tap Enter to apply Range change in the field (will Clamp current value)".writeHint();
@@ -785,7 +808,16 @@ namespace QuizCannersUtilities
                     pegi.nl();
 
                     if (rangeChanged)
+                    {
                         Value = Mathf.Clamp(_value, min, max);
+
+                        if (Mathf.Abs(dynamicMin - dynamicMax) < (float.Epsilon * 10))
+                        {
+                            dynamicMin = Mathf.Clamp(dynamicMin - float.Epsilon * 10, min, max);
+                            dynamicMax = Mathf.Clamp(dynamicMax + float.Epsilon * 10, min, max);
+                        }
+                    }
+
 
                 }
 

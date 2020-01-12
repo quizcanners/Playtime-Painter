@@ -317,7 +317,7 @@ namespace PlaytimePainter
 
                 if (painter)
                     foreach (var p in painter.Modules)
-                        p.BeforeGpuStroke(painter, br, st, this);
+                        p.BeforeGpuStroke(br, st, this);
             }
 
             public virtual void AfterStroke_Painter(PlaytimePainter painter, BrushConfig br, StrokeVector st,
@@ -326,7 +326,7 @@ namespace PlaytimePainter
 
                 painter.AfterStroke(st);
 
-                if (br.useMask && st.mouseUp && br.randomMaskOffset)
+                if (br.useMask && st.MouseUpEvent && br.randomMaskOffset)
                     br.maskOffset = new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f));
 
                 if (alphaBuffer)
@@ -341,7 +341,7 @@ namespace PlaytimePainter
                     TexMGMT.UpdateBufferSegment();
 
                 foreach (var p in painter.Modules)
-                    p.AfterGpuStroke(painter, br, st, this);
+                    p.AfterGpuStroke(br, st, this);
             }
 
             protected static void AfterStroke_NoPainter(BrushConfig br, bool alphaBuffer, RenderTexture rt = null)
@@ -749,7 +749,7 @@ namespace PlaytimePainter
 
                 var trackPortion = (deltaUv.magnitude - width * 0.5f) * 0.25f;
 
-                if (!(trackPortion > 0) && !st.mouseUp) return;
+                if (!(trackPortion > 0) && !st.MouseUpEvent) return;
 
                 if (st.firstStroke)
                 {
@@ -766,7 +766,7 @@ namespace PlaytimePainter
                 if (st.CrossedASeam() && (magnitude > previousDirectionLazy.magnitude * 8))
                 {
                     // Debug.Log("Crossed a seam");
-                    st.mouseUp = true;
+                    st.MouseUpEvent = true;
                     st.uvTo = st.uvFrom; // painter.Previous_uv;
                     deltaUv = Vector2.zero;
                     smooth = false;
@@ -774,7 +774,7 @@ namespace PlaytimePainter
 
                 previousDirectionLazy = deltaUv;
 
-                if (!st.mouseUp)
+                if (!st.MouseUpEvent)
                 {
                     if (smooth)
                     {
@@ -851,7 +851,7 @@ namespace PlaytimePainter
                 r.SHADER_STROKE_SEGMENT_UPDATE(br, br.Speed * 0.05f, id, st, out alphaBuffer, painter);
 
                 BrushMesh = PainterCamera.BrushMeshGenerator.GetStreak(UvToPosition(st.uvFrom), UvToPosition(st.uvTo),
-                    meshWidth, st.mouseUp, isTail);
+                    meshWidth, st.MouseUpEvent, isTail);
                 tf.localScale = Vector3.one;
                 tf.localRotation = Quaternion.identity;
                 tf.localPosition = new Vector3(0, 0, 10);
@@ -922,7 +922,7 @@ namespace PlaytimePainter
 
                 PrepareSphereBrush(id, br, st, out alphaBuffer, painter);
 
-                if (!st.mouseDwn)
+                if (!st.MouseDownEvent)
                 {
                     TexMGMT.brushRenderer.UseMeshAsBrush(painter);
                     TexMGMT.Render();
@@ -998,8 +998,8 @@ namespace PlaytimePainter
                 }
 
                 if (InspectAdvanced || Cfg.useGridForBrush || suggestGrid)
-                    "Paint On Grid".toggleIcon(ref Cfg.useGridForBrush).nl();
-
+                    (Cfg.useGridForBrush ? "Grid: Z, X - change plane" : "Paint On Grid").toggleIcon(ref Cfg.useGridForBrush).nl();
+                
                 if (!br.useAlphaBuffer && (br.worldSpaceBrushPixelJitter || InspectAdvanced))
                 {
                     "One Pixel Jitter".toggleIcon(ref br.worldSpaceBrushPixelJitter).changes(ref changed);

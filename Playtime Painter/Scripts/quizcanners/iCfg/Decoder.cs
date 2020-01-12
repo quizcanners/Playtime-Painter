@@ -730,10 +730,11 @@ namespace QuizCannersUtilities {
         }
         #endregion
 
-        #region STD class
-        public static ICfg DecodeTagsFor<T>(this string data, T val) where T : class, ICfg
-        => (QcUnity.IsNullOrDestroyed_Obj(val)) ? val : new CfgDecoder(data).DecodeTagsFor(val);
-      
+        #region CFG class
+
+        public static ICfg DecodeTagsFrom<T>(this T obj, string data) where T : class, ICfg
+            => (QcUnity.IsNullOrDestroyed_Obj(obj)) ? obj : new CfgDecoder(data).DecodeTagsFor(obj);
+        
         public static T DecodeInto<T>(this string data, out T val) where T : ICfg, new()
         {
             val = data.DecodeInto<T>();
@@ -796,8 +797,7 @@ namespace QuizCannersUtilities {
             
             return val;
         }
-        #endregion
-
+    
         public static void Decode<T>(this string data, out T val, TaggedTypesCfg typeList) where T : IGotClassTag
         {
 
@@ -810,6 +810,7 @@ namespace QuizCannersUtilities {
             if (type != null)
                 val = cody.GetData().DecodeInto_Type<T>(type);
         }
+        #endregion
 
 
         #region Into Unity Objects

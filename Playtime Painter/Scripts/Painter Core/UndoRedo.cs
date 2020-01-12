@@ -164,7 +164,7 @@ namespace PlaytimePainter
 
                     var converted = false;
 
-                    if ((PainterCamera.Inst.isLinearColorSpace) && !rtBackup.exclusive)
+                    if ((PainterCamera.Inst.IsLinearColorSpace) && !rtBackup.exclusive)
                     {
                         converted = true;
                         id.PixelsToGamma();

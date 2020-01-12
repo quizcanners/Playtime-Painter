@@ -312,17 +312,10 @@
 					#endif
 						) * 0.002;
 
-				
-
-					
-
 					float4 fogCol = col;
 					UNITY_APPLY_FOG(o.fogCoord, fogCol);
 
-					col = APPLY_HEIGHT_FOG(o.worldPos.y, col, fogCol);
-
 					BleedAndBrightness(col, 1, o.texcoord.xy);
-
 
 					return  col;
 

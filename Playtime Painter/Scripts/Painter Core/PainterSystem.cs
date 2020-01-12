@@ -24,7 +24,7 @@ namespace PlaytimePainter
     {
         public abstract CfgEncoder Encode();
 
-        public virtual void Decode(string data) => data.DecodeTagsFor(this);
+        public virtual void Decode(string data) => this.DecodeTagsFrom(data);
 
         public abstract bool Decode(string tg, string data);
     }
@@ -35,7 +35,7 @@ namespace PlaytimePainter
         private readonly UnrecognizedTagsList _uTags = new UnrecognizedTagsList();
         public UnrecognizedTagsList UnrecognizedStd => _uTags;
 
-        public virtual void Decode(string data) => data.DecodeTagsFor(this);
+        public virtual void Decode(string data) => this.DecodeTagsFrom(data);
 
         public virtual bool Decode(string tg, string data) => true;
 

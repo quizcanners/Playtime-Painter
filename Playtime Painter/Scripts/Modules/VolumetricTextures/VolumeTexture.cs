@@ -351,9 +351,6 @@ namespace PlaytimePainter {
             all.Add(this);
 
             UpdateMaterials();
-
-            if (_painter)
-                _painter.GetModule<VolumeTextureComponentModule>().volumeTexture = this;
         }
 
         public virtual void OnDisable()

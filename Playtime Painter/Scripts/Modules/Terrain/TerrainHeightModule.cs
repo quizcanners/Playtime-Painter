@@ -18,19 +18,19 @@ namespace PlaytimePainter.ComponentModules {
             field.Equals(PainterShaderVariables.TerrainHeight);
 
 
-        public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter) {
+        public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex) {
             if (!CorrectField(field, painter)) return false;
             tex = painter.terrainHeightTexture;
             return true;
         }
 
-        public override void GetNonMaterialTextureNames(PlaytimePainter painter, ref List<ShaderProperty.TextureValue> dest)
+        public override void GetNonMaterialTextureNames(ref List<ShaderProperty.TextureValue> dest)
         {
             if (painter.terrain)
                 dest.Add(PainterShaderVariables.TerrainHeight);
         }
 
-        public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue field, PlaytimePainter painter)
+        public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue field)
         {
             if (!CorrectField(field, painter)) return false;
 
@@ -41,7 +41,7 @@ namespace PlaytimePainter.ComponentModules {
             return true;
         }
 
-        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue  field, TextureMeta id, PlaytimePainter painter)
+        public override bool SetTextureOnMaterial(ShaderProperty.TextureValue  field, TextureMeta id)
         {
             if (!CorrectField(field, painter)) return false;
 
@@ -55,8 +55,8 @@ namespace PlaytimePainter.ComponentModules {
         }
 
         public override void OnComponentDirty() {
-            if (parentComponent.terrainHeightTexture)
-                PainterShaderVariables.TerrainHeight.GlobalValue = parentComponent.terrainHeightTexture.GetDestinationTexture();
+            if (painter.terrainHeightTexture)
+                PainterShaderVariables.TerrainHeight.GlobalValue = painter.terrainHeightTexture.GetDestinationTexture();
         }
     }
 }

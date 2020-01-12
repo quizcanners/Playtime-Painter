@@ -185,8 +185,8 @@ namespace PlaytimePainter
                     if (pointedPainter)
                     {
                         var st = pointedPainter.stroke;
-                        st.mouseUp = lMouseUp;
-                        st.mouseDwn = lMouseDwn;
+                        st.MouseUpEvent = lMouseUp;
+                        st.MouseDownEvent = lMouseDwn;
 
                         pointedPainter.OnMouseOverSceneView(hit, e);
                     }

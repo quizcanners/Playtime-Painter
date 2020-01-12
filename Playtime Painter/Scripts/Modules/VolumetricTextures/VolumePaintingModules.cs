@@ -541,19 +541,26 @@ namespace PlaytimePainter {
 
             public VolumeTexture volumeTexture;
 
+            private bool expectingAVolume;
+
             public override void OnComponentDirty()
             {
 
             }
 
-            public override void GetNonMaterialTextureNames(PlaytimePainter painter,
-                ref List<ShaderProperty.TextureValue> dest)
+            public override void GetNonMaterialTextureNames(ref List<ShaderProperty.TextureValue> dest)
             {
+                if (expectingAVolume && !volumeTexture)
+                {
+                    volumeTexture = painter.gameObject.GetComponent<VolumeTexture>();
+                    expectingAVolume = false;
+                }
+
                 if (volumeTexture)
                     dest.Add(volumeTexture.TextureInShaderProperty);
             }
 
-            public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex, PlaytimePainter painter)
+            public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex)
             {
                 if (volumeTexture && field.Equals(volumeTexture.TextureInShaderProperty))
                 {
@@ -564,8 +571,7 @@ namespace PlaytimePainter {
                 return false;
             }
 
-            public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue fieldName,
-                PlaytimePainter painter)
+            public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue fieldName)
             {
                 if (!volumeTexture)
                     return false;
@@ -580,10 +586,29 @@ namespace PlaytimePainter {
 
             public override bool Inspect()
             {
-                "Colume Texture:".edit(ref volumeTexture).nl();
+                "Volume Texture:".edit(ref volumeTexture).nl();
 
                 return false;
             }
+
+            #region Encode & Decode
+
+            public override CfgEncoder Encode() => new CfgEncoder()
+                .Add("b", base.Encode)
+                .Add_IfTrue("gotVol", volumeTexture);
+
+            public override bool Decode(string tg, string data)
+            {
+                switch (tg)
+                {
+                    case "b": base.Decode(data); break;
+                    case "gotVol": expectingAVolume = data.ToBool(); break;
+                    default: return false;
+                }
+
+                return true;
+            }
+            #endregion
 
         }
     }

@@ -24,10 +24,8 @@
 				#pragma vertex vert
 				#pragma fragment frag
 				#pragma multi_compile_fog
-				#include "UnityLightingCommon.cginc" 
-				#include "Lighting.cginc"
-				#include "AutoLight.cginc"
-				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
+
+				#include "qc_terrain_cg.cginc"
 
 				#pragma multi_compile_fwdbase 
 				#pragma shader_feature  ___ _BUMP_NONE  _BUMP_COMBINED 
@@ -146,7 +144,7 @@
 #endif
 */
 
-					Terrain_Water_AndLight(col, i.tc_Control, ambient, smoothness, worldNormal, i.viewDir.xyz,  shadow, Metalic);
+					Terrain_Water_AndLight(col, i.tc_Control, ambient, smoothness, worldNormal, i.viewDir.xyz,  shadow);
 
 					float4 fogCol = col;
 					UNITY_APPLY_FOG(i.fogCoord, fogCol);

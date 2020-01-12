@@ -401,12 +401,16 @@ namespace PlaytimePainter {
             var changed = false;
             var cpuBlit = id.destination == TexTarget.Texture2D;
             
-            if ((PainterCamera.GotBuffers || id.renderTexture) && id.texture2D)
+            if (id.texture2D)
             {
-                if ((cpuBlit ? icon.CPU : icon.GPU).Click(
-                    cpuBlit ? "Switch to Render Texture" : "Switch to Texture2D", ref changed ,45))
+                if ((cpuBlit ? icon.CPU : icon.GPU).Click( cpuBlit ? "Switch to Render Texture" : "Switch to Texture2D", ref changed ,45))
                 {
-                    p.UpdateOrSetTexTarget(cpuBlit ? TexTarget.RenderTexture : TexTarget.Texture2D);
+                    cpuBlit = !cpuBlit;
+
+                    if (!cpuBlit && !PainterCamera.GotBuffers)
+                        RenderTextureBuffersManager.RefreshPaintingBuffers();
+
+                    p.UpdateOrSetTexTarget(cpuBlit ? TexTarget.Texture2D : TexTarget.RenderTexture);
                     SetSupportedFor(cpuBlit, !id.renderTexture);
                 }
             }

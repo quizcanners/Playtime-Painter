@@ -117,13 +117,13 @@ namespace PlaytimePainter
 
             var stroke = painter.stroke;
 
-            if (stroke.mouseDwn)
+            if (stroke.MouseDownEvent)
             {
                 _prevDir = Vector2.zero;
                 _prevPosDir = Vector3.zero;
             }
 
-            var canRecord = stroke.mouseDwn || stroke.mouseUp;
+            var canRecord = stroke.MouseDownEvent || stroke.MouseUpEvent;
 
             var worldSpace = GlobalBrush.IsA3DBrush(painter);
 
@@ -176,7 +176,7 @@ namespace PlaytimePainter
                 var hold = stroke.uvTo;
                 var holdV3 = stroke.posTo;
 
-                if (!stroke.mouseDwn)
+                if (!stroke.MouseDownEvent)
                 {
                     stroke.uvTo = _lastUv;
                     stroke.posTo = _lastPos;
@@ -188,7 +188,7 @@ namespace PlaytimePainter
                 recordedStrokes.Add(data);
                 recordedStrokesForUndoRedo.Add(data);
 
-                if (!stroke.mouseDwn)
+                if (!stroke.MouseDownEvent)
                 {
                     stroke.uvTo = hold;
                     stroke.posTo = holdV3;
@@ -353,7 +353,7 @@ namespace PlaytimePainter
             
             var stroke = painter.stroke;
 
-            if (stroke.mouseDwn)
+            if (stroke.MouseDownEvent)
             {
                 encoder.Add("brush", GlobalBrush.EncodeStrokeFor(painter)) // Brush is unlikely to change mid stroke
                 .Add_String("trg", parentMeta.TargetIsTexture2D() ? "C" : "G");

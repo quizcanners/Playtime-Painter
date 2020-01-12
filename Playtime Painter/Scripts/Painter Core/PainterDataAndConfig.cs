@@ -18,7 +18,9 @@ namespace PlaytimePainter
     {
         private static PlaytimePainter Painter => PlaytimePainter.inspected;
         public int playtimePainterLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
-        
+
+        [SerializeField] public bool isLineraColorSpace;
+
         public static bool toolEnabled;
         
         #region Shaders

@@ -346,7 +346,7 @@ namespace QuizCannersUtilities {
         public virtual CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add("listDta", _listMetaData);
 
-        public virtual void Decode(string data) => data.DecodeTagsFor(this);
+        public virtual void Decode(string data) => this.DecodeTagsFrom(data);
 
         public virtual bool Decode(string tg, string data)
         {
@@ -428,7 +428,7 @@ namespace QuizCannersUtilities {
 
     public abstract class AbstractCfg : ICfgSafeEncoding, ICanBeDefaultCfg {
         public abstract CfgEncoder Encode();
-        public virtual void Decode(string data) => data.DecodeTagsFor(this);
+        public virtual void Decode(string data) => this.DecodeTagsFrom(data);
         public abstract bool Decode(string tg, string data);
 
         public LoopLock GetLoopLock { get; } = new LoopLock();
@@ -610,7 +610,7 @@ namespace QuizCannersUtilities {
 
         public virtual void Decode(string data) {
             UnrecognizedStd.Clear();
-            data.DecodeTagsFor(this);
+            this.DecodeTagsFrom(data);
         }
 
 #endregion

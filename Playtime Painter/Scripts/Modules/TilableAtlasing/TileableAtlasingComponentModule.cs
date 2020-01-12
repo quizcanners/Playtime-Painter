@@ -61,8 +61,8 @@ namespace PlaytimePainter.ComponentModules {
             return new Vector2(atX, atY);
         }
 
-        public override void Update_Brush_Parameters_For_Preview_Shader(PlaytimePainter p) =>
-            QcUnity.ToggleShaderKeywords(!p.IsAtlased(), PainterShaderVariables.UV_NORMAL, PainterShaderVariables.UV_ATLASED);
+        public override void Update_Brush_Parameters_For_Preview_Shader() =>
+            QcUnity.ToggleShaderKeywords(!painter.IsAtlased(), PainterShaderVariables.UV_NORMAL, PainterShaderVariables.UV_ATLASED);
         
         public bool PaintTexture2D(StrokeVector stroke, float brushAlpha, TextureMeta image, BrushConfig bc, PlaytimePainter painter) {
             
@@ -138,22 +138,22 @@ namespace PlaytimePainter.ComponentModules {
 
         }
         
-        public override bool OffsetAndTileUv(RaycastHit hit, PlaytimePainter p, ref Vector2 uv)
+        public override bool OffsetAndTileUv(RaycastHit hit, ref Vector2 uv)
         {
-            if (!p.IsAtlased()) return false;
+            if (!painter.IsAtlased()) return false;
             
             uv.x = uv.x % 1;
             uv.y = uv.y % 1;
 
-            var m = p.GetMesh();
+            var m = painter.GetMesh();
 
             if (!m) return false;
 
-            var col = p.meshCollider;
+            var col = painter.meshCollider;
 
             if (!col || m != col)
             {
-                QcUtils.ChillLogger.LogErrorOnce("mncol", "Painter mesh and collider do not match on {0}".F(p.gameObject.name), p);
+                QcUtils.ChillLogger.LogWarningOnce("mncol", "Painter mesh and collider do not match on {0}".F(painter.gameObject.name), painter);
             }
 
             var vertex = m.triangles[hit.triangleIndex * 3];
@@ -208,7 +208,7 @@ namespace PlaytimePainter.ComponentModules {
        
         #endregion
 
-        public override void BeforeGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushTypes.Base type)
+        public override void BeforeGpuStroke(BrushConfig br, StrokeVector st, BrushTypes.Base type)
         {
             if (!br.IsA3DBrush(painter) || !painter.IsAtlased()) return;
             
@@ -216,7 +216,7 @@ namespace PlaytimePainter.ComponentModules {
             PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(ats.x, ats.y, atlasRows, 1);
         }
 
-        public override void AfterGpuStroke(PlaytimePainter painter, BrushConfig br, StrokeVector st, BrushTypes.Base type) {
+        public override void AfterGpuStroke(BrushConfig br, StrokeVector st, BrushTypes.Base type) {
             if (br.IsA3DBrush(painter) && painter.IsAtlased())
                 PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
         }

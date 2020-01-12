@@ -878,7 +878,7 @@ namespace PlaytimePainter
         public CfgEncoder Encode() => new CfgEncoder()
             .Add_Abstract("mdls", _modules);
 
-        public void Decode(string data) => data.DecodeTagsFor(this);
+        public void Decode(string data) => this.DecodeTagsFrom(data);
 
         public bool Decode(string tg, string data)
         {
