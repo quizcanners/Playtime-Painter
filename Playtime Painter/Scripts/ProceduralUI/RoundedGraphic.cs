@@ -176,7 +176,7 @@ namespace PlaytimePainter
         protected override void OnPopulateMesh(VertexHelper vh)
         {
 
-            if (!gameObject.activeSelf)
+            if (!gameObject.activeInHierarchy)
             {
                 if (Debug.isDebugBuild && Application.isEditor)
                     Debug.LogError("On populate mesh is called for disabled UI element");

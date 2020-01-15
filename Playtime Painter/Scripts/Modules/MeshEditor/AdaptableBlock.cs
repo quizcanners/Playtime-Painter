@@ -41,7 +41,7 @@ namespace PlaytimePainter
             config.SetAllTo(AddCubeCfg.BlockSetting.Empty);
 
             foreach (var t in blocks)
-                if (t.gameObject.activeSelf)
+                if (t.gameObject.activeInHierarchy)
                 {
                     var other = t;
                     if ((other.scale < scale) || (other == this)) continue;

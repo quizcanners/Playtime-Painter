@@ -1349,16 +1349,25 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static void writeBig(this string text)
+        public static void writeBig(this string text, int width, string contents, string tooltip = "")
         {
-            text.write("", PEGI_Styles.OverflowText);
+            text.nl(width);
+            contents.writeBig(tooltip: tooltip);
             nl();
         }
 
-        public static void writeBig(this string text, string toolTip)
+        public static void writeBig(this string text, string tooltip ="")
         {
-            text.write(toolTip, PEGI_Styles.OverflowText);
+            text.write(tooltip, PEGI_Styles.OverflowText);
             nl();
+        }
+
+        public static void SetClipboard (string value, string hint = "", bool sendNotificationIn3Dview = true)
+        {
+            GUIUtility.systemCopyBuffer = value; 
+
+            if (sendNotificationIn3Dview)
+                showNotificationIn3D_Views("{0} Copied to clipboard".F(hint));
         }
 
         public static bool write_ForCopy(this string text, bool showCopyButton = false)
@@ -1374,11 +1383,9 @@ namespace PlayerAndEditorGUI
             {
                 ret = edit(ref text);
             }
-
-
-
+            
             if (showCopyButton && icon.Copy.Click("Copy text to clipboard"))
-                GUIUtility.systemCopyBuffer = text;
+                SetClipboard(text);
 
             return ret;
         }
@@ -1397,7 +1404,7 @@ namespace PlayerAndEditorGUI
             }
 
             if (showCopyButton && icon.Copy.Click("Copy text to clipboard"))
-                GUIUtility.systemCopyBuffer = text;
+                SetClipboard(text);
 
             return ret;
 
@@ -1408,7 +1415,7 @@ namespace PlayerAndEditorGUI
             var ret = edit(label, width, ref val);
 
             if (showCopyButton && icon.Copy.Click("Copy {0} to clipboard".F(label)))
-                GUIUtility.systemCopyBuffer = val;
+                SetClipboard(val, label);
 
             return ret;
 
@@ -1416,10 +1423,10 @@ namespace PlayerAndEditorGUI
 
         public static bool write_ForCopy(this string label, string val, bool showCopyButton = false)
         {
-            var ret = edit(label, ref val);
+            var ret = label.edit(ref val);
 
             if (showCopyButton && icon.Copy.Click("Copy {0} to clipboard".F(label)))
-                GUIUtility.systemCopyBuffer = val;
+                SetClipboard(val, label);
 
             return ret;
 
@@ -1429,7 +1436,7 @@ namespace PlayerAndEditorGUI
         {
 
             if (showCopyButton && "Copy text to clipboard".Click().nl())
-                GUIUtility.systemCopyBuffer = val;
+                SetClipboard(val);
 
             if (paintingPlayAreaGui && !val.IsNullOrEmpty() && val.ContainsAtLeast('\n', 5)) // Due to MGUI BUG
                 ".....   Big Text Has Many Lines: {0}".F(val.FirstLine()).write();
@@ -1442,9 +1449,17 @@ namespace PlayerAndEditorGUI
         public static bool write_ForCopy_Big(this string label, string val, bool showCopyButton = false)
         {
 
-            label.write();
+            if (showCopyButton && icon.Copy.Click("Copy text to clipboard"))
+                SetClipboard(val, label);
 
-            return write_ForCopy_Big(val, showCopyButton);
+            label.nl();
+
+            if (paintingPlayAreaGui && !val.IsNullOrEmpty() && val.ContainsAtLeast('\n', 5)) // Due to MGUI BUG
+                ".....   Big Text Has Many Lines: {0}".F(val.FirstLine()).write();
+            else
+                return editBig(ref val);
+
+            return false;
         }
 
         #region Warning & Hints
@@ -1876,8 +1891,7 @@ namespace PlayerAndEditorGUI
             label.write();
             return select(ref spriteName, atlas);
         }
-
-
+        
         public static bool select(ref string spriteName, SpriteAtlas atlas)
         {
 
@@ -1906,6 +1920,31 @@ namespace PlayerAndEditorGUI
 
             return select(ref spriteName, names);
 
+        }
+
+        public static bool select(ref SortingLayer sortingLayer)
+        {
+            var indexes = new List<int>();
+            var values = new List<string>();
+
+            int selected = -1;
+
+            foreach (var layer in SortingLayer.layers)
+            {
+                if (layer.Equals(sortingLayer))
+                    selected = indexes.Count;
+
+                indexes.Add(layer.id);
+                values.Add("{0} [{1}]".F(layer.name, layer.value));
+            }
+
+            if (selectFinal(sortingLayer, ref selected, values))
+            {
+                sortingLayer = SortingLayer.layers[selected];
+                return true;
+            }
+
+            return false;
         }
 
         private static readonly Dictionary<Type, List<Object>> objectsInScene = new Dictionary<Type, List<Object>>();
@@ -5096,8 +5135,8 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool edit(ref SortingLayer sortingLayer) => select(ref sortingLayer, SortingLayer.layers);
-
+        public static bool edit(ref SortingLayer sortingLayer) => select(ref sortingLayer);
+        
         public static bool edit(this string label, ref SortingLayer sortingLayer)
         {
             label.write();
@@ -5107,7 +5146,7 @@ namespace PlayerAndEditorGUI
         public static bool edit(this string label, int width, ref SortingLayer sortingLayer)
         {
             label.write(width);
-            return select(ref sortingLayer, SortingLayer.layers);
+            return select(ref sortingLayer);
         }
 
         public static bool edit<T>(ref T field, int width) where T : Object =>

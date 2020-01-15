@@ -2097,9 +2097,8 @@ namespace QuizCannersUtilities
                 linkRenderer.endColor = col.Alpha(alpha2);
 
             bool active = alpha > 0 || alpha2 > 0;
-
-            //if (linkRenderer.gameObject.activeSelf != active)
-                linkRenderer.gameObject.SetActive(active);
+            
+            linkRenderer.gameObject.SetActive(active);
 
         }
 

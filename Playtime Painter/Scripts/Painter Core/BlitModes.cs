@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
@@ -653,7 +654,9 @@ namespace PlaytimePainter {
             {
                 var changed = false;
 
-                if (!DepthProjectorCamera.Instance)
+                var depthCamera = DepthProjectorCamera.Instance;
+
+                if (!depthCamera)
                 {
 
                     "Projector brush needs Projector Camera to be in the scene".writeWarning();
@@ -672,13 +675,19 @@ namespace PlaytimePainter {
                     if (BrushConfig.showAdvanced)
                         "Paint only visible (by Projector)".toggleIcon(ref TexMGMTdata.useDepthForProjector).nl();
 
-                    "First step is usually to position the projector camera. You can Lock it to current camera view."
-                        .writeOneTimeHint("posProjCam");
+                    var painter = PlaytimePainter.inspected;
+
+                    bool mentionLink = !depthCamera._projectFromMainCamera;
+                    bool mentionPrview = painter && painter.NotUsingPreview;
+                   
+
+                    if (mentionLink || mentionPrview)
+                        "{0} {1}".F(mentionLink ? "You can Lock it to current camera view to allign the projection." + Environment.NewLine : "", mentionPrview ? "Preview helps see the Projection" : "" ).writeHint();
 
                     if (icon.Delete.Click("Delete Projector Camera"))
-                        DepthProjectorCamera.Instance.gameObject.DestroyWhatever();
+                        depthCamera.gameObject.DestroyWhatever();
                     else
-                       pegi.Nested_Inspect(DepthProjectorCamera.Instance.InspectShortcuts).nl(ref changed);
+                       pegi.Nested_Inspect(depthCamera.InspectShortcuts).nl(ref changed);
                 }
 
                 base.Inspect().nl(ref changed);
