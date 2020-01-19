@@ -328,9 +328,7 @@ namespace PlaytimePainter {
                         "Ignore transparency of the source texture. Otherwise the tool will only paint parts of the texture which are not transparent".fullWindowDocumentationClickOpen().nl();
                     }
                 }
-
-              
-
+                
                 if (!cpu && brushType.SupportsAlphaBufferPainting && blitMode.SupportsAlphaBufferPainting && (useAlphaBuffer || InspectAdvanced)) {
 
                     "Alpha Buffer".toggleIcon(ref useAlphaBuffer, true).changes(ref changed);

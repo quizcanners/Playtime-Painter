@@ -192,8 +192,8 @@ namespace PlaytimePainter
                 }
 
                 pegi.nl();
-                if (InspectAdvanced && p.NeedsGrid() && "Center Grid On Object".Click().nl())
-                    GridNavigator.onGridPos = p.transform.position;
+               // if (InspectAdvanced && p.NeedsGrid() && "Center Grid On Object".Click().nl())
+                 //   GridNavigator.onGridPos = p.transform.position;
 
                 return changed;
             }
@@ -998,8 +998,15 @@ namespace PlaytimePainter
                 }
 
                 if (InspectAdvanced || Cfg.useGridForBrush || suggestGrid)
-                    (Cfg.useGridForBrush ? "Grid: Z, X - change plane" : "Paint On Grid").toggleIcon(ref Cfg.useGridForBrush).nl();
-                
+                {
+                    (Cfg.useGridForBrush
+                        ? ("Grid: Z, X - change plane " + Environment.NewLine + " Ctrl+LMB - reposition GRID")
+                        : "Paint On Grid").toggleIcon(ref Cfg.useGridForBrush).nl();
+
+                    pegi.line();
+                    pegi.nl();
+                }
+
                 if (!br.useAlphaBuffer && (br.worldSpaceBrushPixelJitter || InspectAdvanced))
                 {
                     "One Pixel Jitter".toggleIcon(ref br.worldSpaceBrushPixelJitter).changes(ref changed);

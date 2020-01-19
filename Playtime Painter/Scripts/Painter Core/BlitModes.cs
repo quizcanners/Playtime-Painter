@@ -222,8 +222,7 @@ namespace PlaytimePainter {
             }
 
         }
-
-
+        
         #region Alpha
 
         public class Alpha : Base
@@ -672,6 +671,8 @@ namespace PlaytimePainter {
                 else
                 {
 
+                    "Projector:".nl();
+
                     if (BrushConfig.showAdvanced)
                         "Paint only visible (by Projector)".toggleIcon(ref TexMGMTdata.useDepthForProjector).nl();
 
@@ -680,14 +681,17 @@ namespace PlaytimePainter {
                     bool mentionLink = !depthCamera._projectFromMainCamera;
                     bool mentionPrview = painter && painter.NotUsingPreview;
                    
-
                     if (mentionLink || mentionPrview)
-                        "{0} {1}".F(mentionLink ? "You can Lock it to current camera view to allign the projection." + Environment.NewLine : "", mentionPrview ? "Preview helps see the Projection" : "" ).writeHint();
+                        "{0} {1}".F(mentionLink ? "You can Lock Projector to current camera view to allign the projection." + Environment.NewLine : "", mentionPrview ? "Preview helps see the Projection" : "" ).writeHint();
 
                     if (icon.Delete.Click("Delete Projector Camera"))
                         depthCamera.gameObject.DestroyWhatever();
                     else
-                       pegi.Nested_Inspect(depthCamera.InspectShortcuts).nl(ref changed);
+                       pegi.Nested_Inspect(depthCamera.Inspect_PainterShortcut).nl(ref changed);
+
+                    pegi.line(Color.black);
+                    pegi.nl();
+
                 }
 
                 base.Inspect().nl(ref changed);

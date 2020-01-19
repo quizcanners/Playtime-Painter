@@ -21,7 +21,7 @@ namespace PlaytimePainter {
 
         public static DepthProjectorCamera depthProjectorCamera;
 
-        public static DepthProjectorCamera GetProjectorCamera()
+        public static DepthProjectorCamera GetOrCreateProjectorCamera()
         {
           
                 if (depthProjectorCamera)

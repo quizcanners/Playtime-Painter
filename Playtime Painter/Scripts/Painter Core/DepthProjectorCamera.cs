@@ -11,9 +11,7 @@ using UnityEditor;
 
 namespace PlaytimePainter
 {
-
-
-
+    
     [ExecuteInEditMode]
     public class DepthProjectorCamera : PainterSystemMono {
 
@@ -39,6 +37,8 @@ namespace PlaytimePainter
 
         [SerializeField] public Camera _projectorCamera;
 
+        [SerializeField] public Vector2 _fromMouseOffset;
+
         public bool _projectFromMainCamera = false;
         public bool _centerOnMousePosition = false;
         public bool pauseAutoUpdates = false;
@@ -61,44 +61,51 @@ namespace PlaytimePainter
             pegi.toggle(ref pauseAutoUpdates, icon.Play, icon.Pause,
                 pauseAutoUpdates ? "Resume Updates" : "Pause Updates").changes(ref changed);
 
-            this.ClickHighlight().nl();
-            
+            if (RenderTextureBuffersManager.InspectDepthTarget().nl(ref changed))
+                UpdateDepthCamera();
+
+            if (_projectorCamera)
+            {
+
+                "Project from Camera".toggleIcon("Will always project from Play or Editor Camera", ref _projectFromMainCamera).nl(ref changed);
+
+                if (_projectFromMainCamera)
+                    "Follow the mouse".toggleIcon(ref _centerOnMousePosition).nl(ref changed);
+
+                var fov = _projectorCamera.fieldOfView;
+
+                if ("FOV".edit(30, ref fov, 0.1f, 180f).nl(ref changed))
+                {
+
+                    _projectorCamera.fieldOfView = fov;
+                }
+            }
+
             "Requested updates".edit_List(ref depthUsers, ref _inspectedUser).nl();
 
             return changed;
         }
 
-        public bool InspectShortcuts()
+        public bool Inspect_PainterShortcut()
         {
             var changed = false;
-
-            pegi.toggle(ref pauseAutoUpdates, icon.Play, icon.Pause,
-                pauseAutoUpdates ? "Resume Updates" : "Pause Updates").changes(ref changed);
-
-            if (!_foldOut)
-                pegi.toggle(ref _projectFromMainCamera, icon.Link, icon.UnLinked, "Link Projector Camera to {0} camera".F(Application.isPlaying ? "Main Camera" : "Editor Camera")).changes(ref changed);
             
-            if ("Projector ".enter(ref _foldOut).nl_ifFoldedOut()) {
+            pegi.toggle(ref _projectFromMainCamera, icon.Link, icon.UnLinked, "Link Projector Camera to {0} camera".F(Application.isPlaying ? "Main Camera" : "Editor Camera")).changes(ref changed);
 
-                 if (RenderTextureBuffersManager.InspectDepthTarget().nl(ref changed))
-                    UpdateDepthCamera();
-                
-                if (_projectorCamera) {
-                   
-                    "Project from Camera".toggleIcon("Will always project from Play or Editor Camera" ,ref _projectFromMainCamera).nl(ref changed);
+            if (_projectFromMainCamera)
+            {
+                "Follow the mouse".toggleIcon(ref _centerOnMousePosition).changes(ref changed);
 
-                    if (_projectFromMainCamera) 
-                        "Follow the mouse".toggleIcon(ref _centerOnMousePosition).nl(ref changed);
-                    
-                    var fov = _projectorCamera.fieldOfView;
-
-                    if ("FOV".edit(30, ref fov, 0.1f, 180f).nl(ref changed)) {
-
-                        _projectorCamera.fieldOfView = fov;
-                    }
+                if (_centerOnMousePosition)
+                {
+                    pegi.nl();
+                    "Off X".edit(60, ref _fromMouseOffset.x, -1, 1).nl();
+                    "Off Y".edit(60, ref _fromMouseOffset.y, -1, 1).nl();
                 }
-                
-            } else this.ClickHighlight().nl();
+
+            }
+
+            this.ClickHighlight().nl();
             
             return changed;
         }
@@ -154,8 +161,6 @@ namespace PlaytimePainter
 
             userToGetUpdate = proj;
             RequestRender(false);
-            // Returning results will give previous frame
-           // ReturnResults();
             
         }
 
@@ -365,7 +370,9 @@ namespace PlaytimePainter
 
             _projectorCamera.targetTexture = RenderTextureBuffersManager.depthTarget;
         }
-        
+
+        //private Vector2 FromMousePositionOffset => Vector2.Scale(_fromMouseOffset, new Vector2(Screen.width, Screen.height));
+
         void UpdateCameraPositionForPainter()
         {
             if (_projectFromMainCamera)
@@ -387,7 +394,9 @@ namespace PlaytimePainter
 
                             if (_centerOnMousePosition)
                                 transform.LookAt(transform.position +
-                                                 cam.ScreenPointToRay(Input.mousePosition).direction);
+                                                 cam.ScreenPointToRay(Input.mousePosition 
+                                                                      + Vector2.Scale(_fromMouseOffset, new Vector2(Screen.width, Screen.height)).ToVector3(0)
+                                                                      ).direction);
                             else
                                 transform.localRotation = Quaternion.identity;
 
@@ -399,11 +408,13 @@ namespace PlaytimePainter
                 {
                     transform.parent = null;
                     var ray = _centerOnMousePosition
-                        ? EditorInputManager.mouseRaySceneView
+                        ? EditorInputManager.mouseRaySceneView 
                         : EditorInputManager.centerRaySceneView;
 
                     transform.position = ray.origin;
-                    transform.LookAt(ray.origin + ray.direction);
+                    transform.LookAt(ray.origin + ray.direction 
+                                                + transform.TransformDirection(_fromMouseOffset.ToVector3(1))
+                                                );
 
                 }
             }

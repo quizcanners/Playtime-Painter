@@ -1,4 +1,5 @@
 ﻿using System;
+using QuizCannersUtilities;
 using UnityEngine;
 
 namespace PlaytimePainter.Examples
@@ -18,18 +19,45 @@ namespace PlaytimePainter.Examples
         public GameObject cube;
         public float timer = 5f;
 
-        private void SetStage(HintStage st)  {
+        [ContextMenu("Reset Tutorial")]
+        public void ResetTutorial()
+        {
+            if (picture)
+                picture.GetComponent<PlaytimePainter>().DestroyWhateverComponent();
+
+            if (cube)
+            {
+                var pntr = cube.GetComponent<PlaytimePainter>();
+                if (pntr && pntr.TexMeta != null)
+                    pntr.TexMeta.lockEditing = true;
+            }
+
+            if (pill)
+            {
+                var pntr = pill.GetComponent<PlaytimePainter>();
+                if (pntr && pntr.TexMeta != null)
+                    pntr.ChangeTexture(null);
+            }
+
+            PlaytimePainter.IsCurrentTool = false;
+
+            _stage = HintStage.EnableTool;
+        }
+
+        private void SetStage(HintStage st)
+        {
             _stage = st;
-           
+
             var mb = (Application.isPlaying) ? "RIGHT MOUSE BUTTON" : "LEFT MOUSE BUTTON";
 
             string newText;
 
-            switch (_stage) {
+            switch (_stage)
+            {
                 case HintStage.EnableTool:
-                    newText = "Select the central cube with " + mb + " and click 'On/Off' to start using painter. Unlock texture if locked."; break;
+                    newText = "Select the central cube and click 'On/Off' to start using painter. Unlock texture if locked."; break;
                 case HintStage.UnlockTexture:
-                    newText = "Unlock texture (lock icon next to it)"; break;
+                    newText = "Unlock texture on the cube (lock icon next to it)"; break;
                 case HintStage.Draw:
                     newText = "Draw on the cube. \n You can LOCK EDITING for selected texture."; break;
                 case HintStage.AddTool:
@@ -38,7 +66,8 @@ namespace PlaytimePainter.Examples
                     newText = "Pill on the left has no texture. Select it with " + mb + " and click 'Create Texture' icon"; break;
                 case HintStage.RenderTexture:
                     int size = RenderTextureBuffersManager.renderBuffersSize;
-                    newText = "Change MODE to GPU Blit. \n This will enable different option and will use two " + size + "*" + size + " Render Texture buffers for editing. \n"; break;
+                    newText = "Change MODE to GPU Blit and paint with it. \n This will enable different option and will use two " + size + "*" + size +
+                              " Render Texture buffers for editing. \n"; break;
                 case HintStage.WellDone: goto default;
                 default:
                     newText = "Well Done! Remember to save your textures before entering/exiting Play Mode.";
@@ -49,7 +78,8 @@ namespace PlaytimePainter.Examples
 
         }
 
-        private void OnEnable() {
+        private void OnEnable()
+        {
             SetStage(HintStage.EnableTool);
             style.wordWrap = true;
         }
@@ -58,7 +88,8 @@ namespace PlaytimePainter.Examples
 
         PlaytimePainter pp;
 
-        private PlaytimePainter PillPainter {
+        private PlaytimePainter PillPainter
+        {
             get
             {
                 if (!pp)
@@ -68,7 +99,8 @@ namespace PlaytimePainter.Examples
             }
         }
 
-        private void OnGUI() {
+        private void OnGUI()
+        {
             var cont = new GUIContent(_text);
             GUI.Box(new Rect(Screen.width - 400, 10, 390, 100), cont, style);
         }
@@ -78,20 +110,28 @@ namespace PlaytimePainter.Examples
 
             timer -= Time.deltaTime;
 
+            if (!PlaytimePainter.IsCurrentTool)
+                SetStage(HintStage.EnableTool);
+
             switch (_stage)
             {
                 case HintStage.EnableTool:
-                    if (PlaytimePainter.IsCurrentTool) { SetStage(HintStage.UnlockTexture); timer = 3f; }
+                    if (PlaytimePainter.IsCurrentTool)
+                    {
+                        SetStage(HintStage.UnlockTexture);
+                    }
                     break;
                 case HintStage.UnlockTexture:
-                    if (cube) {
+                    if (cube)
+                    {
                         var painter = cube.GetComponent<PlaytimePainter>();
-                        if (painter && painter.TexMeta != null && !painter.TexMeta.lockEditing)
+                        if (!painter || (painter && painter.TexMeta != null && !painter.TexMeta.lockEditing))
                             SetStage(HintStage.Draw);
+                        timer = 5f;
                     }
                     break;
                 case HintStage.Draw:
-                    if (!PlaytimePainter.IsCurrentTool) { SetStage(HintStage.EnableTool); break; }
+
                     if (timer < 0) { SetStage(HintStage.AddTool); }
                     break;
                 case HintStage.AddTool:
@@ -100,7 +140,11 @@ namespace PlaytimePainter.Examples
                 case HintStage.AddTexture:
                     if (PillPainter && PillPainter.TexMeta != null) SetStage(HintStage.RenderTexture); break;
                 case HintStage.RenderTexture:
-                    if (PillPainter && PillPainter.TexMeta != null && PillPainter.TexMeta.TargetIsRenderTexture()) SetStage(HintStage.WellDone); break;
+
+                    var pntr = PlaytimePainter.currentlyPaintedObjectPainter;
+
+                    if (pntr && pntr.TexMeta != null && pntr.TexMeta.TargetIsRenderTexture())
+                        SetStage(HintStage.WellDone); break;
             }
 
         }

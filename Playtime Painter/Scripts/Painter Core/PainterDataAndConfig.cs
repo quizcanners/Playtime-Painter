@@ -426,7 +426,7 @@ namespace PlaytimePainter
                 {
                     DepthProjectorCamera.Instance.Nested_Inspect().nl();
                 } else if ("Instantiate".Click())
-                    PainterCamera.GetProjectorCamera();
+                    PainterCamera.GetOrCreateProjectorCamera();
             }
 
             if ("Inspector & Debug".enter(ref inspectedItems, 16).nl())
@@ -434,15 +434,19 @@ namespace PlaytimePainter
             
             if (inspectedItems == -1) {
 
+                if ("Painter Data Encode / Decode Test".Click().nl())
+                {
+                    this.SaveCfgData();
+
+                    matMetas.Clear();
+
+                    this.LoadCfgData();
+                }
+
                 #if UNITY_EDITOR
 
                 if ("Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay).nl())
                     MeshEditorManager.Inst.StopEditingMesh();
-
-                if (enablePainterUIonPlay) {
-                    "To have icons in your build move PlaytimePainter->Scripts->quizcanners->Editor->Resources outside of Editor folder (should be quizcanners->Resources)".writeHint();
-                    pegi.nl();
-                }
 
                 "Hide documentation".toggleIcon(ref hideDocumentation).changes(ref changed);
                 MsgPainter.aboutDisableDocumentation.DocumentationClick();
@@ -587,7 +591,8 @@ namespace PlaytimePainter
 
         public void ManagedOnEnable()
         {
-            Decode(stdData);
+            this.LoadCfgData();
+           //Decode(stdData);
 
             if (brushConfig == null)
                 brushConfig = new BrushConfig();

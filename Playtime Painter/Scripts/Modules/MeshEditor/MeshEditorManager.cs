@@ -367,6 +367,7 @@ namespace PlaytimePainter.MeshEditing
                 }
         }
 
+       
         private bool RayCastVertexIsPointed()
         {
             PointedUv = null;
@@ -375,12 +376,11 @@ namespace PlaytimePainter.MeshEditing
 
             if (alt)
                 GridNavigator.collisionPos = GridNavigator.onGridPos;
-
-
+            
             RaycastHit hit;
             var vertexIsPointed = false;
 
-            if (Physics.Raycast(EditorInputManager.GetScreenMousePositionRay(TexMGMT.MainCamera), out hit))
+            if (GridNavigator.RaycastMouse(out hit))
             {
 
                 vertexIsPointed = (hit.transform.tag == VertexEditorUiElementTag);

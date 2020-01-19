@@ -388,8 +388,9 @@ namespace PlaytimePainter {
         public static bool InspectDepthTarget()
         {
             var changed = false;
-            "Target Size".edit(ref sizeOfDepthBuffers).changes(ref changed);
-            if (icon.Refresh.Click("Recreate Depth Texture").nl(ref changed))
+            "Size of Depth buffers".edit(ref sizeOfDepthBuffers).changes(ref changed);
+
+            if (depthTarget && depthTarget.width!=sizeOfDepthBuffers && icon.Done.Click("Recreate Depth Texture").nl(ref changed))
             {
                 DestroyDepthBuffers();
                 UpdateDepthTarget();

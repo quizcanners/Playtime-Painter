@@ -25,7 +25,7 @@ namespace PlaytimePainter
                     "Depth Projector is needed to update shadows".writeHint();
 
                     if ("Instantiate Depth Projector Camera".Click().nl())
-                        PainterCamera.GetProjectorCamera();
+                        PainterCamera.GetOrCreateProjectorCamera();
                 }
             }
 

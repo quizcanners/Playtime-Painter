@@ -150,12 +150,15 @@ namespace PlaytimePainter {
 
             if (control)
             {
-                // Sampling Texture
 
                 if (!stroke.MouseDownEvent)
                     return;
 
-                SampleTexture(stroke.uvTo);
+                if (NeedsGrid)
+                    GridNavigator.MoveToPointedPosition();
+                else 
+                    SampleTexture(stroke.uvTo);
+
                 currentlyPaintedObjectPainter = null;
 
             }
@@ -863,7 +866,13 @@ namespace PlaytimePainter {
 
         private List<ShaderProperty.TextureValue> GetAllTextureNames()
         {
+            
             var materialData = MatDta;
+
+            if (!Application.isEditor)
+                return materialData?.materialsTextureFields;
+            
+          //  #if UNITY_EDITOR
 
             bool sameAsBefore = _lastFetchedTextureNamesFor == materialData && _lastTextureNames.Count>0;
 
@@ -871,8 +880,6 @@ namespace PlaytimePainter {
             {
 
                 _lastTextureNames.Clear();
-                
-                #if UNITY_EDITOR
                 
                 if (!terrain)
                     _lastTextureNames.AddRange(Material.MyGetTextureProperties_Editor());
@@ -886,9 +893,7 @@ namespace PlaytimePainter {
                             _lastTextureNames.Add(t);
 
                 }
-
-                #endif
-
+                
                 foreach (var nt in Modules)
                     if (nt != null)
                         nt.GetNonMaterialTextureNames(ref _lastTextureNames);
@@ -901,7 +906,7 @@ namespace PlaytimePainter {
 
             } else if (!sameAsBefore)
                 _lastTextureNames.Clear();
-
+           // #endif
 
             return _lastTextureNames;
         }
@@ -2827,8 +2832,8 @@ namespace PlaytimePainter {
                                 pegi.nl();
                                 if (!IsTerrainControlTexture)
                                 {
-
-                                    "Unless saved, the texture will loose all changes when scene is offloaded or Unity Editor closed.".writeOneTimeHint("_pp_hint_saveTex").nl();
+                                    if (Application.isEditor)
+                                        "Unless saved, the texture will loose all changes when scene is offloaded or Unity Editor closed.".writeOneTimeHint("_pp_hint_saveTex").nl();
 
                                     texMeta = TexMeta;
 

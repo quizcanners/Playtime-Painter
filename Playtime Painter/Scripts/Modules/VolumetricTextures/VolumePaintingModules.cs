@@ -210,7 +210,7 @@ namespace PlaytimePainter {
 
                     delayedPaintingConfiguration = new BrushStrokePainterImage(stroke, image, bc, painter);
 
-                    PainterCamera.GetProjectorCamera().RenderRightNow(this);
+                    PainterCamera.GetOrCreateProjectorCamera().RenderRightNow(this);
                 }
                 else
                     PaintRenderTexture(new BrushStrokePainterImage(stroke, image, bc, painter));
@@ -291,7 +291,7 @@ namespace PlaytimePainter {
                 foreach (var p in pix)
                     avg += p;
 
-                var pcam = PainterCamera.GetProjectorCamera();
+                var pcam = PainterCamera.GetOrCreateProjectorCamera();
 
                 GlobalBrush.Color = avg / (float) pixelsCount;
 
@@ -428,7 +428,7 @@ namespace PlaytimePainter {
                             if (!dp)
                             {
                                 if ("Create Projector Camera".Click().nl())
-                                    PainterCamera.GetProjectorCamera();
+                                    PainterCamera.GetOrCreateProjectorCamera();
                             }
                             else if (dp.pauseAutoUpdates)
                             {

@@ -74,6 +74,19 @@ namespace PlaytimePainter.MeshEditing
         private readonly ShaderProperty.VectorValue _dotPositionProperty =
             new ShaderProperty.VectorValue("_GridDotPosition");
 
+        public static void MoveToPointedPosition()
+        {
+            RaycastHit hit;
+
+            if (RaycastMouse(out hit))
+            {
+                collisionPos = hit.point;
+                onGridPos = collisionPos;
+            }
+        }
+
+        public static bool RaycastMouse(out RaycastHit hit) => Physics.Raycast(EditorInputManager.GetScreenMousePositionRay(TexMGMT.MainCamera), out hit);
+        
         public void DeactivateVertices()
         {
 
