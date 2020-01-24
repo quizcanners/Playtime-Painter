@@ -781,8 +781,8 @@ namespace QuizCannersUtilities {
 
             UnityEngine.Object myType = null;
             if (pegi.edit(ref myType)) {
-                txt = QcFile.LoadUtils.TryLoadAsTextAsset(myType);
-                ("Loaded " + myType.name).showNotificationIn3D_Views();
+                txt = QcFile.Loading.TryLoadAsTextAsset(myType);
+                pegi.GameView.ShowNotification("Loaded " + myType.name);
 
                 return true;
             }
@@ -830,25 +830,25 @@ namespace QuizCannersUtilities {
         public static T LoadFromAssets<T>(this T s, string fullPath, string name) where T:ICfg, new() {
 			if (s == null)
 				s = new T ();
-            s.Decode(QcFile.LoadUtils.LoadFromAssets(fullPath, name));
+            s.Decode(QcFile.Loading.FromAssets(fullPath, name));
 			return s;
         }
 
         public static ICfg SaveToAssets(this ICfg s, string path, string filename)
         {
-            QcFile.SaveUtils.SaveToAssets(path, filename, s.Encode().ToString());
+            QcFile.Saving.ToAssets(path, filename, s.Encode().ToString());
             return s;
         }
 
         public static ICfg SaveToPersistentPath(this ICfg s, string path, string filename)
         {
-            QcFile.SaveUtils.SaveToPersistentPath(path, filename, s.Encode().ToString());
+            QcFile.Saving.ToPersistentPath(path, filename, s.Encode().ToString());
             return s;
         }
 
         public static bool LoadFromPersistentPath(this ICfg s, string path, string filename)
         {
-            var data = QcFile.LoadUtils.LoadFromPersistentPath(path, filename);
+            var data = QcFile.Loading.FromPersistentPath(path, filename);
             if (data != null)
             {
                 s.Decode(data);
@@ -859,7 +859,7 @@ namespace QuizCannersUtilities {
 
         public static ICfg SaveToResources(this ICfg s, string resFolderPath, string insideResPath, string filename)
         {
-            QcFile.SaveUtils.SaveToResources(resFolderPath, insideResPath, filename, s.Encode().ToString());
+            QcFile.Saving.ToResources(resFolderPath, insideResPath, filename, s.Encode().ToString());
             return s;
         }
 
@@ -879,7 +879,7 @@ namespace QuizCannersUtilities {
 
         public static bool TryLoadFromResources<T>(this T s, string subFolder, string file) where T : ICfg
         {
-            var load = QcFile.LoadUtils.LoadStringFromResource(subFolder, file);
+            var load = QcFile.Loading.StringFromResource(subFolder, file);
 
             if (load == null)
                 return false;
@@ -892,7 +892,7 @@ namespace QuizCannersUtilities {
         public static T LoadFromResources<T>(this T s, string subFolder, string file)where T:ICfg, new() {
 			if (s == null)
 				s = new T ();
-			s.Decode(QcFile.LoadUtils.LoadStringFromResource(subFolder, file));
+			s.Decode(QcFile.Loading.StringFromResource(subFolder, file));
 			return s;
 		}
 

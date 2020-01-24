@@ -245,7 +245,7 @@ namespace PlaytimePainter.CameraModules
             {
                 this.SaveToAssets(path, _name);
                 QcUnity.RefreshAssetDatabase();
-                (_name + " was saved to " + path).showNotificationIn3D_Views();
+                pegi.GameView.ShowNotification(_name + " was saved to " + path);
             }
             pegi.nl();
 

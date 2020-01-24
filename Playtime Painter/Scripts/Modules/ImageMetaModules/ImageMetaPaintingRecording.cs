@@ -51,7 +51,7 @@ namespace PlaytimePainter
 
             var allStrokes = new CfgEncoder().Add("strokes", recordedStrokes).ToString();
 
-            QcFile.SaveUtils.SaveToPersistentPath(Cfg.vectorsFolderName, parentMeta.saveName, allStrokes);
+            QcFile.Saving.ToPersistentPath(Cfg.vectorsFolderName, parentMeta.saveName, allStrokes);
 
             Cfg.recordingNames.Add(parentMeta.saveName);
 
@@ -287,7 +287,7 @@ namespace PlaytimePainter
                         {
                             parentMeta.saveName = cfg.recordingNames[cfg.browsedRecord];
                             ContinueRecording();
-                            "Recording resumed".showNotificationIn3D_Views();
+                            pegi.GameView.ShowNotification("Recording resumed");
                         }
 
                         if (icon.Delete.Click("Delete", ref changed, 18))
@@ -300,7 +300,7 @@ namespace PlaytimePainter
                     {
                         parentMeta.saveName = "Unnamed";
                         StartRecording();
-                        "Recording started".showNotificationIn3D_Views();
+                        pegi.GameView.ShowNotification("Recording started");
                     }
                 }
 

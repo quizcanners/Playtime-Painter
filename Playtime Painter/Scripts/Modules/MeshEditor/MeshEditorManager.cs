@@ -650,7 +650,7 @@ namespace PlaytimePainter.MeshEditing
 
         public void UpdateInputPlaytime()
         {
-            if (pegi.MouseOverPlaytimePainterUI)
+            if (pegi.GameView.MouseOverUI)
                 return;
       
             ProcessMouseActions();

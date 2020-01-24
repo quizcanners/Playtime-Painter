@@ -25,7 +25,7 @@ namespace QuizCannersUtilities
 
         public const string bytesFileType = ".bytes";
         
-        public class ExplorerUtils
+        public class Explorer
         {
             public static List<string> GetFileNamesFromPersistentFolder(string subPath)
                 => GetFileNamesFrom(Path.Combine(Application.persistentDataPath, subPath));
@@ -80,10 +80,10 @@ namespace QuizCannersUtilities
             }
         }
 
-        public class DeleteUtils
+        public class Delete
         {
 
-            public static void DeleteResource_Bytes(string assetFolder, string insideAssetFolderAndName)
+            public static void Resource_Bytes(string assetFolder, string insideAssetFolderAndName)
             {
 #if UNITY_EDITOR
                 try
@@ -100,31 +100,37 @@ namespace QuizCannersUtilities
 #endif
             }
 
-            public static bool DeleteFromPersistentFolder(string subPath, string fileName)
-                => DeleteFile(Path.Combine(Application.persistentDataPath, subPath,
+            public static bool FromPersistentFolder(string subPath, string fileName)
+                => File(Path.Combine(Application.persistentDataPath, subPath,
                     Path.Combine(Application.persistentDataPath, subPath, fileName + bytesFileType)));
 
-            private static bool DeleteFile(string fullPath)
+            public static void DirectoryFromPersistentPath(string subPath, bool deleteSubdirectories = true)
             {
-                if (File.Exists(fullPath)) {
+                Directory.Delete(Path.Combine(Application.persistentDataPath, subPath), deleteSubdirectories);
+            }
+
+            private static bool File(string fullPath)
+            {
+                if (System.IO.File.Exists(fullPath)) {
 
                     #if UNITY_EDITOR
                     Debug.Log("Deleting" + fullPath);
                     #endif
 
-                    File.Delete(fullPath);
+                    System.IO.File.Delete(fullPath);
                     return true;
                 }
                 else
                     return false;
             }
+            
         }
 
-        public class LoadUtils
+        public class Loading
         {
             private static readonly BinaryFormatter Formatter = new BinaryFormatter();
 
-            public static string LoadStringFromResource(string resourceFolderLocation, string insideResourceFolder, string name)
+            public static string StringFromResource(string resourceFolderLocation, string insideResourceFolder, string name)
             {
 
 #if UNITY_EDITOR
@@ -154,7 +160,7 @@ namespace QuizCannersUtilities
 #endif
             }
 
-            public static string LoadStringFromResource(string insideResourceFolder, string name)
+            public static string StringFromResource(string insideResourceFolder, string name)
             {
                 var resourcePathAndName = insideResourceFolder + (insideResourceFolder.Length > 0 ? "/" : "") + name;
 
@@ -175,7 +181,7 @@ namespace QuizCannersUtilities
                 }
             }
 
-            public static string LoadFromAssets(string folder, string name)
+            public static string FromAssets(string folder, string name)
             {
 #if UNITY_EDITOR
                 var path = Path.Combine(Application.dataPath, folder, name + bytesFileType);
@@ -208,13 +214,13 @@ namespace QuizCannersUtilities
                 var subpath = Application.dataPath;
                 path = subpath.Substring(0, subpath.Length - 6) + path;
 
-                return Load(path);
+                return Internal(path);
 #else
             return null;
 #endif
             }
 
-            public static string LoadFromPersistentPath(string subPath, string filename)
+            public static string FromPersistentPath(string subPath, string filename)
             {
 
                 var filePath = PersistantPath(subPath, filename);
@@ -224,7 +230,7 @@ namespace QuizCannersUtilities
             private static string PersistantPath(string subPath, string fileName)
                 => Path.Combine(Application.persistentDataPath, subPath, fileName + bytesFileType);
 
-            private static string Load(string fullPath)
+            private static string Internal(string fullPath)
             {
                 if (!File.Exists(fullPath))
                     return null;
@@ -245,16 +251,16 @@ namespace QuizCannersUtilities
             }
         }
 
-        public class SaveUtils {
+        public class Saving {
             
             private static readonly BinaryFormatter Formatter = new BinaryFormatter();
 
             #region Create Asset
 
-            public static void SaveAsset(UnityEngine.Object obj, string folder, bool refreshAfter = false) =>
-                SaveAsset(obj, folder, ".mat", refreshAfter);
+            public static void Asset(UnityEngine.Object obj, string folder, bool refreshAfter = false) =>
+                Asset(obj, folder, ".mat", refreshAfter);
             
-            public static void SaveAsset(UnityEngine.Object obj, string folder, string extension, bool refreshAfter = false)
+            public static void Asset(UnityEngine.Object obj, string folder, string extension, bool refreshAfter = false)
             {
                 #if UNITY_EDITOR
                     var fullPath = Path.Combine(Application.dataPath, folder);
@@ -273,27 +279,27 @@ namespace QuizCannersUtilities
             
             #region Write All Bytes
 
-            public static void SaveTextureToAssetsFolder(string subFolder, string fileName, Texture2D texture) =>
+            public static void TextureToAssetsFolder(string subFolder, string fileName, Texture2D texture) =>
                 File.WriteAllBytes(CreateDirectoryPath(Application.dataPath, subFolder, fileName, ".png"), texture.EncodeToPNG());
 
-            public static void SaveTextureOutsideAssetsFolder(string subFolder, string fileName, string extension, Texture2D texture) =>
+            public static void TextureOutsideAssetsFolder(string subFolder, string fileName, string extension, Texture2D texture) =>
                 File.WriteAllBytes(CreateDirectoryPath(OutsideOfAssetsFolder, subFolder, fileName, extension), texture.EncodeToPNG());
 
-            public static void SaveToAssetsFolder(string subFolder, string fileName, string extension, byte[] data) =>
+            public static void ToAssetsFolder(string subFolder, string fileName, string extension, byte[] data) =>
                 File.WriteAllBytes(CreateDirectoryPath(Application.dataPath, subFolder, fileName, extension), data);
 
             #endregion
 
             #region Formatter Serialize
 
-            public static void SaveToResources(string resFolderPath, string insideResPath, string filename, string data) =>
-                SaveToAssets(Path.Combine(resFolderPath, "Resources", insideResPath), filename, data);
+            public static void ToResources(string resFolderPath, string insideResPath, string filename, string data) =>
+                ToAssets(Path.Combine(resFolderPath, "Resources", insideResPath), filename, data);
 
-            public static void SaveToAssets(string path, string filename, string data) =>
-                SaveByFullPath(Path.Combine(Application.dataPath, path), filename, data);
+            public static void ToAssets(string path, string filename, string data) =>
+                ByFullPath(Path.Combine(Application.dataPath, path), filename, data);
 
 
-            private static void SaveByFullPath(string fullDirectoryPath, string filename, string data)
+            private static void ByFullPath(string fullDirectoryPath, string filename, string data)
             {
                 using (var file = File.Create(FullPath(fullDirectoryPath, filename, bytesFileType)))
                     Formatter.Serialize(file, data);
@@ -302,7 +308,7 @@ namespace QuizCannersUtilities
             #endregion
 
             #region Write All Text
-            public static void SaveToPersistentPath(string subPath, string filename, string data) =>
+            public static void ToPersistentPath(string subPath, string filename, string data) =>
                 File.WriteAllText(CreateDirectoryPath(Application.persistentDataPath, subPath, filename, bytesFileType), data);
 
             #endregion

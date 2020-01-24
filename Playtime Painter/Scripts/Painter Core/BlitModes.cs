@@ -169,7 +169,7 @@ namespace PlaytimePainter {
 
                     var txt = (usingDecals ? "Tint alpha" : MsgPainter.Speed.GetText());
 
-                    txt.write(txt.ApproximateLengthUnsafe());
+                    txt.write(pegi.ApproximateLengthUnsafe(txt));
 
                     InspectedBrush._dSpeed.Inspect().nl(ref changed);
 
@@ -394,7 +394,7 @@ namespace PlaytimePainter {
 
                 var txt = MsgPainter.BlurAmount.GetText();
 
-                txt.edit(txt.ApproximateLengthUnsafe(), ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
+                txt.edit(pegi.ApproximateLengthUnsafe(txt), ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
                 return changed;
             }
 
@@ -732,7 +732,7 @@ namespace PlaytimePainter {
 
                 var txt = MsgPainter.SpreadSpeed.GetText();
 
-                txt.edit(txt.ApproximateLengthUnsafe(), ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
+                txt.edit(pegi.ApproximateLengthUnsafe(txt), ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
 
                 return changed;
             }

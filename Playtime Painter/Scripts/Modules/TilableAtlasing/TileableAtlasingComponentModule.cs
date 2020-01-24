@@ -386,7 +386,7 @@ namespace PlaytimePainter.ComponentModules {
                     {
                         var note = painter.name + " no " + original + " texture. Using Color.";
 
-                        note.showNotificationIn3D_Views();
+                        pegi.GameView.ShowNotification(note);
 
                         Debug.Log(note);
                     }

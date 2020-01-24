@@ -33,8 +33,7 @@ namespace QuizCannersUtilities
 
         public static TimedEnumeration.CallAgain CallAfter(TimeSpan timeSpan, string message) =>
             new TimedEnumeration.CallAgain(task: Task.Delay(timeSpan), message: message);
-
-
+        
         public static TimedEnumeration.CallAgain CallAfter_Thread(Action afterThisTask) =>
             new TimedEnumeration.CallAgain(task: Task.Run(afterThisTask));
 
@@ -79,7 +78,7 @@ namespace QuizCannersUtilities
 
         #region Inspector
         
-        private static string CalculatePi(int digits) {
+        private static string CalculatePi_Test(int digits) {
 
             //Stanley Rabinowitz and Stan Wagon - Spigot Algorithm
 
@@ -138,7 +137,7 @@ namespace QuizCannersUtilities
 
         }
 
-        private static IEnumerator NestedCoroutine()
+        private static IEnumerator NestedCoroutine_Test()
         {
 
             Debug.Log("Starting nested coroutine. Frame: {0}".F(Time.frameCount));
@@ -156,7 +155,7 @@ namespace QuizCannersUtilities
 
         }
 
-        public static IEnumerator TestCoroutine() {
+        public static IEnumerator Coroutine_Test() {
 
             for (int i = 0; i < 5; i++) { 
                 Debug.Log("{0}: Frame: {1}".F(i, Time.frameCount));
@@ -170,7 +169,7 @@ namespace QuizCannersUtilities
 
             Debug.Log("Will start Nested Coroutine. Works only if using MonoBehaviour's StartCoroutine");
 
-            yield return NestedCoroutine();
+            yield return NestedCoroutine_Test();
 
 
           //  for (var e = NestedCoroutine(); e.MoveNext();)
@@ -182,7 +181,7 @@ namespace QuizCannersUtilities
 
             yield return CallAfter_Thread(()=>
             {
-                pi = CalculatePi(10000);
+                pi = CalculatePi_Test(10000);
             },"Now we are calculating Pi in a task");
             
             yield return CallAgain_StoreReturnData(pi);
@@ -202,7 +201,7 @@ namespace QuizCannersUtilities
             if (!coroutinesListMeta.Inspecting) {
 
                 if ("Run an Example Managed  Coroutine".Click().nl()) 
-                        StartManagedCoroutine(TestCoroutine(),
+                        StartManagedCoroutine(Coroutine_Test(),
                         (string returnValue) => { Debug.Log("Finished Managed Coroutine. The Pi is: {0}".F(returnValue)); });
                 
             }
@@ -235,13 +234,16 @@ namespace QuizCannersUtilities
 
             protected override void OnDone()
             {
-                if (!stopAndCancel)
+                base.OnDone();
+
+                if (!_stopAndCancel)
                     onDoneFullyReturnData?.Invoke((T)returnedData);
             }
 
-            public IEnumerator Start(Action<T> onDoneFully = null)
+            public IEnumerator Start(Action<T> onDoneFully = null, Action onExit = null)
             {
                 onDoneFullyReturnData = onDoneFully;
+                this.onExit = onExit;
 
                 for (var e = base.Start(); e.MoveNext();)
                     yield return e.Current;
@@ -290,98 +292,127 @@ namespace QuizCannersUtilities
                 }
             }
             
-            private Stopwatch timer = new Stopwatch();
-
             private const float maxMilisecondsPerFrame = 1000f * 0.5f / 60f;
 
-            public int Yields { get; private set; }
-
-            public int Frames { get; private set; }
-
+            private static float TotalTimeUsedThisFrame = 0;
+            private static int FrameIndex = -1;
+            
             public bool DoneFully { get; private set; }
-
-            public bool Done { get; private set; }
-
-            protected bool logUnoptimizedSections;
-
+            public bool Exited { get; private set; }
             public int EnumeratorVersion { get; private set; }
-
-            public bool stopAndCancel;
-
-            private string state = "";
-
-            private IEnumerator _enumerator;
-
-            private Task _task;
-
+          
+            public bool StoppedOnError { get; private set; }
+            public Action onExit;
+            public Action onDoneFully;
             public object returnedData;
 
-            public Action onDoneFully;
-
-            private int runningVersion;
-
+            private IEnumerator _enumerator;
+            private Task _task;
+            private int _runningVersion;
             private CallAgain _currentCallAgainRequest;
-
             private object _current;
+            protected bool _stopAndCancel;
+            private Stopwatch timer = new Stopwatch();
+
+            protected virtual void Cancel() => _stopAndCancel = true;
 
             protected virtual void OnDone()
             {
 
-                Done = true;
+                Exited = true;
 
-                if (!stopAndCancel)
+                if (onExit != null)
                 {
-
-                    DoneFully = true;
-                    onDoneFully?.Invoke();
+                    try
+                    {
+                        onExit?.Invoke();
+                    }
+                    catch (Exception ex)
+                    {
+                        _state = "Eception in OnExit of TimedEnumerator: " + _state + ex.ToString();
+                        Debug.LogError(_state);
+                    }
+                }
+                
+                if (_stopAndCancel)
+                {
+                    _state = "Stopped and cancelled after " + _state;
                 }
                 else
-                    state = "Stopped and cancelled after " + state;
+                {
+                    DoneFully = true;
+                    if (onDoneFully != null)
+                    {
+                        try
+                        {
+                            onDoneFully.Invoke();
+                        }
+                        catch (Exception ex)
+                        {
+                            _state = "Exception in OnFully Done " + ex.ToString();
+                            Debug.LogError(_state);
+                        }
+                    }
+                }
             }
             
             private bool NextYieldInternal()
             {
 
+                _currentCallAgainRequest = null;
+
                 if (_task != null)
                 {
                     if (!_task.IsCompleted)
                     {
-                        _currentCallAgainRequest = null;
                         return true;
                     }
                     else
                         _task = null;
-
                 }
 
-                if (_enumerator.MoveNext())
+                try
+                {
+                    if (_enumerator.MoveNext())
+                    {
+                        _yields++;
+
+                        _current = _enumerator.Current;
+
+                        _currentCallAgainRequest = _current as CallAgain;
+
+                        if (_currentCallAgainRequest != null)
+                        {
+
+                            if (_currentCallAgainRequest.message != null)
+                                _state = _currentCallAgainRequest.message;
+
+                            if (_currentCallAgainRequest.task != null)
+                                _task = _currentCallAgainRequest.task;
+
+                            if (_currentCallAgainRequest.returnData != null)
+                                returnedData = _currentCallAgainRequest.returnData;
+                        }
+
+                        return true;
+                    }
+                }
+                catch (Exception ex)
                 {
 
-                    Yields++;
+                    _state = "Error after {0}: {1}".F(_state, ex.ToString());
 
-                    _current = _enumerator.Current;
+                    Debug.LogError("Managed Exception in Timed Enumerator: " + _state);
 
-                    _currentCallAgainRequest = _current as CallAgain;
-
-                    if (_currentCallAgainRequest != null) {
-
-                        if (_currentCallAgainRequest.message != null)
-                            state = _currentCallAgainRequest.message;
-
-                        if (_currentCallAgainRequest.task != null)
-                            _task = _currentCallAgainRequest.task;
-
-                        if (_currentCallAgainRequest.returnData != null)
-                            returnedData = _currentCallAgainRequest.returnData;
-                    }
-
-                    return true;
+                    _task = null;
+                    _stopAndCancel = true;
+                    StoppedOnError = true;
                 }
 
                 return false;
             }
 
-            private bool InternalNeedToStopYielding()
+            private bool NeedToStopYielding()
             {
 
                 var el = timer.ElapsedMilliseconds;
@@ -391,10 +422,10 @@ namespace QuizCannersUtilities
 
                     TotalTimeUsedThisFrame += el;
 
-                    if (logUnoptimizedSections && Application.isEditor && el > maxMilisecondsPerFrame * 2)
-                        Debug.Log("{0} Needs x{1} segmentation".F(state, el / maxMilisecondsPerFrame));
+                    if (_logUnoptimizedSections && Application.isEditor && el > maxMilisecondsPerFrame * 2)
+                        Debug.Log("{0} Needs x{1} segmentation".F(_state, el / maxMilisecondsPerFrame));
 
-                    Frames++;
+                    _frames++;
 
                     return true;
                 }
@@ -403,11 +434,7 @@ namespace QuizCannersUtilities
 
                 return false;
             }
-
-            private static float TotalTimeUsedThisFrame = 0;
-
-            private static int FrameIndex = -1;
-
+            
             private void ResetTimer()
             {
                 timer.Restart();
@@ -419,7 +446,7 @@ namespace QuizCannersUtilities
 
             }
 
-            public IEnumerator Start(Action onDoneFully = null)
+            public IEnumerator Start(Action onDoneFully = null, Action onExit = null)
             {
 
                 if (_enumerator == null)
@@ -430,25 +457,27 @@ namespace QuizCannersUtilities
 
                 this.onDoneFully = onDoneFully;
 
+                this.onExit = onExit;
+
                 int thisVersion = EnumeratorVersion;
 
-                if (thisVersion == runningVersion)
+                if (thisVersion == _runningVersion)
                 {
                     Debug.LogError("This enumerator is already running");
                     yield break;
 
                 }
 
-                runningVersion = thisVersion;
+                _runningVersion = thisVersion;
 
-                stopAndCancel = false;
+                _stopAndCancel = false;
 
                 ResetTimer();
 
-                while (!stopAndCancel && NextYieldInternal())
+                while (!_stopAndCancel && NextYieldInternal())
                 {
 
-                    if (InternalNeedToStopYielding())
+                    if (NeedToStopYielding())
                     {
 
                         yield return _current;
@@ -468,12 +497,11 @@ namespace QuizCannersUtilities
 
             public bool MoveNext()
             {
-
                 ResetTimer();
-
-                if (!stopAndCancel)
+                
+                if (!_stopAndCancel)
                     while (NextYieldInternal())
-                        if (InternalNeedToStopYielding())
+                        if (NeedToStopYielding())
                             return true;
 
                 OnDone();
@@ -482,17 +510,21 @@ namespace QuizCannersUtilities
             }
 
             #region Inspector
+            protected bool _logUnoptimizedSections;
+            private string _state = "";
+            private int _yields;
+            private int _frames;
 
             public bool InspectInList(IList list, int ind, ref int edited)
             {
 
-                if (!Done && !stopAndCancel && icon.Close.Click())
-                    stopAndCancel = true;
+                if (!Exited && !_stopAndCancel && icon.Close.Click())
+                    _stopAndCancel = true;
 
-                "{2} {3} {4} [{0} YLDS / {1} FRMS]".F(Yields, Frames, state,
+                "{2} {3} {4} [{0} YLDS / {1} FRMS]".F(_yields, _frames, _state,
                     EnumeratorVersion > 1 ? ("V: " + EnumeratorVersion.ToString()) : "", _task == null ? "[yield]" : "[TASK]").write();
 
-                if (Done)
+                if (Exited)
                     (DoneFully ? icon.Done : icon.Empty).write();
                 else if (icon.Next.Click())
                     MoveNext();
@@ -501,16 +533,15 @@ namespace QuizCannersUtilities
             }
 
             #endregion
-
-
+            
             public TimedEnumeration(bool logUnoptimizedSections = false)
             {
-                this.logUnoptimizedSections = logUnoptimizedSections;
+                this._logUnoptimizedSections = logUnoptimizedSections;
             }
 
             public TimedEnumeration(IEnumerator enumerator, bool logUnoptimizedSections = false)
             {
-                this.logUnoptimizedSections = logUnoptimizedSections;
+                this._logUnoptimizedSections = logUnoptimizedSections;
                 Reset(enumerator);
             }
             

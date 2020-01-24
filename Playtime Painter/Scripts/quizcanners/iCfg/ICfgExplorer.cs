@@ -406,7 +406,7 @@ namespace QuizCannersUtilities
             if (_guid != null && icon.Search.Click("Find Object " + componentType + " by guid").nl()) {
 
                 if (!TryGetByGuid(ref field))
-                    (typeof(T).ToPegiStringType() + " Not found ").showNotificationIn3D_Views();
+                    pegi.GameView.ShowNotification(typeof(T).ToPegiStringType() + " Not found ");
                 else changed = true;
             }
 #endif
@@ -522,7 +522,7 @@ namespace QuizCannersUtilities
                 if ("From File:".edit(65, ref myType))
                 {
                     added = new CfgState();
-                    added.dataExplorer.data = QcFile.LoadUtils.TryLoadAsTextAsset(myType);
+                    added.dataExplorer.data = QcFile.Loading.TryLoadAsTextAsset(myType);
                     added.NameForPEGI = myType.name;
                     added.comment = DateTime.Now.ToString(CultureInfo.InvariantCulture);
                     states.Add(added);
@@ -728,7 +728,7 @@ namespace QuizCannersUtilities
                     this.inspect_Name();
                     if (Cfg != null && dataExplorer.tag.Length > 0 && icon.Save.Click("Save To Assets", ref changed))
                     {
-                        QcFile.SaveUtils.SaveToAssets(Mgmt.fileFolderHolder, dataExplorer.tag, dataExplorer.data);
+                        QcFile.Saving.ToAssets(Mgmt.fileFolderHolder, dataExplorer.tag, dataExplorer.data);
                         QcUnity.RefreshAssetDatabase();
                     }
 

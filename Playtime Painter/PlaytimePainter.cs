@@ -208,7 +208,7 @@ namespace PlaytimePainter {
             if (NeedsGrid)
                 return;
 
-            if ((pegi.MouseOverPlaytimePainterUI || (_mouseOverPaintableGraphicElement && this!=_mouseOverPaintableGraphicElement)) ||
+            if ((pegi.GameView.MouseOverUI || (_mouseOverPaintableGraphicElement && this!=_mouseOverPaintableGraphicElement)) ||
                 (!IsUiGraphicPainter && EventSystem.current && EventSystem.current.IsPointerOverGameObject())) {
                 stroke.MouseDownEvent = false;
                 return;
@@ -273,7 +273,7 @@ namespace PlaytimePainter {
             if (TexMeta != null) return true;
             
             if (stroke.MouseDownEvent)
-                "No texture to edit".showNotificationIn3D_Views();
+                pegi.GameView.ShowNotification("No texture to edit");
 
                 return false;
             
@@ -585,7 +585,7 @@ namespace PlaytimePainter {
 
                     if (extension != "png")
                     {
-                        "Converting {0} to .png".F(assetPath).showNotificationIn3D_Views();
+                        pegi.GameView.ShowNotification("Converting {0} to .png".F(assetPath));
                         
                         texture = t2D.CreatePngSameDirectory(t2D.name);
                     }
@@ -1031,7 +1031,7 @@ namespace PlaytimePainter {
                 if (saveIt)
                 {
                     #if UNITY_EDITOR
-                    QcFile.SaveUtils.SaveAsset(material, Cfg.materialsFolderName, ".mat", true);
+                    QcFile.Saving.Asset(material, Cfg.materialsFolderName, ".mat", true);
                     CheckPreviewShader();
                     #endif
                 }
@@ -1044,7 +1044,7 @@ namespace PlaytimePainter {
             if (id != null && Material)
                 UpdateOrSetTexTarget(id.destination);
 
-            "Instantiating Material on {0}".F(gameObject.name).showNotificationIn3D_Views();
+            pegi.GameView.ShowNotification("Instantiating Material on {0}".F(gameObject.name));
 
             return Material;
 
@@ -1928,7 +1928,7 @@ namespace PlaytimePainter {
 
             if (selectedInPlaytime == this)
             {
-                WindowPosition.Render(this, Inspect, "{0} {1}".F(gameObject.name, GetMaterialTextureProperty));
+                OnGUIWindow.Render(this, "{0} {1}".F(gameObject.name, GetMaterialTextureProperty));
 
                 foreach (var p in CameraModuleBase.GuiPlugins)
                     p.OnGUI();
@@ -1941,7 +1941,7 @@ namespace PlaytimePainter {
 
         [NonSerialized] public readonly Dictionary<int, ShaderProperty.TextureValue> loadingOrder = new Dictionary<int, ShaderProperty.TextureValue>();
 
-        private static readonly pegi.WindowPositionData_PEGI_GUI WindowPosition = new pegi.WindowPositionData_PEGI_GUI();
+        private static readonly pegi.GameView.Window OnGUIWindow = new pegi.GameView.Window();
 
         private static int _inspectedFancyItems = -1;
 
@@ -2063,7 +2063,7 @@ namespace PlaytimePainter {
                     icon.On.Click("Click to Disable Tool")))
                 {
                     IsCurrentTool = false;
-                    WindowPosition.Collapse();
+                    OnGUIWindow.Collapse();
                     MeshEditorManager.Inst.StopEditingMesh();
                     SetOriginalShaderOnThis();
                     UpdateOrSetTexTarget(TexTarget.Texture2D);
@@ -2100,7 +2100,7 @@ namespace PlaytimePainter {
                         CheckPreviewShader();
                         MeshMgmt.StopEditingMesh();
                         cfg.showConfig = false;
-                        "Editing Texture".showNotificationIn3D_Views();
+                        pegi.GameView.ShowNotification("Editing Texture");
                     }
                 }
                 else
@@ -2112,7 +2112,7 @@ namespace PlaytimePainter {
                         CheckSetOriginalShader();
                         UpdateOrSetTexTarget(TexTarget.Texture2D);
                         cfg.showConfig = false;
-                        "Editing Mesh".showNotificationIn3D_Views();
+                        pegi.GameView.ShowNotification("Editing Mesh");
 
                         if (SavedEditableMesh != null)
                             MeshMgmt.EditMesh(this, false);
@@ -2406,7 +2406,7 @@ namespace PlaytimePainter {
                                     var col = GlobalBrush.Color;
 
                                     if ((cpu || !mode.UsingSourceTexture || GlobalBrush.srcColorUsage != BrushConfig.SourceTextureColorUsage.Unchanged)
-                                        && !IsTerrainHeightTexture && !pegi.paintingPlayAreaGui)
+                                        && !IsTerrainHeightTexture && !pegi.PaintingGameViewUI)
                                     {
                                         if (pegi.edit(ref col).changes(ref changed))
                                             GlobalBrush.Color = col;
@@ -2675,7 +2675,7 @@ namespace PlaytimePainter {
                                     loadingOrder.Add(PainterCamera.DownloadManager.StartDownload(_tmpUrl),
                                         GetMaterialTextureProperty);
                                     _tmpUrl = DefaultImageLoadUrl;
-                                    "Loading for {0}".F(GetMaterialTextureProperty).showNotificationIn3D_Views();
+                                    pegi.GameView.ShowNotification("Loading for {0}".F(GetMaterialTextureProperty));
                                 }
 
                                 pegi.nl();

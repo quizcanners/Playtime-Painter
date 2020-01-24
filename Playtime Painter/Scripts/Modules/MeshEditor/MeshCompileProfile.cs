@@ -66,7 +66,7 @@ namespace PlaytimePainter.MeshEditing
             if (icon.Save.Click("Save To:" + path, 25).nl()) {
                 this.SaveToAssets(path, name);
                 QcUnity.RefreshAssetDatabase();
-                (name + " Saved to " + path).showNotificationIn3D_Views();
+                pegi.GameView.ShowNotification(name + " Saved to " + path);
             }
 
 

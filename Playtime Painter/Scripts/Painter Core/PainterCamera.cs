@@ -190,7 +190,7 @@ namespace PlaytimePainter {
             get { return _mainCamera; }
             set {
                 if (value && painterCamera && value == painterCamera) {
-                    "Can't use Painter Camera as Main Camera".showNotificationIn3D_Views();
+                    pegi.GameView.ShowNotification("Can't use Painter Camera as Main Camera");
                     return;
                 }
 
@@ -951,7 +951,7 @@ namespace PlaytimePainter {
                     if ("Refresh Brush Shaders".Click().nl())
                     {
                         Data.CheckShaders(true);
-                        "Shaders Refreshed".showNotificationIn3D_Views();
+                        pegi.GameView.ShowNotification("Shaders Refreshed");
                     }
 #endif
 
@@ -1019,7 +1019,7 @@ namespace PlaytimePainter {
                 if (icon.Refresh.Click("Try to find camera tagged as Main Camera", ref changed)) {
                     MainCamera = Camera.main;
                     if (!MainCamera)
-                        "No camera is tagged as main".showNotificationIn3D_Views();
+                        pegi.GameView.ShowNotification("No camera is tagged as main");
                 }
 
                 pegi.nl();

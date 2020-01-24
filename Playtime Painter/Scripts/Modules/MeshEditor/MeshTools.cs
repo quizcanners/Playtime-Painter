@@ -1210,7 +1210,7 @@ namespace PlaytimePainter.MeshEditing {
             if ((!EditorInputManager.GetMouseButton(0))) return false;
             
             if (!PointedUv.meshPoint.AllPointsUnique())
-                "Shared points found, Edge requires All Unique".showNotificationIn3D_Views();
+                pegi.GameView.ShowNotification("Shared points found, Edge requires All Unique");
    
             if (EditorInputManager.Control)
             {
@@ -1350,7 +1350,7 @@ namespace PlaytimePainter.MeshEditing {
             if (EditorInputManager.GetMouseButtonDown(0) && EditorInputManager.Control)
             {
                 _curSubMesh = MeshMGMT.PointedTriangle.subMeshIndex;
-                ("SubMesh " + _curSubMesh).showNotificationIn3D_Views();
+                pegi.GameView.ShowNotification("SubMesh " + _curSubMesh);
             }
 
             if (!EditorInputManager.GetMouseButton(0) || EditorInputManager.Control ||

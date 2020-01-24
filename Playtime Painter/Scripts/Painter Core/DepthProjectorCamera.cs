@@ -24,8 +24,8 @@ namespace PlaytimePainter
 
                 if (!triedToFindDepthCamera)
                 {
-                    PainterCamera.depthProjectorCamera = FindObjectOfType<DepthProjectorCamera>();
                     triedToFindDepthCamera = true;
+                    PainterCamera.depthProjectorCamera = FindObjectOfType<DepthProjectorCamera>();
                 }
 
                 return PainterCamera.depthProjectorCamera;
@@ -210,6 +210,7 @@ namespace PlaytimePainter
                 while (lastUpdatedUser < depthUsers.Count)
                 {
                     userToGetUpdate = depthUsers[lastUpdatedUser];
+                    lastUpdatedUser++;
 
                     if ( QcUnity.IsNullOrDestroyed_Obj(userToGetUpdate))
                     {
@@ -221,7 +222,6 @@ namespace PlaytimePainter
                         break;
                     else userToGetUpdate = null;
 
-                    lastUpdatedUser++;
                 }
 
                 lastUpdatedUser++;

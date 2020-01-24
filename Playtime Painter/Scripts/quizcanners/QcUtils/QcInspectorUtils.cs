@@ -423,7 +423,7 @@ namespace QuizCannersUtilities
                 "Img Name".edit(90, ref screenShotName);
                 var path = Path.Combine(QcUnity.GetDataPathWithout_Assets_Word(), folderName);
                 if (icon.Folder.Click("Open Screen Shots Folder : {0}".F(path)))
-                    QcFile.ExplorerUtils.OpenPath(path);
+                    QcFile.Explorer.OpenPath(path);
 
                 pegi.nl();
 
@@ -467,7 +467,7 @@ namespace QuizCannersUtilities
 
 
                     if (icon.Folder.Click())
-                        QcFile.ExplorerUtils.OpenPath(QcUnity.GetDataPathWithout_Assets_Word());
+                        QcFile.Explorer.OpenPath(QcUnity.GetDataPathWithout_Assets_Word());
 
                     "Game View Needs to be open for this to work".fullWindowDocumentationClickOpen();
 
@@ -539,7 +539,7 @@ namespace QuizCannersUtilities
 
                 cam.clearFlags = clearFlags;
 
-                QcFile.SaveUtils.SaveTextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png", screenShotTexture2D);
+                QcFile.Saving.TextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png", screenShotTexture2D);
             }
 
             public void OnPostRender()
@@ -557,7 +557,7 @@ namespace QuizCannersUtilities
                     screenShotTexture2D.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0, false);
                     screenShotTexture2D.Apply();
 
-                    QcFile.SaveUtils.SaveTextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png",
+                    QcFile.Saving.TextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png",
                         screenShotTexture2D);
 
                 }
@@ -876,16 +876,15 @@ namespace QuizCannersUtilities
             }
         }
 
-        #endregion
-        
         private static readonly ScreenShootTaker screenShots = new ScreenShootTaker();
 
         private static readonly ICfgObjectExplorer iCfgExplorer = new ICfgObjectExplorer();
 
         private static readonly EncodedJsonInspector jsonInspector = new EncodedJsonInspector();
-        
 
+        #endregion
 
+        #region Inspect Inspector 
         private static int inspectedSection = -1;
 
         public static bool InspectInspector()
@@ -905,14 +904,20 @@ namespace QuizCannersUtilities
             if (inspectedSection == -1)
             {
                 if ("Player Data Folder".Click().nl())
-                    QcFile.ExplorerUtils.OpenPersistentFolder();
-                
+                    QcFile.Explorer.OpenPersistentFolder();
+
                 if (Application.isEditor && "Editor Data Folder".Click().nl())
-                    QcFile.ExplorerUtils.OpenPath("C:/Users/{0}/AppData/Local/Unity/Editor/Editor.log".F(Environment.UserName));
+                    QcFile.Explorer.OpenPath("C:/Users/{0}/AppData/Local/Unity/Editor/Editor.log".F(Environment.UserName));
+
+                "PEGI Screen Size: {0}".F(pegi.GameView.Resolution).nl();
+
             }
 
-        return changed;
+            return changed;
         }
+
+        #endregion
+
 
     }
 

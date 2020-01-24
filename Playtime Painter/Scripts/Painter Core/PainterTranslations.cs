@@ -384,10 +384,10 @@ namespace PlayerAndEditorGUI {
             return changed;
         }
         
-        public static void Write(this MsgPainter m) { var txt = m.GetText(); txt.write(m.GetDescription() ,txt.ApproximateLengthUnsafe()); }
+        public static void Write(this MsgPainter m) { var txt = m.GetText(); txt.write(m.GetDescription() ,pegi.ApproximateLengthUnsafe(txt)); }
         public static void Write(this MsgPainter m, int width) { m.GetText().write(m.GetDescription(),width); }
         public static void Write(this MsgPainter m, string tip, int width) { m.GetText().write(tip, width); }
-        public static void Write(this MsgPainter m, string tip) { var txt = m.GetText(); txt.write(tip, txt.ApproximateLengthUnsafe()); }
+        public static void Write(this MsgPainter m, string tip) { var txt = m.GetText(); txt.write(tip, pegi.ApproximateLengthUnsafe(txt)); }
 
         public static string GetText(this MsgPainter msg)
         {

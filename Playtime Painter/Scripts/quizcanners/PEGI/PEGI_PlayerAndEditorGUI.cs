@@ -58,25 +58,163 @@ namespace PlayerAndEditorGUI
     public static partial class pegi
     {
 
+        public static bool IsFoldedOut => ef.isFoldedOutOrEntered;
+        
         public static string EnvironmentNl => Environment.NewLine;
-
-        private static int mouseOverUi = -1;
-
-        public static bool MouseOverPlaytimePainterUI
+        
+        public static class GameView
         {
-            get { return mouseOverUi >= Time.frameCount - 1; }
-            set { if (value) mouseOverUi = Time.frameCount; }
-        }
 
+            private static Type gameViewType;
+            public static void ShowNotification(string text)
+            {
+#if UNITY_EDITOR
+
+                if (Application.isPlaying)
+                {
+                    if (gameViewType == null)
+                        gameViewType = typeof(EditorWindow).Assembly.GetType("UnityEditor.GameView");
+
+                    var ed = EditorWindow.GetWindow(gameViewType);
+                    if (ed != null)
+                        ed.ShowNotification(new GUIContent(text));
+                }
+                else
+                {
+                    var lst = Resources.FindObjectsOfTypeAll<SceneView>();
+
+                    foreach (var w in lst)
+                        w.ShowNotification(new GUIContent(text));
+
+                }
+#endif
+            }
+            
+            private static int mouseOverUi = -1;
+
+            public static bool MouseOverUI
+            {
+                get { return mouseOverUi >= Time.frameCount - 1; }
+                set { if (value) mouseOverUi = Time.frameCount; }
+            }
+
+            public delegate bool InspectionDelegate();
+            
+            public delegate bool WindowFunction();
+            
+            public class Window
+            {
+                private WindowFunction function;
+                private Rect windowRect;
+                private Vector2 scrollPosition = Vector2.zero;
+
+                /*
+
+                     scrollPosition = GUI.BeginScrollView(new Rect(10, 300, 100, 100), scrollPosition, new Rect(0, 0, 220, 200));
+
+            // Make four buttons - one in each corner. The coordinate system is defined
+            // by the last parameter to BeginScrollView.
+            GUI.Button(new Rect(0, 0, 100, 20), "Top-left");
+            GUI.Button(new Rect(120, 0, 100, 20), "Top-right");
+            GUI.Button(new Rect(0, 180, 100, 20), "Bottom-left");
+            GUI.Button(new Rect(120, 180, 100, 20), "Bottom-right");
+
+            // End the scroll view that we began above.
+            GUI.EndScrollView();
+                 */
+
+                private void DrawFunction(int windowID)
+                {
+
+                    PaintingGameViewUI = true;
+
+                    try
+                    {
+                        ef.globChanged = false;
+                        _elementIndex = 0;
+                        _lineOpen = false;
+                        focusInd = 0;
+
+                        //scrollPosition = GUI.BeginScrollView(new Rect(10, 300, 100, 100), scrollPosition, windowRect);
+
+
+                        if (!PopUpService.ShowingPopup())
+                            function();
+
+                        nl();
+
+                        UnIndent();
+
+                        "{0}:{1}".F(Msg.ToolTip.GetText(), GUI.tooltip).nl();
+
+                        if (windowRect.Contains(Input.mousePosition))
+                            MouseOverUI = true;
+
+                        //GUI.EndScrollView();
+
+                        GUI.DragWindow(new Rect(0, 0, 10000, 20));
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError(ex);
+                    }
+
+                    PaintingGameViewUI = false;
+                }
+
+                public void Render(IPEGI p) => Render(p, p.Inspect, p.GetNameForInspector());
+
+                public void Render(IPEGI p, string windowName) => Render(p, p.Inspect, windowName);
+
+                public void Render(IPEGI target, WindowFunction doWindow, string c_windowName)
+                {
+
+                    ef.inspectedTarget = target;
+
+                    windowRect.x = Mathf.Clamp(windowRect.x, 0, Screen.width - 10);
+                    windowRect.y = Mathf.Clamp(windowRect.y, 0, Screen.height - 10);
+
+                    // windowRect.width = Mathf.Clamp(windowRect.x, 0, Screen.width*0.5f);
+                    //  windowRect.height = Mathf.Clamp(windowRect.y, 0, Screen.height - 30);
+
+                    function = doWindow;
+                    windowRect = GUILayout.Window(0, windowRect, DrawFunction, c_windowName, GUILayout.MaxWidth(350), GUILayout.ExpandWidth(false));
+                }
+
+                public void Collapse()
+                {
+                    windowRect.width = 250;
+                    windowRect.height = 350;
+                    windowRect.x = 20;
+                    windowRect.y = 50;
+                }
+
+                public Window()
+                {
+                    windowRect = new Rect(20, 50, 350, 400);
+                }
+            }
+            
+            public static Vector2 Resolution
+            {
+                get
+                {
+#if UNITY_EDITOR
+                    return Handles.GetMainGameViewSize();
+#else
+                    return new Vector2(Screen.width, Screen.height);
+#endif
+                }
+            }
+        }
+       
         #region UI Modes
 
-        private enum PegiPaintingMode { EditorInspector, PlayAreaGui, Release }
+        private enum PegiPaintingMode { EditorInspector, PlayAreaGui }
 
         private static PegiPaintingMode currentMode = PegiPaintingMode.EditorInspector;
 
-        public static bool paintingReleaseGUI => currentMode == PegiPaintingMode.Release;
-
-        public static bool paintingPlayAreaGui
+        public static bool PaintingGameViewUI
         {
             get { return currentMode == PegiPaintingMode.PlayAreaGui; }
             private set { currentMode = value ? PegiPaintingMode.PlayAreaGui : PegiPaintingMode.EditorInspector; }
@@ -84,130 +222,11 @@ namespace PlayerAndEditorGUI
 
         #endregion
 
-        #region Release GUI
-
-        private static IPegiReleaseGuiManager currentReleaseManager;
-
-        public static void ReleaseInspect(IPegiReleaseGuiManager manager)
-        {
-            currentMode = PegiPaintingMode.Release;
-            currentReleaseManager = manager;
-        }
-
-        #endregion
-
-        #region Play Area GUI
-        public delegate bool InspectionDelegate();
-
-        public class WindowPositionData_PEGI_GUI
-        {
-            private WindowFunction function;
-            private Rect windowRect;
-            private Vector2 scrollPosition = Vector2.zero;
-
-            /*
-             
-                 scrollPosition = GUI.BeginScrollView(new Rect(10, 300, 100, 100), scrollPosition, new Rect(0, 0, 220, 200));
-
-        // Make four buttons - one in each corner. The coordinate system is defined
-        // by the last parameter to BeginScrollView.
-        GUI.Button(new Rect(0, 0, 100, 20), "Top-left");
-        GUI.Button(new Rect(120, 0, 100, 20), "Top-right");
-        GUI.Button(new Rect(0, 180, 100, 20), "Bottom-left");
-        GUI.Button(new Rect(120, 180, 100, 20), "Bottom-right");
-
-        // End the scroll view that we began above.
-        GUI.EndScrollView();
-             */
-
-            private void DrawFunction(int windowID)
-            {
-
-                paintingPlayAreaGui = true;
-
-                try
-                {
-                    globChanged = false;
-                    _elementIndex = 0;
-                    _lineOpen = false;
-                    focusInd = 0;
-
-                    //scrollPosition = GUI.BeginScrollView(new Rect(10, 300, 100, 100), scrollPosition, windowRect);
-
-
-                    if (!PopUpService.ShowingPopup())
-                        function();
-
-                    nl();
-
-                    UnIndent();
-
-                    "{0}:{1}".F(Msg.ToolTip.GetText(), GUI.tooltip).nl();
-
-                    if (windowRect.Contains(Input.mousePosition))
-                        MouseOverPlaytimePainterUI = true;
-
-                    //GUI.EndScrollView();
-
-                    GUI.DragWindow(new Rect(0, 0, 10000, 20));
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogError(ex);
-                }
-
-                paintingPlayAreaGui = false;
-            }
-
-            public void Render(IPEGI p) => Render(p, p.Inspect, p.GetNameForInspector());
-
-            public void Render(IPEGI p, string windowName) => Render(p, p.Inspect, windowName);
-
-            public void Render(IPEGI target, WindowFunction doWindow, string c_windowName)
-            {
-
-                inspectedTarget = target;
-
-                windowRect.x = Mathf.Clamp(windowRect.x, 0, Screen.width - 10);
-                windowRect.y = Mathf.Clamp(windowRect.y, 0, Screen.height - 10);
-
-                // windowRect.width = Mathf.Clamp(windowRect.x, 0, Screen.width*0.5f);
-                //  windowRect.height = Mathf.Clamp(windowRect.y, 0, Screen.height - 30);
-
-                function = doWindow;
-                windowRect = GUILayout.Window(0, windowRect, DrawFunction, c_windowName, GUILayout.MaxWidth(350), GUILayout.ExpandWidth(false));
-            }
-
-            public void Collapse()
-            {
-                windowRect.width = 250;
-                windowRect.height = 350;
-                windowRect.x = 20;
-                windowRect.y = 50;
-            }
-
-            public WindowPositionData_PEGI_GUI()
-            {
-                windowRect = new Rect(20, 50, 350, 400);
-            }
-        }
-
-        public delegate bool WindowFunction();
-        #endregion
-
         #region Inspection Variables
-
-        public static object inspectedTarget;
-
+        
         private static int _elementIndex;
-
-        public static bool isFoldedOutOrEntered;
-        public static bool IsFoldedOut => isFoldedOutOrEntered;
-        public static bool IsEntered => isFoldedOutOrEntered;
-
         private static int selectedFold = -1;
-        public static int tabIndex; // will be reset on every NewLine;
-
+       
         private static bool _lineOpen;
 
         private static readonly Color AttentionColor = new Color(1f, 0.7f, 0.7f, 1);
@@ -215,7 +234,7 @@ namespace PlayerAndEditorGUI
         private static readonly Color PreviousInspectedColor = new Color(0.3f, 0.7f, 0.3f, 1);
 
 
-        #region GUI Colors
+#region GUI Colors
 
         private static bool _guiColorReplaced;
 
@@ -223,13 +242,13 @@ namespace PlayerAndEditorGUI
 
         private static List<Color> _previousGuiColors = new List<Color>();
 
-        public static icon GUIColor(this icon icn, Color col)
+        private static icon GUIColor(this icon icn, Color col)
         {
             SetGUIColor(col);
             return icn;
         }
 
-        public static void SetGUIColor(this Color col)
+        private static void SetGUIColor(this Color col)
         {
             if (!_guiColorReplaced)
                 _originalGuiColor = GUI.color;
@@ -242,7 +261,7 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static void RestoreGUIcolor()
+        private static void RestoreGUIcolor()
         {
             if (_guiColorReplaced)
                 GUI.color = _originalGuiColor;
@@ -252,15 +271,15 @@ namespace PlayerAndEditorGUI
             _guiColorReplaced = false;
         }
 
-        public static bool RestoreGUIColor(this bool val)
+        private static bool RestoreGUIColor(this bool val)
         {
             RestoreGUIcolor();
             return val;
         }
 
-        #endregion
+#endregion
 
-        #region BG Color
+#region BG Color
 
         private static bool _bgColorReplaced = false;
 
@@ -274,13 +293,7 @@ namespace PlayerAndEditorGUI
             return icn;
         }
 
-        public static string BgColor(this string txt, Color col)
-        {
-            SetBgColor(col);
-            return txt;
-        }
-
-        public static bool PreviousBgColor(this bool val)
+        private static bool PreviousBgColor(this bool val)
         {
             PreviousBgColor();
             return val;
@@ -303,7 +316,7 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static void SetBgColor(this Color col)
+        public static void SetBgColor(Color col)
         {
 
             if (!_bgColorReplaced)
@@ -327,32 +340,32 @@ namespace PlayerAndEditorGUI
             _bgColorReplaced = false;
         }
 
-        #endregion
+#endregion
 
         private static void checkLine()
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 ef.checkLine();
             else
 #endif
             if (!_lineOpen)
             {
-                tabIndex = 0;
+               
                 GUILayout.BeginHorizontal();
                 _lineOpen = true;
             }
         }
 
-        public static int LastNeedAttentionIndex;
+        private static int LastNeedAttentionIndex;
 
-        public static bool NeedsAttention(this IList list, out string message, string listName = "list", bool canBeNull = false)
+        public static bool NeedsAttention(IList list, out string message, string listName = "list", bool canBeNull = false)
         {
-            message = list.NeedAttentionMessage(listName, canBeNull);
+            message = NeedAttentionMessage(list, listName, canBeNull);
             return message != null;
         }
 
-        public static string NeedAttentionMessage(this IList list, string listName = "list", bool canBeNull = false)
+        public static string NeedAttentionMessage(IList list, string listName = "list", bool canBeNull = false)
         {
             string msg = null;
             if (list == null)
@@ -394,7 +407,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 ef.Space();
             else
 #endif
@@ -405,7 +418,7 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        public static void line() => line(paintingPlayAreaGui ? Color.white : Color.black);
+        public static void line() => line(PaintingGameViewUI ? Color.white : Color.black);
 
         public static void line(Color col)
         {
@@ -417,18 +430,18 @@ namespace PlayerAndEditorGUI
             GUI.color = c;
         }
 
-        #endregion
+#endregion
 
-        #region Focus MGMT
+#region Focus MGMT
 
         private static void RepaintEditor()
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 ef.RepaintEditor();
 #endif
         }
-
+        
         public static bool UnFocus(this bool anyChanges)
         {
             if (anyChanges)
@@ -446,7 +459,7 @@ namespace PlayerAndEditorGUI
         public static void FocusControl(string name)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 EditorGUI.FocusTextInControl(name);
             else
 #endif
@@ -470,9 +483,9 @@ namespace PlayerAndEditorGUI
             set { GUI.FocusControl(value); }
         }
 
-        #endregion
+#endregion
 
-        #region Pop UP Services
+#region Pop UP Services
 
         private static bool fullWindowDocumentationClickOpen(string toolTip = "", int buttonSize = 20,
             icon clickIcon = icon.Question)
@@ -499,7 +512,7 @@ namespace PlayerAndEditorGUI
             PopUpService.InitiatePopUp();
         }
 
-        public static bool fullWindowDocumentationClickOpen(InspectionDelegate function, string toolTip = "", int buttonSize = 20)
+        public static bool fullWindowDocumentationClickOpen(GameView.InspectionDelegate function, string toolTip = "", int buttonSize = 20)
         {
             if (toolTip.IsNullOrEmpty())
                 toolTip = icon.Question.GetDescription();
@@ -593,7 +606,7 @@ namespace PlayerAndEditorGUI
 
             private static string understoodPopUpText = "Got it";
 
-            public static InspectionDelegate inspectDocumentationDelegate;
+            public static GameView.InspectionDelegate inspectDocumentationDelegate;
 
             public static Action areYouSureFunk;
 
@@ -653,7 +666,7 @@ namespace PlayerAndEditorGUI
             public static void InitiatePopUp()
             {
 
-                popUpTarget = inspectedTarget;
+                popUpTarget = ef.inspectedTarget;
 
                 switch (textsShown)
                 {
@@ -675,7 +688,7 @@ namespace PlayerAndEditorGUI
                 areYouSureFunk = null;
             }
 
-            #region Elements
+#region Elements
 
             private static void ContactOptions()
             {
@@ -713,7 +726,7 @@ namespace PlayerAndEditorGUI
             public static bool ShowingPopup()
             {
 
-                if (popUpTarget == null || popUpTarget != inspectedTarget)
+                if (popUpTarget == null || popUpTarget != ef.inspectedTarget)
                     return false;
 
                 if (areYouSureFunk != null)
@@ -779,17 +792,17 @@ namespace PlayerAndEditorGUI
 
                 return false;
             }
-            #endregion
+#endregion
         }
 
-        #endregion
+#endregion
 
-        #region Changes 
-        public static bool globChanged; // Some times user can change temporary fields, like delayed Edits
+#region Changes 
+        
 
-        private static bool change { get { globChanged = true; return true; } }
+        private static bool change { get { ef.globChanged = true; return true; } }
 
-        private static bool Dirty(this bool val) { globChanged |= val; return val; }
+        private static bool Dirty(this bool val) { ef.globChanged |= val; return val; }
 
         public static bool changes(this bool value, ref bool changed)
         {
@@ -800,7 +813,7 @@ namespace PlayerAndEditorGUI
         private static bool ignoreChanges(this bool changed)
         {
             if (changed)
-                globChanged = false;
+                ef.globChanged = false;
             return changed;
         }
 
@@ -814,16 +827,16 @@ namespace PlayerAndEditorGUI
 
         private static bool ec() => (GUI.changed && !wasChangedBefore).Dirty();
 
-        #endregion
+#endregion
 
-        #region New Line
+#region New Line
 
         private static int IndentLevel
         {
             get
             {
 #if UNITY_EDITOR
-                if (!paintingPlayAreaGui)
+                if (!PaintingGameViewUI)
                     return EditorGUI.indentLevel;
 #endif
 
@@ -833,7 +846,7 @@ namespace PlayerAndEditorGUI
             set
             {
 #if UNITY_EDITOR
-                if (!paintingPlayAreaGui)
+                if (!PaintingGameViewUI)
                     EditorGUI.indentLevel = Mathf.Max(0, value);
 #endif
             }
@@ -842,7 +855,7 @@ namespace PlayerAndEditorGUI
         public static void UnIndent(int width = 1)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
             {
                 ef.UnIndent(width);
                 return;
@@ -854,7 +867,7 @@ namespace PlayerAndEditorGUI
         public static void Indent(int width = 1)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
             {
                 ef.Indent(width);
                 return;
@@ -866,7 +879,7 @@ namespace PlayerAndEditorGUI
         public static void newLine()
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
             {
                 ef.newLine();
                 return;
@@ -880,13 +893,13 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        public static void nl_ifFolded() => isFoldedOutOrEntered.nl_ifFalse();
+        public static void nl_ifFolded() => ef.isFoldedOutOrEntered.nl_ifFalse();
 
-        public static void nl_ifFoldedOut() => isFoldedOutOrEntered.nl_ifTrue();
+        public static void nl_ifFoldedOut() => ef.isFoldedOutOrEntered.nl_ifTrue();
 
-        public static void nl_ifNotEntered() => isFoldedOutOrEntered.nl_ifFalse();
+        public static void nl_ifNotEntered() => ef.isFoldedOutOrEntered.nl_ifFalse();
 
-        public static void nl_ifEntered() => isFoldedOutOrEntered.nl_ifTrue();
+        public static void nl_ifEntered() => ef.isFoldedOutOrEntered.nl_ifTrue();
 
         public static bool nl_ifFolded(this bool value)
         {
@@ -1018,11 +1031,11 @@ namespace PlayerAndEditorGUI
         }
 
 
-        #endregion
+#endregion
 
-        #region WRITE
+#region WRITE
 
-        #region GUI Contents
+#region GUI Contents
         private static GUIContent imageAndTip = new GUIContent();
 
         private static GUIContent ImageAndTip(Texture tex, string toolTip)
@@ -1063,11 +1076,11 @@ namespace PlayerAndEditorGUI
             return tipOnlyContent;
         }
 
-        #endregion
+#endregion
 
-        public const int letterSizeInPixels = 8;
+        private const int letterSizeInPixels = 8;
 
-        public static int ApproximateLengthUnsafe(this string label) => letterSizeInPixels * label.Length;
+        public static int ApproximateLengthUnsafe(string label) => letterSizeInPixels * label.Length;
 
         private static int ApproximateLength(this string label) => label.IsNullOrEmpty() ? 1 : letterSizeInPixels * label.Length;
 
@@ -1075,12 +1088,12 @@ namespace PlayerAndEditorGUI
 
         private static int RemainingLength(int otherElements) => Screen.width - otherElements;
 
-        #region Unity Object
+#region Unity Object
 
         public static void write<T>(T field) where T : Object
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 ef.write(field);
 #endif
         }
@@ -1161,7 +1174,7 @@ namespace PlayerAndEditorGUI
                 return;
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 ef.write(img, width);
 
             else
@@ -1179,7 +1192,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 ef.write(img, toolTip, width);
 
             else
@@ -1201,7 +1214,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 ef.write(img, toolTip, width, height);
             else
 #endif
@@ -1217,7 +1230,7 @@ namespace PlayerAndEditorGUI
 
         }
 
-        #endregion
+#endregion
 
         public static void write(this icon icon, int size = defaultButtonSize) => write(icon.GetIcon(), size);
 
@@ -1230,7 +1243,7 @@ namespace PlayerAndEditorGUI
             var cnt = TextAndTip(text);
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 ef.write(cnt);
             else
 #endif
@@ -1246,7 +1259,7 @@ namespace PlayerAndEditorGUI
             var cnt = TextAndTip(text);
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 ef.write(cnt, style);
             else
 #endif
@@ -1263,7 +1276,7 @@ namespace PlayerAndEditorGUI
 
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 ef.write(textAndTip, style);
             else
 #endif
@@ -1279,7 +1292,7 @@ namespace PlayerAndEditorGUI
             textAndTip.tooltip = text;
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
             {
                 ef.write(textAndTip, width, style);
                 return;
@@ -1298,7 +1311,7 @@ namespace PlayerAndEditorGUI
             textAndTip.tooltip = toolTip;
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
             {
                 ef.write(textAndTip, width, style);
                 return;
@@ -1319,7 +1332,7 @@ namespace PlayerAndEditorGUI
             textAndTip.tooltip = toolTip;
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
             {
                 ef.write(textAndTip);
                 return;
@@ -1337,7 +1350,7 @@ namespace PlayerAndEditorGUI
             textAndTip.tooltip = toolTip;
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
             {
                 ef.write(textAndTip, width);
                 return;
@@ -1367,7 +1380,7 @@ namespace PlayerAndEditorGUI
             GUIUtility.systemCopyBuffer = value; 
 
             if (sendNotificationIn3Dview)
-                showNotificationIn3D_Views("{0} Copied to clipboard".F(hint));
+               GameView.ShowNotification("{0} Copied to clipboard".F(hint));
         }
 
         public static bool write_ForCopy(this string text, bool showCopyButton = false)
@@ -1376,7 +1389,7 @@ namespace PlayerAndEditorGUI
             var ret = false;
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 ef.write_ForCopy(text);
             else
 #endif
@@ -1395,7 +1408,7 @@ namespace PlayerAndEditorGUI
             var ret = false;
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 ef.write_ForCopy(text);
             else
 #endif
@@ -1438,7 +1451,7 @@ namespace PlayerAndEditorGUI
             if (showCopyButton && "Copy text to clipboard".Click().nl())
                 SetClipboard(val);
 
-            if (paintingPlayAreaGui && !val.IsNullOrEmpty() && val.ContainsAtLeast('\n', 5)) // Due to MGUI BUG
+            if (PaintingGameViewUI && !val.IsNullOrEmpty() && val.ContainsAtLeast('\n', 5)) // Due to MGUI BUG
                 ".....   Big Text Has Many Lines: {0}".F(val.FirstLine()).write();
             else
                 return editBig(ref val);
@@ -1454,7 +1467,7 @@ namespace PlayerAndEditorGUI
 
             label.nl();
 
-            if (paintingPlayAreaGui && !val.IsNullOrEmpty() && val.ContainsAtLeast('\n', 5)) // Due to MGUI BUG
+            if (PaintingGameViewUI && !val.IsNullOrEmpty() && val.ContainsAtLeast('\n', 5)) // Due to MGUI BUG
                 ".....   Big Text Has Many Lines: {0}".F(val.FirstLine()).write();
             else
                 return editBig(ref val);
@@ -1462,12 +1475,12 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        #region Warning & Hints
+#region Warning & Hints
         public static void writeWarning(this string text)
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
             {
                 ef.writeHint(text, MessageType.Warning);
                 ef.newLine();
@@ -1485,7 +1498,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
             {
                 ef.writeHint(text, MessageType.Info);
                 if (startNewLineAfter)
@@ -1512,7 +1525,7 @@ namespace PlayerAndEditorGUI
             nl();
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
             {
                 ef.writeHint(text, MessageType.Info);
             }
@@ -1529,11 +1542,11 @@ namespace PlayerAndEditorGUI
             return true;
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region SELECT
+#region SELECT
 
         static T filterEditorDropdown<T>(this T obj)
         {
@@ -1602,10 +1615,10 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        #region Select From Int List
+#region Select From Int List
 
         public static bool selectPow2(this string label, ref int current, int min, int max) =>
-            label.selectPow2(label, label.ApproximateLength(), ref current, min, max);
+            label.selectPow2(label, ApproximateLength(label), ref current, min, max);
 
         public static bool selectPow2(this string label, string tip, int width, ref int current, int min, int max)
         {
@@ -1653,7 +1666,7 @@ namespace PlayerAndEditorGUI
 
         public static bool select(this string label, ref int value, List<int> list)
         {
-            label.write(label.ApproximateLength());
+            label.write(ApproximateLength(label));
             return select(ref value, list);
         }
 
@@ -1730,14 +1743,14 @@ namespace PlayerAndEditorGUI
 
         }
 
-        #endregion
+#endregion
 
-        #region From Strings
+#region From Strings
 
         public static bool select(ref int no, List<string> from)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return from.IsNullOrEmpty() ? "Selecting from null:".edit(90, ref no) : ef.select(ref no, from.ToArray());
 #endif
 
@@ -1746,7 +1759,7 @@ namespace PlayerAndEditorGUI
 
             foldout(from.TryGet(no, "..."));
 
-            if (isFoldedOutOrEntered)
+            if (ef.isFoldedOutOrEntered)
             {
                 if (from.Count > 1)
                     newLine();
@@ -1778,7 +1791,7 @@ namespace PlayerAndEditorGUI
 
         public static bool select(this string text, ref int value, List<string> list)
         {
-            write(text, text.ApproximateLength());
+            write(text, ApproximateLength(text));
             return select(ref value, list);
         }
 
@@ -1798,7 +1811,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return width > 0 ? ef.selectFlags(ref no, from, width) : ef.selectFlags(ref no, from);
 #endif
 
@@ -1810,7 +1823,7 @@ namespace PlayerAndEditorGUI
         public static bool select(ref int no, string[] from, int width = -1)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return width > 0 ?
                     ef.select(ref no, from, width) :
                     ef.select(ref no, from);
@@ -1821,7 +1834,7 @@ namespace PlayerAndEditorGUI
 
             foldout(from.TryGet(no, "..."));
 
-            if (isFoldedOutOrEntered)
+            if (ef.isFoldedOutOrEntered)
             {
 
                 if (from.Length > 1)
@@ -1876,9 +1889,9 @@ namespace PlayerAndEditorGUI
             return select(ref val, lst);
         }
 
-        #endregion
+#endregion
 
-        #region UnityObject
+#region UnityObject
 
         public static bool select(this string label, int width, ref string spriteName, SpriteAtlas atlas)
         {
@@ -1970,7 +1983,7 @@ namespace PlayerAndEditorGUI
 
             var changed = false;
 
-            if (label.select(label.ApproximateLength(), ref o, objects).changes(ref changed))
+            if (label.select(ApproximateLength(label), ref o, objects).changes(ref changed))
                 obj = o as T;
 
             if (icon.Refresh.Click("Refresh List"))
@@ -2015,7 +2028,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.select(ref no, tex);
 
 #endif
@@ -2045,18 +2058,18 @@ namespace PlayerAndEditorGUI
 
         }
 
-        #endregion
+#endregion
 
-        #region Select Audio Clip
+#region Select Audio Clip
 
         public static bool select(this string text, ref AudioClip clip, List<AudioClip> lst, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true) =>
-            text.select(text, text.ApproximateLength(), ref clip, lst, showIndex, stripSlashes, allowInsert);
+            text.select(text, ApproximateLength(text), ref clip, lst, showIndex, stripSlashes, allowInsert);
 
         public static bool select(this string text, int width, ref AudioClip clip, List<AudioClip> lst, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true) =>
             text.select(text, width, ref clip, lst, showIndex, stripSlashes, allowInsert);
 
         public static bool select(this string text, string tip, ref AudioClip clip, List<AudioClip> lst, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true) =>
-            text.select(tip, text.ApproximateLength(), ref clip, lst, showIndex, stripSlashes, allowInsert);
+            text.select(tip, ApproximateLength(text), ref clip, lst, showIndex, stripSlashes, allowInsert);
 
         public static bool select(this string text, string tip, int width, ref AudioClip clip, List<AudioClip> lst, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true)
         {
@@ -2070,9 +2083,9 @@ namespace PlayerAndEditorGUI
             return ret;
         }
 
-        #endregion
+#endregion
 
-        #region Select Generic
+#region Select Generic
 
         public static bool select<T>(this string text, int width, ref T value, List<T> lst, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true)
         {
@@ -2214,9 +2227,9 @@ namespace PlayerAndEditorGUI
 
         }
 
-        #endregion
+#endregion
 
-        #region Select Index
+#region Select Index
 
         public static bool select_Index<T>(this string text, ref int ind, List<T> lst, bool showIndex = false)
         {
@@ -2262,7 +2275,7 @@ namespace PlayerAndEditorGUI
 
         public static bool select_Index<T>(ref int ind, List<T> lst, int width) =>
 #if UNITY_EDITOR
-            (!paintingPlayAreaGui) ?
+            (!PaintingGameViewUI) ?
                 ef.select(ref ind, lst, width) :
 #endif
                 select_Index(ref ind, lst);
@@ -2314,9 +2327,9 @@ namespace PlayerAndEditorGUI
         }
 
 
-        #endregion
+#endregion
 
-        #region With Lambda
+#region With Lambda
         public static bool select<T>(this string label, ref int val, List<T> list, Func<T, bool> lambda, bool showIndex = false)
         {
             write(label);
@@ -2415,9 +2428,9 @@ namespace PlayerAndEditorGUI
 
         }
 
-        #endregion
+#endregion
 
-        #region Countless
+#region Countless
         public static bool select<T>(this string label, int width, ref int no, Countless<T> tree)
         {
             label.write(width);
@@ -2433,7 +2446,7 @@ namespace PlayerAndEditorGUI
         public static bool select<T>(ref int no, Countless<T> tree)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.select(ref no, tree);
 #endif
 
@@ -2477,7 +2490,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.select(ref no, tree);
 #endif
 
@@ -2504,7 +2517,7 @@ namespace PlayerAndEditorGUI
         public static bool select<T>(ref int no, Countless<T> tree, Func<T, bool> lambda)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.select(ref no, tree);
 #endif
 
@@ -2553,9 +2566,9 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        #endregion
+#endregion
 
-        #region Enum
+#region Enum
         public static bool selectEnum<T>(ref int current) => selectEnum(ref current, typeof(T));
 
         public static bool selectEnum<T>(this string label, int width, ref int current, List<int> options)
@@ -2675,9 +2688,9 @@ namespace PlayerAndEditorGUI
             write(text);
             return selectEnum<T>(ref eval);
         }
-        #endregion
+#endregion
 
-        #region Select Type
+#region Select Type
 
         public static bool select(ref Type val, List<Type> lst, string textForCurrent, bool showIndex = false, bool stripSlashes = false, bool dotsToSlashes = true)
         {
@@ -2773,15 +2786,15 @@ namespace PlayerAndEditorGUI
         }
 
         public static bool selectTypeTag(this TaggedTypesCfg types, ref string tag) => select(ref tag, types.Keys);
-        #endregion
+#endregion
 
-        #region Dictionary
+#region Dictionary
         public static bool select<G, T>(ref T val, Dictionary<G, T> dic, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true) => select(ref val, new List<T>(dic.Values), showIndex, stripSlashes, allowInsert);
 
         public static bool select(ref int current, Dictionary<int, string> from)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.select(ref current, from);
 
 #endif
@@ -2810,7 +2823,7 @@ namespace PlayerAndEditorGUI
         public static bool select(ref int current, Dictionary<int, string> from, int width)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.select(ref current, from, width);
 #endif
 
@@ -2884,9 +2897,9 @@ namespace PlayerAndEditorGUI
 
         }
 
-        #endregion
+#endregion
 
-        #region Select Or Edit
+#region Select Or Edit
         public static bool select_or_edit_ColorPropertyName(this string name, int width, ref string property, Material material)
         {
             name.write(width);
@@ -3028,9 +3041,9 @@ namespace PlayerAndEditorGUI
         public static bool select_SameClass_or_edit<T, G>(this string name, int width, ref T obj, List<G> list) where T : UnityEngine.Object where G : class =>
              select_SameClass_or_edit(name, null, width, ref obj, list);
 
-        #endregion
+#endregion
 
-        #region Select IGotIndex
+#region Select IGotIndex
         public static bool select_iGotIndex<T>(this string label, string tip, ref int ind, List<T> lst, bool showIndex = false) where T : IGotIndex
         {
             write(label, tip);
@@ -3196,9 +3209,9 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        #endregion
+#endregion
 
-        #region Select IGotName
+#region Select IGotName
 
         public static bool select_iGotDisplayName<T>(this string label, int width, ref string name, List<T> lst) where T : IGotDisplayName
         {
@@ -3304,11 +3317,11 @@ namespace PlayerAndEditorGUI
         }
 
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
-        #region Foldout    
+#region Foldout    
         public static bool foldout(this string txt, ref bool state, ref bool changed)
         {
             var before = state;
@@ -3317,7 +3330,7 @@ namespace PlayerAndEditorGUI
 
             changed |= before != state;
 
-            return isFoldedOutOrEntered;
+            return ef.isFoldedOutOrEntered;
 
         }
 
@@ -3329,7 +3342,7 @@ namespace PlayerAndEditorGUI
 
             changed |= before != selected;
 
-            return isFoldedOutOrEntered;
+            return ef.isFoldedOutOrEntered;
 
         }
 
@@ -3337,7 +3350,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.foldout(txt, ref state);
 #endif
 
@@ -3347,9 +3360,9 @@ namespace PlayerAndEditorGUI
                 state = !state;
 
 
-            isFoldedOutOrEntered = state;
+            ef.isFoldedOutOrEntered = state;
 
-            return isFoldedOutOrEntered;
+            return ef.isFoldedOutOrEntered;
 
         }
 
@@ -3357,25 +3370,25 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.foldout(txt, ref selected, current);
 #endif
 
             checkLine();
 
-            isFoldedOutOrEntered = (selected == current);
+            ef.isFoldedOutOrEntered = (selected == current);
 
-            if (ClickUnFocus((isFoldedOutOrEntered ? "..⏵ " : "..⏷ ") + txt))
+            if (ClickUnFocus((ef.isFoldedOutOrEntered ? "..⏵ " : "..⏷ ") + txt))
             {
-                if (isFoldedOutOrEntered)
+                if (ef.isFoldedOutOrEntered)
                     selected = -1;
                 else
                     selected = current;
             }
 
-            isFoldedOutOrEntered = selected == current;
+            ef.isFoldedOutOrEntered = selected == current;
 
-            return isFoldedOutOrEntered;
+            return ef.isFoldedOutOrEntered;
 
         }
 
@@ -3387,7 +3400,7 @@ namespace PlayerAndEditorGUI
 
             changed |= before != selected;
 
-            return isFoldedOutOrEntered;
+            return ef.isFoldedOutOrEntered;
 
         }
 
@@ -3399,7 +3412,7 @@ namespace PlayerAndEditorGUI
 
             changed |= before != state;
 
-            return isFoldedOutOrEntered;
+            return ef.isFoldedOutOrEntered;
 
         }
 
@@ -3462,7 +3475,7 @@ namespace PlayerAndEditorGUI
 
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.foldout(txt);
 
 #endif
@@ -3471,15 +3484,15 @@ namespace PlayerAndEditorGUI
 
             _elementIndex++;
 
-            return isFoldedOutOrEntered;
+            return ef.isFoldedOutOrEntered;
 
 
         }
 
         public static void foldIn() => selectedFold = -1;
-        #endregion
+#endregion
 
-        #region Tabs
+#region Tabs
         public static int tab(ref int selected, params icon[] icons)
         {
             nl();
@@ -3507,9 +3520,9 @@ namespace PlayerAndEditorGUI
             nl();
             return selected;
         }
-        #endregion
+#endregion
 
-        #region Enter & Exit
+#region Enter & Exit
         public static bool enter(ref int enteredOne, int current, string tip = null)
         {
 
@@ -3522,9 +3535,9 @@ namespace PlayerAndEditorGUI
             else if (enteredOne == -1 && icon.Enter.ClickUnFocus())
                 enteredOne = current;
 
-            isFoldedOutOrEntered = (enteredOne == current);
+            ef.isFoldedOutOrEntered = (enteredOne == current);
 
-            return isFoldedOutOrEntered;
+            return ef.isFoldedOutOrEntered;
         }
 
         public static bool enter(this icon ico, ref int enteredOne, int thisOne, string tip = null)
@@ -3543,9 +3556,9 @@ namespace PlayerAndEditorGUI
                     enteredOne = thisOne;
             }
 
-            isFoldedOutOrEntered = (enteredOne == thisOne);
+            ef.isFoldedOutOrEntered = (enteredOne == thisOne);
 
-            return isFoldedOutOrEntered;
+            return ef.isFoldedOutOrEntered;
         }
 
         public static bool enter(this icon ico, ref bool state, string tip = null)
@@ -3559,9 +3572,9 @@ namespace PlayerAndEditorGUI
             else if (ico.ClickUnFocus(tip))
                 state = true;
 
-            isFoldedOutOrEntered = state;
+            ef.isFoldedOutOrEntered = state;
 
-            return isFoldedOutOrEntered;
+            return ef.isFoldedOutOrEntered;
         }
 
         public static bool enter(this icon ico, string txt, ref bool state, bool showLabelIfTrue = true)
@@ -3580,9 +3593,9 @@ namespace PlayerAndEditorGUI
                 txt.ClickLabel(txt, -1, state ? PEGI_Styles.ExitLabel : PEGI_Styles.EnterLabel))
                 state = !state;
 
-            isFoldedOutOrEntered = state;
+            ef.isFoldedOutOrEntered = state;
 
-            return isFoldedOutOrEntered;
+            return ef.isFoldedOutOrEntered;
         }
 
         public static bool enter(this icon ico, string txt, ref int enteredOne, int thisOne, bool showLabelIfTrue = true, GUIStyle enterLabelStyle = null)
@@ -3605,9 +3618,9 @@ namespace PlayerAndEditorGUI
                 enteredOne = outside ? thisOne : -1;
 
 
-            isFoldedOutOrEntered = (enteredOne == thisOne);
+            ef.isFoldedOutOrEntered = (enteredOne == thisOne);
 
-            return isFoldedOutOrEntered;
+            return ef.isFoldedOutOrEntered;
         }
 
         private static bool enter_DirectlyToElement<T>(this List<T> list, ref int inspected)
@@ -3623,7 +3636,7 @@ namespace PlayerAndEditorGUI
             icon ico;
             string msg;
 
-            if (list.NeedsAttention(out msg))
+            if (NeedsAttention(list, out msg))
             {
                 if (inspected == -1)
                     suggestedIndex = LastNeedAttentionIndex;
@@ -3641,7 +3654,7 @@ namespace PlayerAndEditorGUI
             if (ico.Click(msg + el.GetNameForInspector()))
             {
                 inspected = suggestedIndex;
-                isFoldedOutOrEntered = true;
+                ef.isFoldedOutOrEntered = true;
                 return true;
             }
             return false;
@@ -3825,7 +3838,7 @@ namespace PlayerAndEditorGUI
 
             IndentLevel = il;
 
-            return (isFoldedOutOrEntered && var.Nested_Inspect()) || changed;
+            return (ef.isFoldedOutOrEntered && var.Nested_Inspect()) || changed;
         }
 
         public static bool enter_Inspect(this IPEGI var, ref int enteredOne, int thisOne)
@@ -3854,7 +3867,7 @@ namespace PlayerAndEditorGUI
             txt.TryAddCount(var).enter(ref entered, showLabelIfTrue);//)
                                                                      // var.Try_NameInspect().changes(ref changed);
 
-            return (isFoldedOutOrEntered && var.Nested_Inspect()) || changed;
+            return (ef.isFoldedOutOrEntered && var.Nested_Inspect()) || changed;
         }
 
         public static bool enter_Inspect(this string txt, IPEGI var, ref int enteredOne, int thisOne, bool showLabelIfTrue = true, GUIStyle enterLabelStyle = null)
@@ -3863,7 +3876,7 @@ namespace PlayerAndEditorGUI
 
             txt.TryAddCount(var).enter(ref enteredOne, thisOne, showLabelIfTrue, enterLabelStyle);//)
 
-            return (isFoldedOutOrEntered && var.Nested_Inspect()) || changed;
+            return (ef.isFoldedOutOrEntered && var.Nested_Inspect()) || changed;
         }
 
         public static bool enter_Inspect(this string label, IPEGI_ListInspect var, ref int enteredOne, int thisOne)
@@ -3909,7 +3922,7 @@ namespace PlayerAndEditorGUI
                 enteredOne = -1;
 
 
-            isFoldedOutOrEntered = enteredOne == thisOne;
+            ef.isFoldedOutOrEntered = enteredOne == thisOne;
 
             return changed;
         }
@@ -3964,9 +3977,9 @@ namespace PlayerAndEditorGUI
                     enteredOne = -1;
             }
             else
-                isFoldedOutOrEntered = false;
+                ef.isFoldedOutOrEntered = false;
 
-            return isFoldedOutOrEntered;
+            return ef.isFoldedOutOrEntered;
         }
 
         public static bool conditional_enter(this icon ico, string label, bool canEnter, ref int enteredOne, int thisOne, bool showLabelIfTrue = true, GUIStyle enterLabelStyle = null)
@@ -3978,9 +3991,9 @@ namespace PlayerAndEditorGUI
             if (canEnter)
                 ico.enter(label, ref enteredOne, thisOne, showLabelIfTrue, enterLabelStyle);
             else
-                isFoldedOutOrEntered = false;
+                ef.isFoldedOutOrEntered = false;
 
-            return isFoldedOutOrEntered;
+            return ef.isFoldedOutOrEntered;
         }
 
         public static bool conditional_enter(this string label, bool canEnter, ref int enteredOne, int thisOne, bool showLabelIfTrue = true, GUIStyle enterLabelStyle = null)
@@ -3997,10 +4010,10 @@ namespace PlayerAndEditorGUI
                 if (canEnter)
                     label.enter(ref enteredOne, thisOne, showLabelIfTrue, enterLabelStyle);
                 else
-                    isFoldedOutOrEntered = false;
+                    ef.isFoldedOutOrEntered = false;
             }
 
-            return isFoldedOutOrEntered;
+            return ef.isFoldedOutOrEntered;
         }
 
         public static bool conditional_enter(this string label, bool canEnter, ref bool entered, bool showLabelIfTrue = true)
@@ -4017,10 +4030,10 @@ namespace PlayerAndEditorGUI
                 if (canEnter)
                     label.enter(ref entered, showLabelIfTrue);
                 else
-                    isFoldedOutOrEntered = false;
+                    ef.isFoldedOutOrEntered = false;
             }
 
-            return isFoldedOutOrEntered;
+            return ef.isFoldedOutOrEntered;
         }
 
         public static bool conditional_enter_inspect(this IPEGI_ListInspect obj, bool canEnter, ref int enteredOne, int thisOne)
@@ -4031,7 +4044,7 @@ namespace PlayerAndEditorGUI
             if (canEnter)
                 return obj.enter_Inspect_AsList(ref enteredOne, thisOne);
             else
-                isFoldedOutOrEntered = false;
+                ef.isFoldedOutOrEntered = false;
 
             return false;
         }
@@ -4041,7 +4054,7 @@ namespace PlayerAndEditorGUI
             if (label.TryAddCount(obj).conditional_enter(canEnter, ref enteredOne, thisOne))
                 return obj.Nested_Inspect();
 
-            isFoldedOutOrEntered = enteredOne == thisOne;
+            ef.isFoldedOutOrEntered = enteredOne == thisOne;
 
             return false;
         }
@@ -4051,7 +4064,7 @@ namespace PlayerAndEditorGUI
             if (label.TryAddCount(obj).conditional_enter(canEnter, ref entered))
                 return obj.Nested_Inspect();
 
-            isFoldedOutOrEntered = entered;
+            ef.isFoldedOutOrEntered = entered;
 
             return false;
         }
@@ -4065,7 +4078,7 @@ namespace PlayerAndEditorGUI
             if (val)
                 enter(ref enteredOne, thisOne);
             else
-                isFoldedOutOrEntered = false;
+                ef.isFoldedOutOrEntered = false;
 
             if (enteredOne == thisOne)
                 label.toggleIcon(ref val).changes(ref changed);
@@ -4073,7 +4086,7 @@ namespace PlayerAndEditorGUI
             if (!val && enteredOne == thisOne)
                 enteredOne = -1;
 
-            return isFoldedOutOrEntered;
+            return ef.isFoldedOutOrEntered;
         }
 
         public static bool enter_List<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne)
@@ -4211,7 +4224,7 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        #region Tagged Types
+#region Tagged Types
 
         public static T enter_List<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne, TaggedTypesCfg types, ref bool changed) =>
             meta.enter_HeaderPart(ref list, ref enteredOne, thisOne) ? meta.edit_List(ref list, types, ref changed) : default(T);
@@ -4219,7 +4232,7 @@ namespace PlayerAndEditorGUI
         public static T enter_List<T>(this ListMetaData meta, ref List<T> list, ref bool entered, TaggedTypesCfg types, ref bool changed) =>
             meta.enter_HeaderPart(ref list, ref entered) ? meta.edit_List(ref list, types, ref changed) : default(T);
 
-        #endregion
+#endregion
 
         public static bool conditional_enter_List<T>(this string label, bool canEnter, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne)
         {
@@ -4232,7 +4245,7 @@ namespace PlayerAndEditorGUI
             if (canEnter)
                 label.enter_List(ref list, ref inspectedElement, ref enteredOne, thisOne).changes(ref changed);
             else
-                isFoldedOutOrEntered = false;
+                ef.isFoldedOutOrEntered = false;
 
             return changed;
 
@@ -4249,14 +4262,14 @@ namespace PlayerAndEditorGUI
             if (canEnter)
                 meta.enter_List(ref list, ref enteredOne, thisOne).changes(ref changed);
             else
-                isFoldedOutOrEntered = false;
+                ef.isFoldedOutOrEntered = false;
 
             return changed;
         }
 
-        #endregion
+#endregion
 
-        #region Click
+#region Click
         public const int defaultButtonSize = 26;
 
         private const int maxWidthForPlaytimeButtonText = 100;
@@ -4295,7 +4308,7 @@ namespace PlayerAndEditorGUI
                     if (!newName.IsNullOrEmpty())
                         obj.name = newName;
 
-                    QcFile.SaveUtils.SaveAsset(obj, folder, extension, true);
+                    QcFile.Saving.Asset(obj, folder, extension, true);
                 }
                 else
                 {
@@ -4450,7 +4463,7 @@ namespace PlayerAndEditorGUI
             textAndTip.tooltip = hint;
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return (width == -1 ? ef.Click(textAndTip, style) : ef.Click(textAndTip, width, style)).UnFocus().RestoreBGColor();
 #endif
 
@@ -4463,7 +4476,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.Click(tex, width).UnFocus();
 #endif
 
@@ -4481,7 +4494,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.Click(text).UnFocus();
 #endif
             checkLine();
@@ -4494,7 +4507,7 @@ namespace PlayerAndEditorGUI
             var cntnt = TextAndTip(text, tip);
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.Click(cntnt).UnFocus();
 #endif
             checkLine();
@@ -4517,7 +4530,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.Click(content, style);
 #endif
             checkLine();
@@ -4531,7 +4544,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.ClickImage(content, width, style);
 #endif
             checkLine();
@@ -4548,7 +4561,7 @@ namespace PlayerAndEditorGUI
         public static bool Click(this string text)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.Click(text);
 #endif
             checkLine();
@@ -4561,7 +4574,7 @@ namespace PlayerAndEditorGUI
         {
             var cnt = TextAndTip(text, tip);
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.Click(cnt);
 #endif
             checkLine();
@@ -4585,7 +4598,7 @@ namespace PlayerAndEditorGUI
             if (!img) img = icon.Empty.GetIcon();
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.Click(img, size);
 #endif
 
@@ -4602,7 +4615,7 @@ namespace PlayerAndEditorGUI
             var cnt = ImageAndTip(img, tip);
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.ClickImage(cnt, size);
 #endif
 
@@ -4617,7 +4630,7 @@ namespace PlayerAndEditorGUI
             var cnt = ImageAndTip(img, tip);
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.ClickImage(cnt, width, height);
 #endif
             checkLine();
@@ -4783,16 +4796,16 @@ namespace PlayerAndEditorGUI
             return tex ? tex.ClickUnFocus(hint) : icon.Enter.ClickUnFocus(hint);
         }
 
-        #endregion
+#endregion
 
-        #region Toggle
+#region Toggle
         private const int DefaultToggleIconSize = 34;
 
         public static bool toggleInt(ref int val)
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.toggleInt(ref val);
 #endif
 
@@ -4821,7 +4834,7 @@ namespace PlayerAndEditorGUI
         public static bool toggle(ref bool val)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.toggle(ref val);
 #endif
 
@@ -4835,7 +4848,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
             {
                 ef.write(text, width);
                 return ef.toggle(ref val);
@@ -4852,7 +4865,7 @@ namespace PlayerAndEditorGUI
         {
             var cnt = TextAndTip(text, tip);
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.toggle(ref val, cnt);
 
 #endif
@@ -4961,7 +4974,7 @@ namespace PlayerAndEditorGUI
         {
             var cnt = TextAndTip(text, tip);
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
             {
                 ef.write(cnt, width);
                 return ef.toggle(ref val);
@@ -4978,7 +4991,7 @@ namespace PlayerAndEditorGUI
         public static bool toggle(int ind, CountlessBool tb)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.toggle(ind, tb);
 #endif
             var has = tb[ind];
@@ -5059,11 +5072,11 @@ namespace PlayerAndEditorGUI
 #endif
 
 
-        #endregion
+#endregion
 
-        #region Edit
+#region Edit
 
-        #region Audio Clip
+#region Audio Clip
 
         public static bool edit(this string label, int width, ref AudioClip field, float offset = 0)
         {
@@ -5073,7 +5086,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit(this string label, ref AudioClip field, float offset = 0)
         {
-            label.write(label.ApproximateLength());
+            label.write(ApproximateLength(label));
             return edit(ref field, offset);
         }
 
@@ -5082,7 +5095,7 @@ namespace PlayerAndEditorGUI
 
             var ret =
 #if UNITY_EDITOR
-                !paintingPlayAreaGui ? ef.edit(ref clip, width) :
+                !PaintingGameViewUI ? ef.edit(ref clip, width) :
 #endif
                     false;
 
@@ -5096,7 +5109,7 @@ namespace PlayerAndEditorGUI
 
             var ret =
 #if UNITY_EDITOR
-                !paintingPlayAreaGui ? ef.edit(ref clip) :
+                !PaintingGameViewUI ? ef.edit(ref clip) :
 #endif
                     false;
 
@@ -5115,9 +5128,9 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        #endregion
+#endregion
 
-        #region UnityObject
+#region UnityObject
 
         public static bool edit_ifNull<T>(this GameObject parent, ref T component) where T : Component
         {
@@ -5151,22 +5164,22 @@ namespace PlayerAndEditorGUI
 
         public static bool edit<T>(ref T field, int width) where T : Object =>
 #if UNITY_EDITOR
-                !paintingPlayAreaGui ? ef.edit(ref field, width) :
+                !PaintingGameViewUI ? ef.edit(ref field, width) :
 #endif
             false;
 
         public static bool edit<T>(ref T field, bool allowDrop) where T : Object =>
 #if UNITY_EDITOR
-            !paintingPlayAreaGui ? ef.edit(ref field, allowDrop) :
+            !PaintingGameViewUI ? ef.edit(ref field, allowDrop) :
 #endif
                 false;
 
         public static bool edit<T>(this string label, ref T field) where T : Object
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
             {
-                label.write(label.ApproximateLength());
+                label.write(ApproximateLength(label));
                 return edit(ref field);
             }
 #endif
@@ -5178,7 +5191,7 @@ namespace PlayerAndEditorGUI
         public static bool edit<T>(this string label, ref T field, bool allowDrop) where T : Object
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
             {
                 write(label);
                 return edit(ref field, allowDrop);
@@ -5192,7 +5205,7 @@ namespace PlayerAndEditorGUI
         public static bool edit<T>(this string label, int width, ref T field) where T : Object
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
             {
                 write(label, width);
                 return edit(ref field);
@@ -5206,7 +5219,7 @@ namespace PlayerAndEditorGUI
         public static bool edit<T>(this string label, int width, ref T field, bool allowDrop) where T : UnityEngine.Object
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
             {
                 write(label, width);
                 return edit(ref field, allowDrop);
@@ -5221,7 +5234,7 @@ namespace PlayerAndEditorGUI
         public static bool edit<T>(this string label, string tip, int width, ref T field) where T : UnityEngine.Object
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
             {
                 write(label, tip, width);
                 return edit(ref field);
@@ -5236,7 +5249,7 @@ namespace PlayerAndEditorGUI
         public static bool edit<T>(this string label, string tip, int width, ref T field, bool allowDrop) where T : UnityEngine.Object
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
             {
                 write(label, tip, width);
                 return edit(ref field, allowDrop);
@@ -5250,7 +5263,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit<T>(ref T field) where T : Object =>
 #if UNITY_EDITOR
-            !paintingPlayAreaGui ? ef.edit(ref field) :
+            !PaintingGameViewUI ? ef.edit(ref field) :
 #endif
                 false;
 
@@ -5365,7 +5378,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref val);
 #endif
 
@@ -5422,7 +5435,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(label, ref val);
 #endif
 
@@ -5447,7 +5460,7 @@ namespace PlayerAndEditorGUI
         public static bool edit(this string label, ref Vector3 val)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(label, ref val);
 #endif
 
@@ -5460,7 +5473,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref val);
 
 #endif
@@ -5514,7 +5527,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(label, ref val);
 #endif
 
@@ -5558,7 +5571,7 @@ namespace PlayerAndEditorGUI
         public static bool edit(ref Color col)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref col);
 
 #endif
@@ -5573,7 +5586,7 @@ namespace PlayerAndEditorGUI
         public static bool edit(ref Color col, int width)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref col, width);
 
 #endif
@@ -5618,7 +5631,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit(this string label, ref Color col)
         {
-            if (paintingPlayAreaGui)
+            if (PaintingGameViewUI)
             {
                 if (label.foldout())
                     return edit(ref col);
@@ -5634,7 +5647,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit(this string label, int width, ref Color col)
         {
-            if (paintingPlayAreaGui)
+            if (PaintingGameViewUI)
             {
                 if (label.foldout())
                     return edit(ref col);
@@ -5651,7 +5664,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit(this string label, string tip, int width, ref Color col)
         {
-            if (paintingPlayAreaGui)
+            if (PaintingGameViewUI)
                 return false;
 
             write(label, tip, width);
@@ -5679,12 +5692,106 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-#endregion
+        public static bool toggle(this Material mat, string keyword)
+        {
+            var val = Array.IndexOf(mat.shaderKeywords, keyword) != -1;
 
-#region Animation Curve
+            if (!keyword.toggleIcon(ref val)) return false;
+
+            if (val)
+                mat.EnableKeyword(keyword);
+            else
+                mat.DisableKeyword(keyword);
+
+            return true;
+        }
+
+        public static bool edit(this Material mat, ShaderProperty.FloatValue property, string name = null)
+        {
+            var val = mat.Get(property);
+
+            if (name.IsNullOrEmpty())
+                name = property.NameForDisplayPEGI();
+
+            if (name.edit(name.Length * letterSizeInPixels, ref val))
+            {
+                mat.Set(property, val);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool edit(this Material mat, ShaderProperty.FloatValue property, string name, float min, float max)
+        {
+            var val = mat.Get(property);
+
+            if (name.IsNullOrEmpty())
+                name = property.NameForDisplayPEGI();
+
+            if (name.edit(name.Length * letterSizeInPixels, ref val, min, max))
+            {
+                mat.Set(property, val);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool edit(this Material mat, ShaderProperty.ColorFloat4Value property, string name = null)
+        {
+            var val = mat.Get(property);
+
+            if (name.IsNullOrEmpty())
+                name = property.NameForDisplayPEGI();
+
+            if (name.edit(name.Length * letterSizeInPixels, ref val))
+            {
+                mat.Set(property, val);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool edit(this Material mat, ShaderProperty.VectorValue property, string name = null)
+        {
+            var val = mat.Get(property);
+
+            if (name.IsNullOrEmpty())
+                name = property.NameForDisplayPEGI();
+
+            if (name.edit(ref val))
+            {
+                mat.Set(property, val);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool edit(this Material mat, ShaderProperty.TextureValue property, string name = null)
+        {
+            var val = mat.Get(property);
+
+            if (name.IsNullOrEmpty())
+                name = property.NameForDisplayPEGI();
+
+            if (name.edit(name.Length * letterSizeInPixels, ref val))
+            {
+                mat.Set(property, val);
+                return true;
+            }
+
+            return false;
+        }
+
+        #endregion
+
+        #region Animation Curve
         public static bool edit(this string name, ref AnimationCurve val) =>
 #if UNITY_EDITOR
-            !paintingPlayAreaGui ? ef.edit(name, ref val) :
+            !PaintingGameViewUI ? ef.edit(name, ref val) :
 #endif
                 false;
 
@@ -5695,7 +5802,7 @@ namespace PlayerAndEditorGUI
         public static bool edit(ref uint val)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref val);
 #endif
             bc();
@@ -5715,7 +5822,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref val, width);
 #endif
 
@@ -5735,7 +5842,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref val, min, max);
 #endif
 
@@ -5806,7 +5913,7 @@ namespace PlayerAndEditorGUI
         public static bool editTag(ref string tag)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.editTag(ref tag);
 #endif
 
@@ -5824,7 +5931,7 @@ namespace PlayerAndEditorGUI
         public static bool editLayerMask(ref int val)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.editLayerMask(ref val);
 #endif
 
@@ -5834,7 +5941,7 @@ namespace PlayerAndEditorGUI
         public static bool edit(ref int val)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref val);
 #endif
 
@@ -5854,7 +5961,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref val, width);
 #endif
 
@@ -5876,7 +5983,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref val, min, max);
 #endif
 
@@ -5892,7 +5999,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.editDelayed(ref val, width);
 
 #endif
@@ -5979,7 +6086,7 @@ namespace PlayerAndEditorGUI
         public static bool edit(ref long val)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref val);
 #endif
 
@@ -5999,7 +6106,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref val, width);
 #endif
 
@@ -6038,7 +6145,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref val);
 #endif
 
@@ -6058,7 +6165,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref val, width);
 #endif
 
@@ -6079,7 +6186,7 @@ namespace PlayerAndEditorGUI
         public static bool edit(this string label, ref float val)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(label, ref val);
 #endif
             write(label);
@@ -6090,7 +6197,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.editPOW(ref val, min, max);
 #endif
 
@@ -6107,7 +6214,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref val, min, max);
 
 #endif
@@ -6140,7 +6247,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.editDelayed(ref val, width);
 #endif
 
@@ -6151,7 +6258,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.editDelayed(ref val);
 #endif
 
@@ -6214,7 +6321,7 @@ namespace PlayerAndEditorGUI
 
         private static void sliderText(this string label, float val, string tip, int width)
         {
-            if (paintingPlayAreaGui)
+            if (PaintingGameViewUI)
                 "{0} [{1}]".F(label, val.ToString("F3")).write(width);
             else
                 write(label, tip, width);
@@ -6282,7 +6389,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.editDelayed(ref val, width);
 #endif
 
@@ -6293,7 +6400,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.editDelayed(ref val);
 #endif
 
@@ -6335,7 +6442,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref val);
 #endif
             bc();
@@ -6369,7 +6476,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref val, width);
 #endif
 
@@ -6485,7 +6592,7 @@ namespace PlayerAndEditorGUI
             if (LengthIsTooLong(ref val)) return false;
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.editDelayed(ref val);
 #endif
 
@@ -6522,7 +6629,7 @@ namespace PlayerAndEditorGUI
             if (LengthIsTooLong(ref val)) return false;
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.editDelayed(ref val, width);
 #endif
 
@@ -6590,7 +6697,7 @@ namespace PlayerAndEditorGUI
             if (LengthIsTooLong(ref val)) return false;
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref val);
 #endif
 
@@ -6605,7 +6712,7 @@ namespace PlayerAndEditorGUI
             if (LengthIsTooLong(ref val)) return false;
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref val, width);
 #endif
 
@@ -6626,7 +6733,7 @@ namespace PlayerAndEditorGUI
             nl();
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.editBig(ref val, height).nl();
 #endif
 
@@ -6648,7 +6755,7 @@ namespace PlayerAndEditorGUI
             if (LengthIsTooLong(ref val)) return false;
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(label, ref val);
 #endif
 
@@ -6709,7 +6816,7 @@ namespace PlayerAndEditorGUI
         private static bool edit_Property<T>(Expression<Func<T>> memberExpression, int width, Object obj, bool includeChildren)
         {
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit_Property(width, memberExpression, obj, includeChildren);
 
 #endif
@@ -6725,7 +6832,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref val);
 #endif
 
@@ -6736,7 +6843,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref val, min, max);
 #endif
 
@@ -6748,7 +6855,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref val, min, max);
 #endif
 
@@ -6795,15 +6902,15 @@ namespace PlayerAndEditorGUI
             return boolDefine.Inspect();
         }
 
-        #endregion
+#endregion
 
 
 
-        #endregion
+#endregion
 
-        #region LISTS
+#region LISTS
 
-        #region List MGMT Functions 
+#region List MGMT Functions 
 
         public static int InspectedIndex {
             get { return collectionInspector.Index; }
@@ -7179,7 +7286,7 @@ namespace PlayerAndEditorGUI
 
                 searchData = listMeta == null ? pegi.searchData : listMeta.searchData;
 
-                #region Inspect Start
+#region Inspect Start
 
                 var changed = false;
 
@@ -7252,7 +7359,7 @@ namespace PlayerAndEditorGUI
 
                 nl();
 
-                #endregion
+#endregion
 
                 if (!_searching)
                 {
@@ -7365,11 +7472,11 @@ namespace PlayerAndEditorGUI
 
                 }
 
-                #region Finilize
+#region Finilize
                 if (changed)
                     SaveSectionIndex(list, listMeta);
 
-                #endregion
+#endregion
             }
 
             private void SaveSectionIndex<T>(ICollection<T> list, ListMetaData listMeta) {
@@ -7404,8 +7511,8 @@ namespace PlayerAndEditorGUI
             {
                 switch (index % 4)
                 {
-                    case 1: PEGI_Styles.listReadabilityBlue.SetBgColor(); break;
-                    case 3: PEGI_Styles.listReadabilityRed.SetBgColor(); break;
+                    case 1: SetBgColor(PEGI_Styles.listReadabilityBlue); break;
+                    case 3: SetBgColor(PEGI_Styles.listReadabilityRed); break;
                 }
             }
 
@@ -7742,7 +7849,7 @@ namespace PlayerAndEditorGUI
                 if (list != collectionInspector.reordering) return changed;
 
 #if UNITY_EDITOR
-                if (!paintingPlayAreaGui)
+                if (!PaintingGameViewUI)
                 {
                     nl();
                     ef.reorder_List(list, listMeta).changes(ref changed);
@@ -7750,7 +7857,7 @@ namespace PlayerAndEditorGUI
                 else
 #endif
 
-                #region Playtime UI reordering
+#region Playtime UI reordering
 
                 {
                     var derivedClasses = typeof(T).TryGetDerivedClasses();
@@ -7819,9 +7926,9 @@ namespace PlayerAndEditorGUI
 
                 }
 
-                #endregion
+#endregion
 
-                #region Select
+#region Select
 
                 var selectedCount = 0;
 
@@ -7843,9 +7950,9 @@ namespace PlayerAndEditorGUI
                     SetSelected(listMeta, list, true);
 
 
-                #endregion
+#endregion
 
-                #region Copy, Cut, Paste, Move 
+#region Copy, Cut, Paste, Move 
 
 
                 var duplicants = listMeta != null ? listMeta.allowDuplicants : allowDuplicants;
@@ -7956,9 +8063,9 @@ namespace PlayerAndEditorGUI
                 }
 
 
-                #endregion
+#endregion
 
-                #region Clean & Delete
+#region Clean & Delete
 
                 if (list != listCopyBuffer)
                 {
@@ -8003,7 +8110,7 @@ namespace PlayerAndEditorGUI
                     }
                 }
 
-                #endregion
+#endregion
 
                 if (listMeta != null && icon.Config.enter(ref listMeta.inspectListMeta))
                     listMeta.Nested_Inspect();
@@ -8058,7 +8165,7 @@ namespace PlayerAndEditorGUI
                                  || (listMeta == null && collectionInspector.previouslyEntered != null && el == collectionInspector.previouslyEntered);
 
                 if (isPrevious)
-                    PreviousInspectedColor.SetBgColor();
+                    SetBgColor(PreviousInspectedColor);
 
                 if (pl != null)
                 {
@@ -8099,7 +8206,7 @@ namespace PlayerAndEditorGUI
                         var warningText = need?.NeedAttention();
 
                         if (warningText != null)
-                            AttentionColor.SetBgColor();
+                            SetBgColor(AttentionColor);
 
                         var clickHighlightHandled = false;
 
@@ -8204,7 +8311,7 @@ namespace PlayerAndEditorGUI
                 if (edit(ref mb))
                 {
                     list[i] = mb.GetComponent<T>();
-                    if (list[i] == null) (typeof(T).ToString() + " Component not found").showNotificationIn3D_Views();
+                    if (list[i] == null) GameView.ShowNotification(typeof(T).ToString() + " Component not found");
                 }
                 return true;
 
@@ -8322,7 +8429,7 @@ namespace PlayerAndEditorGUI
             var isPrevious = (listMeta != null && listMeta.previousInspected == index);
 
             if (isPrevious)
-                PreviousInspectedColor.SetBgColor();
+                SetBgColor(PreviousInspectedColor);
 
             if (pl != null)
             {
@@ -8363,7 +8470,7 @@ namespace PlayerAndEditorGUI
                     var warningText = need?.NeedAttention();
 
                     if (warningText != null)
-                        AttentionColor.SetBgColor();
+                        SetBgColor(AttentionColor);
 
                     var clickHighlightHandled = false;
 
@@ -8523,7 +8630,7 @@ namespace PlayerAndEditorGUI
                                 if (obj)
                                 {
                                     list[i] = obj.GetComponent<T>();
-                                    if (!list[i]) (typeof(T).ToString() + " Component not found").showNotificationIn3D_Views();
+                                    if (!list[i]) GameView.ShowNotification(typeof(T).ToString() + " Component not found");
                                 }
                             }
                         }
@@ -8681,6 +8788,45 @@ namespace PlayerAndEditorGUI
             return edit_or_select_List_UObj(ref list, selectFrom, ref listMeta.inspected, listMeta).listLabel_Used();
         }
 
+        public static bool edit_List_UObj<T>(this string label, ref List<T> list, Func<T, T> lambda) where T : Object
+        {
+            collectionInspector.write_Search_ListLabel(label, list);
+            return edit_List_UObj(ref list, lambda);
+        }
+
+        public static bool edit_List_UObj<T>(ref List<T> list, Func<T, T> lambda) where T : Object
+        {
+
+            var changed = false;
+
+            if (collectionInspector.listIsNull(ref list))
+                return changed;
+
+            collectionInspector.edit_List_Order(list).changes(ref changed);
+            //collectionInspector.
+            if (list != collectionInspector.reordering)
+            {
+
+                collectionInspector.ListAddEmptyClick(list).changes(ref changed);
+
+                foreach (var i in collectionInspector.InspectionIndexes(list))
+                {
+                    var el = list[i];
+                    var ch = GUI.changed;
+                    el = lambda(el);
+                    nl();
+                    if (ch || !GUI.changed) continue;
+
+                    changed = true;
+                    list[i] = el;
+                }
+
+            }
+
+            newLine();
+            return changed;
+        }
+        
         public static bool edit_or_select_List_UObj<T, G>(ref List<T> list, List<G> from, ref int inspected, ListMetaData listMeta = null) where T : G where G : Object
         {
             if (collectionInspector.listIsNull(ref list))
@@ -8731,7 +8877,7 @@ namespace PlayerAndEditorGUI
             return changed;
 
         }
-
+        
 #endregion
 
 #region List of New()
@@ -9122,39 +9268,6 @@ namespace PlayerAndEditorGUI
             return added;
         }
 
-        public static bool edit_List_UObj<T>(ref List<T> list, Func<T, T> lambda) where T : UnityEngine.Object
-        {
-
-            var changed = false;
-
-            if (collectionInspector.listIsNull(ref list))
-                return changed;
-
-            collectionInspector.edit_List_Order(list).changes(ref changed);
-            //collectionInspector.
-            if (list != collectionInspector.reordering)
-            {
-
-                collectionInspector.ListAddEmptyClick(list).changes(ref changed);
-
-                foreach (var i in collectionInspector.InspectionIndexes(list))
-                {
-                    var el = list[i];
-                    var ch = GUI.changed;
-                    el = lambda(el);
-                    nl();
-                    if (ch || !GUI.changed) continue;
-
-                    changed = true;
-                    list[i] = el;
-                }
-
-            }
-
-            newLine();
-            return changed;
-        }
-
         public static bool edit_List(this string name, ref List<string> list, Func<string, string> lambda)
         {
             collectionInspector.write_Search_ListLabel(name, list);
@@ -9285,7 +9398,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.editKey(ref dic, key);
 
 #endif
@@ -9303,7 +9416,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
                 return ef.edit(ref dic, atKey);
 #endif
 
@@ -10042,7 +10155,7 @@ namespace PlayerAndEditorGUI
 
 
 #region Inspect Extensions
-        public static bool Nested_Inspect(InspectionDelegate function, UnityEngine.Object target = null)
+        public static bool Nested_Inspect(GameView.InspectionDelegate function, Object target = null)
         {
             var changed = false;
 
@@ -10098,7 +10211,7 @@ namespace PlayerAndEditorGUI
             if (pgi.IsNullOrDestroyed_Obj())
                 return false;
 
-            var isFOOE = isFoldedOutOrEntered;
+            var isFOOE = ef.isFoldedOutOrEntered;
 
             var changed = false;
 
@@ -10124,17 +10237,17 @@ namespace PlayerAndEditorGUI
             else
                 "3rd recursion".writeWarning();
 
-            if (changed || globChanged)
+            if (changed || ef.globChanged)
             {
-                #if UNITY_EDITOR
+#if UNITY_EDITOR
                 ef.ClearFromPooledSerializedObjects(pgi as Object);
-                #endif
+#endif
                 pgi.SetToDirty_Obj();
             }
             
-            isFoldedOutOrEntered = isFOOE;
+            ef.isFoldedOutOrEntered = isFOOE;
 
-            return changed || globChanged;
+            return changed || ef.globChanged;
 
         }
 
@@ -10147,7 +10260,7 @@ namespace PlayerAndEditorGUI
 
             IndentLevel = il;
 
-            if (globChanged || changes)
+            if (ef.globChanged || changes)
             {
 #if UNITY_EDITOR
                 ef.ClearFromPooledSerializedObjects(obj as Object);
@@ -10168,7 +10281,7 @@ namespace PlayerAndEditorGUI
             IndentLevel = il;
 
 
-            if (globChanged || changes)
+            if (ef.globChanged || changes)
             {
 #if UNITY_EDITOR
                 ef.ClearFromPooledSerializedObjects(obj as Object);
@@ -10187,7 +10300,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui && uObj)
+            if (!PaintingGameViewUI && uObj)
             {
 
 
@@ -10219,7 +10332,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            if (!paintingPlayAreaGui)
+            if (!PaintingGameViewUI)
             {
 
                 var uObj = obj as Object;
@@ -10547,30 +10660,6 @@ namespace PlayerAndEditorGUI
             return default(G);
         }
 
-        static Type gameViewType;
-        public static void showNotificationIn3D_Views(this string text)
-        {
-#if UNITY_EDITOR
-
-            if (Application.isPlaying)
-            {
-                if (gameViewType == null)
-                    gameViewType = typeof(EditorWindow).Assembly.GetType("UnityEditor.GameView");
-
-                var ed = EditorWindow.GetWindow(gameViewType);
-                if (ed != null)
-                    ed.ShowNotification(new GUIContent(text));
-            }
-            else
-            {
-                var lst = Resources.FindObjectsOfTypeAll<SceneView>();
-
-                foreach (var w in lst)
-                    w.ShowNotification(new GUIContent(text));
-
-            }
-#endif
-        }
 
 #endregion
 

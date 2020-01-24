@@ -602,7 +602,7 @@ namespace PlaytimePainter {
         public static void TeachingNotification(this string text)
         {
             if (PainterCamera.Data && PainterCamera.Data.showTeachingNotifications)
-                text.showNotificationIn3D_Views();
+                pegi.GameView.ShowNotification(text);
         }
 
         public static Mesh GetMesh(this PlaytimePainter p)

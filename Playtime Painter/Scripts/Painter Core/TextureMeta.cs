@@ -147,7 +147,7 @@ namespace PlaytimePainter
 
             Cfg.playtimeSavedTextures.Add(fullPath);
 
-            msg.showNotificationIn3D_Views();
+            pegi.GameView.ShowNotification(msg);
 
             Debug.Log(msg);
 
@@ -168,7 +168,7 @@ namespace PlaytimePainter
                 if (texture2D.LoadImage(fileData))
                     Init(texture2D);
 
-                else "Couldn't Load Image ".showNotificationIn3D_Views();
+                else pegi.GameView.ShowNotification("Couldn't Load Image ");
 
             }
         }
@@ -928,7 +928,7 @@ namespace PlaytimePainter
         {
             get
             {
-                if (_processEnumerator != null && _processEnumerator.Done)
+                if (_processEnumerator != null && _processEnumerator.Exited)
                     _processEnumerator = null;
 
                 return _processEnumerator;
@@ -1161,7 +1161,7 @@ namespace PlaytimePainter
                         "Save Name".edit(70, ref saveName);
 
                         if (icon.Folder.Click("Open Folder with textures").nl())
-                            QcFile.ExplorerUtils.OpenPersistentFolder(SavedImagesFolder);
+                            QcFile.Explorer.OpenPersistentFolder(SavedImagesFolder);
 
                         if ("Save Playtime".Click("Will save to {0}/{1}".F(Application.persistentDataPath, saveName)).nl())
                             SaveInPlayer();

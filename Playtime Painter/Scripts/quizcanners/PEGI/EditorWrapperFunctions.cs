@@ -7,13 +7,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.InteropServices;
 using UnityEditor.SceneManagement;
 using QuizCannersUtilities;
 using UnityEditorInternal;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
 
+#endif
 
 // ReSharper disable InconsistentNaming
 #pragma warning disable IDE1006 // Naming Styles
@@ -21,12 +21,23 @@ using Object = UnityEngine.Object;
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 
-
 namespace PlayerAndEditorGUI
 {
 
     public static class ef {
 
+        #region Non Editor Only
+
+        public static object inspectedTarget;
+
+        public static bool isFoldedOutOrEntered;
+
+        public static bool globChanged; // Some times user can change temporary fields, like delayed Edits
+        #endregion
+
+
+
+#if UNITY_EDITOR
         public enum EditorType { Mono, ScriptableObject, Material, Unknown }
 
         public static EditorType editorTypeForDefaultInspector = EditorType.Unknown;
@@ -87,7 +98,7 @@ namespace PlayerAndEditorGUI
 
             var o = (T)editor.target;
             var so = editor.serializedObject;
-            pegi.inspectedTarget = editor.target;
+            inspectedTarget = editor.target;
 
             var go = o.gameObject;
 
@@ -148,7 +159,7 @@ namespace PlayerAndEditorGUI
 
             var o = (T)editor.target;
             var so = editor.serializedObject;
-            pegi.inspectedTarget = editor.target;
+            inspectedTarget = editor.target;
 
             var pgi = o as IPEGI;
             if (pgi != null)
@@ -171,7 +182,7 @@ namespace PlayerAndEditorGUI
 
             editorTypeForDefaultInspector = EditorType.Material;
 
-            pegi.inspectedTarget = editor.unityMaterialEditor.target;
+            inspectedTarget = editor.unityMaterialEditor.target;
 
             var mat = editor.unityMaterialEditor.target as Material;
 
@@ -224,7 +235,7 @@ namespace PlayerAndEditorGUI
             _elementIndex = 0;
             pegi.focusInd = 0;
             _lineOpen = false;
-            pegi.globChanged = false;
+            globChanged = false;
         }
 
         public static T ClearFromPooledSerializedObjects<T>(T obj) where T : Object
@@ -252,16 +263,16 @@ namespace PlayerAndEditorGUI
             return changes;
         }
 
-        private static bool change { get { pegi.globChanged = true; return true; } }
+        private static bool change { get { globChanged = true; return true; } }
 
-        private static bool Dirty(this bool val) { pegi.globChanged |= val; return val; }
+        private static bool Dirty(this bool val) { globChanged |= val; return val; }
 
-        private static bool changes => pegi.globChanged;
+        private static bool changes => globChanged;
 
         private static bool ignoreChanges(this bool changed)
         {
             if (changed)
-                pegi.globChanged = false;
+                globChanged = false;
             return changed;
         }
 
@@ -273,7 +284,7 @@ namespace PlayerAndEditorGUI
         {
             if (_lineOpen) return;
 
-            pegi.tabIndex = 0;
+           
             EditorGUILayout.BeginHorizontal();
             _lineOpen = true;
 
@@ -299,17 +310,16 @@ namespace PlayerAndEditorGUI
             textAndToolTip.tooltip = tip;
             return textAndToolTip;
         }
-
+        
         private static GUIContent TextAndTip(string text)
         {
             textAndToolTip.text = text;
             textAndToolTip.tooltip = text;
             return textAndToolTip;
         }
-
-
+        
         #region Foldout
-        private static bool IsFoldedOut { get { return pegi.isFoldedOutOrEntered; } set { pegi.isFoldedOutOrEntered = value; } }
+      
 
         private static bool StylizedFoldOut(bool foldedOut, string txt, string hint = "FoldIn/FoldOut")
         {
@@ -328,32 +338,32 @@ namespace PlayerAndEditorGUI
         public static bool foldout(string txt, ref bool state)
         {
             state = StylizedFoldOut(state, txt);
-            IsFoldedOut = state;
-            return IsFoldedOut;
+            isFoldedOutOrEntered = state;
+            return isFoldedOutOrEntered;
         }
 
         public static bool foldout(string txt, ref int selected, int current)
         {
 
-            IsFoldedOut = (selected == current);
+            isFoldedOutOrEntered = (selected == current);
 
-            if (StylizedFoldOut(IsFoldedOut, txt))
+            if (StylizedFoldOut(isFoldedOutOrEntered, txt))
                 selected = current;
             else
-                if (IsFoldedOut) selected = -1;
+                if (isFoldedOutOrEntered) selected = -1;
 
-            IsFoldedOut = selected == current;
+            isFoldedOutOrEntered = selected == current;
 
-            return IsFoldedOut;
+            return isFoldedOutOrEntered;
         }
 
         public static bool foldout(string txt)
         {
-            IsFoldedOut = foldout(txt, ref _selectedFold, _elementIndex);
+            isFoldedOutOrEntered = foldout(txt, ref _selectedFold, _elementIndex);
 
             _elementIndex++;
 
-            return IsFoldedOut;
+            return isFoldedOutOrEntered;
         }
 
         #endregion
@@ -1279,7 +1289,7 @@ namespace PlayerAndEditorGUI
 
             checkLine();
             GUI.enabled = false;
-            Color.clear.SetBgColor();
+            pegi.SetBgColor(Color.clear);
             GUILayout.Button(cnt, PEGI_Styles.ImageButton, GUILayout.MaxWidth(width + 10), GUILayout.MaxHeight(height));
             pegi.PreviousBgColor();
             GUI.enabled = true;
@@ -1614,8 +1624,12 @@ namespace PlayerAndEditorGUI
         }
 
         #endregion
+        
+#endif
 
     }
+
+
 }
 
 
@@ -1623,5 +1637,3 @@ namespace PlayerAndEditorGUI
 #pragma warning restore IDE0034 // Simplify 'default' expression
 #pragma warning restore IDE0019 // Use pattern matching
 #pragma warning restore IDE0018 // Inline variable declaration
-
-#endif

@@ -60,7 +60,7 @@ namespace PlaytimePainter
 
         public void PickerPEGI() {
 
-            var rowLimit = pegi.paintingPlayAreaGui ? 6 : (int)((Screen.width-55) / 32f);
+            var rowLimit = pegi.PaintingGameViewUI ? 6 : (int)((Screen.width-55) / 32f);
 
             var rowCount = 0;
             for (var i = 0; i < _colors.Count; i++) {

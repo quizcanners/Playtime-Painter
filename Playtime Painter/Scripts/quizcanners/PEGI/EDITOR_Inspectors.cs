@@ -11,14 +11,6 @@ using UnityEditor;
 
 namespace PlayerAndEditorGUI {
 
-#if UNITY_EDITOR
-
-    // Use this two lines to override default Inspector with contents of Inspect() function (replacing SimplePEGInspectorsBrowser with YouClassName)
-    [CustomEditor(typeof(SimplePEGInspectorsBrowser))]
-    public class PEGI_SimpleInspectorsBrowserDrawer : PEGI_Inspector_Mono<SimplePEGInspectorsBrowser> { }
-
-#endif
-
     public abstract class PEGI_Inspector_Material
         #if UNITY_EDITOR
         : ShaderGUI
@@ -73,7 +65,7 @@ namespace PlayerAndEditorGUI {
         
         protected abstract bool Inspect(Editor editor);
         protected abstract ef.EditorType EditorType { get;  }
-  
+
         public override void OnInspectorGUI() {
 
             pegi.ResetInspectedChain();
@@ -109,12 +101,7 @@ namespace PlayerAndEditorGUI {
 
     }
 
-    [CustomEditor(typeof(PEGI_Styles))]
-    public class PEGI_StylesDrawer : PEGI_Inspector_Mono<PEGI_Styles> { }
     
-
-
-
 
  // --------------------------------------------------------------------------------------------------------------------
  // <author>

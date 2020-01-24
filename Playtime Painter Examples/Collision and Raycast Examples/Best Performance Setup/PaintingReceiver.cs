@@ -373,7 +373,7 @@ namespace PlaytimePainter.Examples
                         {
                             "No Render Texture Pool found".write();
                             if ("Create".Click().nl())
-                                (TexturesPool.GetOrCreateInstance.gameObject.name + " created").showNotificationIn3D_Views();
+                                pegi.GameView.ShowNotification((TexturesPool.GetOrCreateInstance.gameObject.name + " created"));
                         }
                     }
                 }
@@ -402,7 +402,7 @@ namespace PlaytimePainter.Examples
 
                         meshUvOffset = new Vector2((int)meshUvOffset.x, (int)meshUvOffset.y);
 
-                        ("Mesh Offset is " + meshUvOffset.ToString()).showNotificationIn3D_Views();
+                        pegi.GameView.ShowNotification("Mesh Offset is " + meshUvOffset.ToString());
                     }
                 }
             }

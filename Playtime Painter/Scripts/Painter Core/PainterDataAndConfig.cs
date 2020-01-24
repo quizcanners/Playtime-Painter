@@ -255,7 +255,7 @@ namespace PlaytimePainter
 
             if (!Recordings.TryGetValue(filename, out data))
             {
-                data = QcFile.LoadUtils.LoadFromPersistentPath(vectorsFolderName, filename);
+                data = QcFile.Loading.FromPersistentPath(vectorsFolderName, filename);
                 Recordings.Add(filename, data);
             }
 
@@ -396,7 +396,7 @@ namespace PlaytimePainter
                 if ("Drop New Profile Here:".edit(ref newProfile).nl())
                 {
                     var mSol = new MeshPackagingProfile();
-                    mSol.Decode(QcFile.LoadUtils.TryLoadAsTextAsset(newProfile));
+                    mSol.Decode(QcFile.Loading.TryLoadAsTextAsset(newProfile));
                    meshPackagingSolutions.Add(mSol);
                 }
 #endif

@@ -5,12 +5,13 @@ using UnityEngine;
 
 namespace PlayerAndEditorGUI
 {
-
-    [ExecuteInEditMode]
-    public class PEGI_Styles : MonoBehaviour, IPEGI
+    
+    public class PEGI_Styles : IPEGI
     {
         #region Button
+
         static GUIStyle _imageButton;
+
         public static GUIStyle ImageButton =>
             _imageButton ?? (_imageButton = new GUIStyle(GUI.skin.button)
             {
@@ -19,6 +20,7 @@ namespace PlayerAndEditorGUI
             });
 
         static GUIStyle _clickableText;
+
         public static GUIStyle ClickableText =>
             _clickableText ?? (_clickableText = new GUIStyle(GUI.skin.label)
             {
@@ -29,24 +31,25 @@ namespace PlayerAndEditorGUI
             });
 
         static GUIStyle _scalableText;
+
         public static GUIStyle ScalableBlueText(int fontSize = 11)
         {
-          
-                if (_scalableText == null)
-                    _scalableText = new GUIStyle(GUI.skin.label)
-                    {
-                        wordWrap = false,
-                        fontStyle = FontStyle.Bold,
-                        normal = {textColor = new Color32(40, 40, 255, 255)},
-                        margin = new RectOffset(0, 0, 0, -15),
-                        //contentOffset = new Vector2(0, 4),
-                    };
-                
 
-                _scalableText.fontSize = fontSize;
+            if (_scalableText == null)
+                _scalableText = new GUIStyle(GUI.skin.label)
+                {
+                    wordWrap = false,
+                    fontStyle = FontStyle.Bold,
+                    normal = {textColor = new Color32(40, 40, 255, 255)},
+                    margin = new RectOffset(0, 0, 0, -15),
+                    //contentOffset = new Vector2(0, 4),
+                };
 
-                return _scalableText;
-            
+
+            _scalableText.fontSize = fontSize;
+
+            return _scalableText;
+
         }
 
         #endregion
@@ -54,6 +57,7 @@ namespace PlayerAndEditorGUI
         #region Toggle
 
         static GUIStyle _toggleButton;
+
         public static GUIStyle ToggleButton =>
             _toggleButton ?? (_toggleButton = new GUIStyle(GUI.skin.button)
             {
@@ -63,8 +67,9 @@ namespace PlayerAndEditorGUI
             });
 
         public static GUIStyle ToggleLabel(bool isOn) => isOn ? ToggleLabel_On : ToggleLabel_Off;
-            
+
         static GUIStyle _toggleTextOff;
+
         static GUIStyle ToggleLabel_Off =>
             _toggleTextOff ?? (_toggleTextOff = new GUIStyle(GUI.skin.label)
             {
@@ -76,6 +81,7 @@ namespace PlayerAndEditorGUI
             });
 
         static GUIStyle _toggleTextOn;
+
         static GUIStyle ToggleLabel_On =>
             _toggleTextOn ?? (_toggleTextOn = new GUIStyle(GUI.skin.label)
             {
@@ -89,7 +95,9 @@ namespace PlayerAndEditorGUI
         #endregion
 
         #region List
+
         static GUIStyle _listLabel;
+
         public static GUIStyle ListLabel =>
             _listLabel ?? (_listLabel = new GUIStyle(GUI.skin.label)
             {
@@ -110,7 +118,9 @@ namespace PlayerAndEditorGUI
         #endregion
 
         #region Fold / Enter / Exit
+
         static GUIStyle _enterLabel;
+
         public static GUIStyle EnterLabel =>
             _enterLabel ?? (_enterLabel = new GUIStyle
             {
@@ -126,6 +136,7 @@ namespace PlayerAndEditorGUI
             });
 
         static GUIStyle _exitLabel;
+
         public static GUIStyle ExitLabel =>
             _exitLabel ?? (_exitLabel = new GUIStyle
             {
@@ -141,6 +152,7 @@ namespace PlayerAndEditorGUI
             });
 
         static GUIStyle _foldedOutLabel;
+
         public static GUIStyle FoldedOutLabel =>
             _foldedOutLabel ?? (_foldedOutLabel = new GUIStyle
             {
@@ -158,7 +170,9 @@ namespace PlayerAndEditorGUI
         #endregion
 
         #region Text
+
         static GUIStyle _wrappingText;
+
         public static GUIStyle WrappingText =>
             _wrappingText ?? (_wrappingText = new GUIStyle(GUI.skin.label)
             {
@@ -167,6 +181,7 @@ namespace PlayerAndEditorGUI
             });
 
         static GUIStyle _overflowText;
+
         public static GUIStyle OverflowText =>
             _overflowText ?? (_overflowText = new GUIStyle(GUI.skin.label)
             {
@@ -174,6 +189,7 @@ namespace PlayerAndEditorGUI
                 wordWrap = true,
                 fontSize = 12,
             });
+
         #endregion
 
         #region Line
@@ -189,7 +205,7 @@ namespace PlayerAndEditorGUI
                 margin = new RectOffset(0, 0, 4, 4),
                 fixedHeight = 1
             });
-        
+
         #endregion
 
         // Testing 
@@ -197,7 +213,7 @@ namespace PlayerAndEditorGUI
         public GUIStyle testListLabel;
         public GUIStyle testImageButton;
         public GUISkin skin;
-        
+
         public bool Inspect()
         {
             var changed = false;
@@ -207,11 +223,12 @@ namespace PlayerAndEditorGUI
 
             "Some more text".nl();
 
-            icon.Docs.GetIcon().edit_Property("Button icon" , () => testImageButton, this).nl();
-            
-            "List Label".edit_Property(() => testListLabel, this).nl(ref changed);
+            //icon.Docs.GetIcon().edit_Property("Button icon", () => testImageButton, this).nl();
 
-            "List Label Test".write(testListLabel); pegi.nl();
+            //"List Label".edit_Property(() => testListLabel, this).nl(ref changed);
+
+            "List Label Test".write(testListLabel);
+            pegi.nl();
 
             return changed;
         }
@@ -221,8 +238,6 @@ namespace PlayerAndEditorGUI
             testListLabel = ListLabel;
             testImageButton = ImageButton;
         }
-        
-        void OnEnable() => Refresh();
 
     }
 }

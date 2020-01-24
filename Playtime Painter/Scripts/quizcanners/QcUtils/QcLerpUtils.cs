@@ -197,7 +197,7 @@ namespace QuizCannersUtilities
                 defaultSet = true;
             }
 
-            public abstract bool LerpInternal(float linkedPortion);
+            protected abstract bool LerpInternal(float linkedPortion);
 
             public virtual void Portion(LerpData ld)
             {
@@ -328,7 +328,7 @@ namespace QuizCannersUtilities
 
             public override bool UsingLinkedThreshold => base.UsingLinkedThreshold && Enabled;
 
-            public override bool LerpInternal(float linkedPortion)
+            protected override bool LerpInternal(float linkedPortion)
             {
                 if (CurrentValue != targetValue || !defaultSet)
                     CurrentValue = Vector2.Lerp(CurrentValue, targetValue, linkedPortion);
@@ -429,7 +429,7 @@ namespace QuizCannersUtilities
 
             public override bool UsingLinkedThreshold => base.UsingLinkedThreshold && Enabled;
 
-            public override bool LerpInternal(float linkedPortion)
+            protected override bool LerpInternal(float linkedPortion)
             {
                 if (CurrentValue != targetValue || !defaultSet)
                     CurrentValue = Quaternion.Lerp(CurrentValue, targetValue, linkedPortion);
@@ -514,7 +514,7 @@ namespace QuizCannersUtilities
 
             protected virtual bool CanLerp => true;
 
-            public override bool LerpInternal(float linkedPortion)
+            protected override bool LerpInternal(float linkedPortion)
             {
                 if (CanLerp && (!defaultSet || CurrentValue != TargetValue))
                     CurrentValue = Mathf.Lerp(CurrentValue, TargetValue, linkedPortion);
@@ -857,7 +857,7 @@ namespace QuizCannersUtilities
                 }
             }
 
-            public sealed override bool LerpInternal(float linkedPortion)
+            protected sealed override bool LerpInternal(float linkedPortion)
             {
                 if (LerpSubInternal(linkedPortion))
                     Set();
@@ -917,7 +917,7 @@ namespace QuizCannersUtilities
             protected override bool Portion(ref float linkedPortion) =>
                 speedLimit.SpeedToMinPortion(CurrentValue.DistanceRgba(targetValue), ref linkedPortion);
 
-            public sealed override bool LerpInternal(float linkedPortion)
+            protected sealed override bool LerpInternal(float linkedPortion)
             {
                 if (Enabled && (targetValue != CurrentValue || !defaultSet))
                     CurrentValue = Color.Lerp(CurrentValue, targetValue, linkedPortion);
@@ -1004,7 +1004,7 @@ namespace QuizCannersUtilities
 
                 if (allowChangeParameters)
                 {
-                    int width = _name.ApproximateLengthUnsafe();
+                    int width = pegi.ApproximateLengthUnsafe(_name);
                     if (minMax)
                         _name.edit(width, ref targetValue, min, max).changes(ref changed);
                     else
@@ -1146,7 +1146,7 @@ namespace QuizCannersUtilities
 
                 if (allowChangeParameters)
                 {
-                    int width = Name_Internal.ApproximateLengthUnsafe();
+                    int width = pegi.ApproximateLengthUnsafe(Name_Internal);
                     Name_Internal.edit(width, ref targetValue).changes(ref changed);
                 }
 
@@ -1230,7 +1230,7 @@ namespace QuizCannersUtilities
                 speedLimit = nspeed;
             }
 
-            public override bool LerpInternal(float portion)
+            protected override bool LerpInternal(float portion)
             {
                 if (Enabled && CurrentValue != targetValue)
                     CurrentValue = Vector3.Lerp(CurrentValue, targetValue, portion);
