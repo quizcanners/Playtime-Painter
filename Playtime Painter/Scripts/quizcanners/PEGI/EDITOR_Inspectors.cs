@@ -59,14 +59,16 @@ namespace PlayerAndEditorGUI {
 
 #if UNITY_EDITOR
     
-    public abstract class PEGI_Inspector_Base  : Editor
+    public abstract class PEGI_UnityObjectInspector_Base  : Editor
     {
         public static UnityEngine.Object drawDefaultInspector;
         
         protected abstract bool Inspect(Editor editor);
         protected abstract ef.EditorType EditorType { get;  }
 
-        public override void OnInspectorGUI() {
+        public override void OnInspectorGUI()
+        {
+            ef.inspectedUnityObject = target;
 
             pegi.ResetInspectedChain();
 
@@ -85,7 +87,7 @@ namespace PlayerAndEditorGUI {
 
     }
 
-    public abstract class PEGI_Inspector_Mono<T> : PEGI_Inspector_Base where T : MonoBehaviour
+    public abstract class PEGI_Inspector_Mono<T> : PEGI_UnityObjectInspector_Base where T : MonoBehaviour
     {
         protected override ef.EditorType EditorType => ef.EditorType.Mono;
 
@@ -93,7 +95,7 @@ namespace PlayerAndEditorGUI {
 
     }
 
-    public abstract class PEGI_Inspector_SO<T> : PEGI_Inspector_Base where T : ScriptableObject
+    public abstract class PEGI_Inspector_SO<T> : PEGI_UnityObjectInspector_Base where T : ScriptableObject
     {
         protected override ef.EditorType EditorType => ef.EditorType.ScriptableObject;
 

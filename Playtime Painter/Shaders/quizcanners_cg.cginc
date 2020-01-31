@@ -383,13 +383,14 @@ inline float3 reflectedVector (float3 normal, float3 viewDir){
 
 }
 
+/*
 inline void leakColors (inout float4 col){
 
 	float3 flow = (col.gbr + col.brg);
 	flow *= flow;
 	col.rgb += flow*0.02;
 
-}
+}*/
 
 inline void BleedAndBrightness(inout float4 col, float mod, float2 noiseUV) {
 

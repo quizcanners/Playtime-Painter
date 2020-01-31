@@ -194,7 +194,19 @@ namespace PlayerAndEditorGUI
                     windowRect = new Rect(20, 50, 350, 400);
                 }
             }
-            
+
+            public static float AspectRatio {
+                get
+                {
+                    var res = Resolution;
+                    return res.x / res.y;
+                }
+            }
+
+            public static int Width => (int)Resolution.x;
+
+            public static int Height => (int)Resolution.y;
+
             public static Vector2 Resolution
             {
                 get
@@ -5066,6 +5078,7 @@ namespace PlayerAndEditorGUI
 
         public static bool toggleDefaultInspector(Object target) =>
 #if UNITY_EDITOR
+
                  ef.toggleDefaultInspector(target);
 #else
                 false;

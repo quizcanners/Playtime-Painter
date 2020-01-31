@@ -2,6 +2,7 @@
 using PlayerAndEditorGUI;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices.WindowsRuntime;
 using QuizCannersUtilities;
 using Unity.Collections;
 using UnityEngine;
@@ -21,10 +22,8 @@ namespace QuizCannersUtilities {
 
         public abstract class BaseShaderPropertyIndex : AbstractCfg, IGotDisplayName, IPEGI_ListInspect
         {
-            [NonSerialized]
             protected int id;
-            [NonSerialized]
-            private string _name;
+            protected string name;
 
             public override int GetHashCode() => id;
 
@@ -35,12 +34,12 @@ namespace QuizCannersUtilities {
 
                 var bi = obj as BaseShaderPropertyIndex;
 
-                return bi != null ? bi.id == id : _name.Equals(obj.ToString());
+                return bi != null ? bi.id == id : name.Equals(obj.ToString());
             }
 
-            private void UpdateIndex() => id = Shader.PropertyToID(_name);
+            private void UpdateIndex() => id = Shader.PropertyToID(name);
 
-            public override string ToString() => _name;
+            public override string ToString() => name;
 
             public abstract void SetOn(Material mat);
 
@@ -63,12 +62,12 @@ namespace QuizCannersUtilities {
             }
 
             #region Inspector
-            public string NameForDisplayPEGI()=> _name;
+            public string NameForDisplayPEGI()=> name;
             
             public bool InspectInList(IList list, int ind, ref int edited)
             {
                 "Id: {0}".F(id).write(50);
-                _name.write_ForCopy();
+                name.write_ForCopy();
                
                 return false;
             }
@@ -77,7 +76,7 @@ namespace QuizCannersUtilities {
 
             #region Encode & Decode
             public override CfgEncoder Encode() => new CfgEncoder()
-                .Add_String("n", _name)
+                .Add_String("n", name)
                 //.Add_IfTrue("nm", nonMaterialProperty)
             ;
             
@@ -85,7 +84,7 @@ namespace QuizCannersUtilities {
             {
                 switch (tg)
                 {
-                    case "n":  _name = data; UpdateIndex();  break;
+                    case "n":  name = data; UpdateIndex();  break;
                    // case "nm": nonMaterialProperty = data.ToBool();  break;
                     default: return false;
                 }
@@ -101,7 +100,7 @@ namespace QuizCannersUtilities {
 
             protected BaseShaderPropertyIndex(string name)
             {
-                _name = name;
+                this.name = name;
                 UpdateIndex();
             }
 
@@ -127,7 +126,7 @@ namespace QuizCannersUtilities {
 
             public abstract T Get(Material mat);
 
-            public abstract T GlobalValue_Internal { get; set; }
+            protected abstract T GlobalValue_Internal { get; set; }
 
             public T GlobalValue
             {
@@ -196,7 +195,7 @@ namespace QuizCannersUtilities {
                     return false;
             }
 
-            public override T GlobalValue_Internal
+            protected override T GlobalValue_Internal
             {
                 set {
                     if (GlobalDirectiveChanged()) 
@@ -262,7 +261,7 @@ namespace QuizCannersUtilities {
 
             public override void SetOn(MaterialPropertyBlock block) => block.SetFloat(id, latestValue);
 
-            public override float GlobalValue_Internal
+            protected override float GlobalValue_Internal
             {
                 get { return Shader.GetGlobalFloat(id); }
                 set{ Shader.SetGlobalFloat(id, value); }
@@ -276,13 +275,8 @@ namespace QuizCannersUtilities {
             {
             }
 
-            /*public FloatValue(string name, bool nonMaterial) : base(name, nonMaterial)
-            {
-            }*/
-
         }
-
-
+        
         #endregion
 
         #region Color
@@ -297,7 +291,7 @@ namespace QuizCannersUtilities {
 
             public override void SetOn(MaterialPropertyBlock block) => block.SetColor(id, latestValue);
 
-            public override Color GlobalValue_Internal
+            protected override Color GlobalValue_Internal
             {
                 get { return Shader.GetGlobalColor(id); }
                 set {
@@ -342,7 +336,7 @@ namespace QuizCannersUtilities {
 
             public override void SetOn(MaterialPropertyBlock block) => block.SetColor(id, ConvertedColor);
 
-            public override Color GlobalValue_Internal
+            protected override Color GlobalValue_Internal
             {
                 get { return Shader.GetGlobalColor(id); }
                 set { Shader.SetGlobalColor(id, ConvertedColor); }
@@ -399,7 +393,7 @@ namespace QuizCannersUtilities {
 
             public override Vector4 Get(Material mat) => mat.GetVector(id);
 
-            public override Vector4 GlobalValue_Internal
+            protected override Vector4 GlobalValue_Internal
             {
                 get { return Shader.GetGlobalVector(id); }
                 set { Shader.SetGlobalVector(id, value); }
@@ -413,9 +407,6 @@ namespace QuizCannersUtilities {
             {
             }
 
-           /* public VectorValue(string name, bool nonMaterial) : base(name, nonMaterial)
-            {
-            }*/
         }
 
         #endregion
@@ -424,20 +415,18 @@ namespace QuizCannersUtilities {
 
         public class MatrixValue : IndexGeneric<Matrix4x4>
         {
-
             public override void SetOn(Material material) => material.SetMatrix(id, latestValue);
 
             public override void SetOn(MaterialPropertyBlock block) => block.SetMatrix(id, latestValue);
 
             public override Matrix4x4 Get(Material mat) => mat.GetMatrix(id);
 
-            public override Matrix4x4 GlobalValue_Internal
+            protected override Matrix4x4 GlobalValue_Internal
             {
                 get { return Shader.GetGlobalMatrix(id); }
                 set { Shader.SetGlobalMatrix(id, value); }
             }
-
-
+            
             public MatrixValue()
             {
             }
@@ -445,17 +434,12 @@ namespace QuizCannersUtilities {
             public MatrixValue(string name) : base(name)
             {
             }
-
-            /*public MatrixValue(string name, bool nonMaterial) : base(name, nonMaterial)
-            {
-            }*/
         }
 
         #endregion
 
         #region Texture
-
-      //  [Serializable]
+        
         public class TextureValue : IndexGeneric<Texture>
         {
             public static readonly TextureValue mainTexture = new TextureValue("_MainTex");
@@ -466,10 +450,17 @@ namespace QuizCannersUtilities {
 
             public override void SetOn(MaterialPropertyBlock block) => block.SetTexture(id, latestValue);
 
-            public override Texture GlobalValue_Internal
+            protected override Texture GlobalValue_Internal
             {
                 get { return Shader.GetGlobalTexture(id); }
-                set { Shader.SetGlobalTexture(id, value); }
+                set
+                {
+                    Shader.SetGlobalTexture(id, value);
+
+                    if (_screenFillAspect!=null)
+                        Set_ScreenFillAspect();
+
+                }
             }
 
             #region Texture Specific
@@ -509,6 +500,36 @@ namespace QuizCannersUtilities {
                     mat.SetTextureScale(id, value);
             }
 
+            private const string FILL_ASPECT_RATION_SUFFIX = "_ScreenFillAspect";
+            private  VectorValue _screenFillAspect;
+            private VectorValue GetScreenFillAspect() {
+            
+                if (_screenFillAspect == null)
+                    _screenFillAspect = new VectorValue(name + FILL_ASPECT_RATION_SUFFIX);
+                return _screenFillAspect;
+                
+            }
+            public void Set_ScreenFillAspect()
+            {
+                if (!latestValue)
+                {
+                    QcUtils.ChillLogger.LogErrorOnce(name+"noTex", "{0} was not set. Can't Update {1} ".F(name, FILL_ASPECT_RATION_SUFFIX));
+                    return;
+                }
+                
+                float screenAspect = pegi.GameView.AspectRatio;
+                float texAspect = ((float)latestValue.width) / latestValue.height;
+
+                Vector2 aspectCorrection = Vector2.one;
+
+                if (screenAspect > texAspect)
+                    aspectCorrection.y = (texAspect / screenAspect);
+                else
+                    aspectCorrection.x = (screenAspect / texAspect);
+
+                GetScreenFillAspect().GlobalValue = aspectCorrection;
+            } 
+
             #endregion
 
             #region Constructors
@@ -516,12 +537,19 @@ namespace QuizCannersUtilities {
             {
             }
 
-            public TextureValue(string name, string tag) : base(name)
+            public TextureValue(string name, string tag, bool set_ScreenFillAspect = false) : base(name)
             {
                 AddUsageTag(tag);
+
+                if (set_ScreenFillAspect)
+                    GetScreenFillAspect();
             }
 
-            public TextureValue(string name) : base(name) { }
+            public TextureValue(string name, bool set_ScreenFillAspect = false) : base(name)
+            {
+                if (set_ScreenFillAspect)
+                    GetScreenFillAspect();
+            }
 
             #endregion
 

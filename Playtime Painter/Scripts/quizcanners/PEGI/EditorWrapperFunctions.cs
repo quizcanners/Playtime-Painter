@@ -45,6 +45,7 @@ namespace PlayerAndEditorGUI
         private static bool _lineOpen = false;
         private static int _selectedFold = -1;
         private static int _elementIndex;
+        public static Object inspectedUnityObject;
         public static SerializedObject serObj;
         private static Editor _editor;
         private static PEGI_Inspector_Material _materialEditor;
@@ -210,15 +211,22 @@ namespace PlayerAndEditorGUI
             }
             else
             {
-                bool isDefault = target == PEGI_Inspector_Base.drawDefaultInspector;
 
-                if (pegi.toggle(ref isDefault, icon.Exit, icon.Debug,
-                    "Toggle Between regular and PEGI inspector", 20).changes(ref changed))
-                    PEGI_Inspector_Base.drawDefaultInspector = isDefault ? target : null;
+                if (target == inspectedUnityObject)
+                {
+                    bool isDefault = target == PEGI_UnityObjectInspector_Base.drawDefaultInspector;
 
-                if (isDefault && "Custom Inspector".ClickLabel(style: PEGI_Styles.ExitLabel).nl(ref changed))
-                    PEGI_Inspector_Base.drawDefaultInspector = null;
+                    if (pegi.toggle(ref isDefault, icon.Exit, icon.Debug,
+                        "Toggle Between regular and PEGI inspector", 20).changes(ref changed))
+                        PEGI_UnityObjectInspector_Base.drawDefaultInspector = isDefault ? target : null;
 
+                    if (isDefault && "Custom Inspector".ClickLabel(style: PEGI_Styles.ExitLabel).nl(ref changed))
+                        PEGI_UnityObjectInspector_Base.drawDefaultInspector = null;
+                }
+                else
+                {
+                    pegi.ClickHighlight(target);
+                }
             }
 
             return changed;
