@@ -192,7 +192,7 @@ namespace QuizCannersUtilities
 
         public static int GetActiveCoroutinesCount => enumerators.Count;
 
-        private static readonly ListMetaData coroutinesListMeta = new ListMetaData("Managed Coroutines", allowCreating: false, allowDeleting: true);
+        private static readonly ListMetaData coroutinesListMeta = new ListMetaData("Managed Coroutines", showAddButton: false, allowDeleting: true);
 
         public static bool InspectManagedCoroutines() {
 
@@ -254,7 +254,7 @@ namespace QuizCannersUtilities
 
         }
 
-        public class TimedEnumeration : IPEGI_ListInspect
+        public class TimedEnumeration : IPEGI_ListInspect, IGotName
         {
 
             public class CallAgain
@@ -302,6 +302,7 @@ namespace QuizCannersUtilities
             public int EnumeratorVersion { get; private set; }
           
             public bool StoppedOnError { get; private set; }
+
             public Action onExit;
             public Action onDoneFully;
             public object returnedData;
@@ -378,20 +379,28 @@ namespace QuizCannersUtilities
                         _yields++;
 
                         _current = _enumerator.Current;
-
-                        _currentCallAgainRequest = _current as CallAgain;
-
-                        if (_currentCallAgainRequest != null)
+                        
+                        if (_current is string)
+                        {
+                            _state = _current as string;
+                        }
+                        else
                         {
 
-                            if (_currentCallAgainRequest.message != null)
-                                _state = _currentCallAgainRequest.message;
+                            _currentCallAgainRequest = _current as CallAgain;
 
-                            if (_currentCallAgainRequest.task != null)
-                                _task = _currentCallAgainRequest.task;
+                            if (_currentCallAgainRequest != null)
+                            {
 
-                            if (_currentCallAgainRequest.returnData != null)
-                                returnedData = _currentCallAgainRequest.returnData;
+                                if (_currentCallAgainRequest.message != null)
+                                    _state = _currentCallAgainRequest.message;
+
+                                if (_currentCallAgainRequest.task != null)
+                                    _task = _currentCallAgainRequest.task;
+
+                                if (_currentCallAgainRequest.returnData != null)
+                                    returnedData = _currentCallAgainRequest.returnData;
+                            }
                         }
 
                         return true;
@@ -515,14 +524,16 @@ namespace QuizCannersUtilities
             private int _yields;
             private int _frames;
 
+            public string NameForPEGI { get; set; }
+        
             public bool InspectInList(IList list, int ind, ref int edited)
             {
 
                 if (!Exited && !_stopAndCancel && icon.Close.Click())
                     _stopAndCancel = true;
 
-                "{2} {3} {4} [{0} YLDS / {1} FRMS]".F(_yields, _frames, _state,
-                    EnumeratorVersion > 1 ? ("V: " + EnumeratorVersion.ToString()) : "", _task == null ? "[yield]" : "[TASK]").write();
+                "{4} {2} {3} [{0} YLDS / {1} FRMS]".F(_yields, _frames, EnumeratorVersion > 1 ? ("V: " + EnumeratorVersion.ToString()) : "", _task == null ? "[yield]" : "[TASK]", 
+                    NameForPEGI).write(_state);
 
                 if (Exited)
                     (DoneFully ? icon.Done : icon.Empty).write();
@@ -534,22 +545,25 @@ namespace QuizCannersUtilities
 
             #endregion
             
-            public TimedEnumeration(bool logUnoptimizedSections = false)
+            public TimedEnumeration(bool logUnoptimizedSections = false, string nameForInspector = "")
             {
                 this._logUnoptimizedSections = logUnoptimizedSections;
+                NameForPEGI = nameForInspector;
             }
 
-            public TimedEnumeration(IEnumerator enumerator, bool logUnoptimizedSections = false)
+            public TimedEnumeration(IEnumerator enumerator, bool logUnoptimizedSections = false, string nameForInspector = "")
             {
-                this._logUnoptimizedSections = logUnoptimizedSections;
-                Reset(enumerator);
+                _logUnoptimizedSections = logUnoptimizedSections;
+                Reset(enumerator, nameForInspector);
             }
             
-            public void Reset(IEnumerator enumerator)
+            public void Reset(IEnumerator enumerator, string nameForInspector = "")
             {
                 EnumeratorVersion += 1;
                 _enumerator = enumerator;
                 returnedData = null;
+                _state = "Starting: " + enumerator.ToString();
+                NameForPEGI = nameForInspector;
             }
         }
 

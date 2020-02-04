@@ -331,7 +331,7 @@ namespace QuizCannersUtilities {
 
         #region Inspector
         
-        private ListMetaData modulesMeta = new ListMetaData("Modules", allowDeleting: false, allowCreating:false, allowReordering: false, showEditListButton:false);
+        private ListMetaData modulesMeta = new ListMetaData("Modules", allowDeleting: false, showAddButton:false, allowReordering: false, showEditListButton:false);
 
         public bool Inspect()
         {

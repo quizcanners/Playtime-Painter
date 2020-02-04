@@ -35,7 +35,7 @@ namespace QuizCannersUtilities
         public bool allowDuplicants;
         public bool showEditListButton;
         public bool showSearchButton;
-        public readonly bool allowCreate;
+        public readonly bool showAddButton;
         public readonly icon icon;
         public UnNullableCfg<ElementData> elementDatas = new UnNullableCfg<ElementData>();
       
@@ -168,19 +168,19 @@ namespace QuizCannersUtilities
         public ListMetaData() {
             allowDelete = true;
             allowReorder = true;
-            allowCreate = true;
+            showAddButton = true;
             keepTypeData = false;
         }
 
         public ListMetaData(string nameMe, bool allowDeleting = true,
             bool allowReordering = true,
             bool keepTypeData = false, 
-            bool allowCreating = true,
+            bool showAddButton = true,
             bool showEditListButton = true,
             bool showSearchButton = true,
             icon enterIcon = icon.Enter) {
 
-            allowCreate = allowCreating;
+            this.showAddButton = showAddButton;
             allowDelete = allowDeleting;
             allowReorder = allowReordering;
             label = nameMe;

@@ -7026,7 +7026,7 @@ namespace PlayerAndEditorGUI
 
             public bool PEGI_InstantiateOptions_SO<T>(List<T> lst, ref T added, ListMetaData ld) where T : ScriptableObject
             {
-                if (ld != null && !ld.allowCreate)
+                if (ld != null && !ld.showAddButton)
                     return false;
 
                 if (reordering != null && reordering == lst)
@@ -7121,7 +7121,7 @@ namespace PlayerAndEditorGUI
 
             public bool PEGI_InstantiateOptions<T>(List<T> lst, ref T added, ListMetaData ld)
             {
-                if (ld != null && !ld.allowCreate)
+                if (ld != null && !ld.showAddButton)
                     return false;
 
                 if (reordering != null && reordering == lst)
@@ -7211,7 +7211,7 @@ namespace PlayerAndEditorGUI
 
             public bool PEGI_InstantiateOptions<T>(List<T> lst, ref T added, TaggedTypesCfg types, ListMetaData ld)
             {
-                if (ld != null && !ld.allowCreate)
+                if (ld != null && !ld.showAddButton)
                     return false;
 
                 if (reordering != null && reordering == lst)
@@ -8333,7 +8333,7 @@ namespace PlayerAndEditorGUI
             public bool ListAddNewClick<T>(List<T> list, ref T added, ListMetaData ld = null)
             {
 
-                if (ld != null && !ld.allowCreate)
+                if (ld != null && !ld.showAddButton)
                     return false;
                 
                 var type = typeof(T);
@@ -8369,7 +8369,7 @@ namespace PlayerAndEditorGUI
             public bool ListAddEmptyClick<T>(IList<T> list, ListMetaData ld = null)
             {
 
-                if (ld != null && !ld.allowCreate)
+                if (ld != null && !ld.showAddButton)
                     return false;
 
                 var type = typeof(T);
