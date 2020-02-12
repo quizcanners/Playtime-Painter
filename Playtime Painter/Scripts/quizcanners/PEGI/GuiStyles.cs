@@ -11,7 +11,9 @@ namespace PlayerAndEditorGUI
     public static class PEGI_Styles
     {
         public static bool inspectingList;
-        
+
+        private static bool InGameView => pegi.PaintingGameViewUI;
+
         public static Color listReadabilityRed = new Color(1, 0.85f, 0.85f, 1);
         public static Color listReadabilityBlue = new Color(0.9f, 0.9f, 1f, 1);
 
@@ -29,7 +31,7 @@ namespace PlayerAndEditorGUI
             {
                 get
                 {
-                    if (pegi.PaintingGameViewUI)
+                    if (InGameView)
                     {
                         if (inspectingList)
                             return playtimeInList ?? (playtimeInList = generator());
@@ -57,11 +59,11 @@ namespace PlayerAndEditorGUI
 
                 var al = cur.alignment;
 
-                if ("Allignment".editEnum(ref al).nl())
+                if ("Allignment".editEnum(90, ref al).nl())
                     cur.alignment = al;
 
                 var fs = cur.fontSize;
-                if ("Font Size".edit(ref fs).nl())
+                if ("Font Size".edit(90, ref fs).nl())
                     cur.fontSize = fs;
 
                 return false;
@@ -80,7 +82,8 @@ namespace PlayerAndEditorGUI
                     wordWrap = false,
                     fontStyle = FontStyle.Bold,
                     contentOffset = new Vector2(0, 4),
-                    normal = {textColor = new Color32(40, 40, 40, 255)},
+                    alignment = TextAnchor.MiddleLeft,
+                    normal = {textColor = InGameView ? new Color32(220,220,255,255) : new Color32(40, 40, 40, 255)},
                 });
 
         public static PegiGuiStyle ScalableBlueText(int fontSize)
@@ -92,7 +95,7 @@ namespace PlayerAndEditorGUI
         private static PegiGuiStyle _scalableBlueText = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label) {
                     wordWrap = false,
                     fontStyle = FontStyle.Bold,
-                    normal = {textColor = new Color32(40, 40, 255, 255)},
+                    normal = {textColor = InGameView ? new Color32(120, 120, 255, 255) : new Color32(40, 40, 255, 255)},
                     margin = new RectOffset(0, 0, 0, -15),
                     fontSize = 14
                 });
@@ -112,7 +115,7 @@ namespace PlayerAndEditorGUI
          {
              contentOffset = new Vector2(0, 2),
              wordWrap = true,
-             normal = { textColor = new Color32(40, 40, 40, 255) },
+             normal = { textColor = InGameView ? new Color32(255, 255, 255, 255) : new Color32(40, 40, 40, 255) },
          });
 
          static PegiGuiStyle ToggleLabel_On = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
@@ -139,7 +142,7 @@ namespace PlayerAndEditorGUI
             fontStyle = FontStyle.Bold,
             normal =
             {
-                textColor = new Color32(43, 30, 11, 255)
+                textColor = InGameView ? new Color32(255, 255, 255, 255) : new Color32(43, 30, 11, 255)
             },
         });
 
@@ -157,7 +160,7 @@ namespace PlayerAndEditorGUI
             alignment = TextAnchor.MiddleLeft,
             fontStyle = FontStyle.Bold,
             contentOffset = new Vector2(0, -6),
-            normal = { textColor = new Color32(43, 30, 77, 255) },
+            normal = { textColor = InGameView ? new Color32(255, 255, 220, 255) : new Color32(43, 30, 77, 255) },
         });
 
         public static PegiGuiStyle ExitLabel = new PegiGuiStyle(() => new GUIStyle
@@ -170,7 +173,7 @@ namespace PlayerAndEditorGUI
             alignment = TextAnchor.MiddleLeft,
             fontStyle = FontStyle.Italic,
             contentOffset = new Vector2(0, -6),
-            normal = { textColor = new Color32(77, 77, 77, 255) },
+            normal = { textColor = InGameView ? new Color32(255, 220, 220, 255) : new Color32(77, 77, 77, 255) },
         });
 
         public static PegiGuiStyle FoldedOutLabel = new PegiGuiStyle(() => new GUIStyle
@@ -183,7 +186,7 @@ namespace PlayerAndEditorGUI
             alignment = TextAnchor.MiddleLeft,
             fontStyle = FontStyle.Bold,
             imagePosition = ImagePosition.ImageLeft,
-            normal = { textColor = new Color32(43, 77, 33, 255) },
+            normal = { textColor = InGameView ? new Color32(200, 220, 220, 255) : new Color32(43, 77, 33, 255) },
         });
 
         #endregion
@@ -200,6 +203,30 @@ namespace PlayerAndEditorGUI
             clipping = TextClipping.Overflow,
             wordWrap = true,
             fontSize = 12,
+        });
+
+        public static PegiGuiStyle HintText = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
+        {
+            clipping = TextClipping.Overflow,
+            wordWrap = true,
+            fontSize = 10,
+            fontStyle = FontStyle.Italic,
+            normal =
+            {
+                textColor = InGameView ? new Color32(192, 192, 100, 255) : new Color32(64, 64, 11, 255)
+            }
+        });
+
+        public static PegiGuiStyle WarningText = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
+        {
+            clipping = TextClipping.Overflow,
+            wordWrap = true,
+            fontSize = 13,
+            fontStyle = FontStyle.BoldAndItalic,
+            normal =
+            {
+                textColor = InGameView ? new Color32(255, 20, 20, 255) : new Color32(255, 64, 64, 255)
+            }
         });
 
         #endregion
@@ -237,11 +264,21 @@ namespace PlayerAndEditorGUI
         {
             var changed = false;
 
-            "Some text asdj iosjd oasjdoiasjd ioasjdisao diaduisa".write();
-            if (icon.Refresh.Click().nl())
-                Refresh();
+            "Warning Text".nl(WarningText);
+            WarningText.Nested_Inspect().nl();
 
-            "Some more text".nl();
+            "Wrapping Text".nl(WrappingText);
+            WrappingText.Nested_Inspect().nl();
+
+            pegi.line();
+            pegi.nl();
+
+            "ClickableText".nl(ClickableText);
+            ClickableText.Nested_Inspect().nl();
+
+
+            "Hint: Theese changes will not be saved, for tunning only. They are hardcoded.".writeHint();
+            HintText.Nested_Inspect().nl();
 
             return changed;
         }

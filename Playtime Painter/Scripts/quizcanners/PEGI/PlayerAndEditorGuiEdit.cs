@@ -1843,7 +1843,7 @@ namespace PlayerAndEditorGUI
             if (tip == null)
                 tip = "Go To: {0}".F(link);
 
-            if (label.Click(tip, 12))
+            if (label.ClickText(tip, 12))
             {
                 Application.OpenURL(link);
                 return true;
@@ -2020,26 +2020,6 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static bool ClickLabel(this string label, string hint = "ClickAble Text", int width = -1, PegiGuiStyle style = null)
-        {
-            SetBgColor(Color.clear);
-
-            GUIStyle st = style == null ? ClickableText.Current : style.Current;
-            
-            textAndTip.text = label;
-            textAndTip.tooltip = hint;
-
-#if UNITY_EDITOR
-            if (!PaintingGameViewUI)
-                return (width == -1 ? ef.Click(textAndTip, st) : ef.Click(textAndTip, width, st)).UnFocusIfTrue()
-                    .RestoreBGColor();
-#endif
-
-            checkLine();
-
-            return (width == -1 ? GUILayout.Button(textAndTip, GuiMaxWidthOptionFrom(label)) : GUILayout.Button(textAndTip, GUILayout.MaxWidth(width))).DirtyUnFocus().PreviousBgColor();
-        }
-
         public static bool ClickUnFocus(this Texture tex, int width = defaultButtonSize)
         {
 
@@ -2081,18 +2061,17 @@ namespace PlayerAndEditorGUI
             checkLine();
             return GUILayout.Button(cntnt, GuiMaxWidthOptionFrom(text)).DirtyUnFocus();
         }
-
-
-        public static bool Click(this string label, int fontSize)
+        
+        public static bool ClickText(this string label, int fontSize)
         {
             textAndTip.text = label;
             textAndTip.tooltip = label;
             return textAndTip.ClickText(ScalableBlueText(fontSize));
         }
 
-        public static bool Click(this string label, string hint, int fontSize) => TextAndTip(label, hint).ClickText(ScalableBlueText(fontSize));
+        public static bool ClickText(this string label, string hint, int fontSize) => TextAndTip(label, hint).ClickText(ScalableBlueText(fontSize));
 
-        public static bool Click(this string label, PegiGuiStyle style) => TextAndTip(label).ClickText(style);
+        public static bool ClickText(this string label, PegiGuiStyle style) => TextAndTip(label).ClickText(style);
 
         private static bool ClickText(this GUIContent content, PegiGuiStyle style)
         {
@@ -2102,9 +2081,29 @@ namespace PlayerAndEditorGUI
                 return ef.Click(content, style.Current);
 #endif
             checkLine();
-            return GUILayout.Button(content, GuiMaxWidthOptionFrom(content)).Dirty();
+            return GUILayout.Button(content, style.Current , GuiMaxWidthOptionFrom(content, style: style)).Dirty();
         }
 
+        public static bool ClickLabel(this string label, string hint = "ClickAble Text", int width = -1, PegiGuiStyle style = null)
+        {
+            SetBgColor(Color.clear);
+
+            GUIStyle st = style == null ? ClickableText.Current : style.Current;
+
+            textAndTip.text = label;
+            textAndTip.tooltip = hint;
+
+#if UNITY_EDITOR
+            if (!PaintingGameViewUI)
+                return (width == -1 ? ef.Click(textAndTip, st) : ef.Click(textAndTip, width, st)).UnFocusIfTrue()
+                    .RestoreBGColor();
+#endif
+
+            checkLine();
+
+            return (width == -1 ? GUILayout.Button(textAndTip, st, GuiMaxWidthOptionFrom(label)) : GUILayout.Button(textAndTip, st, GUILayout.MaxWidth(width))).DirtyUnFocus().PreviousBgColor();
+        }
+        
         private static bool ClickImage(this GUIContent content, int width, GUIStyle style) =>
             content.ClickImage(width, width, style);
 
@@ -2116,10 +2115,6 @@ namespace PlayerAndEditorGUI
                 return ef.ClickImage(content, width, style);
 #endif
             checkLine();
-
-            // if (style == null)
-            //   style = PEGI_Styles.ImageButton;
-
 
             return GUILayout.Button(content, GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(height)).Dirty();
         }
@@ -2635,14 +2630,16 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool toggleDefaultInspector(Object target) =>
+        public static bool toggleDefaultInspector(Object target)
+        {
 #if UNITY_EDITOR
 
-                 ef.toggleDefaultInspector(target);
-#else
-                false;
+            if (!PaintingGameViewUI)
+                return ef.toggleDefaultInspector(target);
 #endif
 
+            return false;
+        }
 
         #endregion
 
@@ -3419,7 +3416,7 @@ namespace PlayerAndEditorGUI
 #endif
 
             bc();
-            val = (uint)GUILayout.HorizontalSlider(val, min, max);
+            val = (uint)GUILayout.HorizontalSlider(val, min, max, GuiMaxWidthOption);
             return ec();
 
         }
@@ -3560,7 +3557,7 @@ namespace PlayerAndEditorGUI
 #endif
 
             bc();
-            val = (int)GUILayout.HorizontalSlider(val, min, max);
+            val = (int)GUILayout.HorizontalSlider(val, min, max, GuiMaxWidthOption);
             return ec();
 
         }
@@ -3774,7 +3771,7 @@ namespace PlayerAndEditorGUI
 #endif
 
             bc();
-            var after = GUILayout.HorizontalSlider(Mathf.Sqrt(val), min, max);
+            var after = GUILayout.HorizontalSlider(Mathf.Sqrt(val), min, max, GuiMaxWidthOption);
             if (!ec()) return false;
             val = after * after;
             return change;
@@ -3792,7 +3789,7 @@ namespace PlayerAndEditorGUI
 #endif
 
             bc();
-            val = GUILayout.HorizontalSlider(val, min, max);
+            val = GUILayout.HorizontalSlider(val, min, max, GuiMaxWidthOption);
             return ec();
 
         }
@@ -4310,7 +4307,7 @@ namespace PlayerAndEditorGUI
 #endif
 
             bc();
-            val = GUILayout.TextArea(val, GUILayout.MaxHeight(height));
+            val = GUILayout.TextArea(val, GUILayout.MaxHeight(height), GuiMaxWidthOption);
             return ec();
 
         }

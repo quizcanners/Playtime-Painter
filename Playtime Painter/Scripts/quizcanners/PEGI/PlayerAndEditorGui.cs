@@ -116,11 +116,16 @@ namespace PlayerAndEditorGUI
                     _elementIndex = 0;
                     _lineOpen = false;
                     focusInd = 0;
-                   
+
                     try
                     {
                         if (!UseWindow)
-                            GUI.matrix = Matrix4x4.TRS(new Vector3(0, 0, 0), Quaternion.identity, new Vector3(upscale, upscale, 1));
+                        {
+
+                            GUI.matrix = Matrix4x4.TRS(new Vector3(0, 0, 0), Quaternion.identity,
+                                new Vector3(upscale, upscale, 1));
+                            GUILayout.BeginArea(new Rect(40 / upscale, 20 / upscale, Screen.width / upscale, Screen.height / upscale));
+                        }
 
                         if (!PopUpService.ShowingPopup())
                             _function();
@@ -129,7 +134,7 @@ namespace PlayerAndEditorGUI
 
                         UnIndent();
 
-                        "{0}:{1}".F(Msg.ToolTip.GetText(), GUI.tooltip).nl();
+                        (GUI.tooltip.IsNullOrEmpty() ? "" : "{0}:{1}".F(Msg.ToolTip.GetText(), GUI.tooltip)).nl(PEGI_Styles.HintText);
 
                         if (UseWindow)
                         {
@@ -139,7 +144,10 @@ namespace PlayerAndEditorGUI
                             GUI.DragWindow(new Rect(0, 0, 3000, 40 * upscale));
                         }
                         else
+                        {
                             MouseOverUI = true;
+                            GUILayout.EndArea();
+                        }
 
                     }
                     catch (Exception ex)
@@ -237,14 +245,17 @@ namespace PlayerAndEditorGUI
 
         private static GUILayoutOption GuiMaxWidthOptionFrom(GUIContent cnt) => GUILayout.MaxWidth(Mathf.Min(_playtimeGuiWidth, ApproximateLength(cnt.text)));
 
+        private static GUILayoutOption GuiMaxWidthOptionFrom(GUIContent cnt, PEGI_Styles.PegiGuiStyle style) => 
+            GUILayout.MaxWidth(Mathf.Min(_playtimeGuiWidth, ApproximateLength(cnt.text, style.Current.fontSize)));
+        
         private const int letterSizeInPixels = 9;
 
-        public static int ApproximateLength(this string label)
+        public static int ApproximateLength(this string label, int fontSize = letterSizeInPixels)
         {
             if (label == null || label.Length == 0)
                 return 1;
 
-            int length = letterSizeInPixels * label.Length;
+            int length = fontSize * label.Length;
 
             if (PaintingGameViewUI && length > _playtimeGuiWidth)
                 return _playtimeGuiWidth;
@@ -255,12 +266,12 @@ namespace PlayerAndEditorGUI
                 if (char.IsUpper(label[i])) count++;
             }
 
-            length += (int)(count * letterSizeInPixels * 0.5f);
+            length += (int)(count * fontSize * 0.5f);
 
             return length;
         }
 
-        private static int ApproximateLength(this string label, int otherElements) => Mathf.Min(label.IsNullOrEmpty() ? 1 : letterSizeInPixels * label.Length, Screen.width - otherElements);
+        private static int RemainingLength(this string label, int otherElements) => Mathf.Min(label.IsNullOrEmpty() ? 1 : letterSizeInPixels * label.Length, Screen.width - otherElements);
 
         private static int RemainingLength(int otherElements) => PaintingGameViewUI ? _playtimeGuiWidth - otherElements : Screen.width - otherElements;
 
@@ -461,19 +472,7 @@ namespace PlayerAndEditorGUI
                 GUILayout.Space(10);
             }
         }
-
-        public static void line() => line(PaintingGameViewUI ? Color.white : Color.black);
-
-        public static void line(Color col)
-        {
-            nl();
-
-            var c = GUI.color;
-            GUI.color = col;
-            GUILayout.Box(GUIContent.none, PEGI_Styles.HorizontalLine.Current);
-            GUI.color = c;
-        }
-
+        
 #endregion
 
         #region Focus MGMT
@@ -741,7 +740,7 @@ namespace PlayerAndEditorGUI
             {
                 nl();
 
-                if (understoodPopUpText.Click(15).nl())
+                if (understoodPopUpText.ClickText(15).nl())
                     ClosePopUp();
 
                 ContactOptions();
@@ -816,7 +815,7 @@ namespace PlayerAndEditorGUI
 
                     popUpText.writeBig("Click the blue text below to close this toolTip. This is basically a toolTip for a toolTip. It is the world we are living in now.");
 
-                    if (!relatedLink.IsNullOrEmpty() && relatedLinkName.Click(14))
+                    if (!relatedLink.IsNullOrEmpty() && relatedLinkName.ClickText(14))
                         Application.OpenURL(relatedLink);
 
                     ConfirmLabel();
@@ -1256,7 +1255,7 @@ namespace PlayerAndEditorGUI
 #endif
             {
                 checkLine();
-                GUILayout.Label(cnt, GuiMaxWidthOption);
+                GUILayout.Label(cnt, style.Current, GuiMaxWidthOption);
             }
         }
 
@@ -1480,7 +1479,7 @@ namespace PlayerAndEditorGUI
 #endif
 
             checkLine();
-            GUILayout.Label(text, GuiMaxWidthOption);
+            GUILayout.Label(text, PEGI_Styles.WarningText.Current ,GuiMaxWidthOption);
             nl();
 
         }
@@ -1499,7 +1498,7 @@ namespace PlayerAndEditorGUI
 #endif
 
             checkLine();
-            GUILayout.Label(text, GuiMaxWidthOption);
+            GUILayout.Label(text, PEGI_Styles.HintText.Current, GuiMaxWidthOption);
             if (startNewLineAfter)
                 nl();
 
@@ -1524,7 +1523,7 @@ namespace PlayerAndEditorGUI
 #endif
             {
                 checkLine();
-                GUILayout.Label(text, GuiMaxWidthOption);
+                GUILayout.Label(text, PEGI_Styles.HintText.Current, GuiMaxWidthOption);
             }
 
             if (!icon.Done.ClickUnFocus("Got it").nl()) return false;

@@ -192,8 +192,6 @@ namespace PlayerAndEditorGUI
         #region Enter & Exit
         public static bool enter(ref int enteredOne, int current, string tip = null)
         {
-
-
             if (enteredOne == current)
             {
                 if (icon.Exit.ClickUnFocus())
@@ -370,7 +368,7 @@ namespace PlayerAndEditorGUI
             if (!entered && ret)
                 meta.inspected = -1;
 
-            ret |= list.enter_DirectlyToElement<T>(ref meta.inspected, ref enteredOne, thisOne);
+            ret |= list.enter_DirectlyToElement(ref meta.inspected, ref enteredOne, thisOne);
 
             return ret;
         }
@@ -668,7 +666,7 @@ namespace PlayerAndEditorGUI
 
             if (!canEnter && enteredOne == thisOne)
             {
-                if (icon.Back.Click() || "All Done here".Click(14))
+                if (icon.Back.Click() || "All Done here".ClickText(14))
                     enteredOne = -1;
             }
             else
@@ -687,7 +685,7 @@ namespace PlayerAndEditorGUI
 
             if (!canEnter && entered)
             {
-                if (icon.Back.Click() || "All Done here".Click(14))
+                if (icon.Back.Click() || "All Done here".ClickText(14))
                     entered = false;
             }
             else
@@ -879,12 +877,11 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool enter_Dictionary<G, T>(this ListMetaData meta, Dictionary<G, T> dictionary,
-            ref int enteredOne, int thisOne)
+        public static bool enter_Dictionary<G, T>(this ListMetaData meta, Dictionary<G, T> dictionary, ref int enteredOne, int thisOne)
         {
             var changed = false;
 
-            if (meta.label.enter(ref enteredOne, thisOne, false))
+            if (meta.label.AddCount(dictionary).enter(ref enteredOne, thisOne, false))
                 meta.edit_Dictionary_Values(dictionary).nl(ref changed);
 
             return changed;
@@ -935,5 +932,24 @@ namespace PlayerAndEditorGUI
 
         #endregion
 
+        #region Line
+
+        public static void line() => line(PaintingGameViewUI ? Color.white : Color.black);
+
+        public static void line(Color col)
+        {
+            nl();
+
+            var c = GUI.color;
+            GUI.color = col;
+            if (PaintingGameViewUI)
+                GUILayout.Box(GUIContent.none, PEGI_Styles.HorizontalLine.Current, GuiMaxWidthOption);
+            else
+                GUILayout.Box(GUIContent.none, PEGI_Styles.HorizontalLine.Current);
+
+            GUI.color = c;
+        }
+
+        #endregion
     }
 }

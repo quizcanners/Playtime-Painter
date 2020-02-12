@@ -914,8 +914,6 @@ namespace QuizCannersUtilities
                 if (Application.isEditor && "Editor Data Folder".Click().nl())
                     QcFile.Explorer.OpenPath("C:/Users/{0}/AppData/Local/Unity/Editor/Editor.log".F(Environment.UserName));
 
-                "PEGI Screen Size: {0}".F(pegi.GameView.Resolution).nl();
-
             }
 
             return changed;
