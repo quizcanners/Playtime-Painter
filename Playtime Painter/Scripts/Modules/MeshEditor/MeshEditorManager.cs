@@ -793,7 +793,7 @@ namespace PlaytimePainter.MeshEditing
             var changed = false;
             EditableMesh.inspected = editedMesh;
 
-            pegi.newLine();
+            pegi.nl();
             
             target.PreviewShaderToggleInspect().changes(ref changed);
 

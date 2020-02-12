@@ -458,7 +458,7 @@ namespace PlaytimePainter.CameraModules
 
                 rls[_sourceRole].Inspect(ref sourceChannel, this).changes(ref changed);
             }
-            pegi.newLine();
+            pegi.nl();
 
             return changed;
         }

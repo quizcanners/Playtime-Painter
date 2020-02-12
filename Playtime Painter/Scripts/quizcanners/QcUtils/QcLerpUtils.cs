@@ -1004,7 +1004,7 @@ namespace QuizCannersUtilities
 
                 if (allowChangeParameters)
                 {
-                    int width = pegi.ApproximateLengthUnsafe(_name);
+                    int width = pegi.ApproximateLength(_name);
                     if (minMax)
                         _name.edit(width, ref targetValue, min, max).changes(ref changed);
                     else
@@ -1146,7 +1146,7 @@ namespace QuizCannersUtilities
 
                 if (allowChangeParameters)
                 {
-                    int width = pegi.ApproximateLengthUnsafe(Name_Internal);
+                    int width = pegi.ApproximateLength(Name_Internal);
                     Name_Internal.edit(width, ref targetValue).changes(ref changed);
                 }
 

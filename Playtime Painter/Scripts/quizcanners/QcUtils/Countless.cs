@@ -1265,7 +1265,7 @@ public class Countless<T> : CountlessBase {
             if (deleted != -1)
                 countless[deleted] = default(T);
             
-            pegi.newLine();
+            pegi.nl();
             return changed;
         }
 

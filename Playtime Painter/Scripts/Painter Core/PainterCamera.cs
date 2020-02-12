@@ -116,7 +116,7 @@ namespace PlaytimePainter {
 
         public Light mainDirectionalLight;
 
-        public PlaytimePainter focusedPainter;
+        public PlaytimePainter FocusedPainter => PlaytimePainter.selectedInPlaytime;
         
         public bool IsLinearColorSpace
         {
@@ -510,8 +510,7 @@ namespace PlaytimePainter {
 
             _prevPosPreview = st.posTo;
         }
-
-
+        
         #endregion
 
         #region Alpha Buffer 
@@ -829,8 +828,8 @@ namespace PlaytimePainter {
 
             lastManagedUpdate = Time.time;
 
-            if (PlaytimePainter.IsCurrentTool && focusedPainter)
-                focusedPainter.ManagedUpdateOnFocused();
+            if (PlaytimePainter.IsCurrentTool && FocusedPainter)
+                FocusedPainter.ManagedUpdateOnFocused();
             
             if (GlobalBrush.previewDirty)
                 SHADER_BRUSH_UPDATE();
@@ -882,10 +881,30 @@ namespace PlaytimePainter {
 
 
         }
-        
+
         #endregion
 
         #region Inspector
+
+        private static readonly pegi.GameView.Window OnGUIWindow = new pegi.GameView.Window();
+        
+        public void OnGUI()
+        {
+
+            if (!Cfg || !Cfg.enablePainterUIonPlay) return;
+            
+            if (FocusedPainter)
+            {
+                OnGUIWindow.Render(FocusedPainter, "{0} {1}".F(FocusedPainter.name, FocusedPainter.GetMaterialTextureProperty));
+
+                foreach (var p in CameraModuleBase.GuiPlugins)
+                    p.OnGUI();
+            }
+
+            if (!PlaytimePainter.IsCurrentTool)
+                OnGUIWindow.Collapse();
+
+        }
 
         readonly QcUtils.ChillLogger logger = new QcUtils.ChillLogger("error");
 

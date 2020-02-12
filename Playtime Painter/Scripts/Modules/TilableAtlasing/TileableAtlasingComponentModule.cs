@@ -1021,11 +1021,11 @@ namespace PlaytimePainter.ComponentModules {
                     if (!t.texture)
                         pegi.edit(ref t.color);
                     
-                    pegi.newLine();
+                    pegi.nl();
                 }
             }
 
-            pegi.newLine();
+            pegi.nl();
             "Is Color Atlas:".toggleIcon(ref _sRgb).nl(ref changed);
 
             if ("Generate".Click().nl(ref changed))

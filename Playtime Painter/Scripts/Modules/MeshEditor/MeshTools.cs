@@ -286,7 +286,7 @@ namespace PlaytimePainter.MeshEditing {
                 SharpFacesTool.AutoAssignDominantNormalsForBeveling();
             "Sensitivity".edit(60, ref Cfg.bevelDetectionSensitivity, 3, 30).nl();
             
-            pegi.newLine();
+            pegi.nl();
 
             return changed;
         }

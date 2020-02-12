@@ -35,11 +35,11 @@ namespace QuizCannersUtilities
         public bool allowDuplicants;
         public bool showEditListButton;
         public bool showSearchButton;
+        public bool showDictionaryKey;
         public readonly bool showAddButton;
         public readonly icon icon;
         public UnNullableCfg<ElementData> elementDatas = new UnNullableCfg<ElementData>();
       
-
         public List<int> GetSelectedElements() {
             var sel = new List<int>();
             foreach (var e in elementDatas)
@@ -163,7 +163,7 @@ namespace QuizCannersUtilities
             return cody;
         }
 
-#endregion
+        #endregion
 
         public ListMetaData() {
             allowDelete = true;
@@ -178,6 +178,7 @@ namespace QuizCannersUtilities
             bool showAddButton = true,
             bool showEditListButton = true,
             bool showSearchButton = true,
+            bool showDictionaryKey = true,
             icon enterIcon = icon.Enter) {
 
             this.showAddButton = showAddButton;
@@ -187,6 +188,7 @@ namespace QuizCannersUtilities
             this.keepTypeData = keepTypeData;
             this.showEditListButton = showEditListButton;
             this.showSearchButton = showSearchButton;
+            this.showDictionaryKey = showDictionaryKey;
             icon = enterIcon;
         }
     }

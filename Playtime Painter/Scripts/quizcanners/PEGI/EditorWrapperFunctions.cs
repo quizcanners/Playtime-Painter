@@ -20,6 +20,9 @@ using Object = UnityEngine.Object;
 #pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
+#pragma warning disable IDE0011 // Add braces
+#pragma warning disable IDE0008 // Use explicit type
+#pragma warning disable IDE0009 // Member access should be qualified.
 
 namespace PlayerAndEditorGUI
 {
@@ -1212,25 +1215,25 @@ namespace PlayerAndEditorGUI
         public static bool Click(string label)
         {
             checkLine();
-            return GUILayout.Button(label) && change;
+            return GUILayout.Button(label, GUILayout.MaxWidth(250)) && change;
         }
 
         public static bool Click(string label, GUIStyle style)
         {
             checkLine();
-            return GUILayout.Button(label, style) && change;
+            return GUILayout.Button(label, style, GUILayout.MaxWidth(250)) && change;
         }
 
         public static bool Click(GUIContent content)
         {
             checkLine();
-            return GUILayout.Button(content) && change;
+            return GUILayout.Button(content, GUILayout.MaxWidth(250)) && change;
         }
 
         public static bool Click(GUIContent content, GUIStyle style)
         {
             checkLine();
-            return GUILayout.Button(content, style) && change;
+            return GUILayout.Button(content, style, GUILayout.MaxWidth(250)) && change;
         }
 
         public static bool Click(GUIContent content, int width, GUIStyle style)
@@ -1242,7 +1245,7 @@ namespace PlayerAndEditorGUI
         public static bool Click(Texture image, int width, GUIStyle style = null)
         {
             if (style == null)
-                style = PEGI_Styles.ImageButton;
+                style = PEGI_Styles.ImageButton.Current;
 
             checkLine();
             return GUILayout.Button(image, style, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) && change;
@@ -1253,7 +1256,7 @@ namespace PlayerAndEditorGUI
         public static bool ClickImage(GUIContent cnt, int width, int height, GUIStyle style = null)
         {
             if (style == null)
-                style = PEGI_Styles.ImageButton;
+                style = PEGI_Styles.ImageButton.Current;
 
             checkLine();
 
@@ -1298,7 +1301,7 @@ namespace PlayerAndEditorGUI
             checkLine();
             GUI.enabled = false;
             pegi.SetBgColor(Color.clear);
-            GUILayout.Button(cnt, PEGI_Styles.ImageButton, GUILayout.MaxWidth(width + 10), GUILayout.MaxHeight(height));
+            GUILayout.Button(cnt, PEGI_Styles.ImageButton.Current, GUILayout.MaxWidth(width + 10), GUILayout.MaxHeight(height));
             pegi.PreviousBgColor();
             GUI.enabled = true;
 
@@ -1318,7 +1321,7 @@ namespace PlayerAndEditorGUI
         public static void write(GUIContent cnt)
         {
             checkLine();
-            EditorGUILayout.LabelField(cnt, PEGI_Styles.WrappingText);
+            EditorGUILayout.LabelField(cnt, PEGI_Styles.WrappingText.Current);
         }
         
         public static void write(Texture tex, int width)
@@ -1345,19 +1348,19 @@ namespace PlayerAndEditorGUI
         public static void write(GUIContent cnt, int width)
         {
             checkLine();
-            EditorGUILayout.LabelField(cnt, PEGI_Styles.WrappingText, GUILayout.MaxWidth(width));
+            EditorGUILayout.LabelField(cnt, PEGI_Styles.WrappingText.Current, GUILayout.MaxWidth(width));
         }
 
         public static void write(string text)
         {
             checkLine();
-            EditorGUILayout.LabelField(text, PEGI_Styles.WrappingText);
+            EditorGUILayout.LabelField(text, PEGI_Styles.WrappingText.Current);
         }
 
         public static void write_ForCopy(string text)
         {
             checkLine();
-            EditorGUILayout.SelectableLabel(text, PEGI_Styles.WrappingText);
+            EditorGUILayout.SelectableLabel(text, PEGI_Styles.WrappingText.Current);
         }
 
 

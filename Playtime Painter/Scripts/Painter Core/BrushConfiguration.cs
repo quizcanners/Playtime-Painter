@@ -257,7 +257,7 @@ namespace PlaytimePainter {
             var blitMode = GetBlitMode(cpu);
             var brushType = GetBrushType(cpu);
 
-            pegi.newLine();
+            pegi.nl();
 
             MsgPainter.BlitMode.Write("How final color will be calculated");
 
@@ -339,7 +339,7 @@ namespace PlaytimePainter {
 
                         txt.edit(
                             "This is the kind of alpha you see in standard painting software. But it is only available when using Alpha Buffer",
-                            pegi.ApproximateLengthUnsafe(txt), ref alphaLimitForAlphaBuffer, 0.01f, 1f).changes(ref changed);
+                            pegi.ApproximateLength(txt), ref alphaLimitForAlphaBuffer, 0.01f, 1f).changes(ref changed);
 
                         if (p && p.NotUsingPreview)
                             MsgPainter.PreviewRecommended.DocumentationWarning();

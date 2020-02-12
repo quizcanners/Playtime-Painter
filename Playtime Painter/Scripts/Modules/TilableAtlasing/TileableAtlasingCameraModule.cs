@@ -144,7 +144,7 @@ namespace PlaytimePainter
                         p.meshRenderer.sharedMaterial.DisableKeyword(PainterShaderVariables.UV_ATLASED);
                     }
 
-                    pegi.newLine();
+                    pegi.nl();
 
                 }
 

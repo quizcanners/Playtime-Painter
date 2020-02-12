@@ -675,7 +675,7 @@ namespace QuizCannersUtilities {
                 cfg.EmailData(name, "Use this {0}".F(name));
 
             data = "";
-            if (pegi.edit(ref data).UnFocus()) {
+            if (pegi.edit(ref data).UnFocusIfTrue()) {
                 data = ClearFromExternal(data);
                 return true;
             }

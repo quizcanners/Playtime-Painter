@@ -169,7 +169,7 @@ namespace PlaytimePainter {
 
                     var txt = (usingDecals ? "Tint alpha" : MsgPainter.Speed.GetText());
 
-                    txt.write(pegi.ApproximateLengthUnsafe(txt));
+                    txt.write(pegi.ApproximateLength(txt));
 
                     InspectedBrush._dSpeed.Inspect().nl(ref changed);
 
@@ -210,7 +210,7 @@ namespace PlaytimePainter {
                 }
 
 
-                pegi.newLine();
+                pegi.nl();
 
                 return changed;
             }
@@ -394,7 +394,7 @@ namespace PlaytimePainter {
 
                 var txt = MsgPainter.BlurAmount.GetText();
 
-                txt.edit(pegi.ApproximateLengthUnsafe(txt), ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
+                txt.edit(pegi.ApproximateLength(txt), ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
                 return changed;
             }
 
@@ -464,7 +464,7 @@ namespace PlaytimePainter {
                 if (!InspectedPainter)
                     return changed;
 
-                pegi.newLine();
+                pegi.nl();
 
                 "Mask Size: ".edit(60, ref Cfg.samplingMaskSize).nl(ref changed);
 
@@ -536,7 +536,7 @@ namespace PlaytimePainter {
                     }
                 }
 
-                pegi.newLine();
+                pegi.nl();
 
                 return changed;
             }
@@ -732,7 +732,7 @@ namespace PlaytimePainter {
 
                 var txt = MsgPainter.SpreadSpeed.GetText();
 
-                txt.edit(pegi.ApproximateLengthUnsafe(txt), ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
+                txt.edit(pegi.ApproximateLength(txt), ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
 
                 return changed;
             }

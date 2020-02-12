@@ -1914,34 +1914,12 @@ namespace PlaytimePainter {
         #region Inspector 
 
         private string _nameHolder = "unnamed";
-        private const string DefaultImageLoadUrl = "https://picsbuffet.com/pixabay/";
-        private static string _tmpUrl = DefaultImageLoadUrl;
+        private static string _tmpUrl = "";
         public static PlaytimePainter selectedInPlaytime;
         
-        public void OnGUI()
-        {
-
-            if (!Cfg || !Cfg.enablePainterUIonPlay) return;
-
-            if (!selectedInPlaytime)
-                selectedInPlaytime = this;
-
-            if (selectedInPlaytime == this)
-            {
-                OnGUIWindow.Render(this, "{0} {1}".F(gameObject.name, GetMaterialTextureProperty));
-
-                foreach (var p in CameraModuleBase.GuiPlugins)
-                    p.OnGUI();
-            }
-
-
-        }
-
         public static PlaytimePainter inspected;
 
         [NonSerialized] public readonly Dictionary<int, ShaderProperty.TextureValue> loadingOrder = new Dictionary<int, ShaderProperty.TextureValue>();
-
-        private static readonly pegi.GameView.Window OnGUIWindow = new pegi.GameView.Window();
 
         private static int _inspectedFancyItems = -1;
 
@@ -2047,7 +2025,7 @@ namespace PlaytimePainter {
                     return false;
                 }
 
-                TexMgmt.focusedPainter = this;
+                selectedInPlaytime = this;
 
                 if (
 #if UNITY_2019_1_OR_NEWER
@@ -2063,7 +2041,6 @@ namespace PlaytimePainter {
                     icon.On.Click("Click to Disable Tool")))
                 {
                     IsCurrentTool = false;
-                    OnGUIWindow.Collapse();
                     MeshEditorManager.Inst.StopEditingMesh();
                     SetOriginalShaderOnThis();
                     UpdateOrSetTexTarget(TexTarget.Texture2D);
@@ -2130,7 +2107,7 @@ namespace PlaytimePainter {
                 if (cfg.showConfig)
                 {
 
-                    pegi.newLine();
+                    pegi.nl();
 
                     cfg.Nested_Inspect();
 
@@ -2202,7 +2179,7 @@ namespace PlaytimePainter {
                                             "Playtime Changes will be reverted once you try to edit the mesh again."
                                                 .writeWarning();
 
-                                        pegi.newLine();
+                                        pegi.nl();
 
                                         "Mesh has {0} vertices".F(sm.vertexCount).nl();
 
@@ -2278,7 +2255,7 @@ namespace PlaytimePainter {
                                     else
                                     {
 
-                                        pegi.newLine();
+                                        pegi.nl();
                                         var mpf = MeshProfile;
                                         if (mpf == null)
                                             "There are no Mesh packaging profiles in the PainterDataObject".writeWarning();
@@ -2318,7 +2295,7 @@ namespace PlaytimePainter {
                             }
                         }
 
-                        pegi.newLine();
+                        pegi.nl();
 
                     }
 
@@ -2674,7 +2651,7 @@ namespace PlaytimePainter {
                                 {
                                     loadingOrder.Add(PainterCamera.DownloadManager.StartDownload(_tmpUrl),
                                         GetMaterialTextureProperty);
-                                    _tmpUrl = DefaultImageLoadUrl;
+                                    _tmpUrl = "";
                                     pegi.GameView.ShowNotification("Loading for {0}".F(GetMaterialTextureProperty));
                                 }
 
@@ -2819,9 +2796,9 @@ namespace PlaytimePainter {
 
                             }
 
-                            pegi.newLine();
+                            pegi.nl();
                             pegi.space();
-                            pegi.newLine();
+                            pegi.nl();
 
                             #endregion
 
@@ -2916,7 +2893,7 @@ namespace PlaytimePainter {
 
                 }
 
-                pegi.newLine();
+                pegi.nl();
 
                 if (changed)
                 {
@@ -2978,7 +2955,7 @@ namespace PlaytimePainter {
 #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
-            if (!TexMgmt || this != TexMgmt.focusedPainter) return;
+            if (!TexMgmt || this != TexMgmt.FocusedPainter) return;
 
             if (meshEditing && !Application.isPlaying)
                 MeshEditorManager.Inst.DRAW_Lines(true);

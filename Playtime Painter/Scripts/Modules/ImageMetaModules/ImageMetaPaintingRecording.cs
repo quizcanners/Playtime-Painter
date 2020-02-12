@@ -320,7 +320,7 @@ namespace PlaytimePainter
                 if (icon.Done.Click("Finish & Save"))
                     SaveRecording();
 
-                pegi.newLine();
+                pegi.nl();
             }
 
 

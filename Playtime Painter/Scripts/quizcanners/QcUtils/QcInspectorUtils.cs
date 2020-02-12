@@ -901,6 +901,11 @@ namespace QuizCannersUtilities
             if ("ICfg Inspector".enter(ref inspectedSection, 3).nl())
                 iCfgExplorer.Inspect(null).nl(ref changed);
 
+            if ("Gui Styles".enter(ref inspectedSection, 4).nl())
+            {
+                PEGI_Styles.Inspect().nl();
+            }
+
             if (inspectedSection == -1)
             {
                 if ("Player Data Folder".Click().nl())

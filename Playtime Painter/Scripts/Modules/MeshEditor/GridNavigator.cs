@@ -284,7 +284,7 @@ namespace PlaytimePainter.MeshEditing
             if (!cfg)
                 return;
 
-            var showGrid = MeshEditorManager.target.NeedsGrid() || TexMGMT.focusedPainter.NeedsGrid();
+            var showGrid = MeshEditorManager.target.NeedsGrid() || TexMGMT.FocusedPainter.NeedsGrid();
 
             SetEnabled(showGrid, cfg.snapToGrid && showGrid);
 
