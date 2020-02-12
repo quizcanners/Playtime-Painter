@@ -12,14 +12,21 @@ namespace PlaytimePainter.Examples {
 
         public List<Graphic> graphicToShowScale = new List<Graphic>();
 
-        public float Size2D { get { return Brush.brush2DRadius; } set { Brush.brush2DRadius = value; Brush.previewDirty = true; graphicToShowScale.TrySetLocalScale(0.6f + value / 256f); } }
+        public float Size2D { get { return Brush.brush2DRadius; } set { Brush.brush2DRadius = value; Brush.previewDirty = true; TrySetLocalScale(graphicToShowScale, 0.6f + value / 256f); } }
 
         public float Size3D { get { return Brush.brush3DRadius; } set { Brush.brush3DRadius = value; Brush.previewDirty = true; } }
 
         public float ColorAlpha { get { return Brush.Color.a; } set { Brush.Color.a = value; Brush.previewDirty = true; } }
 
         public float Speed { get { return Brush.Speed; } set { Brush.Speed = value; Brush.previewDirty = true; } }
-        
+
+        public static void TrySetLocalScale<T>(List<T> graphics, float size) where T : Graphic
+        {
+            foreach (var g in graphics)
+                if (g)
+                    g.rectTransform.localScale = Vector3.one * size;
+        }
+
         #endregion
 
         bool defaultSet = false;

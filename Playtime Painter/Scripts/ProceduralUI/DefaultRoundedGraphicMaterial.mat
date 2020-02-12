@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: DefaultRoundedGraphicMaterial
-  m_Shader: {fileID: 4800000, guid: 61c8fa6bb4209634d9d6ca7726dd649b, type: 3}
+  m_Shader: {fileID: 4800000, guid: dd05376b705db7b4c9b2f4333a17e23e, type: 3}
   m_ShaderKeywords: _GRADS_INSIDE _GRADS_ONCE _GRAD_HOR _SOFT_FADE
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
@@ -103,3 +103,4 @@ Material:
     - _ColorE: {r: 1, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _LightDirection: {r: 984.4, g: 1788.8, b: 318, a: 0}
+  m_BuildTextureStacks: []

@@ -36,9 +36,7 @@ namespace QuizCannersUtilities {
             var go = new GameObject(name.IsNullOrEmpty() ? typeof(T).ToPegiStringType() : name);
             return go.AddComponent<T>();
         }
-
-       
-
+        
 #region Lists
         public static void RemoveEmpty<T>(List<T> list) where T : Object {
 
@@ -267,54 +265,37 @@ namespace QuizCannersUtilities {
 
 #region Raycasts
 
-        public static bool CastRay(this Vector3 from, Vector3 vPos)
+        public static bool CastRay(this Vector3 origin, Vector3 target)
         {
-            var ray = from - vPos;
-            return Physics.Raycast(new Ray(vPos, ray), ray.magnitude);
+            var ray = origin - target;
+            return Physics.Raycast(new Ray(target, ray), ray.magnitude);
         }
 
-        public static bool CastRay(this Vector3 from, Vector3 vPos, float safeGap)
+        public static bool CastRay(this Vector3 origin, Vector3 target, float safeGap)
         {
-            var ray = vPos - from;
+            var ray = target - origin;
 
             var magnitude = ray.magnitude - safeGap;
 
-            return (!(magnitude <= 0)) && Physics.Raycast(new Ray(@from, ray), magnitude);
+            return (!(magnitude <= 0)) && Physics.Raycast(new Ray(origin, ray), magnitude);
         }
 
-        public static bool CastRay(this Vector3 from, Vector3 to, out RaycastHit hit)
+        public static bool CastRay(this Vector3 origin, Vector3 target, out RaycastHit hit)
         {
-            var ray = to - from;
-            return Physics.Raycast(new Ray(from, ray), out hit);
+            var ray = target - origin;
+            return Physics.Raycast(new Ray(origin, ray), out hit);
         }
 
 #endregion
 
-#region Gizmos
-
-        public static void LineTo(this Vector3 v3A, Vector3 v3B, Color col)
-        {
-            Gizmos.color = col;
-            Gizmos.DrawLine(v3A, v3B);
-        }
-
-#endregion
-
-#region Transformations 
-
-        public static void TrySetLocalScale<T>(this List<T> graphics, float size) where T : Graphic {
-            foreach (var g in graphics)
-                if (g)
-                    g.rectTransform.localScale = Vector3.one * size;
-        }
-
+#region Color 
+        
         public static Color Alpha(this Color col, float alpha)
         {
             col.a = alpha;
             return col;
         }
-
-
+        
         public static Color ToOpaque(this Color col)  {
             col.a = 1;
             return col;
@@ -1299,12 +1280,6 @@ namespace QuizCannersUtilities {
 #endregion
 
 #region Input MGMT
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="e"></param>
-        /// <returns>Return -1 if no numeric key was pressed</returns>
 
         public static int NumericKeyDown(this Event e)  {
 

@@ -329,9 +329,4 @@ namespace QuizCannersUtilities
         }
 
     }
-
-
-
-
-
 }

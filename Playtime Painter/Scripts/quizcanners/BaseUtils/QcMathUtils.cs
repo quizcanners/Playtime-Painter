@@ -47,8 +47,6 @@ namespace QuizCannersUtilities
 
         #region Adjust
 
-        public static Vector2 ToM11Space(this Vector2 v2) => (v2 - new Vector2(Mathf.Floor(v2.x), Mathf.Floor(v2.y)));
-
         public static Vector2 To01Space(this Vector2 v2)
         {
 
@@ -64,21 +62,6 @@ namespace QuizCannersUtilities
         }
 
         public static Vector2 Floor(this Vector2 v2) => new Vector2(Mathf.Floor(v2.x), Mathf.Floor(v2.y));
-
-        public static float ClampZeroTo(this float value, float max)
-        {
-            value = Mathf.Max(0, Mathf.Min(value, max - 1));
-            return value;
-        }
-
-        /*  public static bool ClampIndexToLength(this Array ar, ref int value, int min = 0)
-          {
-              if (!ar.IsNullOrEmpty()) {
-                  value = Mathf.Max(min, Mathf.Min(value, ar.Length - 1));
-                  return true;
-              }
-              return false;
-          }*/
 
         public static bool ClampIndexToCount(this ICollection list, ref int value, int min = 0)
         {
@@ -96,46 +79,27 @@ namespace QuizCannersUtilities
             return ((new Vector3(Mathf.Round(v3.x), Mathf.Round(v3.y), Mathf.Round(v3.z))) * by);
         }
 
-        public static Vector3 FloorDiv(Vector3 v3, int by)
-        {
-            v3 /= by;
-            return ((new Vector3((int)v3.x, (int)v3.y, (int)v3.z)) * by);
-        }
-
-        public static Vector3 Round(Vector3 v3)
-        {
-            return new Vector3(Mathf.Round(v3.x), Mathf.Round(v3.y), Mathf.Round(v3.z));
-        }
-
-        public static Vector3 Floor(Vector3 v3)
-        {
-            return new Vector3((int)v3.x, (int)v3.y, (int)v3.z);
-        }
-
         #endregion
 
         #region Trigonometry
-        static List<Vector3> randomPoint = new List<Vector3>();
+        static List<Vector3> randomPoints = new List<Vector3>();
         static int currentNormalized = 0;
 
-        public static Vector3 GetRandomPointWithin(this Vector3 v3)
+        public static Vector3 GetRandomPointWithin()
         {
-
             const int maxRands = 512;
 
-            if (randomPoint.Count < maxRands)
+            if (randomPoints.Count < maxRands)
             {
                 var newOne = UnityEngine.Random.insideUnitSphere;
-                randomPoint.Add(newOne);
-                v3.Scale(newOne);
+                randomPoints.Add(newOne);
+                return newOne;
             }
             else
             {
                 currentNormalized = (currentNormalized + 1) % maxRands;
-                v3.Scale(randomPoint[currentNormalized]);
+                return randomPoints[currentNormalized];
             }
-
-            return v3;
         }
 
         public static Vector3 BezierCurve(float portion, Vector3 from, Vector3 mid, Vector3 to)
@@ -248,8 +212,7 @@ namespace QuizCannersUtilities
 
             return average;
         }
-
-
+        
         #endregion
 
         #region Transformations
