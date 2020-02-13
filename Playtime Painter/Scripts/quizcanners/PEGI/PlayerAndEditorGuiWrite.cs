@@ -97,7 +97,10 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static void write(this Sprite sprite, int width = defaultButtonSize, bool alphaBlend = false)
+        public static void write(this Sprite sprite, int width = defaultButtonSize, bool alphaBlend = false) =>
+            write(sprite, Color.white, width: width, alphaBlend: alphaBlend);
+        
+        public static void write(this Sprite sprite, Color color, int width = defaultButtonSize, bool alphaBlend = false)
         {
             if (!sprite)
             {
@@ -116,18 +119,29 @@ namespace PlayerAndEditorGUI
 
                 float spriteW = c.width * scale;
                 float spriteH = c.height * scale;
-                Rect rect = GUILayoutUtility.GetRect(spriteW, spriteH, GUILayout.ExpandWidth(false)); //GetRect(spriteW, spriteW, spriteH, spriteH);
+                Rect rect = GUILayoutUtility.GetRect(spriteW, spriteH,
+                    GUILayout.ExpandWidth(false));
 
                 if (Event.current.type == EventType.Repaint)
                 {
-                    var tex = sprite.texture;
-                    c.xMin /= tex.width;
-                    c.xMax /= tex.width;
-                    c.yMin /= tex.height;
-                    c.yMax /= tex.height;
-                    GUI.DrawTextureWithTexCoords(rect, tex, c, alphaBlend);
+                    if (sprite.packed)
+                    {
+                        var tex = sprite.texture;
+                        c.xMin /= tex.width;
+                        c.xMax /= tex.width;
+                        c.yMin /= tex.height;
+                        c.yMax /= tex.height;
+                        GUI.DrawTextureWithTexCoords(rect, tex, c, alphaBlend);
+                    }
+
+                    else
+                    {
+                        GUI.DrawTexture(rect, sprite.texture, ScaleMode.ScaleToFit, alphaBlend, 1, color,
+                            Vector4.zero, Vector4.zero);
+                    }
                 }
             }
+
         }
 
         public static void write(this Sprite sprite, string toolTip, int width = defaultButtonSize)
@@ -210,11 +224,17 @@ namespace PlayerAndEditorGUI
 
         #endregion
 
+        #region Icon
+
         public static void write(this icon icon, int size = defaultButtonSize) => write(icon.GetIcon(), size);
 
         public static void write(this icon icon, string toolTip, int size = defaultButtonSize) => write(icon.GetIcon(), toolTip, size);
 
         public static void write(this icon icon, string toolTip, int width, int height) => write(icon.GetIcon(), toolTip, width, height);
+
+        #endregion
+
+        #region String
 
         public static void write(this string text)
         {
@@ -260,7 +280,7 @@ namespace PlayerAndEditorGUI
 #endif
             {
                 checkLine();
-                GUILayout.Label(textAndTip, GuiMaxWidthOption);
+                GUILayout.Label(textAndTip, style.Current, GuiMaxWidthOption);
             }
         }
 
@@ -278,7 +298,7 @@ namespace PlayerAndEditorGUI
 #endif
 
             checkLine();
-            GUILayout.Label(textAndTip, GUILayout.MaxWidth(width));
+            GUILayout.Label(textAndTip, style.Current, GUILayout.MaxWidth(width));
 
         }
 
@@ -297,7 +317,7 @@ namespace PlayerAndEditorGUI
 #endif
 
             checkLine();
-            GUILayout.Label(textAndTip, GUILayout.MaxWidth(width));
+            GUILayout.Label(textAndTip, style.Current, GUILayout.MaxWidth(width));
 
         }
 
@@ -339,7 +359,7 @@ namespace PlayerAndEditorGUI
             GUILayout.Label(textAndTip, GUILayout.MaxWidth(width));
 
         }
-
+        
         public static void writeBig(this string text, int width, string contents, string tooltip = "")
         {
             text.nl(width);
@@ -351,14 +371,6 @@ namespace PlayerAndEditorGUI
         {
             text.write(tooltip, PEGI_Styles.OverflowText);
             nl();
-        }
-
-        public static void SetClipboard(string value, string hint = "", bool sendNotificationIn3Dview = true)
-        {
-            GUIUtility.systemCopyBuffer = value;
-
-            if (sendNotificationIn3Dview)
-                GameView.ShowNotification("{0} Copied to clipboard".F(hint));
         }
 
         public static bool write_ForCopy(this string text, bool showCopyButton = false)
@@ -452,6 +464,16 @@ namespace PlayerAndEditorGUI
 
             return false;
         }
+
+        public static void SetClipboard(string value, string hint = "", bool sendNotificationIn3Dview = true)
+        {
+            GUIUtility.systemCopyBuffer = value;
+
+            if (sendNotificationIn3Dview)
+                GameView.ShowNotification("{0} Copied to clipboard".F(hint));
+        }
+        
+        #endregion
 
         #region Warning & Hints
         public static void writeWarning(this string text)

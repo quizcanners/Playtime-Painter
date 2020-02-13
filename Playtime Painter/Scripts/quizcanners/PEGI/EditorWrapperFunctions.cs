@@ -1321,7 +1321,7 @@ namespace PlayerAndEditorGUI
         public static void write(GUIContent cnt)
         {
             checkLine();
-            EditorGUILayout.LabelField(cnt, PEGI_Styles.WrappingText.Current);
+            EditorGUILayout.LabelField(cnt, PEGI_Styles.ClippingText.Current);
         }
         
         public static void write(Texture tex, int width)
@@ -1348,19 +1348,19 @@ namespace PlayerAndEditorGUI
         public static void write(GUIContent cnt, int width)
         {
             checkLine();
-            EditorGUILayout.LabelField(cnt, PEGI_Styles.WrappingText.Current, GUILayout.MaxWidth(width));
+            EditorGUILayout.LabelField(cnt, PEGI_Styles.ClippingText.Current, GUILayout.MaxWidth(width));
         }
 
         public static void write(string text)
         {
             checkLine();
-            EditorGUILayout.LabelField(text, PEGI_Styles.WrappingText.Current);
+            EditorGUILayout.LabelField(text, PEGI_Styles.ClippingText.Current);
         }
 
         public static void write_ForCopy(string text)
         {
             checkLine();
-            EditorGUILayout.SelectableLabel(text, PEGI_Styles.WrappingText.Current);
+            EditorGUILayout.SelectableLabel(text, PEGI_Styles.ClippingText.Current);
         }
 
 

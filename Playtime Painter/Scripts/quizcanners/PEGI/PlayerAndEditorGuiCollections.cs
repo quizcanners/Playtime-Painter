@@ -77,6 +77,206 @@ namespace PlayerAndEditorGUI
 
             private int _sectionStartIndex;
 
+            public IEnumerable<int> InspectionIndexes<T>(ICollection<T> list, ListMetaData listMeta = null)
+            {
+
+                searchData = listMeta == null ? defaultSearchData : listMeta.searchData;
+
+                #region Inspect Start
+
+                var changed = false;
+
+                if (_scrollDownRequested)
+                    searchData.CloseSearch();
+
+                string[] searchby;
+                searchData.SearchString(list, out _searching, out searchby);
+
+                _sectionStartIndex = 0;
+
+                if (_searching)
+                    _sectionStartIndex = searchData.inspectionIndexStart;
+                else if (listMeta != null)
+                    _sectionStartIndex = listMeta.listSectionStartIndex;
+                else if (!Indexes.TryGetValue(list, out _sectionStartIndex))
+                    Indexes.Add(list, 0);
+
+                _count = list.Count;
+
+                _lastElementToShow = _count;
+
+                _sectionSizeOptimal = GetOptimalSectionFor(_count);
+
+                if (_scrollDownRequested)
+                {
+                    changed = true;
+                    SkrollToBottomInternal();
+                }
+
+                if (_count >= _sectionSizeOptimal * 2 || _sectionStartIndex > 0)
+                {
+
+                    if (_count > _sectionSizeOptimal)
+                    {
+
+                        while ((_sectionStartIndex > 0 && _sectionStartIndex >= _count).changes(ref changed))
+                            _sectionStartIndex = Mathf.Max(0, _sectionStartIndex - _sectionSizeOptimal);
+
+                        nl();
+                        if (_sectionStartIndex > 0)
+                        {
+
+                            if (_sectionStartIndex > _sectionSizeOptimal && icon.UpLast.ClickUnFocus("To First element").changes(ref changed))
+                                _sectionStartIndex = 0;
+
+                            if (icon.Up.ClickUnFocus("To previous elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed))
+                            {
+                                _sectionStartIndex = Mathf.Max(0, _sectionStartIndex - _sectionSizeOptimal + 1);
+                                if (_sectionStartIndex == 1)
+                                    _sectionStartIndex = 0;
+                            }
+
+                            ".. {0}; ".F(_sectionStartIndex - 1).write();
+
+                        }
+                        else
+                            icon.UpLast.write("Is the first section of the list.", UpDownWidth, UpDownHeight);
+
+                        nl();
+
+                    }
+                    else line(Color.gray);
+
+                }
+                else if (list.Count > 0)
+                    line(Color.gray);
+
+                nl();
+
+                #endregion
+
+                PEGI_Styles.inspectingList = true;
+
+                if (!_searching)
+                {
+                    _lastElementToShow = Mathf.Min(_count, _sectionStartIndex + _sectionSizeOptimal);
+
+                    for (Index = _sectionStartIndex; Index < _lastElementToShow; Index++)
+                    {
+
+                        SetListElementReadabilityBackground(Index);
+
+                        yield return Index;
+
+                        RestoreBGcolor();
+                    }
+
+                    if ((_sectionStartIndex > 0) || (_count > _lastElementToShow))
+                    {
+
+                        nl();
+                        if (_count > _lastElementToShow)
+                        {
+
+                            if (icon.Down.ClickUnFocus("To next elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed))
+                                _sectionStartIndex += _sectionSizeOptimal - 1;
+
+                            if (icon.DownLast.ClickUnFocus("To Last element").changes(ref changed))
+                                SkrollToBottomInternal();
+
+                            "+ {0}".F(_count - _lastElementToShow).write();
+
+                        }
+                        else if (_sectionStartIndex > 0)
+                            icon.DownLast.write("Is the last section of the list. ", UpDownWidth, UpDownHeight);
+
+                    }
+                    else if (_count > 0)
+                        line(Color.gray);
+
+                }
+                else
+                {
+
+                    var sectionIndex = _sectionStartIndex;
+
+                    filteredList = searchData.filteredListElements;
+
+                    _lastElementToShow = Mathf.Min(list.Count, _sectionStartIndex + _sectionSizeOptimal);
+
+                    while (sectionIndex < _lastElementToShow)
+                    {
+
+                        Index = -1;
+
+                        if (filteredList.Count > sectionIndex)
+                            Index = filteredList[sectionIndex];
+                        else
+                            Index = GetNextFiltered(list, searchby);
+
+
+                        if (Index != -1)
+                        {
+
+                            SetListElementReadabilityBackground(sectionIndex);
+
+                            yield return Index;
+
+                            RestoreBGcolor();
+
+                            sectionIndex++;
+                        }
+                        else break;
+                    }
+
+
+                    bool gotUnchecked = (searchData.uncheckedElement < _count - 1);
+
+                    bool gotToShow = (filteredList.Count > _lastElementToShow) || gotUnchecked;
+
+                    if (_sectionStartIndex > 0 || gotToShow)
+                    {
+
+                        nl();
+                        if (gotToShow)
+                        {
+
+                            if (icon.Down.ClickUnFocus("To next elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed))
+                                _sectionStartIndex += _sectionSizeOptimal - 1;
+
+                            if (icon.DownLast.ClickUnFocus("To Last element").changes(ref changed))
+                            {
+                                if (_searching)
+                                    while (GetNextFiltered(list, searchby) != -1) { }
+
+
+                                SkrollToBottomInternal();
+                            }
+
+                            if (!gotUnchecked)
+                                "+ {0}".F(filteredList.Count - _lastElementToShow).write();
+
+                        }
+                        else if (_sectionStartIndex > 0)
+                            icon.DownLast.write("Is the last section of the list. ", UpDownWidth, UpDownHeight);
+
+                    }
+                    else if (_count > 0)
+                        line(Color.gray);
+
+                }
+
+                #region Finilize
+
+                PEGI_Styles.inspectingList = false;
+
+
+                if (changed)
+                    SaveSectionIndex(list, listMeta);
+
+                #endregion
+            }
+
 
             private readonly CountlessInt SectionOptimal = new CountlessInt();
             private int GetOptimalSectionFor(int count)
@@ -397,206 +597,6 @@ namespace PlayerAndEditorGUI
             }
 
             private SearchData searchData;
-
-            public IEnumerable<int> InspectionIndexes<T>(ICollection<T> list, ListMetaData listMeta = null)
-            {
-
-                searchData = listMeta == null ? defaultSearchData : listMeta.searchData;
-
-                #region Inspect Start
-
-                var changed = false;
-
-                if (_scrollDownRequested)
-                    searchData.CloseSearch();
-
-                string[] searchby;
-                searchData.SearchString(list, out _searching, out searchby);
-
-                _sectionStartIndex = 0;
-
-                if (_searching)
-                    _sectionStartIndex = searchData.inspectionIndexStart;
-                else if (listMeta != null)
-                    _sectionStartIndex = listMeta.listSectionStartIndex;
-                else if (!Indexes.TryGetValue(list, out _sectionStartIndex))
-                    Indexes.Add(list, 0);
-
-                _count = list.Count;
-
-                _lastElementToShow = _count;
-
-                _sectionSizeOptimal = GetOptimalSectionFor(_count);
-
-                if (_scrollDownRequested)
-                {
-                    changed = true;
-                    SkrollToBottomInternal();
-                }
-
-                if (_count >= _sectionSizeOptimal * 2 || _sectionStartIndex > 0)
-                {
-
-                    if (_count > _sectionSizeOptimal)
-                    {
-
-                        while ((_sectionStartIndex > 0 && _sectionStartIndex >= _count).changes(ref changed))
-                            _sectionStartIndex = Mathf.Max(0, _sectionStartIndex - _sectionSizeOptimal);
-
-                        nl();
-                        if (_sectionStartIndex > 0)
-                        {
-
-                            if (_sectionStartIndex > _sectionSizeOptimal && icon.UpLast.ClickUnFocus("To First element").changes(ref changed))
-                                _sectionStartIndex = 0;
-
-                            if (icon.Up.ClickUnFocus("To previous elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed))
-                            {
-                                _sectionStartIndex = Mathf.Max(0, _sectionStartIndex - _sectionSizeOptimal + 1);
-                                if (_sectionStartIndex == 1)
-                                    _sectionStartIndex = 0;
-                            }
-
-                            ".. {0}; ".F(_sectionStartIndex - 1).write();
-
-                        }
-                        else
-                            icon.UpLast.write("Is the first section of the list.", UpDownWidth, UpDownHeight);
-
-                        nl();
-
-                    }
-                    else line(Color.gray);
-
-                }
-                else if (list.Count > 0)
-                    line(Color.gray);
-
-                nl();
-
-                #endregion
-
-                PEGI_Styles.inspectingList = true;
-
-                if (!_searching)
-                {
-                    _lastElementToShow = Mathf.Min(_count, _sectionStartIndex + _sectionSizeOptimal);
-
-                    for (Index = _sectionStartIndex; Index < _lastElementToShow; Index++)
-                    {
-
-                        SetListElementReadabilityBackground(Index);
-
-                        yield return Index;
-
-                        RestoreBGcolor();
-                    }
-                    
-                    if ((_sectionStartIndex > 0) || (_count > _lastElementToShow))
-                    {
-
-                        nl();
-                        if (_count > _lastElementToShow)
-                        {
-
-                            if (icon.Down.ClickUnFocus("To next elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed))
-                                _sectionStartIndex += _sectionSizeOptimal - 1;
-
-                            if (icon.DownLast.ClickUnFocus("To Last element").changes(ref changed))
-                                SkrollToBottomInternal();
-
-                            "+ {0}".F(_count - _lastElementToShow).write();
-
-                        }
-                        else if (_sectionStartIndex > 0)
-                            icon.DownLast.write("Is the last section of the list. ", UpDownWidth, UpDownHeight);
-
-                    }
-                    else if (_count > 0)
-                        line(Color.gray);
-
-                }
-                else
-                {
-
-                    var sectionIndex = _sectionStartIndex;
-
-                    filteredList = searchData.filteredListElements;
-
-                    _lastElementToShow = Mathf.Min(list.Count, _sectionStartIndex + _sectionSizeOptimal);
-
-                    while (sectionIndex < _lastElementToShow)
-                    {
-
-                        Index = -1;
-
-                        if (filteredList.Count > sectionIndex)
-                            Index = filteredList[sectionIndex];
-                        else
-                            Index = GetNextFiltered(list, searchby);
-
-
-                        if (Index != -1)
-                        {
-
-                            SetListElementReadabilityBackground(sectionIndex);
-
-                            yield return Index;
-
-                            RestoreBGcolor();
-
-                            sectionIndex++;
-                        }
-                        else break;
-                    }
-
-
-                    bool gotUnchecked = (searchData.uncheckedElement < _count - 1);
-
-                    bool gotToShow = (filteredList.Count > _lastElementToShow) || gotUnchecked;
-
-                    if (_sectionStartIndex > 0 || gotToShow)
-                    {
-
-                        nl();
-                        if (gotToShow)
-                        {
-
-                            if (icon.Down.ClickUnFocus("To next elements of the list. ", UpDownWidth, UpDownHeight).changes(ref changed))
-                                _sectionStartIndex += _sectionSizeOptimal - 1;
-
-                            if (icon.DownLast.ClickUnFocus("To Last element").changes(ref changed))
-                            {
-                                if (_searching)
-                                    while (GetNextFiltered(list, searchby) != -1) { }
-
-
-                                SkrollToBottomInternal();
-                            }
-
-                            if (!gotUnchecked)
-                                "+ {0}".F(filteredList.Count - _lastElementToShow).write();
-
-                        }
-                        else if (_sectionStartIndex > 0)
-                            icon.DownLast.write("Is the last section of the list. ", UpDownWidth, UpDownHeight);
-
-                    }
-                    else if (_count > 0)
-                        line(Color.gray);
-
-                }
-
-                #region Finilize
-
-                PEGI_Styles.inspectingList = false;
-
-
-                if (changed)
-                    SaveSectionIndex(list, listMeta);
-
-                #endregion
-            }
 
             private void SaveSectionIndex<T>(ICollection<T> list, ListMetaData listMeta)
             {
@@ -2648,7 +2648,7 @@ namespace PlayerAndEditorGUI
                     else
                     {
                         if (showKey)
-                            itemKey.GetNameForInspector().write_ForCopy();
+                            itemKey.GetNameForInspector().write_ForCopy(50);
 
                         var el = item.Value;
                         InspectValueInDictionary(ref el, dic, i, ref inspected, listMeta).changes(ref changed);
@@ -3035,12 +3035,12 @@ namespace PlayerAndEditorGUI
 
                 var changed = false;
 
-                if (active && icon.FoldedOut.ClickUnFocus("{0} {1} {2}".F(icon.Hide.GetText(), icon.Search.GetText(), ld), 20).changes(ref changed) || KeyCode.UpArrow.IsDown())
+                if (active && icon.FoldedOut.ClickUnFocus("{0} {1} {2}".F(icon.Hide.GetText(), icon.Search.GetText(), ld), 27).changes(ref changed) || KeyCode.UpArrow.IsDown())
                     active = false;
 
                 if (!active && ld != collectionInspector.reordering &&
                     (icon.Search
-                        .Click("{0} {1}".F(icon.Search.GetText(), label.IsNullOrEmpty() ? ld.ToString() : label), 20) || KeyCode.DownArrow.IsDown())
+                        .Click("{0} {1}".F(icon.Search.GetText(), label.IsNullOrEmpty() ? ld.ToString() : label), 27) || KeyCode.DownArrow.IsDown())
                         .changes(ref changed))
                 {
                     active = true;
@@ -3072,6 +3072,8 @@ namespace PlayerAndEditorGUI
                 {
 
                     nl();
+
+                    icon.Search.write();
 
                     NameNext(searchFieldFocusName);
 

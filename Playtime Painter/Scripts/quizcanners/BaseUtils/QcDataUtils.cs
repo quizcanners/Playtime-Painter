@@ -132,7 +132,7 @@ namespace QuizCannersUtilities
 
             public static string StringFromResource(string resourceFolderLocation, string insideResourceFolder, string name)
             {
-
+               
 #if UNITY_EDITOR
 
                 var resourceName = Path.Combine(insideResourceFolder, name);
@@ -156,8 +156,9 @@ namespace QuizCannersUtilities
                 return null;
 
 #else
-                return LoadStringFromResource( insideResourceFolder,  name);
+                return StringFromResource(insideResourceFolder, name);
 #endif
+
             }
 
             public static string StringFromResource(string insideResourceFolder, string name)

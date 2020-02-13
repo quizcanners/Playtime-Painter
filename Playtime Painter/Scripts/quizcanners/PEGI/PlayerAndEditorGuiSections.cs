@@ -363,7 +363,7 @@ namespace PlayerAndEditorGUI
 
             var entered = enteredOne == thisOne;
 
-            var ret = meta.icon.enter(meta.label.AddCount(list, entered), ref enteredOne, thisOne, showLabelIfTrue, list.Count == 0 ? PEGI_Styles.WrappingText : null);
+            var ret = meta.icon.enter(meta.label.AddCount(list, entered), ref enteredOne, thisOne, showLabelIfTrue, list.Count == 0 ? PEGI_Styles.ClippingText : null);
 
             if (!entered && ret)
                 meta.inspected = -1;
@@ -379,11 +379,11 @@ namespace PlayerAndEditorGUI
             => icon.Enter.enter(txt, ref enteredOne, thisOne, showLabelIfTrue, enterLabelStyle);
 
         public static bool enter<T>(this string txt, ref int enteredOne, int thisOne, ICollection<T> forAddCount) =>
-            icon.Enter.enter(txt.AddCount(forAddCount), ref enteredOne, thisOne, enterLabelStyle: forAddCount.IsNullOrEmpty() ? PEGI_Styles.WrappingText : PEGI_Styles.EnterLabel);
+            icon.Enter.enter(txt.AddCount(forAddCount), ref enteredOne, thisOne, enterLabelStyle: forAddCount.IsNullOrEmpty() ? PEGI_Styles.ClippingText : PEGI_Styles.EnterLabel);
 
         public static bool enter(this string txt, ref int enteredOne, int thisOne, IGotCount forAddCount) =>
             icon.Enter.enter(txt.AddCount(forAddCount), ref enteredOne, thisOne, enterLabelStyle: forAddCount.IsNullOrDestroyed_Obj() ? PEGI_Styles.EnterLabel :
-                (forAddCount.CountForInspector() > 0 ? PEGI_Styles.EnterLabel : PEGI_Styles.WrappingText));
+                (forAddCount.CountForInspector() > 0 ? PEGI_Styles.EnterLabel : PEGI_Styles.ClippingText));
 
         private static bool enter_ListIcon<T>(this string txt, ref List<T> list, ref int enteredOne, int thisOne)
         {
@@ -394,7 +394,7 @@ namespace PlayerAndEditorGUI
                 return false;
             }
 
-            return icon.List.enter(txt.AddCount(list, enteredOne == thisOne), ref enteredOne, thisOne, false, list.Count == 0 ? PEGI_Styles.WrappingText : null);
+            return icon.List.enter(txt.AddCount(list, enteredOne == thisOne), ref enteredOne, thisOne, false, list.Count == 0 ? PEGI_Styles.ClippingText : null);
         }
 
         private static bool enter_ListIcon<T>(this string txt, ref List<T> list, ref int inspected, ref int enteredOne, int thisOne)
@@ -409,7 +409,7 @@ namespace PlayerAndEditorGUI
             var before = enteredOne == thisOne;
 
             if (icon.List.enter(txt.AddCount(list, before), ref enteredOne, thisOne, false,
-                list.Count == 0 ? PEGI_Styles.WrappingText : null) && (!before) && (enteredOne == thisOne))
+                list.Count == 0 ? PEGI_Styles.ClippingText : null) && (!before) && (enteredOne == thisOne))
                 inspected = -1;
 
             list.enter_DirectlyToElement<T>(ref inspected, ref enteredOne, thisOne);

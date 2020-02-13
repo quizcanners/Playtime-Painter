@@ -82,25 +82,6 @@ namespace QuizCannersUtilities
         #endregion
 
         #region Trigonometry
-        static List<Vector3> randomPoints = new List<Vector3>();
-        static int currentNormalized = 0;
-
-        public static Vector3 GetRandomPointWithin()
-        {
-            const int maxRands = 512;
-
-            if (randomPoints.Count < maxRands)
-            {
-                var newOne = UnityEngine.Random.insideUnitSphere;
-                randomPoints.Add(newOne);
-                return newOne;
-            }
-            else
-            {
-                currentNormalized = (currentNormalized + 1) % maxRands;
-                return randomPoints[currentNormalized];
-            }
-        }
 
         public static Vector3 BezierCurve(float portion, Vector3 from, Vector3 mid, Vector3 to)
         {

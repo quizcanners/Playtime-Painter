@@ -25,6 +25,7 @@ namespace PlayerAndEditorGUI
             private GUIStyle playtime;
             private GUIStyle editorGuiInList;
             private GUIStyle playtimeInList;
+
             private CreateGUI generator;
 
             public GUIStyle Current
@@ -193,7 +194,7 @@ namespace PlayerAndEditorGUI
 
         #region Text
 
-        public static PegiGuiStyle WrappingText = new PegiGuiStyle(() => inspectingList ? 
+        public static PegiGuiStyle ClippingText = new PegiGuiStyle(() => inspectingList ? 
             new GUIStyle(GUI.skin.label){clipping = TextClipping.Clip,}.ToWhiteBg() :
             new GUIStyle(GUI.skin.label){clipping = TextClipping.Clip,});
 
@@ -247,7 +248,6 @@ namespace PlayerAndEditorGUI
         // Todo: Only give texture with BG for Lists
         private static GUIStyle ToWhiteBg(this GUIStyle style)
         {
-
 #if UNITY_2020_1_OR_NEWER
             if (inspectingList)
                 style.normal.background = Texture2D.linearGrayTexture;
@@ -267,8 +267,8 @@ namespace PlayerAndEditorGUI
             "Warning Text".nl(WarningText);
             WarningText.Nested_Inspect().nl();
 
-            "Wrapping Text".nl(WrappingText);
-            WrappingText.Nested_Inspect().nl();
+            "Wrapping Text".nl(ClippingText);
+            ClippingText.Nested_Inspect().nl();
 
             pegi.line();
             pegi.nl();
