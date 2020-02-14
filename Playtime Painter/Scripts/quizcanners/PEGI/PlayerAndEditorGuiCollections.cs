@@ -55,8 +55,8 @@ namespace PlayerAndEditorGUI
         private class CollectionInspector
         {
 
-            private const int UpDownWidth = 120;
-            private const int UpDownHeight = 30;
+            private const int UpDownWidth = 190;
+            private const int UpDownHeight = 20;
             private readonly Dictionary<IEnumerable, int> Indexes = new Dictionary<IEnumerable, int>();
 
             public int Index { get; set; } = -1;
@@ -76,6 +76,50 @@ namespace PlayerAndEditorGUI
             private int _lastElementToShow;
 
             private int _sectionStartIndex;
+
+            private readonly CountlessInt SectionOptimal = new CountlessInt();
+            private int GetOptimalSectionFor(int count)
+            {
+                int _sectionSizeOptimal;
+
+                const int listShowMax = 10;
+
+                if (count < listShowMax)
+                    return listShowMax;
+
+
+                if (count > listShowMax * 3)
+                    return listShowMax;
+
+                _sectionSizeOptimal = SectionOptimal[count];
+
+                if (_sectionSizeOptimal != 0)
+                    return _sectionSizeOptimal;
+
+                var bestdifference = 999;
+
+                for (var i = listShowMax - 2; i < listShowMax + 2; i++)
+                {
+                    var difference = i - (count % i);
+
+                    if (difference < bestdifference)
+                    {
+                        _sectionSizeOptimal = i;
+                        bestdifference = difference;
+                        if (difference == 0)
+                            break;
+                    }
+
+                }
+
+                SectionOptimal[count] = _sectionSizeOptimal;
+
+                return _sectionSizeOptimal;
+
+            }
+
+            private static IList addingNewOptionsInspected;
+            private string addingNewNameHolder = "Name";
 
             public IEnumerable<int> InspectionIndexes<T>(ICollection<T> list, ListMetaData listMeta = null)
             {
@@ -155,7 +199,7 @@ namespace PlayerAndEditorGUI
 
                 #endregion
 
-                PEGI_Styles.inspectingList = true;
+                PEGI_Styles.InList = true;
 
                 if (!_searching)
                 {
@@ -268,7 +312,7 @@ namespace PlayerAndEditorGUI
 
                 #region Finilize
 
-                PEGI_Styles.inspectingList = false;
+                PEGI_Styles.InList = false;
 
 
                 if (changed)
@@ -276,52 +320,7 @@ namespace PlayerAndEditorGUI
 
                 #endregion
             }
-
-
-            private readonly CountlessInt SectionOptimal = new CountlessInt();
-            private int GetOptimalSectionFor(int count)
-            {
-                int _sectionSizeOptimal;
-
-                const int listShowMax = 10;
-
-                if (count < listShowMax)
-                    return listShowMax;
-
-
-                if (count > listShowMax * 3)
-                    return listShowMax;
-
-                _sectionSizeOptimal = SectionOptimal[count];
-
-                if (_sectionSizeOptimal != 0)
-                    return _sectionSizeOptimal;
-
-                var bestdifference = 999;
-
-                for (var i = listShowMax - 2; i < listShowMax + 2; i++)
-                {
-                    var difference = i - (count % i);
-
-                    if (difference < bestdifference)
-                    {
-                        _sectionSizeOptimal = i;
-                        bestdifference = difference;
-                        if (difference == 0)
-                            break;
-                    }
-
-                }
-
-                SectionOptimal[count] = _sectionSizeOptimal;
-
-                return _sectionSizeOptimal;
-
-            }
-
-            private static IList addingNewOptionsInspected;
-            private string addingNewNameHolder = "Name";
-
+            
             public void listInstantiateNewName<T>()
             {
                 Msg.New.GetText().write(Msg.NameNewBeforeInstancing_1p.GetText().F(typeof(T).ToPegiStringType()), 30, PEGI_Styles.ExitLabel);

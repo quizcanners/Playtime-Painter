@@ -60,7 +60,7 @@ namespace PlaytimePainter {
 
         protected static GridNavigator Grid => GridNavigator.Inst();
 
-        private static BrushConfig GlobalBrush => Cfg.brushConfig;
+        private static Brush GlobalBrush => Cfg.Brush;
 
         public BrushTypes.Base GlobalBrushType => GlobalBrush.GetBrushType(TexMeta.TargetIsTexture2D());
 
@@ -618,7 +618,7 @@ namespace PlaytimePainter {
 
         }
 
-        public PlaytimePainter SetTexTarget(BrushConfig br)
+        public PlaytimePainter SetTexTarget(Brush br)
         {
             if (TexMeta.TargetIsTexture2D() != br.targetIsTex2D)
                 UpdateOrSetTexTarget(br.targetIsTex2D ? TexTarget.Texture2D : TexTarget.RenderTexture);
@@ -2100,7 +2100,7 @@ namespace PlaytimePainter {
                 pegi.toggle(ref cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config, "Tool Configuration");
 
                 if (!PainterDataAndConfig.hideDocumentation)
-                    pegi.fullWindowDocumentationClickOpen(LazyTranslations.InspectPainterDocumentation, MsgPainter.AboutPlaytimePainter.GetText());
+                    pegi.fullWindowDocumentationClickOpen(LazyLocalization.InspectPainterDocumentation, MsgPainter.AboutPlaytimePainter.GetText());
 
                 #endregion
 
@@ -2382,7 +2382,7 @@ namespace PlaytimePainter {
                                     var mode = GlobalBrush.GetBlitMode(cpu);
                                     var col = GlobalBrush.Color;
 
-                                    if ((cpu || !mode.UsingSourceTexture || GlobalBrush.srcColorUsage != BrushConfig.SourceTextureColorUsage.Unchanged)
+                                    if ((cpu || !mode.UsingSourceTexture || GlobalBrush.srcColorUsage != Brush.SourceTextureColorUsage.Unchanged)
                                         && !IsTerrainHeightTexture && !pegi.PaintingGameViewUI)
                                     {
                                         if (pegi.edit(ref col).changes(ref changed))
@@ -2928,7 +2928,7 @@ namespace PlaytimePainter {
                     SetOriginalShaderOnThis();
 
                 }
-                PainterCamera.Data.brushConfig.MaskSet(ColorMask.A, true);
+                PainterCamera.Data.Brush.MaskSet(ColorMask.A, true);
 
                 if (tht.GetTextureMeta() != null && NotUsingPreview && icon.OriginalShader.Click("Applies changes made in Unity terrain Editor", 45).changes(ref changed))
                 {

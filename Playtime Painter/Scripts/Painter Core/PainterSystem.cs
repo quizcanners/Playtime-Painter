@@ -45,7 +45,7 @@ namespace PlaytimePainter
         protected static PainterDataAndConfig Cfg => PainterCamera.Data;
         protected static PainterDataAndConfig TexMgmtData => PainterCamera.Data;
         protected static PainterCamera TexMGMT => PainterCamera.Inst;
-        protected static BrushConfig GlobalBrush => TexMgmtData.brushConfig;
+        protected static Brush GlobalBrush => TexMgmtData.Brush;
         protected static PlaytimePainter InspectedPainter => PlaytimePainter.inspected;
         protected static MeshEditorManager MeshMGMT => MeshEditorManager.Inst;
         protected static bool ApplicationIsQuitting => PainterSystem.applicationIsQuitting;
@@ -59,14 +59,13 @@ namespace PlaytimePainter
     
     public class PainterSystem {
 
-        protected static bool InspectAdvanced => BrushConfig.showAdvanced;
-        protected static PainterDataAndConfig TexMGMTdata => PainterCamera.Data;
+        protected static bool InspectAdvanced => Brush.showAdvanced;
         protected static PainterDataAndConfig Cfg => PainterCamera.Data;
         protected static PainterCamera TexMGMT => PainterCamera.Inst;
         protected static Transform RtBrush => TexMGMT.brushRenderer.transform;
         protected static Mesh BrushMesh { set { TexMGMT.brushRenderer.meshFilter.mesh = value; } }
-        protected static BrushConfig InspectedBrush => BrushConfig._inspectedBrush;
-        protected static BrushConfig GlobalBrush => TexMGMTdata.brushConfig;
+        protected static Brush InspectedBrush => Brush._inspectedBrush;
+        protected static Brush GlobalBrush => Cfg.Brush;
         protected static PlaytimePainter InspectedPainter => PlaytimePainter.inspected; 
         protected static TextureMeta InspectedImageMeta { get { var ip = InspectedPainter; return ip ? ip.TexMeta : null; } }
         protected static GridNavigator Grid => GridNavigator.Inst();

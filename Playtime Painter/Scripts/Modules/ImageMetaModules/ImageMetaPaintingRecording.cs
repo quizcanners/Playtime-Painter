@@ -246,7 +246,7 @@ namespace PlaytimePainter
 
             if (showRecording && !recording)
             {
-                var cfg = TexMGMTdata;
+                var cfg = Cfg;
 
                 if (!cfg)
                     return false;

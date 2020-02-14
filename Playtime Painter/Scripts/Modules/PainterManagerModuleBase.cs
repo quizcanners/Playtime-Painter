@@ -24,11 +24,11 @@ namespace PlaytimePainter.CameraModules {
 
     public interface IPainterManagerModuleBrush
     {
-        bool IsA3DBrush(PlaytimePainter painter, BrushConfig bc, ref bool overrideOther);
+        bool IsA3DBrush(PlaytimePainter painter, Brush bc, ref bool overrideOther);
 
-        void PaintRenderTexture(StrokeVector stroke, TextureMeta image, BrushConfig bc, PlaytimePainter painter);
+        void PaintRenderTexture(StrokeVector stroke, TextureMeta image, Brush bc, PlaytimePainter painter);
 
-        void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, TextureMeta image, BrushConfig bc, PlaytimePainter painter);
+        void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, TextureMeta image, Brush bc, PlaytimePainter painter);
 
         Shader GetPreviewShader(PlaytimePainter p);
 
@@ -36,10 +36,10 @@ namespace PlaytimePainter.CameraModules {
 
         Shader GetBrushShaderSingleBuffer(PlaytimePainter p);
 
-        bool IsEnabledFor(PlaytimePainter p, TextureMeta image, BrushConfig cfg);
+        bool IsEnabledFor(PlaytimePainter p, TextureMeta image, Brush cfg);
 
         
-        bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br);
+        bool BrushConfigPEGI(ref bool overrideBlitMode, Brush br);
        
     }
 

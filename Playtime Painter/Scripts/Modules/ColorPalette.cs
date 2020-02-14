@@ -12,7 +12,7 @@ namespace PlaytimePainter
     public class ColorScheme : AbstractCfg, IPEGI, IGotName, IPEGI_ListInspect
     {
         private static PainterDataAndConfig Cfg => PainterCamera.Data;
-        private static BrushConfig GlobalBrush => Cfg.brushConfig;
+        private static Brush GlobalBrush => Cfg.Brush;
         
         public string paletteName;
         private List<Color> _colors = new List<Color>();

@@ -222,7 +222,7 @@ namespace PlaytimePainter.MeshEditing {
 
             var mgm = MeshMGMT;
 
-            var sd = TexMGMTdata;
+            var sd = Cfg;
 
             var em = EditedMesh;
 
@@ -966,7 +966,7 @@ namespace PlaytimePainter.MeshEditing {
             var changed = false;
             
             var em = EditedMesh;
-            var br = Cfg.brushConfig;
+            var br = Cfg.Brush;
             var col = br.Color;
             var p = InspectedPainter;
 
@@ -1074,7 +1074,7 @@ namespace PlaytimePainter.MeshEditing {
 
                 else
                     foreach (var uvi in m.PointedUv.meshPoint.vertices)
-                        bcf.mask.SetValuesOn(ref uvi.color, Cfg.brushConfig.Color);
+                        bcf.mask.SetValuesOn(ref uvi.color, Cfg.Brush.Color);
 
                 EditedMesh.dirtyColor = true;
             }
@@ -1089,7 +1089,7 @@ namespace PlaytimePainter.MeshEditing {
             if (PointedLine.SameAsLastFrame)
                 return true;
 
-            var bcf = Cfg.brushConfig;
+            var bcf = Cfg.Brush;
 
             var a = PointedLine.points[0];
             var b = PointedLine.points[1];
@@ -1109,7 +1109,7 @@ namespace PlaytimePainter.MeshEditing {
             if (PointedTriangle.SameAsLastFrame)
                 return true;
 
-            var bcf = Cfg.brushConfig;
+            var bcf = Cfg.Brush;
 
             var c = bcf.Color;
 

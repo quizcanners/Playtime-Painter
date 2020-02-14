@@ -15,7 +15,7 @@ namespace PlaytimePainter.Examples
     public class PaintWithoutComponent : MonoBehaviour, IPEGI
     {
 
-        public BrushConfig brush = new BrushConfig();
+        public Brush brush = new Brush();
         private StrokeVector continiousStroke = new StrokeVector(); // For continious
         private PaintingReceiver previousTargetForContinious;
         public int shoots = 1;

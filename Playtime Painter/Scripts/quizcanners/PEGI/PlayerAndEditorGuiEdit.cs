@@ -2190,20 +2190,6 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool edit(ref SortingLayer sortingLayer) => select(ref sortingLayer);
-
-        public static bool edit(this string label, ref SortingLayer sortingLayer)
-        {
-            label.write();
-            return select(ref sortingLayer, SortingLayer.layers);
-        }
-
-        public static bool edit(this string label, int width, ref SortingLayer sortingLayer)
-        {
-            label.write(width);
-            return select(ref sortingLayer);
-        }
-
         public static bool edit<T>(ref T field, int width) where T : Object =>
 #if UNITY_EDITOR
                 !PaintingGameViewUI ? ef.edit(ref field, width) :
@@ -2314,8 +2300,7 @@ namespace PlayerAndEditorGUI
         public static bool edit_enter_Inspect<T>(this string label, ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : Object
             => label.edit_enter_Inspect(-1, ref obj, ref entered, current, selectFrom);
 
-        public static bool edit_enter_Inspect<T>(this string label, int width, ref T obj, ref int entered, int current,
-            List<T> selectFrom = null) where T : Object
+        public static bool edit_enter_Inspect<T>(this string label, int width, ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : Object
         {
             var changed = false;
 
@@ -2379,7 +2364,25 @@ namespace PlayerAndEditorGUI
 
         #endregion
 
-        #region Vectors
+        #region Sorting Layer
+        
+        public static bool edit(ref SortingLayer sortingLayer) => select(ref sortingLayer);
+
+        public static bool edit(this string label, ref SortingLayer sortingLayer)
+        {
+            label.write();
+            return select(ref sortingLayer, SortingLayer.layers);
+        }
+
+        public static bool edit(this string label, int width, ref SortingLayer sortingLayer)
+        {
+            label.write(width);
+            return select(ref sortingLayer);
+        }
+        
+        #endregion
+
+        #region Vectors & Rects
 
         public static bool edit(this string label, ref Quaternion qt)
         {
@@ -2468,6 +2471,60 @@ namespace PlayerAndEditorGUI
             }
 
             return false;
+        }
+
+        public static bool edit(ref RectOffset val, int min, int max)
+        {
+            int top = val.top;
+            int bottom = val.bottom;
+            int left = val.left;
+            int right = val.right;
+
+            if (
+                "Left".edit(70, ref left, min, max).nl() ||
+                "Right".edit(70, ref right, min, max).nl() ||
+                "Top".edit(70, ref top, min, max).nl() ||
+                "Bottom".edit(70, ref bottom, min, max).nl())
+            {
+                val = new RectOffset(left: left, right: right, top: top, bottom: bottom);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool edit(ref RectOffset val)
+        {
+            int top = val.top;
+            int bottom = val.bottom;
+            int left = val.left;
+            int right = val.right;
+
+            if (
+                "Left".edit(70, ref left).nl() ||
+                "Right".edit(70, ref right).nl() ||
+                "Top".edit(70, ref top).nl() ||
+                "Bottom".edit(70, ref bottom).nl())
+            {
+                val = new RectOffset(left: left, right: right, top: top, bottom: bottom);
+
+                return true;
+            }
+
+            return false;
+        }
+        
+        public static bool edit(this string label, ref RectOffset val)
+        {
+            label.nl();
+            return edit(ref val);
+        }
+
+        public static bool edit(this string label, ref RectOffset val, int min, int max)
+        {
+            label.nl();
+            return edit(ref val, min, max);
         }
 
         public static bool edit(this string label, ref Vector4 val)

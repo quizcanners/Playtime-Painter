@@ -115,7 +115,7 @@ namespace PlayerAndEditorGUI {
  
     }
     
-    public static partial class LazyTranslations {
+    public static partial class LazyLocalization {
 
         static TranslationsEnum iconTranslations = new TranslationsEnum();
 

@@ -366,7 +366,7 @@ namespace PlaytimePainter
 
         public void Texture2D_To_RenderTexture() => TextureToRenderTexture(texture2D);
 
-        public void TextureToRenderTexture(Texture2D tex) => PainterCamera.Inst.Render(tex, this.CurrentRenderTexture(), TexMGMTdata.pixPerfectCopy);
+        public void TextureToRenderTexture(Texture2D tex) => PainterCamera.Inst.Render(tex, this.CurrentRenderTexture(), Cfg.pixPerfectCopy);
 
         public void RenderTexture_To_Texture2D() => RenderTexture_To_Texture2D(texture2D);
 
@@ -786,7 +786,7 @@ namespace PlaytimePainter
             width = renderTextureSize;
             height = renderTextureSize;
             AddRenderTexture();
-            TexMGMTdata.imgMetas.Insert(0, this);
+            Cfg.imgMetas.Insert(0, this);
             destination = TexTarget.RenderTexture;
             return this;
         }
@@ -804,8 +804,8 @@ namespace PlaytimePainter
             else
                 other = tex;
 
-            if (!TexMGMTdata.imgMetas.Contains(this))
-                TexMGMTdata.imgMetas.Insert(0, this);
+            if (!Cfg.imgMetas.Contains(this))
+                Cfg.imgMetas.Insert(0, this);
             return this;
         }
 

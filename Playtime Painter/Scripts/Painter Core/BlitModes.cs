@@ -88,7 +88,7 @@ namespace PlaytimePainter {
             public virtual void SetGlobalShaderParameters()
             {
                 Shader.DisableKeyword("PREVIEW_SAMPLING_DISPLACEMENT");
-                QcUnity.ToggleShaderKeywords(TexMGMTdata.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
+                QcUnity.ToggleShaderKeywords(Cfg.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
             }
 
             public virtual BlitFunctions.BlitModeFunction BlitFunctionTex2D(TextureMeta id)
@@ -109,10 +109,10 @@ namespace PlaytimePainter {
             public virtual bool NeedsWorldSpacePosition =>
                 false; // WorldSpace effect needs to be rendered using terget's mesh to have world positions of the vertexes
 
-            public virtual Shader ShaderForDoubleBuffer => TexMGMTdata.brushDoubleBuffer;
-            public virtual Shader ShaderForSingleBuffer => TexMGMTdata.brushBlit;
-            public virtual Shader ShaderForAlphaOutput => TexMGMTdata.additiveAlphaOutput;
-            public virtual Shader ShaderForAlphaBufferBlit => TexMGMTdata.multishadeBufferBlit;
+            public virtual Shader ShaderForDoubleBuffer => Cfg.brushDoubleBuffer;
+            public virtual Shader ShaderForSingleBuffer => Cfg.brushBlit;
+            public virtual Shader ShaderForAlphaOutput => Cfg.additiveAlphaOutput;
+            public virtual Shader ShaderForAlphaBufferBlit => Cfg.multishadeBufferBlit;
 
             #region Inspect
 
@@ -125,7 +125,7 @@ namespace PlaytimePainter {
             public virtual bool ShowInDropdown()
             {
 
-                var cpu = BrushConfig.InspectedIsCpuBrush;
+                var cpu = Brush.InspectedIsCpuBrush;
 
                 if (!PlaytimePainter.inspected)
                     return (cpu ? SupportedByTex2D : SupportedByRenderTexturePair);
@@ -205,7 +205,7 @@ namespace PlaytimePainter {
 
                     if (blitMode.UsingSourceTexture && (id == null || id.TargetIsRenderTexture()))
                         MsgPainter.CopyFrom.GetText().selectOrAdd(70, ref InspectedBrush.selectedSourceTexture,
-                                ref TexMGMTdata.sourceTextures)
+                                ref Cfg.sourceTextures)
                             .nl(ref changed);
                 }
 
@@ -217,7 +217,7 @@ namespace PlaytimePainter {
 
             #endregion
 
-            public virtual void PrePaint(PlaytimePainter painter, BrushConfig br, StrokeVector st)
+            public virtual void PrePaint(Brush br, StrokeVector st, PlaytimePainter painter = null)
             {
             }
 
@@ -257,7 +257,7 @@ namespace PlaytimePainter {
             
             protected override string ShaderKeyword(TextureMeta id) => "BLIT_MODE_ADD";
 
-            public override Shader ShaderForSingleBuffer => TexMGMTdata.brushAdd;
+            public override Shader ShaderForSingleBuffer => Cfg.brushAdd;
             public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(TextureMeta id) => BlitFunctions.AddBlit;
 
             protected override MsgPainter Translation => MsgPainter.BlitModeAdd;
@@ -324,7 +324,7 @@ namespace PlaytimePainter {
 
             public override bool SupportedByTex2D => false;
             public override bool UsingSourceTexture => true;
-            public override Shader ShaderForSingleBuffer => TexMGMTdata.brushCopy;
+            public override Shader ShaderForSingleBuffer => Cfg.brushCopy;
 
             public Copy(int ind) : base(ind)
             {
@@ -381,8 +381,8 @@ namespace PlaytimePainter {
             public override bool SupportedBySingleBuffer => false;
             public override bool SupportedByTex2D => false;
 
-            public override Shader ShaderForDoubleBuffer => TexMGMTdata.brushBlurAndSmudge;
-            public override Shader ShaderForAlphaBufferBlit => TexMGMTdata.blurAndSmudgeBufferBlit;
+            public override Shader ShaderForDoubleBuffer => Cfg.brushBlurAndSmudge;
+            public override Shader ShaderForAlphaBufferBlit => Cfg.blurAndSmudgeBufferBlit;
 
             #region Inspector
 
@@ -445,7 +445,7 @@ namespace PlaytimePainter {
                 currentPixel.y = (int) Mathf.Floor(uv.y * Cfg.samplingMaskSize.y);
             }
 
-            public void FromColor(BrushConfig brush, Vector2 uv)
+            public void FromColor(Brush brush, Vector2 uv)
             {
                 var c = brush.Color;
 
@@ -548,7 +548,7 @@ namespace PlaytimePainter {
 
             private static readonly ShaderProperty.VectorValue BRUSH_SAMPLING_DISPLACEMENT = new ShaderProperty.VectorValue("_qcPp_brushSamplingDisplacement");
 
-            public override void PrePaint(PlaytimePainter painter, BrushConfig br, StrokeVector st)
+            public override void PrePaint(Brush br, StrokeVector st, PlaytimePainter painter = null)
             {
 
                 var v4 = new Vector4(st.unRepeatedUv.x, st.unRepeatedUv.y, Mathf.Floor(st.unRepeatedUv.x),
@@ -590,8 +590,8 @@ namespace PlaytimePainter {
             public override bool SupportedBySingleBuffer => false;
             public override bool SupportedByTex2D => false;
 
-            public override Shader ShaderForDoubleBuffer => TexMGMTdata.brushBlurAndSmudge;
-            public override Shader ShaderForAlphaBufferBlit => TexMGMTdata.blurAndSmudgeBufferBlit;
+            public override Shader ShaderForDoubleBuffer => Cfg.brushBlurAndSmudge;
+            public override Shader ShaderForAlphaBufferBlit => Cfg.blurAndSmudgeBufferBlit;
 
             #region Inspector
 
@@ -631,16 +631,16 @@ namespace PlaytimePainter {
 
             protected override string ShaderKeyword(TextureMeta id) => "BLIT_MODE_PROJECTION";
 
-            public override Shader ShaderForDoubleBuffer => TexMGMTdata.brushDoubleBufferProjector;
+            public override Shader ShaderForDoubleBuffer => Cfg.brushDoubleBufferProjector;
 
-            public override Shader ShaderForAlphaBufferBlit => TexMGMTdata.projectorBrushBufferBlit;
-            public override Shader ShaderForAlphaOutput => TexMGMTdata.additiveAlphaAndUVOutput;
+            public override Shader ShaderForAlphaBufferBlit => Cfg.projectorBrushBufferBlit;
+            public override Shader ShaderForAlphaOutput => Cfg.additiveAlphaAndUVOutput;
 
             public override void SetGlobalShaderParameters()
             {
                 base.SetGlobalShaderParameters();
                 QcUnity.SetShaderKeyword(PainterShaderVariables.USE_DEPTH_FOR_PROJECTOR,
-                    TexMGMTdata.useDepthForProjector);
+                    Cfg.useDepthForProjector);
             }
 
             public override bool NeedsWorldSpacePosition => true;
@@ -673,8 +673,8 @@ namespace PlaytimePainter {
 
                     "Projector:".nl();
 
-                    if (BrushConfig.showAdvanced)
-                        "Paint only visible (by Projector)".toggleIcon(ref TexMGMTdata.useDepthForProjector).nl();
+                    if (Brush.showAdvanced)
+                        "Paint only visible (by Projector)".toggleIcon(ref Cfg.useDepthForProjector).nl();
 
                     var painter = PlaytimePainter.inspected;
 
@@ -720,7 +720,7 @@ namespace PlaytimePainter {
 
             public override bool SupportsAlphaBufferPainting => false;
 
-            public override Shader ShaderForDoubleBuffer => TexMGMTdata.inkColorSpread;
+            public override Shader ShaderForDoubleBuffer => Cfg.inkColorSpread;
 
             #region Inspector
 

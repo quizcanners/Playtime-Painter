@@ -161,14 +161,14 @@ namespace PlaytimePainter
 
             #endregion
 
-            public void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, TextureMeta image, BrushConfig bc,
+            public void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, TextureMeta image, Brush bc,
                 PlaytimePainter painter) =>
                 painter.GetModule<TileableAtlasingComponentModule>()
                     ?.PaintTexture2D(stroke, brushAlpha, image, bc, painter);
 
-            public bool IsA3DBrush(PlaytimePainter painter, BrushConfig bc, ref bool overrideOther) => false;
+            public bool IsA3DBrush(PlaytimePainter painter, Brush bc, ref bool overrideOther) => false;
 
-            public void PaintRenderTexture(StrokeVector stroke, TextureMeta image, BrushConfig bc,
+            public void PaintRenderTexture(StrokeVector stroke, TextureMeta image, Brush bc,
                 PlaytimePainter painter)
             {
             }
@@ -181,9 +181,9 @@ namespace PlaytimePainter
 
             public Shader GetBrushShaderSingleBuffer(PlaytimePainter p) => null;
 
-            public bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br) => false;
+            public bool BrushConfigPEGI(ref bool overrideBlitMode, Brush br) => false;
 
-            public bool IsEnabledFor(PlaytimePainter painter, TextureMeta id, BrushConfig cfg) =>
+            public bool IsEnabledFor(PlaytimePainter painter, TextureMeta id, Brush cfg) =>
                 painter.IsAtlased() && !id.TargetIsRenderTexture();
 
         }

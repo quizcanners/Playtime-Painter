@@ -51,7 +51,7 @@ namespace PlaytimePainter {
 	    public Vector2 DeltaUv => uvTo - uvFrom;
         public Vector3 DeltaWorldPos => posTo - posFrom;
 
-        public PlaytimePainter Paint(PlaytimePainter painter, BrushConfig brush) => brush.Paint(this, painter);
+        public PlaytimePainter Paint(PlaytimePainter painter, Brush brush) => brush.Paint(this, painter);
         
 
         public bool CrossedASeam() {
@@ -267,10 +267,10 @@ namespace PlaytimePainter {
     {
         public StrokeVector stroke;
         public TextureMeta image;
-        public BrushConfig brush;
+        public Brush brush;
         public PlaytimePainter painter;
 
-        public BrushStrokePainterImage(StrokeVector s, TextureMeta id, BrushConfig br, PlaytimePainter pp)
+        public BrushStrokePainterImage(StrokeVector s, TextureMeta id, Brush br, PlaytimePainter pp)
         {
             stroke = s;
             image = id;

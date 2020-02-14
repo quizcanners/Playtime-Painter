@@ -243,7 +243,8 @@ namespace PlayerAndEditorGUI
 
         private static GUILayoutOption GuiMaxWidthOptionFrom(string text) => GUILayout.MaxWidth(Mathf.Min(_playtimeGuiWidth, ApproximateLength(text)));
 
-        private static GUILayoutOption GuiMaxWidthOptionFrom(GUIContent cnt) => GUILayout.MaxWidth(Mathf.Min(_playtimeGuiWidth, ApproximateLength(cnt.text)));
+        private static GUILayoutOption GuiMaxWidthOptionFrom(string txt, GUIStyle style) =>
+            GUILayout.MaxWidth(Mathf.Min(_playtimeGuiWidth, ApproximateLength(txt, style.fontSize)));
 
         private static GUILayoutOption GuiMaxWidthOptionFrom(GUIContent cnt, PEGI_Styles.PegiGuiStyle style) => 
             GUILayout.MaxWidth(Mathf.Min(_playtimeGuiWidth, ApproximateLength(cnt.text, style.Current.fontSize)));

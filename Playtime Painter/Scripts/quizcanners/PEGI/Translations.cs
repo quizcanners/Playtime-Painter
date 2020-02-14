@@ -15,7 +15,7 @@ namespace PlayerAndEditorGUI {
 
 
 
-    public static partial class LazyTranslations {
+    public static partial class LazyLocalization {
 
         public const int eng = (int)SystemLanguage.English;
         public const int ukr = (int)SystemLanguage.Ukrainian;

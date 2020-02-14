@@ -38,9 +38,9 @@ namespace PlaytimePainter.ComponentModules
 
         public virtual void Update_Brush_Parameters_For_Preview_Shader() { }
 
-        public virtual void BeforeGpuStroke(BrushConfig br, StrokeVector st, BrushTypes.Base type) { }
+        public virtual void BeforeGpuStroke(Brush br, StrokeVector st, BrushTypes.Base type) { }
 
-        public virtual void AfterGpuStroke(BrushConfig br, StrokeVector st, BrushTypes.Base type) {
+        public virtual void AfterGpuStroke(Brush br, StrokeVector st, BrushTypes.Base type) {
 
         }
         

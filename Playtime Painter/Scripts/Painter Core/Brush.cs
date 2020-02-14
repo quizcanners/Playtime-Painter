@@ -12,11 +12,9 @@ using PlaytimePainter.CameraModules;
 using PlaytimePainter.MeshEditing;
 
 namespace PlaytimePainter {
-
-
-  
+    
     [Serializable]
-    public class BrushConfig : PainterSystemCfg, IPEGI {
+    public class Brush : PainterSystemCfg, IPEGI {
 
         public enum SourceTextureColorUsage { Unchanged = 0, MultiplyByBrushColor = 1, ReplaceWithBrushColor = 2 }
         
@@ -167,7 +165,7 @@ namespace PlaytimePainter {
 
         #endregion
         
-        public BrushConfig() {
+        public Brush() {
             Color = Color.green;
             mask = new ColorMask();
             mask |= ColorMask.R | ColorMask.G | ColorMask.B;
@@ -188,7 +186,7 @@ namespace PlaytimePainter {
             var brushType = GetBrushType(cpu);
             var blitMode = GetBlitMode(cpu);
 
-            blitMode.PrePaint(painter, this, stroke);
+            blitMode.PrePaint(this, stroke, painter: painter);
 
             if (cpu) {
 
@@ -231,7 +229,7 @@ namespace PlaytimePainter {
 
         public bool showingSize = true;
         public static bool showAdvanced = false;
-        public static BrushConfig _inspectedBrush;
+        public static Brush _inspectedBrush;
         public static bool InspectedIsCpuBrush => PlaytimePainter.inspected ? InspectedImageMeta.TargetIsTexture2D() : _inspectedBrush.targetIsTex2D;
      
         public bool Mode_Type_PEGI()
@@ -730,7 +728,7 @@ namespace PlaytimePainter {
         public abstract class Base : AbstractCfg, IPEGI, IGotClassTag
         {
 
-            public virtual void OnPrepareRay(PlaytimePainter p, BrushConfig bc, ref Ray ray)
+            public virtual void OnPrepareRay(PlaytimePainter p, Brush bc, ref Ray ray)
             {
             }
 
@@ -791,7 +789,7 @@ namespace PlaytimePainter {
 
             private float jitterStrength = 0.1f;
 
-            public override void OnPrepareRay(PlaytimePainter p, BrushConfig bc, ref Ray rey)
+            public override void OnPrepareRay(PlaytimePainter p, Brush bc, ref Ray rey)
             {
                 // Quaternion * Vector3
 

@@ -14,7 +14,7 @@ namespace PlaytimePainter.Examples {
         public SphereCollider _collider;
 
 		public List<PaintingCollision> paintingOn = new List<PaintingCollision>();
-        public BrushConfig brush = new BrushConfig();
+        public Brush brush = new Brush();
 
         private void TryGetPainterFrom(GameObject go) {
 

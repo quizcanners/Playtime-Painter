@@ -11,7 +11,7 @@ namespace PlaytimePainter {
     public static class BlitFunctions {
 
         public delegate void BlitModeFunction(ref Color dst);
-        public delegate void PaintTexture2DMethod(StrokeVector stroke, float brushAlpha, TextureMeta image, BrushConfig bc, PlaytimePainter painter);
+        public delegate void PaintTexture2DMethod(StrokeVector stroke, float brushAlpha, TextureMeta image, Brush bc, PlaytimePainter painter);
 
         public delegate bool AlphaModeDlg();
 
@@ -115,7 +115,7 @@ namespace PlaytimePainter {
             if (a) cDst.a -= alpha * Mathf.Max(0, cDst.a - cSrc.a);
         }
 
-        public static void PrepareCpuBlit(this BrushConfig bc, TextureMeta id)
+        public static void PrepareCpuBlit(this Brush bc, TextureMeta id)
         {
             half = (bc.Size(false)) / 2;
 
@@ -136,7 +136,7 @@ namespace PlaytimePainter {
 
         }
 
-        public static void Paint(Vector2 uvCoords, float brushAlpha, Texture2D texture, Vector2 offset, Vector2 tiling, BrushConfig bc, PlaytimePainter pntr)
+        public static void Paint(Vector2 uvCoords, float brushAlpha, Texture2D texture, Vector2 offset, Vector2 tiling, Brush bc, PlaytimePainter pntr)
         {
             var id = texture.GetTextureMeta();
 
@@ -146,7 +146,7 @@ namespace PlaytimePainter {
             Paint(new StrokeVector(uvCoords), brushAlpha, texture.GetTextureMeta(), bc, pntr);
         }
 
-        public static void Paint(StrokeVector stroke, float brushAlpha, TextureMeta image, BrushConfig bc, PlaytimePainter painter)
+        public static void Paint(StrokeVector stroke, float brushAlpha, TextureMeta image, Brush bc, PlaytimePainter painter)
         {
 
             if (image?.Pixels == null)

@@ -990,7 +990,7 @@ namespace PlaytimePainter.MeshEditing
 
         public void PaintAll(Color c)
         {
-            var bm = Cfg.brushConfig.mask;//glob.getBrush().brushMask;
+            var bm = Cfg.Brush.mask;//glob.getBrush().brushMask;
             foreach (var point in meshPoints)
                 foreach (var vertex in point.vertices)
                     bm.SetValuesOn(ref vertex.color, c);
@@ -1000,7 +1000,7 @@ namespace PlaytimePainter.MeshEditing
 
         public void SetShadowAll(Color col)
         {
-            var bm = Cfg.brushConfig.mask;
+            var bm = Cfg.Brush.mask;
 
             foreach (var v in meshPoints)
                 bm.SetValuesOn(ref v.shadowBake, col);

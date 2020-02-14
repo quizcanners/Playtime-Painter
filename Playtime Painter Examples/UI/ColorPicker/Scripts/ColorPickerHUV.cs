@@ -29,7 +29,7 @@ namespace PlaytimePainter.Examples {
 
             Color col = Color.HSVToRGB(hue, Saturation, Value);
 
-            var bc = PainterCamera.Data.brushConfig;
+            var bc = PainterCamera.Data.Brush;
 
             col.a = bc.Color.a;
 
@@ -57,7 +57,7 @@ namespace PlaytimePainter.Examples {
             base.Update();
 
             if (PainterCamera.Data) {
-                var col = PainterCamera.Data.brushConfig.Color;
+                var col = PainterCamera.Data.Brush.Color;
 
                 if ((!ColorPickerContrast.inst || !ColorPickerContrast.inst.mouseDown) && lastValue.DistanceRgba(col)>0.002f) {
                     

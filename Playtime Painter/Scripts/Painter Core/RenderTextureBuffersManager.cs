@@ -616,9 +616,9 @@ namespace PlaytimePainter {
 
         }
 
-        public static float StrokeWidth(this BrushConfig br, float pixWidth, bool world) => br.Size(world) / (pixWidth) * 2 * PainterCamera.OrthographicSize;
+        public static float StrokeWidth(this Brush br, float pixWidth, bool world) => br.Size(world) / (pixWidth) * 2 * PainterCamera.OrthographicSize;
 
-        public static bool IsSingleBufferBrush(this BrushConfig b) => (PainterCamera.Inst.IsLinearColorSpace && b.GetBlitMode(false).SupportedBySingleBuffer && b.GetBrushType(false).SupportedBySingleBuffer && b.PaintingRGB);
+        public static bool IsSingleBufferBrush(this Brush b) => (PainterCamera.Inst.IsLinearColorSpace && b.GetBlitMode(false).SupportedBySingleBuffer && b.GetBrushType(false).SupportedBySingleBuffer && b.PaintingRGB);
 
         public static bool IsProjected(this Material mat) => mat && mat.shaderKeywords.Contains(PainterShaderVariables.UV_PROJECTED);
 

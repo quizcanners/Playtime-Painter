@@ -64,7 +64,7 @@ namespace PlaytimePainter.ComponentModules {
         public override void Update_Brush_Parameters_For_Preview_Shader() =>
             QcUnity.ToggleShaderKeywords(!painter.IsAtlased(), PainterShaderVariables.UV_NORMAL, PainterShaderVariables.UV_ATLASED);
         
-        public bool PaintTexture2D(StrokeVector stroke, float brushAlpha, TextureMeta image, BrushConfig bc, PlaytimePainter painter) {
+        public bool PaintTexture2D(StrokeVector stroke, float brushAlpha, TextureMeta image, Brush bc, PlaytimePainter painter) {
             
             if (!painter.IsAtlased()) return false;
             
@@ -208,7 +208,7 @@ namespace PlaytimePainter.ComponentModules {
        
         #endregion
 
-        public override void BeforeGpuStroke(BrushConfig br, StrokeVector st, BrushTypes.Base type)
+        public override void BeforeGpuStroke(Brush br, StrokeVector st, BrushTypes.Base type)
         {
             if (!br.IsA3DBrush(painter) || !painter.IsAtlased()) return;
             
@@ -216,7 +216,7 @@ namespace PlaytimePainter.ComponentModules {
             PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(ats.x, ats.y, atlasRows, 1);
         }
 
-        public override void AfterGpuStroke(BrushConfig br, StrokeVector st, BrushTypes.Base type) {
+        public override void AfterGpuStroke(Brush br, StrokeVector st, BrushTypes.Base type) {
             if (br.IsA3DBrush(painter) && painter.IsAtlased())
                 PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
         }

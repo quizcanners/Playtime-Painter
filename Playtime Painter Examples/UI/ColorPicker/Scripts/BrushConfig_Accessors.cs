@@ -8,7 +8,7 @@ namespace PlaytimePainter.Examples {
     public class BrushConfig_Accessors : MonoBehaviour {
 
         #region Brush Configurations
-        BrushConfig Brush => PainterCamera.Data.brushConfig;
+        Brush Brush => PainterCamera.Data.Brush;
 
         public List<Graphic> graphicToShowScale = new List<Graphic>();
 

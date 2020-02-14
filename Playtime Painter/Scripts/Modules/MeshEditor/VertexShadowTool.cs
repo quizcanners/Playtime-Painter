@@ -11,7 +11,7 @@ namespace PlaytimePainter.MeshEditing
             if ((EditorInputManager.GetMouseButton(0))) {
                 if (PointedUv.SameAsLastFrame)
                     return true;
-                var bcf = Cfg.brushConfig;
+                var bcf = Cfg.Brush;
                 //bcf.colorLinear.ToV4(ref PointedVertex.shadowBake, bcf.mask);
                 bcf.mask.SetValuesOn(ref PointedVertex.shadowBake, bcf.Color);
                 EditedMesh.Dirty = true;
@@ -26,7 +26,7 @@ namespace PlaytimePainter.MeshEditing
             {
                 if (PointedTriangle.SameAsLastFrame)
                     return true;
-                BrushConfig bcf = Cfg.brushConfig;
+                Brush bcf = Cfg.Brush;
                 foreach (var uv in PointedTriangle.vertexes)
                 //bcf.colorLinear.ToV4(ref uv.meshPoint.shadowBake, bcf.mask);
                 bcf.mask.SetValuesOn(ref uv.meshPoint.shadowBake, bcf.Color);

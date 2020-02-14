@@ -108,14 +108,14 @@ namespace PlaytimePainter {
 
             public Shader GetBrushShaderSingleBuffer(PlaytimePainter p) => null;
 
-            public bool IsA3DBrush(PlaytimePainter painter, BrushConfig bc, ref bool overrideOther)
+            public bool IsA3DBrush(PlaytimePainter painter, Brush bc, ref bool overrideOther)
             {
                 if (!painter.GetVolumeTexture()) return false;
                 overrideOther = true;
                 return true;
             }
 
-            public void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, TextureMeta image, BrushConfig bc,
+            public void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, TextureMeta image, Brush bc,
                 PlaytimePainter painter)
             {
 
@@ -187,10 +187,10 @@ namespace PlaytimePainter {
 
             }
 
-            public bool IsEnabledFor(PlaytimePainter painter, TextureMeta img, BrushConfig cfg) =>
+            public bool IsEnabledFor(PlaytimePainter painter, TextureMeta img, Brush cfg) =>
                 img.GetVolumeTextureController();
 
-            public void PaintRenderTexture(StrokeVector stroke, TextureMeta image, BrushConfig bc,
+            public void PaintRenderTexture(StrokeVector stroke, TextureMeta image, Brush bc,
                 PlaytimePainter painter)
             {
                 var vt = painter.GetVolumeTexture();
@@ -308,7 +308,7 @@ namespace PlaytimePainter {
 
             public string ProjectorTagToReplace() => "RenderType";
 
-            public Shader ProjectorShaderToReplaceWith() => TexMGMTdata.rayTraceOutput;
+            public Shader ProjectorShaderToReplaceWith() => Cfg.rayTraceOutput;
 
             public Color CameraReplacementClearColor() => new Color(0, 0, 1, 1);
 
@@ -342,7 +342,7 @@ namespace PlaytimePainter {
 
             private bool _exploreRayTaceCamera;
 
-            public bool BrushConfigPEGI(ref bool overrideBlitMode, BrushConfig br)
+            public bool BrushConfigPEGI(ref bool overrideBlitMode, Brush br)
             {
 
                 var changed = false;
@@ -389,7 +389,7 @@ namespace PlaytimePainter {
                     if (!cpuBlit)
                     {
 
-                        if (BrushConfig.showAdvanced || _enableRayTracing)
+                        if (Brush.showAdvanced || _enableRayTracing)
                         {
                             "Ray-Tracing".toggleIcon(ref _enableRayTracing, true).changes(ref changed);
 
@@ -412,7 +412,7 @@ namespace PlaytimePainter {
 
                         }
 
-                        if (smoothing > 0 || BrushConfig.showAdvanced)
+                        if (smoothing > 0 || Brush.showAdvanced)
                         {
                             pegi.nl();
                             "Smoothing".edit(70, ref smoothing, 0, 1).changes(ref changed);

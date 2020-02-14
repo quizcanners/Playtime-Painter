@@ -187,7 +187,7 @@ namespace PlaytimePainter
         public string atlasFolderName = "Atlases";
 
         public bool enablePainterUIonPlay;
-        public BrushConfig brushConfig;
+        public Brush Brush;
         public bool showColorSliders = true;
         public bool disableNonMeshColliderInPlayMode;
 
@@ -475,7 +475,7 @@ namespace PlaytimePainter
 
                 pegi.nl();
                 
-                LazyTranslations.LanguageSelection().nl();
+                LazyLocalization.LanguageSelection().nl();
                 #endif
 
             }
@@ -594,8 +594,8 @@ namespace PlaytimePainter
             this.LoadCfgData();
            //Decode(stdData);
 
-            if (brushConfig == null)
-                brushConfig = new BrushConfig();
+            if (Brush == null)
+                Brush = new Brush();
 
             if (meshPackagingSolutions.IsNullOrEmpty())
                 ResetMeshPackagingProfiles();
@@ -619,7 +619,7 @@ namespace PlaytimePainter
             }
 
             if (systemLanguage != -1)
-                LazyTranslations._systemLanguage = systemLanguage;
+                LazyLocalization._systemLanguage = systemLanguage;
         }
 
         public void ManagedOnDisable() {
@@ -636,7 +636,7 @@ namespace PlaytimePainter
 
             stdData = Encode().ToString();
             
-            systemLanguage = LazyTranslations._systemLanguage;
+            systemLanguage = LazyLocalization._systemLanguage;
         }
     }
 

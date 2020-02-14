@@ -149,7 +149,7 @@ namespace PlaytimePainter
 
 
 
-                if (BrushConfig.InspectedIsCpuBrush || !PainterCamera.Inst)
+                if (Brush.InspectedIsCpuBrush || !PainterCamera.Inst)
                     return false;
 
                 var changed = false;
@@ -160,7 +160,7 @@ namespace PlaytimePainter
 
                 var p = InspectedPainter;
 
-                if (BrushConfig.showAdvanced || InspectedBrush.useMask)
+                if (Brush.showAdvanced || InspectedBrush.useMask)
                 {
 
                     if (adv || br.useMask)
@@ -170,7 +170,7 @@ namespace PlaytimePainter
                     if (br.useMask)
                     {
 
-                        pegi.selectOrAdd(ref br.selectedSourceMask, ref TexMGMTdata.masks).nl(ref changed);
+                        pegi.selectOrAdd(ref br.selectedSourceMask, ref Cfg.masks).nl(ref changed);
 
                         if (adv)
                             "Mask greyscale".toggleIcon("Otherwise will use alpha", ref br.maskFromGreyscale)
@@ -200,12 +200,12 @@ namespace PlaytimePainter
 
             #endregion
             
-            public virtual void OnShaderBrushUpdate(BrushConfig brush)
+            public virtual void OnShaderBrushUpdate(Brush brush)
             {
 
             }
 
-            public virtual void PaintToTexture2D(PlaytimePainter painter, BrushConfig br, StrokeVector st)
+            public virtual void PaintToTexture2D(PlaytimePainter painter, Brush br, StrokeVector st)
             {
 
                 var deltaUv = st.uvTo - st.uvFrom;
@@ -273,9 +273,9 @@ namespace PlaytimePainter
                 painter.AfterStroke(st);
             }
 
-            public virtual void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st) => PaintRenderTexture(painter.TexMeta, br, st, painter);
+            public virtual void PaintRenderTexture(PlaytimePainter painter, Brush br, StrokeVector st) => PaintRenderTexture(painter.TexMeta, br, st, painter);
             
-            public virtual void PaintRenderTexture(TextureMeta textureMeta, BrushConfig br, StrokeVector st, PlaytimePainter painter = null)
+            public virtual void PaintRenderTexture(TextureMeta textureMeta, Brush br, StrokeVector st, PlaytimePainter painter = null)
             {
 
                 BeforeStroke(br, st, painter);
@@ -307,7 +307,7 @@ namespace PlaytimePainter
 
             }
             
-            public void BeforeStroke(BrushConfig br, StrokeVector st, PlaytimePainter painter = null)
+            public void BeforeStroke(Brush br, StrokeVector st, PlaytimePainter painter = null)
             {
 
                 var cam = TexMGMT;
@@ -320,7 +320,7 @@ namespace PlaytimePainter
                         p.BeforeGpuStroke(br, st, this);
             }
 
-            public virtual void AfterStroke_Painter(PlaytimePainter painter, BrushConfig br, StrokeVector st,
+            public virtual void AfterStroke_Painter(PlaytimePainter painter, Brush br, StrokeVector st,
                 bool alphaBuffer, TextureMeta id)
             {
 
@@ -344,7 +344,7 @@ namespace PlaytimePainter
                     p.AfterGpuStroke(br, st, this);
             }
 
-            protected static void AfterStroke_NoPainter(BrushConfig br, bool alphaBuffer, RenderTexture rt = null)
+            protected static void AfterStroke_NoPainter(Brush br, bool alphaBuffer, RenderTexture rt = null)
             {
 
                 if (br.useMask && br.randomMaskOffset)
@@ -387,7 +387,7 @@ namespace PlaytimePainter
 
             public override bool IsPixelPerfect => true;
 
-            public override void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st)
+            public override void PaintRenderTexture(PlaytimePainter painter, Brush br, StrokeVector st)
             {
 
                 BeforeStroke(br, st, painter);
@@ -442,7 +442,7 @@ namespace PlaytimePainter
 
             protected override MsgPainter Translation => MsgPainter.BrushTypeNormal;
             
-            public static void Paint(Vector2 uv, BrushConfig br, RenderTexture rt) {
+            public static void Paint(Vector2 uv, Brush br, RenderTexture rt) {
 
                 var stroke = new StrokeVector(uv) {
                     firstStroke = false
@@ -469,7 +469,7 @@ namespace PlaytimePainter
 
             }
 
-            public static void Paint(RenderTexture renderTexture, BrushConfig br, StrokeVector st,
+            public static void Paint(RenderTexture renderTexture, Brush br, StrokeVector st,
                 PlaytimePainter painter = null) => _inst.PaintRenderTexture(renderTexture.GetTextureMeta(), br, st);
             
 
@@ -518,9 +518,9 @@ namespace PlaytimePainter
                 new ShaderProperty.VectorValue("_DecalParameters");
 
 
-            public override void OnShaderBrushUpdate(BrushConfig brush)
+            public override void OnShaderBrushUpdate(Brush brush)
             {
-                var vd = TexMGMTdata.decals.TryGet(brush.selectedDecal);
+                var vd = Cfg.decals.TryGet(brush.selectedDecal);
 
                 if (vd == null)
                     return;
@@ -534,7 +534,7 @@ namespace PlaytimePainter
                     0);
             }
 
-            public override void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st)
+            public override void PaintRenderTexture(PlaytimePainter painter, Brush br, StrokeVector st)
             {
 
                 BeforeStroke(br, st, painter);
@@ -596,7 +596,7 @@ namespace PlaytimePainter
                     painter.AfterStroke(st);
             }
 
-            public override void AfterStroke_Painter(PlaytimePainter painter, BrushConfig br, StrokeVector st,
+            public override void AfterStroke_Painter(PlaytimePainter painter, Brush br, StrokeVector st,
                 bool alphaBuffer, TextureMeta id)
             {
                 base.AfterStroke_Painter(painter, br, st, alphaBuffer, id);
@@ -604,7 +604,7 @@ namespace PlaytimePainter
                 if (br.rotationMethod != RotationMethod.Random) return;
 
                 br.decalAngle = Random.Range(-90f, 450f);
-                OnShaderBrushUpdate(Cfg.brushConfig);
+                OnShaderBrushUpdate(Cfg.Brush);
             }
 
             #region Inspector
@@ -616,9 +616,9 @@ namespace PlaytimePainter
 
                 var changed = false;
 
-                pegi.select_Index(ref InspectedBrush.selectedDecal, TexMGMTdata.decals).changes(ref changed);
+                pegi.select_Index(ref InspectedBrush.selectedDecal, Cfg.decals).changes(ref changed);
 
-                var decal = TexMGMTdata.decals.TryGet(InspectedBrush.selectedDecal);
+                var decal = Cfg.decals.TryGet(InspectedBrush.selectedDecal);
 
                 if (decal == null)
                 {
@@ -735,7 +735,7 @@ namespace PlaytimePainter
 
             protected override MsgPainter Translation => MsgPainter.BrushTypeLazy;
 
-            public override void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st)
+            public override void PaintRenderTexture(PlaytimePainter painter, Brush br, StrokeVector st)
             {
 
                 BeforeStroke(br, st, painter);
@@ -893,7 +893,7 @@ namespace PlaytimePainter
 
             public override bool NeedsGrid => Cfg.useGridForBrush;
 
-            private static void PrepareSphereBrush(TextureMeta id, BrushConfig br, StrokeVector stroke, out bool alphaBuffer,
+            private static void PrepareSphereBrush(TextureMeta id, Brush br, StrokeVector stroke, out bool alphaBuffer,
                 PlaytimePainter painter = null)
             {
 
@@ -911,7 +911,7 @@ namespace PlaytimePainter
                 PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
             }
 
-            public override void PaintRenderTexture(PlaytimePainter painter, BrushConfig br, StrokeVector st)
+            public override void PaintRenderTexture(PlaytimePainter painter, Brush br, StrokeVector st)
             {
 
                 var id = painter.TexMeta;
@@ -931,10 +931,10 @@ namespace PlaytimePainter
                 AfterStroke_Painter(painter, br, st, alphaBuffer, id);
             }
 
-            public static void Paint(RenderTexture rt, GameObject go, SkinnedMeshRenderer skinner, BrushConfig br,
+            public static void Paint(RenderTexture rt, GameObject go, SkinnedMeshRenderer skinner, Brush br,
                 StrokeVector st, int subMeshIndex)
             {
-                br.GetBlitMode(false).PrePaint(null, br, st);
+                br.GetBlitMode(false).PrePaint(br, st);
 
                 bool alphaBuffer;
 
@@ -944,10 +944,10 @@ namespace PlaytimePainter
                 AfterStroke_NoPainter(br, alphaBuffer, rt);
             }
 
-            public static void Paint(RenderTexture rt, GameObject go, Mesh mesh, BrushConfig br, StrokeVector st,
+            public static void Paint(RenderTexture rt, GameObject go, Mesh mesh, Brush br, StrokeVector st,
                 List<int> subMeshIndex)
             {
-                br.GetBlitMode(false).PrePaint(null, br, st);
+                br.GetBlitMode(false).PrePaint(br, st);
 
                 bool alphaBuffer;
 
@@ -957,11 +957,11 @@ namespace PlaytimePainter
                 AfterStroke_NoPainter(br, alphaBuffer, rt);
             }
 
-            public static void PaintAtlased(RenderTexture rt, GameObject go, Mesh mesh, BrushConfig br, StrokeVector st,
+            public static void PaintAtlased(RenderTexture rt, GameObject go, Mesh mesh, Brush br, StrokeVector st,
                 List<int> subMeshIndex, int aTexturesInRow)
             {
 
-                br.GetBlitMode(false).PrePaint(null, br, st);
+                br.GetBlitMode(false).PrePaint(br, st);
 
                 PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, aTexturesInRow, 1);
 

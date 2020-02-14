@@ -357,7 +357,7 @@ namespace PlaytimePainter {
 
         #region Brush Shader MGMT
         
-        public void SHADER_BRUSH_UPDATE(BrushConfig brush = null, float brushAlpha = 1, TextureMeta id = null, PlaytimePainter painter = null)
+        public void SHADER_BRUSH_UPDATE(Brush brush = null, float brushAlpha = 1, TextureMeta id = null, PlaytimePainter painter = null)
         {
             if (brush == null)
                 brush = GlobalBrush;
@@ -449,7 +449,7 @@ namespace PlaytimePainter {
             }
         }
 
-        public void SHADER_STROKE_SEGMENT_UPDATE(BrushConfig bc, float brushAlpha, TextureMeta id, StrokeVector stroke, out bool alphaBuffer, PlaytimePainter pntr = null)
+        public void SHADER_STROKE_SEGMENT_UPDATE(Brush bc, float brushAlpha, TextureMeta id, StrokeVector stroke, out bool alphaBuffer, PlaytimePainter pntr = null)
         {
             CheckPaintingBuffers();
             

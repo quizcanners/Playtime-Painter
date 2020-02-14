@@ -387,7 +387,7 @@ namespace PlaytimePainter.CameraModules
                 set.lastProduct = tex;
 
 #if UNITY_EDITOR
-                set.lastProduct = tex.SaveTextureAsAsset(TexMGMTdata.texturesFolderName, ref set.name, false);
+                set.lastProduct = tex.SaveTextureAsAsset(Cfg.texturesFolderName, ref set.name, false);
 
                 var importer = set.lastProduct.GetTextureImporter();
 

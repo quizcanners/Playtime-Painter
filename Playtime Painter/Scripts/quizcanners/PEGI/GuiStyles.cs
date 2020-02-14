@@ -1,5 +1,6 @@
 ﻿
 using System.Linq.Expressions;
+using QuizCannersUtilities;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -10,8 +11,7 @@ namespace PlayerAndEditorGUI
 
     public static class PEGI_Styles
     {
-        public static bool inspectingList;
-
+        public static bool InList;
         private static bool InGameView => pegi.PaintingGameViewUI;
 
         public static Color listReadabilityRed = new Color(1, 0.85f, 0.85f, 1);
@@ -34,14 +34,14 @@ namespace PlayerAndEditorGUI
                 {
                     if (InGameView)
                     {
-                        if (inspectingList)
+                        if (InList)
                             return playtimeInList ?? (playtimeInList = generator());
                         else
                             return playtime ?? (playtime = generator());
                     }
                     else
                     {
-                        if (inspectingList)
+                        if (InList)
                             return editorGuiInList ?? (editorGuiInList = generator());
                         else
                             return editorGui ?? (editorGui = generator());
@@ -53,6 +53,10 @@ namespace PlayerAndEditorGUI
             {
                 this.generator = generator;
             }
+
+            #region Inspector
+
+            private int _inspectedProperty = -1;
 
             public bool Inspect()
             {
@@ -66,9 +70,28 @@ namespace PlayerAndEditorGUI
                 var fs = cur.fontSize;
                 if ("Font Size".edit(90, ref fs).nl())
                     cur.fontSize = fs;
+                
+                if ("Padding".foldout(ref _inspectedProperty, 0).nl())
+                {
+                    RectOffset pad = cur.padding;
+
+                    if (pegi.edit(ref pad, -15, 15).nl())
+                        cur.padding = pad;
+               
+                }
+
+                if ("Margins".foldout(ref _inspectedProperty, 1).nl())
+                {
+                    RectOffset mar = cur.margin;
+
+                    if (pegi.edit(ref mar, -15, 15).nl())
+                        cur.margin = mar;
+
+                }
 
                 return false;
             }
+            #endregion
         }
         
         #region Button
@@ -153,28 +176,30 @@ namespace PlayerAndEditorGUI
 
         public static PegiGuiStyle EnterLabel = new PegiGuiStyle(() => new GUIStyle
         {
-            margin = new RectOffset(10, 10, 10, 10),
-            fontSize = 12,
+            padding = InGameView ? new RectOffset(0, 0, 4, 7) : new RectOffset(10, 10, 10, 0),
+            margin = InGameView ? new RectOffset(0, 0, 3, 3) : new RectOffset(0, 0, 0, 0),
+            fontSize = InGameView ? 14 : 12,
             richText = true,
             wordWrap = false,
             clipping = TextClipping.Clip,
             alignment = TextAnchor.MiddleLeft,
             fontStyle = FontStyle.Bold,
-            contentOffset = new Vector2(0, -6),
+            contentOffset = InGameView ? new Vector2(0,0) : new Vector2(0, -6),
             normal = { textColor = InGameView ? new Color32(255, 255, 220, 255) : new Color32(43, 30, 77, 255) },
         });
 
         public static PegiGuiStyle ExitLabel = new PegiGuiStyle(() => new GUIStyle
         {
-            margin = new RectOffset(10, 10, 10, 10),
+            padding = InGameView ? new RectOffset(0, 0, 4, 7) : new RectOffset(10, 10, 10, 0),
+            margin = InGameView ? new RectOffset(0, 0, 3, 3) : new RectOffset(0, 0, 0, 0),
             fontSize = 13,
             richText = true,
             wordWrap = false,
             clipping = TextClipping.Clip,
             alignment = TextAnchor.MiddleLeft,
             fontStyle = FontStyle.Italic,
-            contentOffset = new Vector2(0, -6),
-            normal = { textColor = InGameView ? new Color32(255, 220, 220, 255) : new Color32(77, 77, 77, 255) },
+            contentOffset = InGameView ? new Vector2(0, 0) : new Vector2(0, -6),
+            normal = { textColor = InGameView ? new Color32(160, 160, 160, 255) : new Color32(77, 77, 77, 255) },
         });
 
         public static PegiGuiStyle FoldedOutLabel = new PegiGuiStyle(() => new GUIStyle
@@ -194,8 +219,8 @@ namespace PlayerAndEditorGUI
 
         #region Text
 
-        public static PegiGuiStyle ClippingText = new PegiGuiStyle(() => inspectingList ? 
-            new GUIStyle(GUI.skin.label){clipping = TextClipping.Clip,}.ToWhiteBg() :
+        public static PegiGuiStyle ClippingText = new PegiGuiStyle(() => InList ? 
+            new GUIStyle(GUI.skin.label){clipping = TextClipping.Clip,}.ToGrayBg() :
             new GUIStyle(GUI.skin.label){clipping = TextClipping.Clip,});
 
 
@@ -246,10 +271,10 @@ namespace PlayerAndEditorGUI
         #endregion
 
         // Todo: Only give texture with BG for Lists
-        private static GUIStyle ToWhiteBg(this GUIStyle style)
+        private static GUIStyle ToGrayBg(this GUIStyle style)
         {
 #if UNITY_2020_1_OR_NEWER
-            if (inspectingList)
+            if (InList && !InGameView)
                 style.normal.background = Texture2D.linearGrayTexture;
 #endif
             return style;
@@ -260,27 +285,41 @@ namespace PlayerAndEditorGUI
         private static GUIStyle testImageButton;
         private static GUISkin skin;
 
+        private static int _inspectedFont = -1;
+        private static int _iteratiedFont;
+
+        private static bool InspectInteranl(this string StyleName, PegiGuiStyle style)
+        {
+            if (StyleName.enter(ref _inspectedFont, _iteratiedFont).nl())
+            {
+                "Example text in {0} style ".F(StyleName).nl(style);
+                style.Nested_Inspect().nl();
+            }
+
+            _iteratiedFont++;
+
+            return false;
+        }
+
         public static bool Inspect()
         {
-            var changed = false;
+            _iteratiedFont = 0;
 
-            "Warning Text".nl(WarningText);
-            WarningText.Nested_Inspect().nl();
+            "Clipping Text".InspectInteranl(ClippingText);
 
-            "Wrapping Text".nl(ClippingText);
-            ClippingText.Nested_Inspect().nl();
+            "Overfloaw text".InspectInteranl(OverflowText);
+            
+            "Text Button".InspectInteranl(ClickableText);
 
-            pegi.line();
-            pegi.nl();
+            "Enter Label".InspectInteranl(EnterLabel);
 
-            "ClickableText".nl(ClickableText);
-            ClickableText.Nested_Inspect().nl();
+            "Exit Label".InspectInteranl(ExitLabel);
 
+            "Hint Text".InspectInteranl(HintText);
 
-            "Hint: Theese changes will not be saved, for tunning only. They are hardcoded.".writeHint();
-            HintText.Nested_Inspect().nl();
+            "Warning Text".InspectInteranl(WarningText);
 
-            return changed;
+            return false;
         }
 
         private static void Refresh()

@@ -214,42 +214,42 @@ MonoBehaviour:
   vectorsFolderName: Vectors
   atlasFolderName: Atlases
   enablePainterUIonPlay: 1
-  brushConfig:
-    _inGpuBrushType: 3
+  Brush:
+    _inGpuBrushType: 0
     _inCpuBrushType: 0
-    _inGpuBlitMode: 9
+    _inGpuBlitMode: 0
     _inCpuBlitMode: 0
     targetIsTex2D: 0
-    selectedSourceTexture: 5
+    selectedSourceTexture: 0
     clampSourceTexture: 0
-    ignoreSrcTextureTransparency: 1
+    ignoreSrcTextureTransparency: 0
     srcColorUsage: 0
     useMask: 0
     selectedSourceMask: 0
     maskFromGreyscale: 0
-    maskOffset: {x: 0.6777016, y: 0.7243378}
+    maskOffset: {x: 0, y: 0}
     randomMaskOffset: 0
     flipMaskAlpha: 0
-    maskTiling: 1.79
-    mask: 15
+    maskTiling: 1
+    mask: 7
     selectedDecal: 0
-    decalAngle: -20.961933
-    rotationMethod: 1
-    decalContentious: 1
-    decalAngleModifier: -165
-    showBrushDynamics: 1
-    hardness: 2.624
-    blurAmount: 3.39
-    brush3DRadius: 2.5600002
-    brush2DRadius: 8
+    decalAngle: 0
+    rotationMethod: 0
+    decalContentious: 0
+    decalAngleModifier: 0
+    showBrushDynamics: 0
+    hardness: 256
+    blurAmount: 1
+    brush3DRadius: 16
+    brush2DRadius: 16
     useAlphaBuffer: 0
-    alphaLimitForAlphaBuffer: 0.3
+    alphaLimitForAlphaBuffer: 1
     worldSpaceBrushPixelJitter: 0
-    Color: {r: 0.7201365, g: 0.2559727, b: 0.5460751, a: 0.43344712}
+    Color: {r: 0, g: 1, b: 0, a: 1}
     _dSpeed:
       min: 0.1
-      max: 10
-      _value: 2.7
+      max: 4.5
+      _value: 3
     showingSize: 1
   showColorSliders: 1
   disableNonMeshColliderInPlayMode: 0

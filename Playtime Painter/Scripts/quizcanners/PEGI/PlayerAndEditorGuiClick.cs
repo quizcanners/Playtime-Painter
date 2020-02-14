@@ -293,7 +293,7 @@ namespace PlayerAndEditorGUI
 
             checkLine();
 
-            return (width == -1 ? GUILayout.Button(textAndTip, st, GuiMaxWidthOptionFrom(label)) : GUILayout.Button(textAndTip, st, GUILayout.MaxWidth(width))).DirtyUnFocus().PreviousBgColor();
+            return (width == -1 ? GUILayout.Button(textAndTip, st, GuiMaxWidthOptionFrom(label, st)) : GUILayout.Button(textAndTip, st, GUILayout.MaxWidth(width))).DirtyUnFocus().PreviousBgColor();
         }
 
         private static bool ClickImage(this GUIContent content, int width, GUIStyle style) =>

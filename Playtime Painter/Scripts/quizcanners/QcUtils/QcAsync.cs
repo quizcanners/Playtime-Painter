@@ -563,7 +563,7 @@ namespace QuizCannersUtilities
                 _enumerator = enumerator;
                 returnedData = null;
                 _state = "Starting: " + enumerator.ToString();
-                NameForPEGI = nameForInspector;
+                NameForPEGI = nameForInspector.IsNullOrEmpty() ? enumerator.ToString() : nameForInspector;
             }
         }
 

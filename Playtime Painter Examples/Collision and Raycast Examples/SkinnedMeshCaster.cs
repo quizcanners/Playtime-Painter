@@ -7,7 +7,7 @@ namespace PlaytimePainter.Examples {
 #pragma warning disable IDE0018 // Inline variable declaration
     public class SkinnedMeshCaster : MonoBehaviour, IPEGI {
 
-        public BrushConfig brush = new BrushConfig();
+        public Brush brush = new Brush();
 
         public string lastShotResult = "Never fired (Left mouse button during play)";
 
