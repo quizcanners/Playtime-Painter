@@ -26,9 +26,9 @@ namespace PlaytimePainter.CameraModules {
     {
         bool IsA3DBrush(PlaytimePainter painter, Brush bc, ref bool overrideOther);
 
-        void PaintRenderTexture(StrokeVector stroke, TextureMeta image, Brush bc, PlaytimePainter painter);
+        void PaintRenderTextureUvSpace(PaintCommand.UV command);
 
-        void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, TextureMeta image, Brush bc, PlaytimePainter painter);
+        void PaintPixelsInRam(PaintCommand.UV command);
 
         Shader GetPreviewShader(PlaytimePainter p);
 
@@ -37,7 +37,6 @@ namespace PlaytimePainter.CameraModules {
         Shader GetBrushShaderSingleBuffer(PlaytimePainter p);
 
         bool IsEnabledFor(PlaytimePainter p, TextureMeta image, Brush cfg);
-
         
         bool BrushConfigPEGI(ref bool overrideBlitMode, Brush br);
        

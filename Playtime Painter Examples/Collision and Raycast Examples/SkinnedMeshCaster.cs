@@ -27,9 +27,14 @@ namespace PlaytimePainter.Examples {
             {
                 lastShotResult = "No painter detected on {0}".F(hit.transform.name);
                 return;
-            } 
+            }
 
-            if (painter.skinnedMeshRenderer && !brush.IsA3DBrush(painter)) {   
+
+            painter.SetTexTarget(brush);
+
+            var cmd = painter.PaintCommand.SetBrush(brush);
+            
+            if (painter.skinnedMeshRenderer && !cmd.Is3DBrush) {   
 
                 painter.UpdateMeshCollider();
 
@@ -54,9 +59,11 @@ namespace PlaytimePainter.Examples {
             } else
                 lastShotResult = "Painted on Object";
 
-            var v = new StrokeVector(hit, false);
+            var v = new Stroke(hit, false);
+
+            painter.stroke.From(hit, false);
             
-            brush.Paint(v,painter.SetTexTarget(brush));
+            brush.Paint(painter.PaintCommand); //v,painter.SetTexTarget(brush));
         }
 
 

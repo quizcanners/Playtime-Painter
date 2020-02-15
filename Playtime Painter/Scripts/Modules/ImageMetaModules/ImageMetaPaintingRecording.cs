@@ -25,7 +25,7 @@ namespace PlaytimePainter
         private void PlayByFilename(string recordingName) {
             if (!playbackMetas.Contains(parentMeta))
                 playbackMetas.Add(parentMeta);
-            StrokeVector.pausePlayback = false;
+            Stroke.pausePlayback = false;
             playbackVectors.AddRange(PainterCamera.Data.StrokeRecordingsFromFile(recordingName));
 
         }
@@ -84,7 +84,7 @@ namespace PlaytimePainter
 
             var l = playbackMetas;
 
-            if (playbackMetas.Count > 0 && !StrokeVector.pausePlayback) {
+            if (playbackMetas.Count > 0 && !Stroke.pausePlayback) {
 
                 if (playbackMetas.Last() == null)
                     playbackMetas.RemoveLast(1);
@@ -125,7 +125,7 @@ namespace PlaytimePainter
 
             var canRecord = stroke.MouseDownEvent || stroke.MouseUpEvent;
 
-            var worldSpace = GlobalBrush.IsA3DBrush(painter);
+            var worldSpace = painter.Is3DBrush();
 
             if (!canRecord)
             {
@@ -261,13 +261,13 @@ namespace PlaytimePainter
                     if (icon.Close.Click("Cancel All Playbacks", 20))
                         CancelAllPlaybacks();
 
-                    if (StrokeVector.pausePlayback)
+                    if (Stroke.pausePlayback)
                     {
                         if (icon.Play.Click("Continue Playback", 20))
-                            StrokeVector.pausePlayback = false;
+                            Stroke.pausePlayback = false;
                     }
                     else if (icon.Pause.Click("Pause Playback", 20))
-                        StrokeVector.pausePlayback = true;
+                        Stroke.pausePlayback = true;
 
                 }
                 else
@@ -359,7 +359,7 @@ namespace PlaytimePainter
                 .Add_String("trg", parentMeta.TargetIsTexture2D() ? "C" : "G");
             }
 
-            encoder.Add("s", stroke.Encode(parentMeta.TargetIsRenderTexture() && GlobalBrush.IsA3DBrush(painter)));
+            encoder.Add("s", stroke.Encode(parentMeta.TargetIsRenderTexture() && painter.Is3DBrush()));
 
             return encoder;
         }
@@ -378,12 +378,11 @@ namespace PlaytimePainter
             switch (tg) {
                 case "trg": currentlyDecodedPainter.UpdateOrSetTexTarget(data.Equals("C") ? TexTarget.Texture2D : TexTarget.RenderTexture); break;
                 case "brush":
-                   
                     GlobalBrush.Decode(data);
                     GlobalBrush.brush2DRadius *= parentMeta?.width ?? 256; break;
                 case "s":
                     currentlyDecodedPainter.stroke.Decode(data);
-                    GlobalBrush.Paint(currentlyDecodedPainter.stroke, currentlyDecodedPainter);
+                    GlobalBrush.Paint(currentlyDecodedPainter.PaintCommand);
                     break;
                 default: return false;
             }

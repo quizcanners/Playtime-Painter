@@ -453,7 +453,7 @@ namespace PlaytimePainter
         public float farPlane = 100;
         private bool localTransform;
 
-        public void From(StrokeVector vec, bool lookInNormalDirection = true) {
+        public void From(Stroke vec, bool lookInNormalDirection = true) {
             position = vec.posTo;
             localTransform = false;
 

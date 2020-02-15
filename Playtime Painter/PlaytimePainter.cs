@@ -120,9 +120,45 @@ namespace PlaytimePainter {
 
         #region Painting
 
-        public bool invertRayCast;
+        public bool Is3DBrush() => Is3DBrush(GlobalBrush);
+
+        public bool Is3DBrush(Brush brush)
+        {
+            var overrideOther = false;
+
+            var isA3D = false;
+
+            foreach (var pl in CameraModuleBase.BrushPlugins)
+            {
+                isA3D = pl.IsA3DBrush(this, brush, ref overrideOther);
+                if (overrideOther)
+                    return isA3D;
+            }
+
+            return brush.Is3DBrush(TexMeta);
+        }
         
-        public StrokeVector stroke = new StrokeVector();
+        public bool invertRayCast;
+
+        public Stroke stroke = new Stroke(); //=> _paintCommand.stroke; 
+        private PaintCommand.Painter _paintCommand; 
+
+        public PaintCommand.Painter PaintCommand
+        {
+            get
+            {
+                if (_paintCommand == null)
+                    _paintCommand = new PaintCommand.Painter(stroke, GlobalBrush, this);
+                else
+                {
+                    _paintCommand.textureData = TexMeta;
+                    _paintCommand.brush = GlobalBrush;
+                    _paintCommand.stroke = stroke;
+                }
+
+                return _paintCommand;
+            }
+        }
 
         public static PlaytimePainter currentlyPaintedObjectPainter;
         private static PlaytimePainter _lastMouseOverObject;
@@ -190,7 +226,7 @@ namespace PlaytimePainter {
                         Preview_To_UnityTerrain();
 
                     if (!stroke.MouseDownEvent || CanPaintOnMouseDown())
-                        GlobalBrush.Paint(stroke, this);
+                        GlobalBrush.Paint(PaintCommand);
                     else
                         foreach (var module in TexMeta.Modules)
                             module.OnPaintingDrag(this);
@@ -281,7 +317,7 @@ namespace PlaytimePainter {
 
         private readonly QcUtils.ChillLogger _logger = new QcUtils.ChillLogger("");
 
-        private bool CastRayPlaytime(StrokeVector st, Vector3 mousePos) {
+        private bool CastRayPlaytime(Stroke st, Vector3 mousePos) {
             
             var cam = TexMgmt.MainCamera; 
             
@@ -318,7 +354,7 @@ namespace PlaytimePainter {
             return ray;
         }
         
-        private bool ProcessHit(RaycastHit hit, StrokeVector st)
+        private bool ProcessHit(RaycastHit hit, Stroke st)
         {
     
             var subMesh = this.GetMesh().GetSubMeshNumber(hit.triangleIndex);
@@ -372,22 +408,7 @@ namespace PlaytimePainter {
             GlobalBrush.mask.SetValuesOn(ref GlobalBrush.Color, TexMeta.SampleAt(uv));
             Update_Brush_Parameters_For_Preview_Shader();
         }
-
-        public void AfterStroke(StrokeVector st) {
-            st.SetPreviousValues();
-            st.firstStroke = false;
-            st.MouseDownEvent = false;
-
-            var tex = TexMeta;
-
-            if (tex.TargetIsTexture2D())
-                tex.pixelsDirty = true;
-            else if (tex.updateTex2DafterStroke && st.MouseUpEvent)
-            {
-                tex.RenderTexture_To_Texture2D();
-            }
-        }
-
+        
         private bool CanPaintOnMouseDown() =>  TexMeta.TargetIsTexture2D() || GlobalBrushType.StartPaintingTheMomentMouseIsDown;
   
         #endregion
@@ -1784,7 +1805,6 @@ namespace PlaytimePainter {
             QcUnity.FocusOn(gameObject);
 #endif
             selectedInPlaytime = this;
-            //TexMgmt.OnBeforeBlitConfigurationChange();
             Update_Brush_Parameters_For_Preview_Shader();
             InitIfNotInitialized();
         }
@@ -1859,6 +1879,9 @@ namespace PlaytimePainter {
             if (Application.isPlaying && IsEditingThisMesh)
                 MeshEditorManager.Inst.DRAW_Lines(false);
 
+            if (GlobalBrush.previewDirty)
+                TexMgmt.SHADER_BRUSH_UPDATE(PaintCommand);
+
             if (textureWasChanged)
                 OnChangedTexture_OnMaterial();
 
@@ -1899,8 +1922,8 @@ namespace PlaytimePainter {
             var id = TexMeta;
 
             if (id == null || NotUsingPreview) return;
-            
-            TexMgmt.SHADER_BRUSH_UPDATE(GlobalBrush, 1, id, this);
+
+            TexMgmt.SHADER_BRUSH_UPDATE(PaintCommand.Reset());
 
             foreach (var p in Modules)
                 p.Update_Brush_Parameters_For_Preview_Shader();
@@ -2900,8 +2923,6 @@ namespace PlaytimePainter {
                     texMgmt.OnBeforeBlitConfigurationChange();
                     Update_Brush_Parameters_For_Preview_Shader();
                 }
-
-
             }
 
             inspected = null;
@@ -2963,7 +2984,7 @@ namespace PlaytimePainter {
             var br = GlobalBrush;
 
             if (NotUsingPreview && !LockTextureEditing && _lastMouseOverObject == this && IsCurrentTool &&
-                br.IsA3DBrush(this) && br.showingSize && !Cfg.showConfig)
+                Is3DBrush() && br.showingSize && !Cfg.showConfig)
                 Gizmos.DrawWireSphere(stroke.posTo, br.Size(true) * 0.5f
                                                     );
 

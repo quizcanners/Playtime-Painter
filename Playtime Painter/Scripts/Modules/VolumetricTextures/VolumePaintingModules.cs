@@ -101,23 +101,27 @@ namespace PlaytimePainter {
                     _brushShaderFroRayTrace = Shader.Find("Playtime Painter/Editor/Brush/Volume_RayTrace");
             }
 
-            public Shader GetPreviewShader(PlaytimePainter p) => p.GetVolumeTexture() ? _preview : null;
+            public Shader GetPreviewShader(PlaytimePainter p) => p.TexMeta.isAVolumeTexture ? _preview : null;
 
             public Shader GetBrushShaderDoubleBuffer(PlaytimePainter p) =>
-                p.GetVolumeTexture() ? (_enableRayTracing ? _brushShaderFroRayTrace : _brush) : null;
+                p.TexMeta.isAVolumeTexture ? (_enableRayTracing ? _brushShaderFroRayTrace : _brush) : null;
 
             public Shader GetBrushShaderSingleBuffer(PlaytimePainter p) => null;
 
             public bool IsA3DBrush(PlaytimePainter painter, Brush bc, ref bool overrideOther)
             {
-                if (!painter.GetVolumeTexture()) return false;
+                if (!painter.TexMeta.isAVolumeTexture) return false;
                 overrideOther = true;
                 return true;
             }
 
-            public void PaintPixelsInRam(StrokeVector stroke, float brushAlpha, TextureMeta image, Brush bc,
-                PlaytimePainter painter)
+            public void PaintPixelsInRam(PaintCommand.UV command)
             {
+
+                Stroke stroke = command.stroke;
+                float brushAlpha = command.strokeAlphaPortion;
+                TextureMeta image = command.textureData;
+                Brush bc = command.brush;
 
                 var volume = image.texture2D.GetVolumeTextureData();
 
@@ -188,12 +192,15 @@ namespace PlaytimePainter {
             }
 
             public bool IsEnabledFor(PlaytimePainter painter, TextureMeta img, Brush cfg) =>
-                img.GetVolumeTextureController();
+                img.GetVolumeTextureData();
 
-            public void PaintRenderTexture(StrokeVector stroke, TextureMeta image, Brush bc,
-                PlaytimePainter painter)
+            public void PaintRenderTextureUvSpace(PaintCommand.UV command) 
             {
-                var vt = painter.GetVolumeTexture();
+                Stroke stroke = command.stroke;
+                TextureMeta image = command.textureData;
+                Brush bc = command.brush;
+
+                var vt = image.GetVolumeTextureData();
 
                 if (!vt)
                 {
@@ -208,26 +215,26 @@ namespace PlaytimePainter {
 
                     bc.useAlphaBuffer = false;
 
-                    delayedPaintingConfiguration = new BrushStrokePainterImage(stroke, image, bc, painter);
+                    delayedPaintingConfiguration = new PaintCommand.UV(stroke, image, bc);
 
                     PainterCamera.GetOrCreateProjectorCamera().RenderRightNow(this);
                 }
                 else
-                    PaintRenderTexture(new BrushStrokePainterImage(stroke, image, bc, painter));
+                    PaintRenderTextureUvSpace(command); 
 
             }
 
-            public bool PaintRenderTexture(BrushStrokePainterImage cfg)
+            public bool PaintRenderTextureInternal(PaintCommand.UV cfg)
             {
                 var stroke = cfg.stroke;
-                var image = cfg.image;
+                var image = cfg.textureData;
                 var painter = cfg.painter;
                 var bc = cfg.brush;
 
-                var vt = painter.GetVolumeTexture();
+                var vt = cfg.textureData.GetVolumeTextureData(); //painter.GetVolumeTexture();
                 stroke.posFrom = stroke.posTo;
 
-                BrushTypes.Sphere.Inst.BeforeStroke(bc, stroke, painter);
+                BrushTypes.Sphere.Inst.BeforeStroke(cfg); //bc, stroke, painter);
 
                 VOLUME_POSITION_N_SIZE_BRUSH.GlobalValue = vt.PosSize4Shader;
                 VOLUME_H_SLICES_BRUSH.GlobalValue = vt.Slices4Shader;
@@ -236,15 +243,16 @@ namespace PlaytimePainter {
                 UseSmoothing.Enabled = smoothing > 0;
 
                 image.useTexCoord2 = false;
-                bool alphaBuffer;
-                TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(bc, bc.Speed * 0.05f, image, stroke, out alphaBuffer, painter);
+                //bool alphaBuffer;
+                cfg.strokeAlphaPortion = bc.Speed * 0.05f;
+                TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(cfg); //bc, bc.Speed * 0.05f, image, stroke, out alphaBuffer, painter);
 
                 stroke.SetWorldPosInShader();
 
                 RenderTextureBuffersManager.Blit(null, image.CurrentRenderTexture(),
                     TexMGMT.brushRenderer.GetMaterial().shader);
 
-                BrushTypes.Sphere.Inst.AfterStroke_Painter(painter, bc, stroke, alphaBuffer, image);
+                BrushTypes.Sphere.Inst.AfterStroke_Painter(cfg); //painter, bc, stroke, alphaBuffer, image);
 
                 return true;
             }
@@ -259,7 +267,7 @@ namespace PlaytimePainter {
 
             //private float arbitraryBrightnessIncrease = 1.5f;
 
-            private BrushStrokePainterImage delayedPaintingConfiguration;
+            private PaintCommand.UV delayedPaintingConfiguration;
 
             private static ProjectorCameraConfiguration
                 rayTraceCameraConfiguration = new ProjectorCameraConfiguration();
@@ -297,7 +305,7 @@ namespace PlaytimePainter {
 
                 PainterShaderVariables.BrushColorProperty.GlobalValue = GlobalBrush.Color;
 
-                PaintRenderTexture(delayedPaintingConfiguration);
+                PaintRenderTextureUvSpace(delayedPaintingConfiguration);
 
                 delayedPaintingConfiguration = null;
             }
@@ -349,7 +357,7 @@ namespace PlaytimePainter {
 
                 var p = InspectedPainter;
 
-                var volTex = p.GetVolumeTexture();
+                var volTex = p.TexMeta.GetVolumeTextureData();
 
                 if (volTex)
                 {
@@ -615,29 +623,7 @@ namespace PlaytimePainter {
 
     public static class VolumeEditingExtensions
     {
-
-        public static VolumeTexture GetVolumeTexture(this PlaytimePainter p)
-        {
-            if (!p)
-                return null;
-
-            var id = p.TexMeta;
-
-            if (id != null && id.isAVolumeTexture)
-                return id.GetVolumeTextureData();
-
-            return null;
-        }
-
-        public static VolumeTexture GetVolumeTextureController(this TextureMeta id)
-        {
-     
-            if (id != null && id.isAVolumeTexture) 
-                return id.GetVolumeTextureData();
-
-            return null;
-        }
-
+        
         public static Vector3 VolumeSize(Texture2D tex, int slices)
         {
             var w = tex.width / slices;

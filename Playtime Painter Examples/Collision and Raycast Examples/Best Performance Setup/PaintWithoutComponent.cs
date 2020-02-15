@@ -16,7 +16,7 @@ namespace PlaytimePainter.Examples
     {
 
         public Brush brush = new Brush();
-        private StrokeVector continiousStroke = new StrokeVector(); // For continious
+        private Stroke continiousStroke = new Stroke(); // For continious
         private PaintingReceiver previousTargetForContinious;
         public int shoots = 1;
         public bool continious = false;
@@ -83,7 +83,7 @@ namespace PlaytimePainter.Examples
 
                     if (!tex) continue;
 
-                    var rendTex = (receiver.texture.GetType() == typeof(RenderTexture)) ? (RenderTexture)receiver.texture : null;
+                    var rendTex = receiver.TryGetRenderTexture(); //(receiver.texture.GetType() == typeof(RenderTexture)) ? (RenderTexture)receiver.texture : null;
 
                     #region  WORLD SPACE BRUSH
 
@@ -100,7 +100,7 @@ namespace PlaytimePainter.Examples
 
 
                         var st = continious ? continiousStroke :
-                            new StrokeVector(hit, receiver.useTexcoord2);
+                            new Stroke(hit, receiver.useTexcoord2);
 
                         st.unRepeatedUv = hit.collider.GetType() == typeof(MeshCollider)
                             ? (receiver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord).Floor()
@@ -112,24 +112,40 @@ namespace PlaytimePainter.Examples
 
 
                         if (receiver.type == PaintingReceiver.RendererType.Skinned && receiver.skinnedMeshRenderer)
-                            BrushTypes.Sphere.Paint(rendTex, receiver.gameObject, receiver.skinnedMeshRenderer, brush, st, subMesh);
+                            BrushTypes.Sphere.Paint(
+                                receiver.TryMakePaintCommand(st, brush, subMesh));
+                               // new PaintCommand.WorldSpace(st, rendTex.GetTextureMeta(), brush, receiver.skinnedMeshRenderer,
+                                  //  subMesh, receiver.gameObject)
+                       
                         else if (receiver.type == PaintingReceiver.RendererType.Regular && receiver.meshFilter)
                         {
                             if (brush.GetBrushType(false) == BrushTypes.Sphere.Inst)
                             {
                                 var mat = receiver.Material;
                                 if (mat && mat.IsAtlased())
-                                    BrushTypes.Sphere.PaintAtlased(rendTex, receiver.gameObject,
+                                    BrushTypes.Sphere.PaintAtlased(receiver.TryMakePaintCommand(st, brush, subMesh),
+
+                                       /* rendTex, receiver.gameObject,
                                         receiver.originalMesh
                                             ? receiver.originalMesh
-                                            : receiver.meshFilter.sharedMesh, brush, st, new List<int> { subMesh },
-                                        (int)mat.GetFloat(PainterShaderVariables.ATLASED_TEXTURES));
+                                            : receiver.meshFilter.sharedMesh, brush, st, new List<int> { subMesh },*/
+                                        (int)mat.GetFloat(PainterShaderVariables.ATLASED_TEXTURES)
+                                            );
                                 else
-                                    BrushTypes.Sphere.Paint(rendTex, receiver.gameObject,
+                                    BrushTypes.Sphere.Paint(
+                                        receiver.TryMakePaintCommand(st, brush, subMesh));
+
+                                        /*new PaintCommand.WorldSpace(st, rendTex.GetTextureMeta(), brush, receiver.originalMesh
+                                            ? receiver.originalMesh
+                                            : receiver.meshFilter.sharedMesh,
+                                            subMesh,
+                                            receiver.gameObject
+                                            )*/
+                                     /*   rendTex, receiver.gameObject,
                                         receiver.originalMesh
                                             ? receiver.originalMesh
                                             : receiver.meshFilter.sharedMesh, brush, st,
-                                        new List<int> { subMesh });
+                                        new List<int> { subMesh });*/
                             }
                             else
                                 BrushTypes.Normal.Paint(rendTex, brush, st);
@@ -146,7 +162,7 @@ namespace PlaytimePainter.Examples
                         if (hit.collider.GetType() != typeof(MeshCollider))
                             Debug.Log("Can't get UV coordinates from a Non-Mesh Collider");
 
-                        BlitFunctions.Paint(receiver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord, 1, (Texture2D)receiver.texture, Vector2.zero, Vector2.one, brush, null);
+                        BlitFunctions.Paint(receiver.useTexcoord2 ? hit.textureCoord2 : hit.textureCoord, 1, (Texture2D)receiver.texture, Vector2.zero, Vector2.one, brush);
                         var id = receiver.texture.GetTextureMeta();
                         _texturesNeedUpdate.AddIfNew(id);
 

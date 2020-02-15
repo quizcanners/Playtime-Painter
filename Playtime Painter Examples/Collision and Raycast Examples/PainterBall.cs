@@ -74,11 +74,12 @@ namespace PlaytimePainter.Examples {
 			foreach (var col in paintingOn){
 				var p = col.painter;
 
-                if (!brush.IsA3DBrush(p)) continue;
+                if (!p.PaintCommand.SetBrush(brush).Is3DBrush) continue;
 
                 var v = col.vector;
                 v.posTo = transform.position;
-                brush.Paint(v, p);
+
+                brush.Paint(p.PaintCommand.SetStroke(v));//v, p);
 
             }
         }
@@ -118,7 +119,7 @@ namespace PlaytimePainter.Examples {
 
             if ((brush.Targets_PEGI().nl(ref changed)) || (brush.Mode_Type_PEGI().nl(ref changed)))
             {
-                if (brush.targetIsTex2D || !brush.IsA3DBrush(null))
+                if (brush.targetIsTex2D || !brush.Is3DBrush())
                 {
                     brush.targetIsTex2D = false;
                     brush.SetBrushType(false, BrushTypes.Sphere.Inst);
@@ -137,13 +138,13 @@ namespace PlaytimePainter.Examples {
 
     public class PaintingCollision
     {
-        public StrokeVector vector;
+        public Stroke vector;
         public PlaytimePainter painter;
 
         public PaintingCollision(PlaytimePainter p)
         {
             painter = p;
-            vector = new StrokeVector();
+            vector = new Stroke();
         }
     }
 }

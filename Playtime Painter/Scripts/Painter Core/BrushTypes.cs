@@ -130,7 +130,7 @@ namespace PlaytimePainter
 
                 if (br != null)
                 {
-                    var blitMode = br.GetBlitMode(br.IsCpu(p));
+                    var blitMode = br.GetBlitMode(br.IsCpu(p.TexMeta));
                     if (blitMode.NeedsWorldSpacePosition && !IsAWorldSpaceBrush)
                         return false;
 
@@ -205,8 +205,12 @@ namespace PlaytimePainter
 
             }
 
-            public virtual void PaintToTexture2D(PlaytimePainter painter, Brush br, StrokeVector st)
+            public virtual void PaintPixelsInRam(PaintCommand.UV command)
             {
+
+                PlaytimePainter painter = command.painter;
+                Brush br = command.brush;
+                Stroke st = command.stroke;
 
                 var deltaUv = st.uvTo - st.uvFrom;
 
@@ -216,9 +220,7 @@ namespace PlaytimePainter
 
                 var alpha = Mathf.Clamp01(br.Speed * (Application.isPlaying ? Time.deltaTime : 0.1f));
 
-                var worldSpace = painter.NeedsGrid();
-
-                var id = painter.TexMeta;
+                var id = command.textureData;
 
                 var deltaPos = st.DeltaWorldPos;
 
@@ -237,7 +239,7 @@ namespace PlaytimePainter
                     var uvDist = (deltaUv.magnitude * id.width * 8 / br.Size(false));
                     var worldDist = st.DeltaWorldPos.magnitude;
 
-                    steps = (int) Mathf.Max(1, worldSpace ? worldDist : uvDist);
+                    steps = (int) Mathf.Max(1, IsAWorldSpaceBrush ? worldDist : uvDist);
 
                     deltaUv /= steps;
                     deltaPos /= steps;
@@ -247,12 +249,14 @@ namespace PlaytimePainter
                 }
 
 
-                BlitFunctions.PaintTexture2DMethod blitMethod = null;
+                BlitFunctions.PaintPixelsInRamMethod blitMethod = null;
+
+                command.strokeAlphaPortion = alpha;
 
                 foreach (var p in CameraModuleBase.BrushPlugins)
                     if (p.IsEnabledFor(painter, id, br))
                     {
-                        p.PaintPixelsInRam(st, alpha, id, br, painter);
+                        p.PaintPixelsInRam(command);//st, alpha, id, br, painter);
                         blitMethod = p.PaintPixelsInRam;
                         break;
                     }
@@ -260,32 +264,36 @@ namespace PlaytimePainter
                 if (blitMethod == null)
                 {
                     blitMethod = BlitFunctions.Paint;
-                    blitMethod(st, alpha, id, br, painter);
+                    blitMethod(command);
                 }
 
                 for (float i = 1; i < steps; i++)
                 {
                     st.uvFrom += deltaUv;
                     st.posFrom += deltaPos;
-                    blitMethod(st, alpha, id, br, painter);
+                    blitMethod(command);
                 }
 
-                painter.AfterStroke(st);
+                command.OnStrokeComplete();//.AfterStroke(st);
             }
 
-            public virtual void PaintRenderTexture(PlaytimePainter painter, Brush br, StrokeVector st) => PaintRenderTexture(painter.TexMeta, br, st, painter);
-            
-            public virtual void PaintRenderTexture(TextureMeta textureMeta, Brush br, StrokeVector st, PlaytimePainter painter = null)
-            {
+            public virtual void PaintRenderTextureInWorldSpace(PaintCommand.WorldSpace command) { }
 
-                BeforeStroke(br, st, painter);
+            public virtual void PaintRenderTextureUvSpace(PaintCommand.UV command) 
+            {
+                TextureMeta textureMeta = command.textureData;
+                Brush br = command.brush;
+                Stroke st = command.stroke;
+                PlaytimePainter painter = command.painter;
+
+                BeforeStroke(command); 
 
                 if (st.CrossedASeam())
                     st.uvFrom = st.uvTo;
-                
-                bool alphaBuffer;
 
-                TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(br, br.Speed * 0.05f, textureMeta, st, out alphaBuffer, painter);
+                command.strokeAlphaPortion = br.Speed * 0.05f;
+
+                TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command); 
 
                 var rb = RtBrush;
 
@@ -296,19 +304,23 @@ namespace PlaytimePainter
                 rb.localRotation = Quaternion.Euler(new Vector3(0, 0,
                     (direction.x > 0 ? -1 : 1) * Vector2.Angle(Vector2.up, direction)));
 
-                rb.localPosition = StrokeVector.BrushWorldPositionFrom((st.uvFrom + st.uvTo) * 0.5f);
+                rb.localPosition = Stroke.BrushWorldPositionFrom((st.uvFrom + st.uvTo) * 0.5f);
 
                 TexMGMT.Render();
 
                 if (painter)
-                    AfterStroke_Painter(painter, br, st, alphaBuffer, textureMeta);
+                    AfterStroke_Painter(command);
                 else 
-                    AfterStroke_NoPainter(br, alphaBuffer, textureMeta.CurrentRenderTexture());
+                    AfterStroke_NoPainter(command);
 
             }
             
-            public void BeforeStroke(Brush br, StrokeVector st, PlaytimePainter painter = null)
+            public void BeforeStroke(PaintCommand.UV command)//Brush br, Stroke st, PlaytimePainter painter = null)
             {
+
+                Brush br = command.brush;
+                Stroke st = command.stroke;
+                PlaytimePainter painter = command.painter;
 
                 var cam = TexMGMT;
 
@@ -317,48 +329,51 @@ namespace PlaytimePainter
 
                 if (painter)
                     foreach (var p in painter.Modules)
-                        p.BeforeGpuStroke(br, st, this);
+                        p.BeforeGpuStroke(command);//br, st, this);
             }
 
-            public virtual void AfterStroke_Painter(PlaytimePainter painter, Brush br, StrokeVector st,
-                bool alphaBuffer, TextureMeta id)
+            public virtual void AfterStroke_Painter(PaintCommand.UV command)
             {
+                PlaytimePainter painter = command.painter;
+                Brush br = command.brush;
+                Stroke st = command.stroke;
+                TextureMeta id = command.textureData;
 
-                painter.AfterStroke(st);
+                command.OnStrokeComplete();
+               // painter.AfterStroke(st);
 
                 if (br.useMask && st.MouseUpEvent && br.randomMaskOffset)
                     br.maskOffset = new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f));
 
-                if (alphaBuffer)
+                if (command.usedAlphaBuffer)
                 {
                     var sh = br.GetBlitMode(false).ShaderForAlphaBufferBlit;
-                    if (painter.NotUsingPreview)
+                    if (!painter || painter.NotUsingPreview)
                         TexMGMT.UpdateFromAlphaBuffer(id.CurrentRenderTexture(), sh);
                     else
                         TexMGMT.AlphaBufferSetDirtyBeforeRender(id, sh);
                 }
-                else if (!br.IsSingleBufferBrush() && !br.IsA3DBrush(painter))
+                else if (!br.IsSingleBufferBrush() && !command.Is3DBrush)
                     TexMGMT.UpdateBufferSegment();
 
-                foreach (var p in painter.Modules)
-                    p.AfterGpuStroke(br, st, this);
+                if (painter)
+                    foreach (var p in painter.Modules)
+                        p.AfterGpuStroke(command);//br, st, this);
             }
 
-            protected static void AfterStroke_NoPainter(Brush br, bool alphaBuffer, RenderTexture rt = null)
+            protected static void AfterStroke_NoPainter(PaintCommand.UV command)
             {
+                var br = command.brush;
 
                 if (br.useMask && br.randomMaskOffset)
                     br.maskOffset = new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f));
 
-                if (alphaBuffer)
+                if (command.usedAlphaBuffer)
                 {
                     var sh = br.GetBlitMode(false).ShaderForAlphaBufferBlit;
-                    TexMGMT.UpdateFromAlphaBuffer(rt, sh);
+                    TexMGMT.UpdateFromAlphaBuffer(command.textureData.CurrentRenderTexture(), sh);
                 }
             }
-
-
-
         }
 
         public class Pixel : Base
@@ -387,19 +402,22 @@ namespace PlaytimePainter
 
             public override bool IsPixelPerfect => true;
 
-            public override void PaintRenderTexture(PlaytimePainter painter, Brush br, StrokeVector st)
+            public override void PaintRenderTextureUvSpace(PaintCommand.UV command)//PlaytimePainter painter, Brush br, Stroke st)
             {
+                PlaytimePainter painter = command.painter;
+                Brush br = command.brush;
+                Stroke st = command.stroke;
 
-                BeforeStroke(br, st, painter);
+                BeforeStroke(command);//br, st, painter);
 
                 if (st.CrossedASeam())
                     st.uvFrom = st.uvTo;
 
                 TextureMeta id = painter.TexMeta;
 
-                bool alphaBuffer;
+                command.strokeAlphaPortion = br.Speed * 0.05f;
 
-                TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(br, br.Speed * 0.05f, id, st, out alphaBuffer, painter);
+                TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command);// br, br.Speed * 0.05f, id, st, out alphaBuffer, painter);
 
                 RtBrush.localScale = Vector3.one * br.StrokeWidth(id.width, false);
 
@@ -410,7 +428,7 @@ namespace PlaytimePainter
 
                 TexMGMT.Render();
 
-                AfterStroke_Painter(painter, br, st, alphaBuffer, id);
+                AfterStroke_Painter(command);//painter, br, st, alphaBuffer, id);
             }
 
          
@@ -444,34 +462,33 @@ namespace PlaytimePainter
             
             public static void Paint(Vector2 uv, Brush br, RenderTexture rt) {
 
-                var stroke = new StrokeVector(uv) {
+                var command = new PaintCommand.UV(new Stroke(uv)
+                {
                     firstStroke = false
+                }, rt.GetTextureMeta(), br)
+                {
+                    strokeAlphaPortion = br.Speed * 0.05f
                 };
 
-                var id = rt.GetTextureMeta();
-                
-                bool alphaBuffer;
+                TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command); // br, br.Speed * 0.05f, id, stroke, out alphaBuffer);
 
-                TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(br, br.Speed * 0.05f, id, stroke, out alphaBuffer);
-
-                float width = br.StrokeWidth(id.width, false);
+                float width = br.StrokeWidth(command.textureData.width, false);
 
                 RtBrush.localScale = Vector3.one;
 
                 BrushMesh = PainterCamera.BrushMeshGenerator.GetLongMesh(0, width);
                 RtBrush.localRotation = Quaternion.Euler(new Vector3(0, 0, Vector2.Angle(Vector2.up, Vector2.zero)));
 
-                RtBrush.localPosition = StrokeVector.BrushWorldPositionFrom(stroke.uvTo);
+                RtBrush.localPosition = Stroke.BrushWorldPositionFrom(command.stroke.uvTo);
 
                 TexMGMT.Render();
 
-                AfterStroke_NoPainter(br, alphaBuffer, rt);
+                AfterStroke_NoPainter(command); 
 
             }
 
-            public static void Paint(RenderTexture renderTexture, Brush br, StrokeVector st,
-                PlaytimePainter painter = null) => _inst.PaintRenderTexture(renderTexture.GetTextureMeta(), br, st);
-            
+            public static void Paint(RenderTexture renderTexture, Brush br, Stroke st) =>
+                _inst.PaintRenderTextureUvSpace(new PaintCommand.UV(st, renderTexture, br));
 
         }
 
@@ -534,12 +551,15 @@ namespace PlaytimePainter
                     0);
             }
 
-            public override void PaintRenderTexture(PlaytimePainter painter, Brush br, StrokeVector st)
+            public override void PaintRenderTextureUvSpace( PaintCommand.UV command) //PlaytimePainter painter, Brush br, Stroke st)
             {
+                
+                Brush br = command.brush;
+                Stroke st = command.stroke;
 
-                BeforeStroke(br, st, painter);
+                BeforeStroke(command);
 
-                var id = painter.TexMeta;
+                var id = command.textureData; 
 
                 if (st.firstStroke || br.decalContentious)
                 {
@@ -557,9 +577,9 @@ namespace PlaytimePainter
 
                     }
 
-                    bool alphaBuffer;
+                    command.strokeAlphaPortion = 1;
 
-                    TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(br, 1, id, st, out alphaBuffer, painter);
+                    TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command); // br, 1, id, st, out alphaBuffer, command.painter);
                     var tf = RtBrush;
                     tf.localScale = Vector3.one * br.Size(false);
                     tf.localRotation = Quaternion.Euler(new Vector3(0, 0, br.decalAngle));
@@ -585,21 +605,24 @@ namespace PlaytimePainter
                         uv -= deltaUv * ((length - 1) * 0.5f / length);
                     }
 
-                    tf.localPosition = StrokeVector.BrushWorldPositionFrom(uv);
+                    tf.localPosition = Stroke.BrushWorldPositionFrom(uv);
 
                     TexMGMT.Render();
 
-                    AfterStroke_Painter(painter, br, st, alphaBuffer, id);
+                    AfterStroke_Painter(command);
 
                 }
                 else
-                    painter.AfterStroke(st);
+                    command.OnStrokeComplete(); //painter.AfterStroke(st);
             }
 
-            public override void AfterStroke_Painter(PlaytimePainter painter, Brush br, StrokeVector st,
-                bool alphaBuffer, TextureMeta id)
+            public override void AfterStroke_Painter(PaintCommand.UV command)
             {
-                base.AfterStroke_Painter(painter, br, st, alphaBuffer, id);
+                PlaytimePainter painter = command.painter;
+                Brush br = command.brush;
+                Stroke st = command.stroke;
+
+                base.AfterStroke_Painter(command);
 
                 if (br.rotationMethod != RotationMethod.Random) return;
 
@@ -625,14 +648,10 @@ namespace PlaytimePainter
                     "Select a valid decal. You can add some in Config -> Lists."
                         .fullWindowWarningDocumentationClickOpen(
                             "No Decal selected");
-
-
                 }
 
                 pegi.nl();
-
-
-
+                
                 "Continuous".toggle("Will keep adding decal every frame while the mouse is down", 80,
                     ref InspectedBrush.decalContentious).changes(ref changed);
 
@@ -735,16 +754,18 @@ namespace PlaytimePainter
 
             protected override MsgPainter Translation => MsgPainter.BrushTypeLazy;
 
-            public override void PaintRenderTexture(PlaytimePainter painter, Brush br, StrokeVector st)
+            public override void PaintRenderTextureUvSpace(PaintCommand.UV command)//PlaytimePainter painter, Brush br, Stroke st)
             {
 
-                BeforeStroke(br, st, painter);
+                Brush br = command.brush;
+                Stroke st = command.stroke;
+                var id = command.textureData;
+
+                BeforeStroke(command);
 
                 var deltaUv = st.DeltaUv; //uv - st.uvFrom;//.Previous_uv;
                 var magnitude = deltaUv.magnitude;
-
-                var id = painter.TexMeta;
-
+                
                 var width = br.Size(false) / id.width * 4;
 
                 var trackPortion = (deltaUv.magnitude - width * 0.5f) * 0.25f;
@@ -825,15 +846,15 @@ namespace PlaytimePainter
 
                 var isTail = st.firstStroke;
 
-                bool alphaBuffer;
+               // bool alphaBuffer;
 
                 if (!isTail && !smooth)
                 {
-                    var st2 = new StrokeVector(st)
+                    var st2 = new Stroke(st)
                     {
                         firstStroke = false
                     };
-                    r.SHADER_STROKE_SEGMENT_UPDATE(br, br.Speed * 0.05f, id, st2, out alphaBuffer, painter);
+                    r.SHADER_STROKE_SEGMENT_UPDATE(command);//br, br.Speed * 0.05f, id, st2, out alphaBuffer, painter);
 
                     Vector3 junkPoint = st.uvFrom + st.previousDelta * 0.01f;
                     BrushMesh = PainterCamera.BrushMeshGenerator.GetStreak(UvToPosition(st.uvFrom),
@@ -848,7 +869,9 @@ namespace PlaytimePainter
                     isTail = true;
                 }
 
-                r.SHADER_STROKE_SEGMENT_UPDATE(br, br.Speed * 0.05f, id, st, out alphaBuffer, painter);
+                command.strokeAlphaPortion = br.Speed * 0.05f;
+
+                r.SHADER_STROKE_SEGMENT_UPDATE(command);//br, br.Speed * 0.05f, id, st, out alphaBuffer, painter);
 
                 BrushMesh = PainterCamera.BrushMeshGenerator.GetStreak(UvToPosition(st.uvFrom), UvToPosition(st.uvTo),
                     meshWidth, st.MouseUpEvent, isTail);
@@ -860,7 +883,7 @@ namespace PlaytimePainter
 
                 r.Render();
 
-                AfterStroke_Painter(painter, br, st, alphaBuffer, id);
+                AfterStroke_Painter(command); //painter, br, st, alphaBuffer, id);
             }
         }
 
@@ -893,84 +916,66 @@ namespace PlaytimePainter
 
             public override bool NeedsGrid => Cfg.useGridForBrush;
 
-            private static void PrepareSphereBrush(TextureMeta id, Brush br, StrokeVector stroke, out bool alphaBuffer,
-                PlaytimePainter painter = null)
+            private static void PrepareSphereBrush(PaintCommand.WorldSpace command)
             {
-
-               // if (stroke.mouseDwn)
+                Brush br = command.brush;
+                var td = command.textureData;
+                // if (stroke.mouseDwn)
                 //    stroke.posFrom = stroke.posTo;
 
-                TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(br, br.Speed * 0.05f, id, stroke, out alphaBuffer, painter);
+                command.strokeAlphaPortion = br.Speed * 0.05f;
 
-                var offset = id.offset - stroke.unRepeatedUv.Floor();
+                TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command); // br, br.Speed * 0.05f, id, stroke, out alphaBuffer, painter);
 
-                stroke.SetWorldPosInShader();
+                var offset = command.textureData.offset - command.stroke.unRepeatedUv.Floor();
+
+                command.stroke.SetWorldPosInShader();
 
                 PainterShaderVariables.BRUSH_EDITED_UV_OFFSET.GlobalValue =
-                    new Vector4(id.tiling.x, id.tiling.y, offset.x, offset.y);
+                    new Vector4(td.tiling.x, td.tiling.y, offset.x, offset.y);
                 PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
             }
 
-            public override void PaintRenderTexture(PlaytimePainter painter, Brush br, StrokeVector st)
+            public override void PaintRenderTextureInWorldSpace(PaintCommand.WorldSpace command) //PlaytimePainter painter, Brush br, Stroke st)
             {
 
-                var id = painter.TexMeta;
+                var id = command.textureData;//painter.TexMeta;
 
-                BeforeStroke(br, st, painter);
+                BeforeStroke(command);//br, st, painter);
 
-                bool alphaBuffer;
+                //bool alphaBuffer;
 
-                PrepareSphereBrush(id, br, st, out alphaBuffer, painter);
+                PrepareSphereBrush(command); //id, br, st, out alphaBuffer, painter);
 
-                if (!st.MouseDownEvent)
+                if (!command.stroke.MouseDownEvent)
                 {
-                    TexMGMT.brushRenderer.UseMeshAsBrush(painter);
+                    TexMGMT.brushRenderer.Prepare(command);
                     TexMGMT.Render();
                 }
 
-                AfterStroke_Painter(painter, br, st, alphaBuffer, id);
+                AfterStroke_Painter(command); //painter, br, st, alphaBuffer, id);
             }
 
-            public static void Paint(RenderTexture rt, GameObject go, SkinnedMeshRenderer skinner, Brush br,
-                StrokeVector st, int subMeshIndex)
+            public static void Paint(PaintCommand.WorldSpace command)
             {
-                br.GetBlitMode(false).PrePaint(br, st);
 
-                bool alphaBuffer;
+                Brush br = command.brush;
+                Stroke st = command.stroke; 
 
-                PrepareSphereBrush(rt.GetTextureMeta(), br, st, out alphaBuffer);
-                TexMGMT.brushRenderer.UseSkinMeshAsBrush(go, skinner, subMeshIndex);
+                br.GetBlitMode(false).PrePaint(command);
+
+                PrepareSphereBrush(command); 
+                TexMGMT.brushRenderer.Prepare(command);
                 TexMGMT.Render();
-                AfterStroke_NoPainter(br, alphaBuffer, rt);
+                AfterStroke_NoPainter(command);
             }
 
-            public static void Paint(RenderTexture rt, GameObject go, Mesh mesh, Brush br, StrokeVector st,
-                List<int> subMeshIndex)
+
+            public static void PaintAtlased(PaintCommand.WorldSpace command,int aTexturesInRow)
             {
-                br.GetBlitMode(false).PrePaint(br, st);
-
-                bool alphaBuffer;
-
-                PrepareSphereBrush(rt.GetTextureMeta(), br, st, out alphaBuffer);
-                TexMGMT.brushRenderer.UseMeshAsBrush(go, mesh, subMeshIndex);
-                TexMGMT.Render();
-                AfterStroke_NoPainter(br, alphaBuffer, rt);
-            }
-
-            public static void PaintAtlased(RenderTexture rt, GameObject go, Mesh mesh, Brush br, StrokeVector st,
-                List<int> subMeshIndex, int aTexturesInRow)
-            {
-
-                br.GetBlitMode(false).PrePaint(br, st);
-
                 PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, aTexturesInRow, 1);
 
-                bool alphaBuffer;
-                PrepareSphereBrush(rt.GetTextureMeta(), br, st, out alphaBuffer);
-                TexMGMT.brushRenderer.UseMeshAsBrush(go, mesh, subMeshIndex);
-                TexMGMT.Render();
-
-                AfterStroke_NoPainter(br, alphaBuffer, rt);
+                Paint(command);
 
                 PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
             }

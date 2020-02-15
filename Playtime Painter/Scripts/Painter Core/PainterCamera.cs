@@ -82,19 +82,10 @@ namespace PlaytimePainter {
 
                     if (!_inst)
                     {
-
-                       /* var go = new GameObject(PainterDataAndConfig.PainterCameraName);
-                        _inst = go.AddComponent<PainterCamera>();
-                        PainterSystemManagerModuleBase.RefreshPlugins();
-                        */
-                        //#if UNITY_EDITOR
-                            var go = Resources.Load("prefabs/" + PainterDataAndConfig.PainterCameraName) as GameObject;
-                            _inst = Instantiate(go).GetComponent<PainterCamera>();
-                            _inst.name = PainterDataAndConfig.PainterCameraName;
-                            CameraModuleBase.RefreshPlugins();
-
-                            //#endif
-
+                        var go = Resources.Load("prefabs/" + PainterDataAndConfig.PainterCameraName) as GameObject;
+                        _inst = Instantiate(go).GetComponent<PainterCamera>();
+                        _inst.name = PainterDataAndConfig.PainterCameraName;
+                        CameraModuleBase.RefreshPlugins();
                     }
                 }
      
@@ -357,49 +348,28 @@ namespace PlaytimePainter {
 
         #region Brush Shader MGMT
         
-        public void SHADER_BRUSH_UPDATE(Brush brush = null, float brushAlpha = 1, TextureMeta id = null, PlaytimePainter painter = null)
+        public void SHADER_BRUSH_UPDATE(PaintCommand.UV command) 
         {
-            if (brush == null)
-                brush = GlobalBrush;
 
-            if (id == null && painter)
-                id = painter.TexMeta;
-            
-            brush.previewDirty = false;
+            Brush brush = command.brush;
 
-            if (id == null)
-                return;
+            var id = command.textureData;
 
-            float textureWidth = id.width;
+            float textureWidth = id == null ? 256 : id.width;
+
             var rendTex = id.TargetIsRenderTexture();
+
             var brushType = brush.GetBrushType(!rendTex);
-            var blitMode = brush.GetBlitMode(!rendTex);
-            var is3DBrush = brush.IsA3DBrush(painter);
-            var useAlphaBuffer = (brush.useAlphaBuffer && blitMode.SupportsAlphaBufferPainting && rendTex);
+
+            var is3DBrush = command.Is3DBrush;
+
+            #region Brush
+
+            brush.previewDirty = false;
 
             PainterShaderVariables.BrushColorProperty.GlobalValue = brush.Color;
 
-            PainterShaderVariables.BrushMaskProperty.GlobalValue = brush.mask.ToVector4(); 
-
-            float useTransparentLayerBackground = 0;
-
-            PainterShaderVariables.OriginalTextureTexelSize.GlobalValue = new Vector4(
-                1f/id.width,
-                1f/id.height,
-                id.width,
-                id.height
-                );
-
-            if (id.isATransparentLayer) {
-
-                var md = painter.MatDta;
-                var mat = md.material;
-                if (md != null && md.usePreviewShader && mat) {
-                    var mt = mat.mainTexture;
-                    PainterShaderVariables.TransparentLayerUnderProperty.GlobalValue = mt;
-                    useTransparentLayerBackground = (mt && (id != mt.GetImgDataIfExists())) ? 1 : 0;
-                }
-            }
+            PainterShaderVariables.BrushMaskProperty.GlobalValue = brush.mask.ToVector4();
             
             brushType.OnShaderBrushUpdate(brush);
 
@@ -409,16 +379,49 @@ namespace PlaytimePainter {
             PainterShaderVariables.MaskDynamicsProperty.GlobalValue = new Vector4(
                 brush.maskTiling,
                 rendTex ? brush.hardness * brush.hardness : 0,       // y - Hardness is 0 to do correct preview for Texture2D brush 
-                ((brush.flipMaskAlpha && brush.useMask) ? 0 : 1) ,  // z - flip mask if any
+                ((brush.flipMaskAlpha && brush.useMask) ? 0 : 1),  // z - flip mask if any
                 (brush.maskFromGreyscale && brush.useMask) ? 1 : 0);
+
 
             PainterShaderVariables.MaskOffsetProperty.GlobalValue = brush.maskOffset.ToVector4();
 
             PainterShaderVariables.BrushFormProperty.GlobalValue = new Vector4(
-                brushAlpha, // x - transparency
+                command.strokeAlphaPortion, // x - transparency
                 brush.Size(is3DBrush), // y - scale for sphere
                 brush.Size(is3DBrush) / textureWidth, // z - scale for uv space
                 brush.blurAmount); // w - blur amount
+
+            #endregion
+
+
+            if (id == null)
+                return;
+            
+            var blitMode = brush.GetBlitMode(!rendTex);
+            
+            var useAlphaBuffer = (brush.useAlphaBuffer && blitMode.SupportsAlphaBufferPainting && rendTex);
+            
+            float useTransparentLayerBackground = 0;
+
+            PainterShaderVariables.OriginalTextureTexelSize.GlobalValue = new Vector4(
+                1f/id.width,
+                1f/id.height,
+                id.width,
+                id.height
+                );
+
+            if (id.isATransparentLayer && command.painter) {
+
+                var md = command.painter.MatDta;
+                var mat = md.material;
+                if (md != null && md.usePreviewShader && mat) {
+                    var mt = mat.mainTexture;
+                    PainterShaderVariables.TransparentLayerUnderProperty.GlobalValue = mt;
+                    useTransparentLayerBackground = (mt && (id != mt.GetImgDataIfExists())) ? 1 : 0;
+                }
+            }
+
+
 
             PainterShaderVariables.AlphaBufferConfigProperty.GlobalValue = new Vector4(
                 brush.alphaLimitForAlphaBuffer,
@@ -449,8 +452,12 @@ namespace PlaytimePainter {
             }
         }
 
-        public void SHADER_STROKE_SEGMENT_UPDATE(Brush bc, float brushAlpha, TextureMeta id, StrokeVector stroke, out bool alphaBuffer, PlaytimePainter pntr = null)
+        public void SHADER_STROKE_SEGMENT_UPDATE(PaintCommand.UV command)
         {
+            Brush bc = command.brush;
+            TextureMeta id = command.textureData;
+            Stroke stroke = command.stroke;
+            
             CheckPaintingBuffers();
             
             var isDoubleBuffer = !id.renderTexture;
@@ -459,12 +466,12 @@ namespace PlaytimePainter {
 
             var blitMode = bc.GetBlitMode(false);
 
-            alphaBuffer = !useSingle && bc.useAlphaBuffer && bc.GetBrushType(false).SupportsAlphaBufferPainting && blitMode.SupportsAlphaBufferPainting;
+            command.usedAlphaBuffer = !useSingle && bc.useAlphaBuffer && bc.GetBrushType(false).SupportsAlphaBufferPainting && blitMode.SupportsAlphaBufferPainting;
 
             Shader shd = null;
-            if (pntr)
+            if (command.painter)
                 foreach (var pl in CameraModuleBase.BrushPlugins) {
-                    var bs = useSingle ? pl.GetBrushShaderSingleBuffer(pntr) : pl.GetBrushShaderDoubleBuffer(pntr);
+                    var bs = useSingle ? pl.GetBrushShaderSingleBuffer(command.painter) : pl.GetBrushShaderDoubleBuffer(command.painter);
                     if (!bs) continue;
                     shd = bs;
                     break;
@@ -472,7 +479,7 @@ namespace PlaytimePainter {
 
             if (!shd) {
 
-                if (alphaBuffer) {
+                if (command.usedAlphaBuffer) {
                     shd = blitMode.ShaderForAlphaOutput; 
                     AlphaBufferSetDirtyBeforeRender(id, blitMode.ShaderForAlphaBufferBlit);
                 }
@@ -483,11 +490,10 @@ namespace PlaytimePainter {
 
             if (!useSingle && !RenderTextureBuffersManager.secondBufferUpdated)
                 RenderTextureBuffersManager.UpdateBufferTwo();
+            
+            SHADER_BRUSH_UPDATE(command); 
 
-            //if (stroke.firstStroke)
-            SHADER_BRUSH_UPDATE(bc, brushAlpha, id, pntr);
-
-            TargetTexture = alphaBuffer ? AlphaBuffer : id.CurrentRenderTexture();
+            TargetTexture = command.usedAlphaBuffer ? AlphaBuffer : id.CurrentRenderTexture();
 
             if (isDoubleBuffer)
                 PainterShaderVariables.DESTINATION_BUFFER.GlobalValue = BackBuffer;
@@ -495,7 +501,7 @@ namespace PlaytimePainter {
             CurrentShader = shd;
         }
 
-        public static void SHADER_POSITION_AND_PREVIEW_UPDATE(StrokeVector st, bool hidePreview, float size)
+        public static void SHADER_POSITION_AND_PREVIEW_UPDATE(Stroke st, bool hidePreview, float size)
         {
 
             PainterShaderVariables.BRUSH_POINTED_UV.GlobalValue = st.uvTo.ToVector4(0, _previewAlpha);
@@ -559,14 +565,14 @@ namespace PlaytimePainter {
 
         public void Render()  {
 
-            //Debug.Log("Render call");
-
             transform.rotation = Quaternion.identity;
             PainterShaderVariables.cameraPosition_Property.GlobalValue = transform.position.ToVector4();
 
             brushRenderer.gameObject.SetActive(true);
             painterCamera.Render();
-            brushRenderer.gameObject.SetActive(false);
+
+            if (!disableSecondBufferUpdateDebug)
+                brushRenderer.gameObject.SetActive(false);
 
             var trg = TargetTexture;
 
@@ -831,9 +837,6 @@ namespace PlaytimePainter {
             if (PlaytimePainter.IsCurrentTool && FocusedPainter)
                 FocusedPainter.ManagedUpdateOnFocused();
             
-            if (GlobalBrush.previewDirty)
-                SHADER_BRUSH_UPDATE();
-
             QcAsync.UpdateManagedCoroutines();
 
             MeshManager.CombinedUpdate();
@@ -860,8 +863,6 @@ namespace PlaytimePainter {
                     PlaytimePainter.currentlyPaintedObjectPainter = null;
                 else {
                     p.ProcessStrokeState();
-                    //TexMgmtData.brushConfig.Paint(p.stroke, p);
-                    //p.ManagedUpdateOnFocused();
                 }
             }
             

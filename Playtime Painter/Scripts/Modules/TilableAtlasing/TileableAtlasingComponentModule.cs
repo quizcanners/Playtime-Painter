@@ -64,8 +64,14 @@ namespace PlaytimePainter.ComponentModules {
         public override void Update_Brush_Parameters_For_Preview_Shader() =>
             QcUnity.ToggleShaderKeywords(!painter.IsAtlased(), PainterShaderVariables.UV_NORMAL, PainterShaderVariables.UV_ATLASED);
         
-        public bool PaintTexture2D(StrokeVector stroke, float brushAlpha, TextureMeta image, Brush bc, PlaytimePainter painter) {
-            
+        public bool PaintTexture2D(PaintCommand.UV command) {
+
+            Stroke stroke = command.stroke;
+            float brushAlpha = command.strokeAlphaPortion;
+            TextureMeta image = command.textureData;
+            Brush bc = command.brush;
+            PlaytimePainter painter = command.painter;
+
             if (!painter.IsAtlased()) return false;
             
             var uvCoords = stroke.uvFrom;
@@ -208,16 +214,17 @@ namespace PlaytimePainter.ComponentModules {
        
         #endregion
 
-        public override void BeforeGpuStroke(Brush br, StrokeVector st, BrushTypes.Base type)
+        public override void BeforeGpuStroke(PaintCommand.UV command) //Brush br, Stroke st, BrushTypes.Base type)
         {
-            if (!br.IsA3DBrush(painter) || !painter.IsAtlased()) return;
+            if (!painter.Is3DBrush(command.brush) || !painter.IsAtlased()) return;
             
             var ats = GetAtlasedSection();
             PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(ats.x, ats.y, atlasRows, 1);
         }
 
-        public override void AfterGpuStroke(Brush br, StrokeVector st, BrushTypes.Base type) {
-            if (br.IsA3DBrush(painter) && painter.IsAtlased())
+        public override void AfterGpuStroke(PaintCommand.UV command) //Brush br, Stroke st, BrushTypes.Base type)
+                                                                     {
+            if (painter.Is3DBrush(command.brush) && painter.IsAtlased())
                 PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
         }
     }

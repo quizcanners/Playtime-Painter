@@ -1,11 +1,9 @@
 ﻿using UnityEngine;
-using System;
-using System.Runtime.CompilerServices;
 using QuizCannersUtilities;
 
 namespace PlaytimePainter {
     
-    public class StrokeVector : AbstractCfg {
+    public class Stroke : AbstractCfg {
 
 	    public Vector2 uvFrom;
 	    public Vector3 posFrom;
@@ -19,6 +17,10 @@ namespace PlaytimePainter {
 
         private bool _mouseDownEvent;
         private bool _mouseUpEvent;
+        
+        public bool firstStroke; // For cases like Lazy Brush, when painting doesn't start on the first frame.
+        public bool mouseHeld;
+        public static bool pausePlayback;
 
         public bool MouseDownEvent
         {
@@ -30,8 +32,7 @@ namespace PlaytimePainter {
                     _mouseUpEvent = false;
             }
         }
-	    public bool firstStroke; // For cases like Lazy Brush, when painting doesn't start on the first frame.
-
+	  
         public bool MouseUpEvent
         {
             get { return _mouseUpEvent; }
@@ -42,18 +43,14 @@ namespace PlaytimePainter {
                     _mouseDownEvent = false;
             }
         }
-        public bool mouseHeld;
-
-        public static bool pausePlayback;
-
+        
         public override string ToString() => "Pos: {0} UV: {1}".F(DeltaWorldPos, DeltaUv); 
 
 	    public Vector2 DeltaUv => uvTo - uvFrom;
         public Vector3 DeltaWorldPos => posTo - posFrom;
 
-        public PlaytimePainter Paint(PlaytimePainter painter, Brush brush) => brush.Paint(this, painter);
+        public void Paint(PlaytimePainter painter, Brush brush) => brush.Paint(painter.PaintCommand); //this, painter);
         
-
         public bool CrossedASeam() {
 
             if (MouseDownEvent)
@@ -176,9 +173,11 @@ namespace PlaytimePainter {
             uvTo = uv;
         }
 
-        private void Down(RaycastHit hit, bool texcoord2) =>
+        private void Down(RaycastHit hit, bool texcoord2)
+        {
             Down(hit.point, (texcoord2 ? hit.textureCoord2 : hit.textureCoord).To01Space());
-        
+        }
+
         private void Down(Vector3 pos, Vector2 uv) {
             Down_Internal();
             uvFrom = uv;
@@ -218,32 +217,38 @@ namespace PlaytimePainter {
             posFrom = posTo;
         }
 
-        public StrokeVector()
+
+        public void From(RaycastHit hit, bool useTexcoord2)
+        {
+            uvFrom = uvTo = (useTexcoord2 ? hit.textureCoord2 : hit.textureCoord).To01Space();
+            posFrom = posTo = hit.point;
+        }
+
+        public Stroke()
         {
             Down_Internal();
         }
 
-        public StrokeVector (RaycastHit hit, bool texcoord2) {
-            uvFrom = uvTo = (texcoord2 ? hit.textureCoord2 : hit.textureCoord).To01Space();
-            posFrom = posTo = hit.point;
+        public Stroke (RaycastHit hit, bool texcoord2) {
+            From(hit, texcoord2);
             Down_Internal();
         }
 
 
 
-        public StrokeVector(Vector3 pos)
+        public Stroke(Vector3 pos)
         {
             posFrom = posTo = pos;
             Down_Internal();
         }
 
-        public StrokeVector(Vector2 uv)
+        public Stroke(Vector2 uv)
         {
             uvFrom = uvTo = uv;
             Down_Internal();
         }
 
-        public StrokeVector(StrokeVector  other)
+        public Stroke(Stroke  other)
         {
             uvFrom = other.uvFrom;
             posFrom = other.posFrom;
@@ -262,22 +267,5 @@ namespace PlaytimePainter {
             Down_Internal();
         }
     }
-
-    public class BrushStrokePainterImage
-    {
-        public StrokeVector stroke;
-        public TextureMeta image;
-        public Brush brush;
-        public PlaytimePainter painter;
-
-        public BrushStrokePainterImage(StrokeVector s, TextureMeta id, Brush br, PlaytimePainter pp)
-        {
-            stroke = s;
-            image = id;
-            brush = br;
-            painter = pp;
-        }
-    }
-
 
 }

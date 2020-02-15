@@ -11,7 +11,7 @@ namespace PlaytimePainter {
     public static class BlitFunctions {
 
         public delegate void BlitModeFunction(ref Color dst);
-        public delegate void PaintTexture2DMethod(StrokeVector stroke, float brushAlpha, TextureMeta image, Brush bc, PlaytimePainter painter);
+        public delegate void PaintPixelsInRamMethod(PaintCommand.UV command); //Stroke stroke, float brushAlpha, TextureMeta image, Brush bc, PlaytimePainter painter);
 
         public delegate bool AlphaModeDlg();
 
@@ -136,25 +136,37 @@ namespace PlaytimePainter {
 
         }
 
-        public static void Paint(Vector2 uvCoords, float brushAlpha, Texture2D texture, Vector2 offset, Vector2 tiling, Brush bc, PlaytimePainter pntr)
+        public static void Paint(Vector2 uvCoords, float brushAlpha, Texture2D texture, Vector2 offset, Vector2 tiling, Brush bc)
         {
             var id = texture.GetTextureMeta();
 
             id.offset = offset;
             id.tiling = tiling;
 
-            Paint(new StrokeVector(uvCoords), brushAlpha, texture.GetTextureMeta(), bc, pntr);
+            var cmd = new PaintCommand.UV(new Stroke(uvCoords), texture.GetTextureMeta(), bc);
+            cmd.strokeAlphaPortion = brushAlpha;
+            Paint(cmd);
         }
 
-        public static void Paint(StrokeVector stroke, float brushAlpha, TextureMeta image, Brush bc, PlaytimePainter painter)
+        public static void Paint(PaintCommand.UV command
+            //Stroke stroke, 
+           // float brushAlpha
+           // TextureMeta image, 
+           // Brush bc, 
+           // PlaytimePainter painter
+           )
         {
 
-            if (image?.Pixels == null)
+            TextureMeta image = command.textureData;
+            Brush bc = command.brush;
+            PlaytimePainter painter = command.painter;
+
+            if (command.textureData.Pixels == null)
                 return;
 
-            var uvCoords = stroke.uvFrom;
+            var uvCoords = command.stroke.uvFrom;
 
-            brAlpha = brushAlpha;
+            brAlpha = command.strokeAlphaPortion;
 
             bc.PrepareCpuBlit(image);
 

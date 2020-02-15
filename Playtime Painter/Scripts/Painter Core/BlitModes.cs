@@ -175,7 +175,7 @@ namespace PlaytimePainter {
 
                     MsgPainter.Scale.Write();
 
-                    if (InspectedBrush.IsA3DBrush(InspectedPainter))
+                    if (InspectedPainter.Is3DBrush(InspectedBrush))
                     {
                         var m = PlaytimePainter.inspected.GetMesh();
 
@@ -217,7 +217,7 @@ namespace PlaytimePainter {
 
             #endregion
 
-            public virtual void PrePaint(Brush br, StrokeVector st, PlaytimePainter painter = null)
+            public virtual void PrePaint(PaintCommand.UV paintCommand) //Brush br, Stroke st, PlaytimePainter painter = null)
             {
             }
 
@@ -548,8 +548,10 @@ namespace PlaytimePainter {
 
             private static readonly ShaderProperty.VectorValue BRUSH_SAMPLING_DISPLACEMENT = new ShaderProperty.VectorValue("_qcPp_brushSamplingDisplacement");
 
-            public override void PrePaint(Brush br, StrokeVector st, PlaytimePainter painter = null)
+            public override void PrePaint(PaintCommand.UV paintCommand) //Brush br, Stroke st, PlaytimePainter painter = null)
             {
+                
+                Stroke st = paintCommand.stroke;
 
                 var v4 = new Vector4(st.unRepeatedUv.x, st.unRepeatedUv.y, Mathf.Floor(st.unRepeatedUv.x),
                     Mathf.Floor(st.unRepeatedUv.y));
@@ -560,10 +562,10 @@ namespace PlaytimePainter {
 
                 if (method == (ColorSetMethod.MDownColor))
                 {
-                    if (painter)
+                    if (paintCommand.painter)
                     {
-                        painter.SampleTexture(st.uvTo);
-                        FromColor(br, st.unRepeatedUv);
+                        paintCommand.painter.SampleTexture(st.uvTo);
+                        FromColor(paintCommand.brush, st.unRepeatedUv);
                     }
                 }
                 else if (method == (ColorSetMethod.MDownPosition))

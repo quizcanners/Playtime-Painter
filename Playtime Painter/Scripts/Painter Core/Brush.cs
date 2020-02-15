@@ -20,13 +20,13 @@ namespace PlaytimePainter {
         
         #region Modes & Types
 
-        public bool IsCpu(PlaytimePainter painter) => painter ? painter.TexMeta.TargetIsTexture2D() : targetIsTex2D;
+        public bool IsCpu(TextureMeta textureMeta) => textureMeta!= null ? textureMeta.TargetIsTexture2D() : targetIsTex2D;
         
         [SerializeField] private int _inGpuBrushType;
         [SerializeField] private int _inCpuBrushType;
         private int _brushType(bool cpu) => cpu ? _inCpuBrushType : _inGpuBrushType;
         public void SetBrushType(bool cpu, BrushTypes.Base t) { if (cpu) _inCpuBrushType = t.index; else _inGpuBrushType = t.index; }
-        public BrushTypes.Base GetBrushType(PlaytimePainter painter) => GetBrushType(IsCpu(painter));
+        public BrushTypes.Base GetBrushType(TextureMeta textureMeta) => GetBrushType(IsCpu(textureMeta));
         public BrushTypes.Base GetBrushType(bool cpu) => BrushTypes.Base.AllTypes[_brushType(cpu)];
 
         [SerializeField] private int _inGpuBlitMode;
@@ -34,7 +34,7 @@ namespace PlaytimePainter {
 
         public int BlitMode(bool cpu) => cpu ? _inCpuBlitMode : _inGpuBlitMode;
         public BlitModes.Base GetBlitMode(bool cpu) => BlitModes.Base.AllModes[BlitMode(cpu)];
-        public BlitModes.Base GetBlitMode(PlaytimePainter painter) => BlitModes.Base.AllModes[BlitMode(IsCpu(painter))];
+        public BlitModes.Base GetBlitMode(TextureMeta textureMeta) => BlitModes.Base.AllModes[BlitMode(IsCpu(textureMeta))];
         
         public void SetBlitMode(bool cpu, BlitModes.Base mode)
         {
@@ -132,27 +132,11 @@ namespace PlaytimePainter {
 
         public float Size(bool worldSpace) => Mathf.Max(0.01f, worldSpace ? brush3DRadius : brush2DRadius);
         public Color Color;
-
-        public virtual bool IsA3DBrush(PlaytimePainter painter)
+        
+        public bool Is3DBrush(TextureMeta texture = null)
         {
-            var overrideOther = false;
-
-            var isA3D = false;
-
-            if (painter)
-                foreach (var pl in CameraModuleBase.BrushPlugins)
-                {
-                    isA3D = pl.IsA3DBrush(painter, this, ref overrideOther);
-                    if (overrideOther) break;
-                }
-
-            if (!overrideOther)
-            {
-                var cpu = IsCpu(painter);
-                isA3D = GetBrushType(cpu).IsAWorldSpaceBrush;
-            }
-
-            return isA3D;
+            var cpu = IsCpu(texture);
+            return GetBrushType(cpu).IsAWorldSpaceBrush;
         }
 
         [SerializeField] public QcUtils.DynamicRangeFloat _dSpeed = new QcUtils.DynamicRangeFloat(0.1f, 4.5f, 3f );
@@ -171,59 +155,79 @@ namespace PlaytimePainter {
             mask |= ColorMask.R | ColorMask.G | ColorMask.B;
         }
         
-        public PlaytimePainter Paint(StrokeVector stroke, PlaytimePainter painter) {
+        public void Paint(PaintCommand.UV command)
+        {
+            var imgData = command.textureData;
 
-            var imgData = painter.TexMeta;
-
-            if (imgData == null) {
-                painter.InitIfNotInitialized();
-                imgData = painter.TexMeta;
-                if (imgData == null)
-                    return painter;
-            }
-
-            var cpu = imgData.TargetIsTexture2D();
+            var cpu = command.textureData.TargetIsTexture2D();
             var brushType = GetBrushType(cpu);
             var blitMode = GetBlitMode(cpu);
+            var isWorldSpace = command.Is3DBrush;
 
-            blitMode.PrePaint(this, stroke, painter: painter);
+            blitMode.PrePaint(command);
 
-            if (cpu) {
+            if (cpu)
+            {
 
-                foreach (var module in imgData.Modules)
-                    module.OnPainting(painter);
-                
-                brushType.PaintToTexture2D(painter, this, stroke);
-            } else {
+                if (command.painter)
+                    foreach (var module in imgData.Modules)
+                        module.OnPainting(command.painter);
 
-                var materialData = painter.MatDta;
+                brushType.PaintPixelsInRam(command); 
+            }
+            else
+            {
+                if (command.painter)
+                {
+                    var painter = command.painter;
 
-                if (!imgData.renderTexture  && !TexMGMT.materialsUsingRenderTexture.Contains(materialData)) {
-                    TexMGMT.ChangeBufferTarget(imgData, materialData, painter.GetMaterialTextureProperty, painter);
-                    painter.SetTextureOnMaterial(imgData);
-                }
+                    var materialData = painter.MatDta;
 
-                var rendered = false;
-
-                foreach (var pl in CameraModuleBase.BrushPlugins)
-                    if (pl.IsEnabledFor(painter, imgData, this)) { 
-                        pl.PaintRenderTexture(stroke, imgData, this, painter);
-                        rendered = true;
-                        break;
+                    if (!imgData.renderTexture && !TexMGMT.materialsUsingRenderTexture.Contains(materialData))
+                    {
+                        TexMGMT.ChangeBufferTarget(imgData, materialData, painter.GetMaterialTextureProperty, painter);
+                        painter.SetTextureOnMaterial(imgData);
                     }
 
-                if (!painter.terrain || brushType.SupportedForTerrainRt) {
+                    var rendered = false;
 
-                    foreach (var module in imgData.Modules)
-                        module.OnPainting(painter);
+                    foreach (var pl in CameraModuleBase.BrushPlugins)
+                        if (pl.IsEnabledFor(painter, imgData, this))
+                        {
+                            Debug.Log("using a plugin" + pl.GetNameForInspector());
 
-                    if (!rendered)
-                        brushType.PaintRenderTexture(painter, this, stroke);
+                            pl.PaintRenderTextureUvSpace(command); 
+                            rendered = true;
+                            break;
+                        }
+
+                    if (!painter.terrain || brushType.SupportedForTerrainRt)
+                    {
+
+                        foreach (var module in imgData.Modules)
+                            module.OnPainting(painter);
+
+                        if (!rendered)
+                        {
+                            Debug.Log("using a render in" + (isWorldSpace ? "World Space" : "UV space"));
+
+                            if (isWorldSpace)
+                                brushType.PaintRenderTextureInWorldSpace(command as PaintCommand.WorldSpace);
+                            else 
+                                brushType.PaintRenderTextureUvSpace(command);
+                        }
+                    }
+                }
+                else
+                {
+                    if (isWorldSpace)
+                        brushType.PaintRenderTextureInWorldSpace(command as PaintCommand.WorldSpace);
+                    else
+                        brushType.PaintRenderTextureUvSpace(command);
                 }
             }
-
-            return painter;
         }
+
 
         #region Inspector
 
@@ -621,7 +625,7 @@ namespace PlaytimePainter {
             var mode = GetBlitMode(!rt);
             var type = GetBrushType(!rt);
 
-            var worldSpace = rt && IsA3DBrush(painter);
+            var worldSpace = rt && painter.Is3DBrush();
 
             var cody = new CfgEncoder()
 

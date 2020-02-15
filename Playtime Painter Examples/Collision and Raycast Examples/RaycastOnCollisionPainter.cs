@@ -56,13 +56,21 @@ namespace PlaytimePainter.Examples
         private void Paint(Collision collision, PaintingCollision pCont)
         {
 
-            if (brush.IsA3DBrush(pCont.painter))
+            if (pCont.painter.PaintCommand.SetBrush(brush).Is3DBrush)
             {
 
                 var v = pCont.vector;
                 v.posTo = transform.position;
-                if (v.MouseDownEvent) v.posFrom = v.posTo;
-                brush.Paint(v, pCont.painter);
+                if (v.MouseDownEvent)
+                    v.posFrom = v.posTo;
+
+                var command = pCont.painter.PaintCommand;
+                
+                var originalStroke = command.stroke;
+
+                brush.Paint(command); 
+
+                command.stroke = originalStroke;
 
             }
             else
@@ -71,9 +79,7 @@ namespace PlaytimePainter.Examples
                 if (collision.contacts.Length <= 0) return;
 
                 var cp = collision.contacts[0];
-
-
-
+                
                 var ray = new Ray(cp.point + cp.normal * 0.1f, -cp.normal);
 
                 RaycastHit hit;
@@ -84,7 +90,17 @@ namespace PlaytimePainter.Examples
                 v.uvTo = hit.textureCoord;
                 if (v.MouseDownEvent) v.uvFrom = v.uvTo;
 
-                brush.Paint(pCont.vector, pCont.painter.SetTexTarget(brush));
+                var command = pCont.painter.PaintCommand;
+
+                var originalVector = command.stroke;
+
+                command.stroke = pCont.vector;
+
+                pCont.painter.SetTexTarget(brush);
+
+                brush.Paint(command);
+
+                command.stroke = originalVector;
             }
         }
 

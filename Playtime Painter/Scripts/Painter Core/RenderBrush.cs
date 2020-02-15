@@ -58,21 +58,20 @@ namespace PlaytimePainter
 
         }
         
-        public void UseMeshAsBrush(PlaytimePainter painter)
+        public void Prepare(PaintCommand.WorldSpace command) 
         {
-
-            var go = painter.gameObject;
-
-            var skinny = painter.skinnedMeshRenderer;
-
-            if (skinny)
-                UseSkinMeshAsBrush(go, skinny, painter.selectedSubMesh);
+            if (command.SkinnedMeshRenderer) 
+                UseSkinMeshAsBrush(command); 
             else
-                UseMeshAsBrush(go, painter.GetMesh(), new List<int> { painter.selectedSubMesh });
+                UseMeshAsBrush(command);
         }
 
-        public void UseSkinMeshAsBrush(GameObject go, SkinnedMeshRenderer skinny, int subMesh)
+        private void UseSkinMeshAsBrush(PaintCommand.WorldSpace command) 
         {
+            GameObject go = command.GameObject;
+            SkinnedMeshRenderer skinny = command.SkinnedMeshRenderer;
+            int subMesh = command.SubMeshIndexFirst;
+
             _modifiedSubMesh = subMesh;
 
             meshRenderer.enabled = false;
@@ -99,8 +98,12 @@ namespace PlaytimePainter
             deformedBounds = true;
         }
 
-        public void UseMeshAsBrush(GameObject go, Mesh mesh, List<int> selectedSubMeshes)
+        private void UseMeshAsBrush(PaintCommand.WorldSpace command)
         {
+
+            GameObject go = command.GameObject;
+            Mesh mesh = command.Mesh;
+            List<int> selectedSubMeshes = command.SelectedSubmeshes;
 
             var camTransform = TexMGMT.transform;
 

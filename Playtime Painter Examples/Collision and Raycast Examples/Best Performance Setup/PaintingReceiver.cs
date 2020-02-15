@@ -24,6 +24,20 @@ namespace PlaytimePainter.Examples
         [SerializeField]
         private string textureField = "";
 
+        public RenderTexture TryGetRenderTexture()
+        {
+           return texture.GetType() == typeof(RenderTexture) ? (RenderTexture)texture : null;
+        }
+
+        public PaintCommand.WorldSpace TryMakePaintCommand(Stroke stroke, Brush brush, int subMesh) 
+            => new PaintCommand.WorldSpace(stroke, TryGetRenderTexture().GetTextureMeta(), brush,
+                originalMesh
+                    ? originalMesh
+                    : meshFilter.sharedMesh,
+                subMesh,
+                gameObject
+            );
+        
 
         private ShaderProperty.TextureValue _textureProperty;
 
