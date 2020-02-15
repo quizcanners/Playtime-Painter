@@ -562,11 +562,16 @@ namespace PlaytimePainter {
 
                 if (method == (ColorSetMethod.MDownColor))
                 {
-                    if (paintCommand.painter)
+                    var painter = paintCommand.TryGetPainter();
+
+                    if (painter)
                     {
-                        paintCommand.painter.SampleTexture(st.uvTo);
-                        FromColor(paintCommand.brush, st.unRepeatedUv);
+                        painter.SampleTexture(st.uvTo);
                     }
+                    else
+                        paintCommand.brush.Color = paintCommand.textureData.SampleAt(st.uvTo);
+
+                    FromColor(paintCommand.brush, st.unRepeatedUv);
                 }
                 else if (method == (ColorSetMethod.MDownPosition))
                     FromUv(st.uvTo);

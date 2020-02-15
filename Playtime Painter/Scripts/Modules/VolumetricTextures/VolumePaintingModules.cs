@@ -228,7 +228,6 @@ namespace PlaytimePainter {
             {
                 var stroke = cfg.stroke;
                 var image = cfg.textureData;
-                var painter = cfg.painter;
                 var bc = cfg.brush;
 
                 var vt = cfg.textureData.GetVolumeTextureData(); //painter.GetVolumeTexture();
@@ -243,16 +242,15 @@ namespace PlaytimePainter {
                 UseSmoothing.Enabled = smoothing > 0;
 
                 image.useTexCoord2 = false;
-                //bool alphaBuffer;
                 cfg.strokeAlphaPortion = bc.Speed * 0.05f;
-                TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(cfg); //bc, bc.Speed * 0.05f, image, stroke, out alphaBuffer, painter);
+                TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(cfg); 
 
                 stroke.SetWorldPosInShader();
 
                 RenderTextureBuffersManager.Blit(null, image.CurrentRenderTexture(),
                     TexMGMT.brushRenderer.GetMaterial().shader);
 
-                BrushTypes.Sphere.Inst.AfterStroke_Painter(cfg); //painter, bc, stroke, alphaBuffer, image);
+                BrushTypes.Sphere.Inst.AfterStroke(cfg); 
 
                 return true;
             }

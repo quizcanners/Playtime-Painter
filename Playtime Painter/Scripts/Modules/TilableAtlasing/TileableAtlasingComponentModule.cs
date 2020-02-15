@@ -70,7 +70,6 @@ namespace PlaytimePainter.ComponentModules {
             float brushAlpha = command.strokeAlphaPortion;
             TextureMeta image = command.textureData;
             Brush bc = command.brush;
-            PlaytimePainter painter = command.painter;
 
             if (!painter.IsAtlased()) return false;
             
@@ -214,7 +213,7 @@ namespace PlaytimePainter.ComponentModules {
        
         #endregion
 
-        public override void BeforeGpuStroke(PaintCommand.UV command) //Brush br, Stroke st, BrushTypes.Base type)
+        public override void BeforeGpuStroke(PaintCommand.Painter command) //Brush br, Stroke st, BrushTypes.Base type)
         {
             if (!painter.Is3DBrush(command.brush) || !painter.IsAtlased()) return;
             
@@ -222,7 +221,7 @@ namespace PlaytimePainter.ComponentModules {
             PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(ats.x, ats.y, atlasRows, 1);
         }
 
-        public override void AfterGpuStroke(PaintCommand.UV command) //Brush br, Stroke st, BrushTypes.Base type)
+        public override void AfterGpuStroke(PaintCommand.Painter command) //Brush br, Stroke st, BrushTypes.Base type)
                                                                      {
             if (painter.Is3DBrush(command.brush) && painter.IsAtlased())
                 PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);

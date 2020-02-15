@@ -410,9 +410,11 @@ namespace PlaytimePainter {
                 id.height
                 );
 
-            if (id.isATransparentLayer && command.painter) {
+            var painter = command.TryGetPainter();
 
-                var md = command.painter.MatDta;
+            if (id.isATransparentLayer && painter) {
+
+                var md = painter.MatDta;
                 var mat = md.material;
                 if (md != null && md.usePreviewShader && mat) {
                     var mt = mat.mainTexture;
@@ -420,9 +422,7 @@ namespace PlaytimePainter {
                     useTransparentLayerBackground = (mt && (id != mt.GetImgDataIfExists())) ? 1 : 0;
                 }
             }
-
-
-
+            
             PainterShaderVariables.AlphaBufferConfigProperty.GlobalValue = new Vector4(
                 brush.alphaLimitForAlphaBuffer,
                 brush.worldSpaceBrushPixelJitter ? 1 : 0,
@@ -468,10 +468,12 @@ namespace PlaytimePainter {
 
             command.usedAlphaBuffer = !useSingle && bc.useAlphaBuffer && bc.GetBrushType(false).SupportsAlphaBufferPainting && blitMode.SupportsAlphaBufferPainting;
 
+            var painter = command.TryGetPainter();
+
             Shader shd = null;
-            if (command.painter)
+            if (painter)
                 foreach (var pl in CameraModuleBase.BrushPlugins) {
-                    var bs = useSingle ? pl.GetBrushShaderSingleBuffer(command.painter) : pl.GetBrushShaderDoubleBuffer(command.painter);
+                    var bs = useSingle ? pl.GetBrushShaderSingleBuffer(painter) : pl.GetBrushShaderDoubleBuffer(painter);
                     if (!bs) continue;
                     shd = bs;
                     break;

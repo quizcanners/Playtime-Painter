@@ -413,7 +413,7 @@ namespace PlaytimePainter
 
                     transform.position = ray.origin;
                     transform.LookAt(ray.origin + ray.direction 
-                                                + transform.TransformDirection(_fromMouseOffset.ToVector3(1))
+                                                + (_centerOnMousePosition ? transform.TransformDirection(_fromMouseOffset.ToVector3(1)) : Vector3.zero)
                                                 );
 
                 }

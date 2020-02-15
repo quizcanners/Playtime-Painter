@@ -161,16 +161,14 @@ namespace PlaytimePainter
 
             #endregion
 
-            public void PaintPixelsInRam(PaintCommand.UV command//Stroke stroke, float brushAlpha, TextureMeta image, Brush bc,
-               //PlaytimePainter painter
-                )
+            public void PaintPixelsInRam(PaintCommand.UV command)
             {
+                var painter= command.TryGetPainter(); 
 
-                if (!command.painter)
+                if (!painter)
                     return;
 
-                command.painter.GetModule<TileableAtlasingComponentModule>()
-                    ?.PaintTexture2D(command); //stroke, brushAlpha, image, bc, painter);
+                painter.GetModule<TileableAtlasingComponentModule>()?.PaintTexture2D(command); 
             }
 
             public bool IsA3DBrush(PlaytimePainter painter, Brush bc, ref bool overrideOther) => false;

@@ -164,23 +164,25 @@ namespace PlaytimePainter {
             var blitMode = GetBlitMode(cpu);
             var isWorldSpace = command.Is3DBrush;
 
+            var painterCommand = command as PaintCommand.Painter;
+
+            PlaytimePainter painter = painterCommand == null ? null : painterCommand.painter;
+
             blitMode.PrePaint(command);
 
             if (cpu)
             {
 
-                if (command.painter)
+                if (painter)
                     foreach (var module in imgData.Modules)
-                        module.OnPainting(command.painter);
+                        module.OnPainting(painter);
 
                 brushType.PaintPixelsInRam(command); 
             }
             else
             {
-                if (command.painter)
+                if (painter)
                 {
-                    var painter = command.painter;
-
                     var materialData = painter.MatDta;
 
                     if (!imgData.renderTexture && !TexMGMT.materialsUsingRenderTexture.Contains(materialData))
@@ -194,8 +196,6 @@ namespace PlaytimePainter {
                     foreach (var pl in CameraModuleBase.BrushPlugins)
                         if (pl.IsEnabledFor(painter, imgData, this))
                         {
-                            Debug.Log("using a plugin" + pl.GetNameForInspector());
-
                             pl.PaintRenderTextureUvSpace(command); 
                             rendered = true;
                             break;
@@ -209,8 +209,6 @@ namespace PlaytimePainter {
 
                         if (!rendered)
                         {
-                            Debug.Log("using a render in" + (isWorldSpace ? "World Space" : "UV space"));
-
                             if (isWorldSpace)
                                 brushType.PaintRenderTextureInWorldSpace(command as PaintCommand.WorldSpace);
                             else 

@@ -6,76 +6,8 @@ using UnityEngine.XR.WSA.Persistence;
 
 namespace PlaytimePainter
 {
-    public static class PaintCommand
+    public static partial class PaintCommand
     {
-
-        public class Painter : WorldSpace
-        {
-            public override GameObject GameObject
-            {
-                get
-                {
-                    return  painter.gameObject;
-                }
-                set
-                {
-                }
-            }
-            
-            public override SkinnedMeshRenderer SkinnedMeshRenderer
-            {
-                get
-                {
-                    return  painter.skinnedMeshRenderer;
-                }
-                set
-                {
-                }
-            }
-            
-            public override Mesh Mesh
-            {
-                get
-                {
-                    return  painter.GetMesh();
-                }
-                set
-                {
-                }
-            }
-            
-            public override List<int> SelectedSubmeshes
-            {
-                get
-                {
-                    return new List<int>() { painter.selectedSubMesh };
-                }
-                set
-                {
-                }
-            }
-
-            public override int SubMeshIndexFirst
-            {
-                get
-                {
-                    return painter.selectedSubMesh;
-                }
-                set
-                {
-                }
-            }
-
-            public Painter(Stroke stroke, Brush brush, PlaytimePainter painter) : base(stroke, painter.TexMeta, brush, painter.skinnedMeshRenderer, 0, painter.gameObject)
-            {
-                SkinnedMeshRenderer = painter.skinnedMeshRenderer;
-                Mesh = painter.GetMesh();
-                SubMeshIndexFirst = painter.selectedSubMesh;
-                GameObject = painter.gameObject;
-                this.painter = painter;
-            }
-        }
-
         public class WorldSpace : UV
         {
             
@@ -97,7 +29,7 @@ namespace PlaytimePainter
                 set;
             }
 
-            public override bool Is3DBrush => painter ? painter.Is3DBrush(brush) : brush.Is3DBrush(textureData);
+            public override bool Is3DBrush => brush.Is3DBrush(textureData);
 
             public virtual List<int> SelectedSubmeshes
             {
@@ -109,7 +41,7 @@ namespace PlaytimePainter
             {
                 get
                 {
-                   return painter ? painter.selectedSubMesh: SelectedSubmeshes.TryGet(0);
+                   return SelectedSubmeshes.TryGet(0);
                 }
                 set
                 {
@@ -163,8 +95,6 @@ namespace PlaytimePainter
 
             public virtual Brush brush { get; set; }
             
-            public PlaytimePainter painter { get; protected set; }
-
             public bool usedAlphaBuffer;
             public float strokeAlphaPortion = 1;
 
@@ -173,14 +103,6 @@ namespace PlaytimePainter
             public void OnStrokeComplete()
             {
                 textureData.AfterStroke(stroke);
-            }
-
-            public UV(Stroke stroke, Brush brush, PlaytimePainter painter)
-            {
-                this.stroke = stroke;
-                textureData = painter.TexMeta;
-                this.brush = brush;
-                this.painter = painter;
             }
 
             public UV(Stroke stroke, Texture texture, Brush brush)
@@ -210,5 +132,13 @@ namespace PlaytimePainter
             return command;
         }
 
+        public static PlaytimePainter TryGetPainter<T>(this T command) where T : UV
+        {
+            var pntr = command as PaintCommand.Painter;
+            if (pntr != null && pntr.painter)
+                return pntr.painter;
+
+            return null;
+        }
     }
 }

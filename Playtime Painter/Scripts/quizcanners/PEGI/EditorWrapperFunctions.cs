@@ -1215,25 +1215,25 @@ namespace PlayerAndEditorGUI
         public static bool Click(string label)
         {
             checkLine();
-            return GUILayout.Button(label, GUILayout.MaxWidth(250)) && change;
+            return GUILayout.Button(label) && change;
         }
 
         public static bool Click(string label, GUIStyle style)
         {
             checkLine();
-            return GUILayout.Button(label, style, GUILayout.MaxWidth(250)) && change;
+            return GUILayout.Button(label, style) && change;
         }
 
         public static bool Click(GUIContent content)
         {
             checkLine();
-            return GUILayout.Button(content, GUILayout.MaxWidth(250)) && change;
+            return GUILayout.Button(content) && change;
         }
 
         public static bool Click(GUIContent content, GUIStyle style)
         {
             checkLine();
-            return GUILayout.Button(content, style, GUILayout.MaxWidth(250)) && change;
+            return GUILayout.Button(content, style) && change;
         }
 
         public static bool Click(GUIContent content, int width, GUIStyle style)

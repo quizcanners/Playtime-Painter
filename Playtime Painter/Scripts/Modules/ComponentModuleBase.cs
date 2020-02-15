@@ -22,8 +22,7 @@ namespace PlaytimePainter.ComponentModules
         #region Abstract Serialized
         public abstract string ClassTag { get; }    
         #endregion
-
-
+        
         public virtual bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex) => false;
         
         public virtual void OnComponentDirty()  { }
@@ -38,9 +37,9 @@ namespace PlaytimePainter.ComponentModules
 
         public virtual void Update_Brush_Parameters_For_Preview_Shader() { }
 
-        public virtual void BeforeGpuStroke(PaintCommand.UV command) {} //Brush br, Stroke st, BrushTypes.Base type) { }
+        public virtual void BeforeGpuStroke(PaintCommand.Painter command) {} //Brush br, Stroke st, BrushTypes.Base type) { }
 
-        public virtual void AfterGpuStroke(PaintCommand.UV command){} //Brush br, Stroke st, BrushTypes.Base type) {
+        public virtual void AfterGpuStroke(PaintCommand.Painter command){} //Brush br, Stroke st, BrushTypes.Base type) {
 
         
         

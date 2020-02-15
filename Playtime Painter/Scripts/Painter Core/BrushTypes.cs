@@ -207,8 +207,6 @@ namespace PlaytimePainter
 
             public virtual void PaintPixelsInRam(PaintCommand.UV command)
             {
-
-                PlaytimePainter painter = command.painter;
                 Brush br = command.brush;
                 Stroke st = command.stroke;
 
@@ -253,6 +251,8 @@ namespace PlaytimePainter
 
                 command.strokeAlphaPortion = alpha;
 
+                var painter = command.TryGetPainter();
+
                 foreach (var p in CameraModuleBase.BrushPlugins)
                     if (p.IsEnabledFor(painter, id, br))
                     {
@@ -284,7 +284,6 @@ namespace PlaytimePainter
                 TextureMeta textureMeta = command.textureData;
                 Brush br = command.brush;
                 Stroke st = command.stroke;
-                PlaytimePainter painter = command.painter;
 
                 BeforeStroke(command); 
 
@@ -307,11 +306,8 @@ namespace PlaytimePainter
                 rb.localPosition = Stroke.BrushWorldPositionFrom((st.uvFrom + st.uvTo) * 0.5f);
 
                 TexMGMT.Render();
-
-                if (painter)
-                    AfterStroke_Painter(command);
-                else 
-                    AfterStroke_NoPainter(command);
+                
+                AfterStroke(command);
 
             }
             
@@ -320,27 +316,26 @@ namespace PlaytimePainter
 
                 Brush br = command.brush;
                 Stroke st = command.stroke;
-                PlaytimePainter painter = command.painter;
+                PaintCommand.Painter painterCommand = command as PaintCommand.Painter;
 
                 var cam = TexMGMT;
 
                 if (!RenderTextureBuffersManager.secondBufferUpdated)
                     RenderTextureBuffersManager.UpdateBufferTwo();
 
-                if (painter)
-                    foreach (var p in painter.Modules)
-                        p.BeforeGpuStroke(command);//br, st, this);
+                if (painterCommand!= null)
+                    foreach (var p in painterCommand.painter.Modules)
+                        p.BeforeGpuStroke(painterCommand);//br, st, this);
             }
 
-            public virtual void AfterStroke_Painter(PaintCommand.UV command)
+            public virtual void AfterStroke(PaintCommand.UV command)
             {
-                PlaytimePainter painter = command.painter;
+                PaintCommand.Painter painterCommand = command as PaintCommand.Painter;
                 Brush br = command.brush;
                 Stroke st = command.stroke;
                 TextureMeta id = command.textureData;
 
                 command.OnStrokeComplete();
-               // painter.AfterStroke(st);
 
                 if (br.useMask && st.MouseUpEvent && br.randomMaskOffset)
                     br.maskOffset = new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f));
@@ -348,7 +343,7 @@ namespace PlaytimePainter
                 if (command.usedAlphaBuffer)
                 {
                     var sh = br.GetBlitMode(false).ShaderForAlphaBufferBlit;
-                    if (!painter || painter.NotUsingPreview)
+                    if (painterCommand==null || painterCommand.painter.NotUsingPreview)
                         TexMGMT.UpdateFromAlphaBuffer(id.CurrentRenderTexture(), sh);
                     else
                         TexMGMT.AlphaBufferSetDirtyBeforeRender(id, sh);
@@ -356,23 +351,9 @@ namespace PlaytimePainter
                 else if (!br.IsSingleBufferBrush() && !command.Is3DBrush)
                     TexMGMT.UpdateBufferSegment();
 
-                if (painter)
-                    foreach (var p in painter.Modules)
-                        p.AfterGpuStroke(command);//br, st, this);
-            }
-
-            protected static void AfterStroke_NoPainter(PaintCommand.UV command)
-            {
-                var br = command.brush;
-
-                if (br.useMask && br.randomMaskOffset)
-                    br.maskOffset = new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f));
-
-                if (command.usedAlphaBuffer)
-                {
-                    var sh = br.GetBlitMode(false).ShaderForAlphaBufferBlit;
-                    TexMGMT.UpdateFromAlphaBuffer(command.textureData.CurrentRenderTexture(), sh);
-                }
+                if (painterCommand!= null)
+                    foreach (var p in painterCommand.painter.Modules)
+                        p.AfterGpuStroke(painterCommand);
             }
         }
 
@@ -402,19 +383,16 @@ namespace PlaytimePainter
 
             public override bool IsPixelPerfect => true;
 
-            public override void PaintRenderTextureUvSpace(PaintCommand.UV command)//PlaytimePainter painter, Brush br, Stroke st)
+            public override void PaintRenderTextureUvSpace(PaintCommand.UV command)
             {
-                PlaytimePainter painter = command.painter;
                 Brush br = command.brush;
                 Stroke st = command.stroke;
-
-                BeforeStroke(command);//br, st, painter);
+                TextureMeta id = command.textureData;
+                BeforeStroke(command);
 
                 if (st.CrossedASeam())
                     st.uvFrom = st.uvTo;
-
-                TextureMeta id = painter.TexMeta;
-
+                
                 command.strokeAlphaPortion = br.Speed * 0.05f;
 
                 TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command);// br, br.Speed * 0.05f, id, st, out alphaBuffer, painter);
@@ -428,11 +406,8 @@ namespace PlaytimePainter
 
                 TexMGMT.Render();
 
-                AfterStroke_Painter(command);//painter, br, st, alphaBuffer, id);
+                AfterStroke(command);//painter, br, st, alphaBuffer, id);
             }
-
-         
-
         }
 
         public class Normal : Base
@@ -483,7 +458,7 @@ namespace PlaytimePainter
 
                 TexMGMT.Render();
 
-                AfterStroke_NoPainter(command); 
+                br.GetBrushType(false).AfterStroke(command); 
 
             }
 
@@ -609,20 +584,19 @@ namespace PlaytimePainter
 
                     TexMGMT.Render();
 
-                    AfterStroke_Painter(command);
+                    AfterStroke(command);
 
                 }
                 else
                     command.OnStrokeComplete(); //painter.AfterStroke(st);
             }
 
-            public override void AfterStroke_Painter(PaintCommand.UV command)
+            public override void AfterStroke(PaintCommand.UV command)
             {
-                PlaytimePainter painter = command.painter;
                 Brush br = command.brush;
                 Stroke st = command.stroke;
 
-                base.AfterStroke_Painter(command);
+                base.AfterStroke(command);
 
                 if (br.rotationMethod != RotationMethod.Random) return;
 
@@ -883,7 +857,7 @@ namespace PlaytimePainter
 
                 r.Render();
 
-                AfterStroke_Painter(command); //painter, br, st, alphaBuffer, id);
+                AfterStroke(command); //painter, br, st, alphaBuffer, id);
             }
         }
 
@@ -953,7 +927,7 @@ namespace PlaytimePainter
                     TexMGMT.Render();
                 }
 
-                AfterStroke_Painter(command); //painter, br, st, alphaBuffer, id);
+                AfterStroke(command); //painter, br, st, alphaBuffer, id);
             }
 
             public static void Paint(PaintCommand.WorldSpace command)
@@ -962,12 +936,13 @@ namespace PlaytimePainter
                 Brush br = command.brush;
                 Stroke st = command.stroke; 
 
+
                 br.GetBlitMode(false).PrePaint(command);
 
                 PrepareSphereBrush(command); 
                 TexMGMT.brushRenderer.Prepare(command);
                 TexMGMT.Render();
-                AfterStroke_NoPainter(command);
+                br.GetBrushType(false).AfterStroke(command);
             }
 
 
