@@ -297,7 +297,7 @@ namespace QuizCannersUtilities
         {
             private bool _logged;
             private readonly bool _disabled;
-            private float _lastLogged;
+            private double _lastLogged;
             private int _calls;
             private readonly string message = "error";
 
@@ -331,16 +331,16 @@ namespace QuizCannersUtilities
                     msg += " [+ {0} calls]".F(_calls);
 
                 if (_lastLogged > 0)
-                    msg += " [{0} s. later]".F(Time.time - _lastLogged);
+                    msg += " [{0} s. later]".F(QcUnity.TimeSinceStartup() - _lastLogged);
                 else
-                    msg += " [at {0}]".F(Time.time);
+                    msg += " [at {0}]".F(QcUnity.TimeSinceStartup());
 
                 if (asError)
                     Debug.LogError(msg, obj);
                 else
                     Debug.Log(msg, obj);
 
-                _lastLogged = Time.time;
+                _lastLogged = QcUnity.TimeSinceStartup();
                 _calls = 0;
                 _logged = true;
             }
@@ -357,7 +357,7 @@ namespace QuizCannersUtilities
             public void Log_Interval(float seconds, string msg = null, bool asError = true, Object obj = null)
             {
 
-                if (!_logged || (Time.time - _lastLogged > seconds))
+                if (!_logged || (QcUnity.TimeSinceStartup() - _lastLogged > seconds))
                     Log_Now(msg, asError, obj);
                 else
                     _calls++;

@@ -481,7 +481,7 @@ namespace PlaytimePainter {
             if (target && target.IsBigRenderTexturePair())
                 secondBufferUpdated = false;
 
-            PainterCamera.lastPainterCall = Time.time;
+            PainterCamera.lastPainterCall = QcUnity.TimeSinceStartup();
         }
 
         public static RenderTexture Blit(Color col, RenderTexture to)

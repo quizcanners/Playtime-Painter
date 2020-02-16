@@ -190,54 +190,6 @@ inline void atlasUV(inout float2 uv, float seam, float4 atlasedUV) {
 	uv = frac(uv)*(atlasedUV.w - seam) + atlasedUV.xy + seam * 0.5;
 }
 
-// Math
-
-float GetHexagon(float2 uv) {
-	uv = abs(uv);
-
-	float c = dot(uv, normalize(float2(1, 1.73)));
-
-	return max(c, uv.x);
-}
-
-float4 GetHexagons(float2 grid) {
-
-	float2 r = float2(1, 1.73);
-
-	float2 h = r * 0.5;
-
-	float2 gridB = grid + h;
-
-	float2 floorA = floor(grid / r);
-
-	float2 floorB = floor(gridB / r);
-
-	float2 uvA = ((grid - floorA * r) - h) * 2;
-
-	float2 uvB = ((gridB - floorB * r) - h) * 2;
-
-	float distA = GetHexagon(uvA);
-
-	float distB = GetHexagon(uvB);
-
-	float isB = saturate((distA - distB) * 9999);
-
-	float dist = distB * isB + distA * (1 - isB);
-
-	float2 index = floorA * (1 - isB) + (floorB - 0.5) * isB;
-
-	float2 uv = uvA * (1 - isB) + uvB * isB;
-
-	const float pii = 3.141592653589793238462;
-
-	const float pi2 = 6.283185307179586476924;
-
-	float angle = (atan2(uv.x, uv.y) + pii)/pi2;// / pi2;
-
-	return float4(index, dist, angle);
-
-}
-
 // Old depricated
 inline void frag_atlasedTexture(float4 atlasedUV, float mip, inout float2 uv) {
 	float seam = (atlasedUV.z)*pow(2, mip);

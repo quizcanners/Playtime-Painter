@@ -263,12 +263,12 @@ namespace PlaytimePainter
             StrokeStateFromInputs();
 
             if (Input.GetMouseButtonDown(1))
-                _mouseButtonTime = Time.time;
+                _mouseButtonTime = QcUnity.TimeSinceStartup();
 
             if (!CanPaint())
                 return;
 
-            if (Input.GetMouseButtonUp(1) && ((Time.time - _mouseButtonTime) < 0.2f))
+            if (Input.GetMouseButtonUp(1) && ((QcUnity.TimeSinceStartup() - _mouseButtonTime) < 0.2f))
                 FocusOnThisObject();
 
             if (uiGraphic)
@@ -1919,7 +1919,7 @@ namespace PlaytimePainter
         }
 #endif
 
-        private float _debugTimeOfLastUpdate;
+        private double _debugTimeOfLastUpdate;
 
         public void ManagedUpdateOnFocused()
         {
@@ -1973,7 +1973,7 @@ namespace PlaytimePainter
             if (textureWasChanged)
                 OnChangedTexture_OnMaterial();
 
-            _debugTimeOfLastUpdate = Time.time;
+            _debugTimeOfLastUpdate = QcUnity.TimeSinceStartup();
 
             var id = TexMeta;
             id?.ManagedUpdate(this);
@@ -2111,7 +2111,7 @@ namespace PlaytimePainter
                 canInspect = false;
             }
 
-            float sinceUpdate = Time.time - PainterCamera.lastManagedUpdate;
+            double sinceUpdate = QcUnity.TimeSinceStartup() - PainterCamera.lastManagedUpdate;
 
             if (canInspect)
             {

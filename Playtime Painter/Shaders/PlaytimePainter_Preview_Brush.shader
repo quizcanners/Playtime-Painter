@@ -100,6 +100,8 @@
 	
 				float4 frag(v2f o) : COLOR{
 
+					//	return 1;// alpha;
+
 					float4 col = 0;
 					float alpha = 1;
 					float ignoreSrcAlpha = _qcPp_srcTextureUsage.w;
@@ -283,8 +285,6 @@
 
 
 					#endif
-
-						//return alpha;
 
 					#if BLIT_MODE_ADD
 						col =  addWithDestBufferPreview (alpha*0.4, _qcPp_brushColor, tc.xy, col, srcAlpha);

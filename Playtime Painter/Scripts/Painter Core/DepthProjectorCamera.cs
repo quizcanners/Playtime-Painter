@@ -170,13 +170,13 @@ namespace PlaytimePainter
                 ManagedUpdate();
         }
 
-        private float lastUserUpdateReturned = 0;
+        private double lastUserUpdateReturned = 0;
 
-        private float sinceLastPainterCall = 0;
+        private double sinceLastPainterCall = 0;
 
         public void ManagedUpdate() {
 
-            if (userToGetUpdate != null && (Time.time - lastUserUpdateReturned > 1))
+            if (userToGetUpdate != null && (QcUnity.TimeSinceStartup() - lastUserUpdateReturned > 1))
             {
                 logger.Log_Interval(60, "Could not return to user {0}".F(userToGetUpdate));
                 
@@ -337,7 +337,7 @@ namespace PlaytimePainter
                     Debug.LogError(ex);
                 }
 
-                lastUserUpdateReturned = Time.time;
+                lastUserUpdateReturned = QcUnity.TimeSinceStartup();
 
                 //if (userToGetUpdate as VolumeRayTrace != null)
                 //Debug.Log("Returning result");

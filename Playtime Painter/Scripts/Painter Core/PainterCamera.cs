@@ -581,7 +581,7 @@ namespace PlaytimePainter {
             if (trg == FrontBuffer)
                 RenderTextureBuffersManager.secondBufferUpdated = false;
 
-            lastPainterCall = Time.time;
+            lastPainterCall = QcUnity.TimeSinceStartup();
             
             brushRenderer.AfterRender();
         }
@@ -825,16 +825,16 @@ namespace PlaytimePainter {
         private static int _scipFrames = 3;
         #endif
 
-        public static float lastPainterCall = 0;
+        public static double lastPainterCall = 0;
 
-        public static float lastManagedUpdate = 0;
+        public static double lastManagedUpdate = 0;
 
         public void CombinedUpdate() {
 
             if (!this || !Data)
                 return;
 
-            lastManagedUpdate = Time.time;
+            lastManagedUpdate = QcUnity.TimeSinceStartup();
 
             if (PlaytimePainter.IsCurrentTool && FocusedPainter)
                 FocusedPainter.ManagedUpdateOnFocused();
@@ -859,7 +859,7 @@ namespace PlaytimePainter {
             
             var p = PlaytimePainter.currentlyPaintedObjectPainter;
 
-            if (p && !Application.isPlaying && ((Time.time - lastPainterCall)>0.016f)) {
+            if (p && !Application.isPlaying && ((QcUnity.TimeSinceStartup() - lastPainterCall)>0.016f)) {
 
                 if (p.TexMeta == null)
                     PlaytimePainter.currentlyPaintedObjectPainter = null;
@@ -880,7 +880,7 @@ namespace PlaytimePainter {
                 CameraModuleBase.RefreshPlugins();
             }
 
-            lastPainterCall = Time.time;
+            lastPainterCall = QcUnity.TimeSinceStartup();
 
 
         }

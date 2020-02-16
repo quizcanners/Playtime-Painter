@@ -706,7 +706,7 @@ namespace PlaytimePainter
             return y * width + x;
         }
 
-        public MyIntVec2 UvToPixelNumber(Vector2 uv) => new MyIntVec2(Mathf.Round(uv.x * width), Mathf.Round(uv.y * height));
+        public MyIntVec2 UvToPixelNumber(Vector2 uv) => new MyIntVec2(Mathf.FloorToInt(uv.x * width), Mathf.FloorToInt(uv.y * height));
 
         public MyIntVec2 UvToPixelNumber(Vector2 uv, out Vector2 pixelOffset)
         {
@@ -1424,17 +1424,18 @@ namespace PlaytimePainter
 
         public void ManagedUpdate(PlaytimePainter painter)
         {
-
             if (pixelsDirty)
             {
 
-                if ((Time.time - _repaintTime < _repaintDelay) && !painter.stroke.MouseUpEvent) return;
-
+                var noTimeYet = (QcUnity.TimeSinceStartup() - _repaintTime < _repaintDelay);
+                if (noTimeYet && !painter.stroke.MouseUpEvent)
+                    return;
+                
                 if (texture2D)
                     SetAndApply(!dontRedoMipMaps);
 
                 pixelsDirty = false;
-                _repaintTime = Time.time;
+                _repaintTime = (float)QcUnity.TimeSinceStartup();
             }
 
             foreach (var m in Modules)
