@@ -131,7 +131,7 @@ Material:
     - debugOn: 1
     m_Colors:
     - VOLUME_H_SLICES: {r: 8, g: 127, b: 0.003937008, a: 0.125}
-    - VOLUME_POSITION_N_SIZE: {r: 69.8, g: 33.51, b: 127.189995, a: 3.3333333}
+    - VOLUME_POSITION_N_SIZE: {r: 12.570002, g: 17.699999, b: 107.72999, a: 3.3333333}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - l0col: {r: 20.23, g: 0, b: 2.4400609, a: 0}
@@ -140,4 +140,3 @@ Material:
     - l1pos: {r: 1.7026837, g: 0.0009999275, b: -11.513889, a: 0}
     - l2col: {r: 0.36172545, g: 11.326735, b: 23.06, a: 0}
     - l2pos: {r: -10.506894, g: -0.63999987, b: -20.061317, a: 0}
-  m_BuildTextureStacks: []
