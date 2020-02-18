@@ -670,9 +670,7 @@ namespace PlaytimePainter {
 
                     if ("Create Projector Camera".Click().nl())
                     {
-
                         QcUnity.Instantiate<DepthProjectorCamera>();
-                        "posProjCam".resetOneTimeHint();
                     }
                 }
                 else

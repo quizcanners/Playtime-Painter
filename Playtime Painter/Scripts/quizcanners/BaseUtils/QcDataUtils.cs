@@ -3,6 +3,7 @@ using System;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 using System.Collections.Generic;
+using PlayerAndEditorGUI;
 using Debug = UnityEngine.Debug;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -40,7 +41,11 @@ namespace QuizCannersUtilities
 
                     var txt = lst[i].Replace(@"\", @"/");
                     txt = txt.Substring(txt.LastIndexOf("/") + 1);
-                    txt = txt.Substring(0, txt.Length - bytesFileType.Length);
+
+                    int extension = txt.LastIndexOf(".");
+
+                    if (extension>0)
+                        txt = txt.Substring(0, extension);
                     lst[i] = txt;
                 }
 
@@ -83,14 +88,17 @@ namespace QuizCannersUtilities
         public class Delete
         {
 
-            public static void Resource_Bytes(string assetFolder, string insideAssetFolderAndName)
+            public static void FromResources(string assetFolder, string insideAssetFolderAndName) =>
+                FromResources(assetFolder: assetFolder, insideAssetFolderAndName: insideAssetFolderAndName, extension: bytesFileType);
+
+            public static void FromResources(string assetFolder, string insideAssetFolderAndName, string extension)
             {
 #if UNITY_EDITOR
                 try
                 {
                     var path = Path.Combine("Assets",
                                    Path.Combine(assetFolder, Path.Combine("Resources", insideAssetFolderAndName))) +
-                               bytesFileType;
+                               extension;
                     AssetDatabase.DeleteAsset(path);
                 }
                 catch (Exception e)
@@ -100,28 +108,47 @@ namespace QuizCannersUtilities
 #endif
             }
 
-            public static bool FromPersistentFolder(string subPath, string fileName)
-                => File(Path.Combine(Application.persistentDataPath, subPath,
-                    Path.Combine(Application.persistentDataPath, subPath, fileName + bytesFileType)));
+            public static bool FromPersistentFolder(string subPath, string fileName) =>
+            FromPersistentFolder(subPath: subPath, fileName: fileName, extension: bytesFileType);
 
-            public static void DirectoryFromPersistentPath(string subPath, bool deleteSubdirectories = true)
+            public static bool FromPersistentFolder(string subPath, string fileName, string extension)
+                => File(Path.Combine(Application.persistentDataPath, subPath,
+                    Path.Combine(Application.persistentDataPath, subPath, fileName + extension)));
+
+            public static void DirectoryFromPersistentPath(string subPath, bool deleteSubdirectories = true, bool showNotificationInGameView = true)
             {
-                Directory.Delete(Path.Combine(Application.persistentDataPath, subPath), deleteSubdirectories);
+                var path = Path.Combine(Application.persistentDataPath, subPath);
+
+                if (Directory.Exists(path))
+                {
+                    Directory.Delete(Path.Combine(Application.persistentDataPath, subPath), deleteSubdirectories);
+                    if (showNotificationInGameView && Application.isEditor)
+                    {
+                        pegi.GameView.ShowNotification("{0} removed".F(path));
+                    }
+                } else if (showNotificationInGameView && Application.isEditor)
+                {
+                    pegi.GameView.ShowNotification("{0} not found".F(path));
+                }
             }
 
-            private static bool File(string fullPath)
+            private static bool File(string fullPath, bool showNotificationIn3DView = false)
             {
                 if (System.IO.File.Exists(fullPath)) {
-
-                    #if UNITY_EDITOR
-                    Debug.Log("Deleting" + fullPath);
-                    #endif
-
+                    
+                    if (showNotificationIn3DView && Application.isEditor)
+                        pegi.GameView.ShowNotification("Deleting " + fullPath);
+                    
                     System.IO.File.Delete(fullPath);
                     return true;
                 }
                 else
+                {
+                    if (showNotificationIn3DView && Application.isEditor)
+                        pegi.GameView.ShowNotification("File not found: " + fullPath);
+
                     return false;
+                }
             }
             
         }
@@ -130,7 +157,10 @@ namespace QuizCannersUtilities
         {
             private static readonly BinaryFormatter Formatter = new BinaryFormatter();
 
-            public static string StringFromResource(string resourceFolderLocation, string insideResourceFolder, string name)
+            public static string StringFromResource(string resourceFolderLocation, string insideResourceFolder, string name) =>
+            StringFromResource(resourceFolderLocation: resourceFolderLocation, insideResourceFolder: insideResourceFolder, name: name, extension: bytesFileType);
+
+            public static string StringFromResource(string resourceFolderLocation, string insideResourceFolder, string name, string extension)
             {
                
 #if UNITY_EDITOR
@@ -138,7 +168,7 @@ namespace QuizCannersUtilities
                 var resourceName = Path.Combine(insideResourceFolder, name);
                 var path = Path.Combine(Application.dataPath,
                     Path.Combine(resourceFolderLocation,
-                        Path.Combine("Resources", resourceName + bytesFileType)));
+                        Path.Combine("Resources", resourceName + extension)));
 
                 if (!File.Exists(path)) return null;
 
@@ -182,10 +212,12 @@ namespace QuizCannersUtilities
                 }
             }
 
-            public static string FromAssets(string folder, string name)
+            public static string FromAssets(string folder, string name) => FromAssets(folder: folder, name: name, extension: bytesFileType);
+
+            public static string FromAssets(string folder, string name, string extension)
             {
 #if UNITY_EDITOR
-                var path = Path.Combine(Application.dataPath, folder, name + bytesFileType);
+                var path = Path.Combine(Application.dataPath, folder, name + extension);
 
                 if (!File.Exists(path)) return null;
 
@@ -221,15 +253,18 @@ namespace QuizCannersUtilities
 #endif
             }
 
-            public static string FromPersistentPath(string subPath, string filename)
+            public static string FromPersistentPath(string subPath, string filename) => 
+                FromPersistentPath(subPath: subPath, filename: filename, extension: bytesFileType);
+            
+            public static string FromPersistentPath(string subPath, string filename, string extension)
             {
 
-                var filePath = PersistantPath(subPath, filename);
+                var filePath = PersistantPath(subPath: subPath, fileName: filename, extension: extension);
                 return File.Exists(filePath) ? File.ReadAllText(filePath) : null;
             }
 
-            private static string PersistantPath(string subPath, string fileName)
-                => Path.Combine(Application.persistentDataPath, subPath, fileName + bytesFileType);
+            private static string PersistantPath(string subPath, string fileName, string extension)
+                => Path.Combine(Application.persistentDataPath, subPath, fileName + extension);
 
             private static string Internal(string fullPath)
             {
@@ -297,20 +332,27 @@ namespace QuizCannersUtilities
                 ToAssets(Path.Combine(resFolderPath, "Resources", insideResPath), filename, data);
 
             public static void ToAssets(string path, string filename, string data) =>
-                ByFullPath(Path.Combine(Application.dataPath, path), filename, data);
+                ByFullPath(Path.Combine(Application.dataPath, path), filename, data, extension: bytesFileType);
+
+            public static void ToAssets(string path, string filename, string data, string extension) =>
+                ByFullPath(Path.Combine(Application.dataPath, path), filename, data, extension);
 
 
-            private static void ByFullPath(string fullDirectoryPath, string filename, string data)
+            private static void ByFullPath(string fullDirectoryPath, string filename, string data, string extension)
             {
-                using (var file = File.Create(FullPath(fullDirectoryPath, filename, bytesFileType)))
+                using (var file = File.Create(FullPath(fullDirectoryPath, filename, extension)))
                     Formatter.Serialize(file, data);
             }
 
             #endregion
 
             #region Write All Text
-            public static void ToPersistentPath(string subPath, string filename, string data) =>
-                File.WriteAllText(CreateDirectoryPath(Application.persistentDataPath, subPath, filename, bytesFileType), data);
+
+            public static void ToPersistentPath(string subPath, string filename, string data) => 
+                ToPersistentPath(subPath: subPath, filename: filename, data: data, extension: bytesFileType); 
+
+            public static void ToPersistentPath(string subPath, string filename, string data, string extension) =>
+                File.WriteAllText(CreateDirectoryPath(Application.persistentDataPath, subPath, filename, extension), data);
 
             #endregion
 

@@ -518,6 +518,17 @@ namespace QuizCannersUtilities
                 return false;
             }
 
+            public TimedEnumeration Reset(IEnumerator enumerator, string nameForInspector = "")
+            {
+                EnumeratorVersion += 1;
+                _enumerator = enumerator;
+                returnedData = null;
+                _state = "Starting: " + enumerator.ToString();
+                NameForPEGI = nameForInspector.IsNullOrEmpty() ? enumerator.ToString() : nameForInspector;
+
+                return this;
+            }
+
             #region Inspector
             protected bool _logUnoptimizedSections;
             private string _state = "";
@@ -556,15 +567,7 @@ namespace QuizCannersUtilities
                 _logUnoptimizedSections = logUnoptimizedSections;
                 Reset(enumerator, nameForInspector);
             }
-            
-            public void Reset(IEnumerator enumerator, string nameForInspector = "")
-            {
-                EnumeratorVersion += 1;
-                _enumerator = enumerator;
-                returnedData = null;
-                _state = "Starting: " + enumerator.ToString();
-                NameForPEGI = nameForInspector.IsNullOrEmpty() ? enumerator.ToString() : nameForInspector;
-            }
+
         }
 
     }

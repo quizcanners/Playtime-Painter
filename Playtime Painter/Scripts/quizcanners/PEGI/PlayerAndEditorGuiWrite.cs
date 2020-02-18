@@ -515,12 +515,14 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static void resetOneTimeHint(this string name) => PlayerPrefs.SetInt(name, 0);
+        public static void resetOneTimeHint(string key) => PlayerPrefs.SetInt(key, 0);
 
-        public static bool writeOneTimeHint(this string text, string name)
+        public static void hideOneTimeHint(string key) => PlayerPrefs.SetInt(key, 1);
+
+        public static bool writeOneTimeHint(this string text, string key)
         {
 
-            if (PlayerPrefs.GetInt(name) != 0) return false;
+            if (PlayerPrefs.GetInt(key) != 0) return false;
 
             nl();
 
@@ -536,9 +538,9 @@ namespace PlayerAndEditorGUI
                 GUILayout.Label(text, PEGI_Styles.HintText.Current, GuiMaxWidthOption);
             }
 
-            if (!icon.Done.ClickUnFocus("Got it").nl()) return false;
+            if (icon.Done.ClickUnFocus("Got it").nl()) 
+                PlayerPrefs.SetInt(key, 1);
 
-            PlayerPrefs.SetInt(name, 1);
             return true;
         }
 

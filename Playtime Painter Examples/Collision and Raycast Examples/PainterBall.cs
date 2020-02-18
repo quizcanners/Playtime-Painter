@@ -115,7 +115,9 @@ namespace PlaytimePainter.Examples {
             if ("Size:".edit("Size of the ball", 50, ref size, 0.1f, 10).nl(ref changed))
                 transform.localScale = Vector3.one * size;
 
-            "Painter ball made for World Space Brushes only".writeOneTimeHint("PaintBall_brushHint");
+            const string ballHint = "PaintBall_brushHint";
+
+            "Painter ball made for World Space Brushes only".writeOneTimeHint(ballHint);
 
             if ((brush.Targets_PEGI().nl(ref changed)) || (brush.Mode_Type_PEGI().nl(ref changed)))
             {
@@ -124,7 +126,7 @@ namespace PlaytimePainter.Examples {
                     brush.targetIsTex2D = false;
                     brush.SetBrushType(false, BrushTypes.Sphere.Inst);
 
-                    "PaintBall_brushHint".resetOneTimeHint();
+                    pegi.resetOneTimeHint(ballHint);
                 }
             }
 
