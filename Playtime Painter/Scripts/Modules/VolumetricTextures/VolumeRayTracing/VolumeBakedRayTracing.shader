@@ -215,7 +215,7 @@
 					micro.b = micro.b*deBorder + 0.5*border.x;
 #endif
 
-					applyTangent(o.normal, tnormal, o.wTangent);
+					ApplyTangent(o.normal, tnormal, o.wTangent);
 
 #else
 					float4 bumpMap = float4(0, 0, 0.5, 1);

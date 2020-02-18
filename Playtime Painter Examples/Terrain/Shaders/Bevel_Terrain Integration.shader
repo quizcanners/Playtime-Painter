@@ -184,7 +184,7 @@
 				applyTangentNonNormalized(i.bC, worldNormal, bumpMap.rg);
 				worldNormal = normalize(worldNormal);
 				#else
-				applyTangent(worldNormal, tnormal,  i.wTangent);
+				ApplyTangent(worldNormal, tnormal,  i.wTangent);
 				#endif
 
 				worldNormal = worldNormal*deWeight + preNorm*weight;

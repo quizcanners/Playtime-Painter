@@ -102,7 +102,7 @@
 
 					float3 preNorm = normal;
 
-					applyTangent (normal, tnormal,  i.wTangent);
+					ApplyTangent (normal, tnormal,  i.wTangent);
 	
 					normal = normal*deWeight + preNorm*weight;
 

@@ -1308,7 +1308,7 @@ namespace PlaytimePainter
 
             var material = painter.Material;
             
-            var hasAlphaLayerTag =
+            var hasAlphaLayerTag = material && (property!=null) &&
                 material.Has(property,
                     ShaderTags.LayerTypes
                         .Transparent); //GetTag(PainterDataAndConfig.ShaderTagLayerType + property, false).Equals("Transparent");

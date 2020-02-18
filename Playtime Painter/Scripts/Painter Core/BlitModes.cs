@@ -175,7 +175,7 @@ namespace PlaytimePainter {
 
                     MsgPainter.Scale.Write();
 
-                    if (InspectedPainter.Is3DBrush(InspectedBrush))
+                    if (InspectedBrush.Is3DBrush(id))
                     {
                         var m = PlaytimePainter.inspected.GetMesh();
 

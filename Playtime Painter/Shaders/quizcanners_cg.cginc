@@ -210,7 +210,7 @@ inline float3 GetParallax(float4 tangent, float3 normal, float4 vertex ) {
 	return tangentViewDir;
 }
 
-inline void applyTangent (inout float3 normal, float3 tnormal, float4 wTangent){
+inline void ApplyTangent (inout float3 normal, float3 tnormal, float4 wTangent){
 	float3 wBitangent = cross(normal, wTangent.xyz) * wTangent.w;
 
 	float3 tspace0 = float3(wTangent.x, wBitangent.x, normal.x);
@@ -483,10 +483,6 @@ inline float3 volumeUVtoWorld(float2 uv, float4 VOLUME_POSITION_N_SIZE, float4 V
 	return worldPos;
 }
 
-//  var VOLUME_POSITION_N_SIZE = new Vector4(pos.x, pos.y, pos.z, 1f / size);
-//var VOLUME_H_SLICES = new Vector4(slices, w * 0.5f, 1f / ((float)w), 1f / ((float)slices));
-//hSlices, w * 0.5f, 1f / w, 1f / hSlices
-
 inline float4 SampleVolume(sampler2D volume, float3 worldPos, float4 VOLUME_POSITION_N_SIZE, float4 VOLUME_H_SLICES) {
 
 
@@ -520,10 +516,8 @@ inline float4 SampleVolume(sampler2D volume, float3 worldPos, float4 VOLUME_POSI
 }
 
 inline void PointLight(inout float3 scatter, inout float3 glossLight, inout float3 directLight,
-float3 vec, float3 normal, float3 viewDir, float ambientBlock, float bake, float directBake, float4 lcol, float power
-	) {
-
-	
+float3 vec, float3 normal, float3 viewDir, float ambientBlock, float bake, float directBake, float4 lcol, float power) 
+{
 	float len = length(vec);
 	vec /= len;
 
@@ -545,9 +539,8 @@ float3 vec, float3 normal, float3 viewDir, float ambientBlock, float bake, float
 }
 
 inline void PointLightTransparent(inout float3 scatter, inout float3 directLight,
-	float3 vec, float3 viewDir, float ambientBlock, float bake, float directBake, float4 lcol
-) {
-
+	float3 vec, float3 viewDir, float ambientBlock, float bake, float directBake, float4 lcol) 
+{
 
 	float len = length(vec);
 	vec /= len;

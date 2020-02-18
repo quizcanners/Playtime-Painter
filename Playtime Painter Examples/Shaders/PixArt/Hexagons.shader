@@ -53,7 +53,6 @@
 
 					o.pos = UnityObjectToClipPos(v.vertex);
 					o.texcoord.xy = v.texcoord.xy;
-					float aspect = _ScreenParams.x / _ScreenParams.y;
 
 					o.screenParams = float2(max(_ScreenParams.x / _ScreenParams.y, 1), max(1, _ScreenParams.y / _ScreenParams.x));
 
