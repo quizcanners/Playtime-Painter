@@ -145,6 +145,24 @@ namespace QuizCannersUtilities {
             private string _timingKey = "?";
             private Dictionary<string, string> _timingLogDictionary;
 
+            private Dictionary<string, string> TimingDictionary
+            {
+                get
+                {
+                    if (_timingLogDictionary == null)
+                        _timingLogDictionary = new Dictionary<string, string>();
+
+                    return _timingLogDictionary;
+                }
+            }
+
+            public Timer Start_Dictionary(string keyForNextMeasurment) {
+                NextDictionaryMeasurment(keyForNextMeasurment);
+                Start();
+
+                return this;
+            }
+
             public Timer Start_Dictionary(Dictionary<string, string> logDictionary,
                 string keyForNextMeasurment)
             {
@@ -156,20 +174,22 @@ namespace QuizCannersUtilities {
             }
 
             public void End_Restart_Dictionary(string keyForNextMeasurment) {
-                _timingLogDictionary[_timingKey] = End_Restart(null, false);
+                TimingDictionary[_timingKey] = End_Restart(null, false);
                 NextDictionaryMeasurment(keyForNextMeasurment);
             }
 
             private void NextDictionaryMeasurment(string key)
             {
                 _timingKey = key;
-                _timingLogDictionary[_timingKey] = "...";
+                TimingDictionary[_timingKey] = "...";
             }
 
-            public void End_Dictionary()
+            public Dictionary<string,string> End_Dictionary()
             {
-                _timingLogDictionary[_timingKey] = End(null, false);
+                TimingDictionary[_timingKey] = End(null, false);
+                var ret = _timingLogDictionary;
                 _timingLogDictionary = null;
+                return ret;
             }
 
             public void Dispose() {
