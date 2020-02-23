@@ -10,7 +10,6 @@ using UnityEditor.EditorTools;
 
 using System;
 using System.IO;
-using System.Linq;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using UnityEngine.UI;
@@ -879,8 +878,7 @@ namespace PlaytimePainter
 
             return result;
         }
-
-
+        
         public Material[] Materials
         {
             get
@@ -905,9 +903,6 @@ namespace PlaytimePainter
                     _fallbackMaterial = value.TryGet(0);
             }
         }
-
-        public List<string> GetMaterialsNames() =>
-            Materials.Select((mt, i) => mt ? mt.name : "Null material {0}".F(i)).ToList();
 
         private MaterialMeta _lastFetchedTextureNamesFor;
         private List<ShaderProperty.TextureValue> _lastTextureNames = new List<ShaderProperty.TextureValue>();

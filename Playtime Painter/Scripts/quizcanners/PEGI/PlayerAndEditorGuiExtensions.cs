@@ -254,7 +254,7 @@ namespace PlayerAndEditorGUI
                 pgi = cmp as IPEGI;
 
             if (pgi == null)
-                pgi = go.TryGet<IPEGI>();
+                pgi = go.GetComponent<IPEGI>();
 
             if (pgi != null)
                 pgi.Nested_Inspect().RestoreBGColor().changes(ref changed);

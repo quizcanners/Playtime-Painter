@@ -25,6 +25,33 @@ namespace QuizCannersUtilities
         private float linkedPortion = 1;
         public string dominantParameter = "None";
 
+        private List<ILinkedLerping> portions = new List<ILinkedLerping>();
+
+        public void AddPortion(float value, ILinkedLerping lerp)
+        {
+            if (portions.Contains(lerp))
+            {
+                QcUtils.ChillLogger.LogErrorOnce(lerp.ToString(), ()=> "Duplicated Portion calculation for {0}".F(lerp.ToString()));
+            }
+            else
+            {
+                portions.Add(lerp);
+            }
+
+            MinPortion = value;
+
+        }
+
+        public void LerpAndReset(bool canSkipLerp = false)
+        {
+            foreach (var portion in portions)
+            {
+                portion.Lerp(this, canSkipLerp: canSkipLerp);
+            }
+
+            Reset();
+        }
+
         public float Portion(bool skipLerp = false) => skipLerp ? 1 : linkedPortion;
 
         public float MinPortion
@@ -36,6 +63,7 @@ namespace QuizCannersUtilities
         public void Reset()
         {
             linkedPortion = 1;
+            portions.Clear();
             _resets++;
         }
 
@@ -206,13 +234,13 @@ namespace QuizCannersUtilities
                 if (UsingLinkedThreshold && Portion(ref lp))
                 {
                     ld.dominantParameter = Name_Internal;
-                    ld.MinPortion = lp;
+                    ld.AddPortion(lp, this);
                 }
                 else if (lerpMode == LerpSpeedMode.UnlinkedSpeed)
                 {
                     float portion = 1;
                     Portion(ref portion);
-                    ld.MinPortion = portion;
+                    ld.AddPortion(portion, this);
                 }
             }
 
@@ -1312,7 +1340,6 @@ namespace QuizCannersUtilities
 
         public class RectangleTransformAnchoredPositionValue : RectTransformVector2Value
         {
-          
             protected override string NameSuffix_Internal => " Anchored Position";
             
             public override Vector2 CurrentValue
@@ -1332,7 +1359,6 @@ namespace QuizCannersUtilities
 
         public class RectangleTransformWidthHeight : RectTransformVector2Value
         {
-
             protected override string NameSuffix_Internal => " Width Height";
 
             public override Vector2 CurrentValue
@@ -2130,25 +2156,7 @@ namespace QuizCannersUtilities
                     e.Portion(ld);
             }
         }
-
-        public static void Lerp<T>(this T[] list, LerpData ld, bool canSkipLerp = false) where T : ILinkedLerping {
-
-            if (typeof(Object).IsAssignableFrom(typeof(T))) {
-                for (int i = list.Length - 1; i >= 0; i--) {
-                    var e = list[i];
-                    if (!QcUnity.IsNullOrDestroyed_Obj(e))
-                        e.Lerp(ld, canSkipLerp);
-                }
-
-            }
-            else for (int i = list.Length - 1; i >= 0; i--)
-            {
-                var e = list[i];
-                if (e != null)
-                    e.Lerp(ld, canSkipLerp);
-            }
-        }
-
+        
         public static void Portion<T>(this List<T> list, LerpData ld) where T : ILinkedLerping {
 
             if (typeof(Object).IsAssignableFrom(typeof(T))) {
@@ -2168,22 +2176,6 @@ namespace QuizCannersUtilities
 
         }
         
-        public static void Lerp<T>(this List<T> list, LerpData ld, bool canSkipLerp = false) where T : ILinkedLerping {
-
-            if (typeof(Object).IsAssignableFrom(typeof(T))) {
-                for (int i = list.Count - 1; i >= 0; i--) {
-                    var e = list[i];
-                    if (!QcUnity.IsNullOrDestroyed_Obj(e))
-                        e.Lerp(ld, canSkipLerp);
-                }
-
-            } else for (int i = list.Count - 1; i >= 0; i--) {
-                var e = list[i];
-                if (e!= null)
-                    e.Lerp(ld, canSkipLerp);
-            }
-        }
-
         public static void FadeAway<T>(this List<T> list) where T : IManageFading
         {
             if (list == null) return;

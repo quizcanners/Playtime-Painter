@@ -36,9 +36,8 @@ namespace PlaytimePainter.Examples
         }
 
         private void Update() {
-
-            if ((Application.isPlaying) || (gameObject.IsFocused()))
-                _myTime += Time.deltaTime;
+            
+            _myTime += Time.deltaTime;
             
             foamParameters.x = _myTime;
             foamParameters.y = _myTime * 0.6f;

@@ -1,4 +1,7 @@
-﻿using PlayerAndEditorGUI;
+﻿//#define QC_USE_NETWORKING
+
+
+using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using System.Collections;
 using System.Collections.Generic;
@@ -18,10 +21,10 @@ namespace PlaytimePainter
 
         class WebRequestMeta : IGotName, IPEGI_ListInspect, IPEGI
         {
-
+            
 #if QC_USE_NETWORKING
             private UnityWebRequest _request;
-#endif
+            #endif
 
             private string _url;
             public string URL => _url;

@@ -513,7 +513,7 @@ namespace QuizCannersUtilities {
             {
                 if (!latestValue)
                 {
-                    QcUtils.ChillLogger.LogErrorOnce(name+"noTex", "{0} was not set. Can't Update {1} ".F(name, FILL_ASPECT_RATION_SUFFIX));
+                    QcUtils.ChillLogger.LogErrorOnce(name+"noTex", ()=>"{0} was not set. Can't Update {1} ".F(name, FILL_ASPECT_RATION_SUFFIX));
                     return;
                 }
                 

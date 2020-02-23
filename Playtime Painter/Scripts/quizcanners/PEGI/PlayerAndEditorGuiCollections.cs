@@ -2903,28 +2903,27 @@ namespace PlayerAndEditorGUI
             if (go)
             {
 
-                if (go.TryGet<IPEGI_Searchable>().SearchMatch_Internal(text, ref matched))
+                if (go.GetComponent<IPEGI_Searchable>().SearchMatch_Internal(text, ref matched))
                     return true;
 
-                if (go.TryGet<IGotName>().SearchMatch_Internal(text, ref matched))
+                if (go.GetComponent<IGotName>().SearchMatch_Internal(text, ref matched))
                     return true;
 
-                if (go.TryGet<IGotDisplayName>().SearchMatch_Internal(text, ref matched))
+                if (go.GetComponent<IGotDisplayName>().SearchMatch_Internal(text, ref matched))
                     return true;
 
                 if (go.name.SearchMatch_Internal(text, ref matched))
                     return true;
 
-                if (go.TryGet<INeedAttention>().SearchMatch_Internal(text, ref matched))
+                if (go.GetComponent<INeedAttention>().SearchMatch_Internal(text, ref matched))
                     return true;
 
-                if (!indexes.IsNullOrEmpty() && go.TryGet<IGotIndex>().SearchMatch_Internal(indexes))
+                if (!indexes.IsNullOrEmpty() && go.GetComponent<IGotIndex>().SearchMatch_Internal(indexes))
                     return true;
 
             }
             else
             {
-
                 if ((QcUnity.TryGet_fromObj<IPEGI_Searchable>(obj)).SearchMatch_Internal(text, ref matched))
                     return true;
 
@@ -2940,7 +2939,7 @@ namespace PlayerAndEditorGUI
                 if (obj.ToString().SearchMatch_Internal(text, ref matched))
                     return true;
 
-                if (!indexes.IsNullOrEmpty() && go.TryGet<IGotIndex>().SearchMatch_Internal(indexes))
+                if (!indexes.IsNullOrEmpty() && go.GetComponent<IGotIndex>().SearchMatch_Internal(indexes))
                     return true;
             }
 

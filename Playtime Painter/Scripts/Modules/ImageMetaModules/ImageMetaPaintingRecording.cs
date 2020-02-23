@@ -86,11 +86,11 @@ namespace PlaytimePainter
 
             if (playbackMetas.Count > 0 && !Stroke.pausePlayback) {
 
-                if (playbackMetas.Last() == null)
+                if (playbackMetas.TryGetLast() == null)
                     playbackMetas.RemoveLast(1);
                 else
                 {
-                   var last = playbackMetas.Last().GetModule<ImageMetaPaintingRecording>();
+                   var last = playbackMetas.TryGetLast().GetModule<ImageMetaPaintingRecording>();
 
                    if (last != null) {
                        if (cody.GotData)

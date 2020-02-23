@@ -66,6 +66,8 @@ namespace PlayerAndEditorGUI {
         protected abstract bool Inspect(Editor editor);
         protected abstract ef.EditorType EditorType { get;  }
 
+        private static bool _exceptionPopUpShown;
+
         public override void OnInspectorGUI()
         {
             ef.inspectedUnityObject = target;
@@ -73,7 +75,21 @@ namespace PlayerAndEditorGUI {
             pegi.ResetInspectedChain();
 
             if (target != drawDefaultInspector) {
-                Inspect(this).RestoreBGColor();
+
+                try
+                {
+                    Inspect(this).RestoreBGColor();
+                }
+                catch (Exception ex)
+                {
+                    if (!_exceptionPopUpShown)
+                    {
+                        pegi.PopUpService.popUpText = ex.ToString();
+                        pegi.PopUpService.InitiatePopUp();
+                        _exceptionPopUpShown = true;
+                    }
+                }
+
                 return;
             }
 
@@ -166,7 +182,7 @@ namespace PlayerAndEditorGUI {
             for (int i = 0; i < fieldStructure.Length - 1; i++)
                 obj = GetFieldOrPropertyValue<object>(fieldStructure[i], obj);
             
-            string fieldName = fieldStructure.Last();
+            string fieldName = fieldStructure.TryGetLast();
 
             return SetFieldOrPropertyValue(fieldName, obj, value);
 

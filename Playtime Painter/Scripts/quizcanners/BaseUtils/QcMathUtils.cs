@@ -27,12 +27,6 @@ namespace QuizCannersUtilities
 
         #endregion
 
-        #region Checks
-
-        public static bool IsNaN(this Vector3 q) => float.IsNaN(q.x) || float.IsNaN(q.y) || float.IsNaN(q.z);
-        
-        #endregion
-
         #region Time
 
         public static double Miliseconds_To_Seconds(double interval) => (interval * 0.001);

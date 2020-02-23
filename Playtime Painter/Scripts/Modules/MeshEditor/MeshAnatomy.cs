@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
-using System.Linq;
+//using System.Linq;
 using QuizCannersUtilities;
 
 namespace PlaytimePainter.MeshEditing
@@ -427,10 +427,10 @@ namespace PlaytimePainter.MeshEditing
                 {
                     case "u0":
                         sharedV2S.Add(new Vector2[2]);
-                        sharedV2S.Last()[0] = data.ToVector2();
+                        sharedV2S.TryGetLast()[0] = data.ToVector2();
                         break;
                     case "u1":
-                        sharedV2S.Last()[1] = data.ToVector2();
+                        sharedV2S.TryGetLast()[1] = data.ToVector2();
                         break;
                     case "uvs":
                         currentlyDecoded = this;
@@ -871,7 +871,16 @@ namespace PlaytimePainter.MeshEditing
 
             public bool wasProcessed;
 
-            public bool IsVertexIn(MeshPoint vrt) => vertexes.Any(v => v.meshPoint == vrt);
+            public bool IsVertexIn(MeshPoint vrt)
+            {
+                foreach (var vertex in vertexes)
+                {
+                    if (vertex.meshPoint == vrt)
+                        return true;
+                }
+
+                return false;
+            }
 
             public bool SetSmoothVertices(bool to)
             {
@@ -1284,10 +1293,18 @@ namespace PlaytimePainter.MeshEditing
                 var l = new List<MeshPoint>(); //= new LineData();
 
                 foreach (var u in vertexes)
-                    if (other.vertexes.Any(u2 => u.meshPoint == u2.meshPoint))
+                {
+                    foreach (var vertex in other.vertexes)
+                    {
+                        if (u.meshPoint == vertex.meshPoint)
+                            l.Add(u.meshPoint);
+                    }
+
+                   /* if (other.vertexes.Any(u2 => u.meshPoint == u2.meshPoint))
                     {
                         l.Add(u.meshPoint);
-                    }
+                    }*/
+                }
 
                 return l.Count == 2 ? new LineData(l[0], l[1]) : null;
             }
@@ -1528,7 +1545,16 @@ namespace PlaytimePainter.MeshEditing
 
         public static bool Contains(this List<PainterMesh.MeshPoint> lst, PainterMesh.LineData ld) => lst.Contains(ld.points[0].meshPoint) && lst.Contains(ld.points[1].meshPoint);
 
-        public static bool Contains(this List<PainterMesh.MeshPoint> lst, PainterMesh.Triangle ld) => ld.vertexes.All(p => lst.Contains(p.meshPoint));
-        
+        public static bool Contains(this List<PainterMesh.MeshPoint> lst, PainterMesh.Triangle ld)
+        {
+            foreach (var vertex in ld.vertexes)
+            {
+                if (!lst.Contains(vertex.meshPoint))
+                    return false;
+            }
+
+            return true;
+        }
+
     }
 }

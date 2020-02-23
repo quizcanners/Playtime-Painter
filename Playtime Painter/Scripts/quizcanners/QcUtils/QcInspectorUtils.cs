@@ -386,6 +386,19 @@ namespace QuizCannersUtilities
                     Debug.LogError(msg);
             }
 
+            public static void LogErrorOnce(string key, Func<string> action, Object target = null)
+            {
+                if (loggedErrors.Contains(key))
+                    return;
+
+                loggedErrors.Add(key);
+
+                if (target)
+                    Debug.LogError(action(), target);
+                else
+                    Debug.LogError(action());
+            }
+
             private static List<string> loggedWarnings = new List<string>();
             public static void LogWarningOnce(string key, string msg, Object target = null)
             {
@@ -421,7 +434,7 @@ namespace QuizCannersUtilities
                 "Transparent Background".toggleIcon(ref AlphaBackground).nl();
 
                 "Img Name".edit(90, ref screenShotName);
-                var path = Path.Combine(QcUnity.GetDataPathWithout_Assets_Word(), folderName);
+                var path = Path.Combine(QcFile.OutsideOfAssetsFolder, folderName);
                 if (icon.Folder.Click("Open Screen Shots Folder : {0}".F(path)))
                     QcFile.Explorer.OpenPath(path);
 
@@ -467,7 +480,7 @@ namespace QuizCannersUtilities
 
 
                     if (icon.Folder.Click())
-                        QcFile.Explorer.OpenPath(QcUnity.GetDataPathWithout_Assets_Word());
+                        QcFile.Explorer.OpenPath(QcFile.OutsideOfAssetsFolder);
 
                     "Game View Needs to be open for this to work".fullWindowDocumentationClickOpen();
 

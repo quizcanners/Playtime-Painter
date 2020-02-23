@@ -177,7 +177,7 @@ namespace PlaytimePainter.MeshEditing
                     mesh.GetBlendShapeFrameVertices(s, f, pos, normals, tng);
 
                     for (var v = 0; v < vCnt; v++)
-                        meshPoints[v].shapes.Last().Add(new PainterMesh.BlendFrame(pos[v], normals[v], tng[v]));
+                        meshPoints[v].shapes.TryGetLast().Add(new PainterMesh.BlendFrame(pos[v], normals[v], tng[v]));
 
                 }
             }

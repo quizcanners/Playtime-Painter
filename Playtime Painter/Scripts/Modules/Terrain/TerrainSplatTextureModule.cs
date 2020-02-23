@@ -94,13 +94,43 @@ namespace PlaytimePainter.ComponentModules
             return true;
         }
 
+        private static void SetSplashPrototypeTexture(Terrain terrain, Texture2D tex, int index)
+        {
+
+            if (!terrain) return;
+
+#if UNITY_2018_3_OR_NEWER
+            var l = terrain.terrainData.terrainLayers;
+
+            if (l.Length > index)
+                l[index].diffuseTexture = tex;
+#else
+
+            SplatPrototype[] newProtos = terrain.GetCopyOfSplashPrototypes();
+
+            if (newProtos.Length <= index)
+            {
+                QcSharp.AddAndInit(ref newProtos, index + 1 - newProtos.Length);
+            }
+
+            newProtos[index].texture = tex;
+
+       
+            terrain.terrainData.splatPrototypes = newProtos;
+#endif
+
+
+
+        }
+
+
         public override bool SetTextureOnMaterial(ShaderProperty.TextureValue field, TextureMeta id)
         {
             var tex = id.CurrentTexture();
             if (!painter.terrain) return false;
             if (!field.HasUsageTag(PainterShaderVariables.TERRAIN_SPLAT_DIFFUSE)) return false;
             var no = field.NameForDisplayPEGI()[0].CharToInt();
-            painter.terrain.SetSplashPrototypeTexture(id.texture2D, no);
+            SetSplashPrototypeTexture(painter.terrain, id.texture2D, no);
             if (tex.GetType() != typeof(Texture2D))
                 Debug.Log("Can only use Texture2D for Splat Prototypes. If using regular terrain may not see changes.");
             else

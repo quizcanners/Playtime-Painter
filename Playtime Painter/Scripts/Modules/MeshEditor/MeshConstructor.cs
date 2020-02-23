@@ -582,8 +582,27 @@ namespace PlaytimePainter.MeshEditing {
             return mesh;
         }
 
-        public bool Valid => triangles != null && edMesh.vertexCount >= 3 && triangles.TotalCount() >= 3 && mesh; 
-        
+        public bool Valid
+        {
+            get
+            {
+                if (triangles != null && edMesh.vertexCount >= 3 && mesh)
+                {
+                    int cnt = 0;
+
+                    foreach (var t in triangles)
+                    {
+                        cnt += t.Count;
+                    }
+
+                    return cnt >= 3;
+
+                }
+
+                return false;
+            }
+        }
+
         public void AssignMesh(MeshFilter m, MeshCollider c) {
             if (triangles.IsNullOrEmpty())
                 return;

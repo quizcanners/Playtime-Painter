@@ -119,11 +119,11 @@ namespace PlayerAndEditorGUI
 #if UNITY_2018_3_OR_NEWER
                     var isPrefab = PrefabUtility.IsPartOfAnyPrefab(o);
 
-                    if (isPrefab &&
+                   /* if (isPrefab &&
                         PrefabUtility.HasPrefabInstanceAnyOverrides(PrefabUtility.GetNearestPrefabInstanceRoot(o),
                             false) &&
                         icon.Save.Click("Update Prefab"))
-                        PrefabUtility.ApplyPrefabInstance(go, InteractionMode.UserAction);
+                        PrefabUtility.ApplyPrefabInstance(go, InteractionMode.UserAction);*/
 #endif
 
                     if (pgi.Inspect())

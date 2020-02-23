@@ -1038,7 +1038,7 @@ namespace PlaytimePainter.MeshEditing
             if (UndoMoves.Count > 1) {
                 if (icon.Undo.Click(25).changes(ref changed)) {
                     RedoMoves.Add(UndoMoves.RemoveLast());
-                    UndoMoves.Last().DecodeInto(out editedMesh);
+                    UndoMoves.TryGetLast().DecodeInto(out editedMesh);
                     Redraw();
                 }
             }
@@ -1047,7 +1047,7 @@ namespace PlaytimePainter.MeshEditing
 
             if (RedoMoves.Count > 0) {
                 if (icon.Redo.Click(25).changes(ref changed)) {
-                    RedoMoves.Last().DecodeInto(out editedMesh);
+                    RedoMoves.TryGetLast().DecodeInto(out editedMesh);
                     UndoMoves.Add(RedoMoves.RemoveLast());
                     Redraw();
                 }

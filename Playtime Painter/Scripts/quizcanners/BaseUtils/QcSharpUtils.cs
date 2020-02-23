@@ -1,13 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
-
 using System;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Diagnostics;
-using System.Linq;
-using System.Linq.Expressions;
 using System.IO;
 using System.Text;
 using PlayerAndEditorGUI;
@@ -316,8 +313,6 @@ namespace QuizCannersUtilities {
 
             return mod;
         }
-
-        public static int TotalCount(this List<int>[] lists) => lists.Sum(e => e.Count);
         
         public static T GetRandom<T>(this List<T> list) => list.Count == 0 ? default(T) : list[UnityEngine.Random.Range(0, list.Count)];
         
@@ -411,18 +406,6 @@ namespace QuizCannersUtilities {
             list.Insert(newIndex, item);
         }
 
-        public static void SetFirst<T>(this List<T> list, T value) {
-            for (var i = 0; i < list.Count; i++) 
-                if (list[i].Equals(value)) {
-                    list.Move(i, 0);
-                    return;
-                }
-
-            if (list.Count > 0)
-                list.Insert(0, value);
-            else list.Add(value);
-        }
-
         public static List<T> RemoveLast<T>(this List<T> list, int count)
         {
 
@@ -451,8 +434,6 @@ namespace QuizCannersUtilities {
 
             return last;
         }
-
-        public static T Last<T>(this ICollection<T> list) => list.Count > 0 ? list.ElementAt(list.Count - 1) : default(T);
 
         public static void Swap<T>(this List<T> list, int indexOfFirst)
         {
@@ -710,20 +691,7 @@ namespace QuizCannersUtilities {
         public static bool SameAs(this string s, string other) => s?.Equals(other) ?? other==null;
 
         public static bool IsSubstringOf(this string text, string biggerText, RegexOptions opt = RegexOptions.IgnoreCase) => Regex.IsMatch(biggerText, text, opt);
-
-        public static bool AreSubstringsOf(this string search, string name, RegexOptions opt = RegexOptions.IgnoreCase)
-        {
-            if (search.Length == 0)
-                return true;
-
-            if (!search.Contains(" ")) return search.IsSubstringOf(name);
-            
-            var segments = search.Split(' ');
-
-            return segments.All(t => t.IsSubstringOf(name, opt));
-
-        }
-
+        
         public static string RemoveAssetsPart(this string s)
         {
             var ind = s.IndexOf("Assets", StringComparison.Ordinal);
@@ -847,12 +815,23 @@ namespace QuizCannersUtilities {
         public static int CharToInt(this char c) => c - '0';
 
         #region Type MGMT
-        public static string GetMemberName<T>(Expression<Func<T>> memberExpression) => ((MemberExpression)memberExpression.Body).Member.Name;
-        
         public static List<Type> GetAllChildTypesOf<T>() => GetAllChildTypes(typeof(T));
 
-        public static List<Type> GetAllChildTypes(this Type type) => Assembly.GetAssembly(type).GetTypes().Where(t => t.IsSubclassOf(type) && t.IsClass && !t.IsAbstract && (t != type)).ToList();
-        
+        public static List<Type> GetAllChildTypes(this Type type)
+        {
+            var types = Assembly.GetAssembly(type).GetTypes();
+
+            List<Type> list = new List<Type>();
+
+            foreach (var t in types)
+            {
+                if (t.IsSubclassOf(type) && t.IsClass && !t.IsAbstract && (t != type))
+                    list.Add(t);
+            }
+
+            return list;
+        }
+
         public static bool ContainsInstanceOfType<T>(this List<T> collection, Type type)
         {
 

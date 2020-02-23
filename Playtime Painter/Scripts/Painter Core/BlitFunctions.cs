@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using QuizCannersUtilities;
 
 namespace PlaytimePainter {
@@ -11,9 +12,6 @@ namespace PlaytimePainter {
     public static class BlitFunctions {
 
         public delegate void BlitModeFunction(ref Color dst);
-        public delegate void PaintPixelsInRamMethod(PaintCommand.UV command); //Stroke stroke, float brushAlpha, TextureMeta image, Brush bc, PlaytimePainter painter);
-
-        public delegate bool AlphaModeDlg();
 
         public static void Set(ColorMask mask) {
 
@@ -36,7 +34,7 @@ namespace PlaytimePainter {
         public static float half;
         public static float brAlpha;
 
-        public static AlphaModeDlg alphaMode;
+        public static Func<bool> alphaMode;
         public static BlitModeFunction blitMode;
 
         public static Color cSrc;

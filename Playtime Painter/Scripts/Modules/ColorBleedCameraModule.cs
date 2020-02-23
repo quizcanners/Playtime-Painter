@@ -310,16 +310,8 @@ namespace PlaytimePainter.CameraModules {
                     mainLightRotation.Portion(ld);
                 }
 
-                lerpsList.Lerp(ld);
-
-
-                if (l)
-                {
-                    mainLightIntensity.Lerp(ld);
-                    mainLightColor.Lerp(ld);
-                    mainLightRotation.Lerp(ld);
-                }
-
+                ld.LerpAndReset();
+                
                 RenderSettings.fogColor = fogColor.CurrentValue;
 
                 if (RenderSettings.fog)

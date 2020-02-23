@@ -246,8 +246,7 @@ namespace PlaytimePainter
                     st.posFrom += deltaPos;
                 }
 
-
-                BlitFunctions.PaintPixelsInRamMethod blitMethod = null;
+                Action<PaintCommand.UV> blitMethod = null;
 
                 command.strokeAlphaPortion = alpha;
 

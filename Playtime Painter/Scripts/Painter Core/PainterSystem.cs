@@ -10,8 +10,6 @@ using UnityEditor;
 namespace PlaytimePainter
 {
 
-    public delegate bool PainterBoolPlugin(PlaytimePainter p);
-
     public abstract class PainterSystemKeepUnrecognizedCfg : PainterSystemCfg, IKeepUnrecognizedCfg, IPEGI
     {
         public UnrecognizedTagsList UnrecognizedStd { get; } = new UnrecognizedTagsList();

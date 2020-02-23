@@ -522,6 +522,31 @@ namespace PlaytimePainter {
             return changed;
         }
 
+        private static Texture GetSplashPrototypeTexture(Terrain terrain, int ind)
+        {
+
+#if UNITY_2018_3_OR_NEWER
+            var l = terrain.terrainData.terrainLayers;
+
+            if (l.Length > ind)
+            {
+                var sp = l[ind];
+                return sp != null ? l[ind].diffuseTexture : null;
+            }
+            else
+                return null;
+#else
+
+                    SplatPrototype[] prots = terrain.terrainData.splatPrototypes;
+
+                    if (prots.Length <= ind) return null;
+
+
+                    return prots[ind].texture;
+#endif
+        }
+
+
         private bool ColorSliders_PlaytimePainter() {
 
            
@@ -550,13 +575,13 @@ namespace PlaytimePainter {
             }
             else if (painter && painter.IsTerrainControlTexture)
             {
-                if (r) ChannelSlider(ColorMask.R, ref Color, painter.terrain.GetSplashPrototypeTexture(0), slider)
+                if (r) ChannelSlider(ColorMask.R, ref Color, GetSplashPrototypeTexture(painter.terrain, 0), slider)
                     .nl(ref changed);
-                if (g) ChannelSlider(ColorMask.G, ref Color, painter.terrain.GetSplashPrototypeTexture(1), slider)
+                if (g) ChannelSlider(ColorMask.G, ref Color, GetSplashPrototypeTexture(painter.terrain,1), slider)
                     .nl(ref changed);
-                if (b) ChannelSlider(ColorMask.B, ref Color, painter.terrain.GetSplashPrototypeTexture(2), slider)
+                if (b) ChannelSlider(ColorMask.B, ref Color, GetSplashPrototypeTexture(painter.terrain, 2), slider)
                     .nl(ref changed);
-                if (a) ChannelSlider(ColorMask.A, ref Color, painter.terrain.GetSplashPrototypeTexture(3), slider)
+                if (a) ChannelSlider(ColorMask.A, ref Color, GetSplashPrototypeTexture(painter.terrain, 3), slider)
                     .nl(ref changed);
             }
             else

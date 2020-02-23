@@ -1,22 +1,12 @@
-﻿#if UNITY_EDITOR || (!UNITY_ANDROID && !UNITY_IOS) 
-#define QC_USE_NETWORKING // To Prevent unwanted permissions in the manifest
-#endif
-
-using UnityEngine;
-using System.Collections;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Linq;
 
 using Object = UnityEngine.Object;
 using System.Reflection;
 using System.Text;
-
-#if QC_USE_NETWORKING 
-using UnityEngine.Networking;
-#endif
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -240,12 +230,8 @@ namespace QuizCannersUtilities {
         public static void SendEmail(string email, string subject, string body) =>
             Application.OpenURL(string.Format("mailto:{0}?subject={1}&body={2}",email, subject.MyEscapeUrl(), body.MyEscapeUrl()));
 
-        static string MyEscapeUrl(this string url) =>
-#if QC_USE_NETWORKING
-            UnityWebRequest.EscapeURL(url).Replace("+", "%20");
-#else
-            url.Replace("+", "%20");
-#endif
+        static string MyEscapeUrl(this string url) => System.Net.WebUtility.UrlEncode(url).Replace("+", "%20");
+
 
         public static void OpenBrowser(string address) => Application.OpenURL(address);
 
@@ -391,8 +377,7 @@ namespace QuizCannersUtilities {
 
             return rg;
         }
-
-
+        
         public static void SetActive_List<T>(this List<T> list, bool to) where T : Component {
             if (!list.IsNullOrEmpty())
                 foreach (var e in list)
@@ -432,11 +417,8 @@ namespace QuizCannersUtilities {
 
             var go = TryGetGameObjectFromObj(obj);
 
-            return go ? go.TryGet<T>() : null;
+            return go ? go.GetComponent<T>() : null;
         }
-
-        public static T TryGet<T>(this GameObject go) where T : class =>
-            go ? go.GetComponents<Component>().OfType<T>().FirstOrDefault() : null;
 
         public static bool IsNullOrDestroyed_Obj(object obj)
         {
@@ -537,31 +519,7 @@ namespace QuizCannersUtilities {
             foreach (var g in graphics)
                 g.TrySetColor_RGBA(color);
         }
-
-        /*
-        public static string GetMeaningfulHierarchyName(this GameObject go, int maxLook, int maxLength) {
-
-            var name = go.name;
-            
-            var parent = go.transform.parent;
-
-            while (parent && maxLook > 0 && maxLength > 0)
-            {
-                var n = parent.name;
-
-                if (!n.SameAs("Text") && !n.SameAs("Button") && !n.SameAs("Image"))
-                {
-                    name += ">" + n;
-                    maxLength--;
-                }
-
-                parent = parent.parent;
-                maxLook--;
-            }
-
-            return name;
-        }*/
-
+        
         public static bool IsUnityObject(this Type t) => typeof(Object).IsAssignableFrom(t);
 
         public static GameObject GetFocusedGameObject()
@@ -574,81 +532,6 @@ namespace QuizCannersUtilities {
             return null;
 #endif
 
-        }
-
-        public static GameObject SetFlagsOnItAndChildren(this GameObject go, HideFlags flags)
-        {
-
-            foreach (Transform child in go.transform)
-            {
-                child.gameObject.hideFlags = flags;
-                child.gameObject.AddFlagsOnThisAndChildren(flags);
-            }
-
-            return go;
-        }
-
-        public static GameObject AddFlagsOnThisAndChildren(this GameObject go, HideFlags flags)
-        {
-
-            foreach (Transform child in go.transform)
-            {
-                child.gameObject.hideFlags |= flags;
-                child.gameObject.AddFlagsOnThisAndChildren(flags);
-            }
-
-            return go;
-        }
-
-        public static MeshCollider ForceMeshCollider(GameObject go)
-        {
-
-            var colliders = go.GetComponents<Collider>();
-
-            foreach (var c in colliders)
-                if (c.GetType() != typeof(MeshCollider))
-                    c.enabled = false;
-
-            var mc = go.GetComponent<MeshCollider>();
-
-            if (!mc)
-                mc = go.AddComponent<MeshCollider>();
-
-            return mc;
-
-        }
-        
-        public static void SetLayerRecursively(GameObject go, int layerNumber)
-        {
-            foreach (var trans in go.GetComponentsInChildren<Transform>(true))
-                trans.gameObject.layer = layerNumber;
-
-        }
-
-        public static bool IsFocused(this Object obj)
-        {
-
-#if UNITY_EDITOR
-            var tmp = Selection.objects;
-            if (tmp.IsNullOrEmpty() || !tmp[0])
-                return false;
-
-            return tmp[0] == obj;
-#else
-            return false;
-#endif
-        }
-
-        public static T ForceComponent<T>(this GameObject go, ref T co) where T : Component
-        {
-            if (co)
-                return co;
-
-            co = go.GetComponent<T>();
-            if (!co)
-                co = go.AddComponent<T>();
-
-            return co;
         }
 
         public static void DestroyWhateverUnityObject(this Object obj)
@@ -666,12 +549,6 @@ namespace QuizCannersUtilities {
         public static void DestroyWhatever(this GameObject go) => go.DestroyWhateverUnityObject();
 
         public static void DestroyWhateverComponent(this Component cmp) => cmp.DestroyWhateverUnityObject();
-        
-        public static bool HasParameter(this Animator animator, string paramName) =>
-            animator && animator.parameters.Any(param => param.name.SameAs(paramName));
-
-        public static bool HasParameter(this Animator animator, string paramName, UnityEngine.AnimatorControllerParameterType type) =>
-            animator && animator.parameters.Any(param => param.name.SameAs(paramName) && param.type == type);
 
 #endregion
 
@@ -922,13 +799,7 @@ namespace QuizCannersUtilities {
 
 #region Unity Editor MGMT
 
-        public static string GetDataPathWithout_Assets_Word() {
-#if UNITY_EDITOR
-                return Application.dataPath.Substring(0, Application.dataPath.Length - "Assets".Length);
-#else
-                    return null;
-#endif
-        }
+
 
         public static bool GetPlatformDirective(string define)
         {
@@ -936,7 +807,15 @@ namespace QuizCannersUtilities {
 #if UNITY_EDITOR
             var buildTargetGroup = EditorUserBuildSettings.selectedBuildTargetGroup;
             var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup).Split(';');
-            return defines.Contains(define);
+
+            foreach (var s in defines)
+            {
+                if (s.Equals(define))
+                    return true;
+            }
+
+            return false;
+            //return defines.Contains(define);
 #else
                 return true;
 #endif
@@ -980,7 +859,7 @@ namespace QuizCannersUtilities {
 #endif
         }
 
-        public static List<Object> SetToDirty(this List<UnityEngine.Object> objs)
+        public static List<Object> SetToDirty(this List<Object> objs)
         {
 #if UNITY_EDITOR
             if (objs.IsNullOrEmpty()) return objs;
@@ -1015,23 +894,6 @@ namespace QuizCannersUtilities {
             tmp[0] = go;
             Selection.objects = tmp;
 #endif
-        }
-
-        private static Type gameViewType;
-
-        public static void FocusOnGame()
-        {
-#if UNITY_EDITOR
-            if (gameViewType == null)
-            {
-                var assembly = typeof(EditorWindow).Assembly;
-                gameViewType = assembly.GetType("UnityEditor.GameView");
-            }
-
-            var gameView = EditorWindow.GetWindow(gameViewType);
-            gameView.Focus();
-#endif
-
         }
 
         public static void RenamingLayer(int index, string name)
@@ -1405,7 +1267,13 @@ namespace QuizCannersUtilities {
             }
 
             if (props == null) return fNames;
-            fNames.AddRange(from p in props where p.type == type select p.name);
+
+            foreach (var p in props)
+            {
+                if (p.type == type)
+                    fNames.Add(p.name);
+            }
+            
 #endif
 
             return fNames;
@@ -1933,87 +1801,6 @@ namespace QuizCannersUtilities {
             return tex;
 
         }
-#endif
-
-#endregion
-
-#region Terrain Layers
-
-        public static void SetSplashPrototypeTexture(this Terrain terrain, Texture2D tex, int index)
-        {
-
-            if (!terrain) return;
-
-#if UNITY_2018_3_OR_NEWER
-            var l = terrain.terrainData.terrainLayers;
-
-            if (l.Length > index)
-                l[index].diffuseTexture = tex;
-#else
-
-            SplatPrototype[] newProtos = terrain.GetCopyOfSplashPrototypes();
-
-            if (newProtos.Length <= index)
-            {
-                QcSharp.AddAndInit(ref newProtos, index + 1 - newProtos.Length);
-            }
-
-            newProtos[index].texture = tex;
-
-       
-            terrain.terrainData.splatPrototypes = newProtos;
-#endif
-
-
-
-        }
-
-        public static Texture GetSplashPrototypeTexture(this Terrain terrain, int ind)
-        {
-
-#if UNITY_2018_3_OR_NEWER
-            var l = terrain.terrainData.terrainLayers;
-
-            if (l.Length > ind)
-            {
-                var sp = l[ind];
-                return sp != null ? l[ind].diffuseTexture : null;
-            }
-            else
-                return null;
-#else
-
-                    SplatPrototype[] prots = terrain.terrainData.splatPrototypes;
-
-                    if (prots.Length <= ind) return null;
-
-
-                    return prots[ind].texture;
-#endif
-        }
-
-#if !UNITY_2018_3_OR_NEWER
-                public static SplatPrototype[] GetCopyOfSplashPrototypes(this Terrain terrain)
-                {
-
-                    if (!terrain) return null;
-
-                    SplatPrototype[] oldProtos = terrain.terrainData.splatPrototypes;
-                    SplatPrototype[] newProtos = new SplatPrototype[oldProtos.Length];
-                    for (int i = 0; i < oldProtos.Length; i++)
-                    {
-                        SplatPrototype oldProto = oldProtos[i];
-                        SplatPrototype newProto = new SplatPrototype();
-                        newProtos[i] = newProto;
-
-                        newProto.texture = oldProto.texture;
-                        newProto.tileSize = oldProto.tileSize;
-                        newProto.tileOffset = oldProto.tileOffset;
-                        newProto.normalMap = oldProto.normalMap;
-                    }
-
-                    return newProtos;
-                }
 #endif
 
 #endregion
