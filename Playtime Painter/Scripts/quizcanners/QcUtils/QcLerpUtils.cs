@@ -2175,7 +2175,51 @@ namespace QuizCannersUtilities
             }
 
         }
-        
+
+        public static void Lerp<T>(this T[] array, LerpData ld, bool canSkipLerp = false) where T : ILinkedLerping
+        {
+
+            if (typeof(Object).IsAssignableFrom(typeof(T)))
+            {
+                for (int i = array.Length - 1; i >= 0; i--)
+                {
+
+                    var e = array[i];
+                    if (!QcUnity.IsNullOrDestroyed_Obj(e))
+                        e.Lerp(ld, canSkipLerp: canSkipLerp);
+                }
+            }
+            else for (int i = array.Length - 1; i >= 0; i--)
+            {
+                var e = array[i];
+                if (e != null)
+                    e.Lerp(ld, canSkipLerp: canSkipLerp);
+            }
+        }
+
+        public static void Lerp<T>(this List<T> list, LerpData ld, bool canSkipLerp = false) where T : ILinkedLerping
+        {
+
+            if (typeof(Object).IsAssignableFrom(typeof(T)))
+            {
+                for (int i = list.Count - 1; i >= 0; i--)
+                {
+                    var e = list[i];
+                    if (!QcUnity.IsNullOrDestroyed_Obj(e))
+                        e.Lerp(ld, canSkipLerp: canSkipLerp);
+                }
+
+            }
+            else for (int i = list.Count - 1; i >= 0; i--)
+            {
+                var e = list[i];
+                if (e != null)
+                    e.Lerp(ld, canSkipLerp: canSkipLerp);
+            }
+
+        }
+
+
         public static void FadeAway<T>(this List<T> list) where T : IManageFading
         {
             if (list == null) return;

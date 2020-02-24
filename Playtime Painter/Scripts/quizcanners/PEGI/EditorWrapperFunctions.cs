@@ -1323,26 +1323,34 @@ namespace PlayerAndEditorGUI
             checkLine();
             EditorGUILayout.LabelField(cnt, PEGI_Styles.ClippingText.Current);
         }
-        
+
         public static void write(Texture tex, int width)
         {
             checkLine();
 
-            GUILayout.Label(tex, GUILayout.MaxWidth(width), GUILayout.MaxHeight(width));
+            var rect = EditorGUILayout.GetControlRect(GUILayout.MaxWidth(width), GUILayout.MaxHeight(width));
+
+            GUI.DrawTexture(rect, tex, ScaleMode.ScaleToFit, alphaBlend: true);
         }
 
         public static void write(Texture tex, string tip, int width)
         {
             checkLine();
+            var rect = EditorGUILayout.GetControlRect(GUILayout.MaxWidth(width), GUILayout.MaxHeight(width));
 
-            GUILayout.Label(ImageAndTip(tex, tip), GUILayout.MaxWidth(width), GUILayout.MaxHeight(width));
+            GUI.DrawTexture(rect, tex, ScaleMode.ScaleToFit, alphaBlend: true);
         }
 
         public static void write(Texture tex, string tip, int width, int height)
         {
             checkLine();
 
-            GUILayout.Label(ImageAndTip(tex, tip), GUILayout.MaxWidth(width), GUILayout.MaxHeight(height));
+            var rect = EditorGUILayout.GetControlRect(GUILayout.MaxWidth(width), GUILayout.MaxHeight(height));
+
+            rect.width = width;
+            rect.height = height;
+
+            GUI.DrawTexture(rect, tex, ScaleMode.ScaleToFit, alphaBlend: true);
         }
 
         public static void write(GUIContent cnt, int width)
