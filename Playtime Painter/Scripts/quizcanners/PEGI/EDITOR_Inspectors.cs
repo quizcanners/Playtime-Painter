@@ -1,10 +1,10 @@
-﻿using UnityEngine;
-using QuizCannersUtilities;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Collections.Generic;
-
+using QuizCannersUtilities;
+using UnityEngine;
+using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -61,7 +61,7 @@ namespace PlayerAndEditorGUI {
     
     public abstract class PEGI_UnityObjectInspector_Base  : Editor
     {
-        public static UnityEngine.Object drawDefaultInspector;
+        public static Object drawDefaultInspector;
         
         protected abstract bool Inspect(Editor editor);
         protected abstract ef.EditorType EditorType { get;  }
@@ -232,7 +232,7 @@ namespace PlayerAndEditorGUI {
                 }
             }
 
-            return default(T);
+            return default;
         }
 
         public static bool SetFieldOrPropertyValue(string fieldName, object obj, object value, bool includeAllBases = false, BindingFlags bindings = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)

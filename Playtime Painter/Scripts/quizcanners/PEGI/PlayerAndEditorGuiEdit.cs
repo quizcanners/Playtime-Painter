@@ -1,17 +1,15 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-
 using System.Linq.Expressions;
 using QuizCannersUtilities;
+using UnityEngine;
 using UnityEngine.U2D;
-using Object = UnityEngine.Object;
 using static PlayerAndEditorGUI.PEGI_Styles;
-
+using Object = UnityEngine.Object;
 #if UNITY_EDITOR
-using UnityEditor;
+
 #endif
 
 // ReSharper disable InconsistentNaming
@@ -64,7 +62,7 @@ namespace PlayerAndEditorGUI
         static T filterEditorDropdown<T>(this T obj)
         {
             var edd = obj as IEditorDropdown;
-            return (edd == null || edd.ShowInDropdown()) ? obj : default(T);
+            return (edd == null || edd.ShowInDropdown()) ? obj : default;
         }
 
         private static string CompileSelectionName<T>(int index, T obj, bool showIndex, bool stripSlashes = false, bool dotsToSlashes = true)
@@ -1283,7 +1281,7 @@ namespace PlayerAndEditorGUI
         {
 
             if (ed != null)
-                return ed.SelectType<T>(ref obj, cfg, keepTypeConfig);
+                return ed.SelectType(ref obj, cfg, keepTypeConfig);
 
             var type = obj?.GetType();
 
@@ -1376,15 +1374,14 @@ namespace PlayerAndEditorGUI
         public static bool select<T>(ref int key, Dictionary<int, T> from)
         {
 
-
             checkLine();
 
             var namesList = new List<string>();
-            var indexes = new List<int>();
+           // var indexes = new List<int>();
 
             int elementIndex = -1;
 
-            T val = default(T);
+            T val = default;
 
             for (var i = 0; i < from.Count; i++)
             {
@@ -1396,7 +1393,7 @@ namespace PlayerAndEditorGUI
                     elementIndex = i;
 
                 namesList.Add("{0}: {1}".F(pair.Key.ToString(), pair.Value.GetNameForInspector()));
-                indexes.Add(i);
+                //indexes.Add(i);
 
             }
 
@@ -1468,13 +1465,13 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool select_or_edit<T>(this string name, ref T obj, List<T> list, bool showIndex = false) where T : UnityEngine.Object
+        public static bool select_or_edit<T>(this string name, ref T obj, List<T> list, bool showIndex = false) where T : Object
             => select_or_edit(name, null, 0, ref obj, list, showIndex);
 
-        public static bool select_or_edit<T>(this string name, int width, ref T obj, List<T> list, bool showIndex = false) where T : UnityEngine.Object
+        public static bool select_or_edit<T>(this string name, int width, ref T obj, List<T> list, bool showIndex = false) where T : Object
         => select_or_edit(name, null, width, ref obj, list, showIndex);
 
-        public static bool select_or_edit<T>(ref T obj, List<T> list, bool showIndex = false) where T : UnityEngine.Object
+        public static bool select_or_edit<T>(ref T obj, List<T> list, bool showIndex = false) where T : Object
             => select_or_edit(null, null, 0, ref obj, list, showIndex);
 
         public static bool select_or_edit<T>(this string name, ref int val, List<T> list, bool showIndex = false) =>
@@ -1526,7 +1523,7 @@ namespace PlayerAndEditorGUI
         public static bool select_or_edit<T>(this string name, string hint, int width, ref int val, List<T> list, bool showIndex = false) =>
             list.IsNullOrEmpty() ? name.edit(hint, width, ref val) : name.select_Index(hint, width, ref val, list, showIndex);
 
-        public static bool select_SameClass_or_edit<T, G>(this string text, string hint, int width, ref T obj, List<G> list) where T : UnityEngine.Object where G : class
+        public static bool select_SameClass_or_edit<T, G>(this string text, string hint, int width, ref T obj, List<G> list) where T : Object where G : class
         {
             if (list.IsNullOrEmpty())
                 return edit(ref obj);
@@ -1545,13 +1542,13 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool select_SameClass_or_edit<T, G>(ref T obj, List<G> list) where T : UnityEngine.Object where G : class =>
+        public static bool select_SameClass_or_edit<T, G>(ref T obj, List<G> list) where T : Object where G : class =>
              select_SameClass_or_edit(null, null, 0, ref obj, list);
 
-        public static bool select_SameClass_or_edit<T, G>(this string name, ref T obj, List<G> list) where T : UnityEngine.Object where G : class =>
+        public static bool select_SameClass_or_edit<T, G>(this string name, ref T obj, List<G> list) where T : Object where G : class =>
              select_SameClass_or_edit(name, null, 0, ref obj, list);
 
-        public static bool select_SameClass_or_edit<T, G>(this string name, int width, ref T obj, List<G> list) where T : UnityEngine.Object where G : class =>
+        public static bool select_SameClass_or_edit<T, G>(this string name, int width, ref T obj, List<G> list) where T : Object where G : class =>
              select_SameClass_or_edit(name, null, width, ref obj, list);
 
         #endregion
@@ -1675,12 +1672,12 @@ namespace PlayerAndEditorGUI
         public static bool select_iGotIndex_SameClass<T, G>(this string label, ref int ind, List<T> lst, out G val) where G : class, T where T : IGotIndex
         {
             write(label);
-            return select_iGotIndex_SameClass<T, G>(ref ind, lst, out val);
+            return select_iGotIndex_SameClass(ref ind, lst, out val);
         }
 
         public static bool select_iGotIndex_SameClass<T, G>(ref int ind, List<T> lst, out G val) where G : class, T where T : IGotIndex
         {
-            val = default(G);
+            val = default;
 
             if (lst == null)
                 return false;
@@ -1922,7 +1919,7 @@ namespace PlayerAndEditorGUI
         {
             SetBgColor(Color.clear);
 
-            var changed = toggle(ref val, icon.Show, icon.Hide, hint, width, PEGI_Styles.ToggleButton).PreviousBgColor();
+            var changed = toggle(ref val, icon.Show, icon.Hide, hint, width, ToggleButton).PreviousBgColor();
 
             return changed;
         }
@@ -1932,9 +1929,9 @@ namespace PlayerAndEditorGUI
         {
             SetBgColor(Color.clear);
 
-            var changed = toggle(ref val, icon.Show, icon.Hide, hint, DefaultToggleIconSize, PEGI_Styles.ToggleButton).PreviousBgColor();
+            var changed = toggle(ref val, icon.Show, icon.Hide, hint, DefaultToggleIconSize, ToggleButton).PreviousBgColor();
 
-            if (!val || dontHideTextWhenOn) label.write(hint, PEGI_Styles.ToggleLabel(val));
+            if (!val || dontHideTextWhenOn) label.write(hint, ToggleLabel(val));
 
             return changed;
         }
@@ -1954,7 +1951,7 @@ namespace PlayerAndEditorGUI
         {
             var boo = val != 0;
 
-            if (toggle(ref boo, icon.True.BgColor(Color.clear), icon.False, hint, DefaultToggleIconSize, PEGI_Styles.ToggleButton).PreviousBgColor())
+            if (toggle(ref boo, icon.True.BgColor(Color.clear), icon.False, hint, DefaultToggleIconSize, ToggleButton).PreviousBgColor())
             {
                 val = boo ? 1 : 0;
                 return true;
@@ -1967,9 +1964,9 @@ namespace PlayerAndEditorGUI
         {
             SetBgColor(Color.clear);
 
-            var ret = toggle(ref val, icon.True, icon.False, hint, DefaultToggleIconSize, PEGI_Styles.ToggleButton).PreviousBgColor();
+            var ret = toggle(ref val, icon.True, icon.False, hint, DefaultToggleIconSize, ToggleButton).PreviousBgColor();
 
-            if ((!val || !hideTextWhenTrue) && label.ClickLabel(hint, -1, PEGI_Styles.ToggleLabel(val)).changes(ref ret))
+            if ((!val || !hideTextWhenTrue) && label.ClickLabel(hint, -1, ToggleLabel(val)).changes(ref ret))
                 val = !val;
 
             return ret;
@@ -2244,7 +2241,7 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool edit<T>(this string label, int width, ref T field, bool allowDrop) where T : UnityEngine.Object
+        public static bool edit<T>(this string label, int width, ref T field, bool allowDrop) where T : Object
         {
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
@@ -2259,7 +2256,7 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool edit<T>(this string label, string tip, int width, ref T field) where T : UnityEngine.Object
+        public static bool edit<T>(this string label, string tip, int width, ref T field) where T : Object
         {
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
@@ -2274,7 +2271,7 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool edit<T>(this string label, string tip, int width, ref T field, bool allowDrop) where T : UnityEngine.Object
+        public static bool edit<T>(this string label, string tip, int width, ref T field, bool allowDrop) where T : Object
         {
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
@@ -2338,11 +2335,11 @@ namespace PlayerAndEditorGUI
                     if (width > 0)
                     {
 
-                        if (lab.ClickLabel(Msg.ClickToInspect.GetText(), width, PEGI_Styles.EnterLabel))
+                        if (lab.ClickLabel(Msg.ClickToInspect.GetText(), width, EnterLabel))
                             entered = current;
                     }
                     else
-                    if (lab.ClickLabel(Msg.ClickToInspect.GetText(), style: PEGI_Styles.EnterLabel))
+                    if (lab.ClickLabel(Msg.ClickToInspect.GetText(), style: EnterLabel))
                         entered = current;
 
                     if (!obj)
@@ -3234,7 +3231,7 @@ namespace PlayerAndEditorGUI
 #endif
 
             bc();
-            var newval = GUILayout.TextField(val.ToString(), GuiMaxWidthOption);
+            var newval = GUILayout.TextField(val.ToString(CultureInfo.InvariantCulture), GuiMaxWidthOption);
 
             if (!ec()) return false;
 
@@ -3255,7 +3252,7 @@ namespace PlayerAndEditorGUI
 
             bc();
 
-            var newval = GUILayout.TextField(val.ToString(), GUILayout.MaxWidth(width));
+            var newval = GUILayout.TextField(val.ToString(CultureInfo.InvariantCulture), GUILayout.MaxWidth(width));
 
             if (!ec()) return false;
 
@@ -3346,7 +3343,7 @@ namespace PlayerAndEditorGUI
 
             checkLine();
 
-            var tmp = (editedFloatIndex == _elementIndex) ? editedFloat : val.ToString();
+            var tmp = (editedFloatIndex == _elementIndex) ? editedFloat : val.ToString(CultureInfo.InvariantCulture);
 
             if (KeyCode.Return.IsDown() && (_elementIndex == editedFloatIndex))
             {
@@ -3488,7 +3485,7 @@ namespace PlayerAndEditorGUI
 
             checkLine();
 
-            var tmp = (editedDoubleIndex == _elementIndex) ? editedDouble : val.ToString();
+            var tmp = (editedDoubleIndex == _elementIndex) ? editedDouble : val.ToString(CultureInfo.InvariantCulture);
 
             if (KeyCode.Return.IsDown() && (_elementIndex == editedDoubleIndex))
             {
@@ -3526,7 +3523,7 @@ namespace PlayerAndEditorGUI
                 return ef.edit(ref val);
 #endif
             bc();
-            var newval = GUILayout.TextField(val.ToString(), GuiMaxWidthOption);
+            var newval = GUILayout.TextField(val.ToString(CultureInfo.InvariantCulture), GuiMaxWidthOption);
             if (!ec()) return false;
             double newValue;
             if (!double.TryParse(newval, out newValue)) return false;
@@ -3561,7 +3558,7 @@ namespace PlayerAndEditorGUI
 #endif
 
             bc();
-            var newval = GUILayout.TextField(val.ToString(), GUILayout.MaxWidth(width));
+            var newval = GUILayout.TextField(val.ToString(CultureInfo.InvariantCulture), GUILayout.MaxWidth(width));
             if (!ec()) return false;
 
             double newValue;
@@ -3765,8 +3762,8 @@ namespace PlayerAndEditorGUI
                 label = "";
                 return false;
             }
-            else
-                write("String is too long {0}".F(label.Substring(0, 10)));
+
+            write("String is too long {0}".F(label.Substring(0, 10)));
 
             return true;
         }

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using PlayerAndEditorGUI;
+using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
@@ -537,7 +537,7 @@ namespace QuizCannersUtilities
             }
         }
 
-        public abstract class BaseFloatLerp : BaseLerpGeneric<float>, IPEGI_ListInspect
+        public abstract class BaseFloatLerp : BaseLerpGeneric<float>
         {
 
             protected virtual bool CanLerp => true;
@@ -591,9 +591,9 @@ namespace QuizCannersUtilities
         {
             private float _portion;
 
-            public ShaderProperty.FloatValue transitionProperty;
-            public ShaderProperty.TextureValue currentTexturePrTextureValue;
-            public ShaderProperty.TextureValue nextTexturePrTextureValue;
+            private readonly ShaderProperty.FloatValue transitionProperty;
+            protected readonly ShaderProperty.TextureValue currentTexturePrTextureValue;
+            protected readonly ShaderProperty.TextureValue nextTexturePrTextureValue;
 
             private enum OnStart
             {
@@ -630,13 +630,14 @@ namespace QuizCannersUtilities
                         }
                     }
 
-                    Material?.Set(transitionProperty, _portion);
+                    if (Material)
+                        Material.Set(transitionProperty, _portion);
                 }
             }
 
             protected readonly List<Texture> _targetTextures = new List<Texture>();
 
-            public abstract Material Material { get; }
+            protected abstract Material Material { get; }
 
             protected virtual Texture Current
             {
@@ -811,8 +812,7 @@ namespace QuizCannersUtilities
                 Rect rect;
                 if (tex && offsets.TryGetValue(tex, out rect))
                     return rect;
-                else
-                    return new Rect(0, 0, 1, 1);
+                return new Rect(0, 0, 1, 1);
 
             }
 
@@ -865,7 +865,7 @@ namespace QuizCannersUtilities
 
         }
 
-        public abstract class BaseShaderLerp<T> : BaseLerpGeneric<T>, IGotDisplayName
+        public abstract class BaseShaderLerp<T> : BaseLerpGeneric<T>
         {
 
             public Material material;
@@ -1003,11 +1003,11 @@ namespace QuizCannersUtilities
 
             public float targetValue;
 
-            public bool minMax;
+            private bool minMax;
 
-            public float min = 0;
+            private float min;
 
-            public float max = 1;
+            private float max = 1;
 
             public override float CurrentValue { get; set; }
 
@@ -1032,7 +1032,7 @@ namespace QuizCannersUtilities
 
                 if (allowChangeParameters)
                 {
-                    int width = pegi.ApproximateLength(_name);
+                    int width = _name.ApproximateLength();
                     if (minMax)
                         _name.edit(width, ref targetValue, min, max).changes(ref changed);
                     else
@@ -1174,7 +1174,7 @@ namespace QuizCannersUtilities
 
                 if (allowChangeParameters)
                 {
-                    int width = pegi.ApproximateLength(Name_Internal);
+                    int width = Name_Internal.ApproximateLength();
                     Name_Internal.edit(width, ref targetValue).changes(ref changed);
                 }
 
@@ -1318,7 +1318,7 @@ namespace QuizCannersUtilities
 
         #region Rect Transform
 
-        public abstract class RectTransformVector2Value : BaseVector2Lerp, IPEGI
+        public abstract class RectTransformVector2Value : BaseVector2Lerp
         {
             public RectTransform rectTransform;
 
@@ -1650,7 +1650,7 @@ namespace QuizCannersUtilities
 
             private Graphic _graphic;
 
-            public GraphicMaterialTextureTransition(float nSpeed = 1) : base()
+            public GraphicMaterialTextureTransition(float nSpeed = 1)
             {
                 speedLimit = nSpeed;
             }
@@ -1668,7 +1668,7 @@ namespace QuizCannersUtilities
                 }
             }
 
-            public override Material Material => _graphic ? _graphic.material : null;
+            protected override Material Material => _graphic ? _graphic.material : null;
         }
 
         public class GraphicMaterialAtlasedTextureTransition : BaseMaterialAtlasedTextureTransition
@@ -1677,7 +1677,7 @@ namespace QuizCannersUtilities
 
             private Graphic _graphic;
 
-            public GraphicMaterialAtlasedTextureTransition(float nSpeed = 1) : base()
+            public GraphicMaterialAtlasedTextureTransition(float nSpeed = 1)
             {
                 speedLimit = nSpeed;
             }
@@ -1695,7 +1695,7 @@ namespace QuizCannersUtilities
                 }
             }
 
-            public override Material Material => _graphic ? _graphic.material : null;
+            protected override Material Material => _graphic ? _graphic.material : null;
         }
 
 
@@ -1705,7 +1705,7 @@ namespace QuizCannersUtilities
 
             protected override string Name_Internal => "Renderer Texture Transition";
 
-            public RendererMaterialTextureTransition(Renderer rendy, float nSpeed = 1) : base()
+            public RendererMaterialTextureTransition(Renderer rendy, float nSpeed = 1)
             {
                 speedLimit = nSpeed;
                 _graphic = rendy;
@@ -1718,12 +1718,12 @@ namespace QuizCannersUtilities
                     if (value != _graphic)
                     {
                         _graphic = value;
-                        if (Application.isPlaying) _graphic.material = UnityEngine.Object.Instantiate(_graphic.material);
+                        if (Application.isPlaying) _graphic.material = Object.Instantiate(_graphic.material);
                     }
                 }
             }
 
-            public override Material Material => _graphic ? _graphic.MaterialWhatever() : null;
+            protected override Material Material => _graphic ? _graphic.MaterialWhatever() : null;
         }
 
         #endregion
@@ -1857,15 +1857,10 @@ namespace QuizCannersUtilities
         #region Lerps
 
         
-
         private static float SpeedToPortion(this float speed, float dist) =>
-            dist != 0 ? Mathf.Clamp01(speed * Time.deltaTime / Mathf.Abs(dist)) : 1;
+            Math.Abs(dist) > (float.Epsilon * 10) ? Mathf.Clamp01(speed * Time.deltaTime / Mathf.Abs(dist)) : 1;
 
-
-        private static double SpeedToPortion(this double speed, double dist) =>
-            dist != 0 ? QcMath.Clamp01(speed * Time.deltaTime / Math.Abs(dist)) : 1;
-
-
+       
         public static bool SpeedToMinPortion(this float speed, float dist, LerpData ld)
         {
 

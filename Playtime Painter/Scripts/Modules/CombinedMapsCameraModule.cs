@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using PlayerAndEditorGUI;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
+using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using UnityEngine;
 
 namespace PlaytimePainter.CameraModules
 {
@@ -180,7 +180,7 @@ namespace PlaytimePainter.CameraModules
 
         #endregion
 
-        public int selectedProfile = 0;
+        public int selectedProfile;
 
 
     }
@@ -543,7 +543,7 @@ namespace PlaytimePainter.CameraModules
 
             if (tex) return;
             
-            Debug.Log(this.ToString() + " texture not set, using default color.");
+            Debug.Log(ToString() + " texture not set, using default color.");
             var size = width * height;
             pixels = new Color[size];
             var col = DefaultColor;

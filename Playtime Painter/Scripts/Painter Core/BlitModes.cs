@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
 using PlayerAndEditorGUI;
-using QuizCannersUtilities;
 using PlaytimePainter.CameraModules;
+using QuizCannersUtilities;
+using UnityEngine;
 
 namespace PlaytimePainter {
 
-    public static partial class BlitModes {
+    public static class BlitModes {
 
         public abstract class Base : PainterSystem, IEditorDropdown, IGotDisplayName {
 
@@ -169,7 +169,7 @@ namespace PlaytimePainter {
 
                     var txt = (usingDecals ? "Tint alpha" : MsgPainter.Speed.GetText());
 
-                    txt.write(pegi.ApproximateLength(txt));
+                    txt.write(txt.ApproximateLength());
 
                     InspectedBrush._dSpeed.Inspect().nl(ref changed);
 
@@ -394,7 +394,7 @@ namespace PlaytimePainter {
 
                 var txt = MsgPainter.BlurAmount.GetText();
 
-                txt.edit(pegi.ApproximateLength(txt), ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
+                txt.edit(txt.ApproximateLength(), ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
                 return changed;
             }
 
@@ -425,7 +425,7 @@ namespace PlaytimePainter {
                 Manual = 2
             }
 
-            public MyIntVec2 currentPixel = new MyIntVec2();
+            public MyIntVec2 currentPixel;
 
             public ColorSetMethod method;
 
@@ -502,8 +502,8 @@ namespace PlaytimePainter {
                         for (currentPixel.y = 0; currentPixel.y < Cfg.samplingMaskSize.y; currentPixel.y++)
                         {
 
-                            float center_uv_x = ((float) currentPixel.x + 0.5f) / (float) Cfg.samplingMaskSize.x;
-                            float center_uv_y = ((float) currentPixel.y + 0.5f) / (float) Cfg.samplingMaskSize.y;
+                            float center_uv_x = (currentPixel.x + 0.5f) / Cfg.samplingMaskSize.x;
+                            float center_uv_y = (currentPixel.y + 0.5f) / Cfg.samplingMaskSize.y;
 
                             int startX = currentPixel.x * dx;
 
@@ -513,13 +513,13 @@ namespace PlaytimePainter {
                                 int y = (currentPixel.y * dy + suby);
                                 int start = y * id.width + startX;
 
-                                float offy = (center_uv_y - ((float) y / (float) id.height)) / 2f + 0.5f;
+                                float offy = (center_uv_y - (y / (float) id.height)) / 2f + 0.5f;
 
                                 for (int subx = 0; subx < dx; subx++)
                                 {
                                     int ind = start + subx;
 
-                                    float offx = (center_uv_x - ((float) (startX + subx) / (float) id.width)) / 2f +
+                                    float offx = (center_uv_x - ((startX + subx) / (float) id.width)) / 2f +
                                                  0.5f;
 
                                     pix[ind].r = offx;
@@ -737,7 +737,7 @@ namespace PlaytimePainter {
 
                 var txt = MsgPainter.SpreadSpeed.GetText();
 
-                txt.edit(pegi.ApproximateLength(txt), ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
+                txt.edit(txt.ApproximateLength(), ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
 
                 return changed;
             }

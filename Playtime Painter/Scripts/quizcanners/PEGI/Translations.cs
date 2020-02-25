@@ -1,7 +1,6 @@
-﻿using System;
-using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using QuizCannersUtilities;
+using UnityEngine;
 
 namespace PlayerAndEditorGUI {
 
@@ -11,7 +10,7 @@ namespace PlayerAndEditorGUI {
         ToolTip, ClickYesToConfirm, Yes, No, Exit, AreYouSure, ClickToInspect,
         FinishMovingCollectionElements, MoveCollectionElements, TryDuplicateSelected, TryCopyReferences,
         Init, List, Collection, Array, Dictionary
-    };
+    }
 
 
 
@@ -62,7 +61,7 @@ namespace PlayerAndEditorGUI {
 
                 case Msg.InspectElement:
                     msg.Translate("Inspect element")
-                        .From(ukr, "Оглянути елемент"); ;
+                        .From(ukr, "Оглянути елемент"); 
                     break;
 
                 case Msg.HighlightElement:
@@ -82,12 +81,12 @@ namespace PlayerAndEditorGUI {
 
                 case Msg.AddEmptyCollectionElement:
                     msg.Translate("Add NULL/default collection element")
-                        .From(ukr, "Додати порожній елемент до коллекції"); ;
+                        .From(ukr, "Додати порожній елемент до коллекції");
                     break;
 
                 case Msg.ReturnToCollection:
                     msg.Translate("Return to collection")
-                        .From(ukr, "Повернутись до коллекції"); ;
+                        .From(ukr, "Повернутись до коллекції");
                     break;
 
                 case Msg.MakeElementNull:
@@ -175,7 +174,7 @@ namespace PlayerAndEditorGUI {
 
         #region Inspector
 
-        private static readonly List<int> supportedLanguages = new List<int>() {eng, ukr, trk};
+        private static readonly List<int> supportedLanguages = new List<int> {eng, ukr, trk};
 
         public static bool LanguageSelection() {
             if (_systemLanguage == -1)
@@ -321,8 +320,8 @@ namespace PlayerAndEditorGUI {
         public static void Write(this Msg m, string tip, int width) { m.GetText().write(tip, width); }
         public static bool Click(this icon icon, Msg text) => icon.ClickUnFocus(text.GetText());
         public static bool Click(this icon icon, Msg text, ref bool changed) => icon.ClickUnFocus(text.GetText()).changes(ref changed);
-        public static bool ClickUnFocus(this icon icon, Msg text, int size = pegi.defaultButtonSize) => pegi.ClickUnFocus(icon.GetIcon(), text.GetText(), size);
-        public static bool ClickUnFocus(this icon icon, Msg text, int width, int height) => pegi.ClickUnFocus(icon.GetIcon(), text.GetText(), width, height);
+        public static bool ClickUnFocus(this icon icon, Msg text, int size = pegi.defaultButtonSize) => icon.GetIcon().ClickUnFocus(text.GetText(), size);
+        public static bool ClickUnFocus(this icon icon, Msg text, int width, int height) => icon.GetIcon().ClickUnFocus(text.GetText(), width, height);
 
         #endregion
 

@@ -1,19 +1,11 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections.Generic;
-using System;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-
+using UnityEngine;
 
 namespace PlaytimePainter.MeshEditing
 {
-
-    using Vertex = PainterMesh.Vertex;
-    using Triangle = PainterMesh.Triangle;
-    using MeshPoint = PainterMesh.MeshPoint;
-    using LineData = PainterMesh.LineData;
-
-
 #pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
@@ -63,9 +55,9 @@ namespace PlaytimePainter.MeshEditing
 
         public Matrix4x4[] bindPoses;
 
-        public List<MeshPoint> meshPoints = new List<MeshPoint>();
+        public List<PainterMesh.MeshPoint> meshPoints = new List<PainterMesh.MeshPoint>();
 
-        public List<Triangle> triangles = new List<Triangle>();
+        public List<PainterMesh.Triangle> triangles = new List<PainterMesh.Triangle>();
 
         public Mesh actualMesh;
 
@@ -115,7 +107,7 @@ namespace PlaytimePainter.MeshEditing
 
             var vCnt = mesh.vertices.Length;
 
-            meshPoints = new List<MeshPoint>();
+            meshPoints = new List<PainterMesh.MeshPoint>();
             var vertices = mesh.vertices;
 
             var cols = mesh.colors;
@@ -132,9 +124,9 @@ namespace PlaytimePainter.MeshEditing
 
             for (var i = 0; i < vCnt; i++)
             {
-                var v = new MeshPoint(vertices[i]);
+                var v = new PainterMesh.MeshPoint(vertices[i]);
                 meshPoints.Add(v);
-                var uv = new Vertex(meshPoints[i], gotUv1 ? uv1[i] : Vector2.zero, gotUv2 ? uv2[i] : Vector2.zero);
+                var uv = new PainterMesh.Vertex(meshPoints[i], gotUv1 ? uv1[i] : Vector2.zero, gotUv2 ? uv2[i] : Vector2.zero);
             }
 
             if (gotColors)
@@ -182,8 +174,8 @@ namespace PlaytimePainter.MeshEditing
                 }
             }
 
-            triangles = new List<Triangle>();
-            var points = new Vertex[3];
+            triangles = new List<PainterMesh.Triangle>();
+            var points = new PainterMesh.Vertex[3];
 
             subMeshCount = Mathf.Max(1, mesh.subMeshCount);
             baseVertex = new List<uint>();
@@ -205,7 +197,7 @@ namespace PlaytimePainter.MeshEditing
                     for (var e = 0; e < 3; e++)
                         points[e] = meshPoints[indices[i * 3 + e]].vertices[0];
 
-                    var t = new Triangle(points)
+                    var t = new PainterMesh.Triangle(points)
                     {
                         subMeshIndex = s
                     };
@@ -224,7 +216,7 @@ namespace PlaytimePainter.MeshEditing
 
                 float coef = 10000f / mesh.bounds.size.magnitude;
 
-                UnNullableLists<MeshPoint> distanceGroups = new UnNullableLists<MeshPoint>();
+                UnNullableLists<PainterMesh.MeshPoint> distanceGroups = new UnNullableLists<PainterMesh.MeshPoint>();
 
                 for (var i = 0; i < vCnt; i++)
                 {
@@ -322,7 +314,7 @@ namespace PlaytimePainter.MeshEditing
 
         public void Merge(int indA, int indB) => Merge(meshPoints[indA], indB);
 
-        public void Merge(MeshPoint pointA, int indB)
+        public void Merge(PainterMesh.MeshPoint pointA, int indB)
         {
 
             var pointB = meshPoints[indB];
@@ -343,7 +335,7 @@ namespace PlaytimePainter.MeshEditing
             meshPoints.RemoveAt(indB);
         }
 
-        public void Merge(MeshPoint pointA, MeshPoint pointB)
+        public void Merge(PainterMesh.MeshPoint pointA, PainterMesh.MeshPoint pointB)
         {
 
             if (pointA == pointB)
@@ -362,7 +354,7 @@ namespace PlaytimePainter.MeshEditing
             meshPoints.Remove(pointB);
         }
 
-        public bool SetAllUVsShared(MeshPoint pnt)
+        public bool SetAllUVsShared(PainterMesh.MeshPoint pnt)
         {
             if (pnt.vertices.Count == 1)
                 return false;
@@ -374,7 +366,7 @@ namespace PlaytimePainter.MeshEditing
             return true;
         }
 
-        public bool SetAllVerticesShared(Triangle tri)
+        public bool SetAllVerticesShared(PainterMesh.Triangle tri)
         {
             var changed = false;
 
@@ -387,7 +379,7 @@ namespace PlaytimePainter.MeshEditing
             return changed;
         }
 
-        public bool AllVerticesShared(LineData ld)
+        public bool AllVerticesShared(PainterMesh.LineData ld)
         {
             var changed = false;
             for (var i = 0; i < 2; i++)
@@ -396,7 +388,7 @@ namespace PlaytimePainter.MeshEditing
             return changed;
         }
 
-        public void DeleteUv(Vertex uv)
+        public void DeleteUv(PainterMesh.Vertex uv)
         {
             var vrt = uv.meshPoint;
 
@@ -422,7 +414,7 @@ namespace PlaytimePainter.MeshEditing
             Dirty = true;
         }
 
-        public void DeleteLine(LineData ld)
+        public void DeleteLine(PainterMesh.LineData ld)
         {
             NullPointedSelected();
 
@@ -518,34 +510,34 @@ namespace PlaytimePainter.MeshEditing
         private float _distanceLimit = 1;
         private const float NearTarget = 64;
 
-        public readonly List<MeshPoint> _draggedVertices = new List<MeshPoint>();
-        private readonly List<MeshPoint> _sortVerticesClose = new List<MeshPoint>();
-        private readonly List<MeshPoint> _sortVerticesFar = new List<MeshPoint>();
-        public CountlessCfg<Vertex> uvsByFinalIndex = new CountlessCfg<Vertex>();
+        public readonly List<PainterMesh.MeshPoint> _draggedVertices = new List<PainterMesh.MeshPoint>();
+        private readonly List<PainterMesh.MeshPoint> _sortVerticesClose = new List<PainterMesh.MeshPoint>();
+        private readonly List<PainterMesh.MeshPoint> _sortVerticesFar = new List<PainterMesh.MeshPoint>();
+        public CountlessCfg<PainterMesh.Vertex> uvsByFinalIndex = new CountlessCfg<PainterMesh.Vertex>();
 
-        public Vertex selectedUv;
+        public PainterMesh.Vertex selectedUv;
 
-        public LineData selectedLine;
+        public PainterMesh.LineData selectedLine;
 
-        public Triangle selectedTriangle;
+        public PainterMesh.Triangle selectedTriangle;
 
-        public Vertex pointedUv;
+        public PainterMesh.Vertex pointedUv;
 
-        public LineData pointedLine;
+        public PainterMesh.LineData pointedLine;
 
-        public Triangle pointedTriangle;
+        public PainterMesh.Triangle pointedTriangle;
 
-        public Vertex lastFramePointedUv;
+        public PainterMesh.Vertex lastFramePointedUv;
 
-        public LineData lastFramePointedLine;
+        public PainterMesh.LineData lastFramePointedLine;
 
-        public Triangle lastFramePointedTriangle;
+        public PainterMesh.Triangle lastFramePointedTriangle;
 
-        public MeshPoint PointedVertex => pointedUv?.meshPoint;
+        public PainterMesh.MeshPoint PointedVertex => pointedUv?.meshPoint;
 
-        public MeshPoint GetClosestToPos(Vector3 pos)
+        public PainterMesh.MeshPoint GetClosestToPos(Vector3 pos)
         {
-            MeshPoint closest = null;
+            PainterMesh.MeshPoint closest = null;
             float dist = 0;
             foreach (var v in meshPoints)
             {
@@ -568,25 +560,25 @@ namespace PlaytimePainter.MeshEditing
             lastFramePointedTriangle = null;
         }
 
-        public void SetLastPointed(Vertex uv)
+        public void SetLastPointed(PainterMesh.Vertex uv)
         {
             ClearLastPointed();
             lastFramePointedUv = uv;
         }
 
-        public void SetLastPointed(LineData l)
+        public void SetLastPointed(PainterMesh.LineData l)
         {
             ClearLastPointed();
             lastFramePointedLine = l;
         }
 
-        public void SetLastPointed(Triangle t)
+        public void SetLastPointed(PainterMesh.Triangle t)
         {
             ClearLastPointed();
             lastFramePointedTriangle = t;
         }
 
-        public Vertex[] triangleSet = new Vertex[3];
+        public PainterMesh.Vertex[] triangleSet = new PainterMesh.Vertex[3];
 
         public int triVertices;
 
@@ -674,7 +666,7 @@ namespace PlaytimePainter.MeshEditing
 
         }
 
-        public void AddToTrisSet(Vertex nuv)
+        public void AddToTrisSet(PainterMesh.Vertex nuv)
         {
 
             triangleSet[triVertices] = nuv;
@@ -693,7 +685,7 @@ namespace PlaytimePainter.MeshEditing
 
             if (triVertices < 3) return;
 
-            var td = new Triangle(triangleSet);
+            var td = new PainterMesh.Triangle(triangleSet);
 
             triangles.Add(td);
 
@@ -708,11 +700,11 @@ namespace PlaytimePainter.MeshEditing
             Dirty = true;
         }
 
-        public void SwapLine(MeshPoint a, MeshPoint b)
+        public void SwapLine(PainterMesh.MeshPoint a, PainterMesh.MeshPoint b)
         {
             NullPointedSelected();
 
-            var trs = new Triangle[2];
+            var trs = new PainterMesh.Triangle[2];
             var cnt = 0;
             foreach (var tmp in triangles)
             {
@@ -732,12 +724,12 @@ namespace PlaytimePainter.MeshEditing
 
         }
 
-        public void MakeTriangleVertUnique(Triangle tris, Vertex pnt)
+        public void MakeTriangleVertUnique(PainterMesh.Triangle tris, PainterMesh.Vertex pnt)
         {
 
             if (pnt.triangles.Count == 1) return;
 
-            var nuv = new Vertex(pnt.meshPoint, pnt);
+            var nuv = new PainterMesh.Vertex(pnt.meshPoint, pnt);
 
             tris.Replace(pnt, nuv);
 
@@ -745,14 +737,14 @@ namespace PlaytimePainter.MeshEditing
 
         }
 
-        public bool IsInTriangleSet(MeshPoint vertex)
+        public bool IsInTriangleSet(PainterMesh.MeshPoint vertex)
         {
             for (var i = 0; i < triVertices; i++)
                 if (triangleSet[i].meshPoint == vertex) return true;
             return false;
         }
 
-        public bool IsInTriangleSet(Vertex uv)
+        public bool IsInTriangleSet(PainterMesh.Vertex uv)
         {
             for (var i = 0; i < triVertices; i++)
                 if (triangleSet[i] == uv) return true;
@@ -812,7 +804,7 @@ namespace PlaytimePainter.MeshEditing
 
         }
 
-        public bool MoveTriangle(Vertex from, Vertex to)
+        public bool MoveTriangle(PainterMesh.Vertex from, PainterMesh.Vertex to)
         {
             if (from == to) return false;
 
@@ -831,7 +823,7 @@ namespace PlaytimePainter.MeshEditing
             return true;
         }
 
-        public void GiveLineUniqueVerticesRefreshTriangleListing(LineData ld)
+        public void GiveLineUniqueVerticesRefreshTriangleListing(PainterMesh.LineData ld)
         {
 
             var trs = ld.GetAllTriangles();
@@ -845,12 +837,12 @@ namespace PlaytimePainter.MeshEditing
             RefreshVertexTriangleList();
         }
 
-        public bool GiveTriangleUniqueVertices(Triangle triangle)
+        public bool GiveTriangleUniqueVertices(PainterMesh.Triangle triangle)
         {
             var change = false;
             // Mistake here somewhere
 
-            var changed = new Vertex[3];
+            var changed = new PainterMesh.Vertex[3];
             for (var i = 0; i < 3; i++)
             {
 
@@ -858,7 +850,7 @@ namespace PlaytimePainter.MeshEditing
 
                 if (uvi.triangles.Count > 1)
                 {
-                    changed[i] = new Vertex(uvi);
+                    changed[i] = new PainterMesh.Vertex(uvi);
                     change = true;
                 }
                 else
@@ -884,7 +876,7 @@ namespace PlaytimePainter.MeshEditing
                     tr.vertexes[i].triangles.Add(tr);
         }
 
-        public Vertex GetUvPointAFromLine(MeshPoint a, MeshPoint b)
+        public PainterMesh.Vertex GetUvPointAFromLine(PainterMesh.MeshPoint a, PainterMesh.MeshPoint b)
         {
             foreach (var t in triangles)
                 if (t.Includes(a) && t.Includes(b))
@@ -1061,7 +1053,7 @@ namespace PlaytimePainter.MeshEditing
 
         }
 
-        public MeshPoint InsertIntoLine(MeshPoint a, MeshPoint b, Vector3 pos)
+        public PainterMesh.MeshPoint InsertIntoLine(PainterMesh.MeshPoint a, PainterMesh.MeshPoint b, Vector3 pos)
         {
             var dstA = Vector3.Distance(pos, a.localPos);
             var dstB = Vector3.Distance(pos, b.localPos);
@@ -1074,7 +1066,7 @@ namespace PlaytimePainter.MeshEditing
 
             pos = (a.localPos * dstB + b.localPos * dstA) / sum;
 
-            var newVrt = new MeshPoint(a, pos);
+            var newVrt = new PainterMesh.MeshPoint(a, pos);
 
             meshPoints.Add(newVrt);
 
@@ -1113,21 +1105,21 @@ namespace PlaytimePainter.MeshEditing
                 }*/
 
                 //if (newUv == null)
-                Vertex newUv = new Vertex(newVrt);
+                PainterMesh.Vertex newUv = new PainterMesh.Vertex(newVrt);
 
 
                 tr.AssignWeightedData(newUv, tr.DistanceToWeight(pos));
 
 
-                var trb = new Triangle(tr.vertexes).CopySettingsFrom(tr);
+                var trb = new PainterMesh.Triangle(tr.vertexes).CopySettingsFrom(tr);
                 triangles.Add(trb);
                 tr.Replace(auv, newUv);
 
                 if (Cfg.newVerticesUnique)
                 {
-                    var split = new Vertex(splitUv);
+                    var split = new PainterMesh.Vertex(splitUv);
                     trb.Replace(splitUv, split);
-                    var newB = new Vertex(newUv);
+                    var newB = new PainterMesh.Vertex(newUv);
                     trb.Replace(buv, newB);
                 }
                 else trb.Replace(buv, newUv);
@@ -1141,7 +1133,7 @@ namespace PlaytimePainter.MeshEditing
             return newVrt;
         }
 
-        public void RemoveLine(LineData ld)
+        public void RemoveLine(PainterMesh.LineData ld)
         {
             var a = ld.points[0];
             var b = ld.points[1];
@@ -1160,24 +1152,24 @@ namespace PlaytimePainter.MeshEditing
                 vp.localPos += by;
         }
 
-        public MeshPoint InsertIntoTriangle(Triangle a, Vector3 pos)
+        public PainterMesh.MeshPoint InsertIntoTriangle(PainterMesh.Triangle a, Vector3 pos)
         {
             // Debug.Log("Inserting into triangle");
-            var newVrt = new MeshPoint(a.vertexes[0].meshPoint, pos);
+            var newVrt = new PainterMesh.MeshPoint(a.vertexes[0].meshPoint, pos);
 
             var w = a.DistanceToWeight(pos);
 
             var newV20 = a.vertexes[0].GetUv(0) * w.x + a.vertexes[1].GetUv(0) * w.y + a.vertexes[2].GetUv(0) * w.z;
             var newV21 = a.vertexes[0].GetUv(1) * w.x + a.vertexes[1].GetUv(1) * w.y + a.vertexes[2].GetUv(1) * w.z;
 
-            var newUv = new Vertex(newVrt, newV20, newV21);
+            var newUv = new PainterMesh.Vertex(newVrt, newV20, newV21);
 
             a.AssignWeightedData(newUv, w);
 
             meshPoints.Add(newVrt);
 
-            var b = new Triangle(a.vertexes).CopySettingsFrom(a);
-            var c = new Triangle(a.vertexes).CopySettingsFrom(a);
+            var b = new PainterMesh.Triangle(a.vertexes).CopySettingsFrom(a);
+            var c = new PainterMesh.Triangle(a.vertexes).CopySettingsFrom(a);
 
             a.Replace(0, newUv);//uvpnts[0] = newUV;
             b.Replace(1, newUv);// uvpnts[1] = newUV;
@@ -1194,13 +1186,13 @@ namespace PlaytimePainter.MeshEditing
             return newVrt;
         }
 
-        public MeshPoint InsertIntoTriangleUniqueVertices(Triangle a, Vector3 localPos)
+        public PainterMesh.MeshPoint InsertIntoTriangleUniqueVertices(PainterMesh.Triangle a, Vector3 localPos)
         {
 
-            var newVrt = new MeshPoint(a.vertexes[0].meshPoint, localPos);
+            var newVrt = new PainterMesh.MeshPoint(a.vertexes[0].meshPoint, localPos);
             meshPoints.Add(newVrt);
 
-            var newUv = new Vertex[3]; // (newVrt);
+            var newUv = new PainterMesh.Vertex[3]; // (newVrt);
 
             var w = a.DistanceToWeight(localPos);
 
@@ -1209,12 +1201,12 @@ namespace PlaytimePainter.MeshEditing
             //Color col = a.uvpnts[0]._color * w.x + a.uvpnts[1]._color * w.y + a.uvpnts[2]._color * w.z;
             for (var i = 0; i < 3; i++)
             {
-                newUv[i] = new Vertex(newVrt);//, newV20, newV21);
+                newUv[i] = new PainterMesh.Vertex(newVrt);//, newV20, newV21);
                 a.AssignWeightedData(newUv[i], w);
             }
 
-            var b = new Triangle(a.vertexes).CopySettingsFrom(a);
-            var c = new Triangle(a.vertexes).CopySettingsFrom(a);
+            var b = new PainterMesh.Triangle(a.vertexes).CopySettingsFrom(a);
+            var c = new PainterMesh.Triangle(a.vertexes).CopySettingsFrom(a);
 
             a.vertexes[0] = newUv[0];
             b.vertexes[1] = newUv[1];

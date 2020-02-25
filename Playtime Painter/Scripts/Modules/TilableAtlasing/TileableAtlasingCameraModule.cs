@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 using PlayerAndEditorGUI;
-using QuizCannersUtilities;
-using PlaytimePainter.MeshEditing;
 using PlaytimePainter.ComponentModules;
-
-
+using PlaytimePainter.MeshEditing;
+using QuizCannersUtilities;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -244,7 +242,7 @@ namespace PlaytimePainter
             if (MeshMGMT.SelectedTriangle != null)
                 ("Selected triangles uses Atlas Texture " + MeshMGMT.SelectedTriangle.textureNo[0]).nl();
             
-            pegi.writeHint("Cntrl + LMB -> Sample Texture Index");
+            "Cntrl + LMB -> Sample Texture Index".writeHint();
             return false;
         }
 

@@ -1,22 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using PlayerAndEditorGUI;
+using PlaytimePainter.CameraModules;
+using PlaytimePainter.ComponentModules;
+using PlaytimePainter.MeshEditing;
+using QuizCannersUtilities;
+using UnityEditorInternal;
 using UnityEngine;
-
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 #if UNITY_EDITOR
 using UnityEditor;
 #if UNITY_2019_1_OR_NEWER
 using UnityEditor.EditorTools;
 #endif
 #endif
-
-using System;
-using System.IO;
-using PlayerAndEditorGUI;
-using QuizCannersUtilities;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
-using PlaytimePainter.CameraModules;
-using PlaytimePainter.MeshEditing;
-using PlaytimePainter.ComponentModules;
 
 namespace PlaytimePainter
 {
@@ -885,11 +884,11 @@ namespace PlaytimePainter
             {
 
                 if (!terrain && !uiGraphic)
-                    return meshRenderer ? meshRenderer.sharedMaterials : new Material[] {_fallbackMaterial};
+                    return meshRenderer ? meshRenderer.sharedMaterials : new[] {_fallbackMaterial};
 
                 var mat = Material;
 
-                return mat ? new[] {mat} : new Material[] {_fallbackMaterial};
+                return mat ? new[] {mat} : new[] {_fallbackMaterial};
             }
             set
             {
@@ -1077,7 +1076,7 @@ namespace PlaytimePainter
                 if (saveIt)
                 {
 #if UNITY_EDITOR
-                    QcFile.Saving.Asset(material, Cfg.materialsFolderName, ".mat", true);
+                    QcFile.Save.Asset(material, Cfg.materialsFolderName, ".mat", true);
                     CheckPreviewShader();
 #endif
                 }
@@ -1737,7 +1736,7 @@ namespace PlaytimePainter
 
         }
 
-        public bool isBeingDisabled = false;
+        public bool isBeingDisabled;
 
         private void OnDisable()
         {
@@ -1994,7 +1993,7 @@ namespace PlaytimePainter
 
             if (!Application.isPlaying)
             {
-                QcUnity.SetToDirty(this);
+                this.SetToDirty();
                 //EditorUtility.SetDirty(target);
             }
 
@@ -2092,7 +2091,7 @@ namespace PlaytimePainter
 
                     foreach (var c in cs)
                         if (c.GetType() != typeof(PlaytimePainter))
-                            UnityEditorInternal.InternalEditorUtility.SetIsInspectorExpanded(c, false);
+                            InternalEditorUtility.SetIsInspectorExpanded(c, false);
 
                     QcUnity.FocusOn(null);
                     PainterCamera.refocusOnThis = gameObject;
@@ -2144,7 +2143,7 @@ namespace PlaytimePainter
 
 #if UNITY_EDITOR
                         (IsCurrentTool && terrain && !Application.isPlaying &&
-                         UnityEditorInternal.InternalEditorUtility.GetIsInspectorExpanded(terrain)) ||
+                         InternalEditorUtility.GetIsInspectorExpanded(terrain)) ||
 #endif
                         icon.On.Click("Click to Disable Tool")))
                 {
@@ -2277,8 +2276,8 @@ namespace PlaytimePainter
                                 if (MeshEditorManager.target != this)
                                 {
 
-                                    var ent = gameObject.GetComponent($"pb_Entity");
-                                    var obj = gameObject.GetComponent($"pb_Object");
+                                    var ent = gameObject.GetComponent("pb_Entity");
+                                    var obj = gameObject.GetComponent("pb_Object");
 
                                     if (ent || obj)
                                         "PRO builder detected. Strip it using Actions in the Tools/ProBuilder menu."
@@ -3143,7 +3142,7 @@ namespace PlaytimePainter
             
             public override List<int> SelectedSubmeshes
             {
-                get { return new List<int>() {painter.selectedSubMesh}; }
+                get { return new List<int> {painter.selectedSubMesh}; }
                 set { }
             }
 

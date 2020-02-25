@@ -1,13 +1,12 @@
 ﻿#if UNITY_EDITOR
-using System;
-using PlayerAndEditorGUI;
-using UnityEngine;
-using UnityEditor;
-using PlaytimePainter.MeshEditing;
 #if UNITY_2019_1_OR_NEWER
 using UnityEditor.EditorTools;
-#endif
+using PlayerAndEditorGUI;
+using PlaytimePainter.MeshEditing;
 using QuizCannersUtilities;
+using UnityEditor;
+using UnityEngine;
+#endif
 
 namespace PlaytimePainter
 {
@@ -26,7 +25,8 @@ namespace PlaytimePainter
         GUIContent m_IconContent;
 
         void OnEnable() {
-            m_IconContent = new GUIContent() {
+            m_IconContent = new GUIContent
+            {
                 image = icon.Painter.GetIcon(),
                 text = PainterDataAndConfig.ToolName,
                 tooltip = "Add Playtime Painter Component to objects to edit their textures/meshes"
@@ -171,25 +171,23 @@ namespace PlaytimePainter
 
                     return allowRefocusing;
                 }
-                else
+
+                if (lMouseDwn)
+                    PlaytimePainter.currentlyPaintedObjectPainter = null;
+
+                if (painter.NeedsGrid() || painter.GlobalBrushType.IsAWorldSpaceBrush)
                 {
-                    if (lMouseDwn)
-                        PlaytimePainter.currentlyPaintedObjectPainter = null;
+                    pointedPainter = painter;
+                    allowRefocusing = false;
+                }
 
-                    if (painter.NeedsGrid() || painter.GlobalBrushType.IsAWorldSpaceBrush)
-                    {
-                        pointedPainter = painter;
-                        allowRefocusing = false;
-                    }
+                if (pointedPainter)
+                {
+                    var st = pointedPainter.stroke;
+                    st.MouseUpEvent = lMouseUp;
+                    st.MouseDownEvent = lMouseDwn;
 
-                    if (pointedPainter)
-                    {
-                        var st = pointedPainter.stroke;
-                        st.MouseUpEvent = lMouseUp;
-                        st.MouseDownEvent = lMouseDwn;
-
-                        pointedPainter.OnMouseOverSceneView(hit, e);
-                    }
+                    pointedPainter.OnMouseOverSceneView(hit, e);
                 }
             }
 
@@ -227,7 +225,7 @@ namespace PlaytimePainter
         public static Vector2 mousePosition;
         public static Ray mouseRayGui;
 
-        public static bool navigating = false;
+        public static bool navigating;
 
     }
 

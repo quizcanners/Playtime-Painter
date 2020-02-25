@@ -1,8 +1,8 @@
-﻿using System;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-using System.Collections.Generic;
+using UnityEditorInternal;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -262,7 +262,7 @@ namespace PlaytimePainter.CameraModules {
                 if (Application.isPlaying == false)
                 {
                     SceneView.RepaintAll();
-                    UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+                    InternalEditorUtility.RepaintAllViews();
                 }
 #endif
             }

@@ -1,5 +1,5 @@
-﻿using QuizCannersUtilities;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using QuizCannersUtilities;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -29,7 +29,7 @@ namespace PlaytimePainter.Examples {
 
         #endregion
 
-        bool defaultSet = false;
+        bool defaultSet;
 
         private void Update()
         {
@@ -49,8 +49,7 @@ namespace PlaytimePainter.Examples {
 
                 if (img != null)
                     return img;
-                else
-                    Debug.LogError("Painter on {0} is not currently editing any of it's Material's Textures".F(painterComponent.gameObject.name));
+                Debug.LogError("Painter on {0} is not currently editing any of it's Material's Textures".F(painterComponent.gameObject.name));
             }
             else
                 Debug.LogError("No Painter attached");

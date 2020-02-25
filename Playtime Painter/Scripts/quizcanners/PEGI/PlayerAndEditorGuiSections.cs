@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using QuizCannersUtilities;
+using UnityEngine;
+using Object = UnityEngine.Object;
 
 // ReSharper disable InconsistentNaming
 #pragma warning disable IDE1006 // Naming Styles
@@ -412,7 +413,7 @@ namespace PlayerAndEditorGUI
                 list.Count == 0 ? PEGI_Styles.ClippingText : null) && (!before) && (enteredOne == thisOne))
                 inspected = -1;
 
-            list.enter_DirectlyToElement<T>(ref inspected, ref enteredOne, thisOne);
+            list.enter_DirectlyToElement(ref inspected, ref enteredOne, thisOne);
 
             return enteredOne == thisOne;
         }
@@ -431,7 +432,7 @@ namespace PlayerAndEditorGUI
             if (icon.List.enter(txt.AddCount(list, entered), ref entered, false) && (before != entered))
                 inspected = -1;
 
-            list.enter_DirectlyToElement<T>(ref inspected, ref entered);
+            list.enter_DirectlyToElement(ref inspected, ref entered);
 
             return entered;
         }
@@ -488,9 +489,11 @@ namespace PlayerAndEditorGUI
                     return "{0}: {1}".F(txt, el.GetNameForInspector());
 
                 }
-                else return "{0} one Null Element".F(txt);
+
+                return "{0} one Null Element".F(txt);
             }
-            else return "{0} [1]".F(txt);
+
+            return "{0} [1]".F(txt);
         }
 
         public static bool enter_Inspect(this icon ico, string txt, IPEGI var, ref int enteredOne, int thisOne, bool showLabelIfTrue = true)
@@ -707,8 +710,7 @@ namespace PlayerAndEditorGUI
 
             if (canEnter)
                 return obj.enter_Inspect_AsList(ref enteredOne, thisOne);
-            else
-                ef.isFoldedOutOrEntered = false;
+            ef.isFoldedOutOrEntered = false;
 
             return false;
         }
@@ -763,7 +765,7 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool enter_List_UObj<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : UnityEngine.Object
+        public static bool enter_List_UObj<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : Object
         {
 
             var changed = false;
@@ -774,7 +776,7 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool enter_List_UObj<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : UnityEngine.Object
+        public static bool enter_List_UObj<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : Object
         {
 
             var changed = false;
@@ -785,7 +787,7 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool enter_List_UObj<T>(this string label, ref List<T> list, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : UnityEngine.Object
+        public static bool enter_List_UObj<T>(this string label, ref List<T> list, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : Object
         {
 
             var changed = false;
@@ -890,10 +892,10 @@ namespace PlayerAndEditorGUI
         #region Tagged Types
 
         public static T enter_List<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne, TaggedTypesCfg types, ref bool changed) =>
-            meta.enter_HeaderPart(ref list, ref enteredOne, thisOne) ? meta.edit_List(ref list, types, ref changed) : default(T);
+            meta.enter_HeaderPart(ref list, ref enteredOne, thisOne) ? meta.edit_List(ref list, types, ref changed) : default;
 
         public static T enter_List<T>(this ListMetaData meta, ref List<T> list, ref bool entered, TaggedTypesCfg types, ref bool changed) =>
-            meta.enter_HeaderPart(ref list, ref entered) ? meta.edit_List(ref list, types, ref changed) : default(T);
+            meta.enter_HeaderPart(ref list, ref entered) ? meta.edit_List(ref list, types, ref changed) : default;
 
         #endregion
 

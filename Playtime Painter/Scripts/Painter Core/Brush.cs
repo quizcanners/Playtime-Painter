@@ -1,15 +1,14 @@
-﻿using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#if UNITY_2019_1_OR_NEWER
-using UnityEditor.EditorTools;
-#endif
-#endif
-using System;
+﻿using System;
 using PlayerAndEditorGUI;
-using QuizCannersUtilities;
 using PlaytimePainter.CameraModules;
 using PlaytimePainter.MeshEditing;
+using QuizCannersUtilities;
+using UnityEngine;
+using Random = UnityEngine.Random;
+#if UNITY_EDITOR
+#if UNITY_2019_1_OR_NEWER
+#endif
+#endif
 
 namespace PlaytimePainter {
     
@@ -230,7 +229,7 @@ namespace PlaytimePainter {
         #region Inspector
 
         public bool showingSize = true;
-        public static bool showAdvanced = false;
+        public static bool showAdvanced;
         public static Brush _inspectedBrush;
         public static bool InspectedIsCpuBrush => PlaytimePainter.inspected ? InspectedImageMeta.TargetIsTexture2D() : _inspectedBrush.targetIsTex2D;
      
@@ -339,7 +338,7 @@ namespace PlaytimePainter {
 
                         txt.edit(
                             "This is the kind of alpha you see in standard painting software. But it is only available when using Alpha Buffer",
-                            pegi.ApproximateLength(txt), ref alphaLimitForAlphaBuffer, 0.01f, 1f).changes(ref changed);
+                            txt.ApproximateLength(), ref alphaLimitForAlphaBuffer, 0.01f, 1f).changes(ref changed);
 
                         if (p && p.NotUsingPreview)
                             MsgPainter.PreviewRecommended.DocumentationWarning();
@@ -423,7 +422,7 @@ namespace PlaytimePainter {
             pegi.nl();
 
             if (showBrushDynamics) {
-                if ("Brush Dynamic".selectType( 90, ref brushDynamic, brushDynamicsConfigs, true).nl(ref changed))
+                if ("Brush Dynamic".selectType( 90, ref brushDynamic, brushDynamicsConfigs).nl(ref changed))
                     brushDynamic?.Nested_Inspect().nl(ref changed);
             }
             else if (brushDynamic.GetType() != typeof(BrushDynamic.None))
@@ -533,8 +532,8 @@ namespace PlaytimePainter {
                 var sp = l[ind];
                 return sp != null ? l[ind].diffuseTexture : null;
             }
-            else
-                return null;
+
+            return null;
 #else
 
                     SplatPrototype[] prots = terrain.terrainData.splatPrototypes;
@@ -657,7 +656,7 @@ namespace PlaytimePainter {
             if (worldSpace)
                 cody.Add("size3D", brush3DRadius);
             else
-                cody.Add("size2D", brush2DRadius / ((float)id.width));
+                cody.Add("size2D", brush2DRadius / id.width);
 
 
             cody.Add_Bool("useMask", useMask)
@@ -820,7 +819,7 @@ namespace PlaytimePainter {
             {
                 // Quaternion * Vector3
 
-                rey.direction = Vector3.Lerp(rey.direction, UnityEngine.Random.rotation * rey.direction,
+                rey.direction = Vector3.Lerp(rey.direction, Random.rotation * rey.direction,
                     jitterStrength); //  Quaternion.Lerp(cameraConfiguration.rotation, , camShake);
             }
 

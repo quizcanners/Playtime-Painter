@@ -1,14 +1,15 @@
-﻿using UnityEngine;
+﻿using System;
 using System.Collections;
-using System;
-using System.Text.RegularExpressions;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 using System.Text;
+using System.Text.RegularExpressions;
 using PlayerAndEditorGUI;
+using UnityEngine;
 using Debug = UnityEngine.Debug;
+using Random = UnityEngine.Random;
 
 namespace QuizCannersUtilities {
 
@@ -36,20 +37,19 @@ namespace QuizCannersUtilities {
             long absElapsed = Math.Abs(elapsed);
 
             if (absElapsed < TimeSpan.TicksPerMillisecond)
-                return elapsed.ToString() +
-                            " ticks  ({0} ms)".F(((double)elapsed / TimeSpan.TicksPerMillisecond).ToString("0.00")); 
-            else if (absElapsed < TimeSpan.TicksPerSecond)
-                return (elapsed / TimeSpan.TicksPerMillisecond).ToString() +
-                            " miliseconds  ({0} s)".F(((double)elapsed / TimeSpan.TicksPerSecond).ToString("0.00")); 
-            else if (absElapsed < TimeSpan.TicksPerMinute)
+                return elapsed +
+                            " ticks  ({0} ms)".F(((double)elapsed / TimeSpan.TicksPerMillisecond).ToString("0.00"));
+            if (absElapsed < TimeSpan.TicksPerSecond)
+                return (elapsed / TimeSpan.TicksPerMillisecond) +
+                       " miliseconds  ({0} s)".F(((double)elapsed / TimeSpan.TicksPerSecond).ToString("0.00"));
+            if (absElapsed < TimeSpan.TicksPerMinute)
                 return elapsed / TimeSpan.TicksPerSecond +
-                            " seconds  ({0} min)".F(((double)elapsed / TimeSpan.TicksPerMinute).ToString("0.00")); 
-            else if (absElapsed < TimeSpan.TicksPerHour)
+                       " seconds  ({0} min)".F(((double)elapsed / TimeSpan.TicksPerMinute).ToString("0.00"));
+            if (absElapsed < TimeSpan.TicksPerHour)
                 return elapsed / TimeSpan.TicksPerMinute +
-                       " minutes  ({0} hours)".F(((double)elapsed / TimeSpan.TicksPerHour).ToString("0.00")); 
-            else //if (elapsed < TimeSpan.TicksPerDay)
-                return elapsed / TimeSpan.TicksPerHour +
-                       " hours  ({0} days)".F(((double)elapsed / TimeSpan.TicksPerDay).ToString("0.00")); 
+                       " minutes  ({0} hours)".F(((double)elapsed / TimeSpan.TicksPerHour).ToString("0.00"));
+            return elapsed / TimeSpan.TicksPerHour +
+                   " hours  ({0} days)".F(((double)elapsed / TimeSpan.TicksPerDay).ToString("0.00"));
 
         }
 
@@ -110,7 +110,7 @@ namespace QuizCannersUtilities {
 
                 var text = label + (label.IsNullOrEmpty() ? "" : ": ") + ToString();
                 
-                if ((logThreshold == 0 || ((StopWatch.ElapsedTicks / TimeSpan.TicksPerSecond) > logThreshold)) &&
+                if ((Math.Abs(logThreshold) < float.Epsilon || ((StopWatch.ElapsedTicks / TimeSpan.TicksPerSecond) > logThreshold)) &&
                     ((Application.isEditor && logInEditor) || (!Application.isEditor && logInPlayer)))
                     Debug.Log(text);
 
@@ -276,7 +276,7 @@ namespace QuizCannersUtilities {
         public static T TryTake<T>(this List<T> list, int index) {
 
             if (list.IsNullOrEmpty() || list.Count<= index)
-                return default(T);
+                return default;
 
             var ret = list[index];
 
@@ -306,7 +306,7 @@ namespace QuizCannersUtilities {
 
                 if (match)
                 {
-                    mod = s + index.ToString();
+                    mod = s + index;
                     index++;
                 }
             }
@@ -314,13 +314,13 @@ namespace QuizCannersUtilities {
             return mod;
         }
         
-        public static T GetRandom<T>(this List<T> list) => list.Count == 0 ? default(T) : list[UnityEngine.Random.Range(0, list.Count)];
+        public static T GetRandom<T>(this List<T> list) => list.Count == 0 ? default : list[Random.Range(0, list.Count)];
         
         public static void ForceSet<T,G>(this List<T> list, int index, G val) where G:T {
             if (list == null || index < 0) return;
 
             while (list.Count <= index)
-                list.Add(default(T));
+                list.Add(default);
 
             list[index] = val;
         }
@@ -345,7 +345,7 @@ namespace QuizCannersUtilities {
         {
 
             if (list == null || list.Count == 0)
-                return default(T);
+                return default;
 
             return list[list.Count - 1];
 
@@ -354,7 +354,7 @@ namespace QuizCannersUtilities {
         public static T TryGet<T>(this List<T> list, int index)
         {
             if (list == null || index < 0 || index >= list.Count)
-                return default(T);
+                return default;
             return list[index];
         }
 
@@ -464,7 +464,7 @@ namespace QuizCannersUtilities {
         {
 
             if (array.IsNullOrEmpty())
-                return default(T);
+                return default;
 
             return array[array.Length - 1];
 
@@ -474,7 +474,7 @@ namespace QuizCannersUtilities {
         {
 
             if (array == null || array.Length <= index || index < 0)
-                return default(T);
+                return default;
 
             return array[index];
         }
@@ -658,7 +658,7 @@ namespace QuizCannersUtilities {
         {
             if (name == null)
                 return "TYPE IS A NULL STRING";
-            else if (name.Length == 0)
+            if (name.Length == 0)
                 return "TYPE IS EMPTY STRING";
 
             var ind = Mathf.Max(name.LastIndexOf(".", StringComparison.Ordinal), name.LastIndexOf("+", StringComparison.Ordinal));
@@ -676,7 +676,7 @@ namespace QuizCannersUtilities {
             if (text == null)
                 return "null";
 
-            int index = text.IndexOf(Environment.NewLine);
+            int index = text.IndexOf(Environment.NewLine, StringComparison.Ordinal);
 
             if (index > 10)
                 text = text.Substring(0, index);
@@ -726,7 +726,7 @@ namespace QuizCannersUtilities {
 
             if (s == null || t == null)
             {
-                UnityEngine.Debug.Log("Compared string is null: " + (s == null) + " " + (t == null));
+                Debug.Log("Compared string is null: " + (s == null) + " " + (t == null));
                 return 999;
             }
 
@@ -775,7 +775,7 @@ namespace QuizCannersUtilities {
 
         #endregion
 
-        public static bool IsDefaultOrNull<T>(T obj) => (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
+        public static bool IsDefaultOrNull<T>(T obj) => (obj == null) || EqualityComparer<T>.Default.Equals(obj, default);
         
         public static float RoundTo(this float val, int digits) => (float)Math.Round(val, digits);
         
@@ -874,7 +874,7 @@ namespace QuizCannersUtilities {
         public SkipLock Lock()
         {
             if (_lLock)
-                UnityEngine.Debug.LogError("Should check it is Unlocked before calling a Lock");
+                Debug.LogError("Should check it is Unlocked before calling a Lock");
 
             return new SkipLock(this);
         }
@@ -912,7 +912,7 @@ namespace QuizCannersUtilities {
         {
             if (_loopErrorLogged) return;
             
-            UnityEngine.Debug.LogError(msg);
+            Debug.LogError(msg);
             _loopErrorLogged = true;
         }
 

@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using QuizCannersUtilities;
 using UnityEngine;
-using UnityEngine.XR.WSA.Persistence;
 
 namespace PlaytimePainter
 {
@@ -134,7 +132,7 @@ namespace PlaytimePainter
 
         public static PlaytimePainter TryGetPainter<T>(this T command) where T : UV
         {
-            var pntr = command as PaintCommand.Painter;
+            var pntr = command as Painter;
             if (pntr != null && pntr.painter)
                 return pntr.painter;
 

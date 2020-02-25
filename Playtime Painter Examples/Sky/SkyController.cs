@@ -1,6 +1,5 @@
-﻿using System;
+﻿using QuizCannersUtilities;
 using UnityEngine;
-using QuizCannersUtilities;
 
 namespace PlaytimePainter.Examples
 {

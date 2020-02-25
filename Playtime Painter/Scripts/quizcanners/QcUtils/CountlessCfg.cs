@@ -19,12 +19,12 @@ namespace QuizCannersUtilities
         private bool _allowAdd;
         private bool _allowDelete;
 
-        protected static bool IsDefaultOrNull(T obj) => (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
+        protected static bool IsDefaultOrNull(T obj) => (obj == null) || EqualityComparer<T>.Default.Equals(obj, default);
 
 
         #region Encode & Decode
 
-        private static List<int> _tmpDecodeInds;
+        private List<int> _tmpDecodeInds;
         public override bool Decode(string tg, string data) {
 
             switch (tg) {
@@ -158,7 +158,7 @@ namespace QuizCannersUtilities
                 
                 var ar = vb.br[ind].value;
 
-                objs[ar] = default(T);
+                objs[ar] = default;
                 _firstFreeObj = Mathf.Min(_firstFreeObj, ar);
 
                 DiscardFruit(vb, ind);
@@ -230,7 +230,7 @@ namespace QuizCannersUtilities
         protected virtual T Get(int ind)
         {
             if (ind >= max || ind<0)
-                return default(T);
+                return default;
 
             var d = depth;
             var vb = br;
@@ -242,12 +242,12 @@ namespace QuizCannersUtilities
                 var no = ind / subSize;
                 ind -= no * subSize;
                 if (vb.br[no] == null)
-                    return default(T);
+                    return default;
                 d--;
                 vb = vb.br[no];
             }
 
-            return vb.br[ind] == null ? default(T) : objs[vb.br[ind].value];
+            return vb.br[ind] == null ? default : objs[vb.br[ind].value];
         }
 
         public override void Clear()
@@ -303,7 +303,7 @@ namespace QuizCannersUtilities
                     var el = allElements[i];
 
                     if (_allowDelete && icon.Delete.Click("Clear element without shifting the rest",ref changed))
-                        this[ind] = default(T);
+                        this[ind] = default;
                     else
                     {
                         "{0}".F(ind).write(20);
@@ -385,7 +385,7 @@ namespace QuizCannersUtilities
         {
 
             if (ind >= max)
-                return default(T);
+                return default;
 
             var d = depth;
             var vb = br;
@@ -397,12 +397,12 @@ namespace QuizCannersUtilities
                 var no = ind / subSize;
                 ind -= no * subSize;
                 if (vb.br[no] == null)
-                    return default(T);
+                    return default;
                 d--;
                 vb = vb.br[no];
             }
 
-            return vb.br[ind] == null ? default(T) : objs[vb.br[ind].value];
+            return vb.br[ind] == null ? default : objs[vb.br[ind].value];
         }
         
     }
@@ -413,9 +413,8 @@ namespace QuizCannersUtilities
 
         public bool Decode(string tg, string data)
         {
-            List<T> el; 
             var index = tg.ToInt();
-            this[index] = data.Decode_List(out el);
+            this[index] = data.Decode_List(out List<T> _);
             return true;
         }
 

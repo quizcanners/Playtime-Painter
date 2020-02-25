@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using System;
-using System.Text;
+﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
+using System.Text;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace QuizCannersUtilities
@@ -61,7 +61,7 @@ namespace QuizCannersUtilities
 
             var ret = cfg.Encode();
 
-            (keeper as UnityEngine.Object).SetToDirty();
+            (keeper as Object).SetToDirty();
 
             CfgEncoder.keeper = prevKeeper;
             return ret;
@@ -83,10 +83,10 @@ namespace QuizCannersUtilities
             }
             else
                 foreach (var v in arr) {
-                if (!QcUnity.IsNullOrDestroyed_Obj(v))
-                    cody.Add(CfgDecoder.ListElementTag, v.Encode());
-                else
-                    cody.Add_String(CfgEncoder.NullTag, "");
+                    if (!QcUnity.IsNullOrDestroyed_Obj(v))
+                        cody.Add(CfgDecoder.ListElementTag, v.Encode());
+                    else
+                        cody.Add_String(CfgEncoder.NullTag, "");
             }
 
             return cody;
@@ -242,15 +242,15 @@ namespace QuizCannersUtilities
 
         public static ICfgSerializeNestedReferences keeper;
 
-        public CfgEncoder Add_GUID(string tag, UnityEngine.Object obj) => Add_IfNotEmpty(tag, obj.GetGuid());
+        public CfgEncoder Add_GUID(string tag, Object obj) => Add_IfNotEmpty(tag, obj.GetGuid());
 
-        public CfgEncoder Add_Reference(string tag, UnityEngine.Object obj) => Add_Reference(tag, obj, keeper);
+        public CfgEncoder Add_Reference(string tag, Object obj) => Add_Reference(tag, obj, keeper);
 
-        public CfgEncoder Add_Reference(string tag, UnityEngine.Object obj, ICfgSerializeNestedReferences referencesKeeper) => (referencesKeeper == null || !obj) ? this : Add_IfNotNegative(tag, referencesKeeper.GetReferenceIndex(obj));
+        public CfgEncoder Add_Reference(string tag, Object obj, ICfgSerializeNestedReferences referencesKeeper) => (referencesKeeper == null || !obj) ? this : Add_IfNotNegative(tag, referencesKeeper.GetReferenceIndex(obj));
             
-        public CfgEncoder Add_References<T>(string tag, List<T> objs) where T : UnityEngine.Object => Add_References(tag, objs,keeper);
+        public CfgEncoder Add_References<T>(string tag, List<T> objs) where T : Object => Add_References(tag, objs,keeper);
 
-        public CfgEncoder Add_References<T>(string tag, List<T> lst, ICfgSerializeNestedReferences referencesKeeper) where T: UnityEngine.Object
+        public CfgEncoder Add_References<T>(string tag, List<T> lst, ICfgSerializeNestedReferences referencesKeeper) where T: Object
         {
             if (referencesKeeper == null || lst == null) return this;
             

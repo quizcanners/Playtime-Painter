@@ -1,12 +1,11 @@
 ﻿//#define QC_USE_NETWORKING
 
 
-using PlayerAndEditorGUI;
-using QuizCannersUtilities;
 using System.Collections;
 using System.Collections.Generic;
+using PlayerAndEditorGUI;
+using QuizCannersUtilities;
 using UnityEngine;
-
 #if QC_USE_NETWORKING
 using UnityEngine.Networking;
 #endif
@@ -29,7 +28,7 @@ namespace PlaytimePainter
             private string _url;
             public string URL => _url;
             private Texture _texture;
-            private bool _failed = false;
+            private bool _failed;
 
             public string NameForPEGI
             {
@@ -184,7 +183,7 @@ namespace PlaytimePainter
                 TryGetTexture(out tex);
 
                 if (_texture)
-                    pegi.write(_texture, 200);
+                    _texture.write(200);
 
                 return false;
             }

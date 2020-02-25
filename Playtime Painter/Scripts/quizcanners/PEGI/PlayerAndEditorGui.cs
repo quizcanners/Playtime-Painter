@@ -1,11 +1,8 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-
-using System;
 using QuizCannersUtilities;
-using Object = UnityEngine.Object;
-
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -103,7 +100,6 @@ namespace PlayerAndEditorGUI
             {
                 private WindowFunction _function;
                 private Rect _windowRect;
-                private Vector2 _scrollPosition = Vector2.zero;
                 public float upscale = 2;
 
                 protected bool UseWindow => upscale == 1;
@@ -272,7 +268,7 @@ namespace PlayerAndEditorGUI
             return length;
         }
 
-        private static int RemainingLength(this string label, int otherElements) => Mathf.Min(label.IsNullOrEmpty() ? 1 : letterSizeInPixels * label.Length, Screen.width - otherElements);
+      //  private static int RemainingLength(this string label, int otherElements) => Mathf.Min(label.IsNullOrEmpty() ? 1 : letterSizeInPixels * label.Length, Screen.width - otherElements);
 
         private static int RemainingLength(int otherElements) => PaintingGameViewUI ? _playtimeGuiWidth - otherElements : Screen.width - otherElements;
 
@@ -296,7 +292,7 @@ namespace PlayerAndEditorGUI
 
         private static Color _originalGuiColor;
 
-        private static List<Color> _previousGuiColors = new List<Color>();
+        //private static List<Color> _previousGuiColors = new List<Color>();
 
         private static icon GUIColor(this icon icn, Color col)
         {
@@ -308,8 +304,8 @@ namespace PlayerAndEditorGUI
         {
             if (!_guiColorReplaced)
                 _originalGuiColor = GUI.color;
-            else
-                _previousGuiColors.Add(GUI.color);
+            //else
+              //  _previousGuiColors.Add(GUI.color);
 
             GUI.color = col;
 
@@ -322,7 +318,7 @@ namespace PlayerAndEditorGUI
             if (_guiColorReplaced)
                 GUI.color = _originalGuiColor;
 
-            _previousGuiColors.Clear();
+            //_previousGuiColors.Clear();
 
             _guiColorReplaced = false;
         }
@@ -337,7 +333,7 @@ namespace PlayerAndEditorGUI
 
 #region BG Color
 
-        private static bool _bgColorReplaced = false;
+        private static bool _bgColorReplaced;
 
         private static Color _originalBgColor;
 
@@ -415,22 +411,24 @@ namespace PlayerAndEditorGUI
 
         private static int LastNeedAttentionIndex;
 
-        public static bool NeedsAttention(IList list, out string message, string listName = "list", bool canBeNull = false)
+        public static bool NeedsAttention(ICollection list, out string message, string listName = "list", bool canBeNull = false)
         {
-            message = NeedAttentionMessage(list, listName, canBeNull);
+            message = NeedsAttention(list, listName, canBeNull);
             return message != null;
         }
 
-        public static string NeedAttentionMessage(IList list, string listName = "list", bool canBeNull = false)
+        public static string NeedsAttention(ICollection list, string listName = "list", bool canBeNull = false)
         {
             string msg = null;
             if (list == null)
                 msg = canBeNull ? null : "{0} is Null".F(listName);
             else
             {
-                for (var i = 0; i < list.Count; i++)
+                
+                int i= 0;
+                
+                foreach (var el in list)
                 {
-                    var el = list[i];
                     if (!el.IsNullOrDestroyed_Obj())
                     {
                         var need = el as INeedAttention;
@@ -446,13 +444,16 @@ namespace PlayerAndEditorGUI
 
                         return msg;
                     }
-                    else if (!canBeNull)
+
+                    if (!canBeNull)
                     {
                         msg = "{0} element in {1} is NULL".F(i, listName);
                         LastNeedAttentionIndex = i;
 
                         return msg;
                     }
+                    
+                    i++;
                 }
             }
 
@@ -645,7 +646,7 @@ namespace PlayerAndEditorGUI
 
             public static Action areYouSureFunk;
 
-            private static readonly List<string> gotItTexts = new List<string>()
+            private static readonly List<string> gotItTexts = new List<string>
             {
                 "I understand",
                 "Clear as day",
@@ -678,12 +679,12 @@ namespace PlayerAndEditorGUI
                 "Can I close this Pop Up now?",
                 "I would like to see previous screen please",
                 "This is what I wanted to know",
-                "Now I can continue",
+                "Now I can continue"
 
 
             };
 
-            private static readonly List<string> gotItTextsWeird = new List<string>()
+            private static readonly List<string> gotItTextsWeird = new List<string>
             {
                 "Nice, this is easier then opening a documentation",
                 "So convenient, thanks!",
@@ -727,7 +728,7 @@ namespace PlayerAndEditorGUI
 
             private static void ContactOptions()
             {
-                pegi.nl();
+                nl();
                 "Didn't get the answer you need?".write();
                 if (icon.Discord.Click())
                     Application.OpenURL(DiscordServer);
@@ -793,7 +794,8 @@ namespace PlayerAndEditorGUI
                     return true;
 
                 }
-                else if (inspectDocumentationDelegate != null)
+
+                if (inspectDocumentationDelegate != null)
                 {
 
                     if (icon.Back.Click(Msg.Exit))
@@ -809,7 +811,8 @@ namespace PlayerAndEditorGUI
 
                     return true;
                 }
-                else if (!popUpText.IsNullOrEmpty())
+
+                if (!popUpText.IsNullOrEmpty())
                 {
 
                     WriteHeaderIfAny().nl();
@@ -861,7 +864,6 @@ namespace PlayerAndEditorGUI
             if (!PaintingGameViewUI)
             {
                 ef.UnIndent(width);
-                return;
             }
 #endif
 
@@ -873,7 +875,6 @@ namespace PlayerAndEditorGUI
             if (!PaintingGameViewUI)
             {
                 ef.Indent(width);
-                return;
             }
 #endif
 

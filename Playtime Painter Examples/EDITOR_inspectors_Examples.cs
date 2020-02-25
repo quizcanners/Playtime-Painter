@@ -1,15 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using PlayerAndEditorGUI;
+﻿using PlayerAndEditorGUI;
 using PlaytimePainter.Examples;
+using UnityEditor;
 
 namespace PlaytimePainter
 {
 
 #if UNITY_EDITOR
-    using UnityEditor;
-
     [CustomEditor(typeof(NoiseTextureMGMT))]
     public class NoiseTextureMGMTDrawer : PEGI_Inspector_Mono<NoiseTextureMGMT> { }
 

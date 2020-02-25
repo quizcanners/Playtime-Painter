@@ -1,7 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System;
 
 namespace QuizCannersUtilities
 {
@@ -16,7 +16,7 @@ namespace QuizCannersUtilities
     public enum ColorMask { R = 1, G = 2, B = 4, A = 8, Color = 7, All = 15 }
 
 
-    public static partial class QcMath
+    public static class QcMath
     {
 
         #region Double
@@ -147,7 +147,7 @@ namespace QuizCannersUtilities
             float dotDenominator = Vector3.Dot(lineVec, planeNormal);
 
             //line and plane are not parallel
-            if (dotDenominator != 0.0f)
+            if (Math.Abs(dotDenominator) > float.Epsilon)
             {
 
                 float length = dotNumerator / dotDenominator;

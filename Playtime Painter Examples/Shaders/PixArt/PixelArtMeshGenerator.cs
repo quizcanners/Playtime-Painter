@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using PlayerAndEditorGUI;
-
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -15,18 +13,18 @@ namespace PlaytimePainter {
 
 
         static int width = 8;
-        static float halfPix = 0;
+        static float halfPix;
         static Vert[] verts;
         static List<int> tris = new List<int>();
 
       //  public Vector4 uvSector = new Vector4(0, 0, 1, 1);
         public int testWidth = 8;
-        public float thickness = 0;
+        public float thickness;
         
         public MeshFilter meshFilter;
         public MeshCollider meshCollider;
 
-        enum PicV { lup = 0, rup = 1, rdwn = 2, ldwn = 3 };
+        enum PicV { lup = 0, rup = 1, rdwn = 2, ldwn = 3 }
 
         class Vert
         {
@@ -35,9 +33,9 @@ namespace PlaytimePainter {
 
             public Vert(int x, int y, PicV p, float borderPercent)
             {
-                uv = new Vector4(halfPix + (float)x / (float)width, halfPix + (float)y / (float)width                                                     // normal coordinate
+                uv = new Vector4(halfPix + x / (float)width, halfPix + y / (float)width                                                     // normal coordinate
 
-                    , halfPix + (float)x / (float)width, halfPix + (float)y / (float)width); // with center coordinate
+                    , halfPix + x / (float)width, halfPix + y / (float)width); // with center coordinate
 
                 pos = new Vector3(uv.x - 0.5f, uv.y - 0.5f, 0);
 

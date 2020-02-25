@@ -1,14 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using UnityEngine;
-using QuizCannersUtilities;
 using PlayerAndEditorGUI;
-
+using QuizCannersUtilities;
+using UnityEngine;
 
 namespace PlaytimePainter
 {
-    using TextureBackup = PaintingUndoRedo.TextureBackup;
-
     [TaggedType(tag)]
     public class ImageMetaPaintingRecording : ImageMetaModuleBase
     {
@@ -51,7 +47,7 @@ namespace PlaytimePainter
 
             var allStrokes = new CfgEncoder().Add("strokes", recordedStrokes).ToString();
 
-            QcFile.Saving.ToPersistentPath(Cfg.vectorsFolderName, parentMeta.saveName, allStrokes);
+            QcFile.Save.ToPersistentPath(Cfg.vectorsFolderName, parentMeta.saveName, allStrokes);
 
             Cfg.recordingNames.Add(parentMeta.saveName);
 
@@ -202,7 +198,7 @@ namespace PlaytimePainter
 
         }
         
-        public override void OnUndo(TextureBackup backup)
+        public override void OnUndo(PaintingUndoRedo.TextureBackup backup)
         {
             var toClear = recordedStrokesForUndoRedo.Count;
             
@@ -212,7 +208,7 @@ namespace PlaytimePainter
 
         }
 
-        public override void OnRedo(TextureBackup backup) {
+        public override void OnRedo(PaintingUndoRedo.TextureBackup backup) {
 
             var toClear = recordedStrokesForUndoRedo.Count;
             
@@ -221,7 +217,7 @@ namespace PlaytimePainter
             recordedStrokesForUndoRedo = backup.strokeRecord;
         }
 
-        public override void OnTextureBackup(TextureBackup backup) {
+        public override void OnTextureBackup(PaintingUndoRedo.TextureBackup backup) {
 
             backup.strokeRecord = recordedStrokesForUndoRedo;
             recordedStrokesForUndoRedo = new List<string>();

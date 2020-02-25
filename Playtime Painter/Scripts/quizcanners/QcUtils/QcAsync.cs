@@ -1,14 +1,12 @@
-﻿using PlayerAndEditorGUI;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
+using PlayerAndEditorGUI;
 using UnityEngine;
-using UnityEngine.Experimental.XR;
 using Debug = UnityEngine.Debug;
 
 namespace QuizCannersUtilities
@@ -114,7 +112,7 @@ namespace QuizCannersUtilities
                 pi[i] = (x[xlen - 1] / 10);
 
 
-                r[xlen - 1] = x[xlen - 1] % 10; ;
+                r[xlen - 1] = x[xlen - 1] % 10; 
 
                 for (int j = 0; j < xlen; j++)
                     x[j] = r[j] * 10;
@@ -192,7 +190,7 @@ namespace QuizCannersUtilities
 
         public static int GetActiveCoroutinesCount => enumerators.Count;
 
-        private static readonly ListMetaData coroutinesListMeta = new ListMetaData("Managed Coroutines", showAddButton: false, allowDeleting: true);
+        private static readonly ListMetaData coroutinesListMeta = new ListMetaData("Managed Coroutines", showAddButton: false);
 
         public static bool InspectManagedCoroutines() {
 
@@ -240,10 +238,10 @@ namespace QuizCannersUtilities
                     onDoneFullyReturnData?.Invoke((T)returnedData);
             }
 
-            public IEnumerator Start(Action<T> onDoneFully = null, Action onExit = null)
+            public IEnumerator Start(Action<T> onDoneFullyAction = null, Action onExitAction = null)
             {
-                onDoneFullyReturnData = onDoneFully;
-                this.onExit = onExit;
+                onDoneFullyReturnData = onDoneFullyAction;
+                onExit = onExitAction;
 
                 for (var e = base.Start(); e.MoveNext();)
                     yield return e.Current;
@@ -294,7 +292,7 @@ namespace QuizCannersUtilities
             
             private const float maxMilisecondsPerFrame = 1000f * 0.5f / 60f;
 
-            private static float TotalTimeUsedThisFrame = 0;
+            private static float TotalTimeUsedThisFrame;
             private static int FrameIndex = -1;
             
             public bool DoneFully { get; private set; }
@@ -330,7 +328,7 @@ namespace QuizCannersUtilities
                     }
                     catch (Exception ex)
                     {
-                        _state = "Eception in OnExit of TimedEnumerator: " + _state + ex.ToString();
+                        _state = "Eception in OnExit of TimedEnumerator: " + _state + ex;
                         Debug.LogError(_state);
                     }
                 }
@@ -350,7 +348,7 @@ namespace QuizCannersUtilities
                         }
                         catch (Exception ex)
                         {
-                            _state = "Exception in OnFully Done " + ex.ToString();
+                            _state = "Exception in OnFully Done " + ex;
                             Debug.LogError(_state);
                         }
                     }
@@ -368,8 +366,8 @@ namespace QuizCannersUtilities
                     {
                         return true;
                     }
-                    else
-                        _task = null;
+
+                    _task = null;
                 }
 
                 try
@@ -523,7 +521,7 @@ namespace QuizCannersUtilities
                 EnumeratorVersion += 1;
                 _enumerator = enumerator;
                 returnedData = null;
-                _state = "Starting: " + enumerator.ToString();
+                _state = "Starting: " + enumerator;
                 NameForPEGI = nameForInspector.IsNullOrEmpty() ? enumerator.ToString() : nameForInspector;
 
                 return this;
@@ -543,7 +541,7 @@ namespace QuizCannersUtilities
                 if (!Exited && !_stopAndCancel && icon.Close.Click())
                     _stopAndCancel = true;
 
-                "{4} {2} {3} [{0} YLDS / {1} FRMS]".F(_yields, _frames, EnumeratorVersion > 1 ? ("V: " + EnumeratorVersion.ToString()) : "", _task == null ? "[yield]" : "[TASK]", 
+                "{4} {2} {3} [{0} YLDS / {1} FRMS]".F(_yields, _frames, EnumeratorVersion > 1 ? ("V: " + EnumeratorVersion) : "", _task == null ? "[yield]" : "[TASK]", 
                     NameForPEGI).write(_state);
 
                 if (Exited)
@@ -558,7 +556,7 @@ namespace QuizCannersUtilities
             
             public TimedEnumeration(bool logUnoptimizedSections = false, string nameForInspector = "")
             {
-                this._logUnoptimizedSections = logUnoptimizedSections;
+                _logUnoptimizedSections = logUnoptimizedSections;
                 NameForPEGI = nameForInspector;
             }
 

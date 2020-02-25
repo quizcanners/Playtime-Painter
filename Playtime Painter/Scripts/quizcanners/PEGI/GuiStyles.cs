@@ -1,10 +1,8 @@
-﻿
-using System.Linq.Expressions;
-using QuizCannersUtilities;
+﻿using QuizCannersUtilities;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using UnityEngine;
 
 namespace PlayerAndEditorGUI
 {
@@ -36,16 +34,12 @@ namespace PlayerAndEditorGUI
                     {
                         if (InList)
                             return playtimeInList ?? (playtimeInList = generator());
-                        else
-                            return playtime ?? (playtime = generator());
+                        return playtime ?? (playtime = generator());
                     }
-                    else
-                    {
-                        if (InList)
-                            return editorGuiInList ?? (editorGuiInList = generator());
-                        else
-                            return editorGui ?? (editorGui = generator());
-                    }
+
+                    if (InList)
+                        return editorGuiInList ?? (editorGuiInList = generator());
+                    return editorGui ?? (editorGui = generator());
                 }
             }
 
@@ -58,7 +52,7 @@ namespace PlayerAndEditorGUI
 
             private int _inspectedProperty = -1;
 
-            public bool Inspect()
+            bool IPEGI.Inspect()
             {
                 var cur = Current;
 
@@ -99,7 +93,7 @@ namespace PlayerAndEditorGUI
         public static PegiGuiStyle ImageButton = new PegiGuiStyle(()=> new GUIStyle(GUI.skin.button)
                 {
                     overflow = new RectOffset(-3, -3, 0, 0),
-                    margin = new RectOffset(-3, -3, 1, 1),
+                    margin = new RectOffset(-3, -3, 1, 1)
                 });
         
         public static PegiGuiStyle ClickableText = new PegiGuiStyle(()=> new GUIStyle(GUI.skin.label) {
@@ -107,7 +101,7 @@ namespace PlayerAndEditorGUI
                     fontStyle = FontStyle.Bold,
                     contentOffset = new Vector2(0, 4),
                     alignment = TextAnchor.MiddleLeft,
-                    normal = {textColor = InGameView ? new Color32(220,220,255,255) : new Color32(40, 40, 40, 255)},
+                    normal = {textColor = InGameView ? new Color32(220,220,255,255) : new Color32(40, 40, 40, 255)}
                 });
 
         public static PegiGuiStyle ScalableBlueText(int fontSize)
@@ -132,20 +126,20 @@ namespace PlayerAndEditorGUI
         {
             overflow = new RectOffset(-3, -3, 0, 0),
             margin = new RectOffset(-13, -13, -10, -10),
-            contentOffset = new Vector2(0, 6),
+            contentOffset = new Vector2(0, 6)
         });
 
          static PegiGuiStyle ToggleLabel_Off = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
          {
              contentOffset = new Vector2(0, 2),
              wordWrap = true,
-             normal = { textColor = InGameView ? new Color32(255, 255, 255, 255) : new Color32(40, 40, 40, 255) },
+             normal = { textColor = InGameView ? new Color32(255, 255, 255, 255) : new Color32(40, 40, 40, 255) }
          });
 
          static PegiGuiStyle ToggleLabel_On = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
          {
              contentOffset = new Vector2(0, 2),
-             wordWrap = true,
+             wordWrap = true
          });
 
         public static PegiGuiStyle ToggleLabel(bool isOn) => isOn ? ToggleLabel_On : ToggleLabel_Off;
@@ -167,7 +161,7 @@ namespace PlayerAndEditorGUI
             normal =
             {
                 textColor = InGameView ? new Color32(255, 255, 255, 255) : new Color32(43, 30, 11, 255)
-            },
+            }
         });
 
         #endregion
@@ -185,7 +179,7 @@ namespace PlayerAndEditorGUI
             alignment = TextAnchor.MiddleLeft,
             fontStyle = FontStyle.Bold,
             contentOffset = InGameView ? new Vector2(0,0) : new Vector2(0, -6),
-            normal = { textColor = InGameView ? new Color32(255, 255, 220, 255) : new Color32(43, 30, 77, 255) },
+            normal = { textColor = InGameView ? new Color32(255, 255, 220, 255) : new Color32(43, 30, 77, 255) }
         });
 
         public static PegiGuiStyle ExitLabel = new PegiGuiStyle(() => new GUIStyle
@@ -199,7 +193,7 @@ namespace PlayerAndEditorGUI
             alignment = TextAnchor.MiddleLeft,
             fontStyle = FontStyle.Italic,
             contentOffset = InGameView ? new Vector2(0, 0) : new Vector2(0, -6),
-            normal = { textColor = InGameView ? new Color32(160, 160, 160, 255) : new Color32(77, 77, 77, 255) },
+            normal = { textColor = InGameView ? new Color32(160, 160, 160, 255) : new Color32(77, 77, 77, 255) }
         });
 
         public static PegiGuiStyle FoldedOutLabel = new PegiGuiStyle(() => new GUIStyle
@@ -212,7 +206,7 @@ namespace PlayerAndEditorGUI
             alignment = TextAnchor.MiddleLeft,
             fontStyle = FontStyle.Bold,
             imagePosition = ImagePosition.ImageLeft,
-            normal = { textColor = InGameView ? new Color32(200, 220, 220, 255) : new Color32(43, 77, 33, 255) },
+            normal = { textColor = InGameView ? new Color32(200, 220, 220, 255) : new Color32(43, 77, 33, 255) }
         });
 
         #endregion
@@ -220,15 +214,15 @@ namespace PlayerAndEditorGUI
         #region Text
 
         public static PegiGuiStyle ClippingText = new PegiGuiStyle(() => InList ? 
-            new GUIStyle(GUI.skin.label){clipping = TextClipping.Clip,}.ToGrayBg() :
-            new GUIStyle(GUI.skin.label){clipping = TextClipping.Clip,});
+            new GUIStyle(GUI.skin.label){clipping = TextClipping.Clip}.ToGrayBg() :
+            new GUIStyle(GUI.skin.label){clipping = TextClipping.Clip});
 
 
         public static PegiGuiStyle OverflowText = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
         {
             clipping = TextClipping.Overflow,
             wordWrap = true,
-            fontSize = 12,
+            fontSize = 12
         });
 
         public static PegiGuiStyle HintText = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
@@ -259,7 +253,7 @@ namespace PlayerAndEditorGUI
 
         #region Line
 
-        public static PegiGuiStyle HorizontalLine = new PegiGuiStyle(() => new GUIStyle()
+        public static PegiGuiStyle HorizontalLine = new PegiGuiStyle(() => new GUIStyle
         {
 #if UNITY_EDITOR
             normal = { background = EditorGUIUtility.whiteTexture },
@@ -321,12 +315,5 @@ namespace PlayerAndEditorGUI
 
             return false;
         }
-
-        private static void Refresh()
-        {
-            testListLabel = ListLabel.Current;
-            testImageButton = ImageButton.Current;
-        }
-
     }
 }

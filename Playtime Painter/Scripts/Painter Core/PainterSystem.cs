@@ -1,8 +1,7 @@
-﻿using UnityEngine;
-using PlayerAndEditorGUI;
-using QuizCannersUtilities;
+﻿using PlayerAndEditorGUI;
 using PlaytimePainter.MeshEditing;
-using static QuizCannersUtilities.ShaderProperty;
+using QuizCannersUtilities;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -82,7 +81,8 @@ namespace PlaytimePainter
             }
 
 #if UNITY_EDITOR
-            else if (SceneView.lastActiveSceneView != null)
+
+            if (SceneView.lastActiveSceneView != null)
                 return SceneView.lastActiveSceneView.camera.transform;
 #endif
 

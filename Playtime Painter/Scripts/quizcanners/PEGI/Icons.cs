@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using QuizCannersUtilities;
-
+using UnityEngine;
 
 namespace PlayerAndEditorGUI {
 

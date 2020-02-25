@@ -1,8 +1,6 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using PlayerAndEditorGUI;
+﻿using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using UnityEngine;
 
 namespace PlaytimePainter.Examples
 {
@@ -27,7 +25,7 @@ namespace PlaytimePainter.Examples
         
         public Texture waterBump;
         public Vector4 foamParameters;
-        private float _myTime = 0;
+        private float _myTime;
         public float wetAreaHeight;
 
         private void SetFoamDynamics() {

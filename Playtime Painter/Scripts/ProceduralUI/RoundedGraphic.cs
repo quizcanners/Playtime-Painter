@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-using System.Collections.Generic;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace PlaytimePainter
 {

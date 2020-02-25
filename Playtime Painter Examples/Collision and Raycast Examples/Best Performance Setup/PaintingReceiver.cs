@@ -1,6 +1,6 @@
-﻿using UnityEngine;
-using PlayerAndEditorGUI;
+﻿using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using UnityEngine;
 
 namespace PlaytimePainter.Examples
 {
@@ -180,7 +180,8 @@ namespace PlaytimePainter.Examples
                 Debug.Log("Original Texture is not defined");
                 return;
             }
-            else if (originalTexture.GetType() != typeof(Texture2D))
+
+            if (originalTexture.GetType() != typeof(Texture2D))
             {
                 Debug.Log("There was no original Texture assigned to edit.");
             }
@@ -234,7 +235,7 @@ namespace PlaytimePainter.Examples
 
 
             ("Works with PaintWithoutComponent script. This lets you configure how painting will be received." +
-                " PaintWithoutComponent.cs is usually attached to a main camera (if painting in first person). Current Texture: " + TextureId.ToString())
+                " PaintWithoutComponent.cs is usually attached to a main camera (if painting in first person). Current Texture: " + TextureId)
                 .fullWindowDocumentationClickOpen("About Painting Receiver");
 
             var changes = false;
@@ -416,7 +417,7 @@ namespace PlaytimePainter.Examples
 
                         meshUvOffset = new Vector2((int)meshUvOffset.x, (int)meshUvOffset.y);
 
-                        pegi.GameView.ShowNotification("Mesh Offset is " + meshUvOffset.ToString());
+                        pegi.GameView.ShowNotification("Mesh Offset is " + meshUvOffset);
                     }
                 }
             }

@@ -1,16 +1,10 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-
-using System;
 using System.Linq;
-
-using System.Linq.Expressions;
 using QuizCannersUtilities;
-using UnityEngine.U2D;
+using UnityEngine;
 using Object = UnityEngine.Object;
-
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -30,12 +24,9 @@ namespace PlayerAndEditorGUI
     {
         #region Collection MGMT Functions 
 
-        public static int InspectedIndex
-        {
-            get { return collectionInspector.Index; }
-            private set { collectionInspector.Index = value; }
-        }
+        public static int InspectedIndex => collectionInspector.Index;
 
+        //private set { collectionInspector.Index = value; }
         private static T listLabel_Used<T>(this T val)
         {
             collectionInspector.listLabel_Used();
@@ -80,7 +71,6 @@ namespace PlayerAndEditorGUI
             private readonly CountlessInt SectionOptimal = new CountlessInt();
             private int GetOptimalSectionFor(int count)
             {
-                int _sectionSizeOptimal;
 
                 const int listShowMax = 10;
 
@@ -96,19 +86,17 @@ namespace PlayerAndEditorGUI
                 if (_sectionSizeOptimal != 0)
                     return _sectionSizeOptimal;
 
-                var bestdifference = 999;
+                var minDiff = 999;
 
                 for (var i = listShowMax - 2; i < listShowMax + 2; i++)
                 {
                     var difference = i - (count % i);
 
-                    if (difference < bestdifference)
-                    {
-                        _sectionSizeOptimal = i;
-                        bestdifference = difference;
-                        if (difference == 0)
-                            break;
-                    }
+                    if (difference >= minDiff) continue;
+                    _sectionSizeOptimal = i;
+                    minDiff = difference;
+                    if (difference == 0)
+                        break;
 
                 }
 
@@ -522,7 +510,7 @@ namespace PlayerAndEditorGUI
 
                 var changed = false;
 
-                var hasName = typeof(T).IsSubclassOf(typeof(UnityEngine.Object)) || typeof(IGotName).IsAssignableFrom(typeof(T));
+                var hasName = typeof(T).IsSubclassOf(typeof(Object)) || typeof(IGotName).IsAssignableFrom(typeof(T));
 
                 if (hasName)
                     listInstantiateNewName<T>();
@@ -607,7 +595,7 @@ namespace PlayerAndEditorGUI
                     Indexes[list] = _sectionStartIndex;
             }
 
-            private bool _scrollDownRequested = false;
+            private bool _scrollDownRequested;
 
             public void SkrollToBottom()
             {
@@ -788,7 +776,7 @@ namespace PlayerAndEditorGUI
                 return false;
             }
 
-            public bool list_DropOption<T>(List<T> list, ListMetaData meta = null) where T : UnityEngine.Object
+            public bool list_DropOption<T>(List<T> list, ListMetaData meta = null) where T : Object
             {
                 var changed = false;
 #if UNITY_EDITOR
@@ -806,7 +794,7 @@ namespace PlayerAndEditorGUI
 
                 }
 
-                var dpl = meta != null ? meta.allowDuplicants : allowDuplicants;
+                var dpl = meta?.allowDuplicants ?? allowDuplicants;
 
                 foreach (var ret in ef.DropAreaGUI<T>())
                 {
@@ -825,7 +813,7 @@ namespace PlayerAndEditorGUI
 
             public Array _editingArrayOrder;
 
-            public CountlessBool selectedEls = new CountlessBool();
+            public readonly CountlessBool selectedEls = new CountlessBool();
 
             private List<int> _copiedElements = new List<int>();
 
@@ -922,7 +910,7 @@ namespace PlayerAndEditorGUI
                         if (!isNull && typeof(T).IsUnityObject())
                         {
                             if (icon.Delete.ClickUnFocus(Msg.MakeElementNull).changes(ref changed))
-                                array[i] = default(T);
+                                array[i] = default;
                         }
                         else
                         {
@@ -937,7 +925,7 @@ namespace PlayerAndEditorGUI
                     if (!isNull && derivedClasses != null)
                     {
                         var ty = el.GetType();
-                        if (@select(ref ty, derivedClasses, el.GetNameForInspector()))
+                        if (select(ref ty, derivedClasses, el.GetNameForInspector()))
                             array[i] = (el as ICfg).TryDecodeInto<T>(ty);
                     }
 
@@ -1017,7 +1005,7 @@ namespace PlayerAndEditorGUI
                             if (!isNull && typeof(T).IsUnityObject())
                             {
                                 if (icon.Delete.ClickUnFocus(Msg.MakeElementNull))
-                                    list[i] = default(T);
+                                    list[i] = default;
                             }
                             else
                             {
@@ -1034,7 +1022,7 @@ namespace PlayerAndEditorGUI
                         if (!isNull && derivedClasses != null)
                         {
                             var ty = el.GetType();
-                            if (@select(ref ty, derivedClasses, el.GetNameForInspector()))
+                            if (select(ref ty, derivedClasses, el.GetNameForInspector()))
                                 list[i] = (el as ICfg).TryDecodeInto<T>(ty);
                         }
 
@@ -1113,7 +1101,7 @@ namespace PlayerAndEditorGUI
 
                     if (same && !cutPaste)
                         "DUPLICATE:".write("Selected elements are from this list", 60);
-                    ;
+                    
                     if (typeof(T).IsUnityObject())
                     {
 
@@ -1431,7 +1419,7 @@ namespace PlayerAndEditorGUI
                 if (edit(ref mb))
                 {
                     list[i] = mb.GetComponent<T>();
-                    if (list[i] == null) GameView.ShowNotification(typeof(T).ToString() + " Component not found");
+                    if (list[i] == null) GameView.ShowNotification(typeof(T) + " Component not found");
                 }
                 return true;
 
@@ -1448,7 +1436,7 @@ namespace PlayerAndEditorGUI
                 if (!type.IsNew())
                     return collectionInspector.ListAddEmptyClick(list, ld);
 
-                if (type.TryGetClassAttribute<DerivedListAttribute>() != null || type is IGotClassTag)
+                if (type.TryGetClassAttribute<DerivedListAttribute>() != null || typeof(IGotClassTag).IsAssignableFrom(type))
                     return false;
 
                 string name = null;
@@ -1461,7 +1449,7 @@ namespace PlayerAndEditorGUI
                 if (icon.Add.ClickUnFocus(Msg.AddNewCollectionElement.GetText() + (name.IsNullOrEmpty() ? "" : " Named {0}".F(name))))
                 {
                     if (typeof(T).IsSubclassOf(typeof(Object)))
-                        list.Add(default(T));
+                        list.Add(default);
                     else
                         added = name.IsNullOrEmpty() ? QcUtils.AddWithUniqueNameAndIndex(list) : QcUtils.AddWithUniqueNameAndIndex(list, name);
 
@@ -1481,12 +1469,12 @@ namespace PlayerAndEditorGUI
 
                 var type = typeof(T);
 
-                if (!type.IsUnityObject() && (type.TryGetClassAttribute<DerivedListAttribute>() != null || type is IGotClassTag))
+                if (!type.IsUnityObject() && (type.TryGetClassAttribute<DerivedListAttribute>() != null || typeof(IGotClassTag).IsAssignableFrom(type)))
                     return false;
 
                 if (icon.Add.ClickUnFocus(Msg.AddNewCollectionElement.GetText()))
                 {
-                    list.Add(default(T));
+                    list.Add(default);
                     collectionInspector.SkrollToBottom();
                     return true;
                 }
@@ -1565,7 +1553,7 @@ namespace PlayerAndEditorGUI
                         "{0}: NULL {1}".F(index, typeof(T).ToPegiStringType()).write();
                     else
                     {
-                        object obj = (object)el;
+                        object obj = el;
 
                         if (ed.PEGI_inList<T>(ref obj, index, ref inspected))
                         {
@@ -1747,7 +1735,7 @@ namespace PlayerAndEditorGUI
                                 if (obj)
                                 {
                                     list[i] = obj.GetComponent<T>();
-                                    if (!list[i]) GameView.ShowNotification(typeof(T).ToString() + " Component not found");
+                                    if (!list[i]) GameView.ShowNotification(typeof(T) + " Component not found");
                                 }
                             }
                         }
@@ -1783,7 +1771,7 @@ namespace PlayerAndEditorGUI
         {
             var changed = false;
 
-            edit_List_SO<T>(ref list, ref inspected, ref changed);
+            edit_List_SO(ref list, ref inspected, ref changed);
 
             return changed;
         }
@@ -1794,7 +1782,7 @@ namespace PlayerAndEditorGUI
 
             var changed = false;
 
-            edit_List_SO<T>(ref list, ref inspected, ref changed).listLabel_Used();
+            edit_List_SO(ref list, ref inspected, ref changed).listLabel_Used();
 
             return changed;
         }
@@ -1807,7 +1795,7 @@ namespace PlayerAndEditorGUI
 
             var edited = -1;
 
-            edit_List_SO<T>(ref list, ref edited, ref changed).listLabel_Used();
+            edit_List_SO(ref list, ref edited, ref changed).listLabel_Used();
 
             return changed;
         }
@@ -1878,7 +1866,7 @@ namespace PlayerAndEditorGUI
 
         #region List of Unity Objects
 
-        public static bool edit_List_UObj<T>(this string label, ref List<T> list, ref int inspected, List<T> selectFrom = null) where T : UnityEngine.Object
+        public static bool edit_List_UObj<T>(this string label, ref List<T> list, ref int inspected, List<T> selectFrom = null) where T : Object
         {
             collectionInspector.write_Search_ListLabel(label, ref inspected, list);
             return edit_or_select_List_UObj(ref list, selectFrom, ref inspected);
@@ -2252,7 +2240,7 @@ namespace PlayerAndEditorGUI
             return val;
         }
 
-        private static T lambda_Obj_role<T>(T val) where T : UnityEngine.Object
+        private static T lambda_Obj_role<T>(T val) where T : Object
         {
 
             var role = listElementsRoles.TryGetObj(collectionInspector.Index);
@@ -2281,7 +2269,7 @@ namespace PlayerAndEditorGUI
             return label.edit_List(ref list, lambda_string_role);
         }
 
-        public static bool edit_List_WithRoles<T>(this string label, ref List<T> list, IList roles) where T : UnityEngine.Object
+        public static bool edit_List_WithRoles<T>(this string label, ref List<T> list, IList roles) where T : Object
         {
             collectionInspector.write_Search_ListLabel(label, list);
             listElementsRoles = roles;
@@ -2460,7 +2448,7 @@ namespace PlayerAndEditorGUI
         {
             var edited = -1;
             collectionInspector.write_Search_ListLabel(label, list);
-            return list.write_List<T>(ref edited).listLabel_Used();
+            return list.write_List(ref edited).listLabel_Used();
         }
 
         public static bool write_List<T>(this string label, List<T> list, ref int inspected)
@@ -2468,7 +2456,7 @@ namespace PlayerAndEditorGUI
             nl();
             collectionInspector.write_Search_ListLabel(label, ref inspected, list);
 
-            return list.write_List<T>(ref inspected).listLabel_Used();
+            return list.write_List(ref inspected).listLabel_Used();
         }
 
         public static bool write_List<T>(this List<T> list, ref int edited)
@@ -2604,7 +2592,7 @@ namespace PlayerAndEditorGUI
                         if ((!ch && GUI.changed).changes(ref changed))
                             dic[itemKey] = el;
 
-                        if (listMeta != null && icon.Enter.Click("Enter " + el.ToString()))
+                        if (listMeta != null && icon.Enter.Click("Enter " + el))
                             listMeta.inspected = i;
                     }
 
@@ -2672,8 +2660,8 @@ namespace PlayerAndEditorGUI
                 dic = new Dictionary<G, T>();
                 return false;
             }
-            else
-                return true;
+
+            return true;
 
         }
 
@@ -2795,8 +2783,7 @@ namespace PlayerAndEditorGUI
             {
                 dic.Add(newEnumKey, newEnumName);
                 newEnumKey = 1;
-                string ddm;
-                while (dic.TryGetValue(newEnumKey, out ddm))
+                while (dic.TryGetValue(newEnumKey, out _))
                     newEnumKey++;
                 newEnumName = "UNNAMED";
             }
@@ -2888,7 +2875,7 @@ namespace PlayerAndEditorGUI
 
         public static bool SearchMatch_ObjectList(this IEnumerable list, string searchText) => list.Cast<object>().Any(e => Try_SearchMatch_Obj(e, searchText));
 
-        public static bool Try_SearchMatch_Obj(object obj, string searchText) => SearchMatch_Obj_Internal(obj, new string[] { searchText });
+        public static bool Try_SearchMatch_Obj(object obj, string searchText) => SearchMatch_Obj_Internal(obj, new[] { searchText });
 
         private static bool SearchMatch_Obj_Internal(this object obj, string[] text, int[] indexes = null)
         {
@@ -3005,9 +2992,9 @@ namespace PlayerAndEditorGUI
         {
             public IEnumerable filteredList;
             public string searchedText;
-            public int uncheckedElement = 0;
-            public int inspectionIndexStart = 0;
-            public bool filterByNeedAttention = false;
+            public int uncheckedElement;
+            public int inspectionIndexStart;
+            public bool filterByNeedAttention;
             private string[] searchBys;
             public List<int> filteredListElements = new List<int>();
 
@@ -3015,30 +3002,30 @@ namespace PlayerAndEditorGUI
 
             private int focusOnSearchBarIn;
 
-            public static bool unityFocusNameWillWork = false; // Focus name bug on first focus
+            public static bool unityFocusNameWillWork; // Focus name bug on first focus
 
             public void CloseSearch()
             {
                 filteredList = null;
-                pegi.UnFocusIfTrue(false);
+                false.UnFocusIfTrue();
             }
 
-            public void ToggleSearch(IEnumerable ld, string label = "")
+            public void ToggleSearch(IEnumerable collection, string label = "")
             {
 
-                if (ld == null)
+                if (collection == null)
                     return;
 
-                var active = ld == filteredList;
+                var active = collection == filteredList;
 
                 var changed = false;
 
-                if (active && icon.FoldedOut.ClickUnFocus("{0} {1} {2}".F(icon.Hide.GetText(), icon.Search.GetText(), ld), 27).changes(ref changed) || KeyCode.UpArrow.IsDown())
+                if (active && icon.FoldedOut.ClickUnFocus("{0} {1} {2}".F(icon.Hide.GetText(), icon.Search.GetText(), collection), 27).changes(ref changed) || KeyCode.UpArrow.IsDown())
                     active = false;
 
-                if (!active && ld != collectionInspector.reordering &&
+                if (!active && collection != collectionInspector.reordering &&
                     (icon.Search
-                        .Click("{0} {1}".F(icon.Search.GetText(), label.IsNullOrEmpty() ? ld.ToString() : label), 27) || KeyCode.DownArrow.IsDown())
+                        .Click("{0} {1}".F(icon.Search.GetText(), label.IsNullOrEmpty() ? collection.ToString() : label), 27) || KeyCode.DownArrow.IsDown())
                         .changes(ref changed))
                 {
                     active = true;
@@ -3055,7 +3042,7 @@ namespace PlayerAndEditorGUI
 
                 if (!changed) return;
 
-                filteredList = active ? ld : null;
+                filteredList = active ? collection : null;
 
             }
 

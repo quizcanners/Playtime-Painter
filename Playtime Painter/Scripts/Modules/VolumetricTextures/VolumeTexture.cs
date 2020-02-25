@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using PlayerAndEditorGUI;
-using QuizCannersUtilities;
-using Unity.Collections;
-using PlaytimePainter.CameraModules;
 using PlaytimePainter.ComponentModules;
+using QuizCannersUtilities;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -122,7 +120,7 @@ namespace PlaytimePainter {
             if (ImageMeta == null)
                 return;
             ImageMeta.isAVolumeTexture = true;
-            ImageMeta.Rename(name + hSlices.ToString());
+            ImageMeta.Rename(name + hSlices);
         }
 
         protected virtual void OnBecomeActive()

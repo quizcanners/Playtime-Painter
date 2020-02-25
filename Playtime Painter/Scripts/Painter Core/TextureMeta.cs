@@ -1,23 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
+using System.Collections;
+using System.IO;
+using PlayerAndEditorGUI;
+using QuizCannersUtilities;
 using UnityEngine;
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-using System;
-using PlayerAndEditorGUI;
-using QuizCannersUtilities;
-using System.IO;
-using Unity.Collections;
-using Unity.Jobs;
-
 namespace PlaytimePainter
 {
-
-    using UndoCache = PaintingUndoRedo.UndoCache;
-
     public enum TexTarget { Texture2D, RenderTexture }
 
     public class TextureMeta : PainterSystemKeepUnrecognizedCfg, IPEGI_ListInspect, IGotName, INeedAttention, ICanBeDefaultCfg
@@ -276,7 +268,7 @@ namespace PlaytimePainter
         #endregion
 
         #region Undo & Redo
-        public UndoCache cache = new UndoCache();
+        public PaintingUndoRedo.UndoCache cache = new PaintingUndoRedo.UndoCache();
 
         public void OnStrokeMouseDown_CheckBackup()
         {
@@ -753,8 +745,8 @@ namespace PlaytimePainter
 
         }
 
-        private int _offsetByX = 0;
-        private int _offsetByY = 0;
+        private int _offsetByX;
+        private int _offsetByY;
 
         private void OffsetPixels() => OffsetPixels(_offsetByX, _offsetByY);
 
@@ -1209,13 +1201,13 @@ namespace PlaytimePainter
                             if ("Set edges to transparent".Click().nl(ref changed))
                             {
                                 SetEdges(Color.clear, ColorMask.A);
-                                SetAndApply(true);
+                                SetAndApply();
                             }
 
                             if ("Set edges to Clear Black".Click().nl(ref changed))
                             {
                                 SetEdges(Color.clear);
-                                SetAndApply(true);
+                                SetAndApply();
                             }
 
                         }
@@ -1378,7 +1370,7 @@ namespace PlaytimePainter
         {
             var changed = false;
 
-            if (cache == null) cache = new UndoCache();
+            if (cache == null) cache = new PaintingUndoRedo.UndoCache();
 
             if (cache.undo.GotData)
             {

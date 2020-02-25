@@ -1,8 +1,9 @@
-﻿using QuizCannersUtilities;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using PlayerAndEditorGUI;
+using QuizCannersUtilities;
 using UnityEngine;
 using UnityEngine.UI;
-using PlayerAndEditorGUI;
+
 // Note: Some seamingly arbitraru constants in script and shader are there to match Unity's picker (For Editor UI).
 
 namespace PlaytimePainter.Examples {

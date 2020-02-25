@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-
+using UnityEngine;
 
 namespace PlaytimePainter.MeshEditing
 {
@@ -161,12 +160,12 @@ namespace PlaytimePainter.MeshEditing
 
         public virtual void Set(Vector3[] dta)
         {
-            Debug.Log(dta.GetType() + " input not implemented for " + this.GetType());
+            Debug.Log(dta.GetType() + " input not implemented for " + GetType());
         }
 
         public virtual void Set(Vector4[] dta)
         {
-            Debug.Log(dta.GetType() + " input not implemented for array of " + this.GetType());
+            Debug.Log(dta.GetType() + " input not implemented for array of " + GetType());
         }
 
         public virtual void SetDefaults(VertexDataLink to)
@@ -234,25 +233,25 @@ namespace PlaytimePainter.MeshEditing
 
         public abstract void Clear();
 
-        public virtual void GenerateIfNull() => Debug.Log(this.GetType() + " does not generate any data");
+        public virtual void GenerateIfNull() => Debug.Log(GetType() + " does not generate any data");
         
         public virtual float[] GetValue(int no) => null;
         
         public virtual Vector2[] GetV2(VertexDataDestination trg)
         {
-            Debug.Log("Mesh Data type " + this.GetType() + " does not provide Vector2 array");
+            Debug.Log("Mesh Data type " + GetType() + " does not provide Vector2 array");
             return null;
         }
 
         public virtual Vector3[] GetV3(VertexDataDestination trg)
         {
-            Debug.Log("Mesh Data type " + this.GetType() + " does not provide Vector3 array");
+            Debug.Log("Mesh Data type " + GetType() + " does not provide Vector3 array");
             return null;
         }
 
         public virtual Vector4[] GetV4(VertexDataDestination trg)
         {
-            Debug.Log("Mesh Data type " + this.GetType() + " does not provide Vector4 array");
+            Debug.Log("Mesh Data type " + GetType() + " does not provide Vector4 array");
             return null;
         }
 
@@ -629,7 +628,7 @@ namespace PlaytimePainter.MeshEditing
                 }
             }
 
-            public override string NameForDisplayPEGI()=> "UV" + MyUvChanel().ToString();
+            public override string NameForDisplayPEGI()=> "UV" + MyUvChanel();
             
             public override void SetDefaults(VertexDataLink to)
             {
@@ -823,7 +822,7 @@ namespace PlaytimePainter.MeshEditing
                 v2s = null;
             }
 
-            public override string NameForDisplayPEGI()=> "uv" + _myUvIndex.ToString();
+            public override string NameForDisplayPEGI()=> "uv" + _myUvIndex;
 
             public VertexUv(int index) : base(dataSize, index)
             {
@@ -1117,7 +1116,7 @@ namespace PlaytimePainter.MeshEditing
         {
             public static VertexNull inst;
             private const int dataSize = 1;
-            private float[] zeroVal = null;
+            private float[] zeroVal;
 
             public override void GenerateIfNull() => zeroVal = new float[vCnt];
             

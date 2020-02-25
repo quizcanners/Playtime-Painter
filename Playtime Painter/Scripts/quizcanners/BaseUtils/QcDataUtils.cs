@@ -1,10 +1,10 @@
-﻿using UnityEngine;
-using System;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.IO;
+﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 using PlayerAndEditorGUI;
-using Debug = UnityEngine.Debug;
+using UnityEngine;
+using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using UnityEditor;
 #else 
@@ -18,15 +18,15 @@ namespace QuizCannersUtilities
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 
-    public class QcFile
+    public static class QcFile
     {
 
-        public static string OutsideOfAssetsFolder =
+        public static readonly string OutsideOfAssetsFolder =
             Application.dataPath.Substring(0, Application.dataPath.Length - 6);
 
-        public const string bytesFileType = ".bytes";
+        private const string bytesFileType = ".bytes";
         
-        public class Explorer
+        public static class Explorer
         {
             public static List<string> GetFileNamesFromPersistentFolder(string subPath)
                 => GetFileNamesFrom(Path.Combine(Application.persistentDataPath, subPath));
@@ -40,9 +40,9 @@ namespace QuizCannersUtilities
                 {
 
                     var txt = lst[i].Replace(@"\", @"/");
-                    txt = txt.Substring(txt.LastIndexOf("/") + 1);
+                    txt = txt.Substring(txt.LastIndexOf("/", StringComparison.Ordinal) + 1);
 
-                    int extension = txt.LastIndexOf(".");
+                    int extension = txt.LastIndexOf(".", StringComparison.Ordinal);
 
                     if (extension>0)
                         txt = txt.Substring(0, extension);
@@ -63,7 +63,7 @@ namespace QuizCannersUtilities
                 for (var i = 0; i < lst.Count; i++)
                 {
                     var txt = lst[i].Replace(@"\", @"/");
-                    txt = txt.Substring(txt.LastIndexOf("/") + 1);
+                    txt = txt.Substring(txt.LastIndexOf("/", StringComparison.Ordinal) + 1);
                     lst[i] = txt;
                 }
 
@@ -85,7 +85,7 @@ namespace QuizCannersUtilities
             }
         }
 
-        public class Delete
+        public static class Delete
         {
 
             public static void FromResources(string assetFolder, string insideAssetFolderAndName) =>
@@ -142,25 +142,23 @@ namespace QuizCannersUtilities
                     System.IO.File.Delete(fullPath);
                     return true;
                 }
-                else
-                {
-                    if (showNotificationIn3DView && Application.isEditor)
-                        pegi.GameView.ShowNotification("File not found: " + fullPath);
 
-                    return false;
-                }
+                if (showNotificationIn3DView && Application.isEditor)
+                    pegi.GameView.ShowNotification("File not found: " + fullPath);
+
+                return false;
             }
             
         }
 
-        public class Loading
+        public static class Load
         {
             private static readonly BinaryFormatter Formatter = new BinaryFormatter();
 
-            public static string StringFromResource(string resourceFolderLocation, string insideResourceFolder, string name) =>
-            StringFromResource(resourceFolderLocation: resourceFolderLocation, insideResourceFolder: insideResourceFolder, name: name, extension: bytesFileType);
+            public static string FromResources(string resourceFolderLocation, string insideResourceFolder, string name) =>
+            FromResources(resourceFolderLocation: resourceFolderLocation, insideResourceFolder: insideResourceFolder, name: name, extension: bytesFileType);
 
-            public static string StringFromResource(string resourceFolderLocation, string insideResourceFolder, string name, string extension)
+            public static string FromResources(string resourceFolderLocation, string insideResourceFolder, string name, string extension)
             {
                
 #if UNITY_EDITOR
@@ -191,7 +189,7 @@ namespace QuizCannersUtilities
 
             }
 
-            public static string StringFromResource(string insideResourceFolder, string name)
+            public static string FromResources(string insideResourceFolder, string name)
             {
                 var resourcePathAndName = insideResourceFolder + (insideResourceFolder.Length > 0 ? "/" : "") + name;
 
@@ -236,7 +234,7 @@ namespace QuizCannersUtilities
                 return null;
             }
 
-            public static string TryLoadAsTextAsset(UnityEngine.Object o)
+            public static string TryLoadAsTextAsset(Object o)
             {
 
 #if UNITY_EDITOR
@@ -259,11 +257,11 @@ namespace QuizCannersUtilities
             public static string FromPersistentPath(string subPath, string filename, string extension)
             {
 
-                var filePath = PersistantPath(subPath: subPath, fileName: filename, extension: extension);
+                var filePath = PersistentPath(subPath: subPath, fileName: filename, extension: extension);
                 return File.Exists(filePath) ? File.ReadAllText(filePath) : null;
             }
 
-            private static string PersistantPath(string subPath, string fileName, string extension)
+            private static string PersistentPath(string subPath, string fileName, string extension)
                 => Path.Combine(Application.persistentDataPath, subPath, fileName + extension);
 
             private static string Internal(string fullPath)
@@ -287,16 +285,16 @@ namespace QuizCannersUtilities
             }
         }
 
-        public class Saving {
+        public static class Save {
             
             private static readonly BinaryFormatter Formatter = new BinaryFormatter();
 
             #region Create Asset
 
-            public static void Asset(UnityEngine.Object obj, string folder, bool refreshAfter = false) =>
+            public static void Asset(Object obj, string folder, bool refreshAfter = false) =>
                 Asset(obj, folder, ".mat", refreshAfter);
             
-            public static void Asset(UnityEngine.Object obj, string folder, string extension, bool refreshAfter = false)
+            public static void Asset(Object obj, string folder, string extension, bool refreshAfter = false)
             {
                 #if UNITY_EDITOR
                     var fullPath = Path.Combine(Application.dataPath, folder);

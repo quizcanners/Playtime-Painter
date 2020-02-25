@@ -1,7 +1,6 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using QuizCannersUtilities;
-
+using UnityEngine;
 
 namespace PlaytimePainter.MeshEditing {
 
@@ -353,7 +352,7 @@ namespace PlaytimePainter.MeshEditing {
         public MeshConstructor(PlaytimePainter painter)
         {
             profile = painter.MeshProfile;
-            this.edMesh = new EditableMesh(painter);
+            edMesh = new EditableMesh(painter);
             mesh = painter.SharedMesh;
             if (!mesh)
                 mesh = new Mesh();

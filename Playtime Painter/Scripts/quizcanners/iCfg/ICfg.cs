@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using PlayerAndEditorGUI;
+using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace QuizCannersUtilities {
@@ -30,8 +30,8 @@ namespace QuizCannersUtilities {
 
     public interface ICfgSerializeNestedReferences
     {
-        int GetReferenceIndex(UnityEngine.Object obj);
-        T GetReferenced<T>(int index) where T: UnityEngine.Object;
+        int GetReferenceIndex(Object obj);
+        T GetReferenced<T>(int index) where T: Object;
     }
 
     public interface ICfgSafeEncoding: ICfg
@@ -249,7 +249,7 @@ namespace QuizCannersUtilities {
             if (isActive)
                 pegi.SetBgColor(Color.green);
 
-            if (!allowOverride && !data.IsNullOrEmpty() && icon.Delete.ClickUnFocus())
+            if (!allowOverride && !data.IsNullOrEmpty() && icon.Delete.ClickUnFocus(ref changed))
                 data = null;
 
             pegi.edit(ref name);
@@ -586,10 +586,10 @@ namespace QuizCannersUtilities {
         protected ListMetaData referencesMeta = new ListMetaData("References");
 
         [HideInInspector]
-        [SerializeField] protected List<UnityEngine.Object> nestedReferences = new List<UnityEngine.Object>();
-        public int GetReferenceIndex(UnityEngine.Object obj) => nestedReferences.TryGetIndexOrAdd(obj);
+        [SerializeField] protected List<Object> nestedReferences = new List<Object>();
+        public int GetReferenceIndex(Object obj) => nestedReferences.TryGetIndexOrAdd(obj);
         
-        public T GetReferenced<T>(int index) where T : UnityEngine.Object => nestedReferences.TryGet(index) as T;
+        public T GetReferenced<T>(int index) where T : Object => nestedReferences.TryGet(index) as T;
 
         public UnrecognizedTagsList UnrecognizedStd { get; } = new UnrecognizedTagsList();
 
@@ -779,9 +779,9 @@ namespace QuizCannersUtilities {
 
             txt = null;
 
-            UnityEngine.Object myType = null;
+            Object myType = null;
             if (pegi.edit(ref myType)) {
-                txt = QcFile.Loading.TryLoadAsTextAsset(myType);
+                txt = QcFile.Load.TryLoadAsTextAsset(myType);
                 pegi.GameView.ShowNotification("Loaded " + myType.name);
 
                 return true;
@@ -830,25 +830,25 @@ namespace QuizCannersUtilities {
         public static T LoadFromAssets<T>(this T s, string fullPath, string name) where T:ICfg, new() {
 			if (s == null)
 				s = new T ();
-            s.Decode(QcFile.Loading.FromAssets(fullPath, name));
+            s.Decode(QcFile.Load.FromAssets(fullPath, name));
 			return s;
         }
 
         public static ICfg SaveToAssets(this ICfg s, string path, string filename)
         {
-            QcFile.Saving.ToAssets(path, filename, s.Encode().ToString());
+            QcFile.Save.ToAssets(path, filename, s.Encode().ToString());
             return s;
         }
 
         public static ICfg SaveToPersistentPath(this ICfg s, string path, string filename)
         {
-            QcFile.Saving.ToPersistentPath(path, filename, s.Encode().ToString());
+            QcFile.Save.ToPersistentPath(path, filename, s.Encode().ToString());
             return s;
         }
 
         public static bool LoadFromPersistentPath(this ICfg s, string path, string filename)
         {
-            var data = QcFile.Loading.FromPersistentPath(path, filename);
+            var data = QcFile.Load.FromPersistentPath(path, filename);
             if (data != null)
             {
                 s.Decode(data);
@@ -859,13 +859,13 @@ namespace QuizCannersUtilities {
 
         public static ICfg SaveToResources(this ICfg s, string resFolderPath, string insideResPath, string filename)
         {
-            QcFile.Saving.ToResources(resFolderPath, insideResPath, filename, s.Encode().ToString());
+            QcFile.Save.ToResources(resFolderPath, insideResPath, filename, s.Encode().ToString());
             return s;
         }
 
         public static T CloneCfg<T>(this T obj, ICfgSerializeNestedReferences nested = null) where T : ICfg {
 
-            if (QcUnity.IsNullOrDestroyed_Obj(obj)) return default(T);
+            if (QcUnity.IsNullOrDestroyed_Obj(obj)) return default;
             
             var ret = (T)Activator.CreateInstance(obj.GetType());
 
@@ -879,7 +879,7 @@ namespace QuizCannersUtilities {
 
         public static bool TryLoadFromResources<T>(this T s, string subFolder, string file) where T : ICfg
         {
-            var load = QcFile.Loading.StringFromResource(subFolder, file);
+            var load = QcFile.Load.FromResources(subFolder, file);
 
             if (load == null)
                 return false;
@@ -892,7 +892,7 @@ namespace QuizCannersUtilities {
         public static T LoadFromResources<T>(this T s, string subFolder, string file)where T:ICfg, new() {
 			if (s == null)
 				s = new T ();
-			s.Decode(QcFile.Loading.StringFromResource(subFolder, file));
+			s.Decode(QcFile.Load.FromResources(subFolder, file));
 			return s;
 		}
 

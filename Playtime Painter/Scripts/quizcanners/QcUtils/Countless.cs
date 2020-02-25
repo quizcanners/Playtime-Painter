@@ -1,9 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using System.Linq;
 using PlayerAndEditorGUI;
-
+using UnityEngine;
 
 namespace QuizCannersUtilities {
 
@@ -64,16 +63,16 @@ namespace QuizCannersUtilities {
             }
         }
 
-        private void DiscardCascade(VariableBranch b, int depth)
+        private void DiscardCascade(VariableBranch b, int dep)
         {
             if ((_brPoolMax + 1) >= _branchPool.Length)
                 _branchPool = _branchPool.ExpandBy(32);
             
-            if (depth > 0) {
+            if (dep > 0) {
                 for (var i = 0; i < BranchSize; i++)
                 {
                     if (b.br[i] == null) continue;
-                    DiscardCascade(b.br[i], depth - 1);
+                    DiscardCascade(b.br[i], dep - 1);
                     DiscardBranch(b, i);
                 }
             }
@@ -89,7 +88,8 @@ namespace QuizCannersUtilities {
         {
             if (_brPoolMax == 0)
             {
-                var vb = new VariableBranch() {
+                var vb = new VariableBranch
+                {
                     br = new VariableBranch[BranchSize]
                 };
 
@@ -216,21 +216,21 @@ namespace QuizCannersUtilities {
             return cody;
         }
 
-        public void GetItAll(out List<int> inds, out List<int> vals)
+        public void GetItAll(out List<int> indexes, out List<int> vals)
         {
-            inds = new List<int>();
+            indexes = new List<int>();
             vals = new List<int>();
-            GetItAllCascadeInt(ref inds, ref vals, br, depth, 0, max);
+            GetItAllCascadeInt(ref indexes, ref vals, br, depth, 0, max);
         }
 
-        private void GetItAllCascadeInt(ref List<int> inds, ref List<int> vals, VariableBranch b, int dp, int start, int range)
+        private void GetItAllCascadeInt(ref List<int> indexes, ref List<int> vals, VariableBranch b, int dp, int start, int range)
         {
             var step = range / BranchSize;
             if (dp > 0)
             {
                 for (var i = 0; i < BranchSize; i++)
                     if (b.br[i] != null)
-                        GetItAllCascadeInt(ref inds, ref vals, b.br[i], dp - 1, start + step * i, step);
+                        GetItAllCascadeInt(ref indexes, ref vals, b.br[i], dp - 1, start + step * i, step);
 
 
             }
@@ -243,7 +243,7 @@ namespace QuizCannersUtilities {
                 for (var i = 0; i < 8; i++)
                     if (b.br[i] != null)
                     {
-                        inds.Add(start + i);
+                        indexes.Add(start + i);
                         vals.Add(b.br[i].value);
                     }
             }
@@ -763,7 +763,7 @@ public class Countless<T> : CountlessBase {
 
                 var ar = vb.br[ind].value;
 
-                objs[ar] = default(T);
+                objs[ar] = default;
                 _firstFreeObj = Mathf.Min(_firstFreeObj, ar);
 
                 DiscardFruit(vb, ind);
@@ -785,7 +785,7 @@ public class Countless<T> : CountlessBase {
         protected virtual T Get(int ind)
         {
             if (ind >= max || ind<0)
-                return default(T);
+                return default;
 
             var d = depth;
             var vb = br;
@@ -797,12 +797,12 @@ public class Countless<T> : CountlessBase {
                 var no = ind / subSize;
                 ind -= no * subSize;
                 if (vb.br[no] == null)
-                    return default(T);
+                    return default;
                 d--;
                 vb = vb.br[no];
             }
 
-            return vb.br[ind] == null ? default(T) : objs[vb.br[ind].value];
+            return vb.br[ind] == null ? default : objs[vb.br[ind].value];
         }
 
         public List<T> GetAllObjsNoOrder() => objs.Where(t => !QcSharp.IsDefaultOrNull(t)).ToList();
@@ -902,7 +902,7 @@ public class Countless<T> : CountlessBase {
                     var el = allElements[i];
 
                     if (icon.Delete.Click())
-                        this[ind] = default(T);
+                        this[ind] = default;
                     else if (pegi.InspectValueInCollection(ref el, null, ind, ref _edited) && typeof(T).IsValueType)
                         this[ind] = el;
                 }
@@ -928,7 +928,7 @@ public class Countless<T> : CountlessBase {
     // Unnulable classes will create new instances
     public class UnNullable<T> : Countless<T> where T : new()
     {
-        private static int indexOfCurrentlyCreatedUnNullable;
+        protected static int indexOfCurrentlyCreatedUnNullable;
 
         private T Create(int ind)
         {
@@ -981,7 +981,7 @@ public class Countless<T> : CountlessBase {
             // int originalIndex = ind;
 
             if (ind >= max)
-                return default(T);
+                return default;
 
             var d = depth;
             var vb = br;
@@ -993,12 +993,12 @@ public class Countless<T> : CountlessBase {
                 var no = ind / subSize;
                 ind -= no * subSize;
                 if (vb.br[no] == null)
-                    return default(T);
+                    return default;
                 d--;
                 vb = vb.br[no];
             }
 
-            return vb.br[ind] == null ? default(T) : objs[vb.br[ind].value];
+            return vb.br[ind] == null ? default : objs[vb.br[ind].value];
         }
 
     }
@@ -1101,7 +1101,7 @@ public class Countless<T> : CountlessBase {
 
                 var ar = vb.br[ind].value;
 
-                _objs[ar] = default(List<T>);
+                _objs[ar] = default;
                 _firstFreeObj = Mathf.Min(_firstFreeObj, ar);
 
                 DiscardFruit(vb, ind);
@@ -1254,7 +1254,7 @@ public class Countless<T> : CountlessBase {
                     var el = all[i];
                     var ind = indexes[i];
                     if (icon.Delete.Click())
-                        countless[ind] = default(T);
+                        countless[ind] = default;
 
                     "{0}: ".F(ind).write(35);
                     if (pegi.InspectValueInCollection(ref el, null, ind, ref inspected).nl(ref changed) && typeof(T).IsValueType)
@@ -1263,7 +1263,7 @@ public class Countless<T> : CountlessBase {
             }
 
             if (deleted != -1)
-                countless[deleted] = default(T);
+                countless[deleted] = default;
             
             pegi.nl();
             return changed;
@@ -1377,7 +1377,7 @@ public class Countless<T> : CountlessBase {
 
         #endregion
 
-        public static T TryGet<T>(this UnNullableCfg<T> unn, int index) where T : ICfg, new() => unn != null ? unn.GetIfExists(index) : default(T);
+        public static T TryGet<T>(this UnNullableCfg<T> unn, int index) where T : ICfg, new() => unn != null ? unn.GetIfExists(index) : default;
         
 
     }

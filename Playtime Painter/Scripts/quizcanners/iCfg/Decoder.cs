@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using PlayerAndEditorGUI;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace QuizCannersUtilities {
 
@@ -357,7 +357,7 @@ namespace QuizCannersUtilities {
         private static T Decode<T>(string tag, string data, TaggedTypesCfg tps, ListMetaData ld, int index) where T : IGotClassTag
         {
 
-            if (tag == CfgEncoder.NullTag) return default(T);
+            if (tag == CfgEncoder.NullTag) return default;
 
             var type = tps.TaggedTypes.TryGet(tag);
             
@@ -366,23 +366,23 @@ namespace QuizCannersUtilities {
             
             ld.elementDatas[index].Unrecognized(tag, data);
 
-            return default(T);
+            return default;
         }
 
         private static T Decode<T>(string tag, string data, TaggedTypesCfg tps) where T : IGotClassTag
         {
 
-            if (tag == CfgEncoder.NullTag) return default(T);
+            if (tag == CfgEncoder.NullTag) return default;
             
             var type = tps.TaggedTypes.TryGet(tag);
             
-            return (type == null) ? default(T) : data.DecodeInto_Type<T>(type);
+            return (type == null) ? default : data.DecodeInto_Type<T>(type);
         }
 
         private static T Decode<T>(string tag, string data, List<Type> tps, ListMetaData ld, int index) where T : ICfg
         {
 
-            if (tag == CfgEncoder.NullTag) return default(T);
+            if (tag == CfgEncoder.NullTag) return default;
             
             var type = tps.TryGet(tag.ToIntFromTextSafe(-1));
             
@@ -392,21 +392,21 @@ namespace QuizCannersUtilities {
             ld.elementDatas[index].Unrecognized(tag, data);
             
 
-            return default(T);
+            return default;
         }
 
         private static T Decode<T>(string tag, string data, List<Type> tps) where T : ICfg
         {
 
 
-            if (tag == CfgEncoder.NullTag) return default(T);
+            if (tag == CfgEncoder.NullTag) return default;
             
             var type = tps.TryGet(tag.ToIntFromTextSafe(-1));
             
             if (type != null)
                 return data.DecodeInto_Type<T>(type);
             
-            return tag == CfgDecoder.ListElementTag ? data.DecodeInto_Type<T>(tps[0]) : default(T);
+            return tag == CfgDecoder.ListElementTag ? data.DecodeInto_Type<T>(tps[0]) : default;
         }
         #endregion
 
@@ -596,7 +596,7 @@ namespace QuizCannersUtilities {
                 {
                     var isNull = tag == CfgEncoder.NullTag;
 
-                    var obj = isNull ? default(T) : d.DecodeInto<T>();
+                    var obj = isNull ? default : d.DecodeInto<T>();
 
                     if (l != null)
                         l[ind] = obj;
@@ -801,7 +801,7 @@ namespace QuizCannersUtilities {
         public static void Decode<T>(this string data, out T val, TaggedTypesCfg typeList) where T : IGotClassTag
         {
 
-            val = default(T);
+            val = default;
 
             var cody = new CfgDecoder(data);
 
@@ -840,9 +840,9 @@ namespace QuizCannersUtilities {
             return obj;
         }
         
-        public static T Decode_Reference<T>(this string data, ref T val) where T : UnityEngine.Object => data.Decode(ref val, Keeper);
+        public static T Decode_Reference<T>(this string data, ref T val) where T : Object => data.Decode(ref val, Keeper);
 
-        public static List<T> Decode_References<T>(this string data, out List<T> list) where T: UnityEngine.Object => data.Decode_References(out list, Keeper);
+        public static List<T> Decode_References<T>(this string data, out List<T> list) where T: Object => data.Decode_References(out list, Keeper);
 
         public static bool DecodeInto<T>(this string data, T val, ICfgSerializeNestedReferences referencesKeeper) where T : ICfg
         {
@@ -882,7 +882,7 @@ namespace QuizCannersUtilities {
             return val;
         }
 
-        public static T Decode<T>(this string data, ref T val, ICfgSerializeNestedReferences referencesKeeper) where T: UnityEngine.Object
+        public static T Decode<T>(this string data, ref T val, ICfgSerializeNestedReferences referencesKeeper) where T: Object
         {
            
             if (referencesKeeper == null) return val;
@@ -897,7 +897,7 @@ namespace QuizCannersUtilities {
             return val;
         }
 
-        public static List<T> Decode_References<T>(this string data, out List<T> list, ICfgSerializeNestedReferences referencesKeeper) where T : UnityEngine.Object
+        public static List<T> Decode_References<T>(this string data, out List<T> list, ICfgSerializeNestedReferences referencesKeeper) where T : Object
         {
             list = new List<T>();
 
@@ -913,7 +913,7 @@ namespace QuizCannersUtilities {
             return list;
         }
 
-        public static void TryReplaceAssetByGuid<T>(this string data, ref T val) where T : UnityEngine.Object
+        public static void TryReplaceAssetByGuid<T>(this string data, ref T val) where T : Object
         {
             var ass = QcUnity.GuidToAsset<T>(data);
             if (ass)

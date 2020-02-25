@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using System;
-using System.Collections;
-using QuizCannersUtilities;
+﻿using System;
+using System.Collections.Generic;
 using PlayerAndEditorGUI;
 using PlaytimePainter.CameraModules;
 using PlaytimePainter.MeshEditing;
-
+using QuizCannersUtilities;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -812,7 +811,7 @@ namespace PlaytimePainter {
 
         #if UNITY_EDITOR
         
-        public void BeforeSceneSaved(UnityEngine.SceneManagement.Scene scene, string path) => BeforeClosing(); 
+        public void BeforeSceneSaved(Scene scene, string path) => BeforeClosing(); 
         #endif
 
         public void Update() {
@@ -825,9 +824,9 @@ namespace PlaytimePainter {
         private static int _scipFrames = 3;
         #endif
 
-        public static double lastPainterCall = 0;
+        public static double lastPainterCall;
 
-        public static double lastManagedUpdate = 0;
+        public static double lastManagedUpdate;
 
         public void CombinedUpdate() {
 

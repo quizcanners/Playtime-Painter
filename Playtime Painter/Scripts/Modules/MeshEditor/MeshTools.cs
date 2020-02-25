@@ -1,19 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-
-
+using UnityEngine;
 
 namespace PlaytimePainter.MeshEditing {
-
-    using LineData = PainterMesh.LineData;
-    using Triangle = PainterMesh.Triangle;
-    using Vertex = PainterMesh.Vertex;
-    using MeshPoint = PainterMesh.MeshPoint;
-
 #pragma warning disable IDE0034 // Simplify 'default' expression
 
     public interface IMeshToolWithPerMeshData {
@@ -77,12 +69,12 @@ namespace PlaytimePainter.MeshEditing {
             }
         }
         
-        protected static LineData PointedLine => MeshMGMT.PointedLine;
-        protected static Triangle PointedTriangle => MeshMGMT.PointedTriangle;
-        protected Triangle SelectedTriangle => MeshMGMT.SelectedTriangle;
-        protected static Vertex PointedUv => MeshMGMT.PointedUv;
-        protected static Vertex SelectedUv => MeshMGMT.SelectedUv;
-        protected static MeshPoint PointedVertex => MeshMGMT.PointedUv.meshPoint;
+        protected static PainterMesh.LineData PointedLine => MeshMGMT.PointedLine;
+        protected static PainterMesh.Triangle PointedTriangle => MeshMGMT.PointedTriangle;
+        protected PainterMesh.Triangle SelectedTriangle => MeshMGMT.SelectedTriangle;
+        protected static PainterMesh.Vertex PointedUv => MeshMGMT.PointedUv;
+        protected static PainterMesh.Vertex SelectedUv => MeshMGMT.SelectedUv;
+        protected static PainterMesh.MeshPoint PointedVertex => MeshMGMT.PointedUv.meshPoint;
         protected static EditableMesh GetPreviewMesh
         {
             get
@@ -115,7 +107,7 @@ namespace PlaytimePainter.MeshEditing {
 
         public virtual void OnGridChange() { }
 
-        public virtual void AssignText(MarkerWithText markers, MeshPoint point) => markers.textm.text = "";
+        public virtual void AssignText(MarkerWithText markers, PainterMesh.MeshPoint point) => markers.textm.text = "";
 
         public virtual bool MouseEventPointedVertex() => false;
 
@@ -169,13 +161,13 @@ namespace PlaytimePainter.MeshEditing {
 
         public override bool ShowTriangles => _detectionMode == DetectionMode.Triangles || (_addToTrianglesAndLines && _detectionMode == DetectionMode.Points);
 
-        private static List<MeshPoint> _draggedVertices => EditedMesh._draggedVertices; // new List<MeshPoint>();
+        private static List<PainterMesh.MeshPoint> _draggedVertices => EditedMesh._draggedVertices; // new List<MeshPoint>();
 
         private Vector3 _originalPosition;
 
         public override bool ShowGrid => true;
 
-        public override void AssignText(MarkerWithText markers, MeshPoint point)
+        public override void AssignText(MarkerWithText markers, PainterMesh.MeshPoint point)
         {
 
             var selected = MeshMGMT.GetSelectedVertex();
@@ -672,7 +664,7 @@ namespace PlaytimePainter.MeshEditing {
                     
                     t.SetSharpCorners(false);
 
-                    var other = (new LineData(t, t.vertexes[a], t.vertexes[b])).GetOtherTriangle();
+                    var other = (new PainterMesh.LineData(t, t.vertexes[a], t.vertexes[b])).GetOtherTriangle();
                     other?.SetSharpCorners(false);
                 }
             }
@@ -755,7 +747,7 @@ namespace PlaytimePainter.MeshEditing {
     {
         public override string StdTag => "t_vSm";
 
-        public bool _mergeUnMerge = false;
+        public bool _mergeUnMerge;
 
         private static SmoothingTool _inst;
         
@@ -784,7 +776,7 @@ namespace PlaytimePainter.MeshEditing {
 
             if ("Sharp All".Click())
             {
-                foreach (MeshPoint vr in EditedMesh.meshPoints)
+                foreach (PainterMesh.MeshPoint vr in EditedMesh.meshPoints)
                     vr.smoothNormal = false;
                 EditedMesh.Dirty = true;
                 Cfg.newVerticesSmooth = false;
@@ -950,9 +942,9 @@ namespace PlaytimePainter.MeshEditing {
 
         public override Color VertexColor => Color.white;
 
-        public int selectedSubMesh = 0;
+        public int selectedSubMesh;
 
-        private bool constantUpdateOnGroupColors = false;
+        private bool constantUpdateOnGroupColors;
 
         #region Inspector
         public override string Tooltip => (" Vertex Color {0} 1. Make sure mesh Profile has Color enabled {0}" +
@@ -1014,7 +1006,7 @@ namespace PlaytimePainter.MeshEditing {
                 for (int i = 0; i <= em.maxGroupIndex; i++) {
                     var c = em.groupColors[i];
 
-                if (icon.Refresh.Click("Get Actual color") || c == default(Color))
+                if (icon.Refresh.Click("Get Actual color") || c == default)
                 {
                     c = GetGroupColor(i);
                         em.groupColors[i] = c;
@@ -1259,7 +1251,7 @@ namespace PlaytimePainter.MeshEditing {
             return false;
         }
 
-        public static void PutEdgeOnLine(LineData ld)
+        public static void PutEdgeOnLine(PainterMesh.LineData ld)
         {
 
             var vrtA = ld.points[0].meshPoint;

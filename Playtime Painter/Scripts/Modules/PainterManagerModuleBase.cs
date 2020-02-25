@@ -1,9 +1,10 @@
-﻿using UnityEngine;
-using PlayerAndEditorGUI;
-using QuizCannersUtilities;
-using System.Collections.Generic;
-using System;
+﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using PlayerAndEditorGUI;
+using PlaytimePainter.MeshEditing;
+using QuizCannersUtilities;
+using UnityEngine;
 
 namespace PlaytimePainter.CameraModules {
 
@@ -49,7 +50,7 @@ namespace PlaytimePainter.CameraModules {
 
     public interface IMeshToolPlugin
     {
-        bool MeshToolInspection(MeshEditing.MeshToolBase currentTool);
+        bool MeshToolInspection(MeshToolBase currentTool);
        
     }
     

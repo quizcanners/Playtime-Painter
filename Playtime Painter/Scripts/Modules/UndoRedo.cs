@@ -1,7 +1,6 @@
-﻿using QuizCannersUtilities;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using QuizCannersUtilities;
 using UnityEngine;
-
 
 namespace PlaytimePainter
 {
@@ -77,7 +76,7 @@ namespace PlaytimePainter
 
             public void DestroyRtex()
             {
-                QcUnity.DestroyWhatever(rt);
+                rt.DestroyWhatever();
 
             }
 
@@ -225,9 +224,9 @@ namespace PlaytimePainter
                 if (maxTextures <= 0) return;
 
                 if (rTex.Count < maxTextures)
-                    rTex.Add(new RenderTextureBackup(@from, _order));
+                    rTex.Add(new RenderTextureBackup(from, _order));
                 else
-                    rTex.MoveFirstToLast().Set(@from, _order);
+                    rTex.MoveFirstToLast().Set(from, _order);
 
                 _order++;
 

@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using UnityEngine;
 
 namespace PlaytimePainter.Examples
 {
@@ -19,7 +18,7 @@ namespace PlaytimePainter.Examples
         public float sensitivity = 5;
         public bool _disableRotation;
         public bool rotateWithoutRmb;
-        public bool simulateFlying = false;
+        public bool simulateFlying;
 
         #region Encode & Decode
 

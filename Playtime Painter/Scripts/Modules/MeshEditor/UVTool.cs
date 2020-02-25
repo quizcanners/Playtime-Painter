@@ -1,14 +1,9 @@
-﻿using UnityEngine;
-using PlayerAndEditorGUI;
+﻿using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-
+using UnityEngine;
 
 namespace PlaytimePainter.MeshEditing
 {
-    
-    using Triangle = PainterMesh.Triangle;
-    using MeshPoint = PainterMesh.MeshPoint;
-
     public class VertexUVTool : MeshToolBase, IMeshToolWithPerMeshData
     {
 
@@ -19,11 +14,11 @@ namespace PlaytimePainter.MeshEditing
         public bool projectionUv;
         public Vector2 tiling = Vector2.one;
 
-        private bool projectFront = false;
+        private bool projectFront;
 
         public Vector2 offset;
         public float projectorNormalThreshold01 = 0.5f;
-        private bool meshProcessors = false;
+        private bool meshProcessors;
 
         #region Encode & Decode
         public override bool Decode(string tg, string data)
@@ -179,7 +174,7 @@ namespace PlaytimePainter.MeshEditing
             return uv;
         }
         
-        public Vector2 OffsetTileFromTriangle(Triangle t) {
+        public Vector2 OffsetTileFromTriangle(PainterMesh.Triangle t) {
 
             Vector2 uv  = Vector2.zero;
 
@@ -234,7 +229,7 @@ namespace PlaytimePainter.MeshEditing
 
         public override bool ShowLines => false;
 
-        public override void AssignText(MarkerWithText markers, MeshPoint point)
+        public override void AssignText(MarkerWithText markers, PainterMesh.MeshPoint point)
         {
             var vrt = MeshMGMT.GetSelectedVertex();
 

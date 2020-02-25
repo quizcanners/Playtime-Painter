@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-
+using UnityEngine;
 
 namespace PlaytimePainter.Examples { 
 
@@ -27,8 +26,6 @@ namespace PlaytimePainter.Examples {
             col.vector.posFrom = transform.position;
             col.vector.firstStroke = true;
             target.UpdateOrSetTexTarget(TexTarget.RenderTexture);
-
-            return;
         }
 
         public void OnCollisionEnter(Collision collision) => TryGetPainterFrom(collision.gameObject);

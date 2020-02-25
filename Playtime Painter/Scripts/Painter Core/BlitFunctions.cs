@@ -1,6 +1,6 @@
 ﻿using System;
-using UnityEngine;
 using QuizCannersUtilities;
+using UnityEngine;
 
 namespace PlaytimePainter {
 
@@ -268,9 +268,9 @@ namespace PlaytimePainter {
 
                 return new Color((float) pixR, (float)pixG, (float)pixB, (float)pixA);
             }
-            else
-                return Color.clear;
-            
+
+            return Color.clear;
+
         }
 
         #endregion

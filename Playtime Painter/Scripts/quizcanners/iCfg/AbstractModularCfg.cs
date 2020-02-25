@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using PlayerAndEditorGUI;
 using UnityEngine;
 
@@ -243,7 +242,7 @@ namespace QuizCannersUtilities {
         public static T TryGetByTag<T> (List<T> lst, string tag) where T : IGotClassTag
         {
 
-            if (lst == null || tag == null || tag.Length <= 0) return default(T);
+            if (lst == null || tag == null || tag.Length <= 0) return default;
 
             foreach (var e in lst)
             {
@@ -251,7 +250,7 @@ namespace QuizCannersUtilities {
                     return e;
             }
 
-            return default(T);
+            return default;
 
         }
 
@@ -289,7 +288,7 @@ namespace QuizCannersUtilities {
 
         IEnumerator IEnumerable.GetEnumerator() => Modules.GetEnumerator();
 
-        private bool initialized = false;
+        private bool initialized;
 
         public G GetModule<G>() where G : class, T {
 

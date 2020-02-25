@@ -74,7 +74,7 @@ namespace PlaytimePainter
             for (var i = 2; i >= 0; i--)
             for (var j = 2; j >= 0; j--)
                 Debug.Log(a.p[i * 9 + j * 3] + "," + a.p[i * 9 + j * 3 + 1] + "," + a.p[i * 9 + j * 3 + 2] + " ----- " +
-                          UnityEngine.Random.Range(0, 99999).ToString());
+                          Random.Range(0, 99999));
 
         }
 

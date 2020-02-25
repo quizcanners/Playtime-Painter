@@ -1,13 +1,13 @@
-﻿using UnityEngine;
-using UnityEngine.UI;
-using System;
-using System.IO;
+﻿using System;
 using System.Collections.Generic;
-
-using Object = UnityEngine.Object;
+using System.IO;
+using System.Net;
 using System.Reflection;
 using System.Text;
-
+using UnityEditorInternal;
+using UnityEngine;
+using UnityEngine.UI;
+using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -44,7 +44,7 @@ namespace QuizCannersUtilities {
                 
         }
         
-        public static bool TryAddUObjIfNew<T>(this List<T> list, UnityEngine.Object ass) where T : UnityEngine.Object
+        public static bool TryAddUObjIfNew<T>(this List<T> list, Object ass) where T : Object
         {
             if (!ass)
                 return false;
@@ -137,7 +137,10 @@ namespace QuizCannersUtilities {
 
             var newName = Path.GetFileName(assetPathAndName);
 
-            added.name = newName.Substring(0, newName.Length - ScrObjExt.Length);
+            if (newName != null)
+            {
+                added.name = newName.Substring(0, newName.Length - ScrObjExt.Length);
+            }
 
             if (refreshDatabase)
             {
@@ -202,7 +205,7 @@ namespace QuizCannersUtilities {
             }
             catch (Exception ex)
             {
-                Debug.LogError(string.Format("Couldn't create Directory {0} : {1}", fullPath, ex.ToString()));
+                Debug.LogError(string.Format("Couldn't create Directory {0} : {1}", fullPath, ex));
                 return;
             }
 
@@ -216,7 +219,7 @@ namespace QuizCannersUtilities {
             }
             catch (Exception ex)
             {
-                Debug.LogError(string.Format("Couldn't create Scriptable Object {0} : {1}", assetPathAndName, ex.ToString()));
+                Debug.LogError(string.Format("Couldn't create Scriptable Object {0} : {1}", assetPathAndName, ex));
             }
 #endif
         }
@@ -230,7 +233,7 @@ namespace QuizCannersUtilities {
         public static void SendEmail(string email, string subject, string body) =>
             Application.OpenURL(string.Format("mailto:{0}?subject={1}&body={2}",email, subject.MyEscapeUrl(), body.MyEscapeUrl()));
 
-        static string MyEscapeUrl(this string url) => System.Net.WebUtility.UrlEncode(url).Replace("+", "%20");
+        static string MyEscapeUrl(this string url) => WebUtility.UrlEncode(url).Replace("+", "%20");
 
 
         public static void OpenBrowser(string address) => Application.OpenURL(address);
@@ -445,9 +448,7 @@ namespace QuizCannersUtilities {
             if (!graphic) return false;
 
             var col = graphic.color;
-
-            if (col.a == alpha) return true;
-
+            
             col.a = alpha;
             graphic.color = col;
             return true;
@@ -588,7 +589,7 @@ namespace QuizCannersUtilities {
             {
                 playClipMethod = AudioUtilClass.GetMethod("PlayClip",
                     BindingFlags.Static | BindingFlags.Public,
-                    null, new Type[] { typeof(AudioClip) }, null
+                    null, new[] { typeof(AudioClip) }, null
                 );
             }
 
@@ -720,7 +721,7 @@ namespace QuizCannersUtilities {
 
         }
 
-        private static int Write(ref MemoryStream stream, short val) => Write(ref stream, BitConverter.GetBytes(val));
+        //private static int Write(ref MemoryStream stream, short val) => Write(ref stream, BitConverter.GetBytes(val));
 
         private static int Write(ref MemoryStream stream, int val) => Write(ref stream, BitConverter.GetBytes(val));
 
@@ -792,7 +793,7 @@ namespace QuizCannersUtilities {
                 }
             }
 
-            return ((float)maxSample) / ((float)(clip.frequency * clip.channels));
+            return maxSample / ((float)(clip.frequency * clip.channels));
         }
 
 #endregion
@@ -855,7 +856,7 @@ namespace QuizCannersUtilities {
         {
 #if UNITY_EDITOR
             SceneView.RepaintAll();
-            UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
+            InternalEditorUtility.RepaintAllViews();
 #endif
         }
 
@@ -971,7 +972,7 @@ namespace QuizCannersUtilities {
         {
 #if UNITY_EDITOR
 
-            var ass = AssetDatabase.FindAssets("t:"+typeof(T).ToString());
+            var ass = AssetDatabase.FindAssets("t:"+typeof(T));
             if (ass.Length > 0) {
 
                 var all = new Object[ass.Length];
@@ -1166,9 +1167,7 @@ namespace QuizCannersUtilities {
                 if (Event.current != null && Event.current.isKey && Event.current.type == UnityEngine.EventType.KeyDown) {
 
                     var code = (int)Event.current.keyCode;
-
-                    int diff = code - ((int)KeyCode.Alpha0);
-
+                    
                     if (code >= 0 && code <= 9)
                         return code;
                 }
@@ -1255,7 +1254,7 @@ namespace QuizCannersUtilities {
             if (!m)
                 return fNames;
 
-            var mat = new Material[1];
+            Object[] mat = new Object[1];
             mat[0] = m;
             MaterialProperty[] props;
 
@@ -1294,8 +1293,8 @@ namespace QuizCannersUtilities {
 
             var src = tex.GetPixels();
 
-            var dX = (float)tex.width / (float)width;
-            var dY = (float)tex.height / (float)height;
+            var dX = tex.width / (float)width;
+            var dY = tex.height / (float)height;
 
             for (var y = 0; y < height; y++)
             {
@@ -1917,7 +1916,7 @@ namespace QuizCannersUtilities {
                 return 0;
             }
 
-            var triangles = new int[] {
+            var triangles = new[] {
                 m.triangles[triangleIndex * 3],
                 m.triangles[triangleIndex * 3 + 1],
                 m.triangles[triangleIndex * 3 + 2]

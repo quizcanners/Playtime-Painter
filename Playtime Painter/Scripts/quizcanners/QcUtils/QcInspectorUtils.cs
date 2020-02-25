@@ -1,13 +1,11 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using PlayerAndEditorGUI;
-using System;
-using Object = UnityEngine.Object;
-using UnityEngine.UI;
 using System.IO;
-using Debug = UnityEngine.Debug;
-
+using PlayerAndEditorGUI;
+using UnityEngine;
+using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace QuizCannersUtilities
 {
@@ -115,7 +113,7 @@ namespace QuizCannersUtilities
 
         public static bool CanAdd<T>(this List<T> list, ref object obj, out T conv, bool onlyIfNew = true)
         {
-            conv = default(T);
+            conv = default;
 
             if (obj == null || list == null)
                 return false;
@@ -231,7 +229,7 @@ namespace QuizCannersUtilities
             private double _minYieldsPerInterval = float.PositiveInfinity;
             private double _averageYieldsPerInterval;
             private double _totalIntervalsProcessed;
-            private readonly float _intervalInSeconds = 1f;
+            private readonly float _intervalInSeconds;
 
             public void Update(float add = 0)
             {
@@ -552,7 +550,7 @@ namespace QuizCannersUtilities
 
                 cam.clearFlags = clearFlags;
 
-                QcFile.Saving.TextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png", screenShotTexture2D);
+                QcFile.Save.TextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png", screenShotTexture2D);
             }
 
             public void OnPostRender()
@@ -570,7 +568,7 @@ namespace QuizCannersUtilities
                     screenShotTexture2D.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0, false);
                     screenShotTexture2D.Apply();
 
-                    QcFile.Saving.TextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png",
+                    QcFile.Save.TextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png",
                         screenShotTexture2D);
 
                 }
@@ -653,7 +651,7 @@ namespace QuizCannersUtilities
         public class MeshMaterialPlaytimeInstancer
         {
 
-            [SerializeField] public bool instantiateInEditor = false;
+            [SerializeField] public bool instantiateInEditor;
             [SerializeField] public List<MeshRenderer> materialUsers = new List<MeshRenderer>();
             [NonSerialized] private Material materialInstance;
 
@@ -727,16 +725,14 @@ namespace QuizCannersUtilities
                     _value = value;
                     min = Mathf.Min(min, value);
                     max = Mathf.Max(max, value);
-                    UpdateRange(1);
+                    UpdateRange();
                 }
             }
 
             #region Inspector
 
             private float dynamicMin;
-            private float DynamicMin { set { dynamicMin = Mathf.Clamp(dynamicMin, min, max); } }
             private float dynamicMax;
-            private float DynamicMax { set { dynamicMax = Mathf.Clamp(dynamicMax, min, max); } }
 
             private void UpdateRange(float by = 1)
             {

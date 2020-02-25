@@ -1,12 +1,13 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using PlayerAndEditorGUI;
-using System;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using PlayerAndEditorGUI;
+using UnityEngine;
+using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -27,7 +28,7 @@ namespace QuizCannersUtilities
         private string folderToSearch = DefaultFolderToSearch;
         public int inspected = -1;
         public int previousInspected = -1;
-        public int listSectionStartIndex = 0;
+        public int listSectionStartIndex;
         public bool Inspecting { get { return inspected != -1; } set { if (value == false) inspected = -1; } }
         public bool keepTypeData;
         public bool allowDelete;
@@ -97,7 +98,7 @@ namespace QuizCannersUtilities
             return false;
         }
 
-        public bool Inspect<T>(List<T> list) where T : UnityEngine.Object {
+        public bool Inspect<T>(List<T> list) where T : Object {
             var changed = false;
 #if UNITY_EDITOR
 
@@ -108,7 +109,7 @@ namespace QuizCannersUtilities
                     var scrObjs = AssetDatabase.FindAssets("t:Object", new[] { folderToSearch });
                     foreach (var o in scrObjs)
                     {
-                        var ass = AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(AssetDatabase.GUIDToAssetPath(o));
+                        var ass = AssetDatabase.LoadAssetAtPath<Object>(AssetDatabase.GUIDToAssetPath(o));
                         if (!ass) continue;
                         list.TryAddUObjIfNew(ass);
                     }
@@ -261,10 +262,10 @@ namespace QuizCannersUtilities
             if (std != null)
                 stdDta = std.Encode().ToString();
 
-            _guid = (el as UnityEngine.Object).GetGuid(_guid);
+            _guid = (el as Object).GetGuid(_guid);
         }
         
-        public bool TryGetByGuid<T>(ref T field) where T : UnityEngine.Object {
+        public bool TryGetByGuid<T>(ref T field) where T : Object {
 
             var obj = QcUnity.GuidToAsset<T>(_guid);
 
@@ -291,7 +292,9 @@ namespace QuizCannersUtilities
 
         #region Inspector
 
-        public string NameForPEGI { get { return name; } set { name = value; } }
+        public string NameForPEGI { get => name;
+            set => name = value;
+        }
 
         public bool Inspect()
         {
@@ -305,7 +308,7 @@ namespace QuizCannersUtilities
             return false;
         }
 
-        public bool SelectType<T>(ref object obj, TaggedTypesCfg all, bool keepTypeConfig = false)
+        public bool SelectType(ref object obj, TaggedTypesCfg all, bool keepTypeConfig = false)
         {
             var changed = false;
             
@@ -377,7 +380,7 @@ namespace QuizCannersUtilities
 
             if (typeof(T).IsUnityObject()) {
 
-                var uo = obj as UnityEngine.Object;
+                var uo = obj as Object;
                 if (PEGI_inList_Obj(ref uo).changes(ref changed))
                     obj = uo;
 
@@ -389,15 +392,15 @@ namespace QuizCannersUtilities
                 if (!name.IsNullOrEmpty())
                     name.write();
 
-                if (typeof(T) is IGotClassTag)
-                    SelectType<T>(ref obj, TaggedTypesCfg.TryGetOrCreate(typeof(T)));
+                if (obj is IGotClassTag)
+                    SelectType(ref obj, TaggedTypesCfg.TryGetOrCreate(typeof(T)));
 
             }
 
             return changed;
         }
 
-        public bool PEGI_inList_Obj<T>(ref T field) where T : UnityEngine.Object {
+        public bool PEGI_inList_Obj<T>(ref T field) where T : Object {
 
             if (unrecognized)
                 unrecognizedUnderTag.write("Type Tag {0} was unrecognized during decoding".F(unrecognizedUnderTag), 40);
@@ -520,11 +523,11 @@ namespace QuizCannersUtilities
 
             if (inspectedState == -1)
             {
-                UnityEngine.Object myType = null;
+                Object myType = null;
                 if ("From File:".edit(65, ref myType))
                 {
                     added = new CfgState();
-                    added.dataExplorer.data = QcFile.Loading.TryLoadAsTextAsset(myType);
+                    added.dataExplorer.data = QcFile.Load.TryLoadAsTextAsset(myType);
                     added.NameForPEGI = myType.name;
                     added.comment = DateTime.Now.ToString(CultureInfo.InvariantCulture);
                     states.Add(added);
@@ -567,7 +570,7 @@ namespace QuizCannersUtilities
 
             public string tag;
             public string data;
-            public bool dirty = false;
+            public bool dirty;
 
             public void UpdateData()
             {
@@ -694,11 +697,11 @@ namespace QuizCannersUtilities
 
             }
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string tg, string dta)
             {
                 if (_tags == null)
                     _tags = new List<ICfgProperty>();
-                _tags.Add(new ICfgProperty(tg, data));
+                _tags.Add(new ICfgProperty(tg, dta));
                 return true;
             }
             #endregion
@@ -708,7 +711,7 @@ namespace QuizCannersUtilities
         [Serializable]
         private class CfgState : IPEGI, IGotName, IPEGI_ListInspect, IGotCount
         {
-            private static ICfg Cfg => ICfgObjectExplorer.inspectedCfg;
+            private static ICfg Cfg => inspectedCfg;
 
             public string comment;
             public ICfgProperty dataExplorer = new ICfgProperty("", "");
@@ -716,7 +719,7 @@ namespace QuizCannersUtilities
             #region Inspector
             public string NameForPEGI { get { return dataExplorer.tag; } set { dataExplorer.tag = value; } }
 
-            public static ICfgObjectExplorer Mgmt => ICfgObjectExplorer.inspected;
+            public static ICfgObjectExplorer Mgmt => inspected;
 
             public int CountForInspector() => dataExplorer.CountForInspector();
 
@@ -730,7 +733,7 @@ namespace QuizCannersUtilities
                     this.inspect_Name();
                     if (Cfg != null && dataExplorer.tag.Length > 0 && icon.Save.Click("Save To Assets", ref changed))
                     {
-                        QcFile.Saving.ToAssets(Mgmt.fileFolderHolder, dataExplorer.tag, dataExplorer.data);
+                        QcFile.Save.ToAssets(Mgmt.fileFolderHolder, dataExplorer.tag, dataExplorer.data);
                         QcUnity.RefreshAssetDatabase();
                     }
 
@@ -743,7 +746,7 @@ namespace QuizCannersUtilities
 
                         "Save To:".edit(50, ref Mgmt.fileFolderHolder).changes(ref changed);
 
-                        var uObj = Cfg as UnityEngine.Object;
+                        var uObj = Cfg as Object;
 
                         if (uObj && icon.Done.Click("Use the same directory as current object.", ref changed))
                             Mgmt.fileFolderHolder = QcUnity.GetAssetFolder(uObj);
@@ -794,26 +797,19 @@ namespace QuizCannersUtilities
 
     public class EncodedJsonInspector : AbstractCfg, IPEGI
     {
-
-        protected string jsonDestination = "";
+        private string jsonDestination = "";
 
         protected JsonBase json;
 
-        protected static bool TryDecode(ref JsonBase j) {
+        protected static void TryDecode(ref JsonBase j) {
+            if (!(j is JsonString str)) return;
+            
+            var tmp = str.TryDecodeString();
+            if (tmp != null)
+                j = tmp;
+            else 
+                str.dataOnly = true;
 
-            var str = j as JsonString;
-
-            if (str != null) {
-                var tmp = str.TryDecodeString();
-                if (tmp != null)
-                {
-                    j = tmp as JsonBase;
-                    return true;
-                }
-                else str.dataOnly = true;
-            }
-
-            return false;
         }
 
         protected static bool DecodeOrInspectJson(ref JsonBase j, bool foldedOut, string name = "")
@@ -855,7 +851,7 @@ namespace QuizCannersUtilities
         [DerivedList(typeof(JsonString), typeof(JsonClass), typeof(JsonProperty), typeof(JsonList))]
         protected class JsonString : JsonBase, IGotDisplayName {
 
-            public bool dataOnly = false;
+            public bool dataOnly;
 
             public override JsonString AsJsonString => this;
 
@@ -903,20 +899,18 @@ namespace QuizCannersUtilities
                 return changed;
             }
             
-            enum JsonDecodingStage { DataTypeDecision , ExpectingVariableName, ReadingVariableName, ExpectingTwoDots, ReadingData, ReadingList  }
+            enum JsonDecodingStage { DataTypeDecision , ExpectingVariableName, ReadingVariableName, ExpectingTwoDots, ReadingData  }
 
             public override bool DecodeAll(ref JsonBase thisJson) {
-
-                if (!dataOnly)
+                if (dataOnly) return false;
+                var tmp = TryDecodeString();
+                if (tmp != null)
                 {
-                    var tmp = TryDecodeString();
-                    if (tmp != null)
-                    {
-                        thisJson = tmp as JsonBase;
-                        return true;
-                    }
-                    else dataOnly = true;
+                    thisJson = tmp;
+                    return true;
                 }
+
+                dataOnly = true;
 
                 return false;
             }
@@ -1046,14 +1040,15 @@ namespace QuizCannersUtilities
                                         openBrackets--;
                                     
                                     if ((closed && openBrackets < 0) || (comma && openBrackets<=0)) {
-
+                                        
+                                        var dta = sb.ToString();
+                                        
                                         if (isaList) {
-                                            var data = sb.ToString();
-                                            if (data.Length>0)
-                                                vals.Add(new JsonString(sb.ToString()));
+                                            if (dta.Length>0)
+                                                vals.Add(new JsonString(dta));
                                         }
                                         else
-                                            properties.Add(new JsonProperty(variableName, sb.ToString()));
+                                            properties.Add(new JsonProperty(variableName, dta));
 
                                         needsClear = true;
 
@@ -1069,7 +1064,7 @@ namespace QuizCannersUtilities
                                 sb.Clear();
                             
 
-                        break;
+                            break;
                     }
 
 
@@ -1088,10 +1083,9 @@ namespace QuizCannersUtilities
 
                 if (isaList)
                     return new JsonList(vals);
-                else
-                    return properties.Count > 0 ? new JsonClass(properties) : null;
-                    
-                    
+                return properties.Count > 0 ? new JsonClass(properties) : null;
+
+
             }
 
         }
@@ -1113,7 +1107,7 @@ namespace QuizCannersUtilities
                 this.data = new JsonString(data);
             }
 
-            public bool foldedOut = false;
+            public bool foldedOut;
 
             public override int CountForInspector() => 1;
 
@@ -1157,7 +1151,7 @@ namespace QuizCannersUtilities
             readonly Countless<bool> foldedOut = new Countless<bool>();
 
             private string previewValue = "";
-            private bool previewFoldout = false;
+            private bool previewFoldout;
 
             public override int CountForInspector() => values.Count;
 
@@ -1288,7 +1282,7 @@ namespace QuizCannersUtilities
             }
 
             public string NameForDisplayPEGI()=> JsonProperty.inspected == null ? "  " : 
-                (JsonProperty.inspected.foldedOut ? "{" : (" {" + CountForInspector().ToString() + "} ")); 
+                (JsonProperty.inspected.foldedOut ? "{" : (" {" + CountForInspector() + "} ")); 
 
             public override int CountForInspector() => properties.Count;
 
@@ -1364,7 +1358,7 @@ namespace QuizCannersUtilities
 
         public EncodedJsonInspector(string data) { json = new JsonString(data); }
 
-        public bool triedToDecodeAll = false;
+        public bool triedToDecodeAll;
 
         public void TryToDecodeAll() {
 

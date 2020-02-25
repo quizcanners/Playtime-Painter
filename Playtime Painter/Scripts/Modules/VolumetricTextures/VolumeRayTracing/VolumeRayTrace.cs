@@ -99,7 +99,7 @@ namespace PlaytimePainter
             return allBakedDepthesBufferTexture;
         }
 
-        private int lastUpdatedLight = 0;
+        private int lastUpdatedLight;
 
         public bool ProjectorReady() 
             => lights.GetNextLight(ref lastUpdatedLight);

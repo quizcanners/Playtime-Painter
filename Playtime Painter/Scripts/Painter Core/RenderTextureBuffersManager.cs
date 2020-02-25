@@ -1,13 +1,11 @@
 ﻿//#define debugInits
 
-using System;
-using PlayerAndEditorGUI;
-using QuizCannersUtilities;
 using System.Collections.Generic;
-using UnityEngine;
-
 using System.Linq;
+using PlayerAndEditorGUI;
 using PlaytimePainter.MeshEditing;
+using QuizCannersUtilities;
+using UnityEngine;
 
 namespace PlaytimePainter {
 
@@ -255,74 +253,72 @@ namespace PlaytimePainter {
             {
                 return cam.Render(tex, GetNonSquareBuffer(width, height), shader);
             }
-            else
-            {
-                int tmpWidth = Mathf.Max(tex.width / 2, width);
 
-                RenderTexture from = material
-                    ? cam.Render(tex, SquareBuffer(tmpWidth), material)
-                    : cam.Render(tex, SquareBuffer(tmpWidth), shader);
+            int tmpWidth = Mathf.Max(tex.width / 2, width);
+
+            RenderTexture from = material
+                ? cam.Render(tex, SquareBuffer(tmpWidth), material)
+                : cam.Render(tex, SquareBuffer(tmpWidth), shader);
                 
-                while (tmpWidth > width) {
+            while (tmpWidth > width) {
 
-                    bool jobDone = false;
+                bool jobDone = false;
 
-                    var previousFrom = from;
+                var previousFrom = @from;
 
-                    if (!usingCustom) {
+                if (!usingCustom) {
 
-                        if (allowApprox) {
+                    if (allowApprox) {
 
-                            if (tmpWidth / 32 > width) {
+                        if (tmpWidth / 32 > width) {
 
-                                tmpWidth /= 64;
-                                from = cam.Render(from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX64_Approx);
-                                jobDone = true;
+                            tmpWidth /= 64;
+                            @from = cam.Render(@from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX64_Approx);
+                            jobDone = true;
 
-                            } else if (tmpWidth / 16 > width) {
+                        } else if (tmpWidth / 16 > width) {
 
-                                tmpWidth /= 32;
-                                from = cam.Render(from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX32_Approx);
-                                jobDone = true;
+                            tmpWidth /= 32;
+                            @from = cam.Render(@from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX32_Approx);
+                            jobDone = true;
 
-                            }
-                            else if (tmpWidth / 8 > width) {
-
-                                tmpWidth /= 16;
-                                from = cam.Render(from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX16_Approx);
-                                jobDone = true;
-
-                            }
                         }
+                        else if (tmpWidth / 8 > width) {
 
-                        if (!jobDone) {
-                            if (tmpWidth / 4 > width)
-                            {
-                                tmpWidth /= 8;
-                                from = cam.Render(from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX8);
-                                jobDone = true;
-                            }
-                            else if (tmpWidth / 2 > width)
-                            {
-                                tmpWidth /= 4;
-                                from = cam.Render(from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX4);
-                                jobDone = true;
-                            }
+                            tmpWidth /= 16;
+                            @from = cam.Render(@from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX16_Approx);
+                            jobDone = true;
+
                         }
                     }
 
                     if (!jobDone) {
-                        tmpWidth /= 2;
-                        from = material
-                            ? cam.Render(from, SquareBuffer(tmpWidth), material)
-                            : cam.Render(from, SquareBuffer(tmpWidth), shader);
+                        if (tmpWidth / 4 > width)
+                        {
+                            tmpWidth /= 8;
+                            @from = cam.Render(@from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX8);
+                            jobDone = true;
+                        }
+                        else if (tmpWidth / 2 > width)
+                        {
+                            tmpWidth /= 4;
+                            @from = cam.Render(@from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX4);
+                            jobDone = true;
+                        }
                     }
-
-                    previousFrom.DiscardContents();
                 }
 
-                return from;
+                if (!jobDone) {
+                    tmpWidth /= 2;
+                    @from = material
+                        ? cam.Render(@from, SquareBuffer(tmpWidth), material)
+                        : cam.Render(@from, SquareBuffer(tmpWidth), shader);
+                }
+
+                previousFrom.DiscardContents();
             }
+
+            return @from;
         }
 
         #endregion
@@ -364,8 +360,7 @@ namespace PlaytimePainter {
             {
                 if (depthTarget.width == sizeOfDepthBuffers)
                     return;
-                else
-                    depthTarget.DestroyWhateverUnityObject();
+                depthTarget.DestroyWhateverUnityObject();
             }
 
             depthTarget = GetDepthRenderTexture(sizeOfDepthBuffers);
@@ -728,7 +723,7 @@ namespace PlaytimePainter {
             switch (id.destination)
             {
                 case TexTarget.RenderTexture:
-                    return !id.renderTexture ? (Texture)id.texture2D : (Texture)id.renderTexture;
+                    return !id.renderTexture ? id.texture2D : (Texture)id.renderTexture;
                 case TexTarget.Texture2D:
                     return id.texture2D;
             }

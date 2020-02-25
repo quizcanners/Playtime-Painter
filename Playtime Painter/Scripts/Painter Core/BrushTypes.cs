@@ -1,11 +1,10 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
 using PlayerAndEditorGUI;
-using QuizCannersUtilities;
-using System;
-using Random = UnityEngine.Random;
 using PlaytimePainter.CameraModules;
-using PlaytimePainter.MeshEditing;
+using QuizCannersUtilities;
+using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace PlaytimePainter
 {
@@ -14,7 +13,7 @@ namespace PlaytimePainter
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 
-    public partial class BrushTypes
+    public class BrushTypes
     {
 
         public abstract class Base : PainterSystem, IEditorDropdown, IPEGI, IGotDisplayName

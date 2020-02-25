@@ -1,11 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using QuizCannersUtilities;
 using UnityEngine;
-
-using System;
-using QuizCannersUtilities;
-using Object = UnityEngine.Object;
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -33,12 +27,12 @@ namespace PlayerAndEditorGUI
             return imageAndTip;
         }
 
-        private static GUIContent ImageAndTip(Texture tex)
+      /*  private static GUIContent ImageAndTip(Texture tex)
         {
             imageAndTip.image = tex;
             imageAndTip.tooltip = tex ? tex.name : "Null Image";
             return imageAndTip;
-        }
+        }*/
 
         private static GUIContent textAndTip = new GUIContent();
 
@@ -56,13 +50,13 @@ namespace PlayerAndEditorGUI
             return textAndTip;
         }
 
-        private static GUIContent tipOnlyContent = new GUIContent();
+       // private static GUIContent tipOnlyContent = new GUIContent();
 
-        private static GUIContent TipOnlyContent(string text)
+      /*  private static GUIContent TipOnlyContent(string text)
         {
             tipOnlyContent.tooltip = text;
             return tipOnlyContent;
-        }
+        }*/
 
         #endregion
 

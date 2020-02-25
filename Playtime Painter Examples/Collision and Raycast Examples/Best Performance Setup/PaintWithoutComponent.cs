@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 using PlayerAndEditorGUI;
-using QuizCannersUtilities;
 using PlaytimePainter.ComponentModules;
+using QuizCannersUtilities;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -19,7 +19,7 @@ namespace PlaytimePainter.Examples
         private Stroke continiousStroke = new Stroke(); // For continious
         private PaintingReceiver previousTargetForContinious;
         public int shoots = 1;
-        public bool continious = false;
+        public bool continious;
         public float spread;
 
         private void Update()

@@ -1,7 +1,7 @@
 ﻿using System;
+using PlayerAndEditorGUI;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using PlayerAndEditorGUI;
 
 namespace PlaytimePainter.Examples
 {
@@ -11,7 +11,7 @@ namespace PlaytimePainter.Examples
 
         static CoordinatePickerBase currentPicker;
         
-        [NonSerialized] public bool mouseDown = false;
+        [NonSerialized] public bool mouseDown;
 
         protected bool Down { get { return mouseDown; }
             set {

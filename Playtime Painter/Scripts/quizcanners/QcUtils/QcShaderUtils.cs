@@ -1,10 +1,7 @@
 ﻿using System;
-using PlayerAndEditorGUI;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.InteropServices.WindowsRuntime;
-using QuizCannersUtilities;
-using Unity.Collections;
+using PlayerAndEditorGUI;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -24,9 +21,6 @@ namespace QuizCannersUtilities {
         {
             protected int id;
             protected string name;
-
-            public override int GetHashCode() => id;
-
             public override bool Equals(object obj)
             {
                 if (obj == null)
@@ -188,11 +182,10 @@ namespace QuizCannersUtilities {
 
             private bool GlobalDirectiveChanged()
             {
-                if (_directiveGlobalValue != DirectiveEnabledForLastValue) {
-                    _directiveGlobalValue = DirectiveEnabledForLastValue;
-                    return true;
-                } else
-                    return false;
+                if (_directiveGlobalValue == DirectiveEnabledForLastValue) return false;
+                _directiveGlobalValue = DirectiveEnabledForLastValue;
+                return true;
+
             }
 
             protected override T GlobalValue_Internal
@@ -326,7 +319,7 @@ namespace QuizCannersUtilities {
                 }
             }
             private bool _convertToLinear;
-            private bool _colorSpaceChecked = false;
+            private bool _colorSpaceChecked;
 
             private Color ConvertedColor => ConvertToLinear ? latestValue.linear : latestValue;
 
@@ -678,9 +671,9 @@ namespace QuizCannersUtilities {
 
     public class ShaderTagValue : IGotDisplayName
     {
-        public ShaderTag tag;
+        private readonly ShaderTag tag;
         public string NameForDisplayPEGI()=> value;
-        public readonly string value;
+        private readonly string value;
 
         public bool Has(Material mat, bool searchFallBacks = false) =>
             value.Equals(tag.Get(mat, searchFallBacks));
@@ -688,7 +681,7 @@ namespace QuizCannersUtilities {
         public bool Has(Material mat, ShaderProperty.BaseShaderPropertyIndex property, bool searchFallBacks = false) =>
             mat && value.Equals(tag.Get(mat, property, searchFallBacks));
 
-        public bool Equals(string tag) => value.Equals(tag);
+        public bool Equals(string tg) => value.Equals(tg);
         
         public ShaderTagValue(string newValue, ShaderTag nTag)
         {
@@ -697,7 +690,7 @@ namespace QuizCannersUtilities {
         }
     }
 
-    public static partial class ShaderTags {
+    public static class ShaderTags {
         
         public static readonly ShaderTag ShaderTip = new ShaderTag("ShaderTip");
 

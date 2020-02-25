@@ -1,16 +1,12 @@
 ﻿
 using System.Collections.Generic;
-using UnityEngine;
 using PlayerAndEditorGUI;
-using QuizCannersUtilities;
 using PlaytimePainter.CameraModules;
 using PlaytimePainter.ComponentModules;
+using QuizCannersUtilities;
+using UnityEngine;
 
-namespace PlaytimePainter { 
-
-    using VectorValue = ShaderProperty.VectorValue;
-    using ShaderKeyword = ShaderProperty.ShaderKeyword;
-
+namespace PlaytimePainter {
 #pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
@@ -27,17 +23,17 @@ namespace PlaytimePainter {
             const string tag = "VolumePntng";
             public override string ClassTag => tag;
 
-            public static VectorValue VOLUME_H_SLICES = new VectorValue("VOLUME_H_SLICES");
-            public static VectorValue VOLUME_POSITION_N_SIZE = new VectorValue("VOLUME_POSITION_N_SIZE");
+            public static ShaderProperty.VectorValue VOLUME_H_SLICES = new ShaderProperty.VectorValue("VOLUME_H_SLICES");
+            public static ShaderProperty.VectorValue VOLUME_POSITION_N_SIZE = new ShaderProperty.VectorValue("VOLUME_POSITION_N_SIZE");
 
-            public static VectorValue VOLUME_H_SLICES_BRUSH = new VectorValue("VOLUME_H_SLICES_BRUSH");
-            public static VectorValue VOLUME_POSITION_N_SIZE_BRUSH = new VectorValue("VOLUME_POSITION_N_SIZE_BRUSH");
+            public static ShaderProperty.VectorValue VOLUME_H_SLICES_BRUSH = new ShaderProperty.VectorValue("VOLUME_H_SLICES_BRUSH");
+            public static ShaderProperty.VectorValue VOLUME_POSITION_N_SIZE_BRUSH = new ShaderProperty.VectorValue("VOLUME_POSITION_N_SIZE_BRUSH");
 
-            public static VectorValue VOLUME_BRUSH_DIRECTION = new VectorValue("VOLUME_BRUSH_DYRECTION");
+            public static ShaderProperty.VectorValue VOLUME_BRUSH_DIRECTION = new ShaderProperty.VectorValue("VOLUME_BRUSH_DYRECTION");
 
-            public static ShaderKeyword UseSmoothing = new ShaderKeyword("_SMOOTHING");
+            public static ShaderProperty.ShaderKeyword UseSmoothing = new ShaderProperty.ShaderKeyword("_SMOOTHING");
 
-            private float smoothing = 0;
+            private float smoothing;
 
             private static Shader _preview;
             private static Shader _brush;
@@ -299,7 +295,7 @@ namespace PlaytimePainter {
 
                 var pcam = PainterCamera.GetOrCreateProjectorCamera();
 
-                GlobalBrush.Color = avg / (float) pixelsCount;
+                GlobalBrush.Color = avg / pixelsCount;
 
                 PainterShaderVariables.BrushColorProperty.GlobalValue = GlobalBrush.Color;
 

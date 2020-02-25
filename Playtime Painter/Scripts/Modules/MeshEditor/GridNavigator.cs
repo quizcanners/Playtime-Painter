@@ -1,7 +1,7 @@
-﻿using UnityEngine;
-using System;
-using QuizCannersUtilities;
+﻿using System;
 using PlayerAndEditorGUI;
+using QuizCannersUtilities;
+using UnityEngine;
 
 namespace PlaytimePainter.MeshEditing
 {
@@ -39,7 +39,7 @@ namespace PlaytimePainter.MeshEditing
                 }
                 catch (Exception ex)
                 {
-                    Debug.Log("Couldn't load a prefab. If this happened once it's ok. " + ex.ToString());
+                    Debug.Log("Couldn't load a prefab. If this happened once it's ok. " + ex);
                 }
 
             }

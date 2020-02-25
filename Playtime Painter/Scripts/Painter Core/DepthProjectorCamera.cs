@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using UnityEngine;
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -39,9 +38,9 @@ namespace PlaytimePainter
 
         [SerializeField] public Vector2 _fromMouseOffset;
 
-        public bool _projectFromMainCamera = false;
-        public bool _centerOnMousePosition = false;
-        public bool pauseAutoUpdates = false;
+        public bool _projectFromMainCamera;
+        public bool _centerOnMousePosition;
+        public bool pauseAutoUpdates;
 
         #region Inspector
 
@@ -137,7 +136,7 @@ namespace PlaytimePainter
         
         #region Render Queue  
 
-        private int lastUpdatedUser = 0;
+        private int lastUpdatedUser;
 
         private IUseDepthProjector userToGetUpdate;
 
@@ -170,9 +169,9 @@ namespace PlaytimePainter
                 ManagedUpdate();
         }
 
-        private double lastUserUpdateReturned = 0;
+        private double lastUserUpdateReturned;
 
-        private double sinceLastPainterCall = 0;
+        private double sinceLastPainterCall;
 
         public void ManagedUpdate() {
 
@@ -395,7 +394,7 @@ namespace PlaytimePainter
                             if (_centerOnMousePosition)
                                 transform.LookAt(transform.position +
                                                  cam.ScreenPointToRay(Input.mousePosition 
-                                                                      + Vector2.Scale(_fromMouseOffset, new Vector2(Screen.width, Screen.height)).ToVector3(0)
+                                                                      + Vector2.Scale(_fromMouseOffset, new Vector2(Screen.width, Screen.height)).ToVector3()
                                                                       ).direction);
                             else
                                 transform.localRotation = Quaternion.identity;
@@ -589,7 +588,7 @@ namespace PlaytimePainter
 
             _spMatrix.GlobalValue = cam.projectionMatrix * cam.worldToCameraMatrix;
 
-            _spPos.GlobalValue = tf.position.ToVector4(0);
+            _spPos.GlobalValue = tf.position.ToVector4();
 
             _camParams.GlobalValue = new Vector4(
                 cam.aspect,

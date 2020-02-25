@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -24,7 +24,7 @@ namespace PlaytimePainter
 
         public int width = 256;
 
-        public int texturesCreated = 0;
+        public int texturesCreated;
 
         public bool nonColorData = true;
 

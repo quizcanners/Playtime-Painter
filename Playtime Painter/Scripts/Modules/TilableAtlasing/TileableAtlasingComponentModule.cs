@@ -1,13 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using PlayerAndEditorGUI;
 using System.IO;
 using System.Linq;
-using QuizCannersUtilities;
+using PlayerAndEditorGUI;
 using PlaytimePainter.CameraModules;
 using PlaytimePainter.MeshEditing;
-
+using QuizCannersUtilities;
+using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -172,7 +171,7 @@ namespace PlaytimePainter.ComponentModules {
 
             atlasRows = Mathf.Max(atlasRows, 1);
 
-            uv = (GetAtlasedSection() + uv) / (float)atlasRows;
+            uv = (GetAtlasedSection() + uv) / atlasRows;
 
             return true;
         }
@@ -800,7 +799,7 @@ namespace PlaytimePainter.ComponentModules {
         public AtlasTextureCreator(string newName)
         {
             NameForPEGI = newName;
-            NameForPEGI = NameForPEGI.GetUniqueName(CameraModules.TileableAtlasingCameraModule.inst.atlases);
+            NameForPEGI = NameForPEGI.GetUniqueName(TileableAtlasingCameraModule.inst.atlases);
             Init();
         }
 

@@ -1,10 +1,11 @@
-﻿using QuizCannersUtilities;
+﻿using System;
 using System.Collections.Generic;
-using UnityEngine;
-using PlayerAndEditorGUI;
-using System;
 using System.Globalization;
+using PlayerAndEditorGUI;
 using PlaytimePainter.MeshEditing;
+using QuizCannersUtilities;
+using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace PlaytimePainter
 {
@@ -110,10 +111,8 @@ namespace PlaytimePainter
                     break;
                     
                 }
-                else
-                {
-                    matMetas.RemoveAt(i); i--;
-                }
+
+                matMetas.RemoveAt(i); i--;
             }
 
             if (meta != null) return meta;
@@ -255,7 +254,7 @@ namespace PlaytimePainter
 
             if (!Recordings.TryGetValue(filename, out data))
             {
-                data = QcFile.Loading.FromPersistentPath(vectorsFolderName, filename);
+                data = QcFile.Load.FromPersistentPath(vectorsFolderName, filename);
                 Recordings.Add(filename, data);
             }
 
@@ -332,7 +331,8 @@ namespace PlaytimePainter
                     return cody;
                 }
             }
-            else Debug.LogError("Loop in Encoding");
+
+            Debug.LogError("Loop in Encoding");
 
             return null;
         }
@@ -391,12 +391,12 @@ namespace PlaytimePainter
             if (_inspectedList == 5)
             {
 #if UNITY_EDITOR
-                UnityEngine.Object newProfile = null;
+                Object newProfile = null;
 
                 if ("Drop New Profile Here:".edit(ref newProfile).nl())
                 {
                     var mSol = new MeshPackagingProfile();
-                    mSol.Decode(QcFile.Loading.TryLoadAsTextAsset(newProfile));
+                    mSol.Decode(QcFile.Load.TryLoadAsTextAsset(newProfile));
                    meshPackagingSolutions.Add(mSol);
                 }
 #endif
@@ -488,7 +488,7 @@ namespace PlaytimePainter
         public bool InspectColorSchemes()
         {
             if (colorSchemes.Count == 0)
-                colorSchemes.Add(new ColorScheme() { paletteName = "New Color Scheme" });
+                colorSchemes.Add(new ColorScheme { paletteName = "New Color Scheme" });
 
             return pegi.edit_List(ref colorSchemes, ref inspectedColorScheme);
         }

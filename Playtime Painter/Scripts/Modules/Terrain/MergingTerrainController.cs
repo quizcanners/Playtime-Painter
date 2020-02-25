@@ -1,12 +1,12 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using System;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using UnityEngine;
 using UnityEngine.Serialization;
 #if UNITY_EDITOR
-using UnityEditor;
+
 #endif
 
 namespace PlaytimePainter
@@ -286,7 +286,7 @@ namespace PlaytimePainter
             }
             catch (UnityException e)
             {
-                Debug.Log("couldn't read one of the textures for  " + bump.name + " " + e.ToString());
+                Debug.Log("couldn't read one of the textures for  " + bump.name + " " + e);
                 return null;
             }
 
@@ -307,10 +307,10 @@ namespace PlaytimePainter
                     else
                     {
 
-                        var xLeft = _srcBmp[IndexFrom(bx - 1, @by)].a;
-                        var xRight = _srcBmp[IndexFrom(bx + 1, @by)].a;
-                        var yUp = _srcBmp[IndexFrom(bx, @by - 1)].a;
-                        var yDown = _srcBmp[IndexFrom(bx, @by + 1)].a;
+                        var xLeft = _srcBmp[IndexFrom(bx - 1, by)].a;
+                        var xRight = _srcBmp[IndexFrom(bx + 1, by)].a;
+                        var yUp = _srcBmp[IndexFrom(bx, by - 1)].a;
+                        var yDown = _srcBmp[IndexFrom(bx, by + 1)].a;
 
                         var xDelta = (-xRight + xLeft) * strength;
 
@@ -389,7 +389,7 @@ namespace PlaytimePainter
             }
             catch (UnityException e)
             {
-                Debug.Log("couldn't read one of the textures for  " + gloss.name + " " + e.ToString());
+                Debug.Log("couldn't read one of the textures for  " + gloss.name + " " + e);
                 return null;
             }
 
@@ -398,7 +398,7 @@ namespace PlaytimePainter
             {
                 for (var bx = 0; bx < _width; bx++)
                 {
-                    var dstIndex = IndexFrom(bx, @by);
+                    var dstIndex = IndexFrom(bx, by);
                     var col = dstColor[dstIndex];
                     col.a = _srcBmp[dstIndex].a;
                     dstColor[dstIndex] = col;

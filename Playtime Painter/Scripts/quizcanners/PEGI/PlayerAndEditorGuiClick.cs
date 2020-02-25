@@ -1,8 +1,5 @@
-﻿
+﻿using QuizCannersUtilities;
 using UnityEngine;
-
-using QuizCannersUtilities;
-using Object = UnityEngine.Object;
 using static PlayerAndEditorGUI.PEGI_Styles;
 
 #if UNITY_EDITOR
@@ -58,7 +55,7 @@ namespace PlayerAndEditorGUI
                     if (!newName.IsNullOrEmpty())
                         obj.name = newName;
 
-                    QcFile.Saving.Asset(obj, folder, extension, true);
+                    QcFile.Save.Asset(obj, folder, extension, true);
                 }
                 else
                 {
@@ -400,7 +397,7 @@ namespace PlayerAndEditorGUI
 
         public static bool ClickUnFocus(this icon icon, ref bool changed) => ClickUnFocus(icon.GetIcon(), icon.GetText()).changes(ref changed);
 
-        public static bool ClickUnFocus(this icon icon, int size = defaultButtonSize) => ClickUnFocus(icon.GetIcon(), icon.GetText(), size);
+        public static bool ClickUnFocus(this icon icon, int size) => ClickUnFocus(icon.GetIcon(), icon.GetText(), size);
 
         public static bool ClickUnFocus(this icon icon, string tip, int size = defaultButtonSize)
         {
@@ -491,7 +488,7 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static bool Click_Enter_Attention_Highlight<T>(this T obj, ref bool changed, icon icon = icon.Enter, string hint = "", bool canBeNull = true) where T : UnityEngine.Object, INeedAttention
+        public static bool Click_Enter_Attention_Highlight<T>(this T obj, ref bool changed, icon icon = icon.Enter, string hint = "", bool canBeNull = true) where T : Object, INeedAttention
         {
             var ch = obj.Click_Enter_Attention(icon, hint, canBeNull).changes(ref changed);
             obj.ClickHighlight().changes(ref changed);

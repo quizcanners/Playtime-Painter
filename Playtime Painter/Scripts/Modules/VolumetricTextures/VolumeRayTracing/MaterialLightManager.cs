@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using UnityEngine;
 
 namespace PlaytimePainter
 {
 
-    [System.Serializable]
+    [Serializable]
     public class MaterialLightManager : PainterSystem, IPEGI
     {
         public const int maxLights = 3;

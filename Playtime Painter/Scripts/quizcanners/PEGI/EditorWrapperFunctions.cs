@@ -45,7 +45,7 @@ namespace PlayerAndEditorGUI
 
         public static EditorType editorTypeForDefaultInspector = EditorType.Unknown;
 
-        private static bool _lineOpen = false;
+        private static bool _lineOpen;
         private static int _selectedFold = -1;
         private static int _elementIndex;
         public static Object inspectedUnityObject;
@@ -228,14 +228,14 @@ namespace PlayerAndEditorGUI
                 }
                 else
                 {
-                    pegi.ClickHighlight(target);
+                    target.ClickHighlight();
                 }
             }
 
             return changed;
         }
 
-        static void start(SerializedObject so = null)
+        static void start(SerializedObject so)
         {
             start();
             serObj = so;
@@ -274,18 +274,18 @@ namespace PlayerAndEditorGUI
             return changes;
         }
 
-        private static bool change { get { globChanged = true; return true; } }
+        private static bool setDirty { get { globChanged = true; return true; } }
 
         private static bool Dirty(this bool val) { globChanged |= val; return val; }
 
         private static bool changes => globChanged;
 
-        private static bool ignoreChanges(this bool changed)
+      /*  private static bool ignoreChanges(this bool changed)
         {
             if (changed)
                 globChanged = false;
             return changed;
-        }
+        }*/
 
         private static void BeginCheckLine() { checkLine(); EditorGUI.BeginChangeCheck(); }
 
@@ -322,12 +322,12 @@ namespace PlayerAndEditorGUI
             return textAndToolTip;
         }
         
-        private static GUIContent TextAndTip(string text)
+       /* private static GUIContent TextAndTip(string text)
         {
             textAndToolTip.text = text;
             textAndToolTip.tooltip = text;
             return textAndToolTip;
-        }
+        }*/
         
         #region Foldout
       
@@ -578,7 +578,7 @@ namespace PlayerAndEditorGUI
             if (!EndCheckLine()) return false;
 
             current = others[newNo];
-            return change;
+            return setDirty;
         }
 
         private static bool select(ref Component current, IReadOnlyList<Component> others, Rect rect)
@@ -604,7 +604,7 @@ namespace PlayerAndEditorGUI
 
             current = others[newNo];
 
-            return change;
+            return setDirty;
         }
 
 
@@ -701,7 +701,7 @@ namespace PlayerAndEditorGUI
         public static bool editPowOf2(ref int i, int min, int max)
         {
             BeginCheckLine();
-            i = Mathf.ClosestPowerOfTwo((int)Mathf.Clamp(EditorGUILayout.IntField(i), min, max));
+            i = Mathf.ClosestPowerOfTwo(Mathf.Clamp(EditorGUILayout.IntField(i), min, max));
             return EndCheckLine();
         }
         
@@ -719,14 +719,14 @@ namespace PlayerAndEditorGUI
             return EndCheckLine();
         }
 
-        public static bool edit<T>(ref T field, int width) where T : UnityEngine.Object
+        public static bool edit<T>(ref T field, int width) where T : Object
         {
             BeginCheckLine();
             field = (T)EditorGUILayout.ObjectField(field, typeof(T), true, GUILayout.MaxWidth(width));
             return EndCheckLine();
         }
 
-        public static bool edit<T>(ref T field, bool allowDrop) where T : UnityEngine.Object
+        public static bool edit<T>(ref T field, bool allowDrop) where T : Object
         {
             BeginCheckLine();
             field = (T)EditorGUILayout.ObjectField(field, typeof(T), allowDrop);
@@ -795,12 +795,9 @@ namespace PlayerAndEditorGUI
             checkLine();
             var before = Mathf.Sqrt(val);
             var after = EditorGUILayout.Slider(before, min, max);
-            if (before != after)
-            {
-                val = after * after;
-                return change;
-            }
-            return false;
+            if (Math.Abs(before - after) < float.Epsilon) return false;
+            val = after * after;
+            return setDirty;
         }
 
         public static bool edit(ref float val, float min, float max)
@@ -852,7 +849,7 @@ namespace PlayerAndEditorGUI
             var before = key;
 
             if (editDelayed(ref key, 40))
-                return dic.TryChangeKey(before, key) ? change : false;
+                return dic.TryChangeKey(before, key) ? setDirty : false;
 
             return false;
         }
@@ -863,7 +860,7 @@ namespace PlayerAndEditorGUI
             if (editDelayed(ref before))
             {
                 dic[atKey] = before;
-                return change;
+                return setDirty;
             }
             return false;
         }
@@ -1009,17 +1006,17 @@ namespace PlayerAndEditorGUI
         }
 
 
-        public static bool editDelayed(ref int val)
+      /*  public static bool editDelayed(ref int val)
         {
 
             BeginCheckLine();
             val = EditorGUILayout.DelayedIntField(val);
             return EndCheckLine();
-        }
+        }*/
 
         // static int editedIntegerIndex;
         // static int editedInteger;
-        public static bool editDelayed(ref int val, int width = -1)
+        public static bool editDelayed(ref int val, int width)
         {
 
             BeginCheckLine();
@@ -1117,11 +1114,9 @@ namespace PlayerAndEditorGUI
 
      
 
-        public static bool edit_Property<T>(int width, Expression<Func<T>> memberExpression, UnityEngine.Object obj, bool includeChildren)
+        public static bool edit_Property<T>(int width, Expression<Func<T>> memberExpression, Object obj, bool includeChildren)
         {
-            var changes = false;
-
-            var serializedObject = (!obj ? ef.serObj : GetSerObj(obj));
+            var serializedObject = (!obj ? serObj : GetSerObj(obj));
 
             if (serializedObject == null) return false;
 
@@ -1130,7 +1125,7 @@ namespace PlayerAndEditorGUI
 
             var tps = serializedObject.FindProperty(name);
 
-            if (tps == null) return changes;
+            if (tps == null) return false;
 
             EditorGUI.BeginChangeCheck();
 
@@ -1139,16 +1134,14 @@ namespace PlayerAndEditorGUI
             else
                 EditorGUILayout.PropertyField(tps, GUIContent.none, includeChildren, GUILayout.MaxWidth(width));
 
-            if (!EditorGUI.EndChangeCheck()) return changes;
+            if (!EditorGUI.EndChangeCheck()) return false;
 
             serializedObject.ApplyModifiedProperties();
-
-            changes = change;
-
-            return changes;
+            
+            return setDirty;
         }
 
-        private static readonly Dictionary<Object, SerializedObject> SerializedObjects = new Dictionary<UnityEngine.Object, SerializedObject>();
+        private static readonly Dictionary<Object, SerializedObject> SerializedObjects = new Dictionary<Object, SerializedObject>();
 
         private static SerializedObject GetSerObj(Object obj)
         {
@@ -1179,7 +1172,7 @@ namespace PlayerAndEditorGUI
             if (toggle(ref before))
             {
                 val = before ? 1 : 0;
-                return change;
+                return setDirty;
             }
             return false;
         }
@@ -1215,31 +1208,31 @@ namespace PlayerAndEditorGUI
         public static bool Click(string label)
         {
             checkLine();
-            return GUILayout.Button(label) && change;
+            return GUILayout.Button(label) && setDirty;
         }
 
         public static bool Click(string label, GUIStyle style)
         {
             checkLine();
-            return GUILayout.Button(label, style) && change;
+            return GUILayout.Button(label, style) && setDirty;
         }
 
         public static bool Click(GUIContent content)
         {
             checkLine();
-            return GUILayout.Button(content) && change;
+            return GUILayout.Button(content) && setDirty;
         }
 
         public static bool Click(GUIContent content, GUIStyle style)
         {
             checkLine();
-            return GUILayout.Button(content, style) && change;
+            return GUILayout.Button(content, style) && setDirty;
         }
 
         public static bool Click(GUIContent content, int width, GUIStyle style)
         {
             checkLine();
-            return GUILayout.Button(content, style, GUILayout.MaxWidth(width)) && change;
+            return GUILayout.Button(content, style, GUILayout.MaxWidth(width)) && setDirty;
         }
 
         public static bool Click(Texture image, int width, GUIStyle style = null)
@@ -1248,7 +1241,7 @@ namespace PlayerAndEditorGUI
                 style = PEGI_Styles.ImageButton.Current;
 
             checkLine();
-            return GUILayout.Button(image, style, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) && change;
+            return GUILayout.Button(image, style, GUILayout.MaxHeight(width), GUILayout.MaxWidth(width + 10)) && setDirty;
         }
 
         public static bool ClickImage(GUIContent cnt, int width, GUIStyle style = null) => ClickImage(cnt, width, width, style);
@@ -1267,9 +1260,9 @@ namespace PlayerAndEditorGUI
 
         #region write
 
-        private static GUIContent imageAndTip = new GUIContent();
+      //  private static GUIContent imageAndTip = new GUIContent();
 
-        private static GUIContent ImageAndTip(Texture tex, string toolTip)
+       /* private static GUIContent ImageAndTip(Texture tex, string toolTip)
         {
             imageAndTip.image = tex;
             imageAndTip.tooltip = toolTip;
@@ -1281,7 +1274,7 @@ namespace PlayerAndEditorGUI
             imageAndTip.image = tex;
             imageAndTip.tooltip = tex ? tex.name : "Null Image";
             return imageAndTip;
-        }
+        }*/
 
         public static void write<T>(T field) where T : Object
         {
@@ -1289,7 +1282,7 @@ namespace PlayerAndEditorGUI
             EditorGUILayout.ObjectField(field, typeof(T), false);
         }
 
-        public static void write<T>(T field, int width) where T : Object
+      /*  public static void write<T>(T field, int width) where T : Object
         {
             checkLine();
             EditorGUILayout.ObjectField(field, typeof(T), false, GUILayout.MaxWidth(width));
@@ -1305,18 +1298,18 @@ namespace PlayerAndEditorGUI
             pegi.PreviousBgColor();
             GUI.enabled = true;
 
-        }
+        }*/
 
         public static void write(string text, int width) {
             checkLine();
             EditorGUILayout.LabelField(text, EditorStyles.miniLabel, GUILayout.MaxWidth(width));
         }
 
-        public static void write_ForCopy(string text, int width)
+       /* public static void write_ForCopy(string text, int width)
         {
             checkLine();
             EditorGUILayout.SelectableLabel(text, GUILayout.MaxWidth(width));
-        }
+        }*/
 
         public static void write(GUIContent cnt)
         {
@@ -1403,7 +1396,7 @@ namespace PlayerAndEditorGUI
         }
         #endregion
 
-        private static bool searchInChildren = false;
+        private static bool searchInChildren;
 
         public static IEnumerable<T> DropAreaGUI<T>() where T : Object
         {
@@ -1428,30 +1421,30 @@ namespace PlayerAndEditorGUI
                     if (!drop_area.Contains(evt.mousePosition))
                         yield break;
 
-                DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
+                    DragAndDrop.visualMode = DragAndDropVisualMode.Copy;
 
-                if (evt.type == EventType.DragPerform) {
+                    if (evt.type == EventType.DragPerform) {
 
-                    DragAndDrop.AcceptDrag();
+                        DragAndDrop.AcceptDrag();
 
-                    foreach (var o in DragAndDrop.objectReferences) {
-                        var cnvrt = o as T;
-                        if (cnvrt)
-                            yield return cnvrt;
-                        else {
-                            var go = o as GameObject;
-                                
-                            if (go)
-                            foreach (var c in (searchInChildren
-                                ? go.GetComponentsInChildren(typeof(T))
-                                : go.GetComponents(typeof(T)))) {
+                        foreach (var o in DragAndDrop.objectReferences) {
+                            var cnvrt = o as T;
+                            if (cnvrt)
+                                yield return cnvrt;
+                            else {
+                                var go = o as GameObject;
+
+                                if (!go) continue;
+                                foreach (var c in (searchInChildren
+                                    ? go.GetComponentsInChildren(typeof(T))
+                                    : go.GetComponents(typeof(T)))) {
 
                                     yield return c as T;
+                                }
                             }
                         }
                     }
-                }
-                break;
+                    break;
             }
         }
 
@@ -1632,7 +1625,7 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        private static void RemoveItem(ReorderableList list)
+        /*private static void RemoveItem(ReorderableList list)
         {
             var i = list.index;
             var el = _currentReorderedList[i];
@@ -1640,7 +1633,7 @@ namespace PlayerAndEditorGUI
                 _currentReorderedList[i] = null;
             else
                 _currentReorderedList.RemoveAt(i);
-        }
+        }*/
 
         #endregion
         

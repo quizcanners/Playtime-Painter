@@ -1,8 +1,6 @@
 ﻿#if UNITY_EDITOR
-using UnityEngine;
-using UnityEditor;
 using PlayerAndEditorGUI;
-using QuizCannersUtilities;
+using UnityEditor;
 
 namespace PlaytimePainter {
 

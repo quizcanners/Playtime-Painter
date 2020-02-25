@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
-using QuizCannersUtilities;
-using UnityEngine.UI;
 using PlayerAndEditorGUI;
+using QuizCannersUtilities;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace PlaytimePainter.ComponentModules {
 

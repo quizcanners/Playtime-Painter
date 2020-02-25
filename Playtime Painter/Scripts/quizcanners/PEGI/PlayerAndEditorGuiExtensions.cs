@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using UnityEngine;
-using System;
+﻿using System;
+using System.Collections.Generic;
 using QuizCannersUtilities;
+using UnityEngine;
 using Object = UnityEngine.Object;
-
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -21,7 +20,6 @@ namespace PlayerAndEditorGUI
 {
     public static partial class pegi
     {
-        #region Inspect Extensions
         public static bool Nested_Inspect(GameView.InspectionDelegate function, Object target = null)
         {
             var changed = false;
@@ -45,7 +43,7 @@ namespace PlayerAndEditorGUI
         {
 
 #if UNITY_EDITOR
-            QcUnity.SetToDirty(obj as UnityEngine.Object);
+            (obj as Object).SetToDirty();
 #endif
 
             return obj;
@@ -338,11 +336,11 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool TryInspect<T>(this ListMetaData ld, ref T obj, int ind) where T : UnityEngine.Object
+        public static bool TryInspect<T>(this ListMetaData ld, ref T obj, int ind) where T : Object
         {
             var el = ld.TryGetElement(ind);
 
-            return el?.PEGI_inList_Obj(ref obj) ?? pegi.edit(ref obj);
+            return el?.PEGI_inList_Obj(ref obj) ?? edit(ref obj);
         }
 
         public static int CountForInspector<T>(this List<T> lst) where T : IGotCount
@@ -376,13 +374,13 @@ namespace PlayerAndEditorGUI
 
         private static bool IsNullOrDestroyed_Obj(this object obj)
         {
-            if (obj as UnityEngine.Object)
+            if (obj as Object)
                 return false;
 
             return obj == null;
         }
 
-        private static bool IsDefaultOrNull<T>(this T obj) => (obj == null) || EqualityComparer<T>.Default.Equals(obj, default(T));
+        private static bool IsDefaultOrNull<T>(this T obj) => (obj == null) || EqualityComparer<T>.Default.Equals(obj, default);
 
         public static T GetByIGotIndex<T>(this List<T> lst, int index) where T : IGotIndex
         {
@@ -391,7 +389,7 @@ namespace PlayerAndEditorGUI
                     if (!el.IsNullOrDestroyed_Obj() && el.IndexForPEGI == index)
                         return el;
 
-            return default(T);
+            return default;
         }
 
         static bool ToPegiStringInterfacePart(this object obj, out string name)
@@ -467,18 +465,14 @@ namespace PlayerAndEditorGUI
                 return (obj.ToPegiStringInterfacePart(out tmp)) ? tmp : obj.ToString().SimplifyTypeName();
 
             }
-            else
+
+            if (!type.IsPrimitive)
             {
-
-                if (!type.IsPrimitive)
-                {
-                    string tmp;
-                    return (obj.ToPegiStringInterfacePart(out tmp)) ? tmp : obj.ToString();
-                }
-
-                return obj.ToString();
-
+                string tmp;
+                return (obj.ToPegiStringInterfacePart(out tmp)) ? tmp : obj.ToString();
             }
+
+            return obj.ToString();
         }
 
         public static T GetByIGotIndex<T, G>(this List<T> lst, int index) where T : IGotIndex where G : T
@@ -488,7 +482,7 @@ namespace PlayerAndEditorGUI
                     if (!el.IsNullOrDestroyed_Obj() && el.IndexForPEGI == index && el.GetType() == typeof(G))
                         return el;
 
-            return default(T);
+            return default;
         }
 
         public static T GetByIGotName<T>(this List<T> lst, string name) where T : IGotName
@@ -500,7 +494,7 @@ namespace PlayerAndEditorGUI
                         return el;
 
 
-            return default(T);
+            return default;
         }
 
         public static T GetByIGotName<T>(this List<T> lst, T other) where T : IGotName
@@ -510,7 +504,7 @@ namespace PlayerAndEditorGUI
                     if (!el.IsNullOrDestroyed_Obj() && el.NameForPEGI.SameAs(other.NameForPEGI))
                         return el;
 
-            return default(T);
+            return default;
         }
 
         public static G GetByIGotName<T, G>(this List<T> lst, string name) where T : IGotName where G : class, T
@@ -521,11 +515,9 @@ namespace PlayerAndEditorGUI
                     if (!el.IsNullOrDestroyed_Obj() && el.NameForPEGI.SameAs(name) && el.GetType() == typeof(G))
                         return el as G;
 
-            return default(G);
+            return default;
         }
 
-
-        #endregion
 
     }
 }

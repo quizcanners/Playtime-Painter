@@ -1,7 +1,6 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-//using System.Linq;
+﻿using System.Collections.Generic;
 using QuizCannersUtilities;
+using UnityEngine; //using System.Linq;
 
 namespace PlaytimePainter.MeshEditing
 {
@@ -312,7 +311,7 @@ namespace PlaytimePainter.MeshEditing
             {
                 foreach (var buv in pointB.vertices)
                 {
-                    var uvs = new Vector2[] {buv.GetUv(0), buv.GetUv(1)};
+                    var uvs = new[] {buv.GetUv(0), buv.GetUv(1)};
                     vertices.Add(buv);
                     buv.meshPoint = this;
                     buv.SetUvIndexBy(uvs);
@@ -1257,8 +1256,8 @@ namespace PlaytimePainter.MeshEditing
             {
                 var ld = new LineData[2];
                 var no = NumberOf(pnt);
-                ld[0] = new LineData(this, new Vertex[] {vertexes[no], vertexes[(no + 1) % 3]});
-                ld[1] = new LineData(this, new Vertex[] {vertexes[(no + 2) % 3], vertexes[no]});
+                ld[0] = new LineData(this, new[] {vertexes[no], vertexes[(no + 1) % 3]});
+                ld[1] = new LineData(this, new[] {vertexes[(no + 2) % 3], vertexes[no]});
 
                 return ld;
             }

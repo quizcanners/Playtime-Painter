@@ -1,6 +1,6 @@
-﻿using UnityEngine;
-using PlayerAndEditorGUI;
+﻿using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using UnityEngine;
 
 public class InfiniteParticlesDrawerGUI : PEGI_Inspector_Material {
 
@@ -14,7 +14,7 @@ public class InfiniteParticlesDrawerGUI : PEGI_Inspector_Material {
         mat.toggle("DYNAMIC_SPEED").nl(ref changed);
         mat.toggle(FadeOutTag).nl(ref changed);
 
-        var fo = mat.HasTag(FadeOutTag, false);
+        var fo = mat.HasTag(FadeOutTag);
 
         if (fo)
             "When alpha is one, the graphic will be invisible.".writeHint();

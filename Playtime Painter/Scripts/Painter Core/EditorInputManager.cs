@@ -68,24 +68,21 @@ namespace PlayerAndEditorGUI
         {
             if (Application.isPlaying)
                 return Input.GetMouseButtonUp(no);
-            else
-                return (mouseButtonState[no] == MB_state_Editor.Up);
+            return (mouseButtonState[no] == MB_state_Editor.Up);
         }
 
         public static bool GetMouseButtonDown(int no)
         {
             if (Application.isPlaying)
                 return Input.GetMouseButtonDown(no);
-            else
-                return (mouseButtonState[no] == MB_state_Editor.Down);
+            return (mouseButtonState[no] == MB_state_Editor.Down);
         }
 
         public static bool GetMouseButton(int no)
         {
             if (Application.isPlaying)
                 return Input.GetMouseButton(no);
-            else
-                return ((mouseButtonState[no] == MB_state_Editor.Dragging) || (mouseButtonState[no] == MB_state_Editor.Down));
+            return ((mouseButtonState[no] == MB_state_Editor.Dragging) || (mouseButtonState[no] == MB_state_Editor.Down));
         }
 
         public static void FeedMouseEvent(Event e)
