@@ -418,7 +418,7 @@ namespace PlaytimePainter {
                         {
                             pegi.nl();
                             "Smoothing".edit(70, ref smoothing, 0, 1).changes(ref changed);
-                            "Best used in the end".fullWindowDocumentationClickOpen();
+                            pegi.PopUpService.fullWindowDocumentationClickOpen("Best used in the end");
 
                             pegi.nl();
                         }

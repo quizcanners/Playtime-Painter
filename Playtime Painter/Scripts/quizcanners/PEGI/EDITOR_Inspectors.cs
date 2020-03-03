@@ -68,6 +68,24 @@ namespace PlayerAndEditorGUI {
 
         private static bool _exceptionPopUpShown;
 
+        private bool InspectException()
+        {
+            "Got an Exception. Click copy to check it out in the notepad. This will not show again".writeWarning();
+            
+            if ("Copy To Clipboard".Click("Copy Exception").nl())
+                pegi.SetClipboard(pegi.PopUpService.popUpText);
+
+            if ("Don't show again".Click())
+            {
+                _exceptionPopUpShown = true;
+                pegi.PopUpService.ClosePopUp();
+            }
+
+
+
+            return false;
+        }
+
         public override void OnInspectorGUI()
         {
             ef.inspectedUnityObject = target;
@@ -85,8 +103,9 @@ namespace PlayerAndEditorGUI {
                     if (!_exceptionPopUpShown)
                     {
                         pegi.PopUpService.popUpText = ex.ToString();
+                        pegi.PopUpService.inspectDocumentationDelegate = InspectException;
                         pegi.PopUpService.InitiatePopUp();
-                        _exceptionPopUpShown = true;
+                      
                     }
                 }
 
@@ -99,8 +118,7 @@ namespace PlayerAndEditorGUI {
           
             DrawDefaultInspector();
         }
-
-
+        
     }
 
     public abstract class PEGI_Inspector_Mono<T> : PEGI_UnityObjectInspector_Base where T : MonoBehaviour

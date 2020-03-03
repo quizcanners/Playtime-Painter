@@ -20,7 +20,7 @@ namespace PlayerAndEditorGUI
 {
     public static partial class pegi
     {
-        public static bool Nested_Inspect(GameView.InspectionDelegate function, Object target = null)
+        public static bool Nested_Inspect(Func<bool> function, Object target = null)
         {
             var changed = false;
 

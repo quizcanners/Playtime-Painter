@@ -102,11 +102,11 @@ namespace PlaytimePainter.Examples {
             var changed = false;
 
       
-            ("Will cast a ray in transform.forward direction when Left Mouse Button is pressed. " +
-             "Target objects need to have PlaytimePainter component attached. Then this brush will be applied " +
-             "on texture (if not locked) selected on target PlaytimePainter component" +
-             "This Component has it's own brush configuration. Can be replaced with PainterCamera.Data.brushConfig " +
-             "to use global brush.").fullWindowDocumentationClickOpen("How to use Skinned Mesh Caster", 15);
+            pegi.PopUpService.fullWindowDocumentationClickOpen(()=> "Will cast a ray in transform.forward direction when Left Mouse Button is pressed. " +
+                                                       "Target objects need to have PlaytimePainter component attached. Then this brush will be applied " +
+                                                       "on texture (if not locked) selected on target PlaytimePainter component" +
+                                                       "This Component has it's own brush configuration. Can be replaced with PainterCamera.Data.brushConfig " +
+                                                       "to use global brush.", "How to use Skinned Mesh Caster", 15);
         
 
             if ("Paint!".Click().nl())

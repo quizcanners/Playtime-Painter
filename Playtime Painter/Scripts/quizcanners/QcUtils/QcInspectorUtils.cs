@@ -480,7 +480,7 @@ namespace QuizCannersUtilities
                     if (icon.Folder.Click())
                         QcFile.Explorer.OpenPath(QcFile.OutsideOfAssetsFolder);
 
-                    "Game View Needs to be open for this to work".fullWindowDocumentationClickOpen();
+                    pegi.PopUpService.fullWindowDocumentationClickOpen("Game View Needs to be open for this to work");
 
                 }
 
@@ -798,8 +798,7 @@ namespace QuizCannersUtilities
 
                     "]".write(10);
 
-                    "Use >< to shrink range around current value for more precision. And <> to expand range."
-                        .fullWindowDocumentationClickOpen("About <> & ><");
+                    pegi.PopUpService.fullWindowDocumentationClickOpen("Use >< to shrink range around current value for more precision. And <> to expand range.", "About <> & ><");
 
                     if (icon.Refresh.Click())
                     {

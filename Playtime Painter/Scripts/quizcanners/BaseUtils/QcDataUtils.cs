@@ -7,9 +7,8 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using UnityEditor;
-#else 
-using System.Diagnostics;
 #endif
+using System.Diagnostics;
 
 namespace QuizCannersUtilities
 {
@@ -103,7 +102,7 @@ namespace QuizCannersUtilities
                 }
                 catch (Exception e)
                 {
-                    Debug.Log("Oh No " + e);
+                    UnityEngine.Debug.Log("Oh No " + e);
                 }
 #endif
             }
@@ -177,14 +176,14 @@ namespace QuizCannersUtilities
                 }
                 catch (Exception ex)
                 {
-                    Debug.Log(path + "is Busted !" + ex);
+                    UnityEngine.Debug.Log(path + "is Busted !" + ex);
                 }
 
 
                 return null;
 
 #else
-                return StringFromResource(insideResourceFolder, name);
+                return FromResources(insideResourceFolder, name);
 #endif
 
             }
@@ -226,7 +225,7 @@ namespace QuizCannersUtilities
                 }
                 catch (Exception ex)
                 {
-                    Debug.Log(path + "is Busted !" + ex);
+                    UnityEngine.Debug.Log(path + "is Busted !" + ex);
                 }
 
 #endif
@@ -278,7 +277,7 @@ namespace QuizCannersUtilities
                 }
                 catch (Exception ex)
                 {
-                    Debug.Log(fullPath + " not loaded " + ex);
+                    UnityEngine.Debug.Log(fullPath + " not loaded " + ex);
                 }
 
                 return data;

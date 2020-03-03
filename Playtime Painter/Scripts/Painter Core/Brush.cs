@@ -263,8 +263,8 @@ namespace PlaytimePainter {
             if (pegi.select(ref blitMode, BlitModes.Base.AllModes).changes(ref changed)) 
                 SetBlitMode(cpu, blitMode);
 
-            if (DocsEnabled && blitMode != null && pegi.DocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI())))
-                pegi.FullWindwDocumentationOpen(blitMode.ToolTip);
+            if (DocsEnabled && blitMode != null && pegi.PopUpService.DocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI())))
+                pegi.PopUpService.FullWindwDocumentationOpen(blitMode.ToolTip);
 
             if (showAdvanced)
                 pegi.nl();
@@ -282,8 +282,8 @@ namespace PlaytimePainter {
                 MsgPainter.BrushType.Write();
                 pegi.select_Index(ref _inGpuBrushType, BrushTypes.Base.AllTypes).changes(ref changed);
                 
-                if (DocsEnabled && brushType != null && pegi.DocumentationClick("About {0} brush type".F(brushType.NameForDisplayPEGI())))
-                    pegi.FullWindwDocumentationOpen(brushType.ToolTip);
+                if (DocsEnabled && brushType != null && pegi.PopUpService.DocumentationClick("About {0} brush type".F(brushType.NameForDisplayPEGI())))
+                    pegi.PopUpService.FullWindwDocumentationOpen(brushType.ToolTip);
 
                 if (!brushType.ShowInDropdown())
                 {
@@ -324,7 +324,7 @@ namespace PlaytimePainter {
                     if (InspectAdvanced) {
                         "Clamp".toggleIcon(ref clampSourceTexture).nl(ref changed);
                         "Ignore Transparency".toggleIcon(ref ignoreSrcTextureTransparency).changes(ref changed);
-                        "Ignore transparency of the source texture. Otherwise the tool will only paint parts of the texture which are not transparent".fullWindowDocumentationClickOpen().nl();
+                        pegi.PopUpService.fullWindowDocumentationClickOpen("Ignore transparency of the source texture. Otherwise the tool will only paint parts of the texture which are not transparent").nl();
                     }
                 }
                 
@@ -377,7 +377,7 @@ namespace PlaytimePainter {
             var smooth = GetBrushType(targetIsTex2D) != BrushTypes.Pixel.Inst;
 
             if (targetIsTex2D && 
-                pegi.toggle(ref smooth, icon.Round.GetIcon(), icon.Square.GetIcon(), "Smooth/Pixels Brush", 45).changes(ref changed))
+                pegi.toggle(ref smooth, icon.Round, icon.Square, "Smooth/Pixels Brush", 45).changes(ref changed))
                 SetBrushType(targetIsTex2D, smooth ? BrushTypes.Normal.Inst : BrushTypes.Pixel.Inst.AsBase);
             
 

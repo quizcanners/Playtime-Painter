@@ -53,13 +53,14 @@ namespace PlayerAndEditorGUI
     {
 
         public static bool IsFoldedOut => ef.isFoldedOutOrEntered;
-        
+
         public static string EnvironmentNl => Environment.NewLine;
 
         public static class GameView
         {
 
             private static Type gameViewType;
+
             public static void ShowNotification(string text)
             {
 #if UNITY_EDITOR
@@ -89,10 +90,13 @@ namespace PlayerAndEditorGUI
             public static bool MouseOverUI
             {
                 get { return mouseOverUi >= Time.frameCount - 1; }
-                set { if (value) mouseOverUi = Time.frameCount; }
+                set
+                {
+                    if (value) mouseOverUi = Time.frameCount;
+                }
             }
 
-            public delegate bool InspectionDelegate();
+           // public delegate bool InspectionDelegate();
 
             public delegate bool WindowFunction();
 
@@ -120,7 +124,8 @@ namespace PlayerAndEditorGUI
 
                             GUI.matrix = Matrix4x4.TRS(new Vector3(0, 0, 0), Quaternion.identity,
                                 new Vector3(upscale, upscale, 1));
-                            GUILayout.BeginArea(new Rect(40 / upscale, 20 / upscale, Screen.width / upscale, Screen.height / upscale));
+                            GUILayout.BeginArea(new Rect(40 / upscale, 20 / upscale, Screen.width / upscale,
+                                Screen.height / upscale));
                         }
 
                         if (!PopUpService.ShowingPopup())
@@ -130,7 +135,8 @@ namespace PlayerAndEditorGUI
 
                         UnIndent();
 
-                        (GUI.tooltip.IsNullOrEmpty() ? "" : "{0}:{1}".F(Msg.ToolTip.GetText(), GUI.tooltip)).nl(PEGI_Styles.HintText);
+                        (GUI.tooltip.IsNullOrEmpty() ? "" : "{0}:{1}".F(Msg.ToolTip.GetText(), GUI.tooltip)).nl(
+                            PEGI_Styles.HintText);
 
                         if (UseWindow)
                         {
@@ -204,9 +210,9 @@ namespace PlayerAndEditorGUI
                 }
             }
 
-            public static int Width => (int)Resolution.x;
+            public static int Width => (int) Resolution.x;
 
-            public static int Height => (int)Resolution.y;
+            public static int Height => (int) Resolution.y;
 
             public static Vector2 Resolution
             {
@@ -223,7 +229,11 @@ namespace PlayerAndEditorGUI
 
         #region GUI Modes & Fitting
 
-        private enum PegiPaintingMode { EditorInspector, PlayAreaGui }
+        private enum PegiPaintingMode
+        {
+            EditorInspector,
+            PlayAreaGui
+        }
 
         private static PegiPaintingMode currentMode = PegiPaintingMode.EditorInspector;
 
@@ -237,21 +247,25 @@ namespace PlayerAndEditorGUI
 
         private static GUILayoutOption GuiMaxWidthOption => GUILayout.MaxWidth(_playtimeGuiWidth);
 
-        private static GUILayoutOption GuiMaxWidthOptionFrom(string text) => GUILayout.MaxWidth(Mathf.Min(_playtimeGuiWidth, ApproximateLength(text)));
+        private static GUILayoutOption GuiMaxWidthOptionFrom(string text) =>
+            GUILayout.MaxWidth(Mathf.Min(_playtimeGuiWidth, ApproximateLength(text)));
 
         private static GUILayoutOption GuiMaxWidthOptionFrom(string txt, GUIStyle style) =>
             GUILayout.MaxWidth(Mathf.Min(_playtimeGuiWidth, ApproximateLength(txt, style.fontSize)));
 
-        private static GUILayoutOption GuiMaxWidthOptionFrom(GUIContent cnt, PEGI_Styles.PegiGuiStyle style) => 
+        private static GUILayoutOption GuiMaxWidthOptionFrom(GUIContent cnt, PEGI_Styles.PegiGuiStyle style) =>
             GUILayout.MaxWidth(Mathf.Min(_playtimeGuiWidth, ApproximateLength(cnt.text, style.Current.fontSize)));
-        
-        private const int letterSizeInPixels = 9;
 
-        public static int ApproximateLength(this string label, int fontSize = letterSizeInPixels)
+        private static int letterSizeInPixels => PaintingGameViewUI ? 10 : 9;
+
+    public static int ApproximateLength(this string label, int fontSize = -1)
         {
             if (label == null || label.Length == 0)
                 return 1;
 
+            if (fontSize == -1)
+                fontSize = letterSizeInPixels;
+            
             int length = fontSize * label.Length;
 
             if (PaintingGameViewUI && length > _playtimeGuiWidth)
@@ -329,13 +343,11 @@ namespace PlayerAndEditorGUI
             return val;
         }
 
-#endregion
+        #endregion
 
-#region BG Color
+        #region BG Color
 
-        private static bool _bgColorReplaced;
-
-        private static Color _originalBgColor;
+        private static bool BgColorReplaced => !_previousBgColors.IsNullOrEmpty();
 
         private static readonly List<Color> _previousBgColors = new List<Color>();
 
@@ -345,9 +357,9 @@ namespace PlayerAndEditorGUI
             return icn;
         }
 
-        private static bool PreviousBgColor(this bool val)
+        private static bool SetPreviousBgColor(this bool val)
         {
-            PreviousBgColor();
+            SetPreviousBgColor();
             return val;
         }
 
@@ -357,39 +369,28 @@ namespace PlayerAndEditorGUI
             return val;
         }
 
-        public static void PreviousBgColor()
+        public static void SetPreviousBgColor()
         {
-            if (!_bgColorReplaced) return;
-
-            if (_previousBgColors.Count > 0)
-                SetBgColor(_previousBgColors.RemoveLast());
-            else
-                RestoreBGcolor();
-
+            if (BgColorReplaced)
+            {
+                GUI.backgroundColor = _previousBgColors.RemoveLast();
+            }
         }
 
         public static void SetBgColor(Color col)
         {
-
-            if (!_bgColorReplaced)
-                _originalBgColor = GUI.backgroundColor;
-            else
-                _previousBgColors.Add(GUI.backgroundColor);
+            _previousBgColors.Add(GUI.backgroundColor);
 
             GUI.backgroundColor = col;
-
-            _bgColorReplaced = true;
 
         }
 
         public static void RestoreBGcolor()
         {
-            if (_bgColorReplaced)
-                GUI.backgroundColor = _originalBgColor;
+            if (BgColorReplaced)
+                GUI.backgroundColor = _previousBgColors[0];
 
             _previousBgColors.Clear();
-
-            _bgColorReplaced = false;
         }
 
 #endregion
@@ -522,110 +523,10 @@ namespace PlayerAndEditorGUI
         #endregion
 
 #region Pop UP Services
-
-        private static bool fullWindowDocumentationClickOpen(string toolTip = "", int buttonSize = 20,
-            icon clickIcon = icon.Question)
-        {
-            if (toolTip.IsNullOrEmpty())
-                toolTip = icon.Question.GetDescription();
-
-            return clickIcon.BgColor(Color.clear).Click(toolTip, buttonSize).PreviousBgColor();
-        }
-
-        public static void fullWindowAreYouSureOpen(Action action, string header = "",
-            string text = "")
-        {
-
-            if (header.IsNullOrEmpty())
-                header = Msg.AreYouSure.GetText();
-
-            if (text.IsNullOrEmpty())
-                text = Msg.ClickYesToConfirm.GetText();
-
-            PopUpService.areYouSureFunk = action;
-            PopUpService.popUpText = text;
-            PopUpService.popUpHeader = header;
-            PopUpService.InitiatePopUp();
-        }
-
-        public static bool fullWindowDocumentationClickOpen(GameView.InspectionDelegate function, string toolTip = "", int buttonSize = 20)
-        {
-            if (toolTip.IsNullOrEmpty())
-                toolTip = icon.Question.GetDescription();
-
-            if (fullWindowDocumentationClickOpen(toolTip, buttonSize))
-            {
-                PopUpService.inspectDocumentationDelegate = function;
-                PopUpService.InitiatePopUp();
-                return true;
-            }
-
-            return false;
-        }
-
-        public static bool DocumentationClick(string toolTip, int buttonSize = 20, icon clickIcon = icon.Question)
-        {
-            if (fullWindowDocumentationClickOpen(toolTip, buttonSize, clickIcon))
-            {
-                PopUpService.popUpHeader = toolTip;
-                return true;
-            }
-
-            return false;
-        }
-
-        public static bool DocumentationWarningClick(string toolTip, int buttonSize = 20)
-        => DocumentationClick(toolTip, buttonSize = 20, icon.Warning);
-
-        public static void FullWindwDocumentationOpen(string text)
-        {
-            PopUpService.popUpText = text;
-            PopUpService.InitiatePopUp();
-        }
-
-        public static bool fullWindowWarningDocumentationClickOpen(this string text, string toolTip = "What is this?",
-            int buttonSize = 20) => text.fullWindowDocumentationClickOpen(toolTip, buttonSize, icon.Warning);
-
-        public static bool fullWindowDocumentationClickOpen(this string text, string toolTip = "", int buttonSize = 20, icon clickIcon = icon.Question)
-        {
-
-            bool gotHeadline = false;
-
-            if (toolTip.IsNullOrEmpty())
-                toolTip = Msg.ToolTip.GetDescription();
-            else gotHeadline = true;
-
-            if (fullWindowDocumentationClickOpen(toolTip, buttonSize, clickIcon))
-            {
-                PopUpService.popUpText = text;
-                PopUpService.popUpHeader = gotHeadline ? toolTip : "";
-                PopUpService.InitiatePopUp();
-                return true;
-            }
-
-            return false;
-        }
-
-        public static bool fullWindowDocumentationWithLinkClickOpen(this string text, string link, string linkName = null, string tip = "", int buttonSize = 20)
-        {
-            if (tip.IsNullOrEmpty())
-                tip = icon.Question.GetDescription();
-
-            if (fullWindowDocumentationClickOpen(tip, buttonSize))
-            {
-                PopUpService.popUpText = text;
-                PopUpService.InitiatePopUp();
-                PopUpService.relatedLink = link;
-                PopUpService.relatedLinkName = linkName.IsNullOrEmpty() ? link : linkName;
-                return true;
-            }
-
-            return false;
-        }
-
+        
         public static class PopUpService
         {
-
+            
             public const string DiscordServer = "https://discord.gg/rF7yXq3";
 
             public const string SupportEmail = "quizcanners@gmail.com";
@@ -642,7 +543,7 @@ namespace PlayerAndEditorGUI
 
             private static string understoodPopUpText = "Got it";
 
-            public static GameView.InspectionDelegate inspectDocumentationDelegate;
+            public static Func<bool> inspectDocumentationDelegate;
 
             public static Action areYouSureFunk;
 
@@ -682,6 +583,7 @@ namespace PlayerAndEditorGUI
                 "Now I can continue"
 
 
+
             };
 
             private static readonly List<string> gotItTextsWeird = new List<string>
@@ -701,9 +603,16 @@ namespace PlayerAndEditorGUI
 
             public static void InitiatePopUp()
             {
-
                 popUpTarget = ef.inspectedTarget;
 
+                /*textsShown switch
+                {
+                 0 => understoodPopUpText = "OK",
+                 1 => understoodPopUpText = "Got it!",
+                 666 => understoodPopUpText = "By clicking I confirm to selling my kidney",
+                 _ => understoodPopUpText = (textsShown < 20 ? gotItTexts : gotItTextsWeird).GetRandom()
+                };*/
+                
                 switch (textsShown)
                 {
                     case 0: understoodPopUpText = "OK"; break;
@@ -715,7 +624,7 @@ namespace PlayerAndEditorGUI
                 textsShown++;
             }
 
-            static void ClosePopUp()
+            public static void ClosePopUp()
             {
                 popUpText = null;
                 relatedLink = null;
@@ -724,7 +633,142 @@ namespace PlayerAndEditorGUI
                 areYouSureFunk = null;
             }
 
-#region Elements
+            #region Calls 
+
+            private static bool fullWindowDocumentationClickOpen(string toolTip = "", int buttonSize = 20,
+          icon clickIcon = icon.Question)
+            {
+                if (toolTip.IsNullOrEmpty())
+                    toolTip = icon.Question.GetDescription();
+
+                return clickIcon.BgColor(Color.clear).Click(toolTip, buttonSize).SetPreviousBgColor();
+            }
+
+            public static void fullWindowAreYouSureOpen(Action action, string header = "",
+                string text = "")
+            {
+
+                if (header.IsNullOrEmpty())
+                    header = Msg.AreYouSure.GetText();
+
+                if (text.IsNullOrEmpty())
+                    text = Msg.ClickYesToConfirm.GetText();
+
+                PopUpService.areYouSureFunk = action;
+                PopUpService.popUpText = text;
+                PopUpService.popUpHeader = header;
+                PopUpService.InitiatePopUp();
+            }
+
+            public static bool fullWindowDocumentationClickOpen(Func<bool> function, string toolTip = "", int buttonSize = 20)
+            {
+                if (toolTip.IsNullOrEmpty())
+                    toolTip = icon.Question.GetDescription();
+
+                if (fullWindowDocumentationClickOpen(toolTip, buttonSize))
+                {
+                    inspectDocumentationDelegate = function;
+                    InitiatePopUp();
+                    return true;
+                }
+
+                return false;
+            }
+
+            public static bool DocumentationClick(string toolTip, int buttonSize = 20, icon clickIcon = icon.Question)
+            {
+                if (fullWindowDocumentationClickOpen(toolTip, buttonSize, clickIcon))
+                {
+                    PopUpService.popUpHeader = toolTip;
+                    return true;
+                }
+
+                return false;
+            }
+
+            public static bool DocumentationWarningClick(string toolTip, int buttonSize = 20)
+            => DocumentationClick(toolTip, buttonSize = 20, icon.Warning);
+
+            public static void FullWindwDocumentationOpen(string text)
+            {
+                popUpText = text;
+                InitiatePopUp();
+            }
+
+            public static void FullWindwDocumentationOpen(Func<string> text)
+            {
+                popUpText = text();
+                InitiatePopUp();
+            }
+
+            public static bool fullWindowWarningDocumentationClickOpen(Func<string> text, string toolTip = "What is this?",
+                int buttonSize = 20) => fullWindowDocumentationClickOpen(text, toolTip, buttonSize, icon.Warning);
+
+            public static bool fullWindowWarningDocumentationClickOpen(string text, string toolTip = "What is this?",
+                int buttonSize = 20) => fullWindowDocumentationClickOpen(text, toolTip, buttonSize, icon.Warning);
+
+
+            public static bool fullWindowDocumentationClickOpen(Func<string> text, string toolTip = "", int buttonSize = 20, icon clickIcon = icon.Question)
+            {
+
+                bool gotHeadline = false;
+
+                if (toolTip.IsNullOrEmpty())
+                    toolTip = Msg.ToolTip.GetDescription();
+                else gotHeadline = true;
+
+                if (fullWindowDocumentationClickOpen(toolTip, buttonSize, clickIcon))
+                {
+                    popUpText = text();
+                    popUpHeader = gotHeadline ? toolTip : "";
+                    InitiatePopUp();
+                    return true;
+                }
+
+                return false;
+            }
+
+            public static bool fullWindowDocumentationClickOpen(string text, string toolTip = "", int buttonSize = 20, icon clickIcon = icon.Question)
+            {
+
+                bool gotHeadline = false;
+
+                if (toolTip.IsNullOrEmpty())
+                    toolTip = Msg.ToolTip.GetDescription();
+                else gotHeadline = true;
+
+                if (fullWindowDocumentationClickOpen(toolTip, buttonSize, clickIcon))
+                {
+                    popUpText = text;
+                    popUpHeader = gotHeadline ? toolTip : "";
+                    InitiatePopUp();
+                    return true;
+                }
+
+                return false;
+            }
+
+
+            public static bool fullWindowDocumentationWithLinkClickOpen(string text, string link, string linkName = null, string tip = "", int buttonSize = 20)
+            {
+                if (tip.IsNullOrEmpty())
+                    tip = icon.Question.GetDescription();
+
+                if (fullWindowDocumentationClickOpen(tip, buttonSize))
+                {
+                    PopUpService.popUpText = text;
+                    PopUpService.InitiatePopUp();
+                    PopUpService.relatedLink = link;
+                    PopUpService.relatedLinkName = linkName.IsNullOrEmpty() ? link : linkName;
+                    return true;
+                }
+
+                return false;
+            }
+            
+            #endregion
+            
+            #region Elements
 
             private static void ContactOptions()
             {

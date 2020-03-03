@@ -1919,7 +1919,7 @@ namespace PlayerAndEditorGUI
         {
             SetBgColor(Color.clear);
 
-            var changed = toggle(ref val, icon.Show, icon.Hide, hint, width, ToggleButton).PreviousBgColor();
+            var changed = toggle(ref val, icon.Show, icon.Hide, hint, width, ToggleButton).SetPreviousBgColor();
 
             return changed;
         }
@@ -1929,7 +1929,7 @@ namespace PlayerAndEditorGUI
         {
             SetBgColor(Color.clear);
 
-            var changed = toggle(ref val, icon.Show, icon.Hide, hint, DefaultToggleIconSize, ToggleButton).PreviousBgColor();
+            var changed = toggle(ref val, icon.Show, icon.Hide, hint, DefaultToggleIconSize, ToggleButton).SetPreviousBgColor();
 
             if (!val || dontHideTextWhenOn) label.write(hint, ToggleLabel(val));
 
@@ -1938,20 +1938,20 @@ namespace PlayerAndEditorGUI
 
         public static bool toggleVisibilityIcon(this string label, ref bool val, bool showTextWhenTrue = false)
         {
-            var changed = toggle(ref val, icon.Show.BgColor(Color.clear), icon.Hide, label, DefaultToggleIconSize, ToggleButton).PreviousBgColor();
+            var changed = toggle(ref val, icon.Show.BgColor(Color.clear), icon.Hide, label, DefaultToggleIconSize, ToggleButton).SetPreviousBgColor();
 
             if (!val || showTextWhenTrue) label.write(ToggleLabel(val));
 
             return changed;
         }
 
-        public static bool toggleIcon(ref bool val, string hint = "Toggle On/Off") => toggle(ref val, icon.True.BgColor(Color.clear), icon.False, hint, DefaultToggleIconSize, ToggleButton).PreviousBgColor();
+        public static bool toggleIcon(ref bool val, string hint = "Toggle On/Off") => toggle(ref val, icon.True.BgColor(Color.clear), icon.False, hint, DefaultToggleIconSize, ToggleButton).SetPreviousBgColor();
 
         public static bool toggleIcon(ref int val, string hint = "Toggle On/Off")
         {
             var boo = val != 0;
 
-            if (toggle(ref boo, icon.True.BgColor(Color.clear), icon.False, hint, DefaultToggleIconSize, ToggleButton).PreviousBgColor())
+            if (toggle(ref boo, icon.True.BgColor(Color.clear), icon.False, hint, DefaultToggleIconSize, ToggleButton).SetPreviousBgColor())
             {
                 val = boo ? 1 : 0;
                 return true;
@@ -1964,7 +1964,7 @@ namespace PlayerAndEditorGUI
         {
             SetBgColor(Color.clear);
 
-            var ret = toggle(ref val, icon.True, icon.False, hint, DefaultToggleIconSize, ToggleButton).PreviousBgColor();
+            var ret = toggle(ref val, icon.True, icon.False, hint, DefaultToggleIconSize, ToggleButton).SetPreviousBgColor();
 
             if ((!val || !hideTextWhenTrue) && label.ClickLabel(hint, -1, ToggleLabel(val)).changes(ref ret))
                 val = !val;
@@ -1974,7 +1974,7 @@ namespace PlayerAndEditorGUI
 
         public static bool toggleIcon(this string label, ref bool val, bool hideTextWhenTrue = false)
         {
-            var changed = toggle(ref val, icon.True.BgColor(Color.clear), icon.False, label, DefaultToggleIconSize, ToggleButton).PreviousBgColor();
+            var changed = toggle(ref val, icon.True.BgColor(Color.clear), icon.False, label, DefaultToggleIconSize, ToggleButton).SetPreviousBgColor();
 
             if ((!val || !hideTextWhenTrue) && label.ClickLabel(label, -1, ToggleLabel(val)).changes(ref changed))
                 val = !val;
@@ -1985,7 +1985,21 @@ namespace PlayerAndEditorGUI
         public static bool toggleIcon(this string labelIfFalse, ref bool val, string labelIfTrue)
             => (val ? labelIfTrue : labelIfFalse).toggleIcon(ref val);
 
-        public static bool toggle(ref bool val, Texture2D TrueIcon, Texture2D FalseIcon, string tip, int width = defaultButtonSize, GUIStyle style = null)
+        public static bool toggleIconConfirm(this string label, ref bool val, string confirmationTag, string tip = null, bool hideTextWhenTrue = false)
+        {
+            var changed = toggleConfirm(ref val, icon.True.BgColor(Color.clear), icon.False, confirmationTag: confirmationTag, tip: tip.IsNullOrEmpty() ? label : tip, DefaultToggleIconSize).SetPreviousBgColor();
+
+            if (!confirmationTag.Equals(_confirmTag) && (!val || !hideTextWhenTrue))
+            {
+                if (label.ClickLabelConfirm(confirmationTag: confirmationTag, style: ToggleLabel(val)).changes(ref changed))
+                    val = !val;
+            }
+
+            return changed;
+        }
+
+
+        private static bool toggle(ref bool val, Texture2D TrueIcon, Texture2D FalseIcon, string tip, int width = defaultButtonSize, GUIStyle style = null)
         {
 
             if (val)
@@ -1998,6 +2012,25 @@ namespace PlayerAndEditorGUI
 
             }
             else if (ClickImage(ImageAndTip(FalseIcon, tip), width, style))
+            {
+                val = true;
+                return true;
+            }
+
+            return false;
+        }
+        
+        public static bool toggleConfirm(ref bool val, icon TrueIcon, icon FalseIcon, string confirmationTag, string tip, int width = defaultButtonSize)
+        {
+            if (val)
+            {
+                if (TrueIcon.ClickConfirm(confirmationTag: confirmationTag, tip: tip, width))
+                {
+                    val = false;
+                    return true;
+                }
+            }
+            else if (FalseIcon.ClickConfirm(confirmationTag: confirmationTag, tip: tip, width))
             {
                 val = true;
                 return true;
@@ -2093,7 +2126,7 @@ namespace PlayerAndEditorGUI
 #if UNITY_EDITOR
             var val = QcUnity.GetPlatformDirective(keyword);
 
-            if (text.toggleIcon(keyword, ref val))
+            if (text.toggleIconConfirm(ref val, confirmationTag: keyword, tip: "Changing Compile directive will force scripts to recompile. {0} {1}? ".F(val ? "Disable" : "Enable" , keyword)))
                 QcUnity.SetPlatformDirective(keyword, val);
 #endif
 

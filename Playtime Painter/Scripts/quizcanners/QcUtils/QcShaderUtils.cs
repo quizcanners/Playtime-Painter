@@ -179,20 +179,16 @@ namespace QuizCannersUtilities {
             private readonly string _featureDirective;
 
             private bool _directiveGlobalValue;
-
-            private bool GlobalDirectiveChanged()
-            {
-                if (_directiveGlobalValue == DirectiveEnabledForLastValue) return false;
-                _directiveGlobalValue = DirectiveEnabledForLastValue;
-                return true;
-
-            }
-
+            
             protected override T GlobalValue_Internal
             {
                 set {
-                    if (GlobalDirectiveChanged()) 
-                        QcUnity.SetShaderKeyword(_featureDirective, _directiveGlobalValue);
+                    if (_directiveGlobalValue == DirectiveEnabledForLastValue)
+                        return;
+
+                    _directiveGlobalValue = DirectiveEnabledForLastValue;
+
+                    QcUnity.SetShaderKeyword(_featureDirective, _directiveGlobalValue);
                 }
             }
 
@@ -269,12 +265,36 @@ namespace QuizCannersUtilities {
             }
 
         }
-        
+
+        public class FloatFeature : IndexWithShaderFeatureGeneric<float>
+        {
+
+            public override void SetOn(Material material) => material.SetFloat(id, latestValue);
+
+            public override float Get(Material material) => material.GetFloat(id);
+
+            public override void SetOn(MaterialPropertyBlock block) => block.SetFloat(id, latestValue);
+
+            protected override float GlobalValue_Internal
+            {
+                get { return Shader.GetGlobalFloat(id); }
+                set
+                {
+                    base.GlobalValue_Internal = value;
+                    Shader.SetGlobalFloat(id, value);
+                }
+            }
+
+            protected override bool DirectiveEnabledForLastValue => latestValue > float.Epsilon * 10;
+
+            public FloatFeature(string name, string featureDirective) : base(name, featureDirective) { }
+        }
+
         #endregion
 
         #region Color
 
-        public class ColorFeature : IndexWithShaderFeatureGeneric<Color> {
+        public class ColorFeature : IndexWithShaderFeatureGeneric<Color>, IPEGI {
 
             public static readonly ColorFloat4Value tintColor = new ColorFloat4Value("_TintColor");
 
@@ -283,7 +303,7 @@ namespace QuizCannersUtilities {
             public override Color Get(Material material) => material.GetColor(id);
 
             public override void SetOn(MaterialPropertyBlock block) => block.SetColor(id, latestValue);
-
+            
             protected override Color GlobalValue_Internal
             {
                 get { return Shader.GetGlobalColor(id); }
@@ -294,7 +314,24 @@ namespace QuizCannersUtilities {
             }
 
             protected override bool DirectiveEnabledForLastValue => latestValue.a > 0.01f;
-            
+
+            public bool Inspect()
+            {
+
+                var changed = false;
+
+                NameForDisplayPEGI().write(); 
+
+                (DirectiveEnabledForLastValue ? icon.Active: icon.InActive).nl();
+                
+                if (pegi.edit(ref latestValue).nl(ref changed))
+                {
+                    GlobalValue = latestValue;
+                }
+
+                return changed;
+            }
+
             public ColorFeature(string name, string featureDirective) : base(name, featureDirective) { }
         }
 
@@ -352,8 +389,7 @@ namespace QuizCannersUtilities {
             {
                 latestValue = Color.grey;
             }
-
-
+            
             public ColorFloat4Value(string name, bool convertToLinear) : base(name)
             {
                 latestValue = Color.grey;

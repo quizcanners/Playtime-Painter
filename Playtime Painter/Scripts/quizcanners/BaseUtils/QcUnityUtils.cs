@@ -4,12 +4,12 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Text;
-using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditorInternal;
 #endif
 
 namespace QuizCannersUtilities {

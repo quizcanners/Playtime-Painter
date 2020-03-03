@@ -221,8 +221,7 @@ namespace PlaytimePainter.Examples
 
         public virtual bool Inspect()
         {
-
-
+            
             if (!PainterCamera.Inst)
             {
                 "No Painter Camera found".writeWarning();
@@ -232,11 +231,9 @@ namespace PlaytimePainter.Examples
 
                 return false;
             }
-
-
-            ("Works with PaintWithoutComponent script. This lets you configure how painting will be received." +
-                " PaintWithoutComponent.cs is usually attached to a main camera (if painting in first person). Current Texture: " + TextureId)
-                .fullWindowDocumentationClickOpen("About Painting Receiver");
+            
+            pegi.PopUpService.fullWindowDocumentationClickOpen(()=> "Works with PaintWithoutComponent script. This lets you configure how painting will be received." +
+                                                       " PaintWithoutComponent.cs is usually attached to a main camera (if painting in first person). Current Texture: " + TextureId, "About Painting Receiver");
 
             var changes = false;
 

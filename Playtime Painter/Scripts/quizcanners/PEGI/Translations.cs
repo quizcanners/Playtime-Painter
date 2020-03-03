@@ -186,9 +186,9 @@ namespace PlayerAndEditorGUI {
         } 
 
         public static bool DocumentationClick(this LazyTranslation trnsl) {
-            if (pegi.DocumentationClick(trnsl.text))
+            if (pegi.PopUpService.DocumentationClick(trnsl.text))
             {
-                pegi.FullWindwDocumentationOpen(trnsl.details);
+                pegi.PopUpService.FullWindwDocumentationOpen(trnsl.details);
                 return true;
             }
 
@@ -197,9 +197,9 @@ namespace PlayerAndEditorGUI {
 
         public static bool WarningDocumentation(this LazyTranslation trnsl)
         {
-            if (pegi.DocumentationWarningClick(trnsl.text))
+            if (pegi.PopUpService.DocumentationWarningClick(trnsl.text))
             {
-                pegi.FullWindwDocumentationOpen(trnsl.details);
+                pegi.PopUpService.FullWindwDocumentationOpen(trnsl.details);
                 return true;
             }
 

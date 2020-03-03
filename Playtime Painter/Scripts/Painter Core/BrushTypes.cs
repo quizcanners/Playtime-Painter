@@ -617,9 +617,7 @@ namespace PlaytimePainter
 
                 if (decal == null)
                 {
-                    "Select a valid decal. You can add some in Config -> Lists."
-                        .fullWindowWarningDocumentationClickOpen(
-                            "No Decal selected");
+                    pegi.PopUpService.fullWindowWarningDocumentationClickOpen("Select a valid decal. You can add some in Config -> Lists.","No Decal selected");
                 }
 
                 pegi.nl();
@@ -627,8 +625,7 @@ namespace PlaytimePainter
                 "Continuous".toggle("Will keep adding decal every frame while the mouse is down", 80,
                     ref InspectedBrush.decalContentious).changes(ref changed);
 
-                "Continious Decal will keep painting every frame while mouse button is held"
-                    .fullWindowDocumentationClickOpen("Countinious Decal");
+                pegi.PopUpService.fullWindowDocumentationClickOpen("Continious Decal will keep painting every frame while mouse button is held", "Countinious Decal");
 
                 pegi.nl();
 
@@ -988,8 +985,7 @@ namespace PlaytimePainter
                 if (!br.useAlphaBuffer && (br.worldSpaceBrushPixelJitter || InspectAdvanced))
                 {
                     "One Pixel Jitter".toggleIcon(ref br.worldSpaceBrushPixelJitter).changes(ref changed);
-                    "Will provide a single pixel jitter which can help fix seams not being painted properly"
-                        .fullWindowDocumentationClickOpen("Why use one pixel jitter?");
+                    pegi.PopUpService.fullWindowDocumentationClickOpen("Will provide a single pixel jitter which can help fix seams not being painted properly", "Why use one pixel jitter?");
                     pegi.nl();
                 }
 

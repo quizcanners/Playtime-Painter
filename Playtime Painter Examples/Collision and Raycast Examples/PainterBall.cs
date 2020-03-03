@@ -86,8 +86,8 @@ namespace PlaytimePainter.Examples {
 
             var changed = false;
 
-            ("When colliding with other object will try to use sphere brush to paint on them." +
-             "Targets need to have PlaytimePainter component").fullWindowDocumentationClickOpen("About Painter Ball");
+            pegi.PopUpService.fullWindowDocumentationClickOpen(()=> "When colliding with other object will try to use sphere brush to paint on them." +
+                                                       "Targets need to have PlaytimePainter component", "About Painter Ball");
      
 
             if (Application.isPlaying)

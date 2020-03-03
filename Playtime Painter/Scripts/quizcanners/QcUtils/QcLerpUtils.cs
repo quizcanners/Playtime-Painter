@@ -138,9 +138,9 @@ namespace QuizCannersUtilities
 
             public virtual bool Enabled => lerpMode != LerpSpeedMode.LerpDisabled;
 
-            protected virtual bool EaseInOutImplemented => false;
+           // protected virtual bool EaseInOutImplemented => false;
 
-            protected bool easeInOut;
+          //  protected bool easeInOut;
 
             protected bool defaultSet;
             public float speedLimit = 1;
@@ -160,8 +160,8 @@ namespace QuizCannersUtilities
                 if (allowChangeParameters)
                 {
 
-                    if (EaseInOutImplemented)
-                        cody.Add_Bool("eio", easeInOut);
+                    //if (EaseInOutImplemented)
+                      //  cody.Add_Bool("eio", easeInOut);
 
                     cody.Add("lm", (int)lerpMode);
 
@@ -185,8 +185,8 @@ namespace QuizCannersUtilities
                     case "lm":
                         lerpMode = (LerpSpeedMode)data.ToInt();
                         break;
-                    case "eio":
-                        easeInOut = data.ToBool();
+                    //case "eio":
+                      //  easeInOut = data.ToBool();
                         break;
                     default: return false;
                 }
@@ -286,31 +286,32 @@ namespace QuizCannersUtilities
             public virtual bool Inspect()
             {
 
-                var changed = "Edit".toggleIcon("Will this config contain new parameters", ref allowChangeParameters)
-                    .nl();
+                NameForDisplayPEGI().write();
+
+                var changed = pegi.foldout(icon.Edit, "Will this config contain new parameters", ref allowChangeParameters).nl();
 
                 if (!allowChangeParameters) return changed;
 
-                "Lerp Speed Mode ".editEnum(110, ref lerpMode).nl(ref changed);
+                "Lerp Speed Mode ".editEnum(110, ref lerpMode).changes(ref changed);
 
                 if (Application.isPlaying)
-                    (Enabled ? icon.Active : icon.InActive).write(Enabled ? "Lerp Possible" : "Lerp Not Possible");
+                    (Enabled ? icon.Active : icon.InActive).nl(Enabled ? "Lerp Possible" : "Lerp Not Possible");
 
                 switch (lerpMode)
                 {
                     case LerpSpeedMode.SpeedThreshold:
-                        (Name_Internal + " Thld").edit(ref speedLimit).changes(ref changed);
+                        ("Max Speed").edit(ref speedLimit).changes(ref changed);
                         break;
                     case LerpSpeedMode.UnlinkedSpeed:
-                        (Name_Internal + " Speed").edit(ref speedLimit).changes(ref changed);
+                        ("Speed").edit(ref speedLimit).changes(ref changed);
                         break;
-                    default:
-                        (Name_Internal + " Mode").editEnum(ref lerpMode).changes(ref changed);
-                        break;
+                    //default:
+                        //("Mode").editEnum(ref lerpMode).changes(ref changed);
+                        //break;
                 }
 
-                if (EaseInOutImplemented)
-                    "Ease In/Out".toggleIcon(ref easeInOut).nl(ref changed);
+               // if (EaseInOutImplemented)
+                  //  "Ease In/Out".toggleIcon(ref easeInOut).nl(ref changed);
 
                 return changed;
             }
@@ -350,7 +351,7 @@ namespace QuizCannersUtilities
                 set { targetValue = value; }
             }
 
-            protected override bool EaseInOutImplemented => true;
+           // protected override bool EaseInOutImplemented => true;
 
             private float _easePortion = 0.1f;
 
@@ -372,11 +373,11 @@ namespace QuizCannersUtilities
 
                 var modSpeed = speedLimit;
 
-                if (easeInOut)
+               /* if (easeInOut)
                 {
                     _easePortion = Mathf.Lerp(_easePortion, magnitude > speedLimit * 0.5f ? 1 : 0.1f, Time.deltaTime * 2);
                     modSpeed *= _easePortion;
-                }
+                }*/
 
                 return modSpeed.SpeedToMinPortion(magnitude, ref linkedPortion);
             }
@@ -1533,7 +1534,16 @@ namespace QuizCannersUtilities
 
             protected override bool Portion(ref float portion) =>
                 speedLimit.SpeedToMinPortion(CurrentValue.DistanceRgba(targetValue), ref portion);
-            
+
+            public override bool Inspect()
+            {
+                var changed = base.Inspect().nl();
+
+                pegi.Try_Nested_Inspect(_property).nl(ref changed);
+
+                return changed;
+            }
+
             #region Encode & Decode
 
             public override CfgEncoder Encode()

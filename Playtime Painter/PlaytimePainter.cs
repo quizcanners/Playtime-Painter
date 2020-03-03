@@ -2815,8 +2815,7 @@ namespace PlaytimePainter
                                         texMeta.From(texMeta.texture2D, true);
 
                                 }
-                                else if (pegi.toggle(ref texMeta.lockEditing, icon.Lock.GetIcon(),
-                                    icon.Unlock.GetIcon(),
+                                else if (pegi.toggle(ref texMeta.lockEditing, icon.Lock, icon.Unlock,
                                     "Lock/Unlock editing of {0} Texture.".F(texMeta.GetNameForInspector()), 25))
                                 {
                                     CheckPreviewShader();

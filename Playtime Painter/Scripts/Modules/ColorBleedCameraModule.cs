@@ -249,8 +249,8 @@ namespace PlaytimePainter.CameraModules {
                 if (ld.MinPortion < 1)
                 {
                     "Lerping {0}".F(ld.dominantParameter).write();
-                    ("Each parameter has a transition speed. THis text shows which parameter sets speed for others (the slowest one). " +
-                     "If Transition is too slow, increase this parameter's speed").fullWindowDocumentationClickOpen();
+                    pegi.PopUpService.fullWindowDocumentationClickOpen(()=> "Each parameter has a transition speed. THis text shows which parameter sets speed for others (the slowest one). " +
+                                                               "If Transition is too slow, increase this parameter's speed");
                     pegi.nl();
                 }
             }

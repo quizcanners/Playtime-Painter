@@ -156,6 +156,9 @@ namespace PlayerAndEditorGUI
 
             nl();
 
+            if (BgColorReplaced)
+                SetBgColor(_previousBgColors[0]);
+
             if (icon.Close.Click(Msg.No.GetText(), 30))
                 CloseConfirmation();
 
@@ -166,6 +169,9 @@ namespace PlayerAndEditorGUI
                 CloseConfirmation();
                 return true;
             }
+
+            if (BgColorReplaced)
+                SetPreviousBgColor();
 
             nl();
 
@@ -273,6 +279,17 @@ namespace PlayerAndEditorGUI
             return GUILayout.Button(content, style.Current, GuiMaxWidthOptionFrom(content, style: style)).Dirty();
         }
 
+        public static bool ClickLabelConfirm(this string label, string confirmationTag, string hint = "ClickAble Text", int width = -1, PegiGuiStyle style = null)
+        {
+            if (confirmationTag.Equals(_confirmTag))
+                return ConfirmClick();
+
+            if (label.ClickLabel(hint: hint, width: width, style: style))
+                RequestConfirmation(confirmationTag, details: hint);
+
+            return false;
+        }
+        
         public static bool ClickLabel(this string label, string hint = "ClickAble Text", int width = -1, PegiGuiStyle style = null)
         {
             SetBgColor(Color.clear);
@@ -290,7 +307,7 @@ namespace PlayerAndEditorGUI
 
             checkLine();
 
-            return (width == -1 ? GUILayout.Button(textAndTip, st, GuiMaxWidthOptionFrom(label, st)) : GUILayout.Button(textAndTip, st, GUILayout.MaxWidth(width))).DirtyUnFocus().PreviousBgColor();
+            return (width == -1 ? GUILayout.Button(textAndTip, st, GuiMaxWidthOptionFrom(label, st)) : GUILayout.Button(textAndTip, st, GUILayout.MaxWidth(width))).DirtyUnFocus().SetPreviousBgColor();
         }
 
         private static bool ClickImage(this GUIContent content, int width, GUIStyle style) =>

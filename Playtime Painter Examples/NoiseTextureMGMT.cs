@@ -39,8 +39,7 @@ namespace PlaytimePainter.Examples
 
             pegi.toggleDefaultInspector(this);
 
-            ("This component will set noise texture as a global parameter. Using texture is faster then generating noise in shader.")
-                .fullWindowDocumentationClickOpen("About Noise Texture Manager");
+            pegi.PopUpService.fullWindowDocumentationClickOpen("This component will set noise texture as a global parameter. Using texture is faster then generating noise in shader.", "About Noise Texture Manager");
 
             pegi.nl();
 

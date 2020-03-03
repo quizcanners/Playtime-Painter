@@ -393,7 +393,7 @@ namespace PlaytimePainter
 
             pegi.toggleDefaultInspector(this);
 
-            info.fullWindowDocumentationClickOpen("About Rounded Graphic").nl();
+            pegi.PopUpService.fullWindowDocumentationClickOpen(info, "About Rounded Graphic").nl();
 
             var mat = material;
 
@@ -614,7 +614,7 @@ namespace PlaytimePainter
                     var sTip = mat.Get(QuizCannersUtilities.ShaderTags.ShaderTip);
 
                     if (!sTip.IsNullOrEmpty())
-                        sTip.fullWindowDocumentationClickOpen("Tip from shader tag");
+                        pegi.PopUpService.fullWindowDocumentationClickOpen(sTip, "Tip from shader tag");
 
                     if (icon.Refresh.Click("Refresh compatible Shaders list"))
                         _compatibleShaders = null;
@@ -637,8 +637,7 @@ namespace PlaytimePainter
                     {
                         "Position: ".editEnum(60, ref _positionDataType).changes(ref changed);
 
-                        "Shaders that use position data often don't look right in the scene view."
-                            .fullWindowDocumentationClickOpen("Camera dependancy warning");
+                        pegi.PopUpService.fullWindowDocumentationClickOpen("Shaders that use position data often don't look right in the scene view.", "Camera dependancy warning");
 
                         pegi.nl();
                     }
