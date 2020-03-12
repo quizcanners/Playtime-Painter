@@ -788,7 +788,7 @@ namespace PlaytimePainter.MeshEditing
             
             target.PreviewShaderToggleInspect().changes(ref changed);
 
-            if (!target.NotUsingPreview && "preview".select(45, ref MeshShaderMode.selected, MeshShaderMode.AllModes).changes(ref changed))
+            if (!target.NotUsingPreview && "preview".select(45, ref MeshShaderMode.selected, MeshShaderMode.AllModes).nl(ref changed))
                 MeshShaderMode.ApplySelected();
 
             var previousTool = MeshTool;
