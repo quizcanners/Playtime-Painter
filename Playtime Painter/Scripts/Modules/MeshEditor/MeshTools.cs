@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using Unity.Entities.CodeGeneratedJobForEach;
 using UnityEngine;
 
 namespace PlaytimePainter.MeshEditing {
@@ -999,29 +1000,40 @@ namespace PlaytimePainter.MeshEditing {
             if (("Paint All with Brush Color").Click().nl(ref changed))
                 em.PaintAll(br.Color);
 
-            "Vertex Groups".nl(PEGI_Styles.ListLabel);
+            "Submeshes".nl(PEGI_Styles.ListLabel);
+            
+            for (int i = 0; i <= em.maxGroupIndex; i++) {
 
-                "Recolor on edit".toggleIcon(ref constantUpdateOnGroupColors).nl(ref changed);
+                "{0}:".F(i).write(20);
 
-                for (int i = 0; i <= em.maxGroupIndex; i++) {
-                    var c = em.groupColors[i];
+                var c = em.groupColors[i];
 
                 if (icon.Refresh.Click("Get Actual color") || c == default)
                 {
                     c = GetGroupColor(i);
-                        em.groupColors[i] = c;
-                    }
-
-                    if (pegi.edit(ref c)) {
-                        em.groupColors[i] = c;
-                        if (constantUpdateOnGroupColors)
-                            SetGroupColor( i , c);
-                    }
-
-                    if (!constantUpdateOnGroupColors && icon.Clear.Click("Fill group {0} "))
-                        SetGroupColor(i, c);
-
+                    em.groupColors[i] = c;
                 }
+
+                if (pegi.edit(ref c)) {
+                    em.groupColors[i] = c;
+                    if (constantUpdateOnGroupColors)
+                        SetGroupColor( i , c);
+                }
+
+                if (!constantUpdateOnGroupColors && icon.Clear.Click("Fill group {0} "))
+                    SetGroupColor(i, c);
+
+            }
+
+            pegi.nl();
+
+            "Recolor group On Edit".toggleIcon(ref constantUpdateOnGroupColors).changes(ref changed);
+
+            pegi.PopUpService.fullWindowDocumentationClickOpen(() => ("If mesh has submeshes he will have a couple of groups. This can be used to change their colors individually." +
+                                                                     "After changing color of the group, you can click on the brush to the right to apply the color." +
+                                                                     "Alternatively, you can enable Recolor_Group_On_Edit so that change will be applied instantly."));
+
+            pegi.nl();
 
             return changed;
         }

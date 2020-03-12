@@ -2395,7 +2395,7 @@ namespace PlaytimePainter
                                 }
                                 else if (_inspectedMeshEditorItems == -1)
                                 {
-                                    if (" : ".select_iGotName("Select Profile", ref selectedMeshProfile,
+                                    if (pegi.select_iGotName(ref selectedMeshProfile,
                                             cfg.meshPackagingSolutions) &&
                                         IsEditingThisMesh)
                                         MeshEditorManager.editedMesh.Dirty = true;
@@ -2405,7 +2405,7 @@ namespace PlaytimePainter
                                         var sol = new MeshPackagingProfile();
                                         cfg.meshPackagingSolutions.Add(sol);
                                         selectedMeshProfile = sol.name;
-                                        MeshProfile.name = "New Profile {0}".F(selectedMeshProfile);
+                                        //MeshProfile.name = "New Profile {0}".F(selectedMeshProfile);
                                     }
                                 }
 
