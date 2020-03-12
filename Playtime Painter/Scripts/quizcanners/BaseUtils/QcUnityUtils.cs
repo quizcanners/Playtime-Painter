@@ -930,6 +930,35 @@ namespace QuizCannersUtilities {
 
 #region Assets Management
 
+public static T Duplicate<T>(T obj, string folder, string extension, string newName = null) where T : Object {
+
+#if UNITY_EDITOR
+            var path = AssetDatabase.GetAssetPath(obj);
+       
+        if (path.IsNullOrEmpty())
+        {
+            obj = Object.Instantiate(obj);
+            if (!newName.IsNullOrEmpty())
+                obj.name = newName;
+
+            QcFile.Save.Asset(obj, folder, extension, true);
+        }
+        else
+        {
+            var newPath =
+                AssetDatabase.GenerateUniqueAssetPath(newName.IsNullOrEmpty()
+                    ? path
+                    : path.Replace(obj.name, newName));
+
+            AssetDatabase.CopyAsset(path, newPath);
+            obj = AssetDatabase.LoadAssetAtPath<T>(newPath);
+        }
+#else
+           obj = Object.Instantiate(obj);
+#endif
+            return obj;
+        }
+
         public static List<T> FindAssets<T>(string name, string path = null) where T : Object {
 
             List<T> assets = new List<T>();

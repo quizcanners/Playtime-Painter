@@ -290,9 +290,6 @@ namespace QuizCannersUtilities
 
             #region Create Asset
 
-            public static void Asset(Object obj, string folder, bool refreshAfter = false) =>
-                Asset(obj, folder, ".mat", refreshAfter);
-            
             public static void Asset(Object obj, string folder, string extension, bool refreshAfter = false)
             {
                 #if UNITY_EDITOR

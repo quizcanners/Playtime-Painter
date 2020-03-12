@@ -2631,6 +2631,7 @@ namespace PlayerAndEditorGUI
                     if ((listMeta == null || listMeta.allowDelete) && icon.Delete.ClickUnFocus(25).changes(ref changed))
                     {
                         dic.Remove(itemKey);
+                        return true;
                     }
                     else
                     {

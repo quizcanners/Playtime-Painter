@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Net;
 using QuizCannersUtilities;
 using UnityEngine;
 
@@ -71,7 +73,7 @@ namespace PlayerAndEditorGUI {
                 case icon.Blue: return ColorIcon(2) as Texture2D;
                 case icon.Alpha: return ColorIcon(3) as Texture2D;
                 default:
-                    var tmp = Resources.Load("icons/" + Enum.GetName(typeof(icon), ind)) as Texture2D;
+                    var tmp = Resources.Load(Path.Combine("icons", Enum.GetName(typeof(icon), ind))) as Texture2D;
 
                     _managementIcons[ind] = tmp ? tmp : Texture2D.whiteTexture;
 
@@ -91,16 +93,16 @@ namespace PlayerAndEditorGUI {
             switch (ind)
             {
                 case 0:
-                    _painterIcons[ind] = Resources.Load("icons/Red") as Texture2D;
+                    _painterIcons[ind] = Resources.Load(Path.Combine("icons","Red")) as Texture2D;
                     break;
                 case 1:
-                    _painterIcons[ind] = Resources.Load("icons/Green") as Texture2D;
+                    _painterIcons[ind] = Resources.Load(Path.Combine("icons", "Green")) as Texture2D;
                     break;
                 case 2:
-                    _painterIcons[ind] = Resources.Load("icons/Blue") as Texture2D;
+                    _painterIcons[ind] = Resources.Load(Path.Combine("icons", "Blue")) as Texture2D;
                     break;
                 case 3:
-                    _painterIcons[ind] = Resources.Load("icons/Alpha") as Texture2D;
+                    _painterIcons[ind] = Resources.Load(Path.Combine("icons", "Alpha")) as Texture2D;
                     break;
             }
 

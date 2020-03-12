@@ -1,6 +1,8 @@
 ﻿using QuizCannersUtilities;
 using UnityEngine;
 using static PlayerAndEditorGUI.PEGI_Styles;
+using System;
+using Object = UnityEngine.Object;
 
 #if UNITY_EDITOR
 using UnityEditor;
@@ -35,49 +37,7 @@ namespace PlayerAndEditorGUI
 
             return false;
         }
-
-        public static bool ClickDuplicate(ref Material mat, string newName = null, string folder = "Materials") => ClickDuplicate(ref mat, folder, ".mat", newName);
-
-        private static bool ClickDuplicate<T>(ref T obj, string folder, string extension, string newName = null) where T : Object
-        {
-
-            if (!obj) return false;
-
-            var changed = false;
-
-#if UNITY_EDITOR
-            var path = AssetDatabase.GetAssetPath(obj);
-            if (icon.Copy.ClickConfirm("dpl" + obj + "|" + path, "{0} Duplicate at {1}".F(obj, path)).changes(ref changed))
-            {
-                if (path.IsNullOrEmpty())
-                {
-                    obj = Object.Instantiate(obj);
-                    if (!newName.IsNullOrEmpty())
-                        obj.name = newName;
-
-                    QcFile.Save.Asset(obj, folder, extension, true);
-                }
-                else
-                {
-                    var newPath =
-                        AssetDatabase.GenerateUniqueAssetPath(newName.IsNullOrEmpty()
-                            ? path
-                            : path.Replace(obj.name, newName));
-
-                    AssetDatabase.CopyAsset(path, newPath);
-                    obj = AssetDatabase.LoadAssetAtPath<T>(newPath);
-                }
-            }
-#else
-             if (icon.Copy.Click("Create Instance of {0}".F(obj)))
-                obj = GameObject.Instantiate(obj);
-
-#endif
-
-
-            return changed;
-        }
-
+        
         public static void Lock_UnlockWindowClick(Object obj)
         {
 #if UNITY_EDITOR
@@ -128,29 +88,40 @@ namespace PlayerAndEditorGUI
 #endif
         }
 
-        private static string _confirmTag;
-        private static object _objectToConfirm;
-        private static string _confirmationDetails;
-
-        private static void RequestConfirmation(string tag, object forObject = null, string details = "")
+        public static class ConfirmationDialogue
         {
-            _confirmTag = tag;
-            _objectToConfirm = forObject;
-            _confirmationDetails = details;
+            private static string _tag;
+            private static object _targetObject;
+            private static string _details;
+
+            public static string ConfirmationText
+            {
+                get
+                {
+                    return _details.IsNullOrEmpty() ? Msg.AreYouSure.GetText() : _details;
+                }
+            }
+
+            public static void Request(string tag, object forObject = null, string details = "")
+            {
+                _tag = tag;
+                _targetObject = forObject;
+                _details = details;
+            }
+
+            public static void Close()
+            {
+                _tag = null;
+                _targetObject = null;
+            }
+
+            public static bool IsRequestedFor(string tag) => tag.Equals(_tag);//(!_confirmTag.IsNullOrEmpty() && _confirmTag.Equals(tag));
+
+            public static bool IsRequestedFor(string confirmationTag, object obj) =>
+                confirmationTag.Equals(_tag) && ((_targetObject != null && _targetObject.Equals(obj)) ||
+                                                        (obj == null && _targetObject == null));
         }
-
-        private static void CloseConfirmation()
-        {
-            _confirmTag = null;
-            _objectToConfirm = null;
-        }
-
-        public static bool IsConfirmingRequestedFor(string tag) => (!_confirmTag.IsNullOrEmpty() && _confirmTag.Equals(tag));
-
-        public static bool IsConfirmingRequestedFor(string confirmationTag, object obj) =>
-            confirmationTag.Equals(_confirmTag) && ((_objectToConfirm != null && _objectToConfirm.Equals(obj)) ||
-                                                    (obj == null && _objectToConfirm == null));
-
+        
         private static bool ConfirmClick()
         {
 
@@ -160,13 +131,13 @@ namespace PlayerAndEditorGUI
                 SetBgColor(_previousBgColors[0]);
 
             if (icon.Close.Click(Msg.No.GetText(), 30))
-                CloseConfirmation();
+                ConfirmationDialogue.Close();
 
-            (_confirmationDetails.IsNullOrEmpty() ? Msg.AreYouSure.GetText() : _confirmationDetails).writeHint(false);
+            ConfirmationDialogue.ConfirmationText.writeHint(false);
 
             if (icon.Done.Click(Msg.Yes.GetText(), 30))
             {
-                CloseConfirmation();
+                ConfirmationDialogue.Close();
                 return true;
             }
 
@@ -181,12 +152,11 @@ namespace PlayerAndEditorGUI
 
         public static bool ClickConfirm(this string label, string confirmationTag, string tip = "")
         {
-
-            if (confirmationTag.Equals(_confirmTag))
+            if (ConfirmationDialogue.IsRequestedFor(confirmationTag))
                 return ConfirmClick();
 
             if (label.ClickUnFocus(tip))
-                RequestConfirmation(confirmationTag, details: tip);
+                ConfirmationDialogue.Request(confirmationTag, details: tip);
 
             return false;
         }
@@ -194,11 +164,11 @@ namespace PlayerAndEditorGUI
         public static bool ClickConfirm(this icon icon, string confirmationTag, string tip = "", int width = defaultButtonSize)
         {
 
-            if (confirmationTag.Equals(_confirmTag))
+            if (ConfirmationDialogue.IsRequestedFor(confirmationTag))
                 return ConfirmClick();
 
             if (icon.ClickUnFocus(tip, width))
-                RequestConfirmation(confirmationTag, details: tip);
+                ConfirmationDialogue.Request(confirmationTag, details: tip);
 
             return false;
         }
@@ -206,11 +176,11 @@ namespace PlayerAndEditorGUI
         public static bool ClickConfirm(this icon icon, string confirmationTag, object obj, string tip = "", int width = defaultButtonSize)
         {
 
-            if (IsConfirmingRequestedFor(confirmationTag, obj))
+            if (ConfirmationDialogue.IsRequestedFor(confirmationTag, obj))
                 return ConfirmClick();
 
             if (icon.ClickUnFocus(tip, width))
-                RequestConfirmation(confirmationTag, obj, tip);
+                ConfirmationDialogue.Request(confirmationTag, obj, tip);
 
             return false;
         }
@@ -281,11 +251,11 @@ namespace PlayerAndEditorGUI
 
         public static bool ClickLabelConfirm(this string label, string confirmationTag, string hint = "ClickAble Text", int width = -1, PegiGuiStyle style = null)
         {
-            if (confirmationTag.Equals(_confirmTag))
+            if (ConfirmationDialogue.IsRequestedFor(confirmationTag))
                 return ConfirmClick();
 
             if (label.ClickLabel(hint: hint, width: width, style: style))
-                RequestConfirmation(confirmationTag, details: hint);
+                ConfirmationDialogue.Request(confirmationTag, details: hint);
 
             return false;
         }
@@ -324,6 +294,36 @@ namespace PlayerAndEditorGUI
 
             return GUILayout.Button(content, GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(height)).Dirty();
         }
+
+        #region Action
+
+        public static bool Click<T>(this Action<T> action, T value)
+        {
+            string name = "{0}({1})".F(action.Method.Name, value.GetNameForInspector().SimplifyTypeName());
+
+            if (name.Click())
+            {
+                action.Invoke(value);
+                return true;
+            }
+
+            return false;
+        }
+
+        public static bool Click(Action action)
+        {
+            string name = "{0}()".F(action.Method.Name);
+
+            if (name.Click())
+            {
+                action.Invoke();
+                return true;
+            }
+
+            return false;
+        }
+
+        #endregion
 
         public static bool Click(this string text, ref bool changed) => text.Click().changes(ref changed);
 
@@ -379,8 +379,9 @@ namespace PlayerAndEditorGUI
         public static bool Click(this Texture img, string tip, int size = defaultButtonSize)
         {
 
-            if (!img) img = icon.Empty.GetIcon();
-
+            if (!img)
+                img = icon.Empty.GetIcon();
+            
             var cnt = ImageAndTip(img, tip);
 
 #if UNITY_EDITOR
@@ -406,33 +407,118 @@ namespace PlayerAndEditorGUI
             return GUILayout.Button(cnt, GUILayout.MaxWidth(width), GUILayout.MaxHeight(height)).Dirty();
         }
 
-        public static bool Click(this icon icon) => Click(icon.GetIcon(), icon.GetText());
+        public static bool Click(this icon icon)
+        {
+            var tex = icon.GetIcon();
 
-        public static bool Click(this icon icon, ref bool changed) => Click(icon.GetIcon(), icon.GetText()).changes(ref changed);
+            if (!tex || tex == Texture2D.whiteTexture)
+                return icon.GetText().Click();
+            
+            return Click(tex, icon.GetText());
+        }
 
-        public static bool ClickUnFocus(this icon icon) => ClickUnFocus(icon.GetIcon(), icon.GetText());
+        public static bool Click(this icon icon, ref bool changed)
+        {
+            var tex = icon.GetIcon();
 
-        public static bool ClickUnFocus(this icon icon, ref bool changed) => ClickUnFocus(icon.GetIcon(), icon.GetText()).changes(ref changed);
+            if (!tex || tex == Texture2D.whiteTexture)
+                return icon.GetText().Click().changes(ref changed);
 
-        public static bool ClickUnFocus(this icon icon, int size) => ClickUnFocus(icon.GetIcon(), icon.GetText(), size);
+            return Click(tex, icon.GetText()).changes(ref changed);
+        }
+
+        public static bool ClickUnFocus(this icon icon)
+        {
+            var tex = icon.GetIcon();
+
+            if (!tex || tex == Texture2D.whiteTexture)
+                return icon.GetText().ClickUnFocus();
+
+            return ClickUnFocus(tex, icon.GetText());
+        }
+
+        public static bool ClickUnFocus(this icon icon, ref bool changed)
+        {
+            var tex = icon.GetIcon();
+
+            if (!tex || tex == Texture2D.whiteTexture)
+                return icon.GetText().ClickUnFocus().changes(ref changed);
+
+            return ClickUnFocus(tex, icon.GetText()).changes(ref changed);
+        }
+
+        public static bool ClickUnFocus(this icon icon, int size)
+        {
+            var tex = icon.GetIcon();
+
+            if (!tex || tex == Texture2D.whiteTexture)
+                return icon.GetText().ClickUnFocus();
+
+            return ClickUnFocus(tex, icon.GetText(), size);
+        }
 
         public static bool ClickUnFocus(this icon icon, string tip, int size = defaultButtonSize)
         {
             if (tip == null)
                 tip = icon.GetText();
 
-            return ClickUnFocus(icon.GetIcon(), tip, size);
+            var tex = icon.GetIcon();
+
+            if (!tex || tex == Texture2D.whiteTexture)
+                return icon.GetText().ClickUnFocus(tip);
+
+            return ClickUnFocus(tex, tip, size);
         }
 
-        public static bool ClickUnFocus(this icon icon, string tip, int width, int height) => ClickUnFocus(icon.GetIcon(), tip, width, height);
+        public static bool ClickUnFocus(this icon icon, string tip, int width, int height)
+        {
+            var tex = icon.GetIcon();
 
-        public static bool Click(this icon icon, int size) => Click(icon.GetIcon(), size);
+            if (!tex || tex == Texture2D.whiteTexture)
+                return icon.GetText().ClickUnFocus(tip);
 
-        public static bool Click(this icon icon, string tip, int width, int height) => Click(icon.GetIcon(), tip, width, height);
+            return ClickUnFocus(tex, tip, width, height);
+        }
 
-        public static bool Click(this icon icon, string tip, ref bool changed, int size = defaultButtonSize) => Click(icon.GetIcon(), tip, size).changes(ref changed);
+        public static bool Click(this icon icon, int size)
+        {
+            var tex = icon.GetIcon();
 
-        public static bool Click(this icon icon, string tip, int size = defaultButtonSize) => Click(icon.GetIcon(), tip, size);
+            if (!tex || tex == Texture2D.whiteTexture)
+                return icon.GetText().ClickUnFocus();
+
+            return Click(tex, size);
+        }
+
+        public static bool Click(this icon icon, string tip, int width, int height)
+        {
+            var tex = icon.GetIcon();
+
+            if (!tex || tex == Texture2D.whiteTexture)
+                return icon.GetText().ClickUnFocus(tip);
+
+            return Click(tex, tip, width, height);
+        }
+
+        public static bool Click(this icon icon, string tip, ref bool changed, int size = defaultButtonSize)
+        {
+            var tex = icon.GetIcon();
+
+            if (!tex || tex == Texture2D.whiteTexture)
+                return icon.GetText().ClickUnFocus(tip).changes(ref changed);
+
+            return Click(tex, tip, size).changes(ref changed);
+        }
+
+        public static bool Click(this icon icon, string tip, int size = defaultButtonSize)
+        {
+            var tex = icon.GetIcon();
+
+            if (!tex || tex == Texture2D.whiteTexture)
+                return icon.GetText().ClickUnFocus(tip);
+
+            return Click(tex, tip, size);
+        }
 
         public static bool Click(this Color col) => icon.Empty.GUIColor(col).BgColor(Color.clear).Click().RestoreGUIColor().RestoreBGColor();
 

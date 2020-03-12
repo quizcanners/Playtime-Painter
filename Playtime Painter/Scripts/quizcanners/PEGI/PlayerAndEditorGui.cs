@@ -96,8 +96,6 @@ namespace PlayerAndEditorGUI
                 }
             }
 
-           // public delegate bool InspectionDelegate();
-
             public delegate bool WindowFunction();
 
             public class Window
@@ -167,7 +165,7 @@ namespace PlayerAndEditorGUI
                 public void Render(IPEGI target, WindowFunction doWindow, string c_windowName)
                 {
 
-                    ef.inspectedTarget = target;
+                    ef.ResetInspectionTarget(target);
 
                     _function = doWindow;
 

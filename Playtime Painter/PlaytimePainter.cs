@@ -2208,7 +2208,7 @@ namespace PlaytimePainter
                     "Tool Configuration");
 
                 if (!PainterDataAndConfig.hideDocumentation)
-                    pegi.fullWindowDocumentationClickOpen(LazyLocalization.InspectPainterDocumentation,
+                    pegi.PopUpService.fullWindowDocumentationClickOpen(LazyLocalization.InspectPainterDocumentation,
                         MsgPainter.AboutPlaytimePainter.GetText());
 
                 #endregion
@@ -2239,8 +2239,10 @@ namespace PlaytimePainter
                         else if (meshFilter && meshFilter.sharedMesh &&
                                  meshFilter.sharedMesh != meshCollider.sharedMesh)
                         {
-                            "Collider and filter have different meshes. Painting may not be able to obtain a correct UV coordinates."
-                                .fullWindowWarningDocumentationClickOpen("Mesh collider mesh is different");
+                            
+                                pegi.PopUpService.fullWindowWarningDocumentationClickOpen(
+                                    "Collider and filter have different meshes. Painting may not be able to obtain a correct UV coordinates.",
+                                    "Mesh collider mesh is different");
                         }
 
                     }
@@ -2296,7 +2298,7 @@ namespace PlaytimePainter
 
                                         const string confirmTag = "pp_EditThisMesh";
 
-                                        if (!pegi.IsConfirmingRequestedFor(confirmTag))
+                                        if (!pegi.ConfirmationDialogue.IsRequestedFor(confirmTag))
                                         {
 
                                             if ("New Mesh".ClickConfirm("newMesh",
@@ -2318,7 +2320,7 @@ namespace PlaytimePainter
                                         }
                                         else
                                         {
-                                            if (!pegi.IsConfirmingRequestedFor(confirmTag) && "Copy & Edit".Click())
+                                            if (!pegi.ConfirmationDialogue.IsRequestedFor(confirmTag) && "Copy & Edit".Click())
                                                 mg.EditMesh(this, true);
 
                                             if ("Edit this".ClickConfirm(confirmTag,
@@ -2475,8 +2477,8 @@ namespace PlaytimePainter
                                             UpdateMeshCollider();
 
                                         if (!PainterDataAndConfig.hideDocumentation &&
-                                            pegi.DocumentationClick("Why Update Collider from skinned mesh?"))
-                                            pegi.FullWindwDocumentationOpen(
+                                            pegi.PopUpService.DocumentationClick("Why Update Collider from skinned mesh?"))
+                                            pegi.PopUpService.FullWindwDocumentationOpen(
                                                 ("To paint an object a collision detection is needed. Mesh Collider is not being animated. To paint it, update Mesh Collider with Update Collider button." +
                                                  " For ingame painting it is preferable to use simple colliders like Speheres to avoid per frame updates for collider mesh."
                                                 ));
@@ -2858,7 +2860,7 @@ namespace PlaytimePainter
                                             CreateTexture2D(texScale, _nameHolder, cfg.newTextureIsColor);
                                     }
 
-                                    if (!pegi.IsConfirmingRequestedFor(newTexConfirmTag))
+                                    if (!pegi.ConfirmationDialogue.IsRequestedFor(newTexConfirmTag))
                                     {
 
                                         if (cfg.showRecentTextures)

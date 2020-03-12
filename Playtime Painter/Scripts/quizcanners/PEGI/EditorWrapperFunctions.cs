@@ -27,9 +27,15 @@ using Object = UnityEngine.Object;
 namespace PlayerAndEditorGUI
 {
 
-    public static class ef {
+    internal static class ef {
 
         #region Non Editor Only
+
+        public static void ResetInspectionTarget(object target)
+        {
+            inspectedTarget = target;
+            pegi.ResetInspectedChain();
+        }
 
         public static object inspectedTarget;
 
@@ -181,12 +187,12 @@ namespace PlayerAndEditorGUI
         }
 
         public static bool Inspect_Material(PEGI_Inspector_Material editor) {
-
+            
             _materialEditor = editor;
 
             editorTypeForDefaultInspector = EditorType.Material;
 
-            inspectedTarget = editor.unityMaterialEditor.target;
+            ResetInspectionTarget(editor.unityMaterialEditor.target);
 
             var mat = editor.unityMaterialEditor.target as Material;
 

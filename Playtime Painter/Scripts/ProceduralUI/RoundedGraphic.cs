@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -387,6 +388,32 @@ namespace PlaytimePainter
             "Also they may be tricky at times so take note of all the warnings and hints that my show in this inspector. " +
             "When Canvas is set To ScreenSpace-Camera it will also provide adjustive softening when scaled";
 
+        public static bool ClickDuplicate(ref Material mat, string newName = null, string folder = "Materials") => 
+            ClickDuplicate(ref mat, folder, ".mat", newName);
+
+        public static bool ClickDuplicate<T>(ref T obj, string folder, string extension, string newName = null) where T : Object
+        {
+
+            if (!obj) return false;
+
+            var changed = false;
+
+#if UNITY_EDITOR
+            var path = AssetDatabase.GetAssetPath(obj);
+            if (icon.Copy.ClickConfirm("dpl" + obj + "|" + path, "{0} Duplicate at {1}".F(obj, path)).changes(ref changed))
+            {
+                obj = QcUnity.Duplicate(obj, folder, extension: extension, newName: newName);
+            }
+#else
+             if (icon.Copy.Click("Create Instance of {0}".F(obj)))
+                obj = GameObject.Instantiate(obj);
+
+#endif
+
+
+            return changed;
+        }
+
         public bool Inspect()
         {
             inspected = this;
@@ -589,7 +616,7 @@ namespace PlaytimePainter
                 }
 
                 if (pegi.edit(ref mat, 60).changes(ref changed) ||
-                    (!Application.isPlaying && pegi.ClickDuplicate(ref mat, gameObject.name).changes(ref changed)))
+                    (!Application.isPlaying && ClickDuplicate(ref mat, gameObject.name).changes(ref changed)))
                 {
                     material = mat;
                     if (mat)

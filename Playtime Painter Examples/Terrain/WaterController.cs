@@ -50,8 +50,8 @@ namespace PlaytimePainter.Examples
         public bool Inspect() {
             var changed = false;
 
-            if (pegi.DocumentationClick("About Water Controller"))  
-            pegi.FullWindwDocumentationOpen("This water works only with Merging Terrain shaders. The method is as follows: {0}" +
+            if (pegi.PopUpService.DocumentationClick("About Water Controller"))  
+            pegi.PopUpService.FullWindwDocumentationOpen("This water works only with Merging Terrain shaders. The method is as follows: {0}" +
             "Terrain shaders compare it's Y(up) position with water height and calculate where the foam should be." +
             "THos shaders paint foam onto themselves. Below the foam they pain screen alpha channel 1, and above - 0." +
             "Water just renders the plane, but multiplies it by screen's alpha rendered by underlying objects. " +

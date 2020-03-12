@@ -31,6 +31,14 @@ namespace QuizCannersUtilities {
                 return bi != null ? bi.id == id : name.Equals(obj.ToString());
             }
 
+            public override int GetHashCode()
+            {
+                var hashCode = -48284730;
+                hashCode = hashCode * -1521134295 + id.GetHashCode();
+                hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(name);
+                return hashCode;
+            }
+
             private void UpdateIndex() => id = Shader.PropertyToID(name);
 
             public override string ToString() => name;
@@ -85,6 +93,8 @@ namespace QuizCannersUtilities {
 
                 return true;
             }
+
+      
             #endregion
 
             #region Constructors
@@ -98,12 +108,6 @@ namespace QuizCannersUtilities {
                 UpdateIndex();
             }
 
-         /*   protected BaseShaderPropertyIndex(string name, bool isNonMaterialProperty)
-            {
-                _name = name;
-                nonMaterialProperty = isNonMaterialProperty;
-                UpdateIndex();
-            }*/
             #endregion
         }
 
@@ -542,7 +546,7 @@ namespace QuizCannersUtilities {
             {
                 if (!latestValue)
                 {
-                    QcUtils.ChillLogger.LogErrorOnce(name+"noTex", ()=>"{0} was not set. Can't Update {1} ".F(name, FILL_ASPECT_RATION_SUFFIX));
+                   // QcUtils.ChillLogger.LogErrorOnce(name+"noTex", ()=>"{0} was not set. Can't Update {1} ".F(name, FILL_ASPECT_RATION_SUFFIX));
                     return;
                 }
                 

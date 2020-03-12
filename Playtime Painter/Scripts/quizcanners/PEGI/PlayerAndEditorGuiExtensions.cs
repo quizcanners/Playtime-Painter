@@ -82,7 +82,7 @@ namespace PlayerAndEditorGUI
 
             int recurses;
 
-            if (!inspectionChain.TryGetValue(pgi, out recurses) || recurses < 2)
+            if (!inspectionChain.TryGetValue(pgi, out recurses) || recurses < 4)
             {
 
                 inspectionChain[pgi] = recurses + 1;
@@ -94,7 +94,7 @@ namespace PlayerAndEditorGUI
                 IndentLevel = indent;
 
                 var count = inspectionChain[pgi];
-                if (count == 1)
+                if (count < 2)
                     inspectionChain.Remove(pgi);
                 else
                     inspectionChain[pgi] = count - 1;

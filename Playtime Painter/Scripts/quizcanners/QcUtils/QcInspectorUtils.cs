@@ -914,10 +914,26 @@ namespace QuizCannersUtilities
                 PEGI_Styles.Inspect().nl();
             }
 
+            /*if ("Icons".enter(ref inspectedSection, 5).nl())
+            {
+                var tex = icon.Enter.GetIcon();
+                if (!tex)
+                    "Texture is null".writeWarning();
+                else
+                {
+                    tex.write();
+                    pegi.nl();
+                    "Texture isn't null".nl();
+                }
+            }*/
+
             if (inspectedSection == -1)
             {
                 if ("Player Data Folder".Click().nl())
+                {
                     QcFile.Explorer.OpenPersistentFolder();
+                    pegi.SetClipboard(Application.persistentDataPath, sendNotificationIn3Dview: true);
+                }
 
                 if (Application.isEditor && "Editor Data Folder".Click().nl())
                     QcFile.Explorer.OpenPath("C:/Users/{0}/AppData/Local/Unity/Editor/Editor.log".F(Environment.UserName));

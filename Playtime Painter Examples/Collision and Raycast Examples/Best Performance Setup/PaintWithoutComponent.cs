@@ -234,7 +234,7 @@ namespace PlaytimePainter.Examples
 
             pegi.toggleDefaultInspector(this);
 
-            pegi.fullWindowDocumentationClickOpen(Documentation);
+            pegi.PopUpService.fullWindowDocumentationClickOpen(Documentation);
 
             "Continious".toggleIcon(ref continious).nl();
 

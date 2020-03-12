@@ -185,9 +185,6 @@ namespace QuizCannersUtilities
                     case "lm":
                         lerpMode = (LerpSpeedMode)data.ToInt();
                         break;
-                    //case "eio":
-                      //  easeInOut = data.ToBool();
-                        break;
                     default: return false;
                 }
 
@@ -353,7 +350,7 @@ namespace QuizCannersUtilities
 
            // protected override bool EaseInOutImplemented => true;
 
-            private float _easePortion = 0.1f;
+           // private float _easePortion = 0.1f;
 
             public override bool UsingLinkedThreshold => base.UsingLinkedThreshold && Enabled;
 

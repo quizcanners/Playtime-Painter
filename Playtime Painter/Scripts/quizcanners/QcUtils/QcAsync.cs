@@ -252,12 +252,10 @@ namespace QuizCannersUtilities
 
         }
 
-        public class TimedEnumeration : IPEGI_ListInspect, IGotName
+        public class TimedEnumeration : IPEGI_ListInspect, IPEGI, IGotName
         {
-
             public class CallAgain
             {
-
                 public object returnData;
 
                 public string message;
@@ -538,22 +536,44 @@ namespace QuizCannersUtilities
             public bool InspectInList(IList list, int ind, ref int edited)
             {
 
-                if (!Exited && !_stopAndCancel && icon.Close.Click())
-                    _stopAndCancel = true;
-
-                "{4} {2} {3} [{0} YLDS / {1} FRMS]".F(_yields, _frames, EnumeratorVersion > 1 ? ("V: " + EnumeratorVersion) : "", _task == null ? "[yield]" : "[TASK]", 
-                    NameForPEGI).write(_state);
+                if (icon.Enter.Click())
+                    edited = ind;
 
                 if (Exited)
                     (DoneFully ? icon.Done : icon.Empty).write();
-                else if (icon.Next.Click())
-                    MoveNext();
+
+                "{4}: {5} {2} {3} [{0}y {1}f]".F(
+                    _yields, // 0
+                    _frames, // 1
+                    EnumeratorVersion > 1 ? ("v: " + EnumeratorVersion) : "", //2
+                    _task == null ? "[CORO]" : "[TASK]", //3
+                    NameForPEGI, // 4
+                    _state // 5
+                    ) // 4
+                    .write(_state);
+
+              
+
+             
 
                 return false;
             }
 
+            public bool Inspect()
+            {
+                if (!Exited && !_stopAndCancel && "Stop & Cancel".Click().nl())
+                    _stopAndCancel = true;
+                
+                if (!Exited && "Yield".Click().nl())
+                    MoveNext();
+
+                _state.writeBig();
+                
+                return false;
+            }
+
             #endregion
-            
+
             public TimedEnumeration(bool logUnoptimizedSections = false, string nameForInspector = "")
             {
                 _logUnoptimizedSections = logUnoptimizedSections;

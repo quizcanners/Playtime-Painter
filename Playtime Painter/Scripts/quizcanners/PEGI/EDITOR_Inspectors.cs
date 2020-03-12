@@ -26,8 +26,6 @@ namespace PlayerAndEditorGUI {
         {
             unityMaterialEditor = materialEditor;
             _properties = properties;
-            
-              pegi.ResetInspectedChain();
 
             if (!drawDefaultInspector) {
                 ef.Inspect_Material(this).RestoreBGColor();
@@ -64,13 +62,13 @@ namespace PlayerAndEditorGUI {
         public static Object drawDefaultInspector;
         
         protected abstract bool Inspect(Editor editor);
-        protected abstract ef.EditorType EditorType { get;  }
+        internal abstract ef.EditorType EditorType { get;  }
 
         private static bool _exceptionPopUpShown;
 
         private bool InspectException()
         {
-            "Got an Exception. Click copy to check it out in the notepad. This will not show again".writeWarning();
+            "Got an Exception. Click copy to check it out in the notepad.".writeWarning();
             
             if ("Copy To Clipboard".Click("Copy Exception").nl())
                 pegi.SetClipboard(pegi.PopUpService.popUpText);
@@ -90,7 +88,7 @@ namespace PlayerAndEditorGUI {
         {
             ef.inspectedUnityObject = target;
 
-            pegi.ResetInspectedChain();
+            ef.ResetInspectionTarget(target);
 
             if (target != drawDefaultInspector) {
 
@@ -100,12 +98,15 @@ namespace PlayerAndEditorGUI {
                 }
                 catch (Exception ex)
                 {
-                    if (!_exceptionPopUpShown)
+                    if (ex.GetType() == typeof(ExitGUIException))
+                        throw ex; // This exception is actually normal thing for Unity and it needs it to do it's thing.
+                    else if (!_exceptionPopUpShown)
                     {
+                        Debug.LogError(ex);
+
                         pegi.PopUpService.popUpText = ex.ToString();
                         pegi.PopUpService.inspectDocumentationDelegate = InspectException;
                         pegi.PopUpService.InitiatePopUp();
-                      
                     }
                 }
 
@@ -123,7 +124,7 @@ namespace PlayerAndEditorGUI {
 
     public abstract class PEGI_Inspector_Mono<T> : PEGI_UnityObjectInspector_Base where T : MonoBehaviour
     {
-        protected override ef.EditorType EditorType => ef.EditorType.Mono;
+        internal override ef.EditorType EditorType => ef.EditorType.Mono;
 
         protected override bool Inspect(Editor editor) => ef.Inspect<T>(editor);
 
@@ -131,7 +132,7 @@ namespace PlayerAndEditorGUI {
 
     public abstract class PEGI_Inspector_SO<T> : PEGI_UnityObjectInspector_Base where T : ScriptableObject
     {
-        protected override ef.EditorType EditorType => ef.EditorType.ScriptableObject;
+        internal override ef.EditorType EditorType => ef.EditorType.ScriptableObject;
 
         protected override bool Inspect(Editor editor) => ef.Inspect_so<T>(editor);
 

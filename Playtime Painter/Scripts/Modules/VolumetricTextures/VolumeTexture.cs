@@ -210,7 +210,7 @@ namespace PlaytimePainter {
                 pegi.nl();
             }
 
-            pegi.fullWindowDocumentationClickOpen(VolumeDocumentation);
+            pegi.PopUpService.fullWindowDocumentationClickOpen(VolumeDocumentation);
 
             if (inspectedElement == -1)
             {
