@@ -96,7 +96,8 @@ namespace PlaytimePainter {
 
         public Vector4 PosSize4Shader => transform.position.ToVector4(1f / size);
 
-        public Vector4 Slices4Shader { get { float w = ((ImageMeta?.width ?? (TexturesPool.inst ? TexturesPool.inst.width : _tmpWidth)) - hSlices * 2) / hSlices;
+        public Vector4 Slices4Shader { get {
+            float w = ((ImageMeta?.width ?? (TexturesPool.inst ? TexturesPool.inst.width : _tmpWidth)) - hSlices * 2) / hSlices;
             return new Vector4(hSlices, w * 0.5f, 1f / w, 1f / hSlices); } }
 
         public virtual bool NeedsToManageMaterials => true;

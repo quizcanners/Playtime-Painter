@@ -463,16 +463,21 @@ inline void Simple_Light(float4 terrainN,float3 worldNormal, float3 viewDir, ino
 
 inline float3 volumeUVtoWorld(float2 uv, float4 VOLUME_POSITION_N_SIZE, float4 VOLUME_H_SLICES) {
 
-	int hy = floor(uv.y*VOLUME_H_SLICES.x);
-	int hx = floor(uv.x*VOLUME_H_SLICES.x);
+	// H Slices:
+	//hSlices, w * 0.5f, 1f / w, 1f / hSlices
+
+	float hy = floor(uv.y*VOLUME_H_SLICES.x);
+	float hx = floor(uv.x*VOLUME_H_SLICES.x);
 
 	float2 xz = uv * VOLUME_H_SLICES.x;
 
 	xz.x -= hx;
 	xz.y -= hy;
 
-	xz *= VOLUME_H_SLICES.y*2;
-	xz -= VOLUME_H_SLICES.y;
+	xz =  (xz*2.0 - 1.0) *VOLUME_H_SLICES.y;
+
+	//xz *= VOLUME_H_SLICES.y*2;
+	//xz -= VOLUME_H_SLICES.y;
 
 	float h = hy * VOLUME_H_SLICES.x + hx;
 

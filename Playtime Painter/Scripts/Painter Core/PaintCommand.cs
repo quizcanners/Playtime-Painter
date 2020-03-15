@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace PlaytimePainter
 {
-    public static partial class PaintCommand
+    public static partial class PaintCommand 
     {
         public class WorldSpace : UV
         {
@@ -76,13 +76,6 @@ namespace PlaytimePainter
             }
         }
 
-        public static T Reset<T>(this T command) where T : UV
-        {
-            command.strokeAlphaPortion = 1;
-            command.usedAlphaBuffer = false;
-            return command;
-        }
-
         public class UV
         {
             public virtual Stroke stroke { get; set; }
@@ -118,6 +111,13 @@ namespace PlaytimePainter
             }
         }
 
+        public static T Reset<T>(this T command) where T : UV
+        {
+            command.strokeAlphaPortion = 1;
+            command.usedAlphaBuffer = false;
+            return command;
+        }
+        
         public static T SetStroke<T>(this T command, Stroke stroke) where T : UV
         {
             command.stroke = stroke;

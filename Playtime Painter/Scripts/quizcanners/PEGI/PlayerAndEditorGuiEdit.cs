@@ -1989,7 +1989,7 @@ namespace PlayerAndEditorGUI
         {
             var changed = toggleConfirm(ref val, icon.True.BgColor(Color.clear), icon.False, confirmationTag: confirmationTag, tip: tip.IsNullOrEmpty() ? label : tip, DefaultToggleIconSize).SetPreviousBgColor();
 
-            if (ConfirmationDialogue.IsRequestedFor(confirmationTag) && (!val || !hideTextWhenTrue))
+            if (!ConfirmationDialogue.IsRequestedFor(confirmationTag) && (!val || !hideTextWhenTrue))
             {
                 if (label.ClickLabelConfirm(confirmationTag: confirmationTag, style: ToggleLabel(val)).changes(ref changed))
                     val = !val;
