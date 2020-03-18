@@ -263,7 +263,7 @@ namespace PlayerAndEditorGUI
 
             if (fontSize == -1)
                 fontSize = letterSizeInPixels;
-            
+           
             int length = fontSize * label.Length;
 
             if (PaintingGameViewUI && length > _playtimeGuiWidth)
@@ -410,6 +410,19 @@ namespace PlayerAndEditorGUI
 
         private static int LastNeedAttentionIndex;
 
+        private static bool NeedsAttention(object el, out string msg)
+        {
+            msg = null;
+
+            var need = el as INeedAttention;
+
+            if (need == null) return false;
+
+            msg = need.NeedAttention();
+
+            return msg != null;
+        }
+
         public static bool NeedsAttention(ICollection list, out string message, string listName = "list", bool canBeNull = false)
         {
             message = NeedsAttention(list, listName, canBeNull);
@@ -430,18 +443,13 @@ namespace PlayerAndEditorGUI
                 {
                     if (!el.IsNullOrDestroyed_Obj())
                     {
-                        var need = el as INeedAttention;
 
-                        if (need == null) continue;
-
-                        var what = need.NeedAttention();
-
-                        if (what == null) continue;
-
-                        msg = " {0} on {1}:{2}".F(what, i, need.GetNameForInspector());
-                        LastNeedAttentionIndex = i;
-
-                        return msg;
+                        if (NeedsAttention(el, out msg))
+                        {
+                            msg = " {0} on {1}:{2}".F(msg, i, el.GetNameForInspector());
+                            LastNeedAttentionIndex = i;
+                            return msg;
+                        }
                     }
 
                     if (!canBeNull)

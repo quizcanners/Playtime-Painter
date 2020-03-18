@@ -1556,8 +1556,8 @@ namespace PlayerAndEditorGUI
                 var uo = el as Object;
                 if (uo)
                 {
-                    var mb = uo as Component;
-                    var go = mb ? mb.gameObject : uo as GameObject;
+                    var cmp = uo as Component;
+                    var go = cmp ? cmp.gameObject : uo as GameObject;
 
                     if (!go)
                         EditorGUI.ObjectField(rect, textAndToolTip, uo, _currentReorderedType, true);
@@ -1567,9 +1567,12 @@ namespace PlayerAndEditorGUI
 
                         if (mbs.Length > 1)
                         {
+                            rect.width = 100;
+                            EditorGUI.LabelField(rect, textAndToolTip);
+                            rect.x += 100;
 
-                            if (select(ref mb, mbs, rect))
-                                _currentReorderedList[index] = mb;
+                            if (select(ref cmp, mbs, rect))
+                                _currentReorderedList[index] = cmp;
                         }
                         else
                             EditorGUI.ObjectField(rect, textAndToolTip, uo, _currentReorderedType, true);

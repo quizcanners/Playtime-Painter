@@ -553,6 +553,23 @@ namespace PlayerAndEditorGUI
                 return changed;
             }
 
+            private bool IsPassingFilter<T>(T el, string[] searchby)
+            {
+                var na = el as INeedAttention;
+
+                var msg = na?.NeedAttention();
+
+                if (!searchData.filterByNeedAttention || !msg.IsNullOrEmpty())
+                {
+                    if (searchby.IsNullOrEmpty() || el.SearchMatch_Obj_Internal(searchby))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
             private int GetNextFiltered<T>(ICollection<T> list, string[] searchby)
             {
 
@@ -565,19 +582,11 @@ namespace PlayerAndEditorGUI
 
                     var el = list.ElementAt(index);
 
-                    var na = el as INeedAttention;
-
-                    var msg = na?.NeedAttention();
-
-                    if (!searchData.filterByNeedAttention || !msg.IsNullOrEmpty())
+                    if (IsPassingFilter<T>(el, searchby))
                     {
-                        if (searchby.IsNullOrEmpty() || el.SearchMatch_Obj_Internal(searchby))
-                        {
-                            filteredList.Add(index);
-                            return index;
-                        }
+                        filteredList.Add(index);
+                        return index;
                     }
-
                 }
 
                 return -1;
@@ -2499,6 +2508,101 @@ namespace PlayerAndEditorGUI
 
         #region Dictionary Generic
 
+        protected class KeyValuePairInspector<T, G> : ICollection<KeyValuePairInspector<T, G>>, IEnumerator<KeyValuePairInspector<T, G>>, IGotDisplayName, IPEGI_Searchable, INeedAttention
+        {
+            private Dictionary<T, G> _dictionary;
+            private int _index = 0;
+
+            private KeyValuePair<T, G> _pair;
+
+            private KeyValuePair<T, G> Pair => _dictionary.ElementAt(_index);
+
+            public KeyValuePairInspector(Dictionary<T, G> dic)
+            {
+                _dictionary = dic;
+            }
+
+            public KeyValuePairInspector<T, G> Current
+            {
+                get
+                {
+                    return this;
+                }
+            }
+
+            object IEnumerator.Current => this;
+
+            public int Count => _dictionary.Count;
+
+            public bool IsReadOnly => false;
+
+            public void Dispose()
+            {
+                throw new NotImplementedException();
+            }
+
+            public bool MoveNext()
+            {
+
+                if (_index < (_dictionary.Count - 1))
+                {
+                    _index++;
+                    return true;
+                }
+                return false;
+            }
+
+            public string NameForDisplayPEGI()
+            {
+                var p = Pair;
+                return p.Value == null ? p.Key.GetNameForInspector() :  Pair.Value.GetNameForInspector();
+            }
+
+            public void Reset()
+            {
+                _index = 0;
+            }
+
+            public bool String_SearchMatch(string searchString)
+            {
+                var p = Pair;
+
+                return Try_SearchMatch_Obj(p.Value, searchString) || Try_SearchMatch_Obj(p.Key, searchString);
+            }
+
+            public string NeedAttention()
+            {
+                var p = Pair;
+                string msg = null;
+
+                if (NeedsAttention(Pair.Value, out msg))
+                    "{0} at {1}".F(msg, p.Key.GetNameForInspector());
+
+                return msg;
+               
+            }
+
+            public void Add(KeyValuePairInspector<T, G> item)
+            {
+               
+            }
+
+            public void Clear() => _dictionary.Clear();
+            
+            public bool Contains(KeyValuePairInspector<T, G> item) => false;
+
+            public void CopyTo(KeyValuePairInspector<T, G>[] array, int arrayIndex)
+            {
+            }
+
+            public bool Remove(KeyValuePairInspector<T, G> item) =>  false;
+
+            public IEnumerator<KeyValuePairInspector<T, G>> GetEnumerator() => this;
+            
+            IEnumerator IEnumerable.GetEnumerator() => this;
+            
+        }
+
         public static bool edit_Dictionary_Values<G, T>(this string label, Dictionary<G, T> dic, bool showKey = false)
         {
             int inspected = -1;
@@ -2570,7 +2674,7 @@ namespace PlayerAndEditorGUI
             else
             {
 
-                foreach (var i in collectionInspector.InspectionIndexes(dic, listMeta))
+                foreach (var i in collectionInspector.InspectionIndexes(new KeyValuePairInspector<G, T>(dic), listMeta))
                 {
 
                     var item = dic.ElementAt(i);
@@ -2621,7 +2725,7 @@ namespace PlayerAndEditorGUI
                 if (listMeta != null)
                     showKey = listMeta.showDictionaryKey;
 
-                foreach (var i in collectionInspector.InspectionIndexes(dic, listMeta))
+                foreach (var i in collectionInspector.InspectionIndexes(new KeyValuePairInspector<G, T>(dic), listMeta))
                 {
 
                     var item = dic.ElementAt(i);
@@ -2669,7 +2773,7 @@ namespace PlayerAndEditorGUI
         #endregion
 
         #region Dictionary <Key,String>
-
+        
         public static bool edit_Dictionary_Values(this string label, Dictionary<int, string> dic, List<string> roles)
         {
             collectionInspector.write_Search_ListLabel(label, dic);
