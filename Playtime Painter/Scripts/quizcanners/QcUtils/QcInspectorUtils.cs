@@ -927,7 +927,7 @@ namespace QuizCannersUtilities
                 }
             }*/
 
-            if (inspectedSection == -1)
+            if ("Data".enter(ref inspectedSection, 5).nl())
             {
                 if ("Player Data Folder".Click().nl())
                 {
@@ -938,7 +938,45 @@ namespace QuizCannersUtilities
                 if (Application.isEditor && "Editor Data Folder".Click().nl())
                     QcFile.Explorer.OpenPath("C:/Users/{0}/AppData/Local/Unity/Editor/Editor.log".F(Environment.UserName));
 
+                
+
+                if ("Caching.ClearCache() [{0}]".F(Caching.cacheCount).ClickConfirm("clCach").nl())
+                {
+                    if (Caching.ClearCache())
+                        pegi.GameView.ShowNotification("Bundles were cleared");
+                    else
+                        pegi.GameView.ShowNotification("ERROR: Bundles are being used");
+                }
+
+                List<string> lst = new List<string>();
+
+                Caching.GetAllCachePaths(lst);
+
+                "Caches".edit_List(ref lst, path =>
+                {
+                    var c = Caching.GetCacheByPath(path);
+
+                    if (icon.Delete.Click())
+                    {
+
+                        if (Caching.RemoveCache(c))
+                            pegi.GameView.ShowNotification("Bundle was cleared");
+                        else
+                            pegi.GameView.ShowNotification("ERROR: Bundle is being used");
+                    }
+
+                    if (icon.Folder.Click())
+                        QcFile.Explorer.OpenPath(path);
+
+                    path.write();
+
+                    return path;
+                });
+               
+
             }
+
+            
 
             return changed;
         }

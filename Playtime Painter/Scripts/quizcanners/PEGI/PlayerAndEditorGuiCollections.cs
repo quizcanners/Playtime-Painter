@@ -109,7 +109,7 @@ namespace PlayerAndEditorGUI
             private static IList addingNewOptionsInspected;
             private string addingNewNameHolder = "Name";
 
-            public IEnumerable<int> InspectionIndexes<T>(ICollection<T> list, ListMetaData listMeta = null)
+            public IEnumerable<T> InspectionIndexes<T>(ICollection<T> collectionReference, ListMetaData listMeta = null, iCollectionInspector<T> listElementInspector = null)
             {
 
                 searchData = listMeta == null ? defaultSearchData : listMeta.searchData;
@@ -122,7 +122,7 @@ namespace PlayerAndEditorGUI
                     searchData.CloseSearch();
 
                 string[] searchby;
-                searchData.SearchString(list, out _searching, out searchby);
+                searchData.SearchString(collectionReference, out _searching, out searchby);
 
                 _sectionStartIndex = 0;
 
@@ -130,10 +130,10 @@ namespace PlayerAndEditorGUI
                     _sectionStartIndex = searchData.inspectionIndexStart;
                 else if (listMeta != null)
                     _sectionStartIndex = listMeta.listSectionStartIndex;
-                else if (!Indexes.TryGetValue(list, out _sectionStartIndex))
-                    Indexes.Add(list, 0);
+                else if (!Indexes.TryGetValue(collectionReference, out _sectionStartIndex))
+                    Indexes.Add(collectionReference, 0);
 
-                _count = list.Count;
+                _count = collectionReference.Count;
 
                 _lastElementToShow = _count;
 
@@ -180,7 +180,7 @@ namespace PlayerAndEditorGUI
                     else line(Color.gray);
 
                 }
-                else if (list.Count > 0)
+                else if (collectionReference.Count > 0)
                     line(Color.gray);
 
                 nl();
@@ -193,14 +193,20 @@ namespace PlayerAndEditorGUI
                 {
                     _lastElementToShow = Mathf.Min(_count, _sectionStartIndex + _sectionSizeOptimal);
 
-                    for (Index = _sectionStartIndex; Index < _lastElementToShow; Index++)
-                    {
+                    Index = _sectionStartIndex;
 
+                    foreach (var el in collectionReference.Skip(_sectionStartIndex))
+                    {
                         SetListElementReadabilityBackground(Index);
 
-                        yield return Index;
+                        yield return el;
 
                         RestoreBGcolor();
+
+                        if (Index >= _lastElementToShow)
+                            break;
+
+                        Index++;
                     }
 
                     if ((_sectionStartIndex > 0) || (_count > _lastElementToShow))
@@ -234,7 +240,7 @@ namespace PlayerAndEditorGUI
 
                     filteredList = searchData.filteredListElements;
 
-                    _lastElementToShow = Mathf.Min(list.Count, _sectionStartIndex + _sectionSizeOptimal);
+                    _lastElementToShow = Mathf.Min(collectionReference.Count, _sectionStartIndex + _sectionSizeOptimal);
 
                     while (sectionIndex < _lastElementToShow)
                     {
@@ -244,7 +250,7 @@ namespace PlayerAndEditorGUI
                         if (filteredList.Count > sectionIndex)
                             Index = filteredList[sectionIndex];
                         else
-                            Index = GetNextFiltered(list, searchby);
+                            Index = GetNextFiltered(collectionReference, searchby, listElementInspector);
 
 
                         if (Index != -1)
@@ -252,7 +258,7 @@ namespace PlayerAndEditorGUI
 
                             SetListElementReadabilityBackground(sectionIndex);
 
-                            yield return Index;
+                            yield return collectionReference.ElementAt(Index);
 
                             RestoreBGcolor();
 
@@ -279,7 +285,7 @@ namespace PlayerAndEditorGUI
                             if (icon.DownLast.ClickUnFocus("To Last element").changes(ref changed))
                             {
                                 if (_searching)
-                                    while (GetNextFiltered(list, searchby) != -1) { }
+                                    while (GetNextFiltered(collectionReference, searchby, listElementInspector) != -1) { }
 
 
                                 SkrollToBottomInternal();
@@ -304,7 +310,7 @@ namespace PlayerAndEditorGUI
 
 
                 if (changed)
-                    SaveSectionIndex(list, listMeta);
+                    SaveSectionIndex(collectionReference, listMeta);
 
                 #endregion
             }
@@ -552,41 +558,43 @@ namespace PlayerAndEditorGUI
 
                 return changed;
             }
-
-            private bool IsPassingFilter<T>(T el, string[] searchby)
-            {
-                var na = el as INeedAttention;
-
-                var msg = na?.NeedAttention();
-
-                if (!searchData.filterByNeedAttention || !msg.IsNullOrEmpty())
-                {
-                    if (searchby.IsNullOrEmpty() || el.SearchMatch_Obj_Internal(searchby))
-                    {
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            private int GetNextFiltered<T>(ICollection<T> list, string[] searchby)
+            
+            private int GetNextFiltered<T>(ICollection<T> collectionReference, string[] searchby, iCollectionInspector<T> inspector = null)
             {
 
-                while (searchData.uncheckedElement < _count)
+                foreach (var reff in collectionReference.Skip(searchData.uncheckedElement))
                 {
+
+                    if (searchData.uncheckedElement >= _count)
+                        return -1;
 
                     int index = searchData.uncheckedElement;
 
                     searchData.uncheckedElement++;
+                    
+                    object target;
 
-                    var el = list.ElementAt(index);
-
-                    if (IsPassingFilter<T>(el, searchby))
+                    if (inspector != null)
                     {
-                        filteredList.Add(index);
-                        return index;
+                        inspector.Set(reff);
+                        target = inspector;
                     }
+                    else
+                        target = reff;
+
+                    var na = target as INeedAttention;
+
+                    var msg = na?.NeedAttention();
+
+                    if (!searchData.filterByNeedAttention || !msg.IsNullOrEmpty())
+                    {
+                        if (searchby.IsNullOrEmpty() || target.SearchMatch_Obj_Internal(searchby))
+                        {
+                            filteredList.Add(index);
+                            return index;
+                        }
+                    }
+    
                 }
 
                 return -1;
@@ -666,7 +674,7 @@ namespace PlayerAndEditorGUI
                 }
 
                 if (lst != null && inspected >= 0 && lst.Count > inspected)
-                    label = "{0}->{1}".F(label, lst.ElementAt(inspected).GetNameForInspector());
+                    label = "{0}->{1}".F(label, inspected<100 ? lst.ElementAt(inspected).GetNameForInspector() : "Element At {0}".F(inspected.ToString()));
                 else label = (lst == null || lst.Count < 6) ? label : label.AddCount(lst, true);
 
                 if (label.ClickLabel(label, RemainingLength(defaultButtonSize * 2 + 10), PEGI_Styles.ListLabel) && inspected != -1)
@@ -981,8 +989,9 @@ namespace PlayerAndEditorGUI
                 {
                     var derivedClasses = typeof(T).TryGetDerivedClasses();
 
-                    foreach (var i in collectionInspector.InspectionIndexes(list, listMeta))
+                    foreach (var el in collectionInspector.InspectionIndexes(list, listMeta))
                     {
+                        int i = collectionInspector.Index;
 
                         if (listMeta == null || listMeta.allowReorder)
                         {
@@ -1003,8 +1012,6 @@ namespace PlayerAndEditorGUI
                             }
                             else icon.DownLast.write();
                         }
-
-                        var el = list[i];
 
                         var isNull = el.IsNullOrDestroyed_Obj();
 
@@ -1492,22 +1499,21 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool InspectValueInDictionary<K, T>(ref T el, Dictionary<K, T> dic, int index, ref int inspected, ListMetaData listMeta = null)
+        public static bool InspectValueInDictionary<K, T>(KeyValuePair<K,T> pair, Dictionary<K, T> dic, int index, ref int inspected, ListMetaData listMeta = null)
         {
+            var el = pair.Value;
 
             var changed = InspectValueInCollection(ref el, null, index, ref inspected, listMeta);
 
             if (changed && typeof(T).IsValueType)
             {
-                var pair = dic.ElementAt(index);
-
                 dic[pair.Key] = el;
             }
 
             return changed;
         }
 
-        public static bool InspectValueInArray<T>(ref T el, T[] array, int index, ref int inspected, ListMetaData listMeta = null)
+        public static bool InspectValueInArray<T>(T el, T[] array, int index, ref int inspected, ListMetaData listMeta = null)
         {
 
             var changed = InspectValueInCollection(ref el, array, index, ref inspected, listMeta);
@@ -1518,7 +1524,7 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool InspectValueInList<T>(ref T el, List<T> list, int index, ref int inspected,
+        public static bool InspectValueInList<T>(T el, List<T> list, int index, ref int inspected,
             ListMetaData listMeta = null)
         {
 
@@ -1731,10 +1737,10 @@ namespace PlayerAndEditorGUI
                 if (list != collectionInspector.reordering)
                 {
 
-                    foreach (var i in collectionInspector.InspectionIndexes(list, listMeta))
+                    foreach (var el in collectionInspector.InspectionIndexes(list, listMeta))
                     {
+                        var i = collectionInspector.Index;
 
-                        var el = list[i];
                         if (!el)
                         {
                             T obj = null;
@@ -1843,13 +1849,15 @@ namespace PlayerAndEditorGUI
 
                 if (list != collectionInspector.reordering)
                 {
-                    foreach (var i in collectionInspector.InspectionIndexes(list, listMeta))
+                    foreach (var el in collectionInspector.InspectionIndexes(list, listMeta))
                     {
-                        var el = list[i];
+                        var i = collectionInspector.Index;
+
                         if (!el)
                         {
-                            if (listMeta.TryInspect(ref el, i).nl(ref changed))
-                                list[i] = el;
+                            var elTmp = el;
+                            if (listMeta.TryInspect(ref elTmp, i).nl(ref changed))
+                                list[i] = elTmp;
 
                         }
                         else
@@ -1923,16 +1931,17 @@ namespace PlayerAndEditorGUI
 
                 collectionInspector.ListAddEmptyClick(list).changes(ref changed);
 
-                foreach (var i in collectionInspector.InspectionIndexes(list))
+                foreach (var el in collectionInspector.InspectionIndexes(list))
                 {
-                    var el = list[i];
+                    int i = collectionInspector.Index;
                     var ch = GUI.changed;
-                    el = lambda(el);
+
+                    var tmpEl = lambda(el);
                     nl();
                     if (ch || !GUI.changed) continue;
 
                     changed = true;
-                    list[i] = el;
+                    list[i] = tmpEl;
                 }
 
             }
@@ -1964,16 +1973,18 @@ namespace PlayerAndEditorGUI
                 {
                     collectionInspector.ListAddEmptyClick(list, listMeta).changes(ref changed);
 
-                    foreach (var i in collectionInspector.InspectionIndexes(list, listMeta))
+                    foreach (var el in collectionInspector.InspectionIndexes(list, listMeta))
                     {
-                        var el = list[i];
+                        var i = collectionInspector.Index;
+
                         if (!el)
                         {
-                            if (!from.IsNullOrEmpty() && select_SameClass(ref el, from))
-                                list[i] = el;
+                            var elTmp = el;
+                            if (!from.IsNullOrEmpty() && select_SameClass(ref elTmp, from))
+                                list[i] = elTmp;
 
-                            if (listMeta.TryInspect(ref el, i).changes(ref changed))
-                                list[i] = el;
+                            if (listMeta.TryInspect(ref elTmp, i).changes(ref changed))
+                                list[i] = elTmp;
                         }
                         else
                             collectionInspector.InspectClassInList(list, i, ref inspected, listMeta).changes(ref changed);
@@ -2095,10 +2106,10 @@ namespace PlayerAndEditorGUI
 
                     collectionInspector.ListAddNewClick(list, ref added, listMeta).changes(ref changed);
 
-                    foreach (var i in collectionInspector.InspectionIndexes(list, listMeta))
+                    foreach (var el in collectionInspector.InspectionIndexes(list, listMeta))
                     {
+                        int i = collectionInspector.Index;
 
-                        var el = list[i];
                         if (el.IsNullOrDestroyed_Obj())
                         {
                             if (!collectionInspector.isMonoType(list, i))
@@ -2109,8 +2120,9 @@ namespace PlayerAndEditorGUI
                             }
                         }
                         else
-                            InspectValueInList(ref el, list, i, ref inspected, listMeta).changes(ref changed);
-
+                        {
+                            InspectValueInList(el, list, i, ref inspected, listMeta).changes(ref changed);
+                        }
 
                         nl();
                     }
@@ -2176,10 +2188,10 @@ namespace PlayerAndEditorGUI
                 if (list != collectionInspector.reordering)
                 {
 
-                    foreach (var i in collectionInspector.InspectionIndexes(list, listMeta))
+                    foreach (var el in collectionInspector.InspectionIndexes(list, listMeta))
                     {
+                        int i = collectionInspector.Index;
 
-                        var el = list[i];
                         if (el == null)
                         {
 
@@ -2191,8 +2203,9 @@ namespace PlayerAndEditorGUI
                             }
                         }
                         else
-                            InspectValueInList(ref el, list, i, ref inspected, listMeta).changes(ref changed);
-
+                        {
+                            InspectValueInList(el, list, i, ref inspected, listMeta).changes(ref changed);
+                        }
                         nl();
                     }
 
@@ -2310,15 +2323,15 @@ namespace PlayerAndEditorGUI
 
                 collectionInspector.ListAddNewClick(list, ref added).changes(ref changed);
 
-                foreach (var i in collectionInspector.InspectionIndexes(list))
+                foreach (var el in collectionInspector.InspectionIndexes(list))
                 {
-                    var el = list[i];
+                    int i = collectionInspector.Index;
 
                     var ch = GUI.changed;
-                    el = lambda(el);
+                    var tmpEl = lambda(el);
                     if (!ch && GUI.changed)
                     {
-                        list[i] = el;
+                        list[i] = tmpEl;
                         changed = true;
                     }
 
@@ -2365,14 +2378,14 @@ namespace PlayerAndEditorGUI
 
                 collectionInspector.ListAddNewClick(list, ref added).changes(ref changed);
 
-                foreach (var i in collectionInspector.InspectionIndexes(list))
+                foreach (var el in collectionInspector.InspectionIndexes(list))
                 {
-                    var el = list[i];
+                    int i = collectionInspector.Index;
                     var ch = GUI.changed;
-                    el = lambda(el);
+                    var tmpEl = lambda(el);
                     nl();
                     if (ch || !GUI.changed) continue;
-                    list[i] = el;
+                    list[i] = tmpEl;
                     changed = true;
 
                 }
@@ -2404,17 +2417,17 @@ namespace PlayerAndEditorGUI
                     collectionInspector.SkrollToBottom();
                 }
 
-                foreach (var i in collectionInspector.InspectionIndexes(list))
+                foreach (var el in collectionInspector.InspectionIndexes(list))
                 {
-                    var el = list[i];
+                    int i = collectionInspector.Index;
 
                     var ch = GUI.changed;
-                    el = lambda(el);
+                    var tmpEl = lambda(el);
                     nl();
                     if (ch || !GUI.changed) continue;
 
                     changed = true;
-                    list[i] = el;
+                    list[i] = tmpEl;
                 }
 
             }
@@ -2445,8 +2458,8 @@ namespace PlayerAndEditorGUI
 
             var changed = false;
 
-            foreach (var i in collectionInspector.InspectionIndexes(list))
-                lambda(list[i]).nl(ref changed);
+            foreach (var el in collectionInspector.InspectionIndexes(list))
+                lambda(el).nl(ref changed);
 
             nl();
 
@@ -2489,7 +2502,7 @@ namespace PlayerAndEditorGUI
                     if (el == null)
                         write("NULL");
                     else
-                        InspectValueInList(ref el, list, i, ref edited).changes(ref changed);
+                        InspectValueInList(el, list, i, ref edited).changes(ref changed);
 
                     nl();
                 }
@@ -2508,99 +2521,42 @@ namespace PlayerAndEditorGUI
 
         #region Dictionary Generic
 
-        protected class KeyValuePairInspector<T, G> : ICollection<KeyValuePairInspector<T, G>>, IEnumerator<KeyValuePairInspector<T, G>>, IGotDisplayName, IPEGI_Searchable, INeedAttention
+        protected interface iCollectionInspector<T>
         {
-            private Dictionary<T, G> _dictionary;
-            private int _index = 0;
+            void Set(T val);
+        }
 
-            private KeyValuePair<T, G> _pair;
+        protected class KeyValuePairInspector<T,G> : iCollectionInspector<KeyValuePair<T,G>>, IGotDisplayName, IPEGI_Searchable, INeedAttention
+        {
+            KeyValuePair<T, G> _pair;
 
-            private KeyValuePair<T, G> Pair => _dictionary.ElementAt(_index);
-
-            public KeyValuePairInspector(Dictionary<T, G> dic)
+            public void Set(KeyValuePair<T, G> pair)
             {
-                _dictionary = dic;
+                _pair = pair;
             }
-
-            public KeyValuePairInspector<T, G> Current
-            {
-                get
-                {
-                    return this;
-                }
-            }
-
-            object IEnumerator.Current => this;
-
-            public int Count => _dictionary.Count;
-
-            public bool IsReadOnly => false;
-
-            public void Dispose()
-            {
-                throw new NotImplementedException();
-            }
-
-            public bool MoveNext()
-            {
-
-                if (_index < (_dictionary.Count - 1))
-                {
-                    _index++;
-                    return true;
-                }
-                return false;
-            }
-
+          
             public string NameForDisplayPEGI()
             {
-                var p = Pair;
-                return p.Value == null ? p.Key.GetNameForInspector() :  Pair.Value.GetNameForInspector();
-            }
-
-            public void Reset()
-            {
-                _index = 0;
+                return _pair.Value == null ? _pair.Key.GetNameForInspector() : _pair.Value.GetNameForInspector();
             }
 
             public bool String_SearchMatch(string searchString)
             {
-                var p = Pair;
 
-                return Try_SearchMatch_Obj(p.Value, searchString) || Try_SearchMatch_Obj(p.Key, searchString);
+                return Try_SearchMatch_Obj(_pair.Value, searchString) || Try_SearchMatch_Obj(_pair.Key, searchString);
             }
 
             public string NeedAttention()
             {
-                var p = Pair;
+
                 string msg = null;
 
-                if (NeedsAttention(Pair.Value, out msg))
-                    "{0} at {1}".F(msg, p.Key.GetNameForInspector());
+                if (NeedsAttention(_pair.Value, out msg))
+                    "{0} at {1}".F(msg, _pair.Key.GetNameForInspector());
 
                 return msg;
                
             }
-
-            public void Add(KeyValuePairInspector<T, G> item)
-            {
-               
-            }
-
-            public void Clear() => _dictionary.Clear();
-            
-            public bool Contains(KeyValuePairInspector<T, G> item) => false;
-
-            public void CopyTo(KeyValuePairInspector<T, G>[] array, int arrayIndex)
-            {
-            }
-
-            public bool Remove(KeyValuePairInspector<T, G> item) =>  false;
-
-            public IEnumerator<KeyValuePairInspector<T, G>> GetEnumerator() => this;
-            
-            IEnumerator IEnumerable.GetEnumerator() => this;
-            
         }
 
         public static bool edit_Dictionary_Values<G, T>(this string label, Dictionary<G, T> dic, bool showKey = false)
@@ -2674,14 +2630,10 @@ namespace PlayerAndEditorGUI
             else
             {
 
-                foreach (var i in collectionInspector.InspectionIndexes(new KeyValuePairInspector<G, T>(dic), listMeta))
+                foreach (var item in collectionInspector.InspectionIndexes(dic, listMeta, new KeyValuePairInspector<G, T>()))
                 {
-
-                    var item = dic.ElementAt(i);
                     var itemKey = item.Key;
-
-                    collectionInspector.Index = i;
-
+                    
                     if ((listMeta == null || listMeta.allowDelete) && icon.Delete.ClickUnFocus(25).changes(ref changed))
                         dic.Remove(itemKey);
                     else
@@ -2697,7 +2649,7 @@ namespace PlayerAndEditorGUI
                             dic[itemKey] = el;
 
                         if (listMeta != null && icon.Enter.Click("Enter " + el))
-                            listMeta.inspected = i;
+                            listMeta.inspected = collectionInspector.Index;
                     }
 
                     nl();
@@ -2725,12 +2677,9 @@ namespace PlayerAndEditorGUI
                 if (listMeta != null)
                     showKey = listMeta.showDictionaryKey;
 
-                foreach (var i in collectionInspector.InspectionIndexes(new KeyValuePairInspector<G, T>(dic), listMeta))
+                foreach (var item in collectionInspector.InspectionIndexes(dic, listMeta, new KeyValuePairInspector<G, T>()))
                 {
-
-                    var item = dic.ElementAt(i);
                     var itemKey = item.Key;
-                    collectionInspector.Index = i;
                     
                     if ((listMeta == null || listMeta.allowDelete) && icon.Delete.ClickUnFocus(25).changes(ref changed))
                     {
@@ -2741,9 +2690,8 @@ namespace PlayerAndEditorGUI
                     {
                         if (showKey)
                             itemKey.GetNameForInspector().write_ForCopy(50);
-
-                        var el = item.Value;
-                        InspectValueInDictionary(ref el, dic, i, ref inspected, listMeta).changes(ref changed);
+                        
+                        InspectValueInDictionary(item, dic, collectionInspector.Index, ref inspected, listMeta).changes(ref changed);
                     }
                     nl();
                 }
@@ -2809,10 +2757,10 @@ namespace PlayerAndEditorGUI
             if (dicIsNull(ref dic))
                 return changed;
 
-            foreach (var i in collectionInspector.InspectionIndexes(dic))
+            foreach (var e in collectionInspector.InspectionIndexes(dic))
             {
+                int i = collectionInspector.Index;
 
-                var e = dic.ElementAt(i);
                 collectionInspector.Index = e.Key;
 
                 if (icon.Delete.ClickUnFocus(20))
@@ -2965,7 +2913,7 @@ namespace PlayerAndEditorGUI
                 for (var i = 0; i < array.Length; i++)
                 {
                     var el = array[i];
-                    if (InspectValueInArray(ref el, array, i, ref inspected, metaDatas).nl(ref changed) &&
+                    if (InspectValueInArray(el, array, i, ref inspected, metaDatas).nl(ref changed) &&
                         typeof(T).IsValueType)
                         array[i] = el;
                 }
@@ -3151,9 +3099,6 @@ namespace PlayerAndEditorGUI
 
             }
 
-            public bool Searching(IList list) =>
-                list == filteredList && (filterByNeedAttention || !searchBys.IsNullOrEmpty());
-            
             public void SearchString(IEnumerable list, out bool searching, out string[] searchBy)
             {
                 searching = false;
