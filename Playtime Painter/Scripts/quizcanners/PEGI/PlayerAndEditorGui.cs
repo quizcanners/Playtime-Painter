@@ -450,9 +450,7 @@ namespace PlayerAndEditorGUI
                             LastNeedAttentionIndex = i;
                             return msg;
                         }
-                    }
-
-                    if (!canBeNull)
+                    } else if (!canBeNull)
                     {
                         msg = "{0} element in {1} is NULL".F(i, listName);
                         LastNeedAttentionIndex = i;
