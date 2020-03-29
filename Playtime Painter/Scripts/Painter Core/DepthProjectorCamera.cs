@@ -325,11 +325,12 @@ namespace PlaytimePainter
             if (userToGetUpdate != null)
             {
 
-                //Debug.Log("Returning user "+userToGetUpdate.ToString());
-
                 try
                 {
-                    userToGetUpdate.AfterCameraRender(_projectorCamera.targetTexture);
+                    if (!QcUnity.IsNullOrDestroyed_Obj(userToGetUpdate))
+                    {
+                        userToGetUpdate.AfterCameraRender(_projectorCamera.targetTexture);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -337,9 +338,6 @@ namespace PlaytimePainter
                 }
 
                 lastUserUpdateReturned = QcUnity.TimeSinceStartup();
-
-                //if (userToGetUpdate as VolumeRayTrace != null)
-                //Debug.Log("Returning result");
 
                 userToGetUpdate = null;
 
