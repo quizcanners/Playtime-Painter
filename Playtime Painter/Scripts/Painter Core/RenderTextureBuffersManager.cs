@@ -646,9 +646,9 @@ namespace PlaytimePainter {
 
         }
 
-        public static bool TargetIsTexture2D(this TextureMeta id) => id != null && id.destination == TexTarget.Texture2D;
+        public static bool TargetIsTexture2D(this TextureMeta id) => id != null && id.target == TexTarget.Texture2D;
 
-        public static bool TargetIsRenderTexture(this TextureMeta id) => id != null && id.destination == TexTarget.RenderTexture;
+        public static bool TargetIsRenderTexture(this TextureMeta id) => id != null && id.target == TexTarget.RenderTexture;
 
         public static TextureMeta GetImgDataIfExists(this Texture texture)
         {
@@ -720,7 +720,7 @@ namespace PlaytimePainter {
             if (id.other != null)
                 return id.other;
 
-            switch (id.destination)
+            switch (id.target)
             {
                 case TexTarget.RenderTexture:
                     return !id.renderTexture ? id.texture2D : (Texture)id.renderTexture;
@@ -738,14 +738,14 @@ namespace PlaytimePainter {
             if (id.other)
                 return id.other;
 
-            switch (id.destination)
+            switch (id.target)
             {
                 case TexTarget.RenderTexture:
                     if (id.renderTexture != null)
                         return id.renderTexture;
                     if (PainterCamera.Inst.imgMetaUsingRendTex == id)
                         return PainterCamera.FrontBuffer;
-                    id.destination = TexTarget.Texture2D;
+                    id.target = TexTarget.Texture2D;
                     return id.texture2D;
                 case TexTarget.Texture2D:
                     return id.texture2D;

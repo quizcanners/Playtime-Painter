@@ -294,7 +294,7 @@ namespace PlaytimePainter {
             if (imgMetaUsingRendTex.texture2D)
                 imgMetaUsingRendTex.RenderTexture_To_Texture2D();
 
-            imgMetaUsingRendTex.destination = TexTarget.Texture2D;
+            imgMetaUsingRendTex.target = TexTarget.Texture2D;
 
             foreach (var m in materialsUsingRenderTexture)
                 m.SetTextureOnLastTarget(imgMetaUsingRendTex);
@@ -317,7 +317,7 @@ namespace PlaytimePainter {
                     if (imgMetaUsingRendTex.texture2D)
                         imgMetaUsingRendTex.RenderTexture_To_Texture2D();
 
-                    imgMetaUsingRendTex.destination = TexTarget.Texture2D;
+                    imgMetaUsingRendTex.target = TexTarget.Texture2D;
 
                     foreach (var m in materialsUsingRenderTexture)
                         m.SetTextureOnLastTarget(imgMetaUsingRendTex);
@@ -620,11 +620,13 @@ namespace PlaytimePainter {
 
         public RenderTexture Render(Texture from, TextureMeta to) => Render(from, to.CurrentRenderTexture(), Data.brushBufferCopy);
 
-        public void Render(Color col, RenderTexture to)
+        public RenderTexture Render(Color col, RenderTexture to)
         {
             TargetTexture = to;
             brushRenderer.PrepareColorPaint(col);
             Render();
+
+            return to;
         }
         
         public void UpdateBufferSegment()

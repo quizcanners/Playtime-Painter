@@ -654,7 +654,7 @@ namespace PlaytimePainter
 
             SetTextureOnMaterial(texture);
 
-            UpdateOrSetTexTarget(id.destination);
+            UpdateOrSetTexTarget(id.target);
 
             UpdateTilingFromMaterial();
 
@@ -678,7 +678,7 @@ namespace PlaytimePainter
             if (id == null)
                 return;
 
-            if (id.destination == dst)
+            if (id.target == dst)
                 return;
 
             id.ChangeDestination(dst, GetMaterial(true).GetMaterialPainterMeta(), GetMaterialTextureProperty, this);
@@ -778,7 +778,21 @@ namespace PlaytimePainter
                 id.RenderTexture_To_Texture2D();
             else
             {
-                needsReColorizing |= id.Colorize(colorData, true);
+                // When first creating texture Alpha value should not be 1 otherwise texture will be encoded to RGB and not RGBA 
+                var needsReColorizingAfterSave = false;
+
+                #if UNITY_EDITOR
+
+                if (Math.Abs(colorData.a - 1) < float.Epsilon)
+                {
+                    needsReColorizing = true;
+                    colorData.a = 0.5f;
+                }
+
+                #endif
+
+                id.SetPixels(colorData);
+                
                 needsFullUpdate = true;
             }
 
@@ -797,7 +811,7 @@ namespace PlaytimePainter
 
             if (needsReColorizing)
             {
-                id.Colorize(colorData);
+                id.SetPixels(colorData);
                 id.SetAndApply();
             }
 #endif
@@ -1087,7 +1101,7 @@ namespace PlaytimePainter
             var id = TexMeta;
 
             if (id != null && Material)
-                UpdateOrSetTexTarget(id.destination);
+                UpdateOrSetTexTarget(id.target);
 
             pegi.GameView.ShowNotification("Instantiating Material on {0}".F(gameObject.name));
 
@@ -1525,7 +1539,7 @@ namespace PlaytimePainter
         private void OnPostSaveTexture(TextureMeta id)
         {
             SetTextureOnMaterial(id);
-            UpdateOrSetTexTarget(id.destination);
+            UpdateOrSetTexTarget(id.target);
             UpdateModules();
 
             id.UnsetAlphaSavePixel();
@@ -1645,8 +1659,8 @@ namespace PlaytimePainter
 
 #if UNITY_EDITOR
 
-        [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Attach Painter To Selected")]
-        private static void GivePainterToSelected()
+        [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Add Painters To Selected")]
+        private static void AddPainterToSelected()
         {
             foreach (var go in Selection.gameObjects)
                 IterateAssignToChildren(go.transform);
@@ -2573,12 +2587,12 @@ namespace PlaytimePainter
                                 {
                                     PainterCamera.Inst.DiscardAlphaBuffer();
 
-                                    texMeta.Colorize(texMeta.clearColor);
+                                    texMeta.SetPixels(texMeta.clearColor);
                                     texMeta.SetApplyUpdateRenderTexture();
                                 }
                                 else
                                 {
-                                    var wasRt = texMeta.destination == TexTarget.RenderTexture;
+                                    var wasRt = texMeta.target == TexTarget.RenderTexture;
 
                                     if (wasRt)
                                         UpdateOrSetTexTarget(TexTarget.Texture2D);

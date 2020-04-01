@@ -137,8 +137,8 @@ namespace PlaytimePainter
 
                 return
 
-                    (id.destination == TexTarget.Texture2D && SupportedByTex2D) ||
-                    (id.destination == TexTarget.RenderTexture &&
+                    (id.target == TexTarget.Texture2D && SupportedByTex2D) ||
+                    (id.target == TexTarget.RenderTexture &&
                      ((SupportedByRenderTexturePair && !id.renderTexture)
                       || (SupportedBySingleBuffer && id.renderTexture)));
             }

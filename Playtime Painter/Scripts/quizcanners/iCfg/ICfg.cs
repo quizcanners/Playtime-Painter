@@ -533,16 +533,19 @@ namespace QuizCannersUtilities {
             if (inspectedItems == -1)
                 pegi.Lock_UnlockWindowClick(gameObject);
 
-            if (!icon.Debug.enter(ref inspectedItems, 0).changes(ref changed)) return changed; 
+            if (!icon.Debug.enter(ref inspectedItems, 0).nl(ref changed))
+                return changed; 
                 
+
+
+            "{0} Debug ".F(this.GetNameForInspector()).write(90);
+
+            pegi.toggleDefaultInspector(this);
+
             if (icon.Refresh.Click("Reset Inspector"))
                 ResetInspector();
 
             this.CopyPasteStdPegi().nl(ref changed);
-
-            pegi.toggleDefaultInspector(this).nl();
-            
-            "{0} Debug ".F(this.GetNameForInspector()).nl();
 
             if (("Cfg Saves: " + explorer.CountForInspector()).enter(ref _inspectedDebugItems, 0).nl())
                 explorer.Inspect(this);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using UnityEngine;
@@ -47,18 +48,33 @@ namespace PlaytimePainter
 
         }
 
-        public RenderTexture GetRenderTexture() {
-            if (_rtList.Count > 0)
-                return _rtList.RemoveLast();
-
+        private RenderTexture CreateRenderTexture()
+        {
             texturesCreated++;
 
-           return new RenderTexture(width, width, 0) {
+            return new RenderTexture(width, width, 0) {
                 wrapMode = TextureWrapMode.Repeat,
                 useMipMap = false,
                 name = "RenderTexture_fromPool"
             };
-            
+    }
+
+        public RenderTexture GetRenderTexture(Color textureColor)
+        {
+            RenderTexture rt = (_rtList.Count>0) ?  _rtList.RemoveLast() : CreateRenderTexture();
+
+            PainterCamera.Inst.Render(textureColor, rt);
+
+            return rt;
+        }
+
+        public RenderTexture GetRenderTexture() {
+            if (_rtList.Count > 0)
+            {
+                return _rtList.RemoveLast();
+            }
+
+            return CreateRenderTexture();
         }
 
         public void ReturnOne(RenderTexture rt)
@@ -76,12 +92,15 @@ namespace PlaytimePainter
         {
             var changed = false;
 
-            "Data (Non Color) Texture".toggleIcon(ref nonColorData).nl();
+            pegi.toggleDefaultInspector(this);
 
-            "Textures 2D".edit_List_UObj(ref _t2DList).nl();
+            "Data (Non Color) Texture".toggleIcon(ref nonColorData).nl(ref changed);
 
-            "Render Textures".edit_List_UObj(ref _rtList).nl();
+            "Textures 2D".edit_List_UObj(ref _t2DList).nl(ref changed);
 
+            "Render Textures".edit_List_UObj(ref _rtList).nl(ref changed);
+
+            "Size:".selectPow2(ref width, 16, 4096).nl(ref changed);
 
             return changed;
         }

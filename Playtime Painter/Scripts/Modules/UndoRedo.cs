@@ -122,7 +122,7 @@ namespace PlaytimePainter
                 var fromRt = (tex2D.Count == 0) ||
                              ((rTex.Count > 0) && (tex2D[tex2D.Count - 1].order < rTex[rTex.Count - 1].order));
 
-                var toRt = id.destination == TexTarget.RenderTexture;
+                var toRt = id.target == TexTarget.RenderTexture;
 
                 if (toRt)
                     otherDirection.BackupRenderTexture(int.MaxValue, id);

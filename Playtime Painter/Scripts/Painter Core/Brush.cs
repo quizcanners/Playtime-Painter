@@ -396,7 +396,7 @@ namespace PlaytimePainter {
             var id = p.TexMeta;
 
             var changed = false;
-            var cpuBlit = id.destination == TexTarget.Texture2D;
+            var cpuBlit = id.target == TexTarget.Texture2D;
             
             if (id.texture2D)
             {

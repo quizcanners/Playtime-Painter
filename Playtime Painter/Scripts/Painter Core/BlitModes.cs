@@ -137,8 +137,8 @@ namespace PlaytimePainter {
 
                 var br = GlobalBrush;
 
-                return ((id.destination == TexTarget.Texture2D) && (SupportedByTex2D)) ||
-                       ((id.destination == TexTarget.RenderTexture) &&
+                return ((id.target == TexTarget.Texture2D) && (SupportedByTex2D)) ||
+                       ((id.target == TexTarget.RenderTexture) &&
                         ((SupportedByRenderTexturePair && (!id.renderTexture))
                          || (SupportedBySingleBuffer && (id.renderTexture))));
             }
@@ -156,7 +156,7 @@ namespace PlaytimePainter {
                 {
 
                     var id = InspectedImageMeta;
-                    var cpuBlit = id == null ? InspectedBrush.targetIsTex2D : id.destination == TexTarget.Texture2D;
+                    var cpuBlit = id == null ? InspectedBrush.targetIsTex2D : id.target == TexTarget.Texture2D;
                     var brushType = InspectedBrush.GetBrushType(cpuBlit);
                     var blitMode = InspectedBrush.GetBlitMode(cpuBlit);
                     var usingDecals = (!cpuBlit) && brushType.IsUsingDecals;
