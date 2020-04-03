@@ -167,11 +167,11 @@ namespace PlaytimePainter {
                         MsgPainter.Hardness.GetText()
                             .edit("Makes edges more rough.", 70, ref InspectedBrush.hardness, 1f, 5f).nl(ref changed);
 
-                    var txt = (usingDecals ? "Tint alpha" : MsgPainter.Speed.GetText());
+                    var txt = (usingDecals ? "Tint alpha" : MsgPainter.Flow.GetText());
 
                     txt.write(txt.ApproximateLength());
 
-                    InspectedBrush._dSpeed.Inspect().nl(ref changed);
+                    InspectedBrush._dFlow.Inspect().nl(ref changed);
 
                     MsgPainter.Scale.Write();
 

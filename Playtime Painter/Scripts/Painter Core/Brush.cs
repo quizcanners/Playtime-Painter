@@ -138,12 +138,12 @@ namespace PlaytimePainter {
             return GetBrushType(cpu).IsAWorldSpaceBrush;
         }
 
-        [SerializeField] public QcUtils.DynamicRangeFloat _dSpeed = new QcUtils.DynamicRangeFloat(0.1f, 4.5f, 3f );
+        [SerializeField] public QcUtils.DynamicRangeFloat _dFlow = new QcUtils.DynamicRangeFloat(0.1f, 4.5f, 3f );
 
-        public float Speed
+        public float Flow
         {
-            get { return _dSpeed.Value * _dSpeed.Value; }
-            set { _dSpeed.Value = Mathf.Sqrt(value); }
+            get { return _dFlow.Value * _dFlow.Value; }
+            set { _dFlow.Value = Mathf.Sqrt(value); }
         }
 
         #endregion
@@ -695,7 +695,7 @@ namespace PlaytimePainter {
             }
 
             cody.Add("hard", hardness)
-                .Add("dSpeed", _dSpeed);
+                .Add("dSpeed", _dFlow);
             //.Add("Speed", speed);
 
             return cody;
@@ -732,8 +732,8 @@ namespace PlaytimePainter {
                 case "maskFlip": flipMaskAlpha = data.ToBool(); break;
 
                 case "hard": hardness = data.ToFloat(); break;
-                case "Speed": _dSpeed.Value = data.ToFloat(); break;
-                case "dSpeed": _dSpeed.Decode(data); break;
+                case "Speed": _dFlow.Value = data.ToFloat(); break;
+                case "dSpeed": _dFlow.Decode(data); break;
                 case "dyn": data.Decode(out brushDynamic, BrushDynamic.Base.all); break;
 
                 case "maskOff": maskOffset = data.ToVector2(); break;

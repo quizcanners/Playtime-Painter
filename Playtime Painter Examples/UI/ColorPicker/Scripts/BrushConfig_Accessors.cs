@@ -18,7 +18,7 @@ namespace PlaytimePainter.Examples {
 
         public float ColorAlpha { get { return Brush.Color.a; } set { Brush.Color.a = value; Brush.previewDirty = true; } }
 
-        public float Speed { get { return Brush.Speed; } set { Brush.Speed = value; Brush.previewDirty = true; } }
+        public float Speed { get { return Brush.Flow; } set { Brush.Flow = value; Brush.previewDirty = true; } }
 
         public static void TrySetLocalScale<T>(List<T> graphics, float size) where T : Graphic
         {

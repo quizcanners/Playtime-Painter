@@ -779,7 +779,6 @@ namespace PlaytimePainter
             else
             {
                 // When first creating texture Alpha value should not be 1 otherwise texture will be encoded to RGB and not RGBA 
-                var needsReColorizingAfterSave = false;
 
                 #if UNITY_EDITOR
 

@@ -11,7 +11,7 @@ namespace PlayerAndEditorGUI {
         BlitMode, BlitModeAlpha, BlitModeAdd, BlitModeSubtract, BlitModeCopy, BlitModeMin, BlitModeMax, BlitModeBlur,
         BlitModeOff, BlitModeBloom, BlitModeProjector, BlitModeFiller,
         LockToolToUseTransform, HideTransformTool, AboutPlaytimePainter,
-         MeshProfileUsage, Speed, Scale, Hardness, CopyFrom, TextureSettings, previewRGBA, AutoSelectMaterial,
+         MeshProfileUsage, Flow, Scale, Hardness, CopyFrom, TextureSettings, previewRGBA, AutoSelectMaterial,
          aboutDisableDocumentation, SampleColor, PreviewRecommended, AlphaBufferBlit, Opacity, SpreadSpeed, BlurAmount,
          Unnamed, TransparentLayer, PleaseSelect, MeshPoint, Vertex, MeshPointPositionTool
 
@@ -83,7 +83,7 @@ namespace PlayerAndEditorGUI {
                                                    "I place Shadows in UV2{0}" +
                                                    "I place Edge in UV3.{0}").F(pegi.EnvironmentNl));
                     break;
-                case MsgPainter.Speed:
+                case MsgPainter.Flow:
                     msg.Translate("Flow")
                         .From(ukr, "Потік")
                         .From(rus, "Скорость")

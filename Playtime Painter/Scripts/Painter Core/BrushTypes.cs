@@ -215,7 +215,7 @@ namespace PlaytimePainter
                     deltaUv = Vector2.zero; // This is made to avoid glitch strokes on seams
                 else st.avgBrushSpeed = (st.avgBrushSpeed + deltaUv.magnitude) / 2;
 
-                var alpha = Mathf.Clamp01(br.Speed * (Application.isPlaying ? Time.deltaTime : 0.1f));
+                var alpha = Mathf.Clamp01(br.Flow * (Application.isPlaying ? Time.deltaTime : 0.1f));
 
                 var id = command.textureData;
 
@@ -288,7 +288,7 @@ namespace PlaytimePainter
                 if (st.CrossedASeam())
                     st.uvFrom = st.uvTo;
 
-                command.strokeAlphaPortion = br.Speed * 0.05f;
+                command.strokeAlphaPortion = br.Flow * 0.05f;
 
                 TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command); 
 
@@ -391,7 +391,7 @@ namespace PlaytimePainter
                 if (st.CrossedASeam())
                     st.uvFrom = st.uvTo;
                 
-                command.strokeAlphaPortion = br.Speed * 0.05f;
+                command.strokeAlphaPortion = br.Flow * 0.05f;
 
                 TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command);// br, br.Speed * 0.05f, id, st, out alphaBuffer, painter);
 
@@ -440,7 +440,7 @@ namespace PlaytimePainter
                     firstStroke = false
                 }, rt.GetTextureMeta(), br)
                 {
-                    strokeAlphaPortion = br.Speed * 0.05f
+                    strokeAlphaPortion = br.Flow * 0.05f
                 };
 
                 TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command); // br, br.Speed * 0.05f, id, stroke, out alphaBuffer);
@@ -520,7 +520,7 @@ namespace PlaytimePainter
                 _decalParametersProperty.GlobalValue = new Vector4(
                     brush.decalAngle * Mathf.Deg2Rad,
                     (vd.type == VolumetricDecalType.Add) ? 1 : -1,
-                    Mathf.Clamp01(brush.Speed / 10f),
+                    Mathf.Clamp01(brush.Flow / 10f),
                     0);
             }
 
@@ -838,7 +838,7 @@ namespace PlaytimePainter
                     isTail = true;
                 }
 
-                command.strokeAlphaPortion = br.Speed * 0.05f;
+                command.strokeAlphaPortion = br.Flow * 0.05f;
 
                 r.SHADER_STROKE_SEGMENT_UPDATE(command);//br, br.Speed * 0.05f, id, st, out alphaBuffer, painter);
 
@@ -892,7 +892,7 @@ namespace PlaytimePainter
                 // if (stroke.mouseDwn)
                 //    stroke.posFrom = stroke.posTo;
 
-                command.strokeAlphaPortion = br.Speed * 0.05f;
+                command.strokeAlphaPortion = br.Flow * 0.05f;
 
                 TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command); // br, br.Speed * 0.05f, id, stroke, out alphaBuffer, painter);
 
