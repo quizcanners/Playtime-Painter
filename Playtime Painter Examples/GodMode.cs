@@ -1,6 +1,7 @@
 ﻿using System;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using Unity.Collections;
 using UnityEngine;
 
 namespace PlaytimePainter.Examples
@@ -11,8 +12,10 @@ namespace PlaytimePainter.Examples
 #pragma warning disable IDE0018 // Inline variable declaration
 
     [ExecuteInEditMode]
-    public class GodMode : MonoBehaviour, IPEGI, ICfg
+    public class GodMode : MonoBehaviour, IPEGI, ICfg, ILinkedLerping
     {
+
+        public enum Mode { FPS = 0, STATIC = 1, LERP = 2 }
 
         public float speed = 20;
         public float sensitivity = 5;
@@ -20,20 +23,40 @@ namespace PlaytimePainter.Examples
         public bool rotateWithoutRmb;
         public bool simulateFlying;
 
+        [SerializeField] private QcUtils.DynamicRangeFloat targetHeight = new QcUtils.DynamicRangeFloat(0.1f, 10, 1);
+
+        public Mode mode;
+
+        #region Camera Lerp
+
+        LinkedLerp.Vector3Value _positionLerp = new LinkedLerp.Vector3Value("Position");
+        LinkedLerp.QuaternionValue _rotationLerp = new LinkedLerp.QuaternionValue("Rotation");
+        LinkedLerp.FloatValue _heightLerp = new LinkedLerp.FloatValue(name: "Height");
+
+
+        #endregion
+
         #region Encode & Decode
 
-        public CfgEncoder Encode() => new CfgEncoder()
+        public CfgEncoder Encode()
+        {
+            var cody = new CfgEncoder()
                 .Add("pos", transform.localPosition)
-                .Add("rot", transform.localRotation);
-        
+                .Add("rot", transform.localRotation)
+                .Add("h", _heightLerp.CurrentValue);
+            
+            return cody;
+        }
+
         public void Decode(string data) => new CfgDecoder(data).DecodeTagsFor(this);
 
         public bool Decode(string tg, string data)
         {
             switch (tg)
             {
-                case "pos": transform.localPosition = data.ToVector3(); break;
-                case "rot": transform.localRotation = data.ToQuaternion(); break;
+                case "pos": _positionLerp.TargetValue = data.ToVector3(); break;
+                case "rot": _rotationLerp.TargetValue = data.ToQuaternion(); break;
+                case "h": _heightLerp.TargetValue = data.ToFloat(); break;
                 default: return false;
             }
 
@@ -71,11 +94,7 @@ namespace PlaytimePainter.Examples
 
         #endregion
 
-
         #region Advanced Camera
-      //  public bool advancedCamera;
-
-        [SerializeField] private QcUtils.DynamicRangeFloat targetHeight = new QcUtils.DynamicRangeFloat(0.1f, 10, 1);
 
         private float CameraWindowNearClip()
         {
@@ -130,12 +149,8 @@ namespace PlaytimePainter.Examples
 
         }
 
-
         #endregion
-
-
-        private float _rotationY;
-
+        
         void OnEnable()
         {
             cameraSmoothedVelocity = Vector3.zero;
@@ -145,16 +160,13 @@ namespace PlaytimePainter.Examples
        
         }
 
-        public virtual void Update()
+        private void OnFpsUpdate()
         {
-
-            if (!_mainCam)
-                return;
-
-            var add = Vector3.zero;
 
             var operatorTf = transform;
             var camTf = _mainCam.transform;
+
+            var add = Vector3.zero;
 
             if (Input.GetKey(KeyCode.W)) add += camTf.forward;
             if (Input.GetKey(KeyCode.A)) add -= camTf.right;
@@ -173,18 +185,16 @@ namespace PlaytimePainter.Examples
 
             operatorTf.localPosition += mainCameraVelocity * Time.deltaTime;
 
-         //  if (advancedCamera)
-                operatorTf.localRotation = operatorTf.localRotation.LerpBySpeed(Quaternion.identity, 160);
+            operatorTf.localRotation = operatorTf.localRotation.LerpBySpeed(Quaternion.identity, 160);
 
             if (!Application.isPlaying || _disableRotation) return;
-            
+
             if (rotateWithoutRmb || Input.GetMouseButton(1))
             {
-
                 var eul = camTf.localEulerAngles;
 
                 var rotationX = eul.y;
-                _rotationY = eul.x;
+                float _rotationY = eul.x;
 
                 rotationX += Input.GetAxis("Mouse X") * sensitivity;
                 _rotationY -= Input.GetAxis("Mouse Y") * sensitivity;
@@ -192,10 +202,47 @@ namespace PlaytimePainter.Examples
                 _rotationY = _rotationY < 120 ? Mathf.Min(_rotationY, 85) : Mathf.Max(_rotationY, 270);
 
                 camTf.localEulerAngles = new Vector3(_rotationY, rotationX, 0);
-
             }
 
             SpinAround();
+        }
+        
+        public void Portion(LerpData ld)
+        {
+            _positionLerp.Portion(_ld);
+            _rotationLerp.Portion(_ld);
+            _heightLerp.Portion(_ld);
+        }
+
+        public void Lerp(LerpData ld, bool canSkipLerp)
+        {
+            _positionLerp.Lerp(_ld);
+            _rotationLerp.Lerp(_ld);
+            _heightLerp.Lerp(_ld);
+        }
+
+        private LerpData _ld = new LerpData();
+
+        public virtual void Update()
+        {
+
+            if (!_mainCam)
+                return;
+            
+            switch (mode)
+            {
+                case Mode.FPS:
+                    OnFpsUpdate();
+                    break;
+                case Mode.LERP:
+                    _ld.Reset();
+                    
+                    Portion(_ld);
+
+                    Lerp(_ld, false);
+
+                    break;
+            }
 
             UpdateCameraSmoothing();
 
@@ -282,99 +329,106 @@ namespace PlaytimePainter.Examples
         {
 
             var changed = false;
-            pegi.PopUpService.fullWindowDocumentationClickOpen(() =>
-                "WASD - move {0} Q, E - Dwn, Up {0} Shift - faster {0} {1} {0} MMB - Orbit Collider".F(pegi.EnvironmentNl,
-                    _disableRotation ? "" : (rotateWithoutRmb ? "RMB - rotation" : "Mouse to rotate")
-                ));
-                
-
-            pegi.nl();
-
+            
+            if (MainCam)
+                "Main Camera".edit(ref _mainCam).nl(ref changed);
+            
             if (!_mainCam)
             {
                 "Main Camera".selectInScene(ref _mainCam).nl();
                 "Camera is missing, spin around will not work".writeWarning();
             }
 
-            "Speed:".edit("Speed of movement", ref speed).nl();
+            if (MainCam)
+            {
 
-            "Sensitivity:".edit("How fast camera will rotate", ref sensitivity).nl(ref changed);
+                if (!_mainCam.transform.IsChildOf(transform) || (_mainCam.transform == transform))
+                {
 
-            "Flying".toggleIcon("Looking up/down will make camera move up/down.", ref simulateFlying).nl(ref changed);
+                    "Make main camera a child object of this script".writeWarning();
 
-            "Disable Rotation".toggleIcon(ref _disableRotation).nl(ref changed);
+                    if (transform.childCount == 0)
+                    {
 
-            if (!_disableRotation)
-                "Rotate without RMB".toggleIcon(ref rotateWithoutRmb).nl(ref changed);
+                        if ("Add Empty Child".Click().nl())
+                        {
+
+                            var go = new GameObject("Advanced Camera");
+                            var tf = go.transform;
+                            tf.SetParent(transform, false);
+                        }
+
+                    }
+                    else
+                        "Delete Main Camera and create one on a child".writeHint();
+
+                }
+                else
+                {
+                    
+                    bool cameraDirty = false;
+
+                    float fov = _mainCam.fieldOfView;
+
+                    "FOV".edit(ref fov, 5, 170).nl(ref cameraDirty);
+                    _mainCam.fieldOfView = fov;
+
+                    float clipDistance = CameraClipDistance;
+
+                    if ("Clip Range".editDelayed(ref clipDistance).nl())
+
+                        CameraClipDistance = Mathf.Clamp(clipDistance, 0.03f, 100000);
+                    
+                    "Height:".write(60);
+                    targetHeight.Inspect().nl(ref cameraDirty);
+
+                    "Clip Distance: {0}".F(CameraWindowNearClip()).nl();
+
+                    if (cameraDirty)
+                        AdjustCamera();
+                }
+            }
+
+
+            pegi.nl();
+
+            "Mode".editEnum(60, ref mode).nl();
+
+
+            switch (mode)
+            {
+                case Mode.FPS:
+
+                    pegi.PopUpService.fullWindowDocumentationClickOpen(() =>
+                        "WASD - move {0} Q, E - Dwn, Up {0} Shift - faster {0} {1} {0} MMB - Orbit Collider".F(
+                            pegi.EnvironmentNl,
+                            _disableRotation ? "" : (rotateWithoutRmb ? "RMB - rotation" : "Mouse to rotate")
+                        ));
+
+                    "Speed:".edit("Speed of movement", ref speed).nl();
+
+                    "Sensitivity:".edit("How fast camera will rotate", ref sensitivity).nl(ref changed);
+
+                    "Flying".toggleIcon("Looking up/down will make camera move up/down.", ref simulateFlying).nl(ref changed);
+
+                    "Disable Rotation".toggleIcon(ref _disableRotation).nl(ref changed);
+
+                    if (!_disableRotation)
+                        "Rotate without RMB".toggleIcon(ref rotateWithoutRmb).nl(ref changed);
+
+                    break;
+            }
+
+            pegi.nl();
+            
 
             "Smoothing offset: {0}".F(cameraSmoothingOffset).nl();
 
             "Smoothing velocity: {0}".F(cameraSmoothedVelocity).nl();
 
-            if (MainCam)
-            {
-
-                "Main Camera".edit(ref _mainCam).nl(ref changed);
-
-               // if ("Advanced Camera".toggleIcon(ref advancedCamera).nl())
-                //    AdjustCamera();
-
-             //   if (advancedCamera) {
-
-                    if (!_mainCam.transform.IsChildOf(transform) || (_mainCam.transform == transform))
-                    {
-
-                        "Make main camera a child object of this script".writeWarning();
-
-                        if (transform.childCount == 0)
-                        {
-
-                            if ("Add Empty Child".Click().nl())
-                            {
-
-                                var go = new GameObject("Advanced Camera");
-                                var tf = go.transform;
-                                tf.SetParent(transform, false);
-                            }
-
-                        }
-                        else
-                            "Delete Main Camera and create one on a child".writeHint();
-
-                    }
-                    else
-                    {
-
-                        bool cameraDirty = false;
-
-                        float fov = _mainCam.fieldOfView;
-
-                        "FOV".edit(ref fov, 5, 170).nl(ref cameraDirty);
-                        _mainCam.fieldOfView = fov;
-
-                        float clipDistance = CameraClipDistance;
-
-                        if ("Clip Range".editDelayed(ref clipDistance).nl())
-
-                            CameraClipDistance = Mathf.Clamp(clipDistance, 0.03f, 100000);
-
-
-
-                        "Height:".write(60);
-                        targetHeight.Inspect().nl(ref cameraDirty);
-
-                        "Clip Distance: {0}".F(CameraWindowNearClip()).nl();
-
-                        if (cameraDirty)
-                            AdjustCamera();
-
-                    }
-              //  }
-            }
-
             return false;
         }
-
+        
         #endregion
     }
 }

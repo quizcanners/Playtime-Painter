@@ -1131,6 +1131,119 @@ namespace QuizCannersUtilities
 
         }
 
+        public class Vector3Value : BaseLerpGeneric<Vector3>
+        {
+            protected readonly string _name = "Vector3 value";
+
+            public Vector3 targetValue;
+
+            public Vector3 currentValue;
+
+            public override Vector3 TargetValue
+            {
+                get { return targetValue; }
+                set { targetValue = value; }
+            }
+
+            public override bool UsingLinkedThreshold => base.UsingLinkedThreshold && Enabled;
+
+            public override Vector3 CurrentValue { get => currentValue; set{ currentValue = value; } }
+
+            protected override string Name_Internal => _name;
+
+            public Vector3Value()
+            {
+
+            }
+
+            public Vector3Value(string name)
+            {
+                _name = name;
+            }
+
+            protected override bool LerpInternal(float linkedPortion)
+            {
+                if (CurrentValue != targetValue || !defaultSet)
+                    CurrentValue = Vector3.Lerp(CurrentValue, targetValue, linkedPortion);
+                else return false;
+
+                return true;
+            }
+
+            protected override bool Portion(ref float linkedPortion)
+            {
+
+                var magnitude = (CurrentValue - targetValue).magnitude;
+
+                var modSpeed = speedLimit;
+
+                return modSpeed.SpeedToMinPortion(magnitude, ref linkedPortion);
+            }
+
+            #region Inspector
+
+            public override bool InspectInList(IList list, int ind, ref int edited)
+            {
+                if (base.InspectInList(list, ind, ref edited))
+                {
+                    targetValue = CurrentValue;
+                    return true;
+                }
+
+                return false;
+            }
+
+            public override bool Inspect()
+            {
+                pegi.nl();
+
+                var changed = false;
+
+                if (base.Inspect().nl(ref changed))
+                    targetValue = CurrentValue;
+
+                if (lerpMode != LerpSpeedMode.LerpDisabled)
+                    "Target".edit(ref targetValue).nl(ref changed);
+
+
+                return changed;
+            }
+
+            #endregion
+
+            #region Encode & Decode
+
+            public override CfgEncoder Encode()
+            {
+                var cody = new CfgEncoder()
+                    .Add("b", base.Encode);
+                if (allowChangeParameters)
+                    cody.Add("t", CurrentValue);
+
+                return cody;
+            }
+
+            public override bool Decode(string tg, string data)
+            {
+                switch (tg)
+                {
+                    case "b":
+                        data.Decode_Delegate(base.Decode);
+                        break;
+                    case "t":
+                        targetValue = data.ToVector3();
+                        break;
+                    default: return false;
+                }
+
+                return true;
+            }
+
+            #endregion
+
+
+        }
+
         public class ShaderColorValueGlobal : ColorValue {
 
             protected ShaderProperty.ColorFloat4Value shaderValue; 
