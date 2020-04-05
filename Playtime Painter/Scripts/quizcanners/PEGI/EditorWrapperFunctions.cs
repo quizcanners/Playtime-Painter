@@ -718,24 +718,24 @@ namespace PlayerAndEditorGUI
             return EndCheckLine();
         }
         
-        public static bool edit<T>(ref T field) where T : Object
+        public static bool edit<T>(ref T field, bool allowSceneObjects = true) where T : Object
         {
             BeginCheckLine();
-            field = (T)EditorGUILayout.ObjectField(field, typeof(T), true);
+            field = (T)EditorGUILayout.ObjectField(field, typeof(T), allowSceneObjects);
             return EndCheckLine();
         }
 
-        public static bool edit<T>(ref T field, int width) where T : Object
+        public static bool edit<T>(ref T field, Type type, bool allowSceneObjects = true) where T : Object
         {
             BeginCheckLine();
-            field = (T)EditorGUILayout.ObjectField(field, typeof(T), true, GUILayout.MaxWidth(width));
+            field = (T)EditorGUILayout.ObjectField(field, type, allowSceneObjects);
             return EndCheckLine();
         }
 
-        public static bool edit<T>(ref T field, bool allowDrop) where T : Object
+        public static bool edit<T>(ref T field, int width, bool allowSceneObjects = true) where T : Object
         {
             BeginCheckLine();
-            field = (T)EditorGUILayout.ObjectField(field, typeof(T), allowDrop);
+            field = (T)EditorGUILayout.ObjectField(field, typeof(T), allowSceneObjects, GUILayout.MaxWidth(width));
             return EndCheckLine();
         }
 

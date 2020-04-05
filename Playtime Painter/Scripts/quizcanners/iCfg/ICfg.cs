@@ -372,13 +372,11 @@ namespace QuizCannersUtilities {
             inspectedReference = -1;
             inspectedItems = -1;
         }
-
-        [HideInInspector]
-        [SerializeField] public int inspectedItems = -1;
+        
+        [NonSerialized] public int inspectedItems = -1;
         private int _inspectedDebugItems = -1;
-        [SerializeField] private int inspectedReference = -1;
+        [NonSerialized] private int inspectedReference = -1;
       
-
         public virtual bool Inspect()
         {
 

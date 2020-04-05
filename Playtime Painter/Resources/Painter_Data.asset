@@ -132,8 +132,6 @@ MonoBehaviour:
   - {fileID: 2800000, guid: 56e7d7222786d0b48867b2beccf1725d, type: 3}
   - {fileID: 2800000, guid: 50f03d98cb68f6a4db2454f67e487da4, type: 3}
   - {fileID: 2800000, guid: a7088a288914de44e87a70ba4639aca7, type: 3}
-  inspectedItems: -1
-  inspectedReference: -1
   playtimePainterLayer: 30
   isLineraColorSpace: 1
   additiveAlphaOutput: {fileID: 4800000, guid: 64fa7bd7d59cb1245a6603bb8dfb652b, type: 3}

@@ -2220,39 +2220,19 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool edit<T>(ref T field, int width) where T : Object =>
+        public static bool edit<T>(ref T field, int width, bool allowSceneObjects = true) where T : Object =>
 #if UNITY_EDITOR
-                !PaintingGameViewUI ? ef.edit(ref field, width) :
+                !PaintingGameViewUI ? ef.edit(ref field, width, allowSceneObjects) :
 #endif
             false;
-
-        public static bool edit<T>(ref T field, bool allowDrop) where T : Object =>
-#if UNITY_EDITOR
-            !PaintingGameViewUI ? ef.edit(ref field, allowDrop) :
-#endif
-                false;
-
-        public static bool edit<T>(this string label, ref T field) where T : Object
-        {
-#if UNITY_EDITOR
-            if (!PaintingGameViewUI)
-            {
-                label.write(ApproximateLength(label));
-                return edit(ref field);
-            }
-#endif
-
-            return false;
-
-        }
-
-        public static bool edit<T>(this string label, ref T field, bool allowDrop) where T : Object
+        
+        public static bool edit<T>(this string label, ref T field, bool allowSceneObjects = true) where T : Object
         {
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
             {
                 write(label);
-                return edit(ref field, allowDrop);
+                return edit(ref field, allowSceneObjects);
             }
 #endif
 
@@ -2260,27 +2240,13 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool edit<T>(this string label, int width, ref T field) where T : Object
+        public static bool edit<T>(this string label, int width, ref T field, bool allowSceneObjects = true) where T : Object
         {
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
             {
                 write(label, width);
-                return edit(ref field);
-            }
-#endif
-
-            return false;
-
-        }
-
-        public static bool edit<T>(this string label, int width, ref T field, bool allowDrop) where T : Object
-        {
-#if UNITY_EDITOR
-            if (!PaintingGameViewUI)
-            {
-                write(label, width);
-                return edit(ref field, allowDrop);
+                return edit(ref field, allowSceneObjects);
             }
 
 #endif
@@ -2289,13 +2255,13 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool edit<T>(this string label, string tip, int width, ref T field) where T : Object
+        public static bool edit<T>(this string label, string tip, int width, ref T field, bool allowSceneObjects = true) where T : Object
         {
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
             {
                 write(label, tip, width);
-                return edit(ref field);
+                return edit(ref field, allowSceneObjects);
             }
 
 #endif
@@ -2304,24 +2270,16 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool edit<T>(this string label, string tip, int width, ref T field, bool allowDrop) where T : Object
-        {
+        public static bool edit<T>(ref T field, bool allowSceneObjects = true) where T : Object =>
 #if UNITY_EDITOR
-            if (!PaintingGameViewUI)
-            {
-                write(label, tip, width);
-                return edit(ref field, allowDrop);
-            }
-
+            !PaintingGameViewUI ? ef.edit(ref field, allowSceneObjects) :
 #endif
+                false;
 
-            return false;
-        }
-
-        public static bool edit<T>(ref T field) where T : Object =>
-#if UNITY_EDITOR
-            !PaintingGameViewUI ? ef.edit(ref field) :
-#endif
+        public static bool edit<T>(ref T field, Type type, bool allowSceneObjects = true) where T : Object =>
+        #if UNITY_EDITOR
+            !PaintingGameViewUI ? ef.edit(ref field, type, allowSceneObjects) :
+            #endif
                 false;
 
         public static bool edit_enter_Inspect<T>(ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : Object
