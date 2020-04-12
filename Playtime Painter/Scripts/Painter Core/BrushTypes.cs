@@ -206,8 +206,8 @@ namespace PlaytimePainter
 
             public virtual void PaintPixelsInRam(PaintCommand.UV command)
             {
-                Brush br = command.brush;
-                Stroke st = command.stroke;
+                Brush br = command.Brush;
+                Stroke st = command.Stroke;
 
                 var deltaUv = st.uvTo - st.uvFrom;
 
@@ -217,7 +217,7 @@ namespace PlaytimePainter
 
                 var alpha = Mathf.Clamp01(br.Flow * (Application.isPlaying ? Time.deltaTime : 0.1f));
 
-                var id = command.textureData;
+                var id = command.TextureData;
 
                 var deltaPos = st.DeltaWorldPos;
 
@@ -279,9 +279,9 @@ namespace PlaytimePainter
 
             public virtual void PaintRenderTextureUvSpace(PaintCommand.UV command) 
             {
-                TextureMeta textureMeta = command.textureData;
-                Brush br = command.brush;
-                Stroke st = command.stroke;
+                TextureMeta textureMeta = command.TextureData;
+                Brush br = command.Brush;
+                Stroke st = command.Stroke;
 
                 BeforeStroke(command); 
 
@@ -312,8 +312,8 @@ namespace PlaytimePainter
             public void BeforeStroke(PaintCommand.UV command)//Brush br, Stroke st, PlaytimePainter painter = null)
             {
 
-                Brush br = command.brush;
-                Stroke st = command.stroke;
+                Brush br = command.Brush;
+                Stroke st = command.Stroke;
                 PaintCommand.Painter painterCommand = command as PaintCommand.Painter;
 
                 var cam = TexMGMT;
@@ -329,9 +329,9 @@ namespace PlaytimePainter
             public virtual void AfterStroke(PaintCommand.UV command)
             {
                 PaintCommand.Painter painterCommand = command as PaintCommand.Painter;
-                Brush br = command.brush;
-                Stroke st = command.stroke;
-                TextureMeta id = command.textureData;
+                Brush br = command.Brush;
+                Stroke st = command.Stroke;
+                TextureMeta id = command.TextureData;
 
                 command.OnStrokeComplete();
 
@@ -383,9 +383,9 @@ namespace PlaytimePainter
 
             public override void PaintRenderTextureUvSpace(PaintCommand.UV command)
             {
-                Brush br = command.brush;
-                Stroke st = command.stroke;
-                TextureMeta id = command.textureData;
+                Brush br = command.Brush;
+                Stroke st = command.Stroke;
+                TextureMeta id = command.TextureData;
                 BeforeStroke(command);
 
                 if (st.CrossedASeam())
@@ -445,14 +445,14 @@ namespace PlaytimePainter
 
                 TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command); // br, br.Speed * 0.05f, id, stroke, out alphaBuffer);
 
-                float width = br.StrokeWidth(command.textureData.width, false);
+                float width = br.StrokeWidth(command.TextureData.width, false);
 
                 RtBrush.localScale = Vector3.one;
 
                 BrushMesh = PainterCamera.BrushMeshGenerator.GetLongMesh(0, width);
                 RtBrush.localRotation = Quaternion.Euler(new Vector3(0, 0, Vector2.Angle(Vector2.up, Vector2.zero)));
 
-                RtBrush.localPosition = Stroke.BrushWorldPositionFrom(command.stroke.uvTo);
+                RtBrush.localPosition = Stroke.BrushWorldPositionFrom(command.Stroke.uvTo);
 
                 TexMGMT.Render();
 
@@ -527,12 +527,12 @@ namespace PlaytimePainter
             public override void PaintRenderTextureUvSpace( PaintCommand.UV command) //PlaytimePainter painter, Brush br, Stroke st)
             {
                 
-                Brush br = command.brush;
-                Stroke st = command.stroke;
+                Brush br = command.Brush;
+                Stroke st = command.Stroke;
 
                 BeforeStroke(command);
 
-                var id = command.textureData; 
+                var id = command.TextureData; 
 
                 if (st.firstStroke || br.decalContentious)
                 {
@@ -591,8 +591,8 @@ namespace PlaytimePainter
 
             public override void AfterStroke(PaintCommand.UV command)
             {
-                Brush br = command.brush;
-                Stroke st = command.stroke;
+                Brush br = command.Brush;
+                Stroke st = command.Stroke;
 
                 base.AfterStroke(command);
 
@@ -726,9 +726,9 @@ namespace PlaytimePainter
             public override void PaintRenderTextureUvSpace(PaintCommand.UV command)//PlaytimePainter painter, Brush br, Stroke st)
             {
 
-                Brush br = command.brush;
-                Stroke st = command.stroke;
-                var id = command.textureData;
+                Brush br = command.Brush;
+                Stroke st = command.Stroke;
+                var id = command.TextureData;
 
                 BeforeStroke(command);
 
@@ -887,8 +887,8 @@ namespace PlaytimePainter
 
             private static void PrepareSphereBrush(PaintCommand.WorldSpace command)
             {
-                Brush br = command.brush;
-                var td = command.textureData;
+                Brush br = command.Brush;
+                var td = command.TextureData;
                 // if (stroke.mouseDwn)
                 //    stroke.posFrom = stroke.posTo;
 
@@ -896,9 +896,9 @@ namespace PlaytimePainter
 
                 TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command); // br, br.Speed * 0.05f, id, stroke, out alphaBuffer, painter);
 
-                var offset = command.textureData.offset - command.stroke.unRepeatedUv.Floor();
+                var offset = command.TextureData.offset - command.Stroke.unRepeatedUv.Floor();
 
-                command.stroke.SetWorldPosInShader();
+                command.Stroke.SetWorldPosInShader();
 
                 PainterShaderVariables.BRUSH_EDITED_UV_OFFSET.GlobalValue =
                     new Vector4(td.tiling.x, td.tiling.y, offset.x, offset.y);
@@ -908,7 +908,7 @@ namespace PlaytimePainter
             public override void PaintRenderTextureInWorldSpace(PaintCommand.WorldSpace command) //PlaytimePainter painter, Brush br, Stroke st)
             {
 
-                var id = command.textureData;//painter.TexMeta;
+                var id = command.TextureData;//painter.TexMeta;
 
                 BeforeStroke(command);//br, st, painter);
 
@@ -916,7 +916,7 @@ namespace PlaytimePainter
 
                 PrepareSphereBrush(command); //id, br, st, out alphaBuffer, painter);
 
-                if (!command.stroke.MouseDownEvent)
+                if (!command.Stroke.MouseDownEvent)
                 {
                     TexMGMT.brushRenderer.Prepare(command);
                     TexMGMT.Render();
@@ -928,8 +928,8 @@ namespace PlaytimePainter
             public static void Paint(PaintCommand.WorldSpace command)
             {
 
-                Brush br = command.brush;
-                Stroke st = command.stroke; 
+                Brush br = command.Brush;
+                Stroke st = command.Stroke; 
 
 
                 br.GetBlitMode(false).PrePaint(command);

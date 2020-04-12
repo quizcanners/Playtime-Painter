@@ -151,9 +151,9 @@ namespace PlaytimePainter
                     _paintCommand = new PaintCommand.Painter(stroke, GlobalBrush, this);
                 else
                 {
-                    _paintCommand.textureData = TexMeta;
-                    _paintCommand.brush = GlobalBrush;
-                    _paintCommand.stroke = stroke;
+                    _paintCommand.TextureData = TexMeta;
+                    _paintCommand.Brush = GlobalBrush;
+                    _paintCommand.Stroke = stroke;
                 }
 
                 if (!_paintCommand.painter)
@@ -3134,7 +3134,7 @@ namespace PlaytimePainter
 
             public PlaytimePainter painter;
 
-            public override bool Is3DBrush =>  painter.Is3DBrush(brush);
+            public override bool Is3DBrush =>  painter.Is3DBrush(Brush);
             
             public override GameObject GameObject
             {

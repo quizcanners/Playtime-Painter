@@ -114,10 +114,10 @@ namespace PlaytimePainter {
             public void PaintPixelsInRam(PaintCommand.UV command)
             {
 
-                Stroke stroke = command.stroke;
+                Stroke stroke = command.Stroke;
                 float brushAlpha = command.strokeAlphaPortion;
-                TextureMeta image = command.textureData;
-                Brush bc = command.brush;
+                TextureMeta image = command.TextureData;
+                Brush bc = command.Brush;
 
                 var volume = image.texture2D.GetVolumeTextureData();
 
@@ -192,9 +192,9 @@ namespace PlaytimePainter {
 
             public void PaintRenderTextureUvSpace(PaintCommand.UV command) 
             {
-                Stroke stroke = command.stroke;
-                TextureMeta image = command.textureData;
-                Brush bc = command.brush;
+                Stroke stroke = command.Stroke;
+                TextureMeta image = command.TextureData;
+                Brush bc = command.Brush;
 
                 var vt = image.GetVolumeTextureData();
 
@@ -222,11 +222,11 @@ namespace PlaytimePainter {
 
             public bool PaintRenderTextureInternal(PaintCommand.UV cfg)
             {
-                var stroke = cfg.stroke;
-                var image = cfg.textureData;
-                var bc = cfg.brush;
+                var stroke = cfg.Stroke;
+                var image = cfg.TextureData;
+                var bc = cfg.Brush;
 
-                var vt = cfg.textureData.GetVolumeTextureData(); //painter.GetVolumeTexture();
+                var vt = cfg.TextureData.GetVolumeTextureData(); //painter.GetVolumeTexture();
                 stroke.posFrom = stroke.posTo;
 
                 BrushTypes.Sphere.Inst.BeforeStroke(cfg); //bc, stroke, painter);

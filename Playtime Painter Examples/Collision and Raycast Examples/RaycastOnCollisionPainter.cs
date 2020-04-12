@@ -66,11 +66,11 @@ namespace PlaytimePainter.Examples
 
                 var command = pCont.painter.PaintCommand;
                 
-                var originalStroke = command.stroke;
+                var originalStroke = command.Stroke;
 
                 brush.Paint(command); 
 
-                command.stroke = originalStroke;
+                command.Stroke = originalStroke;
 
             }
             else
@@ -92,15 +92,15 @@ namespace PlaytimePainter.Examples
 
                 var command = pCont.painter.PaintCommand;
 
-                var originalVector = command.stroke;
+                var originalVector = command.Stroke;
 
-                command.stroke = pCont.vector;
+                command.Stroke = pCont.vector;
 
                 pCont.painter.SetTexTarget(brush);
 
                 brush.Paint(command);
 
-                command.stroke = originalVector;
+                command.Stroke = originalVector;
             }
         }
 

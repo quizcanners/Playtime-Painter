@@ -149,14 +149,14 @@ namespace PlaytimePainter {
         public static void Paint(PaintCommand.UV command)
         {
 
-            TextureMeta image = command.textureData;
+            TextureMeta image = command.TextureData;
         
             if (image.Pixels == null)
                 return;
 
-            Brush bc = command.brush;
+            Brush bc = command.Brush;
 
-            var uvCoords = command.stroke.uvFrom;
+            var uvCoords = command.Stroke.uvFrom;
 
             brAlpha = command.strokeAlphaPortion;
 

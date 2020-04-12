@@ -31,14 +31,8 @@ namespace QuizCannersUtilities {
                 return bi != null ? bi.id == id : name.Equals(obj.ToString());
             }
 
-            public override int GetHashCode()
-            {
-                var hashCode = -48284730;
-                hashCode = hashCode * -1521134295 + id.GetHashCode();
-                hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(name);
-                return hashCode;
-            }
-
+            public override int GetHashCode() => id;
+            
             private void UpdateIndex() => id = Shader.PropertyToID(name);
 
             public override string ToString() => name;

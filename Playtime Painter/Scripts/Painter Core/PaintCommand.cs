@@ -2,6 +2,9 @@
 using QuizCannersUtilities;
 using UnityEngine;
 
+
+#pragma warning disable IDE0019 // Use pattern matching
+
 namespace PlaytimePainter
 {
     public static partial class PaintCommand 
@@ -27,12 +30,14 @@ namespace PlaytimePainter
                 set;
             }
 
-            public override bool Is3DBrush => brush.Is3DBrush(textureData);
+            public override bool Is3DBrush => Brush.Is3DBrush(TextureData);
+
+            private List<int> _selectedSubmeshes = new List<int>(1);
 
             public virtual List<int> SelectedSubmeshes
             {
-                get;
-                set;
+                get {return _selectedSubmeshes; }
+                set { _selectedSubmeshes = value; }
             }
 
             public virtual int SubMeshIndexFirst
@@ -78,13 +83,13 @@ namespace PlaytimePainter
 
         public class UV
         {
-            public virtual Stroke stroke { get; set; }
+            public virtual Stroke Stroke { get; set; }
             
-            private TextureMeta _texMeta;
+            private readonly TextureMeta _texMeta;
 
-            public virtual TextureMeta textureData{get;set;}
+            public virtual TextureMeta TextureData{get;set;}
 
-            public virtual Brush brush { get; set; }
+            public virtual Brush Brush { get; set; }
             
             public bool usedAlphaBuffer;
             public float strokeAlphaPortion = 1;
@@ -93,21 +98,21 @@ namespace PlaytimePainter
 
             public void OnStrokeComplete()
             {
-                textureData.AfterStroke(stroke);
+                TextureData.AfterStroke(Stroke);
             }
 
             public UV(Stroke stroke, Texture texture, Brush brush)
             {
-                this.stroke = stroke;
-                textureData = texture.GetTextureMeta();
-                this.brush = brush;
+                this.Stroke = stroke;
+                TextureData = texture.GetTextureMeta();
+                this.Brush = brush;
             }
 
             public UV(Stroke stroke, TextureMeta textureData, Brush brush)
             {
-                this.stroke = stroke;
-                this.textureData = textureData;
-                this.brush = brush;
+                this.Stroke = stroke;
+                this.TextureData = textureData;
+                this.Brush = brush;
             }
         }
 
@@ -120,13 +125,13 @@ namespace PlaytimePainter
         
         public static T SetStroke<T>(this T command, Stroke stroke) where T : UV
         {
-            command.stroke = stroke;
+            command.Stroke = stroke;
             return command;
         }
 
         public static T SetBrush<T>(this T command, Brush brush) where T : UV
         {
-            command.brush = brush;
+            command.Brush = brush;
             return command;
         }
 

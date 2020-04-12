@@ -1,5 +1,6 @@
 ﻿using PlayerAndEditorGUI;
 using QuizCannersUtilities;
+using System;
 using UnityEngine;
 
 namespace PlaytimePainter.Examples
@@ -21,8 +22,6 @@ namespace PlaytimePainter.Examples
         [SerializeField]
         public int materialIndex;
         [HideInInspector]
-        [SerializeField]
-        private string textureField = "";
 
         public RenderTexture TryGetRenderTexture()
         {
@@ -39,8 +38,9 @@ namespace PlaytimePainter.Examples
             );
         
 
-        private ShaderProperty.TextureValue _textureProperty;
+        [NonSerialized]private ShaderProperty.TextureValue _textureProperty;
 
+        [SerializeField] private string textureField = "";
         private string TexturePropertyName
         {
             set
@@ -98,7 +98,11 @@ namespace PlaytimePainter.Examples
             {
                 if (Material.Has(TextureId))
                     Material.Set(TextureId, value);
-                else Material.mainTexture = value;
+                else
+                {
+                    Material.mainTexture = value;
+                    QcUtils.ChillLogger.LogErrorOnce("notid", ()=> "No {0} target ID on the material, trying to set main texture.".F(TextureId.GetNameForInspector()));
+                }
             }
         }
 
@@ -221,7 +225,9 @@ namespace PlaytimePainter.Examples
 
         public virtual bool Inspect()
         {
-            
+
+            pegi.toggleDefaultInspector(this);
+
             if (!PainterCamera.Inst)
             {
                 "No Painter Camera found".writeWarning();
@@ -306,15 +312,6 @@ namespace PlaytimePainter.Examples
                     "No Material Property Selected and no MainTex on Material".nl();
                 else
                 {
-
-                    var current = Material.Get(TextureId);
-
-                    if (current)
-                    {
-
-                    }
-
-
                     if (texture)
                     {
 

@@ -156,9 +156,9 @@ namespace PlaytimePainter {
         
         public void Paint(PaintCommand.UV command)
         {
-            var imgData = command.textureData;
+            var imgData = command.TextureData;
 
-            var cpu = command.textureData.TargetIsTexture2D();
+            var cpu = command.TextureData.TargetIsTexture2D();
             var brushType = GetBrushType(cpu);
             var blitMode = GetBlitMode(cpu);
             var isWorldSpace = command.Is3DBrush;

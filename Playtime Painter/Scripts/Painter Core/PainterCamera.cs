@@ -350,9 +350,9 @@ namespace PlaytimePainter {
         public void SHADER_BRUSH_UPDATE(PaintCommand.UV command) 
         {
 
-            Brush brush = command.brush;
+            Brush brush = command.Brush;
 
-            var id = command.textureData;
+            var id = command.TextureData;
 
             float textureWidth = id == null ? 256 : id.width;
 
@@ -453,9 +453,9 @@ namespace PlaytimePainter {
 
         public void SHADER_STROKE_SEGMENT_UPDATE(PaintCommand.UV command)
         {
-            Brush bc = command.brush;
-            TextureMeta id = command.textureData;
-            Stroke stroke = command.stroke;
+            Brush bc = command.Brush;
+            TextureMeta id = command.TextureData;
+            Stroke stroke = command.Stroke;
             
             CheckPaintingBuffers();
             

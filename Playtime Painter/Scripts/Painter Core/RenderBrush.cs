@@ -105,6 +105,12 @@ namespace PlaytimePainter
             Mesh mesh = command.Mesh;
             List<int> selectedSubMeshes = command.SelectedSubmeshes;
 
+            if (selectedSubMeshes.IsNullOrEmpty())
+            {
+                QcUtils.ChillLogger.LogErrorOnce("emptSbM", ()=> "PaintCommand.WorldSpace arrived with unassigned selectedSubmeshes array. Seeting 0");
+                selectedSubMeshes = new List<int>(1) {0};
+            }
+
             var camTransform = TexMGMT.transform;
 
             var target = go.transform;

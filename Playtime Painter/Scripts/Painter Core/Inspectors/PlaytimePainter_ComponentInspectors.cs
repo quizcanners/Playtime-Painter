@@ -1,4 +1,5 @@
-﻿#if UNITY_EDITOR  && PEGI
+﻿#if UNITY_EDITOR
+using PlayerAndEditorGUI;
 using UnityEditor;
 
 namespace PlaytimePainter {

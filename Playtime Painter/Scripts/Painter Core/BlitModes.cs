@@ -551,7 +551,7 @@ namespace PlaytimePainter {
             public override void PrePaint(PaintCommand.UV paintCommand) //Brush br, Stroke st, PlaytimePainter painter = null)
             {
                 
-                Stroke st = paintCommand.stroke;
+                Stroke st = paintCommand.Stroke;
 
                 var v4 = new Vector4(st.unRepeatedUv.x, st.unRepeatedUv.y, Mathf.Floor(st.unRepeatedUv.x),
                     Mathf.Floor(st.unRepeatedUv.y));
@@ -569,9 +569,9 @@ namespace PlaytimePainter {
                         painter.SampleTexture(st.uvTo);
                     }
                     else
-                        paintCommand.brush.Color = paintCommand.textureData.SampleAt(st.uvTo);
+                        paintCommand.Brush.Color = paintCommand.TextureData.SampleAt(st.uvTo);
 
-                    FromColor(paintCommand.brush, st.unRepeatedUv);
+                    FromColor(paintCommand.Brush, st.unRepeatedUv);
                 }
                 else if (method == (ColorSetMethod.MDownPosition))
                     FromUv(st.uvTo);
