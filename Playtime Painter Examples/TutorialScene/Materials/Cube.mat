@@ -142,4 +142,3 @@ Material:
     - l1pos: {r: 0, g: 0, b: 0, a: 0}
     - l2col: {r: 0, g: 0, b: 0, a: 0}
     - l2pos: {r: 0, g: 0, b: 0, a: 0}
-  m_BuildTextureStacks: []

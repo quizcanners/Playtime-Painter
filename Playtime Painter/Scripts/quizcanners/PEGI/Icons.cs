@@ -35,7 +35,7 @@ namespace PlayerAndEditorGUI {
         Play,
         True,
         Load,
-        Pause,
+        Pause, Ping,
         Mesh,
         Move,
         Red,

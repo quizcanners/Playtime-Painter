@@ -138,7 +138,7 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static void write(this Sprite sprite, string toolTip, int width = defaultButtonSize)
+        /*  public static void write(this Sprite sprite, string toolTip, int width = defaultButtonSize)
         {
             if (sprite)
                 sprite.texture.write(toolTip, width);
@@ -146,22 +146,22 @@ namespace PlayerAndEditorGUI
                 icon.Empty.write(toolTip, width);
         }
 
-        public static void write(this Sprite sprite, string toolTip, int width, int height)
+        public static void write(this Sprite sprite, string toolTip, int width, int height, bool alphaBlend = true)
         {
             if (sprite)
-                sprite.texture.write(toolTip, width, height);
+                sprite.texture.write(toolTip, width, height, alphaBlend: alphaBlend);
             else
                 icon.Empty.write(toolTip, width, height);
-        }
+        }*/
 
-        public static void write(this Texture img, int width = defaultButtonSize)
+        public static void write(this Texture img, int width = defaultButtonSize, bool alphaBlend = true)
         {
             if (!img)
                 return;
 
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
-                ef.write(img, width);
+                ef.write(img, width, alphaBlend: alphaBlend);
 
             else
 #endif
@@ -174,17 +174,14 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        public static void write(this Texture img, string toolTip, int width = defaultButtonSize)
+        public static void write(this Texture img, string toolTip, int width = defaultButtonSize, bool alphaBlend = true)
         {
 
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
-                ef.write(img, toolTip, width);
-
+                ef.write(img, toolTip, width, alphaBlend: alphaBlend);
             else
 #endif
-
-
             {
 
                 SetBgColor(Color.clear);
@@ -196,12 +193,12 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static void write(this Texture img, string toolTip, int width, int height)
+        public static void write(this Texture img, string toolTip, int width, int height, bool alphaBlend = true)
         {
 
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
-                ef.write(img, toolTip, width, height);
+                ef.write(img, toolTip, width, height, alphaBlend: alphaBlend);
             else
 #endif
             {

@@ -725,10 +725,17 @@ namespace PlayerAndEditorGUI
             return EndCheckLine();
         }
 
-        public static bool edit<T>(ref T field, Type type, bool allowSceneObjects = true) where T : Object
+        public static bool edit(ref Object field, Type type, bool allowSceneObjects = true)
         {
             BeginCheckLine();
-            field = (T)EditorGUILayout.ObjectField(field, type, allowSceneObjects);
+            field = EditorGUILayout.ObjectField(field, type, allowSceneObjects);
+            return EndCheckLine();
+        }
+
+        public static bool edit<T>(ref T field, Type type, int width, bool allowSceneObjects = true) where T : Object
+        {
+            BeginCheckLine();
+            field = (T)EditorGUILayout.ObjectField(field, type, allowSceneObjects, GUILayout.MaxWidth(width));
             return EndCheckLine();
         }
 
@@ -1323,24 +1330,24 @@ namespace PlayerAndEditorGUI
             EditorGUILayout.LabelField(cnt, PEGI_Styles.ClippingText.Current);
         }
 
-        public static void write(Texture tex, int width)
+        public static void write(Texture tex, int width, bool alphaBlend = true)
         {
             checkLine();
 
             var rect = EditorGUILayout.GetControlRect(GUILayout.MaxWidth(width), GUILayout.MaxHeight(width));
 
-            GUI.DrawTexture(rect, tex, ScaleMode.ScaleToFit, alphaBlend: true);
+            GUI.DrawTexture(rect, tex, ScaleMode.ScaleToFit, alphaBlend: alphaBlend);
         }
 
-        public static void write(Texture tex, string tip, int width)
+        public static void write(Texture tex, string tip, int width, bool alphaBlend = true)
         {
             checkLine();
             var rect = EditorGUILayout.GetControlRect(GUILayout.MaxWidth(width), GUILayout.MaxHeight(width));
 
-            GUI.DrawTexture(rect, tex, ScaleMode.ScaleToFit, alphaBlend: true);
+            GUI.DrawTexture(rect, tex, ScaleMode.ScaleToFit, alphaBlend: alphaBlend);
         }
 
-        public static void write(Texture tex, string tip, int width, int height)
+        public static void write(Texture tex, string tip, int width, int height, bool alphaBlend = true)
         {
             checkLine();
 
@@ -1349,7 +1356,7 @@ namespace PlayerAndEditorGUI
             rect.width = width;
             rect.height = height;
 
-            GUI.DrawTexture(rect, tex, ScaleMode.ScaleToFit, alphaBlend: true);
+            GUI.DrawTexture(rect, tex, ScaleMode.ScaleToFit, alphaBlend: alphaBlend);
         }
 
         public static void write(GUIContent cnt, int width)

@@ -550,7 +550,7 @@ namespace PlayerAndEditorGUI
         }
 
         public static bool ClickHighlight(this Object obj, int width = defaultButtonSize) =>
-           obj.ClickHighlight(icon.Search.GetIcon(), width);
+           obj.ClickHighlight(icon.Ping.GetIcon(), width);
 
         public static bool ClickHighlight(this Object obj, Texture tex, int width = defaultButtonSize)
         {
@@ -565,23 +565,10 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static bool ClickHighlight(this Object obj, icon icon, int width = defaultButtonSize)
+        public static bool ClickHighlight(this Object obj, string hint, int width = defaultButtonSize)
         {
 #if UNITY_EDITOR
-            if (obj && icon.Click(Msg.HighlightElement.GetText()))
-            {
-                EditorGUIUtility.PingObject(obj);
-                return true;
-            }
-#endif
-
-            return false;
-        }
-
-        public static bool ClickHighlight(this Object obj, string hint, icon icon = icon.Search, int width = defaultButtonSize)
-        {
-#if UNITY_EDITOR
-            if (obj && icon.Click(hint))
+            if (obj && icon.Ping.Click(hint))
             {
                 EditorGUIUtility.PingObject(obj);
                 return true;

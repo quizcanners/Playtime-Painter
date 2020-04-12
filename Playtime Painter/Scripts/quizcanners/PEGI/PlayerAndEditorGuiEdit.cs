@@ -2265,9 +2265,7 @@ namespace PlayerAndEditorGUI
             }
 
 #endif
-
             return false;
-
         }
 
         public static bool edit<T>(ref T field, bool allowSceneObjects = true) where T : Object =>
@@ -2275,11 +2273,54 @@ namespace PlayerAndEditorGUI
             !PaintingGameViewUI ? ef.edit(ref field, allowSceneObjects) :
 #endif
                 false;
+        
+        public static bool edit(this string label, ref Object field, Type type, bool allowSceneObjects = true)
+        {
+#if UNITY_EDITOR
+            if (!PaintingGameViewUI)
+            {
+                write(label);
+                return edit(ref field, type, allowSceneObjects);
+            }
+#endif
+            return false;
+        }
 
-        public static bool edit<T>(ref T field, Type type, bool allowSceneObjects = true) where T : Object =>
-        #if UNITY_EDITOR
+        public static bool edit(this string label, int width, ref Object field, Type type, bool allowSceneObjects = true) 
+        {
+#if UNITY_EDITOR
+            if (!PaintingGameViewUI)
+            {
+                write(label, width);
+                return edit(ref field, type, allowSceneObjects);
+            }
+
+#endif
+            return false;
+        }
+
+        public static bool edit(this string label, string tip, int width, ref Object field, Type type, bool allowSceneObjects = true) 
+        {
+#if UNITY_EDITOR
+            if (!PaintingGameViewUI)
+            {
+                write(label, tip, width);
+                return edit(ref field, type, allowSceneObjects);
+            }
+#endif
+            return false;
+        }
+        
+        public static bool edit(ref Object field, Type type, bool allowSceneObjects = true) =>
+            #if UNITY_EDITOR
             !PaintingGameViewUI ? ef.edit(ref field, type, allowSceneObjects) :
             #endif
+                false;
+
+        public static bool edit(ref Object field, Type type, int width, bool allowSceneObjects = true) =>
+                #if UNITY_EDITOR
+                     !PaintingGameViewUI ? ef.edit(ref field, type, width, allowSceneObjects) :
+                #endif
                 false;
 
         public static bool edit_enter_Inspect<T>(ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : Object
@@ -3998,6 +4039,9 @@ namespace PlayerAndEditorGUI
 
             if (!uObj)
                 uObj = QcUnity.TryGetGameObjectFromObj(obj);
+
+            if (!uObj)
+                uObj = obj as Object;
 
             if (uObj)
             {

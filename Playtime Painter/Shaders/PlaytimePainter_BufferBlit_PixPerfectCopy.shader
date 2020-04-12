@@ -26,7 +26,7 @@
 				#pragma fragment frag
 				#pragma target 3.0
 				#include "UnityCG.cginc"
-				#include "UnityLightingCommon.cginc"
+				//#include "UnityLightingCommon.cginc"
 
 				sampler2D _MainTex;
 				float4 _MainTex_TexelSize;

@@ -323,7 +323,7 @@ MonoBehaviour:
   defaultMaterial: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   secondBufferDebug: {fileID: 0}
   alphaBufferDebug: {fileID: 0}
-  autodisabledBufferTarget: {fileID: 1144922679}
+  autodisabledBufferTarget: {fileID: 0}
 --- !u!4 &166147905
 Transform:
   m_ObjectHideFlags: 0
@@ -507,7 +507,7 @@ Transform:
   m_LocalScale: {x: 256, y: 256, z: 0}
   m_Children: []
   m_Father: {fileID: 166147905}
-  m_RootOrder: 1
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &799040845
 GameObject:
@@ -1085,7 +1085,7 @@ MonoBehaviour:
     alphaLimitForAlphaBuffer: 1
     worldSpaceBrushPixelJitter: 0
     Color: {r: 0, g: 1, b: 0, a: 1}
-    _dSpeed:
+    _dFlow:
       min: 0.1
       max: 4.5
       _value: 3
@@ -1388,7 +1388,7 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 3.0353684
+  near clip plane: 0.2323036
   far clip plane: 4007.749
   field of view: 78.5
   orthographic: 0
@@ -1416,7 +1416,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1213774260}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -3.0353684}
+  m_LocalPosition: {x: 0, y: 0, z: -0.23230362}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2020219816}
@@ -1466,7 +1466,7 @@ MonoBehaviour:
     alphaLimitForAlphaBuffer: 1
     worldSpaceBrushPixelJitter: 0
     Color: {r: 1, g: 0.058691405, b: 0, a: 1}
-    _dSpeed:
+    _dFlow:
       min: 0.1
       max: 4.5
       _value: 3
@@ -2162,7 +2162,8 @@ MonoBehaviour:
   targetHeight:
     min: 0.1
     max: 10
-    _value: 2.48
+    _value: 0.1898
+  mode: 0
   camOrbit: {x: 0, y: 0}
   spinCenter: {x: 0, y: 0, z: 0}
   orbitingFocused: 0
