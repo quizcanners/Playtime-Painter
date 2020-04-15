@@ -47,7 +47,7 @@ namespace PlayerAndEditorGUI {
         Home,
         Hide,
         Paste,
-        Up, UpLast,
+        Up, UpLast, User,
         Warning,
         Wait
     }

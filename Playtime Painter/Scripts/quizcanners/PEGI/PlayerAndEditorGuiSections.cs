@@ -191,6 +191,13 @@ namespace PlayerAndEditorGUI
         #endregion
 
         #region Enter & Exit
+
+        public static bool enter<T>(ref int enteredOne, T currentEnum, string tip) where T: struct =>
+             enter(ref enteredOne, Convert.ToInt32(currentEnum), tip);
+
+        public static bool enter<T>(ref int enteredOne, T currentEnum) where T : struct =>
+            enter(ref enteredOne, Convert.ToInt32(currentEnum), currentEnum.ToString());
+
         public static bool enter(ref int enteredOne, int current, string tip = null)
         {
             if (enteredOne == current)
@@ -205,6 +212,12 @@ namespace PlayerAndEditorGUI
 
             return ef.isFoldedOutOrEntered;
         }
+
+        public static bool enter<T>(this icon ico, ref int enteredOne, T currentEnum, string tip) where T : struct
+            => ico.enter(ref enteredOne, Convert.ToInt32(currentEnum), tip);
+
+        public static bool enter<T>(this icon ico, ref int enteredOne, T currentEnum) where T : struct
+            => ico.enter(ref enteredOne, Convert.ToInt32(currentEnum), currentEnum.ToString());
 
         public static bool enter(this icon ico, ref int enteredOne, int thisOne, string tip = null)
         {

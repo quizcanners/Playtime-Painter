@@ -3605,7 +3605,7 @@ namespace PlayerAndEditorGUI
 
         #region Enum
 
-        public static bool editEnum<T>(this string text, string tip, int width, ref T eval)
+        public static bool editEnum<T>(this string text, string tip, int width, ref object eval)
         {
             write(text, tip, width);
             return editEnum(ref eval);

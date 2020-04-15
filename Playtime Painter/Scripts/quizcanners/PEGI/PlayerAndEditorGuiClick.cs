@@ -37,55 +37,44 @@ namespace PlayerAndEditorGUI
 
             return false;
         }
-        
-        public static void Lock_UnlockWindowClick(Object obj)
+
+        public static class EditorView
         {
-#if UNITY_EDITOR
-            if (!PaintingGameViewUI)
+
+            public static void RefocusIfLocked(Object current, Object target)
             {
-
-                if (ActiveEditorTracker.sharedTracker.isLocked == false &&
-                    icon.Unlock.ClickUnFocus("Lock Inspector Window"))
-                {
-                    QcUnity.FocusOn(ef.serObj.targetObject);
-                    ActiveEditorTracker.sharedTracker.isLocked = true;
-                }
-
-                if (ActiveEditorTracker.sharedTracker.isLocked && icon.Lock.ClickUnFocus("Unlock Inspector Window"))
+#if UNITY_EDITOR
+                if (current != target && target && ActiveEditorTracker.sharedTracker.isLocked)
                 {
                     ActiveEditorTracker.sharedTracker.isLocked = false;
-                    QcUnity.FocusOn(obj);
+                    QcUnity.FocusOn(target);
+                    ActiveEditorTracker.sharedTracker.isLocked = true;
                 }
-            }
 #endif
-        }
+            }
 
-        public static void UnlockInspectorWindowIfLocked(GameObject go)
-        {
-#if UNITY_EDITOR
-            if (ActiveEditorTracker.sharedTracker.isLocked)
+            public static void Lock_UnlockClick(GameObject obj)
             {
-                 if (!Selection.objects.IsNullOrEmpty())
-                 {
-                    var match = false;
+#if UNITY_EDITOR
+                if (!PaintingGameViewUI)
+                {
 
-                     foreach (var o in Selection.objects)
-                     {
-                         if (o == go)
-                         {
-                            match = true;
-                             break;
-                         }
-                     }
-                    
-                     if (!match)
-                         return;
-                 }
+                    if (ActiveEditorTracker.sharedTracker.isLocked == false &&
+                        icon.Unlock.ClickUnFocus("Lock Inspector Window"))
+                    {
+                        QcUnity.FocusOn(ef.serObj.targetObject);
+                        ActiveEditorTracker.sharedTracker.isLocked = true;
+                    }
 
-                ActiveEditorTracker.sharedTracker.isLocked = false;
-                QcUnity.FocusOn(go);
-            }
+                    if (ActiveEditorTracker.sharedTracker.isLocked && icon.Lock.ClickUnFocus("Unlock Inspector Window"))
+                    {
+                        ActiveEditorTracker.sharedTracker.isLocked = false;
+                        QcUnity.FocusOn(obj);
+                    }
+                }
 #endif
+            }
+
         }
 
         public static class ConfirmationDialogue

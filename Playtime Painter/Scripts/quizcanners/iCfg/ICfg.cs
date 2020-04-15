@@ -452,9 +452,7 @@ namespace QuizCannersUtilities {
         }
 
         public int _inspectedItems = -1;
-
-        public bool InspectingVisuals() => _inspectedItems == 21;
-
+        
         public virtual bool Inspect() {
             var changed = false;
 
@@ -529,7 +527,7 @@ namespace QuizCannersUtilities {
             var changed = false;
 
             if (inspectedItems == -1)
-                pegi.Lock_UnlockWindowClick(gameObject);
+                pegi.EditorView.Lock_UnlockClick(gameObject);
 
             if (!icon.Debug.enter(ref inspectedItems, 0).nl(ref changed))
                 return changed; 

@@ -68,11 +68,35 @@ namespace PlayerAndEditorGUI
                 if (Application.isPlaying)
                 {
                     if (gameViewType == null)
-                        gameViewType = typeof(EditorWindow).Assembly.GetType("UnityEditor.GameView");
+                        gameViewType = typeof(EditorView).Assembly.GetType("UnityEditor.GameView");
 
-                    var ed = EditorWindow.GetWindow(gameViewType);
-                    if (ed != null)
-                        ed.ShowNotification(new GUIContent(text));
+                    if (gameViewType == null)
+                    {
+                        Debug.LogError(" text [Couldn't find GameView class to show in gameView Window]");
+
+                        /*var result = new List<Type>();
+                        System.Reflection.Assembly[] AS = System.AppDomain.CurrentDomain.GetAssemblies();
+                        Type editorWindow = typeof(EditorWindow);
+                        foreach (var A in AS)
+                        {
+                            System.Type[] types = A.GetTypes();
+                            foreach (var T in types)
+                            {
+                                if (T.IsSubclassOf(editorWindow))
+                                    Debug.Log(T.ToString()); //result.Add(T);
+                            }
+                        }*/
+                        
+
+
+                    }
+                    else
+                    {
+
+                        var ed = EditorWindow.GetWindow(gameViewType);
+                        if (ed != null)
+                            ed.ShowNotification(new GUIContent(text));
+                    }
                 }
                 else
                 {
