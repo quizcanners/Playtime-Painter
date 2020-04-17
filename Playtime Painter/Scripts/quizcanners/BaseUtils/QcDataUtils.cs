@@ -9,6 +9,7 @@ using Object = UnityEngine.Object;
 using UnityEditor;
 #endif
 using System.Diagnostics;
+using UnityEngine.PlayerLoop;
 
 namespace QuizCannersUtilities
 {
@@ -22,9 +23,9 @@ namespace QuizCannersUtilities
 
         public static readonly string OutsideOfAssetsFolder =
             Application.dataPath.Substring(0, Application.dataPath.Length - 6);
-
-        private const string bytesFileType = ".bytes";
         
+        private const string textFileType = ".txt";
+
         public static class Explorer
         {
             public static List<string> GetFileNamesFromPersistentFolder(string subPath)
@@ -88,7 +89,7 @@ namespace QuizCannersUtilities
         {
 
             public static void FromResources(string assetFolder, string insideAssetFolderAndName) =>
-                FromResources(assetFolder: assetFolder, insideAssetFolderAndName: insideAssetFolderAndName, extension: bytesFileType);
+                FromResources(assetFolder: assetFolder, insideAssetFolderAndName: insideAssetFolderAndName, extension: textFileType);
 
             public static void FromResources(string assetFolder, string insideAssetFolderAndName, string extension)
             {
@@ -108,7 +109,7 @@ namespace QuizCannersUtilities
             }
 
             public static bool FromPersistentFolder(string subPath, string fileName) =>
-            FromPersistentFolder(subPath: subPath, fileName: fileName, extension: bytesFileType);
+            FromPersistentFolder(subPath: subPath, fileName: fileName, extension: textFileType);
 
             public static bool FromPersistentFolder(string subPath, string fileName, string extension)
                 => File(Path.Combine(Application.persistentDataPath, subPath,
@@ -152,41 +153,7 @@ namespace QuizCannersUtilities
 
         public static class Load
         {
-            private static readonly BinaryFormatter Formatter = new BinaryFormatter();
-
-            public static string FromResources(string resourceFolderLocation, string insideResourceFolder, string name) =>
-            FromResources(resourceFolderLocation: resourceFolderLocation, insideResourceFolder: insideResourceFolder, name: name, extension: bytesFileType);
-
-            public static string FromResources(string resourceFolderLocation, string insideResourceFolder, string name, string extension)
-            {
-               
-#if UNITY_EDITOR
-
-                var resourceName = Path.Combine(insideResourceFolder, name);
-                var path = Path.Combine(Application.dataPath,
-                    Path.Combine(resourceFolderLocation,
-                        Path.Combine("Resources", resourceName + extension)));
-
-                if (!File.Exists(path)) return null;
-
-                try
-                {
-                    using (var file = File.Open(path, FileMode.Open))
-                        return (string) (Formatter.Deserialize(file));
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log(path + "is Busted !" + ex);
-                }
-
-
-                return null;
-
-#else
-                return FromResources(insideResourceFolder, name);
-#endif
-
-            }
+            //private static readonly BinaryFormatter Formatter = new BinaryFormatter();
 
             public static string FromResources(string insideResourceFolder, string name)
             {
@@ -196,12 +163,10 @@ namespace QuizCannersUtilities
 
                 try
                 {
-                    if (asset == null) return null;
+                    if (!asset)
+                        return null;
 
-                    using (var ms = new MemoryStream(asset.bytes))
-                    {
-                        return (string) Formatter.Deserialize(ms);
-                    }
+                    return asset.text;
                 }
                 finally
                 {
@@ -209,38 +174,19 @@ namespace QuizCannersUtilities
                 }
             }
 
-            public static string FromAssets(string folder, string name) => FromAssets(folder: folder, name: name, extension: bytesFileType);
-
-            public static string FromAssets(string folder, string name, string extension)
-            {
-#if UNITY_EDITOR
-                var path = Path.Combine(Application.dataPath, folder, name + extension);
-
-                if (!File.Exists(path)) return null;
-
-                try
-                {
-                    using (var file = File.Open(path, FileMode.Open))
-                        return (string) Formatter.Deserialize(file);
-                }
-                catch (Exception ex)
-                {
-                    UnityEngine.Debug.Log(path + "is Busted !" + ex);
-                }
-
-#endif
-
-                return null;
-            }
-
             public static string TryLoadAsTextAsset(Object o)
             {
 
+                var ta = o as TextAsset;
+                if (ta)
+                    return ta.text;
+
 #if UNITY_EDITOR
+
                 var path = AssetDatabase.GetAssetPath(o);
-
+                
                 if (path.IsNullOrEmpty()) return null;
-
+                
                 var subpath = Application.dataPath;
                 path = subpath.Substring(0, subpath.Length - 6) + path;
 
@@ -251,11 +197,10 @@ namespace QuizCannersUtilities
             }
 
             public static string FromPersistentPath(string subPath, string filename) => 
-                FromPersistentPath(subPath: subPath, filename: filename, extension: bytesFileType);
+                FromPersistentPath(subPath: subPath, filename: filename, extension: textFileType);
             
             public static string FromPersistentPath(string subPath, string filename, string extension)
             {
-
                 var filePath = PersistentPath(subPath: subPath, fileName: filename, extension: extension);
                 return File.Exists(filePath) ? File.ReadAllText(filePath) : null;
             }
@@ -272,8 +217,12 @@ namespace QuizCannersUtilities
 
                 try
                 {
-                    using (var file = File.Open(fullPath, FileMode.Open))
-                        data = (string) Formatter.Deserialize(file);
+                    StreamReader reader = new StreamReader(fullPath);
+                    var str = reader.ReadToEnd();
+                    reader.Close();
+                    return str;
+                    //  using (var file = File.Open(fullPath, FileMode.Open))
+                    //  data = (string) Formatter.Deserialize(file);
                 }
                 catch (Exception ex)
                 {
@@ -286,9 +235,9 @@ namespace QuizCannersUtilities
 
         public static class Save {
             
-            private static readonly BinaryFormatter Formatter = new BinaryFormatter();
+            //private static readonly BinaryFormatter Formatter = new BinaryFormatter();
 
-            #region Create Asset
+            #region Unity Assets
 
             public static void Asset(Object obj, string folder, string extension, bool refreshAfter = false)
             {
@@ -303,47 +252,33 @@ namespace QuizCannersUtilities
                         AssetDatabase.Refresh();
                 #endif
             }
-
-
-            #endregion
             
-            #region Write All Bytes
-
             public static void TextureToAssetsFolder(string subFolder, string fileName, Texture2D texture) =>
                 File.WriteAllBytes(CreateDirectoryPath(Application.dataPath, subFolder, fileName, ".png"), texture.EncodeToPNG());
 
             public static void TextureOutsideAssetsFolder(string subFolder, string fileName, string extension, Texture2D texture) =>
                 File.WriteAllBytes(CreateDirectoryPath(OutsideOfAssetsFolder, subFolder, fileName, extension), texture.EncodeToPNG());
 
-            public static void ToAssetsFolder(string subFolder, string fileName, string extension, byte[] data) =>
-                File.WriteAllBytes(CreateDirectoryPath(Application.dataPath, subFolder, fileName, extension), data);
-
             #endregion
 
-            #region Formatter Serialize
+            #region Write All Text
 
             public static void ToResources(string resFolderPath, string insideResPath, string filename, string data) =>
                 ToAssets(Path.Combine(resFolderPath, "Resources", insideResPath), filename, data);
 
             public static void ToAssets(string path, string filename, string data) =>
-                ByFullPath(Path.Combine(Application.dataPath, path), filename, data, extension: bytesFileType);
-
-            public static void ToAssets(string path, string filename, string data, string extension) =>
-                ByFullPath(Path.Combine(Application.dataPath, path), filename, data, extension);
-
+                ByFullPath(Path.Combine(Application.dataPath, path), filename, data, extension: textFileType);
 
             private static void ByFullPath(string fullDirectoryPath, string filename, string data, string extension)
             {
-                using (var file = File.Create(FullPath(fullDirectoryPath, filename, extension)))
-                    Formatter.Serialize(file, data);
+                File.WriteAllText(CreateDirectoryPath(fullDirectoryPath, filename, extension), data);
+
+                //using (var file = File.Create(FullPath(fullDirectoryPath, filename, extension)))
+                //  Formatter.Serialize(file, data);
             }
 
-            #endregion
-
-            #region Write All Text
-
             public static void ToPersistentPath(string subPath, string filename, string data) => 
-                ToPersistentPath(subPath: subPath, filename: filename, data: data, extension: bytesFileType); 
+                ToPersistentPath(subPath: subPath, filename: filename, data: data, extension: textFileType); 
 
             public static void ToPersistentPath(string subPath, string filename, string data, string extension) =>
                 File.WriteAllText(CreateDirectoryPath(Application.persistentDataPath, subPath, filename, extension), data);
@@ -354,10 +289,10 @@ namespace QuizCannersUtilities
             private static string CreateDirectoryPath(string path1, string path2, string filename, string extension)
             {
                 var fullDirectoryPath = Path.Combine(path1, path2);
-                return FullPath(fullDirectoryPath, filename, extension);
+                return CreateDirectoryPath(fullDirectoryPath, filename, extension);
             }
 
-            private static string FullPath(string fullDirectoryPath, string filename, string extension)
+            private static string CreateDirectoryPath(string fullDirectoryPath, string filename, string extension)
             {
                 Directory.CreateDirectory(fullDirectoryPath);
                 return Path.Combine(fullDirectoryPath, filename + extension);

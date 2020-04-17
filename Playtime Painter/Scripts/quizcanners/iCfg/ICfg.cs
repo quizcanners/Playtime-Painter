@@ -826,13 +826,6 @@ namespace QuizCannersUtilities {
             return true;
         }
 
-        public static T LoadFromAssets<T>(this T s, string fullPath, string name) where T:ICfg, new() {
-			if (s == null)
-				s = new T ();
-            s.Decode(QcFile.Load.FromAssets(fullPath, name));
-			return s;
-        }
-
         public static ICfg SaveToAssets(this ICfg s, string path, string filename)
         {
             QcFile.Save.ToAssets(path, filename, s.Encode().ToString());

@@ -593,7 +593,10 @@ namespace QuizCannersUtilities {
                 );
             }
 
-            playClipMethod.Invoke(null, new object[] { clip });
+            if (playClipMethod != null)
+                playClipMethod.Invoke(null, new object[] { clip });
+            else
+                Debug.LogError("Play Clip Meshod not found");
 
 #else
 
