@@ -1491,7 +1491,8 @@ namespace QuizCannersUtilities
 
         public class MaterialFloat : BaseShaderLerp<float>
         {
-            private readonly ShaderProperty.FloatValue _property;
+            private readonly ShaderProperty.IndexGeneric<float>//ShaderProperty.FloatValue 
+                _property;
 
             protected override string Name_Internal =>
                 _property != null ? _property.NameForDisplayPEGI() : "Material Float";
@@ -1523,6 +1524,14 @@ namespace QuizCannersUtilities
                 Material m = null) : base(startingSpeed, m, renderer)
             {
                 _property = new ShaderProperty.FloatValue(nName);
+                targetValue = startingValue;
+                CurrentValue = startingValue;
+            }
+
+            public MaterialFloat(string nName, string featureDirective, float startingValue = 0, float startingSpeed = 1, Renderer renderer = null,
+                Material m = null) : base(startingSpeed, m, renderer)
+            {
+                _property = new ShaderProperty.FloatFeature(nName, featureDirective);
                 targetValue = startingValue;
                 CurrentValue = startingValue;
             }
@@ -2245,14 +2254,19 @@ namespace QuizCannersUtilities
 
         #endregion
 
-        public static void SkipLerp<T>(this T obj) where T : ILinkedLerping {
-
-            var ld = new LerpData();
-
+        public static void SkipLerp<T>(this T obj, LerpData ld) where T : ILinkedLerping
+        {
+            ld.Reset();
             obj.Portion(ld);
             ld.MinPortion = 1;
             obj.Lerp(ld, true);
+        }
 
+        public static void SkipLerp<T>(this T obj) where T : ILinkedLerping {
+            var ld = new LerpData();
+            obj.Portion(ld);
+            ld.MinPortion = 1;
+            obj.Lerp(ld, true);
         }
 
         public static void Portion<T>(this T[] list, LerpData ld) where T : ILinkedLerping {

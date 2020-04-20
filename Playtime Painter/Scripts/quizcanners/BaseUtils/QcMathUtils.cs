@@ -187,11 +187,13 @@ namespace QuizCannersUtilities
 
             return average;
         }
-        
+
         #endregion
 
         #region Transformations
 
+        public static Vector3 XYZ(this Vector4 vec) => new Vector3(vec.x, vec.y, vec.z);
+        
         public static Vector2 YX(this Vector2 vec) => new Vector2(vec.y, vec.x);
 
         public static Vector2 ZW(this Vector4 vec) => new Vector2(vec.z, vec.w);
