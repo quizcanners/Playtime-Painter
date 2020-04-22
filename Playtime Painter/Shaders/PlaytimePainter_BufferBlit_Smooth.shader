@@ -6,9 +6,7 @@
 	Category{
 		Tags{ 
 			"Queue" = "Transparent"
-			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
-			"LightMode" = "ForwardBase"
 		}
 
 		ColorMask RGBA
@@ -22,9 +20,7 @@
 				CGPROGRAM
 				#pragma vertex vert
 				#pragma fragment frag
-				#pragma target 3.0
-				#include "UnityCG.cginc"
-				#include "UnityLightingCommon.cginc"
+				#include "PlaytimePainter_cg.cginc"
 
 				sampler2D _MainTex;
 
@@ -33,7 +29,7 @@
 					float2 texcoord : TEXCOORD0;
 				};
 
-				v2f vert(appdata_full v) {
+				v2f vert(appdata_brush_qc v) {
 					v2f o;
 
 					o.pos = UnityObjectToClipPos(v.vertex);

@@ -235,6 +235,20 @@ namespace PlaytimePainter {
             return null;
         }
 
+        private static RenderTexture Render(Texture src, RenderTexture trg, Material mat)
+        {
+            PainterShaderVariables.SourceTextureSize = src;
+            return PainterCamera.Inst.Render(src, trg, mat);
+
+        }
+
+        private static RenderTexture Render(Texture src, RenderTexture trg, Shader shd)
+        {
+            PainterShaderVariables.SourceTextureSize = src;
+            return PainterCamera.Inst.Render(src, trg, shd);
+
+        }
+
         public static RenderTexture Downscale_ToBuffer(Texture tex, int width, int height, Material material = null, Shader shader = null, bool allowApprox = false)
         {
 
@@ -246,25 +260,25 @@ namespace PlaytimePainter {
             if (!shader)
                 shader = Data.pixPerfectCopy;
 
-            var cam = PainterCamera.Inst;
+           // var cam = PainterCamera.Inst;
 
             bool square = (width == height);
             if (!square || !Mathf.IsPowerOfTwo(width))
             {
-                return cam.Render(tex, GetNonSquareBuffer(width, height), shader);
+                return Render(tex, GetNonSquareBuffer(width, height), shader);
             }
 
             int tmpWidth = Mathf.Max(tex.width / 2, width);
 
-            RenderTexture from = material
-                ? cam.Render(tex, SquareBuffer(tmpWidth), material)
-                : cam.Render(tex, SquareBuffer(tmpWidth), shader);
+            RenderTexture srcRt = material
+                ? Render(tex, SquareBuffer(tmpWidth), material)
+                : Render(tex, SquareBuffer(tmpWidth), shader);
                 
             while (tmpWidth > width) {
 
                 bool jobDone = false;
 
-                var previousFrom = @from;
+                var previousFrom = srcRt;
 
                 if (!usingCustom) {
 
@@ -273,20 +287,20 @@ namespace PlaytimePainter {
                         if (tmpWidth / 32 > width) {
 
                             tmpWidth /= 64;
-                            @from = cam.Render(@from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX64_Approx);
+                            srcRt = Render(srcRt, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX64_Approx);
                             jobDone = true;
 
                         } else if (tmpWidth / 16 > width) {
 
                             tmpWidth /= 32;
-                            @from = cam.Render(@from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX32_Approx);
+                            srcRt = Render(srcRt, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX32_Approx);
                             jobDone = true;
 
                         }
                         else if (tmpWidth / 8 > width) {
 
                             tmpWidth /= 16;
-                            @from = cam.Render(@from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX16_Approx);
+                            srcRt = Render(srcRt, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX16_Approx);
                             jobDone = true;
 
                         }
@@ -296,13 +310,13 @@ namespace PlaytimePainter {
                         if (tmpWidth / 4 > width)
                         {
                             tmpWidth /= 8;
-                            @from = cam.Render(@from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX8);
+                            srcRt = Render(srcRt, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX8);
                             jobDone = true;
                         }
                         else if (tmpWidth / 2 > width)
                         {
                             tmpWidth /= 4;
-                            @from = cam.Render(@from, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX4);
+                            srcRt = Render(srcRt, SquareBuffer(tmpWidth), Data.bufferCopyDownscaleX4);
                             jobDone = true;
                         }
                     }
@@ -310,15 +324,15 @@ namespace PlaytimePainter {
 
                 if (!jobDone) {
                     tmpWidth /= 2;
-                    @from = material
-                        ? cam.Render(@from, SquareBuffer(tmpWidth), material)
-                        : cam.Render(@from, SquareBuffer(tmpWidth), shader);
+                    srcRt = material
+                        ? Render(srcRt, SquareBuffer(tmpWidth), material)
+                        : Render(srcRt, SquareBuffer(tmpWidth), shader);
                 }
 
                 previousFrom.DiscardContents();
             }
 
-            return @from;
+            return srcRt;
         }
 
         #endregion
@@ -453,13 +467,8 @@ namespace PlaytimePainter {
         {
             if (!tex || id == null)
                 return null;
-            var mat = TempMaterial(Data.pixPerfectCopy);
-            var dst = id.CurrentRenderTexture();
-            Graphics.Blit(tex, dst, mat);
 
-            AfterBlit(dst);
-
-            return dst;
+            return Blit(tex, id.CurrentRenderTexture());
         }
 
         public static RenderTexture Blit(Texture from, RenderTexture to) => Blit(from, to, Data.pixPerfectCopy);
@@ -467,6 +476,7 @@ namespace PlaytimePainter {
         public static RenderTexture Blit(Texture from, RenderTexture to, Shader blitShader) => Blit(from, to, TempMaterial(blitShader));
 
         public static RenderTexture Blit(Texture from, RenderTexture to, Material blitMaterial) {
+            PainterShaderVariables.SourceTextureSize = from;
             Graphics.Blit(from, to, blitMaterial);
             AfterBlit(to);
             return to;
@@ -483,7 +493,9 @@ namespace PlaytimePainter {
         {
             var tm = PainterCamera.Inst;
 
-            var mat = tm.brushRenderer.Set(Data.bufferColorFill).Set(col).GetMaterial();
+            PainterShaderVariables.BrushColorProperty.GlobalValue = col;
+
+            var mat = tm.brushRenderer.Set(Data.bufferColorFill).GetMaterial();
 
             Graphics.Blit(null, to, mat);
 

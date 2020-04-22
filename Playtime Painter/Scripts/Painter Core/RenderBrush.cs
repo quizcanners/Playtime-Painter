@@ -162,10 +162,11 @@ namespace PlaytimePainter
             return this;
         }
 
-        public RenderBrush Set(Color col) {
+        // Not supported in Universal RP
+        /*public RenderBrush Set(Color col) {
             GetMaterial().Set(_colorVal, col);
             return this;
-        }
+        }*/
 
         public void FullScreenQuad()
         {
@@ -190,17 +191,12 @@ namespace PlaytimePainter
             var aspectRatio = tex.width / (float)tex.height;
 
             var ar2 = onto.width / (float)onto.height;
-
-
-#if UNITY_2018_1_OR_NEWER
+            
             if (tex.GetType() == typeof(RenderTexture))
                 aspectRatio = ar2 / aspectRatio;
             else
                 aspectRatio = 1;
-#else
-                aspectRatio = ar2 / aspectRatio;
-#endif
-
+            
             TexMGMT.TargetTexture = onto;
 
             var tf = transform;
@@ -210,6 +206,7 @@ namespace PlaytimePainter
             tf.localRotation = Quaternion.identity;
             meshFilter.mesh = PainterCamera.BrushMeshGenerator.GetQuad();
 
+            PainterShaderVariables.SourceTextureSize = tex;
             PainterShaderVariables.BufferCopyAspectRatio.GlobalValue = 1f / aspectRatio;
 
             if (material)
@@ -224,8 +221,9 @@ namespace PlaytimePainter
             else
             {
 
-                if (shade == null)
+                if (!shade)
                     shade = TexMgmtData.pixPerfectCopy;
+
                 Set(shade);
                 Set(tex);
                 TexMGMT.Render();
@@ -248,7 +246,8 @@ namespace PlaytimePainter
             tf.localPosition = Vector3.forward * 10;
             tf.localRotation = Quaternion.identity;
             meshFilter.mesh = PainterCamera.BrushMeshGenerator.GetQuad();
-            Set(TexMgmtData.bufferColorFill).Set(col);
+            PainterShaderVariables.BrushColorProperty.GlobalValue = col;
+            Set(TexMgmtData.bufferColorFill); //.Set(col);
         }
         
         private void OnEnable()

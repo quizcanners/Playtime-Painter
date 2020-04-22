@@ -9,7 +9,6 @@
 	Category {
 		Tags {  
 			"Queue"="Overlay+200"
-	 		"IgnoreProjector"="True" 
 	 		"RenderType"="Transparent" 
 		}
 	 		
@@ -26,7 +25,6 @@
 				CGPROGRAM
 				#pragma vertex vert
 				#pragma fragment frag
-				#include "UnityCG.cginc"
 
 				float4 _Color;
 				float _Size;

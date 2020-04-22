@@ -14,7 +14,6 @@
 
 				CGPROGRAM
 
-				#include "UnityCG.cginc"
 				#include "PlaytimePainter_cg.cginc"
 
 				#pragma multi_compile  BRUSH_SQUARE    BRUSH_2D    BRUSH_3D    BRUSH_3D_TEXCOORD2  BRUSH_DECAL
@@ -139,7 +138,7 @@
 					#endif
 
 					#if BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY || BLIT_MODE_SAMPLE_DISPLACE 
-
+						//return o.texcoord.x;
 					#if (BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY) && _qcPp_TARGET_TRANSPARENT_LAYER
 						return AlphaBlitTransparent(alpha, _qcPp_brushColor,  o.texcoord.xy);
 					#else

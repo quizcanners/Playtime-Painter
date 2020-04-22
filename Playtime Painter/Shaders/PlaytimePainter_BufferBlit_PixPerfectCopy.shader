@@ -4,32 +4,28 @@
 	}
 	
 	Category{
-		Tags{ 
-			"Queue" = "Transparent"
-			"IgnoreProjector" = "True"
-			"RenderType" = "Transparent"
-			"LightMode" = "ForwardBase"
-		}
-
-		//Blend SrcAlpha OneMinusSrcAlpha 
+		
 		ColorMask RGBA
 		Cull Off
 		ZTest off
 		ZWrite off
 
-
 		SubShader{
+
+			Tags{
+				"Queue" = "Transparent"
+				"IgnoreProjector" = "True"
+				"RenderType" = "Transparent"
+			}
+
 			Pass{
 
 				CGPROGRAM
 				#pragma vertex vert
 				#pragma fragment frag
-				#pragma target 3.0
-				#include "UnityCG.cginc"
-				//#include "UnityLightingCommon.cginc"
+				#include "PlaytimePainter_cg.cginc"
 
 				sampler2D _MainTex;
-				float4 _MainTex_TexelSize;
 
 				struct v2f {
 					float4 pos : POSITION;
@@ -46,8 +42,8 @@
 				}
 
 				float4 frag(v2f i) : COLOR{
-	
-					float2 perfTex = (floor(i.texcoord.xy*_MainTex_TexelSize.zw) + 0.5) * _MainTex_TexelSize.xy;
+
+					float2 perfTex = (floor(i.texcoord.xy*_qcPp_BufferSourceTexelSize.zw) + 0.5) * _qcPp_BufferSourceTexelSize.xy;
 
 					float4 col = tex2Dlod(_MainTex, float4(perfTex, 0, 0));
 

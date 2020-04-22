@@ -4,45 +4,47 @@
 static const float GAMMA_TO_LINEAR = 2.2;
 static const float LINEAR_TO_GAMMA = 1 / GAMMA_TO_LINEAR;
 
-float4 _qcPp_TargetTexture_TexelSize;
+uniform float4 _qcPp_TargetTexture_TexelSize;
 
 sampler2D _qcPp_SourceTexture;
-float4 _qcPp_SourceTexture_TexelSize;
-float4 _qcPp_srcTextureUsage;
-sampler2D _qcPp_TransparentLayerUnderlay;
-sampler2D _qcPp_AlphaBuffer;
-float4 _qcPp_AlphaBuffer_TexelSize;
-float4 _qcPp_AlphaBufferCfg;
+uniform float4 _qcPp_SourceTexture_TexelSize;
+uniform float4 _qcPp_srcTextureUsage;
+uniform sampler2D _qcPp_TransparentLayerUnderlay;
+uniform sampler2D _qcPp_AlphaBuffer;
+uniform float4 _qcPp_AlphaBuffer_TexelSize;
+uniform float4 _qcPp_AlphaBufferCfg;
 
-sampler2D _qcPp_DestBuffer;
-sampler2D _qcPp_SourceMask;
-sampler2D _VolDecalHeight;
-sampler2D _VolDecalOverlay;
-float4 _qcPp_brushForm; // x - alpha, y - sphere scale, z - uvspace scale
-float4 _PaintersSection;
-float4 _qcPp_brushMask;
-float4 _qcPp_brushColor;
-float4 _qcPp_brushWorldPosFrom; 
-float4 _qcPp_brushWorldPosTo; // W - Length
-float4 _qcPp_brushEditedUVoffset;
-float4 _qcPp_maskDynamics;
-float4 _qcPp_maskOffset;
-float4 _qcPp_RTcamPosition;
-float4 _qcPp_brushPointedUV;
-float4 _DecalParameters;
-float4 _qcPp_brushAtlasSectionAndRows;
-float4 _qcPp_brushSamplingDisplacement;
-float4 _qcPp_brushPointedUV_Untiled;
-float4 _qcPp_ChannelSourceMask;
-float _qcPp_BufferCopyAspectRatio = 1;
+uniform float4 _qcPp_BufferSourceTexelSize;
 
-sampler2D pp_DepthProjection;
-float4 pp_DepthProjection_TexelSize;
+uniform sampler2D _qcPp_DestBuffer;
+uniform sampler2D _qcPp_SourceMask;
+uniform sampler2D _VolDecalHeight;
+uniform sampler2D _VolDecalOverlay;
+uniform float4 _qcPp_brushForm; // x - alpha, y - sphere scale, z - uvspace scale
+uniform float4 _PaintersSection;
+uniform float4 _qcPp_brushMask;
+uniform float4 _qcPp_brushColor;
+uniform float4 _qcPp_brushWorldPosFrom;
+uniform float4 _qcPp_brushWorldPosTo; // W - Length
+uniform float4 _qcPp_brushEditedUVoffset;
+uniform float4 _qcPp_maskDynamics;
+uniform float4 _qcPp_maskOffset;
+uniform float4 _qcPp_RTcamPosition;
+uniform float4 _qcPp_brushPointedUV;
+uniform float4 _DecalParameters;
+uniform float4 _qcPp_brushAtlasSectionAndRows;
+uniform float4 _qcPp_brushSamplingDisplacement;
+uniform float4 _qcPp_brushPointedUV_Untiled;
+uniform float4 _qcPp_ChannelSourceMask;
+uniform float _qcPp_BufferCopyAspectRatio = 1;
 
-float4x4 pp_ProjectorMatrix;
-float4 pp_ProjectorPosition;
-float4 pp_ProjectorClipPrecompute;
-float4 pp_ProjectorConfiguration;
+uniform sampler2D pp_DepthProjection;
+uniform float4 pp_DepthProjection_TexelSize;
+
+uniform float4x4 pp_ProjectorMatrix;
+uniform float4 pp_ProjectorPosition;
+uniform float4 pp_ProjectorClipPrecompute;
+uniform float4 pp_ProjectorConfiguration;
 
 
 struct appdata_brush_qc

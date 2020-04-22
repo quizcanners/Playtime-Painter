@@ -4,74 +4,121 @@
 	}
 
 	Category{
-		Tags{
-			"Queue" = "Transparent"
-			"IgnoreProjector" = "True"
-			"RenderType" = "Transparent"
-			"LightMode" = "ForwardBase"
+	
+		ColorMask RGBA
+		Blend SrcAlpha OneMinusSrcAlpha
+		Cull Back
+		ZTest off
+		ZWrite off
+
+
+		SubShader{
+			Pass{
+
+				Tags{
+				"RenderPipeline" = "UniversalPipeline"
+				"Queue" = "Transparent"
+				"IgnoreProjector" = "True"
+				"LightMode" = "UniversalForward"
+				}
+
+				CGPROGRAM
+				#pragma vertex vert
+				#pragma fragment frag
+
+				#include "PlaytimePainter_cg.cginc"
+
+				sampler2D _MainTex;
+				float _qcPp_CopyBlitAlpha;
+
+
+				struct v2f {
+					float4 pos : POSITION;
+					float4 texcoord : TEXCOORD0;
+				};
+
+				v2f vert(appdata_full_qc v) {
+					v2f o;
+
+					o.pos = UnityObjectToClipPos(v.vertex);
+					o.texcoord = brushTexcoord(v.texcoord.xy, v.vertex);
+
+					return o;
+				}
+
+				float4 frag(v2f i) : COLOR{
+
+					float4 col = tex2Dlod(_MainTex, float4(i.texcoord.xy, 0, 0));
+					// TODO: Add avaraging like in the origina;
+
+					col.a = _qcPp_CopyBlitAlpha;
+
+					return col;
+				}
+				ENDCG
+			}
 		}
 
-	ColorMask RGBA
-	Blend SrcAlpha OneMinusSrcAlpha
-	Cull Back
-	ZTest off
-	ZWrite off
+		SubShader{
+			Pass{
 
-	SubShader{
-		Pass{
-
-			CGPROGRAM
-			#pragma vertex vert
-			#pragma fragment frag
-
-			#include "PlaytimePainter_cg.cginc"
-
-			sampler2D _MainTex;
-			float4 _MainTex_TexelSize;
-			float _qcPp_CopyBlitAlpha;
-
-
-			struct v2f {
-				float4 pos : POSITION;
-				float4 texcoord : TEXCOORD0;
-			};
-
-			v2f vert(appdata_full_qc v) {
-				v2f o;
-
-				o.pos = UnityObjectToClipPos(v.vertex);
-				o.texcoord = brushTexcoord(v.texcoord.xy, v.vertex);
-
-				return o;
+				Tags{
+				"Queue" = "Transparent"
+				"IgnoreProjector" = "True"
+				"RenderType" = "Transparent"
+				"LightMode" = "ForwardBase"
 			}
 
-			float4 frag(v2f i) : COLOR{
+				CGPROGRAM
+				#pragma vertex vert
+				#pragma fragment frag
 
-				float2 off = _MainTex_TexelSize.xy*1.5;
+				#include "PlaytimePainter_cg.cginc"
 
-				float4 col = tex2Dlod(_MainTex, float4(i.texcoord.xy, 0, 0))
+				sampler2D _MainTex;
+				float4 _MainTex_TexelSize;
+				float _qcPp_CopyBlitAlpha;
 
-					+
-					tex2Dlod(_MainTex, float4(i.texcoord.xy + off, 0, 0)) +
-					tex2Dlod(_MainTex, float4(i.texcoord.xy - off, 0, 0));
 
-				off.x = -off.x;
+				struct v2f {
+					float4 pos : POSITION;
+					float4 texcoord : TEXCOORD0;
+				};
 
-				col += tex2Dlod(_MainTex, float4(i.texcoord.xy + off, 0, 0)) +
-					tex2Dlod(_MainTex, float4(i.texcoord.xy - off, 0, 0))
+				v2f vert(appdata_full_qc v) {
+					v2f o;
 
-					;
+					o.pos = UnityObjectToClipPos(v.vertex);
+					o.texcoord = brushTexcoord(v.texcoord.xy, v.vertex);
 
-				col *= 0.2
+					return o;
+				}
 
-					;
+				float4 frag(v2f i) : COLOR{
 
-				col.a = _qcPp_CopyBlitAlpha;
+					float2 off = _MainTex_TexelSize.xy*1.5;
 
-				return col;
+					float4 col = tex2Dlod(_MainTex, float4(i.texcoord.xy, 0, 0))
+
+						+
+						tex2Dlod(_MainTex, float4(i.texcoord.xy + off, 0, 0)) +
+						tex2Dlod(_MainTex, float4(i.texcoord.xy - off, 0, 0));
+
+					off.x = -off.x;
+
+					col += tex2Dlod(_MainTex, float4(i.texcoord.xy + off, 0, 0)) +
+						tex2Dlod(_MainTex, float4(i.texcoord.xy - off, 0, 0));
+
+					col *= 0.2
+
+						;
+
+					col.a = _qcPp_CopyBlitAlpha;
+
+					return col;
+				}
+				ENDCG
 			}
-			ENDCG
 		}
 	}
-}
 }

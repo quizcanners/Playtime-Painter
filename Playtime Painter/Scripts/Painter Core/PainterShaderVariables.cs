@@ -1,4 +1,5 @@
-﻿using static QuizCannersUtilities.ShaderProperty;
+﻿using UnityEngine;
+using static QuizCannersUtilities.ShaderProperty;
 
 namespace PlaytimePainter
 {
@@ -11,17 +12,29 @@ namespace PlaytimePainter
         public const string TERRAIN_NORMAL_MAP = "_qcPp_mergeSplatN_";
         public const string ATLASED_TEXTURES = "_qcPp_AtlasTextures";
 
+        #region Terrain
         public static readonly VectorValue TerrainPosition              = new VectorValue("_qcPp_mergeTeraPosition");
         public static readonly VectorValue TerrainTiling                = new VectorValue("_qcPp_mergeTerrainTiling");
         public static readonly VectorValue TerrainScale                 = new VectorValue("_qcPp_mergeTerrainScale");
         public static readonly TextureValue TerrainHeight               = new TextureValue("_qcPp_mergeTerrainHeight");
         public static readonly TextureValue TerrainControlMain          = new TextureValue(TERRAIN_CONTROL_TEXTURE);
-
         public static readonly TextureValue TerrainLight                = new TextureValue("_qcPp_TerrainColors");
+        #endregion
+
         public static readonly TextureValue PreviewTexture              = new TextureValue("_qcPp_PreviewTex");
 
         public static readonly FloatValue TexturesInAtlasRow            = new FloatValue(ATLASED_TEXTURES);
         public static readonly FloatValue BufferCopyAspectRatio         = new FloatValue("_qcPp_BufferCopyAspectRatio");
+        private static readonly VectorValue SourceTextureTexelSize       = new VectorValue("_qcPp_BufferSourceTexelSize");
+
+        public static Texture SourceTextureSize
+        {
+            set
+            {
+                if (value)
+                    SourceTextureTexelSize.GlobalValue = new Vector4(1f/value.width, 1f/value.height, value.width, value.width);
+            }
+        }
 
         public static readonly VectorValue BRUSH_WORLD_POS_FROM         = new VectorValue("_qcPp_brushWorldPosFrom");
         public static readonly VectorValue BRUSH_WORLD_POS_TO           = new VectorValue("_qcPp_brushWorldPosTo");

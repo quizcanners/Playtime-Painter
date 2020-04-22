@@ -6,9 +6,7 @@
 	Category{
 		Tags{ 
 			"Queue" = "Transparent"
-			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
-			"LightMode" = "ForwardBase"
 		}
 
 		ColorMask RGBA
@@ -22,11 +20,9 @@
 				CGPROGRAM
 				#pragma vertex vert
 				#pragma fragment frag
-
 				#include "PlaytimePainter_cg.cginc"
 
 				sampler2D _MainTex;
-				float4 _MainTex_TexelSize;
 
 				struct v2f {
 					float4 pos : POSITION;
@@ -57,12 +53,12 @@
 
 					float2 uv = i.texcoord.xy;
 
-					uv = (floor(uv*_MainTex_TexelSize.zw) + 0.5) * _MainTex_TexelSize.xy;
+					uv = (floor(uv*_qcPp_BufferSourceTexelSize.zw) + 0.5) * _qcPp_BufferSourceTexelSize.xy;
 
 			
 					// Central 4
 
-					float2 checkerOff = _MainTex_TexelSize.xy * 8; // instead if *1
+					float2 checkerOff = _qcPp_BufferSourceTexelSize.xy * 8; // instead if *1
 
 					float4 col = GrabMain(uv + checkerOff) + GrabMain(uv - checkerOff);
 

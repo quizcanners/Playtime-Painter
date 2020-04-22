@@ -40,19 +40,8 @@
 
 					float4 buff = SampleUV_AlphaBuffer(o.texcoord.xy);
 					float2 uv = buff.rg;
-					// DEBUG
-
-					//float over = max(0,  uv-1);
-					
-
-					//return buff*100-length(over)*100;
-					// ENDDEBUG
-
-					//return buff.a;
 
 					float4 src = tex2Dlod(_qcPp_SourceTexture, float4(uv, 0, 0));
-
-
 
 					float ignoreSrcAlpha = _qcPp_srcTextureUsage.w;
 

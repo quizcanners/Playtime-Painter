@@ -13,7 +13,6 @@
 
 				CGPROGRAM
 
-				#include "UnityCG.cginc"
 				#include "PlaytimePainter_cg.cginc"
 
 				#pragma multi_compile  _FILL_TRANSPARENT  _FILL_NON_INKED 

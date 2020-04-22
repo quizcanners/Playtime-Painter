@@ -577,8 +577,10 @@ namespace PlaytimePainter
                                 {
                                     PainterCamera.Inst.DiscardAlphaBuffer();
 
-                                    texMeta.SetPixels(texMeta.clearColor);
-                                    texMeta.SetApplyUpdateRenderTexture();
+                                    texMeta.FillWithColor(texMeta.clearColor);
+
+                                    //texMeta.SetPixels(texMeta.clearColor);
+                                    //texMeta.SetApplyUpdateRenderTexture();
                                 }
                                 else
                                 {

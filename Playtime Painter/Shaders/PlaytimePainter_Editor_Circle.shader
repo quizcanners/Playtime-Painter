@@ -8,7 +8,6 @@ Shader "Playtime Painter/Editor/Markers/Circle" {
 	Category {
 		Tags { 
 			"Queue"="Overlay+1"
-	 		"IgnoreProjector"="True" 
 	 		"RenderType"="Transparent" 
 		}
 	 		
@@ -25,7 +24,6 @@ Shader "Playtime Painter/Editor/Markers/Circle" {
 				CGPROGRAM
 				#pragma vertex vert
 				#pragma fragment frag
-				#include "UnityCG.cginc"
 
 				float4 _Color;
 			  

@@ -14,7 +14,6 @@
 				CGPROGRAM
 
 				#include "PlaytimePainter_cg.cginc"
-				#include "UnityCG.cginc"
 
 				#pragma multi_compile  BRUSH_2D  BRUSH_3D   BRUSH_3D_TEXCOORD2  //BRUSH_DECAL
 				#pragma multi_compile  BRUSH_BLUR  BRUSH_BLOOM//BLIT_MODE_ALPHABLEND BLIT_MODE_ADD BLIT_MODE_COPY 

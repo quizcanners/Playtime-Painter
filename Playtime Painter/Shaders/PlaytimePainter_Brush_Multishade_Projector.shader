@@ -15,7 +15,6 @@
 				CGPROGRAM
 
 				#include "PlaytimePainter_cg.cginc"
-				#include "UnityCg.cginc"
 
 				#pragma multi_compile  BRUSH_3D    BRUSH_3D_TEXCOORD2
 				#pragma multi_compile  ____ _qcPp_TARGET_TRANSPARENT_LAYER

@@ -6,13 +6,10 @@
 	Category{
 		Tags{ 
 			"Queue" = "Transparent"
-			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
-			"LightMode" = "ForwardBase"
 		}
 
 		ColorMask R
-		//Blend SrcAlpha One //MinusSrcAlpha
 		Cull Back
 		ZTest off
 		ZWrite off
@@ -48,10 +45,6 @@
 					float4 col = tex2Dlod(_MainTex, float4(i.texcoord.xy, 0, 0))* _qcPp_ChannelSourceMask;
 
 					return col.r + col.g + col.b + col.a;
-
-					//col.a *= _qcPp_CopyBlitAlpha;
-
-					//col.a = 1;
 
 					return col;
 				}

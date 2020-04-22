@@ -894,6 +894,7 @@ namespace QuizCannersUtilities {
         public static void FocusOn(Object go)
         {
 #if UNITY_EDITOR
+            Debug.Log("Refocusing on " + go);
             var tmp = new Object[1];
             tmp[0] = go;
             Selection.objects = tmp;

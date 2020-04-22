@@ -4,9 +4,6 @@
 	Category{
 		Tags{ 
 			"Queue" = "Transparent"
-			"IgnoreProjector" = "True"
-			"RenderType" = "Transparent"
-			"LightMode" = "ForwardBase"
 		}
 
 		Blend SrcAlpha OneMinusSrcAlpha 
@@ -26,9 +23,6 @@
 
 				#pragma vertex vert
 				#pragma fragment frag
-				#pragma target 3.0
-				#include "UnityCG.cginc"
-				#include "UnityLightingCommon.cginc"
 
 				#if BRUSH_2D || BRUSH_DECAL || BRUSH_SQUARE
 				struct v2f {

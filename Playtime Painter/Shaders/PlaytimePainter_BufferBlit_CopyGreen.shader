@@ -6,9 +6,7 @@
 	Category{
 		Tags{ 
 			"Queue" = "Transparent"
-			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
-			"LightMode" = "ForwardBase"
 		}
 
 		ColorMask G

@@ -6,9 +6,7 @@
 	Category{
 		Tags{ 
 			"Queue" = "Transparent"
-			"IgnoreProjector" = "True"
 			"RenderType" = "Transparent"
-			"LightMode" = "ForwardBase"
 		}
 
 		ColorMask RGBA
@@ -41,7 +39,7 @@
 					return o;
 				}
 
-				float4 frag(v2f i) : COLOR{
+				float4 frag(v2f i) : SV_Target{
 					return tex2Dlod(_MainTex, float4(i.texcoord.xy, 0, 0));
 				}
 				ENDCG
