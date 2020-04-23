@@ -22,7 +22,7 @@ namespace QuizCannersUtilities
 
     public class LerpData : IPEGI, IGotName, IGotCount, IPEGI_ListInspect
     {
-        private float linkedPortion = 1;
+        private float _linkedPortion = 1;
         public string dominantParameter = "None";
 
         private List<ILinkedLerping> portions = new List<ILinkedLerping>();
@@ -38,7 +38,13 @@ namespace QuizCannersUtilities
                 portions.Add(lerp);
             }
 
-            MinPortion = value;
+            if (value < MinPortion)
+            {
+                dominantParameter = lerp.GetNameForInspector();
+                MinPortion = value;
+            }
+
+
 
         }
 
@@ -52,17 +58,17 @@ namespace QuizCannersUtilities
             Reset();
         }
 
-        public float Portion(bool skipLerp = false) => skipLerp ? 1 : linkedPortion;
+        public float Portion(bool skipLerp = false) => skipLerp ? 1 : _linkedPortion;
 
         public float MinPortion
         {
-            get { return linkedPortion; }
-            set { linkedPortion = Mathf.Min(linkedPortion, value); }
+            get { return _linkedPortion; }
+            set{_linkedPortion = Mathf.Min(_linkedPortion, value);}
         }
         
         public void Reset()
         {
-            linkedPortion = 1;
+            _linkedPortion = 1;
             portions.Clear();
             _resets++;
         }
@@ -230,7 +236,6 @@ namespace QuizCannersUtilities
 
                 if (UsingLinkedThreshold && Portion(ref lp))
                 {
-                    ld.dominantParameter = Name_Internal;
                     ld.AddPortion(lp, this);
                 }
                 else if (lerpMode == LerpSpeedMode.UnlinkedSpeed)
@@ -1104,7 +1109,7 @@ namespace QuizCannersUtilities
 
         public class ColorValue : BaseColorLerp, IGotName
         {
-            protected readonly string _name = "Float value";
+            protected readonly string _name = "Color value";
 
             protected Color currentValue;
 
@@ -1128,6 +1133,13 @@ namespace QuizCannersUtilities
             {
                 _name = name;
             }
+
+            public ColorValue(string name, float speed)
+            {
+                _name = name;
+                this.speedLimit = speed;
+            }
+
 
         }
 
@@ -1353,6 +1365,36 @@ namespace QuizCannersUtilities
 
         #region Transform
 
+        public abstract class TransformQuaternionBase : BaseLerpGeneric<Quaternion>
+        {
+
+            public override bool Enabled => base.Enabled && transform;
+
+            public Transform transform;
+
+            public Quaternion targetValue;
+
+            public override Quaternion TargetValue { get { return targetValue; } set { targetValue = value; } }
+
+            public TransformQuaternionBase(Transform transform, float nspeed)
+            {
+                this.transform = transform;
+                speedLimit = nspeed;
+            }
+
+            protected override bool LerpInternal(float portion)
+            {
+                if (Enabled && CurrentValue != targetValue)
+                    CurrentValue = Quaternion.Lerp(CurrentValue, targetValue, portion);
+                else return false;
+
+                return true;
+            }
+
+            protected override bool Portion(ref float portion) =>
+                speedLimit.SpeedToMinPortion( Quaternion.Angle(CurrentValue, targetValue), ref portion);
+        }
+        
         public abstract class TransformVector3Base : BaseLerpGeneric<Vector3> {
 
             public override bool Enabled => base.Enabled && transform;
@@ -1421,9 +1463,21 @@ namespace QuizCannersUtilities
             }
 
             public TransformLocalPosition(Transform transform, float nspeed) : base(transform, nspeed) { }
-
-
         }
+
+        public class TransformLocalRotation : TransformQuaternionBase
+        {
+            protected override string Name_Internal => "Local Rotation";
+
+            public override Quaternion CurrentValue
+            {
+                get { return transform.localRotation; }
+                set { transform.localRotation = value; }
+            }
+
+            public TransformLocalRotation(Transform transform, float nspeed) : base(transform, nspeed) { }
+        }
+
 
         #endregion
 

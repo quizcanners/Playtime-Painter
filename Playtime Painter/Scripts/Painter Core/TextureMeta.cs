@@ -805,6 +805,9 @@ namespace PlaytimePainter
             else
                 other = tex;
 
+            if (Cfg == null)
+                return this;
+
             if (!Cfg.imgMetas.Contains(this))
                 Cfg.imgMetas.Insert(0, this);
             return this;

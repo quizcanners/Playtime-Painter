@@ -27,28 +27,31 @@ namespace PlaytimePainter.Examples
 
         public Mode mode;
 
-        #region Camera Lerp
-
-        LinkedLerp.Vector3Value _positionLerp = new LinkedLerp.Vector3Value("Position");
-        LinkedLerp.QuaternionValue _rotationLerp = new LinkedLerp.QuaternionValue("Rotation");
-        LinkedLerp.FloatValue _heightLerp = new LinkedLerp.FloatValue(name: "Height");
-
-
-        #endregion
 
         #region Encode & Decode
 
         public CfgEncoder Encode()
         {
-            var cody = new CfgEncoder()
-                .Add("pos", transform.localPosition)
-                .Add("rot", transform.localRotation)
-                .Add("h", _heightLerp.CurrentValue);
-            
+            var cody = new CfgEncoder();
+
+            if (mode == Mode.LERP)
+            {
+                cody.Add("pos", _positionLerp.TargetValue)//transform.localPosition)
+                    .Add("h", _heightLerp.TargetValue);
+
+                if (_mainCam)
+                    cody.Add("rot", _rotationLerp.TargetValue);
+            }
+            else
+            {
+                cody.Add("pos", transform.localPosition)
+                    .Add("h", _heightLerp.CurrentValue);
+
+                if (_mainCam)
+                    cody.Add("rot", _mainCam.transform.localRotation);
+            }
             return cody;
         }
-
-        public void Decode(string data) => new CfgDecoder(data).DecodeTagsFor(this);
 
         public bool Decode(string tg, string data)
         {
@@ -63,9 +66,13 @@ namespace PlaytimePainter.Examples
             return true;
         }
 
+        public void Decode(string data)
+        {
+            IsLerpInitialized();
+            new CfgDecoder(data).DecodeTagsFor(this);
+        }
         #endregion
-
-
+        
         #region Camera Smoothing
 
         // private float trackingInitiating = 0;
@@ -157,7 +164,31 @@ namespace PlaytimePainter.Examples
             mainCameraVelocity = Vector3.zero;
             cameraSmoothingOffset = Vector3.zero;
 
-       
+            if (mode == Mode.LERP)
+                mode = Mode.FPS;
+        }
+
+        #region Linked Lerp
+
+        LinkedLerp.TransformLocalPosition _positionLerp;// = new LinkedLerp.TransformLocalPosition("Position");
+        LinkedLerp.TransformLocalRotation _rotationLerp;// = new LinkedLerp.TransformLocalRotation("Rotation");
+        LinkedLerp.FloatValue _heightLerp = new LinkedLerp.FloatValue(name: "Height");
+        
+        private bool IsLerpInitialized()
+        {
+            if (_positionLerp != null)
+                return true;
+
+            Debug.Log("Initializing Linked LErp");
+
+            if (_positionLerp == null && _mainCam)
+            {
+                _positionLerp = new LinkedLerp.TransformLocalPosition(transform, 10);
+                _rotationLerp = new LinkedLerp.TransformLocalRotation(_mainCam.transform, 90);
+                return true;
+            }
+
+            return false;
         }
 
         private void OnFpsUpdate()
@@ -209,19 +240,25 @@ namespace PlaytimePainter.Examples
         
         public void Portion(LerpData ld)
         {
-            _positionLerp.Portion(_ld);
-            _rotationLerp.Portion(_ld);
-            _heightLerp.Portion(_ld);
+            if (IsLerpInitialized())
+            {
+                _positionLerp.Portion(ld);
+                _rotationLerp.Portion(ld);
+                _heightLerp.Portion(ld);
+            } 
         }
 
         public void Lerp(LerpData ld, bool canSkipLerp)
         {
-            _positionLerp.Lerp(_ld);
-            _rotationLerp.Lerp(_ld);
-            _heightLerp.Lerp(_ld);
+            if (IsLerpInitialized())
+            {
+                _positionLerp.Lerp(ld, canSkipLerp);
+                _rotationLerp.Lerp(ld, canSkipLerp);
+                _heightLerp.Lerp(ld, canSkipLerp);
+            }
         }
 
-        private LerpData _ld = new LerpData();
+        private LerpData lerpData = new LerpData();
 
         public virtual void Update()
         {
@@ -235,20 +272,25 @@ namespace PlaytimePainter.Examples
                     OnFpsUpdate();
                     break;
                 case Mode.LERP:
-                    _ld.Reset();
+                    lerpData.Reset();
                     
-                    Portion(_ld);
+                    Portion(lerpData);
 
-                    Lerp(_ld, false);
+                    Lerp(lerpData, false);
+
+                    if (lerpData.MinPortion == 1)
+                    {
+                        mode = Mode.STATIC;
+                    }
 
                     break;
             }
 
             UpdateCameraSmoothing();
-
             AdjustCamera();
 
         }
+        #endregion
 
         public Vector2 camOrbit;
         public Vector3 spinCenter;
@@ -258,7 +300,7 @@ namespace PlaytimePainter.Examples
 
         [SerializeField] private Camera _mainCam;
 
-        private Camera MainCam
+        public Camera MainCam
         {
             get
             {
@@ -298,30 +340,31 @@ namespace PlaytimePainter.Examples
             if (Input.GetMouseButtonUp(2))
                 _orbitDistance = 0;
 
-            if ((!(_orbitDistance > 0)) || (!Input.GetMouseButton(2))) return;
+            if ((!(_orbitDistance > 0)) || (!Input.GetMouseButton(2)))
+                return;
+            
+            camOrbit.x += Input.GetAxis("Mouse X") * 5;
+            camOrbit.y -= Input.GetAxis("Mouse Y") * 5;
+
+            if (camOrbit.y <= -360)
+                camOrbit.y += 360;
+            if (camOrbit.y >= 360)
+                camOrbit.y -= 360;
+
+            var rot2 = Quaternion.Euler(camOrbit.y, camOrbit.x, 0);
+            var campos = rot2 *
+                             (new Vector3(0.0f, 0.0f, -_orbitDistance)) +
+                             spinCenter;
+
+            transform.position = campos;
+            if (!orbitingFocused)
             {
-                camOrbit.x += Input.GetAxis("Mouse X") * 5;
-                camOrbit.y -= Input.GetAxis("Mouse Y") * 5;
-
-                if (camOrbit.y <= -360)
-                    camOrbit.y += 360;
-                if (camOrbit.y >= 360)
-                    camOrbit.y -= 360;
-
-                var rot = Quaternion.Euler(camOrbit.y, camOrbit.x, 0);
-                var campos = rot *
-                                 (new Vector3(0.0f, 0.0f, -_orbitDistance)) +
-                                 spinCenter;
-
-                transform.position = campos;
-                if (!orbitingFocused)
-                {
-                    camTr.localRotation = camTr.localRotation.LerpBySpeed(rot, 200);
-                    if (Quaternion.Angle(camTr.localRotation, rot) < 1)
-                        orbitingFocused = true;
-                }
-                else camTr.localRotation = rot;
+                camTr.localRotation = camTr.localRotation.LerpBySpeed(rot2, 200);
+                if (Quaternion.Angle(camTr.localRotation, rot2) < 1)
+                    orbitingFocused = true;
             }
+            else camTr.localRotation = rot2;
+            
         }
 
         #region Inspector
@@ -329,7 +372,20 @@ namespace PlaytimePainter.Examples
         {
 
             var changed = false;
-            
+
+            pegi.toggleDefaultInspector(this);
+
+            switch (mode)
+            {
+                case Mode.STATIC:
+                    if ("Enable first-person controls".Click().nl())
+                        mode = Mode.FPS;
+                break;
+                case Mode.LERP:
+                    "IS LERPING".nl();
+                    break;
+            }
+
             if (MainCam)
                 "Main Camera".edit(ref _mainCam).nl(ref changed);
             
@@ -338,6 +394,8 @@ namespace PlaytimePainter.Examples
                 "Main Camera".selectInScene(ref _mainCam).nl();
                 "Camera is missing, spin around will not work".writeWarning();
             }
+
+            pegi.nl();
 
             if (MainCam)
             {
@@ -365,34 +423,35 @@ namespace PlaytimePainter.Examples
                 }
                 else
                 {
-                    
-                    bool cameraDirty = false;
 
-                    float fov = _mainCam.fieldOfView;
+                    if (mode != Mode.LERP)
+                    {
+                        bool cameraDirty = false;
 
-                    "FOV".edit(ref fov, 5, 170).nl(ref cameraDirty);
-                    _mainCam.fieldOfView = fov;
+                        float fov = _mainCam.fieldOfView;
 
-                    float clipDistance = CameraClipDistance;
+                        "FOV".edit(ref fov, 5, 170).nl(ref cameraDirty);
+                        _mainCam.fieldOfView = fov;
 
-                    if ("Clip Range".editDelayed(ref clipDistance).nl())
+                        float clipDistance = CameraClipDistance;
 
-                        CameraClipDistance = Mathf.Clamp(clipDistance, 0.03f, 100000);
-                    
-                    "Height:".write(60);
-                    targetHeight.Inspect().nl(ref cameraDirty);
+                        if ("Clip Range".editDelayed(ref clipDistance).nl())
 
-                    "Clip Distance: {0}".F(CameraWindowNearClip()).nl();
+                            CameraClipDistance = Mathf.Clamp(clipDistance, 0.03f, 100000);
 
-                    if (cameraDirty)
-                        AdjustCamera();
+                        "Height:".write(60);
+                        targetHeight.Inspect().nl(ref cameraDirty);
+
+                        "Clip Distance: {0}".F(CameraWindowNearClip()).nl();
+
+                        if (cameraDirty)
+                            AdjustCamera();
+                    }
                 }
             }
 
 
             pegi.nl();
-
-            "Mode".editEnum(60, ref mode).nl();
 
 
             switch (mode)
