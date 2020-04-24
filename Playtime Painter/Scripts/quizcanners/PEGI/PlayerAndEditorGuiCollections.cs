@@ -180,7 +180,7 @@ namespace PlayerAndEditorGUI
                     else line(Color.gray);
 
                 }
-                else if (collectionReference.Count > 0)
+                else if (_count > 0)
                     line(Color.gray);
 
                 nl();
@@ -238,9 +238,9 @@ namespace PlayerAndEditorGUI
 
                     var sectionIndex = _sectionStartIndex;
 
-                    filteredList = searchData.filteredListElements;
+                    filteredList = searchData.GetFilteredList(_count); 
 
-                    _lastElementToShow = Mathf.Min(collectionReference.Count, _sectionStartIndex + _sectionSizeOptimal);
+                    _lastElementToShow = Mathf.Min(_count, _sectionStartIndex + _sectionSizeOptimal);
 
                     while (sectionIndex < _lastElementToShow)
                     {
@@ -3049,7 +3049,19 @@ namespace PlayerAndEditorGUI
             public int inspectionIndexStart;
             public bool filterByNeedAttention;
             private string[] searchBys;
-            public List<int> filteredListElements = new List<int>();
+            private List<int> filteredListElements = new List<int>();
+            private int fileredForCount = -1;
+
+            public List<int> GetFilteredList(int count)
+            {
+                if (fileredForCount != count)
+                {
+                    filteredListElements.Clear();
+                    fileredForCount = count;
+                }
+
+                return filteredListElements;
+            }
 
             private const string searchFieldFocusName = "_pegiSearchField";
 
@@ -3138,6 +3150,7 @@ namespace PlayerAndEditorGUI
             public void Refresh()
             {
                 filteredListElements.Clear();
+                fileredForCount = -1;
                 uncheckedElement = 0;
                 inspectionIndexStart = 0;
             }

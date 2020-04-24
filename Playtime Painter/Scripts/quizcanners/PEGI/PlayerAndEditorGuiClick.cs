@@ -53,7 +53,7 @@ namespace PlayerAndEditorGUI
 #endif
             }
 
-            public static void Lock_UnlockClick(GameObject obj)
+            public static void Lock_UnlockClick(Object obj)
             {
 #if UNITY_EDITOR
                 if (!PaintingGameViewUI)

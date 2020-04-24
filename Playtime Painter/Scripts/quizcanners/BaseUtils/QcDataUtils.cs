@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization.Formatters.Binary;
 using PlayerAndEditorGUI;
 using UnityEngine;
 using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using System.Diagnostics;
-using UnityEngine.PlayerLoop;
 
 namespace QuizCannersUtilities
 {
