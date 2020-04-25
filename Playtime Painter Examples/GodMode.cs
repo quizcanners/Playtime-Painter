@@ -179,12 +179,10 @@ namespace PlaytimePainter.Examples
             if (_positionLerp != null)
                 return true;
 
-            Debug.Log("Initializing Linked LErp");
-
             if (_positionLerp == null && _mainCam)
             {
-                _positionLerp = new LinkedLerp.TransformLocalPosition(transform, 10);
-                _rotationLerp = new LinkedLerp.TransformLocalRotation(_mainCam.transform, 90);
+                _positionLerp = new LinkedLerp.TransformLocalPosition(transform, 1000);
+                _rotationLerp = new LinkedLerp.TransformLocalRotation(_mainCam.transform, 180);
                 return true;
             }
 
