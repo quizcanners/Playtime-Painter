@@ -935,7 +935,7 @@ namespace QuizCannersUtilities
 
         public abstract class BaseColorLerp : BaseLerpGeneric<Color>
         {
-            protected override string Name_Internal => "Color";
+            protected override string Name_Internal => "Base Color";
 
             public Color targetValue = Color.white;
 
@@ -1111,6 +1111,8 @@ namespace QuizCannersUtilities
         {
             protected readonly string _name = "Color value";
 
+            protected override string Name_Internal => _name;
+
             protected Color currentValue;
 
             public override Color CurrentValue
@@ -1146,7 +1148,7 @@ namespace QuizCannersUtilities
         public class Vector3Value : BaseLerpGeneric<Vector3>
         {
             protected readonly string _name = "Vector3 value";
-
+            
             public Vector3 targetValue;
 
             public Vector3 currentValue;
@@ -1454,7 +1456,7 @@ namespace QuizCannersUtilities
 
         public class TransformLocalPosition : TransformVector3Base
         {
-            protected override string Name_Internal => "Local Position";
+            protected override string Name_Internal => "Local Position " + (transform ? transform.name : "NULL TF");
         
             public override Vector3 CurrentValue
             {
@@ -1462,12 +1464,15 @@ namespace QuizCannersUtilities
                 set { transform.localPosition = value; }
             }
 
-            public TransformLocalPosition(Transform transform, float nspeed) : base(transform, nspeed) { }
+            public TransformLocalPosition(Transform transform, float nspeed) : base(transform, nspeed)
+            {
+
+            }
         }
 
         public class TransformLocalRotation : TransformQuaternionBase
         {
-            protected override string Name_Internal => "Local Rotation";
+            protected override string Name_Internal => "Local Rotation" + (transform ? transform.name : "NULL TF");
 
             public override Quaternion CurrentValue
             {

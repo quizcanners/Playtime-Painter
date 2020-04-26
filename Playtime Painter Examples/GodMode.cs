@@ -50,6 +50,9 @@ namespace PlaytimePainter.Examples
                 if (_mainCam)
                     cody.Add("rot", _mainCam.transform.localRotation);
             }
+
+            cody.Add("sp", speed);
+
             return cody;
         }
 
@@ -60,6 +63,7 @@ namespace PlaytimePainter.Examples
                 case "pos": _positionLerp.TargetValue = data.ToVector3(); break;
                 case "rot": _rotationLerp.TargetValue = data.ToQuaternion(); break;
                 case "h": _heightLerp.TargetValue = data.ToFloat(); break;
+                case "sp": speed = data.ToFloat(); break;
                 default: return false;
             }
 

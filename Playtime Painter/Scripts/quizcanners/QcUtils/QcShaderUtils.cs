@@ -547,12 +547,14 @@ namespace QuizCannersUtilities {
                 float screenAspect = pegi.GameView.AspectRatio;
                 float texAspect = ((float)latestValue.width) / latestValue.height;
 
-                Vector2 aspectCorrection = Vector2.one;
+                Vector4 aspectCorrection = new Vector4(1,1, 1f/latestValue.width, 1f/latestValue.height);
 
                 if (screenAspect > texAspect)
                     aspectCorrection.y = (texAspect / screenAspect);
                 else
                     aspectCorrection.x = (screenAspect / texAspect);
+
+                
 
                 GetScreenFillAspect().GlobalValue = aspectCorrection;
             } 
