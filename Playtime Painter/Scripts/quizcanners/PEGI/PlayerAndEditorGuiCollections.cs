@@ -137,7 +137,7 @@ namespace PlayerAndEditorGUI
 
                 _lastElementToShow = _count;
 
-                _sectionSizeOptimal = GetOptimalSectionFor(_count);
+                _sectionSizeOptimal = listMeta == null ? 10 : (listMeta.useOptimalShowRange ? GetOptimalSectionFor(_count) : listMeta.itemsToShow);
 
                 if (_scrollDownRequested)
                 {
@@ -3056,8 +3056,7 @@ namespace PlayerAndEditorGUI
             {
                 if (fileredForCount != count)
                 {
-                    filteredListElements.Clear();
-                    fileredForCount = count;
+                    OnCountChange(count);
                 }
 
                 return filteredListElements;
@@ -3147,14 +3146,16 @@ namespace PlayerAndEditorGUI
                 searchBy = searchBys;
             }
 
-            public void Refresh()
+            private void OnCountChange(int newCount = -1)
             {
+                fileredForCount = newCount;
                 filteredListElements.Clear();
-                fileredForCount = -1;
                 uncheckedElement = 0;
-                inspectionIndexStart = 0;
+                inspectionIndexStart = Mathf.Max(0, Mathf.Min(inspectionIndexStart, newCount - 1));
             }
-
+        
+            public void Refresh()=> OnCountChange();
+            
             public override CfgEncoder Encode() => new CfgEncoder().Add_String("s", searchedText);
 
             public override bool Decode(string tg, string data)

@@ -37,6 +37,8 @@ namespace QuizCannersUtilities
         public bool showEditListButton;
         public bool showSearchButton;
         public bool showDictionaryKey;
+        public bool useOptimalShowRange = true;
+        public int itemsToShow = 10;
         public readonly bool showAddButton;
         public readonly icon icon;
         public UnNullableCfg<ElementData> elementDatas = new UnNullableCfg<ElementData>();
