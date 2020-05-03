@@ -379,7 +379,7 @@ namespace PlayerAndEditorGUI
             }
 
             if (showCopyButton && icon.Copy.Click("Copy text to clipboard"))
-                SetClipboard(text);
+                SetCopyPasteBuffer(text);
 
             return ret;
         }
@@ -398,7 +398,7 @@ namespace PlayerAndEditorGUI
             }
 
             if (showCopyButton && icon.Copy.Click("Copy text to clipboard"))
-                SetClipboard(text);
+                SetCopyPasteBuffer(text);
 
             return ret;
 
@@ -409,7 +409,7 @@ namespace PlayerAndEditorGUI
             var ret = edit(label, width, ref val);
 
             if (showCopyButton && icon.Copy.Click("Copy {0} to clipboard".F(label)))
-                SetClipboard(val, label);
+                SetCopyPasteBuffer(val, label);
 
             return ret;
 
@@ -420,7 +420,7 @@ namespace PlayerAndEditorGUI
             var ret = label.edit(ref val);
 
             if (showCopyButton && icon.Copy.Click("Copy {0} to clipboard".F(label)))
-                SetClipboard(val, label);
+                SetCopyPasteBuffer(val, label);
 
             return ret;
 
@@ -430,7 +430,7 @@ namespace PlayerAndEditorGUI
         {
 
             if (showCopyButton && "Copy text to clipboard".Click().nl())
-                SetClipboard(val);
+                SetCopyPasteBuffer(val);
 
             if (PaintingGameViewUI && !val.IsNullOrEmpty() && val.ContainsAtLeast('\n', 5)) // Due to MGUI BUG
                 ".....   Big Text Has Many Lines: {0}".F(val.FirstLine()).write();
@@ -444,7 +444,7 @@ namespace PlayerAndEditorGUI
         {
 
             if (showCopyButton && icon.Copy.Click("Copy text to clipboard"))
-                SetClipboard(val, label);
+                SetCopyPasteBuffer(val, label);
 
             label.nl();
 
@@ -456,7 +456,7 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static void SetClipboard(string value, string hint = "", bool sendNotificationIn3Dview = true)
+        public static void SetCopyPasteBuffer(string value, string hint = "", bool sendNotificationIn3Dview = true)
         {
             GUIUtility.systemCopyBuffer = value;
 

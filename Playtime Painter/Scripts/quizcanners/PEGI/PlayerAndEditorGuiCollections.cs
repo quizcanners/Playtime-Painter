@@ -195,18 +195,39 @@ namespace PlayerAndEditorGUI
 
                     Index = _sectionStartIndex;
 
-                    foreach (var el in collectionReference.Skip(_sectionStartIndex))
+                    var list = collectionReference as IList<T>;
+
+                    if (list != null)
                     {
-                        SetListElementReadabilityBackground(Index);
+                         for(; Index<collectionReference.Count; Index++) {
 
-                        yield return el;
+                            var lel = list[Index];
 
-                        RestoreBGcolor();
+                            SetListElementReadabilityBackground(Index);
 
-                        if (Index >= _lastElementToShow)
-                            break;
+                            yield return lel;
 
-                        Index++;
+                            RestoreBGcolor();
+
+                            if (Index >= _lastElementToShow)
+                                break;
+                         }
+                    }
+                    else
+                    {
+                        foreach (var el in collectionReference.Skip(_sectionStartIndex))
+                        {
+                            SetListElementReadabilityBackground(Index);
+
+                            yield return el;
+
+                            RestoreBGcolor();
+
+                            if (Index >= _lastElementToShow)
+                                break;
+
+                            Index++;
+                        }
                     }
 
                     if ((_sectionStartIndex > 0) || (_count > _lastElementToShow))
@@ -2542,7 +2563,6 @@ namespace PlayerAndEditorGUI
 
             public bool String_SearchMatch(string searchString)
             {
-
                 return Try_SearchMatch_Obj(_pair.Value, searchString) || Try_SearchMatch_Obj(_pair.Key, searchString);
             }
 

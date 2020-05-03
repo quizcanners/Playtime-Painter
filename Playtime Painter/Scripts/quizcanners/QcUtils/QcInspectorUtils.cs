@@ -932,7 +932,7 @@ namespace QuizCannersUtilities
                 if ("Player Data Folder".Click().nl())
                 {
                     QcFile.Explorer.OpenPersistentFolder();
-                    pegi.SetClipboard(Application.persistentDataPath, sendNotificationIn3Dview: true);
+                    pegi.SetCopyPasteBuffer(Application.persistentDataPath, sendNotificationIn3Dview: true);
                 }
 
                 if (Application.isEditor && "Editor Data Folder".Click().nl())
@@ -967,6 +967,9 @@ namespace QuizCannersUtilities
 
                     if (icon.Folder.Click())
                         QcFile.Explorer.OpenPath(path);
+
+                    if (icon.Copy.Click())
+                        pegi.SetCopyPasteBuffer(path);
 
                     path.write();
 

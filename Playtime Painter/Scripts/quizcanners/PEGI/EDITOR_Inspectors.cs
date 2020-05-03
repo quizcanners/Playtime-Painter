@@ -71,7 +71,7 @@ namespace PlayerAndEditorGUI {
             "Got an Exception. Click copy to check it out in the notepad.".writeWarning();
             
             if ("Copy To Clipboard".Click("Copy Exception").nl())
-                pegi.SetClipboard(pegi.PopUpService.popUpText);
+                pegi.SetCopyPasteBuffer(pegi.PopUpService.popUpText);
 
             if ("Don't show again".Click())
             {
