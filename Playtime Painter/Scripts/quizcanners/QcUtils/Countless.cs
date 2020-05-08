@@ -782,6 +782,37 @@ public class Countless<T> : CountlessBase {
             }
         }
 
+        public bool TryGet(int index, out T value)
+        {
+            value = default(T);
+
+            if (index >= max || index < 0)
+                return false;
+
+            var d = depth;
+            var vb = br;
+            var subSize = max;
+
+            while (d > 0)
+            {
+                subSize /= BranchSize;
+                var no = index / subSize;
+                index -= no * subSize;
+                if (vb.br[no] == null)
+                    return false;
+                d--;
+                vb = vb.br[no];
+            }
+
+            if (vb.br[index] == null)
+                return false;
+            else
+            {
+                value = objs[vb.br[index].value];
+                return true;
+            }
+        }
+
         protected virtual T Get(int ind)
         {
             if (ind >= max || ind<0)
