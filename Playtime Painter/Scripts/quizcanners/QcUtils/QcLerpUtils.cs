@@ -1381,6 +1381,7 @@ namespace QuizCannersUtilities
             public TransformQuaternionBase(Transform transform, float nspeed)
             {
                 this.transform = transform;
+                targetValue = CurrentValue;
                 speedLimit = nspeed;
             }
 

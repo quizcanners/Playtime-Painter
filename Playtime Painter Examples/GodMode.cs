@@ -74,6 +74,7 @@ namespace PlaytimePainter.Examples
         {
             IsLerpInitialized();
             new CfgDecoder(data).DecodeTagsFor(this);
+            mode = Mode.LERP;
         }
         #endregion
         
@@ -252,15 +253,14 @@ namespace PlaytimePainter.Examples
 
         public void Lerp(LerpData ld, bool canSkipLerp)
         {
-            if (IsLerpInitialized())
-            {
-                _positionLerp.Lerp(ld, canSkipLerp);
-                _rotationLerp.Lerp(ld, canSkipLerp);
-                _heightLerp.Lerp(ld, canSkipLerp);
-            }
+            _positionLerp.Lerp(ld, canSkipLerp);
+            _rotationLerp.Lerp(ld, canSkipLerp);
+            _heightLerp.Lerp(ld, canSkipLerp);
         }
 
         private LerpData lerpData = new LerpData();
+
+        private bool lerpYourself = false;
 
         public virtual void Update()
         {
@@ -274,15 +274,19 @@ namespace PlaytimePainter.Examples
                     OnFpsUpdate();
                     break;
                 case Mode.LERP:
-                    lerpData.Reset();
-                    
-                    Portion(lerpData);
-
-                    Lerp(lerpData, false);
-
-                    if (lerpData.MinPortion == 1)
+                    if (lerpYourself)
                     {
-                        mode = Mode.STATIC;
+                        lerpData.Reset();
+
+                        Portion(lerpData);
+
+                        Lerp(lerpData, false);
+
+                        if (lerpData.MinPortion == 1)
+                        {
+                            mode = Mode.STATIC;
+                            lerpYourself = false;
+                        }
                     }
 
                     break;
@@ -380,6 +384,12 @@ namespace PlaytimePainter.Examples
             switch (mode)
             {
                 case Mode.STATIC:
+
+                    "Not Lerping himself".writeWarning();
+                    pegi.nl();
+                    if ("Lepr Yourself".Click().nl())
+                        lerpYourself = true;
+
                     if ("Enable first-person controls".Click().nl())
                         mode = Mode.FPS;
                 break;

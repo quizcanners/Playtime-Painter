@@ -100,18 +100,16 @@ namespace QuizCannersUtilities {
             return _branchPool[_brPoolMax];
         }
      
-
         protected VariableBranch GetNewFruit()
         {
-
+            count++;
             if (_frPoolMax == 0)
             {
                 var vb = new VariableBranch();
-
                 return vb;
             }
             _frPoolMax--;
-            count++;
+           
 
             return _fruitPool[_frPoolMax];
         }
@@ -141,6 +139,7 @@ namespace QuizCannersUtilities {
         {
             ("Depth: " + depth).nl();
             ("First free: " + firstFree).nl();
+            "Count: {0}".F(count).nl();
 
             return false;
         }
@@ -715,7 +714,7 @@ public class Countless<T> : CountlessBase {
             var vb = br;
             var subSize = max;
 
-            if (!QcSharp .IsDefaultOrNull(obj))
+            if (!QcSharp.IsDefaultOrNull(obj))
             {
                 while (d > 0)
                 {
@@ -916,10 +915,11 @@ public class Countless<T> : CountlessBase {
         }
 
         private int _edited = -1;
+        private int _testIndex = 100;
 
         public override bool Inspect()
         {
-            var changed = false;
+            var changed = base.Inspect();
 
             if (_edited == -1)
             {
@@ -932,12 +932,23 @@ public class Countless<T> : CountlessBase {
                     var ind = indxs[i];
                     var el = allElements[i];
 
+                    ind.ToString().write(60);
+
                     if (icon.Delete.Click())
                         this[ind] = default;
-                    else if (pegi.InspectValueInCollection(ref el, null, ind, ref _edited) && typeof(T).IsValueType)
+                    else if (pegi.InspectValueInCollection(ref el, null, ind, ref _edited).nl() && typeof(T).IsValueType)
                         this[ind] = el;
                 }
 
+
+                if (objs.Length > 0)
+                {
+                    "Test: ".edit(ref _testIndex);
+                    if (icon.Add.Click().nl())
+                    {
+                        this[_testIndex] = objs[0];
+                    }
+                }
             }
             else
             {
@@ -946,7 +957,7 @@ public class Countless<T> : CountlessBase {
                 else
                 {
                     object el = this[_edited];
-                    if (pegi.Nested_Inspect(ref el))
+                    if (pegi.Nested_Inspect(ref el).nl())
                         this[_edited] = (T)el;
                 }
             }

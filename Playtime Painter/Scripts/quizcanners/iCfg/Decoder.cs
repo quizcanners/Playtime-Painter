@@ -737,8 +737,9 @@ namespace QuizCannersUtilities {
             while (cody.GotData)
             {
                 var val = new T();
+                var tag = cody.GetTag();
                 val.Decode(cody.GetData());
-                dic.Add(cody.GetTag(), val);
+                dic.Add(tag, val);
             }
 
         }
@@ -1054,11 +1055,11 @@ namespace QuizCannersUtilities {
         {
 
             if (!_expectingGetData)
-                Debug.Log("Was expecting Get Tag");
+                Debug.LogError("Was expecting Get Tag");
             _expectingGetData = false;
-
+            
             var length = int.Parse(ToNextSplitter());
-
+            
             var result = _data.Substring(_position, length);
             
             _position += length + 1; 
