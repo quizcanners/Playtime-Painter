@@ -91,6 +91,18 @@ namespace QuizCannersUtilities
 
             return cody;
         }
+
+        public static CfgEncoder Encode<T>(this Dictionary<string, T> dic) where T: ICfg
+        {
+            var sub = new CfgEncoder();
+
+            if (dic == null) return sub;
+
+            foreach (var e in dic)
+                sub.Add(e.Key, e.Value.Encode());
+
+            return sub;
+        }
         
         public static CfgEncoder Encode(this Dictionary<string, string> dic)
         {
@@ -594,6 +606,8 @@ namespace QuizCannersUtilities
 
         public CfgEncoder Add(string tag, Dictionary<string, string> dic) => Add(tag, dic.Encode());
 
+        public CfgEncoder Add<T>(string tag, Dictionary<string, T> dic) where T: ICfg => Add(tag, dic.Encode());
+        
         public CfgEncoder Add<T>(string tag, T[] val) where T : ICfg => Add(tag, val.Encode());
 
         #region NonDefault Encodes

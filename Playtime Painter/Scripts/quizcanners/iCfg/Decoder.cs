@@ -410,7 +410,7 @@ namespace QuizCannersUtilities {
         }
         #endregion
 
-        #region STD List
+        #region Cfg List
         
         public static bool TryDecode_IntoList_Elements<T>(this string data, List<T> val)
         {
@@ -554,8 +554,7 @@ namespace QuizCannersUtilities {
 
             return l;
         }
-
-
+        
         public static List<T> Decode_List<T>(this string data, out List<T> l) where T : ICfg, new() {
 
             var cody = new CfgDecoder(data);
@@ -728,6 +727,21 @@ namespace QuizCannersUtilities {
                 dic.Add(cody.GetTag(), cody.GetData());
 
         }
+        
+        public static void Decode_Dictionary<T>(this string data, out Dictionary<string, T> dic) where T: ICfg, new() 
+        {
+            var cody = new CfgDecoder(data);
+
+            dic = new Dictionary<string, T>();
+
+            while (cody.GotData)
+            {
+                var val = new T();
+                val.Decode(cody.GetData());
+                dic.Add(cody.GetTag(), val);
+            }
+
+        }
         #endregion
 
         #region CFG class
@@ -811,8 +825,7 @@ namespace QuizCannersUtilities {
                 val = cody.GetData().DecodeInto_Type<T>(type);
         }
         #endregion
-
-
+        
         #region Into Unity Objects
         public static ICfgSerializeNestedReferences Keeper { get { return CfgEncoder.keeper;  } set { CfgEncoder.keeper = value; } }
 
