@@ -644,7 +644,7 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool conditional_enter(this icon ico, bool canEnter, ref int enteredOne, int thisOne, string exitLabel = "")
+        public static bool conditional_enter(bool canEnter, ref int enteredOne, int thisOne, string exitLabel = "")
         {
 
             if (!canEnter && enteredOne == thisOne)
@@ -652,7 +652,7 @@ namespace PlayerAndEditorGUI
 
             if (canEnter)
             {
-                ico.enter(ref enteredOne, thisOne);
+                icon.Enter.enter(ref enteredOne, thisOne);
                 if (enteredOne == thisOne && !exitLabel.IsNullOrEmpty() &&
                     exitLabel.ClickLabel(icon.Exit.GetDescription(), style: PEGI_Styles.ExitLabel))
                     enteredOne = -1;

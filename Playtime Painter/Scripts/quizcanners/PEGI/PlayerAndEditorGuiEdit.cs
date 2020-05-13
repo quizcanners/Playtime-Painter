@@ -2341,7 +2341,7 @@ namespace PlayerAndEditorGUI
             {
                 var pgi = QcUnity.TryGet_fromObj<IPEGI>(obj);
 
-                if (icon.Enter.conditional_enter(pgi != null, ref entered, current, label))
+                if (pegi.conditional_enter(pgi != null, ref entered, current, label))
                     pgi.Nested_Inspect().changes(ref changed);
             }
 
