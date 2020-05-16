@@ -2024,13 +2024,13 @@ namespace PlayerAndEditorGUI
         {
             if (val)
             {
-                if (TrueIcon.ClickConfirm(confirmationTag: confirmationTag, tip: tip, width))
+                if (TrueIcon.ClickConfirm(confirmationTag: confirmationTag, toolTip: tip, width))
                 {
                     val = false;
                     return true;
                 }
             }
-            else if (FalseIcon.ClickConfirm(confirmationTag: confirmationTag, tip: tip, width))
+            else if (FalseIcon.ClickConfirm(confirmationTag: confirmationTag, toolTip: tip, width))
             {
                 val = true;
                 return true;
@@ -2255,12 +2255,12 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool edit<T>(this string label, string tip, int width, ref T field, bool allowSceneObjects = true) where T : Object
+        public static bool edit<T>(this string label, string toolTip, int width, ref T field, bool allowSceneObjects = true) where T : Object
         {
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
             {
-                write(label, tip, width);
+                write(label, toolTip, width);
                 return edit(ref field, allowSceneObjects);
             }
 
@@ -2299,12 +2299,12 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static bool edit(this string label, string tip, int width, ref Object field, Type type, bool allowSceneObjects = true) 
+        public static bool edit(this string label, string toolTip, int width, ref Object field, Type type, bool allowSceneObjects = true) 
         {
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
             {
-                write(label, tip, width);
+                write(label, toolTip, width);
                 return edit(ref field, type, allowSceneObjects);
             }
 #endif
@@ -2661,9 +2661,9 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool edit(this string label, string tip, int width, ref Vector2 v2)
+        public static bool edit(this string label, string toolTip, int width, ref Vector2 v2)
         {
-            write(label, tip, width);
+            write(label, toolTip, width);
             return edit(ref v2);
         }
 
@@ -2673,9 +2673,9 @@ namespace PlayerAndEditorGUI
             return edit(ref v3);
         }
 
-        public static bool edit(this string label, string tip, int width, ref Vector3 v3)
+        public static bool edit(this string label, string toolTip, int width, ref Vector3 v3)
         {
-            write(label, tip, width);
+            write(label, toolTip, width);
             return edit(ref v3);
         }
         #endregion
@@ -2787,12 +2787,12 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static bool edit(this string label, string tip, int width, ref Color col)
+        public static bool edit(this string label, string toolTip, int width, ref Color col)
         {
             if (PaintingGameViewUI)
                 return false;
 
-            write(label, tip, width);
+            write(label, toolTip, width);
             return edit(ref col);
         }
 
@@ -2986,15 +2986,15 @@ namespace PlayerAndEditorGUI
             return edit(ref val, min, max);
         }
 
-        public static bool edit(this string label, string tip, int width, ref uint val)
+        public static bool edit(this string label, string toolTip, int width, ref uint val)
         {
-            write(label, tip, width);
+            write(label, toolTip, width);
             return edit(ref val);
         }
 
-        public static bool edit(this string label, string tip, int width, ref uint val, uint min, uint max)
+        public static bool edit(this string label, string toolTip, int width, ref uint val, uint min, uint max)
         {
-            label.sliderText(val, tip, width);
+            label.sliderText(val, toolTip, width);
             return edit(ref val, min, max);
         }
 
@@ -3175,15 +3175,15 @@ namespace PlayerAndEditorGUI
             return edit(ref val, min, max);
         }
 
-        public static bool edit(this string label, string tip, int width, ref int val)
+        public static bool edit(this string label, string toolTip, int width, ref int val)
         {
-            write(label, tip, width);
+            write(label, toolTip, width);
             return edit(ref val);
         }
 
-        public static bool edit(this string label, string tip, int width, ref int val, int min, int max)
+        public static bool edit(this string label, string toolTip, int width, ref int val, int min, int max)
         {
-            label.sliderText(val, tip, width);
+            label.sliderText(val, toolTip, width);
             return edit(ref val, min, max);
         }
 
@@ -3455,21 +3455,21 @@ namespace PlayerAndEditorGUI
             return edit(ref val, min, max);
         }
 
-        public static bool edit(this string label, string tip, int width, ref float val, float min, float max)
+        public static bool edit(this string label, string toolTip, int width, ref float val, float min, float max)
         {
-            label.sliderText(val, tip, width);
+            label.sliderText(val, toolTip, width);
             return edit(ref val, min, max);
         }
 
-        public static bool edit(this string label, string tip, int width, ref float val)
+        public static bool edit(this string label, string toolTip, int width, ref float val)
         {
-            write(label, tip, width);
+            write(label, toolTip, width);
             return edit(ref val);
         }
 
-        public static bool edit(this string label, string tip, ref float val)
+        public static bool edit(this string label, string toolTip, ref float val)
         {
-            write(label, tip);
+            write(label, toolTip);
             return edit(ref val);
         }
 
@@ -3575,9 +3575,9 @@ namespace PlayerAndEditorGUI
             return edit(ref val);
         }
 
-        public static bool edit(this string label, string tip, int width, ref double val)
+        public static bool edit(this string label, string toolTip, int width, ref double val)
         {
-            label.write(tip, width);
+            label.write(toolTip, width);
             return edit(ref val);
         }
 
@@ -3878,9 +3878,9 @@ namespace PlayerAndEditorGUI
             return edit(ref val);
         }
 
-        public static bool edit(this string label, string tip, int width, ref string val)
+        public static bool edit(this string label, string toolTip, int width, ref string val)
         {
-            write(label, tip, width);
+            write(label, toolTip, width);
             return edit(ref val);
         }
 

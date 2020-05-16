@@ -404,54 +404,54 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool write_ForCopy(this string label, int width, string val, bool showCopyButton = false)
+        public static bool write_ForCopy(this string label, int width, string value, bool showCopyButton = false)
         {
-            var ret = edit(label, width, ref val);
+            var ret = edit(label, width, ref value);
 
             if (showCopyButton && icon.Copy.Click("Copy {0} to clipboard".F(label)))
-                SetCopyPasteBuffer(val, label);
+                SetCopyPasteBuffer(value, label);
 
             return ret;
 
         }
 
-        public static bool write_ForCopy(this string label, string val, bool showCopyButton = false)
+        public static bool write_ForCopy(this string label, string value, bool showCopyButton = false)
         {
-            var ret = label.edit(ref val);
+            var ret = label.edit(ref value);
 
             if (showCopyButton && icon.Copy.Click("Copy {0} to clipboard".F(label)))
-                SetCopyPasteBuffer(val, label);
+                SetCopyPasteBuffer(value, label);
 
             return ret;
 
         }
 
-        public static bool write_ForCopy_Big(string val, bool showCopyButton = false)
+        public static bool write_ForCopy_Big(string value, bool showCopyButton = false)
         {
 
             if (showCopyButton && "Copy text to clipboard".Click().nl())
-                SetCopyPasteBuffer(val);
+                SetCopyPasteBuffer(value);
 
-            if (PaintingGameViewUI && !val.IsNullOrEmpty() && val.ContainsAtLeast('\n', 5)) // Due to MGUI BUG
-                ".....   Big Text Has Many Lines: {0}".F(val.FirstLine()).write();
+            if (PaintingGameViewUI && !value.IsNullOrEmpty() && value.ContainsAtLeast('\n', 5)) // Due to MGUI BUG
+                ".....   Big Text Has Many Lines: {0}".F(value.FirstLine()).write();
             else
-                return editBig(ref val);
+                return editBig(ref value);
 
             return false;
         }
 
-        public static bool write_ForCopy_Big(this string label, string val, bool showCopyButton = false)
+        public static bool write_ForCopy_Big(this string label, string value, bool showCopyButton = false)
         {
 
             if (showCopyButton && icon.Copy.Click("Copy text to clipboard"))
-                SetCopyPasteBuffer(val, label);
+                SetCopyPasteBuffer(value, label);
 
             label.nl();
 
-            if (PaintingGameViewUI && !val.IsNullOrEmpty() && val.ContainsAtLeast('\n', 5)) // Due to MGUI BUG
-                ".....   Big Text Has Many Lines: {0}".F(val.FirstLine()).write();
+            if (PaintingGameViewUI && !value.IsNullOrEmpty() && value.ContainsAtLeast('\n', 5)) // Due to MGUI BUG
+                ".....   Big Text Has Many Lines: {0}".F(value.FirstLine()).write();
             else
-                return editBig(ref val);
+                return editBig(ref value);
 
             return false;
         }

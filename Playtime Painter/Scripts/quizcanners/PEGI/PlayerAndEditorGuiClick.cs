@@ -139,25 +139,25 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static bool ClickConfirm(this string label, string confirmationTag, string tip = "")
+        public static bool ClickConfirm(this string label, string confirmationTag, string toolTip = "")
         {
             if (ConfirmationDialogue.IsRequestedFor(confirmationTag))
                 return ConfirmClick();
 
-            if (label.ClickUnFocus(tip))
-                ConfirmationDialogue.Request(confirmationTag, details: tip);
+            if (label.ClickUnFocus(toolTip))
+                ConfirmationDialogue.Request(confirmationTag, details: toolTip);
 
             return false;
         }
 
-        public static bool ClickConfirm(this icon icon, string confirmationTag, string tip = "", int width = defaultButtonSize)
+        public static bool ClickConfirm(this icon icon, string confirmationTag, string toolTip = "", int width = defaultButtonSize)
         {
 
             if (ConfirmationDialogue.IsRequestedFor(confirmationTag))
                 return ConfirmClick();
 
-            if (icon.ClickUnFocus(tip, width))
-                ConfirmationDialogue.Request(confirmationTag, details: tip);
+            if (icon.ClickUnFocus(toolTip, width))
+                ConfirmationDialogue.Request(confirmationTag, details: toolTip);
 
             return false;
         }
@@ -186,11 +186,11 @@ namespace PlayerAndEditorGUI
             return GUILayout.Button(tex, GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(width)).DirtyUnFocus();
         }
 
-        public static bool ClickUnFocus(this Texture tex, string tip, int width = defaultButtonSize) =>
-             Click(tex, tip, width).UnFocusIfTrue();
+        public static bool ClickUnFocus(this Texture tex, string toolTip, int width = defaultButtonSize) =>
+             Click(tex, toolTip, width).UnFocusIfTrue();
 
-        public static bool ClickUnFocus(this Texture tex, string tip, int width, int height) =>
-                Click(tex, tip, width, height).UnFocusIfTrue();
+        public static bool ClickUnFocus(this Texture tex, string toolTip, int width, int height) =>
+                Click(tex, toolTip, width, height).UnFocusIfTrue();
 
         public static bool ClickUnFocus(this string text)
         {
@@ -203,10 +203,10 @@ namespace PlayerAndEditorGUI
             return GUILayout.Button(text, GuiMaxWidthOptionFrom(text)).DirtyUnFocus();
         }
 
-        public static bool ClickUnFocus(this string text, string tip)
+        public static bool ClickUnFocus(this string text, string toolTip)
         {
 
-            var cntnt = TextAndTip(text, tip);
+            var cntnt = TextAndTip(text, toolTip);
 
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
@@ -326,11 +326,11 @@ namespace PlayerAndEditorGUI
             return GUILayout.Button(text, GuiMaxWidthOptionFrom(text)).Dirty();
         }
 
-        public static bool Click(this string text, string tip, ref bool changed) => text.Click(tip).changes(ref changed);
+        public static bool Click(this string text, string toolTip, ref bool changed) => text.Click(toolTip).changes(ref changed);
 
-        public static bool Click(this string text, string tip)
+        public static bool Click(this string text, string toolTip)
         {
-            var cnt = TextAndTip(text, tip);
+            var cnt = TextAndTip(text, toolTip);
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
                 return ef.Click(cnt);
@@ -344,11 +344,11 @@ namespace PlayerAndEditorGUI
         public static bool Click(this Sprite img, int size = defaultButtonSize)
             => img.GetTexture_orEmpty().Click(size);
 
-        public static bool Click(this Sprite img, string tip, int size = defaultButtonSize)
-            => img.GetTexture_orEmpty().Click(tip, size);
+        public static bool Click(this Sprite img, string toolTip, int size = defaultButtonSize)
+            => img.GetTexture_orEmpty().Click(toolTip, size);
 
-        public static bool Click(this Sprite img, string tip, int width, int height)
-            => img.GetTexture_orEmpty().Click(tip, width, height);
+        public static bool Click(this Sprite img, string toolTip, int width, int height)
+            => img.GetTexture_orEmpty().Click(toolTip, width, height);
 
         public static bool Click(this Texture img, int size = defaultButtonSize)
         {
@@ -365,13 +365,13 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool Click(this Texture img, string tip, int size = defaultButtonSize)
+        public static bool Click(this Texture img, string toolTip, int size = defaultButtonSize)
         {
 
             if (!img)
                 img = icon.Empty.GetIcon();
             
-            var cnt = ImageAndTip(img, tip);
+            var cnt = ImageAndTip(img, toolTip);
 
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
@@ -382,11 +382,11 @@ namespace PlayerAndEditorGUI
             return GUILayout.Button(cnt, GUILayout.MaxWidth(size + 5), GUILayout.MaxHeight(size)).Dirty();
         }
 
-        public static bool Click(this Texture img, string tip, int width, int height)
+        public static bool Click(this Texture img, string toolTip, int width, int height)
         {
             if (!img) img = icon.Empty.GetIcon();
 
-            var cnt = ImageAndTip(img, tip);
+            var cnt = ImageAndTip(img, toolTip);
 
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
@@ -446,27 +446,27 @@ namespace PlayerAndEditorGUI
             return ClickUnFocus(tex, icon.GetText(), size);
         }
 
-        public static bool ClickUnFocus(this icon icon, string tip, int size = defaultButtonSize)
+        public static bool ClickUnFocus(this icon icon, string toolTip, int size = defaultButtonSize)
         {
-            if (tip == null)
-                tip = icon.GetText();
+            if (toolTip == null)
+                toolTip = icon.GetText();
 
             var tex = icon.GetIcon();
 
             if (!tex || tex == Texture2D.whiteTexture)
-                return icon.GetText().ClickUnFocus(tip);
+                return icon.GetText().ClickUnFocus(toolTip);
 
-            return ClickUnFocus(tex, tip, size);
+            return ClickUnFocus(tex, toolTip, size);
         }
 
-        public static bool ClickUnFocus(this icon icon, string tip, int width, int height)
+        public static bool ClickUnFocus(this icon icon, string toolTip, int width, int height)
         {
             var tex = icon.GetIcon();
 
             if (!tex || tex == Texture2D.whiteTexture)
-                return icon.GetText().ClickUnFocus(tip);
+                return icon.GetText().ClickUnFocus(toolTip);
 
-            return ClickUnFocus(tex, tip, width, height);
+            return ClickUnFocus(tex, toolTip, width, height);
         }
 
         public static bool Click(this icon icon, int size)
@@ -479,39 +479,39 @@ namespace PlayerAndEditorGUI
             return Click(tex, size);
         }
 
-        public static bool Click(this icon icon, string tip, int width, int height)
+        public static bool Click(this icon icon, string toolTip, int width, int height)
         {
             var tex = icon.GetIcon();
 
             if (!tex || tex == Texture2D.whiteTexture)
-                return icon.GetText().ClickUnFocus(tip);
+                return icon.GetText().ClickUnFocus(toolTip);
 
-            return Click(tex, tip, width, height);
+            return Click(tex, toolTip, width, height);
         }
 
-        public static bool Click(this icon icon, string tip, ref bool changed, int size = defaultButtonSize)
+        public static bool Click(this icon icon, string toolTip, ref bool changed, int size = defaultButtonSize)
         {
             var tex = icon.GetIcon();
 
             if (!tex || tex == Texture2D.whiteTexture)
-                return icon.GetText().ClickUnFocus(tip).changes(ref changed);
+                return icon.GetText().ClickUnFocus(toolTip).changes(ref changed);
 
-            return Click(tex, tip, size).changes(ref changed);
+            return Click(tex, toolTip, size).changes(ref changed);
         }
 
-        public static bool Click(this icon icon, string tip, int size = defaultButtonSize)
+        public static bool Click(this icon icon, string toolTip, int size = defaultButtonSize)
         {
             var tex = icon.GetIcon();
 
             if (!tex || tex == Texture2D.whiteTexture)
-                return icon.GetText().ClickUnFocus(tip);
+                return icon.GetText().ClickUnFocus(toolTip);
 
-            return Click(tex, tip, size);
+            return Click(tex, toolTip, size);
         }
 
         public static bool Click(this Color col) => icon.Empty.GUIColor(col).BgColor(Color.clear).Click().RestoreGUIColor().RestoreBGColor();
 
-        public static bool Click(this Color col, string tip, int size = defaultButtonSize) => icon.Empty.GUIColor(col).BgColor(Color.clear).Click(tip, size).RestoreGUIColor().RestoreBGColor();
+        public static bool Click(this Color col, string toolTip, int size = defaultButtonSize) => icon.Empty.GUIColor(col).BgColor(Color.clear).Click(toolTip, size).RestoreGUIColor().RestoreBGColor();
 
         public static bool ClickHighlight(this Sprite sp, int width = defaultButtonSize)
         {
