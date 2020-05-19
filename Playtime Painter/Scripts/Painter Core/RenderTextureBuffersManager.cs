@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.SqlServer.Server;
 using PlayerAndEditorGUI;
 using PlaytimePainter.MeshEditing;
 using QuizCannersUtilities;
@@ -84,6 +85,9 @@ namespace PlaytimePainter {
             bigRtVersion++;
         }
 
+        private static RenderTextureFormat GetTextureFormat() => 
+            SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGBFloat) ? RenderTextureFormat.ARGBFloat : RenderTextureFormat.ARGB32;
+        
         public static void InitBrushBuffers()
         {
             if (!GotPaintingBuffers)
@@ -92,11 +96,13 @@ namespace PlaytimePainter {
                 #if debugInits
                 Debug.Log("Creating Painting buffers");
                 #endif
-
-
+                
                 bigRtPair = new RenderTexture[2];
-                var tA = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
-                var tB = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Default);
+
+                var format = GetTextureFormat();
+                var tA = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, format, RenderTextureReadWrite.Linear);
+                var tB = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, format, RenderTextureReadWrite.Linear);
+
                 bigRtPair[0] = tA;
                 bigRtPair[1] = tB;
                 tA.useMipMap = false;
@@ -109,7 +115,7 @@ namespace PlaytimePainter {
 
             if (!alphaBufferTexture)
             {
-                alphaBufferTexture = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Linear)
+                alphaBufferTexture = new RenderTexture(renderBuffersSize, renderBuffersSize, 0, GetTextureFormat(), RenderTextureReadWrite.Linear)
                 {
                     wrapMode = TextureWrapMode.Repeat,
                     name = "Painting Alpha Buffer _ " + renderBuffersSize,
@@ -526,6 +532,8 @@ namespace PlaytimePainter {
 
             if ("Panting Buffers".enter(ref inspectedElement, 0).nl()) {
 
+                "ARGBfloat supported: {0}".F(GetTextureFormat()).nl();
+                
                 if (GotPaintingBuffers && icon.Delete.Click())
                     DestroyPaintingBuffers();
 
@@ -542,13 +550,10 @@ namespace PlaytimePainter {
                 }
 
                 "Depth".edit(ref alphaBufferTexture).nl();
-
-
             }
 
             if ("Scaling Buffers".enter(ref inspectedElement, 1).nl())
             {
-
                 if (icon.Delete.Click().nl())
                     DestroyScalingBuffers();
 
