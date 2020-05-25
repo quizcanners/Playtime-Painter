@@ -243,7 +243,7 @@ namespace PlaytimePainter.Examples
         
         public void Portion(LerpData ld)
         {
-            if (IsLerpInitialized())
+            if (IsLerpInitialized() && mode!= Mode.FPS)
             {
                 _positionLerp.Portion(ld);
                 _rotationLerp.Portion(ld);
@@ -253,9 +253,12 @@ namespace PlaytimePainter.Examples
 
         public void Lerp(LerpData ld, bool canSkipLerp)
         {
-            _positionLerp.Lerp(ld, canSkipLerp);
-            _rotationLerp.Lerp(ld, canSkipLerp);
-            _heightLerp.Lerp(ld, canSkipLerp);
+            if (mode != Mode.FPS)
+            {
+                _positionLerp.Lerp(ld, canSkipLerp);
+                _rotationLerp.Lerp(ld, canSkipLerp);
+                _heightLerp.Lerp(ld, canSkipLerp);
+            }
         }
 
         private LerpData lerpData = new LerpData();
