@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using PlayerAndEditorGUI;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
@@ -894,6 +895,7 @@ namespace QuizCannersUtilities
 
         #region Inspect Inspector 
         private static int inspectedSection = -1;
+        private static int inspectedData = -1;
 
         public static bool InspectInspector()
         {
@@ -929,59 +931,96 @@ namespace QuizCannersUtilities
 
             if ("Data".enter(ref inspectedSection, 5).nl())
             {
-                if ("Player Data Folder".Click().nl())
+                if (inspectedData == -1)
                 {
-                    QcFile.Explorer.OpenPersistentFolder();
-                    pegi.SetCopyPasteBuffer(Application.persistentDataPath, sendNotificationIn3Dview: true);
-                }
-
-                if (Application.isEditor && "Editor Data Folder".Click().nl())
-                    QcFile.Explorer.OpenPath("C:/Users/{0}/AppData/Local/Unity/Editor/Editor.log".F(Environment.UserName));
-
-                
-
-                if ("Caching.ClearCache() [{0}]".F(Caching.cacheCount).ClickConfirm("clCach").nl())
-                {
-                    if (Caching.ClearCache())
-                        pegi.GameView.ShowNotification("Bundles were cleared");
-                    else
-                        pegi.GameView.ShowNotification("ERROR: Bundles are being used");
-                }
-
-                List<string> lst = new List<string>();
-
-                Caching.GetAllCachePaths(lst);
-
-                "Caches".edit_List(ref lst, path =>
-                {
-                    var c = Caching.GetCacheByPath(path);
-
-                    if (icon.Delete.Click())
+                    if ("Player Data Folder".Click().nl())
                     {
-
-                        if (Caching.RemoveCache(c))
-                            pegi.GameView.ShowNotification("Bundle was cleared");
-                        else
-                            pegi.GameView.ShowNotification("ERROR: Bundle is being used");
+                        QcFile.Explorer.OpenPersistentFolder();
+                        pegi.SetCopyPasteBuffer(Application.persistentDataPath, sendNotificationIn3Dview: true);
                     }
 
-                    if (icon.Folder.Click())
-                        QcFile.Explorer.OpenPath(path);
+                    if (Application.isEditor && "Editor Data Folder".Click().nl())
+                        QcFile.Explorer.OpenPath(
+                            "C:/Users/{0}/AppData/Local/Unity/Editor/Editor.log".F(Environment.UserName));
+                }
 
-                    if (icon.Copy.Click())
-                        pegi.SetCopyPasteBuffer(path);
+                if ("Cache".enter(ref inspectedData, 1).nl())
+                {
 
-                    path.write();
+                    if ("Caching.ClearCache() [{0}]".F(Caching.cacheCount).ClickConfirm("clCach").nl())
+                    {
+                        if (Caching.ClearCache())
+                            pegi.GameView.ShowNotification("Bundles were cleared");
+                        else
+                            pegi.GameView.ShowNotification("ERROR: Bundles are being used");
+                    }
 
-                    return path;
-                });
-               
+                    List<string> lst = new List<string>();
+
+                    Caching.GetAllCachePaths(lst);
+
+                    "Caches".edit_List(ref lst, path =>
+                    {
+                        var c = Caching.GetCacheByPath(path);
+
+                        if (icon.Delete.Click())
+                        {
+
+                            if (Caching.RemoveCache(c))
+                                pegi.GameView.ShowNotification("Bundle was cleared");
+                            else
+                                pegi.GameView.ShowNotification("ERROR: Bundle is being used");
+                        }
+
+                        if (icon.Folder.Click())
+                            QcFile.Explorer.OpenPath(path);
+
+                        if (icon.Copy.Click())
+                            pegi.SetCopyPasteBuffer(path);
+
+                        path.write();
+
+                        return path;
+                    });
+                }
+            }
+
+            if ("Profiler".enter(ref inspectedSection, 6).nl())
+            {
+                "Mono Heap Size Long {0}".F(Profiler.GetMonoHeapSizeLong().ToMegabytes()).nl();
+
+                "Mono Used Size Long {0}".F(Profiler.GetMonoUsedSizeLong().ToMegabytes()).nl();
+
+                "Temp Allocated Size {0}".F(Profiler.GetTempAllocatorSize().ToMegabytes()).nl();
+
+                "Total Allocated Memmory Long {0}".F(Profiler.GetTotalAllocatedMemoryLong().ToMegabytes()).nl();
+
+                "Total Unused Reserved Memmory Long {0}".F(Profiler.GetTotalUnusedReservedMemoryLong().ToMegabytes()).nl();
+
+                if ("Unload Unused Assets".Click().nl())
+                {
+                    Resources.UnloadUnusedAssets();
+                }
+
 
             }
 
-            
-
             return changed;
+        }
+
+        private static string ToMegabytes(this uint bytes)
+        {
+            bytes = (bytes >> 10);
+            bytes /= 1024; // On new line to workaround IL2CPP bug
+            return "{0} Mb".F(bytes.ToString());
+        }
+
+
+        private static string ToMegabytes(this long bytes)
+        {
+            bytes = (bytes >> 10);
+            bytes /= 1024; // On new line to workaround IL2CPP bug
+            return "{0} Mb".F(bytes.ToString());
         }
 
         #endregion

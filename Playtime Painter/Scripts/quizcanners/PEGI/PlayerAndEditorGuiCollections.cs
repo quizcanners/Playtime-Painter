@@ -437,7 +437,7 @@ namespace PlayerAndEditorGUI
 
             }
 
-            public bool PEGI_InstantiateOptions<T>(List<T> lst, ref T added, ListMetaData ld)
+            public bool TryShowListCreateNewOptions<T>(List<T> lst, ref T added, ListMetaData ld, ref bool changed)
             {
                 if (ld != null && !ld.showAddButton)
                     return false;
@@ -453,9 +453,7 @@ namespace PlayerAndEditorGUI
 
                 if (intTypes == null && tagTypes == null)
                     return false;
-
-                var changed = false;
-
+                
                 var hasName = typeof(T).IsSubclassOf(typeof(Object)) || typeof(IGotName).IsAssignableFrom(typeof(T));
 
                 if (hasName)
@@ -524,10 +522,10 @@ namespace PlayerAndEditorGUI
                     icon.Add.GetText().write("Input a name for a new element", 40);
                 nl();
 
-                return changed;
+                return true;
             }
 
-            public bool PEGI_InstantiateOptions<T>(List<T> lst, ref T added, TaggedTypesCfg types, ListMetaData ld)
+            public bool TryShowListCreateNewOptions<T>(List<T> lst, ref T added, TaggedTypesCfg types, ListMetaData ld)
             {
                 if (ld != null && !ld.showAddButton)
                     return false;
@@ -1462,7 +1460,7 @@ namespace PlayerAndEditorGUI
 
             }
 
-            public bool ListAddNewClick<T>(List<T> list, ref T added, ListMetaData ld = null)
+            public bool TryShowListAddNewOption<T>(string text, List<T> list, ref T added, ref bool changed, ListMetaData ld = null)
             {
 
                 if (ld != null && !ld.showAddButton)
@@ -1471,7 +1469,10 @@ namespace PlayerAndEditorGUI
                 var type = typeof(T);
 
                 if (!type.IsNew())
-                    return collectionInspector.ListAddEmptyClick(list, ld);
+                {
+                    collectionInspector.ListAddEmptyClick(list, ld).changes(ref changed);
+                    return true;
+                }
 
                 if (type.TryGetClassAttribute<DerivedListAttribute>() != null || typeof(IGotClassTag).IsAssignableFrom(type))
                     return false;
@@ -1483,7 +1484,7 @@ namespace PlayerAndEditorGUI
                 if (sd.filteredList == list)
                     name = sd.searchedText;
 
-                if (icon.Add.ClickUnFocus(Msg.AddNewCollectionElement.GetText() + (name.IsNullOrEmpty() ? "" : " Named {0}".F(name))))
+                if ("+ NEW {0}".F(text).ClickUnFocus(Msg.AddNewCollectionElement.GetText() + (name.IsNullOrEmpty() ? "" : " Named {0}".F(name))).changes(ref changed))
                 {
                     if (typeof(T).IsSubclassOf(typeof(Object)))
                         list.Add(default);
@@ -1491,11 +1492,46 @@ namespace PlayerAndEditorGUI
                         added = name.IsNullOrEmpty() ? QcUtils.AddWithUniqueNameAndIndex(list) : QcUtils.AddWithUniqueNameAndIndex(list, name);
 
                     SkrollToBottom();
+                }
 
+                return true;
+            }
+            
+            public bool TryShowListAddNewOption<T>(List<T> list, ref T added, ref bool changed, ListMetaData ld = null)
+            {
+
+                if (ld != null && !ld.showAddButton)
+                    return false;
+
+                var type = typeof(T);
+
+                if (!type.IsNew())
+                {
+                    collectionInspector.ListAddEmptyClick(list, ld).changes(ref changed);
                     return true;
                 }
 
-                return false;
+                if (type.TryGetClassAttribute<DerivedListAttribute>() != null || typeof(IGotClassTag).IsAssignableFrom(type))
+                    return false;
+
+                string name = null;
+
+                var sd = ld == null ? defaultSearchData : ld.searchData;
+
+                if (sd.filteredList == list)
+                    name = sd.searchedText;
+
+                if (icon.Add.ClickUnFocus(Msg.AddNewCollectionElement.GetText() + (name.IsNullOrEmpty() ? "" : " Named {0}".F(name))).changes(ref changed))
+                {
+                    if (typeof(T).IsSubclassOf(typeof(Object)))
+                        list.Add(default);
+                    else
+                        added = name.IsNullOrEmpty() ? QcUtils.AddWithUniqueNameAndIndex(list) : QcUtils.AddWithUniqueNameAndIndex(list, name);
+
+                    SkrollToBottom();
+                }
+
+                return true;
             }
 
             public bool ListAddEmptyClick<T>(IList<T> list, ListMetaData ld = null)
@@ -2125,7 +2161,7 @@ namespace PlayerAndEditorGUI
                 if (list != collectionInspector.reordering)
                 {
 
-                    collectionInspector.ListAddNewClick(list, ref added, listMeta).changes(ref changed);
+                    collectionInspector.TryShowListAddNewOption(list, ref added, ref changed, listMeta);
 
                     foreach (var el in collectionInspector.InspectionIndexes(list, listMeta))
                     {
@@ -2148,7 +2184,7 @@ namespace PlayerAndEditorGUI
                         nl();
                     }
 
-                    collectionInspector.PEGI_InstantiateOptions(list, ref added, listMeta).nl(ref changed);
+                    collectionInspector.TryShowListCreateNewOptions(list, ref added, listMeta, ref changed);
                 }
             }
             else collectionInspector.ExitOrDrawPEGI(list, ref inspected).changes(ref changed);
@@ -2230,7 +2266,7 @@ namespace PlayerAndEditorGUI
                         nl();
                     }
 
-                    collectionInspector.PEGI_InstantiateOptions(list, ref added, types, listMeta).nl(ref changed);
+                    collectionInspector.TryShowListCreateNewOptions(list, ref added, types, listMeta).nl(ref changed);
                 }
             }
             else collectionInspector.ExitOrDrawPEGI(list, ref inspected).changes(ref changed);
@@ -2342,7 +2378,7 @@ namespace PlayerAndEditorGUI
             if (list != collectionInspector.reordering)
             {
 
-                collectionInspector.ListAddNewClick(list, ref added).changes(ref changed);
+                collectionInspector.TryShowListAddNewOption(list, ref added, ref changed);
 
                 foreach (var el in collectionInspector.InspectionIndexes(list))
                 {
@@ -2397,7 +2433,7 @@ namespace PlayerAndEditorGUI
             if (list != collectionInspector.reordering)
             {
 
-                collectionInspector.ListAddNewClick(list, ref added).changes(ref changed);
+                collectionInspector.TryShowListAddNewOption(list, ref added, ref changed);
 
                 foreach (var el in collectionInspector.InspectionIndexes(list))
                 {

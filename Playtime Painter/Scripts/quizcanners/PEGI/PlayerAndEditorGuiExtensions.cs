@@ -440,8 +440,6 @@ namespace PlayerAndEditorGUI
 
         public static string GetNameForInspector<T>(this T obj)
         {
-
-
             if (obj.IsNullOrDestroyed_Obj())
                 return "NULL {0}".F(typeof(T).ToPegiStringType());
 

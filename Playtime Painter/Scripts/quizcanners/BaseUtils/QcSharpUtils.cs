@@ -797,8 +797,21 @@ namespace QuizCannersUtilities {
 
         public static bool SameAs(this string s, string other) => s?.Equals(other) ?? other==null;
 
-        public static bool IsSubstringOf(this string text, string biggerText, RegexOptions opt = RegexOptions.IgnoreCase) => Regex.IsMatch(biggerText, text, opt);
-        
+        public static bool IsSubstringOf(this string text, string biggerText,
+            RegexOptions opt = RegexOptions.IgnoreCase)
+        {
+            try
+            {
+                if (Regex.IsMatch(biggerText, text, opt))
+                {
+                    return true;
+                }
+            }
+            catch { }
+            
+            return false;
+        }
+
         public static string RemoveAssetsPart(this string s)
         {
             var ind = s.IndexOf("Assets", StringComparison.Ordinal);
@@ -810,9 +823,6 @@ namespace QuizCannersUtilities {
         
         public static string RemoveFirst(this string name, int index) =>
             name.Substring(index, name.Length - index);
-        
-        public static bool IsIncludedIn(this string sub, string big) 
-            => Regex.IsMatch(big, sub, RegexOptions.IgnoreCase);
         
         public static int FindMostSimilarFrom(this string s, string[] t)
         {

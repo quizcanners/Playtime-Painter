@@ -873,12 +873,25 @@ namespace PlayerAndEditorGUI
 
         public static T enter_List<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne, ref bool changed)
         {
-            var tmp = default(T);
+            var added = default(T);
+
+            if (enteredOne == -1 && list != null && list.Count == 0 && typeof(Object).IsAssignableFrom(typeof(T)) == false)
+            {
+                var showedOption = collectionInspector.TryShowListAddNewOption(label, list, ref added, ref changed, null);
+
+                if (!showedOption)
+                    showedOption = collectionInspector.TryShowListCreateNewOptions(list, ref added, null, ref changed);
+
+                if (showedOption)
+                {
+                    return added;
+                }
+            }
 
             if (enter_ListIcon(label, ref list, ref inspectedElement, ref enteredOne, thisOne)) //if (label.AddCount(list).enter(ref enteredOne, thisOne))
-                tmp = label.edit_List(ref list, ref inspectedElement, ref changed);
+                added = label.edit_List(ref list, ref inspectedElement, ref changed);
 
-            return tmp;
+            return added;
         }
 
         public static bool enter_List<T>(this string label, ref List<T> list, ref int inspectedElement, ref bool entered)

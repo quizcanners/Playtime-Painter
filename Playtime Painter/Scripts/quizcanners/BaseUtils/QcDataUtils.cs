@@ -77,7 +77,7 @@ namespace QuizCannersUtilities
 #if UNITY_EDITOR
                 EditorUtility.RevealInFinder(path);
 #else
-                Process.Start(path.TrimEnd(new[]{'\\', '/'}));
+                 System.Diagnostics.Process.Start(path.TrimEnd(new[] { '\\', '/' }));
 #endif
             }
         }
