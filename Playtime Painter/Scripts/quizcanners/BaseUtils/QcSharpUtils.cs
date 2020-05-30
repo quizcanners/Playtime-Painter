@@ -27,29 +27,31 @@ namespace QuizCannersUtilities {
 
         public static string SecondsToReadableString(int seconds) => TicksToReadableString(seconds * TimeSpan.TicksPerSecond);
 
+        public static string SecondsToReadableString(double seconds) => TicksToReadableString(seconds * TimeSpan.TicksPerSecond);
+        
         public static string SecondsToReadableString(float seconds) => TicksToReadableString((long)seconds * TimeSpan.TicksPerSecond);
 
         public static string SecondsToReadableString(long seconds) => TicksToReadableString(seconds * TimeSpan.TicksPerSecond);
 
-        public static string TicksToReadableString(long elapsed)
+        public static string TicksToReadableString(double elapsed)
         {
             
-            long absElapsed = Math.Abs(elapsed);
+            double absElapsed = Math.Abs(elapsed);
 
             if (absElapsed < TimeSpan.TicksPerMillisecond)
                 return elapsed +
-                            " ticks  ({0} ms)".F(((double)elapsed / TimeSpan.TicksPerMillisecond).ToString("0.00"));
+                            " ticks  ({0} ms)".F((elapsed / TimeSpan.TicksPerMillisecond).ToString("0.00"));
             if (absElapsed < TimeSpan.TicksPerSecond)
                 return (elapsed / TimeSpan.TicksPerMillisecond) +
-                       " miliseconds  ({0} s)".F(((double)elapsed / TimeSpan.TicksPerSecond).ToString("0.00"));
+                       " miliseconds  ({0} s)".F((elapsed / TimeSpan.TicksPerSecond).ToString("0.00"));
             if (absElapsed < TimeSpan.TicksPerMinute)
                 return elapsed / TimeSpan.TicksPerSecond +
-                       " seconds  ({0} min)".F(((double)elapsed / TimeSpan.TicksPerMinute).ToString("0.00"));
+                       " seconds  ({0} min)".F((elapsed / TimeSpan.TicksPerMinute).ToString("0.00"));
             if (absElapsed < TimeSpan.TicksPerHour)
                 return elapsed / TimeSpan.TicksPerMinute +
-                       " minutes  ({0} hours)".F(((double)elapsed / TimeSpan.TicksPerHour).ToString("0.00"));
+                       " minutes  ({0} hours)".F((elapsed / TimeSpan.TicksPerHour).ToString("0.00"));
             return elapsed / TimeSpan.TicksPerHour +
-                   " hours  ({0} days)".F(((double)elapsed / TimeSpan.TicksPerDay).ToString("0.00"));
+                   " hours  ({0} days)".F((elapsed / TimeSpan.TicksPerDay).ToString("0.00"));
 
         }
 

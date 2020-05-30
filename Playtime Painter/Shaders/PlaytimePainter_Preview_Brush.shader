@@ -96,11 +96,66 @@
 					return o;
 				}
 
+				float4 Mix(float4 a, float4 b, float t) {
+					return a * (1 - t) + b * t;
+				}
 
-	
+				// from http://www.java-gaming.org/index.php?topic=35123.0
+				float4 cubic_Interpolation(float v) {
+					float4 n = float4(1.0, 2.0, 3.0, 4.0) - v;
+					float4 s = n * n * n;
+					float x = s.x;
+					float y = s.y - 4.0 * s.x;
+					float z = s.z - 4.0 * s.y + 6.0 * s.x;
+					float w = 6.0 - x - y - z;
+					return float4(x, y, z, w) * (1.0 / 6.0);
+				}
+
+				float4 textureBicubic(float2 texCoords) {
+
+					float2 texSize = _qcPp_PreviewTex_TexelSize.zw;//textureSize(sampler, 0);
+					float2 invTexSize = _qcPp_PreviewTex_TexelSize.xy;///1.0 / texSize;
+
+					texCoords = texCoords * texSize - 0.5;
+
+					float2 fxy = texCoords % 1;
+					texCoords -= fxy;
+
+					float4 xcubic = cubic_Interpolation(fxy.x);
+					float4 ycubic = cubic_Interpolation(fxy.y);
+
+					float4 c = texCoords.xxyy + float2(-0.5, +1.5).xyxy;
+
+					float4 s = float4(xcubic.xz + xcubic.yw, ycubic.xz + ycubic.yw);
+					float4 offset = c + float4(xcubic.yw, ycubic.yw) / s;
+
+					offset *= invTexSize.xxyy;
+
+					float4 sample0 = tex2Dlod(_qcPp_PreviewTex, float4(offset.xz, 0, 0));
+					float4 sample1 = tex2Dlod(_qcPp_PreviewTex, float4(offset.yz, 0, 0));
+					float4 sample2 = tex2Dlod(_qcPp_PreviewTex, float4(offset.xw, 0, 0));
+					float4 sample3 = tex2Dlod(_qcPp_PreviewTex, float4(offset.yw, 0, 0));
+
+					float sx = s.x / (s.x + s.y);
+					float sy = s.z / (s.z + s.w);
+
+					return Mix(	Mix(sample3, sample2, sx), Mix(sample1, sample0, sx), sy);
+				}
+
+			
+				float4 Sample(float2 uv) {
+					#if  !BRUSH_SQUARE 	
+						return textureBicubic(uv);
+					#else
+						return tex2Dlod(_qcPp_PreviewTex, float4(uv, 0, 0));
+					#endif
+				}
+
 				float4 frag(v2f o) : COLOR{
 
 					//	return 1;// alpha;
+
+					
 
 					float4 col = 0;
 					float alpha = 1;
@@ -130,7 +185,7 @@
 						//DEBUG
 						//return float4(pUv, 0, 1);
 
-						float4 src = tex2Dlod(_qcPp_SourceTexture, float4(pUv, 0, 0));
+						float4 src = Sample(pUv);
 
 						alpha *= (ignoreSrcAlpha + src.a * (1- ignoreSrcAlpha)) * BrushClamp(pUv);
 						float pr_shadow = alpha;
@@ -150,7 +205,7 @@
 					#endif
 
 					#if BLIT_MODE_COPY
-						float4 src = tex2Dlod(_qcPp_SourceTexture, float4(o.texcoord.xy*o.srcTexAspect, 0, 0));
+						float4 src = Sample(o.texcoord.xy*o.srcTexAspect);
 						_qcPp_brushColor.rgb = SourceTextureByBrush(src.rgb);
 						//alpha *= ignoreSrcAlpha + src.a*(1- ignoreSrcAlpha);
 
@@ -174,7 +229,7 @@
 
 						tc.zw = previewTexcoord(tc.xy);
 
-						col = tex2Dlod(_qcPp_PreviewTex, float4(tc.xy,0,0));
+						col = Sample(tc.xy);
 
 						float2 off2 = tc.zw*tc.zw;
 
@@ -198,7 +253,7 @@
 					#if  !BRUSH_SQUARE 	
 						alpha *= checkersFromWorldPosition(o.worldPos.xyz,dist); 
 
-						col =  tex2Dlod(_qcPp_PreviewTex, float4(tc.xy, 0, 0));
+						col = Sample(tc.xy);
 					#endif
 
 					#if BRUSH_3D  || BRUSH_3D_TEXCOORD2

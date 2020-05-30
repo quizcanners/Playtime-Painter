@@ -984,7 +984,7 @@ namespace PlaytimePainter {
 
             bool showOthers = showAll && _inspectedDependecy == -1;
 
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
             if (!Data)  {
                 pegi.nl();
                 "No data Holder".edit(60, ref dataHolder).nl(ref changed);
@@ -1016,6 +1016,19 @@ namespace PlaytimePainter {
                 pegi.nl();
                 "no painter camera".writeWarning();
                 pegi.nl();
+            }
+            else
+            {
+                if (painterCamera.clearFlags != CameraClearFlags.Nothing)
+                {
+                    pegi.nl();
+                    "Painter camera is not set to DontClear".writeWarning();
+                    if ("Set to DontClear".Click().nl())
+                    {
+                        painterCamera.clearFlags = CameraClearFlags.Nothing;
+                        painterCamera.SetToDirty();
+                    }
+                }
             }
 
             Camera depthCamera = depthProjectorCamera ? depthProjectorCamera._projectorCamera : null;

@@ -1005,6 +1005,34 @@ namespace QuizCannersUtilities
 
             }
 
+            if ("Time & Audio".enter(ref inspectedSection, 7).nl())
+            {
+                "Time.time: {0}".F(QcSharp.SecondsToReadableString(Time.time)).nl();
+
+                "DSP time: {0}".F(QcSharp.SecondsToReadableString(AudioSettings.dspTime)).nl();
+
+                "Use it to schedule Audio Clips: audioSource.PlayScheduled(AudioSettings.dspTime + 0.5);".writeHint();
+
+                "Clip Duration: double duration = (double)AudioClip.samples / AudioClip.frequency;".writeHint();
+
+                "Time.unscaled time: {0}".F(QcSharp.SecondsToReadableString(Time.unscaledTime)).nl();
+
+                "Time.frameCount: {0}".F(Time.frameCount).nl();
+
+                var tScale = Time.timeScale;
+                if ("Time.timescale".edit(ref tScale, 0f, 4f))
+                    Time.timeScale = tScale;
+
+                if (tScale != 1 && icon.Refresh.Click())
+                    Time.timeScale = 1;
+
+                pegi.nl();
+
+                "Time.deltaTime: {0}".F(QcSharp.SecondsToReadableString(Time.deltaTime)).nl();
+
+                "Time.realtimeSinceStartup {0}".F(QcSharp.SecondsToReadableString(Time.realtimeSinceStartup)).nl();
+            }
+
             return changed;
         }
 
