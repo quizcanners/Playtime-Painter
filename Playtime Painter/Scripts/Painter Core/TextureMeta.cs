@@ -317,8 +317,7 @@ namespace PlaytimePainter
                 SetAndApply();
 
                 renderTexture = tmp;
-
-                Debug.Log("Resize Complete");
+                
             }
 
         }
@@ -999,8 +998,21 @@ namespace PlaytimePainter
                             else
                                 rescale = "Rescale".Click();
 
-                            if (rescale)
+                            if (rescale.changes(ref changed))
+                            {
                                 Resize(newWidth, newHeight);
+                                var pp = PlaytimePainter.inspected;
+                                if (pp)
+                                {
+                                    var preview = !pp.NotUsingPreview;
+                                    if (preview)
+                                    {
+                                        // Doing this to fix bug with _TexelSize not updating when changing texture size.
+                                        pp.SetOriginalShaderOnThis();
+                                        pp.SetPreviewShader(); 
+                                    }
+                                }
+                            }
 
                         }
                         pegi.nl();
@@ -1020,7 +1032,7 @@ namespace PlaytimePainter
 
                         "Clear Color".edit(80, ref clearColor).nl();
 
-                        if ("Clear Texture".Click().nl())
+                        if ("Clear Texture".Click().nl(ref changed))
                         {
                             FillWithColor(clearColor);
                             //SetPixels(clearColor);

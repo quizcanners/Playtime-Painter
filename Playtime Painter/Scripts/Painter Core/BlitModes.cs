@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using PlayerAndEditorGUI;
 using PlaytimePainter.CameraModules;
 using QuizCannersUtilities;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace PlaytimePainter {
@@ -40,7 +43,8 @@ namespace PlaytimePainter {
                     new Bloom(7),
                     new SamplingOffset(8),
                     new Projector(9),
-                    new Filler(10)
+                    new Filler(10),
+                    new Custom(11),
                 };
                 // The code below uses reflection to find all classes that are child classes of BlitMode.
                 // The code above adds them manually to save some compilation time,
@@ -544,7 +548,7 @@ namespace PlaytimePainter {
             #endregion
 
             private readonly ShaderProperty.VectorValue _pointedUvUnTiledProperty =
-                new ShaderProperty.VectorValue("_qcPp_brushPointedUV_Untiled");
+                new ShaderProperty.VectorValue("_qcPp_brushUvPosTo_Untiled");
 
             private static readonly ShaderProperty.VectorValue BRUSH_SAMPLING_DISPLACEMENT = new ShaderProperty.VectorValue("_qcPp_brushSamplingDisplacement");
 
@@ -678,7 +682,14 @@ namespace PlaytimePainter {
 
                     "Projector:".nl();
 
-                    if (Brush.showAdvanced)
+#if UNITY_EDITOR
+                    if (Application.isPlaying && EditorApplication.isPaused && depthCamera._projectFromMainCamera)
+                    {
+                        "In Play mode Projector brush is copying position from main camera".writeHint();
+                    }
+#endif
+
+                        if (Brush.showAdvanced)
                         "Paint only visible (by Projector)".toggleIcon(ref Cfg.useDepthForProjector).nl();
 
                     var painter = PlaytimePainter.inspected;
@@ -705,16 +716,16 @@ namespace PlaytimePainter {
                 return changed;
             }
 
-            #endregion
+#endregion
 
             public Projector(int ind) : base(ind)
             {
             }
         }
 
-        #endregion
+#endregion
 
-        #region Filler
+#region Filler
 
         public class Filler : Base
         {
@@ -727,7 +738,7 @@ namespace PlaytimePainter {
 
             public override Shader ShaderForDoubleBuffer => Cfg.inkColorSpread;
 
-            #region Inspector
+#region Inspector
 
             protected override MsgPainter Translation => MsgPainter.BlitModeFiller;
             
@@ -742,13 +753,109 @@ namespace PlaytimePainter {
                 return changed;
             }
 
-            #endregion
+#endregion
 
             public Filler(int ind) : base(ind)
             {
             }
         }
 
-        #endregion
+#endregion
+
+#region Custom
+
+        public class Custom : Base
+        {
+           
+            protected override string ShaderKeyword(TextureMeta id) => null;
+
+            public override List<string> ShaderKeywords => null;
+
+            public override void SetGlobalShaderParameters()
+            {
+                base.SetGlobalShaderParameters();
+            }
+
+            public override bool AllSetUp => _customCfg && _customCfg.AllSetUp;
+            public override bool SupportedByTex2D => false;
+            public override bool SupportsAlphaBufferPainting => false;
+            
+            public override bool SupportedByRenderTexturePair => _customCfg ? _customCfg.doubleBuffer : true;
+            public override bool SupportedBySingleBuffer => _customCfg ? !_customCfg.doubleBuffer : true;
+
+            public override Shader ShaderForDoubleBuffer => _customCfg ? _customCfg.shader : null;
+            public override Shader ShaderForSingleBuffer => _customCfg ? _customCfg.shader : null;
+            public override Shader ShaderForAlphaOutput => _customCfg ? _customCfg.shader : null;
+            public override Shader ShaderForAlphaBufferBlit => _customCfg ? _customCfg.shader : null;
+            
+            public override bool UsingSourceTexture => _customCfg ? _customCfg.selectSourceTexture : false;
+
+            public override bool ShowColorSliders => _customCfg ? _customCfg.showColorSliders : false;
+            
+            public override bool NeedsWorldSpacePosition => _customCfg ? _customCfg.usingWorldSpacePosition : false;
+
+            private BlitModeCustom _customCfg;
+            
+            protected override MsgPainter Translation => MsgPainter.BlitModeCustom;
+
+            private bool _showConfig;
+
+            protected override bool Inspect()
+            {
+                var changed = base.Inspect().nl();
+
+                "Config".edit(ref _customCfg).nl(ref changed);
+                
+                if (_customCfg)
+                {
+                    if (_customCfg.name.foldout(ref _showConfig).nl(ref changed))
+                    {
+                        _customCfg.Nested_Inspect(ref changed);
+                    }
+                }
+                else
+                {
+                    ("Create a BlitModeCustom Scriptable Object and put your custom blit shader into it. " +
+                     " Right mouse button in the Project view and select Create->Playtime Painter-> Blit Mode Custom ").writeHint();
+                    pegi.nl();
+                }
+
+                if (AllSetUp)
+                {
+                    if (PlaytimePainter.inspected)
+                    {
+                        var img = PlaytimePainter.inspected.TexMeta;
+                        if (img != null)
+                        {
+                            var rt = img.CurrentRenderTexture();
+
+                            if (rt)
+                            {
+                                if ("Grahics BLIT".Click().nl())
+                                RenderTextureBuffersManager.Blit(
+                                    from: _customCfg.sourceTexture ? _customCfg.sourceTexture : rt,
+                                    to: rt,
+                                    shader: _customCfg.shader);
+
+                                if ("Painter Camera Render".Click().nl())
+                                    PainterCamera.Inst.Render(
+                                        from: _customCfg.sourceTexture ? _customCfg.sourceTexture : rt,
+                                        to: rt,
+                                        shader: _customCfg.shader);
+
+                            }
+                        }
+                    }
+                }
+
+                return false;
+            }
+
+            public Custom(int ind) : base(ind)
+            {
+            }
+        }
+
+#endregion
     }
 }

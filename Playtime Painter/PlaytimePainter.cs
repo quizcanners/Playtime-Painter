@@ -455,7 +455,7 @@ namespace PlaytimePainter
                 SetPreviewShader();
         }
 
-        private void SetPreviewShader()
+        public void SetPreviewShader()
         {
             var mat = Material;
 
@@ -1822,7 +1822,7 @@ namespace PlaytimePainter
 
             initialized = true;
 
-            _nameHolder = gameObject.name;
+            _nameHolder = "New "+ gameObject.name;
 
             if (!meshRenderer)
                 meshRenderer = GetComponent<Renderer>();
@@ -2012,6 +2012,8 @@ namespace PlaytimePainter
             var id = TexMeta;
 
             if (id == null || NotUsingPreview) return;
+
+            PaintCommand.TextureData = id;
 
             TexMgmt.SHADER_BRUSH_UPDATE(PaintCommand.Reset());
 

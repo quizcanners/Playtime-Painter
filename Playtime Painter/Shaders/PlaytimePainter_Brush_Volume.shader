@@ -44,8 +44,8 @@
 					#endif
 
 					#if BLIT_MODE_SAMPLE_DISPLACE
-					_qcPp_brushColor.r = (_qcPp_brushSamplingDisplacement.x - i.texcoord.x - _qcPp_brushPointedUV_Untiled.z) / 2 + 0.5;
-					_qcPp_brushColor.g = (_qcPp_brushSamplingDisplacement.y - i.texcoord.y - _qcPp_brushPointedUV_Untiled.w) / 2 + 0.5;
+					_qcPp_brushColor.r = (_qcPp_brushSamplingDisplacement.x - i.texcoord.x - _qcPp_brushUvPosTo_Untiled.z) / 2 + 0.5;
+					_qcPp_brushColor.g = (_qcPp_brushSamplingDisplacement.y - i.texcoord.y - _qcPp_brushUvPosTo_Untiled.w) / 2 + 0.5;
 					#endif
 
 					float alpha = prepareAlphaSphere(i.texcoord.xy, worldPos);

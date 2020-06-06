@@ -119,6 +119,7 @@
 					texCoords = texCoords * texSize - 0.5;
 
 					float2 fxy = texCoords % 1;
+
 					texCoords -= fxy;
 
 					float4 xcubic = cubic_Interpolation(fxy.x);
@@ -127,6 +128,7 @@
 					float4 c = texCoords.xxyy + float2(-0.5, +1.5).xyxy;
 
 					float4 s = float4(xcubic.xz + xcubic.yw, ycubic.xz + ycubic.yw);
+
 					float4 offset = c + float4(xcubic.yw, ycubic.yw) / s;
 
 					offset *= invTexSize.xxyy;
@@ -241,7 +243,7 @@
 
 						col = col*(1-border) + (0.5 - col * 0.5)*border;
 
-						_qcPp_brushPointedUV.xy = (floor (_qcPp_brushPointedUV.xy*_qcPp_PreviewTex_TexelSize.zw)+ 0.5) * _qcPp_PreviewTex_TexelSize.xy;
+						_qcPp_brushUvPosTo.xy = (floor (_qcPp_brushUvPosTo.xy*_qcPp_PreviewTex_TexelSize.zw)+ 0.5) * _qcPp_PreviewTex_TexelSize.xy;
 
 					#else
 					
@@ -275,7 +277,7 @@
 						//	return _qcPp_brushColor;
 
 					#if BRUSH_DECAL
-						float2 decalUV = (tc.xy - _qcPp_brushPointedUV.xy)*256/_qcPp_brushForm.y;
+						float2 decalUV = (tc.xy - _qcPp_brushUvPosTo.xy)*256/_qcPp_brushForm.y;
 
 	 					float sinX = sin ( _DecalParameters.x );
 						float cosX = cos ( _DecalParameters.x );
@@ -333,7 +335,7 @@
 
 					#if BLIT_MODE_PROJECTION
 
-						float pa = (_qcPp_brushPointedUV.w)*pr_shadow*0.8;
+						float pa = (_qcPp_brushUvPosTo.w)*pr_shadow*0.8;
 
 						col = col * (1-pa) + _qcPp_brushColor*(pa);
 					#endif

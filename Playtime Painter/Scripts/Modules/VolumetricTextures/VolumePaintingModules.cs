@@ -238,7 +238,7 @@ namespace PlaytimePainter {
                 UseSmoothing.Enabled = smoothing > 0;
 
                 image.useTexCoord2 = false;
-                cfg.strokeAlphaPortion = bc.Flow * 0.05f;
+                cfg.strokeAlphaPortion = Mathf.Clamp01(bc.Flow * 0.05f);
                 TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(cfg); 
 
                 stroke.SetWorldPosInShader();
@@ -324,6 +324,12 @@ namespace PlaytimePainter {
 
             public bool ComponentInspector()
             {
+                if (!InspectedPainter)
+                {
+                    "No inspected Painter found".writeWarning();
+                    return false;
+                }
+
                 var vt = InspectedPainter.GetModule<VolumeTextureComponentModule>().volumeTexture;
 
                 if (!vt)

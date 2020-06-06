@@ -12,6 +12,9 @@ using UnityEngine;
 
 namespace PlaytimePainter
 {
+
+#pragma warning disable IDE0018 // Inline variable declaration
+
     public partial class PlaytimePainter 
     {
         private string _nameHolder = "unnamed";
@@ -806,7 +809,7 @@ namespace PlaytimePainter
                                 CheckPreviewShader();
                                 texMeta = TexMeta;
                                 if (texMeta == null)
-                                    _nameHolder = gameObject.name + "_" + GetMaterialTextureProperty;
+                                    _nameHolder =  "New {0}_{1}".F(gameObject.name, GetMaterialTextureProperty);
                             }
 
                             if (texMeta != null)
@@ -928,11 +931,17 @@ namespace PlaytimePainter
                                 pegi.nl();
 
                                 if (texMeta == null)
-                                    "_Name:".edit("Name for new texture", 40, ref _nameHolder).nl();
+                                    "Name (New Texture):".edit("Name for new texture", 120, ref _nameHolder).nl();
 
                             }
 
                             pegi.nl();
+
+                            if (!tex) 
+                                "No texture. Drag and drop or click on the plus icon to create New".writeHint();
+
+                            pegi.nl();
+
                             pegi.space();
                             pegi.nl();
 

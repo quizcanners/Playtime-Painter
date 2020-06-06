@@ -9,7 +9,7 @@ namespace PlayerAndEditorGUI {
         PreserveTransparency, RoundedGraphic,
         BrushType, BrushTypeNormal, BrushTypeDecal, BrushTypeLazy, BrushTypeSphere, BrushTypePixel,
         BlitMode, BlitModeAlpha, BlitModeAdd, BlitModeSubtract, BlitModeCopy, BlitModeMin, BlitModeMax, BlitModeBlur,
-        BlitModeOff, BlitModeBloom, BlitModeProjector, BlitModeFiller,
+        BlitModeOff, BlitModeBloom, BlitModeProjector, BlitModeFiller, BlitModeCustom,
         LockToolToUseTransform, HideTransformTool, AboutPlaytimePainter,
          MeshProfileUsage, Flow, Scale, Hardness, CopyFrom, TextureSettings, previewRGBA, AutoSelectMaterial,
          aboutDisableDocumentation, SampleColor, PreviewRecommended, AlphaBufferBlit, Opacity, SpreadSpeed, BlurAmount,
@@ -226,21 +226,21 @@ namespace PlayerAndEditorGUI {
                     break;
 
                 case MsgPainter.BlitModeProjector:
-                    msg.Translate(
-                        "Projection ", 
+                    msg.Translate("Projection ", 
                         "Will create a camera that will serve as a projector. This mode is similar to Copy, but instead of matching UV coordinates of source and target it will sample source " +
                         "using projector. Only World Space brushes can use this Blit Mode. Currently only sphere brush is a world space brush. First step is usually to position projector camera. "
                         );
                     break;
 
                 case MsgPainter.BlitModeFiller:
-                    msg.Translate(
-                        "Ink Filler ", 
+                    msg.Translate("Ink Filler ", 
                         " Inspired by comic books. After you paint BLACK lines, this brush will try to gradually fill the painted area with color without crossing those lines. ");
                     break;
+                case MsgPainter.BlitModeCustom:
+                    msg.Translate("Custom", "Plug your own shader"); 
+                    break;
                 case MsgPainter.Unnamed:
-                    msg.Translate(
-                        "Unnamed ",
+                    msg.Translate("Unnamed ",
                         "The selected class doesn't have a Readable name.");
                     break;
                 #endregion

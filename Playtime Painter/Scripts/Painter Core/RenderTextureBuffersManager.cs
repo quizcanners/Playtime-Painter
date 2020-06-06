@@ -476,7 +476,7 @@ namespace PlaytimePainter {
 
         public static RenderTexture Blit(Texture from, RenderTexture to) => Blit(from, to, Data.pixPerfectCopy);
 
-        public static RenderTexture Blit(Texture from, RenderTexture to, Shader blitShader) => Blit(from, to, TempMaterial(blitShader));
+        public static RenderTexture Blit(Texture from, RenderTexture to, Shader shader) => Blit(from, to, TempMaterial(shader));
 
         public static RenderTexture Blit(Texture from, RenderTexture to, Material blitMaterial) {
             PainterShaderVariables.SourceTextureSize = from;

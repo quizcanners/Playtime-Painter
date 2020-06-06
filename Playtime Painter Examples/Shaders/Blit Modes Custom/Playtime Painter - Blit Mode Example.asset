@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92f93ff3893e03f48adf5d063e120a5b, type: 3}
+  m_Name: Playtime Painter - Blit Mode Example
+  m_EditorClassIdentifier: 
+  selectSourceTexture: 1
+  showColorSliders: 1
+  usingWorldSpacePosition: 0
+  doubleBuffer: 1
+  shader: {fileID: 4800000, guid: e74061f08757d9444887cf32f081fcde, type: 3}
+  sourceTexture: {fileID: 0}

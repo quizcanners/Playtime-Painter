@@ -38,7 +38,8 @@ namespace PlaytimePainter
 
         public static readonly VectorValue BRUSH_WORLD_POS_FROM         = new VectorValue("_qcPp_brushWorldPosFrom");
         public static readonly VectorValue BRUSH_WORLD_POS_TO           = new VectorValue("_qcPp_brushWorldPosTo");
-        public static readonly VectorValue BRUSH_POINTED_UV             = new VectorValue("_qcPp_brushPointedUV");
+        public static readonly VectorValue BRUSH_UV_POS_FROM            = new VectorValue("_qcPp_brushUvPosFrom");
+        public static readonly VectorValue BRUSH_UV_POS_TO              = new VectorValue("_qcPp_brushUvPosTo");
         public static readonly VectorValue BRUSH_EDITED_UV_OFFSET       = new VectorValue("_qcPp_brushEditedUVoffset");
         public static readonly VectorValue BRUSH_ATLAS_SECTION_AND_ROWS = new VectorValue("_qcPp_brushAtlasSectionAndRows");
         public static readonly TextureValue DESTINATION_BUFFER          = new TextureValue("_qcPp_DestBuffer");

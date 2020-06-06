@@ -42,7 +42,7 @@ namespace PlaytimePainter
                     new Decal(),
                     new Lazy(),
                     new Sphere(),
-                    new Pixel()
+                    new Pixel(),
                 };
                 // _allTypes.Add(new BrushTypeSamplingOffset());
 
@@ -288,7 +288,7 @@ namespace PlaytimePainter
                 if (st.CrossedASeam())
                     st.uvFrom = st.uvTo;
 
-                command.strokeAlphaPortion = br.Flow * 0.05f;
+                command.strokeAlphaPortion = Mathf.Clamp01(br.Flow * 0.05f);
 
                 TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command); 
 
@@ -391,7 +391,7 @@ namespace PlaytimePainter
                 if (st.CrossedASeam())
                     st.uvFrom = st.uvTo;
                 
-                command.strokeAlphaPortion = br.Flow * 0.05f;
+                command.strokeAlphaPortion = Mathf.Clamp01(br.Flow * 0.05f);
 
                 TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command);// br, br.Speed * 0.05f, id, st, out alphaBuffer, painter);
 
@@ -440,7 +440,7 @@ namespace PlaytimePainter
                     firstStroke = false
                 }, rt.GetTextureMeta(), br)
                 {
-                    strokeAlphaPortion = br.Flow * 0.05f
+                    strokeAlphaPortion = Mathf.Clamp01(br.Flow * 0.05f)
                 };
 
                 TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command); // br, br.Speed * 0.05f, id, stroke, out alphaBuffer);
@@ -838,7 +838,7 @@ namespace PlaytimePainter
                     isTail = true;
                 }
 
-                command.strokeAlphaPortion = br.Flow * 0.05f;
+                command.strokeAlphaPortion = Mathf.Clamp01(br.Flow * 0.05f);
 
                 r.SHADER_STROKE_SEGMENT_UPDATE(command);//br, br.Speed * 0.05f, id, st, out alphaBuffer, painter);
 
@@ -892,7 +892,7 @@ namespace PlaytimePainter
                 // if (stroke.mouseDwn)
                 //    stroke.posFrom = stroke.posTo;
 
-                command.strokeAlphaPortion = br.Flow * 0.05f;
+                command.strokeAlphaPortion = Mathf.Clamp01(br.Flow * 0.05f);
 
                 TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command); // br, br.Speed * 0.05f, id, stroke, out alphaBuffer, painter);
 
@@ -975,7 +975,7 @@ namespace PlaytimePainter
                 if (InspectAdvanced || Cfg.useGridForBrush || suggestGrid)
                 {
                     (Cfg.useGridForBrush
-                        ? ("Grid: Z, X - change plane " + Environment.NewLine + " Ctrl+LMB - reposition GRID")
+                        ? ("Grid: Z, X - change plane  |  Ctrl+LMB - reposition GRID")
                         : "Paint On Grid").toggleIcon(ref Cfg.useGridForBrush).nl();
 
                     pegi.line();

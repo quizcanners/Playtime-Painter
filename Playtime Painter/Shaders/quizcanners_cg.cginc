@@ -3,53 +3,53 @@
 #include "Lighting.cginc"
 #include "AutoLight.cginc"
 
-sampler2D _Global_Noise_Lookup;
+uniform sampler2D _Global_Noise_Lookup;
 
-float4 pp_COLOR_BLEED;
+uniform float4 pp_COLOR_BLEED;
 
-sampler2D _qcPp_mergeControl;
+uniform sampler2D _qcPp_mergeControl;
 
-float4 _wrldOffset;
+uniform float4 _wrldOffset;
 
-float4 _qcPp_mergeTerrainHeight_TexelSize;
+uniform float4 _qcPp_mergeTerrainHeight_TexelSize;
 
-sampler2D _qcPp_mergeTerrainHeight;
+uniform sampler2D _qcPp_mergeTerrainHeight;
 
-float4 _Control_ST;
-float4 _qcPp_mergeTerrainTiling;
-float4 _qcPp_mergeTeraPosition;
-float4 _qcPp_mergeTerrainScale;
+uniform float4 _Control_ST;
+uniform float4 _qcPp_mergeTerrainTiling;
+uniform float4 _qcPp_mergeTeraPosition;
+uniform float4 _qcPp_mergeTerrainScale;
 
-sampler2D _qcPp_mergeSplat_0;
-sampler2D _qcPp_mergeSplat_1;
-sampler2D _qcPp_mergeSplat_2;
-sampler2D _qcPp_mergeSplat_3;
-sampler2D _qcPp_mergeSplat_4;
+uniform sampler2D _qcPp_mergeSplat_0;
+uniform sampler2D _qcPp_mergeSplat_1;
+uniform sampler2D _qcPp_mergeSplat_2;
+uniform sampler2D _qcPp_mergeSplat_3;
+uniform sampler2D _qcPp_mergeSplat_4;
 
-float4 _qcPp_mergeSplat_4_TexelSize;
+uniform float4 _qcPp_mergeSplat_4_TexelSize;
 
-sampler2D _qcPp_mergeSplatN_0;
-sampler2D _qcPp_mergeSplatN_1;
-sampler2D _qcPp_mergeSplatN_2;
-sampler2D _qcPp_mergeSplatN_3;
-sampler2D _qcPp_mergeSplatN_4;
+uniform sampler2D _qcPp_mergeSplatN_0;
+uniform sampler2D _qcPp_mergeSplatN_1;
+uniform sampler2D _qcPp_mergeSplatN_2;
+uniform sampler2D _qcPp_mergeSplatN_3;
+uniform sampler2D _qcPp_mergeSplatN_4;
 
 uniform sampler2D _qcPp_RayProjectorDepthes;
 
-float4x4 rt0_ProjectorMatrix;
-float4 rt0_ProjectorPosition;
-float4 rt0_ProjectorClipPrecompute;
-float4 rt0_ProjectorConfiguration;
+uniform float4x4 rt0_ProjectorMatrix;
+uniform float4 rt0_ProjectorPosition;
+uniform float4 rt0_ProjectorClipPrecompute;
+uniform float4 rt0_ProjectorConfiguration;
 
-float4x4 rt1_ProjectorMatrix;
-float4 rt1_ProjectorPosition;
-float4 rt1_ProjectorClipPrecompute;
-float4 rt1_ProjectorConfiguration;
+uniform float4x4 rt1_ProjectorMatrix;
+uniform float4 rt1_ProjectorPosition;
+uniform float4 rt1_ProjectorClipPrecompute;
+uniform float4 rt1_ProjectorConfiguration;
 
-float4x4 rt2_ProjectorMatrix;
-float4 rt2_ProjectorPosition;
-float4 rt2_ProjectorClipPrecompute;
-float4 rt2_ProjectorConfiguration;
+uniform float4x4 rt2_ProjectorMatrix;
+uniform float4 rt2_ProjectorPosition;
+uniform float4 rt2_ProjectorClipPrecompute;
+uniform float4 rt2_ProjectorConfiguration;
 
 
 float4 ProjectorUvDepthAlpha(float4 shadowCoords, float3 worldPos, float3 lightPos, float4 cfg, float4 precompute) {

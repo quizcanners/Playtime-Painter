@@ -353,9 +353,7 @@ namespace PlaytimePainter {
             Brush brush = command.Brush;
 
             var id = command.TextureData;
-
-            float textureWidth = id == null ? 256 : id.width;
-
+            
             var rendTex = id.TargetIsRenderTexture();
 
             var brushType = brush.GetBrushType(!rendTex);
@@ -380,14 +378,15 @@ namespace PlaytimePainter {
                 rendTex ? brush.hardness * brush.hardness : 0,       // y - Hardness is 0 to do correct preview for Texture2D brush 
                 ((brush.flipMaskAlpha && brush.useMask) ? 0 : 1),  // z - flip mask if any
                 (brush.maskFromGreyscale && brush.useMask) ? 1 : 0);
-
-
+            
             PainterShaderVariables.MaskOffsetProperty.GlobalValue = brush.maskOffset.ToVector4();
+
+            float brushSizeUvSpace = brush.Size(is3DBrush) / (id == null ? 256 : Mathf.Min(id.width, id.height));
 
             PainterShaderVariables.BrushFormProperty.GlobalValue = new Vector4(
                 command.strokeAlphaPortion, // x - transparency
                 brush.Size(is3DBrush), // y - scale for sphere
-                brush.Size(is3DBrush) / textureWidth, // z - scale for uv space
+                brushSizeUvSpace, // z - scale for uv space
                 brush.blurAmount); // w - blur amount
 
             #endregion
@@ -505,7 +504,8 @@ namespace PlaytimePainter {
         public static void SHADER_POSITION_AND_PREVIEW_UPDATE(Stroke st, bool hidePreview, float size)
         {
 
-            PainterShaderVariables.BRUSH_POINTED_UV.GlobalValue = st.uvTo.ToVector4(0, _previewAlpha);
+            PainterShaderVariables.BRUSH_UV_POS_FROM.GlobalValue = st.uvFrom.ToVector4(0, _previewAlpha);
+            PainterShaderVariables.BRUSH_UV_POS_TO.GlobalValue = st.uvTo.ToVector4(0, _previewAlpha);
 
             if (hidePreview && Math.Abs(_previewAlpha) < float.Epsilon)
                 return;
@@ -610,7 +610,7 @@ namespace PlaytimePainter {
 
         }
 
-        public RenderTexture Render(Texture from, RenderTexture to, Shader shade) => brushRenderer.CopyBuffer(from, to, shade);
+        public RenderTexture Render(Texture from, RenderTexture to, Shader shader) => brushRenderer.CopyBuffer(from, to, shader);
         
         public RenderTexture Render(Texture from, RenderTexture to, Material mat) =>  brushRenderer.CopyBuffer(from, to, mat);
          
