@@ -77,6 +77,16 @@ float4 ProjectorUvDepthAlpha(float4 shadowCoords, float3 worldPos, float3 lightP
 
 }
 
+// from http://www.java-gaming.org/index.php?topic=35123.0
+float4 cubic_Interpolation(float v) {
+	float4 n = float4(1.0, 2.0, 3.0, 4.0) - v;
+	float4 s = n * n * n;
+	float x = s.x;
+	float y = s.y - 4.0 * s.x;
+	float z = s.z - 4.0 * s.y + 6.0 * s.x;
+	float w = 6.0 - x - y - z;
+	return float4(x, y, z, w) * (1.0 / 6.0);
+}
 
 float GetRayTracedShadows(float3 posNrm, float3 norm, float4 shadowCoords, float4 rt_ProjectorConfiguration, float4 rt_ProjectorClipPrecompute, 
 	float4 rt_ProjectorPosition, float4 sampleMask

@@ -35,23 +35,18 @@ namespace QuizCannersUtilities {
 
         public static string TicksToReadableString(double elapsed)
         {
-            
+
             double absElapsed = Math.Abs(elapsed);
 
             if (absElapsed < TimeSpan.TicksPerMillisecond)
-                return elapsed +
-                            " ticks  ({0} ms)".F((elapsed / TimeSpan.TicksPerMillisecond).ToString("0.00"));
+                return "{0} ticks  ({1} ms)".F(elapsed.ToString("0.00"), (elapsed / TimeSpan.TicksPerMillisecond).ToString("0.00"));
             if (absElapsed < TimeSpan.TicksPerSecond)
-                return (elapsed / TimeSpan.TicksPerMillisecond) +
-                       " miliseconds  ({0} s)".F((elapsed / TimeSpan.TicksPerSecond).ToString("0.00"));
+                return "{0} miliseconds  ({1} s)".F((elapsed / TimeSpan.TicksPerMillisecond).ToString("0.00"), (elapsed / TimeSpan.TicksPerSecond).ToString("0.00"));
             if (absElapsed < TimeSpan.TicksPerMinute)
-                return elapsed / TimeSpan.TicksPerSecond +
-                       " seconds  ({0} min)".F((elapsed / TimeSpan.TicksPerMinute).ToString("0.00"));
+                return "{0} seconds  ({1} min)".F((elapsed / TimeSpan.TicksPerSecond).ToString("0.00"), (elapsed / TimeSpan.TicksPerMinute).ToString("0.00"));
             if (absElapsed < TimeSpan.TicksPerHour)
-                return elapsed / TimeSpan.TicksPerMinute +
-                       " minutes  ({0} hours)".F((elapsed / TimeSpan.TicksPerHour).ToString("0.00"));
-            return elapsed / TimeSpan.TicksPerHour +
-                   " hours  ({0} days)".F((elapsed / TimeSpan.TicksPerDay).ToString("0.00"));
+                return "{0} minutes  ({1} hours)".F((elapsed / TimeSpan.TicksPerMinute).ToString("0.00"), (elapsed / TimeSpan.TicksPerHour).ToString("0.00"));
+            return "{0} hours  ({1} days)".F((elapsed / TimeSpan.TicksPerHour).ToString("0.00"), (elapsed / TimeSpan.TicksPerDay).ToString("0.00"));
 
         }
 

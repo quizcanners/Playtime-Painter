@@ -216,7 +216,7 @@ namespace PlaytimePainter {
                     PainterCamera.GetOrCreateProjectorCamera().RenderRightNow(this);
                 }
                 else
-                    PaintRenderTextureUvSpace(command); 
+                    PaintRenderTextureInternal(command); // Maybe wrong
 
             }
 

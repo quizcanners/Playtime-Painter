@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-using Unity.Entities.CodeGeneratedJobForEach;
 using UnityEngine;
 
 namespace PlaytimePainter.MeshEditing {

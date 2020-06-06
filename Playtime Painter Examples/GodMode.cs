@@ -287,7 +287,7 @@ namespace PlaytimePainter.Examples
 
                         if (lerpData.MinPortion == 1)
                         {
-                            mode = Mode.STATIC;
+                            mode = Mode.FPS;
                             lerpYourself = false;
                         }
                     }

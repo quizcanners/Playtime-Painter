@@ -1,8 +1,5 @@
-﻿//#define debugInits
-
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Microsoft.SqlServer.Server;
 using PlayerAndEditorGUI;
 using PlaytimePainter.MeshEditing;
 using QuizCannersUtilities;
