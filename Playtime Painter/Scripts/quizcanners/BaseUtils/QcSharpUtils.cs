@@ -175,6 +175,12 @@ namespace QuizCannersUtilities {
             private void NextDictionaryMeasurment(string key)
             {
                 _timingKey = key;
+
+                if (TimingDictionary.ContainsKey(_timingKey))
+                {
+                    _timingKey += TimingDictionary.Count.ToString();
+                }
+
                 TimingDictionary[_timingKey] = "...";
             }
 
@@ -185,6 +191,8 @@ namespace QuizCannersUtilities {
                 _timingLogDictionary = null;
                 return ret;
             }
+
+         
 
             public void Dispose() {
                 if (_timingLogDictionary!= null)
