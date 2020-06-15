@@ -1199,7 +1199,7 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
             {
                 if (Event.current != null && Event.current.isKey && Event.current.type == UnityEngine.EventType.KeyDown) {
 
-                    var code = (int)Event.current.keyCode;
+                    var code = (int)Event.current.keyCode - ((int)KeyCode.Alpha0);
                     
                     if (code >= 0 && code <= 9)
                         return code;

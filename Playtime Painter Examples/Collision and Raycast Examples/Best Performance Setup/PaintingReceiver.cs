@@ -106,7 +106,7 @@ namespace PlaytimePainter.Examples
             }
         }
 
-        public Texture texture;
+        [NonSerialized] public Texture texture;
         public Texture originalTexture;
         public bool useTexcoord2;
         public bool fromRtManager;
@@ -228,6 +228,20 @@ namespace PlaytimePainter.Examples
 
             pegi.toggleDefaultInspector(this);
 
+            if (texture && (!MatTex || MatTex != texture))
+            {
+                "Target texture not set ont he Material".writeWarning();
+                if ("Clear target texture".Click())
+                {
+                    texture = null;
+                    MatTex = null;
+                }
+            }
+
+            pegi.nl();
+
+          
+
             if (!PainterCamera.Inst)
             {
                 "No Painter Camera found".writeWarning();
@@ -304,10 +318,6 @@ namespace PlaytimePainter.Examples
 
             if (Material)
             {
-
-
-
-
                 if (!Material.Has(TextureId) && !Material.mainTexture)
                     "No Material Property Selected and no MainTex on Material".nl();
                 else
@@ -389,16 +399,30 @@ namespace PlaytimePainter.Examples
             }
             else "No material found".nl();
 
+
+
+            /*if ("On Disable".Click().nl())
+          {
+              OnDisable();
+          }*/
+
+            "Target Texture".edit("If not using Render Textures Pool", 120, ref texture);
+            if (Renderer && Material && "Find".Click())
+                texture = MatTex;
+
+            if (texture && icon.Delete.Click())
+            {
+                Restore();
+            }
+
+            pegi.nl();
+
             if ("Advanced".foldout(ref _showOptional).nl())
             {
 
                 if (texture || !MatTex)
                     "Start Texture:".edit("Copy of this texture will be modified.", 110, ref originalTexture).nl(ref changes);
-
-                "Target Texture".edit("If not using Render Textures Pool", 120, ref texture);
-                if (Renderer && Material && "Find".Click().nl())
-                    texture = MatTex;
-
+                
                 if (!texture || texture.GetType() == typeof(RenderTexture))
                 {
 

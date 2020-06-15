@@ -323,8 +323,8 @@ namespace PlaytimePainter {
 
                     if (InspectAdvanced) {
                         "Clamp".toggleIcon(ref clampSourceTexture).nl(ref changed);
-                        "Ignore Transparency".toggleIcon(ref ignoreSrcTextureTransparency).changes(ref changed);
-                        pegi.PopUpService.fullWindowDocumentationClickOpen("Ignore transparency of the source texture. Otherwise the tool will only paint parts of the texture which are not transparent").nl();
+                        "Multiply by Alpha".toggleIcon(ref ignoreSrcTextureTransparency).changes(ref changed);
+                        pegi.PopUpService.fullWindowDocumentationClickOpen("Ignore transparency of the source texture. To only paint parts of the texture which are visible").nl();
                     }
                 }
                 

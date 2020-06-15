@@ -1,14 +1,14 @@
 ﻿using QuizCannersUtilities;
 using UnityEngine;
+using PlayerAndEditorGUI;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace PlaytimePainter.Examples
 {
-
     [ExecuteInEditMode]
-    public class SkyController : MonoBehaviour {
-
-
-        [Header("Can Set Main Camera to Don't clear")]
+    public class SkyController : MonoBehaviour, IPEGI {
 
         public Light directional;
         public MeshRenderer skeRenderer;
@@ -75,5 +75,38 @@ namespace PlaytimePainter.Examples
         }
 
         private void LateUpdate() => transform.rotation = Quaternion.identity;
+
+        public bool Inspect()
+        {
+            var changed = false;
+
+            "Main Cam".edit(ref _mainCam).nl();
+            "Directional Light".edit(ref directional).nl();
+            "Sky Renderer".edit(ref skeRenderer).nl();
+            "Sky dinamics".edit(ref skyDynamics).nl();
+
+            if (_mainCam)
+            {
+                if (_mainCam.clearFlags == CameraClearFlags.Skybox)
+                {
+                    "Skybox will hide procedural sky".writeWarning();
+                    if ("Set to Black Color".Click())
+                    {
+                        _mainCam.clearFlags = CameraClearFlags.Color;
+                        _mainCam.backgroundColor = Color.clear;
+                    }
+                }
+            }
+
+
+
+            return changed;
+        }
     }
+
+#if UNITY_EDITOR
+    [CustomEditor(typeof(SkyController))]
+    public class SkyControllerDrawer : PEGI_Inspector_Mono<SkyController> { }
+#endif
+
 }

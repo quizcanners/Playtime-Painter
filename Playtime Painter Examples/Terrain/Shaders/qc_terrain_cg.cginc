@@ -155,7 +155,10 @@ inline void Terrain_Water_AndLight(inout float4 col, float3 tc_Control, float am
 
 	float normTerm = pow(NdotH, power)*power;
 
-	float3 reflResult = (normTerm *_LightColor0 + (terrainLrefl.rgb + ambientRefl.rgb)
+	float3 reflResult = (normTerm *_LightColor0 + 
+		(terrainLrefl.rgb
+			+ ambientRefl.rgb
+			)
 		* ambient
 		)* smoothness;
 	

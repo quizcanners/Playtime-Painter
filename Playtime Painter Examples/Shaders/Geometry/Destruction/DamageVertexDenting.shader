@@ -9,6 +9,7 @@ Shader "Playtime Painter/Geometry/Destructible/Character" {
 		[NoScaleOffset]_NrmyScratch("Scratch Combined Map", 2D) = "gray" {}
 		[NoScaleOffset]_MainTexDam("Damage Diffuse", 2D) = "white" {}
 		[NoScaleOffset]_NrmyDam("Damage Combined Map", 2D) = "gray" {}
+		[Toggle(_DEBUG_UV2)] debugUV2("Debug UV2", Float) = 0
 	}
 
 
@@ -37,6 +38,7 @@ Shader "Playtime Painter/Geometry/Destructible/Character" {
 				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
 
 				#pragma multi_compile_fwdbase 
+				#pragma shader_feature __ _DEBUG_UV2
 
 				sampler2D _MainTex;
 				float4 _MainTex_TexelSize;
@@ -50,12 +52,13 @@ Shader "Playtime Painter/Geometry/Destructible/Character" {
 
 				struct v2f {
 					float4 pos : POSITION;
+					float2 texcoord : TEXCOORD0;
+					float2 texcoord2 : TEXCOORD1;
 					float3 viewDir : TEXCOORD2;
-					float3 wpos : TEXCOORD3;
-					float2 texcoord : TEXCOORD7;
-					half3 tspace0 : TEXCOORD8; 
-					half3 tspace1 : TEXCOORD9; 
-					half3 tspace2 : TEXCOORD10; 
+					float3 wpos :	TEXCOORD3;
+					half3 tspace0 : TEXCOORD4; 
+					half3 tspace1 : TEXCOORD5; 
+					half3 tspace2 : TEXCOORD6; 
 				};
 
 				v2f vert(appdata_full v) {
@@ -63,7 +66,7 @@ Shader "Playtime Painter/Geometry/Destructible/Character" {
 
 					float3 worldNormal = UnityObjectToWorldNormal(v.normal);
 
-					float4 mask = tex2Dlod(_MainTex, float4(v.texcoord.xy,0,0));
+					float4 mask = tex2Dlod(_MainTex, float4(v.texcoord2.xy,0,0));
 
 					v.vertex.xyz -= (v.normal)*0.05*pow(mask.r,3);
 
@@ -74,6 +77,8 @@ Shader "Playtime Painter/Geometry/Destructible/Character" {
 					o.viewDir.xyz = (WorldSpaceViewDir(v.vertex));
 
 					o.texcoord = v.texcoord;
+
+					o.texcoord2 = v.texcoord1.xy;
 
 					half3 wNormal = worldNormal;
 					half3 wTangent = UnityObjectToWorldDir(v.tangent.xyz);
@@ -98,7 +103,14 @@ Shader "Playtime Painter/Geometry/Destructible/Character" {
 					float4 blood = tex2D(_MainTexDam, i.texcoord.xy);
 					float4 scratch = tex2D(_MainTexScratch, i.texcoord.xy*8);
 					float4 dirt = tex2D(_Dirt, i.texcoord.xy*8);
-					float4 mask = tex2D(_MainTex, i.texcoord.xy);
+
+					float2 damageUV = i.texcoord2.xy;//i.texcoord2.xy;
+
+					float4 mask = tex2D(_MainTex, damageUV);
+
+#if _DEBUG_UV2
+					return float4(damageUV, mask.r,dirt.r); //mask;
+#endif
 
 					float maskr = tex2D(_MainTex, float2(i.texcoord.x, i.texcoord.y + _MainTex_TexelSize.y)).r;
 					float maskg = tex2D(_MainTex, float2(i.texcoord.x + _MainTex_TexelSize.x, i.texcoord.y)).r;

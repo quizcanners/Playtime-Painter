@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using PlayerAndEditorGUI;
 using PlaytimePainter.ComponentModules;
 using PlaytimePainter.MeshEditing;
@@ -224,7 +225,8 @@ namespace PlaytimePainter
         }
 
         #region Inspecotr
-        public override string Tooltip => "Select Texture Number and paint on triangles and lines. Texture an be selected with number keys, and sampled with Ctrl+LMB.";
+        public override string Tooltip => "Select Texture Number and paint on triangles and lines.  Texture can be selected with number keys, and sampled with Ctrl+LMB." + Environment.NewLine 
+                                        + "You need to use a special shader that has _isAtlased option";
         
         public override bool Inspect()
         {

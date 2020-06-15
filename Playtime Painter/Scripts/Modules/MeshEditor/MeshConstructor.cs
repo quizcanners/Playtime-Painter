@@ -386,14 +386,14 @@ namespace PlaytimePainter.MeshEditing {
                 _sharpNormals[i] = Vector3.zero;
             }
 
-            var scaleNormalizer = 1f / (edMesh.averageSize + 0.001f);
+            //double scaleNormalizer = 1f / (edMesh.averageSize + 0.001f);
 
             foreach (var tri in edMesh.triangles)
             {
 
                 // ********* Calculating Normals
 
-                tri.sharpNormal = tri.GetNormalByArea(scaleNormalizer);
+                tri.sharpNormal = tri.GetNormalByArea();
 
                 for (var no = 0; no < 3; no++)
                 {

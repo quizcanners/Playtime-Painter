@@ -765,8 +765,9 @@ namespace PlaytimePainter.MeshEditing
                 return sharpNormal;
             }
 
-            public Vector3 GetNormalByArea(float accuracyFix = 1)
+            public Vector3 GetNormalByArea()
             {
+                float accuracyFix = 1000f;
 
                 var p0 = vertexes[0].LocalPos * accuracyFix;
                 var p1 = vertexes[1].LocalPos * accuracyFix;

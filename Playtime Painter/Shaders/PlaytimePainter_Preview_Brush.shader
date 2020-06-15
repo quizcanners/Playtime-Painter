@@ -155,10 +155,6 @@
 
 				float4 frag(v2f o) : COLOR{
 
-					//	return 1;// alpha;
-
-					
-
 					float4 col = 0;
 					float alpha = 1;
 					float ignoreSrcAlpha = _qcPp_srcTextureUsage.w;
@@ -187,7 +183,7 @@
 						//DEBUG
 						//return float4(pUv, 0, 1);
 
-						float4 src = Sample(pUv);
+						float4 src = tex2Dlod(_qcPp_SourceTexture, float4(pUv, 0, 0));//Sample(pUv);
 
 						alpha *= (ignoreSrcAlpha + src.a * (1- ignoreSrcAlpha)) * BrushClamp(pUv);
 						float pr_shadow = alpha;
