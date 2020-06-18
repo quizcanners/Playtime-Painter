@@ -2,7 +2,7 @@
 using PlayerAndEditorGUI;
 using UnityEngine;
 
-namespace PEGI_Examples
+namespace PlayerAndEditorGUI.Examples
 {
     public class PlayerAndEditorGuiExample_Nested : MonoBehaviour, IPEGI
     {

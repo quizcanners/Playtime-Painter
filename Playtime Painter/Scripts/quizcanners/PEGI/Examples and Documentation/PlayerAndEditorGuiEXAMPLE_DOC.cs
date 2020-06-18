@@ -13,7 +13,7 @@ using UnityEngine;
 using UnityEditor;  // This is only needed if you actually want to override Unity's inspector (See [CustomEditor] declaration at the very bottom).
 #endif              // The alternative is to Inspect this object from inspector of another object.
 
-namespace PEGI_Examples
+namespace PlayerAndEditorGUI.Examples
 {
 
     public class PlayerAndEditorGuiEXAMPLE_DOC : MonoBehaviour, IPEGI

@@ -21,23 +21,7 @@ namespace QuizCannersUtilities {
     }
 
     #endregion
-
-    /*[AttributeUsage(AttributeTargets.Class)]
-    public abstract class AbstractWithTaggedTypes : Attribute
-    {
-        public abstract TaggedTypesCfg TaggedTypes { get; }
-
-        public AbstractWithTaggedTypes()
-        {
-
-        }
-
-        public AbstractWithTaggedTypes(params Type[] type)
-        {
-            TaggedTypes.Types = type.ToList();
-        }
-    }*/
-
+    
     [AttributeUsage(AttributeTargets.Class)]
     public class TaggedType : Attribute
     {
@@ -56,7 +40,6 @@ namespace QuizCannersUtilities {
 
     public class TaggedTypesCfg
     {
-
         public static Dictionary<Type, TaggedTypesCfg> _configs = new Dictionary<Type, TaggedTypesCfg>();
 
         public static TaggedTypesCfg TryGetOrCreate(Type type)
@@ -64,8 +47,6 @@ namespace QuizCannersUtilities {
 
             if (!typeof(IGotClassTag).IsAssignableFrom(type))
             {
-               // QcUtils.ChillLogger.LogErrorOnce("notGotTag{0}".F(type.ToString()), "{0} doesn't implement IGotClassTag".F(type.ToString()));
-
                 return null;
             }
 
@@ -81,13 +62,11 @@ namespace QuizCannersUtilities {
             return cfg;
         }
 
-        private readonly Type _coreType;
-
-        public Type CoreType => _coreType;
+        public Type CoreType { get; private set; } 
 
         public TaggedTypesCfg(Type type)
         {
-            _coreType = type;
+            CoreType = type;
             _configs[type] = this;
         }
 
@@ -126,14 +105,12 @@ namespace QuizCannersUtilities {
 
             _keys = new List<string>();
             
-            //var atr = _coreType.TryGetClassAttribute<AbstractWithTaggedTypes>();
-            
             List<Type> allTypes;
 
             if (_types == null)
             {
                 _types = new List<Type>();
-                allTypes = _coreType.GetAllChildTypes();
+                allTypes = CoreType.GetAllChildTypes();
             }
             else
             {
@@ -216,7 +193,6 @@ namespace QuizCannersUtilities {
 
         public static void TryChangeObjectType(IList list, int index, Type type, TaggedTypesCfg cfg, ListMetaData ld = null)
         {
-
             var previous = list.TryGetObj(index);
 
             var el = previous;
@@ -241,7 +217,6 @@ namespace QuizCannersUtilities {
         
         public static T TryGetByTag<T> (List<T> lst, string tag) where T : IGotClassTag
         {
-
             if (lst == null || tag == null || tag.Length <= 0) return default;
 
             foreach (var e in lst)
@@ -251,12 +226,9 @@ namespace QuizCannersUtilities {
             }
 
             return default;
-
         }
-
     }
-
-
+    
     public class TaggedModulesList<T> : AbstractCfg, IPEGI, IEnumerable<T> where T : class, IGotClassTag {
         
         protected List<T> modules = new List<T>();
