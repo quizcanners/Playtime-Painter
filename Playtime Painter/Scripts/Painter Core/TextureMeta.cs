@@ -1327,7 +1327,7 @@ namespace PlaytimePainter
             {
                 MsgPainter.TransparentLayer.GetText().toggleIcon(ref isATransparentLayer).changes(ref changed);
 
-                pegi.PopUpService.fullWindowDocumentationWithLinkClickOpen(
+                pegi.FullWindowService.fullWindowDocumentationWithLinkClickOpen(
                 MsgPainter.TransparentLayer.GetDescription(),
                         "https://www.quizcanners.com/single-post/2018/09/30/Why-do-I-get-black-outline-around-the-stroke",
                         "More About it");

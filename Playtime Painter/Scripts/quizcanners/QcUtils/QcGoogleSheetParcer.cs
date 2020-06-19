@@ -21,17 +21,26 @@ namespace QuizCannersUtilities
     [Serializable]
     public class QcGoogleSheetParcer : IPEGI
     {
-        [SerializeField] private string url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRGGd_RWw4hUqr462Uu24-Vqr9XVj-CsP0TI0RWAYgBKgyL9XG6p_jEqZg87JZBSh5jkargxk7Q1vIC/pub?gid=";
+        [SerializeField] private string editUrl = "https://docs.google.com/spreadsheets/d/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/edit#gid=0";
+        [SerializeField] private string url = "https://docs.google.com/spreadsheets/d/e/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/pub?";
         [SerializeField] private int pageIndex = 0;
+        
+        [NonSerialized] private UnityWebRequest request;
 
+        [NonSerialized] private CsvReader reader;
 
-        private string UrlGooglePath => "{0}{1}&single=true&output=csv".F(url, pageIndex.ToString());
+        [NonSerialized] public string jsonText;
 
-        private UnityWebRequest request;
-
-        private CsvReader reader;
-
-        public string jsonText;
+        public void To<K,V>(Dictionary<K, V> dic, Func<V,K> keyFactory)
+        {
+            var tmpList = JsonConvert.DeserializeObject<List<V>>(jsonText);
+            dic.Clear();
+            
+            foreach (var l in tmpList){
+                var key = keyFactory(l);
+                dic[key] = l;
+            }
+        }
 
         public void To<T>(List<T> list)
         {
@@ -44,14 +53,39 @@ namespace QuizCannersUtilities
         {
             var changed = false;
 
-            "URL".edit(40, ref url).nl();
-            "Page".edit(ref pageIndex).nl();
+            pegi.nl();
+
+            "Sheet URL (to Edit))".edit(ref editUrl).changes(ref changed);
+            if ("Open".Click())
+                Application.OpenURL(editUrl);
+
+            pegi.nl();
+
+            "Published CSV Urls (to download)".edit(ref url).changes(ref changed);
+
+            pegi.FullWindowService.fullWindowDocumentationClickOpen(() => "GoogleSheet->File->Publish To Web-> Publish... Copy link for .csv document");
+
+            pegi.nl();
+
+            if (url != null)
+            {
+                var ind = url.LastIndexOf("pub?");
+                if ((ind> 10 && ind<url.Length - 4) && "Clear Url Ending".Click().nl())
+                {
+                    url = url.Substring(startIndex: 0, length: ind + 4);
+                }
+            }
+
+
+            "gid".edit(ref pageIndex).nl();
 
             if (request == null)
             {
                 if ("Download".Click().nl())
                 {
-                    request = UnityWebRequest.Get(UrlGooglePath);
+                    jsonText = null;
+
+                    request = UnityWebRequest.Get("{0}gid={1}&single=true&output=csv".F(url, pageIndex.ToString()));
 
                     request.SendWebRequest();
                 }
@@ -65,8 +99,10 @@ namespace QuizCannersUtilities
                     if ("Read".Click().nl())
                     {
                         reader = new CsvReader(request);
-
+                       
                         jsonText = ToJson(reader);
+
+                        request = null;
                     }
                 }
                 else
@@ -81,10 +117,15 @@ namespace QuizCannersUtilities
 
             if (reader != null && "Columns".foldout().nl())
                 "Columns".write_List(reader.columns);
-            
+
             if (jsonText.IsNullOrEmpty() == false)
-                "json".writeBig(60, contents: jsonText);
-            
+            {
+                if (icon.Clear.Click())
+                    jsonText = null;
+                else 
+                    "json".writeBig(60, contents: jsonText);
+            }
+
             return changed;
         }
         

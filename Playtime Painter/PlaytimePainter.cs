@@ -1700,10 +1700,10 @@ namespace PlaytimePainter
         }
 
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Join Discord")]
-        public static void Open_Discord() => Application.OpenURL(pegi.PopUpService.DiscordServer);
+        public static void Open_Discord() => Application.OpenURL(pegi.FullWindowService.DiscordServer);
 
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Send an Email")]
-        public static void Open_Email() => QcUnity.SendEmail(pegi.PopUpService.SupportEmail,
+        public static void Open_Email() => QcUnity.SendEmail(pegi.FullWindowService.SupportEmail,
             "About your Playtime Painter",
             "Hello Yuri, we need to talk. I purchased your asset and expect an excellent quality, but ...");
 

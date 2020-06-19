@@ -473,7 +473,7 @@ namespace PlaytimePainter.Examples
             {
                 case Mode.FPS:
 
-                    pegi.PopUpService.fullWindowDocumentationClickOpen(() =>
+                    pegi.FullWindowService.fullWindowDocumentationClickOpen(() =>
                         "WASD - move {0} Q, E - Dwn, Up {0} Shift - faster {0} {1} {0} MMB - Orbit Collider".F(
                             pegi.EnvironmentNl,
                             _disableRotation ? "" : (rotateWithoutRmb ? "RMB - rotation" : "Mouse to rotate")

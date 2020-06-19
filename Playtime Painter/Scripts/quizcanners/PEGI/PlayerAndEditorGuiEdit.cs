@@ -3193,6 +3193,12 @@ namespace PlayerAndEditorGUI
             return edit(ref val);
         }
 
+        public static bool edit(this string label, int width, ref int val, int valueWidth)
+        {
+            write(label, width);
+            return edit(ref val, valueWidth);
+        }
+
         #endregion
 
         #region Long

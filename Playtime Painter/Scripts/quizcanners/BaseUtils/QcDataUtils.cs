@@ -72,6 +72,8 @@ namespace QuizCannersUtilities
             public static void OpenPersistentFolder(string folder) =>
                 OpenPath(Path.Combine(Application.persistentDataPath, folder));
 
+            public static void OpenUrl(string url) => Application.OpenURL(url);
+            
             public static void OpenPath(string path)
             {
 #if UNITY_EDITOR

@@ -54,7 +54,7 @@ namespace PlayerAndEditorGUI
 
             checkLine();
 
-            if (ClickUnFocus((state ? "..⏵ " : "..⏷ ") + txt))
+            if (ClickUnFocus((state ? "[Hide] {0}..." : ">{0} [Show]").F(txt)))
                 state = !state;
 
 
@@ -76,7 +76,7 @@ namespace PlayerAndEditorGUI
 
             ef.isFoldedOutOrEntered = (selected == current);
 
-            if (ClickUnFocus((ef.isFoldedOutOrEntered ? "..⏵ " : "..⏷ ") + txt))
+            if (ClickUnFocus((ef.isFoldedOutOrEntered ? "[Hide] {0}..." : ">{0} [Show]").F(txt)))
             {
                 if (ef.isFoldedOutOrEntered)
                     selected = -1;
@@ -911,6 +911,16 @@ namespace PlayerAndEditorGUI
 
             if (meta.label.AddCount(dictionary).enter(ref enteredOne, thisOne, false))
                 meta.edit_Dictionary_Values(dictionary).nl(ref changed);
+
+            return changed;
+        }
+
+        public static bool enter_Dictionary<G, T>(this string label, Dictionary<G, T> dictionary, ref int enteredOne, int thisOne)
+        {
+            var changed = false;
+
+            if (label.AddCount(dictionary).enter(ref enteredOne, thisOne, false))
+                label.edit_Dictionary_Values(dictionary).nl(ref changed);
 
             return changed;
         }

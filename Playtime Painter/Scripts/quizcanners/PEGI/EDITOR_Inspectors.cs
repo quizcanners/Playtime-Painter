@@ -71,15 +71,20 @@ namespace PlayerAndEditorGUI {
             "Got an Exception. Click copy to check it out in the notepad.".writeWarning();
             
             if ("Copy To Clipboard".Click("Copy Exception").nl())
-                pegi.SetCopyPasteBuffer(pegi.PopUpService.popUpText);
+                pegi.SetCopyPasteBuffer(pegi.FullWindowService.popUpText);
 
             if ("Don't show again".Click())
             {
                 _exceptionPopUpShown = true;
-                pegi.PopUpService.ClosePopUp();
+                pegi.FullWindowService.ClosePopUp();
             }
 
+            pegi.nl();
 
+            if (pegi.FullWindowService.popUpText.Length<1000)
+                pegi.writeBig(pegi.FullWindowService.popUpText);
+
+            pegi.nl();
 
             return false;
         }
@@ -104,9 +109,9 @@ namespace PlayerAndEditorGUI {
                     {
                         Debug.LogError(ex);
 
-                        pegi.PopUpService.popUpText = ex.ToString();
-                        pegi.PopUpService.inspectDocumentationDelegate = InspectException;
-                        pegi.PopUpService.InitiatePopUp();
+                        pegi.FullWindowService.popUpText = ex.ToString();
+                        pegi.FullWindowService.inspectDocumentationDelegate = InspectException;
+                        pegi.FullWindowService.InitiatePopUp();
                     }
                 }
 

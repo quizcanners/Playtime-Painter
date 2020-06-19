@@ -3155,8 +3155,8 @@ namespace PlayerAndEditorGUI
 
                 if (active)
                 {
-                    icon.Warning.write("Filter by warnings");
-                    if (toggle(ref filterByNeedAttention))
+                    icon.Warning.write(toolTip: "Filter by warnings");
+                    if (toggleIcon(ref filterByNeedAttention))
                         Refresh();
                 }
 

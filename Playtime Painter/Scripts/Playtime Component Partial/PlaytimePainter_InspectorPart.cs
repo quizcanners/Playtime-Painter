@@ -215,7 +215,7 @@ namespace PlaytimePainter
                     "Tool Configuration");
 
                 if (!PainterDataAndConfig.hideDocumentation)
-                    pegi.PopUpService.fullWindowDocumentationClickOpen(LazyLocalization.InspectPainterDocumentation,
+                    pegi.FullWindowService.fullWindowDocumentationClickOpen(LazyLocalization.InspectPainterDocumentation,
                         MsgPainter.AboutPlaytimePainter.GetText());
 
                 #endregion
@@ -247,7 +247,7 @@ namespace PlaytimePainter
                                  meshFilter.sharedMesh != meshCollider.sharedMesh)
                         {
 
-                            pegi.PopUpService.fullWindowWarningDocumentationClickOpen(
+                            pegi.FullWindowService.fullWindowWarningDocumentationClickOpen(
                                 "Collider and filter have different meshes. Painting may not be able to obtain a correct UV coordinates.",
                                 "Mesh collider mesh is different");
                         }
@@ -484,8 +484,8 @@ namespace PlaytimePainter
                                             UpdateMeshCollider();
 
                                         if (!PainterDataAndConfig.hideDocumentation &&
-                                            pegi.PopUpService.DocumentationClick("Why Update Collider from skinned mesh?"))
-                                            pegi.PopUpService.FullWindwDocumentationOpen(
+                                            pegi.FullWindowService.DocumentationClick("Why Update Collider from skinned mesh?"))
+                                            pegi.FullWindowService.FullWindwDocumentationOpen(
                                                 ("To paint an object a collision detection is needed. Mesh Collider is not being animated. To paint it, update Mesh Collider with Update Collider button." +
                                                  " For ingame painting it is preferable to use simple colliders like Speheres to avoid per frame updates for collider mesh."
                                                 ));

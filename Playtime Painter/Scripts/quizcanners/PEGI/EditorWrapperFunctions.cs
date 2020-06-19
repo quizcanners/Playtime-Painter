@@ -119,7 +119,7 @@ namespace PlayerAndEditorGUI
 
                 start(so);
 
-                if (!pegi.PopUpService.ShowingPopup())
+                if (!pegi.FullWindowService.ShowingPopup())
                 {
 
 #if UNITY_2018_3_OR_NEWER
@@ -176,7 +176,7 @@ namespace PlayerAndEditorGUI
             {
                 start(so);
 
-                var changed = !pegi.PopUpService.ShowingPopup() && pgi.Inspect();
+                var changed = !pegi.FullWindowService.ShowingPopup() && pgi.Inspect();
                 end(o);
                 return changed;
             }
@@ -198,7 +198,7 @@ namespace PlayerAndEditorGUI
 
             start();
 
-            var changed = !pegi.PopUpService.ShowingPopup() && editor.Inspect(mat);
+            var changed = !pegi.FullWindowService.ShowingPopup() && editor.Inspect(mat);
 
             end(mat);
 

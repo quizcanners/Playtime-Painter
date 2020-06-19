@@ -263,8 +263,8 @@ namespace PlaytimePainter {
             if (pegi.select(ref blitMode, BlitModes.Base.AllModes).changes(ref changed)) 
                 SetBlitMode(cpu, blitMode);
 
-            if (DocsEnabled && blitMode != null && pegi.PopUpService.DocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI())))
-                pegi.PopUpService.FullWindwDocumentationOpen(blitMode.ToolTip);
+            if (DocsEnabled && blitMode != null && pegi.FullWindowService.DocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI())))
+                pegi.FullWindowService.FullWindwDocumentationOpen(blitMode.ToolTip);
 
             if (showAdvanced)
                 pegi.nl();
@@ -282,8 +282,8 @@ namespace PlaytimePainter {
                 MsgPainter.BrushType.Write();
                 pegi.select_Index(ref _inGpuBrushType, BrushTypes.Base.AllTypes).changes(ref changed);
                 
-                if (DocsEnabled && brushType != null && pegi.PopUpService.DocumentationClick("About {0} brush type".F(brushType.NameForDisplayPEGI())))
-                    pegi.PopUpService.FullWindwDocumentationOpen(brushType.ToolTip);
+                if (DocsEnabled && brushType != null && pegi.FullWindowService.DocumentationClick("About {0} brush type".F(brushType.NameForDisplayPEGI())))
+                    pegi.FullWindowService.FullWindwDocumentationOpen(brushType.ToolTip);
 
                 if (!brushType.ShowInDropdown())
                 {
@@ -324,7 +324,7 @@ namespace PlaytimePainter {
                     if (InspectAdvanced) {
                         "Clamp".toggleIcon(ref clampSourceTexture).nl(ref changed);
                         "Multiply by Alpha".toggleIcon(ref ignoreSrcTextureTransparency).changes(ref changed);
-                        pegi.PopUpService.fullWindowDocumentationClickOpen("Ignore transparency of the source texture. To only paint parts of the texture which are visible").nl();
+                        pegi.FullWindowService.fullWindowDocumentationClickOpen("Ignore transparency of the source texture. To only paint parts of the texture which are visible").nl();
                     }
                 }
                 

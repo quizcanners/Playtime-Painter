@@ -110,7 +110,7 @@ namespace PlaytimePainter.Examples
         {
             var changed = false;
 
-            pegi.PopUpService.fullWindowDocumentationClickOpen(()=> "During collision will try to cast ray in the direction of that collision. " +
+            pegi.FullWindowService.fullWindowDocumentationClickOpen(()=> "During collision will try to cast ray in the direction of that collision. " +
                                                        "If target has Playtime Painter Component this script will try to paint on it.", "How to use Raycast On Collision");
 
             if (Application.isPlaying)

@@ -150,7 +150,7 @@ namespace PlayerAndEditorGUI
                                 Screen.height / upscale));
                         }
 
-                        if (!PopUpService.ShowingPopup())
+                        if (!FullWindowService.ShowingPopup())
                             _function();
 
                         nl();
@@ -552,9 +552,8 @@ namespace PlayerAndEditorGUI
 
 #region Pop UP Services
         
-        public static class PopUpService
+        public static class FullWindowService
         {
-            
             public const string DiscordServer = "https://discord.gg/rF7yXq3";
 
             public const string SupportEmail = "quizcanners@gmail.com";
@@ -682,10 +681,10 @@ namespace PlayerAndEditorGUI
                 if (text.IsNullOrEmpty())
                     text = Msg.ClickYesToConfirm.GetText();
 
-                PopUpService.areYouSureFunk = action;
-                PopUpService.popUpText = text;
-                PopUpService.popUpHeader = header;
-                PopUpService.InitiatePopUp();
+                FullWindowService.areYouSureFunk = action;
+                FullWindowService.popUpText = text;
+                FullWindowService.popUpHeader = header;
+                FullWindowService.InitiatePopUp();
             }
 
             public static bool fullWindowDocumentationClickOpen(Func<bool> function, string toolTip = "", int buttonSize = 20)
@@ -707,7 +706,7 @@ namespace PlayerAndEditorGUI
             {
                 if (fullWindowDocumentationClickOpen(toolTip, buttonSize, clickIcon))
                 {
-                    PopUpService.popUpHeader = toolTip;
+                    FullWindowService.popUpHeader = toolTip;
                     return true;
                 }
 
@@ -784,10 +783,10 @@ namespace PlayerAndEditorGUI
 
                 if (fullWindowDocumentationClickOpen(tip, buttonSize))
                 {
-                    PopUpService.popUpText = text;
-                    PopUpService.InitiatePopUp();
-                    PopUpService.relatedLink = link;
-                    PopUpService.relatedLinkName = linkName.IsNullOrEmpty() ? link : linkName;
+                    FullWindowService.popUpText = text;
+                    FullWindowService.InitiatePopUp();
+                    FullWindowService.relatedLink = link;
+                    FullWindowService.relatedLinkName = linkName.IsNullOrEmpty() ? link : linkName;
                     return true;
                 }
 
