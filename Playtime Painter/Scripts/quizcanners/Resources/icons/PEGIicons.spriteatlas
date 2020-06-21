@@ -6,7 +6,7 @@ SpriteAtlas:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: PIGIicons
+  m_Name: PEGIicons
   m_EditorData:
     serializedVersion: 2
     textureSettings:
@@ -31,7 +31,7 @@ SpriteAtlas:
     variantMultiplier: 1
     packables:
     - {fileID: 102900000, guid: c0f1ccc4358ecfb4d8a30e9e112b5711, type: 3}
-    totalSpriteSurfaceArea: 476416
+    totalSpriteSurfaceArea: 479488
     bindAsDefault: 1
   m_MasterAtlas: {fileID: 0}
   m_PackedSprites:
@@ -202,5 +202,5 @@ SpriteAtlas:
   - Round
   - Share
   - On
-  m_Tag: PIGIicons
+  m_Tag: PEGIicons
   m_IsVariant: 0

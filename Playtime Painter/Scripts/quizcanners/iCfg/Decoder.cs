@@ -354,59 +354,59 @@ namespace QuizCannersUtilities {
         private static T DecodeData<T>(this CfgDecoder cody, List<Type> tps) where T : ICfg
             => Decode<T>(cody.currentTag, cody.GetData(), tps);
 
-        private static T Decode<T>(string tag, string data, TaggedTypesCfg tps, ListMetaData ld, int index) where T : IGotClassTag
+        private static T Decode<T>(string tagAsTypeIndex, string data, TaggedTypesCfg tps, ListMetaData ld, int index) where T : IGotClassTag
         {
 
-            if (tag == CfgEncoder.NullTag) return default;
+            if (tagAsTypeIndex == CfgEncoder.NullTag) return default;
 
-            var type = tps.TaggedTypes.TryGet(tag);
+            var type = tps.TaggedTypes.TryGet(tagAsTypeIndex);
             
             if (type != null)
                 return data.DecodeInto_Type<T>(type);
             
-            ld.elementDatas[index].Unrecognized(tag, data);
+            ld.elementDatas[index].Unrecognized(tagAsTypeIndex, data);
 
             return default;
         }
 
-        private static T Decode<T>(string tag, string data, TaggedTypesCfg tps) where T : IGotClassTag
+        private static T Decode<T>(string tagAsTypeIndex, string data, TaggedTypesCfg tps) where T : IGotClassTag
         {
 
-            if (tag == CfgEncoder.NullTag) return default;
+            if (tagAsTypeIndex == CfgEncoder.NullTag) return default;
             
-            var type = tps.TaggedTypes.TryGet(tag);
+            var type = tps.TaggedTypes.TryGet(tagAsTypeIndex);
             
             return (type == null) ? default : data.DecodeInto_Type<T>(type);
         }
 
-        private static T Decode<T>(string tag, string data, List<Type> tps, ListMetaData ld, int index) where T : ICfg
+        private static T Decode<T>(string tagAsTypeIndex, string data, List<Type> tps, ListMetaData ld, int index) where T : ICfg
         {
 
-            if (tag == CfgEncoder.NullTag) return default;
+            if (tagAsTypeIndex == CfgEncoder.NullTag) return default;
             
-            var type = tps.TryGet(tag.ToIntFromTextSafe(-1));
+            var type = tps.TryGet(tagAsTypeIndex.ToIntFromTextSafe(-1));
             
             if (type != null)
                 return data.DecodeInto_Type<T>(type);
          
-            ld.elementDatas[index].Unrecognized(tag, data);
+            ld.elementDatas[index].Unrecognized(tagAsTypeIndex, data);
             
 
             return default;
         }
 
-        private static T Decode<T>(string tag, string data, List<Type> tps) where T : ICfg
+        private static T Decode<T>(string tagAsTypeIndex, string data, List<Type> tps) where T : ICfg
         {
 
 
-            if (tag == CfgEncoder.NullTag) return default;
+            if (tagAsTypeIndex == CfgEncoder.NullTag) return default;
             
-            var type = tps.TryGet(tag.ToIntFromTextSafe(-1));
+            var type = tps.TryGet(tagAsTypeIndex.ToIntFromTextSafe(-1));
             
             if (type != null)
                 return data.DecodeInto_Type<T>(type);
             
-            return tag == CfgDecoder.ListElementTag ? data.DecodeInto_Type<T>(tps[0]) : default;
+            return tagAsTypeIndex == CfgDecoder.ListElementTag ? data.DecodeInto_Type<T>(tps[0]) : default;
         }
         #endregion
 
@@ -483,7 +483,7 @@ namespace QuizCannersUtilities {
             var cody = new CfgDecoder(data);
 
             while (cody.GotData) {
-                cody.GetTag();
+                cody.GetNextTag();
                 List<T> el;
                 cody.GetData().Decode_List(out el);
                 l.Add(el);
@@ -511,7 +511,7 @@ namespace QuizCannersUtilities {
                         var cody = new CfgDecoder(overCody.GetData());
                         if (tps != null)
                             foreach (var t in cody)
-                                l.Add(cody.DecodeData<T>(tps, ld)); 
+                                l.Add(cody.DecodeData<T>(tps, ld)); // Probably something off here (Decoding list of sub nodes)
                         else foreach (var t in cody)
                                 l.Add(cody.GetData().DecodeInto<T>());
                         break;
@@ -713,7 +713,7 @@ namespace QuizCannersUtilities {
             dic = new Dictionary<int, string>();
 
             while (cody.GotData)
-                dic.Add(cody.GetTag().ToInt(), cody.GetData());
+                dic.Add(cody.GetNextTag().ToInt(), cody.GetData());
 
         }
 
@@ -724,7 +724,7 @@ namespace QuizCannersUtilities {
             dic = new Dictionary<string, string>();
 
             while (cody.GotData)
-                dic.Add(cody.GetTag(), cody.GetData());
+                dic.Add(cody.GetNextTag(), cody.GetData());
 
         }
         
@@ -737,7 +737,7 @@ namespace QuizCannersUtilities {
             while (cody.GotData)
             {
                 var val = new T();
-                var tag = cody.GetTag();
+                var tag = cody.GetNextTag();
                 val.Decode(cody.GetData());
                 dic.Add(tag, val);
             }
@@ -820,7 +820,7 @@ namespace QuizCannersUtilities {
 
             var cody = new CfgDecoder(data);
 
-            var type = typeList.TaggedTypes.TryGet(cody.GetTag());
+            var type = typeList.TaggedTypes.TryGet(cody.GetNextTag());
 
             if (type != null)
                 val = cody.GetData().DecodeInto_Type<T>(type);
@@ -981,26 +981,59 @@ namespace QuizCannersUtilities {
            
         }
 
-        public void DecodeTagsFor<T>(ref T std) where T : struct, ICfg
+        private static bool _ignoreErrors;
+
+        public void DecodeTagsIgnoreErrors<T>(T std) where T : class, ICfg
+        {
+            _ignoreErrors = true;
+            try
+            {
+                DecodeTagsFor(std);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(ex);
+            }
+
+            _ignoreErrors = false;
+        }
+
+        public T DecodeTagsFor<T>(T std) where T : class, ICfg
         {
 
             var unrecognizedKeeper = (std as IKeepUnrecognizedCfg)?.UnrecognizedStd;
 
-            if (unrecognizedKeeper == null)
-                foreach (var tag in this)
-                    std.Decode(tag, GetData());
-            else
-                foreach (var tag in this)
+            if (_ignoreErrors)
+            {
+                if (unrecognizedKeeper == null)
+                    foreach (var tag in this)
+                    {
+                        var d = GetData();
+                        try
+                        {
+                            std.Decode(tag, d);
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogError(_data + Environment.NewLine + ex.ToString());
+                        }
+                    }
+                else foreach (var tag in this)
                 {
                     var d = GetData();
-                    if (!std.Decode(tag, d))
-                        unrecognizedKeeper.Add(tag, d);
+                    try
+                    {
+                        if (!std.Decode(tag, d))
+                            unrecognizedKeeper.Add(tag, d);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogError(_data + Environment.NewLine + ex.ToString());
+                    }
                 }
-        }
-
-        public T DecodeTagsFor<T>(T std) where T : class, ICfg {
-
-            var unrecognizedKeeper = (std as IKeepUnrecognizedCfg)?.UnrecognizedStd;
+            }
+            else
+            {
 
                 if (unrecognizedKeeper == null)
                     foreach (var tag in this)
@@ -1008,12 +1041,30 @@ namespace QuizCannersUtilities {
                 else
                     foreach (var tag in this)
                     {
-                        var d = GetData();
+                        var d = GetData(); 
                         if (!std.Decode(tag, d))
                             unrecognizedKeeper.Add(tag, d);
                     }
- 
+            }
+
             return std;
+        }
+        
+        public void DecodeTagsFor<T>(ref T std) where T : struct, ICfg
+        {
+         
+            var unrecognizedKeeper = (std as IKeepUnrecognizedCfg)?.UnrecognizedStd;
+
+            if (unrecognizedKeeper == null)
+                foreach (var tag in this)
+                    std.Decode(tag, GetData());
+            else
+                foreach (var tag in this) {
+                    var d = GetData();
+                    if (!std.Decode(tag, d))
+                        unrecognizedKeeper.Add(tag, d);
+                }
+
         }
 
         private string ToNextSplitter()
@@ -1029,7 +1080,7 @@ namespace QuizCannersUtilities {
 
         public bool GotData => _position < _data.Length; 
 
-        public string GetTag()
+        public string GetNextTag()
         {
 
             if (_position >= _data.Length)
@@ -1037,14 +1088,22 @@ namespace QuizCannersUtilities {
 
             if (_expectingGetData)
             {
-                var hold = ToNextSplitter();
-                Debug.Log("Was expecting Get Data for " + hold);
-                return hold;
+              
+                throw new ArgumentException("Was expecting Get Data");
             }
             
             _expectingGetData = true;
 
-            currentTag = ToNextSplitter();
+            var tag = ToNextSplitter();
+
+            if (tag.Length == 0)
+            {
+                Debug.LogError("Tag was empty after [{1}] tag. Position: {2} Length: {3}  {0} {4}".F(Environment.NewLine, currentTag, _position, _data.Length, _data));
+
+                throw new ArgumentException("Tag length was 0");
+            }
+
+            currentTag = tag;
 
             currentTagIndex++;
 
@@ -1055,35 +1114,53 @@ namespace QuizCannersUtilities {
         {
 
             if (!_expectingGetData)
-                Debug.LogError("Was expecting Get Tag");
-            _expectingGetData = false;
-            
-            var length = int.Parse(ToNextSplitter());
-            
-            var result = _data.Substring(_position, length);
-            
-            _position += length + 1; 
+            {
+                throw new ArgumentException("Was expecting Get Tag");
+            }
 
-            return result;
+            _expectingGetData = false;
+
+            var text = ToNextSplitter();
+
+            try
+            {
+                int length = int.Parse(text);
+
+                var result = _data.Substring(_position, length);
+
+                _position += length + 1;
+
+                return result;
+
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("Couldn't get next splitter section [{0}] of {1}".F(currentTag, _data));
+                throw ex;
+            }
+            
         }
 
-        public string currentTag;
+        public string currentTag { get; private set; }
 
         public int currentTagIndex;
 
         public IEnumerator<string> GetEnumerator()
         {
             currentTagIndex = 0;
-            while (NextTag())
+            while (GotNextTag())
                 yield return currentTag;
         }
 
-        private bool NextTag()
+        private bool GotNextTag()
         {
             if (_expectingGetData)
-                GetData();
-            
-            return GetTag() != null;
+            {
+                throw new ArgumentException("Was expecting Get Tag");
+                //GetData();
+            }
+
+            return GetNextTag() != null;
         }
     }
 

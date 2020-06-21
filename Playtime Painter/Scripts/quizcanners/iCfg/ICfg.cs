@@ -750,27 +750,8 @@ namespace QuizCannersUtilities {
             return cody;
         }
 
-        //public static TaggedTypesCfg GetTaggedTypes_Safe<T>(this T obj) where T : IGotClassTag => obj != null ? obj.AllTypes : typeof(T).TryGetTaggedClasses();
-        
-       /* public static TaggedTypesCfg TryGetTaggedClasses(this Type type)
-        {
-
-            if (!typeof(IGotClassTag).IsAssignableFrom(type)) return null;
-
-            var attrs = type.GetCustomAttributes(typeof(AbstractWithTaggedTypes), true);
-
-            if (!attrs.IsNullOrEmpty()) 
-                return (attrs[0] as AbstractWithTaggedTypes).TaggedTypes;
-            
-            if (Debug.isDebugBuild)
-                Debug.Log("{0} does not have Abstract_WithTaggedTypes Attribute");
-            
-            return null;
-        }*/
-
         public static List<Type> TryGetDerivedClasses (this Type t) => t.TryGetClassAttribute<DerivedListAttribute>()?.derivedTypes.NullIfEmpty();
             
-
         public static string copyBufferValue;
         public static string copyBufferTag;
 
@@ -780,7 +761,7 @@ namespace QuizCannersUtilities {
 
             Object myType = null;
             if (pegi.edit(ref myType)) {
-                txt = QcFile.Load.TryLoadAsTextAsset(myType);
+                txt = QcFile.Load.TryLoadAsTextAsset(myType, useBytes: true);
                 pegi.GameView.ShowNotification("Loaded " + myType.name);
 
                 return true;
@@ -828,13 +809,13 @@ namespace QuizCannersUtilities {
 
         public static ICfg SaveToAssets(this ICfg s, string path, string filename)
         {
-            QcFile.Save.ToAssets(path, filename, s.Encode().ToString());
+            QcFile.Save.ToAssets(path, filename, s.Encode().ToString(), asBytes: true);
             return s;
         }
 
         public static ICfg SaveToPersistentPath(this ICfg s, string path, string filename)
         {
-            QcFile.Save.ToPersistentPath(path, filename, s.Encode().ToString());
+            QcFile.Save.ToPersistentPath(path, filename, s.Encode().ToString(), asBytes: true);
             return s;
         }
 
@@ -851,7 +832,7 @@ namespace QuizCannersUtilities {
 
         public static ICfg SaveToResources(this ICfg s, string resFolderPath, string insideResPath, string filename)
         {
-            QcFile.Save.ToResources(resFolderPath, insideResPath, filename, s.Encode().ToString());
+            QcFile.Save.ToResources(resFolderPath, insideResPath, filename, s.Encode().ToString(), asBytes: true);
             return s;
         }
 
@@ -871,12 +852,20 @@ namespace QuizCannersUtilities {
 
         public static bool TryLoadFromResources<T>(this T s, string subFolder, string file) where T : ICfg
         {
-            var load = QcFile.Load.FromResources(subFolder, file);
+            var load = QcFile.Load.FromResources(subFolder, file, asBytes: true);
 
             if (load == null)
                 return false;
 
-            s.Decode(load);
+            try
+            {
+                s.Decode(load);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError("Couldn't Decode: {0}".F(load) + ex.ToString());
+                return false;
+            }
 
             return true;
         }
@@ -884,7 +873,7 @@ namespace QuizCannersUtilities {
         public static T LoadFromResources<T>(this T s, string subFolder, string file)where T:ICfg, new() {
 			if (s == null)
 				s = new T ();
-			s.Decode(QcFile.Load.FromResources(subFolder, file));
+			s.Decode(QcFile.Load.FromResources(subFolder, file, asBytes: true));
 			return s;
 		}
 

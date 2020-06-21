@@ -8,6 +8,8 @@ using System.Text.RegularExpressions;
 using PlayerAndEditorGUI;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -526,10 +528,17 @@ namespace QuizCannersUtilities
             if (inspectedState == -1)
             {
                 Object myType = null;
+                
                 if ("From File:".edit(65, ref myType))
                 {
                     added = new CfgState();
+
+                    string path = QcFile.Explorer.TryGetFullPathToAsset(myType);
+
+                    Debug.Log(path);
+
                     added.dataExplorer.data = QcFile.Load.TryLoadAsTextAsset(myType);
+
                     added.NameForPEGI = myType.name;
                     added.comment = DateTime.Now.ToString(CultureInfo.InvariantCulture);
                     states.Add(added);
@@ -686,6 +695,12 @@ namespace QuizCannersUtilities
             #endregion
 
             #region Encode & Decode
+
+            public override void Decode(string data)
+            {
+                new CfgDecoder(data).DecodeTagsIgnoreErrors(this);
+            }
+
             public override CfgEncoder Encode()
             {
                 var cody = new CfgEncoder();
@@ -733,9 +748,9 @@ namespace QuizCannersUtilities
                 if (dataExplorer.inspectedTag == -1)
                 {
                     this.inspect_Name();
-                    if (Cfg != null && dataExplorer.tag.Length > 0 && icon.Save.Click("Save To Assets", ref changed))
+                    if (dataExplorer.tag.Length > 0 && icon.Save.Click("Save To Assets", ref changed))
                     {
-                        QcFile.Save.ToAssets(Mgmt.fileFolderHolder, dataExplorer.tag, dataExplorer.data);
+                        QcFile.Save.ToAssets(Mgmt.fileFolderHolder, filename: dataExplorer.tag, data: dataExplorer.data, asBytes: true);
                         QcUnity.RefreshAssetDatabase();
                     }
 
@@ -756,8 +771,10 @@ namespace QuizCannersUtilities
                         uObj.ClickHighlight().nl(ref changed);
                     }
 
-
-                    "Comment:".editBig(ref comment).nl(ref changed);
+                    if ("Description".foldout().nl())
+                    {
+                        pegi.editBig(ref comment).nl(ref changed);
+                    }
                 }
 
                 dataExplorer.Nested_Inspect().changes(ref changed);
@@ -769,6 +786,9 @@ namespace QuizCannersUtilities
             {
                 var changed = false;
 
+                if (dataExplorer.data != null && icon.Copy.Click())
+                    pegi.SetCopyPasteBuffer(dataExplorer.data);
+                
                 CountForInspector().ToString().edit(60, ref dataExplorer.tag).changes(ref changed);
 
                 if (Cfg != null)

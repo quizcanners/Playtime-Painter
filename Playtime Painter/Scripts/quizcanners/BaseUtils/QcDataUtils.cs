@@ -4,6 +4,7 @@ using System.IO;
 using PlayerAndEditorGUI;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using System.Runtime.Serialization.Formatters.Binary;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -17,11 +18,15 @@ namespace QuizCannersUtilities
 
     public static class QcFile
     {
+        private static readonly BinaryFormatter Formatter = new BinaryFormatter();
+
 
         public static readonly string OutsideOfAssetsFolder =
             Application.dataPath.Substring(0, Application.dataPath.Length - 6);
         
         private const string textFileType = ".txt";
+
+        private const string bytesFileType = ".bytes";
 
         public static class Explorer
         {
@@ -80,6 +85,17 @@ namespace QuizCannersUtilities
                 EditorUtility.RevealInFinder(path);
 #else
                  System.Diagnostics.Process.Start(path.TrimEnd(new[] { '\\', '/' }));
+#endif
+            }
+
+            public static string TryGetFullPathToAsset(Object o)
+            {
+#if UNITY_EDITOR
+                var dest = AssetDatabase.GetAssetPath(o).Replace("Assets", "");
+
+                return Application.dataPath + dest;
+#else
+                return null;
 #endif
             }
         }
@@ -152,9 +168,8 @@ namespace QuizCannersUtilities
 
         public static class Load
         {
-            //private static readonly BinaryFormatter Formatter = new BinaryFormatter();
-
-            public static string FromResources(string insideResourceFolder, string name)
+         
+            public static string FromResources(string insideResourceFolder, string name, bool asBytes = false)
             {
                 var resourcePathAndName = insideResourceFolder + (insideResourceFolder.Length > 0 ? "/" : "") + name;
 
@@ -165,22 +180,40 @@ namespace QuizCannersUtilities
                     if (!asset)
                         return null;
 
+                    if (asBytes)
+                    {
+                        Stream stream = new MemoryStream(asset.bytes);
+                        return Formatter.Deserialize(stream) as string;
+                    }
+
                     return asset.text;
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogError(ex);
                 }
                 finally
                 {
                     Resources.UnloadAsset(asset);
                 }
+
+                return null;
             }
 
-            public static string TryLoadAsTextAsset(Object o)
+            public static string TryLoadAsTextAsset(Object o, bool useBytes = false)
             {
+                var asset = o as TextAsset;
+                if (asset)
+                {
+                    if (useBytes)
+                    {
+                        Stream stream = new MemoryStream(asset.bytes);
+                        return Formatter.Deserialize(stream) as string;
+                    }
+                    return asset.text;
+                }
 
-                var ta = o as TextAsset;
-                if (ta)
-                    return ta.text;
-
-#if UNITY_EDITOR
+            #if UNITY_EDITOR
 
                 var path = AssetDatabase.GetAssetPath(o);
                 
@@ -189,25 +222,35 @@ namespace QuizCannersUtilities
                 var subpath = Application.dataPath;
                 path = subpath.Substring(0, subpath.Length - 6) + path;
 
-                return Internal(path);
-#else
-            return null;
-#endif
+                return InternalAsString(path, useBytes);
+
+            #else
+                return null;
+            #endif
             }
 
-            public static string FromPersistentPath(string subPath, string filename) => 
-                FromPersistentPath(subPath: subPath, filename: filename, extension: textFileType);
-            
-            public static string FromPersistentPath(string subPath, string filename, string extension)
+            public static string FromPersistentPath(string subPath, string filename, bool asBytes = false)
             {
-                var filePath = PersistentPath(subPath: subPath, fileName: filename, extension: extension);
-                return File.Exists(filePath) ? File.ReadAllText(filePath) : null;
+                string extension = asBytes ? bytesFileType : textFileType;
+
+                var fullPath = PersistentPath(subPath: subPath, fileName: filename, extension: extension);
+
+                if (!File.Exists(fullPath))
+                    return null;
+
+                if (asBytes)
+                {
+                    using (var file = File.Open(fullPath, FileMode.Open))
+                        return (string)Formatter.Deserialize(file);
+                }
+
+                return File.ReadAllText(fullPath);
             }
 
             private static string PersistentPath(string subPath, string fileName, string extension)
                 => Path.Combine(Application.persistentDataPath, subPath, fileName + extension);
-
-            private static string Internal(string fullPath)
+            
+            private static string InternalAsString(string fullPath, bool asBytes)
             {
                 if (!File.Exists(fullPath))
                     return null;
@@ -216,16 +259,21 @@ namespace QuizCannersUtilities
 
                 try
                 {
-                    StreamReader reader = new StreamReader(fullPath);
-                    var str = reader.ReadToEnd();
-                    reader.Close();
-                    return str;
-                    //  using (var file = File.Open(fullPath, FileMode.Open))
-                    //  data = (string) Formatter.Deserialize(file);
+                    if (asBytes)
+                    {
+                         using (var file = File.Open(fullPath, FileMode.Open))
+                         data = (string) Formatter.Deserialize(file);
+                    }
+                    else
+                    {
+                        StreamReader reader = new StreamReader(fullPath);
+                        data = reader.ReadToEnd();
+                        reader.Close();
+                    }
                 }
                 catch (Exception ex)
                 {
-                    UnityEngine.Debug.Log(fullPath + " not loaded " + ex);
+                    Debug.Log(fullPath + " not loaded " + ex);
                 }
 
                 return data;
@@ -233,8 +281,6 @@ namespace QuizCannersUtilities
         }
 
         public static class Save {
-            
-            //private static readonly BinaryFormatter Formatter = new BinaryFormatter();
 
             #region Unity Assets
 
@@ -262,25 +308,36 @@ namespace QuizCannersUtilities
 
             #region Write All Text
 
-            public static void ToResources(string resFolderPath, string insideResPath, string filename, string data) =>
-                ToAssets(Path.Combine(resFolderPath, "Resources", insideResPath), filename, data);
+            public static void ToResources(string resFolderPath, string insideResPath, string filename, string data, bool asBytes = false) =>
+                ToAssets(Path.Combine(resFolderPath, "Resources", insideResPath), filename, data, asBytes: asBytes);
 
-            public static void ToAssets(string path, string filename, string data) =>
-                ByFullPath(Path.Combine(Application.dataPath, path), filename, data, extension: textFileType);
+            public static void ToAssets(string path, string filename, string data, bool asBytes = false) =>
+                ByFullPath(Path.Combine(Application.dataPath, path), filename, data, asBytes: asBytes);
 
-            private static void ByFullPath(string fullDirectoryPath, string filename, string data, string extension)
+            private static void ByFullPath(string fullDirectoryPath, string filename, string data, bool asBytes)
             {
-                File.WriteAllText(CreateDirectoryPath(fullDirectoryPath, filename, extension), data);
+                string extension = asBytes ? bytesFileType : textFileType;
 
-                //using (var file = File.Create(FullPath(fullDirectoryPath, filename, extension)))
-                //  Formatter.Serialize(file, data);
+                string fullPath = CreateDirectoryPath(fullDirectoryPath, filename, extension);
+
+                if (asBytes)
+                {
+                    using (var file = File.Create(fullPath))
+                        Formatter.Serialize(file, data);
+                }
+                else
+                {
+                    File.WriteAllText(fullPath, data);
+                }
+
             }
+            
+            public static void ToPersistentPath(string subPath, string filename, string data, bool asBytes = false)
+            {
+                string extension = asBytes ? bytesFileType : textFileType;
 
-            public static void ToPersistentPath(string subPath, string filename, string data) => 
-                ToPersistentPath(subPath: subPath, filename: filename, data: data, extension: textFileType); 
-
-            public static void ToPersistentPath(string subPath, string filename, string data, string extension) =>
-                File.WriteAllText(CreateDirectoryPath(Application.persistentDataPath, subPath, filename, extension), data);
+                File.WriteAllText(CreateDirectoryPath(Application.persistentDataPath, subPath, filename, extension),data);
+            }
 
             #endregion
 

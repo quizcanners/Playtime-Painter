@@ -3800,9 +3800,10 @@ namespace PlayerAndEditorGUI
                 label = "";
                 return false;
             }
-
-            write("String is too long {0}".F(label.Substring(0, 10)));
-
+            
+            if ("String is too long: {0} COPY".F(label.Substring(0, 10)).Click())
+                SetCopyPasteBuffer(label);
+            
             return true;
         }
 
