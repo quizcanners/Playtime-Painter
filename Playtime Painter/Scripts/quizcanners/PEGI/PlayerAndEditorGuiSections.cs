@@ -175,7 +175,6 @@ namespace PlayerAndEditorGUI
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
                 return ef.foldout(txt);
-
 #endif
 
             foldout(txt, ref selectedFold, _elementIndex);
@@ -185,6 +184,42 @@ namespace PlayerAndEditorGUI
             return ef.isFoldedOutOrEntered;
 
 
+        }
+
+        public static bool conditional_foldout(this string label, bool canEnter, ref int enteredOne, int thisOne)
+        {
+            if (!canEnter && enteredOne == thisOne)
+            {
+                if ("Exit {0} Inspector".F(label).Click()) 
+                    enteredOne = -1;
+            }
+            else
+            {
+                if (canEnter)
+                    label.foldout(ref enteredOne, thisOne);
+                else
+                    ef.isFoldedOutOrEntered = false;
+            }
+
+            return ef.isFoldedOutOrEntered;
+        }
+
+        public static bool conditional_foldout(this string label, bool canEnter, ref bool entered)
+        {
+            if (!canEnter && entered)
+            {
+                if ("Exit {0} Inspector".F(label).Click())
+                    entered = false;
+            }
+            else
+            {
+                if (canEnter)
+                    label.foldout(ref entered);
+                else
+                    ef.isFoldedOutOrEntered = false;
+            }
+
+            return ef.isFoldedOutOrEntered;
         }
 
         public static void foldIn() => selectedFold = -1;

@@ -821,7 +821,7 @@ namespace QuizCannersUtilities
     {
         private string jsonDestination = "";
 
-        protected JsonBase json;
+        protected JsonBase rootJson;
 
         protected static void TryDecode(ref JsonBase j) {
             if (!(j is JsonString str)) return;
@@ -1376,9 +1376,9 @@ namespace QuizCannersUtilities
             public abstract bool Inspect();
         }
         
-        public EncodedJsonInspector() { json = new JsonString(); }
+        public EncodedJsonInspector() { rootJson = new JsonString(); }
 
-        public EncodedJsonInspector(string data) { json = new JsonString(data); }
+        public EncodedJsonInspector(string data) { rootJson = new JsonString(data); }
 
         public bool triedToDecodeAll;
 
@@ -1386,31 +1386,31 @@ namespace QuizCannersUtilities
 
             triedToDecodeAll = true;
 
-            var str = json.AsJsonString;
+            var rootAsString = rootJson.AsJsonString;
 
-            if (str != null)
+            if (rootAsString != null && !rootAsString.data.IsNullOrEmpty())
             {
 
-                str.dataOnly = false;
+                rootAsString.dataOnly = false;
 
                 var sb = new StringBuilder();
 
                 int index = 0;
 
-                while (index < str.data.Length && (str.data[index] != '{'))
+                while (index < rootAsString.data.Length && rootAsString.data[index] != '{' && rootAsString.data[index] != '[')
                 {
-                    sb.Append(str.data[index]);
+                    sb.Append(rootAsString.data[index]);
                     index++;
                 }
 
                 jsonDestination = sb.ToString();
 
-                str.data = str.data.Substring(index);
+                rootAsString.data = rootAsString.data.Substring(index);
             }
 
           
 
-            do { } while (json.DecodeAll(ref json));
+            do { } while (rootJson.DecodeAll(ref rootJson));
         }
 
         public bool Inspect()
@@ -1420,7 +1420,7 @@ namespace QuizCannersUtilities
 
             if (icon.Delete.Click()) {
                 triedToDecodeAll = false;
-                json = new JsonString();
+                rootJson = new JsonString();
                 jsonDestination = "";
             }
 
@@ -1432,15 +1432,15 @@ namespace QuizCannersUtilities
 
             pegi.nl();
 
-            return DecodeOrInspectJson(ref json, true);
+            return DecodeOrInspectJson(ref rootJson, true);
         }
 
 
-        public override CfgEncoder Encode() => new CfgEncoder().Add("j", json);
+        public override CfgEncoder Encode() => new CfgEncoder().Add("j", rootJson);
         
         public override bool Decode(string tg, string data)  {
             switch (tg)  {
-                case "j": json.Decode(data); break;
+                case "j": rootJson.Decode(data); break;
                 default: return false;
             }
 

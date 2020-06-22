@@ -5,7 +5,11 @@ using System.Xml;
 
 namespace PlayerAndEditorGUI.Examples
 {
-    public abstract class PegiSmartID<T> : IPEGI_ListInspect, IPEGI where T: IGotIndex
+
+#pragma warning disable IDE0018 // Inline variable declaration
+#pragma warning disable IDE0034 // Simplify 'default' expression
+
+    public abstract class PegiSmartID<T> : IPEGI_ListInspect, IPEGI, IGotDisplayName where T: IGotIndex
     {
         public int id;
 
@@ -57,6 +61,12 @@ namespace PlayerAndEditorGUI.Examples
                 edited = ind;
 
             return changed;
+        }
+
+        public virtual string NameForDisplayPEGI()
+        {
+            T ent;
+            return TryGetEntity(out ent) ? ent.GetNameForInspector() : "Id: {0} NOT FOUND".F(id);
         }
     }
 }

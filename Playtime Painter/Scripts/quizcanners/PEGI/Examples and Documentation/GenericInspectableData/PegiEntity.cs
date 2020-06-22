@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace PlayerAndEditorGUI.Examples
 {
-    public abstract class PegiEntity : IGotIndex, IGotName, IPEGI_ListInspect, IGotDisplayName
+    public abstract class PegiEntity : IGotIndex, IGotName, IPEGI_ListInspect
     {
         public abstract int IndexForPEGI { get; set; }
 
@@ -30,7 +30,5 @@ namespace PlayerAndEditorGUI.Examples
             
             return changed;
         }
-
-        public virtual string NameForDisplayPEGI() => "{0}: {1}".F(IndexForPEGI, NameForPEGI);
     }
 }

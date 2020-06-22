@@ -31,6 +31,8 @@ namespace QuizCannersUtilities
 
         [NonSerialized] public string jsonText;
 
+        [NonSerialized] private EncodedJsonInspector jsonInspector;
+
         public void To<K,V>(Dictionary<K, V> dic, Func<V,K> keyFactory)
         {
             var tmpList = JsonConvert.DeserializeObject<List<V>>(jsonText);
@@ -48,84 +50,89 @@ namespace QuizCannersUtilities
             list.Clear();
             list.AddRange(tmpList);
         }
-        
+
+        private int _inspectedStuff = -1;
+
         public bool Inspect()
         {
             var changed = false;
 
             pegi.nl();
-
-            "Sheet URL (to Edit))".edit(ref editUrl).changes(ref changed);
-            if ("Open".Click())
-                Application.OpenURL(editUrl);
-
-            pegi.nl();
-
-            "Published CSV Urls (to download)".edit(ref url).changes(ref changed);
-
-            pegi.FullWindowService.fullWindowDocumentationClickOpen(() => "GoogleSheet->File->Publish To Web-> Publish... Copy link for .csv document");
-
-            pegi.nl();
-
-            if (url != null)
+            
+            if (_inspectedStuff == -1)
             {
-                var ind = url.LastIndexOf("pub?");
-                if ((ind> 10 && ind<url.Length - 4) && "Clear Url Ending".Click().nl())
+                if (request == null)
                 {
-                    url = url.Substring(startIndex: 0, length: ind + 4);
-                }
-            }
-
-
-            "gid".edit(ref pageIndex).nl();
-
-            if (request == null)
-            {
-                if ("Download".Click().nl())
-                {
-                    jsonText = null;
-
-                    request = UnityWebRequest.Get("{0}gid={1}&single=true&output=csv".F(url, pageIndex.ToString()));
-
-                    request.SendWebRequest();
-                }
-            }
-            else
-            {
-                if (request.isDone)
-                {
-                    "Download finished".nl();
-                    
-                    if ("Read".Click().nl())
+                    if ("Download".Click().nl())
                     {
-                        reader = new CsvReader(request);
-                       
-                        jsonText = ToJson(reader);
+                        jsonText = null;
 
-                        request = null;
+                        request = UnityWebRequest.Get("{0}gid={1}&single=true&output=csv".F(url, pageIndex.ToString()));
+
+                        request.SendWebRequest();
                     }
                 }
                 else
                 {
-                    "Thread state: ".F(Mathf.FloorToInt(request.downloadProgress * 100).ToString()).nl();
+                    if (request.isDone)
+                    {
+                        "Download finished".nl();
 
-                    if ("Cancel Trhread".Click().nl())
-                        request.Dispose();
+                        if ("Read".Click().nl())
+                        {
+                            reader = new CsvReader(request);
 
+                            jsonText = ToJson(reader);
+
+                            jsonInspector = new EncodedJsonInspector(jsonText);
+
+                            request = null;
+                        }
+                    }
+                    else
+                    {
+                        "Thread state: ".F(Mathf.FloorToInt(request.downloadProgress * 100).ToString()).nl();
+
+                        if ("Cancel Trhread".Click().nl())
+                            request.Dispose();
+
+                    }
                 }
             }
+            
+            pegi.nl();
 
-            if (reader != null && "Columns".foldout().nl())
-                "Columns".write_List(reader.columns);
-
-            if (jsonText.IsNullOrEmpty() == false)
+            if ("Source".foldout(ref _inspectedStuff, 0).nl())
             {
-                if (icon.Clear.Click())
-                    jsonText = null;
-                else 
-                    "json".writeBig(60, contents: jsonText);
-            }
+                "Sheet URL (to Edit))".edit(ref editUrl).changes(ref changed);
 
+                if (_inspectedStuff < 1 && "Open".Click())
+                    Application.OpenURL(editUrl);
+
+                pegi.nl();
+
+                "Published CSV Urls (to download)".edit(ref url).changes(ref changed);
+
+                pegi.FullWindowService.fullWindowDocumentationClickOpen(() =>
+                    "GoogleSheet->File->Publish To Web-> Publish... Copy link for .csv document");
+
+                pegi.nl();
+
+                if (url != null)
+                {
+                    var ind = url.LastIndexOf("pub?");
+                    if ((ind > 10 && ind < url.Length - 4) && "Clear Url Ending".Click().nl())
+                    {
+                        url = url.Substring(startIndex: 0, length: ind + 4);
+                    }
+                }
+
+                "gid".edit(50, ref pageIndex).nl();
+            }
+            
+            if ("Json".conditional_foldout(jsonInspector != null, ref _inspectedStuff, 1).nl())
+                jsonInspector.Nested_Inspect().nl(ref changed);
+            
             return changed;
         }
         

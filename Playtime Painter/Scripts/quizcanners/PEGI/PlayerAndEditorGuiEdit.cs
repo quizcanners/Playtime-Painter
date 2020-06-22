@@ -143,7 +143,7 @@ namespace PlayerAndEditorGUI
         public static bool selectPow2(ref int current, int min, int max)
         {
 
-            List<int> tmp = new List<int>();
+            List<int> tmp = new List<int>(4);
 
             min = Mathf.NextPowerOfTwo(min);
 
@@ -230,7 +230,7 @@ namespace PlayerAndEditorGUI
 
             checkLine();
 
-            var lnms = new List<string>();
+            var lnms = new List<string>(arr.Length + 1);
 
             int tmp = -1;
 
@@ -292,7 +292,7 @@ namespace PlayerAndEditorGUI
         public static bool select<T>(ref int no, List<T> from) where T : IGotName
         {
 
-            var lst = new List<string>();
+            var lst = new List<string>(from.Count + 1);
 
             foreach (var e in from)
                 lst.Add(e.GetNameForInspector());
@@ -425,11 +425,12 @@ namespace PlayerAndEditorGUI
                 return false;
             }
 
-            List<string> names = new List<string>();
-
+           
             Sprite[] sprites = new Sprite[atlas.spriteCount];
 
             atlas.GetSprites(sprites);
+
+            List<string> names = new List<string>(atlas.spriteCount + 1);
 
             foreach (var sp in sprites)
             {
@@ -448,8 +449,8 @@ namespace PlayerAndEditorGUI
 
         public static bool select(ref SortingLayer sortingLayer)
         {
-            var indexes = new List<int>();
-            var values = new List<string>();
+            var indexes = new List<int>(SortingLayer.layers.Length + 1);
+            var values = new List<string>(SortingLayer.layers.Length + 1);
 
             int selected = -1;
 
@@ -548,8 +549,8 @@ namespace PlayerAndEditorGUI
 
             checkLine();
 
-            var tnames = new List<string>();
-            var tnumbers = new List<int>();
+            var tnames = new List<string>(tex.Length + 1);
+            var tnumbers = new List<int>(tex.Length + 1);
 
             var curno = 0;
             for (var i = 0; i < tex.Length; i++)
@@ -620,8 +621,8 @@ namespace PlayerAndEditorGUI
         {
             checkLine();
 
-            var namesList = new List<string>();
-            var indexList = new List<int>();
+            var namesList = new List<string>(lst.Length + 1);
+            var indexList = new List<int>(lst.Length + 1);
 
             var current = -1;
 
@@ -653,8 +654,8 @@ namespace PlayerAndEditorGUI
 
             checkLine();
 
-            var names = new List<string>();
-            var indexes = new List<int>();
+            var names = new List<string>(lst.Count + 1);
+            var indexes = new List<int>(lst.Count + 1);
 
             var currentIndex = -1;
 
@@ -704,8 +705,8 @@ namespace PlayerAndEditorGUI
 
             checkLine();
 
-            var namesList = new List<string>();
-            var indexList = new List<int>();
+            var namesList = new List<string>(lst.Count + 1);
+            var indexList = new List<int>(lst.Count + 1);
 
             var current = -1;
 
@@ -796,8 +797,8 @@ namespace PlayerAndEditorGUI
 
             checkLine();
 
-            var namesList = new List<string>();
-            var indexes = new List<int>();
+            var namesList = new List<string>(lst.Count + 1);
+            var indexes = new List<int>(lst.Count + 1);
 
             var current = -1;
 
@@ -825,7 +826,7 @@ namespace PlayerAndEditorGUI
 
             checkLine();
 
-            var lnms = new List<string>();
+            var lnms = new List<string>(arr.Length + 1);
 
             if (arr.ClampIndexToCount(ref ind))
             {
@@ -882,8 +883,8 @@ namespace PlayerAndEditorGUI
 
             checkLine();
 
-            var names = new List<string>();
-            var indexes = new List<int>();
+            var names = new List<string>(lst.Count + 1);
+            var indexes = new List<int>(lst.Count + 1);
 
             var current = -1;
 
@@ -915,8 +916,8 @@ namespace PlayerAndEditorGUI
 
             checkLine();
 
-            var namesList = new List<string>();
-            var indexList = new List<int>();
+            var namesList = new List<string>(lst.Count + 1);
+            var indexList = new List<int>(lst.Count + 1);
 
             var current = -1;
 
@@ -964,7 +965,7 @@ namespace PlayerAndEditorGUI
 
             List<int> inds;
             var objs = tree.GetAllObjs(out inds);
-            var filtered = new List<string>();
+            var filtered = new List<string>(objs.Count + 1);
             var tmpindex = -1;
             for (var i = 0; i < objs.Count; i++)
             {
@@ -1007,7 +1008,7 @@ namespace PlayerAndEditorGUI
 
             List<int> inds;
             var objs = tree.GetAllObjs(out inds);
-            var filtered = new List<string>();
+            var filtered = new List<string>(objs.Count + 1);
             var tmpindex = -1;
             for (var i = 0; i < objs.Count; i++)
             {
@@ -1033,9 +1034,9 @@ namespace PlayerAndEditorGUI
 #endif
 
             List<int> unfinds;
-            var indexes = new List<int>();
             var objects = tree.GetAllObjs(out unfinds);
-            var namesList = new List<string>();
+            var indexes = new List<int>(objects.Count + 1);
+            var namesList = new List<string>(objects.Count + 1);
             var current = -1;
             var j = 0;
             for (var i = 0; i < objects.Count; i++)
@@ -1079,140 +1080,19 @@ namespace PlayerAndEditorGUI
 
         #endregion
 
-        #region Enum
-        public static bool selectEnum<T>(ref int current) => selectEnum(ref current, typeof(T));
-
-        public static bool selectEnum<T>(this string label, int width, ref int current, List<int> options)
-        {
-            label.write(width);
-            return selectEnum<T>(ref current, options);
-        }
-
-        public static bool selectEnum<T>(ref int eval, List<int> options, int width = -1) =>
-            selectEnum(ref eval, typeof(T), options, width);
-
-        public static bool selectEnum<T>(ref T eval, List<int> options, int width = -1)
-        {
-            var val = Convert.ToInt32(eval);
-
-            if (selectEnum(ref val, typeof(T), options, width))
-            {
-                eval = (T)((object)val);
-                return true;
-            }
-
-            return false;
-        }
-
-        public static bool selectEnum(ref int current, Type type, int width = -1)
-        {
-            checkLine();
-            var tmpVal = -1;
-
-            var names = Enum.GetNames(type);
-            var val = (int[])Enum.GetValues(type);
-
-            for (var i = 0; i < val.Length; i++)
-                if (val[i] == current)
-                    tmpVal = i;
-
-            if (!select(ref tmpVal, names, width)) return false;
-
-            current = val[tmpVal];
-            return true;
-        }
-
-        public static bool selectEnumFlags(ref int current, Type type, int width = -1)
-        {
-
-            checkLine();
-
-            var names = Enum.GetNames(type);
-            var values = (int[])Enum.GetValues(type);
-
-            Countless<string> sortedNames = new Countless<string>();
-
-            int currentPower = 0;
-
-            int toPow = 1;
-
-            for (var i = 0; i < values.Length; i++)
-            {
-                var val = values[i];
-                while (val > toPow)
-                {
-                    currentPower++;
-                    toPow = (int)Mathf.Pow(2, currentPower);
-                }
-
-                if (val == toPow)
-                    sortedNames[currentPower] = names[i];
-            }
-
-            string[] snms = new string[currentPower + 1];
-
-            for (int i = 0; i <= currentPower; i++)
-                snms[i] = sortedNames[i];
-
-            return selectFlags(ref current, snms, width);
-        }
-
-        public static bool selectEnum(ref int current, Type type, List<int> options, int width = -1)
-        {
-            checkLine();
-            var tmpVal = -1;
-
-            List<string> names = new List<string>();
-
-            for (var i = 0; i < options.Count; i++)
-            {
-                var op = options[i];
-                names.Add(Enum.GetName(type, op));
-                if (options[i] == current)
-                    tmpVal = i;
-            }
-
-            if (width == -1 ? select(ref tmpVal, names) : select_Index(ref tmpVal, names, width))
-            {
-                current = options[tmpVal];
-                return true;
-            }
-
-            return false;
-        }
-
-
-        public static bool selectEnum<T>(this string text, string tip, int width, ref int eval)
-        {
-            write(text, tip, width);
-            return selectEnum<T>(ref eval);
-        }
-
-        public static bool selectEnum<T>(this string text, int width, ref int eval)
-        {
-            write(text, width);
-            return selectEnum<T>(ref eval);
-        }
-
-        public static bool selectEnum<T>(this string text, ref int eval)
-        {
-            write(text);
-            return selectEnum<T>(ref eval);
-        }
-        #endregion
-
         #region Select Type
 
         public static bool select(ref Type val, List<Type> lst, string textForCurrent, bool showIndex = false, bool stripSlashes = false, bool dotsToSlashes = true)
         {
             checkLine();
 
-            var names = new List<string>();
-            var indexes = new List<int>();
+            var count = lst.Count;
+            var names = new List<string>(count + 1);
+            var indexes = new List<int>(count + 1);
 
             var current = -1;
 
-            for (var j = 0; j < lst.Count; j++)
+            for (var j = 0; j < count; j++)
             {
                 var tmp = lst[j];
                 if (tmp.IsDefaultOrNull()) continue;
@@ -1300,7 +1180,8 @@ namespace PlayerAndEditorGUI
         #endregion
 
         #region Dictionary
-        public static bool select<G, T>(ref T val, Dictionary<G, T> dic, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true) => select(ref val, new List<T>(dic.Values), showIndex, stripSlashes, allowInsert);
+        public static bool select<G, T>(ref T val, Dictionary<G, T> dic, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true) 
+            => select(ref val, new List<T>(dic.Values), showIndex, stripSlashes, allowInsert);
 
         public static bool select(ref int current, Dictionary<int, string> from)
         {
@@ -1376,7 +1257,7 @@ namespace PlayerAndEditorGUI
 
             checkLine();
 
-            var namesList = new List<string>();
+            var namesList = new List<string>(from.Count + 1);
            // var indexes = new List<int>();
 
             int elementIndex = -1;
@@ -1586,8 +1467,8 @@ namespace PlayerAndEditorGUI
                 return edit(ref ind);
             }
 
-            var names = new List<string>();
-            var indexes = new List<int>();
+            var names = new List<string>(lst.Count + 1);
+            var indexes = new List<int>(lst.Count + 1);
 
             var current = -1;
 
@@ -1617,8 +1498,8 @@ namespace PlayerAndEditorGUI
 
             checkLine();
 
-            var names = new List<string>();
-            var indexes = new List<int>();
+            var names = new List<string>(lst.Count + 1);
+            var indexes = new List<int>(lst.Count + 1);
 
             var current = -1;
 
@@ -1682,9 +1563,11 @@ namespace PlayerAndEditorGUI
             if (lst == null)
                 return false;
 
-            var names = new List<string>();
-            var indexes = new List<int>();
-            var els = new List<G>();
+            var count = lst.Count;
+
+            var names = new List<string>(count + 1);
+            var indexes = new List<int>(count + 1);
+            var els = new List<G>(count + 1);
             var current = -1;
 
             foreach (var el in lst)
@@ -1768,7 +1651,7 @@ namespace PlayerAndEditorGUI
             if (lst == null)
                 return false;
 
-            var namesList = new List<string>();
+            var namesList = new List<string>(lst.Count + 1);
 
             var current = -1;
 
@@ -1800,7 +1683,7 @@ namespace PlayerAndEditorGUI
             if (lst == null)
                 return false;
 
-            var namesList = new List<string>();
+            var namesList = new List<string>(lst.Count + 1);
 
             var current = -1;
 
@@ -2341,37 +2224,31 @@ namespace PlayerAndEditorGUI
             {
                 var pgi = QcUnity.TryGet_fromObj<IPEGI>(obj);
 
-                if (pegi.conditional_enter(pgi != null, ref entered, current, label))
+                if (conditional_enter(pgi != null, ref entered, current, label))
                     pgi.Nested_Inspect().changes(ref changed);
             }
 
             if (entered == -1)
             {
-
                 if (selectFrom == null)
                 {
-
-                    string lab = label;
-
-                    if (lab.IsNullOrEmpty())
+                    if (label.IsNullOrEmpty())
                     {
-
                         if (obj)
-                            lab = obj.GetNameForInspector();
+                            label = obj.GetNameForInspector();
                         else
-                            lab = typeof(T).ToPegiStringType();
+                            label = typeof(T).ToPegiStringType();
                     }
 
-                    lab = lab.TryAddCount(obj);
+                    label = label.TryAddCount(obj);
 
                     if (width > 0)
                     {
-
-                        if (lab.ClickLabel(Msg.ClickToInspect.GetText(), width, EnterLabel))
+                        if (label.ClickLabel(Msg.ClickToInspect.GetText(), width, EnterLabel))
                             entered = current;
                     }
                     else
-                    if (lab.ClickLabel(Msg.ClickToInspect.GetText(), style: EnterLabel))
+                    if (label.ClickLabel(Msg.ClickToInspect.GetText(), style: EnterLabel))
                         entered = current;
 
                     if (!obj)
@@ -3199,6 +3076,23 @@ namespace PlayerAndEditorGUI
             return edit(ref val, valueWidth);
         }
 
+        public static bool edit_Range(this string label, ref int from, ref int to) => label.edit_Range(ApproximateLength(label), ref from, ref to);
+
+        public static bool edit_Range(this string label, int width, ref int from, ref int to)
+        {
+            write(label, width);
+            var changed = false;
+            if (editDelayed(ref from).changes(ref changed))
+                to = Mathf.Max(from, to);
+
+            write("-", 10);
+
+            if (editDelayed(ref to).changes(ref changed))
+                from = Mathf.Min(from, to);
+
+            return changed;
+        }
+
         #endregion
 
         #region Long
@@ -3423,15 +3317,14 @@ namespace PlayerAndEditorGUI
         {
             write(label, width);
             var changed = false;
-            if (edit(ref from).changes(ref changed))
+            if (editDelayed(ref from).changes(ref changed))
                 to = Mathf.Max(from, to);
 
             write("-", 10);
 
-            if (edit(ref to).changes(ref changed))
+            if (editDelayed(ref to).changes(ref changed))
                 from = Mathf.Min(from, to);
-
-
+            
             return changed;
         }
 
@@ -3611,29 +3504,41 @@ namespace PlayerAndEditorGUI
 
         #region Enum
 
-        public static bool editEnum<T>(this string text, string tip, int width, ref object eval)
-        {
-            write(text, tip, width);
-            return editEnum(ref eval);
-        }
-
         public static bool editEnum<T>(this string text, int width, ref T eval)
         {
             write(text, width);
             return editEnum(ref eval);
         }
 
-        public static bool editEnum<T>(this string text, ref T eval)
+        public static bool editEnum<T>(this string text, ref T value)
         {
             write(text);
-            return editEnum(ref eval);
+            return editEnum(ref value);
+        }
+
+        public static bool editEnum<T>(this string label, ref T value, List<int> options)
+        {
+            label.write();
+            return editEnum(ref value, options);
+        }
+
+        public static bool editEnum<T>(this string label, int width, ref T value, List<int> options)
+        {
+            label.write(width);
+            return editEnum(ref value, options);
+        }
+
+        public static bool editEnum<T>(this string label, int width, ref int current, List<int> options)
+        {
+            label.write(width);
+            return editEnum<T>(ref current, options);
         }
 
         public static bool editEnum<T>(ref T eval, int width = -1)
         {
             var val = Convert.ToInt32(eval);
 
-            if (selectEnum(ref val, typeof(T), width))
+            if (editEnum(ref val, typeof(T), width))
             {
                 eval = (T)((object)val);
                 return true;
@@ -3641,7 +3546,68 @@ namespace PlayerAndEditorGUI
 
             return false;
         }
+        
+        private static bool editEnum(ref int current, Type type, int width = -1)
+        {
+            checkLine();
+            var tmpVal = -1;
 
+            var names = Enum.GetNames(type);
+            var val = (int[])Enum.GetValues(type);
+
+            for (var i = 0; i < val.Length; i++)
+                if (val[i] == current)
+                    tmpVal = i;
+
+            if (!select(ref tmpVal, names, width)) return false;
+
+            current = val[tmpVal];
+            return true;
+        }
+        
+        private static bool editEnum<T>(ref int eval, List<int> options, int width = -1) 
+            => editEnum(ref eval, typeof(T), options, width);
+
+        private static bool editEnum<T>(ref T eval, List<int> options, int width = -1)
+        {
+            var val = Convert.ToInt32(eval);
+
+            if (editEnum(ref val, typeof(T), options, width))
+            {
+                eval = (T)((object)val);
+                return true;
+            }
+
+            return false;
+        }
+        
+        private static bool editEnum(ref int current, Type type, List<int> options, int width = -1)
+        {
+            checkLine();
+            var tmpVal = -1;
+
+            List<string> names = new List<string>(options.Count + 1);
+
+            for (var i = 0; i < options.Count; i++)
+            {
+                var op = options[i];
+                names.Add(Enum.GetName(type, op));
+                if (options[i] == current)
+                    tmpVal = i;
+            }
+
+            if (width == -1 ? select(ref tmpVal, names) : select_Index(ref tmpVal, names, width))
+            {
+                current = options[tmpVal];
+                return true;
+            }
+
+            return false;
+        }
+        
+        #endregion
+
+        #region Enum Flags
         public static bool editEnumFlags<T>(this string text, string tip, int width, ref T eval)
         {
             write(text, tip, width);
@@ -3664,7 +3630,7 @@ namespace PlayerAndEditorGUI
         {
             var val = Convert.ToInt32(eval);
 
-            if (selectEnumFlags(ref val, typeof(T), width))
+            if (editEnumFlags(ref val, typeof(T), width))
             {
                 eval = (T)((object)val);
                 return true;
@@ -3673,29 +3639,40 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
-        public static bool editEnum(ref int current, Type type, int width = -1)
-                => selectEnum(ref current, type, width);
-
-        public static bool editEnum<T>(this string text, string tip, int width, ref int eval)
+        private static bool editEnumFlags(ref int current, Type type, int width = -1)
         {
-            write(text, tip, width);
-            return editEnum(ref eval, typeof(T));
+
+            checkLine();
+
+            var names = Enum.GetNames(type);
+            var values = (int[])Enum.GetValues(type);
+
+            Countless<string> sortedNames = new Countless<string>();
+
+            int currentPower = 0;
+
+            int toPow = 1;
+
+            for (var i = 0; i < values.Length; i++)
+            {
+                var val = values[i];
+                while (val > toPow)
+                {
+                    currentPower++;
+                    toPow = (int)Mathf.Pow(2, currentPower);
+                }
+
+                if (val == toPow)
+                    sortedNames[currentPower] = names[i];
+            }
+
+            string[] snms = new string[currentPower + 1];
+
+            for (int i = 0; i <= currentPower; i++)
+                snms[i] = sortedNames[i];
+
+            return selectFlags(ref current, snms, width);
         }
-
-        public static bool editEnum<T>(this string text, int width, ref int eval)
-        {
-            write(text, width);
-            return editEnum(ref eval, typeof(T));
-        }
-
-        public static bool editEnum<T>(this string text, ref int eval)
-        {
-            write(text);
-            return editEnum(ref eval, typeof(T));
-        }
-
-        public static bool editEnum<T>(ref int eval) => editEnum(ref eval, typeof(T));
-
         #endregion
 
         #region String

@@ -180,7 +180,7 @@ namespace PlayerAndEditorGUI {
             if (_systemLanguage == -1)
                 InitSystemLanguage();
 
-            "Language".selectEnum<SystemLanguage>(60, ref _systemLanguage, supportedLanguages).nl();
+            "Language".editEnum<SystemLanguage>(60, ref _systemLanguage, supportedLanguages).nl();
             
             return false;
         } 
