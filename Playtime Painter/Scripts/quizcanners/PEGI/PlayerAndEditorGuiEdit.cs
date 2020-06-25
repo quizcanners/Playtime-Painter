@@ -268,7 +268,7 @@ namespace PlayerAndEditorGUI
 
             if (from.IsNullOrEmpty()) return false;
 
-            foldout(from.TryGet(no, "..."));
+            foldout(QcSharp.TryGet(from, no, "..."));
 
             if (ef.isFoldedOutOrEntered)
             {

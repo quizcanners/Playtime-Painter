@@ -935,6 +935,11 @@ namespace QuizCannersUtilities {
         }
         #endregion
 
+        public static int ToIntFromTextSafe(this string text, int defaultReturn)
+        {
+            int res;
+            return int.TryParse(text, out res) ? res : defaultReturn;
+        }
     }
     
     public class CfgDecoder   {

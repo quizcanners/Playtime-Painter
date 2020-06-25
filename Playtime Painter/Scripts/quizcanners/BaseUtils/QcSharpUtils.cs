@@ -259,6 +259,18 @@ namespace QuizCannersUtilities {
 
         #region List Management
 
+        public static void ForceSetCount<T>(this List<T> list, int count) where T : new()
+        {
+            if (count == list.Count) 
+                return;
+
+            while (list.Count < count)
+                list.Add(new T());
+
+            while (list.Count > count)
+                list.RemoveLast();
+        }
+
         public static List<T> TryAdd<T>(this List<T> list, object ass, bool onlyIfNew = true)
         {
 
@@ -332,13 +344,14 @@ namespace QuizCannersUtilities {
         
         public static bool AddIfNew<T>(this List<T> list, T val)
         {
-            if (list.Contains(val)) return false;
+            if (list.Contains(val))
+                return false;
 
             list.Add(val);
             return true;
         }
 
-        public static bool TryRemoveTill<T>(this List<T> list, int maxCountLeft) {
+        public static bool TryRemoveTill<T>(List<T> list, int maxCountLeft) {
             if (list == null || list.Count <= maxCountLeft) return false;
 
             list.RemoveRange(maxCountLeft, list.Count - maxCountLeft);
@@ -363,7 +376,7 @@ namespace QuizCannersUtilities {
             return list[index];
         }
 
-        public static object TryGetObj(this IList list, int index)
+        public static object TryGetObj(IList list, int index)
         {
             if (list == null || index < 0 || index >= list.Count)
                 return null;
@@ -371,7 +384,7 @@ namespace QuizCannersUtilities {
             return el;
         }
 
-        public static T TryGet<T>(this List<T> list, int index, T defaultValue)
+        public static T TryGet<T>(List<T> list, int index, T defaultValue)
         {
             if (list == null || index < 0 || index >= list.Count)
                 return defaultValue;
@@ -379,16 +392,8 @@ namespace QuizCannersUtilities {
             return list[index];
         }
 
-        public static int TryGetIndex<T>(this List<T> list, T obj)
+        public static int TryGetIndexOrAdd<T>(List<T> list, T obj)
         {
-            var ind = -1;
-            if (list != null && obj != null)
-                ind = list.IndexOf(obj);
-
-            return ind;
-        }
-
-        public static int TryGetIndexOrAdd<T>(this List<T> list, T obj) {
             var ind = -1;
             if (list == null || obj == null) return ind;
 
@@ -400,7 +405,7 @@ namespace QuizCannersUtilities {
             ind = list.Count - 1;
             return ind;
         }
-        
+
         public static bool IsNew(this Type t) => t.IsValueType || (!t.IsUnityObject() && !t.IsAbstract && t.GetConstructor(Type.EmptyTypes) != null);
 
         public static void Move<T>(this List<T> list, int oldIndex, int newIndex) {
@@ -746,22 +751,6 @@ namespace QuizCannersUtilities {
 
         }
 
-        public static bool ContainsAtLeast(this string text, char symbols = '\n', int occurances = 1) {
-
-            if (text.IsNullOrEmpty())
-                return false;
-
-            foreach (var c in text) {
-                if (c == symbols) {
-                    occurances--;
-                    if (occurances <= 0)
-                        return true;
-                }
-            }
-
-            return false;
-        }
-
         public static string FirstLine(this string str) => new StringReader(str).ReadLine();
 
         public static string ToPegiStringType(this Type type) => type.ToString().SimplifyTypeName();
@@ -812,7 +801,10 @@ namespace QuizCannersUtilities {
                     return true;
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                QcUnity.ChillLogger.LogErrorOnce(()=> "Is Substring of({0} -> {1}) Error {2}".F(text, biggerText, ex.ToString()), key: text);
+            }
             
             return false;
         }
@@ -890,50 +882,24 @@ namespace QuizCannersUtilities {
 
         #endregion
 
-        #region Actions
-
-        public static string ShortDescription<T>(this Action<T> action) =>
-            action == null ? "Null" : action.GetInvocationList().Length.ToString();
-
-        #endregion
-
         public static bool IsDefaultOrNull<T>(T obj) => (obj == null) || EqualityComparer<T>.Default.Equals(obj, default);
         
         public static float RoundTo(this float val, int digits) => (float)Math.Round(val, digits);
         
-        public static float RoundTo6Dec(this float val) => Mathf.Round(val * 1000000f) * 0.000001f;
-        
-        public static void SetMaximumLength<T>(this List<T> list, int length)
+        public static void SetMaximumLength<T>(List<T> list, int length)
         {
             while (list.Count > length)
                 list.RemoveAt(0);
         }
 
-        public static T MoveFirstToLast<T>(this List<T> list)
+        public static T MoveFirstToLast<T>(List<T> list)
         {
             var item = list[0];
             list.RemoveAt(0);
             list.Add(item);
             return item;
         }
-
-        public static string ReplaceLastOccurrence(this string source, string find, string replace)
-        {
-            var place = source.LastIndexOf(find, StringComparison.Ordinal);
-
-            if (place == -1)
-                return source;
-
-            var result = source.Remove(place, find.Length).Insert(place, replace);
-            return result;
-        }
-
-        public static int ToIntFromTextSafe(this string text, int defaultReturn)
-        {
-            int res;
-            return int.TryParse(text, out res) ? res : defaultReturn;
-        }
-
+        
         public static int CharToInt(this char c) => c - '0';
 
         #region Type MGMT

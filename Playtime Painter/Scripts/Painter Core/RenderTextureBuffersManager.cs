@@ -517,7 +517,7 @@ namespace PlaytimePainter {
 
         #region Inspector
 
-        static QcUtils.ChillLogger logger = new QcUtils.ChillLogger("error");
+        static QcUnity.ChillLogger logger = new QcUnity.ChillLogger("error");
         
         private static int inspectedElement = -1;
 

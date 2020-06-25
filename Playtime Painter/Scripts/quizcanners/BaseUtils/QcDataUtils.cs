@@ -103,28 +103,25 @@ namespace QuizCannersUtilities
         public static class Delete
         {
 
-            public static void FromResources(string assetFolder, string insideAssetFolderAndName) =>
-                FromResources(assetFolder: assetFolder, insideAssetFolderAndName: insideAssetFolderAndName, extension: textFileType);
-
-            public static void FromResources(string assetFolder, string insideAssetFolderAndName, string extension)
+            public static void FromResources(string assetFolder, string insideAssetFolderAndName, bool asBytes)
             {
 #if UNITY_EDITOR
                 try
                 {
                     var path = Path.Combine("Assets",
                                    Path.Combine(assetFolder, Path.Combine("Resources", insideAssetFolderAndName))) +
-                               extension;
+                               (asBytes ? bytesFileType : textFileType);
                     AssetDatabase.DeleteAsset(path);
                 }
                 catch (Exception e)
                 {
-                    UnityEngine.Debug.Log("Oh No " + e);
+                    Debug.Log("Oh No " + e);
                 }
 #endif
             }
 
-            public static bool FromPersistentFolder(string subPath, string fileName) =>
-            FromPersistentFolder(subPath: subPath, fileName: fileName, extension: textFileType);
+            public static bool FromPersistentFolder(string subPath, string fileName, bool asBytes) =>
+             FromPersistentFolder(subPath, fileName, extension: asBytes ? bytesFileType : textFileType);
 
             public static bool FromPersistentFolder(string subPath, string fileName, string extension)
                 => File(Path.Combine(Application.persistentDataPath, subPath,

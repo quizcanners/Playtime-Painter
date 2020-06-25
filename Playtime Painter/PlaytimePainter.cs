@@ -337,7 +337,7 @@ namespace PlaytimePainter
 
         }
 
-        private readonly QcUtils.ChillLogger _logger = new QcUtils.ChillLogger("");
+        private readonly QcUnity.ChillLogger _logger = new QcUnity.ChillLogger("");
 
         private bool CastRayPlaytime(Stroke st, Vector3 mousePos)
         {

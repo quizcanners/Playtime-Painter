@@ -64,7 +64,7 @@ namespace PlayerAndEditorGUI {
         protected abstract bool Inspect(Editor editor);
         internal abstract ef.EditorType EditorType { get;  }
 
-        private static bool _exceptionPopUpShown;
+      //  private static bool _exceptionPopUpShown;
 
         private bool InspectException()
         {
@@ -75,7 +75,7 @@ namespace PlayerAndEditorGUI {
 
             if ("Don't show again".Click())
             {
-                _exceptionPopUpShown = true;
+               // _exceptionPopUpShown = true;
                 pegi.FullWindowService.ClosePopUp();
             }
 
@@ -96,7 +96,11 @@ namespace PlayerAndEditorGUI {
             ef.ResetInspectionTarget(target);
 
             if (target != drawDefaultInspector) {
-
+                
+//#if UNITY_EDITOR
+                Inspect(this).RestoreBGColor();
+                /*
+#else
                 try
                 {
                     Inspect(this).RestoreBGColor();
@@ -114,7 +118,8 @@ namespace PlayerAndEditorGUI {
                         pegi.FullWindowService.InitiatePopUp();
                     }
                 }
-
+#endif
+*/
                 return;
             }
 
@@ -322,5 +327,5 @@ namespace PlayerAndEditorGUI {
     }
 
 #endif
-}
+            }
 

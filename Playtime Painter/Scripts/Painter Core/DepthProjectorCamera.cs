@@ -312,7 +312,7 @@ namespace PlaytimePainter
                 _projectorCamera.Render();
         }
 
-        QcUtils.ChillLogger logger = new QcUtils.ChillLogger();
+        QcUnity.ChillLogger logger = new QcUnity.ChillLogger();
 
         void OnPostRender()
         {

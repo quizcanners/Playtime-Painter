@@ -157,7 +157,7 @@ namespace PlaytimePainter.ComponentModules {
 
             if (!col || m != col)
             {
-                QcUtils.ChillLogger.LogWarningOnce("mncol", "Painter mesh and collider do not match on {0}".F(painter.gameObject.name), painter);
+                QcUnity.ChillLogger.LogWarningOnce("Painter mesh and collider do not match on {0}".F(painter.gameObject.name), key: "mncol", painter);
             }
 
             var vertex = m.triangles[hit.triangleIndex * 3];

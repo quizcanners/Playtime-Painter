@@ -910,7 +910,7 @@ namespace PlaytimePainter {
 
         }
 
-        readonly QcUtils.ChillLogger logger = new QcUtils.ChillLogger("error");
+        readonly QcUnity.ChillLogger logger = new QcUnity.ChillLogger("error");
 
         public AnimationCurve InspectAnimationCurve(string role) {
             role.edit_Property(() => tmpCurve, this);

@@ -320,7 +320,7 @@ namespace QuizCannersUtilities {
     public class StdSimpleReferenceHolder : ICfgSerializeNestedReferences {
         
         public readonly List<Object> nestedReferences = new List<Object>();
-        public int GetReferenceIndex(Object obj) => nestedReferences.TryGetIndexOrAdd(obj);
+        public int GetReferenceIndex(Object obj) => QcSharp.TryGetIndexOrAdd(nestedReferences, obj);
 
         public T GetReferenced<T>(int index) where T : Object => nestedReferences.TryGet(index) as T;
 
@@ -338,7 +338,7 @@ namespace QuizCannersUtilities {
         private readonly ListMetaData _listMetaData = new ListMetaData("References");
 
         [SerializeField] protected List<Object> nestedReferences = new List<Object>();
-        public virtual int GetReferenceIndex(Object obj) => nestedReferences.TryGetIndexOrAdd(obj);
+        public virtual int GetReferenceIndex(Object obj) => QcSharp.TryGetIndexOrAdd(nestedReferences, obj);
 
         public virtual T GetReferenced<T>(int index) where T : Object => nestedReferences.TryGet(index) as T;
 
@@ -586,7 +586,7 @@ namespace QuizCannersUtilities {
 
         [HideInInspector]
         [SerializeField] protected List<Object> nestedReferences = new List<Object>();
-        public int GetReferenceIndex(Object obj) => nestedReferences.TryGetIndexOrAdd(obj);
+        public int GetReferenceIndex(Object obj) => QcSharp.TryGetIndexOrAdd(nestedReferences, obj);
         
         public T GetReferenced<T>(int index) where T : Object => nestedReferences.TryGet(index) as T;
 

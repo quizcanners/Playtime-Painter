@@ -193,7 +193,7 @@ namespace QuizCannersUtilities {
 
         public static void TryChangeObjectType(IList list, int index, Type type, TaggedTypesCfg cfg, ListMetaData ld = null)
         {
-            var previous = list.TryGetObj(index);
+            var previous = QcSharp.TryGetObj(list, index);
 
             var el = previous;
 

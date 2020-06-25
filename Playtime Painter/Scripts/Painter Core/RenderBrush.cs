@@ -107,7 +107,7 @@ namespace PlaytimePainter
 
             if (selectedSubMeshes.IsNullOrEmpty())
             {
-                QcUtils.ChillLogger.LogErrorOnce("emptSbM", ()=> "PaintCommand.WorldSpace arrived with unassigned selectedSubmeshes array. Seeting 0");
+                QcUnity.ChillLogger.LogErrorOnce(()=> "PaintCommand.WorldSpace arrived with unassigned selectedSubmeshes array. Seeting 0", key: "emptSbM");
                 selectedSubMeshes = new List<int>(1) {0};
             }
 

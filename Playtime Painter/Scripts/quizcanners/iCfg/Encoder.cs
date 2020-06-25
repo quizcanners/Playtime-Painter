@@ -200,6 +200,9 @@ namespace QuizCannersUtilities
             .Add_IfNotEpsilon("b", col.b.RoundTo(3))
             .Add_IfNotEpsilon("a", col.a.RoundTo(3));
         #endregion
+
+        private static float RoundTo6Dec(this float val) => Mathf.Round(val * 1000000f) * 0.000001f;
+
     }
 
     public class CfgEncoder
@@ -667,7 +670,7 @@ namespace QuizCannersUtilities
    
         public CfgEncoder Add_IfNotEmpty(string tag, Dictionary<string, string> dic) => dic.IsNullOrEmpty() ? this :  Add(tag, dic);
             
-        public CfgEncoder Add_IfNotEpsilon(string tag, float val) => (Mathf.Abs(val) > float.Epsilon * 100) ? Add(tag, val.RoundTo6Dec()) : this;
+        public CfgEncoder Add_IfNotEpsilon(string tag, float val) => (Mathf.Abs(val) > float.Epsilon * 100) ? Add(tag, RoundTo6Dec(val)) : this;
        
         public CfgEncoder Add_IfNotOne(string tag, Vector4 v4) => v4.Equals(Vector4.one) ? this : Add(tag, v4.Encode());
 
@@ -691,6 +694,9 @@ namespace QuizCannersUtilities
 
 
         #endregion
+
+        private static float RoundTo6Dec(float val) => Mathf.Round(val * 1000000f) * 0.000001f;
+
     }
 
 }

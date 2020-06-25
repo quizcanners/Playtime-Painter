@@ -463,7 +463,27 @@ namespace PlayerAndEditorGUI
             if (sendNotificationIn3Dview)
                 GameView.ShowNotification("{0} Copied to clipboard".F(hint));
         }
-        
+
+        private static bool ContainsAtLeast(this string text, char symbols = '\n', int occurances = 1)
+        {
+
+            if (text.IsNullOrEmpty())
+                return false;
+
+            foreach (var c in text)
+            {
+                if (c == symbols)
+                {
+                    occurances--;
+                    if (occurances <= 0)
+                        return true;
+                }
+            }
+
+            return false;
+        }
+
+
         #endregion
 
         #region Warning & Hints

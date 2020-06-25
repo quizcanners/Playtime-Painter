@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using QuizCannersUtilities;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using System.Collections;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -160,6 +161,14 @@ namespace PlayerAndEditorGUI
 #if UNITY_EDITOR
         private static readonly Dictionary<Type, Editor> defaultEditors = new Dictionary<Type, Editor>();
 #endif
+
+        private static object TryGetObj(this IList list, int index)
+        {
+            if (list == null || index < 0 || index >= list.Count)
+                return null;
+            var el = list[index];
+            return el;
+        }
 
         private static bool TryDefaultInspect(Object uObj)
         {
@@ -392,6 +401,42 @@ namespace PlayerAndEditorGUI
             return default;
         }
 
+        public static void AddOrReplaceByIGotIndex<T>(this List<T> list, T newElement) where T: IGotIndex
+        {
+            var newIndex = newElement.IndexForPEGI;
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                var el = list[i];
+                if (el != null && el.IndexForPEGI == newIndex)
+                {
+                    list.RemoveAt(i);
+                    list.Insert(i, newElement);
+                    return;
+                }
+            }
+
+            list.Add(newElement);
+        }
+
+        public static void AddOrReplaceByIGotName<T>(this List<T> list, T newElement) where T : IGotName
+        {
+            var newName = newElement.NameForPEGI;
+
+            for (int i = 0; i < list.Count; i++)
+            {
+                var el = list[i];
+                if (el != null && el.NameForPEGI == newName)
+                {
+                    list.RemoveAt(i);
+                    list.Insert(i, newElement);
+                    return;
+                }
+            }
+
+            list.Add(newElement);
+        }
+
         static bool ToPegiStringInterfacePart(this object obj, out string name)
         {
             name = null;
@@ -516,6 +561,23 @@ namespace PlayerAndEditorGUI
             return default;
         }
 
+        public static int GetFreeIndex<T>(this List<T> list) where T : IGotIndex
+        {
+            CountlessBool bools = new CountlessBool();
+
+            foreach (var el in list)
+            {
+                bools[el.IndexForPEGI] = true;
+            }
+
+            int index = 0;
+            while (bools[index] == true)
+            {
+                index++;
+            }
+
+            return index;
+        }
 
     }
 }

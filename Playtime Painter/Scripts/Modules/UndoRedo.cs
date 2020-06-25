@@ -113,7 +113,7 @@ namespace PlaytimePainter
                 for (var i = 0; i < toClear; i++)
                     rTex[i].DestroyRtex();
 
-                rTex.SetMaximumLength(maxTextures);
+                QcSharp.SetMaximumLength(rTex, maxTextures);
             }
 
             public void ApplyTo(TextureMeta id)
@@ -199,7 +199,7 @@ namespace PlaytimePainter
             public void BackupTexture2D(int maxTextures, TextureMeta id)
             {
 
-                tex2D.SetMaximumLength(maxTextures);
+                QcSharp.SetMaximumLength(tex2D, maxTextures);
 
                 if (maxTextures <= 0) return;
 
@@ -208,7 +208,7 @@ namespace PlaytimePainter
                 if (tex2D.Count < maxTextures)
                     tex2D.Add(new Texture2DBackup(copyPix, id, _order));
                 else
-                    tex2D.MoveFirstToLast().Set(copyPix, id, _order);
+                    QcSharp.MoveFirstToLast(tex2D).Set(copyPix, id, _order);
 
 
 
@@ -226,7 +226,7 @@ namespace PlaytimePainter
                 if (rTex.Count < maxTextures)
                     rTex.Add(new RenderTextureBackup(from, _order));
                 else
-                    rTex.MoveFirstToLast().Set(from, _order);
+                    QcSharp.MoveFirstToLast(rTex).Set(from, _order);
 
                 _order++;
 

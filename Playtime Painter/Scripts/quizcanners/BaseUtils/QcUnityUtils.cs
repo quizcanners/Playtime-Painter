@@ -7,6 +7,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
+using PlayerAndEditorGUI;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditorInternal;
@@ -1720,7 +1721,7 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
             var bytes = tex.EncodeToPNG();
 
             var dest = tex.GetPathWithout_Assets_Word();
-            dest = dest.ReplaceLastOccurrence(tex.name, name);
+            dest = ReplaceLastOccurrence(dest, tex.name, name);
             if (string.IsNullOrEmpty(dest)) return tex;
 
             File.WriteAllBytes(Application.dataPath + dest, bytes);
@@ -1815,7 +1816,7 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
 
             dest = dest.Substring(0, dest.Length - extension.Length) + "png";
 
-            dest = dest.ReplaceLastOccurrence(diffuse.name, newName);
+            dest = ReplaceLastOccurrence(dest, diffuse.name, newName);
 
             File.WriteAllBytes(Application.dataPath + dest, bytes);
 
@@ -1833,13 +1834,25 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
             return tex;
 
         }
+
+        private static string ReplaceLastOccurrence(string source, string find, string replace)
+        {
+            var place = source.LastIndexOf(find, StringComparison.Ordinal);
+
+            if (place == -1)
+                return source;
+
+            var result = source.Remove(place, find.Length).Insert(place, replace);
+            return result;
+        }
+
 #endif
 
-#endregion
+        #endregion
 
-#endregion
+        #endregion
 
-#region Shaders
+        #region Shaders
 
         public static void SetShaderKeyword(this Material mat, string keyword, bool isTrue)
         {
@@ -1977,7 +1990,133 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
             c.sharedMesh = mesh;
         }
 
-#endregion
+        #endregion
+        #region Logging
+
+        public class ChillLogger : IGotDisplayName
+        {
+            private bool _logged;
+            private readonly bool _disabled;
+            private double _lastLogged;
+            private int _calls;
+            private readonly string message = "error";
+
+            public string NameForDisplayPEGI() => message + (_disabled ? " Disabled" : " Enabled");
+
+            public ChillLogger(string msg, bool logInBuild = false)
+            {
+                message = msg;
+#if !UNITY_EDITOR
+            _disabled = (!logInBuild);
+#else
+                _disabled = false;
+#endif
+            }
+
+            public ChillLogger()
+            {
+
+            }
+
+            public void Log_Now(string msg, bool asError, Object obj = null)
+            {
+
+                //  if (disabled)
+                //  return;
+
+                if (msg == null)
+                    msg = message;
+
+                if (_calls > 0)
+                    msg += " [+ {0} calls]".F(_calls);
+
+                if (_lastLogged > 0)
+                    msg += " [{0} s. later]".F(QcUnity.TimeSinceStartup() - _lastLogged);
+                else
+                    msg += " [at {0}]".F(QcUnity.TimeSinceStartup());
+
+                if (asError)
+                    Debug.LogError(msg, obj);
+                else
+                    Debug.Log(msg, obj);
+
+                _lastLogged = QcUnity.TimeSinceStartup();
+                _calls = 0;
+                _logged = true;
+            }
+
+            public void Log_Once(string msg = null, bool asError = true, Object obj = null)
+            {
+
+                if (!_logged)
+                    Log_Now(msg, asError, obj);
+                else
+                    _calls++;
+            }
+
+            public void Log_Interval(float seconds, string msg = null, bool asError = true, Object obj = null)
+            {
+
+                if (!_logged || (QcUnity.TimeSinceStartup() - _lastLogged > seconds))
+                    Log_Now(msg, asError, obj);
+                else
+                    _calls++;
+            }
+
+            public void Log_Every(int callCount, string msg = null, bool asError = true, Object obj = null)
+            {
+
+                if (!_logged || (_calls > callCount))
+                    Log_Now(msg, asError, obj);
+                else
+                    _calls++;
+            }
+
+            private static List<string> loggedErrors = new List<string>();
+            public static void LogErrorOnce(string msg, string key, Object target = null)
+            {
+                if (loggedErrors.Contains(key))
+                    return;
+
+                loggedErrors.Add(key);
+
+                if (target)
+                    Debug.LogError(msg, target);
+                else
+                    Debug.LogError(msg);
+            }
+
+            public static void LogErrorOnce(Func<string> action, string key, Object target = null)
+            {
+                if (loggedErrors.Contains(key))
+                    return;
+
+                loggedErrors.Add(key);
+
+                if (target)
+                    Debug.LogError(action(), target);
+                else
+                    Debug.LogError(action());
+            }
+
+            private static List<string> loggedWarnings = new List<string>();
+            public static void LogWarningOnce( string msg, string key, Object target = null)
+            {
+                if (loggedWarnings.Contains(key))
+                    return;
+
+                loggedWarnings.Add(key);
+
+                if (target)
+                    Debug.LogWarning(msg, target);
+                else
+                    Debug.LogWarning(msg);
+            }
+
+        }
+
+        #endregion
+
     }
 
 #pragma warning restore IDE0034 // Simplify 'default' expression

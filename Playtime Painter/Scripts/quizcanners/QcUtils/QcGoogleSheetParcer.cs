@@ -18,20 +18,54 @@ using UnityEngine.Networking;
 namespace QuizCannersUtilities
 {
 
+#pragma warning disable IDE0034 // Simplify 'default' expression
+#pragma warning disable IDE0044 // Add readonly modifier
+
     [Serializable]
     public class QcGoogleSheetParcer : IPEGI
     {
         [SerializeField] private string editUrl = "https://docs.google.com/spreadsheets/d/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/edit#gid=0";
         [SerializeField] private string url = "https://docs.google.com/spreadsheets/d/e/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/pub?";
-        [SerializeField] private int pageIndex = 0;
-        
+        [SerializeField] private List<SheetPage> pages = new List<SheetPage>();
+
+
+        [Serializable] 
+        public class  SheetPage : IGotDisplayName, IPEGI_ListInspect
+        {
+            public string pageName;
+            public int pageIndex;
+
+            public bool InspectInList(IList list, int ind, ref int edited)
+            {
+                var changed = false;
+                "Name".edit(40, ref pageName).changes(ref changed);
+                "#gid=".edit(50, ref pageIndex).changes(ref changed);
+                return changed;
+            }
+
+            public string NameForDisplayPEGI() => pageName;
+        }
+
+
         [NonSerialized] private UnityWebRequest request;
 
         [NonSerialized] private CsvReader reader;
 
         [NonSerialized] public string jsonText;
 
+        [NonSerialized] private JToken token;
+
         [NonSerialized] private EncodedJsonInspector jsonInspector;
+
+        [NonSerialized] private JTokenInspector jTokenInspector = new JTokenInspector();
+
+        public JToken GetJToken()
+        {
+            if (token == null && !jsonText.IsNullOrEmpty())
+                token = JToken.Parse(jsonText);
+
+            return token;
+        }
 
         public void To<K,V>(Dictionary<K, V> dic, Func<V,K> keyFactory)
         {
@@ -53,27 +87,38 @@ namespace QuizCannersUtilities
 
         private int _inspectedStuff = -1;
 
+        [SerializeField] private int _selectedPage = 0;
+
         public bool Inspect()
         {
             var changed = false;
 
             pegi.nl();
-            
+
             if (_inspectedStuff == -1)
             {
                 if (request == null)
                 {
-                    if ("Download".Click().nl())
+                    "Page:".select_Index(40, ref _selectedPage, pages);
+
+                    if (pages.Count > _selectedPage && "Download".Click().nl())
                     {
                         jsonText = null;
-
-                        request = UnityWebRequest.Get("{0}gid={1}&single=true&output=csv".F(url, pageIndex.ToString()));
+                        token = null;
+                        request = UnityWebRequest.Get(
+                            "{0}gid={1}&single=true&output=csv".F(url, pages[_selectedPage].pageIndex.ToString()));
 
                         request.SendWebRequest();
                     }
                 }
                 else
                 {
+                    if ("Clear Request".Click())
+                    {
+                        request.Dispose();
+                        request = null;
+                    }
+
                     if (request.isDone)
                     {
                         "Download finished".nl();
@@ -83,6 +128,10 @@ namespace QuizCannersUtilities
                             reader = new CsvReader(request);
 
                             jsonText = ToJson(reader);
+
+                            token = null;
+
+                            jTokenInspector = new JTokenInspector();
 
                             jsonInspector = new EncodedJsonInspector(jsonText);
 
@@ -99,10 +148,10 @@ namespace QuizCannersUtilities
                     }
                 }
             }
-            
+
             pegi.nl();
 
-            if ("Source".foldout(ref _inspectedStuff, 0).nl())
+            if ("Source".enter(ref _inspectedStuff, 0).nl())
             {
                 "Sheet URL (to Edit))".edit(ref editUrl).changes(ref changed);
 
@@ -121,18 +170,28 @@ namespace QuizCannersUtilities
                 if (url != null)
                 {
                     var ind = url.LastIndexOf("pub?");
-                    if ((ind > 10 && ind < url.Length - 4) && "Clear Url Ending".Click().nl())
+                    if ((ind > 10 && ind < url.Length - 4) && "Clear Url Ending".Click().nl(ref changed))
                     {
                         url = url.Substring(startIndex: 0, length: ind + 4);
                     }
                 }
 
-                "gid".edit(50, ref pageIndex).nl();
+                "Pages".edit_List(ref pages).nl(ref changed);
             }
             
-            if ("Json".conditional_foldout(jsonInspector != null, ref _inspectedStuff, 1).nl())
+            if ("Json".conditional_enter(jsonInspector != null, ref _inspectedStuff, 1).nl())
                 jsonInspector.Nested_Inspect().nl(ref changed);
-            
+
+            if ("JToken".enter(ref _inspectedStuff, 2).nl())
+            {
+                var tok = GetJToken();
+
+                if (tok == null)
+                    "No Token data found".write();
+                else
+                    jTokenInspector.Inspect(tok).changes(ref changed);
+            }
+
             return changed;
         }
         
@@ -217,7 +276,7 @@ namespace QuizCannersUtilities
             }
 
             public string AtOrDefault(string key, string def = "") => Has(key) ? this[key] : def;
-            
+
             public T EnumOrDefault<T>(string key, T def = default(T))
             {
                 if (Has(key))
@@ -254,7 +313,8 @@ namespace QuizCannersUtilities
 
         internal class CsvCell
         {
-            private int x = 0, y = 0;
+            private readonly int x = 0;
+            private readonly int y = 0;
             List<Row> table;
 
             public CsvCell(int _x, int _y, List<Row> _table)

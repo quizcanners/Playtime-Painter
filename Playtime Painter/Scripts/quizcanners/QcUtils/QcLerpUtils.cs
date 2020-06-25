@@ -31,7 +31,7 @@ namespace QuizCannersUtilities
         {
             if (portions.Contains(lerp))
             {
-                QcUtils.ChillLogger.LogErrorOnce(lerp.ToString(), ()=> "Duplicated Portion calculation for {0}".F(lerp.ToString()));
+                QcUnity.ChillLogger.LogErrorOnce(()=> "Duplicated Portion calculation for {0}".F(lerp.ToString()), key: lerp.ToString());
             }
             else
             {
@@ -682,12 +682,12 @@ namespace QuizCannersUtilities
                                 CurrentValue = Mathf.Max(0, 1 - CurrentValue);
                                 Current = Next;
                                 Next = value;
-                                _targetTextures.TryRemoveTill(2);
+                                QcSharp.TryRemoveTill(_targetTextures,2);
                             }
                         }
                         else if (_targetTextures.Count > 1 && value == _targetTextures[1])
                         {
-                            _targetTextures.TryRemoveTill(2);
+                            QcSharp.TryRemoveTill(_targetTextures, 2);
                         }
                         else
                         {

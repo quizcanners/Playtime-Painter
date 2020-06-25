@@ -101,7 +101,7 @@ namespace PlaytimePainter.Examples
                 else
                 {
                     Material.mainTexture = value;
-                    QcUtils.ChillLogger.LogErrorOnce("notid", ()=> "No {0} target ID on the material, trying to set main texture.".F(TextureId.GetNameForInspector()));
+                    QcUnity.ChillLogger.LogErrorOnce(()=> "No {0} target ID on the material, trying to set main texture.".F(TextureId.GetNameForInspector()), key: "notid");
                 }
             }
         }
