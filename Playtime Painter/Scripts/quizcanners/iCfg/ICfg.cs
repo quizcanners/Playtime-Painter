@@ -821,7 +821,7 @@ namespace QuizCannersUtilities {
 
         public static bool LoadFromPersistentPath(this ICfg s, string path, string filename)
         {
-            var data = QcFile.Load.FromPersistentPath(path, filename);
+            var data = QcFile.Load.FromPersistentPath(path, filename, asBytes: true);
             if (data != null)
             {
                 s.Decode(data);

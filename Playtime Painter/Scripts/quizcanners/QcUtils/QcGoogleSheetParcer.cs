@@ -26,7 +26,7 @@ namespace QuizCannersUtilities
     {
         [SerializeField] private string editUrl = "https://docs.google.com/spreadsheets/d/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/edit#gid=0";
         [SerializeField] private string url = "https://docs.google.com/spreadsheets/d/e/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/pub?";
-        [SerializeField] private List<SheetPage> pages = new List<SheetPage>();
+        [SerializeField] public List<SheetPage> pages = new List<SheetPage>();
 
 
         [Serializable] 
@@ -85,10 +85,51 @@ namespace QuizCannersUtilities
             list.AddRange(tmpList);
         }
 
+        public void StartDownload(SheetPage page)
+        {
+            jsonText = null;
+            token = null;
+            request = UnityWebRequest.Get("{0}gid={1}&single=true&output=csv".F(url, page.pageIndex.ToString()));
+            request.SendWebRequest();
+        }
+
+        public bool IsDownloading() => request != null && !request.isDone && !request.isNetworkError;
+
+        public IEnumerator DownloadingCoro()
+        {
+            while (IsDownloading())
+            {
+                yield return null;
+            }
+        }
+
+        public void Read()
+        {
+            if (request != null && request.isDone)
+            {
+                reader = new CsvReader(request);
+
+                jsonText = ToJson(reader);
+
+                token = null;
+
+                jTokenInspector = new JTokenInspector();
+
+                jsonInspector = new EncodedJsonInspector(jsonText);
+
+                request = null;
+            }
+            else
+                Debug.LogError("Couldn't Read");
+
+        }
+
+
+        #region Inspector
         private int _inspectedStuff = -1;
 
         [SerializeField] private int _selectedPage = 0;
-
+        
         public bool Inspect()
         {
             var changed = false;
@@ -102,14 +143,7 @@ namespace QuizCannersUtilities
                     "Page:".select_Index(40, ref _selectedPage, pages);
 
                     if (pages.Count > _selectedPage && "Download".Click().nl())
-                    {
-                        jsonText = null;
-                        token = null;
-                        request = UnityWebRequest.Get(
-                            "{0}gid={1}&single=true&output=csv".F(url, pages[_selectedPage].pageIndex.ToString()));
-
-                        request.SendWebRequest();
-                    }
+                        StartDownload(pages[_selectedPage]);
                 }
                 else
                 {
@@ -124,19 +158,7 @@ namespace QuizCannersUtilities
                         "Download finished".nl();
 
                         if ("Read".Click().nl())
-                        {
-                            reader = new CsvReader(request);
-
-                            jsonText = ToJson(reader);
-
-                            token = null;
-
-                            jTokenInspector = new JTokenInspector();
-
-                            jsonInspector = new EncodedJsonInspector(jsonText);
-
-                            request = null;
-                        }
+                            Read();
                     }
                     else
                     {
@@ -194,38 +216,34 @@ namespace QuizCannersUtilities
 
             return changed;
         }
-        
-        private Thread Download(string address, string path)
-        {
-            var thread = new Thread(() =>
-            {
-                var client = new WebClient();
-                client.DownloadFile(address, path);
-            });
-            thread.Start();
-            return thread;
-        }
+
+        #endregion
 
         private string ToJson(CsvReader csv)
         {
-            var result = new StringBuilder();
-            result.Append("[");
+            var result = new StringBuilder()
+                .Append("[");
+
             for (var rowIndex = 0; rowIndex < csv.rows.Count; rowIndex++)
             {
                 var row = csv.rows[rowIndex];
                 if (rowIndex != 0 && rowIndex != csv.rows.Count)
                     result.Append(",");
+
                 result.Append("{");
+
                 for (var index = 0; index < row.Keys.Count; index++)
                 {
                     var rowKey = row.Keys[index];
-                    result.Append("\"");
-                    result.Append(rowKey);
-                    result.Append("\"");
-                    result.Append(":");
-                    result.Append("\"");
-                    result.Append(row[rowKey]);
-                    result.Append("\"");
+
+                    result.Append("\"")
+                    .Append(rowKey)
+                    .Append("\"")
+                    .Append(":")
+                    .Append("\"")
+                    .Append(row[rowKey])
+                    .Append("\"");
+
                     if (index < row.Keys.Count - 1)
                         result.Append(",");
                 }
@@ -241,14 +259,6 @@ namespace QuizCannersUtilities
         internal class Row
         {
             public OrderedDictionary data;
-
-            public int Length
-            {
-                get { return data.Count; }
-            }
-
-            public int index = -1;
-            public List<Row> table;
 
             public IList<string> Keys
             {
@@ -270,43 +280,11 @@ namespace QuizCannersUtilities
                 data = fill;
             }
 
-            public bool Has(string key)
-            {
-                return data.Contains(key) && data[key] as string != "";
-            }
-
-            public string AtOrDefault(string key, string def = "") => Has(key) ? this[key] : def;
-
-            public T EnumOrDefault<T>(string key, T def = default(T))
-            {
-                if (Has(key))
-                    return (T) Enum.Parse(typeof(T), this[key]);
-                return def;
-            }
-
             public int Count
             {
                 get { return data.Count; }
             }
-
-            public string GetLast(string Key)
-            {
-                if (Has(Key))
-                    return this[Key];
-                else
-                {
-                    var currentRow = this;
-                    while (currentRow.prev != null)
-                    {
-                        currentRow = currentRow.prev;
-                        if (currentRow.Has(Key))
-                            return currentRow[Key];
-                    }
-
-                    throw new FormatException(Key + " not found; at[" + index + "]");
-                }
-            }
-
+            
             public Row next = null;
             public Row prev = null;
         }
@@ -427,9 +405,6 @@ namespace QuizCannersUtilities
                                 rows[i].prev = rows[i - 1];
                                 rows[i - 1].next = rows[i];
                             }
-
-                            rows[i].index = i;
-                            rows[i].table = rows;
                         }
                     }
                 }

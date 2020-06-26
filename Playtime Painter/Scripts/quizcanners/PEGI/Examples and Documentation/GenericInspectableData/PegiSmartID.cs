@@ -76,6 +76,13 @@ namespace PlayerAndEditorGUI.Examples
         {
             var changed = false;
 
+            var prots = GetEnities();
+
+            if (prots == null)
+                "NO PROTS".nl();
+            else
+                pegi.select_iGotIndex(ref id, prots).nl();
+
             T val = GetEntity();
 
             if (val != null)

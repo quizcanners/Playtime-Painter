@@ -333,7 +333,19 @@ namespace QuizCannersUtilities
             {
                 string extension = asBytes ? bytesFileType : textFileType;
 
-                File.WriteAllText(CreateDirectoryPath(Application.persistentDataPath, subPath, filename, extension),data);
+                var path = CreateDirectoryPath(Application.persistentDataPath, subPath, filename, extension);
+
+                if (asBytes)
+                {
+                    using (var file = File.Create(path))
+                        Formatter.Serialize(file, data);
+                }
+                else
+                {
+                    File.WriteAllText(path, data);
+                }
+
+               
             }
 
             #endregion

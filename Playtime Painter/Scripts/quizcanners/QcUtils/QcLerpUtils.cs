@@ -31,7 +31,8 @@ namespace QuizCannersUtilities
         {
             if (portions.Contains(lerp))
             {
-                QcUnity.ChillLogger.LogErrorOnce(()=> "Duplicated Portion calculation for {0}".F(lerp.ToString()), key: lerp.ToString());
+                //QcUnity.ChillLogger.LogErrorOnce(()=> 
+                Debug.LogError("Duplicated Portion calculation for {0}".F(lerp.ToString())); //, key: lerp.ToString());
             }
             else
             {

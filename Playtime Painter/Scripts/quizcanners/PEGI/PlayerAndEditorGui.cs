@@ -72,7 +72,7 @@ namespace PlayerAndEditorGUI
 
                     if (gameViewType == null)
                     {
-                        Debug.LogError(" text [Couldn't find GameView class to show in gameView Window]");
+                        //Debug.LogError(" text [Couldn't find GameView class to show in gameView Window]");
 
                         /*var result = new List<Type>();
                         System.Reflection.Assembly[] AS = System.AppDomain.CurrentDomain.GetAssemblies();

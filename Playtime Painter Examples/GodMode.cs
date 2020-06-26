@@ -32,27 +32,14 @@ namespace PlaytimePainter.Examples
 
         public CfgEncoder Encode()
         {
-            var cody = new CfgEncoder();
+            var cody = new CfgEncoder()
+                .Add("pos", transform.localPosition)
+                .Add("h", _heightLerp.CurrentValue)
+                .Add("sp", speed);
 
-            if (mode == Mode.LERP)
-            {
-                cody.Add("pos", _positionLerp.TargetValue)//transform.localPosition)
-                    .Add("h", _heightLerp.TargetValue);
-
-                if (_mainCam)
-                    cody.Add("rot", _rotationLerp.TargetValue);
-            }
-            else
-            {
-                cody.Add("pos", transform.localPosition)
-                    .Add("h", _heightLerp.CurrentValue);
-
-                if (_mainCam)
-                    cody.Add("rot", _mainCam.transform.localRotation);
-            }
-
-            cody.Add("sp", speed);
-
+            if (_mainCam)
+                cody.Add("rot", _mainCam.transform.localRotation);
+            
             return cody;
         }
 
