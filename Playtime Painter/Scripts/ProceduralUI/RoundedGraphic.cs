@@ -20,28 +20,18 @@ namespace PlaytimePainter
 #else
     [ExecuteInEditMode]
 #endif
-    public class RoundedGraphic : Image, IKeepMyCfg, IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler,
-        IPointerUpHandler, IPEGI
+    public class RoundedGraphic : Image, IKeepMyCfg, IPEGI,
+        IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
     {
 
-        #region Shader MGMT
-
-        public bool feedPositionData = true;
-
-        protected enum PositionDataType
-        {
-            ScreenPosition,
-            AtlasPosition,
-            FadeOutPosition
-        }
-
-        [SerializeField] protected PositionDataType _positionDataType = PositionDataType.ScreenPosition;
+        #region Rounded Corners
 
         [SerializeField] private float[] _roundedCorners = new float[1];
 
-        public float GetCorner(int index) => _roundedCorners[index % _roundedCorners.Length];
+        public enum Corner { Down_Left = 0, Up_Left = 1, Up_Right = 2, Down_Right = 3 }
 
-        public float GetCorner(bool upper, bool right) => GetCorner(upper ? (right ? 2 : 1) : (right ? 3 : 0));
+
+        public void SetCorner(Corner crn, float value) => SetCorner((int)crn, value);
 
         public void SetCorner(bool upper, bool right, float value) => SetCorner(upper ? (right ? 2 : 1) : (right ? 3 : 0), value);
 
@@ -58,7 +48,15 @@ namespace PlaytimePainter
 
         }
 
-        private void SetCorners(float value)
+
+        public float GetCorner(Corner crn) => GetCorner((int)crn);
+
+        public float GetCorner(bool upper, bool right) => GetCorner(upper ? (right ? 2 : 1) : (right ? 3 : 0));
+        
+        public float GetCorner(int index) => _roundedCorners[index % _roundedCorners.Length];
+
+
+        private void SetAllCorners(float value)
         {
 
             bool changed = false;
@@ -98,6 +96,21 @@ namespace PlaytimePainter
             }
         }
 
+        #endregion
+
+        #region Screen Position
+
+        public bool feedPositionData = true;
+
+        protected enum PositionDataType
+        {
+            ScreenPosition,
+            AtlasPosition,
+            FadeOutPosition
+        }
+
+        [SerializeField] protected PositionDataType _positionDataType = PositionDataType.ScreenPosition;
+        
         public float FadeFromX
         {
             set
@@ -170,6 +183,21 @@ namespace PlaytimePainter
                     return sp.rect;
 
                 return (sp.packed && sp.packingMode != SpritePackingMode.Tight) ? sp.textureRect : sp.rect;
+            }
+        }
+
+        #endregion
+
+        #region Populate Mesh
+        public const string UNLINKED_VERTICES = "_UNLINKED";
+        public const string EDGE_SOFTNESS_FLOAT = "_Edges";
+        
+        private bool IsOverlay
+        {
+            get
+            {
+                var c = canvas;
+                return c && (c.renderMode == RenderMode.ScreenSpaceOverlay || !c.worldCamera);
             }
         }
 
@@ -340,19 +368,7 @@ namespace PlaytimePainter
 
             }
         }
-
-        private bool IsOverlay
-        {
-            get
-            {
-                var c = canvas;
-                return c && (c.renderMode == RenderMode.ScreenSpaceOverlay || !c.worldCamera);
-            }
-        }
-
-        public const string UNLINKED_VERTICES = "_UNLINKED";
-        public const string EDGE_SOFTNESS_FLOAT = "_Edges";
-
+        
         #endregion
 
         #region Inspector
@@ -809,33 +825,33 @@ namespace PlaytimePainter
 
         #endregion
 
-        #region Mouse Press
+        #region Mouse Mgmt
 
-        public bool ClickPossible => _mouseDown && ((Time.time - _mouseDownTime) < maxHoldForClick);
+        public bool ClickPossible => MouseDown && ((Time.time - MouseDownTime) < maxHoldForClick);
 
         public UnityEvent OnClick;
 
         public float maxHoldForClick = 0.3f;
         public float maxMousePositionPixOffsetForClick = 20f;
 
-        [NonSerialized] private bool _mouseDown;
-        [NonSerialized] private float _mouseDownTime;
-        [NonSerialized] private Vector2 _mouseDownPosition;
-        [NonSerialized] private bool _mouseOver;
+        public bool MouseDown { get; private set; }
+        public float MouseDownTime { get; private set; }
+        public Vector2 MouseDownPosition { get; private set; }
+        public bool MouseOver { get; private set; }
 
-        public void OnPointerEnter(PointerEventData eventData) => _mouseOver = true;
+        public void OnPointerEnter(PointerEventData eventData) => MouseOver = true;
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            _mouseDown = false;
-            _mouseOver = false;
+            MouseDown = false;
+            MouseOver = false;
         }
 
         public void OnPointerDown(PointerEventData eventData)
         {
-            _mouseDownPosition = Input.mousePosition;
-            _mouseDown = true;
-            _mouseDownTime = Time.time;
+            MouseDownPosition = Input.mousePosition;
+            MouseDown = true;
+            MouseDownTime = Time.time;
         }
 
         public void OnPointerUp(PointerEventData eventData)
@@ -844,17 +860,18 @@ namespace PlaytimePainter
             if (ClickPossible)
             {
 
-                var diff = _mouseDownPosition - Input.mousePosition.ToVector2();
+                var diff = MouseDownPosition - Input.mousePosition.ToVector2();
 
                 if ((diff.magnitude) < maxMousePositionPixOffsetForClick)
                     OnClick.Invoke();
             }
 
-            _mouseDown = false;
+            MouseDown = false;
         }
 
         #endregion
 
+        #region Updates
         private Vector3 _previousPos = Vector3.zero;
 
         private void Update()
@@ -874,6 +891,7 @@ namespace PlaytimePainter
             if (needsUpdate)
                 SetAllDirty();
         }
+        #endregion
 
         #region  Modules
 
@@ -1081,13 +1099,13 @@ namespace PlaytimePainter
 
                 ld.Reset();
 
-                _roundedCorners.Portion(ld, target._mouseOver ? valueWhenOver : valueWhenOff);
+                _roundedCorners.Portion(ld, target.MouseOver ? valueWhenOver : valueWhenOff);
 
                 _roundedCorners.Lerp(ld);
 
                 if (_roundedCorners.CurrentValue != target.GetCorner(0))
                 {
-                    target.SetCorners(_roundedCorners.CurrentValue);
+                    target.SetAllCorners(_roundedCorners.CurrentValue);
                     return true;
                 }
 
@@ -1192,7 +1210,6 @@ namespace PlaytimePainter
             public static readonly ShaderTagValue Position = new ShaderTagValue("Position", PixelPerfectUi);
             public static readonly ShaderTagValue AtlasedPosition = new ShaderTagValue("AtlasedPosition", PixelPerfectUi);
             public static readonly ShaderTagValue FadePosition = new ShaderTagValue("FadePosition", PixelPerfectUi);
-
         }
 
         public static readonly ShaderTag SpriteRole = new ShaderTag("SpriteRole");
@@ -1270,19 +1287,7 @@ namespace PlaytimePainter
             }
             */
         }
-
-      
-
-
-        /*   private static void CreateRoundedUiElement(GameObject canvas)
-           {
-               var rg = new GameObject("Rounded UI Element").AddComponent<RoundedGraphic>();
-               var go = rg.gameObject;
-               GameObjectUtility.SetParentAndAlign(go, canvas);
-               Undo.RegisterCreatedObjectUndo(go, "Created " + go.name);
-               Selection.activeObject = go;
-           }*/
-
+        
 #endif
 
         public static UIVertex Set(this UIVertex vertex, float uvX, float uvY, Vector2 posX, Vector2 posY)
@@ -1294,14 +1299,13 @@ namespace PlaytimePainter
     }
 
     #region Inspector override
-#if UNITY_EDITOR
+    #if UNITY_EDITOR
     [CustomEditor(typeof(RoundedGraphic))]
     public class PixelPerfectShaderDrawer : PEGI_Inspector_Mono<RoundedGraphic> { }
-#endif
+    #endif
 
     public class PixelPerfectMaterialDrawer : PEGI_Inspector_Material
     {
-
         private static readonly ShaderProperty.FloatValue Softness = new ShaderProperty.FloatValue(RoundedGraphic.EDGE_SOFTNESS_FLOAT);
 
         private static readonly ShaderProperty.TextureValue Outline = new ShaderProperty.TextureValue("_OutlineGradient");
@@ -1334,7 +1338,6 @@ namespace PlaytimePainter
 
             return changed;
         }
-
     }
 
     #endregion
