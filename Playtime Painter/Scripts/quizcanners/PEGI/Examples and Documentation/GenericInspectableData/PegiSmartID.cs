@@ -8,6 +8,7 @@ namespace PlayerAndEditorGUI.Examples
 
 #pragma warning disable IDE0018 // Inline variable declaration
 #pragma warning disable IDE0034 // Simplify 'default' expression
+#pragma warning disable IDE0019 // Use pattern matching
 
     public abstract class PegiSmartID<T> : IPEGI_ListInspect, IPEGI, IGotDisplayName, IGotIndex where T: IGotIndex, IGotName, new()
     {
@@ -71,7 +72,17 @@ namespace PlayerAndEditorGUI.Examples
 
             return ent;
         }
+
+        public override bool Equals(object other)
+        {
+            var indx = other as IGotIndex;
+
+            return indx != null && indx.IndexForPEGI == id;
+        }
+
+        public override int GetHashCode() => 1877310944 + id;
         
+        #region Inspector
         public virtual bool Inspect()
         {
             var changed = false;
@@ -117,6 +128,9 @@ namespace PlayerAndEditorGUI.Examples
             T ent = GetEntity();
             return ent!= null ? ent.GetNameForInspector() : "Id: {0} NOT FOUND".F(id);
         }
+
+
+        #endregion
     }
 
 

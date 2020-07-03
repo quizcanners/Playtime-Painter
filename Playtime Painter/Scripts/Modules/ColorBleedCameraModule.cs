@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
-using UnityEditorInternal;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
+using UnityEditorInternal;
 #endif
 
 namespace PlaytimePainter.CameraModules {

@@ -516,16 +516,16 @@ namespace PlaytimePainter
 
         public void AfterStroke(Stroke st)
         {
-            st.SetPreviousValues();
-            st.firstStroke = false;
-            st.MouseDownEvent = false;
-
             if (this.TargetIsTexture2D())
                 pixelsDirty = true;
             else if (updateTex2DafterStroke && st.MouseUpEvent)
             {
                 RenderTexture_To_Texture2D();
             }
+
+            st.SetPreviousValues();
+            st.firstStroke = false;
+            st.MouseDownEvent = false;
         }
 
         #endregion

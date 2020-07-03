@@ -64,8 +64,6 @@ namespace PlayerAndEditorGUI {
         protected abstract bool Inspect(Editor editor);
         internal abstract ef.EditorType EditorType { get;  }
 
-      //  private static bool _exceptionPopUpShown;
-
         private bool InspectException()
         {
             "Got an Exception. Click copy to check it out in the notepad.".writeWarning();
@@ -74,11 +72,8 @@ namespace PlayerAndEditorGUI {
                 pegi.SetCopyPasteBuffer(pegi.FullWindowService.popUpText);
 
             if ("Don't show again".Click())
-            {
-               // _exceptionPopUpShown = true;
                 pegi.FullWindowService.ClosePopUp();
-            }
-
+            
             pegi.nl();
 
             if (pegi.FullWindowService.popUpText.Length<1000)
@@ -97,29 +92,8 @@ namespace PlayerAndEditorGUI {
 
             if (target != drawDefaultInspector) {
                 
-//#if UNITY_EDITOR
                 Inspect(this).RestoreBGColor();
-                /*
-#else
-                try
-                {
-                    Inspect(this).RestoreBGColor();
-                }
-                catch (Exception ex)
-                {
-                    if (ex.GetType() == typeof(ExitGUIException))
-                        throw ex; // This exception is actually normal thing for Unity and it needs it to do it's thing.
-                    else if (!_exceptionPopUpShown)
-                    {
-                        Debug.LogError(ex);
-
-                        pegi.FullWindowService.popUpText = ex.ToString();
-                        pegi.FullWindowService.inspectDocumentationDelegate = InspectException;
-                        pegi.FullWindowService.InitiatePopUp();
-                    }
-                }
-#endif
-*/
+              
                 return;
             }
 

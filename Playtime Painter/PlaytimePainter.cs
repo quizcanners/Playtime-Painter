@@ -6,7 +6,6 @@ using PlaytimePainter.CameraModules;
 using PlaytimePainter.ComponentModules;
 using PlaytimePainter.MeshEditing;
 using QuizCannersUtilities;
-using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -783,7 +782,10 @@ namespace PlaytimePainter
 
             var needsFullUpdate = false;
 
+#if UNITY_EDITOR
+
             var needsReColorizing = false;
+#endif
 
             var colorData = isColor ? Cfg.newTextureClearNonColorValue : Cfg.newTextureClearColor;
 
@@ -1357,7 +1359,11 @@ namespace PlaytimePainter
         public void OnPointerDown(PointerEventData eventData) => _mouseOverPaintableGraphicElement =
             DataUpdate(eventData) ? this : _mouseOverPaintableGraphicElement;
 
-        public void OnPointerUp(PointerEventData eventData) => _mouseOverPaintableGraphicElement = null;
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            _mouseOverPaintableGraphicElement =
+                DataUpdate(eventData) ? this : _mouseOverPaintableGraphicElement;
+        }
 
         public void OnPointerExit(PointerEventData eventData)
         {
@@ -1928,10 +1934,14 @@ namespace PlaytimePainter
 
             if (this == _mouseOverPaintableGraphicElement)
             {
-                if (!Input.GetMouseButton(0) || !DataUpdate(Input.mousePosition, _clickCamera))
-                    _mouseOverPaintableGraphicElement = null;
 
-                OnMouseOver();
+                var couldUpdate = DataUpdate(Input.mousePosition, _clickCamera);
+                    
+                if (couldUpdate)
+                    OnMouseOver();
+
+                if (!Input.GetMouseButton(0) || !couldUpdate)
+                    _mouseOverPaintableGraphicElement = null;
             }
 
             #region URL Loading

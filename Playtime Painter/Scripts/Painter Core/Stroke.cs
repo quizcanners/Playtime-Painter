@@ -262,7 +262,7 @@ namespace PlaytimePainter {
             
             MouseDownEvent = other.MouseDownEvent;
             firstStroke = other.firstStroke ; // For cases like Lazy Brush, when painting doesn't start on the first frame.
-            MouseUpEvent = other.MouseDownEvent;
+            MouseUpEvent = other.MouseUpEvent;
 
             Down_Internal();
         }

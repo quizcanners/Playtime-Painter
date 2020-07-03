@@ -9,6 +9,7 @@ using UnityEditor;
 using UnityEditorInternal;
 #endif
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace PlaytimePainter
 {
@@ -437,7 +438,6 @@ namespace PlaytimePainter
 
                         if (!LockTextureEditing && painterNotUiOrPlaying && !texMeta.errorWhileReading)
                         {
-
                             if (texMeta.ProcessEnumerator != null)
                             {
                                 if (!cfg.moreOptions)
@@ -572,7 +572,7 @@ namespace PlaytimePainter
 
                         if (texMeta != null && !cfg.moreOptions)
                         {
-
+                          
                             pegi.edit(ref texMeta.clearColor, 50);
                             if (icon.Clear.Click("Clear channels which are not ignored").changes(ref changed))
                             {
@@ -684,6 +684,25 @@ namespace PlaytimePainter
 
                         if (texMeta != null)
                         {
+                            if (IsUiGraphicPainter)
+                            {
+
+                                var uiImage = uiGraphic as Image;
+                                if (uiImage && !uiImage.sprite)
+                                {
+                                    pegi.nl();
+                                    "Sprite is null. Convert image to sprite and assign it".writeWarning();
+                                    pegi.nl();
+                                }
+
+                                if (texMeta.updateTex2DafterStroke == false && texMeta.TargetIsRenderTexture())
+                                {
+                                    "Update Original Texture after every Stroke"
+                                        .toggleIcon(ref texMeta.updateTex2DafterStroke).nl();
+                                }
+
+                            }
+
                             var showToggles = (texMeta.inspectedItems == -1 && cfg.moreOptions);
 
                             texMeta.ComponentDependent_PEGI(showToggles, this).changes(ref changed);

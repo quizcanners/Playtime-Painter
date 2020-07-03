@@ -31,18 +31,18 @@ namespace PlaytimePainter
         public enum Corner { Down_Left = 0, Up_Left = 1, Up_Right = 2, Down_Right = 3 }
 
 
-        public void SetCorner(Corner crn, float value) => SetCorner((int)crn, value);
+        public void SetCorner(Corner crn, float sharpness) => SetCorner((int)crn, sharpness);
 
-        public void SetCorner(bool upper, bool right, float value) => SetCorner(upper ? (right ? 2 : 1) : (right ? 3 : 0), value);
+        public void SetCorner(bool upper, bool right, float sharpness) => SetCorner(upper ? (right ? 2 : 1) : (right ? 3 : 0), sharpness);
 
-        public void SetCorner(int index, float value)
+        public void SetCorner(int index, float sharpness)
         {
 
             index %= _roundedCorners.Length;
 
-            if (_roundedCorners[index] != value)
+            if (_roundedCorners[index] != sharpness)
             {
-                _roundedCorners[index] = value;
+                _roundedCorners[index] = sharpness;
                 SetVerticesDirty();
             }
 
@@ -56,16 +56,16 @@ namespace PlaytimePainter
         public float GetCorner(int index) => _roundedCorners[index % _roundedCorners.Length];
 
 
-        private void SetAllCorners(float value)
+        private void SetAllCorners(float sharpness)
         {
 
             bool changed = false;
 
             for (int i = 0; i < _roundedCorners.Length; i++)
             {
-                if (_roundedCorners[i] != value)
+                if (_roundedCorners[i] != sharpness)
                 {
-                    _roundedCorners[i] = value;
+                    _roundedCorners[i] = sharpness;
                     changed = true;
                 }
             }
@@ -556,7 +556,7 @@ namespace PlaytimePainter
                 {
                     var crn = _roundedCorners[i];
 
-                    if ("Corner{0}".F(linked ? "s" : (" " + i)).edit(70, ref crn, 0, 1f).nl(ref changed))
+                    if ("{0}".F(linked ? "Courners" : ((Corner)i).ToString()).edit(70, ref crn, 0, 1f).nl(ref changed))
                         _roundedCorners[i] = crn;
                 }
 

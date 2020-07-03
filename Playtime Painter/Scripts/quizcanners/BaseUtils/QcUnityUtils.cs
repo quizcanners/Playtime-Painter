@@ -285,7 +285,15 @@ namespace QuizCannersUtilities {
             col.a = alpha;
             return col;
         }
-        
+
+        public static Color Brightness(this Color col, float brightness)
+        {
+            col.r *= brightness;
+            col.g *= brightness;
+            col.b *= brightness;
+            return col;
+        }
+
         public static Color ToOpaque(this Color col)  {
             col.a = 1;
             return col;

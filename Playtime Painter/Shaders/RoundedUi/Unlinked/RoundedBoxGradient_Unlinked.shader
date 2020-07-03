@@ -4,7 +4,7 @@
 		[PerRendererData][NoScaleOffset]_MainTex("Noise (RGB)", 2D) = "gray" {}
 		_Edges("Sharpness", Range(0,1)) = 0.5
 		_ColorC("Center", Color) = (1,1,1,1)
-		_ColorE("Edge", Color) = (1,1,1,1)
+		//_ColorE("Edge", Color) = (1,1,1,1)
 
 		[KeywordEnum(Hor, Vert)] _GRAD("Gradient Direction (Feature)", Float) = 0
 		[KeywordEnum(Once, Mirror)] _GRADS("Gradient Spread (Feature)", Float) = 0
@@ -67,7 +67,7 @@
 				float _FadeEdge;
 				float _Edges;
 				float4 _ColorC;
-				float4 _ColorE;
+				//float4 _ColorE;
 				sampler2D _Global_Noise_Lookup;
 
 				v2f vert(appdata_full v) {
@@ -137,16 +137,18 @@
 					#endif
 
 					#if !_GRADS_ONCE 
-					mid *= 2;
-					mid = (mid*mid)/4;
+					//mid *= 2;
+					//mid = (mid*mid)/4;
 					#endif
 
 #ifdef UNITY_COLORSPACE_GAMMA
 					_ColorC.rgb *= _ColorC.rgb;
-					_ColorE.rgb *= _ColorE.rgb;
+					o.color.rgb *= o.color.rgb;
 #endif
 
-					o.color.rgb = _ColorE.rgb * (mid)+_ColorC.rgb * (1 - mid);
+					mid = smoothstep(0, 1, mid);
+
+					o.color.rgb = o.color.rgb * (mid)+_ColorC.rgb * (1 - mid);
 
 
 					#ifdef UNITY_COLORSPACE_GAMMA
