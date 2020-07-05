@@ -17,7 +17,7 @@ namespace PlayerAndEditorGUI {
     public static partial class LazyLocalization {
 
         public const int eng = (int)SystemLanguage.English;
-        public const int ukr = (int)SystemLanguage.Ukrainian;
+        /*public const int ukr = (int)SystemLanguage.Ukrainian;
         public const int trk = (int)SystemLanguage.Turkish;
         public const int rus = (int)SystemLanguage.Russian;
         public const int chn = (int)SystemLanguage.Chinese;
@@ -26,7 +26,7 @@ namespace PlayerAndEditorGUI {
         public const int jap = (int)SystemLanguage.Japanese;
         public const int frc = (int)SystemLanguage.French;
         public const int kor = (int)SystemLanguage.Korean;
-        public const int ptg = (int)SystemLanguage.Portuguese;
+        public const int ptg = (int)SystemLanguage.Portuguese;*/
 
         public static LazyTranslation Get(this Msg msg, int lang)
         {
@@ -39,66 +39,55 @@ namespace PlayerAndEditorGUI {
             switch (msg)
             {
                 case Msg.New:
-                    msg.Translate("New").From(ukr, "Новий").From(trk, "Yeni");
+                    msg.Translate("New");
                     break;
 
                 case Msg.NameNewBeforeInstancing_1p:
                     msg.Translate("Name for the new {0} you'll instantiate");
                     break;
                 case Msg.Texture2D:
-                    msg.Translate("Texture")
-                        .From(ukr, "Текстура");
+                    msg.Translate("Texture");
                     break;
                 case Msg.RenderTexture:
-                    msg.Translate("Render Texture")
-                        .From(ukr, "Рендер Текстура");
+                    msg.Translate("Render Texture");
                     break;
 
                 case Msg.EditDelayed_HitEnter:
-                    msg.Translate("Press Enter to Complete Edit")
-                        .From(ukr, "Натисніть Ентер щоб завершити введення");
+                    msg.Translate("Press Enter to Complete Edit");
                     break;
 
                 case Msg.InspectElement:
-                    msg.Translate("Inspect element")
-                        .From(ukr, "Оглянути елемент"); 
+                    msg.Translate("Inspect element"); 
                     break;
 
                 case Msg.HighlightElement:
-                    msg.Translate("Highlight this element in the project")
-                        .From(ukr, "Показати цей елемент в проекті");
+                    msg.Translate("Highlight this element in the project");
                     break;
 
                 case Msg.RemoveFromCollection:
-                    msg.Translate("Remove element from this collection")
-                        .From(ukr, "Забрати цей елемент з коллекції");
+                    msg.Translate("Remove element from this collection");
                     break;
 
                 case Msg.AddNewCollectionElement:
-                    msg.Translate("Add New element to a list")
-                        .From(ukr, "Створити новий елемент у списку");
+                    msg.Translate("Add New element to a list");
                     break;
 
                 case Msg.AddEmptyCollectionElement:
-                    msg.Translate("Add NULL/default collection element")
-                        .From(ukr, "Додати порожній елемент до коллекції");
+                    msg.Translate("Add NULL/default collection element");
                     break;
 
                 case Msg.ReturnToCollection:
-                    msg.Translate("Return to collection")
-                        .From(ukr, "Повернутись до коллекції");
+                    msg.Translate("Return to collection");
                     break;
 
                 case Msg.MakeElementNull:
-                    msg.Translate("Null this element.")
-                        .From(ukr, "Забрати елемент зі списку");
+                    msg.Translate("Null this element.");
                     break;
                 case Msg.ToolTip:
-                    msg.Translate("ToolTip", "What is this?").From(rus, "Подсказка").From(ukr, "Підказка");
+                    msg.Translate("ToolTip", "What is this?");
                     break;
                 case Msg.ClickYesToConfirm:
-                    msg.Translate("Click yes to confirm operation")
-                        .From(ukr, "Натисніть Так щоб підтвердити.");
+                    msg.Translate("Click yes to confirm operation");
                     break;
                 case Msg.No:
                     msg.Translate("NO");
@@ -174,7 +163,7 @@ namespace PlayerAndEditorGUI {
 
         #region Inspector
 
-        private static readonly List<int> supportedLanguages = new List<int> {eng, ukr, trk};
+        private static readonly List<int> supportedLanguages = new List<int> {eng};
 
         public static bool LanguageSelection() {
             if (_systemLanguage == -1)

@@ -31,29 +31,22 @@ namespace PlayerAndEditorGUI {
             switch (msg) {
                 case MsgPainter.PreserveTransparency:
                     msg.Translate("Preserve Transparency", "if every pixel of texture has alpha = 1 (Max) Unity will be save it as .png without transparency. To counter this " +
-                                      " I set first pixels to alpha 0.9. I know it is hacky, it you know a better way, let me know")
-                        .From(ukr, "Зберігати Альфа Канал", "Змінює прозорість першого пікселя на 0.9 щоб під час компресії алгоритм не забрав альфа канал.")
-                        ;
-
-                    break;
+                                      " I set first pixels to alpha 0.9. I know it is hacky, it you know a better way, let me know"); break;
                 case MsgPainter.BrushType:
-                    msg.Translate("Brush Type")
-                        .From(ukr, "Тип")
-                        .From(trk, "Fırça tipi", "Farklı tiplerde fırçalar vardır: bazısı yuvarlak, bazısı kare, bazısı daire çizer, bazısı resim boyar, vs.");
+                    msg.Translate("Brush Type");
+
                     break;
 
                 case MsgPainter.BlitMode:
-                    msg.Translate("Blit Mode")
-                        .From(ukr, "Метод");
+                    msg.Translate("Blit Mode");
                     break;
 
                 case MsgPainter.LockToolToUseTransform:
-                    msg.Translate("Lock texture to use transform tools. Or click 'Hide transform tool'")
-                        .From(ukr, "Постав блок на текстурі щоб рухати обєкт, або натисни на 'Приховати трансформації' щоб не мішали.");
+                    msg.Translate("Lock texture to use transform tools. Or click 'Hide transform tool'");
                     break;
 
                 case MsgPainter.HideTransformTool:
-                    msg.Translate("Hide transform tool").From(ukr, "Приховати трансформації");
+                    msg.Translate("Hide transform tool");
                     break;
                 case MsgPainter.AboutPlaytimePainter:
                     msg.Translate("About Playtime Painter Component",
@@ -65,16 +58,7 @@ namespace PlayerAndEditorGUI {
                          "Sometimes Painter's UI offers to change import settings, they will persist. "+
                          "Use Ctrl + Left Mouse Button to sample color of the texture." +
                          "Documentation is being integrated into the component (The blue '?' icons) .You can hide them from the Tool Settings. " +
-                         "").F(pegi.EnvironmentNl))
-                        .From(trk, "Playtime Painter Komponenti Hakkında" ,
-                            "Bu komponent  sizin bu objenin işleyicisinin (renderer) materyalinin dokusunu ( material's texture) boyayabilmenizi sağlar ( Evet, burada biraz hiyerarşi var). Ayrıca meshi de düzenleyebilirsiniz." +
-                            "Bütün fonksiyonlar ve konfigurasyonlaraa bu inspektör üzerinden ulaşılabilir."+
-                            "Herhangi bir değişiklik sadece dokunun çalışan kopyasına uygulanır ve Giriş/ Çıkış  Oyun modu ya da Unity'i yeniden başlatmak buna etki etmez."+
-                            "En alttaki Load butonu çalışan kopyayı orjinal imge dosyasından yeniden yükler." +
-                            "Save butonu orjinal dosyaya yapılan değişiklikleri uygulayacaktır. Yeni dosya kaydetmek için, kayıt etmeden önce dosya adını değiştirin ve Yeni Olarak Kaydet'e tıklayın." +
-                            "Dokudan numune renk almak  için Ctrl + sol mouse butonuna tıklayın." +
-                            "Tutorialı komponente katmaya  çalıştım (Maviye'?' tıklayın).Konfigürasyondan gizleyebilirsiniz."
-                            );
+                         "").F(pegi.EnvironmentNl));
                     break;
                 case MsgPainter.MeshProfileUsage:
                     msg.Translate("Mesh Profile usage", ("If using projected UV, place sharpNormal in TANGENT. {0}" +
@@ -84,30 +68,20 @@ namespace PlayerAndEditorGUI {
                                                    "I place Edge in UV3.{0}").F(pegi.EnvironmentNl));
                     break;
                 case MsgPainter.Flow:
-                    msg.Translate("Flow")
-                        .From(ukr, "Потік")
-                        .From(rus, "Скорость")
-                        .From(trk, "Hız", "Fırçanın ne kadar hızlı boyadığı." );
+                    msg.Translate("Flow");
                     break;
 
                 case MsgPainter.Scale:
-                    msg.Translate("Scale")
-                        .From(ukr, "розмір")
-                        .From(trk, "Boyut");
+                    msg.Translate("Scale");
                     break;
                 case MsgPainter.Hardness:
-                    msg.Translate("Sharpness", "Makes edges more clear.")
-                        .From(ukr, "різкість", "Робить краї кісточки більш чіткими.")
-                        .From(trk, "Keskinlik", "Fırçanın kenarlarının ne kadar kalın ya da yumuşak olduğu. Sprey boya tutmak gibi duvara yakın (keskin) ya da uzak ( yumuşak).");
+                    msg.Translate("Sharpness", "Makes edges more clear.");
                     break;
                 case MsgPainter.CopyFrom:
-                    msg.Translate("Copy From")
-                        .From(ukr, "Копіювати з")
-                        .From(trk, "Buradan kopyalama", "Hangi resimden kopyalayacağı.");
+                    msg.Translate("Copy From");
                     break;
                 case MsgPainter.TextureSettings:
-                    msg.Translate("Fancy options")
-                        .From(ukr, "Додатково");
+                    msg.Translate("Fancy options");
                     break;
                 case MsgPainter.previewRGBA:
                     msg.Translate("Preview Edited RGBA", 
@@ -142,16 +116,13 @@ namespace PlayerAndEditorGUI {
                     );
                     break;
                 case MsgPainter.Opacity:
-                    msg.Translate("Opacity")
-                        .From(ukr, "Непрозорість");
+                    msg.Translate("Opacity");
                     break;
                 case MsgPainter.SpreadSpeed:
-                    msg.Translate("Spread")
-                        .From(ukr, "Поширення");
+                    msg.Translate("Spread");
                     break;
                 case MsgPainter.BlurAmount:
-                    msg.Translate("Radius")
-                        .From(ukr, "радіус");
+                    msg.Translate("Radius");
 
                     break;
 
@@ -247,12 +218,10 @@ namespace PlayerAndEditorGUI {
                 case MsgPainter.TransparentLayer:
                     msg.Translate("Transparent",
                             "Toggle this ON if texture has transparent areas which will not be visible. This will affect how they are painted: color of the transparent areas will be neglected to avoid outline artifacts.")
-                        .From(ukr, "Прозора текстура", "Під час малювання прозорих частин їхнім кольором нехтується. Це допомогає уникнути небажаних контурів.");
+                        ;
                     break;
                 case MsgPainter.PleaseSelect:
-                    msg.Translate("Painter tool is not selected (Select it in the top left area)")
-                        .From(ukr, "Щоб редагувати текстуру або модель, оберіть Playtime Painter серед інструментів" +
-                                   " в лівому верхньому куті екрану.");
+                    msg.Translate("Painter tool is not selected (Select it in the top left area)");
                     break;
 
 

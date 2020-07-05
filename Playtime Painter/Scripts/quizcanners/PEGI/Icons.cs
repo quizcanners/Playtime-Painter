@@ -130,58 +130,38 @@ namespace PlayerAndEditorGUI {
             switch (msg) {
 
                 case icon.Add:
-                    msg.Translate("Add")
-                        .From(ukr,"Додати")
-                        .From(rus, "Добавить");
+                    msg.Translate("Add");
 
                 break;
                 case icon.Enter:
-                    msg.Translate("Enter", "Click to enter")
-                        .From(ukr, "Увійти")
-                        .From(rus, "Зайти");
+                    msg.Translate("Enter", "Click to enter");
                     break;
                 case icon.Exit:
-                    msg.Translate("Exit", "Click to exit")
-                        .From(ukr, "Вийти")
-                        .From(rus, "Выйти");
+                    msg.Translate("Exit", "Click to exit");
                     break;
 
                 case icon.Empty:
-                    msg.Translate("Empty")
-                        .From(ukr, "Порожній")
-                        .From(rus, "Пустой");
+                    msg.Translate("Empty");
                     break;
 
                 case icon.SelectAll:
-                    msg.Translate("Select All")
-                        .From(ukr, "Вибрати всі")
-                        .From(rus, "Выбрать все");
+                    msg.Translate("Select All");
                     break;
 
                 case icon.DeSelectAll:
-                    msg.Translate("Deselect All")
-                        .From(ukr, "Відмінити вибір")
-                        .From(rus, "Отменить выбор");
+                    msg.Translate("Deselect All");
                     break;
                 case icon.Search:
-                    msg.Translate("Serch")
-                        .From(ukr, "Пошук")
-                        .From(rus, "Поиск");
+                    msg.Translate("Serch");
                     break;
                 case icon.Show:
-                    msg.Translate("Show")
-                        .From(ukr, "Показати")
-                        .From(rus, "Показать");
+                    msg.Translate("Show");
                     break;
                 case icon.Hide:
-                    msg.Translate("Hide")
-                        .From(ukr, "Приховати")
-                        .From(rus, "Спрятать");
+                    msg.Translate("Hide");
                     break;
                 case icon.Question:
-                    msg.Translate("Question", "What is this?")
-                        .From(ukr, "Запитання")
-                        .From(rus, "Вопрос");
+                    msg.Translate("Question", "What is this?");
                     break;
             }
 
