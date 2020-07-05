@@ -142,8 +142,12 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 7ef3a043b49292e44ae5b2412749fa03, type: 2}
   - {fileID: 2800000, guid: 8e2f2de84fa1f3e41a9a05dd52dc1fa7, type: 3}
   - {fileID: 2100000, guid: 4ba40cbd50a08a644ba6d7d43a383ff0, type: 2}
+  - {fileID: 2800000, guid: f23bd2181e8bd574d904053064a4859a, type: 3}
   playtimePainterLayer: 30
   isLineraColorSpace: 0
+  customBlitModes:
+  - {fileID: 11400000, guid: 86b954b606b70b948b6d5506f12a4e86, type: 2}
+  selectedCustomBlitMode: 0
   additiveAlphaOutput: {fileID: 4800000, guid: 64fa7bd7d59cb1245a6603bb8dfb652b, type: 3}
   additiveAlphaAndUVOutput: {fileID: 4800000, guid: fff128497067a014b8c2b0f12b3fdf7b,
     type: 3}
@@ -214,7 +218,7 @@ MonoBehaviour:
     overlay: {fileID: 2800000, guid: 2545000fc9616a345af5d536bc52515a, type: 3}
   selectedColorScheme: 1
   inspectedColorScheme: -1
-  showUrlField: 1
+  showUrlField: 0
   meshTool: 0
   bevelDetectionSensitivity: 4.1
   meshToolsStd: t_pos|15|dm|1|1|inM|1|y||t_shF|7|dm|1|0||t_vCol|0||t_edgs|23|v|1|1|doCol|1|n|fe|1|y||t_noStd|16|cat|1|8|cac|1|0||t_sbmsh|0||t_uv|39|gtuv|1|y|nrmWrap|5|0.399|fr|1|y|mp|1|y||
@@ -225,7 +229,7 @@ MonoBehaviour:
   newVerticesUnique: 1
   newVerticesSmooth: 1
   pixelPerfectMeshEditing: 0
-  useGridForBrush: 0
+  useGridForBrush: 1
   showVolumeDetailsInPainter: 0
   materialsFolderName: Materials
   texturesFolderName: Textures
@@ -234,9 +238,9 @@ MonoBehaviour:
   atlasFolderName: Atlases
   enablePainterUIonPlay: 0
   Brush:
-    _inGpuBrushType: 0
+    _inGpuBrushType: 3
     _inCpuBrushType: 0
-    _inGpuBlitMode: 0
+    _inGpuBlitMode: 11
     _inCpuBlitMode: 0
     targetIsTex2D: 0
     selectedSourceTexture: 5
@@ -259,7 +263,7 @@ MonoBehaviour:
     showBrushDynamics: 0
     hardness: 1.588
     blurAmount: 1.77
-    brush3DRadius: 0.403
+    brush3DRadius: 40.960003
     brush2DRadius: 4.04
     useAlphaBuffer: 0
     alphaLimitForAlphaBuffer: 0.55
@@ -270,7 +274,7 @@ MonoBehaviour:
       max: 10
       _value: 3.92
     showingSize: 1
-  showColorSliders: 0
+  showColorSliders: 1
   disableNonMeshColliderInPlayMode: 0
   previewAlphaChanel: 0
   moreOptions: 0
@@ -285,12 +289,11 @@ MonoBehaviour:
   newTextureIsColor: 1
   newTextureClearColor: {r: 0, g: 0, b: 0, a: 1}
   newTextureClearNonColorValue: {r: 0.5, g: 0.5, b: 0.5, a: 0.5}
-  selectedWidthIndex: 4
+  selectedWidthIndex: 9
   selectedHeightIndex: 4
   recordingNames: []
   browsedRecord: 0
-  stdData: imgs|1662|e|84|mods|16|pgns|8|Plbk|0||||tex2D|3|127|w|2|64|h|2|64|sn|9|New
-    Image|updT2D|1|y|is|1|1||e|93|mods|16|pgns|8|Plbk|0||||tex2D|1|2|w|3|256|h|3|256|sn|4|Cube|clear|22|r|1|1|g|5|0.867|a|1|1|||e|107|mods|16|pgns|8|Plbk|0||||tex2D|1|4|w|2|16|h|2|16|sn|6|pixArt|clear|36|r|5|0.328|g|5|0.604|b|5|0.534|a|1|1|||e|71|mods|16|pgns|8|Plbk|0||||tex2D|2|23|w|4|1024|h|4|1024|sn|10|Sand_COLOR||e|82|mods|16|pgns|8|Plbk|0||||tex2D|2|24|w|4|1024|h|4|1024|sn|11|Tiles_COLOR|trnsp|1|y||e|82|mods|16|pgns|8|Plbk|0||||tex2D|2|19|w|4|2048|h|4|1024|sn|11|Cliff_COLOR|trnsp|1|y||e|75|mods|16|pgns|8|Plbk|0||||tex2D|3|122|w|3|512|h|3|512|sn|15|GridBox_Default||e|73|mods|16|pgns|8|Plbk|0||||tex2D|1|3|w|4|2048|h|4|2048|sn|6|Volume|vol|1|y||e|71|mods|16|pgns|8|Plbk|0||||tex2D|1|6|w|4|2048|h|4|2048|sn|11|Diffuse_ATL||e|83|mods|16|pgns|8|Plbk|0||||tex2D|3|110|w|3|512|h|3|512|sn|13|Sphere
+  stdData: imgs|1667|e|89|mods|16|pgns|8|Plbk|0||||tex2D|3|129|w|4|2048|h|4|2048|sn|19|_RayMarchingVolume8|vol|1|y||e|93|mods|16|pgns|8|Plbk|0||||tex2D|1|2|w|3|256|h|3|256|sn|4|Cube|clear|22|r|1|1|g|5|0.867|a|1|1|||e|107|mods|16|pgns|8|Plbk|0||||tex2D|1|4|w|2|16|h|2|16|sn|6|pixArt|clear|36|r|5|0.328|g|5|0.604|b|5|0.534|a|1|1|||e|71|mods|16|pgns|8|Plbk|0||||tex2D|2|23|w|4|1024|h|4|1024|sn|10|Sand_COLOR||e|82|mods|16|pgns|8|Plbk|0||||tex2D|2|24|w|4|1024|h|4|1024|sn|11|Tiles_COLOR|trnsp|1|y||e|82|mods|16|pgns|8|Plbk|0||||tex2D|2|19|w|4|2048|h|4|1024|sn|11|Cliff_COLOR|trnsp|1|y||e|75|mods|16|pgns|8|Plbk|0||||tex2D|3|122|w|3|512|h|3|512|sn|15|GridBox_Default||e|73|mods|16|pgns|8|Plbk|0||||tex2D|1|3|w|4|2048|h|4|2048|sn|6|Volume|vol|1|y||e|71|mods|16|pgns|8|Plbk|0||||tex2D|1|6|w|4|2048|h|4|2048|sn|11|Diffuse_ATL||e|83|mods|16|pgns|8|Plbk|0||||tex2D|3|110|w|3|512|h|3|512|sn|13|Sphere
     Height|trnsp|1|y||e|82|mods|16|pgns|8|Plbk|0||||tex2D|3|111|w|3|512|h|3|512|sn|12|Sphere
     Color|trnsp|1|y||e|88|mods|16|pgns|8|Plbk|0||||tex2D|3|112|w|3|256|h|3|256|sn|18|Bullet
     Hole Height|trnsp|1|y||e|87|mods|16|pgns|8|Plbk|0||||tex2D|3|113|w|3|256|h|3|256|sn|17|Bullet

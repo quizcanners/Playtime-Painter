@@ -32,7 +32,7 @@ namespace PlaytimePainter.ComponentModules {
         {
             var changed = false;
             var p = PlaytimePainter.inspected;
-
+            
             if (p.IsUiGraphicPainter) {
 
                 var gr = p.uiGraphic;

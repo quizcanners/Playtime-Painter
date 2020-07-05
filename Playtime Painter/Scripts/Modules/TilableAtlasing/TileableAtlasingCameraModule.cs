@@ -184,7 +184,7 @@ namespace PlaytimePainter
 
             public Shader GetBrushShaderSingleBuffer(PlaytimePainter p) => null;
 
-            public bool BrushConfigPEGI(ref bool overrideBlitMode, Brush br) => false;
+            public bool BrushConfigPEGI(Brush br) => false;
 
             public bool IsEnabledFor(PlaytimePainter painter, TextureMeta id, Brush cfg) =>
                 painter.IsAtlased() && !id.TargetIsRenderTexture();

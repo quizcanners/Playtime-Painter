@@ -350,7 +350,7 @@ namespace PlaytimePainter {
 
             private bool _exploreRayTaceCamera;
 
-            public bool BrushConfigPEGI(ref bool overrideBlitMode, Brush br)
+            public bool BrushConfigPEGI(Brush br)
             {
 
                 var changed = false;
@@ -385,8 +385,6 @@ namespace PlaytimePainter {
                     }
                     else
                         "Volume has no texture".writeWarning();
-
-                    overrideBlitMode = true;
 
                     var id = p.TexMeta;
 
@@ -555,6 +553,21 @@ namespace PlaytimePainter {
             {
 
             }
+
+            public override bool SetTextureOnMaterial(ShaderProperty.TextureValue field, TextureMeta id)
+            {
+                if (!volumeTexture)
+                    return false;
+
+                if (field.ToString() == volumeTexture.name)
+                {
+                    volumeTexture.ImageMeta = id;
+                    return true;
+                }
+
+                return false;
+            }
+
 
             public override void GetNonMaterialTextureNames(ref List<ShaderProperty.TextureValue> dest)
             {

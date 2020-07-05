@@ -776,7 +776,7 @@ namespace PlaytimePainter {
                 base.SetGlobalShaderParameters();
             }
 
-            public override bool AllSetUp => _customCfg && _customCfg.AllSetUp;
+            public override bool AllSetUp => true;
             public override bool SupportedByTex2D => false;
             public override bool SupportsAlphaBufferPainting => false;
             
@@ -787,25 +787,53 @@ namespace PlaytimePainter {
             public override Shader ShaderForSingleBuffer => _customCfg ? _customCfg.shader : null;
             public override Shader ShaderForAlphaOutput => _customCfg ? _customCfg.shader : null;
             public override Shader ShaderForAlphaBufferBlit => _customCfg ? _customCfg.shader : null;
-            
+
+            public override bool ShowInDropdown() => true;
+
             public override bool UsingSourceTexture => _customCfg ? _customCfg.selectSourceTexture : false;
 
             public override bool ShowColorSliders => _customCfg ? _customCfg.showColorSliders : false;
             
             public override bool NeedsWorldSpacePosition => _customCfg ? _customCfg.usingWorldSpacePosition : false;
 
-            private BlitModeCustom _customCfg;
+            private BlitModeCustom _customCfg
+            {
+                get
+                {
+                    return Cfg.customBlitModes.TryGet(Cfg.selectedCustomBlitMode);   
+                }
+            }
             
             protected override MsgPainter Translation => MsgPainter.BlitModeCustom;
 
             private bool _showConfig;
 
+            private bool IsBlitReady => _customCfg && _customCfg.AllSetUp;
+
             protected override bool Inspect()
             {
                 var changed = base.Inspect().nl();
 
-                "Config".edit(ref _customCfg).nl(ref changed);
-                
+                var allCstm = Cfg.customBlitModes;
+
+                if ("Config".select_Index(60, ref Cfg.selectedCustomBlitMode, allCstm))
+                    Cfg.SetToDirty();
+
+                var cfg = _customCfg;
+
+                if (pegi.edit(ref cfg, 60).nl(ref changed) && cfg)
+                {
+                    if (allCstm.Contains(cfg))
+                        Cfg.selectedCustomBlitMode = allCstm.IndexOf(cfg);
+                    else
+                    {
+                        Cfg.customBlitModes.Add(cfg);
+                        Cfg.selectedCustomBlitMode = Cfg.customBlitModes.Count - 1;
+                    }
+                }
+
+
+
                 if (_customCfg)
                 {
                     if (_customCfg.name.foldout(ref _showConfig).nl(ref changed))
@@ -820,7 +848,7 @@ namespace PlaytimePainter {
                     pegi.nl();
                 }
 
-                if (AllSetUp)
+                if (IsBlitReady)
                 {
                     if (PlaytimePainter.inspected)
                     {

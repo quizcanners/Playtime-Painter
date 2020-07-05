@@ -23,7 +23,11 @@ namespace PlaytimePainter
         [SerializeField] public bool isLineraColorSpace;
 
         public static bool toolEnabled;
-        
+
+        public List<BlitModeCustom> customBlitModes = new List<BlitModeCustom>();
+
+        public int selectedCustomBlitMode;
+
         #region Shaders
 
         public Shader additiveAlphaOutput;

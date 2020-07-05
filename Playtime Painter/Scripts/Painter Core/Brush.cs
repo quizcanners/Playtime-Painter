@@ -296,10 +296,7 @@ namespace PlaytimePainter {
 
             }
             
-            var overrideBlitModePegi = false;
-
-
-             cameraModule?.BrushConfigPEGI(ref overrideBlitModePegi, this);
+             cameraModule?.BrushConfigPEGI(this);
 
               if (p)
               {
@@ -311,9 +308,8 @@ namespace PlaytimePainter {
                       foreach (var mod in id.Modules)
                           mod.BrushConfigPEGI(p).nl(ref changed);
               }
-
-
-              brushType.Inspect().nl(ref changed);
+              
+             brushType.Inspect().nl(ref changed);
 
             if (blitMode.AllSetUp) {
 
@@ -351,13 +347,13 @@ namespace PlaytimePainter {
                 }
             }
 
-            if (!overrideBlitModePegi && blitMode.ShowInDropdown())
+
+            if (blitMode.ShowInDropdown())
             {
                 blitMode.Inspect(cameraModule).nl(ref changed);
                 showingSize = true;
             }
             
-
             _inspectedBrush = null;
 
             return changed;

@@ -87,8 +87,6 @@ namespace QuizCannersUtilities {
 
                 return true;
             }
-
-      
             #endregion
 
             #region Constructors
@@ -101,7 +99,6 @@ namespace QuizCannersUtilities {
                 this.name = name;
                 UpdateIndex();
             }
-
             #endregion
         }
 

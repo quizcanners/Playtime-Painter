@@ -39,7 +39,7 @@ namespace PlaytimePainter.CameraModules {
 
         bool IsEnabledFor(PlaytimePainter p, TextureMeta image, Brush cfg);
         
-        bool BrushConfigPEGI(ref bool overrideBlitMode, Brush br);
+        bool BrushConfigPEGI(Brush br);
        
     }
 
