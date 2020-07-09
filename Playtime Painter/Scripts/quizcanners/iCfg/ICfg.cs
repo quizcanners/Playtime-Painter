@@ -789,11 +789,14 @@ namespace QuizCannersUtilities {
             QcUnity.UpdatePrefab(go);
         }
 
-        public static void SaveCfgData(this IKeepMyCfg s) {
+        public static void SaveCfgData(this IKeepMyCfg s, bool setDirty = true) {
             if (s != null)
             {
                 s.ConfigStd = s.Encode().ToString();
-                (s as Object).SetToDirty();
+
+                var scObj = s as ScriptableObject;
+                if (scObj)
+                    scObj.SetToDirty();
             }
         }
 

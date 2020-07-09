@@ -950,9 +950,25 @@ namespace QuizCannersUtilities {
         }
         #endregion
 
-      
     }
-    
+
+    public abstract class SafeIndexBase
+    {
+        public int index;
+
+        public static bool operator ==(SafeIndexBase a, SafeIndexBase b)
+            => a.index == b.index;
+
+        public static bool operator !=(SafeIndexBase a, SafeIndexBase b)
+            => a.index != b.index;
+
+        public bool Equals(SafeIndexBase other) => index == other.index && other.GetType() == GetType();
+
+        public override bool Equals(object other) => other.GetType() == GetType() && ((SafeIndexBase)other).index == index;
+
+        public override int GetHashCode() => GetType().GetHashCode() + index;
+    }
+
     public class LoopLock : IEnumerator
     {
         private volatile bool _lLock;
@@ -1009,51 +1025,4 @@ namespace QuizCannersUtilities {
         public void Reset() { }
     }
 
-    [Serializable]
-    public class BoolDefine : IPEGI {
-
-        [SerializeField] private sbyte val;
-
-        public bool IsTrue => val == 1;
-      
-        public bool IsFalse => val == -1;
-
-        public void Set(bool value) => val = (sbyte)(value ? 1 : -1);
-        
-        public bool IsDefined {
-            get { return val != 0; }
-            set {
-                if (value) 
-                    Debug.LogError("Can only define bool by providing a value");
-                else val = 0;
-            }
-        }
-
-        #region Inspector
-
-        public bool Inspect() {
-
-            var changed = false;
-
-            if (IsDefined) {
-                var value = IsTrue;
-                if (pegi.toggleIcon(ref value).changes(ref changed))
-                    Set(value);
-                if (icon.Clear.Click("Make value Undefined"))
-                    IsDefined = false;
-            }
-            else {
-                if (icon.Done.Click("Set Undefined Boolean to True"))
-                    Set(true);
-                if (icon.Close.Click("Seto Undefined Boolean to false"))
-                    Set(false);
-            }
-
-
-            return changed;
-        }
-
-        #endregion
-
-    }
 }

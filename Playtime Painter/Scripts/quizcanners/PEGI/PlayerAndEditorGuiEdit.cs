@@ -3983,18 +3983,6 @@ namespace PlayerAndEditorGUI
             return edit(ref val, min, max);
         }
 
-        public static bool edit(this string label, BoolDefine boolDefine)
-        {
-            label.write();
-            return boolDefine.Inspect();
-        }
-
-        public static bool edit(this string label, int width, BoolDefine boolDefine)
-        {
-            label.write(width);
-            return boolDefine.Inspect();
-        }
-
         #endregion
         
         #endregion

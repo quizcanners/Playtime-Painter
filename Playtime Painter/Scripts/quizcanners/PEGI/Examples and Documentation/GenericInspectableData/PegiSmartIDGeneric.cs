@@ -10,15 +10,29 @@ namespace PlayerAndEditorGUI.Examples
 #pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching
 
-    public abstract class PegiSmartID<T> : IPEGI_ListInspect, IPEGI, IGotDisplayName, IGotIndex where T: IGotIndex, IGotName, new()
+    public abstract class PegiSmartId : IGotIndex
     {
         public int id = -1;
 
-        public int IndexForPEGI {
+        public int IndexForPEGI
+        {
             get { return id; }
             set { id = value; }
         }
 
+        public override bool Equals(object other)
+        {
+            var indx = other as IGotIndex;
+
+            return indx != null && indx.IndexForPEGI == id;
+        }
+
+        public override int GetHashCode() => 1877310944 + id;
+
+    }
+
+    public abstract class PegiSmartIDGeneric<T> : PegiSmartId, IPEGI_ListInspect, IPEGI, IGotDisplayName  where T: IGotIndex, IGotName, new()
+    {
         public abstract List<T> GetEnities();
 
         public T GetEntity()
@@ -72,15 +86,6 @@ namespace PlayerAndEditorGUI.Examples
 
             return ent;
         }
-
-        public override bool Equals(object other)
-        {
-            var indx = other as IGotIndex;
-
-            return indx != null && indx.IndexForPEGI == id;
-        }
-
-        public override int GetHashCode() => 1877310944 + id;
         
         #region Inspector
         public virtual bool Inspect()
@@ -128,18 +133,15 @@ namespace PlayerAndEditorGUI.Examples
             T ent = GetEntity();
             return ent!= null ? ent.GetNameForInspector() : "Id: {0} NOT FOUND".F(id);
         }
-
-
         #endregion
     }
-
-
+    
     public static class PegiIdExtensions
     {
-        public static T TryGetEntity<T>(this PegiSmartID<T> id) where T: IGotIndex, IGotName, new()
+        public static T TryGetEntity<T>(this PegiSmartIDGeneric<T> id) where T: IGotIndex, IGotName, new()
            => id == null ? default(T) : id.GetEntity();
 
-        public static G GetOrCreate<G, T>(this List<G> list, int index) where T : IGotIndex, IGotName, new() where G : PegiSmartID<T>, new()
+        public static G GetOrCreate<G, T>(this List<G> list, int index) where T : IGotIndex, IGotName, new() where G : PegiSmartIDGeneric<T>, new()
         {
             while (list.Count<=index)
             {
