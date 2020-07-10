@@ -391,7 +391,8 @@ namespace PlaytimePainter
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/SubtractiveGraphic"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Image"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Primitives/Pixel Line"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Primitives/Pixel Line With Shadow")));
+                .TryAdd(Shader.Find("Playtime Painter/UI/Primitives/Pixel Line With Shadow"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Pixel Perfect Screen Space")));
 
         private static List<Material> _compatibleMaterials = new List<Material>();
 

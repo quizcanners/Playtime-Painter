@@ -6,7 +6,9 @@
 		[Toggle(TRIMMED)] trimmed("Trimmed Corners", Float) = 0
 		[Toggle(_SOFT_FADE)] softfade("Soft Fade", Float) = 0
 	}
+
 	Category{
+
 		Tags{
 			"Queue" = "Transparent"
 			"IgnoreProjector" = "True"
@@ -74,16 +76,6 @@
 
 				float4 frag(v2f o) : COLOR{
 
-					float dx = abs(ddx(o.texcoord.x));
-					float dy = abs(ddy(o.texcoord.y));
-					float mip = (dx + dy) * 200;
-
-					#if _SOFT_FADE
-						_Edges *= o.color.a * o.color.a;
-					#endif
-
-					_Edges /= 1 + mip * mip; //LOD
-
 					float4 _ProjTexPos =	o.projPos;
 					float _Courners =		o.texcoord.w;
 					float deCourners = 1 - _Courners;
@@ -105,6 +97,12 @@
 					float alpha = saturate(1 - dist);
 
 					alpha = min(1, pow(alpha * o.precompute.z, o.texcoord.z));
+
+					float dx = abs(ddx(alpha));
+					float dy = abs(ddy(alpha));
+					float mip = (dx + dy) * 200;
+
+		
 
 					o.color.a *= alpha;
 
