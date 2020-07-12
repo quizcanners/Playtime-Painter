@@ -21,6 +21,8 @@ namespace PlaytimePainter {
 
         private static int _tmpWidth = 1024;
 
+        private int changePositionOnOffset = 32;
+
         public int hSlices = 1;
         public float size = 1;
 
@@ -104,16 +106,20 @@ namespace PlaytimePainter {
         public Vector4 PosSize4Shader {
             get
             {
-                var pos = transform.position;
-                pos = Vector3Int.RoundToInt(pos);
+                changePositionOnOffset = Mathf.Max(1, changePositionOnOffset);
+                var pos = transform.position/ changePositionOnOffset;
+                pos = Vector3Int.FloorToInt(pos) * changePositionOnOffset;
                     
                 return pos.ToVector4(1f / size);
             }
         }
 
-    public Vector4 Slices4Shader { get {
-            float w = ((ImageMeta?.width ?? (TexturesPool.inst ? TexturesPool.inst.width : _tmpWidth)) - hSlices * 2) / hSlices;
-            return new Vector4(hSlices, w * 0.5f, 1f / w, 1f / hSlices); } }
+        public Vector4 Slices4Shader {
+            get {
+                float w = ((ImageMeta?.width ?? (TexturesPool.inst ? TexturesPool.inst.width : _tmpWidth)) - hSlices * 2) / hSlices;
+                return new Vector4(hSlices, w * 0.5f, 1f / w, 1f / hSlices);
+            }
+        }
 
         public virtual bool NeedsToManageMaterials => true;
 
@@ -146,7 +152,7 @@ namespace PlaytimePainter {
 
         #region Inspect
 
-        private bool searchedForPainter = false;
+        private bool _searchedForPainter = false;
         [SerializeField] private PlaytimePainter _painter;
 
         protected int inspectedElement = -1;
@@ -181,9 +187,12 @@ namespace PlaytimePainter {
                 _textureInShaderr.GetNameForInspector().nl();
             }
 
-            if (searchedForPainter)
+            if (_searchedForPainter)
+            {
+                _searchedForPainter = true;
                 _painter = GetComponent<PlaytimePainter>();
-            
+            }
+
             if (!_painter)
             {
                 "Painter [None]".write();
@@ -220,7 +229,6 @@ namespace PlaytimePainter {
 
                     if (icon.UnLinked.Click("Unlink"))
                         mod.volumeTexture = null;
-
                 }
 
                 pegi.nl();
@@ -230,7 +238,12 @@ namespace PlaytimePainter {
 
             if (inspectedElement == -1)
             {
-                "Also set for Global shader parameters".toggleIcon(ref setForGlobal).changes(ref changed);
+                "Also set for Global shader parameters".toggleIcon(ref setForGlobal).nl(ref changed);
+                
+                "Position chunks".edit(ref changePositionOnOffset).changes(ref changed);
+
+                pegi.FullWindowService
+                    .fullWindowDocumentationClickOpen("For Baking optimisations, how often position is changed");
 
                 pegi.nl();
             }

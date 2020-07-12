@@ -141,8 +141,10 @@ namespace PlaytimePainter {
             id.offset = offset;
             id.tiling = tiling;
 
-            var cmd = new PaintCommand.UV(new Stroke(uvCoords), texture.GetTextureMeta(), bc);
-            cmd.strokeAlphaPortion = brushAlpha;
+            var cmd = new PaintCommand.UV(new Stroke(uvCoords), texture.GetTextureMeta(), bc)
+            {
+                strokeAlphaPortion = brushAlpha
+            };
             Paint(cmd);
         }
 

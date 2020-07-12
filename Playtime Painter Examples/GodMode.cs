@@ -65,33 +65,24 @@ namespace PlaytimePainter.Examples
         }
         #endregion
         
-        #region Camera Smoothing
-
-        // private float trackingInitiating = 0;
+      /*  #region Camera Smoothing
+        
         [NonSerialized] private Vector3 cameraSmoothedVelocity;
         [NonSerialized] private Vector3 mainCameraVelocity;
         [NonSerialized] private Vector3 cameraSmoothingOffset;
 
         private void UpdateCameraSmoothing()
         {
-
             var offset = cameraSmoothedVelocity - mainCameraVelocity - cameraSmoothingOffset * 16;
 
             var magn = offset.magnitude;
 
-            //  offset -= cameraSmoothingOffset * (3 + Mathf.Clamp01(magn/speed)*Vector3.Dot(offset.normalized, cameraSmoothingOffset.normalized));
-
-
             cameraSmoothedVelocity = cameraSmoothedVelocity.LerpBySpeed_DirectionFirst(mainCameraVelocity, magn * 0.8f);
 
             cameraSmoothingOffset = cameraSmoothingOffset.LerpBySpeed_DirectionFirst(offset, magn);
-
-
-
-
         }
 
-        #endregion
+        #endregion*/
 
         #region Advanced Camera
 
@@ -144,7 +135,7 @@ namespace PlaytimePainter.Examples
                 _mainCam.nearClipPlane = 0.3f;
             }*/
 
-            _mainCam.transform.position += cameraSmoothingOffset;
+           // _mainCam.transform.position += cameraSmoothingOffset;
 
         }
 
@@ -152,9 +143,9 @@ namespace PlaytimePainter.Examples
         
         void OnEnable()
         {
-            cameraSmoothedVelocity = Vector3.zero;
+            /*cameraSmoothedVelocity = Vector3.zero;
             mainCameraVelocity = Vector3.zero;
-            cameraSmoothingOffset = Vector3.zero;
+            cameraSmoothingOffset = Vector3.zero;*/
 
             if (mode == Mode.LERP)
                 mode = Mode.FPS;
@@ -202,7 +193,7 @@ namespace PlaytimePainter.Examples
 
             add.Normalize();
 
-            mainCameraVelocity = add * speed * (Input.GetKey(KeyCode.LeftShift) ? 3f : 1f);
+            var mainCameraVelocity = add * speed * (Input.GetKey(KeyCode.LeftShift) ? 3f : 1f);
 
             operatorTf.localPosition += mainCameraVelocity * Time.deltaTime;
 
@@ -282,7 +273,7 @@ namespace PlaytimePainter.Examples
                     break;
             }
 
-            UpdateCameraSmoothing();
+            //UpdateCameraSmoothing();
             AdjustCamera();
 
         }
@@ -483,9 +474,9 @@ namespace PlaytimePainter.Examples
             pegi.nl();
             
 
-            "Smoothing offset: {0}".F(cameraSmoothingOffset).nl();
+          /*  "Smoothing offset: {0}".F(cameraSmoothingOffset).nl();
 
-            "Smoothing velocity: {0}".F(cameraSmoothedVelocity).nl();
+            "Smoothing velocity: {0}".F(cameraSmoothedVelocity).nl();*/
 
             return false;
         }
