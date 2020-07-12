@@ -4,8 +4,11 @@
 		[PerRendererData]
 		_MainTex("Sprite Texture", 2D) = "white" {}
 		_Color("Tint", Color) = (1,1,1,1)
+		[KeywordEnum(Pixperfect, Fillscreen)]	_MODE("Mode", Float) = 0
 		_Edges("Sharpness", Range(0,1)) = 0.5
 		[Toggle(_SOFT_FADE)] softfade("Soft Fade", Float) = 0
+
+			
 
 		_StencilComp("Stencil Comparison", Float) = 8
 		_Stencil("Stencil ID", Float) = 0
@@ -58,7 +61,8 @@
 
 			#pragma multi_compile_local _ UNITY_UI_CLIP_RECT
 			#pragma multi_compile_local _ UNITY_UI_ALPHACLIP
-			#pragma shader_feature __ _SOFT_FADE
+			#pragma shader_feature __  _SOFT_FADE
+			#pragma shader_feature _MODE_PIXPERFECT _MODE_FILLSCREEN 
 
 			struct v2f
 			{
@@ -70,6 +74,9 @@
 				float4 projPos		: TEXCOORD3;
 				float4 precompute	: TEXCOORD4;
 				float2 offUV		: TEXCOORD5;
+#if _MODE_FILLSCREEN
+				float4 stretch		: TEXCOORD6;
+#endif
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
 
@@ -111,14 +118,35 @@
 
 				o.offUV.xy = (o.texcoord.xy - 0.5) * 2;
 
+
+				#if _MODE_FILLSCREEN
+
+				float screenAspect = _ScreenParams.x * (_ScreenParams.w - 1);
+
+				float texAspect = _MainTex_TexelSize.x * _MainTex_TexelSize.w;
+
+				float4 aspectCorrection = float4(1, 1, _MainTex_TexelSize.x, _MainTex_TexelSize.y);
+
+				if (screenAspect > texAspect)
+					aspectCorrection.y = (texAspect / screenAspect);
+				else
+					aspectCorrection.x = (screenAspect / texAspect);
+
+				o.stretch = aspectCorrection;
+				#endif
+
 				return o;
 			}
 
 			float4 frag(v2f o) : SV_Target {
 
-				float2 fragCoord = o.screenPos.xy * _ScreenParams.xy;
+#if _MODE_FILLSCREEN
+				float2 fragCoord = (o.screenPos.xy - 0.5 ) * o.stretch.xy + 0.5;
+#else
+				float2 fragCoord = o.screenPos.xy * _ScreenParams.xy* _MainTex_TexelSize.xy;
+#endif
 
-				float4 color = tex2Dlod(_MainTex, float4(fragCoord * _MainTex_TexelSize.xy,0,0)) * o.color;
+				float4 color = tex2Dlod(_MainTex, float4(fragCoord ,0,0)) * o.color;
 
 				float4 _ProjTexPos = o.projPos;
 				float _Courners = o.texcoord.w;

@@ -362,7 +362,7 @@ namespace PlaytimePainter {
                 if (volTex)
                 {
 
-                    var tex = volTex.texture;
+                    var tex = volTex.Texture;
 
                     if (tex)
                     {
@@ -585,7 +585,7 @@ namespace PlaytimePainter {
             {
                 if (volumeTexture && field.Equals(volumeTexture.TextureInShaderProperty))
                 {
-                    tex = volumeTexture.texture;
+                    tex = volumeTexture.Texture;
                     return true;
                 }
 

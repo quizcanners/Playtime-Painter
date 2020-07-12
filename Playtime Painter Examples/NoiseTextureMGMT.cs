@@ -8,7 +8,7 @@ using UnityEditor;
 namespace PlaytimePainter.Examples
 {
 
-    [ExecuteInEditMode]
+    [ExecuteAlways]
     public class NoiseTextureMGMT : MonoBehaviour, IPEGI
     {
 

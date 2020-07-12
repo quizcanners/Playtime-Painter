@@ -1397,7 +1397,7 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
 
 #region Texture Import Settings
 
-        public static bool IsColorTexture(this Texture2D tex)
+        public static bool IsColorTexture(this Texture tex)
         {
 #if UNITY_EDITOR
             if (!tex) return true;
@@ -1448,7 +1448,7 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
         
 #if UNITY_EDITOR
 
-        public static TextureImporter GetTextureImporter(this Texture2D tex) =>
+        public static TextureImporter GetTextureImporter(this Texture tex) =>
             AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(tex)) as TextureImporter;
 
         public static bool HadNoMipmaps(this TextureImporter importer)

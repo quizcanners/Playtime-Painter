@@ -51,10 +51,10 @@ namespace PlaytimePainter
         
 #endregion
 
-        public override void Update()
+        public override void LateUpdate()
         {
 
-            base.Update();
+            base.LateUpdate();
             
             lights.UpdateLightsGlobal();
 

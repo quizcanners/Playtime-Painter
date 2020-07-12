@@ -53,9 +53,10 @@
 				}
 
 				float4 frag(v2f i) : COLOR{
-							float dist = length(i.worldPos.xyz - _WorldSpaceCameraPos.xyz);
 
-				float srcAlpha = 1;
+					float dist = length(i.worldPos.xyz - _WorldSpaceCameraPos.xyz);
+
+					float srcAlpha = 1;
 
 					#if BLIT_MODE_COPY
 					_qcPp_brushColor = SampleVolume(_qcPp_SourceTexture, i.worldPos, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES);

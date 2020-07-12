@@ -503,13 +503,33 @@ inline float4 SampleVolume(sampler2D volume, float3 worldPos, float4 VOLUME_POSI
 
 	float3 bsPos = (worldPos.xyz - VOLUME_POSITION_N_SIZE.xyz)*VOLUME_POSITION_N_SIZE.w;
 
-	bsPos.xz = saturate((bsPos.xz + VOLUME_H_SLICES.y)* VOLUME_H_SLICES.z)*VOLUME_H_SLICES.w;
-	float h = min(max(0, bsPos.y), VOLUME_H_SLICES.x*VOLUME_H_SLICES.x - 1);
+
+	
+
+	float2 posToUvUnclamped = (bsPos.xz + VOLUME_H_SLICES.y)* VOLUME_H_SLICES.z;
+
+	bsPos.xz = saturate(posToUvUnclamped);
+	
+	float2 diff = abs(posToUvUnclamped - bsPos.xz);
+	float outOfBounds = diff.x + diff.y;
+
+	bsPos.xz *= VOLUME_H_SLICES.w;
+
+	
+
+	float h = clamp(bsPos.y, 0, VOLUME_H_SLICES.x*VOLUME_H_SLICES.x - 1);
+		//min(max(0, bsPos.y), VOLUME_H_SLICES.x*VOLUME_H_SLICES.x - 1);
+
+	outOfBounds += abs(h - bsPos.y);
 
 	float sectorY = floor(h * VOLUME_H_SLICES.w);
 	float sectorX = floor(h - sectorY * VOLUME_H_SLICES.x);
 
-	float2 sector = saturate(float2(sectorX, sectorY)*VOLUME_H_SLICES.w);
+	float2 sectorUnclamped = float2(sectorX, sectorY)*VOLUME_H_SLICES.w;
+
+	float2 sector = saturate(sectorUnclamped);
+
+	
 
 	float4 bakeUV = float4(sector + bsPos.xz, 0, 0);
 	float4 bake = tex2Dlod(volume, bakeUV);
@@ -519,13 +539,19 @@ inline float4 SampleVolume(sampler2D volume, float3 worldPos, float4 VOLUME_POSI
 	sectorY = floor(h * VOLUME_H_SLICES.w);
 	sectorX = floor(h - sectorY * VOLUME_H_SLICES.x);
 
-	sector = saturate(float2(sectorX, sectorY)*VOLUME_H_SLICES.w);
+	sectorUnclamped = float2(sectorX, sectorY)*VOLUME_H_SLICES.w;
+
+	sector = saturate(sectorUnclamped);
 
 	float4 bakeUp = tex2Dlod(volume, float4(sector + bsPos.xz, 0, 0));
 
 	float deH = frac(h); 
 
 	bake = bake * (1 - deH) + bakeUp * (deH);
+
+	float isIn = 1 - saturate(outOfBounds * 999);
+
+	bake.a *= isIn;
 
 	return bake;
 }

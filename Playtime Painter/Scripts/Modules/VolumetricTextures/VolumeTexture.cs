@@ -24,12 +24,22 @@ namespace PlaytimePainter {
         public int hSlices = 1;
         public float size = 1;
 
-        [SerializeField] public Texture2D texture;
+        [SerializeField] public Texture _texture;
+
+        public Texture Texture
+        {
+            get { return _texture; }
+            set
+            {
+                _texture = value;
+                TextureInShaderProperty.SetGlobal(ImageMeta.CurrentTexture());
+            }
+        }
 
         public TextureMeta ImageMeta
         {
-            get { return texture.GetTextureMeta(); }
-            set { texture = value?.texture2D; }
+            get { return _texture.GetTextureMeta(); }
+            set { _texture = value?.ExclusiveTexture(); }
         }
 
         private ShaderProperty.TextureValue _textureInShaderr;
@@ -42,7 +52,7 @@ namespace PlaytimePainter {
             {
                 if (_textureInShaderr != null)
                     return _textureInShaderr;
-                
+
                 _textureInShaderr = new ShaderProperty.TextureValue(name);
 
                 return _textureInShaderr;
@@ -74,15 +84,12 @@ namespace PlaytimePainter {
                 return _positionNsizeInShader;
             }
         }
-    
+
         public List<Material> materials;
 
         public string NameForPEGI
         {
-            get
-            {
-                return name;
-            }
+            get { return name; }
             set
             {
                 name = value;
@@ -94,9 +101,17 @@ namespace PlaytimePainter {
 
         public int Width => (ImageMeta?.width ?? (TexturesPool.inst ? TexturesPool.inst.width : _tmpWidth)) / hSlices;
 
-        public Vector4 PosSize4Shader => transform.position.ToVector4(1f / size);
+        public Vector4 PosSize4Shader {
+            get
+            {
+                var pos = transform.position;
+                pos = Vector3Int.RoundToInt(pos);
+                    
+                return pos.ToVector4(1f / size);
+            }
+        }
 
-        public Vector4 Slices4Shader { get {
+    public Vector4 Slices4Shader { get {
             float w = ((ImageMeta?.width ?? (TexturesPool.inst ? TexturesPool.inst.width : _tmpWidth)) - hSlices * 2) / hSlices;
             return new Vector4(hSlices, w * 0.5f, 1f / w, 1f / hSlices); } }
 
@@ -121,7 +136,7 @@ namespace PlaytimePainter {
             if (ImageMeta == null)
                 return;
             ImageMeta.isAVolumeTexture = true;
-            ImageMeta.Rename(name + hSlices);
+            //ImageMeta.Rename(name + hSlices);
         }
 
         protected virtual void OnBecomeActive()
@@ -311,8 +326,13 @@ namespace PlaytimePainter {
             materials.SetVolumeTexture(this);
 
             if (!setForGlobal) return;
-            
-            PositionAndScaleProperty.SetGlobal(PosSize4Shader);
+
+            if (PositionAndScaleProperty.GlobalValue != PosSize4Shader)
+            {
+               // Debug.Log("Updating pos n shader during move " +Time.frameCount );
+                PositionAndScaleProperty.SetGlobal(PosSize4Shader);
+            }
+
             SlicesShadeProperty.SetGlobal(Slices4Shader);
             TextureInShaderProperty.SetGlobal(ImageMeta.CurrentTexture());
             
@@ -322,7 +342,7 @@ namespace PlaytimePainter {
 
         private Texture _previousTarget;
 
-        public virtual void Update()
+        public virtual void LateUpdate()
         {
 
             var currentTexture = ImageMeta.CurrentTexture();
