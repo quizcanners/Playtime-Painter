@@ -437,7 +437,7 @@ namespace PlaytimePainter
 
             pegi.toggleDefaultInspector(this);
 
-            pegi.FullWindowService.fullWindowDocumentationClickOpen(info, "About Rounded Graphic").nl();
+            pegi.FullWindowService.DocumentationClickOpen(info, "About Rounded Graphic").nl();
 
             var mat = material;
 
@@ -648,17 +648,17 @@ namespace PlaytimePainter
 
                 if (mat && !mayBeDefaultMaterial)
                 {
-
-                    if (shad)
-                        shad.ClickHighlight();
-
-                    if ("Shaders".select(60, ref shad, CompatibleShaders, false, true).changes(ref changed))
+                    
+                    if ("Shader".select(60, ref shad, CompatibleShaders, false, true).changes(ref changed))
                         mat.shader = shad;
 
                     var sTip = mat.Get(QuizCannersUtilities.ShaderTags.ShaderTip);
 
                     if (!sTip.IsNullOrEmpty())
-                        pegi.FullWindowService.fullWindowDocumentationClickOpen(sTip, "Tip from shader tag");
+                        pegi.FullWindowService.DocumentationClickOpen(sTip, "Tip from shader tag");
+
+                    if (shad)
+                        shad.ClickHighlight();
 
                     if (icon.Refresh.Click("Refresh compatible Shaders list"))
                         _compatibleShaders = null;
@@ -681,7 +681,7 @@ namespace PlaytimePainter
                     {
                         "Position: ".editEnum(60, ref _positionDataType).changes(ref changed);
 
-                        pegi.FullWindowService.fullWindowDocumentationClickOpen("Shaders that use position data often don't look right in the scene view.", "Camera dependancy warning");
+                        pegi.FullWindowService.DocumentationClickOpen("Shaders that use position data often don't look right in the scene view.", "Camera dependancy warning");
 
                         pegi.nl();
                     }
@@ -767,21 +767,13 @@ namespace PlaytimePainter
                 }
 
                 #endregion
-
-                var rt = raycastTarget;
-                if ("Click-able".toggleIcon("Is RayCast Target", ref rt).nl(ref changed))
-                    raycastTarget = rt;
-
-                if (rt)
-                    "On Click".edit_Property(() => OnClick, this).nl(ref changed);
-
+                
                 var spriteTag = mat ? mat.Get(ShaderTags.SpriteRole) : null;
 
                 var noTag = spriteTag.IsNullOrEmpty();
 
                 if (noTag || !spriteTag.SameAs(ShaderTags.SpriteRoles.Hide.NameForDisplayPEGI()))
                 {
-
                     if (noTag)
                         spriteTag = "Sprite";
 
@@ -791,7 +783,6 @@ namespace PlaytimePainter
 
                     if (sp)
                     {
-
                         var tex = sp.texture;
 
                         var rct = SpriteRect;
@@ -802,22 +793,40 @@ namespace PlaytimePainter
                             rectTransform.sizeDelta = SpriteRect.size;
                             this.SetToDirty();
                         }
-
-
                     }
-
                     pegi.nl();
-
                 }
 
-             
+                var rt = raycastTarget;
+                if ("Click-able".toggleIcon("Is RayCast Target", ref rt, hideTextWhenTrue: true).changes(ref changed))
+                    raycastTarget = rt;
+
+                if (rt)
+                {
+                    bool foldedOut = false;
+
+                    if (OnClick.GetPersistentEventCount() > 0)
+                        foldedOut = true;
+                    else
+                    {
+                        pegi.Indent(5);
+                        "On Click".foldout().nl();
+                        foldedOut = pegi.IsFoldedOut;
+                        pegi.UnIndent(5);
+                    }
+
+                    if (foldedOut)
+                    {
+                        pegi.nl();
+                        "On Click".edit_Property(() => OnClick, this).nl(ref changed);
+                    }
+                }
+                pegi.nl();
             }
 
             if ("Modules".enter_List(ref _modules, ref _inspectedModule, ref _showModules).nl(ref changed))
                 this.SaveCfgData();
-
             
-
             if (changed)
                 SetVerticesDirty();
 

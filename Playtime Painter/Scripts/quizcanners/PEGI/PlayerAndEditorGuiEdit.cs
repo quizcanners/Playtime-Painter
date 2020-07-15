@@ -2119,6 +2119,8 @@ namespace PlayerAndEditorGUI
             }
 #endif
 
+            "{0} [{1}]".F(label, field ? field.name : "NULL").write(toolTip: field.GetNameForInspector_Uobj());
+
             return false;
 
         }
@@ -2133,7 +2135,7 @@ namespace PlayerAndEditorGUI
             }
 
 #endif
-
+            "{0} [{1}]".F(label, field ? field.name : "NULL").write(toolTip: field.GetNameForInspector_Uobj());
             return false;
 
         }
@@ -2148,6 +2150,7 @@ namespace PlayerAndEditorGUI
             }
 
 #endif
+            "{0} [{1}]".F(label, field ? field.name : "NULL").write(toolTip: toolTip);
             return false;
         }
 
@@ -2166,6 +2169,9 @@ namespace PlayerAndEditorGUI
                 return edit(ref field, type, allowSceneObjects);
             }
 #endif
+
+            "{0} [{1}]".F(label, field ? field.name : "NULL").write(toolTip: field.GetNameForInspector_Uobj());
+
             return false;
         }
 
@@ -2179,6 +2185,8 @@ namespace PlayerAndEditorGUI
             }
 
 #endif
+
+            "{0} [{1}]".F(label, field ? field.name : "NULL").write(toolTip: field.GetNameForInspector_Uobj(), width: width);
             return false;
         }
 
@@ -2191,6 +2199,8 @@ namespace PlayerAndEditorGUI
                 return edit(ref field, type, allowSceneObjects);
             }
 #endif
+
+            "{0} [{1}]".F(label, field ? field.name : "NULL").write(toolTip: toolTip, width: width);
             return false;
         }
         

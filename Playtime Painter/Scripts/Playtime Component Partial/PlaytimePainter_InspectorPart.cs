@@ -216,7 +216,7 @@ namespace PlaytimePainter
                     "Tool Configuration");
 
                 if (!PainterDataAndConfig.hideDocumentation)
-                    pegi.FullWindowService.fullWindowDocumentationClickOpen(LazyLocalization.InspectPainterDocumentation,
+                    pegi.FullWindowService.DocumentationClickOpen(LazyLocalization.InspectPainterDocumentation,
                         MsgPainter.AboutPlaytimePainter.GetText());
 
                 #endregion
@@ -248,7 +248,7 @@ namespace PlaytimePainter
                                  meshFilter.sharedMesh != meshCollider.sharedMesh)
                         {
 
-                            pegi.FullWindowService.fullWindowWarningDocumentationClickOpen(
+                            pegi.FullWindowService.WarningDocumentationClickOpen(
                                 "Collider and filter have different meshes. Painting may not be able to obtain a correct UV coordinates.",
                                 "Mesh collider mesh is different");
                         }
@@ -485,7 +485,7 @@ namespace PlaytimePainter
 
                                         if (!PainterDataAndConfig.hideDocumentation &&
                                             pegi.FullWindowService.DocumentationClick("Why Update Collider from skinned mesh?"))
-                                            pegi.FullWindowService.FullWindwDocumentationOpen(
+                                            pegi.FullWindowService.DocumentationOpen(
                                                 ("To paint an object a collision detection is needed. Mesh Collider is not being animated. To paint it, update Mesh Collider with Update Collider button." +
                                                  " For ingame painting it is preferable to use simple colliders like Speheres to avoid per frame updates for collider mesh."
                                                 ));

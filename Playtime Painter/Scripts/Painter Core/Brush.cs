@@ -264,7 +264,7 @@ namespace PlaytimePainter {
                 SetBlitMode(cpu, blitMode);
 
             if (DocsEnabled && blitMode != null && pegi.FullWindowService.DocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI())))
-                pegi.FullWindowService.FullWindwDocumentationOpen(blitMode.ToolTip);
+                pegi.FullWindowService.DocumentationOpen(blitMode.ToolTip);
 
             if (showAdvanced)
                 pegi.nl();
@@ -283,7 +283,7 @@ namespace PlaytimePainter {
                 pegi.select_Index(ref _inGpuBrushType, BrushTypes.Base.AllTypes).changes(ref changed);
                 
                 if (DocsEnabled && brushType != null && pegi.FullWindowService.DocumentationClick("About {0} brush type".F(brushType.NameForDisplayPEGI())))
-                    pegi.FullWindowService.FullWindwDocumentationOpen(brushType.ToolTip);
+                    pegi.FullWindowService.DocumentationOpen(brushType.ToolTip);
 
                 if (!brushType.ShowInDropdown())
                 {
@@ -320,7 +320,7 @@ namespace PlaytimePainter {
                     if (InspectAdvanced) {
                         "Clamp".toggleIcon(ref clampSourceTexture).nl(ref changed);
                         "Multiply by Alpha".toggleIcon(ref ignoreSrcTextureTransparency).changes(ref changed);
-                        pegi.FullWindowService.fullWindowDocumentationClickOpen("Ignore transparency of the source texture. To only paint parts of the texture which are visible").nl();
+                        pegi.FullWindowService.DocumentationClickOpen("Ignore transparency of the source texture. To only paint parts of the texture which are visible").nl();
                     }
                 }
                 

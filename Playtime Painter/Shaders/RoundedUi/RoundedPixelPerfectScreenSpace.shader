@@ -3,7 +3,7 @@
 	{
 		[PerRendererData]
 		_MainTex("Sprite Texture", 2D) = "white" {}
-		_Color("Tint", Color) = (1,1,1,1)
+		_ColorOverlay("Color Overlay", Color) = (1,1,1,0)
 		[KeywordEnum(Pixperfect, Fillscreen)]	_MODE("Mode", Float) = 0
 		_Edges("Sharpness", Range(0,1)) = 0.5
 		[Toggle(_SOFT_FADE)] softfade("Soft Fade", Float) = 0
@@ -75,13 +75,13 @@
 				float4 precompute	: TEXCOORD4;
 				float2 offUV		: TEXCOORD5;
 #if _MODE_FILLSCREEN
-				float4 stretch		: TEXCOORD6;
+				float2 stretch		: TEXCOORD6;
 #endif
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
 
 			uniform sampler2D _MainTex;
-			uniform half4 _Color;
+			uniform float4 _ColorOverlay;
 			uniform float4 _TextureSampleAdd;
 			uniform float4 _ClipRect;
 			uniform float4 _MainTex_TexelSize;
@@ -101,7 +101,7 @@
 
 				o.color = v.color;
 				o.color.rgb *= normalize(o.color.rgb)*1.75;
-				o.color *= _Color;
+				
 
 				#if _SOFT_FADE
 					_Edges *= o.color.a * o.color.a;
@@ -123,9 +123,9 @@
 
 				float screenAspect = _ScreenParams.x * (_ScreenParams.w - 1);
 
-				float texAspect = _MainTex_TexelSize.x * _MainTex_TexelSize.w;
+				float texAspect = _MainTex_TexelSize.y * _MainTex_TexelSize.z;
 
-				float4 aspectCorrection = float4(1, 1, _MainTex_TexelSize.x, _MainTex_TexelSize.y);
+				float2 aspectCorrection = float2(1, 1);
 
 				if (screenAspect > texAspect)
 					aspectCorrection.y = (texAspect / screenAspect);
@@ -143,10 +143,12 @@
 #if _MODE_FILLSCREEN
 				float2 fragCoord = (o.screenPos.xy - 0.5 ) * o.stretch.xy + 0.5;
 #else
-				float2 fragCoord = o.screenPos.xy * _ScreenParams.xy* _MainTex_TexelSize.xy;
+				float2 fragCoord = o.screenPos.xy * _ScreenParams.xy * _MainTex_TexelSize.xy;
 #endif
 
 				float4 color = tex2Dlod(_MainTex, float4(fragCoord ,0,0)) * o.color;
+
+				color.rgb = _ColorOverlay.rgb * _ColorOverlay.a + color.rgb * (1 - _ColorOverlay.a);
 
 				float4 _ProjTexPos = o.projPos;
 				float _Courners = o.texcoord.w;

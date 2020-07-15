@@ -252,7 +252,7 @@ namespace PlaytimePainter.Examples
                 return false;
             }
             
-            pegi.FullWindowService.fullWindowDocumentationClickOpen(()=> "Works with PaintWithoutComponent script. This lets you configure how painting will be received." +
+            pegi.FullWindowService.DocumentationClickOpen(()=> "Works with PaintWithoutComponent script. This lets you configure how painting will be received." +
                                                        " PaintWithoutComponent.cs is usually attached to a main camera (if painting in first person). Current Texture: " + TextureId, "About Painting Receiver");
 
             var changes = false;

@@ -177,7 +177,7 @@ namespace PlayerAndEditorGUI {
         public static bool DocumentationClick(this LazyTranslation trnsl) {
             if (pegi.FullWindowService.DocumentationClick(trnsl.text))
             {
-                pegi.FullWindowService.FullWindwDocumentationOpen(trnsl.details);
+                pegi.FullWindowService.DocumentationOpen(trnsl.details);
                 return true;
             }
 
@@ -188,7 +188,7 @@ namespace PlayerAndEditorGUI {
         {
             if (pegi.FullWindowService.DocumentationWarningClick(trnsl.text))
             {
-                pegi.FullWindowService.FullWindwDocumentationOpen(trnsl.details);
+                pegi.FullWindowService.DocumentationOpen(trnsl.details);
                 return true;
             }
 

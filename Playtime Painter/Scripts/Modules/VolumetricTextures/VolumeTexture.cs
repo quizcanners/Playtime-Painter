@@ -107,8 +107,12 @@ namespace PlaytimePainter {
             get
             {
                 changePositionOnOffset = Mathf.Max(1, changePositionOnOffset);
-                var pos = transform.position/ changePositionOnOffset;
-                pos = Vector3Int.FloorToInt(pos) * changePositionOnOffset;
+
+                var scaledChunks = changePositionOnOffset * size;
+
+                var pos = transform.position / scaledChunks;
+                pos = Vector3Int.FloorToInt(pos);
+                pos *= scaledChunks;
                     
                 return pos.ToVector4(1f / size);
             }
@@ -234,7 +238,7 @@ namespace PlaytimePainter {
                 pegi.nl();
             }
 
-            pegi.FullWindowService.fullWindowDocumentationClickOpen(VolumeDocumentation);
+            pegi.FullWindowService.DocumentationClickOpen(VolumeDocumentation);
 
             if (inspectedElement == -1)
             {
@@ -243,7 +247,7 @@ namespace PlaytimePainter {
                 "Position chunks".edit(ref changePositionOnOffset).changes(ref changed);
 
                 pegi.FullWindowService
-                    .fullWindowDocumentationClickOpen("For Baking optimisations, how often position is changed");
+                    .DocumentationClickOpen("For Baking optimisations, how often position is changed");
 
                 pegi.nl();
             }
