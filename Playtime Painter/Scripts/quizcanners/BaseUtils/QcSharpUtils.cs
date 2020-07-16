@@ -957,12 +957,21 @@ namespace QuizCannersUtilities {
         public int index;
 
         public static bool operator ==(SafeIndexBase a, SafeIndexBase b)
-            => a.index == b.index;
+        {
+            var aIsNull = a is null;// ReferenceEquals(a, null);
+            var bIsNull = b is null;//ReferenceEquals(b, null);
+
+           return (aIsNull && bIsNull)
+                || ((!aIsNull && !bIsNull)
+                    && a.index == b.index && (a.GetType() == b.GetType()));
+        }
 
         public static bool operator !=(SafeIndexBase a, SafeIndexBase b)
-            => a.index != b.index;
+            => !(a == b);
 
-        public bool Equals(SafeIndexBase other) => index == other.index && other.GetType() == GetType();
+        public bool Equals(SafeIndexBase other) =>
+            this == other;
+        //index == other.index && other.GetType() == GetType();
 
         public override bool Equals(object other) => other.GetType() == GetType() && ((SafeIndexBase)other).index == index;
 
