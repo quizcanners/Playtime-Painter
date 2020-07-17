@@ -212,8 +212,7 @@ namespace PlaytimePainter.CameraModules {
                 "Sky Color".edit(60, ref skyColor.targetValue).nl(ref changed);
 
             pegi.nl();
-
-
+            
             var mgmt = PainterCamera.Inst;
             if (mgmt)
             {
