@@ -13,7 +13,7 @@ namespace PlaytimePainter.CameraModules {
     public class ColorBleedCameraModule : CameraModuleBase
     {
 
-        const string tag = "Color Mgmt";
+        public const string tag = "Color Mgmt";
 
         public override string ClassTag => tag;
 

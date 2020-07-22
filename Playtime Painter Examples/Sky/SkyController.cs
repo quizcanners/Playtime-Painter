@@ -1,6 +1,9 @@
 ﻿using QuizCannersUtilities;
 using UnityEngine;
 using PlayerAndEditorGUI;
+using static PlaytimePainter.CameraModules.ColorBleedCameraModule;
+using System.Collections.Generic;
+using PlaytimePainter.CameraModules;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -76,29 +79,46 @@ namespace PlaytimePainter.Examples
 
         private void LateUpdate() => transform.rotation = Quaternion.identity;
 
+        private int _inspectedStuff = -1;
+
         public bool Inspect()
         {
             var changed = false;
 
-            "Main Cam".edit(ref _mainCam).nl();
-            "Directional Light".edit(ref directional).nl();
-            "Sky Renderer".edit(ref skeRenderer).nl();
-            "Sky dinamics".edit(ref skyDynamics).nl();
-
-            if (_mainCam)
+            if (_inspectedStuff == -1)
             {
-                if (_mainCam.clearFlags == CameraClearFlags.Skybox)
+                pegi.toggleDefaultInspector(this);
+
+
+
+                "Main Cam".edit(ref _mainCam).nl();
+                "Directional Light".edit(ref directional).nl();
+                "Sky Renderer".edit(ref skeRenderer).nl();
+                "Sky dinamics".edit(ref skyDynamics).nl();
+
+                if (_mainCam)
                 {
-                    "Skybox will hide procedural sky".writeWarning();
-                    if ("Set to Black Color".Click())
+                    if (_mainCam.clearFlags == CameraClearFlags.Skybox)
                     {
-                        _mainCam.clearFlags = CameraClearFlags.Color;
-                        _mainCam.backgroundColor = Color.clear;
+                        "Skybox will hide procedural sky".writeWarning();
+                        if ("Set to Black Color".Click())
+                        {
+                            _mainCam.clearFlags = CameraClearFlags.Color;
+                            _mainCam.backgroundColor = Color.clear;
+                        }
                     }
                 }
             }
 
 
+            if ("Weather configurations".enter(ref _inspectedStuff, 0).nl())
+            {
+                var cam = PainterCamera.GetModule<ColorBleedCameraModule>();
+                if (cam != null)
+                {
+                    cam.Nested_Inspect(ref changed);
+                }
+            }
 
             return changed;
         }

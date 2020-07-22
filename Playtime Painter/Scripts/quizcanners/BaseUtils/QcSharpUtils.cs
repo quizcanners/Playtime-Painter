@@ -950,6 +950,17 @@ namespace QuizCannersUtilities {
         }
         #endregion
 
+        public static bool SameAs<T>(this T ind, T other) where T : SafeIndexBase
+        {
+            if (ind == null && other == null)
+                return true;
+
+            if (ind == null || other == null)
+                return false;
+
+            return ind.index == other.index;
+        }
+
     }
 
     public abstract class SafeIndexBase
@@ -969,9 +980,7 @@ namespace QuizCannersUtilities {
         public static bool operator !=(SafeIndexBase a, SafeIndexBase b)
             => !(a == b);
 
-        public bool Equals(SafeIndexBase other) =>
-            this == other;
-        //index == other.index && other.GetType() == GetType();
+        public bool Equals(SafeIndexBase other) => this == other;
 
         public override bool Equals(object other) => other.GetType() == GetType() && ((SafeIndexBase)other).index == index;
 

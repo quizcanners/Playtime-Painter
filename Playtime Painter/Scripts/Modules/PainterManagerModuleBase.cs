@@ -70,7 +70,7 @@ namespace PlaytimePainter.CameraModules {
 
         public static readonly List<IPainterManagerPluginOnGUI> GuiPlugins = new List<IPainterManagerPluginOnGUI>();
 
-        public static void RefreshPlugins() {
+        public static void RefreshModules() {
 
             if (modules == null)
                 modules = new List<CameraModuleBase>();

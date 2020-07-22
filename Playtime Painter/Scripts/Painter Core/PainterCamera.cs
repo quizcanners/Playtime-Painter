@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using PlayerAndEditorGUI;
 using PlaytimePainter.CameraModules;
 using PlaytimePainter.MeshEditing;
@@ -84,7 +85,7 @@ namespace PlaytimePainter {
                         var go = Resources.Load("prefabs/" + PainterDataAndConfig.PainterCameraName) as GameObject;
                         _inst = Instantiate(go).GetComponent<PainterCamera>();
                         _inst.name = PainterDataAndConfig.PainterCameraName;
-                        CameraModuleBase.RefreshPlugins();
+                        CameraModuleBase.RefreshModules();
                     }
                 }
      
@@ -127,17 +128,14 @@ namespace PlaytimePainter {
 
         #region Modules
       
-        private ListMetaData _modulesMeta = new ListMetaData("Modules", true, true, true, false);
+        private static ListMetaData _modulesMeta = new ListMetaData("Modules", true, true, true, false);
 
-        public IEnumerable<CameraModuleBase> Plugins
+        public static T GetModule<T>() where T : CameraModuleBase 
         {
-            get {
+            if (CameraModuleBase.modules == null)
+                CameraModuleBase.RefreshModules();
 
-                if (CameraModuleBase.modules == null)
-                    CameraModuleBase.RefreshPlugins();
-
-                return CameraModuleBase.modules;
-            }
+            return (T)CameraModuleBase.modules.Find(m => m.GetType() == typeof(T));
         }
         
         #endregion
@@ -234,7 +232,7 @@ namespace PlaytimePainter {
             switch (tg) {
                 case "pl":
                     data.Decode_List(out CameraModuleBase.modules, ref _modulesMeta, CameraModuleBase.all);
-                    CameraModuleBase.RefreshPlugins();
+                    CameraModuleBase.RefreshModules();
                     break;
                 case "mm": MeshManager.Decode(data); break;
                 case "rts": RenderTextureBuffersManager.renderBuffersSize = data.ToInt(); break;
@@ -762,7 +760,7 @@ namespace PlaytimePainter {
             
             autodisabledBufferTarget = null;
 
-            CameraModuleBase.RefreshPlugins();
+            CameraModuleBase.RefreshModules();
 
             foreach (var p in CameraModuleBase.modules)
                 p?.Enable();
@@ -878,7 +876,7 @@ namespace PlaytimePainter {
 
             if (needRefresh) {
                 Debug.Log("Refreshing modules");
-                CameraModuleBase.RefreshPlugins();
+                CameraModuleBase.RefreshModules();
             }
 
             lastPainterCall = QcUnity.TimeSinceStartup();
@@ -1083,7 +1081,7 @@ namespace PlaytimePainter {
             if (!_modulesMeta.Inspecting) {
 
                 if ("Find Modules".Click())
-                    CameraModuleBase.RefreshPlugins();
+                    CameraModuleBase.RefreshModules();
 
                 if ("Delete Modules".Click().nl())
                     CameraModuleBase.modules = null;
