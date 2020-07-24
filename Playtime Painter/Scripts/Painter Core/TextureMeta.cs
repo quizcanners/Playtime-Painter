@@ -1407,10 +1407,9 @@ namespace PlaytimePainter
 
         public bool InspectInList(IList list, int ind, ref int edited)
         {
-            this.GetNameForInspector().write(150, texture2D);
+            pegi.write(texture2D);
             if (this.Click_Enter_Attention())
                 edited = ind;
-            texture2D.ClickHighlight();
 
             return false;
         }

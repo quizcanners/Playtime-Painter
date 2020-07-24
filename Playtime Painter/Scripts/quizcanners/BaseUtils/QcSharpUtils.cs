@@ -950,7 +950,7 @@ namespace QuizCannersUtilities {
         }
         #endregion
 
-        public static bool SameAs<T>(this T ind, T other) where T : SafeIndexBase
+       /* public static bool SameAs<T>(this T ind, T other) where T : SafeIndexBase
         {
             if (ind == null && other == null)
                 return true;
@@ -958,33 +958,23 @@ namespace QuizCannersUtilities {
             if (ind == null || other == null)
                 return false;
 
-            return ind.index == other.index;
-        }
+            return ind.index == other.index && (ind.GetType() == other.GetType());
+        }*/
 
     }
 
     public abstract class SafeIndexBase
     {
-        public int index;
+        public int index = -1;
 
-        public static bool operator ==(SafeIndexBase a, SafeIndexBase b)
+        public virtual bool SameAs(SafeIndexBase other)
         {
-            var aIsNull = a is null;// ReferenceEquals(a, null);
-            var bIsNull = b is null;//ReferenceEquals(b, null);
+            if (other == null)
+                return false;
 
-           return (aIsNull && bIsNull)
-                || ((!aIsNull && !bIsNull)
-                    && a.index == b.index && (a.GetType() == b.GetType()));
+            return index == other.index && (GetType() == other.GetType());
         }
 
-        public static bool operator !=(SafeIndexBase a, SafeIndexBase b)
-            => !(a == b);
-
-        public bool Equals(SafeIndexBase other) => this == other;
-
-        public override bool Equals(object other) => other.GetType() == GetType() && ((SafeIndexBase)other).index == index;
-
-        public override int GetHashCode() => GetType().GetHashCode() + index;
     }
 
     public class LoopLock : IEnumerator

@@ -10,25 +10,13 @@ namespace PlayerAndEditorGUI.Examples
 #pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching
 
-    public abstract class PegiSmartId : IGotIndex
+    public abstract class PegiSmartId : SafeIndexBase, IGotIndex
     {
-        public int id = -1;
-
         public int IndexForPEGI
         {
-            get { return id; }
-            set { id = value; }
+            get { return index; }
+            set { index = value; }
         }
-
-        public override bool Equals(object other)
-        {
-            var indx = other as IGotIndex;
-
-            return indx != null && indx.IndexForPEGI == id;
-        }
-
-        public override int GetHashCode() => 1877310944 + id;
-
     }
 
     public abstract class PegiSmartIDGeneric<T> : PegiSmartId, IPEGI_ListInspect, IPEGI, IGotDisplayName  where T: IGotIndex, IGotName, new()
@@ -37,7 +25,7 @@ namespace PlayerAndEditorGUI.Examples
 
         public T GetEntity()
         {
-            if (id == -1)
+            if (index == -1)
                 return default(T);
 
             var prots = GetEnities();
@@ -45,7 +33,7 @@ namespace PlayerAndEditorGUI.Examples
             if (prots == null)
                 return default(T);
             
-            return prots.GetByIGotIndex(id);
+            return prots.GetByIGotIndex(index);
         }
 
         public T GetOrCreateEntity()
@@ -56,33 +44,41 @@ namespace PlayerAndEditorGUI.Examples
 
             var prots = GetEnities();
 
-            id = prots.GetFreeIndex();
+            index = prots.GetFreeIndex();
 
             ent = new T
             {
-                IndexForPEGI = id
+                IndexForPEGI = index
             };
 
             return ent;
         }
 
-        public T GetOrCreateEntityByIGotName(string name)
+        public T SetOrCreateEntityByIGotName(string name)
         {
             var ent = GetEntity();
-            if (ent != null)
+            if (ent != null && ent.NameForPEGI.Equals(name))
                 return ent;
 
             var prots = GetEnities();
-            
-            id = prots.GetFreeIndex();
+
+            ent = prots.GetByIGotName(name);
+
+            if (ent != null)
+            {
+                IndexForPEGI = ent.IndexForPEGI;
+                return ent;
+            }
+
+            index = prots.GetFreeIndex();
 
             ent = new T
             {
-                IndexForPEGI = id,
+                IndexForPEGI = index,
                 NameForPEGI = name
             };
 
-            prots.AddOrReplaceByIGotName(ent);
+            prots.Add(ent);
 
             return ent;
         }
@@ -97,14 +93,14 @@ namespace PlayerAndEditorGUI.Examples
             if (prots == null)
                 "NO PROTS".nl();
             else
-                pegi.select_iGotIndex(ref id, prots).nl();
+                pegi.select_iGotIndex(ref index, prots).nl();
 
             T val = GetEntity();
 
             if (val != null)
                 pegi.Try_Nested_Inspect(val).nl(ref changed);
             else
-                (GetEnities() == null ? "No Prototypes" : "ID {0} not found in Prototypes".F(id)).nl();
+                (GetEnities() == null ? "No Prototypes" : "ID {0} not found in Prototypes".F(index)).nl();
 
             return changed;
         }
@@ -113,14 +109,14 @@ namespace PlayerAndEditorGUI.Examples
         {
             var changed = false;
 
-            "ID: {0} ".F(id).write(45);
+            "ID: {0} ".F(index).write(45);
 
             var prots = GetEnities();
 
             if (prots == null)
                 "NO PROTS".write();
 
-            pegi.select_iGotIndex(ref id, prots);
+            pegi.select_iGotIndex(ref index, prots);
 
             if (icon.Enter.ClickUnFocus())
                 edited = ind;
@@ -131,7 +127,7 @@ namespace PlayerAndEditorGUI.Examples
         public virtual string NameForDisplayPEGI()
         {
             T ent = GetEntity();
-            return ent!= null ? ent.GetNameForInspector() : "Id: {0} NOT FOUND".F(id);
+            return ent!= null ? ent.GetNameForInspector() : "Id: {0} NOT FOUND".F(index);
         }
         #endregion
     }

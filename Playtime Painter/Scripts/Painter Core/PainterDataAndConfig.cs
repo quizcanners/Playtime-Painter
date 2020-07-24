@@ -14,7 +14,7 @@ namespace PlaytimePainter
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 
-
+    [CreateAssetMenu(fileName = "Painter Config", menuName = "Playtime Painter/Config")]
     public class PainterDataAndConfig : CfgReferencesHolder, IKeepMyCfg
     {
         private static PlaytimePainter Painter => PlaytimePainter.inspected;
@@ -29,37 +29,40 @@ namespace PlaytimePainter
         public int selectedCustomBlitMode;
 
         #region Shaders
+        public bool dontIncludeShaderInBuild;
 
-        public Shader additiveAlphaOutput;
-        public Shader additiveAlphaAndUVOutput;
-        public Shader multishadeBufferBlit;
-        public Shader blurAndSmudgeBufferBlit;
-        public Shader projectorBrushBufferBlit;
+        [SerializeField] private List<Shader> shadersToBuldWith = new List<Shader>();
 
-        public Shader brushBlit;
-        public Shader brushAdd;
-        public Shader brushCopy;
-        public Shader pixPerfectCopy;
-        public Shader brushBufferCopy;
-        public Shader brushBlitSmoothed;
-        public Shader brushDoubleBuffer;
-        public Shader brushDoubleBufferProjector;
-        public Shader brushBlurAndSmudge;
-        public Shader inkColorSpread;
+        [NonSerialized] public Shader additiveAlphaOutput;
+        [NonSerialized] public Shader additiveAlphaAndUVOutput;
+        [NonSerialized] public Shader multishadeBufferBlit;
+        [NonSerialized] public Shader blurAndSmudgeBufferBlit;
+        [NonSerialized] public Shader projectorBrushBufferBlit;
 
-        public Shader bufferColorFill;
-        public Shader bufferCopyR;
-        public Shader bufferCopyG;
-        public Shader bufferCopyB;
-        public Shader bufferCopyA;
-        public Shader bufferBlendRGB;
-        public Shader bufferCopyDownscaleX4;
-        public Shader bufferCopyDownscaleX8;
-        public Shader bufferCopyDownscaleX16_Approx;
-        public Shader bufferCopyDownscaleX32_Approx;
-        public Shader bufferCopyDownscaleX64_Approx;
-        
-        public Shader rayTraceOutput;
+        [NonSerialized] public Shader brushBlit;
+        [NonSerialized] public Shader brushAdd;
+        [NonSerialized] public Shader brushCopy;
+        [NonSerialized] public Shader pixPerfectCopy;
+        [NonSerialized] public Shader brushBufferCopy;
+        [NonSerialized] public Shader brushBlitSmoothed;
+        [NonSerialized] public Shader brushDoubleBuffer;
+        [NonSerialized] public Shader brushDoubleBufferProjector;
+        [NonSerialized] public Shader brushBlurAndSmudge;
+        [NonSerialized] public Shader inkColorSpread;
+
+        [NonSerialized] public Shader bufferColorFill;
+        [NonSerialized] public Shader bufferCopyR;
+        [NonSerialized] public Shader bufferCopyG;
+        [NonSerialized] public Shader bufferCopyB;
+        [NonSerialized] public Shader bufferCopyA;
+        [NonSerialized] public Shader bufferBlendRGB;
+        [NonSerialized] public Shader bufferCopyDownscaleX4;
+        [NonSerialized] public Shader bufferCopyDownscaleX8;
+        [NonSerialized] public Shader bufferCopyDownscaleX16_Approx;
+        [NonSerialized] public Shader bufferCopyDownscaleX32_Approx;
+        [NonSerialized] public Shader bufferCopyDownscaleX64_Approx;
+
+        [NonSerialized] public Shader rayTraceOutput;
 
         public Shader GetShaderToWriteInto(ColorChanel chan)  {
             switch (chan) {
@@ -72,19 +75,111 @@ namespace PlaytimePainter
             return null;
         }
 
-        public Shader previewMesh;
-        public Shader previewBrush;
-        public Shader previewTerrain;
-#endregion
+        [NonSerialized] public Shader previewMesh;
+        [NonSerialized] public Shader previewBrush;
+        [NonSerialized] public Shader previewTerrain;
+
+
+        public void CheckShaders(bool forceReload = false)
+        {
+#if !UNITY_EDITOR
+                return;
+#else
+            shadersToBuldWith.Clear();
+
+            CheckShader(ref pixPerfectCopy, "Playtime Painter/Buffer Blit/Pixel Perfect Copy", forceReload);
+
+            CheckShader(ref brushBlitSmoothed, "Playtime Painter/Buffer Blit/Smooth", forceReload);
+
+            CheckShader(ref brushBufferCopy, "Playtime Painter/Buffer Blit/Copier", forceReload);
+
+            CheckShader(ref bufferColorFill, "Playtime Painter/Buffer Blit/Color Fill", forceReload);
+
+            CheckShader(ref bufferCopyR, "Playtime Painter/Buffer Blit/Copy Red", forceReload);
+
+            CheckShader(ref bufferCopyG, "Playtime Painter/Buffer Blit/Copy Green", forceReload);
+
+            CheckShader(ref bufferCopyB, "Playtime Painter/Buffer Blit/Copy Blue", forceReload);
+
+            CheckShader(ref bufferCopyA, "Playtime Painter/Buffer Blit/Copy Alpha", forceReload);
+
+            CheckShader(ref bufferBlendRGB, "Playtime Painter/Editor/Buffer Blit/Blend", forceReload);
+
+            CheckShader(ref multishadeBufferBlit, "Playtime Painter/Editor/Buffer Blit/Multishade", forceReload);
+
+            CheckShader(ref blurAndSmudgeBufferBlit, "Playtime Painter/Editor/Buffer Blit/BlurN_Smudge", forceReload);
+
+            CheckShader(ref projectorBrushBufferBlit, "Playtime Painter/Editor/Buffer Blit/Projector Brush", forceReload);
+
+            CheckShader(ref brushBlit, "Playtime Painter/Editor/Brush/Blit", forceReload);
+
+            CheckShader(ref brushAdd, "Playtime Painter/Editor/Brush/Add", forceReload);
+
+            CheckShader(ref brushCopy, "Playtime Painter/Editor/Brush/Copy", forceReload);
+
+            CheckShader(ref brushDoubleBuffer, "Playtime Painter/Editor/Brush/DoubleBuffer", forceReload);
+
+            CheckShader(ref brushDoubleBufferProjector, "Playtime Painter/Editor/Brush/DoubleBuffer_Projector", forceReload);
+
+            CheckShader(ref brushBlurAndSmudge, "Playtime Painter/Editor/Brush/BlurN_Smudge", forceReload);
+
+            CheckShader(ref inkColorSpread, "Playtime Painter/Editor/Brush/Spread", forceReload);
+
+            CheckShader(ref additiveAlphaOutput, "Playtime Painter/Editor/Brush/AdditiveAlphaOutput", forceReload);
+
+            CheckShader(ref additiveAlphaAndUVOutput, "Playtime Painter/Editor/Brush/AdditiveUV_Alpha", forceReload);
+
+            CheckShader(ref previewBrush, "Playtime Painter/Editor/Preview/Brush", forceReload);
+
+            CheckShader(ref previewMesh, "Playtime Painter/Editor/Preview/Mesh", forceReload);
+
+            CheckShader(ref previewTerrain, "Playtime Painter/Editor/Preview/Terrain", forceReload);
+
+            CheckShader(ref bufferCopyDownscaleX4, "Playtime Painter/Buffer Blit/DownScaleX4", forceReload);
+
+            CheckShader(ref bufferCopyDownscaleX8, "Playtime Painter/Buffer Blit/DownScaleX8", forceReload);
+
+            CheckShader(ref bufferCopyDownscaleX16_Approx, "Playtime Painter/Buffer Blit/DownScaleX16_Approx", forceReload);
+
+            CheckShader(ref bufferCopyDownscaleX32_Approx, "Playtime Painter/Buffer Blit/DownScaleX32_Approx", forceReload);
+
+            CheckShader(ref bufferCopyDownscaleX64_Approx, "Playtime Painter/Buffer Blit/DownScaleX64_Approx", forceReload);
+
+            CheckShader(ref rayTraceOutput, "Playtime Painter/Editor/Replacement/ShadowDataOutput", forceReload);
+
+            this.SetToDirty();
+
+#endif
+        }
+
+        private void CheckShader(ref Shader shade, string path, bool forceReload = false)
+        {
+
+#if UNITY_EDITOR
+            if (forceReload || !shade)
+            {
+                shade = Shader.Find(path);
+                if (!shade)
+                    Debug.LogError("Could not find {0}".F(path));
+            }
+
+            if (!dontIncludeShaderInBuild && shade)
+                shadersToBuldWith.Add(shade);
+
+#endif
+        }
+
+
+        #endregion
 
         #region Constants
-        
+
         public const string PainterCameraName = "PainterCamera";
         public const string ToolName = "Playtime Painter";
         
         #endregion
 
-#region DataLists
+        #region DataLists
 
         public List<string> playtimeSavedTextures = new List<string>();
         
@@ -447,6 +542,9 @@ namespace PlaytimePainter
                     this.LoadCfgData();
                 }
 
+                if ("Don't Build with Painter Shaders".toggleIcon(ref dontIncludeShaderInBuild).nl())
+                    CheckShaders(forceReload: true);
+                
                 #if UNITY_EDITOR
 
                 if ("Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay).nl())
@@ -498,90 +596,7 @@ namespace PlaytimePainter
         }
         
         #endregion
-
-
-
-        public void CheckShaders(bool forceReload = false)
-        {
-            #if !UNITY_EDITOR
-                return;
-            #else
-
-            CheckShader(ref pixPerfectCopy,             "Playtime Painter/Buffer Blit/Pixel Perfect Copy",      forceReload);
-
-            CheckShader(ref brushBlitSmoothed,          "Playtime Painter/Buffer Blit/Smooth",                  forceReload);
-
-            CheckShader(ref brushBufferCopy,            "Playtime Painter/Buffer Blit/Copier",                  forceReload);
-
-            CheckShader(ref bufferColorFill,            "Playtime Painter/Buffer Blit/Color Fill",              forceReload);
-
-            CheckShader(ref bufferCopyR,                "Playtime Painter/Buffer Blit/Copy Red",                forceReload);
-
-            CheckShader(ref bufferCopyG,                "Playtime Painter/Buffer Blit/Copy Green",              forceReload);
-
-            CheckShader(ref bufferCopyB,                "Playtime Painter/Buffer Blit/Copy Blue",               forceReload);
-
-            CheckShader(ref bufferCopyA,                "Playtime Painter/Buffer Blit/Copy Alpha",              forceReload);
-
-            CheckShader(ref bufferBlendRGB,             "Playtime Painter/Editor/Buffer Blit/Blend",            forceReload);
-
-            CheckShader(ref multishadeBufferBlit,       "Playtime Painter/Editor/Buffer Blit/Multishade",       forceReload);
-
-            CheckShader(ref blurAndSmudgeBufferBlit,    "Playtime Painter/Editor/Buffer Blit/BlurN_Smudge",     forceReload);
-
-            CheckShader(ref projectorBrushBufferBlit,   "Playtime Painter/Editor/Buffer Blit/Projector Brush",  forceReload);
-
-            CheckShader(ref brushBlit,                  "Playtime Painter/Editor/Brush/Blit",                   forceReload);
-
-            CheckShader(ref brushAdd,                   "Playtime Painter/Editor/Brush/Add",                    forceReload);
-
-            CheckShader(ref brushCopy,                  "Playtime Painter/Editor/Brush/Copy",                   forceReload);
-
-            CheckShader(ref brushDoubleBuffer,          "Playtime Painter/Editor/Brush/DoubleBuffer",           forceReload);
-
-            CheckShader(ref brushDoubleBufferProjector, "Playtime Painter/Editor/Brush/DoubleBuffer_Projector", forceReload);
-
-            CheckShader(ref brushBlurAndSmudge,         "Playtime Painter/Editor/Brush/BlurN_Smudge",           forceReload);
-
-            CheckShader(ref inkColorSpread,             "Playtime Painter/Editor/Brush/Spread",                 forceReload);
-
-            CheckShader(ref additiveAlphaOutput,        "Playtime Painter/Editor/Brush/AdditiveAlphaOutput",    forceReload);
-
-            CheckShader(ref additiveAlphaAndUVOutput,   "Playtime Painter/Editor/Brush/AdditiveUV_Alpha",       forceReload);
-            
-            CheckShader(ref previewBrush,               "Playtime Painter/Editor/Preview/Brush",                forceReload);
-
-            CheckShader(ref previewMesh,                "Playtime Painter/Editor/Preview/Mesh",                 forceReload);
-
-            CheckShader(ref previewTerrain,             "Playtime Painter/Editor/Preview/Terrain",              forceReload);
-
-            CheckShader(ref bufferCopyDownscaleX4,      "Playtime Painter/Buffer Blit/DownScaleX4",             forceReload);
-
-            CheckShader(ref bufferCopyDownscaleX8,      "Playtime Painter/Buffer Blit/DownScaleX8",             forceReload);
-
-            CheckShader(ref bufferCopyDownscaleX16_Approx, "Playtime Painter/Buffer Blit/DownScaleX16_Approx",  forceReload);
-
-            CheckShader(ref bufferCopyDownscaleX32_Approx, "Playtime Painter/Buffer Blit/DownScaleX32_Approx",  forceReload);
-
-            CheckShader(ref bufferCopyDownscaleX64_Approx, "Playtime Painter/Buffer Blit/DownScaleX64_Approx",  forceReload);
-            
-            CheckShader(ref rayTraceOutput,             "Playtime Painter/Editor/Replacement/ShadowDataOutput", forceReload);
-
-            #endif
-        }
-
-        private static void CheckShader(ref Shader shade, string path, bool forceReload = false) {
-
-            #if UNITY_EDITOR
-            if (forceReload || !shade)
-            {
-                shade = Shader.Find(path);
-                if (!shade)
-                    Debug.LogError("Could not find {0}".F(path));
-            }
-            #endif
-        }
-
+        
         private void ResetMeshPackagingProfiles()
         {
             meshPackagingSolutions = new List<MeshPackagingProfile>

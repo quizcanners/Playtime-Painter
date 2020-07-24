@@ -1395,10 +1395,16 @@ namespace PlayerAndEditorGUI
 
                                 if (uo)
                                 {
+
+                                    if (edit(ref uo))
+                                        list[index] = uo as T;
+
                                     Texture tex = uo as Texture;
 
                                     if (tex)
                                     {
+                                       
+
                                         if (uo.ClickHighlight(tex))
                                             isPrevious = true;
 
