@@ -32,7 +32,8 @@ namespace PlaytimePainter.MeshEditing
                 if (_inst) return _inst;
                 try
                 {
-                    _inst = Instantiate((Resources.Load("prefabs/grid") as GameObject)).GetComponent<GridNavigator>();
+                    var prefab = Resources.Load(PainterDataAndConfig.PREFABS_RESOURCE_FOLDER + "/grid") as GameObject;
+                    _inst = Instantiate(prefab).GetComponent<GridNavigator>();
                     _inst.transform.parent = PainterCamera.Inst.transform;
                     _inst.name = "grid";
                     _inst.gameObject.hideFlags = HideFlags.DontSave;

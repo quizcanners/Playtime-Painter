@@ -9,7 +9,9 @@ using UnityEditor;
 using UnityEditorInternal;
 #endif
 using UnityEngine;
+using UnityEngine.U2D;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 namespace PlaytimePainter
 {
@@ -815,10 +817,8 @@ namespace PlaytimePainter
                                         .nl();
 
                                 pegi.nl();
-
                             }
-
-
+                            
                             var ind = SelectedTexture;
                             if (pegi.select_Index(ref ind, GetAllTextureNames()).changes(ref changed))
                             {
@@ -858,7 +858,7 @@ namespace PlaytimePainter
 
                             if (pegi.edit(ref tex).changes(ref changed))
                                 ChangeTexture(tex);
-
+                            
                             if (!IsTerrainControlTexture)
                             {
 

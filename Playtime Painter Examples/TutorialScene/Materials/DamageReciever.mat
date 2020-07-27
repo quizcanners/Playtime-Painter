@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: DamageReciever
   m_Shader: {fileID: 4800000, guid: 767b57d676e4ebd4a90d0075b9ed5f9a, type: 3}
-  m_ShaderKeywords: _DEBUG_UV2 _qcPp_UV_ATLASED
+  m_ShaderKeywords: _qcPp_UV_ATLASED
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
@@ -115,6 +115,10 @@ Material:
         m_Texture: {fileID: 2800000, guid: 4e3bb55832a8c0e449b29583d13d32d4, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _qcPp_PreviewTex:
+        m_Texture: {fileID: 2800000, guid: 9c51b0e2235f06746b0c0cb94d9b0bfa, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
     - _ATLASED: 1
     - _AtlasTextures: 4
@@ -135,8 +139,9 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     - _qcPp_AtlasTextures: 4
-    - debugUV2: 1
+    - debugUV2: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _WetColor: {r: 0.26, g: 0.16, b: 0.16, a: 0}
+    - _WetColor: {r: 0.30188674, g: 0.21217513, b: 0.21217513, a: 1}
+  m_BuildTextureStacks: []

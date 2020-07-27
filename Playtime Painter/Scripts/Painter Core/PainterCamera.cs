@@ -40,8 +40,6 @@ namespace PlaytimePainter {
 
         public static readonly TextureDownloadManager DownloadManager = new TextureDownloadManager();
         
-        public AnimationCurve tmpCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(0.5f, 0.5f), new Keyframe(1, 1));
-        
         #region Painter Data
         [SerializeField] private PainterDataAndConfig dataHolder;
 
@@ -55,7 +53,9 @@ namespace PlaytimePainter {
 
                 if (!_inst.triedToFindPainterData && !_inst.dataHolder) {
                   
-                    _inst.dataHolder = Resources.Load<PainterDataAndConfig>("");
+                     var allConfigs = Resources.LoadAll<PainterDataAndConfig>("");
+
+                    _inst.dataHolder = allConfigs.TryGet(0);
 
                     if (!_inst.dataHolder)
                         _inst.triedToFindPainterData = true;
@@ -82,7 +82,7 @@ namespace PlaytimePainter {
 
                     if (!_inst)
                     {
-                        var go = Resources.Load("prefabs/" + PainterDataAndConfig.PainterCameraName) as GameObject;
+                        var go = Resources.Load(PainterDataAndConfig.PREFABS_RESOURCE_FOLDER + "/" + PainterDataAndConfig.PainterCameraName) as GameObject;
                         _inst = Instantiate(go).GetComponent<PainterCamera>();
                         _inst.name = PainterDataAndConfig.PainterCameraName;
                         CameraModuleBase.RefreshModules();
@@ -214,9 +214,7 @@ namespace PlaytimePainter {
 
         public RenderBrush brushRenderer;
         #endregion
-
-        public Material defaultMaterial;
-
+        
         private static Vector3 _prevPosPreview;
 
         public static float _previewAlpha = 1;
@@ -244,44 +242,14 @@ namespace PlaytimePainter {
 
         #endregion
 
-        #region Buffer Scaling
-
-        #endregion
-
         #region Buffers MGMT
 
         [NonSerialized] private TextureMeta alphaBufferDataTarget;
         [NonSerialized] private Shader alphaBufferDataShader;
 
-        public MeshRenderer secondBufferDebug;
-
-        public MeshRenderer alphaBufferDebug;
-
         public TextureMeta imgMetaUsingRendTex;
         public List<MaterialMeta> materialsUsingRenderTexture = new List<MaterialMeta>();
         public PlaytimePainter autodisabledBufferTarget;
-
-        public void CheckPaintingBuffers()
-        {
-            if (!RenderTextureBuffersManager.GotPaintingBuffers)
-                RecreateBuffersIfDestroyed();
-        }
-
-        public void RecreateBuffersIfDestroyed()
-        {
-
-            var cfg = TexMgmtData;
-
-            if (!cfg)
-                return;
-
-            if (secondBufferDebug)
-                secondBufferDebug.sharedMaterial.mainTexture = BackBuffer; 
-
-            if (alphaBufferDebug)
-                alphaBufferDebug.sharedMaterial.mainTexture = RenderTextureBuffersManager.alphaBufferTexture;
-
-        }
 
         public void EmptyBufferTarget()
         {
@@ -453,8 +421,6 @@ namespace PlaytimePainter {
             Brush bc = command.Brush;
             TextureMeta id = command.TextureData;
             Stroke stroke = command.Stroke;
-            
-            CheckPaintingBuffers();
             
             var isDoubleBuffer = !id.renderTexture;
 
@@ -695,12 +661,7 @@ namespace PlaytimePainter {
 
             EditorSceneManager.sceneSaving -= BeforeSceneSaved;
             EditorSceneManager.sceneSaving += BeforeSceneSaved;
-
-            if (!defaultMaterial)
-                defaultMaterial = AssetDatabase.GetBuiltinExtraResource<Material>("Default-Material.mat");
-
-            if (!defaultMaterial) Debug.Log("Default Material not found.");
-
+            
             IsLinearColorSpace = PlayerSettings.colorSpace == ColorSpace.Linear;
 
             EditorApplication.update -= CombinedUpdate;
@@ -709,7 +670,7 @@ namespace PlaytimePainter {
 
 
             if (!brushPrefab) {
-                var go = Resources.Load("prefabs/RenderCameraBrush") as GameObject;
+                var go = Resources.Load(PainterDataAndConfig.PREFABS_RESOURCE_FOLDER +"/RenderCameraBrush") as GameObject;
                 if (go) {
                     brushPrefab = go.GetComponent<RenderBrush>();
                     if (!brushPrefab)
@@ -756,8 +717,6 @@ namespace PlaytimePainter {
                 EditorApplication.update += CombinedUpdate;
 #endif
 
-            RecreateBuffersIfDestroyed();
-            
             autodisabledBufferTarget = null;
 
             CameraModuleBase.RefreshModules();
@@ -910,6 +869,8 @@ namespace PlaytimePainter {
 
         readonly QcUnity.ChillLogger logger = new QcUnity.ChillLogger("error");
 
+        public AnimationCurve tmpCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(0.5f, 0.5f), new Keyframe(1, 1));
+        
         public AnimationCurve InspectAnimationCurve(string role) {
             role.edit_Property(() => tmpCurve, this);
 
@@ -976,6 +937,7 @@ namespace PlaytimePainter {
 #endif
 
                     "Using layer:".editLayerMask(ref Data.playtimePainterLayer).nl(ref changed);
+
                 }
                 
             }

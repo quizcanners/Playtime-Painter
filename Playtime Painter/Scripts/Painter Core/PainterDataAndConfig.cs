@@ -4,6 +4,9 @@ using System.Globalization;
 using PlayerAndEditorGUI;
 using PlaytimePainter.MeshEditing;
 using QuizCannersUtilities;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -20,6 +23,8 @@ namespace PlaytimePainter
         private static PlaytimePainter Painter => PlaytimePainter.inspected;
         public int playtimePainterLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
 
+        public const string PREFABS_RESOURCE_FOLDER = "Playtime_Painter_Prefabs";
+
         [SerializeField] public bool isLineraColorSpace;
 
         public static bool toolEnabled;
@@ -28,6 +33,8 @@ namespace PlaytimePainter
 
         public int selectedCustomBlitMode;
 
+        public Material defaultMaterial;
+        
         #region Shaders
         public bool dontIncludeShaderInBuild;
 
@@ -564,6 +571,8 @@ namespace PlaytimePainter
 
                 "Materials".edit(60, ref materialsFolderName).nl();
 
+                "Default for New Material".edit(ref defaultMaterial).nl();
+
                 "Meshes".edit(60, ref meshesFolderName).nl();
                 
                 if (icon.Discord.Click("Join Discord", 64))
@@ -656,6 +665,13 @@ namespace PlaytimePainter
             stdData = Encode().ToString();
             
             systemLanguage = LazyLocalization._systemLanguage;
+
+#if UNITY_EDITOR
+            if (!defaultMaterial)
+                defaultMaterial = AssetDatabase.GetBuiltinExtraResource<Material>("Default-Material.mat");
+            
+#endif
+
         }
     }
 

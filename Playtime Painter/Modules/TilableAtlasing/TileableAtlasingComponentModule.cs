@@ -212,7 +212,7 @@ namespace PlaytimePainter.ComponentModules {
        
         #endregion
 
-        public override void BeforeGpuStroke(PaintCommand.Painter command) //Brush br, Stroke st, BrushTypes.Base type)
+        public override void BeforeGpuStroke(PaintCommand.ForPainterComponent command) //Brush br, Stroke st, BrushTypes.Base type)
         {
             if (!painter.Is3DBrush(command.Brush) || !painter.IsAtlased()) return;
             
@@ -220,7 +220,7 @@ namespace PlaytimePainter.ComponentModules {
             PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(ats.x, ats.y, atlasRows, 1);
         }
 
-        public override void AfterGpuStroke(PaintCommand.Painter command) //Brush br, Stroke st, BrushTypes.Base type)
+        public override void AfterGpuStroke(PaintCommand.ForPainterComponent command) //Brush br, Stroke st, BrushTypes.Base type)
                                                                      {
             if (painter.Is3DBrush(command.Brush) && painter.IsAtlased())
                 PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);

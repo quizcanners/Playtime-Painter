@@ -132,14 +132,12 @@ namespace PlaytimePainter {
             bigRtPair = null;
 
             alphaBufferTexture.DestroyWhatever();
-
         }
 
         public static void RefreshPaintingBuffers()
         {
             PainterCamera.Inst.EmptyBufferTarget();
             DestroyPaintingBuffers();
-            PainterCamera.Inst.RecreateBuffersIfDestroyed();
             GetOrCreatePaintingBuffers();
         }
 
@@ -529,8 +527,7 @@ namespace PlaytimePainter {
             GL.invertCulling = false;
             GL.PopMatrix();
         }
-
-
+        
         public static void OnDisable() {
             DestroyScalingBuffers();
             DestroyPaintingBuffers();

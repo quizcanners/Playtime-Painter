@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 using PlayerAndEditorGUI;
+using UnityEngine.U2D;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditorInternal;
@@ -1392,6 +1393,22 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
             return false;
 
         }
+
+        public static Texture2D TryGeTexture(this SpriteAtlas atlas)
+        {
+            if (!atlas)
+                return null;
+
+            var cnt = atlas.spriteCount;
+
+            if (cnt == 0)
+                return null;
+
+            Sprite[] sAr = new Sprite[cnt];
+            atlas.GetSprites(sAr);
+
+            return sAr[0].texture;
+        } 
 
 #endregion
 

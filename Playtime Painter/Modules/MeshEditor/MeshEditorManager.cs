@@ -671,7 +671,7 @@ namespace PlaytimePainter.MeshEditing
                 return;
 
             if (!Grid.vertPrefab)
-                Grid.vertPrefab = Resources.Load("prefabs/vertex") as GameObject;
+                Grid.vertPrefab = Resources.Load(PainterDataAndConfig.PREFABS_RESOURCE_FOLDER + "/vertex") as GameObject;
 
             if ((Grid.vertices == null) || (Grid.vertices.Length == 0) || (!Grid.vertices[0].go))
             {
@@ -798,6 +798,7 @@ namespace PlaytimePainter.MeshEditing
                 previousTool.OnDeSelectTool();
                 MeshTool.OnSelectTool();
             }
+            
 
             if (DocsEnabled && pegi.FullWindowService.DocumentationClick("About {0} tool".F(MeshTool.NameForDisplayPEGI())))
                 pegi.FullWindowService.DocumentationOpen(MeshTool.Tooltip + (MeshTool.ShowGrid ? GridNavigator.ToolTip : ""));

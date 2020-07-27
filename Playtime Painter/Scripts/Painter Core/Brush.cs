@@ -163,7 +163,7 @@ namespace PlaytimePainter {
             var blitMode = GetBlitMode(cpu);
             var isWorldSpace = command.Is3DBrush;
 
-            var painterCommand = command as PaintCommand.Painter;
+            var painterCommand = command as PaintCommand.ForPainterComponent;
 
             PlaytimePainter painter = painterCommand == null ? null : painterCommand.painter;
 

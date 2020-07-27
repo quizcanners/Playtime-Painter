@@ -314,7 +314,7 @@ namespace PlaytimePainter
 
                 Brush br = command.Brush;
                 Stroke st = command.Stroke;
-                PaintCommand.Painter painterCommand = command as PaintCommand.Painter;
+                PaintCommand.ForPainterComponent painterCommand = command as PaintCommand.ForPainterComponent;
 
                 var cam = TexMGMT;
 
@@ -328,7 +328,7 @@ namespace PlaytimePainter
 
             public virtual void AfterStroke(PaintCommand.UV command)
             {
-                PaintCommand.Painter painterCommand = command as PaintCommand.Painter;
+                PaintCommand.ForPainterComponent painterCommand = command as PaintCommand.ForPainterComponent;
                 Brush br = command.Brush;
                 Stroke st = command.Stroke;
                 TextureMeta id = command.TextureData;

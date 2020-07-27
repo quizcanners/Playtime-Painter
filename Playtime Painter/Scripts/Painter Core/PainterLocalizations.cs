@@ -232,7 +232,7 @@ namespace PlayerAndEditorGUI {
                     msg.Translate("Vertex", "Each vertex can contain information like : position, UV sets, normal, tangent, color");
                     break;
                 case MsgPainter.MeshPointPositionTool:
-                    msg.Translate("Points Position", ("LMB - Drag {1} {0} " +
+                    msg.Translate("Vertex Drag", ("LMB - Drag {1} {0} " +
                                                       "Alt - Move {1} To Grid {0}" +
                                                       "U - make Triangle unique. {0}" +
                                                       "M - merge with nearest {1} while dragging {0}" +

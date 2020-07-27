@@ -153,14 +153,14 @@ namespace PlaytimePainter
         public bool invertRayCast;
 
         public Stroke stroke = new Stroke();
-        private PaintCommand.Painter _paintCommand;
+        private PaintCommand.ForPainterComponent _paintCommand;
 
-        public PaintCommand.Painter PaintCommand
+        public PaintCommand.ForPainterComponent PaintCommand
         {
             get
             {
                 if (_paintCommand == null)
-                    _paintCommand = new PaintCommand.Painter(stroke, GlobalBrush, this);
+                    _paintCommand = new PaintCommand.ForPainterComponent(stroke, GlobalBrush, this);
                 else
                 {
                     _paintCommand.TextureData = TexMeta;
@@ -1077,7 +1077,7 @@ namespace PlaytimePainter
             if (TexMeta != null && Material)
                 UpdateOrSetTexTarget(TexTarget.Texture2D);
 
-            if (!TexMgmt.defaultMaterial) InitIfNotInitialized();
+           InitIfNotInitialized();
 
             var mat = GetMaterial(true);
 
@@ -1091,7 +1091,7 @@ namespace PlaytimePainter
             }
             else
             {
-                Material = Instantiate(mat ? mat : TexMgmt.defaultMaterial);
+                Material = new Material(mat ? mat : Cfg.defaultMaterial);
                 CheckPreviewShader();
             }
 
@@ -2036,57 +2036,5 @@ namespace PlaytimePainter
 
         #endregion
         
-    }
-
-    public static partial class PaintCommand
-    {
-        public class Painter : WorldSpace
-        {
-
-            public PlaytimePainter painter;
-
-            public override bool Is3DBrush =>  painter.Is3DBrush(Brush);
-            
-            public override GameObject GameObject
-            {
-                get { return painter.gameObject; }
-                set { }
-            }
-
-            public override SkinnedMeshRenderer SkinnedMeshRenderer
-            {
-                get { return painter.skinnedMeshRenderer; }
-                set { }
-            }
-
-            public override Mesh Mesh
-            {
-                get { return painter.GetMesh(); }
-                set { }
-            }
-            
-            public override List<int> SelectedSubmeshes
-            {
-                get { return new List<int> {painter.selectedSubMesh}; }
-                set { }
-            }
-
-            public override int SubMeshIndexFirst
-            {
-                get { return painter.selectedSubMesh; }
-                set { if (painter)
-                    painter.selectedSubMesh = value; }
-            }
-
-            public Painter(Stroke stroke, Brush brush, PlaytimePainter painter) : base(stroke, painter.TexMeta, brush,
-                painter.skinnedMeshRenderer, 0, painter.gameObject)
-            {
-                SkinnedMeshRenderer = painter.skinnedMeshRenderer;
-                Mesh = painter.GetMesh();
-                SubMeshIndexFirst = painter.selectedSubMesh;
-                GameObject = painter.gameObject;
-                this.painter = painter;
-            }
-        }
     }
 }

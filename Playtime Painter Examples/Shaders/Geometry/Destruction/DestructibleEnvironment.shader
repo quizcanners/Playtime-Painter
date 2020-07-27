@@ -10,7 +10,7 @@
 		[NoScaleOffset]_BumpD("Bump Damage", 2D) = "gray" {}
 		_DamDiffuse2("Damaged Diffuse Deep", 2D) = "white" {}
 		[NoScaleOffset]_BumpD2("Bump Damage 2", 2D) = "gray" {}
-		[Toggle(_DEBUG_UV2)] debugUV2("Debug UV2", Float) = 0
+		[Toggle(_DEBUG_UV2)] debugUV2("Debug Damage Mask", Float) = 0
 	}
 
 	SubShader {
@@ -61,6 +61,12 @@
 
 		void surf (Input i, inout SurfaceOutputStandard o) {
 
+			float4 mask_TexelSize;
+
+			mask_TexelSize.zw = max(16, _MainTex_ATL_UvTwo_TexelSize.zw);
+			mask_TexelSize.xy = 1 / mask_TexelSize.zw;
+
+
 			float2 damUv = i.uv2_MainTex_ATL_UvTwo.xy;
 
 			#if _qcPp_UV_ATLASED
@@ -69,7 +75,7 @@
 			
 			float lod;
 
-			atlasUVlod(i.uv_Diffuse, lod, _MainTex_ATL_UvTwo_TexelSize, i.atlasedUV);
+			atlasUVlod(i.uv_Diffuse, lod, mask_TexelSize, i.atlasedUV);
 
 			float4 col = tex2Dlod(_Diffuse, float4(i.uv_Diffuse, 0, lod)); // tex2Dlod(_Diffuse, float4(i.uv_Diffuse, 0, lod));
 			float4 bump = tex2Dlod(_Bump, float4(i.uv_Diffuse, 0, lod)); 
@@ -83,13 +89,10 @@
 
 			float4 mask = tex2D(_MainTex_ATL_UvTwo, damUv);
 
-
-			
-
 			bump.rg -= 0.5;
 
-			float maskr = tex2D(_MainTex_ATL_UvTwo, float2(damUv.x, damUv.y + _MainTex_ATL_UvTwo_TexelSize.y )).r;
-			float maskg = tex2D(_MainTex_ATL_UvTwo, float2(damUv.x + _MainTex_ATL_UvTwo_TexelSize.x , damUv.y )).r;
+			float maskr = tex2D(_MainTex_ATL_UvTwo, float2(damUv.x, damUv.y + mask_TexelSize.y )).r;
+			float maskg = tex2D(_MainTex_ATL_UvTwo, float2(damUv.x + mask_TexelSize.x , damUv.y )).r;
 
 			float4 dam = tex2D(_DamDiffuse, i.uv_DamDiffuse);
 			float4 dam2 = tex2D(_DamDiffuse2, i.uv_DamDiffuse2);
@@ -111,25 +114,24 @@
 
 			float water = saturate((mask.b*(2 + damAlpha + damAlpha2) - bump.b-1));
 
-			o.Smoothness = max(col.a, water);
-
-			water *= _WetColor.a;
-			float deWater = 1 - water;
-
-			o.Normal =normalize(float3((mask.r - maskg)*damAlpha2*4 + bump.r ,
-				-(maskr - mask.r)*damAlpha2*4+ bump.g, 0.1)*deWater +float3(0,0,1)*water);
-
-		
-
 #if _DEBUG_UV2
 			o.Albedo = mask.rgb;
+			o.Metallic = 0;
+			o.Alpha = 1;
+			o.Occlusion = 1;
 #else
+			o.Smoothness = max(col.a, water);
+			water *= _WetColor.a;
+			float deWater = 1 - water;
 			o.Albedo = col.rgb;
-#endif
-
 			o.Metallic = water;
 			o.Alpha = col.a;
-			o.Occlusion = bump.a*deWater+water;
+			o.Occlusion = bump.a*deWater + water;
+			o.Normal = normalize(float3((mask.r - maskg)*damAlpha2 * 4 + bump.r,
+				-(maskr - mask.r)*damAlpha2 * 4 + bump.g, 0.1)*deWater + float3(0, 0, 1)*water);
+#endif
+
+			
 		}
 		ENDCG
 	}

@@ -220,6 +220,11 @@ namespace PlaytimePainter.MeshEditing {
 
             "Mode".editEnum(40, ref _detectionMode).nl(ref changed);
 
+            if (_detectionMode != DetectionMode.Points)
+            {
+                "Gizmos needs to be toggled on (if they are off)".writeHint();
+            }
+
             if (MeshEditorManager.MeshTool.ShowGrid) {
                 "Snap to grid:".toggleIcon(ref sd.snapToGrid).nl(ref changed);
 
