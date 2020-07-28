@@ -20,38 +20,8 @@ MonoBehaviour:
   customBlitModes: []
   selectedCustomBlitMode: 0
   defaultMaterial: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
-  dontIncludeShaderInBuild: 0
-  shadersToBuldWith:
-  - {fileID: 4800000, guid: 2c53ba0be849dbf4aa4be3323d13167c, type: 3}
-  - {fileID: 4800000, guid: 7d5254122746ac1459eacee12007478c, type: 3}
-  - {fileID: 4800000, guid: 5d4c30d1d90b10244bd976b05af957a9, type: 3}
-  - {fileID: 4800000, guid: 84c227f7b81af824eb575393648fa7a0, type: 3}
-  - {fileID: 4800000, guid: d3ea98b92dd0ff445b11c0dd6118cfd9, type: 3}
-  - {fileID: 4800000, guid: 7a98cafb8f2839d4087701973cfacca0, type: 3}
-  - {fileID: 4800000, guid: 51bac762c78f2aa4ca09cf0b51187cfb, type: 3}
-  - {fileID: 4800000, guid: e61e77dc68316594988ca461eb587d29, type: 3}
-  - {fileID: 4800000, guid: 3761ceeca3c2a474a89bffcc44782a24, type: 3}
-  - {fileID: 4800000, guid: 5c155ea54209c1b4282c00cea158edb3, type: 3}
-  - {fileID: 4800000, guid: 6703c1c81efacba42a3f90a2920832a3, type: 3}
-  - {fileID: 4800000, guid: 03c859c9cb64e4e4790e707d28f9cb8c, type: 3}
-  - {fileID: 4800000, guid: f2fe9d0c60fd29b4d84fc2dbad4f2cbf, type: 3}
-  - {fileID: 4800000, guid: 5e5b22a6f613bce4ba98a3e5c1328384, type: 3}
-  - {fileID: 4800000, guid: 8afa7564920dd2746bf6b4523c648e22, type: 3}
-  - {fileID: 4800000, guid: 33684419dd9bb2846b34f5ad27c14ebf, type: 3}
-  - {fileID: 4800000, guid: 6452b21f7c7012342b9fbc17d1dae802, type: 3}
-  - {fileID: 4800000, guid: 84f2bad6db8604a46b3073f13f79c839, type: 3}
-  - {fileID: 4800000, guid: 0e8cb133ade8ae34382b61cf53d668ed, type: 3}
-  - {fileID: 4800000, guid: 64fa7bd7d59cb1245a6603bb8dfb652b, type: 3}
-  - {fileID: 4800000, guid: fff128497067a014b8c2b0f12b3fdf7b, type: 3}
-  - {fileID: 4800000, guid: 3ec7c5159e5607c44a874c70918a10be, type: 3}
-  - {fileID: 4800000, guid: 6aecdde8d92504546917739ac0a84f20, type: 3}
-  - {fileID: 4800000, guid: 0840191720be74e56b2ca8bb031fd010, type: 3}
-  - {fileID: 4800000, guid: f5d92f3fc18010c4ba8cbe284edb5d43, type: 3}
-  - {fileID: 4800000, guid: 5d4363bf2b6e1d747803462dcc63de6d, type: 3}
-  - {fileID: 4800000, guid: 189db779c3259794ea3202f88c029174, type: 3}
-  - {fileID: 4800000, guid: f109a9b24b09edf4c8669c1035baae20, type: 3}
-  - {fileID: 4800000, guid: 3416c86bca183ed41afdb0a1b64a40cc, type: 3}
-  - {fileID: 4800000, guid: cedc6d7951a0d38408f58630ee5106d8, type: 3}
+  dontIncludeShaderInBuild: 1
+  shadersToBuldWith: []
   playtimeSavedTextures: []
   showRecentTextures: 0
   showColorSchemes: 0
