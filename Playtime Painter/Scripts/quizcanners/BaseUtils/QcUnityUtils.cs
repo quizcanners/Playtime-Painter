@@ -380,7 +380,11 @@ namespace QuizCannersUtilities {
         {
             var rg = new GameObject(typeof(T).ToString().SimplifyTypeName()).AddComponent<T>();
             var go = rg.gameObject;
-            go.GetComponent<CanvasRenderer>().cullTransparentMesh = true;
+            var canvRend = go.GetComponent<CanvasRenderer>();
+            if (!canvRend)
+                canvRend = go.AddComponent<CanvasRenderer>();
+                        
+            canvRend.cullTransparentMesh = true;
 
             #if UNITY_EDITOR
                 GameObjectUtility.SetParentAndAlign(go, parent);
