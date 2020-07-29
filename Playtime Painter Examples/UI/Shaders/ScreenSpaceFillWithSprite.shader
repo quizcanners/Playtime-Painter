@@ -1,10 +1,9 @@
-﻿Shader "Playtime Painter/UI/ScreenSpacePixelPerfect" {
+﻿Shader "Playtime Painter/UI/ScreenSpaceFillWithSprite" {
 	Properties
 	{
 		[PerRendererData]
 		_MainTex("Sprite Texture", 2D) = "white" {}
-		[KeywordEnum(Pixperfect, Fillscreen)]	_MODE("Mode", Float) = 0
-	
+
 		_StencilComp("Stencil Comparison", Float) = 8
 		_Stencil("Stencil ID", Float) = 0
 		_StencilOp("Stencil Operation", Float) = 0
@@ -61,6 +60,7 @@
 				float4 texcoord		: TEXCOORD0;
 				float4 worldPosition: TEXCOORD1;
 				float4 screenPos	: TEXCOORD2;
+				float2 stretch		: TEXCOORD3;
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
 
@@ -79,13 +79,26 @@
 				o.screenPos = ComputeScreenPos(o.vertex);
 				o.color = v.color;
 
+				float screenAspect = _ScreenParams.x * (_ScreenParams.w - 1);
+
+				float texAspect = _MainTex_TexelSize.y * _MainTex_TexelSize.z;
+
+				float2 aspectCorrection = float2(1, 1);
+
+				if (screenAspect > texAspect)
+					aspectCorrection.y = (texAspect / screenAspect);
+				else
+					aspectCorrection.x = (screenAspect / texAspect);
+
+				o.stretch = aspectCorrection;
+
+
 				return o;
 			}
 
 			float4 frag(v2f o) : SV_Target {
 
-
-				float2 fragCoord = o.screenPos.xy * _ScreenParams.xy * _MainTex_TexelSize.xy;
+				float2 fragCoord = (o.screenPos.xy - 0.5 ) * o.stretch.xy + 0.5;
 
 				float4 color = tex2Dlod(_MainTex, float4(fragCoord ,0,0)) * o.color;
 
