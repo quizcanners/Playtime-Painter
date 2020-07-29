@@ -82,9 +82,6 @@
 
 			float4 frag(v2f o) : SV_Target {
 
-
-				//float2 fragCoord = o.screenPos.xy * _MainTex_TexelSize.xy;
-
 				float4 color = tex2Dlod(_MainTex, float4(o.texcoord.xy ,0,0)) * o.color;
 
 				#ifdef UNITY_UI_CLIP_RECT

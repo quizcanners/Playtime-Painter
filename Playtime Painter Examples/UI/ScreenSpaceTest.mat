@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: ScreenSpaceTest
-  m_Shader: {fileID: 4800000, guid: e8ce8ff302756174e9af61e7f0c92b68, type: 3}
+  m_Shader: {fileID: 4800000, guid: e6721ce55e9d23c448192ea5e0455406, type: 3}
   m_ShaderKeywords: _MODE_FILLSCREEN
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
