@@ -60,7 +60,6 @@
 				half4 color			: COLOR;
 				float4 texcoord		: TEXCOORD0;
 				float4 worldPosition: TEXCOORD1;
-				float4 screenPos	: TEXCOORD2;
 				UNITY_VERTEX_OUTPUT_STEREO
 			};
 
@@ -75,8 +74,7 @@
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 				o.worldPosition = v.vertex;
 				o.vertex = UnityObjectToClipPos(o.worldPosition);
-				o.texcoord.xy = v.texcoord;
-				o.screenPos = ComputeScreenPos(o.vertex);
+				o.texcoord.xy = ComputeScreenPos(o.vertex).xy * _ScreenParams.xy * _MainTex_TexelSize.xy;
 				o.color = v.color;
 
 				return o;
@@ -85,9 +83,9 @@
 			float4 frag(v2f o) : SV_Target {
 
 
-				float2 fragCoord = o.screenPos.xy * _ScreenParams.xy * _MainTex_TexelSize.xy;
+				//float2 fragCoord = o.screenPos.xy * _MainTex_TexelSize.xy;
 
-				float4 color = tex2Dlod(_MainTex, float4(fragCoord ,0,0)) * o.color;
+				float4 color = tex2Dlod(_MainTex, float4(o.texcoord.xy ,0,0)) * o.color;
 
 				#ifdef UNITY_UI_CLIP_RECT
 				color.a *= UnityGet2DClipping(o.worldPosition.xy, _ClipRect);
