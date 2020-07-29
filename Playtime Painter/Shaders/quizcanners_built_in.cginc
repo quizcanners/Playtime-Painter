@@ -1,8 +1,21 @@
+#include "quizcanners_cg.cginc"
 #include "UnityCG.cginc"
 #include "UnityLightingCommon.cginc" 
 #include "Lighting.cginc"
 #include "AutoLight.cginc"
-#include "quizcanners_cg.cginc"
+
+inline float3 GetParallax(float4 tangent, float3 normal, float4 vertex) {
+
+	float3x3 objectToTangent = float3x3(
+		tangent.xyz,
+		cross(normal, tangent.xyz) * tangent.w,
+		normal
+		);
+
+	float3 tangentViewDir = mul(objectToTangent, ObjSpaceViewDir(vertex));
+
+	return tangentViewDir;
+}
 
 inline void Simple_Light(float4 terrainN,float3 worldNormal, float3 viewDir, inout float4 col, float shadow, float reflectivness) {
 
