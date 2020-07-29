@@ -33,7 +33,7 @@ MonoBehaviour:
   showUrlField: 0
   meshTool: 0
   bevelDetectionSensitivity: 6
-  meshToolsStd: 
+  meshToolsStd: t_pos|15|dm|1|0|inM|1|n||t_shF|7|dm|1|0||t_vCol|0||t_edgs|23|v|1|1|doCol|1|n|fe|1|n||t_noStd|16|cat|1|0|cac|1|0||t_sbmsh|0||t_uv|23|gtuv|1|n|nrmWrap|3|0.5||
   saveMeshUndos: 0
   makeVerticesUniqueOnEdgeColoring: 0
   gridSize: 1

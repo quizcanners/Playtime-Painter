@@ -2,7 +2,7 @@
 #include "UnityLightingCommon.cginc" 
 #include "Lighting.cginc"
 #include "AutoLight.cginc"
-#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
+#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_built_in.cginc"
 
 static const float MERGE_POWER = 512;
 static const float TERABOUNCE = 0.2;

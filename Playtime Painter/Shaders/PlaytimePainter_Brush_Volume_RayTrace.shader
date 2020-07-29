@@ -13,7 +13,7 @@
 				CGPROGRAM
 
 				#include "PlaytimePainter_cg.cginc"
-				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
+				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_built_in.cginc"
 
 				#pragma vertex vert
 				#pragma fragment frag

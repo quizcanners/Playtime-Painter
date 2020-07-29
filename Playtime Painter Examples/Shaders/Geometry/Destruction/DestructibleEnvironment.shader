@@ -23,7 +23,7 @@
 		#pragma surface surf Standard fullforwardshadows
 		#pragma multi_compile  ___ _qcPp_UV_ATLASED
 		#pragma shader_feature ___ _DEBUG_UV2
-		#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
+		#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_built_in.cginc"
 		#pragma target 3.0
 
 		sampler2D _MainTex_ATL_UvTwo;

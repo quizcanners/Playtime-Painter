@@ -31,7 +31,7 @@
 				#pragma multi_compile ______ USE_NOISE_TEXTURE
 				//#pragma multi_compile  ___ _qcPp_WATER_FOAM
 
-				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
+				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_built_in.cginc"
 
 				sampler2D _MainTex;
 				sampler2D _FluffMask;

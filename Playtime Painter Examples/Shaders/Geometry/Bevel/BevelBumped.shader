@@ -27,7 +27,7 @@
 				#pragma vertex vert
 				#pragma fragment frag
 				#pragma multi_compile_fwdbase
-				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
+				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_built_in.cginc"
 
 				#pragma shader_feature  ___ CLIP_EDGES
 				#pragma multi_compile ______ USE_NOISE_TEXTURE
@@ -145,7 +145,7 @@
 				#include "Lighting.cginc"
 				#include "UnityCG.cginc"
 				#include "AutoLight.cginc"
-				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
+				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_built_in.cginc"
 
 				#pragma shader_feature  ___ CLIP_EDGES
 				#pragma multi_compile ______ USE_NOISE_TEXTURE

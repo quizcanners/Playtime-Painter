@@ -197,7 +197,7 @@ MonoBehaviour:
   newVerticesUnique: 1
   newVerticesSmooth: 1
   pixelPerfectMeshEditing: 0
-  useGridForBrush: 1
+  useGridForBrush: 0
   showVolumeDetailsInPainter: 0
   materialsFolderName: Materials
   texturesFolderName: Textures
@@ -208,7 +208,7 @@ MonoBehaviour:
   Brush:
     _inGpuBrushType: 3
     _inCpuBrushType: 0
-    _inGpuBlitMode: 11
+    _inGpuBlitMode: 0
     _inCpuBlitMode: 0
     targetIsTex2D: 0
     selectedSourceTexture: 5
@@ -231,12 +231,12 @@ MonoBehaviour:
     showBrushDynamics: 0
     hardness: 1.588
     blurAmount: 1.77
-    brush3DRadius: 20.50187
+    brush3DRadius: 0.354
     brush2DRadius: 4.04
     useAlphaBuffer: 0
     alphaLimitForAlphaBuffer: 0.55
     worldSpaceBrushPixelJitter: 0
-    Color: {r: 1, g: 1, b: 1, a: 1}
+    Color: {r: 0, g: 0, b: 0, a: 1}
     _dFlow:
       min: 0.1
       max: 10

@@ -17,7 +17,7 @@
 				#include "Lighting.cginc"
 				#include "UnityCG.cginc"
 				#include "AutoLight.cginc"
-				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
+				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_built_in.cginc"
 
 				#pragma multi_compile_fwdbase nolightmap nodirlightmap nodynlightmap novertexlight
 

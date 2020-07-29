@@ -30,7 +30,7 @@
 			#pragma fragment frag
 			#pragma target 3.0
 
-			#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
+			#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_built_in.cginc"
 
 			#pragma shader_feature  ___ _qcPp_UV_ATLASED
 			#pragma shader_feature  ___ _qcPp_UV_PROJECTED

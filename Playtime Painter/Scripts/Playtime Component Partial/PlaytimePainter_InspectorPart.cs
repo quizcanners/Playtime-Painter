@@ -389,7 +389,7 @@ namespace PlaytimePainter
                                         else
                                         {
                                             if (!mpf.name.Equals(selectedMeshProfile))
-                                                "Mesh profile {0} not found, using default one".writeWarning();
+                                                "Mesh profile not found, using default one".writeWarning();
 
                                             pegi.nl();
 

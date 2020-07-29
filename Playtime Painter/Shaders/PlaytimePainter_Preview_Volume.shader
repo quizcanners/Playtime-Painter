@@ -27,7 +27,7 @@
 				#pragma fragment frag
 
 				#include "PlaytimePainter_cg.cginc"
-				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_cg.cginc"
+				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_built_in.cginc"
 
 				sampler2D _qcPp_PreviewTex;
 				float4 _qcPp_PreviewTex_ST;
