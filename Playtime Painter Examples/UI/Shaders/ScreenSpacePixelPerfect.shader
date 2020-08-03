@@ -58,7 +58,7 @@
 			{
 				float4 vertex		: SV_POSITION;
 				half4 color			: COLOR;
-				float4 texcoord		: TEXCOORD0;
+				float2 texcoord		: TEXCOORD0;
 				float4 worldPosition: TEXCOORD1;
 				UNITY_VERTEX_OUTPUT_STEREO
 			};

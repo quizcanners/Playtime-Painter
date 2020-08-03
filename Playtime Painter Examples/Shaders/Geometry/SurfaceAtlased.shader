@@ -17,6 +17,9 @@
 		#pragma vertex vert
 		// Physically based Standard lighting model, and enable shadows on all light types
 		#pragma surface surf Standard fullforwardshadows
+					#include "UnityLightingCommon.cginc" 
+		#include "Lighting.cginc"
+		#include "AutoLight.cginc"
 		#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_built_in.cginc"
 		#pragma multi_compile  ___ _qcPp_UV_ATLASED
 		#pragma multi_compile  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 

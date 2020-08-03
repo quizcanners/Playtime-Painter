@@ -1206,12 +1206,43 @@ namespace PlaytimePainter.MeshEditing {
             if (_alsoDoColor)
                GlobalBrush.ColorSliders().nl(ref changed);
             
-            "Flexible Edge".toggleIcon("Edge type can be seen in Packaging profile (if any). Currently only Bevel shader doesn't have a Flexible edge.", ref _editingFlexibleEdge);
+            "Flexible Edge".toggleIcon(
+                "Edge type can be seen in Packaging profile (if any). Currently only Bevel shader doesn't have a Flexible edge."
+                , ref _editingFlexibleEdge).nl();
+
+            if ("FILL ALL".ClickConfirm("EdgeFill").nl())
+                FillAll(_edgeValue);
 
             return changed;
         }
        
         #endregion
+
+        public void FillAll(float edgeStrength)
+        {
+            foreach (var p in MeshEditorManager.editedMesh.meshPoints)
+            {
+                p.edgeStrength = edgeStrength;
+                foreach (var triangle in p.Triangles())
+                {
+                    for (int i = 0; i < 3; i++)
+                        triangle.edgeWeight[i] = edgeStrength;
+                }
+            }
+
+            if (_alsoDoColor)
+            {
+                var col = GlobalBrush.Color;
+
+                foreach (var p in MeshEditorManager.editedMesh.meshPoints)
+                {
+                    foreach (var uvi in p.vertices)
+                        GlobalBrush.mask.SetValuesOn(ref uvi.color, col);
+                }
+            }
+
+            EditedMesh.Dirty = true;
+        }
 
         public override bool MouseEventPointedVertex()
         {
@@ -1309,10 +1340,10 @@ namespace PlaytimePainter.MeshEditing {
             if (_alsoDoColor)
             {
                 var col = GlobalBrush.Color;
-                foreach (var uvi in vrtA.vertices)
-                    GlobalBrush.mask.SetValuesOn(ref uvi.color, col);
-                foreach (var uvi in vrtB.vertices)
-                    GlobalBrush.mask.SetValuesOn(ref uvi.color, col);
+                foreach (var vertex in vrtA.vertices)
+                    GlobalBrush.mask.SetValuesOn(ref vertex.color, col);
+                foreach (var vertex in vrtB.vertices)
+                    GlobalBrush.mask.SetValuesOn(ref vertex.color, col);
             }
 
             EditedMesh.Dirty = true;

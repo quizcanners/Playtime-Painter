@@ -606,12 +606,13 @@ namespace PlaytimePainter
         
         #endregion
         
-        private void ResetMeshPackagingProfiles()
+        public void ResetMeshPackagingProfiles()
         {
             meshPackagingSolutions = new List<MeshPackagingProfile>
             {
                 (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "Simple"),
                 (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "Bevel"),
+                (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "Bevel Weighted"),
                 (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "AtlasedProjected"),
                 (new MeshPackagingProfile()).LoadFromResources(MeshPackagingProfile.FolderName, "Standard_Atlased")
             };

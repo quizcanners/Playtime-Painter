@@ -53,7 +53,7 @@
 		
 					o.texcoord = v.texcoord.xy;
 					o.vcol = v.color;
-					o.edge = float4(v.texcoord1.w, v.texcoord2.w, v.texcoord3.w, v.texcoord.w); //v.texcoord1;
+					o.edge = float4(v.texcoord1.w, v.texcoord2.w, v.texcoord3.w, 1); //v.texcoord1;
 					o.viewDir.xyz = WorldSpaceViewDir(v.vertex);
 
 					float3 deEdge = 1 - o.edge.xyz;

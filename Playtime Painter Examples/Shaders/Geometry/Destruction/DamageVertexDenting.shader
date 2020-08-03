@@ -32,9 +32,6 @@ Shader "Playtime Painter/Geometry/Destructible/Character" {
 				#pragma vertex vert
 				#pragma fragment frag
 				#pragma multi_compile_fog
-				#include "UnityLightingCommon.cginc" 
-				#include "Lighting.cginc"
-				#include "AutoLight.cginc"
 				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_built_in.cginc"
 
 				#pragma multi_compile_fwdbase 

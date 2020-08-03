@@ -2045,12 +2045,10 @@ namespace QuizCannersUtilities
     {
 
         #region Lerps
-
         
         private static float SpeedToPortion(this float speed, float dist) =>
             Math.Abs(dist) > (float.Epsilon * 10) ? Mathf.Clamp01(speed * Time.deltaTime / Mathf.Abs(dist)) : 1;
-
-       
+        
         public static bool SpeedToMinPortion(this float speed, float dist, LerpData ld)
         {
 
@@ -2133,29 +2131,21 @@ namespace QuizCannersUtilities
             return true;
         }
 
-        public static Vector2 LerpBySpeed(this Vector2 from, float toX, float toY, float speed)
+        public static bool IsLerpingBySpeed(ref Vector2 from, Vector2 to, float speed)
         {
-            var to = new Vector2(toX, toY);
-            return Vector2.LerpUnclamped(from, to, speed.SpeedToPortion(Vector2.Distance(from, to)));
+            if (from == to)
+                return false;
+
+            from = Vector2.LerpUnclamped(from, to, speed.SpeedToPortion(Vector2.Distance(from, to)));
+            return true;
         }
+
 
         public static Vector2 LerpBySpeed(this Vector2 from, Vector2 to, float speed) =>
             Vector2.LerpUnclamped(from, to, speed.SpeedToPortion(Vector2.Distance(from, to)));
 
-        public static Vector2 LerpBySpeed(this Vector2 from, Vector2 to, float speed, out float portion)
-        {
-            portion = speed.SpeedToPortion(Vector2.Distance(from, to));
-            return Vector2.LerpUnclamped(from, to, portion);
-        }
-
         public static Vector3 LerpBySpeed(this Vector3 from, Vector3 to, float speed) =>
             Vector3.LerpUnclamped(from, to, speed.SpeedToPortion(Vector3.Distance(from, to)));
-
-        public static Vector3 LerpBySpeed(this Vector3 from, Vector3 to, float speed, out float portion)
-        {
-            portion = speed.SpeedToPortion(Vector3.Distance(from, to));
-            return Vector3.LerpUnclamped(from, to, portion);
-        }
 
         public static Vector3 LerpBySpeed_DirectionFirst(this Vector3 from, Vector3 to, float speed) {
 
@@ -2181,8 +2171,7 @@ namespace QuizCannersUtilities
             var toTargetDirection = targetDirection - from;
 
             float rotDiffMagn = toTargetDirection.magnitude;
-
-
+            
             if (pathThisFrame > rotDiffMagn) {
 
                 pathThisFrame -= rotDiffMagn;
@@ -2192,9 +2181,6 @@ namespace QuizCannersUtilities
                 var newDiff = to - from;
 
                 from += newDiff.normalized * pathThisFrame;
-
-                //from *=1+ pathThisFrame * (targetDirection.magnitude > toMagn ? -1 : 1);
-
 
             }
             else

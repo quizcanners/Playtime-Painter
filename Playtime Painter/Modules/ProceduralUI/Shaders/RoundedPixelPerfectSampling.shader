@@ -28,6 +28,7 @@
 				CGPROGRAM
 
 				#include "UnityCG.cginc"
+				#include "UnityUI.cginc"
 
 				#pragma vertex vert
 				#pragma fragment frag
@@ -50,15 +51,15 @@
 			
 				};
 
-		struct appdata_ui_qc
-		{
-			float4 vertex    : POSITION;  // The vertex position in model space.
-			float2 texcoord  : TEXCOORD0; // The first UV coordinate.
-			float2 texcoord1 : TEXCOORD1; // The second UV coordinate.
-			float2 texcoord2 : TEXCOORD2; // The third UV coordinate.
-			//float2 texcoord3 : TEXCOORD3; // The fourth UV coordinate.
-			float4 color     : COLOR;     // Per-vertex color
-		};
+				struct appdata_ui_qc
+				{
+					float4 vertex    : POSITION;  // The vertex position in model space.
+					float2 texcoord  : TEXCOORD0; // The first UV coordinate.
+					float2 texcoord1 : TEXCOORD1; // The second UV coordinate.
+					float2 texcoord2 : TEXCOORD2; // The third UV coordinate.
+					//float2 texcoord3 : TEXCOORD3; // The fourth UV coordinate.
+					float4 color     : COLOR;     // Per-vertex color
+				};
 
 
 				sampler2D _MainTex;

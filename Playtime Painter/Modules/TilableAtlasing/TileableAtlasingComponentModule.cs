@@ -642,7 +642,12 @@ namespace PlaytimePainter.ComponentModules {
                 f.Nested_Inspect().nl(ref changed);
 
             "Mesh Profiles [{0}]".F(PainterCamera.Data.meshPackagingSolutions.Count)
-                .select_iGotName(ref _matAtlasProfile, PainterCamera.Data.meshPackagingSolutions).nl(ref changed);
+                .select_iGotName(ref _matAtlasProfile, PainterCamera.Data.meshPackagingSolutions).changes(ref changed);
+
+            if (icon.Refresh.Click("Refresh Mesh Packaging Solutions"))
+                PainterCamera.Data.ResetMeshPackagingProfiles();
+
+            pegi.nl();
 
             if (DestinationMaterial && !DestinationMaterial.HasProperty(PainterShaderVariables.isAtlasedProperty))
             {

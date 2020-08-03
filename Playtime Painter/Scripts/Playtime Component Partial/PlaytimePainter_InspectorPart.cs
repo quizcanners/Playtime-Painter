@@ -410,13 +410,18 @@ namespace PlaytimePainter
                                         IsEditingThisMesh)
                                         MeshEditorManager.editedMesh.Dirty = true;
 
-                                    if (icon.Add.Click(25).nl())
+                                    if (icon.Add.Click(25))
                                     {
                                         var sol = new MeshPackagingProfile();
                                         cfg.meshPackagingSolutions.Add(sol);
                                         selectedMeshProfile = sol.name;
                                         //MeshProfile.name = "New Profile {0}".F(selectedMeshProfile);
                                     }
+
+                                    if (icon.Refresh.Click("Refresh Mesh Packaging Solutions"))
+                                        PainterCamera.Data.ResetMeshPackagingProfiles();
+
+                                    pegi.nl();
                                 }
 
                                 MeshManager.MeshOptionsInspect();

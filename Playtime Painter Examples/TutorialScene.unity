@@ -14,7 +14,7 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 9
-  m_Fog: 1
+  m_Fog: 0
   m_FogColor: {r: 0.262, g: 0.418, b: 0.585, a: 1}
   m_FogMode: 2
   m_FogDensity: 0.001
@@ -363,7 +363,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dataHolder: {fileID: 11400000, guid: 239fa0bb4dc0c564588758d49ee3f24e, type: 2}
   disableSecondBufferUpdateDebug: 1
-  mainDirectionalLight: {fileID: 0}
+  mainDirectionalLight: {fileID: 2146497307}
   _mainCamera: {fileID: 1213774261}
   painterCamera: {fileID: 166147903}
   brushPrefab: {fileID: 114218434713451120, guid: 28dd40865c642244687d2f1f5835f69e,
@@ -960,8 +960,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 499987844}
-  m_LocalRotation: {x: -0.057774257, y: 0.94113076, z: -0.25774318, w: -0.21095856}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0.21358483, y: -0.40610796, z: 0.09822398, w: 0.88306844}
+  m_LocalPosition: {x: -0.2929411, y: 2.0061674, z: 4.7047987}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1696,7 +1696,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1213774260}
   m_LocalRotation: {x: -0.003752581, y: -0.71446294, z: 0.004774099, w: 0.69964707}
-  m_LocalPosition: {x: 0.23225212, y: 0.00036525726, z: 0.0048646927}
+  m_LocalPosition: {x: 0.23225236, y: 0.00036489964, z: 0.0048651695}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2020219816}
@@ -2417,7 +2417,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2020219811}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 20.3, y: 11.4, z: 13.64}
+  m_LocalPosition: {x: 2.65, y: 1.2, z: 3.8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 1213774262}
@@ -2672,7 +2672,7 @@ Light:
   serializedVersion: 10
   m_Type: 1
   m_Shape: 0
-  m_Color: {r: 1, g: 0.9718679, b: 0.6650944, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_Intensity: 0.2
   m_Range: 10
   m_SpotAngle: 30

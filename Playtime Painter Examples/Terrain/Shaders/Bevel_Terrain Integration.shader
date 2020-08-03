@@ -81,7 +81,7 @@
 				o.normal.xyz = UnityObjectToWorldNormal(v.normal);
 
 				o.vcol = v.color;
-				o.edge = float4(v.texcoord1.w, v.texcoord2.w, v.texcoord3.w, v.texcoord.w);
+				o.edge = float4(v.texcoord1.w, v.texcoord2.w, v.texcoord3.w, 1);
 				o.viewDir.xyz = WorldSpaceViewDir(v.vertex);
 
 				float3 deEdge = 1 - o.edge.xyz;
@@ -157,7 +157,9 @@
 
 				float deWeight = 1 - weight;
 
-				clip(dot(i.viewDir.xyz, worldNormal));
+				//return float4(worldNormal, 1);
+
+				//clip(dot(i.viewDir.xyz, worldNormal));
 
 				col = col*deWeight + i.vcol*weight;
 
