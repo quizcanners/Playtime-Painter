@@ -57,7 +57,7 @@
 			{
 				float4 vertex		: SV_POSITION;
 				half4 color			: COLOR;
-				float4 texcoord		: TEXCOORD0;
+				float2 texcoord		: TEXCOORD0;
 				float4 worldPosition: TEXCOORD1;
 				float4 screenPos	: TEXCOORD2;
 				float2 stretch		: TEXCOORD3;
@@ -97,6 +97,8 @@
 			}
 
 			float4 frag(v2f o) : SV_Target {
+
+				o.screenPos.xy /= o.screenPos.w;
 
 				float2 fragCoord = (o.screenPos.xy - 0.5 ) * o.stretch.xy + 0.5;
 

@@ -726,7 +726,7 @@ namespace PlaytimePainter
                 for (int YSection = 0; YSection <= 1; YSection++)
                 {
                     int y = YSection * (height - 1);
-                    for (int x = 0; x < height; x++)
+                    for (int x = 0; x < width; x++)
                     {
                         var pix = PixelUnSafe(x, y);
                         mask.SetValuesOn(ref pix, col);
@@ -737,6 +737,24 @@ namespace PlaytimePainter
             }
 
 
+        }
+
+        public void AddEdgePixels(Color col)
+        {
+            var tmpPixels = Pixels;
+            int oldWidth = width;
+            int oldHeight = height;
+
+            Resize(width +2, height+2);
+
+            for(int x=0; x<width; x++)
+                for (int y = 0; y < height; y++)
+                {
+                        if (x == 0 || y == 0 || x == width - 1 || y == height - 1)
+                            SetPixelUnSafe(x, y, col);
+                        else
+                            SetPixelUnSafe(x, y, tmpPixels[(y - 1) * oldWidth + x - 1]);
+                }
         }
 
         private int _offsetByX;
@@ -1210,6 +1228,7 @@ namespace PlaytimePainter
                             }
 #endif
 
+                            //AddEdgePixels(Color col)
                             if ("Set edges to transparent".Click().nl(ref changed))
                             {
                                 SetEdges(Color.clear, ColorMask.A);
@@ -1219,6 +1238,23 @@ namespace PlaytimePainter
                             if ("Set edges to Clear Black".Click().nl(ref changed))
                             {
                                 SetEdges(Color.clear);
+                                SetAndApply();
+                            }
+
+                            "Background Color".edit(ref clearColor).changes(ref changed);
+
+                            if ("Apply to edges".Click())
+                            {
+                                SetEdges(clearColor);
+                                SetAndApply();
+                            }
+
+                            pegi.nl();
+
+                            if ("Add Edges".ClickConfirm(confirmationTag: "addEdge",
+                                toolTip: "This will resize the texture"))
+                            {
+                                AddEdgePixels(clearColor);
                                 SetAndApply();
                             }
 

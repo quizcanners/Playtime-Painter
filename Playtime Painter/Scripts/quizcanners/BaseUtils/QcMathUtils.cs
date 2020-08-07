@@ -18,6 +18,11 @@ namespace QuizCannersUtilities
 
     public static class QcMath
     {
+        public static float SmoothStep(float edge0, float edge1, float x)
+        {
+            float t = Mathf.Clamp01((x - edge0) / (edge1 - edge0));
+            return t * t * (3f - 2f * t);
+        }
 
         #region Double
 
@@ -282,6 +287,8 @@ namespace QuizCannersUtilities
         public static Vector4 ToVector4(this Color col) => new Vector4(col.r, col.g, col.b, col.a);
 
         public static Vector2 XY(this Vector3 vec) => new Vector2(vec.x, vec.y);
+
+        public static Vector2 YX(this Vector3 vec) => new Vector2(vec.y, vec.x);
 
         public static Vector4 ToVector4(this Vector2 v2, float z = 0, float w = 0) => new Vector4(v2.x, v2.y, z, w);
 

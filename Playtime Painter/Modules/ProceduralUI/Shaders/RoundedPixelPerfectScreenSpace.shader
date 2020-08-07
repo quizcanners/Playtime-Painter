@@ -140,6 +140,8 @@
 
 			float4 frag(v2f o) : SV_Target {
 
+				o.screenPos.xy /= o.screenPos.w;
+
 #if _MODE_FILLSCREEN
 				float2 fragCoord = (o.screenPos.xy - 0.5 ) * o.stretch.xy + 0.5;
 #else

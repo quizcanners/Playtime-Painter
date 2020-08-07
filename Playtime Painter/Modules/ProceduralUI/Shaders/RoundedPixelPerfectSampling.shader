@@ -36,7 +36,7 @@
 				#pragma multi_compile ____  _UNLINKED 
 
 				//#pragma multi_compile_fwdbase
-				#pragma multi_compile_instancing
+				//#pragma multi_compile_instancing
 				#pragma target 3.0
 
 				struct v2f {
@@ -69,7 +69,7 @@
 
 				v2f vert(appdata_ui_qc v) {
 					v2f o;
-					UNITY_SETUP_INSTANCE_ID(v);
+					//UNITY_SETUP_INSTANCE_ID(v);
 					o.pos =				UnityObjectToClipPos(v.vertex);
 					o.texcoord.xy =		v.texcoord.xy;
 					o.screenPos =		ComputeScreenPos(o.pos);

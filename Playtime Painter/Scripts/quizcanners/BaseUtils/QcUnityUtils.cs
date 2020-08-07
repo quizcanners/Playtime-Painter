@@ -306,9 +306,9 @@ namespace QuizCannersUtilities {
             return col;
         }
 
-#endregion
+        #endregion
 
-#region Rect Transform
+        #region Rect Transform
 
         public static void SetPivotTryKeepPosition(this RectTransform rectTransform, float pivotX, float pivotY) =>
             rectTransform.SetPivotTryKeepPosition(new Vector2(pivotX, pivotY));
@@ -340,9 +340,75 @@ namespace QuizCannersUtilities {
                 return rect;
         }
 
-#endregion
+        public class RectTransformTiltMgmt
+        {
+            Vector2 tilt;
 
-#region Components & GameObjects
+            private bool posSet = false;
+
+            Vector3 previousPos;
+
+            public void UpdateTilt(RectTransform rt, Camera cam, bool dontTilt = false, float speed = 30, float mouseEffectRadius = 0.75f)
+            {
+                Vector2 targetTilt;
+
+                Vector3 rectPos = RectTransformUtility.WorldToScreenPoint(cam, rt.position).ToVector3(0);
+
+                speed = Input.GetMouseButton(0) ? speed : speed * 4;
+
+                mouseEffectRadius *= Mathf.Min(Screen.width, Screen.height);
+
+                if (dontTilt || !Input.GetMouseButton(0))
+                    targetTilt = Vector2.zero;
+                else
+                {
+                    float distance = Vector3.Distance(Input.mousePosition, rectPos);
+
+                    targetTilt = (Input.mousePosition - rectPos).YX().normalized;
+
+                    targetTilt.y = -targetTilt.y;
+
+                    targetTilt *= QcMath.SmoothStep(0, mouseEffectRadius, distance) * QcMath.SmoothStep(mouseEffectRadius, 0, distance) * 8;
+                }
+
+                if (!posSet)
+                {
+                    previousPos = rectPos;
+                    posSet = true;
+                }
+                else
+                {
+                    Vector2 posDiff = rectPos - previousPos;
+
+                    float dist = posDiff.magnitude;
+
+                    Vector2 newPos = posDiff.YX() * 100 / mouseEffectRadius;
+
+                    newPos.y = -newPos.y;
+
+                    previousPos = rectPos;
+
+                    targetTilt += newPos;
+                }
+
+                targetTilt *= new Vector2(Screen.width, Screen.height) / mouseEffectRadius;
+
+                if (LerpUtils.IsLerpingBySpeed(ref tilt, targetTilt, speed: speed))
+                {
+                    if (tilt.magnitude > 5)
+                        tilt = tilt.normalized * 5;
+
+                    rt.rotation = Quaternion.Euler(tilt.ToVector3(0));
+                }
+            }
+        }
+
+
+
+        #endregion
+
+
+        #region Components & GameObjects
 
         public static List<T> CreateUiElement<T>(GameObject[] targets = null) where T : Component
         {
@@ -2145,6 +2211,8 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
         }
 
         #endregion
+
+
 
     }
 
