@@ -30,7 +30,7 @@
 				#pragma shader_feature  ___ _BUMP_NONE _BUMP_REGULAR _BUMP_COMBINED 
 				#pragma shader_feature  ___ _qcPp_UV_ATLASED
 				#pragma multi_compile ______ USE_NOISE_TEXTURE
-				#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_built_in.cginc"
+				#include "Assets/Playtime Painter/Shaders/quizcanners_built_in.cginc"
 
 
 				uniform sampler2D _MainTex_ATL;

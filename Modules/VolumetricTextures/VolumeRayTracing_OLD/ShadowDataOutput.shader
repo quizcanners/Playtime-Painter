@@ -18,7 +18,7 @@
 			#pragma multi_compile_fog
 			#pragma multi_compile_fwdbase
 
-			#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_built_in.cginc"
+			#include "Assets/Playtime Painter/Shaders/quizcanners_built_in.cginc"
 
 					
 			float4 _SunDirection;
@@ -65,7 +65,7 @@
 			#pragma vertex vert
 			#pragma fragment frag
 			#pragma multi_compile_fwdbase
-			#include "Assets/Tools/Playtime Painter/Shaders/quizcanners_built_in.cginc"
+			#include "Assets/Playtime Painter/Shaders/quizcanners_built_in.cginc"
 
 				uniform sampler2D g_BakedRays_VOL;
 				float4 g_BakedRays_VOLVOLUME_H_SLICES; //g_VOLUME_H_SLICES;
