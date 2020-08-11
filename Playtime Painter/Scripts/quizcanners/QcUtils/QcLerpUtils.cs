@@ -2044,7 +2044,7 @@ namespace QuizCannersUtilities
     public static class LerpUtils
     {
 
-        #region Lerps
+        #region Float
         
         private static float SpeedToPortion(this float speed, float dist) =>
             Math.Abs(dist) > (float.Epsilon * 10) ? Mathf.Clamp01(speed * Time.deltaTime / Mathf.Abs(dist)) : 1;
@@ -2088,6 +2088,28 @@ namespace QuizCannersUtilities
             return true;
         }
 
+        public static float LerpBySpeed(float from, float to, float speed)
+            => Mathf.LerpUnclamped(from, to, speed.SpeedToPortion(Mathf.Abs(from - to)));
+
+        public static float LerpBySpeed(float from, float to, float speed, out float portion)
+        {
+            portion = speed.SpeedToPortion(Mathf.Abs(from - to));
+            return Mathf.LerpUnclamped(from, to, portion);
+        }
+
+        public static bool LerpAngle_bySpeed(ref float from, float to, float speed)
+        {
+            var dist = Mathf.Abs(Mathf.DeltaAngle(from, to));
+            if (dist <= float.Epsilon) return false;
+            var portion = speed.SpeedToPortion(dist);
+            from = Mathf.LerpAngle(from, to, portion);
+            return true;
+        }
+
+        #endregion
+
+        #region Double
+
         public static bool IsLerpingBySpeed(ref double from, double to, double speed)
         {
             if (from == to)
@@ -2113,23 +2135,9 @@ namespace QuizCannersUtilities
             return from + diff * QcMath.Clamp01(speed * Time.deltaTime / dist);
         }
 
-        public static float LerpBySpeed(float from, float to, float speed)
-            => Mathf.LerpUnclamped(from, to, speed.SpeedToPortion(Mathf.Abs(from - to)));
+        #endregion
 
-        public static float LerpBySpeed(float from, float to, float speed, out float portion)
-        {
-            portion = speed.SpeedToPortion(Mathf.Abs(from - to));
-            return Mathf.LerpUnclamped(from, to, portion);
-        }
-
-        public static bool LerpAngle_bySpeed(ref float from, float to, float speed)
-        {
-            var dist = Mathf.Abs(Mathf.DeltaAngle(from, to));
-            if (dist <= float.Epsilon) return false;
-            var portion = speed.SpeedToPortion(dist);
-            from = Mathf.LerpAngle(from, to, portion);
-            return true;
-        }
+        #region Vectors & Color
 
         public static bool IsLerpingBySpeed(ref Vector2 from, Vector2 to, float speed)
         {
@@ -2139,8 +2147,7 @@ namespace QuizCannersUtilities
             from = Vector2.LerpUnclamped(from, to, speed.SpeedToPortion(Vector2.Distance(from, to)));
             return true;
         }
-
-
+        
         public static Vector2 LerpBySpeed(this Vector2 from, Vector2 to, float speed) =>
             Vector2.LerpUnclamped(from, to, speed.SpeedToPortion(Vector2.Distance(from, to)));
 
@@ -2238,6 +2245,10 @@ namespace QuizCannersUtilities
             return Color.LerpUnclamped(from, to, portion);
         }
 
+        #endregion
+
+        #region Components
+
         public static bool IsLerpingAlphaBySpeed<T>(this List<T> graphicList, float alpha, float speed) where T : Graphic
         {
 
@@ -2297,6 +2308,22 @@ namespace QuizCannersUtilities
             
             linkRenderer.gameObject.SetActive(active);
 
+        }
+
+        public static bool IsLerpingBySpeed_Volume(this AudioSource src, float target, float speed)
+        {
+            if (!src)
+                return false;
+
+            var vol = src.volume;
+
+            if (IsLerpingBySpeed(ref vol, target, speed))
+            {
+                src.volume = vol;
+                return true;
+            }
+
+            return false;
         }
 
         #endregion
