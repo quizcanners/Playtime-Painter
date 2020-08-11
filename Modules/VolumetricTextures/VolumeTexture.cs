@@ -292,7 +292,7 @@ namespace PlaytimePainter {
                         if ("Create Pool".Click().nl(ref changed))
                         {
                             _tmpWidth = Mathf.ClosestPowerOfTwo(Mathf.Clamp(_tmpWidth, 128, 2048));
-                            TexturesPool.GetOrCreateInstance.width = _tmpWidth;
+                            TexturesPool.ForceInstance.width = _tmpWidth;
                         }
                     }
                     else

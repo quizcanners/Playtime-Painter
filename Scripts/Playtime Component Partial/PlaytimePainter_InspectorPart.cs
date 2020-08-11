@@ -9,15 +9,16 @@ using UnityEditor;
 using UnityEditorInternal;
 #endif
 using UnityEngine;
-using UnityEngine.U2D;
 using UnityEngine.UI;
-using Object = UnityEngine.Object;
 
 namespace PlaytimePainter
 {
 
 #pragma warning disable IDE0018 // Inline variable declaration
 
+    [DisallowMultipleComponent]
+    [AddComponentMenu("Mesh/Playtime Painter")]
+    [HelpURL(OnlineManual)]
     public partial class PlaytimePainter 
     {
         private string _nameHolder = "unnamed";
@@ -1147,6 +1148,64 @@ namespace PlaytimePainter
             foreach (var p in CameraModuleBase.GizmoPlugins)
                 p.PlugIn_PainterGizmos(this);
         }
+
+        [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Add Painters To Selected")]
+        private static void AddPainterToSelected()
+        {
+            foreach (var go in Selection.gameObjects)
+                IterateAssignToChildren(go.transform);
+        }
+
+        private static void IterateAssignToChildren(Transform tf)
+        {
+
+            if ((!tf.GetComponent<PlaytimePainter>())
+                && (tf.GetComponent<Renderer>())
+                && (!tf.GetComponent<RenderBrush>()) && (CanEditWithTag(tf.tag)))
+                tf.gameObject.AddComponent<PlaytimePainter>();
+
+            for (var i = 0; i < tf.childCount; i++)
+                IterateAssignToChildren(tf.GetChild(i));
+
+        }
+
+        [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Remove Painters From the Scene")]
+        private static void TakePainterFromAll()
+        {
+            var allObjects = FindObjectsOfType<Renderer>();
+            foreach (var mr in allObjects)
+            {
+                var ip = mr.GetComponent<PlaytimePainter>();
+                if (ip)
+                    DestroyImmediate(ip);
+            }
+
+            var rtp = FindObjectsOfType<PainterCamera>();
+
+            if (!rtp.IsNullOrEmpty())
+                foreach (var rt in rtp)
+                    rt.gameObject.DestroyWhatever();
+
+            var dc = FindObjectsOfType<DepthProjectorCamera>();
+
+            if (!dc.IsNullOrEmpty())
+                foreach (var d in dc)
+                    d.gameObject.DestroyWhatever();
+
+            PainterSystem.applicationIsQuitting = false;
+        }
+
+        [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Join Discord")]
+        public static void Open_Discord() => Application.OpenURL(pegi.FullWindowService.DiscordServer);
+
+        [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Send an Email")]
+        public static void Open_Email() => QcUnity.SendEmail(pegi.FullWindowService.SupportEmail,
+            "About your Playtime Painter",
+            "Hello Yuri, we need to talk. I purchased your asset and expect an excellent quality, but ...");
+
+        [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Open Manual")]
+        public static void OpenWWW_Documentation() => Application.OpenURL(OnlineManual);
+
 #endif
     }
 }

@@ -15,13 +15,18 @@ namespace PlaytimePainter
     public class TexturesPool : PainterSystemMono, IPEGI  {
 
         public static TexturesPool inst;
-        public static TexturesPool GetOrCreateInstance { get {
-            if (!inst && !ApplicationIsQuitting) {
-                inst = new GameObject().AddComponent<TexturesPool>();
-                inst.gameObject.name = "Textures Pool";
-            }
+        public static TexturesPool ForceInstance
+        {
+            get
+            {
+                if (!inst && !ApplicationIsQuitting) {
+                    inst = new GameObject().AddComponent<TexturesPool>();
+                    inst.gameObject.name = "Textures Pool";
+                }
 
-            return inst; } }
+                return inst;
+            }
+        }
 
         public int width = 256;
 
@@ -43,9 +48,6 @@ namespace PlaytimePainter
                 wrapMode = TextureWrapMode.Repeat,
                 name = "Tex2D_fromPool"
             };
-
-          
-
         }
 
         private RenderTexture CreateRenderTexture()
@@ -68,7 +70,8 @@ namespace PlaytimePainter
             return rt;
         }
 
-        public RenderTexture GetRenderTexture() {
+        public RenderTexture GetRenderTexture()
+        {
             if (_rtList.Count > 0)
             {
                 return _rtList.RemoveLast();
@@ -77,11 +80,8 @@ namespace PlaytimePainter
             return CreateRenderTexture();
         }
 
-        public void ReturnOne(RenderTexture rt)
-        {
-            _rtList.Add(rt);
-        }
-
+        public void ReturnOne(RenderTexture rt) =>  _rtList.Add(rt);
+        
         private void OnEnable()
         {
             inst = this;
