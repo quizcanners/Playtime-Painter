@@ -100,10 +100,15 @@ namespace PlaytimePainter
 
         private void UseMeshAsBrush(PaintCommand.WorldSpace command)
         {
-
             GameObject go = command.GameObject;
             Mesh mesh = command.Mesh;
             List<int> selectedSubMeshes = command.SelectedSubmeshes;
+
+            if (!mesh)
+            {
+                Debug.LogError("No mesh in Use Mesh As Brush Command");
+                return;
+            }
 
             if (selectedSubMeshes.IsNullOrEmpty())
             {

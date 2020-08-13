@@ -18,8 +18,12 @@ MonoBehaviour:
   - {fileID: 2800000, guid: d626eafb9a7f21b4b92f961297773ed4, type: 3}
   - {fileID: 2100000, guid: 0cea719bedf75a54da61c0984bdc171c, type: 2}
   - {fileID: 2800000, guid: 4a2d38ec39c832b4d93faf05b904fbf6, type: 3}
+  - {fileID: 2800000, guid: 280e4f4691a43f144bba85d53e8f3831, type: 3}
+  - {fileID: 2100000, guid: 6aeedda377c2f0043b41d5dae114f0b3, type: 2}
+  - {fileID: 2800000, guid: 86ce359e096eac44f838bd92ae5bd88f, type: 3}
+  - {fileID: 2100000, guid: 104887b717e9f474a9ca1cc5ce81ff1f, type: 2}
   playtimePainterLayer: 30
-  isLineraColorSpace: 1
+  isLineraColorSpace: 0
   customBlitModes: []
   selectedCustomBlitMode: 0
   defaultMaterial: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
@@ -76,18 +80,18 @@ MonoBehaviour:
     decalContentious: 0
     decalAngleModifier: 0
     showBrushDynamics: 0
-    hardness: 256
+    hardness: 5
     blurAmount: 1
-    brush3DRadius: 16
-    brush2DRadius: 16
+    brush3DRadius: 0.0925926
+    brush2DRadius: 83
     useAlphaBuffer: 0
     alphaLimitForAlphaBuffer: 1
     worldSpaceBrushPixelJitter: 0
-    Color: {r: 0.446, g: 1, b: 0, a: 0}
+    Color: {r: 0, g: 0, b: 1, a: 1}
     _dFlow:
       min: 0.1
       max: 4.5
-      _value: 3
+      _value: 2.08
     showingSize: 1
   showColorSliders: 1
   disableNonMeshColliderInPlayMode: 0
@@ -104,10 +108,11 @@ MonoBehaviour:
   newTextureIsColor: 1
   newTextureClearColor: {r: 0, g: 0, b: 0, a: 1}
   newTextureClearNonColorValue: {r: 0.5, g: 0.5, b: 0.5, a: 0.5}
-  selectedWidthIndex: 4
-  selectedHeightIndex: 4
+  selectedWidthIndex: 8
+  selectedHeightIndex: 8
   recordingNames: []
   browsedRecord: 0
-  stdData: imgs|0||sch|1|0|mats|54|e|48|mat|1|0|tfs|32|e|26|b|13|n|8|_MainTex||tgs|0||||||pals|0||cam|201|mm|0||pl|176|_lstMeta|0||_lst|154|Color
+  stdData: imgs|463|e|107|mods|16|pgns|8|Plbk|0||||tex2D|1|7|w|4|1024|h|4|1024|sn|17|New
+    OveerlayyTest|trnsp|1|y|updT2D|1|y|clear|0|||e|113|mods|16|pgns|8|Plbk|0||||tex2D|1|5|w|4|1024|h|4|1024|sn|17|paintSplatterMask|is|1|6|ip|1|4|sdfMI|2|30|sdfMO|2|30||e|136|mods|16|pgns|8|Plbk|0||||tex2D|1|4|w|3|344|h|2|84|sn|22|button_confirm_trade_A|trnsp|1|y|clear|30|r|5|0.373|g|5|0.573|b|5|0.302||ip|1|8||e|80|mods|16|pgns|8|Plbk|0||||tex2D|1|1|w|2|70|h|2|65|sn|14|icon_seashells|trnsp|1|y|||sch|1|0|mats|526|e|48|mat|1|0|tfs|32|e|26|b|13|n|8|_MainTex||tgs|0|||||e|360|mat|1|6|pv|1|y|tfs|336|e|26|b|13|n|8|_MainTex||tgs|0|||e|36|b|23|n|17|_MetallicGlossMap||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|31|b|18|n|12|_ParallaxMap||tgs|0|||e|32|b|19|n|13|_OcclusionMap||tgs|0|||e|31|b|18|n|12|_EmissionMap||tgs|0|||e|30|b|17|n|11|_DetailMask||tgs|0|||e|35|b|22|n|16|_DetailAlbedoMap||tgs|0|||e|35|b|22|n|16|_DetailNormalMap||tgs|0|||||e|99|mat|1|8|texInd|1|1|pv|1|y|tfs|65|e|26|b|13|n|8|_MainTex||tgs|0|||e|27|b|14|n|9|_UiSprite||tgs|0||||||pals|0||cam|201|mm|0||pl|176|_lstMeta|0||_lst|154|Color
     Mgmt|0||CmbndMpsCntrl|13|cm|0||tps|0|||TilAtlCntrl|13|atl|0||am|0|||VolumePntng|64|mFiv|2|60|mFov|3|170|cam|35|fov|2|90|p|0||r|0||n|3|0.1|f|3|100|||||rts|4|2048||Vpck|1076|e|262|n|7|unNamed|sln|241|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|6|t|1|2||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|262|n|7|unNamed|sln|241|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|6|t|1|2||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|262|n|7|unNamed|sln|241|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|6|t|1|2||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|262|n|7|unNamed|sln|241|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|6|t|1|2||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6|||||e|1|y|
   systemLanguage: 10

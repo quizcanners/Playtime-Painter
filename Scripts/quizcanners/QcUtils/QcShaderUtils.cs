@@ -28,7 +28,7 @@ namespace QuizCannersUtilities {
 
                 var bi = obj as BaseShaderPropertyIndex;
 
-                return bi != null ? bi.id == id : name.Equals(obj.ToString());
+                return bi != null ? bi.id == id : name.Equals(bi.name);
             }
 
             public override int GetHashCode() => id;

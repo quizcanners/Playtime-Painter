@@ -16,7 +16,27 @@ namespace PlaytimePainter.ComponentModules {
 
         private Sprite GetSprite(ShaderProperty.TextureValue field) 
             => field.Equals(textureName) ? GetSprite() : null;
-    
+
+        private Texture GetTexture()
+        {
+            if (painter.IsUiGraphicPainter)
+            {
+                var image = painter.uiGraphic as Image;
+                if (image)
+                {
+                    return image.sprite ? image.sprite.texture : null;
+                }
+
+                var raw = painter.uiGraphic as RawImage;
+                if (raw)
+                    return raw.mainTexture;
+            }
+
+            return null;
+
+           
+        }
+
         private Sprite GetSprite() {
 
             if (painter.IsUiGraphicPainter) {
@@ -62,19 +82,22 @@ namespace PlaytimePainter.ComponentModules {
 
         public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex)
         {
-            var sp = GetSprite(field);
+            if (!field.Equals(textureName))
+                return false;
 
-            if (!sp)
+            var tmp = GetTexture();
+
+            if (!tmp)
                 return false;
             
-            tex = sp.texture;
+            tex = tmp;
 
             return true;
         }
 
         public override void GetNonMaterialTextureNames(ref List<ShaderProperty.TextureValue> dest)
         {
-            var sp = GetSprite();
+            var sp = GetTexture();
 
             if (sp)
                 dest.Add(textureName);
@@ -82,18 +105,30 @@ namespace PlaytimePainter.ComponentModules {
 
         public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue field) {
 
+            if (!painter.IsUiGraphicPainter)
+                return false;
+
+            var id = painter.TexMeta;
+            if (id == null)
+                return true;
+
             var sp = GetSprite(field);
             if (sp) {
-
-                var id = painter.TexMeta;
-                if (id == null)
-                    return true;
 
                 Rect uv = sp.TryGetAtlasedAtlasedUvs();
 
                 id.tiling = Vector2.one/uv.size;
                 id.offset = uv.position;
 
+                return true;
+            }
+
+            var raw = painter.uiGraphic as RawImage;
+            if (raw)
+            {
+                id.tiling = raw.uvRect.max;
+                id.offset = raw.uvRect.min;
+                
                 return true;
             }
 
