@@ -191,10 +191,10 @@ namespace QuizCannersUtilities
         private static void AssignUniqueNameIn<T>(this T el, IList<T> list)
         {
 
-            var named = el as IGotName;
-            if (named == null) return;
+            var namedNewElement = el as IGotName;
+            if (namedNewElement == null) return;
 
-            var tmpName = named.NameForPEGI;
+            var newName = namedNewElement.NameForPEGI;
             var duplicate = true;
             var counter = 0;
 
@@ -204,18 +204,27 @@ namespace QuizCannersUtilities
 
                 foreach (var e in list)
                 {
-                    var other = e as IGotName;
-                    if (other == null || e.Equals(el) || !tmpName.Equals(other.NameForPEGI))
+                    var currentName = e as IGotName;
+
+                    if (currentName == null)
+                        continue;
+
+                    var otherName = currentName.NameForPEGI;
+
+                    if (otherName == null)
+                        otherName = "";
+
+                    if (e.Equals(el) || !newName.Equals(otherName))
                         continue;
 
                     duplicate = true;
                     counter++;
-                    tmpName = named.NameForPEGI + counter;
+                    newName = namedNewElement.NameForPEGI + counter;
                     break;
                 }
             }
 
-            named.NameForPEGI = tmpName;
+            namedNewElement.NameForPEGI = newName;
 
         }
 
