@@ -310,6 +310,18 @@ namespace QuizCannersUtilities {
 
         #region Rect Transform
 
+        public static void SetAnchorsKeepPosition(this RectTransform rectTransform, Vector2 min, Vector2 max)
+        {
+
+            Vector3 tempPos = rectTransform.position;
+
+            rectTransform.anchorMin = min;
+            rectTransform.anchorMax = max;
+
+            rectTransform.position = tempPos;
+        }
+
+
         public static void SetPivotTryKeepPosition(this RectTransform rectTransform, float pivotX, float pivotY) =>
             rectTransform.SetPivotTryKeepPosition(new Vector2(pivotX, pivotY));
 
@@ -382,7 +394,7 @@ namespace QuizCannersUtilities {
 
                     float dist = posDiff.magnitude;
 
-                    Vector2 newPos = posDiff.YX() * 100 / mouseEffectRadius;
+                    Vector2 newPos = posDiff.YX() * 50 / mouseEffectRadius;
 
                     newPos.y = -newPos.y;
 
@@ -631,37 +643,40 @@ namespace QuizCannersUtilities {
 
         public static void DestroyWhateverComponent(this Component cmp) => cmp.DestroyWhateverUnityObject();
 
-#endregion
+        #endregion
 
-#region Audio 
+        #region Audio 
 
-        private static Type audioUtilClass;
+        /*
+                private static Type audioUtilClass;
 
-#if UNITY_EDITOR
-        private static Type AudioUtilClass
-        {
-            get
-            {
-                if (audioUtilClass == null)
-                    audioUtilClass = typeof(AudioImporter).Assembly.GetType("UnityEditor.AudioUtil");
+        #if UNITY_EDITOR
+                private static Type AudioUtilClass
+                {
+                    get
+                    {
+                        if (audioUtilClass == null)
+                            audioUtilClass = typeof(AudioImporter).Assembly.GetType("UnityEditor.AudioUtil");
 
-                return audioUtilClass;
-            }
-        }
-#endif
+                        return audioUtilClass;
+                    }
+                }
+        #endif*/
 
-        private static MethodInfo playClipMethod;
+        // private static MethodInfo playClipMethod;
 
-        private static MethodInfo setClipSamplePositionMethod;
+        // private static MethodInfo setClipSamplePositionMethod;
 
-        public static EditorAudioPlayRequest Play(this AudioClip clip, float volume = 1) =>
+        private static AudioSource _editorAudioSource;
+
+        public static void Play(this AudioClip clip, float volume = 1) =>
             Play(clip, Vector3.zero, volume);
 
-        public static EditorAudioPlayRequest Play(this AudioClip clip, Vector3 position, float volume = 1)
+        public static void Play(this AudioClip clip, Vector3 position, float volume = 1)
         {
-
-            var rqst = new EditorAudioPlayRequest(clip);
-
+            
+          //  var rqst = new EditorAudioPlayRequest(clip);
+            /*
             if (!clip) return rqst;
 
 #if UNITY_EDITOR
@@ -678,15 +693,29 @@ namespace QuizCannersUtilities {
             else
                 Debug.LogError("Play Clip Meshod not found");
 
-#else
+#else*/
 
-            AudioSource.PlayClipAtPoint(clip, position, volume);
+            if (Application.isPlaying)
+                AudioSource.PlayClipAtPoint(clip, position, volume);
+            else
+            {
+                if (!_editorAudioSource)
+                {
+                    _editorAudioSource = new GameObject("INSPECTOR AUDIO (CAN DELETE)").AddComponent<AudioSource>();
+                    _editorAudioSource.hideFlags = HideFlags.DontSave;
+                }
 
-#endif
+                _editorAudioSource.transform.position = position;
+
+                _editorAudioSource.PlayOneShot(clip);
+            }
+
+
+//#endif
 
 
 
-            return rqst;
+           // return rqst;
         }
 
 
@@ -726,8 +755,6 @@ namespace QuizCannersUtilities {
 
         public static AudioClip Override(AudioClip newClip, AudioClip oldClip)
         {
-
-
 #if UNITY_EDITOR
 
             const int headerSize = 44;
@@ -817,7 +844,7 @@ namespace QuizCannersUtilities {
             return count;
         }
 
-        public class EditorAudioPlayRequest
+       /* public class EditorAudioPlayRequest
         {
 
             public AudioClip clip;
@@ -846,7 +873,7 @@ namespace QuizCannersUtilities {
             {
                 this.clip = clip;
             }
-        }
+        }*/
 
         public static float GetLoudestPointInSeconds(this AudioClip clip)
             => clip.GetFirstLoudPointInSeconds(1);

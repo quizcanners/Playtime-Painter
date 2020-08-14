@@ -10,7 +10,11 @@ namespace PlayerAndEditorGUI
     public static class PEGI_Styles
     {
         public static bool InList;
-        private static bool InGameView => pegi.PaintingGameViewUI;
+        private static bool InGameView => pegi.PaintingGameViewUI
+#if UNITY_EDITOR
+                                          || EditorGUIUtility.isProSkin
+#endif
+        ;
 
         public static Color listReadabilityRed = new Color(1, 0.85f, 0.85f, 1);
         public static Color listReadabilityBlue = new Color(0.9f, 0.9f, 1f, 1);
@@ -93,7 +97,7 @@ namespace PlayerAndEditorGUI
         public static PegiGuiStyle ImageButton = new PegiGuiStyle(()=> new GUIStyle(GUI.skin.button)
                 {
                     overflow = new RectOffset(-3, -3, 0, 0),
-                    margin = new RectOffset(-3, -3, 1, 1)
+                    margin = new RectOffset(1, -3, 1, 1)
                 });
         
         public static PegiGuiStyle ClickableText = new PegiGuiStyle(()=> new GUIStyle(GUI.skin.label) {
@@ -151,7 +155,7 @@ namespace PlayerAndEditorGUI
 
         public static PegiGuiStyle ListLabel = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
         {
-            margin = new RectOffset(1, 1, 6, 1),
+            margin = new RectOffset(9, 1, 6, 1),
             fontSize = 12,
             clipping = TextClipping.Clip,
             richText = true,
@@ -171,7 +175,7 @@ namespace PlayerAndEditorGUI
         public static PegiGuiStyle EnterLabel = new PegiGuiStyle(() => new GUIStyle
         {
             padding = InGameView ? new RectOffset(0, 0, 4, 7) : new RectOffset(10, 10, 10, 0),
-            margin = InGameView ? new RectOffset(0, 0, 3, 3) : new RectOffset(0, 0, 0, 0),
+            margin = InGameView ? new RectOffset(9, 0, 3, 3) : new RectOffset(9, 0, 0, 0),
             fontSize = InGameView ? 14 : 12,
             richText = true,
             wordWrap = false,
@@ -185,7 +189,7 @@ namespace PlayerAndEditorGUI
         public static PegiGuiStyle ExitLabel = new PegiGuiStyle(() => new GUIStyle
         {
             padding = InGameView ? new RectOffset(0, 0, 4, 7) : new RectOffset(10, 10, 10, 0),
-            margin = InGameView ? new RectOffset(0, 0, 3, 3) : new RectOffset(0, 0, 0, 0),
+            margin = InGameView ? new RectOffset(9, 0, 3, 3) : new RectOffset(9, 0, 0, 0),
             fontSize = 13,
             richText = true,
             wordWrap = false,

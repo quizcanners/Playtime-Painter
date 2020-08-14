@@ -2033,19 +2033,19 @@ namespace PlayerAndEditorGUI
 
         #region Audio Clip
 
-        public static bool edit(this string label, int width, ref AudioClip field, float offset = 0)
+        public static bool edit(this string label, int width, ref AudioClip field)
         {
             label.write(width);
-            return edit(ref field, offset);
+            return edit(ref field);
         }
 
-        public static bool edit(this string label, ref AudioClip field, float offset = 0)
+        public static bool edit(this string label, ref AudioClip field)
         {
             label.write(ApproximateLength(label));
-            return edit(ref field, offset);
+            return edit(ref field);
         }
 
-        public static bool edit(ref AudioClip clip, int width, float offset = 0)
+        public static bool edit(ref AudioClip clip, int width)
         {
 
             var ret =
@@ -2054,12 +2054,12 @@ namespace PlayerAndEditorGUI
 #endif
                     false;
 
-            clip.PlayButton(offset);
+            clip.PlayButton();
 
             return ret;
         }
 
-        public static bool edit(ref AudioClip clip, float offset = 0)
+        public static bool edit(ref AudioClip clip)
         {
 
             var ret =
@@ -2068,18 +2068,19 @@ namespace PlayerAndEditorGUI
 #endif
                     false;
 
-            clip.PlayButton(offset);
+            clip.PlayButton();
 
             return ret;
         }
 
-        private static void PlayButton(this AudioClip clip, float offset = 0)
+        private static void PlayButton(this AudioClip clip)
         {
             if (clip && icon.Play.Click(20))
             {
-                var req = clip.Play();
-                if (offset > 0)
-                    req.FromTimeOffset(offset);
+                //var req = 
+                    clip.Play();
+                //if (offset > 0)
+                    //req.FromTimeOffset(offset);
             }
         }
 
@@ -2587,11 +2588,24 @@ namespace PlayerAndEditorGUI
                 return ef.edit(ref col);
 
 #endif
-            nl();
-            return icon.Red.edit_ColorChannel(ref col, 0).nl() ||
-                   icon.Green.edit_ColorChannel(ref col, 1).nl() ||
-                   icon.Blue.edit_ColorChannel(ref col, 2).nl() ||
-                   icon.Alpha.edit_ColorChannel(ref col, 3).nl();
+            var changed = false;
+
+            SetBgColor(col);
+
+            if ("Color".foldout())
+            {
+                pegi.nl();
+
+                changed = icon.Red.edit_ColorChannel(ref col, 0).nl() ||
+                       icon.Green.edit_ColorChannel(ref col, 1).nl() ||
+                       icon.Blue.edit_ColorChannel(ref col, 2).nl() ||
+                       icon.Alpha.edit_ColorChannel(ref col, 3).nl();
+            }
+
+            SetPreviousBgColor();
+
+            return changed;
+
 
         }
 

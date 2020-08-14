@@ -1259,6 +1259,30 @@ namespace QuizCannersUtilities
 
         }
 
+        public class Vector2Value : BaseVector2Lerp
+        {
+            protected readonly string _name = "Vector2 value";
+            
+            public Vector2 currentValue;
+
+            public override bool UsingLinkedThreshold => base.UsingLinkedThreshold && Enabled;
+
+            public override Vector2 CurrentValue { get => currentValue; set { currentValue = value; } }
+
+            protected override string Name_Internal => _name;
+
+            public Vector2Value()
+            {
+
+            }
+
+            public Vector2Value(string name)
+            {
+                _name = name;
+            }
+        }
+
+
         public class ShaderColorValueGlobal : ColorValue {
 
             protected ShaderProperty.ColorFloat4Value shaderValue; 
