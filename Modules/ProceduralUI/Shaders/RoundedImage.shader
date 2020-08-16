@@ -16,7 +16,7 @@
 			"PerEdgeData" = "Linked"
 		}
 
-		ColorMask RGB
+		ColorMask RGBA
 		Cull Off
 		ZWrite Off
 		ZTest Off

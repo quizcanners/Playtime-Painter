@@ -317,7 +317,19 @@ namespace QuizCannersUtilities
 
                 pegi.nl();
 
-                "Transparent Background".toggleIcon(ref AlphaBackground).nl();
+                "Transparent Background".toggleIcon(ref AlphaBackground);
+
+                if (!AlphaBackground && cameraToTakeScreenShotFrom)
+                {
+                    if (cameraToTakeScreenShotFrom.clearFlags == CameraClearFlags.Color &&
+                        cameraToTakeScreenShotFrom.clearFlags == CameraClearFlags.SolidColor) {
+                        var col = cameraToTakeScreenShotFrom.backgroundColor;
+                        if (pegi.edit(ref col))
+                            cameraToTakeScreenShotFrom.backgroundColor = col;
+                    }
+                }
+
+                pegi.nl();
 
                 "Img Name".edit(90, ref screenShotName);
                 var path = Path.Combine(QcFile.OutsideOfAssetsFolder, folderName);
@@ -336,12 +348,16 @@ namespace QuizCannersUtilities
 
                     if (UpScale > 4)
                     {
-                        if ("Take Very large ScreenShot".ClickConfirm("tbss", "This will try to take a very large screen shot. Are we sure?").nl())
+                        if ("Take Very large ScreenShot".ClickConfirm("tbss", "This will try to take a very large screen shot. Are we sure?"))
                             RenderToTextureManually();
                     }
-                    else if ("Take Screen Shoot".Click("Render Screenshoot from camera").nl())
+                    else if ("cam.Render() ".Click("Render Screenshoot from camera").nl())
                         RenderToTextureManually();
                 }
+
+                pegi.FullWindowService.DocumentationClickOpen("To Capture UI with this method, use Canvas-> Render Mode-> Screen Space - Camera. " +
+                                                              "You probably also want Transparent Background turned on. Or not, depending on your situation. " +
+                                                              "Who am I to tell you what to do, I'm just a hint.");
 
                 pegi.nl();
 
@@ -361,8 +377,8 @@ namespace QuizCannersUtilities
 
                     pegi.nl();
 
-                    if ("Take Screen Shot".Click())
-                        ScreenCapture.CaptureScreenshot("{0}".F(GetScreenShotName() + ".png"), UpScale);
+                    if ("ScreenCapture.CaptureScreenshot".Click())
+                        ScreenCapture.CaptureScreenshot("{0}".F(Path.Combine(FOLDER_NAME, GetScreenShotName()) + ".png"), UpScale);
 
 
                     if (icon.Folder.Click())
@@ -379,12 +395,15 @@ namespace QuizCannersUtilities
 
             private bool grab;
 
-            public Camera cameraToTakeScreenShotFrom;
-            public int UpScale = 4;
-            public bool AlphaBackground;
+            private const string FOLDER_NAME = "ScreenShoots";
+
+            [SerializeField] private Camera cameraToTakeScreenShotFrom;
+            [SerializeField] private int UpScale = 1;
+            [SerializeField] private bool AlphaBackground;
 
             [NonSerialized] private RenderTexture forScreenRenderTexture;
             [NonSerialized] private Texture2D screenShotTexture2D;
+         
 
             public void RenderToTextureManually()
             {
@@ -418,27 +437,29 @@ namespace QuizCannersUtilities
                 screenShotTexture2D.ReadPixels(new Rect(0, 0, w, h), 0, 0);
 
                 if (!AlphaBackground)
-                {
-                    var pixels = screenShotTexture2D.GetPixels32();
-
-                    for (int i=0; i<pixels.Length; i++)
-                    {
-                        var col = pixels[i];
-                        col.a = 255;
-                        pixels[i] = col;
-                    }
-
-                    screenShotTexture2D.SetPixels32(pixels);
-                }
+                    MakeOpaque(screenShotTexture2D);
 
                 screenShotTexture2D.Apply();
 
                 cam.targetTexture = null;
                 RenderTexture.active = null;
-
                 cam.clearFlags = clearFlags;
 
-                QcFile.Save.TextureOutsideAssetsFolder("ScreenShoots", GetScreenShotName(), ".png", screenShotTexture2D);
+                QcFile.Save.TextureOutsideAssetsFolder(FOLDER_NAME, GetScreenShotName(), ".png", screenShotTexture2D);
+            }
+
+            private void MakeOpaque(Texture2D tex)
+            {
+                var pixels = tex.GetPixels32();
+
+                for (int i = 0; i < pixels.Length; i++)
+                {
+                    var col = pixels[i];
+                    col.a = 255;
+                    pixels[i] = col;
+                }
+
+                tex.SetPixels32(pixels);
             }
 
             public void OnPostRender()

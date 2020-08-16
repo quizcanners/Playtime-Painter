@@ -22,8 +22,23 @@ MonoBehaviour:
   - {fileID: 2100000, guid: 6aeedda377c2f0043b41d5dae114f0b3, type: 2}
   - {fileID: 2800000, guid: 86ce359e096eac44f838bd92ae5bd88f, type: 3}
   - {fileID: 2100000, guid: 104887b717e9f474a9ca1cc5ce81ff1f, type: 2}
+  - {fileID: 2800000, guid: 3c79e3fb52adee640aa3764c4595c07c, type: 3}
+  - {fileID: 2800000, guid: 5759f4905ca146e419ea9242e4c1d2ba, type: 3}
+  - {fileID: 2800000, guid: 86d8de332d0d87c48ad2aad44b546496, type: 3}
+  - {fileID: 2800000, guid: 0fc8bf4d13e7b2c44872d87a42008190, type: 3}
+  - {fileID: 2800000, guid: 507834b80a307ef42914caba414f2562, type: 3}
+  - {fileID: 2800000, guid: cc11c8107b1e11a418b19617d080400b, type: 3}
+  - {fileID: 2100000, guid: ff0879773abdc714d90e83fac2138af3, type: 2}
+  - {fileID: 2100000, guid: e171c510bfd99654982cab042cd350ef, type: 2}
+  - {fileID: 2100000, guid: e89aa5e27c3d688468db73d74cb9d3a4, type: 2}
+  - {fileID: 2100000, guid: 877134e1363bb5b4986628e922fca6c1, type: 2}
+  - {fileID: 15303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 32209160bf9ea3244ab104f68e8e1d03, type: 2}
+  - {fileID: 2100000, guid: 3f028ed6ec4cb6e46ba6928f9c37803f, type: 2}
+  - {fileID: 2100000, guid: 636733f39c1af7e4d95ecb6aa0075934, type: 2}
+  - {fileID: 2100000, guid: f90d3c8fe8280d043b64fa62d862113a, type: 2}
   playtimePainterLayer: 30
-  isLineraColorSpace: 0
+  isLineraColorSpace: 1
   customBlitModes: []
   selectedCustomBlitMode: 0
   defaultMaterial: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
@@ -40,7 +55,7 @@ MonoBehaviour:
   showUrlField: 0
   meshTool: 0
   bevelDetectionSensitivity: 6
-  meshToolsStd: t_pos|15|dm|1|0|inM|1|n||t_shF|7|dm|1|0||t_vCol|0||t_edgs|23|v|1|1|doCol|1|n|fe|1|n||t_noStd|16|cat|1|0|cac|1|0||t_sbmsh|0||t_uv|23|gtuv|1|n|nrmWrap|3|0.5||
+  meshToolsStd: t_pos|15|dm|1|0|inM|1|n||t_shF|7|dm|1|0||t_vCol|0||t_edgs|23|v|1|1|doCol|1|n|fe|1|n||t_noStd|16|cat|1|0|cac|1|0||t_sbmsh|0||t_uv|37|gtuv|1|n|nrmWrap|3|0.5|fr|1|y|mp|1|y||
   saveMeshUndos: 0
   makeVerticesUniqueOnEdgeColoring: 0
   gridSize: 1
@@ -98,7 +113,7 @@ MonoBehaviour:
   previewAlphaChanel: 0
   moreOptions: 0
   allowExclusiveRenderTextures: 0
-  showConfig: 0
+  showConfig: 1
   showTeachingNotifications: 0
   samplingMaskSize:
     x: 4
@@ -112,7 +127,7 @@ MonoBehaviour:
   selectedHeightIndex: 8
   recordingNames: []
   browsedRecord: 0
-  stdData: imgs|463|e|107|mods|16|pgns|8|Plbk|0||||tex2D|1|7|w|4|1024|h|4|1024|sn|17|New
-    OveerlayyTest|trnsp|1|y|updT2D|1|y|clear|0|||e|113|mods|16|pgns|8|Plbk|0||||tex2D|1|5|w|4|1024|h|4|1024|sn|17|paintSplatterMask|is|1|6|ip|1|4|sdfMI|2|30|sdfMO|2|30||e|136|mods|16|pgns|8|Plbk|0||||tex2D|1|4|w|3|344|h|2|84|sn|22|button_confirm_trade_A|trnsp|1|y|clear|30|r|5|0.373|g|5|0.573|b|5|0.302||ip|1|8||e|80|mods|16|pgns|8|Plbk|0||||tex2D|1|1|w|2|70|h|2|65|sn|14|icon_seashells|trnsp|1|y|||sch|1|0|mats|526|e|48|mat|1|0|tfs|32|e|26|b|13|n|8|_MainTex||tgs|0|||||e|360|mat|1|6|pv|1|y|tfs|336|e|26|b|13|n|8|_MainTex||tgs|0|||e|36|b|23|n|17|_MetallicGlossMap||tgs|0|||e|26|b|13|n|8|_BumpMap||tgs|0|||e|31|b|18|n|12|_ParallaxMap||tgs|0|||e|32|b|19|n|13|_OcclusionMap||tgs|0|||e|31|b|18|n|12|_EmissionMap||tgs|0|||e|30|b|17|n|11|_DetailMask||tgs|0|||e|35|b|22|n|16|_DetailAlbedoMap||tgs|0|||e|35|b|22|n|16|_DetailNormalMap||tgs|0|||||e|99|mat|1|8|texInd|1|1|pv|1|y|tfs|65|e|26|b|13|n|8|_MainTex||tgs|0|||e|27|b|14|n|9|_UiSprite||tgs|0||||||pals|0||cam|201|mm|0||pl|176|_lstMeta|0||_lst|154|Color
-    Mgmt|0||CmbndMpsCntrl|13|cm|0||tps|0|||TilAtlCntrl|13|atl|0||am|0|||VolumePntng|64|mFiv|2|60|mFov|3|170|cam|35|fov|2|90|p|0||r|0||n|3|0.1|f|3|100|||||rts|4|2048||Vpck|1076|e|262|n|7|unNamed|sln|241|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|6|t|1|2||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|262|n|7|unNamed|sln|241|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|6|t|1|2||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|262|n|7|unNamed|sln|241|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|6|t|1|2||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|262|n|7|unNamed|sln|241|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|6|t|1|2||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6|||||e|1|y|
+  stdData: imgs|478|e|74|mods|16|pgns|8|Plbk|0||||tex2D|2|10|w|3|256|h|3|256|sn|6|Clouds|trnsp|1|y||e|71|mods|16|pgns|8|Plbk|0||||tex2D|2|11|w|4|1024|h|4|1024|sn|10|Rock_COLOR||e|65|mods|16|pgns|8|Plbk|0||||tex2D|2|12|w|3|512|h|3|512|sn|7|Grad_00||e|62|mods|16|pgns|8|Plbk|0||||tex2D|2|13|w|2|16|h|2|16|sn|6|pixArt||e|67|mods|16|pgns|8|Plbk|0||||tex2D|2|14|w|3|512|h|3|512|sn|9|T_Mask_01||e|102|mods|16|pgns|8|Plbk|0||||tex2D|1|9|w|4|1024|h|4|1024|sn|9|New
+    Image|clear|24|r|1|1|g|1|1|b|1|1|a|1|1||||sch|1|0|mats|846|e|82|mat|2|15|tfs|65|e|26|b|13|n|8|_MainTex||tgs|0|||e|27|b|14|n|9|_UiSprite||tgs|0|||||e|82|mat|2|16|tfs|65|e|26|b|13|n|8|_MainTex||tgs|0|||e|27|b|14|n|9|_UiSprite||tgs|0|||||e|82|mat|2|17|tfs|65|e|26|b|13|n|8|_MainTex||tgs|0|||e|27|b|14|n|9|_UiSprite||tgs|0|||||e|82|mat|2|18|tfs|65|e|26|b|13|n|8|_MainTex||tgs|0|||e|27|b|14|n|9|_UiSprite||tgs|0|||||e|82|mat|2|19|tfs|65|e|26|b|13|n|8|_MainTex||tgs|0|||e|27|b|14|n|9|_UiSprite||tgs|0|||||e|82|mat|2|20|tfs|65|e|26|b|13|n|8|_MainTex||tgs|0|||e|27|b|14|n|9|_UiSprite||tgs|0|||||e|82|mat|2|21|tfs|65|e|26|b|13|n|8|_MainTex||tgs|0|||e|27|b|14|n|9|_UiSprite||tgs|0|||||e|48|mat|1|0|tfs|32|e|26|b|13|n|8|_MainTex||tgs|0|||||e|82|mat|2|22|tfs|65|e|26|b|13|n|8|_MainTex||tgs|0|||e|27|b|14|n|9|_UiSprite||tgs|0|||||e|82|mat|2|23|tfs|65|e|26|b|13|n|8|_MainTex||tgs|0|||e|27|b|14|n|9|_UiSprite||tgs|0||||||pals|0||cam|208|mm|0||pl|183|_lstMeta|7|pi|1|0||_lst|154|Color
+    Mgmt|0||CmbndMpsCntrl|13|cm|0||tps|0|||TilAtlCntrl|13|atl|0||am|0|||VolumePntng|64|mFiv|2|60|mFov|3|170|cam|35|fov|2|90|p|0||r|0||n|3|0.1|f|3|100|||||rts|4|2048||Vpck|1076|e|262|n|7|unNamed|sln|241|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|6|t|1|2||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|262|n|7|unNamed|sln|241|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|6|t|1|2||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|262|n|7|unNamed|sln|241|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|6|t|1|2||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|262|n|7|unNamed|sln|241|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|2||e|12|t|1|2|v|1|1||||e|6|t|1|2||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6|||||is|2|16|e|1|y|
   systemLanguage: 10

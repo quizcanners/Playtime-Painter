@@ -883,6 +883,7 @@ namespace PlaytimePainter
 
         #region Updates
         private Vector3 _previousPos = Vector3.zero;
+        private Transform _previousParent;
 
         private void Update()
         {
@@ -892,14 +893,15 @@ namespace PlaytimePainter
             foreach (var m in _modules)
                 needsUpdate |= m.Update(this);
 
-            if (feedPositionData && rectTransform.position != _previousPos)
-            {
+            if (transform.parent != _previousParent || (feedPositionData && rectTransform.position != _previousPos))
                 needsUpdate = true;
-                _previousPos = rectTransform.position;
-            }
-
+            
             if (needsUpdate)
+            {
                 SetAllDirty();
+                _previousPos = rectTransform.position;
+                _previousParent = transform.parent;
+            }
         }
         #endregion
 

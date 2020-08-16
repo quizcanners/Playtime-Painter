@@ -1,8 +1,9 @@
-﻿Shader "Playtime Painter/UI/Rounded/SubtractiveGraphic" {
+﻿Shader "Playtime Painter/UI/Rounded/Masked Graphic" {
 
 	Properties{
 		[PerRendererData]_MainTex("RGBA", 2D) = "black" {}
-		_Overlay("Overlay (-A)", 2D) = "white" {}
+		_Mask("Mask", 2D) = "white" {}
+		[Toggle(_SUBTRACTIVE)] unlinked("Subtract mask", Float) = 0
 		_Edges("Sharpness", Range(0,1)) = 0.5
 		[Toggle(_UNLINKED)] unlinked("Linked Corners", Float) = 0
 	}
@@ -16,7 +17,7 @@
 			"PerEdgeData" = "Linked"
 		}
 
-		ColorMask RGB
+		ColorMask RGBA
 		Cull Off
 		ZWrite Off
 		ZTest Off
@@ -33,7 +34,8 @@
 				#pragma fragment frag
 
 				#pragma multi_compile_instancing
-				#pragma multi_compile ____  _UNLINKED 
+				#pragma shader_feature ____  _UNLINKED 
+				#pragma shader_feature ___ _SUBTRACTIVE
 				#pragma target 3.0
 
 				struct v2f {
@@ -49,15 +51,15 @@
 				float _Edges;
 					
 				sampler2D _MainTex;
-				sampler2D _Overlay;
-				float4 _Overlay_ST;
+				sampler2D _Mask;
+				float4 _Mask_ST;
 
 				v2f vert(appdata_full v) {
 					v2f o;
 					UNITY_SETUP_INSTANCE_ID(v);
 					o.pos = UnityObjectToClipPos(v.vertex);
 					o.texcoord.xy = v.texcoord.xy;
-					o.texcoordOverlay = TRANSFORM_TEX(v.texcoord.xy, _Overlay);
+					o.texcoordOverlay = TRANSFORM_TEX(v.texcoord.xy, _Mask);
 					o.color = v.color;
 
 					o.texcoord.zw = v.texcoord1.xy;
@@ -94,12 +96,9 @@
 					
 
 
-					float overlay = tex2D(_Overlay, uv2).a;
+					float overlay = tex2D(_Mask, uv2).a;
 					uv2 = max(0, uv2 - 1) + max(0, -uv2);
 					overlay = max(0, overlay - (uv2.x + uv2.y)*256);
-
-
-				//	return overlay;
 
 					uv = max(0, uv - _ProjTexPos.zw) * o.precompute.xy;
 
@@ -116,10 +115,12 @@
 
 					clipp = min(1, pow(clipp * o.precompute.z, o.texcoord.z));
 
+					#if _SUBTRACTIVE
+						col.a *= clipp * (1 - overlay);
+					#else
+						col.a *= clipp * overlay;
+					#endif
 					
-
-					col.a *= clipp * (1-overlay);
-
 					return col;
 				}
 				ENDCG

@@ -16,7 +16,7 @@
 			"SpriteRole" = "Tile"
 		}
 
-		ColorMask RGB
+		ColorMask RGBA
 		Cull Off
 		ZWrite Off
 		ZTest Off
