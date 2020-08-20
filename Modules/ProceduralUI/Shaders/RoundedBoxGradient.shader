@@ -57,7 +57,7 @@
 				float _Edges;
 				float4 _ColorC;
 				//float4 _ColorE;
-				sampler2D _Global_Noise_Lookup;
+				uniform sampler2D _Global_Noise_Lookup;
 
 				v2f vert(appdata_full v) {
 					v2f o;

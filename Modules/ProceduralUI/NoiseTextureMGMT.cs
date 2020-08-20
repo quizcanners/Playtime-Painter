@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEditor;
 #endif
 
-namespace PlaytimePainter.Examples
+namespace PlaytimePainter
 {
 
     [ExecuteAlways]
@@ -43,7 +43,7 @@ namespace PlaytimePainter.Examples
 
             pegi.nl();
 
-            "Noise Texture".edit(90, ref prerenderedNoiseTexture).nl(ref changed);
+            NoiseTextureName.edit(90, ref prerenderedNoiseTexture).nl(ref changed);
 
             if (prerenderedNoiseTexture)
             {

@@ -61,6 +61,7 @@
 			#pragma multi_compile_local _ UNITY_UI_ALPHACLIP
 			#pragma shader_feature __  _SOFT_FADE
 			#pragma shader_feature _MODE_PIXPERFECT _MODE_FILLSCREEN 
+			#pragma multi_compile ___ USE_NOISE_TEXTURE
 
 			struct v2f
 			{
@@ -84,6 +85,7 @@
 			uniform float4 _ClipRect;
 			uniform float4 _MainTex_TexelSize;
 			uniform float _Edges;
+			uniform sampler2D _Global_Noise_Lookup;
 
 			v2f vert(appdata_full v)
 			{
@@ -179,6 +181,15 @@
 				#ifdef UNITY_UI_ALPHACLIP
 				clip(color.a - 0.001);
 				#endif
+
+#if USE_NOISE_TEXTURE
+				float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(fragCoord * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));
+#ifdef UNITY_COLORSPACE_GAMMA
+				color.rgb += (noise.rgb - 0.5)*0.02;
+#else
+				color.rgb += (noise.rgb - 0.5)*0.0075;
+#endif
+#endif
 
 				return color;
 			}
