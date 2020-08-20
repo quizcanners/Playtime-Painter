@@ -8,8 +8,6 @@
 		_Edges("Sharpness", Range(0,1)) = 0.5
 		[Toggle(_SOFT_FADE)] softfade("Soft Fade", Float) = 0
 
-			
-
 		_StencilComp("Stencil Comparison", Float) = 8
 		_Stencil("Stencil ID", Float) = 0
 		_StencilOp("Stencil Operation", Float) = 0
@@ -170,19 +168,7 @@
 
 				float alpha = saturate(1 - dist);
 
-				
-
 				alpha = min(1, pow(alpha * o.precompute.z, o.texcoord.z));
-
-				//float change = fwidth(alpha);
-
-				//float dx = ddx(alpha);
-				//float dy = ddy(alpha);
-				//float mip = (dx + dy) * 200;
-
-				//color.rgb = alpha + (dx + dy)*0.25;
-
-				//alpha += change * 0.5;
 
 				color.a *= alpha;
 
@@ -193,8 +179,6 @@
 				#ifdef UNITY_UI_ALPHACLIP
 				clip(color.a - 0.001);
 				#endif
-
-				
 
 				return color;
 			}
