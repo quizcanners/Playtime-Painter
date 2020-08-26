@@ -5,7 +5,7 @@ Shader "Playtime Painter/UI/Particles"
 		_Brighter("Bright Mask (R)", 2D) = "white" {}
 		_Darker("Dark Mask (R)", 2D) = "white" {}
 		_Visibility("Visibility", Range(0.1,32)) = 2
-		_GyroidScale("Gyroid cale", Range(0.1,512)) = 32
+		_GyroidScale("Gyroid scale", Range(0.1,512)) = 32
 
 		[Toggle(CLEAR_LIGHT)] clearLights("Clear Lights", Float) = 0
 
@@ -163,7 +163,7 @@ Shader "Playtime Painter/UI/Particles"
 				#endif
 				float4 col = o.color;
 
-				col.a = 1;
+				//col.a = 1;
 
 			#if CLEAR_LIGHT
 				float grad = 0.6;
@@ -175,7 +175,7 @@ Shader "Playtime Painter/UI/Particles"
 
 				
 
-				col.rgb *= (smoothstep(0.5-value*0.5, 1, (1-abs(gyroid))) + 1) * grad  * value * _Visibility;
+				col.rgb *= (smoothstep(0.5-value*0.5, 1, (1-abs(gyroid))) + 1) * grad  * value * _Visibility * col.a;
 
 				float3 mix = col.gbr + col.brg;
 
