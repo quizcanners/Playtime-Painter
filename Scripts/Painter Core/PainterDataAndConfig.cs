@@ -98,7 +98,7 @@ namespace PlaytimePainter
 
             CheckShader(ref brushBlitSmoothed, "Playtime Painter/Buffer Blit/Smooth", forceReload);
 
-            CheckShader(ref brushBufferCopy, "Playtime Painter/Buffer Blit/Copier", forceReload);
+            CheckShader(ref brushBufferCopy, "Playtime Painter/Editor/Buffer Blit/Copier", forceReload);
 
             CheckShader(ref bufferColorFill, "Playtime Painter/Buffer Blit/Color Fill", forceReload);
 

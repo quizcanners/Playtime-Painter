@@ -9,6 +9,8 @@ using UnityEngine.Experimental.Rendering;
 
 namespace PlaytimePainter
 {
+
+    [ExecuteInEditMode]
     public class ScreenBlurController : MonoBehaviour, IPEGI
     {
         public static List<ScreenBlurController> instances = new List<ScreenBlurController>(1);
@@ -21,7 +23,7 @@ namespace PlaytimePainter
             step = BlurStep.Requested;
         }
         
-        private Texture2D _screenTexture;
+        [SerializeField] private Texture2D _screenTexture;
         private Texture2D ScreenTexture
         {
             get
@@ -43,9 +45,9 @@ namespace PlaytimePainter
             }
         }
 
-        public int blurIterations = 10;
+        public int postProcessIteration = 10;
         
-        [SerializeField] protected Material _effectMaterial;
+        [SerializeField] protected Material materialPrototype;
         Material _effectMaterialInstance;
         Material EffectMaterial
         {
@@ -55,15 +57,15 @@ namespace PlaytimePainter
                 {
                     return _effectMaterialInstance;
                 }
-
-                _effectMaterialInstance = Instantiate(_effectMaterial);
+                
+                _effectMaterialInstance = materialPrototype ? Instantiate(materialPrototype) : new Material(Shader.Find("Diffuse"));
 
                 return _effectMaterialInstance;
             }
         }
 
         [SerializeField] protected Shader copyShader;
-        [SerializeField] protected Shader blurShader;
+        [SerializeField] protected Shader postProcessShader;
 
         private void OnPostRender()
         {
@@ -76,9 +78,17 @@ namespace PlaytimePainter
                 _onCaptured?.Invoke();
             }
         }
-        
-        public bool useCrt = false;
-        public bool useCustomGLblit = false;
+
+        [SerializeField]
+        private PostProcessMethod _postProcessMethod;
+        private bool IsUsingCrt => _postProcessMethod == PostProcessMethod.CustomRenderTexture;
+        public enum PostProcessMethod
+        {
+            CustomRenderTexture,
+            GraphicsBlit,
+            GlBlit
+        }
+
 
         [SerializeField] protected CustomRenderTexture _effetBuffer;
         
@@ -86,31 +96,34 @@ namespace PlaytimePainter
         private void Swap() => _latestIsZero = !_latestIsZero;
 
         [SerializeField] protected RenderTexture[] _renderTextures;
-        private RenderTexture MainTexture => useCrt ? _effetBuffer : (_latestIsZero ? _renderTextures[0] : _renderTextures[1]);
-        private RenderTexture PreviousTexture => useCrt ? _effetBuffer : (_latestIsZero ? _renderTextures[1] : _renderTextures[0]);
+        private RenderTexture MainTexture => IsUsingCrt ? _effetBuffer : (_latestIsZero ? _renderTextures[0] : _renderTextures[1]);
+        private RenderTexture PreviousTexture => IsUsingCrt ? _effetBuffer : (_latestIsZero ? _renderTextures[1] : _renderTextures[0]);
         
         private void BlitRt(Shader shader)
         {
-            EffectMaterial.shader = shader;
+            var mat = EffectMaterial;
+            mat.shader = shader;
 
-            if (useCrt)
+            if (IsUsingCrt)
             {
-                _effetBuffer.material = EffectMaterial;
+                _effetBuffer.material = mat;
                 _effetBuffer.Update();
             }
             else
             {
                 Swap();
-                Graphics.Blit(PreviousTexture, MainTexture, EffectMaterial);
+                Graphics.Blit(PreviousTexture, MainTexture, mat);
             }
         }
 
         private void BlitRt(Texture tex, Shader shader = null)
         {
+            if (shader)
+            {
+                EffectMaterial.shader = shader;
+            }
 
-            EffectMaterial.shader = shader;
-
-            if (useCrt)
+            if (IsUsingCrt)
             {
                 _effetBuffer.material = EffectMaterial;
                 _effetBuffer.Update();
@@ -119,8 +132,8 @@ namespace PlaytimePainter
             {
                 if (shader)
                 {
-                    if (useCustomGLblit)
-                        RenderTextureBuffersManager.Blit(tex, MainTexture, EffectMaterial);
+                    if (_postProcessMethod == PostProcessMethod.GlBlit)
+                        RenderTextureBuffersManager.BlitGL(tex, MainTexture, EffectMaterial);
                     else
                         Graphics.Blit(tex, MainTexture, EffectMaterial);
                 }
@@ -192,9 +205,9 @@ namespace PlaytimePainter
 
                     blurIteration++;
 
-                    BlitRt(blurShader);
+                    BlitRt(postProcessShader);
 
-                    if (blurIteration > blurIterations)
+                    if (blurIteration > postProcessIteration)
                     {
                         step = BlurStep.Off;
                     }
@@ -203,6 +216,9 @@ namespace PlaytimePainter
         }
 
         #region Inspector
+
+        private bool _showDependencies;
+
         public bool Inspect()
         {
             var changed = pegi.toggleDefaultInspector(this).nl();
@@ -210,62 +226,112 @@ namespace PlaytimePainter
             if (!gameObject.GetComponent<Camera>())
                 "No Camera Detected on this Game Object. I need camera".writeWarning();
 
-            "Use CRT".toggleIcon(ref useCrt).nl();
-
-            if (!useCrt)
-                "Use custom GL blit".toggleIcon(ref useCustomGLblit).nl();
-
-            "State".editEnum(ref step).nl();
-
-            if (copyShader)
-                "Copy Shader. Supported={0} | Pass Count = {1}".F(copyShader.isSupported, copyShader.passCount).nl();
-
-            pegi.nl();
-            "Screen texture".write();
-
-            if (Application.isPlaying && icon.Refresh.Click())
-                RequestUpdate(() => Debug.Log("Screen Generating done"));
+            "Post Process Method".editEnum(ref _postProcessMethod).nl();
             
+            pegi.nl();
+          
+            "Copy shader".edit(ref copyShader).nl();
+
+            "Post-Process".edit(ref postProcessShader).nl();
+
+            "Iterations:".edit(ref postProcessIteration).nl(); 
+
             pegi.nl();
 
             if (_screenTexture)
-                pegi.write(_screenTexture, 250);
-            
-            pegi.nl();
-
-            "Buffers".write();
-
-            if ("Swap".Click())
-                Swap();
-
-            if ("Copy Screen".Click())
-                BlitRt(_screenTexture, copyShader);
-
-            if ("Blur".Click())
-                BlitRt(blurShader);
-
-            pegi.nl();
-
-            if (!useCrt)
             {
-                if (!_renderTextures.IsNullOrEmpty())
+                "Screen".write(_screenTexture);
+                if (icon.Refresh.Click().nl())
+                    RequestUpdate(() => Debug.Log("Screen Generating done"));
+            }
+            else if ("Request Screen Render".Click())
+                RequestUpdate(() => Debug.Log("Screen Generating done"));
+
+            pegi.nl();
+
+            if (!IsUsingCrt)
+            {
+                if (_renderTextures.Length < 2)
                 {
-                    "Main Texture: {0}".F(MainTexture.name).nl();
-
-                    MainTexture.write(250, alphaBlend: false);
-                    pegi.nl();
-
-                    "Previous Texture: {0}".F(PreviousTexture.name).nl();
-                    PreviousTexture.write(250, alphaBlend: false);
-                    pegi.nl();
+                    pegi.writeWarning("Need 2 Render Textures for Post-Process");
+                    if ("Fix".Click())
+                        _renderTextures = new RenderTexture[2];
+                }
+                else
+                {
+                    "Render Textures".edit_Array(ref _renderTextures).nl();
                 }
             }
             else
             {
-                _effetBuffer.write(250, alphaBlend: false);
-                pegi.nl();
+                "Custom Render Texture".edit(ref _effetBuffer).nl();
             }
-            
+
+            if ("Debug".foldout(ref _showDependencies).nl())
+            {
+                if (copyShader)
+                    "Copy Shader. Supported={0} | Pass Count = {1}".F(copyShader.isSupported, copyShader.passCount).nl();
+
+
+                "State".editEnum(ref step).nl();
+
+                "Buffers".write();
+
+                if ("Swap".Click())
+                    Swap();
+
+                if ("Screen->Buffer".Click())
+                    BlitRt(_screenTexture, copyShader);
+
+                if ("Blur".Click())
+                    BlitRt(postProcessShader);
+
+                pegi.nl();
+
+                "Screen Texture (Optional):".edit(ref _screenTexture).nl();
+
+                if (_screenTexture)
+                    _screenTexture.write(250, alphaBlend: false);
+                
+                pegi.nl();
+
+                if (_effectMaterialInstance)
+                {
+                    "Temp Mat Instance".write(_effectMaterialInstance);
+                    if (icon.Clear.Click().nl())
+                    {
+                        _effectMaterialInstance.DestroyWhateverUnityObject();
+                        _effectMaterialInstance = null;
+                    }
+                }
+                else
+                {
+                    "Material (Optional)".edit(ref materialPrototype).nl(ref changed);
+                }
+
+
+                if (!IsUsingCrt)
+                {
+                    if (!_renderTextures.IsNullOrEmpty())
+                    {
+                        "Main Texture: {0}".F(MainTexture).nl();
+
+                        MainTexture.write(250, alphaBlend: false);
+                        pegi.nl();
+
+                        "Previous Texture: {0}".F(PreviousTexture).nl();
+                        PreviousTexture.write(250, alphaBlend: false);
+                        pegi.nl();
+                    }
+                }
+                else
+                {
+                    _effetBuffer.write(250, alphaBlend: false);
+                    pegi.nl();
+                }
+            }
+
+
             return changed;
         }
         #endregion

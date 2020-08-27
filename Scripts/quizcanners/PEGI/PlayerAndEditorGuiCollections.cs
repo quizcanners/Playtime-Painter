@@ -1576,12 +1576,13 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool InspectValueInArray<T>(T el, T[] array, int index, ref int inspected, ListMetaData listMeta = null)
+        public static bool InspectValueInArray<T>(ref T[] array, int index, ref int inspected, ListMetaData listMeta = null)
         {
+            T el = array[index];
 
             var changed = InspectValueInCollection(ref el, array, index, ref inspected, listMeta);
 
-            if (changed && typeof(T).IsValueType)
+            if (changed)
                 array[index] = el;
 
             return changed;
@@ -1628,7 +1629,10 @@ namespace PlayerAndEditorGUI
                 {
                     var ed = listMeta?[index];
                     if (ed == null)
+                    {
                         "{0}: NULL {1}".F(index, typeof(T).ToPegiStringType()).write();
+
+                    }
                     else
                     {
                         object obj = el;
@@ -1659,22 +1663,22 @@ namespace PlayerAndEditorGUI
 
                     iind?.IndexForPEGI.ToString().write(20);
 
+                    bool isShown = false;
+
+                    if (el is Object)
+                    {
+                        isShown = true;
+
+                        if (edit(ref uo, typeof(T), 200).changes(ref changed))
+                            el = (T)(object)uo;
+                    }
+
                     var named = el as IGotName;
                     if (named != null)
                     {
-                        var so = uo as ScriptableObject;
+                        isShown = true;
                         var n = named.NameForPEGI;
-
-                        if (so)
-                        {
-                            if (editDelayed(ref n).changes(ref changed))
-                            {
-                                so.RenameAsset(n);
-                                named.NameForPEGI = n;
-                                isPrevious = true;
-                            }
-                        }
-                        else if (edit(ref n).changes(ref changed))
+                        if (edit(ref n).changes(ref changed))
                         {
                             named.NameForPEGI = n;
                             if (typeof(T).IsValueType)
@@ -1687,10 +1691,11 @@ namespace PlayerAndEditorGUI
                     {
                         if (!uo && pg == null && listMeta == null)
                         {
-                            if (el.GetNameForInspector().ClickLabel(Msg.InspectElement.GetText(), RemainingLength(defaultButtonSize * 2 + 10)))
+                            if (!isShown && el.GetNameForInspector().ClickLabel(Msg.InspectElement.GetText(), RemainingLength(defaultButtonSize * 2 + 10)))
                             {
                                 inspected = index;
                                 isPrevious = true;
+                                changed = true;
                             }
                         }
                         else
@@ -1707,10 +1712,6 @@ namespace PlayerAndEditorGUI
 
                                     clickHighlightHandled = true;
                                 }
-                                else if (Try_NameInspect(uo).changes(ref changed))
-                                    isPrevious = true;
-
-
                             }
                             else if (el.GetNameForInspector().ClickLabel("Inspect", RemainingLength(defaultButtonSize * 2 + 10)).changes(ref changed))
                             {
@@ -2939,8 +2940,6 @@ namespace PlayerAndEditorGUI
 
         public static T edit_Array<T>(ref T[] array, ref int inspected, ref bool changed, ListMetaData metaDatas = null)
         {
-
-
             nl();
 
             var added = default(T);
@@ -2974,10 +2973,11 @@ namespace PlayerAndEditorGUI
 
                 for (var i = 0; i < array.Length; i++)
                 {
-                    var el = array[i];
-                    if (InspectValueInArray(el, array, i, ref inspected, metaDatas).nl(ref changed) &&
-                        typeof(T).IsValueType)
-                        array[i] = el;
+                    //var el = array[i];
+                    //if (
+                    InspectValueInArray(ref array, i, ref inspected, metaDatas).nl(ref changed);// &&
+                       // typeof(T).IsValueType)
+                        //array[i] = el;
                 }
             }
 
