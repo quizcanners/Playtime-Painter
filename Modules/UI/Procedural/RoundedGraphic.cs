@@ -173,7 +173,7 @@ namespace PlaytimePainter
         {
             get
             {
-
+                
                 var sp = sprite;
 
                 if (!sp)
@@ -796,6 +796,15 @@ namespace PlaytimePainter
                     }
                     pegi.nl();
                 }
+
+                var isMaskable = maskable;
+
+                if ("Maskable".toggleIcon(ref isMaskable))
+                    maskable = isMaskable;
+
+                pegi.FullWindowService.DocumentationClickOpen(text: "Will the graphic work with Masking");
+
+                pegi.nl();
 
                 var rt = raycastTarget;
                 if ("Click-able".toggleIcon("Is RayCast Target", ref rt, hideTextWhenTrue: true).changes(ref changed))

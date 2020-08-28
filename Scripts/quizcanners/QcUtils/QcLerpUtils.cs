@@ -2273,6 +2273,21 @@ namespace QuizCannersUtilities
 
         #region Components
 
+        public static bool IsLerpingAlphaBySpeed(this CanvasGroup grp, float alpha, float speed)
+        {
+            if (!grp) return false;
+
+            var current = grp.alpha;
+
+            if (IsLerpingBySpeed(ref current, alpha, speed))
+            {
+                grp.alpha = current;
+                return true;
+            }
+
+            return false;
+        }
+
         public static bool IsLerpingAlphaBySpeed<T>(this List<T> graphicList, float alpha, float speed) where T : Graphic
         {
 
@@ -2285,7 +2300,7 @@ namespace QuizCannersUtilities
 
             return changing;
         }
-
+        
         public static bool IsLerpingAlphaBySpeed<T>(this T img, float alpha, float speed) where T : Graphic
         {
             if (!img) return false;

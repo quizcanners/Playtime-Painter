@@ -118,7 +118,7 @@ Shader "Playtime Painter/UI/Effects/Shaky"{
 						half shadow = tex2Dlod(_MainTex, half4(IN.texcoord + half2(0.04, 0.02) , 0, 2)).a;
 
 						color.rgb *= color.a;
-						color.a += shadow* 0.5 * (1 - color.a);
+						color.a += shadow* 0.5 * (1 - color.a) * IN.color.a;
 					#endif
 
 					#ifdef UNITY_UI_CLIP_RECT

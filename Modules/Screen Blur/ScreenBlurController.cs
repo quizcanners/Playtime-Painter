@@ -14,17 +14,39 @@ namespace PlaytimePainter
     public class ScreenBlurController : MonoBehaviour, IPEGI
     {
         public static List<ScreenBlurController> instances = new List<ScreenBlurController>(1);
-        
-        private Action _onCaptured;
 
-        public void RequestUpdate(Action OnCaptured)
+        private Action _onFirstRender;
+        private Action _onUpdated;
+
+       
+
+        public Texture CurrentTexture
         {
-            _onCaptured = OnCaptured;
+            get
+            {
+                if (IsUsingCrt)
+                    return _effetBuffer;
+                else
+                    return MainTexture;
+                    
+                /*switch (step)
+                {
+                    case BlurStep.ReturnedFromCamera: return ScreenTexture;
+                    case BlurStep.Blurring: return MainTexture;
+                    default: return MainTexture;
+                }*/
+            }
+        }
+
+        public void RequestUpdate(Action OnFirstRendered = null, Action OnUpdated = null)
+        {
+            _onFirstRender = OnFirstRendered;
+            _onUpdated = OnUpdated;
             step = BlurStep.Requested;
         }
         
         [SerializeField] private Texture2D _screenTexture;
-        private Texture2D ScreenTexture
+        public Texture2D ScreenTexture
         {
             get
             {
@@ -45,7 +67,7 @@ namespace PlaytimePainter
             }
         }
 
-        public int postProcessIteration = 10;
+        [SerializeField] private int postProcessIteration = 10;
         
         [SerializeField] protected Material materialPrototype;
         Material _effectMaterialInstance;
@@ -66,7 +88,7 @@ namespace PlaytimePainter
 
         [SerializeField] protected Shader copyShader;
         [SerializeField] protected Shader postProcessShader;
-
+        
         private void OnPostRender()
         {
             if (step == BlurStep.Requested)
@@ -75,7 +97,8 @@ namespace PlaytimePainter
                 var tex = ScreenTexture;
                 tex.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0, false);
                 tex.Apply();
-                _onCaptured?.Invoke();
+                _onFirstRender?.Invoke();
+                _onUpdated?.Invoke();
             }
         }
 
@@ -114,8 +137,11 @@ namespace PlaytimePainter
                 Swap();
                 Graphics.Blit(PreviousTexture, MainTexture, mat);
             }
-        }
 
+            _onUpdated?.Invoke();
+
+        }
+        
         private void BlitRt(Texture tex, Shader shader = null)
         {
             if (shader)
@@ -141,6 +167,8 @@ namespace PlaytimePainter
                     Graphics.Blit(tex, MainTexture);
 
             }
+
+            _onUpdated?.Invoke();
         }
 
         protected enum BlurStep
@@ -163,7 +191,7 @@ namespace PlaytimePainter
         private int blurIteration;
         
         public void Reset() => step = BlurStep.Off;
-
+        
         public void Update()
         {
             switch (step)
@@ -178,7 +206,7 @@ namespace PlaytimePainter
                     {
                         try
                         {
-                            _onCaptured?.Invoke();
+                            _onUpdated?.Invoke();
                         }
                         catch (Exception ex)
                         {
@@ -195,7 +223,7 @@ namespace PlaytimePainter
                     {
                         try
                         {
-                            _onCaptured?.Invoke();
+                            _onUpdated?.Invoke();
                         }
                         catch (Exception ex)
                         {
@@ -240,7 +268,7 @@ namespace PlaytimePainter
 
             if (_screenTexture)
             {
-                "Screen".write(_screenTexture);
+                "Screen".edit(ref _screenTexture);
                 if (icon.Refresh.Click().nl())
                     RequestUpdate(() => Debug.Log("Screen Generating done"));
             }
