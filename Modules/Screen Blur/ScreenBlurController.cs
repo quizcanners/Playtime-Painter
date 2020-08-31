@@ -38,10 +38,10 @@ namespace PlaytimePainter
             }
         }
 
-        public void RequestUpdate(Action OnFirstRendered = null, Action OnUpdated = null)
+        public void RequestUpdate(Action OnFirstRendered = null, Action OnEveryUpdate = null)
         {
             _onFirstRender = OnFirstRendered;
-            _onUpdated = OnUpdated;
+            _onUpdated = OnEveryUpdate;
             step = BlurStep.Requested;
         }
         
@@ -57,7 +57,7 @@ namespace PlaytimePainter
                         Destroy(_screenTexture);
                     }
 
-                    _screenTexture = new Texture2D(Screen.width, Screen.height, TextureFormat.ARGB32, mipChain: false)
+                    _screenTexture = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, mipChain: false)
                     {
                         name = "Screen Grab"
                     };

@@ -744,16 +744,44 @@ namespace QuizCannersUtilities {
                 
                 yield return null;
             }
-
-           
-
-           
-
         }
 
         public static string FirstLine(this string str) => new StringReader(str).ReadLine();
 
         public static string ToPegiStringType(this Type type) => type.ToString().SimplifyTypeName();
+
+        public static string AddSpacesInsteadOfCapitals(string text, bool keepCatipals = false)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return "";
+            StringBuilder newText = new StringBuilder(text.Length * 2);
+            newText.Append(text[0]);
+
+            if (keepCatipals)
+            {
+                for (int i = 1; i < text.Length; i++)
+                {
+                    if (char.IsUpper(text[i]) && text[i - 1] != ' ')
+                        newText.Append(' ');
+
+                    newText.Append(text[i]);
+                }
+            }
+            else
+            {
+                for (int i = 1; i < text.Length; i++)
+                {
+                    if (char.IsUpper(text[i]) && text[i - 1] != ' ')
+                    {
+                        newText.Append(' ');
+                        newText.Append(char.ToLower(text[i]));
+
+                    } else newText.Append(text[i]);
+                }
+            }
+
+            return newText.ToString();
+        }
 
         public static string SimplifyTypeName(this string name)
         {
