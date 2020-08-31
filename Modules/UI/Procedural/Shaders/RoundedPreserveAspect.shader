@@ -77,9 +77,7 @@
 
 					o.offUV.xy = o.texcoord.xy - 0.5;
 
-					o.projPos.xy = v.texcoord2.xy + o.offUV.xy*v.texcoord3.xy;
-
-
+					o.projPos.xy = v.texcoord2.xy;// +o.offUV.xy *((1 + v.texcoord1.xy)*0.5);
 
 					o.projPos.zw = max(0, float2(v.texcoord1.x, -v.texcoord1.x));
 
@@ -106,15 +104,21 @@
 
 					_Edges /= 1 + mip * mip; //LOD
 
-					float4 _ProjTexPos = o.projPos;
+					
 					float _Courners = o.texcoord.w;
 					float deCourners = o.precompute.w;
 					float2 uv = abs(o.offUV) * 2;
 
 
-					float4 col = tex2Dlod(_MainTex, float4(_ProjTexPos.xy,0,0));
-
-					uv = max(0, uv - _ProjTexPos.zw) * o.precompute.xy;
+					float4 col = tex2Dlod(_MainTex, float4(
+						//o.precompute.xy
+						o.projPos.xy + o.offUV.xy * 
+						
+						(1 + o.projPos.zw)*0.5//*_MainTex_TexelSize.zw
+						
+						,0,0));
+					
+					uv = max(0, uv - o.projPos.zw) * o.precompute.xy;
 
 					float2 forFade = uv;
 
