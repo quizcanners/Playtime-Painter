@@ -2178,6 +2178,16 @@ namespace QuizCannersUtilities
         public static Vector3 LerpBySpeed(this Vector3 from, Vector3 to, float speed) =>
             Vector3.LerpUnclamped(from, to, speed.SpeedToPortion(Vector3.Distance(from, to)));
 
+        public static bool IsLerpingBySpeed(ref Vector3 from, Vector3 to, float speed)
+        {
+            if (from == to)
+                return false;
+
+            from = Vector3.LerpUnclamped(from, to, speed.SpeedToPortion(Vector3.Distance(from, to)));
+            return true;
+        }
+
+
         public static Vector3 LerpBySpeed_DirectionFirst(this Vector3 from, Vector3 to, float speed) {
 
             const float precision = float.Epsilon * 10;
