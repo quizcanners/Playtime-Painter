@@ -110,13 +110,7 @@
 					float2 uv = abs(o.offUV) * 2;
 
 
-					float4 col = tex2Dlod(_MainTex, float4(
-						//o.precompute.xy
-						o.projPos.xy + o.offUV.xy * 
-						
-						(1 + o.projPos.zw)*0.5//*_MainTex_TexelSize.zw
-						
-						,0,0));
+					float4 col = tex2Dlod(_MainTex, float4(o.projPos.xy + o.offUV.xy * (1 + o.projPos.zw)*0.5, 0, 0));
 					
 					uv = max(0, uv - o.projPos.zw) * o.precompute.xy;
 
