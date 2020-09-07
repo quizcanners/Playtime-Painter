@@ -369,12 +369,12 @@ namespace QuizCannersUtilities {
 
         }
         
-        public static T TryGet<T>(this List<T> list, int index)
+        /*public static T TryGet<T>(this List<T> list, int index)
         {
             if (list == null || index < 0 || index >= list.Count)
                 return default;
             return list[index];
-        }
+        }*/
 
         public static object TryGetObj(IList list, int index)
         {
@@ -384,7 +384,7 @@ namespace QuizCannersUtilities {
             return el;
         }
 
-        public static T TryGet<T>(List<T> list, int index, T defaultValue)
+        public static T TryGet<T>(this List<T> list, int index, T defaultValue = default)
         {
             if (list == null || index < 0 || index >= list.Count)
                 return defaultValue;

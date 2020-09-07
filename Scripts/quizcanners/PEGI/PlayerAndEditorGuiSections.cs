@@ -227,6 +227,24 @@ namespace PlayerAndEditorGUI
 
         #region Enter & Exit
 
+        public static bool enter_Inspect<T>(this string label, ref T uObject, ref int inspected, int current) where T: Object
+        {
+            if (!uObject)
+            {
+                if (inspected == -1)
+                    label.edit(ref uObject).nl();
+                else if (inspected == current && (icon.Exit.Click() || "All Done Here".Click()))
+                         inspected = -1;
+            }
+            else
+            {
+                if (label.enter(ref inspected, current))
+                    return TryDefaultInspect(uObject);
+            }
+            
+            return false;
+        }
+
         public static bool enter<T>(ref int enteredOne, T currentEnum, string tip) where T: struct =>
              enter(ref enteredOne, Convert.ToInt32(currentEnum), tip);
 
