@@ -120,7 +120,7 @@ namespace QuizCannersUtilities
 #endif
             }
 
-            public static bool FromPersistentFolder(string subPath, string fileName, bool asBytes) =>
+            public static bool FromPersistentFolder(string subPath, string fileName, bool asBytes = false) =>
              FromPersistentFolder(subPath, fileName, extension: asBytes ? bytesFileType : textFileType);
 
             public static bool FromPersistentFolder(string subPath, string fileName, string extension)
