@@ -385,6 +385,7 @@ namespace PlaytimePainter
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Unlinked/Outline Unlinked"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Button With Shadow"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Shadow"))
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Glow"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Gradient"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Unlinked/Gradient Unlinked"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Preserve Aspect"))
