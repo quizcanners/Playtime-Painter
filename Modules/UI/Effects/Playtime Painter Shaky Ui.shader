@@ -14,6 +14,7 @@ Shader "Playtime Painter/UI/Effects/Shaky"{
 
 		[Toggle(UNITY_UI_ALPHACLIP)] _UseUIAlphaClip("Use Alpha Clip", Float) = 0
 		[Toggle(SHADOW)] _Shadow("Add Shadow", Float) = 0
+		//[Toggle(FADE_SHAKE)] _ShakeFade("Shake more when fading", Float) = 0
 	}
 
 	SubShader
@@ -57,6 +58,7 @@ Shader "Playtime Painter/UI/Effects/Shaky"{
 			#pragma multi_compile_local _ UNITY_UI_CLIP_RECT
 			#pragma multi_compile_local _ UNITY_UI_ALPHACLIP
 			#pragma shader_feature _ SHADOW
+			//#pragma shader_feature ___ FADE_SHAKE
 
 			struct appdata_t
 			{
@@ -101,6 +103,10 @@ Shader "Playtime Painter/UI/Effects/Shaky"{
 				float2 off = float2(sin((_Time.x * 3 + sp.y*5 - sp.x)*10), cos((_Time.x * 4.2 + sp.x*3 + sp.y)*10));
 
 				float shake = max(0,(v.color.a-0.75)*4) * v.color.a;
+
+				/*#if FADE_SHAKE
+				off *= (1 + (1-v.color.a)*10);
+				#endif*/
 
 				OUT.vertex = UnityObjectToClipPos(OUT.worldPosition + float4((off + deCenter * abs(off)*0.5)* 2 * shake,0,0));
 

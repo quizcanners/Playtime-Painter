@@ -122,6 +122,8 @@
 
 					col.rgb *= _Brightness * col.a;
 
+					col.rgb += col.gbr*col.brg * 0.4;
+
 					return col;
 				}
 				ENDCG
