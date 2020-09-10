@@ -944,15 +944,14 @@ namespace QuizCannersUtilities
             return changed;
         }
 
-        private static string ToMegabytes(this uint bytes)
+        public static string ToMegabytes(this uint bytes)
         {
             bytes = (bytes >> 10);
             bytes /= 1024; // On new line to workaround IL2CPP bug
             return "{0} Mb".F(bytes.ToString());
         }
-
-
-        private static string ToMegabytes(this long bytes)
+        
+        public static string ToMegabytes(this long bytes)
         {
             bytes = (bytes >> 10);
             bytes /= 1024; // On new line to workaround IL2CPP bug
