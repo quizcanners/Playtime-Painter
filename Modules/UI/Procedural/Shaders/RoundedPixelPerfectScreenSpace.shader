@@ -170,7 +170,7 @@
 
 				float alpha = saturate(1 - dist);
 
-				alpha = min(1, pow(alpha * o.precompute.z, o.texcoord.z));
+				alpha = saturate(pow(alpha * o.precompute.z, o.texcoord.z));
 
 				color.a *= alpha;
 
