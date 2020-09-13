@@ -963,7 +963,7 @@ namespace PlaytimePainter {
                         dataHolder = ScriptableObject.CreateInstance<PainterDataAndConfig>();
 
                         AssetDatabase.CreateAsset(dataHolder,
-                            "Assets/Playtime Painter/Resources/Painter_Data.asset");
+                            "Assets/Playtime-Painter/Resources/Painter_Data.asset");
                         AssetDatabase.SaveAssets();
                         AssetDatabase.Refresh();
                     }
