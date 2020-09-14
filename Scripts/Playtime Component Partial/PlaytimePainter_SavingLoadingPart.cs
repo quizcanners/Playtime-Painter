@@ -16,13 +16,7 @@ namespace PlaytimePainter
     public partial class PlaytimePainter
     {
 
-        [SerializeField] private string _pluginStd;
-
-        public string ConfigStd
-        {
-            get { return _pluginStd; }
-            set { _pluginStd = value; }
-        }
+        [SerializeField] private string _cfgData;
 
         public CfgEncoder Encode() => new CfgEncoder()
             .Add("mdls", Modules)

@@ -13,7 +13,7 @@ using Random = UnityEngine.Random;
 namespace PlaytimePainter {
     
     [Serializable]
-    public class Brush : PainterSystemCfg, IPEGI {
+    public class Brush : PainterClassCfg, IPEGI {
 
         public enum SourceTextureColorUsage { Unchanged = 0, MultiplyByBrushColor = 1, ReplaceWithBrushColor = 2 }
         

@@ -43,7 +43,7 @@ namespace PlaytimePainter {
 
             public override CfgEncoder Encode()
             {
-                var cody = this.EncodeUnrecognized()
+                var cody = base.Encode() //this.EncodeUnrecognized()
                     .Add_IfTrue("rtr", _enableRayTracing)
                     .Add("mFiv", minFov)
                     .Add("mFov", maxFov)
@@ -512,7 +512,7 @@ namespace PlaytimePainter {
 
             private int _exploredVolume;
 
-            public override bool Inspect()
+            public bool Inspect()
             {
                 var changes = false;
 

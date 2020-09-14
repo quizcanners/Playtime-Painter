@@ -20,7 +20,7 @@ namespace PlaytimePainter
 #else
     [ExecuteInEditMode]
 #endif
-    public class RoundedGraphic : Image, IKeepMyCfg, IPEGI,
+    public class RoundedGraphic : Image, ICfg, IPEGI,
         IPointerEnterHandler, IPointerExitHandler, IPointerDownHandler, IPointerUpHandler
     {
 
@@ -835,7 +835,11 @@ namespace PlaytimePainter
             }
 
             if ("Modules".enter_List(ref _modules, ref _inspectedModule, ref _showModules).nl(ref changed))
-                this.SaveCfgData();
+            {
+                ConfigStd = Encode().ToString();
+                this.SetToDirty();
+            }
+            //this.SaveCfgData();
             
             if (changed)
                 SetVerticesDirty();
@@ -924,26 +928,32 @@ namespace PlaytimePainter
         public string ConfigStd
         {
             get { return _modulesStd; }
-            set { _modulesStd = value; }
+            set
+            {
+                _modulesStd = value;
+                this.SetToDirty();
+            }
         }
 
         protected override void OnEnable()
         {
             base.OnEnable();
-            this.LoadCfgData();
+            Decode(ConfigStd);
+            //this.LoadCfgData();
         }
 
         protected override void OnDisable()
         {
             base.OnDisable();
             if (!Application.isPlaying)
-                this.SaveCfgData();
+                ConfigStd = Encode().ToString();    
+            //this.SaveCfgData();
         }
 
         public CfgEncoder Encode() => new CfgEncoder()
             .Add_Abstract("mdls", _modules);
 
-        public void Decode(string data) => this.DecodeTagsFrom(data);
+        public void Decode(string data) => new CfgDecoder(data).DecodeTagsFor(this); //this.DecodeTagsFrom(data);
 
         public bool Decode(string tg, string data)
         {
@@ -974,7 +984,7 @@ namespace PlaytimePainter
 
                 switch (tg)
                 {
-                    case "b": data.Decode_Base(base.Decode, this); break;
+                    case "b": base.Decode(data); break; //data. //Decode_Base(base.Decode, this); break;
                     case "s": size = data.ToFloat(); break;
                     default: return false;
                 }
@@ -982,7 +992,7 @@ namespace PlaytimePainter
                 return true;
             }
 
-            public override CfgEncoder Encode() => this.EncodeUnrecognized()
+            public override CfgEncoder Encode() => new CfgEncoder()//this.EncodeUnrecognized()
                 .Add("b", base.Encode())
                 .Add("s", size);
 
@@ -1068,13 +1078,7 @@ namespace PlaytimePainter
 
                 return false;
             }
-            public override bool Inspect()
-            {
-                var changed = base.Inspect();
 
-
-                return changed;
-            }
             #endregion
 
             #region Encode & Decode
@@ -1085,7 +1089,7 @@ namespace PlaytimePainter
                 switch (tg)
                 {
 
-                    case "b": data.Decode_Base(base.Decode, this); break;
+                    case "b": base.Decode(data); break; //data.Decode_Base(base.Decode, this); break;
                     case "mp": referenceTexture.Decode(data); break;
                     default: return false;
                 }
@@ -1093,7 +1097,7 @@ namespace PlaytimePainter
                 return true;
             }
 
-            public override CfgEncoder Encode() => this.EncodeUnrecognized()
+            public override CfgEncoder Encode() => new CfgEncoder()//this.EncodeUnrecognized()
                     .Add("b", base.Encode())
                     .Add("mp", referenceTexture);
 
@@ -1150,7 +1154,7 @@ namespace PlaytimePainter
 
             public override bool Inspect()
             {
-                var changed = base.Inspect();
+                var changed = false;
 
                 _roundedCorners.Nested_Inspect().nl(ref changed);
 
@@ -1165,7 +1169,7 @@ namespace PlaytimePainter
 
                 switch (tg)
                 {
-                    case "b": data.Decode_Base(base.Decode, this); break;
+                    case "b": base.Decode(data); break;//data.Decode_Base(base.Decode, this); break;
                     case "crn": _roundedCorners.Decode(data); break;
                     case "hov": valueWhenOver = data.ToFloat(); break;
                     case "nrm": valueWhenOff = data.ToFloat(); break;
@@ -1175,7 +1179,7 @@ namespace PlaytimePainter
                 return true;
             }
 
-            public override CfgEncoder Encode() => this.EncodeUnrecognized()
+            public override CfgEncoder Encode() => new CfgEncoder() //this.EncodeUnrecognized()
                     .Add("b", base.Encode())
                     .Add("crn", _roundedCorners)
                     .Add("hov", valueWhenOver)
@@ -1194,7 +1198,7 @@ namespace PlaytimePainter
         }
 
         [RoundedButtonModule]*/
-        protected abstract class RoundedButtonModuleBase : AbstractKeepUnrecognizedCfg, IGotClassTag, IGotDisplayName
+        protected abstract class RoundedButtonModuleBase : PainterClassCfg, IGotClassTag, IGotDisplayName
         {
             public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(RoundedButtonModuleBase));
             public TaggedTypesCfg AllTypes => all;
@@ -1205,14 +1209,14 @@ namespace PlaytimePainter
             #region Inspect
             public virtual string NameForDisplayPEGI() => ClassTag;
 
-            public override bool Inspect()
+            public virtual bool Inspect()
             {
                 return false;
             }
             #endregion
 
             #region Encode & Decode
-            public override CfgEncoder Encode() => this.EncodeUnrecognized();
+            public override CfgEncoder Encode() => new CfgEncoder();//this.EncodeUnrecognized();
 
             public override bool Decode(string tg, string data) => false;
             #endregion

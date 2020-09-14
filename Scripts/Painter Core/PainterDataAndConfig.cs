@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using PlayerAndEditorGUI;
+using PlaytimePainter.CameraModules;
+using PlaytimePainter.ComponentModules;
 using PlaytimePainter.MeshEditing;
 using QuizCannersUtilities;
 #if UNITY_EDITOR
@@ -18,7 +20,7 @@ namespace PlaytimePainter
 #pragma warning disable IDE0018 // Inline variable declaration
 
     [CreateAssetMenu(fileName = "Painter Config", menuName = "Playtime Painter/Config")]
-    public class PainterDataAndConfig : CfgReferencesHolder, IKeepMyCfg
+    public class PainterDataAndConfig : ScriptableObject, ICfg, IPEGI
     {
         private static PlaytimePainter Painter => PlaytimePainter.inspected;
         public int playtimePainterLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
@@ -183,10 +185,16 @@ namespace PlaytimePainter
 
         public const string PainterCameraName = "PainterCamera";
         public const string ToolName = "Playtime Painter";
-        
+
         #endregion
 
         #region DataLists
+
+        public List<TextureSetForCombinedMaps> textureSets = new List<TextureSetForCombinedMaps>();
+        public List<TexturePackagingProfile> texturePackagingSolutions = new List<TexturePackagingProfile>();
+
+        public List<AtlasTextureCreator> atlases = new List<AtlasTextureCreator>();
+        public List<MaterialAtlases> atlasedMaterials = new List<MaterialAtlases>();
 
         public List<string> playtimeSavedTextures = new List<string>();
         
@@ -383,15 +391,17 @@ namespace PlaytimePainter
         #region Encode/Decode
 
         [SerializeField] private string stdData = "";
-        public string ConfigStd
+        /*public string ConfigStd
         {
             get { return stdData; }
             set { stdData = value; }
-        }
+        }*/
+
+        public void Decode(string data) => this.DecodeTagsFrom(data);
 
         private readonly LoopLock _encodeDecodeLock = new LoopLock();
 
-        public override CfgEncoder Encode()
+        public CfgEncoder Encode()
         {
             if (_encodeDecodeLock.Unlocked)
             {
@@ -419,10 +429,11 @@ namespace PlaytimePainter
                     }
                     
 
-                    var cody = this.EncodeUnrecognized()
-                        .Add("imgs", imgMetas, this)
+                    var cody = new CfgEncoder()//this.EncodeUnrecognized()
+                        //.Add("imgs", imgMetas, this)
+                        //.Add("mats", matMetas, this)
                         .Add("sch", selectedColorScheme)
-                        .Add("mats", matMetas, this)
+                        
                         .Add("pals", colorSchemes)
                         .Add("cam", PainterCamera.Inst)
                         .Add("Vpck", meshPackagingSolutions)
@@ -443,13 +454,13 @@ namespace PlaytimePainter
             return null;
         }
 
-        public override bool Decode(string tg, string data)
+        public bool Decode(string tg, string data)
         {
             switch (tg)
             {
-                case "imgs": data.Decode_List(out imgMetas, this); break;
+                //case "imgs": data.Decode_List(out imgMetas, this); break;
                 case "sch": selectedColorScheme = data.ToInt(); break;
-                case "mats": data.Decode_List(out matMetas, this); break;
+                //case "mats": data.Decode_List(out matMetas, this); break;
                 case "pals": data.Decode_List(out colorSchemes); break;
                 case "cam": if (PainterCamera.Inst) PainterCamera.Inst.Decode(data); break;
                 case "Vpck": data.Decode_List(out meshPackagingSolutions); break;
@@ -472,7 +483,8 @@ namespace PlaytimePainter
         [SerializeField] private int systemLanguage = -1;
 
         public static bool hideDocumentation;
-        
+
+        private int inspectedItems = -1;
         private int _inspectedImgData = -1;
         private int _inspectedList = -1;
         private int _inspectedMaterial = -1;
@@ -511,7 +523,7 @@ namespace PlaytimePainter
             return changes;
         }
 
-        public override bool Inspect()
+        public bool Inspect()
         {
             var changed = false; 
 
@@ -542,11 +554,13 @@ namespace PlaytimePainter
 
                 if ("Painter Data Encode / Decode Test".Click().nl())
                 {
-                    this.SaveCfgData();
+                    stdData = Encode().ToString();
+                    //this.SaveCfgData();
 
                     matMetas.Clear();
 
-                    this.LoadCfgData();
+                    Decode(stdData);
+                    //this.LoadCfgData();
                 }
 
                 if ("Don't Build with Painter Shaders".toggleIcon(ref dontIncludeShaderInBuild).nl())
@@ -590,9 +604,7 @@ namespace PlaytimePainter
                 #endif
 
             }
-
-            base.Inspect().nl(ref changed);
-
+            
             return changed;
         }
 
@@ -620,7 +632,8 @@ namespace PlaytimePainter
 
         public void ManagedOnEnable()
         {
-            this.LoadCfgData();
+            Decode(stdData);
+            //this.LoadCfgData();
            //Decode(stdData);
 
             if (Brush == null)
@@ -674,6 +687,8 @@ namespace PlaytimePainter
 #endif
 
         }
+
+       
     }
 
     #region Shader Tags

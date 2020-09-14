@@ -12,51 +12,50 @@ namespace PlaytimePainter
 {
     public enum TexTarget { Texture2D, RenderTexture }
 
-    public class TextureMeta : PainterSystemKeepUnrecognizedCfg, IPEGI_ListInspect, IGotName, INeedAttention, ICanBeDefaultCfg
+    [Serializable]
+    public class TextureMeta : PainterClass, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention //, ICanBeDefaultCfg
     {
 
         #region Values
 
         private static Texture2D _sampler;
 
-        public TexTarget target;
-        public RenderTexture renderTexture;
-        public Texture2D texture2D;
-        public Texture other;
-        public int width = 128;
-        public int height = 128;
-        public bool useTexCoord2;
-        private bool _useTexCoord2AutoAssigned;
-        public bool lockEditing;
-        public bool isATransparentLayer;
+        [SerializeField] public TexTarget target;
+        [SerializeField] public RenderTexture renderTexture;
+        [SerializeField] public Texture2D texture2D;
+        [SerializeField] public Texture other;
+        [SerializeField] public int width = 128;
+        [SerializeField] public int height = 128;
+        [SerializeField] public bool useTexCoord2;
+        [SerializeField] private bool _useTexCoord2AutoAssigned;
+        [SerializeField] public bool lockEditing;
+        [SerializeField] public bool isATransparentLayer;
+        [SerializeField] public bool enableUndoRedo;
+        [SerializeField] public bool preserveTransparency = true;
+        [SerializeField] private float sdfMaxInside = 1f;
+        [SerializeField] private float sdfMaxOutside = 1f;
+        [SerializeField] private float sdfPostProcessDistance = 1f;
+        [SerializeField] private float _repaintDelay = 0.016f;
+        [SerializeField] public bool updateTex2DafterStroke;
+        [SerializeField] private int _numberOfTexture2DBackups = 10;
+        [SerializeField] private int _numberOfRenderTextureBackups = 10;
+        [SerializeField] public bool isAVolumeTexture;
+        [SerializeField] public Color clearColor = Color.black;
+        [SerializeField] public bool backupManually;
+        [SerializeField] public string saveName = "No Name";
+        [SerializeField] public string url = "";
 
         public bool NeedsToBeSaved => QcUnity.SavedAsAsset(texture2D) || QcUnity.SavedAsAsset(renderTexture);
-
-        public bool enableUndoRedo;
-        public bool pixelsDirty;
-        public bool preserveTransparency = true;
-        private bool _alphaPreservePixelSet;
-        public bool errorWhileReading;
-        public bool dontRedoMipMaps;
-        public bool disableContiniousLine;
-
-        private float sdfMaxInside = 1f;
-        private float sdfMaxOutside = 1f;
-        private float sdfPostProcessDistance = 1f;
-
-        public bool isAVolumeTexture;
-
-        private float _repaintDelay = 0.016f;
-        public bool updateTex2DafterStroke;
-        private int _numberOfTexture2DBackups = 10;
-        private int _numberOfRenderTextureBackups = 10;
-        public bool backupManually;
-        public Vector2 tiling = Vector2.one;
-        public Vector2 offset = Vector2.zero;
-        public string saveName = "No Name";
-        public string url = "";
-        private Color[] _pixels;
-        public Color clearColor = Color.black;
+        
+        [NonSerialized] public bool pixelsDirty;
+        [NonSerialized] private bool _alphaPreservePixelSet;
+        [NonSerialized] public bool errorWhileReading;
+        [NonSerialized] public bool dontRedoMipMaps;
+        [NonSerialized] public bool disableContiniousLine;
+        [NonSerialized] public Vector2 tiling = Vector2.one;
+        [NonSerialized] public Vector2 offset = Vector2.zero;
+        [NonSerialized] private Color[] _pixels;
+        
 
         public Color[] Pixels
         {
@@ -167,13 +166,13 @@ namespace PlaytimePainter
 
         #endregion
 
-        #region Encoding
+       /* #region Encoding
 
         public bool IsDefault => !NeedsToBeSaved;
 
         public override CfgEncoder Encode()
         {
-            var cody = this.EncodeUnrecognized()
+            var cody = new CfgEncoder()
             .Add("mods", Modules)
             .Add_IfNotZero("dst", (int)target)
             .Add_Reference("tex2D", texture2D)
@@ -266,7 +265,7 @@ namespace PlaytimePainter
         }
 
         #endregion
-
+        */
         #region Undo & Redo
         public PaintingUndoRedo.UndoCache cache = new PaintingUndoRedo.UndoCache();
 
@@ -958,7 +957,7 @@ namespace PlaytimePainter
 
 
 
-        public override bool Inspect() {
+        public bool Inspect() {
 
             if (ProcessEnumerator != null) {
                 

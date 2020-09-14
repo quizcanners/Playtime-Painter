@@ -8,16 +8,16 @@ using UnityEditor;
 
 namespace PlaytimePainter
 {
-
-    public abstract class PainterSystemKeepUnrecognizedCfg : PainterSystemCfg, IKeepUnrecognizedCfg, IPEGI
+    /*
+    public abstract class PainterClassKeepUnrecognizedCfg : PainterClassCfg,  IPEGI
     {
         public UnrecognizedTagsList UnrecognizedStd { get; } = new UnrecognizedTagsList();
         
         public virtual bool Inspect() => UnrecognizedStd.Nested_Inspect();
       
-    }
+    }*/
     
-    public abstract class PainterSystemCfg : PainterSystem, ICfg  
+    public abstract class PainterClassCfg : PainterClass, ICfg  
     {
         public abstract CfgEncoder Encode();
 
@@ -26,7 +26,7 @@ namespace PlaytimePainter
         public abstract bool Decode(string tg, string data);
     }
 
-    public class PainterSystemMono : MonoBehaviour, IKeepUnrecognizedCfg, IPEGI
+    public class PainterSystemMono : MonoBehaviour, ICfg, IPEGI
     {
         #region Encode & Decode
         private readonly UnrecognizedTagsList _uTags = new UnrecognizedTagsList();
@@ -36,7 +36,7 @@ namespace PlaytimePainter
 
         public virtual bool Decode(string tg, string data) => true;
 
-        public virtual CfgEncoder Encode() => this.EncodeUnrecognized();
+        public virtual CfgEncoder Encode() => new CfgEncoder();//this.EncodeUnrecognized();
         #endregion
 
         protected static PainterDataAndConfig Cfg => PainterCamera.Data;
@@ -45,16 +45,16 @@ namespace PlaytimePainter
         protected static Brush GlobalBrush => TexMgmtData.Brush;
         protected static PlaytimePainter InspectedPainter => PlaytimePainter.inspected;
         protected static MeshEditorManager MeshMGMT => MeshEditorManager.Inst;
-        protected static bool ApplicationIsQuitting => PainterSystem.applicationIsQuitting;
+        protected static bool ApplicationIsQuitting => PainterClass.applicationIsQuitting;
 
         protected static Transform CurrentViewTransform(Transform defaultTransform = null) =>
-            PainterSystem.CurrentViewTransform(defaultTransform);
+            PainterClass.CurrentViewTransform(defaultTransform);
 
         public virtual bool Inspect() => _uTags.Inspect();  
 
     }
     
-    public class PainterSystem {
+    public class PainterClass {
 
         protected static bool InspectAdvanced => Brush.showAdvanced;
         protected static PainterDataAndConfig Cfg => PainterCamera.Data;

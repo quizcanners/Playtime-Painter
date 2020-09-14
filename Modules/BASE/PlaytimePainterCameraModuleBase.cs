@@ -54,7 +54,7 @@ namespace PlaytimePainter.CameraModules {
        
     }
     
-    public abstract class CameraModuleBase : PainterSystemKeepUnrecognizedCfg, IGotDisplayName, IGotClassTag, IPEGI_ListInspect {
+    public abstract class CameraModuleBase : PainterClassCfg, IGotDisplayName, IGotClassTag, IPEGI_ListInspect {
 
         public static List<CameraModuleBase> modules;
 
@@ -119,7 +119,7 @@ namespace PlaytimePainter.CameraModules {
         #endregion
 
         #region Encode & Decode
-        public override CfgEncoder Encode() => this.EncodeUnrecognized();
+        public override CfgEncoder Encode() => new CfgEncoder();//this.EncodeUnrecognized();
 
         public override bool Decode(string tg, string data) => false;
         #endregion

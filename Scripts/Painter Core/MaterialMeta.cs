@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
@@ -6,19 +7,20 @@ using UnityEngine;
 
 namespace PlaytimePainter {
 
-    public class MaterialMeta : PainterSystemKeepUnrecognizedCfg, IPEGI, IPEGI_ListInspect, IGotDisplayName {
+    [Serializable]
+    public class MaterialMeta : PainterClass, IPEGI, IPEGI_ListInspect, IGotDisplayName {
         
-        public Material material;
-        public int selectedTexture;
-        public bool usePreviewShader;
-        public bool colorToVertexColorOnMerge;
-        public bool selectedForMerge;
-        public List<ShaderProperty.TextureValue> materialsTextureFields = new List<ShaderProperty.TextureValue>();
+        [SerializeField] public Material material;
+        [SerializeField] public int selectedTexture;
+        [SerializeField] public bool usePreviewShader;
+        [SerializeField] public bool colorToVertexColorOnMerge;
+        [SerializeField] public bool selectedForMerge;
+        [SerializeField] public List<ShaderProperty.TextureValue> materialsTextureFields = new List<ShaderProperty.TextureValue>();
 
-        public ShaderProperty.TextureValue bufferParameterTarget; // which texture is currently using RenderTexture buffer
-        public PlaytimePainter painterTarget;
+        [NonSerialized] public ShaderProperty.TextureValue bufferParameterTarget; // which texture is currently using RenderTexture buffer
+        [NonSerialized] public PlaytimePainter painterTarget;
         
-        #region Encode & Decode
+      /*  #region Encode & Decode
         
         public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add_Reference("mat", material)
@@ -40,7 +42,7 @@ namespace PlaytimePainter {
             }
             return true;
         }
-        #endregion
+        #endregion*/
 
         public void SetTextureOnLastTarget(TextureMeta id) {
             if (painterTarget)
@@ -66,7 +68,7 @@ namespace PlaytimePainter {
             return false;
         }
         
-        public override bool Inspect() {
+        public bool Inspect() {
 
             var changed = false;
             

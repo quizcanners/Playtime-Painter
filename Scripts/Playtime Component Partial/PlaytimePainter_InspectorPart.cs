@@ -19,7 +19,7 @@ namespace PlaytimePainter
     [DisallowMultipleComponent]
     [AddComponentMenu("Mesh/Playtime Painter")]
     [HelpURL(OnlineManual)]
-    public partial class PlaytimePainter 
+    public partial class PlaytimePainter : IPEGI
     {
         private string _nameHolder = "unnamed";
         private static string _tmpUrl = "";
@@ -70,7 +70,7 @@ namespace PlaytimePainter
             var changed = false;
 
             if (!TexMgmt && "Find camera".Click())
-                PainterSystem.applicationIsQuitting = false;
+                PainterClass.applicationIsQuitting = false;
 
             var canInspect = true;
 
@@ -1192,7 +1192,7 @@ namespace PlaytimePainter
                 foreach (var d in dc)
                     d.gameObject.DestroyWhatever();
 
-            PainterSystem.applicationIsQuitting = false;
+            PainterClass.applicationIsQuitting = false;
         }
 
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Join Discord")]

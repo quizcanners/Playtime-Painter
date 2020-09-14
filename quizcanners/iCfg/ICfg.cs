@@ -19,30 +19,25 @@ namespace QuizCannersUtilities {
         bool Decode(string tg, string data);
     }
 
-    public interface IKeepUnrecognizedCfg : ICfg
+   /* public interface IKeepUnrecognizedCfg : ICfg
     {
         UnrecognizedTagsList UnrecognizedStd { get; }
-    }
+    }*/
 
     public interface ICanBeDefaultCfg : ICfg {
         bool IsDefault { get; }
     }
 
-    public interface ICfgSerializeNestedReferences
+   /* public interface ICfgSerializeNestedReferences
     {
         int GetReferenceIndex(Object obj);
         T GetReferenced<T>(int index) where T: Object;
-    }
-
-    public interface ICfgSafeEncoding: ICfg
-    {
-        LoopLock GetLoopLock { get;  }
-    }
-
+    }*/
+    /*
     public interface IKeepMyCfg : ICfg
     {
         string ConfigStd { get; set; }
-    }
+    }*/
 
 
     #endregion
@@ -316,7 +311,7 @@ namespace QuizCannersUtilities {
         }
 
     }
-
+    /*
     public class StdSimpleReferenceHolder : ICfgSerializeNestedReferences {
         
         public readonly List<Object> nestedReferences = new List<Object>();
@@ -324,16 +319,14 @@ namespace QuizCannersUtilities {
 
         public T GetReferenced<T>(int index) where T : Object => nestedReferences.TryGet(index) as T;
 
-    }
-
-    public class CfgReferencesHolder : ScriptableObject, ICfgSerializeNestedReferences, IPEGI, IKeepUnrecognizedCfg, ICfgSafeEncoding
+    }*/
+    /*
+    public class CfgReferencesHolder : ScriptableObject, ICfgSerializeNestedReferences, IPEGI, IKeepUnrecognizedCfg
     {
         
         #region Encode & Decode
 
         public UnrecognizedTagsList UnrecognizedStd { get; } = new UnrecognizedTagsList();
-
-        public LoopLock GetLoopLock { get; } = new LoopLock();
 
         private readonly ListMetaData _listMetaData = new ListMetaData("References");
 
@@ -422,19 +415,18 @@ namespace QuizCannersUtilities {
         
         #endregion
     }
+    */
 
-
-    public abstract class AbstractCfg : ICfgSafeEncoding, ICanBeDefaultCfg {
+    public abstract class AbstractCfg : ICanBeDefaultCfg {
         public abstract CfgEncoder Encode();
         public virtual void Decode(string data) => this.DecodeTagsFrom(data);
         public abstract bool Decode(string tg, string data);
 
-        public LoopLock GetLoopLock { get; } = new LoopLock();
-
         public virtual bool IsDefault => false;
     }
 
-    public abstract class AbstractKeepUnrecognizedCfg : AbstractCfg, IKeepUnrecognizedCfg {
+
+   /* public abstract class AbstractKeepUnrecognizedCfg : AbstractCfg, IKeepUnrecognizedCfg {
         public UnrecognizedTagsList UnrecognizedStd { get; } = new UnrecognizedTagsList();
 
 #if !UNITY_EDITOR
@@ -469,9 +461,9 @@ namespace QuizCannersUtilities {
         }
       
         #endregion
-    }
+    }*/
 
-    public abstract class ComponentCfg : MonoBehaviour, ICfgSafeEncoding, IKeepUnrecognizedCfg, ICanBeDefaultCfg, ICfgSerializeNestedReferences, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
+    public abstract class ComponentCfg : MonoBehaviour, ICanBeDefaultCfg, ICfg, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
 
 #if !UNITY_EDITOR
         [NonSerialized]
@@ -549,20 +541,20 @@ namespace QuizCannersUtilities {
             if (inspectedItems == -1)
                 pegi.nl();
 
-            if (("Object References: " + nestedReferences.Count).enter(ref _inspectedDebugItems, 1).nl_ifNotEntered())
+          /*  if (("Object References: " + nestedReferences.Count).enter(ref _inspectedDebugItems, 1).nl_ifNotEntered())
             {
                 referencesMeta.edit_List_UObj(ref nestedReferences);
                 if (!referencesMeta.Inspecting && "Clear All References".Click("Will clear the list. Make sure everything" +
                 ", that usu this object to hold references is currently decoded to avoid mixups"))
                     nestedReferences.Clear();
 
-            }
+            }*/
 
             if (inspectedItems == -1)
                 pegi.nl();
 
-            if (("Unrecognized Tags: " + UnrecognizedStd.Count).enter(ref _inspectedDebugItems, 2).nl_ifNotEntered())
-                UnrecognizedStd.Nested_Inspect().changes(ref changed);
+            /*if (("Unrecognized Tags: " + UnrecognizedStd.Count).enter(ref _inspectedDebugItems, 2).nl_ifNotEntered())
+                UnrecognizedStd.Nested_Inspect().changes(ref changed);*/
 
             if ("Inspect Inspector".enter(ref _inspectedDebugItems, 3).nl())
                 QcUtils.InspectInspector();
@@ -578,19 +570,17 @@ namespace QuizCannersUtilities {
 
         #region Encoding & Decoding
 
-        public LoopLock GetLoopLock { get; } = new LoopLock();
-
         public virtual bool IsDefault => false;
 
         protected ListMetaData referencesMeta = new ListMetaData("References");
 
         [HideInInspector]
-        [SerializeField] protected List<Object> nestedReferences = new List<Object>();
-        public int GetReferenceIndex(Object obj) => QcSharp.TryGetIndexOrAdd(nestedReferences, obj);
+       // [SerializeField] protected List<Object> nestedReferences = new List<Object>();
+       // public int GetReferenceIndex(Object obj) => QcSharp.TryGetIndexOrAdd(nestedReferences, obj);
         
-        public T GetReferenced<T>(int index) where T : Object => nestedReferences.TryGet(index) as T;
+      //  public T GetReferenced<T>(int index) where T : Object => nestedReferences.TryGet(index) as T;
 
-        public UnrecognizedTagsList UnrecognizedStd { get; } = new UnrecognizedTagsList();
+     //   public UnrecognizedTagsList UnrecognizedStd { get; } = new UnrecognizedTagsList();
 
         public virtual bool Decode(string tg, string data)
         {
@@ -605,10 +595,10 @@ namespace QuizCannersUtilities {
 
         }
 
-        public virtual CfgEncoder Encode() => this.EncodeUnrecognized().Add_IfNotNegative("db", inspectedItems) ;
+        public virtual CfgEncoder Encode() => new CfgEncoder().Add_IfNotNegative("db", inspectedItems) ;
 
         public virtual void Decode(string data) {
-            UnrecognizedStd.Clear();
+           // UnrecognizedStd.Clear();
             this.DecodeTagsFrom(data);
         }
 
@@ -693,7 +683,7 @@ namespace QuizCannersUtilities {
             return false;
         }
 
-        private static readonly StdSimpleReferenceHolder TmpHolder = new StdSimpleReferenceHolder();
+       // private static readonly StdSimpleReferenceHolder TmpHolder = new StdSimpleReferenceHolder();
 
         public static void TryCopy_Std_AndOtherData(object from, object into)
         {
@@ -707,12 +697,12 @@ namespace QuizCannersUtilities {
 
                 if (fromStd != null)
                 {
-                    var prev = CfgEncoder.keeper;
-                    CfgEncoder.keeper = TmpHolder;
+                   // var prev = CfgEncoder.keeper;
+                  //  CfgEncoder.keeper = TmpHolder;
                     intoStd.Decode(fromStd.Encode().ToString());
-                    CfgEncoder.keeper = prev;
+                  //  CfgEncoder.keeper = prev;
 
-                    TmpHolder.nestedReferences.Clear();
+                    //TmpHolder.nestedReferences.Clear();
                 }
 
 
@@ -780,6 +770,7 @@ namespace QuizCannersUtilities {
             return false;
         }
 
+        /*
         public static void UpdateCfgPrefab (this ICfg s, GameObject go) {
             var iK = s as IKeepMyCfg;
 
@@ -789,6 +780,7 @@ namespace QuizCannersUtilities {
             QcUnity.UpdatePrefab(go);
         }
 
+        
         public static void SaveCfgData(this IKeepMyCfg s, bool setDirty = true) {
             if (s != null)
             {
@@ -808,7 +800,7 @@ namespace QuizCannersUtilities {
             s.Decode(s.ConfigStd);
 
             return true;
-        }
+        }*/
 
         public static ICfg SaveToAssets(this ICfg s, string path, string filename)
         {
@@ -838,21 +830,7 @@ namespace QuizCannersUtilities {
             QcFile.Save.ToResources(resFolderPath, insideResPath, filename, s.Encode().ToString(), asBytes: true);
             return s;
         }
-
-        public static T CloneCfg<T>(this T obj, ICfgSerializeNestedReferences nested = null) where T : ICfg {
-
-            if (QcUnity.IsNullOrDestroyed_Obj(obj)) return default;
-            
-            var ret = (T)Activator.CreateInstance(obj.GetType());
-
-            if (nested != null)
-                obj.Encode(nested).ToString().DecodeInto(ret, nested);
-            else
-                ret.Decode(obj.Encode().ToString());
-
-            return ret;
-        }
-
+        
         public static bool TryLoadFromResources<T>(this T s, string subFolder, string file) where T : ICfg
         {
             var load = QcFile.Load.FromResources(subFolder, file, asBytes: true);
@@ -880,9 +858,9 @@ namespace QuizCannersUtilities {
 			return s;
 		}
 
-        public static CfgEncoder EncodeUnrecognized(this IKeepUnrecognizedCfg ur) => ur.UnrecognizedStd.Encode();
+       // public static CfgEncoder EncodeUnrecognized(this IKeepUnrecognizedCfg ur) => ur.UnrecognizedStd.Encode();
         
-        public static bool Decode(this ICfg cfg, string data, ICfgSerializeNestedReferences keeper) => data.DecodeInto(cfg, keeper);
+       // public static bool Decode(this ICfg cfg, string data, ICfgSerializeNestedReferences keeper) => data.DecodeInto(cfg, keeper);
     }
 #endregion
 }

@@ -1172,7 +1172,15 @@ namespace PlayerAndEditorGUI
                                     var istd = el as ICfg;
 
                                     if (istd != null)
-                                        list.TryAdd(istd.CloneCfg());
+                                    {
+                                        var ret = (T)Activator.CreateInstance(el.GetType());
+
+                                        (ret as ICfg).Decode(istd.Encode().ToString());
+
+                                        list.TryAdd(ret);
+                                    }
+
+                                    //list.TryAdd(istd.CloneCfg());
                                     else
                                         list.TryAdd(JsonUtility.FromJson<T>(JsonUtility.ToJson(el)));
                                 }

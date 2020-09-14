@@ -11,7 +11,7 @@ namespace PlaytimePainter.MeshEditing
 #pragma warning disable IDE0018 // Inline variable declaration
 
 
-    public class EditableMesh : PainterSystemCfg, IPEGI
+    public class EditableMesh : PainterClassCfg, IPEGI
     {
 
         public string meshName = "unnamed";

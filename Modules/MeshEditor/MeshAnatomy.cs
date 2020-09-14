@@ -7,7 +7,8 @@ namespace PlaytimePainter.MeshEditing
     
     public class PainterMesh {
 
-        public class Vertex : PainterSystemKeepUnrecognizedCfg {
+        public class Vertex : PainterClassCfg
+        {
 
             protected PlaytimePainter Painter => MeshEditorManager.target;
             
@@ -284,7 +285,7 @@ namespace PlaytimePainter.MeshEditing
 
         }
 
-        public class MeshPoint : PainterSystemKeepUnrecognizedCfg
+        public class MeshPoint : PainterClassCfg//PainterClassKeepUnrecognizedCfg
         {
 
             // TEMPORATY DATA / NEEDS MANUAL UPDATE:
@@ -735,9 +736,10 @@ namespace PlaytimePainter.MeshEditing
                 return lst;
             }
 
+
         }
 
-        public class Triangle : PainterSystemKeepUnrecognizedCfg
+        public class Triangle : PainterClassCfg
         {
             public MeshPoint this[int index] => vertexes[index].meshPoint;
 
@@ -1327,7 +1329,7 @@ namespace PlaytimePainter.MeshEditing
 
         }
 
-        public class LineData : PainterSystem
+        public class LineData : PainterClass
         {
             public Triangle triangle;
             public Vertex[] points = new Vertex[2];
@@ -1472,7 +1474,7 @@ namespace PlaytimePainter.MeshEditing
 
         }
 
-        public class BlendFrame : PainterSystemCfg
+        public class BlendFrame : PainterClassCfg
         {
             public Vector3 deltaPosition;
             public Vector3 deltaTangent;

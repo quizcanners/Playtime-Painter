@@ -13,7 +13,7 @@ namespace PlaytimePainter.MeshEditing {
     }
 
     #region Base
-    public class MeshToolBase : PainterSystemCfg, IPEGI, IGotDisplayName
+    public class MeshToolBase : PainterClassCfg, IPEGI, IGotDisplayName
     {
 
         protected enum DetectionMode { Points, Lines, Triangles }

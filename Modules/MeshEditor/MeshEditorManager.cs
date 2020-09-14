@@ -17,7 +17,7 @@ namespace PlaytimePainter.MeshEditing
     #pragma warning disable IDE0018 // Inline variable declaration
 
 
-    public class MeshEditorManager : PainterSystemKeepUnrecognizedCfg {
+    public class MeshEditorManager : PainterClassCfg {
 
         #region Getters Setters
         public static MeshEditorManager Inst => PainterCamera.MeshManager;
@@ -62,7 +62,7 @@ namespace PlaytimePainter.MeshEditing
 
         #region Encode & Decode
 
-        public override CfgEncoder Encode() => this.EncodeUnrecognized()
+        public override CfgEncoder Encode() => new CfgEncoder()//this.EncodeUnrecognized()
             .Add_IfTrue("byUV", _selectingUVbyNumber);
 
         public override bool Decode(string tg, string data)
@@ -779,7 +779,7 @@ namespace PlaytimePainter.MeshEditing
 
         private int _inspectedMeshItems = -1;
 
-        public override bool Inspect()  {
+        public bool Inspect()  {
 
             var changed = false;
             EditableMesh.inspected = editedMesh;

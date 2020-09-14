@@ -11,7 +11,7 @@ namespace PlaytimePainter.ComponentModules
     }
     
     [PainterPlugin]*/
-    public abstract class ComponentModuleBase : PainterSystemCfg, IGotClassTag, IPEGI
+    public abstract class ComponentModuleBase : PainterClassCfg, IGotClassTag, IPEGI
     {
 
         public PlaytimePainter painter;

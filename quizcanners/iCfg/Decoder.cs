@@ -15,8 +15,10 @@ namespace QuizCannersUtilities {
 
         #region Non-Instancible
 
-        public static void Decode_Base(this string data, CfgDecoder.DecodeDelegate dec, IKeepUnrecognizedCfg unrecognizedKeeper, string tag = "b") 
-            => new CfgDecoder(data).DecodeTagsFor(dec, unrecognizedKeeper, tag);
+       // public static void Decode_Base(this string data, CfgDecoder.DecodeDelegate dec//, IKeepUnrecognizedCfg unrecognizedKeeper
+          //  , string tag = "b") 
+          //  => new CfgDecoder(data).DecodeTagsFor(dec, //unrecognizedKeeper,
+             //   tag);
         
         public static void Decode_Delegate(this string data, CfgDecoder.DecodeDelegate dec) => new CfgDecoder(data).DecodeTagsFor(dec);
 
@@ -342,17 +344,17 @@ namespace QuizCannersUtilities {
         #region InternalDecode
 
         private static T DecodeData<T>(this CfgDecoder cody, TaggedTypesCfg tps, ListMetaData ld) where T : IGotClassTag
-            => Decode<T>(cody.currentTag, cody.GetData(), tps, ld, cody.currentTagIndex);
+            => Decode<T>(cody.CurrentTag, cody.GetData(), tps, ld, cody.currentTagIndex);
 
         private static T DecodeData<T>(this CfgDecoder cody, TaggedTypesCfg tps) where T : IGotClassTag
-             => Decode<T>(cody.currentTag, cody.GetData(), tps);
+             => Decode<T>(cody.CurrentTag, cody.GetData(), tps);
         
         private static T DecodeData<T>(this CfgDecoder cody, List<Type> tps, ListMetaData ld) where T : ICfg
-            => Decode<T>(cody.currentTag, cody.GetData(), tps, ld, cody.currentTagIndex);
+            => Decode<T>(cody.CurrentTag, cody.GetData(), tps, ld, cody.currentTagIndex);
 
 
         private static T DecodeData<T>(this CfgDecoder cody, List<Type> tps) where T : ICfg
-            => Decode<T>(cody.currentTag, cody.GetData(), tps);
+            => Decode<T>(cody.CurrentTag, cody.GetData(), tps);
 
         private static T Decode<T>(string tagAsTypeIndex, string data, TaggedTypesCfg tps, ListMetaData ld, int index) where T : IGotClassTag
         {
@@ -828,7 +830,7 @@ namespace QuizCannersUtilities {
         #endregion
         
         #region Into Unity Objects
-        public static ICfgSerializeNestedReferences Keeper { get { return CfgEncoder.keeper;  } set { CfgEncoder.keeper = value; } }
+       /* public static ICfgSerializeNestedReferences Keeper { get { return CfgEncoder.keeper;  } set { CfgEncoder.keeper = value; } }
 
         public static bool TryDecodeInto<T>(this string data, T val, ICfgSerializeNestedReferences referencesKeeper) {
             var std = QcUnity.TryGet_fromObj<ICfg>(val);
@@ -852,13 +854,13 @@ namespace QuizCannersUtilities {
             var obj = new T();
             data.DecodeInto(obj, referencesKeeper);
             return obj;
-        }
+        }*/
         
-        public static T Decode_Reference<T>(this string data, ref T val) where T : Object => data.Decode(ref val, Keeper);
+      //  public static T Decode_Reference<T>(this string data, ref T val) where T : Object => data.Decode(ref val, Keeper);
 
-        public static List<T> Decode_References<T>(this string data, out List<T> list) where T: Object => data.Decode_References(out list, Keeper);
+       // public static List<T> Decode_References<T>(this string data, out List<T> list) where T: Object => data.Decode_References(out list, Keeper);
 
-        public static bool DecodeInto<T>(this string data, T val, ICfgSerializeNestedReferences referencesKeeper) where T : ICfg
+      /*  public static bool DecodeInto<T>(this string data, T val, ICfgSerializeNestedReferences referencesKeeper) where T : ICfg
         {
             if (val == null) return false;  
 
@@ -925,7 +927,7 @@ namespace QuizCannersUtilities {
                 list.Add(referencesKeeper.GetReferenced<T>(i));
             
             return list;
-        }
+        }*/
 
         public static void TryReplaceAssetByGuid<T>(this string data, ref T val) where T : Object
         {
@@ -965,7 +967,8 @@ namespace QuizCannersUtilities {
         }
         
         private static readonly List<string> BaseClassChain = new List<string>();
-        public void DecodeTagsFor(DecodeDelegate decodeDelegate, IKeepUnrecognizedCfg unrecognizedKeeper, string tag) {
+        public void DecodeTagsFor(DecodeDelegate decodeDelegate, //IKeepUnrecognizedCfg unrecognizedKeeper,
+            string tag) {
 
             BaseClassChain.Add(tag);
             try {
@@ -975,7 +978,7 @@ namespace QuizCannersUtilities {
                     if (decodeDelegate(t, data)) continue;
                     
                     BaseClassChain.Add(t);
-                    unrecognizedKeeper.UnrecognizedStd.Add(BaseClassChain, data);
+                    //unrecognizedKeeper.UnrecognizedStd.Add(BaseClassChain, data);
                     BaseClassChain.RemoveLast();
                     
                 }
@@ -1006,11 +1009,11 @@ namespace QuizCannersUtilities {
         public T DecodeTagsFor<T>(T std) where T : class, ICfg
         {
 
-            var unrecognizedKeeper = (std as IKeepUnrecognizedCfg)?.UnrecognizedStd;
+           // var unrecognizedKeeper = (std as IKeepUnrecognizedCfg)?.UnrecognizedStd;
 
             if (_ignoreErrors)
             {
-                if (unrecognizedKeeper == null)
+               // if (unrecognizedKeeper == null)
                     foreach (var tag in this)
                     {
                         var d = GetData();
@@ -1023,7 +1026,7 @@ namespace QuizCannersUtilities {
                             Debug.LogError(_data + Environment.NewLine + ex.ToString());
                         }
                     }
-                else foreach (var tag in this)
+             /*   else foreach (var tag in this)
                 {
                     var d = GetData();
                     try
@@ -1035,21 +1038,21 @@ namespace QuizCannersUtilities {
                     {
                         Debug.LogError(_data + Environment.NewLine + ex.ToString());
                     }
-                }
+                }*/
             }
             else
             {
 
-                if (unrecognizedKeeper == null)
+               // if (unrecognizedKeeper == null)
                     foreach (var tag in this)
                         std.Decode(tag, GetData());
-                else
+              /*  else
                     foreach (var tag in this)
                     {
                         var d = GetData(); 
                         if (!std.Decode(tag, d))
                             unrecognizedKeeper.Add(tag, d);
-                    }
+                    }*/
             }
 
             return std;
@@ -1058,18 +1061,18 @@ namespace QuizCannersUtilities {
         public void DecodeTagsFor<T>(ref T std) where T : struct, ICfg
         {
          
-            var unrecognizedKeeper = (std as IKeepUnrecognizedCfg)?.UnrecognizedStd;
+          //  var unrecognizedKeeper = (std as IKeepUnrecognizedCfg)?.UnrecognizedStd;
 
-            if (unrecognizedKeeper == null)
+           // if (unrecognizedKeeper == null)
                 foreach (var tag in this)
                     std.Decode(tag, GetData());
-            else
+           /* else
                 foreach (var tag in this) {
                     var d = GetData();
                     if (!std.Decode(tag, d))
                         unrecognizedKeeper.Add(tag, d);
                 }
-
+                */
         }
 
         private string ToNextSplitter()
@@ -1103,16 +1106,16 @@ namespace QuizCannersUtilities {
 
             if (tag.Length == 0)
             {
-                Debug.LogError("Tag was empty after [{1}] tag. Position: {2} Length: {3}  {0} {4}".F(Environment.NewLine, currentTag, _position, _data.Length, _data));
+                Debug.LogError("Tag was empty after [{1}] tag. Position: {2} Length: {3}  {0} {4}".F(Environment.NewLine, CurrentTag, _position, _data.Length, _data));
 
                 throw new ArgumentException("Tag length was 0");
             }
 
-            currentTag = tag;
+            CurrentTag = tag;
 
             currentTagIndex++;
 
-            return currentTag;
+            return CurrentTag;
         }
 
         public string GetData()
@@ -1140,13 +1143,13 @@ namespace QuizCannersUtilities {
             }
             catch (Exception ex)
             {
-                Debug.LogError("Couldn't get next splitter section [{0}] of {1}".F(currentTag, _data));
+                Debug.LogError("Couldn't get next splitter section [{0}] of {1}".F(CurrentTag, _data));
                 throw ex;
             }
             
         }
 
-        public string currentTag { get; private set; }
+        public string CurrentTag { get; private set; }
 
         public int currentTagIndex;
 
@@ -1154,7 +1157,7 @@ namespace QuizCannersUtilities {
         {
             currentTagIndex = 0;
             while (GotNextTag())
-                yield return currentTag;
+                yield return CurrentTag;
         }
 
         private bool GotNextTag()

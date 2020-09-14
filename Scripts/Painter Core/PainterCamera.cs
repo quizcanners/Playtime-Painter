@@ -78,7 +78,7 @@ namespace PlaytimePainter {
 
                 _inst = FindObjectOfType<PainterCamera>();
               
-                if (!PainterSystem.applicationIsQuitting) {
+                if (!PainterClass.applicationIsQuitting) {
 
                     if (!_inst)
                     {
@@ -221,7 +221,7 @@ namespace PlaytimePainter {
 
         #region Encode & Decode
 
-        public override CfgEncoder Encode() => this.EncodeUnrecognized()
+        public override CfgEncoder Encode() => base.Encode()//this.EncodeUnrecognized()
             .Add("mm", MeshManager)
             .Add_Abstract("pl", CameraModuleBase.modules, _modulesMeta)
             .Add("rts", RenderTextureBuffersManager.renderBuffersSize);
@@ -642,7 +642,7 @@ namespace PlaytimePainter {
 
             DepthProjectorCamera.triedToFindDepthCamera = false;
 
-            PainterSystem.applicationIsQuitting = false;
+            PainterClass.applicationIsQuitting = false;
 
             Inst = this;
 
@@ -735,7 +735,7 @@ namespace PlaytimePainter {
 
         private void OnDisable() {
             
-            PainterSystem.applicationIsQuitting = true;
+            PainterClass.applicationIsQuitting = true;
             
             BeforeClosing();
             
@@ -949,13 +949,13 @@ namespace PlaytimePainter {
                 "No data Holder".edit(60, ref dataHolder).nl(ref changed);
 
                 if (icon.Refresh.Click("Try to find it")) {
-                    PainterSystem.applicationIsQuitting = false;
+                    PainterClass.applicationIsQuitting = false;
                     triedToFindPainterData = false;
                 }
 
                 if ("Create".Click().nl()) {
                     
-                    PainterSystem.applicationIsQuitting = false;
+                    PainterClass.applicationIsQuitting = false;
                     triedToFindPainterData = false;
 
                     if (!Data) {

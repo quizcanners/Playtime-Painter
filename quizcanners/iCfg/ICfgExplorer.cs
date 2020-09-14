@@ -538,7 +538,7 @@ namespace QuizCannersUtilities
                     added.comment = DateTime.Now.ToString(CultureInfo.InvariantCulture);
                     states.Add(added);
                 }
-
+                /*
                 var selfStd = target as IKeepMyCfg;
 
                 if (selfStd != null)
@@ -560,6 +560,7 @@ namespace QuizCannersUtilities
                         target.Decode(slfData);
                     }
                 }
+                */
                 pegi.nl();
             }
 

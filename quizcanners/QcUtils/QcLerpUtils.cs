@@ -762,8 +762,8 @@ namespace QuizCannersUtilities
                 if (allowChangeParameters)
                 {
                     cody.Add_IfNotZero("onStart", (int)_onStart);
-                    if (_onStart == OnStart.LoadCurrent)
-                        cody.Add_Reference("s", _targetTextures.TryGetLast());
+                    /* if (_onStart == OnStart.LoadCurrent)
+                        cody.Add_Reference("s", _targetTextures.TryGetLast());*/
                 }
 
                 return cody;
@@ -776,11 +776,11 @@ namespace QuizCannersUtilities
                     case "b":
                         data.Decode_Delegate(base.Decode);
                         break;
-                    case "s":
+                   /* case "s":
                         Texture tmp = null;
                         data.Decode_Reference(ref tmp);
                         TargetTexture = tmp;
-                        break;
+                        break;*/
                     case "clear":
                         _onStart = OnStart.ClearTexture;
                         break;

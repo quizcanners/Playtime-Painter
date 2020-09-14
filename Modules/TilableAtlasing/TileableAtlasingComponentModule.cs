@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,6 +8,7 @@ using PlaytimePainter.CameraModules;
 using PlaytimePainter.MeshEditing;
 using QuizCannersUtilities;
 using UnityEngine;
+using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -31,8 +33,8 @@ namespace PlaytimePainter.ComponentModules {
         #region Encode & Decode
 
         public override CfgEncoder Encode() => new CfgEncoder()
-            .Add_References("pam", preAtlasingMaterials)
-            .Add_Reference("pamsh", preAtlasingMesh)
+            //.Add_References("pam", preAtlasingMaterials)
+            //.Add_Reference("pamsh", preAtlasingMesh)
             .Add_String("sm", preAtlasingSavedMesh)
             .Add("iai", _inAtlasIndex)
             .Add("ar", atlasRows);
@@ -40,8 +42,8 @@ namespace PlaytimePainter.ComponentModules {
         public override bool Decode(string tg, string data)
         {
             switch (tg) {
-                case "pam": data.Decode_References(out preAtlasingMaterials); break;
-                case "pamsh": data.Decode_Reference(ref preAtlasingMesh); break;
+                //case "pam": data.Decode_References(out preAtlasingMaterials); break;
+               // case "pamsh": data.Decode_Reference(ref preAtlasingMesh); break;
                 case "sm": preAtlasingSavedMesh = data; break;
                 case "iai": _inAtlasIndex = data.ToInt(); break;
                 case "ar": atlasRows = data.ToInt(); break;
@@ -227,42 +229,21 @@ namespace PlaytimePainter.ComponentModules {
         }
     }
     
-    public class FieldAtlas : AbstractKeepUnrecognizedCfg, IPEGI
+    [Serializable]
+    public class FieldAtlas : PainterClass, IPEGI
     {
-        static PainterCamera TexMGMT => PainterCamera.Inst; 
-
         public string atlasedField;
         public int originField;
         public int atlasCreatorId;
         public bool enabled;
         public Color col;
-        public AtlasTextureCreator AtlasCreator => TileableAtlasingCameraModule.inst.atlases.Count > atlasCreatorId ? TileableAtlasingCameraModule.inst.atlases[atlasCreatorId] : null; 
-
-        #region Encode & Decode
-        public override CfgEncoder Encode() => this.EncodeUnrecognized()
-            .Add_String("af", atlasedField)
-            .Add("of", originField)
-            .Add("acid", atlasCreatorId)
-            .Add_Bool("e", enabled)
-            .Add("c", col);
-
-        public override bool Decode(string tg, string data) {
-            switch (tg) {
-                case "af": atlasedField = data; break;
-                case "of": originField = data.ToInt(); break;
-                case "acid": atlasCreatorId = data.ToInt(); break;
-                case "e": enabled = data.ToBool(); break;
-                case "c": col = data.ToColor(); break;
-            default: return false;
-        }
-        return true;
-        }
-
-        #endregion
+        public AtlasTextureCreator AtlasCreator => Cfg.atlases.Count > atlasCreatorId ? Cfg.atlases[atlasCreatorId] : null;
 
         #region Inspector
 
-        public override bool Inspect() {
+        private int _inspectedItems = -1;
+
+        public bool Inspect() {
             var changed = false;
 
             var a = MaterialAtlases.inspectedAtlas;
@@ -278,11 +259,12 @@ namespace PlaytimePainter.ComponentModules {
             "Atlas".enter_Inspect(AtlasCreator, ref _inspectedItems, 11).nl(ref changed);
 
             if (_inspectedItems == -1) {
-                "Atlases".select_Index(70, ref atlasCreatorId, TileableAtlasingCameraModule.inst.atlases).changes(ref changed);
+                "Atlases".select_Index(70, ref atlasCreatorId,Cfg.atlases).changes(ref changed);
                 if (icon.Add.Click("Create new Atlas").nl(ref changed)) {
-                    atlasCreatorId = TileableAtlasingCameraModule.inst.atlases.Count;
+                    atlasCreatorId = Cfg.atlases.Count;
                     var ac = new AtlasTextureCreator(atlasedField + " for " + a.name);
-                    TileableAtlasingCameraModule.inst.atlases.Add(ac);
+                    Cfg.atlases.Add(ac);
+                    Cfg.SetToDirty();
                 }
             }
 
@@ -303,41 +285,15 @@ namespace PlaytimePainter.ComponentModules {
         #endregion
     }
     
-    public class MaterialAtlases : AbstractKeepUnrecognizedCfg, IGotName, IPEGI {
+    [Serializable]
+    public class MaterialAtlases : PainterClass, IGotName, IPEGI {
 
-        public string name;
+        [SerializeField] public string name;
+        [SerializeField] public Material originalMaterial;
+        [SerializeField] protected Shader originalShader;
 
-        public Material originalMaterial;
-
-        #pragma warning disable IDE0044 // Add readonly modifier
-        private Shader _originalShader;
-        #pragma warning restore IDE0044 // Add readonly modifier
-
-        public List<ShaderProperty.TextureValue> originalTextures;
+        [SerializeField] public List<ShaderProperty.TextureValue> originalTextures;
         private Material _atlasedMaterial;
-
-        #region Encode & Decode
-
-        public override CfgEncoder Encode() => this.EncodeUnrecognized()
-            .Add_String("n", name)
-            .Add_Reference("om", originalMaterial)
-            .Add("ots", originalTextures)
-            .Add_Reference("am", _atlasedMaterial);
-
-        public override bool Decode(string tg, string data)
-        {
-            switch (tg)
-            {
-                case "n": name = data; break;
-                case "om": data.Decode_Reference(ref originalMaterial); break;
-                case "ots": data.Decode_List(out originalTextures); break;
-                case "am": data.Decode_Reference(ref _atlasedMaterial); break;
-            default: return false;
-            }
-            return true;
-        }
-
-        #endregion
 
         private Material DestinationMaterial => _atlasedMaterial ? _atlasedMaterial : originalMaterial; 
 
@@ -497,7 +453,7 @@ namespace PlaytimePainter.ComponentModules {
         {
             var texMGMT = PainterCamera.Inst;
 
-            var atlases = TileableAtlasingCameraModule.inst.atlases;
+            var atlases = Cfg.atlases;
             
             for (var a = 0; a < atlases.Count; a++)
             {
@@ -579,7 +535,7 @@ namespace PlaytimePainter.ComponentModules {
         private Shader _atlasedShader;
         public static MaterialAtlases inspectedAtlas;
         private bool _showHint;
-        public override bool Inspect()
+        public bool Inspect()
         {
             var changed = false;
 
@@ -592,10 +548,10 @@ namespace PlaytimePainter.ComponentModules {
 
             var mat = painter.Material;
 
-            if ((mat) && ((mat != originalMaterial) || mat.shader != _originalShader))
+            if ((mat) && ((mat != originalMaterial) || mat.shader != originalShader))
             {
                 originalMaterial = mat;
-                _originalShader = mat.shader;
+                originalShader = mat.shader;
                 OnChangeMaterial(painter);
             }
 
@@ -677,11 +633,13 @@ namespace PlaytimePainter.ComponentModules {
         #endregion
     }
     
-    public class AtlasTextureField: AbstractKeepUnrecognizedCfg, IPEGI_ListInspect
+
+    [Serializable]
+    public class AtlasTextureField: IPEGI_ListInspect
     {
-        public Texture2D texture;
-        public Color color = Color.black;
-        public bool used;
+        [SerializeField] public Texture2D texture;
+        [SerializeField] public Color color = Color.black;
+        [SerializeField] public bool used;
 
         public AtlasTextureField() { used = true; }
 
@@ -707,32 +665,10 @@ namespace PlaytimePainter.ComponentModules {
         }
         
         #endregion
-
-        #region Encode & Decode
-        public override CfgEncoder Encode() => this.EncodeUnrecognized()
-            .Add_Reference("tex", texture)
-            .Add("col", color)
-            .Add_IfTrue("u", used);
-
-        public override bool Decode(string tg, string data)
-        {
-            switch (tg)
-            {
-                case "tex": data.Decode_Reference(ref texture); break;
-                case "col": color = data.ToColor(); break;
-                case "u": used = data.ToBool(); break;
-                default: return false;
-            }
-            return true;
-        }
-        #endregion
-
     }
     
-    public class AtlasTextureCreator : AbstractKeepUnrecognizedCfg, IGotName, IPEGI
+    public class AtlasTextureCreator : PainterClassCfg, IGotName, IPEGI
     {
-        private static PainterDataAndConfig Cfg => PainterCamera.Data;
-
         private int _atlasSize = 2048;
 
         private int _textureSize = 512;
@@ -754,12 +690,10 @@ namespace PlaytimePainter.ComponentModules {
 
         #region Encode & Decode
 
-        public override CfgEncoder Encode() => this.EncodeUnrecognized()
+        public override CfgEncoder Encode() => new CfgEncoder()//base.Encode()//this.EncodeUnrecognized()
             .Add("tf", targetFields)
             .Add("af", atlasFields)
             .Add("sf", _srcFields)
-            .Add_Reference("atex", aTexture)
-            .Add("txs", textures, _texturesMeta)
             .Add_String("n", NameForPEGI)
             .Add_Bool("rgb", _sRgb)
             .Add("s", _textureSize)
@@ -771,8 +705,6 @@ namespace PlaytimePainter.ComponentModules {
                 case "tf": data.Decode_List(out targetFields); break;
                 case "af": data.Decode_List(out atlasFields); break;
                 case "sf": data.Decode_List(out _srcFields); break;
-                case "atex": data.Decode_Reference(ref aTexture); break;
-                case "txs": data.Decode_List(out textures, ref _texturesMeta); break;
                 case "n": NameForPEGI = data; break;
                 case "rgb": _sRgb = data.ToBool(); break;
                 case "s": _textureSize = data.ToInt(); break;
@@ -832,7 +764,7 @@ namespace PlaytimePainter.ComponentModules {
         public AtlasTextureCreator(string newName)
         {
             NameForPEGI = newName;
-            NameForPEGI = GetUniqueName(NameForPEGI, TileableAtlasingCameraModule.inst.atlases);
+            NameForPEGI = GetUniqueName(NameForPEGI, Cfg.atlases);
             Init();
         }
 
@@ -1027,7 +959,9 @@ namespace PlaytimePainter.ComponentModules {
 #endif
 
 
-        public override bool Inspect() {
+        private int _inspectedItems = -1;
+
+        public bool Inspect() {
             var changed = false;
 #if UNITY_EDITOR
 

@@ -69,7 +69,7 @@ namespace PlaytimePainter.CameraModules {
         
         public override CfgEncoder Encode()
         {
-            var cody = this.EncodeUnrecognized();
+            var cody = base.Encode(); //this.EncodeUnrecognized();
           
 
             cody.Add_IfNotEmpty("cfgs", weatherConfigurations);
@@ -101,7 +101,7 @@ namespace PlaytimePainter.CameraModules {
         public override string ToolTip =>
             "This is not a postprocess effect. Color Bleed and Brightness modifies Global Shader Parameter used by Custom shaders included with the asset.";            
         
-        public override bool Inspect() {
+        public bool Inspect() {
             var changed = false;
             
             Inspect(ref weatherConfigurations).nl(ref changed);

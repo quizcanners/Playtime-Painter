@@ -15,8 +15,7 @@ namespace PlaytimePainter
     namespace CameraModules
     {
         [TaggedType(tag)]
-        public class TileableAtlasingCameraModule : CameraModuleBase, IMeshToolPlugin,
-            IPainterManagerModuleBrush
+        public class TileableAtlasingCameraModule : CameraModuleBase, IMeshToolPlugin, IPainterManagerModuleBrush
         {
             const string tag = "TilAtlCntrl";
             public override string ClassTag => tag;
@@ -24,35 +23,7 @@ namespace PlaytimePainter
             public static TileableAtlasingCameraModule inst;
 
             public override string NameForDisplayPEGI() => "Tilable Atlasing";
-
-            public List<AtlasTextureCreator> atlases = new List<AtlasTextureCreator>();
-
-            public List<MaterialAtlases> atlasedMaterials = new List<MaterialAtlases>();
-
-            #region Encode & Decode
-
-            public override CfgEncoder Encode() => this.EncodeUnrecognized()
-                .Add("atl", atlases)
-                .Add("am", atlasedMaterials);
-
-            public override bool Decode(string tg, string data)
-            {
-                switch (tg)
-                {
-                    case "atl":
-                        data.Decode_List(out atlases);
-                        break;
-                    case "am":
-                        data.Decode_List(out atlasedMaterials);
-                        break;
-                    default: return false;
-                }
-
-                return true;
-            }
-
-            #endregion
-
+            
             #region Inspector
 
             [SerializeField] protected int inspectedAtlas;
@@ -97,7 +68,7 @@ namespace PlaytimePainter
 
             int InspectedItems = -1;
 
-            public override bool Inspect()
+            public bool Inspect()
             {
                 bool changed = false;
 
@@ -149,10 +120,13 @@ namespace PlaytimePainter
 
                 if (p)
                     "Atlased Materials"
-                        .enter_List(ref atlasedMaterials, ref p.selectedAtlasedMaterial, ref InspectedItems, 0)
+                        .enter_List(ref Cfg.atlasedMaterials, ref p.selectedAtlasedMaterial, ref InspectedItems, 0)
                         .nl(ref changed);
 
-                "Atlases".enter_List(ref atlases, ref inspectedAtlas, ref InspectedItems, 1).nl(ref changed);
+                "Atlases".enter_List(ref Cfg.atlases, ref inspectedAtlas, ref InspectedItems, 1).nl(ref changed);
+
+                if (changed)
+                    Cfg.SetToDirty();
 
                 return changed;
 

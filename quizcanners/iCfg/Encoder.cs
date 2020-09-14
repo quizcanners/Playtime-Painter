@@ -53,7 +53,7 @@ namespace QuizCannersUtilities
             .Add("pvt", tf.pivot)
             .Add("deSize", tf.sizeDelta);
         }
-        
+        /*
         public static CfgEncoder Encode(this ICfg cfg, ICfgSerializeNestedReferences keeper) {
 
             var prevKeeper = CfgEncoder.keeper;
@@ -66,7 +66,7 @@ namespace QuizCannersUtilities
             CfgEncoder.keeper = prevKeeper;
             return ret;
 
-        }
+        }*/
 
         public static CfgEncoder Encode<T>(this T[] arr) where T : ICfg {
             var cody = new CfgEncoder();
@@ -255,16 +255,16 @@ namespace QuizCannersUtilities
         
         #region Unity_Objects
 
-        public static ICfgSerializeNestedReferences keeper;
+       // public static ICfgSerializeNestedReferences keeper;
 
         public CfgEncoder Add_GUID(string tag, Object obj) => Add_IfNotEmpty(tag, obj.GetGuid());
 
-        public CfgEncoder Add_Reference(string tag, Object obj) => Add_Reference(tag, obj, keeper);
+       // public CfgEncoder Add_Reference(string tag, Object obj) => Add_Reference(tag, obj, keeper);
 
-        public CfgEncoder Add_Reference(string tag, Object obj, ICfgSerializeNestedReferences referencesKeeper) => (referencesKeeper == null || !obj) ? this : Add_IfNotNegative(tag, referencesKeeper.GetReferenceIndex(obj));
-            
+       // public CfgEncoder Add_Reference(string tag, Object obj, ICfgSerializeNestedReferences referencesKeeper) => (referencesKeeper == null || !obj) ? this : Add_IfNotNegative(tag, referencesKeeper.GetReferenceIndex(obj));
+            /*
         public CfgEncoder Add_References<T>(string tag, List<T> objs) where T : Object => Add_References(tag, objs,keeper);
-
+        
         public CfgEncoder Add_References<T>(string tag, List<T> lst, ICfgSerializeNestedReferences referencesKeeper) where T: Object
         {
             if (referencesKeeper == null || lst == null) return this;
@@ -277,7 +277,7 @@ namespace QuizCannersUtilities
             return Add(tag, indxs);
             
         }
-
+        
         public CfgEncoder Add(string tag, ICfg other, ICfgSerializeNestedReferences referencesKeeper)
         {
             var prevKeeper = keeper;
@@ -315,7 +315,7 @@ namespace QuizCannersUtilities
 
             keeper = prevKeeper;
             return this;
-        }
+        }*/
         #endregion
 
         #region ValueTypes
@@ -456,20 +456,7 @@ namespace QuizCannersUtilities
         {
             if (QcUnity.IsNullOrDestroyed_Obj(other)) return this;
             
-            var safe = other as ICfgSafeEncoding;
-            
-            if (safe == null)  return Add(tag, other.Encode());
-            
-            var ll = safe.GetLoopLock;
-
-            if (ll.Unlocked)
-                using (ll.Lock()) {
-                    Add(tag, other.Encode());
-                }
-            else
-                Debug.LogError("Infinite encoding loop detected");
-        
-            return this;
+            return Add(tag, other.Encode());
         }
         
         public CfgEncoder Add(string tag, List<int> val) {

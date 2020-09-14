@@ -16,7 +16,7 @@ namespace PlaytimePainter
     public class BrushTypes
     {
 
-        public abstract class Base : PainterSystem, IEditorDropdown, IPEGI, IGotDisplayName
+        public abstract class Base : PainterClass, IEditorDropdown, IPEGI, IGotDisplayName
         {
 
             public Base AsBase => this;

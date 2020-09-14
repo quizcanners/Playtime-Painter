@@ -15,42 +15,33 @@ namespace PlaytimePainter.CameraModules
         public override string ClassTag => Tag;
         
         public static CombinedMapsCameraModule _inst;
-
-        private List<TextureSetForCombinedMaps> _textureSets = new List<TextureSetForCombinedMaps>();
-        public List<TexturePackagingProfile> texturePackagingSolutions = new List<TexturePackagingProfile>();
-
+        
         public override void Enable() {
             _inst = this;
         }
 
-        public override string NameForDisplayPEGI()=> "Combined Maps [{0}]".F(_textureSets.Count);
+        public override string NameForDisplayPEGI()=> "Combined Maps [{0}]".F(Cfg.textureSets.Count);
 
-        #region Encode & Decode
-        public override CfgEncoder Encode() => this.EncodeUnrecognized()
-            .Add("cm", _textureSets)
-            .Add("tps", texturePackagingSolutions);
 
-        public override bool Decode(string tg, string data)
-        {
-            switch (tg)
-            {
-                case "cm": data.Decode_List(out _textureSets); break;
-                case "tps": data.Decode_List(out texturePackagingSolutions); break;
-                default: return false;
-            }
-            return true;
-        }
-
-        #endregion
 
         #region Inspector
 
         private int _browsedTextureSet = -1;
-        public override bool Inspect() => "Surfaces".edit_List(ref _textureSets, ref _browsedTextureSet);
+
+        public bool Inspect()
+        {
+            var changed = false;
+            if ("Surfaces".edit_List(ref Cfg.textureSets, ref _browsedTextureSet).changes(ref changed))
+                Cfg.SetToDirty();
+
+            return changed;
+        }
+
         #endregion
     }
 
-    public class TextureSetForCombinedMaps : PainterSystemKeepUnrecognizedCfg, IGotName {
+    [Serializable]
+    public class TextureSetForCombinedMaps : PainterClass, IPEGI, IGotName {
 
         protected static CombinedMapsCameraModule Ctrl => CombinedMapsCameraModule._inst;
 
@@ -69,7 +60,7 @@ namespace PlaytimePainter.CameraModules
 
         public string name;
 
-        public TexturePackagingProfile Profile => Ctrl.texturePackagingSolutions[selectedProfile];
+        public TexturePackagingProfile Profile => Cfg.texturePackagingSolutions[selectedProfile];
 
         public Texture2D GetAnyTexture()
         {
@@ -89,7 +80,7 @@ namespace PlaytimePainter.CameraModules
         }
 
         public string NameForPEGI { get { return name; } set { name = value; } }
-
+        /*
         #region Encode & Decode
         public override CfgEncoder Encode() => this.EncodeUnrecognized()
             .Add_Reference("d", diffuse)
@@ -126,10 +117,10 @@ namespace PlaytimePainter.CameraModules
             return true;
         }
         #endregion
-
+        */
         #region Inspect
 
-        public override bool Inspect() {
+        public bool Inspect() {
 
             var changed = false;
 
@@ -165,15 +156,19 @@ namespace PlaytimePainter.CameraModules
                 "is Color".toggle(ref isColor).nl(ref changed);
             }
             
-            pegi.select_Index(ref selectedProfile, Ctrl.texturePackagingSolutions);
+            pegi.select_Index(ref selectedProfile, Cfg.texturePackagingSolutions);
 
             if (icon.Add.Click("New Texture Packaging Profile").nl()) {
-                QcUtils.AddWithUniqueNameAndIndex(Ctrl.texturePackagingSolutions);
-                selectedProfile = Ctrl.texturePackagingSolutions.Count - 1;
+                QcUtils.AddWithUniqueNameAndIndex(Cfg.texturePackagingSolutions);
+                selectedProfile = Cfg.texturePackagingSolutions.Count - 1;
+                Cfg.SetToDirty();
             }
 
-            if ((selectedProfile < Ctrl.texturePackagingSolutions.Count))
-                Ctrl.texturePackagingSolutions[selectedProfile].Inspect(this).nl(ref changed);
+            if ((selectedProfile < Cfg.texturePackagingSolutions.Count))
+            {
+                if (Cfg.texturePackagingSolutions[selectedProfile].Inspect(this).nl(ref changed))
+                    Cfg.SetToDirty();
+            }
 
             return changed;
         }
@@ -185,7 +180,7 @@ namespace PlaytimePainter.CameraModules
 
     }
 
-    public class TexturePackagingProfile : PainterSystemCfg, IGotName, IPEGI
+    public class TexturePackagingProfile : PainterClassCfg, IGotName, IPEGI
     {
         private bool _isColor;
         public float bumpStrength = 0.1f;

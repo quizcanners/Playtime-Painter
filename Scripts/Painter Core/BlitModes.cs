@@ -12,7 +12,7 @@ namespace PlaytimePainter {
 
     public static class BlitModes {
 
-        public abstract class Base : PainterSystem, IEditorDropdown, IGotDisplayName {
+        public abstract class Base : PainterClass, IEditorDropdown, IGotDisplayName {
 
             #region All Modes 
 

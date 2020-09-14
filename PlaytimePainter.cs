@@ -26,8 +26,8 @@ namespace PlaytimePainter
 
    
     [ExecuteInEditMode]
-    public partial class PlaytimePainter : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler,
-        IKeepMyCfg, IPEGI
+    public partial class PlaytimePainter : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, ICfg
+        
     {
 
         #region StaticGetters
@@ -1495,7 +1495,7 @@ namespace PlaytimePainter
             if (Application.isPlaying)
                 TrySetOriginalTexture();
 
-            this.SaveCfgData();
+            _cfgData = Encode().ToString();
 
             if (!TexMgmt || MeshEditorManager.target != this) return;
 
@@ -1508,7 +1508,7 @@ namespace PlaytimePainter
 
             isBeingDisabled = false;
 
-            PainterSystem.applicationIsQuitting = false;
+            PainterClass.applicationIsQuitting = false;
 
             if (terrain)
                 UpdateModules();
@@ -1516,7 +1516,8 @@ namespace PlaytimePainter
             if (!meshRenderer)
                 meshRenderer = GetComponent<MeshRenderer>();
 
-            this.LoadCfgData();
+            Decode(_cfgData);
+            //this.LoadCfgData();
 
         }
 
