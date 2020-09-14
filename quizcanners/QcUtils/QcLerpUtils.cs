@@ -433,7 +433,7 @@ namespace QuizCannersUtilities
                 switch (tg)
                 {
                     case "b":
-                        data.Decode_Delegate(base.Decode);
+                        data.DecodeInto(base.Decode);
                         break;
                     case "t":
                         targetValue = data.ToVector2();
@@ -525,7 +525,7 @@ namespace QuizCannersUtilities
             {
                 switch (tg)
                 {
-                    case "b": data.Decode_Delegate(base.Decode); break;
+                    case "b": data.DecodeInto(base.Decode); break;
                     case "t": targetValue = data.ToQuaternion(); break;
                     default: return false;
                 }
@@ -580,7 +580,7 @@ namespace QuizCannersUtilities
                 switch (tg)
                 {
                     case "b":
-                        data.Decode_Delegate(base.Decode);
+                        data.DecodeInto(base.Decode);
                         break;
                     default: return false;
                 }
@@ -774,7 +774,7 @@ namespace QuizCannersUtilities
                 switch (tg)
                 {
                     case "b":
-                        data.Decode_Delegate(base.Decode);
+                        data.DecodeInto(base.Decode);
                         break;
                    /* case "s":
                         Texture tmp = null;
@@ -931,7 +931,7 @@ namespace QuizCannersUtilities
 
             public override bool Decode(string tg, string data) {
                 switch (tg) {
-                    case "b": data.Decode_Delegate(base.Decode); break;
+                    case "b": data.DecodeInto(base.Decode); break;
                     default: return false;
                 }
 
@@ -977,7 +977,7 @@ namespace QuizCannersUtilities
                 switch (tg)
                 {
                     case "b":
-                        data.Decode_Delegate(base.Decode);
+                        data.DecodeInto(base.Decode);
                         break;
                     case "col":
                         targetValue = data.ToColor();
@@ -1081,7 +1081,7 @@ namespace QuizCannersUtilities
             {
                 switch (tg)
                 {
-                    case "b": data.Decode_Delegate(base.Decode); break;
+                    case "b": data.DecodeInto(base.Decode); break;
                     case "trgf": targetValue = data.ToFloat(); break;
                     case "rng": minMax = data.ToBool(); break;
                     case "min": min = data.ToFloat(); break;
@@ -1251,7 +1251,7 @@ namespace QuizCannersUtilities
                 switch (tg)
                 {
                     case "b":
-                        data.Decode_Delegate(base.Decode);
+                        data.DecodeInto(base.Decode);
                         break;
                     case "t":
                         targetValue = data.ToVector3();
@@ -1359,7 +1359,7 @@ namespace QuizCannersUtilities
             {
                 switch (tg)
                 {
-                    case "b": data.Decode_Delegate(base.Decode); break;
+                    case "b": data.DecodeInto(base.Decode); break;
                     case "trgf": targetValue = data.ToQuaternion(); break;
                     default: return false;
                 }
@@ -1675,7 +1675,7 @@ namespace QuizCannersUtilities
             {
                 switch (tg)
                 {
-                    case "b": data.Decode_Delegate(base.Decode); break;
+                    case "b": data.DecodeInto(base.Decode); break;
                     case "f": targetValue = data.ToFloat(); break;
 
                     default: return false;
@@ -1772,7 +1772,7 @@ namespace QuizCannersUtilities
             {
                 switch (tg)
                 {
-                    case "b": data.Decode_Delegate(base.Decode); break;
+                    case "b": data.DecodeInto(base.Decode); break;
                     case "c": targetValue = data.ToColor(); break;
 
                     default: return false;
@@ -1852,7 +1852,7 @@ namespace QuizCannersUtilities
             {
                 switch (tg)
                 {
-                    case "b": data.Decode_Delegate(base.Decode); break;
+                    case "b": data.DecodeInto(base.Decode); break;
                     case "v4": targetValue = data.ToColor(); break;
 
                     default: return false;
@@ -2015,7 +2015,7 @@ namespace QuizCannersUtilities
                 switch (tg)
                 {
                     case "bb":
-                        data.Decode_Delegate(base.Decode);
+                        data.DecodeInto(base.Decode);
                         break;
                     case "zero":
                         setZeroOnStart = data.ToBool();

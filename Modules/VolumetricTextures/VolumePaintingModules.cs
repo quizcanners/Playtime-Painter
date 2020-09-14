@@ -622,7 +622,7 @@ namespace PlaytimePainter {
             {
                 switch (tg)
                 {
-                    case "b": base.Decode(data); break;
+                    case "b": data.DecodeInto(base.Decode); break;
                     case "gotVol": expectingAVolume = data.ToBool(); break;
                     default: return false;
                 }

@@ -590,7 +590,7 @@ namespace QuizCannersUtilities {
                 switch (tg)
                 {
                     case "b":
-                        data.Decode_Delegate(base.Decode);
+                        data.DecodeInto(base.Decode);
                         break;
                     case "tgs":
                         data.Decode_List(out _usageTags);

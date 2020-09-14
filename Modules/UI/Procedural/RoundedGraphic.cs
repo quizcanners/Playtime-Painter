@@ -984,7 +984,7 @@ namespace PlaytimePainter
 
                 switch (tg)
                 {
-                    case "b": base.Decode(data); break; //data. //Decode_Base(base.Decode, this); break;
+                    case "b": data.DecodeInto(base.Decode); break; //base.Decode(data); break; //data. //Decode_Base(base.Decode, this); break;
                     case "s": size = data.ToFloat(); break;
                     default: return false;
                 }
@@ -1089,7 +1089,7 @@ namespace PlaytimePainter
                 switch (tg)
                 {
 
-                    case "b": base.Decode(data); break; //data.Decode_Base(base.Decode, this); break;
+                    case "b": data.DecodeInto(base.Decode); break;
                     case "mp": referenceTexture.Decode(data); break;
                     default: return false;
                 }
@@ -1169,7 +1169,7 @@ namespace PlaytimePainter
 
                 switch (tg)
                 {
-                    case "b": base.Decode(data); break;//data.Decode_Base(base.Decode, this); break;
+                    case "b": data.DecodeInto(base.Decode); break;
                     case "crn": _roundedCorners.Decode(data); break;
                     case "hov": valueWhenOver = data.ToFloat(); break;
                     case "nrm": valueWhenOff = data.ToFloat(); break;

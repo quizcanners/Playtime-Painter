@@ -15,12 +15,12 @@ namespace QuizCannersUtilities {
 
         #region Non-Instancible
 
-       // public static void Decode_Base(this string data, CfgDecoder.DecodeDelegate dec//, IKeepUnrecognizedCfg unrecognizedKeeper
-          //  , string tag = "b") 
-          //  => new CfgDecoder(data).DecodeTagsFor(dec, //unrecognizedKeeper,
+        //public static void Decode_Base(this string data, CfgDecoder.DecodeDelegate dec)//, IKeepUnrecognizedCfg unrecognizedKeeper
+                                                                                       //  , string tag = "b") 
+          //  => new CfgDecoder(data).DecodeTagsFor(dec); //unrecognizedKeeper,
              //   tag);
         
-        public static void Decode_Delegate(this string data, CfgDecoder.DecodeDelegate dec) => new CfgDecoder(data).DecodeTagsFor(dec);
+        public static void DecodeInto(this string data, CfgDecoder.DecodeDelegate dec) => new CfgDecoder(data).DecodeTagsFor(dec);
 
         public static void DecodeInto(this string data, Transform tf)
         {

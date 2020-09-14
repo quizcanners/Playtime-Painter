@@ -59,6 +59,8 @@ namespace QuizCannersUtilities
             
             private static List<string> GetFolderNamesFrom(string fullPath)
             {
+                if (File.Exists(fullPath) == false)
+                    return new List<string>();
 
                 var lst = new List<string>(Directory.GetDirectories(fullPath));
 
