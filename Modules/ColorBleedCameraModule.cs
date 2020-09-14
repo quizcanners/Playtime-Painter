@@ -10,7 +10,7 @@ using UnityEditorInternal;
 namespace PlaytimePainter.CameraModules {
 
     [TaggedType(tag)]
-    public class ColorBleedCameraModule : CameraModuleBase
+    public class ColorBleedCameraModule : CameraModuleBase, IPEGI
     {
 
         public const string tag = "Color Mgmt";
