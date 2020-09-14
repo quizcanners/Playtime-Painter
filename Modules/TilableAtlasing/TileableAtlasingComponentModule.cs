@@ -800,11 +800,39 @@ namespace PlaytimePainter.ComponentModules {
         {
             Init();
         }
-        
+
+        private string GetUniqueName<T>(string s, List<T> list)
+        {
+
+            bool match = true;
+            int index = 1;
+            string mod = s;
+            
+            while (match)
+            {
+                match = false;
+
+                foreach (var l in list)
+                    if (l.ToString().SameAs(mod))
+                    {
+                        match = true;
+                        break;
+                    }
+
+                if (match)
+                {
+                    mod = s + index;
+                    index++;
+                }
+            }
+
+            return mod;
+        }
+
         public AtlasTextureCreator(string newName)
         {
             NameForPEGI = newName;
-            NameForPEGI = NameForPEGI.GetUniqueName(TileableAtlasingCameraModule.inst.atlases);
+            NameForPEGI = GetUniqueName(NameForPEGI, TileableAtlasingCameraModule.inst.atlases);
             Init();
         }
 

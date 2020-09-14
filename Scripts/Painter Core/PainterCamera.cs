@@ -873,7 +873,6 @@ namespace PlaytimePainter {
         
         public AnimationCurve InspectAnimationCurve(string role) {
             role.edit_Property(() => tmpCurve, this);
-
             return tmpCurve;
         }
 

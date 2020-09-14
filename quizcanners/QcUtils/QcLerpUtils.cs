@@ -657,6 +657,15 @@ namespace QuizCannersUtilities
 
             protected virtual void RemovePreviousTexture() => _targetTextures.RemoveAt(0);
 
+            private bool TryRemoveTill<T>(List<T> list, int maxCountLeft)
+            {
+                if (list == null || list.Count <= maxCountLeft) return false;
+
+                list.RemoveRange(maxCountLeft, list.Count - maxCountLeft);
+                return true;
+
+            }
+            
             public virtual Texture TargetTexture
             {
                 get { return _targetTextures.TryGetLast(); }
@@ -683,12 +692,12 @@ namespace QuizCannersUtilities
                                 CurrentValue = Mathf.Max(0, 1 - CurrentValue);
                                 Current = Next;
                                 Next = value;
-                                QcSharp.TryRemoveTill(_targetTextures,2);
+                                TryRemoveTill(_targetTextures,2);
                             }
                         }
                         else if (_targetTextures.Count > 1 && value == _targetTextures[1])
                         {
-                            QcSharp.TryRemoveTill(_targetTextures, 2);
+                            TryRemoveTill(_targetTextures, 2);
                         }
                         else
                         {
@@ -720,8 +729,7 @@ namespace QuizCannersUtilities
             static readonly ShaderProperty.TextureValue NextTexture = new ShaderProperty.TextureValue("_Next_MainTex");
             static readonly ShaderProperty.TextureValue CurrentTexture = new ShaderProperty.TextureValue("_MainTex_Current");
             static readonly ShaderProperty.FloatValue TransitionPortion = new ShaderProperty.FloatValue("_Transition");
-
-
+            
             #region Inspector
 
             public override bool Inspect()

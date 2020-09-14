@@ -6,7 +6,6 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using PlayerAndEditorGUI;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
@@ -19,9 +18,9 @@ namespace QuizCannersUtilities {
     
     public static class QcSharp {
 
-        public static string ThisMethodName() => ThisMethodName(1);
+       // public static string ThisMethodName() => ThisMethodName(1);
 
-        public static string ThisMethodName(int up) => (new StackFrame(up)).GetMethod()?.Name;
+       // public static string ThisMethodName(int up) => (new StackFrame(up)).GetMethod()?.Name;
 
         #region Timer
 
@@ -205,7 +204,7 @@ namespace QuizCannersUtilities {
 
         #endregion
 
-        #region Html Tags
+        #region Html Tags (For Text Mesh Pro)
 
         public static string HtmlTag(string tag, string value) => "<{0}={1}>".F(tag, value);
 
@@ -218,10 +217,8 @@ namespace QuizCannersUtilities {
         public static string HtmlTagWrap(string content, Color color) => content.IsNullOrEmpty() ? "" : "<{0}={1}>{2}</{0}>".F("color", "#" + ColorUtility.ToHtmlStringRGBA(color), content);
 
         public static string HtmlTagAlpha(float alpha01) => HtmlTag("alpha", "#" + Mathf.FloorToInt(Mathf.Clamp01(alpha01) * 255).ToString("X2"));
-
-
+        
         public static string HtmlTagWrapAlpha(string content, float alpha01) => HtmlTagAlpha(alpha01) + content + HtmlTagAlpha(1f); 
-
         
         public static StringBuilder AppendHtmlTag(this StringBuilder bld, string tag) => bld.Append(HtmlTag(tag));
         
@@ -264,11 +261,15 @@ namespace QuizCannersUtilities {
             if (count == list.Count) 
                 return;
 
-            while (list.Count < count)
-                list.Add(new T());
+            var diff = list.Count - count;
 
-            while (list.Count > count)
-                list.RemoveLast();
+            if (diff > 0)
+                list.RemoveRange(count, diff);
+            else
+            {
+                while (list.Count < count)
+                    list.Add(new T());
+            }
         }
 
         public static List<T> TryAdd<T>(this List<T> list, object ass, bool onlyIfNew = true)
@@ -283,12 +284,12 @@ namespace QuizCannersUtilities {
 
         }
 
-        public static List<string> TryAddIfNewAndNotAmpty(this List<string> lst, string text) {
+       /* public static List<string> TryAddIfNewAndNotAmpty(this List<string> lst, string text) {
             if (!text.IsNullOrEmpty() && (lst.IndexOf(text) == -1))
                 lst.Add(text);
 
             return lst;
-        }
+        }*/
 
         public static T TryTake<T>(this List<T> list, int index) {
 
@@ -300,35 +301,6 @@ namespace QuizCannersUtilities {
             list.RemoveAt(index);
 
             return ret;
-        }
-
-        public static string GetUniqueName<T>(this string s, List<T> list)
-        {
-
-            bool match = true;
-            int index = 1;
-            string mod = s;
-
-
-            while (match)
-            {
-                match = false;
-
-                foreach (var l in list)
-                    if (l.ToString().SameAs(mod))
-                    {
-                        match = true;
-                        break;
-                    }
-
-                if (match)
-                {
-                    mod = s + index;
-                    index++;
-                }
-            }
-
-            return mod;
         }
         
         public static T GetRandom<T>(this List<T> list) => list.Count == 0 ? default : list[Random.Range(0, list.Count)];
@@ -350,15 +322,7 @@ namespace QuizCannersUtilities {
             list.Add(val);
             return true;
         }
-
-        public static bool TryRemoveTill<T>(List<T> list, int maxCountLeft) {
-            if (list == null || list.Count <= maxCountLeft) return false;
-
-            list.RemoveRange(maxCountLeft, list.Count - maxCountLeft);
-            return true;
-
-        }
-
+        
         public static T TryGetLast<T>(this IList<T> list)
         {
 
@@ -376,13 +340,7 @@ namespace QuizCannersUtilities {
             return list[index];
         }*/
 
-        public static object TryGetObj(IList list, int index)
-        {
-            if (list == null || index < 0 || index >= list.Count)
-                return null;
-            var el = list[index];
-            return el;
-        }
+       
 
         public static T TryGet<T>(this List<T> list, int index, T defaultValue = default)
         {

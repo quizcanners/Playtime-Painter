@@ -119,9 +119,6 @@ namespace QuizCannersUtilities
             }
 
             return dist < percision;
-
-            // return ((line > pnta) && (line > pntb) && ((pnta + pntb) < line + percision));
-
         }
 
         public static bool IsPointOnLine(Vector3 a, Vector3 b, Vector3 point, float percision)
