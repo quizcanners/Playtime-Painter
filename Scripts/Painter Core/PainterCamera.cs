@@ -877,7 +877,8 @@ namespace PlaytimePainter {
         }
 
         private int _inspectedDependecy = -1;
-        
+        private int _inspectedStuff = -1;
+
         public override bool Inspect()
         {
 
@@ -885,9 +886,54 @@ namespace PlaytimePainter {
 
             var changed = false;
 
-            if (Data)
-                Data.Nested_Inspect().nl(ref changed);
-            
+
+            if ("Camera Modules".enter(ref _inspectedStuff, 0, false).nl_ifNotEntered())
+            {
+                _modulesMeta.edit_List(ref CameraModuleBase.modules, CameraModuleBase.all).changes(ref changed);
+
+                if (!_modulesMeta.Inspecting)
+                {
+                    if ("Find Modules".Click())
+                        CameraModuleBase.RefreshModules();
+
+                    if ("Delete Modules".Click().nl())
+                        CameraModuleBase.modules = null;
+                }
+
+                pegi.nl();
+            }
+
+            if ("Depth Projector Camera".enter(ref _inspectedStuff, 1).nl())
+            {
+                if (DepthProjectorCamera.Instance)
+                {
+                    DepthProjectorCamera.Instance.Nested_Inspect().nl();
+                }
+                else if ("Instantiate".Click())
+                    GetOrCreateProjectorCamera();
+            }
+
+            if ("Painter Camera".enter(ref _inspectedStuff, 2).nl_ifNotEntered())
+                DependenciesInspect(true);
+
+            if ("Data && Config".enter(ref _inspectedStuff, 3).nl_ifEntered())
+            {
+                if (Data)
+                    Data.Nested_Inspect().nl(ref changed);
+                else
+                {
+                    "NO CONFIG Scriptable Object".writeWarning();
+                    pegi.nl();
+                    DependenciesInspect(true);
+                }
+            }
+
+            if (_inspectedStuff == -1 && Data)
+                Data.ClickHighlight();
+            pegi.nl();
+
+
+
             return changed;
         }
         
@@ -1033,25 +1079,7 @@ namespace PlaytimePainter {
             return changed;
         }
 
-        public bool ModulsInspect() {
-
-            var changed = false;
-            
-            _modulesMeta.edit_List(ref CameraModuleBase.modules, CameraModuleBase.all).changes(ref changed);
-
-            if (!_modulesMeta.Inspecting) {
-
-                if ("Find Modules".Click())
-                    CameraModuleBase.RefreshModules();
-
-                if ("Delete Modules".Click().nl())
-                    CameraModuleBase.modules = null;
-
-            }
-       
-            return changed;
-        }
-        
+    
         #endregion
 
     }

@@ -633,7 +633,12 @@ namespace PlaytimePainter
 
                                 if ("Color Schemes".toggle_enter(ref cfg.showColorSchemes,
                                     ref inspectedShowOptionsSubitem, 5, ref changed).nl_ifFolded())
-                                    cfg.InspectColorSchemes();
+                                {
+                                    if (cfg.colorSchemes.Count == 0)
+                                        cfg.colorSchemes.Add(new ColorScheme { paletteName = "New Color Scheme" });
+
+                                    pegi.edit_List(ref cfg.colorSchemes, ref cfg.inspectedColorScheme);
+                                }
 
                                 if (texMeta != null)
                                 {

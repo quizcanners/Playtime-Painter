@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using Newtonsoft.Json.Bson;
 using PlayerAndEditorGUI;
 using UnityEngine;
 using UnityEngine.Profiling;
@@ -351,7 +352,7 @@ namespace QuizCannersUtilities
                         if ("Take Very large ScreenShot".ClickConfirm("tbss", "This will try to take a very large screen shot. Are we sure?"))
                             RenderToTextureManually();
                     }
-                    else if ("cam.Render() ".Click("Render Screenshoot from camera").nl())
+                    else if (icon.ScreenGrab.Click("Render Screenshoot from camera").nl())
                         RenderToTextureManually();
                 }
 
@@ -378,7 +379,7 @@ namespace QuizCannersUtilities
                     pegi.nl();
 
                     if ("ScreenCapture.CaptureScreenshot".Click())
-                        ScreenCapture.CaptureScreenshot("{0}".F(Path.Combine(FOLDER_NAME, GetScreenShotName()) + ".png"), UpScale);
+                        CaptureScreenShot();
 
 
                     if (icon.Folder.Click())
@@ -393,17 +394,23 @@ namespace QuizCannersUtilities
                 return false;
             }
 
+
+          
+
             private bool grab;
 
-            private const string FOLDER_NAME = "ScreenShoots";
-
+    
             [SerializeField] private Camera cameraToTakeScreenShotFrom;
             [SerializeField] private int UpScale = 1;
             [SerializeField] private bool AlphaBackground;
 
             [NonSerialized] private RenderTexture forScreenRenderTexture;
             [NonSerialized] private Texture2D screenShotTexture2D;
-         
+
+            public void CaptureScreenShot()
+            {
+                ScreenCapture.CaptureScreenshot("{0}".F(Path.Combine(folderName, GetScreenShotName()) + ".png"), UpScale);
+            }
 
             public void RenderToTextureManually()
             {
@@ -445,7 +452,7 @@ namespace QuizCannersUtilities
                 RenderTexture.active = null;
                 cam.clearFlags = clearFlags;
 
-                QcFile.Save.TextureOutsideAssetsFolder(FOLDER_NAME, GetScreenShotName(), ".png", screenShotTexture2D);
+                QcFile.Save.TextureOutsideAssetsFolder(folderName, GetScreenShotName(), ".png", screenShotTexture2D);
             }
 
             private void MakeOpaque(Texture2D tex)

@@ -19,6 +19,8 @@ namespace PlaytimePainter
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 
+
+
     [CreateAssetMenu(fileName = "Painter Config", menuName = "Playtime Painter/Config")]
     public class PainterDataAndConfig : ScriptableObject, ICfg, IPEGI
     {
@@ -391,13 +393,14 @@ namespace PlaytimePainter
         #region Encode/Decode
 
         [SerializeField] private string stdData = "";
-        /*public string ConfigStd
-        {
-            get { return stdData; }
-            set { stdData = value; }
-        }*/
 
-        public void Decode(string data) => this.DecodeTagsFrom(data);
+        [NonSerialized] private bool cfgLoaded;
+
+        public void Decode(string data)
+        {
+            cfgLoaded = true;
+            this.DecodeTagsFrom(data);
+        }
 
         private readonly LoopLock _encodeDecodeLock = new LoopLock();
 
@@ -491,68 +494,28 @@ namespace PlaytimePainter
         private int _inspectedDecal = -1;
         private int _inspectedMeshPackSol = -1;
 
-        private bool InspectLists()
-        {
-            var changes = false;
-
-            "Img Metas".enter_List(ref imgMetas, ref _inspectedImgData, ref _inspectedList, 0).nl(ref changes);
-
-            "Mat Metas".enter_List(ref matMetas, ref _inspectedMaterial, ref _inspectedList, 1).nl(ref changes);
-
-            "Source Textures".enter_List_UObj(ref sourceTextures, ref _inspectedList, 2).nl(ref changes);
-
-            "Masks".enter_List_UObj(ref masks, ref _inspectedList, 3).nl(ref changes);
-
-            "Decals".enter_List(ref decals, ref _inspectedDecal, ref _inspectedList, 4).nl(ref changes);
-
-            "Mesh Packaging solutions".enter_List(ref meshPackagingSolutions, ref _inspectedMeshPackSol, ref _inspectedList, 5).nl(ref changes);
-            if (_inspectedList == 5)
-            {
-#if UNITY_EDITOR
-                Object newProfile = null;
-
-                if ("Drop New Profile Here:".edit(ref newProfile).nl())
-                {
-                    var mSol = new MeshPackagingProfile();
-                    mSol.Decode(QcFile.Load.TryLoadAsTextAsset(newProfile));
-                   meshPackagingSolutions.Add(mSol);
-                }
-#endif
-            }
-
-            return changes;
-        }
-
         public bool Inspect()
         {
-            var changed = false; 
+            var changed = pegi.toggleDefaultInspector(this);
 
-            var rtp = PainterCamera.Inst;
-            
-            if ("Modules".enter(ref inspectedItems, 10, false).nl_ifNotEntered() && rtp.ModulsInspect().nl(ref changed))
-                rtp.SetToDirty();
+
+            pegi.nl();
 
             if ("Lists".enter(ref inspectedItems, 11).nl(ref changed))
                 InspectLists().changes(ref changed);
-
-            if ("Painter Camera".enter(ref inspectedItems, 14).nl_ifNotEntered())
-                PainterCamera.Inst.DependenciesInspect(true);
-
-            if ("Depth Projector Camera".enter(ref inspectedItems, 15).nl())
-            {
-                if (DepthProjectorCamera.Instance)
-                {
-                    DepthProjectorCamera.Instance.Nested_Inspect().nl();
-                } else if ("Instantiate".Click())
-                    PainterCamera.GetOrCreateProjectorCamera();
-            }
-
+            
             if ("Inspector & Debug".enter(ref inspectedItems, 16).nl())
                 QcUtils.InspectInspector();
             
             if (inspectedItems == -1) {
 
-                if ("Painter Data Encode / Decode Test".Click().nl())
+                if (!cfgLoaded)
+                {
+                    if ("Initialize Object (Load Cfg)".Click())
+                        Decode(stdData);
+                }
+                else 
+                if ("Painter Data Encode / Decode Test".Click())
                 {
                     stdData = Encode().ToString();
                     //this.SaveCfgData();
@@ -562,6 +525,8 @@ namespace PlaytimePainter
                     Decode(stdData);
                     //this.LoadCfgData();
                 }
+
+                pegi.nl();
 
                 if ("Don't Build with Painter Shaders".toggleIcon(ref dontIncludeShaderInBuild).nl())
                     CheckShaders(forceReload: true);
@@ -608,12 +573,36 @@ namespace PlaytimePainter
             return changed;
         }
 
-        public bool InspectColorSchemes()
+        private bool InspectLists()
         {
-            if (colorSchemes.Count == 0)
-                colorSchemes.Add(new ColorScheme { paletteName = "New Color Scheme" });
+            var changes = false;
 
-            return pegi.edit_List(ref colorSchemes, ref inspectedColorScheme);
+            "Img Metas".enter_List(ref imgMetas, ref _inspectedImgData, ref _inspectedList, 0).nl(ref changes);
+
+            "Mat Metas".enter_List(ref matMetas, ref _inspectedMaterial, ref _inspectedList, 1).nl(ref changes);
+
+            "Source Textures".enter_List_UObj(ref sourceTextures, ref _inspectedList, 2).nl(ref changes);
+
+            "Masks".enter_List_UObj(ref masks, ref _inspectedList, 3).nl(ref changes);
+
+            "Decals".enter_List(ref decals, ref _inspectedDecal, ref _inspectedList, 4).nl(ref changes);
+
+            "Mesh Packaging solutions".enter_List(ref meshPackagingSolutions, ref _inspectedMeshPackSol, ref _inspectedList, 5).nl(ref changes);
+            if (_inspectedList == 5)
+            {
+#if UNITY_EDITOR
+                Object newProfile = null;
+
+                if ("Drop New Profile Here:".edit(ref newProfile).nl())
+                {
+                    var mSol = new MeshPackagingProfile();
+                    mSol.Decode(QcFile.Load.TryLoadAsTextAsset(newProfile));
+                    meshPackagingSolutions.Add(mSol);
+                }
+#endif
+            }
+
+            return changes;
         }
         
         #endregion
@@ -724,5 +713,10 @@ namespace PlaytimePainter
     }
 
     #endregion
+
+#if UNITY_EDITOR
+    [CustomEditor(typeof(PainterDataAndConfig))]
+    public class PainterDataAndConfigDrawer : PEGI_Inspector_SO<PainterDataAndConfig> { }
+#endif
 
 }

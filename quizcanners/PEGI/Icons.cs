@@ -23,7 +23,7 @@ namespace PlayerAndEditorGUI {
         Off,
         Lock, Unlock, List, Link, UnLinked,
         Round, Record, Replace, Refresh,
-        Search, Script, Square, Save, SaveAsNew, StateMachine, State, Show, SelectAll, Share, Size,
+        Search, Script, Square, Save, SaveAsNew, StateMachine, State, Show, SelectAll, Share, Size, ScreenGrab,
         Question,
         Painter,
         PreviewShader,
