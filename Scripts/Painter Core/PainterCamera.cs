@@ -226,8 +226,8 @@ namespace PlaytimePainter {
             .Add_Abstract("pl", CameraModuleBase.modules, _modulesMeta)
             .Add("rts", RenderTextureBuffersManager.renderBuffersSize);
 
-        public override bool Decode(string tg, string data) {
-            switch (tg) {
+        public override bool Decode(string key, string data) {
+            switch (key) {
                 case "pl":
                     data.Decode_List(out CameraModuleBase.modules, ref _modulesMeta, CameraModuleBase.all);
                     CameraModuleBase.RefreshModules();
@@ -885,8 +885,7 @@ namespace PlaytimePainter {
             pegi.toggleDefaultInspector(this).nl();
 
             var changed = false;
-
-
+            
             if ("Camera Modules".enter(ref _inspectedStuff, 0, false).nl_ifNotEntered())
             {
                 _modulesMeta.edit_List(ref CameraModuleBase.modules, CameraModuleBase.all).changes(ref changed);
@@ -930,6 +929,13 @@ namespace PlaytimePainter {
 
             if (_inspectedStuff == -1 && Data)
                 Data.ClickHighlight();
+
+            pegi.nl();
+
+            if ("Inspector & Debug".enter(ref _inspectedStuff, 4).nl())
+                QcUtils.InspectInspector();
+
+       
             pegi.nl();
 
 

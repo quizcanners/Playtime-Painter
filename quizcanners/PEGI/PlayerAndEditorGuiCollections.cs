@@ -1279,29 +1279,29 @@ namespace PlayerAndEditorGUI
                 return changed;
             }
 
-            public bool edit_List_Order_Obj<T>(List<T> list, ListMetaData listMeta = null) where T : Object
+            /*public bool edit_List_Order_Obj<T>(List<T> list, ListMetaData listMeta = null) where T : Object
             {
 
                 var changed = collectionInspector.edit_List_Order(list, listMeta);
 
-                if (list != collectionInspector.reordering || listMeta == null) return changed;
+//                if (list != collectionInspector.reordering || listMeta == null) return changed;
 
-                if (!icon.Search.ClickUnFocus("Find objects by GUID")) return changed;
+                //if (!icon.Search.ClickUnFocus("Find objects by GUID")) return changed;
 
-                for (var i = 0; i < list.Count; i++)
-                    if (list[i] == null)
-                    {
-                        var dta = listMeta.elementDatas.TryGet(i);
-                        if (dta == null) continue;
+                //for (var i = 0; i < list.Count; i++)
+                  //  if (list[i] == null)
+                    //{
+                      //  var dta = listMeta.elementDatas.TryGet(i);
+                       // if (dta == null) continue;
 
-                        T tmp = null;
-                        if (dta.TryGetByGuid(ref tmp))
-                            list[i] = tmp;
+                        //T tmp = null;
+                       // if (dta.TryGetByGuid(ref tmp))
+                         //   list[i] = tmp;
 
-                    }
+                    //}
 
                 return changed;
-            }
+            }*/
 
             private IList listCopyBuffer;
 
@@ -1804,7 +1804,7 @@ namespace PlayerAndEditorGUI
                 if (listMeta != null && icon.Save.ClickUnFocus("Save GUID & Names data to ListMeta"))
                     listMeta.SaveElementDataFrom(list);
 
-                collectionInspector.edit_List_Order_Obj(list, listMeta).changes(ref changed);
+                collectionInspector.edit_List_Order(list, listMeta).changes(ref changed); //collectionInspector.edit_List_Order_Obj(list, listMeta).changes(ref changed);
 
                 if (list != collectionInspector.reordering)
                 {
@@ -1912,7 +1912,7 @@ namespace PlayerAndEditorGUI
             if (inspected == -1)
             {
 
-                collectionInspector.edit_List_Order_Obj(list, listMeta).changes(ref changed);
+                collectionInspector.edit_List_Order(list, listMeta).changes(ref changed); //collectionInspector.edit_List_Order_Obj(list, listMeta).changes(ref changed);
 
                 collectionInspector.ListAddEmptyClick(list, listMeta).changes(ref changed);
 
@@ -3111,7 +3111,7 @@ namespace PlayerAndEditorGUI
 
         private static readonly char[] splitCharacters = { ' ', '.' };
 
-        public class SearchData : AbstractCfg, ICanBeDefaultCfg
+        public class SearchData : ICfg, ICanBeDefaultCfg
         {
             public IEnumerable filteredList;
             public string searchedText;
@@ -3226,11 +3226,11 @@ namespace PlayerAndEditorGUI
         
             public void Refresh()=> OnCountChange();
             
-            public override CfgEncoder Encode() => new CfgEncoder().Add_String("s", searchedText);
+            public CfgEncoder Encode() => new CfgEncoder().Add_String("s", searchedText);
 
-            public override bool Decode(string tg, string data)
+            public bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "s":
                         searchedText = data;
@@ -3240,7 +3240,9 @@ namespace PlayerAndEditorGUI
                 return true;
             }
 
-            public override bool IsDefault => searchedText.IsNullOrEmpty();
+            public void Decode(string data) => this.DecodeTagsFrom(data);
+
+            public bool IsDefault => searchedText.IsNullOrEmpty();
 
         }
 

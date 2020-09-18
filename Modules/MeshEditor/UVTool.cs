@@ -21,9 +21,9 @@ namespace PlaytimePainter.MeshEditing
         private bool meshProcessors;
 
         #region Encode & Decode
-        public override bool Decode(string tg, string data)
+        public override bool Decode(string key, string data)
         {
-            switch (tg)
+            switch (key)
             {
                 case "gtuv": projectionUv = data.ToBool(); break;
                 case "offset": offset = data.ToVector2(); break;

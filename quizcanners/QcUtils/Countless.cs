@@ -165,7 +165,7 @@ namespace QuizCannersUtilities {
 
         public abstract CfgEncoder Encode();
 
-        public abstract bool Decode(string tg, string data);
+        public abstract bool Decode(string key, string data);
 
         public void Decode(string data)
         {
@@ -178,9 +178,9 @@ namespace QuizCannersUtilities {
 
         List<int> inds;
 
-        public override bool Decode(string tg, string data)
+        public override bool Decode(string key, string data)
         {
-            switch (tg)
+            switch (key)
             {
                 case "inds": data.Decode_List(out inds); break;
                 case "vals":
@@ -422,9 +422,9 @@ namespace QuizCannersUtilities {
     {
         
         #region Encode & Decode
-        public override bool Decode(string tg, string data)
+        public override bool Decode(string key, string data)
         {
-            switch (tg)
+            switch (key)
             {
                 case "inds":
                     List<int> inds; data.Decode_List(out inds);

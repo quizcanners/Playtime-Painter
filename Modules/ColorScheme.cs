@@ -7,7 +7,7 @@ using UnityEngine;
 namespace PlaytimePainter
 {
 
-    public class ColorScheme : AbstractCfg, IPEGI, IGotName, IPEGI_ListInspect
+    public class ColorScheme : ICfg, IPEGI, IGotName, IPEGI_ListInspect
     {
         private static PainterDataAndConfig Cfg => PainterCamera.Data;
         private static Brush GlobalBrush => Cfg.Brush;
@@ -96,13 +96,13 @@ namespace PlaytimePainter
 
         #region Encode/Decode
 
-        public override CfgEncoder Encode() => new CfgEncoder()
+        public CfgEncoder Encode() => new CfgEncoder()
             .Add_String("n", paletteName)
             .Add("cols", _colors);
 
-        public override bool Decode(string tg, string data)
+        public bool Decode(string key, string data)
         {
-            switch (tg)
+            switch (key)
             {
                 case "n": paletteName = data; break;
                 case "cols": data.Decode_List(out _colors); break;
@@ -110,6 +110,8 @@ namespace PlaytimePainter
             }
             return true;
         }
+
+        public void Decode(string data) => this.DecodeTagsFrom(data);
 
         #endregion
 

@@ -25,9 +25,9 @@ namespace QuizCannersUtilities
         #region Encode & Decode
 
         private List<int> _tmpDecodeInds;
-        public override bool Decode(string tg, string data) {
+        public override bool Decode(string key, string data) {
 
-            switch (tg) {
+            switch (key) {
 
                 case "inds": data.Decode_List(out _tmpDecodeInds); break;
                 case "vals": List<T> tmps; data.Decode_List(out tmps);
@@ -47,7 +47,7 @@ namespace QuizCannersUtilities
                 case "del": _allowDelete = data.ToBool(); break;
                 default: 
                     // Legacy method:
-                    this[tg.ToInt()] = data.DecodeInto<T>(); break;
+                    this[key.ToInt()] = data.DecodeInto<T>(); break;
             }
             return true;
         }
@@ -411,9 +411,9 @@ namespace QuizCannersUtilities
     
     public class UnNullableCfgLists<T> : UnNullableLists<T>, ICfg where T : ICfg, IPEGI, new() {
 
-        public bool Decode(string tg, string data)
+        public bool Decode(string key, string data)
         {
-            var index = tg.ToInt();
+            var index = key.ToInt();
             this[index] = data.Decode_List(out List<T> _);
             return true;
         }

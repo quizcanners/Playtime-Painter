@@ -165,7 +165,7 @@ namespace PlaytimePainter {
 
             var painterCommand = command as PaintCommand.ForPainterComponent;
 
-            PlaytimePainter painter = painterCommand == null ? null : painterCommand.painter;
+            PlaytimePainter painter = painterCommand?.painter;
 
             blitMode.PrePaint(command);
 
@@ -697,10 +697,10 @@ namespace PlaytimePainter {
             return cody;
         }
 
-        public override bool Decode(string tg, string data)
+        public override bool Decode(string key, string data)
         {
 
-            switch (tg)
+            switch (key)
             {
                 case "typeGPU": _inGpuBrushType = data.ToInt(); break;
                 case "typeCPU": _inCpuBrushType = data.ToInt(); break;
@@ -747,7 +747,7 @@ namespace PlaytimePainter {
 
     public static class BrushDynamic {
         
-        public abstract class Base : AbstractCfg, IPEGI, IGotClassTag
+        public abstract class Base : ICfg, IPEGI, IGotClassTag
         {
 
             public virtual void OnPrepareRay(PlaytimePainter p, Brush bc, ref Ray ray)
@@ -761,9 +761,11 @@ namespace PlaytimePainter {
             public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(Base));
             public TaggedTypesCfg AllTypes => all;
 
-            public override bool Decode(string tg, string data)
+            public virtual void Decode(string data) => this.DecodeTagsFrom(data);
+
+            public virtual bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "t":
                         testValue = data.ToInt();
@@ -774,7 +776,7 @@ namespace PlaytimePainter {
                 return true;
             }
 
-            public override CfgEncoder Encode() => new CfgEncoder().Add("t", testValue);
+            public virtual CfgEncoder Encode() => new CfgEncoder().Add("t", testValue);
 
             #endregion
 
@@ -790,6 +792,7 @@ namespace PlaytimePainter {
 
             return changed;
         }*/
+  
 
 
             #endregion
@@ -835,9 +838,9 @@ namespace PlaytimePainter {
 
             #region Encode & Decode
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "j":
                         jitterStrength = data.ToFloat();

@@ -135,7 +135,7 @@ namespace QuizCannersUtilities
 
         #region Abstract Base
 
-        public abstract class BaseLerp : AbstractCfg, ILinkedLerping, IPEGI, IPEGI_ListInspect, IGotDisplayName
+        public abstract class BaseLerp : ICfg, ILinkedLerping, IPEGI, IPEGI_ListInspect, IGotDisplayName
         {
 
             public LerpSpeedMode lerpMode = LerpSpeedMode.SpeedThreshold;
@@ -158,7 +158,9 @@ namespace QuizCannersUtilities
 
             #region Encode & Decode
 
-            public override CfgEncoder Encode()
+            public virtual void Decode(string data) => this.DecodeTagsFrom(data);
+
+            public virtual CfgEncoder Encode()
             {
 
                 var cody = new CfgEncoder()
@@ -179,9 +181,9 @@ namespace QuizCannersUtilities
                 return cody;
             }
 
-            public override bool Decode(string tg, string data)
+            public virtual bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "ch":
                         allowChangeParameters = data.ToBool();
@@ -319,6 +321,8 @@ namespace QuizCannersUtilities
                 return changed;
             }
 
+    
+
             #endregion
 
         }
@@ -428,9 +432,9 @@ namespace QuizCannersUtilities
                 return cody;
             }
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "b":
                         data.DecodeInto(base.Decode);
@@ -521,9 +525,9 @@ namespace QuizCannersUtilities
                 return cody;
             }
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "b": data.DecodeInto(base.Decode); break;
                     case "t": targetValue = data.ToQuaternion(); break;
@@ -575,9 +579,9 @@ namespace QuizCannersUtilities
             public override CfgEncoder Encode() => new CfgEncoder()
                 .Add("b", base.Encode);
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "b":
                         data.DecodeInto(base.Decode);
@@ -769,9 +773,9 @@ namespace QuizCannersUtilities
                 return cody;
             }
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "b":
                         data.DecodeInto(base.Decode);
@@ -929,8 +933,8 @@ namespace QuizCannersUtilities
                 return cody;
             }
 
-            public override bool Decode(string tg, string data) {
-                switch (tg) {
+            public override bool Decode(string key, string data) {
+                switch (key) {
                     case "b": data.DecodeInto(base.Decode); break;
                     default: return false;
                 }
@@ -972,9 +976,9 @@ namespace QuizCannersUtilities
                 .Add("b", base.Encode)
                 .Add("col", targetValue);
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "b":
                         data.DecodeInto(base.Decode);
@@ -1077,16 +1081,16 @@ namespace QuizCannersUtilities
                 return cody;
             }
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "b": data.DecodeInto(base.Decode); break;
                     case "trgf": targetValue = data.ToFloat(); break;
                     case "rng": minMax = data.ToBool(); break;
                     case "min": min = data.ToFloat(); break;
                     case "max": max = data.ToFloat(); break;
-                    default: return base.Decode(tg, data); // For compatibility reasons, should return false
+                    default: return base.Decode(key, data); // For compatibility reasons, should return false
                 }
 
                 return true;
@@ -1246,9 +1250,9 @@ namespace QuizCannersUtilities
                 return cody;
             }
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "b":
                         data.DecodeInto(base.Decode);
@@ -1355,9 +1359,9 @@ namespace QuizCannersUtilities
                 return cody;
             }
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "b": data.DecodeInto(base.Decode); break;
                     case "trgf": targetValue = data.ToQuaternion(); break;
@@ -1671,9 +1675,9 @@ namespace QuizCannersUtilities
                 return cody;
             }
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "b": data.DecodeInto(base.Decode); break;
                     case "f": targetValue = data.ToFloat(); break;
@@ -1768,9 +1772,9 @@ namespace QuizCannersUtilities
                 return cody;
             }
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "b": data.DecodeInto(base.Decode); break;
                     case "c": targetValue = data.ToColor(); break;
@@ -1848,9 +1852,9 @@ namespace QuizCannersUtilities
                 return cody;
             }
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "b": data.DecodeInto(base.Decode); break;
                     case "v4": targetValue = data.ToColor(); break;
@@ -2010,9 +2014,9 @@ namespace QuizCannersUtilities
             public override CfgEncoder Encode() =>
                 new CfgEncoder().Add("bb", base.Encode).Add_Bool("zero", setZeroOnStart);
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "bb":
                         data.DecodeInto(base.Decode);
@@ -2020,7 +2024,7 @@ namespace QuizCannersUtilities
                     case "zero":
                         setZeroOnStart = data.ToBool();
                         break;
-                    default: return base.Decode(tg, data);
+                    default: return base.Decode(key, data);
                 }
 
                 return true;

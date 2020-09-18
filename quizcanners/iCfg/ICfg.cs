@@ -16,29 +16,33 @@ namespace QuizCannersUtilities {
     public interface ICfg {
         CfgEncoder Encode(); 
         void Decode(string data);
-        bool Decode(string tg, string data);
+        bool Decode(string key, string data);
     }
 
-   /* public interface IKeepUnrecognizedCfg : ICfg
+    public interface ICfgDecode
     {
-        UnrecognizedTagsList UnrecognizedStd { get; }
-    }*/
+        void Decode(string key, CfgData data);
+    }
+
+    public interface ICfg2 : ICfgDecode
+    {
+        CfgEncoder Encode();
+        void Decode(CfgData data);
+    }
+
+    public struct CfgData
+    {
+        public string value;
+
+        public CfgData(string val)
+        {
+            value = val;
+        }
+    }
 
     public interface ICanBeDefaultCfg : ICfg {
         bool IsDefault { get; }
     }
-
-   /* public interface ICfgSerializeNestedReferences
-    {
-        int GetReferenceIndex(Object obj);
-        T GetReferenced<T>(int index) where T: Object;
-    }*/
-    /*
-    public interface IKeepMyCfg : ICfg
-    {
-        string ConfigStd { get; set; }
-    }*/
-
 
     #endregion
 
@@ -211,7 +215,7 @@ namespace QuizCannersUtilities {
     }
 
     [Serializable]
-    public abstract class Configuration : AbstractCfg, IPEGI_ListInspect, IGotName
+    public abstract class Configuration : ICfg, IPEGI_ListInspect, IGotName
     {
         public string name;
         public string data;
@@ -283,12 +287,12 @@ namespace QuizCannersUtilities {
 
         #region Encode & Decode
 
-        public override CfgEncoder Encode() => new CfgEncoder()
+        public CfgEncoder Encode() => new CfgEncoder()
             .Add_String("n", name)
             .Add_IfNotEmpty("d", data);
 
-        public override bool Decode(string tg, string d) {
-            switch (tg) {
+        public bool Decode(string key, string d) {
+            switch (key) {
                 case "n": name = d; break;
                 case "d": data = d; break;
                 default: return false;   
@@ -296,6 +300,8 @@ namespace QuizCannersUtilities {
 
             return true;
         }
+
+        public void Decode(string data) => this.DecodeTagsFrom(data);
 
 
 
@@ -417,13 +423,13 @@ namespace QuizCannersUtilities {
     }
     */
 
-    public abstract class AbstractCfg : ICanBeDefaultCfg {
+   /* public abstract class AbstractCfg : ICanBeDefaultCfg {
         public abstract CfgEncoder Encode();
         public virtual void Decode(string data) => this.DecodeTagsFrom(data);
-        public abstract bool Decode(string tg, string data);
+        public abstract bool Decode(string key, string data);
 
         public virtual bool IsDefault => false;
-    }
+    }*/
 
 
    /* public abstract class AbstractKeepUnrecognizedCfg : AbstractCfg, IKeepUnrecognizedCfg {
@@ -582,10 +588,10 @@ namespace QuizCannersUtilities {
 
      //   public UnrecognizedTagsList UnrecognizedStd { get; } = new UnrecognizedTagsList();
 
-        public virtual bool Decode(string tg, string data)
+        public virtual bool Decode(string key, string data)
         {
 
-            switch (tg) {
+            switch (key) {
           
                 case "db": inspectedItems = data.ToInt(); break;
                 default: return false;

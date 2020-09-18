@@ -17,7 +17,7 @@ namespace QuizCannersUtilities
     #pragma warning disable IDE0019 // Use pattern matching
     #pragma warning disable IDE0018 // Inline variable declaration
 
-    public class ListMetaData : AbstractCfg, IPEGI {
+    public class ListMetaData : ICfg, IPEGI {
         
         private const string DefaultFolderToSearch = "Assets/";
 
@@ -126,9 +126,9 @@ namespace QuizCannersUtilities
 
         #region Encode & Decode
 
-        public override bool Decode(string tg, string data)
+        public bool Decode(string key, string data)
         {
-            switch (tg)
+            switch (key)
             {
                 case "adl": allowDuplicants = data.ToBool(); break;
                 case "ed": data.DecodeInto(out elementDatas); break;
@@ -145,7 +145,7 @@ namespace QuizCannersUtilities
             return true;
         }
 
-        public override CfgEncoder Encode()
+        public CfgEncoder Encode()
         {
             var cody = new CfgEncoder()
                 .Add_IfNotNegative("insp", inspected)
@@ -162,6 +162,8 @@ namespace QuizCannersUtilities
  
             return cody;
         }
+
+        public void Decode(string data) => this.DecodeTagsFrom(data);
 
         #endregion
 
@@ -193,37 +195,37 @@ namespace QuizCannersUtilities
         }
     }
 
-    public class ElementData : AbstractCfg, IPEGI, IGotName {
+    public class ElementData : ICfg, IPEGI, IGotName {
 
 
         public string name;
         public string componentType;
         public string stdDta;
-        private string _guid;
-        public bool unrecognized;
-        public string unrecognizedUnderTag;
+        //private string _guid;
+       // public bool unrecognized;
+      //  public string unrecognizedUnderTag;
         public bool selected;
 
-        public override bool IsDefault => (unrecognized || !_guid.IsNullOrEmpty() || _perTypeConfig.Count>0 );
+        //public override bool IsDefault => (!_guid.IsNullOrEmpty() || _perTypeConfig.Count>0 );
 
         public static bool enableEnterInspectEncoding;
 
         private Dictionary<string, string> _perTypeConfig = new Dictionary<string, string>();
 
-        public ElementData SetRecognized() {
-            if (!unrecognized) return this;
+       // public ElementData SetRecognized() {
+           // if (!unrecognized) return this;
             
-            unrecognized = false;
-            unrecognizedUnderTag = null;
-            stdDta = null;
-            return this;
-        }
+           // unrecognized = false;
+          //  unrecognizedUnderTag = null;
+            //stdDta = null;
+          //  return this;
+        //}
 
-        public void Unrecognized(string tag, string data) {
-            unrecognized = true;
-            unrecognizedUnderTag = tag;
-            stdDta = data;
-        }
+       // public void Unrecognized(string tag, string data) {
+           // unrecognized = true;
+           // unrecognizedUnderTag = tag;
+          //  stdDta = data;
+        //}
         
         public void ChangeType(ref object obj, Type newType, TaggedTypesCfg taggedTypes, bool keepTypeConfig = false)
         {
@@ -232,7 +234,7 @@ namespace QuizCannersUtilities
             var tObj = obj as IGotClassTag;
 
             if (keepTypeConfig && tObj != null)
-                _perTypeConfig[tObj.ClassTag] = tObj.Encode().ToString();
+             _perTypeConfig[tObj.ClassTag] = tObj.Encode().ToString();
 
             obj = Activator.CreateInstance(newType);
 
@@ -261,10 +263,10 @@ namespace QuizCannersUtilities
             if (std != null)
                 stdDta = std.Encode().ToString();
 
-            _guid = (el as Object).GetGuid(_guid);
+            //_guid = (el as Object).GetGuid(_guid);
         }
         
-        public bool TryGetByGuid<T>(ref T field) where T : Object {
+       /* public bool TryGetByGuid<T>(ref T field) where T : Object {
 
             var obj = QcUnity.GuidToAsset<T>(_guid);
 
@@ -287,7 +289,7 @@ namespace QuizCannersUtilities
 
             return true;
 
-        }
+        }*/
 
         #region Inspector
 
@@ -298,8 +300,8 @@ namespace QuizCannersUtilities
         public bool Inspect()
         {
         
-            if (unrecognized)
-                "Was unrecognized under tag {0}".F(unrecognizedUnderTag).writeWarning();
+           // if (unrecognized)
+              //  "Was unrecognized under tag {0}".F(unrecognizedUnderTag).writeWarning();
 
             if (_perTypeConfig.Count > 0)
                 "Per type config".edit_Dictionary_Values(_perTypeConfig, pegi.lambda_string).nl();
@@ -385,8 +387,8 @@ namespace QuizCannersUtilities
 
             } else {
 
-                if (unrecognized)
-                    unrecognizedUnderTag.write("Type Tag {0} was unrecognized during decoding".F(unrecognizedUnderTag), 40);
+              //  if (unrecognized)
+                   // unrecognizedUnderTag.write("Type Tag {0} was unrecognized during decoding".F(unrecognizedUnderTag), 40);
 
                 if (!name.IsNullOrEmpty())
                     name.write();
@@ -401,11 +403,12 @@ namespace QuizCannersUtilities
 
         public bool PEGI_inList_Obj<T>(ref T field) where T : Object {
 
-            if (unrecognized)
-                unrecognizedUnderTag.write("Type Tag {0} was unrecognized during decoding".F(unrecognizedUnderTag), 40);
+            //if (unrecognized)
+                //unrecognizedUnderTag.write("Type Tag {0} was unrecognized during decoding".F(unrecognizedUnderTag), 40);
 
             var changed = name.edit(100, ref field);
 
+            /*
 #if UNITY_EDITOR
             if (_guid != null && icon.Search.Click("Find Object " + componentType + " by guid").nl()) {
 
@@ -413,7 +416,7 @@ namespace QuizCannersUtilities
                     pegi.GameView.ShowNotification(typeof(T).ToPegiStringType() + " Not found ");
                 else changed = true;
             }
-#endif
+#endif*/
 
             return changed;
         }
@@ -421,14 +424,14 @@ namespace QuizCannersUtilities
         #endregion
 
 #region Encode & Decode
-        public override bool Decode(string tg, string data) {
-            switch (tg) {
+        public bool Decode(string key, string data) {
+            switch (key) {
                 case "n": name = data; break;
                 case "cfg": stdDta = data; break;
-                case "guid": _guid = data; break;
+               // case "guid": _guid = data; break;
                 case "t": componentType = data; break;
-                case "ur": unrecognized = data.ToBool(); break;
-                case "tag": unrecognizedUnderTag = data; break;
+               // case "ur": unrecognized = data.ToBool(); break;
+               // case "tag": unrecognizedUnderTag = data; break;
                 case "perType": data.Decode_Dictionary(out _perTypeConfig); break;
                 case "sel": selected = data.ToBool(); break;
                 default: return false;
@@ -436,27 +439,32 @@ namespace QuizCannersUtilities
             return true;
         }
 
-        public override CfgEncoder Encode() {
+        public CfgEncoder Encode() {
             var cody = new CfgEncoder()
                 .Add_IfNotEmpty("n", name)
                 .Add_IfNotEmpty("cfg", stdDta);
 
-            if (!_guid.IsNullOrEmpty()) {
+           /*if (!_guid.IsNullOrEmpty()) {
                 cody.Add_IfNotEmpty("guid", _guid)
                     .Add_IfNotEmpty("t", componentType);
-            }
+            }*/
 
             cody.Add_IfNotEmpty("perType", _perTypeConfig)
                 .Add_IfTrue("sel", selected);
 
-            if (unrecognized) {
+          /*  if (unrecognized) {
                 cody.Add_Bool("ur", unrecognized)
                 .Add_String("tag", unrecognizedUnderTag);
-            }
+            }*/
             return cody;
         }
 
-#endregion
+        public void Decode(string data)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
 
 
     }
@@ -572,7 +580,7 @@ namespace QuizCannersUtilities
         #endregion
 
         [Serializable]
-        private class ICfgProperty : AbstractCfg, IPEGI, IGotName, IPEGI_ListInspect, IGotCount
+        private class ICfgProperty : ICfg, IPEGI, IGotName, IPEGI_ListInspect, IGotCount
         {
 
             public string tag;
@@ -692,12 +700,11 @@ namespace QuizCannersUtilities
 
             #region Encode & Decode
 
-            public override void Decode(string data)
-            {
+            public void Decode(string data)=>
                 new CfgDecoder(data).DecodeTagsIgnoreErrors(this);
-            }
+            
 
-            public override CfgEncoder Encode()
+            public CfgEncoder Encode()
             {
                 var cody = new CfgEncoder();
 
@@ -710,11 +717,11 @@ namespace QuizCannersUtilities
 
             }
 
-            public override bool Decode(string tg, string dta)
+            public bool Decode(string key, string dta)
             {
                 if (_tags == null)
                     _tags = new List<ICfgProperty>();
-                _tags.Add(new ICfgProperty(tg, dta));
+                _tags.Add(new ICfgProperty(key, dta));
                 return true;
             }
             #endregion

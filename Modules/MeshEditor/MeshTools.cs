@@ -132,7 +132,7 @@ namespace PlaytimePainter.MeshEditing {
         #region Encode & Decode
         public override CfgEncoder Encode() => null;
 
-        public override bool Decode(string tg, string data) => false;
+        public override bool Decode(string key, string data) => false;
         #endregion
 
         #region Inspector
@@ -520,9 +520,9 @@ namespace PlaytimePainter.MeshEditing {
             .Add("dm",(int)_detectionMode)
             .Add_Bool("inM", _addToTrianglesAndLines);
         
-        public override bool Decode(string tg, string data)
+        public override bool Decode(string key, string data)
         {
-            switch (tg)
+            switch (key)
             {
                 case "inM": _addToTrianglesAndLines = data.ToBool(); break;
                 case "dm": _detectionMode = (DetectionMode) data.ToInt(); break;
@@ -730,9 +730,9 @@ namespace PlaytimePainter.MeshEditing {
         public override CfgEncoder Encode() => new CfgEncoder()
             .Add("dm", (int)_detectionMode);
 
-        public override bool Decode(string tg, string data)
+        public override bool Decode(string key, string data)
         {
-            switch (tg)
+            switch (key)
             {
                 case "dm": _detectionMode = (DetectionMode) data.ToInt(); break;
                 default: return false;
@@ -1155,9 +1155,9 @@ namespace PlaytimePainter.MeshEditing {
         public override CfgEncoder Encode() => new CfgEncoder()
             .Add_IfNotZero("sm", selectedSubMesh);
 
-        public override bool Decode(string tg, string data) {
+        public override bool Decode(string key, string data) {
 
-            switch (tg) {
+            switch (key) {
                 case "sm": selectedSubMesh = data.ToInt(); break;
                 default: return false;
             }
@@ -1351,9 +1351,9 @@ namespace PlaytimePainter.MeshEditing {
         }
 
         #region Encode & Decode
-        public override bool Decode(string tg, string data)
+        public override bool Decode(string key, string data)
         {
-            switch (tg)
+            switch (key)
             {
                 case "v": _edgeValue = data.ToFloat(); break;
                 case "doCol": _alsoDoColor = data.ToBool(); break;
@@ -1437,9 +1437,9 @@ namespace PlaytimePainter.MeshEditing {
             return cody;
         }
 
-        public override bool Decode(string tg, string data)
+        public override bool Decode(string key, string data)
         {
-            switch (tg)
+            switch (key)
             {
                 case "sm": _curSubMesh = data.ToInt(); break;
                 default: return false;

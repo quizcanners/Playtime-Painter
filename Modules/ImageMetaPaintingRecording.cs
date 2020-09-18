@@ -329,9 +329,9 @@ namespace PlaytimePainter
 #region Encoding
 
 
-        public override bool Decode(string tg, string data)
+        public override bool Decode(string key, string data)
         {
-            switch (tg)
+            switch (key)
             {
                 case "rec": showRecording = data.ToBool(); break;
                 default: return false;

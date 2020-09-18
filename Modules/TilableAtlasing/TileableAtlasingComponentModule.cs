@@ -39,9 +39,9 @@ namespace PlaytimePainter.ComponentModules {
             .Add("iai", _inAtlasIndex)
             .Add("ar", atlasRows);
 
-        public override bool Decode(string tg, string data)
+        public override bool Decode(string key, string data)
         {
-            switch (tg) {
+            switch (key) {
                 //case "pam": data.Decode_References(out preAtlasingMaterials); break;
                // case "pamsh": data.Decode_Reference(ref preAtlasingMesh); break;
                 case "sm": preAtlasingSavedMesh = data; break;
@@ -699,12 +699,12 @@ namespace PlaytimePainter.ComponentModules {
             .Add("s", _textureSize)
             .Add("as", _atlasSize);
 
-        public override bool Decode(string tg, string data)
+        public override bool Decode(string key, string data)
         {
-            switch (tg) {
+            switch (key) {
                 case "tf": data.Decode_List(out targetFields); break;
-                case "af": data.Decode_List(out atlasFields); break;
-                case "sf": data.Decode_List(out _srcFields); break;
+                case "af": Decoder.Decode_List(data, out atlasFields); break;
+                case "sf": Decoder.Decode_List(data, out _srcFields); break;
                 case "n": NameForPEGI = data; break;
                 case "rgb": _sRgb = data.ToBool(); break;
                 case "s": _textureSize = data.ToInt(); break;

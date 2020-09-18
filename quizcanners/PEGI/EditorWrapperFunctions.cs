@@ -1608,8 +1608,8 @@ namespace PlayerAndEditorGUI
             else
             {
                 var ed = _listMetaData.TryGetElement(index);
-
-                if (ed != null && ed.unrecognized)
+                
+               /* if (ed != null && ed.unrecognized)
                 {
 
                     if (_currentTaggedTypes != null)
@@ -1636,7 +1636,7 @@ namespace PlayerAndEditorGUI
                     }
 
                 }
-                else
+                else*/
                     EditorGUI.LabelField(rect, "Empty {0}".F(_currentReorderedType.ToPegiStringType()));
             }
         }

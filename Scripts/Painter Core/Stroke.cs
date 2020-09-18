@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace PlaytimePainter {
     
-    public class Stroke : AbstractCfg {
+    public class Stroke : ICfg {
 
 	    public Vector2 uvFrom;
 	    public Vector3 posFrom;
@@ -67,7 +67,10 @@ namespace PlaytimePainter {
             }
 
         #region Encode & Decode
-        public override CfgEncoder Encode() {
+
+        public void Decode(string data) => this.DecodeTagsFrom(data);
+
+        public CfgEncoder Encode() {
 
             var s = new CfgEncoder();
 
@@ -105,9 +108,9 @@ namespace PlaytimePainter {
             return s;
         }
 
-        public override bool Decode(string tg, string data) {
+        public bool Decode(string key, string data) {
 
-            switch (tg) {
+            switch (key) {
                 case "fU": Down(data.ToVector2());  break;
                 case "fP": Down(data.ToVector3());  break;
                 case "tU": uvTo = data.ToVector2(); break;
@@ -223,6 +226,8 @@ namespace PlaytimePainter {
             uvFrom = uvTo = (useTexcoord2 ? hit.textureCoord2 : hit.textureCoord).To01Space();
             posFrom = posTo = hit.point;
         }
+
+
 
         public Stroke()
         {

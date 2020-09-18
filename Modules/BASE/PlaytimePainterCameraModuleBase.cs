@@ -121,7 +121,7 @@ namespace PlaytimePainter.CameraModules {
         #region Encode & Decode
         public override CfgEncoder Encode() => new CfgEncoder();//this.EncodeUnrecognized();
 
-        public override bool Decode(string tg, string data) => false;
+        public override bool Decode(string key, string data) => false;
         #endregion
 
         public virtual string NameForDisplayPEGI()=> ToString().SimplifyTypeName();

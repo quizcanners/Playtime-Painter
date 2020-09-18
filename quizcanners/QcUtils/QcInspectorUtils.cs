@@ -766,9 +766,9 @@ namespace QuizCannersUtilities
                 dynamicMax = max;
             }
 
-            public bool Decode(string tg, string data)
+            public bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "m":
                         min = data.ToFloat();

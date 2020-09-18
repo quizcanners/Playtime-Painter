@@ -77,10 +77,10 @@ namespace PlaytimePainter.CameraModules {
             return cody;
         }
 
-        public override bool Decode(string tg, string data) {
-            switch (tg) {
+        public override bool Decode(string key, string data) {
+            switch (key) {
                
-                case "cfgs": data.Decode_List(out weatherConfigurations); break;
+                case "cfgs": weatherConfigurations = Decoder.Decode_List(data, out weatherConfigurations); break;
                 default: return false;
             }
             return true;

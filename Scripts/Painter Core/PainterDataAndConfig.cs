@@ -381,7 +381,7 @@ namespace PlaytimePainter
                 var d = cody.GetData();
                 switch (t)
                 {
-                    case "strokes": d.Decode_List(out strokes); break;
+                    case "strokes": Decoder.Decode_List(d, out strokes); break;
                 }
             }
 
@@ -457,9 +457,9 @@ namespace PlaytimePainter
             return null;
         }
 
-        public bool Decode(string tg, string data)
+        public bool Decode(string key, string data)
         {
-            switch (tg)
+            switch (key)
             {
                 //case "imgs": data.Decode_List(out imgMetas, this); break;
                 case "sch": selectedColorScheme = data.ToInt(); break;
@@ -503,9 +503,6 @@ namespace PlaytimePainter
 
             if ("Lists".enter(ref inspectedItems, 11).nl(ref changed))
                 InspectLists().changes(ref changed);
-            
-            if ("Inspector & Debug".enter(ref inspectedItems, 16).nl())
-                QcUtils.InspectInspector();
             
             if (inspectedItems == -1) {
 

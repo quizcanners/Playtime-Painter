@@ -45,7 +45,7 @@ namespace PlaytimePainter.ComponentModules
         #region Encode & Decode
         public override CfgEncoder Encode() => new CfgEncoder();
 
-        public override bool Decode(string tg, string data) => true;
+        public override bool Decode(string key, string data) => true;
         #endregion
 
         #region Inspector

@@ -466,9 +466,9 @@ namespace PlaytimePainter.MeshEditing
             decodedEditableMesh = null;
         }
 
-        public override bool Decode(string tg, string data)
+        public override bool Decode(string key, string data)
         {
-            switch (tg)
+            switch (key)
             {
                 case "vrt": data.Decode_List(out meshPoints); break;
                 case "tri": data.Decode_List(out triangles); break;
@@ -491,7 +491,7 @@ namespace PlaytimePainter.MeshEditing
                     foreach (var t in MeshToolBase.allToolsWithPerMeshData)
                     {
                         var mt = t as MeshToolBase;
-                        if (mt == null || !mt.StdTag.Equals(tg)) continue;
+                        if (mt == null || !mt.StdTag.Equals(key)) continue;
                         mt.Decode(data);
                         return true;
                     }

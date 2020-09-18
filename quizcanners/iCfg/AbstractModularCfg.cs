@@ -232,7 +232,7 @@ namespace QuizCannersUtilities {
         }
     }
     
-    public class TaggedModulesList<T> : AbstractCfg, IPEGI, IEnumerable<T> where T : class, IGotClassTag {
+    public class TaggedModulesList<T> : ICfg, IPEGI, IEnumerable<T> where T : class, IGotClassTag {
         
         protected List<T> modules = new List<T>();
         
@@ -284,21 +284,22 @@ namespace QuizCannersUtilities {
         #region Encode & Decode
         public static readonly TaggedTypesCfg all = new TaggedTypesCfg(typeof(T));
         
-        public override CfgEncoder Encode()  
+        public CfgEncoder Encode()  
             => new CfgEncoder()
             .Add("pgns", Modules, all);
         
-        public override bool Decode(string tg, string data) {
-            switch (tg) {
+        public bool Decode(string key, string data) {
+            switch (key) {
                 case "pgns": data.Decode_List(out modules, all);
                     OnInitialize();
                     break;
                 default: return true;
             }
-
             return false;
-
         }
+
+        public void Decode(string data) => this.DecodeTagsFrom(data);
+
         #endregion
 
         public virtual void OnInitialize() { }
@@ -313,6 +314,7 @@ namespace QuizCannersUtilities {
 
             return false;
         }
+
         #endregion
     }
 

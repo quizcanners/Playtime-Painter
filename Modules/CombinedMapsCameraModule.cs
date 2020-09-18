@@ -195,9 +195,9 @@ namespace PlaytimePainter.CameraModules
 
         public override string ToString() { return _name; }
 
-        public override bool Decode(string tg, string data)
+        public override bool Decode(string key, string data)
         {
-            switch (tg)
+            switch (key)
             {
                 case "ch": data.Decode_List(out _channel); break;
                 case "c": _isColor = data.ToBool(); break;
@@ -407,7 +407,7 @@ namespace PlaytimePainter.CameraModules
         }
     }
 
-    public class TextureChannel : AbstractCfg, IPEGI
+    public class TextureChannel : ICfg, IPEGI
     {
         public bool enabled;
         public bool flip;
@@ -417,9 +417,9 @@ namespace PlaytimePainter.CameraModules
         public TextureRole Role { get { return TextureRole.All[_sourceRole]; } set { _sourceRole = value.index; } }
 
         #region Encode & Decode
-        public override bool Decode(string tg, string data)
+        public bool Decode(string key, string data)
         {
-            switch (tg)
+            switch (key)
             {
                 case "s": _sourceRole = data.ToInt(); break;
                 case "c": sourceChannel = data.ToInt(); break;
@@ -429,14 +429,14 @@ namespace PlaytimePainter.CameraModules
             return true;
         }
 
-        public override CfgEncoder Encode() => new CfgEncoder()
+        public CfgEncoder Encode() => new CfgEncoder()
             .Add_IfNotZero("s", _sourceRole)
             .Add_IfNotZero("c", sourceChannel)
             .Add_Bool("f", flip);
-        
 
+        public void Decode(string data) => this.DecodeTagsFrom(data);
         #endregion
-        
+
         #region Inspect
 
         public virtual bool Inspect()
@@ -457,7 +457,7 @@ namespace PlaytimePainter.CameraModules
 
             return changed;
         }
-        
+
         #endregion
 
         public const string StdTag = "TexChan";

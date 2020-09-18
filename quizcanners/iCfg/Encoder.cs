@@ -351,23 +351,23 @@ namespace QuizCannersUtilities
                 var typeIndex = types.IndexOf(val.GetType());
                 if (typeIndex != -1)
                 {
-                    el?.SetRecognized();
+                   // el?.SetRecognized();
 
                     Add(typeIndex.ToString(), val.Encode());
                 }
                 else
                 {
                     el = ld.elementDatas[index];
-                    el.unrecognized = true;
+                    //el.unrecognized = true;
                     el.stdDta = val.Encode().ToString();
                     Add_String(UnrecognizedTag, " ");
                 }
             }
             else
             {
-                if (el != null && el.unrecognized)
-                    Add_String(el.unrecognizedUnderTag, el.stdDta);
-                else
+                //if (el != null && el.unrecognized)
+               //     Add_String(el.unrecognizedUnderTag, el.stdDta);
+               // else
                     Add_String(NullTag, "");
             }
 
@@ -378,12 +378,14 @@ namespace QuizCannersUtilities
         {
             var el = ld.elementDatas.GetIfExists(index);
 
-            if (val == null)  return (el != null && el.unrecognized) 
-                ? Add_String(el.unrecognizedUnderTag, el.stdDta)
-                : Add_String(NullTag, "");
+            if (val == null)
+                //return (el != null && el.unrecognized) 
+               // ? Add_String(el.unrecognizedUnderTag, el.stdDta)
+               // : 
+            return Add_String(NullTag, "");
             
             
-                el?.SetRecognized();
+                //el?.SetRecognized();
                 return Add(val.ClassTag, val);
  
         }
@@ -395,6 +397,15 @@ namespace QuizCannersUtilities
             var typeIndex = types.IndexOf(v.GetType());
             return Add(typeIndex != -1 ? typeIndex.ToString() : UnrecognizedTag, v.Encode());
            
+        }
+
+        public CfgEncoder Add2<T>(T v, List<Type> types) where T : ICfg2
+        {
+            if (QcUnity.IsNullOrDestroyed_Obj(v)) return Add_String(NullTag, "");
+
+            var typeIndex = types.IndexOf(v.GetType());
+            return Add(typeIndex != -1 ? typeIndex.ToString() : UnrecognizedTag, v.Encode());
+
         }
         #endregion
 

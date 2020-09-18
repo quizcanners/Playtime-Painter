@@ -120,9 +120,9 @@ namespace PlaytimePainter.MeshEditing
                 return cody;
             }
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
-                switch (tg) {
+                switch (key) {
                     case "i":
                         finalIndex = data.ToInt();
                         EditableMesh.decodedEditableMesh.uvsByFinalIndex[finalIndex] = this;
@@ -421,9 +421,9 @@ namespace PlaytimePainter.MeshEditing
                 return cody;
             }
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "u0":
                         sharedV2S.Add(new Vector2[2]);
@@ -814,10 +814,10 @@ namespace PlaytimePainter.MeshEditing
                 return cody;
             }
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
 
-                switch (tg)
+                switch (key)
                 {
                     case "tex":
                         textureNo = data.ToVector4();
@@ -1482,9 +1482,9 @@ namespace PlaytimePainter.MeshEditing
 
             #region Encode & Decode
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "p":
                         deltaPosition = data.ToVector3();

@@ -53,9 +53,9 @@ namespace PlaytimePainter {
                 return cody;
             }
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "rtr":
                         _enableRayTracing = true;
@@ -618,9 +618,9 @@ namespace PlaytimePainter {
                 .Add("b", base.Encode)
                 .Add_IfTrue("gotVol", volumeTexture);
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "b": data.DecodeInto(base.Decode); break;
                     case "gotVol": expectingAVolume = data.ToBool(); break;

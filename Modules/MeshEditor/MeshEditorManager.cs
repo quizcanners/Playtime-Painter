@@ -65,9 +65,9 @@ namespace PlaytimePainter.MeshEditing
         public override CfgEncoder Encode() => new CfgEncoder()//this.EncodeUnrecognized()
             .Add_IfTrue("byUV", _selectingUVbyNumber);
 
-        public override bool Decode(string tg, string data)
+        public override bool Decode(string key, string data)
         {
-            switch (tg)
+            switch (key)
             {
                 case "byUV": _selectingUVbyNumber = data.ToBool(); break;
                 default: return false;

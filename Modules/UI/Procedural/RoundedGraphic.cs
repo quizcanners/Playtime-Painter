@@ -954,10 +954,10 @@ namespace PlaytimePainter.UI
 
         public void Decode(string data) => new CfgDecoder(data).DecodeTagsFor(this); //this.DecodeTagsFrom(data);
 
-        public bool Decode(string tg, string data)
+        public bool Decode(string key, string data)
         {
 
-            switch (tg)
+            switch (key)
             {
                 case "mdls": data.Decode_List(out _modules, RoundedButtonModuleBase.all); break;
                 default: return false;
@@ -978,10 +978,10 @@ namespace PlaytimePainter.UI
 
             #region Encode & Decode
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
 
-                switch (tg)
+                switch (key)
                 {
                     case "b": data.DecodeInto(base.Decode); break; //base.Decode(data); break; //data. //Decode_Base(base.Decode, this); break;
                     case "s": size = data.ToFloat(); break;
@@ -1082,10 +1082,10 @@ namespace PlaytimePainter.UI
 
             #region Encode & Decode
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
 
-                switch (tg)
+                switch (key)
                 {
 
                     case "b": data.DecodeInto(base.Decode); break;
@@ -1163,10 +1163,10 @@ namespace PlaytimePainter.UI
 
             #region Encode & Decode
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
 
-                switch (tg)
+                switch (key)
                 {
                     case "b": data.DecodeInto(base.Decode); break;
                     case "crn": _roundedCorners.Decode(data); break;
@@ -1217,7 +1217,7 @@ namespace PlaytimePainter.UI
             #region Encode & Decode
             public override CfgEncoder Encode() => new CfgEncoder();//this.EncodeUnrecognized();
 
-            public override bool Decode(string tg, string data) => false;
+            public override bool Decode(string key, string data) => false;
             #endregion
         }
 

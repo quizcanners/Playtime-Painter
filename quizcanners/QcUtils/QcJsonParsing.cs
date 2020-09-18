@@ -13,7 +13,7 @@ namespace QuizCannersUtilities
 #pragma warning disable IDE0018 // Inline variable declaration
 #pragma warning disable IDE0019 // Use pattern matching
     
-    public class EncodedJsonInspector : AbstractCfg, IPEGI
+    public class EncodedJsonInspector : ICfg, IPEGI
     {
         private string jsonDestination = "";
 
@@ -588,7 +588,7 @@ namespace QuizCannersUtilities
             }
         }
 
-        protected abstract class JsonBase : AbstractCfg, IPEGI, IGotCount
+        protected abstract class JsonBase : ICfg, IPEGI, IGotCount
         {
 
             public JsonBase AsBase => this;
@@ -601,9 +601,9 @@ namespace QuizCannersUtilities
 
             public virtual bool HasNestedData => true;
 
-            public override CfgEncoder Encode() => new CfgEncoder();
+            public virtual CfgEncoder Encode() => new CfgEncoder();
 
-            public override bool Decode(string tg, string data)
+            public virtual bool Decode(string key, string data)
             {
                 /* switch (tg)
                  {
@@ -615,6 +615,8 @@ namespace QuizCannersUtilities
             }
 
             public abstract bool Inspect();
+
+            public void Decode(string data) => this.DecodeTagsFrom(data);
         }
 
         public EncodedJsonInspector() { rootJson = new JsonString(); }
@@ -679,11 +681,11 @@ namespace QuizCannersUtilities
         }
 
 
-        public override CfgEncoder Encode() => new CfgEncoder().Add("j", rootJson);
+        public CfgEncoder Encode() => new CfgEncoder().Add("j", rootJson);
 
-        public override bool Decode(string tg, string data)
+        public bool Decode(string key, string data)
         {
-            switch (tg)
+            switch (key)
             {
                 case "j": rootJson.Decode(data); break;
                 default: return false;
@@ -691,6 +693,8 @@ namespace QuizCannersUtilities
 
             return true;
         }
+
+        public void Decode(string data) => this.DecodeTagsFrom(data);
     }
 
 }

@@ -317,9 +317,9 @@ namespace PlaytimePainter
             .Add("cat", _curAtlasTexture)
             .Add("cac", curAtlasChanel);
    
-        public override bool Decode(string tg, string data)
+        public override bool Decode(string key, string data)
         {
-            switch (tg)
+            switch (key)
             {
                 case "cat": _curAtlasTexture = data.ToInt(); break;
                 case "cac": curAtlasChanel = data.ToInt(); break;

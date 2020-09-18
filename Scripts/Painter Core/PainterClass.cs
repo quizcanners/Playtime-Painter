@@ -17,13 +17,13 @@ namespace PlaytimePainter
       
     }*/
     
-    public abstract class PainterClassCfg : PainterClass, ICfg  
+    public abstract class PainterClassCfg : PainterClass, ICfg 
     {
         public abstract CfgEncoder Encode();
 
         public virtual void Decode(string data) => this.DecodeTagsFrom(data);
 
-        public abstract bool Decode(string tg, string data);
+        public abstract bool Decode(string key, string data);
     }
 
     public class PainterSystemMono : MonoBehaviour, ICfg, IPEGI
@@ -34,7 +34,7 @@ namespace PlaytimePainter
 
         public virtual void Decode(string data) => this.DecodeTagsFrom(data);
 
-        public virtual bool Decode(string tg, string data) => true;
+        public virtual bool Decode(string key, string data) => true;
 
         public virtual CfgEncoder Encode() => new CfgEncoder();//this.EncodeUnrecognized();
         #endregion

@@ -17,7 +17,7 @@ namespace QuizCannersUtilities {
 
         #region Base Abstract
 
-        public abstract class BaseShaderPropertyIndex : AbstractCfg, IGotDisplayName, IPEGI_ListInspect
+        public abstract class BaseShaderPropertyIndex : ICfg, IGotDisplayName, IPEGI_ListInspect
         {
             protected int id;
             protected string name;
@@ -71,14 +71,14 @@ namespace QuizCannersUtilities {
             #endregion
 
             #region Encode & Decode
-            public override CfgEncoder Encode() => new CfgEncoder()
+            public virtual CfgEncoder Encode() => new CfgEncoder()
                 .Add_String("n", name)
                 //.Add_IfTrue("nm", nonMaterialProperty)
             ;
             
-            public override bool Decode(string tg, string data)
+            public virtual bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "n":  name = data; UpdateIndex();  break;
                    // case "nm": nonMaterialProperty = data.ToBool();  break;
@@ -87,6 +87,8 @@ namespace QuizCannersUtilities {
 
                 return true;
             }
+
+            public virtual void Decode(string data) => this.DecodeTagsFrom(data);
             #endregion
 
             #region Constructors
@@ -581,19 +583,19 @@ namespace QuizCannersUtilities {
 
             #region Encode & Decode
 
-            public override CfgEncoder Encode() => new CfgEncoder()
+            public override  CfgEncoder Encode() => new CfgEncoder()
                 .Add("b", base.Encode())
                 .Add("tgs", _usageTags);
 
-            public override bool Decode(string tg, string data)
+            public override bool Decode(string key, string data)
             {
-                switch (tg)
+                switch (key)
                 {
                     case "b":
                         data.DecodeInto(base.Decode);
                         break;
                     case "tgs":
-                        data.Decode_List(out _usageTags);
+                        Decoder.Decode_List(data, out _usageTags);
                         break;
                     default: return false;
                 }

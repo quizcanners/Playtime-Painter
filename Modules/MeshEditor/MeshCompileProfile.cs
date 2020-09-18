@@ -8,7 +8,7 @@ using UnityEngine;
 namespace PlaytimePainter.MeshEditing
 {
     
-    public class MeshPackagingProfile : AbstractCfg, IPEGI, IGotName
+    public class MeshPackagingProfile : ICfg, IPEGI, IGotName
     {
         public List<VertexDataLink> dtaLnks;
 
@@ -115,7 +115,7 @@ namespace PlaytimePainter.MeshEditing
         }
 
         #region Encode & Decode
-        public override CfgEncoder Encode() 
+        public virtual CfgEncoder Encode() 
         {
             var cody = new CfgEncoder();
 
@@ -126,9 +126,9 @@ namespace PlaytimePainter.MeshEditing
             return cody;
         }
 
-        public override bool Decode(string tg, string data)
+        public virtual bool Decode(string key, string data)
         {
-            switch (tg)
+            switch (key)
             {
                 case "n": name = data; break;
                 case "sln":  data.Decode_List(out dtaLnks); break;
@@ -136,6 +136,8 @@ namespace PlaytimePainter.MeshEditing
             }
             return true;
         }
+
+        public void Decode(string data) => this.DecodeTagsFrom(data);
         #endregion
 
         public MeshPackagingProfile() {
@@ -257,7 +259,7 @@ namespace PlaytimePainter.MeshEditing
 
     }
 
-    public class VertexDataLink : AbstractCfg, IPEGI
+    public class VertexDataLink : ICfg, IPEGI
     {
         public int sameSizeDataIndex = -1;
         private int _targetIndex;
@@ -287,7 +289,7 @@ namespace PlaytimePainter.MeshEditing
         }
 
         #region Encode & Decode
-        public override CfgEncoder Encode()
+        public virtual CfgEncoder Encode()
         {
             var cody = new CfgEncoder();
 
@@ -304,9 +306,9 @@ namespace PlaytimePainter.MeshEditing
             return cody;
         }
 
-        public override bool Decode(string tg, string data)
+        public virtual bool Decode(string key, string data)
         {
-            switch (tg)
+            switch (key)
             {
                 case "en": enabled = data.ToBool(); break;
                 case "t": _targetIndex = data.ToInt(); if (!enabled) InitVals(); break;
@@ -318,9 +320,8 @@ namespace PlaytimePainter.MeshEditing
             return true;
         }
 
-        public override void Decode(string data)
+        public virtual void Decode(string data)
         {
-            base.Decode(data);
             InitVals();
         }
 
@@ -502,7 +503,7 @@ namespace PlaytimePainter.MeshEditing
 
     }
     
-    public class VertexDataChannelLink : AbstractCfg {
+    public class VertexDataChannelLink : ICfg {
 
         public int srcIndex;
         public int dstIndex;
@@ -515,21 +516,23 @@ namespace PlaytimePainter.MeshEditing
         }
 
         #region Encode & Decode
-        public override CfgEncoder Encode() {
+        public virtual CfgEncoder Encode() {
             CfgEncoder cody = new CfgEncoder();
             cody.Add_IfNotZero("t", srcIndex);
             cody.Add_IfNotZero("v", dstIndex);
             return cody;
         }
 
-        public override bool Decode(string tg, string data) {
-            switch (tg) {
+        public virtual bool Decode(string key, string data) {
+            switch (key) {
                 case "t": srcIndex = data.ToInt(); break;
                 case "v": dstIndex = data.ToInt(); break;
                 default: return false;
             }
             return true;
         }
+
+        public virtual void Decode(string data) => this.DecodeTagsFrom(data);
         #endregion
     }
     #endregion
