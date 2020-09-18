@@ -167,6 +167,19 @@ namespace PlayerAndEditorGUI
 
             editorTypeForDefaultInspector = EditorType.ScriptableObject;
 
+            if (editor.target is T == false)
+            {
+                start();
+
+                "Target is not {0}. Check your [CustomEditor] attribute.".F(typeof(T)).writeWarning();
+                
+                end(editor.target);
+
+                editor.DrawDefaultInspector();
+
+                return false;
+            }
+
             var o = (T)editor.target;
             var so = editor.serializedObject;
             inspectedTarget = editor.target;

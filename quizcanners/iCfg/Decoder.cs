@@ -228,7 +228,7 @@ namespace QuizCannersUtilities {
         }
 
         public static bool ToBool(this string data) => data == CfgEncoder.IsTrueTag;
-        
+
         public static int ToInt(this string data) {
 
             int variable;
@@ -237,15 +237,6 @@ namespace QuizCannersUtilities {
             return variable;
         }
 
-        public static int ToInt(this CfgData data)
-        {
-
-            int variable;
-            int.TryParse(data.value, out variable);
-
-            return variable;
-
-        }
 
         public static uint ToUInt(this string data) {
             uint value;
@@ -285,7 +276,7 @@ namespace QuizCannersUtilities {
         public static List<string> ToList(this CfgData data)
         {
             List<string> list;
-            Decoder.Decode_List(data.value, out list);
+            Decoder.Decode_List(data.ToString(), out list);
             return list;
         }
 
@@ -972,7 +963,7 @@ namespace QuizCannersUtilities {
 
         public CfgDecoder(CfgData data)
         {
-            _data = data.value ?? "";
+            _data = data.ToString() ?? "";
             _position = 0;
         }
 

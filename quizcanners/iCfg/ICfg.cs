@@ -32,12 +32,39 @@ namespace QuizCannersUtilities {
 
     public struct CfgData
     {
-        public string value;
+        private readonly string _value;
+
+        public override string ToString() => _value;
 
         public CfgData(string val)
         {
-            value = val;
+            _value = val;
         }
+
+
+        #region Decoding
+
+
+        public bool ToBool() => _value == CfgEncoder.IsTrueTag;
+
+        public bool ToBool(string yesTag) => _value == yesTag;
+
+        public void ToInt(ref int value)
+        {
+            int variable;
+            if (int.TryParse(_value, out variable))
+                value = variable;
+        }
+
+        public int ToInt(int defaultValue)
+        {
+            int variable;
+            return int.TryParse(_value, out variable) ? variable : defaultValue;
+        }
+
+        #endregion
+
+
     }
 
     public interface ICanBeDefaultCfg : ICfg {

@@ -111,6 +111,7 @@ namespace PlaytimePainter.UI
     [CustomEditor(typeof(RoundedGraphic))]
     public class PixelPerfectShaderDrawer : PEGI_Inspector_Mono<RoundedGraphic> { }
 #endif
+    #endregion
 
     public class PixelPerfectMaterialDrawer : PEGI_Inspector_Material
     {
@@ -148,7 +149,5 @@ namespace PlaytimePainter.UI
         }
     }
 
-    #endregion
-
-
 }
+

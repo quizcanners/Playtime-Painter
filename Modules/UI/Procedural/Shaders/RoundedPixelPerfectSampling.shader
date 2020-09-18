@@ -150,5 +150,5 @@
 		}
 		Fallback "Legacy Shaders/Transparent/VertexLit"
 	}
-	CustomEditor "PlaytimePainter.PixelPerfectMaterialDrawer"
+	CustomEditor "PlaytimePainter.UI.PixelPerfectMaterialDrawer"
 }
