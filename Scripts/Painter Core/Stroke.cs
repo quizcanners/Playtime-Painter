@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace PlaytimePainter {
     
-    public class Stroke : ICfg2 {
+    public class Stroke : ICfg {
 
 	    public Vector2 uvFrom;
 	    public Vector3 posFrom;
@@ -111,7 +111,7 @@ namespace PlaytimePainter {
         public void Decode(string key, CfgData data) {
 
             switch (key) {
-                case "fU": Down(data.ToString().ToVector2());  break;
+                case "fU": Down(data.ToVector2());  break;
                 case "fP": Down(data.ToVector3());  break;
                 case "tU": uvTo = data.ToVector2(); break;
                 case "tP": posTo = data.ToVector3(); break;

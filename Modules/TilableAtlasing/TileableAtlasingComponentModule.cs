@@ -23,7 +23,7 @@ namespace PlaytimePainter.ComponentModules {
 
         public List<Material> preAtlasingMaterials;
         public Mesh preAtlasingMesh;
-        public string preAtlasingSavedMesh;
+        public CfgData preAtlasingSavedMesh;
         private int _inAtlasIndex;
         public int atlasRows = 1;
 
@@ -33,14 +33,14 @@ namespace PlaytimePainter.ComponentModules {
         #region Encode & Decode
 
         public override CfgEncoder Encode() => new CfgEncoder()
-            .Add_String("sm", preAtlasingSavedMesh)
+            .Add("sm", preAtlasingSavedMesh)
             .Add("iai", _inAtlasIndex)
             .Add("ar", atlasRows);
 
         public override void Decode(string key, CfgData data)
         {
             switch (key) {
-                case "sm": preAtlasingSavedMesh = data.ToString(); break;
+                case "sm": preAtlasingSavedMesh = data; break;
                 case "iai": data.ToInt(ref _inAtlasIndex); break;
                 case "ar": data.ToInt(ref atlasRows); break;
             }
@@ -415,7 +415,7 @@ namespace PlaytimePainter.ComponentModules {
                 MeshEditorManager.Inst.EditMesh(painter, true);
 
                 if (firstAtlasing)
-                    atlPlug.preAtlasingSavedMesh = MeshEditorManager.editedMesh.Encode().ToString();
+                    atlPlug.preAtlasingSavedMesh = MeshEditorManager.editedMesh.Encode().CfgData;
 
                 painter.selectedMeshProfile = _matAtlasProfile;
 

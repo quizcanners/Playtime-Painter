@@ -100,18 +100,16 @@ namespace PlaytimePainter
             .Add_String("n", paletteName)
             .Add("cols", _colors);
 
-        public bool Decode(string key, string data)
+        public void Decode(string key, CfgData data)
         {
             switch (key)
             {
-                case "n": paletteName = data; break;
-                case "cols": data.Decode_List(out _colors); break;
-                default: return false;
+                case "n": paletteName = data.ToString(); break;
+                case "cols": data.ToList(out _colors); break;
             }
-            return true;
         }
 
-        public void Decode(string data) => this.DecodeTagsFrom(data);
+        public void Decode(CfgData data) => this.DecodeTagsFrom(data);
 
         #endregion
 

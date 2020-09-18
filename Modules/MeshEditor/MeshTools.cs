@@ -1151,14 +1151,11 @@ namespace PlaytimePainter.MeshEditing {
         public override CfgEncoder Encode() => new CfgEncoder()
             .Add_IfNotZero("sm", selectedSubMesh);
 
-        public override bool Decode(string key, string data) {
+        public override void Decode(string key, CfgData data) {
 
             switch (key) {
-                case "sm": selectedSubMesh = data.ToInt(); break;
-                default: return false;
+                case "sm": selectedSubMesh = data.ToInt(0); break;
             }
-
-            return true;
         }
 
         #endregion

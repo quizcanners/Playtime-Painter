@@ -46,7 +46,7 @@ namespace PlaytimePainter.CameraModules {
             return cody;
         }
 
-        public static bool DecodeWeather(string tg, string data)
+        public static void DecodeWeather(string tg, CfgData data)
         {
             switch (tg)
             {
@@ -62,10 +62,7 @@ namespace PlaytimePainter.CameraModules {
                 case "lint": mainLightIntensity.Decode(data); break;
                 case "br": brightness.Decode(data); break;
                 case "bl": colorBleed.Decode(data); break;
-                default: return false;
             }
-
-            return true;
         }
         
         public override CfgEncoder Encode()
@@ -73,7 +70,7 @@ namespace PlaytimePainter.CameraModules {
             var cody = base.Encode(); //this.EncodeUnrecognized();
           
 
-            cody.Add_IfNotEmpty2("cfgs", weatherConfigurations);
+            cody.Add_IfNotEmpty("cfgs", weatherConfigurations);
 
             return cody;
         }

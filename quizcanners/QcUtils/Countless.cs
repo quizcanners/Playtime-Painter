@@ -154,7 +154,7 @@ namespace QuizCannersUtilities {
     }
 
 
-    public abstract class CfgCountlessBase : CountlessBase, ICfg2, ICanBeDefaultCfg
+    public abstract class CfgCountlessBase : CountlessBase, ICfg, ICanBeDefaultCfg
     {
         public override bool IsDefault { get {
                 var def = (br == null || br.value == 0);
@@ -1268,7 +1268,7 @@ public class Countless<T> : CountlessBase {
     {
 
         #region Inspector
-        public static bool Inspect<TG, T>(TG countless, ref int inspected) where TG : CountlessCfg<T> where T: ICfg2, IPEGI, new() {
+        public static bool Inspect<TG, T>(TG countless, ref int inspected) where TG : CountlessCfg<T> where T: ICfg, IPEGI, new() {
 
             var changed = false;
             
@@ -1324,7 +1324,14 @@ public class Countless<T> : CountlessBase {
             return cody;
         }
 
-        public static void DecodeInto(this string data, out Countless<Color> c)
+        private static int ToInt(this string text)
+        {
+            int variable;
+            int.TryParse(text, out variable);
+            return variable;
+        }
+
+        public static void DecodeInto(this CfgData data, out Countless<Color> c)
         {
             c = new Countless<Color>();
             var cody = new CfgDecoder(data);
@@ -1333,12 +1340,12 @@ public class Countless<T> : CountlessBase {
 
         }
 
-        public static void DecodeInto(this string data, out Countless<string> c)
+        public static void DecodeInto(this CfgData data, out Countless<string> c)
         {
             c = new Countless<string>();
             var cody = new CfgDecoder(data);
             foreach (var tag in cody)
-                c[tag.ToInt()] = cody.GetData();
+                c[tag.ToInt()] = cody.GetData().ToString();
 
         }
 
@@ -1363,7 +1370,7 @@ public class Countless<T> : CountlessBase {
             return cody;
         }
 
-        public static void DecodeInto(this string data, out Countless<float> c)
+        public static void DecodeInto(this CfgData data, out Countless<float> c)
         {
             c = new Countless<float>();
             var cody = new CfgDecoder(data);
@@ -1385,7 +1392,7 @@ public class Countless<T> : CountlessBase {
             return cody;
         }
 
-        public static void DecodeInto(this string data, out Countless<Vector3> c)
+        public static void DecodeInto(this CfgData data, out Countless<Vector3> c)
         {
             c = new Countless<Vector3>();
             var cody = new CfgDecoder(data);
@@ -1404,7 +1411,7 @@ public class Countless<T> : CountlessBase {
             return cody;
         }
 
-        public static void DecodeInto(this string data, out Countless<Quaternion> c)
+        public static void DecodeInto(this CfgData data, out Countless<Quaternion> c)
         {
             c = new Countless<Quaternion>();
             var cody = new CfgDecoder(data);
@@ -1415,7 +1422,7 @@ public class Countless<T> : CountlessBase {
 
         #endregion
 
-        public static T TryGet<T>(this UnNullableCfg<T> unn, int index) where T : ICfg2, new() => unn != null ? unn.GetIfExists(index) : default;
+        public static T TryGet<T>(this UnNullableCfg<T> unn, int index) where T : ICfg, new() => unn != null ? unn.GetIfExists(index) : default;
         
 
     }

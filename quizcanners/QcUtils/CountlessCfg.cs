@@ -11,7 +11,7 @@ namespace QuizCannersUtilities
     #pragma warning disable IDE0018 // Inline variable declaration
 
 
-    public class CountlessCfg<T> : CfgCountlessBase where T : ICfg2 , new() {
+    public class CountlessCfg<T> : CfgCountlessBase where T : ICfg , new() {
         
         protected T[] objs = new T[0];
         private int _firstFreeObj;
@@ -23,6 +23,13 @@ namespace QuizCannersUtilities
 
 
         #region Encode & Decode
+
+        private  int ToInt(string text)
+        {
+            int variable;
+            int.TryParse(text, out variable);
+            return variable;
+        }
 
         private List<int> _tmpDecodeInds;
         public override void Decode(string key, CfgData data) {
@@ -47,7 +54,7 @@ namespace QuizCannersUtilities
                 case "del": _allowDelete = data.ToBool(); break;
                 default: 
                     // Legacy method:
-                    this[key.ToInt()] = data.DecodeInto<T>(); break;
+                    this[ToInt(key)] = data.Decode<T>(); break;
             }
         }
 
@@ -332,7 +339,7 @@ namespace QuizCannersUtilities
     }
     
     
-    public class UnNullableCfg<T> : CountlessCfg<T> where T : ICfg2, new()  {
+    public class UnNullableCfg<T> : CountlessCfg<T> where T : ICfg, new()  {
         
         public static int indexOfCurrentlyCreatedUnnulable;
 
@@ -410,14 +417,23 @@ namespace QuizCannersUtilities
     
     public class UnNullableCfgLists<T> : UnNullableLists<T>, ICfg where T : ICfg, IPEGI, new() {
 
-        public bool Decode(string key, string data)
+        private int ToInt(string text)
         {
-            var index = key.ToInt();
-            this[index] = data.Decode_List(out List<T> _);
-            return true;
+            int variable;
+            int.TryParse(text, out variable);
+            return variable;
         }
 
-        public void Decode(string data) {
+
+        public void Decode(string key, CfgData data)
+        {
+            var index = ToInt(key);
+            List <T> tmp = new List<T>();
+            data.ToList(out tmp);
+            this[index] = tmp;
+        }
+
+        public void Decode(CfgData data) {
             Clear();
             this.DecodeTagsFrom(data);
         }

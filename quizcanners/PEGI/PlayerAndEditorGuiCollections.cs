@@ -3111,7 +3111,7 @@ namespace PlayerAndEditorGUI
 
         private static readonly char[] splitCharacters = { ' ', '.' };
 
-        public class SearchData : ICfg, ICanBeDefaultCfg
+        public class SearchData : ICanBeDefaultCfg
         {
             public IEnumerable filteredList;
             public string searchedText;
@@ -3228,19 +3228,15 @@ namespace PlayerAndEditorGUI
             
             public CfgEncoder Encode() => new CfgEncoder().Add_String("s", searchedText);
 
-            public bool Decode(string key, string data)
+            public void Decode(string key, CfgData data)
             {
                 switch (key)
                 {
-                    case "s":
-                        searchedText = data;
-                        break;
-                    default: return false;
+                    case "s": searchedText = data.ToString(); break;
                 }
-                return true;
             }
 
-            public void Decode(string data) => this.DecodeTagsFrom(data);
+            public void Decode(CfgData data) => this.DecodeTagsFrom(data);
 
             public bool IsDefault => searchedText.IsNullOrEmpty();
 

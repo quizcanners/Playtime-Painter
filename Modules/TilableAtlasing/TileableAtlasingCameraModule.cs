@@ -317,15 +317,13 @@ namespace PlaytimePainter
             .Add("cat", _curAtlasTexture)
             .Add("cac", curAtlasChanel);
    
-        public override bool Decode(string key, string data)
+        public override void Decode(string key, CfgData data)
         {
             switch (key)
             {
-                case "cat": _curAtlasTexture = data.ToInt(); break;
-                case "cac": curAtlasChanel = data.ToInt(); break;
-                default: return false;
+                case "cat": data.ToInt(ref _curAtlasTexture); break;
+                case "cac": data.ToInt(ref curAtlasChanel); break;
             }
-            return true;
         }
         #endregion
     }

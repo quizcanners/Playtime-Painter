@@ -209,7 +209,7 @@ namespace PlaytimePainter
                         cfg.showConfig = false;
                         pegi.GameView.ShowNotification("Editing Mesh");
 
-                        if (SavedEditableMesh != null)
+                        if (SavedEditableMesh.IsEmpty == false)
                             MeshMgmt.EditMesh(this, false);
                     }
                 }
@@ -281,7 +281,7 @@ namespace PlaytimePainter
                             {
 
                                 if (this != MeshEditorManager.target)
-                                    if (SavedEditableMesh != null)
+                                    if (SavedEditableMesh.IsEmpty == false)
                                         "Component has saved mesh data.".nl();
 
                                 "Warning, this will change (or mess up) your model.".writeOneTimeHint("MessUpMesh");
@@ -313,12 +313,12 @@ namespace PlaytimePainter
                                         {
 
                                             if ("New Mesh".ClickConfirm("newMesh",
-                                                SavedEditableMesh == null
+                                                !SavedEditableMesh.IsEmpty
                                                     ? "This will erase existing editable mesh. Proceed?"
                                                     : "Create a mesh?"))
                                             {
                                                 Mesh = new Mesh();
-                                                SavedEditableMesh = null;
+                                                SavedEditableMesh = new CfgData();
                                                 mg.EditMesh(this, false);
                                             }
                                         }

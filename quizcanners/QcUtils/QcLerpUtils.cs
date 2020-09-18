@@ -135,7 +135,7 @@ namespace QuizCannersUtilities
 
         #region Abstract Base
 
-        public abstract class BaseLerp : ICfg2, ILinkedLerping, IPEGI, IPEGI_ListInspect, IGotDisplayName
+        public abstract class BaseLerp : ICfg, ILinkedLerping, IPEGI, IPEGI_ListInspect, IGotDisplayName
         {
 
             public LerpSpeedMode lerpMode = LerpSpeedMode.SpeedThreshold;
@@ -434,7 +434,7 @@ namespace QuizCannersUtilities
                 switch (key)
                 {
                     case "b":
-                        data.DecodeInto(base.Decode);
+                        data.Decode(base.Decode);
                         break;
                     case "t":
                         targetValue = data.ToVector2();
@@ -523,7 +523,7 @@ namespace QuizCannersUtilities
             {
                 switch (key)
                 {
-                    case "b": data.DecodeInto(base.Decode); break;
+                    case "b": data.Decode(base.Decode); break;
                     case "t": targetValue = data.ToQuaternion(); break;
                 }
             }
@@ -574,7 +574,7 @@ namespace QuizCannersUtilities
             {
                 switch (key)
                 {
-                    case "b": data.DecodeInto(base.Decode); break;
+                    case "b": data.Decode(base.Decode); break;
                 }
             }
 
@@ -763,7 +763,7 @@ namespace QuizCannersUtilities
             {
                 switch (key)
                 {
-                    case "b": data.DecodeInto(base.Decode); break;
+                    case "b": data.Decode(base.Decode); break;
                     case "clear": _onStart = OnStart.ClearTexture; break;
                     case "onStart": _onStart = (OnStart)data.ToInt(0); break;
                 }
@@ -907,7 +907,7 @@ namespace QuizCannersUtilities
 
             public override void Decode(string key, CfgData data) {
                 switch (key) {
-                    case "b": data.DecodeInto(base.Decode); break;
+                    case "b": data.Decode(base.Decode); break;
                 }
             }
 
@@ -949,7 +949,7 @@ namespace QuizCannersUtilities
             {
                 switch (key)
                 {
-                    case "b": data.DecodeInto(base.Decode); break;
+                    case "b": data.Decode(base.Decode); break;
                     case "col": targetValue = data.ToColor(); break;
                 }
             }
@@ -1047,7 +1047,7 @@ namespace QuizCannersUtilities
             {
                 switch (key)
                 {
-                    case "b": data.DecodeInto(base.Decode); break;
+                    case "b": data.Decode(base.Decode); break;
                     case "trgf": targetValue = data.ToFloat(); break;
                     case "rng": minMax = data.ToBool(); break;
                     case "min": min = data.ToFloat(); break;
@@ -1214,7 +1214,7 @@ namespace QuizCannersUtilities
             {
                 switch (key)
                 {
-                    case "b": data.DecodeInto(base.Decode); break;
+                    case "b": data.Decode(base.Decode); break;
                     case "t": targetValue = data.ToVector3(); break;
                 }
             }
@@ -1316,7 +1316,7 @@ namespace QuizCannersUtilities
             {
                 switch (key)
                 {
-                    case "b": data.DecodeInto(base.Decode); break;
+                    case "b": data.Decode(base.Decode); break;
                     case "trgf": targetValue = data.ToQuaternion(); break;
                 }
             }
@@ -1629,7 +1629,7 @@ namespace QuizCannersUtilities
             {
                 switch (key)
                 {
-                    case "b": data.DecodeInto(base.Decode); break;
+                    case "b": data.Decode(base.Decode); break;
                     case "f": targetValue = data.ToFloat(); break;
                 }
             }
@@ -1722,7 +1722,7 @@ namespace QuizCannersUtilities
             {
                 switch (key)
                 {
-                    case "b": data.DecodeInto(base.Decode); break;
+                    case "b": data.Decode(base.Decode); break;
                     case "c": targetValue = data.ToColor(); break;
                 }
             }
@@ -1798,7 +1798,7 @@ namespace QuizCannersUtilities
             {
                 switch (key)
                 {
-                    case "b": data.DecodeInto(base.Decode); break;
+                    case "b": data.Decode(base.Decode); break;
                     case "v4": targetValue = data.ToColor(); break;
                 }
             }
@@ -1957,7 +1957,7 @@ namespace QuizCannersUtilities
                 switch (key)
                 {
                     case "bb":
-                        data.DecodeInto(base.Decode);
+                        data.Decode(base.Decode);
                         break;
                     case "zero":
                         setZeroOnStart = data.ToBool();

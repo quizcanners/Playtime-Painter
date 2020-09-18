@@ -1495,7 +1495,7 @@ namespace PlaytimePainter
             if (Application.isPlaying)
                 TrySetOriginalTexture();
 
-            _cfgData = Encode().ToString();
+            _cfgData = Encode().CfgData;
 
             if (!TexMgmt || MeshEditorManager.target != this) return;
 

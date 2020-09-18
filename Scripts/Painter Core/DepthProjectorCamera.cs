@@ -441,7 +441,7 @@ namespace PlaytimePainter
     }
 
     [Serializable]
-    public class ProjectorCameraConfiguration : ICfg2, IPEGI
+    public class ProjectorCameraConfiguration : ICfg, IPEGI
     {
         public float fieldOfView = 90;
         public Vector3 position;

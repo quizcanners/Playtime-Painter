@@ -126,18 +126,16 @@ namespace PlaytimePainter.MeshEditing
             return cody;
         }
 
-        public virtual bool Decode(string key, string data)
+        public virtual void Decode(string key, CfgData data)
         {
             switch (key)
             {
-                case "n": name = data; break;
-                case "sln":  data.Decode_List(out dtaLnks); break;
-                default: return false;
+                case "n": name = data.ToString(); break;
+                case "sln":  data.ToList(out dtaLnks); break;
             }
-            return true;
         }
 
-        public void Decode(string data) => this.DecodeTagsFrom(data);
+        public void Decode(CfgData data) => this.DecodeTagsFrom(data);
         #endregion
 
         public MeshPackagingProfile() {
@@ -306,21 +304,18 @@ namespace PlaytimePainter.MeshEditing
             return cody;
         }
 
-        public virtual bool Decode(string key, string data)
+        public virtual void Decode(string key, CfgData data)
         {
             switch (key)
             {
                 case "en": enabled = data.ToBool(); break;
-                case "t": _targetIndex = data.ToInt(); if (!enabled) InitVals(); break;
-                case "vals": data.Decode_List(out links); sameSizeDataIndex = -1; break;
-                case "sameSize": sameSizeDataIndex = data.ToInt(); InitVals(); break;
-
-                default: return false;
+                case "t": _targetIndex = data.ToInt(0); if (!enabled) InitVals(); break;
+                case "vals": data.ToList(out links); sameSizeDataIndex = -1; break;
+                case "sameSize": sameSizeDataIndex = data.ToInt(0); InitVals(); break;
             }
-            return true;
         }
 
-        public virtual void Decode(string data)
+        public virtual void Decode(CfgData data)
         {
             InitVals();
         }
@@ -523,16 +518,14 @@ namespace PlaytimePainter.MeshEditing
             return cody;
         }
 
-        public virtual bool Decode(string key, string data) {
+        public virtual void Decode(string key, CfgData data) {
             switch (key) {
-                case "t": srcIndex = data.ToInt(); break;
-                case "v": dstIndex = data.ToInt(); break;
-                default: return false;
+                case "t":  data.ToInt(ref srcIndex); break;
+                case "v":  data.ToInt(ref dstIndex); break;
             }
-            return true;
         }
 
-        public virtual void Decode(string data) => this.DecodeTagsFrom(data);
+        public virtual void Decode(CfgData data) => this.DecodeTagsFrom(data);
         #endregion
     }
     #endregion

@@ -835,7 +835,7 @@ namespace PlaytimePainter.UI
 
             if ("Modules".enter_List(ref _modules, ref _inspectedModule, ref _showModules).nl(ref changed))
             {
-                ConfigStd = Encode().ToString();
+                ConfigStd = Encode().CfgData;
                 this.SetToDirty();
             }
             //this.SaveCfgData();
@@ -922,9 +922,9 @@ namespace PlaytimePainter.UI
 
         private List<RoundedButtonModuleBase> _modules = new List<RoundedButtonModuleBase>();
 
-        [SerializeField] private string _modulesStd = "";
+        [SerializeField] private CfgData _modulesStd = new CfgData();
 
-        public string ConfigStd
+        public CfgData ConfigStd
         {
             get { return _modulesStd; }
             set
@@ -945,25 +945,21 @@ namespace PlaytimePainter.UI
         {
             base.OnDisable();
             if (!Application.isPlaying)
-                ConfigStd = Encode().ToString();    
+                ConfigStd = Encode().CfgData;
             //this.SaveCfgData();
         }
 
         public CfgEncoder Encode() => new CfgEncoder()
             .Add_Abstract("mdls", _modules);
 
-        public void Decode(string data) => new CfgDecoder(data).DecodeTagsFor(this); //this.DecodeTagsFrom(data);
+        public void Decode(CfgData data) => new CfgDecoder(data).DecodeTagsFor(this); //this.DecodeTagsFrom(data);
 
-        public bool Decode(string key, string data)
+        public void Decode(string key, CfgData data)
         {
-
             switch (key)
             {
                 case "mdls": data.Decode_List(out _modules, RoundedButtonModuleBase.all); break;
-                default: return false;
             }
-
-            return true;
         }
 
         [TaggedType(Tag, "Uniform offset for stretched graphic", false)]
@@ -1083,7 +1079,7 @@ namespace PlaytimePainter.UI
 
                 switch (key)
                 {
-                    case "b": data.DecodeInto(base.Decode); break;
+                    case "b": data.Decode(base.Decode); break;
                     case "mp": referenceTexture.Decode(data); break;
                 }
             }
@@ -1160,7 +1156,7 @@ namespace PlaytimePainter.UI
 
                 switch (key)
                 {
-                    case "b": data.DecodeInto(base.Decode); break;
+                    case "b": data.Decode(base.Decode); break;
                     case "crn": _roundedCorners.Decode(data); break;
                     case "hov": valueWhenOver = data.ToFloat(); break;
                     case "nrm": valueWhenOff = data.ToFloat(); break;

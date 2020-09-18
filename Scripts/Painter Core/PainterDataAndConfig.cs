@@ -381,7 +381,7 @@ namespace PlaytimePainter
                 var d = cody.GetData();
                 switch (t)
                 {
-                    case "strokes": Decoder.Decode_List(d, out strokes); break;
+                    case "strokes": d.ToList(out strokes); break;
                 }
             }
 
@@ -392,11 +392,11 @@ namespace PlaytimePainter
 
         #region Encode/Decode
 
-        [SerializeField] private string stdData = "";
+        [SerializeField] private CfgData stdData = new CfgData();
 
         [NonSerialized] private bool cfgLoaded;
 
-        public void Decode(string data)
+        public void Decode(CfgData data)
         {
             cfgLoaded = true;
             this.DecodeTagsFrom(data);
@@ -457,26 +457,24 @@ namespace PlaytimePainter
             return null;
         }
 
-        public bool Decode(string key, string data)
+        public void Decode(string key, CfgData data)
         {
             switch (key)
             {
                 //case "imgs": data.Decode_List(out imgMetas, this); break;
-                case "sch": selectedColorScheme = data.ToInt(); break;
+                case "sch": data.ToInt(ref selectedColorScheme); break;
                 //case "mats": data.Decode_List(out matMetas, this); break;
-                case "pals": data.Decode_List(out colorSchemes); break;
+                case "pals": data.ToList(out colorSchemes); break;
                 case "cam": if (PainterCamera.Inst) PainterCamera.Inst.Decode(data); break;
-                case "Vpck": data.Decode_List(out meshPackagingSolutions); break;
+                case "Vpck": data.ToList(out meshPackagingSolutions); break;
                 case "hd": hideDocumentation = data.ToBool(); break;
-                case "iid": _inspectedImgData = data.ToInt(); break;
-                case "isfs": _inspectedList = data.ToInt(); break;
-                case "im": _inspectedMaterial = data.ToInt(); break;
-                case "id": _inspectedDecal = data.ToInt(); break;
-                case "is": inspectedItems = data.ToInt(); break;
+                case "iid": data.ToInt(ref _inspectedImgData); break;
+                case "isfs": data.ToInt(ref _inspectedList); break;
+                case "im": data.ToInt(ref _inspectedMaterial); break;
+                case "id": data.ToInt(ref _inspectedDecal); break;
+                case "is": data.ToInt(ref inspectedItems); break;
                 case "e": toolEnabled = data.ToBool(); break;
-                default: return false;
             }
-            return true;
         }
 
         #endregion
@@ -514,7 +512,7 @@ namespace PlaytimePainter
                 else 
                 if ("Painter Data Encode / Decode Test".Click())
                 {
-                    stdData = Encode().ToString();
+                    stdData = Encode().CfgData;
                     //this.SaveCfgData();
 
                     matMetas.Clear();
@@ -662,7 +660,7 @@ namespace PlaytimePainter
                 meshToolsStd = cody.ToString();
             }
 
-            stdData = Encode().ToString();
+            stdData = Encode().CfgData;
             
             systemLanguage = LazyLocalization._systemLanguage;
 

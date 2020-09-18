@@ -156,7 +156,7 @@ namespace PlaytimePainter
                     var edited = MeshEditorManager.target;
 
                     if (pointedPainter && pointedPainter != edited && pointedPainter.meshEditing
-                        && !pointedPainter.SavedEditableMesh.IsNullOrEmpty() && lMouseDwn && e.button == 0)
+                        && !pointedPainter.SavedEditableMesh.IsEmpty && lMouseDwn && e.button == 0)
                     {
                         MeshEditorManager.Inst.EditMesh(pointedPainter, false);
                         allowRefocusing = true;

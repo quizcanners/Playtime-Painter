@@ -211,7 +211,7 @@ namespace PlaytimePainter.CameraModules
         {
             var cody = new CfgEncoder()
 
-            .Add_IfNotEmpty2("ch", _channel)
+            .Add_IfNotEmpty("ch", _channel)
             .Add_Bool("c", _isColor)
             .Add_String("n", _name)
             .Add("b", bumpStrength)
@@ -405,7 +405,7 @@ namespace PlaytimePainter.CameraModules
         }
     }
 
-    public class TextureChannel : ICfg2, IPEGI
+    public class TextureChannel : ICfg, IPEGI
     {
         public bool enabled;
         public bool flip;

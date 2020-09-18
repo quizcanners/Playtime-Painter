@@ -17,7 +17,7 @@ namespace QuizCannersUtilities
     #pragma warning disable IDE0019 // Use pattern matching
     #pragma warning disable IDE0018 // Inline variable declaration
 
-    public class ListMetaData : ICfg2, IPEGI {
+    public class ListMetaData : ICfg, IPEGI {
         
         private const string DefaultFolderToSearch = "Assets/";
 
@@ -131,14 +131,14 @@ namespace QuizCannersUtilities
             switch (key)
             {
                 case "adl": allowDuplicants = data.ToBool(); break;
-                case "ed": data.DecodeInto(out elementDatas); break;
+                case "ed": data.Decode(out elementDatas); break;
                 case "insp": inspected = data.ToInt(0); break;
                 case "pi": previousInspected = data.ToInt(0); break;
                 case "fld": folderToSearch = data.ToString(); break;
                 case "ktd": keepTypeData = data.ToBool(); break;
                 case "del": allowDelete = data.ToBool(); break;
                 case "reord": allowReorder = data.ToBool(); break;
-                case "st": listSectionStartIndex = data.ToInt(); break;
+                case "st": data.ToInt(ref listSectionStartIndex); break;
                 case "s": searchData.Decode(data); break;
             }
         }
@@ -161,7 +161,7 @@ namespace QuizCannersUtilities
             return cody;
         }
 
-        public void Decode(string data) => this.DecodeTagsFrom(data);
+        public void Decode(CfgData data) => this.DecodeTagsFrom(data);
 
         #endregion
 
@@ -193,7 +193,7 @@ namespace QuizCannersUtilities
         }
     }
 
-    public class ElementData : ICfg2, IPEGI, IGotName {
+    public class ElementData : ICfg, IPEGI, IGotName {
 
 
         public string name;
@@ -519,7 +519,7 @@ namespace QuizCannersUtilities
 
             if (added != null && target != null)
             {
-                added.dataExplorer.data = target.Encode().ToString();
+                added.dataExplorer.data = target.Encode().CfgData;
                 added.NameForPEGI = target.GetNameForInspector();
                 added.comment = DateTime.Now.ToString(CultureInfo.InvariantCulture);
             }
@@ -536,7 +536,7 @@ namespace QuizCannersUtilities
 
                     Debug.Log(path);
 
-                    added.dataExplorer.data = QcFile.Load.TryLoadAsTextAsset(myType);
+                    added.dataExplorer.data = new CfgData(QcFile.Load.TryLoadAsTextAsset(myType));
 
                     added.NameForPEGI = myType.name;
                     added.comment = DateTime.Now.ToString(CultureInfo.InvariantCulture);
@@ -580,7 +580,7 @@ namespace QuizCannersUtilities
         {
 
             public string tag;
-            public string data;
+            public CfgData data;
             public bool dirty;
 
             public void UpdateData()
@@ -591,15 +591,15 @@ namespace QuizCannersUtilities
 
                 dirty = false;
                 if (_tags != null)
-                    data = Encode().ToString();
+                    data = Encode().CfgData;
             }
 
             public int inspectedTag = -1;
             [NonSerialized] private List<ICfgProperty> _tags;
 
-            public ICfgProperty() { tag = ""; data = ""; }
+            public ICfgProperty() { tag = ""; data = new CfgData(); }
 
-            public ICfgProperty(string nTag, string nData)
+            public ICfgProperty(string nTag, CfgData nData)
             {
                 tag = nTag;
                 data = nData;
@@ -607,7 +607,7 @@ namespace QuizCannersUtilities
 
             #region Inspector
 
-            public int CountForInspector() => _tags.IsNullOrEmpty() ? data.Length : _tags.CountForInspector();
+            public int CountForInspector() => _tags.IsNullOrEmpty() ? data.ToString().Length : _tags.CountForInspector();
 
             public string NameForPEGI
             {
@@ -617,7 +617,7 @@ namespace QuizCannersUtilities
 
             public bool Inspect()
             {
-                if (_tags == null && data.Contains("|"))
+                if (_tags == null && data.ToString().Contains("|"))
                     Decode(data);
 
                 if (_tags != null)
@@ -625,7 +625,8 @@ namespace QuizCannersUtilities
 
                 if (inspectedTag == -1)
                 {
-                    "data".edit(40, ref data).changes(ref dirty);
+                    //"data".edit(40, ref data).changes(ref dirty);
+                    data.Inspect().changes(ref dirty);
 
                    /* UnityEngine.Object myType = null;
 
@@ -664,7 +665,7 @@ namespace QuizCannersUtilities
 
                 CountForInspector().ToString().write(50);
 
-                if (data != null && data.Contains("|"))
+                if (data.IsEmpty == false && data.ToString().Contains("|"))
                 {
                     pegi.edit(ref tag).changes(ref changed);
 
@@ -674,19 +675,20 @@ namespace QuizCannersUtilities
                 else
                 {
                     pegi.edit(ref tag).changes(ref dirty);
-                    pegi.edit(ref data).changes(ref dirty);
+                    data.Inspect().changes(ref dirty);
+                    //pegi.edit(ref data).changes(ref dirty);
                 }
 
                 if (icon.Copy.Click("Copy " + tag + " data to buffer."))
                 {
-                    StdExtensions.copyBufferValue = data;
+                    StdExtensions.copyBufferValue = data.ToString();
                     StdExtensions.copyBufferTag = tag;
                 }
 
                 if (StdExtensions.copyBufferValue != null && icon.Paste.Click("Paste " + StdExtensions.copyBufferTag + " Data").nl())
                 {
                     dirty = true;
-                    data = StdExtensions.copyBufferValue;
+                    data = new CfgData(StdExtensions.copyBufferValue);
                 }
 
                 return dirty | changed;
@@ -696,7 +698,7 @@ namespace QuizCannersUtilities
 
             #region Encode & Decode
 
-            public void Decode(string data)=>
+            public void Decode(CfgData data)=>
                 new CfgDecoder(data).DecodeTagsIgnoreErrors(this);
             
 
@@ -707,18 +709,18 @@ namespace QuizCannersUtilities
                 if (_tags == null) return cody;
 
                 foreach (var t in _tags)
-                    cody.Add_String(t.tag, t.data);
+                    cody.Add_String(t.tag, t.data.ToString());
 
                 return cody;
 
             }
 
-            public bool Decode(string key, string dta)
+            public void Decode(string key, CfgData dta)
             {
                 if (_tags == null)
                     _tags = new List<ICfgProperty>();
+
                 _tags.Add(new ICfgProperty(key, dta));
-                return true;
             }
             #endregion
 
@@ -730,7 +732,7 @@ namespace QuizCannersUtilities
             private static ICfg Cfg => inspectedCfg;
 
             public string comment;
-            public ICfgProperty dataExplorer = new ICfgProperty("", "");
+            public ICfgProperty dataExplorer = new ICfgProperty("", new CfgData());
 
             #region Inspector
             public string NameForPEGI { get { return dataExplorer.tag; } set { dataExplorer.tag = value; } }
@@ -749,7 +751,7 @@ namespace QuizCannersUtilities
                     this.inspect_Name();
                     if (dataExplorer.tag.Length > 0 && icon.Save.Click("Save To Assets", ref changed))
                     {
-                        QcFile.Save.ToAssets(Mgmt.fileFolderHolder, filename: dataExplorer.tag, data: dataExplorer.data, asBytes: true);
+                        QcFile.Save.ToAssets(Mgmt.fileFolderHolder, filename: dataExplorer.tag, data: dataExplorer.data.ToString(), asBytes: true);
                         QcUnity.RefreshAssetDatabase();
                     }
 
@@ -785,8 +787,8 @@ namespace QuizCannersUtilities
             {
                 var changed = false;
 
-                if (dataExplorer.data != null && icon.Copy.Click())
-                    pegi.SetCopyPasteBuffer(dataExplorer.data);
+                if (dataExplorer.data.ToString().IsNullOrEmpty() == false && icon.Copy.Click())
+                    pegi.SetCopyPasteBuffer(dataExplorer.data.ToString());
                 
                 CountForInspector().ToString().edit(60, ref dataExplorer.tag).changes(ref changed);
 
@@ -798,7 +800,7 @@ namespace QuizCannersUtilities
                         Cfg.Decode(dataExplorer.data);
                     }
                     if (icon.Save.ClickConfirm("cfgSave", "Save data from " + Cfg.GetNameForInspector()).changes(ref changed))
-                        dataExplorer = new ICfgProperty(dataExplorer.tag, Cfg.Encode().ToString());
+                        dataExplorer = new ICfgProperty(dataExplorer.tag, Cfg.Encode().CfgData);
                 }
 
                 if (icon.Enter.Click(comment))

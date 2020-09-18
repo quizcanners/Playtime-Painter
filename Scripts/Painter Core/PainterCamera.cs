@@ -226,18 +226,15 @@ namespace PlaytimePainter {
             .Add_Abstract("pl", CameraModuleBase.modules, _modulesMeta)
             .Add("rts", RenderTextureBuffersManager.renderBuffersSize);
 
-        public override bool Decode(string key, string data) {
+        public override void Decode(string key, CfgData data) {
             switch (key) {
                 case "pl":
                     data.Decode_List(out CameraModuleBase.modules, ref _modulesMeta, CameraModuleBase.all);
                     CameraModuleBase.RefreshModules();
                     break;
                 case "mm": MeshManager.Decode(data); break;
-                case "rts": RenderTextureBuffersManager.renderBuffersSize = data.ToInt(); break;
-                default: return false;
+                case "rts": RenderTextureBuffersManager.renderBuffersSize = data.ToInt(0); break;
             }
-
-            return true;
         }
 
         #endregion

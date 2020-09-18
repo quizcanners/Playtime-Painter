@@ -17,7 +17,7 @@ namespace QuizCannersUtilities {
 
         #region Base Abstract
 
-        public abstract class BaseShaderPropertyIndex : ICfg2, IGotDisplayName, IPEGI_ListInspect
+        public abstract class BaseShaderPropertyIndex : ICfg, IGotDisplayName, IPEGI_ListInspect
         {
             protected int id;
             protected string name;
@@ -589,7 +589,7 @@ namespace QuizCannersUtilities {
                 switch (key)
                 {
                     case "b":
-                        data.DecodeInto(base.Decode);
+                        data.Decode(base.Decode);
                         break;
                     case "tgs":
                         data.ToList(out _usageTags);

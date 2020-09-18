@@ -13,7 +13,7 @@ namespace QuizCannersUtilities
 #pragma warning disable IDE0018 // Inline variable declaration
 #pragma warning disable IDE0019 // Use pattern matching
     
-    public class EncodedJsonInspector : ICfg, IPEGI
+    public class EncodedJsonInspector : IPEGI
     {
         private string jsonDestination = "";
 
@@ -588,7 +588,7 @@ namespace QuizCannersUtilities
             }
         }
 
-        protected abstract class JsonBase : ICfg, IPEGI, IGotCount
+        protected abstract class JsonBase : IPEGI, IGotCount
         {
 
             public JsonBase AsBase => this;
@@ -601,22 +601,8 @@ namespace QuizCannersUtilities
 
             public virtual bool HasNestedData => true;
 
-            public virtual CfgEncoder Encode() => new CfgEncoder();
-
-            public virtual bool Decode(string key, string data)
-            {
-                /* switch (tg)
-                 {
-                     case "j": json.Decode(data); break;
-                     default: return false;
-                 }(*/
-
-                return true;
-            }
-
             public abstract bool Inspect();
-
-            public void Decode(string data) => this.DecodeTagsFrom(data);
+            
         }
 
         public EncodedJsonInspector() { rootJson = new JsonString(); }
@@ -679,22 +665,6 @@ namespace QuizCannersUtilities
 
             return DecodeOrInspectJson(ref rootJson, true);
         }
-
-
-        public CfgEncoder Encode() => new CfgEncoder().Add("j", rootJson);
-
-        public bool Decode(string key, string data)
-        {
-            switch (key)
-            {
-                case "j": rootJson.Decode(data); break;
-                default: return false;
-            }
-
-            return true;
-        }
-
-        public void Decode(string data) => this.DecodeTagsFrom(data);
     }
 
 }

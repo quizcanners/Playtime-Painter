@@ -15,7 +15,7 @@ namespace QuizCannersUtilities {
         void OnClassTypeChange(object previousInstance);
     }
 
-    public interface IGotClassTag : ICfg2 {
+    public interface IGotClassTag : ICfg {
         string ClassTag { get; }
       //  TaggedTypesCfg AllTypes { get; }
     }
@@ -288,17 +288,15 @@ namespace QuizCannersUtilities {
             => new CfgEncoder()
             .Add("pgns", Modules, all);
         
-        public bool Decode(string key, string data) {
+        public void Decode(string key, CfgData data) {
             switch (key) {
                 case "pgns": data.Decode_List(out modules, all);
                     OnInitialize();
                     break;
-                default: return true;
             }
-            return false;
         }
 
-        public void Decode(string data) => this.DecodeTagsFrom(data);
+        public void Decode(CfgData data) => this.DecodeTagsFrom(data);
 
         #endregion
 

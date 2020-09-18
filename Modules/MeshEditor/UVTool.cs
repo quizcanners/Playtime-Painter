@@ -21,7 +21,7 @@ namespace PlaytimePainter.MeshEditing
         private bool meshProcessors;
 
         #region Encode & Decode
-        public override bool Decode(string key, string data)
+        public override void Decode(string key, CfgData data)
         {
             switch (key)
             {
@@ -31,9 +31,7 @@ namespace PlaytimePainter.MeshEditing
                 case "nrmWrap": projectorNormalThreshold01 = data.ToFloat();  break;
                 case "fr": projectFront = true; break;
                 case "mp": meshProcessors = true; break;
-                default: return false;
             }
-            return true;
         }
 
         public override CfgEncoder Encode() => new CfgEncoder()

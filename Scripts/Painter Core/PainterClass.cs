@@ -17,7 +17,7 @@ namespace PlaytimePainter
       
     }*/
     
-    public abstract class PainterClassCfg : PainterClass, ICfg2 
+    public abstract class PainterClassCfg : PainterClass, ICfg 
     {
         public abstract CfgEncoder Encode();
 
@@ -32,9 +32,9 @@ namespace PlaytimePainter
        // private readonly UnrecognizedTagsList _uTags = new UnrecognizedTagsList();
        // public UnrecognizedTagsList UnrecognizedStd => _uTags;
 
-        public virtual void Decode(string data) => this.DecodeTagsFrom(data);
+        public virtual void Decode(CfgData data) => this.DecodeTagsFrom(data);
 
-        public virtual bool Decode(string key, string data) => true;
+        public virtual void Decode(string key, CfgData data) { }
 
         public virtual CfgEncoder Encode() => new CfgEncoder();//this.EncodeUnrecognized();
         #endregion

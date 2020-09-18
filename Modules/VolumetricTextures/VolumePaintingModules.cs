@@ -618,7 +618,7 @@ namespace PlaytimePainter {
             {
                 switch (key)
                 {
-                    case "b": data.DecodeInto(base.Decode); break;//data.DecodeInto(base.Decode); break;
+                    case "b": data.Decode(base.Decode); break;//data.DecodeInto(base.Decode); break;
                     case "gotVol": expectingAVolume = data.ToBool(); break;
                 }
             }

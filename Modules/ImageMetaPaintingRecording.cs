@@ -90,7 +90,7 @@ namespace PlaytimePainter
 
                    if (last != null) {
                        if (cody.GotData)
-                           DecodeStroke(cody.GetNextTag(), cody.GetData2());
+                           DecodeStroke(cody.GetNextTag(), cody.GetData());
                        else {
                            if (playbackVectors.Count > 0) {
                                cody = new CfgDecoder(playbackVectors[0]);

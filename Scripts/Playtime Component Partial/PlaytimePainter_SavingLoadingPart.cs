@@ -16,7 +16,7 @@ namespace PlaytimePainter
     public partial class PlaytimePainter
     {
 
-        [SerializeField] private string _cfgData;
+        [SerializeField] private CfgData _cfgData;
 
         public CfgEncoder Encode() => new CfgEncoder()
             .Add("mdls", Modules)
@@ -28,11 +28,11 @@ namespace PlaytimePainter
                 MeshEditorManager.Inst.StopEditingMesh();
 
             return new CfgEncoder()
-                .Add_String("m", SavedEditableMesh)
+                .Add("m", SavedEditableMesh)
                 .Add_String("prn", selectedMeshProfile);
         }
 
-        public bool Decode(string key, string data)
+        public void Decode(string key, CfgData data)
         {
             switch (key)
             {
@@ -46,15 +46,12 @@ namespace PlaytimePainter
                     SavedEditableMesh = data;
                     break;
                 case "prn":
-                    selectedMeshProfile = data;
+                    selectedMeshProfile = data.ToString();
                     break;
-                default: return true;
             }
-
-            return false;
         }
 
-        public void Decode(string data) => this.DecodeTagsFrom(data);
+        public void Decode(CfgData data) => this.DecodeTagsFrom(data);
 
 #if UNITY_EDITOR
 

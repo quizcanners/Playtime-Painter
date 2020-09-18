@@ -624,7 +624,7 @@ namespace QuizCannersUtilities
         }
         
         [Serializable]
-        public struct DynamicRangeFloat : ICfg2, IPEGI
+        public struct DynamicRangeFloat : ICfg, IPEGI
         {
 
             [SerializeField] public float min;
