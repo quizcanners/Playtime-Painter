@@ -82,7 +82,7 @@ namespace PlaytimePainter.MeshEditing {
                 if (MeshEditorManager.previewEdMesh == null)
                 {
                     MeshEditorManager.previewEdMesh = new EditableMesh();
-                    MeshEditorManager.previewEdMesh.Decode(EditedMesh.Encode().ToString());
+                    MeshEditorManager.previewEdMesh.Decode(new CfgData(EditedMesh.Encode().ToString()));
                     //Debug.Log("Recreating preview");
                 }
                 return MeshEditorManager.previewEdMesh;
@@ -132,7 +132,8 @@ namespace PlaytimePainter.MeshEditing {
         #region Encode & Decode
         public override CfgEncoder Encode() => null;
 
-        public override bool Decode(string key, string data) => false;
+        public override void Decode(string key, CfgData data)
+        { }
         #endregion
 
         #region Inspector
@@ -520,15 +521,13 @@ namespace PlaytimePainter.MeshEditing {
             .Add("dm",(int)_detectionMode)
             .Add_Bool("inM", _addToTrianglesAndLines);
         
-        public override bool Decode(string key, string data)
+        public override void Decode(string key, CfgData data)
         {
             switch (key)
             {
                 case "inM": _addToTrianglesAndLines = data.ToBool(); break;
-                case "dm": _detectionMode = (DetectionMode) data.ToInt(); break;
-                default: return false;
+                case "dm": _detectionMode = (DetectionMode) data.ToInt(0); break;
             }
-            return true;
         }
         #endregion
 
@@ -730,15 +729,12 @@ namespace PlaytimePainter.MeshEditing {
         public override CfgEncoder Encode() => new CfgEncoder()
             .Add("dm", (int)_detectionMode);
 
-        public override bool Decode(string key, string data)
+        public override void Decode(string key, CfgData data)
         {
             switch (key)
             {
-                case "dm": _detectionMode = (DetectionMode) data.ToInt(); break;
-                default: return false;
+                case "dm": _detectionMode = (DetectionMode) data.ToInt(0); break;
             }
-
-            return true;
         }
 
         #endregion
@@ -1351,16 +1347,14 @@ namespace PlaytimePainter.MeshEditing {
         }
 
         #region Encode & Decode
-        public override bool Decode(string key, string data)
+        public override void Decode(string key, CfgData data)
         {
             switch (key)
             {
                 case "v": _edgeValue = data.ToFloat(); break;
                 case "doCol": _alsoDoColor = data.ToBool(); break;
                 case "fe": _editingFlexibleEdge = data.ToBool(); break;
-                default: return false;
             }
-            return true;
         }
 
         public override CfgEncoder Encode() => new CfgEncoder()
@@ -1437,15 +1431,12 @@ namespace PlaytimePainter.MeshEditing {
             return cody;
         }
 
-        public override bool Decode(string key, string data)
+        public override void Decode(string key, CfgData data)
         {
             switch (key)
             {
-                case "sm": _curSubMesh = data.ToInt(); break;
-                default: return false;
+                case "sm": data.ToInt(ref _curSubMesh); break;
             }
-            return true;
-
         }
         #endregion
     }

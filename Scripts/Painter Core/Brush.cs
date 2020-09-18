@@ -697,33 +697,33 @@ namespace PlaytimePainter {
             return cody;
         }
 
-        public override bool Decode(string key, string data)
+        public override void Decode(string key, CfgData data)
         {
 
             switch (key)
             {
-                case "typeGPU": _inGpuBrushType = data.ToInt(); break;
-                case "typeCPU": _inCpuBrushType = data.ToInt(); break;
+                case "typeGPU": data.ToInt(ref _inGpuBrushType); break;
+                case "typeCPU": data.ToInt(ref _inCpuBrushType); break;
                 case "size2D": brush2DRadius = data.ToFloat(); break;
                 case "size3D": brush3DRadius = data.ToFloat(); break;
 
                 case "useMask": useMask = data.ToBool(); break;
 
-                case "mask": mask = (ColorMask)data.ToInt(); break;
+                case "mask": mask = (ColorMask)data.ToInt(0); break;
 
-                case "modeCPU": _inCpuBlitMode = data.ToInt(); break;
-                case "modeGPU": _inGpuBlitMode = data.ToInt(); break;
+                case "modeCPU":  data.ToInt(ref _inCpuBlitMode); break;
+                case "modeGPU":  data.ToInt(ref _inGpuBlitMode); break;
 
                 case "bc": Color = data.ToColor(); break;
 
-                case "source": selectedSourceTexture = data.ToInt(); break;
+                case "source":  data.ToInt(ref selectedSourceTexture); break;
 
                 case "blur": blurAmount = data.ToFloat(); break;
 
                 case "decA": decalAngle = data.ToFloat(); break;
-                case "decNo": selectedDecal = data.ToInt(); break;
+                case "decNo":  data.ToInt(ref selectedDecal); break;
 
-                case "Smask": selectedSourceMask = data.ToInt(); break;
+                case "Smask":  data.ToInt(ref selectedSourceMask); break;
                 case "maskTil": maskTiling = data.ToFloat(); break;
                 case "maskFlip": flipMaskAlpha = data.ToBool(); break;
 
@@ -733,9 +733,7 @@ namespace PlaytimePainter {
                 case "dyn": data.Decode(out brushDynamic, BrushDynamic.Base.all); break;
 
                 case "maskOff": maskOffset = data.ToVector2(); break;
-                default: return false;
             }
-            return true;
 
 
         }
@@ -747,7 +745,7 @@ namespace PlaytimePainter {
 
     public static class BrushDynamic {
         
-        public abstract class Base : ICfg, IPEGI, IGotClassTag
+        public abstract class Base : IPEGI, IGotClassTag
         {
 
             public virtual void OnPrepareRay(PlaytimePainter p, Brush bc, ref Ray ray)
@@ -761,19 +759,15 @@ namespace PlaytimePainter {
             public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(Base));
             public TaggedTypesCfg AllTypes => all;
 
-            public virtual void Decode(string data) => this.DecodeTagsFrom(data);
+            public virtual void Decode(CfgData data) => this.DecodeTagsFrom(data);
 
-            public virtual bool Decode(string key, string data)
+            public virtual void Decode(string key, CfgData data)
             {
                 switch (key)
                 {
-                    case "t":
-                        testValue = data.ToInt();
-                        break;
-                    default: return false;
+                    case "t": data.ToInt(ref testValue); break;
                 }
-
-                return true;
+                
             }
 
             public virtual CfgEncoder Encode() => new CfgEncoder().Add("t", testValue);
@@ -838,17 +832,12 @@ namespace PlaytimePainter {
 
             #region Encode & Decode
 
-            public override bool Decode(string key, string data)
+            public override void Decode(string key, CfgData data)
             {
                 switch (key)
                 {
-                    case "j":
-                        jitterStrength = data.ToFloat();
-                        break;
-                    default: return false;
+                    case "j": jitterStrength = data.ToFloat(); break;
                 }
-
-                return true;
             }
 
             public override CfgEncoder Encode() => new CfgEncoder().Add("j", jitterStrength);

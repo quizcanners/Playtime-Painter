@@ -11,7 +11,7 @@ namespace QuizCannersUtilities
     #pragma warning disable IDE0018 // Inline variable declaration
 
 
-    public class CountlessCfg<T> : CfgCountlessBase where T : ICfg , new() {
+    public class CountlessCfg<T> : CfgCountlessBase where T : ICfg2 , new() {
         
         protected T[] objs = new T[0];
         private int _firstFreeObj;
@@ -25,12 +25,12 @@ namespace QuizCannersUtilities
         #region Encode & Decode
 
         private List<int> _tmpDecodeInds;
-        public override bool Decode(string key, string data) {
+        public override void Decode(string key, CfgData data) {
 
             switch (key) {
 
-                case "inds": data.Decode_List(out _tmpDecodeInds); break;
-                case "vals": List<T> tmps; data.Decode_List(out tmps);
+                case "inds": data.ToList(out _tmpDecodeInds); break;
+                case "vals": List<T> tmps; data.ToList(out tmps);
                     for (int i = 0; i < tmps.Count; i++) {
                         var tmp = tmps[i];
                         if (!tmp.Equals(default(T)))
@@ -41,15 +41,14 @@ namespace QuizCannersUtilities
                     count = tmps.Count;
                     _tmpDecodeInds = null;
                     break;
-                case "brws": _edited = data.ToInt(); break;
-                case "last": lastFreeIndex = data.ToInt(); break;
+                case "brws": _edited = data.ToInt(0); break;
+                case "last": lastFreeIndex = data.ToInt(0); break;
                 case "add": _allowAdd = data.ToBool(); break;
                 case "del": _allowDelete = data.ToBool(); break;
                 default: 
                     // Legacy method:
                     this[key.ToInt()] = data.DecodeInto<T>(); break;
             }
-            return true;
         }
 
         public override CfgEncoder Encode()
@@ -60,7 +59,7 @@ namespace QuizCannersUtilities
 
             var cody = new CfgEncoder()
                 .Add("inds", indexes)
-                .Add("vals", values)
+                .Add2("vals", values)
                 .Add_IfNotNegative("brws", _edited)
                 .Add("last", lastFreeIndex)
                 .Add_Bool("add", _allowAdd)
@@ -333,7 +332,7 @@ namespace QuizCannersUtilities
     }
     
     
-    public class UnNullableCfg<T> : CountlessCfg<T> where T : ICfg, new()  {
+    public class UnNullableCfg<T> : CountlessCfg<T> where T : ICfg2, new()  {
         
         public static int indexOfCurrentlyCreatedUnnulable;
 

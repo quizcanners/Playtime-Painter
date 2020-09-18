@@ -15,7 +15,7 @@ namespace QuizCannersUtilities {
         void OnClassTypeChange(object previousInstance);
     }
 
-    public interface IGotClassTag : ICfg {
+    public interface IGotClassTag : ICfg2 {
         string ClassTag { get; }
       //  TaggedTypesCfg AllTypes { get; }
     }

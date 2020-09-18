@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using UnityEngine;
@@ -72,21 +73,20 @@ namespace PlaytimePainter.CameraModules {
             var cody = base.Encode(); //this.EncodeUnrecognized();
           
 
-            cody.Add_IfNotEmpty("cfgs", weatherConfigurations);
+            cody.Add_IfNotEmpty2("cfgs", weatherConfigurations);
 
             return cody;
         }
 
-        public override bool Decode(string key, string data) {
+        public override void Decode(string key, CfgData data) {
             switch (key) {
                
-                case "cfgs": weatherConfigurations = Decoder.Decode_List(data, out weatherConfigurations); break;
-                default: return false;
+                case "cfgs": data.ToList(out weatherConfigurations); break;
+
             }
-            return true;
         }
 
-        public override void Decode(string data)
+        public override void Decode(CfgData data)
         {
             base.Decode(data);
 

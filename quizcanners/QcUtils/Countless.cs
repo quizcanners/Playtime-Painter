@@ -154,7 +154,7 @@ namespace QuizCannersUtilities {
     }
 
 
-    public abstract class CfgCountlessBase : CountlessBase, ICanBeDefaultCfg
+    public abstract class CfgCountlessBase : CountlessBase, ICfg2, ICanBeDefaultCfg
     {
         public override bool IsDefault { get {
                 var def = (br == null || br.value == 0);
@@ -165,9 +165,9 @@ namespace QuizCannersUtilities {
 
         public abstract CfgEncoder Encode();
 
-        public abstract bool Decode(string key, string data);
+        public abstract void Decode(string key, CfgData data);
 
-        public void Decode(string data)
+        public void Decode(CfgData data)
         {
             Clear();
             this.DecodeTagsFrom(data);
@@ -178,22 +178,20 @@ namespace QuizCannersUtilities {
 
         List<int> inds;
 
-        public override bool Decode(string key, string data)
+        public override void Decode(string key, CfgData data)
         {
             switch (key)
             {
-                case "inds": data.Decode_List(out inds); break;
+                case "inds": data.ToList(out inds); break;
                 case "vals":
-                    List<int> vals; data.Decode_List(out vals);
+                    List<int> vals; data.ToList(out vals);
                     for (int i = 0; i < vals.Count; i++)
                         Set(inds[i], vals[i]);
                     inds = null;
                     count = vals.Count;
                     break;
-                case "last": lastFreeIndex = data.ToInt(); break;
-                default: return false;
+                case "last":  data.ToInt(ref lastFreeIndex); break;
             }
-            return true;
 
         }
 
@@ -422,21 +420,19 @@ namespace QuizCannersUtilities {
     {
         
         #region Encode & Decode
-        public override bool Decode(string key, string data)
+        public override void Decode(string key, CfgData data)
         {
             switch (key)
             {
                 case "inds":
-                    List<int> inds; data.Decode_List(out inds);
+                    List<int> inds; data.ToList(out inds);
                     foreach (int i in inds)
                         Set(i, true);
                     count = inds.Count;
                     inds = null;
                     break;
-                case "last": lastFreeIndex = data.ToInt(); break;
-                default: return false;
+                case "last":  data.ToInt(ref lastFreeIndex); break;
             }
-            return true;
 
         }
 
@@ -1272,7 +1268,7 @@ public class Countless<T> : CountlessBase {
     {
 
         #region Inspector
-        public static bool Inspect<TG, T>(TG countless, ref int inspected) where TG : CountlessCfg<T> where T: ICfg, IPEGI, new() {
+        public static bool Inspect<TG, T>(TG countless, ref int inspected) where TG : CountlessCfg<T> where T: ICfg2, IPEGI, new() {
 
             var changed = false;
             
@@ -1419,7 +1415,7 @@ public class Countless<T> : CountlessBase {
 
         #endregion
 
-        public static T TryGet<T>(this UnNullableCfg<T> unn, int index) where T : ICfg, new() => unn != null ? unn.GetIfExists(index) : default;
+        public static T TryGet<T>(this UnNullableCfg<T> unn, int index) where T : ICfg2, new() => unn != null ? unn.GetIfExists(index) : default;
         
 
     }

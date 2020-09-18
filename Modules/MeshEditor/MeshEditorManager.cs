@@ -65,14 +65,12 @@ namespace PlaytimePainter.MeshEditing
         public override CfgEncoder Encode() => new CfgEncoder()//this.EncodeUnrecognized()
             .Add_IfTrue("byUV", _selectingUVbyNumber);
 
-        public override bool Decode(string key, string data)
+        public override void Decode(string key, CfgData data)
         {
             switch (key)
             {
                 case "byUV": _selectingUVbyNumber = data.ToBool(); break;
-                default: return false;
             }
-            return true;
         }
 
         #endregion
@@ -118,7 +116,7 @@ namespace PlaytimePainter.MeshEditing
 
             if (target) {
                 MeshTool.OnDeSelectTool();
-                target.SavedEditableMesh = editedMesh.Encode().ToString();
+                target.SavedEditableMesh = new CfgData(editedMesh.Encode().ToString());
                 target = null;
                 targetTransform = null;
             }
@@ -1029,7 +1027,7 @@ namespace PlaytimePainter.MeshEditing
             if (UndoMoves.Count > 1) {
                 if (icon.Undo.Click(25).changes(ref changed)) {
                     RedoMoves.Add(UndoMoves.RemoveLast());
-                    UndoMoves.TryGetLast().DecodeInto(out editedMesh);
+                    new CfgData(UndoMoves.TryGetLast()).DecodeInto(out editedMesh);
                     Redraw();
                 }
             }

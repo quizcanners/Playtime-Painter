@@ -978,17 +978,13 @@ namespace PlaytimePainter.UI
 
             #region Encode & Decode
 
-            public override bool Decode(string key, string data)
+            public override void Decode(string key, CfgData data)
             {
 
                 switch (key)
                 {
-                    case "b": data.DecodeInto(base.Decode); break; //base.Decode(data); break; //data. //Decode_Base(base.Decode, this); break;
                     case "s": size = data.ToFloat(); break;
-                    default: return false;
                 }
-
-                return true;
             }
 
             public override CfgEncoder Encode() => new CfgEncoder()//this.EncodeUnrecognized()
@@ -1082,18 +1078,14 @@ namespace PlaytimePainter.UI
 
             #region Encode & Decode
 
-            public override bool Decode(string key, string data)
+            public override void Decode(string key, CfgData data)
             {
 
                 switch (key)
                 {
-
                     case "b": data.DecodeInto(base.Decode); break;
                     case "mp": referenceTexture.Decode(data); break;
-                    default: return false;
                 }
-
-                return true;
             }
 
             public override CfgEncoder Encode() => new CfgEncoder()//this.EncodeUnrecognized()
@@ -1163,7 +1155,7 @@ namespace PlaytimePainter.UI
 
             #region Encode & Decode
 
-            public override bool Decode(string key, string data)
+            public override void Decode(string key, CfgData data)
             {
 
                 switch (key)
@@ -1172,10 +1164,7 @@ namespace PlaytimePainter.UI
                     case "crn": _roundedCorners.Decode(data); break;
                     case "hov": valueWhenOver = data.ToFloat(); break;
                     case "nrm": valueWhenOff = data.ToFloat(); break;
-                    default: return false;
                 }
-
-                return true;
             }
 
             public override CfgEncoder Encode() => new CfgEncoder() //this.EncodeUnrecognized()
@@ -1217,7 +1206,10 @@ namespace PlaytimePainter.UI
             #region Encode & Decode
             public override CfgEncoder Encode() => new CfgEncoder();//this.EncodeUnrecognized();
 
-            public override bool Decode(string key, string data) => false;
+            public override void Decode(string key, CfgData data)
+            {
+
+            }
             #endregion
         }
 

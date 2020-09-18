@@ -195,25 +195,23 @@ namespace PlaytimePainter.CameraModules
 
         public override string ToString() { return _name; }
 
-        public override bool Decode(string key, string data)
+        public override void Decode(string key, CfgData data)
         {
             switch (key)
             {
-                case "ch": data.Decode_List(out _channel); break;
+                case "ch": data.ToList(out _channel); break;
                 case "c": _isColor = data.ToBool(); break;
-                case "n": _name = data; break;
+                case "n": _name = data.ToString(); break;
                 case "b": bumpStrength = data.ToFloat(); break;
                 case "fc": fillColor = data.ToColor(); break;
-                default: return false;
             }
-            return true;
         }
 
         public override CfgEncoder Encode()
         {
             var cody = new CfgEncoder()
 
-            .Add_IfNotEmpty("ch", _channel)
+            .Add_IfNotEmpty2("ch", _channel)
             .Add_Bool("c", _isColor)
             .Add_String("n", _name)
             .Add("b", bumpStrength)
@@ -407,7 +405,7 @@ namespace PlaytimePainter.CameraModules
         }
     }
 
-    public class TextureChannel : ICfg, IPEGI
+    public class TextureChannel : ICfg2, IPEGI
     {
         public bool enabled;
         public bool flip;
@@ -417,16 +415,14 @@ namespace PlaytimePainter.CameraModules
         public TextureRole Role { get { return TextureRole.All[_sourceRole]; } set { _sourceRole = value.index; } }
 
         #region Encode & Decode
-        public bool Decode(string key, string data)
+        public void Decode(string key, CfgData data)
         {
             switch (key)
             {
-                case "s": _sourceRole = data.ToInt(); break;
-                case "c": sourceChannel = data.ToInt(); break;
+                case "s": data.ToInt(ref _sourceRole); break;
+                case "c": data.ToInt(ref sourceChannel); break;
                 case "f": flip = data.ToBool(); break;
-                default: return false;
             }
-            return true;
         }
 
         public CfgEncoder Encode() => new CfgEncoder()
@@ -434,7 +430,7 @@ namespace PlaytimePainter.CameraModules
             .Add_IfNotZero("c", sourceChannel)
             .Add_Bool("f", flip);
 
-        public void Decode(string data) => this.DecodeTagsFrom(data);
+        public void Decode(CfgData data) => this.DecodeTagsFrom(data);
         #endregion
 
         #region Inspect

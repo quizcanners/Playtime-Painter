@@ -67,7 +67,7 @@ namespace PlaytimePainter.MeshEditing
         {
             if (!painter.SharedMesh) return;
 
-            if (!painter.SavedEditableMesh.IsNullOrEmpty())
+            if (!painter.SavedEditableMesh.ToString().IsNullOrEmpty())
             {
 
                 Decode(painter.SavedEditableMesh);
@@ -457,7 +457,7 @@ namespace PlaytimePainter.MeshEditing
 
         public static EditableMesh decodedEditableMesh;
 
-        public override void Decode(string data)
+        public override void Decode(CfgData data)
         {
             decodedEditableMesh = this;
 
@@ -466,39 +466,41 @@ namespace PlaytimePainter.MeshEditing
             decodedEditableMesh = null;
         }
 
-        public override bool Decode(string key, string data)
+        public override void Decode(string key, CfgData data)
         {
             switch (key)
             {
-                case "vrt": data.Decode_List(out meshPoints); break;
-                case "tri": data.Decode_List(out triangles); break;
-                case "n": meshName = data; break;
-                case "grM": maxGroupIndex = data.ToInt(); break;
-                case "sub": subMeshCount = data.ToInt(); break;
+                case "vrt": data.ToList(out meshPoints); break;
+                case "tri": data.ToList(out triangles); break;
+                case "n": meshName = data.ToString(); break;
+                case "grM": data.ToInt(ref maxGroupIndex); break;
+                case "sub": data.ToInt(ref subMeshCount); break;
                 case "wei": gotBoneWeights = data.ToBool(); break;
 
                 case "gcls": data.DecodeInto(out groupColors); break;
 
-                case "bv": data.Decode_List(out baseVertex); break;
+                case "bv": data.ToList(out baseVertex); break;
                 case "biP": data.Decode_Array(out bindPoses); break;
-                case "UV2dR": uv2DistributeRow = data.ToInt(); break;
-                case "UV2cur": uv2DistributeCurrent = data.ToInt(); break;
-                case "sctdUV": selectedUv = meshPoints[data.ToInt()].vertices[0]; break;
-                case "sctdTris": selectedTriangle = triangles[data.ToInt()]; break;
+                case "UV2dR": data.ToInt(ref uv2DistributeRow); break;
+                case "UV2cur": data.ToInt(ref uv2DistributeCurrent); break;
+                case "sctdUV":
+                    selectedUv = meshPoints[data.ToInt(0)].vertices[0]; break;
+                case "sctdTris":
+                    selectedTriangle = triangles[data.ToInt(0)]; break;
                 default:
-                    if (MeshToolBase.AllTools.IsNullOrEmpty()) return false;
+                    if (MeshToolBase.AllTools.IsNullOrEmpty()) break;
 
                     foreach (var t in MeshToolBase.allToolsWithPerMeshData)
                     {
                         var mt = t as MeshToolBase;
                         if (mt == null || !mt.StdTag.Equals(key)) continue;
                         mt.Decode(data);
-                        return true;
+                       break;
                     }
+                    break;
 
-                    return false;
+                    
             }
-            return true;
         }
         #endregion
 

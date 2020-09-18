@@ -33,23 +33,17 @@ namespace PlaytimePainter.ComponentModules {
         #region Encode & Decode
 
         public override CfgEncoder Encode() => new CfgEncoder()
-            //.Add_References("pam", preAtlasingMaterials)
-            //.Add_Reference("pamsh", preAtlasingMesh)
             .Add_String("sm", preAtlasingSavedMesh)
             .Add("iai", _inAtlasIndex)
             .Add("ar", atlasRows);
 
-        public override bool Decode(string key, string data)
+        public override void Decode(string key, CfgData data)
         {
             switch (key) {
-                //case "pam": data.Decode_References(out preAtlasingMaterials); break;
-               // case "pamsh": data.Decode_Reference(ref preAtlasingMesh); break;
-                case "sm": preAtlasingSavedMesh = data; break;
-                case "iai": _inAtlasIndex = data.ToInt(); break;
-                case "ar": atlasRows = data.ToInt(); break;
-                default: return false;
+                case "sm": preAtlasingSavedMesh = data.ToString(); break;
+                case "iai": data.ToInt(ref _inAtlasIndex); break;
+                case "ar": data.ToInt(ref atlasRows); break;
             }
-            return true;
         }
 
         #endregion
@@ -699,19 +693,17 @@ namespace PlaytimePainter.ComponentModules {
             .Add("s", _textureSize)
             .Add("as", _atlasSize);
 
-        public override bool Decode(string key, string data)
+        public override void Decode(string key, CfgData data)
         {
             switch (key) {
-                case "tf": data.Decode_List(out targetFields); break;
-                case "af": Decoder.Decode_List(data, out atlasFields); break;
-                case "sf": Decoder.Decode_List(data, out _srcFields); break;
-                case "n": NameForPEGI = data; break;
+                case "tf": data.ToList(out targetFields); break;
+                case "af": data.ToList(out atlasFields); break;
+                case "sf": data.ToList(out _srcFields); break;
+                case "n": NameForPEGI = data.ToString(); break;
                 case "rgb": _sRgb = data.ToBool(); break;
-                case "s": _textureSize = data.ToInt(); break;
-                case "as": _atlasSize = data.ToInt(); break;
-            default: return false;
+                case "s":  data.ToInt(ref _textureSize); break;
+                case "as":  data.ToInt(ref _atlasSize); break;
             }
-            return true;
         }
 
         #endregion

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Globalization;
 using PlayerAndEditorGUI;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -13,11 +14,11 @@ namespace QuizCannersUtilities {
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 
-    public interface ICfg {
+   /* public interface ICfg {
         CfgEncoder Encode(); 
         void Decode(string data);
         bool Decode(string key, string data);
-    }
+    }*/
 
     public interface ICfgDecode
     {
@@ -29,7 +30,14 @@ namespace QuizCannersUtilities {
         CfgEncoder Encode();
         void Decode(CfgData data);
     }
+    
+    public interface ICanBeDefaultCfg: ICfg2 {
+        bool IsDefault { get; }
+    }
 
+    #endregion
+
+    #region Config 2
     public struct CfgData
     {
         private readonly string _value;
@@ -42,9 +50,171 @@ namespace QuizCannersUtilities {
         }
 
 
-        #region Decoding
+        #region Decoding Base Values
+        public BoneWeight ToBoneWeight()
+        {
+            var cody = new CfgDecoder(_value);
+            var b = new BoneWeight();
 
+            foreach (var t in cody)
+            {
+                var d = cody.GetData();
+                switch (t)
+                {
+                    case "i0": b.boneIndex0 = d.ToInt(); break;
+                    case "w0": b.weight0 = d.ToFloat(); break;
 
+                    case "i1": b.boneIndex1 = d.ToInt(); break;
+                    case "w1": b.weight1 = d.ToFloat(); break;
+
+                    case "i2": b.boneIndex2 = d.ToInt(); break;
+                    case "w2": b.weight2 = d.ToFloat(); break;
+
+                    case "i3": b.boneIndex3 = d.ToInt(); break;
+                    case "w3": b.weight3 = d.ToFloat(); break;
+                }
+            }
+            return b;
+        }
+
+        public Matrix4x4 ToMatrix4X4()
+        {
+            var cody = new CfgDecoder(_value);
+            var m = new Matrix4x4();
+
+            foreach (var t in cody)
+            {
+                var d = cody.GetData();
+                switch (t)
+                {
+
+                    case "00": m.m00 = d.ToFloat(); break;
+                    case "01": m.m01 = d.ToFloat(); break;
+                    case "02": m.m02 = d.ToFloat(); break;
+                    case "03": m.m03 = d.ToFloat(); break;
+
+                    case "10": m.m10 = d.ToFloat(); break;
+                    case "11": m.m11 = d.ToFloat(); break;
+                    case "12": m.m12 = d.ToFloat(); break;
+                    case "13": m.m13 = d.ToFloat(); break;
+
+                    case "20": m.m20 = d.ToFloat(); break;
+                    case "21": m.m21 = d.ToFloat(); break;
+                    case "22": m.m22 = d.ToFloat(); break;
+                    case "23": m.m23 = d.ToFloat(); break;
+
+                    case "30": m.m30 = d.ToFloat(); break;
+                    case "31": m.m31 = d.ToFloat(); break;
+                    case "32": m.m32 = d.ToFloat(); break;
+                    case "33": m.m33 = d.ToFloat(); break;
+
+                    default: Debug.Log("Unknown component: " + t); break;
+                }
+            }
+            return m;
+        }
+
+        public Quaternion ToQuaternion()
+        {
+
+            var cody = new CfgDecoder(_value);
+
+            var q = new Quaternion();
+
+            foreach (var t in cody)
+            {
+                var d = cody.GetData();
+                switch (t)
+                {
+                    case "x": q.x = d.ToFloat(); break;
+                    case "y": q.y = d.ToFloat(); break;
+                    case "z": q.z = d.ToFloat(); break;
+                    case "w": q.w = d.ToFloat(); break;
+                    default: Debug.Log("Unknown component: " + cody.GetType()); break;
+                }
+            }
+            return q;
+        }
+
+        public Vector4 ToVector4()
+        {
+
+            var cody = new CfgDecoder(_value);
+
+            var v4 = new Vector4();
+
+            foreach (var t in cody)
+            {
+                var d = cody.GetData();
+                switch (t)
+                {
+                    case "x": v4.x = d.ToFloat(); break;
+                    case "y": v4.y = d.ToFloat(); break;
+                    case "z": v4.z = d.ToFloat(); break;
+                    case "w": v4.w = d.ToFloat(); break;
+                    default: Debug.Log("Unknown component: " + t); break;
+                }
+            }
+            return v4;
+        }
+
+        public Vector3 ToVector3()
+        {
+
+            var cody = new CfgDecoder(_value);
+
+            var v3 = new Vector3();
+
+            foreach (var t in cody)
+            {
+                var d = cody.GetData();
+                switch (t)
+                {
+                    case "x": v3.x = d.ToFloat(); break;
+                    case "y": v3.y = d.ToFloat(); break;
+                    case "z": v3.z = d.ToFloat(); break;
+                }
+            }
+            return v3;
+        }
+
+        public Vector2 ToVector2()
+        {
+
+            var cody = new CfgDecoder(_value);
+
+            var v2 = new Vector3();
+
+            foreach (var t in cody)
+            {
+                var d = cody.GetData();
+                switch (t)
+                {
+                    case "x": v2.x = d.ToFloat(); break;
+                    case "y": v2.y = d.ToFloat(); break;
+                }
+            }
+            return v2;
+        }
+
+        public Rect ToRect()
+        {
+            var cody = new CfgDecoder(_value);
+
+            var rect = new Rect();
+
+            foreach (var t in cody)
+            {
+                var d = cody.GetData();
+                switch (t)
+                {
+                    case "pos": rect.position = d.ToVector2(); break;
+                    case "size": rect.size = d.ToVector2(); break;
+                }
+            }
+            return rect;
+        }
+        
         public bool ToBool() => _value == CfgEncoder.IsTrueTag;
 
         public bool ToBool(string yesTag) => _value == yesTag;
@@ -62,13 +232,218 @@ namespace QuizCannersUtilities {
             return int.TryParse(_value, out variable) ? variable : defaultValue;
         }
 
+        public uint ToUInt()
+        {
+            uint value;
+            uint.TryParse(_value, out value);
+            return value;
+        }
+
+        public float ToFloat()
+        {
+            float val;
+            float.TryParse(_value, NumberStyles.Float, CultureInfo.InvariantCulture.NumberFormat, out val);
+            return val;
+        }
+
+
+        public Color ToColor()
+        {
+            var cody = new CfgDecoder(_value);
+            var c = new Color();
+            foreach (var t in cody)
+            {
+                var d = cody.GetData();
+                switch (t)
+                {
+                    case "r": c.r = d.ToFloat(); break;
+                    case "g": c.g = d.ToFloat(); break;
+                    case "b": c.b = d.ToFloat(); break;
+                    case "a": c.a = d.ToFloat(); break;
+                    default:
+                        cody.GetData(); break;
+                }
+            }
+
+            return c;
+        }
+
         #endregion
 
+        public void DecodeInto( Transform tf)
+        {
 
-    }
+            var cody = new CfgDecoder(_value);
+            var local = false;
 
-    public interface ICanBeDefaultCfg : ICfg {
-        bool IsDefault { get; }
+            foreach (var t in cody)
+            {
+                var d = cody.GetData2();
+                switch (t)
+                {
+                    case "loc": local = d.ToBool(); break;
+                    case "pos": if (local) tf.localPosition = d.ToVector3(); else tf.position = d.ToVector3(); break;
+                    case "size": tf.localScale = d.ToVector3(); break;
+                    case "rot": if (local) tf.localRotation = d.ToQuaternion(); else tf.rotation = d.ToQuaternion(); break;
+                }
+            }
+        }
+
+
+        public T DecodeInto<T>() where T : ICfg2, new()
+        {
+            var obj = new T();
+            obj.Decode(this);
+            return obj;
+        }
+
+        public void DecodeInto(CfgDecoder.Decode2Delegate dec) => new CfgDecoder(this).DecodeTagsFor(dec);
+
+        public List<string> ToList()
+        {
+            List<string> list;
+            Decoder.Decode_List(_value, out list);
+            return list;
+        }
+        
+        public List<string> ToList(out List<string> l)
+        {
+
+            l = new List<string>();
+
+            var cody = new CfgDecoder(_value);
+
+            foreach (var tag in cody)
+                l.Add(cody.GetData());
+
+            return l;
+        }
+
+        public List<int> ToList(out List<int> l)
+        {
+
+            l = new List<int>();
+
+            var cody = new CfgDecoder(_value);
+
+            foreach (var tag in cody)
+                l.Add(cody.GetData().ToInt());
+
+            return l;
+        }
+
+        public List<float> ToList(out List<float> l)
+        {
+
+            l = new List<float>();
+
+            var cody = new CfgDecoder(_value);
+
+            foreach (var tag in cody)
+                l.Add(cody.GetData().ToFloat());
+
+
+            return l;
+        }
+
+        public List<uint> ToList(out List<uint> l)
+        {
+
+            l = new List<uint>();
+
+            var cody = new CfgDecoder(_value);
+
+            foreach (var tag in cody)
+                l.Add(cody.GetData().ToUInt());
+
+
+            return l;
+        }
+
+        public List<Color> ToList(out List<Color> l)
+        {
+
+            l = new List<Color>();
+
+            var cody = new CfgDecoder(_value);
+
+            foreach (var tag in cody)
+                l.Add(cody.GetData().ToColor());
+
+
+            return l;
+        }
+
+        public T[] Decode_Array<T>(out T[] l) where T : ICfg2, new()
+        {
+
+            var cody = new CfgDecoder(_value);
+
+            l = null;
+
+            var tmpList = new List<T>();
+
+            var ind = 0;
+
+            foreach (var tag in cody)
+            {
+                var d = cody.GetData2();
+
+                if (tag == "len")
+                    l = new T[d.ToInt(0)];
+                else
+                {
+                    var isNull = tag == CfgEncoder.NullTag;
+
+                    var obj = isNull ? default : d.DecodeInto<T>();
+
+                    if (l != null)
+                        l[ind] = obj;
+                    else
+                        tmpList.Add(obj);
+
+                    ind++;
+                }
+            }
+
+            return l ?? tmpList.ToArray();
+        }
+
+        public Matrix4x4[] Decode_Array(out Matrix4x4[] l)
+        {
+
+            var cody = new CfgDecoder(_value);
+
+            l = null;
+
+            var tmpList = new List<Matrix4x4>();
+
+            var ind = 0;
+
+            foreach (var tag in cody)
+            {
+                var d = cody.GetData();
+
+                if (tag == "len")
+                    l = new Matrix4x4[d.ToInt()];
+                else
+                {
+                    var obj = d.ToMatrix4X4();
+
+                    if (l != null)
+                        l[ind] = obj;
+                    else
+                        tmpList.Add(obj);
+
+                    ind++;
+                }
+            }
+
+            return l ?? tmpList.ToArray();
+        }
+
+
+
     }
 
     #endregion
@@ -84,6 +459,7 @@ namespace QuizCannersUtilities {
     }
     #endregion
 
+    /*
     #region UNRECOGNIZED
 
     public class UnrecognizedTagsList : IPEGI
@@ -192,7 +568,7 @@ namespace QuizCannersUtilities {
     }
 
 
-    #endregion
+    #endregion*/
 
     #region Abstract Implementations
 
@@ -242,7 +618,7 @@ namespace QuizCannersUtilities {
     }
 
     [Serializable]
-    public abstract class Configuration : ICfg, IPEGI_ListInspect, IGotName
+    public abstract class Configuration : ICfg2, IPEGI_ListInspect, IGotName
     {
         public string name;
         public string data;
@@ -318,20 +694,15 @@ namespace QuizCannersUtilities {
             .Add_String("n", name)
             .Add_IfNotEmpty("d", data);
 
-        public bool Decode(string key, string d) {
+        public void Decode(string key, CfgData d) {
             switch (key) {
-                case "n": name = d; break;
-                case "d": data = d; break;
-                default: return false;   
+                case "n": name = d.ToString(); break;
+                case "d": data = d.ToString(); break;
             }
-
-            return true;
         }
 
-        public void Decode(string data) => this.DecodeTagsFrom(data);
-
-
-
+        public void Decode(CfgData data) => this.DecodeTagsFrom(data);
+        
         #endregion
 
         public Configuration() {
@@ -748,7 +1119,7 @@ namespace QuizCannersUtilities {
             
         }
 
-
+/*
         public static void Add (this List<UnrecognizedTagsList.UnrecognizedElement> lst, List<string> tags, string data) {
 
             var existing = lst.GetByIGotName(tags[0]);
@@ -771,7 +1142,7 @@ namespace QuizCannersUtilities {
             }
 
             return cody;
-        }
+        }*/
 
         public static List<Type> TryGetDerivedClasses (this Type t) => t.TryGetClassAttribute<DerivedListAttribute>()?.derivedTypes.NullIfEmpty();
             
@@ -834,6 +1205,12 @@ namespace QuizCannersUtilities {
 
             return true;
         }*/
+
+        public static ICfg2 SaveToAssets(this ICfg2 s, string path, string filename)
+        {
+            QcFile.Save.ToAssets(path, filename, s.Encode().ToString(), asBytes: true);
+            return s;
+        }
 
         public static ICfg SaveToAssets(this ICfg s, string path, string filename)
         {

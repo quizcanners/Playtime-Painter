@@ -442,7 +442,7 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool select<T>(ref int no, CountlessCfg<T> tree) where T : ICfg, new()
+        public static bool select<T>(ref int no, CountlessCfg<T> tree) where T : ICfg2, new()
         {
             List<int> indexes;
             var objs = tree.GetAllObjs(out indexes);

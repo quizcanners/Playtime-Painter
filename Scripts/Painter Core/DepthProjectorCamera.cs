@@ -441,7 +441,7 @@ namespace PlaytimePainter
     }
 
     [Serializable]
-    public class ProjectorCameraConfiguration : ICfg, IPEGI
+    public class ProjectorCameraConfiguration : ICfg2, IPEGI
     {
         public float fieldOfView = 90;
         public Vector3 position;
@@ -542,7 +542,7 @@ namespace PlaytimePainter
 
         #region Encode & Decode
 
-        public bool Decode(string key, string data) {
+        public void Decode(string key, CfgData data) {
             switch (key) {
                 case "fov": fieldOfView = data.ToFloat(); break;
                 case "p": position = data.ToVector3(); break;
@@ -550,10 +550,7 @@ namespace PlaytimePainter
                 case "n": nearPlane = data.ToFloat(); break;
                 case "f": farPlane = data.ToFloat(); break;
                 case "l": localTransform = true; break;
-                default: return false;
             }
-
-            return true;
         }
 
         public CfgEncoder Encode() => new CfgEncoder()
@@ -564,7 +561,7 @@ namespace PlaytimePainter
             .Add("f", farPlane)
             .Add_IfTrue("l", localTransform);
 
-        public void Decode(string data) => this.DecodeTagsFrom(data);
+        public void Decode(CfgData data) => this.DecodeTagsFrom(data);
 
         #endregion
 

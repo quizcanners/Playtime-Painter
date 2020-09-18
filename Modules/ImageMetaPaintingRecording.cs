@@ -90,7 +90,7 @@ namespace PlaytimePainter
 
                    if (last != null) {
                        if (cody.GotData)
-                           DecodeStroke(cody.GetNextTag(), cody.GetData());
+                           DecodeStroke(cody.GetNextTag(), cody.GetData2());
                        else {
                            if (playbackVectors.Count > 0) {
                                cody = new CfgDecoder(playbackVectors[0]);
@@ -329,15 +329,12 @@ namespace PlaytimePainter
 #region Encoding
 
 
-        public override bool Decode(string key, string data)
+        public override void Decode(string key, CfgData data)
         {
             switch (key)
             {
                 case "rec": showRecording = data.ToBool(); break;
-                default: return false;
             }
-
-            return true;
         }
 
         public override CfgEncoder Encode()
@@ -369,7 +366,7 @@ namespace PlaytimePainter
 
         private PlaytimePainter currentlyDecodedPainter;
 
-        private bool DecodeStroke(string tg, string data) {
+        private void DecodeStroke(string tg, CfgData data) {
 
             switch (tg) {
                 case "trg": currentlyDecodedPainter.UpdateOrSetTexTarget(data.Equals("C") ? TexTarget.Texture2D : TexTarget.RenderTexture); break;
@@ -380,9 +377,7 @@ namespace PlaytimePainter
                     currentlyDecodedPainter.stroke.Decode(data);
                     GlobalBrush.Paint(currentlyDecodedPainter.PaintCommand);
                     break;
-                default: return false;
             }
-            return true;
         }
 
 

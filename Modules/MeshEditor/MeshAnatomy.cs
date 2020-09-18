@@ -87,7 +87,7 @@ namespace PlaytimePainter.MeshEditing
                 SetUvIndexBy(other.GetUv(0), other.GetUv(1));
             }
 
-            public Vertex(MeshPoint newVertex, string data)
+            public Vertex(MeshPoint newVertex, CfgData data)
             {
                 AssignToPoint(newVertex);
                 Decode(data);
@@ -120,21 +120,18 @@ namespace PlaytimePainter.MeshEditing
                 return cody;
             }
 
-            public override bool Decode(string key, string data)
+            public override void Decode(string key, CfgData data)
             {
                 switch (key) {
                     case "i":
-                        finalIndex = data.ToInt();
+                        data.ToInt(ref finalIndex);
                         EditableMesh.decodedEditableMesh.uvsByFinalIndex[finalIndex] = this;
                         break;
-                    case "cg": groupIndex = data.ToInt(); break;
-                    case "uvi": uvIndex = data.ToInt(); break;
+                    case "cg": data.ToInt(ref groupIndex); break;
+                    case "uvi":  data.ToInt(ref uvIndex); break;
                     case "col": color = data.ToColor(); break;
                     case "bw": boneWeight = data.ToBoneWeight(); break;
-                    default: return false;
                 }
-
-                return true;
             }
 
             #endregion
@@ -421,7 +418,7 @@ namespace PlaytimePainter.MeshEditing
                 return cody;
             }
 
-            public override bool Decode(string key, string data)
+            public override void Decode(string key, CfgData data)
             {
                 switch (key)
                 {
@@ -434,7 +431,7 @@ namespace PlaytimePainter.MeshEditing
                         break;
                     case "uvs":
                         currentlyDecoded = this;
-                        data.Decode_List(out vertices);
+                        data.ToList(out vertices);
                         break;
                     case "pos":
                         localPos = data.ToVector3();
@@ -451,10 +448,7 @@ namespace PlaytimePainter.MeshEditing
                     case "bs":
                         data.Decode_ListOfList(out shapes);
                         break;
-                    default: return false;
                 }
-
-                return true;
             }
 
             #endregion
@@ -814,7 +808,7 @@ namespace PlaytimePainter.MeshEditing
                 return cody;
             }
 
-            public override bool Decode(string key, string data)
+            public override void Decode(string key, CfgData data)
             {
 
                 switch (key)
@@ -841,22 +835,18 @@ namespace PlaytimePainter.MeshEditing
                         edgeWeight[2] = data.ToFloat();
                         break;
                     case "sub":
-                        subMeshIndex = data.ToInt();
+                         data.ToInt(ref subMeshIndex);
                         break;
                     case "0":
-                        vertexes[0] = EditableMesh.decodedEditableMesh.uvsByFinalIndex[data.ToInt()];
+                        vertexes[0] = EditableMesh.decodedEditableMesh.uvsByFinalIndex[data.ToInt(0)];
                         break;
                     case "1":
-                        vertexes[1] = EditableMesh.decodedEditableMesh.uvsByFinalIndex[data.ToInt()];
+                        vertexes[1] = EditableMesh.decodedEditableMesh.uvsByFinalIndex[data.ToInt(0)];
                         break;
                     case "2":
-                        vertexes[2] = EditableMesh.decodedEditableMesh.uvsByFinalIndex[data.ToInt()];
+                        vertexes[2] = EditableMesh.decodedEditableMesh.uvsByFinalIndex[data.ToInt(0)];
                         break;
-                    default: return false;
                 }
-
-                return true;
-
             }
 
             #endregion
@@ -1482,32 +1472,22 @@ namespace PlaytimePainter.MeshEditing
 
             #region Encode & Decode
 
-            public override bool Decode(string key, string data)
+            public override void Decode(string key, CfgData data)
             {
                 switch (key)
                 {
-                    case "p":
-                        deltaPosition = data.ToVector3();
-                        break;
-                    case "t":
-                        deltaTangent = data.ToVector3();
-                        break;
-                    case "n":
-                        deltaNormal = data.ToVector3();
-                        break;
-                    default: return false;
+                    case "p": deltaPosition = data.ToVector3(); break;
+                    case "t": deltaTangent = data.ToVector3(); break;
+                    case "n": deltaNormal = data.ToVector3(); break;
                 }
-
-                return true;
             }
 
             public override CfgEncoder Encode()
             {
-                var cody = new CfgEncoder();
-
-                cody.Add_IfNotZero("p", deltaPosition);
-                cody.Add_IfNotZero("t", deltaTangent);
-                cody.Add_IfNotZero("n", deltaNormal);
+                var cody = new CfgEncoder()
+                .Add_IfNotZero("p", deltaPosition)
+                .Add_IfNotZero("t", deltaTangent)
+                .Add_IfNotZero("n", deltaNormal);
 
                 return cody;
             }

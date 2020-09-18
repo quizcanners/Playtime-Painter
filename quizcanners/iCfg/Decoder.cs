@@ -20,27 +20,8 @@ namespace QuizCannersUtilities {
           //  => new CfgDecoder(data).DecodeTagsFor(dec); //unrecognizedKeeper,
              //   tag);
         
-        public static void DecodeInto(this string data, CfgDecoder.DecodeDelegate dec) => new CfgDecoder(data).DecodeTagsFor(dec);
-
-        public static void DecodeInto(this string data, Transform tf)
-        {
-
-            var cody = new CfgDecoder(data);
-            var local = false;
-
-            foreach (var t in cody)
-            {
-                var d = cody.GetData();
-                switch (t)
-                {
-                    case "loc": local = d.ToBool(); break;
-                    case "pos": if (local) tf.localPosition = d.ToVector3(); else tf.position = d.ToVector3(); break;
-                    case "size": tf.localScale = d.ToVector3(); break;
-                    case "rot": if (local) tf.localRotation = d.ToQuaternion(); else tf.rotation = d.ToQuaternion(); break;
-                }
-            }
-        }
-
+             //public static void DecodeInto(this string data, CfgDecoder.DecodeDelegate dec) => new CfgDecoder(data).DecodeTagsFor(dec);
+        
         public static void DecodeInto(this string data, RectTransform tf)
         {
 
@@ -273,13 +254,6 @@ namespace QuizCannersUtilities {
         #endregion
 
         #region To List Of Value Type
-        public static List<string> ToList(this CfgData data)
-        {
-            List<string> list;
-            Decoder.Decode_List(data.ToString(), out list);
-            return list;
-        }
-
         public static List<string> Decode_List(string data, out List<string> l)
         {
 
@@ -351,10 +325,10 @@ namespace QuizCannersUtilities {
         #region InternalDecode
 
         private static T DecodeData<T>(this CfgDecoder cody, TaggedTypesCfg tps, ListMetaData ld) where T : IGotClassTag
-            => Decode<T>(cody.CurrentTag, cody.GetData(), tps, ld, cody.currentTagIndex);
+            => Decode<T>(cody.CurrentTag, cody.GetData2(), tps, ld, cody.currentTagIndex);
 
         private static T DecodeData<T>(this CfgDecoder cody, TaggedTypesCfg tps) where T : IGotClassTag
-             => Decode<T>(cody.CurrentTag, cody.GetData(), tps);
+             => Decode<T>(cody.CurrentTag, cody.GetData2(), tps);
         
         private static T DecodeData<T>(this CfgDecoder cody, List<Type> tps, ListMetaData ld) where T : ICfg
             => Decode<T>(cody.CurrentTag, cody.GetData(), tps, ld, cody.currentTagIndex);
@@ -370,7 +344,7 @@ namespace QuizCannersUtilities {
             => Decode<T>(cody.CurrentTag, cody.GetData2(), tps);
 
 
-        private static T Decode<T>(string tagAsTypeIndex, string data, TaggedTypesCfg tps, ListMetaData ld, int index) where T : IGotClassTag
+        private static T Decode<T>(string tagAsTypeIndex, CfgData data, TaggedTypesCfg tps, ListMetaData ld, int index) where T : IGotClassTag
         {
 
             if (tagAsTypeIndex == CfgEncoder.NullTag) return default;
@@ -380,12 +354,10 @@ namespace QuizCannersUtilities {
             if (type != null)
                 return data.DecodeInto_Type<T>(type);
             
-            //ld.elementDatas[index].Unrecognized(tagAsTypeIndex, data);
-
             return default;
         }
 
-        private static T Decode<T>(string tagAsTypeIndex, string data, TaggedTypesCfg tps) where T : IGotClassTag
+        private static T Decode<T>(string tagAsTypeIndex, CfgData data, TaggedTypesCfg tps) where T : IGotClassTag
         {
 
             if (tagAsTypeIndex == CfgEncoder.NullTag) return default;
@@ -538,7 +510,7 @@ namespace QuizCannersUtilities {
             return l;
         }
         
-        public static List<T> Decode_List<T>(string data, out List<T> l, ref ListMetaData ld) where T : ICfg, new() {
+        public static List<T> Decode_List<T>(string data, out List<T> l, ref ListMetaData ld) where T : ICfg2, new() {
 
             if (ld == null)
                 ld = new ListMetaData();
@@ -569,9 +541,9 @@ namespace QuizCannersUtilities {
             return l;
         }
 
-        public static List<T> Decode_List<T>(this CfgData data, ref ListMetaData ld) where T : ICfg2, new()
+        public static void ToList<T>(this CfgData data, out List<T> list, ref ListMetaData ld) where T : ICfg2, new()
         {
-            var l = new List<T>();
+            list = new List<T>();
 
             if (ld == null)
                 ld = new ListMetaData();
@@ -591,16 +563,14 @@ namespace QuizCannersUtilities {
                         var cody = new CfgDecoder(overCody.GetData());
                         if (tps != null)
                             foreach (var t in cody)
-                                l.Add(cody.DecodeData2<T>(tps, ld)); // Probably something off here (Decoding list of sub nodes)
+                                list.Add(cody.DecodeData2<T>(tps, ld)); // Probably something off here (Decoding list of sub nodes)
                         else foreach (var t in cody)
-                            l.Add(cody.GetData2().DecodeInto<T>());
+                            list.Add(cody.GetData2().DecodeInto<T>());
                         break;
 
-                    default: l.Add((tps != null) ? overCody.DecodeData2<T>(tps, ld) : overCody.GetData2().DecodeInto<T>()); break;
+                    default: list.Add((tps != null) ? overCody.DecodeData2<T>(tps, ld) : overCody.GetData2().DecodeInto<T>()); break;
                 }
             }
-
-            return l;
         }
 
 
@@ -638,25 +608,22 @@ namespace QuizCannersUtilities {
         }
         */
 
-        public static List<T> ToList<T>(this CfgData data) where T : ICfg2, new()
+        public static void ToList<T>(this CfgData data, out List<T> list) where T : ICfg2, new()
         {
+            list = new List<T>();
 
             var cody = new CfgDecoder(data);
-
-            var l = new List<T>();
 
             var tps = typeof(T).TryGetDerivedClasses();
 
             if (tps != null)
                 foreach (var tag in cody)
-                    l.Add(cody.DecodeData2<T>(tps));
+                    list.Add(cody.DecodeData2<T>(tps));
             else foreach (var tag in cody)
-                l.Add(cody.GetData2().DecodeInto<T>());
-
-            return l;
+                list.Add(cody.GetData2().DecodeInto<T>());
         }
 
-        public static List<T> Decode_List<T>(this string data, out List<T> l) where T : ICfg, new() {
+        public static List<T> Decode_List<T>(this string data, out List<T> l) where T : ICfg2, new() {
 
             var cody = new CfgDecoder(data);
 
@@ -828,7 +795,7 @@ namespace QuizCannersUtilities {
 
         }
         
-        public static void Decode_Dictionary<T>(this string data, out Dictionary<string, T> dic) where T: ICfg, new() 
+        public static void Decode_Dictionary<T>(this string data, out Dictionary<string, T> dic) where T: ICfg2, new() 
         {
             var cody = new CfgDecoder(data);
 
@@ -838,7 +805,7 @@ namespace QuizCannersUtilities {
             {
                 var val = new T();
                 var tag = cody.GetNextTag();
-                val.Decode(cody.GetData());
+                val.Decode(cody.GetData2());
                 dic.Add(tag, val);
             }
 
@@ -847,12 +814,12 @@ namespace QuizCannersUtilities {
 
         #region CFG class
 
-        public static ICfg DecodeTagsFrom<T>(this T obj, CfgData data) where T : class, ICfg2 => obj.DecodeTagsFrom(data);
+        public static ICfg2 DecodeTagsFrom<T>(this T obj, CfgData data) where T : class, ICfg2 => obj.DecodeTagsFrom(data);
 
-        public static ICfg DecodeTagsFrom<T>(this T obj, string data) where T : class, ICfg
+        public static ICfg2 DecodeTagsFrom<T>(this T obj, string data) where T : class, ICfg2
             => (QcUnity.IsNullOrDestroyed_Obj(obj)) ? obj : new CfgDecoder(data).DecodeTagsFor(obj);
-        
-        public static T DecodeInto<T>(this string data, out T val) where T : ICfg, new()
+
+        public static T DecodeInto<T>(this string data, out T val) where T : ICfg2, new()
         {
             val = data.DecodeInto<T>();
             return val;
@@ -865,12 +832,7 @@ namespace QuizCannersUtilities {
             return obj;
         }
 
-        public static T DecodeInto<T>(this CfgData data) where T : ICfg2, new()
-        {
-            var obj = new T();
-            obj.Decode(data);
-            return obj;
-        }
+       
 
         /*
         public static bool TryDecodeInto<T>(this string data, T val) =>
@@ -921,7 +883,7 @@ namespace QuizCannersUtilities {
             return val;
         }
     
-        public static void Decode<T>(this string data, out T val, TaggedTypesCfg typeList) where T : IGotClassTag
+        public static void Decode<T>(this CfgData data, out T val, TaggedTypesCfg typeList) where T : IGotClassTag
         {
 
             val = default;
@@ -931,7 +893,7 @@ namespace QuizCannersUtilities {
             var type = typeList.TaggedTypes.TryGet(cody.GetNextTag());
 
             if (type != null)
-                val = cody.GetData().DecodeInto_Type<T>(type);
+                val = cody.GetData2().DecodeInto_Type<T>(type);
         }
         #endregion
         
@@ -948,7 +910,7 @@ namespace QuizCannersUtilities {
 
         public delegate bool DecodeDelegate(string tag, string data);
 
-        public delegate bool Decode2Delegate(string tag, CfgData data);
+        public delegate void Decode2Delegate(string tag, CfgData data);
 
 
         private readonly string _data;
@@ -1069,7 +1031,7 @@ namespace QuizCannersUtilities {
             return std;
         }
         
-        public void DecodeTagsFor<T>(ref T std) where T : struct, ICfg
+        public void DecodeTagsFor<T>(ref T std) where T : struct, ICfg2
         {
             foreach (var tag in this)
                 std.Decode(tag, GetData());
@@ -1115,7 +1077,7 @@ namespace QuizCannersUtilities {
 
             return CurrentTag;
         }
-
+        /*
         public string GetData()
         {
 
@@ -1146,8 +1108,8 @@ namespace QuizCannersUtilities {
             }
             
         }
-
-        public CfgData GetData2()
+        */
+        public CfgData GetData()
         {
 
             if (!_expectingGetData)

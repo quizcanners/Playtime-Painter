@@ -1161,15 +1161,15 @@ namespace PlaytimePainter
         public string selectedMeshProfile;
         public MeshPackagingProfile MeshProfile => Cfg.GetMeshPackagingProfile(selectedMeshProfile);
 
-        [SerializeField] private string savedMeshData;
+        [SerializeField] private CfgData savedMeshData;
         [SerializeField] private Mesh meshDataSavedFor;
 
-        public string SavedEditableMesh
+        public CfgData SavedEditableMesh
         {
             get
             {
-                if ((savedMeshData != null) && (savedMeshData.Length == 0 || (meshDataSavedFor != this.GetMesh())))
-                    savedMeshData = null;
+                if ((savedMeshData.ToString() != null) && (savedMeshData.ToString().Length == 0 || (meshDataSavedFor != this.GetMesh())))
+                    savedMeshData = new CfgData();
 
                 return savedMeshData;
             }

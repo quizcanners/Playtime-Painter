@@ -17,7 +17,7 @@ namespace QuizCannersUtilities
     #pragma warning disable IDE0019 // Use pattern matching
     #pragma warning disable IDE0018 // Inline variable declaration
 
-    public class ListMetaData : ICfg, IPEGI {
+    public class ListMetaData : ICfg2, IPEGI {
         
         private const string DefaultFolderToSearch = "Assets/";
 
@@ -126,23 +126,21 @@ namespace QuizCannersUtilities
 
         #region Encode & Decode
 
-        public bool Decode(string key, string data)
+        public void Decode(string key, CfgData data)
         {
             switch (key)
             {
                 case "adl": allowDuplicants = data.ToBool(); break;
                 case "ed": data.DecodeInto(out elementDatas); break;
-                case "insp": inspected = data.ToInt(); break;
-                case "pi": previousInspected = data.ToInt(); break;
-                case "fld": folderToSearch = data; break;
+                case "insp": inspected = data.ToInt(0); break;
+                case "pi": previousInspected = data.ToInt(0); break;
+                case "fld": folderToSearch = data.ToString(); break;
                 case "ktd": keepTypeData = data.ToBool(); break;
                 case "del": allowDelete = data.ToBool(); break;
                 case "reord": allowReorder = data.ToBool(); break;
                 case "st": listSectionStartIndex = data.ToInt(); break;
                 case "s": searchData.Decode(data); break;
-                default: return false;
             }
-            return true;
         }
 
         public CfgEncoder Encode()
@@ -195,7 +193,7 @@ namespace QuizCannersUtilities
         }
     }
 
-    public class ElementData : ICfg, IPEGI, IGotName {
+    public class ElementData : ICfg2, IPEGI, IGotName {
 
 
         public string name;
@@ -424,19 +422,17 @@ namespace QuizCannersUtilities
         #endregion
 
 #region Encode & Decode
-        public bool Decode(string key, string data) {
+        public void Decode(string key, CfgData data) {
             switch (key) {
-                case "n": name = data; break;
-                case "cfg": stdDta = data; break;
+                case "n": name = data.ToString(); break;
+                case "cfg": stdDta = data.ToString(); break;
                // case "guid": _guid = data; break;
-                case "t": componentType = data; break;
+                case "t": componentType = data.ToString(); break;
                // case "ur": unrecognized = data.ToBool(); break;
                // case "tag": unrecognizedUnderTag = data; break;
                 case "perType": data.Decode_Dictionary(out _perTypeConfig); break;
                 case "sel": selected = data.ToBool(); break;
-                default: return false;
             }
-            return true;
         }
 
         public CfgEncoder Encode() {
@@ -459,7 +455,7 @@ namespace QuizCannersUtilities
             return cody;
         }
 
-        public void Decode(string data)
+        public void Decode(CfgData data)
         {
             throw new NotImplementedException();
         }

@@ -53,7 +53,7 @@ namespace PlaytimePainter {
                 return cody;
             }
 
-            public override bool Decode(string key, string data)
+            public override void Decode(string key, CfgData data)
             {
                 switch (key)
                 {
@@ -72,10 +72,7 @@ namespace PlaytimePainter {
                     case "cam":
                         rayTraceCameraConfiguration.Decode(data);
                         break;
-                    default: return false;
                 }
-
-                return true;
             }
 
             #endregion
@@ -567,8 +564,7 @@ namespace PlaytimePainter {
 
                 return false;
             }
-
-
+            
             public override void GetNonMaterialTextureNames(ref List<ShaderProperty.TextureValue> dest)
             {
                 if (expectingAVolume && !volumeTexture)
@@ -618,16 +614,13 @@ namespace PlaytimePainter {
                 .Add("b", base.Encode)
                 .Add_IfTrue("gotVol", volumeTexture);
 
-            public override bool Decode(string key, string data)
+            public override void Decode(string key, CfgData data)
             {
                 switch (key)
                 {
-                    case "b": data.DecodeInto(base.Decode); break;
+                    case "b": data.DecodeInto(base.Decode); break;//data.DecodeInto(base.Decode); break;
                     case "gotVol": expectingAVolume = data.ToBool(); break;
-                    default: return false;
                 }
-
-                return true;
             }
             #endregion
 

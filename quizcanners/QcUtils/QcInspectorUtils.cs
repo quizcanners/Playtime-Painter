@@ -624,7 +624,7 @@ namespace QuizCannersUtilities
         }
         
         [Serializable]
-        public struct DynamicRangeFloat : ICfg, IPEGI
+        public struct DynamicRangeFloat : ICfg2, IPEGI
         {
 
             [SerializeField] public float min;
@@ -758,7 +758,7 @@ namespace QuizCannersUtilities
                 .Add_IfNotEpsilon("v", Value)
                 .Add_IfNotEpsilon("x", max);
 
-            public void Decode(string data)
+            public void Decode(CfgData data)
             {
               
                 new CfgDecoder(data).DecodeTagsFor(ref this);
@@ -766,7 +766,7 @@ namespace QuizCannersUtilities
                 dynamicMax = max;
             }
 
-            public bool Decode(string key, string data)
+            public void Decode(string key, CfgData data)
             {
                 switch (key)
                 {
@@ -779,10 +779,7 @@ namespace QuizCannersUtilities
                     case "x":
                         max = data.ToFloat();
                         break;
-                    default: return false;
                 }
-
-                return true;
             }
 
             #endregion

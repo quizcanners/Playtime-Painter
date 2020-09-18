@@ -17,20 +17,20 @@ namespace PlaytimePainter
       
     }*/
     
-    public abstract class PainterClassCfg : PainterClass, ICfg 
+    public abstract class PainterClassCfg : PainterClass, ICfg2 
     {
         public abstract CfgEncoder Encode();
 
-        public virtual void Decode(string data) => this.DecodeTagsFrom(data);
+        public virtual void Decode(CfgData data) => this.DecodeTagsFrom(data);
 
-        public abstract bool Decode(string key, string data);
+        public abstract void Decode(string key, CfgData data);
     }
 
     public class PainterSystemMono : MonoBehaviour, ICfg, IPEGI
     {
         #region Encode & Decode
-        private readonly UnrecognizedTagsList _uTags = new UnrecognizedTagsList();
-        public UnrecognizedTagsList UnrecognizedStd => _uTags;
+       // private readonly UnrecognizedTagsList _uTags = new UnrecognizedTagsList();
+       // public UnrecognizedTagsList UnrecognizedStd => _uTags;
 
         public virtual void Decode(string data) => this.DecodeTagsFrom(data);
 
@@ -50,7 +50,7 @@ namespace PlaytimePainter
         protected static Transform CurrentViewTransform(Transform defaultTransform = null) =>
             PainterClass.CurrentViewTransform(defaultTransform);
 
-        public virtual bool Inspect() => _uTags.Inspect();  
+        public virtual bool Inspect() => false; // _uTags.Inspect();  
 
     }
     

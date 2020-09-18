@@ -17,7 +17,7 @@ namespace QuizCannersUtilities {
 
         #region Base Abstract
 
-        public abstract class BaseShaderPropertyIndex : ICfg, IGotDisplayName, IPEGI_ListInspect
+        public abstract class BaseShaderPropertyIndex : ICfg2, IGotDisplayName, IPEGI_ListInspect
         {
             protected int id;
             protected string name;
@@ -76,19 +76,16 @@ namespace QuizCannersUtilities {
                 //.Add_IfTrue("nm", nonMaterialProperty)
             ;
             
-            public virtual bool Decode(string key, string data)
+            public virtual void Decode(string key, CfgData data)
             {
                 switch (key)
                 {
-                    case "n":  name = data; UpdateIndex();  break;
+                    case "n":  name = data.ToString(); UpdateIndex();  break;
                    // case "nm": nonMaterialProperty = data.ToBool();  break;
-                    default: return false;
                 }
-
-                return true;
             }
 
-            public virtual void Decode(string data) => this.DecodeTagsFrom(data);
+            public virtual void Decode(CfgData data) => this.DecodeTagsFrom(data);
             #endregion
 
             #region Constructors
@@ -587,7 +584,7 @@ namespace QuizCannersUtilities {
                 .Add("b", base.Encode())
                 .Add("tgs", _usageTags);
 
-            public override bool Decode(string key, string data)
+            public override void Decode(string key, CfgData data)
             {
                 switch (key)
                 {
@@ -595,12 +592,9 @@ namespace QuizCannersUtilities {
                         data.DecodeInto(base.Decode);
                         break;
                     case "tgs":
-                        Decoder.Decode_List(data, out _usageTags);
+                        data.ToList(out _usageTags);
                         break;
-                    default: return false;
                 }
-
-                return true;
             }
 
             #endregion
