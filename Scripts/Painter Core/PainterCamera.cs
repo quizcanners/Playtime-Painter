@@ -853,7 +853,7 @@ namespace PlaytimePainter {
             
             if (FocusedPainter)
             {
-                OnGUIWindow.Render(FocusedPainter, "{0} {1}".F(FocusedPainter.name, FocusedPainter.GetMaterialTextureProperty));
+                OnGUIWindow.Render(FocusedPainter, "{0} {1}".F(FocusedPainter.name, FocusedPainter.GetMaterialTextureProperty()));
 
                 foreach (var p in CameraModuleBase.GuiPlugins)
                     p.OnGUI();

@@ -186,7 +186,7 @@ namespace PlaytimePainter {
 
                     if (!imgData.renderTexture && !TexMGMT.materialsUsingRenderTexture.Contains(materialData))
                     {
-                        TexMGMT.ChangeBufferTarget(imgData, materialData, painter.GetMaterialTextureProperty, painter);
+                        TexMGMT.ChangeBufferTarget(imgData, materialData, painter.GetMaterialTextureProperty(), painter);
                         painter.SetTextureOnMaterial(imgData);
                     }
 

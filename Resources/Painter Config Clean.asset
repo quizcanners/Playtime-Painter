@@ -22,8 +22,43 @@ MonoBehaviour:
   textureSets: []
   atlasedMaterials: []
   playtimeSavedTextures: []
-  imgMetas: []
-  matMetas: []
+  imgMetas:
+  - target: 0
+    renderTexture: {fileID: 0}
+    texture2D: {fileID: 2800000, guid: 38b6e61e6ad7a8849881893422f8b64e, type: 3}
+    other: {fileID: 0}
+    width: 500
+    height: 500
+    useTexCoord2: 0
+    _useTexCoord2AutoAssigned: 0
+    lockEditing: 0
+    isATransparentLayer: 0
+    enableUndoRedo: 0
+    preserveTransparency: 1
+    sdfMaxInside: 30
+    sdfMaxOutside: 30
+    sdfPostProcessDistance: 1
+    _repaintDelay: 0.016
+    updateTex2DafterStroke: 0
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    isAVolumeTexture: 0
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    backupManually: 0
+    saveName: 0a9faf407bdd4fb3ba0d2f0ccb4e00c6lg
+    url: 
+    inspectedItems: -1
+  matMetas:
+  - material: {fileID: 2100000, guid: ff51effeef2082b48b0d6f8a41c94686, type: 2}
+    selectedTexture: 1
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 961af63d240c68b46bbb11ff8995d0fc, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
   showRecentTextures: 0
   showColorSchemes: 0
   sourceTextures: []
@@ -81,7 +116,7 @@ MonoBehaviour:
     useAlphaBuffer: 0
     alphaLimitForAlphaBuffer: 1
     worldSpaceBrushPixelJitter: 0
-    Color: {r: 0, g: 0, b: 1, a: 1}
+    Color: {r: 0, g: 0, b: 0, a: 1}
     _dFlow:
       min: 0.1
       max: 4.5
@@ -106,6 +141,4 @@ MonoBehaviour:
   selectedHeightIndex: 8
   recordingNames: []
   browsedRecord: 0
-  stdData: sch|1|0|pals|0||cam|180|mm|0||pl|155|_lstMeta|7|pi|1|0||_lst|126|Color
-    Mgmt|0||CmbndMpsCntrl|0||TilAtlCntrl|0||VolumePntng|64|mFiv|2|60|mFov|3|170|cam|35|fov|2|90|p|0||r|0||n|3|0.1|f|3|100|||||rts|4|2048||Vpck|264|e|60|n|7|unNamed|sln|40|e|0||e|0||e|0||e|0||e|0||e|0||e|0||e|0||||e|60|n|7|unNamed|sln|40|e|0||e|0||e|0||e|0||e|0||e|0||e|0||e|0||||e|60|n|7|unNamed|sln|40|e|0||e|0||e|0||e|0||e|0||e|0||e|0||e|0||||e|60|n|7|unNamed|sln|40|e|0||e|0||e|0||e|0||e|0||e|0||e|0||e|0|||||e|1|y|
   systemLanguage: 10

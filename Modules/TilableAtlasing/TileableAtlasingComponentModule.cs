@@ -1011,9 +1011,9 @@ namespace PlaytimePainter.ComponentModules {
         {
             if (!p) return false;
             var mat = p.Material;
-            return mat && mat.IsAtlased(p.GetMaterialTextureProperty);
+            return mat && mat.IsAtlased(p.GetMaterialTextureProperty());
         }
-        public static bool IsProjected(this PlaytimePainter p) { return p.Material.IsProjected(); }
+        public static bool IsProjected(this PlaytimePainter p) => p.Material.IsProjected(); 
 
         public static bool IsAtlased(this Material mat, string property) => mat.IsAtlased() && property.Contains(PainterShaderVariables.isAtlasableDisaplyNameTag);
         

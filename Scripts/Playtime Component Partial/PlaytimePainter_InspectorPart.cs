@@ -551,7 +551,7 @@ namespace PlaytimePainter
                         }
                         else
                         {
-                            if (!NotUsingPreview)
+                            if (IsUsingPreview)
                                 PreviewShaderToggleInspect();
 
                             if (!painterNotUiOrPlaying)
@@ -720,7 +720,7 @@ namespace PlaytimePainter
 
                             texMeta.ComponentDependent_PEGI(showToggles, this).changes(ref changed);
 
-                            if (showToggles || (!NotUsingPreview && cfg.previewAlphaChanel))
+                            if (showToggles || (IsUsingPreview && cfg.previewAlphaChanel))
                             {
                                 "Preview Edited RGBA".toggleIcon(ref cfg.previewAlphaChanel)
                                     .changes(ref changed);
@@ -817,9 +817,9 @@ namespace PlaytimePainter
                                 if (_tmpUrl.Length > 5 && icon.Download.Click())
                                 {
                                     loadingOrder.Add(PainterCamera.DownloadManager.StartDownload(_tmpUrl),
-                                        GetMaterialTextureProperty);
+                                        GetMaterialTextureProperty());
                                     _tmpUrl = "";
-                                    pegi.GameView.ShowNotification("Loading for {0}".F(GetMaterialTextureProperty));
+                                    pegi.GameView.ShowNotification("Loading for {0}".F(GetMaterialTextureProperty()));
                                 }
 
                                 pegi.nl();
@@ -839,7 +839,7 @@ namespace PlaytimePainter
                                 CheckPreviewShader();
                                 texMeta = TexMeta;
                                 if (texMeta == null)
-                                    _nameHolder =  "New {0}_{1}".F(gameObject.name, GetMaterialTextureProperty);
+                                    _nameHolder =  "New {0}_{1}".F(gameObject.name, GetMaterialTextureProperty());
                             }
 
                             if (texMeta != null)
@@ -883,7 +883,7 @@ namespace PlaytimePainter
 
                                 if (texNames.Count > SelectedTexture)
                                 {
-                                    var param = GetMaterialTextureProperty;
+                                    var param = GetMaterialTextureProperty();
 
                                     const string newTexConfirmTag = "pp_nTex";
 
@@ -905,7 +905,7 @@ namespace PlaytimePainter
                                         if (cfg.showRecentTextures)
                                         {
 
-                                            var texName = GetMaterialTextureProperty;
+                                            var texName = GetMaterialTextureProperty();
 
                                             List<TextureMeta> recentTexs;
                                             if (texName != null &&
@@ -1097,7 +1097,7 @@ namespace PlaytimePainter
             {
                 Texture tht = terrainHeightTexture;
 
-                if (!NotUsingPreview && icon.PreviewShader
+                if (IsUsingPreview && icon.PreviewShader
                         .Click("Applies changes made on Texture to Actual physical Unity Terrain.", 45)
                         .changes(ref changed))
                 {
@@ -1124,7 +1124,7 @@ namespace PlaytimePainter
                 if (NotUsingPreview && icon.OriginalShader.Click("Switch To Preview Shader", 45).changes(ref changed))
                     SetPreviewShader();
 
-                if (!NotUsingPreview && icon.PreviewShader.Click("Return to Original Shader", 45).changes(ref changed))
+                if (IsUsingPreview && icon.PreviewShader.Click("Return to Original Shader", 45).changes(ref changed))
                 {
                     MatDta.usePreviewShader = false;
                     SetOriginalShaderOnThis();

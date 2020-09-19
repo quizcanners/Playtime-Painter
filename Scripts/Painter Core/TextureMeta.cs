@@ -1023,8 +1023,7 @@ namespace PlaytimePainter
                                 var pp = PlaytimePainter.inspected;
                                 if (pp)
                                 {
-                                    var preview = !pp.NotUsingPreview;
-                                    if (preview)
+                                    if (pp.IsUsingPreview)
                                     {
                                         // Doing this to fix bug with _TexelSize not updating when changing texture size.
                                         pp.SetOriginalShaderOnThis();
@@ -1343,7 +1342,7 @@ namespace PlaytimePainter
         {
             var changed = false;
 
-            var property = painter.GetMaterialTextureProperty;
+            var property = painter.GetMaterialTextureProperty();
 
             var forceOpenUTransparentLayer = false;
 

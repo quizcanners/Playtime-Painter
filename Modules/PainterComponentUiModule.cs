@@ -65,7 +65,7 @@ namespace PlaytimePainter.ComponentModules {
 
                 if (p.TexMeta.TargetIsRenderTexture()) {
 
-                    var prop = p.GetMaterialTextureProperty;
+                    var prop = p.GetMaterialTextureProperty();
 
                     if (textureName.Equals(prop) && p.NotUsingPreview)
                         "Image element can't use Render Texture as sprite. Switch to preview. Sprite will be updated when switching to CPU"

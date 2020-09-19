@@ -443,6 +443,8 @@ namespace PlaytimePainter
 
         public bool NotUsingPreview => !previewHolderMaterial || previewHolderMaterial != Material;
 
+        public bool IsUsingPreview => !NotUsingPreview;
+
         private void CheckPreviewShader()
         {
             if (MatDta == null)
@@ -572,9 +574,9 @@ namespace PlaytimePainter
 
             var id = TexMeta;
 
-            var fieldName = GetMaterialTextureProperty;
+            var fieldName = GetMaterialTextureProperty();
             var mat = Material;
-            if (!NotUsingPreview && !terrain)
+            if (IsUsingPreview && !terrain)
             {
                 id.tiling = mat.GetTiling(PainterShaderVariables.PreviewTexture);
                 id.offset = mat.GetOffset(PainterShaderVariables.PreviewTexture);
@@ -596,9 +598,9 @@ namespace PlaytimePainter
         public void UpdateTilingToMaterial()
         {
             var id = TexMeta;
-            var fieldName = GetMaterialTextureProperty;
+            var fieldName = GetMaterialTextureProperty();
             var mat = Material;
-            if (!NotUsingPreview && !terrain)
+            if (IsUsingPreview && !terrain)
             {
                 mat.SetTiling(PainterShaderVariables.PreviewTexture, id.tiling);
                 mat.SetOffset(PainterShaderVariables.PreviewTexture, id.offset);
@@ -646,9 +648,7 @@ namespace PlaytimePainter
                 }
             }
 #endif
-
-            var field = GetMaterialTextureProperty;
-
+            
             if (!texture)
             {
                 RemoveTextureFromMaterial(); //SetTextureOnMaterial((Texture)null);
@@ -660,7 +660,13 @@ namespace PlaytimePainter
             if (id == null)
             {
                 id = new TextureMeta().Init(texture);
-                id.useTexCoord2 = field.NameForDisplayPEGI().Contains(PainterShaderVariables.isUV2DisaplyNameTag);
+
+                var field = GetMaterialTextureProperty();
+
+                if (field == null)
+                    Debug.LogError("Filed is null");
+                else
+                    id.useTexCoord2 = field.NameForDisplayPEGI().Contains(PainterShaderVariables.isUV2DisaplyNameTag);
             }
 
             SetTextureOnMaterial(texture);
@@ -692,7 +698,7 @@ namespace PlaytimePainter
             if (id.target == dst)
                 return;
 
-            id.ChangeDestination(dst, GetMaterial(true).GetMaterialPainterMeta(), GetMaterialTextureProperty, this);
+            id.ChangeDestination(dst, GetMaterial(true).GetMaterialPainterMeta(), GetMaterialTextureProperty(), this);
             CheckPreviewShader();
 
         }
@@ -713,7 +719,7 @@ namespace PlaytimePainter
         private void CreateTerrainHeightTexture(string newName)
         {
 
-            var field = GetMaterialTextureProperty;
+            var field = GetMaterialTextureProperty();
 
             if (!field.Equals(PainterShaderVariables.TerrainHeight))
             {
@@ -981,12 +987,12 @@ namespace PlaytimePainter
             return _lastTextureNames;
         }
 
-        public ShaderProperty.TextureValue GetMaterialTextureProperty => GetAllTextureNames().TryGet(SelectedTexture);
+        public ShaderProperty.TextureValue GetMaterialTextureProperty() => GetAllTextureNames().TryGet(SelectedTexture);
 
         private Texture GetTextureOnMaterial()
         {
 
-            if (!NotUsingPreview)
+            if (IsUsingPreview)
             {
                 if (meshEditing) return null;
                 if (!terrain)
@@ -996,7 +1002,7 @@ namespace PlaytimePainter
                 }
             }
 
-            var fieldName = GetMaterialTextureProperty;
+            var fieldName = GetMaterialTextureProperty();
 
             if (fieldName == null)
                 return null;
@@ -1012,12 +1018,12 @@ namespace PlaytimePainter
             return Material.Get(fieldName);
         }
 
-        private void RemoveTextureFromMaterial() => SetTextureOnMaterial(GetMaterialTextureProperty, null);
+        private void RemoveTextureFromMaterial() => SetTextureOnMaterial(GetMaterialTextureProperty(), null);
 
         public void SetTextureOnMaterial(TextureMeta id) =>
-            SetTextureOnMaterial(GetMaterialTextureProperty, id.CurrentTexture());
+            SetTextureOnMaterial(GetMaterialTextureProperty(), id.CurrentTexture());
 
-        public TextureMeta SetTextureOnMaterial(Texture tex) => SetTextureOnMaterial(GetMaterialTextureProperty, tex);
+        public TextureMeta SetTextureOnMaterial(Texture tex) => SetTextureOnMaterial(GetMaterialTextureProperty(), tex);
 
         private TextureMeta SetTextureOnMaterial(ShaderProperty.TextureValue property, Texture tex)
         {
@@ -1045,7 +1051,7 @@ namespace PlaytimePainter
             if (property != null)
                 mat.Set(property, id.CurrentTexture());
 
-            if (!NotUsingPreview && (!terrain))
+            if (IsUsingPreview && (!terrain))
                 SetTextureOnPreview(id.CurrentTexture());
 
             return id;
@@ -1336,13 +1342,13 @@ namespace PlaytimePainter
                 if (!terrain)
                     return false;
 
-                var propName = GetMaterialTextureProperty;
+                var propName = GetMaterialTextureProperty();
                 return propName?.Equals(PainterShaderVariables.TerrainHeight) ?? false;
             }
         }
 
         public bool IsTerrainControlTexture => TexMeta != null && terrain &&
-                                               GetMaterialTextureProperty.HasUsageTag(PainterShaderVariables
+                                               GetMaterialTextureProperty().HasUsageTag(PainterShaderVariables
                                                    .TERRAIN_CONTROL_TEXTURE);
 
         #endregion
