@@ -28,17 +28,14 @@ namespace QuizCannersUtilities
                 j = tmp;
             else
                 str.dataOnly = true;
-
         }
 
         protected static bool DecodeOrInspectJson(ref JsonBase j, bool foldedOut, string name = "")
         {
-
             var str = j.AsJsonString;
 
             if (str != null)
             {
-
                 if (str.dataOnly)
                 {
                     if (!foldedOut)
@@ -53,26 +50,21 @@ namespace QuizCannersUtilities
                 }
                 else if (foldedOut && "Decode 1 layer".Click())
                     TryDecode(ref j);
-
-
+                
                 pegi.nl();
             }
-
-
+            
             if (!foldedOut)
                 return false;
 
             var changed = j.Inspect().nl();
-
-
-
+            
             return changed;
         }
 
         [DerivedList(typeof(JsonString), typeof(JsonClass), typeof(JsonProperty), typeof(JsonList))]
         protected class JsonString : JsonBase, IGotDisplayName
         {
-
             public bool dataOnly;
 
             public override JsonString AsJsonString => this;
@@ -112,7 +104,6 @@ namespace QuizCannersUtilities
 
             public override bool Inspect()
             {
-
                 var changed = false;
 
                 if (dataOnly)
@@ -169,7 +160,6 @@ namespace QuizCannersUtilities
 
                 while (textIndex < data.Length)
                 {
-
                     var c = data[textIndex];
 
                     switch (stage)
@@ -178,7 +168,6 @@ namespace QuizCannersUtilities
 
                             if (c != ' ')
                             {
-
                                 if (c == '{')
                                     isaList = false;
                                 else if (c == '[')
@@ -198,12 +187,9 @@ namespace QuizCannersUtilities
                                 stage = isaList
                                     ? JsonDecodingStage.ReadingData
                                     : JsonDecodingStage.ExpectingVariableName;
-
                             }
-
                             break;
-
-
+                            
                         case JsonDecodingStage.ExpectingVariableName:
                             if (c != ' ')
                             {
@@ -316,22 +302,11 @@ namespace QuizCannersUtilities
                     textIndex++;
                 }
 
-
-                /* if (stage == JsonDecodingStage.ReadingData)
-                 {
-                     if (isaList)
-                         vals.Add(new JsonString(sb.ToString()));
-                     else
-                         properties.Add(new JsonProperty(variableName, sb.ToString()));
-                 }*/
-
                 if (isaList)
                     return new JsonList(vals);
                 return properties.Count > 0 ? new JsonClass(properties) : null;
 
-
             }
-
         }
 
         protected class JsonProperty : JsonBase, IGotDisplayName
@@ -373,7 +348,6 @@ namespace QuizCannersUtilities
 
                 if (data.CountForInspector() > 0)
                 {
-
                     if (data.HasNestedData)
                         (name + " " + data.GetNameForInspector()).foldout(ref foldedOut);
 
@@ -388,8 +362,6 @@ namespace QuizCannersUtilities
 
                 return changed;
             }
-
-
         }
 
         protected class JsonList : JsonBase, IGotDisplayName
@@ -409,8 +381,7 @@ namespace QuizCannersUtilities
             {
 
                 var changed = false;
-
-
+                
                 if (values.Count > 0)
                 {
                     var cl = values[0] as JsonClass;
@@ -499,14 +470,12 @@ namespace QuizCannersUtilities
                 }
 
                 pegi.UnIndent();
-
-
+                
                 return changed;
             }
 
             public override bool DecodeAll(ref JsonBase thisJson)
             {
-
                 bool changes = false;
 
                 for (int i = 0; i < values.Count; i++)
@@ -549,7 +518,6 @@ namespace QuizCannersUtilities
 
             public override bool Inspect()
             {
-
                 var changed = false;
 
                 pegi.Indent();
@@ -558,8 +526,7 @@ namespace QuizCannersUtilities
                     properties[i].Nested_Inspect();
 
                 pegi.UnIndent();
-
-
+                
                 return changed;
             }
 
@@ -637,9 +604,7 @@ namespace QuizCannersUtilities
 
                 rootAsString.data = rootAsString.data.Substring(index);
             }
-
-
-
+            
             do { } while (rootJson.DecodeAll(ref rootJson));
         }
 

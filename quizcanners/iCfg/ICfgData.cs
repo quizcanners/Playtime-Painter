@@ -755,7 +755,6 @@ namespace QuizCannersUtilities {
 
             return changed;
         }
-
     }
 
     [Serializable]

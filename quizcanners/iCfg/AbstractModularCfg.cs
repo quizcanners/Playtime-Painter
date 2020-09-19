@@ -43,7 +43,6 @@ namespace QuizCannersUtilities {
 
         public static TaggedTypesCfg TryGetOrCreate(Type type)
         {
-
             if (!typeof(IGotClassTag).IsAssignableFrom(type))
             {
                 return null;
@@ -133,8 +132,6 @@ namespace QuizCannersUtilities {
                         _dictionary[att.tag].ToString(), att.tag));
                 else
                 {
-                   
-
                     _dictionary.Add(att.tag, t);
                     _displayNames.Add(att.displayName);
                     _keys.Add(att.tag);
@@ -176,7 +173,6 @@ namespace QuizCannersUtilities {
         
         public bool Select(ref Type type)
         {
-
             var changed = false;
 
             var ind = type != null ? Types.IndexOf(type) : -1;

@@ -338,7 +338,4 @@ namespace QuizCannersUtilities
 
         #endregion
     }
-
-
-
 }
