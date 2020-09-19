@@ -36,11 +36,9 @@ namespace QuizCannersUtilities {
                 new CfgDecoder(data).DecodeTagsFor(obj);
         }
 
-        public static void DecodeTagsFrom<T>(this T obj, CfgData data) where T : class, ICfgCustom
-        {
+        public static void DecodeTagsFrom<T>(this T obj, CfgData data) where T : class, ICfgCustom =>
             new CfgDecoder(data).DecodeTagsFor(obj);
-        }
-
+        
         public static T TryDecodeInto<T>(this ICfg ovj, Type childType)
         {
             var val = (T)Activator.CreateInstance(childType);
@@ -178,7 +176,6 @@ namespace QuizCannersUtilities {
 
         public CfgData GetData()
         {
-
             if (!_expectingGetData)
             {
                 throw new ArgumentException("Was expecting Get Tag");
@@ -223,7 +220,6 @@ namespace QuizCannersUtilities {
             if (_expectingGetData)
             {
                 throw new ArgumentException("Was expecting Get Tag");
-                //GetData();
             }
 
             return GetNextTag() != null;

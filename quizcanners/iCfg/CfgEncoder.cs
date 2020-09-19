@@ -231,14 +231,6 @@ namespace QuizCannersUtilities
 
         private readonly StringBuilder _builder = new StringBuilder();
 
-        /* UnrecognizedTagsList _toUnlock;
-
-         public CfgEncoder Lock(UnrecognizedTagsList tags) {
-             _toUnlock = tags;
-             tags.locked = true;
-             return this;
-         }*/
-
         public CfgData CfgData => new CfgData(_builder.ToString());
 
         public override string ToString() {
@@ -274,10 +266,8 @@ namespace QuizCannersUtilities
 
         public CfgEncoder Add_Bool(string tag, bool val) => Add_String(tag, val ? IsTrueTag : IsFalseTag);
         
-
         public CfgEncoder Add_GUID(string tag, Object obj) => Add_IfNotEmpty(tag, obj.GetGuid());
-
-
+        
         #region ValueTypes
         public CfgEncoder Add(string tag, float val) =>
         Add_String(tag, val.ToString(CultureInfo.InvariantCulture.NumberFormat));
@@ -364,9 +354,6 @@ namespace QuizCannersUtilities
 
             return Add(tag, cody);
         }
-
-
-       // public CfgEncoder Add<T>(string tag, List<T> val, TaggedTypesCfg tts) where T : IGotClassTag  => Add_Abstract(tag, val);
 
         public CfgEncoder Add(string tag, IGotClassTag typeTag, TaggedTypesCfg cfg) => typeTag == null ? this :
             Add(tag, new CfgEncoder().Add(typeTag.ClassTag, typeTag.Encode()));
