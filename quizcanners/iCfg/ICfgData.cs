@@ -17,7 +17,7 @@ namespace QuizCannersUtilities {
 
    /* public interface ICfg {
         CfgEncoder Encode(); 
-        void Decode(string data);
+        void Decode(CfgData data);
         bool Decode(string key, string data);
     }*/
 
@@ -25,10 +25,14 @@ namespace QuizCannersUtilities {
     {
         void Decode(string key, CfgData data);
     }
-
+    
     public interface ICfg : ICfgDecode
     {
         CfgEncoder Encode();
+    }
+
+    public interface ICfgCustom : ICfg
+    {
         void Decode(CfgData data);
     }
     
@@ -68,7 +72,14 @@ namespace QuizCannersUtilities {
             return variable;
         }
 
+        private int ToIntFromTextSafe(string text, int defaultReturn)
+        {
+            int res;
+            return int.TryParse(text, out res) ? res : defaultReturn;
+        }
+
         #region Decoding Base Values
+
         public BoneWeight ToBoneWeight()
         {
             var cody = new CfgDecoder(_value);
@@ -244,7 +255,7 @@ namespace QuizCannersUtilities {
                 value = variable;
         }
 
-        public int ToInt(int defaultValue)
+        public int ToInt(int defaultValue = 0)
         {
             int variable;
             return int.TryParse(_value, out variable) ? variable : defaultValue;
@@ -263,8 +274,7 @@ namespace QuizCannersUtilities {
             float.TryParse(_value, NumberStyles.Float, CultureInfo.InvariantCulture.NumberFormat, out val);
             return val;
         }
-
-
+        
         public Color ToColor()
         {
             var cody = new CfgDecoder(_value);
@@ -289,7 +299,7 @@ namespace QuizCannersUtilities {
         #endregion
 
         #region Arrays
-        public T[] Decode_Array<T>(out T[] l) where T : ICfg, new()
+        public T[] Decode_Array<T>(out T[] l) where T : class, ICfgCustom, new()
         {
             var cody = new CfgDecoder(this);
 
@@ -357,164 +367,36 @@ namespace QuizCannersUtilities {
         }
         #endregion
 
-        #region InternalDecode
-
-        private T DecodeData<T>(CfgDecoder cody, TaggedTypesCfg tps, ListMetaData ld) where T : IGotClassTag
-            => Decode<T>(cody.CurrentTag, cody.GetData(), tps, ld, cody.currentTagIndex);
-
-        private T DecodeData<T>(CfgDecoder cody, TaggedTypesCfg tps) where T : IGotClassTag
-             => Decode<T>(cody.CurrentTag, cody.GetData(), tps);
-
-        private T DecodeData<T>(CfgDecoder cody, List<Type> tps, ListMetaData ld) where T : ICfg
-            => Decode<T>(cody.CurrentTag, cody.GetData(), tps, ld, cody.currentTagIndex);
-
-        private T DecodeData<T>(CfgDecoder cody, List<Type> tps) where T : ICfg
-            => Decode<T>(cody.CurrentTag, cody.GetData(), tps);
-
-        private T Decode<T>(string tagAsTypeIndex, CfgData data, TaggedTypesCfg tps, ListMetaData ld, int index) where T : IGotClassTag
+        #region Tagged Types Internal
+        private T Decode<T>(string tagAsTypeIndex, TaggedTypesCfg tps) where T : ICfg
         {
-
             if (tagAsTypeIndex == CfgEncoder.NullTag) return default;
 
             var type = tps.TaggedTypes.TryGet(tagAsTypeIndex);
 
             if (type != null)
-                return data.Decode<T>(type);
+                return Decode<T>(type);
 
             return default;
         }
 
-        private static T Decode<T>(string tagAsTypeIndex, CfgData data, TaggedTypesCfg tps) where T : IGotClassTag
+        private T Decode<T>(string tagAsTypeIndex, List<Type> tps) where T : ICfg
         {
-
             if (tagAsTypeIndex == CfgEncoder.NullTag) return default;
 
-            var type = tps.TaggedTypes.TryGet(tagAsTypeIndex);
-
-            return (type == null) ? default : data.Decode<T>(type);
-        }
-
-        private static T Decode<T>(string tagAsTypeIndex, CfgData data, List<Type> tps, ListMetaData ld, int index) where T : ICfg
-        {
-
-            if (tagAsTypeIndex == CfgEncoder.NullTag) return default;
-
-            var type = tps.TryGet(tagAsTypeIndex.ToIntFromTextSafe(-1));
+            var type = tps.TryGet(ToIntFromTextSafe(tagAsTypeIndex , - 1));
 
             if (type != null)
-                return data.Decode<T>(type);
+                return Decode<T>(type);
 
-            // ld.elementDatas[index].Unrecognized(tagAsTypeIndex, data);
-
-
-            return default;
-        }
-
-        private static T Decode<T>(string tagAsTypeIndex, CfgData data, List<Type> tps) where T : ICfg
-        {
-
-
-            if (tagAsTypeIndex == CfgEncoder.NullTag) return default;
-
-            var type = tps.TryGet(tagAsTypeIndex.ToIntFromTextSafe(-1));
-
-            if (type != null)
-                return data.Decode<T>(type);
-
-            return tagAsTypeIndex == CfgDecoder.ListElementTag ? data.Decode<T>(tps[0]) : default;
+            return tagAsTypeIndex == CfgDecoder.ListElementTag ? Decode<T>(tps[0]) : default;
         }
         #endregion
 
-        public void ToList<T>(out List<T> list, ref ListMetaData ld) where T : ICfg, new()
-        {
-            list = new List<T>();
+        #region Decodey To Type
 
-            if (ld == null)
-                ld = new ListMetaData();
-
-            var tps = typeof(T).TryGetDerivedClasses();
-
-            var overCody = new CfgDecoder(this);
-            foreach (var tag in overCody)
-            {
-
-                switch (tag)
-                {
-
-                    case CfgEncoder.ListMetaTag: ld.Decode(overCody.GetData()); break;
-
-                    case CfgEncoder.ListTag:
-                        var cody = new CfgDecoder(overCody.GetData());
-                        if (tps != null)
-                            foreach (var t in cody)
-                                list.Add(DecodeData<T>(cody, tps, ld)); // Probably something off here (Decoding list of sub nodes)
-                        else foreach (var t in cody)
-                            list.Add(cody.GetData().Decode<T>());
-                        break;
-
-                    default: list.Add((tps != null) ? DecodeData<T>(overCody, tps, ld) : overCody.GetData().Decode<T>()); break;
-                }
-            }
-        }
-        
-        public void ToList<T>(out List<T> list) where T : ICfg, new()
-        {
-            list = new List<T>();
-
-            var cody = new CfgDecoder(this);
-
-            var tps = typeof(T).TryGetDerivedClasses();
-
-            if (tps != null)
-                foreach (var tag in cody)
-                    list.Add(DecodeData<T>(cody, tps));
-            else foreach (var tag in cody)
-                list.Add(cody.GetData().Decode<T>());
-        }
-
-        public void Decode_List<T>(out List<T> l, TaggedTypesCfg tps) where T : IGotClassTag
-        {
-            var cody = new CfgDecoder(_value);
-
-            l = new List<T>();
-
-            foreach (var tag in cody)
-                l.Add(DecodeData<T>(cody, tps));
-        }
-
-        public void Decode_List<T>(out List<T> l, ref ListMetaData ld, TaggedTypesCfg tps) where T : IGotClassTag
-        {
-            l = new List<T>();
-            if (ld == null)
-                ld = new ListMetaData();
-
-            var overCody = new CfgDecoder(_value);
-            foreach (var tag in overCody)
-            {
-                switch (tag)
-                {
-                    case CfgEncoder.ListMetaTag: ld.Decode(overCody.GetData()); break;
-                    case CfgEncoder.ListTag:
-                        var cody = new CfgDecoder(overCody.GetData());
-                        foreach (var t in cody) l.Add(DecodeData<T>(cody, tps, ld)); break;
-                    default:
-                        l.Add(DecodeData<T>(overCody, tps, ld));
-                        break;
-                }
-            }
-            
-        }
-        
-        private T Decode<T>(Type childType) where T : ICfg
-        {
-            var val = (T)Activator.CreateInstance(childType);
-            val.Decode(this);
-            return val;
-        }
-        
         public void Decode<T>(out T val, TaggedTypesCfg typeList) where T : IGotClassTag
         {
-
             val = default;
 
             var cody = new CfgDecoder(_value);
@@ -524,20 +406,41 @@ namespace QuizCannersUtilities {
             if (type != null)
                 val = cody.GetData().Decode<T>(type);
         }
-        
-        public T Decode<T>(out T val) where T : ICfg, new()
+
+        public T Decode<T>() where T : ICfg
         {
-            val = Decode<T>();
+            var val = (T)Activator.CreateInstance(typeof(T));
+           // var val = new T();
+            DecodeFull(ref val);
             return val;
         }
 
-        public T Decode<T>() where T : ICfg, new()
+        public void Decode<T>(out T val) where T : ICfg
         {
-            var obj = new T();
-            obj.Decode(this);
-            return obj;
+            val = (T)Activator.CreateInstance(typeof(T));
+            //val = new T();
+            DecodeFull(ref val);
         }
 
+        public void DecodeFull<T>(ref T obj) where T : ICfg
+        {
+            var cstm = obj as ICfgCustom;
+
+            if (cstm != null)
+                cstm.Decode(this);
+            else
+                new CfgDecoder(this).DecodeTagsFor(ref obj);
+        }
+
+        private T Decode<T>(Type childType) where T : ICfg
+        {
+            var val = (T)Activator.CreateInstance(childType);
+             DecodeFull(ref val);
+            return val;
+        }
+
+        #endregion
+        
         public void Decode(Transform tf)
         {
 
@@ -559,10 +462,121 @@ namespace QuizCannersUtilities {
         
         public void Decode(CfgDecoder.DecodeDelegate dec) => new CfgDecoder(this).DecodeTagsFor(dec);
 
+        #region List
+
+        private const string ListTag = "_lst";
+        private const string ListMetaTag = "_lstMeta";
+
+        private void ToListInternal<T>(List<T> list, CfgDecoder overCody, TaggedTypesCfg tps) where T : ICfg
+        {
+            var dta = overCody.GetData();
+            var tag = overCody.CurrentTag;
+
+            if (tag == ListMetaTag)
+                return;
+
+            if (tag == ListTag)
+            {
+                var cody = new CfgDecoder(dta);
+
+                foreach (var t in cody)
+                    ToListInternal(list, cody, tps);
+            }
+            else
+                list.Add(dta.Decode<T>(tag, tps));
+        }
+
+        private void ToListInternal<T>(List<T> list, CfgDecoder overCody, List<Type> tps) where T : ICfg
+        {
+            var dta = overCody.GetData();
+            var tag = overCody.CurrentTag;
+
+            if (tag == ListMetaTag)
+                return;
+
+            if (tag == ListTag)
+            {
+                var cody = new CfgDecoder(dta);
+
+                foreach (var t in cody)
+                    ToListInternal(list, cody, tps);
+            } else 
+                list.Add(dta.Decode<T>(tag, tps));
+        }
+
+        private void ToListInternal<T>(List<T> list, CfgDecoder overCody) where T : ICfg
+        {
+            var dta = overCody.GetData();
+            var tag = overCody.CurrentTag;
+
+            if (tag == ListMetaTag)
+                return;
+
+            if (tag == ListTag)
+            {
+                var cody = new CfgDecoder(dta);
+
+                foreach (var t in cody)
+                    ToListInternal(list, cody);
+            }
+            else
+                list.Add(dta.Decode<T>());
+
+        }
+
+        public List<List<T>> Decode_ListOfList<T>(out List<List<T>> l) where T : ICfg, new()
+        {
+            l = new List<List<T>>();
+
+            var cody = new CfgDecoder(this);
+
+            while (cody.GotData)
+            {
+                cody.GetNextTag();
+                List<T> el;
+                cody.GetData().ToList(out el);
+                l.Add(el);
+            }
+
+            return l;
+        }
+      
+        public void ToList<T>(out List<T> list) where T : ICfg
+        {
+            list = new List<T>();
+
+            var cody = new CfgDecoder(this);
+
+            var tps = typeof(T).TryGetDerivedClasses();
+
+            if (tps != null)
+                foreach (var tag in cody)
+                    ToListInternal(list, cody, tps);
+            else
+                foreach (var tag in cody)
+                    ToListInternal(list, cody);
+                
+        }
+
+        public void ToList<T>(out List<T> l, TaggedTypesCfg tps) where T : ICfg
+        {
+            var cody = new CfgDecoder(_value);
+
+            l = new List<T>();
+
+            foreach (var tag in cody)
+               ToListInternal(l, cody, tps); //l.Add(cody.GetData().Decode<T>(tag, tps)); 
+        }
+        
         public List<string> ToList()
         {
-            List<string> list;
-            Decoder.Decode_List(_value, out list);
+            List<string> list = new List<string>();
+
+            var cody = new CfgDecoder(this);
+
+            foreach (var tag in cody)
+                list.Add(cody.GetData().ToString());
+            
             return list;
         }
         
@@ -634,6 +648,10 @@ namespace QuizCannersUtilities {
             return l;
         }
 
+        #endregion
+
+        #region Dictionary
+
         public void Decode_Dictionary(out Dictionary<int, string> dic)
         {
             var cody = new CfgDecoder(_value);
@@ -655,7 +673,17 @@ namespace QuizCannersUtilities {
 
         }
 
-        public void Decode_Dictionary<T>(out Dictionary<string, T> dic) where T : ICfg, new()
+        public void Decode_Dictionary(out Dictionary<string, CfgData> dic)
+        {
+            var cody = new CfgDecoder(_value);
+
+            dic = new Dictionary<string, CfgData>();
+
+            while (cody.GotData)
+                dic.Add(cody.GetNextTag(), cody.GetData());
+        }
+        
+        public void Decode_Dictionary<T>(out Dictionary<string, T> dic) where T : class, ICfg, new()
         {
             var cody = new CfgDecoder(_value);
 
@@ -665,13 +693,13 @@ namespace QuizCannersUtilities {
             {
                 var val = new T();
                 var tag = cody.GetNextTag();
-                val.Decode(cody.GetData());
+                val.DecodeFull(cody.GetData());
                 dic.Add(tag, val);
             }
 
         }
-
-     
+        
+        #endregion
     }
 
     #endregion
@@ -691,7 +719,6 @@ namespace QuizCannersUtilities {
 
     public abstract class ConfigurationsListGeneric<T> : ConfigurationsListBase where T : Configuration
     {
-
         public List<T> configurations = new List<T>();
 
         #region Inspector
@@ -699,13 +726,10 @@ namespace QuizCannersUtilities {
         public override bool Inspect() => "Configurations".edit_List(ref configurations);
 
         #endregion
-
     }
-
-
+    
     public abstract class ConfigurationsListBase : ScriptableObject, IPEGI
     {
-
         public virtual bool Inspect() => false;
 
         public static bool Inspect<T>(ref T configs) where T : ConfigurationsListBase
@@ -817,8 +841,6 @@ namespace QuizCannersUtilities {
                 case "d": data = d.ToString(); break;
             }
         }
-
-        public void Decode(CfgData data) => this.DecodeTagsFrom(data);
         
         #endregion
 
@@ -832,159 +854,8 @@ namespace QuizCannersUtilities {
         }
 
     }
-    /*
-    public class StdSimpleReferenceHolder : ICfgSerializeNestedReferences {
-        
-        public readonly List<Object> nestedReferences = new List<Object>();
-        public int GetReferenceIndex(Object obj) => QcSharp.TryGetIndexOrAdd(nestedReferences, obj);
 
-        public T GetReferenced<T>(int index) where T : Object => nestedReferences.TryGet(index) as T;
-
-    }*/
-    /*
-    public class CfgReferencesHolder : ScriptableObject, ICfgSerializeNestedReferences, IPEGI, IKeepUnrecognizedCfg
-    {
-        
-        #region Encode & Decode
-
-        public UnrecognizedTagsList UnrecognizedStd { get; } = new UnrecognizedTagsList();
-
-        private readonly ListMetaData _listMetaData = new ListMetaData("References");
-
-        [SerializeField] protected List<Object> nestedReferences = new List<Object>();
-        public virtual int GetReferenceIndex(Object obj) => QcSharp.TryGetIndexOrAdd(nestedReferences, obj);
-
-        public virtual T GetReferenced<T>(int index) where T : Object => nestedReferences.TryGet(index) as T;
-
-
-        public virtual CfgEncoder Encode() => this.EncodeUnrecognized()
-            .Add("listDta", _listMetaData);
-
-        public virtual void Decode(string data) => this.DecodeTagsFrom(data);
-
-        public virtual bool Decode(string tg, string data)
-        {
-            switch (tg)
-            {
-                case "listDta": _listMetaData.Decode(data); break;
-                default: return false;
-            }
-            return true;
-        }
-        #endregion
-
-        public ICfgObjectExplorer explorer = new ICfgObjectExplorer();
-
-        #region Inspector
- 
-        [ContextMenu("Reset Inspector")] // Because ContextMenu doesn't accepts overrides
-        private void Reset() => ResetInspector();
-
-        public virtual void ResetInspector()
-        {
-            _inspectedDebugItems = -1;
-            inspectedReference = -1;
-            inspectedItems = -1;
-        }
-        
-        [NonSerialized] public int inspectedItems = -1;
-        private int _inspectedDebugItems = -1;
-        [NonSerialized] private int inspectedReference = -1;
-      
-        public virtual bool Inspect()
-        {
-
-            var changed = false;
-
-            if (!icon.Debug.enter(ref inspectedItems, 0)) return false;
-            
-            if (icon.Refresh.Click("Reset Inspector"))
-                ResetInspector();
-
-            this.ClickHighlight();
-            
-            pegi.nl();
-            
-            if ("Configs: ".AddCount(explorer).enter(ref _inspectedDebugItems, 0).nl())
-                explorer.Inspect(this);
-
-            if (inspectedItems == -1)
-                pegi.nl();
-
-            if (("Object References: " + nestedReferences.Count).enter(ref _inspectedDebugItems, 1).nl())
-            {
-                _listMetaData.edit_List_UObj(ref nestedReferences);
-
-                if (inspectedReference == -1 && "Clear All References".Click("Will clear the list. Make sure everything" +
-                    ", that usu this object to hold references is currently decoded to avoid mixups"))
-                    nestedReferences.Clear();
-
-            }
-
-            if (inspectedItems == -1)
-                pegi.nl();
-
-            if (("Unrecognized Tags: " + UnrecognizedStd.Count).enter(ref _inspectedDebugItems, 2).nl_ifNotEntered())
-                UnrecognizedStd.Nested_Inspect(ref changed);
-
-            if (inspectedItems == -1)
-                pegi.nl();
-
-            
-            return changed;
-        }
-        
-        #endregion
-    }
-    */
-
-   /* public abstract class AbstractCfg : ICanBeDefaultCfg {
-        public abstract CfgEncoder Encode();
-        public virtual void Decode(string data) => this.DecodeTagsFrom(data);
-        public abstract bool Decode(string key, string data);
-
-        public virtual bool IsDefault => false;
-    }*/
-
-
-   /* public abstract class AbstractKeepUnrecognizedCfg : AbstractCfg, IKeepUnrecognizedCfg {
-        public UnrecognizedTagsList UnrecognizedStd { get; } = new UnrecognizedTagsList();
-
-#if !UNITY_EDITOR
-        [NonSerialized]
-        #endif
-        private readonly ICfgObjectExplorer _explorer = new ICfgObjectExplorer();
-        
-        public override CfgEncoder Encode() => this.EncodeUnrecognized();
-
-        public override bool Decode(string tg, string data) => false;
-        #region Inspector
-
-        public virtual void ResetInspector() {
-            _inspectedItems = -1;
-        }
-
-        public int _inspectedItems = -1;
-        
-        public virtual bool Inspect() {
-            var changed = false;
-
-            if (icon.Debug.enter(ref _inspectedItems, 0)) {
-                if (icon.Refresh.Click("Reset Inspector"))
-                    ResetInspector();
-                this.CopyPasteStdPegi().nl(ref changed);
-
-                _explorer.Inspect(this);
-                changed |= UnrecognizedStd.Nested_Inspect();
-            }
-
-            return changed;
-        }
-      
-        #endregion
-    }*/
-
-    public abstract class ComponentCfg : MonoBehaviour, ICanBeDefaultCfg, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention {
+    public abstract class ComponentCfg : MonoBehaviour, ICfg, IPEGI, IPEGI_ListInspect {
 
 #if !UNITY_EDITOR
         [NonSerialized]
@@ -992,20 +863,7 @@ namespace QuizCannersUtilities {
         public ICfgObjectExplorer explorer = new ICfgObjectExplorer();
 
         #region Inspector
-
-        public virtual string NameForPEGI
-        {
-            get
-            {
-                return gameObject.name;
-            }
-
-            set
-            {
-                gameObject.RenameAsset(value);
-            }
-        }
-
+        
         [HideInInspector]
         [SerializeField] public int inspectedItems = -1;
         
@@ -1018,8 +876,6 @@ namespace QuizCannersUtilities {
             inspectedItems = -1;
         }
 
-        public virtual string NeedAttention() => null;
-        
         public virtual bool InspectInList(IList list, int ind, ref int edited)
         {
             var changed = false;
@@ -1027,10 +883,9 @@ namespace QuizCannersUtilities {
             if ((pegi.editDelayed(ref n) && n.Length > 0).changes(ref changed))
                 gameObject.name = n;
             
-            if (this.Click_Enter_Attention_Highlight(ref changed))
+            if (icon.Enter.Click()) 
                 edited = ind;
             
-
             return changed;
         }
         
@@ -1045,8 +900,6 @@ namespace QuizCannersUtilities {
             if (!icon.Debug.enter(ref inspectedItems, 0).nl(ref changed))
                 return changed; 
                 
-
-
             "{0} Debug ".F(this.GetNameForInspector()).write(90);
 
             pegi.toggleDefaultInspector(this);
@@ -1090,19 +943,6 @@ namespace QuizCannersUtilities {
         #endregion
 
         #region Encoding & Decoding
-
-        public virtual bool IsDefault => false;
-
-        protected ListMetaData referencesMeta = new ListMetaData("References");
-
-        [HideInInspector]
-       // [SerializeField] protected List<Object> nestedReferences = new List<Object>();
-       // public int GetReferenceIndex(Object obj) => QcSharp.TryGetIndexOrAdd(nestedReferences, obj);
-        
-      //  public T GetReferenced<T>(int index) where T : Object => nestedReferences.TryGet(index) as T;
-
-     //   public UnrecognizedTagsList UnrecognizedStd { get; } = new UnrecognizedTagsList();
-
         public virtual void Decode(string key, CfgData data)
         {
             switch (key) {
@@ -1111,25 +951,18 @@ namespace QuizCannersUtilities {
         }
 
         public virtual CfgEncoder Encode() => new CfgEncoder().Add_IfNotNegative("db", inspectedItems) ;
-
-        public virtual void Decode(CfgData data) {
-           // UnrecognizedStd.Clear();
-            this.DecodeTagsFrom(data);
-        }
-
-#endregion
+        #endregion
     }
 
 #endregion
 
 #region Extensions
-    public static class StdExtensions {
+    public static class CfgExtensions {
 
         private const string StdStart = "<-<-<";
         private const string StdEnd = ">->->";
-
-
-        public static void Decode(this ICfg cfg, string rawData) => cfg.Decode(new CfgData(rawData));
+        
+        public static void Decode(this ICfg cfg, string rawData) => cfg.DecodeFull(new CfgData(rawData));
 
         public static void EmailData(this ICfg cfg, string subject, string note)
         {
@@ -1140,7 +973,7 @@ namespace QuizCannersUtilities {
                 StdStart,  cfg.Encode().ToString(), StdEnd ) ) ;
         }
 
-        public static void DecodeFromExternal(this ICfg cfg, string rawData) => cfg?.Decode(ClearFromExternal(rawData));
+        public static void DecodeFromExternal(this ICfg cfg, string rawData) => cfg?.DecodeFull(ClearFromExternal(rawData));
         
         private static CfgData ClearFromExternal(string data) {
 
@@ -1205,17 +1038,15 @@ namespace QuizCannersUtilities {
             return false;
         }
 
-       // private static readonly StdSimpleReferenceHolder TmpHolder = new StdSimpleReferenceHolder();
-
         public static void TryCopy_Std_AndOtherData(object from, object into)
         {
             if (into == null || into == from) return;
             
-            var intoStd = into as ICfg;
+            var intoStd = into as ICfgCustom;
             
             if (intoStd != null)
             {
-                var fromStd = from as ICfg;
+                var fromStd = from as ICfgCustom;
 
                 if (fromStd != null)
                 {
@@ -1236,31 +1067,6 @@ namespace QuizCannersUtilities {
 
             
         }
-
-/*
-        public static void Add (this List<UnrecognizedTagsList.UnrecognizedElement> lst, List<string> tags, string data) {
-
-            var existing = lst.GetByIGotName(tags[0]);
-            if (existing != null)
-                existing.Add(tags, data);
-            else
-                lst.Add(new UnrecognizedTagsList.UnrecognizedElement(tags, data));
-        }
-
-        public static void Add(this List<UnrecognizedTagsList.UnrecognizedElement> lst, string tag, string data)
-            =>  lst.Add(new UnrecognizedTagsList.UnrecognizedElement(tag, data));
-
-        public static CfgEncoder Encode(this IEnumerable<UnrecognizedTagsList.UnrecognizedElement> lst) {
-            var cody = new CfgEncoder();
-            foreach (var e in lst) {
-                if (e.elements.Count == 0)
-                    cody.Add_String(e.tag, e.data);
-                else
-                    cody.Add(e.tag, e.elements.Encode());
-            }
-
-            return cody;
-        }*/
 
         public static List<Type> TryGetDerivedClasses (this Type t) => t.TryGetClassAttribute<DerivedListAttribute>()?.derivedTypes.NullIfEmpty();
             
@@ -1285,7 +1091,7 @@ namespace QuizCannersUtilities {
         {
             string txt;
             if (DropStringObject(out txt)) {
-                obj.Decode(new CfgData(txt));
+               new CfgData(txt).DecodeFull(ref obj);
                 return true;
             }
 
@@ -1330,12 +1136,6 @@ namespace QuizCannersUtilities {
             return s;
         }
 
-       /* public static ICfg SaveToAssets(this ICfg s, string path, string filename)
-        {
-            QcFile.Save.ToAssets(path, filename, s.Encode().ToString(), asBytes: true);
-            return s;
-        }*/
-
         public static ICfg SaveToPersistentPath(this ICfg s, string path, string filename)
         {
             QcFile.Save.ToPersistentPath(path, filename, s.Encode().ToString(), asBytes: true);
@@ -1347,7 +1147,7 @@ namespace QuizCannersUtilities {
             var data = QcFile.Load.FromPersistentPath(path, filename, asBytes: true);
             if (data != null)
             {
-                s.Decode(new CfgData(data));
+                s.DecodeFull(new CfgData(data));
                 return true;
             }
             return false;
@@ -1368,7 +1168,7 @@ namespace QuizCannersUtilities {
 
             try
             {
-                s.Decode(new CfgData(load));
+                new CfgData(load).DecodeFull(ref s);
             }
             catch (Exception ex)
             {
@@ -1382,7 +1182,7 @@ namespace QuizCannersUtilities {
         public static T LoadFromResources<T>(this T s, string subFolder, string file)where T:ICfg, new() {
 			if (s == null)
 				s = new T ();
-			s.Decode(new CfgData(QcFile.Load.FromResources(subFolder, file, asBytes: true)));
+			new CfgData(QcFile.Load.FromResources(subFolder, file, asBytes: true)).DecodeFull(ref s);
 			return s;
 		}
 

@@ -429,8 +429,8 @@ namespace PlaytimePainter.CameraModules
             .Add_IfNotZero("s", _sourceRole)
             .Add_IfNotZero("c", sourceChannel)
             .Add_Bool("f", flip);
+        
 
-        public void Decode(CfgData data) => this.DecodeTagsFrom(data);
         #endregion
 
         #region Inspect

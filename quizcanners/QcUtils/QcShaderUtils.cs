@@ -84,8 +84,8 @@ namespace QuizCannersUtilities {
                    // case "nm": nonMaterialProperty = data.ToBool();  break;
                 }
             }
+            
 
-            public virtual void Decode(CfgData data) => this.DecodeTagsFrom(data);
             #endregion
 
             #region Constructors

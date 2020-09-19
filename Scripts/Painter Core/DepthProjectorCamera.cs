@@ -560,8 +560,8 @@ namespace PlaytimePainter
             .Add("n", nearPlane)
             .Add("f", farPlane)
             .Add_IfTrue("l", localTransform);
+        
 
-        public void Decode(CfgData data) => this.DecodeTagsFrom(data);
 
         #endregion
 

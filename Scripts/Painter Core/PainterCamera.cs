@@ -223,16 +223,16 @@ namespace PlaytimePainter {
 
         public override CfgEncoder Encode() => base.Encode()//this.EncodeUnrecognized()
             .Add("mm", MeshManager)
-            .Add_Abstract("pl", CameraModuleBase.modules, _modulesMeta)
+            .Add_Abstract("pl", CameraModuleBase.modules)
             .Add("rts", RenderTextureBuffersManager.renderBuffersSize);
 
         public override void Decode(string key, CfgData data) {
             switch (key) {
                 case "pl":
-                    data.Decode_List(out CameraModuleBase.modules, ref _modulesMeta, CameraModuleBase.all);
+                    data.ToList(out CameraModuleBase.modules, CameraModuleBase.all);
                     CameraModuleBase.RefreshModules();
                     break;
-                case "mm": MeshManager.Decode(data); break;
+                case "mm": MeshManager.DecodeFull(data); break;
                 case "rts": RenderTextureBuffersManager.renderBuffersSize = data.ToInt(0); break;
             }
         }

@@ -68,7 +68,7 @@ namespace PlaytimePainter {
 
         #region Encode & Decode
 
-        public void Decode(CfgData data) => this.DecodeTagsFrom(data);
+
 
         public CfgEncoder Encode() {
 

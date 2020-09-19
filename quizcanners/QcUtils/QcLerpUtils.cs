@@ -157,8 +157,8 @@ namespace QuizCannersUtilities
             public virtual string NameForDisplayPEGI()=> Name_Internal;
 
             #region Encode & Decode
+            
 
-            public virtual void Decode(CfgData data) => this.DecodeTagsFrom(data);
 
             public virtual CfgEncoder Encode()
             {
@@ -581,7 +581,7 @@ namespace QuizCannersUtilities
             #endregion
         }
 
-        public abstract class BaseMaterialTextureTransition : BaseFloatLerp
+        public abstract class BaseMaterialTextureTransition : BaseFloatLerp, ICfgCustom
         {
             private float _portion;
 
@@ -769,10 +769,10 @@ namespace QuizCannersUtilities
                 }
             }
 
-            public override void Decode(CfgData data)
+            public void Decode(CfgData data)
             {
                 _onStart = OnStart.Nothing;
-                base.Decode(data);
+                 this.DecodeTagsFrom(data);
 
                 if (_onStart == OnStart.ClearTexture)
                 {
@@ -1894,7 +1894,7 @@ namespace QuizCannersUtilities
 
         #region UIElement Values
 
-        public class GraphicAlpha : BaseFloatLerp
+        public class GraphicAlpha : BaseFloatLerp, ICfgCustom
         {
 
             protected Graphic graphic;
@@ -1941,9 +1941,10 @@ namespace QuizCannersUtilities
 
             #region Encode & Decode
 
-            public override void Decode(CfgData data)
+            public void Decode(CfgData data)
             {
-                base.Decode(data);
+                //base.Decode(data);
+                this.DecodeTagsFrom(data);
 
                 if (setZeroOnStart && !defaultSet)
                     graphic.TrySetAlpha(0);

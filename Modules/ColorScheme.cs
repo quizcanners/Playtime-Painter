@@ -108,8 +108,7 @@ namespace PlaytimePainter
                 case "cols": data.ToList(out _colors); break;
             }
         }
-
-        public void Decode(CfgData data) => this.DecodeTagsFrom(data);
+        
 
         #endregion
 

@@ -213,7 +213,7 @@ namespace PlaytimePainter
             return cody;
         }
 
-        public override void Decode(string data)
+        public override void Decode(CfgData data)
         {
             base.Decode(data);
 

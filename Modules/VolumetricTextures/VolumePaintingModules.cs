@@ -70,7 +70,7 @@ namespace PlaytimePainter {
                         smoothing = data.ToFloat();
                         break;
                     case "cam":
-                        rayTraceCameraConfiguration.Decode(data);
+                        rayTraceCameraConfiguration.DecodeFull(data);
                         break;
                 }
             }

@@ -371,10 +371,10 @@ namespace PlaytimePainter
             switch (tg) {
                 case "trg": currentlyDecodedPainter.UpdateOrSetTexTarget(data.Equals("C") ? TexTarget.Texture2D : TexTarget.RenderTexture); break;
                 case "brush":
-                    GlobalBrush.Decode(data);
+                    GlobalBrush.DecodeFull(data);
                     GlobalBrush.brush2DRadius *= parentMeta?.width ?? 256; break;
                 case "s":
-                    currentlyDecodedPainter.stroke.Decode(data);
+                    currentlyDecodedPainter.stroke.DecodeFull(data);
                     GlobalBrush.Paint(currentlyDecodedPainter.PaintCommand);
                     break;
             }

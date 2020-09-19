@@ -937,7 +937,7 @@ namespace PlaytimePainter.UI
         protected override void OnEnable()
         {
             base.OnEnable();
-            Decode(ConfigStd);
+            this.DecodeFull(ConfigStd);
             //this.LoadCfgData();
         }
 
@@ -952,13 +952,11 @@ namespace PlaytimePainter.UI
         public CfgEncoder Encode() => new CfgEncoder()
             .Add_Abstract("mdls", _modules);
 
-        public void Decode(CfgData data) => new CfgDecoder(data).DecodeTagsFor(this); //this.DecodeTagsFrom(data);
-
         public void Decode(string key, CfgData data)
         {
             switch (key)
             {
-                case "mdls": data.Decode_List(out _modules, RoundedButtonModuleBase.all); break;
+                case "mdls": data.ToList(out _modules, RoundedButtonModuleBase.all); break;
             }
         }
 
@@ -1080,7 +1078,7 @@ namespace PlaytimePainter.UI
                 switch (key)
                 {
                     case "b": data.Decode(base.Decode); break;
-                    case "mp": referenceTexture.Decode(data); break;
+                    case "mp": referenceTexture.DecodeFull(data); break;
                 }
             }
 
@@ -1157,7 +1155,7 @@ namespace PlaytimePainter.UI
                 switch (key)
                 {
                     case "b": data.Decode(base.Decode); break;
-                    case "crn": _roundedCorners.Decode(data); break;
+                    case "crn": _roundedCorners.DecodeFull(data); break;
                     case "hov": valueWhenOver = data.ToFloat(); break;
                     case "nrm": valueWhenOff = data.ToFloat(); break;
                 }

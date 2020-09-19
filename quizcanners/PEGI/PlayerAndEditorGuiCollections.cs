@@ -962,7 +962,7 @@ namespace PlayerAndEditorGUI
                     {
                         var ty = el.GetType();
                         if (select(ref ty, derivedClasses, el.GetNameForInspector()))
-                            array[i] = (el as ICfg).TryDecodeInto<T>(ty);
+                            array[i] = (el as ICfgCustom).TryDecodeInto<T>(ty);
                     }
 
                     if (!isNull)
@@ -1058,7 +1058,7 @@ namespace PlayerAndEditorGUI
                         {
                             var ty = el.GetType();
                             if (select(ref ty, derivedClasses, el.GetNameForInspector()))
-                                list[i] = (el as ICfg).TryDecodeInto<T>(ty);
+                                list[i] = (el as ICfgCustom).TryDecodeInto<T>(ty);
                         }
 
                         if (!isNull)
@@ -1169,13 +1169,13 @@ namespace PlayerAndEditorGUI
                                 if (el != null)
                                 {
 
-                                    var istd = el as ICfg;
+                                    var istd = el as ICfgCustom;
 
                                     if (istd != null)
                                     {
                                         var ret = (T)Activator.CreateInstance(el.GetType());
 
-                                        (ret as ICfg).Decode(istd.Encode().ToString());
+                                        (ret as ICfgCustom).Decode(istd.Encode().ToString());
 
                                         list.TryAdd(ret);
                                     }
@@ -2334,6 +2334,12 @@ namespace PlayerAndEditorGUI
             return val;
         }
 
+        public static CfgData lambda_cfg(CfgData val)
+        {
+            val.Inspect();
+            return val;
+        }
+
         private static T lambda_Obj_role<T>(T val) where T : Object
         {
 
@@ -3235,8 +3241,8 @@ namespace PlayerAndEditorGUI
                     case "s": searchedText = data.ToString(); break;
                 }
             }
+            
 
-            public void Decode(CfgData data) => this.DecodeTagsFrom(data);
 
             public bool IsDefault => searchedText.IsNullOrEmpty();
 

@@ -11,7 +11,7 @@ namespace PlaytimePainter.MeshEditing
 #pragma warning disable IDE0018 // Inline variable declaration
 
 
-    public class EditableMesh : PainterClassCfg, IPEGI
+    public class EditableMesh : PainterClassCfg, IPEGI, ICfgCustom
     {
 
         public string meshName = "unnamed";
@@ -457,11 +457,11 @@ namespace PlaytimePainter.MeshEditing
 
         public static EditableMesh decodedEditableMesh;
 
-        public override void Decode(CfgData data)
+        public void Decode(CfgData data)
         {
             decodedEditableMesh = this;
 
-            base.Decode(data);
+            this.DecodeTagsFrom(data);
 
             decodedEditableMesh = null;
         }
@@ -494,7 +494,7 @@ namespace PlaytimePainter.MeshEditing
                     {
                         var mt = t as MeshToolBase;
                         if (mt == null || !mt.StdTag.Equals(key)) continue;
-                        mt.Decode(data);
+                        mt.DecodeFull(data);
                        break;
                     }
                     break;

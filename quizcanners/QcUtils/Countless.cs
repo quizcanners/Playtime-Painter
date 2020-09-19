@@ -154,7 +154,7 @@ namespace QuizCannersUtilities {
     }
 
 
-    public abstract class CfgCountlessBase : CountlessBase, ICfg, ICanBeDefaultCfg
+    public abstract class CfgCountlessBase : CountlessBase, ICfgCustom, ICanBeDefaultCfg
     {
         public override bool IsDefault { get {
                 var def = (br == null || br.value == 0);
@@ -664,7 +664,7 @@ namespace QuizCannersUtilities {
     }
 
 ///  Generic Trees
-public class Countless<T> : CountlessBase {
+    public class Countless<T> : CountlessBase {
         
         protected T[] objs = new T[0];
         private int _firstFreeObj;
@@ -1268,7 +1268,7 @@ public class Countless<T> : CountlessBase {
     {
 
         #region Inspector
-        public static bool Inspect<TG, T>(TG countless, ref int inspected) where TG : CountlessCfg<T> where T: ICfg, IPEGI, new() {
+        public static bool Inspect<TG, T>(TG countless, ref int inspected) where TG : CountlessCfg<T> where T: class, ICfgCustom, IPEGI, new() {
 
             var changed = false;
             
@@ -1422,11 +1422,14 @@ public class Countless<T> : CountlessBase {
 
         #endregion
 
-        public static T TryGet<T>(this UnNullableCfg<T> unn, int index) where T : ICfg, new() => unn != null ? unn.GetIfExists(index) : default;
-        
+        public static T TryGet<T>(this UnNullableCfg<T> unn, int index) where T :  ICfg, new() => unn != null ? unn.GetIfExists(index) : default;
+
+        public static T TryGet<T>(this UnNullable<T> unn, int index) where T :  ICfg, new() => unn != null ? unn.GetIfExists(index) : default;
+
+        public static T TryGet<T>(this Countless<T> unn, int index) where T :  ICfg, new() => unn != null ? unn.GetIfExists(index) : default;
 
     }
-    
+
 #pragma warning restore IDE0034 // Simplify 'default' expression
 #pragma warning restore IDE0019 // Use pattern matching
 #pragma warning restore IDE0018 // Inline variable declaration

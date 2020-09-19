@@ -758,8 +758,8 @@ namespace PlaytimePainter {
 
             public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(Base));
             public TaggedTypesCfg AllTypes => all;
+            
 
-            public virtual void Decode(CfgData data) => this.DecodeTagsFrom(data);
 
             public virtual void Decode(string key, CfgData data)
             {

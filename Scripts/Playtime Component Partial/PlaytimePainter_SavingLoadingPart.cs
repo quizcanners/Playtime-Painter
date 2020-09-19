@@ -37,7 +37,7 @@ namespace PlaytimePainter
             switch (key)
             {
                 case "mdls":
-                    Modules.Decode(data);
+                    Modules.DecodeFull(data);
                     break;
                 case "invCast":
                     invertRayCast = data.ToBool();
@@ -50,8 +50,8 @@ namespace PlaytimePainter
                     break;
             }
         }
+        
 
-        public void Decode(CfgData data) => this.DecodeTagsFrom(data);
 
 #if UNITY_EDITOR
 

@@ -134,8 +134,8 @@ namespace PlaytimePainter.MeshEditing
                 case "sln":  data.ToList(out dtaLnks); break;
             }
         }
+        
 
-        public void Decode(CfgData data) => this.DecodeTagsFrom(data);
         #endregion
 
         public MeshPackagingProfile() {
@@ -257,7 +257,7 @@ namespace PlaytimePainter.MeshEditing
 
     }
 
-    public class VertexDataLink : ICfg, IPEGI
+    public class VertexDataLink : ICfgCustom, IPEGI
     {
         public int sameSizeDataIndex = -1;
         private int _targetIndex;
@@ -524,8 +524,8 @@ namespace PlaytimePainter.MeshEditing
                 case "v":  data.ToInt(ref dstIndex); break;
             }
         }
+        
 
-        public virtual void Decode(CfgData data) => this.DecodeTagsFrom(data);
         #endregion
     }
     #endregion

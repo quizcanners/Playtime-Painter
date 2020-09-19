@@ -128,6 +128,19 @@ namespace QuizCannersUtilities
             return sub;
         }
 
+        public static CfgEncoder Encode(this Dictionary<string, CfgData> dic)
+        {
+            var sub = new CfgEncoder();
+
+            if (dic == null) return sub;
+
+            foreach (var e in dic)
+                sub.Add(e.Key, e.Value);
+
+            return sub;
+        }
+
+
         #region ValueTypes
         public static CfgEncoder Encode(this Vector3 v3, int precision) => new CfgEncoder()
             .Add_IfNotEpsilon("x", v3.x.RoundTo(precision))
@@ -212,8 +225,6 @@ namespace QuizCannersUtilities
         public const string NullTag = "null";
         public const string ListElementTag = "e";
         public const string UnrecognizedTag = "_urec";
-        public const string ListTag = "_lst";
-        public const string ListMetaTag = "_lstMeta";
         public const string IsTrueTag = "y";
         public const string IsFalseTag = "n";
         #endregion
@@ -263,70 +274,9 @@ namespace QuizCannersUtilities
 
         public CfgEncoder Add_Bool(string tag, bool val) => Add_String(tag, val ? IsTrueTag : IsFalseTag);
         
-        #region Unity_Objects
-
-       // public static ICfgSerializeNestedReferences keeper;
 
         public CfgEncoder Add_GUID(string tag, Object obj) => Add_IfNotEmpty(tag, obj.GetGuid());
 
-       // public CfgEncoder Add_Reference(string tag, Object obj) => Add_Reference(tag, obj, keeper);
-
-       // public CfgEncoder Add_Reference(string tag, Object obj, ICfgSerializeNestedReferences referencesKeeper) => (referencesKeeper == null || !obj) ? this : Add_IfNotNegative(tag, referencesKeeper.GetReferenceIndex(obj));
-            /*
-        public CfgEncoder Add_References<T>(string tag, List<T> objs) where T : Object => Add_References(tag, objs,keeper);
-        
-        public CfgEncoder Add_References<T>(string tag, List<T> lst, ICfgSerializeNestedReferences referencesKeeper) where T: Object
-        {
-            if (referencesKeeper == null || lst == null) return this;
-            
-            var indxs = new List<int>();
-
-            foreach (var o in lst)
-                indxs.Add(referencesKeeper.GetReferenceIndex(o));
-          
-            return Add(tag, indxs);
-            
-        }
-        
-        public CfgEncoder Add(string tag, ICfg other, ICfgSerializeNestedReferences referencesKeeper)
-        {
-            var prevKeeper = keeper;
-            keeper = referencesKeeper;
-
-            Add(tag, other);
-
-            (referencesKeeper as Object).SetToDirty();
-
-            keeper = prevKeeper;
-            
-            return this;
-        }
-
-        public CfgEncoder TryAdd<T>(string tag, T obj, ICfgSerializeNestedReferences referencesKeeper)
-        {
-            var prevKeeper = keeper;
-            keeper = referencesKeeper;
-
-            TryAdd(tag, obj);
-
-            (referencesKeeper as Object).SetToDirty();
-            keeper = prevKeeper;
-            return this;
-        }
-        
-        public CfgEncoder Add<T>(string tag, List<T> other, ICfgSerializeNestedReferences referencesKeeper) where T : ICfg, new()
-        {
-            var prevKeeper = keeper;
-            keeper = referencesKeeper;
-
-            Add(tag, other);
-
-            (referencesKeeper as Object).SetToDirty();
-
-            keeper = prevKeeper;
-            return this;
-        }*/
-        #endregion
 
         #region ValueTypes
         public CfgEncoder Add(string tag, float val) =>
@@ -351,52 +301,36 @@ namespace QuizCannersUtilities
         #endregion
 
         #region Internal Add Unrecognized Data
-        private CfgEncoder Add<T>(T val, IList<Type> types, ListMetaData ld, int index) where T : ICfg
+        private CfgEncoder Add<T>(T val, IList<Type> types, int index) where T : ICfg
         {
-
-            var el = ld.elementDatas.GetIfExists(index);
 
             if (!QcUnity.IsNullOrDestroyed_Obj(val))
             {
                 var typeIndex = types.IndexOf(val.GetType());
                 if (typeIndex != -1)
                 {
-                   // el?.SetRecognized();
-
                     Add(typeIndex.ToString(), val.Encode());
                 }
                 else
                 {
-                    el = ld.elementDatas[index];
-                    //el.unrecognized = true;
-                    el.stdDta = val.Encode().ToString();
                     Add_String(UnrecognizedTag, " ");
                 }
             }
             else
             {
-                //if (el != null && el.unrecognized)
-               //     Add_String(el.unrecognizedUnderTag, el.stdDta);
-               // else
                     Add_String(NullTag, "");
             }
 
             return this;
         }
 
-        private CfgEncoder Add_Abstract<T>(T val, ListMetaData ld, int index) where T : IGotClassTag
+        private CfgEncoder Add_Abstract<T>(T val, int index) where T : IGotClassTag
         {
-            var el = ld.elementDatas.GetIfExists(index);
-
             if (val == null)
-                //return (el != null && el.unrecognized) 
-               // ? Add_String(el.unrecognizedUnderTag, el.stdDta)
-               // : 
-            return Add_String(NullTag, "");
+                return Add_String(NullTag, "");
             
             
-                //el?.SetRecognized();
-                return Add(val.ClassTag, val);
+          return Add(val.ClassTag, val);
  
         }
 
@@ -408,15 +342,7 @@ namespace QuizCannersUtilities
             return Add(typeIndex != -1 ? typeIndex.ToString() : UnrecognizedTag, v.Encode());
            
         }
-
-        public CfgEncoder Add2<T>(T v, List<Type> types) where T : ICfg
-        {
-            if (QcUnity.IsNullOrDestroyed_Obj(v)) return Add_String(NullTag, "");
-
-            var typeIndex = types.IndexOf(v.GetType());
-            return Add(typeIndex != -1 ? typeIndex.ToString() : UnrecognizedTag, v.Encode());
-
-        }
+        
         #endregion
 
         #region Abstracts
@@ -439,31 +365,8 @@ namespace QuizCannersUtilities
             return Add(tag, cody);
         }
 
-        public CfgEncoder Add_IfNotEmpty<T>(string tag, List<T> val, ListMetaData ld, TaggedTypesCfg tts) where T : IGotClassTag =>
-            val.IsNullOrEmpty() ? this : Add_Abstract(tag, val, ld);
-        
-        public CfgEncoder Add<T>(string tag, List<T> val, ListMetaData ld, TaggedTypesCfg tts) where T : IGotClassTag  => Add_Abstract(tag, val, ld);
 
-        public CfgEncoder Add_Abstract<T>(string tag, List<T> val, ListMetaData ld) where T : IGotClassTag {
-
-            var cody = new CfgEncoder();
-
-            if (val != null) {
-
-                if (ld == null)
-                    foreach (var v in val)
-                        cody.Add(v.ClassTag, v);
-
-                else for (var i = 0; i < val.Count; i++) {
-                        var v = val[i];
-                        cody.Add_Abstract(v, ld, i);
-                }
-            }
-
-            Add(tag, new CfgEncoder().Add(ListMetaTag, ld).Add(ListTag, cody));
-
-            return this;
-        }
+       // public CfgEncoder Add<T>(string tag, List<T> val, TaggedTypesCfg tts) where T : IGotClassTag  => Add_Abstract(tag, val);
 
         public CfgEncoder Add(string tag, IGotClassTag typeTag, TaggedTypesCfg cfg) => typeTag == null ? this :
             Add(tag, new CfgEncoder().Add(typeTag.ClassTag, typeTag.Encode()));
@@ -550,56 +453,7 @@ namespace QuizCannersUtilities
 
         }
 
-        public CfgEncoder Add<T>(string tag, List<T> lst, ListMetaData ld) where T : ICfg {
-
-            var cody = new CfgEncoder();
-
-            if (lst != null) {
-                var indTypes = typeof(T).TryGetDerivedClasses();
-
-                if (indTypes != null) {
-                    for (var i = 0; i < lst.Count; i++) {
-                            var v = lst[i];
-                            cody.Add(v, indTypes, ld, i);
-                    }
-                }
-                else  {
-                    foreach (var v in lst)
-                        if (v!= null)
-                            cody.Add(CfgDecoder.ListElementTag, v);
-                        else
-                            cody.Add_String(NullTag, "");
-                }
-            }
-
-            return Add(tag, new CfgEncoder().Add(ListMetaTag, ld).Add(ListTag, cody));
-
-        }
-        
-        public CfgEncoder Add<T>(string tag, List<T> lst) where T : ICfg, new() {
-
-            var cody = new CfgEncoder();
-
-            if (lst == null) return this;
-            
-            var indTypes = typeof(T).TryGetDerivedClasses();
-            
-            if (indTypes != null)  {
-                    foreach (var v in lst)
-                        cody.Add(v, indTypes);
-            }
-            else  
-                foreach (var v in lst)
-                    if (v != null)
-                        cody.Add(CfgDecoder.ListElementTag, v.Encode());
-                    else
-                        cody.Add_String(NullTag, "");
-            
-            
-            return Add(tag, cody);
-        }
-
-        public CfgEncoder Add2<T>(string tag, List<T> lst) where T : ICfg, new()
+        public CfgEncoder Add<T>(string tag, List<T> lst) where T : ICfg, new()
         {
 
             var cody = new CfgEncoder();
@@ -611,7 +465,7 @@ namespace QuizCannersUtilities
             if (indTypes != null)
             {
                 foreach (var v in lst)
-                    cody.Add2(v, indTypes);
+                    cody.Add(v, indTypes);
             }
             else
                 foreach (var v in lst)
@@ -639,15 +493,13 @@ namespace QuizCannersUtilities
 
         public CfgEncoder Add(string tag, Dictionary<string, string> dic) => Add(tag, dic.Encode());
 
+        public CfgEncoder Add(string tag, Dictionary<string, CfgData> dic) => Add(tag, dic.Encode());
+        
         public CfgEncoder Add<T>(string tag, Dictionary<string, T> dic) where T: ICfg => Add(tag, dic.Encode());
         
         public CfgEncoder Add<T>(string tag, T[] val) where T : ICfg => Add(tag, val.Encode());
 
         #region NonDefault Encodes
-
-        public CfgEncoder Add_IfNotEmpty<T>(string tag, List<T> lst, ListMetaData ld) where T : ICfg, new() =>
-            lst.IsNullOrEmpty() ? this : Add(tag, lst, ld);
-
 
         public CfgEncoder TryAdd<T>(string tag, T obj) {
 
@@ -674,9 +526,8 @@ namespace QuizCannersUtilities
 
         public CfgEncoder Add_IfNotEmpty(string tag, string val) => val.IsNullOrEmpty() ? this : Add_String(tag, val);
             
-       // public CfgEncoder Add_IfNotEmpty<T>(string tag, List<T> lst) where T : ICfg, new() => lst.IsNullOrEmpty() ? this : Add(tag, lst);
-
-        public CfgEncoder Add_IfNotEmpty<T>(string tag, List<T> lst) where T : ICfg, new() => lst.IsNullOrEmpty() ? this : Add2(tag, lst);
+        public CfgEncoder Add_IfNotEmpty<T>(string tag, List<T> lst) where T : ICfg, new() => 
+            lst.IsNullOrEmpty() ? this : Add(tag, lst);
         
         public CfgEncoder Add_IfNotEmpty(string tag, List<string> val) => val.IsNullOrEmpty() ? this : Add(tag, val);
         
@@ -698,14 +549,15 @@ namespace QuizCannersUtilities
             
         }
         
-        public CfgEncoder Add_IfNotEmpty<T>(string tag, List<T> val, TaggedTypesCfg tts) where T : IGotClassTag  => val.IsNullOrEmpty() ? this : Add_Abstract(tag, val);
+        public CfgEncoder Add_IfNotEmpty<T>(string tag, List<T> val, TaggedTypesCfg tts) where T : IGotClassTag  =>
+            val.IsNullOrEmpty() ? this : Add_Abstract(tag, val);
 
-        public CfgEncoder Add_IfNotEmpty<T>(string tag, List<T> val, TaggedTypesCfg tts, ListMetaData ld) where T : IGotClassTag => val.IsNullOrEmpty() ? this : Add_Abstract(tag, val, ld);
- 
         public CfgEncoder Add_IfNotEmpty(string tag, Dictionary<int, string> dic) => dic.IsNullOrEmpty() ? this : Add(tag, dic);
    
         public CfgEncoder Add_IfNotEmpty(string tag, Dictionary<string, string> dic) => dic.IsNullOrEmpty() ? this :  Add(tag, dic);
-            
+
+        public CfgEncoder Add_IfNotEmpty(string tag, Dictionary<string, CfgData> dic) => dic.IsNullOrEmpty() ? this : Add(tag, dic);
+        
         public CfgEncoder Add_IfNotEpsilon(string tag, float val) => (Mathf.Abs(val) > float.Epsilon * 100) ? Add(tag, RoundTo6Dec(val)) : this;
        
         public CfgEncoder Add_IfNotOne(string tag, Vector4 v4) => v4.Equals(Vector4.one) ? this : Add(tag, v4.Encode());

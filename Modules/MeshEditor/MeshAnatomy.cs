@@ -90,7 +90,7 @@ namespace PlaytimePainter.MeshEditing
             public Vertex(MeshPoint newVertex, CfgData data)
             {
                 AssignToPoint(newVertex);
-                Decode(data);
+                this.DecodeFull(data);
             }
 
             #endregion

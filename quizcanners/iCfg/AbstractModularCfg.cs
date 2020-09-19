@@ -17,7 +17,6 @@ namespace QuizCannersUtilities {
 
     public interface IGotClassTag : ICfg {
         string ClassTag { get; }
-      //  TaggedTypesCfg AllTypes { get; }
     }
 
     #endregion
@@ -202,7 +201,7 @@ namespace QuizCannersUtilities {
 
             var iTag = el as IGotClassTag;
 
-            var std = (el as ICfg);
+            var std = (el as ICfgCustom);
 
             var ed = ld.TryGetElement(index);
 
@@ -211,7 +210,7 @@ namespace QuizCannersUtilities {
             else
             {
                 el = std.TryDecodeInto<object>(type);
-                StdExtensions.TryCopy_Std_AndOtherData(previous, el);
+                CfgExtensions.TryCopy_Std_AndOtherData(previous, el);
             }
 
             list[index] = el;
@@ -290,13 +289,11 @@ namespace QuizCannersUtilities {
         
         public void Decode(string key, CfgData data) {
             switch (key) {
-                case "pgns": data.Decode_List(out modules, all);
+                case "pgns": data.ToList(out modules, all);
                     OnInitialize();
                     break;
             }
         }
-
-        public void Decode(CfgData data) => this.DecodeTagsFrom(data);
 
         #endregion
 

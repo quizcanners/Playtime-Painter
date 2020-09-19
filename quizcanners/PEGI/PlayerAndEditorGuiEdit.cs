@@ -998,7 +998,7 @@ namespace PlayerAndEditorGUI
             return select(ref no, tree, lambda);
         }
 
-        public static bool select<T>(ref int no, CountlessCfg<T> tree) where T : ICfg, new()
+        public static bool select<T>(ref int no, CountlessCfg<T> tree) where T : ICfgCustom, new()
         {
 
 #if UNITY_EDITOR
@@ -1169,7 +1169,7 @@ namespace PlayerAndEditorGUI
             {
                 var previous = obj;
                 obj = (T)Activator.CreateInstance(type);
-                StdExtensions.TryCopy_Std_AndOtherData(previous, obj);
+                CfgExtensions.TryCopy_Std_AndOtherData(previous, obj);
                 return true;
             }
 

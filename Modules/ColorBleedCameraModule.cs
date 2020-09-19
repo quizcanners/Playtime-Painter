@@ -11,7 +11,7 @@ using UnityEditorInternal;
 namespace PlaytimePainter.CameraModules {
 
     [TaggedType(tag)]
-    public class ColorBleedCameraModule : CameraModuleBase, IPEGI
+    public class ColorBleedCameraModule : CameraModuleBase, IPEGI, ICfgCustom
     {
 
         public const string tag = "Color Mgmt";
@@ -51,17 +51,17 @@ namespace PlaytimePainter.CameraModules {
             switch (tg)
             {
                 case "sh": shadowStrength.TargetValue = data.ToFloat(); break;
-                case "sdst": shadowDistance.Decode(data); break;
+                case "sdst": shadowDistance.DecodeFull(data); break;
                 case "sc": skyColor.targetValue = data.ToColor(); break;
                 case "fg": RenderSettings.fog = data.ToBool(); break;
-                case "fogD": fogDistance.Decode(data); break;
-                case "fogDen": fogDensity.Decode(data); break;
+                case "fogD": fogDistance.DecodeFull(data); break;
+                case "fogDen": fogDensity.DecodeFull(data); break;
                 case "fogCol": fogColor.targetValue = data.ToColor(); break;
-                case "lr": mainLightRotation.Decode(data); break;
-                case "lcol": mainLightColor.Decode(data); break;
-                case "lint": mainLightIntensity.Decode(data); break;
-                case "br": brightness.Decode(data); break;
-                case "bl": colorBleed.Decode(data); break;
+                case "lr": mainLightRotation.DecodeFull(data); break;
+                case "lcol": mainLightColor.DecodeFull(data); break;
+                case "lint": mainLightIntensity.DecodeFull(data); break;
+                case "br": brightness.DecodeFull(data); break;
+                case "bl": colorBleed.DecodeFull(data); break;
             }
         }
         
@@ -83,9 +83,9 @@ namespace PlaytimePainter.CameraModules {
             }
         }
 
-        public override void Decode(CfgData data)
+        public void Decode(CfgData data)
         {
-            base.Decode(data);
+            this.DecodeTagsFrom(data);
 
             UpdateShader();
         }

@@ -11,7 +11,7 @@ namespace QuizCannersUtilities
     #pragma warning disable IDE0018 // Inline variable declaration
 
 
-    public class CountlessCfg<T> : CfgCountlessBase where T : ICfg , new() {
+    public class CountlessCfg<T> : CfgCountlessBase where T : ICfg, new() {
         
         protected T[] objs = new T[0];
         private int _firstFreeObj;
@@ -66,7 +66,7 @@ namespace QuizCannersUtilities
 
             var cody = new CfgEncoder()
                 .Add("inds", indexes)
-                .Add2("vals", values)
+                .Add("vals", values)
                 .Add_IfNotNegative("brws", _edited)
                 .Add("last", lastFreeIndex)
                 .Add_Bool("add", _allowAdd)
@@ -415,7 +415,7 @@ namespace QuizCannersUtilities
 
     
     
-    public class UnNullableCfgLists<T> : UnNullableLists<T>, ICfg where T : ICfg, IPEGI, new() {
+    public class UnNullableCfgLists<T> : UnNullableLists<T>, ICfgCustom where T : class, ICfg, IPEGI, new() {
 
         private int ToInt(string text)
         {

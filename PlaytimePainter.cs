@@ -27,8 +27,8 @@ namespace PlaytimePainter
    
     [ExecuteInEditMode]
     public partial class PlaytimePainter : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, ICfg
-        
     {
+
 
         #region StaticGetters
 
@@ -1516,7 +1516,7 @@ namespace PlaytimePainter
             if (!meshRenderer)
                 meshRenderer = GetComponent<MeshRenderer>();
 
-            Decode(_cfgData);
+            this.DecodeFull(_cfgData);
             //this.LoadCfgData();
 
         }

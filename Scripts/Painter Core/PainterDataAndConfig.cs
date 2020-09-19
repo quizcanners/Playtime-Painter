@@ -22,7 +22,7 @@ namespace PlaytimePainter
 
 
     [CreateAssetMenu(fileName = "Painter Config", menuName = "Playtime Painter/Config")]
-    public class PainterDataAndConfig : ScriptableObject, ICfg, IPEGI
+    public class PainterDataAndConfig : ScriptableObject, ICfgCustom, IPEGI
     {
         private static PlaytimePainter Painter => PlaytimePainter.inspected;
         public int playtimePainterLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
@@ -465,7 +465,7 @@ namespace PlaytimePainter
                 case "sch": data.ToInt(ref selectedColorScheme); break;
                 //case "mats": data.Decode_List(out matMetas, this); break;
                 case "pals": data.ToList(out colorSchemes); break;
-                case "cam": if (PainterCamera.Inst) PainterCamera.Inst.Decode(data); break;
+                case "cam": if (PainterCamera.Inst) PainterCamera.Inst.DecodeFull(data); break;
                 case "Vpck": data.ToList(out meshPackagingSolutions); break;
                 case "hd": hideDocumentation = data.ToBool(); break;
                 case "iid": data.ToInt(ref _inspectedImgData); break;
@@ -636,12 +636,14 @@ namespace PlaytimePainter
             foreach (var tag in decoder)
             {
                 var d = decoder.GetData();
-                foreach (var m in MeshToolBase.AllTools)
+                for (int i = 0; i < MeshToolBase.AllTools.Count; i++) {
+                    var m = MeshToolBase.AllTools[i];
                     if (m.StdTag.SameAs(tag))
                     {
-                        m.Decode(d);
+                        d.DecodeFull(ref m);
                         break;
                     }
+                }
             }
 
             if (systemLanguage != -1)
