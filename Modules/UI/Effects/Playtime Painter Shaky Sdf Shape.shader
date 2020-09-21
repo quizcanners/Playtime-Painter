@@ -5,6 +5,8 @@ Shader "Playtime Painter/UI/Effects/Sdf Shape"{
 		_Cutoff("Mask Cutoff", Range(0,0.99)) = 0.5
 		_Color("Tint", Color) = (1,1,1,1)
 
+		_Texture("Screen Space Texture", 2D) = "white" {}
+
 		_StencilComp("Stencil Comparison", Float) = 8
 		_Stencil("Stencil ID", Float) = 0
 		_StencilOp("Stencil Operation", Float) = 0
@@ -83,6 +85,8 @@ Shader "Playtime Painter/UI/Effects/Sdf Shape"{
 			};
 
 			sampler2D _MainTex;
+			sampler2D _Texture;
+			float4 _Texture_TexelSize;
 			float4 _Color;
 			float4 _TextureSampleAdd;
 			float4 _ClipRect;
@@ -103,9 +107,11 @@ Shader "Playtime Painter/UI/Effects/Sdf Shape"{
 				return OUT;
 			}
 
-			float4 frag(v2f IN) : SV_Target {
+			float4 frag(v2f o) : SV_Target {
 
-				float mask = tex2D(_MainTex, IN.texcoord).r;
+				
+
+				float mask = tex2D(_MainTex, o.texcoord).r;
 				
 				#if SUBTRACT
 					mask = 1 - mask;
@@ -118,25 +124,34 @@ Shader "Playtime Painter/UI/Effects/Sdf Shape"{
 			
 				
 				#if GRADIENT
-				float4 color = delta * (IN.color * IN.texcoord.y + _Color * (1- IN.texcoord.y) );
+					float4 color = delta * (o.color * o.texcoord.y + _Color * (1- o.texcoord.y) );
 				#else
-					float4 color = delta * IN.color * _Color;
+					float4 color = delta * o.color * _Color;
 				#endif
 					
 				#if SHADOW
-					float shadow = tex2Dlod(_MainTex, float4(IN.texcoord + float2(0.04, 0.02) , 0, 2)).a;
+					float shadow = tex2Dlod(_MainTex, float4(o.texcoord + float2(0.04, 0.02) , 0, 2)).a;
 
 					color.rgb *= color.a;
-					color.a += shadow* 0.5 * (1 - color.a) * IN.color.a;
+					color.a += shadow* 0.5 * (1 - color.a) * o.color.a;
 				#endif
 
 				#ifdef UNITY_UI_CLIP_RECT
-				color.a *= UnityGet2DClipping(IN.worldPosition.xy, _ClipRect);
+				color.a *= UnityGet2DClipping(o.worldPosition.xy, _ClipRect);
 				#endif
 
 				#ifdef UNITY_UI_ALPHACLIP
 				clip(color.a - 0.001);
 				#endif
+
+				o.screenPos.xy = o.screenPos.xy / o.screenPos.w;
+
+				float2 textUv = o.screenPos.xy* _ScreenParams.xy * _Texture_TexelSize.xy;
+
+				float4 tex = tex2Dlod(_Texture, float4(textUv, 0, 0));
+				
+				color.rgb *= tex.rgb;
+
 
 				return color;
 			}

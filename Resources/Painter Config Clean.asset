@@ -27,8 +27,8 @@ MonoBehaviour:
     renderTexture: {fileID: 0}
     texture2D: {fileID: 2800000, guid: 38b6e61e6ad7a8849881893422f8b64e, type: 3}
     other: {fileID: 0}
-    width: 500
-    height: 500
+    width: 64
+    height: 64
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
     lockEditing: 0
@@ -55,6 +55,11 @@ MonoBehaviour:
     colorToVertexColorOnMerge: 0
     selectedForMerge: 0
   - material: {fileID: 2100000, guid: 961af63d240c68b46bbb11ff8995d0fc, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 77c7647f70bd87e4aa84b7d1e6a1a618, type: 2}
     selectedTexture: 0
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
@@ -87,7 +92,7 @@ MonoBehaviour:
   enablePainterUIonPlay: 0
   Brush:
     _inGpuBrushType: 0
-    _inCpuBrushType: 0
+    _inCpuBrushType: 4
     _inGpuBlitMode: 0
     _inCpuBlitMode: 0
     targetIsTex2D: 0
@@ -112,7 +117,7 @@ MonoBehaviour:
     hardness: 5
     blurAmount: 1
     brush3DRadius: 0.0925926
-    brush2DRadius: 83
+    brush2DRadius: 32
     useAlphaBuffer: 0
     alphaLimitForAlphaBuffer: 1
     worldSpaceBrushPixelJitter: 0
