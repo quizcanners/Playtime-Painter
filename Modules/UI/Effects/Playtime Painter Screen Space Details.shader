@@ -41,7 +41,8 @@
 		ZWrite Off
 		ZTest[unity_GUIZTestMode]
 		Blend SrcAlpha OneMinusSrcAlpha
-		ColorMask[_ColorMask]
+		ColorMask RGB
+			//ColorMask[_ColorMask]
 
 		Pass
 		{
