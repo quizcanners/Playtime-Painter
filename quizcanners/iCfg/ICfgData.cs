@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using PlayerAndEditorGUI;
-using PlaytimePainter.MeshEditing;
 using UnityEngine;
 using Object = UnityEngine.Object;
 

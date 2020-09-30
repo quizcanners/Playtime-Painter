@@ -1180,7 +1180,7 @@ namespace PlaytimePainter.UI
         }
 
         [RoundedButtonModule]*/
-        protected abstract class RoundedButtonModuleBase : PainterClassCfg, IGotClassTag, IGotDisplayName
+        protected abstract class RoundedButtonModuleBase : ICfg, IGotClassTag, IGotDisplayName
         {
             public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(RoundedButtonModuleBase));
             public TaggedTypesCfg AllTypes => all;
@@ -1198,9 +1198,9 @@ namespace PlaytimePainter.UI
             #endregion
 
             #region Encode & Decode
-            public override CfgEncoder Encode() => new CfgEncoder();//this.EncodeUnrecognized();
+            public virtual CfgEncoder Encode() => new CfgEncoder();//this.EncodeUnrecognized();
 
-            public override void Decode(string key, CfgData data)
+            public virtual void Decode(string key, CfgData data)
             {
 
             }
