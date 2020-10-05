@@ -284,13 +284,6 @@ namespace QuizCannersUtilities {
 
         }
 
-       /* public static List<string> TryAddIfNewAndNotAmpty(this List<string> lst, string text) {
-            if (!text.IsNullOrEmpty() && (lst.IndexOf(text) == -1))
-                lst.Add(text);
-
-            return lst;
-        }*/
-
         public static T TryTake<T>(this List<T> list, int index) {
 
             if (list.IsNullOrEmpty() || list.Count<= index)
@@ -333,15 +326,6 @@ namespace QuizCannersUtilities {
 
         }
         
-        /*public static T TryGet<T>(this List<T> list, int index)
-        {
-            if (list == null || index < 0 || index >= list.Count)
-                return default;
-            return list[index];
-        }*/
-
-       
-
         public static T TryGet<T>(this List<T> list, int index, T defaultValue = default)
         {
             if (list == null || index < 0 || index >= list.Count)
@@ -376,7 +360,6 @@ namespace QuizCannersUtilities {
 
         public static List<T> RemoveLast<T>(this List<T> list, int count)
         {
-
             var len = list.Count;
 
             count = Mathf.Min(count, len);
@@ -388,12 +371,10 @@ namespace QuizCannersUtilities {
             list.RemoveRange(from, count);
 
             return range;
-
         }
 
         public static T RemoveLast<T>(this List<T> list)
         {
-
             var index = list.Count - 1;
 
             var last = list[index];

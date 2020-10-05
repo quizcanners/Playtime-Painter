@@ -1801,7 +1801,7 @@ namespace PlayerAndEditorGUI
             {
                 collectionInspector.ListAddEmptyClick(list, listMeta).changes(ref changed);
 
-                if (listMeta != null && icon.Save.ClickUnFocus("Save GUID & Names data to ListMeta"))
+                if (listMeta != null && icon.Save.ClickUnFocus("Save Names to ListMeta"))
                     listMeta.SaveElementDataFrom(list);
 
                 collectionInspector.edit_List_Order(list, listMeta).changes(ref changed); //collectionInspector.edit_List_Order_Obj(list, listMeta).changes(ref changed);

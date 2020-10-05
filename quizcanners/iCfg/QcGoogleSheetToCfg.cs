@@ -2,11 +2,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
-using System.Text;
-using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.Networking;
 

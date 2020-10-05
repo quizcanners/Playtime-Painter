@@ -12,11 +12,9 @@ https://github.com/quizcanners/GravityRunner
 can serve as examples since they use this utilities a lot.
 
 HOW TO USE IT IN PLAYTIME:
-1. Move the Resources Folder outside of Editor Flder (Needs to be quizcanners->Resources->icons instead of quizcanners->Editor->Resources->icons);
-	To include icons in in a build.
-2. In MonoBehaviour that needs to have playtime interface create the following code.
+   In MonoBehaviour that needs to have playtime interface create the following code.
 
-   private pegi.WindowPositionData_PEGI_GUI playtimeWindow = new pegi.WindowPositionData_PEGI_GUI();
-   public void OnGUI() => playtimeWindow.Render(this);
-
-3. All set.
+	pegi.GameView.Window window = new pegi.GameView.Window();
+	
+	public void OnGUI() =>	window.Render(this, "TITLE");
+	

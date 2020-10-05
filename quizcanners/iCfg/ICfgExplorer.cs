@@ -201,14 +201,7 @@ namespace QuizCannersUtilities
 
 
         public string name;
-        public string componentType;
-        public string stdDta;
-        //private string _guid;
-       // public bool unrecognized;
-      //  public string unrecognizedUnderTag;
         public bool selected;
-
-        //public override bool IsDefault => (!_guid.IsNullOrEmpty() || _perTypeConfig.Count>0 );
 
         public static bool enableEnterInspectEncoding;
 
@@ -241,16 +234,6 @@ namespace QuizCannersUtilities
         public void Save<T>(T el)
         {
             name = el.GetNameForInspector();
-
-            var cmp = el as Component;
-            if (cmp != null)
-                componentType = cmp.GetType().ToPegiStringType();
-
-            var std = el as ICfgCustom;
-            if (std != null)
-                stdDta = std.Encode().ToString();
-
-            //_guid = (el as Object).GetGuid(_guid);
         }
         
         #region Inspector
@@ -348,16 +331,11 @@ namespace QuizCannersUtilities
                     obj = uo;
 
             } else {
-
-              //  if (unrecognized)
-                   // unrecognizedUnderTag.write("Type Tag {0} was unrecognized during decoding".F(unrecognizedUnderTag), 40);
-
                 if (!name.IsNullOrEmpty())
                     name.write();
 
                 if (obj is IGotClassTag)
                     SelectType(ref obj, TaggedTypesCfg.TryGetOrCreate(typeof(T)));
-
             }
 
             return changed;
@@ -365,20 +343,7 @@ namespace QuizCannersUtilities
 
         public bool PEGI_inList_Obj<T>(ref T field) where T : Object {
 
-            //if (unrecognized)
-                //unrecognizedUnderTag.write("Type Tag {0} was unrecognized during decoding".F(unrecognizedUnderTag), 40);
-
             var changed = name.edit(100, ref field);
-
-            /*
-#if UNITY_EDITOR
-            if (_guid != null && icon.Search.Click("Find Object " + componentType + " by guid").nl()) {
-
-                if (!TryGetByGuid(ref field))
-                    pegi.GameView.ShowNotification(typeof(T).ToPegiStringType() + " Not found ");
-                else changed = true;
-            }
-#endif*/
 
             return changed;
         }
