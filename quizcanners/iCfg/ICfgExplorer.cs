@@ -249,7 +249,7 @@ namespace QuizCannersUtilities
               //  "Was unrecognized under tag {0}".F(unrecognizedUnderTag).writeWarning();
 
             if (_perTypeConfig.Count > 0)
-                "Per type config".edit_Dictionary_Values(_perTypeConfig, pegi.lambda_cfg).nl();
+                "Per type config".edit_Dictionary_Values(ref _perTypeConfig, pegi.lambda_cfg).nl();
 
             return false;
         }

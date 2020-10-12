@@ -331,10 +331,14 @@ namespace PlayerAndEditorGUI
             return false;
         }
 
+        private static string tmpSelectSearch;
+
         public static bool select(ref int no, string[] from, int width = -1)
         {
+            var needSearch = from.Length > 16;
+
 #if UNITY_EDITOR
-            if (!PaintingGameViewUI)
+            if (!PaintingGameViewUI && !needSearch)
                 return width > 0 ?
                     ef.select(ref no, from, width) :
                     ef.select(ref no, from);
@@ -343,22 +347,42 @@ namespace PlayerAndEditorGUI
             if (from.IsNullOrEmpty())
                 return false;
 
-            foldout(from.TryGet(no, "..."));
+            needSearch = from.Length > 8;
 
+            if (!PaintingGameViewUI)
+                nl();
+
+            foldout(from.TryGet(no, "..."));
+            
             if (ef.isFoldedOutOrEntered)
             {
-
                 if (from.Length > 1)
                     nl();
 
-                for (var i = 0; i < from.Length; i++)
-                    if (i != no && "{0}: {1}".F(i, from[i]).ClickUnFocus().nl())
-                    {
-                        no = i;
-                        foldIn();
-                        return true;
-                    }
+                if (needSearch)
+                    "Search".edit(70, ref tmpSelectSearch).nl();
 
+                if (needSearch && !tmpSelectSearch.IsNullOrEmpty())
+                {
+                    for (var i = 0; i < from.Length; i++)
+                        if (i != no && tmpSelectSearch.IsSubstringOf(from[i]) && "{0}: {1}".F(i, from[i]).ClickUnFocus().nl())
+                        {
+                            no = i;
+                            foldIn();
+                            return true;
+                        }
+                }
+                else
+                { 
+
+                    for (var i = 0; i < from.Length; i++)
+                        if (i != no && "{0}: {1}".F(i, from[i]).ClickUnFocus().nl())
+                        {
+                            no = i;
+                            foldIn();
+                            return true;
+                        }
+                }
 
             }
 
@@ -3562,7 +3586,7 @@ namespace PlayerAndEditorGUI
         {
             var val = Convert.ToInt32(eval);
 
-            if (editEnum(ref val, typeof(T), width))
+            if (editEnum_Internal(ref val, typeof(T), width))
             {
                 eval = (T)((object)val);
                 return true;
@@ -3571,7 +3595,24 @@ namespace PlayerAndEditorGUI
             return false;
         }
         
-        private static bool editEnum(ref int current, Type type, int width = -1)
+       
+        private static bool editEnum<T>(ref int eval, List<int> options, int width = -1) 
+            => editEnum_Internal(ref eval, typeof(T), options, width);
+
+        private static bool editEnum<T>(ref T eval, List<int> options, int width = -1)
+        {
+            var val = Convert.ToInt32(eval);
+
+            if (editEnum_Internal(ref val, typeof(T), options, width))
+            {
+                eval = (T)((object)val);
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool editEnum_Internal(ref int current, Type type, int width = -1)
         {
             checkLine();
             var tmpVal = -1;
@@ -3580,32 +3621,19 @@ namespace PlayerAndEditorGUI
             var val = (int[])Enum.GetValues(type);
 
             for (var i = 0; i < val.Length; i++)
+            {
+                names[i] = "{0}:".F(val[i]) + names[i]; 
                 if (val[i] == current)
                     tmpVal = i;
+            }
 
             if (!select(ref tmpVal, names, width)) return false;
 
             current = val[tmpVal];
             return true;
         }
-        
-        private static bool editEnum<T>(ref int eval, List<int> options, int width = -1) 
-            => editEnum(ref eval, typeof(T), options, width);
 
-        private static bool editEnum<T>(ref T eval, List<int> options, int width = -1)
-        {
-            var val = Convert.ToInt32(eval);
-
-            if (editEnum(ref val, typeof(T), options, width))
-            {
-                eval = (T)((object)val);
-                return true;
-            }
-
-            return false;
-        }
-        
-        private static bool editEnum(ref int current, Type type, List<int> options, int width = -1)
+        private static bool editEnum_Internal(ref int current, Type type, List<int> options, int width = -1)
         {
             checkLine();
             var tmpVal = -1;
@@ -3615,7 +3643,7 @@ namespace PlayerAndEditorGUI
             for (var i = 0; i < options.Count; i++)
             {
                 var op = options[i];
-                names.Add(Enum.GetName(type, op));
+                names.Add("{0}:".F(op)+ Enum.GetName(type, op));
                 if (options[i] == current)
                     tmpVal = i;
             }

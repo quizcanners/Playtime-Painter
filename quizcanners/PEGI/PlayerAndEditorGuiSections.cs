@@ -168,10 +168,17 @@ namespace PlayerAndEditorGUI
 
         public static bool foldout(this icon ico, string text, ref int selected, int current) => ico.GetIcon().foldout(text, ref selected, current);
 
+        public static bool foldout(this icon ico)
+        {
+            ico.foldout(ico.ToString(), ref selectedFold, _elementIndex);
+
+            _elementIndex++;
+
+            return ef.isFoldedOutOrEntered;
+        }
+
         public static bool foldout(this string txt)
         {
-
-
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
                 return ef.foldout(txt);
@@ -182,8 +189,6 @@ namespace PlayerAndEditorGUI
             _elementIndex++;
 
             return ef.isFoldedOutOrEntered;
-
-
         }
 
         public static bool conditional_foldout(this string label, bool canEnter, ref int enteredOne, int thisOne)
@@ -963,7 +968,7 @@ namespace PlayerAndEditorGUI
             var changed = false;
 
             if (meta.label.AddCount(dictionary).enter(ref enteredOne, thisOne, false))
-                meta.edit_Dictionary_Values(dictionary).nl(ref changed);
+                meta.edit_Dictionary_Values(ref dictionary).nl(ref changed);
 
             return changed;
         }
@@ -973,7 +978,7 @@ namespace PlayerAndEditorGUI
             var changed = false;
 
             if (label.AddCount(dictionary).enter(ref enteredOne, thisOne, false))
-                label.edit_Dictionary_Values(dictionary).nl(ref changed);
+                label.edit_Dictionary_Values(ref dictionary).nl(ref changed);
 
             return changed;
         }
