@@ -689,7 +689,6 @@ namespace PlayerAndEditorGUI
                     exitOptionHandled = true;
                     if (icon.List.ClickUnFocus("{0} [1]".F(Msg.ReturnToCollection.GetText(), lst.Count)))
                         inspected = -1;
-
                 }
 
                 if (lst != null && inspected >= 0 && lst.Count > inspected)
@@ -1278,30 +1277,6 @@ namespace PlayerAndEditorGUI
 
                 return changed;
             }
-
-            /*public bool edit_List_Order_Obj<T>(List<T> list, ListMetaData listMeta = null) where T : Object
-            {
-
-                var changed = collectionInspector.edit_List_Order(list, listMeta);
-
-//                if (list != collectionInspector.reordering || listMeta == null) return changed;
-
-                //if (!icon.Search.ClickUnFocus("Find objects by GUID")) return changed;
-
-                //for (var i = 0; i < list.Count; i++)
-                  //  if (list[i] == null)
-                    //{
-                      //  var dta = listMeta.elementDatas.TryGet(i);
-                       // if (dta == null) continue;
-
-                        //T tmp = null;
-                       // if (dta.TryGetByGuid(ref tmp))
-                         //   list[i] = tmp;
-
-                    //}
-
-                return changed;
-            }*/
 
             private IList listCopyBuffer;
 

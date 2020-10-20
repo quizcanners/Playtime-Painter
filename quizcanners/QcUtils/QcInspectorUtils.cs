@@ -828,19 +828,6 @@ namespace QuizCannersUtilities
                 PEGI_Styles.Inspect().nl();
             }
 
-            /*if ("Icons".enter(ref inspectedSection, 5).nl())
-            {
-                var tex = icon.Enter.GetIcon();
-                if (!tex)
-                    "Texture is null".writeWarning();
-                else
-                {
-                    tex.write();
-                    pegi.nl();
-                    "Texture isn't null".nl();
-                }
-            }*/
-
             if ("Data".enter(ref inspectedSection, 5).nl())
             {
                 if (inspectedData == -1)

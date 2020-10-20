@@ -66,7 +66,11 @@ namespace PlaytimePainter.UI
         [MenuItem("GameObject/UI/Playtime Painter/Rounded UI Graphic", false, 0)]
         private static void CreateRoundedUiElement()
         {
-            QcUnity.CreateUiElement<RoundedGraphic>(Selection.gameObjects);
+            QcUnity.CreateUiElement<RoundedGraphic>(Selection.gameObjects, onCreate: el =>
+            {
+                el.maskable = el.GetComponentInParent<Mask>();
+                el.raycastTarget = false; 
+            });
             /* bool createdForSelection = false;
 
              if (Selection.gameObjects.Length > 0)

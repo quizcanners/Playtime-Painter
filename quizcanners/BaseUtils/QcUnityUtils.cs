@@ -422,7 +422,7 @@ namespace QuizCannersUtilities {
 
         #region Components & GameObjects
 
-        public static List<T> CreateUiElement<T>(GameObject[] targets = null) where T : Component
+        public static List<T> CreateUiElement<T>(GameObject[] targets = null, Action<T> onCreate = null) where T : Component
         {
 
             List <T> created = new List<T>();
@@ -435,7 +435,9 @@ namespace QuizCannersUtilities {
                 {
                     if (go.GetComponentInParent<Canvas>())
                     {
-                        created.Add(CreateUiElement<T>(go));
+                        var el = CreateUiElement<T>(go);
+                        onCreate?.Invoke(el);
+                        created.Add(el);
                         createdForSelection = true;
                     }
                 }

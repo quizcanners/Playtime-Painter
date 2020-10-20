@@ -166,106 +166,6 @@ namespace PlaytimePainter
 
         #endregion
 
-       /* #region Encoding
-
-        public bool IsDefault => !NeedsToBeSaved;
-
-        public override CfgEncoder Encode()
-        {
-            var cody = new CfgEncoder()
-            .Add("mods", Modules)
-            .Add_IfNotZero("dst", (int)target)
-            .Add_Reference("tex2D", texture2D)
-            .Add_Reference("other", other)
-            .Add("w", width)
-            .Add("h", height)
-            .Add_IfTrue("useUV2", useTexCoord2)
-            .Add_IfTrue("Lock", lockEditing)
-            .Add_IfTrue("b", backupManually)
-            .Add_IfNotOne("tl", tiling)
-            .Add_IfNotZero("off", offset)
-            .Add_IfNotEmpty("sn", saveName)
-            .Add_IfTrue("trnsp", isATransparentLayer)
-            .Add_IfTrue("vol", isAVolumeTexture)
-            .Add_IfTrue("updT2D", updateTex2DafterStroke)
-            .Add_IfTrue("bu", enableUndoRedo)
-            .Add_IfTrue("tc2Auto", _useTexCoord2AutoAssigned)
-            .Add_IfTrue("dumm", dontRedoMipMaps)
-            .Add_IfTrue("dCnt", disableContiniousLine)
-
-            .Add_IfNotBlack("clear", clearColor)
-            .Add_IfNotEmpty("URL", url)
-            .Add_IfNotNegative("is", inspectedItems)
-            .Add_IfNotNegative("ip", _inspectedProcess)
-            .Add_IfFalse("alpha", preserveTransparency);
-
-            if (sdfMaxInside != 1f)
-                cody.Add("sdfMI", sdfMaxInside);
-            if (sdfMaxOutside != 1f)
-                cody.Add("sdfMO", sdfMaxOutside);
-            if (sdfPostProcessDistance != 1f)
-                cody.Add("sdfMD", sdfPostProcessDistance);
-
-            if (enableUndoRedo)
-                cody.Add("2dUndo", _numberOfTexture2DBackups)
-                .Add("rtBackups", _numberOfRenderTextureBackups);
-
-            return cody;
-        }
-
-        public override void Decode(CfgData data)
-        {
-            base.Decode(data);
-
-            if (texture2D)
-            {
-                width = texture2D.width;
-                height = texture2D.height;
-            }
-
-        }
-
-        public override bool Decode(string tg, string data)
-        {
-            switch (tg)
-            {
-                case "mods": Modules.Decode(data); break;
-                case "dst": target = (TexTarget)data.ToInt(); break;
-                case "tex2D": data.Decode_Reference(ref texture2D); break;
-                case "other": data.Decode_Reference(ref other); break;
-                case "w": width = data.ToInt(); break;
-                case "h": height = data.ToInt(); break;
-                case "useUV2": useTexCoord2 = data.ToBool(); break;
-                case "Lock": lockEditing = data.ToBool(); break;
-                case "2dUndo": _numberOfTexture2DBackups = data.ToInt(); break;
-                case "rtBackups": _numberOfRenderTextureBackups = data.ToInt(); break;
-                case "b": backupManually = data.ToBool(); break;
-                case "tl": tiling = data.ToVector2(); break;
-                case "off": offset = data.ToVector2(); break;
-                case "sn": saveName = data; break;
-                case "trnsp": isATransparentLayer = data.ToBool(); break;
-                case "vol": isAVolumeTexture = data.ToBool(); break;
-                case "updT2D": updateTex2DafterStroke = data.ToBool(); break;
-
-                case "bu": enableUndoRedo = data.ToBool(); break;
-                case "dumm": dontRedoMipMaps = data.ToBool(); break;
-                case "dCnt": disableContiniousLine = data.ToBool(); break;
-                case "tc2Auto": _useTexCoord2AutoAssigned = data.ToBool(); break;
-                case "clear": clearColor = data.ToColor(); break;
-                case "URL": url = data; break;
-                case "alpha": preserveTransparency = data.ToBool(); break;
-                case "is": inspectedItems = data.ToInt(); break;
-                case "ip": _inspectedProcess = data.ToInt(); break;
-                case "sdfMI": sdfMaxInside = data.ToFloat(); break;
-                case "sdfMO": sdfMaxOutside = data.ToFloat(); break;
-                case "sdfMD": sdfPostProcessDistance = data.ToFloat(); break;
-                default: return false;
-            }
-            return true;
-        }
-
-        #endregion
-        */
         #region Undo & Redo
         public PaintingUndoRedo.UndoCache cache = new PaintingUndoRedo.UndoCache();
 
@@ -354,13 +254,13 @@ namespace PlaytimePainter
             return renderTexture;
         }
 
-        public void Texture2D_To_RenderTexture() => TextureToRenderTexture(texture2D);
+        public void Texture2D_To_RenderTexture() => Texture2DToRenderTexture(texture2D);
 
-        public void TextureToRenderTexture(Texture2D tex) => PainterCamera.Inst.Render(tex, this.CurrentRenderTexture(), Cfg.pixPerfectCopy);
+        public void Texture2DToRenderTexture(Texture2D tex) => PainterCamera.Inst.Render(tex, this.CurrentRenderTexture(), Cfg.pixPerfectCopy);
 
         public void RenderTexture_To_Texture2D() => RenderTexture_To_Texture2D(texture2D);
 
-        public void RenderTexture_To_Texture2D(Texture2D tex)
+        private void RenderTexture_To_Texture2D(Texture2D tex)
         {
             if (!texture2D)
                 return;
@@ -372,6 +272,8 @@ namespace PlaytimePainter
             if (!rt && TexMGMT.imgMetaUsingRendTex == this)
                 rt = RenderTextureBuffersManager.GetDownscaledBigRt(width, height);
 
+            //Graphics.CopyTexture();
+
             if (!rt)
                 return;
 
@@ -381,40 +283,6 @@ namespace PlaytimePainter
 
             var converted = false;
 
-            /* MAC: 
-                    Linear Space
-                        Big RT
-                            Editor 
-                                Linear Texture = To Linear
-                                sRGB Texture = 
-                            Playtime
-                                Linear Texture = To Linear
-                                sRGB Texture = 
-                        Exclusive
-                            Editor 
-                                Linear Texture = 
-                                sRGB Texture = 
-                            Playtime
-                                Linear Texture 
-                                sRGB Texture = 
-                    Gamma Space
-                        Big RT
-                            Editor 
-                                Linear Texture =
-                                sRGB Texture = 
-                            Playtime
-                                Linear Texture 
-                                sRGB Texture = 
-                        Exclusive
-                            Editor 
-                                Linear Texture = 
-                                sRGB Texture = 
-                            Playtime
-                                Linear Texture =
-                                sRGB Texture = 
-            */
-
-
             if (PainterCamera.Inst.IsLinearColorSpace)
             {
                 if (!tex.IsColorTexture())
@@ -422,26 +290,12 @@ namespace PlaytimePainter
                     converted = true;
                     PixelsToLinear();
                 }
-
-#if UNITY_2017
-
-                if (renderTexture != null) {
-                    PixelsToGamma();
-                    converted = true;
-                }
-#endif
             }
-
-
-            //if (!RenderTexturePainter.inst.isLinearColorSpace)
-            //pixelsToLinear ();
 
             if (converted)
                 SetAndApply();
             else
                 texture2D.Apply(true);
-            // 
-
         }
 
         public void ChangeDestination(TexTarget changeTo, MaterialMeta mat, ShaderProperty.TextureValue parameter, PlaytimePainter painter)
@@ -454,7 +308,7 @@ namespace PlaytimePainter
                 {
                     if (!renderTexture)
                         PainterCamera.Inst.ChangeBufferTarget(this, mat, parameter, painter);
-                    TextureToRenderTexture(texture2D);
+                    Texture2DToRenderTexture(texture2D);
                 }
                 else
                 {
@@ -614,8 +468,6 @@ namespace PlaytimePainter
             {
                 PainterCamera.Inst.Render(color, this.CurrentRenderTexture());
             }
-
-
         }
 
         public Color SampleAt(Vector2 uv) => (target == TexTarget.Texture2D) ? PixelSafe_Slow(UvToPixelNumber(uv)) : SampleRenderTexture(uv);

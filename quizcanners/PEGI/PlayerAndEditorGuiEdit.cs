@@ -333,9 +333,11 @@ namespace PlayerAndEditorGUI
 
         private static string tmpSelectSearch;
 
+        private static int SEARCH_SELECTIONTHOLD => PaintingGameViewUI ? 8 : 16;
+
         public static bool select(ref int no, string[] from, int width = -1)
         {
-            var needSearch = from.Length > 16;
+            var needSearch = from.Length > SEARCH_SELECTIONTHOLD;
 
 #if UNITY_EDITOR
             if (!PaintingGameViewUI && !needSearch)
@@ -347,12 +349,10 @@ namespace PlayerAndEditorGUI
             if (from.IsNullOrEmpty())
                 return false;
 
-            needSearch = from.Length > 8;
+           // if (!PaintingGameViewUI)
+             //   nl();
 
-            if (!PaintingGameViewUI)
-                nl();
-
-            foldout(from.TryGet(no, "..."));
+            foldout(from.TryGet(no, "{0} ... (foldout to select)".F(no)));
             
             if (ef.isFoldedOutOrEntered)
             {
@@ -631,14 +631,21 @@ namespace PlayerAndEditorGUI
 
         public static bool select<T>(this string text, ref T value, List<T> list, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true)
         {
-            write(text);
+            if (list!=null && list.Count> SEARCH_SELECTIONTHOLD)
+                write(text, 120);
+            else
+                write(text);
+
             return select(ref value, list, showIndex, stripSlashes, allowInsert);
         }
 
-        public static bool select<T>(this string text, ref T value, T[] lst, bool showIndex = false)
+        public static bool select<T>(this string text, ref T value, T[] arr, bool showIndex = false)
         {
-            write(text);
-            return select(ref value, lst, showIndex);
+            if (arr != null && arr.Length > SEARCH_SELECTIONTHOLD)
+                write(text, 120);
+            else
+                write(text);
+            return select(ref value, arr, showIndex);
         }
 
         public static bool select<T>(ref T val, T[] lst, bool showIndex = false, bool stripSlashes = false, bool dotsToSlashes = true)

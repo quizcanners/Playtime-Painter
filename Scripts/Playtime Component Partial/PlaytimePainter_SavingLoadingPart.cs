@@ -71,7 +71,7 @@ namespace PlaytimePainter
 
             importer.SaveAndReimport();
             if (id.TargetIsRenderTexture())
-                id.TextureToRenderTexture(id.texture2D);
+                id.Texture2DToRenderTexture(id.texture2D);
             else if (id.texture2D)
                 id.PixelsFromTexture2D(id.texture2D);
 
