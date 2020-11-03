@@ -78,7 +78,6 @@ namespace QuizCannersUtilities
 
         public void StartDownload(SheetPage page)
         {
-            //jsonText = null;
             request = UnityWebRequest.Get("{0}gid={1}&single=true&output=csv".F(url, page.pageIndex.ToString()));
             request.SendWebRequest();
         }
