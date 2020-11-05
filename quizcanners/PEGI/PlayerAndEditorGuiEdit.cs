@@ -1899,6 +1899,16 @@ namespace PlayerAndEditorGUI
         public static bool toggleIcon(this string labelIfFalse, ref bool val, string labelIfTrue)
             => (val ? labelIfTrue : labelIfFalse).toggleIcon(ref val);
 
+        public static bool toggleIcon(this string label, bool isTrue, Action<bool> setValue, bool hideTextWhenTrue = false)
+        {
+            if (label.toggleIcon(ref isTrue, hideTextWhenTrue: hideTextWhenTrue))
+            {
+                setValue.Invoke(isTrue);
+                return true;
+            }
+            return false;
+        }
+
         public static bool toggleIconConfirm(this string label, ref bool val, string confirmationTag, string tip = null, bool hideTextWhenTrue = false)
         {
             var changed = toggleConfirm(ref val, icon.True.BgColor(Color.clear), icon.False, confirmationTag: confirmationTag, tip: tip.IsNullOrEmpty() ? label : tip, DefaultToggleIconSize).SetPreviousBgColor();

@@ -41,7 +41,7 @@ namespace QuizCannersUtilities {
 
     #endregion
 
-    #region Config 2
+    #region Config
     public struct CfgData : IPEGI
     {
         private string _value;
@@ -296,6 +296,20 @@ namespace QuizCannersUtilities {
         }
 
         #endregion
+
+        public T ToEnum<T>(T defaultValue = default(T), bool ignoreCase = true) where T : struct
+        {
+            T tmp;
+            if (Enum.TryParse(_value, ignoreCase: ignoreCase, out tmp))
+            {
+                return tmp;
+            } else
+            {
+                tmp = defaultValue;
+            }
+
+            return tmp;
+        }
 
         #region Arrays
         public T[] Decode_Array<T>(out T[] l) where T : class, ICfgCustom, new()
