@@ -100,8 +100,12 @@ namespace PlayerAndEditorGUI {
             ef.editorTypeForDefaultInspector = EditorType;
 
             pegi.toggleDefaultInspector(target);
-          
+            EditorGUI.BeginChangeCheck();
             DrawDefaultInspector();
+            if (EditorGUI.EndChangeCheck())
+            {
+                target.SetToDirty();
+            }
         }
         
     }

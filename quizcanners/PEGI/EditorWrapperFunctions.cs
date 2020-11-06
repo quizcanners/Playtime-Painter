@@ -71,11 +71,13 @@ namespace PlayerAndEditorGUI
             newLine();
 
             EditorGUI.BeginChangeCheck();
+
             switch (editorTypeForDefaultInspector)
             {
                 case EditorType.Material: _materialEditor?.DrawDefaultInspector(); break;
                 default: if (_editor != null) _editor.DrawDefaultInspector(); break;
             }
+
             return EditorGUI.EndChangeCheck();
 
         }
@@ -114,51 +116,47 @@ namespace PlayerAndEditorGUI
 
             var pgi = o as IPEGI;
 
+            bool paintedPegi = false;
+
             if (pgi != null && !QcUnity.IsPrefab(go))
             {
-
                 start(so);
 
                 if (!pegi.FullWindowService.ShowingPopup())
                 {
-
-#if UNITY_2018_3_OR_NEWER
                     var isPrefab = PrefabUtility.IsPartOfAnyPrefab(o);
-
-                   /* if (isPrefab &&
-                        PrefabUtility.HasPrefabInstanceAnyOverrides(PrefabUtility.GetNearestPrefabInstanceRoot(o),
-                            false) &&
-                        icon.Save.Click("Update Prefab"))
-                        PrefabUtility.ApplyPrefabInstance(go, InteractionMode.UserAction);*/
-#endif
 
                     if (pgi.Inspect())
                         ClearFromPooledSerializedObjects(o);
 
-#if UNITY_2018_3_OR_NEWER
                     if (changes && isPrefab)
                         PrefabUtility.RecordPrefabInstancePropertyModifications(o);
-#endif
-                }
-
-                if (changes)
-                {
-                    if (!Application.isPlaying)
-                        EditorSceneManager.MarkSceneDirty(go ? go.scene : SceneManager.GetActiveScene());
-
-                    EditorUtility.SetDirty(o);
-
-                    EditorUtility.SetDirty(go);
                 }
 
                 newLine();
-
-                return changes;
+                paintedPegi = true;
             }
 
-            editor.DrawDefaultInspector();
+            if (!paintedPegi)
+            {
+                EditorGUI.BeginChangeCheck();
+                editor.DrawDefaultInspector();
+                if (EditorGUI.EndChangeCheck())
+                {
+                    globChanged = true;
+                }
+            }
 
-            return false;
+            if (changes)
+            {
+                if (!Application.isPlaying)
+                    EditorSceneManager.MarkSceneDirty(go ? go.scene : SceneManager.GetActiveScene());
+
+                EditorUtility.SetDirty(o);
+                EditorUtility.SetDirty(go);
+            }
+
+            return changes;
         }
 
         public static bool Inspect_so<T>(Editor editor) where T : ScriptableObject
@@ -189,13 +187,20 @@ namespace PlayerAndEditorGUI
             {
                 start(so);
 
-                var changed = !pegi.FullWindowService.ShowingPopup() && pgi.Inspect();
+                globChanged |= !pegi.FullWindowService.ShowingPopup() && pgi.Inspect();
+
                 end(o);
-                return changed;
+                
+                return globChanged;
             }
 
+            EditorGUI.BeginChangeCheck();
             editor.DrawDefaultInspector();
-
+            if (EditorGUI.EndChangeCheck())
+            {
+                EditorUtility.SetDirty(o);
+            }
+            
             return false;
         }
 
