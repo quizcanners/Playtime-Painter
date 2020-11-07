@@ -13,6 +13,8 @@
 		_StencilReadMask("Stencil Read Mask", Float) = 255
 		_ColorMask("Color Mask", Float) = 15
 		[Toggle(UNITY_UI_ALPHACLIP)] _UseUIAlphaClip("Use Alpha Clip", Float) = 0
+		[Toggle(BLUR_ON_ALPHA)] _BlurAlp("Blur On Transparency", Float) = 0
+		[Toggle(USE_MASK_COLOR)] _BlurAlp("Use Mask's Color", Float) = 0
 	}
 
 	SubShader
@@ -54,6 +56,8 @@
 
 			#pragma multi_compile_local _ UNITY_UI_CLIP_RECT
 			#pragma multi_compile_local _ UNITY_UI_ALPHACLIP
+			#pragma shader_feature __ BLUR_ON_ALPHA
+			#pragma shader_feature __ USE_MASK_COLOR
 
 			struct v2f
 			{
@@ -103,15 +107,33 @@
 
 			float4 frag(v2f o) : SV_Target {
 
-				float mask = tex2Dlod(_MainTex, float4(o.texcoord.xy ,0,0)).a;
+				float4 mask = tex2Dlod(_MainTex, float4(o.texcoord.xy ,0,0));
+
+				mask.a *= o.color.a;
 
 				o.screenPos.xy /= o.screenPos.w;
 
 				float2 fragCoord = (o.screenPos.xy - 0.5 ) * o.stretch.xy + 0.5;
 
-				float4 color = tex2Dlod(_FillTex, float4(fragCoord ,0,0)) * o.color;
 
-				color.a *= mask;
+
+
+				float4 color = tex2Dlod(_FillTex, float4(fragCoord ,0,
+					#if BLUR_ON_ALPHA
+					(1-pow(mask.a,2)) * 32
+					#else
+					0
+					#endif
+					));
+
+				color.rgb *= o.color.rgb;
+				#if USE_MASK_COLOR
+
+				color.rgb *= mask.rgb;
+
+				#endif
+
+				color.a *= mask.a;
 
 				#ifdef UNITY_UI_CLIP_RECT
 				color.a *= UnityGet2DClipping(o.worldPosition.xy, _ClipRect);
