@@ -14,7 +14,7 @@
 		_ColorMask("Color Mask", Float) = 15
 		[Toggle(UNITY_UI_ALPHACLIP)] _UseUIAlphaClip("Use Alpha Clip", Float) = 0
 		[Toggle(BLUR_ON_ALPHA)] _BlurAlp("Blur On Transparency", Float) = 0
-		[Toggle(USE_MASK_COLOR)] _BlurAlp("Use Mask's Color", Float) = 0
+		[Toggle(USE_MASK_COLOR)] _UseMskCol("Use Mask's Color", Float) = 0
 	}
 
 	SubShader
@@ -73,6 +73,8 @@
 			uniform sampler2D _MainTex;
 			uniform sampler2D _FillTex;
 			uniform float4 _ClipRect;
+			uniform float4 _FillTex_ST;
+
 			//uniform float4 _MainTex_TexelSize;
 			uniform float4 _FillTex_TexelSize;
 			uniform float4 _ColorOverlay;
@@ -90,7 +92,9 @@
 
 				float screenAspect = _ScreenParams.x * (_ScreenParams.w - 1);
 
-				float texAspect = _FillTex_TexelSize.y * _FillTex_TexelSize.z;
+				//* _FillTex_ST.xy + _FillTex_ST.zw
+
+				float texAspect = _FillTex_TexelSize.y * _FillTex_TexelSize.z;///max(0.001, _FillTex_ST.x)/max(0.001, _FillTex_ST.y);
 
 				float2 aspectCorrection = float2(1, 1);
 
@@ -113,14 +117,16 @@
 
 				o.screenPos.xy /= o.screenPos.w;
 
-				float2 fragCoord = (o.screenPos.xy - 0.5 ) * o.stretch.xy + 0.5;
+				float2 fragCoord = (o.screenPos.xy - 0.5 ) * o.stretch.xy*_FillTex_ST.x + 0.5;
 
 
 
 
-				float4 color = tex2Dlod(_FillTex, float4(fragCoord ,0,
+				float4 color = tex2Dlod(_FillTex, float4(
+					fragCoord + _FillTex_ST.zw
+					,0,
 					#if BLUR_ON_ALPHA
-					(1-pow(mask.a,2)) * 32
+					(1-pow(mask.a,2)) * 16
 					#else
 					0
 					#endif
