@@ -15,8 +15,6 @@ namespace QuizCannersUtilities
     public static class QcAsync
     {
 
-        //  public static TimedEnumeration.CallAgain CallAgain_StoreReturnData(object returnData) => new TimedEnumeration.CallAgain(returnData: returnData);
-
         public static TimedEnumeration.CallAgain CallAgain() => new TimedEnumeration.CallAgain();
 
         public static TimedEnumeration.CallAgain CallAgain(string message) => new TimedEnumeration.CallAgain(message: message);

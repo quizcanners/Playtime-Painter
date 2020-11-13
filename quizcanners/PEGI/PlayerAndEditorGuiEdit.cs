@@ -3577,13 +3577,13 @@ namespace PlayerAndEditorGUI
 
         public static bool editEnum<T>(this string text, ref T value)
         {
-            write(text);
+            write(text, width: ApproximateLength(text));
             return editEnum(ref value);
         }
 
         public static bool editEnum<T>(this string label, ref T value, List<int> options)
         {
-            label.write();
+            label.write(width: ApproximateLength(label));
             return editEnum(ref value, options);
         }
 

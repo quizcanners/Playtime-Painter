@@ -281,7 +281,7 @@ namespace PlaytimePainter.MeshEditing
                 }
             }
 
-            QcSharp.timer.End("Breaking mesh done", 1);
+            QcSharp.timer.End("Breaking mesh done", logThreshold: 1);
 
             mesh = new Mesh();
 

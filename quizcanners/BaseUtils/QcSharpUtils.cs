@@ -60,9 +60,7 @@ namespace QuizCannersUtilities {
             public Timer Start()
             {
                 _timerStartLabel = null;
-
                 StopWatch.Restart();
-
                 return this;
             }
 
@@ -70,8 +68,6 @@ namespace QuizCannersUtilities {
             {
                 _timerStartLabel = label;
                 StopWatch.Restart();
-
-
                 return this;
             }
 
@@ -79,9 +75,9 @@ namespace QuizCannersUtilities {
 
             public float GetSeconds() => StopWatch.ElapsedMilliseconds / 1000f;
 
-            public override string ToString()
+            public string GetElapsedTimeString()
             {
-                var text = (_timerStartLabel != null) ? (_timerStartLabel + "->") : "";
+                var text = (!_timerStartLabel.IsNullOrEmpty()) ? (_timerStartLabel + "->") : "";
 
                 text += TicksToReadableString(StopWatch.ElapsedTicks);
 
@@ -90,21 +86,67 @@ namespace QuizCannersUtilities {
                 return text;
             }
 
+            public override string ToString() => GetElapsedTimeString();
 
-            public string End() => End(null, false);
+            public string End_Restart(string labelForEndedSection = null, bool logInEditor = true, bool logInPlayer = false, int logThreshold = 0)
+            {
+                var txt = End(labelForEndedSection, logInEditor, logInPlayer, logThreshold);
+                StopWatch.Start();
+                return txt;
+            }
 
-            public string End(string label, bool logIt = true) => End(label, logIt, false);
+            public Timer Start_Dictionary(string keyForNextMeasurment)
+            {
+                SetNextDictionaryMeasurment(keyForNextMeasurment);
+                Start();
 
-            public string End(string label, float threshold) => End(label, true, false, threshold);
+                return this;
+            }
 
-            public string End(string label, bool logInEditor, bool logInPlayer) =>
-                End(label, logInEditor, logInPlayer, 0);
+            public Timer Start_Dictionary(Dictionary<string, string> logDictionary,
+                string keyForNextMeasurment)
+            {
+                _timingLogDictionary = logDictionary;
+                SetNextDictionaryMeasurment(keyForNextMeasurment);
+                Start();
 
-            public string End(string label, bool logInEditor, bool logInPlayer, float logThreshold)
+                return this;
+            }
+
+            public void End_Restart_Dictionary(string keyForNextMeasurment)
+            {
+                TimingDictionary[_timingKey] = End_Restart(null, false);
+                SetNextDictionaryMeasurment(keyForNextMeasurment);
+            }
+
+            public void AddToDictionary(string label, Stopwatch stopWatch)
+            {
+                stopWatch.Stop();
+                TimingDictionary[label] = TicksToReadableString(stopWatch.ElapsedTicks);
+                stopWatch.Start();
+            }
+
+            public Dictionary<string, string> End_Dictionary()
+            {
+                TimingDictionary[_timingKey] = End(label: null, logInEditor: false);
+                var ret = _timingLogDictionary;
+                _timingLogDictionary = null;
+                return ret;
+            }
+
+            public void Dispose()
+            {
+                if (_timingLogDictionary != null)
+                    End_Dictionary();
+                else
+                    End();
+            }
+            
+            public string End(string label = null, bool logInEditor = true, bool logInPlayer = false, float logThreshold = 0)
             {
                 StopWatch.Stop();
 
-                var text = label + (label.IsNullOrEmpty() ? "" : ": ") + ToString();
+                var text = label + (label.IsNullOrEmpty() ? "" : ": ") + GetElapsedTimeString();
                 
                 if ((Math.Abs(logThreshold) < float.Epsilon || ((StopWatch.ElapsedTicks / TimeSpan.TicksPerSecond) > logThreshold)) &&
                     ((Application.isEditor && logInEditor) || (!Application.isEditor && logInPlayer)))
@@ -114,27 +156,21 @@ namespace QuizCannersUtilities {
 
                 return text;
             }
-
-            public string End_Restart(string labelForEndedSection = null) =>
-                End_Restart(labelForEndedSection, true);
-
-            public string End_Restart(string labelForEndedSection, bool logIt) =>
-                End_Restart(labelForEndedSection, logIt, logIt, 0);
-
-            public string End_Restart(string labelForEndedSection, bool logIt, int logThreshold) =>
-                End_Restart(labelForEndedSection, logIt, logIt, logThreshold);
-
-            public string End_Restart(string labelForEndedSection, bool logInEditor, bool logInPlayer) =>
-                End_Restart(labelForEndedSection, logInEditor, logInPlayer, 0);
-
-            public string End_Restart(string labelForEndedSection, bool logInEditor, bool logInPlayer,
-                int logThreshold) {
-                StopWatch.Stop();
-                var txt = End(labelForEndedSection, logInEditor, logInPlayer, logThreshold);
-                StopWatch.Start();
-                return txt;
-            }
             
+            private void SetNextDictionaryMeasurment(string key)
+            {
+                _timingKey = key;
+
+                var dic = TimingDictionary;
+
+                if (dic.ContainsKey(_timingKey))
+                {
+                    _timingKey += dic.Count.ToString();
+                }
+
+                dic[_timingKey] = "...";
+            }
+
             private string _timingKey = "?";
             private Dictionary<string, string> _timingLogDictionary;
 
@@ -147,57 +183,6 @@ namespace QuizCannersUtilities {
 
                     return _timingLogDictionary;
                 }
-            }
-
-            public Timer Start_Dictionary(string keyForNextMeasurment) {
-                NextDictionaryMeasurment(keyForNextMeasurment);
-                Start();
-
-                return this;
-            }
-
-            public Timer Start_Dictionary(Dictionary<string, string> logDictionary,
-                string keyForNextMeasurment)
-            {
-                _timingLogDictionary = logDictionary;
-                NextDictionaryMeasurment(keyForNextMeasurment);
-                Start();
-
-                return this;
-            }
-
-            public void End_Restart_Dictionary(string keyForNextMeasurment) {
-                TimingDictionary[_timingKey] = End_Restart(null, false);
-                NextDictionaryMeasurment(keyForNextMeasurment);
-            }
-
-            private void NextDictionaryMeasurment(string key)
-            {
-                _timingKey = key;
-
-                if (TimingDictionary.ContainsKey(_timingKey))
-                {
-                    _timingKey += TimingDictionary.Count.ToString();
-                }
-
-                TimingDictionary[_timingKey] = "...";
-            }
-
-            public Dictionary<string,string> End_Dictionary()
-            {
-                TimingDictionary[_timingKey] = End(null, false);
-                var ret = _timingLogDictionary;
-                _timingLogDictionary = null;
-                return ret;
-            }
-
-         
-
-            public void Dispose() {
-                if (_timingLogDictionary!= null)
-                    End_Dictionary();
-                else
-                    End();
             }
 
         }

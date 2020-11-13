@@ -469,6 +469,19 @@ namespace PlayerAndEditorGUI
             return icon.List.enter(txt.AddCount(list, enteredOne == thisOne), ref enteredOne, thisOne, false, list.Count == 0 ? PEGI_Styles.ClippingText : null);
         }
 
+        private static bool enter_ListIcon<T>(this string txt, ref List<T> list, ref bool isEntered)
+        {
+            if (collectionInspector.listIsNull(ref list))
+            {
+                if (isEntered)
+                    isEntered = false;
+                return false;
+            }
+
+            return icon.List.enter(txt.AddCount(list, isEntered), ref isEntered, showLabelIfTrue: false);
+        }
+
+
         private static bool enter_ListIcon<T>(this string txt, ref List<T> list, ref int inspected, ref int enteredOne, int thisOne)
         {
             if (collectionInspector.listIsNull(ref list))
@@ -893,12 +906,17 @@ namespace PlayerAndEditorGUI
 
         public static bool enter_List<T>(this string label, ref List<T> list, ref int enteredOne, int thisOne)
         {
-
             var changed = false;
-
             if (enter_ListIcon(label, ref list, ref enteredOne, thisOne))
                 label.edit_List(ref list, ref changed);
+            return changed;
+        }
 
+        public static bool enter_List<T>(this string label, ref List<T> list, ref bool isEntered)
+        {
+            var changed = false;
+            if (enter_ListIcon(label, ref list, ref isEntered))
+                label.edit_List(ref list, ref changed);
             return changed;
         }
 
