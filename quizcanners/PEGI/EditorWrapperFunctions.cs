@@ -304,13 +304,6 @@ namespace PlayerAndEditorGUI
 
         private static bool changes => globChanged;
 
-      /*  private static bool ignoreChanges(this bool changed)
-        {
-            if (changed)
-                globChanged = false;
-            return changed;
-        }*/
-
         private static void BeginCheckLine() { checkLine(); EditorGUI.BeginChangeCheck(); }
 
         private static bool EndCheckLine() => EditorGUI.EndChangeCheck().Dirty();
@@ -345,14 +338,7 @@ namespace PlayerAndEditorGUI
             textAndToolTip.tooltip = tip;
             return textAndToolTip;
         }
-        
-       /* private static GUIContent TextAndTip(string text)
-        {
-            textAndToolTip.text = text;
-            textAndToolTip.tooltip = text;
-            return textAndToolTip;
-        }*/
-        
+                
         #region Foldout
       
 
@@ -1301,14 +1287,6 @@ namespace PlayerAndEditorGUI
             return imageAndTip;
         }
 
-        /*
-        private static GUIContent ImageAndTip(Texture tex)
-        {
-            imageAndTip.image = tex;
-            imageAndTip.tooltip = tex ? tex.name : "Null Image";
-            return imageAndTip;
-        }*/
-
         public static void write<T>(T field) where T : Object
         {
             checkLine();
@@ -1339,13 +1317,15 @@ namespace PlayerAndEditorGUI
             EditorGUILayout.LabelField(cnt, PEGI_Styles.ClippingText.Current);
         }
 
-        public static void write(Texture tex, string tip, int width)
+        public static void write(Texture tex, string tip, int width, int height)
         {
             checkLine();
             var cnt = ImageAndTip(tex, tip);
-            //GUI.enabled = false;
-            GUILayout.Button(cnt, PEGI_Styles.ImageButton.Current, GUILayout.MaxWidth(width + 10), GUILayout.MaxHeight(width));
-            //GUI.enabled = true;
+            GUI.enabled = false;
+            pegi.SetBgColor(Color.clear);
+            GUILayout.Button(cnt, PEGI_Styles.ImageButton.Current, GUILayout.MaxWidth(width + 10), GUILayout.MaxHeight(height));
+            pegi.SetPreviousBgColor();
+            GUI.enabled = true;
         }
 
         public static void write(Texture tex, int width, bool alphaBlend)
@@ -1357,7 +1337,7 @@ namespace PlayerAndEditorGUI
             GUI.DrawTexture(rect, tex, ScaleMode.ScaleToFit, alphaBlend: alphaBlend);
         }
 
-        public static void write(Texture tex, string tip, int width, int height, bool alphaBlend = true)
+        public static void write(Texture tex, int width, int height, bool alphaBlend = true)
         {
             checkLine();
 

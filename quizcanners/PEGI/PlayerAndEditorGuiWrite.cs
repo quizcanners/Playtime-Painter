@@ -179,7 +179,7 @@ namespace PlayerAndEditorGUI
 
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
-                ef.write(img, toolTip, width);
+                ef.write(img, toolTip, width, width);
             else
 #endif
             {
@@ -210,12 +210,12 @@ namespace PlayerAndEditorGUI
 
         }
         */
-        public static void write(this Texture img, string toolTip, int width, int height, bool alphaBlend = true)
+        public static void write(this Texture img, string toolTip, int width, int height)
         {
 
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
-                ef.write(img, toolTip, width, height, alphaBlend: alphaBlend);
+                ef.write(img, toolTip, width, height);
             else
 #endif
             {
