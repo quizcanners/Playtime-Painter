@@ -50,23 +50,11 @@ namespace QuizCannersUtilities
             return enm;
         }
 
-        /*  public static TimedEnumeration<T> StartManagedCoroutine<T>(IEnumerator enumerator, Action<T> onDone = null)
-          {
-              var enm = new TimedEnumeration<T>(enumerator);
-              enm.onDoneFullyReturnData = onDone;
-              enumerators.Insert(0, enm);
-              return enm;
-          }*/
-
         public static Coroutine StartTimedCoroutine(this IEnumerator enumerator, MonoBehaviour behaviour, Action onDone = null) =>
             behaviour.StartCoroutine(new TimedEnumeration(enumerator).Start(onDone));
 
-        /*  public static Coroutine StartTimedCoroutine<T>(this IEnumerator enumerator, MonoBehaviour behaviour, Action<T> onDone = null) =>
-              behaviour.StartCoroutine(new TimedEnumeration<T>(enumerator).Start(onDone));*/
-
         public static void UpdateManagedCoroutines()
         {
-
             if (!_debugPauseCoroutines)
                 for (int i = enumerators.Count - 1; i >= 0; i--)
                 {
@@ -400,25 +388,19 @@ namespace QuizCannersUtilities
                                 if (_currentCallAgainRequest.task != null)
                                 {
                                     _task = _currentCallAgainRequest.task;
-                                    // Debug.LogError("Found nested tesk");
                                 }
-
-                                /* if (_currentCallAgainRequest.returnData != null)
-                                 {
-                                     returnedData = _currentCallAgainRequest.returnData;
-                                 }*/
                             }
                             else
                             {
                                 if (_current is IEnumerator)
                                 {
                                     _enumerator.Add(_current as IEnumerator);
-                                    //  Debug.LogError("Found nested IEnumerator: {0}".F(_current.ToString()));
                                     _current = null;
+                                    _currentCallAgainRequest = new CallAgain();
+
                                 }
                             }
                         }
-
                         return true;
                     }
                     else

@@ -232,7 +232,7 @@ namespace PlayerAndEditorGUI
 
         #region Enter & Exit
 
-        public static bool enter_Inspect<T>(this string label, ref T uObject, ref int inspected, int current) where T: Object
+        public static bool enter_InspectUO<T>(this string label, ref T uObject, ref int inspected, int current) where T: Object
         {
             if (!uObject)
             {
@@ -247,6 +247,14 @@ namespace PlayerAndEditorGUI
                     return TryDefaultInspect(uObject);
             }
             
+            return false;
+        }
+
+        public static bool enter_Inspect(this string label, IPEGI val, ref int inspected, int current)
+        {
+            if (label.enter(ref inspected, current))
+                return val.Inspect();
+
             return false;
         }
 
@@ -480,8 +488,7 @@ namespace PlayerAndEditorGUI
 
             return icon.List.enter(txt.AddCount(list, isEntered), ref isEntered, showLabelIfTrue: false);
         }
-
-
+        
         private static bool enter_ListIcon<T>(this string txt, ref List<T> list, ref int inspected, ref int enteredOne, int thisOne)
         {
             if (collectionInspector.listIsNull(ref list))
