@@ -174,25 +174,42 @@ namespace PlayerAndEditorGUI
             }
         }
 
-        public static void write(this Texture img, string toolTip, int width = defaultButtonSize, bool alphaBlend = true)
+        public static void write(this Texture img, string toolTip, int width = defaultButtonSize)
         {
 
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
-                ef.write(img, toolTip, width, alphaBlend: alphaBlend);
+                ef.write(img, toolTip, width);
+            else
+#endif
+            {
+
+                SetBgColor(Color.clear);
+                img.Click(toolTip, width, width);
+                RestoreBGcolor();
+            }
+
+        }
+        /*
+        public static void write(this Texture img, int width = defaultButtonSize, bool alphaBlend = true)
+        {
+
+#if UNITY_EDITOR
+            if (!PaintingGameViewUI)
+                ef.write(img, width, alphaBlend: alphaBlend);
             else
 #endif
             {
 
                 SetBgColor(Color.clear);
 
-                img.Click(toolTip, width, width);
+                img.Click(width);
 
                 RestoreBGcolor();
             }
 
         }
-
+        */
         public static void write(this Texture img, string toolTip, int width, int height, bool alphaBlend = true)
         {
 

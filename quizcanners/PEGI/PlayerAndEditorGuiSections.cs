@@ -232,32 +232,6 @@ namespace PlayerAndEditorGUI
 
         #region Enter & Exit
 
-        public static bool enter_InspectUO<T>(this string label, ref T uObject, ref int inspected, int current) where T: Object
-        {
-            if (!uObject)
-            {
-                if (inspected == -1)
-                    label.edit(ref uObject).nl();
-                else if (inspected == current && (icon.Exit.Click() || "All Done Here".Click()))
-                         inspected = -1;
-            }
-            else
-            {
-                if (label.enter(ref inspected, current))
-                    return TryDefaultInspect(uObject);
-            }
-            
-            return false;
-        }
-
-        public static bool enter_Inspect(this string label, IPEGI val, ref int inspected, int current)
-        {
-            if (label.enter(ref inspected, current))
-                return val.Inspect();
-
-            return false;
-        }
-
         public static bool enter<T>(ref int enteredOne, T currentEnum, string tip) where T: struct =>
              enter(ref enteredOne, Convert.ToInt32(currentEnum), tip);
 
@@ -587,6 +561,32 @@ namespace PlayerAndEditorGUI
             return "{0} [1]".F(txt);
         }
 
+        public static bool enter_InspectUO<T>(this string label, ref T uObject, ref int inspected, int current) where T : UnityEngine.Object
+        {
+            if (!uObject)
+            {
+                if (inspected == -1)
+                    label.edit(ref uObject).nl();
+                else if (inspected == current && (icon.Exit.Click() || "All Done Here".Click()))
+                    inspected = -1;
+            }
+            else
+            {
+                if (label.enter(ref inspected, current))
+                    return TryDefaultInspect(uObject);
+            }
+
+            return false;
+        }
+
+        public static bool enter_Inspect(this string label, IPEGI val, ref int inspected, int current)
+        {
+            if (label.enter(ref inspected, current))
+                return val.Inspect();
+
+            return false;
+        }
+
         public static bool enter_Inspect(this icon ico, string txt, IPEGI var, ref int enteredOne, int thisOne, bool showLabelIfTrue = true)
         {
             var changed = false;
@@ -638,7 +638,7 @@ namespace PlayerAndEditorGUI
             return (ef.isFoldedOutOrEntered && var.Nested_Inspect()) || changed;
         }
 
-        public static bool enter_Inspect(this string label, IPEGI_ListInspect var, ref int enteredOne, int thisOne)
+        public static bool enter_Inspect_AsList(this string label, IPEGI_ListInspect var, ref int enteredOne, int thisOne)
         {
             if (enteredOne == -1 && label.TryAddCount(var).ClickLabel(style: PEGI_Styles.EnterLabel))
                 enteredOne = thisOne;
@@ -693,7 +693,7 @@ namespace PlayerAndEditorGUI
             var ilpgi = obj as IPEGI_ListInspect;
 
             if (ilpgi != null)
-                label.enter_Inspect(ilpgi, ref enteredOne, thisOne).nl_ifFolded(ref changed);
+                label.enter_Inspect_AsList(ilpgi, ref enteredOne, thisOne).nl_ifFolded(ref changed);
             else
             {
                 var ipg = obj as IPEGI;
@@ -712,7 +712,7 @@ namespace PlayerAndEditorGUI
             int enteredOne = entered ? 1 : -1;
 
             if (ilpgi != null)
-                label.enter_Inspect(ilpgi, ref enteredOne, 1).nl_ifFolded(ref changed);
+                label.enter_Inspect_AsList(ilpgi, ref enteredOne, 1).nl_ifFolded(ref changed);
             else
             {
                 var ipg = obj as IPEGI;

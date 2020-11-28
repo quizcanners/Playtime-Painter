@@ -23,47 +23,57 @@ MonoBehaviour:
   atlasedMaterials: []
   playtimeSavedTextures: []
   imgMetas:
-  - target: 0
-    renderTexture: {fileID: 0}
-    texture2D: {fileID: 2800000, guid: 38b6e61e6ad7a8849881893422f8b64e, type: 3}
+  - target: 1
+    renderTexture: {fileID: 8400000, guid: 397fac58d2485754f9cecb7be12b8a76, type: 2}
+    texture2D: {fileID: 0}
     other: {fileID: 0}
-    width: 64
-    height: 64
+    width: 1024
+    height: 1024
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
     lockEditing: 0
     isATransparentLayer: 0
     enableUndoRedo: 0
     preserveTransparency: 1
-    sdfMaxInside: 30
-    sdfMaxOutside: 30
+    sdfMaxInside: 1
+    sdfMaxOutside: 1
     sdfPostProcessDistance: 1
     _repaintDelay: 0.016
     updateTex2DafterStroke: 0
     _numberOfTexture2DBackups: 10
     _numberOfRenderTextureBackups: 10
-    isAVolumeTexture: 0
+    isAVolumeTexture: 1
     clearColor: {r: 0, g: 0, b: 0, a: 1}
     backupManually: 0
-    saveName: 0a9faf407bdd4fb3ba0d2f0ccb4e00c6lg
+    saveName: _RayMarchingVolume
     url: 
     inspectedItems: -1
-  matMetas:
-  - material: {fileID: 2100000, guid: ff51effeef2082b48b0d6f8a41c94686, type: 2}
-    selectedTexture: 1
-    usePreviewShader: 0
-    colorToVertexColorOnMerge: 0
-    selectedForMerge: 0
-  - material: {fileID: 2100000, guid: 961af63d240c68b46bbb11ff8995d0fc, type: 2}
-    selectedTexture: 0
-    usePreviewShader: 0
-    colorToVertexColorOnMerge: 0
-    selectedForMerge: 0
-  - material: {fileID: 2100000, guid: 77c7647f70bd87e4aa84b7d1e6a1a618, type: 2}
-    selectedTexture: 0
-    usePreviewShader: 0
-    colorToVertexColorOnMerge: 0
-    selectedForMerge: 0
+  - target: 1
+    renderTexture: {fileID: 8400000, guid: 2d3c2558c24b26647a35871e7558f77e, type: 2}
+    texture2D: {fileID: 0}
+    other: {fileID: 0}
+    width: 1024
+    height: 1024
+    useTexCoord2: 0
+    _useTexCoord2AutoAssigned: 0
+    lockEditing: 0
+    isATransparentLayer: 0
+    enableUndoRedo: 0
+    preserveTransparency: 1
+    sdfMaxInside: 1
+    sdfMaxOutside: 1
+    sdfPostProcessDistance: 1
+    _repaintDelay: 0.016
+    updateTex2DafterStroke: 0
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    isAVolumeTexture: 1
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    backupManually: 0
+    saveName: _RayMarchingVolume_BSIde
+    url: 
+    inspectedItems: -1
+  matMetas: []
   showRecentTextures: 0
   showColorSchemes: 0
   sourceTextures: []

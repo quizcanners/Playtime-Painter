@@ -1291,15 +1291,17 @@ namespace PlayerAndEditorGUI
 
         #region write
 
-      //  private static GUIContent imageAndTip = new GUIContent();
+        private static GUIContent imageAndTip = new GUIContent();
 
-       /* private static GUIContent ImageAndTip(Texture tex, string toolTip)
+        private static GUIContent ImageAndTip(Texture tex) => ImageAndTip(tex, tex.GetNameForInspector_Uobj());
+        private static GUIContent ImageAndTip(Texture tex, string toolTip)
         {
             imageAndTip.image = tex;
             imageAndTip.tooltip = toolTip;
             return imageAndTip;
         }
 
+        /*
         private static GUIContent ImageAndTip(Texture tex)
         {
             imageAndTip.image = tex;
@@ -1313,12 +1315,7 @@ namespace PlayerAndEditorGUI
             EditorGUILayout.ObjectField(field, typeof(T), false);
         }
 
-      /*  public static void write<T>(T field, int width) where T : Object
-        {
-            checkLine();
-            EditorGUILayout.ObjectField(field, typeof(T), false, GUILayout.MaxWidth(width));
-        }
-
+      /*  
         public static void write(GUIContent cnt, int width, int height)
         {
 
@@ -1336,30 +1333,25 @@ namespace PlayerAndEditorGUI
             EditorGUILayout.LabelField(text, EditorStyles.miniLabel, GUILayout.MaxWidth(width));
         }
 
-       /* public static void write_ForCopy(string text, int width)
-        {
-            checkLine();
-            EditorGUILayout.SelectableLabel(text, GUILayout.MaxWidth(width));
-        }*/
-
         public static void write(GUIContent cnt)
         {
             checkLine();
             EditorGUILayout.LabelField(cnt, PEGI_Styles.ClippingText.Current);
         }
 
-        public static void write(Texture tex, int width, bool alphaBlend = true)
+        public static void write(Texture tex, string tip, int width)
         {
             checkLine();
-
-            var rect = EditorGUILayout.GetControlRect(GUILayout.MaxWidth(width), GUILayout.MaxHeight(width));
-
-            GUI.DrawTexture(rect, tex, ScaleMode.ScaleToFit, alphaBlend: alphaBlend);
+            var cnt = ImageAndTip(tex, tip);
+            //GUI.enabled = false;
+            GUILayout.Button(cnt, PEGI_Styles.ImageButton.Current, GUILayout.MaxWidth(width + 10), GUILayout.MaxHeight(width));
+            //GUI.enabled = true;
         }
 
-        public static void write(Texture tex, string tip, int width, bool alphaBlend = true)
+        public static void write(Texture tex, int width, bool alphaBlend)
         {
             checkLine();
+
             var rect = EditorGUILayout.GetControlRect(GUILayout.MaxWidth(width), GUILayout.MaxHeight(width));
 
             GUI.DrawTexture(rect, tex, ScaleMode.ScaleToFit, alphaBlend: alphaBlend);
