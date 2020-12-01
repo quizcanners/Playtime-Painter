@@ -66,6 +66,7 @@ namespace PlayerAndEditorGUI
                 _materialEditor.unityMaterialEditor.Repaint();
         }
 
+        /*
         public static bool DefaultInspector()
         {
             newLine();
@@ -81,8 +82,9 @@ namespace PlayerAndEditorGUI
             return EditorGUI.EndChangeCheck();
 
         }
-        
-        public static bool Inspect_Prop<T>(T val, SerializedProperty prop) {
+        */
+
+     /*   public static bool Inspect_Prop<T>(T val, SerializedProperty prop) {
             var changed = false;
             
             start();
@@ -100,7 +102,7 @@ namespace PlayerAndEditorGUI
             newLine();
             
             return changed;
-        }
+        }*/
 
         public static bool Inspect<T>(Editor editor) where T : MonoBehaviour
         {
@@ -333,7 +335,7 @@ namespace PlayerAndEditorGUI
         
         public static void UnIndent(int amount = 1) => EditorGUI.indentLevel = Mathf.Max(0, EditorGUI.indentLevel - amount);
         
-        private static GUIContent textAndToolTip = new GUIContent();
+        private static readonly GUIContent textAndToolTip = new GUIContent();
 
         private static GUIContent TextAndTip(string text, string tip)
         {
@@ -696,7 +698,7 @@ namespace PlayerAndEditorGUI
             text = EditorGUILayout.TextField(text, GUILayout.MaxWidth(width));
             return EndCheckLine();
         }
-
+/*
         public static bool edit(ref string[] texts, int no)
         {
             BeginCheckLine();
@@ -717,7 +719,7 @@ namespace PlayerAndEditorGUI
             i = Mathf.ClosestPowerOfTwo(Mathf.Clamp(EditorGUILayout.IntField(i), min, max));
             return EndCheckLine();
         }
-        
+        */
         public static bool editBig(ref string text, int height = 100)
         {
             BeginCheckLine();
@@ -853,7 +855,7 @@ namespace PlayerAndEditorGUI
             return EndCheckLine();
 
         }
-
+        /*
         public static bool edit(ref Color col, GUIContent cnt, int width)
         {
 
@@ -862,14 +864,14 @@ namespace PlayerAndEditorGUI
             return EndCheckLine();
 
         }
-
+        */
         public static bool editKey(ref Dictionary<int, string> dic, int key)
         {
             checkLine();
             var before = key;
 
             if (editDelayed(ref key, 40))
-                return dic.TryChangeKey(before, key) ? setDirty : false;
+                return dic.TryChangeKey(before, key) && setDirty;
 
             return false;
         }
@@ -906,7 +908,6 @@ namespace PlayerAndEditorGUI
             return EndCheckLine();
         }
 
-
         public static bool edit(ref int val, int width)
         {
             BeginCheckLine();
@@ -921,14 +922,13 @@ namespace PlayerAndEditorGUI
             return EndCheckLine();
         }
 
-
         public static bool edit(ref uint val, int width)
         {
             BeginCheckLine();
             val = (uint)EditorGUILayout.IntField((int)val, GUILayout.MaxWidth(width));
             return EndCheckLine();
         }
-
+        /*
         public static bool edit(string name, ref AnimationCurve val)
         {
 
@@ -936,7 +936,7 @@ namespace PlayerAndEditorGUI
             val = EditorGUILayout.CurveField(name, val);
             return EndCheckLine();
         }
-
+        */
         public static bool edit(string label, ref Vector4 val)
         {
             BeginCheckLine();
@@ -1132,8 +1132,6 @@ namespace PlayerAndEditorGUI
 
         #region Property
 
-     
-
         public static bool edit_Property<T>(int width, Expression<Func<T>> memberExpression, Object obj, bool includeChildren)
         {
             var serializedObject = (!obj ? serObj : GetSerObj(obj));
@@ -1230,13 +1228,13 @@ namespace PlayerAndEditorGUI
             checkLine();
             return GUILayout.Button(label) && setDirty;
         }
-
+        /*
         public static bool Click(string label, GUIStyle style)
         {
             checkLine();
             return GUILayout.Button(label, style) && setDirty;
         }
-
+        */
         public static bool Click(GUIContent content)
         {
             checkLine();
@@ -1280,9 +1278,10 @@ namespace PlayerAndEditorGUI
 
         #region write
 
-        private static GUIContent imageAndTip = new GUIContent();
-
+        private static readonly GUIContent imageAndTip = new GUIContent();
+/*
         private static GUIContent ImageAndTip(Texture tex) => ImageAndTip(tex, tex.GetNameForInspector_Uobj());
+       */
         private static GUIContent ImageAndTip(Texture tex, string toolTip)
         {
             imageAndTip.image = tex;
@@ -1339,7 +1338,7 @@ namespace PlayerAndEditorGUI
 
             GUI.DrawTexture(rect, tex, ScaleMode.ScaleToFit, alphaBlend: alphaBlend);
         }
-
+        /*
         public static void write(Texture tex, int width, int height, bool alphaBlend = true)
         {
             checkLine();
@@ -1351,26 +1350,26 @@ namespace PlayerAndEditorGUI
 
             GUI.DrawTexture(rect, tex, ScaleMode.ScaleToFit, alphaBlend: alphaBlend);
         }
-
+        */
         public static void write(GUIContent cnt, int width)
         {
             checkLine();
             EditorGUILayout.LabelField(cnt, PEGI_Styles.ClippingText.Current, GUILayout.MaxWidth(width));
         }
-
+        /*
         public static void write(string text)
         {
             checkLine();
             EditorGUILayout.LabelField(text, PEGI_Styles.ClippingText.Current);
         }
-
+        */
         public static void write_ForCopy(string text)
         {
             checkLine();
             EditorGUILayout.SelectableLabel(text, PEGI_Styles.ClippingText.Current);
         }
 
-
+        /*
         public static void write(string text, GUIStyle style)
         {
             checkLine();
@@ -1382,7 +1381,7 @@ namespace PlayerAndEditorGUI
             checkLine();
             EditorGUILayout.LabelField(text, style, GUILayout.MaxWidth(width));
         }
-
+        */
         public static void write(GUIContent cnt, int width, GUIStyle style)
         {
             checkLine();
@@ -1600,7 +1599,8 @@ namespace PlayerAndEditorGUI
             }
             else
             {
-                var ed = _listMetaData.TryGetElement(index);
+               // var ed = 
+                    _listMetaData.TryGetElement(index);
                 
                /* if (ed != null && ed.unrecognized)
                 {
