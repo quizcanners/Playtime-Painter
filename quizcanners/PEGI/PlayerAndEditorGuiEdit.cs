@@ -25,18 +25,18 @@ namespace PlayerAndEditorGUI
 {
     public static partial class pegi
     {
-        
+
         #region Changes 
-
-        private static bool change { get { ef.globChanged = true; return true; } }
-
-        private static bool Dirty(this bool val) { ef.globChanged |= val; return val; }
 
         public static bool changes(this bool value, ref bool changed)
         {
             changed |= value;
             return value;
         }
+        
+        private static bool change { get { ef.globChanged = true; return true; } }
+
+        private static bool Dirty(this bool val) { ef.globChanged |= val; return val; }
 
         private static bool ignoreChanges(this bool changed)
         {

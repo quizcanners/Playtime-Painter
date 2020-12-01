@@ -129,7 +129,7 @@ namespace PlayerAndEditorGUI
                     if (pgi.Inspect())
                         ClearFromPooledSerializedObjects(o);
 
-                    if (changes && isPrefab)
+                    if (globChanged && isPrefab)
                         PrefabUtility.RecordPrefabInstancePropertyModifications(o);
                 }
 
@@ -147,7 +147,7 @@ namespace PlayerAndEditorGUI
                 }
             }
 
-            if (changes)
+            if (globChanged)
             {
                 if (!Application.isPlaying)
                     EditorSceneManager.MarkSceneDirty(go ? go.scene : SceneManager.GetActiveScene());
@@ -156,7 +156,7 @@ namespace PlayerAndEditorGUI
                 EditorUtility.SetDirty(go);
             }
 
-            return changes;
+            return globChanged;
         }
 
         public static bool Inspect_so<T>(Editor editor) where T : ScriptableObject
@@ -185,11 +185,13 @@ namespace PlayerAndEditorGUI
             var pgi = o as IPEGI;
             if (pgi != null)
             {
-                start(so);
-
-                globChanged |= !pegi.FullWindowService.ShowingPopup() && pgi.Inspect();
-
-                end(o);
+                if (!pegi.FullWindowService.ShowingPopup())
+                {
+                    start(so);
+                    var tmp = pgi.Inspect();
+                    globChanged |= tmp;
+                    end(o);
+                }
                 
                 return globChanged;
             }
@@ -220,7 +222,7 @@ namespace PlayerAndEditorGUI
 
             end(mat);
 
-            return changes || changed;
+            return globChanged || changed;
         }
         
         public static bool toggleDefaultInspector(Object target)
@@ -284,7 +286,7 @@ namespace PlayerAndEditorGUI
         static bool end(Object obj)
         {
 
-            if (changes)
+            if (globChanged)
             {
                 if (!Application.isPlaying)
                     EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
@@ -295,18 +297,19 @@ namespace PlayerAndEditorGUI
             }
             newLine();
 
-            return changes;
+            return globChanged;
         }
 
         private static bool setDirty { get { globChanged = true; return true; } }
 
-        private static bool Dirty(this bool val) { globChanged |= val; return val; }
-
-        private static bool changes => globChanged;
-
         private static void BeginCheckLine() { checkLine(); EditorGUI.BeginChangeCheck(); }
 
-        private static bool EndCheckLine() => EditorGUI.EndChangeCheck().Dirty();
+        private static bool EndCheckLine()
+        {
+            var val = EditorGUI.EndChangeCheck();
+            globChanged |= val;
+            return val;
+        }
 
         public static void checkLine()
         {
@@ -588,7 +591,7 @@ namespace PlayerAndEditorGUI
             if (!EndCheckLine()) return false;
 
             current = others[newNo];
-            return setDirty;
+            return true;
         }
 
         private static bool select(ref Component current, IReadOnlyList<Component> others, Rect rect)
@@ -614,7 +617,7 @@ namespace PlayerAndEditorGUI
 
             current = others[newNo];
 
-            return setDirty;
+            return true;
         }
 
 
@@ -1270,7 +1273,7 @@ namespace PlayerAndEditorGUI
 
             checkLine();
 
-            return GUILayout.Button(cnt, style, GUILayout.MaxWidth(width + 10), GUILayout.MaxHeight(height)).Dirty();
+            return GUILayout.Button(cnt, style, GUILayout.MaxWidth(width + 10), GUILayout.MaxHeight(height)) && setDirty;
         }
 
         #endregion

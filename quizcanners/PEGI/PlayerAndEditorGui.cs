@@ -127,6 +127,7 @@ namespace PlayerAndEditorGUI
                 private WindowFunction _function;
                 private Rect _windowRect;
                 public float upscale = 2;
+                Vector2 scrollPosition;
 
                 protected bool UseWindow => upscale == 1;
 
@@ -150,15 +151,21 @@ namespace PlayerAndEditorGUI
                                 Screen.height / upscale));
                         }
 
-                        if (!FullWindowService.ShowingPopup())
-                            _function();
+                        scrollPosition = GUILayout.BeginScrollView(scrollPosition
+                            , GUILayout.Width(Screen.width * 0.9f / upscale)
+                            , GUILayout.Height(Screen.height * 0.9f / upscale));
 
-                        nl();
+                            if (!FullWindowService.ShowingPopup())
+                                _function();
 
-                        UnIndent();
+                            nl();
+                            
+                            UnIndent();
 
-                        (GUI.tooltip.IsNullOrEmpty() ? "" : "{0}:{1}".F(Msg.ToolTip.GetText(), GUI.tooltip)).nl(
-                            PEGI_Styles.HintText);
+                            (GUI.tooltip.IsNullOrEmpty() ? "" : "{0}:{1}".F(Msg.ToolTip.GetText(), GUI.tooltip)).nl(
+                                PEGI_Styles.HintText);
+
+                        GUILayout.EndScrollView();
 
                         if (UseWindow)
                         {
