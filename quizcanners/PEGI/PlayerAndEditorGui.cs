@@ -335,8 +335,6 @@ namespace PlayerAndEditorGUI
 
         private static Color _originalGuiColor;
 
-        //private static List<Color> _previousGuiColors = new List<Color>();
-
         private static icon GUIColor(this icon icn, Color col)
         {
             SetGUIColor(col);
@@ -523,7 +521,7 @@ namespace PlayerAndEditorGUI
 #endif
         }
 
-        public static void UnFocus()
+        internal static void UnFocus()
         {
             #if UNITY_EDITOR
             if (!PaintingGameViewUI)

@@ -422,6 +422,14 @@ namespace QuizCannersUtilities {
 
         #region Components & GameObjects
 
+        public static void TrySet(this List<Image> list, Sprite to)
+        {
+            if (!list.IsNullOrEmpty())
+                foreach (var e in list)
+                    if (e)
+                        e.sprite = to;
+        }
+
         public static List<T> CreateUiElement<T>(GameObject[] targets = null, Action<T> onCreate = null) where T : Component
         {
 

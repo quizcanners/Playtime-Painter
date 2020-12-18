@@ -39,7 +39,7 @@ namespace PlaytimePainter
 
 #if UNITY_EDITOR && UNITY_2019_1_OR_NEWER
                 if (!Application.isPlaying)
-                    return EditorTools.activeToolType == typeof(PainterAsIntegratedCustomTool);
+                    return ToolManager.activeToolType == typeof(PainterAsIntegratedCustomTool);
 
 #endif
 

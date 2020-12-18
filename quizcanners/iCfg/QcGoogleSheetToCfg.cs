@@ -82,7 +82,7 @@ namespace QuizCannersUtilities
             request.SendWebRequest();
         }
 
-        public bool IsDownloading() => request != null && !request.isDone && !request.isNetworkError;
+        public bool IsDownloading() => request != null && request.result== UnityWebRequest.Result.InProgress;
 
         public IEnumerator DownloadingCoro()
         {

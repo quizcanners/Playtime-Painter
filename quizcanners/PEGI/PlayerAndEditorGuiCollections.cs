@@ -25,21 +25,20 @@ namespace PlayerAndEditorGUI
         #region Collection MGMT Functions 
 
         public static int InspectedIndex => collectionInspector.Index;
-
-        //private set { collectionInspector.Index = value; }
+        
         private static T listLabel_Used<T>(this T val)
         {
             collectionInspector.listLabel_Used();
             return val;
         }
-        
-        public static string GetCurrentListLabel<T>(ListMetaData meta = null) => collectionInspector.GetCurrentListLabel<T>(meta);
 
-        public static void UnselectAll() => collectionInspector.selectedEls.Clear();
+        internal static string GetCurrentListLabel<T>(ListMetaData meta = null) => collectionInspector.GetCurrentListLabel<T>(meta);
 
-        public static bool Getselected(int index) => collectionInspector.selectedEls[index];
+        internal static void UnselectAll() => collectionInspector.selectedEls.Clear();
 
-        public static void SetSelected(int index, bool value) => collectionInspector.selectedEls[index] = value;
+        internal static bool Getselected(int index) => collectionInspector.selectedEls[index];
+
+        internal static void SetSelected(int index, bool value) => collectionInspector.selectedEls[index] = value;
 
         private static CollectionInspector collectionInspector = new CollectionInspector();
 
@@ -1733,15 +1732,12 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-
-
         #endregion
         
         #region LISTS
 
         #region List of MonoBehaviour
-
-
+        
         public static bool edit_List_MB<T>(this string label, ref List<T> list, ref int inspected) where T : MonoBehaviour
         {
             collectionInspector.write_Search_ListLabel(label, ref inspected, list);

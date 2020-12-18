@@ -1518,9 +1518,6 @@ namespace PlayerAndEditorGUI
 
             }
 
-
-           
-
             l.GetReordable(metas).DoLayoutList();
             return EditorGUI.EndChangeCheck();
         }
