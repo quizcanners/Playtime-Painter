@@ -300,8 +300,10 @@ namespace QuizCannersUtilities
             private int _runningVersion;
             private CallAgain _currentCallAgainRequest;
             private object _current;
+            private bool _enumeratorStackChanged;
             protected bool _stopAndCancel;
             private Stopwatch timer = new Stopwatch();
+
 
             protected virtual void Cancel() => _stopAndCancel = true;
 
@@ -347,8 +349,8 @@ namespace QuizCannersUtilities
 
             private bool NextYieldInternal()
             {
-
                 _currentCallAgainRequest = null;
+                _enumeratorStackChanged = false;
 
                 if (_task != null)
                 {
@@ -397,7 +399,7 @@ namespace QuizCannersUtilities
                                     _enumerator.Add(_current as IEnumerator);
                                     _current = null;
                                     _currentCallAgainRequest = new CallAgain();
-
+                                    _enumeratorStackChanged = true;
                                 }
                             }
                         }
@@ -408,6 +410,7 @@ namespace QuizCannersUtilities
                         if (_enumerator.Count > 1)
                         {
                             _enumerator.RemoveAt(_enumerator.Count - 1);
+                            _enumeratorStackChanged = true;
                             return true;
                         }
                     }
@@ -431,6 +434,11 @@ namespace QuizCannersUtilities
             {
 
                 var el = timer.ElapsedMilliseconds;
+
+                if (_enumeratorStackChanged)
+                {
+                    return false;
+                }
 
                 if ((TotalTimeUsedThisFrame > maxMilisecondsPerFrame) || (el > (maxMilisecondsPerFrame - TotalTimeUsedThisFrame)) || _currentCallAgainRequest == null)
                 {

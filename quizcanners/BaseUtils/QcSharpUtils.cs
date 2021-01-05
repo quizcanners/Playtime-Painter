@@ -933,7 +933,7 @@ namespace QuizCannersUtilities {
     {
         private volatile bool _lLock;
 
-        private bool _loopErrorLogged;
+      //  private bool _loopErrorLogged;
 
         public SkipLock Lock()
         {
@@ -947,14 +947,14 @@ namespace QuizCannersUtilities {
 
         public object Current => _lLock;
 
-        public void Run(Action action)
+       /* public void Run(Action action)
         {
             if (!Unlocked) return;
             
             using (Lock()) {
                 action();
             }
-        }
+        }*/
 
         public class SkipLock : IDisposable
         {
@@ -972,13 +972,13 @@ namespace QuizCannersUtilities {
             }
         }
 
-        public void LogErrorOnce(string msg = "Infinite Loop Detected")
+       /* public void LogErrorOnce(string msg = "Infinite Loop Detected")
         {
             if (_loopErrorLogged) return;
             
             Debug.LogError(msg);
             _loopErrorLogged = true;
-        }
+        }*/
 
         public bool MoveNext() => _lLock;
 

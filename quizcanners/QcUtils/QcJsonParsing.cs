@@ -53,12 +53,13 @@ namespace QuizCannersUtilities
                 
                 pegi.nl();
             }
+
             
             if (!foldedOut)
                 return false;
-
-            var changed = j.Inspect().nl();
             
+            var changed = j.Inspect().nl();
+
             return changed;
         }
 
@@ -106,10 +107,24 @@ namespace QuizCannersUtilities
             {
                 var changed = false;
 
-                if (dataOnly)
-                    pegi.edit(ref data).changes(ref changed);
+                if (data.Length > 500)
+                {
+                    "String is too long to show: {0} chars".F(data.Length).writeHint();
+
+                    if (icon.Copy.Click("TO Copy Paste Buffer"))
+                    {
+                        pegi.SetCopyPasteBuffer(data);
+                    }
+
+                    pegi.nl();
+                }
                 else
-                    pegi.editBig(ref data).changes(ref changed);
+                {
+                    if (dataOnly)
+                        pegi.edit(ref data).changes(ref changed);
+                    else
+                        pegi.editBig(ref data).changes(ref changed);
+                }
 
                 if (changed)
                     dataOnly = false;
@@ -132,6 +147,22 @@ namespace QuizCannersUtilities
                 dataOnly = true;
 
                 return false;
+            }
+
+            private void LogError(string error)
+            {
+                StringBuilder sb = new StringBuilder();
+
+                foreach (var path in inspectedPath)
+                {
+                    sb.Append(path).Append("/");
+                }
+
+                sb.AppendLine(":");
+
+                sb.AppendLine(error);
+
+                Debug.LogError(sb.ToString());
             }
 
             public JsonBase TryDecodeString()
@@ -180,7 +211,7 @@ namespace QuizCannersUtilities
                                 }
                                 else
                                 {
-                                    Debug.LogError("Is not collection. First symbol: " + c);
+                                    LogError("Is not collection. First symbol: " + c);
                                     return null;
                                 }
 
@@ -199,7 +230,7 @@ namespace QuizCannersUtilities
                                     int left = data.Length - textIndex;
 
                                     if (left > 5)
-                                        Debug.LogError("End of collection detected a bit too early. Left {0} symbols: {1}".F(left, data.Substring(textIndex)));
+                                        LogError("End of collection detected a bit too early. Left {0} symbols: {1}".F(left, data.Substring(textIndex)));
                                     // End of collection instead of new element
                                     break;
                                 }
@@ -211,7 +242,7 @@ namespace QuizCannersUtilities
                                 }
                                 else
                                 {
-                                    Debug.LogError("Was expecting variable name: {0} ".F(data.Substring(textIndex)));
+                                    LogError("Was expecting variable name: {0} ".F(data.Substring(textIndex)));
                                     return null;
                                 }
                             }
@@ -239,7 +270,7 @@ namespace QuizCannersUtilities
                             }
                             else if (c != ' ')
                             {
-                                Debug.LogError("Was Expecting two dots " + data.Substring(textIndex));
+                                LogError("Was Expecting two dots " + data.Substring(textIndex));
                                 return null;
                             }
 
@@ -351,7 +382,10 @@ namespace QuizCannersUtilities
                     if (data.HasNestedData)
                         (name + " " + data.GetNameForInspector()).foldout(ref foldedOut);
 
-                    DecodeOrInspectJson(ref data, foldedOut, name).changes(ref changed);
+                    using (new PathAdd(NameForDisplayPEGI()))
+                    {
+                        DecodeOrInspectJson(ref data, foldedOut, name).changes(ref changed);
+                    }
                 }
                 else
                     (name + " " + data.GetNameForInspector()).write();
@@ -381,92 +415,95 @@ namespace QuizCannersUtilities
             {
 
                 var changed = false;
-                
-                if (values.Count > 0)
+
+                using (new PathAdd(NameForDisplayPEGI()))
                 {
-                    var cl = values[0] as JsonClass;
-                    if (cl != null && cl.properties.Count > 0)
+                    if (values.Count > 0)
                     {
-
-                        if (!previewFoldout && icon.Config.ClickUnFocus(15))
-                            previewFoldout = true;
-                        
-                        if (previewFoldout)
+                        var cl = values[0] as JsonClass;
+                        if (cl != null && cl.properties.Count > 0)
                         {
-                            "Select value to preview:".nl();
 
-                            if (previewValue.Length > 0 && "NO PREVIEW VALUE".Click().nl())
-                            {
-                                previewValue = "";
-                                previewFoldout = false;
-                            }
+                            if (!previewFoldout && icon.Config.ClickUnFocus(15))
+                                previewFoldout = true;
                             
-                            foreach (var p in cl.properties)
+                            if (previewFoldout)
                             {
-                                if (p.name.Equals(previewValue))
+                                "Select value to preview:".nl();
+
+                                if (previewValue.Length > 0 && "NO PREVIEW VALUE".Click().nl())
                                 {
-                                    icon.Next.write();
-                                    if ("CURRENT: {0}".F(previewValue).ClickUnFocus().nl())
-                                        previewFoldout = false;
-                                }
-                                else if (p.name.Click().nl())
-                                {
-                                    previewValue = p.name;
+                                    previewValue = "";
                                     previewFoldout = false;
                                 }
+                                
+                                foreach (var p in cl.properties)
+                                {
+                                    if (p.name.Equals(previewValue))
+                                    {
+                                        icon.Next.write();
+                                        if ("CURRENT: {0}".F(previewValue).ClickUnFocus().nl())
+                                            previewFoldout = false;
+                                    }
+                                    else if (p.name.Click().nl())
+                                    {
+                                        previewValue = p.name;
+                                        previewFoldout = false;
+                                    }
+                                }
                             }
                         }
                     }
-                }
 
-                pegi.nl();
+                    pegi.nl();
 
-                pegi.Indent();
+                    pegi.Indent();
 
-                string nameForElemenet = "";
+                    string nameForElemenet = "";
 
-                var jp = JsonProperty.inspected;
+                    var jp = JsonProperty.inspected;
 
-                if (jp != null)
-                {
-                    string name = jp.name;
-                    if (name[name.Length - 1] == 's')
+                    if (jp != null)
                     {
-                        nameForElemenet = name.Substring(0, name.Length - 1);
-                    }
-                }
-
-                for (int i = 0; i < values.Count; i++)
-                {
-
-                    var val = values[i];
-
-                    bool fo = foldedOut[i];
-
-                    if (val.HasNestedData)
-                    {
-
-                        var cl = val as JsonClass;
-
-                        string preview = "";
-
-                        if (cl != null && previewValue.Length > 0)
+                        string name = jp.name;
+                        if (name[name.Length - 1] == 's')
                         {
-                            var p = cl.TryGetPropertByName(previewValue);
+                            nameForElemenet = name.Substring(0, name.Length - 1);
+                        }
+                    }
+                    
+                    for (int i = 0; i < values.Count; i++)
+                    {
 
-                            if (p != null)
-                                preview = p.data.GetNameForInspector(); //GetNameForInspector();
-                            else
-                                preview = "missing";
+                        var val = values[i];
+
+                        bool fo = foldedOut[i];
+
+                        if (val.HasNestedData)
+                        {
+
+                            var cl = val as JsonClass;
+
+                            string preview = "";
+
+                            if (cl != null && previewValue.Length > 0)
+                            {
+                                var p = cl.TryGetPropertByName(previewValue);
+
+                                if (p != null)
+                                    preview = p.data.GetNameForInspector(); //GetNameForInspector();
+                                else
+                                    preview = "missing";
+                            }
+
+                            ((preview.Length > 0 && !fo) ? "{1} ({0})".F(previewValue, preview) : "[{0} {1}]".F(nameForElemenet, i)).foldout(ref fo);
+                            foldedOut[i] = fo;
                         }
 
-                        ((preview.Length > 0 && !fo) ? "{1} ({0})".F(previewValue, preview) : "[{0} {1}]".F(nameForElemenet, i)).foldout(ref fo);
-                        foldedOut[i] = fo;
+                        DecodeOrInspectJson(ref val, fo).nl();
+                        values[i] = val;
+
                     }
-
-                    DecodeOrInspectJson(ref val, fo).nl();
-                    values[i] = val;
-
                 }
 
                 pegi.UnIndent();
@@ -522,8 +559,11 @@ namespace QuizCannersUtilities
 
                 pegi.Indent();
 
-                for (int i = 0; i < properties.Count; i++)
-                    properties[i].Nested_Inspect();
+                using (new PathAdd(NameForDisplayPEGI()))
+                {
+                    for (int i = 0; i < properties.Count; i++)
+                        properties[i].Nested_Inspect();
+                }
 
                 pegi.UnIndent();
                 
@@ -608,6 +648,21 @@ namespace QuizCannersUtilities
             do { } while (rootJson.DecodeAll(ref rootJson));
         }
 
+        private static List<string> inspectedPath = new List<string>();
+
+        protected class PathAdd : IDisposable
+        {
+            public PathAdd(string name)
+            {
+                inspectedPath.Add(name);
+            }
+
+            public void Dispose()
+            {
+                inspectedPath.RemoveLast();
+            }
+        }
+
         public bool Inspect()
         {
 
@@ -627,6 +682,8 @@ namespace QuizCannersUtilities
                 jsonDestination.write();
 
             pegi.nl();
+
+            inspectedPath.Clear();
 
             return DecodeOrInspectJson(ref rootJson, true);
         }
