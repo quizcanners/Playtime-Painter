@@ -79,7 +79,9 @@ namespace PlaytimePainter
         int inspectedElement = -1;
         public bool Inspect()
         {
-            var changed = false;
+            var changed = pegi.toggleDefaultInspector(this);
+
+            pegi.nl();
 
             if ("Merge Sub Masks".edit_List(ref mergeSubMasks, ref inspectedElement).nl(ref changed))
             {
@@ -101,6 +103,9 @@ namespace PlaytimePainter
                 UpdateTextures();
                 painter.UpdateModules();
             }
+
+            pegi.nl();
+
 
             return changed;
         }

@@ -435,7 +435,13 @@ namespace PlaytimePainter {
                 pegi.nl();
 
                 if (p.terrain && "Update Terrain".Click("Will Set Terrain texture as global shader values.").nl())
+                {
+                    if (!p.IsUsingPreview)
+                    {
+                        p.UnityTerrain_To_HeightTexture();
+                    }
                     p.UpdateModules();
+                }
 
             }
 
@@ -455,14 +461,18 @@ namespace PlaytimePainter {
             return false;
         }
 
-        public bool ChannelSlider(ColorMask inspectedMask, ref Color col, Texture icon, bool slider) {
+        public bool ChannelSlider(ColorMask inspectedMask, ref Color col, Texture icon = null, bool slider = true) {
 
             var changed = false;
 
             var channel = inspectedMask.ToColorChannel();
 
-            if (!icon)
-                icon = channel.GetIcon();
+            if (icon)
+            {
+                icon.write(alphaBlend: false);
+            }
+
+            icon = channel.GetIcon();
 
             var label = inspectedMask.ToText();
             var channelEnabled = mask.HasFlag(inspectedMask);
@@ -483,6 +493,8 @@ namespace PlaytimePainter {
                     }
                 }
             }
+
+            
 
             if (channelEnabled ? icon.Click(label) : "{0} channel ignored".F(label).toggleIcon(ref channelEnabled, true).changes(ref changed))
                  mask ^= inspectedMask;
@@ -509,18 +521,16 @@ namespace PlaytimePainter {
             if (!Cfg.showColorSliders)
                 return changed;
 
-            ChannelSlider(ColorMask.R, ref Color, null, true).nl(ref changed);
-            ChannelSlider(ColorMask.G, ref Color, null, true).nl(ref changed);
-            ChannelSlider(ColorMask.B, ref Color, null, true).nl(ref changed);
-            ChannelSlider(ColorMask.A, ref Color, null, true).nl(ref changed);
+            ChannelSlider(ColorMask.R, ref Color).nl(ref changed);
+            ChannelSlider(ColorMask.G, ref Color).nl(ref changed);
+            ChannelSlider(ColorMask.B, ref Color).nl(ref changed);
+            ChannelSlider(ColorMask.A, ref Color).nl(ref changed);
 
             return changed;
         }
 
         private static Texture GetSplashPrototypeTexture(Terrain terrain, int ind)
         {
-
-#if UNITY_2018_3_OR_NEWER
             var l = terrain.terrainData.terrainLayers;
 
             if (l.Length > ind)
@@ -530,15 +540,6 @@ namespace PlaytimePainter {
             }
 
             return null;
-#else
-
-                    SplatPrototype[] prots = terrain.terrainData.splatPrototypes;
-
-                    if (prots.Length <= ind) return null;
-
-
-                    return prots[ind].texture;
-#endif
         }
 
 
@@ -566,7 +567,7 @@ namespace PlaytimePainter {
 
             if (painter && painter.IsTerrainHeightTexture)
             {
-                ChannelSlider(ColorMask.A, ref Color, null, true).changes(ref changed);
+                ChannelSlider(ColorMask.A, ref Color).changes(ref changed);
             }
             else if (painter && painter.IsTerrainControlTexture)
             {
@@ -598,9 +599,9 @@ namespace PlaytimePainter {
                             (srcColorUsage != SourceTextureColorUsage.Unchanged)
                             :slider;
 
-                        if (r) ChannelSlider(ColorMask.R, ref Color, null, slider_copy).nl(ref changed);
-                        if (g) ChannelSlider(ColorMask.G, ref Color, null, slider_copy).nl(ref changed);
-                        if (b) ChannelSlider(ColorMask.B, ref Color, null, slider_copy).nl(ref changed);
+                        if (r) ChannelSlider(ColorMask.R, ref Color, slider: slider_copy).nl(ref changed);
+                        if (g) ChannelSlider(ColorMask.G, ref Color, slider: slider_copy).nl(ref changed);
+                        if (b) ChannelSlider(ColorMask.B, ref Color, slider: slider_copy).nl(ref changed);
                     }
                     
                     var gotAlpha = painter.meshEditing || id == null || id.texture2D.TextureHasAlpha();
@@ -609,7 +610,7 @@ namespace PlaytimePainter {
                         if (!gotAlpha)
                             icon.Warning.write("Texture as no alpha, clicking save will fix it");
 
-                        if (a) ChannelSlider(ColorMask.A, ref Color, null, slider).nl(ref changed);
+                        if (a) ChannelSlider(ColorMask.A, ref Color, slider: slider).nl(ref changed);
                     }
                 }
             }

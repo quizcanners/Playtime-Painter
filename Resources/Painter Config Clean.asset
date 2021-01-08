@@ -23,9 +23,9 @@ MonoBehaviour:
   atlasedMaterials: []
   playtimeSavedTextures: []
   imgMetas:
-  - target: 1
-    renderTexture: {fileID: 8400000, guid: 397fac58d2485754f9cecb7be12b8a76, type: 2}
-    texture2D: {fileID: 0}
+  - target: 0
+    renderTexture: {fileID: 0}
+    texture2D: {fileID: 2800000, guid: 0563fc13a25cf124b9a28768000dbdd1, type: 3}
     other: {fileID: 0}
     width: 1024
     height: 1024
@@ -42,18 +42,18 @@ MonoBehaviour:
     updateTex2DafterStroke: 0
     _numberOfTexture2DBackups: 10
     _numberOfRenderTextureBackups: 10
-    isAVolumeTexture: 1
+    isAVolumeTexture: 0
     clearColor: {r: 0, g: 0, b: 0, a: 1}
     backupManually: 0
-    saveName: _RayMarchingVolume
+    saveName: New Cube (1)
     url: 
     inspectedItems: -1
-  - target: 1
-    renderTexture: {fileID: 8400000, guid: 2d3c2558c24b26647a35871e7558f77e, type: 2}
-    texture2D: {fileID: 0}
+  - target: 0
+    renderTexture: {fileID: 0}
+    texture2D: {fileID: 2800000, guid: 33df55cef98c16e40ace3964973821a0, type: 3}
     other: {fileID: 0}
-    width: 1024
-    height: 1024
+    width: 512
+    height: 512
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
     lockEditing: 0
@@ -67,13 +67,88 @@ MonoBehaviour:
     updateTex2DafterStroke: 0
     _numberOfTexture2DBackups: 10
     _numberOfRenderTextureBackups: 10
-    isAVolumeTexture: 1
+    isAVolumeTexture: 0
     clearColor: {r: 0, g: 0, b: 0, a: 1}
     backupManually: 0
-    saveName: _RayMarchingVolume_BSIde
+    saveName: TerrainHeightOculus
     url: 
     inspectedItems: -1
-  matMetas: []
+  - target: 0
+    renderTexture: {fileID: 0}
+    texture2D: {fileID: 2800000, guid: 9da58cdd9148caf448a96f5649c14fc9, type: 3}
+    other: {fileID: 0}
+    width: 256
+    height: 256
+    useTexCoord2: 0
+    _useTexCoord2AutoAssigned: 0
+    lockEditing: 0
+    isATransparentLayer: 0
+    enableUndoRedo: 0
+    preserveTransparency: 1
+    sdfMaxInside: 1
+    sdfMaxOutside: 1
+    sdfPostProcessDistance: 1
+    _repaintDelay: 0.016
+    updateTex2DafterStroke: 0
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    isAVolumeTexture: 0
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    backupManually: 0
+    saveName: TerrainHeight
+    url: 
+    inspectedItems: -1
+  - target: 0
+    renderTexture: {fileID: 0}
+    texture2D: {fileID: 8692946600635052487, guid: abe3ec351e453c44d8234f9b0fdf4f7f, type: 2}
+    other: {fileID: 0}
+    width: 512
+    height: 512
+    useTexCoord2: 0
+    _useTexCoord2AutoAssigned: 0
+    lockEditing: 0
+    isATransparentLayer: 0
+    enableUndoRedo: 0
+    preserveTransparency: 1
+    sdfMaxInside: 1
+    sdfMaxOutside: 1
+    sdfPostProcessDistance: 1
+    _repaintDelay: 0.016
+    updateTex2DafterStroke: 0
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    isAVolumeTexture: 0
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    backupManually: 0
+    saveName: SplatAlpha 0
+    url: 
+    inspectedItems: -1
+  matMetas:
+  - material: {fileID: 2100000, guid: 4a7dff0444484d8418cc2c9150388f61, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 2506b329c538c664fbc6261b7f8dc2bc, type: 2}
+    selectedTexture: 1
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: be525df9f8832a641a95695e6f02cb0a, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 10650, guid: 0000000000000000f000000000000000, type: 0}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
   showRecentTextures: 0
   showColorSchemes: 0
   sourceTextures: []
@@ -84,12 +159,12 @@ MonoBehaviour:
   showUrlField: 0
   meshTool: 0
   bevelDetectionSensitivity: 6
-  meshToolsStd: t_pos|15|dm|1|0|inM|1|n||t_shF|7|dm|1|0||t_vCol|0||t_edgs|23|v|1|1|doCol|1|n|fe|1|n||t_noStd|16|cat|1|0|cac|1|0||t_sbmsh|0||t_uv|37|gtuv|1|n|nrmWrap|3|0.5|fr|1|y|mp|1|y||
+  meshToolsStd: t_pos|15|dm|1|0|inM|1|y||t_shF|7|dm|1|0||t_vCol|0||t_edgs|23|v|1|1|doCol|1|n|fe|1|n||t_noStd|16|cat|1|0|cac|1|0||t_sbmsh|0||t_uv|37|gtuv|1|n|nrmWrap|3|0.5|fr|1|y|mp|1|y||
   saveMeshUndos: 0
   makeVerticesUniqueOnEdgeColoring: 0
   gridSize: 1
   snapToGrid: 0
-  newVerticesUnique: 0
+  newVerticesUnique: 1
   newVerticesSmooth: 1
   pixelPerfectMeshEditing: 0
   useGridForBrush: 0
@@ -102,7 +177,7 @@ MonoBehaviour:
   enablePainterUIonPlay: 0
   Brush:
     _inGpuBrushType: 0
-    _inCpuBrushType: 4
+    _inCpuBrushType: 0
     _inGpuBlitMode: 0
     _inCpuBlitMode: 0
     targetIsTex2D: 0
@@ -127,15 +202,15 @@ MonoBehaviour:
     hardness: 5
     blurAmount: 1
     brush3DRadius: 0.0925926
-    brush2DRadius: 32
+    brush2DRadius: 67
     useAlphaBuffer: 0
     alphaLimitForAlphaBuffer: 1
     worldSpaceBrushPixelJitter: 0
-    Color: {r: 0, g: 0, b: 0, a: 1}
+    Color: {r: 0.144, g: 1, b: 1, a: 0.673}
     _dFlow:
       min: 0.1
       max: 4.5
-      _value: 2.08
+      _value: 1.22
     showingSize: 1
   showColorSliders: 1
   disableNonMeshColliderInPlayMode: 0

@@ -31,9 +31,10 @@ namespace PlaytimePainter
         public readonly Dictionary<int, ShaderProperty.TextureValue> loadingOrder =
             new Dictionary<int, ShaderProperty.TextureValue>();
 
+        private static bool _inspectCamera = false;
         private static int _inspectedFancyItems = -1;
         public static int _inspectedMeshEditorItems = -1;
-        private static int inspectedShowOptionsSubitem = -1;
+        private static int _inspectedShowOptionsSubitem = -1;
 
         public bool Inspect()
         {
@@ -229,7 +230,9 @@ namespace PlaytimePainter
 
                     pegi.nl();
 
-                    cfg.Nested_Inspect();
+                    PainterCamera.Inst.Nested_Inspect().nl();
+
+                    //cfg.Nested_Inspect();
 
                 }
                 else
@@ -632,7 +635,7 @@ namespace PlaytimePainter
                                     ref cfg.showColorSliders, true).nl(ref changed);
 
                                 if ("Color Schemes".toggle_enter(ref cfg.showColorSchemes,
-                                    ref inspectedShowOptionsSubitem, 5, ref changed).nl_ifFolded())
+                                    ref _inspectedShowOptionsSubitem, 5, ref changed).nl_ifFolded())
                                 {
                                     if (cfg.colorSchemes.Count == 0)
                                         cfg.colorSchemes.Add(new ColorScheme { paletteName = "New Color Scheme" });
@@ -1101,8 +1104,8 @@ namespace PlaytimePainter
                         .Click("Applies changes made on Texture to Actual physical Unity Terrain.", 45)
                         .changes(ref changed))
                 {
-                    Preview_To_UnityTerrain();
-                    Unity_To_Preview();
+                    TerrainHeightTexture_To_UnityTerrain();
+                    UnityTerrain_To_HeightTexture();
 
                     MatDta.usePreviewShader = false;
                     SetOriginalShaderOnThis();
@@ -1114,7 +1117,7 @@ namespace PlaytimePainter
                 if (tht.GetTextureMeta() != null && NotUsingPreview && icon.OriginalShader
                         .Click("Applies changes made in Unity terrain Editor", 45).changes(ref changed))
                 {
-                    Unity_To_Preview();
+                    UnityTerrain_To_HeightTexture();
                     SetPreviewShader();
                 }
             }

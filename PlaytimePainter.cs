@@ -239,7 +239,7 @@ namespace PlaytimePainter
                         id.OnStrokeMouseDown_CheckBackup();
 
                     if (IsTerrainHeightTexture && stroke.MouseUpEvent)
-                        Preview_To_UnityTerrain();
+                        TerrainHeightTexture_To_UnityTerrain();
 
                     if (!stroke.MouseDownEvent || CanPaintOnMouseDown())
                         GlobalBrush.Paint(PaintCommand);
@@ -746,7 +746,7 @@ namespace PlaytimePainter
 
             SetTextureOnMaterial(texture);
 
-            Unity_To_Preview();
+            UnityTerrain_To_HeightTexture();
             id.SetAndApply(false);
 
             texture.wrapMode = TextureWrapMode.Repeat;
@@ -1215,7 +1215,7 @@ namespace PlaytimePainter
         public void UpdateTerrainPosition() =>
             PainterShaderVariables.TerrainPosition.GlobalValue = transform.position.ToVector4(tilingY);
 
-        private void Preview_To_UnityTerrain()
+        private void TerrainHeightTexture_To_UnityTerrain()
         {
 
             var id = TexMeta;
@@ -1268,7 +1268,7 @@ namespace PlaytimePainter
                 UpdateOrSetTexTarget(TexTarget.RenderTexture);
         }
 
-        private void Unity_To_Preview()
+        public void UnityTerrain_To_HeightTexture()
         {
 
             var oid = TexMeta;

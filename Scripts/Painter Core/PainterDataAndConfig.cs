@@ -496,7 +496,6 @@ namespace PlaytimePainter
         {
             var changed = pegi.toggleDefaultInspector(this);
 
-
             pegi.nl();
 
             if ("Lists".enter(ref inspectedItems, 11).nl(ref changed))

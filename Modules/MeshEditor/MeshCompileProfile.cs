@@ -318,6 +318,7 @@ namespace PlaytimePainter.MeshEditing
         public virtual void Decode(CfgData data)
         {
             InitVals();
+            this.DecodeTagsFrom(data);
         }
 
         #endregion
