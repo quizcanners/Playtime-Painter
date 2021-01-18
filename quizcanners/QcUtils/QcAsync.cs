@@ -189,11 +189,8 @@ namespace QuizCannersUtilities
 
             if (!coroutinesListMeta.Inspecting)
             {
-
                 if ("Run an Example Managed  Coroutine".Click().nl())
-                    StartManagedCoroutine(Coroutine_Test()//,                        (string returnValue) => { Debug.Log("Finished Managed Coroutine. The Pi is: {0}".F(returnValue)); }
-                        );
-
+                    StartManagedCoroutine(Coroutine_Test());
             }
 
             coroutinesListMeta.edit_List(ref enumerators).nl();
@@ -202,55 +199,22 @@ namespace QuizCannersUtilities
 
             if (!coroutinesListMeta.Inspecting)
             {
-
                 ("Managed Timed coroutines can run in Editor, but need an object to send an update call to them every frame: QcAsync.UpdateManagedCoroutines()." +
                  " Alternatively a TimedEnumerator can be started with Unity's " +
                     "StartCoroutine(new TimedEnumeration(enumerator)). It will in turn call yield on it multiple times with care for performance.").writeHint();
 
                 ("Examples are in QcAsync.cs class").writeHint();
             }
-
-
-
-
-
+            
             return changed;
         }
 
         #endregion
 
-        /* public class TimedEnumeration<T> : TimedEnumeration
-         {
-             public Action<T> onDoneFullyReturnData;
-
-             protected override void OnDone()
-             {
-                 base.OnDone();
-
-                 if (!_stopAndCancel)
-                     onDoneFullyReturnData?.Invoke((T)returnedData);
-             }
-
-             public IEnumerator Start(Action<T> onDoneFullyAction = null, Action onExitAction = null)
-             {
-                 onDoneFullyReturnData = onDoneFullyAction;
-                 onExit = onExitAction;
-
-                 for (var e = base.Start(); e.MoveNext();)
-                     yield return e.Current;
-
-             }
-
-             public TimedEnumeration(IEnumerator enumerator, bool logUnoptimizedSections = false) : base(enumerator, logUnoptimizedSections) { }
-
-         }*/
-
         public class TimedEnumeration : IPEGI_ListInspect, IPEGI, IGotName
         {
             public class CallAgain
             {
-                // public object returnData;
-
                 public string message;
 
                 public Task task;
@@ -274,11 +238,6 @@ namespace QuizCannersUtilities
                     this.task = task;
                     this.message = message;
                 }
-
-                /*  public CallAgain(object returnData)
-                  {
-                      this.returnData = returnData;
-                  }*/
             }
 
             private const float maxMilisecondsPerFrame = 1000f * 0.5f / 60f;
@@ -314,7 +273,6 @@ namespace QuizCannersUtilities
 
             protected virtual void OnDone()
             {
-
                 Exited = true;
 
                 if (onExit != null)
@@ -391,7 +349,6 @@ namespace QuizCannersUtilities
                             return true;
                         }
                         
-                        
                         var enm = _current as IEnumerator;
 
                         if (enm != null)
@@ -418,7 +375,7 @@ namespace QuizCannersUtilities
                             return true;
                         }
 
-                        Debug.LogError("Timed Enumerator doesn't know how to process {0}".F(_current.ToString()));
+                       // _state = "Timed Enumerator {0} doesn't know how to process {1}".F(NameForPEGI, _current.ToString());
 
                         return true;
                         
@@ -449,16 +406,14 @@ namespace QuizCannersUtilities
 
             private bool NeedToStopYielding()
             {
-
-                var el = timer.ElapsedMilliseconds;
-
                 if (_enumeratorStackChanged)
                 {
                     return false;
                 }
-
-                if ((TotalTimeUsedThisFrame > maxMilisecondsPerFrame) || (el > (maxMilisecondsPerFrame - TotalTimeUsedThisFrame)) || _currentCallAgainRequest == null)
+                
+                if (_currentCallAgainRequest == null || ((TotalTimeUsedThisFrame + timer.ElapsedMilliseconds) > maxMilisecondsPerFrame))
                 {
+                    var el = timer.ElapsedMilliseconds;
 
                     TotalTimeUsedThisFrame += el;
 
@@ -471,9 +426,7 @@ namespace QuizCannersUtilities
 
                     return true;
                 }
-
-                TotalTimeUsedThisFrame += el;
-
+                
                 return false;
             }
 
@@ -530,12 +483,10 @@ namespace QuizCannersUtilities
 
                 _runningVersion = thisVersion;
               
-
                 ResetTimer();
 
                 while (NextYieldInternal())
                 {
-
                     if (NeedToStopYielding())
                     {
                         yield return _current;
