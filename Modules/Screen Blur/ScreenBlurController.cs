@@ -9,69 +9,35 @@ using UnityEngine.Experimental.Rendering;
 
 namespace PlaytimePainter
 {
-
     [ExecuteInEditMode]
     public class ScreenBlurController : MonoBehaviour, IPEGI
     {
         public static List<ScreenBlurController> instances = new List<ScreenBlurController>(1);
 
-        private Action _onFirstRender;
-        private Action _onUpdated;
-
-       
-
-        public Texture CurrentTexture
-        {
-            get
-            {
-                if (IsUsingCrt)
-                    return _effetBuffer;
-                else
-                    return MainTexture;
-                    
-                /*switch (step)
-                {
-                    case BlurStep.ReturnedFromCamera: return ScreenTexture;
-                    case BlurStep.Blurring: return MainTexture;
-                    default: return MainTexture;
-                }*/
-            }
-        }
-
-        public void RequestUpdate(Action OnFirstRendered = null, Action OnEveryUpdate = null)
-        {
-            _onFirstRender = OnFirstRendered;
-            _onUpdated = OnEveryUpdate;
-            step = BlurStep.Requested;
-        }
-        
-        [SerializeField] private Texture2D _screenTexture;
-        public Texture2D ScreenTexture
-        {
-            get
-            {
-                if (!_screenTexture || _screenTexture.width != Screen.width || _screenTexture.height != Screen.height)
-                {
-                    if (_screenTexture)
-                    {
-                        Destroy(_screenTexture);
-                    }
-
-                    _screenTexture = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, mipChain: false)
-                    {
-                        name = "Screen Grab"
-                    };
-                }
-
-                return _screenTexture;
-            }
-        }
-
-        [SerializeField] private int postProcessIteration = 10;
-        
+        [SerializeField] protected Shader copyShader;
+        [SerializeField] protected Shader postProcessShader;
+        [SerializeField] protected Texture2D screenTexture;
+        [SerializeField] protected CustomRenderTexture effetBuffer;
+        [SerializeField] protected PostProcessMethod postProcessMethod;
+        [SerializeField] protected int postProcessIteration = 10;
         [SerializeField] protected Material materialPrototype;
-        Material _effectMaterialInstance;
-        Material EffectMaterial
+        [SerializeField] public bool allowScreenGrabToRt;
+
+        [NonSerialized] protected ProcessCommand command;
+        [NonSerialized] protected BlurStep step = BlurStep.Off;
+        [NonSerialized] protected Material _effectMaterialInstance;
+        [NonSerialized] protected Action onFirstRender;
+
+        protected int blurIteration;
+        protected ShaderProperty.TextureValue screenGradTexture = new ShaderProperty.TextureValue("_qcPp_Global_Screen_Read");
+        protected ShaderProperty.TextureValue processedScreenTexture = new ShaderProperty.TextureValue("_qcPp_Global_Screen_Effect");
+
+
+        public Camera MyCamera;
+        private bool IsUsingCrt => postProcessMethod == PostProcessMethod.CustomRenderTexture;
+        public Texture CurrentTexture => IsUsingCrt ? effetBuffer : MainTexture;
+
+        private Material EffectMaterial
         {
             get
             {
@@ -79,49 +45,141 @@ namespace PlaytimePainter
                 {
                     return _effectMaterialInstance;
                 }
-                
+
                 _effectMaterialInstance = materialPrototype ? Instantiate(materialPrototype) : new Material(Shader.Find("Diffuse"));
 
                 return _effectMaterialInstance;
             }
         }
 
-        [SerializeField] protected Shader copyShader;
-        [SerializeField] protected Shader postProcessShader;
-        
+     
+
+        public void RequestUpdate(Action OnFirstRendered = null)
+        {
+            InvokeOnCaptured();
+
+            onFirstRender = OnFirstRendered;
+
+            step = BlurStep.Requested;
+        }
+
+        private void InvokeOnCaptured()
+        {
+            try
+            {
+                onFirstRender?.Invoke();
+            }
+            catch (Exception ex)
+            {
+                Debug.LogError(ex);
+            }
+
+            onFirstRender = null;
+        }
+
+        public Texture2D ScreenTexture
+        {
+            get
+            {
+                if (!screenTexture || screenTexture.width != Screen.width || screenTexture.height != Screen.height)
+                {
+                    if (screenTexture)
+                    {
+                        Destroy(screenTexture);
+                    }
+
+                    screenTexture = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, mipChain: false)
+                    {
+                        name = "Screen Grab"
+                    };
+                }
+
+                return screenTexture;
+            }
+        }
+
         private void OnPostRender()
         {
-            if (step == BlurStep.Requested)
+            if (!allowScreenGrabToRt && step == BlurStep.Requested)
             {
                 step = BlurStep.ReturnedFromCamera;
                 var tex = ScreenTexture;
                 tex.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0, false);
                 tex.Apply();
-                _onFirstRender?.Invoke();
-                _onUpdated?.Invoke();
             }
         }
 
-        [SerializeField]
-        private PostProcessMethod _postProcessMethod;
-        private bool IsUsingCrt => _postProcessMethod == PostProcessMethod.CustomRenderTexture;
-        public enum PostProcessMethod
-        {
-            CustomRenderTexture,
-            GraphicsBlit,
-            GlBlit
-        }
 
-
-        [SerializeField] protected CustomRenderTexture _effetBuffer;
-        
+        #region Swap Textures
         private bool _latestIsZero;
         private void Swap() => _latestIsZero = !_latestIsZero;
 
         [SerializeField] protected RenderTexture[] _renderTextures;
-        private RenderTexture MainTexture => IsUsingCrt ? _effetBuffer : (_latestIsZero ? _renderTextures[0] : _renderTextures[1]);
-        private RenderTexture PreviousTexture => IsUsingCrt ? _effetBuffer : (_latestIsZero ? _renderTextures[1] : _renderTextures[0]);
-        
+        private RenderTexture MainTexture => IsUsingCrt ? effetBuffer : (_latestIsZero ? _renderTextures[0] : _renderTextures[1]);
+        private RenderTexture PreviousTexture => IsUsingCrt ? effetBuffer : (_latestIsZero ? _renderTextures[1] : _renderTextures[0]);
+        #endregion
+
+        private Texture CurrentScreenGrabTexture => allowScreenGrabToRt ? (Texture)ScreenTextureRt : ScreenTexture2D;
+
+        private Texture2D _screenTexture2D;
+        private Texture2D ScreenTexture2D
+        {
+            get
+            {
+                if (!_screenTexture2D || _screenTexture2D.width != Screen.width || _screenTexture2D.height != Screen.height)
+                {
+                    if (_screenTexture2D)
+                    {
+                        Destroy(_screenTexture2D);
+                    }
+                    _screenTexture2D = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, mipChain: false)
+                    {
+                        name = "Screen Texture 2D" //, filterMode = FilterMode.Point
+                    };
+                }
+                return _screenTexture2D;
+            }
+        }
+
+        private RenderTexture _screenTextureRt;
+        private RenderTexture ScreenTextureRt
+        {
+            // This one is very large
+
+            get
+            {
+                if (!_screenTextureRt || _screenTextureRt.width != Screen.width || _screenTextureRt.height != Screen.height)
+                {
+                    if (_screenTextureRt)
+                    {
+                        Destroy(_screenTextureRt);
+                    }
+                    _screenTextureRt = new RenderTexture(width: (int)(Screen.width), height: (int)(Screen.height), 0)
+                    {
+                        name = "Screen Rt" //, filterMode = FilterMode.Point
+                    };
+                }
+                return _screenTextureRt;
+            }
+        }
+
+        private RenderTexture _captureScreenBufferTmp;
+        private RenderTexture CaptureScreenBufferTmp
+        {
+            get
+            {
+                if (!_captureScreenBufferTmp || _captureScreenBufferTmp.width != Screen.width || _captureScreenBufferTmp.height != Screen.height)
+                {
+                    if (_captureScreenBufferTmp)
+                    {
+                        Destroy(_captureScreenBufferTmp);
+                    }
+                    _captureScreenBufferTmp = new RenderTexture(width: (int)(Screen.width), height: (int)(Screen.height), 32) { name = "Screen Grab Tmp" };
+                }
+                return _captureScreenBufferTmp;
+            }
+        }
+
         private void BlitRt(Shader shader)
         {
             var mat = EffectMaterial;
@@ -129,8 +187,8 @@ namespace PlaytimePainter
 
             if (IsUsingCrt)
             {
-                _effetBuffer.material = mat;
-                _effetBuffer.Update();
+                effetBuffer.material = mat;
+                effetBuffer.Update();
             }
             else
             {
@@ -138,7 +196,8 @@ namespace PlaytimePainter
                 Graphics.Blit(PreviousTexture, MainTexture, mat);
             }
 
-            _onUpdated?.Invoke();
+            processedScreenTexture.GlobalValue = MainTexture;
+
 
         }
         
@@ -151,14 +210,14 @@ namespace PlaytimePainter
 
             if (IsUsingCrt)
             {
-                _effetBuffer.material = EffectMaterial;
-                _effetBuffer.Update();
+                effetBuffer.material = EffectMaterial;
+                effetBuffer.Update();
             }
             else
             {
                 if (shader)
                 {
-                    if (_postProcessMethod == PostProcessMethod.GlBlit)
+                    if (postProcessMethod == PostProcessMethod.GlBlit)
                         RenderTextureBuffersManager.BlitGL(tex, MainTexture, EffectMaterial);
                     else
                         Graphics.Blit(tex, MainTexture, EffectMaterial);
@@ -168,68 +227,46 @@ namespace PlaytimePainter
 
             }
 
-            _onUpdated?.Invoke();
+            processedScreenTexture.GlobalValue = MainTexture;
+
         }
 
-        protected enum BlurStep
-        {
-            Off,
-            Requested,
-            ReturnedFromCamera,
-            Blurring
-        }
-
-        public enum ProcessCommand
-        {
-            Blur, Nothing
-        }
-
-        [NonSerialized] protected ProcessCommand command;
-
-        [NonSerialized] protected BlurStep step = BlurStep.Off;
-
-        private int blurIteration;
-        
-        public void Reset() => step = BlurStep.Off;
-        
-        public void Update()
-        {
+        public void LateUpdate()
+        {            
             switch (step)
             {
+                case BlurStep.Requested:
+
+                    if (allowScreenGrabToRt)
+                    {
+                        step = BlurStep.ReturnedFromCamera;
+
+                        MyCamera.enabled = false;
+                        MyCamera.targetTexture = CaptureScreenBufferTmp;
+
+                        MyCamera.Render();
+                        MyCamera.targetTexture = null;
+                        MyCamera.enabled = true;
+                    }
+                    break;
+
                 case BlurStep.ReturnedFromCamera:
 
-                    BlitRt(_screenTexture, copyShader);
+                    BlitRt(screenTexture, copyShader);
+
+                    screenGradTexture.GlobalValue = CurrentTexture;
+
                     step = BlurStep.Blurring;
                     blurIteration = 0;
 
                     if (command == ProcessCommand.Nothing)
                     {
-                        try
-                        {
-                            _onUpdated?.Invoke();
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.LogError(ex);
-                        }
-
                         step = BlurStep.Off;
+                        InvokeOnCaptured();
                     }
 
                     break;
                 case BlurStep.Blurring:
-
-                    if (blurIteration == 0)
-                    {
-                        try
-                        {
-                            _onUpdated?.Invoke();
-                        }
-                        catch (Exception ex)
-                        {
-                            Debug.LogError(ex);
-                        }
-                    }
 
                     blurIteration++;
 
@@ -239,6 +276,12 @@ namespace PlaytimePainter
                     {
                         step = BlurStep.Off;
                     }
+
+                    if (blurIteration == 1) 
+                    {
+                        InvokeOnCaptured();
+                    }
+
                     break;
             }
         }
@@ -254,7 +297,7 @@ namespace PlaytimePainter
             if (!gameObject.GetComponent<Camera>())
                 "No Camera Detected on this Game Object. I need camera".writeWarning();
 
-            "Post Process Method".editEnum(ref _postProcessMethod).nl();
+            "Post Process Method".editEnum(ref postProcessMethod).nl();
             
             pegi.nl();
           
@@ -266,14 +309,14 @@ namespace PlaytimePainter
 
             pegi.nl();
 
-            if (_screenTexture)
+            if (screenTexture)
             {
-                "Screen".edit(ref _screenTexture);
+                "Screen".edit(ref screenTexture);
                 if (icon.Refresh.Click().nl())
-                    RequestUpdate(() => Debug.Log("Screen Generating done"));
+                    RequestUpdate();
             }
             else if ("Request Screen Render".Click())
-                RequestUpdate(() => Debug.Log("Screen Generating done"));
+                RequestUpdate();
 
             pegi.nl();
 
@@ -292,7 +335,7 @@ namespace PlaytimePainter
             }
             else
             {
-                "Custom Render Texture".edit(ref _effetBuffer).nl();
+                "Custom Render Texture".edit(ref effetBuffer).nl();
             }
 
             if ("Debug".foldout(ref _showDependencies).nl())
@@ -309,17 +352,17 @@ namespace PlaytimePainter
                     Swap();
 
                 if ("Screen->Buffer".Click())
-                    BlitRt(_screenTexture, copyShader);
+                    BlitRt(screenTexture, copyShader);
 
                 if ("Blur".Click())
                     BlitRt(postProcessShader);
 
                 pegi.nl();
 
-                "Screen Texture (Optional):".edit(ref _screenTexture).nl();
+                "Screen Texture (Optional):".edit(ref screenTexture).nl();
 
-                if (_screenTexture)
-                    _screenTexture.write(250, alphaBlend: false);
+                if (screenTexture)
+                    screenTexture.write(250, alphaBlend: false);
                 
                 pegi.nl();
 
@@ -354,7 +397,7 @@ namespace PlaytimePainter
                 }
                 else
                 {
-                    _effetBuffer.write(250, alphaBlend: false);
+                    effetBuffer.write(250, alphaBlend: false);
                     pegi.nl();
                 }
             }
@@ -367,6 +410,28 @@ namespace PlaytimePainter
         void OnEnable() => instances.Add(this);
 
         void OnDisable() => instances.Remove(this);
+
+        public void Reset() => step = BlurStep.Off;
+
+        public enum ProcessCommand
+        {
+            Blur, Nothing
+        }
+
+        public enum PostProcessMethod
+        {
+            CustomRenderTexture,
+            GraphicsBlit,
+            GlBlit
+        }
+
+        protected enum BlurStep
+        {
+            Off,
+            Requested,
+            ReturnedFromCamera,
+            Blurring
+        }
     }
 
 #if UNITY_EDITOR
