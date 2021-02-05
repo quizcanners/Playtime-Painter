@@ -238,7 +238,7 @@ namespace PlaytimePainter {
                 pegi.nl();
             }
 
-            pegi.FullWindowService.DocumentationClickOpen(VolumeDocumentation);
+            pegi.FullWindow.DocumentationClickOpen(VolumeDocumentation);
 
             if (inspectedElement == -1)
             {
@@ -246,7 +246,7 @@ namespace PlaytimePainter {
                 
                 "Position chunks".edit(ref changePositionOnOffset).changes(ref changed);
 
-                pegi.FullWindowService
+                pegi.FullWindow
                     .DocumentationClickOpen("For Baking optimisations, how often position is changed");
 
                 pegi.nl();

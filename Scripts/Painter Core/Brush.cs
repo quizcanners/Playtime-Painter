@@ -263,8 +263,8 @@ namespace PlaytimePainter {
             if (pegi.select(ref blitMode, BlitModes.Base.AllModes).changes(ref changed)) 
                 SetBlitMode(cpu, blitMode);
 
-            if (DocsEnabled && blitMode != null && pegi.FullWindowService.DocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI())))
-                pegi.FullWindowService.DocumentationOpen(blitMode.ToolTip);
+            if (DocsEnabled && blitMode != null && pegi.FullWindow.DocumentationClick("About {0} mode".F(blitMode.NameForDisplayPEGI())))
+                pegi.FullWindow.DocumentationOpen(blitMode.ToolTip);
 
             if (showAdvanced)
                 pegi.nl();
@@ -282,8 +282,8 @@ namespace PlaytimePainter {
                 MsgPainter.BrushType.Write();
                 pegi.select_Index(ref _inGpuBrushType, BrushTypes.Base.AllTypes).changes(ref changed);
                 
-                if (DocsEnabled && brushType != null && pegi.FullWindowService.DocumentationClick("About {0} brush type".F(brushType.NameForDisplayPEGI())))
-                    pegi.FullWindowService.DocumentationOpen(brushType.ToolTip);
+                if (DocsEnabled && brushType != null && pegi.FullWindow.DocumentationClick("About {0} brush type".F(brushType.NameForDisplayPEGI())))
+                    pegi.FullWindow.DocumentationOpen(brushType.ToolTip);
 
                 if (!brushType.ShowInDropdown())
                 {
@@ -320,7 +320,7 @@ namespace PlaytimePainter {
                     if (InspectAdvanced) {
                         "Clamp".toggleIcon(ref clampSourceTexture).nl(ref changed);
                         "Multiply by Alpha".toggleIcon(ref ignoreSrcTextureTransparency).changes(ref changed);
-                        pegi.FullWindowService.DocumentationClickOpen("Ignore transparency of the source texture. To only paint parts of the texture which are visible").nl();
+                        pegi.FullWindow.DocumentationClickOpen("Ignore transparency of the source texture. To only paint parts of the texture which are visible").nl();
                     }
                 }
                 

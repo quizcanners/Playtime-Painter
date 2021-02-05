@@ -355,7 +355,7 @@ namespace QuizCannersUtilities
                         RenderToTextureManually();
                 }
 
-                pegi.FullWindowService.DocumentationClickOpen("To Capture UI with this method, use Canvas-> Render Mode-> Screen Space - Camera. " +
+                pegi.FullWindow.DocumentationClickOpen("To Capture UI with this method, use Canvas-> Render Mode-> Screen Space - Camera. " +
                                                               "You probably also want Transparent Background turned on. Or not, depending on your situation. " +
                                                               "Who am I to tell you what to do, I'm just a hint.");
 
@@ -384,7 +384,7 @@ namespace QuizCannersUtilities
                     if (icon.Folder.Click())
                         QcFile.Explorer.OpenPath(QcFile.OutsideOfAssetsFolder);
 
-                    pegi.FullWindowService.DocumentationClickOpen("Game View Needs to be open for this to work");
+                    pegi.FullWindow.DocumentationClickOpen("Game View Needs to be open for this to work");
 
                 }
 
@@ -713,7 +713,7 @@ namespace QuizCannersUtilities
 
                     "]".write(10);
 
-                    pegi.FullWindowService.DocumentationClickOpen("Use >< to shrink range around current value for more precision. And <> to expand range.", "About <> & ><");
+                    pegi.FullWindow.DocumentationClickOpen("Use >< to shrink range around current value for more precision. And <> to expand range.", "About <> & ><");
 
                     if (icon.Refresh.Click())
                     {

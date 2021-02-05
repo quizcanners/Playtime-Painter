@@ -798,11 +798,11 @@ namespace PlaytimePainter.MeshEditing
             }
             
 
-            if (DocsEnabled && pegi.FullWindowService.DocumentationClick("About {0} tool".F(MeshTool.NameForDisplayPEGI())))
-                pegi.FullWindowService.DocumentationOpen(MeshTool.Tooltip + (MeshTool.ShowGrid ? GridNavigator.ToolTip : ""));
+            if (DocsEnabled && pegi.FullWindow.DocumentationClick("About {0} tool".F(MeshTool.NameForDisplayPEGI())))
+                pegi.FullWindow.DocumentationOpen(MeshTool.Tooltip + (MeshTool.ShowGrid ? GridNavigator.ToolTip : ""));
             
             if (target.skinnedMeshRenderer) 
-                pegi.FullWindowService.WarningDocumentationClickOpen
+                pegi.FullWindow.WarningDocumentationClickOpen
                 ("When using Skinned Mesh Renderer, the mesh will be transformed by it, so mesh points will not be in the correct position, and it is impossible to do any modifications on mesh with the mouse. It is still possible to do automatic processes like " +
                  "changing mesh profile and everything that doesn't require direct input from mouse over the object. It is recommended to edit the object separately from the skinned mesh."
                     ,"Skinned mesh detected");

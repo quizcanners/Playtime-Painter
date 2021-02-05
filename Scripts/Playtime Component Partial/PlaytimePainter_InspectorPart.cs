@@ -220,7 +220,7 @@ namespace PlaytimePainter
                     "Tool Configuration");
 
                 if (!PainterDataAndConfig.hideDocumentation)
-                    pegi.FullWindowService.DocumentationClickOpen(LazyLocalization.InspectPainterDocumentation,
+                    pegi.FullWindow.DocumentationClickOpen(LazyLocalization.InspectPainterDocumentation,
                         MsgPainter.AboutPlaytimePainter.GetText());
 
                 #endregion
@@ -254,7 +254,7 @@ namespace PlaytimePainter
                                  meshFilter.sharedMesh != meshCollider.sharedMesh)
                         {
 
-                            pegi.FullWindowService.WarningDocumentationClickOpen(
+                            pegi.FullWindow.WarningDocumentationClickOpen(
                                 "Collider and filter have different meshes. Painting may not be able to obtain a correct UV coordinates.",
                                 "Mesh collider mesh is different");
                         }
@@ -495,8 +495,8 @@ namespace PlaytimePainter
                                             UpdateMeshCollider();
 
                                         if (!PainterDataAndConfig.hideDocumentation &&
-                                            pegi.FullWindowService.DocumentationClick("Why Update Collider from skinned mesh?"))
-                                            pegi.FullWindowService.DocumentationOpen(
+                                            pegi.FullWindow.DocumentationClick("Why Update Collider from skinned mesh?"))
+                                            pegi.FullWindow.DocumentationOpen(
                                                 ("To paint an object a collision detection is needed. Mesh Collider is not being animated. To paint it, update Mesh Collider with Update Collider button." +
                                                  " For ingame painting it is preferable to use simple colliders like Speheres to avoid per frame updates for collider mesh."
                                                 ));
@@ -1204,10 +1204,10 @@ namespace PlaytimePainter
         }
 
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Join Discord")]
-        public static void Open_Discord() => Application.OpenURL(pegi.FullWindowService.DiscordServer);
+        public static void Open_Discord() => Application.OpenURL(pegi.FullWindow.DiscordServer);
 
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Send an Email")]
-        public static void Open_Email() => QcUnity.SendEmail(pegi.FullWindowService.SupportEmail,
+        public static void Open_Email() => QcUnity.SendEmail(pegi.FullWindow.SupportEmail,
             "About your Playtime Painter",
             "Hello Yuri, we need to talk. I purchased your asset and expect an excellent quality, but ...");
 

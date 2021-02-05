@@ -69,15 +69,15 @@ namespace PlayerAndEditorGUI {
             "Got an Exception. Click copy to check it out in the notepad.".writeWarning();
             
             if ("Copy To Clipboard".Click("Copy Exception").nl())
-                pegi.SetCopyPasteBuffer(pegi.FullWindowService.popUpText);
+                pegi.SetCopyPasteBuffer(pegi.FullWindow.popUpText);
 
             if ("Don't show again".Click())
-                pegi.FullWindowService.ClosePopUp();
+                pegi.FullWindow.ClosePopUp();
             
             pegi.nl();
 
-            if (pegi.FullWindowService.popUpText.Length<1000)
-                pegi.writeBig(pegi.FullWindowService.popUpText);
+            if (pegi.FullWindow.popUpText.Length<1000)
+                pegi.writeBig(pegi.FullWindow.popUpText);
 
             pegi.nl();
 

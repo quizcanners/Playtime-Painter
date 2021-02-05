@@ -124,7 +124,7 @@ namespace PlayerAndEditorGUI
             {
                 start(so);
 
-                if (!pegi.FullWindowService.ShowingPopup())
+                if (!pegi.FullWindow.ShowingPopup())
                 {
                     var isPrefab = PrefabUtility.IsPartOfAnyPrefab(o);
 
@@ -187,7 +187,7 @@ namespace PlayerAndEditorGUI
             var pgi = o as IPEGI;
             if (pgi != null)
             {
-                if (!pegi.FullWindowService.ShowingPopup())
+                if (!pegi.FullWindow.ShowingPopup())
                 {
                     start(so);
                     var tmp = pgi.Inspect();
@@ -220,7 +220,7 @@ namespace PlayerAndEditorGUI
 
             start();
 
-            var changed = !pegi.FullWindowService.ShowingPopup() && editor.Inspect(mat);
+            var changed = !pegi.FullWindow.ShowingPopup() && editor.Inspect(mat);
 
             end(mat);
 

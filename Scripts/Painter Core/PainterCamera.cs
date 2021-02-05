@@ -966,7 +966,7 @@ namespace PlaytimePainter {
                 "Download Manager".enter_Inspect(DownloadManager, ref _inspectedDependecy, 0).nl(ref changed);
 
                 if (_inspectedDependecy == -1)
-                        pegi.FullWindowService.DocumentationClickOpen("You can enable URL field in the Optional UI elements to get texture directly from web");
+                        pegi.FullWindow.DocumentationClickOpen("You can enable URL field in the Optional UI elements to get texture directly from web");
 
 
                 if (_inspectedDependecy == -1)

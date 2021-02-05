@@ -633,6 +633,8 @@ namespace QuizCannersUtilities {
 
             private string _name;
 
+            public override string ToString() => _name;
+            
             private bool lastValue;
 
             public bool Enabled {

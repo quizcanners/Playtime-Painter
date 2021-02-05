@@ -437,7 +437,7 @@ namespace PlaytimePainter.UI
 
             pegi.toggleDefaultInspector(this);
 
-            pegi.FullWindowService.DocumentationClickOpen(info, "About Rounded Graphic").nl();
+            pegi.FullWindow.DocumentationClickOpen(info, "About Rounded Graphic").nl();
 
             var mat = material;
 
@@ -655,7 +655,7 @@ namespace PlaytimePainter.UI
                     var sTip = mat.Get(QuizCannersUtilities.ShaderTags.ShaderTip);
 
                     if (!sTip.IsNullOrEmpty())
-                        pegi.FullWindowService.DocumentationClickOpen(sTip, "Tip from shader tag");
+                        pegi.FullWindow.DocumentationClickOpen(sTip, "Tip from shader tag");
 
                     if (shad)
                         shad.ClickHighlight();
@@ -681,7 +681,7 @@ namespace PlaytimePainter.UI
                     {
                         "Position: ".editEnum(60, ref _positionDataType).changes(ref changed);
 
-                        pegi.FullWindowService.DocumentationClickOpen("Shaders that use position data often don't look right in the scene view.", "Camera dependancy warning");
+                        pegi.FullWindow.DocumentationClickOpen("Shaders that use position data often don't look right in the scene view.", "Camera dependancy warning");
 
                         pegi.nl();
                     }
@@ -802,7 +802,7 @@ namespace PlaytimePainter.UI
                 if ("Maskable".toggleIcon(ref isMaskable))
                     maskable = isMaskable;
 
-                pegi.FullWindowService.DocumentationClickOpen(text: "Will the graphic work with Masking");
+                pegi.FullWindow.DocumentationClickOpen(text: "Will the graphic work with Masking");
 
                 pegi.nl();
 

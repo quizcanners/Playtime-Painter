@@ -141,7 +141,7 @@ namespace PlaytimePainter.CameraModules {
             if (NameForDisplayPEGI().ClickLabel())
                 edited = ind;
 
-            pegi.FullWindowService.DocumentationClickOpen(ToolTip);
+            pegi.FullWindow.DocumentationClickOpen(ToolTip);
 
             if (icon.Enter.Click())
                 edited = ind;

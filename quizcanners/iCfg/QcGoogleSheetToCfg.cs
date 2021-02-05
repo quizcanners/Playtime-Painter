@@ -148,7 +148,7 @@ namespace QuizCannersUtilities
 
                 "Published CSV Urls (to download)".edit(ref url).changes(ref changed);
 
-                pegi.FullWindowService.DocumentationClickOpen(() =>
+                pegi.FullWindow.DocumentationClickOpen(() =>
                     "GoogleSheet->File->Publish To Web-> Publish... Copy link for .csv document");
 
                 pegi.nl();

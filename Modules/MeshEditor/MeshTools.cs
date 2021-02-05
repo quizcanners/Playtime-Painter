@@ -1029,7 +1029,7 @@ namespace PlaytimePainter.MeshEditing {
 
             "Recolor group On Edit".toggleIcon(ref constantUpdateOnGroupColors).changes(ref changed);
 
-            pegi.FullWindowService.DocumentationClickOpen(() => ("If mesh has submeshes he will have a couple of groups. This can be used to change their colors individually." +
+            pegi.FullWindow.DocumentationClickOpen(() => ("If mesh has submeshes he will have a couple of groups. This can be used to change their colors individually." +
                                                                      "After changing color of the group, you can click on the brush to the right to apply the color." +
                                                                      "Alternatively, you can enable Recolor_Group_On_Edit so that change will be applied instantly."));
 

@@ -419,7 +419,7 @@ namespace PlaytimePainter {
                         {
                             pegi.nl();
                             "Smoothing".edit(70, ref smoothing, 0, 1).changes(ref changed);
-                            pegi.FullWindowService.DocumentationClickOpen("Best used in the end");
+                            pegi.FullWindow.DocumentationClickOpen("Best used in the end");
 
                             pegi.nl();
                         }
