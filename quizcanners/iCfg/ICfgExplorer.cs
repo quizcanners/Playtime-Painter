@@ -332,7 +332,7 @@ namespace QuizCannersUtilities
 
             } else {
                 if (!name.IsNullOrEmpty())
-                    name.write();
+                    name.write(150);
 
                 if (obj is IGotClassTag)
                     SelectType(ref obj, TaggedTypesCfg.TryGetOrCreate(typeof(T)));

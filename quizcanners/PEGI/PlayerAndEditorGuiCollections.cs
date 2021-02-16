@@ -676,7 +676,6 @@ namespace PlayerAndEditorGUI
 
             public void write_Search_ListLabel<T>(string label, ref int inspected, ICollection<T> lst)
             {
-
                 currentListLabel = label;
 
                 bool inspecting = inspected != -1;
@@ -691,7 +690,7 @@ namespace PlayerAndEditorGUI
                 }
 
                 if (lst != null && inspected >= 0 && lst.Count > inspected)
-                    label = "{0}->{1}".F(label, inspected<100 ? lst.ElementAt(inspected).GetNameForInspector() : "Element At {0}".F(inspected.ToString()));
+                    label = "{0}->{1}".F(label, lst.ElementAt(inspected).GetNameForInspector());
                 else label = (lst == null || lst.Count < 6) ? label : label.AddCount(lst, true);
 
                 if (label.ClickLabel(label, RemainingLength(defaultButtonSize * 2 + 10), PEGI_Styles.ListLabel) && inspected != -1)
@@ -1397,7 +1396,7 @@ namespace PlayerAndEditorGUI
 
 
                                 }
-                                else if (el.GetNameForInspector().ClickLabel("Inspect", RemainingLength(defaultButtonSize * 2 + 10)).changes(ref changed))
+                                else if (el.GetNameForInspector().ClickLabel("Inspect", RemainingLength(defaultButtonSize * 2 + 50)).changes(ref changed))
                                 {
                                     inspected = index;
                                     isPrevious = true;
@@ -1612,7 +1611,7 @@ namespace PlayerAndEditorGUI
                     var ed = listMeta?[index];
                     if (ed == null)
                     {
-                        "{0}: NULL {1}".F(index, typeof(T).ToPegiStringType()).write();
+                        "{0}: NULL {1}".F(index, typeof(T).ToPegiStringType()).write(150);
 
                     }
                     else
@@ -1673,7 +1672,7 @@ namespace PlayerAndEditorGUI
                     {
                         if (!uo && pg == null && listMeta == null)
                         {
-                            if (!isShown && el.GetNameForInspector().ClickLabel(Msg.InspectElement.GetText(), RemainingLength(defaultButtonSize * 2 + 10)))
+                            if (!isShown && el.GetNameForInspector().ClickLabel(Msg.InspectElement.GetText(), RemainingLength(otherElements: defaultButtonSize * 2 + 10)))
                             {
                                 inspected = index;
                                 isPrevious = true;
@@ -2647,20 +2646,20 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool edit_Dictionary_Values<G, T>(this string label, ref Dictionary<G, T> dic, bool showKey = false)
+        public static bool edit_Dictionary_Values<G, T>(this string label, ref Dictionary<G, T> dic, bool showKey = true)
         {
             int inspected = -1;
             collectionInspector.write_Search_ListLabel(label, dic);
             return edit_Dictionary_Values_Internal(ref dic, ref inspected, showKey: showKey);
         }
 
-        public static bool edit_Dictionary_Values<G, T>(this string label, ref Dictionary<G, T> dic, ref int inspected, bool showKey = false)
+        public static bool edit_Dictionary_Values<G, T>(this string label, ref Dictionary<G, T> dic, ref int inspected, bool showKey = true)
         {
             collectionInspector.write_Search_ListLabel(label, ref inspected, dic);
             return edit_Dictionary_Values_Internal(ref dic, ref inspected, showKey: showKey);
         }
 
-        public static bool edit_Dictionary_Values<G, T>(this string label, ref Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true)
+        public static bool edit_Dictionary_Values<G, T>(this string label, ref Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = false)
         {
             collectionInspector.write_Search_ListLabel(label, dic);
             return edit_Dictionary_Values_Internal(ref dic, lambda, showKey: showKey);
@@ -2782,7 +2781,7 @@ namespace PlayerAndEditorGUI
                 {
                     var itemKey = item.Key;
                     
-                    if ((listMeta == null || listMeta.allowDelete) && icon.Delete.ClickUnFocus(25).changes(ref changed))
+                    if ((listMeta != null && listMeta.allowDelete) && icon.Delete.ClickUnFocus(25).changes(ref changed))
                     {
                         dic.Remove(itemKey);
                         return true;
