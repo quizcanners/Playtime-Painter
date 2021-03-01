@@ -56,10 +56,45 @@ namespace PlaytimePainter
         [NonSerialized] public Vector2 offset = Vector2.zero;
         [NonSerialized] private Color[] _pixels;
         
+        private int WidthInternal 
+        {
+            get 
+            {
+                if (texture2D)
+                    return texture2D.width;
+                if (renderTexture)
+                    return renderTexture.width;
+                return width;
+            }
+        }
+
+        private int HaightInternal
+        {
+            get
+            {
+                if (texture2D)
+                    return texture2D.height;
+                if (renderTexture)
+                    return renderTexture.height;
+                return height;
+            }
+        }
+
+        private void CheckTextureChange() 
+        {
+            if (width != WidthInternal || height != HaightInternal) 
+            {
+                _pixels = null;
+                Debug.LogWarning("Texture size changed. Updating.");
+            }
+        }
 
         public Color[] Pixels
         {
-            get { if (_pixels == null) PixelsFromTexture2D(texture2D); return _pixels; }
+            get {
+                CheckTextureChange();
+
+                if (_pixels == null) PixelsFromTexture2D(texture2D); return _pixels; }
             set { _pixels = value; }
         }
         
@@ -982,7 +1017,10 @@ namespace PlaytimePainter
                         "SDF Max Outside".edit(ref sdfMaxOutside).nl();
                         "SDF Post Process".edit(ref sdfPostProcessDistance).nl();
 
-                        if ("Generate Assync".Click("Will take a bit longer but you'll be able to use Unity")) {
+                        bool fromGs = "From Greyscale".Click();
+                        bool fromAlpha = "From Transparency".Click();
+
+                        if (fromGs || fromAlpha) {
 
                             bool wasRt = WasRenderTexture();
 
@@ -992,7 +1030,7 @@ namespace PlaytimePainter
 
                             _processEnumerator = QcAsync.StartManagedCoroutine(
                                 DistanceFieldProcessor.Generate(this, sdfMaxInside, sdfMaxOutside,
-                                    sdfPostProcessDistance), () => {
+                                    sdfPostProcessDistance, fromAlpha: fromAlpha), () => {
 
                                     SetAndApply();
                                     if (wasRt)

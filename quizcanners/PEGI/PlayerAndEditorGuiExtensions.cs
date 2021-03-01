@@ -21,6 +21,13 @@ namespace PlayerAndEditorGUI
 {
     public static partial class pegi
     {
+        public static void BeepSound()
+        {
+#if UNITY_EDITOR
+            EditorApplication.Beep();
+#endif
+        }
+
         public static bool Nested_Inspect(Func<bool> function, Object target = null)
         {
             var changed = false;

@@ -1373,10 +1373,8 @@ namespace PlayerAndEditorGUI
                             }
                             else
                             {
-
                                 if (uo)
                                 {
-
                                     if (edit(ref uo))
                                         list[index] = uo as T;
 
@@ -1384,8 +1382,6 @@ namespace PlayerAndEditorGUI
 
                                     if (tex)
                                     {
-                                       
-
                                         if (uo.ClickHighlight(tex))
                                             isPrevious = true;
 
@@ -1393,8 +1389,6 @@ namespace PlayerAndEditorGUI
                                     }
                                     else if (Try_NameInspect(uo).changes(ref changed))
                                         isPrevious = true;
-
-
                                 }
                                 else if (el.GetNameForInspector().ClickLabel("Inspect", RemainingLength(defaultButtonSize * 2 + 50)).changes(ref changed))
                                 {

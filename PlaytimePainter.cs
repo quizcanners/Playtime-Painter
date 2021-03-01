@@ -664,7 +664,7 @@ namespace PlaytimePainter
                 var field = GetMaterialTextureProperty();
 
                 if (field == null)
-                    Debug.LogError("Filed is null");
+                    Debug.LogError("Field is null");
                 else
                     id.useTexCoord2 = field.NameForDisplayPEGI().Contains(PainterShaderVariables.isUV2DisaplyNameTag);
             }

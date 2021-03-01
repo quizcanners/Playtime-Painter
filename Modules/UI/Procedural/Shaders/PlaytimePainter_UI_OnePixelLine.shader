@@ -92,7 +92,7 @@
 				o.color =			v.color;
 				//o.texcoord =		v.texcoord;
 
-				o.projPos.xy =		floor(v.texcoord2.xy * _ScreenParams.xy) *(_ScreenParams.zw - 1);
+				o.projPos.xy =		round(v.texcoord2.xy * _ScreenParams.xy) *(_ScreenParams.zw - 1);
 				o.projPos.zw =		saturate(float2(v.texcoord1.x, -v.texcoord1.x)*99999);
 								
 				float2 tc			= v.texcoord.xy*o.projPos.zw;

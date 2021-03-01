@@ -45,10 +45,12 @@ namespace PlaytimePainter {
                 originalValue = original > 0.5f ? 1f : 0f;
             }
         }
-		
+
+        public static bool GenerateFromAlpha;
 		private static int width, height;
 		private static Pixel[,] pixels;
         private static TextureMeta destination;
+
 
         static void SetDestination(int x, int y, float value) {
 
@@ -56,6 +58,7 @@ namespace PlaytimePainter {
             col.r = value;
             col.g = value;
             col.b = value;
+            col.a = 1;
 
             destination.SetPixelUnSafe(x, y, col);
         }
@@ -65,10 +68,23 @@ namespace PlaytimePainter {
 
             int x, y;
 
-            for (y = 0; y < height; y++) {
+            if (GenerateFromAlpha)
+            {
+                for (y = 0; y < height; y++)
+                {
 
-                for (x = 0; x < width; x++)
-                    pixels[x, y] = new Pixel(1f - destination.PixelUnSafe(x, y).grayscale);
+                    for (x = 0; x < width; x++)
+                        pixels[x, y] = new Pixel(1f - destination.PixelUnSafe(x, y).a);
+                }
+            }
+            else
+            {
+                for (y = 0; y < height; y++)
+                {
+
+                    for (x = 0; x < width; x++)
+                        pixels[x, y] = new Pixel(1f - destination.PixelUnSafe(x, y).grayscale);
+                }
             }
         } 
 
@@ -76,10 +92,10 @@ namespace PlaytimePainter {
             TextureMeta image,
 			float maxInside,
 			float maxOutside,
-			float postProcessDistance) {
+			float postProcessDistance,
+            bool fromAlpha) {
 
-			width = image.width;
-			height = image.height;
+            GenerateFromAlpha = fromAlpha;
 
             destination = image;
 
@@ -87,6 +103,9 @@ namespace PlaytimePainter {
                 Debug.LogError("Pixels are null");
                 yield break;
             }
+
+            width = image.width;
+            height = image.height;
 
             pixels = new Pixel[width, height];
 			int x, y;
