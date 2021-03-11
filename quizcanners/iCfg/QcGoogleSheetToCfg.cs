@@ -191,13 +191,14 @@ namespace QuizCannersUtilities
                         try
                         {
                             el.Decode(columns[i], row.data[i]);
-                            list.Add(el);
                         }
                         catch (Exception ex)
                         {
                             Debug.LogError(ex);
                         }
                     }
+                    
+                    list.Add(el);
                 }
             }
             else
@@ -209,8 +210,9 @@ namespace QuizCannersUtilities
                     for (int i = 0; i < columns.Count; i++)
                     {
                         el.Decode(columns[i], row.data[i]);
-                        list.Add(el);
                     }
+
+                    list.Add(el);
                 }
             }
         }
@@ -240,15 +242,17 @@ namespace QuizCannersUtilities
             }
         }
         
+        public bool IsDownloaded => request != null && request.isDone;
+
         private void TryRead()
         {
-            if (request != null && request.isDone)
+            if (IsDownloaded)
             {
                 Process(request);
                 request = null;
             }
         }
-
+        
         private void Process(UnityWebRequest content)
         {
           

@@ -241,6 +241,32 @@ namespace QuizCannersUtilities {
 
         #region List Management
 
+        public static T GetRandomByWeight<T>(this List<T> sequence, Func<T, float> weightSelector)
+        {
+            float TotalWeight = 0;
+
+            foreach (var el in sequence)
+            {
+                TotalWeight += weightSelector(el);
+            }
+
+            float itemWeightIndex = UnityEngine.Random.Range(0f, TotalWeight);
+
+            float currentWeightIndex = 0;
+
+            foreach (var item in sequence)
+            {
+                currentWeightIndex += weightSelector(item);
+
+                if (currentWeightIndex >= itemWeightIndex)
+                {
+                    return item;
+                }
+            }
+
+            return sequence.TryGet(0);
+        }
+
         public static void ForceSetCount<T>(this List<T> list, int count) where T : new()
         {
             if (count == list.Count) 
@@ -568,6 +594,61 @@ namespace QuizCannersUtilities {
 
         #region String Editing
 
+        public static string AddSpacesToSentence(string text, bool preserveAcronyms = false)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return string.Empty;
+            StringBuilder newText = new StringBuilder(text.Length * 2);
+            newText.Append(text[0]);
+            for (int i = 1; i < text.Length; i++)
+            {
+                if (char.IsUpper(text[i]))
+                {
+                    if ((text[i - 1] != ' ' && !char.IsUpper(text[i - 1])) ||
+                        (preserveAcronyms && char.IsUpper(text[i - 1]) &&
+                         i < text.Length - 1 && !char.IsUpper(text[i + 1])))
+                        newText.Append(' ');
+                    
+                    newText.Append(text[i]);
+                }
+            }
+            return newText.ToString();
+        }
+
+        public static string AddSpacesInsteadOfCapitals(string text, bool keepCatipals = false)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+                return "";
+            StringBuilder newText = new StringBuilder(text.Length * 2);
+            newText.Append(text[0]);
+
+            if (keepCatipals)
+            {
+                for (int i = 1; i < text.Length; i++)
+                {
+                    if (char.IsUpper(text[i]) && text[i - 1] != ' ')
+                        newText.Append(' ');
+
+                    newText.Append(text[i]);
+                }
+            }
+            else
+            {
+                for (int i = 1; i < text.Length; i++)
+                {
+                    if (char.IsUpper(text[i]) && text[i - 1] != ' ')
+                    {
+                        newText.Append(' ');
+                        newText.Append(char.ToLower(text[i]));
+
+                    }
+                    else newText.Append(text[i]);
+                }
+            }
+
+            return newText.ToString();
+        }
+        
         public static IEnumerator TextAnimation(string fullText, Action<string> feed, float characterFadeInSpeed = 10)
         {
             var segments = fullText.Split(' ');
@@ -673,39 +754,6 @@ namespace QuizCannersUtilities {
         public static string FirstLine(this string str) => new StringReader(str).ReadLine();
 
         public static string ToPegiStringType(this Type type) => type.ToString().SimplifyTypeName();
-
-        public static string AddSpacesInsteadOfCapitals(string text, bool keepCatipals = false)
-        {
-            if (string.IsNullOrWhiteSpace(text))
-                return "";
-            StringBuilder newText = new StringBuilder(text.Length * 2);
-            newText.Append(text[0]);
-
-            if (keepCatipals)
-            {
-                for (int i = 1; i < text.Length; i++)
-                {
-                    if (char.IsUpper(text[i]) && text[i - 1] != ' ')
-                        newText.Append(' ');
-
-                    newText.Append(text[i]);
-                }
-            }
-            else
-            {
-                for (int i = 1; i < text.Length; i++)
-                {
-                    if (char.IsUpper(text[i]) && text[i - 1] != ' ')
-                    {
-                        newText.Append(' ');
-                        newText.Append(char.ToLower(text[i]));
-
-                    } else newText.Append(text[i]);
-                }
-            }
-
-            return newText.ToString();
-        }
 
         public static string SimplifyTypeName(this string name)
         {
@@ -912,20 +960,6 @@ namespace QuizCannersUtilities {
 
             return ind.index == other.index && (ind.GetType() == other.GetType());
         }*/
-
-    }
-
-    public abstract class SafeIndexBase
-    {
-        public int index = -1;
-
-        public virtual bool SameAs(SafeIndexBase other)
-        {
-            if (other == null)
-                return false;
-
-            return index == other.index && (GetType() == other.GetType());
-        }
 
     }
 

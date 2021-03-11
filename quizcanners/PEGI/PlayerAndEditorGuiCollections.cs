@@ -668,6 +668,29 @@ namespace PlayerAndEditorGUI
                 currentListLabel = "";
             }
 
+            public void write_Search_DictionaryLabel<K, V>(string label, ref int inspected, Dictionary<K, V> dic)
+            {
+                currentListLabel = label;
+
+                bool inspecting = inspected != -1;
+
+                if (!inspecting)
+                    defaultSearchData.ToggleSearch(dic, label);
+                else
+                {
+                    exitOptionHandled = true;
+                    if (icon.List.ClickUnFocus("{0} [1]".F(Msg.ReturnToCollection.GetText(), dic.Count)))
+                        inspected = -1;
+                }
+
+                if (dic != null && inspected >= 0 && dic.Count > inspected)
+                    label = "{0}->{1}".F(label, dic.ElementAt(inspected).Value.GetNameForInspector());
+                else label = (dic == null || dic.Count < 6) ? label : label.AddCount(dic, true);
+
+                if (label.ClickLabel(label, RemainingLength(defaultButtonSize * 2 + 10), PEGI_Styles.ListLabel) && inspected != -1)
+                    inspected = -1;
+            }
+
             public void write_Search_ListLabel<T>(string label, ICollection<T> lst = null)
             {
                 var notInsp = -1;
@@ -2649,7 +2672,7 @@ namespace PlayerAndEditorGUI
 
         public static bool edit_Dictionary_Values<G, T>(this string label, ref Dictionary<G, T> dic, ref int inspected, bool showKey = true)
         {
-            collectionInspector.write_Search_ListLabel(label, ref inspected, dic);
+            collectionInspector.write_Search_DictionaryLabel(label, ref inspected, dic);
             return edit_Dictionary_Values_Internal(ref dic, ref inspected, showKey: showKey);
         }
 
@@ -3259,8 +3282,6 @@ namespace PlayerAndEditorGUI
                 }
             }
             
-
-
             public bool IsDefault => searchedText.IsNullOrEmpty();
 
         }

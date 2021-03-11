@@ -10,18 +10,29 @@ namespace PlayerAndEditorGUI.Examples
 #pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching
 
-    public abstract class PegiSmartId : SafeIndexBase, IGotIndex
+    public abstract class PegiSmartId : IGotIndex
     {
         public int IndexForPEGI
         {
             get { return index; }
             set { index = value; }
         }
+
+        public int index = -1;
+
+        public virtual bool SameAs(PegiSmartId other)
+        {
+            if (other == null)
+                return false;
+
+            return index == other.index && (GetType() == other.GetType());
+        }
+
     }
 
     public abstract class PegiSmartIDGeneric<T> : PegiSmartId, IPEGI_ListInspect, IPEGI, IGotDisplayName  where T: IGotIndex, IGotName, new()
     {
-        public abstract List<T> GetEnities();
+        protected abstract List<T> GetEnities();
 
         public T GetEntity()
         {
