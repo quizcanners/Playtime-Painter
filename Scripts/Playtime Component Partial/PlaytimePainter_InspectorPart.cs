@@ -31,7 +31,6 @@ namespace PlaytimePainter
         public readonly Dictionary<int, ShaderProperty.TextureValue> loadingOrder =
             new Dictionary<int, ShaderProperty.TextureValue>();
 
-        private static bool _inspectCamera = false;
         private static int _inspectedFancyItems = -1;
         public static int _inspectedMeshEditorItems = -1;
         private static int _inspectedShowOptionsSubitem = -1;
