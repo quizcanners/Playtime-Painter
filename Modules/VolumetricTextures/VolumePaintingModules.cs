@@ -16,7 +16,7 @@ namespace PlaytimePainter {
         
         [TaggedType(tag)]
         public class VolumePaintingCameraModule : CameraModuleBase, IGotDisplayName,
-            IPainterManagerModuleComponentPEGI, IPainterManagerModuleBrush, IPainterManagerModuleGizmis,
+            IPainterManagerModuleComponentPEGI, IPainterManagerModuleBrush, IPainterManagerModuleGizmos,
             IUseDepthProjector, IUseReplacementCamera
         {
 

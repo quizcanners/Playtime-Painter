@@ -18,7 +18,7 @@ namespace PlaytimePainter.CameraModules {
         bool ComponentInspector();
     }
 
-    public interface IPainterManagerModuleGizmis
+    public interface IPainterManagerModuleGizmos
     {
         bool PlugIn_PainterGizmos(PlaytimePainter painter);
     }
@@ -62,7 +62,7 @@ namespace PlaytimePainter.CameraModules {
 
         public static readonly List<IPainterManagerModuleBrush> BrushPlugins = new List<IPainterManagerModuleBrush>();
 
-        public static readonly List<IPainterManagerModuleGizmis> GizmoPlugins = new List<IPainterManagerModuleGizmis>();
+        public static readonly List<IPainterManagerModuleGizmos> GizmoPlugins = new List<IPainterManagerModuleGizmos>();
 
         public static readonly List<IPainterManagerModule_MeshToolShowVertex> MeshToolShowVertexPlugins = new List<IPainterManagerModule_MeshToolShowVertex>();
 
@@ -102,7 +102,7 @@ namespace PlaytimePainter.CameraModules {
 
                 BrushPlugins.TryAdd(t as IPainterManagerModuleBrush);
 
-                GizmoPlugins.TryAdd(t as IPainterManagerModuleGizmis);
+                GizmoPlugins.TryAdd(t as IPainterManagerModuleGizmos);
 
                 MeshToolShowVertexPlugins.TryAdd(t as IPainterManagerModule_MeshToolShowVertex);
 

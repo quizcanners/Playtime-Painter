@@ -20,8 +20,6 @@ namespace PlaytimePainter.MeshEditing {
 
         public virtual string StdTag => "t_noStd";
 
-        //public delegate bool MeshToolPlugBool(MeshToolBase tool, out bool val);
-
         protected static bool Dirty { get { return EditedMesh.Dirty; } set { EditedMesh.Dirty = value; } }
 
         protected virtual void SetShaderKeyword(bool enablePart) { }

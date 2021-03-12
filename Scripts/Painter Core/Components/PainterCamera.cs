@@ -1091,7 +1091,7 @@ namespace PlaytimePainter {
 
 #if UNITY_EDITOR
     [CustomEditor(typeof(PainterCamera))]
-    public class PainterCameraDrawer : PEGI_Inspector_Mono<PainterCamera> { }
+    public class RenderTexturePainterEditor : PEGI_Inspector_Mono<PainterCamera> { }
 #endif
 
 }

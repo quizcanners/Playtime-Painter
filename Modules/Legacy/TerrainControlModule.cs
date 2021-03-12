@@ -99,7 +99,5 @@ namespace PlaytimePainter.ComponentModules
                 PainterShaderVariables.TerrainControlMain.GlobalValue = alphaMapTextures[0].GetDestinationTexture();
 
         }
-
     }
-
 }

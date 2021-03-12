@@ -411,7 +411,8 @@ namespace PlaytimePainter {
 
 #if UNITY_EDITOR
     [CustomEditor(typeof(VolumeTexture))]
-    public class VolumeTextureDrawer : PEGI_Inspector_Mono<VolumeTexture> { }
+    public class VolumeTextureEditor : PEGI_Inspector_Mono<VolumeTexture> { }
+
 #endif
 
 }

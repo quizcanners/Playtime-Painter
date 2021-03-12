@@ -6,7 +6,7 @@ using QuizCannersUtilities;
 using UnityEngine;
 using UnityEngine.Serialization;
 #if UNITY_EDITOR
-
+using UnityEditor;
 #endif
 
 namespace PlaytimePainter
@@ -176,6 +176,13 @@ namespace PlaytimePainter
             public bool InspectInList(IList list, int ind, ref int edited)
             {
                 var changed = this.inspect_Name();
+
+                if (Product_colorWithAlpha && !Product_colorWithAlpha.name.Equals(productName))
+                {
+                    if (icon.Refresh.Click("Set Name"))
+                    productName = Product_colorWithAlpha.name;
+                } else if (colorTexture && !colorTexture.name.Equals(productName) && icon.Refresh.Click("Set Name"))
+                    productName = colorTexture.name;
 
                 if (!Product_colorWithAlpha)
                     "COl".edit(40, ref Product_colorWithAlpha).changes(ref changed);
@@ -420,4 +427,8 @@ namespace PlaytimePainter
 
     }
 
+#if UNITY_EDITOR
+    [CustomEditor(typeof(MergingTerrainController))]
+    public class MergingTerrainEditor : PEGI_Inspector_Mono<MergingTerrainController> { }
+#endif
 }
