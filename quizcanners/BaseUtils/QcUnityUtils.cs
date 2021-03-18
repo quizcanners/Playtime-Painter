@@ -992,20 +992,19 @@ namespace QuizCannersUtilities {
 
         }
 
-        public static Object SetToDirty(this Object obj)
+        public static void SetToDirty(this Object obj)
         {
 #if UNITY_EDITOR
-            if (!obj) return obj;
+            if (!obj) 
+                return;
 
             EditorUtility.SetDirty(obj);
             
-#if UNITY_2018_3_OR_NEWER
+    #if UNITY_2018_3_OR_NEWER
             if (PrefabUtility.IsPartOfAnyPrefab(obj))
                 PrefabUtility.RecordPrefabInstancePropertyModifications(obj);
+    #endif
 #endif
-
-#endif
-            return obj;
         }
 
         public static void FocusOn(Object go)
@@ -1428,10 +1427,33 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
             return fNames;
         }
 #endif
-        
-#endregion
 
-#region Texture MGMT
+        #endregion
+
+        #region Texture MGMT
+
+        public static void BlitGL(Texture source, RenderTexture destination, Material mat)
+        {
+            RenderTexture.active = destination;
+            mat.SetTexture("_MainTex", source);
+            GL.PushMatrix();
+            GL.LoadOrtho();
+            GL.invertCulling = true;
+            mat.SetPass(0);
+            GL.Begin(GL.QUADS);
+            GL.MultiTexCoord2(0, 0.0f, 0.0f);
+            GL.Vertex3(0.0f, 0.0f, 0.0f);
+            GL.MultiTexCoord2(0, 1.0f, 0.0f);
+            GL.Vertex3(1.0f, 0.0f, 0.0f);
+            GL.MultiTexCoord2(0, 1.0f, 1.0f);
+            GL.Vertex3(1.0f, 1.0f, 1.0f);
+            GL.MultiTexCoord2(0, 0.0f, 1.0f);
+            GL.Vertex3(0.0f, 1.0f, 0.0f);
+            GL.End();
+            GL.invertCulling = false;
+            GL.PopMatrix();
+        }
+
 
         public static Color[] GetPixels(this Texture2D tex, int width, int height)
         {

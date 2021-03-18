@@ -48,6 +48,7 @@ Shader "Playtime Painter/UI/ScreenGrab/EffectDisaply"
           #pragma vertex vert
           #pragma fragment frag
           #pragma shader_feature ___ USE_TEXTURE_AS_MASK
+          #pragma multi_compile __ _qcPp_FEED_MOUSE_POSITION
 
           #include "UnityCG.cginc"
           #include "UnityUI.cginc"
@@ -75,7 +76,7 @@ Shader "Playtime Painter/UI/ScreenGrab/EffectDisaply"
           fixed4 _Color;
           float4 _TextureSampleAdd;
           float4 _MainTex_ST;
-
+          float4 _qcPp_MousePosition;
 
           v2f vert(appdata_t v)
           {
@@ -102,11 +103,25 @@ Shader "Playtime Painter/UI/ScreenGrab/EffectDisaply"
 
             fixed4 color = tex2D(_qcPp_Global_Screen_Effect, float4(screenPos, 0, 0)); 
 
-            color.a = 1;
+            #if _qcPp_FEED_MOUSE_POSITION
 
-            color.a = IN.color.a;
+                  half2 fromMouse = (screenPos - _qcPp_MousePosition.xy);
 
-            color.rgb *= IN.color.rgb;
+               fromMouse.x *= _qcPp_MousePosition.w;
+
+               float lenM = length(fromMouse);
+
+             color.a = smoothstep(max(0,0.99-(lenM)*0.9), 1, IN.color.a);
+
+              color.rgb *= IN.color.rgb;
+
+            #else
+
+               color *= IN.color;
+
+             #endif
+
+           
 
             #if USE_TEXTURE_AS_MASK
               color.a *= tex2D(_MainTex, IN.texcoord).a;

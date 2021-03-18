@@ -559,9 +559,8 @@ namespace PlayerAndEditorGUI
         
         public static class FullWindow
         {
-            public const string DiscordServer = "https://discord.gg/rF7yXq3";
-
-            public const string SupportEmail = "quizcanners@gmail.com";
+            public const string DISCORD_SERVER = "https://discord.gg/rF7yXq3";
+            public const string SUPPORT_EMAIL = "quizcanners@gmail.com";
 
             public static string popUpHeader = "";
 
@@ -665,10 +664,9 @@ namespace PlayerAndEditorGUI
                 areYouSureFunk = null;
             }
 
-            #region Calls 
+            #region Documentation Click Open 
 
-            private static bool DocumentationClickOpen(string toolTip = "", int buttonSize = 20,
-          icon clickIcon = icon.Question)
+            private static bool DocumentationClickInternal(string toolTip = "", int buttonSize = 20,  icon clickIcon = icon.Question)
             {
                 if (toolTip.IsNullOrEmpty())
                     toolTip = icon.Question.GetDescription();
@@ -676,61 +674,29 @@ namespace PlayerAndEditorGUI
                 return clickIcon.BgColor(Color.clear).Click(toolTip, buttonSize).SetPreviousBgColor();
             }
 
-            public static void AreYouSureOpen(Action action, string header = "",
-                string text = "")
+            public static void AreYouSureOpen(Action action, string header = "",  string text = "")
             {
-
                 if (header.IsNullOrEmpty())
                     header = Msg.AreYouSure.GetText();
 
                 if (text.IsNullOrEmpty())
                     text = Msg.ClickYesToConfirm.GetText();
 
-                FullWindow.areYouSureFunk = action;
-                FullWindow.popUpText = text;
-                FullWindow.popUpHeader = header;
-                FullWindow.InitiatePopUp();
+                areYouSureFunk = action;
+                popUpText = text;
+                popUpHeader = header;
+                InitiatePopUp();
             }
 
-            public static bool DocumentationClickOpen(Func<bool> function, string toolTip = "", int buttonSize = 20)
+            public static bool DocumentationWarningClickOpen(string text, string toolTip, int buttonSize = 20)
             {
-                if (toolTip.IsNullOrEmpty())
-                    toolTip = icon.Question.GetDescription();
-
-                if (DocumentationClickOpen(toolTip, buttonSize))
+                if (DocumentationClickInternal(toolTip, buttonSize = 20, icon.Warning)) 
                 {
-                    inspectDocumentationDelegate = function;
+                    popUpText = text;
                     InitiatePopUp();
                     return true;
                 }
-
                 return false;
-            }
-
-            public static bool DocumentationClick(string toolTip, int buttonSize = 20, icon clickIcon = icon.Question)
-            {
-                if (DocumentationClickOpen(toolTip, buttonSize, clickIcon))
-                {
-                    FullWindow.popUpHeader = toolTip;
-                    return true;
-                }
-
-                return false;
-            }
-
-            public static bool DocumentationWarningClick(string toolTip, int buttonSize = 20)
-            => DocumentationClick(toolTip, buttonSize = 20, icon.Warning);
-
-            public static void DocumentationOpen(string text)
-            {
-                popUpText = text;
-                InitiatePopUp();
-            }
-
-            public static void DocumentationOpen(Func<string> text)
-            {
-                popUpText = text();
-                InitiatePopUp();
             }
 
             public static bool WarningDocumentationClickOpen(Func<string> text, string toolTip = "What is this?",
@@ -739,6 +705,20 @@ namespace PlayerAndEditorGUI
             public static bool WarningDocumentationClickOpen(string text, string toolTip = "What is this?",
                 int buttonSize = 20) => DocumentationClickOpen(text, toolTip, buttonSize, icon.Warning);
 
+            public static bool DocumentationClickOpen(Func<bool> inspectFunction, string toolTip = "", int buttonSize = 20, icon clickIcon = icon.Question)
+            {
+                if (toolTip.IsNullOrEmpty())
+                    toolTip = clickIcon.GetDescription();
+
+                if (DocumentationClickInternal(toolTip, buttonSize))
+                {
+                    inspectDocumentationDelegate = inspectFunction;
+                    InitiatePopUp();
+                    return true;
+                }
+
+                return false;
+            }
 
             public static bool DocumentationClickOpen(Func<string> text, string toolTip = "", int buttonSize = 20, icon clickIcon = icon.Question)
             {
@@ -749,7 +729,7 @@ namespace PlayerAndEditorGUI
                     toolTip = Msg.ToolTip.GetDescription();
                 else gotHeadline = true;
 
-                if (DocumentationClickOpen(toolTip, buttonSize, clickIcon))
+                if (DocumentationClickInternal(toolTip, buttonSize, clickIcon))
                 {
                     popUpText = text();
                     popUpHeader = gotHeadline ? toolTip : "";
@@ -769,7 +749,7 @@ namespace PlayerAndEditorGUI
                     toolTip = Msg.ToolTip.GetDescription();
                 else gotHeadline = true;
 
-                if (DocumentationClickOpen(toolTip, buttonSize, clickIcon))
+                if (DocumentationClickInternal(toolTip, buttonSize, clickIcon))
                 {
                     popUpText = text;
                     popUpHeader = gotHeadline ? toolTip : "";
@@ -780,18 +760,17 @@ namespace PlayerAndEditorGUI
                 return false;
             }
 
-
             public static bool DocumentationWithLinkClickOpen(string text, string link, string linkName = null, string tip = "", int buttonSize = 20)
             {
                 if (tip.IsNullOrEmpty())
                     tip = icon.Question.GetDescription();
 
-                if (DocumentationClickOpen(tip, buttonSize))
+                if (DocumentationClickInternal(tip, buttonSize))
                 {
-                    FullWindow.popUpText = text;
-                    FullWindow.InitiatePopUp();
-                    FullWindow.relatedLink = link;
-                    FullWindow.relatedLinkName = linkName.IsNullOrEmpty() ? link : linkName;
+                    popUpText = text;
+                    InitiatePopUp();
+                    relatedLink = link;
+                    relatedLinkName = linkName.IsNullOrEmpty() ? link : linkName;
                     return true;
                 }
 
@@ -807,9 +786,9 @@ namespace PlayerAndEditorGUI
                 nl();
                 "Didn't get the answer you need?".write();
                 if (icon.Discord.Click())
-                    Application.OpenURL(DiscordServer);
+                    Application.OpenURL(DISCORD_SERVER);
                 if (icon.Email.Click())
-                    QcUnity.SendEmail(SupportEmail, "About this hint",
+                    QcUnity.SendEmail(SUPPORT_EMAIL, "About this hint",
                         "The toolTip:{0}***{0} {1} {0}***{0} haven't answered some of the questions I had on my mind. Specifically: {0}".F(EnvironmentNl, popUpText));
 
             }

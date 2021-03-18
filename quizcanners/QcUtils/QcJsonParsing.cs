@@ -72,7 +72,7 @@ namespace QuizCannersUtilities
 
             public override bool HasNestedData => !dataOnly;
 
-            public string data;
+            public string data = "";
 
             public string Data
             {

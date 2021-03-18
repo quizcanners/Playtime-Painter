@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Experimental.Rendering;
 
 namespace PlaytimePainter
 {
@@ -14,34 +12,87 @@ namespace PlaytimePainter
     {
         public static List<ScreenBlurController> instances = new List<ScreenBlurController>(1);
 
+        [SerializeField] public Camera MyCamera;
+
         [SerializeField] protected Shader copyShader;
         [SerializeField] protected Shader postProcessShader;
-        [SerializeField] protected Texture2D screenTexture;
-        [SerializeField] protected CustomRenderTexture effetBuffer;
         [SerializeField] protected PostProcessMethod postProcessMethod;
-        [SerializeField] protected int postProcessIteration = 10;
+        [SerializeField] protected int postProcessIteration = 100;
         [SerializeField] protected Material materialPrototype;
         [SerializeField] public bool allowScreenGrabToRt;
         [SerializeField] public bool mousePositionToShader;
+        [SerializeField] public bool useSecondBufferForRenderTextureScreenGrab;
 
         [NonSerialized] protected ProcessCommand command;
         [NonSerialized] protected BlurStep step = BlurStep.Off;
         [NonSerialized] protected Material _effectMaterialInstance;
         [NonSerialized] protected Action onFirstRender;
+        [NonSerialized] protected int blurIteration;
 
-        protected int blurIteration;
         protected readonly ShaderProperty.TextureValue screenGradTexture = new ShaderProperty.TextureValue("_qcPp_Global_Screen_Read");
         protected readonly ShaderProperty.TextureValue processedScreenTexture = new ShaderProperty.TextureValue("_qcPp_Global_Screen_Effect");
         protected readonly ShaderProperty.VectorValue mousePosition = new ShaderProperty.VectorValue("_qcPp_MousePosition");
+        protected readonly ShaderProperty.ShaderKeyword UseMousePosition = new ShaderProperty.ShaderKeyword("_qcPp_FEED_MOUSE_POSITION");
 
         private float mouseDownStrengthOneDirectional = 0;
         private float mouseDownStrength = 0.1f;
         private bool downClickFullyShown = true;
         private Vector2 mouseDownPosition;
 
-        public Camera MyCamera;
+        #region Textures and buffers
+
+
+        [SerializeField] protected CustomRenderTexture effetBuffer;
+
+        [SerializeField] private Texture2D _screenReadTexture2D;
+        public Texture2D ScreenReadTexture2D
+        {
+            get
+            {
+                if (!_screenReadTexture2D || _screenReadTexture2D.width != Screen.width || _screenReadTexture2D.height != Screen.height)
+                {
+                    if (_screenReadTexture2D)
+                    {
+                        Destroy(_screenReadTexture2D);
+                    }
+
+                    _screenReadTexture2D = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, mipChain: false)
+                    {
+                        name = "Screen Grab"
+                    };
+                }
+
+                return _screenReadTexture2D;
+            }
+        }
+
+        private RenderTexture _screenReadRenderTexture;
+        private RenderTexture ScreenReadRenderTexture
+        {
+            get
+            {
+                if (!_screenReadRenderTexture || _screenReadRenderTexture.width != Screen.width || _screenReadRenderTexture.height != Screen.height)
+                {
+                    if (_screenReadRenderTexture)
+                    {
+                        Destroy(_screenReadRenderTexture);
+                    }
+                    _screenReadRenderTexture = new RenderTexture(width: (int)(Screen.width), height: (int)(Screen.height), 32) { name = "Screen Grab Tmp" };
+                }
+                return _screenReadRenderTexture;
+            }
+        }
+
+        #endregion
+
+        public Texture CurrentEffectTexture => IsUsingCrt ? effetBuffer : MainEffectTexture;
+
+        public Texture CurrentScreenReadTexture => allowScreenGrabToRt
+            ? (useSecondBufferForRenderTextureScreenGrab ? ScreenReadSecondBufferRt : (Texture)ScreenReadRenderTexture)
+            : ScreenReadTexture2D;
+
         private bool IsUsingCrt => postProcessMethod == PostProcessMethod.CustomRenderTexture;
-        public Texture CurrentTexture => IsUsingCrt ? effetBuffer : MainTexture;
+
 
         private Material EffectMaterial
         {
@@ -81,33 +132,12 @@ namespace PlaytimePainter
             onFirstRender = null;
         }
 
-        public Texture2D ScreenTexture
-        {
-            get
-            {
-                if (!screenTexture || screenTexture.width != Screen.width || screenTexture.height != Screen.height)
-                {
-                    if (screenTexture)
-                    {
-                        Destroy(screenTexture);
-                    }
-
-                    screenTexture = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, mipChain: false)
-                    {
-                        name = "Screen Grab"
-                    };
-                }
-
-                return screenTexture;
-            }
-        }
-
         private void OnPostRender()
         {
             if (!allowScreenGrabToRt && step == BlurStep.Requested)
             {
                 step = BlurStep.ReturnedFromCamera;
-                var tex = ScreenTexture;
+                var tex = ScreenReadTexture2D;
                 tex.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0, false);
                 tex.Apply();
             }
@@ -118,73 +148,54 @@ namespace PlaytimePainter
         private bool _latestIsZero;
         private void Swap() => _latestIsZero = !_latestIsZero;
 
-        [SerializeField] protected List<RenderTexture> _renderTextures;
-        private RenderTexture MainTexture => IsUsingCrt ? effetBuffer : (_latestIsZero ? _renderTextures[0] : _renderTextures[1]);
+        [SerializeField] protected List<RenderTexture> _renderTextures = new List<RenderTexture>();
+        private RenderTexture MainEffectTexture => IsUsingCrt ? effetBuffer : (_latestIsZero ? _renderTextures[0] : _renderTextures[1]);
         private RenderTexture PreviousTexture => IsUsingCrt ? effetBuffer : (_latestIsZero ? _renderTextures[1] : _renderTextures[0]);
         #endregion
 
-        private Texture CurrentScreenGrabTexture => allowScreenGrabToRt ? (Texture)ScreenTextureRt : ScreenTexture2D;
+        /*   private Texture CurrentScreenGrabTexture => allowScreenGrabToRt ? (Texture)ScreenTextureRt : ScreenTexture2D;
 
-        private Texture2D _screenTexture2D;
-        private Texture2D ScreenTexture2D
+           private Texture2D _screenTexture2D;
+           private Texture2D ScreenTexture2D
+           {
+               get
+               {
+                   if (!_screenTexture2D || _screenTexture2D.width != Screen.width || _screenTexture2D.height != Screen.height)
+                   {
+                       if (_screenTexture2D)
+                       {
+                           Destroy(_screenTexture2D);
+                       }
+                       _screenTexture2D = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, mipChain: false)
+                       {
+                           name = "Screen Texture 2D" //, filterMode = FilterMode.Point
+                       };
+                   }
+                   return _screenTexture2D;
+               }
+           }*/
+
+        private RenderTexture _screenReadSecondBuffer;
+        private RenderTexture ScreenReadSecondBufferRt
         {
             get
             {
-                if (!_screenTexture2D || _screenTexture2D.width != Screen.width || _screenTexture2D.height != Screen.height)
+                if (!_screenReadSecondBuffer || _screenReadSecondBuffer.width != Screen.width || _screenReadSecondBuffer.height != Screen.height)
                 {
-                    if (_screenTexture2D)
+                    if (_screenReadSecondBuffer)
                     {
-                        Destroy(_screenTexture2D);
+                        Destroy(_screenReadSecondBuffer);
                     }
-                    _screenTexture2D = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, mipChain: false)
-                    {
-                        name = "Screen Texture 2D" //, filterMode = FilterMode.Point
-                    };
-                }
-                return _screenTexture2D;
-            }
-        }
-
-        private RenderTexture _screenTextureRt;
-        private RenderTexture ScreenTextureRt
-        {
-            // This one is very large
-
-            get
-            {
-                if (!_screenTextureRt || _screenTextureRt.width != Screen.width || _screenTextureRt.height != Screen.height)
-                {
-                    if (_screenTextureRt)
-                    {
-                        Destroy(_screenTextureRt);
-                    }
-                    _screenTextureRt = new RenderTexture(width: (int)(Screen.width), height: (int)(Screen.height), 0)
+                    _screenReadSecondBuffer = new RenderTexture(width: (int)(Screen.width), height: (int)(Screen.height), 0)
                     {
                         name = "Screen Rt" //, filterMode = FilterMode.Point
                     };
                 }
-                return _screenTextureRt;
+                return _screenReadSecondBuffer;
             }
         }
 
-        private RenderTexture _captureScreenBufferTmp;
-        private RenderTexture CaptureScreenBufferTmp
-        {
-            get
-            {
-                if (!_captureScreenBufferTmp || _captureScreenBufferTmp.width != Screen.width || _captureScreenBufferTmp.height != Screen.height)
-                {
-                    if (_captureScreenBufferTmp)
-                    {
-                        Destroy(_captureScreenBufferTmp);
-                    }
-                    _captureScreenBufferTmp = new RenderTexture(width: (int)(Screen.width), height: (int)(Screen.height), 32) { name = "Screen Grab Tmp" };
-                }
-                return _captureScreenBufferTmp;
-            }
-        }
-
-        private void BlitRt(Shader shader)
+        private void BlitBetweenEffectBuffers(Shader shader)
         {
             var mat = EffectMaterial;
             mat.shader = shader;
@@ -197,46 +208,36 @@ namespace PlaytimePainter
             else
             {
                 Swap();
-                Graphics.Blit(PreviousTexture, MainTexture, mat);
+                Graphics.Blit(PreviousTexture, MainEffectTexture, mat);
             }
 
-            processedScreenTexture.GlobalValue = MainTexture;
-
-
+            processedScreenTexture.GlobalValue = MainEffectTexture;
         }
-        
-        private void BlitRt(Texture tex, Shader shader = null)
+
+        private void BlitToEffectBuffer(Texture tex, Shader shader = null)
+        {
+            Blit(tex, MainEffectTexture, shader);
+
+            processedScreenTexture.GlobalValue = MainEffectTexture;
+        }
+
+        private void Blit(Texture from, RenderTexture to, Shader shader)
         {
             if (shader)
             {
                 EffectMaterial.shader = shader;
-            }
 
-            if (IsUsingCrt)
-            {
-                effetBuffer.material = EffectMaterial;
-                effetBuffer.Update();
+                if (postProcessMethod == PostProcessMethod.GlBlit)
+                    QcUnity.BlitGL(from, to, EffectMaterial);
+                else
+                    Graphics.Blit(from, to, EffectMaterial);
             }
             else
-            {
-                if (shader)
-                {
-                    if (postProcessMethod == PostProcessMethod.GlBlit)
-                        RenderTextureBuffersManager.BlitGL(tex, MainTexture, EffectMaterial);
-                    else
-                        Graphics.Blit(tex, MainTexture, EffectMaterial);
-                }
-                else
-                    Graphics.Blit(tex, MainTexture);
-
-            }
-
-            processedScreenTexture.GlobalValue = MainTexture;
-
+                Graphics.Blit(from, to);
         }
 
-        public void LateUpdate()
-        {            
+        public void Update()
+        {
             switch (step)
             {
                 case BlurStep.Requested:
@@ -246,27 +247,36 @@ namespace PlaytimePainter
                         step = BlurStep.ReturnedFromCamera;
 
                         MyCamera.enabled = false;
-                        MyCamera.targetTexture = CaptureScreenBufferTmp;
+                        MyCamera.targetTexture = ScreenReadRenderTexture;
 
                         MyCamera.Render();
                         MyCamera.targetTexture = null;
                         MyCamera.enabled = true;
+
+                        if (useSecondBufferForRenderTextureScreenGrab)
+                        {
+                            Blit(ScreenReadRenderTexture, ScreenReadSecondBufferRt, copyShader);
+                        }
+
+                        goto case BlurStep.ReturnedFromCamera;
                     }
                     break;
 
                 case BlurStep.ReturnedFromCamera:
 
-                    BlitRt(screenTexture, copyShader);
+                    BlitToEffectBuffer(CurrentScreenReadTexture, copyShader);
 
-                    screenGradTexture.GlobalValue = CurrentTexture;
+                    screenGradTexture.GlobalValue = CurrentScreenReadTexture;
+                    processedScreenTexture.GlobalValue = CurrentScreenReadTexture;
 
                     step = BlurStep.Blurring;
                     blurIteration = 0;
 
+                    InvokeOnCaptured();
+
                     if (command == ProcessCommand.Nothing)
                     {
                         step = BlurStep.Off;
-                        InvokeOnCaptured();
                     }
 
                     break;
@@ -274,14 +284,14 @@ namespace PlaytimePainter
 
                     blurIteration++;
 
-                    BlitRt(postProcessShader);
+                    BlitBetweenEffectBuffers(postProcessShader);
 
                     if (blurIteration > postProcessIteration)
                     {
                         step = BlurStep.Off;
                     }
 
-                    if (blurIteration == 1) 
+                    if (blurIteration == 1)
                     {
                         InvokeOnCaptured();
                     }
@@ -347,11 +357,11 @@ namespace PlaytimePainter
             }
 
             "Post Process Method".editEnum(ref postProcessMethod);
-            
-            if (icon.Refresh.Click().nl())
-                 RequestUpdate();
-            
-            if (postProcessMethod == PostProcessMethod.CustomRenderTexture && !effetBuffer) 
+
+            if ("Request Update".Click().nl())
+                RequestUpdate();
+
+            if (postProcessMethod == PostProcessMethod.CustomRenderTexture && !effetBuffer)
             {
                 pegi.writeWarning("Custom render texture not assigned");
 
@@ -360,22 +370,37 @@ namespace PlaytimePainter
                 "Effect Buffer".edit(ref effetBuffer).nl();
             }
 
-            if ("Dependencies".foldout(ref _showDependencies).nl()) 
+            if ("Config".foldout(ref _showDependencies).nl())
             {
-                "Mouse Position to shader".toggleIcon(ref mousePositionToShader, hideTextWhenTrue: true);
+                "Allow Scren Grab To Rt".toggleIcon(ref allowScreenGrabToRt).nl();
 
-                if (mousePositionToShader) 
-                    mousePosition.ToString().write_ForCopy();
-                
+                if (allowScreenGrabToRt)
+                {
+                    "Use Second Buffer For Screen Read".toggleIcon(ref useSecondBufferForRenderTextureScreenGrab);
+
+                    pegi.FullWindow.DocumentationClickOpen("If you are expecting to make a Screen Grab while screen grab is showing on a screen, enable this." +
+                        " Same Texture can't be read from and written to at the same time. Black screen or other will show.");
+                }
+
                 pegi.nl();
 
-                "Screen".edit(ref screenTexture).nl();
+                if ("Mouse Position to shader".toggleIcon(ref mousePositionToShader, hideTextWhenTrue: true))
+                {
+                    UseMousePosition.Enabled = mousePositionToShader;
+                }
+
+                if (mousePositionToShader)
+                    mousePosition.ToString().write_ForCopy();
+
+                pegi.nl();
+
+                "Screen".edit(ref _screenReadTexture2D).nl();
 
                 "Copy shader".edit(ref copyShader).nl();
 
                 "Post-Process".edit(ref postProcessShader).nl();
 
-                "Iterations:".edit(ref postProcessIteration).nl();
+                "Blur Iterations:".edit(ref postProcessIteration).nl();
 
                 if (!IsUsingCrt)
                 {
@@ -402,19 +427,19 @@ namespace PlaytimePainter
                 if ("Swap".Click())
                     Swap();
 
-                if ("Screen->Buffer".Click())
-                    BlitRt(screenTexture, copyShader);
+                if ("Screen Capture -> Effect Buffer".Click())
+                    BlitToEffectBuffer(CurrentScreenReadTexture, copyShader);
 
                 if ("Blur".Click())
-                    BlitRt(postProcessShader);
+                    BlitBetweenEffectBuffers(postProcessShader);
 
                 pegi.nl();
 
-                "Screen Texture (Optional):".edit(ref screenTexture).nl();
+                "Screen Texture (Optional):".edit(ref _screenReadTexture2D).nl();
 
-                if (screenTexture)
-                    screenTexture.write(250, alphaBlend: false);
-                
+                if (_screenReadTexture2D)
+                    _screenReadTexture2D.write(250, alphaBlend: false);
+
                 pegi.nl();
 
                 if (_effectMaterialInstance)
@@ -435,9 +460,9 @@ namespace PlaytimePainter
                 {
                     if (!_renderTextures.IsNullOrEmpty())
                     {
-                        "Main Texture: {0}".F(MainTexture).nl();
+                        "Main Texture: {0}".F(MainEffectTexture).nl();
 
-                        MainTexture.write(250, alphaBlend: false);
+                        MainEffectTexture.write(250, alphaBlend: false);
                         pegi.nl();
 
                         "Previous Texture: {0}".F(PreviousTexture).nl();
@@ -455,15 +480,18 @@ namespace PlaytimePainter
             return changed;
         }
         #endregion
-        
-        void Reset() 
+
+        void Reset()
         {
             MyCamera = GetComponent<Camera>();
             step = BlurStep.Off;
         }
 
-        void OnEnable() => instances.Add(this);
-
+        void OnEnable()
+        {
+            UseMousePosition.Enabled = mousePositionToShader;
+            instances.Add(this);
+        }
         void OnDisable() => instances.Remove(this);
 
         public enum ProcessCommand
@@ -489,7 +517,7 @@ namespace PlaytimePainter
 
 #if UNITY_EDITOR
     [CustomEditor(typeof(ScreenBlurController))]
-    public class ScreenBlurControllerDrawer : PEGI_Inspector_Mono<ScreenBlurController> {}
+    public class ScreenBlurControllerDrawer : PEGI_Inspector_Mono<ScreenBlurController> { }
 #endif
 
 }

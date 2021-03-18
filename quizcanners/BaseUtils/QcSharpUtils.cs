@@ -608,9 +608,9 @@ namespace QuizCannersUtilities {
                         (preserveAcronyms && char.IsUpper(text[i - 1]) &&
                          i < text.Length - 1 && !char.IsUpper(text[i + 1])))
                         newText.Append(' ');
-                    
-                    newText.Append(text[i]);
                 }
+
+                newText.Append(text[i]);
             }
             return newText.ToString();
         }

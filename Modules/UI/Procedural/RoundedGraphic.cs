@@ -29,7 +29,6 @@ namespace PlaytimePainter.UI
 
         public enum Corner { Down_Left = 0, Up_Left = 1, Up_Right = 2, Down_Right = 3 }
 
-
         public void SetCorner(Corner crn, float sharpness) => SetCorner((int)crn, sharpness);
 
         public void SetCorner(bool upper, bool right, float sharpness) => SetCorner(upper ? (right ? 2 : 1) : (right ? 3 : 0), sharpness);
@@ -47,13 +46,11 @@ namespace PlaytimePainter.UI
 
         }
 
-
         public float GetCorner(Corner crn) => GetCorner((int)crn);
 
         public float GetCorner(bool upper, bool right) => GetCorner(upper ? (right ? 2 : 1) : (right ? 3 : 0));
         
         public float GetCorner(int index) => _roundedCorners[index % _roundedCorners.Length];
-
 
         private void SetAllCorners(float sharpness)
         {
@@ -812,9 +809,9 @@ namespace PlaytimePainter.UI
 
                 if (rt)
                 {
-                    bool foldedOut = false;
+                  //  bool foldedOut = false;
 
-                    if (OnClick.GetPersistentEventCount() > 0)
+                   /* if (OnClick.GetPersistentEventCount() > 0)
                         foldedOut = true;
                     else
                     {
@@ -828,7 +825,7 @@ namespace PlaytimePainter.UI
                     {
                         pegi.nl();
                         "On Click".edit_Property(() => OnClick, this).nl(ref changed);
-                    }
+                    }*/
                 }
                 pegi.nl();
             }
@@ -852,7 +849,7 @@ namespace PlaytimePainter.UI
 
         public bool ClickPossible => MouseDown && ((Time.time - MouseDownTime) < maxHoldForClick);
 
-        public UnityEvent OnClick;
+      //  public UnityEvent OnClick;
 
         public float maxHoldForClick = 0.3f;
         public float maxMousePositionPixOffsetForClick = 20f;
@@ -885,8 +882,8 @@ namespace PlaytimePainter.UI
 
                 var diff = MouseDownPosition - Input.mousePosition.ToVector2();
 
-                if ((diff.magnitude) < maxMousePositionPixOffsetForClick)
-                    OnClick.Invoke();
+               /* if ((diff.magnitude) < maxMousePositionPixOffsetForClick)
+                    OnClick.Invoke();*/
             }
 
             MouseDown = false;
@@ -1209,7 +1206,4 @@ namespace PlaytimePainter.UI
 
         #endregion
     }
-
-
-
 }

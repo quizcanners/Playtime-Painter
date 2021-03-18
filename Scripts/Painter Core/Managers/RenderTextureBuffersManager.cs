@@ -506,7 +506,10 @@ namespace PlaytimePainter {
 
         #endregion
 
-        public static void BlitGL(Texture source, RenderTexture destination, Material mat)
+        public static void BlitGL(Texture source, RenderTexture destination, Material mat) => QcUnity.BlitGL(source, destination, mat);
+            
+            
+            /*
         {
             RenderTexture.active = destination;
             mat.SetTexture("_MainTex", source);
@@ -526,7 +529,7 @@ namespace PlaytimePainter {
             GL.End();
             GL.invertCulling = false;
             GL.PopMatrix();
-        }
+        }*/
         
         public static void OnDisable() {
             DestroyScalingBuffers();

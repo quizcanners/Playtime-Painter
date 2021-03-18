@@ -907,7 +907,7 @@ namespace QuizCannersUtilities
             {
                 "Time.time: {0}".F(QcSharp.SecondsToReadableString(Time.time)).nl();
 
-                "DSP time: {0}".F(QcSharp.SecondsToReadableString(AudioSettings.dspTime)).nl();
+                "AudioSettings.dspTime: {0}".F(QcSharp.SecondsToReadableString(AudioSettings.dspTime)).nl();
 
                 "Use it to schedule Audio Clips: audioSource.PlayScheduled(AudioSettings.dspTime + 0.5);".writeHint();
 
@@ -929,6 +929,12 @@ namespace QuizCannersUtilities
                 "Time.deltaTime: {0}".F(QcSharp.SecondsToReadableString(Time.deltaTime)).nl();
 
                 "Time.realtimeSinceStartup {0}".F(QcSharp.SecondsToReadableString(Time.realtimeSinceStartup)).nl();
+
+                var fr = Application.targetFrameRate;
+                if ("Frame-Rate".edit(ref fr).nl() && fr > 0)
+                {
+                    Application.targetFrameRate = fr;
+                }
             }
 
             return changed;

@@ -62,7 +62,7 @@ namespace PlaytimePainter
 
             "Custom Time Parameter".write_ForCopy(_shaderTime.ToString());
 
-            pegi.FullWindow.DocumentationClick(
+            pegi.FullWindow.DocumentationClickOpen(
                 "Use NoiseTextureMGMT.instance.ResetTime to reset time when all animated shaders are hiddent from the screen." +
                 " Alternatively the time will be reset every 64 seconds resulting in noticible jitter");
 

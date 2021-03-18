@@ -99,6 +99,8 @@ namespace PlayerAndEditorGUI.Examples
         {
             var changed = false;
 
+            pegi.nl();
+
             var prots = GetEnities();
 
             if (prots == null)

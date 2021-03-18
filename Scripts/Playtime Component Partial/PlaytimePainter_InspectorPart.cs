@@ -493,12 +493,12 @@ namespace PlaytimePainter
                                         if ("Update Collider from Skinned Mesh".Click())
                                             UpdateMeshCollider();
 
-                                        if (!PainterDataAndConfig.hideDocumentation &&
-                                            pegi.FullWindow.DocumentationClick("Why Update Collider from skinned mesh?"))
-                                            pegi.FullWindow.DocumentationOpen(
-                                                ("To paint an object a collision detection is needed. Mesh Collider is not being animated. To paint it, update Mesh Collider with Update Collider button." +
-                                                 " For ingame painting it is preferable to use simple colliders like Speheres to avoid per frame updates for collider mesh."
-                                                ));
+                                        if (!PainterDataAndConfig.hideDocumentation)
+                                            pegi.FullWindow.DocumentationClickOpen(
+                                                text: ()=> "To paint an object a collision detection is needed. Mesh Collider is not being animated. To paint it, update Mesh Collider with Update Collider button." +
+                                                 " For ingame painting it is preferable to use simple colliders like Speheres to avoid per frame updates for collider mesh.",
+                                                 toolTip: "Why Update Collider from skinned mesh?");
+                                          
 
                                         pegi.nl();
                                     }
@@ -1203,10 +1203,10 @@ namespace PlaytimePainter
         }
 
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Join Discord")]
-        public static void Open_Discord() => Application.OpenURL(pegi.FullWindow.DiscordServer);
+        public static void Open_Discord() => Application.OpenURL(pegi.FullWindow.DISCORD_SERVER);
 
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Send an Email")]
-        public static void Open_Email() => QcUnity.SendEmail(pegi.FullWindow.SupportEmail,
+        public static void Open_Email() => QcUnity.SendEmail(pegi.FullWindow.SUPPORT_EMAIL,
             "About your Playtime Painter",
             "Hello Yuri, we need to talk. I purchased your asset and expect an excellent quality, but ...");
 

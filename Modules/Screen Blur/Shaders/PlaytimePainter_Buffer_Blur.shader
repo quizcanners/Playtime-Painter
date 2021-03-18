@@ -47,9 +47,11 @@ Shader "Playtime Painter/Buffer Blit/Blur"
                 float2 uv = o.texcoord.xy;
 
 #if USE_NOISE_TEXTURE
+                const float _BlurEffectPortion = 0.015;
                 float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(uv - float2(_Time.x * 4, _Time.x*7.23), 0, 0)) -0.5;
 #else
-				float4 noise = 0;
+                const float _BlurEffectPortion = 0.015;
+				float4 noise = 0.5;
 #endif
 
                 float4 sum = 0;

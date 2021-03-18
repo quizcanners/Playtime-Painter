@@ -172,28 +172,11 @@ namespace PlayerAndEditorGUI {
             "Language".editEnum<SystemLanguage>(60, ref _systemLanguage, supportedLanguages).nl();
             
             return false;
-        } 
-
-        public static bool DocumentationClick(this LazyTranslation trnsl) {
-            if (pegi.FullWindow.DocumentationClick(trnsl.text))
-            {
-                pegi.FullWindow.DocumentationOpen(trnsl.details);
-                return true;
-            }
-
-            return false;
         }
 
-        public static bool WarningDocumentation(this LazyTranslation trnsl)
-        {
-            if (pegi.FullWindow.DocumentationWarningClick(trnsl.text))
-            {
-                pegi.FullWindow.DocumentationOpen(trnsl.details);
-                return true;
-            }
+        public static bool DocumentationClick(this LazyTranslation trnsl) => pegi.FullWindow.DocumentationClickOpen(trnsl.details, toolTip: trnsl.text);
 
-            return false;
-        }
+        public static bool WarningDocumentation(this LazyTranslation trnsl) => pegi.FullWindow.DocumentationWarningClickOpen(trnsl.details, trnsl.text);
         
         #endregion
 

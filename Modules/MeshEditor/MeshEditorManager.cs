@@ -796,10 +796,12 @@ namespace PlaytimePainter.MeshEditing
                 previousTool.OnDeSelectTool();
                 MeshTool.OnSelectTool();
             }
-            
 
-            if (DocsEnabled && pegi.FullWindow.DocumentationClick("About {0} tool".F(MeshTool.NameForDisplayPEGI())))
-                pegi.FullWindow.DocumentationOpen(MeshTool.Tooltip + (MeshTool.ShowGrid ? GridNavigator.ToolTip : ""));
+
+            if (DocsEnabled)
+                pegi.FullWindow.DocumentationClickOpen(text: () => MeshTool.Tooltip + (MeshTool.ShowGrid ? GridNavigator.ToolTip : ""),
+                    toolTip: "About {0} tool".F(MeshTool.NameForDisplayPEGI()));
+
             
             if (target.skinnedMeshRenderer) 
                 pegi.FullWindow.WarningDocumentationClickOpen
