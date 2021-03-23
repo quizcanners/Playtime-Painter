@@ -240,6 +240,24 @@ namespace QuizCannersUtilities {
         }
 
         #region List Management
+        public static T GetRandom<T>(this List<T> list, ref int previous)
+        {
+            if (list.IsNullOrEmptyCollection()) 
+            {
+                return default;
+            }
+
+            var rnd = Random.Range(0, list.Count);
+
+            if (rnd == previous) 
+            {
+                rnd = (rnd + 1) % list.Count;
+            }
+
+            previous = rnd;
+            return list[previous]; 
+        }
+        public static T GetRandom<T>(this List<T> list) => list.Count == 0 ? default : list[Random.Range(0, list.Count)];
 
         public static T GetRandomByWeight<T>(this List<T> sequence, Func<T, float> weightSelector)
         {
@@ -306,8 +324,6 @@ namespace QuizCannersUtilities {
 
             return ret;
         }
-        
-        public static T GetRandom<T>(this List<T> list) => list.Count == 0 ? default : list[Random.Range(0, list.Count)];
         
         public static void ForceSet<T,G>(this List<T> list, int index, G val) where G:T {
             if (list == null || index < 0) return;

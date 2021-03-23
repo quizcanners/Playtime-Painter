@@ -2663,38 +2663,38 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool edit_Dictionary_Values<G, T>(this string label, ref Dictionary<G, T> dic, bool showKey = true)
+        public static bool edit_Dictionary<G, T>(this string label, ref Dictionary<G, T> dic, bool showKey = true)
         {
             int inspected = -1;
             collectionInspector.write_Search_ListLabel(label, dic);
-            return edit_Dictionary_Values_Internal(ref dic, ref inspected, showKey: showKey);
+            return edit_Dictionary_Internal(ref dic, ref inspected, showKey: showKey);
         }
 
-        public static bool edit_Dictionary_Values<G, T>(this string label, ref Dictionary<G, T> dic, ref int inspected, bool showKey = true)
+        public static bool edit_Dictionary<G, T>(this string label, ref Dictionary<G, T> dic, ref int inspected, bool showKey = true)
         {
             collectionInspector.write_Search_DictionaryLabel(label, ref inspected, dic);
-            return edit_Dictionary_Values_Internal(ref dic, ref inspected, showKey: showKey);
+            return edit_Dictionary_Internal(ref dic, ref inspected, showKey: showKey);
         }
 
-        public static bool edit_Dictionary_Values<G, T>(this string label, ref Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = false)
+        public static bool edit_Dictionary<G, T>(this string label, ref Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = false)
         {
             collectionInspector.write_Search_ListLabel(label, dic);
-            return edit_Dictionary_Values_Internal(ref dic, lambda, showKey: showKey);
+            return edit_Dictionary_Internal(ref dic, lambda, showKey: showKey);
         }
 
-        public static bool edit_Dictionary_Values<G, T>(this ListMetaData listMeta, ref Dictionary<G, T> dic, bool showKey = true)
+        public static bool edit_Dictionary<G, T>(this ListMetaData listMeta, ref Dictionary<G, T> dic, bool showKey = true)
         {
             collectionInspector.write_Search_ListLabel(listMeta, dic);
-            return edit_Dictionary_Values_Internal(ref dic, ref listMeta.inspected, showKey: showKey, listMeta);
+            return edit_Dictionary_Internal(ref dic, ref listMeta.inspected, showKey: showKey, listMeta);
         }
 
-        public static bool edit_Dictionary_Values<G, T>(this ListMetaData listMeta, ref Dictionary<G, T> dic, Func<T, T> lambda)
+        public static bool edit_Dictionary<G, T>(this ListMetaData listMeta, ref Dictionary<G, T> dic, Func<T, T> lambda)
         {
             collectionInspector.write_Search_ListLabel(listMeta, dic);
-            return edit_Dictionary_Values_Internal(ref dic, lambda, listMeta: listMeta);
+            return edit_Dictionary_Internal(ref dic, lambda, listMeta: listMeta);
         }
 
-        private static bool edit_Dictionary_Values_Internal<G, T>(ref Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true, ListMetaData listMeta = null)
+        private static bool edit_Dictionary_Internal<G, T>(ref Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true, ListMetaData listMeta = null)
         {
 
             if (dic == null)
@@ -2770,7 +2770,7 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        private static bool edit_Dictionary_Values_Internal<G, T>(ref Dictionary<G, T> dic, ref int inspected, bool showKey, ListMetaData listMeta = null)
+        private static bool edit_Dictionary_Internal<G, T>(ref Dictionary<G, T> dic, ref int inspected, bool showKey, ListMetaData listMeta = null)
         {
             bool changed = false;
 
@@ -2820,7 +2820,7 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        private static bool dicIsNull<G, T>(ref Dictionary<G, T> dic)
+      /*  private static bool dicIsNull<G, T>(ref Dictionary<G, T> dic)
         {
             if (dic != null)
                 return false;
@@ -2834,39 +2834,37 @@ namespace PlayerAndEditorGUI
             return true;
 
         }
-
-        #endregion
-
-        #region Dictionary <Key,String>
+      */
         
-        public static bool edit_Dictionary_Values(this string label, ref Dictionary<int, string> dic, List<string> roles)
+        public static bool edit_Dictionary(this string label, ref Dictionary<int, string> dic, List<string> roles)
         {
             collectionInspector.write_Search_ListLabel(label, dic);
             listElementsRoles = roles;
-            var ret = edit_Dictionary_Values_Internal(ref dic, lambda_string_role, false);
+            var ret = edit_Dictionary_Internal(ref dic, lambda_string_role, false);
             listElementsRoles = null;
             return ret;
         }
 
-        public static bool edit_Dictionary_Values(this string label, ref Dictionary<string, string> dic)
+        public static bool edit_Dictionary(this string label, ref Dictionary<string, string> dic)
         {
             collectionInspector.write_Search_ListLabel(label, dic);
-            return edit_Dictionary_Values_Internal(ref dic, lambda_string);
+            return edit_Dictionary_Internal(ref dic, lambda_string);
         }
         
-        public static bool edit_Dictionary_Values(this ListMetaData listMeta, ref Dictionary<string, string> dic)
+        public static bool edit_Dictionary(this ListMetaData listMeta, ref Dictionary<string, string> dic)
         {
             collectionInspector.write_Search_ListLabel(listMeta, dic);
-            return edit_Dictionary_Values_Internal(ref dic, lambda_string, listMeta: listMeta);
+            return edit_Dictionary_Internal(ref dic, lambda_string, listMeta: listMeta);
         }
         
-        public static bool edit_Dictionary(this string label, ref Dictionary<int, string> dic)
+     /*   public static bool edit_Dictionary(this string label, ref Dictionary<int, string> dic)
         {
             collectionInspector.write_Search_ListLabel(label, dic);
-            return edit_Dictionary(ref dic);
+            return edit_Dictionary_Internal(ref dic);
         }
         
-        private static bool edit_Dictionary(ref Dictionary<int, string> dic)
+
+        private static bool edit_Dictionary_Internal(ref Dictionary<int, string> dic)
         {
 
             bool changed = false;
@@ -2895,6 +2893,7 @@ namespace PlayerAndEditorGUI
 
             return changed;
         }
+       
 
         private static bool edit(ref Dictionary<int, string> dic, int atKey)
         {
@@ -2933,9 +2932,6 @@ namespace PlayerAndEditorGUI
 
         }
 
-        private static string newEnumName = "UNNAMED";
-        private static int newEnumKey = 1;
-
         private static bool newElement(this Dictionary<int, string> dic)
         {
             bool changed = false;
@@ -2968,6 +2964,9 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
+        private static string newEnumName = "UNNAMED";
+        private static int newEnumKey = 1;
+    */
         #endregion
 
         #region Arrays

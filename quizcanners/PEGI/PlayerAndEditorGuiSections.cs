@@ -993,7 +993,7 @@ namespace PlayerAndEditorGUI
             var changed = false;
 
             if (meta.label.AddCount(dictionary).enter(ref enteredOne, thisOne, false))
-                meta.edit_Dictionary_Values(ref dictionary).nl(ref changed);
+                meta.edit_Dictionary(ref dictionary).nl(ref changed);
 
             return changed;
         }
@@ -1003,7 +1003,7 @@ namespace PlayerAndEditorGUI
             var changed = false;
 
             if (label.AddCount(dictionary).enter(ref enteredOne, thisOne, false))
-                label.edit_Dictionary_Values(ref dictionary).nl(ref changed);
+                label.edit_Dictionary(ref dictionary).nl(ref changed);
 
             return changed;
         }

@@ -56,8 +56,6 @@ Shader "Playtime Painter/Buffer Blit/Blur"
 
                 float4 sum = 0;
 
-                const float _BlurEffectPortion = 0.003;
-
                 float relation = _ScreenParams.x / _ScreenParams.y;
 
                 float xker = (1 * noise.b)*_BlurEffectPortion;
