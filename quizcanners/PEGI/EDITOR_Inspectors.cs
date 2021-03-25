@@ -64,7 +64,7 @@ namespace PlayerAndEditorGUI {
         protected abstract bool Inspect(Editor editor);
         internal abstract ef.EditorType EditorType { get;  }
 
-        private bool InspectException()
+      /*  private bool InspectException()
         {
             "Got an Exception. Click copy to check it out in the notepad.".writeWarning();
             
@@ -82,7 +82,7 @@ namespace PlayerAndEditorGUI {
             pegi.nl();
 
             return false;
-        }
+        }*/
 
         public override void OnInspectorGUI()
         {

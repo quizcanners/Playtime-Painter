@@ -2723,7 +2723,6 @@ namespace PlayerAndEditorGUI
 
                 if (listMeta.Inspecting && (dic.Count > listMeta.inspected))
                 {
-
                     var el = dic.ElementAt(listMeta.inspected);
 
                     var val = el.Value;
@@ -2738,12 +2737,11 @@ namespace PlayerAndEditorGUI
             }
             else
             {
-
                 foreach (var item in collectionInspector.InspectionIndexes(dic, listMeta, new KeyValuePairInspector<G, T>()))
                 {
                     var itemKey = item.Key;
                     
-                    if ((listMeta == null || listMeta.allowDelete) && icon.Delete.ClickUnFocus(25).changes(ref changed))
+                    if ((listMeta != null && listMeta.allowDelete) && icon.Delete.ClickUnFocus(25).changes(ref changed))
                         dic.Remove(itemKey);
                     else
                     {
@@ -2755,18 +2753,17 @@ namespace PlayerAndEditorGUI
                         el = lambda(el);
 
                         if ((!ch && GUI.changed).changes(ref changed))
+                        {
                             dic[itemKey] = el;
+                            break;
+                        }
 
                         if (listMeta != null && icon.Enter.Click("Enter " + el))
                             listMeta.inspected = collectionInspector.Index;
                     }
-
                     nl();
-
                 }
-
             }
-
             return changed;
         }
 
@@ -2819,22 +2816,6 @@ namespace PlayerAndEditorGUI
             nl();
             return changed;
         }
-
-      /*  private static bool dicIsNull<G, T>(ref Dictionary<G, T> dic)
-        {
-            if (dic != null)
-                return false;
-
-            if (Msg.Init.F(Msg.Dictionary).ClickUnFocus().nl())
-            {
-                dic = new Dictionary<G, T>();
-                return false;
-            }
-
-            return true;
-
-        }
-      */
         
         public static bool edit_Dictionary(this string label, ref Dictionary<int, string> dic, List<string> roles)
         {
@@ -2857,116 +2838,6 @@ namespace PlayerAndEditorGUI
             return edit_Dictionary_Internal(ref dic, lambda_string, listMeta: listMeta);
         }
         
-     /*   public static bool edit_Dictionary(this string label, ref Dictionary<int, string> dic)
-        {
-            collectionInspector.write_Search_ListLabel(label, dic);
-            return edit_Dictionary_Internal(ref dic);
-        }
-        
-
-        private static bool edit_Dictionary_Internal(ref Dictionary<int, string> dic)
-        {
-
-            bool changed = false;
-
-            if (dicIsNull(ref dic))
-                return changed;
-
-            foreach (var e in collectionInspector.InspectionIndexes(dic))
-            {
-                int i = collectionInspector.Index;
-
-                collectionInspector.Index = e.Key;
-
-                if (icon.Delete.ClickUnFocus(20))
-                    dic.Remove(e.Key).changes(ref changed);
-                else
-                {
-                    if (!editKey(ref dic, e.Key).changes(ref changed))
-                        edit(ref dic, e.Key).changes(ref changed);
-                }
-                nl();
-            }
-            nl();
-
-            dic.newElement().changes(ref changed);
-
-            return changed;
-        }
-       
-
-        private static bool edit(ref Dictionary<int, string> dic, int atKey)
-        {
-
-#if UNITY_EDITOR
-            if (!PaintingGameViewUI)
-                return ef.edit(ref dic, atKey);
-#endif
-
-            var val = dic[atKey];
-            if (editDelayed(ref val, 40))
-            {
-                dic[atKey] = val;
-                return false;
-            }
-
-            return false;
-
-        }
-
-        private static bool editKey(ref Dictionary<int, string> dic, int key)
-        {
-
-#if UNITY_EDITOR
-            if (!PaintingGameViewUI)
-                return ef.editKey(ref dic, key);
-
-#endif
-
-            checkLine();
-            int pre = key;
-            if (editDelayed(ref key, 40))
-                return dic.TryChangeKey(pre, key);
-
-            return false;
-
-        }
-
-        private static bool newElement(this Dictionary<int, string> dic)
-        {
-            bool changed = false;
-            nl();
-
-            "______New [Key, Value]".nl();
-            edit(ref newEnumKey, 50).changes(ref changed);
-            edit(ref newEnumName).changes(ref changed);
-
-            string dummy;
-            var isNewIndex = !dic.TryGetValue(newEnumKey, out dummy);
-            var isNewValue = !dic.ContainsValue(newEnumName);
-
-            if (isNewIndex && isNewValue && icon.Add.ClickUnFocus(Msg.AddNewCollectionElement, 25).changes(ref changed))
-            {
-                dic.Add(newEnumKey, newEnumName);
-                newEnumKey = 1;
-                while (dic.TryGetValue(newEnumKey, out _))
-                    newEnumKey++;
-                newEnumName = "UNNAMED";
-            }
-
-            if (!isNewIndex)
-                "Index Takken by {0}".F(dummy).write();
-            else if (!isNewValue)
-                "Value already assigned ".write();
-
-            nl();
-
-            return changed;
-        }
-
-        private static string newEnumName = "UNNAMED";
-        private static int newEnumKey = 1;
-    */
         #endregion
 
         #region Arrays

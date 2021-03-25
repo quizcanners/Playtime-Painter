@@ -3,6 +3,7 @@ Shader "Playtime Painter/UI/Effects/Fade To Grey"{
 	{
 		[PerRendererData] _MainTex("Sprite Texture", 2D) = "white" {}
 		_Color("Grey Color", Color) = (1,1,1,1)
+		_GreyBrightness("Gray brightness", Range(0,4)) = 1
 
 		_StencilComp("Stencil Comparison", Float) = 8
 		_Stencil("Stencil ID", Float) = 0
@@ -10,7 +11,7 @@ Shader "Playtime Painter/UI/Effects/Fade To Grey"{
 		_StencilWriteMask("Stencil Write Mask", Float) = 255
 		_StencilReadMask("Stencil Read Mask", Float) = 255
 
-		_GreyBrightness("Gray brightness", Range(0,4)) = 1
+	
 
 		_ColorMask("Color Mask", Float) = 15
 
