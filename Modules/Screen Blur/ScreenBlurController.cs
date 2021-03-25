@@ -10,8 +10,6 @@ namespace PlaytimePainter
     [ExecuteInEditMode]
     public class ScreenBlurController : MonoBehaviour, IPEGI
     {
-        public static List<ScreenBlurController> instances = new List<ScreenBlurController>(1);
-
         [SerializeField] public Camera MyCamera;
 
         [SerializeField] protected Shader copyShader;
@@ -490,9 +488,7 @@ namespace PlaytimePainter
         void OnEnable()
         {
             UseMousePosition.Enabled = mousePositionToShader;
-            instances.Add(this);
         }
-        void OnDisable() => instances.Remove(this);
 
         public enum ProcessCommand
         {
