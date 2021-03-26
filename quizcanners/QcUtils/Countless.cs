@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -117,16 +118,30 @@ namespace QuizCannersUtilities {
         public virtual void Clear()
         {
             DiscardCascade(br, depth);
+            Reset();
+        }
+
+        protected virtual void Reset() 
+        {
+           
+            count = 0;
+            depth = 0;
+            path = new VariableBranch[0];
+            pathInd = new int[0];
+            lastFreeIndex = 0;
+
+            max = BranchSize;
+            br = GetNewBranch();
         }
 
         protected int firstFree;
-        protected int depth;
-        protected int max;
-        protected int count;
-        protected VariableBranch[] path;
-        protected int[] pathInd;
-        protected VariableBranch br;
-        protected int lastFreeIndex;
+        [SerializeField] protected int depth;
+        [SerializeField] protected int max;
+        [SerializeField] protected int count;
+        [SerializeField] protected VariableBranch[] path;
+        [SerializeField] protected int[] pathInd;
+        [SerializeField] protected VariableBranch br;
+        [SerializeField] protected int lastFreeIndex;
 
 
         #region Inspector
@@ -137,6 +152,8 @@ namespace QuizCannersUtilities {
         
         public virtual bool Inspect()
         {
+            if ("Clear".Click().nl())
+                Clear();
             ("Depth: " + depth).nl();
             ("First free: " + firstFree).nl();
             "Count: {0}".F(count).nl();
@@ -146,9 +163,10 @@ namespace QuizCannersUtilities {
         #endregion
 
 
-        protected CountlessBase() {
-            max = BranchSize;
-            br = GetNewBranch();
+
+        protected CountlessBase() 
+        {
+            Reset();
         }
         
     }
@@ -666,7 +684,7 @@ namespace QuizCannersUtilities {
 ///  Generic Trees
     public class Countless<T> : CountlessBase {
         
-        protected T[] objs = new T[0];
+        [SerializeField] protected T[] objs = new T[0];
         private int _firstFreeObj;
 
         private static void Expand(ref T[] args, int add)  {
@@ -898,7 +916,7 @@ namespace QuizCannersUtilities {
             }
         }
 
-        public int currentEnumerationIndex;
+        [NonSerialized] public int currentEnumerationIndex;
 
         public virtual T GetIfExists(int ind) => Get(ind);
 
@@ -1258,6 +1276,7 @@ namespace QuizCannersUtilities {
         
     }
 
+    [Serializable]
     public class VariableBranch
     {
         public int value;

@@ -23,6 +23,31 @@ MonoBehaviour:
   atlasedMaterials: []
   playtimeSavedTextures: []
   imgMetas:
+  - target: 0
+    renderTexture: {fileID: 0}
+    texture2D: {fileID: 2800000, guid: b24b57e0cfed05643be34b0256df875e, type: 3}
+    other: {fileID: 0}
+    width: 1024
+    height: 1024
+    useTexCoord2: 0
+    _useTexCoord2AutoAssigned: 0
+    lockEditing: 0
+    isATransparentLayer: 0
+    enableUndoRedo: 0
+    preserveTransparency: 1
+    sdfMaxInside: 1
+    sdfMaxOutside: 1
+    sdfPostProcessDistance: 1
+    _repaintDelay: 0.016
+    updateTex2DafterStroke: 0
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    isAVolumeTexture: 0
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    backupManually: 0
+    saveName: Dungeons_Texture_01
+    url: 
+    inspectedItems: -1
   - target: 1
     renderTexture: {fileID: 8400000, guid: 2d3c2558c24b26647a35871e7558f77e, type: 2}
     texture2D: {fileID: 0}
@@ -59,6 +84,11 @@ MonoBehaviour:
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
     selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 42b64fdb315e3054ea757d8d1c4bcfa7, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
   showRecentTextures: 0
   showColorSchemes: 0
   sourceTextures: []
@@ -74,7 +104,7 @@ MonoBehaviour:
   makeVerticesUniqueOnEdgeColoring: 0
   gridSize: 1
   snapToGrid: 0
-  newVerticesUnique: 1
+  newVerticesUnique: 0
   newVerticesSmooth: 1
   pixelPerfectMeshEditing: 0
   useGridForBrush: 0

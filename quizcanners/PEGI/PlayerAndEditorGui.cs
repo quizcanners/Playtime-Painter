@@ -545,12 +545,22 @@ namespace PlayerAndEditorGUI
             return anyChanges.Dirty();
         }
 
-        public static void NameNext(string name) => GUI.SetNextControlName(name);
+        public static void NameNextForFocus(string name) => GUI.SetNextControlName(name);
 
         public static string FocusedName
         {
             get { return GUI.GetNameOfFocusedControl(); }
             set { GUI.FocusControl(value); }
+        }
+
+        public static string FocusedText 
+        {
+            set 
+            {
+#if UNITY_EDITOR
+                EditorGUI.FocusTextInControl(value);
+#endif
+            }
         }
 
         #endregion

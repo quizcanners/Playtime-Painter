@@ -4104,6 +4104,7 @@ namespace PlayerAndEditorGUI
 
         public static bool inspect_Name(this IGotName obj, string label) => obj.inspect_Name(label, label);
 
+        private static bool focusPassedToTheNext = false;
         public static bool inspect_Name(this IGotName obj, string label, string hint)
         {
 
@@ -4112,10 +4113,9 @@ namespace PlayerAndEditorGUI
             bool gotLabel = !label.IsNullOrEmpty();
 
             var uObj = obj as Object;
-
+            
             if (uObj)
             {
-
                 if ((gotLabel && label.editDelayed(80, ref n)) || (!gotLabel && editDelayed(ref n)))
                 {
                     obj.NameForPEGI = n;
@@ -4124,10 +4124,26 @@ namespace PlayerAndEditorGUI
                 }
             }
             else
-            if ((gotLabel && label.edit(80, ref n) || (!gotLabel && edit(ref n))))
             {
-                obj.NameForPEGI = n;
-                return true;
+                string focusName = InspectedIndex.ToString() + obj.GetNameForInspector();
+
+                if (focusPassedToTheNext)
+                {
+                    FocusedText = focusName;
+                    focusPassedToTheNext = false;
+                }
+
+                if (FocusedName.Equals(focusName) && KeyCode.DownArrow.IsDown())
+                    focusPassedToTheNext = true;
+
+                NameNextForFocus(focusName);
+
+
+                if ((gotLabel && label.edit(80, ref n)) || (!gotLabel && edit(ref n)))
+                {
+                    obj.NameForPEGI = n;
+                    return true;
+                }
             }
 
             return false;

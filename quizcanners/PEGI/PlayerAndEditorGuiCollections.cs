@@ -3075,7 +3075,7 @@ namespace PlayerAndEditorGUI
 
                 if (!active && collection != collectionInspector.reordering &&
                     (icon.Search
-                        .Click("{0} {1}".F(icon.Search.GetText(), label.IsNullOrEmpty() ? collection.ToString() : label), 27) || KeyCode.DownArrow.IsDown())
+                        .Click("{0} {1}".F(icon.Search.GetText(), label.IsNullOrEmpty() ? collection.ToString() : label), 27)) // || KeyCode.DownArrow.IsDown())
                         .changes(ref changed))
                 {
                     active = true;
@@ -3107,7 +3107,7 @@ namespace PlayerAndEditorGUI
 
                     icon.Search.write();
 
-                    NameNext(searchFieldFocusName);
+                    NameNextForFocus(searchFieldFocusName);
 
                     if (edit(ref searchedText) || icon.Refresh.Click("Search again", 20).nl())
                     {
