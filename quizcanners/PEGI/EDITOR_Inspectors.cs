@@ -64,30 +64,9 @@ namespace PlayerAndEditorGUI {
         protected abstract bool Inspect(Editor editor);
         internal abstract ef.EditorType EditorType { get;  }
 
-      /*  private bool InspectException()
-        {
-            "Got an Exception. Click copy to check it out in the notepad.".writeWarning();
-            
-            if ("Copy To Clipboard".Click("Copy Exception").nl())
-                pegi.SetCopyPasteBuffer(pegi.FullWindow.popUpText);
-
-            if ("Don't show again".Click())
-                pegi.FullWindow.ClosePopUp();
-            
-            pegi.nl();
-
-            if (pegi.FullWindow.popUpText.Length<1000)
-                pegi.writeBig(pegi.FullWindow.popUpText);
-
-            pegi.nl();
-
-            return false;
-        }*/
-
         public override void OnInspectorGUI()
         {
             ef.inspectedUnityObject = target;
-
             ef.ResetInspectionTarget(target);
 
             if (target != drawDefaultInspector) {

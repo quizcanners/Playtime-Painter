@@ -1,308 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using PlayerAndEditorGUI;
 using QuizCannersUtilities;
 using UnityEngine;
 
-namespace PlaytimePainter.CameraModules
+namespace PlaytimePainter.TexturePacking
 {
-
-    [TaggedType(Tag)]
-    public class CombinedMapsCameraModule : CameraModuleBase
-    {
-        private const string Tag = "CmbndMpsCntrl";
-        public override string ClassTag => Tag;
-        
-        public static CombinedMapsCameraModule _inst;
-        
-        public override void Enable() {
-            _inst = this;
-        }
-
-        public override string NameForDisplayPEGI()=> "Combined Maps [{0}]".F(Cfg.textureSets.Count);
-
-
-
-        #region Inspector
-
-        private int _browsedTextureSet = -1;
-
-        public bool Inspect()
-        {
-            var changed = false;
-            if ("Surfaces".edit_List(ref Cfg.textureSets, ref _browsedTextureSet).changes(ref changed))
-                Cfg.SetToDirty();
-
-            return changed;
-        }
-
-        #endregion
-    }
-
     [Serializable]
-    public class TextureSetForCombinedMaps : PainterClass, IPEGI, IGotName {
-
-        protected static CombinedMapsCameraModule Ctrl => CombinedMapsCameraModule._inst;
-
-        public Texture2D diffuse;
-        public Texture2D heightMap;
-        public Texture2D normalMap;
-        public Texture2D gloss;
-        public Texture2D reflectivity;
-        public Texture2D ambient;
-        public Texture2D lastProduct;
-
-        public int width = 1024;
-        public int height = 1024;
-
-        public bool isColor;
-
-        public string name;
-
-        public TexturePackagingProfile Profile => Cfg.texturePackagingSolutions[selectedProfile];
-
-        public Texture2D GetAnyTexture()
-        {
-            if (diffuse) return diffuse;
-            if (heightMap) return heightMap;
-            if (normalMap) return normalMap;
-            if (gloss) return gloss;
-            if (reflectivity) return reflectivity;
-            if (ambient) return ambient;
-            if (lastProduct) return lastProduct;
-            return null;
-        }
-
-        public TextureSetForCombinedMaps()
-        {
-            name = "Unnamed";
-        }
-
-        public string NameForPEGI { get { return name; } set { name = value; } }
-        /*
-        #region Encode & Decode
-        public override CfgEncoder Encode() => this.EncodeUnrecognized()
-            .Add_Reference("d", diffuse)
-            .Add_Reference("h", heightMap)
-            .Add_Reference("bump", normalMap)
-            .Add_Reference("g", gloss)
-            .Add_Reference("r", reflectivity)
-            .Add_Reference("ao", ambient)
-            .Add_Reference("lp", lastProduct)
-            .Add("tw", width)
-            .Add("th", height)
-            .Add_Bool("col", isColor)
-            .Add_String("n", name)
-            .Add("sp", selectedProfile);
-        
-        public override bool Decode(string tg, string data)
-        {
-            switch (tg)
-            {
-                case "d": data.Decode_Reference(ref diffuse); break;
-                case "h": data.Decode_Reference(ref heightMap); break;
-                case "bump": data.Decode_Reference(ref normalMap); break;
-                case "g": data.Decode_Reference(ref gloss); break;
-                case "r":  data.Decode_Reference(ref reflectivity); break;
-                case "ao": data.Decode_Reference(ref ambient); break;
-                case "lp": data.Decode_Reference(ref lastProduct); break;
-                case "tw":  width = data.ToInt(); break;
-                case "th": height = data.ToInt(); break;
-                case "col": isColor = data.ToBool(); break;
-                case "n": name = data; break;
-                case "sp": selectedProfile = data.ToInt(); break;
-                default: return false;
-            }
-            return true;
-        }
-        #endregion
-        */
-        #region Inspect
-
-        public bool Inspect() {
-
-            var changed = false;
-
-            var id = InspectedImageMeta;
-
-            if (InspectedPainter && id != null) {
-                "Editing:".write(40);
-                pegi.write(id.texture2D);
-                pegi.nl();
-            }
-
-            "Diffuse".edit("Texture that contains Color of your object. Usually used in _MainTex field.", 70, ref diffuse).nl(ref changed);
-            "Height".edit("Greyscale Texture which represents displacement of your surface. Can be used for parallax effect" +
-                "or height based terrain blending.", 70, ref heightMap).nl(ref changed);
-            "Normal".edit("Normal map - a pinkish texture which modifies normal vector, adding a sense of relief. Normal can also be " +
-                "generated from Height", 70, ref normalMap).nl(ref changed);
-            "Gloss".edit("How smooth the surface is. Polished metal - is very smooth, while rubber is usually not.", 70, ref gloss).nl(ref changed);
-            "Reflectivity".edit("Best used to add a feel of wear to the surface. Reflectivity blocks some of the incoming light.", 70, ref reflectivity).nl(ref changed);
-            "Ambient".edit("Ambient is an approximation of how much light will fail to reach a given segment due to it's indentation in the surface. " +
-            "Ambient map may look a bit similar to height map in some cases, but will more clearly outline shapes on the surface.", 70, ref ambient).nl(ref changed);
-            "Last Result".edit("Whatever you produce, will be stored here, also it can be reused.", 70, ref lastProduct).nl(ref changed);
-
-            if (!InspectedPainter) {
-                var firstTex = GetAnyTexture();
-                "width:".edit(ref width).nl(ref changed);
-                "height".edit(ref height).nl(ref changed);
-                if (firstTex && "Match Source".Click().nl(ref changed))
-                {
-                    width = firstTex.width;
-                    height = firstTex.height;
-                }
-
-                "is Color".toggle(ref isColor).nl(ref changed);
-            }
-            
-            pegi.select_Index(ref selectedProfile, Cfg.texturePackagingSolutions);
-
-            if (icon.Add.Click("New Texture Packaging Profile").nl()) {
-                QcUtils.AddWithUniqueNameAndIndex(Cfg.texturePackagingSolutions);
-                selectedProfile = Cfg.texturePackagingSolutions.Count - 1;
-                Cfg.SetToDirty();
-            }
-
-            if ((selectedProfile < Cfg.texturePackagingSolutions.Count))
-            {
-                if (Cfg.texturePackagingSolutions[selectedProfile].Inspect(this).nl(ref changed))
-                    Cfg.SetToDirty();
-            }
-
-            return changed;
-        }
-
-        #endregion
-
-        public int selectedProfile;
-
-
-    }
-
-    public class TexturePackagingProfile : PainterClassCfg, IGotName, IPEGI
+    public class TextureMapCombineProfile : PainterClass, IGotName, IPEGI
     {
-        private bool _isColor;
-        public float bumpStrength = 0.1f;
-        public float bumpNoiseInGlossFraction = 0.1f;
-        private List<TextureChannel> _channel;
-        private string _name;
-        public Color fillColor;
-        private bool _glossNoiseFromBump;
-        public bool glossNoiseFromHeight;
-
-        public string NameForPEGI { get { return _name; } set { _name = value; } }
-
-        public override string ToString() { return _name; }
-
-        public override void Decode(string key, CfgData data)
-        {
-            switch (key)
-            {
-                case "ch": data.ToList(out _channel); break;
-                case "c": _isColor = data.ToBool(); break;
-                case "n": _name = data.ToString(); break;
-                case "b": bumpStrength = data.ToFloat(); break;
-                case "fc": fillColor = data.ToColor(); break;
-            }
-        }
-
-        public override CfgEncoder Encode()
-        {
-            var cody = new CfgEncoder()
-
-            .Add_IfNotEmpty("ch", _channel)
-            .Add_Bool("c", _isColor)
-            .Add_String("n", _name)
-            .Add("b", bumpStrength)
-            .Add("fc", fillColor);
-
-            return cody;
-        }
-
-        private const string FolderName = "TexSolution";
+       
+        [SerializeField] private bool _isColor;
+        [SerializeField] public float bumpStrength = 0.1f;
+        [SerializeField] public float bumpNoiseInGlossFraction = 0.1f;
+        [SerializeField] private List<TextureChannel> _channel;
+        [SerializeField] private string _name;
+        [SerializeField] public Color fillColor;
+        [SerializeField] private bool _glossNoiseFromBump;
+        [SerializeField] public bool glossNoiseFromHeight;
         
-        public virtual bool Inspect() => Inspect(null);
+        public string NameForPEGI { get => _name;  set => _name = value;  }
 
-        public bool Inspect(TextureSetForCombinedMaps sets)
+        public override string ToString() => _name;
+        private void Combine(TextureSetForCombinedMaps set, PlaytimePainter p)
         {
-            var p = InspectedPainter;
-
-            pegi.nl();
-
-            var changed = "Name".edit(80, ref _name);
-
-            var path = Path.Combine(PainterCamera.Data.texturesFolderName, FolderName);
-
-            if (icon.Save.Click("Will save to " + path).nl())
-            {
-                this.SaveToAssets(path, _name);
-                QcUnity.RefreshAssetDatabase();
-                pegi.GameView.ShowNotification(_name + " was saved to " + path);
-            }
-            pegi.nl();
-
-            changed |= "Color texture ".toggleIcon(ref _isColor).nl(ref changed);
-
-            var usingBumpStrength = false;
-            var usingColorSelector = false;
-            var usingGlossMap = false;
-
-            for (var c = 0; c < 4; c++)
-            {
-                var ch = _channel[c];
-                changed |= ((ColorChanel)c).GetIcon().toggle(ref ch.enabled);
-
-                if (ch.enabled)
-                {
-                    if ((ch.flip ? "inverted" : "+ 0").Click("Copy as is or invert (1-X)"))
-                        ch.flip = !ch.flip;
-
-                    changed |= ch.Nested_Inspect().nl();
-
-                    usingBumpStrength |= ch.Role.UsingBumpStrengthSlider(ch.sourceChannel);
-                    usingColorSelector |= ch.Role.UsingColorSelector;
-                    usingGlossMap |= ch.Role.GetType() == typeof(TextureRole_Gloss);
-                }
-
-                pegi.nl();
-            }
-
-            if (usingBumpStrength) "Bump Strength".edit(ref bumpStrength).nl(ref changed);
-            if (usingColorSelector) "Color".edit(ref fillColor).nl(ref changed);
-            if (usingGlossMap)
-            {
-
-                if ((sets == null || sets.heightMap) &&
-                 "Gloss Mip -= Height Noise".toggle(ref glossNoiseFromHeight).nl(ref changed))
-                    _glossNoiseFromBump = false;
-
-
-
-                if ((sets == null || sets.normalMap)
-                    && "Gloss Mip -= Normal Noise".toggle(ref _glossNoiseFromBump).nl(ref changed))
-                    glossNoiseFromHeight = false;
-
-
-                if (glossNoiseFromHeight || _glossNoiseFromBump)
-                    "Fraction".edit(ref bumpNoiseInGlossFraction, 0f, 40f).nl();
-
-            }
-
-
-            if (sets != null)
-            {
-                if ("Combine".Click().nl(ref changed))
-                    Combine(sets, p);
-
-                if (p)
-                    "You will still need to press SAVE in Painter to update original texture.".writeHint();
-            }
-
-            return changed;
-        }
-        
-        private void Combine(TextureSetForCombinedMaps set, PlaytimePainter p) {
 
             TextureRole.Clear();
 
@@ -334,7 +55,7 @@ namespace PlaytimePainter.CameraModules
             {
                 var c = _channel[colChan];
                 if (!c.enabled) continue;
-                
+
                 var ch = c.sourceChannel;
                 var col = c.Role.GetPixels(set, id);
 
@@ -380,7 +101,7 @@ namespace PlaytimePainter.CameraModules
                 set.lastProduct = tex;
 
 #if UNITY_EDITOR
-                set.lastProduct = tex.SaveTextureAsAsset(Cfg.texturesFolderName, ref set.name, false);
+                set.lastProduct = tex.SaveTextureAsAsset(Cfg.texturesFolderName, ref _name, false);
 
                 var importer = set.lastProduct.GetTextureImporter();
 
@@ -395,7 +116,7 @@ namespace PlaytimePainter.CameraModules
             TextureRole.Clear();
         }
 
-        public TexturePackagingProfile()
+        public TextureMapCombineProfile()
         {
             _channel = new List<TextureChannel>();
             for (var i = 0; i < 4; i++)
@@ -403,35 +124,90 @@ namespace PlaytimePainter.CameraModules
 
             _name = "unnamed";
         }
+
+        #region Inspector
+        public virtual bool Inspect() => Inspect(null);
+
+        public bool Inspect(TextureSetForCombinedMaps sets)
+        {
+            var p = InspectedPainter;
+
+            pegi.nl();
+
+            var changed = "Name".edit(80, ref _name);
+
+            pegi.nl();
+
+            changed |= "Color texture ".toggleIcon(ref _isColor).nl(ref changed);
+
+            var usingBumpStrength = false;
+            var usingColorSelector = false;
+            var usingGlossMap = false;
+
+            for (var c = 0; c < 4; c++)
+            {
+                var ch = _channel[c];
+                changed |= ((ColorChanel)c).GetIcon().toggle(ref ch.enabled);
+
+                if (ch.enabled)
+                {
+                    if ((ch.flip ? "inverted" : "+ 0").Click("Copy as is or invert (1-X)"))
+                        ch.flip = !ch.flip;
+
+                    changed |= ch.Nested_Inspect().nl();
+
+                    usingBumpStrength |= ch.Role.UsingBumpStrengthSlider(ch.sourceChannel);
+                    usingColorSelector |= ch.Role.UsingColorSelector;
+                    usingGlossMap |= ch.Role.GetType() == typeof(TextureRole_Gloss);
+                }
+
+                pegi.nl();
+            }
+
+            if (usingBumpStrength) "Bump Strength".edit(ref bumpStrength).nl(ref changed);
+            if (usingColorSelector) "Color".edit(ref fillColor).nl(ref changed);
+            if (usingGlossMap)
+            {
+
+                if ((sets == null || sets.heightMap) &&
+                 "Gloss Mip -= Height Noise".toggle(ref glossNoiseFromHeight).nl(ref changed))
+                    _glossNoiseFromBump = false;
+
+                if ((sets == null || sets.normalMap)
+                    && "Gloss Mip -= Normal Noise".toggle(ref _glossNoiseFromBump).nl(ref changed))
+                    glossNoiseFromHeight = false;
+
+                if (glossNoiseFromHeight || _glossNoiseFromBump)
+                    "Fraction".edit(ref bumpNoiseInGlossFraction, 0f, 40f).nl();
+
+            }
+
+
+            if (sets != null)
+            {
+                if ("Combine".Click().nl(ref changed))
+                    Combine(sets, p);
+
+                if (p)
+                    "You will still need to press SAVE in Painter to update original texture.".writeHint();
+            }
+
+            return changed;
+        }
+
+        #endregion
+
     }
 
-    public class TextureChannel : ICfg, IPEGI
+    [Serializable]
+    public class TextureChannel : IPEGI
     {
         public bool enabled;
         public bool flip;
         private int _sourceRole;
         public int sourceChannel;
 
-        public TextureRole Role { get { return TextureRole.All[_sourceRole]; } set { _sourceRole = value.index; } }
-
-        #region Encode & Decode
-        public void Decode(string key, CfgData data)
-        {
-            switch (key)
-            {
-                case "s": data.ToInt(ref _sourceRole); break;
-                case "c": data.ToInt(ref sourceChannel); break;
-                case "f": flip = data.ToBool(); break;
-            }
-        }
-
-        public CfgEncoder Encode() => new CfgEncoder()
-            .Add_IfNotZero("s", _sourceRole)
-            .Add_IfNotZero("c", sourceChannel)
-            .Add_Bool("f", flip);
-        
-
-        #endregion
+        public TextureRole Role { get => TextureRole.All[_sourceRole];  set => _sourceRole = value.index; }
 
         #region Inspect
 
@@ -456,9 +232,7 @@ namespace PlaytimePainter.CameraModules
 
         #endregion
 
-        public const string StdTag = "TexChan";
     }
-
 
     public abstract class TextureRole : IGotDisplayName
     {
@@ -599,7 +373,6 @@ namespace PlaytimePainter.CameraModules
             }
             return mipLevels;
         }
-
 
         public bool Inspect(ref int selectedChannel, TextureChannel tc)
         {
@@ -935,5 +708,6 @@ namespace PlaytimePainter.CameraModules
             return pixels;
         }
     }
+
 }
 

@@ -28,13 +28,13 @@ namespace PlayerAndEditorGUI {
         public const int kor = (int)SystemLanguage.Korean;
         public const int ptg = (int)SystemLanguage.Portuguese;*/
 
-        public static LazyTranslation Get(this Msg msg, int lang)
+        public static LazyTranslation Get(this Msg msg)
         {
 
             int index = (int)msg;
 
             if (coreTranslations.Initialized(index))
-                return coreTranslations.GetWhenInited(index, lang);
+                return coreTranslations.GetWhenInited(index);
 
             switch (msg)
             {
@@ -133,12 +133,12 @@ namespace PlayerAndEditorGUI {
                     
             }
 
-            return coreTranslations.GetWhenInited(index, lang);
+            return coreTranslations.GetWhenInited(index);
         }
 
 
 
-        public static int _systemLanguage = -1;
+
         
 
 
@@ -163,17 +163,6 @@ namespace PlayerAndEditorGUI {
 
         #region Inspector
 
-        private static readonly List<int> supportedLanguages = new List<int> {eng};
-
-        public static bool LanguageSelection() {
-            if (_systemLanguage == -1)
-                InitSystemLanguage();
-
-            "Language".editEnum<SystemLanguage>(60, ref _systemLanguage, supportedLanguages).nl();
-            
-            return false;
-        }
-
         public static bool DocumentationClick(this LazyTranslation trnsl) => pegi.FullWindow.DocumentationClickOpen(trnsl.details, toolTip: trnsl.text);
 
         public static bool WarningDocumentation(this LazyTranslation trnsl) => pegi.FullWindow.DocumentationWarningClickOpen(trnsl.details, trnsl.text);
@@ -190,7 +179,7 @@ namespace PlayerAndEditorGUI {
 
             public Countless<LazyTranslation> this[int ind] => pntrTexts[ind];
 
-            public LazyTranslation GetWhenInited(int ind, int lang)
+            public LazyTranslation GetWhenInited(int ind, int lang = 0)
             {
 
                 textInitialized[ind] = true;
@@ -221,8 +210,6 @@ namespace PlayerAndEditorGUI {
         
         #region Implementation of Extensions
         
-        public static void InitSystemLanguage() => _systemLanguage = (int)Application.systemLanguage;
-
         static TranslationsEnum coreTranslations = new TranslationsEnum();
 
         static Countless<LazyTranslation> Translate(this Msg smg, string english)
@@ -239,14 +226,6 @@ namespace PlayerAndEditorGUI {
             return org;
         }
 
-        private static LazyTranslation Get(this Msg msg)
-        {
-            if (_systemLanguage == -1)
-                InitSystemLanguage();
-
-            return msg.Get(_systemLanguage);
-        }
-
         public static string GetText(this Msg s)
         {
             var lt = s.Get();
@@ -259,31 +238,10 @@ namespace PlayerAndEditorGUI {
             return lt != null ? lt.details : msg.ToString();
         }
 
-        public static string GetIn(this Msg s, int l)
-        {
-            var lt = s.Get(l);
-
-            if (lt == null)
-            {
-                coreTranslations[(int)s][l] = new LazyTranslation(s.ToString());
-
-                lt = s.Get(l);
-            }
-
-            return lt.text;
-        }
-        
-        static LazyTranslation GetLt(this Msg msg)
-        {
-            if (_systemLanguage == -1)
-                InitSystemLanguage();
-
-            return msg.Get(_systemLanguage);
-        }
-        
+             
         public static string F(this Msg msg, Msg other) =>
             msg.GetText() + " " + other.GetText();
-        public static bool DocumentationClick(this Msg msg) => msg.GetLt().DocumentationClick();
+        public static bool DocumentationClick(this Msg msg) => msg.Get().DocumentationClick();
         public static void Nl(this Msg m) { m.GetText().nl(); }
         public static void Nl(this Msg m, int width) { m.GetText().nl(width); }
         public static void Nl(this Msg m, string tip, int width) { m.GetText().nl(tip, width); }

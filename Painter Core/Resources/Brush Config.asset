@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1acc62600647ff042960482542bac640, type: 3}
+  m_Name: Brush Config
+  m_EditorClassIdentifier: 
+  brush:
+    _inGpuBrushType: 0
+    _inCpuBrushType: 0
+    _inGpuBlitMode: 0
+    _inCpuBlitMode: 0
+    targetIsTex2D: 0
+    selectedSourceTexture: 0
+    clampSourceTexture: 0
+    ignoreSrcTextureTransparency: 0
+    srcColorUsage: 0
+    useMask: 0
+    selectedSourceMask: 0
+    maskFromGreyscale: 0
+    maskOffset: {x: 0, y: 0}
+    randomMaskOffset: 0
+    flipMaskAlpha: 0
+    maskTiling: 1
+    mask: 7
+    selectedDecal: 0
+    decalAngle: 0
+    rotationMethod: 0
+    decalContentious: 0
+    decalAngleModifier: 0
+    showBrushDynamics: 0
+    hardness: 256
+    blurAmount: 1
+    brush3DRadius: 16
+    brush2DRadius: 16
+    useAlphaBuffer: 0
+    alphaLimitForAlphaBuffer: 1
+    worldSpaceBrushPixelJitter: 0
+    Color: {r: 0, g: 1, b: 0, a: 1}
+    _dFlow:
+      min: 0.1
+      max: 4.5
+      _value: 3
+    showingSize: 1

@@ -1717,7 +1717,7 @@ namespace PlaytimePainter
             if (Application.isPlaying && IsEditingThisMesh)
                 MeshEditorManager.Inst.DRAW_Lines(false);
 
-            if (GlobalBrush.previewDirty)
+            if (GlobalBrush!=null && GlobalBrush.previewDirty)
                 TexMgmt.SHADER_BRUSH_UPDATE(PaintCommand);
 
             if (textureWasChanged)

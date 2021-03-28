@@ -21,7 +21,7 @@ namespace PlayerAndEditorGUI {
         
         static TranslationsEnum painterTranslations = new TranslationsEnum();
 
-        public static LazyTranslation Get(this MsgPainter msg, int lang) {
+        public static LazyTranslation Get(this MsgPainter msg, int lang = 0) {
 
             int index = (int) msg;
 
@@ -367,15 +367,6 @@ namespace PlayerAndEditorGUI {
         {
             var lt = msg.Get();
             return lt != null ? lt.details : msg.ToString();
-        }
-
-        static LazyTranslation Get(this MsgPainter msg)
-        {
-
-            if (_systemLanguage == -1)
-                InitSystemLanguage();
-
-            return msg.Get(_systemLanguage);
         }
 
         static Countless<LazyTranslation> Translate(this MsgPainter smg, string english)

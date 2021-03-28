@@ -10,6 +10,12 @@ namespace PlaytimePainter.UI
 
     public class InvisibleUIGraphic : Graphic, IPEGI
     {
+        public override void SetMaterialDirty() { return; }
+        public override void SetVerticesDirty() { return; }
+        public override bool Raycast(Vector2 sp, Camera eventCamera) => true;
+        protected override void OnPopulateMesh(VertexHelper vh) => vh.Clear();
+
+
         public bool Inspect()
         {
             var ico = raycastTarget;
@@ -18,8 +24,6 @@ namespace PlaytimePainter.UI
             return false;
         }
 
-        public override bool Raycast(Vector2 sp, Camera eventCamera) => true;
-        protected override void OnPopulateMesh(VertexHelper vh) => vh.Clear();
     }
     
 #if UNITY_EDITOR

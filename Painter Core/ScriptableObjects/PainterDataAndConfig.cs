@@ -5,6 +5,7 @@ using PlayerAndEditorGUI;
 using PlaytimePainter.CameraModules;
 using PlaytimePainter.ComponentModules;
 using PlaytimePainter.MeshEditing;
+using PlaytimePainter.TexturePacking;
 using QuizCannersUtilities;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -21,7 +22,7 @@ namespace PlaytimePainter
 
 
 
-    [CreateAssetMenu(fileName = "Painter Config", menuName = "Playtime Painter/Config")]
+    [CreateAssetMenu(fileName = "Painter Config", menuName = "Playtime Painter/Painter Config")]
     public class PainterDataAndConfig : ScriptableObject, ICfgCustom, IPEGI
     {
         private static PlaytimePainter Painter => PlaytimePainter.inspected;
@@ -89,7 +90,6 @@ namespace PlaytimePainter
         [NonSerialized] public Shader previewMesh;
         [NonSerialized] public Shader previewBrush;
         [NonSerialized] public Shader previewTerrain;
-
 
         public void CheckShaders(bool forceReload = false)
         {
@@ -192,8 +192,7 @@ namespace PlaytimePainter
 
         #region DataLists
 
-        public List<TextureSetForCombinedMaps> textureSets = new List<TextureSetForCombinedMaps>();
-        public List<TexturePackagingProfile> texturePackagingSolutions = new List<TexturePackagingProfile>();
+       public List<TextureMapCombineProfile> texturePackagingSolutions = new List<TextureMapCombineProfile>();
 
         public List<AtlasTextureCreator> atlases = new List<AtlasTextureCreator>();
         public List<MaterialAtlases> atlasedMaterials = new List<MaterialAtlases>();
@@ -302,7 +301,11 @@ namespace PlaytimePainter
         public string atlasFolderName = "Atlases";
 
         public bool enablePainterUIonPlay;
-        public Brush Brush;
+        public BrushConfigScriptableObject BrushConfig;
+
+        [NonSerialized] private Brush _defaultBrush = new Brush();
+        public Brush Brush => BrushConfig ? BrushConfig.brush : _defaultBrush;
+        
         public bool showColorSliders = true;
         public bool disableNonMeshColliderInPlayMode;
 
@@ -481,7 +484,7 @@ namespace PlaytimePainter
 
         #region Inspector
         
-        [SerializeField] private int systemLanguage = -1;
+      
 
         public static bool hideDocumentation;
 
@@ -497,6 +500,13 @@ namespace PlaytimePainter
             var changed = pegi.toggleDefaultInspector(this);
 
             pegi.nl();
+
+            if (!BrushConfig) 
+            {
+                "Brush Config not found, create {0} from context menu".F(BrushConfigScriptableObject.FILE_NAME).writeWarning();
+
+                "Brush Config".edit(ref BrushConfig).nl();
+            }
 
             if ("Lists".enter(ref inspectedItems, 11).nl(ref changed))
                 InspectLists().changes(ref changed);
@@ -559,7 +569,6 @@ namespace PlaytimePainter
 
                 pegi.nl();
                 
-                LazyLocalization.LanguageSelection().nl();
                 #endif
 
             }
@@ -616,11 +625,6 @@ namespace PlaytimePainter
         public void ManagedOnEnable()
         {
             Decode(stdData);
-            //this.LoadCfgData();
-           //Decode(stdData);
-
-            if (Brush == null)
-                Brush = new Brush();
 
             if (meshPackagingSolutions.IsNullOrEmpty())
                 ResetMeshPackagingProfiles();
@@ -645,8 +649,7 @@ namespace PlaytimePainter
                 }
             }
 
-            if (systemLanguage != -1)
-                LazyLocalization._systemLanguage = systemLanguage;
+          
         }
 
         public void ManagedOnDisable() {
@@ -663,8 +666,6 @@ namespace PlaytimePainter
 
             stdData = Encode().CfgData;
             
-            systemLanguage = LazyLocalization._systemLanguage;
-
 #if UNITY_EDITOR
             if (!defaultMaterial)
                 defaultMaterial = AssetDatabase.GetBuiltinExtraResource<Material>("Default-Material.mat");
