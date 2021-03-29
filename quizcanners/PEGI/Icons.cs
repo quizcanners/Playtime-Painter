@@ -15,7 +15,7 @@ namespace PlayerAndEditorGUI {
         Alpha, Active, Add, Animation, Audio,
         Back, Book,
         Close, Condition, Config, Copy, Cut, Create, Clear, CPU, GPU,
-        Discord, Delete, Done, Docs, Download, Down, DownLast, Debug, DeSelectAll,
+        Discord, Delete, Done, Docs, Download, Down, DownLast, Debug, DeSelectAll, Dice,
         Edit, Enter, Exit, Email, Empty,
         False, FoldedOut, Folder,
         NewMaterial, NewTexture, Next,
