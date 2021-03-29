@@ -7,9 +7,6 @@ using QuizCannersUtilities;
 using UnityEngine;
 
 namespace PlaytimePainter {
-#pragma warning disable IDE0034 // Simplify 'default' expression
-#pragma warning disable IDE0019 // Use pattern matching
-#pragma warning disable IDE0018 // Inline variable declaration
 
     namespace CameraModules
     {
@@ -290,7 +287,7 @@ namespace PlaytimePainter {
                 foreach (var p in pix)
                     avg += p;
 
-                var pcam = PainterCamera.GetOrCreateProjectorCamera();
+                PainterCamera.GetOrCreateProjectorCamera();
 
                 GlobalBrush.Color = avg / pixelsCount;
 
@@ -509,13 +506,9 @@ namespace PlaytimePainter {
 
             private int _exploredVolume;
 
-            public bool Inspect()
+            public void Inspect()
             {
-                var changes = false;
-
-                "Volumes".edit_List(ref VolumeTexture.all, ref _exploredVolume).changes(ref changes);
-
-                return changes;
+                "Volumes".edit_List(ref VolumeTexture.all, ref _exploredVolume);
             }
 
             public bool PlugIn_PainterGizmos(PlaytimePainter painter)
@@ -601,12 +594,7 @@ namespace PlaytimePainter {
                 return true;
             }
 
-            public override bool Inspect()
-            {
-                "Volume Texture:".edit(ref volumeTexture).nl();
-
-                return false;
-            }
+         
 
             #region Encode & Decode
 
@@ -623,6 +611,13 @@ namespace PlaytimePainter {
                 }
             }
             #endregion
+
+
+            public override void Inspect()
+            {
+                "Volume Texture:".edit(ref volumeTexture).nl();
+            }
+
 
         }
     }

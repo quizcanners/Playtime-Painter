@@ -87,7 +87,7 @@ namespace QuizCannersUtilities
         private bool _enterElementDatas;
         public bool inspectListMeta = false;
 
-        public bool Inspect() {
+        public void Inspect() {
 
             pegi.nl();
             if (!_enterElementDatas) {
@@ -100,8 +100,6 @@ namespace QuizCannersUtilities
 
             if ("Elements".enter(ref _enterElementDatas).nl())
                 elementDatas.Inspect();
-
-            return false;
         }
 
         public bool Inspect<T>(List<T> list) where T : Object {
@@ -242,16 +240,10 @@ namespace QuizCannersUtilities
             set => name = value;
         }
 
-        public bool Inspect()
+        public void Inspect()
         {
-        
-           // if (unrecognized)
-              //  "Was unrecognized under tag {0}".F(unrecognizedUnderTag).writeWarning();
-
             if (_perTypeConfig.Count > 0)
                 "Per type config".edit_Dictionary(ref _perTypeConfig, pegi.lambda_cfg).nl();
-
-            return false;
         }
 
         public bool SelectType(ref object obj, TaggedTypesCfg all, bool keepTypeConfig = false)
@@ -320,7 +312,7 @@ namespace QuizCannersUtilities
             return changed;
         }
         */
-        public bool PEGI_inList<T>(ref object obj, int ind, ref int edited) {
+        public bool PEGI_inList<T>(ref object obj) {
 
             var changed = false;
 
@@ -508,7 +500,7 @@ namespace QuizCannersUtilities
                 set { tag = value; }
             }
 
-            public bool Inspect()
+            public void Inspect()
             {
                 if (_tags == null && data.ToString().Contains("|"))
                     Decode(data);
@@ -518,9 +510,11 @@ namespace QuizCannersUtilities
 
                 if (inspectedTag == -1)
                 {
+                    var changes = pegi.ChangeTrackStart();
                     //"data".edit(40, ref data).changes(ref dirty);
-                    data.Inspect().changes(ref dirty);
+                    data.Inspect();
 
+                    dirty |= changes;
                    /* UnityEngine.Object myType = null;
 
                     if (pegi.edit(ref myType))
@@ -547,11 +541,9 @@ namespace QuizCannersUtilities
 
 
                 pegi.nl();
-
-                return dirty;
             }
 
-            public bool InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(IList list, int ind, ref int edited)
             {
 
                 bool changed = false;
@@ -568,7 +560,7 @@ namespace QuizCannersUtilities
                 else
                 {
                     pegi.edit(ref tag).changes(ref dirty);
-                    data.Inspect().changes(ref dirty);
+                    data.Inspect(); //.changes(ref dirty);
                     //pegi.edit(ref data).changes(ref dirty);
                 }
 
@@ -584,7 +576,6 @@ namespace QuizCannersUtilities
                     data = new CfgData(CfgExtensions.copyBufferValue);
                 }
 
-                return dirty | changed;
             }
 
             #endregion
@@ -634,7 +625,7 @@ namespace QuizCannersUtilities
 
             public int CountForInspector() => dataExplorer.CountForInspector();
 
-            public bool Inspect()
+            public void Inspect()
             {
                 bool changed = false;
 
@@ -672,11 +663,9 @@ namespace QuizCannersUtilities
                 }
 
                 dataExplorer.Nested_Inspect().changes(ref changed);
-
-                return changed;
             }
 
-            public bool InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(IList list, int ind, ref int edited)
             {
                 var changed = false;
 
@@ -698,8 +687,6 @@ namespace QuizCannersUtilities
 
                 if (icon.Enter.Click(comment))
                     edited = ind;
-
-                return changed;
             }
 
             #endregion

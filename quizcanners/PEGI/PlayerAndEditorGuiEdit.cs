@@ -14,12 +14,10 @@ using Object = UnityEngine.Object;
 
 // ReSharper disable InconsistentNaming
 #pragma warning disable IDE1006 // Naming Styles
-#pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 #pragma warning disable IDE0011 // Add braces
 #pragma warning disable IDE0008 // Use explicit type
-#pragma warning disable IDE0009 // Member access should be qualified.
 
 namespace PlayerAndEditorGUI
 {
@@ -27,6 +25,39 @@ namespace PlayerAndEditorGUI
     {
 
         #region Changes 
+
+        public class ChangesToken 
+        {
+            private bool _wasAlreadyChanged;
+            public bool Changed 
+            {
+                get => !_wasAlreadyChanged && ef.globChanged;
+                set 
+                {
+                    if (value)
+                    {
+                        _wasAlreadyChanged = false;
+                        ef.globChanged = true;
+                    }
+
+                    if (!value) 
+                    {
+                        _wasAlreadyChanged = true;
+                    }
+                }
+            }
+
+            public static implicit operator bool(ChangesToken me) => me.Changed;
+            
+            internal ChangesToken() 
+            {
+                _wasAlreadyChanged = ef.globChanged;
+            }
+        }
+
+     
+
+        public static ChangesToken ChangeTrackStart() => new ChangesToken();
 
         public static bool changes(this bool value, ref bool changed)
         {
@@ -729,7 +760,7 @@ namespace PlayerAndEditorGUI
 
         }
 
-        public static bool select_SameClass<T, G>(ref T val, List<G> lst, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true) where T : class where G : class
+        public static bool select_SameClass<T, G>(ref T val, List<G> lst, bool showIndex = false, bool allowInsert = true) where T : class where G : class
         {
             var changed = false;
             var same = typeof(T) == typeof(G);
@@ -4060,8 +4091,7 @@ namespace PlayerAndEditorGUI
 
         public static bool Try_NameInspect(object obj, string label = "", string tip = "")
         {
-            bool could;
-            return obj.Try_NameInspect(out could, label, tip);
+            return obj.Try_NameInspect(out _, label, tip);
         }
 
         private static bool Try_NameInspect(this object obj, out bool couldInspect, string label = "", string tip = "")
@@ -4100,12 +4130,10 @@ namespace PlayerAndEditorGUI
             return changed;
         }
 
-        public static bool inspect_Name(this IGotName obj) => obj.inspect_Name("", obj.GetNameForInspector());
-
-        public static bool inspect_Name(this IGotName obj, string label) => obj.inspect_Name(label, label);
+        public static bool inspect_Name(this IGotName obj) => obj.inspect_Name("");
 
         private static bool focusPassedToTheNext = false;
-        public static bool inspect_Name(this IGotName obj, string label, string hint)
+        public static bool inspect_Name(this IGotName obj, string label)
         {
 
             var n = obj.NameForPEGI;

@@ -125,7 +125,10 @@ namespace QuizCannersUtilities
                 GameObject go;
 
                 if (typeof(T).IsSubclassOf(typeof(MonoBehaviour)))
-                    go = (obj as MonoBehaviour)?.gameObject;
+                {
+                    var mb = (obj as MonoBehaviour);
+                    go = mb ? mb.gameObject : null;
+                }
                 else go = obj as GameObject;
 
                 if (go)
@@ -282,14 +285,12 @@ namespace QuizCannersUtilities
                 (Math.Abs(_intervalInSeconds - 1d) > float.Epsilon) ? _intervalInSeconds.ToString("0") : "", (int)_minYieldsPerInterval,
                 (int)_maxYieldsPerInterval, (int)_totalIntervalsProcessed);
 
-            public bool InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(IList list, int ind, ref int edited)
             {
                 if (icon.Refresh.Click("Reset Stats"))
                     ResetStats();
                 
                 NameForDisplayPEGI().write();
-                
-                return false;
             }
 
             #endregion
@@ -309,7 +310,7 @@ namespace QuizCannersUtilities
 
             private bool _showAdditionalOptions;
 
-            public bool Inspect()
+            public void Inspect()
             {
                 pegi.nl();
 
@@ -390,7 +391,6 @@ namespace QuizCannersUtilities
 
                 pegi.nl();
 
-                return false;
             }
 
 
@@ -662,7 +662,7 @@ namespace QuizCannersUtilities
 
             private bool _showRange;
 
-            public bool Inspect()
+            public void Inspect()
             {
                 var changed = false;
                 var rangeChanged = false;
@@ -743,9 +743,6 @@ namespace QuizCannersUtilities
 
 
                 }
-
-
-                return changed | rangeChanged;
             }
 
             #endregion
@@ -949,7 +946,7 @@ namespace QuizCannersUtilities
         
         public static string ToMegabytes(this long bytes)
         {
-            bytes = (bytes >> 10);
+            bytes >>= 10;
             bytes /= 1024; // On new line to workaround IL2CPP bug
             return "{0} Mb".F(bytes.ToString());
         }
@@ -959,7 +956,4 @@ namespace QuizCannersUtilities
 
     }
 
-#pragma warning restore IDE0034 // Simplify 'default' expression
-#pragma warning restore IDE0019 // Use pattern matching
-#pragma warning restore IDE0018 // Inline variable declaration
 }

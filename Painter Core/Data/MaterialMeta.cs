@@ -59,16 +59,14 @@ namespace PlaytimePainter {
 
         #region Inspector
 
-        public bool InspectInList(IList list, int ind, ref int edited)
+        public void InspectInList(IList list, int ind, ref int edited)
         {
             pegi.write(material);
             if (icon.Enter.Click())
                 edited = ind;
-
-            return false;
         }
         
-        public bool Inspect() {
+        public void Inspect() {
 
             var changed = false;
             
@@ -104,8 +102,6 @@ namespace PlaytimePainter {
                     //"Colors".write_List(colorFields).nl();
                 }
             }
-
-            return false;
         }
         
         #endregion

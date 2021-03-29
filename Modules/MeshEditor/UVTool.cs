@@ -54,7 +54,7 @@ namespace PlaytimePainter.MeshEditing
                                          "It is recommended to Set all vertices Unique (with Add & Move tool) before applying UVs. And after, merge them if UVs are same." +
                                          "You project UV and adjust by dragging individual vertices (UVs will change, not the position)."  ;
         
-        public override bool Inspect() {
+       public override void Inspect() {
 
             var changed = false;
 
@@ -111,7 +111,6 @@ namespace PlaytimePainter.MeshEditing
                 pegi.nl();
             }
 
-            return changed;
 
         }
      
@@ -121,7 +120,7 @@ namespace PlaytimePainter.MeshEditing
         {
             if (!projectionUv) return;
 
-            var m = MeshMGMT;
+           // var m = MeshMGMT;
 
             if (!MeshEditorManager.target || EditedMesh.meshPoints.IsNullOrEmpty()) return;
 
@@ -165,7 +164,7 @@ namespace PlaytimePainter.MeshEditing
                     break;
             }
 
-            uv = (uv + offset);
+            uv += offset;
 
             uv.Scale(tiling);
 

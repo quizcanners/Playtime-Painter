@@ -51,11 +51,8 @@ namespace PlaytimePainter.MeshEditing
         #region Inspect
         public string NameForPEGI { get { return name; } set { name = value;  } }
         
-        public virtual bool Inspect()
+        public virtual void Inspect()
         {
-            var changed = false;
-
-
 
             "Profile Name: ".editDelayed(80, ref name);
 
@@ -69,13 +66,13 @@ namespace PlaytimePainter.MeshEditing
             }
 
 
-       
-            #endif
 
-            foreach (var s in dtaLnks) 
-                s.Inspect().nl(ref changed);
+#endif
 
-            return changed;
+            foreach (var s in dtaLnks)
+            {
+                s.Nested_Inspect().nl();
+            }
         }
        
         #endregion
@@ -176,7 +173,7 @@ namespace PlaytimePainter.MeshEditing
 
         public virtual string GetFieldName(int ind)
         {
-            ind = ind % 4;
+            ind %= 4;
 
             switch (ind)
             {
@@ -184,9 +181,8 @@ namespace PlaytimePainter.MeshEditing
                 case 1: return "y";
                 case 2: return "z";
                 case 3: return "w";
+                default: return "Error";
             }
-
-            return "Error";
         }
 
         public VertexDataLink GetMySolution()
@@ -211,7 +207,7 @@ namespace PlaytimePainter.MeshEditing
 
         public virtual string GetFieldName(int ind)
         {
-            ind = ind % 4;
+            ind %= 4;
 
             switch (ind)
             {
@@ -325,13 +321,14 @@ namespace PlaytimePainter.MeshEditing
 
         #region Inspector
 
-        public virtual bool Inspect()
+        public virtual void Inspect()
         {
             var changed = false;
 
             (Destination.GetNameForInspector() + ":").toggle(80, ref enabled).changes(ref changed);
 
-            if (!enabled) return changed;
+            if (!enabled) 
+                return;
 
             var tps = VertexDataTypes.GetTypesBySize(links.Count);
             var nms = new string[tps.Count + 1];
@@ -378,7 +375,6 @@ namespace PlaytimePainter.MeshEditing
             }
             "**************************************************".nl();
 
-            return changed;
         }
 
         #endregion
@@ -912,7 +908,6 @@ namespace PlaytimePainter.MeshEditing
 
         private class VertexSharpNormal : VertexDataSource
         {
-            private static VertexSharpNormal inst;
             private const int dataSize = 3;
 
             Vector3[] v3norms;
@@ -940,7 +935,6 @@ namespace PlaytimePainter.MeshEditing
             
             public VertexSharpNormal(int index) : base(dataSize, index)
             {
-                inst = this;
             }
 
         }
@@ -1034,7 +1028,6 @@ namespace PlaytimePainter.MeshEditing
 
         public class VertexShadow : VertexDataSource
         {
-            private static VertexShadow inst;
             private const int dataSize = 4;
 
             Vector4[] _shadows;
@@ -1061,7 +1054,6 @@ namespace PlaytimePainter.MeshEditing
             
             public VertexShadow(int index) : base(dataSize, index)
             {
-                inst = this;
             }
 
             public override void Clear() => _shadows = null;
@@ -1136,7 +1128,6 @@ namespace PlaytimePainter.MeshEditing
 
         public class VertexEdge : VertexDataSource
         {
-            private static VertexEdge inst;
             const int dataSize = 4;
 
             private Vector4[] _edges;
@@ -1174,7 +1165,6 @@ namespace PlaytimePainter.MeshEditing
 
             public VertexEdge(int index) : base(dataSize, index)
             {
-                inst = this;
             }
 
             public override void Clear() => _edges = null;
@@ -1183,7 +1173,6 @@ namespace PlaytimePainter.MeshEditing
 
         public class VertexEdgeByWeight : VertexDataSource
         {
-            private static VertexEdgeByWeight inst;
             private const int dataSize = 3;
 
             Vector3[] edges;
@@ -1220,7 +1209,6 @@ namespace PlaytimePainter.MeshEditing
 
             public VertexEdgeByWeight(int index) : base(dataSize, index)
             {
-                inst = this;
             }
             public override void Clear()
             {
@@ -1230,7 +1218,6 @@ namespace PlaytimePainter.MeshEditing
 
         private class EdgeNormal0 : VertexDataSource
         {
-            private static EdgeNormal0 inst;
             private const int dataSize = 3;
 
             Vector3[] edges;
@@ -1271,7 +1258,6 @@ namespace PlaytimePainter.MeshEditing
 
             public EdgeNormal0(int index) : base(dataSize, index)
             {
-                inst = this;
             }
             public override void Clear() => edges = null;
             
@@ -1279,7 +1265,6 @@ namespace PlaytimePainter.MeshEditing
 
         public class EdgeNormal1 : VertexDataSource
         {
-            private static EdgeNormal1 inst;
             const int dataSize = 3;
 
             Vector3[] edges;
@@ -1322,7 +1307,6 @@ namespace PlaytimePainter.MeshEditing
 
             public EdgeNormal1(int index) : base(dataSize, index)
             {
-                inst = this;
             }
             public override void Clear() => edges = null;
             
@@ -1330,7 +1314,6 @@ namespace PlaytimePainter.MeshEditing
 
         public class EdgeNormal2 : VertexDataSource
         {
-            private static EdgeNormal2 inst;
             private const int dataSize = 3;
 
             private Vector3[] _edges;
@@ -1370,7 +1353,6 @@ namespace PlaytimePainter.MeshEditing
 
             public EdgeNormal2(int index) : base(dataSize, index)
             {
-                inst = this;
             }
 
             public override void Clear()

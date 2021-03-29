@@ -54,7 +54,7 @@ namespace PlaytimePainter.ComponentModules
 
         public virtual bool BrushConfigPEGI() => false;
 
-        public virtual bool Inspect() => false;
+        public virtual void Inspect() { }
         
         #endregion
     }

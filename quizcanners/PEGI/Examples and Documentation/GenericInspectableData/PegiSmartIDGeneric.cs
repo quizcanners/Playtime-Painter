@@ -95,7 +95,7 @@ namespace PlayerAndEditorGUI.Examples
         }
         
         #region Inspector
-        public virtual bool Inspect()
+        public virtual void Inspect()
         {
             var changed = false;
 
@@ -115,12 +115,10 @@ namespace PlayerAndEditorGUI.Examples
             else
                 (GetEnities() == null ? "No Prototypes" : "ID {0} not found in Prototypes".F(index)).nl();
 
-            return changed;
         }
 
-        public virtual bool InspectInList(IList list, int ind, ref int edited)
+        public virtual void InspectInList(IList list, int ind, ref int edited)
         {
-            var changed = false;
 
             "ID: {0} ".F(index).write(45);
 
@@ -134,7 +132,6 @@ namespace PlayerAndEditorGUI.Examples
             if (icon.Enter.ClickUnFocus())
                 edited = ind;
 
-            return changed;
         }
 
         public virtual string NameForDisplayPEGI()

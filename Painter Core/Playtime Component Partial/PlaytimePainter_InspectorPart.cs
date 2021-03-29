@@ -35,7 +35,7 @@ namespace PlaytimePainter
         public static int _inspectedMeshEditorItems = -1;
         private static int _inspectedShowOptionsSubitem = -1;
 
-        public bool Inspect()
+        public void Inspect()
         {
 
 #if UNITY_2019_1_OR_NEWER && UNITY_EDITOR
@@ -49,8 +49,6 @@ namespace PlaytimePainter
                 TrySetOriginalTexture();
 
                 SetOriginalShaderOnThis();
-
-                return false;
             }
 #endif
 
@@ -140,8 +138,6 @@ namespace PlaytimePainter
 
                     if ("Resubscribe camera to updates".Click())
                         TexMgmt.SubscribeToEditorUpdates();
-                    
-                    return changed;
                 }
 
                 selectedInPlaytime = this;
@@ -358,10 +354,11 @@ namespace PlaytimePainter
                             if (IsEditingThisMesh)
                             {
 
-
-
                                 if (_inspectedMeshEditorItems == -1)
-                                    MeshMgmt.Inspect().nl();
+                                {
+                                    MeshMgmt.Inspect(); 
+                                    pegi.nl();
+                                }
 
                                 if ("Profile".enter(ref _inspectedMeshEditorItems, 0))
                                 {
@@ -397,7 +394,7 @@ namespace PlaytimePainter
                                             pegi.nl();
 
 
-                                            if (mpf.Inspect().nl())
+                                            if (mpf.Nested_Inspect().nl())
                                             {
                                                 selectedMeshProfile = mpf.name;
                                                 MeshEditorManager.editedMesh.Dirty = true;
@@ -691,7 +688,7 @@ namespace PlaytimePainter
                             if (texMeta != null)
                             {
                                 texMeta.inspectedItems = inspectionIndex;
-                                texMeta.Inspect().changes(ref changed);
+                                texMeta.Nested_Inspect();
                             }
                             else _inspectedFancyItems = inspectionIndex;
 
@@ -1088,7 +1085,6 @@ namespace PlaytimePainter
 
             pegi.nl();
 
-            return changed;
         }
 
         public bool PreviewShaderToggleInspect()

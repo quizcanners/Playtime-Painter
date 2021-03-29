@@ -21,15 +21,12 @@ namespace PlaytimePainter
 
         public string NameForPEGI { get { return paletteName; } set { paletteName = value; } }
 
-        public bool InspectInList(IList list, int ind, ref int edited)
+        public void InspectInList(IList list, int ind, ref int edited)
         {
-
-            var changed = this.inspect_Name();
+            this.inspect_Name();
 
             if (icon.Enter.BgColor(_colors.TryGet(0).ToOpaque()).Click().RestoreBGColor())
                 edited = ind;
-
-            return changed;
         }
 
         Color EditColor(Color col)
@@ -46,13 +43,11 @@ namespace PlaytimePainter
             return col;
         }
 
-        public bool Inspect() {
+        public void Inspect() {
 
             var changed = false;
 
             paletteName.edit_List(ref _colors, EditColor).changes(ref changed);
-
-            return changed;
 
         }
 

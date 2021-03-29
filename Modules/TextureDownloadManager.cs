@@ -126,11 +126,9 @@ namespace PlaytimePainter
 
             #region Inspector
 
-            public bool InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(IList list, int ind, ref int edited)
             {
-                var changed = false;
-                Texture tex;
-                TryGetTexture(out tex);
+                TryGetTexture(out Texture tex);
 
 
 #if QC_USE_NETWORKING
@@ -165,7 +163,7 @@ namespace PlaytimePainter
 
                 }
 #else
-                    "QC_USE_NETWORKING is disabled (to prevent unwanted android permissions)".writeWarning();
+                "QC_USE_NETWORKING is disabled (to prevent unwanted android permissions)".writeWarning();
 
                     pegi.nl();
 
@@ -174,18 +172,14 @@ namespace PlaytimePainter
 
 #endif
                 _url.write();
-                return changed;
             }
 
-            public bool Inspect()
+            public void Inspect()
             {
-                Texture tex;
-                TryGetTexture(out tex);
+                TryGetTexture(out Texture tex);
 
-                if (_texture)
-                    _texture.write(200);
-
-                return false;
+                if (tex)
+                    tex.write(200);
             }
 
             #endregion
@@ -229,16 +223,15 @@ namespace PlaytimePainter
 
         int inspected = -1;
         string tmp = "";
-        public bool Inspect()
+        public void Inspect()
         {
 
-            var changed = "Textures and Requests".write_List(_loadedTextures, ref inspected);
+            "Textures and Requests".write_List(_loadedTextures, ref inspected);
 
             "URL".edit(30, ref tmp);
             if (tmp.Length > 0 && icon.Add.Click().nl())
                 StartDownload(tmp);
 
-            return changed;
         }
 
         #endregion

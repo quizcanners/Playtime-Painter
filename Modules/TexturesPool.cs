@@ -88,7 +88,7 @@ namespace PlaytimePainter
             width = Mathf.ClosestPowerOfTwo(width);
         }
 
-        public override bool Inspect()
+       public override void Inspect()
         {
             var changed = false;
 
@@ -102,7 +102,6 @@ namespace PlaytimePainter
 
             "Size:".selectPow2(ref width, 16, 4096).nl(ref changed);
 
-            return changed;
         }
     }
 

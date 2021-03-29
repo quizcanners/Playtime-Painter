@@ -9,7 +9,6 @@ namespace QuizCannersUtilities {
 
 
 #pragma warning disable IDE0034 // Simplify 'default' expression
-#pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 
     
@@ -150,15 +149,13 @@ namespace QuizCannersUtilities {
 
         public virtual bool IsDefault => count == 0;
         
-        public virtual bool Inspect()
+        public virtual void Inspect()
         {
             if ("Clear".Click().nl())
                 Clear();
             ("Depth: " + depth).nl();
             ("First free: " + firstFree).nl();
             "Count: {0}".F(count).nl();
-
-            return false;
         }
         #endregion
 
@@ -443,11 +440,12 @@ namespace QuizCannersUtilities {
             switch (key)
             {
                 case "inds":
-                    List<int> inds; data.ToList(out inds);
+                    List<int> inds;
+                    data.ToList(out inds);
                     foreach (int i in inds)
                         Set(i, true);
                     count = inds.Count;
-                    inds = null;
+                    //inds = null;
                     break;
                 case "last":  data.ToInt(ref lastFreeIndex); break;
             }
@@ -931,9 +929,9 @@ namespace QuizCannersUtilities {
         private int _edited = -1;
         private int _testIndex = 100;
 
-        public override bool Inspect()
+       public override void Inspect()
         {
-            var changed = base.Inspect();
+             base.Inspect();
 
             if (_edited == -1)
             {
@@ -966,7 +964,7 @@ namespace QuizCannersUtilities {
             }
             else
             {
-                if (icon.List.Click("Back to elements window", ref changed))
+                if (icon.List.Click("Back to elements window"))
                     _edited = -1;
                 else
                 {
@@ -975,7 +973,6 @@ namespace QuizCannersUtilities {
                         this[_edited] = (T)el;
                 }
             }
-            return changed;
         }
         
         #endregion

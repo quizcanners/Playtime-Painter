@@ -37,13 +37,13 @@ namespace PlayerAndEditorGUI
                     if (InGameView)
                     {
                         if (InList)
-                            return playtimeInList ?? (playtimeInList = generator());
-                        return playtime ?? (playtime = generator());
+                            return playtimeInList ??= generator();
+                        return playtime ??= generator();
                     }
 
                     if (InList)
-                        return editorGuiInList ?? (editorGuiInList = generator());
-                    return editorGui ?? (editorGui = generator());
+                        return editorGuiInList ??= generator();
+                    return editorGui ??= generator();
                 }
             }
 
@@ -56,7 +56,7 @@ namespace PlayerAndEditorGUI
 
             private int _inspectedProperty = -1;
 
-            bool IPEGI.Inspect()
+            public void Inspect()
             {
                 var cur = Current;
 
@@ -84,10 +84,8 @@ namespace PlayerAndEditorGUI
 
                     if (pegi.edit(ref mar, -15, 15).nl())
                         cur.margin = mar;
-
                 }
 
-                return false;
             }
             #endregion
         }
@@ -278,10 +276,6 @@ namespace PlayerAndEditorGUI
             return style;
         }
 
-
-        private static GUIStyle testListLabel;
-        private static GUIStyle testImageButton;
-        private static GUISkin skin;
 
         private static int _inspectedFont = -1;
         private static int _iteratiedFont;

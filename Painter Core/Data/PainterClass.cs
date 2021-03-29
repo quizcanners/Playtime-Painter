@@ -13,7 +13,7 @@ namespace PlaytimePainter
     {
         public UnrecognizedTagsList UnrecognizedStd { get; } = new UnrecognizedTagsList();
         
-        public virtual bool Inspect() => UnrecognizedStd.Nested_Inspect();
+        public virtual void Inspect() => UnrecognizedStd.Nested_Inspect();
       
     }*/
     
@@ -50,7 +50,7 @@ namespace PlaytimePainter
         protected static Transform CurrentViewTransform(Transform defaultTransform = null) =>
             PainterClass.CurrentViewTransform(defaultTransform);
 
-        public virtual bool Inspect() => false; // _uTags.Inspect();  
+        public virtual void Inspect() { } // _uTags.Inspect();  
 
     }
     

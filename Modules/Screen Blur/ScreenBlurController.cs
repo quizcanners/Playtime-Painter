@@ -10,16 +10,16 @@ namespace PlaytimePainter
     [ExecuteInEditMode]
     public class ScreenBlurController : MonoBehaviour, IPEGI
     {
-        [SerializeField] public Camera MyCamera;
+        public Camera MyCamera;
 
-        [SerializeField] protected Shader copyShader;
-        [SerializeField] protected Shader postProcessShader;
-        [SerializeField] protected PostProcessMethod postProcessMethod;
-        [SerializeField] protected int postProcessIteration = 100;
-        [SerializeField] protected Material materialPrototype;
-        [SerializeField] public bool allowScreenGrabToRt;
-        [SerializeField] public bool mousePositionToShader;
-        [SerializeField] public bool useSecondBufferForRenderTextureScreenGrab;
+        protected Shader copyShader;
+        protected Shader postProcessShader;
+        protected PostProcessMethod postProcessMethod;
+        protected int postProcessIteration = 100;
+        protected Material materialPrototype;
+        public bool allowScreenGrabToRt;
+        public bool mousePositionToShader;
+        public bool useSecondBufferForRenderTextureScreenGrab;
 
         [NonSerialized] protected ProcessCommand command;
         [NonSerialized] protected BlurStep step = BlurStep.Off;
@@ -341,7 +341,7 @@ namespace PlaytimePainter
         private bool _showDebug;
         private bool _showDependencies;
 
-        public bool Inspect()
+        public void Inspect()
         {
             var changed = pegi.toggleDefaultInspector(this).nl();
 
@@ -474,8 +474,6 @@ namespace PlaytimePainter
                     pegi.nl();
                 }
             }
-
-            return changed;
         }
         #endregion
 

@@ -11,7 +11,7 @@ namespace PlayerAndEditorGUI.Examples
 
         public abstract string NameForPEGI { get; set; }
         
-        public virtual bool InspectInList(IList list, int ind, ref int edited)
+        public virtual void InspectInList(IList list, int ind, ref int edited)
         {
             var changed = false;
 
@@ -27,8 +27,6 @@ namespace PlayerAndEditorGUI.Examples
 
             if (icon.Enter.Click(ref changed))
                 edited = ind;
-            
-            return changed;
         }
     }
 }

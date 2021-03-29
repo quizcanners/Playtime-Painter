@@ -16,7 +16,7 @@ namespace PlayerAndEditorGUI.Examples
 
         private int _nestedExamples;
 
-        public bool Inspect()
+        public void Inspect()
         {
             var changed = false;
 
@@ -75,11 +75,6 @@ namespace PlayerAndEditorGUI.Examples
                 }
 
             }    
-
-
-
-
-            return changed;
 
         }
     }

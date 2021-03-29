@@ -28,7 +28,7 @@ namespace PlaytimePainter.TexturePacking
             TextureRole.Clear();
 
             int size;
-            var id = p?.TexMeta;
+            TextureMeta id = p ? p.TexMeta : null;
             Color[] dst;
             Texture2D tex = null;
 
@@ -126,7 +126,7 @@ namespace PlaytimePainter.TexturePacking
         }
 
         #region Inspector
-        public virtual bool Inspect() => Inspect(null);
+        public virtual void Inspect() => Inspect(null);
 
         public bool Inspect(TextureSetForCombinedMaps sets)
         {
@@ -211,7 +211,7 @@ namespace PlaytimePainter.TexturePacking
 
         #region Inspect
 
-        public virtual bool Inspect()
+        public virtual void Inspect()
         {
 
             var changed = false;
@@ -226,8 +226,6 @@ namespace PlaytimePainter.TexturePacking
                 rls[_sourceRole].Inspect(ref sourceChannel, this).changes(ref changed);
             }
             pegi.nl();
-
-            return changed;
         }
 
         #endregion
@@ -238,7 +236,7 @@ namespace PlaytimePainter.TexturePacking
     {
         private static List<TextureRole> _allRoles;
         public static List<TextureRole> All =>
-            _allRoles ?? (_allRoles = new List<TextureRole>
+            _allRoles ??= new List<TextureRole>
             {
                 new TextureRoleDiffuse(0),
                 new TextureRoleHeight(1),
@@ -248,7 +246,7 @@ namespace PlaytimePainter.TexturePacking
                 new TextureRoleAmbient(5),
                 new TextureRole_Gloss(6),
                 new TextureRoleReflectivity(7)
-            });
+            };
 
         public static void Clear()
         {

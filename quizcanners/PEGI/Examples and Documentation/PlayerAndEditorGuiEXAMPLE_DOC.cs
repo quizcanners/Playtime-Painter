@@ -40,10 +40,8 @@ namespace PlayerAndEditorGUI.Examples
 
         private int _selectedMenuOption = -1; //To split and group controls
 
-        public bool Inspect()
+        public void Inspect()
         {
-            var changed = false; // As a convention, all Inspection function return True if value was changed by user.
-
             if (_selectedMenuOption == -1)
             {
                 pegi.toggleDefaultInspector(target: this); "<---- use this to see default inspector".nl();
@@ -128,10 +126,6 @@ namespace PlayerAndEditorGUI.Examples
                                                            // otherwise changes may not be serialized.
                 }
             }
-
-            
-
-            return changed;
         }
 
         #endregion

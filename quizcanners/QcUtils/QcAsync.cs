@@ -44,8 +44,10 @@ namespace QuizCannersUtilities
 
         public static TimedEnumeration StartManagedCoroutine(IEnumerator enumerator, Action onDone = null)
         {
-            var enm = new TimedEnumeration(enumerator);
-            enm.onDoneFully = onDone;
+            var enm = new TimedEnumeration(enumerator)
+            {
+                onDoneFully = onDone
+            };
             enumerators.Insert(0, enm);
             return enm;
         }
@@ -535,7 +537,7 @@ namespace QuizCannersUtilities
 
             public string NameForPEGI { get; set; }
 
-            public bool InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(IList list, int ind, ref int edited)
             {
 
                 if (icon.Enter.Click())
@@ -554,10 +556,9 @@ namespace QuizCannersUtilities
                     ) // 4
                     .write(_state);
                 
-                return false;
             }
 
-            public bool Inspect()
+            public void Inspect()
             {
                 if (!Exited && !_stopAndCancel && "Stop & Cancel".Click().nl())
                     _stopAndCancel = true;
@@ -567,7 +568,6 @@ namespace QuizCannersUtilities
 
                 _state.writeBig();
 
-                return false;
             }
             #endregion
         }

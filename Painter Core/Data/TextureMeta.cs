@@ -512,7 +512,7 @@ namespace PlaytimePainter
 
             var curRt = RenderTexture.active;
 
-            var rtp = PainterCamera.Inst;
+          
             int size = RenderTextureBuffersManager.renderBuffersSize / 4;
             RenderTexture.active = renderTexture ? renderTexture : RenderTextureBuffersManager.GetDownscaledBigRt(size, size);
 
@@ -629,7 +629,7 @@ namespace PlaytimePainter
         {
             var tmpPixels = Pixels;
             int oldWidth = width;
-            int oldHeight = height;
+           // int oldHeight = height;
 
             Resize(width +2, height+2);
 
@@ -844,13 +844,13 @@ namespace PlaytimePainter
 
 
 
-        public bool Inspect() {
+        public void Inspect() {
 
             if (ProcessEnumerator != null) {
                 
                 "Running Coroutine".nl();
                 _processEnumerator.Inspect_AsInList();
-                return false;
+                return;
                 
             }
 
@@ -1224,8 +1224,6 @@ namespace PlaytimePainter
                 if (isAVolumeTexture)
                     "Is A volume texture".toggleIcon(ref isAVolumeTexture).nl(ref changed);
             }
-
-            return changed;
         }
 
         public bool ComponentDependent_PEGI(bool showToggles, PlaytimePainter painter)
@@ -1331,13 +1329,11 @@ namespace PlaytimePainter
             return changed;
         }
 
-        public bool InspectInList(IList list, int ind, ref int edited)
+        public void InspectInList(IList list, int ind, ref int edited)
         {
             pegi.write(texture2D);
             if (this.Click_Enter_Attention())
                 edited = ind;
-
-            return false;
         }
 
         public string NeedAttention()

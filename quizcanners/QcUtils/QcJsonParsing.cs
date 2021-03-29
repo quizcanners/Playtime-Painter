@@ -57,10 +57,13 @@ namespace QuizCannersUtilities
             
             if (!foldedOut)
                 return false;
-            
-            var changed = j.Inspect().nl();
+
+            var changed = pegi.ChangeTrackStart();
+            j.Inspect();
+            pegi.nl();
 
             return changed;
+            
         }
 
         [DerivedList(typeof(JsonString), typeof(JsonClass), typeof(JsonProperty), typeof(JsonList))]
@@ -103,7 +106,7 @@ namespace QuizCannersUtilities
 
             public JsonString(string data) { Data = data; }
 
-            public override bool Inspect()
+           public override void Inspect()
             {
                 var changed = false;
 
@@ -128,8 +131,6 @@ namespace QuizCannersUtilities
 
                 if (changed)
                     dataOnly = false;
-
-                return changed;
             }
 
             enum JsonDecodingStage { DataTypeDecision, ExpectingVariableName, ReadingVariableName, ExpectingTwoDots, ReadingData }
@@ -368,12 +369,11 @@ namespace QuizCannersUtilities
 
             public string NameForDisplayPEGI() => name + (data.HasNestedData ? "{}" : data.GetNameForInspector());
 
-            public override bool Inspect()
+           public override void Inspect()
             {
 
                 inspected = this;
 
-                var changed = false;
 
                 pegi.nl();
 
@@ -384,7 +384,7 @@ namespace QuizCannersUtilities
 
                     using (new PathAdd(NameForDisplayPEGI()))
                     {
-                        DecodeOrInspectJson(ref data, foldedOut, name).changes(ref changed);
+                        DecodeOrInspectJson(ref data, foldedOut, name);
                     }
                 }
                 else
@@ -393,8 +393,6 @@ namespace QuizCannersUtilities
                 pegi.nl();
 
                 inspected = null;
-
-                return changed;
             }
         }
 
@@ -411,10 +409,8 @@ namespace QuizCannersUtilities
 
             public string NameForDisplayPEGI() => "[{0}]".F(values.Count);
 
-            public override bool Inspect()
+           public override void Inspect()
             {
-
-                var changed = false;
 
                 using (new PathAdd(NameForDisplayPEGI()))
                 {
@@ -507,8 +503,6 @@ namespace QuizCannersUtilities
                 }
 
                 pegi.UnIndent();
-                
-                return changed;
             }
 
             public override bool DecodeAll(ref JsonBase thisJson)
@@ -553,9 +547,8 @@ namespace QuizCannersUtilities
 
             public override int CountForInspector() => properties.Count;
 
-            public override bool Inspect()
+           public override void Inspect()
             {
-                var changed = false;
 
                 pegi.Indent();
 
@@ -566,8 +559,6 @@ namespace QuizCannersUtilities
                 }
 
                 pegi.UnIndent();
-                
-                return changed;
             }
 
             public JsonClass()
@@ -608,7 +599,7 @@ namespace QuizCannersUtilities
 
             public virtual bool HasNestedData => true;
 
-            public abstract bool Inspect();
+            public abstract void Inspect();
             
         }
 
@@ -663,7 +654,7 @@ namespace QuizCannersUtilities
             }
         }
 
-        public bool Inspect()
+        public void Inspect()
         {
 
             pegi.nl();
@@ -685,7 +676,7 @@ namespace QuizCannersUtilities
 
             inspectedPath.Clear();
 
-            return DecodeOrInspectJson(ref rootJson, true);
+            DecodeOrInspectJson(ref rootJson, true);
         }
     }
 

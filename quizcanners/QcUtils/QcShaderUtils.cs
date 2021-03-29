@@ -60,12 +60,10 @@ namespace QuizCannersUtilities {
             #region Inspector
             public string NameForDisplayPEGI()=> name;
             
-            public bool InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(IList list, int ind, ref int edited)
             {
                 "Id: {0}".F(id).write(50);
                 name.write_ForCopy();
-               
-                return false;
             }
            
             #endregion
@@ -156,7 +154,7 @@ namespace QuizCannersUtilities {
 
             public void SetGlobal(T value) => GlobalValue = value;
 
-            public T GetGlobal(T value) => GlobalValue;
+            public T GetGlobal() => GlobalValue;
 
             protected IndexGeneric()
             {
@@ -309,7 +307,7 @@ namespace QuizCannersUtilities {
 
             protected override bool DirectiveEnabledForLastValue => latestValue.a > 0.01f;
 
-            public bool Inspect()
+            public void Inspect()
             {
 
                 var changed = false;
@@ -323,7 +321,6 @@ namespace QuizCannersUtilities {
                     GlobalValue = latestValue;
                 }
 
-                return changed;
             }
 
             public ColorFeature(string name, string featureDirective) : base(name, featureDirective) { }
@@ -646,13 +643,11 @@ namespace QuizCannersUtilities {
                 _name = name;
             }
 
-            public bool Inspect()
+            public void Inspect()
             {
                 var changed = false;
                 if (_name.toggleIcon(ref lastValue).changes(ref changed))
                     Enabled = lastValue;
-
-                return changed;
             }
         }
 

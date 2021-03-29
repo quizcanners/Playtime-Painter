@@ -17,12 +17,10 @@ using Object = UnityEngine.Object;
 
 // ReSharper disable InconsistentNaming
 #pragma warning disable IDE1006 // Naming Styles
-#pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 #pragma warning disable IDE0011 // Add braces
 #pragma warning disable IDE0008 // Use explicit type
-#pragma warning disable IDE0009 // Member access should be qualified.
 
 namespace PlayerAndEditorGUI
 {
@@ -128,7 +126,11 @@ namespace PlayerAndEditorGUI
                 {
                     var isPrefab = PrefabUtility.IsPartOfAnyPrefab(o);
 
-                    if (pgi.Inspect())
+                    var change = pegi.ChangeTrackStart();
+
+                    pgi.Inspect();
+
+                    if (change)
                         ClearFromPooledSerializedObjects(o);
 
                     if (globChanged && isPrefab)
@@ -190,8 +192,7 @@ namespace PlayerAndEditorGUI
                 if (!pegi.FullWindow.ShowingPopup())
                 {
                     start(so);
-                    var tmp = pgi.Inspect();
-                    globChanged |= tmp;
+                    pgi.Inspect();
                     end(o);
                 }
                 

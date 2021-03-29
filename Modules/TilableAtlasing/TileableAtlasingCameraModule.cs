@@ -68,7 +68,7 @@ namespace PlaytimePainter
 
             int InspectedItems = -1;
 
-            public bool Inspect()
+            public void Inspect()
             {
                 bool changed = false;
 
@@ -127,8 +127,6 @@ namespace PlaytimePainter
 
                 if (changed)
                     Cfg.SetToDirty();
-
-                return changed;
 
             }
 
@@ -202,7 +200,7 @@ namespace PlaytimePainter
         public override string Tooltip => "Select Texture Number and paint on triangles and lines.  Texture can be selected with number keys, and sampled with Ctrl+LMB." + Environment.NewLine 
                                         + "You need to use a special shader that has _isAtlased option";
         
-        public override bool Inspect()
+       public override void Inspect()
         {
 
             //"Edge Click as Chanel 2".toggle(ref atlasEdgeAsChanel2).nl();
@@ -219,7 +217,6 @@ namespace PlaytimePainter
                 ("Selected triangles uses Atlas Texture " + MeshMGMT.SelectedTriangle.textureNo[0]).nl();
             
             "Cntrl + LMB -> Sample Texture Index".writeHint();
-            return false;
         }
 
         #endregion

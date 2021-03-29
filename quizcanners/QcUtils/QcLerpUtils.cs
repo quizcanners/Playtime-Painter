@@ -86,18 +86,16 @@ namespace QuizCannersUtilities
 
         public int CountForInspector() => _resets;
         
-        public bool Inspect()
+        public void Inspect()
         {
             var changed = false;
 
             "Dominant Parameter".edit(ref dominantParameter).nl(ref changed);
 
             "Reboot calls".edit(ref _resets).nl(ref changed);
-
-            return changed;
         }
 
-        public bool InspectInList(IList list, int ind, ref int edited)
+        public void InspectInList(IList list, int ind, ref int edited)
         {
             "Lerp DP: {0} [{1}]".F(dominantParameter, _resets).write();
 
@@ -109,8 +107,6 @@ namespace QuizCannersUtilities
 
             if (icon.Enter.Click())
                 edited = ind;
-
-            return false;
         }
 
         #endregion
@@ -250,7 +246,7 @@ namespace QuizCannersUtilities
 
             #region Inspector
             
-            public virtual bool InspectInList(IList list, int ind, ref int edited)
+            public virtual void InspectInList(IList list, int ind, ref int edited)
             {
 
                 var changed = false;
@@ -281,18 +277,16 @@ namespace QuizCannersUtilities
 
                 if (icon.Enter.Click())
                     edited = ind;
-
-                return changed;
             }
 
-            public virtual bool Inspect()
+            public virtual void Inspect()
             {
 
                 NameForDisplayPEGI().write();
 
                 var changed = pegi.foldout(icon.Edit, "Will this config contain new parameters", ref allowChangeParameters).nl();
 
-                if (!allowChangeParameters) return changed;
+                if (!allowChangeParameters) return;
 
                 "Lerp Speed Mode ".editEnum(110, ref lerpMode).changes(ref changed);
 
@@ -312,10 +306,6 @@ namespace QuizCannersUtilities
                         //break;
                 }
 
-               // if (EaseInOutImplemented)
-                  //  "Ease In/Out".toggleIcon(ref easeInOut).nl(ref changed);
-
-                return changed;
             }
 
     
@@ -388,31 +378,32 @@ namespace QuizCannersUtilities
 
             #region Inspector
 
-            public override bool InspectInList(IList list, int ind, ref int edited)
+            public override void InspectInList(IList list, int ind, ref int edited)
             {
-                if (base.InspectInList(list, ind, ref edited))
-                {
-                    targetValue = CurrentValue;
-                    return true;
-                }
+                var change = pegi.ChangeTrackStart();
+                base.InspectInList(list, ind, ref edited);
 
-                return false;
+                if (change)
+                    targetValue = CurrentValue;
+                
             }
 
-            public override bool Inspect()
+           public override void Inspect()
             {
                 pegi.nl();
 
-                var changed = false;
+                var changed = pegi.ChangeTrackStart();
 
-                if (base.Inspect().nl(ref changed))
+                base.Inspect();
+                pegi.nl();
+
+                if (changed)
+                {
                     targetValue = CurrentValue;
+                }
 
                 if (lerpMode != LerpSpeedMode.LerpDisabled)
-                    "Target".edit(ref targetValue).nl(ref changed);
-
-
-                return changed;
+                    "Target".edit(ref targetValue).nl();
             }
 
             #endregion
@@ -478,31 +469,28 @@ namespace QuizCannersUtilities
 
             #region Inspector
 
-            public override bool InspectInList(IList list, int ind, ref int edited)
+            public override void InspectInList(IList list, int ind, ref int edited)
             {
-                if (base.InspectInList(list, ind, ref edited))
-                {
+                base.InspectInList(list, ind, ref edited);
+                
+                if (pegi.ChangeTrackStart())
                     targetValue = CurrentValue;
-                    return true;
-                }
-
-                return false;
             }
 
-            public override bool Inspect()
+           public override void Inspect()
             {
                 pegi.nl();
 
-                var changed = false;
+                var changed = pegi.ChangeTrackStart();
 
-                if (base.Inspect().nl(ref changed))
+                base.Inspect();
+                pegi.nl();
+
+                if (changed)
                     targetValue = CurrentValue;
 
                 if (lerpMode != LerpSpeedMode.LerpDisabled)
-                    "Target".edit(ref targetValue).nl(ref changed);
-
-
-                return changed;
+                    "Target".edit(ref targetValue).nl();
             }
 
             #endregion
@@ -555,12 +543,13 @@ namespace QuizCannersUtilities
 
             #region Inspect
             
-            public override bool Inspect()
+           public override void Inspect()
             {
-                var ret = base.Inspect();
+                base.Inspect();
+
                 if (Application.isPlaying)
                     "{0} => {1}".F(CurrentValue, TargetValue).nl();
-                return ret;
+            
             }
 
             #endregion
@@ -722,23 +711,21 @@ namespace QuizCannersUtilities
             
             #region Inspector
 
-            public override bool Inspect()
+           public override void Inspect()
             {
-                var changed = base.Inspect();
+                base.Inspect();
 
                 var tex = Current;
                 if (allowChangeParameters)
                 {
 
-                    "On Start:".editEnum(60, ref _onStart).nl(ref changed);
+                    "On Start:".editEnum(60, ref _onStart).nl();
 
-                    if ("Texture[{0}]".F(_targetTextures.Count).edit(90, ref tex).nl(ref changed))
+                    if ("Texture[{0}]".F(_targetTextures.Count).edit(90, ref tex).nl())
                         TargetTexture = tex;
 
                 }
                 else TargetTexture.write();
-
-                return changed;
             }
 
             #endregion
@@ -958,14 +945,11 @@ namespace QuizCannersUtilities
 
             #region Inspector
             
-            public override bool Inspect()
+            public override void Inspect()
             {
+                base.Inspect();
 
-                var changed = base.Inspect();
-
-                pegi.edit(ref targetValue).nl(ref changed);
-
-                return changed;
+                pegi.edit(ref targetValue).nl();
             }
 
             #endregion
@@ -1004,7 +988,7 @@ namespace QuizCannersUtilities
                 set { }
             }
             
-            public override bool InspectInList(IList list, int ind, ref int edited)
+            public override void InspectInList(IList list, int ind, ref int edited)
             {
                 var changed = false;
 
@@ -1019,10 +1003,6 @@ namespace QuizCannersUtilities
 
                 if (icon.Enter.Click())
                     edited = ind;
-
-                //base.InspectInList(list, ind, ref edited).changes(ref changed);
-
-                return changed;
             }
 
 
@@ -1169,31 +1149,28 @@ namespace QuizCannersUtilities
 
             #region Inspector
 
-            public override bool InspectInList(IList list, int ind, ref int edited)
+            public override void InspectInList(IList list, int ind, ref int edited)
             {
-                if (base.InspectInList(list, ind, ref edited))
-                {
+                base.InspectInList(list, ind, ref edited);
+                
+                if (pegi.ChangeTrackStart())
                     targetValue = CurrentValue;
-                    return true;
-                }
-
-                return false;
             }
 
-            public override bool Inspect()
+           public override void Inspect()
             {
                 pegi.nl();
 
-                var changed = false;
+                var changed = pegi.ChangeTrackStart();
 
-                if (base.Inspect().nl(ref changed))
+                base.Inspect();
+                pegi.nl();
+
+                if (changed)
                     targetValue = CurrentValue;
 
                 if (lerpMode != LerpSpeedMode.LerpDisabled)
-                    "Target".edit(ref targetValue).nl(ref changed);
-
-
-                return changed;
+                    "Target".edit(ref targetValue).nl();
             }
 
             #endregion
@@ -1283,7 +1260,7 @@ namespace QuizCannersUtilities
 
             #region Inspect
             
-            public override bool InspectInList(IList list, int ind, ref int edited)
+            public override void InspectInList(IList list, int ind, ref int edited)
             {
                 var changed = false;
 
@@ -1296,7 +1273,6 @@ namespace QuizCannersUtilities
                 if (icon.Enter.Click())
                     edited = ind;
 
-                return changed;
             }
 
             #endregion
@@ -1599,16 +1575,14 @@ namespace QuizCannersUtilities
 
             #region Inspector
             
-            public override bool Inspect()
+           public override void Inspect()
             {
-                var changed = base.Inspect();
+                base.Inspect();
 
-                "Target".edit(70, ref targetValue).nl(ref changed);
+                "Target".edit(70, ref targetValue).nl();
 
-                if ("Value".edit(ref _property.latestValue).nl(ref changed))
+                if ("Value".edit(ref _property.latestValue).nl())
                     Set();
-
-                return changed;
             }
 
             #endregion
@@ -1697,13 +1671,13 @@ namespace QuizCannersUtilities
             protected override bool Portion(ref float portion) =>
                 speedLimit.SpeedToMinPortion(CurrentValue.DistanceRgba(targetValue), ref portion);
 
-            public override bool Inspect()
+           public override void Inspect()
             {
-                var changed = base.Inspect().nl();
+                base.Inspect();
 
-                pegi.Try_Nested_Inspect(_property).nl(ref changed);
+                pegi.nl();
 
-                return changed;
+                pegi.Try_Nested_Inspect(_property).nl();
             }
 
             #region Encode & Decode
@@ -1971,14 +1945,11 @@ namespace QuizCannersUtilities
 
             #region Inspect
             
-            public override bool Inspect()
+           public override void Inspect()
             {
-
-                var changed = base.Inspect();
+                base.Inspect();
 
                 "Set zero On Start".toggleIcon(ref setZeroOnStart).nl();
-
-                return changed;
             }
 
             #endregion

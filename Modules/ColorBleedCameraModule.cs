@@ -98,15 +98,11 @@ namespace PlaytimePainter.CameraModules {
         public override string ToolTip =>
             "This is not a postprocess effect. Color Bleed and Brightness modifies Global Shader Parameter used by Custom shaders included with the asset.";            
         
-        public bool Inspect() {
-            var changed = false;
-            
-            Inspect(ref weatherConfigurations).nl(ref changed);
-            
-            if (changed)  
+        public void Inspect() {
+
+            if (Inspect(ref weatherConfigurations).nl())  
                 QcUnity.RepaintViews();
-             
-            return changed;
+
         }
         
         #endregion

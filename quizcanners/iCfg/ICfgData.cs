@@ -42,6 +42,8 @@ namespace QuizCannersUtilities {
     #endregion
 
     #region Config
+
+#pragma warning disable IDE0059 // Unnecessary assignment of a value
     public struct CfgData : IPEGI
     {
         private string _value;
@@ -55,13 +57,9 @@ namespace QuizCannersUtilities {
             _value = val;
         }
         
-        public bool Inspect()
+        public void Inspect()
         {
-            var changed = false;
-
-            pegi.editBig(ref _value).nl(ref changed);
-
-            return changed;
+            pegi.editBig(ref _value).nl();
         }
 
         private int ToIntInternal(string text)
@@ -563,7 +561,7 @@ namespace QuizCannersUtilities {
             var tps = typeof(T).TryGetDerivedClasses();
 
             if (tps != null)
-                foreach (var tag in cody)
+                foreach (string tag in cody)
                     ToListInternal(list, cody, tps);
             else
                 foreach (var tag in cody)
@@ -736,14 +734,14 @@ namespace QuizCannersUtilities {
 
         #region Inspector
 
-        public override bool Inspect() => "Configurations".edit_List(ref configurations);
+       public override void Inspect() => "Configurations".edit_List(ref configurations);
 
         #endregion
     }
     
     public abstract class ConfigurationsListBase : ScriptableObject, IPEGI
     {
-        public virtual bool Inspect() => false;
+        public virtual void Inspect() { }
 
         public static bool Inspect<T>(ref T configs) where T : ConfigurationsListBase
         {
@@ -792,7 +790,7 @@ namespace QuizCannersUtilities {
             set { name = value; }
         }
         
-        public virtual bool InspectInList(IList list, int ind, ref int edited) {
+        public virtual void InspectInList(IList list, int ind, ref int edited) {
 
             var changed = false;
             var active = ActiveConfiguration;
@@ -835,8 +833,6 @@ namespace QuizCannersUtilities {
 
 
             pegi.RestoreBGcolor();
-
-            return changed;
         }
        
         #endregion
@@ -877,7 +873,7 @@ namespace QuizCannersUtilities {
         #region Inspector
         
         [HideInInspector]
-        [SerializeField] public int inspectedItems = -1;
+        public int inspectedItems = -1;
         
         [ContextMenu("Reset Inspector")]
         private void Reset() => ResetInspector();
@@ -888,7 +884,7 @@ namespace QuizCannersUtilities {
             inspectedItems = -1;
         }
 
-        public virtual bool InspectInList(IList list, int ind, ref int edited)
+        public virtual void InspectInList(IList list, int ind, ref int edited)
         {
             var changed = false;
             var n = gameObject.name;
@@ -897,12 +893,10 @@ namespace QuizCannersUtilities {
             
             if (icon.Enter.Click()) 
                 edited = ind;
-            
-            return changed;
         }
         
         private int _inspectedDebugItems = -1;
-        public virtual bool Inspect() {
+        public virtual void Inspect() {
 
             var changed = false;
 
@@ -910,7 +904,7 @@ namespace QuizCannersUtilities {
                 pegi.EditorView.Lock_UnlockClick(gameObject);
 
             if (!icon.Debug.enter(ref inspectedItems, 0).nl(ref changed))
-                return changed; 
+                return; 
                 
             "{0} Debug ".F(this.GetNameForInspector()).write(90);
 
@@ -947,9 +941,6 @@ namespace QuizCannersUtilities {
 
             if (inspectedItems == -1)
                 pegi.nl();
-            
-           
-            return changed;
         }
 
         #endregion

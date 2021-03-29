@@ -7,7 +7,6 @@ using UnityEngine;
 namespace QuizCannersUtilities {
 
     #region Interfaces
-    #pragma warning disable IDE0034 // Simplify 'default' expression
     #pragma warning disable IDE0019 // Use pattern matching
     #pragma warning disable IDE0018 // Inline variable declaration
 
@@ -299,11 +298,10 @@ namespace QuizCannersUtilities {
         
         private ListMetaData modulesMeta = new ListMetaData("Modules", allowDeleting: false, showAddButton:false, allowReordering: false, showEditListButton:false);
 
-        public bool Inspect()
+        public void Inspect()
         {
             modulesMeta.edit_List(ref modules).nl();
 
-            return false;
         }
 
         #endregion

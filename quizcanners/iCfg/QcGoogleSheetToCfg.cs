@@ -55,12 +55,10 @@ namespace QuizCannersUtilities
             public string pageName;
             public int pageIndex;
 
-            public bool InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(IList list, int ind, ref int edited)
             {
-                var changed = false;
-                "Name".edit(40, ref pageName).changes(ref changed);
-                "#gid=".edit(50, ref pageIndex).changes(ref changed);
-                return changed;
+                "Name".edit(40, ref pageName);
+                "#gid=".edit(50, ref pageIndex);
             }
 
             public string NameForDisplayPEGI() => pageName;
@@ -97,7 +95,7 @@ namespace QuizCannersUtilities
         #region Inspector
         private int _inspectedStuff = -1;
 
-        public bool Inspect()
+        public void Inspect()
         {
             var changed = false;
 
@@ -165,7 +163,6 @@ namespace QuizCannersUtilities
                 "Pages".edit_List(ref pages).nl(ref changed);
             }
 
-            return changed;
         }
         #endregion
 

@@ -372,7 +372,7 @@ namespace PlaytimePainter.UI
         private static List<Shader> _compatibleShaders;
 
         private static List<Shader> CompatibleShaders =>
-            _compatibleShaders ?? (_compatibleShaders = new List<Shader>()
+                _compatibleShaders ??= new List<Shader>()
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Lit Button"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Box"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Unlinked/Box Unlinked"))
@@ -389,7 +389,7 @@ namespace PlaytimePainter.UI
                 .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Image"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Primitives/Pixel Line"))
                 .TryAdd(Shader.Find("Playtime Painter/UI/Primitives/Pixel Line With Shadow"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Pixel Perfect Screen Space")));
+                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Pixel Perfect Screen Space"));
 
         private static List<Material> _compatibleMaterials = new List<Material>();
 
@@ -428,7 +428,7 @@ namespace PlaytimePainter.UI
             return changed;
         }
 
-        public bool Inspect()
+        public void Inspect()
         {
             inspected = this;
 
@@ -444,9 +444,9 @@ namespace PlaytimePainter.UI
 
             var changed = false;
 
-            var expectedScreenPosition = false;
+            bool expectedScreenPosition = false;
 
-            var expectedAtlasedPosition = false;
+            bool expectedAtlasedPosition = false;
 
             if (!_showModules)
             {
@@ -461,7 +461,7 @@ namespace PlaytimePainter.UI
 
                 bool possibleFadePosition = false;
 
-                bool needThirdUv = false;
+                bool needThirdUv;
 
                 #region Material Tags 
                 if (mat)
@@ -840,7 +840,6 @@ namespace PlaytimePainter.UI
             if (changed)
                 SetVerticesDirty();
 
-            return changed;
         }
 
         #endregion
@@ -880,7 +879,7 @@ namespace PlaytimePainter.UI
             if (ClickPossible)
             {
 
-                var diff = MouseDownPosition - Input.mousePosition.ToVector2();
+               // var diff = MouseDownPosition - Input.mousePosition.ToVector2();
 
                /* if ((diff.magnitude) < maxMousePositionPixOffsetForClick)
                     OnClick.Invoke();*/
@@ -985,7 +984,7 @@ namespace PlaytimePainter.UI
             #endregion
 
             #region Inspect
-            public bool InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(IList list, int ind, ref int edited)
             {
                 // var tg = inspected;
 
@@ -1016,9 +1015,6 @@ namespace PlaytimePainter.UI
                         rt.offsetMax = -Vector2.one * offset;
                     }
                 }
-
-
-                return false;
             }
             #endregion
 
@@ -1035,7 +1031,7 @@ namespace PlaytimePainter.UI
             public override string ClassTag => Tag;
 
             #region Inspect
-            public bool InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(IList list, int ind, ref int edited)
             {
 
                 var mat = inspected.material;
@@ -1062,7 +1058,6 @@ namespace PlaytimePainter.UI
                 }
                 else "No Material".write();
 
-                return false;
             }
 
             #endregion
@@ -1121,7 +1116,7 @@ namespace PlaytimePainter.UI
             }
 
             #region Inspect
-            public bool InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(IList list, int ind, ref int edited)
             {
 
                 "Normal".edit(50, ref valueWhenOff, 0, 1);
@@ -1131,16 +1126,11 @@ namespace PlaytimePainter.UI
                 if (icon.Enter.Click())
                     edited = ind;
 
-                return false;
             }
 
-            public override bool Inspect()
+           public override void Inspect()
             {
-                var changed = false;
-
-                _roundedCorners.Nested_Inspect().nl(ref changed);
-
-                return changed;
+                _roundedCorners.Nested_Inspect().nl();
             }
             #endregion
 
@@ -1188,9 +1178,8 @@ namespace PlaytimePainter.UI
             #region Inspect
             public virtual string NameForDisplayPEGI() => ClassTag;
 
-            public virtual bool Inspect()
+            public virtual void Inspect()
             {
-                return false;
             }
             #endregion
 

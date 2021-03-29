@@ -8,14 +8,10 @@ using System.Collections;
 using UnityEditor;
 #endif
 
-// ReSharper disable InconsistentNaming
-#pragma warning disable IDE1006 // Naming Styles
-#pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 #pragma warning disable IDE0011 // Add braces
 #pragma warning disable IDE0008 // Use explicit type
-#pragma warning disable IDE0009 // Member access should be qualified.
 
 namespace PlayerAndEditorGUI
 {
@@ -86,9 +82,9 @@ namespace PlayerAndEditorGUI
 
             var isFOOE = ef.isFoldedOutOrEntered;
 
-            var changed = false;
-
             int recurses;
+
+            bool wasChanged = ef.globChanged;
 
             if (!inspectionChain.TryGetValue(pgi, out recurses) || recurses < 4)
             {
@@ -97,7 +93,10 @@ namespace PlayerAndEditorGUI
 
                 var indent = IndentLevel;
 
-                pgi.Inspect().RestoreBGColor().changes(ref changed);
+                pgi.Inspect();
+                RestoreBGcolor();
+                //RestoreBGColor();
+                //.changes(ref changed);
 
                 IndentLevel = indent;
 
@@ -110,7 +109,9 @@ namespace PlayerAndEditorGUI
             else
                 "3rd recursion".writeWarning();
 
-            if (changed || ef.globChanged)
+            bool isChanged = ef.globChanged && !wasChanged;
+
+            if (isChanged)
             {
 #if UNITY_EDITOR
                 ef.ClearFromPooledSerializedObjects(pgi as Object);
@@ -120,20 +121,24 @@ namespace PlayerAndEditorGUI
 
             ef.isFoldedOutOrEntered = isFOOE;
 
-            return changed || ef.globChanged;
+            return isChanged;
 
         }
 
-        public static bool Inspect_AsInList<T>(this T obj, List<T> list, int current, ref int inspected) where T : IPEGI_ListInspect
+        public static bool Inspect_AsInListNested<T>(this T obj, List<T> list, int current, ref int inspected) where T : IPEGI_ListInspect
         {
 
             var il = IndentLevel;
 
-            var changes = obj.InspectInList(list, current, ref inspected);
+            bool wasChanged = ef.globChanged;
+
+            obj.InspectInList(list, current, ref inspected);
+
+            bool isChanged = ef.globChanged && !wasChanged;
 
             IndentLevel = il;
 
-            if (ef.globChanged || changes)
+            if (isChanged)
             {
 #if UNITY_EDITOR
                 ef.ClearFromPooledSerializedObjects(obj as Object);
@@ -141,7 +146,7 @@ namespace PlayerAndEditorGUI
                 obj.SetToDirty_Obj();
             }
 
-            return changes;
+            return isChanged;
         }
 
         public static bool Inspect_AsInList(this IPEGI_ListInspect obj)
@@ -150,11 +155,14 @@ namespace PlayerAndEditorGUI
 
             var il = IndentLevel;
 
-            var changes = obj.InspectInList(null, 0, ref tmp);
+            bool wasChanged = ef.globChanged;
+
+            obj.InspectInList(null, 0, ref tmp);
             IndentLevel = il;
 
+            bool isChanged = ef.globChanged && !wasChanged;
 
-            if (ef.globChanged || changes)
+            if (isChanged)
             {
 #if UNITY_EDITOR
                 ef.ClearFromPooledSerializedObjects(obj as Object);
@@ -162,7 +170,7 @@ namespace PlayerAndEditorGUI
                 obj.SetToDirty_Obj();
             }
 
-            return changes;
+            return isChanged;
         }
 
 #if UNITY_EDITOR

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using PlayerAndEditorGUI;
-using PlaytimePainter.CameraModules;
 using PlaytimePainter.ComponentModules;
 using PlaytimePainter.MeshEditing;
 using PlaytimePainter.TexturePacking;
@@ -16,21 +15,17 @@ using Object = UnityEngine.Object;
 namespace PlaytimePainter
 {
 
-#pragma warning disable IDE0034 // Simplify 'default' expression
-#pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
-
 
 
     [CreateAssetMenu(fileName = "Painter Config", menuName = "Playtime Painter/Painter Config")]
     public class PainterDataAndConfig : ScriptableObject, ICfgCustom, IPEGI
     {
-        private static PlaytimePainter Painter => PlaytimePainter.inspected;
         public int playtimePainterLayer = 30; // this layer is used by camera that does painting. Make your other cameras ignore this layer.
 
         public const string PREFABS_RESOURCE_FOLDER = "Playtime_Painter_Prefabs";
 
-        [SerializeField] public bool isLineraColorSpace;
+        public bool isLineraColorSpace;
 
         public static bool toolEnabled;
 
@@ -495,7 +490,7 @@ namespace PlaytimePainter
         private int _inspectedDecal = -1;
         private int _inspectedMeshPackSol = -1;
 
-        public bool Inspect()
+        public void Inspect()
         {
             var changed = pegi.toggleDefaultInspector(this);
 
@@ -573,7 +568,6 @@ namespace PlaytimePainter
 
             }
             
-            return changed;
         }
 
         private bool InspectLists()

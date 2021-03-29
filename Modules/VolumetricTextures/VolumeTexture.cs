@@ -15,7 +15,7 @@ namespace PlaytimePainter {
     public class VolumeTexture : PainterSystemMono, IGotName
     {
 
-        [SerializeField] public bool setForGlobal;
+        public bool setForGlobal;
 
         public static List<VolumeTexture> all = new List<VolumeTexture>();
 
@@ -26,7 +26,7 @@ namespace PlaytimePainter {
         public int hSlices = 1;
         public float size = 1;
 
-        [SerializeField] public Texture _texture;
+        public Texture _texture;
 
         public Texture Texture
         {
@@ -177,7 +177,7 @@ namespace PlaytimePainter {
             return false;
         }
         
-        public override bool Inspect()
+       public override void Inspect()
         {
             var changed = false;
             
@@ -333,7 +333,6 @@ namespace PlaytimePainter {
 
             pegi.nl();
 
-            return changed;
         }
         
         #endregion

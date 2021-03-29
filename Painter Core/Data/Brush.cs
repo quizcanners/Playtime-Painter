@@ -5,10 +5,6 @@ using PlaytimePainter.MeshEditing;
 using QuizCannersUtilities;
 using UnityEngine;
 using Random = UnityEngine.Random;
-#if UNITY_EDITOR
-#if UNITY_2019_1_OR_NEWER
-#endif
-#endif
 
 namespace PlaytimePainter {
     
@@ -308,8 +304,8 @@ namespace PlaytimePainter {
                       foreach (var mod in id.Modules)
                           mod.BrushConfigPEGI(p).nl(ref changed);
               }
-              
-             brushType.Inspect().nl(ref changed);
+
+            brushType.Nested_Inspect().nl();
 
             if (blitMode.AllSetUp) {
 
@@ -350,7 +346,7 @@ namespace PlaytimePainter {
 
             if (blitMode.ShowInDropdown())
             {
-                blitMode.Inspect(cameraModule).nl(ref changed);
+                blitMode.InspectWithModule().nl(ref changed);
                 showingSize = true;
             }
             
@@ -380,13 +376,13 @@ namespace PlaytimePainter {
             return changed;
         }
         
-        public virtual bool Inspect() {
+        public virtual void Inspect() {
 
             var p = PlaytimePainter.inspected;
 
             if (!p) {
                 "No Painter Detected".nl();
-                return false;
+                return;
             }
             
             var id = p.TexMeta;
@@ -442,10 +438,7 @@ namespace PlaytimePainter {
                     }
                     p.UpdateModules();
                 }
-
             }
-
-            return changed;
         }
 
         public bool ChannelSlider(ColorChanel chan, ref Color col)
@@ -778,8 +771,8 @@ namespace PlaytimePainter {
             #region Inspector
 
             int testValue = -1;
-            
-            public virtual bool Inspect() => false; /*
+
+            public virtual void Inspect() { } /*
         {
             bool changed = false;
 
@@ -819,7 +812,7 @@ namespace PlaytimePainter {
 
             #region Inspector
             
-            public override bool Inspect() =>
+           public override void Inspect() =>
                 // {
                 //   var changed = false;
 

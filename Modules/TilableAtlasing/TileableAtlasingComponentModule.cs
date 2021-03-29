@@ -142,8 +142,8 @@ namespace PlaytimePainter.ComponentModules {
         {
             if (!painter.IsAtlased()) return false;
             
-            uv.x = uv.x % 1;
-            uv.y = uv.y % 1;
+            uv.x %= 1;
+            uv.y %= 1;
 
             var m = painter.GetMesh();
 
@@ -237,14 +237,15 @@ namespace PlaytimePainter.ComponentModules {
 
         private int _inspectedItems = -1;
 
-        public bool Inspect() {
+        public void Inspect() {
             var changed = false;
 
             var a = MaterialAtlases.inspectedAtlas;
 
             atlasedField.toggleIcon(ref enabled).nl(ref changed);
 
-            if (!enabled) return changed;
+            if (!enabled) 
+                return;
             
             pegi.select_Index(ref originField, a.originalTextures).nl(ref changed);
 
@@ -271,8 +272,6 @@ namespace PlaytimePainter.ComponentModules {
             }
             else
                 "Color".edit("Color that will be used instead of a texture.", 35, ref col).nl();
-
-            return changed;
 
         }
 
@@ -445,7 +444,7 @@ namespace PlaytimePainter.ComponentModules {
 
         private void FindAtlas(int field)
         {
-            var texMGMT = PainterCamera.Inst;
+            //var texMGMT = PainterCamera.Inst;
 
             var atlases = Cfg.atlases;
             
@@ -529,7 +528,7 @@ namespace PlaytimePainter.ComponentModules {
         private Shader _atlasedShader;
         public static MaterialAtlases inspectedAtlas;
         private bool _showHint;
-        public bool Inspect()
+        public void Inspect()
         {
             var changed = false;
 
@@ -620,8 +619,6 @@ namespace PlaytimePainter.ComponentModules {
 
             inspectedAtlas = null;
             
-            return changed;
-
         }
        
         #endregion
@@ -646,7 +643,7 @@ namespace PlaytimePainter.ComponentModules {
 
         #region Inspector
 
-        public bool InspectInList(IList list, int ind, ref int edited)
+        public void InspectInList(IList list, int ind, ref int edited)
         {
             (used ? icon.Active : icon.InActive).write();
 
@@ -654,8 +651,6 @@ namespace PlaytimePainter.ComponentModules {
             pegi.edit(ref texture).changes(ref changed);
             if (!texture)
             pegi.edit(ref color).changes(ref changed);
-
-            return changed;
         }
         
         #endregion
@@ -775,11 +770,12 @@ namespace PlaytimePainter.ComponentModules {
         private void ColorToAtlas(Color col, int x, int y)
         {
             var size = _textureSize * _textureSize;
-            var pix = new Color[size];
+            var pix = new Color32[size];
+            Color32 tmp = col;
             for (var i = 0; i < size; i++)
-                pix[i] = col;
+                pix[i] = tmp;
 
-            aTexture.SetPixels(x * _textureSize, y * _textureSize, _textureSize, _textureSize, pix);
+            aTexture.SetPixels32(x * _textureSize, y * _textureSize, _textureSize, _textureSize, pix);
         }
 
         private void SmoothBorders(Texture2D atlas, int mipLevel)
@@ -953,7 +949,7 @@ namespace PlaytimePainter.ComponentModules {
 
         private int _inspectedItems = -1;
 
-        public bool Inspect() {
+        public void Inspect() {
             var changed = false;
 #if UNITY_EDITOR
 
@@ -1000,7 +996,6 @@ namespace PlaytimePainter.ComponentModules {
 
 #endif
 
-            return changed;
         }
 
     }

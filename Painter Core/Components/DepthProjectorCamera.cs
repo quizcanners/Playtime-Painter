@@ -10,7 +10,8 @@ using UnityEditor;
 
 namespace PlaytimePainter
 {
-    
+
+#pragma warning disable IDE0019 // Use pattern matching
     [ExecuteInEditMode]
     public class DepthProjectorCamera : PainterSystemMono {
 
@@ -34,9 +35,9 @@ namespace PlaytimePainter
 
         public static bool triedToFindDepthCamera;
 
-        [SerializeField] public Camera _projectorCamera;
+        public Camera _projectorCamera;
 
-        [SerializeField] public Vector2 _fromMouseOffset;
+        public Vector2 _fromMouseOffset;
 
         public bool _projectFromMainCamera;
         public bool _centerOnMousePosition;
@@ -48,7 +49,7 @@ namespace PlaytimePainter
         
         private int _inspectedUser = -1;
 
-        public override bool Inspect()
+       public override void Inspect()
         {
             var changed = false;
 
@@ -82,7 +83,6 @@ namespace PlaytimePainter
 
             "Requested updates".edit_List(ref depthUsers, ref _inspectedUser).nl();
 
-            return changed;
         }
 
         public bool Inspect_PainterShortcut()
@@ -141,7 +141,6 @@ namespace PlaytimePainter
         private IUseDepthProjector userToGetUpdate;
 
         [NonSerialized] private static List<IUseDepthProjector> depthUsers = new List<IUseDepthProjector>();
-        readonly CountlessBool disabledUser = new CountlessBool();
 
         public static bool TrySubscribeToDepthCamera(IUseDepthProjector pj) {
             if (!depthUsers.Contains(pj)) {
@@ -152,8 +151,6 @@ namespace PlaytimePainter
             return false;
         }
 
-        private Mode currentMode = Mode.Clear;
-        
         #endregion
 
         public void RenderRightNow(IUseDepthProjector proj) {
@@ -285,7 +282,6 @@ namespace PlaytimePainter
                                 break;
                         }
 
-                        currentMode = mode;
                     }
                 }
 
@@ -511,7 +507,7 @@ namespace PlaytimePainter
 
         #region Inspector
         private Camera inspectedCamera;
-        public bool Inspect() {
+        public void Inspect() {
             var changed = false;
 
             "Local".toggleIcon("Use local Position and rotation of the camera." ,ref localTransform).nl();
@@ -532,10 +528,6 @@ namespace PlaytimePainter
             }
 
             pegi.nl();
-
-          
-
-            return changed;
         }
         
         #endregion

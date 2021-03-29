@@ -49,7 +49,7 @@ namespace PlaytimePainter.TexturePacking
 
         #region Inspect
 
-        public bool Inspect()
+        public void Inspect()
         {
 
             var changed = false;
@@ -92,8 +92,6 @@ namespace PlaytimePainter.TexturePacking
                 if (Cfg.texturePackagingSolutions[selectedProfile].Inspect(this).nl(ref changed))
                     Cfg.SetToDirty();
             }
-
-            return changed;
         }
 
         #endregion

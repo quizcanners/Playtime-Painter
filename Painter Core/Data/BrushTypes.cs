@@ -9,9 +9,7 @@ using Random = UnityEngine.Random;
 namespace PlaytimePainter
 {
 
-#pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching
-#pragma warning disable IDE0018 // Inline variable declaration
 
     public class BrushTypes
     {
@@ -143,13 +141,10 @@ namespace PlaytimePainter
                       || (SupportedBySingleBuffer && id.renderTexture)));
             }
 
-            public virtual bool Inspect()
+            public virtual void Inspect()
             {
-
-
-
                 if (Brush.InspectedIsCpuBrush || !PainterCamera.Inst)
-                    return false;
+                    return;
 
                 var changed = false;
 
@@ -157,7 +152,7 @@ namespace PlaytimePainter
 
                 var adv = InspectAdvanced;
 
-                var p = InspectedPainter;
+               // var p = InspectedPainter;
 
                 if (Brush.showAdvanced || InspectedBrush.useMask)
                 {
@@ -191,10 +186,7 @@ namespace PlaytimePainter
                 }
 
                 pegi.nl();
-               // if (InspectAdvanced && p.NeedsGrid() && "Center Grid On Object".Click().nl())
-                 //   GridNavigator.onGridPos = p.transform.position;
 
-                return changed;
             }
 
             #endregion
@@ -312,11 +304,9 @@ namespace PlaytimePainter
             public void BeforeStroke(PaintCommand.UV command)//Brush br, Stroke st, PlaytimePainter painter = null)
             {
 
-                Brush br = command.Brush;
-                Stroke st = command.Stroke;
+               // Brush br = command.Brush;
+              //  Stroke st = command.Stroke;
                 PaintCommand.ForPainterComponent painterCommand = command as PaintCommand.ForPainterComponent;
-
-                var cam = TexMGMT;
 
                 if (!RenderTextureBuffersManager.secondBufferUpdated)
                     RenderTextureBuffersManager.UpdateBufferTwo();
@@ -592,7 +582,6 @@ namespace PlaytimePainter
             public override void AfterStroke(PaintCommand.UV command)
             {
                 Brush br = command.Brush;
-                Stroke st = command.Stroke;
 
                 base.AfterStroke(command);
 
@@ -606,12 +595,10 @@ namespace PlaytimePainter
 
             protected override MsgPainter Translation => MsgPainter.BrushTypeDecal;
             
-            public override bool Inspect()
+           public override void Inspect()
             {
 
-                var changed = false;
-
-                pegi.select_Index(ref InspectedBrush.selectedDecal, Cfg.decals).changes(ref changed);
+                pegi.select_Index(ref InspectedBrush.selectedDecal, Cfg.decals);
 
                 var decal = Cfg.decals.TryGet(InspectedBrush.selectedDecal);
 
@@ -623,7 +610,7 @@ namespace PlaytimePainter
                 pegi.nl();
                 
                 "Continuous".toggle("Will keep adding decal every frame while the mouse is down", 80,
-                    ref InspectedBrush.decalContentious).changes(ref changed);
+                    ref InspectedBrush.decalContentious);
 
                 pegi.FullWindow.DocumentationClickOpen("Continious Decal will keep painting every frame while mouse button is held", "Countinious Decal");
 
@@ -631,13 +618,13 @@ namespace PlaytimePainter
 
                 "Rotation".write("Rotation method", 60);
 
-                pegi.editEnum(ref InspectedBrush.rotationMethod).nl(ref changed);
+                pegi.editEnum(ref InspectedBrush.rotationMethod).nl();
 
                 switch (InspectedBrush.rotationMethod)
                 {
                     case RotationMethod.Constant:
                         "Angle:".write("Decal rotation", 60);
-                        changed |= pegi.edit(ref InspectedBrush.decalAngle, -90, 450);
+                        pegi.edit(ref InspectedBrush.decalAngle, -90, 450);
                         break;
                     case RotationMethod.FaceStrokeDirection:
                         "Ang Offset:".edit("Angle modifier after the rotation method is applied", 80,
@@ -648,8 +635,6 @@ namespace PlaytimePainter
                 pegi.nl();
                 if (!InspectedBrush.mask.HasFlag(ColorMask.A))
                     "! Alpha chanel is disabled. Decals may not render properly".writeHint();
-
-                return changed;
 
             }
 
@@ -680,15 +665,13 @@ namespace PlaytimePainter
                 set { decalName = value; }
             }
 
-            public bool Inspect()
+            public void Inspect()
             {
                 var changed = this.inspect_Name().nl();
 
                 "GetBrushType".editEnum(40, ref type).nl(ref changed);
                 "Height Map".edit(ref heightMap).nl(ref changed);
                 "Overlay".edit(ref overlay).nl(ref changed);
-
-                return changed;
             }
 
             public string NameForDisplayPEGI() => "{0} ({1})".F(decalName, type);
@@ -819,10 +802,10 @@ namespace PlaytimePainter
 
                 if (!isTail && !smooth)
                 {
-                    var st2 = new Stroke(st)
+                    /*var st2 = new Stroke(st)
                     {
                         firstStroke = false
-                    };
+                    };*/
                     r.SHADER_STROKE_SEGMENT_UPDATE(command);//br, br.Speed * 0.05f, id, st2, out alphaBuffer, painter);
 
                     Vector3 junkPoint = st.uvFrom + st.previousDelta * 0.01f;
@@ -908,7 +891,7 @@ namespace PlaytimePainter
             public override void PaintRenderTextureInWorldSpace(PaintCommand.WorldSpace command) //PlaytimePainter painter, Brush br, Stroke st)
             {
 
-                var id = command.TextureData;//painter.TexMeta;
+               // var id = command.TextureData;//painter.TexMeta;
 
                 BeforeStroke(command);//br, st, painter);
 
@@ -929,7 +912,7 @@ namespace PlaytimePainter
             {
 
                 Brush br = command.Brush;
-                Stroke st = command.Stroke; 
+               // Stroke st = command.Stroke; 
 
 
                 br.GetBlitMode(false).PrePaint(command);
@@ -954,7 +937,7 @@ namespace PlaytimePainter
 
             protected override MsgPainter Translation => MsgPainter.BrushTypeSphere;
 
-            public override bool Inspect()
+           public override void Inspect()
             {
 
                 var changed = false;
@@ -989,11 +972,9 @@ namespace PlaytimePainter
                     pegi.nl();
                 }
 
-              
+                base.Inspect();
 
-                base.Inspect().nl(ref changed);
-
-                return changed;
+                pegi.nl();
             }
 
             #endregion

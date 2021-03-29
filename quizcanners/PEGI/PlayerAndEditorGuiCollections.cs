@@ -11,12 +11,10 @@ using UnityEditor;
 
 // ReSharper disable InconsistentNaming
 #pragma warning disable IDE1006 // Naming Styles
-#pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 #pragma warning disable IDE0011 // Add braces
 #pragma warning disable IDE0008 // Use explicit type
-#pragma warning disable IDE0009 // Member access should be qualified.
 
 namespace PlayerAndEditorGUI
 {
@@ -1318,7 +1316,10 @@ namespace PlayerAndEditorGUI
                 if (pl != null)
                 {
                     var chBefore = GUI.changed;
-                    if (pl.InspectInList(list, index, ref inspected).changes(ref changed) || (!chBefore && GUI.changed))
+
+                    pl.InspectInList(list, index, ref inspected);
+
+                    if (!chBefore && GUI.changed)
                         pl.SetToDirty_Obj();
 
                     if (changed || inspected == index)
@@ -1336,7 +1337,7 @@ namespace PlayerAndEditorGUI
                         else
                         {
                             var elObj = (object)el;
-                            if (ed.PEGI_inList<T>(ref elObj, index, ref inspected))
+                            if (ed.PEGI_inList<T>(ref elObj))
                             {
                                 isPrevious = true;
                                 list[index] = elObj as T;
@@ -1614,7 +1615,9 @@ namespace PlayerAndEditorGUI
             if (pl != null)
             {
                 var chBefore = GUI.changed;
-                if ((pl.InspectInList(collection, index, ref inspected).changes(ref changed) || (!chBefore && GUI.changed)) && (typeof(T).IsValueType))
+                pl.InspectInList(collection, index, ref inspected);
+                    
+                if (!chBefore && GUI.changed && (typeof(T).IsValueType))
                     el = (T)pl;
 
                 if (changed || inspected == index)
@@ -1635,7 +1638,7 @@ namespace PlayerAndEditorGUI
                     {
                         object obj = el;
 
-                        if (ed.PEGI_inList<T>(ref obj, index, ref inspected))
+                        if (ed.PEGI_inList<T>(ref obj))
                         {
                             el = (T)obj;
                             isPrevious = true;
@@ -1674,7 +1677,7 @@ namespace PlayerAndEditorGUI
                     var named = el as IGotName;
                     if (named != null)
                     {
-                        isShown = true;
+                        //isShown = true;
                         var n = named.NameForPEGI;
                         if (edit(ref n).changes(ref changed))
                         {
@@ -2613,7 +2616,7 @@ namespace PlayerAndEditorGUI
             public string NeedAttention()
             {
 
-                string msg = null;
+                string msg;// = null;
 
                 if (NeedsAttention(_pair.Value, out msg))
                     "{0} at {1}".F(msg, _pair.Key.GetNameForInspector());

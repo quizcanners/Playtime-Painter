@@ -149,7 +149,7 @@ namespace PlaytimePainter {
 
             protected virtual bool Inspect() => false;
             
-            public bool Inspect(IPainterManagerModuleBrush module)
+            public bool InspectWithModule()
             {
 
                 var changed = false;
@@ -175,7 +175,9 @@ namespace PlaytimePainter {
 
                     txt.write(txt.ApproximateLength());
 
-                    InspectedBrush._dFlow.Inspect().nl(ref changed);
+                    InspectedBrush._dFlow.Inspect();
+
+                    pegi.nl();
 
                     MsgPainter.Scale.Write();
 

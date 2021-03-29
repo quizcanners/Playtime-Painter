@@ -238,7 +238,7 @@ namespace PlayerAndEditorGUI
         public static bool enter<T>(ref int enteredOne, T currentEnum) where T : struct =>
             enter(ref enteredOne, Convert.ToInt32(currentEnum), currentEnum.ToString());
 
-        public static bool enter(ref int enteredOne, int current, string tip = null)
+        public static bool enter(ref int enteredOne, int current)
         {
             if (enteredOne == current)
             {
@@ -582,7 +582,7 @@ namespace PlayerAndEditorGUI
         public static bool enter_Inspect(this string label, IPEGI val, ref int inspected, int current)
         {
             if (label.enter(ref inspected, current))
-                return val.Inspect();
+                return val.Nested_Inspect();
 
             return false;
         }
@@ -656,15 +656,15 @@ namespace PlayerAndEditorGUI
 
         public static bool enter_Inspect_AsList(this IPEGI_ListInspect var, ref int enteredOne, int thisOne, string exitLabel = null)
         {
-            var changed = false;
+            var changed = ChangeTrackStart();
 
             var outside = enteredOne == -1;
 
             if (!var.IsNullOrDestroyed_Obj())
             {
 
-                if (outside)
-                    var.InspectInList(null, thisOne, ref enteredOne).changes(ref changed);
+                if (outside) 
+                    var.InspectInList(null, thisOne, ref enteredOne);
                 else if (enteredOne == thisOne)
                 {
 
@@ -674,7 +674,7 @@ namespace PlayerAndEditorGUI
                     if (icon.Exit.ClickUnFocus("{0} L {1}".F(icon.Exit.GetText(), var))
                         || exitLabel.ClickLabel(icon.Exit.GetDescription(), style: PEGI_Styles.ExitLabel))
                         enteredOne = -1;
-                    Try_Nested_Inspect(var).changes(ref changed);
+                    Try_Nested_Inspect(var);
                 }
             }
             else if (enteredOne == thisOne)

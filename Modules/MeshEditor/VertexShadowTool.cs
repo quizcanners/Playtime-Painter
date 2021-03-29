@@ -36,7 +36,7 @@ namespace PlaytimePainter.MeshEditing
             return false;
         }
         
-        public override bool Inspect()
+       public override void Inspect()
         {
             var col = GlobalBrush.Color;
             var msk = GlobalBrush.mask;
@@ -77,7 +77,6 @@ namespace PlaytimePainter.MeshEditing
                     "Ray Cast Complete".showNotificationIn3D_Views();
                 }
             }*/
-            return false;
         }
 
     }

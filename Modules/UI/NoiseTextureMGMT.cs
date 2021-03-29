@@ -39,7 +39,7 @@ namespace PlaytimePainter
         }
 
         #region Inspector
-        public bool Inspect()
+        public void Inspect()
         {
             var changed = false;
 
@@ -70,8 +70,6 @@ namespace PlaytimePainter
 
             if (changed)
                 UpdateShaderGlobal();
-
-            return changed;
         }
         #endregion
 

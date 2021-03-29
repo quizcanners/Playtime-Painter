@@ -18,7 +18,7 @@ namespace PlaytimePainter
 
         public bool AllSetUp => shader;
 
-        public bool Inspect()
+        public void Inspect()
         {
             var changed = false;
 
@@ -39,7 +39,6 @@ namespace PlaytimePainter
                 "Shader field is not optional".writeHint();
             }
 
-            return changed;
         }
     }
 

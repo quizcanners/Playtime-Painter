@@ -12,8 +12,6 @@ using UnityEditor;
 
 namespace PlaytimePainter.MeshEditing
 {
-#pragma warning disable IDE0034 // Simplify 'default' expression
-    #pragma warning disable IDE0019 // Use pattern matching
     #pragma warning disable IDE0018 // Inline variable declaration
 
 
@@ -22,7 +20,7 @@ namespace PlaytimePainter.MeshEditing
         #region Getters Setters
         public static MeshEditorManager Inst => PainterCamera.MeshManager;
 
-        public static Transform Transform => PainterCamera.Inst?.transform;
+        public static Transform Transform => PainterCamera.Inst ? PainterCamera.Inst.transform : null;
 
         public static MeshToolBase MeshTool => PainterCamera.Data.MeshTool;
 
@@ -583,7 +581,8 @@ namespace PlaytimePainter.MeshEditing
             if (Application.isPlaying)
                 UpdateInputPlaytime();
             
-            Grid?.UpdatePositions();
+            if (Grid)
+                Grid.UpdatePositions();
 
             if (Application.isPlaying)
                 SortAndUpdate();
@@ -612,7 +611,7 @@ namespace PlaytimePainter.MeshEditing
         }
 
         #if UNITY_EDITOR
-        public void UpdateInputEditorTime(Event e, bool up, bool dwn)
+        public void UpdateInputEditorTime(Event e)
         {
 
             if (!target || _justLoaded > 0)
@@ -777,7 +776,7 @@ namespace PlaytimePainter.MeshEditing
 
         private int _inspectedMeshItems = -1;
 
-        public bool Inspect()  {
+        public void Inspect()  {
 
             var changed = false;
             EditableMesh.inspected = editedMesh;
@@ -811,11 +810,11 @@ namespace PlaytimePainter.MeshEditing
             
             pegi.nl();
 
-
-
             var mt = MeshTool;
 
-            mt.Inspect().nl(ref changed);
+            mt.Inspect();
+
+            pegi.nl();
 
             foreach (var p in CameraModuleBase.MeshToolPlugins)
                 p.MeshToolInspection(mt).nl(ref changed);
@@ -830,7 +829,6 @@ namespace PlaytimePainter.MeshEditing
             if (changed)
                 MeshTool.SetShaderKeywords();
 
-            return changed;
         }
         
         private Vector3 _offset;
@@ -860,7 +858,7 @@ namespace PlaytimePainter.MeshEditing
                     pegi.nl();
                 }
 
-                editedMesh.Inspect().nl(ref changed);
+                editedMesh.Nested_Inspect().nl();
 
                 if ("Center".enter(ref _inspectedMeshItems, 2).nl())
                 {

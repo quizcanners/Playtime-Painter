@@ -285,7 +285,7 @@ namespace QuizCannersUtilities
 
         public virtual T GetIfExists(int ind) => Get(ind);
         
-        public override bool Inspect()
+       public override void Inspect()
         {
             var changed = false;
 
@@ -333,7 +333,6 @@ namespace QuizCannersUtilities
                         this[_edited] = (T)el;
                 }
             }
-            return changed;
         }
 
     }
@@ -428,7 +427,7 @@ namespace QuizCannersUtilities
         public void Decode(string key, CfgData data)
         {
             var index = ToInt(key);
-            List <T> tmp = new List<T>();
+            List<T> tmp;// = new List<T>();
             data.ToList(out tmp);
             this[index] = tmp;
         }

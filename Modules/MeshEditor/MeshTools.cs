@@ -6,7 +6,6 @@ using QuizCannersUtilities;
 using UnityEngine;
 
 namespace PlaytimePainter.MeshEditing {
-#pragma warning disable IDE0034 // Simplify 'default' expression
 
     public interface IMeshToolWithPerMeshData {
         CfgEncoder EncodePerMeshData();
@@ -139,7 +138,7 @@ namespace PlaytimePainter.MeshEditing {
 
         public virtual string NameForDisplayPEGI()=> " No Name ";
 
-        public virtual bool Inspect() => false;
+        public virtual void Inspect() { }
         #endregion
     }
     #endregion
@@ -206,12 +205,12 @@ namespace PlaytimePainter.MeshEditing {
 
         public override string NameForDisplayPEGI()=> MsgPainter.MeshPointPositionTool.GetText(); // "ADD & MOVE";
         
-        public override bool Inspect()
+       public override void Inspect()
         {
 
             var changed = false;
 
-            var mgm = MeshMGMT;
+           // var mgm = MeshMGMT;
 
             var sd = Cfg;
 
@@ -283,8 +282,6 @@ namespace PlaytimePainter.MeshEditing {
             "Sensitivity".edit(60, ref Cfg.bevelDetectionSensitivity, 3, 30).nl();
             
             pegi.nl();
-
-            return changed;
         }
       
         #endregion
@@ -580,12 +577,12 @@ namespace PlaytimePainter.MeshEditing {
             
     }
         
-        public override bool Inspect()
+       public override void Inspect()
         {
 
             var changed = false;
 
-            var m = MeshMGMT;
+            //var m = MeshMGMT;
 
             "Will Set {0} On Click".F(_setTo).toggleIcon(ref _setTo).nl(ref changed);
 
@@ -610,9 +607,6 @@ namespace PlaytimePainter.MeshEditing {
                 EditedMesh.Dirty = true;
                 Cfg.newVerticesSmooth = true;
             }*/
-
-
-            return changed;
 
         }
       
@@ -748,13 +742,6 @@ namespace PlaytimePainter.MeshEditing {
 
         public bool _mergeUnMerge;
 
-        private static SmoothingTool _inst;
-        
-        public SmoothingTool()
-        {
-            _inst = this;
-        }
-
         public override bool ShowVertices => true;
 
         public override bool ShowLines => true;
@@ -764,10 +751,10 @@ namespace PlaytimePainter.MeshEditing {
 
         public override string NameForDisplayPEGI()=> "Vertex Smoothing";
         
-        public override bool Inspect()
+       public override void Inspect()
         {
 
-            var m = MeshMGMT;
+           // var m = MeshMGMT;
 
             "OnClick:".write(60);
             if ((_mergeUnMerge ? "Merging (Shift: Unmerge)" : "Smoothing (Shift: Unsmoothing)").Click().nl())
@@ -803,10 +790,6 @@ namespace PlaytimePainter.MeshEditing {
                     EditedMesh.GiveTriangleUniqueVertices(t);
                 Cfg.newVerticesUnique = true;
             }
-
-
-
-            return false;
 
         }
 
@@ -952,7 +935,7 @@ namespace PlaytimePainter.MeshEditing {
 
         public override string NameForDisplayPEGI()=> "vertex Color";
         
-        public override bool Inspect()
+       public override void Inspect()
         {
             var changed = false;
             
@@ -1032,8 +1015,6 @@ namespace PlaytimePainter.MeshEditing {
                                                                      "Alternatively, you can enable Recolor_Group_On_Edit so that change will be applied instantly."));
 
             pegi.nl();
-
-            return changed;
         }
         
         private Color GetGroupColor(int index) {
@@ -1188,7 +1169,7 @@ namespace PlaytimePainter.MeshEditing {
              "to mask texture color with vertex color. All vertices should be set as Unique for this to work." +
              "Line is drawn between vertices marked with line strength 1. A triangle can't have only 2 sides with Edge: it's ether side, or all 3 (2 points marked to create a line, or 3 points to create 3 lines).";
 
-        public override bool Inspect()
+       public override void Inspect()
         {
             var changed = false;
             "Edge Strength: ".edit(ref _edgeValue).nl(ref changed);
@@ -1203,8 +1184,6 @@ namespace PlaytimePainter.MeshEditing {
 
             if ("FILL ALL".ClickConfirm("EdgeFill").nl())
                 FillAll(_edgeValue);
-
-            return changed;
         }
        
         #endregion
@@ -1399,7 +1378,7 @@ namespace PlaytimePainter.MeshEditing {
         public override string Tooltip => "Ctrl+LMB - sample" + Environment.NewLine + "LMB on triangle - set sub mesh";
         public override string NameForDisplayPEGI()=> "triangle Sub Mesh index";
 
-        public override bool Inspect() {
+       public override void Inspect() {
             "Sub Mesh: ".select(60, ref _curSubMesh, 0, EditedMesh.subMeshCount).nl();
             
             if ("Make all 0".Click().nl())
@@ -1411,8 +1390,6 @@ namespace PlaytimePainter.MeshEditing {
 
                 EditedMesh.Dirty = true;
             }
-
-            return false;
         }
 
         #endregion

@@ -9,21 +9,18 @@ using UnityEditor;
 
 // ReSharper disable InconsistentNaming
 #pragma warning disable IDE1006 // Naming Styles
-#pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching
-#pragma warning disable IDE0018 // Inline variable declaration
 #pragma warning disable IDE0011 // Add braces
 #pragma warning disable IDE0008 // Use explicit type
-#pragma warning disable IDE0009 // Member access should be qualified.
 
 namespace PlayerAndEditorGUI
 {
 
     #region interfaces & Attributes
 
-    public interface IPEGI { bool Inspect(); }
+    public interface IPEGI { void Inspect(); }
 
-    public interface IPEGI_ListInspect { bool InspectInList(IList list, int ind, ref int edited); }
+    public interface IPEGI_ListInspect { void InspectInList(IList list, int ind, ref int edited); }
 
     public interface IPEGI_Searchable { bool String_SearchMatch(string searchString); }
 
@@ -120,7 +117,7 @@ namespace PlayerAndEditorGUI
                 }
             }
 
-            public delegate bool WindowFunction();
+            public delegate void WindowFunction();
 
             public class Window
             {
@@ -700,7 +697,7 @@ namespace PlayerAndEditorGUI
 
             public static bool DocumentationWarningClickOpen(string text, string toolTip, int buttonSize = 20)
             {
-                if (DocumentationClickInternal(toolTip, buttonSize = 20, icon.Warning)) 
+                if (DocumentationClickInternal(toolTip, buttonSize: buttonSize, icon.Warning)) 
                 {
                     popUpText = text;
                     InitiatePopUp();

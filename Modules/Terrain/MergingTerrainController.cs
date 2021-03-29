@@ -77,7 +77,7 @@ namespace PlaytimePainter
         #region Inspector
 
         int inspectedElement = -1;
-        public bool Inspect()
+        public void Inspect()
         {
             var changed = pegi.toggleDefaultInspector(this);
 
@@ -89,7 +89,8 @@ namespace PlaytimePainter
                 painter.UpdateModules();
             }
 
-            if (inspectedElement != -1) return changed;
+            if (inspectedElement != -1) 
+                return;
 
             if (painter)
                 if ("Height Texture".edit(70, ref painter.terrainHeightTexture).nl(ref changed))
@@ -107,7 +108,6 @@ namespace PlaytimePainter
             pegi.nl();
 
 
-            return changed;
         }
 
         public static bool PluginInspectPart()
@@ -173,7 +173,7 @@ namespace PlaytimePainter
                 set { productName = value; }
             }
 
-            public bool InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(IList list, int ind, ref int edited)
             {
                 var changed = this.inspect_Name();
 
@@ -195,11 +195,9 @@ namespace PlaytimePainter
 
                 if (icon.Enter.Click())
                     edited = ind;
-
-                return changed;
             }
 
-            public bool Inspect()
+            public void Inspect()
             {
 
                 var changed = false;
@@ -228,8 +226,6 @@ namespace PlaytimePainter
 
                 "COLOR+GLOSS".edit(120, ref Product_colorWithAlpha).nl(ref changed);
                 "BUMP+HEIGHT+AO".edit(120, ref Product_combinedBump).nl(ref changed);
-
-                return changed;
             }
 
             #endregion

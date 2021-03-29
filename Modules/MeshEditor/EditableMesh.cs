@@ -126,7 +126,8 @@ namespace PlaytimePainter.MeshEditing
             {
                 var v = new PainterMesh.MeshPoint(vertices[i]);
                 meshPoints.Add(v);
-                var uv = new PainterMesh.Vertex(meshPoints[i], gotUv1 ? uv1[i] : Vector2.zero, gotUv2 ? uv2[i] : Vector2.zero);
+                //var uv = 
+                new PainterMesh.Vertex(meshPoints[i], gotUv1 ? uv1[i] : Vector2.zero, gotUv2 ? uv2[i] : Vector2.zero);
             }
 
             if (gotColors)
@@ -212,7 +213,7 @@ namespace PlaytimePainter.MeshEditing
 
                 //    Debug.Log("Using caching to merge vertex points.");
 
-                var mSize = mesh.bounds;
+               // var mSize = mesh.bounds;
 
                 float coef = 10000f / mesh.bounds.size.magnitude;
 
@@ -283,7 +284,7 @@ namespace PlaytimePainter.MeshEditing
 
             QcSharp.timer.End("Breaking mesh done", logThreshold: 1);
 
-            mesh = new Mesh();
+            //mesh = new Mesh();
 
             Dirty = true;
         }
@@ -1063,8 +1064,8 @@ namespace PlaytimePainter.MeshEditing
 
             var sum = dstA + dstB;
 
-            float weightA = dstB / sum;
-            float weightB = dstA / sum;
+           // float weightA = dstB / sum;
+           // float weightB = dstA / sum;
 
             pos = (a.localPos * dstB + b.localPos * dstA) / sum;
 
@@ -1298,7 +1299,7 @@ namespace PlaytimePainter.MeshEditing
 
         #region Inspector
 
-        public bool Inspect()
+        public void Inspect()
         {
             var changed = false;
 
@@ -1325,8 +1326,6 @@ namespace PlaytimePainter.MeshEditing
 
             if (!shapes.IsNullOrEmpty())
                 "Shapes".edit_List(ref shapes).nl(ref changed);
-
-            return changed;
         }
         public static EditableMesh inspected;
 

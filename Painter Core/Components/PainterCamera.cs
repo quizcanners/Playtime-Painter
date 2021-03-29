@@ -417,7 +417,7 @@ namespace PlaytimePainter {
         {
             Brush bc = command.Brush;
             TextureMeta id = command.TextureData;
-            Stroke stroke = command.Stroke;
+           // Stroke stroke = command.Stroke;
             
             var isDoubleBuffer = !id.renderTexture;
 
@@ -864,7 +864,6 @@ namespace PlaytimePainter {
 
         }
 
-        readonly QcUnity.ChillLogger logger = new QcUnity.ChillLogger("error");
 
         public AnimationCurve tmpCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(0.5f, 0.5f), new Keyframe(1, 1));
         
@@ -876,7 +875,7 @@ namespace PlaytimePainter {
         private int _inspectedDependecy = -1;
         private int _inspectedStuff = -1;
 
-        public override bool Inspect()
+       public override void Inspect()
         {
 
             pegi.toggleDefaultInspector(this).nl();
@@ -932,12 +931,7 @@ namespace PlaytimePainter {
             if ("Inspector & Debug".enter(ref _inspectedStuff, 4).nl())
                 QcUtils.InspectInspector();
 
-       
             pegi.nl();
-
-
-
-            return changed;
         }
         
         public bool DependenciesInspect(bool showAll = false) {

@@ -16,12 +16,11 @@ namespace PlaytimePainter.UI
         protected override void OnPopulateMesh(VertexHelper vh) => vh.Clear();
 
 
-        public bool Inspect()
+        public void Inspect()
         {
             var ico = raycastTarget;
             if ("Raycast Target".toggleIcon(ref ico))
                 raycastTarget = ico;
-            return false;
         }
 
     }

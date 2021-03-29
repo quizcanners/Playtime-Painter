@@ -118,7 +118,7 @@ namespace PlaytimePainter
 
                 var pp = isHit ? hit.transform.GetComponent<PlaytimePainter>() : null;
 
-                var refocus = OnEditorRayHit_AllowRefocusing(hit, mouseRayGui);
+                var refocus = OnEditorRayHit_AllowRefocusing(hit);
 
                 if (lMouseDwn && e.button == 0 && refocus && isHit) {
                     
@@ -139,7 +139,7 @@ namespace PlaytimePainter
                 painter.ManagedUpdateOnFocused();
         }
 
-        public static bool OnEditorRayHit_AllowRefocusing(RaycastHit hit, Ray ray)
+        public static bool OnEditorRayHit_AllowRefocusing(RaycastHit hit)
         {
 
             var tf = hit.transform;
@@ -212,7 +212,7 @@ namespace PlaytimePainter
             painter.FeedEvents(e);
 
             if (painter.meshEditing)
-                MeshEditorManager.Inst.UpdateInputEditorTime(e, lMouseUp, lMouseDwn);
+                MeshEditorManager.Inst.UpdateInputEditorTime(e);
         }
 
         public static Tool previousTool;
