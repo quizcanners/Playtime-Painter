@@ -791,10 +791,10 @@ namespace PlayerAndEditorGUI
             return EndCheckLine();
         }
         
-        public static bool edit(ref int val, int min, int max)
+        public static bool edit(ref int val, int minInclusive, int maxInclusive)
         {
             BeginCheckLine();
-            val = EditorGUILayout.IntSlider(val, min, max); 
+            val = EditorGUILayout.IntSlider(val, minInclusive, maxInclusive); 
             return EndCheckLine();
         }
 
