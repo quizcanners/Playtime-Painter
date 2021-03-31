@@ -920,7 +920,8 @@ namespace QuizCanners.Utils {
 
 #region Unity Editor MGMT
 
-
+        public static bool Contains(this LayerMask layermask, int layer) => layermask == (layermask | (1 << layer));
+        
 
         public static bool GetPlatformDirective(string define)
         {

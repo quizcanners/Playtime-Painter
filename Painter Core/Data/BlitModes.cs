@@ -841,7 +841,7 @@ namespace PlaytimePainter {
                 {
                     if (_customCfg.name.foldout(ref _showConfig).nl(ref changed))
                     {
-                        _customCfg.Nested_Inspect(ref changed);
+                        _customCfg.Nested_Inspect().changes(ref changed);
                     }
                 }
                 else

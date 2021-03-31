@@ -19,10 +19,35 @@ MonoBehaviour:
   defaultMaterial: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
   dontIncludeShaderInBuild: 1
   shadersToBuldWith: []
-  textureSets: []
+  texturePackagingSolutions: []
   atlasedMaterials: []
   playtimeSavedTextures: []
   imgMetas:
+  - target: 1
+    renderTexture: {fileID: 8400000, guid: 397fac58d2485754f9cecb7be12b8a76, type: 2}
+    texture2D: {fileID: 0}
+    other: {fileID: 0}
+    width: 1024
+    height: 1024
+    useTexCoord2: 0
+    _useTexCoord2AutoAssigned: 0
+    lockEditing: 0
+    isATransparentLayer: 0
+    enableUndoRedo: 0
+    preserveTransparency: 1
+    sdfMaxInside: 1
+    sdfMaxOutside: 1
+    sdfPostProcessDistance: 1
+    _repaintDelay: 0.016
+    updateTex2DafterStroke: 0
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    isAVolumeTexture: 1
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    backupManually: 0
+    saveName: _RayMarchingVolume
+    url: 
+    inspectedItems: -1
   - target: 0
     renderTexture: {fileID: 0}
     texture2D: {fileID: 2800000, guid: b24b57e0cfed05643be34b0256df875e, type: 3}
@@ -115,43 +140,7 @@ MonoBehaviour:
   vectorsFolderName: Vectors
   atlasFolderName: Atlases
   enablePainterUIonPlay: 0
-  Brush:
-    _inGpuBrushType: 0
-    _inCpuBrushType: 0
-    _inGpuBlitMode: 0
-    _inCpuBlitMode: 0
-    targetIsTex2D: 0
-    selectedSourceTexture: 0
-    clampSourceTexture: 0
-    ignoreSrcTextureTransparency: 0
-    srcColorUsage: 0
-    useMask: 0
-    selectedSourceMask: 0
-    maskFromGreyscale: 0
-    maskOffset: {x: 0, y: 0}
-    randomMaskOffset: 0
-    flipMaskAlpha: 0
-    maskTiling: 1
-    mask: 15
-    selectedDecal: 0
-    decalAngle: 0
-    rotationMethod: 0
-    decalContentious: 0
-    decalAngleModifier: 0
-    showBrushDynamics: 0
-    hardness: 5
-    blurAmount: 1
-    brush3DRadius: 0.0925926
-    brush2DRadius: 67
-    useAlphaBuffer: 0
-    alphaLimitForAlphaBuffer: 1
-    worldSpaceBrushPixelJitter: 0
-    Color: {r: 0.144, g: 1, b: 1, a: 0.673}
-    _dFlow:
-      min: 0.1
-      max: 4.5
-      _value: 1.22
-    showingSize: 1
+  BrushConfig: {fileID: 0}
   showColorSliders: 1
   disableNonMeshColliderInPlayMode: 0
   previewAlphaChanel: 0
@@ -171,4 +160,3 @@ MonoBehaviour:
   selectedHeightIndex: 8
   recordingNames: []
   browsedRecord: 0
-  systemLanguage: 10

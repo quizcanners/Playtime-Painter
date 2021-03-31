@@ -992,27 +992,6 @@ namespace QuizCanners.Inspect
             return value;
         }
 
-        public static bool nl_ifFolded(this bool value, ref bool changes)
-        {
-            nl_ifFolded();
-            changes |= value;
-            return value;
-        }
-
-        public static bool nl_ifFoldedOut(this bool value, ref bool changes)
-        {
-            nl_ifFoldedOut();
-            changes |= value;
-            return value;
-        }
-
-        public static bool nl_ifEntered(this bool value, ref bool changes)
-        {
-            nl_ifEntered();
-            changes |= value;
-            return value;
-        }
-
         private static bool nl_ifTrue(this bool value)
         {
             if (value)
@@ -1067,12 +1046,6 @@ namespace QuizCanners.Inspect
         public static void nl(this string value, PEGI_Styles.PegiGuiStyle style)
         {
             write(value, style);
-            nl();
-        }
-
-        public static void nl(this string value, string hint, PEGI_Styles.PegiGuiStyle style)
-        {
-            write(value, hint, style);
             nl();
         }
 

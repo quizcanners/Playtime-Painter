@@ -56,8 +56,6 @@ namespace QuizCanners.Inspect
             }
         }
 
-     
-
         public static ChangesToken ChangeTrackStart() => new ChangesToken();
 
         public static bool changes(this bool value, ref bool changed)
@@ -189,31 +187,7 @@ namespace QuizCanners.Inspect
 
         }
 
-        public static bool select(this string label, string tip, ref int value, List<int> list)
-        {
-            label.write(tip);
-            return select(ref value, list);
-        }
-
-        public static bool select(this string label, string tip, int width, ref int value, List<int> list)
-        {
-            label.write(tip, width);
-            return select(ref value, list);
-        }
-
-        public static bool select(this string label, int width, ref int value, List<int> list)
-        {
-            label.write(width);
-            return select(ref value, list);
-        }
-
-        public static bool select(this string label, ref int value, List<int> list)
-        {
-            label.write(ApproximateLength(label));
-            return select(ref value, list);
-        }
-
-        public static bool select(ref int value, List<int> list) => select(ref value, list.ToArray());
+        internal static bool select(ref int value, List<int> list) => select(ref value, list.ToArray());
 
         public static bool select(this string text, int width, ref int value, int min, int max)
         {
@@ -237,24 +211,6 @@ namespace QuizCanners.Inspect
             }
 
             return false;
-        }
-
-        public static bool select(this string text, ref int ind, int[] arr)
-        {
-            write(text);
-            return select(ref ind, arr);
-        }
-
-        public static bool select(this string text, int width, ref int ind, int[] arr)
-        {
-            write(text, width);
-            return select(ref ind, arr);
-        }
-
-        public static bool select(this string text, string tip, int width, ref int ind, int[] arr, bool showIndex = false)
-        {
-            write(text, tip, width);
-            return select(ref ind, arr, showIndex);
         }
 
         public static bool select(ref int val, int[] arr, bool showIndex = false, bool stripSlashes = false, bool dotsToSlashes = true)
@@ -319,29 +275,6 @@ namespace QuizCanners.Inspect
 
             return false;
 
-        }
-
-        public static bool select<T>(ref int no, List<T> from) where T : IGotName
-        {
-
-            var lst = new List<string>(from.Count + 1);
-
-            foreach (var e in from)
-                lst.Add(e.GetNameForInspector());
-
-            return select(ref no, lst);
-        }
-
-        public static bool select(this string text, ref int value, List<string> list)
-        {
-            write(text, ApproximateLength(text));
-            return select(ref value, list);
-        }
-
-        public static bool select(this string text, int width, ref int value, List<string> list)
-        {
-            write(text, width);
-            return select(ref value, list);
         }
 
         public static bool select(this string text, int width, ref int value, string[] array)
@@ -444,64 +377,13 @@ namespace QuizCanners.Inspect
             return false;
         }
 
-        public static bool select(this string text, ref string val, List<string> lst)
-        {
-            write(text);
-            return select(ref val, lst);
-        }
-
-        public static bool select(this string text, int width, ref string val, List<string> lst)
-        {
-            write(text, width);
-            return select(ref val, lst);
-        }
+    
 
         #endregion
 
         #region UnityObject
 
-        public static bool select(this string label, int width, ref string spriteName, SpriteAtlas atlas)
-        {
-            label.write(width);
-            return select(ref spriteName, atlas);
-        }
-
-        public static bool select(this string label, ref string spriteName, SpriteAtlas atlas)
-        {
-            label.write();
-            return select(ref spriteName, atlas);
-        }
-
-        public static bool select(ref string spriteName, SpriteAtlas atlas)
-        {
-
-            if (!atlas)
-            {
-                "No Atlas".write();
-                return false;
-            }
-
-           
-            Sprite[] sprites = new Sprite[atlas.spriteCount];
-
-            atlas.GetSprites(sprites);
-
-            List<string> names = new List<string>(atlas.spriteCount + 1);
-
-            foreach (var sp in sprites)
-            {
-                var n = sp.name;
-                int cut = n.LastIndexOf('(');
-                if (cut > 0)
-                    n = n.Substring(0, cut);
-
-                names.Add(n);
-
-            }
-
-            return select(ref spriteName, names);
-
-        }
+    
 
         public static bool select(ref SortingLayer sortingLayer)
         {
@@ -592,65 +474,6 @@ namespace QuizCanners.Inspect
             return changed;
         }
 
-        public static bool select(ref int no, Texture[] tex)
-        {
-
-#if UNITY_EDITOR
-            if (!PaintingGameViewUI)
-                return ef.select(ref no, tex);
-
-#endif
-
-            if (tex.Length == 0) return false;
-
-            checkLine();
-
-            var tnames = new List<string>(tex.Length + 1);
-            var tnumbers = new List<int>(tex.Length + 1);
-
-            var curno = 0;
-            for (var i = 0; i < tex.Length; i++)
-                if (!tex[i].IsNullOrDestroyed_Obj())
-                {
-                    tnumbers.Add(i);
-                    tnames.Add("{0}: {1}".F(i, tex[i].name));
-                    if (no == i) curno = tnames.Count - 1;
-                }
-
-            var changed = false;
-
-            if (select(ref curno, tnames.ToArray()).changes(ref changed) && curno >= 0 && curno < tnames.Count)
-                no = tnumbers[curno];
-
-            return changed;
-
-        }
-
-        #endregion
-
-        #region Select Audio Clip
-
-        public static bool select(this string text, ref AudioClip clip, List<AudioClip> lst, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true) =>
-            text.select(text, ApproximateLength(text), ref clip, lst, showIndex, stripSlashes, allowInsert);
-
-        public static bool select(this string text, int width, ref AudioClip clip, List<AudioClip> lst, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true) =>
-            text.select(text, width, ref clip, lst, showIndex, stripSlashes, allowInsert);
-
-        public static bool select(this string text, string tip, ref AudioClip clip, List<AudioClip> lst, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true) =>
-            text.select(tip, ApproximateLength(text), ref clip, lst, showIndex, stripSlashes, allowInsert);
-
-        public static bool select(this string text, string tip, int width, ref AudioClip clip, List<AudioClip> lst, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true)
-        {
-            text.write(tip, width);
-
-            var ret = select(ref clip, lst, showIndex, stripSlashes, allowInsert);
-
-            if (clip && icon.Play.Click(20))
-                clip.Play();
-
-            return ret;
-        }
-
         #endregion
 
         #region Select Generic
@@ -671,16 +494,8 @@ namespace QuizCanners.Inspect
             return select(ref value, list, showIndex, stripSlashes, allowInsert);
         }
 
-        public static bool select<T>(this string text, ref T value, T[] arr, bool showIndex = false)
-        {
-            if (arr != null && arr.Length > SEARCH_SELECTIONTHOLD)
-                write(text, 120);
-            else
-                write(text);
-            return select(ref value, arr, showIndex);
-        }
 
-        public static bool select<T>(ref T val, T[] lst, bool showIndex = false, bool stripSlashes = false, bool dotsToSlashes = true)
+        internal static bool select<T>(ref T val, T[] lst, bool showIndex = false, bool stripSlashes = false, bool dotsToSlashes = true)
         {
             checkLine();
 
@@ -2234,50 +2049,6 @@ namespace QuizCanners.Inspect
 #endif
                 false;
         
-        public static bool edit(this string label, ref Object field, Type type, bool allowSceneObjects = true)
-        {
-#if UNITY_EDITOR
-            if (!PaintingGameViewUI)
-            {
-                write(label);
-                return edit(ref field, type, allowSceneObjects);
-            }
-#endif
-
-            "{0} [{1}]".F(label, field ? field.name : "NULL").write(toolTip: field.GetNameForInspector_Uobj());
-
-            return false;
-        }
-
-        public static bool edit(this string label, int width, ref Object field, Type type, bool allowSceneObjects = true) 
-        {
-#if UNITY_EDITOR
-            if (!PaintingGameViewUI)
-            {
-                write(label, width);
-                return edit(ref field, type, allowSceneObjects);
-            }
-
-#endif
-
-            "{0} [{1}]".F(label, field ? field.name : "NULL").write(toolTip: field.GetNameForInspector_Uobj(), width: width);
-            return false;
-        }
-
-        public static bool edit(this string label, string toolTip, int width, ref Object field, Type type, bool allowSceneObjects = true) 
-        {
-#if UNITY_EDITOR
-            if (!PaintingGameViewUI)
-            {
-                write(label, toolTip, width);
-                return edit(ref field, type, allowSceneObjects);
-            }
-#endif
-
-            "{0} [{1}]".F(label, field ? field.name : "NULL").write(toolTip: toolTip, width: width);
-            return false;
-        }
-        
         public static bool edit(ref Object field, Type type, bool allowSceneObjects = true) =>
             #if UNITY_EDITOR
             !PaintingGameViewUI ? ef.edit(ref field, type, allowSceneObjects) :
@@ -2289,9 +2060,6 @@ namespace QuizCanners.Inspect
                      !PaintingGameViewUI ? ef.edit(ref field, type, width, allowSceneObjects) :
                 #endif
                 false;
-
-        public static bool edit_enter_Inspect<T>(ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : Object
-            => edit_enter_Inspect(null, -1, ref obj, ref entered, current, selectFrom);
 
         public static bool edit_enter_Inspect<T>(this string label, ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : Object
             => label.edit_enter_Inspect(-1, ref obj, ref entered, current, selectFrom);
@@ -2352,24 +2120,6 @@ namespace QuizCanners.Inspect
             return changed;
         }
 
-        #endregion
-
-        #region Sorting Layer
-        
-        public static bool edit(ref SortingLayer sortingLayer) => select(ref sortingLayer);
-
-        public static bool edit(this string label, ref SortingLayer sortingLayer)
-        {
-            label.write();
-            return select(ref sortingLayer, SortingLayer.layers);
-        }
-
-        public static bool edit(this string label, int width, ref SortingLayer sortingLayer)
-        {
-            label.write(width);
-            return select(ref sortingLayer);
-        }
-        
         #endregion
 
         #region Vectors & Rects
@@ -2505,18 +2255,6 @@ namespace QuizCanners.Inspect
             return false;
         }
         
-        public static bool edit(this string label, ref RectOffset val)
-        {
-            label.nl();
-            return edit(ref val);
-        }
-
-        public static bool edit(this string label, ref RectOffset val, int min, int max)
-        {
-            label.nl();
-            return edit(ref val, min, max);
-        }
-
         public static bool edit(this string label, ref Vector4 val)
         {
 
@@ -2536,12 +2274,6 @@ namespace QuizCanners.Inspect
 
         public static bool edit(ref Vector3 val) =>
            "X".edit(15, ref val.x) || "Y".edit(15, ref val.y) || "Z".edit(15, ref val.z);
-
-        public static bool edit(ref Vector3 val, float min, float max) =>
-            "X".edit(10, ref val.x, min, max) ||
-            "Y".edit(10, ref val.y, min, max) ||
-            "Z".edit(10, ref val.z, min, max);
-
 
         public static bool edit(this string label, ref Vector3 val)
         {
@@ -2567,12 +2299,6 @@ namespace QuizCanners.Inspect
             return edit(ref val.x) || edit(ref val.y);
         }
 
-        public static bool edit01(this string label, int width, ref Vector2 val)
-        {
-            label.nl(width);
-            return edit01(ref val);
-        }
-
         public static bool edit01(this string label, ref Vector2 val)
         {
             label.nl(label.ApproximateLength());
@@ -2582,22 +2308,6 @@ namespace QuizCanners.Inspect
         public static bool edit01(ref Vector2 val) =>
             "X".edit01(10, ref val.x).nl() ||
             "Y".edit01(10, ref val.y).nl();
-
-        public static bool edit_Range(this string label, int width, ref Vector2 vec2)
-        {
-
-            var x = vec2.x;
-            var y = vec2.y;
-
-            if (label.edit_Range(width, ref x, ref y))
-            {
-                vec2.x = x;
-                vec2.y = y;
-                return true;
-            }
-
-            return false;
-        }
 
         public static bool edit(this string label, ref Vector2 val, float min, float max)
         {
@@ -2628,17 +2338,6 @@ namespace QuizCanners.Inspect
             return edit(ref v2);
         }
 
-        public static bool edit(this string label, int width, ref Vector3 v3)
-        {
-            write(label, width);
-            return edit(ref v3);
-        }
-
-        public static bool edit(this string label, string toolTip, int width, ref Vector3 v3)
-        {
-            write(label, toolTip, width);
-            return edit(ref v3);
-        }
         #endregion
 
         #region Color
@@ -3613,18 +3312,6 @@ namespace QuizCanners.Inspect
             return editEnum(ref value);
         }
 
-        public static bool editEnum<T>(this string label, ref T value, List<int> options)
-        {
-            label.write(width: ApproximateLength(label));
-            return editEnum(ref value, options);
-        }
-
-        public static bool editEnum<T>(this string label, int width, ref T value, List<int> options)
-        {
-            label.write(width);
-            return editEnum(ref value, options);
-        }
-
         public static bool editEnum<T>(this string label, int width, ref int current, List<int> options)
         {
             label.write(width);
@@ -3709,21 +3396,10 @@ namespace QuizCanners.Inspect
         #endregion
 
         #region Enum Flags
-        public static bool editEnumFlags<T>(this string text, string tip, int width, ref T eval)
-        {
-            write(text, tip, width);
-            return editEnumFlags(ref eval);
-        }
 
         public static bool editEnumFlags<T>(this string text, int width, ref T eval)
         {
             write(text, width);
-            return editEnumFlags(ref eval);
-        }
-
-        public static bool editEnumFlags<T>(this string text, ref T eval)
-        {
-            write(text);
             return editEnumFlags(ref eval);
         }
 
@@ -3846,14 +3522,6 @@ namespace QuizCanners.Inspect
 
         }
 
-        public static bool editDelayed(this string label, ref string val, int width)
-        {
-            write(label, Msg.EditDelayed_HitEnter.GetText(), width);
-
-            return editDelayed(ref val);
-
-        }
-
         public static bool editDelayed(this string label, int width, ref string val)
         {
             write(label, width);
@@ -3937,12 +3605,6 @@ namespace QuizCanners.Inspect
 
         }
 
-        public static bool editBig(this string name, ref string val, int height = 100)
-        {
-            write(name + ":");
-            return editBig(ref val, height);
-        }
-
         public static bool edit(this string label, ref string val)
         {
 
@@ -3973,37 +3635,9 @@ namespace QuizCanners.Inspect
 
         #region Property
 
-        public static bool edit_Property<T>(Expression<Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true)
-            => edit_Property(memberExpression, fieldWidth, obj, includeChildren);
-
         public static bool edit_Property<T>(this string label, Expression<Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true)
         {
             label.nl();
-            return edit_Property(memberExpression, fieldWidth, obj, includeChildren);
-        }
-
-        public static bool edit_Property<T>(this string label, string tip, Expression<Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true)
-        {
-            label.nl(tip);
-            return edit_Property(memberExpression, fieldWidth, obj, includeChildren);
-        }
-
-        public static bool edit_Property<T>(this string label, int width, Expression<Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true)
-        {
-            label.nl(width);
-            return edit_Property(memberExpression, fieldWidth, obj, includeChildren);
-        }
-
-        public static bool edit_Property<T>(this string label, string tip, int width, Expression<Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true)
-        {
-            label.nl(tip, width);
-            return edit_Property(memberExpression, fieldWidth, obj, includeChildren);
-        }
-
-        public static bool edit_Property<T>(this Texture tex, string tip, Expression<Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true)
-        {
-            tex.write(tip);
-            nl();
             return edit_Property(memberExpression, fieldWidth, obj, includeChildren);
         }
 
@@ -4033,55 +3667,11 @@ namespace QuizCanners.Inspect
             return edit(ref val.x) || edit(ref val.y);
         }
 
-        public static bool edit(ref MyIntVec2 val, int min, int max)
-        {
-
-#if UNITY_EDITOR
-            if (!PaintingGameViewUI)
-                return ef.edit(ref val, min, max);
-#endif
-
-            return edit(ref val.x, min, max) || edit(ref val.y, min, max);
-
-        }
-
-        public static bool edit(ref MyIntVec2 val, int min, MyIntVec2 max)
-        {
-
-#if UNITY_EDITOR
-            if (!PaintingGameViewUI)
-                return ef.edit(ref val, min, max);
-#endif
-
-            return edit(ref val.x, min, max.x) || edit(ref val.y, min, max.y);
-        }
-
-        public static bool edit(this string label, ref MyIntVec2 val)
-        {
-            write(label);
-            nl();
-            return edit(ref val);
-        }
-
         public static bool edit(this string label, int width, ref MyIntVec2 val)
         {
             write(label, width);
             nl();
             return edit(ref val);
-        }
-
-        public static bool edit(this string label, int width, ref MyIntVec2 val, int min, int max)
-        {
-            write(label, width);
-            nl();
-            return edit(ref val, min, max);
-        }
-
-        public static bool edit(this string label, int width, ref MyIntVec2 val, int min, MyIntVec2 max)
-        {
-            write(label, width);
-            nl();
-            return edit(ref val, min, max);
         }
 
         #endregion

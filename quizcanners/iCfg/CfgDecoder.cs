@@ -32,6 +32,7 @@ namespace QuizCanners.CfgDecode
                 {
                     _loopSafe = cstm;
                     cstm.Decode(data);
+                    _loopSafe = null; 
                 }
             }
             else

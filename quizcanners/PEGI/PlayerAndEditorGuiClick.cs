@@ -174,18 +174,6 @@ namespace QuizCanners.Inspect
             return false;
         }
 
-        public static bool ClickUnFocus(this Texture tex, int width = defaultButtonSize)
-        {
-
-#if UNITY_EDITOR
-            if (!PaintingGameViewUI)
-                return ef.Click(tex, width).UnFocusIfTrue();
-#endif
-
-            checkLine();
-            return GUILayout.Button(tex, GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(width)).DirtyUnFocus();
-        }
-
         public static bool ClickUnFocus(this Texture tex, string toolTip, int width = defaultButtonSize) =>
              Click(tex, toolTip, width).UnFocusIfTrue();
 
@@ -224,8 +212,6 @@ namespace QuizCanners.Inspect
         }
 
         public static bool ClickText(this string label, string hint, int fontSize) => TextAndTip(label, hint).ClickText(ScalableBlueText(fontSize));
-
-        public static bool ClickText(this string label, PegiGuiStyle style) => TextAndTip(label).ClickText(style);
 
         private static bool ClickText(this GUIContent content, PegiGuiStyle style)
         {
@@ -341,14 +327,8 @@ namespace QuizCanners.Inspect
 
         private static Texture GetTexture_orEmpty(this Sprite sp) => sp ? sp.texture : icon.Empty.GetIcon();
 
-        public static bool Click(this Sprite img, int size = defaultButtonSize)
-            => img.GetTexture_orEmpty().Click(size);
-
-        public static bool Click(this Sprite img, string toolTip, int size = defaultButtonSize)
+        internal static bool Click(this Sprite img, string toolTip, int size = defaultButtonSize)
             => img.GetTexture_orEmpty().Click(toolTip, size);
-
-        public static bool Click(this Sprite img, string toolTip, int width, int height)
-            => img.GetTexture_orEmpty().Click(toolTip, width, height);
 
         public static bool Click(this Texture img, int size = defaultButtonSize)
         {
@@ -479,16 +459,6 @@ namespace QuizCanners.Inspect
             return Click(tex, size);
         }
 
-        public static bool Click(this icon icon, string toolTip, int width, int height)
-        {
-            var tex = icon.GetIcon();
-
-            if (!tex || tex == Texture2D.whiteTexture)
-                return icon.GetText().ClickUnFocus(toolTip);
-
-            return Click(tex, toolTip, width, height);
-        }
-
         public static bool Click(this icon icon, string toolTip, ref bool changed, int size = defaultButtonSize)
         {
             var tex = icon.GetIcon();
@@ -510,8 +480,6 @@ namespace QuizCanners.Inspect
         }
 
         public static bool Click(this Color col) => icon.Empty.GUIColor(col).BgColor(Color.clear).Click().RestoreGUIColor().RestoreBGColor();
-
-        public static bool Click(this Color col, string toolTip, int size = defaultButtonSize) => icon.Empty.GUIColor(col).BgColor(Color.clear).Click(toolTip, size).RestoreGUIColor().RestoreBGColor();
 
         public static bool ClickHighlight(this Sprite sp, int width = defaultButtonSize)
         {
@@ -567,13 +535,6 @@ namespace QuizCanners.Inspect
             return false;
         }
 
-        public static bool Click_Enter_Attention_Highlight<T>(this T obj, ref bool changed, icon icon = icon.Enter, string hint = "", bool canBeNull = true) where T : Object, INeedAttention
-        {
-            var ch = obj.Click_Enter_Attention(icon, hint, canBeNull).changes(ref changed);
-            obj.ClickHighlight().changes(ref changed);
-            return ch;
-        }
-
         public static bool Click_Enter_Attention(this INeedAttention attention, icon icon = icon.Enter, string hint = "", bool canBeNull = true)
         {
             if (attention.IsNullOrDestroyed_Obj())
@@ -594,27 +555,5 @@ namespace QuizCanners.Inspect
 
             return icon.ClickUnFocus(hint);
         }
-
-        public static bool Click_Enter_Attention(this INeedAttention attention, Texture tex, string hint = "", bool canBeNull = true)
-        {
-            if (attention.IsNullOrDestroyed_Obj())
-            {
-                if (!canBeNull)
-                    return icon.Warning.ClickUnFocus("Object is null; {0}".F(hint));
-            }
-            else
-            {
-
-                var msg = attention.NeedAttention();
-                if (msg != null)
-                    return icon.Warning.ClickUnFocus(msg);
-            }
-
-            if (hint.IsNullOrEmpty())
-                hint = tex ? tex.ToString() : "Null Texture";
-
-            return tex ? tex.ClickUnFocus(hint) : icon.Enter.ClickUnFocus(hint);
-        }
-
     }
 }
