@@ -308,8 +308,6 @@ namespace PlayerAndEditorGUI
             return length;
         }
 
-      //  private static int RemainingLength(this string label, int otherElements) => Mathf.Min(label.IsNullOrEmpty() ? 1 : letterSizeInPixels * label.Length, Screen.width - otherElements);
-
         private static int RemainingLength(int otherElements) => PaintingGameViewUI ? _playtimeGuiWidth - otherElements : Screen.width - otherElements;
 
         #endregion
@@ -326,7 +324,7 @@ namespace PlayerAndEditorGUI
         private static readonly Color PreviousInspectedColor = new Color(0.3f, 0.7f, 0.3f, 1);
 
 
-#region GUI Colors
+        #region GUI Colors
 
         private static bool _guiColorReplaced;
 
@@ -342,8 +340,6 @@ namespace PlayerAndEditorGUI
         {
             if (!_guiColorReplaced)
                 _originalGuiColor = GUI.color;
-            //else
-              //  _previousGuiColors.Add(GUI.color);
 
             GUI.color = col;
 
@@ -355,8 +351,6 @@ namespace PlayerAndEditorGUI
         {
             if (_guiColorReplaced)
                 GUI.color = _originalGuiColor;
-
-            //_previousGuiColors.Clear();
 
             _guiColorReplaced = false;
         }
@@ -449,13 +443,13 @@ namespace PlayerAndEditorGUI
             return msg != null;
         }
 
-        public static bool NeedsAttention(ICollection list, out string message, string listName = "list", bool canBeNull = false)
+        private static bool NeedsAttention(ICollection list, out string message, string listName = "list", bool canBeNull = false)
         {
             message = NeedsAttention(list, listName, canBeNull);
             return message != null;
         }
 
-        public static string NeedsAttention(ICollection list, string listName = "list", bool canBeNull = false)
+        private static string NeedsAttention(ICollection list, string listName = "list", bool canBeNull = false)
         {
             string msg = null;
             if (list == null)
@@ -506,7 +500,7 @@ namespace PlayerAndEditorGUI
             }
         }
         
-#endregion
+        #endregion
 
         #region Focus MGMT
 
