@@ -443,13 +443,13 @@ namespace QuizCanners.Inspect
             return msg != null;
         }
 
-        private static bool NeedsAttention(ICollection list, out string message, string listName = "list", bool canBeNull = false)
+        public static bool NeedsAttention(ICollection list, out string message, string listName = "list", bool canBeNull = false)
         {
             message = NeedsAttention(list, listName, canBeNull);
             return message != null;
         }
 
-        private static string NeedsAttention(ICollection list, string listName = "list", bool canBeNull = false)
+        public static string NeedsAttention(ICollection list, string listName = "list", bool canBeNull = false)
         {
             string msg = null;
             if (list == null)
