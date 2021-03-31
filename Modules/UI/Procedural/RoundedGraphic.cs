@@ -1,12 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using PlayerAndEditorGUI;
-using QuizCannersUtilities;
+using QuizCanners.Inspect;
+using QuizCanners.Utils;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
+using QuizCanners.CfgDecode;
+using QuizCanners.Lerp;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -649,7 +651,7 @@ namespace PlaytimePainter.UI
                     if ("Shader".select(60, ref shad, CompatibleShaders, false, true).changes(ref changed))
                         mat.shader = shad;
 
-                    var sTip = mat.Get(QuizCannersUtilities.ShaderTags.ShaderTip);
+                    var sTip = mat.Get(QuizCanners.Utils.ShaderTags.ShaderTip);
 
                     if (!sTip.IsNullOrEmpty())
                         pegi.FullWindow.DocumentationClickOpen(sTip, "Tip from shader tag");

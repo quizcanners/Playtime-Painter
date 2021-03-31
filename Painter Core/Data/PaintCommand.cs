@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using QuizCannersUtilities;
+using QuizCanners.Utils;
 using UnityEngine;
 
 

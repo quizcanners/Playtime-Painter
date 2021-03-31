@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif

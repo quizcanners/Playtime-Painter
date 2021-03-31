@@ -1,9 +1,10 @@
 ﻿
 using System.Collections.Generic;
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
 using PlaytimePainter.CameraModules;
 using PlaytimePainter.ComponentModules;
-using QuizCannersUtilities;
+using QuizCanners.CfgDecode;
+using QuizCanners.Utils;
 using UnityEngine;
 
 namespace PlaytimePainter {

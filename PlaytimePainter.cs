@@ -1,16 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
 using PlaytimePainter.CameraModules;
 using PlaytimePainter.ComponentModules;
 using PlaytimePainter.MeshEditing;
-using QuizCannersUtilities;
+using QuizCanners.Utils;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 #if UNITY_EDITOR
 using UnityEditor;
+using QuizCanners.CfgDecode;
 #if UNITY_2019_1_OR_NEWER
 using UnityEditor.EditorTools;
 #endif
@@ -1773,6 +1774,6 @@ namespace PlaytimePainter
         }
 
         #endregion
-        
+
     }
 }

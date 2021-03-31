@@ -3,8 +3,8 @@
 
 using System.Collections;
 using System.Collections.Generic;
-using PlayerAndEditorGUI;
-using QuizCannersUtilities;
+using QuizCanners.Inspect;
+using QuizCanners.Utils;
 using UnityEngine;
 #if QC_USE_NETWORKING
 using UnityEngine.Networking;

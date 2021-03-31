@@ -1,10 +1,10 @@
-﻿using QuizCannersUtilities;
+﻿using QuizCanners.Utils;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace PlayerAndEditorGUI
+namespace QuizCanners.Inspect
 {
 
     public static class PEGI_Styles

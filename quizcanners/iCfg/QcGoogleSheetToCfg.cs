@@ -1,4 +1,5 @@
-﻿using PlayerAndEditorGUI;
+﻿using QuizCanners.Inspect;
+using QuizCanners.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace QuizCannersUtilities
+namespace QuizCanners.CfgDecode
 {
 #pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0044 // Add readonly modifier

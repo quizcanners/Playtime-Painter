@@ -1,4 +1,4 @@
-﻿using QuizCannersUtilities;
+﻿using QuizCanners.Utils;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -13,7 +13,7 @@ using UnityEditor;
 #pragma warning disable IDE0008 // Use explicit type
 #pragma warning disable IDE0009 // Member access should be qualified.
 
-namespace PlayerAndEditorGUI
+namespace QuizCanners.Inspect
 {
     public static partial class pegi
     {

@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
+using QuizCanners.CfgDecode;
 using UnityEngine;
 
-namespace QuizCannersUtilities
+namespace QuizCanners.Utils
 {
 
 #pragma warning disable IDE0018 // Inline variable declaration

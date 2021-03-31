@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QuizCanners.Inspect;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -10,10 +11,9 @@ using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
-namespace QuizCannersUtilities {
+namespace QuizCanners.Utils {
 
-    #pragma warning disable IDE0034 // Simplify 'default' expression
-    #pragma warning disable IDE0019 // Use pattern matching
+
     #pragma warning disable IDE0018 // Inline variable declaration
     
     public static class QcSharp {

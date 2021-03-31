@@ -2,23 +2,19 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
+using QuizCanners.Utils;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace QuizCannersUtilities {
+namespace QuizCanners.CfgDecode
+{
 
     #region Interfaces
 
 #pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
-
-   /* public interface ICfg {
-        CfgEncoder Encode(); 
-        void Decode(CfgData data);
-        bool Decode(string key, string data);
-    }*/
 
     public interface ICfgDecode
     {

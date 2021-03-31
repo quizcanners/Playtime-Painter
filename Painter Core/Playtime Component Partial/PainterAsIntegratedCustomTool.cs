@@ -1,9 +1,9 @@
 ﻿#if UNITY_EDITOR
 #if UNITY_2019_1_OR_NEWER
 using UnityEditor.EditorTools;
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
 using PlaytimePainter.MeshEditing;
-using QuizCannersUtilities;
+using QuizCanners.Utils;
 using UnityEditor;
 using UnityEngine;
 #endif

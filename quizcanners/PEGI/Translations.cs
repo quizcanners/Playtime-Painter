@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using QuizCannersUtilities;
+using QuizCanners.Utils;
 using UnityEngine;
 
-namespace PlayerAndEditorGUI {
+namespace QuizCanners.Inspect {
 
     public enum Msg  {Texture2D, RenderTexture,  EditDelayed_HitEnter, InspectElement, 
         HighlightElement, RemoveFromCollection, AddNewCollectionElement, AddEmptyCollectionElement,

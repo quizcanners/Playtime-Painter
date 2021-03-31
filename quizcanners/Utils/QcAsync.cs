@@ -5,11 +5,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
 using UnityEngine;
 using Debug = UnityEngine.Debug;
 
-namespace QuizCannersUtilities
+namespace QuizCanners.Utils
 {
 
     public static class QcAsync

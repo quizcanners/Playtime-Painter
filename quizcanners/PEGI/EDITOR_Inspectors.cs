@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using QuizCannersUtilities;
+using QuizCanners.Utils;
 using UnityEngine;
 using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace PlayerAndEditorGUI {
+namespace QuizCanners.Inspect {
 
     public abstract class PEGI_Inspector_Material
         #if UNITY_EDITOR

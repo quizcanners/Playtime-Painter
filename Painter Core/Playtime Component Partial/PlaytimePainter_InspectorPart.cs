@@ -1,7 +1,8 @@
-﻿using PlayerAndEditorGUI;
+﻿using QuizCanners.Inspect;
 using PlaytimePainter.CameraModules;
 using PlaytimePainter.MeshEditing;
-using QuizCannersUtilities;
+using QuizCanners.CfgDecode;
+using QuizCanners.Utils;
 using System;
 using System.Collections.Generic;
 #if UNITY_EDITOR

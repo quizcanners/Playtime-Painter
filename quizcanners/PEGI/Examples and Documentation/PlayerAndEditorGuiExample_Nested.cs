@@ -1,10 +1,10 @@
 ﻿using System;
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
 using UnityEngine;
 
-namespace PlayerAndEditorGUI.Examples
+namespace QuizCanners.Inspect.Examples
 {
-    public class PlayerAndEditorGuiExample_Nested : MonoBehaviour, IPEGI
+    public class InspectExample_Nested : MonoBehaviour, IPEGI
     {
 
         [NonSerialized] private Light lightSource;

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
 using PlaytimePainter.CameraModules;
-using QuizCannersUtilities;
+using QuizCanners.Lerp;
+using QuizCanners.Utils;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif

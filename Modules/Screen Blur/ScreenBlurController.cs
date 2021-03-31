@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using PlayerAndEditorGUI;
-using QuizCannersUtilities;
+using QuizCanners.Inspect;
+using QuizCanners.Lerp;
+using QuizCanners.Utils;
 using UnityEditor;
 using UnityEngine;
 

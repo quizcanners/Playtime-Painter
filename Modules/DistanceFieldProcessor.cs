@@ -11,7 +11,7 @@
  */
 
 using System.Collections;
-using QuizCannersUtilities;
+using QuizCanners.Utils;
 using UnityEngine;
 
 namespace PlaytimePainter {

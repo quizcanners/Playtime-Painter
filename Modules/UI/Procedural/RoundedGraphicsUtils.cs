@@ -1,5 +1,5 @@
-﻿using PlayerAndEditorGUI;
-using QuizCannersUtilities;
+﻿using QuizCanners.Inspect;
+using QuizCanners.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 #if UNITY_EDITOR

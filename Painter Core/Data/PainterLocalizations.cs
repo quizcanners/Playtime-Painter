@@ -1,9 +1,9 @@
 ﻿using System;
 using PlaytimePainter;
-using QuizCannersUtilities;
+using QuizCanners.Utils;
 using UnityEngine;
 
-namespace PlayerAndEditorGUI {
+namespace QuizCanners.Inspect {
 
     public enum MsgPainter {
         PreserveTransparency, RoundedGraphic,

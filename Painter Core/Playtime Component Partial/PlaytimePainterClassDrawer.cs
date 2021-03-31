@@ -1,5 +1,5 @@
 ﻿#if UNITY_EDITOR
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
 using UnityEditor;
 
 namespace PlaytimePainter {

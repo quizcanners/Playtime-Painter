@@ -8,10 +8,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using UnityEditor.SceneManagement;
-using QuizCannersUtilities;
+using QuizCanners.Utils;
 using UnityEditorInternal;
 using UnityEngine.SceneManagement;
 using Object = UnityEngine.Object;
+using QuizCanners.CfgDecode;
 
 #endif
 
@@ -22,7 +23,7 @@ using Object = UnityEngine.Object;
 #pragma warning disable IDE0011 // Add braces
 #pragma warning disable IDE0008 // Use explicit type
 
-namespace PlayerAndEditorGUI
+namespace QuizCanners.Inspect
 {
 
     internal static class ef {
@@ -1478,8 +1479,8 @@ namespace PlayerAndEditorGUI
         private static IList _currentReorderedList;
         private static Type _currentReorderedType;
         private static List<Type> _currentReorderedListTypes;
-        private static TaggedTypesCfg _currentTaggedTypes;
         private static ListMetaData _listMetaData;
+        private static TaggedTypesCfg _currentTaggedTypes;
 
         private static bool GetIsSelected(int ind) => (_listMetaData != null) ? _listMetaData.GetIsSelected(ind) : pegi.Getselected(ind);
 

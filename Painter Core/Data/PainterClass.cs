@@ -1,7 +1,8 @@
-﻿using PlayerAndEditorGUI;
+﻿using QuizCanners.Inspect;
 using PlaytimePainter.MeshEditing;
-using QuizCannersUtilities;
+using QuizCanners.Utils;
 using UnityEngine;
+using QuizCanners.CfgDecode;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif

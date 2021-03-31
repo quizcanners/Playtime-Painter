@@ -1,8 +1,9 @@
 ﻿using System;
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
 using PlaytimePainter.CameraModules;
 using PlaytimePainter.MeshEditing;
-using QuizCannersUtilities;
+using QuizCanners.CfgDecode;
+using QuizCanners.Utils;
 using UnityEngine;
 using Random = UnityEngine.Random;
 

@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
+using QuizCanners.CfgDecode;
+using QuizCanners.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 
-namespace QuizCannersUtilities
+namespace QuizCanners.Lerp
 {
 
 #pragma warning disable IDE0034 // Simplify 'default' expression

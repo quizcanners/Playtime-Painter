@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using QuizCannersUtilities;
+using QuizCanners.CfgDecode;
+using QuizCanners.Utils;
 using UnityEngine;
 
 namespace PlaytimePainter.ComponentModules
