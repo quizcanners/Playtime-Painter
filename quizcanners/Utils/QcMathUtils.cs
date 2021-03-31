@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace QuizCannersUtilities
+namespace QuizCanners.Utils
 {
 
 #pragma warning disable IDE0034 // Simplify 'default' expression

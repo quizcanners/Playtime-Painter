@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using QuizCannersUtilities;
+using QuizCanners.Utils;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using System.Collections;
@@ -13,7 +13,7 @@ using UnityEditor;
 #pragma warning disable IDE0011 // Add braces
 #pragma warning disable IDE0008 // Use explicit type
 
-namespace PlayerAndEditorGUI
+namespace QuizCanners.Inspect
 {
     public static partial class pegi
     {

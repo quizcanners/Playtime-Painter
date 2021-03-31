@@ -2,10 +2,11 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
+using QuizCanners.CfgDecode;
 using UnityEngine;
 
-namespace QuizCannersUtilities {
+namespace QuizCanners.Utils {
 
 
 #pragma warning disable IDE0034 // Simplify 'default' expression

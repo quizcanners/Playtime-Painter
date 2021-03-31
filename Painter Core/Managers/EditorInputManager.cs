@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace PlayerAndEditorGUI
+namespace QuizCanners.Inspect
 {
 #pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching

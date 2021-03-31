@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using QuizCannersUtilities;
+using QuizCanners.Inspect;
+using QuizCanners.Utils;
 using UnityEngine;
 using UnityEngine.Rendering;
 

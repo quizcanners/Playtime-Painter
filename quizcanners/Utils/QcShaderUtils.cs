@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
 using UnityEngine;
+using QuizCanners.CfgDecode;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-namespace QuizCannersUtilities {
+namespace QuizCanners.Utils {
 
 #pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching

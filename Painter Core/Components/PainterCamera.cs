@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
 using PlaytimePainter.CameraModules;
 using PlaytimePainter.MeshEditing;
-using QuizCannersUtilities;
+using QuizCanners.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using QuizCanners.CfgDecode;
+using QuizCanners.Lerp;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditor.SceneManagement;

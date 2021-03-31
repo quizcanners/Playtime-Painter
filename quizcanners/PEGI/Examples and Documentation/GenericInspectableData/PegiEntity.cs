@@ -1,9 +1,9 @@
-﻿using QuizCannersUtilities;
+﻿using QuizCanners.Utils;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace PlayerAndEditorGUI.Examples
+namespace QuizCanners.Inspect.Examples
 {
     public abstract class PegiEntity : IGotIndex, IGotName, IPEGI_ListInspect
     {

@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
-using QuizCannersUtilities;
+using QuizCanners.CfgDecode;
+using QuizCanners.Utils;
 using UnityEngine;
 using UnityEngine.U2D;
-using static PlayerAndEditorGUI.PEGI_Styles;
+using static QuizCanners.Inspect.PEGI_Styles;
 using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 
@@ -19,7 +20,7 @@ using Object = UnityEngine.Object;
 #pragma warning disable IDE0011 // Add braces
 #pragma warning disable IDE0008 // Use explicit type
 
-namespace PlayerAndEditorGUI
+namespace QuizCanners.Inspect
 {
     public static partial class pegi
     {

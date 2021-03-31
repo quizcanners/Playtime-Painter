@@ -1,6 +1,6 @@
 ﻿using System;
-using PlayerAndEditorGUI;
-using QuizCannersUtilities;
+using QuizCanners.Inspect;
+using QuizCanners.Utils;
 using UnityEngine;
 
 namespace PlaytimePainter.MeshEditing

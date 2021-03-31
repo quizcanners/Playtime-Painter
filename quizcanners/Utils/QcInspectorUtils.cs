@@ -2,13 +2,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using PlayerAndEditorGUI;
+using QuizCanners.CfgDecode;
+using QuizCanners.Inspect;
 using UnityEngine;
 using UnityEngine.Profiling;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
-
-namespace QuizCannersUtilities
+namespace QuizCanners.Utils
 {
 #pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching
@@ -952,8 +952,5 @@ namespace QuizCannersUtilities
         }
 
         #endregion
-
-
     }
-
 }

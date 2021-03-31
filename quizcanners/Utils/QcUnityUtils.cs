@@ -2,19 +2,19 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Reflection;
 using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
 using UnityEngine.U2D;
+using QuizCanners.Lerp;
 #if UNITY_EDITOR
 using UnityEditor;
 using UnityEditorInternal;
 #endif
 
-namespace QuizCannersUtilities {
+namespace QuizCanners.Utils {
     
 #pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching

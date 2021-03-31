@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
 using PlaytimePainter.ComponentModules;
 using PlaytimePainter.MeshEditing;
 using PlaytimePainter.TexturePacking;
-using QuizCannersUtilities;
+using QuizCanners.CfgDecode;
+using QuizCanners.Utils;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif

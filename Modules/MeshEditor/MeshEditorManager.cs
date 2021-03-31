@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
 using PlaytimePainter.CameraModules;
-using QuizCannersUtilities;
+using QuizCanners.Utils;
 using UnityEngine;
+using QuizCanners.CfgDecode;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif

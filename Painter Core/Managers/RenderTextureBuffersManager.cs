@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
 using PlaytimePainter.MeshEditing;
-using QuizCannersUtilities;
+using QuizCanners.Utils;
 using UnityEngine;
 
 namespace PlaytimePainter {

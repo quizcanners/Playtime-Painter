@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using QuizCannersUtilities;
+using QuizCanners.Utils;
 using UnityEngine;
 
-namespace PlayerAndEditorGUI {
+namespace QuizCanners.Inspect {
 
     // ReSharper disable InconsistentNaming
     #pragma warning disable IDE1006 // Naming Styles
@@ -55,6 +55,8 @@ namespace PlayerAndEditorGUI {
 
     public static class Icons_MGMT {
 
+        const string FOLDER_NAME = "Inspector Icons";
+
         private static readonly Countless<Texture2D> _managementIcons = new Countless<Texture2D>();
 
         public static Texture2D GetIcon(this icon icon)
@@ -73,7 +75,7 @@ namespace PlayerAndEditorGUI {
                 case icon.Blue: return ColorIcon(2) as Texture2D;
                 case icon.Alpha: return ColorIcon(3) as Texture2D;
                 default:
-                    var tmp = Resources.Load(Path.Combine("icons", Enum.GetName(typeof(icon), ind))) as Texture2D;
+                    var tmp = Resources.Load(Path.Combine(FOLDER_NAME, Enum.GetName(typeof(icon), ind))) as Texture2D;
 
                     _managementIcons[ind] = tmp ? tmp : Texture2D.whiteTexture;
 
@@ -93,16 +95,16 @@ namespace PlayerAndEditorGUI {
             switch (ind)
             {
                 case 0:
-                    _painterIcons[ind] = Resources.Load(Path.Combine("icons","Red")) as Texture2D;
+                    _painterIcons[ind] = Resources.Load(Path.Combine(FOLDER_NAME, "Red")) as Texture2D;
                     break;
                 case 1:
-                    _painterIcons[ind] = Resources.Load(Path.Combine("icons", "Green")) as Texture2D;
+                    _painterIcons[ind] = Resources.Load(Path.Combine(FOLDER_NAME, "Green")) as Texture2D;
                     break;
                 case 2:
-                    _painterIcons[ind] = Resources.Load(Path.Combine("icons", "Blue")) as Texture2D;
+                    _painterIcons[ind] = Resources.Load(Path.Combine(FOLDER_NAME, "Blue")) as Texture2D;
                     break;
                 case 3:
-                    _painterIcons[ind] = Resources.Load(Path.Combine("icons", "Alpha")) as Texture2D;
+                    _painterIcons[ind] = Resources.Load(Path.Combine(FOLDER_NAME, "Alpha")) as Texture2D;
                     break;
             }
 

@@ -1,9 +1,9 @@
-﻿using QuizCannersUtilities;
+﻿using QuizCanners.Utils;
 using System.Collections;
 using System.Collections.Generic;
 using System.Xml;
 
-namespace PlayerAndEditorGUI.Examples
+namespace QuizCanners.Inspect.Examples
 {
 
 #pragma warning disable IDE0018 // Inline variable declaration

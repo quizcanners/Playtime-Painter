@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
+using QuizCanners.Utils;
 using UnityEngine;
 
-namespace QuizCannersUtilities {
+namespace QuizCanners.CfgDecode {
 
     #region Interfaces
     #pragma warning disable IDE0019 // Use pattern matching

@@ -1,7 +1,7 @@
-﻿using PlayerAndEditorGUI;
-using QuizCannersUtilities;
+﻿using QuizCanners.Inspect;
+using QuizCanners.Utils;
 using UnityEngine;
-using static QuizCannersUtilities.ShaderProperty;
+using static QuizCanners.Utils.ShaderProperty;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif

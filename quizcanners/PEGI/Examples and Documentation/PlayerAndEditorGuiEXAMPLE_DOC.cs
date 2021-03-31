@@ -6,22 +6,21 @@
  */
 
 using System;
-using PlayerAndEditorGUI;
 using UnityEngine;
 
 #if UNITY_EDITOR    // To make sure that Unity will build our script, we exclude Unity Editor classes from the code.
 using UnityEditor;  // This is only needed if you actually want to override Unity's inspector (See [CustomEditor] declaration at the very bottom).
 #endif              // The alternative is to Inspect this object from inspector of another object.
 
-namespace PlayerAndEditorGUI.Examples
+namespace QuizCanners.Inspect.Examples
 {
 
-    public class PlayerAndEditorGuiEXAMPLE_DOC : MonoBehaviour, IPEGI
+    public class InspectEXAMPLE_DOC : MonoBehaviour, IPEGI
     {
 
         [SerializeField] private bool showInspectorInTheGameView;
 
-        [NonSerialized] private PlayerAndEditorGuiExample_Nested someOtherScript;
+        [NonSerialized] private InspectExample_Nested someOtherScript;
         
         #region Inspector
 
@@ -110,14 +109,14 @@ namespace PlayerAndEditorGUI.Examples
 
                     if ("Search for Component".Click().nl())
                     {
-                        someOtherScript = GetComponent<PlayerAndEditorGuiExample_Nested>();
+                        someOtherScript = GetComponent<InspectExample_Nested>();
                         if (!someOtherScript)
                             Debug.Log("One is not attached. Please click Create");
                     }
 
                     if ("Attach component".Click().nl())
                     {
-                        someOtherScript = gameObject.AddComponent<PlayerAndEditorGuiExample_Nested>();
+                        someOtherScript = gameObject.AddComponent<InspectExample_Nested>();
                     }
                 }
                 else
@@ -133,8 +132,8 @@ namespace PlayerAndEditorGUI.Examples
     }
 
 #if UNITY_EDITOR
-    [CustomEditor(typeof(PlayerAndEditorGuiEXAMPLE_DOC))]
-    public class PlayerAndEditorGuiEXAMPLE_DOCDrawer : PEGI_Inspector_Mono<PlayerAndEditorGuiEXAMPLE_DOC>
+    [CustomEditor(typeof(InspectEXAMPLE_DOC))]
+    public class InspectEXAMPLE_DOCDrawer : PEGI_Inspector_Mono<InspectEXAMPLE_DOC>
     {
     }
 #endif

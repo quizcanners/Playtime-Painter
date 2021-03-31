@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using PlayerAndEditorGUI;
+using QuizCanners.Inspect;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -9,12 +9,12 @@ using System.Runtime.Serialization.Formatters.Binary;
 using UnityEditor;
 #endif
 
-namespace QuizCannersUtilities
+namespace QuizCanners.Utils
 {
 
-#pragma warning disable IDE0034 // Simplify 'default' expression
-#pragma warning disable IDE0019 // Use pattern matching
-#pragma warning disable IDE0018 // Inline variable declaration
+    #pragma warning disable IDE0034 // Simplify 'default' expression
+    #pragma warning disable IDE0019 // Use pattern matching
+    #pragma warning disable IDE0018 // Inline variable declaration
 
     public static class QcFile
     {

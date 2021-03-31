@@ -2,9 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using QuizCannersUtilities;
+using QuizCanners.Utils;
 using UnityEngine;
 using Object = UnityEngine.Object;
+using QuizCanners.CfgDecode;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -16,7 +17,7 @@ using UnityEditor;
 #pragma warning disable IDE0011 // Add braces
 #pragma warning disable IDE0008 // Use explicit type
 
-namespace PlayerAndEditorGUI
+namespace QuizCanners.Inspect
 {
     public static partial class pegi
     {
@@ -3030,7 +3031,7 @@ namespace PlayerAndEditorGUI
 
         private static readonly char[] splitCharacters = { ' ', '.' };
 
-        public class SearchData : ICanBeDefaultCfg
+        public class SearchData 
         {
             public IEnumerable filteredList;
             public string searchedText;
@@ -3145,17 +3146,6 @@ namespace PlayerAndEditorGUI
         
             public void Refresh()=> OnCountChange();
             
-            public CfgEncoder Encode() => new CfgEncoder().Add_String("s", searchedText);
-
-            public void Decode(string key, CfgData data)
-            {
-                switch (key)
-                {
-                    case "s": searchedText = data.ToString(); break;
-                }
-            }
-            
-            public bool IsDefault => searchedText.IsNullOrEmpty();
 
         }
 

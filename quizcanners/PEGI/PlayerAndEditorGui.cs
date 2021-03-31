@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using QuizCannersUtilities;
+using QuizCanners.Utils;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
@@ -13,7 +13,7 @@ using UnityEditor;
 #pragma warning disable IDE0011 // Add braces
 #pragma warning disable IDE0008 // Use explicit type
 
-namespace PlayerAndEditorGUI
+namespace QuizCanners.Inspect
 {
 
     #region interfaces & Attributes

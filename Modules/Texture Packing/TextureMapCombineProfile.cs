@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using PlayerAndEditorGUI;
-using QuizCannersUtilities;
+using QuizCanners.Inspect;
+using QuizCanners.Utils;
 using UnityEngine;
 
 namespace PlaytimePainter.TexturePacking

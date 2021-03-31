@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.IO;
-using PlayerAndEditorGUI;
-using QuizCannersUtilities;
+using QuizCanners.Inspect;
+using QuizCanners.Utils;
 using UnityEngine;
+using QuizCanners.CfgDecode;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
