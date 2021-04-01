@@ -3589,22 +3589,6 @@ namespace QuizCanners.Inspect
 
         }
 
-        public static bool editBig(ref string val, int height = 100)
-        {
-
-            nl();
-
-#if UNITY_EDITOR
-            if (!PaintingGameViewUI)
-                return ef.editBig(ref val, height).nl();
-#endif
-
-            bc();
-            val = GUILayout.TextArea(val, GUILayout.MaxHeight(height), GuiMaxWidthOption);
-            return ec();
-
-        }
-
         public static bool edit(this string label, ref string val)
         {
 
@@ -3630,6 +3614,30 @@ namespace QuizCanners.Inspect
             write(label, toolTip, width);
             return edit(ref val);
         }
+
+        public static bool editBig(this string label, ref string val, int height = 100)
+        {
+            write(label);
+            return editBig(ref val, height: height);
+        }
+
+
+        public static bool editBig(ref string val, int height = 100)
+        {
+
+            nl();
+
+#if UNITY_EDITOR
+            if (!PaintingGameViewUI)
+                return ef.editBig(ref val, height).nl();
+#endif
+
+            bc();
+            val = GUILayout.TextArea(val, GUILayout.MaxHeight(height), GuiMaxWidthOption);
+            return ec();
+
+        }
+
 
         #endregion
 

@@ -600,6 +600,18 @@ namespace QuizCanners.Inspect
             return changed;
         }
 
+        public static bool enter_List<T>(this string label, ref List<T> list, ref bool entered)
+        {
+
+            var changed = false;
+
+            if (enter_ListIcon(label, ref list, ref entered))
+                label.edit_List(ref list).nl(ref changed);
+
+            return changed;
+        }
+
+
         #region Tagged Types
 
         public static T enter_List<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne, TaggedTypesCfg types, ref bool changed) =>
