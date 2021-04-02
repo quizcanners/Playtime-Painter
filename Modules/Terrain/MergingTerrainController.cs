@@ -76,7 +76,7 @@ namespace PlaytimePainter
 
         #region Inspector
 
-        int inspectedElement = -1;
+        private int inspectedElement = -1;
         public void Inspect()
         {
             var changed = pegi.toggleDefaultInspector(this);
@@ -180,7 +180,7 @@ namespace PlaytimePainter
                 if (Product_colorWithAlpha && !Product_colorWithAlpha.name.Equals(productName))
                 {
                     if (icon.Refresh.Click("Set Name"))
-                    productName = Product_colorWithAlpha.name;
+                        productName = Product_colorWithAlpha.name;
                 } else if (colorTexture && !colorTexture.name.Equals(productName) && icon.Refresh.Click("Set Name"))
                     productName = colorTexture.name;
 

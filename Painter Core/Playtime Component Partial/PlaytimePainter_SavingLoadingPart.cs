@@ -1,5 +1,4 @@
-﻿using QuizCanners.Inspect;
-using PlaytimePainter.MeshEditing;
+﻿using PlaytimePainter.MeshEditing;
 using QuizCanners.CfgDecode;
 using QuizCanners.Utils;
 using System;
@@ -85,7 +84,7 @@ namespace PlaytimePainter
         private string GenerateTextureSavePath() =>
             Path.Combine(Cfg.texturesFolderName, TexMeta.saveName + ".png");
 
-        LoopLock _loopLock = new LoopLock();
+        private LoopLock _loopLock = new LoopLock();
 
         private bool OnBeforeSaveTexture(TextureMeta id)
         {

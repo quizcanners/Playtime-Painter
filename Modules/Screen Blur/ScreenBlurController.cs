@@ -33,7 +33,7 @@ namespace PlaytimePainter
         protected readonly ShaderProperty.VectorValue mousePosition = new ShaderProperty.VectorValue("_qcPp_MousePosition");
         protected readonly ShaderProperty.ShaderKeyword UseMousePosition = new ShaderProperty.ShaderKeyword("_qcPp_FEED_MOUSE_POSITION");
 
-        private float mouseDownStrengthOneDirectional = 0;
+        private float mouseDownStrengthOneDirectional;
         private float mouseDownStrength = 0.1f;
         private bool downClickFullyShown = true;
         private Vector2 mouseDownPosition;
@@ -76,7 +76,7 @@ namespace PlaytimePainter
                     {
                         Destroy(_screenReadRenderTexture);
                     }
-                    _screenReadRenderTexture = new RenderTexture(width: (int)(Screen.width), height: (int)(Screen.height), 32) { name = "Screen Grab Tmp" };
+                    _screenReadRenderTexture = new RenderTexture(width: Screen.width, height: Screen.height, 32) { name = "Screen Grab Tmp" };
                 }
                 return _screenReadRenderTexture;
             }
@@ -185,7 +185,7 @@ namespace PlaytimePainter
                     {
                         Destroy(_screenReadSecondBuffer);
                     }
-                    _screenReadSecondBuffer = new RenderTexture(width: (int)(Screen.width), height: (int)(Screen.height), 0)
+                    _screenReadSecondBuffer = new RenderTexture(width: Screen.width, height: Screen.height, 0)
                     {
                         name = "Screen Rt" //, filterMode = FilterMode.Point
                     };
@@ -478,13 +478,13 @@ namespace PlaytimePainter
         }
         #endregion
 
-        void Reset()
+        private void Reset()
         {
             MyCamera = GetComponent<Camera>();
             step = BlurStep.Off;
         }
 
-        void OnEnable()
+        private void OnEnable()
         {
             UseMousePosition.Enabled = mousePositionToShader;
         }

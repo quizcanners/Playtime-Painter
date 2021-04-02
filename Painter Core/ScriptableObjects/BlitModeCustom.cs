@@ -9,10 +9,10 @@ namespace PlaytimePainter
     [CreateAssetMenu(fileName = "Playtime Painter - Blit Mode CUSTOM", menuName = "Playtime Painter/Blit Mode Custom", order = 0)]
     public class BlitModeCustom : ScriptableObject, IPEGI
     {
-        public bool selectSourceTexture = false;
+        public bool selectSourceTexture;
         public bool showColorSliders = true;
-        public bool usingWorldSpacePosition = false;
-        public bool doubleBuffer = false;
+        public bool usingWorldSpacePosition;
+        public bool doubleBuffer;
         public Shader shader;
         public Texture sourceTexture;
 

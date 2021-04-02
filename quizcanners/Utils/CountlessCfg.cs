@@ -49,8 +49,8 @@ namespace QuizCanners.Utils
                     count = tmps.Count;
                     _tmpDecodeInds = null;
                     break;
-                case "brws": _edited = data.ToInt(0); break;
-                case "last": lastFreeIndex = data.ToInt(0); break;
+                case "brws": _edited = data.ToInt(); break;
+                case "last": lastFreeIndex = data.ToInt(); break;
                 case "add": _allowAdd = data.ToBool(); break;
                 case "del": _allowDelete = data.ToBool(); break;
                 default: 

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using QuizCanners.Inspect;
-using PlaytimePainter.CameraModules;
 using PlaytimePainter.MeshEditing;
 using QuizCanners.Utils;
 using UnityEngine;
@@ -18,8 +17,7 @@ namespace PlaytimePainter.ComponentModules {
     
     [TaggedType(tag)]
     public class TileableAtlasingComponentModule : ComponentModuleBase {
-
-        const string tag = "TilAtlsPntr";
+        private const string tag = "TilAtlsPntr";
         public override string ClassTag => tag;
 
         public List<Material> preAtlasingMaterials;
@@ -28,7 +26,7 @@ namespace PlaytimePainter.ComponentModules {
         private int _inAtlasIndex;
         public int atlasRows = 1;
 
-        private static MyIntVec2 atlasSector = new MyIntVec2();
+        private static MyIntVec2 atlasSector;
         private static int sectorSize = 1;
 
         #region Encode & Decode
@@ -221,7 +219,7 @@ namespace PlaytimePainter.ComponentModules {
                                                                      {
             if (painter.Is3DBrush(command.Brush) && painter.IsAtlased())
                 PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
-        }
+                                                                     }
     }
     
     [Serializable]
@@ -473,7 +471,7 @@ namespace PlaytimePainter.ComponentModules {
             }
         }
 
-        private void OnChangeMaterial(PlaytimePainter painter) {
+        private void OnChangeMaterial() {
 
             #if UNITY_EDITOR
 
@@ -546,7 +544,7 @@ namespace PlaytimePainter.ComponentModules {
             {
                 originalMaterial = mat;
                 originalShader = mat.shader;
-                OnChangeMaterial(painter);
+                OnChangeMaterial();
             }
 
             "Name".edit(50, ref name).nl(ref changed);
@@ -562,7 +560,7 @@ namespace PlaytimePainter.ComponentModules {
 
             if (("Atlased Material:".edit(90, ref _atlasedMaterial).nl() ||
                 (_atlasedMaterial && _atlasedMaterial.shader != _atlasedShader)).changes(ref changed)) 
-                OnChangeMaterial(painter);
+                OnChangeMaterial();
             
 
             if (painter)
@@ -573,7 +571,7 @@ namespace PlaytimePainter.ComponentModules {
                     if (mats.Length > 1)
                     {
                         if ("Source Material:".select_Index("Same as selecting a sub Mesh, which will be converted", 90, ref painter.selectedSubMesh, mats).changes(ref changed))
-                            OnChangeMaterial(painter);
+                            OnChangeMaterial();
                     }
                     else if (mats.Length > 0)
                         "Source Material".write("Sub Mesh which will be converted", 90, mats[0]);
@@ -651,7 +649,7 @@ namespace PlaytimePainter.ComponentModules {
             var changed = false;
             pegi.edit(ref texture).changes(ref changed);
             if (!texture)
-            pegi.edit(ref color).changes(ref changed);
+                pegi.edit(ref color).changes(ref changed);
         }
         
         #endregion

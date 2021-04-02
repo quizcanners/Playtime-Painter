@@ -364,7 +364,7 @@ namespace QuizCanners.Utils {
                 set { Shader.SetGlobalColor(id, ConvertedColor); }
             }
 
-            void CheckColorSpace()
+            private void CheckColorSpace()
             {
                 _colorSpaceChecked = true;
                 #if UNITY_EDITOR

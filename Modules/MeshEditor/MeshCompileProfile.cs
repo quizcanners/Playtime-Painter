@@ -306,9 +306,9 @@ namespace PlaytimePainter.MeshEditing
             switch (key)
             {
                 case "en": enabled = data.ToBool(); break;
-                case "t": _targetIndex = data.ToInt(0); if (!enabled) InitVals(); break;
+                case "t": _targetIndex = data.ToInt(); if (!enabled) InitVals(); break;
                 case "vals": data.ToList(out links); sameSizeDataIndex = -1; break;
-                case "sameSize": sameSizeDataIndex = data.ToInt(0); InitVals(); break;
+                case "sameSize": sameSizeDataIndex = data.ToInt(); InitVals(); break;
             }
         }
 
@@ -796,7 +796,7 @@ namespace PlaytimePainter.MeshEditing
 
             private const int dataSize = 2;
 
-            Vector2[] v2s;
+            private Vector2[] v2s;
 
             public override void GenerateIfNull() {
                 if (v2s == null)
@@ -833,7 +833,7 @@ namespace PlaytimePainter.MeshEditing
             public static VertexTangent inst;
             private const int dataSize = 4;
 
-            Vector4[] v4s;
+            private Vector4[] v4s;
 
             public override void GenerateIfNull() {
                 if (v4s == null)
@@ -875,7 +875,7 @@ namespace PlaytimePainter.MeshEditing
             public static VertexNormal inst;
             private const int dataSize = 3;
 
-            Vector3[] v3norms;
+            private Vector3[] v3norms;
 
             public override void GenerateIfNull() {
                 if (v3norms == null)
@@ -911,7 +911,7 @@ namespace PlaytimePainter.MeshEditing
         {
             private const int dataSize = 3;
 
-            Vector3[] v3norms;
+            private Vector3[] v3norms;
 
             public override void GenerateIfNull()
             {
@@ -943,9 +943,9 @@ namespace PlaytimePainter.MeshEditing
         public class VertexColor : VertexDataSource
         {
             public static VertexColor inst;
-            const int dataSize = 4;
+            private const int dataSize = 4;
 
-            Vector4[] cols;
+            private Vector4[] cols;
 
             public override void GenerateIfNull()
             {
@@ -992,12 +992,11 @@ namespace PlaytimePainter.MeshEditing
             
         }
 
-        public class VertexIndex : VertexDataSource
+        private class VertexIndex : VertexDataSource
         {
-            private static VertexIndex _inst;
             private const int dataSize = 1;
 
-            int[] inds;
+            private int[] inds;
 
             public override void GenerateIfNull()
             {
@@ -1020,7 +1019,6 @@ namespace PlaytimePainter.MeshEditing
             
             public VertexIndex(int index) : base(dataSize, index)
             {
-                _inst = this;
             }
 
             public override void Clear() => inds = null;
@@ -1031,7 +1029,7 @@ namespace PlaytimePainter.MeshEditing
         {
             private const int dataSize = 4;
 
-            Vector4[] _shadows;
+            private Vector4[] _shadows;
 
             public override void GenerateIfNull() {
                 if (_shadows == null)
@@ -1063,10 +1061,9 @@ namespace PlaytimePainter.MeshEditing
 
         private class VertexAtlasTextures : VertexDataSource
         {
-            private static VertexAtlasTextures inst;
             private const int dataSize = 4;
 
-            Vector4[] textureNumbers;
+            private Vector4[] textureNumbers;
 
 
             public override void GenerateIfNull() {
@@ -1097,7 +1094,6 @@ namespace PlaytimePainter.MeshEditing
             
             public VertexAtlasTextures(int index) : base(dataSize, index)
             {
-                inst = this;
             }
 
         }
@@ -1129,7 +1125,7 @@ namespace PlaytimePainter.MeshEditing
 
         public class VertexEdge : VertexDataSource
         {
-            const int dataSize = 4;
+            private const int dataSize = 4;
 
             private Vector4[] _edges;
 
@@ -1176,7 +1172,7 @@ namespace PlaytimePainter.MeshEditing
         {
             private const int dataSize = 3;
 
-            Vector3[] edges;
+            private Vector3[] edges;
 
             public override void GenerateIfNull()
             {
@@ -1221,7 +1217,7 @@ namespace PlaytimePainter.MeshEditing
         {
             private const int dataSize = 3;
 
-            Vector3[] edges;
+            private Vector3[] edges;
 
             public override void GenerateIfNull()
             {
@@ -1266,9 +1262,9 @@ namespace PlaytimePainter.MeshEditing
 
         public class EdgeNormal1 : VertexDataSource
         {
-            const int dataSize = 3;
+            private const int dataSize = 3;
 
-            Vector3[] edges;
+            private Vector3[] edges;
 
             public override void GenerateIfNull()
             {

@@ -13,12 +13,11 @@ namespace PlaytimePainter {
     {
         
         [TaggedType(tag)]
-        public class VolumePaintingCameraModule : CameraModuleBase, IGotDisplayName,
+        public class VolumePaintingCameraModule : CameraModuleBase, 
             IPainterManagerModuleComponentPEGI, IPainterManagerModuleBrush, IPainterManagerModuleGizmos,
             IUseDepthProjector, IUseReplacementCamera
         {
-
-            const string tag = "VolumePntng";
+            private const string tag = "VolumePntng";
             public override string ClassTag => tag;
 
             public static ShaderProperty.VectorValue VOLUME_H_SLICES = new ShaderProperty.VectorValue("VOLUME_H_SLICES");
@@ -313,7 +312,7 @@ namespace PlaytimePainter {
 
             #region Inspector
 
-            float BrushScaleMaxForCpu(VolumeTexture volTex) => volTex.size * volTex.Width * 0.025f;
+            private float BrushScaleMaxForCpu(VolumeTexture volTex) => volTex.size * volTex.Width * 0.025f;
 
             public override string NameForDisplayPEGI() => "Volume Painting";
 

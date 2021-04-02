@@ -9,10 +9,10 @@ using UnityEngine;
 
 namespace PlaytimePainter.CameraModules {
 
-    public interface IPainterManagerPluginOnGUI
+   /* public interface IPainterManagerPluginOnGUI
     {
         void OnGUI();
-    }
+    }*/
 
     public interface IPainterManagerModuleComponentPEGI
     {
@@ -44,10 +44,10 @@ namespace PlaytimePainter.CameraModules {
        
     }
 
-    public interface IPainterManagerModule_MeshToolShowVertex
+/*    public interface IPainterManagerModule_MeshToolShowVertex
     {
         void PlugIn_MeshToolShowVertex();
-    }
+    }*/
 
     public interface IMeshToolPlugin
     {
@@ -65,11 +65,11 @@ namespace PlaytimePainter.CameraModules {
 
         public static readonly List<IPainterManagerModuleGizmos> GizmoPlugins = new List<IPainterManagerModuleGizmos>();
 
-        public static readonly List<IPainterManagerModule_MeshToolShowVertex> MeshToolShowVertexPlugins = new List<IPainterManagerModule_MeshToolShowVertex>();
+     //   public static readonly List<IPainterManagerModule_MeshToolShowVertex> MeshToolShowVertexPlugins = new List<IPainterManagerModule_MeshToolShowVertex>();
 
         public static readonly List<IMeshToolPlugin> MeshToolPlugins = new List<IMeshToolPlugin>();
 
-        public static readonly List<IPainterManagerPluginOnGUI> GuiPlugins = new List<IPainterManagerPluginOnGUI>();
+       // public static readonly List<IPainterManagerPluginOnGUI> GuiPlugins = new List<IPainterManagerPluginOnGUI>();
 
         public static void RefreshModules() {
 
@@ -93,9 +93,9 @@ namespace PlaytimePainter.CameraModules {
             ComponentInspectionPlugins.Clear();
             BrushPlugins.Clear();
             GizmoPlugins.Clear();
-            MeshToolShowVertexPlugins.Clear();
+            //MeshToolShowVertexPlugins.Clear();
             MeshToolPlugins.Clear();
-            GuiPlugins.Clear();
+            //GuiPlugins.Clear();
 
             foreach (var t in modules) {
 
@@ -105,11 +105,11 @@ namespace PlaytimePainter.CameraModules {
 
                 GizmoPlugins.TryAdd(t as IPainterManagerModuleGizmos);
 
-                MeshToolShowVertexPlugins.TryAdd(t as IPainterManagerModule_MeshToolShowVertex);
+                //MeshToolShowVertexPlugins.TryAdd(t as IPainterManagerModule_MeshToolShowVertex);
 
                 MeshToolPlugins.TryAdd(t as IMeshToolPlugin);
 
-                GuiPlugins.TryAdd(t as IPainterManagerPluginOnGUI);
+                //GuiPlugins.TryAdd(t as IPainterManagerPluginOnGUI);
             }
         }
         

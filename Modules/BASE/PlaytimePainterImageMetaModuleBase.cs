@@ -1,5 +1,4 @@
 ﻿using QuizCanners.CfgDecode;
-using QuizCanners.Utils;
 
 namespace PlaytimePainter
 {

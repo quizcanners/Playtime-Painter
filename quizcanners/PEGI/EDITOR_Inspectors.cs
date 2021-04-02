@@ -20,7 +20,7 @@ namespace QuizCanners.Inspect {
         #if UNITY_EDITOR
         public static bool drawDefaultInspector;
         public MaterialEditor unityMaterialEditor;
-        MaterialProperty[] _properties;
+        private MaterialProperty[] _properties;
 
         public override void OnGUI(MaterialEditor materialEditor, MaterialProperty[] properties)
         {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using QuizCanners.Inspect;
 using QuizCanners.Utils;
 using UnityEngine;
@@ -15,12 +14,11 @@ namespace PlaytimePainter.CameraModules {
     [TaggedType(tag)]
     public class ColorBleedCameraModule : CameraModuleBase, IPEGI, ICfgCustom
     {
-
-        public const string tag = "Color Mgmt";
+        private const string tag = "Color Mgmt";
 
         public override string ClassTag => tag;
 
-        [SerializeField] [HideInInspector] public List<WeatherConfig> weatherConfigurations = new List<WeatherConfig>();
+        private List<WeatherConfig> weatherConfigurations = new List<WeatherConfig>();
         
         #region Encode & Decode
 
@@ -114,20 +112,20 @@ namespace PlaytimePainter.CameraModules {
         private readonly ShaderProperty.VectorValue _lightProperty = new ShaderProperty.VectorValue("pp_COLOR_BLEED");
 
         private void UpdateShader() => _lightProperty.GlobalValue = new Vector4(colorBleed.CurrentValue, 0, 0, brightness.CurrentValue);
-        
-        static readonly LinkedLerp.FloatValue brightness = new LinkedLerp.FloatValue( 1, 1, "Brightness");
-        static readonly LinkedLerp.FloatValue colorBleed = new LinkedLerp.FloatValue( 0, 0.1f, "Color Bleed");
 
-        static readonly LinkedLerp.ColorValue mainLightColor = new LinkedLerp.ColorValue("Light Color");
-        static readonly LinkedLerp.FloatValue mainLightIntensity = new LinkedLerp.FloatValue(name: "Main Light Intensity");
-        static readonly LinkedLerp.QuaternionValue mainLightRotation = new LinkedLerp.QuaternionValue("Main light rotation");
+        private static readonly LinkedLerp.FloatValue brightness = new LinkedLerp.FloatValue( 1, 1, "Brightness");
+        private static readonly LinkedLerp.FloatValue colorBleed = new LinkedLerp.FloatValue( 0, 0.1f, "Color Bleed");
 
-        static readonly LinkedLerp.ColorValue fogColor = new LinkedLerp.ColorValue("Fog Color");
-        static readonly LinkedLerp.ColorValue skyColor = new LinkedLerp.ColorValue("Sky Color");
-        static readonly LinkedLerp.FloatValue shadowStrength = new LinkedLerp.FloatValue( 1, name: "Shadow Strength");
-        static readonly LinkedLerp.FloatValue shadowDistance = new LinkedLerp.FloatValue(100, 500, 10, 1000, "Shadow Distance");
-        static readonly LinkedLerp.FloatValue fogDistance = new LinkedLerp.FloatValue(100, 500, 0.01f, 1000, "Fog Distance");
-        static readonly LinkedLerp.FloatValue fogDensity = new LinkedLerp.FloatValue(0.01f, 0.01f, 0.00001f, 0.1f, "Fog Density");
+        private static readonly LinkedLerp.ColorValue mainLightColor = new LinkedLerp.ColorValue("Light Color");
+        private static readonly LinkedLerp.FloatValue mainLightIntensity = new LinkedLerp.FloatValue(name: "Main Light Intensity");
+        private static readonly LinkedLerp.QuaternionValue mainLightRotation = new LinkedLerp.QuaternionValue("Main light rotation");
+
+        private static readonly LinkedLerp.ColorValue fogColor = new LinkedLerp.ColorValue("Fog Color");
+        private static readonly LinkedLerp.ColorValue skyColor = new LinkedLerp.ColorValue("Sky Color");
+        private static readonly LinkedLerp.FloatValue shadowStrength = new LinkedLerp.FloatValue( 1, name: "Shadow Strength");
+        private static readonly LinkedLerp.FloatValue shadowDistance = new LinkedLerp.FloatValue(100, 500, 10, 1000, "Shadow Distance");
+        private static readonly LinkedLerp.FloatValue fogDistance = new LinkedLerp.FloatValue(100, 500, 0.01f, 1000, "Fog Distance");
+        private static readonly LinkedLerp.FloatValue fogDensity = new LinkedLerp.FloatValue(0.01f, 0.01f, 0.00001f, 0.1f, "Fog Density");
 
         private LerpData ld = new LerpData();
 

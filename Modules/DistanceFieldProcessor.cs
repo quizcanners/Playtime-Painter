@@ -38,8 +38,6 @@ namespace PlaytimePainter {
                     distance = 0f;
             }
 
-            public Pixel() { }
-
             public Pixel(float original)
             {
                 originalValue = original > 0.5f ? 1f : 0f;
@@ -52,7 +50,7 @@ namespace PlaytimePainter {
         private static TextureMeta destination;
 
 
-        static void SetDestination(int x, int y, float value) {
+        private static void SetDestination(int x, int y, float value) {
 
             var col = destination.PixelUnSafe(x, y);
             col.r = value;

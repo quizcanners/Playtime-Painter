@@ -9,8 +9,7 @@ namespace PlaytimePainter.ComponentModules
     [TaggedType(tag)]
     public class TerrainSplatTextureModule : ComponentModuleBase
     {
-
-        const string tag = "TerSplat";
+        private const string tag = "TerSplat";
         public override string ClassTag => tag;
 
         public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex)

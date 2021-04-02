@@ -130,7 +130,7 @@ namespace PlaytimePainter
 
         }
 
-        void OnDisable()
+        private void OnDisable()
         {
             triedToFindDepthCamera = false;
         }
@@ -309,15 +309,15 @@ namespace PlaytimePainter
                 _projectorCamera.Render();
         }
 
-        QcUnity.ChillLogger logger = new QcUnity.ChillLogger();
+        private QcUnity.ChillLogger logger = new QcUnity.ChillLogger();
 
-        void OnPostRender()
+        private void OnPostRender()
         {
            // Debug.Log(transform.position);
             ReturnResults();
         }
 
-        void ReturnResults() {
+        private void ReturnResults() {
 
             if (userToGetUpdate != null)
             {
@@ -367,7 +367,7 @@ namespace PlaytimePainter
 
         //private Vector2 FromMousePositionOffset => Vector2.Scale(_fromMouseOffset, new Vector2(Screen.width, Screen.height));
 
-        void UpdateCameraPositionForPainter()
+        private void UpdateCameraPositionForPainter()
         {
             if (_projectFromMainCamera)
             {
@@ -382,9 +382,10 @@ namespace PlaytimePainter
 
                         if (cam)
                         {
-                            transform.parent = cam.transform;
-                            transform.localScale = Vector3.one;
-                            transform.localPosition = Vector3.zero;
+                            var tf = transform;
+                            tf.parent = cam.transform;
+                            tf.localScale = Vector3.one;
+                            tf.localPosition = Vector3.zero;
 
                             if (_centerOnMousePosition)
                                 transform.LookAt(transform.position +
@@ -400,12 +401,13 @@ namespace PlaytimePainter
                 }
                 else
                 {
-                    transform.parent = null;
+                    var rf = transform;
+                    rf.parent = null;
                     var ray = _centerOnMousePosition
                         ? EditorInputManager.mouseRaySceneView 
                         : EditorInputManager.centerRaySceneView;
 
-                    transform.position = ray.origin;
+                    rf.position = ray.origin;
                     transform.LookAt(ray.origin + ray.direction 
                                                 + (_centerOnMousePosition ? transform.TransformDirection(_fromMouseOffset.ToVector3(1)) : Vector3.zero)
                                                 );
@@ -414,7 +416,7 @@ namespace PlaytimePainter
             }
         }
 
-        ProjectorCameraConfiguration painterProjectorCameraConfiguration = new ProjectorCameraConfiguration();
+        private ProjectorCameraConfiguration painterProjectorCameraConfiguration = new ProjectorCameraConfiguration();
         private readonly CameraMatrixParameters _painterDepthCameraMatrix = new CameraMatrixParameters("pp_");
         private readonly ShaderProperty.TextureValue _painterDepthTexture = new ShaderProperty.TextureValue("pp_DepthProjection");
 

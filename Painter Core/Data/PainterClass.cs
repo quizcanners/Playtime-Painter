@@ -1,6 +1,5 @@
 ﻿using QuizCanners.Inspect;
 using PlaytimePainter.MeshEditing;
-using QuizCanners.Utils;
 using UnityEngine;
 using QuizCanners.CfgDecode;
 #if UNITY_EDITOR

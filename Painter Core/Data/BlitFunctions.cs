@@ -164,17 +164,14 @@ namespace PlaytimePainter {
 
             bc.PrepareCpuBlit(image);
 
-            var iHalf = (int)(half);
-
             Vector2 offset;
 
             var tmp = image.UvToPixelNumber(uvCoords, out offset);
 
             var smooth = bc.GetBrushType(true) != BrushTypes.Pixel.Inst;
-            if (smooth) {
-                iHalf += 1;
+            if (smooth) 
                 offset = Vector2.zero;
-            }
+            
 
             var hf = half - 0.5f;
 

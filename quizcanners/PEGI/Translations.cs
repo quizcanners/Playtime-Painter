@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using QuizCanners.Utils;
+﻿using QuizCanners.Utils;
 using UnityEngine;
 
 namespace QuizCanners.Inspect {
@@ -209,17 +208,17 @@ namespace QuizCanners.Inspect {
         #endregion
         
         #region Implementation of Extensions
-        
-        static TranslationsEnum coreTranslations = new TranslationsEnum();
 
-        static Countless<LazyTranslation> Translate(this Msg smg, string english)
+        private static TranslationsEnum coreTranslations = new TranslationsEnum();
+
+        private static Countless<LazyTranslation> Translate(this Msg smg, string english)
         {
             var org = coreTranslations[(int)smg];
             org[eng] = new LazyTranslation(english);
             return org;
         }
 
-        static Countless<LazyTranslation> Translate(this Msg smg, string english, string englishDetails)
+        private static Countless<LazyTranslation> Translate(this Msg smg, string english, string englishDetails)
         {
             var org = coreTranslations[(int)smg];
             org[eng] = new LazyTranslation(english, englishDetails);

@@ -11,11 +11,9 @@ namespace PlaytimePainter.ComponentModules {
         private const string Tag = "TerHeight";
         public override string ClassTag => Tag;
 
-        private bool CorrectField(ShaderProperty.TextureValue field) => field.Equals(PainterShaderVariables.TerrainHeight);
 
-
-        private bool CorrectField(ShaderProperty.TextureValue field, PlaytimePainter painter) => 
-            painter.terrain &&
+        private bool CorrectField(ShaderProperty.TextureValue field, PlaytimePainter pntr) => 
+            pntr.terrain &&
             field.Equals(PainterShaderVariables.TerrainHeight);
 
 

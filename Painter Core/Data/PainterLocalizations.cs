@@ -18,8 +18,7 @@ namespace QuizCanners.Inspect {
     }
 
     public static partial class LazyLocalization {
-        
-        static TranslationsEnum painterTranslations = new TranslationsEnum();
+        private static TranslationsEnum painterTranslations = new TranslationsEnum();
 
         public static LazyTranslation Get(this MsgPainter msg, int lang = 0) {
 
@@ -31,7 +30,7 @@ namespace QuizCanners.Inspect {
             switch (msg) {
                 case MsgPainter.PreserveTransparency:
                     msg.Translate("Preserve Transparency", "if every pixel of texture has alpha = 1 (Max) Unity will be save it as .png without transparency. To counter this " +
-                                      " I set first pixels to alpha 0.9. I know it is hacky, it you know a better way, let me know"); break;
+                                                           " I set first pixels to alpha 0.9. I know it is hacky, it you know a better way, let me know"); break;
                 case MsgPainter.BrushType:
                     msg.Translate("Brush Type");
 
@@ -62,10 +61,10 @@ namespace QuizCanners.Inspect {
                     break;
                 case MsgPainter.MeshProfileUsage:
                     msg.Translate("Mesh Profile usage", ("If using projected UV, place sharpNormal in TANGENT. {0}" +
-                                                   "Vectors should be placed in normal and tangent slots to batch correctly.{0}" +
-                                                   "Keep uv1 as is for baked light and damage shaders.{0}" +
-                                                   "I place Shadows in UV2{0}" +
-                                                   "I place Edge in UV3.{0}").F(pegi.EnvironmentNl));
+                                                         "Vectors should be placed in normal and tangent slots to batch correctly.{0}" +
+                                                         "Keep uv1 as is for baked light and damage shaders.{0}" +
+                                                         "I place Shadows in UV2{0}" +
+                                                         "I place Edge in UV3.{0}").F(pegi.EnvironmentNl));
                     break;
                 case MsgPainter.Flow:
                     msg.Translate("Flow");
@@ -133,7 +132,7 @@ namespace QuizCanners.Inspect {
 
                 case MsgPainter.BrushTypeDecal:
                     msg.Translate("Decal ", "Paints volumetric decals. It uses alpha channel of the painted texture as height. Denting decals (think bullet holes)" +
-                                                                        "will subtract alpha if their depth is higher (deeper) and paint their color. Additive decals will add alpha if theirs is higher. ");
+                                            "will subtract alpha if their depth is higher (deeper) and paint their color. Additive decals will add alpha if theirs is higher. ");
                     break;
 
                 case MsgPainter.BrushTypeLazy:
@@ -233,11 +232,11 @@ namespace QuizCanners.Inspect {
                     break;
                 case MsgPainter.MeshPointPositionTool:
                     msg.Translate("VERTICES", ("LMB - Drag {1} {0} " +
-                                                      "Alt - Move {1} To Grid {0}" +
-                                                      "U - make Triangle unique. {0}" +
-                                                      "M - merge with nearest {1} while dragging {0}" +
-                                                      "This tool also contains functionality related to smoothing and sharpening of the edges.")
-                                                        .F(pegi.EnvironmentNl, MsgPainter.MeshPoint.GetText()));
+                                               "Alt - Move {1} To Grid {0}" +
+                                               "U - make Triangle unique. {0}" +
+                                               "M - merge with nearest {1} while dragging {0}" +
+                                               "This tool also contains functionality related to smoothing and sharpening of the edges.")
+                        .F(pegi.EnvironmentNl, MsgPainter.MeshPoint.GetText()));
                     break;
 
                 case MsgPainter.RoundedGraphic:
@@ -261,7 +260,7 @@ namespace QuizCanners.Inspect {
             var changed = false;
 
             if (inspectingSection == -1)
-            MsgPainter.AboutPlaytimePainter.GetDescription().writeBig();
+                MsgPainter.AboutPlaytimePainter.GetDescription().writeBig();
 
             if ("FAQ".enter(ref inspectingSection, 0).nl()) {
 
@@ -369,18 +368,16 @@ namespace QuizCanners.Inspect {
             return lt != null ? lt.details : msg.ToString();
         }
 
-        static Countless<LazyTranslation> Translate(this MsgPainter smg, string english)
+        private static void Translate(this MsgPainter smg, string english)
         {
             var org = painterTranslations[(int)smg];
             org[eng] = new LazyTranslation(english);
-            return org;
         }
 
-        static Countless<LazyTranslation> Translate(this MsgPainter smg, string english, string englishDetails)
+        private static void Translate(this MsgPainter smg, string english, string englishDetails)
         {
             var org = painterTranslations[(int)smg];
             org[eng] = new LazyTranslation(english, englishDetails);
-            return org;
         }
 
         

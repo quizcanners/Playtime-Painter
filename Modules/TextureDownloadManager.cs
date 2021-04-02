@@ -15,10 +15,9 @@ namespace PlaytimePainter
 
     public class TextureDownloadManager : IPEGI
     {
+        private readonly List<WebRequestMeta> _loadedTextures = new List<WebRequestMeta>();
 
-        readonly List<WebRequestMeta> _loadedTextures = new List<WebRequestMeta>();
-
-        class WebRequestMeta : IGotName, IPEGI_ListInspect, IPEGI
+        private class WebRequestMeta : IGotName, IPEGI_ListInspect, IPEGI
         {
             
 #if QC_USE_NETWORKING
@@ -88,7 +87,7 @@ namespace PlaytimePainter
                 return true;
             }
 
-            void Start()
+            private void Start()
             {
 
 #if QC_USE_NETWORKING
@@ -128,10 +127,13 @@ namespace PlaytimePainter
 
             public void InspectInList(IList list, int ind, ref int edited)
             {
-                TryGetTexture(out Texture tex);
+              
 
 
 #if QC_USE_NETWORKING
+
+                TryGetTexture(out Texture tex);
+
                 if (_request != null)
                     "Loading".write(60);
                 if (_failed)
@@ -221,8 +223,8 @@ namespace PlaytimePainter
 
         #region Inspector
 
-        int inspected = -1;
-        string tmp = "";
+        private int inspected = -1;
+        private string tmp = "";
         public void Inspect()
         {
 

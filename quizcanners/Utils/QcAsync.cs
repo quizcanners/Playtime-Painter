@@ -252,7 +252,7 @@ namespace QuizCanners.Utils
             public int EnumeratorVersion { get; private set; }
 
             public Action onExit;
-            public Action onDoneFully;
+            internal Action onDoneFully;
 
             private List<IEnumerator> _enumerator = new List<IEnumerator>();
             private Task _task;

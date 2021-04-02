@@ -277,7 +277,7 @@ namespace PlaytimePainter.TexturePacking
         protected virtual Color DefaultColor => IsColor ? Color.white : Color.grey;
 
         public abstract string NameForDisplayPEGI();
-        static readonly List<string> Chennels = new List<string> { "R", "G", "B", "A" };
+        private static readonly List<string> Chennels = new List<string> { "R", "G", "B", "A" };
 
         protected void ExtractPixels(Texture2D tex, int width, int height)
         {
@@ -384,12 +384,10 @@ namespace PlaytimePainter.TexturePacking
 
     public class TextureRoleResult : TextureRole
     {
-        private static TextureRoleResult _inst;
         public override string NameForDisplayPEGI()=> "Result";
 
         public TextureRoleResult(int index) : base(index)
         {
-            _inst = this;
         }
 
         public override Color[] GetPixels(TextureSetForCombinedMaps set, TextureMeta id)

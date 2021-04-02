@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using QuizCanners.Inspect;
 using QuizCanners.Utils;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -262,8 +261,9 @@ namespace PlaytimePainter.UI
                     case PositionDataType.ScreenPosition:
 
 
+                        var canvas1 = canvas;
                         pos = RectTransformUtility.WorldToScreenPoint(
-                            IsOverlay ? null : (canvas ? canvas.worldCamera : null), rt.position);
+                            IsOverlay ? null : (canvas1 ? canvas1.worldCamera : null), rt.position);
 
                         pos.Scale(new Vector2(1f / Screen.width, 1f / Screen.height));
 
@@ -920,7 +920,7 @@ namespace PlaytimePainter.UI
 
         private List<RoundedButtonModuleBase> _modules = new List<RoundedButtonModuleBase>();
 
-        [SerializeField] private CfgData _modulesStd = new CfgData();
+        [SerializeField] private CfgData _modulesStd;
 
         public CfgData ConfigStd
         {
@@ -1097,7 +1097,7 @@ namespace PlaytimePainter.UI
 
             private readonly LinkedLerp.FloatValue _roundedCorners = new LinkedLerp.FloatValue();
 
-            LerpData ld = new LerpData();
+            private LerpData ld = new LerpData();
 
             public override bool Update(RoundedGraphic target)
             {
@@ -1169,7 +1169,7 @@ namespace PlaytimePainter.UI
         }
 
         [RoundedButtonModule]*/
-        protected abstract class RoundedButtonModuleBase : ICfg, IGotClassTag, IGotDisplayName
+        protected abstract class RoundedButtonModuleBase : IGotClassTag, IGotDisplayName
         {
             public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(RoundedButtonModuleBase));
             public TaggedTypesCfg AllTypes => all;

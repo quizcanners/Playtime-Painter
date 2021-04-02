@@ -265,13 +265,13 @@ namespace QuizCanners.Inspect
             return changed;
         }
 
-        static void start(SerializedObject so)
+        private static void start(SerializedObject so)
         {
             start();
             serObj = so;
         }
 
-        static void start()
+        private static void start()
         {
             _elementIndex = 0;
             pegi.focusInd = 0;
@@ -287,7 +287,7 @@ namespace QuizCanners.Inspect
             return obj;
         }
 
-        static bool end(Object obj)
+        private static bool end(Object obj)
         {
 
             if (globChanged)
@@ -1459,7 +1459,7 @@ namespace QuizCanners.Inspect
 
         private static readonly Dictionary<IList, ReorderableList> ReorderableList = new Dictionary<IList, ReorderableList>();
 
-        static ReorderableList GetReordable<T>(this List<T> list, ListMetaData metaDatas)
+        private static ReorderableList GetReordable<T>(this List<T> list, ListMetaData metaDatas)
         {
             ReorderableList rl;
             ReorderableList.TryGetValue(list, out rl);

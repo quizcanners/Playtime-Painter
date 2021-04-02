@@ -56,7 +56,7 @@ namespace QuizCanners.Inspect
 
             private int _inspectedProperty = -1;
 
-            public void Inspect()
+            void IPEGI.Inspect()
             {
                 var cur = Current;
 
@@ -131,14 +131,14 @@ namespace QuizCanners.Inspect
             contentOffset = new Vector2(0, 6)
         });
 
-         static PegiGuiStyle ToggleLabel_Off = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
+        private static PegiGuiStyle ToggleLabel_Off = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
          {
              contentOffset = new Vector2(0, 2),
              wordWrap = true,
              normal = { textColor = InGameView ? new Color32(255, 255, 255, 255) : new Color32(40, 40, 40, 255) }
          });
 
-         static PegiGuiStyle ToggleLabel_On = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
+        private static PegiGuiStyle ToggleLabel_On = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
          {
              contentOffset = new Vector2(0, 2),
              wordWrap = true
@@ -280,7 +280,7 @@ namespace QuizCanners.Inspect
         private static int _inspectedFont = -1;
         private static int _iteratiedFont;
 
-        private static bool InspectInteranl(this string StyleName, PegiGuiStyle style)
+        private static void InspectInteranl(this string StyleName, PegiGuiStyle style)
         {
             if (StyleName.enter(ref _inspectedFont, _iteratiedFont).nl())
             {
@@ -289,8 +289,6 @@ namespace QuizCanners.Inspect
             }
 
             _iteratiedFont++;
-
-            return false;
         }
 
         public static bool Inspect()

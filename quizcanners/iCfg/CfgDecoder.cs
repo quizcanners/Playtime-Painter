@@ -1,9 +1,7 @@
 ﻿using QuizCanners.Utils;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace QuizCanners.CfgDecode
 {

@@ -113,7 +113,7 @@ namespace PlaytimePainter
 
         #region Modules
 
-        ImgMetaModules _modulesContainer;
+        private ImgMetaModules _modulesContainer;
 
         public ImgMetaModules Modules
         {
@@ -151,7 +151,7 @@ namespace PlaytimePainter
 
         #region SAVE IN PLAYER
 
-        const string SavedImagesFolder = "Saved Images";
+        private const string SavedImagesFolder = "Saved Images";
 
         public string SaveInPlayer()
         {
@@ -449,14 +449,14 @@ namespace PlaytimePainter
                 _pixels[i] = _pixels[i].gamma;
         }
 
-        void PixelsToLinear()
+        private void PixelsToLinear()
         {
             var p = Pixels;
             for (int i = 0; i < p.Length; i++)
                 _pixels[i] = _pixels[i].linear;
         }
 
-        void UVto01(ref Vector2 uv)
+        private void UVto01(ref Vector2 uv)
         {
             uv.x %= 1;
             uv.y %= 1;
@@ -498,7 +498,7 @@ namespace PlaytimePainter
             if (target == TexTarget.Texture2D)
             {
                 SetPixels(color);
-                SetAndApply(true);
+                SetAndApply();
             }
             else
             {
@@ -799,13 +799,13 @@ namespace PlaytimePainter
         private int _inspectedProcess = -1;
         public int inspectedItems = -1;
 
-        void ReturnToRenderTexture()
+        private void ReturnToRenderTexture()
         {
             var p = PlaytimePainter.inspected;
             p.UpdateOrSetTexTarget(TexTarget.RenderTexture);
         }
 
-        bool WasRenderTexture()
+        private bool WasRenderTexture()
         {
             if (target == TexTarget.RenderTexture)
             {

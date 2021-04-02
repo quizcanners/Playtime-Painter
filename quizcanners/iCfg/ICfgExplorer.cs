@@ -7,7 +7,7 @@ using UnityEngine;
 using Object = UnityEngine.Object;
 using QuizCanners.Utils;
 #if UNITY_EDITOR
-using UnityEditor;
+
 #endif
 
 namespace QuizCanners.CfgDecode

@@ -8,7 +8,7 @@ using UnityEditor;
 
 namespace PlaytimePainter.UI
 {
-    public static partial class ShaderTags
+    public static class ShaderTags
     {
         public static readonly ShaderTag PixelPerfectUi = new ShaderTag("PixelPerfectUI");
 

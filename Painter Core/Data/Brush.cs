@@ -771,7 +771,7 @@ namespace PlaytimePainter {
 
             #region Inspector
 
-            int testValue = -1;
+            private int testValue = -1;
 
             public virtual void Inspect() { } /*
         {
@@ -790,7 +790,7 @@ namespace PlaytimePainter {
         [TaggedType(classTag, "None")]
         public class None : Base
         {
-            const string classTag = "none";
+            private const string classTag = "none";
 
             public override string ClassTag => classTag;
         }
@@ -798,7 +798,7 @@ namespace PlaytimePainter {
         [TaggedType(classTag, "Jitter")]
         public class Jitter : Base
         {
-            const string classTag = "gitter";
+            private const string classTag = "gitter";
             public override string ClassTag => classTag;
 
             private float jitterStrength = 0.1f;
@@ -844,7 +844,7 @@ namespace PlaytimePainter {
         [TaggedType(classTag, "Size from Speed")]
         public class SpeedToSize : Base
         {
-            const string classTag = "sts";
+            private const string classTag = "sts";
 
             public override string ClassTag => classTag;
         }

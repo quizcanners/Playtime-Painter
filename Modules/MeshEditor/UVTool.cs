@@ -183,25 +183,6 @@ namespace PlaytimePainter.MeshEditing
             for (var i=0; i<3; i++)
                 diffs[i] = t.vertexes[0].meshPoint.WorldPos - trgPos;
 
-          /*  switch (GridNavigator.Inst().gSide) {
-                case Gridside.xy:
-                    uv.x = diff.x;
-                    uv.y = diff.y;
-                    break;
-                case Gridside.xz:
-                    uv.x = diff.x;
-                    uv.y = diff.z;
-                    break;
-                case Gridside.zy:
-                    uv.x = diff.z;
-                    uv.y = diff.y;
-                    break;
-            }
-
-            uv = (uv + offset);
-
-            uv.Scale(tiling);*/
-
             return uv;
         }
         
@@ -238,9 +219,9 @@ namespace PlaytimePainter.MeshEditing
 
                 if (vrt == point)
                 {
-                    var text = (point.vertices.Count > 1) ? ((point.vertices.IndexOf(MeshMGMT.SelectedUv) + 1) + "/" + point.vertices.Count + (point.smoothNormal ? "s" : "")) : "";
+                    var text = (point.vertices.Count > 1) ? ((point.vertices.IndexOf(MeshEditorManager.SelectedUv) + 1) + "/" + point.vertices.Count + (point.smoothNormal ? "s" : "")) : "";
                     float tSize = !tex ? 128 : tex.width;
-                    text += ("uv: " + (MeshMGMT.SelectedUv.EditedUv.x * tSize) + "," + (MeshMGMT.SelectedUv.EditedUv.y * tSize));
+                    text += ("uv: " + (MeshEditorManager.SelectedUv.EditedUv.x * tSize) + "," + (MeshEditorManager.SelectedUv.EditedUv.y * tSize));
                     markers.textm.text = text;
                 }
                 else
@@ -312,8 +293,8 @@ namespace PlaytimePainter.MeshEditing
             if (PointedTriangle.SameAsLastFrame)
                 return true;
 
-            if (MeshMGMT.SelectedUv == null)
-                MeshMGMT.SelectedUv = EditedMesh.meshPoints[0].vertices[0];
+            if (MeshEditorManager.SelectedUv == null)
+                MeshEditorManager.SelectedUv = EditedMesh.meshPoints[0].vertices[0];
 
             if (!EditorInputManager.Control) {
                 var trgPos = MeshEditorManager.targetTransform.position;
@@ -342,22 +323,22 @@ namespace PlaytimePainter.MeshEditing
                     }
                 }
             } else 
-            foreach (var t in eMesh.triangles)
-            {
-                var norm = t.GetSharpNormal();
+                foreach (var t in eMesh.triangles)
+                {
+                    var norm = t.GetSharpNormal();
 
-               // var pv = gn.InPlaneVector(norm);
+                    // var pv = gn.InPlaneVector(norm);
 
-                var perp = gn.PerpendicularToPlaneVector(norm);
+                    var perp = gn.PerpendicularToPlaneVector(norm);
 
-                if ((Mathf.Abs(perp) < projectorNormalThreshold01) || (perp>0 != projectFront)) continue;
+                    if ((Mathf.Abs(perp) < projectorNormalThreshold01) || (perp>0 != projectFront)) continue;
 
-                for (var i = 0; i < 3; i++) {
-                    var v = t.vertexes[i];
+                    for (var i = 0; i < 3; i++) {
+                        var v = t.vertexes[i];
 
-                    v.SetUvIndexBy(PosToUv(v.meshPoint.WorldPos - trgPos));
+                        v.SetUvIndexBy(PosToUv(v.meshPoint.WorldPos - trgPos));
+                    }
                 }
-            }
 
             eMesh.Dirty = true;
         }
@@ -390,7 +371,7 @@ namespace PlaytimePainter.MeshEditing
 
             if (EditorInputManager.GetMouseButtonUp(0)) {
 
-                MeshMGMT.SelectedUv.SharedEditedUv = _lastCalculatedUv;
+                MeshEditorManager.SelectedUv.SharedEditedUv = _lastCalculatedUv;
                 EditedMesh.dirtyUvs = true;
                 Debug.Log("Setting Dirty UV Test");
                 MeshMGMT.Dragging = false;

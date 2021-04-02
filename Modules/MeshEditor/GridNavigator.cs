@@ -279,7 +279,6 @@ namespace PlaytimePainter.MeshEditing
         public void UpdatePositions()
         {
 
-            var m = MeshMGMT;
             var cfg = TexMgmtData;
 
             if (!cfg)

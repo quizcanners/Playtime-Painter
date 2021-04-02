@@ -122,19 +122,19 @@ namespace PlaytimePainter
 
             public override bool Is3DBrush => painter.Is3DBrush(Brush);
 
-            public override GameObject GameObject
+            public sealed override GameObject GameObject
             {
                 get { return painter.gameObject; }
                 set { }
             }
 
-            public override SkinnedMeshRenderer SkinnedMeshRenderer
+            public sealed override SkinnedMeshRenderer SkinnedMeshRenderer
             {
                 get { return painter.skinnedMeshRenderer; }
                 set { }
             }
 
-            public override Mesh Mesh
+            public sealed override Mesh Mesh
             {
                 get { return painter.GetMesh(); }
                 set { }
@@ -146,7 +146,7 @@ namespace PlaytimePainter
                 set { }
             }
 
-            public override int SubMeshIndexFirst
+            public sealed override int SubMeshIndexFirst
             {
                 get { return painter.selectedSubMesh; }
                 set

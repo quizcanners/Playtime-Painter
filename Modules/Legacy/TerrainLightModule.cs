@@ -8,14 +8,13 @@ namespace PlaytimePainter.ComponentModules {
 
     [TaggedType(tag)]
     public class TerrainLightModule : ComponentModuleBase {
-
-        const string tag = "TerLight";
+        private const string tag = "TerLight";
         public override string ClassTag => tag;
 
         private MergingTerrainController mergingTerrain;
         public int testData;
-        
-        void FindMergingTerrain(PlaytimePainter painter) {
+
+        private void FindMergingTerrain(PlaytimePainter painter) {
 
             if (!mergingTerrain && painter.terrain)
                 mergingTerrain = painter.GetComponent<MergingTerrainController>();
@@ -101,9 +100,7 @@ namespace PlaytimePainter.ComponentModules {
         public override bool BrushConfigPEGI()
         {
             var changed = false;
-
-            var painter = PlaytimePainter.inspected;
-
+            
             FindMergingTerrain(painter);
 
             if (mergingTerrain)

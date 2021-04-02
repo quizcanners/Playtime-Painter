@@ -2590,14 +2590,14 @@ namespace QuizCanners.Inspect
 
         #region Dictionary Generic
 
-        protected interface iCollectionInspector<T>
+        internal interface iCollectionInspector<T>
         {
             void Set(T val);
         }
 
-        protected class KeyValuePairInspector<T,G> : iCollectionInspector<KeyValuePair<T,G>>, IGotDisplayName, IPEGI_Searchable, INeedAttention
+        internal class KeyValuePairInspector<T,G> : iCollectionInspector<KeyValuePair<T,G>>, IGotDisplayName, IPEGI_Searchable, INeedAttention
         {
-            KeyValuePair<T, G> _pair;
+            private KeyValuePair<T, G> _pair;
 
             public void Set(KeyValuePair<T, G> pair)
             {

@@ -124,7 +124,7 @@ namespace QuizCanners.Inspect
                 private WindowFunction _function;
                 private Rect _windowRect;
                 public float upscale = 2;
-                Vector2 scrollPosition;
+                private Vector2 scrollPosition;
 
                 protected bool UseWindow => upscale == 1;
 
@@ -804,7 +804,7 @@ namespace QuizCanners.Inspect
                 ContactOptions();
             }
 
-            static bool WriteHeaderIfAny()
+            private static bool WriteHeaderIfAny()
             {
                 if (!popUpHeader.IsNullOrEmpty())
                 {

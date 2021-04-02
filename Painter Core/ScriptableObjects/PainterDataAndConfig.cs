@@ -248,11 +248,11 @@ namespace PlaytimePainter
 
         public List<MeshPackagingProfile> meshPackagingSolutions = new List<MeshPackagingProfile>();
 
-        public MeshPackagingProfile GetMeshPackagingProfile(string name)
+        public MeshPackagingProfile GetMeshPackagingProfile(string packageName)
         {
             foreach (var profile in meshPackagingSolutions)
             {
-                if (profile.name.Equals(name))
+                if (profile.name.Equals(packageName))
                     return profile;
             }
 
@@ -391,7 +391,7 @@ namespace PlaytimePainter
 
         #region Encode/Decode
 
-        [SerializeField] private CfgData stdData = new CfgData();
+        [SerializeField] private CfgData stdData;
 
         [NonSerialized] private bool cfgLoaded;
 
@@ -673,7 +673,7 @@ namespace PlaytimePainter
     }
 
     #region Shader Tags
-    public static partial class ShaderTags
+    public static class ShaderTags
     {
 
         public static readonly ShaderTag LayerType = new ShaderTag("_LayerType");

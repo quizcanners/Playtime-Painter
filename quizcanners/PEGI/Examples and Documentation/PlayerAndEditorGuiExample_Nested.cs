@@ -1,5 +1,4 @@
 ﻿using System;
-using QuizCanners.Inspect;
 using UnityEngine;
 
 namespace QuizCanners.Inspect.Examples

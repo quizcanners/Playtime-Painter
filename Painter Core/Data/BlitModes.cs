@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using QuizCanners.Inspect;
-using PlaytimePainter.CameraModules;
 using QuizCanners.Lerp;
 using QuizCanners.Utils;
 #if UNITY_EDITOR
@@ -140,8 +139,6 @@ namespace PlaytimePainter {
                 if (id == null)
                     return false;
 
-                var br = GlobalBrush;
-
                 return ((id.target == TexTarget.Texture2D) && (SupportedByTex2D)) ||
                        ((id.target == TexTarget.RenderTexture) &&
                         ((SupportedByRenderTexturePair && (!id.renderTexture))
@@ -251,7 +248,7 @@ namespace PlaytimePainter {
 
         public class Add : Base
         {
-            static Add _inst;
+            private static Add _inst;
 
             public static Add Inst
             {
@@ -774,11 +771,6 @@ namespace PlaytimePainter {
 
             public override List<string> ShaderKeywords => null;
 
-            public override void SetGlobalShaderParameters()
-            {
-                base.SetGlobalShaderParameters();
-            }
-
             public override bool AllSetUp => true;
             public override bool SupportedByTex2D => false;
             public override bool SupportsAlphaBufferPainting => false;
@@ -851,33 +843,27 @@ namespace PlaytimePainter {
                     pegi.nl();
                 }
 
-                if (IsBlitReady)
-                {
-                    if (PlaytimePainter.inspected)
-                    {
-                        var img = PlaytimePainter.inspected.TexMeta;
-                        if (img != null)
-                        {
-                            var rt = img.CurrentRenderTexture();
+                if (!IsBlitReady) return false;
+                if (!PlaytimePainter.inspected) return false;
+                
+                var img = PlaytimePainter.inspected.TexMeta;
+                if (img == null) return false;
+                
+                var rt = img.CurrentRenderTexture();
 
-                            if (rt)
-                            {
-                                if ("Grahics BLIT".Click().nl())
-                                RenderTextureBuffersManager.Blit(
-                                    from: _customCfg.sourceTexture ? _customCfg.sourceTexture : rt,
-                                    to: rt,
-                                    shader: _customCfg.shader);
+                if (!rt) return false;
+                
+                if ("Grahics BLIT".Click().nl())
+                    RenderTextureBuffersManager.Blit(
+                        @from: _customCfg.sourceTexture ? _customCfg.sourceTexture : rt,
+                        to: rt,
+                        shader: _customCfg.shader);
 
-                                if ("Painter Camera Render".Click().nl())
-                                    PainterCamera.Inst.Render(
-                                        from: _customCfg.sourceTexture ? _customCfg.sourceTexture : rt,
-                                        to: rt,
-                                        shader: _customCfg.shader);
-
-                            }
-                        }
-                    }
-                }
+                if ("Painter Camera Render".Click().nl())
+                    PainterCamera.Inst.Render(
+                        @from: _customCfg.sourceTexture ? _customCfg.sourceTexture : rt,
+                        to: rt,
+                        shader: _customCfg.shader);
 
                 return false;
             }

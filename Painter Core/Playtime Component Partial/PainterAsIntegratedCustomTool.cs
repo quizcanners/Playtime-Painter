@@ -20,11 +20,10 @@ namespace PlaytimePainter
 #if UNITY_2019_1_OR_NEWER
     // Tagging a class with the EditorTool attribute and no target type registers a global tool. Global tools are valid for any selection, and are accessible through the top left toolbar in the editor.
     [EditorTool(PainterDataAndConfig.ToolName)]
-    class PainterAsIntegratedCustomTool : EditorTool {
-        
-        GUIContent m_IconContent;
+    internal class PainterAsIntegratedCustomTool : EditorTool {
+        private GUIContent m_IconContent;
 
-        void OnEnable() {
+        private void OnEnable() {
             m_IconContent = new GUIContent
             {
                 image = icon.Painter.GetIcon(),
@@ -143,7 +142,7 @@ namespace PlaytimePainter
         {
 
             var tf = hit.transform;
-            var pointedPainter = tf?.GetComponent<PlaytimePainter>();
+            var pointedPainter = tf ? tf.GetComponent<PlaytimePainter>() : null;
             var e = Event.current;
 
             var allowRefocusing = true;

@@ -135,13 +135,13 @@ namespace QuizCanners.Utils {
         }
 
         protected int firstFree;
-        [SerializeField] protected int depth;
-        [SerializeField] protected int max;
-        [SerializeField] protected int count;
-        [SerializeField] protected VariableBranch[] path;
-        [SerializeField] protected int[] pathInd;
-        [SerializeField] protected VariableBranch br;
-        [SerializeField] protected int lastFreeIndex;
+        protected int depth;
+        protected int max;
+        protected int count;
+        protected VariableBranch[] path;
+        protected int[] pathInd;
+        protected VariableBranch br;
+        protected int lastFreeIndex;
 
 
         #region Inspector
@@ -191,8 +191,7 @@ namespace QuizCanners.Utils {
     }
 
     public class CountlessInt : CfgCountlessBase {
-
-        List<int> inds;
+        private List<int> inds;
 
         public override void Decode(string key, CfgData data)
         {
@@ -869,7 +868,7 @@ namespace QuizCanners.Utils {
             GetAllCascadeInt(ref inds, ref vals, br, depth, 0, max);
         }
 
-        void GetAllCascadeInt(ref List<int> inds, ref List<int> vals, VariableBranch b, int dp, int start, int range)
+        private void GetAllCascadeInt(ref List<int> inds, ref List<int> vals, VariableBranch b, int dp, int start, int range)
         {
             var step = range / BranchSize;
             if (dp > 0)

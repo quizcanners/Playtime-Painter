@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using QuizCanners.Inspect;
 using PlaytimePainter.CameraModules;
 using PlaytimePainter.ComponentModules;
@@ -77,13 +76,11 @@ namespace PlaytimePainter
         public MeshCollider meshCollider;
         public Texture2D terrainHeightTexture;
 
-        private bool HasMaterialSource => meshRenderer || terrain || uiGraphic;
-
         #endregion
 
         #region Modules
 
-        PainterModules _modulesContainer;
+        private PainterModules _modulesContainer;
 
         public PainterModules Modules
         {

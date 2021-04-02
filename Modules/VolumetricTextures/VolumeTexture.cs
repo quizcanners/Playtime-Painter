@@ -156,7 +156,7 @@ namespace PlaytimePainter {
 
         #region Inspect
 
-        private bool _searchedForPainter = false;
+        private bool _searchedForPainter;
         [SerializeField] private PlaytimePainter _painter;
 
         protected int inspectedElement = -1;

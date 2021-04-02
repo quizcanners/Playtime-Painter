@@ -63,6 +63,8 @@ namespace QuizCanners.Lerp
 
         public float Portion(bool skipLerp = false) => skipLerp ? 1 : _linkedPortion;
 
+        public bool Done => Math.Abs(_linkedPortion - 1) < float.Epsilon*10;
+        
         public float MinPortion
         {
             get { return _linkedPortion; }
@@ -706,10 +708,10 @@ namespace QuizCanners.Lerp
                 nextTexturePrTextureValue = NextTexture;
             }
 
-            static readonly ShaderProperty.VectorValue ImageProjectionPosition = new ShaderProperty.VectorValue("_imgProjPos");
-            static readonly ShaderProperty.TextureValue NextTexture = new ShaderProperty.TextureValue("_Next_MainTex");
-            static readonly ShaderProperty.TextureValue CurrentTexture = new ShaderProperty.TextureValue("_MainTex_Current");
-            static readonly ShaderProperty.FloatValue TransitionPortion = new ShaderProperty.FloatValue("_Transition");
+            private static readonly ShaderProperty.VectorValue ImageProjectionPosition = new ShaderProperty.VectorValue("_imgProjPos");
+            private static readonly ShaderProperty.TextureValue NextTexture = new ShaderProperty.TextureValue("_Next_MainTex");
+            private static readonly ShaderProperty.TextureValue CurrentTexture = new ShaderProperty.TextureValue("_MainTex_Current");
+            private static readonly ShaderProperty.FloatValue TransitionPortion = new ShaderProperty.FloatValue("_Transition");
             
             #region Inspector
 
@@ -775,16 +777,15 @@ namespace QuizCanners.Lerp
         }
 
         public abstract class BaseMaterialAtlasedTextureTransition : BaseMaterialTextureTransition {
-            
-            Dictionary<Texture, Rect> offsets = new Dictionary<Texture, Rect>();
+            private Dictionary<Texture, Rect> offsets = new Dictionary<Texture, Rect>();
 
-            void NullOffset(Texture tex)
+            private void NullOffset(Texture tex)
             {
                 if (tex && offsets.ContainsKey(tex))
                     offsets.Remove(tex);
             }
-            
-            Rect GetRect(Texture tex)
+
+            private Rect GetRect(Texture tex)
             {
                 Rect rect;
                 if (tex && offsets.TryGetValue(tex, out rect))
@@ -1247,8 +1248,7 @@ namespace QuizCanners.Lerp
         
         public class QuaternionValue : BaseQuaternionLerp
         {
-
-            Quaternion current = Quaternion.identity;
+            private Quaternion current = Quaternion.identity;
 
             private readonly string _name;
 

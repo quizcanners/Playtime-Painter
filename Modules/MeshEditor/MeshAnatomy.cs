@@ -519,7 +519,7 @@ namespace PlaytimePainter.MeshEditing
                     smoothNormal = Cfg.newVerticesSmooth;
             }
 
-            void CopyFrom(MeshPoint other)
+            private void CopyFrom(MeshPoint other)
             {
                 smoothNormal = other.smoothNormal;
 
@@ -839,13 +839,13 @@ namespace PlaytimePainter.MeshEditing
                          data.ToInt(ref subMeshIndex);
                         break;
                     case "0":
-                        vertexes[0] = EditableMesh.decodedEditableMesh.uvsByFinalIndex[data.ToInt(0)];
+                        vertexes[0] = EditableMesh.decodedEditableMesh.uvsByFinalIndex[data.ToInt()];
                         break;
                     case "1":
-                        vertexes[1] = EditableMesh.decodedEditableMesh.uvsByFinalIndex[data.ToInt(0)];
+                        vertexes[1] = EditableMesh.decodedEditableMesh.uvsByFinalIndex[data.ToInt()];
                         break;
                     case "2":
-                        vertexes[2] = EditableMesh.decodedEditableMesh.uvsByFinalIndex[data.ToInt(0)];
+                        vertexes[2] = EditableMesh.decodedEditableMesh.uvsByFinalIndex[data.ToInt()];
                         break;
                 }
             }
@@ -1322,8 +1322,8 @@ namespace PlaytimePainter.MeshEditing
 
         public class LineData : PainterClass
         {
-            public Triangle triangle;
-            public Vertex[] points = new Vertex[2];
+            private readonly Triangle triangle;
+            public readonly Vertex[] points = new Vertex[2];
             public int trianglesCount;
 
             public MeshPoint this[int index] => points[index].meshPoint;

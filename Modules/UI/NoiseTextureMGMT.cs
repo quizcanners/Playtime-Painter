@@ -1,5 +1,4 @@
 ﻿using QuizCanners.Inspect;
-using QuizCanners.Utils;
 using UnityEngine;
 using static QuizCanners.Utils.ShaderProperty;
 #if UNITY_EDITOR
@@ -19,8 +18,8 @@ namespace PlaytimePainter
 
         public bool enableNoise = true;
         public Texture2D prerenderedNoiseTexture;
-       
-        void UpdateShaderGlobal()
+
+        private void UpdateShaderGlobal()
         {
             enableNoise = enableNoise && prerenderedNoiseTexture;
             _noiseTexture.Enabled = enableNoise;
@@ -28,9 +27,9 @@ namespace PlaytimePainter
         }
 
         public void ResetTime() => _shaderTime.GlobalValue = 0;
-        void OnEnable() => UpdateShaderGlobal();
-        
-        void LateUpdate() 
+        private void OnEnable() => UpdateShaderGlobal();
+
+        private void LateUpdate() 
         {
             if (_shaderTime.GlobalValue > 64)
                 _shaderTime.GlobalValue = 0;
@@ -73,7 +72,7 @@ namespace PlaytimePainter
         }
         #endregion
 
-        void Awake() => instance = this;
+        private void Awake() => instance = this;
     }
 
 

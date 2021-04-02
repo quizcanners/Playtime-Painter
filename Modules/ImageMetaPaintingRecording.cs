@@ -9,7 +9,7 @@ namespace PlaytimePainter
     [TaggedType(tag)]
     public class ImageMetaPaintingRecording : ImageMetaModuleBase
     {
-        const string tag = "Plbk";
+        private const string tag = "Plbk";
 
         public override string ClassTag => tag;
 
@@ -67,7 +67,7 @@ namespace PlaytimePainter
 
         public static void CancelAllPlaybacks()
         {
-            foreach (var p in playbackMetas)
+            foreach (var _ in playbackMetas)
                 playbackVectors.Clear();
 
             playbackMetas.Clear();
@@ -77,32 +77,28 @@ namespace PlaytimePainter
 
         public override void OnPainting(PlaytimePainter painter) => OnPaintingDrag(painter);
         
-        public override void ManagedUpdate() {
+        public override void ManagedUpdate()
+        {
+            if (playbackMetas.Count <= 0 || Stroke.pausePlayback) return;
+            
+            if (playbackMetas.TryGetLast() == null)
+                playbackMetas.RemoveLast(1);
+            else
+            {
+                var last = playbackMetas.TryGetLast().GetModule<ImageMetaPaintingRecording>();
 
-            var l = playbackMetas;
-
-            if (playbackMetas.Count > 0 && !Stroke.pausePlayback) {
-
-                if (playbackMetas.TryGetLast() == null)
-                    playbackMetas.RemoveLast(1);
-                else
-                {
-                   var last = playbackMetas.TryGetLast().GetModule<ImageMetaPaintingRecording>();
-
-                   if (last != null) {
-                       if (cody.GotData)
-                           DecodeStroke(cody.GetNextTag(), cody.GetData());
-                       else {
-                           if (playbackVectors.Count > 0) {
-                               cody = new CfgDecoder(playbackVectors[0]);
-                               playbackVectors.RemoveAt(0);
-                           }
-                           else
-                               playbackMetas.Remove(parentMeta);
-                       }
-                   }
+                if (last == null) return;
+                
+                if (cody.GotData)
+                    DecodeStroke(cody.GetNextTag(), cody.GetData());
+                else {
+                    if (playbackVectors.Count > 0) {
+                        cody = new CfgDecoder(playbackVectors[0]);
+                        playbackVectors.RemoveAt(0);
+                    }
+                    else
+                        playbackMetas.Remove(parentMeta);
                 }
-
             }
         }
 
@@ -210,11 +206,7 @@ namespace PlaytimePainter
         }
 
         public override void OnRedo(PaintingUndoRedo.TextureBackup backup) {
-
-            var toClear = recordedStrokesForUndoRedo.Count;
-            
             recordedStrokes.AddRange(backup.strokeRecord);
-            
             recordedStrokesForUndoRedo = backup.strokeRecord;
         }
 
@@ -370,7 +362,8 @@ namespace PlaytimePainter
         private void DecodeStroke(string tg, CfgData data) {
 
             switch (tg) {
-                case "trg": currentlyDecodedPainter.UpdateOrSetTexTarget(data.Equals("C") ? TexTarget.Texture2D : TexTarget.RenderTexture); break;
+                case "trg": 
+                    currentlyDecodedPainter.UpdateOrSetTexTarget(data.ToString().Equals("C") ? TexTarget.Texture2D : TexTarget.RenderTexture); break;
                 case "brush":
                     GlobalBrush.DecodeFull(data);
                     GlobalBrush.brush2DRadius *= parentMeta?.width ?? 256; break;

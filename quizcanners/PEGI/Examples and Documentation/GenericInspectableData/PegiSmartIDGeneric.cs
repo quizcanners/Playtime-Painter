@@ -1,7 +1,6 @@
 ﻿using QuizCanners.Utils;
 using System.Collections;
 using System.Collections.Generic;
-using System.Xml;
 
 namespace QuizCanners.Inspect.Examples
 {

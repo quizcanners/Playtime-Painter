@@ -246,8 +246,6 @@ namespace PlaytimePainter.MeshEditing {
                 var tan1 = new Vector3[vertexCount];
                 var tan2 = new Vector3[vertexCount];
 
-                var tri = 0;
-
                 foreach (var t in edMesh.triangles)
                 {
 
@@ -286,9 +284,6 @@ namespace PlaytimePainter.MeshEditing {
                     tan2[i1] += tDir;
                     tan2[i2] += tDir;
                     tan2[i3] += tDir;
-
-                    tri += 3;
-
                 }
 
                 for (var i = 0; i < (vertexCount); i++)

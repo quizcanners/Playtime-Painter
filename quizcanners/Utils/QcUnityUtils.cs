@@ -187,7 +187,7 @@ namespace QuizCanners.Utils {
             return asset;
         }
 
-        static void SaveScriptableObjectAsAsset<T, TG>(T asset, string path, string name, List<TG> optionalList = null)
+        private static void SaveScriptableObjectAsAsset<T, TG>(T asset, string path, string name, List<TG> optionalList = null)
             where T : TG where TG : ScriptableObject  {
 
   
@@ -235,7 +235,7 @@ namespace QuizCanners.Utils {
         public static void SendEmail(string email, string subject, string body) =>
             Application.OpenURL(string.Format("mailto:{0}?subject={1}&body={2}",email, subject.MyEscapeUrl(), body.MyEscapeUrl()));
 
-        static string MyEscapeUrl(this string url) => WebUtility.UrlEncode(url).Replace("+", "%20");
+        private static string MyEscapeUrl(this string url) => WebUtility.UrlEncode(url).Replace("+", "%20");
 
 
         public static void OpenBrowser(string address) => Application.OpenURL(address);
@@ -354,11 +354,11 @@ namespace QuizCanners.Utils {
 
         public class RectTransformTiltMgmt
         {
-            Vector2 tilt;
+            private Vector2 tilt;
 
-            private bool posSet = false;
+            private bool posSet;
 
-            Vector3 previousPos;
+            private Vector3 previousPos;
 
             public void UpdateTilt(RectTransform rt, Camera cam, bool dontTilt = false, float speed = 30, float mouseEffectRadius = 0.75f)
             {

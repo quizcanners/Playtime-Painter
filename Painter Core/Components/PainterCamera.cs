@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using QuizCanners.Inspect;
 using PlaytimePainter.CameraModules;
 using PlaytimePainter.MeshEditing;
@@ -547,8 +546,8 @@ namespace PlaytimePainter {
             
             brushRenderer.AfterRender();
         }
-        
-        void SetSourceMaskToCopyAChannel(ColorChanel sourceChannel) 
+
+        private void SetSourceMaskToCopyAChannel(ColorChanel sourceChannel) 
             => PainterShaderVariables.ChannelCopySourceMask.GlobalValue = new Vector4(
                 sourceChannel == ColorChanel.R ? 1 : 0,
                 sourceChannel == ColorChanel.G ? 1 : 0,
@@ -686,10 +685,11 @@ namespace PlaytimePainter {
                 if (!brushRenderer)
                     brushRenderer = Instantiate(brushPrefab.gameObject, transform).GetComponent<RenderBrush>();
             }
-         
-            transform.position = Vector3.up * 3000;
-            transform.localScale = Vector3.one;
-            transform.rotation = Quaternion.identity;
+
+            var tf = transform;
+            tf.position = Vector3.up * 3000;
+            tf.localScale = Vector3.one;
+            tf.rotation = Quaternion.identity;
 
             if (!painterCamera) {
                 painterCamera = GetComponent<Camera>();
@@ -857,8 +857,8 @@ namespace PlaytimePainter {
             {
                 OnGUIWindow.Render(FocusedPainter, "{0} {1}".F(FocusedPainter.name, FocusedPainter.GetMaterialTextureProperty()));
 
-                foreach (var p in CameraModuleBase.GuiPlugins)
-                    p.OnGUI();
+               /* foreach (var p in CameraModuleBase.GuiPlugins)
+                    p.OnGUI();*/
             }
 
             if (!PlaytimePainter.IsCurrentTool)

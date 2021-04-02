@@ -372,7 +372,7 @@ namespace QuizCanners.Inspect
             list.Add(newElement);
         }
 
-        static bool ToPegiStringInterfacePart(this object obj, out string name)
+        private static bool ToPegiStringInterfacePart(this object obj, out string name)
         {
             name = null;
 

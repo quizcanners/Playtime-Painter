@@ -25,7 +25,8 @@ namespace PlaytimePainter.ComponentModules {
                 var image = painter.uiGraphic as Image;
                 if (image)
                 {
-                    return image.sprite ? image.sprite.texture : null;
+                    var sprite = image.sprite;
+                    return sprite ? sprite.texture : null;
                 }
 
                 var raw = painter.uiGraphic as RawImage;
@@ -127,8 +128,9 @@ namespace PlaytimePainter.ComponentModules {
             var raw = painter.uiGraphic as RawImage;
             if (raw)
             {
-                id.tiling = raw.uvRect.max;
-                id.offset = raw.uvRect.min;
+                var uvRect = raw.uvRect;
+                id.tiling = uvRect.max;
+                id.offset = uvRect.min;
                 
                 return true;
             }

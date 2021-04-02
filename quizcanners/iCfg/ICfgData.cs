@@ -39,7 +39,7 @@ namespace QuizCanners.CfgDecode
 
     #region Config
 
-#pragma warning disable IDE0059 // Unnecessary assignment of a value
+    [Serializable]
     public struct CfgData : IPEGI
     {
         private string _value;

@@ -6,7 +6,6 @@ using System.Linq.Expressions;
 using QuizCanners.CfgDecode;
 using QuizCanners.Utils;
 using UnityEngine;
-using UnityEngine.U2D;
 using static QuizCanners.Inspect.PEGI_Styles;
 using Object = UnityEngine.Object;
 #if UNITY_EDITOR
@@ -89,7 +88,7 @@ namespace QuizCanners.Inspect
         
         #region SELECT
 
-        static T filterEditorDropdown<T>(this T obj)
+        private static T filterEditorDropdown<T>(this T obj)
         {
             var edd = obj as IEditorDropdown;
             return (edd == null || edd.ShowInDropdown()) ? obj : default;
@@ -412,7 +411,7 @@ namespace QuizCanners.Inspect
 
         private static readonly Dictionary<Type, List<Object>> objectsInScene = new Dictionary<Type, List<Object>>();
 
-        static List<Object> FindObjects<T>() where T : Object
+        private static List<Object> FindObjects<T>() where T : Object
         {
             var objects = new List<Object>(Object.FindObjectsOfType<T>());
 
@@ -3731,7 +3730,7 @@ namespace QuizCanners.Inspect
 
         public static bool inspect_Name(this IGotName obj) => obj.inspect_Name("");
 
-        private static bool focusPassedToTheNext = false;
+        private static bool focusPassedToTheNext;
         public static bool inspect_Name(this IGotName obj, string label)
         {
 

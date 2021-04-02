@@ -23,7 +23,7 @@ namespace QuizCanners.CfgDecode
         [SerializeField] private string url = "https://docs.google.com/spreadsheets/d/e/XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/pub?";
 
         [SerializeField] public List<SheetPage> pages = new List<SheetPage>();
-        [SerializeField] private int _selectedPage = 0;
+        [SerializeField] private int _selectedPage;
 
         public SheetPage SelectedPage
         {

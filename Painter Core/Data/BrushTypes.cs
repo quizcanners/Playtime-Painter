@@ -347,7 +347,7 @@ namespace PlaytimePainter
 
         public class Pixel : Base
         {
-            static Pixel _inst;
+            private static Pixel _inst;
 
             public Pixel()
             {
@@ -400,8 +400,7 @@ namespace PlaytimePainter
 
         public class Normal : Base
         {
-
-            static Normal _inst;
+            private static Normal _inst;
 
             public Normal()
             {
@@ -841,8 +840,7 @@ namespace PlaytimePainter
 
         public class Sphere : Base
         {
-
-            static Sphere _inst;
+            private static Sphere _inst;
 
             public Sphere()
             {

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
 using QuizCanners.Utils;
 using UnityEngine;
 
@@ -54,8 +53,7 @@ namespace QuizCanners.Inspect {
     #pragma warning restore IDE1006 // Naming Styles
 
     public static class Icons_MGMT {
-
-        const string FOLDER_NAME = "Inspector Icons";
+        private const string FOLDER_NAME = "Inspector Icons";
 
         private static readonly Countless<Texture2D> _managementIcons = new Countless<Texture2D>();
 
@@ -119,8 +117,7 @@ namespace QuizCanners.Inspect {
     }
     
     public static partial class LazyLocalization {
-
-        static TranslationsEnum iconTranslations = new TranslationsEnum();
+        private static TranslationsEnum iconTranslations = new TranslationsEnum();
 
         public static LazyTranslation Get(this icon msg, int lang = 0) {
 
@@ -182,14 +179,14 @@ namespace QuizCanners.Inspect {
             return lt != null ? lt.details : msg.ToString();
         }
 
-        static Countless<LazyTranslation> Translate(this icon smg, string english)
+        private static Countless<LazyTranslation> Translate(this icon smg, string english)
         {
             var org = iconTranslations[(int)smg];
             org[eng] = new LazyTranslation(english);
             return org;
         }
 
-        static Countless<LazyTranslation> Translate(this icon smg, string english, string englishDetails)
+        private static Countless<LazyTranslation> Translate(this icon smg, string english, string englishDetails)
         {
             var org = iconTranslations[(int)smg];
             org[eng] = new LazyTranslation(english, englishDetails);

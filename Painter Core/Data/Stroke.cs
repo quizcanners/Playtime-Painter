@@ -175,11 +175,6 @@ namespace PlaytimePainter {
             uvTo = uv;
         }
 
-        private void Down(RaycastHit hit, bool texcoord2)
-        {
-            Down(hit.point, (texcoord2 ? hit.textureCoord2 : hit.textureCoord).To01Space());
-        }
-
         private void Down(Vector3 pos, Vector2 uv) {
             Down_Internal();
             uvFrom = uv;

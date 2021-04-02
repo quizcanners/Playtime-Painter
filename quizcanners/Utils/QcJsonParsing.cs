@@ -134,7 +134,7 @@ namespace QuizCanners.Utils
                     dataOnly = false;
             }
 
-            enum JsonDecodingStage { DataTypeDecision, ExpectingVariableName, ReadingVariableName, ExpectingTwoDots, ReadingData }
+           private enum JsonDecodingStage { DataTypeDecision, ExpectingVariableName, ReadingVariableName, ExpectingTwoDots, ReadingData }
 
             public override bool DecodeAll(ref JsonBase thisJson)
             {
@@ -401,7 +401,7 @@ namespace QuizCanners.Utils
         {
 
             private List<JsonBase> values;
-            readonly Countless<bool> foldedOut = new Countless<bool>();
+            private readonly Countless<bool> foldedOut = new Countless<bool>();
 
             private string previewValue = "";
             private bool previewFoldout;

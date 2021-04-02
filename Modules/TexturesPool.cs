@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using QuizCanners.Inspect;
 using QuizCanners.Utils;
 using UnityEngine;
@@ -12,7 +11,7 @@ namespace PlaytimePainter
 {
 
     [ExecuteInEditMode]
-    public class TexturesPool : PainterSystemMono, IPEGI  {
+    public class TexturesPool : PainterSystemMono  {
 
         public static TexturesPool inst;
         public static TexturesPool ForceInstance

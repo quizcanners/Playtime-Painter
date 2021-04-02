@@ -7,6 +7,7 @@ using PlaytimePainter.CameraModules;
 using QuizCanners.Utils;
 using UnityEngine;
 using QuizCanners.CfgDecode;
+using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -21,18 +22,30 @@ namespace PlaytimePainter.MeshEditing
         #region Getters Setters
         public static MeshEditorManager Inst => PainterCamera.MeshManager;
 
-        public static Transform Transform => PainterCamera.Inst ? PainterCamera.Inst.transform : null;
-
         public static MeshToolBase MeshTool => PainterCamera.Data.MeshTool;
 
-        public PainterMesh.Vertex SelectedUv { get { return editedMesh.selectedUv; } set { editedMesh.selectedUv = value; } }
-        public PainterMesh.LineData SelectedLine { get { return editedMesh.selectedLine; } set { editedMesh.selectedLine = value; } }
-        public PainterMesh.Triangle SelectedTriangle { get { return editedMesh.selectedTriangle; } set { editedMesh.selectedTriangle = value; } }
-        public PainterMesh.Vertex PointedUv { get { return editedMesh.pointedUv; } set { editedMesh.pointedUv = value; } }
-        public PainterMesh.LineData PointedLine { get { return editedMesh.pointedLine; } set { editedMesh.pointedLine = value; } }
-        public PainterMesh.Triangle PointedTriangle { get { return editedMesh.pointedTriangle; } set { editedMesh.pointedTriangle = value; } }
-        private static PainterMesh.Vertex[] TriangleSet { get { return editedMesh.triangleSet; } set { editedMesh.triangleSet = value; } }
-        public int TriVertices { get { return editedMesh.triVertices; } set { editedMesh.triVertices = value; } }
+        public static PainterMesh.Vertex SelectedUv { get => editedMesh.selectedUv;
+            set => editedMesh.selectedUv = value;
+        }
+
+        private static PainterMesh.LineData SelectedLine {
+            set => editedMesh.selectedLine = value;
+        }
+        public static PainterMesh.Triangle SelectedTriangle { get => editedMesh.selectedTriangle;
+            private set => editedMesh.selectedTriangle = value;
+        }
+        public static PainterMesh.Vertex PointedUv { get => editedMesh.pointedUv;
+            private set => editedMesh.pointedUv = value;
+        }
+        public static PainterMesh.LineData PointedLine { get => editedMesh.pointedLine;
+            private set => editedMesh.pointedLine = value;
+        }
+        public static PainterMesh.Triangle PointedTriangle { get => editedMesh.pointedTriangle;
+            private set => editedMesh.pointedTriangle = value;
+        }
+        public static int TriVertices { get => editedMesh.triVertices;
+            set => editedMesh.triVertices = value;
+        }
         public int EditedUV
         {
             get { return _editedUv; }
@@ -259,12 +272,12 @@ namespace PlaytimePainter.MeshEditing
         {
             var hold = new PainterMesh.MeshPoint(pos, true);
             
-            new PainterMesh.Vertex(hold);
+            var vertex = new PainterMesh.Vertex(hold);
 
             editedMesh.meshPoints.Add(hold);
             
             if (!EditorInputManager.Control)
-                EditedMesh.AddToTrisSet(hold.vertices[0]);
+                EditedMesh.AddToTrisSet(vertex);
 
             if (Cfg.pixelPerfectMeshEditing)
                 hold.PixPerfect();
@@ -286,7 +299,7 @@ namespace PlaytimePainter.MeshEditing
 
         public static List<string> meshEditorIgnore = new List<string> { VertexEditorUiElementTag, ToolComponentTag };
 
-        private bool ProcessLinesOnTriangle(PainterMesh.Triangle t)
+        private void ProcessLinesOnTriangle(PainterMesh.Triangle t)
         {
             t.wasProcessed = true;
             const float precision = 0.05f;
@@ -306,23 +319,19 @@ namespace PlaytimePainter.MeshEditing
             if (QcMath.IsPointOnLine(v0p, v1p, Vector3.Distance(v0.LocalPos, v1.LocalPos), acc))
             {
                 ProcessPointOnALine(v0, v1, t);
-                return true;
+                return;
             }
 
             if (QcMath.IsPointOnLine(v1p, v2p, Vector3.Distance(v1.LocalPos, v2.LocalPos), acc))
             {
                 ProcessPointOnALine(v1, v2, t);
-                return true;
+                return;
             }
 
             if (QcMath.IsPointOnLine(v2p, v0p, Vector3.Distance(v2.LocalPos, v0.LocalPos), acc))
             {
                 ProcessPointOnALine(v2, v0, t);
-                return true;
             }
-
-
-            return false;
         }
 
         private void GetPointedTriangleOrLine()
@@ -373,7 +382,7 @@ namespace PlaytimePainter.MeshEditing
             if (GridNavigator.RaycastMouse(out hit))
             {
 
-                vertexIsPointed = (hit.transform.tag == VertexEditorUiElementTag);
+                vertexIsPointed = (hit.transform.CompareTag(VertexEditorUiElementTag));
 
                 if (!alt)
                 {
@@ -679,8 +688,7 @@ namespace PlaytimePainter.MeshEditing
                 {
                     MarkerWithText v = new MarkerWithText();
                     Grid.vertices[i] = v;
-                    v.go = GameObject.Instantiate(Grid.vertPrefab);
-                    v.go.transform.parent = Grid.transform;
+                    v.go = Object.Instantiate(Grid.vertPrefab, Grid.transform, true);
                     v.Init();
                 }
             }
@@ -792,7 +800,7 @@ namespace PlaytimePainter.MeshEditing
             var previousTool = MeshTool;
             
             if ("tool:".select_Index(35, ref Cfg.meshTool, MeshToolBase.AllTools).changes(ref changed)) {
-                Grid.vertexPointMaterial.SetColor("_Color", MeshTool.VertexColor);
+                Grid.vertexPointMaterial.color = MeshTool.VertexColor; //.SetColor("_Color", MeshTool.VertexColor);
                 previousTool.OnDeSelectTool();
                 MeshTool.OnSelectTool();
             }

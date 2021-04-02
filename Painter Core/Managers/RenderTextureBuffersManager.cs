@@ -54,8 +54,8 @@ namespace PlaytimePainter {
         public static void DiscardPaintingBuffersContents()
         {
             if (bigRtPair != null)
-            foreach (var rt in bigRtPair)
-                rt.DiscardContents();
+                foreach (var rt in bigRtPair)
+                    rt.DiscardContents();
         }
 
         public static void ClearAlphaBuffer()
@@ -76,7 +76,7 @@ namespace PlaytimePainter {
                 bigRtPair[1].DiscardContents();
                 Graphics.Blit(bigRtPair[0], bigRtPair[1]);
             } else 
-            logger.Log_Interval(5, "Render Texture buffers are null");
+                logger.Log_Interval(5, "Render Texture buffers are null");
 
             secondBufferUpdated = true;
             bigRtVersion++;
@@ -123,11 +123,11 @@ namespace PlaytimePainter {
 
         public static bool GotPaintingBuffers => !bigRtPair.IsNullOrEmpty();
 
-        static void DestroyPaintingBuffers()
+        private static void DestroyPaintingBuffers()
         {
             if (bigRtPair!= null)
-            foreach (var b in bigRtPair)
-                b.DestroyWhatever();
+                foreach (var b in bigRtPair)
+                    b.DestroyWhatever();
 
             bigRtPair = null;
 
@@ -148,7 +148,7 @@ namespace PlaytimePainter {
         
         private static readonly RenderTexture[] _squareBuffers = new RenderTexture[squareBuffersCount];
 
-        static List<RenderTexture> nonSquareBuffers = new List<RenderTexture>();
+        private static List<RenderTexture> nonSquareBuffers = new List<RenderTexture>();
         public static RenderTexture GetNonSquareBuffer(int width, int height)
         {
             foreach (RenderTexture r in nonSquareBuffers)
@@ -204,11 +204,11 @@ namespace PlaytimePainter {
 
         public static void DestroyScalingBuffers()
         {
-            foreach (var tex in _squareBuffers)
-                tex.DestroyWhateverUnityObject();
+            foreach (var textureToDestroy in _squareBuffers)
+                textureToDestroy.DestroyWhateverUnityObject();
 
-            foreach (var tex in nonSquareBuffers)
-                tex.DestroyWhateverUnityObject();
+            foreach (var textureToDestroy in nonSquareBuffers)
+                textureToDestroy.DestroyWhateverUnityObject();
 
             for (int i = 0; i < _squareBuffers.Length; i++)
                 _squareBuffers[i] = null;
@@ -216,21 +216,21 @@ namespace PlaytimePainter {
             nonSquareBuffers.Clear();
         }
 
-        static RenderTexture SquareBuffer(int width) => GetSquareBuffer(width);
+        private static RenderTexture SquareBuffer(int width) => GetSquareBuffer(width);
 
         public static RenderTexture GetDownscaledBigRt(int width, int height, bool allowApprox = false) => Downscale_ToBuffer(GetOrCreatePaintingBuffers()[0], width, height, allowApprox: allowApprox);
         
-        public static RenderTexture GetDownscaleOf(Texture tex, int targetSize, bool allowApprox = false)
+        public static RenderTexture GetDownscaleOf(Texture texture, int targetSize, bool allowApprox = false)
         {
 
-            if (!tex)
+            if (!texture)
                 logger.Log_Interval(5, "Null texture as downscale source");
-            else if (tex.width != tex.height)
+            else if (texture.width != texture.height)
                 logger.Log_Interval(5, "Texture should be square");
-            else if (!Mathf.IsPowerOfTwo(tex.width))
-                logger.Log_Interval(5, "{0} is not a Power of two".F(tex));
+            else if (!Mathf.IsPowerOfTwo(texture.width))
+                logger.Log_Interval(5, "{0} is not a Power of two".F(texture));
             else
-                return Downscale_ToBuffer(tex, targetSize, targetSize, allowApprox: allowApprox);
+                return Downscale_ToBuffer(texture, targetSize, targetSize, allowApprox: allowApprox);
 
 
             return null;
@@ -250,30 +250,27 @@ namespace PlaytimePainter {
 
         }
 
-        public static RenderTexture Downscale_ToBuffer(Texture tex, int width, int height, Material material = null, Shader shader = null, bool allowApprox = false)
+        private static RenderTexture Downscale_ToBuffer(Texture textureToDownscale, int width, int height, Material material = null, Shader shader = null, bool allowApprox = false)
         {
 
-            if (!tex)
+            if (!textureToDownscale)
                 return null;
 
             bool usingCustom = material || shader;
 
             if (!shader)
                 shader = Data.pixPerfectCopy;
-
-           // var cam = PainterCamera.Inst;
-
+            
             bool square = (width == height);
             if (!square || !Mathf.IsPowerOfTwo(width))
-            {
-                return Render(tex, GetNonSquareBuffer(width, height), shader);
-            }
+                return Render(textureToDownscale, GetNonSquareBuffer(width, height), shader);
+            
 
-            int tmpWidth = Mathf.Max(tex.width / 2, width);
+            int tmpWidth = Mathf.Max(textureToDownscale.width / 2, width);
 
             RenderTexture srcRt = material
-                ? Render(tex, SquareBuffer(tmpWidth), material)
-                : Render(tex, SquareBuffer(tmpWidth), shader);
+                ? Render(textureToDownscale, SquareBuffer(tmpWidth), material)
+                : Render(textureToDownscale, SquareBuffer(tmpWidth), shader);
                 
             while (tmpWidth > width) {
 
@@ -483,7 +480,7 @@ namespace PlaytimePainter {
             return to;
         }
 
-        static void AfterBlit(Texture target) {
+        private static void AfterBlit(Texture target) {
             if (target && target.IsBigRenderTexturePair())
                 secondBufferUpdated = false;
 
@@ -540,7 +537,7 @@ namespace PlaytimePainter {
 
         #region Inspector
 
-        static QcUnity.ChillLogger logger = new QcUnity.ChillLogger("error");
+        private static QcUnity.ChillLogger logger = new QcUnity.ChillLogger("error");
         
         private static int inspectedElement = -1;
 
@@ -790,8 +787,13 @@ namespace PlaytimePainter {
             return null;
         }
 
-        public static MaterialMeta GetMaterialPainterMeta(this Material mat) => PainterCamera.Data?.GetMaterialDataFor(mat);
-
+        public static MaterialMeta GetMaterialPainterMeta(this Material mat)
+        {
+             if (!PainterCamera.Data)
+                 return null;
+         
+             return PainterCamera.Data.GetMaterialDataFor(mat);
+        }
     }
 
 }

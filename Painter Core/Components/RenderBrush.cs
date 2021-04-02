@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using QuizCanners.Inspect;
 using QuizCanners.Utils;
 using UnityEngine;
 using UnityEngine.Rendering;
@@ -27,7 +26,7 @@ namespace PlaytimePainter
         private int _replacedLayer;
         public bool deformedBounds;
 
-        [NonSerialized] QcUtils.MeshMaterialPlaytimeInstancer materialInstancer = new QcUtils.MeshMaterialPlaytimeInstancer(true);
+        [NonSerialized] private QcUtils.MeshMaterialPlaytimeInstancer materialInstancer = new QcUtils.MeshMaterialPlaytimeInstancer(true);
 
         public Material GetMaterial() => materialInstancer.GetMaterialInstance(meshRenderer);
         
@@ -159,8 +158,6 @@ namespace PlaytimePainter
         }
 
         private readonly ShaderProperty.TextureValue _mainTex = new ShaderProperty.TextureValue("_MainTex");
-
-        private readonly ShaderProperty.ColorFloat4Value _colorVal = new ShaderProperty.ColorFloat4Value("_Color");
 
         public RenderBrush Set(Texture tex)
         {

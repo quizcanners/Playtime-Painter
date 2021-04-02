@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using QuizCanners.Inspect;
 using PlaytimePainter.ComponentModules;
 using PlaytimePainter.MeshEditing;
@@ -18,7 +17,7 @@ namespace PlaytimePainter
         [TaggedType(tag)]
         public class TileableAtlasingCameraModule : CameraModuleBase, IMeshToolPlugin, IPainterManagerModuleBrush
         {
-            const string tag = "TilAtlCntrl";
+            private const string tag = "TilAtlCntrl";
             public override string ClassTag => tag;
 
             public static TileableAtlasingCameraModule inst;
@@ -27,7 +26,7 @@ namespace PlaytimePainter
             
             #region Inspector
 
-            [SerializeField] protected int inspectedAtlas;
+            protected int inspectedAtlas;
 
             public bool MeshToolInspection(MeshToolBase currentTool)
             {
@@ -67,7 +66,7 @@ namespace PlaytimePainter
 
             public override void Enable() => inst = this;
 
-            int InspectedItems = -1;
+            private int InspectedItems = -1;
 
             public void Inspect()
             {
@@ -214,8 +213,8 @@ namespace PlaytimePainter
             "Atlas Texture: ".edit(ref _curAtlasTexture).nl();
             "Atlas Chanel: ".edit(ref curAtlasChanel).nl();
 
-            if (MeshMGMT.SelectedTriangle != null)
-                ("Selected triangles uses Atlas Texture " + MeshMGMT.SelectedTriangle.textureNo[0]).nl();
+            if (MeshEditorManager.SelectedTriangle != null)
+                ("Selected triangles uses Atlas Texture " + MeshEditorManager.SelectedTriangle.textureNo[0]).nl();
             
             "Cntrl + LMB -> Sample Texture Index".writeHint();
         }
@@ -227,7 +226,7 @@ namespace PlaytimePainter
             if (EditorInputManager.GetMouseButton(0))
             {
                 if (EditorInputManager.Control)
-                    _curAtlasTexture = (int)MeshMGMT.PointedTriangle.textureNo[curAtlasChanel];
+                    _curAtlasTexture = (int)MeshEditorManager.PointedTriangle.textureNo[curAtlasChanel];
                 else if (PointedTriangle.textureNo[curAtlasChanel] != _curAtlasTexture)
                 {
                     if (PointedTriangle.SameAsLastFrame)
@@ -248,7 +247,7 @@ namespace PlaytimePainter
                 if (PointedLine.SameAsLastFrame)
                     return true;
 
-                foreach (var t in MeshMGMT.PointedLine.GetAllTriangles())
+                foreach (var t in MeshEditorManager.PointedLine.GetAllTriangles())
                     if (t.textureNo[curAtlasChanel] != _curAtlasTexture)
                     {
                         t.textureNo[curAtlasChanel] = _curAtlasTexture;
@@ -267,7 +266,7 @@ namespace PlaytimePainter
                 if (PointedUv.SameAsLastFrame)
                     return true;
 
-                foreach (var uv in MeshMGMT.PointedUv.meshPoint.vertices )
+                foreach (var uv in MeshEditorManager.PointedUv.meshPoint.vertices )
                     foreach (var t in uv.triangles)
                     if (t.textureNo[curAtlasChanel] != _curAtlasTexture) {
                         t.textureNo[curAtlasChanel] = _curAtlasTexture;
@@ -304,7 +303,7 @@ namespace PlaytimePainter
             if (keyDown != -1)
             {
                 _curAtlasTexture = keyDown;
-                MeshMGMT.PointedTriangle.textureNo[curAtlasChanel] = keyDown;
+                MeshEditorManager.PointedTriangle.textureNo[curAtlasChanel] = keyDown;
                 EditedMesh.Dirty = true;
                 if (!Application.isPlaying) Event.current.Use();
             }

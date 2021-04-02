@@ -486,9 +486,9 @@ namespace PlaytimePainter.MeshEditing
                 case "UV2dR": data.ToInt(ref uv2DistributeRow); break;
                 case "UV2cur": data.ToInt(ref uv2DistributeCurrent); break;
                 case "sctdUV":
-                    selectedUv = meshPoints[data.ToInt(0)].vertices[0]; break;
+                    selectedUv = meshPoints[data.ToInt()].vertices[0]; break;
                 case "sctdTris":
-                    selectedTriangle = triangles[data.ToInt(0)]; break;
+                    selectedTriangle = triangles[data.ToInt()]; break;
                 default:
                     if (MeshToolBase.AllTools.IsNullOrEmpty()) break;
 

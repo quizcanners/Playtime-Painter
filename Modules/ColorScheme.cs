@@ -30,7 +30,7 @@ namespace PlaytimePainter
                 edited = ind;
         }
 
-        Color EditColor(Color col)
+        private Color EditColor(Color col)
         {
 
             pegi.edit(ref col);
