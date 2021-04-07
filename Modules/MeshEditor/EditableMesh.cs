@@ -127,7 +127,6 @@ namespace PlaytimePainter.MeshEditing
             {
                 var v = new PainterMesh.MeshPoint(vertices[i]);
                 meshPoints.Add(v);
-                //var uv = 
                 new PainterMesh.Vertex(meshPoints[i], gotUv1 ? uv1[i] : Vector2.zero, gotUv2 ? uv2[i] : Vector2.zero);
             }
 

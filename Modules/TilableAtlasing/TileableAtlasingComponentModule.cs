@@ -150,7 +150,7 @@ namespace PlaytimePainter.ComponentModules {
 
             var col = painter.meshCollider;
 
-            if (!col || m != col)
+            if (!col || m != col.sharedMesh)
             {
                 QcUnity.ChillLogger.LogWarningOnce("Painter mesh and collider do not match on {0}".F(painter.gameObject.name), key: "mncol", painter);
             }
@@ -959,7 +959,7 @@ namespace PlaytimePainter.ComponentModules {
 
                 if ("Textures size:".editDelayed(ref _textureSize, 80).nl(ref changed))
 
-                _textureSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(_textureSize, 32, _atlasSize / 2));
+                    _textureSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(_textureSize, 32, _atlasSize / 2));
 
                 AdjustListSize();
             }

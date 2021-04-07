@@ -830,9 +830,9 @@ namespace PlaytimePainter.MeshEditing
             
             pegi.nl();
 
-            Grid.vertexPointMaterial.SetColor("_Color", MeshTool.VertexColor);
+            Grid.vertexPointMaterial.color = MeshTool.VertexColor;
+            //Grid.vertexPointMaterial.SetColor("_Color", MeshTool.VertexColor);
             
-
             EditableMesh.inspected = null;
             
             if (changed)
