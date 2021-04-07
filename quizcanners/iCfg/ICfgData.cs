@@ -83,16 +83,16 @@ namespace QuizCanners.CfgDecode
                 var d = cody.GetData();
                 switch (t)
                 {
-                    case "i0": b.boneIndex0 = d.ToInt(0); break;
+                    case "i0": b.boneIndex0 = d.ToInt(); break;
                     case "w0": b.weight0 = d.ToFloat(); break;
 
-                    case "i1": b.boneIndex1 = d.ToInt(0); break;
+                    case "i1": b.boneIndex1 = d.ToInt(); break;
                     case "w1": b.weight1 = d.ToFloat(); break;
 
-                    case "i2": b.boneIndex2 = d.ToInt(0); break;
+                    case "i2": b.boneIndex2 = d.ToInt(); break;
                     case "w2": b.weight2 = d.ToFloat(); break;
 
-                    case "i3": b.boneIndex3 = d.ToInt(0); break;
+                    case "i3": b.boneIndex3 = d.ToInt(); break;
                     case "w3": b.weight3 = d.ToFloat(); break;
                 }
             }
@@ -321,7 +321,7 @@ namespace QuizCanners.CfgDecode
                 var d = cody.GetData();
 
                 if (tag == "len")
-                    l = new T[d.ToInt(0)];
+                    l = new T[d.ToInt()];
                 else
                 {
                     var isNull = tag == CfgEncoder.NullTag;
@@ -356,7 +356,7 @@ namespace QuizCanners.CfgDecode
                 var d = cody.GetData();
 
                 if (tag == "len")
-                    l = new Matrix4x4[d.ToInt(0)];
+                    l = new Matrix4x4[d.ToInt()];
                 else
                 {
                     var obj = d.ToMatrix4X4();
@@ -486,7 +486,7 @@ namespace QuizCanners.CfgDecode
             {
                 var cody = new CfgDecoder(dta);
 
-                foreach (var t in cody)
+                foreach (var _ in cody)
                     ToListInternal(list, cody, tps);
             }
             else
@@ -505,7 +505,7 @@ namespace QuizCanners.CfgDecode
             {
                 var cody = new CfgDecoder(dta);
 
-                foreach (var t in cody)
+                foreach (var unused in cody)
                     ToListInternal(list, cody, tps);
             } else 
                 list.Add(dta.Decode<T>(tag, tps));
@@ -523,7 +523,7 @@ namespace QuizCanners.CfgDecode
             {
                 var cody = new CfgDecoder(dta);
 
-                foreach (var t in cody)
+                foreach (var _ in cody)
                     ToListInternal(list, cody);
             }
             else
@@ -557,10 +557,10 @@ namespace QuizCanners.CfgDecode
             var tps = typeof(T).TryGetDerivedClasses();
 
             if (tps != null)
-                foreach (string tag in cody)
+                foreach (string _ in cody)
                     ToListInternal(list, cody, tps);
             else
-                foreach (var tag in cody)
+                foreach (var _ in cody)
                     ToListInternal(list, cody);
                 
         }
@@ -571,7 +571,7 @@ namespace QuizCanners.CfgDecode
 
             l = new List<T>();
 
-            foreach (var tag in cody)
+            foreach (var _ in cody)
                ToListInternal(l, cody, tps); //l.Add(cody.GetData().Decode<T>(tag, tps)); 
         }
         
@@ -581,7 +581,7 @@ namespace QuizCanners.CfgDecode
 
             var cody = new CfgDecoder(this);
 
-            foreach (var tag in cody)
+            foreach (var _ in cody)
                 list.Add(cody.GetData().ToString());
             
             return list;
@@ -594,7 +594,7 @@ namespace QuizCanners.CfgDecode
 
             var cody = new CfgDecoder(_value);
 
-            foreach (var tag in cody)
+            foreach (var _ in cody)
                 l.Add(cody.GetData().ToString());
 
             return l;
@@ -607,8 +607,8 @@ namespace QuizCanners.CfgDecode
 
             var cody = new CfgDecoder(_value);
 
-            foreach (var tag in cody)
-                l.Add(cody.GetData().ToInt(0));
+            foreach (var _ in cody)
+                l.Add(cody.GetData().ToInt());
 
             return l;
         }
@@ -620,7 +620,7 @@ namespace QuizCanners.CfgDecode
 
             var cody = new CfgDecoder(_value);
 
-            foreach (var tag in cody)
+            foreach (var _ in cody)
                 l.Add(cody.GetData().ToFloat());
 
 
@@ -634,7 +634,7 @@ namespace QuizCanners.CfgDecode
 
             var cody = new CfgDecoder(_value);
 
-            foreach (var tag in cody)
+            foreach (var _ in cody)
                 l.Add(cody.GetData().ToUInt());
 
 
@@ -648,7 +648,7 @@ namespace QuizCanners.CfgDecode
 
             var cody = new CfgDecoder(_value);
 
-            foreach (var tag in cody)
+            foreach (var _ in cody)
                 l.Add(cody.GetData().ToColor());
 
 
@@ -917,20 +917,8 @@ namespace QuizCanners.CfgDecode
             if (inspectedItems == -1)
                 pegi.nl();
 
-          /*  if (("Object References: " + nestedReferences.Count).enter(ref _inspectedDebugItems, 1).nl_ifNotEntered())
-            {
-                referencesMeta.edit_List_UObj(ref nestedReferences);
-                if (!referencesMeta.Inspecting && "Clear All References".Click("Will clear the list. Make sure everything" +
-                ", that usu this object to hold references is currently decoded to avoid mixups"))
-                    nestedReferences.Clear();
-
-            }*/
-
             if (inspectedItems == -1)
                 pegi.nl();
-
-            /*if (("Unrecognized Tags: " + UnrecognizedStd.Count).enter(ref _inspectedDebugItems, 2).nl_ifNotEntered())
-                UnrecognizedStd.Nested_Inspect().changes(ref changed);*/
 
             if ("Inspect Inspector".enter(ref _inspectedDebugItems, 3).nl())
                 QcUtils.InspectInspector();
@@ -1171,7 +1159,7 @@ namespace QuizCanners.CfgDecode
             }
             catch (Exception ex)
             {
-                Debug.LogError("Couldn't Decode: {0}".F(load) + ex.ToString());
+                Debug.LogError("Couldn't Decode: {0}".F(load) + ex);
                 return false;
             }
 

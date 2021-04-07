@@ -104,10 +104,7 @@ namespace QuizCanners.Inspect
         #endregion
 
         #region Enter & Exit
-
-        public static bool enter<T>(ref int enteredOne, T currentEnum, string tip) where T: struct =>
-             enter(ref enteredOne, Convert.ToInt32(currentEnum), tip);
-
+        
         public static bool enter(ref int enteredOne, int current)
         {
             if (enteredOne == current)
@@ -255,13 +252,10 @@ namespace QuizCanners.Inspect
             return enteredOne == thisOne;
         }
 
-        private static bool enter_DirectlyToElement<T>(this List<T> list, ref int inspected, ref bool entered)
+        private static void enter_DirectlyToElement<T>(this List<T> list, ref int inspected, ref bool entered)
         {
-
             if (!entered && list.enter_DirectlyToElement(ref inspected))
                 entered = true;
-
-            return entered;
         }
 
         private static bool enter_HeaderPart<T>(this ListMetaData meta, ref List<T> list, ref bool entered, bool showLabelIfTrue = false)
@@ -298,19 +292,7 @@ namespace QuizCanners.Inspect
 
         public static bool enter(this string txt, ref int enteredOne, int thisOne, bool showLabelIfTrue = true, PEGI_Styles.PegiGuiStyle enterLabelStyle = null)
             => icon.Enter.enter(txt, ref enteredOne, thisOne, showLabelIfTrue, enterLabelStyle);
-
-        private static bool enter_ListIcon<T>(this string txt, ref List<T> list, ref int enteredOne, int thisOne)
-        {
-            if (collectionInspector.listIsNull(ref list))
-            {
-                if (enteredOne == thisOne)
-                    enteredOne = -1;
-                return false;
-            }
-
-            return icon.List.enter(txt.AddCount(list, enteredOne == thisOne), ref enteredOne, thisOne, false, list.Count == 0 ? PEGI_Styles.ClippingText : null);
-        }
-
+        
         private static bool enter_ListIcon<T>(this string txt, ref List<T> list, ref bool isEntered)
         {
             if (collectionInspector.listIsNull(ref list))
@@ -572,7 +554,7 @@ namespace QuizCanners.Inspect
 
             if (enteredOne == -1 && list != null && list.Count == 0 && typeof(Object).IsAssignableFrom(typeof(T)) == false)
             {
-                var showedOption = collectionInspector.TryShowListAddNewOption(label, list, ref added, ref changed, null);
+                var showedOption = collectionInspector.TryShowListAddNewOption(label, list, ref added, ref changed);
 
                 if (!showedOption)
                     showedOption = collectionInspector.TryShowListCreateNewOptions(list, ref added, null, ref changed);

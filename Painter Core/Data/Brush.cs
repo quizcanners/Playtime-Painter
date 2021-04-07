@@ -206,7 +206,7 @@ namespace PlaytimePainter {
                         if (!rendered)
                         {
                             if (isWorldSpace)
-                                brushType.PaintRenderTextureInWorldSpace(command as PaintCommand.WorldSpace);
+                                brushType.PaintRenderTextureInWorldSpace(command as PaintCommand.WorldSpaceBase);
                             else 
                                 brushType.PaintRenderTextureUvSpace(command);
                         }
@@ -215,7 +215,7 @@ namespace PlaytimePainter {
                 else
                 {
                     if (isWorldSpace)
-                        brushType.PaintRenderTextureInWorldSpace(command as PaintCommand.WorldSpace);
+                        brushType.PaintRenderTextureInWorldSpace(command as PaintCommand.WorldSpaceBase);
                     else
                         brushType.PaintRenderTextureUvSpace(command);
                 }
@@ -405,11 +405,12 @@ namespace PlaytimePainter {
                 }
             }
             
-            if (cpuBlit) {
-                var smooth = _brushType(cpuBlit) != BrushTypes.Pixel.Inst.index;
-
+            var smooth = _brushType(cpuBlit) != BrushTypes.Pixel.Inst.index;
+            
+            if (cpuBlit) 
+            {
                 if (pegi.toggle(ref smooth, icon.Round, icon.Square, "Smooth/Pixels Brush", 45).changes(ref changed))
-                    SetBrushType(cpuBlit, smooth ? BrushTypes.Normal.Inst : BrushTypes.Pixel.Inst.AsBase);
+                    SetBrushType(cpu: true, smooth ? BrushTypes.Normal.Inst : BrushTypes.Pixel.Inst.AsBase);
             }
 
             pegi.nl();
@@ -704,7 +705,7 @@ namespace PlaytimePainter {
 
                 case "useMask": useMask = data.ToBool(); break;
 
-                case "mask": mask = (ColorMask)data.ToInt(0); break;
+                case "mask": mask = (ColorMask)data.ToInt(); break;
 
                 case "modeCPU":  data.ToInt(ref _inCpuBlitMode); break;
                 case "modeGPU":  data.ToInt(ref _inGpuBlitMode); break;

@@ -461,12 +461,12 @@ namespace PlaytimePainter {
             return mat;
         }
 
-        public static RenderTexture Blit(Texture tex, TextureMeta id)
+        public static RenderTexture Blit(Texture texture, TextureMeta id)
         {
-            if (!tex || id == null)
+            if (!texture || id == null)
                 return null;
 
-            return Blit(tex, id.CurrentRenderTexture());
+            return Blit(texture, id.CurrentRenderTexture());
         }
 
         public static RenderTexture Blit(Texture from, RenderTexture to) => Blit(from, to, Data.pixPerfectCopy);

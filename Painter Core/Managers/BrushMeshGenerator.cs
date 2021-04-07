@@ -297,8 +297,9 @@ namespace PlaytimePainter
                 _uv[6] = new Vector2(0, 0);
                 _uv[7] = new Vector2(1, 0);
 
+
                 int t = 0;
-                _tris[t] = 0; _tris[t + 1] = 1; _tris[t + 2] = 2;
+                _tris[t] = 0; _tris[    1] = 1; _tris[    2] = 2;
                 t = 1 * 3;
                 _tris[t] = 2; _tris[t + 1] = 1; _tris[t + 2] = 3;
                 t = 2 * 3;
@@ -314,8 +315,6 @@ namespace PlaytimePainter
                 _mesh.uv = _uv;
                 _mesh.triangles = _tris;
             }
-           // if (debug != null) debug.mesh = mesh;
-
 
             _mesh.name = "Long Mesh";
         }

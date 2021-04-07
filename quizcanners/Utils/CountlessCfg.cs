@@ -341,7 +341,7 @@ namespace QuizCanners.Utils
     
     public class UnNullableCfg<T> : CountlessCfg<T> where T : ICfg, new()  {
         
-        public static int indexOfCurrentlyCreatedUnnulable;
+        public int indexOfCurrentlyCreatedUnnulable;
 
         private T Create(int ind) {
             indexOfCurrentlyCreatedUnnulable = ind;

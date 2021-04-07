@@ -604,7 +604,7 @@ namespace PlaytimePainter.MeshEditing
 
                 EditedMesh.Dirty = true;
 
-                return (val == 1);
+                return Mathf.Approximately(val, 1);
             }
 
             public void SetColorOnLine(Color col, ColorMask bm, MeshPoint other)

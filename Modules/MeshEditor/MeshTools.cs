@@ -37,32 +37,31 @@ namespace PlaytimePainter.MeshEditing {
 
         private static List<MeshToolBase> _allTools;
 
+
+        public static void InitIfNotInited()
+        {
+            if (!_allTools.IsNullOrEmpty() || applicationIsQuitting) 
+                return;
+                
+            _allTools = new List<MeshToolBase>();
+            allToolsWithPerMeshData = new List<IMeshToolWithPerMeshData>();
+                      
+            _allTools.Add(new VertexPositionTool());
+            _allTools.Add(new SharpFacesTool());
+            _allTools.Add(new VertexColorTool());
+            _allTools.Add(new VertexEdgeTool());
+            _allTools.Add(new TriangleAtlasTool());
+            _allTools.Add(new TriangleSubMeshTool());
+            _allTools.Add(new VertexUVTool());
+
+            foreach (var t in _allTools)
+                allToolsWithPerMeshData.TryAdd(t as IMeshToolWithPerMeshData);
+        }
         public static List<MeshToolBase> AllTools
         {
             get
             {
-                if (!_allTools.IsNullOrEmpty() || applicationIsQuitting) return _allTools;
-                
-                _allTools = new List<MeshToolBase>();
-                allToolsWithPerMeshData = new List<IMeshToolWithPerMeshData>();
-                /* 
-                  var tps = QcSharp.GetAllChildTypesOf<MeshToolBase>();
-
-                  foreach (var t in tps)
-                      _allTools.Add((MeshToolBase)Activator.CreateInstance(t));*/
-                      
-                _allTools.Add(new VertexPositionTool());
-                _allTools.Add(new SharpFacesTool());
-                _allTools.Add(new VertexColorTool());
-                _allTools.Add(new VertexEdgeTool());
-                _allTools.Add(new TriangleAtlasTool());
-                _allTools.Add(new TriangleSubMeshTool());
-                //_allTools.Add(new VertexShadowTool());
-                _allTools.Add(new VertexUVTool());
-
-                foreach (var t in _allTools)
-                    allToolsWithPerMeshData.TryAdd(t as IMeshToolWithPerMeshData);
-                
+                InitIfNotInited();
                 return _allTools;
             }
         }

@@ -39,7 +39,7 @@ namespace PlaytimePainter.UI
 
             index %= _roundedCorners.Length;
 
-            if (_roundedCorners[index] != sharpness)
+            if (Mathf.Approximately(_roundedCorners[index], sharpness) == false)
             {
                 _roundedCorners[index] = sharpness;
                 SetVerticesDirty();
@@ -60,7 +60,7 @@ namespace PlaytimePainter.UI
 
             for (int i = 0; i < _roundedCorners.Length; i++)
             {
-                if (_roundedCorners[i] != sharpness)
+                if (Mathf.Approximately(_roundedCorners[i], sharpness) == false)
                 {
                     _roundedCorners[i] = sharpness;
                     changed = true;
@@ -113,7 +113,7 @@ namespace PlaytimePainter.UI
             set
             {
                 var min = faeOutUvPosition.min;
-                if (min.x != value)
+                if (Mathf.Approximately(min.x, value) == false)
                 {
                     min.x = value;
                     faeOutUvPosition.min = min;
@@ -127,7 +127,7 @@ namespace PlaytimePainter.UI
             set
             {
                 var max = faeOutUvPosition.max;
-                if (max.x != value)
+                if (Mathf.Approximately(max.x,value) == false)
                 {
                     max.x = value;
                     faeOutUvPosition.max = max;
@@ -141,7 +141,7 @@ namespace PlaytimePainter.UI
             set
             {
                 Vector2 min = faeOutUvPosition.min;
-                if (min.y != value)
+                if (Mathf.Approximately(min.y, value) == false)
                 {
                     min.y = value;
                     faeOutUvPosition.min = min;
@@ -155,7 +155,7 @@ namespace PlaytimePainter.UI
             set
             {
                 Vector2 max = faeOutUvPosition.max;
-                if (max.y != value)
+                if (Mathf.Approximately(max.y, value) == false)
                 {
                     max.y = value;
                     faeOutUvPosition.max = max;
@@ -786,7 +786,9 @@ namespace PlaytimePainter.UI
 
                         var rct = SpriteRect;
 
-                        if (tex && (rct.width != rectTransform.rect.width || rct.height != rectTransform.rect.height)
+                        if (tex && (
+                            !Mathf.Approximately(rct.width, rectTransform.rect.width) 
+                            || !Mathf.Approximately(rct.height, rectTransform.rect.height))
                                 && icon.Size.Click("Set Native Size").nl())
                         {
                             rectTransform.sizeDelta = SpriteRect.size;
@@ -1108,7 +1110,7 @@ namespace PlaytimePainter.UI
 
                 _roundedCorners.Lerp(ld);
 
-                if (_roundedCorners.CurrentValue != target.GetCorner(0))
+                if (!Mathf.Approximately(_roundedCorners.CurrentValue, target.GetCorner(0)))
                 {
                     target.SetAllCorners(_roundedCorners.CurrentValue);
                     return true;

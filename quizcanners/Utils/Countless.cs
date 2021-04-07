@@ -121,7 +121,7 @@ namespace QuizCanners.Utils {
             Reset();
         }
 
-        protected virtual void Reset() 
+        protected void Reset() 
         {
            
             count = 0;
@@ -682,7 +682,7 @@ namespace QuizCanners.Utils {
 ///  Generic Trees
     public class Countless<T> : CountlessBase {
         
-        [SerializeField] protected T[] objs = new T[0];
+        protected T[] objs = new T[0];
         private int _firstFreeObj;
 
         private static void Expand(ref T[] args, int add)  {
@@ -978,10 +978,12 @@ namespace QuizCanners.Utils {
         #endregion
     }
 
+    
+
     // Unnulable classes will create new instances
     public class UnNullable<T> : Countless<T> where T : new()
     {
-        protected static int indexOfCurrentlyCreatedUnNullable;
+        private int indexOfCurrentlyCreatedUnNullable;
 
         private T Create(int ind)
         {
@@ -1308,7 +1310,7 @@ namespace QuizCanners.Utils {
                     var el = all[i];
                     var ind = indexes[i];
                     if (icon.Delete.Click())
-                        countless[ind] = default;
+                        deleted = ind;//countless[ind] = default;
 
                     "{0}: ".F(ind).write(35);
                     if (pegi.InspectValueInCollection(ref el, null, ind, ref inspected).nl(ref changed) && typeof(T).IsValueType)

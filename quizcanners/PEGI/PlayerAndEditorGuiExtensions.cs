@@ -211,14 +211,12 @@ namespace QuizCanners.Inspect
             return el;
         }
 
-        private static bool TryDefaultInspect(Object uObj)
+        
+        public static bool TryDefaultInspect(Object uObj)
         {
-
 #if UNITY_EDITOR
             if (!PaintingGameViewUI && uObj)
             {
-
-
                 Editor ed;
                 var t = uObj.GetType();
                 if (!defaultEditors.TryGetValue(t, out ed))
@@ -475,11 +473,9 @@ namespace QuizCanners.Inspect
             }
 
             int index = 0;
-            while (bools[index] == true)
-            {
+            while (bools[index])
                 index++;
-            }
-
+            
             return index;
         }
 

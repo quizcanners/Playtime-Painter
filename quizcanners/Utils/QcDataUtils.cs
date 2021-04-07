@@ -260,8 +260,8 @@ namespace QuizCanners.Utils
                 {
                     if (asBytes)
                     {
-                         using (var file = File.Open(fullPath, FileMode.Open))
-                         data = (string) Formatter.Deserialize(file);
+                        using var file = File.Open(fullPath, FileMode.Open);
+                        data = (string) Formatter.Deserialize(file);
                     }
                     else
                     {

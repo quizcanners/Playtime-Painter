@@ -15,9 +15,9 @@ namespace QuizCanners.Utils
     public static class QcAsync
     {
 
-        public static TimedEnumeration.CallAgain CallAgain() => new TimedEnumeration.CallAgain();
+        public static TimedEnumeration.CallAgainRequest CallAgain() => new TimedEnumeration.CallAgainRequest();
 
-        public static TimedEnumeration.CallAgain CallAgain(string message) => new TimedEnumeration.CallAgain(message: message);
+        public static TimedEnumeration.CallAgainRequest CallAgain(string message) => new TimedEnumeration.CallAgainRequest(message: message);
 
         /*
         public static TimedEnumeration.CallAgain CallAfter(float seconds) =>
@@ -32,11 +32,11 @@ namespace QuizCanners.Utils
         public static TimedEnumeration.CallAgain CallAfter(TimeSpan timeSpan, string message) =>
             new TimedEnumeration.CallAgain(task: Task.Delay(timeSpan), message: message);*/
 
-        public static TimedEnumeration.CallAgain CallAfter_Thread(Action afterThisTask) =>
-            new TimedEnumeration.CallAgain(task: Task.Run(afterThisTask));
+        public static TimedEnumeration.CallAgainRequest CallAfter_Thread(Action afterThisTask) =>
+            new TimedEnumeration.CallAgainRequest(task: Task.Run(afterThisTask));
 
-        public static TimedEnumeration.CallAgain CallAfter_Thread(Action afterThisTask, string message) =>
-            new TimedEnumeration.CallAgain(task: Task.Run(afterThisTask), message: message);
+        public static TimedEnumeration.CallAgainRequest CallAfter_Thread(Action afterThisTask, string message) =>
+            new TimedEnumeration.CallAgainRequest(task: Task.Run(afterThisTask), message: message);
 
         private static bool _debugPauseCoroutines;
 
@@ -53,7 +53,7 @@ namespace QuizCanners.Utils
         }
 
         public static Coroutine StartTimedCoroutine(this IEnumerator enumerator, MonoBehaviour behaviour, Action onExit = null) =>
-            behaviour.StartCoroutine(new TimedEnumeration(enumerator).Start(onExit: onExit));
+            behaviour.StartCoroutine(new TimedEnumeration(enumerator).Start(onExitAction: onExit));
 
         public static void UpdateManagedCoroutines()
         {
@@ -157,7 +157,7 @@ namespace QuizCanners.Utils
             for (int i = 0; i < 5; i++)
             {
                 Debug.Log("With wait {0}. Frame: {1}".F(i, Time.frameCount));
-                yield return new TimedEnumeration.CallAgain(task: Task.Delay(TimeSpan.FromMilliseconds(QcMath.Seconds_To_Miliseconds(0.3f))), message: "Sending communication token that will ask to delay execution by 0.3 seconds");
+                yield return new TimedEnumeration.CallAgainRequest(task: Task.Delay(TimeSpan.FromMilliseconds(QcMath.Seconds_To_Miliseconds(0.3f))), message: "Sending communication token that will ask to delay execution by 0.3 seconds");
                // yield return CallAfter(0.3f, "Sending communication token that will ask to delay execution by 0.3 seconds");
             }
 
@@ -184,11 +184,8 @@ namespace QuizCanners.Utils
 
         private static readonly ListMetaData coroutinesListMeta = new ListMetaData("Managed Coroutines", showAddButton: false);
 
-        public static bool InspectManagedCoroutines()
+        public static void InspectManagedCoroutines()
         {
-
-            var changed = false;
-
             if (!coroutinesListMeta.Inspecting)
             {
                 if ("Run an Example Managed  Coroutine".Click().nl())
@@ -207,35 +204,33 @@ namespace QuizCanners.Utils
 
                 ("Examples are in QcAsync.cs class").writeHint();
             }
-            
-            return changed;
         }
 
         #endregion
 
         public class TimedEnumeration : IPEGI_ListInspect, IPEGI, IGotName
         {
-            public class CallAgain
+            public class CallAgainRequest
             {
                 public string message;
 
                 public Task task;
 
-                public CallAgain()
+                public CallAgainRequest()
                 {
                 }
 
-                public CallAgain(string message)
+                public CallAgainRequest(string message)
                 {
                     this.message = message;
                 }
 
-                public CallAgain(Task task)
+                public CallAgainRequest(Task task)
                 {
                     this.task = task;
                 }
 
-                public CallAgain(Task task, string message)
+                public CallAgainRequest(Task task, string message)
                 {
                     this.task = task;
                     this.message = message;
@@ -257,7 +252,7 @@ namespace QuizCanners.Utils
             private List<IEnumerator> _enumerator = new List<IEnumerator>();
             private Task _task;
             private int _runningVersion;
-            private CallAgain _currentCallAgainRequest;
+            private CallAgainRequest _currentCallAgainRequestRequest;
             private object _current;
             private bool _enumeratorStackChanged;
             protected bool _stopAndCancel;
@@ -319,7 +314,7 @@ namespace QuizCanners.Utils
                     return false;
                 }
 
-                _currentCallAgainRequest = null;
+                _currentCallAgainRequestRequest = null;
                 _enumeratorStackChanged = false;
 
                 if (_task != null)
@@ -361,18 +356,18 @@ namespace QuizCanners.Utils
                             return true;
                         }
 
-                        _currentCallAgainRequest = _current as CallAgain;
+                        _currentCallAgainRequestRequest = _current as CallAgainRequest;
                             
-                        if (_currentCallAgainRequest != null)
+                        if (_currentCallAgainRequestRequest != null)
                         {
-                            if (_currentCallAgainRequest.message != null)
+                            if (_currentCallAgainRequestRequest.message != null)
                             {
-                                _state = _currentCallAgainRequest.message;
+                                _state = _currentCallAgainRequestRequest.message;
                             }
 
-                            if (_currentCallAgainRequest.task != null)
+                            if (_currentCallAgainRequestRequest.task != null)
                             {
-                                _task = _currentCallAgainRequest.task;
+                                _task = _currentCallAgainRequestRequest.task;
                             }
                             return true;
                         }
@@ -413,7 +408,7 @@ namespace QuizCanners.Utils
                     return false;
                 }
                 
-                if (_currentCallAgainRequest == null || ((TotalTimeUsedThisFrame + timer.ElapsedMilliseconds) > maxMilisecondsPerFrame))
+                if (_currentCallAgainRequestRequest == null || ((TotalTimeUsedThisFrame + timer.ElapsedMilliseconds) > maxMilisecondsPerFrame))
                 {
                     var el = timer.ElapsedMilliseconds;
 
@@ -463,7 +458,7 @@ namespace QuizCanners.Utils
             }
 
             //To be used inside a Coroutine:
-            public IEnumerator Start(Action onExit = null, Action onDoneFully = null)
+            public IEnumerator Start(Action onExitAction = null, Action onDoneFullyAction = null)
             {
 
                 if (_enumerator.IsNullOrEmptyCollection())
@@ -472,8 +467,8 @@ namespace QuizCanners.Utils
                     yield break;
                 }
 
-                this.onDoneFully = onDoneFully;
-                this.onExit = onExit;
+                onDoneFully = onDoneFullyAction;
+                onExit = onExitAction;
 
                 int thisVersion = EnumeratorVersion;
 
@@ -504,14 +499,14 @@ namespace QuizCanners.Utils
                 OnDone();
             }
 
-            public TimedEnumeration Reset(IEnumerator enumerator, Action onExit = null, Action onDoneFully = null, string nameForInspector = "")
+            public TimedEnumeration Reset(IEnumerator enumerator, Action onExitAction = null, Action onDoneFullyAction = null, string nameForInspector = "")
             {
                 ResetInternal();
                 _state = "Starting: " + enumerator;
 
                 _enumerator.Add(enumerator);
-                this.onDoneFully = onExit;
-                this.onExit = onDoneFully;
+                this.onDoneFully = onExitAction;
+                this.onExit = onDoneFullyAction;
                 NameForPEGI = nameForInspector.IsNullOrEmpty() ? enumerator.ToString() : nameForInspector;
 
                 return this;

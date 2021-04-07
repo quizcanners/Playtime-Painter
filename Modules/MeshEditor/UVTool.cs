@@ -315,7 +315,7 @@ namespace PlaytimePainter.MeshEditing
 
             var gn = GridNavigator.Inst();
 
-            if (projectorNormalThreshold01 == 1) {
+            if (Mathf.Approximately( projectorNormalThreshold01, 1)) {
                 foreach (var t in eMesh.triangles) {
                     for (var i = 0; i < 3; i++) {
                         var v = t.vertexes[i];

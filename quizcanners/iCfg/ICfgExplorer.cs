@@ -240,8 +240,8 @@ namespace QuizCanners.CfgDecode
 
             #region Encode & Decode
 
-            public void Decode(CfgData data)=>
-                new CfgDecoder(data).DecodeTagsIgnoreErrors(this);
+            public void Decode(CfgData dataToDecode)=>
+                new CfgDecoder(dataToDecode).DecodeTagsIgnoreErrors(this);
             
 
             public CfgEncoder Encode()

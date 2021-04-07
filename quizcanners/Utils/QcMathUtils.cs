@@ -23,7 +23,7 @@ namespace QuizCanners.Utils
             float t = Mathf.Clamp01((x - edge0) / (edge1 - edge0));
             return t * t * (3f - 2f * t);
         }
-
+        
         #region Double
 
         public static double Clamp(double value, double min, double max) => value < min ? min : (value > max ? max : value);

@@ -31,7 +31,7 @@ namespace QuizCanners.Inspect
             return val;
         }
 
-        internal static string GetCurrentListLabel<T>(ListMetaData meta = null) => collectionInspector.GetCurrentListLabel<T>(meta);
+        internal static string CurrentListLabel<T>(ListMetaData meta = null) => collectionInspector.GetCurrentListLabel<T>(meta);
 
         internal static void UnselectAll() => collectionInspector.selectedEls.Clear();
 
@@ -659,7 +659,9 @@ namespace QuizCanners.Inspect
             }
 
             private string currentListLabel = "";
-            public string GetCurrentListLabel<T>(ListMetaData ld = null) => ld != null ? ld.label :
+            public string GetCurrentListLabel<T>(ListMetaData ld = null) => 
+                ld != null 
+                    ? ld.label :
                         (currentListLabel.IsNullOrEmpty() ? typeof(T).ToPegiStringType() : currentListLabel);
 
             public void listLabel_Used()
@@ -885,12 +887,8 @@ namespace QuizCanners.Inspect
                         meta.SetIsSelected(i, val);
             }
 
-            private void TryMoveCopiedElement<T>(List<T> list, bool allowDuplicants)
+            private void TryMoveCopiedElement<T>(List<T> list, bool isAllowDuplicants)
             {
-
-                //    foreach (var e in _copiedElements)
-                //   list.TryAdd(listCopyBuffer.TryGetObj(e));
-
                 bool errorShown = false;
 
                 for (var i = _copiedElements.Count - 1; i >= 0; i--)
@@ -900,7 +898,7 @@ namespace QuizCanners.Inspect
                     var e = listCopyBuffer.TryGetObj(srcInd);
 
                     T conv;
-                    if (list.CanAdd(ref e, out conv, !allowDuplicants))
+                    if (list.CanAdd(ref e, out conv, !isAllowDuplicants))
                     {
                         list.Add(conv);
                         listCopyBuffer.RemoveAt(srcInd);
@@ -1004,7 +1002,7 @@ namespace QuizCanners.Inspect
 
                 if (list != collectionInspector.reordering)
                 {
-                    if (sd.filteredList != list && (listMeta == null || listMeta.showEditListButton) &&
+                    if (!ReferenceEquals(sd.filteredList, list) && (listMeta == null || listMeta.showEditListButton) &&
                         icon.Edit.ClickUnFocus(Msg.MoveCollectionElements, 28))
                         reordering = list;
                 }
@@ -1487,7 +1485,7 @@ namespace QuizCanners.Inspect
 
                 var sd = ld == null ? defaultSearchData : ld.searchData;
 
-                if (sd.filteredList == list)
+                if (ReferenceEquals(sd.filteredList, list))
                     name = sd.searchedText;
 
                 if ("+ NEW {0}".F(text).ClickUnFocus(Msg.AddNewCollectionElement.GetText() + (name.IsNullOrEmpty() ? "" : " Named {0}".F(name))).changes(ref changed))
@@ -1524,7 +1522,7 @@ namespace QuizCanners.Inspect
 
                 var sd = ld == null ? defaultSearchData : ld.searchData;
 
-                if (sd.filteredList == list)
+                if (ReferenceEquals(sd.filteredList, list))
                     name = sd.searchedText;
 
                 if (icon.Add.ClickUnFocus(Msg.AddNewCollectionElement.GetText() + (name.IsNullOrEmpty() ? "" : " Named {0}".F(name))).changes(ref changed))
@@ -3070,14 +3068,14 @@ namespace QuizCanners.Inspect
                 if (collection == null)
                     return;
 
-                var active = collection == filteredList;
+                var active = ReferenceEquals(collection, filteredList);
 
                 var changed = false;
 
                 if (active && icon.FoldedOut.ClickUnFocus("{0} {1} {2}".F(icon.Hide.GetText(), icon.Search.GetText(), collection), 27).changes(ref changed) || KeyCode.UpArrow.IsDown())
                     active = false;
 
-                if (!active && collection != collectionInspector.reordering &&
+                if (!active && !ReferenceEquals(collection, collectionInspector.reordering) &&
                     (icon.Search
                         .Click("{0} {1}".F(icon.Search.GetText(), label.IsNullOrEmpty() ? collection.ToString() : label), 27)) // || KeyCode.DownArrow.IsDown())
                         .changes(ref changed))
@@ -3104,7 +3102,7 @@ namespace QuizCanners.Inspect
             {
                 searching = false;
 
-                if (list == filteredList)
+                if (ReferenceEquals(list, filteredList))
                 {
 
                     nl();

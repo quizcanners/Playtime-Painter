@@ -14,10 +14,10 @@ namespace PlaytimePainter.ComponentModules {
         private MergingTerrainController mergingTerrain;
         public int testData;
 
-        private void FindMergingTerrain(PlaytimePainter painter) {
+        private void FindMergingTerrain(PlaytimePainter forPainter) {
 
-            if (!mergingTerrain && painter.terrain)
-                mergingTerrain = painter.GetComponent<MergingTerrainController>();
+            if (!mergingTerrain && forPainter.terrain)
+                mergingTerrain = forPainter.GetComponent<MergingTerrainController>();
         }
 
         public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex)

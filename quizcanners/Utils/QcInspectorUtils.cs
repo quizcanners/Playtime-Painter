@@ -122,12 +122,15 @@ namespace QuizCanners.Utils
             if (!(obj is T))
             {
 
-                GameObject go;
+                GameObject go = null;
 
                 if (typeof(T).IsSubclassOf(typeof(MonoBehaviour)))
                 {
                     var mb = (obj as MonoBehaviour);
-                    go = mb ? mb.gameObject : null;
+                    if (mb)
+                    {
+                        go = mb.gameObject;
+                    }
                 }
                 else go = obj as GameObject;
 
@@ -810,7 +813,9 @@ namespace QuizCanners.Utils
             var changed = false;
 
             if ("Coroutines [{0}]".F(QcAsync.GetActiveCoroutinesCount).enter(ref inspectedSection, 0).nl())
-                QcAsync.InspectManagedCoroutines().nl(ref changed);
+                QcAsync.InspectManagedCoroutines();
+            
+            pegi.nl();
 
             "Screen Shots".enter_Inspect(screenShots, ref inspectedSection, 1).nl(ref changed);
 
@@ -918,7 +923,7 @@ namespace QuizCanners.Utils
                 if ("Time.timescale".edit(ref tScale, 0f, 4f))
                     Time.timeScale = tScale;
 
-                if (tScale != 1 && icon.Refresh.Click())
+                if (Mathf.Approximately(tScale, 1) == false && icon.Refresh.Click())
                     Time.timeScale = 1;
 
                 pegi.nl();

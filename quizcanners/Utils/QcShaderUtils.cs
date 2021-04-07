@@ -24,12 +24,12 @@ namespace QuizCanners.Utils {
             protected string name;
             public override bool Equals(object obj)
             {
-                if (obj == null)
-                    return false;
-
                 var bi = obj as BaseShaderPropertyIndex;
 
-                return bi != null ? bi.id == id : name.Equals(bi.name);
+                if (bi?.name == null)
+                    return false;
+                
+                return bi.id == id;
             }
 
             public override int GetHashCode() => id;
@@ -117,9 +117,7 @@ namespace QuizCanners.Utils {
 
             public T GlobalValue
             {
-                get
-                {
-                    return GlobalValue_Internal; }
+                get => GlobalValue_Internal;
                 set
                 {
                     latestValue = value;
@@ -176,6 +174,8 @@ namespace QuizCanners.Utils {
             protected override T GlobalValue_Internal
             {
                 set {
+                    latestValue = value;
+                    
                     if (_directiveGlobalValue == DirectiveEnabledForLastValue)
                         return;
 
@@ -360,8 +360,12 @@ namespace QuizCanners.Utils {
 
             protected override Color GlobalValue_Internal
             {
-                get { return Shader.GetGlobalColor(id); }
-                set { Shader.SetGlobalColor(id, ConvertedColor); }
+                get => Shader.GetGlobalColor(id);
+                set
+                {
+                    latestValue = value;
+                    Shader.SetGlobalColor(id, ConvertedColor);
+                }
             }
 
             private void CheckColorSpace()

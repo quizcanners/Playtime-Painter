@@ -135,11 +135,9 @@ namespace PlaytimePainter
         {
             var overrideOther = false;
 
-            var isA3D = false;
-
             foreach (var pl in CameraModuleBase.BrushPlugins)
             {
-                isA3D = pl.IsA3DBrush(this, brush, ref overrideOther);
+                var isA3D = pl.IsA3DBrush(this, brush, ref overrideOther);
                 if (overrideOther)
                     return isA3D;
             }
@@ -1080,7 +1078,7 @@ namespace PlaytimePainter
             if (TexMeta != null && Material)
                 UpdateOrSetTexTarget(TexTarget.Texture2D);
 
-           InitIfNotInitialized();
+            InitIfNotInitialized();
 
             var mat = GetMaterial(true);
 
@@ -1195,8 +1193,8 @@ namespace PlaytimePainter
         {
             if (skinnedMeshRenderer)
                 UpdateColliderForSkinnedMesh();
-            else if (mesh)
-                meshCollider?.AssignMeshAsCollider(mesh);
+            else if (mesh && meshCollider)
+                 meshCollider.AssignMeshAsCollider(mesh);
 
         }
 
@@ -1545,11 +1543,9 @@ namespace PlaytimePainter
 
             try
             {
-                if (meshCollider)
-                {
-                    meshCollider.sharedMesh = null;
-                    meshCollider.sharedMesh = colliderForSkinnedMesh;
-                }
+                if (!meshCollider) return;
+                meshCollider.sharedMesh = null;
+                meshCollider.sharedMesh = colliderForSkinnedMesh;
             }
             catch (Exception ex)
             {
@@ -1663,8 +1659,6 @@ namespace PlaytimePainter
         }
 #endif
 
-        private double _debugTimeOfLastUpdate;
-
         public void ManagedUpdateOnFocused()
         {
 
@@ -1720,8 +1714,6 @@ namespace PlaytimePainter
 
             if (textureWasChanged)
                 OnChangedTexture_OnMaterial();
-
-            _debugTimeOfLastUpdate = QcUnity.TimeSinceStartup();
 
             var id = TexMeta;
             id?.ManagedUpdate(this);
