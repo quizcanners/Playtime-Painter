@@ -847,12 +847,11 @@ namespace PlaytimePainter
 
         public void Inspect() {
 
-            if (ProcessEnumerator != null) {
-                
+            if (ProcessEnumerator != null) 
+            {
                 "Running Coroutine".nl();
                 _processEnumerator.Inspect_AsInList();
                 return;
-                
             }
 
             var changed = false;
@@ -865,9 +864,6 @@ namespace PlaytimePainter
 
                 "Don't update mipMaps".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",
                     ref dontRedoMipMaps).changes(ref changed);
-
-          
-
             }
 
             if ("GPU blit options".enter(ref inspectedItems, 1).nl())
@@ -1029,7 +1025,7 @@ namespace PlaytimePainter
                             if (p)
                                 p.UpdateOrSetTexTarget(TexTarget.Texture2D);
 
-                            _processEnumerator = QcAsync.StartManagedCoroutine(
+                            _processEnumerator = QcAsync.DefaultCoroutineManager.Add(
                                 DistanceFieldProcessor.Generate(this, sdfMaxInside, sdfMaxOutside,
                                     sdfPostProcessDistance, fromAlpha: fromAlpha), () => {
 

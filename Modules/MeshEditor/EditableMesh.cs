@@ -450,8 +450,11 @@ namespace PlaytimePainter.MeshEditing
 
             if (!MeshToolBase.AllTools.IsNullOrEmpty())
                 foreach (var t in MeshToolBase.allToolsWithPerMeshData)
-                    cody.Add((t as MeshToolBase).StdTag, t.EncodePerMeshData());
-
+                {
+                    var mtb = t as MeshToolBase;
+                    if (mtb != null)
+                        cody.Add(mtb.StdTag, t.EncodePerMeshData());
+                }
 
             return cody;
         }

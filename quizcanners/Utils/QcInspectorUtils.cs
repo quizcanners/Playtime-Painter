@@ -808,28 +808,11 @@ namespace QuizCanners.Utils
         private static int inspectedSection = -1;
         private static int inspectedData = -1;
 
-        public static bool InspectInspector()
+        public static void InspectDebug()
         {
-            var changed = false;
-
-            if ("Coroutines [{0}]".F(QcAsync.GetActiveCoroutinesCount).enter(ref inspectedSection, 0).nl())
-                QcAsync.InspectManagedCoroutines();
-            
             pegi.nl();
 
-            "Screen Shots".enter_Inspect(screenShots, ref inspectedSection, 1).nl(ref changed);
-
-            "Json Inspector".enter_Inspect(jsonInspector, ref inspectedSection, 2).nl();
-
-            if ("ICfg Inspector".enter(ref inspectedSection, 3).nl())
-                iCfgExplorer.Inspect(null).nl(ref changed);
-
-            if ("Gui Styles".enter(ref inspectedSection, 4).nl())
-            {
-                PEGI_Styles.Inspect().nl();
-            }
-
-            if ("Data".enter(ref inspectedSection, 5).nl())
+             if ("Data".enter(ref inspectedSection, 0).nl())
             {
                 if (inspectedData == -1)
                 {
@@ -885,7 +868,7 @@ namespace QuizCanners.Utils
                 }
             }
 
-            if ("Profiler".enter(ref inspectedSection, 6).nl())
+            if ("Profiler".enter(ref inspectedSection, 1).nl())
             {
                 "Mono Heap Size Long {0}".F(Profiler.GetMonoHeapSizeLong().ToMegabytes()).nl();
 
@@ -905,7 +888,7 @@ namespace QuizCanners.Utils
 
             }
 
-            if ("Time & Audio".enter(ref inspectedSection, 7).nl())
+            if ("Time & Audio".enter(ref inspectedSection, 2).nl())
             {
                 "Time.time: {0}".F(QcSharp.SecondsToReadableString(Time.time)).nl();
 
@@ -938,8 +921,21 @@ namespace QuizCanners.Utils
                     Application.targetFrameRate = fr;
                 }
             }
+            
+            "Screen Shots".enter_Inspect(screenShots, ref inspectedSection, 3).nl();
 
-            return changed;
+            "Json Inspector".enter_Inspect(jsonInspector, ref inspectedSection, 4).nl();
+
+            if ("ICfg Inspector".enter(ref inspectedSection, 5).nl())
+                iCfgExplorer.Inspect(null).nl();
+
+            if ("Gui Styles".enter(ref inspectedSection, 6).nl())
+            {
+                PEGI_Styles.Inspect().nl();
+            }
+
+            if ("Managed Coroutines [{0}]".F(QcAsync.DefaultCoroutineManager.GetActiveCoroutinesCount).enter(ref inspectedSection, 7).nl())
+                QcAsync.DefaultCoroutineManager.Nested_Inspect();
         }
 
         public static string ToMegabytes(this uint bytes)

@@ -668,7 +668,6 @@ namespace PlaytimePainter {
             if (!QcUnity.ApplicationIsAboutToEnterPlayMode())
                 SubscribeToEditorUpdates();
 
-
             if (!brushPrefab) {
                 var go = Resources.Load(PainterDataAndConfig.PREFABS_RESOURCE_FOLDER +"/RenderCameraBrush") as GameObject;
                 if (go) {
@@ -798,7 +797,7 @@ namespace PlaytimePainter {
             if (PlaytimePainter.IsCurrentTool && FocusedPainter)
                 FocusedPainter.ManagedUpdateOnFocused();
             
-            QcAsync.UpdateManagedCoroutines();
+            QcAsync.DefaultCoroutineManager.UpdateManagedCoroutines();
 
             MeshManager.CombinedUpdate();
 
@@ -933,7 +932,7 @@ namespace PlaytimePainter {
             pegi.nl();
 
             if ("Inspector & Debug".enter(ref _inspectedStuff, 4).nl())
-                QcUtils.InspectInspector();
+                QcUtils.InspectDebug();
 
             pegi.nl();
         }

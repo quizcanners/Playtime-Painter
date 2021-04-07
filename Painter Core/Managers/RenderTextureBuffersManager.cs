@@ -692,11 +692,15 @@ namespace PlaytimePainter {
             if (texture.IsBigRenderTexturePair() && PainterCamera.Inst.imgMetaUsingRendTex != null)
                 return PainterCamera.Inst.imgMetaUsingRendTex;
 
-            TextureMeta rid = null;
+          
 
             var lst = PainterCamera.Data.imgMetas;
 
-            if (lst == null) return rid;
+            if (lst == null) 
+                return null;
+            
+            TextureMeta rid = null;
+            
             for (var i = 0; i < lst.Count; i++)
             {
                 var id = lst[i];

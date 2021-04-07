@@ -123,7 +123,7 @@ namespace QuizCanners.Inspect
             {
                 private WindowFunction _function;
                 private Rect _windowRect;
-                public float upscale = 2;
+                public float upscale;
                 private Vector2 scrollPosition;
 
                 protected bool UseWindow => Mathf.Approximately(upscale, 1);

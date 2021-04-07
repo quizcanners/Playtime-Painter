@@ -1170,7 +1170,8 @@ namespace PlaytimePainter
         {
             get
             {
-                if ((savedMeshData.ToString() != null) && (savedMeshData.ToString().Length == 0 || (meshDataSavedFor != this.GetMesh())))
+                var dta = savedMeshData.ToString();
+                if (dta != null && (savedMeshData.ToString().Length == 0 || (meshDataSavedFor != this.GetMesh())))
                     savedMeshData = new CfgData();
 
                 return savedMeshData;

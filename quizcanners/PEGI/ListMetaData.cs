@@ -2,38 +2,62 @@ using QuizCanners.CfgDecode;
 using QuizCanners.Utils;
 using System;
 using System.Collections.Generic;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+
 
 namespace QuizCanners.Inspect
 {
     #region List Data
 
+
+    [Flags]
+    public enum ListInspectParams
+    {
+        None = 0,
+        allowDeleting = 1,
+        allowReordering = 2,
+        showAddButton = 4,
+        showEditListButton = 8,
+        showSearchButton = 16,
+        showDictionaryKey = 32,
+        allowDuplicates = 64,
+    }
+    
+    
+    
     public class ListMetaData : IPEGI
     {
-
-        private const string DefaultFolderToSearch = "Assets/";
-
         public string label = "list";
-        private string folderToSearch = DefaultFolderToSearch;
         public int inspected = -1;
         public int previousInspected = -1;
         public int listSectionStartIndex;
-        public bool Inspecting { get { return inspected != -1; } set { if (value == false) inspected = -1; } }
-        public bool keepTypeData;
-        public bool allowDelete;
-        public bool allowReorder;
-        public bool allowDuplicants;
-        public bool showEditListButton;
-        public bool showSearchButton;
-        public bool showDictionaryKey;
+        private ListInspectParams _config;
         public bool useOptimalShowRange = true;
         public int itemsToShow = 10;
-        public readonly bool showAddButton;
         public readonly icon icon;
         public UnNullable<ElementData> elementDatas = new UnNullable<ElementData>();
-
+        
+        public bool this[ListInspectParams param]
+        {
+            get => (_config & param) == param;
+            set
+            {
+                if (value)
+                {
+                    _config |= param;
+                }
+                else
+                {
+                    _config &= ~param;
+                }
+            }
+        }
+        
+        public bool Inspecting 
+        { 
+            get => inspected != -1;
+            set { if (value == false) inspected = -1; } 
+        }
+        
         public List<int> GetSelectedElements()
         {
             var sel = new List<int>();
@@ -92,16 +116,14 @@ namespace QuizCanners.Inspect
             {
                 "Show 'Explore Encoding' Button".toggleIcon(ref ElementData.enableEnterInspectEncoding).nl();
                 "List Label".edit(70, ref label).nl();
-                "Keep Type Data".toggleIcon("Will keep unrecognized data when you switch between class types.", ref keepTypeData).nl();
-                "Allow Delete".toggleIcon(ref allowDelete).nl();
-                "Allow Reorder".toggleIcon(ref allowReorder).nl();
+                "Config".editEnumFlags(ref _config).nl();
             }
 
             if ("Elements".enter(ref _enterElementDatas).nl())
                 elementDatas.Inspect();
         }
 
-        public bool Inspect<T>(List<T> list) where T : UnityEngine.Object
+       /* public bool Inspect<T>(List<T> list) where T : UnityEngine.Object
         {
             var changed = false;
 #if UNITY_EDITOR
@@ -126,22 +148,28 @@ namespace QuizCanners.Inspect
 
 #endif
             return changed;
-        }
+        }*/
 
         #endregion
 
     
         public ListMetaData()
         {
-            allowDelete = true;
-            allowReorder = true;
-            showAddButton = true;
-            keepTypeData = false;
+            this[ListInspectParams.showAddButton] = true;
+            this[ListInspectParams.allowDeleting] = true;
+            this[ListInspectParams.allowReordering] = true;
         }
 
+        public ListMetaData(string nameMe,params ListInspectParams[] configs)
+        {
+            label = nameMe;
+            icon = icon.Enter;
+            foreach (var config in configs)
+                this[config] = true;
+        }
+        
         public ListMetaData(string nameMe, bool allowDeleting = true,
             bool allowReordering = true,
-            bool keepTypeData = false,
             bool showAddButton = true,
             bool showEditListButton = true,
             bool showSearchButton = true,
@@ -149,14 +177,15 @@ namespace QuizCanners.Inspect
             icon enterIcon = icon.Enter)
         {
 
-            this.showAddButton = showAddButton;
-            allowDelete = allowDeleting;
-            allowReorder = allowReordering;
             label = nameMe;
-            this.keepTypeData = keepTypeData;
-            this.showEditListButton = showEditListButton;
-            this.showSearchButton = showSearchButton;
-            this.showDictionaryKey = showDictionaryKey;
+            
+            this[ListInspectParams.showAddButton] = showAddButton;
+            this[ListInspectParams.allowDeleting] = allowDeleting;
+            this[ListInspectParams.allowReordering] = allowReordering;
+            this[ListInspectParams.showEditListButton] = showEditListButton;
+            this[ListInspectParams.showSearchButton] = showSearchButton;
+            this[ListInspectParams.showDictionaryKey] = showDictionaryKey;
+            
             icon = enterIcon;
         }
     }
@@ -171,7 +200,7 @@ namespace QuizCanners.Inspect
         public static bool enableEnterInspectEncoding;
 
 
-        public void ChangeType(ref object obj, Type newType, TaggedTypesCfg taggedTypes, bool keepTypeConfig = false)
+        public void ChangeType(ref object obj, Type newType, TaggedTypesCfg taggedTypes)
         {
             var previous = obj;
 
@@ -210,7 +239,7 @@ namespace QuizCanners.Inspect
 
      
 
-        public bool SelectType(ref object obj, TaggedTypesCfg all, bool keepTypeConfig = false)
+        public bool SelectType(ref object obj, TaggedTypesCfg all)
         {
             var changed = false;
 
@@ -223,7 +252,7 @@ namespace QuizCanners.Inspect
             var type = obj?.GetType();
 
             if (all.Select(ref type).nl(ref changed))
-                ChangeType(ref obj, type, all, keepTypeConfig);
+                ChangeType(ref obj, type, all);
 
             return changed;
         }

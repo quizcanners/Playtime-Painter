@@ -990,24 +990,24 @@ namespace QuizCanners.Inspect
 
         }
 
-        public static bool selectType<T>(this string text, int width, ref T el, ElementData ed = null, bool keepTypeConfig = true) where T : class, IGotClassTag
+        public static bool selectType<T>(this string text, int width, ref T el, ElementData ed = null) where T : class, IGotClassTag
         {
             text.write(width);
-            return selectType(ref el, ed, keepTypeConfig);
+            return selectType(ref el, ed);
         }
 
-        public static bool selectType<T>(this string text, ref T el, ElementData ed = null, bool keepTypeConfig = true) where T : class, IGotClassTag
+        public static bool selectType<T>(this string text, ref T el, ElementData ed = null) where T : class, IGotClassTag
         {
             text.write();
-            return selectType(ref el, ed, keepTypeConfig);
+            return selectType(ref el, ed);
         }
 
-        public static bool selectType<T>(ref T el, TaggedTypesCfg types, ElementData ed = null, bool keepTypeConfig = true) where T : class, IGotClassTag
+        public static bool selectType<T>(ref T el, TaggedTypesCfg types, ElementData ed = null) where T : class, IGotClassTag
         {
 
             object obj = el;
 
-            if (selectType_Obj<T>(ref obj, types, ed, keepTypeConfig))
+            if (selectType_Obj<T>(ref obj, types, ed))
             {
                 el = obj as T;
                 return true;
@@ -1016,13 +1016,13 @@ namespace QuizCanners.Inspect
 
         }
 
-        public static bool selectType<T>(ref T el, ElementData ed = null, bool keepTypeConfig = true) where T : class, IGotClassTag
+        public static bool selectType<T>(ref T el, ElementData ed = null) where T : class, IGotClassTag
         {
             object obj = el;
 
             var cfg = TaggedTypesCfg.TryGetOrCreate(typeof(T));
 
-            if (selectType_Obj<T>(ref obj, cfg, ed, keepTypeConfig))
+            if (selectType_Obj<T>(ref obj, cfg, ed))
             {
                 el = obj as T;
                 return true;
@@ -1030,11 +1030,11 @@ namespace QuizCanners.Inspect
             return false;
         }
 
-        private static bool selectType_Obj<T>(ref object obj, TaggedTypesCfg cfg, ElementData ed = null, bool keepTypeConfig = true) where T : IGotClassTag
+        private static bool selectType_Obj<T>(ref object obj, TaggedTypesCfg cfg, ElementData ed = null) where T : IGotClassTag
         {
 
             if (ed != null)
-                return ed.SelectType(ref obj, cfg, keepTypeConfig);
+                return ed.SelectType(ref obj, cfg);
 
             var type = obj?.GetType();
 
@@ -2055,10 +2055,10 @@ namespace QuizCanners.Inspect
                 #endif
                 false;
 
-        public static bool edit_enter_Inspect<T>(this string label, ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : Object
-            => label.edit_enter_Inspect(-1, ref obj, ref entered, current, selectFrom);
+        public static bool edit_enter_Inspect<T>(this string label, ref T obj, ref int entered, int current, List<T> selectFrom = null, bool showLabelIfEntered = true) where T : Object
+            => label.edit_enter_Inspect(-1, ref obj, ref entered, current, selectFrom,  showLabelIfEntered: showLabelIfEntered);
 
-        public static bool edit_enter_Inspect<T>(this string label, int width, ref T obj, ref int entered, int current, List<T> selectFrom = null) where T : Object
+        public static bool edit_enter_Inspect<T>(this string label, int width, ref T obj, ref int entered, int current, List<T> selectFrom = null, bool showLabelIfEntered = true) where T : Object
         {
             var changed = false;
 
@@ -2070,7 +2070,7 @@ namespace QuizCanners.Inspect
             {
                 var pgi = QcUnity.TryGet_fromObj<IPEGI>(obj);
 
-                if (conditional_enter(pgi != null, ref entered, current, label))
+                if (conditional_enter(pgi != null, ref entered, current, exitLabel: showLabelIfEntered ? label : ""))
                     pgi.Nested_Inspect().changes(ref changed);
             }
 
@@ -3391,6 +3391,12 @@ namespace QuizCanners.Inspect
 
         #region Enum Flags
 
+        public static bool editEnumFlags<T>(this string text, ref T eval)
+        {
+            write(text);
+            return editEnumFlags(ref eval);
+        }
+        
         public static bool editEnumFlags<T>(this string text, int width, ref T eval)
         {
             write(text, width);

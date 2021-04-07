@@ -615,17 +615,30 @@ namespace QuizCanners.Utils {
                 return string.Empty;
             StringBuilder newText = new StringBuilder(text.Length * 2);
             newText.Append(text[0]);
+            char previousCharacter = text[0];
             for (int i = 1; i < text.Length; i++)
             {
-                if (char.IsUpper(text[i]))
+                var currentCharacter = text[i];
+                if (char.IsUpper(currentCharacter))
                 {
-                    if ((text[i - 1] != ' ' && !char.IsUpper(text[i - 1])) ||
-                        (preserveAcronyms && char.IsUpper(text[i - 1]) &&
+                    if ((previousCharacter != ' ' && !char.IsUpper(previousCharacter)) ||
+                        (preserveAcronyms && char.IsUpper(previousCharacter) &&
                          i < text.Length - 1 && !char.IsUpper(text[i + 1])))
                         newText.Append(' ');
                 }
+                else
+                {
+                    if (currentCharacter == '_')
+                    {
+                        newText.Append(' ');     
+                        previousCharacter = ' ';
+                        continue;
+                    }
+                }
 
-                newText.Append(text[i]);
+                previousCharacter = currentCharacter;
+                
+                newText.Append(currentCharacter);
             }
             return newText.ToString();
         }

@@ -342,7 +342,7 @@ namespace QuizCanners.Inspect
 
             public bool PEGI_InstantiateOptions_SO<T>(List<T> lst, ref T added, ListMetaData ld) where T : ScriptableObject
             {
-                if (ld != null && !ld.showAddButton)
+                if (ld != null && !ld[ListInspectParams.showAddButton])
                     return false;
 
                 if (reordering != null && reordering == lst)
@@ -437,7 +437,7 @@ namespace QuizCanners.Inspect
 
             public bool TryShowListCreateNewOptions<T>(List<T> lst, ref T added, ListMetaData ld, ref bool changed)
             {
-                if (ld != null && !ld.showAddButton)
+                if (ld != null && !ld[ListInspectParams.showAddButton])
                     return false;
 
                 if (reordering != null && reordering == lst)
@@ -525,7 +525,7 @@ namespace QuizCanners.Inspect
 
             public bool TryShowListCreateNewOptions<T>(List<T> lst, ref T added, TaggedTypesCfg types, ListMetaData ld)
             {
-                if (ld != null && !ld.showAddButton)
+                if (ld != null && !ld[ListInspectParams.showAddButton])
                     return false;
 
                 if (reordering != null && reordering == lst)
@@ -726,7 +726,7 @@ namespace QuizCanners.Inspect
 
                 currentListLabel = ld.label;
 
-                if (!ld.Inspecting && ld.showSearchButton)
+                if (!ld.Inspecting && ld[ListInspectParams.showSearchButton])
                     ld.searchData.ToggleSearch(lst, ld.label);
 
                 if (lst != null && ld.inspected >= 0 && lst.Count > ld.inspected)
@@ -740,7 +740,7 @@ namespace QuizCanners.Inspect
                 else currentListLabel = (lst == null || lst.Count < 6) ? ld.label : ld.label.AddCount(lst, true);
 
 
-                if (ld.Inspecting)
+                if (ld.Inspecting && lst!= null)
                 {
                     exitOptionHandled = true;
                     if (icon.List.ClickUnFocus("{0} {1} [2]".F(Msg.ReturnToCollection.GetText(), currentListLabel, lst.Count)))
@@ -851,7 +851,7 @@ namespace QuizCanners.Inspect
 
                 }
 
-                var dpl = meta?.allowDuplicants ?? allowDuplicants;
+                var dpl = meta?[ListInspectParams.allowDuplicates] ?? allowDuplicants;
 
                 foreach (var ret in ef.DropAreaGUI<T>())
                 {
@@ -921,7 +921,7 @@ namespace QuizCanners.Inspect
 
                 if (array != _editingArrayOrder)
                 {
-                    if ((listMeta == null || listMeta.showEditListButton) && icon.Edit.ClickUnFocus(Msg.MoveCollectionElements, 28))
+                    if ((listMeta == null || listMeta[ListInspectParams.showEditListButton]) && icon.Edit.ClickUnFocus(Msg.MoveCollectionElements, 28))
                         _editingArrayOrder = array;
                 }
 
@@ -935,7 +935,7 @@ namespace QuizCanners.Inspect
                 for (var i = 0; i < array.Length; i++)
                 {
 
-                    if (listMeta == null || listMeta.allowReorder)
+                    if (listMeta == null || listMeta[ListInspectParams.allowReordering])
                     {
 
                         if (i > 0)
@@ -958,7 +958,7 @@ namespace QuizCanners.Inspect
 
                     var isNull = el.IsNullOrDestroyed_Obj();
 
-                    if (listMeta == null || listMeta.allowDelete)
+                    if (listMeta == null || listMeta[ListInspectParams.allowDeleting])
                     {
                         if (!isNull && typeof(T).IsUnityObject())
                         {
@@ -1002,7 +1002,7 @@ namespace QuizCanners.Inspect
 
                 if (list != collectionInspector.reordering)
                 {
-                    if (!ReferenceEquals(sd.filteredList, list) && (listMeta == null || listMeta.showEditListButton) &&
+                    if (!ReferenceEquals(sd.filteredList, list) && (listMeta == null || listMeta[ListInspectParams.showEditListButton]) &&
                         icon.Edit.ClickUnFocus(Msg.MoveCollectionElements, 28))
                         reordering = list;
                 }
@@ -1029,7 +1029,7 @@ namespace QuizCanners.Inspect
                     {
                         int i = collectionInspector.Index;
 
-                        if (listMeta == null || listMeta.allowReorder)
+                        if (listMeta == null || listMeta[ListInspectParams.allowReordering])
                         {
 
                             if (i > 0)
@@ -1051,7 +1051,7 @@ namespace QuizCanners.Inspect
 
                         var isNull = el.IsNullOrDestroyed_Obj();
 
-                        if (listMeta == null || listMeta.allowDelete)
+                        if (listMeta == null || listMeta[ListInspectParams.allowDeleting])
                         {
 
                             if (!isNull && typeof(T).IsUnityObject())
@@ -1117,7 +1117,7 @@ namespace QuizCanners.Inspect
                 #region Copy, Cut, Paste, Move 
 
 
-                var duplicants = listMeta != null ? listMeta.allowDuplicants : allowDuplicants;
+                var duplicants = listMeta != null ? listMeta[ListInspectParams.allowDuplicates] : allowDuplicants;
 
                 if (list.Count > 1 && typeof(IGotIndex).IsAssignableFrom(typeof(T)))
                 {
@@ -1239,7 +1239,7 @@ namespace QuizCanners.Inspect
                 if (list != listCopyBuffer)
                 {
 
-                    if ((listMeta == null || listMeta.allowDelete) && list.Count > 0)
+                    if ((listMeta == null || listMeta[ListInspectParams.allowDeleting]) && list.Count > 0)
                     {
                         var nullOrDestroyedCount = 0;
 
@@ -1257,7 +1257,7 @@ namespace QuizCanners.Inspect
                         }
                     }
 
-                    if ((listMeta == null || listMeta.allowDelete) && list.Count > 0)
+                    if ((listMeta == null || listMeta[ListInspectParams.allowDeleting]) && list.Count > 0)
                     {
                         if (selectedCount > 0 &&
                             icon.Delete.ClickConfirm("delLstPegi", list, "Delete {0} Selected".F(selectedCount)))
@@ -1289,7 +1289,7 @@ namespace QuizCanners.Inspect
                         .changes(ref changed);
 
                     if (listMeta != null)
-                        listMeta.allowDuplicants = duplicants;
+                        listMeta[ListInspectParams.allowDuplicates] = duplicants;
                     else allowDuplicants = duplicants;
                 }
 
@@ -1466,8 +1466,7 @@ namespace QuizCanners.Inspect
 
             public bool TryShowListAddNewOption<T>(string text, List<T> list, ref T added, ref bool changed, ListMetaData ld = null)
             {
-
-                if (ld != null && !ld.showAddButton)
+                if (ld != null && !ld[ListInspectParams.showAddButton])
                     return false;
 
                 var type = typeof(T);
@@ -1504,7 +1503,7 @@ namespace QuizCanners.Inspect
             public bool TryShowListAddNewOption<T>(List<T> list, ref T added, ref bool changed, ListMetaData ld = null)
             {
 
-                if (ld != null && !ld.showAddButton)
+                if (ld != null && !ld[ListInspectParams.showAddButton])
                     return false;
 
                 var type = typeof(T);
@@ -1541,7 +1540,7 @@ namespace QuizCanners.Inspect
             public bool ListAddEmptyClick<T>(IList<T> list, ListMetaData ld = null)
             {
 
-                if (ld != null && !ld.showAddButton)
+                if (ld != null && !ld[ListInspectParams.showAddButton])
                     return false;
 
                 var type = typeof(T);
@@ -1616,7 +1615,9 @@ namespace QuizCanners.Inspect
                 var chBefore = GUI.changed;
                 pl.InspectInList(collection, index, ref inspected);
                     
-                if (!chBefore && GUI.changed && (typeof(T).IsValueType))
+                changed |= !chBefore && GUI.changed;
+                
+                if (changed && (typeof(T).IsValueType))
                     el = (T)pl;
 
                 if (changed || inspected == index)
@@ -1759,26 +1760,21 @@ namespace QuizCanners.Inspect
         public static bool edit_List_MB<T>(this string label, ref List<T> list, ref int inspected) where T : MonoBehaviour
         {
             collectionInspector.write_Search_ListLabel(label, ref inspected, list);
-            var changed = false;
-            edit_List_MB(ref list, ref inspected, ref changed).listLabel_Used();
-            return changed;
+            return edit_List_MB(ref list, ref inspected).listLabel_Used();
         }
 
-        public static bool edit_List_MB<T>(this ListMetaData metaDatas, ref List<T> list) where T : MonoBehaviour
+        public static bool edit_List_MB<T>(this ListMetaData metaData, ref List<T> list) where T : MonoBehaviour
         {
-            collectionInspector.write_Search_ListLabel(metaDatas, list);
-            bool changed = false;
-            edit_List_MB(ref list, ref metaDatas.inspected, ref changed, metaDatas).listLabel_Used();
-            return changed;
+            collectionInspector.write_Search_ListLabel(metaData, list);
+            return edit_List_MB(ref list, ref metaData.inspected, metaData).listLabel_Used();
         }
 
-        public static T edit_List_MB<T>(ref List<T> list, ref int inspected, ref bool changed, ListMetaData listMeta = null) where T : MonoBehaviour
+        public static bool edit_List_MB<T>(ref List<T> list, ref int inspected,  ListMetaData listMeta = null) where T : MonoBehaviour
         {
-
             if (collectionInspector.listIsNull(ref list))
-                return null;
+                return false;
 
-            var added = default(T);
+            bool changed = false;
 
             var before = inspected;
 
@@ -1829,7 +1825,7 @@ namespace QuizCanners.Inspect
 
             nl();
 
-            return added;
+            return changed;
         }
 
         #endregion
@@ -2713,7 +2709,7 @@ namespace QuizCanners.Inspect
             nl();
 
             if (listMeta != null)
-                showKey = listMeta.showDictionaryKey;
+                showKey = listMeta[ListInspectParams.showDictionaryKey];
 
             var changed = false;
 
@@ -2743,7 +2739,7 @@ namespace QuizCanners.Inspect
                 {
                     var itemKey = item.Key;
                     
-                    if ((listMeta != null && listMeta.allowDelete) && icon.Delete.ClickUnFocus(25).changes(ref changed))
+                    if ((listMeta != null && listMeta[ListInspectParams.allowDeleting]) && icon.Delete.ClickUnFocus(25).changes(ref changed))
                         dic.Remove(itemKey);
                     else
                     {
@@ -2791,13 +2787,13 @@ namespace QuizCanners.Inspect
             {
 
                 if (listMeta != null)
-                    showKey = listMeta.showDictionaryKey;
+                    showKey = listMeta[ListInspectParams.showDictionaryKey];
 
                 foreach (var item in collectionInspector.InspectionIndexes(dic, listMeta, new KeyValuePairInspector<G, T>()))
                 {
                     var itemKey = item.Key;
                     
-                    if ((listMeta != null && listMeta.allowDelete) && icon.Delete.ClickUnFocus(25).changes(ref changed))
+                    if ((listMeta != null && listMeta[ListInspectParams.allowDeleting]) && icon.Delete.ClickUnFocus(25).changes(ref changed))
                     {
                         dic.Remove(itemKey);
                         return true;

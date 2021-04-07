@@ -1464,7 +1464,7 @@ namespace QuizCanners.Inspect
 
             if (rl != null) return rl;
 
-            rl = new ReorderableList(list, typeof(T), metaDatas == null || metaDatas.allowReorder, true, false, false);//metaDatas == null || metaDatas.allowDelete);
+            rl = new ReorderableList(list, typeof(T), metaDatas == null || metaDatas[ListInspectParams.allowReordering], true, false, false);//metaDatas == null || metaDatas.allowDelete);
             ReorderableList.Add(list, rl);
 
             rl.drawHeaderCallback += DrawHeader;

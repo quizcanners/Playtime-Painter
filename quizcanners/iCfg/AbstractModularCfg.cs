@@ -201,8 +201,8 @@ namespace QuizCanners.CfgDecode {
 
             var ed = ld.TryGetElement(index);
 
-            if (ed != null && ld.keepTypeData && iTag != null)
-                ed.ChangeType(ref el, type, cfg, ld.keepTypeData);
+            if (ed != null && iTag != null)
+                ed.ChangeType(ref el, type, cfg);
             else
             {
                 el = std.TryDecodeInto<object>(type);

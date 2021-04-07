@@ -921,7 +921,7 @@ namespace QuizCanners.CfgDecode
                 pegi.nl();
 
             if ("Inspect Inspector".enter(ref _inspectedDebugItems, 3).nl())
-                QcUtils.InspectInspector();
+                QcUtils.InspectDebug();
 
             if (inspectedItems == -1)
                 pegi.nl();

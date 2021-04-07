@@ -14,7 +14,6 @@ namespace QuizCanners.Utils
 
     public static class QcAsync
     {
-
         public static TimedEnumeration.CallAgainRequest CallAgain() => new TimedEnumeration.CallAgainRequest();
 
         public static TimedEnumeration.CallAgainRequest CallAgain(string message) => new TimedEnumeration.CallAgainRequest(message: message);
@@ -37,36 +36,103 @@ namespace QuizCanners.Utils
 
         public static TimedEnumeration.CallAgainRequest CallAfter_Thread(Action afterThisTask, string message) =>
             new TimedEnumeration.CallAgainRequest(task: Task.Run(afterThisTask), message: message);
-
-        private static bool _debugPauseCoroutines;
-
-        private static List<TimedEnumeration> enumerators = new List<TimedEnumeration>();
-
-        public static TimedEnumeration StartManagedCoroutine(IEnumerator enumerator, Action onDone = null)
+        
+      
+        public class TimedCoroutinesManager : IPEGI
         {
-            var enm = new TimedEnumeration(enumerator)
+            private static readonly List<TimedEnumeration> pool = new List<TimedEnumeration>();
+            
+            private List<TimedEnumeration> enumerators = new List<TimedEnumeration>();
+            
+            public int GetActiveCoroutinesCount => enumerators.Count;
+
+          /*  private class DoneToken { public bool isDone; }
+            private async Task WaitTask(DoneToken token) {
+                while (!token.isDone)
+                    await Task.Yield();
+            }*/
+            
+            public TimedEnumeration Add(IEnumerator enumerator, Action onExit = null, Action onFullyDone = null)
             {
-                onDoneFully = onDone
-            };
-            enumerators.Insert(0, enm);
-            return enm;
-        }
-
-        public static Coroutine StartTimedCoroutine(this IEnumerator enumerator, MonoBehaviour behaviour, Action onExit = null) =>
-            behaviour.StartCoroutine(new TimedEnumeration(enumerator).Start(onExitAction: onExit));
-
-        public static void UpdateManagedCoroutines()
-        {
-            if (!_debugPauseCoroutines)
-                for (int i = enumerators.Count - 1; i >= 0; i--)
+               /* DoneToken token = new DoneToken();
+                var task = WaitTask(token);
+                
+                var tmp = onExit;
+                onExit = () =>
                 {
+                    token.isDone = true;
+                    tmp?.Invoke();                      
+                };*/
+                
+                var enm = (pool.Count>0) ? pool.TryTake(0) : new TimedEnumeration();
+                enm.Reset(enumerator, onExitAction: onExit, onDoneFullyAction: onFullyDone);
+                enumerators.Insert(0, enm);
+                return enm;
+            }
+            
+            public void UpdateManagedCoroutines()
+            {
+                for (int i = enumerators.Count - 1; i >= 0; i--)
                     if (!enumerators[i].MoveNext())
-                        enumerators.RemoveAt(i);
+                        pool.Add(enumerators.TryTake(i));
+            }
+
+            #region Inspector 
+            private readonly ListMetaData coroutinesListMeta = new ListMetaData("Managed Coroutines", showAddButton: false);
+
+            private Task _debugTask;
+            public void Inspect()
+            {
+                pegi.nl();
+                
+                if (!coroutinesListMeta.Inspecting)
+                {
+                    "Pool Size: {0}".F(pool.Count).nl();
+                    
+                    if ("Run an Example Managed Coroutine".Click().nl())
+                        DefaultCoroutineManager.Add(Coroutine_Test());
+
+                    if (_debugTask != null)
+                    {
+                        "Task status:{0}".F(_debugTask.Status).nl();
+                        
+                        if (_debugTask.Exception != null)
+                            _debugTask.Exception.ToString().writeBig();
+                        
+                        if ("Clear".Click())
+                            _debugTask = null;
+                    } else if ("Run an Example Task".Click().nl())
+                    {
+                        var tmp = new TimedEnumeration(Coroutine_Test());
+                        _debugTask = tmp.StartTask();
+                    }
                 }
+
+                if ("Yield 1 frame".Click().nl())
+                    UpdateManagedCoroutines();
+                
+                coroutinesListMeta.edit_List(ref enumerators).nl();
+                
+                if (!coroutinesListMeta.Inspecting)
+                {
+                    ("Managed Timed coroutines can run in Editor, but need an object to send an update call to them every frame: QcAsync.UpdateManagedCoroutines()." +
+                     " Alternatively a TimedEnumerator can be started with Unity's " +
+                     "StartCoroutine(new TimedEnumeration(enumerator)). It will in turn call yield on it multiple times with care for performance.").writeHint();
+
+                    ("Examples are in QcAsync.cs class").writeHint();
+                }
+            }
+            
+            #endregion
         }
+        
+        public static Coroutine StartTimedCoroutine(this IEnumerator enumerator, MonoBehaviour behaviour, Action onExit = null) =>
+            behaviour.StartCoroutine(new TimedEnumeration(enumerator).GetCoroutine(onExitAction: onExit));
 
         #region Inspector
 
+        public static TimedCoroutinesManager DefaultCoroutineManager = new TimedCoroutinesManager();
+        
         private static string CalculatePi_Test(int digits)
         {
 
@@ -145,7 +211,7 @@ namespace QuizCanners.Utils
 
         }
 
-        public static IEnumerator Coroutine_Test()
+        private static IEnumerator Coroutine_Test()
         {
 
             for (int i = 0; i < 5; i++)
@@ -161,7 +227,7 @@ namespace QuizCanners.Utils
                // yield return CallAfter(0.3f, "Sending communication token that will ask to delay execution by 0.3 seconds");
             }
 
-            Debug.Log("Will start Nested Coroutine. Works only if using MonoBehaviour's StartCoroutine");
+            Debug.Log("Will start Nested Coroutine.");
 
             yield return NestedCoroutine_Test();
 
@@ -179,33 +245,6 @@ namespace QuizCanners.Utils
             Debug.Log("Done calculating Pi : {0}".F(pi));
 
         }
-
-        public static int GetActiveCoroutinesCount => enumerators.Count;
-
-        private static readonly ListMetaData coroutinesListMeta = new ListMetaData("Managed Coroutines", showAddButton: false);
-
-        public static void InspectManagedCoroutines()
-        {
-            if (!coroutinesListMeta.Inspecting)
-            {
-                if ("Run an Example Managed  Coroutine".Click().nl())
-                    StartManagedCoroutine(Coroutine_Test());
-            }
-
-            coroutinesListMeta.edit_List(ref enumerators).nl();
-
-            "Pause Coroutines".toggleIcon(ref _debugPauseCoroutines).nl();
-
-            if (!coroutinesListMeta.Inspecting)
-            {
-                ("Managed Timed coroutines can run in Editor, but need an object to send an update call to them every frame: QcAsync.UpdateManagedCoroutines()." +
-                 " Alternatively a TimedEnumerator can be started with Unity's " +
-                    "StartCoroutine(new TimedEnumeration(enumerator)). It will in turn call yield on it multiple times with care for performance.").writeHint();
-
-                ("Examples are in QcAsync.cs class").writeHint();
-            }
-        }
-
         #endregion
 
         public class TimedEnumeration : IPEGI_ListInspect, IPEGI, IGotName
@@ -237,11 +276,12 @@ namespace QuizCanners.Utils
                 }
             }
 
+            #region FrameTiming
             private const float maxMilisecondsPerFrame = 1000f * 0.5f / 60f;
-
             private static float TotalTimeUsedThisFrame;
             private static int FrameIndex = -1;
-
+            #endregion
+            
             public bool DoneFully { get; private set; }
             public bool Exited { get; private set; }
             public int EnumeratorVersion { get; private set; }
@@ -249,7 +289,7 @@ namespace QuizCanners.Utils
             public Action onExit;
             internal Action onDoneFully;
 
-            private List<IEnumerator> _enumerator = new List<IEnumerator>();
+            private List<IEnumerator> _enumeratorStack = new List<IEnumerator>();
             private Task _task;
             private int _runningVersion;
             private CallAgainRequest _currentCallAgainRequestRequest;
@@ -258,14 +298,17 @@ namespace QuizCanners.Utils
             protected bool _stopAndCancel;
             private Stopwatch timer = new Stopwatch();
 
-            private void ResetInternal() 
+            public void Stop() => EnumeratorVersion +=1;
+            
+            private void ResetInternal(IEnumerator enumerator) 
             {
                 EnumeratorVersion += 1; // To stop any active coroutines
-                _enumerator.Clear(); 
+                _enumeratorStack.Clear(); 
                 DoneFully = false;
                 Exited = false;
                 _task = null;
                 _stopAndCancel = false;
+                _enumeratorStack.Add(enumerator);
             }
 
             protected virtual void OnDone()
@@ -329,7 +372,7 @@ namespace QuizCanners.Utils
 
                 try
                 {
-                    IEnumerator en = _enumerator[_enumerator.Count - 1];
+                    IEnumerator en = _enumeratorStack[_enumeratorStack.Count - 1];
 
                     if (en.MoveNext())
                     {
@@ -350,7 +393,7 @@ namespace QuizCanners.Utils
 
                         if (enm != null)
                         {
-                            _enumerator.Add(enm);
+                            _enumeratorStack.Add(enm);
                             _current = null;
                             _enumeratorStackChanged = true;
                             return true;
@@ -371,17 +414,15 @@ namespace QuizCanners.Utils
                             }
                             return true;
                         }
-
-                       // _state = "Timed Enumerator {0} doesn't know how to process {1}".F(NameForPEGI, _current.ToString());
-
+                        
                         return true;
                         
                     }
                     else
                     {
-                        if (_enumerator.Count > 1)
+                        if (_enumeratorStack.Count > 1)
                         {
-                            _enumerator.RemoveAt(_enumerator.Count - 1);
+                            _enumeratorStack.RemoveAt(_enumeratorStack.Count - 1);
                             _enumeratorStackChanged = true;
                             return true;
                         }
@@ -401,7 +442,7 @@ namespace QuizCanners.Utils
                 return false;
             }
 
-            private bool NeedToStopYielding()
+            private bool NeedToStopInternalYielding()
             {
                 if (_enumeratorStackChanged)
                 {
@@ -446,7 +487,7 @@ namespace QuizCanners.Utils
 
                 while (NextYieldInternal())
                 {
-                    if (NeedToStopYielding())
+                    if (NeedToStopInternalYielding())
                     {
                         return true;
                     }
@@ -457,34 +498,68 @@ namespace QuizCanners.Utils
                 return false;
             }
 
-            //To be used inside a Coroutine:
-            public IEnumerator Start(Action onExitAction = null, Action onDoneFullyAction = null)
-            {
 
-                if (_enumerator.IsNullOrEmptyCollection())
+            private bool CanStart_Internal(Action onExitAction, Action onDoneFullyAction, out int thisVersion)
+            {
+                thisVersion = EnumeratorVersion;
+                
+                if (_enumeratorStack.IsNullOrEmptyCollection())
                 {
-                    Debug.LogError("No enumerator");
-                    yield break;
+                    _state = "No enumerator";
+                    Debug.LogError(_state);
+                    return false;
                 }
 
                 onDoneFully = onDoneFullyAction;
                 onExit = onExitAction;
 
-                int thisVersion = EnumeratorVersion;
-
                 if (thisVersion == _runningVersion)
                 {
-                    Debug.LogError("This enumerator is already running");
-                    yield break;
+                    _state = "This enumerator is already running";
+                    Debug.LogError(_state);
+                    return false;
                 }
 
                 _runningVersion = thisVersion;
               
                 ResetTimer();
+                
+                _state = "Starting";
+                
+                return true;
+            }
+            
+            public async Task StartTask(Action onExitAction = null, Action onDoneFullyAction = null)
+            {
+                
+                if (!CanStart_Internal(onExitAction, onDoneFullyAction, out var thisVersion))
+                   return;
 
                 while (NextYieldInternal())
                 {
-                    if (NeedToStopYielding())
+                    if (NeedToStopInternalYielding())
+                    {
+                        await Task.Yield();
+                        ResetTimer();
+                    }
+
+                    if (EnumeratorVersion != thisVersion)
+                    {
+                        return;
+                    }
+                }
+                OnDone();
+            }
+            
+            //To be used inside a Coroutine:
+            public IEnumerator GetCoroutine(Action onExitAction = null, Action onDoneFullyAction = null)
+            {
+                if (!CanStart_Internal(onExitAction, onDoneFullyAction, out var thisVersion))
+                    yield break;
+
+                while (NextYieldInternal())
+                {
+                    if (NeedToStopInternalYielding())
                     {
                         yield return _current;
                         ResetTimer();
@@ -495,18 +570,15 @@ namespace QuizCanners.Utils
                         yield break;
                     }
                 }
-
                 OnDone();
             }
 
             public TimedEnumeration Reset(IEnumerator enumerator, Action onExitAction = null, Action onDoneFullyAction = null, string nameForInspector = "")
             {
-                ResetInternal();
-                _state = "Starting: " + enumerator;
-
-                _enumerator.Add(enumerator);
-                this.onDoneFully = onExitAction;
-                this.onExit = onDoneFullyAction;
+                ResetInternal(enumerator);
+                _state = "Resetting: " + enumerator;
+                onDoneFully = onExitAction;
+                onExit = onDoneFullyAction;
                 NameForPEGI = nameForInspector.IsNullOrEmpty() ? enumerator.ToString() : nameForInspector;
 
                 return this;
@@ -525,6 +597,7 @@ namespace QuizCanners.Utils
             }
 
             #region Inspector
+            
             protected bool _logUnoptimizedSections;
             private string _state = "";
             private int _yields;
