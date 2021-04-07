@@ -2,14 +2,15 @@
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEditor;
+
 #endif
 
 namespace QuizCanners.Inspect
 {
-
     public static class PEGI_Styles
     {
         public static bool InList;
+
         private static bool InGameView => pegi.PaintingGameViewUI
 #if UNITY_EDITOR
                                           || EditorGUIUtility.isProSkin
@@ -37,13 +38,13 @@ namespace QuizCanners.Inspect
                     if (InGameView)
                     {
                         if (InList)
-                            return playtimeInList ??= generator();
-                        return playtime ??= generator();
+                            return playtimeInList = playtimeInList ?? generator();
+                        return playtime = playtime ?? generator();
                     }
 
                     if (InList)
-                        return editorGuiInList ??= generator();
-                    return editorGui ??= generator();
+                        return editorGuiInList = editorGuiInList ?? generator();
+                    return editorGui = editorGui ?? generator();
                 }
             }
 
@@ -68,14 +69,13 @@ namespace QuizCanners.Inspect
                 var fs = cur.fontSize;
                 if ("Font Size".edit(90, ref fs).nl())
                     cur.fontSize = fs;
-                
+
                 if ("Padding".foldout(ref _inspectedProperty, 0).nl())
                 {
                     RectOffset pad = cur.padding;
 
                     if (pegi.edit(ref pad, -15, 15).nl())
                         cur.padding = pad;
-               
                 }
 
                 if ("Margins".foldout(ref _inspectedProperty, 1).nl())
@@ -85,26 +85,27 @@ namespace QuizCanners.Inspect
                     if (pegi.edit(ref mar, -15, 15).nl())
                         cur.margin = mar;
                 }
-
             }
+
             #endregion
         }
-        
+
         #region Button
-        
-        public static PegiGuiStyle ImageButton = new PegiGuiStyle(()=> new GUIStyle(GUI.skin.button)
-                {
-                    overflow = new RectOffset(-3, -3, 0, 0),
-                    margin = new RectOffset(1, -3, 1, 1)
-                });
-        
-        public static PegiGuiStyle ClickableText = new PegiGuiStyle(()=> new GUIStyle(GUI.skin.label) {
-                    wordWrap = false,
-                    fontStyle = FontStyle.Bold,
-                    contentOffset = new Vector2(0, 4),
-                    alignment = TextAnchor.MiddleLeft,
-                    normal = {textColor = InGameView ? new Color32(220,220,255,255) : new Color32(40, 40, 40, 255)}
-                });
+
+        public static PegiGuiStyle ImageButton = new PegiGuiStyle(() => new GUIStyle(GUI.skin.button)
+        {
+            overflow = new RectOffset(-3, -3, 0, 0),
+            margin = new RectOffset(1, -3, 1, 1)
+        });
+
+        public static PegiGuiStyle ClickableText = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
+        {
+            wordWrap = false,
+            fontStyle = FontStyle.Bold,
+            contentOffset = new Vector2(0, 4),
+            alignment = TextAnchor.MiddleLeft,
+            normal = {textColor = InGameView ? new Color32(220, 220, 255, 255) : new Color32(40, 40, 40, 255)}
+        });
 
         public static PegiGuiStyle ScalableBlueText(int fontSize)
         {
@@ -112,13 +113,14 @@ namespace QuizCanners.Inspect
             return _scalableBlueText;
         }
 
-        private static PegiGuiStyle _scalableBlueText = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label) {
-                    wordWrap = false,
-                    fontStyle = FontStyle.Bold,
-                    normal = {textColor = InGameView ? new Color32(120, 120, 255, 255) : new Color32(40, 40, 255, 255)},
-                    margin = new RectOffset(0, 0, 0, -15),
-                    fontSize = 14
-                });
+        private static PegiGuiStyle _scalableBlueText = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
+        {
+            wordWrap = false,
+            fontStyle = FontStyle.Bold,
+            normal = {textColor = InGameView ? new Color32(120, 120, 255, 255) : new Color32(40, 40, 255, 255)},
+            margin = new RectOffset(0, 0, 0, -15),
+            fontSize = 14
+        });
 
         #endregion
 
@@ -132,24 +134,23 @@ namespace QuizCanners.Inspect
         });
 
         private static PegiGuiStyle ToggleLabel_Off = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
-         {
-             contentOffset = new Vector2(0, 2),
-             wordWrap = true,
-             normal = { textColor = InGameView ? new Color32(255, 255, 255, 255) : new Color32(40, 40, 40, 255) }
-         });
+        {
+            contentOffset = new Vector2(0, 2),
+            wordWrap = true,
+            normal = {textColor = InGameView ? new Color32(255, 255, 255, 255) : new Color32(40, 40, 40, 255)}
+        });
 
         private static PegiGuiStyle ToggleLabel_On = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
-         {
-             contentOffset = new Vector2(0, 2),
-             wordWrap = true
-         });
+        {
+            contentOffset = new Vector2(0, 2),
+            wordWrap = true
+        });
 
         public static PegiGuiStyle ToggleLabel(bool isOn) => isOn ? ToggleLabel_On : ToggleLabel_Off;
 
         #endregion
 
         #region List
-
 
         public static PegiGuiStyle ListLabel = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
         {
@@ -180,8 +181,8 @@ namespace QuizCanners.Inspect
             clipping = TextClipping.Clip,
             alignment = TextAnchor.MiddleLeft,
             fontStyle = FontStyle.Bold,
-            contentOffset = InGameView ? new Vector2(0,0) : new Vector2(0, -6),
-            normal = { textColor = InGameView ? new Color32(255, 255, 220, 255) : new Color32(43, 30, 77, 255) }
+            contentOffset = InGameView ? new Vector2(0, 0) : new Vector2(0, -6),
+            normal = {textColor = InGameView ? new Color32(255, 255, 220, 255) : new Color32(43, 30, 77, 255)}
         });
 
         public static PegiGuiStyle ExitLabel = new PegiGuiStyle(() => new GUIStyle
@@ -195,7 +196,7 @@ namespace QuizCanners.Inspect
             alignment = TextAnchor.MiddleLeft,
             fontStyle = FontStyle.Italic,
             contentOffset = InGameView ? new Vector2(0, 0) : new Vector2(0, -6),
-            normal = { textColor = InGameView ? new Color32(160, 160, 160, 255) : new Color32(77, 77, 77, 255) }
+            normal = {textColor = InGameView ? new Color32(160, 160, 160, 255) : new Color32(77, 77, 77, 255)}
         });
 
         public static PegiGuiStyle FoldedOutLabel = new PegiGuiStyle(() => new GUIStyle
@@ -208,16 +209,17 @@ namespace QuizCanners.Inspect
             alignment = TextAnchor.MiddleLeft,
             fontStyle = FontStyle.Bold,
             imagePosition = ImagePosition.ImageLeft,
-            normal = { textColor = InGameView ? new Color32(200, 220, 220, 255) : new Color32(43, 77, 33, 255) }
+            normal = {textColor = InGameView ? new Color32(200, 220, 220, 255) : new Color32(43, 77, 33, 255)}
         });
 
         #endregion
 
         #region Text
 
-        public static PegiGuiStyle ClippingText = new PegiGuiStyle(() => InList ? 
-            new GUIStyle(GUI.skin.label){clipping = TextClipping.Clip}.ToGrayBg() :
-            new GUIStyle(GUI.skin.label){clipping = TextClipping.Clip});
+        public static PegiGuiStyle ClippingText = new PegiGuiStyle(() =>
+            InList
+                ? new GUIStyle(GUI.skin.label) {clipping = TextClipping.Clip}.ToGrayBg()
+                : new GUIStyle(GUI.skin.label) {clipping = TextClipping.Clip});
 
 
         public static PegiGuiStyle OverflowText = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
@@ -258,12 +260,12 @@ namespace QuizCanners.Inspect
         public static PegiGuiStyle HorizontalLine = new PegiGuiStyle(() => new GUIStyle
         {
 #if UNITY_EDITOR
-            normal = { background = EditorGUIUtility.whiteTexture },
+            normal = {background = EditorGUIUtility.whiteTexture},
 #endif
             margin = new RectOffset(0, 0, 4, 4),
             fixedHeight = 1
         });
-        
+
         #endregion
 
         // Todo: Only give texture with BG for Lists
@@ -298,7 +300,7 @@ namespace QuizCanners.Inspect
             "Clipping Text".InspectInteranl(ClippingText);
 
             "Overfloaw text".InspectInteranl(OverflowText);
-            
+
             "Text Button".InspectInteranl(ClickableText);
 
             "Enter Label".InspectInteranl(EnterLabel);
