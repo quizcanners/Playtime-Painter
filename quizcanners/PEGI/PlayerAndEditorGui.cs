@@ -126,7 +126,7 @@ namespace QuizCanners.Inspect
                 public float upscale = 2;
                 private Vector2 scrollPosition;
 
-                protected bool UseWindow => upscale == 1;
+                protected bool UseWindow => Mathf.Approximately(upscale, 1);
 
                 private void DrawFunctionWrapper(int windowID)
                 {

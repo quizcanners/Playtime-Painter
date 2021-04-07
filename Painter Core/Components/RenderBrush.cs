@@ -58,7 +58,7 @@ namespace PlaytimePainter
 
         }
         
-        public void Prepare(PaintCommand.WorldSpace command) 
+        public void Prepare(PaintCommand.WorldSpaceBase command) 
         {
             if (command.SkinnedMeshRenderer) 
                 UseSkinMeshAsBrush(command); 
@@ -66,7 +66,7 @@ namespace PlaytimePainter
                 UseMeshAsBrush(command);
         }
 
-        private void UseSkinMeshAsBrush(PaintCommand.WorldSpace command) 
+        private void UseSkinMeshAsBrush(PaintCommand.WorldSpaceBase command) 
         {
             GameObject go = command.GameObject;
             SkinnedMeshRenderer skinny = command.SkinnedMeshRenderer;
@@ -98,11 +98,11 @@ namespace PlaytimePainter
             deformedBounds = true;
         }
 
-        private void UseMeshAsBrush(PaintCommand.WorldSpace command)
+        private void UseMeshAsBrush(PaintCommand.WorldSpaceBase command)
         {
             GameObject go = command.GameObject;
             Mesh mesh = command.Mesh;
-            List<int> selectedSubMeshes = command.SelectedSubmeshes;
+            List<int> selectedSubMeshes = command.SelectedSubMeshes;
 
             if (!mesh)
             {

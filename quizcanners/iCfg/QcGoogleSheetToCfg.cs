@@ -154,7 +154,7 @@ namespace QuizCanners.CfgDecode
 
                 if (url != null)
                 {
-                    var ind = url.LastIndexOf("pub?");
+                    var ind = url.LastIndexOf("pub?", StringComparison.Ordinal);
                     if ((ind > 10 && ind < url.Length - 4) && "Clear Url Ending".Click().nl(ref changed))
                     {
                         url = url.Substring(startIndex: 0, length: ind + 4);

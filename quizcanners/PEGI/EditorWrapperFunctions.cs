@@ -287,7 +287,7 @@ namespace QuizCanners.Inspect
             return obj;
         }
 
-        private static bool end(Object obj)
+        private static void end(Object obj)
         {
 
             if (globChanged)
@@ -300,8 +300,6 @@ namespace QuizCanners.Inspect
                 EditorUtility.SetDirty(obj);
             }
             newLine();
-
-            return globChanged;
         }
 
         private static bool setDirty { get { globChanged = true; return true; } }
@@ -1415,11 +1413,11 @@ namespace QuizCanners.Inspect
             bool isComponent = typeof(Component).IsAssignableFrom(typeof(T));
 
             if (isComponent) {
-                GUILayout.Box("Drag & Drop area for Game Object with {0} is above".F(pegi.GetCurrentListLabel<T>()));
+                GUILayout.Box("Drag & Drop area for Game Object with {0} is above".F(pegi.CurrentListLabel<T>()));
                 "Search in children".toggle(120, ref searchInChildren).nl();
             }
             else
-                GUILayout.Box("Drag & Drop area for {0} is above".F(pegi.GetCurrentListLabel<T>()));
+                GUILayout.Box("Drag & Drop area for {0} is above".F(pegi.CurrentListLabel<T>()));
 
             switch (evt.type)
             {

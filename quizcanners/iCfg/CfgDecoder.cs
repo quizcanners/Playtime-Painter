@@ -115,7 +115,7 @@ namespace QuizCanners.CfgDecode
                         }
                         catch (Exception ex)
                         {
-                            Debug.LogError(_data + Environment.NewLine + ex.ToString());
+                            Debug.LogError(_data + Environment.NewLine + ex);
                         }
                     }
             }

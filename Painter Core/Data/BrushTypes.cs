@@ -267,7 +267,7 @@ namespace PlaytimePainter
                 command.OnStrokeComplete();//.AfterStroke(st);
             }
 
-            public virtual void PaintRenderTextureInWorldSpace(PaintCommand.WorldSpace command) { }
+            public virtual void PaintRenderTextureInWorldSpace(PaintCommand.WorldSpaceBase command) { }
 
             public virtual void PaintRenderTextureUvSpace(PaintCommand.UV command) 
             {
@@ -866,7 +866,7 @@ namespace PlaytimePainter
 
             public override bool NeedsGrid => Cfg.useGridForBrush;
 
-            private static void PrepareSphereBrush(PaintCommand.WorldSpace command)
+            private static void PrepareSphereBrush(PaintCommand.WorldSpaceBase command)
             {
                 Brush br = command.Brush;
                 var td = command.TextureData;
@@ -886,7 +886,7 @@ namespace PlaytimePainter
                 PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
             }
 
-            public override void PaintRenderTextureInWorldSpace(PaintCommand.WorldSpace command) //PlaytimePainter painter, Brush br, Stroke st)
+            public override void PaintRenderTextureInWorldSpace(PaintCommand.WorldSpaceBase command) //PlaytimePainter painter, Brush br, Stroke st)
             {
 
                // var id = command.TextureData;//painter.TexMeta;
@@ -906,7 +906,7 @@ namespace PlaytimePainter
                 AfterStroke(command); //painter, br, st, alphaBuffer, id);
             }
 
-            public static void Paint(PaintCommand.WorldSpace command)
+            public static void Paint(PaintCommand.WorldSpaceBase command)
             {
 
                 Brush br = command.Brush;
@@ -922,7 +922,7 @@ namespace PlaytimePainter
             }
 
 
-            public static void PaintAtlased(PaintCommand.WorldSpace command,int aTexturesInRow)
+            public static void PaintAtlased(PaintCommand.WorldSpaceBase command,int aTexturesInRow)
             {
                 PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, aTexturesInRow, 1);
 

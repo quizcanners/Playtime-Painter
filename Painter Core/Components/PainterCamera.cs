@@ -136,7 +136,9 @@ namespace PlaytimePainter {
             if (CameraModuleBase.modules == null)
                 CameraModuleBase.RefreshModules();
 
-            return (T)CameraModuleBase.modules.Find(m => m.GetType() == typeof(T));
+            var mod = CameraModuleBase.modules.Find(m => m.GetType() == typeof(T));
+            
+            return (T)mod;
         }
         
         #endregion
@@ -234,7 +236,7 @@ namespace PlaytimePainter {
                     CameraModuleBase.RefreshModules();
                     break;
                 case "mm": MeshManager.DecodeFull(data); break;
-                case "rts": RenderTextureBuffersManager.renderBuffersSize = data.ToInt(0); break;
+                case "rts": RenderTextureBuffersManager.renderBuffersSize = data.ToInt(); break;
             }
         }
 

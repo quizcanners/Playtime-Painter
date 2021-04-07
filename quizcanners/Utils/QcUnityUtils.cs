@@ -125,7 +125,8 @@ namespace QuizCanners.Utils {
 
             var oldName = Path.GetFileName(path);
 
-            if (oldName.IsNullOrEmpty()) return added;
+            if (oldName.IsNullOrEmpty()) 
+                return added;
 
             int len = oldName.Length;
 
@@ -364,7 +365,7 @@ namespace QuizCanners.Utils {
             {
                 Vector2 targetTilt;
 
-                Vector3 rectPos = RectTransformUtility.WorldToScreenPoint(cam, rt.position).ToVector3(0);
+                Vector3 rectPos = RectTransformUtility.WorldToScreenPoint(cam, rt.position).ToVector3();
 
                 speed = Input.GetMouseButton(0) ? speed : speed * 4;
 
@@ -392,8 +393,6 @@ namespace QuizCanners.Utils {
                 {
                     Vector2 posDiff = rectPos - previousPos;
 
-                    float dist = posDiff.magnitude;
-
                     Vector2 newPos = posDiff.YX() * 50 / mouseEffectRadius;
 
                     newPos.y = -newPos.y;
@@ -410,7 +409,7 @@ namespace QuizCanners.Utils {
                     if (tilt.magnitude > 5)
                         tilt = tilt.normalized * 5;
 
-                    rt.rotation = Quaternion.Euler(tilt.ToVector3(0));
+                    rt.rotation = Quaternion.Euler(tilt.ToVector3());
                 }
             }
         }
@@ -843,15 +842,14 @@ namespace QuizCanners.Utils {
 
         //private static int Write(ref MemoryStream stream, short val) => Write(ref stream, BitConverter.GetBytes(val));
 
-        private static int Write(ref MemoryStream stream, int val) => Write(ref stream, BitConverter.GetBytes(val));
+        private static void Write(ref MemoryStream stream, int val) => Write(ref stream, BitConverter.GetBytes(val));
 
-        private static int Write(ref MemoryStream stream, ushort val) => Write(ref stream, BitConverter.GetBytes(val));
+        private static void Write(ref MemoryStream stream, ushort val) => Write(ref stream, BitConverter.GetBytes(val));
 
-        private static int Write(ref MemoryStream stream, byte[] bytes)
+        private static void Write(ref MemoryStream stream, byte[] bytes)
         {
             int count = bytes.Length;
             stream.Write(bytes, 0, count);
-            return count;
         }
 
        /* public class EditorAudioPlayRequest
@@ -1436,7 +1434,7 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
         public static void BlitGL(Texture source, RenderTexture destination, Material mat)
         {
             RenderTexture.active = destination;
-            mat.SetTexture("_MainTex", source);
+            mat.mainTexture = source;//("_MainTex", source);
             GL.PushMatrix();
             GL.LoadOrtho();
             GL.invertCulling = true;

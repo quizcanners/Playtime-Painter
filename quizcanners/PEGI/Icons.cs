@@ -73,8 +73,13 @@ namespace QuizCanners.Inspect {
                 case icon.Blue: return ColorIcon(2) as Texture2D;
                 case icon.Alpha: return ColorIcon(3) as Texture2D;
                 default:
-                    var tmp = Resources.Load(Path.Combine(FOLDER_NAME, Enum.GetName(typeof(icon), ind))) as Texture2D;
+                    var name = Enum.GetName(typeof(icon), ind);
 
+                    Texture2D tmp = null;
+                    
+                    if (name != null)
+                        tmp = Resources.Load(Path.Combine(FOLDER_NAME, name)) as Texture2D;
+                    
                     _managementIcons[ind] = tmp ? tmp : Texture2D.whiteTexture;
 
                     return tmp;

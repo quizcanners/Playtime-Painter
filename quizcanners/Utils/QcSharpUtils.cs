@@ -267,7 +267,7 @@ namespace QuizCanners.Utils {
                 TotalWeight += weightSelector(el);
             }
 
-            float itemWeightIndex = UnityEngine.Random.Range(0f, TotalWeight);
+            float itemWeightIndex = Random.Range(0f, TotalWeight);
 
             float currentWeightIndex = 0;
 

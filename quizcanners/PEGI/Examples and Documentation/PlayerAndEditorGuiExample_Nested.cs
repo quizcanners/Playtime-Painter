@@ -50,10 +50,10 @@ namespace QuizCanners.Inspect.Examples
 
                 if (lightSource)
                 {
-                    var light = lightSource.color;
-                    if ("Current:".edit(ref light).nl())
+                    var myLight = lightSource.color;
+                    if ("Current:".edit(ref myLight).nl())
                     {
-                        lightSource.color = light;
+                        lightSource.color = myLight;
 
                     }
                 }

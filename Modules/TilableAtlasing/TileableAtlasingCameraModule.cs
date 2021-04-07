@@ -47,8 +47,8 @@ namespace PlaytimePainter
 
                                 var ntris = t.GetNeighboringTrianglesUnprocessed();
                                 foreach (var nt in ntris)
-                                    if (t.textureNo[TriangleAtlasTool.Inst.curAtlasChanel] !=
-                                        nt.textureNo[TriangleAtlasTool.Inst.curAtlasChanel])
+                                    if (Mathf.Approximately(t.textureNo[TriangleAtlasTool.Inst.curAtlasChanel],
+                                        nt.textureNo[TriangleAtlasTool.Inst.curAtlasChanel]) == false)
                                     {
                                         var ln = t.LineWith(nt);
                                         if (ln != null) VertexEdgeTool.PutEdgeOnLine(ln);
@@ -184,7 +184,7 @@ namespace PlaytimePainter
             {
                 if (_inst == null)
                 {
-                    var a = AllTools;
+                    InitIfNotInited();
                     return _inst;
                 }
                 return _inst;
@@ -227,7 +227,7 @@ namespace PlaytimePainter
             {
                 if (EditorInputManager.Control)
                     _curAtlasTexture = (int)MeshEditorManager.PointedTriangle.textureNo[curAtlasChanel];
-                else if (PointedTriangle.textureNo[curAtlasChanel] != _curAtlasTexture)
+                else if (Mathf.Approximately(PointedTriangle.textureNo[curAtlasChanel], _curAtlasTexture) == false)
                 {
                     if (PointedTriangle.SameAsLastFrame)
                         return true;
@@ -248,7 +248,7 @@ namespace PlaytimePainter
                     return true;
 
                 foreach (var t in MeshEditorManager.PointedLine.GetAllTriangles())
-                    if (t.textureNo[curAtlasChanel] != _curAtlasTexture)
+                    if (Mathf.Approximately(t.textureNo[curAtlasChanel], _curAtlasTexture) == false)
                     {
                         t.textureNo[curAtlasChanel] = _curAtlasTexture;
                         EditedMesh.Dirty = true;
@@ -268,7 +268,7 @@ namespace PlaytimePainter
 
                 foreach (var uv in MeshEditorManager.PointedUv.meshPoint.vertices )
                     foreach (var t in uv.triangles)
-                    if (t.textureNo[curAtlasChanel] != _curAtlasTexture) {
+                    if ( Mathf.Approximately(t.textureNo[curAtlasChanel], _curAtlasTexture) == false) {
                         t.textureNo[curAtlasChanel] = _curAtlasTexture;
                         EditedMesh.Dirty = true;
                     }

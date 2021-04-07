@@ -88,7 +88,7 @@ namespace QuizCanners.CfgDecode
                         cody.Add(CfgDecoder.ListElementTag, v.Encode());
                     else
                         cody.Add_String(CfgEncoder.NullTag, "");
-            }
+                }
 
             return cody;
         }
@@ -292,7 +292,7 @@ namespace QuizCanners.CfgDecode
         #endregion
 
         #region Internal Add Unrecognized Data
-        private CfgEncoder Add<T>(T val, IList<Type> types, int index) where T : ICfg
+      /*  private CfgEncoder Add<T>(T val, IList<Type> types, int index) where T : ICfg
         {
 
             if (!QcUnity.IsNullOrDestroyed_Obj(val))
@@ -313,9 +313,9 @@ namespace QuizCanners.CfgDecode
             }
 
             return this;
-        }
+        }*/
 
-        private CfgEncoder Add_Abstract<T>(T val, int index) where T : IGotClassTag
+    /*    private CfgEncoder Add_Abstract<T>(T val, int index) where T : IGotClassTag
         {
             if (val == null)
                 return Add_String(NullTag, "");
@@ -323,7 +323,7 @@ namespace QuizCanners.CfgDecode
             
           return Add(val.ClassTag, val);
  
-        }
+        }*/
 
         public CfgEncoder Add<T>(T v, List<Type> types) where T : ICfg
         {

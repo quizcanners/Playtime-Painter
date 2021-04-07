@@ -7,17 +7,15 @@ using UnityEngine;
 
 namespace PlaytimePainter
 {
-    public static partial class PaintCommand 
+    public static class PaintCommand 
     {
         public class UV
         {
-            public virtual Stroke Stroke { get; set; }
+            public Stroke Stroke { get; set; }
 
-            private readonly TextureMeta _texMeta;
+            public TextureMeta TextureData { get; set; }
 
-            public virtual TextureMeta TextureData { get; set; }
-
-            public virtual Brush Brush { get; set; }
+            public Brush Brush { get; set; }
 
             public bool usedAlphaBuffer;
             public float strokeAlphaPortion = 1;
@@ -31,66 +29,62 @@ namespace PlaytimePainter
 
             public UV(Stroke stroke, Texture texture, Brush brush)
             {
-                this.Stroke = stroke;
+                Stroke = stroke;
                 TextureData = texture.GetTextureMeta();
-                this.Brush = brush;
+                Brush = brush;
             }
 
             public UV(Stroke stroke, TextureMeta textureData, Brush brush)
             {
-                this.Stroke = stroke;
-                this.TextureData = textureData;
-                this.Brush = brush;
+                Stroke = stroke;
+                TextureData = textureData;
+                Brush = brush;
             }
         }
 
-        public class WorldSpace : UV
+        public abstract class WorldSpaceBase : UV
         {
+            public abstract GameObject GameObject { get ; set ; }
+            
+            public abstract SkinnedMeshRenderer SkinnedMeshRenderer { get ; set ; }
+            
+            public abstract Mesh Mesh {get; set;}
+            
+            public abstract  int SubMeshIndexFirst {get; set;}
+            
+            public abstract List<int> SelectedSubMeshes {get; set; }
+            
+            protected WorldSpaceBase(Stroke stroke, Texture texture, Brush brush) : base(stroke, texture, brush) { }
 
-            public virtual GameObject GameObject
-            {
-                get;
-                set;
-            }
-
-            public virtual SkinnedMeshRenderer SkinnedMeshRenderer
-            {
-                get;
-                set;
-            }
-
-            public virtual Mesh Mesh
-            {
-                get;
-                set;
-            }
+            protected WorldSpaceBase(Stroke stroke, TextureMeta textureData, Brush brush): base(stroke, textureData, brush) { }
+        }
+        
+        public class WorldSpace : WorldSpaceBase
+        {
+            public sealed override GameObject GameObject { get ; set ; }
+            public sealed override SkinnedMeshRenderer SkinnedMeshRenderer { get; set; }
+            public sealed override Mesh Mesh { get; set; }
 
             public override bool Is3DBrush => Brush.Is3DBrush(TextureData);
 
-            private List<int> _selectedSubmeshes = new List<int>(1);
+            private List<int> _selectedSubMeshes = new List<int>(1);
 
-            public virtual List<int> SelectedSubmeshes
+            public override List<int> SelectedSubMeshes
             {
-                get { return _selectedSubmeshes; }
-                set { _selectedSubmeshes = value; }
+                get => _selectedSubMeshes;
+                set => _selectedSubMeshes = value;
             }
 
-            public virtual int SubMeshIndexFirst
+            public sealed override int SubMeshIndexFirst
             {
-                get
-                {
-                    return SelectedSubmeshes.TryGet(0);
-                }
-                set
-                {
-                    SelectedSubmeshes.ForceSet(0, value);
-                }
+                get => SelectedSubMeshes.TryGet(0);
+                set => SelectedSubMeshes.ForceSet(0, value);
             }
 
-            public WorldSpace(Stroke stroke, TextureMeta textureData, Brush brush, Mesh mesh, int submeshIndexFirst, GameObject gameObject) : base(stroke, textureData, brush)
+            public WorldSpace(Stroke stroke, TextureMeta textureData, Brush brush, Mesh mesh, int subMeshIndexFirst, GameObject gameObject) : base(stroke, textureData, brush)
             {
                 Mesh = mesh;
-                SubMeshIndexFirst = submeshIndexFirst;
+                _selectedSubMeshes.ForceSet(0, subMeshIndexFirst); 
                 GameObject = gameObject;
             }
 
@@ -101,10 +95,10 @@ namespace PlaytimePainter
                 GameObject = gameObject;
             }
 
-            public WorldSpace(Stroke stroke, TextureMeta textureData, Brush brush, SkinnedMeshRenderer skinnedMeshRenderer, int submeshIndexFirst, GameObject gameObject) : base(stroke, textureData, brush)
+            public WorldSpace(Stroke stroke, TextureMeta textureData, Brush brush, SkinnedMeshRenderer skinnedMeshRenderer, int subMeshIndexFirst, GameObject gameObject) : base(stroke, textureData, brush)
             {
                 SkinnedMeshRenderer = skinnedMeshRenderer;
-                SubMeshIndexFirst = submeshIndexFirst;
+                SubMeshIndexFirst = subMeshIndexFirst;
                 GameObject = gameObject;
             }
 
@@ -116,39 +110,39 @@ namespace PlaytimePainter
             }
         }
         
-        public class ForPainterComponent : WorldSpace
+        public class ForPainterComponent : WorldSpaceBase
         {
-            public PlaytimePainter painter;
+            public readonly PlaytimePainter painter;
 
             public override bool Is3DBrush => painter.Is3DBrush(Brush);
 
             public sealed override GameObject GameObject
             {
-                get { return painter.gameObject; }
+                get => painter.gameObject;
                 set { }
             }
 
             public sealed override SkinnedMeshRenderer SkinnedMeshRenderer
             {
-                get { return painter.skinnedMeshRenderer; }
+                get => painter.skinnedMeshRenderer;
                 set { }
             }
 
             public sealed override Mesh Mesh
             {
-                get { return painter.GetMesh(); }
+                get => painter.GetMesh();
                 set { }
             }
 
-            public override List<int> SelectedSubmeshes
+            public override List<int> SelectedSubMeshes
             {
-                get { return new List<int> { painter.selectedSubMesh }; }
+                get => new List<int> { painter.selectedSubMesh };
                 set { }
             }
 
             public sealed override int SubMeshIndexFirst
             {
-                get { return painter.selectedSubMesh; }
+                get => painter.selectedSubMesh;
                 set
                 {
                     if (painter)
@@ -156,8 +150,7 @@ namespace PlaytimePainter
                 }
             }
 
-            public ForPainterComponent(Stroke stroke, Brush brush, PlaytimePainter painter) : base(stroke, painter.TexMeta, brush,
-                painter.skinnedMeshRenderer, 0, painter.gameObject)
+            public ForPainterComponent(Stroke stroke, Brush brush, PlaytimePainter painter) : base(stroke, painter.TexMeta, brush)
             {
                 SkinnedMeshRenderer = painter.skinnedMeshRenderer;
                 Mesh = painter.GetMesh();
@@ -189,9 +182,9 @@ namespace PlaytimePainter
 
         public static PlaytimePainter TryGetPainter<T>(this T command) where T : UV
         {
-            var pntr = command as ForPainterComponent;
-            if (pntr != null && pntr.painter)
-                return pntr.painter;
+            var painterCommand = command as ForPainterComponent;
+            if (painterCommand != null && painterCommand.painter)
+                return painterCommand.painter;
 
             return null;
         }

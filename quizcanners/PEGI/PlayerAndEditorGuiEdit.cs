@@ -217,21 +217,20 @@ namespace QuizCanners.Inspect
 
             checkLine();
 
-            var lnms = new List<string>(arr.Length + 1);
+            var listNames = new List<string>(arr.Length + 1);
 
             int tmp = -1;
 
-            if (arr != null)
-                for (var i = 0; i < arr.Length; i++)
-                {
+            for (var i = 0; i < arr.Length; i++)
+            {
 
-                    var el = arr[i];
-                    if (el == val)
-                        tmp = i;
-                    lnms.Add(CompileSelectionName(i, el, showIndex, stripSlashes, dotsToSlashes));
-                }
+                var el = arr[i];
+                if (el == val)
+                    tmp = i;
+                listNames.Add(CompileSelectionName(i, el, showIndex, stripSlashes, dotsToSlashes));
+            }
 
-            if (selectFinal(val, ref tmp, lnms))
+            if (selectFinal(val, ref tmp, listNames))
             {
                 val = arr[tmp];
                 return true;
@@ -312,10 +311,7 @@ namespace QuizCanners.Inspect
 
             if (from.IsNullOrEmpty())
                 return false;
-
-           // if (!PaintingGameViewUI)
-             //   nl();
-
+            
             foldout(from.TryGet(no, "{0} ... (foldout to select)".F(no)));
             
             if (ef.isFoldedOutOrEntered)
@@ -1423,8 +1419,7 @@ namespace QuizCanners.Inspect
 
         public static bool select_iGotIndex_SameClass<T, G>(ref int ind, List<T> lst) where G : class, T where T : IGotIndex
         {
-            G val;
-            return select_iGotIndex_SameClass(ref ind, lst, out val);
+            return select_iGotIndex_SameClass(ref ind, lst, out G _);
         }
 
         public static bool select_iGotIndex_SameClass<T, G>(this string label, ref int ind, List<T> lst, out G val) where G : class, T where T : IGotIndex
