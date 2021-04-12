@@ -707,8 +707,7 @@ namespace PlaytimePainter
     #endregion
 
 #if UNITY_EDITOR
-    [CustomEditor(typeof(PainterDataAndConfig))]
-    public class PainterDataAndConfigDrawer : PEGI_Inspector_SO<PainterDataAndConfig> { }
+    [CustomEditor(typeof(PainterDataAndConfig))] internal class PainterDataAndConfigDrawer : PEGI_Inspector_SO<PainterDataAndConfig> { }
 #endif
 
 }

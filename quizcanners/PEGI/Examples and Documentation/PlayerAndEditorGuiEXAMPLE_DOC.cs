@@ -132,10 +132,7 @@ namespace QuizCanners.Inspect.Examples
     }
 
 #if UNITY_EDITOR
-    [CustomEditor(typeof(InspectEXAMPLE_DOC))]
-    public class InspectEXAMPLE_DOCDrawer : PEGI_Inspector_Mono<InspectEXAMPLE_DOC>
-    {
-    }
+    [CustomEditor(typeof(InspectEXAMPLE_DOC))] internal class InspectEXAMPLE_DOCDrawer : PEGI_Inspector_Mono<InspectEXAMPLE_DOC> { }
 #endif
 
 }

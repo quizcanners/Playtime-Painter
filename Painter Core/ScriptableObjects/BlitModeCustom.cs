@@ -44,7 +44,6 @@ namespace PlaytimePainter
 
 
 #if UNITY_EDITOR
-    [CustomEditor(typeof(BlitModeCustom))]
-    public class BlitModeCustomDrawer : PEGI_Inspector_SO<BlitModeCustom> { }
+    [CustomEditor(typeof(BlitModeCustom))] internal class BlitModeCustomDrawer : PEGI_Inspector_SO<BlitModeCustom> { }
 #endif
 }
