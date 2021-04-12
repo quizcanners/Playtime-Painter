@@ -2777,7 +2777,7 @@ namespace QuizCanners.Inspect
         }
 
         private static int editedInteger;
-        private static int editedIntegerIndex;
+        private static int editedIntegerIndex = -1;
         public static bool editDelayed(ref int val, int width = -1)
         {
 
@@ -3095,7 +3095,7 @@ namespace QuizCanners.Inspect
         }
 
         private static string editedFloat;
-        private static int editedFloatIndex;
+        private static int editedFloatIndex = -1;
 
         public static bool edit(this string label, int width, ref float val)
         {
@@ -3215,7 +3215,7 @@ namespace QuizCanners.Inspect
                 edit(ref tmp);
 
                 double newValue;
-                if (double.TryParse(editedFloat, out newValue))
+                if (double.TryParse(editedDouble, out newValue))
                     val = newValue;
                 _elementIndex++;
 
@@ -3236,7 +3236,7 @@ namespace QuizCanners.Inspect
         }
 
         private static string editedDouble;
-        private static int editedDoubleIndex;
+        private static int editedDoubleIndex = -1;
         
         public static bool edit(ref double val)
         {
