@@ -58,6 +58,8 @@ namespace QuizCanners.Inspect
         private static Editor _editor;
         private static PEGI_Inspector_Material _materialEditor;
 
+        internal static bool IsNextFoldedOut => _selectedFold == _elementIndex-1;
+        
         public static void RepaintEditor() {
             if (_editor)
                 _editor.Repaint();
@@ -385,7 +387,7 @@ namespace QuizCanners.Inspect
 
         public static bool foldout(string txt)
         {
-            isFoldedOutOrEntered = foldout(txt, ref _selectedFold, _elementIndex);
+            foldout(txt, ref _selectedFold, _elementIndex);
 
             _elementIndex++;
 

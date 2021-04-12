@@ -312,7 +312,9 @@ namespace QuizCanners.Inspect
             if (from.IsNullOrEmpty())
                 return false;
             
-            foldout(from.TryGet(no, "{0} ... (foldout to select)".F(no)));
+            string hint = ef.IsNextFoldedOut ? "{0} ... " : "{0} ... (foldout to select)";
+            
+            foldout(from.TryGet(no, hint.F(no)));
             
             if (ef.isFoldedOutOrEntered)
             {
