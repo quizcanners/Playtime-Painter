@@ -239,8 +239,11 @@ namespace QuizCanners.Utils
 
                 if (asBytes)
                 {
-                    using (var file = File.Open(fullPath, FileMode.Open))
+                    var file = File.Open(fullPath, FileMode.Open);
+                    using (file)
+                    {
                         return (string)Formatter.Deserialize(file);
+                    }
                 }
 
                 return File.ReadAllText(fullPath);
@@ -260,8 +263,11 @@ namespace QuizCanners.Utils
                 {
                     if (asBytes)
                     {
-                        using var file = File.Open(fullPath, FileMode.Open);
-                        data = (string) Formatter.Deserialize(file);
+                        var file = File.Open(fullPath, FileMode.Open);
+                        using (file)
+                        {
+                            data = (string)Formatter.Deserialize(file);
+                        }
                     }
                     else
                     {
