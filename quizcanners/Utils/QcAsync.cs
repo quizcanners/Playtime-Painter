@@ -277,7 +277,7 @@ namespace QuizCanners.Utils
             }
 
             #region FrameTiming
-            private const float maxMilisecondsPerFrame = 1000f * 0.5f / 60f;
+            private const float maxMilisecondsPerFrame = 1000f / 60f;
             private static float TotalTimeUsedThisFrame;
             private static int FrameIndex = -1;
             #endregion
