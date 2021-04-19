@@ -125,7 +125,7 @@ namespace PlaytimePainter
 
             #region Inspector
 
-            public void InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(int ind, ref int edited)
             {
               
 

@@ -56,7 +56,7 @@ namespace QuizCanners.CfgDecode
             public string pageName;
             public int pageIndex;
 
-            public void InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(int ind, ref int edited)
             {
                 "Name".edit(40, ref pageName);
                 "#gid=".edit(50, ref pageIndex);

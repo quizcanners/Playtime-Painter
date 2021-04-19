@@ -8,7 +8,7 @@ namespace QuizCanners.Inspect.Examples
 
         public abstract string NameForPEGI { get; set; }
         
-        public virtual void InspectInList(IList list, int ind, ref int edited)
+        public virtual void InspectInList(int ind, ref int edited)
         {
             var changed = false;
 

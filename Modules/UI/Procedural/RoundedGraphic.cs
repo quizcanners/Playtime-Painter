@@ -28,11 +28,18 @@ namespace PlaytimePainter.UI
 
         [SerializeField] private float[] _roundedCorners = new float[1];
 
-        public enum Corner { Down_Left = 0, Up_Left = 1, Up_Right = 2, Down_Right = 3 }
+        public enum Corner
+        {
+            Down_Left = 0,
+            Up_Left = 1,
+            Up_Right = 2,
+            Down_Right = 3
+        }
 
-        public void SetCorner(Corner crn, float sharpness) => SetCorner((int)crn, sharpness);
+        public void SetCorner(Corner crn, float sharpness) => SetCorner((int) crn, sharpness);
 
-        public void SetCorner(bool upper, bool right, float sharpness) => SetCorner(upper ? (right ? 2 : 1) : (right ? 3 : 0), sharpness);
+        public void SetCorner(bool upper, bool right, float sharpness) =>
+            SetCorner(upper ? (right ? 2 : 1) : (right ? 3 : 0), sharpness);
 
         public void SetCorner(int index, float sharpness)
         {
@@ -47,10 +54,10 @@ namespace PlaytimePainter.UI
 
         }
 
-        public float GetCorner(Corner crn) => GetCorner((int)crn);
+        public float GetCorner(Corner crn) => GetCorner((int) crn);
 
         public float GetCorner(bool upper, bool right) => GetCorner(upper ? (right ? 2 : 1) : (right ? 3 : 0));
-        
+
         public float GetCorner(int index) => _roundedCorners[index % _roundedCorners.Length];
 
         private void SetAllCorners(float sharpness)
@@ -107,7 +114,7 @@ namespace PlaytimePainter.UI
         }
 
         [SerializeField] protected PositionDataType _positionDataType = PositionDataType.ScreenPosition;
-        
+
         public float FadeFromX
         {
             set
@@ -127,7 +134,7 @@ namespace PlaytimePainter.UI
             set
             {
                 var max = faeOutUvPosition.max;
-                if (Mathf.Approximately(max.x,value) == false)
+                if (Mathf.Approximately(max.x, value) == false)
                 {
                     max.x = value;
                     faeOutUvPosition.max = max;
@@ -170,7 +177,7 @@ namespace PlaytimePainter.UI
         {
             get
             {
-                
+
                 var sp = sprite;
 
                 if (!sp)
@@ -186,9 +193,10 @@ namespace PlaytimePainter.UI
         #endregion
 
         #region Populate Mesh
+
         public const string UNLINKED_VERTICES = "_UNLINKED";
         public const string EDGE_SOFTNESS_FLOAT = "_Edges";
-        
+
         private bool IsOverlay
         {
             get
@@ -366,34 +374,43 @@ namespace PlaytimePainter.UI
 
             }
         }
-        
+
         #endregion
 
         #region Inspector
 
         private static List<Shader> _compatibleShaders;
 
-        private static List<Shader> CompatibleShaders =>
-                _compatibleShaders ??= new List<Shader>()
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Lit Button"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Box"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Unlinked/Box Unlinked"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Pixel Perfect"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Outline"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Unlinked/Outline Unlinked"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Button With Shadow"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Shadow"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Glow"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Gradient"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Unlinked/Gradient Unlinked"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Preserve Aspect"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/SubtractiveGraphic"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Image"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Primitives/Pixel Line"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Primitives/Pixel Line With Shadow"))
-                .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Pixel Perfect Screen Space"));
+        private static List<Shader> CompatibleShaders {
+            get
+            {
+                if (_compatibleShaders == null)
+                {
+                    _compatibleShaders = new List<Shader>()
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Lit Button"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Box"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Unlinked/Box Unlinked"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Pixel Perfect"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Outline"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Unlinked/Outline Unlinked"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Button With Shadow"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Shadow"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Glow"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Gradient"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Unlinked/Gradient Unlinked"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Preserve Aspect"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/SubtractiveGraphic"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Image"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Primitives/Pixel Line"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Primitives/Pixel Line With Shadow"))
+                        .TryAdd(Shader.Find("Playtime Painter/UI/Rounded/Pixel Perfect Screen Space"));
+                }
 
-        private static List<Material> _compatibleMaterials = new List<Material>();
+                return  _compatibleShaders;
+            }
+        }
+
+    private static List<Material> _compatibleMaterials = new List<Material>();
 
         [SerializeField] private bool _showModules;
         [SerializeField] private int _inspectedModule;
@@ -988,7 +1005,7 @@ namespace PlaytimePainter.UI
             #endregion
 
             #region Inspect
-            public void InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(int ind, ref int edited)
             {
                 // var tg = inspected;
 
@@ -1035,7 +1052,7 @@ namespace PlaytimePainter.UI
             public override string ClassTag => Tag;
 
             #region Inspect
-            public void InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(int ind, ref int edited)
             {
 
                 var mat = inspected.material;
@@ -1120,7 +1137,7 @@ namespace PlaytimePainter.UI
             }
 
             #region Inspect
-            public void InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(int ind, ref int edited)
             {
 
                 "Normal".edit(50, ref valueWhenOff, 0, 1);

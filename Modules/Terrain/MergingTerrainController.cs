@@ -173,7 +173,7 @@ namespace PlaytimePainter
                 set { productName = value; }
             }
 
-            public void InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(int ind, ref int edited)
             {
                 var changed = this.inspect_Name();
 

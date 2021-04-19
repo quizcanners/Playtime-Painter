@@ -4,6 +4,7 @@ using QuizCanners.Utils;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using System.Collections;
+using System.Runtime.CompilerServices;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -133,7 +134,7 @@ namespace QuizCanners.Inspect
 
             bool wasChanged = ef.globChanged;
 
-            obj.InspectInList(list, current, ref inspected);
+            obj.InspectInList(current, ref inspected);
 
             bool isChanged = ef.globChanged && !wasChanged;
 
@@ -158,7 +159,7 @@ namespace QuizCanners.Inspect
 
             bool wasChanged = ef.globChanged;
 
-            obj.InspectInList(null, 0, ref tmp);
+            obj.InspectInList(0, ref tmp);
             IndentLevel = il;
 
             bool isChanged = ef.globChanged && !wasChanged;
@@ -211,6 +212,44 @@ namespace QuizCanners.Inspect
             return el;
         }
 
+
+        public static bool Nested_Inspect(ref object obj)
+        {
+            var pgi = obj as IPEGI;
+            var ch = pgi?.Nested_Inspect() ?? TryDefaultInspect(ref obj);
+
+            nl();
+
+            UnIndent();
+
+            return ch;
+        }
+
+        public static bool Try_Inspect_AsInList(ref object obj)
+        {
+            int entered = -1;
+
+            return Try_Inspect_AsInList(ref obj, ref entered, 0);
+        }
+
+        public static bool Try_Inspect_AsInList(ref object obj, ref int entered, int current)
+        {
+            var pgi = obj as IPEGI_ListInspect;
+            var ch = false;
+
+            if (pgi != null)
+            {
+                ch = pgi.Inspect_AsInListNested(null, current, ref entered);
+                if (ch)
+                    obj = pgi;
+            }
+
+            nl();
+
+            UnIndent();
+
+            return ch;
+        }
         
         public static bool TryDefaultInspect(Object uObj)
         {
@@ -301,19 +340,7 @@ namespace QuizCanners.Inspect
 
             return ch;
         }
-
-        public static bool Nested_Inspect(ref object obj)
-        {
-            var pgi = obj as IPEGI;
-            var ch = pgi?.Nested_Inspect() ?? TryDefaultInspect(ref obj);
-
-            nl();
-
-            UnIndent();
-
-            return ch;
-        }
-
+        
         public static bool TryInspect<T>(this ListMetaData ld, ref T obj, int ind) where T : Object
         {
             var el = ld.TryGetElement(ind);

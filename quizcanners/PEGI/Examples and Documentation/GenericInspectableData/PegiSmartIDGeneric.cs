@@ -116,7 +116,7 @@ namespace QuizCanners.Inspect.Examples
 
         }
 
-        public virtual void InspectInList(IList list, int ind, ref int edited)
+        public virtual void InspectInList(int ind, ref int edited)
         {
 
             "ID: {0} ".F(index).write(45);

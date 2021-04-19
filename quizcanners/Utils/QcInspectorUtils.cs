@@ -288,7 +288,7 @@ namespace QuizCanners.Utils
                 (Math.Abs(_intervalInSeconds - 1d) > float.Epsilon) ? _intervalInSeconds.ToString("0") : "", (int)_minYieldsPerInterval,
                 (int)_maxYieldsPerInterval, (int)_totalIntervalsProcessed);
 
-            public void InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(int ind, ref int edited)
             {
                 if (icon.Refresh.Click("Reset Stats"))
                     ResetStats();

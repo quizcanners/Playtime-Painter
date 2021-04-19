@@ -419,7 +419,7 @@ namespace QuizCanners.Inspect
             {
 
                 if (outside) 
-                    var.InspectInList(null, thisOne, ref enteredOne);
+                    var.InspectInList(thisOne, ref enteredOne);
                 else if (enteredOne == thisOne)
                 {
 

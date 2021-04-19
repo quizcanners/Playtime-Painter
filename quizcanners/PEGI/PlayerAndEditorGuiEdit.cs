@@ -3311,7 +3311,7 @@ namespace QuizCanners.Inspect
         public static bool editEnum<T>(this string label, int width, ref int current, List<int> options)
         {
             label.write(width);
-            return editEnum<T>(ref current, options);
+            return editEnum_Internal<T>(ref current, options);
         }
 
         public static bool editEnum<T>(ref T eval, int width = -1)
@@ -3326,11 +3326,33 @@ namespace QuizCanners.Inspect
 
             return false;
         }
-        
-       
-        private static bool editEnum<T>(ref int eval, List<int> options, int width = -1) 
+
+        public static bool editEnum<T>(ref int current, int width = -1) => editEnum_Internal(ref current, typeof(T), width: width);
+
+        private static bool editEnum_Internal<T>(ref int eval, List<int> options, int width = -1)
             => editEnum_Internal(ref eval, typeof(T), options, width);
 
+        private static bool editEnum_Internal(ref int current, Type type, int width = -1)
+        {
+            checkLine();
+            var tmpVal = -1;
+
+            var names = Enum.GetNames(type);
+            var val = (int[])Enum.GetValues(type);
+
+            for (var i = 0; i < val.Length; i++)
+            {
+                names[i] = "{0}:".F(val[i]) + names[i];
+                if (val[i] == current)
+                    tmpVal = i;
+            }
+
+            if (!select(ref tmpVal, names, width)) return false;
+
+            current = val[tmpVal];
+            return true;
+        }
+        
         private static bool editEnum<T>(ref T eval, List<int> options, int width = -1)
         {
             var val = Convert.ToInt32(eval);
@@ -3343,28 +3365,7 @@ namespace QuizCanners.Inspect
 
             return false;
         }
-
-        private static bool editEnum_Internal(ref int current, Type type, int width = -1)
-        {
-            checkLine();
-            var tmpVal = -1;
-
-            var names = Enum.GetNames(type);
-            var val = (int[])Enum.GetValues(type);
-
-            for (var i = 0; i < val.Length; i++)
-            {
-                names[i] = "{0}:".F(val[i]) + names[i]; 
-                if (val[i] == current)
-                    tmpVal = i;
-            }
-
-            if (!select(ref tmpVal, names, width)) return false;
-
-            current = val[tmpVal];
-            return true;
-        }
-
+        
         private static bool editEnum_Internal(ref int current, Type type, List<int> options, int width = -1)
         {
             checkLine();

@@ -1316,7 +1316,7 @@ namespace QuizCanners.Inspect
                 {
                     var chBefore = GUI.changed;
 
-                    pl.InspectInList(list, index, ref inspected);
+                    pl.InspectInList(index, ref inspected);
 
                     if (!chBefore && GUI.changed)
                         pl.SetToDirty_Obj();
@@ -1613,7 +1613,7 @@ namespace QuizCanners.Inspect
             if (pl != null)
             {
                 var chBefore = GUI.changed;
-                pl.InspectInList(collection, index, ref inspected);
+                pl.InspectInList(index, ref inspected);
                     
                 changed |= !chBefore && GUI.changed;
                 

@@ -137,7 +137,7 @@ namespace PlaytimePainter.CameraModules {
 
         public virtual string ToolTip => "Painter plugin";
 
-        public virtual void InspectInList(IList list, int ind, ref int edited) {
+        public virtual void InspectInList(int ind, ref int edited) {
 
             if (NameForDisplayPEGI().ClickLabel())
                 edited = ind;

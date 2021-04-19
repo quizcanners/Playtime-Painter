@@ -99,7 +99,7 @@ namespace QuizCanners.Lerp
             "Reboot calls".edit(ref _resets).nl(ref changed);
         }
 
-        public void InspectInList(IList list, int ind, ref int edited)
+        public void InspectInList(int ind, ref int edited)
         {
             "Lerp DP: {0} [{1}]".F(dominantParameter, _resets).write();
 
@@ -250,7 +250,7 @@ namespace QuizCanners.Lerp
 
             #region Inspector
             
-            public virtual void InspectInList(IList list, int ind, ref int edited)
+            public virtual void InspectInList(int ind, ref int edited)
             {
 
                 var changed = false;
@@ -382,10 +382,10 @@ namespace QuizCanners.Lerp
 
             #region Inspector
 
-            public override void InspectInList(IList list, int ind, ref int edited)
+            public override void InspectInList( int ind, ref int edited)
             {
                 var change = pegi.ChangeTrackStart();
-                base.InspectInList(list, ind, ref edited);
+                base.InspectInList(ind, ref edited);
 
                 if (change)
                     targetValue = CurrentValue;
@@ -473,9 +473,9 @@ namespace QuizCanners.Lerp
 
             #region Inspector
 
-            public override void InspectInList(IList list, int ind, ref int edited)
+            public override void InspectInList(int ind, ref int edited)
             {
-                base.InspectInList(list, ind, ref edited);
+                base.InspectInList(ind, ref edited);
                 
                 if (pegi.ChangeTrackStart())
                     targetValue = CurrentValue;
@@ -991,7 +991,7 @@ namespace QuizCanners.Lerp
                 set { }
             }
             
-            public override void InspectInList(IList list, int ind, ref int edited)
+            public override void InspectInList(int ind, ref int edited)
             {
                 var changed = false;
 
@@ -1160,9 +1160,9 @@ namespace QuizCanners.Lerp
 
             #region Inspector
 
-            public override void InspectInList(IList list, int ind, ref int edited)
+            public override void InspectInList(int ind, ref int edited)
             {
-                base.InspectInList(list, ind, ref edited);
+                base.InspectInList(ind, ref edited);
                 
                 if (pegi.ChangeTrackStart())
                     targetValue = CurrentValue;
@@ -1270,7 +1270,7 @@ namespace QuizCanners.Lerp
 
             #region Inspect
             
-            public override void InspectInList(IList list, int ind, ref int edited)
+            public override void InspectInList(int ind, ref int edited)
             {
                 var changed = false;
 

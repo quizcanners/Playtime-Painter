@@ -201,7 +201,7 @@ namespace QuizCanners.CfgDecode
                 pegi.nl();
             }
 
-            public void InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(int ind, ref int edited)
             {
 
                 bool changed = false;
@@ -323,7 +323,7 @@ namespace QuizCanners.CfgDecode
                 dataExplorer.Nested_Inspect().changes(ref changed);
             }
 
-            public void InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(int ind, ref int edited)
             {
                 var changed = false;
 

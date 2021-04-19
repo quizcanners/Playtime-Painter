@@ -61,7 +61,7 @@ namespace QuizCanners.Utils {
             #region Inspector
             public string NameForDisplayPEGI()=> name;
             
-            public void InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(int ind, ref int edited)
             {
                 "Id: {0}".F(id).write(50);
                 name.write_ForCopy();

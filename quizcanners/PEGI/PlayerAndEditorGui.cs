@@ -20,7 +20,8 @@ namespace QuizCanners.Inspect
 
     public interface IPEGI { void Inspect(); }
 
-    public interface IPEGI_ListInspect { void InspectInList(IList list, int ind, ref int edited); }
+    public interface IPEGI_ListInspect { void InspectInList(//IList list,
+        int ind, ref int edited); }
 
     public interface IPEGI_Searchable { bool String_SearchMatch(string searchString); }
 

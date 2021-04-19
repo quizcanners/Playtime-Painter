@@ -605,7 +605,7 @@ namespace QuizCanners.Utils
 
             public string NameForPEGI { get; set; }
 
-            public void InspectInList(IList list, int ind, ref int edited)
+            public void InspectInList(int ind, ref int edited)
             {
 
                 if (icon.Enter.Click())
