@@ -17,94 +17,1259 @@ MonoBehaviour:
   customBlitModes: []
   selectedCustomBlitMode: 0
   defaultMaterial: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
-  dontIncludeShaderInBuild: 1
-  shadersToBuldWith: []
-  texturePackagingSolutions: []
+  dontIncludeShaderInBuild: 0
+  shadersToBuldWith:
+  - {fileID: 4800000, guid: 2c53ba0be849dbf4aa4be3323d13167c, type: 3}
+  - {fileID: 4800000, guid: 7d5254122746ac1459eacee12007478c, type: 3}
+  - {fileID: 4800000, guid: 5d4c30d1d90b10244bd976b05af957a9, type: 3}
+  - {fileID: 4800000, guid: 84c227f7b81af824eb575393648fa7a0, type: 3}
+  - {fileID: 4800000, guid: d3ea98b92dd0ff445b11c0dd6118cfd9, type: 3}
+  - {fileID: 4800000, guid: 7a98cafb8f2839d4087701973cfacca0, type: 3}
+  - {fileID: 4800000, guid: 51bac762c78f2aa4ca09cf0b51187cfb, type: 3}
+  - {fileID: 4800000, guid: e61e77dc68316594988ca461eb587d29, type: 3}
+  - {fileID: 4800000, guid: 3761ceeca3c2a474a89bffcc44782a24, type: 3}
+  - {fileID: 4800000, guid: 5c155ea54209c1b4282c00cea158edb3, type: 3}
+  - {fileID: 4800000, guid: 6703c1c81efacba42a3f90a2920832a3, type: 3}
+  - {fileID: 4800000, guid: 03c859c9cb64e4e4790e707d28f9cb8c, type: 3}
+  - {fileID: 4800000, guid: f2fe9d0c60fd29b4d84fc2dbad4f2cbf, type: 3}
+  - {fileID: 4800000, guid: 5e5b22a6f613bce4ba98a3e5c1328384, type: 3}
+  - {fileID: 4800000, guid: 8afa7564920dd2746bf6b4523c648e22, type: 3}
+  - {fileID: 4800000, guid: 33684419dd9bb2846b34f5ad27c14ebf, type: 3}
+  - {fileID: 4800000, guid: 6452b21f7c7012342b9fbc17d1dae802, type: 3}
+  - {fileID: 4800000, guid: 84f2bad6db8604a46b3073f13f79c839, type: 3}
+  - {fileID: 4800000, guid: 0e8cb133ade8ae34382b61cf53d668ed, type: 3}
+  - {fileID: 4800000, guid: 64fa7bd7d59cb1245a6603bb8dfb652b, type: 3}
+  - {fileID: 4800000, guid: fff128497067a014b8c2b0f12b3fdf7b, type: 3}
+  - {fileID: 4800000, guid: 3ec7c5159e5607c44a874c70918a10be, type: 3}
+  - {fileID: 4800000, guid: 6aecdde8d92504546917739ac0a84f20, type: 3}
+  - {fileID: 4800000, guid: f5d92f3fc18010c4ba8cbe284edb5d43, type: 3}
+  - {fileID: 4800000, guid: 5d4363bf2b6e1d747803462dcc63de6d, type: 3}
+  - {fileID: 4800000, guid: 189db779c3259794ea3202f88c029174, type: 3}
+  - {fileID: 4800000, guid: f109a9b24b09edf4c8669c1035baae20, type: 3}
+  - {fileID: 4800000, guid: 3416c86bca183ed41afdb0a1b64a40cc, type: 3}
+  - {fileID: 4800000, guid: cedc6d7951a0d38408f58630ee5106d8, type: 3}
   atlasedMaterials: []
   playtimeSavedTextures: []
   imgMetas:
-  - target: 1
-    renderTexture: {fileID: 8400000, guid: 397fac58d2485754f9cecb7be12b8a76, type: 2}
-    texture2D: {fileID: 0}
-    other: {fileID: 0}
-    width: 1024
-    height: 1024
-    useTexCoord2: 0
-    _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
-    isATransparentLayer: 0
-    enableUndoRedo: 0
-    preserveTransparency: 1
-    sdfMaxInside: 1
-    sdfMaxOutside: 1
-    sdfPostProcessDistance: 1
-    _repaintDelay: 0.016
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 6c525fd09aae7bf438b632b0e6981f34, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 128
+    Height: 128
+    IsAVolumeTexture: 0
     updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Medieval_House_Diff
     _numberOfTexture2DBackups: 10
     _numberOfRenderTextureBackups: 10
-    isAVolumeTexture: 1
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    backupManually: 0
-    saveName: _RayMarchingVolume
-    url: 
-    inspectedItems: -1
-  - target: 0
-    renderTexture: {fileID: 0}
-    texture2D: {fileID: 2800000, guid: b24b57e0cfed05643be34b0256df875e, type: 3}
-    other: {fileID: 0}
-    width: 1024
-    height: 1024
-    useTexCoord2: 0
-    _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
-    isATransparentLayer: 0
-    enableUndoRedo: 0
-    preserveTransparency: 1
-    sdfMaxInside: 1
-    sdfMaxOutside: 1
-    sdfPostProcessDistance: 1
-    _repaintDelay: 0.016
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: 0
+    context:
+      _currentlyEntered: 2
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: b24b57e0cfed05643be34b0256df875e, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
     updateTex2DafterStroke: 0
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    isAVolumeTexture: 0
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
     backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
     saveName: Dungeons_Texture_01
-    url: 
-    inspectedItems: -1
-  - target: 1
-    renderTexture: {fileID: 8400000, guid: 2d3c2558c24b26647a35871e7558f77e, type: 2}
-    texture2D: {fileID: 0}
-    other: {fileID: 0}
-    width: 1024
-    height: 1024
-    useTexCoord2: 0
-    _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
-    isATransparentLayer: 0
-    enableUndoRedo: 0
-    preserveTransparency: 1
-    sdfMaxInside: 1
-    sdfMaxOutside: 1
-    sdfPostProcessDistance: 1
-    _repaintDelay: 0.016
-    updateTex2DafterStroke: 0
     _numberOfTexture2DBackups: 10
     _numberOfRenderTextureBackups: 10
-    isAVolumeTexture: 1
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 73f7517798f2e2a4caa2a4a6bad7205b, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 128
+    Height: 128
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
     backupManually: 0
-    saveName: _RayMarchingVolume_BSIde
-    url: 
-    inspectedItems: -1
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: house_diffuse
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: 0
+    context:
+      _currentlyEntered: 2
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 4b4c478acd8242a449b412884e451693, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 128
+    Height: 128
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: chapel_diffuse
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 4b2e9af7bab4b6e459f9507ee801cc40, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 1
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: _RayMarchingVolume Volume Baker_Volume Size 1 Slices 6
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 3b47b59bed1763142a1ab5502fba05a6, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 1
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: _RayMarchingVolume Volume Baker_Volume Size 1 Slices 6
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 1
+    RenderTexture: {fileID: 8400000, guid: ff228de16194c9c4ab6a5b37bdb7df3e, type: 2}
+    Texture2D: {fileID: 0}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 1
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: _RayMarchingVolume Smoothed Result
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 2f813ab06deb9894fa1df3f6afa64289, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Dungeons_Texture_04_C
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 87f8305f2c4c2704a9af2fed1e503c18, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 256
+    Height: 256
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: branch_Base_Color
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: 0
+    context:
+      _currentlyEntered: 2
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 095e9ec320029ae40b643de11304494c, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 512
+    Height: 512
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: KB3D_BRT_ConcreteGrime_basecolor
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: e25d542263aadb9439bebb8ca8e39a8e, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 512
+    Height: 512
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: KB3D_BRT_Doors_basecolor
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 31ccc8816a063274bbcd2ed6a7cd6907, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Dungeons_Texture_01_A
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 43a17cdabcb2b374fbcc12e4d4977760, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Dungeons_Texture_01_B
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 84991b099ef2b2f448c89be08a27a0ee, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Dungeons_Texture_01_C
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: f1446f759308e5a429875c542c92d5e6, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Dungeons_Texture_01_D
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: f3117e735161a1e49aa3f78498761f06, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Dungeons_Texture_02
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 7f655a704929b8f47b4cbabe4b5ff85e, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Dungeons_Texture_02_A
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 7cd840983f1fee34ea83d3a281e39017, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Dungeons_Texture_02_B
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 5cc82904a6e45f842ab36cf805c89fbc, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Dungeons_Texture_02_C
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: a7a21d65fb82f1c4db162a9a414dc1ca, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Dungeons_Texture_02_D
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: a2e781ab9b9e5d748b74706dcbbab973, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Dungeons_Texture_03
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: f5091d7101c57414f9e80ac6f576f9d5, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Dungeons_Texture_03_A
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: ec5f845ae1dc55d44b3f4cb0b90a2a16, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Dungeons_Texture_03_B
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 149cc95da1851b84c8cc80d2471176db, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Dungeons_Texture_03_C
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 07694d84c5bfd0743b6160b11aabbc38, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Dungeons_Texture_03_D
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: e2470a432baf43f4b9602fe6cb1753ba, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Dungeons_Texture_04
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 0dc0773311e12ff4a8d66f4272e7215a, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Dungeons_Texture_04_A
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: f2a001e91ce41ae45998592e5a689d48, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Dungeons_Texture_04_B
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 359a241502498244797531af5a2cea51, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 512
+    Height: 512
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: branch_Mixed_AO
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: 4
+    context:
+      _currentlyEntered: 2
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 82b92621c4e824d4d8dcefecadb3658d, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 1
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: _RayMarchingVolume Volume Baker_Volume Size 1 Slices 6
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 484675dc0fa04d144b9fb9c4553adb2f, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 512
+    Height: 512
+    IsAVolumeTexture: 1
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: First Level-_qcPp_mergeTerrainHeight
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 12
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 7f7afb2ea25258e48b955e950d68498d, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 4096
+    Height: 4096
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: T_beech_forest_stones_01_BC_SM
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 12
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: d4c91ed4db5a16049887da9d3c529756, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 2048
+    Height: 2048
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: T_beech_forest_stairs_01_BC_SM
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 12
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 6344bf96fbda94141a525046d088fb23, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 512
+    Height: 512
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: GridBox_Default
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 12
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: d0f92a4ed08135042b3f5c2a555f4076, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Tiles_COLOR
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 12
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 95a64adba10194237882f51aae816d7b, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 2048
+    Height: 2048
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: ghoul_d
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 2
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 044ebcd6adf52a14a83ce93a9d72172f, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 512
+    Height: 512
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 1, g: 0, b: 0, a: 1}
+    saveName: ghoul__SkinMask
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 7
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: aa38d82f6cc3802449a4ed4ce84fedd9, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 2048
+    Height: 2048
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: ghoul_damaged
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 7
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: a6632d37497fb4b499db483ae96e6520, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Tiles_MASKnMAPS
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 6
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: a29db67bb370abb4b8ce3719b45e66a8, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 2048
+    Height: 2048
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Dungeons_Texture_FloorTiles_04
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 963e34d7b4af5d64984565a55337d3fa, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 2048
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Cliff_COLOR
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: b435393d37601e84db1f10ed766d0206, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Sand_COLOR
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: cf36bee4b189075448ad8af14e8f8921, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: GroundAsphaltBroken001_Color_1K
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 2656c92f14669ff49bcf3065c9fdf450, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 256
+    Height: 256
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Bullet Hole Color
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 498c2375e8e6d134a962b4d1ed1c07f6, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 200
+    Height: 200
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Debug
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 50
+    _sdfMaxOutside: 50
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 35c200f47dffd51449fbe2275ec6f984, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 118
+    Height: 82
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: PixelPerfectTest
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 36256601d263baf44b57f783e958f8fe, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 256
+    Height: 256
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: PixNormBlurEx
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 209472c1215a51e49b93949ed4b98cb3, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Stars SDF_A_A
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 30
+    _sdfMaxOutside: 160
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
   matMetas:
-  - material: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - material: {fileID: 2100000, guid: afaa0e4544523a74e842e3375a6e21f0, type: 2}
     selectedTexture: 0
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
     selectedForMerge: 0
-  - material: {fileID: 10650, guid: 0000000000000000f000000000000000, type: 0}
+  - material: {fileID: 2100000, guid: 21dd8c644b2224a4d9f75c4a60c76f0f, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 51a18256b76561b4a8eff6181b7e6945, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: b216b8ebeb03b604988872b297aef80c, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: be2bb959b01c1c04089cb69c52f5f5b2, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 558bd7326a4ea99409d0d063127579da, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 3e977270a0a8800429db69add61514c4, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 549a6261912cffe40a060aebe03e6692, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: dbf83e80d40adf74d85e539e03c886a7, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 5332df445977338468498b6c0a430702, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 8fa91a82bc4e3924da791b9c3a4bb78b, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+    selectedTexture: 0
+    usePreviewShader: 1
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: c22777d6e868e4f2fb421913386b154e, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: a43701d738b06074ab3a725b27227b16, type: 2}
     selectedTexture: 0
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
@@ -114,22 +1279,131 @@ MonoBehaviour:
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
     selectedForMerge: 0
-  showRecentTextures: 0
-  showColorSchemes: 0
-  sourceTextures: []
-  masks: []
-  decals: []
+  - material: {fileID: 2100000, guid: 98129db3de22cd74896bef29376ea219, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 5dc662bb7c4b03f4d85fafed6342b078, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: f8ac745499d1f0943a1475b526aa64c9, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 815613870d3166a4f8043656abe16e8b, type: 2}
+    selectedTexture: 3
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: e02eb956af4e548d8a272b11a85391a4, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 7aa3f4427068b6543b4098565ad39aac, type: 2}
+    selectedTexture: 2
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 38f9134ec0497ae43b9388e6f9ce3106, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: a9ad887fe10ac5e46a57dd3c539238fe, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: af2e277b9be3614418822ed6e2cf1f91, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 36d95293ea10e30428a0e25e39c24444, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: f9ce03227b6295045bda0fba0feb85c2, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 9dbacd2327b22dc468c9e7141a2e9990, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: a04eec301d76be1469f5aeb1a109eec2, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: c4693eb4d973bb94ab7de5530d71e67f, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: a41b9f5a16bb3e84ba7de08d350f890d, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 0f9f533e23bca0748836ca5eda178952, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 4a5767e81c90b634697899383087bb79, type: 2}
+    selectedTexture: 2
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 89e38bf753171a94c9a1342ac3242f43, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: dfe0f2f90d2d35e4bbbe4b5cebb88e09, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 122ad79ee7336ca40aca8b9e1c8420da, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  decals:
+  - decalName: New VolumetricDecal
+    type: 0
+    heightMap: {fileID: 0}
+    overlay: {fileID: 0}
+  sourceTextures:
+  - {fileID: 2800000, guid: b24b57e0cfed05643be34b0256df875e, type: 3}
+  - {fileID: 2800000, guid: 6be84988c45c6554b821d7a19a15f32b, type: 3}
+  - {fileID: 2800000, guid: 9617bc693cb60b940b5b90e550d1d483, type: 3}
+  masks:
+  - {fileID: 2800000, guid: 3130d10873306a14e9c7e09c42ee242f, type: 3}
+  - {fileID: 2800000, guid: 5759f4905ca146e419ea9242e4c1d2ba, type: 3}
   selectedColorScheme: 0
   inspectedColorScheme: -1
   showUrlField: 0
+  showRecentTextures: 0
+  showColorSchemes: 0
   meshTool: 0
-  bevelDetectionSensitivity: 6
-  meshToolsStd: t_pos|15|dm|1|0|inM|1|y||t_shF|7|dm|1|0||t_vCol|0||t_edgs|23|v|1|1|doCol|1|n|fe|1|n||t_noStd|16|cat|1|0|cac|1|0||t_sbmsh|0||t_uv|37|gtuv|1|n|nrmWrap|3|0.5|fr|1|y|mp|1|y||
+  bevelDetectionSensitivity: 7.3
+  meshToolsStd: t_pos|15|dm|1|1|inM|1|y||t_shF|7|dm|1|0||t_vCol|0||t_edgs|16|v|1|1|doCol|1|n||t_noStd|16|cat|1|0|cac|1|0||t_sbmsh|0||t_uv|42|gtuv|1|n|nrmWrap|1|1|fr|1|y|mp|1|y|po|1|n||
   saveMeshUndos: 0
   makeVerticesUniqueOnEdgeColoring: 0
   gridSize: 1
   snapToGrid: 0
-  newVerticesUnique: 0
+  newVerticesUnique: 1
   newVerticesSmooth: 1
   pixelPerfectMeshEditing: 0
   useGridForBrush: 0
@@ -140,23 +1414,31 @@ MonoBehaviour:
   vectorsFolderName: Vectors
   atlasFolderName: Atlases
   enablePainterUIonPlay: 0
-  BrushConfig: {fileID: 0}
+  BrushConfig: {fileID: 11400000, guid: 268884d2c815b4a4184d9f2b8b00d6b6, type: 2}
   showColorSliders: 1
   disableNonMeshColliderInPlayMode: 0
   previewAlphaChanel: 0
-  moreOptions: 0
   allowExclusiveRenderTextures: 0
   showConfig: 0
   showTeachingNotifications: 0
-  samplingMaskSize:
-    x: 4
-    y: 4
-  useDepthForProjector: 0
+  samplingMaskSize: {x: 4, y: 4}
+  useDepthForProjector: 1
   useFloatForScalingBuffers: 0
   newTextureIsColor: 1
   newTextureClearColor: {r: 0, g: 0, b: 0, a: 1}
   newTextureClearNonColorValue: {r: 0.5, g: 0.5, b: 0.5, a: 0.5}
-  selectedWidthIndex: 8
-  selectedHeightIndex: 8
+  selectedWidthIndex: 5
+  selectedHeightIndex: 5
   recordingNames: []
   browsedRecord: 0
+  stdData:
+    _value: sch|1|0|pals|0||cam|119|mm|0||pl|95|TilAtlCntrl|0||VolumePntng|64|mFiv|2|60|mFov|3|170|cam|35|fov|2|90|p|0||r|0||n|3|0.1|f|3|100||||rts|4|2048||Vpck|2607|e|312|n|6|Simple|sln|292|e|20|en|1|y|sameSize|1|0||e|75|en|1|y|t|1|1|vals|53|e|6|t|1|1||e|12|t|1|1|v|1|1||e|7|t|2|10||e|7|t|2|10||||e|61|en|1|y|t|1|2|vals|39|e|6|t|1|2||e|12|t|1|2|v|1|1||e|0||e|0||||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|512|n|5|Bevel|sln|493|e|20|en|1|y|sameSize|1|0||e|81|en|1|y|t|1|1|vals|59|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|9||e|13|t|2|11|v|1|3||||e|84|en|1|y|t|1|2|vals|62|e|7|t|2|12||e|13|t|2|12|v|1|1||e|13|t|2|12|v|1|2||e|7|t|2|11||||e|91|en|1|y|t|1|3|vals|69|e|7|t|2|13||e|13|t|2|13|v|1|1||e|13|t|2|13|v|1|2||e|13|t|2|11|v|1|1||||e|91|en|1|y|t|1|4|vals|69|e|7|t|2|14||e|13|t|2|14|v|1|1||e|13|t|2|14|v|1|2||e|13|t|2|11|v|1|2||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|515|n|14|Bevel
+      Weighted|sln|486|e|20|en|1|y|sameSize|1|0||e|74|en|1|y|t|1|1|vals|52|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|9||e|7|t|2|10||||e|84|en|1|y|t|1|2|vals|62|e|7|t|2|12||e|13|t|2|12|v|1|1||e|13|t|2|12|v|1|2||e|7|t|2|15||||e|91|en|1|y|t|1|3|vals|69|e|7|t|2|13||e|13|t|2|13|v|1|1||e|13|t|2|13|v|1|2||e|13|t|2|15|v|1|1||||e|91|en|1|y|t|1|4|vals|69|e|7|t|2|14||e|13|t|2|14|v|1|1||e|13|t|2|14|v|1|2||e|13|t|2|15|v|1|2||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|344|n|16|AtlasedProjected|sln|313|e|20|en|1|y|sameSize|1|0||e|75|en|1|y|t|1|1|vals|53|e|6|t|1|1||e|12|t|1|1|v|1|1||e|7|t|2|10||e|7|t|2|10||||e|6|t|1|2||e|6|t|1|3||e|27|en|1|y|t|1|4|sameSize|2|11||e|26|en|1|y|t|1|5|sameSize|1|3||e|81|en|1|y|t|1|6|vals|59|e|6|t|1|5||e|12|t|1|5|v|1|1||e|12|t|1|5|v|1|2||e|7|t|2|10||||e|26|en|1|y|t|1|7|sameSize|1|6||||e|364|n|16|Standard_Atlased|sln|333|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|9||e|12|t|1|9|v|1|1||||e|75|en|1|y|t|1|2|vals|53|e|6|t|1|2||e|12|t|1|2|v|1|1||e|7|t|2|10||e|7|t|2|10||||e|6|t|1|3||e|27|en|1|y|t|1|4|sameSize|2|11||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|518|n|15|Bevel
+      With Seam|sln|488|e|20|en|1|y|sameSize|1|0||e|75|en|1|y|t|1|1|vals|53|e|6|t|1|1||e|12|t|1|1|v|1|1||e|7|t|2|10||e|7|t|2|10||||e|84|en|1|y|t|1|2|vals|62|e|7|t|2|12||e|13|t|2|12|v|1|1||e|13|t|2|12|v|1|2||e|7|t|2|11||||e|91|en|1|y|t|1|3|vals|69|e|7|t|2|13||e|13|t|2|13|v|1|1||e|13|t|2|13|v|1|2||e|13|t|2|11|v|1|1||||e|91|en|1|y|t|1|4|vals|69|e|7|t|2|14||e|13|t|2|14|v|1|1||e|13|t|2|14|v|1|2||e|13|t|2|11|v|1|2||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|27|en|1|y|t|1|7|sameSize|2|16|||||
+  _context:
+    _currentlyEntered: -1
+  _contextLists:
+    _currentlyEntered: -1
+  _imagesInspectorMeta:
+    inspectedElement_Internal: -1
+    listSectionStartIndex: 0

@@ -1,8 +1,14 @@
 Thank you for using Playtime Painter. 
 
 INSTALLING
-	The directory should be as follows: Assets/Playtime Painter... Not critical, but a few shaders depend on .cginclude which can only be referenced by a path (relative to Assets folder).
+
+	1) The directory for Playtime Painter should be as follows: Assets/Playtime Painter... 
+	Not critical, but a few shaders depend on .cginclude which can only be referenced by a path (relative to Assets folder).
  
+	2) Unless you are getting this from Unity Asset Store, you'll need to pull one more repository:
+	https://github.com/quizcanners/Quiz-cAnners    - those are my core Utilities.
+
+
 HOW TO PAINT:
 	* Attach PlaytimePainter Component to the GameObject you want to edit. Component's Inspector contains all the Texture
 	  and Mesh editing functionality of the Asset.

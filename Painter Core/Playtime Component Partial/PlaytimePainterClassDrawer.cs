@@ -1,13 +1,13 @@
 ﻿#if UNITY_EDITOR
 using QuizCanners.Inspect;
-using UnityEditor;
 
-namespace PlaytimePainter {
+namespace PainterTool {
 
-    [CustomEditor(typeof(PlaytimePainter))]
-    internal class PlaytimePainterClassDrawer : PEGI_Inspector_Mono<PlaytimePainter> {
+    [PEGI_Inspector_Override(typeof(PainterComponent))]
+    internal class PlaytimePainterClassDrawer : PEGI_Inspector_Override
+    {
 
-     
+     /*
         public virtual void OnSceneGUI() {
 
 #if !UNITY_2019_1_OR_NEWER
@@ -21,7 +21,7 @@ namespace PlaytimePainter {
              
 #endif
 
-        }
+        }*/
 
 
 
@@ -29,7 +29,7 @@ namespace PlaytimePainter {
         
         public override void OnInspectorGUI()
         {
-            PlaytimePainterSceneViewEditor.painter = (PlaytimePainter)target;
+            PlaytimePainterSceneViewEditor.painter = (PainterComponent)target;
 
             base.OnInspectorGUI();
         }
