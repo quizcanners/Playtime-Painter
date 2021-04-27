@@ -254,7 +254,7 @@ namespace QuizCanners.Inspect
 
             if (from.IsNullOrEmpty()) return false;
 
-            foldout(QcSharp.TryGet(from, no, "..."));
+            IsFoldout(QcSharp.TryGet(from, no, "..."));
 
             if (ef.isFoldedOutOrEntered)
             {
@@ -264,7 +264,7 @@ namespace QuizCanners.Inspect
                     if (i != no && "{0}: {1}".F(i, from[i]).ClickUnFocus().nl())
                     {
                         no = i;
-                        foldIn();
+                        FoldInNow();
                         return true;
                     }
             }
@@ -314,7 +314,7 @@ namespace QuizCanners.Inspect
             
             string hint = ef.IsNextFoldedOut ? "{0} ... " : "{0} ... (foldout to select)";
             
-            foldout(from.TryGet(no, hint.F(no)));
+            IsFoldout(from.TryGet(no, hint.F(no)));
             
             if (ef.isFoldedOutOrEntered)
             {
@@ -330,7 +330,7 @@ namespace QuizCanners.Inspect
                         if (i != no && tmpSelectSearch.IsSubstringOf(from[i]) && "{0}: {1}".F(i, from[i]).ClickUnFocus().nl())
                         {
                             no = i;
-                            foldIn();
+                            FoldInNow();
                             return true;
                         }
                 }
@@ -341,7 +341,7 @@ namespace QuizCanners.Inspect
                         if (i != no && "{0}: {1}".F(i, from[i]).ClickUnFocus().nl())
                         {
                             no = i;
-                            foldIn();
+                            FoldInNow();
                             return true;
                         }
                 }
@@ -2072,7 +2072,7 @@ namespace QuizCanners.Inspect
             {
                 var pgi = QcUnity.TryGet_fromObj<IPEGI>(obj);
 
-                if (conditional_enter(pgi != null, ref entered, current, exitLabel: showLabelIfEntered ? label : ""))
+                if (IsConditionally_Entered(pgi != null, ref entered, current, exitLabel: showLabelIfEntered ? label : ""))
                     pgi.Nested_Inspect().changes(ref changed);
             }
 
@@ -2271,6 +2271,18 @@ namespace QuizCanners.Inspect
         public static bool edit(ref Vector3 val) =>
            "X".edit(15, ref val.x) || "Y".edit(15, ref val.y) || "Z".edit(15, ref val.z);
 
+        public static bool edit(this string label, int width, ref Vector3 val)
+        {
+#if UNITY_EDITOR
+            if (!PaintingGameViewUI)
+                return ef.edit(label, ref val);
+#endif
+
+            write(label);
+            nl();
+            return edit(ref val);
+        }
+
         public static bool edit(this string label, ref Vector3 val)
         {
 #if UNITY_EDITOR
@@ -2360,7 +2372,7 @@ namespace QuizCanners.Inspect
 
             SetBgColor(col);
 
-            if ("Color".foldout())
+            if ("Color".IsFoldout())
             {
                 pegi.nl();
 
@@ -2427,7 +2439,7 @@ namespace QuizCanners.Inspect
         {
             if (PaintingGameViewUI)
             {
-                if (label.foldout())
+                if (label.IsFoldout())
                     return edit(ref col);
             }
             else
@@ -2443,7 +2455,7 @@ namespace QuizCanners.Inspect
         {
             if (PaintingGameViewUI)
             {
-                if (label.foldout())
+                if (label.IsFoldout())
                     return edit(ref col);
 
             }

@@ -1852,7 +1852,7 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
         }
 
 #if UNITY_EDITOR
-        public static void SaveTexture(this Texture2D tex)
+        public static void SaveChanges(this Texture2D tex)
         {
 
             var bytes = tex.EncodeToPNG();
@@ -1921,6 +1921,9 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
 
             var folderPath = Path.Combine(Application.dataPath, folderName);
             Directory.CreateDirectory(folderPath);
+
+            if (textureName.IsNullOrEmpty())
+                textureName = "unnamed";
 
             var fileName = textureName + ".png";
 

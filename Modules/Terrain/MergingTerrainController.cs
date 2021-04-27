@@ -351,7 +351,7 @@ namespace PlaytimePainter
 
             Result.SetPixels(_dst);
             Result.Apply();
-            Result.SaveTexture();
+            Result.SaveChanges();
 
             return Result;
         }
@@ -415,7 +415,7 @@ namespace PlaytimePainter
 
             product.SetPixels(dstColor);
             product.Apply();
-            product.SaveTexture();
+            product.SaveChanges();
 
             return product;
         }

@@ -399,7 +399,7 @@ namespace PlaytimePainter {
 
                         }
 
-                        if ("Ray Trace Camera".conditional_enter(
+                        if ("Ray Trace Camera".IsConditionally_Entered(
                             _enableRayTracing && PainterCamera.depthProjectorCamera,
                             ref _exploreRayTaceCamera).nl_ifFoldedOut())
                         {
@@ -459,7 +459,7 @@ namespace PlaytimePainter {
 
                     if (!_exploreRayTaceCamera && PainterCamera.Data.showVolumeDetailsInPainter &&
                         (volTex.name + " " + VolumeEditingExtensions.VolumeSize(id.texture2D, volTex.hSlices))
-                        .foldout(ref _exploreVolumeData).nl())
+                        .IsFoldout(ref _exploreVolumeData).nl())
                     {
 
                         volTex.Nested_Inspect().changes(ref changed);

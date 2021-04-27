@@ -288,7 +288,7 @@ namespace QuizCanners.Lerp
 
                 NameForDisplayPEGI().write();
 
-                var changed = pegi.foldout(icon.Edit, "Will this config contain new parameters", ref allowChangeParameters).nl();
+                var changed = pegi.IsFoldout(icon.Edit, "Will this config contain new parameters", ref allowChangeParameters).nl();
 
                 if (!allowChangeParameters) return;
 

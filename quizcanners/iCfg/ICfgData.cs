@@ -899,7 +899,7 @@ namespace QuizCanners.CfgDecode
             if (inspectedItems == -1)
                 pegi.EditorView.Lock_UnlockClick(gameObject);
 
-            if (!icon.Debug.enter(ref inspectedItems, 0).nl(ref changed))
+            if (!icon.Debug.IsEntered(ref inspectedItems, 0).nl(ref changed))
                 return; 
                 
             "{0} Debug ".F(this.GetNameForInspector()).write(90);
@@ -911,7 +911,7 @@ namespace QuizCanners.CfgDecode
 
             this.CopyPasteStdPegi().nl(ref changed);
 
-            if (("Cfg Saves: " + explorer.CountForInspector()).enter(ref _inspectedDebugItems, 0).nl())
+            if (("Cfg Saves: " + explorer.CountForInspector()).IsEntered(ref _inspectedDebugItems, 0).nl())
                 explorer.Inspect(this);
 
             if (inspectedItems == -1)
@@ -920,7 +920,7 @@ namespace QuizCanners.CfgDecode
             if (inspectedItems == -1)
                 pegi.nl();
 
-            if ("Inspect Inspector".enter(ref _inspectedDebugItems, 3).nl())
+            if ("Inspect Inspector".IsEntered(ref _inspectedDebugItems, 3).nl())
                 QcUtils.InspectDebug();
 
             if (inspectedItems == -1)

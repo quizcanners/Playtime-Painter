@@ -885,7 +885,7 @@ namespace PlaytimePainter {
 
             var changed = false;
             
-            if ("Camera Modules".enter(ref _inspectedStuff, 0, false).nl_ifNotEntered())
+            if ("Camera Modules".IsEntered(ref _inspectedStuff, 0, false).nl_ifNotEntered())
             {
                 _modulesMeta.edit_List(ref CameraModuleBase.modules, CameraModuleBase.all).changes(ref changed);
 
@@ -901,7 +901,7 @@ namespace PlaytimePainter {
                 pegi.nl();
             }
 
-            if ("Depth Projector Camera".enter(ref _inspectedStuff, 1).nl())
+            if ("Depth Projector Camera".IsEntered(ref _inspectedStuff, 1).nl())
             {
                 if (DepthProjectorCamera.Instance)
                 {
@@ -911,10 +911,10 @@ namespace PlaytimePainter {
                     GetOrCreateProjectorCamera();
             }
 
-            if ("Painter Camera".enter(ref _inspectedStuff, 2).nl_ifNotEntered())
+            if ("Painter Camera".IsEntered(ref _inspectedStuff, 2).nl_ifNotEntered())
                 DependenciesInspect(true);
 
-            if ("Data && Config".enter(ref _inspectedStuff, 3).nl_ifEntered())
+            if ("Data && Config".IsEntered(ref _inspectedStuff, 3).nl_ifEntered())
             {
                 if (Data)
                     Data.Nested_Inspect().nl(ref changed);
@@ -931,7 +931,7 @@ namespace PlaytimePainter {
 
             pegi.nl();
 
-            if ("Inspector & Debug".enter(ref _inspectedStuff, 4).nl())
+            if ("Inspector & Debug".IsEntered(ref _inspectedStuff, 4).nl())
                 QcUtils.InspectDebug();
 
             pegi.nl();
@@ -946,7 +946,7 @@ namespace PlaytimePainter {
 
                 pegi.nl();
 
-                if ("Buffers".enter(ref _inspectedDependecy, 1).nl())
+                if ("Buffers".IsEntered(ref _inspectedDependecy, 1).nl())
                 {
 
                     RenderTextureBuffersManager.Inspect().nl(ref changed);

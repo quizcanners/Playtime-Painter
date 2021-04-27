@@ -136,7 +136,7 @@ namespace QuizCanners.CfgDecode
 
             pegi.nl();
 
-            if ("Source".enter(ref _inspectedStuff, 0).nl())
+            if ("Source".IsEntered(ref _inspectedStuff, 0).nl())
             {
                 "Sheet URL (to Edit))".edit(ref editUrl).changes(ref changed);
 

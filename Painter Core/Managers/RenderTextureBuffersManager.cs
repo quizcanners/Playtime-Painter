@@ -547,7 +547,7 @@ namespace PlaytimePainter {
             if (inspectedElement < 2 && "Refresh Buffers".Click().nl())
                 RefreshPaintingBuffers();
 
-            if ("Panting Buffers".enter(ref inspectedElement, 0).nl()) {
+            if ("Panting Buffers".IsEntered(ref inspectedElement, 0).nl()) {
 
                 "ARGBfloat supported: {0}".F(GetTextureFormat()).nl();
                 
@@ -569,7 +569,7 @@ namespace PlaytimePainter {
                 "Depth".edit(ref alphaBufferTexture).nl();
             }
 
-            if ("Scaling Buffers".enter(ref inspectedElement, 1).nl())
+            if ("Scaling Buffers".IsEntered(ref inspectedElement, 1).nl())
             {
                 if (icon.Delete.Click().nl())
                     DestroyScalingBuffers();
@@ -591,7 +591,7 @@ namespace PlaytimePainter {
                 }
             }
 
-            if ("Depth Texture".enter(ref inspectedElement, 2).nl()) {
+            if ("Depth Texture".IsEntered(ref inspectedElement, 2).nl()) {
 
                 if (icon.Delete.Click())
                     DestroyDepthBuffers();
@@ -604,7 +604,7 @@ namespace PlaytimePainter {
                 _depthTargetForUsers.write(250);
             }
 
-            if ("Render Textures with Depth buffer".enter(ref inspectedElement, 3).nl())
+            if ("Render Textures with Depth buffer".IsEntered(ref inspectedElement, 3).nl())
             {
                 if (icon.Delete.Click())
                     DestroyBuffersWithDepth();

@@ -80,7 +80,10 @@ namespace QuizCanners.Inspect
         {
 
             if (pgi.IsNullOrDestroyed_Obj())
+            {
+                "NULL".F(typeof(T).ToPegiStringType()).write();
                 return false;
+            }
 
             var isFOOE = ef.isFoldedOutOrEntered;
 
@@ -96,6 +99,7 @@ namespace QuizCanners.Inspect
                 var indent = IndentLevel;
 
                 pgi.Inspect();
+
                 RestoreBGcolor();
                 //RestoreBGColor();
                 //.changes(ref changed);

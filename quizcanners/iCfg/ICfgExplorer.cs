@@ -314,7 +314,7 @@ namespace QuizCanners.CfgDecode
                         uObj.ClickHighlight().nl(ref changed);
                     }
 
-                    if ("Description".foldout().nl())
+                    if ("Description".IsFoldout().nl())
                     {
                         pegi.editBig(ref comment).nl(ref changed);
                     }

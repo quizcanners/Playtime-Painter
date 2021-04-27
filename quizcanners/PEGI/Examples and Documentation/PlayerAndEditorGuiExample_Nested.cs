@@ -19,7 +19,7 @@ namespace QuizCanners.Inspect.Examples
         {
             var changed = false;
 
-            if ("Light".enter(ref _nestedExamples, 0).nl())
+            if ("Light".IsEntered(ref _nestedExamples, 0).nl())
             {
                 "Sun".write(toolTip: "Color of sunlight", width: 50);
 

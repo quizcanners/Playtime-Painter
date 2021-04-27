@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using QuizCanners.CfgDecode;
 using QuizCanners.Inspect;
+using UnityEditor.Sprites;
 using UnityEngine;
 using UnityEngine.Profiling;
+using UnityEngine.U2D;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
 namespace QuizCanners.Utils
@@ -365,7 +367,7 @@ namespace QuizCanners.Utils
 
                 pegi.nl();
 
-                if ("Other Options".foldout(ref _showAdditionalOptions).nl())
+                if ("Other Options".IsFoldout(ref _showAdditionalOptions).nl())
                 {
 
                     if (!grab)
@@ -804,7 +806,7 @@ namespace QuizCanners.Utils
 
         #endregion
 
-        #region Inspect Inspector 
+        #region Inspect Debug Options 
         private static int inspectedSection = -1;
         private static int inspectedData = -1;
 
@@ -812,7 +814,7 @@ namespace QuizCanners.Utils
         {
             pegi.nl();
 
-             if ("Data".enter(ref inspectedSection, 0).nl())
+             if ("Data".IsEntered(ref inspectedSection, 0).nl())
             {
                 if (inspectedData == -1)
                 {
@@ -827,7 +829,7 @@ namespace QuizCanners.Utils
                             "C:/Users/{0}/AppData/Local/Unity/Editor/Editor.log".F(Environment.UserName));
                 }
 
-                if ("Cache".enter(ref inspectedData, 1).nl())
+                if ("Cache".IsEntered(ref inspectedData, 1).nl())
                 {
 
                     if ("Caching.ClearCache() [{0}]".F(Caching.cacheCount).ClickConfirm("clCach").nl())
@@ -868,7 +870,7 @@ namespace QuizCanners.Utils
                 }
             }
 
-            if ("Profiler".enter(ref inspectedSection, 1).nl())
+            if ("Profiler".IsEntered(ref inspectedSection, 1).nl())
             {
                 "Mono Heap Size Long {0}".F(Profiler.GetMonoHeapSizeLong().ToMegabytes()).nl();
 
@@ -888,7 +890,7 @@ namespace QuizCanners.Utils
 
             }
 
-            if ("Time & Audio".enter(ref inspectedSection, 2).nl())
+            if ("Time & Audio".IsEntered(ref inspectedSection, 2).nl())
             {
                 "Time.time: {0}".F(QcSharp.SecondsToReadableString(Time.time)).nl();
 
@@ -926,15 +928,39 @@ namespace QuizCanners.Utils
 
             "Json Inspector".enter_Inspect(jsonInspector, ref inspectedSection, 4).nl();
 
-            if ("ICfg Inspector".enter(ref inspectedSection, 5).nl())
+            if ("ICfg Inspector".IsEntered(ref inspectedSection, 5).nl())
                 iCfgExplorer.Inspect(null).nl();
 
-            if ("Gui Styles".enter(ref inspectedSection, 6).nl())
+            if ("Gui Styles".IsEntered(ref inspectedSection, 6).nl())
             {
                 PEGI_Styles.Inspect().nl();
             }
 
-            if ("Managed Coroutines [{0}]".F(QcAsync.DefaultCoroutineManager.GetActiveCoroutinesCount).enter(ref inspectedSection, 7).nl())
+            if ("Texture Utils".IsEntered(ref inspectedSection, 7).nl())
+            {
+                Sprite sa = null;
+
+                "To extract a Texture from Sprite, Set Read/Write Enabled to True and make sure it's format is Uncompressed (RGBA32 should do it)".writeHint();
+
+                if ("Extract Sprite Atlas Texture".edit(ref sa) && sa)
+                {
+                    string atlasName;
+                    Texture2D atlasTexture;
+
+                    Packer.GetAtlasDataForSprite(sa, out atlasName, out atlasTexture);
+
+                    //var atlas = SpriteUtility.GetSpriteTexture(sa, getAtlasData: true);
+                    if (atlasTexture)
+                    {
+                        atlasTexture.Reimport_IfNotReadale();
+
+                        string name = atlasName;//"From {0}".F(sa.name);
+                        atlasTexture.SaveTextureAsAsset("Atlas Textures", ref name, saveAsNew: true);
+                    }
+                }
+            }
+
+            if ("Managed Coroutines [{0}]".F(QcAsync.DefaultCoroutineManager.GetActiveCoroutinesCount).IsEntered(ref inspectedSection, 8).nl())
                 QcAsync.DefaultCoroutineManager.Nested_Inspect();
         }
 

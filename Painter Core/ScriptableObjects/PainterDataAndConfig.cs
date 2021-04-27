@@ -504,7 +504,7 @@ namespace PlaytimePainter
                 "Brush Config".edit(ref BrushConfig).nl();
             }
 
-            if ("Lists".enter(ref inspectedItems, 11).nl(ref changed))
+            if ("Lists".IsEntered(ref inspectedItems, 11).nl(ref changed))
                 InspectLists().changes(ref changed);
             
             if (inspectedItems == -1) {

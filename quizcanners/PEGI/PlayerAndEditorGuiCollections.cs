@@ -376,7 +376,7 @@ namespace QuizCanners.Inspect
                     {
                         var selectingDerrived = lst == addingNewOptionsInspected;
 
-                        icon.Create.foldout("Instantiate Class Options", ref selectingDerrived).nl();
+                        icon.Create.IsFoldout("Instantiate Class Options", ref selectingDerrived).nl();
 
                         if (selectingDerrived)
                             addingNewOptionsInspected = lst;
@@ -464,7 +464,7 @@ namespace QuizCanners.Inspect
 
                     var selectingDerrived = lst == addingNewOptionsInspected;
 
-                    icon.Add.foldout("Instantiate Class Options", ref selectingDerrived).nl();
+                    icon.Add.IsFoldout("Instantiate Class Options", ref selectingDerrived).nl();
 
                     if (selectingDerrived)
                         addingNewOptionsInspected = lst;
@@ -545,7 +545,7 @@ namespace QuizCanners.Inspect
 
                     var selectingDerrived = lst == addingNewOptionsInspected;
 
-                    icon.Add.foldout("Instantiate Class Options", ref selectingDerrived).nl();
+                    icon.Add.IsFoldout("Instantiate Class Options", ref selectingDerrived).nl();
 
                     if (selectingDerrived)
                         addingNewOptionsInspected = lst;
@@ -819,15 +819,14 @@ namespace QuizCanners.Inspect
                 return changed;
             }
 
-            public bool listIsNull<T>(ref List<T> list)
+            public bool listIsNull<T>(ref List<T> list, ref bool changed)
             {
                 if (list == null)
                 {
-                    if ("Initialize list".ClickUnFocus().nl())
+                    if ("Initialize list".ClickUnFocus().nl(ref changed))
                         list = new List<T>();
                     else
                         return true;
-
                 }
 
                 return false;
@@ -1281,7 +1280,7 @@ namespace QuizCanners.Inspect
 
                 #endregion
 
-                if (listMeta != null && icon.Config.enter(ref listMeta.inspectListMeta))
+                if (listMeta != null && icon.Config.IsEntered(ref listMeta.inspectListMeta))
                     listMeta.Nested_Inspect();
                 else if (typeof(Object).IsAssignableFrom(typeof(T)) || !listCopyBuffer.IsNullOrEmptyCollection())
                 {
@@ -1771,10 +1770,10 @@ namespace QuizCanners.Inspect
 
         public static bool edit_List_MB<T>(ref List<T> list, ref int inspected,  ListMetaData listMeta = null) where T : MonoBehaviour
         {
-            if (collectionInspector.listIsNull(ref list))
-                return false;
-
             bool changed = false;
+
+            if (collectionInspector.listIsNull(ref list, ref changed))
+                return changed;
 
             var before = inspected;
 
@@ -1885,7 +1884,7 @@ namespace QuizCanners.Inspect
 
         public static T edit_List_SO<T>(ref List<T> list, ref int inspected, ref bool changed, ListMetaData listMeta = null) where T : ScriptableObject
         {
-            if (collectionInspector.listIsNull(ref list))
+            if (collectionInspector.listIsNull(ref list, ref changed))
                 return null;
 
             var added = default(T);
@@ -1978,7 +1977,7 @@ namespace QuizCanners.Inspect
 
             var changed = false;
 
-            if (collectionInspector.listIsNull(ref list))
+            if (collectionInspector.listIsNull(ref list, ref changed))
                 return changed;
 
             collectionInspector.edit_List_Order(list).changes(ref changed);
@@ -2009,10 +2008,10 @@ namespace QuizCanners.Inspect
 
         public static bool edit_or_select_List_UObj<T, G>(ref List<T> list, List<G> from, ref int inspected, ListMetaData listMeta = null) where T : G where G : Object
         {
-            if (collectionInspector.listIsNull(ref list))
-                return false;
-
             var changed = false;
+
+            if (collectionInspector.listIsNull(ref list, ref changed))
+                return false;
 
             var before = inspected;
             if (list.ClampIndexToCount(ref inspected, -1))
@@ -2141,7 +2140,7 @@ namespace QuizCanners.Inspect
 
             if (list == null)
             {
-                if (Msg.Init.F(Msg.List).ClickUnFocus().nl())
+                if (Msg.Init.F(Msg.List).ClickUnFocus().nl(ref changed))
                     list = new List<T>();
                 else
                     return added;
@@ -2225,7 +2224,7 @@ namespace QuizCanners.Inspect
 
             if (list == null)
             {
-                if (Msg.Init.F(Msg.List).ClickUnFocus().nl())
+                if (Msg.Init.F(Msg.List).ClickUnFocus().nl(ref changed))
                     list = new List<T>();
                 else
                     return added;
@@ -2376,7 +2375,7 @@ namespace QuizCanners.Inspect
 
             var added = default(T);
 
-            if (collectionInspector.listIsNull(ref list))
+            if (collectionInspector.listIsNull(ref list, ref changed))
                 return added;
 
             collectionInspector.edit_List_Order(list).changes(ref changed);
@@ -2431,7 +2430,7 @@ namespace QuizCanners.Inspect
         {
             var added = default(T);
 
-            if (collectionInspector.listIsNull(ref list))
+            if (collectionInspector.listIsNull(ref list, ref changed))
                 return added;
 
             collectionInspector.edit_List_Order(list).changes(ref changed);
@@ -2466,11 +2465,11 @@ namespace QuizCanners.Inspect
 
         public static bool edit_List(ref List<string> list, Func<string, string> lambda)
         {
-
-            if (collectionInspector.listIsNull(ref list))
+            bool changed = false;
+            if (collectionInspector.listIsNull(ref list, ref changed))
                 return false;
 
-            var changed = collectionInspector.edit_List_Order(list);
+            changed |= collectionInspector.edit_List_Order(list);
 
             if (list != collectionInspector.reordering)
             {

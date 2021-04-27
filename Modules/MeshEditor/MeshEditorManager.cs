@@ -845,7 +845,7 @@ namespace PlaytimePainter.MeshEditing
         {
             var changed = false;
 
-            if (editedMesh != null && "Mesh ".enter(ref PlaytimePainter._inspectedMeshEditorItems, 2).nl()) {
+            if (editedMesh != null && "Mesh ".IsEntered(ref PlaytimePainter._inspectedMeshEditorItems, 2).nl()) {
                 
                 if (_inspectedMeshItems == -1) {
                     
@@ -869,7 +869,7 @@ namespace PlaytimePainter.MeshEditing
 
                 editedMesh.Nested_Inspect().nl();
 
-                if ("Center".enter(ref _inspectedMeshItems, 2).nl())
+                if ("Center".IsEntered(ref _inspectedMeshItems, 2).nl())
                 {
                     "Offset Center by:".edit(ref _offset).nl();
                     if ("Modify".Click().nl())
@@ -918,7 +918,7 @@ namespace PlaytimePainter.MeshEditing
                   }
                   */
 
-                if ("Combining meshes".enter(ref _inspectedMeshItems, 3).nl())
+                if ("Combining meshes".IsEntered(ref _inspectedMeshItems, 3).nl())
                 {
 
                     if (!SelectedForMergePainters.Contains(target))
@@ -976,7 +976,7 @@ namespace PlaytimePainter.MeshEditing
                 }
 
                 var mats = target.Materials;
-                if ("Combining Sub Meshes".conditional_enter(mats.Length > 1, ref _inspectedMeshItems, 4).nl()) {
+                if ("Combining Sub Meshes".IsConditionally_Entered(mats.Length > 1, ref _inspectedMeshItems, 4).nl()) {
 
                     "Select which materials should transfer color into vertex color".writeHint();
 
@@ -1014,7 +1014,7 @@ namespace PlaytimePainter.MeshEditing
 
                 pegi.nl();
 
-                if (!Application.isPlaying && "Debug".foldout(ref _inspectedMeshItems, 10).nl())
+                if (!Application.isPlaying && "Debug".IsFoldout(ref _inspectedMeshItems, 10).nl())
                 {
                     "vertexPointMaterial".write(Grid.vertexPointMaterial);
                     pegi.nl();

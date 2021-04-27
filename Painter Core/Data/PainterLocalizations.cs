@@ -262,9 +262,9 @@ namespace QuizCanners.Inspect {
             if (inspectingSection == -1)
                 MsgPainter.AboutPlaytimePainter.GetDescription().writeBig();
 
-            if ("FAQ".enter(ref inspectingSection, 0).nl()) {
+            if ("FAQ".IsEntered(ref inspectingSection, 0).nl()) {
 
-                if ("Can I integrate Painter into my game?".enter(ref inspectedFaqQuestion, 0).nl()) {
+                if ("Can I integrate Painter into my game?".IsEntered(ref inspectedFaqQuestion, 0).nl()) {
 
                     (" There is no reason why you can't. This asset doesn't contain or depend on any plugins and does everything using Unity functions. " + Environment.NewLine +
                      " If you have downloaded Examples folder, there should be a simple scripts that use Paint functions." + Environment.NewLine +
@@ -273,14 +273,14 @@ namespace QuizCanners.Inspect {
                      " interface. It should show warnings/hints when something needs to be set up. ").writeBig();
                 }
 
-                if ("How do I Save/Load/Undo changes to textures?".enter(ref inspectedFaqQuestion, 1).nl()) {
+                if ("How do I Save/Load/Undo changes to textures?".IsEntered(ref inspectedFaqQuestion, 1).nl()) {
                     ("Undo/Redo needs to be enabled per texture in {0}. Otherwise there are just too many scenarios when lots of memory will be used due to unwanted backups and redo steps.".F(MsgPainter.TextureSettings.GetText()) +
                       " It is possible to save texture during runtime. In Texture Setting -> Texture Processors there is a section to Save/Load textures during runtime. It is there for testing." +
                       " The code used for saving texture is located inside ImgData class. While editing texture in editor, there is Save/Load buttons which can save changes to the actual .png file, or " +
                       "load from it. If not saved, any changes to the texture will be lost once Unity is restarted, or texture reimported."  ).writeBig();
                 }
 
-                if ("What should I be careful about?".enter(ref inspectedFaqQuestion, 2).nl())
+                if ("What should I be careful about?".IsEntered(ref inspectedFaqQuestion, 2).nl())
                 {
                     ("I tried to forsee as many scenarious as possible. So deleting something shouldn't be a problem for Playtime Painter." +
                      "It's best not to move the Tools folder or it's contents though. As of now the userbase is not huge, and feedback is scares. " +
@@ -290,19 +290,19 @@ namespace QuizCanners.Inspect {
              
             }
 
-            if ("Performance/Quality tips".enter(ref inspectingSection, 1).nl())
+            if ("Performance/Quality tips".IsEntered(ref inspectingSection, 1).nl())
             {
-                if ("Slower in Editor in Android/iOS mode".enter(ref inspectedPerfTip, 0).nl())
+                if ("Slower in Editor in Android/iOS mode".IsEntered(ref inspectedPerfTip, 0).nl())
                 {
                     "If Editor is set for Android/iOS then Unity will try to emulate that API and as a result, painting will be slower."
                         .writeBig();
                 }
 
-                if ("Use GPU brush, big brush for CPU is slow.".enter(ref inspectedPerfTip, 1).nl()) {
+                if ("Use GPU brush, big brush for CPU is slow.".IsEntered(ref inspectedPerfTip, 1).nl()) {
                     "GPU brush is always faster for every task. CPU brush uses code written in C#, so it is much easier to add your own blit modes to it, but it gets slower the bigger the brush gets.".writeBig();
                 }
 
-                if ("Sphere brush is the best".enter(ref inspectedPerfTip, 2).nl()) {
+                if ("Sphere brush is the best".IsEntered(ref inspectedPerfTip, 2).nl()) {
                    ( " Sphere brush is the best for editing complex models. It uses world space instead of texture space so the result is often more as one would expect." +
                      " Since it is a GPU brush, performance should be good. It is possible to reduce the size of painting buffers in ToolSettings->PainterCamera->Buffers to increase performance." +
                      " Sphere brush doesn't always work well with tyling though. So when you see a line where brush seams to be able to paint only one side of it at any given time - tyling is the reason." +
@@ -310,7 +310,7 @@ namespace QuizCanners.Inspect {
                      " undoubtfully come with performance cost (when used)"   ).writeBig();
                 }
 
-                if ("Fold In Material".enter(ref inspectedPerfTip, 3).nl())
+                if ("Fold In Material".IsEntered(ref inspectedPerfTip, 3).nl())
                 {
                     ("This one may be a temporary issue, but I noticed that when Inspector is showing a material, in some cases Editor slows down." +
                         "I often use the Lock icon on the Painter Component to hide other UI outside of component to maximize it's performance"
@@ -319,7 +319,7 @@ namespace QuizCanners.Inspect {
 
             }
 
-            if ("Good to know, release notes".enter(ref inspectingSection, 2).nl()) {
+            if ("Good to know, release notes".IsEntered(ref inspectingSection, 2).nl()) {
 
                 if (inspectedUseful == -1) {
                     ("This section will most often relate to various findings related to Unity engine. I will also list all nuances and issues that may relate" +
@@ -327,13 +327,13 @@ namespace QuizCanners.Inspect {
                 }
 
       
-                if ("MSAA + HDR results in one frame delay".enter(ref inspectedUseful, 0).nl()) {
+                if ("MSAA + HDR results in one frame delay".IsEntered(ref inspectedUseful, 0).nl()) {
 
                 }
 
             }
 
-            if ("Useful Links".enter(ref inspectingSection, 3).nl()) {
+            if ("Useful Links".IsEntered(ref inspectingSection, 3).nl()) {
                 " Something I often use when writing shaders. ".writeBig();
                 
                 if ("Simple circle shader template".ClickText(15).nl())

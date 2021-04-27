@@ -252,7 +252,7 @@ namespace PlaytimePainter {
                 pegi.nl();
             }
 
-            if ("Volume Texture".enter(ref inspectedElement, 1).nl())
+            if ("Volume Texture".IsEntered(ref inspectedElement, 1).nl())
             {
 
                 var n = NameForPEGI;
@@ -316,7 +316,7 @@ namespace PlaytimePainter {
                 ("Will result in X:" + w + " Z:" + w + " Y:" + Height + "volume").nl();
             }
 
-            if ("Materials [{0}]".F(materials.Count).enter(ref inspectedElement, 2).nl_ifFoldedOut()) {
+            if ("Materials [{0}]".F(materials.Count).IsEntered(ref inspectedElement, 2).nl_ifFoldedOut()) {
 
                 "Materials".edit_List_UObj(ref materials, ref inspectedMaterial);
 

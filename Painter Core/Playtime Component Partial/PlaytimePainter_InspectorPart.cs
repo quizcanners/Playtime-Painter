@@ -361,7 +361,7 @@ namespace PlaytimePainter
                                     pegi.nl();
                                 }
 
-                                if ("Profile".enter(ref _inspectedMeshEditorItems, 0))
+                                if ("Profile".IsEntered(ref _inspectedMeshEditorItems, 0))
                                 {
 
                                     MsgPainter.MeshProfileUsage.DocumentationClick();
@@ -573,7 +573,7 @@ namespace PlaytimePainter
                         #region Fancy Options
 
                         pegi.nl();
-                        MsgPainter.TextureSettings.GetText().foldout(ref cfg.moreOptions);
+                        MsgPainter.TextureSettings.GetText().IsFoldout(ref cfg.moreOptions);
 
                         if (cfg.moreOptions)
                             pegi.Indent();
@@ -615,7 +615,7 @@ namespace PlaytimePainter
                         if (cfg.moreOptions)
                         {
 
-                            if (icon.Show.enter("Optional UI Elements", ref inspectionIndex, 7).nl())
+                            if (icon.Show.IsEntered("Optional UI Elements", ref inspectionIndex, 7).nl())
                             {
 
                                 "Show Previous Textures (if any) "
@@ -631,7 +631,7 @@ namespace PlaytimePainter
                                 "Color Sliders ".toggleVisibilityIcon("Should the color slider be shown ",
                                     ref cfg.showColorSliders, true).nl(ref changed);
 
-                                if ("Color Schemes".toggle_enter(ref cfg.showColorSchemes,
+                                if ("Color Schemes".IsToggle_Entered(ref cfg.showColorSchemes,
                                     ref _inspectedShowOptionsSubitem, 5, ref changed).nl_ifFolded())
                                 {
                                     if (cfg.colorSchemes.Count == 0)
@@ -661,7 +661,7 @@ namespace PlaytimePainter
                                     true).changes(ref changed);
                             }
 
-                            if ("New Texture ".conditional_enter(!IsTerrainHeightTexture, ref inspectionIndex, 4).nl())
+                            if ("New Texture ".IsConditionally_Entered(!IsTerrainHeightTexture, ref inspectionIndex, 4).nl())
                             {
 
                                 if (cfg.newTextureIsColor)
@@ -683,7 +683,7 @@ namespace PlaytimePainter
 
                             }
 
-                            if ("Painter Modules (Debug)".enter(ref inspectionIndex, 5).nl())
+                            if ("Painter Modules (Debug)".IsEntered(ref inspectionIndex, 5).nl())
                                 Modules.Nested_Inspect().nl();
 
                             if (texMeta != null)
