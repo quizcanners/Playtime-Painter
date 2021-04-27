@@ -1,57 +1,903 @@
 ﻿using QuizCanners.Inspect;
-using PlaytimePainter.CameraModules;
-using PlaytimePainter.MeshEditing;
-using QuizCanners.CfgDecode;
+using PainterTool.CameraModules;
+using PainterTool.MeshEditing;
+using QuizCanners.Migration;
 using QuizCanners.Utils;
 using System;
 using System.Collections.Generic;
 #if UNITY_EDITOR
-using UnityEditor;
+using  UnityEditor;
 using UnityEditorInternal;
 #endif
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace PlaytimePainter
+namespace PainterTool
 {
-
-#pragma warning disable IDE0018 // Inline variable declaration
-
     [DisallowMultipleComponent]
-    [AddComponentMenu("Mesh/Playtime Painter")]
+    [AddComponentMenu("Playtime Painter/Playtime Painter Tool")]
     [HelpURL(OnlineManual)]
-    public partial class PlaytimePainter : IPEGI
+    public partial class PainterComponent : IPEGI
     {
         private string _nameHolder = "unnamed";
         private static string _tmpUrl = "";
-        public static PlaytimePainter selectedInPlaytime;
+        internal static PainterComponent selectedInPlaytime;
 
-        public static PlaytimePainter inspected;
+        internal static PainterComponent inspected;
 
-        [NonSerialized]
-        public readonly Dictionary<int, ShaderProperty.TextureValue> loadingOrder =
-            new Dictionary<int, ShaderProperty.TextureValue>();
+        [NonSerialized] public readonly Dictionary<int, ShaderProperty.TextureValue> loadingOrder = new();
 
-        private static int _inspectedFancyItems = -1;
-        public static int _inspectedMeshEditorItems = -1;
-        private static int _inspectedShowOptionsSubitem = -1;
 
-        public void Inspect()
+        public static pegi.EnterExitContext constet = new(); //int s_inspectedMeshEditorItems = -1;
+        internal static bool s_showTextureOptions;
+
+        private void Inspect_LockUnlock() 
         {
-
 #if UNITY_2019_1_OR_NEWER && UNITY_EDITOR
             if (!Application.isPlaying && !IsCurrentTool)
             {
                 if (ActiveEditorTracker.sharedTracker.isLocked)
                     pegi.EditorView.Lock_UnlockClick(gameObject);
 
-                MsgPainter.PleaseSelect.GetText().writeHint();
+                MsgPainter.PleaseSelect.GetText().PegiLabel().Write_Hint();
 
                 TrySetOriginalTexture();
 
                 SetOriginalShaderOnThis();
             }
 #endif
+        }
+
+        private void Inspect_MeshPart() 
+        {
+            var cfg = Painter.Data;
+
+            var mg = Painter.MeshManager;
+            mg.UndoRedoInspect(); pegi.Nl();
+
+            var sharedMesh = SharedMesh;
+
+            if (sharedMesh)
+            {
+                if (this != MeshPainting.target)
+                    if (SavedEditableMesh.IsEmpty == false)
+                        "Component has saved mesh data.".PegiLabel().Nl();
+
+                "Warning, this will change (or mess up) your model.".PegiLabel().WriteOneTimeHint("MessUpMesh");
+
+                if (MeshPainting.target != this)
+                {
+
+                    var ent = gameObject.GetComponent("pb_Entity");
+                    var obj = gameObject.GetComponent("pb_Object");
+
+                    if (ent || obj)
+                        "PRO builder detected. Strip it using Actions in the Tools/ProBuilder menu.".PegiLabel()
+                            .Write_Hint();
+                    else
+                    {
+                        if (Application.isPlaying)
+                            "Playtime Changes will be reverted once you try to edit the mesh again.".PegiLabel()
+                                .WriteWarning();
+
+                        pegi.Nl();
+
+                        "Mesh has {0} vertices".F(sharedMesh.vertexCount).PegiLabel().Nl();
+
+                        pegi.Nl();
+
+#if UNITY_EDITOR
+                        if ("Generate UV2".PegiLabel().Click().Nl())
+                            if (Unwrapping.GenerateSecondaryUVSet(sharedMesh) == false)
+                                Debug.LogError("UV2 generation failed");
+#endif
+
+                        pegi.Nl();
+
+                        const string confirmTag = "pp_EditThisMesh";
+
+                        if (!pegi.ConfirmationDialogue.IsRequestedFor(confirmTag))
+                        {
+
+                            if ("New Mesh".PegiLabel(!SavedEditableMesh.IsEmpty
+                                    ? "This will erase existing editable mesh. Proceed?"
+                                    : "Create a mesh?").ClickConfirm("newMesh"))
+                            {
+                                Mesh = new Mesh();
+                                SavedEditableMesh = new CfgData();
+                                mg.EditMesh(this, false);
+                            }
+                        }
+
+                        if (SharedMesh && SharedMesh.vertexCount == 0)
+                        {
+                            pegi.Nl();
+                            "Shared Mesh has no vertices, you may want to create a new mesh".PegiLabel()
+                                .Write_Hint();
+                        }
+                        else
+                        {
+                            if (!pegi.ConfirmationDialogue.IsRequestedFor(confirmTag) && "Copy & Edit".PegiLabel().Click())
+                                mg.EditMesh(this, true);
+
+                            if ("Edit this".PegiLabel("Are you sure you want to edit the original one instead of editing a copy(safer)? " +
+                                    "Playtime Painter's Undo functionality can be limited.").ClickConfirm(confirmTag).Nl())
+                                mg.EditMesh(this, false);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                pegi.Edit_IfNull(ref meshFilter, gameObject).Nl();
+
+                pegi.Edit_IfNull(ref meshRenderer, gameObject).Nl();
+
+                if (!sharedMesh && "Create Mesh".PegiLabel().Click())
+                    Mesh = new Mesh();
+
+            }
+
+            if (IsEditingThisMesh)
+            {
+                using (constet.StartContext())
+                {
+                    if (!constet.IsAnyEntered)
+                    {
+                        Painter.MeshManager.Inspect();
+                        pegi.Nl();
+                    }
+
+                    pegi.Space();
+
+                    pegi.Line();
+
+                    if ("Profile".PegiLabel().IsEntered())
+                    {
+
+                        MsgPainter.MeshProfileUsage.DocumentationClick();
+
+
+                        if ((cfg.meshPackagingSolutions.Count > 1) && Icon.Delete.Click(25))
+                        {
+                            for (int i = 0; i < cfg.meshPackagingSolutions.Count; i++)
+                            {
+                                var pr = cfg.meshPackagingSolutions[i];
+                                if (pr.name.Equals(selectedMeshProfile))
+                                {
+                                    cfg.meshPackagingSolutions.RemoveAt(i);
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+
+                            pegi.Nl();
+                            var mpf = MeshProfile;
+                            if (mpf == null)
+                                "There are no Mesh packaging profiles in the PainterDataObject".PegiLabel()
+                                    .WriteWarning();
+                            else
+                            {
+                                if (!mpf.name.Equals(selectedMeshProfile))
+                                    "Mesh profile not found, using default one".PegiLabel().WriteWarning();
+
+                                pegi.Nl();
+
+
+                                if (mpf.Nested_Inspect().Nl())
+                                {
+                                    selectedMeshProfile = mpf.name;
+                                    MeshEditorManager.editedMesh.Dirty = true;
+                                }
+                            }
+
+                        }
+                    }
+                    
+                    if (!constet.IsAnyEntered)
+                    {
+                        if (pegi.Select_iGotName(ref selectedMeshProfile,
+                                cfg.meshPackagingSolutions) &&
+                            IsEditingThisMesh)
+                            MeshEditorManager.editedMesh.Dirty = true;
+
+                        if (Icon.Add.Click(25))
+                        {
+                            var sol = new MeshPackagingProfile();
+                            cfg.meshPackagingSolutions.Add(sol);
+                            selectedMeshProfile = sol.name;
+                            //MeshProfile.name = "New Profile {0}".F(selectedMeshProfile);
+                        }
+
+                        if (Icon.Refresh.Click("Refresh Mesh Packaging Solutions"))
+                            Painter.Data.ResetMeshPackagingProfiles();
+
+                        pegi.Nl();
+                    }
+
+                    Painter.MeshManager.MeshOptionsInspect(context);
+                }
+            }
+            
+
+            pegi.Nl();
+        }
+
+        [SerializeField] private pegi.EnterExitContext context = new();
+
+        private void Inspect_TexturePart() 
+        {
+            var cfg = Painter.Data;
+            var texMgmt = Painter.Camera;
+            var texMeta = TexMeta;
+            var tex = GetTextureOnMaterial();
+
+            if (!meshEditing && ((tex && texMeta == null) || (texMeta != null && !tex) ||
+                                 (texMeta != null && tex != texMeta.Texture2D && tex != texMeta.CurrentTexture())))
+                textureWasChanged = true;
+
+            var painterNotUiOrPlaying = Application.isPlaying || !IsUiGraphicPainter;
+
+            if (!TextureEditingBlocked && painterNotUiOrPlaying && !texMeta.errorWhileReading)
+            {
+                if (texMeta.ProcessEnumerator != null)
+                {
+                    if (!s_showTextureOptions)
+                    {
+                        pegi.Nl();
+                        "Processing Texture".PegiLabel().Nl();
+                        texMeta.ProcessEnumerator.InspectInList_Nested().Nl();
+                    }
+                }
+                else
+                {
+
+                    texMgmt.DependenciesInspect();
+
+                    #region Undo/Redo & Recording
+
+                   
+                    texMeta.Undo_redo_PEGI();
+
+                    pegi.Nl();
+
+                    var cpu = texMeta.TargetIsTexture2D();
+
+                    var mat = Material;
+                    if (mat.IsProjected())
+                    {
+                        "Projected UV Shader detected. Painting may not work properly".PegiLabel().WriteWarning();
+
+                        if ("Undo".PegiLabel().Click().Nl())
+                            mat.DisableKeyword(PainterShaderVariables.UV_PROJECTED);
+                    }
+
+                    #endregion
+
+                    #region Brush
+
+                    if (!s_showTextureOptions)
+                    {
+
+                        pegi.Nl();
+
+                        if (skinnedMeshRenderer)
+                        {
+                            if ("Update Collider from Skinned Mesh".PegiLabel().Click())
+                                UpdateMeshCollider();
+
+                            if (!SO_PainterDataAndConfig.hideDocumentation)
+                                pegi.FullWindow.DocumentationClickOpen(
+                                    text: () => "To paint an object a collision detection is needed. Mesh Collider is not being animated. To paint it, update Mesh Collider with Update Collider button." +
+                                     " For ingame painting it is preferable to use simple colliders like Speheres to avoid per frame updates for collider mesh.",
+                                     toolTip: "Why Update Collider from skinned mesh?");
+
+
+                            pegi.Nl();
+                        }
+
+                        var blocker = GetPaintingBlocker();
+
+                        if (!blocker.IsNullOrEmpty())
+                        {
+                            "Can't paint because {0}".F(blocker).PegiLabel().WriteWarning();
+                        }
+                        else
+                        {
+                            if (texMeta != null)
+                                Inspect_PreviewShaderToggle();
+
+                            //if (!PainterCamera.GotBuffers && icon.Refresh.Click("Refresh Main Camera Buffers"))
+                            //  RenderTextureBuffersManager.RefreshPaintingBuffers();
+
+
+                            GlobalBrush.Nested_Inspect(fromNewLine: false);
+
+                            if (!cpu && texMeta.Texture2D && texMeta.Width != texMeta.Height)
+                                Icon.Warning.Draw(
+                                    "Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality.");
+
+                            var mode = GlobalBrush.GetBlitMode(cpu ? TexTarget.Texture2D : TexTarget.RenderTexture);
+                            var col = GlobalBrush.Color;
+
+                            if ((cpu || !mode.UsingSourceTexture || GlobalBrush.srcColorUsage !=
+                                 Brush.SourceTextureColorUsage.Unchanged)
+                                 && !pegi.PaintingGameViewUI)
+                            {
+                                if (pegi.Edit(ref col))
+                                    GlobalBrush.Color = col;
+
+                                MsgPainter.SampleColor.DocumentationClick();
+
+                            }
+
+                            pegi.Nl();
+
+                            GlobalBrush.ColorSliders();
+                            pegi.Nl();
+
+                            if (cfg.showColorSchemes)
+                            {
+
+                                var scheme = cfg.colorSchemes.TryGet(cfg.selectedColorScheme);
+
+                                scheme?.PickerPEGI();
+
+                                if (cfg.showColorSchemes)
+                                    "Scheme".PegiLabel(60).Select_Index(ref cfg.selectedColorScheme, cfg.colorSchemes)
+                                        .Nl();
+
+                            }
+                        }
+                    }
+
+                    #endregion
+                }
+            }
+            else
+            {
+                if (IsUsingPreview)
+                    Inspect_PreviewShaderToggle();
+
+                if (!painterNotUiOrPlaying)
+                {
+                    pegi.Nl();
+                    "UI Element editing only works in Game View during Play.".PegiLabel().WriteWarning();
+                }
+            }
+
+            texMeta = TexMeta;
+
+            Inspect_ConvexMeshCheckWarning();
+
+            Inspect_Texture_Options();
+
+            #region Save Load Options
+
+            if (!s_showTextureOptions)
+            {
+                #region Material Clonning Options
+
+                pegi.Nl();
+
+                var mats = Materials;
+                if (!mats.IsNullOrEmpty())
+                {
+                    var sm = selectedSubMesh;
+                    if (pegi.Select_Index(ref sm, mats))
+                    {
+                        SetOriginalShaderOnThis();
+                        selectedSubMesh = sm;
+                        OnChangedTexture_OnMaterial();
+                        texMeta = TexMeta;
+                        CheckPreviewShader();
+                    }
+                }
+
+                var mater = Material;
+
+                if (Application.isEditor && mater && mater.shader)
+                    pegi.ClickHighlight(mater.shader, "Highlight Shader");
+
+                if (pegi.Edit(ref mater))
+                    Material = mater;
+
+                if (Icon.NewMaterial.Click("Instantiate Material").Nl())
+                    InstantiateMaterial(true);
+
+                pegi.Nl();
+                pegi.Space();
+                pegi.Nl();
+
+                #endregion
+
+                #region Texture 
+
+                if (cfg.showUrlField)
+                {
+
+                    "URL".PegiLabel(40).Edit(ref _tmpUrl);
+                    if (_tmpUrl.Length > 5 && Icon.Download.Click())
+                    {
+                        loadingOrder.Add(Painter.DownloadManager.StartDownload(_tmpUrl),
+                            GetMaterialTextureProperty());
+                        _tmpUrl = "";
+                        pegi.GameView.ShowNotification("Loading for {0}".F(GetMaterialTextureProperty()));
+                    }
+
+                    pegi.Nl();
+                    if (loadingOrder.Count > 0)
+                        "Loading {0} texture{1}".F(loadingOrder.Count, loadingOrder.Count > 1 ? "s" : "").PegiLabel()
+                            .Nl();
+
+                    pegi.Nl();
+                }
+
+
+                var ind = SelectedTexture;
+                if (pegi.Select_Index(ref ind, GetAllTextureNames()))
+                {
+                    SetOriginalShaderOnThis();
+                    SelectedTexture = ind;
+                    OnChangedTexture_OnMaterial();
+                    CheckPreviewShader();
+                    texMeta = TexMeta;
+                    if (texMeta == null)
+                        _nameHolder = "New {0}_{1}".F(gameObject.name, GetMaterialTextureProperty());
+                }
+
+                if (texMeta != null)
+                {
+                    texMeta.InspectConvestionOptions(this);
+
+                    UpdateTilingFromMaterial();
+
+                    if (texMeta.errorWhileReading)
+                    {
+
+                        Icon.Warning.Draw(
+                            "THere was error while reading texture. (ProBuilder's grid texture is not readable, some others may be to)");
+
+                        if (texMeta.Texture2D && Icon.Refresh.Click("Retry reading the texture"))
+                            texMeta.From(texMeta.Texture2D, true);
+
+                    }
+
+                }
+
+                tex = GetTextureOnMaterial();
+                if (pegi.Edit(ref tex))
+                    ChangeTexture(tex);
+
+                    var texScale =  cfg.SelectedWidthForNewTexture();
+
+                    var texNames = GetAllTextureNames();
+
+                    if (texNames.Count > SelectedTexture)
+                    {
+                        var param = GetMaterialTextureProperty();
+
+                        const string newTexConfirmTag = "pp_nTex";
+
+                        if (((texMeta == null) &&
+                              Icon.NewTexture.Click("Create new texture2D for " + param)) ||
+                             (texMeta != null && Icon.NewTexture.ClickConfirm(newTexConfirmTag, texMeta,
+                                  "Replace " + param + " with new Texture2D " + texScale + "*" + texScale)))
+                           
+                        {
+                            pegi.Nl();
+                          CreateTexture2D(texScale, _nameHolder, cfg.newTextureIsColor);
+                        }
+                        pegi.Nl();
+
+                        if (!pegi.ConfirmationDialogue.IsRequestedFor(newTexConfirmTag))
+                        {
+
+                            if (cfg.showRecentTextures)
+                            {
+
+                                var texName = GetMaterialTextureProperty();
+
+                                if (texName != null &&
+                                    Painter.Data.recentTextures.TryGetValue(texName,
+                                        out List<TextureMeta> recentTexs) &&
+                                    (recentTexs.Count > 0)
+                                    && (texMeta == null || (recentTexs.Count > 1) ||
+                                        (texMeta != recentTexs[0].Texture2D.GetImgDataIfExists()))
+                                    && "Recent Textures:".PegiLabel(100).Select(ref texMeta, recentTexs)
+                                        .Nl())
+                                    ChangeTexture(texMeta.ExclusiveTexture());
+
+                            }
+
+                            if (texMeta == null && cfg.allowExclusiveRenderTextures &&
+                                "Create Render Texture".PegiLabel().Click())
+                                CreateRenderTexture(texScale, _nameHolder);
+
+                            if (texMeta != null && cfg.allowExclusiveRenderTextures)
+                            {
+                                if (!texMeta.RenderTexture && "Add Render Tex".PegiLabel().Click())
+                                    texMeta.AddRenderTexture();
+
+                                if (texMeta.RenderTexture)
+                                {
+
+                                    if ("Replace RendTex".PegiLabel("Replace " + param + " with Rend Tex size: " + texScale).Click())
+                                        CreateRenderTexture(texScale, _nameHolder);
+
+                                    if ("Remove RendTex".PegiLabel().Click().Nl())
+                                    {
+
+                                        if (texMeta.Texture2D)
+                                        {
+                                            UpdateOrSetTexTarget(TexTarget.Texture2D);
+                                            texMeta.RenderTexture = null;
+                                        }
+                                        else
+                                            RemoveTextureFromMaterial();
+
+                                    }
+                                }
+                            }
+
+                        }
+
+                    }
+                    else
+                        Icon.Warning.Nl("No Texture property selected");
+
+                    pegi.Nl();
+
+                    if (texMeta == null)
+                        "Name (New Texture):".PegiLabel("Name for new texture", 120).Edit( ref _nameHolder).Nl();
+
+                
+
+                pegi.Nl();
+
+                if (!tex)
+                    "No texture. Drag and drop or click on the plus icon to create New".PegiLabel().Write_Hint();
+
+                pegi.Nl();
+
+                pegi.Space();
+                pegi.Nl();
+
+                #endregion
+
+                #region Texture Saving/Loading
+
+                if (!TextureEditingBlocked)
+                {
+                    pegi.Nl();
+              
+                        if (Application.isEditor)
+                            "Unless saved, the texture will loose all changes when scene is offloaded or Unity Editor closed.".PegiLabel()
+                                .WriteOneTimeHint("_pp_hint_saveTex");
+
+                        pegi.Nl();
+
+                        texMeta = TexMeta;
+
+#if UNITY_EDITOR
+                        string orig = null;
+                        if (texMeta.Texture2D)
+                        {
+                            orig = AssetDatabase.GetAssetPath(TexMeta.Texture2D);
+
+                            if (orig != null && Icon.Load.ClickUnFocus("Will reload " + orig))
+                            {
+                                ForceReimportMyTexture();
+                                texMeta.saveName = texMeta.Texture2D.name;
+                            }
+                        }
+
+                        pegi.Edit(ref texMeta.saveName);
+
+                        if (texMeta.Texture2D)
+                        {
+
+                            if (!texMeta.saveName.SameAs(texMeta.Texture2D.name) &&
+                                Icon.Refresh.Click(
+                                    "Use current texture name ({0})".F(texMeta.Texture2D.name)))
+                                texMeta.saveName = texMeta.Texture2D.name;
+
+                            var destPath = GenerateTextureSavePath();
+                            var existsAtDestination = TextureExistsAtDestinationPath();
+                            var originalExists = !orig.IsNullOrEmpty();
+                            var sameTarget = originalExists && orig.Equals(destPath);
+                            var sameTextureName =
+                                originalExists && texMeta.Texture2D.name.Equals(texMeta.saveName);
+
+                            if (!existsAtDestination || sameTextureName)
+                            {
+                                if ((sameTextureName ? Icon.Save : Icon.SaveAsNew).Click(sameTextureName
+                                    ? "Will Update " + orig
+                                    : "Will save as " + destPath))
+                                {
+
+                                    if (sameTextureName)
+                                        RewriteOriginalTexture();
+                                    else
+                                        SaveTextureAsAsset(false);
+
+                                    OnChangedTexture_OnMaterial();
+                                }
+                            }
+                            else if (existsAtDestination && Icon.Save.Click("Will replace {0}".F(destPath)))
+                                SaveTextureAsAsset(false);
+
+                            if (!sameTarget && !sameTextureName && originalExists && !existsAtDestination &&
+                                Icon.Replace.Click("Will replace {0} with {1} ".F(orig, destPath)))
+                                RewriteOriginalTexture_Rename(texMeta.saveName);
+
+                            pegi.Nl();
+
+                        }
+#endif
+                    
+
+                    pegi.Nl();
+                }
+
+                pegi.Nl();
+                pegi.Space();
+                pegi.Nl();
+
+                #endregion
+            }
+
+            #endregion
+        }
+
+        private static readonly pegi.EnterExitContext _textureOptions = new();
+
+        private void Inspect_Texture_Options() 
+        {
+            var cfg = Painter.Data;
+            var texMgmt = Painter.Camera;
+            var texMeta = TexMeta;
+            var tex = GetTextureOnMaterial();
+
+
+            pegi.Nl();
+            MsgPainter.TextureSettings.GetText().PegiLabel().IsFoldout(ref s_showTextureOptions);
+
+            if (texMeta != null && !s_showTextureOptions)
+            {
+
+                pegi.Edit(ref texMeta.clearColor, 50);
+                if (texMeta.CurrentTexture() && Icon.Clear.Click("Clear channels which are not ignored"))
+                {
+                    if (GlobalBrush.PaintingAllChannels)
+                    {
+                        Painter.Camera.DiscardAlphaBuffer();
+
+                        texMeta.FillWithColor(texMeta.clearColor);
+
+                        //texMeta.SetPixels(texMeta.clearColor);
+                        //texMeta.SetApplyUpdateRenderTexture();
+                    }
+                    else
+                    {
+                        var wasRt = texMeta.Target == TexTarget.RenderTexture;
+
+                        if (wasRt)
+                            UpdateOrSetTexTarget(TexTarget.Texture2D);
+
+                        texMeta.SetPixels(texMeta.clearColor, GlobalBrush.mask).SetAndApply();
+
+                        if (wasRt)
+                            UpdateOrSetTexTarget(TexTarget.RenderTexture);
+                    }
+                }
+            }
+
+            pegi.Nl();
+
+
+            if (s_showTextureOptions)
+            {
+                pegi.Indent();
+
+                using (context.StartContext())
+                {
+                    if ("Optional UI Elements".PegiLabel().IsEntered().Nl())
+                    {
+
+                        "Show Previous Textures (if any) ".PegiLabel("Will show textures previously used for this material property.")
+                            .ToggleIcon(  ref cfg.showRecentTextures).Nl();
+
+                        "Exclusive Render Textures".PegiLabel("Allow creation of simple Render Textures - the have limited editing capabilities.")
+                            .ToggleIcon(
+                                ref cfg.allowExclusiveRenderTextures).Nl();
+
+                        "Color Sliders ".PegiLabel("Should the color slider be shown ").ToggleIcon(
+                            ref cfg.showColorSliders).Nl();
+
+                        if (texMeta != null)
+                        {
+
+                            foreach (var module in texMeta.Modules)
+                            {
+                                module.ShowHideSectionInspect();
+                                pegi.Nl();
+                            }
+
+                            if (texMeta.IsAVolumeTexture)
+                                "Show Volume Data in Painter".PegiLabel()
+                                    .ToggleIcon(ref Painter.Data.showVolumeDetailsInPainter)
+                                    .Nl();
+
+                        }
+
+                        "Brush Dynamics".PegiLabel("Will modify scale and other values based on movement.")
+                            .ToggleIcon(
+                                ref GlobalBrush.showBrushDynamics).Nl();
+
+                        "URL field".PegiLabel("Option to load images by URL").ToggleIcon(ref cfg.showUrlField).Nl();
+                    }
+
+                    if ("Color Schemes".PegiLabel().Toggle_Enter(ref cfg.showColorSchemes).Nl_ifNotEntered().Nl())
+                    {
+                        if (cfg.colorSchemes.Count == 0)
+                            cfg.colorSchemes.Add(new ColorPicker { paletteName = "New Color Scheme" });
+
+                        pegi.Edit_List(cfg.colorSchemes, ref cfg.inspectedColorScheme);
+                    }
+
+                    if ("New Texture ".PegiLabel().IsEntered().Nl())
+                    {
+
+                        if (cfg.newTextureIsColor)
+                            "Clear Color".PegiLabel().Edit(ref cfg.newTextureClearColor).Nl();
+                        else
+                            "Clear Value".PegiLabel().Edit(ref cfg.newTextureClearNonColorValue).Nl();
+
+                        "Color Texture".PegiLabel("Will the new texture be a Color Texture").ToggleIcon(ref cfg.newTextureIsColor).Nl();
+
+                        "Size:".PegiLabel("Size of the new Texture", 40).Select_Index(
+                            ref Painter.Data.selectedWidthIndex,
+                            SO_PainterDataAndConfig.NewTextureSizeOptions).Nl();
+
+                        "Click + next to texture field below to create texture using this parameters".PegiLabel()
+                            .Write_Hint();
+
+                        pegi.Nl();
+
+                    }
+
+                    "Painter Modules (Debug)".PegiLabel().IsEntered().Nl().If_Entered(() => Modules.Nested_Inspect().Nl());
+
+                    "Texture Meta".PegiLabel().Enter_Inspect(texMeta).Nl();
+                }
+
+                if (context.IsAnyEntered)
+                    return;
+            }
+            
+
+            if (texMeta != null)
+            {
+                if (IsUiGraphicPainter)
+                {
+
+                    var uiImage = uiGraphic as Image;
+                    if (uiImage && !uiImage.sprite)
+                    {
+                        pegi.Nl();
+                        "Sprite is null. Convert image to sprite and assign it".PegiLabel().WriteWarning();
+                        pegi.Nl();
+                    }
+
+                    if (texMeta.updateTex2DafterStroke == false && texMeta.TargetIsRenderTexture())
+                    {
+                        "Update Original Texture after every Stroke".PegiLabel().ToggleIcon(ref texMeta.updateTex2DafterStroke).Nl();
+                    }
+                }
+
+
+                texMeta.ComponentDependent_PEGI(s_showTextureOptions, this);
+
+                if (s_showTextureOptions || (IsUsingPreview && cfg.previewAlphaChanel))
+                {
+                    "Preview Edited RGBA".PegiLabel().ToggleIcon(ref cfg.previewAlphaChanel);
+
+                    MsgPainter.previewRGBA.DocumentationClick().Nl();
+                }
+
+                if (s_showTextureOptions)
+                {
+                    var mats = Materials;
+                    if (autoSelectMaterialByNumberOfPointedSubMesh || !mats.IsNullOrEmpty())
+                    {
+                        "Auto Select Material".PegiLabel("Material will be changed based on the subMesh you are painting on").ToggleIcon(ref autoSelectMaterialByNumberOfPointedSubMesh);
+                        MsgPainter.AutoSelectMaterial.DocumentationClick().Nl();
+                    }
+                }
+
+                if (s_showTextureOptions || invertRayCast)
+                {
+                    if (!IsUiGraphicPainter)
+                        "Invert RayCast".PegiLabel("Will rayCast into the camera (for cases when editing from inside a sphere, mask for 360 video for example.)").ToggleIcon(ref invertRayCast).Nl();
+                    else
+                        invertRayCast = false;
+                }
+
+
+
+                if (texMeta[TextureCfgFlags.EnableUndoRedo] && texMeta.backupManually && "Backup for UNDO".PegiLabel().Click())
+                    texMeta.OnStrokeMouseDown_CheckBackup();
+
+                if (texMeta.dontRedoMipMaps && Icon.Refresh.Click("Update Mipmaps now").Nl())
+                    texMeta.SetAndApply();
+            }
+            
+            pegi.UnIndent();
+        }
+
+        private void Inspect_Config() 
+        {
+            pegi.Nl();
+            if (Icon.Exit.Click() | "Preferences".PegiLabel().ClickLabel())
+                Painter.Data.showConfig = false;
+            else
+            {
+                pegi.Nl();
+                Painter.Camera.Nested_Inspect().Nl();
+            }
+        }
+
+        private void Inspect_TopButtons() 
+        {
+            var cfg = Painter.Data;
+
+            if (meshEditing)
+            {
+                if (Icon.Painter.Click("Edit Texture"))
+                {
+                    CheckSetOriginalShader();
+                    meshEditing = false;
+                    CheckPreviewShader();
+                    Painter.MeshManager.StopEditingMesh();
+                    cfg.showConfig = false;
+                    pegi.GameView.ShowNotification("Editing Texture");
+                }
+
+                Icon.Mesh.Draw("Editing Mesh");
+
+            }
+            else
+            {
+                Icon.Painter.Draw("Editing Texture");
+
+                if (Icon.Mesh.Click("Edit Mesh"))
+                {
+                    meshEditing = true;
+
+                    CheckSetOriginalShader();
+                    UpdateOrSetTexTarget(TexTarget.Texture2D);
+                    cfg.showConfig = false;
+                    pegi.GameView.ShowNotification("Editing Mesh");
+
+                    if (SavedEditableMesh.IsEmpty == false)
+                        Painter.MeshManager.EditMesh(this, false);
+                }
+            }
+
+            if (Icon.Config.Click("Preferences"))
+                cfg.showConfig = true;
+
+            if (Icon.Book.Click(toolTip: "Documentation"))
+                pegi.FullWindow.OpenDocumentation(Documentation.Inspect);
+       
+        }
+
+        private bool Inspect_IsSetupCorrect() 
+        {
+            Inspect_LockUnlock();
 
             if (currentlyPaintedObjectPainter)
                 pegi.EditorView.RefocusIfLocked(this, currentlyPaintedObjectPainter);
@@ -60,52 +906,46 @@ namespace PlaytimePainter
             {
                 var go = Selection.objects[0] as GameObject;
                 if (go && go != gameObject)
-                    pegi.EditorView.RefocusIfLocked(this, go.GetComponent<PlaytimePainter>());
+                    pegi.EditorView.RefocusIfLocked(this, go.GetComponent<PainterComponent>());
             }
 #endif
 
-            inspected = this;
-
-            var changed = false;
-
-            if (!TexMgmt && "Find camera".Click())
-                PainterClass.applicationIsQuitting = false;
-
-            var canInspect = true;
-
-            if (!TexMgmt)
-                canInspect = false;
-            else if (!Cfg)
+            if (!Painter.Camera && "Find camera".PegiLabel().Click())
             {
-
-                TexMgmt.DependenciesInspect().changes(ref changed);
-
-                canInspect = false;
+                Painter.TryInstanciateCamera(out var cam);
             }
 
-            if (canInspect && QcUnity.IsPrefab(gameObject))
+            if (!Painter.Camera)
+                return false;
+            else if (!Painter.Data)
             {
-                "Inspecting a prefab.".nl();
-                canInspect = false;
+                Painter.Camera.DependenciesInspect();
+
+                return false;
             }
 
-            if (canInspect && !IsCurrentTool)
+            if (QcUnity.IsPartOfAPrefab(gameObject))
             {
+                "Inspecting a prefab.".PegiLabel().Nl();
+                return false;
+            }
 
-                if (icon.Off.Click("Click to Enable Tool").changes(ref changed))
+            if (!IsCurrentTool)
+            {
+                if (Icon.Off.Click("Click to Enable Tool"))
                 {
                     IsCurrentTool = true;
                     enabled = true;
 
 #if UNITY_EDITOR
-                    var cs = GetComponents(typeof(Component));
+                    var cs = GetComponents<Component>();
 
                     foreach (var c in cs)
-                        if (c.GetType() != typeof(PlaytimePainter))
+                        if (c.GetType() != typeof(PainterComponent))
                             InternalEditorUtility.SetIsInspectorExpanded(c, false);
 
                     QcUnity.FocusOn(null);
-                    PainterCamera.refocusOnThis = gameObject;
+                    Singleton_PainterCamera.refocusOnThis = gameObject;
 #endif
 
                     CheckPreviewShader();
@@ -113,1103 +953,259 @@ namespace PlaytimePainter
 
                 pegi.EditorView.Lock_UnlockClick(gameObject);
 
-                canInspect = false;
+                return false;
             }
 
-            double sinceUpdate = QcUnity.TimeSinceStartup() - PainterCamera.lastManagedUpdate;
-
-            if (canInspect)
+            if (!Painter.Camera.enabled)
             {
-
-                if (!TexMgmt.enabled)
-                {
-                    "Painter Camera is disabled".writeWarning();
-                    if ("Enable".Click())
-                        TexMgmt.enabled = true;
-                }
-                else if (!TexMgmt.gameObject.activeSelf)
-                {
-                    "Painter Camera Game Object is disabled".writeWarning();
-                    if ("Enable".Click())
-                        TexMgmt.gameObject.SetActive(true);
-                }
-                else if (sinceUpdate > 100)
-                {
-                    "It's been {0} seconds since the last managed update".F(sinceUpdate).writeWarning();
-
-                    if ("Resubscribe camera to updates".Click())
-                        TexMgmt.SubscribeToEditorUpdates();
-                }
-
-                selectedInPlaytime = this;
-
-                if (
-#if UNITY_2019_1_OR_NEWER
-                    Application.isPlaying && (
-#else
-                    (
-#endif
-
-#if UNITY_EDITOR
-                        (IsCurrentTool && terrain && !Application.isPlaying &&
-                         InternalEditorUtility.GetIsInspectorExpanded(terrain)) ||
-#endif
-                        icon.On.Click("Click to Disable Tool")))
-                {
-                    IsCurrentTool = false;
-                    MeshEditorManager.Inst.StopEditingMesh();
-                    SetOriginalShaderOnThis();
-                    UpdateOrSetTexTarget(TexTarget.Texture2D);
-                }
-
-                pegi.EditorView.Lock_UnlockClick(gameObject);
-
-                InitIfNotInitialized();
-
-                var image = TexMeta;
-
-                var texMgmt = TexMgmt;
-
-                var cfg = Cfg;
-
-                var tex = GetTextureOnMaterial();
-                if (!meshEditing && ((tex && image == null) || (image != null && !tex) ||
-                                     (image != null && tex != image.texture2D && tex != image.CurrentTexture())))
-                    textureWasChanged = true;
-
-                #region Top Buttons
-
-                if (MeshEditorManager.target && (MeshEditorManager.target != this))
-                    MeshManager.StopEditingMesh();
-
-
-                if (meshEditing)
-                {
-                    if (icon.Painter.Click("Edit Texture", ref changed))
-                    {
-                        CheckSetOriginalShader();
-                        meshEditing = false;
-                        CheckPreviewShader();
-                        MeshMgmt.StopEditingMesh();
-                        cfg.showConfig = false;
-                        pegi.GameView.ShowNotification("Editing Texture");
-                    }
-                }
-                else
-                {
-                    if (icon.Mesh.Click("Edit Mesh", ref changed))
-                    {
-                        meshEditing = true;
-
-                        CheckSetOriginalShader();
-                        UpdateOrSetTexTarget(TexTarget.Texture2D);
-                        cfg.showConfig = false;
-                        pegi.GameView.ShowNotification("Editing Mesh");
-
-                        if (SavedEditableMesh.IsEmpty == false)
-                            MeshMgmt.EditMesh(this, false);
-                    }
-                }
-
-
-                pegi.toggle(ref cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config,
-                    "Tool Configuration");
-
-                if (!PainterDataAndConfig.hideDocumentation)
-                    pegi.FullWindow.DocumentationClickOpen(LazyLocalization.InspectPainterDocumentation,
-                        MsgPainter.AboutPlaytimePainter.GetText());
-
-                #endregion
-
-                if (cfg.showConfig)
-                {
-
-                    pegi.nl();
-
-                    PainterCamera.Inst.Nested_Inspect().nl();
-
-                    //cfg.Nested_Inspect();
-
-                }
-                else
-                {
-
-                    if (meshCollider)
-                    {
-                        if (!meshCollider.sharedMesh)
-                        {
-                            pegi.nl();
-                            "Mesh Collider has no mesh".writeWarning();
-                            if (meshFilter && meshFilter.sharedMesh &&
-                                "Assign".Click("Will assign {0}".F(meshFilter.sharedMesh)))
-                                meshCollider.sharedMesh = meshFilter.sharedMesh;
-
-                            pegi.nl();
-                        }
-                        else if (meshFilter && meshFilter.sharedMesh &&
-                                 meshFilter.sharedMesh != meshCollider.sharedMesh)
-                        {
-
-                            pegi.FullWindow.WarningDocumentationClickOpen(
-                                "Collider and filter have different meshes. Painting may not be able to obtain a correct UV coordinates.",
-                                "Mesh collider mesh is different");
-                        }
-
-                    }
-
-                    #region Mesh Editing
-
-                    if (meshEditing)
-                    {
-
-                        if (terrain)
-                        {
-                            pegi.nl();
-                            "Mesh Editor can't edit Terrain mesh".writeHint();
-
-                        }
-                        else
-                        {
-
-                            var mg = MeshMgmt;
-                            mg.UndoRedoInspect().nl(ref changed);
-
-                            var sm = SharedMesh;
-
-                            if (sm)
-                            {
-
-                                if (this != MeshEditorManager.target)
-                                    if (SavedEditableMesh.IsEmpty == false)
-                                        "Component has saved mesh data.".nl();
-
-                                "Warning, this will change (or mess up) your model.".writeOneTimeHint("MessUpMesh");
-
-                                if (MeshEditorManager.target != this)
-                                {
-
-                                    var ent = gameObject.GetComponent("pb_Entity");
-                                    var obj = gameObject.GetComponent("pb_Object");
-
-                                    if (ent || obj)
-                                        "PRO builder detected. Strip it using Actions in the Tools/ProBuilder menu."
-                                            .writeHint();
-                                    else
-                                    {
-                                        if (Application.isPlaying)
-                                            "Playtime Changes will be reverted once you try to edit the mesh again."
-                                                .writeWarning();
-
-                                        pegi.nl();
-
-                                        "Mesh has {0} vertices".F(sm.vertexCount).nl();
-
-                                        pegi.nl();
-
-                                        const string confirmTag = "pp_EditThisMesh";
-
-                                        if (!pegi.ConfirmationDialogue.IsRequestedFor(confirmTag))
-                                        {
-
-                                            if ("New Mesh".ClickConfirm("newMesh",
-                                                !SavedEditableMesh.IsEmpty
-                                                    ? "This will erase existing editable mesh. Proceed?"
-                                                    : "Create a mesh?"))
-                                            {
-                                                Mesh = new Mesh();
-                                                SavedEditableMesh = new CfgData();
-                                                mg.EditMesh(this, false);
-                                            }
-                                        }
-
-                                        if (SharedMesh && SharedMesh.vertexCount == 0)
-                                        {
-                                            pegi.nl();
-                                            "Shared Mesh has no vertices, you may want to create a new mesh"
-                                                .writeHint();
-                                        }
-                                        else
-                                        {
-                                            if (!pegi.ConfirmationDialogue.IsRequestedFor(confirmTag) && "Copy & Edit".Click())
-                                                mg.EditMesh(this, true);
-
-                                            if ("Edit this".ClickConfirm(confirmTag,
-                                                    "Are you sure you want to edit the original one instead of editing a copy(safer)?")
-                                                .nl())
-                                                mg.EditMesh(this, false);
-                                        }
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                gameObject.edit_ifNull(ref meshFilter).nl(ref changed);
-
-                                gameObject.edit_ifNull(ref meshRenderer).nl(ref changed);
-
-                                if (!sm && "Create Mesh".Click())
-                                    Mesh = new Mesh();
-
-                            }
-
-                            if (IsEditingThisMesh)
-                            {
-
-                                if (_inspectedMeshEditorItems == -1)
-                                {
-                                    MeshMgmt.Inspect(); 
-                                    pegi.nl();
-                                }
-
-                                if ("Profile".enter(ref _inspectedMeshEditorItems, 0))
-                                {
-
-                                    MsgPainter.MeshProfileUsage.DocumentationClick();
-
-
-                                    if ((cfg.meshPackagingSolutions.Count > 1) && icon.Delete.Click(25))
-                                    {
-                                        for (int i = 0; i < cfg.meshPackagingSolutions.Count; i++)
-                                        {
-                                            var pr = cfg.meshPackagingSolutions[i];
-                                            if (pr.name.Equals(selectedMeshProfile))
-                                            {
-                                                cfg.meshPackagingSolutions.RemoveAt(i);
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    else
-                                    {
-
-                                        pegi.nl();
-                                        var mpf = MeshProfile;
-                                        if (mpf == null)
-                                            "There are no Mesh packaging profiles in the PainterDataObject"
-                                                .writeWarning();
-                                        else
-                                        {
-                                            if (!mpf.name.Equals(selectedMeshProfile))
-                                                "Mesh profile not found, using default one".writeWarning();
-
-                                            pegi.nl();
-
-
-                                            if (mpf.Nested_Inspect().nl())
-                                            {
-                                                selectedMeshProfile = mpf.name;
-                                                MeshEditorManager.editedMesh.Dirty = true;
-                                            }
-                                        }
-
-                                    }
-                                }
-                                else if (_inspectedMeshEditorItems == -1)
-                                {
-                                    if (pegi.select_iGotName(ref selectedMeshProfile,
-                                            cfg.meshPackagingSolutions) &&
-                                        IsEditingThisMesh)
-                                        MeshEditorManager.editedMesh.Dirty = true;
-
-                                    if (icon.Add.Click(25))
-                                    {
-                                        var sol = new MeshPackagingProfile();
-                                        cfg.meshPackagingSolutions.Add(sol);
-                                        selectedMeshProfile = sol.name;
-                                        //MeshProfile.name = "New Profile {0}".F(selectedMeshProfile);
-                                    }
-
-                                    if (icon.Refresh.Click("Refresh Mesh Packaging Solutions"))
-                                        PainterCamera.Data.ResetMeshPackagingProfiles();
-
-                                    pegi.nl();
-                                }
-
-                                MeshManager.MeshOptionsInspect();
-                            }
-                        }
-
-                        pegi.nl();
-
-                    }
-
-                    #endregion
-
-                    #region Texture Editing
-
-                    else
-                    {
-
-                        var texMeta = TexMeta;
-
-                        var painterNotUiOrPlaying = Application.isPlaying || !IsUiGraphicPainter;
-
-                        if (!LockTextureEditing && painterNotUiOrPlaying && !texMeta.errorWhileReading)
-                        {
-                            if (texMeta.ProcessEnumerator != null)
-                            {
-                                if (!cfg.moreOptions)
-                                {
-                                    pegi.nl();
-                                    "Processing Texture".nl();
-                                    texMeta.ProcessEnumerator.Inspect_AsInList().nl();
-                                }
-                            }
-                            else
-                            {
-
-                                texMgmt.DependenciesInspect().changes(ref changed);
-
-                                #region Undo/Redo & Recording
-
-                                texMeta.Undo_redo_PEGI();
-
-                                pegi.nl();
-
-                                var cpu = texMeta.TargetIsTexture2D();
-
-                                var mat = Material;
-                                if (mat.IsProjected())
-                                {
-                                    "Projected UV Shader detected. Painting may not work properly".writeWarning();
-
-                                    if ("Undo".Click().nl())
-                                        mat.DisableKeyword(PainterShaderVariables.UV_PROJECTED);
-                                }
-
-                                #endregion
-
-                                #region Brush
-
-                                if (!cfg.moreOptions)
-                                {
-
-                                    pegi.nl();
-
-                                    if (skinnedMeshRenderer)
-                                    {
-                                        if ("Update Collider from Skinned Mesh".Click())
-                                            UpdateMeshCollider();
-
-                                        if (!PainterDataAndConfig.hideDocumentation)
-                                            pegi.FullWindow.DocumentationClickOpen(
-                                                text: ()=> "To paint an object a collision detection is needed. Mesh Collider is not being animated. To paint it, update Mesh Collider with Update Collider button." +
-                                                 " For ingame painting it is preferable to use simple colliders like Speheres to avoid per frame updates for collider mesh.",
-                                                 toolTip: "Why Update Collider from skinned mesh?");
-                                          
-
-                                        pegi.nl();
-                                    }
-
-                                    if (texMeta != null)
-                                        PreviewShaderToggleInspect().changes(ref changed);
-
-                                    //if (!PainterCamera.GotBuffers && icon.Refresh.Click("Refresh Main Camera Buffers"))
-                                    //  RenderTextureBuffersManager.RefreshPaintingBuffers();
-
-
-                                    GlobalBrush.Nested_Inspect().changes(ref changed);
-
-                                    if (!cpu && texMeta.texture2D && texMeta.width != texMeta.height)
-                                        icon.Warning.write(
-                                            "Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality.");
-
-                                    var mode = GlobalBrush.GetBlitMode(cpu);
-                                    var col = GlobalBrush.Color;
-
-                                    if ((cpu || !mode.UsingSourceTexture || GlobalBrush.srcColorUsage !=
-                                         Brush.SourceTextureColorUsage.Unchanged)
-                                        && !IsTerrainHeightTexture && !pegi.PaintingGameViewUI)
-                                    {
-                                        if (pegi.edit(ref col).changes(ref changed))
-                                            GlobalBrush.Color = col;
-
-                                        MsgPainter.SampleColor.DocumentationClick();
-
-                                    }
-
-                                    pegi.nl();
-
-                                    GlobalBrush.ColorSliders().nl(ref changed);
-
-                                    if (cfg.showColorSchemes)
-                                    {
-
-                                        var scheme = cfg.colorSchemes.TryGet(cfg.selectedColorScheme);
-
-                                        scheme?.PickerPEGI();
-
-                                        if (cfg.showColorSchemes)
-                                            "Scheme".select_Index(60, ref cfg.selectedColorScheme, cfg.colorSchemes)
-                                                .nl(ref changed);
-
-                                    }
-                                }
-
-                                #endregion
-                            }
-                        }
-                        else
-                        {
-                            if (IsUsingPreview)
-                                PreviewShaderToggleInspect();
-
-                            if (!painterNotUiOrPlaying)
-                            {
-                                pegi.nl();
-                                "UI Element editing only works in Game View during Play.".writeWarning();
-                            }
-                        }
-
-                        texMeta = TexMeta;
-
-                        if (meshCollider && meshCollider.convex)
-                        {
-                            "Convex mesh collider detected. Most brushes will not work".writeWarning();
-                            if ("Disable convex".Click())
-                                meshCollider.convex = false;
-                        }
-
-                        #region Fancy Options
-
-                        pegi.nl();
-                        MsgPainter.TextureSettings.GetText().foldout(ref cfg.moreOptions);
-
-                        if (cfg.moreOptions)
-                            pegi.Indent();
-
-                        if (texMeta != null && !cfg.moreOptions)
-                        {
-                          
-                            pegi.edit(ref texMeta.clearColor, 50);
-                            if (icon.Clear.Click("Clear channels which are not ignored").changes(ref changed))
-                            {
-                                if (GlobalBrush.PaintingAllChannels)
-                                {
-                                    PainterCamera.Inst.DiscardAlphaBuffer();
-
-                                    texMeta.FillWithColor(texMeta.clearColor);
-
-                                    //texMeta.SetPixels(texMeta.clearColor);
-                                    //texMeta.SetApplyUpdateRenderTexture();
-                                }
-                                else
-                                {
-                                    var wasRt = texMeta.target == TexTarget.RenderTexture;
-
-                                    if (wasRt)
-                                        UpdateOrSetTexTarget(TexTarget.Texture2D);
-
-                                    texMeta.SetPixels(texMeta.clearColor, GlobalBrush.mask).SetAndApply();
-
-                                    if (wasRt)
-                                        UpdateOrSetTexTarget(TexTarget.RenderTexture);
-                                }
-                            }
-                        }
-
-                        pegi.nl();
-
-                        var inspectionIndex = texMeta?.inspectedItems ?? _inspectedFancyItems;
-
-                        if (cfg.moreOptions)
-                        {
-
-                            if (icon.Show.enter("Optional UI Elements", ref inspectionIndex, 7).nl())
-                            {
-
-                                "Show Previous Textures (if any) "
-                                    .toggleVisibilityIcon(
-                                        "Will show textures previously used for this material property.",
-                                        ref cfg.showRecentTextures, true).nl();
-
-                                "Exclusive Render Textures"
-                                    .toggleVisibilityIcon(
-                                        "Allow creation of simple Render Textures - the have limited editing capabilities.",
-                                        ref cfg.allowExclusiveRenderTextures, true).nl();
-
-                                "Color Sliders ".toggleVisibilityIcon("Should the color slider be shown ",
-                                    ref cfg.showColorSliders, true).nl(ref changed);
-
-                                if ("Color Schemes".toggle_enter(ref cfg.showColorSchemes,
-                                    ref _inspectedShowOptionsSubitem, 5, ref changed).nl_ifFolded())
-                                {
-                                    if (cfg.colorSchemes.Count == 0)
-                                        cfg.colorSchemes.Add(new ColorScheme { paletteName = "New Color Scheme" });
-
-                                    pegi.edit_List(ref cfg.colorSchemes, ref cfg.inspectedColorScheme);
-                                }
-
-                                if (texMeta != null)
-                                {
-
-                                    foreach (var module in texMeta.Modules)
-                                        module.ShowHideSectionInspect().nl(ref changed);
-
-                                    if (texMeta.isAVolumeTexture)
-                                        "Show Volume Data in Painter"
-                                            .toggleIcon(ref PainterCamera.Data.showVolumeDetailsInPainter)
-                                            .nl(ref changed);
-
-                                }
-
-                                "Brush Dynamics"
-                                    .toggleVisibilityIcon("Will modify scale and other values based on movement.",
-                                        ref GlobalBrush.showBrushDynamics, true).nl(ref changed);
-
-                                "URL field".toggleVisibilityIcon("Option to load images by URL", ref cfg.showUrlField,
-                                    true).changes(ref changed);
-                            }
-
-                            if ("New Texture ".conditional_enter(!IsTerrainHeightTexture, ref inspectionIndex, 4).nl())
-                            {
-
-                                if (cfg.newTextureIsColor)
-                                    "Clear Color".edit(ref cfg.newTextureClearColor).nl(ref changed);
-                                else
-                                    "Clear Value".edit(ref cfg.newTextureClearNonColorValue).nl(ref changed);
-
-                                "Color Texture".toggleIcon("Will the new texture be a Color Texture",
-                                    ref cfg.newTextureIsColor).nl(ref changed);
-
-                                "Size:".select_Index("Size of the new Texture", 40,
-                                    ref PainterCamera.Data.selectedWidthIndex,
-                                    PainterDataAndConfig.NewTextureSizeOptions).nl();
-
-                                "Click + next to texture field below to create texture using this parameters"
-                                    .writeHint();
-
-                                pegi.nl();
-
-                            }
-
-                            if ("Painter Modules (Debug)".enter(ref inspectionIndex, 5).nl())
-                                Modules.Nested_Inspect().nl();
-
-                            if (texMeta != null)
-                            {
-                                texMeta.inspectedItems = inspectionIndex;
-                                texMeta.Nested_Inspect();
-                            }
-                            else _inspectedFancyItems = inspectionIndex;
-
-                        }
-
-                        if (texMeta != null)
-                        {
-                            if (IsUiGraphicPainter)
-                            {
-
-                                var uiImage = uiGraphic as Image;
-                                if (uiImage && !uiImage.sprite)
-                                {
-                                    pegi.nl();
-                                    "Sprite is null. Convert image to sprite and assign it".writeWarning();
-                                    pegi.nl();
-                                }
-
-                                if (texMeta.updateTex2DafterStroke == false && texMeta.TargetIsRenderTexture())
-                                {
-                                    "Update Original Texture after every Stroke"
-                                        .toggleIcon(ref texMeta.updateTex2DafterStroke).nl();
-                                }
-
-                            }
-
-                            var showToggles = (texMeta.inspectedItems == -1 && cfg.moreOptions);
-
-                            texMeta.ComponentDependent_PEGI(showToggles, this).changes(ref changed);
-
-                            if (showToggles || (IsUsingPreview && cfg.previewAlphaChanel))
-                            {
-                                "Preview Edited RGBA".toggleIcon(ref cfg.previewAlphaChanel)
-                                    .changes(ref changed);
-
-                                MsgPainter.previewRGBA.DocumentationClick().nl();
-                            }
-
-                            if (showToggles)
-                            {
-                                var mats = Materials;
-                                if (autoSelectMaterialByNumberOfPointedSubMesh || !mats.IsNullOrEmpty())
-                                {
-                                    "Auto Select Material".toggleIcon(
-                                        "Material will be changed based on the subMesh you are painting on",
-                                        ref autoSelectMaterialByNumberOfPointedSubMesh).changes(ref changed);
-
-                                    MsgPainter.AutoSelectMaterial.DocumentationClick().nl();
-                                }
-
-
-
-                            }
-
-                            if (showToggles || invertRayCast)
-                            {
-
-                                if (!IsUiGraphicPainter)
-                                    "Invert RayCast".toggleIcon(
-                                        "Will rayCast into the camera (for cases when editing from inside a sphere, mask for 360 video for example.)",
-                                        ref invertRayCast).nl(ref changed);
-                                else
-                                    invertRayCast = false;
-                            }
-
-                            if (cfg.moreOptions)
-                                pegi.line(Color.red);
-
-                            if (texMeta.enableUndoRedo && texMeta.backupManually && "Backup for UNDO".Click())
-                                texMeta.OnStrokeMouseDown_CheckBackup();
-
-                            if (texMeta.dontRedoMipMaps && icon.Refresh.Click("Update Mipmaps now").nl())
-                                texMeta.SetAndApply();
-                        }
-
-                        pegi.UnIndent();
-
-                        #endregion
-
-                        #region Save Load Options
-
-                        if (!cfg.showConfig)
-                        {
-                            #region Material Clonning Options
-
-                            pegi.nl();
-
-                            var mats = Materials;
-                            if (!mats.IsNullOrEmpty())
-                            {
-                                var sm = selectedSubMesh;
-                                if (pegi.select_Index(ref sm, mats))
-                                {
-                                    SetOriginalShaderOnThis();
-                                    selectedSubMesh = sm;
-                                    OnChangedTexture_OnMaterial();
-                                    texMeta = TexMeta;
-                                    CheckPreviewShader();
-                                }
-                            }
-
-                            var mater = Material;
-
-                            if (Application.isEditor && mater && mater.shader)
-                                mater.shader.ClickHighlight("Highlight Shader");
-
-                            if (pegi.edit(ref mater).changes(ref changed))
-                                Material = mater;
-
-                            if (icon.NewMaterial.Click("Instantiate Material").nl(ref changed))
-                                InstantiateMaterial(true);
-
-                            pegi.nl();
-                            pegi.space();
-                            pegi.nl();
-
-                            #endregion
-
-                            #region Texture 
-
-                            if (cfg.showUrlField)
-                            {
-
-                                "URL".edit(40, ref _tmpUrl);
-                                if (_tmpUrl.Length > 5 && icon.Download.Click())
-                                {
-                                    loadingOrder.Add(PainterCamera.DownloadManager.StartDownload(_tmpUrl),
-                                        GetMaterialTextureProperty());
-                                    _tmpUrl = "";
-                                    pegi.GameView.ShowNotification("Loading for {0}".F(GetMaterialTextureProperty()));
-                                }
-
-                                pegi.nl();
-                                if (loadingOrder.Count > 0)
-                                    "Loading {0} texture{1}".F(loadingOrder.Count, loadingOrder.Count > 1 ? "s" : "")
-                                        .nl();
-
-                                pegi.nl();
-                            }
-                            
-                            var ind = SelectedTexture;
-                            if (pegi.select_Index(ref ind, GetAllTextureNames()).changes(ref changed))
-                            {
-                                SetOriginalShaderOnThis();
-                                SelectedTexture = ind;
-                                OnChangedTexture_OnMaterial();
-                                CheckPreviewShader();
-                                texMeta = TexMeta;
-                                if (texMeta == null)
-                                    _nameHolder =  "New {0}_{1}".F(gameObject.name, GetMaterialTextureProperty());
-                            }
-
-                            if (texMeta != null)
-                            {
-                                UpdateTilingFromMaterial();
-
-                                if (texMeta.errorWhileReading)
-                                {
-
-                                    icon.Warning.write(
-                                        "THere was error while reading texture. (ProBuilder's grid texture is not readable, some others may be to)");
-
-                                    if (texMeta.texture2D && icon.Refresh.Click("Retry reading the texture"))
-                                        texMeta.From(texMeta.texture2D, true);
-
-                                }
-                                else if (pegi.toggle(ref texMeta.lockEditing, icon.Lock, icon.Unlock,
-                                    "Lock/Unlock editing of {0} Texture.".F(texMeta.GetNameForInspector()), 25))
-                                {
-                                    CheckPreviewShader();
-                                    if (LockTextureEditing)
-                                        UpdateOrSetTexTarget(TexTarget.Texture2D);
-                                }
-                            }
-
-                            tex = GetTextureOnMaterial();
-
-                            if (pegi.edit(ref tex).changes(ref changed))
-                                ChangeTexture(tex);
-                            
-                            if (!IsTerrainControlTexture)
-                            {
-
-                                var isTerrainHeight = IsTerrainHeightTexture;
-
-                                var texScale = !isTerrainHeight
-                                    ? cfg.SelectedWidthForNewTexture()
-                                    : (terrain.terrainData.heightmapResolution - 1);
-
-                                var texNames = GetAllTextureNames();
-
-                                if (texNames.Count > SelectedTexture)
-                                {
-                                    var param = GetMaterialTextureProperty();
-
-                                    const string newTexConfirmTag = "pp_nTex";
-
-                                    if ((((texMeta == null) &&
-                                          icon.NewTexture.Click("Create new texture2D for " + param)) ||
-                                         (texMeta != null && icon.NewTexture.ClickConfirm(newTexConfirmTag, texMeta,
-                                              "Replace " + param + " with new Texture2D " + texScale + "*" + texScale)))
-                                        .nl(ref changed))
-                                    {
-                                        if (isTerrainHeight)
-                                            CreateTerrainHeightTexture(_nameHolder);
-                                        else
-                                            CreateTexture2D(texScale, _nameHolder, cfg.newTextureIsColor);
-                                    }
-
-                                    if (!pegi.ConfirmationDialogue.IsRequestedFor(newTexConfirmTag))
-                                    {
-
-                                        if (cfg.showRecentTextures)
-                                        {
-
-                                            var texName = GetMaterialTextureProperty();
-
-                                            List<TextureMeta> recentTexs;
-                                            if (texName != null &&
-                                                PainterCamera.Data.recentTextures.TryGetValue(texName,
-                                                    out recentTexs) &&
-                                                (recentTexs.Count > 0)
-                                                && (texMeta == null || (recentTexs.Count > 1) ||
-                                                    (texMeta != recentTexs[0].texture2D.GetImgDataIfExists()))
-                                                && "Recent Textures:".select(100, ref texMeta, recentTexs)
-                                                    .nl(ref changed))
-                                                ChangeTexture(texMeta.ExclusiveTexture());
-
-                                        }
-
-                                        if (texMeta == null && cfg.allowExclusiveRenderTextures &&
-                                            "Create Render Texture".Click(ref changed))
-                                            CreateRenderTexture(texScale, _nameHolder);
-
-                                        if (texMeta != null && cfg.allowExclusiveRenderTextures)
-                                        {
-                                            if (!texMeta.renderTexture && "Add Render Tex".Click(ref changed))
-                                                texMeta.AddRenderTexture();
-
-                                            if (texMeta.renderTexture)
-                                            {
-
-                                                if ("Replace RendTex".Click(
-                                                    "Replace " + param + " with Rend Tex size: " + texScale,
-                                                    ref changed))
-                                                    CreateRenderTexture(texScale, _nameHolder);
-
-                                                if ("Remove RendTex".Click().nl(ref changed))
-                                                {
-
-                                                    if (texMeta.texture2D)
-                                                    {
-                                                        UpdateOrSetTexTarget(TexTarget.Texture2D);
-                                                        texMeta.renderTexture = null;
-                                                    }
-                                                    else
-                                                        RemoveTextureFromMaterial();
-
-                                                }
-                                            }
-                                        }
-
-                                    }
-
-                                }
-                                else
-                                    icon.Warning.nl("No Texture property selected");
-
-                                pegi.nl();
-
-                                if (texMeta == null)
-                                    "Name (New Texture):".edit("Name for new texture", 120, ref _nameHolder).nl();
-
-                            }
-
-                            pegi.nl();
-
-                            if (!tex) 
-                                "No texture. Drag and drop or click on the plus icon to create New".writeHint();
-
-                            pegi.nl();
-
-                            pegi.space();
-                            pegi.nl();
-
-                            #endregion
-
-                            #region Texture Saving/Loading
-
-                            if (!LockTextureEditing)
-                            {
-                                pegi.nl();
-                                if (!IsTerrainControlTexture)
-                                {
-                                    if (Application.isEditor)
-                                        "Unless saved, the texture will loose all changes when scene is offloaded or Unity Editor closed."
-                                            .writeOneTimeHint("_pp_hint_saveTex").nl();
-
-                                    texMeta = TexMeta;
-
-#if UNITY_EDITOR
-                                    string orig = null;
-                                    if (texMeta.texture2D)
-                                    {
-                                        orig = texMeta.texture2D.GetPathWithout_Assets_Word();
-
-                                        if (orig != null && icon.Load.ClickUnFocus("Will reload " + orig))
-                                        {
-                                            ForceReimportMyTexture(orig);
-                                            texMeta.saveName = texMeta.texture2D.name;
-                                            if (terrain)
-                                                UpdateModules();
-                                        }
-                                    }
-
-                                    pegi.edit(ref texMeta.saveName);
-
-                                    if (texMeta.texture2D)
-                                    {
-
-                                        if (!texMeta.saveName.SameAs(texMeta.texture2D.name) &&
-                                            icon.Refresh.Click(
-                                                "Use current texture name ({0})".F(texMeta.texture2D.name)))
-                                            texMeta.saveName = texMeta.texture2D.name;
-
-                                        var destPath = GenerateTextureSavePath();
-                                        var existsAtDestination = TextureExistsAtDestinationPath();
-                                        var originalExists = !orig.IsNullOrEmpty();
-                                        var sameTarget = originalExists && orig.Equals(destPath);
-                                        var sameTextureName =
-                                            originalExists && texMeta.texture2D.name.Equals(texMeta.saveName);
-
-                                        if (!existsAtDestination || sameTextureName)
-                                        {
-                                            if ((sameTextureName ? icon.Save : icon.SaveAsNew).Click(sameTextureName
-                                                ? "Will Update " + orig
-                                                : "Will save as " + destPath))
-                                            {
-
-                                                if (sameTextureName)
-                                                    RewriteOriginalTexture();
-                                                else
-                                                    SaveTextureAsAsset(false);
-
-                                                OnChangedTexture_OnMaterial();
-                                            }
-                                        }
-                                        else if (existsAtDestination && icon.Save.Click("Will replace {0}".F(destPath)))
-                                            SaveTextureAsAsset(false);
-
-                                        if (!sameTarget && !sameTextureName && originalExists && !existsAtDestination &&
-                                            icon.Replace.Click("Will replace {0} with {1} ".F(orig, destPath)))
-                                            RewriteOriginalTexture_Rename(texMeta.saveName);
-
-                                        pegi.nl();
-
-                                    }
-#endif
-                                }
-
-                                pegi.nl();
-                            }
-
-                            pegi.nl();
-                            pegi.space();
-                            pegi.nl();
-
-                            #endregion
-                        }
-
-                        #endregion
-
-                    }
-
-                    pegi.nl();
-
-                    #endregion
-
-                    foreach (var p in CameraModuleBase.ComponentInspectionPlugins)
-                        p.ComponentInspector().nl(ref changed);
-
-                }
-
-                pegi.nl();
-
-                if (changed)
-                {
-                    texMgmt.OnBeforeBlitConfigurationChange();
-                    Update_Brush_Parameters_For_Preview_Shader();
-                }
+                "Painter Camera is disabled".PegiLabel().WriteWarning();
+       
+                if ("Enable".PegiLabel().Click())
+                    Painter.Camera.enabled = true;
+
+                return false;
             }
-
-            inspected = null;
-
-            pegi.nl();
-
-        }
-
-        public bool PreviewShaderToggleInspect()
-        {
-
-            var changed = false;
-            if (IsTerrainHeightTexture)
+            else if (!Painter.Camera.gameObject.activeInHierarchy)
             {
-                Texture tht = terrainHeightTexture;
-
-                if (IsUsingPreview && icon.PreviewShader
-                        .Click("Applies changes made on Texture to Actual physical Unity Terrain.", 45)
-                        .changes(ref changed))
+                if (Painter.Camera.gameObject.activeSelf == false)
                 {
-                    TerrainHeightTexture_To_UnityTerrain();
-                    UnityTerrain_To_HeightTexture();
+                    "Painter Camera Game Object or parent is disabled".PegiLabel().WriteWarning();
+                    if ("Enable".PegiLabel().Click())
+                        Painter.Camera.gameObject.SetActive(true);
+                } else
+                    "Painter Camera is child of disabled game object".PegiLabel().WriteWarning();
 
-                    MatDta.usePreviewShader = false;
-                    SetOriginalShaderOnThis();
-
-                }
-
-                PainterCamera.Data.Brush.MaskSet(ColorMask.A, true);
-
-                if (tht.GetTextureMeta() != null && NotUsingPreview && icon.OriginalShader
-                        .Click("Applies changes made in Unity terrain Editor", 45).changes(ref changed))
-                {
-                    UnityTerrain_To_HeightTexture();
-                    SetPreviewShader();
-                }
+                return false;
             }
             else
             {
+                double sinceUpdate = QcUnity.TimeSinceStartup() - Singleton_PainterCamera.lastManagedUpdate;
 
-                if (NotUsingPreview && icon.OriginalShader.Click("Switch To Preview Shader", 45).changes(ref changed))
-                    SetPreviewShader();
-
-                if (IsUsingPreview && icon.PreviewShader.Click("Return to Original Shader", 45).changes(ref changed))
+                if (sinceUpdate > 100)
                 {
-                    MatDta.usePreviewShader = false;
-                    SetOriginalShaderOnThis();
+                    "It's been {0} seconds since the last managed update".F(sinceUpdate).PegiLabel().WriteWarning();
+
+                    if ("Resubscribe camera to updates".PegiLabel().Click())
+                        Painter.Camera.SubscribeToEditorUpdates();
+
+                    return false;
                 }
             }
 
+            selectedInPlaytime = this;
+
+            if (Application.isPlaying && (
+#if UNITY_EDITOR
+                    (IsCurrentTool && !Application.isPlaying) ||
+#endif
+                    Icon.On.Click("Click to Disable Tool")))
+            {
+                IsCurrentTool = false;
+                Painter.MeshManager.StopEditingMesh();
+                SetOriginalShaderOnThis();
+                UpdateOrSetTexTarget(TexTarget.Texture2D);
+            }
+
+            pegi.EditorView.Lock_UnlockClick(gameObject);
+
+            InitIfNotInitialized();
+
+            if (MeshPainting.target && (MeshPainting.target != this))
+                Painter.MeshManager.StopEditingMesh();
+
+            return true;
+        }
+
+        internal void Inspect_ConvexMeshCheckWarning()
+        {
+            if (meshCollider)
+            {
+                if (meshCollider.convex)
+                {
+                    pegi.Nl();
+                    "Convex mesh collider detected. Texture-space brushes and some mesh tools will not work".PegiLabel().WriteWarning();
+                    if ("Disable convex".PegiLabel().Click())
+                        meshCollider.convex = false;
+                    pegi.Nl();
+                } else if (!gameObject.isStatic && meshCollider.sharedMesh && meshFilter && meshFilter.sharedMesh != meshCollider.sharedMesh) 
+                {
+                    pegi.Nl();
+
+                    "Mesh Collider & Mesh Filter are using different meshes. If it is Convex painting may not work properly".PegiLabel().WriteWarning();
+                    if ("Replace Mesh on Mesh Collider".PegiLabel().Click().Nl())
+                        meshCollider.sharedMesh = meshFilter.sharedMesh;
+                }
+            }
+        }
+
+        internal bool Inspect_PreviewShaderToggle()
+        {
+
+            var changed = pegi.ChangeTrackStart();
+          
+            if (NotUsingPreview && Icon.OriginalShader.Click("Switch To Preview Shader", 45))
+                SetPreviewShader();
+
+            if (IsUsingPreview && Icon.PreviewShader.Click("Return to Original Shader", 45))
+            {
+                MatDta.usePreviewShader = false;
+                SetOriginalShaderOnThis();
+            }
+            
             return changed;
 
+        }
+
+        private void Inspect_MeshAndTextureCommons() 
+        {
+            if (meshCollider)
+            {
+                if (!meshCollider.sharedMesh)
+                {
+                    pegi.Nl();
+                    "Mesh Collider has no mesh".PegiLabel().WriteWarning();
+                    if (meshFilter && meshFilter.sharedMesh && "Assign".PegiLabel("Will assign {0}".F(meshFilter.sharedMesh)).Click())
+                        meshCollider.sharedMesh = meshFilter.sharedMesh;
+
+                    pegi.Nl();
+                }
+                else if (meshFilter && meshFilter.sharedMesh && meshFilter.sharedMesh != meshCollider.sharedMesh)
+                {
+                    pegi.FullWindow.WarningDocumentationClickOpen(
+                        "Collider and filter have different meshes. Painting may not be able to obtain a correct UV coordinates.",
+                        "Mesh collider mesh is different");
+                }
+            }
+        }
+
+        public void Inspect()
+        {
+            using (QcSharp.SetTemporaryValueDisposable(this, p => inspected = p, () => null))
+            {
+                var changed = pegi.ChangeTrackStart();
+
+                if (Inspect_IsSetupCorrect())
+                {
+                    var cfg = Painter.Data;
+
+                    if (cfg.showConfig)
+                        Inspect_Config();
+                    else
+                    {
+                        Inspect_TopButtons();
+
+                        Inspect_MeshAndTextureCommons();
+
+                        if (meshEditing)
+                            Inspect_MeshPart();
+                        else
+                            Inspect_TexturePart();
+
+                        pegi.Nl();
+
+                        foreach (var p in CameraModuleBase.ComponentInspectionPlugins)
+                        {
+                            p.ComponentInspector();
+                            pegi.Nl();
+                        }
+                    }
+
+                    if (changed)
+                    {
+                        Painter.Camera.OnBeforeBlitConfigurationChange();
+                        Update_Brush_Parameters_For_Preview_Shader();
+                    }
+
+                    pegi.Nl();
+                }
+            }
+            pegi.Nl();
         }
 
 #if UNITY_EDITOR
         private void OnDrawGizmosSelected()
         {
-            if (!TexMgmt || this != TexMgmt.FocusedPainter) return;
+            if (!Painter.Camera || this != Painter.FocusedPainter) return;
 
             if (meshEditing && !Application.isPlaying)
-                MeshEditorManager.Inst.DRAW_Lines(true);
+                Painter.MeshManager.DRAW_Lines(true);
 
             var br = GlobalBrush;
 
-            if (NotUsingPreview && !LockTextureEditing && _lastMouseOverObject == this && IsCurrentTool &&
-                Is3DBrush() && br.showingSize && !Cfg.showConfig)
+            if (NotUsingPreview && !TextureEditingBlocked && _lastMouseOverObject == this && IsCurrentTool &&
+                Is3DBrush() && br.showingSize && !Painter.Data.showConfig)
                 Gizmos.DrawWireSphere(stroke.posTo, br.Size(true) * 0.5f
                 );
 
             foreach (var p in CameraModuleBase.GizmoPlugins)
                 p.PlugIn_PainterGizmos(this);
         }
+#endif
 
-        [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Add Painters To Selected")]
+#if UNITY_EDITOR
+        [MenuItem("Tools/" + SO_PainterDataAndConfig.ToolName + "/Add Painters To Selected")]
+
         private static void AddPainterToSelected()
         {
             foreach (var go in Selection.gameObjects)
                 IterateAssignToChildren(go.transform);
         }
+#endif
 
         private static void IterateAssignToChildren(Transform tf)
         {
-
-            if ((!tf.GetComponent<PlaytimePainter>())
+            if ((!tf.GetComponent<PainterComponent>())
                 && (tf.GetComponent<Renderer>())
-                && (!tf.GetComponent<RenderBrush>()) && (CanEditWithTag(tf.tag)))
-                tf.gameObject.AddComponent<PlaytimePainter>();
+                && (!tf.GetComponent<PlaytimePainter_RenderBrush>()) && (CanEditWithTag(tf.tag)))
+                tf.gameObject.AddComponent<PainterComponent>();
 
             for (var i = 0; i < tf.childCount; i++)
                 IterateAssignToChildren(tf.GetChild(i));
 
         }
 
-        [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Remove Painters From the Scene")]
+#if UNITY_EDITOR
+        [MenuItem("Tools/" + SO_PainterDataAndConfig.ToolName + "/Remove Painters From the Scene")]
+#endif
         private static void TakePainterFromAll()
         {
             var allObjects = FindObjectsOfType<Renderer>();
             foreach (var mr in allObjects)
             {
-                var ip = mr.GetComponent<PlaytimePainter>();
+                var ip = mr.GetComponent<PainterComponent>();
                 if (ip)
                     DestroyImmediate(ip);
             }
 
-            var rtp = FindObjectsOfType<PainterCamera>();
+            var rtp = FindObjectsOfType<Singleton_PainterCamera>();
 
             if (!rtp.IsNullOrEmpty())
                 foreach (var rt in rtp)
                     rt.gameObject.DestroyWhatever();
 
-            var dc = FindObjectsOfType<DepthProjectorCamera>();
+            var dc = FindObjectsOfType<Singleton_DepthProjectorCamera>();
 
             if (!dc.IsNullOrEmpty())
                 foreach (var d in dc)
                     d.gameObject.DestroyWhatever();
-
-            PainterClass.applicationIsQuitting = false;
         }
 
-        [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Join Discord")]
-        public static void Open_Discord() => Application.OpenURL(pegi.FullWindow.DISCORD_SERVER);
+#if UNITY_EDITOR
+        [MenuItem("Tools/" + SO_PainterDataAndConfig.ToolName + "/Join Discord")]
+#endif
+        internal static void Open_Discord() => Application.OpenURL(pegi.FullWindow.DISCORD_SERVER);
 
-        [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Send an Email")]
-        public static void Open_Email() => QcUnity.SendEmail(pegi.FullWindow.SUPPORT_EMAIL,
+#if UNITY_EDITOR
+        [MenuItem("Tools/" + SO_PainterDataAndConfig.ToolName + "/Send an Email")]
+#endif
+        internal static void Open_Email() => QcUnity.SendEmail(pegi.FullWindow.SUPPORT_EMAIL,
             "About your Playtime Painter",
             "Hello Yuri, we need to talk. I purchased your asset and expect an excellent quality, but ...");
 
-        [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Open Manual")]
-        public static void OpenWWW_Documentation() => Application.OpenURL(OnlineManual);
-
+#if UNITY_EDITOR
+        [MenuItem("Tools/" + SO_PainterDataAndConfig.ToolName + "/Open Manual")]
 #endif
+        internal static void OpenWWW_Documentation() => Application.OpenURL(OnlineManual);
+
     }
 }

@@ -1,19 +1,17 @@
-﻿using PlaytimePainter.MeshEditing;
-using QuizCanners.CfgDecode;
+﻿using PainterTool.MeshEditing;
+using QuizCanners.Migration;
 using QuizCanners.Utils;
 using System;
 using System.IO;
 #if UNITY_EDITOR
-using UnityEditor;
+using  UnityEditor;
 #endif
 using UnityEngine;
 
-namespace PlaytimePainter
+namespace PainterTool
 {
 
-    #pragma warning disable IDE0018 // Inline variable declaration
-
-    public partial class PlaytimePainter
+    public partial class PainterComponent
     {
 
         [SerializeField] private CfgData _cfgData;
@@ -25,19 +23,19 @@ namespace PlaytimePainter
         public CfgEncoder EncodeMeshStuff()
         {
             if (IsEditingThisMesh)
-                MeshEditorManager.Inst.StopEditingMesh();
+                Painter.MeshManager.StopEditingMesh();
 
             return new CfgEncoder()
                 .Add("m", SavedEditableMesh)
                 .Add_String("prn", selectedMeshProfile);
         }
 
-        public void Decode(string key, CfgData data)
+        public void DecodeTag(string key, CfgData data)
         {
             switch (key)
             {
                 case "mdls":
-                    Modules.DecodeFull(data);
+                    Modules.Decode(data);
                     break;
                 case "invCast":
                     invertRayCast = data.ToBool();
@@ -55,25 +53,28 @@ namespace PlaytimePainter
 
 #if UNITY_EDITOR
 
-        private void ForceReimportMyTexture(string path)
+        private void ForceReimportMyTexture()
         {
+            var path = AssetDatabase.GetAssetPath(TexMeta.Texture2D);
 
-            var importer = AssetImporter.GetAtPath("Assets{0}".F(path)) as TextureImporter;
+            var imp = AssetImporter.GetAtPath(path);
+
+            var importer = imp as TextureImporter;
             if (importer == null)
             {
-                Debug.Log("No importer for {0}".F(path));
+                Debug.LogError("No importer for {0}".F(path));
                 return;
             }
 
             var id = TexMeta;
 
-            TexMgmt.TryDiscardBufferChangesTo(id);
+            Painter.Camera.TryDiscardBufferChangesTo(id);
 
             importer.SaveAndReimport();
             if (id.TargetIsRenderTexture())
-                id.Texture2DToRenderTexture(id.texture2D);
-            else if (id.texture2D)
-                id.PixelsFromTexture2D(id.texture2D);
+                id.Texture2DToRenderTexture(id.Texture2D);
+            else if (id.Texture2D)
+                id.PixelsFromTexture2D(id.Texture2D);
 
             SetTextureOnMaterial(id);
         }
@@ -82,9 +83,9 @@ namespace PlaytimePainter
             AssetImporter.GetAtPath(Path.Combine("Assets", GenerateTextureSavePath())) as TextureImporter != null;
 
         private string GenerateTextureSavePath() =>
-            Path.Combine(Cfg.texturesFolderName, TexMeta.saveName + ".png");
+            Path.Combine(Painter.Data.texturesFolderName, TexMeta.saveName + ".png");
 
-        private LoopLock _loopLock = new LoopLock();
+        private readonly LoopLock _loopLock = new();
 
         private bool OnBeforeSaveTexture(TextureMeta id)
         {
@@ -92,32 +93,25 @@ namespace PlaytimePainter
             if (id.TargetIsRenderTexture())
                 id.RenderTexture_To_Texture2D();
 
-            var tex = id.texture2D;
+            var tex = id.Texture2D;
 
-            if (id.preserveTransparency && !tex.TextureHasAlpha())
+            if (id[TextureCfgFlags.PreserveTransparency] && !tex.TextureHasAlpha())
             {
-
-
                 if (_loopLock.Unlocked)
                     using (_loopLock.Lock())
                     {
-                        //ChangeTexture(id.NewTexture2D());
-
-                        //id.texture2D.name = id.texture2D.name + "_A";
-
                         Debug.Log("Old Texture had no Alpha channel, creating new");
 
-                        string tname = id.texture2D.name + "_A";
+                        string tname = id.Texture2D.name + "_A";
 
-                        id.texture2D = id.texture2D.CreatePngSameDirectory(tname);
+                        id.Texture2D = QcUnity.CreatePngSameDirectory(id.Texture2D, tname);
 
                         id.saveName = tname;
 
-                        id.texture2D.CopyImportSettingFrom(tex).Reimport_IfNotReadale();
+                        id.Texture2D.CopyImportSettingFrom(tex).Reimport_IfNotReadale_Editor();
 
                         SetTextureOnMaterial(id);
                     }
-
 
                 return false;
             }
@@ -130,7 +124,7 @@ namespace PlaytimePainter
         private void OnPostSaveTexture(TextureMeta id)
         {
             SetTextureOnMaterial(id);
-            UpdateOrSetTexTarget(id.target);
+            UpdateOrSetTexTarget(id.Target);
             UpdateModules();
 
             id.UnsetAlphaSavePixel();
@@ -138,26 +132,24 @@ namespace PlaytimePainter
 
         private void RewriteOriginalTexture_Rename(string texName)
         {
-
             var id = TexMeta;
 
             if (!OnBeforeSaveTexture(id)) return;
 
-            id.texture2D = id.texture2D.RewriteOriginalTexture_NewName(texName);
+            QcUnity.TrySaveTexture(ref id.Texture2D, texName);
 
             OnPostSaveTexture(id);
-
         }
 
         private void RewriteOriginalTexture()
         {
             var id = TexMeta;
 
-            if (!OnBeforeSaveTexture(id)) return;
+            if (!OnBeforeSaveTexture(id))
+                return;
 
-            id.texture2D = id.texture2D.RewriteOriginalTexture();
+            QcUnity.TrySaveTexture(ref id.Texture2D);
             OnPostSaveTexture(id);
-
         }
 
         private void SaveTextureAsAsset(bool asNew)
@@ -167,44 +159,59 @@ namespace PlaytimePainter
 
             if (OnBeforeSaveTexture(id))
             {
-                id.texture2D = id.texture2D.SaveTextureAsAsset(Cfg.texturesFolderName, ref id.saveName, asNew);
-
-                id.texture2D.Reimport_IfNotReadale();
+                id.Texture2D = QcUnity.SaveTextureAsAsset(id.Texture2D, Painter.Data.texturesFolderName, ref id.saveName, asNew);
+                id.Texture2D.Reimport_IfNotReadale_Editor();
             }
 
             OnPostSaveTexture(id);
         }
 
-        public void SaveMesh()
+        internal void SaveMesh()
         {
-            var m = this.GetMesh();
-            var path = AssetDatabase.GetAssetPath(m);
+            var mesh = this.GetMesh();
+            var exists = QcUnity.IsSavedAsAsset(mesh);
 
-            var folderPath = Path.Combine(Application.dataPath, Cfg.meshesFolderName);
-            Directory.CreateDirectory(folderPath);
-
-            try
+            if (exists)
             {
-                if (path.Length > 0)
-                    SharedMesh = Instantiate(SharedMesh);
+               //var path = AssetDatabase.GetAssetPath(mesh);
+                //SharedMesh = Instantiate(SharedMesh);
 
-                var sm = SharedMesh;
+                // AssetDatabase.SaveAssets( sm, Path.Combine("Assets", MeshEditorManager.GenerateMeshSavePath()));
 
-                Directory.CreateDirectory(Path.Combine("Assets", Cfg.meshesFolderName));
-
-                AssetDatabase.CreateAsset(sm, Path.Combine("Assets", MeshEditorManager.GenerateMeshSavePath()));
-
+                mesh.SetToDirty();
                 AssetDatabase.SaveAssets();
-
                 UpdateMeshCollider();
 
-                //if (meshCollider && !meshCollider.sharedMesh && sm)
-                //  meshCollider.sharedMesh = sm;
-
             }
-            catch (Exception ex)
+            else
             {
-                Debug.LogError(ex);
+
+
+                var folderPath = Path.Combine(Application.dataPath, Painter.Data.meshesFolderName);
+                Directory.CreateDirectory(folderPath);
+
+                try
+                {
+
+
+                    var sm = SharedMesh;
+
+                    Directory.CreateDirectory(Path.Combine("Assets", Painter.Data.meshesFolderName));
+
+                    AssetDatabase.CreateAsset(sm, Path.Combine("Assets", MeshEditorManager.GenerateMeshSavePath()));
+
+                    AssetDatabase.SaveAssets();
+
+                    UpdateMeshCollider();
+
+                    //if (meshCollider && !meshCollider.sharedMesh && sm)
+                    //  meshCollider.sharedMesh = sm;
+
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
             }
         }
 
