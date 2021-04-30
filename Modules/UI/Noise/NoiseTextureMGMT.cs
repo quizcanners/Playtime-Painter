@@ -13,7 +13,6 @@ namespace PlaytimePainter
         public static NoiseTextureMGMT instance;
 
         private readonly ShaderKeyword _noiseTexture = new ShaderKeyword("USE_NOISE_TEXTURE");
-        private readonly FloatValue _shaderTime = new FloatValue("_qcPp_Taravana_Time");
         private readonly TextureValue _noiseTextureGlobal = new TextureValue("_Global_Noise_Lookup");
 
         public bool enableNoise = true;
@@ -26,16 +25,10 @@ namespace PlaytimePainter
             _noiseTextureGlobal.SetGlobal(prerenderedNoiseTexture);
         }
 
-        public void ResetTime() => _shaderTime.GlobalValue = 0;
+      
         private void OnEnable() => UpdateShaderGlobal();
 
-        private void LateUpdate() 
-        {
-            if (_shaderTime.GlobalValue > 64)
-                _shaderTime.GlobalValue = 0;
-            else
-                _shaderTime.SetGlobal(_shaderTime.latestValue + Time.deltaTime);
-        }
+      
 
         #region Inspector
         public void Inspect()
@@ -58,8 +51,6 @@ namespace PlaytimePainter
             }
 
             pegi.nl();
-
-            "Custom Time Parameter".write_ForCopy(_shaderTime.ToString());
 
             pegi.FullWindow.DocumentationClickOpen(
                 "Use NoiseTextureMGMT.instance.ResetTime to reset time when all animated shaders are hiddent from the screen." +

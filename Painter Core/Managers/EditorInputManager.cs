@@ -9,6 +9,14 @@ namespace QuizCanners.Inspect
 
     public static class EditorInputManager
     {
+
+        private static bool InputEnabled =>
+#if ENABLE_LEGACY_INPUT_MANAGER
+            true;
+#else
+            false;
+#endif
+
         public static Ray mouseRaySceneView = new Ray();
         public static Ray centerRaySceneView = new Ray();
 
@@ -18,7 +26,7 @@ namespace QuizCanners.Inspect
                 cam = Camera.main;
 
             return Application.isPlaying ?
-                 cam ? cam.ScreenPointToRay(Input.mousePosition) : mouseRaySceneView 
+                 cam ? cam.ScreenPointToRay(Input.mousePosition) : mouseRaySceneView
                  : mouseRaySceneView;
         }
 
@@ -42,45 +50,76 @@ namespace QuizCanners.Inspect
             return false;
         }
 
+        public static bool Control
+        {
+            get
+            {
+                if (!Application.isPlaying)
+                    return Event.current.control;
 
-        public static bool Control => Application.isPlaying ?
-                     (Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl))
-                    : Event.current.control;
-        
-        public static bool Alt => Application.isPlaying ?
-                    (Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt))
-                    : (Event.current != null && Event.current.alt);
-        
-        public static bool Shift => Application.isPlaying ? 
-                    (Input.GetKey(KeyCode.LeftShift)
-                    || Input.GetKey(KeyCode.RightShift)) : ( Event.current != null && Event.current.shift);
+                if (InputEnabled == false)
+                    return false;
+
+                return Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl);
+            }
+        }
+        public static bool Alt
+        {
+            get
+            {
+                if (!Application.isPlaying)
+                    return (Event.current != null && Event.current.alt);
+
+                if (InputEnabled == false)
+                    return false;
+
+                return Input.GetKey(KeyCode.LeftAlt) || Input.GetKey(KeyCode.RightAlt);
+            }
+        }
+        public static bool Shift
+        {
+            get
+            {
+                if (!Application.isPlaying) 
+                    return (Event.current != null && Event.current.shift);
+                
+                if (InputEnabled == false)
+                    return false;
+                
+                return  Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+            }
+        }
         
         public static int GetNumberKeyDown()
         {
-            for (int i = 0; i < 10; i++)
-                if (Input.GetKey(i.ToString()))
-                    return i;
+
+            if (InputEnabled)
+            {
+                for (int i = 0; i < 10; i++)
+                    if (Input.GetKey(i.ToString()))
+                        return i;
+            }
 
             return -1;
         }
 
         public static bool GetMouseButtonUp(int no)
         {
-            if (Application.isPlaying)
+            if (InputEnabled && Application.isPlaying)
                 return Input.GetMouseButtonUp(no);
             return (mouseButtonState[no] == MB_state_Editor.Up);
         }
 
         public static bool GetMouseButtonDown(int no)
         {
-            if (Application.isPlaying)
+            if (InputEnabled && Application.isPlaying)
                 return Input.GetMouseButtonDown(no);
             return (mouseButtonState[no] == MB_state_Editor.Down);
         }
 
         public static bool GetMouseButton(int no)
         {
-            if (Application.isPlaying)
+            if (InputEnabled && Application.isPlaying)
                 return Input.GetMouseButton(no);
             return ((mouseButtonState[no] == MB_state_Editor.Dragging) || (mouseButtonState[no] == MB_state_Editor.Down));
         }

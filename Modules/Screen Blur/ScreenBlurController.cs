@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using QuizCanners.Inspect;
 using QuizCanners.Lerp;
 using QuizCanners.Utils;
+#if UNITY_EDITOR
 using UnityEditor;
+#endif
 using UnityEngine;
 
 namespace PlaytimePainter
@@ -19,7 +21,6 @@ namespace PlaytimePainter
         protected int postProcessIteration = 100;
         protected Material materialPrototype;
         public bool allowScreenGrabToRt;
-        public bool mousePositionToShader;
         public bool useSecondBufferForRenderTextureScreenGrab;
 
         [NonSerialized] protected ProcessCommand command;
@@ -30,16 +31,8 @@ namespace PlaytimePainter
 
         protected readonly ShaderProperty.TextureValue screenGradTexture = new ShaderProperty.TextureValue("_qcPp_Global_Screen_Read");
         protected readonly ShaderProperty.TextureValue processedScreenTexture = new ShaderProperty.TextureValue("_qcPp_Global_Screen_Effect");
-        protected readonly ShaderProperty.VectorValue mousePosition = new ShaderProperty.VectorValue("_qcPp_MousePosition");
-        protected readonly ShaderProperty.ShaderKeyword UseMousePosition = new ShaderProperty.ShaderKeyword("_qcPp_FEED_MOUSE_POSITION");
-
-        private float mouseDownStrengthOneDirectional;
-        private float mouseDownStrength = 0.1f;
-        private bool downClickFullyShown = true;
-        private Vector2 mouseDownPosition;
-
+       
         #region Textures and buffers
-
 
         [SerializeField] protected CustomRenderTexture effetBuffer;
 
@@ -108,12 +101,11 @@ namespace PlaytimePainter
             }
         }
 
-        public void RequestUpdate(Action OnFirstRendered = null)
+        public void RequestUpdate(Action OnFirstRendered = null, ProcessCommand command = ProcessCommand.Nothing)
         {
             InvokeOnCaptured();
-
             onFirstRender = OnFirstRendered;
-
+            this.command = command;
             step = BlurStep.Requested;
         }
 
@@ -298,42 +290,6 @@ namespace PlaytimePainter
                     break;
             }
 
-            #region Press Position
-
-            if (mousePositionToShader)
-            {
-                bool down = Input.GetMouseButton(0);
-
-                if (down || mouseDownStrength > 0)
-                {
-                    bool downThisFrame = Input.GetMouseButtonDown(0);
-
-                    if (downThisFrame)
-                    {
-                        mouseDownStrength = 0;
-                        mouseDownStrengthOneDirectional = 0;
-                        downClickFullyShown = false;
-                    }
-
-                    mouseDownStrengthOneDirectional = LerpUtils.LerpBySpeed(mouseDownStrengthOneDirectional,
-                        down ? 0 : 1,
-                        down ? 4f : (3f - mouseDownStrengthOneDirectional * 3f));
-
-                    mouseDownStrength = LerpUtils.LerpBySpeed(mouseDownStrength,
-                        downClickFullyShown ? 0 :
-                        (down ? 0.9f : 1f),
-                        (down) ? 5 : (downClickFullyShown ? 0.75f : 2.5f));
-
-                    if (mouseDownStrength > 0.99f)
-                        downClickFullyShown = true;
-
-                    if (down)
-                        mouseDownPosition = Input.mousePosition.XY() / new Vector2(Screen.width, Screen.height);
-
-                    mousePosition.GlobalValue = mouseDownPosition.ToVector4(mouseDownStrength, ((float)Screen.width) / Screen.height);
-                }
-            }
-            #endregion
 
         }
 
@@ -383,15 +339,6 @@ namespace PlaytimePainter
 
                 pegi.nl();
 
-                if ("Mouse Position to shader".toggleIcon(ref mousePositionToShader, hideTextWhenTrue: true))
-                {
-                    UseMousePosition.Enabled = mousePositionToShader;
-                }
-
-                if (mousePositionToShader)
-                    mousePosition.ToString().write_ForCopy();
-
-                pegi.nl();
 
                 "Screen".edit(ref _screenReadTexture2D).nl();
 
@@ -482,11 +429,6 @@ namespace PlaytimePainter
         {
             MyCamera = GetComponent<Camera>();
             step = BlurStep.Off;
-        }
-
-        private void OnEnable()
-        {
-            UseMousePosition.Enabled = mousePositionToShader;
         }
 
         public enum ProcessCommand

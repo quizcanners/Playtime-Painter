@@ -186,18 +186,24 @@ namespace PlaytimePainter
 
         #endregion
 
-        #region DataLists
+        #region Texture Data Lists
 
-       public List<TextureMapCombineProfile> texturePackagingSolutions = new List<TextureMapCombineProfile>();
-
+        public List<TextureMapCombineProfile> texturePackagingSolutions = new List<TextureMapCombineProfile>();
         public List<AtlasTextureCreator> atlases = new List<AtlasTextureCreator>();
         public List<MaterialAtlases> atlasedMaterials = new List<MaterialAtlases>();
-
         public List<string> playtimeSavedTextures = new List<string>();
-        
         public List<TextureMeta> imgMetas = new List<TextureMeta>();
-
         public List<MaterialMeta> matMetas = new List<MaterialMeta>();
+        public List<BrushTypes.VolumetricDecal> decals = new List<BrushTypes.VolumetricDecal>();
+
+        public List<Texture> sourceTextures = new List<Texture>();
+        public List<Texture> masks = new List<Texture>();
+
+        public int selectedColorScheme;
+        public int inspectedColorScheme = -1;
+        public bool showUrlField;
+        public bool showRecentTextures;
+        public bool showColorSchemes;
 
         public MaterialMeta GetMaterialDataFor(Material mat)
         {
@@ -234,19 +240,9 @@ namespace PlaytimePainter
             return meta;
         }
 
-        public bool showRecentTextures;
-
-        public bool showColorSchemes;
+   
         [NonSerialized]
         public readonly Dictionary<ShaderProperty.TextureValue, List<TextureMeta>> recentTextures = new Dictionary<ShaderProperty.TextureValue, List<TextureMeta>>();
-
-        public List<Texture> sourceTextures = new List<Texture>();
-
-        public List<Texture> masks = new List<Texture>();
-
-        public List<BrushTypes.VolumetricDecal> decals = new List<BrushTypes.VolumetricDecal>();
-
-        public List<MeshPackagingProfile> meshPackagingSolutions = new List<MeshPackagingProfile>();
 
         public MeshPackagingProfile GetMeshPackagingProfile(string packageName)
         {
@@ -261,16 +257,13 @@ namespace PlaytimePainter
 
         public List<ColorScheme> colorSchemes = new List<ColorScheme>();
 
-        public int selectedColorScheme;
 
-        public int inspectedColorScheme = -1;
 
-        public bool showUrlField;
-
-#endregion
+        #endregion
 
         #region Mesh Editing
 
+        public List<MeshPackagingProfile> meshPackagingSolutions = new List<MeshPackagingProfile>();
         public int meshTool;
         public MeshToolBase MeshTool { get { meshTool = Mathf.Min(meshTool, MeshToolBase.AllTools.Count - 1); return MeshToolBase.AllTools[meshTool]; } }
         public float bevelDetectionSensitivity = 6;

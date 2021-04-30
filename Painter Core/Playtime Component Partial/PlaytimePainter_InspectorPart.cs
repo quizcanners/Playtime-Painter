@@ -182,58 +182,63 @@ namespace PlaytimePainter
                 if (MeshEditorManager.target && (MeshEditorManager.target != this))
                     MeshManager.StopEditingMesh();
 
-
-                if (meshEditing)
+                if (!cfg.showConfig)
                 {
-                    if (icon.Painter.Click("Edit Texture", ref changed))
+                    if (meshEditing)
                     {
-                        CheckSetOriginalShader();
-                        meshEditing = false;
-                        CheckPreviewShader();
-                        MeshMgmt.StopEditingMesh();
-                        cfg.showConfig = false;
-                        pegi.GameView.ShowNotification("Editing Texture");
+                        if (icon.Painter.Click("Edit Texture", ref changed))
+                        {
+                            CheckSetOriginalShader();
+                            meshEditing = false;
+                            CheckPreviewShader();
+                            MeshMgmt.StopEditingMesh();
+                            cfg.showConfig = false;
+                            pegi.GameView.ShowNotification("Editing Texture");
+                        }
+                        
+                        icon.Mesh.write("Editing Mesh");
+
                     }
+                    else
+                    {
+                        icon.Painter.write("Editing Texture");
+
+                        if (icon.Mesh.Click("Edit Mesh", ref changed))
+                        {
+                            meshEditing = true;
+
+                            CheckSetOriginalShader();
+                            UpdateOrSetTexTarget(TexTarget.Texture2D);
+                            cfg.showConfig = false;
+                            pegi.GameView.ShowNotification("Editing Mesh");
+
+                            if (SavedEditableMesh.IsEmpty == false)
+                                MeshMgmt.EditMesh(this, false);
+                        }
+                    }
+
+                    if (icon.Config.Click())
+                        cfg.showConfig = true;
+
+                    if (!PainterDataAndConfig.hideDocumentation)
+                        pegi.FullWindow.DocumentationClickOpen(LazyLocalization.InspectPainterDocumentation,
+                            MsgPainter.AboutPlaytimePainter.GetText());
                 }
                 else
                 {
-                    if (icon.Mesh.Click("Edit Mesh", ref changed))
-                    {
-                        meshEditing = true;
-
-                        CheckSetOriginalShader();
-                        UpdateOrSetTexTarget(TexTarget.Texture2D);
+                    if (icon.Exit.Click() || "Settings & Debug".ClickLabel())
                         cfg.showConfig = false;
-                        pegi.GameView.ShowNotification("Editing Mesh");
-
-                        if (SavedEditableMesh.IsEmpty == false)
-                            MeshMgmt.EditMesh(this, false);
+                    else 
+                    {
+                        pegi.nl();
+                        PainterCamera.Inst.Nested_Inspect().nl();
                     }
                 }
-
-
-                pegi.toggle(ref cfg.showConfig, meshEditing ? icon.Mesh : icon.Painter, icon.Config,
-                    "Tool Configuration");
-
-                if (!PainterDataAndConfig.hideDocumentation)
-                    pegi.FullWindow.DocumentationClickOpen(LazyLocalization.InspectPainterDocumentation,
-                        MsgPainter.AboutPlaytimePainter.GetText());
 
                 #endregion
 
-                if (cfg.showConfig)
+                if (!cfg.showConfig)
                 {
-
-                    pegi.nl();
-
-                    PainterCamera.Inst.Nested_Inspect().nl();
-
-                    //cfg.Nested_Inspect();
-
-                }
-                else
-                {
-
                     if (meshCollider)
                     {
                         if (!meshCollider.sharedMesh)
