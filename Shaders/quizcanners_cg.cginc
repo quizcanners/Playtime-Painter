@@ -47,6 +47,7 @@ uniform float4 rt2_ProjectorPosition;
 uniform float4 rt2_ProjectorClipPrecompute;
 uniform float4 rt2_ProjectorConfiguration;
 
+const float4 DEFAULT_COMBINED_MAP = float4(0, 0, 1, 1);
 
 float4 ProjectorUvDepthAlpha(float4 shadowCoords, float3 worldPos, float3 lightPos, float4 cfg, float4 precompute) {
 
@@ -339,7 +340,11 @@ inline float3 HUEtoColor(float hue) {
 
 inline float3 DetectSmoothEdge(float4 edge, float3 junkNorm, float3 sharpNorm, float3 edge0, float3 edge1, float3 edge2, out float weight) {
 
-	edge = max(0, edge - 0.965) * 28.5715;
+	float coef = min(1, fwidth(junkNorm)*5);
+
+	edge = smoothstep(0.965-coef, 1, edge);
+
+	//edge = max(0, edge - 0.965) * 28.5715;
 
 	float border = max(max(edge.r, edge.g), edge.b);
 
@@ -440,9 +445,6 @@ inline float4 SampleVolume(sampler2D volume, float3 worldPos, float4 VOLUME_POSI
 
 	float3 bsPos = (worldPos.xyz - VOLUME_POSITION_N_SIZE.xyz)*VOLUME_POSITION_N_SIZE.w;
 
-
-	
-
 	float2 posToUvUnclamped = (bsPos.xz + VOLUME_H_SLICES.y)* VOLUME_H_SLICES.z;
 
 	bsPos.xz = saturate(posToUvUnclamped);
@@ -451,8 +453,6 @@ inline float4 SampleVolume(sampler2D volume, float3 worldPos, float4 VOLUME_POSI
 	float outOfBounds = diff.x + diff.y;
 
 	bsPos.xz *= VOLUME_H_SLICES.w;
-
-	
 
 	float h = clamp(bsPos.y, 0, VOLUME_H_SLICES.x*VOLUME_H_SLICES.x - 1);
 		//min(max(0, bsPos.y), VOLUME_H_SLICES.x*VOLUME_H_SLICES.x - 1);
@@ -465,8 +465,6 @@ inline float4 SampleVolume(sampler2D volume, float3 worldPos, float4 VOLUME_POSI
 	float2 sectorUnclamped = float2(sectorX, sectorY)*VOLUME_H_SLICES.w;
 
 	float2 sector = saturate(sectorUnclamped);
-
-	
 
 	float4 bakeUV = float4(sector + bsPos.xz, 0, 0);
 	float4 bake = tex2Dlod(volume, bakeUV);

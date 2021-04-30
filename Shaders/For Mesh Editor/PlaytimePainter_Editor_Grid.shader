@@ -54,11 +54,22 @@
 					_Color.a*=(1-(i.texcoord.x*i.texcoord.x+i.texcoord.y*i.texcoord.y)*4);
 		
 					i.texcoord+=float2(_dx,_dy);
+
+					
+
 					float2 perfTex=(floor(i.texcoord*_Size)+0.5)/_Size;
-					float2 uv2=abs(i.texcoord-perfTex)-0.48/_Size;
+
+					float width = fwidth(i.texcoord);
+
+				
+
+					float2 uv2=abs(i.texcoord-perfTex)-(0.48 - width)/_Size;
+
+					
+
 					float smooth = saturate((saturate(uv2.x) + saturate(uv2.y))*_Size*32);
 			
-					_Color.a=max(0,_Color.a*abs(_Color.a)*smooth);
+					_Color.a=saturate(_Color.a*abs(_Color.a)*smooth) * 0.5;
 
 					return _Color;
 				}

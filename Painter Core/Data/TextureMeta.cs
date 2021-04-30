@@ -830,9 +830,9 @@ namespace PlaytimePainter
             return changed;
         }
 
-        private QcAsync.TimedEnumeration _processEnumerator;
+        private TimedCoroutine _processEnumerator;
 
-        public QcAsync.TimedEnumeration ProcessEnumerator
+        public TimedCoroutine ProcessEnumerator
         {
             get
             {

@@ -4,6 +4,8 @@
 #include "Lighting.cginc"
 #include "AutoLight.cginc"
 
+
+
 inline float3 GetParallax(float4 tangent, float3 normal, float4 vertex) {
 
 	float3x3 objectToTangent = float3x3(
@@ -17,16 +19,58 @@ inline float3 GetParallax(float4 tangent, float3 normal, float4 vertex) {
 	return tangentViewDir;
 }
 
-inline void Simple_Light(float4 terrainN,float3 worldNormal, float3 viewDir, inout float4 col, float shadow, float reflectivness) {
+
+inline void Combined_Light(inout float4 col, float ambient, float smoothness, float3 worldNormal, float3 viewDir, float shadow) {
+
+	float dotprod = max(0, dot(worldNormal, viewDir.xyz));
+
+	float fernel = (1.5 - dotprod)*0.66;
+	float3 reflected = normalize(viewDir.xyz - 2 * (dotprod)*worldNormal);// *fernel
+
+	float deSmoothness = (1 - smoothness);
+
+	float ambientBlock = (1 - ambient)*dotprod; // MODIFIED
+
+	shadow = saturate(shadow * 2 - ambientBlock);
+
+	float diff = saturate((dot(worldNormal, _WorldSpaceLightPos0.xyz))); // _WorldSpaceLightPos0 will not look right in the editor
+	diff = saturate(diff - ambientBlock * 4 * (1 - diff));
+	float direct = diff*shadow;
+
+	float3 ambientRefl = ShadeSH9(float4(normalize(-reflected), 1));
+	float3 ambientCol = ShadeSH9(float4(worldNormal, 1));
+
+	_LightColor0 *= direct;
+
+	col.rgb *= (_LightColor0  + ambientCol * fernel) * (0.5 + deSmoothness*0.5);
+	
+	float3 halfDirection = normalize(viewDir.xyz + _WorldSpaceLightPos0.xyz);
+
+	float NdotH = max(0.01, (dot(worldNormal, halfDirection)));
+	
+	float power = smoothness * 8; // pow(smoothness, 8) * 1024;
+
+	float normTerm =pow(NdotH, power)*power*0.1;
+
+	float3 reflResult = 
+		(normTerm *_LightColor0 + ambientRefl.rgb * ambient * 0.5)
+		* smoothness;
+	
+	col.rgb += reflResult;
+
+}
+
+
+
+inline void Simple_Light(float height,float3 worldNormal, float3 viewDir, inout float4 col, float shadow, float reflectivness) {
 
 	float dotprod = max(0, dot(worldNormal, viewDir.xyz));
 	float fernel = 1.5 - dotprod;
 	float3 reflected = normalize(viewDir.xyz - 2 * (dotprod)*worldNormal);
 
-	float smoothness = col.a;
-	float deSmoothness = (1 - smoothness);
 
-	float ambientBlock = (1 - terrainN.a)*dotprod; // MODIFIED
+
+	float ambientBlock = (1 - height)*dotprod; // MODIFIED
 
 	shadow = saturate((shadow * 2 - ambientBlock));
 
@@ -48,18 +92,19 @@ inline void Simple_Light(float4 terrainN,float3 worldNormal, float3 viewDir, ino
 
 	float NdotH = max(0.01, (dot(worldNormal, halfDirection)));// *pow(smoothness + 0.2, 8);
 
-	float power = pow(smoothness, 8) * 4096;
+	//float power = pow(smoothness, 8) * 1024;
 
-	float normTerm = pow(NdotH, power)*power*0.01;
+	//float normTerm = pow(NdotH, power)*power*0.01;
+
+		float smoothness = reflectivness;
+	float deSmoothness = (1 - smoothness);
 
 	float3 reflResult = (
-		normTerm 
-
-		*_LightColor0*reflectivness +
+		NdotH * _LightColor0 * reflectivness +
 
 		ambientRefl.rgb
 
-		)* col.a*fernel;
+		)* fernel;
 
 	col.rgb += reflResult;
 
