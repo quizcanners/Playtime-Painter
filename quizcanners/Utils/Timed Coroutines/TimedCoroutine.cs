@@ -117,6 +117,8 @@ namespace QuizCanners.Utils
 
         private void ProcessCurrent(IEnumerator en) 
         {
+            bool wasEnumerator = _currentIsUncheck;
+
             _currentIsUncheck = false;
 
             _yields++;
@@ -130,6 +132,15 @@ namespace QuizCanners.Utils
 
             if (enm != null)
             {
+                if (wasEnumerator) 
+                {
+                    Debug.LogError("Upon change enumerator returned enumerator {0} => {1}".F(en.ToString(), enm.ToString()));
+                    if (enm == en) 
+                    {
+                        return;
+                    }
+                }
+
                 _enumeratorStack.Add(enm);
                 _current = null;
                 _currentIsUncheck = true;
@@ -193,11 +204,6 @@ namespace QuizCanners.Utils
             try
             {
                
-                if (_currentIsUncheck) 
-                {
-                    ProcessCurrent(_enumeratorStack[_enumeratorStack.Count - 1]);
-                }
-
                 IEnumerator en = _enumeratorStack[_enumeratorStack.Count - 1];
 
                 if (en.MoveNext())

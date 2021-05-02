@@ -224,7 +224,7 @@ namespace PlaytimePainter.MeshEditing {
             }
 
             if (MeshEditorManager.MeshTool.ShowGrid) {
-                "Snap to grid:".toggleIcon(ref sd.snapToGrid).nl(ref changed);
+                "Snap to grid (Use XZ to toggle grid orientation)".toggleIcon(ref sd.snapToGrid).nl(ref changed);
 
                 if (sd.snapToGrid)
                     "size:".edit(40, ref sd.gridSize).changes(ref changed);
@@ -236,25 +236,6 @@ namespace PlaytimePainter.MeshEditing {
 
             "Insert vertices".toggleIcon("Will split triangles and edges by inserting vertices", ref _addToTrianglesAndLines).nl(ref changed);
 
-            "Add Smooth:".toggleIcon( ref Cfg.newVerticesSmooth).nl(ref changed);
-
-            if ("Sharp All".Click(ref changed))
-            {
-                foreach (var vr in EditedMesh.meshPoints)
-                    vr.smoothNormal = false;
-
-                EditedMesh.Dirty = true;
-                Cfg.newVerticesSmooth = false;
-            }
-
-            if ("Smooth All".Click().nl())
-            {
-                foreach (var vr in EditedMesh.meshPoints)
-                    vr.smoothNormal = true;
-                EditedMesh.Dirty = true;
-                Cfg.newVerticesSmooth = true;
-            }
-
             "Add Unique:".toggleIcon( ref Cfg.newVerticesUnique).nl();
 
             if ("All shared if same UV".Click("Will only merge vertices if they have same UV").nl()) {
@@ -263,19 +244,39 @@ namespace PlaytimePainter.MeshEditing {
 
             }
 
-            if ("All shared".Click()) {
+            if ("All shared".ClickConfirm(confirmationTag: "AllShrd", toolTip: "Vertices will be merged if they share the position. This may result in loss of UV data.")) {
                 em.AllVerticesShared();
                 em.Dirty = true;
                 Cfg.newVerticesUnique = false;
             }
 
-            if ("All unique".Click().nl())
+            if ("All unique".ClickConfirm(confirmationTag: "AllUnq", toolTip: "If vertex belongs to more then one triangle, a new vertex will be created for each of the extra triangle.").nl())
             {
                 foreach (var t in EditedMesh.triangles)
                     em.GiveTriangleUniqueVertices(t);
 
                 Cfg.newVerticesUnique = true;
             }
+
+            "Add Smooth:".toggleIcon(ref Cfg.newVerticesSmooth).nl(ref changed);
+
+            if ("Sharp All".ClickConfirm(confirmationTag: "AllSrp", toolTip: "Normal vectors will be different for each triangle when possible (when vertex/normal data is not shared with another triangle).").changes(ref changed))
+            {
+                foreach (var vr in EditedMesh.meshPoints)
+                    vr.smoothNormal = false;
+
+                EditedMesh.Dirty = true;
+                Cfg.newVerticesSmooth = false;
+            }
+
+            if ("Smooth All".ClickConfirm(confirmationTag: "AllSmth", toolTip: "All edge normals will be smooth even when a triangle can afford to have a different one." ).nl())
+            {
+                foreach (var vr in EditedMesh.meshPoints)
+                    vr.smoothNormal = true;
+                EditedMesh.Dirty = true;
+                Cfg.newVerticesSmooth = true;
+            }
+
 
             if ("Auto Bevel".Click())
                 SharpFacesTool.AutoAssignDominantNormalsForBeveling();

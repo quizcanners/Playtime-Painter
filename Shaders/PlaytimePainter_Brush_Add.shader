@@ -32,7 +32,7 @@
 					float4 texcoord : TEXCOORD0;  
 				};
 
-				v2f vert(appdata_full_qc v) {
+				v2f vert(appdata_brush_qc v) {
 					v2f o;
 					o.pos = UnityObjectToClipPos(v.vertex);   
 					o.texcoord = brushTexcoord (v.texcoord.xy, v.vertex);
@@ -54,15 +54,17 @@
 					v2f o;
 					float4 worldPos = mul(unity_ObjectToWorld, v.vertex);
 	
+					float4 uv = v.texcoord;
+
 					#if BRUSH_3D_TEXCOORD2
-					v.texcoord.xy = v.texcoord1.xy;
+						uv.xy = v.texcoord1.xy;
 					#endif
 
 					// ATLASED CALCULATION
-					float atY = floor(v.texcoord.z / _qcPp_brushAtlasSectionAndRows.z);
-					float atX = v.texcoord.z - atY * _qcPp_brushAtlasSectionAndRows.z;
-					v.texcoord.xy = (float2(atX, atY) + v.texcoord.xy) / _qcPp_brushAtlasSectionAndRows.z
-						* _qcPp_brushAtlasSectionAndRows.w + v.texcoord.xy * (1 - _qcPp_brushAtlasSectionAndRows.w);
+					float atY = floor(uv.z / _qcPp_brushAtlasSectionAndRows.z);
+					float atX = uv.z - atY * _qcPp_brushAtlasSectionAndRows.z;
+					uv.xy = (float2(atX, atY) + uv.xy) / _qcPp_brushAtlasSectionAndRows.z
+						* _qcPp_brushAtlasSectionAndRows.w + uv.xy * (1 - _qcPp_brushAtlasSectionAndRows.w);
 
 					o.worldPos = worldPos.xyz;
 
@@ -70,7 +72,7 @@
 
 					worldPos.xyz = _qcPp_RTcamPosition.xyz;
 					worldPos.z+=100;
-					worldPos.xy+= (v.texcoord.xy*_qcPp_brushEditedUVoffset.xy+_qcPp_brushEditedUVoffset.zw-0.5)*256;
+					worldPos.xy+= (uv.xy*_qcPp_brushEditedUVoffset.xy+_qcPp_brushEditedUVoffset.zw-0.5)*256;
 
 					v.vertex = mul(unity_WorldToObject, float4(worldPos.xyz,v.vertex.w));
 

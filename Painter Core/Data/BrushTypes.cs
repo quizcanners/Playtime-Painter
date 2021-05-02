@@ -146,42 +146,39 @@ namespace PlaytimePainter
                 if (Brush.InspectedIsCpuBrush || !PainterCamera.Inst)
                     return;
 
-                var changed = false;
-
-                var br = InspectedBrush;
+                var brush = InspectedBrush;
 
                 var adv = InspectAdvanced;
 
                // var p = InspectedPainter;
 
-                if (Brush.showAdvanced || InspectedBrush.useMask)
+                if (Brush.showAdvanced || brush.useMask)
                 {
 
-                    if (adv || br.useMask)
-                        "Mask".toggleIcon("Multiply Brush Speed By Mask Texture's alpha", ref br.useMask, true)
-                            .changes(ref changed);
+                    if (adv || brush.useMask)
+                        "Mask".toggleIcon("Multiply Brush Speed By Mask Texture's alpha", ref brush.useMask, true);
 
-                    if (br.useMask)
+                    if (brush.useMask)
                     {
 
-                        pegi.selectOrAdd(ref br.selectedSourceMask, ref Cfg.masks).nl(ref changed);
+                        pegi.selectOrAdd(ref brush.selectedSourceMask, ref Cfg.masks).nl();
 
                         if (adv)
-                            "Mask greyscale".toggleIcon("Otherwise will use alpha", ref br.maskFromGreyscale)
-                                .nl(ref changed);
+                            "Mask greyscale".toggleIcon("Otherwise will use alpha", ref brush.maskFromGreyscale)
+                                .nl();
 
-                        if (br.flipMaskAlpha || adv)
-                            "Flip Mask ".toggleIcon("Alpha = 1-Alpha", ref br.flipMaskAlpha).nl(ref changed);
+                        if (brush.flipMaskAlpha || adv)
+                            "Flip Mask ".toggleIcon("Alpha = 1-Alpha", ref brush.flipMaskAlpha).nl();
 
-                        if (!br.randomMaskOffset && adv)
-                            "Mask Offset ".edit01(ref br.maskOffset).nl(ref changed);
+                        if (!brush.randomMaskOffset && adv)
+                            "Mask Offset ".edit01(ref brush.maskOffset).nl();
 
-                        if (br.randomMaskOffset || adv)
-                            "Random Mask Offset".toggleIcon(ref br.randomMaskOffset).nl(ref changed);
+                        if (brush.randomMaskOffset || adv)
+                            "Random Mask Offset".toggleIcon(ref brush.randomMaskOffset).nl();
 
                         if (adv)
-                            if ("Mask Tiling: ".edit(70, ref br.maskTiling, 1, 8).nl(ref changed))
-                                br.maskTiling = Mathf.Clamp(br.maskTiling, 0.1f, 64);
+                            if ("Mask Tiling: ".edit(70, ref brush.maskTiling, 1, 8).nl())
+                                brush.maskTiling = Mathf.Clamp(brush.maskTiling, 0.1f, 64);
                     }
                 }
 

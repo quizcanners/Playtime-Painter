@@ -339,7 +339,8 @@ namespace PlaytimePainter
                                                 mg.EditMesh(this, true);
 
                                             if ("Edit this".ClickConfirm(confirmTag,
-                                                    "Are you sure you want to edit the original one instead of editing a copy(safer)?")
+                                                    "Are you sure you want to edit the original one instead of editing a copy(safer)? " +
+                                                    "Playtime Painter's Undo functionality can be limited.")
                                                 .nl())
                                                 mg.EditMesh(this, false);
                                         }

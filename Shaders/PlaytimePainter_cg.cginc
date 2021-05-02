@@ -55,16 +55,6 @@ struct appdata_brush_qc
 	float4 texcoord1  : TEXCOORD1; // The second UV coordinate.
 };
 
-struct appdata_full_qc
-{
-	float4 vertex    : POSITION;  // The vertex position in model space.
-	float3 normal    : NORMAL;    // The vertex normal in model space.
-	float4 texcoord  : TEXCOORD0; // The first UV coordinate.
-	float4 texcoord1 : TEXCOORD1; // The second UV coordinate.
-	float4 tangent   : TANGENT;   // The tangent vector in Model Space (used for normal mapping).
-	float4 color     : COLOR;     // Per-vertex color
-};
-
 #define TRANSFORM_TEX_QC(tex,name) (tex.xy * name##_ST.xy + name##_ST.zw)
 
 inline float3 SourceTextureByBrush(float3 src) {

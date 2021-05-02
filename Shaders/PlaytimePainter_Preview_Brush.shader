@@ -63,7 +63,7 @@
 					return (max(0, 0.5 * log2(max(dot(px, px), dot(py, py)))));
 				}
 
-				v2f vert(appdata_full_qc v) {
+				v2f vert(appdata_brush_qc v) {
 					v2f o;
 					o.worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1.0f));
 

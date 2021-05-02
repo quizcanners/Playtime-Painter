@@ -694,12 +694,11 @@ namespace PlaytimePainter {
 
                     var painter = PlaytimePainter.inspected;
 
-                    bool mentionLink = !depthCamera._projectFromMainCamera;
-                    bool mentionPrview = painter && painter.NotUsingPreview;
-                   
-                    if (mentionLink || mentionPrview)
-                        "{0} {1}".F(mentionLink ? "You can Lock Projector to current camera view to allign the projection." + Environment.NewLine : "", mentionPrview ? "Preview helps see the Projection" : "" ).writeHint();
-
+                    if (painter && painter.NotUsingPreview)
+                        "Preview helps see the Projection".writeWarning();
+                    else if (!depthCamera._projectFromMainCamera)
+                         "You can Lock Projector to current camera view to allign the projection.".writeHint();
+                    
                     if (icon.Delete.Click("Delete Projector Camera"))
                         depthCamera.gameObject.DestroyWhatever();
                     else

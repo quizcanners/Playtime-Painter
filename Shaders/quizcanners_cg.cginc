@@ -1,3 +1,4 @@
+#include "UnityCG.cginc"
 
 uniform sampler2D _Global_Noise_Lookup;
 
@@ -48,6 +49,30 @@ uniform float4 rt2_ProjectorClipPrecompute;
 uniform float4 rt2_ProjectorConfiguration;
 
 const float4 DEFAULT_COMBINED_MAP = float4(0, 0, 1, 1);
+
+struct appdata_base_qc
+{
+	float4 vertex    : POSITION;  // The vertex position in model space.
+	float3 normal    : NORMAL;    // The vertex normal in model space.
+	float4 texcoord  : TEXCOORD0; // The first UV coordinate.
+	float4 texcoord1 : TEXCOORD1; // The second UV coordinate.
+	float4 tangent   : TANGENT;   // The tangent vector in Model Space (used for normal mapping).
+	float4 color     : COLOR;     // Per-vertex color
+	UNITY_VERTEX_INPUT_INSTANCE_ID
+};
+
+struct appdata_full_qc
+{
+	float4 vertex    : POSITION;  // The vertex position in model space.
+	float3 normal    : NORMAL;    // The vertex normal in model space.
+	float4 texcoord  : TEXCOORD0; // The first UV coordinate.
+	float4 texcoord1 : TEXCOORD1; // The second UV coordinate.
+	float4 texcoord2 : TEXCOORD2; // The second UV coordinate.
+	float4 texcoord3 : TEXCOORD3; // The second UV coordinate.
+	float4 tangent   : TANGENT;   // The tangent vector in Model Space (used for normal mapping).
+	float4 color     : COLOR;     // Per-vertex color
+	UNITY_VERTEX_INPUT_INSTANCE_ID
+};
 
 float4 ProjectorUvDepthAlpha(float4 shadowCoords, float3 worldPos, float3 lightPos, float4 cfg, float4 precompute) {
 
@@ -317,30 +342,11 @@ inline float2 DetectEdge(float4 edge){
 	return float2(border, min(1,edge.a)*border);
 }
 
-inline float3 HUEtoColor(float hue) {
-
-	float val = frac(hue+0.082) * 6;
-
-	float3 col;
-
-	col.r = saturate(2 - abs(val - 2));
-
-	val = fmod((val + 2), 6);
-
-	col.g = saturate(2 - abs(val - 2));
-
-	val = fmod((val + 2), 6);
-
-	col.b = saturate(2 - abs(val - 2));
-
-	col.rgb = pow(col.rgb, 2.2);
-
-	return col;
-}
-
 inline float3 DetectSmoothEdge(float4 edge, float3 junkNorm, float3 sharpNorm, float3 edge0, float3 edge1, float3 edge2, out float weight) {
 
-	float coef = min(1, fwidth(junkNorm)*5);
+	float width = fwidth(junkNorm);
+
+	float coef = min(1, width*5);
 
 	edge = smoothstep(0.965-coef, 1, edge);
 
@@ -350,7 +356,7 @@ inline float3 DetectSmoothEdge(float4 edge, float3 junkNorm, float3 sharpNorm, f
 
 	float3 edgeN = edge0*edge.r + edge1*edge.g + edge2*edge.b;
 
-	float junk = min(1, (edge.g*edge.b + edge.r*edge.b + edge.r*edge.g)*2)* border;
+	float junk =  min(1, (edge.g*edge.b + edge.r*edge.b + edge.r*edge.g) * (1-min(1,width)) ) * border;
 
 	weight = (edge.w)*border;
 
@@ -381,6 +387,27 @@ inline float3 reflectedVector (float3 normal, float3 viewDir){
 	float dotprod = dot(normal.xyz, viewDir.xyz);
 	return  normalize(viewDir.xyz - 2*(dotprod)*normal.xyz); 
 
+}
+
+inline float3 HUEtoColor(float hue) {
+
+	float val = frac(hue+0.082) * 6;
+
+	float3 col;
+
+	col.r = saturate(2 - abs(val - 2));
+
+	val = fmod((val + 2), 6);
+
+	col.g = saturate(2 - abs(val - 2));
+
+	val = fmod((val + 2), 6);
+
+	col.b = saturate(2 - abs(val - 2));
+
+	col.rgb = pow(col.rgb, 2.2);
+
+	return col;
 }
 
 /*

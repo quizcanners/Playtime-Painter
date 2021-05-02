@@ -232,6 +232,9 @@ namespace PlaytimePainter {
      
         public bool Mode_Type_PEGI()
         {
+            var changes = pegi.ChangeTrackStart();
+
+
             var p = PlaytimePainter.inspected;
             var id = p ? p.TexMeta : null;
 
@@ -247,7 +250,7 @@ namespace PlaytimePainter {
             BrushTypes.Base.AllTypes.ClampIndexToCount(ref _inGpuBrushType);
             
             _inspectedBrush = this;
-            var changed = false;
+
             var cpu = p ? id.TargetIsTexture2D() : targetIsTex2D;
 
             var blitMode = GetBlitMode(cpu);
@@ -257,7 +260,7 @@ namespace PlaytimePainter {
 
             MsgPainter.BlitMode.Write("How final color will be calculated");
 
-            if (pegi.select(ref blitMode, BlitModes.Base.AllModes).changes(ref changed)) 
+            if (pegi.select(ref blitMode, BlitModes.Base.AllModes)) 
                 SetBlitMode(cpu, blitMode);
 
             if (DocsEnabled && blitMode != null)
@@ -277,7 +280,7 @@ namespace PlaytimePainter {
             if (!cpu)  {
                
                 MsgPainter.BrushType.Write();
-                pegi.select_Index(ref _inGpuBrushType, BrushTypes.Base.AllTypes).changes(ref changed);
+                pegi.select_Index(ref _inGpuBrushType, BrushTypes.Base.AllTypes);
 
                 if (DocsEnabled && brushType != null)
                     pegi.FullWindow.DocumentationClickOpen(brushType.ToolTip, toolTip: "About {0} brush type".F(brushType.NameForDisplayPEGI()));
@@ -298,12 +301,12 @@ namespace PlaytimePainter {
               if (p)
               {
                   foreach (var pl in p.Modules)
-                      pl.BrushConfigPEGI().nl(ref changed);
+                      pl.BrushConfigPEGI().nl();
                         
 
                   if (id != null)
                       foreach (var mod in id.Modules)
-                          mod.BrushConfigPEGI(p).nl(ref changed);
+                          mod.BrushConfigPEGI(p).nl();
               }
 
             brushType.Nested_Inspect().nl();
@@ -312,18 +315,18 @@ namespace PlaytimePainter {
 
                 if (blitMode.UsingSourceTexture) {
 
-                    "Texture Color".editEnum(120, ref srcColorUsage).nl(ref changed);
+                    "Texture Color".editEnum(120, ref srcColorUsage).nl();
 
                     if (InspectAdvanced) {
-                        "Clamp".toggleIcon(ref clampSourceTexture).nl(ref changed);
-                        "Multiply by Alpha".toggleIcon(ref ignoreSrcTextureTransparency).changes(ref changed);
+                        "Clamp".toggleIcon(ref clampSourceTexture).nl();
+                        "Multiply by Alpha".toggleIcon(ref ignoreSrcTextureTransparency);
                         pegi.FullWindow.DocumentationClickOpen("Ignore transparency of the source texture. To only paint parts of the texture which are visible").nl();
                     }
                 }
                 
                 if (!cpu && brushType.SupportsAlphaBufferPainting && blitMode.SupportsAlphaBufferPainting && (useAlphaBuffer || InspectAdvanced)) {
 
-                    "Alpha Buffer".toggleIcon(ref useAlphaBuffer, true).changes(ref changed);
+                    "Alpha Buffer".toggleIcon(ref useAlphaBuffer, true);
 
                     if (useAlphaBuffer)
                     {
@@ -331,7 +334,7 @@ namespace PlaytimePainter {
 
                         txt.edit(
                             "This is the kind of alpha you see in standard painting software. But it is only available when using Alpha Buffer",
-                            txt.ApproximateLength(), ref alphaLimitForAlphaBuffer, 0.01f, 1f).changes(ref changed);
+                            txt.ApproximateLength(), ref alphaLimitForAlphaBuffer, 0.01f, 1f);
 
                         if (p && p.NotUsingPreview)
                             MsgPainter.PreviewRecommended.DocumentationWarning();
@@ -347,13 +350,13 @@ namespace PlaytimePainter {
 
             if (blitMode.ShowInDropdown())
             {
-                blitMode.InspectWithModule().nl(ref changed);
+                blitMode.InspectWithModule().nl();
                 showingSize = true;
             }
             
             _inspectedBrush = null;
 
-            return changed;
+            return changes;
         }
 
         public bool Targets_PEGI()
