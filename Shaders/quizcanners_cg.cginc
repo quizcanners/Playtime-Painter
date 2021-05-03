@@ -229,8 +229,6 @@ inline void frag_atlasedTexture(float4 atlasedUV, float mip, inout float2 uv) {
 	uv = fractal + atlasedUV.xy;
 }
 
-
-
 inline void ApplyTangent (inout float3 normal, float3 tnormal, float4 wTangent){
 	float3 wBitangent = cross(normal, wTangent.xyz) * wTangent.w;
 
@@ -324,7 +322,6 @@ inline void smoothedPixelsSampling (inout float2 texcoord, float4 _TexelSize, ou
 		off = off * offset;
 
 		texcoord.xy =  (perfTex + off)*mipped + texcoord.xy*(1-mipped);
-
 }
 
 inline void smoothedPixelsSampling(inout float2 texcoord, float4 texelsSize) {
@@ -333,7 +330,6 @@ inline void smoothedPixelsSampling(inout float2 texcoord, float4 texelsSize) {
 	float2 off = (texcoord - perfTex);
 	off = off *saturate((abs(off) * texelsSize.z) * 40 - 19);
 	texcoord = perfTex + off;
-
 }
 
 inline float2 DetectEdge(float4 edge){
@@ -350,13 +346,11 @@ inline float3 DetectSmoothEdge(float4 edge, float3 junkNorm, float3 sharpNorm, f
 
 	edge = smoothstep(0.965-coef, 1, edge);
 
-	//edge = max(0, edge - 0.965) * 28.5715;
-
 	float border = max(max(edge.r, edge.g), edge.b);
 
 	float3 edgeN = edge0*edge.r + edge1*edge.g + edge2*edge.b;
 
-	float junk =  min(1, (edge.g*edge.b + edge.r*edge.b + edge.r*edge.g) * (1-min(1,width)) ) * border;
+	float junk =  min(1, (edge.g*edge.b + edge.r*edge.b + edge.r*edge.g) * (1-min(1,width*width)) ) * border;
 
 	weight = (edge.w)*border;
 

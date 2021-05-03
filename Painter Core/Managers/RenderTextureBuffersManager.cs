@@ -259,7 +259,7 @@ namespace PlaytimePainter {
             bool usingCustom = material || shader;
 
             if (!shader)
-                shader = Data.pixPerfectCopy;
+                shader = Data.pixPerfectCopy.Shader;
             
             bool square = (width == height);
             if (!square || !Mathf.IsPowerOfTwo(width))
@@ -447,8 +447,10 @@ namespace PlaytimePainter {
             get
             {
                 if (!tmpMaterial)
-                    tmpMaterial = new Material(PainterCamera.Data.pixPerfectCopy);
-
+                {
+                    tmpMaterial = new Material(PainterCamera.Data.pixPerfectCopy.Shader);
+                    tmpMaterial.name = "TMP Material";
+                }
                 return tmpMaterial;
             }
         }
@@ -469,7 +471,7 @@ namespace PlaytimePainter {
             return Blit(texture, id.CurrentRenderTexture());
         }
 
-        public static RenderTexture Blit(Texture from, RenderTexture to) => Blit(from, to, Data.pixPerfectCopy);
+        public static RenderTexture Blit(Texture from, RenderTexture to) => Blit(from, to, Data.pixPerfectCopy.Shader);
 
         public static RenderTexture Blit(Texture from, RenderTexture to, Shader shader) => Blit(from, to, TempMaterial(shader));
 

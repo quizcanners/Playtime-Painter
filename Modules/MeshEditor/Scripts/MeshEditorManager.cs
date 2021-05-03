@@ -46,17 +46,19 @@ namespace PlaytimePainter.MeshEditing
         public static int TriVertices { get => editedMesh.triVertices;
             set => editedMesh.triVertices = value;
         }
+
+        private static UvSetIndex _editedUv;
         public int EditedUV
         {
-            get { return _editedUv; }
-            set { _editedUv = value; QcUnity.SetShaderKeyword(PainterShaderVariables.MESH_PREVIEW_UV2, _editedUv == 1); }
+            get { return _editedUv.index; }
+            set { _editedUv.index = value; QcUnity.SetShaderKeyword(PainterShaderVariables.MESH_PREVIEW_UV2, _editedUv.index == 1); }
         }
 
         #endregion
         
         public static PlaytimePainter target;
         public static Transform targetTransform;
-        private static int _editedUv;
+       
 
         private static readonly List<string> UndoMoves = new List<string>();
 
@@ -65,7 +67,6 @@ namespace PlaytimePainter.MeshEditing
         public static EditableMesh editedMesh = new EditableMesh();
         public static EditableMesh previewEdMesh;
 
-       // public Mesh previewMesh;
         private int _currentUv;
         private bool _selectingUVbyNumber;
         public int verticesShowMax = 8;
@@ -91,8 +92,8 @@ namespace PlaytimePainter.MeshEditing
         {
             if (!target) return;
             
-            onGridLocal = targetTransform.InverseTransformPoint(GridNavigator.onGridPos);
-            collisionPosLocal = targetTransform.InverseTransformPoint(GridNavigator.collisionPos);
+            onGridLocal = targetTransform.InverseTransformPoint(GridNavigator.LatestMouseToGridProjection);
+            collisionPosLocal = targetTransform.InverseTransformPoint(GridNavigator.LatestMouseRaycastHit);
         }
 
         public void EditMesh(PlaytimePainter painter, bool editCopy)
@@ -133,7 +134,7 @@ namespace PlaytimePainter.MeshEditing
                 targetTransform = null;
             }
             Grid.DeactivateVertices();
-            GridNavigator.Inst().SetEnabled(false, false);
+            GridNavigator.Instance.SetEnabled(false, false);
             UndoMoves.Clear();
             RedoMoves.Clear();
         }
@@ -220,7 +221,7 @@ namespace PlaytimePainter.MeshEditing
 
             var diff = onGridLocal - vp.localPos;
 
-            diff.Scale(GridNavigator.Inst().GetGridPerpendicularVector());
+            diff.Scale(GridNavigator.Instance.GetGridPerpendicularVector());
             vp.localPos += diff;
         }
 
@@ -235,7 +236,7 @@ namespace PlaytimePainter.MeshEditing
             else
                 if (!EditorInputManager.Control)
             {
-                GridNavigator.onGridPos = SelectedUv.meshPoint.WorldPos;
+                GridNavigator.LatestMouseToGridProjection = SelectedUv.meshPoint.WorldPos;
                 Grid.UpdatePositions();
             }
         }
@@ -282,7 +283,7 @@ namespace PlaytimePainter.MeshEditing
             if (Cfg.pixelPerfectMeshEditing)
                 hold.PixPerfect();
 
-            GridNavigator.collisionPos = pos;
+            GridNavigator.LatestMouseRaycastHit = pos;
 
             UpdateLocalSpaceMousePosition();
 
@@ -374,7 +375,7 @@ namespace PlaytimePainter.MeshEditing
             var alt = EditorInputManager.Alt;
 
             if (alt)
-                GridNavigator.collisionPos = GridNavigator.onGridPos;
+                GridNavigator.LatestMouseRaycastHit = GridNavigator.LatestMouseToGridProjection;
             
             RaycastHit hit;
             var vertexIsPointed = false;
@@ -389,14 +390,14 @@ namespace PlaytimePainter.MeshEditing
 
                     if (vertexIsPointed)
                     {
-                        GridNavigator.collisionPos = hit.transform.position;
+                        GridNavigator.LatestMouseRaycastHit = hit.transform.position;
                         UpdateLocalSpaceMousePosition();
                         editedMesh.SortAround(collisionPosLocal, true);
 
                     }
                     else
                     {
-                        GridNavigator.collisionPos = hit.point;
+                        GridNavigator.LatestMouseRaycastHit = hit.point;
                         UpdateLocalSpaceMousePosition();
                         editedMesh.SortAround(collisionPosLocal, true);
                         GetPointedTriangleOrLine();
@@ -677,24 +678,7 @@ namespace PlaytimePainter.MeshEditing
             if (!Grid)
                 return;
 
-            if (!Grid.vertPrefab)
-                Grid.vertPrefab = Resources.Load(PainterDataAndConfig.PREFABS_RESOURCE_FOLDER + "/vertex") as GameObject;
-
-            if ((Grid.vertices == null) || (Grid.vertices.Length == 0) || (!Grid.vertices[0].go))
-            {
-                Grid.vertices = new MarkerWithText[verticesShowMax];
-
-                for (int i = 0; i < verticesShowMax; i++)
-                {
-                    MarkerWithText v = new MarkerWithText();
-                    Grid.vertices[i] = v;
-                    v.go = Object.Instantiate(Grid.vertPrefab, Grid.transform, true);
-                    v.Init();
-                }
-            }
-
-            Grid.pointedVertex.Init();
-            Grid.selectedVertex.Init();
+            Grid.InitializeIfNeeded(verticesShowMax);
         }
 
         public void OnEnable()
@@ -789,6 +773,9 @@ namespace PlaytimePainter.MeshEditing
 
             var changed = false;
             EditableMesh.inspected = editedMesh;
+
+
+            target.Inspect_ConvexMeshCheckWarning();
 
             pegi.nl();
             
@@ -1016,12 +1003,9 @@ namespace PlaytimePainter.MeshEditing
 
                 if (!Application.isPlaying && "Debug".IsFoldout(ref _inspectedMeshItems, 10).nl())
                 {
-                    "vertexPointMaterial".write(Grid.vertexPointMaterial);
-                    pegi.nl();
-                    "vertexPrefab".edit(ref Grid.vertPrefab).nl();
+                    Grid.Nested_Inspect();
                     "Max Vertex Markers ".edit(ref verticesShowMax).nl();
-                    "pointedVertex".edit(ref Grid.pointedVertex.go).nl();
-                    "SelectedVertex".edit(ref Grid.selectedVertex.go).nl();
+                 
                 }
             }
 
@@ -1107,8 +1091,8 @@ namespace PlaytimePainter.MeshEditing
             var piecePos = targetTransform.TransformPoint(-Vector3.one / 2);//PositionScripts.PosUpdate(_target.getpos(), false);
 
 
-            var projected = GridNavigator.Inst().ProjectToGrid(piecePos); // piecePos * getGridMaskVector() + ptdPos.ToV3(false)*getGridPerpendicularVector();
-            var gridMask = GridNavigator.Inst().GetGridMaskVector() * 128 + projected;
+            var projected = GridNavigator.Instance.ProjectToGrid(piecePos); // piecePos * getGridMaskVector() + ptdPos.ToV3(false)*getGridPerpendicularVector();
+            var gridMask = GridNavigator.Instance.GetGridMaskVector() * 128 + projected;
             
             Debug.DrawLine(new Vector3(projected.x, projected.y, projected.z), new Vector3(gridMask.x, projected.y, projected.z), Color.red);
             Debug.DrawLine(new Vector3(projected.x, projected.y, projected.z), new Vector3(projected.x, gridMask.y, projected.z), Color.red);
@@ -1142,7 +1126,7 @@ namespace PlaytimePainter.MeshEditing
             if (MeshTool.ShowLines)
             {
                 if (PointedLine != null)
-                    Line(PointedLine.points[0].meshPoint, PointedLine.points[1].meshPoint, Color.green);
+                    Line(PointedLine.vertexes[0].meshPoint, PointedLine.vertexes[1].meshPoint, Color.green);
 
                 var dv = EditedMesh._draggedVertices;
 

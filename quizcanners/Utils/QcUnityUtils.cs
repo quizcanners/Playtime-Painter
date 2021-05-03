@@ -2212,8 +2212,7 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
 
             public void Log_Interval(float seconds, string msg = null, bool asError = true, Object obj = null)
             {
-
-                if (!_logged || (QcUnity.TimeSinceStartup() - _lastLogged > seconds))
+                if (!_logged || (TimeSinceStartup() - _lastLogged > seconds))
                     Log_Now(msg, asError, obj);
                 else
                     _calls++;

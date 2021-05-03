@@ -300,7 +300,7 @@ namespace PlaytimePainter
             
             public void BeforeStroke(PaintCommand.UV command)//Brush br, Stroke st, PlaytimePainter painter = null)
             {
-
+                
                // Brush br = command.Brush;
               //  Stroke st = command.Stroke;
                 PaintCommand.ForPainterComponent painterCommand = command as PaintCommand.ForPainterComponent;

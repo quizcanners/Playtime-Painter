@@ -113,8 +113,8 @@ namespace PlaytimePainter {
             public virtual bool NeedsWorldSpacePosition =>
                 false; // WorldSpace effect needs to be rendered using terget's mesh to have world positions of the vertexes
 
-            public virtual Shader ShaderForDoubleBuffer => Cfg.brushDoubleBuffer;
-            public virtual Shader ShaderForSingleBuffer => Cfg.brushBlit;
+            public virtual Shader ShaderForDoubleBuffer => Cfg.brushDoubleBuffer.Shader;
+            public virtual Shader ShaderForSingleBuffer => Cfg.brushBlit.Shader;
             public virtual Shader ShaderForAlphaOutput => Cfg.additiveAlphaOutput;
             public virtual Shader ShaderForAlphaBufferBlit => Cfg.multishadeBufferBlit;
 
@@ -261,7 +261,7 @@ namespace PlaytimePainter {
             
             protected override string ShaderKeyword(TextureMeta id) => "BLIT_MODE_ADD";
 
-            public override Shader ShaderForSingleBuffer => Cfg.brushAdd;
+            public override Shader ShaderForSingleBuffer => Cfg.brushAdd.Shader;
             public override BlitFunctions.BlitModeFunction BlitFunctionTex2D(TextureMeta id) => BlitFunctions.AddBlit;
 
             protected override MsgPainter Translation => MsgPainter.BlitModeAdd;
@@ -328,7 +328,7 @@ namespace PlaytimePainter {
 
             public override bool SupportedByTex2D => false;
             public override bool UsingSourceTexture => true;
-            public override Shader ShaderForSingleBuffer => Cfg.brushCopy;
+            public override Shader ShaderForSingleBuffer => Cfg.brushCopy.Shader;
 
             public Copy(int ind) : base(ind)
             {
@@ -385,7 +385,7 @@ namespace PlaytimePainter {
             public override bool SupportedBySingleBuffer => false;
             public override bool SupportedByTex2D => false;
 
-            public override Shader ShaderForDoubleBuffer => Cfg.brushBlurAndSmudge;
+            public override Shader ShaderForDoubleBuffer => Cfg.brushBlurAndSmudge.Shader;
             public override Shader ShaderForAlphaBufferBlit => Cfg.blurAndSmudgeBufferBlit;
 
             #region Inspector
@@ -601,7 +601,7 @@ namespace PlaytimePainter {
             public override bool SupportedBySingleBuffer => false;
             public override bool SupportedByTex2D => false;
 
-            public override Shader ShaderForDoubleBuffer => Cfg.brushBlurAndSmudge;
+            public override Shader ShaderForDoubleBuffer => Cfg.brushBlurAndSmudge.Shader;
             public override Shader ShaderForAlphaBufferBlit => Cfg.blurAndSmudgeBufferBlit;
 
             #region Inspector
@@ -642,7 +642,7 @@ namespace PlaytimePainter {
 
             protected override string ShaderKeyword(TextureMeta id) => "BLIT_MODE_PROJECTION";
 
-            public override Shader ShaderForDoubleBuffer => Cfg.brushDoubleBufferProjector;
+            public override Shader ShaderForDoubleBuffer => Cfg.brushDoubleBufferProjector.Shader;
 
             public override Shader ShaderForAlphaBufferBlit => Cfg.projectorBrushBufferBlit;
             public override Shader ShaderForAlphaOutput => Cfg.additiveAlphaAndUVOutput;
@@ -735,7 +735,7 @@ namespace PlaytimePainter {
 
             public override bool SupportsAlphaBufferPainting => false;
 
-            public override Shader ShaderForDoubleBuffer => Cfg.inkColorSpread;
+            public override Shader ShaderForDoubleBuffer => Cfg.inkColorSpread.Shader;
 
 #region Inspector
 

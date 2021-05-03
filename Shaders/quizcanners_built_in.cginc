@@ -34,7 +34,7 @@ inline void Combined_Light(inout float4 col, float ambient, float smoothness, fl
 	shadow = saturate(shadow * 2 - ambientBlock);
 
 	float diff = saturate((dot(worldNormal, _WorldSpaceLightPos0.xyz))); // _WorldSpaceLightPos0 will not look right in the editor
-	diff = saturate(diff - ambientBlock * 4 * (1 - diff));
+	diff = saturate(diff - ambientBlock * 8 * (1 - diff));
 	float direct = diff*shadow;
 
 	float3 ambientRefl = ShadeSH9(float4(normalize(-reflected), 1));
@@ -42,7 +42,7 @@ inline void Combined_Light(inout float4 col, float ambient, float smoothness, fl
 
 	_LightColor0 *= direct;
 
-	col.rgb *= (_LightColor0  + ambientCol * fernel) * (0.5 + deSmoothness*0.5);
+	col.rgb *= (_LightColor0  + ambientCol* fernel) * (deSmoothness);
 	
 	float3 halfDirection = normalize(viewDir.xyz + _WorldSpaceLightPos0.xyz);
 
@@ -53,8 +53,9 @@ inline void Combined_Light(inout float4 col, float ambient, float smoothness, fl
 	float normTerm =pow(NdotH, power)*power*0.1;
 
 	float3 reflResult = 
-		(normTerm *_LightColor0 + ambientRefl.rgb * ambient * 0.5)
-		* smoothness;
+		(normTerm *_LightColor0 + ambientRefl.rgb)
+		* smoothstep(0.75, 1, 1- ambientBlock)
+		* smoothness * fernel;
 	
 	col.rgb += reflResult;
 

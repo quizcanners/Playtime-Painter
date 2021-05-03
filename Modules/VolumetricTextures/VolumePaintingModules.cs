@@ -6,6 +6,7 @@ using PlaytimePainter.ComponentModules;
 using QuizCanners.CfgDecode;
 using QuizCanners.Utils;
 using UnityEngine;
+using static QuizCanners.Utils.ShaderProperty;
 
 namespace PlaytimePainter {
 
@@ -20,21 +21,22 @@ namespace PlaytimePainter {
             private const string tag = "VolumePntng";
             public override string ClassTag => tag;
 
-            public static ShaderProperty.VectorValue VOLUME_H_SLICES = new ShaderProperty.VectorValue("VOLUME_H_SLICES");
-            public static ShaderProperty.VectorValue VOLUME_POSITION_N_SIZE = new ShaderProperty.VectorValue("VOLUME_POSITION_N_SIZE");
+            public static VectorValue VOLUME_H_SLICES = new VectorValue("VOLUME_H_SLICES");
+            public static VectorValue VOLUME_POSITION_N_SIZE = new VectorValue("VOLUME_POSITION_N_SIZE");
 
-            public static ShaderProperty.VectorValue VOLUME_H_SLICES_BRUSH = new ShaderProperty.VectorValue("VOLUME_H_SLICES_BRUSH");
-            public static ShaderProperty.VectorValue VOLUME_POSITION_N_SIZE_BRUSH = new ShaderProperty.VectorValue("VOLUME_POSITION_N_SIZE_BRUSH");
+            public static VectorValue VOLUME_H_SLICES_BRUSH = new VectorValue("VOLUME_H_SLICES_BRUSH");
+            public static VectorValue VOLUME_POSITION_N_SIZE_BRUSH = new VectorValue("VOLUME_POSITION_N_SIZE_BRUSH");
 
-            public static ShaderProperty.VectorValue VOLUME_BRUSH_DIRECTION = new ShaderProperty.VectorValue("VOLUME_BRUSH_DYRECTION");
+            public static VectorValue VOLUME_BRUSH_DIRECTION = new VectorValue("VOLUME_BRUSH_DYRECTION");
 
-            public static ShaderProperty.ShaderKeyword UseSmoothing = new ShaderProperty.ShaderKeyword("_SMOOTHING");
+            public static ShaderKeyword UseSmoothing = new ShaderKeyword("_SMOOTHING");
 
             private float smoothing;
 
-            private static Shader _preview;
-            private static Shader _brush;
-            private static Shader _brushShaderFroRayTrace;
+            private static ShaderName _preview = new ShaderName("Playtime Painter/Editor/Preview/Volume");
+            private static ShaderName _brushDoubleBuffer = new ShaderName("Playtime Painter/Editor/Brush/Volume");
+            private static ShaderName _brushSingleBuffer = new ShaderName("Playtime Painter/Editor/Brush/Single Buffer/Volume");
+            private static ShaderName _brushShaderForRayTrace = new ShaderName("Playtime Painter/Editor/Brush/Volume_RayTrace");
 
             #region Encode & Decode
 
@@ -80,23 +82,14 @@ namespace PlaytimePainter {
             {
                 base.Enable();
                 _inst = this;
-
-                if (!_preview)
-                    _preview = Shader.Find("Playtime Painter/Editor/Preview/Volume");
-
-                if (!_brush)
-                    _brush = Shader.Find("Playtime Painter/Editor/Brush/Volume");
-
-                if (!_brushShaderFroRayTrace)
-                    _brushShaderFroRayTrace = Shader.Find("Playtime Painter/Editor/Brush/Volume_RayTrace");
             }
 
-            public Shader GetPreviewShader(PlaytimePainter p) => p.TexMeta.isAVolumeTexture ? _preview : null;
+            public Shader GetPreviewShader(PlaytimePainter p) => p.TexMeta.isAVolumeTexture ? _preview.Shader : null;
 
             public Shader GetBrushShaderDoubleBuffer(PlaytimePainter p) =>
-                p.TexMeta.isAVolumeTexture ? (_enableRayTracing ? _brushShaderFroRayTrace : _brush) : null;
+                p.TexMeta.isAVolumeTexture ? (_enableRayTracing ? _brushShaderForRayTrace.Shader : _brushDoubleBuffer.Shader) : null;
 
-            public Shader GetBrushShaderSingleBuffer(PlaytimePainter p) => null;
+            public Shader GetBrushShaderSingleBuffer(PlaytimePainter p) => _brushSingleBuffer.Shader;
 
             public bool IsA3DBrush(PlaytimePainter painter, Brush bc, ref bool overrideOther)
             {
@@ -492,7 +485,7 @@ namespace PlaytimePainter {
                         "Scale:".edit(40, ref br.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f)
                             .changes(ref changed);
 
-                        if (cpuBlit && !_brushShaderFroRayTrace && br.brush3DRadius > BrushScaleMaxForCpu(volTex))
+                        if (cpuBlit && !_brushShaderForRayTrace.Shader && br.brush3DRadius > BrushScaleMaxForCpu(volTex))
                             icon.Warning.write(
                                 "Size will be reduced when panting due to low performance of the CPU brush for volumes");
 

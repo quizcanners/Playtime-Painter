@@ -11,69 +11,81 @@ namespace PlaytimePainter.MeshEditing
 #pragma warning disable IDE0018 // Inline variable declaration
 
 
-    public enum Gridside
+    public enum GridPlane
     {
-        xz,
-        xy,
-        zy
+        xz = 0,
+        xy = 1,
+        zy = 2
     }
 
     [ExecuteInEditMode]
     public class GridNavigator : PainterSystemMono
     {
-
-        public static GridNavigator Inst()
+        public static GridNavigator Instance
         {
-            if (_inst) return _inst;
-            if (!ApplicationIsQuitting)
+            get
             {
-                _inst = PainterCamera.Inst
-                    .GetComponentInChildren<GridNavigator>(); //(GridNavigator)FindObjectOfType<GridNavigator>();
                 if (_inst) return _inst;
-                try
+                if (!ApplicationIsQuitting)
                 {
-                    var prefab = Resources.Load(PainterDataAndConfig.PREFABS_RESOURCE_FOLDER + "/grid") as GameObject;
-                    _inst = Instantiate(prefab).GetComponent<GridNavigator>();
-                    _inst.transform.parent = PainterCamera.Inst.transform;
-                    _inst.name = "grid";
-                    _inst.gameObject.hideFlags = HideFlags.DontSave;
-                }
-                catch (Exception ex)
-                {
-                    Debug.Log("Couldn't load a prefab. If this happened once it's ok. " + ex);
-                }
+                    _inst = PainterCamera.Inst
+                        .GetComponentInChildren<GridNavigator>(); //(GridNavigator)FindObjectOfType<GridNavigator>();
+                    if (_inst) return _inst;
+                    try
+                    {
+                        var prefab = Resources.Load(PainterDataAndConfig.PREFABS_RESOURCE_FOLDER + "/grid") as GameObject;
+                        _inst = Instantiate(prefab).GetComponent<GridNavigator>();
+                        _inst.transform.parent = PainterCamera.Inst.transform;
+                        _inst.name = "grid";
+                        _inst.gameObject.hideFlags = HideFlags.DontSave;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.Log("Couldn't load a prefab. If this happened once it's ok. " + ex);
+                    }
 
+                }
+                else _inst = null;
+
+                return _inst;
             }
-            else _inst = null;
-
-            return _inst;
         }
-
-        public Material vertexPointMaterial;
-        public GameObject vertPrefab;
-        public MarkerWithText[] vertices;
-        public MarkerWithText pointedVertex;
-        public MarkerWithText selectedVertex;
-
         private static GridNavigator _inst;
+
+
+        public static Vector3 LatestMouseRaycastHit;
+        public static Vector3 LatestMouseToGridProjection;
+        [HideInInspector] public GridPlane CurrentPlane = GridPlane.xz;
+
+
+        [SerializeField] public Material vertexPointMaterial;
+        [SerializeField] protected GameObject vertPrefab;
+        [SerializeField] public MarkerWithText[] vertices;
+        [SerializeField] public MarkerWithText pointedVertex;
+        [SerializeField] public MarkerWithText selectedVertex;
+        [SerializeField] protected MeshRenderer dot;
+        [SerializeField] protected MeshRenderer rendy;
+
+
+        private const KeyCode verticalPlanesKey = KeyCode.Z;
+        private const KeyCode horisontalPlaneKey = KeyCode.X;
 
         private static Plane _xzPlane = new Plane(Vector3.up, 0);
         private static Plane _zyPlane = new Plane(Vector3.right, 0);
         private static Plane _xyPlane = new Plane(Vector3.forward, 0);
-
         private static readonly Quaternion XGrid = Quaternion.Euler(new Vector3(0, 90, 0));
         private static readonly Quaternion ZGrid = Quaternion.Euler(new Vector3(0, 0, 0));
         private static readonly Quaternion YGrid = Quaternion.Euler(new Vector3(90, 0, 0));
 
-        public static Vector3 collisionPos;
+        public static readonly string ToolTip =
+         "{0} {1}: Toggle vertical grid orientations {0} {2}: Set grid horizontal {0} Scroll wheel can change grid projection while in play mode {0}"
+             .F(pegi.EnvironmentNl, verticalPlanesKey, horisontalPlaneKey);
 
-        public static Vector3 onGridPos;
-        [HideInInspector] public Gridside gSide = Gridside.xz;
-        public MeshRenderer dot;
-        public MeshRenderer rendy;
 
-        private readonly ShaderProperty.VectorValue _dotPositionProperty =
-            new ShaderProperty.VectorValue("_GridDotPosition");
+        private readonly ShaderProperty.FloatValue _dxProp = new ShaderProperty.FloatValue("_dx");
+        private readonly ShaderProperty.FloatValue _dyProp = new ShaderProperty.FloatValue("_dy");
+        private readonly ShaderProperty.FloatValue _sizeProp = new ShaderProperty.FloatValue("_Size");
+        private readonly ShaderProperty.VectorValue _dotPositionProperty = new ShaderProperty.VectorValue("_GridDotPosition");
 
         public static void MoveToPointedPosition()
         {
@@ -81,8 +93,8 @@ namespace PlaytimePainter.MeshEditing
 
             if (RaycastMouse(out hit))
             {
-                collisionPos = hit.point;
-                onGridPos = collisionPos;
+                LatestMouseRaycastHit = hit.point;
+                LatestMouseToGridProjection = LatestMouseRaycastHit;
             }
         }
 
@@ -148,11 +160,11 @@ namespace PlaytimePainter.MeshEditing
 
         public Vector3 PlaneToWorldVector(Vector2 v2)
         {
-            switch (gSide)
+            switch (CurrentPlane)
             {
-                case Gridside.xy: return new Vector3(v2.x, v2.y, 0); //Mirror.z = 1; break;
-                case Gridside.xz: return new Vector3(v2.x, 0, v2.y); //
-                case Gridside.zy: return new Vector3(0, v2.y, v2.x); //
+                case GridPlane.xy: return new Vector3(v2.x, v2.y, 0); //Mirror.z = 1; break;
+                case GridPlane.xz: return new Vector3(v2.x, 0, v2.y); //
+                case GridPlane.zy: return new Vector3(0, v2.y, v2.x); //
                 default: return Vector3.zero;
             }
 
@@ -160,22 +172,22 @@ namespace PlaytimePainter.MeshEditing
 
         public Vector2 InPlaneVector(Vector3 f)
         {
-            switch (gSide)
+            switch (CurrentPlane)
             {
-                case Gridside.xy: return new Vector2(f.x, f.y); //Mirror.z = 1; break;
-                case Gridside.xz: return new Vector2(f.x, f.z); //
-                case Gridside.zy: return new Vector2(f.z, f.y); //
+                case GridPlane.xy: return new Vector2(f.x, f.y); //Mirror.z = 1; break;
+                case GridPlane.xz: return new Vector2(f.x, f.z); //
+                case GridPlane.zy: return new Vector2(f.z, f.y); //
                 default: return Vector3.zero;
             }
         }
 
         public float PerpendicularToPlaneVector(Vector3 f)
         {
-            switch (gSide)
+            switch (CurrentPlane)
             {
-                case Gridside.xy: return f.z; //Mirror.z = 1; break;
-                case Gridside.xz: return f.y; //new Vector2(f.x, f.z); //
-                case Gridside.zy: return f.x; //new Vector2(f.z, f.y); //
+                case GridPlane.xy: return f.z; //Mirror.z = 1; break;
+                case GridPlane.xz: return f.y; //new Vector2(f.x, f.z); //
+                case GridPlane.zy: return f.x; //new Vector2(f.z, f.y); //
                 default: return 0;
             }
 
@@ -185,15 +197,15 @@ namespace PlaytimePainter.MeshEditing
         {
             var mirror = Vector3.zero;
 
-            switch (gSide)
+            switch (CurrentPlane)
             {
-                case Gridside.xy:
+                case GridPlane.xy:
                     mirror.z = 1;
                     break;
-                case Gridside.xz:
+                case GridPlane.xz:
                     mirror.y = 1;
                     break;
-                case Gridside.zy:
+                case GridPlane.zy:
                     mirror.x = 1;
                     break;
             }
@@ -205,15 +217,15 @@ namespace PlaytimePainter.MeshEditing
         {
             var mirror = Vector3.one;
 
-            switch (gSide)
+            switch (CurrentPlane)
             {
-                case Gridside.xy:
+                case GridPlane.xy:
                     mirror.z = 0;
                     break;
-                case Gridside.xz:
+                case GridPlane.xz:
                     mirror.y = 0;
                     break;
-                case Gridside.zy:
+                case GridPlane.zy:
                     mirror.x = 0;
                     break;
             }
@@ -223,15 +235,15 @@ namespace PlaytimePainter.MeshEditing
 
         public Vector3 ProjectToGrid(Vector3 src)
         {
-            var pos = onGridPos;
+            var pos = LatestMouseToGridProjection;
 
-            switch (gSide)
+            switch (CurrentPlane)
             {
-                case Gridside.xy:
+                case GridPlane.xy:
                     return new Vector3(src.x, src.y, pos.z);
-                case Gridside.xz:
+                case GridPlane.xz:
                     return new Vector3(src.x, pos.y, src.z);
-                case Gridside.zy:
+                case GridPlane.zy:
                     return new Vector3(pos.x, src.y, src.z);
             }
 
@@ -246,32 +258,32 @@ namespace PlaytimePainter.MeshEditing
                 var x = AngleClamp(XGrid);
                 var z = AngleClamp(ZGrid);
 
-                gSide = x <= z ? Gridside.zy : Gridside.xy;
+                CurrentPlane = x <= z ? GridPlane.zy : GridPlane.xy;
             }
-            else gSide = Gridside.xz;
+            else CurrentPlane = GridPlane.xz;
 
         }
 
         private void ScrollsProcess(float delta)
         {
-            var before = gSide;
+            var before = CurrentPlane;
             if (delta > 0)
-                switch (gSide)
+                switch (CurrentPlane)
                 {
-                    case Gridside.xy:
-                        gSide = Gridside.zy;
+                    case GridPlane.xy:
+                        CurrentPlane = GridPlane.zy;
                         break;
-                    case Gridside.xz:
+                    case GridPlane.xz:
                         ClosestAxis(false);
                         break;
-                    case Gridside.zy:
-                        gSide = Gridside.xy;
+                    case GridPlane.zy:
+                        CurrentPlane = GridPlane.xy;
                         break;
                 }
             else if (delta < 0)
-                gSide = Gridside.xz;
+                CurrentPlane = GridPlane.xz;
 
-            if (before != gSide && MeshEditorManager.target)
+            if (before != CurrentPlane && MeshEditorManager.target)
                 MeshEditorManager.MeshTool.OnGridChange();
 
         }
@@ -293,34 +305,34 @@ namespace PlaytimePainter.MeshEditing
 
             if (cfg.gridSize <= 0) cfg.gridSize = 1;
 
-            switch (gSide)
+            switch (CurrentPlane)
             {
-                case Gridside.xy:
+                case GridPlane.xy:
                     rendy.transform.rotation = ZGrid;
                     break;
-                case Gridside.xz:
+                case GridPlane.xz:
                     rendy.transform.rotation = YGrid;
                     break;
-                case Gridside.zy:
+                case GridPlane.zy:
                     rendy.transform.rotation = XGrid;
                     break;
             }
 
-            _xzPlane.distance = -onGridPos.y;
-            _xyPlane.distance = -onGridPos.z;
-            _zyPlane.distance = -onGridPos.x;
+            _xzPlane.distance = -LatestMouseToGridProjection.y;
+            _xyPlane.distance = -LatestMouseToGridProjection.z;
+            _zyPlane.distance = -LatestMouseToGridProjection.x;
 
             var hit = Vector3.zero;
 
-            switch (gSide)
+            switch (CurrentPlane)
             {
-                case Gridside.xy:
+                case GridPlane.xy:
                     hit = MouseToPlane(_xyPlane);
                     break;
-                case Gridside.xz:
+                case GridPlane.xz:
                     hit = MouseToPlane(_xzPlane);
                     break;
-                case Gridside.zy:
+                case GridPlane.zy:
                     hit = MouseToPlane(_zyPlane);
                     break;
             }
@@ -331,22 +343,22 @@ namespace PlaytimePainter.MeshEditing
             if (hit != Vector3.zero)
             {
 
-                switch (gSide)
+                switch (CurrentPlane)
                 {
-                    case Gridside.xy:
+                    case GridPlane.xy:
 
-                        onGridPos.x = hit.x;
-                        onGridPos.y = hit.y;
+                        LatestMouseToGridProjection.x = hit.x;
+                        LatestMouseToGridProjection.y = hit.y;
 
                         break;
-                    case Gridside.xz:
-                        onGridPos.x = hit.x;
-                        onGridPos.z = hit.z;
+                    case GridPlane.xz:
+                        LatestMouseToGridProjection.x = hit.x;
+                        LatestMouseToGridProjection.z = hit.z;
                         break;
-                    case Gridside.zy:
+                    case GridPlane.zy:
 
-                        onGridPos.z = hit.z;
-                        onGridPos.y = hit.y;
+                        LatestMouseToGridProjection.z = hit.z;
+                        LatestMouseToGridProjection.y = hit.y;
                         break;
                 }
             }
@@ -355,11 +367,11 @@ namespace PlaytimePainter.MeshEditing
             var dotTf = dot.transform;
             var rndTf = rendy.transform;
 
-            tf.position = onGridPos + Vector3.one * 0.01f;
+            tf.position = LatestMouseToGridProjection + Vector3.one * 0.01f;
 
             var position = tf.position;
 
-            _dotPositionProperty.GlobalValue = new Vector4(onGridPos.x, onGridPos.y, onGridPos.z);
+            _dotPositionProperty.GlobalValue = new Vector4(LatestMouseToGridProjection.x, LatestMouseToGridProjection.y, LatestMouseToGridProjection.z);
 
             dotTf.rotation = CurrentViewTransform().rotation;
 
@@ -372,9 +384,9 @@ namespace PlaytimePainter.MeshEditing
 
             float scale = !cfg.snapToGrid ? Mathf.Max(1, Mathf.ClosestPowerOfTwo((int) (dist / 8))) : cfg.gridSize;
 
-            var dx = gSide != Gridside.zy ? position.x : -position.z;
+            var dx = CurrentPlane != GridPlane.zy ? position.x : -position.z;
 
-            var dy = gSide != Gridside.xz ? position.y : position.z;
+            var dy = CurrentPlane != GridPlane.xz ? position.y : position.z;
 
             dx -= Mathf.Round(dx / scale) * scale;
             dy -= Mathf.Round(dy / scale) * scale;
@@ -388,17 +400,6 @@ namespace PlaytimePainter.MeshEditing
             if (MeshEditorManager.target)
                 MeshMGMT.UpdateLocalSpaceMousePosition();
         }
-
-        private readonly ShaderProperty.FloatValue _dxProp = new ShaderProperty.FloatValue("_dx");
-        private readonly ShaderProperty.FloatValue _dyProp = new ShaderProperty.FloatValue("_dy");
-        private readonly ShaderProperty.FloatValue _sizeProp = new ShaderProperty.FloatValue("_Size");
-
-        private const KeyCode verticalPlanesKey = KeyCode.Z;
-        private const KeyCode horisontalPlaneKey = KeyCode.X;
-
-        public static readonly string ToolTip =
-            "{0} {1}: Toggle vertical grid orientations {0} {2}: Set grid horizontal {0} Scroll wheel can change grid projection while in play mode {0}"
-                .F(pegi.EnvironmentNl, verticalPlanesKey, horisontalPlaneKey);
 
         private void Update()
         {
@@ -452,8 +453,39 @@ namespace PlaytimePainter.MeshEditing
             {
                 RaycastHit hit;
                 if (Physics.Raycast(EditorInputManager.GetScreenMousePositionRay(TexMGMT.MainCamera), out hit))
-                    onGridPos = hit.point;
+                    LatestMouseToGridProjection = hit.point;
             }
+        }
+
+        public void InitializeIfNeeded(int verticesShowMax) 
+        {
+            if (!vertPrefab)
+                vertPrefab = Resources.Load(PainterDataAndConfig.PREFABS_RESOURCE_FOLDER + "/vertex") as GameObject;
+
+            if ((vertices == null) || (vertices.Length == 0) || (!vertices[0].go))
+            {
+                vertices = new MarkerWithText[verticesShowMax];
+
+                for (int i = 0; i < verticesShowMax; i++)
+                {
+                    MarkerWithText v = new MarkerWithText();
+                    vertices[i] = v;
+                    v.go = UnityEngine.Object.Instantiate(vertPrefab, transform, true);
+                    v.Init();
+                }
+            }
+
+            pointedVertex.Init();
+            selectedVertex.Init();
+        }
+
+        public override void Inspect()
+        {
+            "vertexPointMaterial".write(vertexPointMaterial);
+            pegi.nl();
+            "vertexPrefab".edit(ref vertPrefab).nl();
+            "pointedVertex".edit(ref pointedVertex.go).nl();
+            "SelectedVertex".edit(ref selectedVertex.go).nl();
         }
 
     }

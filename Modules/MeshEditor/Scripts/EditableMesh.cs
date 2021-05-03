@@ -58,6 +58,9 @@ namespace PlaytimePainter.MeshEditing
 
         public List<PainterMesh.MeshPoint> meshPoints = new List<PainterMesh.MeshPoint>();
 
+        public void Remove(MeshPointIndex point) => meshPoints.RemoveAt(point.index);
+        public PainterMesh.MeshPoint this[MeshPointIndex point] => meshPoints[point.index];
+
         public List<PainterMesh.Triangle> triangles = new List<PainterMesh.Triangle>();
 
         public Mesh actualMesh;
@@ -274,7 +277,7 @@ namespace PlaytimePainter.MeshEditing
 
                         if (meshPoints[j].localPos.Equals(main.localPos))
                         {
-                            Merge(i, j);
+                            Merge(MeshPointIndex.From(i), MeshPointIndex.From(j));
                             j--;
                             vCnt = meshPoints.Count;
                         }
@@ -313,12 +316,12 @@ namespace PlaytimePainter.MeshEditing
 
         #region Editing
 
-        public void Merge(int indA, int indB) => Merge(meshPoints[indA], indB);
+        public void Merge(MeshPointIndex indA, MeshPointIndex indB) => Merge(this[indA], indB);
 
-        public void Merge(PainterMesh.MeshPoint pointA, int indB)
+        public void Merge(PainterMesh.MeshPoint pointA, MeshPointIndex indB)
         {
 
-            var pointB = meshPoints[indB];
+            var pointB = this[indB];
 
             if (pointA == pointB)
                 return;
@@ -333,7 +336,7 @@ namespace PlaytimePainter.MeshEditing
                 buv.SetUvIndexBy(uvs);
             }*/
 
-            meshPoints.RemoveAt(indB);
+            Remove(indB);
         }
 
         public void Merge(PainterMesh.MeshPoint pointA, PainterMesh.MeshPoint pointB)
@@ -836,8 +839,8 @@ namespace PlaytimePainter.MeshEditing
 
             if (trs.Count != 2) return;
 
-            ld.points[0].meshPoint.smoothNormal = true;
-            ld.points[1].meshPoint.smoothNormal = true;
+            ld.vertexes[0].meshPoint.smoothNormal = true;
+            ld.vertexes[1].meshPoint.smoothNormal = true;
 
             trs[0].GiveUniqueVerticesAgainst(trs[1]);
             RefreshVertexTriangleList();
@@ -915,7 +918,7 @@ namespace PlaytimePainter.MeshEditing
         public void TileAndOffsetUVs(Vector2 offs, Vector2 tile, int uvSet)
         {
             foreach (var v in meshPoints)
-                foreach (var t in v.sharedV2S)
+                foreach (var t in v.sharedUVs)
                     t[uvSet] = Vector2.Scale(t[uvSet], tile) + offs;
         }
 
@@ -1141,8 +1144,8 @@ namespace PlaytimePainter.MeshEditing
 
         public void RemoveLine(PainterMesh.LineData ld)
         {
-            var a = ld.points[0];
-            var b = ld.points[1];
+            var a = ld.vertexes[0];
+            var b = ld.vertexes[1];
 
             for (var i = 0; i < triangles.Count; i++)
                 if (triangles[i].Includes(a.meshPoint, b.meshPoint))
@@ -1158,31 +1161,37 @@ namespace PlaytimePainter.MeshEditing
                 vp.localPos += by;
         }
 
-        public PainterMesh.MeshPoint InsertIntoTriangle(PainterMesh.Triangle a, Vector3 pos)
+        public PainterMesh.MeshPoint InsertIntoTriangle(PainterMesh.Triangle triangleA, Vector3 pos)
         {
-            // Debug.Log("Inserting into triangle");
-            var newVrt = new PainterMesh.MeshPoint(a.vertexes[0].meshPoint, pos);
+            var newVrt = new PainterMesh.MeshPoint(triangleA.vertexes[0].meshPoint, pos);
 
-            var w = a.DistanceToWeight(pos);
+            var weights = triangleA.DistanceToWeight(pos);
 
-            var newV20 = a.vertexes[0].GetUv(0) * w.x + a.vertexes[1].GetUv(0) * w.y + a.vertexes[2].GetUv(0) * w.z;
-            var newV21 = a.vertexes[0].GetUv(1) * w.x + a.vertexes[1].GetUv(1) * w.y + a.vertexes[2].GetUv(1) * w.z;
+            var UV0 = UvSetIndex.From(0);
+            var UV1 = UvSetIndex.From(1);
+
+            var VERT0 = VertexIndexInTriangle.From(0);
+            var VERT1 = VertexIndexInTriangle.From(1);
+            var VERT2 = VertexIndexInTriangle.From(2);
+
+            var newV20 = triangleA[VERT0][UV0] * weights.x + triangleA[VERT1][UV0] * weights.y + triangleA[VERT2][UV0] * weights.z;
+            var newV21 = triangleA[VERT0][UV1] * weights.x + triangleA[VERT1][UV1] * weights.y + triangleA[VERT2][UV1] * weights.z;
 
             var newUv = new PainterMesh.Vertex(newVrt, newV20, newV21);
 
-            a.AssignWeightedData(newUv, w);
+            triangleA.AssignWeightedData(newUv, weights);
 
             meshPoints.Add(newVrt);
 
-            var b = new PainterMesh.Triangle(a.vertexes).CopySettingsFrom(a);
-            var c = new PainterMesh.Triangle(a.vertexes).CopySettingsFrom(a);
+            var triangleB = new PainterMesh.Triangle(triangleA.vertexes).CopySettingsFrom(triangleA);
+            var triandleC = new PainterMesh.Triangle(triangleA.vertexes).CopySettingsFrom(triangleA);
 
-            a.Replace(0, newUv);//uvpnts[0] = newUV;
-            b.Replace(1, newUv);// uvpnts[1] = newUV;
-            c.Replace(2, newUv);// uvpnts[2] = newUV;
+            triangleA.Replace(VERT0, newUv);//uvpnts[0] = newUV;
+            triangleB.Replace(VERT1, newUv);// uvpnts[1] = newUV;
+            triandleC.Replace(VERT2, newUv);// uvpnts[2] = newUV;
 
-            triangles.Add(b);
-            triangles.Add(c);
+            triangles.Add(triangleB);
+            triangles.Add(triandleC);
 
 
             if (Cfg.pixelPerfectMeshEditing)
@@ -1198,32 +1207,36 @@ namespace PlaytimePainter.MeshEditing
             var newVrt = new PainterMesh.MeshPoint(a.vertexes[0].meshPoint, localPos);
             meshPoints.Add(newVrt);
 
-            var newUv = new PainterMesh.Vertex[3]; // (newVrt);
+            var newVertexes = new PainterMesh.Vertex[3]; // (newVrt);
 
-            var w = a.DistanceToWeight(localPos);
+            var weights = a.DistanceToWeight(localPos);
 
             //var newV20 = a.vertexes[0].GetUv(0) * w.x + a.vertexes[1].GetUv(0) * w.y + a.vertexes[2].GetUv(0) * w.z;
             //var newV21 = a.vertexes[0].GetUv(1) * w.x + a.vertexes[1].GetUv(1) * w.y + a.vertexes[2].GetUv(1) * w.z;
             //Color col = a.uvpnts[0]._color * w.x + a.uvpnts[1]._color * w.y + a.uvpnts[2]._color * w.z;
             for (var i = 0; i < 3; i++)
             {
-                newUv[i] = new PainterMesh.Vertex(newVrt);//, newV20, newV21);
-                a.AssignWeightedData(newUv[i], w);
+                newVertexes[i] = new PainterMesh.Vertex(newVrt);//, newV20, newV21);
+                a.AssignWeightedData(newVertexes[i], weights);
             }
 
             var b = new PainterMesh.Triangle(a.vertexes).CopySettingsFrom(a);
             var c = new PainterMesh.Triangle(a.vertexes).CopySettingsFrom(a);
 
-            a.vertexes[0] = newUv[0];
-            b.vertexes[1] = newUv[1];
-            c.vertexes[2] = newUv[2];
+            var VERT0 = VertexIndexInTriangle.From(0);
+            var VERT1 = VertexIndexInTriangle.From(1);
+            var VERT2 = VertexIndexInTriangle.From(2);
+
+            a[VERT0] = newVertexes[0];
+            b[VERT1] = newVertexes[1];
+            c[VERT2] = newVertexes[2];
 
             triangles.Add(b);
             triangles.Add(c);
 
-            a.MakeTriangleVertexUnique(a.vertexes[1]);
-            b.MakeTriangleVertexUnique(b.vertexes[2]);
-            c.MakeTriangleVertexUnique(c.vertexes[0]);
+            a.MakeTriangleVertexUnique(a[VERT1]);
+            b.MakeTriangleVertexUnique(b[VERT2]);
+            c.MakeTriangleVertexUnique(c[VERT0]);
 
 
             if (Cfg.pixelPerfectMeshEditing)
@@ -1284,13 +1297,13 @@ namespace PlaytimePainter.MeshEditing
             }
         }
 
-        public bool ColorSubMesh(int index, Color col)
+        public bool ColorSubMesh(int submeshIndex, Color col)
         {
 
             var changed = false;
 
             foreach (var t in triangles)
-                if (t.subMeshIndex == index)
+                if (t.subMeshIndex == submeshIndex)
                     changed |= t.SetColor(col);
 
             Dirty |= changed;

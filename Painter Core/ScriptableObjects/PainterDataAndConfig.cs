@@ -12,6 +12,7 @@ using UnityEditor;
 #endif
 using UnityEngine;
 using Object = UnityEngine.Object;
+using static QuizCanners.Utils.ShaderProperty;
 
 namespace PlaytimePainter
 {
@@ -47,16 +48,16 @@ namespace PlaytimePainter
         [NonSerialized] public Shader blurAndSmudgeBufferBlit;
         [NonSerialized] public Shader projectorBrushBufferBlit;
 
-        [NonSerialized] public Shader brushBlit;
-        [NonSerialized] public Shader brushAdd;
-        [NonSerialized] public Shader brushCopy;
-        [NonSerialized] public Shader pixPerfectCopy;
-        [NonSerialized] public Shader brushBufferCopy;
-        [NonSerialized] public Shader brushBlitSmoothed;
-        [NonSerialized] public Shader brushDoubleBuffer;
-        [NonSerialized] public Shader brushDoubleBufferProjector;
-        [NonSerialized] public Shader brushBlurAndSmudge;
-        [NonSerialized] public Shader inkColorSpread;
+        [NonSerialized] public ShaderName brushBlit = new ShaderName("Playtime Painter/Editor/Brush/Blit");
+        [NonSerialized] public ShaderName brushAdd = new ShaderName("Playtime Painter/Editor/Brush/Add");
+        [NonSerialized] public ShaderName brushCopy = new ShaderName("Playtime Painter/Editor/Brush/Copy");
+        [NonSerialized] public ShaderName pixPerfectCopy = new ShaderName("Playtime Painter/Buffer Blit/Pixel Perfect Copy");
+        [NonSerialized] public ShaderName brushBufferCopy = new ShaderName("Playtime Painter/Editor/Buffer Blit/Copier");
+        [NonSerialized] public ShaderName brushBlitSmoothed = new ShaderName("Playtime Painter/Buffer Blit/Smooth");
+        [NonSerialized] public ShaderName brushDoubleBuffer = new ShaderName("Playtime Painter/Editor/Brush/DoubleBuffer");
+        [NonSerialized] public ShaderName brushDoubleBufferProjector = new ShaderName("Playtime Painter/Editor/Brush/DoubleBuffer_Projector");
+        [NonSerialized] public ShaderName brushBlurAndSmudge = new ShaderName("Playtime Painter/Editor/Brush/BlurN_Smudge");
+        [NonSerialized] public ShaderName inkColorSpread = new ShaderName("Playtime Painter/Editor/Brush/Double Buffered/Spread");
 
         [NonSerialized] public Shader bufferColorFill;
         [NonSerialized] public Shader bufferCopyR;
@@ -94,11 +95,11 @@ namespace PlaytimePainter
 #else
             shadersToBuldWith.Clear();
 
-            CheckShader(ref pixPerfectCopy, "Playtime Painter/Buffer Blit/Pixel Perfect Copy", forceReload);
+            CheckShader(ref pixPerfectCopy, forceReload);
 
-            CheckShader(ref brushBlitSmoothed, "Playtime Painter/Buffer Blit/Smooth", forceReload);
+            CheckShader(ref brushBlitSmoothed, forceReload);
 
-            CheckShader(ref brushBufferCopy, "Playtime Painter/Editor/Buffer Blit/Copier", forceReload);
+            CheckShader(ref brushBufferCopy, forceReload);
 
             CheckShader(ref bufferColorFill, "Playtime Painter/Buffer Blit/Color Fill", forceReload);
 
@@ -118,19 +119,19 @@ namespace PlaytimePainter
 
             CheckShader(ref projectorBrushBufferBlit, "Playtime Painter/Editor/Buffer Blit/Projector Brush", forceReload);
 
-            CheckShader(ref brushBlit, "Playtime Painter/Editor/Brush/Blit", forceReload);
+            CheckShader(ref brushBlit, forceReload);
 
-            CheckShader(ref brushAdd, "Playtime Painter/Editor/Brush/Add", forceReload);
+            CheckShader(ref brushAdd, forceReload);
 
-            CheckShader(ref brushCopy, "Playtime Painter/Editor/Brush/Copy", forceReload);
+            CheckShader(ref brushCopy, forceReload);
 
-            CheckShader(ref brushDoubleBuffer, "Playtime Painter/Editor/Brush/DoubleBuffer", forceReload);
+            CheckShader(ref brushDoubleBuffer, forceReload);
 
-            CheckShader(ref brushDoubleBufferProjector, "Playtime Painter/Editor/Brush/DoubleBuffer_Projector", forceReload);
+            CheckShader(ref brushDoubleBufferProjector, forceReload);
 
-            CheckShader(ref brushBlurAndSmudge, "Playtime Painter/Editor/Brush/BlurN_Smudge", forceReload);
+            CheckShader(ref brushBlurAndSmudge, forceReload);
 
-            CheckShader(ref inkColorSpread, "Playtime Painter/Editor/Brush/Spread", forceReload);
+            CheckShader(ref inkColorSpread, forceReload);
 
             CheckShader(ref additiveAlphaOutput, "Playtime Painter/Editor/Brush/AdditiveAlphaOutput", forceReload);
 
@@ -176,6 +177,17 @@ namespace PlaytimePainter
 #endif
         }
 
+        private void CheckShader(ref ShaderName shade, bool forceReload = false)
+        {
+
+#if UNITY_EDITOR
+            if (forceReload)
+                shade.Reload();
+            
+            if (!dontIncludeShaderInBuild)
+                shadersToBuldWith.Add(shade.Shader);
+#endif
+        }
 
         #endregion
 

@@ -70,7 +70,7 @@ namespace PlaytimePainter.MeshEditing {
                 _uvs = new Vector2[vertexCount];
                 foreach (var point in edMesh.meshPoints)
                 foreach (var uvi in point.vertices)
-                    _uvs[uvi.finalIndex] = uvi.GetUv(0);
+                    _uvs[uvi.finalIndex] = uvi.GetUvSet(0);
                 return _uvs;
             }
         }
@@ -82,7 +82,7 @@ namespace PlaytimePainter.MeshEditing {
                 _uvs1 = new Vector2[vertexCount];
                 foreach (var vp in edMesh.meshPoints)
                 foreach (var uvi in vp.vertices)
-                    _uvs1[uvi] = uvi.GetUv(1);
+                    _uvs1[uvi] = uvi.GetUvSet(1);
                 return _uvs1;
             }
         }
@@ -257,9 +257,9 @@ namespace PlaytimePainter.MeshEditing {
                     var v2 = t.vertexes[1].LocalPos;
                     var v3 = t.vertexes[2].LocalPos;
 
-                    var w1 = t.vertexes[0].GetUv(0);// texcoords[i1];
-                    var w2 = t.vertexes[1].GetUv(0);
-                    var w3 = t.vertexes[2].GetUv(0);
+                    var w1 = t.vertexes[0].GetUvSet(0);// texcoords[i1];
+                    var w2 = t.vertexes[1].GetUvSet(0);
+                    var w3 = t.vertexes[2].GetUvSet(0);
 
                     var x1 = v2.x - v1.x;
                     var x2 = v3.x - v1.x;

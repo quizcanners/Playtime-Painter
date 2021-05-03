@@ -1,4 +1,4 @@
-﻿Shader "Playtime Painter/Editor/Brush/Spread" {
+﻿Shader "Playtime Painter/Editor/Brush/Double Buffered/Spread" {
 
 	Category{
 		Tags{ "Queue" = "Transparent"}

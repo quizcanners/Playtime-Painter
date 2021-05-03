@@ -292,7 +292,7 @@ namespace PlaytimePainter
 
         public void Texture2D_To_RenderTexture() => Texture2DToRenderTexture(texture2D);
 
-        public void Texture2DToRenderTexture(Texture2D tex) => PainterCamera.Inst.Render(tex, this.CurrentRenderTexture(), Cfg.pixPerfectCopy);
+        public void Texture2DToRenderTexture(Texture2D tex) => PainterCamera.Inst.Render(tex, this.CurrentRenderTexture(), Cfg.pixPerfectCopy.Shader);
 
         public void RenderTexture_To_Texture2D() => RenderTexture_To_Texture2D(texture2D);
 

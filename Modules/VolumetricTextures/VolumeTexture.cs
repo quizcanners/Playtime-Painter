@@ -23,7 +23,7 @@ namespace PlaytimePainter {
 
         private int changePositionOnOffset = 32;
 
-        public int hSlices = 1;
+        public int hSlices = 4;
         public float size = 1;
 
         public Texture _texture;
@@ -252,15 +252,14 @@ namespace PlaytimePainter {
                 pegi.nl();
             }
 
-            if ("Volume Texture".IsEntered(ref inspectedElement, 1).nl())
-            {
+            var tex = ImageMeta.CurrentTexture();
 
+            if ("Volume Texture ({0})".F(tex ? NameForPEGI : "NULL").IsEntered(ref inspectedElement, 1).nl())
+            {
                 var n = NameForPEGI;
                 if ("Name".editDelayed(50, ref n).nl(ref changed))
-                {
                     NameForPEGI = n;
-                }
-
+                
                 if (setForGlobal)
                 {
                     "FOR GLOBAL ONLY:".nl();
@@ -269,8 +268,6 @@ namespace PlaytimePainter {
 
                     SlicesShadeProperty.NameForDisplayPEGI().write_ForCopy().nl();
                 }
-
-                var tex = ImageMeta.CurrentTexture();
 
                 if (tex == null)
                     ImageMeta = null;
@@ -314,6 +311,9 @@ namespace PlaytimePainter {
 
                 var w = Width;
                 ("Will result in X:" + w + " Z:" + w + " Y:" + Height + "volume").nl();
+
+                pegi.write(tex);
+                pegi.nl();
             }
 
             if ("Materials [{0}]".F(materials.Count).IsEntered(ref inspectedElement, 2).nl_ifFoldedOut()) {

@@ -578,11 +578,11 @@ namespace PlaytimePainter {
         
         public RenderTexture Render(Texture from, RenderTexture to, Material mat) =>  brushRenderer.CopyBuffer(from, to, mat);
          
-        public RenderTexture Render(Texture from, RenderTexture to) => Render(from, to, Data.brushBufferCopy);
+        public RenderTexture Render(Texture from, RenderTexture to) => Render(from, to, Data.brushBufferCopy.Shader);
 
-        public RenderTexture Render(TextureMeta from, RenderTexture to) => Render(from.CurrentTexture(), to, Data.brushBufferCopy);
+        public RenderTexture Render(TextureMeta from, RenderTexture to) => Render(from.CurrentTexture(), to, Data.brushBufferCopy.Shader);
 
-        public RenderTexture Render(Texture from, TextureMeta to) => Render(from, to.CurrentRenderTexture(), Data.brushBufferCopy);
+        public RenderTexture Render(Texture from, TextureMeta to) => Render(from, to.CurrentRenderTexture(), Data.brushBufferCopy.Shader);
 
         public RenderTexture Render(Color col, RenderTexture to)
         {
@@ -600,7 +600,7 @@ namespace PlaytimePainter {
                 //BackBuffer.DiscardContents();
                 brushRenderer.Set(FrontBuffer);
                 TargetTexture = BackBuffer;
-                CurrentShader = Data.brushBufferCopy;
+                CurrentShader = Data.brushBufferCopy.Shader;
                 Render();
                 RenderTextureBuffersManager.secondBufferUpdated = true;
                 RenderTextureBuffersManager.bigRtVersion++;

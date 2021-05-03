@@ -367,6 +367,10 @@ namespace PlaytimePainter
                                     pegi.nl();
                                 }
 
+                                pegi.space();
+
+                                pegi.line();
+
                                 if ("Profile".IsEntered(ref _inspectedMeshEditorItems, 0))
                                 {
 
@@ -569,12 +573,7 @@ namespace PlaytimePainter
 
                         texMeta = TexMeta;
 
-                        if (meshCollider && meshCollider.convex)
-                        {
-                            "Convex mesh collider detected. Most brushes will not work".writeWarning();
-                            if ("Disable convex".Click())
-                                meshCollider.convex = false;
-                        }
+                        Inspect_ConvexMeshCheckWarning();
 
                         #region Fancy Options
 
@@ -1093,6 +1092,17 @@ namespace PlaytimePainter
             pegi.nl();
 
         }
+
+        public void Inspect_ConvexMeshCheckWarning() 
+        {
+            if (meshCollider && meshCollider.convex)
+            {
+                "Convex mesh collider detected. Texture-space brushes and some mesh tools will not work".writeWarning();
+                if ("Disable convex".Click())
+                    meshCollider.convex = false;
+            }
+        }
+
 
         public bool PreviewShaderToggleInspect()
         {

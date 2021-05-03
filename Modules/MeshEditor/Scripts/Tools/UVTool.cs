@@ -89,6 +89,25 @@ namespace PlaytimePainter.MeshEditing
             if ("Processors".IsFoldout(ref meshProcessors).nl())  {
 
                 if (projectionUv) {
+
+                    if ("Auto - Project All sides".ClickConfirm(confirmationTag: "Auto Project", toolTip: "This will change UV of the entire mesh").nl())
+                    {
+                        projectorNormalThreshold01 = 0.5f;
+
+                        for (int plane = 0; plane<3; plane++) 
+                        {
+                            GridNavigator.Instance.CurrentPlane = (GridPlane)plane;
+                            projectFront = true;
+                            UpdateUvPreview(true);
+                            AutoProjectUVs(EditedMesh);
+                            UpdateUvPreview(true);
+                            projectFront = false;
+                            AutoProjectUVs(EditedMesh);
+                        }
+
+                        OnDeSelectTool();
+                    }
+
                     if ("Auto Apply Threshold".edit(ref projectorNormalThreshold01, 0.01f, 1f).changes(ref changed))
                         UpdateUvPreview(true);
 
@@ -97,6 +116,8 @@ namespace PlaytimePainter.MeshEditing
 
                     if (icon.Done.Click("Auto apply to all"))
                         AutoProjectUVs(EditedMesh);
+
+                    pegi.nl();
                 }
 
                 pegi.nl();
@@ -149,17 +170,17 @@ namespace PlaytimePainter.MeshEditing
 
             var uv = new Vector2();
 
-            switch (GridNavigator.Inst().gSide)
+            switch (GridNavigator.Instance.CurrentPlane)
             {
-                case Gridside.xy:
+                case GridPlane.xy:
                     uv.x = diff.x;
                     uv.y = diff.y;
                     break;
-                case Gridside.xz:
+                case GridPlane.xz:
                     uv.x = diff.x;
                     uv.y = diff.z;
                     break;
-                case Gridside.zy:
+                case GridPlane.zy:
                     uv.x = diff.z;
                     uv.y = diff.y;
                     break;
@@ -271,8 +292,8 @@ namespace PlaytimePainter.MeshEditing
         public override bool MouseEventPointedLine()
         {
 
-            var a = PointedLine.points[0];
-            var b = PointedLine.points[1];
+            var a = PointedLine.vertexes[0];
+            var b = PointedLine.vertexes[1];
 
             MeshMGMT.AssignSelected(
                 Vector3.Distance(MeshMGMT.collisionPosLocal, a.LocalPos) <
@@ -313,7 +334,7 @@ namespace PlaytimePainter.MeshEditing
 
             var trgPos = MeshEditorManager.targetTransform.position;
 
-            var gn = GridNavigator.Inst();
+            var gn = GridNavigator.Instance;
 
             if (Mathf.Approximately( projectorNormalThreshold01, 1)) {
                 foreach (var t in eMesh.triangles) {
@@ -325,13 +346,14 @@ namespace PlaytimePainter.MeshEditing
             } else 
                 foreach (var t in eMesh.triangles)
                 {
-                    var norm = t.GetSharpNormal();
+                    var norm = t.GetSharpNormalWorldSpace();
 
                     // var pv = gn.InPlaneVector(norm);
 
                     var perp = gn.PerpendicularToPlaneVector(norm);
 
-                    if ((Mathf.Abs(perp) < projectorNormalThreshold01) || (perp>0 != projectFront)) continue;
+                    if ((Mathf.Abs(perp) < projectorNormalThreshold01) || (perp>0 != projectFront)) 
+                        continue;
 
                     for (var i = 0; i < 3; i++) {
                         var v = t.vertexes[i];
@@ -387,8 +409,8 @@ namespace PlaytimePainter.MeshEditing
         {
             if ((KeyCode.Backspace.IsDown()))
             {
-                var a = PointedLine.points[0];
-                var b = PointedLine.points[1];
+                var a = PointedLine.vertexes[0];
+                var b = PointedLine.vertexes[1];
 
                 if (!EditorInputManager.Control)
                     EditedMesh.SwapLine(a.meshPoint, b.meshPoint);

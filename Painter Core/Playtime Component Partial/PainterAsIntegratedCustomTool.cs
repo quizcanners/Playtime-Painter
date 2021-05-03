@@ -117,9 +117,7 @@ namespace PlaytimePainter
 
                 var pp = isHit ? hit.transform.GetComponent<PlaytimePainter>() : null;
 
-                var refocus = OnEditorRayHit_AllowRefocusing(hit);
-
-                if (lMouseDwn && e.button == 0 && refocus && isHit) {
+                if (lMouseDwn && e.button == 0 && OnEditorRayHit_AllowRefocusing(hit) && isHit) {
                     
                     if (pp && pp == painter && AllowEditing(painter))
                         HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
@@ -204,7 +202,7 @@ namespace PlaytimePainter
         public static void FeedEvents(Event e)
         {
 
-            GridNavigator.Inst().FeedEvent(e);
+            GridNavigator.Instance.FeedEvent(e);
 
             if (!painter) return;
 

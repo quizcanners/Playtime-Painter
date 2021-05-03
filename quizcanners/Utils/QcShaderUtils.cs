@@ -658,6 +658,39 @@ namespace QuizCanners.Utils {
 
         #endregion
 
+        public class ShaderName
+        {
+            private string _name;
+            private Shader _shader;
+            private bool _triedToFind;
+
+            public bool Found() => _shader;
+                
+            public void Reload() 
+            {
+                _shader = Shader.Find(_name);
+                _triedToFind = true;
+                if (!_shader)
+                    Debug.LogError("Failed to find {0}".F(_name));
+            }
+
+            public Shader Shader 
+            {
+                get 
+                {
+                    if (!_shader && !_triedToFind) 
+                        Reload();
+                       
+                    return _shader;
+                }
+            }
+
+            public ShaderName (string name) 
+            {
+                _name = name;
+            }
+        }
+
     }
 
     #region Shader Tags

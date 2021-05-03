@@ -225,7 +225,7 @@ namespace PlaytimePainter
             {
 
                 if (!shade)
-                    shade = TexMgmtData.pixPerfectCopy;
+                    shade = TexMgmtData.pixPerfectCopy.Shader;
 
                 Set(shade);
                 Set(tex);
