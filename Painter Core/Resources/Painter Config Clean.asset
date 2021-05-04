@@ -23,6 +23,56 @@ MonoBehaviour:
   atlasedMaterials: []
   playtimeSavedTextures: []
   imgMetas:
+  - target: 1
+    renderTexture: {fileID: 8400000, guid: 397fac58d2485754f9cecb7be12b8a76, type: 2}
+    texture2D: {fileID: 0}
+    other: {fileID: 0}
+    width: 1024
+    height: 1024
+    useTexCoord2: 0
+    _useTexCoord2AutoAssigned: 0
+    lockEditing: 0
+    isATransparentLayer: 0
+    enableUndoRedo: 0
+    preserveTransparency: 1
+    sdfMaxInside: 1
+    sdfMaxOutside: 1
+    sdfPostProcessDistance: 1
+    _repaintDelay: 0.016
+    updateTex2DafterStroke: 0
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    isAVolumeTexture: 1
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    backupManually: 0
+    saveName: _RayMarchingVolume
+    url: 
+    inspectedItems: -1
+  - target: 1
+    renderTexture: {fileID: 8400000, guid: 2d3c2558c24b26647a35871e7558f77e, type: 2}
+    texture2D: {fileID: 0}
+    other: {fileID: 0}
+    width: 1024
+    height: 1024
+    useTexCoord2: 0
+    _useTexCoord2AutoAssigned: 0
+    lockEditing: 0
+    isATransparentLayer: 0
+    enableUndoRedo: 0
+    preserveTransparency: 1
+    sdfMaxInside: 1
+    sdfMaxOutside: 1
+    sdfPostProcessDistance: 1
+    _repaintDelay: 0.016
+    updateTex2DafterStroke: 0
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    isAVolumeTexture: 1
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    backupManually: 0
+    saveName: _RayMarchingVolume_BSIde
+    url: 
+    inspectedItems: -1
   - target: 0
     renderTexture: {fileID: 0}
     texture2D: {fileID: 2800000, guid: b24b57e0cfed05643be34b0256df875e, type: 3}
@@ -96,56 +146,6 @@ MonoBehaviour:
     clearColor: {r: 0, g: 0, b: 0, a: 1}
     backupManually: 0
     saveName: Cube
-    url: 
-    inspectedItems: -1
-  - target: 1
-    renderTexture: {fileID: 8400000, guid: 397fac58d2485754f9cecb7be12b8a76, type: 2}
-    texture2D: {fileID: 0}
-    other: {fileID: 0}
-    width: 1024
-    height: 1024
-    useTexCoord2: 0
-    _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
-    isATransparentLayer: 0
-    enableUndoRedo: 0
-    preserveTransparency: 1
-    sdfMaxInside: 1
-    sdfMaxOutside: 1
-    sdfPostProcessDistance: 1
-    _repaintDelay: 0.016
-    updateTex2DafterStroke: 0
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    isAVolumeTexture: 1
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    backupManually: 0
-    saveName: _RayMarchingVolume
-    url: 
-    inspectedItems: -1
-  - target: 1
-    renderTexture: {fileID: 8400000, guid: 2d3c2558c24b26647a35871e7558f77e, type: 2}
-    texture2D: {fileID: 0}
-    other: {fileID: 0}
-    width: 1024
-    height: 1024
-    useTexCoord2: 0
-    _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
-    isATransparentLayer: 0
-    enableUndoRedo: 0
-    preserveTransparency: 1
-    sdfMaxInside: 1
-    sdfMaxOutside: 1
-    sdfPostProcessDistance: 1
-    _repaintDelay: 0.016
-    updateTex2DafterStroke: 0
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    isAVolumeTexture: 1
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    backupManually: 0
-    saveName: _RayMarchingVolume_BSIde
     url: 
     inspectedItems: -1
   matMetas:

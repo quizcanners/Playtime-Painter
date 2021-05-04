@@ -337,7 +337,7 @@ namespace PlaytimePainter.CameraModules {
                 set
                 {
                     activeConfig = value;
-                    new CfgDecoder(data).DecodeTagsFor(DecodeWeather);
+                    new CfgDecoder(value.data).DecodeTagsFor(DecodeWeather);
                 }
             }
 

@@ -491,19 +491,18 @@ namespace QuizCanners.Inspect
             return select(ref value, list, showIndex, stripSlashes, allowInsert);
         }
 
-
-        internal static bool select<T>(ref T val, T[] lst, bool showIndex = false, bool stripSlashes = false, bool dotsToSlashes = true)
+        internal static bool select<T>(ref T val, T[] array, bool showIndex = false, bool stripSlashes = false, bool dotsToSlashes = true)
         {
             checkLine();
 
-            var namesList = new List<string>(lst.Length + 1);
-            var indexList = new List<int>(lst.Length + 1);
+            var namesList = new List<string>(array.Length + 1);
+            var indexList = new List<int>(array.Length + 1);
 
             var current = -1;
 
-            for (var j = 0; j < lst.Length; j++)
+            for (var j = 0; j < array.Length; j++)
             {
-                var tmp = lst[j];
+                var tmp = array[j];
                 if (tmp.filterEditorDropdown().IsDefaultOrNull()) continue;
 
                 if (!val.IsDefaultOrNull() && val.Equals(tmp))
@@ -515,7 +514,7 @@ namespace QuizCanners.Inspect
 
             if (selectFinal(val, ref current, namesList))
             {
-                val = lst[indexList[current]];
+                val = array[indexList[current]];
                 return true;
             }
 
