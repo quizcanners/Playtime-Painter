@@ -943,14 +943,14 @@ namespace QuizCanners.Inspect
                                 QcSharp.Swap(ref array, i, i - 1);
                         }
                         else
-                            icon.UpLast.write("Last");
+                            icon.UpLast.draw("Last");
 
                         if (i < array.Length - 1)
                         {
                             if (icon.Down.ClickUnFocus("Move down").changes(ref changed))
                                 QcSharp.Swap(ref array, i, i + 1);
                         }
-                        else icon.DownLast.write();
+                        else icon.DownLast.draw();
                     }
 
                     var el = array[i];
@@ -1038,14 +1038,14 @@ namespace QuizCanners.Inspect
 
                             }
                             else
-                                icon.UpLast.write("Last");
+                                icon.UpLast.draw("Last");
 
                             if (i < list.Count - 1)
                             {
                                 if (icon.Down.ClickUnFocus("Move down").changes(ref changed))
                                     list.Swap(i);
                             }
-                            else icon.DownLast.write();
+                            else icon.DownLast.draw();
                         }
 
                         var isNull = el.IsNullOrDestroyed_Obj();
@@ -3082,7 +3082,7 @@ namespace QuizCanners.Inspect
 
                 if (active)
                 {
-                    icon.Warning.write(toolTip: "Filter by warnings");
+                    icon.Warning.draw(toolTip: "Filter by warnings");
                     if (toggleIcon(ref filterByNeedAttention))
                         Refresh();
                 }
@@ -3102,7 +3102,7 @@ namespace QuizCanners.Inspect
 
                     nl();
 
-                    icon.Search.write();
+                    icon.Search.draw();
 
                     NameNextForFocus(searchFieldFocusName);
 

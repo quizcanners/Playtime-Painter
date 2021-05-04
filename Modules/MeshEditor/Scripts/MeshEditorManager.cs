@@ -850,7 +850,7 @@ namespace PlaytimePainter.MeshEditing
                     
                     "Save Undo".toggleIcon(ref Cfg.saveMeshUndos).changes(ref changed);
                     if (Cfg.saveMeshUndos)
-                        icon.Warning.write("Can affect peformance");
+                        icon.Warning.draw("Can affect peformance");
                     pegi.nl();
                 }
 
@@ -987,7 +987,7 @@ namespace PlaytimePainter.MeshEditing
                             
 
                             if (i>=subMeshCount)
-                                icon.Warning.write("There are more materials then sub meshes on the mesh");
+                                icon.Warning.draw("There are more materials then sub meshes on the mesh");
                         }
 
                         pegi.nl();

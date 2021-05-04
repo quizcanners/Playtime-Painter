@@ -28,8 +28,6 @@ namespace PlaytimePainter
     [ExecuteInEditMode]
     public partial class PlaytimePainter : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IPointerExitHandler, ICfg
     {
-
-
         #region StaticGetters
 
         public static bool IsCurrentTool
@@ -1764,6 +1762,5 @@ namespace PlaytimePainter
         }
 
         #endregion
-
     }
 }

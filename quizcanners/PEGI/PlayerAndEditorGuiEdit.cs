@@ -1611,7 +1611,7 @@ namespace QuizCanners.Inspect
         public static bool toggle(this icon icon, string label, ref int selected, int current)
         {
             if (selected == current)
-                icon.write(label);
+                icon.draw(label);
             else if (icon.Click(label))
             {
                 selected = current;
@@ -1838,22 +1838,12 @@ namespace QuizCanners.Inspect
             return true;
         }
 
-        public static bool toggle(this icon img, ref bool val)
-        {
-            write(img.GetIcon(), 25);
-            return toggle(ref val);
-        }
+
 
         public static bool toggle(this Texture img, ref bool val)
         {
-            write(img, 25);
+            draw(img, 25);
             return toggle(ref val);
-        }
-
-        public static bool toggleInt(this string text, ref int val)
-        {
-            write(text);
-            return toggleInt(ref val);
         }
 
         public static bool toggleInt(this string text, string hint, ref int val)
@@ -3146,9 +3136,9 @@ namespace QuizCanners.Inspect
             return edit(ref val, min, max);
         }
 
-        public static bool edit(this icon ico, ref float val, float min, float max)
+        private static bool edit(this icon ico, ref float val, float min, float max)
         {
-            ico.write();
+            ico.draw();
             return edit(ref val, min, max);
         }
 

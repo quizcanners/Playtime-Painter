@@ -502,40 +502,14 @@ namespace PlaytimePainter
 
             pegi.nl();
 
-            if (!BrushConfig) 
-            {
-                "Brush Config not found, create {0} from context menu".F(BrushConfigScriptableObject.FILE_NAME).writeWarning();
-
-                "Brush Config".edit(ref BrushConfig).nl();
-            }
-
-            if ("Lists".IsEntered(ref inspectedItems, 11).nl(ref changed))
+            if ("Data Lists".IsEntered(ref inspectedItems, 11).nl(ref changed))
                 InspectLists().changes(ref changed);
             
-            if (inspectedItems == -1) {
-
-                if (!cfgLoaded)
-                {
-                    if ("Initialize Object (Load Cfg)".Click())
-                        Decode(stdData);
-                }
-                else 
-                if ("Painter Data Encode / Decode Test".Click())
-                {
-                    stdData = Encode().CfgData;
-                    //this.SaveCfgData();
-
-                    matMetas.Clear();
-
-                    Decode(stdData);
-                    //this.LoadCfgData();
-                }
-
-                pegi.nl();
-
+            if ("Settings".IsEntered(ref inspectedItems, 12).nl())
+            {
                 if ("Don't Build with Painter Shaders".toggleIcon(ref dontIncludeShaderInBuild).nl())
                     CheckShaders(forceReload: true);
-                
+
                 #if UNITY_EDITOR
 
                 if ("Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay).nl())
@@ -558,7 +532,38 @@ namespace PlaytimePainter
                 "Default for New Material".edit(ref defaultMaterial).nl();
 
                 "Meshes".edit(60, ref meshesFolderName).nl();
-                
+
+                #endif
+            }
+
+            if (!BrushConfig || inspectedItems == 12)
+            {
+                "Brush Config not found, create {0} from context menu".F(BrushConfigScriptableObject.FILE_NAME).writeWarning();
+
+                "Brush Config".edit(ref BrushConfig).nl();
+            }
+
+            if (inspectedItems == -1) {
+
+                if (!cfgLoaded)
+                {
+                    if ("Initialize Object (Load Cfg)".Click())
+                        Decode(stdData);
+                }
+                else 
+                if ("Painter Data Encode / Decode Test".Click())
+                {
+                    stdData = Encode().CfgData;
+                    //this.SaveCfgData();
+
+                    matMetas.Clear();
+
+                    Decode(stdData);
+                    //this.LoadCfgData();
+                }
+
+                pegi.nl();
+
                 if (icon.Discord.Click("Join Discord", 64))
                     PlaytimePainter.Open_Discord();
 
@@ -569,8 +574,6 @@ namespace PlaytimePainter
                     PlaytimePainter.Open_Email();
 
                 pegi.nl();
-                
-                #endif
 
             }
             

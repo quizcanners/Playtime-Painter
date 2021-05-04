@@ -266,7 +266,7 @@ namespace PlaytimePainter.ComponentModules {
             {
                 var t = a.originalMaterial.Get(a.originalTextures[originField]);
                 if (t && t is Texture2D)
-                    icon.Done.write();
+                    icon.Done.draw();
                 else "Will use Color".edit(ref col).nl();
             }
             else
@@ -644,7 +644,7 @@ namespace PlaytimePainter.ComponentModules {
 
         public void InspectInList(int ind, ref int edited)
         {
-            (used ? icon.Active : icon.InActive).write();
+            (used ? icon.Active : icon.InActive).draw();
 
             var changed = false;
             pegi.edit(ref texture).changes(ref changed);

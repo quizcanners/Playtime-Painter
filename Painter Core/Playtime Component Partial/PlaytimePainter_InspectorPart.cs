@@ -196,12 +196,12 @@ namespace PlaytimePainter
                             pegi.GameView.ShowNotification("Editing Texture");
                         }
                         
-                        icon.Mesh.write("Editing Mesh");
+                        icon.Mesh.draw("Editing Mesh");
 
                     }
                     else
                     {
-                        icon.Painter.write("Editing Texture");
+                        icon.Painter.draw("Editing Texture");
 
                         if (icon.Mesh.Click("Edit Mesh", ref changed))
                         {
@@ -217,7 +217,7 @@ namespace PlaytimePainter
                         }
                     }
 
-                    if (icon.Config.Click())
+                    if (icon.Config.Click("Preferences"))
                         cfg.showConfig = true;
 
                     if (!PainterDataAndConfig.hideDocumentation)
@@ -226,7 +226,7 @@ namespace PlaytimePainter
                 }
                 else
                 {
-                    if (icon.Exit.Click() || "Settings & Debug".ClickLabel())
+                    if (icon.Exit.Click() || "Preferences".ClickLabel())
                         cfg.showConfig = false;
                     else 
                     {
@@ -521,7 +521,7 @@ namespace PlaytimePainter
                                     GlobalBrush.Nested_Inspect().changes(ref changed);
 
                                     if (!cpu && texMeta.texture2D && texMeta.width != texMeta.height)
-                                        icon.Warning.write(
+                                        icon.Warning.draw(
                                             "Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality.");
 
                                     var mode = GlobalBrush.GetBlitMode(cpu);
@@ -854,7 +854,7 @@ namespace PlaytimePainter
                                 if (texMeta.errorWhileReading)
                                 {
 
-                                    icon.Warning.write(
+                                    icon.Warning.draw(
                                         "THere was error while reading texture. (ProBuilder's grid texture is not readable, some others may be to)");
 
                                     if (texMeta.texture2D && icon.Refresh.Click("Retry reading the texture"))

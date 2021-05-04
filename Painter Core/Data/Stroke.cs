@@ -207,11 +207,18 @@ namespace PlaytimePainter {
         public static Vector3 BrushWorldPositionFrom(Vector2 uv) => ((uv * 2 - Vector2.one) * PainterCamera.OrthographicSize).ToVector3(10);
 
         public  Vector3 BrushWorldPosition => BrushWorldPositionFrom(uvTo);
-        
+
+        private int _previousSetFrame = -1;
+
         public void SetPreviousValues() {
-            previousDelta = MouseDownEvent ? Vector2.zero : (uvTo - uvFrom);
-		    uvFrom = uvTo;
-            posFrom = posTo;
+            if (_previousSetFrame != Time.frameCount)
+            {
+                _previousSetFrame = Time.frameCount;
+
+                previousDelta = MouseDownEvent ? Vector2.zero : (uvTo - uvFrom);
+                uvFrom = uvTo;
+                posFrom = posTo;
+            }
         }
 
 
@@ -220,8 +227,6 @@ namespace PlaytimePainter {
             uvFrom = uvTo = (useTexcoord2 ? hit.textureCoord2 : hit.textureCoord).To01Space();
             posFrom = posTo = hit.point;
         }
-
-
 
         public Stroke()
         {

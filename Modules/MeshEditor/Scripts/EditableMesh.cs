@@ -1324,7 +1324,7 @@ namespace PlaytimePainter.MeshEditing
 
             "{0} points; Avg size {1}; {2} sub Meshes; {3} triangles".F(vertexCount, averageSize, subMeshCount, triangles.Count).nl();
 
-            "Bone Weights".write(); (gotBoneWeights ? icon.Done : icon.Close).write(gotBoneWeights ? "Got Bone Weights" : " No Bone Weights");
+            "Bone Weights".write(); (gotBoneWeights ? icon.Done : icon.Close).draw(gotBoneWeights ? "Got Bone Weights" : " No Bone Weights");
 
             if (gotBoneWeights && icon.Delete.Click("Don't Save Bone Weights", ref changed))
                 gotBoneWeights = false;
@@ -1333,7 +1333,7 @@ namespace PlaytimePainter.MeshEditing
 
             var gotBindPos = !bindPoses.IsNullOrEmpty();
 
-            "Bind Positions".write(); (gotBindPos ? icon.Done : icon.Close).write(gotBindPos ? "Got Bind Positions {0}".F(bindPoses.Length) : " No Bind Positions");
+            "Bind Positions".write(); (gotBindPos ? icon.Done : icon.Close).draw(gotBindPos ? "Got Bind Positions {0}".F(bindPoses.Length) : " No Bind Positions");
 
             if (gotBindPos && icon.Delete.Click("Remove Bind Positions", ref changed))
                 bindPoses = null;

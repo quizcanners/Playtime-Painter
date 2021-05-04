@@ -1321,7 +1321,7 @@ namespace QuizCanners.Inspect
             EditorGUILayout.LabelField(cnt, PEGI_Styles.ClippingText.Current);
         }
 
-        public static void write(Texture tex, string tip, int width, int height)
+        public static void draw(Texture tex, string tip, int width, int height)
         {
             checkLine();
             var cnt = ImageAndTip(tex, tip);
@@ -1332,7 +1332,7 @@ namespace QuizCanners.Inspect
             GUI.enabled = true;
         }
 
-        public static void write(Texture tex, int width, bool alphaBlend)
+        public static void draw(Texture tex, int width, bool alphaBlend)
         {
             checkLine();
 

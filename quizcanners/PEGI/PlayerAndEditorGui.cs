@@ -1052,13 +1052,13 @@ namespace QuizCanners.Inspect
 
         public static void nl(this icon icon, int size = defaultButtonSize)
         {
-            icon.write(size);
+            icon.draw(size);
             nl();
         }
 
         public static void nl(this icon icon, string hint, int size = defaultButtonSize)
         {
-            icon.write(hint, size);
+            icon.draw(hint, size);
             nl();
         }
 

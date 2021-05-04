@@ -465,7 +465,7 @@ namespace QuizCanners.Utils {
 
         #region Texture
         
-        public class TextureValue : IndexGeneric<Texture>
+        public class TextureValue : IndexGeneric<Texture>, IPEGI
         {
             public static readonly TextureValue mainTexture = new TextureValue("_MainTex");
 
@@ -597,6 +597,12 @@ namespace QuizCanners.Utils {
                         data.ToList(out _usageTags);
                         break;
                 }
+            }
+
+            public void Inspect()
+            {
+                mainTexture.GlobalValue.draw();
+                pegi.nl();
             }
 
             #endregion

@@ -312,7 +312,7 @@ namespace PlaytimePainter {
                 var w = Width;
                 ("Will result in X:" + w + " Z:" + w + " Y:" + Height + "volume").nl();
 
-                pegi.write(tex);
+                tex.draw(width: 256);
                 pegi.nl();
             }
 

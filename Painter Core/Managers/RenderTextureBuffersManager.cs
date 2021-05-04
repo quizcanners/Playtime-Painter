@@ -561,9 +561,9 @@ namespace PlaytimePainter {
 
                 if (GotPaintingBuffers)
                 {
-                    bigRtPair[0].write(200);
+                    bigRtPair[0].draw(200);
                     pegi.nl();
-                    bigRtPair[1].write(200);
+                    bigRtPair[1].draw(200);
 
                     pegi.nl();
                 }
@@ -586,7 +586,7 @@ namespace PlaytimePainter {
                     else {
 
                         pegi.edit(ref _squareBuffers[i]).nl();
-                        _squareBuffers[i].write(250);
+                        _squareBuffers[i].draw(250);
                     }
 
                     pegi.nl();
@@ -599,11 +599,11 @@ namespace PlaytimePainter {
                     DestroyDepthBuffers();
 
                 "For Camera".edit(ref depthTarget).nl();
-                depthTarget.write(250);
+                depthTarget.draw(250);
                 pegi.nl();
 
                 "Reusable for blits".edit(ref _depthTargetForUsers).nl();
-                _depthTargetForUsers.write(250);
+                _depthTargetForUsers.draw(250);
             }
 
             if ("Render Textures with Depth buffer".IsEntered(ref inspectedElement, 3).nl())
@@ -612,7 +612,7 @@ namespace PlaytimePainter {
                     DestroyBuffersWithDepth();
 
                 "Reusable".edit(ref renderTextureWithDepth).nl();
-                renderTextureWithDepth.write(250);
+                renderTextureWithDepth.draw(250);
             }
 
             if (changed)

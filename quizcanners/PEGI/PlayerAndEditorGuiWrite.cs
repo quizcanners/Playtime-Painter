@@ -91,14 +91,14 @@ namespace QuizCanners.Inspect
 
         }
 
-        public static void write(this Sprite sprite, int width = defaultButtonSize, bool alphaBlend = false) =>
-            write(sprite, Color.white, width: width, alphaBlend: alphaBlend);
+        public static void draw(this Sprite sprite, int width = defaultButtonSize, bool alphaBlend = false) =>
+            draw(sprite, Color.white, width: width, alphaBlend: alphaBlend);
         
-        public static void write(this Sprite sprite, Color color, int width = defaultButtonSize, bool alphaBlend = false)
+        public static void draw(this Sprite sprite, Color color, int width = defaultButtonSize, bool alphaBlend = false)
         {
             if (!sprite)
             {
-                icon.Empty.write(width);
+                icon.Empty.draw(width);
             }
             else
             {
@@ -154,14 +154,14 @@ namespace QuizCanners.Inspect
                 icon.Empty.write(toolTip, width, height);
         }*/
 
-        public static void write(this Texture img, int width = defaultButtonSize, bool alphaBlend = true)
+        public static void draw(this Texture img, int width = defaultButtonSize, bool alphaBlend = true)
         {
             if (!img)
                 return;
 
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
-                ef.write(img, width, alphaBlend: alphaBlend);
+                ef.draw(img, width, alphaBlend: alphaBlend);
 
             else
 #endif
@@ -174,12 +174,12 @@ namespace QuizCanners.Inspect
             }
         }
 
-        public static void write(this Texture img, string toolTip, int width = defaultButtonSize)
+        public static void draw(this Texture img, string toolTip, int width = defaultButtonSize)
         {
 
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
-                ef.write(img, toolTip, width, width);
+                ef.draw(img, toolTip, width, width);
             else
 #endif
             {
@@ -210,12 +210,12 @@ namespace QuizCanners.Inspect
 
         }
         */
-        public static void write(this Texture img, string toolTip, int width, int height)
+        public static void draw(this Texture img, string toolTip, int width, int height)
         {
 
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
-                ef.write(img, toolTip, width, height);
+                ef.draw(img, toolTip, width, height);
             else
 #endif
             {
@@ -234,11 +234,11 @@ namespace QuizCanners.Inspect
 
         #region Icon
 
-        public static void write(this icon icon, int size = defaultButtonSize) => write(icon.GetIcon(), size);
+        public static void draw(this icon icon, int size = defaultButtonSize) => draw(icon.GetIcon(), size);
 
-        public static void write(this icon icon, string toolTip, int size = defaultButtonSize) => write(icon.GetIcon(), toolTip, size);
+        public static void draw(this icon icon, string toolTip, int size = defaultButtonSize) => draw(icon.GetIcon(), toolTip, size);
 
-        public static void write(this icon icon, string toolTip, int width, int height) => write(icon.GetIcon(), toolTip, width, height);
+        public static void write(this icon icon, string toolTip, int width, int height) => draw(icon.GetIcon(), toolTip, width, height);
 
         #endregion
 

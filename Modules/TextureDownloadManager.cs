@@ -181,7 +181,7 @@ namespace PlaytimePainter
                 TryGetTexture(out Texture tex);
 
                 if (tex)
-                    tex.write(200);
+                    tex.draw(200);
             }
 
             #endregion

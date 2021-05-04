@@ -483,7 +483,7 @@ namespace PlaytimePainter
             for (var i = 0; i < p.Length; i++)
             {
                 var pix = p[i];
-                pix.r = r ? col.a : pix.r;
+                pix.r = r ? col.r : pix.r;
                 pix.g = g ? col.g : pix.g;
                 pix.b = b ? col.b : pix.b;
                 pix.a = a ? col.a : pix.a;
@@ -1311,7 +1311,7 @@ namespace PlaytimePainter
                     cache.undo.ApplyTo(this);
             }
             else
-                icon.UndoDisabled.write("Nothing to Undo (set number of undo frames in config)");
+                icon.UndoDisabled.draw("Nothing to Undo (set number of undo frames in config)");
 
             if (cache.redo.GotData)
             {
@@ -1319,7 +1319,7 @@ namespace PlaytimePainter
                     cache.redo.ApplyTo(this);
             }
             else
-                icon.RedoDisabled.write("Nothing to Redo");
+                icon.RedoDisabled.draw("Nothing to Redo");
 
             pegi.nl();
 

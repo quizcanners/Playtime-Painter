@@ -403,7 +403,7 @@ namespace QuizCanners.Utils
                 edited = ind;
 
             if (Exited)
-                (DoneFully ? icon.Done : icon.Empty).write();
+                (DoneFully ? icon.Done : icon.Empty).draw();
 
             "{4}: {5} {2} {3} [{0}y {1}f]".F(
                 _yields, // 0

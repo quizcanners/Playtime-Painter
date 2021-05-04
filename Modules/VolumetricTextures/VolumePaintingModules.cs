@@ -89,7 +89,7 @@ namespace PlaytimePainter {
             public Shader GetBrushShaderDoubleBuffer(PlaytimePainter p) =>
                 p.TexMeta.isAVolumeTexture ? (_enableRayTracing ? _brushShaderForRayTrace.Shader : _brushDoubleBuffer.Shader) : null;
 
-            public Shader GetBrushShaderSingleBuffer(PlaytimePainter p) => _brushSingleBuffer.Shader;
+            public Shader GetBrushShaderSingleBuffer(PlaytimePainter p) => p.TexMeta.isAVolumeTexture ? _brushSingleBuffer.Shader : null;
 
             public bool IsA3DBrush(PlaytimePainter painter, Brush bc, ref bool overrideOther)
             {
@@ -387,7 +387,7 @@ namespace PlaytimePainter {
                             "Ray-Tracing".toggleIcon(ref _enableRayTracing, true).changes(ref changed);
 
                             if (br.useAlphaBuffer)
-                                icon.Warning.write(
+                                icon.Warning.draw(
                                     "Ray Tracing doesn't use Alpha buffer. Alpha buffer will be automatically disabled");
 
                         }
@@ -486,7 +486,7 @@ namespace PlaytimePainter {
                             .changes(ref changed);
 
                         if (cpuBlit && !_brushShaderForRayTrace.Shader && br.brush3DRadius > BrushScaleMaxForCpu(volTex))
-                            icon.Warning.write(
+                            icon.Warning.draw(
                                 "Size will be reduced when panting due to low performance of the CPU brush for volumes");
 
                     }

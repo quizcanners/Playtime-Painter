@@ -424,11 +424,10 @@ inline float4 AlphaBlitTransparentPreview(float alpha, float4 src, float2 texcoo
 	float4 tmpCol;
 
 	#ifdef UNITY_COLORSPACE_GAMMA
-	tmpCol = pow(src, GAMMA_TO_LINEAR)*_qcPp_brushMask + pow(col, GAMMA_TO_LINEAR) *(1 - _qcPp_brushMask);
-	tmpCol = pow(tmpCol, LINEAR_TO_GAMMA);
+		tmpCol = pow(src, GAMMA_TO_LINEAR)*_qcPp_brushMask + pow(col, GAMMA_TO_LINEAR) *(1 - _qcPp_brushMask);
+		tmpCol = pow(tmpCol, LINEAR_TO_GAMMA);
 	#else 
-	tmpCol = src * _qcPp_brushMask + col * (1 - _qcPp_brushMask);
-	
+		tmpCol = src * _qcPp_brushMask + col * (1 - _qcPp_brushMask);
 	#endif
 
 	col = tmpCol * src.a + (1 - src.a)*(float4(col.rgb, col.a*(1 - alpha)));
@@ -450,8 +449,6 @@ inline float4 AlphaBlitOpaque (float alpha,float4 src, float2 texcoord){
 	return  max(0, col);
 	#endif
 }
-
-
 
 inline float4 AlphaBlitOpaquePreview (float alpha,float4 src, float2 texcoord, float4 col, float srcAlpha){
 	_qcPp_brushMask = BrushMaskWithAlphaBuffer(alpha, texcoord, srcAlpha);

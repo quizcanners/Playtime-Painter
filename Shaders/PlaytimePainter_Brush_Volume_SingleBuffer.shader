@@ -40,7 +40,7 @@
 
 					float alpha = prepareAlphaSphere(i.texcoord.xy, worldPos);
 
-					_qcPp_brushColor.a = 1; //alpha;
+					_qcPp_brushColor.a = alpha;
 
 					return _qcPp_brushColor;
 				}

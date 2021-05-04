@@ -121,8 +121,8 @@ namespace PlaytimePainter {
         public float brush3DRadius = 16;
         public float brush2DRadius = 16;
         public bool useAlphaBuffer;
-        
-        public float alphaLimitForAlphaBuffer = 1;
+
+        public float alphaLimitForAlphaBuffer = 0.5f;
 
         public bool worldSpaceBrushPixelJitter;
 
@@ -448,7 +448,7 @@ namespace PlaytimePainter {
 
         public bool ChannelSlider(ColorChanel chan, ref Color col)
         {
-            chan.GetIcon().write();
+            chan.GetIcon().draw();
             float val = chan.GetValueFrom(col);
             if (pegi.edit(ref val, 0, 1).nl())
             {
@@ -467,7 +467,7 @@ namespace PlaytimePainter {
 
             if (icon)
             {
-                icon.write(alphaBlend: false);
+                icon.draw(alphaBlend: false);
             }
 
             icon = channel.GetIcon();
@@ -606,7 +606,7 @@ namespace PlaytimePainter {
 
                     if (id == null ||  (!painter.IsEditingThisMesh &&  (gotAlpha || id.preserveTransparency) && (!id.isATransparentLayer || !mask.HasFlag(ColorMask.A)))) {
                         if (!gotAlpha)
-                            icon.Warning.write("Texture as no alpha, clicking save will fix it");
+                            icon.Warning.draw("Texture as no alpha, clicking save will fix it");
 
                         if (a) ChannelSlider(ColorMask.A, ref Color, slider: slider).nl(ref changed);
                     }

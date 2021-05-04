@@ -96,7 +96,6 @@ float4 ProjectorUvDepthAlpha(float4 shadowCoords, float3 worldPos, float3 lightP
 	float predictedDepth = 1 - (((viewPos / true01Range) - precompute.y) * precompute.z);
 
 	return float4((shadowCoords.xy + 1) * 0.5, predictedDepth+0.01 , alpha);
-
 }
 
 // from http://www.java-gaming.org/index.php?topic=35123.0
@@ -262,7 +261,6 @@ inline void normalAndPositionToUV (float3 worldNormal, float3 scenepos, out floa
 	tang.x = tang.w + (1-znorm)*dey;
 	tang.y = dey; 
 	tang.z = znorm*dey; 
-
 }
 
 inline void normalAndPositionToUV(float3 worldNormal, float3 scenepos, out float2 uv) {
@@ -279,14 +277,11 @@ inline void normalAndPositionToUV(float3 worldNormal, float3 scenepos, out float
 
 	uv.x = x;
 	uv.y = y;
-
 }
 
 inline void applyTangentNonNormalized (float4 tang, inout float3 normal, float2 bump){
 
 	normal.xyz+=float3(bump.x*tang.x, bump.y*tang.y, bump.x*tang.z + bump.y*tang.w); 
-
-
 }
 
 inline void rotate ( inout float2 uv, float angle){
@@ -297,7 +292,6 @@ inline void rotate ( inout float2 uv, float angle){
 		float2x2 rotationMatrix = float2x2( cosX, -sinX, sinY, cosX);
 
 		uv =  mul ( uv, rotationMatrix );
-
 }
 
 inline void smoothedPixelsSampling (inout float2 texcoord, float4 _TexelSize, out float mip) {
@@ -342,7 +336,7 @@ inline float3 DetectSmoothEdge(float4 edge, float3 junkNorm, float3 sharpNorm, f
 
 	float width = fwidth(junkNorm);
 
-	float coef = min(1, width*5);
+	float coef = min(1, width *5);
 
 	edge = smoothstep(0.965-coef, 1, edge);
 

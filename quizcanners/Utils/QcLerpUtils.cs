@@ -263,7 +263,7 @@ namespace QuizCanners.Lerp
                 else
                 {
                     if (Application.isPlaying)
-                        (Enabled ? icon.Active : icon.InActive).write(Enabled ? "Lerp Possible" : "Lerp Not Possible");
+                        (Enabled ? icon.Active : icon.InActive).draw(Enabled ? "Lerp Possible" : "Lerp Not Possible");
 
                     switch (lerpMode)
                     {
@@ -729,7 +729,7 @@ namespace QuizCanners.Lerp
                         TargetTexture = tex;
 
                 }
-                else TargetTexture.write();
+                else TargetTexture.draw();
             }
 
             #endregion

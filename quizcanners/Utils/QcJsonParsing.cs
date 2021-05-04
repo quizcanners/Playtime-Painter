@@ -438,7 +438,7 @@ namespace QuizCanners.Utils
                                 {
                                     if (p.name.Equals(previewValue))
                                     {
-                                        icon.Next.write();
+                                        icon.Next.draw();
                                         if ("CURRENT: {0}".F(previewValue).ClickUnFocus().nl())
                                             previewFoldout = false;
                                     }

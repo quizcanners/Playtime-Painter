@@ -149,12 +149,12 @@ MonoBehaviour:
     url: 
     inspectedItems: -1
   matMetas:
-  - material: {fileID: 2100000, guid: 42b64fdb315e3054ea757d8d1c4bcfa7, type: 2}
+  - material: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
     selectedTexture: 0
-    usePreviewShader: 0
+    usePreviewShader: 1
     colorToVertexColorOnMerge: 0
     selectedForMerge: 0
-  - material: {fileID: 2100000, guid: 122ad79ee7336ca40aca8b9e1c8420da, type: 2}
+  - material: {fileID: 2100000, guid: 42b64fdb315e3054ea757d8d1c4bcfa7, type: 2}
     selectedTexture: 0
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
@@ -164,27 +164,29 @@ MonoBehaviour:
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
     selectedForMerge: 0
-  - material: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - material: {fileID: 2100000, guid: 122ad79ee7336ca40aca8b9e1c8420da, type: 2}
     selectedTexture: 0
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
     selectedForMerge: 0
-  - material: {fileID: 10650, guid: 0000000000000000f000000000000000, type: 0}
-    selectedTexture: 0
-    usePreviewShader: 0
-    colorToVertexColorOnMerge: 0
-    selectedForMerge: 0
-  decals: []
-  sourceTextures: []
-  masks: []
+  decals:
+  - decalName: New VolumetricDecal
+    type: 0
+    heightMap: {fileID: 0}
+    overlay: {fileID: 0}
+  sourceTextures:
+  - {fileID: 2800000, guid: b24b57e0cfed05643be34b0256df875e, type: 3}
+  masks:
+  - {fileID: 2800000, guid: 3130d10873306a14e9c7e09c42ee242f, type: 3}
+  - {fileID: 2800000, guid: 5759f4905ca146e419ea9242e4c1d2ba, type: 3}
   selectedColorScheme: 0
   inspectedColorScheme: -1
   showUrlField: 0
   showRecentTextures: 0
   showColorSchemes: 0
-  meshTool: 0
+  meshTool: 3
   bevelDetectionSensitivity: 6
-  meshToolsStd: t_pos|15|dm|1|0|inM|1|y||t_shF|7|dm|1|0||t_vCol|0||t_edgs|23|v|1|0|doCol|1|n|fe|1|n||t_noStd|16|cat|1|0|cac|1|0||t_sbmsh|0||t_uv|30|gtuv|1|y|nrmWrap|3|0.5|mp|1|y||
+  meshToolsStd: t_pos|15|dm|1|0|inM|1|y||t_shF|7|dm|1|0||t_vCol|0||t_edgs|23|v|1|1|doCol|1|n|fe|1|n||t_noStd|16|cat|1|0|cac|1|0||t_sbmsh|0||t_uv|30|gtuv|1|y|nrmWrap|3|0.5|mp|1|y||
   saveMeshUndos: 0
   makeVerticesUniqueOnEdgeColoring: 0
   gridSize: 1
@@ -192,7 +194,7 @@ MonoBehaviour:
   newVerticesUnique: 1
   newVerticesSmooth: 1
   pixelPerfectMeshEditing: 0
-  useGridForBrush: 1
+  useGridForBrush: 0
   showVolumeDetailsInPainter: 0
   materialsFolderName: Materials
   texturesFolderName: Textures
@@ -200,7 +202,7 @@ MonoBehaviour:
   vectorsFolderName: Vectors
   atlasFolderName: Atlases
   enablePainterUIonPlay: 0
-  BrushConfig: {fileID: 0}
+  BrushConfig: {fileID: 11400000, guid: 268884d2c815b4a4184d9f2b8b00d6b6, type: 2}
   showColorSliders: 1
   disableNonMeshColliderInPlayMode: 0
   previewAlphaChanel: 0

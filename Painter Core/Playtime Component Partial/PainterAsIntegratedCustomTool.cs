@@ -117,7 +117,9 @@ namespace PlaytimePainter
 
                 var pp = isHit ? hit.transform.GetComponent<PlaytimePainter>() : null;
 
-                if (lMouseDwn && e.button == 0 && OnEditorRayHit_AllowRefocusing(hit) && isHit) {
+                OnEditorRayHit_AllowRefocusing(hit, out bool canRefocus);
+
+                if (lMouseDwn && e.button == 0 && isHit) {
                     
                     if (pp && pp == painter && AllowEditing(painter))
                         HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
@@ -136,14 +138,14 @@ namespace PlaytimePainter
                 painter.ManagedUpdateOnFocused();
         }
 
-        public static bool OnEditorRayHit_AllowRefocusing(RaycastHit hit)
+        public static void OnEditorRayHit_AllowRefocusing(RaycastHit hit, out bool allowRefocusing)
         {
 
             var tf = hit.transform;
             var pointedPainter = tf ? tf.GetComponent<PlaytimePainter>() : null;
             var e = Event.current;
 
-            var allowRefocusing = true;
+            allowRefocusing = true;
 
             if (painter)
             {
@@ -165,8 +167,6 @@ namespace PlaytimePainter
                         && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag ||
                             e.type == EventType.MouseUp))
                         navigating = true;
-
-                    return allowRefocusing;
                 }
 
                 if (lMouseDwn)
@@ -195,8 +195,6 @@ namespace PlaytimePainter
                                                      e.type == EventType.MouseUp))
                 navigating = true;
 
-
-            return allowRefocusing;
         }
 
         public static void FeedEvents(Event e)

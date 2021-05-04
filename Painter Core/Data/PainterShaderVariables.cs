@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using QuizCanners.Inspect;
+using UnityEngine;
 using static QuizCanners.Utils.ShaderProperty;
 
 namespace PlaytimePainter
@@ -38,8 +39,8 @@ namespace PlaytimePainter
 
         public static readonly VectorValue BRUSH_WORLD_POS_FROM         = new VectorValue("_qcPp_brushWorldPosFrom");
         public static readonly VectorValue BRUSH_WORLD_POS_TO           = new VectorValue("_qcPp_brushWorldPosTo");
-        public static readonly VectorValue BRUSH_UV_POS_FROM            = new VectorValue("_qcPp_brushUvPosFrom");
-        public static readonly VectorValue BRUSH_UV_POS_TO              = new VectorValue("_qcPp_brushUvPosTo");
+        public static readonly VectorValue PREVIEW_BRUSH_UV_POS_FROM            = new VectorValue("_qcPp_brushUvPosFrom");
+        public static readonly VectorValue PREVIEW_BRUSH_UV_POS_TO              = new VectorValue("_qcPp_brushUvPosTo");
         public static readonly VectorValue BRUSH_EDITED_UV_OFFSET       = new VectorValue("_qcPp_brushEditedUVoffset");
         public static readonly VectorValue BRUSH_ATLAS_SECTION_AND_ROWS = new VectorValue("_qcPp_brushAtlasSectionAndRows");
         public static readonly TextureValue DESTINATION_BUFFER          = new TextureValue("_qcPp_DestBuffer");
@@ -86,5 +87,15 @@ namespace PlaytimePainter
         public const string MESH_PREVIEW_VERTCOLOR = "_qcPp_MESH_PREVIEW_VERTCOLOR";
         public const string MESH_PREVIEW_PROJECTION = "_qcPp_MESH_PREVIEW_PROJECTION";
         #endregion
+
+        public static void Inspect() 
+        {
+            "Painting to:".nl();
+            DESTINATION_BUFFER.Inspect();
+
+           
+
+        }
+
     }
 }

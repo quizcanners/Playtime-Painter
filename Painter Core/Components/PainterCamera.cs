@@ -201,15 +201,7 @@ namespace PlaytimePainter {
 
         public Shader CurrentShader
         {
-            set { brushRenderer.Set(value); }
-        }
-
-        public Material CurrentMaterial
-        {
-            get
-            {
-               return brushRenderer.GetMaterial();
-            }
+            set => brushRenderer.Set(value); 
         }
 
         public RenderBrush brushPrefab;
@@ -418,34 +410,39 @@ namespace PlaytimePainter {
 
         public void SHADER_STROKE_SEGMENT_UPDATE(PaintCommand.UV command)
         {
-            Brush bc = command.Brush;
-            TextureMeta id = command.TextureData;
-           // Stroke stroke = command.Stroke;
-            
-            var isDoubleBuffer = !id.renderTexture;
+            Brush brush = command.Brush;
+            TextureMeta textureMeta = command.TextureData;
+  
+            var isDoubleBuffer = !textureMeta.renderTexture;
 
-            var useSingle = !isDoubleBuffer || bc.IsSingleBufferBrush();
+            var useSingle = !isDoubleBuffer || brush.IsSingleBufferBrush();
 
-            var blitMode = bc.GetBlitMode(false);
+            var blitMode = brush.GetBlitMode(false);
 
-            command.usedAlphaBuffer = !useSingle && bc.useAlphaBuffer && bc.GetBrushType(false).SupportsAlphaBufferPainting && blitMode.SupportsAlphaBufferPainting;
+            command.usedAlphaBuffer = //!useSingle && // Not sure
+                brush.useAlphaBuffer && brush.GetBrushType(false).SupportsAlphaBufferPainting && blitMode.SupportsAlphaBufferPainting;
 
             var painter = command.TryGetPainter();
 
             Shader shd = null;
             if (painter)
-                foreach (var pl in CameraModuleBase.BrushPlugins) {
-                    var bs = useSingle ? pl.GetBrushShaderSingleBuffer(painter) : pl.GetBrushShaderDoubleBuffer(painter);
-                    if (!bs) continue;
-                    shd = bs;
-                    break;
+                foreach (var pl in CameraModuleBase.BrushPlugins) 
+                {
+                    if (pl.IsEnabledFor(painter, textureMeta, brush))
+                    {
+                        var bs = useSingle ? pl.GetBrushShaderSingleBuffer(painter) : pl.GetBrushShaderDoubleBuffer(painter);
+                        if (!bs) 
+                            continue;
+                        shd = bs;
+                        break;
+                    }
                 }
 
             if (!shd) {
 
                 if (command.usedAlphaBuffer) {
                     shd = blitMode.ShaderForAlphaOutput; 
-                    AlphaBufferSetDirtyBeforeRender(id, blitMode.ShaderForAlphaBufferBlit);
+                    AlphaBufferSetDirtyBeforeRender(textureMeta, blitMode.ShaderForAlphaBufferBlit);
                 }
                 else
                     shd = useSingle ? blitMode.ShaderForSingleBuffer : blitMode.ShaderForDoubleBuffer;
@@ -457,29 +454,37 @@ namespace PlaytimePainter {
             
             SHADER_BRUSH_UPDATE(command); 
 
-            TargetTexture = command.usedAlphaBuffer ? AlphaBuffer : id.CurrentRenderTexture();
+            TargetTexture = command.usedAlphaBuffer ? AlphaBuffer : textureMeta.CurrentRenderTexture();
 
             if (isDoubleBuffer)
                 PainterShaderVariables.DESTINATION_BUFFER.GlobalValue = BackBuffer;
-            
+
+            _latestPaintShaderDebug = shd;
+
             CurrentShader = shd;
         }
 
         public static void SHADER_POSITION_AND_PREVIEW_UPDATE(Stroke st, bool hidePreview, float size)
         {
 
-            PainterShaderVariables.BRUSH_UV_POS_FROM.GlobalValue = st.uvFrom.ToVector4(0, _previewAlpha);
-            PainterShaderVariables.BRUSH_UV_POS_TO.GlobalValue = st.uvTo.ToVector4(0, _previewAlpha);
+            PainterShaderVariables.PREVIEW_BRUSH_UV_POS_FROM.GlobalValue = st.uvFrom.ToVector4(0, _previewAlpha);
+            PainterShaderVariables.PREVIEW_BRUSH_UV_POS_TO.GlobalValue = st.uvTo.ToVector4(0, _previewAlpha);
 
             if (hidePreview && Math.Abs(_previewAlpha) < float.Epsilon)
                 return;
 
             LerpUtils.IsLerpingBySpeed(ref _previewAlpha, hidePreview ? 0 : 1, 4f);
 
-            PainterShaderVariables.BRUSH_WORLD_POS_FROM.GlobalValue = _prevPosPreview.ToVector4(size);
-            PainterShaderVariables.BRUSH_WORLD_POS_TO.GlobalValue = st.posTo.ToVector4((st.posTo - _prevPosPreview).magnitude); 
+           // PainterShaderVariables.BRUSH_WORLD_POS_FROM.GlobalValue = _prevPosPreview.ToVector4(size);
+          //  PainterShaderVariables.BRUSH_WORLD_POS_TO.GlobalValue = st.posTo.ToVector4((st.posTo - _prevPosPreview).magnitude);
 
-            _prevPosPreview = st.posTo;
+            st.SetWorldPosInShader();
+            if (!hidePreview)
+            {
+                st.SetPreviousValues();
+            }
+
+           // _prevPosPreview = st.posTo;
         }
         
         #endregion
@@ -877,47 +882,14 @@ namespace PlaytimePainter {
 
         private int _inspectedDependecy = -1;
         private int _inspectedStuff = -1;
+        private Shader _latestPaintShaderDebug;
 
        public override void Inspect()
         {
-
-            pegi.toggleDefaultInspector(this).nl();
-
-            var changed = false;
-            
-            if ("Camera Modules".IsEntered(ref _inspectedStuff, 0, false).nl_ifNotEntered())
-            {
-                _modulesMeta.edit_List(ref CameraModuleBase.modules, CameraModuleBase.all).changes(ref changed);
-
-                if (!_modulesMeta.Inspecting)
-                {
-                    if ("Find Modules".Click())
-                        CameraModuleBase.RefreshModules();
-
-                    if ("Delete Modules".Click().nl())
-                        CameraModuleBase.modules = null;
-                }
-
-                pegi.nl();
-            }
-
-            if ("Depth Projector Camera".IsEntered(ref _inspectedStuff, 1).nl())
-            {
-                if (DepthProjectorCamera.Instance)
-                {
-                    DepthProjectorCamera.Instance.Nested_Inspect().nl();
-                }
-                else if ("Instantiate".Click())
-                    GetOrCreateProjectorCamera();
-            }
-
-            if ("Painter Camera".IsEntered(ref _inspectedStuff, 2).nl_ifNotEntered())
-                DependenciesInspect(true);
-
-            if ("Data && Config".IsEntered(ref _inspectedStuff, 3).nl_ifEntered())
+            if ("Data && Settings".IsEntered(ref _inspectedStuff, 0))
             {
                 if (Data)
-                    Data.Nested_Inspect().nl(ref changed);
+                    Data.Nested_Inspect().nl();
                 else
                 {
                     "NO CONFIG Scriptable Object".writeWarning();
@@ -931,10 +903,54 @@ namespace PlaytimePainter {
 
             pegi.nl();
 
-            if ("Inspector & Debug".IsEntered(ref _inspectedStuff, 4).nl())
+            if ("Painter Camera".IsEntered(ref _inspectedStuff, 1))
+                DependenciesInspect(true);
+            else if (_inspectedStuff == -1)
+                pegi.toggleDefaultInspector(this);
+
+            pegi.nl();
+
+            if ("Depth Projector Camera".IsEntered(ref _inspectedStuff, 2).nl())
+            {
+                if (DepthProjectorCamera.Instance)
+                {
+                    DepthProjectorCamera.Instance.Nested_Inspect().nl();
+                }
+                else if ("Instantiate".Click())
+                    GetOrCreateProjectorCamera();
+            }
+
+            if ("Painter Camera Modules".IsEntered(ref _inspectedStuff, 3, false).nl_ifNotEntered())
+            {
+                _modulesMeta.edit_List(ref CameraModuleBase.modules, CameraModuleBase.all);
+
+                if (!_modulesMeta.Inspecting)
+                {
+                    if ("Find Modules".Click())
+                        CameraModuleBase.RefreshModules();
+
+                    if ("Delete Modules".Click().nl())
+                        CameraModuleBase.modules = null;
+                }
+
+                pegi.nl();
+            }
+
+            if ("Global Shader Variables".IsEntered(ref _inspectedStuff, 4).nl())
+                PainterShaderVariables.Inspect();
+
+            pegi.nl();
+
+            if ("Debug".IsEntered(ref _inspectedStuff, 5).nl())
                 QcUtils.InspectDebug();
 
             pegi.nl();
+
+            if (_inspectedStuff == -1) 
+            {
+                "Latest Paint Shader (For Debug)".edit(ref _latestPaintShaderDebug).nl();
+            }
+
         }
         
         public bool DependenciesInspect(bool showAll = false) {
@@ -1083,8 +1099,6 @@ namespace PlaytimePainter {
         #endregion
 
     }
-
-
 
 #if UNITY_EDITOR
     [CustomEditor(typeof(PainterCamera))] internal class RenderTexturePainterEditor : PEGI_Inspector_Mono<PainterCamera> { }

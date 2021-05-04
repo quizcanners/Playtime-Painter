@@ -384,7 +384,7 @@ namespace PlaytimePainter
                 "Screen Texture (Optional):".edit(ref _screenReadTexture2D).nl();
 
                 if (_screenReadTexture2D)
-                    _screenReadTexture2D.write(250, alphaBlend: false);
+                    _screenReadTexture2D.draw(250, alphaBlend: false);
 
                 pegi.nl();
 
@@ -408,17 +408,17 @@ namespace PlaytimePainter
                     {
                         "Main Texture: {0}".F(MainEffectTexture).nl();
 
-                        MainEffectTexture.write(250, alphaBlend: false);
+                        MainEffectTexture.draw(250, alphaBlend: false);
                         pegi.nl();
 
                         "Previous Texture: {0}".F(PreviousTexture).nl();
-                        PreviousTexture.write(250, alphaBlend: false);
+                        PreviousTexture.draw(250, alphaBlend: false);
                         pegi.nl();
                     }
                 }
                 else
                 {
-                    effetBuffer.write(250, alphaBlend: false);
+                    effetBuffer.draw(250, alphaBlend: false);
                     pegi.nl();
                 }
             }

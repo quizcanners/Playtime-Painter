@@ -203,12 +203,9 @@
 					#endif
 
 					#if BLIT_MODE_COPY
-						float4 src = Sample(o.texcoord.xy*o.srcTexAspect);
+						float4 src = tex2D(_qcPp_SourceTexture, o.texcoord.xy*o.srcTexAspect);//Sample(o.texcoord.xy*o.srcTexAspect);
 						_qcPp_brushColor.rgb = SourceTextureByBrush(src.rgb);
-						//alpha *= ignoreSrcAlpha + src.a*(1- ignoreSrcAlpha);
-
 						srcAlpha = src.a;
-
 					#endif
 
 					float4 tc = float4(o.texcoord.xy, 0, 0);
@@ -310,40 +307,34 @@
 						col = col*_qcPp_brushMask + 0.5*(1 - _qcPp_brushMask)+col.a*_qcPp_brushMask.a;
 					#endif
 	
-					
 					#if BLIT_MODE_ALPHABLEND || BLIT_MODE_COPY || BLIT_MODE_PROJECTION
 
-					#if _qcPp_TARGET_TRANSPARENT_LAYER
+						#if _qcPp_TARGET_TRANSPARENT_LAYER
 						
-						col = AlphaBlitTransparentPreview(alpha, _qcPp_brushColor, tc.xy, col, srcAlpha);
+							col = AlphaBlitTransparentPreview(alpha, _qcPp_brushColor, tc.xy, col, srcAlpha);
 
-						float showBG = _qcPp_srcTextureUsage.z * (1-col.a);
+							float showBG = _qcPp_srcTextureUsage.z * (1-col.a);
 
-						col.a += showBG; 
+							col.a += showBG; 
 
-						col.rgb = col.rgb * (1 - showBG) + tex2D(_qcPp_TransparentLayerUnderlay, tc.xy).rgb*showBG;
+							col.rgb = col.rgb * (1 - showBG) + tex2D(_qcPp_TransparentLayerUnderlay, tc.xy).rgb*showBG;
 
-					#else
-						col = AlphaBlitOpaquePreview(alpha, _qcPp_brushColor, tc.xy, col, srcAlpha);
+						#else
+							col = AlphaBlitOpaquePreview(alpha, _qcPp_brushColor, tc.xy, col, srcAlpha);
 
-						col.a = 1;
-					#endif
+							col.a = 1;
+						#endif
 
-					#if BLIT_MODE_PROJECTION
+						#if BLIT_MODE_PROJECTION
 
-						float pa = (_qcPp_brushUvPosTo.w)*pr_shadow*0.8;
+							float pa = (_qcPp_brushUvPosTo.w)*pr_shadow*0.8;
 
-						col = col * (1-pa) + _qcPp_brushColor*(pa);
-					#endif
+							col = col * (1-pa) + _qcPp_brushColor*(pa);
+						#endif
 
-
-					#endif
-
-					#if BLIT_MODE_ADD
+					#elif BLIT_MODE_ADD
 						col =  addWithDestBufferPreview (alpha*0.4, _qcPp_brushColor, tc.xy, col, srcAlpha);
-					#endif
-    
-					#if BLIT_MODE_SUBTRACT
+					#elif BLIT_MODE_SUBTRACT
 						col =  subtractFromDestBufferPreview (alpha*0.4, _qcPp_brushColor, tc.xy, col);
 					#endif
 
