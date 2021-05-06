@@ -345,7 +345,7 @@ namespace PlaytimePainter.MeshEditing {
         
        public override void Inspect()
         {
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
             
             var em = EditedMesh;
             var br = Cfg.Brush;
@@ -353,7 +353,7 @@ namespace PlaytimePainter.MeshEditing {
             var p = InspectedPainter;
 
        
-            "Make Vertex Unique On Paint".toggleIcon(ref Cfg.makeVerticesUniqueOnEdgeColoring).nl(ref changed);
+            "Make Vertex Unique On Paint".toggleIcon(ref Cfg.makeVerticesUniqueOnEdgeColoring).nl();
             
             if (em.subMeshCount > 1) {
 
@@ -364,7 +364,7 @@ namespace PlaytimePainter.MeshEditing {
                 for (var i = 0; i < cnt; i++)
                     nms[i] = "{0}: {1}".F(i, mats.TryGet(i));
 
-                "Color Sub Mesh".select(90, ref selectedSubMesh, nms).changes(ref changed);
+                "Color Sub Mesh".select(90, ref selectedSubMesh, nms);
 
                 if (selectedSubMesh < em.subMeshCount && "Apply".Click()) 
                     em.ColorSubMesh(selectedSubMesh, col);
@@ -386,7 +386,7 @@ namespace PlaytimePainter.MeshEditing {
             }
 
 
-            if (("Paint All with Brush Color").Click().nl(ref changed))
+            if (("Paint All with Brush Color").Click().nl())
                 em.PaintAll(br.Color);
 
             "Submeshes".nl(PEGI_Styles.ListLabel);
@@ -416,7 +416,7 @@ namespace PlaytimePainter.MeshEditing {
 
             pegi.nl();
 
-            "Recolor group On Edit".toggleIcon(ref constantUpdateOnGroupColors).changes(ref changed);
+            "Recolor group On Edit".toggleIcon(ref constantUpdateOnGroupColors);
 
             pegi.FullWindow.DocumentationClickOpen(() => ("If mesh has submeshes he will have a couple of groups. This can be used to change their colors individually." +
                                                                      "After changing color of the group, you can click on the brush to the right to apply the color." +

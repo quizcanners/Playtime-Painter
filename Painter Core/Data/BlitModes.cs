@@ -150,7 +150,7 @@ namespace PlaytimePainter {
             public bool InspectWithModule()
             {
 
-                var changed = false;
+                var changed = pegi.ChangeTrackStart();
 
                 Inspect();
 
@@ -167,7 +167,7 @@ namespace PlaytimePainter {
 
                     if (!cpuBlit)
                         MsgPainter.Hardness.GetText()
-                            .edit("Makes edges more rough.", 70, ref InspectedBrush.hardness, 1f, 5f).nl(ref changed);
+                            .edit("Makes edges more rough.", 70, ref InspectedBrush.hardness, 1f, 5f).nl();
 
                     var txt = (usingDecals ? "Tint alpha" : MsgPainter.Flow.GetText());
 
@@ -187,19 +187,18 @@ namespace PlaytimePainter {
                                            ? 1
                                            : PlaytimePainter.inspected.transform.lossyScale.magnitude);
 
-                        pegi.edit(ref InspectedBrush.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f)
-                            .changes(ref changed);
+                        pegi.edit(ref InspectedBrush.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f);
                     }
                     else
                     {
                         if (!brushType.IsPixelPerfect)
                             pegi.edit(ref InspectedBrush.brush2DRadius, cpuBlit ? 1 : 0.1f,
-                                usingDecals ? 128 : id?.width * 0.5f ?? 256).changes(ref changed);
+                                usingDecals ? 128 : id?.width * 0.5f ?? 256);
                         else
                         {
                             var val = (int) InspectedBrush.brush2DRadius;
                             pegi.edit(ref val, (int) (cpuBlit ? 1 : 0.1f),
-                                (int) (usingDecals ? 128 : id?.width * 0.5f ?? 256)).changes(ref changed);
+                                (int) (usingDecals ? 128 : id?.width * 0.5f ?? 256));
                             InspectedBrush.brush2DRadius = val;
 
                         }
@@ -210,7 +209,7 @@ namespace PlaytimePainter {
                     if (blitMode.UsingSourceTexture && (id == null || id.TargetIsRenderTexture()))
                         MsgPainter.CopyFrom.GetText().selectOrAdd(70, ref InspectedBrush.selectedSourceTexture,
                                 ref Cfg.sourceTextures)
-                            .nl(ref changed);
+                            .nl();
                 }
 
 
@@ -398,7 +397,7 @@ namespace PlaytimePainter {
 
                 var txt = MsgPainter.BlurAmount.GetText();
 
-                txt.edit(txt.ApproximateLength(), ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
+                txt.edit(txt.ApproximateLength(), ref InspectedBrush.blurAmount, 1f, 8f).nl();
                 return changed;
             }
 
@@ -463,22 +462,24 @@ namespace PlaytimePainter {
             
             protected override bool Inspect()
             {
-                bool changed = base.Inspect();
+                bool changed = pegi.ChangeTrackStart();
+                    
+                    base.Inspect();
 
                 if (!InspectedPainter)
                     return changed;
 
                 pegi.nl();
 
-                "Mask Size: ".edit(60, ref Cfg.samplingMaskSize).nl(ref changed);
+                "Mask Size: ".edit(60, ref Cfg.samplingMaskSize).nl();
 
                 Cfg.samplingMaskSize.Clamp(1, 512);
 
-                "Color Set On".editEnum(ref method).nl(ref changed);
+                "Color Set On".editEnum(ref method).nl();
 
                 if (method == ColorSetMethod.Manual)
                 {
-                    "CurrentPixel".edit(80, ref currentPixel).nl(ref changed);
+                    "CurrentPixel".edit(80, ref currentPixel).nl();
 
                     currentPixel.Clamp(-Cfg.samplingMaskSize.Max, Cfg.samplingMaskSize.Max * 2);
                 }
@@ -488,14 +489,14 @@ namespace PlaytimePainter {
                 if (id != null)
                 {
 
-                    if ("Set Tiling Offset".Click(ref changed))
+                    if ("Set Tiling Offset".Click())
                     {
                         id.tiling = Vector2.one * 1.5f;
                         id.offset = -Vector2.one * 0.25f;
                         InspectedPainter.UpdateTilingToMaterial();
                     }
 
-                    if (InspectedPainter != null && "Generate Default".Click().nl(ref changed))
+                    if (InspectedPainter != null && "Generate Default".Click().nl())
                     {
                         var pix = id.Pixels;
 
@@ -612,7 +613,7 @@ namespace PlaytimePainter {
             {
 
                 var changed = base.Inspect().nl();
-                "Bloom Radius".edit(70, ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
+                "Bloom Radius".edit(70, ref InspectedBrush.blurAmount, 1f, 8f).nl();
                 return changed;
             }
 
@@ -702,14 +703,14 @@ namespace PlaytimePainter {
                     if (icon.Delete.Click("Delete Projector Camera"))
                         depthCamera.gameObject.DestroyWhatever();
                     else
-                       pegi.Nested_Inspect(depthCamera.Inspect_PainterShortcut).nl(ref changed);
+                       pegi.Nested_Inspect(depthCamera.Inspect_PainterShortcut).nl();
 
                     pegi.line(Color.black);
                     pegi.nl();
 
                 }
 
-                base.Inspect().nl(ref changed);
+                base.Inspect().nl();
 
 
                 return changed;
@@ -747,7 +748,7 @@ namespace PlaytimePainter {
 
                 var txt = MsgPainter.SpreadSpeed.GetText();
 
-                txt.edit(txt.ApproximateLength(), ref InspectedBrush.blurAmount, 1f, 8f).nl(ref changed);
+                txt.edit(txt.ApproximateLength(), ref InspectedBrush.blurAmount, 1f, 8f).nl();
 
                 return changed;
             }
@@ -806,7 +807,9 @@ namespace PlaytimePainter {
 
             protected override bool Inspect()
             {
-                var changed = base.Inspect().nl();
+                var changed = pegi.ChangeTrackStart();
+                    
+                    base.Inspect().nl();
 
                 var allCstm = Cfg.customBlitModes;
 
@@ -815,7 +818,7 @@ namespace PlaytimePainter {
 
                 var cfg = _customCfg;
 
-                if (pegi.edit(ref cfg, 60).nl(ref changed) && cfg)
+                if (pegi.edit(ref cfg, 60).nl() && cfg)
                 {
                     if (allCstm.Contains(cfg))
                         Cfg.selectedCustomBlitMode = allCstm.IndexOf(cfg);
@@ -830,9 +833,9 @@ namespace PlaytimePainter {
 
                 if (_customCfg)
                 {
-                    if (_customCfg.name.IsFoldout(ref _showConfig).nl(ref changed))
+                    if (_customCfg.name.IsFoldout(ref _showConfig).nl())
                     {
-                        _customCfg.Nested_Inspect().changes(ref changed);
+                        _customCfg.Nested_Inspect();
                     }
                 }
                 else

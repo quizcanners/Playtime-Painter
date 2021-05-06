@@ -241,7 +241,7 @@ namespace QuizCanners.Inspect
 
         public bool SelectType(ref object obj, TaggedTypesCfg all)
         {
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
 
             if (all == null)
             {
@@ -251,7 +251,7 @@ namespace QuizCanners.Inspect
 
             var type = obj?.GetType();
 
-            if (all.Select(ref type).nl(ref changed))
+            if (all.Select(ref type).nl())
                 ChangeType(ref obj, type, all);
 
             return changed;
@@ -260,15 +260,13 @@ namespace QuizCanners.Inspect
         public bool PEGI_inList<T>(ref object obj)
         {
 
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
 
             if (typeof(T).IsUnityObject())
             {
-
                 var uo = obj as UnityEngine.Object;
-                if (PEGI_inList_Obj(ref uo).changes(ref changed))
+                if (PEGI_inList_Obj(ref uo))
                     obj = uo;
-
             }
             else
             {

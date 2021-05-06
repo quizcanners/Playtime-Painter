@@ -138,7 +138,7 @@ namespace PlaytimePainter.TexturePacking
 
             pegi.nl();
 
-            changed |= "Color texture ".toggleIcon(ref _isColor).nl(ref changed);
+            changed |= "Color texture ".toggleIcon(ref _isColor).nl();
 
             var usingBumpStrength = false;
             var usingColorSelector = false;
@@ -164,17 +164,17 @@ namespace PlaytimePainter.TexturePacking
                 pegi.nl();
             }
 
-            if (usingBumpStrength) "Bump Strength".edit(ref bumpStrength).nl(ref changed);
-            if (usingColorSelector) "Color".edit(ref fillColor).nl(ref changed);
+            if (usingBumpStrength) "Bump Strength".edit(ref bumpStrength).nl();
+            if (usingColorSelector) "Color".edit(ref fillColor).nl();
             if (usingGlossMap)
             {
 
                 if ((sets == null || sets.heightMap) &&
-                 "Gloss Mip -= Height Noise".toggle(ref glossNoiseFromHeight).nl(ref changed))
+                 "Gloss Mip -= Height Noise".toggle(ref glossNoiseFromHeight).nl())
                     _glossNoiseFromBump = false;
 
                 if ((sets == null || sets.normalMap)
-                    && "Gloss Mip -= Normal Noise".toggle(ref _glossNoiseFromBump).nl(ref changed))
+                    && "Gloss Mip -= Normal Noise".toggle(ref _glossNoiseFromBump).nl())
                     glossNoiseFromHeight = false;
 
                 if (glossNoiseFromHeight || _glossNoiseFromBump)
@@ -185,7 +185,7 @@ namespace PlaytimePainter.TexturePacking
 
             if (sets != null)
             {
-                if ("Combine".Click().nl(ref changed))
+                if ("Combine".Click().nl())
                     Combine(sets, p);
 
                 if (p)
@@ -213,17 +213,14 @@ namespace PlaytimePainter.TexturePacking
 
         public virtual void Inspect()
         {
-
-            var changed = false;
-
             if (enabled)
             {
 
                 var rls = TextureRole.All;
 
-                pegi.select_Index(ref _sourceRole, rls).changes(ref changed);
+                pegi.select_Index(ref _sourceRole, rls);
 
-                rls[_sourceRole].Inspect(ref sourceChannel, this).changes(ref changed);
+                rls[_sourceRole].Inspect(ref sourceChannel, this);
             }
             pegi.nl();
         }

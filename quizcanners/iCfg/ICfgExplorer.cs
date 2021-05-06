@@ -40,7 +40,7 @@ namespace QuizCanners.CfgDecode
             var changed = false;
             
             "Load File:".write(90);
-            target.LoadCfgOnDrop().nl(ref changed);
+            target.LoadCfgOnDrop().nl();
 
             if (icon.Copy.Click("Copy Component Data").nl())
                 CfgExtensions.copyBufferValue = target.Encode().ToString();
@@ -54,11 +54,13 @@ namespace QuizCanners.CfgDecode
 
         public bool Inspect(ICfg target)
         {
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
             inspectedCfg = target;
             inspected = this;
 
-            var added = "Saved CFGs:".edit_List(ref states, ref inspectedState, ref changed);
+            CfgState added; 
+
+            "Saved CFGs:".edit_List(ref states, ref inspectedState, out added);
 
             if (added != null && target != null)
             {
@@ -163,12 +165,16 @@ namespace QuizCanners.CfgDecode
                 if (_tags == null && data.ToString().Contains("|"))
                     Decode(data);
 
+                var changes = pegi.ChangeTrackStart();
+
                 if (_tags != null)
-                    tag.edit_List(ref _tags, ref inspectedTag).changes(ref dirty);
+                    tag.edit_List(ref _tags, ref inspectedTag);
+
+                dirty |= changes;
 
                 if (inspectedTag == -1)
                 {
-                    var changes = pegi.ChangeTrackStart();
+                   
                     //"data".edit(40, ref data).changes(ref dirty);
                     data.Inspect();
 
@@ -204,20 +210,20 @@ namespace QuizCanners.CfgDecode
             public void InspectInList(int ind, ref int edited)
             {
 
-                bool changed = false;
-
                 CountForInspector().ToString().write(50);
 
                 if (data.IsEmpty == false && data.ToString().Contains("|"))
                 {
-                    pegi.edit(ref tag).changes(ref changed);
+                    pegi.edit(ref tag);
 
                     if (icon.Enter.Click("Explore data"))
                         edited = ind;
                 }
                 else
                 {
-                    pegi.edit(ref tag).changes(ref dirty);
+                    if (pegi.edit(ref tag))
+                        dirty = true;
+
                     data.Inspect(); //.changes(ref dirty);
                     //pegi.edit(ref data).changes(ref dirty);
                 }
@@ -285,13 +291,11 @@ namespace QuizCanners.CfgDecode
 
             public void Inspect()
             {
-                bool changed = false;
-
 
                 if (dataExplorer.inspectedTag == -1)
                 {
                     this.inspect_Name();
-                    if (dataExplorer.tag.Length > 0 && icon.Save.Click("Save To Assets", ref changed))
+                    if (dataExplorer.tag.Length > 0 && icon.Save.Click("Save To Assets"))
                     {
                         QcFile.Save.ToAssets(Mgmt.fileFolderHolder, filename: dataExplorer.tag, data: dataExplorer.data.ToString(), asBytes: true);
                         QcUnity.RefreshAssetDatabase();
@@ -304,42 +308,41 @@ namespace QuizCanners.CfgDecode
                         if (dataExplorer.tag.Length == 0)
                             dataExplorer.tag = Cfg.GetNameForInspector() + " config";
 
-                        "Save To:".edit(50, ref Mgmt.fileFolderHolder).changes(ref changed);
+                        "Save To:".edit(50, ref Mgmt.fileFolderHolder);
 
                         var uObj = Cfg as Object;
 
-                        if (uObj && icon.Done.Click("Use the same directory as current object.", ref changed))
+                        if (uObj && icon.Done.Click("Use the same directory as current object."))
                             Mgmt.fileFolderHolder = QcUnity.GetAssetFolder(uObj);
 
-                        uObj.ClickHighlight().nl(ref changed);
+                        uObj.ClickHighlight().nl();
                     }
 
                     if ("Description".IsFoldout().nl())
                     {
-                        pegi.editBig(ref comment).nl(ref changed);
+                        pegi.editBig(ref comment).nl();
                     }
                 }
 
-                dataExplorer.Nested_Inspect().changes(ref changed);
+                dataExplorer.Nested_Inspect();
             }
 
             public void InspectInList(int ind, ref int edited)
             {
-                var changed = false;
 
                 if (dataExplorer.data.ToString().IsNullOrEmpty() == false && icon.Copy.Click())
                     pegi.SetCopyPasteBuffer(dataExplorer.data.ToString());
                 
-                CountForInspector().ToString().edit(60, ref dataExplorer.tag).changes(ref changed);
+                CountForInspector().ToString().edit(60, ref dataExplorer.tag);
 
                 if (Cfg != null)
                 {
-                    if (icon.Load.ClickConfirm("sfgLoad", "Decode Data into " + Cfg.GetNameForInspector()).changes(ref changed))
+                    if (icon.Load.ClickConfirm("sfgLoad", "Decode Data into " + Cfg.GetNameForInspector()))
                     {
                         dataExplorer.UpdateData();
                         Cfg.DecodeFull(dataExplorer.data);
                     }
-                    if (icon.Save.ClickConfirm("cfgSave", "Save data from " + Cfg.GetNameForInspector()).changes(ref changed))
+                    if (icon.Save.ClickConfirm("cfgSave", "Save data from " + Cfg.GetNameForInspector()))
                         dataExplorer = new ICfgProperty(dataExplorer.tag, Cfg.Encode().CfgData);
                 }
 

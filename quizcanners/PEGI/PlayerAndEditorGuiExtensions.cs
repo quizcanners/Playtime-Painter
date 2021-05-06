@@ -24,7 +24,7 @@ namespace QuizCanners.Inspect
 
             var il = IndentLevel;
 
-            if (function().changes(ref changed))
+            if (function().changes_Internal(ref changed))
             {
                 if (target)
                     target.SetToDirty();
@@ -48,7 +48,9 @@ namespace QuizCanners.Inspect
 
             bool wasChanged = ef.globChanged;
 
-            if (!inspectionChain.TryGetValue(pgi, out recurses) || recurses < 4)
+            bool inDic = inspectionChain.TryGetValue(pgi, out recurses);
+
+            if (!inDic || recurses < 4)
             {
                 inspectionChain[pgi] = recurses + 1;
 
@@ -59,11 +61,14 @@ namespace QuizCanners.Inspect
 
                 IndentLevel = indent;
 
-                var count = inspectionChain[pgi];
-                if (count < 2)
-                    inspectionChain.Remove(pgi);
-                else
-                    inspectionChain[pgi] = count - 1;
+                int count;
+                if (inspectionChain.TryGetValue(pgi, out count))
+                {
+                    if (count < 2)
+                        inspectionChain.Remove(pgi);
+                    else
+                        inspectionChain[pgi] = count - 1;
+                }
             }
             else
                 "3rd recursion".writeWarning();

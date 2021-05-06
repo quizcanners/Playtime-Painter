@@ -399,7 +399,7 @@ namespace PlaytimePainter
                 }
                 else
                 {
-                    "Material (Optional)".edit(ref materialPrototype).nl(ref changed);
+                    "Material (Optional)".edit(ref materialPrototype).nl();
                 }
 
                 if (!IsUsingCrt)

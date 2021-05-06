@@ -109,7 +109,7 @@ namespace QuizCanners.Utils
 
            public override void Inspect()
             {
-                var changed = false;
+                var changed = pegi.ChangeTrackStart();
 
                 if (data.Length > 500)
                 {
@@ -125,9 +125,9 @@ namespace QuizCanners.Utils
                 else
                 {
                     if (dataOnly)
-                        pegi.edit(ref data).changes(ref changed);
+                        pegi.edit(ref data);
                     else
-                        pegi.editBig(ref data).changes(ref changed);
+                        pegi.editBig(ref data);
                 }
 
                 if (changed)

@@ -326,7 +326,7 @@ namespace PlaytimePainter.MeshEditing
         {
             var changed = false;
 
-            (Destination.GetNameForInspector() + ":").toggle(80, ref enabled).changes(ref changed);
+            (Destination.GetNameForInspector() + ":").toggle(80, ref enabled);
 
             if (!enabled) 
                 return;
@@ -348,7 +348,7 @@ namespace PlaytimePainter.MeshEditing
                         break;
                     }
 
-            pegi.select(ref selected, nms).nl(ref changed);
+            pegi.select(ref selected, nms).nl();
 
             if (selected >= tps.Count)
                 sameSizeDataIndex = -1;

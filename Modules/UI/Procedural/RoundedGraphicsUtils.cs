@@ -128,9 +128,9 @@ namespace PlaytimePainter.UI
 
             var changed = pegi.toggleDefaultInspector(mat);
 
-            mat.edit(Softness, "Softness", 0, 1).nl(ref changed);
+            mat.edit(Softness, "Softness", 0, 1).nl();
 
-            mat.edit(Outline).nl(ref changed);
+            mat.edit(Outline).nl();
 
             if (mat.IsKeywordEnabled(RoundedGraphic.UNLINKED_VERTICES))
                 "UNLINKED VERTICES".nl();

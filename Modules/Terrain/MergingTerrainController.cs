@@ -83,7 +83,7 @@ namespace PlaytimePainter
 
             pegi.nl();
 
-            if ("Merge Sub Masks".edit_List(ref mergeSubMasks, ref inspectedElement).nl(ref changed))
+            if ("Merge Sub Masks".edit_List(ref mergeSubMasks, ref inspectedElement).nl())
             {
                 UpdateTextures();
                 painter.UpdateModules();
@@ -93,10 +93,10 @@ namespace PlaytimePainter
                 return;
 
             if (painter)
-                if ("Height Texture".edit(70, ref painter.terrainHeightTexture).nl(ref changed))
+                if ("Height Texture".edit(70, ref painter.terrainHeightTexture).nl())
                     painter.SetToDirty();
 
-            "Light Texture ".edit(70, ref lightTexture).nl(ref changed);
+            "Light Texture ".edit(70, ref lightTexture).nl();
 
 
             if (changed || "Update".Click())
@@ -175,7 +175,9 @@ namespace PlaytimePainter
 
             public void InspectInList(int ind, ref int edited)
             {
-                var changed = this.inspect_Name();
+                var changed = pegi.ChangeTrackStart();
+                
+                this.inspect_Name();
 
                 if (Product_colorWithAlpha && !Product_colorWithAlpha.name.Equals(productName))
                 {
@@ -185,10 +187,10 @@ namespace PlaytimePainter
                     productName = colorTexture.name;
 
                 if (!Product_colorWithAlpha)
-                    "COl".edit(40, ref Product_colorWithAlpha).changes(ref changed);
+                    "COl".edit(40, ref Product_colorWithAlpha);
                 else
                     if (!Product_combinedBump)
-                    "CMB".edit(40, ref Product_combinedBump).changes(ref changed);
+                    "CMB".edit(40, ref Product_combinedBump);
 
                 Product_colorWithAlpha.ClickHighlight();
                 Product_combinedBump.ClickHighlight();
@@ -199,8 +201,6 @@ namespace PlaytimePainter
 
             public void Inspect()
             {
-
-                var changed = false;
 
                 "Color".edit(90, ref colorTexture).nl();
                 "Height".edit(90, ref height).nl();
@@ -219,13 +219,13 @@ namespace PlaytimePainter
                 else
                 if (!Mathf.IsPowerOfTwo(size))
                     "Size is not power of two".writeWarning();
-                else if ("Generate".Click(ref changed))
+                else if ("Generate".Click())
                     RegenerateMasks();
 
                 pegi.nl();
 
-                "COLOR+GLOSS".edit(120, ref Product_colorWithAlpha).nl(ref changed);
-                "BUMP+HEIGHT+AO".edit(120, ref Product_combinedBump).nl(ref changed);
+                "COLOR+GLOSS".edit(120, ref Product_colorWithAlpha).nl();
+                "BUMP+HEIGHT+AO".edit(120, ref Product_combinedBump).nl();
             }
 
             #endregion

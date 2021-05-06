@@ -745,13 +745,14 @@ namespace QuizCanners.CfgDecode
         
         private static ICfg _toCopy;
         
-        public static bool CopyPasteStdPegi(this ICfg cfg) {
+        public static bool InspectCfgCopyPaste(this ICfg cfg) {
             
-            if (cfg == null) return false;
+            if (cfg == null) 
+                return false;
             
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
             
-            if (_toCopy == null && icon.Copy.Click("Copy {0}".F(cfg.GetNameForInspector())).changes(ref changed))
+            if (_toCopy == null && icon.Copy.Click("Copy {0}".F(cfg.GetNameForInspector())))
                 _toCopy = cfg;
 
             if (_toCopy == null) return changed;

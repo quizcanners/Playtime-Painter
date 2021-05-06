@@ -248,7 +248,7 @@ namespace QuizCanners.Inspect {
         public static void Write(this Msg m, int width) { m.GetText().write(width); }
         public static void Write(this Msg m, string tip, int width) { m.GetText().write(tip, width); }
         public static bool Click(this icon icon, Msg text) => icon.ClickUnFocus(text.GetText());
-        public static bool Click(this icon icon, Msg text, ref bool changed) => icon.ClickUnFocus(text.GetText()).changes(ref changed);
+      //  public static bool Click(this icon icon, Msg text, ref bool changed) => icon.ClickUnFocus(text.GetText()).changes(ref changed);
         public static bool ClickUnFocus(this icon icon, Msg text, int size = pegi.defaultButtonSize) => icon.GetIcon().ClickUnFocus(text.GetText(), size);
         public static bool ClickUnFocus(this icon icon, Msg text, int width, int height) => icon.GetIcon().ClickUnFocus(text.GetText(), width, height);
 

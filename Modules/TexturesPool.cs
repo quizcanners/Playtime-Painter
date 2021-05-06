@@ -89,17 +89,16 @@ namespace PlaytimePainter
 
        public override void Inspect()
         {
-            var changed = false;
-
+          
             pegi.toggleDefaultInspector(this);
 
-            "Data (Non Color) Texture".toggleIcon(ref nonColorData).nl(ref changed);
+            "Data (Non Color) Texture".toggleIcon(ref nonColorData).nl();
 
-            "Textures 2D".edit_List_UObj(ref _t2DList).nl(ref changed);
+            "Textures 2D".edit_List_UObj(ref _t2DList).nl();
 
-            "Render Textures".edit_List_UObj(ref _rtList).nl(ref changed);
+            "Render Textures".edit_List_UObj(ref _rtList).nl();
 
-            "Size:".selectPow2(ref width, 16, 4096).nl(ref changed);
+            "Size:".selectPow2(ref width, 16, 4096).nl();
 
         }
     }

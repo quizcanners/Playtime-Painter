@@ -70,7 +70,7 @@ namespace PlaytimePainter.MeshEditing
         public override void Inspect()
         {
 
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
 
             // var mgm = MeshMGMT;
 
@@ -78,7 +78,7 @@ namespace PlaytimePainter.MeshEditing
 
             var em = EditedMesh;
 
-            "Mode".editEnum(40, ref _detectionMode).nl(ref changed);
+            "Mode".editEnum(40, ref _detectionMode).nl();
 
             if (_detectionMode != DetectionMode.Points)
             {
@@ -87,17 +87,17 @@ namespace PlaytimePainter.MeshEditing
 
             if (MeshEditorManager.MeshTool.ShowGrid)
             {
-                "Snap to grid (Use XZ to toggle grid orientation)".toggleIcon(ref sd.snapToGrid).nl(ref changed);
+                "Snap to grid (Use XZ to toggle grid orientation)".toggleIcon(ref sd.snapToGrid).nl();
 
                 if (sd.snapToGrid)
-                    "size:".edit(40, ref sd.gridSize).changes(ref changed);
+                    "size:".edit(40, ref sd.gridSize);
             }
 
             pegi.nl();
 
-            "Pixel-Perfect".toggleIcon("New vertex will have UV coordinate rounded to half a pixel.", ref Cfg.pixelPerfectMeshEditing).nl(ref changed);
+            "Pixel-Perfect".toggleIcon("New vertex will have UV coordinate rounded to half a pixel.", ref Cfg.pixelPerfectMeshEditing).nl();
 
-            "Insert vertices".toggleIcon("Will split triangles and edges by inserting vertices", ref _addToTrianglesAndLines).nl(ref changed);
+            "Insert vertices".toggleIcon("Will split triangles and edges by inserting vertices", ref _addToTrianglesAndLines).nl();
 
             "Add Unique:".toggleIcon(ref Cfg.newVerticesUnique).nl();
 
@@ -123,9 +123,9 @@ namespace PlaytimePainter.MeshEditing
                 Cfg.newVerticesUnique = true;
             }
 
-            "Add Smooth:".toggleIcon(ref Cfg.newVerticesSmooth).nl(ref changed);
+            "Add Smooth:".toggleIcon(ref Cfg.newVerticesSmooth).nl();
 
-            if ("Sharp All".ClickConfirm(confirmationTag: "AllSrp", toolTip: "Normal vectors will be different for each triangle when possible (when vertex/normal data is not shared with another triangle).").changes(ref changed))
+            if ("Sharp All".ClickConfirm(confirmationTag: "AllSrp", toolTip: "Normal vectors will be different for each triangle when possible (when vertex/normal data is not shared with another triangle)."))
             {
                 foreach (var vr in EditedMesh.meshPoints)
                     vr.smoothNormal = false;

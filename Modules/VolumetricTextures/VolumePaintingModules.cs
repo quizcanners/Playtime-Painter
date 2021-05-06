@@ -340,7 +340,7 @@ namespace PlaytimePainter {
             public bool BrushConfigPEGI(Brush br)
             {
 
-                var changed = false;
+                var changed = pegi.ChangeTrackStart();
 
                 var p = InspectedPainter;
 
@@ -384,7 +384,7 @@ namespace PlaytimePainter {
 
                         if (Brush.showAdvanced || _enableRayTracing)
                         {
-                            "Ray-Tracing".toggleIcon(ref _enableRayTracing, true).changes(ref changed);
+                            "Ray-Tracing".toggleIcon(ref _enableRayTracing, true);
 
                             if (br.useAlphaBuffer)
                                 icon.Warning.draw(
@@ -397,18 +397,18 @@ namespace PlaytimePainter {
                             ref _exploreRayTaceCamera).nl_ifFoldedOut())
                         {
 
-                            "Min".edit(40, ref minFov, 60, maxFov - 1).nl(ref changed);
+                            "Min".edit(40, ref minFov, 60, maxFov - 1).nl();
 
-                            "Max".edit(40, ref maxFov, minFov + 1, 170).nl(ref changed);
+                            "Max".edit(40, ref maxFov, minFov + 1, 170).nl();
 
-                            rayTraceCameraConfiguration.Nested_Inspect().nl(ref changed);
+                            rayTraceCameraConfiguration.Nested_Inspect().nl();
 
                         }
 
                         if (smoothing > 0 || Brush.showAdvanced)
                         {
                             pegi.nl();
-                            "Smoothing".edit(70, ref smoothing, 0, 1).changes(ref changed);
+                            "Smoothing".edit(70, ref smoothing, 0, 1);
                             pegi.FullWindow.DocumentationClickOpen("Best used in the end");
 
                             pegi.nl();
@@ -426,7 +426,7 @@ namespace PlaytimePainter {
                             else if (dp.pauseAutoUpdates)
                             {
                                 pegi.nl();
-                                "Light Projectors paused".toggleIcon(ref dp.pauseAutoUpdates).nl(ref changed);
+                                "Light Projectors paused".toggleIcon(ref dp.pauseAutoUpdates).nl();
                             }
 
                             pegi.nl();
@@ -455,7 +455,7 @@ namespace PlaytimePainter {
                         .IsFoldout(ref _exploreVolumeData).nl())
                     {
 
-                        volTex.Nested_Inspect().changes(ref changed);
+                        volTex.Nested_Inspect();
 
                         if (volTex.NeedsToManageMaterials)
                         {
@@ -471,10 +471,10 @@ namespace PlaytimePainter {
 
                     if (!cpuBlit)
                         MsgPainter.Hardness.GetText()
-                            .edit(MsgPainter.Hardness.GetDescription(), 70, ref br.hardness, 1f, 5f).nl(ref changed);
+                            .edit(MsgPainter.Hardness.GetDescription(), 70, ref br.hardness, 1f, 5f).nl();
 
                     var tmpSpeed = br._dFlow.Value;
-                    if (MsgPainter.Flow.GetText().edit(40, ref tmpSpeed, 0.01f, 4.5f).nl(ref changed))
+                    if (MsgPainter.Flow.GetText().edit(40, ref tmpSpeed, 0.01f, 4.5f).nl())
                         br._dFlow.Value = tmpSpeed;
 
                     if (br.showingSize)
@@ -482,8 +482,7 @@ namespace PlaytimePainter {
 
                         var maxScale = volTex.size * volTex.Width * 4;
 
-                        "Scale:".edit(40, ref br.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f)
-                            .changes(ref changed);
+                        "Scale:".edit(40, ref br.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f);
 
                         if (cpuBlit && !_brushShaderForRayTrace.Shader && br.brush3DRadius > BrushScaleMaxForCpu(volTex))
                             icon.Warning.draw(

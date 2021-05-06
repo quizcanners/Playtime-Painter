@@ -888,6 +888,9 @@ namespace PlaytimePainter {
         {
             if ("Data && Settings".IsEntered(ref _inspectedStuff, 0))
             {
+                pegi.nl();
+                "Painter Data".edit(ref dataHolder).nl();
+
                 if (Data)
                     Data.Nested_Inspect().nl();
                 else
@@ -955,7 +958,7 @@ namespace PlaytimePainter {
         
         public bool DependenciesInspect(bool showAll = false) {
 
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
             
             if (showAll)
             {
@@ -965,7 +968,7 @@ namespace PlaytimePainter {
                 if ("Buffers".IsEntered(ref _inspectedDependecy, 1).nl())
                 {
 
-                    RenderTextureBuffersManager.Inspect().nl(ref changed);
+                    RenderTextureBuffersManager.Inspect().nl();
 
 #if UNITY_EDITOR
                     "Disable Second Buffer Update (Debug Mode)".toggleIcon(ref disableSecondBufferUpdateDebug).nl();
@@ -976,7 +979,7 @@ namespace PlaytimePainter {
                 
                 pegi.nl();
 
-                "Download Manager".enter_Inspect(DownloadManager, ref _inspectedDependecy, 0).nl(ref changed);
+                "Download Manager".enter_Inspect(DownloadManager, ref _inspectedDependecy, 0).nl();
 
                 if (_inspectedDependecy == -1)
                         pegi.FullWindow.DocumentationClickOpen("You can enable URL field in the Optional UI elements to get texture directly from web");
@@ -987,7 +990,7 @@ namespace PlaytimePainter {
 
                     (IsLinearColorSpace ? "Linear" : "Gamma").nl();
                  
-                    "Main Directional Light".edit(ref mainDirectionalLight).nl(ref changed);
+                    "Main Directional Light".edit(ref mainDirectionalLight).nl();
 
 #if UNITY_EDITOR
                     if ("Refresh Brush Shaders".Click().nl())
@@ -997,7 +1000,7 @@ namespace PlaytimePainter {
                     }
 #endif
 
-                    "Using layer:".editLayerMask(ref Data.playtimePainterLayer).nl(ref changed);
+                    "Using layer:".editLayerMask(ref Data.playtimePainterLayer).nl();
 
                 }
                 
@@ -1008,7 +1011,7 @@ namespace PlaytimePainter {
             #if UNITY_EDITOR
             if (!Data)  {
                 pegi.nl();
-                "No data Holder".edit(60, ref dataHolder).nl(ref changed);
+                "No data Holder".edit(60, ref dataHolder).nl();
 
                 if (icon.Refresh.Click("Try to find it")) {
                     PainterClass.applicationIsQuitting = false;
@@ -1069,10 +1072,10 @@ namespace PlaytimePainter {
                 if (depthCamera && cams.Contains(depthCamera))
                     cams.Remove(depthCamera);
 
-                if ("Main Camera".select(90, ref cam, cams).changes(ref changed))
+                if ("Main Camera".select(90, ref cam, cams))
                     MainCamera = cam;
                 
-                if (icon.Refresh.Click("Try to find camera tagged as Main Camera", ref changed)) {
+                if (icon.Refresh.Click("Try to find camera tagged as Main Camera")) {
                     MainCamera = Camera.main;
                     if (!MainCamera)
                         pegi.GameView.ShowNotification("No camera is tagged as main");

@@ -52,30 +52,28 @@ namespace PlaytimePainter.TexturePacking
         public void Inspect()
         {
 
-            var changed = false;
-
-            "Diffuse".edit("Texture that contains Color of your object. Usually used in _MainTex field.", 70, ref diffuse).nl(ref changed);
+            "Diffuse".edit("Texture that contains Color of your object. Usually used in _MainTex field.", 70, ref diffuse).nl();
             "Height".edit("Greyscale Texture which represents displacement of your surface. Can be used for parallax effect" +
-                "or height based terrain blending.", 70, ref heightMap).nl(ref changed);
+                "or height based terrain blending.", 70, ref heightMap).nl();
             "Normal".edit("Normal map - a pinkish texture which modifies normal vector, adding a sense of relief. Normal can also be " +
-                "generated from Height", 70, ref normalMap).nl(ref changed);
-            "Gloss".edit("How smooth the surface is. Polished metal - is very smooth, while rubber is usually not.", 70, ref gloss).nl(ref changed);
-            "Reflectivity".edit("Best used to add a feel of wear to the surface. Reflectivity blocks some of the incoming light.", 70, ref reflectivity).nl(ref changed);
+                "generated from Height", 70, ref normalMap).nl();
+            "Gloss".edit("How smooth the surface is. Polished metal - is very smooth, while rubber is usually not.", 70, ref gloss).nl();
+            "Reflectivity".edit("Best used to add a feel of wear to the surface. Reflectivity blocks some of the incoming light.", 70, ref reflectivity).nl();
             "Ambient".edit("Ambient is an approximation of how much light will fail to reach a given segment due to it's indentation in the surface. " +
-            "Ambient map may look a bit similar to height map in some cases, but will more clearly outline shapes on the surface.", 70, ref ambient).nl(ref changed);
-            "Last Result".edit("Whatever you produce, will be stored here, also it can be reused.", 70, ref lastProduct).nl(ref changed);
+            "Ambient map may look a bit similar to height map in some cases, but will more clearly outline shapes on the surface.", 70, ref ambient).nl();
+            "Last Result".edit("Whatever you produce, will be stored here, also it can be reused.", 70, ref lastProduct).nl();
 
 
             var firstTex = GetAnyTexture();
-            "width:".edit(ref width).nl(ref changed);
-            "height".edit(ref height).nl(ref changed);
-            if (firstTex && "Match Source".Click().nl(ref changed))
+            "width:".edit(ref width).nl();
+            "height".edit(ref height).nl();
+            if (firstTex && "Match Source".Click().nl())
             {
                 width = firstTex.width;
                 height = firstTex.height;
             }
 
-            "is Color".toggle(ref isColor).nl(ref changed);
+            "is Color".toggle(ref isColor).nl();
 
 
             pegi.select_Index(ref selectedProfile, Cfg.texturePackagingSolutions);
@@ -89,7 +87,7 @@ namespace PlaytimePainter.TexturePacking
 
             if ((selectedProfile < Cfg.texturePackagingSolutions.Count))
             {
-                if (Cfg.texturePackagingSolutions[selectedProfile].Inspect(this).nl(ref changed))
+                if (Cfg.texturePackagingSolutions[selectedProfile].Inspect(this).nl())
                     Cfg.SetToDirty();
             }
         }

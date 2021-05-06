@@ -179,7 +179,7 @@ namespace PlaytimePainter {
         
        public override void Inspect()
         {
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
             
             pegi.toggleDefaultInspector(this);
 
@@ -242,9 +242,9 @@ namespace PlaytimePainter {
 
             if (inspectedElement == -1)
             {
-                "Also set for Global shader parameters".toggleIcon(ref setForGlobal).nl(ref changed);
+                "Also set for Global shader parameters".toggleIcon(ref setForGlobal).nl();
                 
-                "Position chunks".edit(ref changePositionOnOffset).changes(ref changed);
+                "Position chunks".edit(ref changePositionOnOffset);
 
                 pegi.FullWindow
                     .DocumentationClickOpen("For Baking optimisations, how often position is changed");
@@ -257,7 +257,7 @@ namespace PlaytimePainter {
             if ("Volume Texture ({0})".F(tex ? NameForPEGI : "NULL").IsEntered(ref inspectedElement, 1).nl())
             {
                 var n = NameForPEGI;
-                if ("Name".editDelayed(50, ref n).nl(ref changed))
+                if ("Name".editDelayed(50, ref n).nl())
                     NameForPEGI = n;
                 
                 if (setForGlobal)
@@ -272,10 +272,10 @@ namespace PlaytimePainter {
                 if (tex == null)
                     ImageMeta = null;
 
-                if ("Texture".edit(60, ref tex).nl(ref changed))
+                if ("Texture".edit(60, ref tex).nl())
                     ImageMeta = tex ? tex.GetTextureMeta() : null;
 
-                "Volume Scale".edit(70, ref size).nl(ref changed);
+                "Volume Scale".edit(70, ref size).nl();
                 size = Mathf.Max(0.0001f, size);
 
                 if (ImageMeta == null)
@@ -284,9 +284,9 @@ namespace PlaytimePainter {
                     if (!TexturesPool.inst)
                     {
                         pegi.nl();
-                        "Texture Width".edit(90, ref _tmpWidth).changes(ref changed);
+                        "Texture Width".edit(90, ref _tmpWidth);
 
-                        if ("Create Pool".Click().nl(ref changed))
+                        if ("Create Pool".Click().nl())
                         {
                             _tmpWidth = Mathf.ClosestPowerOfTwo(Mathf.Clamp(_tmpWidth, 128, 2048));
                             TexturesPool.ForceInstance.width = _tmpWidth;
@@ -294,7 +294,7 @@ namespace PlaytimePainter {
                     }
                     else
                     {
-                        if ("Get From Pool".Click().nl(ref changed))
+                        if ("Get From Pool".Click().nl())
                             ImageMeta = TexturesPool.inst.GetTexture2D().GetTextureMeta();
 
                         TexturesPool.inst.Nested_Inspect().nl();
@@ -304,7 +304,7 @@ namespace PlaytimePainter {
                 }
                 pegi.nl();
 
-                "Slices:".edit("How texture will be sliced for height", 80, ref hSlices, 1, 8).nl(ref changed);
+                "Slices:".edit("How texture will be sliced for height", 80, ref hSlices, 1, 8).nl();
 
                 if (changed)
                     UpdateImageMeta();
@@ -323,7 +323,7 @@ namespace PlaytimePainter {
                 if (inspectedMaterial == -1 && InspectedPainter)
                 {
                     var pMat = InspectedPainter.Material;
-                    if (pMat != null && materials.Contains(pMat) && "Remove This Material".Click().nl(ref changed))
+                    if (pMat != null && materials.Contains(pMat) && "Remove This Material".Click().nl())
                         materials.Remove(pMat);
                 }
             }

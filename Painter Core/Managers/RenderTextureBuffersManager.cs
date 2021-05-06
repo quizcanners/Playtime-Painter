@@ -394,10 +394,10 @@ namespace PlaytimePainter {
         
         public static bool InspectDepthTarget()
         {
-            var changed = false;
-            "Size of Depth buffers".edit(ref sizeOfDepthBuffers).changes(ref changed);
+            var changed = pegi.ChangeTrackStart();
+            "Size of Depth buffers".edit(ref sizeOfDepthBuffers);
 
-            if (depthTarget && depthTarget.width!=sizeOfDepthBuffers && icon.Done.Click("Recreate Depth Texture").nl(ref changed))
+            if (depthTarget && depthTarget.width!=sizeOfDepthBuffers && icon.Done.Click("Recreate Depth Texture").nl())
             {
                 DestroyDepthBuffers();
                 UpdateDepthTarget();
@@ -576,7 +576,7 @@ namespace PlaytimePainter {
                 if (icon.Delete.Click().nl())
                     DestroyScalingBuffers();
 
-                if ("Use RGBAFloat for scaling".toggleIcon(ref Data.useFloatForScalingBuffers).nl(ref changed))
+                if ("Use RGBAFloat for scaling".toggleIcon(ref Data.useFloatForScalingBuffers).nl())
                     DestroyScalingBuffers();
 
                 for (int i = 0; i < squareBuffersCount; i++) {

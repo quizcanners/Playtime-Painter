@@ -58,8 +58,10 @@
 
 					float srcAlpha = 1;
 
+					float outOfBounds;
+
 					#if BLIT_MODE_COPY
-					_qcPp_brushColor = SampleVolume(_qcPp_SourceTexture, i.worldPos, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES);
+					_qcPp_brushColor = SampleVolume(_qcPp_SourceTexture, i.worldPos, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES, outOfBounds);
 					srcAlpha = _qcPp_brushColor.a;
 					#endif
 
@@ -68,7 +70,7 @@
 
 					alpha *= checkersFromWorldPosition(i.worldPos.xyz,dist);
 
-					col = SampleVolume(_qcPp_PreviewTex, i.worldPos, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES);
+					col = SampleVolume(_qcPp_PreviewTex, i.worldPos, VOLUME_POSITION_N_SIZE, VOLUME_H_SLICES, outOfBounds);
 
 					alpha *= saturate(positionToAlpha(i.worldPos));
 

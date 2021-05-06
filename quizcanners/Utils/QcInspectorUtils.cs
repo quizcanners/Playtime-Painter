@@ -669,13 +669,12 @@ namespace QuizCanners.Utils
 
             public void Inspect()
             {
-                var changed = false;
                 var rangeChanged = false;
 
                 if ("><".Click())
                     UpdateRange(0.3f);
 
-                pegi.edit(ref _value, dynamicMin, dynamicMax).changes(ref changed);
+                pegi.edit(ref _value, dynamicMin, dynamicMax);
                 //    Value = _value;
 
                 if ("<>".Click())
@@ -701,18 +700,19 @@ namespace QuizCanners.Utils
                     var before = min;
 
 
-                    if (pegi.editDelayed(ref min, 40).changes(ref rangeChanged))
+                    if (pegi.editDelayed(ref min, 40))
                     {
+                        rangeChanged = true;
+
                         if (min >= max)
                             max = min + (max - before);
-
-
                     }
 
                     "-".write(10);
 
-                    if (pegi.editDelayed(ref max, 40).changes(ref rangeChanged))
+                    if (pegi.editDelayed(ref max, 40))
                     {
+                        rangeChanged = true;
                         min = Mathf.Min(min, max);
                     }
 

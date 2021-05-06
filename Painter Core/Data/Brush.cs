@@ -361,10 +361,10 @@ namespace PlaytimePainter {
 
         public bool Targets_PEGI()
         {
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
 
             if ((targetIsTex2D ? icon.CPU : icon.GPU).Click(
-                targetIsTex2D ? "Render Texture Config" : "Texture2D Config", ref changed ,45))
+                targetIsTex2D ? "Render Texture Config" : "Texture2D Config", 45))
             {
                 targetIsTex2D = !targetIsTex2D;
                 SetSupportedFor(targetIsTex2D, true);
@@ -373,7 +373,7 @@ namespace PlaytimePainter {
             var smooth = GetBrushType(targetIsTex2D) != BrushTypes.Pixel.Inst;
 
             if (targetIsTex2D && 
-                pegi.toggle(ref smooth, icon.Round, icon.Square, "Smooth/Pixels Brush", 45).changes(ref changed))
+                pegi.toggle(ref smooth, icon.Round, icon.Square, "Smooth/Pixels Brush", 45))
                 SetBrushType(targetIsTex2D, smooth ? BrushTypes.Normal.Inst : BrushTypes.Pixel.Inst.AsBase);
             
 
@@ -391,12 +391,12 @@ namespace PlaytimePainter {
             
             var id = p.TexMeta;
 
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
             var cpuBlit = id.target == TexTarget.Texture2D;
             
             if (id.texture2D)
             {
-                if ((cpuBlit ? icon.CPU : icon.GPU).Click( cpuBlit ? "Switch to Render Texture" : "Switch to Texture2D", ref changed ,45))
+                if ((cpuBlit ? icon.CPU : icon.GPU).Click( cpuBlit ? "Switch to Render Texture" : "Switch to Texture2D" ,45))
                 {
                     cpuBlit = !cpuBlit;
 
@@ -412,20 +412,20 @@ namespace PlaytimePainter {
             
             if (cpuBlit) 
             {
-                if (pegi.toggle(ref smooth, icon.Round, icon.Square, "Smooth/Pixels Brush", 45).changes(ref changed))
+                if (pegi.toggle(ref smooth, icon.Round, icon.Square, "Smooth/Pixels Brush", 45))
                     SetBrushType(cpu: true, smooth ? BrushTypes.Normal.Inst : BrushTypes.Pixel.Inst.AsBase);
             }
 
             pegi.nl();
 
             if (showBrushDynamics) {
-                if ("Brush Dynamic".selectType( 90, ref brushDynamic, brushDynamicsConfigs).nl(ref changed))
-                    brushDynamic?.Nested_Inspect().nl(ref changed);
+                if ("Brush Dynamic".selectType( 90, ref brushDynamic, brushDynamicsConfigs).nl())
+                    brushDynamic?.Nested_Inspect().nl();
             }
             else if (brushDynamic.GetType() != typeof(BrushDynamic.None))
                     brushDynamic = (BrushDynamic.None)Activator.CreateInstance(typeof(BrushDynamic.None));
             
-            if (Mode_Type_PEGI().changes(ref changed) && GetBrushType(cpuBlit) == BrushTypes.Decal.Inst)
+            if (Mode_Type_PEGI() && GetBrushType(cpuBlit) == BrushTypes.Decal.Inst)
                     MaskSet(ColorMask.A, true);
 
             if (p.terrain) {
@@ -461,7 +461,7 @@ namespace PlaytimePainter {
 
         public bool ChannelSlider(ColorMask inspectedMask, ref Color col, Texture icon = null, bool slider = true) {
 
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
 
             var channel = inspectedMask.ToColorChannel();
 
@@ -494,13 +494,13 @@ namespace PlaytimePainter {
 
             
 
-            if (channelEnabled ? icon.Click(label) : "{0} channel ignored".F(label).toggleIcon(ref channelEnabled, true).changes(ref changed))
+            if (channelEnabled ? icon.Click(label) : "{0} channel ignored".F(label).toggleIcon(ref channelEnabled, true))
                  mask ^= inspectedMask;
 
             if (slider && channelEnabled) {
 
                 float val = channel.GetValueFrom(col);
-                if (pegi.edit(ref val, 0, 1).nl(ref changed))
+                if (pegi.edit(ref val, 0, 1).nl())
                     channel.SetValueOn(ref col, val);
             }
 
@@ -514,15 +514,15 @@ namespace PlaytimePainter {
 
             var changed = false;
             
-            pegi.edit(ref Color).nl(ref changed);
+            pegi.edit(ref Color).nl();
             
             if (!Cfg.showColorSliders)
                 return changed;
 
-            ChannelSlider(ColorMask.R, ref Color).nl(ref changed);
-            ChannelSlider(ColorMask.G, ref Color).nl(ref changed);
-            ChannelSlider(ColorMask.B, ref Color).nl(ref changed);
-            ChannelSlider(ColorMask.A, ref Color).nl(ref changed);
+            ChannelSlider(ColorMask.R, ref Color).nl();
+            ChannelSlider(ColorMask.G, ref Color).nl();
+            ChannelSlider(ColorMask.B, ref Color).nl();
+            ChannelSlider(ColorMask.A, ref Color).nl();
 
             return changed;
         }
@@ -552,7 +552,7 @@ namespace PlaytimePainter {
             if (!blitMode.AllSetUp)
                 return false;
 
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
 
            // if (Cfg.showColorSliders) {
            bool r = Cfg.showColorSliders || !mask.HasFlag(ColorMask.R);
@@ -565,27 +565,27 @@ namespace PlaytimePainter {
 
             if (painter && painter.IsTerrainHeightTexture)
             {
-                ChannelSlider(ColorMask.A, ref Color).changes(ref changed);
+                ChannelSlider(ColorMask.A, ref Color);
             }
             else if (painter && painter.IsTerrainControlTexture)
             {
                 if (r) ChannelSlider(ColorMask.R, ref Color, GetSplashPrototypeTexture(painter.terrain, 0), slider)
-                    .nl(ref changed);
+                    .nl();
                 if (g) ChannelSlider(ColorMask.G, ref Color, GetSplashPrototypeTexture(painter.terrain,1), slider)
-                    .nl(ref changed);
+                    .nl();
                 if (b) ChannelSlider(ColorMask.B, ref Color, GetSplashPrototypeTexture(painter.terrain, 2), slider)
-                    .nl(ref changed);
+                    .nl();
                 if (a) ChannelSlider(ColorMask.A, ref Color, GetSplashPrototypeTexture(painter.terrain, 3), slider)
-                    .nl(ref changed);
+                    .nl();
             }
             else
             {
                
                 if (id.TargetIsRenderTexture() && id.renderTexture)
                 {
-                    if (r) ChannelSlider(ColorChanel.R, ref Color).nl(ref changed);
-                    if (g) ChannelSlider(ColorChanel.G, ref Color).nl(ref changed);
-                    if (b) ChannelSlider(ColorChanel.B, ref Color).nl(ref changed);
+                    if (r) ChannelSlider(ColorChanel.R, ref Color).nl();
+                    if (g) ChannelSlider(ColorChanel.G, ref Color).nl();
+                    if (b) ChannelSlider(ColorChanel.B, ref Color).nl();
 
                 }
                 else
@@ -597,9 +597,9 @@ namespace PlaytimePainter {
                             (srcColorUsage != SourceTextureColorUsage.Unchanged)
                             :slider;
 
-                        if (r) ChannelSlider(ColorMask.R, ref Color, slider: slider_copy).nl(ref changed);
-                        if (g) ChannelSlider(ColorMask.G, ref Color, slider: slider_copy).nl(ref changed);
-                        if (b) ChannelSlider(ColorMask.B, ref Color, slider: slider_copy).nl(ref changed);
+                        if (r) ChannelSlider(ColorMask.R, ref Color, slider: slider_copy).nl();
+                        if (g) ChannelSlider(ColorMask.G, ref Color, slider: slider_copy).nl();
+                        if (b) ChannelSlider(ColorMask.B, ref Color, slider: slider_copy).nl();
                     }
                     
                     var gotAlpha = painter.meshEditing || id == null || id.texture2D.TextureHasAlpha();
@@ -608,7 +608,7 @@ namespace PlaytimePainter {
                         if (!gotAlpha)
                             icon.Warning.draw("Texture as no alpha, clicking save will fix it");
 
-                        if (a) ChannelSlider(ColorMask.A, ref Color, slider: slider).nl(ref changed);
+                        if (a) ChannelSlider(ColorMask.A, ref Color, slider: slider).nl();
                     }
                 }
             }
@@ -617,7 +617,7 @@ namespace PlaytimePainter {
 
                 var erase = Color.a < 0.5f;
 
-                "Erase".toggleIcon(ref erase).nl(ref changed);
+                "Erase".toggleIcon(ref erase).nl();
 
                 Color.a = erase ? 0 : 1;
 
@@ -781,7 +781,7 @@ namespace PlaytimePainter {
         {
             bool changed = false;
 
-            "Test Value".edit(60, ref testValue).nl(ref changed);
+            "Test Value".edit(60, ref testValue).nl();
 
             return changed;
         }*/

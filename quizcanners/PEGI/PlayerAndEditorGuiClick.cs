@@ -221,7 +221,7 @@ namespace QuizCanners.Inspect
                 return ef.Click(content, style.Current);
 #endif
             checkLine();
-            return GUILayout.Button(content, style.Current, GuiMaxWidthOptionFrom(content, style: style)).Dirty();
+            return GUILayout.Button(content, style.Current, GuiMaxWidthOptionFrom(content, style: style)).FeedChanges_Internal();
         }
 
         public static bool ClickLabelConfirm(this string label, string confirmationTag, string hint = "ClickAble Text", int width = -1, PegiGuiStyle style = null)
@@ -267,7 +267,7 @@ namespace QuizCanners.Inspect
 #endif
             checkLine();
 
-            return GUILayout.Button(content, GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(height)).Dirty();
+            return GUILayout.Button(content, GUILayout.MaxWidth(width + 5), GUILayout.MaxHeight(height)).FeedChanges_Internal();
         }
 
         #region Action
@@ -300,7 +300,7 @@ namespace QuizCanners.Inspect
 
         #endregion
 
-        public static bool Click(this string text, ref bool changed) => text.Click().changes(ref changed);
+       // public static bool Click(this string text, ref bool changed) => text.Click().changes(ref changed);
 
         public static bool Click(this string text)
         {
@@ -309,10 +309,10 @@ namespace QuizCanners.Inspect
                 return ef.Click(text);
 #endif
             checkLine();
-            return GUILayout.Button(text, GuiMaxWidthOptionFrom(text)).Dirty();
+            return GUILayout.Button(text, GuiMaxWidthOptionFrom(text)).FeedChanges_Internal();
         }
 
-        public static bool Click(this string text, string toolTip, ref bool changed) => text.Click(toolTip).changes(ref changed);
+        public static bool Click(this string text, string toolTip, ref bool changed) => text.Click(toolTip).changes_Internal(ref changed);
 
         public static bool Click(this string text, string toolTip)
         {
@@ -322,7 +322,7 @@ namespace QuizCanners.Inspect
                 return ef.Click(cnt);
 #endif
             checkLine();
-            return GUILayout.Button(cnt, GuiMaxWidthOptionFrom(text)).Dirty();
+            return GUILayout.Button(cnt, GuiMaxWidthOptionFrom(text)).FeedChanges_Internal();
         }
 
         private static Texture GetTexture_orEmpty(this Sprite sp) => sp ? sp.texture : icon.Empty.GetIcon();
@@ -341,7 +341,7 @@ namespace QuizCanners.Inspect
 #endif
 
             checkLine();
-            return GUILayout.Button(img, GUILayout.MaxWidth(size + 5), GUILayout.MaxHeight(size)).Dirty();
+            return GUILayout.Button(img, GUILayout.MaxWidth(size + 5), GUILayout.MaxHeight(size)).FeedChanges_Internal();
 
         }
 
@@ -359,7 +359,7 @@ namespace QuizCanners.Inspect
 #endif
 
             checkLine();
-            return GUILayout.Button(cnt, GUILayout.MaxWidth(size + 5), GUILayout.MaxHeight(size)).Dirty();
+            return GUILayout.Button(cnt, GUILayout.MaxWidth(size + 5), GUILayout.MaxHeight(size)).FeedChanges_Internal();
         }
 
         public static bool Click(this Texture img, string toolTip, int width, int height)
@@ -373,7 +373,7 @@ namespace QuizCanners.Inspect
                 return ef.ClickImage(cnt, width, height);
 #endif
             checkLine();
-            return GUILayout.Button(cnt, GUILayout.MaxWidth(width), GUILayout.MaxHeight(height)).Dirty();
+            return GUILayout.Button(cnt, GUILayout.MaxWidth(width), GUILayout.MaxHeight(height)).FeedChanges_Internal();
         }
 
         public static bool Click(this icon icon)
@@ -385,7 +385,7 @@ namespace QuizCanners.Inspect
             
             return Click(tex, icon.GetText());
         }
-
+/*
         public static bool Click(this icon icon, ref bool changed)
         {
             var tex = icon.GetIcon();
@@ -394,7 +394,7 @@ namespace QuizCanners.Inspect
                 return icon.GetText().Click().changes(ref changed);
 
             return Click(tex, icon.GetText()).changes(ref changed);
-        }
+        }*/
 
         public static bool ClickUnFocus(this icon icon)
         {
@@ -411,9 +411,9 @@ namespace QuizCanners.Inspect
             var tex = icon.GetIcon();
 
             if (!tex || tex == Texture2D.whiteTexture)
-                return icon.GetText().ClickUnFocus().changes(ref changed);
+                return icon.GetText().ClickUnFocus().changes_Internal(ref changed);
 
-            return ClickUnFocus(tex, icon.GetText()).changes(ref changed);
+            return ClickUnFocus(tex, icon.GetText()).changes_Internal(ref changed);
         }
 
         public static bool ClickUnFocus(this icon icon, int size)
@@ -464,9 +464,9 @@ namespace QuizCanners.Inspect
             var tex = icon.GetIcon();
 
             if (!tex || tex == Texture2D.whiteTexture)
-                return icon.GetText().ClickUnFocus(toolTip).changes(ref changed);
+                return icon.GetText().ClickUnFocus(toolTip).changes_Internal(ref changed);
 
-            return Click(tex, toolTip, size).changes(ref changed);
+            return Click(tex, toolTip, size).changes_Internal(ref changed);
         }
 
         public static bool Click(this icon icon, string toolTip, int size = defaultButtonSize)

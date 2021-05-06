@@ -38,12 +38,17 @@ namespace PlaytimePainter
 #if UNITY_EDITOR && UNITY_2019_1_OR_NEWER
                 if (!Application.isPlaying)
                     return ToolManager.activeToolType == typeof(PainterAsIntegratedCustomTool);
-
 #endif
 
                 return PainterDataAndConfig.toolEnabled;
             }
-            set { PainterDataAndConfig.toolEnabled = value; }
+            set { 
+                PainterDataAndConfig.toolEnabled = value;
+
+#if UNITY_EDITOR
+                ToolManager.SetActiveTool(typeof(PainterAsIntegratedCustomTool));
+#endif
+            }
         }
 
         private static PainterDataAndConfig Cfg => PainterCamera.Data;

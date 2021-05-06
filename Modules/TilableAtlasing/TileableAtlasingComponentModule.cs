@@ -179,7 +179,7 @@ namespace PlaytimePainter.ComponentModules {
 
             if (!p.IsAtlased()) return false;
             
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
             
             var m = p.Material;
             if (p.NotUsingPreview) {
@@ -189,7 +189,7 @@ namespace PlaytimePainter.ComponentModules {
 
             "Atlased Texture {0}*{0}".F(atlasRows).write("Shader has _ATLASED define");
 
-            if ("Undo".Click().nl(ref changed ))
+            if ("Undo".Click().nl())
                 m.DisableKeyword(PainterShaderVariables.UV_ATLASED);
 
             var id = p.TexMeta;
@@ -237,24 +237,23 @@ namespace PlaytimePainter.ComponentModules {
         private int _inspectedItems = -1;
 
         public void Inspect() {
-            var changed = false;
 
             var a = MaterialAtlases.inspectedAtlas;
 
-            atlasedField.toggleIcon(ref enabled).nl(ref changed);
+            atlasedField.toggleIcon(ref enabled).nl();
 
             if (!enabled) 
                 return;
             
-            pegi.select_Index(ref originField, a.originalTextures).nl(ref changed);
+            pegi.select_Index(ref originField, a.originalTextures).nl();
 
             pegi.space();
 
-            "Atlas".enter_Inspect(AtlasCreator, ref _inspectedItems, 11).nl(ref changed);
+            "Atlas".enter_Inspect(AtlasCreator, ref _inspectedItems, 11).nl();
 
             if (_inspectedItems == -1) {
-                "Atlases".select_Index(70, ref atlasCreatorId,Cfg.atlases).changes(ref changed);
-                if (icon.Add.Click("Create new Atlas").nl(ref changed)) {
+                "Atlases".select_Index(70, ref atlasCreatorId,Cfg.atlases);
+                if (icon.Add.Click("Create new Atlas").nl()) {
                     atlasCreatorId = Cfg.atlases.Count;
                     var ac = new AtlasTextureCreator(atlasedField + " for " + a.name);
                     Cfg.atlases.Add(ac);
@@ -529,7 +528,6 @@ namespace PlaytimePainter.ComponentModules {
         private bool _showHint;
         public void Inspect()
         {
-            var changed = false;
 
 #if UNITY_EDITOR
             var painter = PlaytimePainter.inspected;
@@ -547,7 +545,7 @@ namespace PlaytimePainter.ComponentModules {
                 OnChangeMaterial();
             }
 
-            "Name".edit(50, ref name).nl(ref changed);
+            "Name".edit(50, ref name).nl();
 
             if ("Hint".IsFoldout(ref _showHint).nl())
             {
@@ -559,7 +557,7 @@ namespace PlaytimePainter.ComponentModules {
             }
 
             if (("Atlased Material:".edit(90, ref _atlasedMaterial).nl() ||
-                (_atlasedMaterial && _atlasedMaterial.shader != _atlasedShader)).changes(ref changed)) 
+                (_atlasedMaterial && _atlasedMaterial.shader != _atlasedShader))) 
                 OnChangeMaterial();
             
 
@@ -570,7 +568,7 @@ namespace PlaytimePainter.ComponentModules {
                 {
                     if (mats.Length > 1)
                     {
-                        if ("Source Material:".select_Index("Same as selecting a sub Mesh, which will be converted", 90, ref painter.selectedSubMesh, mats).changes(ref changed))
+                        if ("Source Material:".select_Index("Same as selecting a sub Mesh, which will be converted", 90, ref painter.selectedSubMesh, mats))
                             OnChangeMaterial();
                     }
                     else if (mats.Length > 0)
@@ -587,10 +585,10 @@ namespace PlaytimePainter.ComponentModules {
             pegi.nl();
 
             foreach (var f in _fields)
-                f.Nested_Inspect().nl(ref changed);
+                f.Nested_Inspect().nl();
 
             "Mesh Profiles [{0}]".F(PainterCamera.Data.meshPackagingSolutions.Count)
-                .select_iGotName(ref _matAtlasProfile, PainterCamera.Data.meshPackagingSolutions).changes(ref changed);
+                .select_iGotName(ref _matAtlasProfile, PainterCamera.Data.meshPackagingSolutions);
 
             if (icon.Refresh.Click("Refresh Mesh Packaging Solutions"))
                 PainterCamera.Data.ResetMeshPackagingProfiles();
@@ -646,10 +644,9 @@ namespace PlaytimePainter.ComponentModules {
         {
             (used ? icon.Active : icon.InActive).draw();
 
-            var changed = false;
-            pegi.edit(ref texture).changes(ref changed);
+            pegi.edit(ref texture);
             if (!texture)
-                pegi.edit(ref color).changes(ref changed);
+                pegi.edit(ref color);
         }
         
         #endregion
@@ -949,22 +946,22 @@ namespace PlaytimePainter.ComponentModules {
         private int _inspectedItems = -1;
 
         public void Inspect() {
-            var changed = false;
+
 #if UNITY_EDITOR
 
             if (_inspectedItems == -1) {
 
-                "Atlas size:".editDelayed(ref _atlasSize, 80).nl(ref changed);
+                "Atlas size:".editDelayed(ref _atlasSize, 80).nl();
                     _atlasSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(_atlasSize, 512, 4096));
 
-                if ("Textures size:".editDelayed(ref _textureSize, 80).nl(ref changed))
+                if ("Textures size:".editDelayed(ref _textureSize, 80).nl())
 
                     _textureSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(_textureSize, 32, _atlasSize / 2));
 
                 AdjustListSize();
             }
 
-            _texturesMeta.enter_List(ref textures, ref _inspectedItems, 11).nl(ref changed);
+            _texturesMeta.enter_List(ref textures, ref _inspectedItems, 11).nl();
 
             if ("Textures:".IsFoldout().nl()) {
                 AdjustListSize();
@@ -985,13 +982,13 @@ namespace PlaytimePainter.ComponentModules {
             }
 
             pegi.nl();
-            "Is Color Atlas:".toggleIcon(ref _sRgb).nl(ref changed);
+            "Is Color Atlas:".toggleIcon(ref _sRgb).nl();
 
-            if ("Generate".Click().nl(ref changed))
+            if ("Generate".Click().nl())
                 ReconstructAsset();
 
             if (aTexture)
-                ("Atlas At " + AssetDatabase.GetAssetPath(aTexture)).edit(ref aTexture, false).nl(ref changed);
+                ("Atlas At " + AssetDatabase.GetAssetPath(aTexture)).edit(ref aTexture, false).nl();
 
 #endif
 

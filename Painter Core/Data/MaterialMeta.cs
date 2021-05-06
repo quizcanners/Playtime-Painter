@@ -68,8 +68,6 @@ namespace PlaytimePainter {
         
         public void Inspect() {
 
-            var changed = false;
-            
             "Material:".write(60, material);
             pegi.nl();
 
@@ -78,12 +76,12 @@ namespace PlaytimePainter {
                 ("Shader: " + material.shader).write();
 
                 if (material.shader)
-                    material.shader.ClickHighlight().nl(ref changed);
+                    material.shader.ClickHighlight().nl();
             }
 
-            "Color to Vertex color on Merge".toggleIcon(ref colorToVertexColorOnMerge).nl(ref changed);
+            "Color to Vertex color on Merge".toggleIcon(ref colorToVertexColorOnMerge).nl();
 
-            "Textures".edit_List(ref materialsTextureFields).changes(ref changed);
+            "Textures".edit_List(ref materialsTextureFields);
 
             if (material) {
 

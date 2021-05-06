@@ -665,9 +665,9 @@ namespace PlaytimePainter
             {
                 var changed = this.inspect_Name().nl();
 
-                "GetBrushType".editEnum(40, ref type).nl(ref changed);
-                "Height Map".edit(ref heightMap).nl(ref changed);
-                "Overlay".edit(ref overlay).nl(ref changed);
+                "GetBrushType".editEnum(40, ref type).nl();
+                "Height Map".edit(ref heightMap).nl();
+                "Overlay".edit(ref overlay).nl();
             }
 
             public string NameForDisplayPEGI() => "{0} ({1})".F(decalName, type);
@@ -935,8 +935,6 @@ namespace PlaytimePainter
            public override void Inspect()
             {
 
-                var changed = false;
-
                 var br = InspectedBrush;
 
                 bool suggestGrid = false;
@@ -962,7 +960,7 @@ namespace PlaytimePainter
 
                 if (!br.useAlphaBuffer && (br.worldSpaceBrushPixelJitter || InspectAdvanced))
                 {
-                    "One Pixel Jitter".toggleIcon(ref br.worldSpaceBrushPixelJitter).changes(ref changed);
+                    "One Pixel Jitter".toggleIcon(ref br.worldSpaceBrushPixelJitter);
                     pegi.FullWindow.DocumentationClickOpen("Will provide a single pixel jitter which can help fix seams not being painted properly", "Why use one pixel jitter?");
                     pegi.nl();
                 }

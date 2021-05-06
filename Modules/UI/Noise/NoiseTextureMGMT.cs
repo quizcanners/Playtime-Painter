@@ -33,7 +33,7 @@ namespace PlaytimePainter
         #region Inspector
         public void Inspect()
         {
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
 
             pegi.toggleDefaultInspector(this);
 
@@ -41,21 +41,19 @@ namespace PlaytimePainter
 
             pegi.nl();
 
-            _noiseTextureGlobal.ToString().edit(90, ref prerenderedNoiseTexture).nl(ref changed);
+            "Noise Tex".edit(120, ref prerenderedNoiseTexture).nl();
 
             if (prerenderedNoiseTexture)
+                _noiseTexture.ToString().toggleIcon(ref enableNoise, hideTextWhenTrue: true);
+
+
+            if (enableNoise)
             {
-                _noiseTexture.ToString().toggleIcon(ref enableNoise).nl(ref changed);
-                if (enableNoise)
-                    _noiseTextureGlobal.ToString().write_ForCopy().nl();
+                "Compile Directive and Global Texture:".nl();
+
+                _noiseTexture.ToString().write_ForCopy(showCopyButton: true).nl();
+                _noiseTextureGlobal.ToString().write_ForCopy(showCopyButton: true);
             }
-
-            pegi.nl();
-
-            pegi.FullWindow.DocumentationClickOpen(
-                "Use NoiseTextureMGMT.instance.ResetTime to reset time when all animated shaders are hiddent from the screen." +
-                " Alternatively the time will be reset every 64 seconds resulting in noticible jitter");
-
             pegi.nl();
 
             if (changed)

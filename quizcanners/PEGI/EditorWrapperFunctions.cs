@@ -238,10 +238,10 @@ namespace QuizCanners.Inspect
             if (editorTypeForDefaultInspector == EditorType.Material)
             {
                 pegi.toggle(ref PEGI_Inspector_Material.drawDefaultInspector, icon.Exit, icon.Debug,
-                    "Toggle Between regular and PEGI Material inspector", 20).changes(ref changed);
+                    "Toggle Between regular and PEGI Material inspector", 20);
 
                 if (PEGI_Inspector_Material.drawDefaultInspector &&
-                    "Custom Inspector".ClickLabel(style: PEGI_Styles.ExitLabel).nl(ref changed))
+                    "Custom Inspector".ClickLabel(style: PEGI_Styles.ExitLabel).nl())
                     PEGI_Inspector_Material.drawDefaultInspector = false;
             }
             else
@@ -252,10 +252,10 @@ namespace QuizCanners.Inspect
                     bool isDefault = target == PEGI_UnityObjectInspector_Base.drawDefaultInspector;
 
                     if (pegi.toggle(ref isDefault, icon.Exit, icon.Debug,
-                        "Toggle Between regular and PEGI inspector", 20).changes(ref changed))
+                        "Toggle Between regular and PEGI inspector", 20))
                         PEGI_UnityObjectInspector_Base.drawDefaultInspector = isDefault ? target : null;
 
-                    if (isDefault && "Custom Inspector".ClickLabel(style: PEGI_Styles.ExitLabel).nl(ref changed))
+                    if (isDefault && "Custom Inspector".ClickLabel(style: PEGI_Styles.ExitLabel).nl())
                         PEGI_UnityObjectInspector_Base.drawDefaultInspector = null;
                 }
                 else

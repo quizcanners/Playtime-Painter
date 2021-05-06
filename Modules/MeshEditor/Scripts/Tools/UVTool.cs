@@ -57,7 +57,7 @@ namespace PlaytimePainter.MeshEditing
         
        public override void Inspect() {
 
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
 
             var mm = MeshMGMT;
 
@@ -71,13 +71,13 @@ namespace PlaytimePainter.MeshEditing
 
             if (projectionUv) {
 
-                if ("tiling".edit(ref tiling).nl(ref changed))
+                if ("tiling".edit(ref tiling).nl())
                     UpdateUvPreview();
 
-                if ("offset".edit(ref offset, -1, 1).nl(ref changed))
+                if ("offset".edit(ref offset, -1, 1).nl())
                     UpdateUvPreview();
 
-                if ("Projection UV Stop".Click().nl(ref changed)) {
+                if ("Projection UV Stop".Click().nl()) {
                     projectionUv = false;
                     EditedMesh.Dirty = true;
                 }
@@ -108,7 +108,7 @@ namespace PlaytimePainter.MeshEditing
                         OnDeSelectTool();
                     }
 
-                    if ("Auto Apply Threshold".edit(ref projectorNormalThreshold01, 0.01f, 1f).changes(ref changed))
+                    if ("Auto Apply Threshold".edit(ref projectorNormalThreshold01, 0.01f, 1f))
                         UpdateUvPreview(true);
 
                     if ((projectFront ? "front" : "back").Click())

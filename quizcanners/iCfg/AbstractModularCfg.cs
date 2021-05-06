@@ -173,10 +173,10 @@ namespace QuizCanners.CfgDecode {
         
         public bool Select(ref Type type)
         {
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
 
             var ind = type != null ? Types.IndexOf(type) : -1;
-            if (pegi.select(ref ind, DisplayNames).changes(ref changed)) 
+            if (pegi.select(ref ind, DisplayNames)) 
                 type = _types[ind];
             
             return changed;

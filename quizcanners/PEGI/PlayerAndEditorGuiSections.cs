@@ -258,18 +258,18 @@ namespace QuizCanners.Inspect
                 entered = true;
         }
 
-        private static bool IsEntered_HeaderPart<T>(this ListMetaData meta, ref List<T> list, ref bool entered, ref bool changed, bool showLabelIfTrue = false)
+        private static bool IsEntered_HeaderPart<T>(this ListMetaData meta, ref List<T> list, ref bool entered, bool showLabelIfTrue = false)
         {
             int tmpEntered = entered ? 1 : -1;
-            var ret = meta.IsEntered_HeaderPart(ref list, ref tmpEntered, 1, ref changed, showLabelIfTrue);
+            var ret = meta.IsEntered_HeaderPart(ref list, ref tmpEntered, 1, showLabelIfTrue);
             entered = tmpEntered == 1;
             return ret;
         }
 
-        private static bool IsEntered_HeaderPart<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne, ref bool changed, bool showLabelIfTrue = false)
+        private static bool IsEntered_HeaderPart<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne, bool showLabelIfTrue = false)
         {
             
-            if (collectionInspector.listIsNull(ref list, ref changed))
+            if (collectionInspector.listIsNull(ref list))
             {
                 if (enteredOne == thisOne)
                     enteredOne = -1;
@@ -293,9 +293,9 @@ namespace QuizCanners.Inspect
         public static bool IsEntered(this string txt, ref int enteredOne, int thisOne, bool showLabelIfTrue = true, PEGI_Styles.PegiGuiStyle enterLabelStyle = null)
             => icon.Enter.IsEntered(txt, ref enteredOne, thisOne, showLabelIfTrue, enterLabelStyle);
         
-        private static bool IsEntered_ListIcon<T>(this string txt, ref List<T> list, ref bool isEntered, ref bool changed)
+        private static bool IsEntered_ListIcon<T>(this string txt, ref List<T> list, ref bool isEntered)
         {
-            if (collectionInspector.listIsNull(ref list, ref changed))
+            if (collectionInspector.listIsNull(ref list))
             {
                 if (isEntered)
                     isEntered = false;
@@ -305,9 +305,9 @@ namespace QuizCanners.Inspect
             return icon.List.IsEntered(txt.AddCount(list, isEntered), ref isEntered, showLabelIfTrue: false);
         }
         
-        private static bool IsEntered_ListIcon<T>(this string txt, ref List<T> list, ref int inspected, ref int enteredOne, int thisOne, ref bool changed)
+        private static bool IsEntered_ListIcon<T>(this string txt, ref List<T> list, ref int inspected, ref int enteredOne, int thisOne)
         {
-            if (collectionInspector.listIsNull(ref list, ref changed))
+            if (collectionInspector.listIsNull(ref list))
             {
                 if (enteredOne == thisOne)
                     enteredOne = -1;
@@ -325,9 +325,9 @@ namespace QuizCanners.Inspect
             return enteredOne == thisOne;
         }
 
-        private static bool IsEnter_ListIcon<T>(this string txt, ref List<T> list, ref int inspected, ref bool entered, ref bool changed)
+        private static bool IsEnter_ListIcon<T>(this string txt, ref List<T> list, ref int inspected, ref bool entered)
         {
-            if (collectionInspector.listIsNull(ref list, ref changed))
+            if (collectionInspector.listIsNull(ref list))
             {
                 if (entered)
                     entered = false;
@@ -506,11 +506,11 @@ namespace QuizCanners.Inspect
             return ef.isFoldedOutOrEntered;
         }
 
-        public static bool IsToggle_Entered(this string label, ref bool val, ref int enteredOne, int thisOne, ref bool changed, bool showLabelWhenEntered = false)
+        public static bool IsToggle_Entered(this string label, ref bool val, ref int enteredOne, int thisOne, bool showLabelWhenEntered = false)
         {
 
             if (enteredOne == -1)
-                label.toggleIcon(ref val).changes(ref changed);
+                label.toggleIcon(ref val);
 
             if (val)
                 IsEntered(ref enteredOne, thisOne);
@@ -518,7 +518,7 @@ namespace QuizCanners.Inspect
                 ef.isFoldedOutOrEntered = false;
 
             if (enteredOne == thisOne)
-                label.toggleIcon(ref val).changes(ref changed);
+                label.toggleIcon(ref val);
 
             if (!val && enteredOne == thisOne)
                 enteredOne = -1;
@@ -528,98 +528,102 @@ namespace QuizCanners.Inspect
 
         public static bool enter_List<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne)
         {
-            var changed = false;
+            if (meta.IsEntered_HeaderPart(ref list, ref enteredOne, thisOne))
+                return meta.edit_List(ref list).nl();
 
-            if (meta.IsEntered_HeaderPart(ref list, ref enteredOne, thisOne, ref changed))
-                meta.edit_List(ref list).nl(ref changed);
-
-            return changed;
+            return false;
         }
 
         public static bool enter_List_UObj<T>(this string label, ref List<T> list, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : Object
         {
-
-            var changed = false;
-
             var insp = -1;
-            if (IsEntered_ListIcon(label, ref list, ref insp, ref enteredOne, thisOne, ref changed)) // if (label.AddCount(list).enter(ref enteredOne, thisOne))
-                label.edit_List_UObj(ref list, selectFrom).nl(ref changed);
+            if (IsEntered_ListIcon(label, ref list, ref insp, ref enteredOne, thisOne)) 
+                return label.edit_List_UObj(ref list, selectFrom).nl();
 
-            return changed;
+            return false;
         }
 
-        public static bool enter_List<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne)
-        {
-            var changed = false;
-            label.enter_List(ref list, ref inspectedElement, ref enteredOne, thisOne, ref changed);
-            return changed;
-        }
+        public static bool enter_List<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) =>
+            enter_List(label, ref list, ref inspectedElement, ref enteredOne, thisOne, out _);
 
-        public static T enter_List<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne, ref bool changed)
+        public static bool enter_List<T>(this string label, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne, out T added)
         {
-            var added = default(T);
+            added = default(T);
+
+            var changes = ChangeTrackStart();
 
             if (enteredOne == -1 && list != null && list.Count == 0 && typeof(Object).IsAssignableFrom(typeof(T)) == false)
             {
-                var showedOption = collectionInspector.TryShowListAddNewOption(label, list, ref added, ref changed);
+                var showedOption = collectionInspector.TryShowListAddNewOption(label, list, ref added);
 
                 if (!showedOption)
-                    showedOption = collectionInspector.TryShowListCreateNewOptions(list, ref added, null, ref changed);
+                    showedOption = collectionInspector.TryShowListCreateNewOptions(list, ref added, null);
 
                 if (showedOption)
                 {
-                    return added;
+                    return changes;
                 }
             }
 
-            if (IsEntered_ListIcon(label, ref list, ref inspectedElement, ref enteredOne, thisOne, ref changed)) //if (label.AddCount(list).enter(ref enteredOne, thisOne))
-                added = label.edit_List(ref list, ref inspectedElement, ref changed);
+            if (IsEntered_ListIcon(label, ref list, ref inspectedElement, ref enteredOne, thisOne)) //if (label.AddCount(list).enter(ref enteredOne, thisOne))
+                label.edit_List(ref list, ref inspectedElement, out added);
 
-            return added;
+            return changes;
         }
 
         public static bool enter_List<T>(this string label, ref List<T> list, ref int inspectedElement, ref bool entered)
         {
 
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
 
-            if (IsEnter_ListIcon(label, ref list, ref inspectedElement, ref entered, ref changed))// if (label.AddCount(list).enter(ref entered))
-                label.edit_List(ref list, ref inspectedElement).nl(ref changed);
+            if (IsEnter_ListIcon(label, ref list, ref inspectedElement, ref entered))// if (label.AddCount(list).enter(ref entered))
+                label.edit_List(ref list, ref inspectedElement).nl();
 
             return changed;
         }
 
         public static bool enter_List<T>(this string label, ref List<T> list, ref bool entered)
         {
-            var changed = false;
+            if (IsEntered_ListIcon(label, ref list, ref entered))
+                return label.edit_List(ref list).nl();
 
-            if (IsEntered_ListIcon(label, ref list, ref entered, ref changed))
-                label.edit_List(ref list).nl(ref changed);
-
-            return changed;
+            return false;
         }
 
 
         #region Tagged Types
 
-        public static T enter_List<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne, TaggedTypesCfg types, ref bool changed) =>
-            meta.IsEntered_HeaderPart(ref list, ref enteredOne, thisOne, ref changed) ? meta.edit_List(ref list, types, ref changed) : default;
+        public static bool enter_List<T>(this ListMetaData meta, ref List<T> list, ref int enteredOne, int thisOne, TaggedTypesCfg types, out T added)
+        {
 
-        public static T enter_List<T>(this ListMetaData meta, ref List<T> list, ref bool entered, TaggedTypesCfg types, ref bool changed) =>
-            meta.IsEntered_HeaderPart(ref list, ref entered, ref changed) ? meta.edit_List(ref list, types, ref changed) : default;
+            if (meta.IsEntered_HeaderPart(ref list, ref enteredOne, thisOne))
+                return meta.edit_List(ref list, types, out added);
+
+            added = default;
+            return false;
+        }
+
+        public static bool enter_List<T>(this ListMetaData meta, ref List<T> list, ref bool entered, TaggedTypesCfg types, out T added)
+        {
+            if (meta.IsEntered_HeaderPart(ref list, ref entered))
+                return meta.edit_List(ref list, types, out added);
+
+            added = default;
+            return false;
+        }
 
         #endregion
 
         public static bool conditional_enter_List<T>(this string label, bool canEnter, ref List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne)
         {
 
-            var changed = false;
+            var changed = ChangeTrackStart();
 
             if (!canEnter && enteredOne == thisOne)
                 enteredOne = -1;
 
             if (canEnter)
-                label.enter_List(ref list, ref inspectedElement, ref enteredOne, thisOne).changes(ref changed);
+                label.enter_List(ref list, ref inspectedElement, ref enteredOne, thisOne);
             else
                 ef.isFoldedOutOrEntered = false;
 
@@ -636,7 +640,7 @@ namespace QuizCanners.Inspect
                 enteredOne = -1;
 
             if (canEnter)
-                meta.enter_List(ref list, ref enteredOne, thisOne).changes(ref changed);
+                meta.enter_List(ref list, ref enteredOne, thisOne).changes_Internal(ref changed);
             else
                 ef.isFoldedOutOrEntered = false;
 

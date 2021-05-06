@@ -498,12 +498,10 @@ namespace PlaytimePainter
 
         public void Inspect()
         {
-            var changed = pegi.toggleDefaultInspector(this);
-
             pegi.nl();
 
-            if ("Data Lists".IsEntered(ref inspectedItems, 11).nl(ref changed))
-                InspectLists().changes(ref changed);
+            if ("Data Lists".IsEntered(ref inspectedItems, 11).nl())
+                InspectLists();
             
             if ("Settings".IsEntered(ref inspectedItems, 12).nl())
             {
@@ -515,7 +513,7 @@ namespace PlaytimePainter
                 if ("Enable PlayTime UI".toggleIcon(ref enablePainterUIonPlay).nl())
                     MeshEditorManager.Inst.StopEditingMesh();
 
-                "Hide documentation".toggleIcon(ref hideDocumentation).changes(ref changed);
+                "Hide documentation".toggleIcon(ref hideDocumentation);
                 MsgPainter.aboutDisableDocumentation.DocumentationClick();
                 pegi.nl();
 
@@ -581,19 +579,19 @@ namespace PlaytimePainter
 
         private bool InspectLists()
         {
-            var changes = false;
+            var changes = pegi.ChangeTrackStart();
 
-            "Img Metas".enter_List(ref imgMetas, ref _inspectedImgData, ref _inspectedList, 0).nl(ref changes);
+            "Img Metas".enter_List(ref imgMetas, ref _inspectedImgData, ref _inspectedList, 0).nl();
 
-            "Mat Metas".enter_List(ref matMetas, ref _inspectedMaterial, ref _inspectedList, 1).nl(ref changes);
+            "Mat Metas".enter_List(ref matMetas, ref _inspectedMaterial, ref _inspectedList, 1).nl();
 
-            "Source Textures".enter_List_UObj(ref sourceTextures, ref _inspectedList, 2).nl(ref changes);
+            "Source Textures".enter_List_UObj(ref sourceTextures, ref _inspectedList, 2).nl();
 
-            "Masks".enter_List_UObj(ref masks, ref _inspectedList, 3).nl(ref changes);
+            "Masks".enter_List_UObj(ref masks, ref _inspectedList, 3).nl();
 
-            "Decals".enter_List(ref decals, ref _inspectedDecal, ref _inspectedList, 4).nl(ref changes);
+            "Decals".enter_List(ref decals, ref _inspectedDecal, ref _inspectedList, 4).nl();
 
-            "Mesh Packaging solutions".enter_List(ref meshPackagingSolutions, ref _inspectedMeshPackSol, ref _inspectedList, 5).nl(ref changes);
+            "Mesh Packaging solutions".enter_List(ref meshPackagingSolutions, ref _inspectedMeshPackSol, ref _inspectedList, 5).nl();
             if (_inspectedList == 5)
             {
 #if UNITY_EDITOR

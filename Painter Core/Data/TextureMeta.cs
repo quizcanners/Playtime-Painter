@@ -854,16 +854,14 @@ namespace PlaytimePainter
                 return;
             }
 
-            var changed = false;
-
             if ("CPU blit options".IsConditionally_Entered(this.TargetIsTexture2D(), ref inspectedItems, 0).nl())
             {
-                "Disable Continious Lines".toggleIcon("If you see unwanted lines appearing on the texture as you paint, enable this.", ref disableContiniousLine).nl(ref changed);
+                "Disable Continious Lines".toggleIcon("If you see unwanted lines appearing on the texture as you paint, enable this.", ref disableContiniousLine).nl();
 
-                "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref _repaintDelay, 0.01f, 0.5f).nl(ref changed);
+                "CPU blit repaint delay".edit("Delay for video memory update when painting to Texture2D", 140, ref _repaintDelay, 0.01f, 0.5f).nl();
 
                 "Don't update mipMaps".toggleIcon("May increase performance, but your changes may not disaplay if you are far from texture.",
-                    ref dontRedoMipMaps).changes(ref changed);
+                    ref dontRedoMipMaps);
             }
 
             if ("GPU blit options".IsEntered(ref inspectedItems, 1).nl())
@@ -885,9 +883,9 @@ namespace PlaytimePainter
                 {
                     if ("Resize ({0}*{1}) => ({2}*{3})".F(width, height, newWidth, newHeight).IsEntered(ref _inspectedProcess, 0).nl_ifFoldedOut())
                     {
-                        "New Width ".select(60, ref PainterCamera.Data.selectedWidthIndex, PainterDataAndConfig.NewTextureSizeOptions).nl(ref changed);
+                        "New Width ".select(60, ref PainterCamera.Data.selectedWidthIndex, PainterDataAndConfig.NewTextureSizeOptions).nl();
 
-                        "New Height ".select(60, ref PainterCamera.Data.selectedHeightIndex, PainterDataAndConfig.NewTextureSizeOptions).nl(ref changed);
+                        "New Height ".select(60, ref PainterCamera.Data.selectedHeightIndex, PainterDataAndConfig.NewTextureSizeOptions).nl();
 
                         if (newWidth != width || newHeight != height)
                         {
@@ -901,7 +899,7 @@ namespace PlaytimePainter
                             else
                                 rescale = "Rescale".Click();
 
-                            if (rescale.changes(ref changed))
+                            if (rescale)
                             {
                                 Resize(newWidth, newHeight);
                                 var pp = PlaytimePainter.inspected;
@@ -923,7 +921,7 @@ namespace PlaytimePainter
                     if (_inspectedProcess == -1)
                     {
 
-                        if ((newWidth != width || newHeight != height) && icon.Size.Click("Resize").nl(ref changed))
+                        if ((newWidth != width || newHeight != height) && icon.Size.Click("Resize").nl())
                             Resize(newWidth, newHeight);
 
                         pegi.nl();
@@ -934,7 +932,7 @@ namespace PlaytimePainter
 
                         "Clear Color".edit(80, ref clearColor).nl();
 
-                        if ("Clear Texture".Click().nl(ref changed))
+                        if ("Clear Texture".Click().nl())
                         {
                             FillWithColor(clearColor);
                             //SetPixels(clearColor);
@@ -1107,7 +1105,7 @@ namespace PlaytimePainter
                             if (ti)
                             {
                                 if (ti.wrapMode != TextureWrapMode.Clamp && "Change wrap mode from {0} to Clamp"
-                                        .F(ti.wrapMode).Click().nl(ref changed))
+                                        .F(ti.wrapMode).Click().nl())
                                 {
                                     ti.wrapMode = TextureWrapMode.Clamp;
                                     ti.SaveAndReimport();
@@ -1116,19 +1114,19 @@ namespace PlaytimePainter
 #endif
 
                             //AddEdgePixels(Color col)
-                            if ("Set edges to transparent".Click().nl(ref changed))
+                            if ("Set edges to transparent".Click().nl())
                             {
                                 SetEdges(Color.clear, ColorMask.A);
                                 SetAndApply();
                             }
 
-                            if ("Set edges to Clear Black".Click().nl(ref changed))
+                            if ("Set edges to Clear Black".Click().nl())
                             {
                                 SetEdges(Color.clear);
                                 SetAndApply();
                             }
 
-                            "Background Color".edit(ref clearColor).changes(ref changed);
+                            "Background Color".edit(ref clearColor);
 
                             if ("Apply to edges".Click())
                             {
@@ -1199,11 +1197,11 @@ namespace PlaytimePainter
 
             #endregion
 
-            if ("Enable Undo for '{0}'".F(NameForPEGI).IsToggle_Entered(ref enableUndoRedo, ref inspectedItems, 2, ref changed).nl())
+            if ("Enable Undo for '{0}'".F(NameForPEGI).IsToggle_Entered(ref enableUndoRedo, ref inspectedItems, 2).nl())
             {
 
-                "UNDOs: Tex2D".edit(80, ref _numberOfTexture2DBackups).changes(ref changed);
-                "RendTex".edit(60, ref _numberOfRenderTextureBackups).nl(ref changed);
+                "UNDOs: Tex2D".edit(80, ref _numberOfTexture2DBackups);
+                "RendTex".edit(60, ref _numberOfRenderTextureBackups).nl();
 
                 "Backup manually".toggleIcon(ref backupManually).nl();
 
@@ -1219,13 +1217,13 @@ namespace PlaytimePainter
             if (inspectedItems == -1)
             {
                 if (isAVolumeTexture)
-                    "Is A volume texture".toggleIcon(ref isAVolumeTexture).nl(ref changed);
+                    "Is A volume texture".toggleIcon(ref isAVolumeTexture).nl();
             }
         }
 
         public bool ComponentDependent_PEGI(bool showToggles, PlaytimePainter painter)
         {
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
 
             var property = painter.GetMaterialTextureProperty();
 
@@ -1246,7 +1244,7 @@ namespace PlaytimePainter
 
             if (showToggles || (isATransparentLayer && !hasAlphaLayerTag) || forceOpenUTransparentLayer)
             {
-                MsgPainter.TransparentLayer.GetText().toggleIcon(ref isATransparentLayer).changes(ref changed);
+                MsgPainter.TransparentLayer.GetText().toggleIcon(ref isATransparentLayer);
 
                 pegi.FullWindow.DocumentationWithLinkClickOpen(
                 MsgPainter.TransparentLayer.GetDescription(),
@@ -1255,7 +1253,6 @@ namespace PlaytimePainter
 
                 if (isATransparentLayer)
                     preserveTransparency = true;
-
 
                 pegi.nl();
             }
@@ -1269,7 +1266,7 @@ namespace PlaytimePainter
                 else
                 {
 
-                    MsgPainter.PreserveTransparency.GetText().toggleIcon(ref preserveTransparency).changes(ref changed);
+                    MsgPainter.PreserveTransparency.GetText().toggleIcon(ref preserveTransparency);
 
                     MsgPainter.PreserveTransparency.DocumentationClick();
 
@@ -1294,7 +1291,7 @@ namespace PlaytimePainter
             }
 
             if (showToggles || (useTexCoord2 && !hasUv2Tag) || forceOpenUv2)
-                "Use UV2".toggleIcon(ref useTexCoord2).nl(ref changed);
+                "Use UV2".toggleIcon(ref useTexCoord2).nl();
 
             return changed;
         }

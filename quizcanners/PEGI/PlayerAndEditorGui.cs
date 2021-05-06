@@ -534,7 +534,7 @@ namespace QuizCanners.Inspect
         {
             if (anyChanges)
                 UnFocus();
-            return anyChanges.Dirty();
+            return anyChanges.FeedChanges_Internal();
         }
 
         public static void NameNextForFocus(string name) => GUI.SetNextControlName(name);
@@ -974,12 +974,12 @@ namespace QuizCanners.Inspect
             return value;
         }
 
-        public static bool nl_ifNotEntered(this bool value, ref bool changed)
+      /*  public static bool nl_ifNotEntered(this bool value, ref bool changed)
         {
             changed |= value;
             nl_ifNotEntered();
             return value;
-        }
+        }*/
 
         public static bool nl_ifNotEntered(this bool value)
         {
@@ -1013,7 +1013,7 @@ namespace QuizCanners.Inspect
             return value;
         }
 
-        public static bool nl(this bool value, ref bool changed)
+        private static bool nl(this bool value, ref bool changed)
         {
             changed |= value;
 

@@ -66,7 +66,7 @@ namespace PlaytimePainter
 
             inspected = this;
 
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
 
             if (!TexMgmt && "Find camera".Click())
                 PainterClass.applicationIsQuitting = false;
@@ -78,7 +78,7 @@ namespace PlaytimePainter
             else if (!Cfg)
             {
 
-                TexMgmt.DependenciesInspect().changes(ref changed);
+                TexMgmt.DependenciesInspect();
 
                 canInspect = false;
             }
@@ -92,7 +92,7 @@ namespace PlaytimePainter
             if (canInspect && !IsCurrentTool)
             {
 
-                if (icon.Off.Click("Click to Enable Tool").changes(ref changed))
+                if (icon.Off.Click("Click to Enable Tool"))
                 {
                     IsCurrentTool = true;
                     enabled = true;
@@ -186,7 +186,7 @@ namespace PlaytimePainter
                 {
                     if (meshEditing)
                     {
-                        if (icon.Painter.Click("Edit Texture", ref changed))
+                        if (icon.Painter.Click("Edit Texture"))
                         {
                             CheckSetOriginalShader();
                             meshEditing = false;
@@ -203,7 +203,7 @@ namespace PlaytimePainter
                     {
                         icon.Painter.draw("Editing Texture");
 
-                        if (icon.Mesh.Click("Edit Mesh", ref changed))
+                        if (icon.Mesh.Click("Edit Mesh"))
                         {
                             meshEditing = true;
 
@@ -277,7 +277,7 @@ namespace PlaytimePainter
                         {
 
                             var mg = MeshMgmt;
-                            mg.UndoRedoInspect().nl(ref changed);
+                            mg.UndoRedoInspect().nl();
 
                             var sm = SharedMesh;
 
@@ -349,9 +349,9 @@ namespace PlaytimePainter
                             }
                             else
                             {
-                                gameObject.edit_ifNull(ref meshFilter).nl(ref changed);
+                                gameObject.edit_ifNull(ref meshFilter).nl();
 
-                                gameObject.edit_ifNull(ref meshRenderer).nl(ref changed);
+                                gameObject.edit_ifNull(ref meshRenderer).nl();
 
                                 if (!sm && "Create Mesh".Click())
                                     Mesh = new Mesh();
@@ -468,7 +468,7 @@ namespace PlaytimePainter
                             else
                             {
 
-                                texMgmt.DependenciesInspect().changes(ref changed);
+                                texMgmt.DependenciesInspect();
 
                                 #region Undo/Redo & Recording
 
@@ -512,13 +512,13 @@ namespace PlaytimePainter
                                     }
 
                                     if (texMeta != null)
-                                        PreviewShaderToggleInspect().changes(ref changed);
+                                        PreviewShaderToggleInspect();
 
                                     //if (!PainterCamera.GotBuffers && icon.Refresh.Click("Refresh Main Camera Buffers"))
                                     //  RenderTextureBuffersManager.RefreshPaintingBuffers();
 
 
-                                    GlobalBrush.Nested_Inspect().changes(ref changed);
+                                    GlobalBrush.Nested_Inspect();
 
                                     if (!cpu && texMeta.texture2D && texMeta.width != texMeta.height)
                                         icon.Warning.draw(
@@ -531,7 +531,7 @@ namespace PlaytimePainter
                                          Brush.SourceTextureColorUsage.Unchanged)
                                         && !IsTerrainHeightTexture && !pegi.PaintingGameViewUI)
                                     {
-                                        if (pegi.edit(ref col).changes(ref changed))
+                                        if (pegi.edit(ref col))
                                             GlobalBrush.Color = col;
 
                                         MsgPainter.SampleColor.DocumentationClick();
@@ -540,7 +540,7 @@ namespace PlaytimePainter
 
                                     pegi.nl();
 
-                                    GlobalBrush.ColorSliders().nl(ref changed);
+                                    GlobalBrush.ColorSliders().nl();
 
                                     if (cfg.showColorSchemes)
                                     {
@@ -551,7 +551,7 @@ namespace PlaytimePainter
 
                                         if (cfg.showColorSchemes)
                                             "Scheme".select_Index(60, ref cfg.selectedColorScheme, cfg.colorSchemes)
-                                                .nl(ref changed);
+                                                .nl();
 
                                     }
                                 }
@@ -587,7 +587,7 @@ namespace PlaytimePainter
                         {
                           
                             pegi.edit(ref texMeta.clearColor, 50);
-                            if (icon.Clear.Click("Clear channels which are not ignored").changes(ref changed))
+                            if (icon.Clear.Click("Clear channels which are not ignored"))
                             {
                                 if (GlobalBrush.PaintingAllChannels)
                                 {
@@ -634,10 +634,10 @@ namespace PlaytimePainter
                                         ref cfg.allowExclusiveRenderTextures, true).nl();
 
                                 "Color Sliders ".toggleVisibilityIcon("Should the color slider be shown ",
-                                    ref cfg.showColorSliders, true).nl(ref changed);
+                                    ref cfg.showColorSliders, true).nl();
 
                                 if ("Color Schemes".IsToggle_Entered(ref cfg.showColorSchemes,
-                                    ref _inspectedShowOptionsSubitem, 5, ref changed).nl_ifFolded())
+                                    ref _inspectedShowOptionsSubitem, 5).nl_ifFolded())
                                 {
                                     if (cfg.colorSchemes.Count == 0)
                                         cfg.colorSchemes.Add(new ColorScheme { paletteName = "New Color Scheme" });
@@ -649,33 +649,33 @@ namespace PlaytimePainter
                                 {
 
                                     foreach (var module in texMeta.Modules)
-                                        module.ShowHideSectionInspect().nl(ref changed);
+                                        module.ShowHideSectionInspect().nl();
 
                                     if (texMeta.isAVolumeTexture)
                                         "Show Volume Data in Painter"
                                             .toggleIcon(ref PainterCamera.Data.showVolumeDetailsInPainter)
-                                            .nl(ref changed);
+                                            .nl();
 
                                 }
 
                                 "Brush Dynamics"
                                     .toggleVisibilityIcon("Will modify scale and other values based on movement.",
-                                        ref GlobalBrush.showBrushDynamics, true).nl(ref changed);
+                                        ref GlobalBrush.showBrushDynamics, true).nl();
 
                                 "URL field".toggleVisibilityIcon("Option to load images by URL", ref cfg.showUrlField,
-                                    true).changes(ref changed);
+                                    true);
                             }
 
                             if ("New Texture ".IsConditionally_Entered(!IsTerrainHeightTexture, ref inspectionIndex, 4).nl())
                             {
 
                                 if (cfg.newTextureIsColor)
-                                    "Clear Color".edit(ref cfg.newTextureClearColor).nl(ref changed);
+                                    "Clear Color".edit(ref cfg.newTextureClearColor).nl();
                                 else
-                                    "Clear Value".edit(ref cfg.newTextureClearNonColorValue).nl(ref changed);
+                                    "Clear Value".edit(ref cfg.newTextureClearNonColorValue).nl();
 
                                 "Color Texture".toggleIcon("Will the new texture be a Color Texture",
-                                    ref cfg.newTextureIsColor).nl(ref changed);
+                                    ref cfg.newTextureIsColor).nl();
 
                                 "Size:".select_Index("Size of the new Texture", 40,
                                     ref PainterCamera.Data.selectedWidthIndex,
@@ -723,12 +723,11 @@ namespace PlaytimePainter
 
                             var showToggles = (texMeta.inspectedItems == -1 && cfg.moreOptions);
 
-                            texMeta.ComponentDependent_PEGI(showToggles, this).changes(ref changed);
+                            texMeta.ComponentDependent_PEGI(showToggles, this);
 
                             if (showToggles || (IsUsingPreview && cfg.previewAlphaChanel))
                             {
-                                "Preview Edited RGBA".toggleIcon(ref cfg.previewAlphaChanel)
-                                    .changes(ref changed);
+                                "Preview Edited RGBA".toggleIcon(ref cfg.previewAlphaChanel);
 
                                 MsgPainter.previewRGBA.DocumentationClick().nl();
                             }
@@ -740,7 +739,7 @@ namespace PlaytimePainter
                                 {
                                     "Auto Select Material".toggleIcon(
                                         "Material will be changed based on the subMesh you are painting on",
-                                        ref autoSelectMaterialByNumberOfPointedSubMesh).changes(ref changed);
+                                        ref autoSelectMaterialByNumberOfPointedSubMesh);
 
                                     MsgPainter.AutoSelectMaterial.DocumentationClick().nl();
                                 }
@@ -755,7 +754,7 @@ namespace PlaytimePainter
                                 if (!IsUiGraphicPainter)
                                     "Invert RayCast".toggleIcon(
                                         "Will rayCast into the camera (for cases when editing from inside a sphere, mask for 360 video for example.)",
-                                        ref invertRayCast).nl(ref changed);
+                                        ref invertRayCast).nl();
                                 else
                                     invertRayCast = false;
                             }
@@ -801,10 +800,10 @@ namespace PlaytimePainter
                             if (Application.isEditor && mater && mater.shader)
                                 mater.shader.ClickHighlight("Highlight Shader");
 
-                            if (pegi.edit(ref mater).changes(ref changed))
+                            if (pegi.edit(ref mater))
                                 Material = mater;
 
-                            if (icon.NewMaterial.Click("Instantiate Material").nl(ref changed))
+                            if (icon.NewMaterial.Click("Instantiate Material").nl())
                                 InstantiateMaterial(true);
 
                             pegi.nl();
@@ -836,7 +835,7 @@ namespace PlaytimePainter
                             }
                             
                             var ind = SelectedTexture;
-                            if (pegi.select_Index(ref ind, GetAllTextureNames()).changes(ref changed))
+                            if (pegi.select_Index(ref ind, GetAllTextureNames()))
                             {
                                 SetOriginalShaderOnThis();
                                 SelectedTexture = ind;
@@ -872,7 +871,7 @@ namespace PlaytimePainter
 
                             tex = GetTextureOnMaterial();
 
-                            if (pegi.edit(ref tex).changes(ref changed))
+                            if (pegi.edit(ref tex))
                                 ChangeTexture(tex);
                             
                             if (!IsTerrainControlTexture)
@@ -896,7 +895,7 @@ namespace PlaytimePainter
                                           icon.NewTexture.Click("Create new texture2D for " + param)) ||
                                          (texMeta != null && icon.NewTexture.ClickConfirm(newTexConfirmTag, texMeta,
                                               "Replace " + param + " with new Texture2D " + texScale + "*" + texScale)))
-                                        .nl(ref changed))
+                                        .nl())
                                     {
                                         if (isTerrainHeight)
                                             CreateTerrainHeightTexture(_nameHolder);
@@ -920,29 +919,28 @@ namespace PlaytimePainter
                                                 && (texMeta == null || (recentTexs.Count > 1) ||
                                                     (texMeta != recentTexs[0].texture2D.GetImgDataIfExists()))
                                                 && "Recent Textures:".select(100, ref texMeta, recentTexs)
-                                                    .nl(ref changed))
+                                                    .nl())
                                                 ChangeTexture(texMeta.ExclusiveTexture());
 
                                         }
 
                                         if (texMeta == null && cfg.allowExclusiveRenderTextures &&
-                                            "Create Render Texture".Click(ref changed))
+                                            "Create Render Texture".Click())
                                             CreateRenderTexture(texScale, _nameHolder);
 
                                         if (texMeta != null && cfg.allowExclusiveRenderTextures)
                                         {
-                                            if (!texMeta.renderTexture && "Add Render Tex".Click(ref changed))
+                                            if (!texMeta.renderTexture && "Add Render Tex".Click())
                                                 texMeta.AddRenderTexture();
 
                                             if (texMeta.renderTexture)
                                             {
 
                                                 if ("Replace RendTex".Click(
-                                                    "Replace " + param + " with Rend Tex size: " + texScale,
-                                                    ref changed))
+                                                    "Replace " + param + " with Rend Tex size: " + texScale))
                                                     CreateRenderTexture(texScale, _nameHolder);
 
-                                                if ("Remove RendTex".Click().nl(ref changed))
+                                                if ("Remove RendTex".Click().nl())
                                                 {
 
                                                     if (texMeta.texture2D)
@@ -1074,7 +1072,7 @@ namespace PlaytimePainter
                     #endregion
 
                     foreach (var p in CameraModuleBase.ComponentInspectionPlugins)
-                        p.ComponentInspector().nl(ref changed);
+                        p.ComponentInspector().nl();
 
                 }
 
@@ -1107,14 +1105,13 @@ namespace PlaytimePainter
         public bool PreviewShaderToggleInspect()
         {
 
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
             if (IsTerrainHeightTexture)
             {
                 Texture tht = terrainHeightTexture;
 
                 if (IsUsingPreview && icon.PreviewShader
-                        .Click("Applies changes made on Texture to Actual physical Unity Terrain.", 45)
-                        .changes(ref changed))
+                        .Click("Applies changes made on Texture to Actual physical Unity Terrain.", 45))
                 {
                     TerrainHeightTexture_To_UnityTerrain();
                     UnityTerrain_To_HeightTexture();
@@ -1127,7 +1124,7 @@ namespace PlaytimePainter
                 PainterCamera.Data.Brush.MaskSet(ColorMask.A, true);
 
                 if (tht.GetTextureMeta() != null && NotUsingPreview && icon.OriginalShader
-                        .Click("Applies changes made in Unity terrain Editor", 45).changes(ref changed))
+                        .Click("Applies changes made in Unity terrain Editor", 45))
                 {
                     UnityTerrain_To_HeightTexture();
                     SetPreviewShader();
@@ -1136,10 +1133,10 @@ namespace PlaytimePainter
             else
             {
 
-                if (NotUsingPreview && icon.OriginalShader.Click("Switch To Preview Shader", 45).changes(ref changed))
+                if (NotUsingPreview && icon.OriginalShader.Click("Switch To Preview Shader", 45))
                     SetPreviewShader();
 
-                if (IsUsingPreview && icon.PreviewShader.Click("Return to Original Shader", 45).changes(ref changed))
+                if (IsUsingPreview && icon.PreviewShader.Click("Return to Original Shader", 45))
                 {
                     MatDta.usePreviewShader = false;
                     SetOriginalShaderOnThis();

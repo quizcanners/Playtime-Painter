@@ -771,7 +771,7 @@ namespace PlaytimePainter.MeshEditing
 
         public void Inspect()  {
 
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
             EditableMesh.inspected = editedMesh;
 
 
@@ -779,14 +779,14 @@ namespace PlaytimePainter.MeshEditing
 
             pegi.nl();
             
-            target.PreviewShaderToggleInspect().changes(ref changed);
+            target.PreviewShaderToggleInspect();
 
-            if (!target.NotUsingPreview && "preview".select(45, ref MeshShaderMode.selected, MeshShaderMode.AllModes).nl(ref changed))
+            if (!target.NotUsingPreview && "preview".select(45, ref MeshShaderMode.selected, MeshShaderMode.AllModes).nl())
                 MeshShaderMode.ApplySelected();
 
             var previousTool = MeshTool;
             
-            if ("tool:".select_Index(35, ref Cfg.meshTool, MeshToolBase.AllTools).changes(ref changed)) {
+            if ("tool:".select_Index(35, ref Cfg.meshTool, MeshToolBase.AllTools)) {
                 Grid.vertexPointMaterial.color = MeshTool.VertexColor; //.SetColor("_Color", MeshTool.VertexColor);
                 previousTool.OnDeSelectTool();
                 MeshTool.OnSelectTool();
@@ -813,7 +813,7 @@ namespace PlaytimePainter.MeshEditing
             pegi.nl();
 
             foreach (var p in CameraModuleBase.MeshToolPlugins)
-                p.MeshToolInspection(mt).nl(ref changed);
+                p.MeshToolInspection(mt).nl();
             
             pegi.nl();
 
@@ -830,14 +830,14 @@ namespace PlaytimePainter.MeshEditing
         private Vector3 _offset;
         public bool MeshOptionsInspect()
         {
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
 
             if (editedMesh != null && "Mesh ".IsEntered(ref PlaytimePainter._inspectedMeshEditorItems, 2).nl()) {
                 
                 if (_inspectedMeshItems == -1) {
                     
                     #if UNITY_EDITOR
-                    "Mesh Name:".edit(70, ref editedMesh.meshName).changes(ref changed);
+                    "Mesh Name:".edit(70, ref editedMesh.meshName);
 
                     var mesh = target.GetMesh();
 
@@ -848,7 +848,7 @@ namespace PlaytimePainter.MeshEditing
                         target.SaveMesh();
                         #endif
                     
-                    "Save Undo".toggleIcon(ref Cfg.saveMeshUndos).changes(ref changed);
+                    "Save Undo".toggleIcon(ref Cfg.saveMeshUndos);
                     if (Cfg.saveMeshUndos)
                         icon.Warning.draw("Can affect peformance");
                     pegi.nl();
@@ -910,13 +910,13 @@ namespace PlaytimePainter.MeshEditing
 
                     if (!SelectedForMergePainters.Contains(target))
                     {
-                        if ("Add To Group".Click("Add Mesh to the list of meshes to be merged").nl(ref changed))
+                        if ("Add To Group".Click("Add Mesh to the list of meshes to be merged").nl())
                             SelectedForMergePainters.Add(target);
 
                         if (!SelectedForMergePainters.IsNullOrEmpty())
                         {
 
-                            if (editedMesh.uv2DistributeRow < 2 && "Enable EV2 Distribution".toggleInt("Each mesh's UV2 will be modified to use a unique portion of a texture.", ref editedMesh.uv2DistributeRow).nl(ref changed))
+                            if (editedMesh.uv2DistributeRow < 2 && "Enable EV2 Distribution".toggleInt("Each mesh's UV2 will be modified to use a unique portion of a texture.", ref editedMesh.uv2DistributeRow).nl())
                                 editedMesh.uv2DistributeRow = Mathf.Max(2, (int)Mathf.Sqrt(SelectedForMergePainters.Count));
                             else
                             {
@@ -929,8 +929,8 @@ namespace PlaytimePainter.MeshEditing
                                 }
                                 else
                                 {
-                                    "Row:".edit("Will change UV2 so that every mesh will have it's own portion of a texture.", 25, ref editedMesh.uv2DistributeRow, 2, 16).nl(ref changed);
-                                    "Start from".edit(ref editedMesh.uv2DistributeCurrent).nl(ref changed);
+                                    "Row:".edit("Will change UV2 so that every mesh will have it's own portion of a texture.", 25, ref editedMesh.uv2DistributeRow, 2, 16).nl();
+                                    "Start from".edit(ref editedMesh.uv2DistributeCurrent).nl();
                                 }
 
                                 "Using {0} out of {1} spots".F(editedMesh.uv2DistributeCurrent + SelectedForMergePainters.Count + 1, editedMesh.uv2DistributeRow * editedMesh.uv2DistributeRow).nl();
@@ -940,10 +940,10 @@ namespace PlaytimePainter.MeshEditing
                     }
                     else
                     {
-                        if (SelectedForMergePainters.Count > 1 && "Merge!".Click().nl(ref changed)) 
+                        if (SelectedForMergePainters.Count > 1 && "Merge!".Click().nl()) 
                                 MergeSelected();
                             
-                        if ("Remove from Merge Group".Click().nl(ref changed))
+                        if ("Remove from Merge Group".Click().nl())
                                 SelectedForMergePainters.Remove(target);
 
                     }
@@ -1015,10 +1015,10 @@ namespace PlaytimePainter.MeshEditing
 
         public bool UndoRedoInspect()
         {
-            bool changed = false;
+            bool changed = pegi.ChangeTrackStart();
 
             if (UndoMoves.Count > 1) {
-                if (icon.Undo.Click(25).changes(ref changed)) {
+                if (icon.Undo.Click(25)) {
                     RedoMoves.Add(UndoMoves.RemoveLast());
                     new CfgData(UndoMoves.TryGetLast()).Decode(out editedMesh);
                     Redraw();
@@ -1028,7 +1028,7 @@ namespace PlaytimePainter.MeshEditing
                 icon.UndoDisabled.Click("Nothing to Undo (set number of undo frames in config)", 25);
 
             if (RedoMoves.Count > 0) {
-                if (icon.Redo.Click(25).changes(ref changed)) {
+                if (icon.Redo.Click(25)) {
                     new CfgData(RedoMoves.TryGetLast()).Decode(out editedMesh);
                     UndoMoves.Add(RedoMoves.RemoveLast());
                     Redraw();

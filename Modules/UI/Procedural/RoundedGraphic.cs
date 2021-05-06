@@ -429,11 +429,11 @@ namespace PlaytimePainter.UI
 
             if (!obj) return false;
 
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
 
 #if UNITY_EDITOR
             var path = AssetDatabase.GetAssetPath(obj);
-            if (icon.Copy.ClickConfirm("dpl" + obj + "|" + path, "{0} Duplicate at {1}".F(obj, path)).changes(ref changed))
+            if (icon.Copy.ClickConfirm("dpl" + obj + "|" + path, "{0} Duplicate at {1}".F(obj, path)))
             {
                 obj = QcUnity.Duplicate(obj, folder, extension: extension, newName: newName);
             }
@@ -461,7 +461,7 @@ namespace PlaytimePainter.UI
 
             var shad = mat.shader;
 
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
 
             bool expectedScreenPosition = false;
 
@@ -566,14 +566,14 @@ namespace PlaytimePainter.UI
                 if (mat && (linked == mat.IsKeywordEnabled(UNLINKED_VERTICES)))
                     mat.SetShaderKeyword(UNLINKED_VERTICES, !linked);
 
-                if (pegi.toggle(ref linked, icon.Link, icon.UnLinked).changes(ref changed))
+                if (pegi.toggle(ref linked, icon.Link, icon.UnLinked))
                     LinkedCorners = linked;
 
                 for (var i = 0; i < _roundedCorners.Length; i++)
                 {
                     var crn = _roundedCorners[i];
 
-                    if ("{0}".F(linked ? "Courners" : ((Corner)i).ToString()).edit(70, ref crn, 0, 1f).nl(ref changed))
+                    if ("{0}".F(linked ? "Courners" : ((Corner)i).ToString()).edit(70, ref crn, 0, 1f).nl())
                         _roundedCorners[i] = crn;
                 }
 
@@ -589,7 +589,7 @@ namespace PlaytimePainter.UI
                             if (!linked)
                             {
                                 "Material expects edge data to be linked".writeWarning();
-                                if ("FIX".Click(ref changed))
+                                if ("FIX".Click())
                                     LinkedCorners = true;
                             }
                         }
@@ -598,7 +598,7 @@ namespace PlaytimePainter.UI
                             if (linked)
                             {
                                 "Material expects edge data to be Unlinked".writeWarning();
-                                if ("FIX".Click(ref changed))
+                                if ("FIX".Click())
                                     LinkedCorners = false;
                             }
                         }
@@ -648,8 +648,8 @@ namespace PlaytimePainter.UI
                     }
                 }
 
-                if (pegi.edit(ref mat, 60).changes(ref changed) ||
-                    (!Application.isPlaying && ClickDuplicate(ref mat, gameObject.name).changes(ref changed)))
+                if (pegi.edit(ref mat, 60) ||
+                    (!Application.isPlaying && ClickDuplicate(ref mat, gameObject.name)))
                 {
                     material = mat;
                     if (mat)
@@ -665,7 +665,7 @@ namespace PlaytimePainter.UI
                 if (mat && !mayBeDefaultMaterial)
                 {
                     
-                    if ("Shader".select(60, ref shad, CompatibleShaders, false, true).changes(ref changed))
+                    if ("Shader".select(60, ref shad, CompatibleShaders, false, true))
                         mat.shader = shad;
 
                     var sTip = mat.Get(QuizCanners.Utils.ShaderTags.ShaderTip);
@@ -683,7 +683,7 @@ namespace PlaytimePainter.UI
                 pegi.nl();
 
                 var col = color;
-                if (pegi.edit(ref col).nl(ref changed))
+                if (pegi.edit(ref col).nl())
                     color = col;
 
                 #region Position Data
@@ -691,11 +691,11 @@ namespace PlaytimePainter.UI
                 if (possiblePositionData || feedPositionData)
                 {
 
-                    "Position Data".toggleIcon(ref feedPositionData, true).changes(ref changed);
+                    "Position Data".toggleIcon(ref feedPositionData, true);
 
                     if (feedPositionData)
                     {
-                        "Position: ".editEnum(60, ref _positionDataType).changes(ref changed);
+                        "Position: ".editEnum(60, ref _positionDataType);
 
                         pegi.FullWindow.DocumentationClickOpen("Shaders that use position data often don't look right in the scene view.", "Camera dependancy warning");
 
@@ -732,7 +732,7 @@ namespace PlaytimePainter.UI
                                     break;
                                 case PositionDataType.FadeOutPosition:
 
-                                    "Fade out at".edit(ref faeOutUvPosition).nl(ref changed);
+                                    "Fade out at".edit(ref faeOutUvPosition).nl();
 
                                     break;
                             }
@@ -754,7 +754,7 @@ namespace PlaytimePainter.UI
                         {
                             "Pivot is expected to be in the center for position processing to work".writeWarning();
                             pegi.nl();
-                            if ("Set Pivot to 0.5,0.5".Click().nl(ref changed))
+                            if ("Set Pivot to 0.5,0.5".Click().nl())
                                 rectTransform.SetPivotTryKeepPosition(Vector2.one * 0.5f);
                         }
 
@@ -762,22 +762,22 @@ namespace PlaytimePainter.UI
                         {
                             "Scale deformation can interfear with some shaders that use position".writeWarning();
                             pegi.nl();
-                            if ("Set local scale to 1".Click().nl(ref changed))
+                            if ("Set local scale to 1".Click().nl())
                                 rectTransform.localScale = Vector3.one;
                         }
 
                         if (rectTransform.localRotation != Quaternion.identity)
                         {
                             "Rotation can compromise calculations in shaders that need position".writeWarning();
-                            if ("Reset Rotation".Click().nl(ref changed))
+                            if ("Reset Rotation".Click().nl())
                                 rectTransform.localRotation = Quaternion.identity;
 
                         }*/
                     }
 
                     // if (_positionDataType == PositionDataType.AtlasPosition) {
-                    //  "UV:".edit(ref atlasedUVs).nl(ref changed);
-                    //   pegi.edit01(ref atlasedUVs).nl(ref changed);
+                    //  "UV:".edit(ref atlasedUVs).nl();
+                    //   pegi.edit01(ref atlasedUVs).nl();
                     // }
 
                 }
@@ -794,7 +794,7 @@ namespace PlaytimePainter.UI
                         spriteTag = "Sprite";
 
                     var sp = sprite;
-                    if (spriteTag.edit(90, ref sp).changes(ref changed))
+                    if (spriteTag.edit(90, ref sp))
                         sprite = sp;
 
                     if (sp)
@@ -825,7 +825,7 @@ namespace PlaytimePainter.UI
                 pegi.nl();
 
                 var rt = raycastTarget;
-                if ("Click-able".toggleIcon("Is RayCast Target", ref rt, hideTextWhenTrue: true).changes(ref changed))
+                if ("Click-able".toggleIcon("Is RayCast Target", ref rt, hideTextWhenTrue: true))
                     raycastTarget = rt;
 
                 if (rt)
@@ -845,13 +845,13 @@ namespace PlaytimePainter.UI
                     if (foldedOut)
                     {
                         pegi.nl();
-                        "On Click".edit_Property(() => OnClick, this).nl(ref changed);
+                        "On Click".edit_Property(() => OnClick, this).nl();
                     }*/
                 }
                 pegi.nl();
             }
 
-            if ("Modules".enter_List(ref _modules, ref _inspectedModule, ref _showModules).nl(ref changed))
+            if ("Modules".enter_List(ref _modules, ref _inspectedModule, ref _showModules).nl())
             {
                 ConfigStd = Encode().CfgData;
                 this.SetToDirty();
@@ -1125,7 +1125,7 @@ namespace PlaytimePainter.UI
 
                 _roundedCorners.Portion(ld, target.MouseOver ? valueWhenOver : valueWhenOff);
 
-                _roundedCorners.Lerp(ld);
+                _roundedCorners.Lerp(ld, canSkipLerp: false);
 
                 if (!Mathf.Approximately(_roundedCorners.CurrentValue, target.GetCorner(0)))
                 {

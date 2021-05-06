@@ -104,7 +104,7 @@ namespace PlaytimePainter.ComponentModules {
             FindMergingTerrain(painter);
 
             if (mergingTerrain)
-               MergingTerrainController.PluginInspectPart().nl(ref changed);
+               MergingTerrainController.PluginInspectPart().nl();
 
             return changed;
         }

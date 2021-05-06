@@ -56,18 +56,18 @@ namespace QuizCanners.Inspect
         }
 
         public static ChangesToken ChangeTrackStart() => new ChangesToken();
-
-        public static bool changes(this bool value, ref bool changed)
+        
+        private static bool changes_Internal(this bool value, ref bool changed)
         {
             changed |= value;
             return value;
         }
         
-        private static bool change { get { ef.globChanged = true; return true; } }
+        private static bool SetChangedTrue_Internal { get { ef.globChanged = true; return true; } }
 
-        private static bool Dirty(this bool val) { ef.globChanged |= val; return val; }
+        private static bool FeedChanges_Internal(this bool val) { ef.globChanged |= val; return val; }
 
-        private static bool ignoreChanges(this bool changed)
+        private static bool IgnoreChanges(this bool changed)
         {
             if (changed)
                 ef.globChanged = false;
@@ -76,13 +76,13 @@ namespace QuizCanners.Inspect
 
         private static bool wasChangedBefore;
 
-        private static void bc()
+        private static void _START()
         {
             checkLine();
             wasChangedBefore = GUI.changed;
         }
 
-        private static bool ec() => (GUI.changed && !wasChangedBefore).Dirty();
+        private static bool _END() => (GUI.changed && !wasChangedBefore).FeedChanges_Internal();
 
         #endregion
         
@@ -374,13 +374,9 @@ namespace QuizCanners.Inspect
             return false;
         }
 
-    
-
         #endregion
 
         #region UnityObject
-
-    
 
         public static bool select(ref SortingLayer sortingLayer)
         {
@@ -430,7 +426,7 @@ namespace QuizCanners.Inspect
 
             var changed = false;
 
-            if (label.select(ApproximateLength(label), ref o, objects).changes(ref changed))
+            if (label.select(ApproximateLength(label), ref o, objects).changes_Internal(ref changed))
                 obj = o as T;
 
             if (icon.Refresh.Click("Refresh List"))
@@ -451,7 +447,7 @@ namespace QuizCanners.Inspect
 
             var tex = objcts.TryGet(selected);
 
-            if (edit(ref tex, 50).changes(ref changed))
+            if (edit(ref tex, 100).changes_Internal(ref changed))
             {
                 if (!tex)
                     selected = -1;
@@ -560,7 +556,7 @@ namespace QuizCanners.Inspect
                     val = lst[indexes[currentIndex]];
                     changed = true;
                 }
-                else if (allowInsert && notInTheList && !currentIsNull && icon.Insert.Click("Insert into list").changes(ref changed))
+                else if (allowInsert && notInTheList && !currentIsNull && icon.Insert.Click("Insert into list").changes_Internal(ref changed))
                     lst.Add(val);
             }
             else
@@ -604,9 +600,9 @@ namespace QuizCanners.Inspect
                 indexList.Add(j);
             }
 
-            if (selectFinal(val, ref current, namesList).changes(ref changed))
+            if (selectFinal(val, ref current, namesList).changes_Internal(ref changed))
                 val = lst[indexList[current]] as T;
-            else if (allowInsert && notInTheList && !currentIsNull && icon.Insert.Click("Insert into list").changes(ref changed))
+            else if (allowInsert && notInTheList && !currentIsNull && icon.Insert.Click("Insert into list").changes_Internal(ref changed))
                 lst.TryAdd(val);
 
             return changed;
@@ -807,7 +803,7 @@ namespace QuizCanners.Inspect
                 indexList.Add(j);
             }
 
-            if (selectFinal(val, ref current, namesList).changes(ref changed))
+            if (selectFinal(val, ref current, namesList).changes_Internal(ref changed))
                 val = lst[indexList[current]];
 
             return changed;
@@ -1207,13 +1203,13 @@ namespace QuizCanners.Inspect
             }
 
             var changed = false;
-            if (obj && icon.Delete.ClickUnFocus().changes(ref changed))
+            if (obj && icon.Delete.ClickUnFocus().changes_Internal(ref changed))
                 obj = null;
 
             if (text != null)
                 write(text, hint, width);
 
-            select(ref obj, list, showIndex, stripSlahes, allowInsert).changes(ref changed);
+            select(ref obj, list, showIndex, stripSlahes, allowInsert).changes_Internal(ref changed);
 
             obj.ClickHighlight();
 
@@ -1244,10 +1240,10 @@ namespace QuizCanners.Inspect
                 val = "";
 
             if (!gotValue || !gotList)
-                edit(ref val).changes(ref changed);
+                edit(ref val).changes_Internal(ref changed);
 
             if (gotList)
-                select(ref val, list, showIndex, stripSlashes, allowInsert).changes(ref changed);
+                select(ref val, list, showIndex, stripSlashes, allowInsert).changes_Internal(ref changed);
 
             return changed;
         }
@@ -1264,10 +1260,10 @@ namespace QuizCanners.Inspect
                 val = "";
 
             if (!gotValue || !gotList)
-                name.edit(ref val).changes(ref changed);
+                name.edit(ref val).changes_Internal(ref changed);
 
             if (gotList)
-                name.select(ref val, list, showIndex).changes(ref changed);
+                name.select(ref val, list, showIndex).changes_Internal(ref changed);
 
             return changed;
         }
@@ -1285,13 +1281,13 @@ namespace QuizCanners.Inspect
 
             var changed = false;
 
-            if (obj && icon.Delete.ClickUnFocus().changes(ref changed))
+            if (obj && icon.Delete.ClickUnFocus().changes_Internal(ref changed))
                 obj = null;
 
             if (text != null)
                 write(text, hint, width);
 
-            select_SameClass(ref obj, list).changes(ref changed);
+            select_SameClass(ref obj, list).changes_Internal(ref changed);
 
             return changed;
 
@@ -1627,9 +1623,9 @@ namespace QuizCanners.Inspect
                 return ef.toggle(ref val);
 #endif
 
-            bc();
+            _START();
             val = GUILayout.Toggle(val, "", GUILayout.MaxWidth(30));
-            return ec();
+            return _END();
 
         }
 
@@ -1644,9 +1640,9 @@ namespace QuizCanners.Inspect
             }
 #endif
 
-            bc();
+            _START();
             val = GUILayout.Toggle(val, text, GuiMaxWidthOption);
-            return ec();
+            return _END();
 
         }
 
@@ -1658,9 +1654,9 @@ namespace QuizCanners.Inspect
                 return ef.toggle(ref val, cnt);
 
 #endif
-            bc();
+            _START();
             val = GUILayout.Toggle(val, cnt, GuiMaxWidthOption);
-            return ec();
+            return _END();
         }
 
         private static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon, string tip, int width, PegiGuiStyle style)
@@ -1671,16 +1667,6 @@ namespace QuizCanners.Inspect
 
         public static bool toggle(ref bool val, icon TrueIcon, icon FalseIcon, GUIStyle style = null) => toggle(ref val, TrueIcon.GetIcon(), FalseIcon.GetIcon(), "", defaultButtonSize, style);
 
-        public static bool toggleVisibilityIcon(ref bool val, string hint, int width = DefaultToggleIconSize)
-        {
-            SetBgColor(Color.clear);
-
-            var changed = toggle(ref val, icon.Show, icon.Hide, hint, width, ToggleButton).SetPreviousBgColor();
-
-            return changed;
-        }
-
-
         public static bool toggleVisibilityIcon(this string label, string hint, ref bool val, bool dontHideTextWhenOn = false)
         {
             SetBgColor(Color.clear);
@@ -1688,15 +1674,6 @@ namespace QuizCanners.Inspect
             var changed = toggle(ref val, icon.Show, icon.Hide, hint, DefaultToggleIconSize, ToggleButton).SetPreviousBgColor();
 
             if (!val || dontHideTextWhenOn) label.write(hint, ToggleLabel(val));
-
-            return changed;
-        }
-
-        public static bool toggleVisibilityIcon(this string label, ref bool val, bool showTextWhenTrue = false)
-        {
-            var changed = toggle(ref val, icon.Show.BgColor(Color.clear), icon.Hide, label, DefaultToggleIconSize, ToggleButton).SetPreviousBgColor();
-
-            if (!val || showTextWhenTrue) label.write(ToggleLabel(val));
 
             return changed;
         }
@@ -1722,7 +1699,7 @@ namespace QuizCanners.Inspect
 
             var ret = toggle(ref val, icon.True, icon.False, hint, DefaultToggleIconSize, ToggleButton).SetPreviousBgColor();
 
-            if ((!val || !hideTextWhenTrue) && label.ClickLabel(hint, -1, ToggleLabel(val)).changes(ref ret))
+            if ((!val || !hideTextWhenTrue) && label.ClickLabel(hint, -1, ToggleLabel(val)).changes_Internal(ref ret))
                 val = !val;
 
             return ret;
@@ -1732,7 +1709,7 @@ namespace QuizCanners.Inspect
         {
             var changed = toggle(ref val, icon.True.BgColor(Color.clear), icon.False, label, DefaultToggleIconSize, ToggleButton).SetPreviousBgColor();
 
-            if ((!val || !hideTextWhenTrue) && label.ClickLabel(label, -1, ToggleLabel(val)).changes(ref changed))
+            if ((!val || !hideTextWhenTrue) && label.ClickLabel(label, -1, ToggleLabel(val)).changes_Internal(ref changed))
                 val = !val;
 
             return changed;
@@ -1757,7 +1734,7 @@ namespace QuizCanners.Inspect
 
             if (!ConfirmationDialogue.IsRequestedFor(confirmationTag) && (!val || !hideTextWhenTrue))
             {
-                if (label.ClickLabelConfirm(confirmationTag: confirmationTag, style: ToggleLabel(val)).changes(ref changed))
+                if (label.ClickLabelConfirm(confirmationTag: confirmationTag, style: ToggleLabel(val)).changes_Internal(ref changed))
                     val = !val;
             }
 
@@ -1817,9 +1794,9 @@ namespace QuizCanners.Inspect
 
 #endif
 
-            bc();
+            _START();
             val = GUILayout.Toggle(val, cnt, GuiMaxWidthOption);
-            return ec();
+            return _END();
 
         }
 
@@ -1969,9 +1946,9 @@ namespace QuizCanners.Inspect
             var changed = false;
 
             typeof(T).ToString().SimplifyTypeName().write();
-            if (icon.Refresh.Click("Get Component()").changes(ref changed))
+            if (icon.Refresh.Click("Get Component()").changes_Internal(ref changed))
                 component = parent.GetComponent<T>();
-            if (icon.Add.Click("Add Component").changes(ref changed))
+            if (icon.Add.Click("Add Component").changes_Internal(ref changed))
                 component = parent.AddComponent<T>();
 
             return changed;
@@ -2056,13 +2033,13 @@ namespace QuizCanners.Inspect
             var lst = obj as IPEGI_ListInspect;
 
             if (lst != null)
-                lst.enter_Inspect_AsList(ref entered, current, label).changes(ref changed);
+                lst.enter_Inspect_AsList(ref entered, current, label).changes_Internal(ref changed);
             else
             {
                 var pgi = QcUnity.TryGet_fromObj<IPEGI>(obj);
 
                 if (IsConditionally_Entered(pgi != null, ref entered, current, exitLabel: showLabelIfEntered ? label : ""))
-                    pgi.Nested_Inspect().changes(ref changed);
+                    pgi.Nested_Inspect().changes_Internal(ref changed);
             }
 
             if (entered == -1)
@@ -2089,10 +2066,10 @@ namespace QuizCanners.Inspect
                         entered = current;
 
                     if (!obj)
-                        edit(ref obj).changes(ref changed);
+                        edit(ref obj).changes_Internal(ref changed);
                 }
                 else
-                    label.select_or_edit(width, ref obj, selectFrom).changes(ref changed);
+                    label.select_or_edit(width, ref obj, selectFrom).changes_Internal(ref changed);
 
                 obj.ClickHighlight();
 
@@ -2398,7 +2375,7 @@ namespace QuizCanners.Inspect
             {
                 var chan = col[channel];
 
-                if (ico.edit(ref chan, 0, 1).changes(ref changed))
+                if (ico.edit(ref chan, 0, 1).changes_Internal(ref changed))
                     col[channel] = chan;
 
             }
@@ -2416,7 +2393,7 @@ namespace QuizCanners.Inspect
             {
                 var chan = col[channel];
 
-                if (label.edit(ref chan, 0, 1).changes(ref changed))
+                if (label.edit(ref chan, 0, 1).changes_Internal(ref changed))
                     col[channel] = chan;
 
             }
@@ -2591,9 +2568,9 @@ namespace QuizCanners.Inspect
             if (!PaintingGameViewUI)
                 return ef.edit(ref val);
 #endif
-            bc();
+            _START();
             var newval = GUILayout.TextField(val.ToString(), GuiMaxWidthOption);
-            if (!ec()) return false;
+            if (!_END()) return false;
 
             int newValue;
             if (int.TryParse(newval, out newValue))
@@ -2612,9 +2589,9 @@ namespace QuizCanners.Inspect
                 return ef.edit(ref val, width);
 #endif
 
-            bc();
+            _START();
             var strVal = GUILayout.TextField(val.ToString(), GUILayout.MaxWidth(width));
-            if (!ec()) return false;
+            if (!_END()) return false;
 
             int newValue;
             if (int.TryParse(strVal, out newValue))
@@ -2632,9 +2609,9 @@ namespace QuizCanners.Inspect
                 return ef.edit(ref val, min, max);
 #endif
 
-            bc();
+            _START();
             val = (uint)GUILayout.HorizontalSlider(val, min, max, GuiMaxWidthOption);
-            return ec();
+            return _END();
 
         }
 
@@ -2729,9 +2706,9 @@ namespace QuizCanners.Inspect
                 return ef.edit(ref val);
 #endif
 
-            bc();
+            _START();
             var intText = GUILayout.TextField(val.ToString(), GuiMaxWidthOption);
-            if (!ec()) return false;
+            if (!_END()) return false;
 
             int newValue;
 
@@ -2749,17 +2726,17 @@ namespace QuizCanners.Inspect
                 return ef.edit(ref val, width);
 #endif
 
-            bc();
+            _START();
 
             var newValText = GUILayout.TextField(val.ToString(), GUILayout.MaxWidth(width));
 
-            if (!ec()) return false;
+            if (!_END()) return false;
 
             int newValue;
             if (int.TryParse(newValText, out newValue))
                 val = newValue;
 
-            return change;
+            return SetChangedTrue_Internal;
 
         }
 
@@ -2771,9 +2748,9 @@ namespace QuizCanners.Inspect
                 return ef.edit(ref val, min, max);
 #endif
 
-            bc();
+            _START();
             val = (int)GUILayout.HorizontalSlider(val, min, max, GuiMaxWidthOption);
-            return ec();
+            return _END();
 
         }
 
@@ -2800,10 +2777,10 @@ namespace QuizCanners.Inspect
 
                 _elementIndex++;
 
-                return change;
+                return SetChangedTrue_Internal;
             }
 
-            if (edit(ref tmp).ignoreChanges())
+            if (edit(ref tmp).IgnoreChanges())
             {
                 editedInteger = tmp;
                 editedIntegerIndex = _elementIndex;
@@ -2875,12 +2852,12 @@ namespace QuizCanners.Inspect
         {
             write(label, width);
             var changed = false;
-            if (editDelayed(ref from).changes(ref changed))
+            if (editDelayed(ref from).changes_Internal(ref changed))
                 to = Mathf.Max(from, to);
 
             write("-", 10);
 
-            if (editDelayed(ref to).changes(ref changed))
+            if (editDelayed(ref to).changes_Internal(ref changed))
                 from = Mathf.Min(from, to);
 
             return changed;
@@ -2897,9 +2874,9 @@ namespace QuizCanners.Inspect
                 return ef.edit(ref val);
 #endif
 
-            bc();
+            _START();
             var intText = GUILayout.TextField(val.ToString(), GuiMaxWidthOption);
-            if (!ec()) return false;
+            if (!_END()) return false;
 
             long newValue;
 
@@ -2917,17 +2894,17 @@ namespace QuizCanners.Inspect
                 return ef.edit(ref val, width);
 #endif
 
-            bc();
+            _START();
 
             var newValText = GUILayout.TextField(val.ToString(), GUILayout.MaxWidth(width));
 
-            if (!ec()) return false;
+            if (!_END()) return false;
 
             long newValue;
             if (long.TryParse(newValText, out newValue))
                 val = newValue;
 
-            return change;
+            return SetChangedTrue_Internal;
 
         }
 
@@ -2955,16 +2932,16 @@ namespace QuizCanners.Inspect
                 return ef.edit(ref val);
 #endif
 
-            bc();
+            _START();
             var newval = GUILayout.TextField(val.ToString(CultureInfo.InvariantCulture), GuiMaxWidthOption);
 
-            if (!ec()) return false;
+            if (!_END()) return false;
 
             float newValue;
             if (float.TryParse(newval, out newValue))
                 val = newValue;
 
-            return change;
+            return SetChangedTrue_Internal;
         }
 
         public static bool edit(ref float val, int width)
@@ -2975,17 +2952,17 @@ namespace QuizCanners.Inspect
                 return ef.edit(ref val, width);
 #endif
 
-            bc();
+            _START();
 
             var newval = GUILayout.TextField(val.ToString(CultureInfo.InvariantCulture), GUILayout.MaxWidth(width));
 
-            if (!ec()) return false;
+            if (!_END()) return false;
 
             float newValue;
             if (float.TryParse(newval, out newValue))
                 val = newValue;
 
-            return change;
+            return SetChangedTrue_Internal;
 
         }
 
@@ -3007,11 +2984,11 @@ namespace QuizCanners.Inspect
                 return ef.editPOW(ref val, min, max);
 #endif
 
-            bc();
+            _START();
             var after = GUILayout.HorizontalSlider(Mathf.Sqrt(val), min, max, GuiMaxWidthOption);
-            if (!ec()) return false;
+            if (!_END()) return false;
             val = after * after;
-            return change;
+            return SetChangedTrue_Internal;
         }
 
         public static bool edit(ref float val, float min, float max)
@@ -3022,9 +2999,9 @@ namespace QuizCanners.Inspect
                 return ef.edit(ref val, min, max);
 #endif
 
-            bc();
+            _START();
             val = GUILayout.HorizontalSlider(val, min, max, GuiMaxWidthOption);
-            return ec();
+            return _END();
 
         }
 
@@ -3081,10 +3058,10 @@ namespace QuizCanners.Inspect
 
                 editedFloatIndex = -1;
 
-                return change;
+                return SetChangedTrue_Internal;
             }
 
-            if (edit(ref tmp).ignoreChanges())
+            if (edit(ref tmp).IgnoreChanges())
             {
                 editedFloat = tmp;
                 editedFloatIndex = _elementIndex;
@@ -3110,12 +3087,12 @@ namespace QuizCanners.Inspect
         {
             write(label, width);
             var changed = false;
-            if (editDelayed(ref from).changes(ref changed))
+            if (editDelayed(ref from).changes_Internal(ref changed))
                 to = Mathf.Max(from, to);
 
             write("-", 10);
 
-            if (editDelayed(ref to).changes(ref changed))
+            if (editDelayed(ref to).changes_Internal(ref changed))
                 from = Mathf.Min(from, to);
             
             return changed;
@@ -3222,10 +3199,10 @@ namespace QuizCanners.Inspect
 
                 editedDoubleIndex = -1;
 
-                return change;
+                return SetChangedTrue_Internal;
             }
 
-            if (edit(ref tmp).ignoreChanges())
+            if (edit(ref tmp).IgnoreChanges())
             {
                 editedDouble = tmp;
                 editedDoubleIndex = _elementIndex;
@@ -3246,13 +3223,13 @@ namespace QuizCanners.Inspect
             if (!PaintingGameViewUI)
                 return ef.edit(ref val);
 #endif
-            bc();
+            _START();
             var newval = GUILayout.TextField(val.ToString(CultureInfo.InvariantCulture), GuiMaxWidthOption);
-            if (!ec()) return false;
+            if (!_END()) return false;
             double newValue;
             if (!double.TryParse(newval, out newValue)) return false;
             val = newValue;
-            return change;
+            return SetChangedTrue_Internal;
         }
 
         public static bool edit(this string label, ref double val)
@@ -3281,15 +3258,15 @@ namespace QuizCanners.Inspect
                 return ef.edit(ref val, width);
 #endif
 
-            bc();
+            _START();
             var newval = GUILayout.TextField(val.ToString(CultureInfo.InvariantCulture), GUILayout.MaxWidth(width));
-            if (!ec()) return false;
+            if (!_END()) return false;
 
             double newValue;
             if (double.TryParse(newval, out newValue))
                 val = newValue;
 
-            return change;
+            return SetChangedTrue_Internal;
 
         }
 
@@ -3476,11 +3453,11 @@ namespace QuizCanners.Inspect
                 GUILayout.TextField(val, GuiMaxWidthOption);
                 val = editedText;
 
-                return change;
+                return SetChangedTrue_Internal;
             }
 
             var tmp = val;
-            if (edit(ref tmp).ignoreChanges())
+            if (edit(ref tmp).IgnoreChanges())
             {
                 editedText = tmp;
                 editedHash = val.GetHashCode().ToString();
@@ -3512,11 +3489,11 @@ namespace QuizCanners.Inspect
             {
                 GUILayout.TextField(val, GuiMaxWidthOption);
                 val = editedText;
-                return change;
+                return SetChangedTrue_Internal;
             }
 
             var tmp = val;
-            if (edit(ref tmp, width).ignoreChanges())
+            if (edit(ref tmp, width).IgnoreChanges())
             {
                 editedText = tmp;
                 editedHash = val.GetHashCode().ToString();
@@ -3567,9 +3544,9 @@ namespace QuizCanners.Inspect
                 return ef.edit(ref val);
 #endif
 
-            bc();
+            _START();
             val = GUILayout.TextField(val, GUILayout.MaxWidth(250));
-            return ec();
+            return _END();
         }
 
         public static bool edit(ref string val, int width)
@@ -3582,12 +3559,12 @@ namespace QuizCanners.Inspect
                 return ef.edit(ref val, width);
 #endif
 
-            bc();
+            _START();
             var newval = GUILayout.TextField(val, GUILayout.MaxWidth(width));
-            if (ec())
+            if (_END())
             {
                 val = newval;
-                return change;
+                return SetChangedTrue_Internal;
             }
             return false;
 
@@ -3636,9 +3613,9 @@ namespace QuizCanners.Inspect
                 return ef.editBig(ref val, height).nl();
 #endif
 
-            bc();
+            _START();
             val = GUILayout.TextArea(val, GUILayout.MaxHeight(height), GuiMaxWidthOption);
-            return ec();
+            return _END();
 
         }
 

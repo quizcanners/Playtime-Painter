@@ -64,7 +64,7 @@ namespace QuizCanners.CfgDecode
                 if (icon.UnLinked.Click("Disconnect config"))
                     configs = null;
                 else
-                    configs.Nested_Inspect().nl(ref changed);
+                    configs.Nested_Inspect().nl();
             }
             else
             {

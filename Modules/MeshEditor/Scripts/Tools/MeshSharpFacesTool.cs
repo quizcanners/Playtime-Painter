@@ -55,13 +55,11 @@ namespace PlaytimePainter.MeshEditing
         public override void Inspect()
         {
 
-            var changed = false;
+ 
 
-            //var m = MeshMGMT;
+            "Will Set {0} On Click".F(_setTo).toggleIcon(ref _setTo).nl();
 
-            "Will Set {0} On Click".F(_setTo).toggleIcon(ref _setTo).nl(ref changed);
-
-            "Mode".editEnum(50, ref _detectionMode).nl(ref changed);
+            "Mode".editEnum(50, ref _detectionMode).nl();
 
             /* if ("Auto Bevel".Click())
                  AutoAssignDominantNormalsForBeveling();

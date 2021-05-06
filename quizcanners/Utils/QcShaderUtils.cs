@@ -311,17 +311,12 @@ namespace QuizCanners.Utils {
             public void Inspect()
             {
 
-                var changed = false;
-
                 NameForDisplayPEGI().write(); 
 
                 (DirectiveEnabledForLastValue ? icon.Active: icon.InActive).nl();
                 
-                if (pegi.edit(ref latestValue).nl(ref changed))
-                {
+                if (pegi.edit(ref latestValue).nl())
                     GlobalValue = latestValue;
-                }
-
             }
 
             public ColorFeature(string name, string featureDirective) : base(name, featureDirective) { }
@@ -656,8 +651,7 @@ namespace QuizCanners.Utils {
 
             public void Inspect()
             {
-                var changed = false;
-                if (_name.toggleIcon(ref lastValue).changes(ref changed))
+                if (_name.toggleIcon(ref lastValue))
                     Enabled = lastValue;
             }
         }

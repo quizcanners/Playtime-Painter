@@ -455,7 +455,7 @@ inline float3 volumeUVtoWorld(float2 uv, float4 VOLUME_POSITION_N_SIZE, float4 V
 	return worldPos;
 }
 
-inline float4 SampleVolume(sampler2D volume, float3 worldPos, float4 VOLUME_POSITION_N_SIZE, float4 VOLUME_H_SLICES) {
+inline float4 SampleVolume(sampler2D volume, float3 worldPos, float4 VOLUME_POSITION_N_SIZE, float4 VOLUME_H_SLICES, out float outOfBounds) {
 
 
 	float3 bsPos = (worldPos.xyz - VOLUME_POSITION_N_SIZE.xyz)*VOLUME_POSITION_N_SIZE.w;
@@ -465,7 +465,7 @@ inline float4 SampleVolume(sampler2D volume, float3 worldPos, float4 VOLUME_POSI
 	bsPos.xz = saturate(posToUvUnclamped);
 	
 	float2 diff = abs(posToUvUnclamped - bsPos.xz);
-	float outOfBounds = diff.x + diff.y;
+	outOfBounds = length(diff); // diff.x * diff.x + diff.y * diff.y;
 
 	bsPos.xz *= VOLUME_H_SLICES.w;
 
@@ -499,9 +499,12 @@ inline float4 SampleVolume(sampler2D volume, float3 worldPos, float4 VOLUME_POSI
 
 	bake = bake * (1 - deH) + bakeUp * (deH);
 
-	float isIn = 1 - saturate(outOfBounds * 999);
-
+	float isIn = 1 - saturate(outOfBounds * 999); 
 	bake.a *= isIn;
+
+	// soft bound
+	//float softBound = smoothstep( 0.1, 0, outOfBounds);// max(max(diff.x, diff.y), abs(h - 1 - bsPos.y))); 
+	//bake.a *= softBound;
 
 	return bake;
 }

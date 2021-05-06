@@ -224,7 +224,7 @@ namespace PlaytimePainter
             bool changed = false;
             
             "Recording/Playback".toggleVisibilityIcon("Show options for brush recording",
-                ref showRecording, true).nl(ref changed);
+                ref showRecording, true).nl();
             
             return changed;
         }

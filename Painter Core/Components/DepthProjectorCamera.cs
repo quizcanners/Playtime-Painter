@@ -52,30 +52,28 @@ namespace PlaytimePainter
 
        public override void Inspect()
         {
-            var changed = false;
-
             pegi.toggleDefaultInspector(this);
             
             if (icon.Delete.Click("Delete Projector Camera"))
                 gameObject.DestroyWhatever();
             
             pegi.toggle(ref pauseAutoUpdates, icon.Play, icon.Pause,
-                pauseAutoUpdates ? "Resume Updates" : "Pause Updates").changes(ref changed);
+                pauseAutoUpdates ? "Resume Updates" : "Pause Updates");
 
-            if (RenderTextureBuffersManager.InspectDepthTarget().nl(ref changed))
+            if (RenderTextureBuffersManager.InspectDepthTarget().nl())
                 UpdateDepthCamera();
 
             if (_projectorCamera)
             {
 
-                "Project from Camera".toggleIcon("Will always project from Play or Editor Camera", ref _projectFromMainCamera).nl(ref changed);
+                "Project from Camera".toggleIcon("Will always project from Play or Editor Camera", ref _projectFromMainCamera).nl();
 
                 if (_projectFromMainCamera)
-                    "Follow the mouse".toggleIcon(ref _centerOnMousePosition).nl(ref changed);
+                    "Follow the mouse".toggleIcon(ref _centerOnMousePosition).nl();
 
                 var fov = _projectorCamera.fieldOfView;
 
-                if ("FOV".edit(30, ref fov, 0.1f, 180f).nl(ref changed))
+                if ("FOV".edit(30, ref fov, 0.1f, 180f).nl())
                 {
 
                     _projectorCamera.fieldOfView = fov;
@@ -88,13 +86,13 @@ namespace PlaytimePainter
 
         public bool Inspect_PainterShortcut()
         {
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
             
-            pegi.toggle(ref _projectFromMainCamera, icon.Link, icon.UnLinked, "Link Projector Camera to {0} camera".F(Application.isPlaying ? "Main Camera" : "Editor Camera")).changes(ref changed);
+            pegi.toggle(ref _projectFromMainCamera, icon.Link, icon.UnLinked, "Link Projector Camera to {0} camera".F(Application.isPlaying ? "Main Camera" : "Editor Camera"));
 
             if (_projectFromMainCamera)
             {
-                "Follow the mouse".toggleIcon(ref _centerOnMousePosition).changes(ref changed);
+                "Follow the mouse".toggleIcon(ref _centerOnMousePosition);
 
                 if (_centerOnMousePosition)
                 {
@@ -511,22 +509,21 @@ namespace PlaytimePainter
         #region Inspector
         private Camera inspectedCamera;
         public void Inspect() {
-            var changed = false;
 
             "Local".toggleIcon("Use local Position and rotation of the camera." ,ref localTransform).nl();
             "Position: {0}".F(position).nl();
             "Rotation: {0}".F(rotation).nl();
 
-            "FOV".edit(40, ref fieldOfView, 60, 180).nl(ref changed);
+            "FOV".edit(40, ref fieldOfView, 60, 180).nl();
 
-            "Range".edit_Range(ref nearPlane, ref farPlane).nl(ref changed);
+            "Range".edit_Range(ref nearPlane, ref farPlane).nl();
             
-            "Tmp Camera".edit(ref inspectedCamera).changes(ref changed);
+            "Tmp Camera".edit(ref inspectedCamera);
 
             if (inspectedCamera) {
-                if (icon.Load.Click("Load configuration into camera", ref changed))
+                if (icon.Load.Click("Load configuration into camera"))
                     To(inspectedCamera);
-                if (icon.Save.Click("Save configuration from camera", ref changed))
+                if (icon.Save.Click("Save configuration from camera"))
                     From(inspectedCamera);
             }
 

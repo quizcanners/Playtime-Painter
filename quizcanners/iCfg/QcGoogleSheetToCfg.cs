@@ -98,8 +98,6 @@ namespace QuizCanners.CfgDecode
 
         public void Inspect()
         {
-            var changed = false;
-
             pegi.nl();
 
             if (_inspectedStuff == -1)
@@ -138,14 +136,14 @@ namespace QuizCanners.CfgDecode
 
             if ("Source".IsEntered(ref _inspectedStuff, 0).nl())
             {
-                "Sheet URL (to Edit))".edit(ref editUrl).changes(ref changed);
+                "Sheet URL (to Edit))".edit(ref editUrl);
 
                 if (_inspectedStuff < 1 && "Open".Click())
                     Application.OpenURL(editUrl);
 
                 pegi.nl();
 
-                "Published CSV Urls (to download)".edit(ref url).changes(ref changed);
+                "Published CSV Urls (to download)".edit(ref url);
 
                 pegi.FullWindow.DocumentationClickOpen(() =>
                     "GoogleSheet->File->Publish To Web-> Publish... Copy link for .csv document");
@@ -155,13 +153,13 @@ namespace QuizCanners.CfgDecode
                 if (url != null)
                 {
                     var ind = url.LastIndexOf("pub?", StringComparison.Ordinal);
-                    if ((ind > 10 && ind < url.Length - 4) && "Clear Url Ending".Click().nl(ref changed))
+                    if ((ind > 10 && ind < url.Length - 4) && "Clear Url Ending".Click().nl())
                     {
                         url = url.Substring(startIndex: 0, length: ind + 4);
                     }
                 }
 
-                "Pages".edit_List(ref pages).nl(ref changed);
+                "Pages".edit_List(ref pages).nl();
             }
 
         }

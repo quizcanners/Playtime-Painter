@@ -10,7 +10,6 @@ namespace QuizCanners.Inspect.Examples
         
         public virtual void InspectInList(int ind, ref int edited)
         {
-            var changed = false;
 
             "ID".write(25);
 
@@ -22,7 +21,7 @@ namespace QuizCanners.Inspect.Examples
             if (pegi.edit(ref name))
                 NameForPEGI = name;
 
-            if (icon.Enter.Click(ref changed))
+            if (icon.Enter.Click())
                 edited = ind;
         }
     }

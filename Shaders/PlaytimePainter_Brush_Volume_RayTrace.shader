@@ -75,13 +75,13 @@
 
 					#if _SMOOTHING
 					const float offs = 1;
-
-					float4 up = SampleVolume(_qcPp_DestBuffer, worldPos + float3(0, offs, 0), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
-					float4 down = SampleVolume(_qcPp_DestBuffer, worldPos + float3(0, -offs, 0), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
-					float4 left = SampleVolume(_qcPp_DestBuffer, worldPos + float3(offs, 0, 0), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
-					float4 right = SampleVolume(_qcPp_DestBuffer, worldPos + float3(-offs, 0, 0), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
-					float4 fwd = SampleVolume(_qcPp_DestBuffer, worldPos + float3(0, 0, offs), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
-					float4 back = SampleVolume(_qcPp_DestBuffer, worldPos + float3(0, 0, -offs), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH);
+					float outOfBounds;
+					float4 up = SampleVolume(_qcPp_DestBuffer, worldPos + float3(0, offs, 0), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH, outOfBounds);
+					float4 down = SampleVolume(_qcPp_DestBuffer, worldPos + float3(0, -offs, 0), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH, outOfBounds);
+					float4 left = SampleVolume(_qcPp_DestBuffer, worldPos + float3(offs, 0, 0), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH, outOfBounds);
+					float4 right = SampleVolume(_qcPp_DestBuffer, worldPos + float3(-offs, 0, 0), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH, outOfBounds);
+					float4 fwd = SampleVolume(_qcPp_DestBuffer, worldPos + float3(0, 0, offs), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH, outOfBounds);
+					float4 back = SampleVolume(_qcPp_DestBuffer, worldPos + float3(0, 0, -offs), VOLUME_POSITION_N_SIZE_BRUSH, VOLUME_H_SLICES_BRUSH, outOfBounds);
 
 					float all = up.a + down.a + left.a + right.a + fwd.a + back.a + 0.0001;
 

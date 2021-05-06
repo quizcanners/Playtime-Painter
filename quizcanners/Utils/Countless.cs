@@ -1288,15 +1288,14 @@ namespace QuizCanners.Utils {
         #region Inspector
         public static bool Inspect<TG, T>(TG countless, ref int inspected) where TG : CountlessCfg<T> where T: class, ICfgCustom, IPEGI, new() {
 
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
             
             if (inspected > -1) {
                 var e = countless[inspected];
                 if (QcSharp.IsDefaultOrNull(e) || icon.Back.ClickUnFocus())
                     inspected = -1;
                 else
-                    pegi.Try_Nested_Inspect(e).changes(ref changed);
-                
+                    pegi.Try_Nested_Inspect(e);
             }
 
             var deleted = -1;
@@ -1313,7 +1312,7 @@ namespace QuizCanners.Utils {
                         deleted = ind;//countless[ind] = default;
 
                     "{0}: ".F(ind).write(35);
-                    if (pegi.InspectValueInCollection(ref el, null, ind, ref inspected).nl(ref changed) && typeof(T).IsValueType)
+                    if (pegi.InspectValueInCollection(ref el, null, ind, ref inspected).nl() && typeof(T).IsValueType)
                         countless[indexes[i]] = el;
                 }
             }

@@ -167,19 +167,19 @@ namespace PlaytimePainter.CameraModules {
         public bool Inspect(ref List<WeatherConfig> configurations)
         {
 
-            bool changed = false;
+            bool changed = pegi.ChangeTrackStart();
 
             bool notInspectingProperty = inspectedProperty == -1;
 
-            "Bleed".edit(60, ref colorBleed.targetValue, 0f, 0.3f).nl(ref changed);
+            "Bleed".edit(60, ref colorBleed.targetValue, 0f, 0.3f).nl();
 
-            "Brightness".edit(90, ref brightness.targetValue, 0f, 8f).nl(ref changed);
+            "Brightness".edit(90, ref brightness.targetValue, 0f, 8f).nl();
 
-            shadowDistance.enter_Inspect_AsList(ref inspectedProperty, 3).nl(ref changed);
+            shadowDistance.enter_Inspect_AsList(ref inspectedProperty, 3).nl();
 
             bool fog = RenderSettings.fog;
 
-            if (notInspectingProperty && "Fog".toggleIcon(ref fog, true).changes(ref changed))
+            if (notInspectingProperty && "Fog".toggleIcon(ref fog, true))
                 RenderSettings.fog = fog;
 
             if (fog)
@@ -196,20 +196,20 @@ namespace PlaytimePainter.CameraModules {
                 }
 
                 if (fogMode == FogMode.Linear)
-                    fogDistance.enter_Inspect_AsList(ref inspectedProperty, 4).nl(ref changed);
+                    fogDistance.enter_Inspect_AsList(ref inspectedProperty, 4).nl();
                 else
-                    fogDensity.enter_Inspect_AsList(ref inspectedProperty, 5).nl(ref changed);
+                    fogDensity.enter_Inspect_AsList(ref inspectedProperty, 5).nl();
             }
 
             if (notInspectingProperty)
-                "Sky Color".edit(60, ref skyColor.targetValue).nl(ref changed);
+                "Sky Color".edit(60, ref skyColor.targetValue).nl();
 
             pegi.nl();
             
             var mgmt = PainterCamera.Inst;
             if (mgmt)
             {
-                "Main Directional Light".edit(ref mgmt.mainDirectionalLight).nl(ref changed);
+                "Main Directional Light".edit(ref mgmt.mainDirectionalLight).nl();
 
                 var l = mgmt.mainDirectionalLight;
 
@@ -217,15 +217,17 @@ namespace PlaytimePainter.CameraModules {
                 {
 
                     pegi.nl();
-                    mainLightRotation.Nested_Inspect().nl(ref changed);
+                    mainLightRotation.Nested_Inspect().nl();
 
-                    "Light Intensity".edit(ref mainLightIntensity.targetValue).nl(ref changed);
-                    "Light Color".edit(ref mainLightColor.targetValue).nl(ref changed);
+                    "Light Intensity".edit(ref mainLightIntensity.targetValue).nl();
+                    "Light Color".edit(ref mainLightColor.targetValue).nl();
                 }
 
             }
 
-            var newObj = "Configurations".edit_List(ref configurations, ref changed);
+            WeatherConfig newObj;
+
+            "Configurations".edit_List(ref configurations, out newObj);
 
             pegi.nl();
 

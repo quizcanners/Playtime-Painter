@@ -17,36 +17,31 @@ namespace QuizCanners.Inspect.Examples
 
         public void Inspect()
         {
-            var changed = false;
+            var changed = pegi.ChangeTrackStart();
 
             if ("Light".IsEntered(ref _nestedExamples, 0).nl())
             {
                 "Sun".write(toolTip: "Color of sunlight", width: 50);
 
-                changed |= pegi.edit(ref SunColor);                 // In some cases we don't care if something have changed, but often it is useful.
+                pegi.edit(ref SunColor);                 // In some cases we don't care if something have changed, but often it is useful.
 
-                if (!isDay)
-                {
-                    if ("Set Day".Click())
-                    {
-                        isDay = true;
-                        changed = true;
-                    }
-                }
+                if (!isDay && "Set Day".Click())
+                    isDay = true;
+                    
+                
 
                 pegi.nl();
 
                 // Shorter version of the above:
-                "Moon".edit(toolTip: "Color of the Moon", width: 50, ref MoonColor).changes(ref changed);
+                "Moon".edit(toolTip: "Color of the Moon", width: 50, ref MoonColor);
 
-                if (isDay && "Set Night".Click(ref changed))
-                {
+                if (isDay && "Set Night".Click())
                     isDay = false;
-                }
+                
 
                 pegi.nl();
 
-                "Light Source".edit(ref lightSource).nl(ref changed);
+                "Light Source".edit(ref lightSource).nl();
 
                 if (lightSource)
                 {

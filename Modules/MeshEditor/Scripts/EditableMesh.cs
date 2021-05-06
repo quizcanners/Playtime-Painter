@@ -1319,7 +1319,7 @@ namespace PlaytimePainter.MeshEditing
         {
             var changed = false;
 
-            if ("Run Debug".Click().nl(ref changed))
+            if ("Run Debug".Click().nl())
                 RunDebug();
 
             "{0} points; Avg size {1}; {2} sub Meshes; {3} triangles".F(vertexCount, averageSize, subMeshCount, triangles.Count).nl();
@@ -1341,7 +1341,7 @@ namespace PlaytimePainter.MeshEditing
             pegi.nl();
 
             if (!shapes.IsNullOrEmpty())
-                "Shapes".edit_List(ref shapes).nl(ref changed);
+                "Shapes".edit_List(ref shapes).nl();
         }
         public static EditableMesh inspected;
 

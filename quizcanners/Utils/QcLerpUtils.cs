@@ -92,11 +92,10 @@ namespace QuizCanners.Lerp
         
         public void Inspect()
         {
-            var changed = false;
 
-            "Dominant Parameter".edit(ref dominantParameter).nl(ref changed);
+            "Dominant Parameter".edit(ref dominantParameter).nl();
 
-            "Reboot calls".edit(ref _resets).nl(ref changed);
+            "Reboot calls".edit(ref _resets).nl();
         }
 
         public void InspectInList(int ind, ref int edited)
@@ -199,7 +198,7 @@ namespace QuizCanners.Lerp
 
             #endregion
 
-            public void Lerp(LerpData ld, bool canSkipLerp = false)
+            public void Lerp(LerpData ld, bool canSkipLerp)
             {
                 if (!Enabled) return;
 
@@ -252,13 +251,9 @@ namespace QuizCanners.Lerp
             
             public virtual void InspectInList(int ind, ref int edited)
             {
-
-                var changed = false;
-
                 if (!allowChangeParameters)
                 {
-                    Name_Internal.toggleIcon("Will this config contain new parameters", ref allowChangeParameters)
-                        .changes(ref changed);
+                    Name_Internal.toggleIcon("Will this config contain new parameters", ref allowChangeParameters);
                 }
                 else
                 {
@@ -268,13 +263,13 @@ namespace QuizCanners.Lerp
                     switch (lerpMode)
                     {
                         case LerpSpeedMode.SpeedThreshold:
-                            (Name_Internal + " Thld").edit(ref speedLimit).changes(ref changed);
+                            (Name_Internal + " Thld").edit(ref speedLimit);
                             break;
                         case LerpSpeedMode.UnlinkedSpeed:
-                            (Name_Internal + " Speed").edit(ref speedLimit).changes(ref changed);
+                            (Name_Internal + " Speed").edit(ref speedLimit);
                             break;
                         default:
-                            (Name_Internal + " Mode").editEnum(ref lerpMode).changes(ref changed);
+                            (Name_Internal + " Mode").editEnum(ref lerpMode);
                             break;
                     }
                 }
@@ -292,7 +287,7 @@ namespace QuizCanners.Lerp
 
                 if (!allowChangeParameters) return;
 
-                "Lerp Speed Mode ".editEnum(110, ref lerpMode).changes(ref changed);
+                "Lerp Speed Mode ".editEnum(110, ref lerpMode);
 
                 if (Application.isPlaying)
                     (Enabled ? icon.Active : icon.InActive).nl(Enabled ? "Lerp Possible" : "Lerp Not Possible");
@@ -300,10 +295,10 @@ namespace QuizCanners.Lerp
                 switch (lerpMode)
                 {
                     case LerpSpeedMode.SpeedThreshold:
-                        ("Max Speed").edit(ref speedLimit).changes(ref changed);
+                        ("Max Speed").edit(ref speedLimit);
                         break;
                     case LerpSpeedMode.UnlinkedSpeed:
-                        ("Speed").edit(ref speedLimit).changes(ref changed);
+                        ("Speed").edit(ref speedLimit);
                         break;
                     //default:
                         //("Mode").editEnum(ref lerpMode).changes(ref changed);
@@ -993,15 +988,13 @@ namespace QuizCanners.Lerp
             
             public override void InspectInList(int ind, ref int edited)
             {
-                var changed = false;
-
                 if (allowChangeParameters)
                 {
                     int width = _name.ApproximateLength();
                     if (minMax)
-                        _name.edit(width, ref targetValue, min, max).changes(ref changed);
+                        _name.edit(width, ref targetValue, min, max);
                     else
-                        _name.edit(width, ref targetValue).changes(ref changed);
+                        _name.edit(width, ref targetValue);
                 }
 
                 if (icon.Enter.Click())
@@ -1272,12 +1265,11 @@ namespace QuizCanners.Lerp
             
             public override void InspectInList(int ind, ref int edited)
             {
-                var changed = false;
 
                 if (allowChangeParameters)
                 {
                     int width = Name_Internal.ApproximateLength();
-                    Name_Internal.edit(width, ref targetValue).changes(ref changed);
+                    Name_Internal.edit(width, ref targetValue);
                 }
 
                 if (icon.Enter.Click())

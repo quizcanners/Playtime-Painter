@@ -96,7 +96,6 @@ namespace QuizCanners.Inspect.Examples
         #region Inspector
         public virtual void Inspect()
         {
-            var changed = false;
 
             pegi.nl();
 
@@ -110,7 +109,7 @@ namespace QuizCanners.Inspect.Examples
             T val = GetEntity();
 
             if (val != null)
-                pegi.Try_Nested_Inspect(val).nl(ref changed);
+                pegi.Try_Nested_Inspect(val).nl();
             else
                 (GetEnities() == null ? "No Prototypes" : "ID {0} not found in Prototypes".F(index)).nl();
 
