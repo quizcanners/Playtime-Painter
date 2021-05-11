@@ -367,7 +367,7 @@ namespace QuizCanners.Utils
 
                 pegi.nl();
 
-                if ("Other Options".IsFoldout(ref _showAdditionalOptions).nl())
+                if ("Other Options".isFoldout(ref _showAdditionalOptions).nl())
                 {
 
                     if (!grab)
@@ -814,7 +814,7 @@ namespace QuizCanners.Utils
         {
             pegi.nl();
 
-             if ("Data".IsEntered(ref inspectedSection, 0).nl())
+             if ("Data".isEntered(ref inspectedSection, 0).nl())
             {
                 if (inspectedData == -1)
                 {
@@ -829,7 +829,7 @@ namespace QuizCanners.Utils
                             "C:/Users/{0}/AppData/Local/Unity/Editor/Editor.log".F(Environment.UserName));
                 }
 
-                if ("Cache".IsEntered(ref inspectedData, 1).nl())
+                if ("Cache".isEntered(ref inspectedData, 1).nl())
                 {
 
                     if ("Caching.ClearCache() [{0}]".F(Caching.cacheCount).ClickConfirm("clCach").nl())
@@ -870,7 +870,7 @@ namespace QuizCanners.Utils
                 }
             }
 
-            if ("Profiler".IsEntered(ref inspectedSection, 1).nl())
+            if ("Profiler".isEntered(ref inspectedSection, 1).nl())
             {
                 "Mono Heap Size Long {0}".F(Profiler.GetMonoHeapSizeLong().ToMegabytes()).nl();
 
@@ -890,7 +890,7 @@ namespace QuizCanners.Utils
 
             }
 
-            if ("Time & Audio".IsEntered(ref inspectedSection, 2).nl())
+            if ("Time & Audio".isEntered(ref inspectedSection, 2).nl())
             {
                 "Time.time: {0}".F(QcSharp.SecondsToReadableString(Time.time)).nl();
 
@@ -928,15 +928,15 @@ namespace QuizCanners.Utils
 
             "Json Inspector".enter_Inspect(jsonInspector, ref inspectedSection, 4).nl();
 
-            if ("ICfg Inspector".IsEntered(ref inspectedSection, 5).nl())
+            if ("ICfg Inspector".isEntered(ref inspectedSection, 5).nl())
                 iCfgExplorer.Inspect(null).nl();
 
-            if ("Gui Styles".IsEntered(ref inspectedSection, 6).nl())
+            if ("Gui Styles".isEntered(ref inspectedSection, 6).nl())
             {
                 PEGI_Styles.Inspect().nl();
             }
 
-            if ("Texture Utils".IsEntered(ref inspectedSection, 7).nl())
+            if ("Texture Utils".isEntered(ref inspectedSection, 7).nl())
             {
                 Sprite sa = null;
 
@@ -960,7 +960,7 @@ namespace QuizCanners.Utils
                 }
             }
 
-            if ("Managed Coroutines [{0}]".F(QcAsync.DefaultCoroutineManager.GetActiveCoroutinesCount).IsEntered(ref inspectedSection, 8).nl())
+            if ("Managed Coroutines [{0}]".F(QcAsync.DefaultCoroutineManager.GetActiveCoroutinesCount).isEntered(ref inspectedSection, 8).nl())
                 QcAsync.DefaultCoroutineManager.Nested_Inspect();
         }
 

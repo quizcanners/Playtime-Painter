@@ -254,7 +254,7 @@ namespace PlaytimePainter {
 
             var tex = ImageMeta.CurrentTexture();
 
-            if ("Volume Texture ({0})".F(tex ? NameForPEGI : "NULL").IsEntered(ref inspectedElement, 1).nl())
+            if ("Volume Texture ({0})".F(tex ? NameForPEGI : "NULL").isEntered(ref inspectedElement, 1).nl())
             {
                 var n = NameForPEGI;
                 if ("Name".editDelayed(50, ref n).nl())
@@ -316,7 +316,7 @@ namespace PlaytimePainter {
                 pegi.nl();
             }
 
-            if ("Materials [{0}]".F(materials.Count).IsEntered(ref inspectedElement, 2).nl_ifFoldedOut()) {
+            if ("Materials [{0}]".F(materials.Count).isEntered(ref inspectedElement, 2).nl_ifFoldedOut()) {
 
                 "Materials".edit_List_UObj(ref materials, ref inspectedMaterial);
 

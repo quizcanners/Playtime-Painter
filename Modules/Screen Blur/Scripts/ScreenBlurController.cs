@@ -325,7 +325,7 @@ namespace PlaytimePainter
                 "Effect Buffer".edit(ref effetBuffer).nl();
             }
 
-            if ("Config".IsFoldout(ref _showDependencies).nl())
+            if ("Config".isFoldout(ref _showDependencies).nl())
             {
                 "Allow Scren Grab To Rt".toggleIcon(ref allowScreenGrabToRt).nl();
 
@@ -361,7 +361,7 @@ namespace PlaytimePainter
                 }
             }
 
-            if ("Debug".IsFoldout(ref _showDebug).nl())
+            if ("Debug".isFoldout(ref _showDebug).nl())
             {
                 if (copyShader)
                     "Copy Shader. Supported={0} | Pass Count = {1}".F(copyShader.isSupported, copyShader.passCount).nl();

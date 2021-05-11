@@ -500,10 +500,10 @@ namespace PlaytimePainter
         {
             pegi.nl();
 
-            if ("Data Lists".IsEntered(ref inspectedItems, 11).nl())
+            if ("Data Lists".isEntered(ref inspectedItems, 11).nl())
                 InspectLists();
             
-            if ("Settings".IsEntered(ref inspectedItems, 12).nl())
+            if ("Settings".isEntered(ref inspectedItems, 12).nl())
             {
                 if ("Don't Build with Painter Shaders".toggleIcon(ref dontIncludeShaderInBuild).nl())
                     CheckShaders(forceReload: true);

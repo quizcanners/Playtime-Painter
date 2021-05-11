@@ -273,8 +273,15 @@ namespace PlaytimePainter
             if (Input.GetMouseButtonDown(1))
                 _mouseButtonTime = QcUnity.TimeSinceStartup();
 
-            if (!CanPaint())
+            var blocker = GetPaintingBlocker();
+
+            if (blocker.IsNullOrEmpty() == false)
+            {
+                //if (stroke.MouseDownEvent)
+                  //  pegi.GameView.ShowNotification("Can't Paint: " + blocker);
+
                 return;
+            }
 
             if (Input.GetMouseButtonUp(1) && ((QcUnity.TimeSinceStartup() - _mouseButtonTime) < 0.2f))
                 FocusOnThisObject();
@@ -293,7 +300,7 @@ namespace PlaytimePainter
         public void OnMouseOverSceneView(RaycastHit hit, Event e)
         {
 
-            if (!CanPaint())
+            if (!GetPaintingBlocker().IsNullOrEmpty())
                 return;
 
             if (NeedsGrid)
@@ -306,31 +313,33 @@ namespace PlaytimePainter
         }
 #endif
 
-        public bool CanPaint()
+        public string GetPaintingBlocker()
         {
 
-            if (!IsCurrentTool) return false;
+            if (!IsCurrentTool) 
+                return "Is Not Current Tool";
 
             _lastMouseOverObject = this;
 
             if (LockTextureEditing)
-                return false;
+                return "Texture Editing Locked";
+
+            if (!enabled)
+                return "Component is disabled";
 
             if (IsTerrainHeightTexture && NotUsingPreview)
-                return false;
+                return "Is Terrain without preview";
 
             if (MeshEditorManager.target)
-                return false;
+                return "Is Editing mesh of this object";
 
             if (stroke.MouseDownEvent || stroke.MouseUpEvent)
                 InitIfNotInitialized();
 
-            if (TexMeta != null) return true;
+            if (TexMeta == null)
+                return "No Texture to edit";
 
-            if (stroke.MouseDownEvent)
-                pegi.GameView.ShowNotification("No texture to edit");
-
-            return false;
+            return null;
 
         }
 

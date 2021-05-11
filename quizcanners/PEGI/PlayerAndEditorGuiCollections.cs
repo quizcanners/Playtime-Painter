@@ -369,7 +369,7 @@ namespace QuizCanners.Inspect
 
                     var selectingDerrived = lst == addingNewOptionsInspected;
 
-                    icon.Add.IsFoldout("Instantiate Class Options", ref selectingDerrived).nl();
+                    icon.Add.isFoldout("Instantiate Class Options", ref selectingDerrived).nl();
 
                     if (selectingDerrived)
                         addingNewOptionsInspected = lst;
@@ -450,7 +450,7 @@ namespace QuizCanners.Inspect
 
                     var selectingDerrived = lst == addingNewOptionsInspected;
 
-                    icon.Add.IsFoldout("Instantiate Class Options", ref selectingDerrived).nl();
+                    icon.Add.isFoldout("Instantiate Class Options", ref selectingDerrived).nl();
 
                     if (selectingDerrived)
                         addingNewOptionsInspected = lst;
@@ -591,7 +591,7 @@ namespace QuizCanners.Inspect
 
                 if (dic != null && inspected >= 0 && dic.Count > inspected)
                     label = "{0}->{1}".F(label, dic.ElementAt(inspected).Value.GetNameForInspector());
-                else label = (dic == null || dic.Count < 6) ? label : label.AddCount(dic, true);
+                else label = (dic == null || dic.Count < 6) ? label : label.addCount(dic, true);
 
                 if (label.ClickLabel(label, RemainingLength(defaultButtonSize * 2 + 10), PEGI_Styles.ListLabel) && inspected != -1)
                     inspected = -1;
@@ -620,7 +620,7 @@ namespace QuizCanners.Inspect
 
                 if (lst != null && inspected >= 0 && lst.Count > inspected)
                     label = "{0}->{1}".F(label, lst.ElementAt(inspected).GetNameForInspector());
-                else label = (lst == null || lst.Count < 6) ? label : label.AddCount(lst, true);
+                else label = (lst == null || lst.Count < 6) ? label : label.addCount(lst, true);
 
                 if (label.ClickLabel(label, RemainingLength(defaultButtonSize * 2 + 10), PEGI_Styles.ListLabel) && inspected != -1)
                     inspected = -1;
@@ -642,7 +642,7 @@ namespace QuizCanners.Inspect
                     currentListLabel = "{0}->{1}".F(ld.label, el.GetNameForInspector());
 
                 }
-                else currentListLabel = (lst == null || lst.Count < 6) ? ld.label : ld.label.AddCount(lst, true);
+                else currentListLabel = (lst == null || lst.Count < 6) ? ld.label : ld.label.addCount(lst, true);
 
 
                 if (ld.Inspecting && lst!= null)
@@ -1185,7 +1185,7 @@ namespace QuizCanners.Inspect
 
                 #endregion
 
-                if (listMeta != null && icon.Config.IsEntered(ref listMeta.inspectListMeta))
+                if (listMeta != null && icon.Config.isEntered(ref listMeta.inspectListMeta))
                     listMeta.Nested_Inspect();
                 else if (typeof(Object).IsAssignableFrom(typeof(T)) || !listCopyBuffer.IsNullOrEmptyCollection())
                 {

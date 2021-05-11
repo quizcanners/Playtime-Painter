@@ -119,7 +119,7 @@ namespace QuizCanners.Inspect
                 "Config".editEnumFlags(ref _config).nl();
             }
 
-            if ("Elements".IsEntered(ref _enterElementDatas).nl())
+            if ("Elements".isEntered(ref _enterElementDatas).nl())
                 elementDatas.Inspect();
         }
 

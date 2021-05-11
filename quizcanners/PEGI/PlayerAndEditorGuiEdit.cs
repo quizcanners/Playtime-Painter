@@ -67,7 +67,7 @@ namespace QuizCanners.Inspect
 
         private static bool FeedChanges_Internal(this bool val) { ef.globChanged |= val; return val; }
 
-        private static bool IgnoreChanges(this bool changed)
+        private static bool ignoreChanges(this bool changed)
         {
             if (changed)
                 ef.globChanged = false;
@@ -254,7 +254,7 @@ namespace QuizCanners.Inspect
 
             if (from.IsNullOrEmpty()) return false;
 
-            IsFoldout(QcSharp.TryGet(from, no, "..."));
+            isFoldout(QcSharp.TryGet(from, no, "..."));
 
             if (ef.isFoldedOutOrEntered)
             {
@@ -314,7 +314,7 @@ namespace QuizCanners.Inspect
             
             string hint = ef.IsNextFoldedOut ? "{0} ... " : "{0} ... (foldout to select)";
             
-            IsFoldout(from.TryGet(no, hint.F(no)));
+            isFoldout(from.TryGet(no, hint.F(no)));
             
             if (ef.isFoldedOutOrEntered)
             {
@@ -612,7 +612,6 @@ namespace QuizCanners.Inspect
         #endregion
 
         #region Select Index
-
         public static bool select_Index<T>(this string text, ref int ind, List<T> lst, bool showIndex = false)
         {
             write(text);
@@ -707,7 +706,6 @@ namespace QuizCanners.Inspect
             return selectFinal(ind, ref ind, lnms);
 
         }
-
 
         #endregion
 
@@ -808,144 +806,6 @@ namespace QuizCanners.Inspect
 
             return changed;
 
-        }
-
-        #endregion
-
-        #region Countless
-        public static bool select<T>(this string label, int width, ref int no, Countless<T> tree)
-        {
-            label.write(width);
-            return select(ref no, tree);
-        }
-
-        public static bool select<T>(this string label, ref int no, Countless<T> tree)
-        {
-            label.write();
-            return select(ref no, tree);
-        }
-
-        public static bool select<T>(ref int no, Countless<T> tree)
-        {
-#if UNITY_EDITOR
-            if (!PaintingGameViewUI)
-                return ef.select(ref no, tree);
-#endif
-
-
-            List<int> inds;
-            var objs = tree.GetAllObjs(out inds);
-            var filtered = new List<string>(objs.Count + 1);
-            var tmpindex = -1;
-            for (var i = 0; i < objs.Count; i++)
-            {
-                if (no == inds[i])
-                    tmpindex = i;
-                filtered.Add(objs[i].GetNameForInspector());
-            }
-
-            if (tmpindex == -1)
-                filtered.Add(">>{0}<<".F(no.GetNameForInspector()));
-
-            if (select(ref tmpindex, filtered.ToArray()) && tmpindex < inds.Count)
-            {
-                no = inds[tmpindex];
-                return true;
-            }
-            return false;
-
-        }
-
-        public static bool select<T>(this string label, int width, ref int no, Countless<T> tree, Func<T, bool> lambda)
-        {
-            label.write(width);
-            return select(ref no, tree, lambda);
-        }
-
-        public static bool select<T>(this string label, ref int no, Countless<T> tree, Func<T, bool> lambda)
-        {
-            label.write();
-            return select(ref no, tree, lambda);
-        }
-
-        public static bool select<T>(ref int no, CountlessCfg<T> tree) where T : ICfgCustom, new()
-        {
-
-#if UNITY_EDITOR
-            if (!PaintingGameViewUI)
-                return ef.select(ref no, tree);
-#endif
-
-            List<int> inds;
-            var objs = tree.GetAllObjs(out inds);
-            var filtered = new List<string>(objs.Count + 1);
-            var tmpindex = -1;
-            for (var i = 0; i < objs.Count; i++)
-            {
-                if (no == inds[i])
-                    tmpindex = i;
-                filtered.Add(objs[i].GetNameForInspector());
-            }
-
-            if (select(ref tmpindex, filtered.ToArray()))
-            {
-                no = inds[tmpindex];
-                return true;
-            }
-            return false;
-
-        }
-
-        public static bool select<T>(ref int no, Countless<T> tree, Func<T, bool> lambda)
-        {
-#if UNITY_EDITOR
-            if (!PaintingGameViewUI)
-                return ef.select(ref no, tree);
-#endif
-
-            List<int> unfinds;
-            var objects = tree.GetAllObjs(out unfinds);
-            var indexes = new List<int>(objects.Count + 1);
-            var namesList = new List<string>(objects.Count + 1);
-            var current = -1;
-            var j = 0;
-            for (var i = 0; i < objects.Count; i++)
-            {
-
-                var el = objects[i];
-
-                if (el.filterEditorDropdown().IsNullOrDestroyed_Obj() || !lambda(el)) continue;
-
-                indexes.Add(unfinds[i]);
-
-                if (no == indexes[j])
-                    current = j;
-
-                namesList.Add(objects[i].GetNameForInspector());
-                j++;
-            }
-
-
-            if (selectFinal(no, ref current, namesList))
-            {
-                no = indexes[current];
-                return true;
-            }
-            return false;
-
-        }
-
-        public static bool select(CountlessInt cint, int ind, Dictionary<int, string> from)
-        {
-
-            var value = cint[ind];
-
-            if (select(ref value, from))
-            {
-                cint[ind] = value;
-                return true;
-            }
-            return false;
         }
 
         #endregion
@@ -1938,17 +1798,27 @@ namespace QuizCanners.Inspect
 
         #region UnityObject
 
-        public static bool edit_ifNull<T>(this GameObject parent, ref T component) where T : Component
+        public static bool edit_ifNull<T>(this string label, ref T component, GameObject parent) where T : Component
+        {
+            if (component)
+                return false;
+            
+            label.write();
+            return edit_ifNull(ref component, parent);
+            
+        }
+
+        public static bool edit_ifNull<T>(ref T component, GameObject parent) where T : Component
         {
             if (component)
                 return false;
 
-            var changed = false;
+            var changed = ChangeTrackStart();
 
             typeof(T).ToString().SimplifyTypeName().write();
-            if (icon.Refresh.Click("Get Component()").changes_Internal(ref changed))
+            if (icon.Refresh.Click("Get Component()"))
                 component = parent.GetComponent<T>();
-            if (icon.Add.Click("Add Component").changes_Internal(ref changed))
+            if (icon.Add.Click("Add Component"))
                 component = parent.AddComponent<T>();
 
             return changed;
@@ -2038,7 +1908,7 @@ namespace QuizCanners.Inspect
             {
                 var pgi = QcUnity.TryGet_fromObj<IPEGI>(obj);
 
-                if (IsConditionally_Entered(pgi != null, ref entered, current, exitLabel: showLabelIfEntered ? label : ""))
+                if (isConditionally_Entered(pgi != null, ref entered, current, exitLabel: showLabelIfEntered ? label : ""))
                     pgi.Nested_Inspect().changes_Internal(ref changed);
             }
 
@@ -2054,7 +1924,7 @@ namespace QuizCanners.Inspect
                             label = typeof(T).ToPegiStringType();
                     }
 
-                    label = label.TryAddCount(obj);
+                    label = label.tryAddCount(obj);
 
                     if (width > 0)
                     {
@@ -2338,7 +2208,7 @@ namespace QuizCanners.Inspect
 
             SetBgColor(col);
 
-            if ("Color".IsFoldout())
+            if ("Color".isFoldout())
             {
                 pegi.nl();
 
@@ -2405,7 +2275,7 @@ namespace QuizCanners.Inspect
         {
             if (PaintingGameViewUI)
             {
-                if (label.IsFoldout())
+                if (label.isFoldout())
                     return edit(ref col);
             }
             else
@@ -2421,7 +2291,7 @@ namespace QuizCanners.Inspect
         {
             if (PaintingGameViewUI)
             {
-                if (label.IsFoldout())
+                if (label.isFoldout())
                     return edit(ref col);
 
             }
@@ -2780,7 +2650,7 @@ namespace QuizCanners.Inspect
                 return SetChangedTrue_Internal;
             }
 
-            if (edit(ref tmp).IgnoreChanges())
+            if (edit(ref tmp).ignoreChanges())
             {
                 editedInteger = tmp;
                 editedIntegerIndex = _elementIndex;
@@ -3061,7 +2931,7 @@ namespace QuizCanners.Inspect
                 return SetChangedTrue_Internal;
             }
 
-            if (edit(ref tmp).IgnoreChanges())
+            if (edit(ref tmp).ignoreChanges())
             {
                 editedFloat = tmp;
                 editedFloatIndex = _elementIndex;
@@ -3202,7 +3072,7 @@ namespace QuizCanners.Inspect
                 return SetChangedTrue_Internal;
             }
 
-            if (edit(ref tmp).IgnoreChanges())
+            if (edit(ref tmp).ignoreChanges())
             {
                 editedDouble = tmp;
                 editedDoubleIndex = _elementIndex;
@@ -3457,7 +3327,7 @@ namespace QuizCanners.Inspect
             }
 
             var tmp = val;
-            if (edit(ref tmp).IgnoreChanges())
+            if (edit(ref tmp).ignoreChanges())
             {
                 editedText = tmp;
                 editedHash = val.GetHashCode().ToString();
@@ -3493,7 +3363,7 @@ namespace QuizCanners.Inspect
             }
 
             var tmp = val;
-            if (edit(ref tmp, width).IgnoreChanges())
+            if (edit(ref tmp, width).ignoreChanges())
             {
                 editedText = tmp;
                 editedHash = val.GetHashCode().ToString();

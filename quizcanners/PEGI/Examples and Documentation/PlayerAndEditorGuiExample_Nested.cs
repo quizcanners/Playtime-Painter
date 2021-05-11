@@ -19,7 +19,7 @@ namespace QuizCanners.Inspect.Examples
         {
             var changed = pegi.ChangeTrackStart();
 
-            if ("Light".IsEntered(ref _nestedExamples, 0).nl())
+            if ("Light".isEntered(ref _nestedExamples, 0).nl())
             {
                 "Sun".write(toolTip: "Color of sunlight", width: 50);
 

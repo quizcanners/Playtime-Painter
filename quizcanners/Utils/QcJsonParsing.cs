@@ -381,7 +381,7 @@ namespace QuizCanners.Utils
                 if (data.CountForInspector() > 0)
                 {
                     if (data.HasNestedData)
-                        (name + " " + data.GetNameForInspector()).IsFoldout(ref foldedOut);
+                        (name + " " + data.GetNameForInspector()).isFoldout(ref foldedOut);
 
                     using (new PathAdd(NameForDisplayPEGI()))
                     {
@@ -493,7 +493,7 @@ namespace QuizCanners.Utils
                                     preview = "missing";
                             }
 
-                            ((preview.Length > 0 && !fo) ? "{1} ({0})".F(previewValue, preview) : "[{0} {1}]".F(nameForElemenet, i)).IsFoldout(ref fo);
+                            ((preview.Length > 0 && !fo) ? "{1} ({0})".F(previewValue, preview) : "[{0} {1}]".F(nameForElemenet, i)).isFoldout(ref fo);
                             foldedOut[i] = fo;
                         }
 

@@ -854,7 +854,7 @@ namespace PlaytimePainter
                 return;
             }
 
-            if ("CPU blit options".IsConditionally_Entered(this.TargetIsTexture2D(), ref inspectedItems, 0).nl())
+            if ("CPU blit options".isConditionally_Entered(this.TargetIsTexture2D(), ref inspectedItems, 0).nl())
             {
                 "Disable Continious Lines".toggleIcon("If you see unwanted lines appearing on the texture as you paint, enable this.", ref disableContiniousLine).nl();
 
@@ -864,7 +864,7 @@ namespace PlaytimePainter
                     ref dontRedoMipMaps);
             }
 
-            if ("GPU blit options".IsEntered(ref inspectedItems, 1).nl())
+            if ("GPU blit options".isEntered(ref inspectedItems, 1).nl())
             {
                 "Update Texture2D after every stroke".toggleIcon(ref updateTex2DafterStroke).nl();
             }
@@ -874,14 +874,14 @@ namespace PlaytimePainter
             var newWidth = Cfg.SelectedWidthForNewTexture(); //PainterDataAndConfig.SizeIndexToSize(PainterCamera.Data.selectedWidthIndex);
             var newHeight = Cfg.SelectedHeightForNewTexture();
 
-            if ("Texture Processors".IsEntered(ref inspectedItems, 6).nl())
+            if ("Texture Processors".isEntered(ref inspectedItems, 6).nl())
             {
 
                 if (errorWhileReading)
                     "There was en error reading texture pixels, can't process it".writeWarning();
                 else
                 {
-                    if ("Resize ({0}*{1}) => ({2}*{3})".F(width, height, newWidth, newHeight).IsEntered(ref _inspectedProcess, 0).nl_ifFoldedOut())
+                    if ("Resize ({0}*{1}) => ({2}*{3})".F(width, height, newWidth, newHeight).isEntered(ref _inspectedProcess, 0).nl_ifFoldedOut())
                     {
                         "New Width ".select(60, ref PainterCamera.Data.selectedWidthIndex, PainterDataAndConfig.NewTextureSizeOptions).nl();
 
@@ -927,7 +927,7 @@ namespace PlaytimePainter
                         pegi.nl();
                     }
 
-                    if ("Clear ".IsEntered(ref _inspectedProcess, 1, false))
+                    if ("Clear ".isEntered(ref _inspectedProcess, 1, false))
                     {
 
                         "Clear Color".edit(80, ref clearColor).nl();
@@ -947,7 +947,7 @@ namespace PlaytimePainter
                         //SetApplyUpdateRenderTexture();
                     }
 
-                    if ("Color to Alpha".IsEntered(ref _inspectedProcess, 2).nl())
+                    if ("Color to Alpha".isEntered(ref _inspectedProcess, 2).nl())
                     {
 
                         "Background Color".edit(80, ref clearColor).nl();
@@ -990,7 +990,7 @@ namespace PlaytimePainter
                         }
                     }
 
-                    if ("Signed Distance Filelds generator".IsEntered(ref _inspectedProcess, 4).nl())
+                    if ("Signed Distance Filelds generator".isEntered(ref _inspectedProcess, 4).nl())
                     {
 
                         if (texture2D.IsColorTexture())
@@ -1037,7 +1037,7 @@ namespace PlaytimePainter
 
                     }
 
-                    if ("Curves".IsEntered(ref _inspectedProcess, 5).nl())
+                    if ("Curves".isEntered(ref _inspectedProcess, 5).nl())
                     {
                         var crv = TexMGMT.InspectAnimationCurve("Channel");
 
@@ -1071,7 +1071,7 @@ namespace PlaytimePainter
                         }
                     }
 
-                    if ("Save Textures In Game ".IsEntered(ref _inspectedProcess, 7).nl())
+                    if ("Save Textures In Game ".isEntered(ref _inspectedProcess, 7).nl())
                     {
 
                         "This is intended to test playtime saving. The functions to do so are quite simple. You can find them inside ImageData.cs class."
@@ -1091,7 +1091,7 @@ namespace PlaytimePainter
                             "Playtime Saved Textures".write_List(Cfg.playtimeSavedTextures, LoadTexturePegi);
                     }
 
-                    if ("Fade edges".IsEntered(ref _inspectedProcess, 8).nl())
+                    if ("Fade edges".isEntered(ref _inspectedProcess, 8).nl())
                     {
 
                         ("This will cahange pixels on the edges of the texture. Useful when wrap mode " +
@@ -1146,7 +1146,7 @@ namespace PlaytimePainter
                         }
                     }
 
-                    if ("Add Background".IsEntered(ref _inspectedProcess, 9).nl())
+                    if ("Add Background".isEntered(ref _inspectedProcess, 9).nl())
                     {
 
                         "Background Color".edit(80, ref clearColor).nl();
@@ -1167,7 +1167,7 @@ namespace PlaytimePainter
 
                     }
 
-                    if ("Offset".IsEntered(ref _inspectedProcess, 10).nl())
+                    if ("Offset".isEntered(ref _inspectedProcess, 10).nl())
                     {
 
                         "X:".edit(ref _offsetByX);
@@ -1197,7 +1197,7 @@ namespace PlaytimePainter
 
             #endregion
 
-            if ("Enable Undo for '{0}'".F(NameForPEGI).IsToggle_Entered(ref enableUndoRedo, ref inspectedItems, 2).nl())
+            if ("Enable Undo for '{0}'".F(NameForPEGI).isToggle_Entered(ref enableUndoRedo, ref inspectedItems, 2).nl())
             {
 
                 "UNDOs: Tex2D".edit(80, ref _numberOfTexture2DBackups);

@@ -547,7 +547,7 @@ namespace PlaytimePainter.ComponentModules {
 
             "Name".edit(50, ref name).nl();
 
-            if ("Hint".IsFoldout(ref _showHint).nl())
+            if ("Hint".isFoldout(ref _showHint).nl())
             {
 
                 ("If you don't set Atlased Material(Destination)  it will try to create a copy of current material and set isAtlased toggle on it, if it has one." +
@@ -963,7 +963,7 @@ namespace PlaytimePainter.ComponentModules {
 
             _texturesMeta.enter_List(ref textures, ref _inspectedItems, 11).nl();
 
-            if ("Textures:".IsFoldout().nl()) {
+            if ("Textures:".isFoldout().nl()) {
                 AdjustListSize();
                 var max = TextureCount;
 

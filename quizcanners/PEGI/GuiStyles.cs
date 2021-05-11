@@ -70,7 +70,7 @@ namespace QuizCanners.Inspect
                 if ("Font Size".edit(90, ref fs).nl())
                     cur.fontSize = fs;
 
-                if ("Padding".IsFoldout(ref _inspectedProperty, 0).nl())
+                if ("Padding".isFoldout(ref _inspectedProperty, 0).nl())
                 {
                     RectOffset pad = cur.padding;
 
@@ -78,7 +78,7 @@ namespace QuizCanners.Inspect
                         cur.padding = pad;
                 }
 
-                if ("Margins".IsFoldout(ref _inspectedProperty, 1).nl())
+                if ("Margins".isFoldout(ref _inspectedProperty, 1).nl())
                 {
                     RectOffset mar = cur.margin;
 
@@ -284,7 +284,7 @@ namespace QuizCanners.Inspect
 
         private static void InspectInteranl(this string StyleName, PegiGuiStyle style)
         {
-            if (StyleName.IsEntered(ref _inspectedFont, _iteratiedFont).nl())
+            if (StyleName.isEntered(ref _inspectedFont, _iteratiedFont).nl())
             {
                 "Example text in {0} style ".F(StyleName).nl(style);
                 style.Nested_Inspect().nl();

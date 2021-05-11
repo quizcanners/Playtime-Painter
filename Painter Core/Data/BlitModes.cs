@@ -833,7 +833,7 @@ namespace PlaytimePainter {
 
                 if (_customCfg)
                 {
-                    if (_customCfg.name.IsFoldout(ref _showConfig).nl())
+                    if (_customCfg.name.isFoldout(ref _showConfig).nl())
                     {
                         _customCfg.Nested_Inspect();
                     }

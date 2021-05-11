@@ -49,7 +49,7 @@ namespace QuizCanners.Inspect.Examples
                 "PEGI MAIN MENU".nl(style: PEGI_Styles.ListLabel);
             }
 
-            if ("write, nl".IsEntered(enteredOne: ref _selectedMenuOption, thisOne: 0).nl())
+            if ("write, nl".isEntered(enteredOne: ref _selectedMenuOption, thisOne: 0).nl())
             {
                 pegi.write(text: "pegi.nl(); means NewLine");
                 pegi.nl();
@@ -71,7 +71,7 @@ namespace QuizCanners.Inspect.Examples
 
             }
 
-            if ("click, toggle".IsEntered(ref _selectedMenuOption, 1).nl())
+            if ("click, toggle".isEntered(ref _selectedMenuOption, 1).nl())
             {
                 pegi.Click("pegi.Click(\" Button name \")");
                 "Is a button. Returns true when clicked.".write();
@@ -100,7 +100,7 @@ namespace QuizCanners.Inspect.Examples
 
             }
 
-            if ("Nested_Inspect(), edit".IsEntered(ref _selectedMenuOption, 2).nl())
+            if ("Nested_Inspect(), edit".isEntered(ref _selectedMenuOption, 2).nl())
             {
                 if (!someOtherScript)
                 {

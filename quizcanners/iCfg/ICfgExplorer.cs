@@ -318,7 +318,7 @@ namespace QuizCanners.CfgDecode
                         uObj.ClickHighlight().nl();
                     }
 
-                    if ("Description".IsFoldout().nl())
+                    if ("Description".isFoldout().nl())
                     {
                         pegi.editBig(ref comment).nl();
                     }

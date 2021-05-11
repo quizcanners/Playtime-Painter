@@ -36,9 +36,9 @@ namespace PlaytimePainter
         public static int _inspectedMeshEditorItems = -1;
         private static int _inspectedShowOptionsSubitem = -1;
 
-        public void Inspect()
-        {
 
+        private void Inspect_LockUnlock() 
+        {
 #if UNITY_2019_1_OR_NEWER && UNITY_EDITOR
             if (!Application.isPlaying && !IsCurrentTool)
             {
@@ -52,6 +52,13 @@ namespace PlaytimePainter
                 SetOriginalShaderOnThis();
             }
 #endif
+        }
+
+
+        public void Inspect()
+        {
+
+            Inspect_LockUnlock();
 
             if (currentlyPaintedObjectPainter)
                 pegi.EditorView.RefocusIfLocked(this, currentlyPaintedObjectPainter);
@@ -349,9 +356,9 @@ namespace PlaytimePainter
                             }
                             else
                             {
-                                gameObject.edit_ifNull(ref meshFilter).nl();
+                                pegi.edit_ifNull(ref meshFilter, gameObject).nl();
 
-                                gameObject.edit_ifNull(ref meshRenderer).nl();
+                                pegi.edit_ifNull(ref meshRenderer, gameObject).nl();
 
                                 if (!sm && "Create Mesh".Click())
                                     Mesh = new Mesh();
@@ -371,7 +378,7 @@ namespace PlaytimePainter
 
                                 pegi.line();
 
-                                if ("Profile".IsEntered(ref _inspectedMeshEditorItems, 0))
+                                if ("Profile".isEntered(ref _inspectedMeshEditorItems, 0))
                                 {
 
                                     MsgPainter.MeshProfileUsage.DocumentationClick();
@@ -511,48 +518,57 @@ namespace PlaytimePainter
                                         pegi.nl();
                                     }
 
-                                    if (texMeta != null)
-                                        PreviewShaderToggleInspect();
+                                    var blocker = GetPaintingBlocker();
 
-                                    //if (!PainterCamera.GotBuffers && icon.Refresh.Click("Refresh Main Camera Buffers"))
-                                    //  RenderTextureBuffersManager.RefreshPaintingBuffers();
-
-
-                                    GlobalBrush.Nested_Inspect();
-
-                                    if (!cpu && texMeta.texture2D && texMeta.width != texMeta.height)
-                                        icon.Warning.draw(
-                                            "Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality.");
-
-                                    var mode = GlobalBrush.GetBlitMode(cpu);
-                                    var col = GlobalBrush.Color;
-
-                                    if ((cpu || !mode.UsingSourceTexture || GlobalBrush.srcColorUsage !=
-                                         Brush.SourceTextureColorUsage.Unchanged)
-                                        && !IsTerrainHeightTexture && !pegi.PaintingGameViewUI)
+                                    if (!blocker.IsNullOrEmpty())
                                     {
-                                        if (pegi.edit(ref col))
-                                            GlobalBrush.Color = col;
-
-                                        MsgPainter.SampleColor.DocumentationClick();
-
+                                        "Can't paint because {0}".F(blocker).writeWarning();
                                     }
-
-                                    pegi.nl();
-
-                                    GlobalBrush.ColorSliders().nl();
-
-                                    if (cfg.showColorSchemes)
+                                    else
                                     {
+                                        if (texMeta != null)
+                                            PreviewShaderToggleInspect();
 
-                                        var scheme = cfg.colorSchemes.TryGet(cfg.selectedColorScheme);
+                                        //if (!PainterCamera.GotBuffers && icon.Refresh.Click("Refresh Main Camera Buffers"))
+                                        //  RenderTextureBuffersManager.RefreshPaintingBuffers();
 
-                                        scheme?.PickerPEGI();
+
+                                        GlobalBrush.Nested_Inspect();
+
+                                        if (!cpu && texMeta.texture2D && texMeta.width != texMeta.height)
+                                            icon.Warning.draw(
+                                                "Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality.");
+
+                                        var mode = GlobalBrush.GetBlitMode(cpu);
+                                        var col = GlobalBrush.Color;
+
+                                        if ((cpu || !mode.UsingSourceTexture || GlobalBrush.srcColorUsage !=
+                                             Brush.SourceTextureColorUsage.Unchanged)
+                                            && !IsTerrainHeightTexture && !pegi.PaintingGameViewUI)
+                                        {
+                                            if (pegi.edit(ref col))
+                                                GlobalBrush.Color = col;
+
+                                            MsgPainter.SampleColor.DocumentationClick();
+
+                                        }
+
+                                        pegi.nl();
+
+                                        GlobalBrush.ColorSliders().nl();
 
                                         if (cfg.showColorSchemes)
-                                            "Scheme".select_Index(60, ref cfg.selectedColorScheme, cfg.colorSchemes)
-                                                .nl();
+                                        {
 
+                                            var scheme = cfg.colorSchemes.TryGet(cfg.selectedColorScheme);
+
+                                            scheme?.PickerPEGI();
+
+                                            if (cfg.showColorSchemes)
+                                                "Scheme".select_Index(60, ref cfg.selectedColorScheme, cfg.colorSchemes)
+                                                    .nl();
+
+                                        }
                                     }
                                 }
 
@@ -578,7 +594,7 @@ namespace PlaytimePainter
                         #region Fancy Options
 
                         pegi.nl();
-                        MsgPainter.TextureSettings.GetText().IsFoldout(ref cfg.moreOptions);
+                        MsgPainter.TextureSettings.GetText().isFoldout(ref cfg.moreOptions);
 
                         if (cfg.moreOptions)
                             pegi.Indent();
@@ -620,7 +636,7 @@ namespace PlaytimePainter
                         if (cfg.moreOptions)
                         {
 
-                            if (icon.Show.IsEntered("Optional UI Elements", ref inspectionIndex, 7).nl())
+                            if (icon.Show.isEntered("Optional UI Elements", ref inspectionIndex, 7).nl())
                             {
 
                                 "Show Previous Textures (if any) "
@@ -636,7 +652,7 @@ namespace PlaytimePainter
                                 "Color Sliders ".toggleVisibilityIcon("Should the color slider be shown ",
                                     ref cfg.showColorSliders, true).nl();
 
-                                if ("Color Schemes".IsToggle_Entered(ref cfg.showColorSchemes,
+                                if ("Color Schemes".isToggle_Entered(ref cfg.showColorSchemes,
                                     ref _inspectedShowOptionsSubitem, 5).nl_ifFolded())
                                 {
                                     if (cfg.colorSchemes.Count == 0)
@@ -666,7 +682,7 @@ namespace PlaytimePainter
                                     true);
                             }
 
-                            if ("New Texture ".IsConditionally_Entered(!IsTerrainHeightTexture, ref inspectionIndex, 4).nl())
+                            if ("New Texture ".isConditionally_Entered(!IsTerrainHeightTexture, ref inspectionIndex, 4).nl())
                             {
 
                                 if (cfg.newTextureIsColor)
@@ -688,7 +704,7 @@ namespace PlaytimePainter
 
                             }
 
-                            if ("Painter Modules (Debug)".IsEntered(ref inspectionIndex, 5).nl())
+                            if ("Painter Modules (Debug)".isEntered(ref inspectionIndex, 5).nl())
                                 Modules.Nested_Inspect().nl();
 
                             if (texMeta != null)

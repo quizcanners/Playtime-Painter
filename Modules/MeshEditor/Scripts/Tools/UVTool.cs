@@ -86,7 +86,7 @@ namespace PlaytimePainter.MeshEditing
                 //"Use scroll wheel to change projection plane".writeHint();
             }
 
-            if ("Processors".IsFoldout(ref meshProcessors).nl())  {
+            if ("Processors".isFoldout(ref meshProcessors).nl())  {
 
                 if (projectionUv) {
 

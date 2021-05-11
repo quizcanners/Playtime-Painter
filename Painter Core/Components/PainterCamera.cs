@@ -886,7 +886,7 @@ namespace PlaytimePainter {
 
        public override void Inspect()
         {
-            if ("Data && Settings".IsEntered(ref _inspectedStuff, 0))
+            if ("Data && Settings".isEntered(ref _inspectedStuff, 0))
             {
                 pegi.nl();
                 "Painter Data".edit(ref dataHolder).nl();
@@ -906,14 +906,14 @@ namespace PlaytimePainter {
 
             pegi.nl();
 
-            if ("Painter Camera".IsEntered(ref _inspectedStuff, 1))
+            if ("Painter Camera".isEntered(ref _inspectedStuff, 1))
                 DependenciesInspect(true);
             else if (_inspectedStuff == -1)
                 pegi.toggleDefaultInspector(this);
 
             pegi.nl();
 
-            if ("Depth Projector Camera".IsEntered(ref _inspectedStuff, 2).nl())
+            if ("Depth Projector Camera".isEntered(ref _inspectedStuff, 2).nl())
             {
                 if (DepthProjectorCamera.Instance)
                 {
@@ -923,7 +923,7 @@ namespace PlaytimePainter {
                     GetOrCreateProjectorCamera();
             }
 
-            if ("Painter Camera Modules".IsEntered(ref _inspectedStuff, 3, false).nl_ifNotEntered())
+            if ("Painter Camera Modules".isEntered(ref _inspectedStuff, 3, false).nl_ifNotEntered())
             {
                 _modulesMeta.edit_List(ref CameraModuleBase.modules, CameraModuleBase.all);
 
@@ -939,12 +939,12 @@ namespace PlaytimePainter {
                 pegi.nl();
             }
 
-            if ("Global Shader Variables".IsEntered(ref _inspectedStuff, 4).nl())
+            if ("Global Shader Variables".isEntered(ref _inspectedStuff, 4).nl())
                 PainterShaderVariables.Inspect();
 
             pegi.nl();
 
-            if ("Debug".IsEntered(ref _inspectedStuff, 5).nl())
+            if ("Debug".isEntered(ref _inspectedStuff, 5).nl())
                 QcUtils.InspectDebug();
 
             pegi.nl();
@@ -965,7 +965,7 @@ namespace PlaytimePainter {
 
                 pegi.nl();
 
-                if ("Buffers".IsEntered(ref _inspectedDependecy, 1).nl())
+                if ("Buffers".isEntered(ref _inspectedDependecy, 1).nl())
                 {
 
                     RenderTextureBuffersManager.Inspect().nl();
