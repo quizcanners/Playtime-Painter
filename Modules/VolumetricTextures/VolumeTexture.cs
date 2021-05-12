@@ -318,7 +318,7 @@ namespace PlaytimePainter {
 
             if ("Materials [{0}]".F(materials.Count).isEntered(ref inspectedElement, 2).nl_ifFoldedOut()) {
 
-                "Materials".edit_List_UObj(ref materials, ref inspectedMaterial);
+                "Materials".edit_List_UObj(materials, ref inspectedMaterial);
 
                 if (inspectedMaterial == -1 && InspectedPainter)
                 {

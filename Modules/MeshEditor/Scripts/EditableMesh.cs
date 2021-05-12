@@ -1341,7 +1341,7 @@ namespace PlaytimePainter.MeshEditing
             pegi.nl();
 
             if (!shapes.IsNullOrEmpty())
-                "Shapes".edit_List(ref shapes).nl();
+                "Shapes".edit_List(shapes).nl();
         }
         public static EditableMesh inspected;
 

@@ -159,7 +159,7 @@ namespace QuizCanners.CfgDecode
                     }
                 }
 
-                "Pages".edit_List(ref pages).nl();
+                "Pages".edit_List(pages).nl();
             }
 
         }

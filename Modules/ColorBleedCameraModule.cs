@@ -227,7 +227,7 @@ namespace PlaytimePainter.CameraModules {
 
             WeatherConfig newObj;
 
-            "Configurations".edit_List(ref configurations, out newObj);
+            "Configurations".edit_List(configurations, out newObj);
 
             pegi.nl();
 

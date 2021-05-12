@@ -81,7 +81,7 @@ namespace PlaytimePainter {
 
             "Color to Vertex color on Merge".toggleIcon(ref colorToVertexColorOnMerge).nl();
 
-            "Textures".edit_List(ref materialsTextureFields);
+            "Textures".edit_List(materialsTextureFields);
 
             if (material) {
 

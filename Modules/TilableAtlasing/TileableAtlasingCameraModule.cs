@@ -120,10 +120,10 @@ namespace PlaytimePainter
 
                 if (p)
                     "Atlased Materials"
-                        .enter_List(ref Cfg.atlasedMaterials, ref p.selectedAtlasedMaterial, ref InspectedItems, 0)
+                        .enter_List(Cfg.atlasedMaterials, ref p.selectedAtlasedMaterial, ref InspectedItems, 0)
                         .nl();
 
-                "Atlases".enter_List(ref Cfg.atlases, ref inspectedAtlas, ref InspectedItems, 1).nl();
+                "Atlases".enter_List(Cfg.atlases, ref inspectedAtlas, ref InspectedItems, 1).nl();
 
                 if (changed)
                     Cfg.SetToDirty();

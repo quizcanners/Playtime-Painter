@@ -961,7 +961,7 @@ namespace PlaytimePainter.ComponentModules {
                 AdjustListSize();
             }
 
-            _texturesMeta.enter_List(ref textures, ref _inspectedItems, 11).nl();
+            _texturesMeta.enter_List(textures, ref _inspectedItems, 11).nl();
 
             if ("Textures:".isFoldout().nl()) {
                 AdjustListSize();

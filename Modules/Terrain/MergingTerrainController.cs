@@ -83,7 +83,7 @@ namespace PlaytimePainter
 
             pegi.nl();
 
-            if ("Merge Sub Masks".edit_List(ref mergeSubMasks, ref inspectedElement).nl())
+            if ("Merge Sub Masks".edit_List(mergeSubMasks, ref inspectedElement).nl())
             {
                 UpdateTextures();
                 painter.UpdateModules();

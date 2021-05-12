@@ -581,17 +581,17 @@ namespace PlaytimePainter
         {
             var changes = pegi.ChangeTrackStart();
 
-            "Img Metas".enter_List(ref imgMetas, ref _inspectedImgData, ref _inspectedList, 0).nl();
+            "Img Metas".enter_List(imgMetas, ref _inspectedImgData, ref _inspectedList, 0).nl();
 
-            "Mat Metas".enter_List(ref matMetas, ref _inspectedMaterial, ref _inspectedList, 1).nl();
+            "Mat Metas".enter_List(matMetas, ref _inspectedMaterial, ref _inspectedList, 1).nl();
 
-            "Source Textures".enter_List_UObj(ref sourceTextures, ref _inspectedList, 2).nl();
+            "Source Textures".enter_List_UObj(sourceTextures, ref _inspectedList, 2).nl();
 
-            "Masks".enter_List_UObj(ref masks, ref _inspectedList, 3).nl();
+            "Masks".enter_List_UObj(masks, ref _inspectedList, 3).nl();
 
-            "Decals".enter_List(ref decals, ref _inspectedDecal, ref _inspectedList, 4).nl();
+            "Decals".enter_List(decals, ref _inspectedDecal, ref _inspectedList, 4).nl();
 
-            "Mesh Packaging solutions".enter_List(ref meshPackagingSolutions, ref _inspectedMeshPackSol, ref _inspectedList, 5).nl();
+            "Mesh Packaging solutions".enter_List(meshPackagingSolutions, ref _inspectedMeshPackSol, ref _inspectedList, 5).nl();
             if (_inspectedList == 5)
             {
 #if UNITY_EDITOR

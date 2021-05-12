@@ -724,13 +724,15 @@ namespace QuizCanners.Inspect
                 return changed;
             }
 
-            public bool listIsNull<T>(ref List<T> list)
+            public bool listIsNull<T>(List<T> list)
             {
                 if (list == null)
                 {
-                    if ("Initialize list".ClickUnFocus().nl())
+                    "List of {0} is null".F(typeof(T).ToPegiStringType()).write();
+
+                   /* if ("Initialize list".ClickUnFocus().nl())
                         list = new List<T>();
-                    else
+                    else*/
                         return true;
                 }
 
@@ -1661,23 +1663,23 @@ namespace QuizCanners.Inspect
 
         #region List of MonoBehaviour
         
-        public static bool edit_List_MB<T>(this string label, ref List<T> list, ref int inspected) where T : MonoBehaviour
+        public static bool edit_List_MB<T>(this string label, List<T> list, ref int inspected) where T : MonoBehaviour
         {
             collectionInspector.write_Search_ListLabel(label, ref inspected, list);
-            return edit_List_MB(ref list, ref inspected).listLabel_Used();
+            return edit_List_MB(list, ref inspected).listLabel_Used();
         }
 
-        public static bool edit_List_MB<T>(this ListMetaData metaData, ref List<T> list) where T : MonoBehaviour
+        public static bool edit_List_MB<T>(this ListMetaData metaData, List<T> list) where T : MonoBehaviour
         {
             collectionInspector.write_Search_ListLabel(metaData, list);
-            return edit_List_MB(ref list, ref metaData.inspected, metaData).listLabel_Used();
+            return edit_List_MB(list, ref metaData.inspected, metaData).listLabel_Used();
         }
 
-        public static bool edit_List_MB<T>(ref List<T> list, ref int inspected,  ListMetaData listMeta = null) where T : MonoBehaviour
+        public static bool edit_List_MB<T>(List<T> list, ref int inspected,  ListMetaData listMeta = null) where T : MonoBehaviour
         {
-            bool changed = pegi.ChangeTrackStart();
+            bool changed = ChangeTrackStart();
 
-            if (collectionInspector.listIsNull(ref list))
+            if (collectionInspector.listIsNull(list))
                 return changed;
 
             var before = inspected;
@@ -1736,46 +1738,31 @@ namespace QuizCanners.Inspect
 
         #region List of ScriptableObjects
 
-     /*   public static bool edit_List_SO<T>(this string label, ref List<T> list, ref int inspected, out T added) where T : ScriptableObject
+        public static bool edit_List_SO<T>(this string label, List<T> list, ref int inspected) where T : ScriptableObject
         {
             collectionInspector.write_Search_ListLabel(label, ref inspected, list);
-
-            return edit_List_SO(ref list, ref inspected, out added).listLabel_Used();
-        }*/
-
-        public static bool edit_List_SO<T>(this string label, ref List<T> list, ref int inspected) where T : ScriptableObject
-        {
-            collectionInspector.write_Search_ListLabel(label, ref inspected, list);
-            return edit_List_SO(ref list, ref inspected).listLabel_Used();
+            return edit_List_SO(list, ref inspected).listLabel_Used();
         }
 
-        public static bool edit_List_SO<T>(this string label, ref List<T> list) where T : ScriptableObject
+        public static bool edit_List_SO<T>(this string label, List<T> list) where T : ScriptableObject
         {
             collectionInspector.write_Search_ListLabel(label, list);
 
-            var changed = pegi.ChangeTrackStart();
-
             var edited = -1;
 
-            edit_List_SO(ref list, ref edited).listLabel_Used();
-
-            return changed;
+            return edit_List_SO(list, ref edited).listLabel_Used();
         }
 
-        public static bool edit_List_SO<T>(this ListMetaData listMeta, ref List<T> list) where T : ScriptableObject
+        public static bool edit_List_SO<T>(this ListMetaData listMeta, List<T> list) where T : ScriptableObject
         {
             collectionInspector.write_Search_ListLabel(listMeta, list);
 
-            var changed = pegi.ChangeTrackStart();
-
-            edit_List_SO(ref list, ref listMeta.inspected, listMeta).listLabel_Used();
-
-            return changed;
+            return edit_List_SO(list, ref listMeta.inspected, listMeta).listLabel_Used();
         }
 
-        private static T edit_List_SO<T>(ref List<T> list, ref int inspected, ListMetaData listMeta = null) where T : ScriptableObject
+        private static T edit_List_SO<T>(List<T> list, ref int inspected, ListMetaData listMeta = null) where T : ScriptableObject
         {
-            if (collectionInspector.listIsNull(ref list))
+            if (collectionInspector.listIsNull(list))
                 return null;
 
             var added = default(T);
@@ -1824,14 +1811,14 @@ namespace QuizCanners.Inspect
 
         #region List of Unity Objects
 
-        public static bool edit_List_UObj<T>(this string label, ref List<T> list, ref int inspected, List<T> selectFrom = null) where T : Object
+        public static bool edit_List_UObj<T>(this string label, List<T> list, ref int inspected, List<T> selectFrom = null) where T : Object
         {
             collectionInspector.write_Search_ListLabel(label, ref inspected, list);
-            return edit_or_select_List_UObj(ref list, selectFrom, ref inspected);
+            return edit_or_select_List_UObj(list, selectFrom, ref inspected);
         }
 
-        public static bool edit_List_UObj<T>(ref List<T> list, ref int inspected, List<T> selectFrom = null) where T : Object
-            => edit_or_select_List_UObj(ref list, selectFrom, ref inspected);
+        public static bool edit_List_UObj<T>(List<T> list, ref int inspected, List<T> selectFrom = null) where T : Object
+            => edit_or_select_List_UObj(list, selectFrom, ref inspected);
 
         public static bool edit_List_UObj<T>(this string label, ref List<T> list, List<T> selectFrom = null) where T : Object
         {
@@ -1842,27 +1829,27 @@ namespace QuizCanners.Inspect
         public static bool edit_List_UObj<T>(this List<T> list, List<T> selectFrom = null) where T : Object
         {
             var edited = -1;
-            return edit_or_select_List_UObj(ref list, selectFrom, ref edited);
+            return edit_or_select_List_UObj(list, selectFrom, ref edited);
         }
 
-        public static bool edit_List_UObj<T>(this ListMetaData listMeta, ref List<T> list, List<T> selectFrom = null) where T : Object
+        public static bool edit_List_UObj<T>(this ListMetaData listMeta, List<T> list, List<T> selectFrom = null) where T : Object
         {
             collectionInspector.write_Search_ListLabel(listMeta, list);
-            return edit_or_select_List_UObj(ref list, selectFrom, ref listMeta.inspected, listMeta).listLabel_Used();
+            return edit_or_select_List_UObj(list, selectFrom, ref listMeta.inspected, listMeta).listLabel_Used();
         }
 
-        public static bool edit_List_UObj<T>(this string label, ref List<T> list, Func<T, T> lambda) where T : Object
+        public static bool edit_List_UObj<T>(this string label, List<T> list, Func<T, T> lambda) where T : Object
         {
             collectionInspector.write_Search_ListLabel(label, list);
-            return edit_List_UObj(ref list, lambda);
+            return edit_List_UObj(list, lambda);
         }
 
-        public static bool edit_List_UObj<T>(ref List<T> list, Func<T, T> lambda) where T : Object
+        public static bool edit_List_UObj<T>(List<T> list, Func<T, T> lambda) where T : Object
         {
 
-            var changed = pegi.ChangeTrackStart();
+            var changed = ChangeTrackStart();
 
-            if (collectionInspector.listIsNull(ref list))
+            if (collectionInspector.listIsNull(list))
                 return changed;
 
             collectionInspector.edit_List_Order(list);
@@ -1892,11 +1879,11 @@ namespace QuizCanners.Inspect
             return changed;
         }
 
-        public static bool edit_or_select_List_UObj<T, G>(ref List<T> list, List<G> from, ref int inspected, ListMetaData listMeta = null) where T : G where G : Object
+        public static bool edit_or_select_List_UObj<T, G>(List<T> list, List<G> from, ref int inspected, ListMetaData listMeta = null) where T : G where G : Object
         {
             var changed = ChangeTrackStart();
 
-            if (collectionInspector.listIsNull(ref list))
+            if (collectionInspector.listIsNull(list))
                 return false;
 
             var before = inspected;
@@ -1948,68 +1935,68 @@ namespace QuizCanners.Inspect
 
         #region List of New()
 
-        public static bool edit<T>(this ListMetaData ld, ref List<T> list, out T added)
+        public static bool edit<T>(this ListMetaData ld, List<T> list, out T added)
         {
             collectionInspector.write_Search_ListLabel(ld, list);
-            return edit_List(ref list, ref ld.inspected, out added, ld).listLabel_Used();
+            return edit_List(list, ref ld.inspected, out added, ld).listLabel_Used();
         }
 
-        public static bool edit_List<T>(this string label, ref List<T> list, ref int inspected)
+        public static bool edit_List<T>(this string label, List<T> list, ref int inspected)
         {
             collectionInspector.write_Search_ListLabel(label, ref inspected, list);
-            return edit_List(ref list, ref inspected).listLabel_Used();
+            return edit_List(list, ref inspected).listLabel_Used();
         }
 
-        public static bool edit_List<T>(ref List<T> list, ref int inspected) => edit_List(ref list, ref inspected, out _);
+        public static bool edit_List<T>(List<T> list, ref int inspected) => edit_List(list, ref inspected, out _);
         
-        public static bool edit_List<T>(this string label, ref List<T> list)
+        public static bool edit_List<T>(this string label, List<T> list)
         {
             collectionInspector.write_Search_ListLabel(label, list);
-            return edit_List(ref list).listLabel_Used();
+            return edit_List(list).listLabel_Used();
         }
 
-        public static bool edit_List<T>(ref List<T> list)
+        public static bool edit_List<T>(List<T> list)
         {
             var edited = -1;
-            return edit_List(ref list, ref edited);
+            return edit_List(list, ref edited);
         }
 
-        public static bool edit_List<T>(this string label, ref List<T> list, out T added)
+        public static bool edit_List<T>(this string label, List<T> list, out T added)
         {
             collectionInspector.write_Search_ListLabel(label, list);
-            return edit_List(ref list, out added).listLabel_Used();
+            return edit_List(list, out added).listLabel_Used();
         }
 
-        public static bool edit_List<T>(ref List<T> list, out T added)
+        public static bool edit_List<T>(List<T> list, out T added)
         {
             var edited = -1;
-            return edit_List(ref list, ref edited, out added);
+            return edit_List(list, ref edited, out added);
         }
 
-        public static bool edit_List<T>(this string label, ref List<T> list, ref int inspected, out T added)
+        public static bool edit_List<T>(this string label, List<T> list, ref int inspected, out T added)
         {
             collectionInspector.write_Search_ListLabel(label, ref inspected, list);
-            return edit_List(ref list, ref inspected, out added).listLabel_Used();
+            return edit_List(list, ref inspected, out added).listLabel_Used();
         }
 
-        public static bool edit_List<T>(this ListMetaData listMeta, ref List<T> list)
+        public static bool edit_List<T>(this ListMetaData listMeta, List<T> list)
         {
             var changed = ChangeTrackStart();
             collectionInspector.write_Search_ListLabel(listMeta, list);
-            edit_List(ref list, ref listMeta.inspected, out _, listMeta);
+            edit_List(list, ref listMeta.inspected, out _, listMeta);
             collectionInspector.listLabel_Used();
             return changed;
         }
 
-        public static bool edit_List<T>(this ListMetaData listMeta, ref List<T> list, out T added)
+        public static bool edit_List<T>(this ListMetaData listMeta, List<T> list, out T added)
         {
             collectionInspector.write_Search_ListLabel(listMeta, list);
-            var ret = edit_List(ref list, ref listMeta.inspected, out added,  listMeta);
+            var ret = edit_List(list, ref listMeta.inspected, out added,  listMeta);
             collectionInspector.listLabel_Used();
             return ret;
         }
 
-        public static bool edit_List<T>(ref List<T> list, ref int inspected, out T added, ListMetaData listMeta = null)
+        public static bool edit_List<T>(List<T> list, ref int inspected, out T added, ListMetaData listMeta = null)
         {
             var changes = ChangeTrackStart();
 
@@ -2017,9 +2004,11 @@ namespace QuizCanners.Inspect
 
             if (list == null)
             {
-                if (Msg.Init.F(Msg.List).ClickUnFocus().nl())
+                "List of {0} is null".F(typeof(T).ToPegiStringType()).write();
+
+               /* if (Msg.Init.F(Msg.List).ClickUnFocus().nl())
                     list = new List<T>();
-                else
+                else*/
                     return changes;
             }
 
@@ -2071,28 +2060,28 @@ namespace QuizCanners.Inspect
 
         #region Tagged Types
 
-        public static bool edit_List<T>(this ListMetaData listMeta, ref List<T> list, TaggedTypesCfg types, out T added)
+        public static bool edit_List<T>(this ListMetaData listMeta, List<T> list, TaggedTypesCfg types, out T added)
         {
             collectionInspector.write_Search_ListLabel(listMeta, list);
-            var ret = edit_List(ref list, ref listMeta.inspected, types, out added, listMeta);
+            var ret = edit_List(list, ref listMeta.inspected, types, out added, listMeta);
             collectionInspector.listLabel_Used();
             return ret;
         }
 
-        public static bool edit_List<T>(this ListMetaData listMeta, ref List<T> list, TaggedTypesCfg types)
+        public static bool edit_List<T>(this ListMetaData listMeta, List<T> list, TaggedTypesCfg types)
         {
             collectionInspector.write_Search_ListLabel(listMeta, list);
             
-            return edit_List(ref list, ref listMeta.inspected, types, out _, listMeta).listLabel_Used();
+            return edit_List(list, ref listMeta.inspected, types, out _, listMeta).listLabel_Used();
         }
 
-        public static bool edit_List<T>(this string label, ref List<T> list, ref int inspected, TaggedTypesCfg types, out T added)
+        public static bool edit_List<T>(this string label, List<T> list, ref int inspected, TaggedTypesCfg types, out T added)
         {
             collectionInspector.write_Search_ListLabel(label, ref inspected, list);
-            return edit_List(ref list, ref inspected, types, out added).listLabel_Used();
+            return edit_List(list, ref inspected, types, out added).listLabel_Used();
         }
 
-        private static bool edit_List<T>(ref List<T> list, ref int inspected, TaggedTypesCfg types, out T added, ListMetaData listMeta = null)
+        private static bool edit_List<T>(List<T> list, ref int inspected, TaggedTypesCfg types, out T added, ListMetaData listMeta = null)
         {
             var changes = ChangeTrackStart();
 
@@ -2100,9 +2089,11 @@ namespace QuizCanners.Inspect
 
             if (list == null)
             {
-                if (Msg.Init.F(Msg.List).ClickUnFocus().nl())
+                "List of {0} is null".F(typeof(T)).write();
+
+                /*if (Msg.Init.F(Msg.List).ClickUnFocus().nl())
                     list = new List<T>();
-                else
+                else*/
                     return changes;
             }
 
@@ -2211,56 +2202,54 @@ namespace QuizCanners.Inspect
             return val;
         }
 
-        public static bool edit_List(this string label, ref List<int> list) =>
-            label.edit_List(ref list, lambda_int);
+        public static bool edit_List(this string label, List<int> list) =>
+            label.edit_List(list, lambda_int);
 
-        public static bool edit_List(this string label, ref List<Color> list) =>
-            label.edit_List(ref list, lambda_Color);
+        public static bool edit_List(this string label, List<Color> list) =>
+            label.edit_List(list, lambda_Color);
 
-        public static bool edit_List(this string label, ref List<Color32> list) =>
-            label.edit_List(ref list, lambda_Color);
+        public static bool edit_List(this string label, List<Color32> list) =>
+            label.edit_List(list, lambda_Color);
 
-        public static bool edit_List(this string label, ref List<string> list) =>
-            label.edit_List(ref list, lambda_string);
+        public static bool edit_List(this string label, List<string> list) =>
+            label.edit_List(list, lambda_string);
 
-        public static bool edit_List_WithRoles(this string label, ref List<string> list, IList roles)
+        public static bool edit_List_WithRoles(this string label, List<string> list, IList roles)
         {
             listElementsRoles = roles;
-            return label.edit_List(ref list, lambda_string_role);
+            return label.edit_List(list, lambda_string_role);
         }
 
-        public static bool edit_List_WithRoles<T>(this string label, ref List<T> list, IList roles) where T : Object
+        public static bool edit_List_WithRoles<T>(this string label, List<T> list, IList roles) where T : Object
         {
             collectionInspector.write_Search_ListLabel(label, list);
             listElementsRoles = roles;
-            var ret = edit_List_UObj(ref list, lambda_Obj_role);
+            var ret = edit_List_UObj(list, lambda_Obj_role);
             listElementsRoles = null;
             return ret;
         }
 
         #endregion
 
-        public static bool edit_List<T>(this string label, ref List<T> list, Func<T, T> lambda) where T : new()
+        public static bool edit_List<T>(this string label, List<T> list, Func<T, T> lambda) where T : new()
         {
             collectionInspector.write_Search_ListLabel(label, list);
-            return edit_List(ref list, lambda, out _).listLabel_Used();
+            return edit_List(list, lambda, out _).listLabel_Used();
         }
 
-        public static bool edit_List<T>(this string label, ref List<T> list, Func<T, T> lambda, out T added) where T : new()
+        public static bool edit_List<T>(this string label, List<T> list, Func<T, T> lambda, out T added) where T : new()
         {
             collectionInspector.write_Search_ListLabel(label, list);
-            return edit_List(ref list, lambda, out added).listLabel_Used();
+            return edit_List(list, lambda, out added).listLabel_Used();
         }
 
-        
-
-        public static bool edit_List<T>(ref List<T> list, Func<T, T> lambda, out T added) where T : new()
+        public static bool edit_List<T>(List<T> list, Func<T, T> lambda, out T added) where T : new()
         {
             var changed = ChangeTrackStart();
 
             added = default(T);
 
-            if (collectionInspector.listIsNull(ref list))
+            if (collectionInspector.listIsNull(list))
                 return changed;
 
             collectionInspector.edit_List_Order(list);
@@ -2347,17 +2336,17 @@ namespace QuizCanners.Inspect
             return changes;
         }
         */
-        public static bool edit_List(this string name, ref List<string> list, Func<string, string> lambda)
+        public static bool edit_List(this string name, List<string> list, Func<string, string> lambda)
         {
             collectionInspector.write_Search_ListLabel(name, list);
-            return edit_List(ref list, lambda).listLabel_Used();
+            return edit_List(list, lambda).listLabel_Used();
         }
 
-        public static bool edit_List(ref List<string> list, Func<string, string> lambda)
+        public static bool edit_List(List<string> list, Func<string, string> lambda)
         {
             var changed = ChangeTrackStart();
 
-            if (collectionInspector.listIsNull(ref list))
+            if (collectionInspector.listIsNull(list))
                 return false;
 
             collectionInspector.edit_List_Order(list);
@@ -2399,7 +2388,13 @@ namespace QuizCanners.Inspect
             return list.write_List(lambda).listLabel_Used();
 
         }
+        public static bool write_List<T>(this string label, List<T> list, ref int inspected)
+        {
+            nl();
+            collectionInspector.write_Search_ListLabel(label, ref inspected, list);
 
+            return list.write_List(ref inspected).listLabel_Used();
+        }
         public static bool write_List<T>(this List<T> list, Func<T, bool> lambda)
         {
 
@@ -2418,22 +2413,6 @@ namespace QuizCanners.Inspect
 
             return changed;
         }
-
-        public static bool write_List<T>(this string label, List<T> list)
-        {
-            var edited = -1;
-            collectionInspector.write_Search_ListLabel(label, list);
-            return list.write_List(ref edited).listLabel_Used();
-        }
-
-        public static bool write_List<T>(this string label, List<T> list, ref int inspected)
-        {
-            nl();
-            collectionInspector.write_Search_ListLabel(label, ref inspected, list);
-
-            return list.write_List(ref inspected).listLabel_Used();
-        }
-
         public static bool write_List<T>(this List<T> list, ref int edited)
         {
             var changed = false;
@@ -2473,7 +2452,6 @@ namespace QuizCanners.Inspect
         #endregion
 
         #region Dictionary Generic
-
         internal interface iCollectionInspector<T>
         {
             void Set(T val);
@@ -2511,15 +2489,18 @@ namespace QuizCanners.Inspect
             }
         }
 
+        private static void WriteNullDictionary_Internal<T>() => "NULL {0} Dictionary".write();
+        
 
         private static int _tmpKey;
-        public static bool edit_Dictionary_AddPair<T>(ref Dictionary<int, T> dic) where T: new()
+        public static bool edit_Dictionary_AddPairOptions<T>(Dictionary<int, T> dic) where T: new()
         {
-            var changed = pegi.ChangeTrackStart();
+            var changed = ChangeTrackStart();
             if (dic == null)
             {
-                if ("Instantiate Dictionary".Click())
-                    dic = new Dictionary<int, T>();
+                // if ("Instantiate Dictionary".Click())
+                // dic = new Dictionary<int, T>();
+                WriteNullDictionary_Internal<T>();
 
                 return changed;
             }
@@ -2551,48 +2532,71 @@ namespace QuizCanners.Inspect
 
         }
 
-        public static bool edit_Dictionary<G, T>(this string label, ref Dictionary<G, T> dic, bool showKey = true)
+        public static bool edit_Dictionary<G, T>(this string label, Dictionary<G, T> dic, bool showKey = true)
         {
             int inspected = -1;
             collectionInspector.write_Search_ListLabel(label, dic);
-            return edit_Dictionary_Internal(ref dic, ref inspected, showKey: showKey);
+            return edit_Dictionary_Internal(dic, ref inspected, showKey: showKey);
         }
 
-        public static bool edit_Dictionary<G, T>(this string label, ref Dictionary<G, T> dic, ref int inspected, bool showKey = true)
+        public static bool edit_Dictionary<G, T>(this string label, Dictionary<G, T> dic, ref int inspected, bool showKey = true)
         {
             collectionInspector.write_Search_DictionaryLabel(label, ref inspected, dic);
-            return edit_Dictionary_Internal(ref dic, ref inspected, showKey: showKey);
+            return edit_Dictionary_Internal(dic, ref inspected, showKey: showKey);
         }
 
-        public static bool edit_Dictionary<G, T>(this string label, ref Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = false)
+        public static bool edit_Dictionary<G, T>(this string label, Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = false)
         {
             collectionInspector.write_Search_ListLabel(label, dic);
-            return edit_Dictionary_Internal(ref dic, lambda, showKey: showKey);
+            return edit_Dictionary_Internal(dic, lambda, showKey: showKey);
         }
 
-        public static bool edit_Dictionary<G, T>(this ListMetaData listMeta, ref Dictionary<G, T> dic, bool showKey = true)
+        public static bool edit_Dictionary<G, T>(this ListMetaData listMeta, Dictionary<G, T> dic)
         {
             collectionInspector.write_Search_ListLabel(listMeta, dic);
-            return edit_Dictionary_Internal(ref dic, ref listMeta.inspected, showKey: showKey, listMeta);
+            return edit_Dictionary_Internal(dic, ref listMeta.inspected, showKey: listMeta[ListInspectParams.showDictionaryKey], listMeta: listMeta);
         }
 
-        public static bool edit_Dictionary<G, T>(this ListMetaData listMeta, ref Dictionary<G, T> dic, Func<T, T> lambda)
+        public static bool edit_Dictionary<G, T>(this ListMetaData listMeta, Dictionary<G, T> dic, Func<T, T> lambda)
         {
             collectionInspector.write_Search_ListLabel(listMeta, dic);
-            return edit_Dictionary_Internal(ref dic, lambda, listMeta: listMeta);
+            return edit_Dictionary_Internal(dic, lambda, listMeta: listMeta);
         }
 
-        private static bool edit_Dictionary_Internal<G, T>(ref Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true, ListMetaData listMeta = null)
+        public static bool edit_Dictionary(this ListMetaData listMeta, Dictionary<string, string> dic)
+        {
+            collectionInspector.write_Search_ListLabel(listMeta, dic);
+            return edit_Dictionary_Internal(dic, lambda_string, listMeta: listMeta);
+        }
+        
+        public static bool edit_Dictionary(this string label, Dictionary<string, string> dic)
+        {
+            collectionInspector.write_Search_ListLabel(label, dic);
+            return edit_Dictionary_Internal(dic, lambda_string);
+        }
+
+        public static bool edit_Dictionary(this string label, Dictionary<int, string> dic, List<string> roles)
+        {
+            collectionInspector.write_Search_ListLabel(label, dic);
+            listElementsRoles = roles;
+            var changes =  edit_Dictionary_Internal(dic, lambda_string_role, false);
+            listElementsRoles = null;
+            return changes;
+        }
+
+        private static bool edit_Dictionary_Internal<G, T>(Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true, ListMetaData listMeta = null)
         {
 
             if (dic == null)
             {
-                "Dictionary is null".writeHint();
+                WriteNullDictionary_Internal<T>();
+
+               /* "Dictionary is null".writeHint();
 
                 if ("Initialize".Click().nl())
 
                     dic= new Dictionary<G, T>();
-
+               */
                 return false;
             }
 
@@ -2655,7 +2659,7 @@ namespace QuizCanners.Inspect
             return changed;
         }
 
-        private static bool edit_Dictionary_Internal<G, T>(ref Dictionary<G, T> dic, ref int inspected, bool showKey, ListMetaData listMeta = null)
+        private static bool edit_Dictionary_Internal<G, T>(Dictionary<G, T> dic, ref int inspected, bool showKey, ListMetaData listMeta = null)
         {
             bool changed = false;
 
@@ -2663,9 +2667,10 @@ namespace QuizCanners.Inspect
 
             if (dic == null)
             {
-                "Dictionary is null".writeWarning();
-                if ("Initialize".Click().nl())
-                    dic = new Dictionary<G, T>();
+                WriteNullDictionary_Internal<T>();
+               // "Dictionary is null".writeWarning();
+               // if ("Initialize".Click().nl())
+                  //  dic = new Dictionary<G, T>();
                 return false;
             }
 
@@ -2703,27 +2708,6 @@ namespace QuizCanners.Inspect
 
             nl();
             return changed;
-        }
-        
-        public static bool edit_Dictionary(this string label, ref Dictionary<int, string> dic, List<string> roles)
-        {
-            collectionInspector.write_Search_ListLabel(label, dic);
-            listElementsRoles = roles;
-            var ret = edit_Dictionary_Internal(ref dic, lambda_string_role, false);
-            listElementsRoles = null;
-            return ret;
-        }
-
-        public static bool edit_Dictionary(this string label, ref Dictionary<string, string> dic)
-        {
-            collectionInspector.write_Search_ListLabel(label, dic);
-            return edit_Dictionary_Internal(ref dic, lambda_string);
-        }
-        
-        public static bool edit_Dictionary(this ListMetaData listMeta, ref Dictionary<string, string> dic)
-        {
-            collectionInspector.write_Search_ListLabel(listMeta, dic);
-            return edit_Dictionary_Internal(ref dic, lambda_string, listMeta: listMeta);
         }
         
         #endregion

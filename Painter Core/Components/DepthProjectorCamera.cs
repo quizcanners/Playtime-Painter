@@ -80,7 +80,7 @@ namespace PlaytimePainter
                 }
             }
 
-            "Requested updates".edit_List(ref depthUsers, ref _inspectedUser).nl();
+            "Requested updates".edit_List(depthUsers, ref _inspectedUser).nl();
 
         }
 

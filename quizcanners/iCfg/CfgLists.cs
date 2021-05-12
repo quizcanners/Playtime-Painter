@@ -46,7 +46,7 @@ namespace QuizCanners.CfgDecode
             }
         }
 
-        public override void Inspect() => "Configurations".edit_List(ref configurations);
+        public override void Inspect() => "Configurations".edit_List(configurations);
 
         #endregion
     }

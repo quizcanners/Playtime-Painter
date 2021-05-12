@@ -844,7 +844,7 @@ namespace QuizCanners.Utils
 
                     Caching.GetAllCachePaths(lst);
 
-                    "Caches".edit_List(ref lst, path =>
+                    "Caches".edit_List(lst, path =>
                     {
                         var c = Caching.GetCacheByPath(path);
 

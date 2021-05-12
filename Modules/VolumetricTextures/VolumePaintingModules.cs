@@ -500,7 +500,7 @@ namespace PlaytimePainter {
 
             public void Inspect()
             {
-                "Volumes".edit_List(ref VolumeTexture.all, ref _exploredVolume);
+                "Volumes".edit_List(VolumeTexture.all, ref _exploredVolume);
             }
 
             public bool PlugIn_PainterGizmos(PlaytimePainter painter)

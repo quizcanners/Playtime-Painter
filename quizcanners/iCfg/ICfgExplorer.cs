@@ -60,7 +60,7 @@ namespace QuizCanners.CfgDecode
 
             CfgState added; 
 
-            "Saved CFGs:".edit_List(ref states, ref inspectedState, out added);
+            "Saved CFGs:".edit_List(states, ref inspectedState, out added);
 
             if (added != null && target != null)
             {
@@ -168,7 +168,7 @@ namespace QuizCanners.CfgDecode
                 var changes = pegi.ChangeTrackStart();
 
                 if (_tags != null)
-                    tag.edit_List(ref _tags, ref inspectedTag);
+                    tag.edit_List(_tags, ref inspectedTag);
 
                 dirty |= changes;
 

@@ -658,7 +658,7 @@ namespace PlaytimePainter
                                     if (cfg.colorSchemes.Count == 0)
                                         cfg.colorSchemes.Add(new ColorScheme { paletteName = "New Color Scheme" });
 
-                                    pegi.edit_List(ref cfg.colorSchemes, ref cfg.inspectedColorScheme);
+                                    pegi.edit_List(cfg.colorSchemes, ref cfg.inspectedColorScheme);
                                 }
 
                                 if (texMeta != null)

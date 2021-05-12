@@ -851,7 +851,7 @@ namespace PlaytimePainter.UI
                 pegi.nl();
             }
 
-            if ("Modules".enter_List(ref _modules, ref _inspectedModule, ref _showModules).nl())
+            if ("Modules".enter_List(_modules, ref _inspectedModule, ref _showModules).nl())
             {
                 ConfigStd = Encode().CfgData;
                 this.SetToDirty();

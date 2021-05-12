@@ -301,7 +301,7 @@ namespace QuizCanners.CfgDecode {
 
         public void Inspect()
         {
-            modulesMeta.edit_List(ref modules).nl();
+            modulesMeta.edit_List(modules).nl();
 
         }
 

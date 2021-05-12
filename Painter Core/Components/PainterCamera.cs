@@ -925,7 +925,7 @@ namespace PlaytimePainter {
 
             if ("Painter Camera Modules".isEntered(ref _inspectedStuff, 3, false).nl_ifNotEntered())
             {
-                _modulesMeta.edit_List(ref CameraModuleBase.modules, CameraModuleBase.all);
+                _modulesMeta.edit_List(CameraModuleBase.modules, CameraModuleBase.all);
 
                 if (!_modulesMeta.Inspecting)
                 {

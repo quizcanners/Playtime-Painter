@@ -94,7 +94,7 @@ namespace QuizCanners.Utils
                 if ("Yield 1 frame".Click().nl())
                     UpdateManagedCoroutines();
 
-                coroutinesListMeta.edit_List(ref enumerators).nl();
+                coroutinesListMeta.edit_List(enumerators).nl();
 
                 if (!coroutinesListMeta.Inspecting)
                 {

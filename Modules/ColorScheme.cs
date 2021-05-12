@@ -46,7 +46,7 @@ namespace PlaytimePainter
 
         public void Inspect() {
 
-            paletteName.edit_List(ref _colors, EditColor);
+            paletteName.edit_List(_colors, EditColor);
 
         }
 

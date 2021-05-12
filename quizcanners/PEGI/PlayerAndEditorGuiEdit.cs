@@ -562,8 +562,6 @@ namespace QuizCanners.Inspect
             else
                 val.GetNameForInspector().write();
 
-
-
             return changed;
 
         }
