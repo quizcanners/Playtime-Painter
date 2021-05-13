@@ -353,7 +353,7 @@ namespace PlaytimePainter
                     if (_renderTextures.Count < 2)
                         pegi.writeWarning("Need 2 Render Textures for Post-Process");
 
-                    "Render Textures".edit_List_UObj(ref _renderTextures).nl();
+                    "Render Textures".edit_List_UObj(_renderTextures).nl();
                 }
                 else
                 {

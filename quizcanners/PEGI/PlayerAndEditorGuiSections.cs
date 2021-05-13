@@ -278,7 +278,7 @@ namespace QuizCanners.Inspect
 
             var entered = enteredOne == thisOne;
 
-            var ret = meta.icon.isEntered(meta.label.addCount(list, entered), ref enteredOne, thisOne, showLabelIfTrue, list.Count == 0 ? PEGI_Styles.ClippingText : null);
+            var ret =icon.Enter.isEntered(meta.label.addCount(list, entered), ref enteredOne, thisOne, showLabelIfTrue, list.Count == 0 ? PEGI_Styles.ClippingText : null);
 
             if (!entered && ret)
                 meta.inspected = -1;
@@ -538,7 +538,7 @@ namespace QuizCanners.Inspect
         {
             var insp = -1;
             if (isEntered_ListIcon(label, list, ref insp, ref enteredOne, thisOne)) 
-                return label.edit_List_UObj(ref list, selectFrom).nl();
+                return label.edit_List_UObj(list, selectFrom).nl();
 
             return false;
         }

@@ -1482,6 +1482,7 @@ namespace QuizCanners.Inspect
         private static ListMetaData _listMetaData;
         private static TaggedTypesCfg _currentTaggedTypes;
 
+
         private static bool GetIsSelected(int ind) => (_listMetaData != null) ? _listMetaData.GetIsSelected(ind) : pegi.Getselected(ind);
 
         private static void SetIsSelected(int ind, bool val)
@@ -1578,7 +1579,6 @@ namespace QuizCanners.Inspect
                 }
                 else
                 {
-
                     if (_currentReorderedListTypes != null)
                     {
 

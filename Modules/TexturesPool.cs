@@ -94,9 +94,9 @@ namespace PlaytimePainter
 
             "Data (Non Color) Texture".toggleIcon(ref nonColorData).nl();
 
-            "Textures 2D".edit_List_UObj(ref _t2DList).nl();
+            "Textures 2D".edit_List_UObj(_t2DList).nl();
 
-            "Render Textures".edit_List_UObj(ref _rtList).nl();
+            "Render Textures".edit_List_UObj(_rtList).nl();
 
             "Size:".selectPow2(ref width, 16, 4096).nl();
 

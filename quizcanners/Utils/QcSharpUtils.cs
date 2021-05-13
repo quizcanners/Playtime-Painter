@@ -1,4 +1,5 @@
-﻿using System;
+﻿using QuizCanners.Inspect;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,7 +22,7 @@ namespace QuizCanners.Utils {
 
        // public static string ThisMethodName(int up) => (new StackFrame(up)).GetMethod()?.Name;
 
-        #region Timer
+        #region Time
 
         public static string SecondsToReadableString(int seconds) => TicksToReadableString(seconds * TimeSpan.TicksPerSecond);
 
@@ -184,6 +185,64 @@ namespace QuizCanners.Utils {
                 }
             }
 
+        }
+
+        public static string ToShortDisplayString(this TimeSpan span)
+        {
+            if (span == TimeSpan.MaxValue)
+                return "infinite";
+
+            var sb = new StringBuilder(16);
+
+            float daysInYear = 365.25f;
+
+            if (span.TotalDays > daysInYear)
+            {
+                sb.AppendIfNonZero(value: span.Days / daysInYear, span.TotalDays / daysInYear, suffix: "y", last: false)
+                  .AppendIfNonZero(value: span.Days, span.TotalDays, suffix: "d", last: true);
+            }
+            if (span.TotalDays > 0)
+            {
+                sb.AppendIfNonZero(value: span.Days, span.TotalDays, suffix: "d", last: false)
+                  .AppendIfNonZero(value: span.Hours, span.TotalHours, suffix: "h", last: true);
+            }
+            else if (span.TotalHours > 0)
+            {
+                sb.AppendIfNonZero(value: span.Hours, span.TotalHours, suffix: "h", last: false)
+                  .AppendIfNonZero(value: span.Minutes, span.TotalMinutes, suffix: "m", last: true);
+            }
+            else
+            {
+                sb.AppendIfNonZero(value: span.Minutes, span.TotalMinutes, suffix: "m", last: false)
+                  .AppendIfNonZero(value: span.Seconds, span.TotalSeconds, suffix: "s", last: true);
+            }
+
+            return sb.ToString();
+        }
+
+        private static StringBuilder AppendIfNonZero(this StringBuilder sb, double value, double totalValue, string suffix, bool last)
+        {
+            if (sb.Length == 0)
+            {
+                value = totalValue; // Use Full value if no previous
+            }
+
+            if (last && value == 0 && sb.Length == 0)
+            {
+                value = 1; // Not to return empty string
+            }
+
+            if (value > 0)
+            {
+                if (sb.Length > 0)
+                {
+                    sb.Append(", ");
+                }
+                sb.Append(value.ToString());
+                sb.Append(suffix);
+            }
+
+            return sb;
         }
 
         #endregion
@@ -609,6 +668,119 @@ namespace QuizCanners.Utils {
 
         #region String Editing
 
+        #region TextOperations
+
+        private const string BadFormat = "!Bad format: ";
+
+        public static string F(this string format, Type type)
+        {
+            try
+            {
+                return string.Format(format, type.ToPegiStringType());
+            }
+            catch
+            {
+                return BadFormat + format + " " + (type == null ? "null type" : type.ToString());
+            }
+        }
+
+        public static string F(this string format, Func<string> func) 
+        {
+            string result;
+
+            try 
+            {
+                result = func();
+            } 
+            catch (Exception ex) 
+            {
+                Debug.LogError(ex);
+                result = "ERR";
+            }
+
+            return format.F(result);
+        }
+
+        public static string F(this string format, string obj)
+        {
+            try
+            {
+                return string.Format(format, obj);
+            }
+            catch
+            {
+                return BadFormat + format + " " + obj;
+            }
+        }
+        public static string F(this string format, object obj1)
+        {
+            try
+            {
+                return string.Format(format, obj1.GetNameForInspector());
+            }
+            catch
+            {
+                return BadFormat + format + " " + obj1.GetNameForInspector();
+            }
+        }
+        public static string F(this string format, string obj1, string obj2)
+        {
+            try
+            {
+                return string.Format(format, obj1, obj2);
+            }
+            catch
+            {
+                return BadFormat + format + " " + obj1 + " " + obj2;
+            }
+        }
+        public static string F(this string format, object obj1, object obj2)
+        {
+            try
+            {
+                return string.Format(format, obj1.GetNameForInspector(), obj2.GetNameForInspector());
+            }
+            catch
+            {
+                return BadFormat + format;
+            }
+        }
+        public static string F(this string format, string obj1, string obj2, string obj3)
+        {
+            try
+            {
+                return string.Format(format, obj1, obj2, obj3);
+            }
+            catch
+            {
+                return BadFormat + format;
+            }
+        }
+        public static string F(this string format, object obj1, object obj2, object obj3)
+        {
+            try
+            {
+                return string.Format(format, obj1.GetNameForInspector(), obj2.GetNameForInspector(), obj3.GetNameForInspector());
+            }
+            catch
+            {
+                return BadFormat + format;
+            }
+        }
+        public static string F(this string format, params object[] objs)
+        {
+            try
+            {
+                return string.Format(format, objs);
+            }
+            catch
+            {
+                return BadFormat + format;
+            }
+        }
+
+        #endregion
+
         public static string AddSpacesToSentence(string text, bool preserveAcronyms = false)
         {
             if (string.IsNullOrWhiteSpace(text))
@@ -837,7 +1009,7 @@ namespace QuizCanners.Utils {
             return false;
         }
 
-        public static string RemoveAssetsPart(this string s)
+        public static string RemoveAssetsPart(string s)
         {
             var ind = s.IndexOf("Assets", StringComparison.Ordinal);
             
@@ -846,10 +1018,10 @@ namespace QuizCanners.Utils {
             return ind > 1 ? s.Substring(0, ind) : s;
         }
         
-        public static string RemoveFirst(this string name, int index) =>
+        public static string RemoveFirst(string name, int index) =>
             name.Substring(index, name.Length - index);
         
-        public static int FindMostSimilarFrom(this string s, string[] t)
+        public static int FindMostSimilarFrom(string s, string[] t)
         {
             var mostSimilar = -1;
             var distance = 999;
@@ -952,7 +1124,7 @@ namespace QuizCanners.Utils {
         {
 
             foreach (var t in collection)
-                if (t.GetType() == type) return true;
+                if (t!= null && t.GetType() == type) return true;
 
             return false;
         }
@@ -991,60 +1163,5 @@ namespace QuizCanners.Utils {
 
     }
 
-    public class LoopLock : IEnumerator
-    {
-        private volatile bool _lLock;
-
-      //  private bool _loopErrorLogged;
-
-        public SkipLock Lock()
-        {
-            if (_lLock)
-                Debug.LogError("Should check it is Unlocked before calling a Lock");
-
-            return new SkipLock(this);
-        }
-
-        public bool Unlocked => !_lLock;
-
-        public object Current => _lLock;
-
-       /* public void Run(Action action)
-        {
-            if (!Unlocked) return;
-            
-            using (Lock()) {
-                action();
-            }
-        }*/
-
-        public class SkipLock : IDisposable
-        {
-            public void Dispose()
-            {
-                creator._lLock = false;
-            }
-
-            private volatile LoopLock creator;
-
-            public SkipLock(LoopLock make)
-            {
-                creator = make;
-                make._lLock = true;
-            }
-        }
-
-       /* public void LogErrorOnce(string msg = "Infinite Loop Detected")
-        {
-            if (_loopErrorLogged) return;
-            
-            Debug.LogError(msg);
-            _loopErrorLogged = true;
-        }*/
-
-        public bool MoveNext() => _lLock;
-
-        public void Reset() { }
-    }
 
 }

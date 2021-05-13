@@ -418,7 +418,6 @@ namespace QuizCanners.Utils {
 
         #endregion
 
-
         #region Components & GameObjects
 
         public static void TrySet(this List<Image> list, Sprite to)
@@ -1047,31 +1046,31 @@ namespace QuizCanners.Utils {
 
 #endregion
 
-#region Assets Management
+        #region Assets Management
 
-public static T Duplicate<T>(T obj, string folder, string extension, string newName = null) where T : Object {
+        public static T Duplicate<T>(T obj, string folder, string extension, string newName = null) where T : Object {
 
 #if UNITY_EDITOR
             var path = AssetDatabase.GetAssetPath(obj);
        
-        if (path.IsNullOrEmpty())
-        {
-            obj = Object.Instantiate(obj);
-            if (!newName.IsNullOrEmpty())
-                obj.name = newName;
+            if (path.IsNullOrEmpty())
+            {
+                obj = Object.Instantiate(obj);
+                if (!newName.IsNullOrEmpty())
+                    obj.name = newName;
 
-            QcFile.Save.Asset(obj, folder, extension, true);
-        }
-        else
-        {
-            var newPath =
-                AssetDatabase.GenerateUniqueAssetPath(newName.IsNullOrEmpty()
-                    ? path
-                    : path.Replace(obj.name, newName));
+                QcFile.Save.Asset(obj, folder, extension, true);
+            }
+            else
+            {
+                var newPath =
+                    AssetDatabase.GenerateUniqueAssetPath(newName.IsNullOrEmpty()
+                        ? path
+                        : path.Replace(obj.name, newName));
 
-            AssetDatabase.CopyAsset(path, newPath);
-            obj = AssetDatabase.LoadAssetAtPath<T>(newPath);
-        }
+                AssetDatabase.CopyAsset(path, newPath);
+                obj = AssetDatabase.LoadAssetAtPath<T>(newPath);
+            }
 #else
            obj = Object.Instantiate(obj);
 #endif
@@ -1144,18 +1143,11 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
         }
 
         public static Object GetPrefab(Object obj) =>
-
-#if UNITY_EDITOR
-
-#if UNITY_2018_2_OR_NEWER
+        #if UNITY_EDITOR
             PrefabUtility.GetCorrespondingObjectFromSource(obj);
-#else
-                 PrefabUtility.GetPrefabParent(obj);
-#endif
-#else
-                 null;
-#endif
-
+        #else
+             null;
+        #endif
 
         public static void UpdatePrefab(GameObject gameObject)
         {
@@ -1290,7 +1282,7 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
 
 #endregion
 
-#region Input MGMT
+        #region Input MGMT
 
         public static int NumericKeyDown(this Event e)  {
 
@@ -1353,11 +1345,9 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
 #endif
         }
 
-#endregion
+        #endregion
 
-#region Textures
-
-#region Material MGMT
+        #region Material MGMT
 
         public static bool HasTag(this Material mat, string tag, bool searchFallbacks = false, string defaultValue = "") =>
             mat && !mat.GetTag(tag, searchFallbacks, defaultValue).IsNullOrEmpty();
@@ -1428,6 +1418,8 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
 #endif
 
         #endregion
+
+        #region Textures
 
         #region Texture MGMT
 
@@ -1540,7 +1532,7 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
 
 #endregion
 
-#region Texture Import Settings
+        #region Texture Import Settings
 
         public static bool IsColorTexture(this Texture tex)
         {
@@ -2041,7 +2033,7 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
 
 #endregion
 
-#region Meshes
+        #region Meshes
 
         public static void SetColor(this MeshFilter mf, Color col) {
 
@@ -2147,6 +2139,7 @@ public static T Duplicate<T>(T obj, string folder, string extension, string newN
         }
 
         #endregion
+
         #region Logging
 
         public class ChillLogger : IGotDisplayName

@@ -1328,7 +1328,7 @@ namespace QuizCanners.Inspect
                         }
 
                         if ((warningText == null &&
-                             (listMeta == null ? icon.Enter : listMeta.icon).ClickUnFocus(Msg.InspectElement)) ||
+                             icon.Enter.ClickUnFocus(Msg.InspectElement)) ||
                             (warningText != null && icon.Warning.ClickUnFocus(warningText)))
                         {
                             inspected = index;
@@ -1629,7 +1629,7 @@ namespace QuizCanners.Inspect
                     }
 
                     if ((warningText == null &&
-                         (listMeta == null ? icon.Enter : listMeta.icon).ClickUnFocus(Msg.InspectElement)) ||
+                          icon.Enter.ClickUnFocus(Msg.InspectElement)) ||
                         (warningText != null && icon.Warning.ClickUnFocus(warningText)))
                     {
                         inspected = index;
@@ -1638,6 +1638,9 @@ namespace QuizCanners.Inspect
 
                     if (!clickHighlightHandled && uo.ClickHighlight())
                         isPrevious = true;
+
+                    if (listMeta != null && listMeta[ListInspectParams.showCopyPasteOptions])
+                        CopyPaste.InspectOptionsFor(el);
                 }
             }
 
@@ -1660,81 +1663,6 @@ namespace QuizCanners.Inspect
         #endregion
         
         #region LISTS
-
-        #region List of MonoBehaviour
-        
-        public static bool edit_List_MB<T>(this string label, List<T> list, ref int inspected) where T : MonoBehaviour
-        {
-            collectionInspector.write_Search_ListLabel(label, ref inspected, list);
-            return edit_List_MB(list, ref inspected).listLabel_Used();
-        }
-
-        public static bool edit_List_MB<T>(this ListMetaData metaData, List<T> list) where T : MonoBehaviour
-        {
-            collectionInspector.write_Search_ListLabel(metaData, list);
-            return edit_List_MB(list, ref metaData.inspected, metaData).listLabel_Used();
-        }
-
-        public static bool edit_List_MB<T>(List<T> list, ref int inspected,  ListMetaData listMeta = null) where T : MonoBehaviour
-        {
-            bool changed = ChangeTrackStart();
-
-            if (collectionInspector.listIsNull(list))
-                return changed;
-
-            var before = inspected;
-
-            list.ClampIndexToCount(ref inspected, -1);
-
-            changed |= (inspected != before);
-
-            if (inspected == -1)
-            {
-                collectionInspector.ListAddEmptyClick(list, listMeta);
-
-                if (listMeta != null && icon.Save.ClickUnFocus("Save Names to ListMeta"))
-                    listMeta.SaveElementDataFrom(list);
-
-                collectionInspector.edit_List_Order(list, listMeta); //collectionInspector.edit_List_Order_Obj(list, listMeta).changes(ref changed);
-
-                if (list != collectionInspector.reordering)
-                {
-
-                    foreach (var el in collectionInspector.InspectionIndexes(list, listMeta))
-                    {
-                        var i = collectionInspector.Index;
-
-                        if (!el)
-                        {
-                            T obj = null;
-
-                            if (listMeta.TryInspect(ref obj, i))
-                            {
-                                if (obj)
-                                {
-                                    list[i] = obj.GetComponent<T>();
-                                    if (!list[i]) GameView.ShowNotification(typeof(T) + " Component not found");
-                                }
-                            }
-                        }
-                        else
-                            collectionInspector.InspectClassInList(list, i, ref inspected, listMeta);
-
-                        nl();
-                    }
-                }
-                else
-                    collectionInspector.list_DropOption(list, listMeta);
-
-            }
-            else collectionInspector.ExitOrDrawPEGI(list, ref inspected);
-
-            nl();
-
-            return changed;
-        }
-
-        #endregion
 
         #region List of ScriptableObjects
 
@@ -1798,12 +1726,15 @@ namespace QuizCanners.Inspect
 
                     nl();
 
+                    CopyPaste.InspectOptions<T>(listMeta);
+
                 }
                 else collectionInspector.list_DropOption(list, listMeta);
             }
             else collectionInspector.ExitOrDrawPEGI(list, ref inspected);
 
             nl();
+
             return added;
         }
 
@@ -1817,10 +1748,7 @@ namespace QuizCanners.Inspect
             return edit_or_select_List_UObj(list, selectFrom, ref inspected);
         }
 
-        public static bool edit_List_UObj<T>(List<T> list, ref int inspected, List<T> selectFrom = null) where T : Object
-            => edit_or_select_List_UObj(list, selectFrom, ref inspected);
-
-        public static bool edit_List_UObj<T>(this string label, ref List<T> list, List<T> selectFrom = null) where T : Object
+        public static bool edit_List_UObj<T>(this string label, List<T> list, List<T> selectFrom = null) where T : Object
         {
             collectionInspector.write_Search_ListLabel(label, list);
             return list.edit_List_UObj(selectFrom).listLabel_Used();
@@ -1832,31 +1760,17 @@ namespace QuizCanners.Inspect
             return edit_or_select_List_UObj(list, selectFrom, ref edited);
         }
 
-        public static bool edit_List_UObj<T>(this ListMetaData listMeta, List<T> list, List<T> selectFrom = null) where T : Object
-        {
-            collectionInspector.write_Search_ListLabel(listMeta, list);
-            return edit_or_select_List_UObj(list, selectFrom, ref listMeta.inspected, listMeta).listLabel_Used();
-        }
-
-        public static bool edit_List_UObj<T>(this string label, List<T> list, Func<T, T> lambda) where T : Object
-        {
-            collectionInspector.write_Search_ListLabel(label, list);
-            return edit_List_UObj(list, lambda);
-        }
-
         public static bool edit_List_UObj<T>(List<T> list, Func<T, T> lambda) where T : Object
         {
-
             var changed = ChangeTrackStart();
 
             if (collectionInspector.listIsNull(list))
                 return changed;
 
             collectionInspector.edit_List_Order(list);
-            //collectionInspector.
+
             if (list != collectionInspector.reordering)
             {
-
                 collectionInspector.ListAddEmptyClick(list);
 
                 foreach (var el in collectionInspector.InspectionIndexes(list))
@@ -1872,9 +1786,7 @@ namespace QuizCanners.Inspect
                     changed.Changed = true;
                     list[i] = tmpEl;
                 }
-
             }
-
             nl();
             return changed;
         }
@@ -1919,6 +1831,9 @@ namespace QuizCanners.Inspect
 
                         nl();
                     }
+
+                    CopyPaste.InspectOptions<T>(listMeta);
+
                 }
                 else
                     collectionInspector.list_DropOption(list, listMeta);
@@ -1934,12 +1849,6 @@ namespace QuizCanners.Inspect
         #endregion
 
         #region List of New()
-
-        public static bool edit<T>(this ListMetaData ld, List<T> list, out T added)
-        {
-            collectionInspector.write_Search_ListLabel(ld, list);
-            return edit_List(list, ref ld.inspected, out added, ld).listLabel_Used();
-        }
 
         public static bool edit_List<T>(this string label, List<T> list, ref int inspected)
         {
@@ -2006,9 +1915,6 @@ namespace QuizCanners.Inspect
             {
                 "List of {0} is null".F(typeof(T).ToPegiStringType()).write();
 
-               /* if (Msg.Init.F(Msg.List).ClickUnFocus().nl())
-                    list = new List<T>();
-                else*/
                     return changes;
             }
 
@@ -2050,6 +1956,8 @@ namespace QuizCanners.Inspect
                     }
 
                     collectionInspector.TryShowListCreateNewOptions(list, ref added, listMeta);
+
+                    CopyPaste.InspectOptions<T>(listMeta);
                 }
             }
             else collectionInspector.ExitOrDrawPEGI(list, ref inspected);
@@ -2091,10 +1999,7 @@ namespace QuizCanners.Inspect
             {
                 "List of {0} is null".F(typeof(T)).write();
 
-                /*if (Msg.Init.F(Msg.List).ClickUnFocus().nl())
-                    list = new List<T>();
-                else*/
-                    return changes;
+                 return changes;
             }
 
             if (inspected >= list.Count)
@@ -2105,12 +2010,10 @@ namespace QuizCanners.Inspect
 
             if (inspected == -1)
             {
-
                 collectionInspector.edit_List_Order(list, listMeta);
 
                 if (list != collectionInspector.reordering)
                 {
-
                     foreach (var el in collectionInspector.InspectionIndexes(list, listMeta))
                     {
                         int i = collectionInspector.Index;
@@ -2133,6 +2036,8 @@ namespace QuizCanners.Inspect
                     }
 
                     collectionInspector.TryShowListCreateNewOptions(list, ref added, types, listMeta).nl();
+
+                    CopyPaste.InspectOptions<T>(listMeta);
                 }
             }
             else collectionInspector.ExitOrDrawPEGI(list, ref inspected);
@@ -2213,22 +2118,6 @@ namespace QuizCanners.Inspect
 
         public static bool edit_List(this string label, List<string> list) =>
             label.edit_List(list, lambda_string);
-
-        public static bool edit_List_WithRoles(this string label, List<string> list, IList roles)
-        {
-            listElementsRoles = roles;
-            return label.edit_List(list, lambda_string_role);
-        }
-
-        public static bool edit_List_WithRoles<T>(this string label, List<T> list, IList roles) where T : Object
-        {
-            collectionInspector.write_Search_ListLabel(label, list);
-            listElementsRoles = roles;
-            var ret = edit_List_UObj(list, lambda_Obj_role);
-            listElementsRoles = null;
-            return ret;
-        }
-
         #endregion
 
         public static bool edit_List<T>(this string label, List<T> list, Func<T, T> lambda) where T : new()

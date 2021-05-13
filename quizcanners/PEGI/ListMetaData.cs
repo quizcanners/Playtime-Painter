@@ -3,7 +3,6 @@ using QuizCanners.Utils;
 using System;
 using System.Collections.Generic;
 
-
 namespace QuizCanners.Inspect
 {
     #region List Data
@@ -20,9 +19,8 @@ namespace QuizCanners.Inspect
         showSearchButton = 16,
         showDictionaryKey = 32,
         allowDuplicates = 64,
+        showCopyPasteOptions = 128,
     }
-    
-    
     
     public class ListMetaData : IPEGI
     {
@@ -33,7 +31,6 @@ namespace QuizCanners.Inspect
         private ListInspectParams _config;
         public bool useOptimalShowRange = true;
         public int itemsToShow = 10;
-        public readonly icon icon;
         public UnNullable<ElementData> elementDatas = new UnNullable<ElementData>();
         
         public bool this[ListInspectParams param]
@@ -163,7 +160,6 @@ namespace QuizCanners.Inspect
         public ListMetaData(string nameMe,params ListInspectParams[] configs)
         {
             label = nameMe;
-            icon = icon.Enter;
             foreach (var config in configs)
                 this[config] = true;
         }
@@ -174,7 +170,7 @@ namespace QuizCanners.Inspect
             bool showEditListButton = true,
             bool showSearchButton = true,
             bool showDictionaryKey = true,
-            icon enterIcon = icon.Enter)
+            bool showCopyPasteOptions = false)
         {
 
             label = nameMe;
@@ -185,8 +181,7 @@ namespace QuizCanners.Inspect
             this[ListInspectParams.showEditListButton] = showEditListButton;
             this[ListInspectParams.showSearchButton] = showSearchButton;
             this[ListInspectParams.showDictionaryKey] = showDictionaryKey;
-            
-            icon = enterIcon;
+            this[ListInspectParams.showCopyPasteOptions] = showCopyPasteOptions;
         }
     }
 
@@ -308,7 +303,5 @@ namespace QuizCanners.Inspect
     }
 
     #endregion
-
-
 
 }
