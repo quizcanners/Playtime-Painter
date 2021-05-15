@@ -57,7 +57,7 @@ namespace PlaytimePainter
 
         private static MeshEditorManager MeshMgmt => MeshEditorManager.Inst;
 
-        protected static GridNavigator Grid => GridNavigator.Instance;
+        protected static PP_GridNavigator Grid => PP_GridNavigator.Instance;
 
         private static Brush GlobalBrush => Cfg.Brush;
 
@@ -186,7 +186,7 @@ namespace PlaytimePainter
 
         private void StrokeFromGrid()
         {
-            stroke.posTo = GridNavigator.LatestMouseToGridProjection;
+            stroke.posTo = PP_GridNavigator.LatestMouseToGridProjection;
             PreviewShader_StrokePosition_Update();
         }
 
@@ -206,7 +206,7 @@ namespace PlaytimePainter
                     return;
 
                 if (NeedsGrid)
-                    GridNavigator.MoveToPointedPosition();
+                    PP_GridNavigator.MoveToPointedPosition();
                 else
                     SampleTexture(stroke.uvTo);
 

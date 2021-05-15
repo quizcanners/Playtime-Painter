@@ -203,7 +203,7 @@ namespace PlaytimePainter
         public static void FeedEvents(Event e)
         {
 
-            GridNavigator.Instance.FeedEvent(e);
+            PP_GridNavigator.Instance.FeedEvent(e);
 
             if (!painter) return;
 

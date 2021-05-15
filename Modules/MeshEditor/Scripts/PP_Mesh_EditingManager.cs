@@ -64,8 +64,8 @@ namespace PlaytimePainter.MeshEditing
 
         private static readonly List<string> RedoMoves = new List<string>();
 
-        public static EditableMesh editedMesh = new EditableMesh();
-        public static EditableMesh previewEdMesh;
+        public static PP_MeshData editedMesh = new PP_MeshData();
+        public static PP_MeshData previewEdMesh;
 
         private int _currentUv;
         private bool _selectingUVbyNumber;
@@ -92,8 +92,8 @@ namespace PlaytimePainter.MeshEditing
         {
             if (!target) return;
             
-            onGridLocal = targetTransform.InverseTransformPoint(GridNavigator.LatestMouseToGridProjection);
-            collisionPosLocal = targetTransform.InverseTransformPoint(GridNavigator.LatestMouseRaycastHit);
+            onGridLocal = targetTransform.InverseTransformPoint(PP_GridNavigator.LatestMouseToGridProjection);
+            collisionPosLocal = targetTransform.InverseTransformPoint(PP_GridNavigator.LatestMouseRaycastHit);
         }
 
         public void EditMesh(PlaytimePainter painter, bool editCopy)
@@ -106,7 +106,7 @@ namespace PlaytimePainter.MeshEditing
 
             target = painter;
             targetTransform = painter.transform;
-            editedMesh = new EditableMesh(painter);
+            editedMesh = new PP_MeshData(painter);
 
             if (editCopy)
                 painter.SharedMesh = new Mesh();
@@ -134,7 +134,7 @@ namespace PlaytimePainter.MeshEditing
                 targetTransform = null;
             }
             Grid.DeactivateVertices();
-            GridNavigator.Instance.SetEnabled(false, false);
+            PP_GridNavigator.Instance.SetEnabled(false, false);
             UndoMoves.Clear();
             RedoMoves.Clear();
         }
@@ -221,7 +221,7 @@ namespace PlaytimePainter.MeshEditing
 
             var diff = onGridLocal - vp.localPos;
 
-            diff.Scale(GridNavigator.Instance.GetGridPerpendicularVector());
+            diff.Scale(PP_GridNavigator.Instance.GetGridPerpendicularVector());
             vp.localPos += diff;
         }
 
@@ -236,7 +236,7 @@ namespace PlaytimePainter.MeshEditing
             else
                 if (!EditorInputManager.Control)
             {
-                GridNavigator.LatestMouseToGridProjection = SelectedUv.meshPoint.WorldPos;
+                PP_GridNavigator.LatestMouseToGridProjection = SelectedUv.meshPoint.WorldPos;
                 Grid.UpdatePositions();
             }
         }
@@ -283,7 +283,7 @@ namespace PlaytimePainter.MeshEditing
             if (Cfg.pixelPerfectMeshEditing)
                 hold.PixPerfect();
 
-            GridNavigator.LatestMouseRaycastHit = pos;
+            PP_GridNavigator.LatestMouseRaycastHit = pos;
 
             UpdateLocalSpaceMousePosition();
 
@@ -375,12 +375,12 @@ namespace PlaytimePainter.MeshEditing
             var alt = EditorInputManager.Alt;
 
             if (alt)
-                GridNavigator.LatestMouseRaycastHit = GridNavigator.LatestMouseToGridProjection;
+                PP_GridNavigator.LatestMouseRaycastHit = PP_GridNavigator.LatestMouseToGridProjection;
             
             RaycastHit hit;
             var vertexIsPointed = false;
 
-            if (GridNavigator.RaycastMouse(out hit))
+            if (PP_GridNavigator.RaycastMouse(out hit))
             {
 
                 vertexIsPointed = (hit.transform.CompareTag(VertexEditorUiElementTag));
@@ -390,14 +390,14 @@ namespace PlaytimePainter.MeshEditing
 
                     if (vertexIsPointed)
                     {
-                        GridNavigator.LatestMouseRaycastHit = hit.transform.position;
+                        PP_GridNavigator.LatestMouseRaycastHit = hit.transform.position;
                         UpdateLocalSpaceMousePosition();
                         editedMesh.SortAround(collisionPosLocal, true);
 
                     }
                     else
                     {
-                        GridNavigator.LatestMouseRaycastHit = hit.point;
+                        PP_GridNavigator.LatestMouseRaycastHit = hit.point;
                         UpdateLocalSpaceMousePosition();
                         editedMesh.SortAround(collisionPosLocal, true);
                         GetPointedTriangleOrLine();
@@ -706,7 +706,7 @@ namespace PlaytimePainter.MeshEditing
 
                     var nms = p.Materials;
 
-                    var em = new EditableMesh(p);
+                    var em = new PP_MeshData(p);
                     
                     for (var i = 0; i < nms.Length; i++) {
                         var nm = nms[i];
@@ -772,7 +772,7 @@ namespace PlaytimePainter.MeshEditing
         public void Inspect()  {
 
             var changed = pegi.ChangeTrackStart();
-            EditableMesh.inspected = editedMesh;
+            PP_MeshData.inspected = editedMesh;
 
 
             target.Inspect_ConvexMeshCheckWarning();
@@ -794,7 +794,7 @@ namespace PlaytimePainter.MeshEditing
 
 
             if (DocsEnabled)
-                pegi.FullWindow.DocumentationClickOpen(text: () => MeshTool.Tooltip + (MeshTool.ShowGrid ? GridNavigator.ToolTip : ""),
+                pegi.FullWindow.DocumentationClickOpen(text: () => MeshTool.Tooltip + (MeshTool.ShowGrid ? PP_GridNavigator.ToolTip : ""),
                     toolTip: "About {0} tool".F(MeshTool.NameForDisplayPEGI()));
 
             
@@ -820,7 +820,7 @@ namespace PlaytimePainter.MeshEditing
             Grid.vertexPointMaterial.color = MeshTool.VertexColor;
             //Grid.vertexPointMaterial.SetColor("_Color", MeshTool.VertexColor);
             
-            EditableMesh.inspected = null;
+            PP_MeshData.inspected = null;
             
             if (changed)
                 MeshTool.SetShaderKeywords();
@@ -1091,8 +1091,8 @@ namespace PlaytimePainter.MeshEditing
             var piecePos = targetTransform.TransformPoint(-Vector3.one / 2);//PositionScripts.PosUpdate(_target.getpos(), false);
 
 
-            var projected = GridNavigator.Instance.ProjectToGrid(piecePos); // piecePos * getGridMaskVector() + ptdPos.ToV3(false)*getGridPerpendicularVector();
-            var gridMask = GridNavigator.Instance.GetGridMaskVector() * 128 + projected;
+            var projected = PP_GridNavigator.Instance.ProjectToGrid(piecePos); // piecePos * getGridMaskVector() + ptdPos.ToV3(false)*getGridPerpendicularVector();
+            var gridMask = PP_GridNavigator.Instance.GetGridMaskVector() * 128 + projected;
             
             Debug.DrawLine(new Vector3(projected.x, projected.y, projected.z), new Vector3(gridMask.x, projected.y, projected.z), Color.red);
             Debug.DrawLine(new Vector3(projected.x, projected.y, projected.z), new Vector3(projected.x, gridMask.y, projected.z), Color.red);

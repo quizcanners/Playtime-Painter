@@ -34,7 +34,7 @@ namespace PlaytimePainter.MeshEditing {
 
         public MeshPackagingProfile profile;
 
-        public EditableMesh edMesh;
+        public PP_MeshData edMesh;
 
         public Mesh mesh;
 
@@ -347,13 +347,13 @@ namespace PlaytimePainter.MeshEditing {
         public MeshConstructor(PlaytimePainter painter)
         {
             profile = painter.MeshProfile;
-            edMesh = new EditableMesh(painter);
+            edMesh = new PP_MeshData(painter);
             mesh = painter.SharedMesh;
             if (!mesh)
                 mesh = new Mesh();
         }
 
-        public MeshConstructor(EditableMesh edMesh, MeshPackagingProfile solution, Mesh freshMesh)
+        public MeshConstructor(PP_MeshData edMesh, MeshPackagingProfile solution, Mesh freshMesh)
         {
             profile = solution;
             this.edMesh = edMesh;

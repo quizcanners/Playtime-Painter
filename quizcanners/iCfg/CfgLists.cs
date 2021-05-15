@@ -1,11 +1,8 @@
 using QuizCanners.Inspect;
 using QuizCanners.Utils;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-
 
 namespace QuizCanners.CfgDecode
 {
@@ -20,10 +17,21 @@ namespace QuizCanners.CfgDecode
         }
     }
 
-    public abstract class ConfigurationsSO_Generic<T> : ConfigurationsSO_Base where T : Configuration, new()
+    public abstract class ConfigurationsSO_Generic<T> : ConfigurationsSO_Base, ICfg where T : Configuration, new()
     {
         public List<T> configurations = new List<T>();
 
+        public T ActiveConfiguration 
+        { 
+            get => configurations.Count == 0 ? null : (configurations[0].ActiveConfiguration as T);
+            set 
+            {
+                if (configurations.Count == 0)
+                    return;
+
+                value.ActiveConfiguration = value;
+            }    
+        }
         #region Inspector
 
         public void InspectShortcut()
@@ -47,6 +55,24 @@ namespace QuizCanners.CfgDecode
         }
 
         public override void Inspect() => "Configurations".edit_List(configurations);
+
+        public CfgEncoder Encode()
+        {
+            var cody = new CfgEncoder();
+            var act = ActiveConfiguration;
+            if (act != null)
+                cody.Add("act", configurations.IndexOf(ActiveConfiguration));
+
+            return cody;
+        }
+
+        public void Decode(string key, CfgData data)
+        {
+            switch (key) 
+            {
+                case "act": ActiveConfiguration = configurations.TryGet(data.ToInt());  break;
+            }
+        }
 
         #endregion
     }
@@ -81,10 +107,10 @@ namespace QuizCanners.CfgDecode
     }
 
     [Serializable]
-    public abstract class Configuration : ICfg, IPEGI_ListInspect, IGotName
+    public abstract class Configuration : IPEGI_ListInspect, IGotName
     {
         public string name;
-        public string data;
+        public CfgData data;
 
         public abstract Configuration ActiveConfiguration { get; set; }
 
@@ -93,7 +119,7 @@ namespace QuizCanners.CfgDecode
             ActiveConfiguration = this;
         }
 
-        public void SaveCurrentState() => data = EncodeData().ToString();
+        public void SaveCurrentState() => data = EncodeData().CfgData;
 
         public abstract CfgEncoder EncodeData();
 
@@ -108,18 +134,17 @@ namespace QuizCanners.CfgDecode
         public virtual void InspectInList(int ind, ref int edited)
         {
 
-            var changed = false;
             var active = ActiveConfiguration;
 
-            bool allowOverride = active == null || active == this;
-
             bool isActive = this == active;
+
+            bool allowOverride = active == null || isActive;
 
             if (isActive)
                 pegi.SetBgColor(Color.green);
 
-            if (!allowOverride && !data.IsNullOrEmpty() && icon.Delete.ClickUnFocus(ref changed))
-                data = null;
+            if (!allowOverride && !data.IsEmpty && icon.Delete.ClickConfirm("dlCfg", toolTip: "Delete this configuration?"))
+                data.Clear();
 
             pegi.edit(ref name);
 
@@ -130,8 +155,7 @@ namespace QuizCanners.CfgDecode
             }
             else
             {
-
-                if (!data.IsNullOrEmpty())
+                if (!data.IsEmpty)
                 {
                     if (icon.Play.ClickUnFocus())
                         ActiveConfiguration = this;
@@ -146,13 +170,12 @@ namespace QuizCanners.CfgDecode
                     SaveCurrentState();
             }
 
-
             pegi.RestoreBGcolor();
         }
 
         #endregion
 
-        #region Encode & Decode
+      /*  #region Encode & Decode
 
         public CfgEncoder Encode() => new CfgEncoder()
             .Add_String("n", name)
@@ -167,7 +190,7 @@ namespace QuizCanners.CfgDecode
             }
         }
 
-        #endregion
+        #endregion*/
 
         public Configuration()
         {

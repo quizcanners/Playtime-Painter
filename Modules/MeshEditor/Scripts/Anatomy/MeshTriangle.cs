@@ -131,13 +131,13 @@ namespace PlaytimePainter.MeshEditing
                         data.ToInt(ref subMeshIndex);
                         break;
                     case "0":
-                        vertexes[0] = EditableMesh.decodedEditableMesh.uvsByFinalIndex[data.ToInt()];
+                        vertexes[0] = PP_MeshData.decodedEditableMesh.uvsByFinalIndex[data.ToInt()];
                         break;
                     case "1":
-                        vertexes[1] = EditableMesh.decodedEditableMesh.uvsByFinalIndex[data.ToInt()];
+                        vertexes[1] = PP_MeshData.decodedEditableMesh.uvsByFinalIndex[data.ToInt()];
                         break;
                     case "2":
-                        vertexes[2] = EditableMesh.decodedEditableMesh.uvsByFinalIndex[data.ToInt()];
+                        vertexes[2] = PP_MeshData.decodedEditableMesh.uvsByFinalIndex[data.ToInt()];
                         break;
                 }
             }

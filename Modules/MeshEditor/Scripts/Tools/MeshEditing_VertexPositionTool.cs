@@ -274,8 +274,8 @@ namespace PlaytimePainter.MeshEditing
             if (EditorInputManager.GetMouseButtonDown(0))
             {
                 m.Dragging = true;
-                _originalPosition = GridNavigator.LatestMouseRaycastHit;
-                GridNavigator.LatestMouseToGridProjection = GridNavigator.LatestMouseRaycastHit;
+                _originalPosition = PP_GridNavigator.LatestMouseRaycastHit;
+                PP_GridNavigator.LatestMouseToGridProjection = PP_GridNavigator.LatestMouseRaycastHit;
                 _draggedVertices.Clear();
                 foreach (var uv in PointedLine.vertexes)
                     _draggedVertices.Add(uv.meshPoint);
@@ -298,8 +298,8 @@ namespace PlaytimePainter.MeshEditing
             {
 
                 m.Dragging = true;
-                _originalPosition = GridNavigator.LatestMouseRaycastHit;
-                GridNavigator.LatestMouseToGridProjection = GridNavigator.LatestMouseRaycastHit;
+                _originalPosition = PP_GridNavigator.LatestMouseRaycastHit;
+                PP_GridNavigator.LatestMouseToGridProjection = PP_GridNavigator.LatestMouseRaycastHit;
                 _draggedVertices.Clear();
                 foreach (var uv in PointedTriangle.vertexes)
                     _draggedVertices.Add(uv.meshPoint);
@@ -353,9 +353,9 @@ namespace PlaytimePainter.MeshEditing
                 if (beforeCouldDrag != canDrag && EditorInputManager.Alt && MeshEditorManager.SelectedUv.meshPoint.vertices.Count > 1)
                     m.DisconnectDragged();
 
-                if (!canDrag || !(GridNavigator.Instance.AngGridToCamera(GridNavigator.LatestMouseToGridProjection) < 82)) return;
+                if (!canDrag || !(PP_GridNavigator.Instance.AngGridToCamera(PP_GridNavigator.LatestMouseToGridProjection) < 82)) return;
 
-                var delta = GridNavigator.LatestMouseToGridProjection - _originalPosition;
+                var delta = PP_GridNavigator.LatestMouseToGridProjection - _originalPosition;
 
                 if (delta.magnitude == 0)
                     return;
@@ -365,7 +365,7 @@ namespace PlaytimePainter.MeshEditing
                 foreach (var v in _draggedVertices)
                     v.WorldPos += delta;
 
-                _originalPosition = GridNavigator.LatestMouseToGridProjection;
+                _originalPosition = PP_GridNavigator.LatestMouseToGridProjection;
             }
         }
         #endregion

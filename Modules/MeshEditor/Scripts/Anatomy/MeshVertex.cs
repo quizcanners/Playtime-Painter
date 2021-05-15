@@ -125,7 +125,7 @@ namespace PlaytimePainter.MeshEditing
                 {
                     case "i":
                         data.ToInt(ref finalIndex);
-                        EditableMesh.decodedEditableMesh.uvsByFinalIndex[finalIndex] = this;
+                        PP_MeshData.decodedEditableMesh.uvsByFinalIndex[finalIndex] = this;
                         break;
                     case "cg": data.ToInt(ref groupIndex); break;
                     case "uvi": data.ToInt(ref uvIndex); break;

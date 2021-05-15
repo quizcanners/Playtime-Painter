@@ -96,7 +96,7 @@ namespace PlaytimePainter.MeshEditing
 
                         for (int plane = 0; plane<3; plane++) 
                         {
-                            GridNavigator.Instance.CurrentPlane = (GridPlane)plane;
+                            PP_GridNavigator.Instance.CurrentPlane = (GridPlane)plane;
                             projectFront = true;
                             UpdateUvPreview(true);
                             AutoProjectUVs(EditedMesh);
@@ -170,7 +170,7 @@ namespace PlaytimePainter.MeshEditing
 
             var uv = new Vector2();
 
-            switch (GridNavigator.Instance.CurrentPlane)
+            switch (PP_GridNavigator.Instance.CurrentPlane)
             {
                 case GridPlane.xy:
                     uv.x = diff.x;
@@ -330,11 +330,11 @@ namespace PlaytimePainter.MeshEditing
             return true;
         }
 
-        private void AutoProjectUVs(EditableMesh eMesh) {
+        private void AutoProjectUVs(PP_MeshData eMesh) {
 
             var trgPos = MeshEditorManager.targetTransform.position;
 
-            var gn = GridNavigator.Instance;
+            var gn = PP_GridNavigator.Instance;
 
             if (Mathf.Approximately( projectorNormalThreshold01, 1)) {
                 foreach (var t in eMesh.triangles) {

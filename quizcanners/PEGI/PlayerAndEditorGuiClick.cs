@@ -406,16 +406,6 @@ namespace QuizCanners.Inspect
             return ClickUnFocus(tex, icon.GetText());
         }
 
-        public static bool ClickUnFocus(this icon icon, ref bool changed)
-        {
-            var tex = icon.GetIcon();
-
-            if (!tex || tex == Texture2D.whiteTexture)
-                return icon.GetText().ClickUnFocus().changes_Internal(ref changed);
-
-            return ClickUnFocus(tex, icon.GetText()).changes_Internal(ref changed);
-        }
-
         public static bool ClickUnFocus(this icon icon, int size)
         {
             var tex = icon.GetIcon();
@@ -531,6 +521,32 @@ namespace QuizCanners.Inspect
                 return true;
             }
 #endif
+
+            return false;
+        }
+
+        public static bool isAttentionWrite (this INeedAttention attention, bool canBeNull = false) 
+        {
+            string warningMsg = null;
+
+            if (attention.IsNullOrDestroyed_Obj())
+            {
+                if (canBeNull)
+                    return false;
+
+                warningMsg = "Object is null";
+            }
+            else
+                warningMsg = attention.NeedAttention();
+
+            if (warningMsg != null)
+            {
+                if (icon.Warning.Click("Copy to Clipboard"))
+                    SetCopyPasteBuffer(warningMsg);
+
+                warningMsg.write(WarningText);
+                return true;
+            }
 
             return false;
         }

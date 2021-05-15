@@ -106,8 +106,6 @@ namespace PlaytimePainter {
         
         public bool disableSecondBufferUpdateDebug;
 
-        public Light mainDirectionalLight;
-
         public PlaytimePainter FocusedPainter => PlaytimePainter.selectedInPlaytime;
         
         public bool IsLinearColorSpace
@@ -990,7 +988,7 @@ namespace PlaytimePainter {
 
                     (IsLinearColorSpace ? "Linear" : "Gamma").nl();
                  
-                    "Main Directional Light".edit(ref mainDirectionalLight).nl();
+                   
 
 #if UNITY_EDITOR
                     if ("Refresh Brush Shaders".Click().nl())

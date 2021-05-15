@@ -348,7 +348,7 @@ namespace PlaytimePainter.MeshEditing
 
             public float DistanceTo(MeshPoint other) => (localPos - other.localPos).magnitude;
 
-            public void MergeWithNearest(EditableMesh edMesh)
+            public void MergeWithNearest(PP_MeshData edMesh)
             {
 
                 var allVertices = edMesh.meshPoints;

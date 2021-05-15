@@ -48,6 +48,8 @@ namespace QuizCanners.CfgDecode
 
         public bool IsEmpty => _value.IsNullOrEmpty();
 
+        public void Clear() => _value = null;
+
         public CfgData(string val)
         {
             _value = val;

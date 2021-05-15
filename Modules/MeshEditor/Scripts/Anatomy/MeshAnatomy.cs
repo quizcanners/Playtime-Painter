@@ -105,7 +105,7 @@ namespace PlaytimePainter.MeshEditing
                 var a = lineA.vertexes[0].LocalPos - lineA.vertexes[1].LocalPos;
                 var b = lineB.vertexes[1].LocalPos - lineB.vertexes[0].LocalPos;
 
-                var grid = GridNavigator.Instance;
+                var grid = PP_GridNavigator.Instance;
 
                 var fromVector2 = grid.InPlaneVector(a);
                 var toVector2 = grid.InPlaneVector(b);

@@ -72,13 +72,13 @@ namespace PlaytimePainter.MeshEditing {
         protected static PainterMesh.Vertex PointedUv => MeshEditorManager.PointedUv;
         protected static PainterMesh.Vertex SelectedUv => MeshEditorManager.SelectedUv;
         protected static PainterMesh.MeshPoint PointedVertex => MeshEditorManager.PointedUv.meshPoint;
-        protected static EditableMesh GetPreviewMesh
+        protected static PP_MeshData GetPreviewMesh
         {
             get
             {
                 if (MeshEditorManager.previewEdMesh == null)
                 {
-                    MeshEditorManager.previewEdMesh = new EditableMesh();
+                    MeshEditorManager.previewEdMesh = new PP_MeshData();
                     MeshEditorManager.previewEdMesh.Decode(new CfgData(EditedMesh.Encode().ToString()));
                     //Debug.Log("Recreating preview");
                 }

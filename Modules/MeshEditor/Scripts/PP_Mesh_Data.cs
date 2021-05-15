@@ -12,7 +12,7 @@ namespace PlaytimePainter.MeshEditing
 #pragma warning disable IDE0018 // Inline variable declaration
 
 
-    public class EditableMesh : PainterClassCfg, IPEGI, ICfgCustom
+    public class PP_MeshData : PainterClassCfg, IPEGI, ICfgCustom
     {
 
         public string meshName = "unnamed";
@@ -304,12 +304,12 @@ namespace PlaytimePainter.MeshEditing
             }
         }
 
-        public EditableMesh()
+        public PP_MeshData()
         {
 
         }
 
-        public EditableMesh(PlaytimePainter painter)
+        public PP_MeshData(PlaytimePainter painter)
         {
             Edit(painter);
         }
@@ -462,7 +462,7 @@ namespace PlaytimePainter.MeshEditing
             return cody;
         }
 
-        public static EditableMesh decodedEditableMesh;
+        public static PP_MeshData decodedEditableMesh;
 
         public void Decode(CfgData data)
         {
@@ -776,9 +776,9 @@ namespace PlaytimePainter.MeshEditing
 
         #region Points MGMT
 
-        public void MergeWith(PlaytimePainter other) => MergeWith(new EditableMesh(other), other);
+        public void MergeWith(PlaytimePainter other) => MergeWith(new PP_MeshData(other), other);
 
-        public void MergeWith(EditableMesh edm, PlaytimePainter other)
+        public void MergeWith(PP_MeshData edm, PlaytimePainter other)
         {
 
             if (uv2DistributeRow > 1)
@@ -1343,7 +1343,7 @@ namespace PlaytimePainter.MeshEditing
             if (!shapes.IsNullOrEmpty())
                 "Shapes".edit_List(shapes).nl();
         }
-        public static EditableMesh inspected;
+        public static PP_MeshData inspected;
 
         #endregion
     }

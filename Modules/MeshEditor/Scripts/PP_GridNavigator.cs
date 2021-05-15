@@ -19,9 +19,9 @@ namespace PlaytimePainter.MeshEditing
     }
 
     [ExecuteInEditMode]
-    public class GridNavigator : PainterSystemMono
+    public class PP_GridNavigator : PainterSystemMono
     {
-        public static GridNavigator Instance
+        public static PP_GridNavigator Instance
         {
             get
             {
@@ -29,12 +29,12 @@ namespace PlaytimePainter.MeshEditing
                 if (!ApplicationIsQuitting)
                 {
                     _inst = PainterCamera.Inst
-                        .GetComponentInChildren<GridNavigator>(); //(GridNavigator)FindObjectOfType<GridNavigator>();
+                        .GetComponentInChildren<PP_GridNavigator>(); //(GridNavigator)FindObjectOfType<GridNavigator>();
                     if (_inst) return _inst;
                     try
                     {
                         var prefab = Resources.Load(PainterDataAndConfig.PREFABS_RESOURCE_FOLDER + "/grid") as GameObject;
-                        _inst = Instantiate(prefab).GetComponent<GridNavigator>();
+                        _inst = Instantiate(prefab).GetComponent<PP_GridNavigator>();
                         _inst.transform.parent = PainterCamera.Inst.transform;
                         _inst.name = "grid";
                         _inst.gameObject.hideFlags = HideFlags.DontSave;
@@ -50,7 +50,7 @@ namespace PlaytimePainter.MeshEditing
                 return _inst;
             }
         }
-        private static GridNavigator _inst;
+        private static PP_GridNavigator _inst;
 
 
         public static Vector3 LatestMouseRaycastHit;

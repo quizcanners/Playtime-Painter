@@ -1088,40 +1088,40 @@ namespace QuizCanners.Inspect
 
         public static bool select_or_edit(ref string val, List<string> list, bool showIndex = false, bool stripSlashes = true, bool allowInsert = true)
         {
-            var changed = false;
+            var changed = ChangeTrackStart();
 
             var gotList = !list.IsNullOrEmpty();
 
             var gotValue = !val.IsNullOrEmpty();
 
-            if (gotList && gotValue && icon.Delete.ClickUnFocus(ref changed))
+            if (gotList && gotValue && icon.Delete.ClickUnFocus())
                 val = "";
 
             if (!gotValue || !gotList)
-                edit(ref val).changes_Internal(ref changed);
+                edit(ref val);
 
             if (gotList)
-                select(ref val, list, showIndex, stripSlashes, allowInsert).changes_Internal(ref changed);
+                select(ref val, list, showIndex, stripSlashes, allowInsert);
 
             return changed;
         }
 
         public static bool select_or_edit(this string name, ref string val, List<string> list, bool showIndex = false)
         {
-            var changed = false;
+            var changed = ChangeTrackStart();
 
             var gotList = !list.IsNullOrEmpty();
 
             var gotValue = !val.IsNullOrEmpty();
 
-            if (gotList && gotValue && icon.Delete.ClickUnFocus(ref changed))
+            if (gotList && gotValue && icon.Delete.ClickUnFocus())
                 val = "";
 
             if (!gotValue || !gotList)
-                name.edit(ref val).changes_Internal(ref changed);
+                name.edit(ref val);
 
             if (gotList)
-                name.select(ref val, list, showIndex).changes_Internal(ref changed);
+                name.select(ref val, list, showIndex);
 
             return changed;
         }
