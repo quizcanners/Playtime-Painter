@@ -123,8 +123,11 @@ namespace PlaytimePainter
                     
                     if (pp && pp == painter && AllowEditing(painter))
                         HandleUtility.AddDefaultControl(GUIUtility.GetControlID(FocusType.Passive));
-                
-                    QcUnity.FocusOn(hit.transform.gameObject);
+
+                    if (canRefocus)
+                    {
+                        QcUnity.FocusOn(hit.transform.gameObject);
+                    }
                 }
 
                 #if !UNITY_2019_1_OR_NEWER

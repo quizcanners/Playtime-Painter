@@ -379,6 +379,20 @@ namespace QuizCanners.Utils
                 target.a = source.a;
         }
 
+        public static void SetValuesOn(this ColorMask bm, ref Color target, Color source, float alpha)
+        {
+            float deAlpha = 1 - alpha;
+
+            if ((bm & ColorMask.R) != 0)
+                target.r = source.r * alpha + target.r * deAlpha;
+            if ((bm & ColorMask.G) != 0)
+                target.g = source.g * alpha + target.g * deAlpha;
+            if ((bm & ColorMask.B) != 0)
+                target.b = source.b * alpha + target.b * deAlpha;
+            if ((bm & ColorMask.A) != 0)
+                target.a = source.a * alpha + target.a * deAlpha;
+        }
+
         public static Vector4 ToVector4(this ColorMask mask) => new Vector4(
             mask.HasFlag(ColorMask.R) ? 1 : 0,
             mask.HasFlag(ColorMask.G) ? 1 : 0,

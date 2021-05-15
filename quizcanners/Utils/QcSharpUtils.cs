@@ -11,23 +11,25 @@ using UnityEngine;
 using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
 
-namespace QuizCanners.Utils {
+namespace QuizCanners.Utils
+{
 
 
-    #pragma warning disable IDE0018 // Inline variable declaration
-    
-    public static class QcSharp {
+#pragma warning disable IDE0018 // Inline variable declaration
 
-       // public static string ThisMethodName() => ThisMethodName(1);
+    public static class QcSharp
+    {
 
-       // public static string ThisMethodName(int up) => (new StackFrame(up)).GetMethod()?.Name;
+        // public static string ThisMethodName() => ThisMethodName(1);
+
+        // public static string ThisMethodName(int up) => (new StackFrame(up)).GetMethod()?.Name;
 
         #region Time
 
         public static string SecondsToReadableString(int seconds) => TicksToReadableString(seconds * TimeSpan.TicksPerSecond);
 
         public static string SecondsToReadableString(double seconds) => TicksToReadableString(seconds * TimeSpan.TicksPerSecond);
-        
+
         public static string SecondsToReadableString(float seconds) => TicksToReadableString(seconds * TimeSpan.TicksPerSecond);
 
         public static string SecondsToReadableString(long seconds) => TicksToReadableString(seconds * TimeSpan.TicksPerSecond);
@@ -51,7 +53,8 @@ namespace QuizCanners.Utils {
 
         public static Timer timer = new Timer();
 
-        public class Timer : IDisposable {
+        public class Timer : IDisposable
+        {
 
             private readonly Stopwatch StopWatch = new Stopwatch();
 
@@ -141,13 +144,13 @@ namespace QuizCanners.Utils {
                 else
                     End();
             }
-            
+
             public string End(string label = null, bool logInEditor = true, bool logInPlayer = false, float logThreshold = 0)
             {
                 StopWatch.Stop();
 
                 var text = label + (label.IsNullOrEmpty() ? "" : ": ") + GetElapsedTimeString();
-                
+
                 if ((Math.Abs(logThreshold) < float.Epsilon || ((StopWatch.ElapsedTicks / TimeSpan.TicksPerSecond) > logThreshold)) &&
                     ((Application.isEditor && logInEditor) || (!Application.isEditor && logInPlayer)))
                     Debug.Log(text);
@@ -156,7 +159,7 @@ namespace QuizCanners.Utils {
 
                 return text;
             }
-            
+
             private void SetNextDictionaryMeasurment(string key)
             {
                 _timingKey = key;
@@ -252,7 +255,7 @@ namespace QuizCanners.Utils {
         public static string HtmlTag(string tag, string value) => "<{0}={1}>".F(tag, value);
 
         public static string HtmlTag(string tag) => "<{0}>".F(tag);
-        
+
         public static string HtmlTagWrap(string tag, string content) => content.IsNullOrEmpty() ? "" : "<{0}>{1}</{0}>".F(tag, content);
 
         public static string HtmlTagWrap(string tag, string value, string content) => content.IsNullOrEmpty() ? "" : "<{0}={1}>{2}</{0}>".F(tag, value, content);
@@ -260,28 +263,28 @@ namespace QuizCanners.Utils {
         public static string HtmlTagWrap(string content, Color color) => content.IsNullOrEmpty() ? "" : "<{0}={1}>{2}</{0}>".F("color", "#" + ColorUtility.ToHtmlStringRGBA(color), content);
 
         public static string HtmlTagAlpha(float alpha01) => HtmlTag("alpha", "#" + Mathf.FloorToInt(Mathf.Clamp01(alpha01) * 255).ToString("X2"));
-        
-        public static string HtmlTagWrapAlpha(string content, float alpha01) => HtmlTagAlpha(alpha01) + content + HtmlTagAlpha(1f); 
-        
+
+        public static string HtmlTagWrapAlpha(string content, float alpha01) => HtmlTagAlpha(alpha01) + content + HtmlTagAlpha(1f);
+
         public static StringBuilder AppendHtmlTag(this StringBuilder bld, string tag) => bld.Append(HtmlTag(tag));
-        
+
         public static StringBuilder AppendHtmlTag(this StringBuilder bld, string tag, string value) => bld.Append(HtmlTag(tag, value));
-        
+
         public static StringBuilder AppendHtmlText(this StringBuilder bld, string tag, string value, string content) => bld.Append(HtmlTagWrap(tag, value, content));
 
         public static StringBuilder AppendHtmlText(this StringBuilder bld, string tag, string content) => bld.Append(HtmlTagWrap(tag, content));
 
         public static StringBuilder AppendHtmlAlpha(this StringBuilder bld, string content, float alpha) => bld.Append(HtmlTagWrapAlpha(content, alpha));
-        
+
         public static StringBuilder AppendHtmlBold(this StringBuilder bld, string content) => bld.Append(HtmlTagWrap("b", content));
-        
+
         public static StringBuilder AppendHtmlItalics(this StringBuilder bld, string content) => bld.Append(HtmlTagWrap("i", content));
 
         public static StringBuilder AppendHtml(this StringBuilder bld, string content, Color col) => bld.Append(HtmlTagWrap(content, col)); //content.IsNullOrEmpty() ? bld : bld.AppendHtmlText("color", "#"+ColorUtility.ToHtmlStringRGBA(col), content);
 
         public static StringBuilder AppendHtmlLink(this StringBuilder bld, string content) => content.IsNullOrEmpty() ? bld : bld.AppendHtmlText("link", "dummy", content);
 
-        public static StringBuilder AppendHtmlLink(this StringBuilder bld, string content, Color col) => content.IsNullOrEmpty() ? bld : 
+        public static StringBuilder AppendHtmlLink(this StringBuilder bld, string content, Color col) => content.IsNullOrEmpty() ? bld :
             bld.AppendHtmlText("link", "dummy", HtmlTagWrap(content, col));
 
 
@@ -289,31 +292,31 @@ namespace QuizCanners.Utils {
 
         public static T TryGetClassAttribute<T>(this Type type, bool inherit = false) where T : Attribute
         {
-   
+
             if (!type.IsClass) return null;
-            
+
             var attrs = type.GetCustomAttributes(typeof(T), inherit);
-            return (attrs.Length > 0) ? (T) attrs[0] : null;
+            return (attrs.Length > 0) ? (T)attrs[0] : null;
 
         }
 
         #region List Management
         public static T GetRandom<T>(this List<T> list, ref int previous)
         {
-            if (list.IsNullOrEmptyCollection()) 
+            if (list.IsNullOrEmptyCollection())
             {
                 return default;
             }
 
             var rnd = Random.Range(0, list.Count);
 
-            if (rnd == previous) 
+            if (rnd == previous)
             {
                 rnd = (rnd + 1) % list.Count;
             }
 
             previous = rnd;
-            return list[previous]; 
+            return list[previous];
         }
         public static T GetRandom<T>(this List<T> list) => list.Count == 0 ? default : list[Random.Range(0, list.Count)];
 
@@ -345,7 +348,7 @@ namespace QuizCanners.Utils {
 
         public static void ForceSetCount<T>(this List<T> list, int count) where T : new()
         {
-            if (count == list.Count) 
+            if (count == list.Count)
                 return;
 
             var diff = list.Count - count;
@@ -371,9 +374,10 @@ namespace QuizCanners.Utils {
 
         }
 
-        public static T TryTake<T>(this List<T> list, int index) {
+        public static T TryTake<T>(this List<T> list, int index)
+        {
 
-            if (list.IsNullOrEmpty() || list.Count<= index)
+            if (list.IsNullOrEmpty() || list.Count <= index)
                 return default;
 
             var ret = list[index];
@@ -382,8 +386,9 @@ namespace QuizCanners.Utils {
 
             return ret;
         }
-        
-        public static void ForceSet<T,G>(this List<T> list, int index, G val) where G:T {
+
+        public static void ForceSet<T, G>(this List<T> list, int index, G val) where G : T
+        {
             if (list == null || index < 0) return;
 
             while (list.Count <= index)
@@ -391,7 +396,7 @@ namespace QuizCanners.Utils {
 
             list[index] = val;
         }
-        
+
         public static bool AddIfNew<T>(this List<T> list, T val)
         {
             if (list.Contains(val))
@@ -400,7 +405,7 @@ namespace QuizCanners.Utils {
             list.Add(val);
             return true;
         }
-        
+
         public static T TryGetLast<T>(this IList<T> list)
         {
 
@@ -410,7 +415,7 @@ namespace QuizCanners.Utils {
             return list[list.Count - 1];
 
         }
-        
+
         public static T TryGet<T>(this List<T> list, int index, T defaultValue = default)
         {
             if (list == null || index < 0 || index >= list.Count)
@@ -435,7 +440,8 @@ namespace QuizCanners.Utils {
 
         public static bool IsNew(this Type t) => t.IsValueType || (!t.IsUnityObject() && !t.IsAbstract && t.GetConstructor(Type.EmptyTypes) != null);
 
-        public static void Move<T>(this List<T> list, int oldIndex, int newIndex) {
+        public static void Move<T>(this List<T> list, int oldIndex, int newIndex)
+        {
             if (oldIndex == newIndex) return;
 
             var item = list[oldIndex];
@@ -528,7 +534,7 @@ namespace QuizCanners.Utils {
             args.CopyTo(temp, 0);
             return temp;
         }
-        
+
         public static void Swap<T>(ref T[] array, int a, int b)
         {
             if (array == null || a >= array.Length || b >= array.Length || a == b) return;
@@ -537,13 +543,13 @@ namespace QuizCanners.Utils {
             array[a] = array[b];
             array[b] = tmp;
         }
-        
+
         public static T[] Resize<T>(this T[] args, int to)
         {
             var temp = new T[to];
             if (args != null)
                 Array.Copy(args, 0, temp, 0, Mathf.Min(to, args.Length));
-          
+
             return temp;
         }
 
@@ -568,7 +574,7 @@ namespace QuizCanners.Utils {
             args = temp;
         }
 
-        public static void AddAndInit<T>(ref T[] args, int add) 
+        public static void AddAndInit<T>(ref T[] args, int add)
         {
             T[] temp;
             if (args != null)
@@ -646,7 +652,7 @@ namespace QuizCanners.Utils {
             return value;
         }
 
-        public static T TryGet<T,G>(this Dictionary<G, T> dic, G tag)
+        public static T TryGet<T, G>(this Dictionary<G, T> dic, G tag)
         {
             T value;
             dic.TryGetValue(tag, out value);
@@ -684,15 +690,15 @@ namespace QuizCanners.Utils {
             }
         }
 
-        public static string F(this string format, Func<string> func) 
+        public static string F(this string format, Func<string> func)
         {
             string result;
 
-            try 
+            try
             {
                 result = func();
-            } 
-            catch (Exception ex) 
+            }
+            catch (Exception ex)
             {
                 Debug.LogError(ex);
                 result = "ERR";
@@ -802,14 +808,14 @@ namespace QuizCanners.Utils {
                 {
                     if (currentCharacter == '_')
                     {
-                        newText.Append(' ');     
+                        newText.Append(' ');
                         previousCharacter = ' ';
                         continue;
                     }
                 }
 
                 previousCharacter = currentCharacter;
-                
+
                 newText.Append(currentCharacter);
             }
             return newText.ToString();
@@ -848,21 +854,21 @@ namespace QuizCanners.Utils {
 
             return newText.ToString();
         }
-        
+
         public static IEnumerator TextAnimation(string fullText, Action<string> feed, float characterFadeInSpeed = 10)
         {
             var segments = fullText.Split(' ');
 
             int i = 0;
-            
+
             float fadeInTimer = 1f;
 
-            float fadeInSpeed = characterFadeInSpeed* 0.1f;
+            float fadeInSpeed = characterFadeInSpeed * 0.1f;
 
             var visibleBuilder = new StringBuilder(fullText.Length + 50);
             var resultBuilder = new StringBuilder(fullText.Length + 50);
-            
-            while (i< segments.Length)
+
+            while (i < segments.Length)
             {
 
                 fadeInTimer -= Time.deltaTime * fadeInSpeed;
@@ -901,9 +907,9 @@ namespace QuizCanners.Utils {
 
                     if (i < segments.Length)
                     {
-                        
+
                         fadingSegment = segments[i];
-                        
+
                         var dontFade = true;
 
                         while (dontFade && i < segments.Length)
@@ -930,15 +936,15 @@ namespace QuizCanners.Utils {
                 if (i >= segments.Length)
                 {
                     feed.Invoke(fullText);
-                    yield break; 
+                    yield break;
                 }
-                
+
                 string visible = visibleBuilder.ToString();
 
-                string fading =  segments[i];
+                string fading = segments[i];
 
                 resultBuilder.Clear();
-                
+
                 resultBuilder.Append(visible)
                     .Append(HtmlTagAlpha(1f - fadeInTimer))
                     .Append(fading)
@@ -946,7 +952,7 @@ namespace QuizCanners.Utils {
                     .Append(fullText.Substring(visible.Length + fading.Length));
 
                 feed.Invoke(resultBuilder.ToString()); //visible + HtmlTagAlpha(fadeInTimer) + fading + HtmlTagAlpha(1f) + fullText.Substring(visible.Length + fading.Length));
-                
+
                 yield return null;
             }
         }
@@ -972,7 +978,8 @@ namespace QuizCanners.Utils {
             return (ind == -1 || ind > name.Length - 2) ? name : name.Substring(ind + 1);
         }
 
-        public static string ToElipsisString(this string text, int maxLength) {
+        public static string ToElipsisString(this string text, int maxLength)
+        {
 
             if (text == null)
                 return "null";
@@ -982,14 +989,14 @@ namespace QuizCanners.Utils {
             if (index > 10)
                 text = text.Substring(0, index);
 
-            if (text.Length < (maxLength+3))
+            if (text.Length < (maxLength + 3))
                 return text;
 
             return text.Substring(0, maxLength) + "…";
 
         }
 
-        public static bool SameAs(this string s, string other) => s?.Equals(other) ?? other==null;
+        public static bool SameAs(this string s, string other) => s?.Equals(other) ?? other == null;
 
         public static bool IsSubstringOf(this string text, string biggerText,
             RegexOptions opt = RegexOptions.IgnoreCase)
@@ -1003,24 +1010,24 @@ namespace QuizCanners.Utils {
             }
             catch (Exception ex)
             {
-                QcUnity.ChillLogger.LogErrorOnce(()=> "Is Substring of({0} -> {1}) Error {2}".F(text, biggerText, ex.ToString()), key: text);
+                QcUnity.ChillLogger.LogErrorOnce(() => "Is Substring of({0} -> {1}) Error {2}".F(text, biggerText, ex.ToString()), key: text);
             }
-            
+
             return false;
         }
 
         public static string RemoveAssetsPart(string s)
         {
             var ind = s.IndexOf("Assets", StringComparison.Ordinal);
-            
+
             if (ind == 0 || ind == 1) return s.Substring(6 + ind);
-            
+
             return ind > 1 ? s.Substring(0, ind) : s;
         }
-        
+
         public static string RemoveFirst(string name, int index) =>
             name.Substring(index, name.Length - index);
-        
+
         public static int FindMostSimilarFrom(string s, string[] t)
         {
             var mostSimilar = -1;
@@ -1054,27 +1061,28 @@ namespace QuizCanners.Utils {
             // Step 1
             if (n == 0)
                 return m;
-            
+
 
             if (m == 0)
                 return n;
-            
+
 
             // Step 2
-            for (var i = 0; i <= n; d[i, 0] = i++){ }
+            for (var i = 0; i <= n; d[i, 0] = i++) { }
 
             for (var j = 0; j <= m; d[0, j] = j++) { }
 
             // Step 3
-            for (var i = 1; i <= n; i++)  
-                for (var j = 1; j <= m; j++) {
+            for (var i = 1; i <= n; i++)
+                for (var j = 1; j <= m; j++)
+                {
                     var cost = (t[j - 1] == s[i - 1]) ? 0 : 1;
-                    
+
                     d[i, j] = Math.Min(
                         Math.Min(d[i - 1, j] + 1, d[i, j - 1] + 1),
                         d[i - 1, j - 1] + cost);
                 }
-            
+
             return d[n, m];
         }
 
@@ -1083,9 +1091,9 @@ namespace QuizCanners.Utils {
         #endregion
 
         public static bool IsDefaultOrNull<T>(T obj) => (obj == null) || EqualityComparer<T>.Default.Equals(obj, default);
-        
+
         public static float RoundTo(this float val, int digits) => (float)Math.Round(val, digits);
-        
+
         public static void SetMaximumLength<T>(List<T> list, int length)
         {
             while (list.Count > length)
@@ -1099,7 +1107,7 @@ namespace QuizCanners.Utils {
             list.Add(item);
             return item;
         }
-        
+
         public static int CharToInt(this char c) => c - '0';
 
         #region Type MGMT
@@ -1124,11 +1132,11 @@ namespace QuizCanners.Utils {
         {
 
             foreach (var t in collection)
-                if (t!= null && t.GetType() == type) return true;
+                if (t != null && t.GetType() == type) return true;
 
             return false;
         }
-        
+
         public static List<List<Type>> GetAllChildTypesOf(List<Type> baseTypes)
         {
             var types = new List<List<Type>>();
@@ -1138,7 +1146,7 @@ namespace QuizCanners.Utils {
             foreach (var type in Assembly.GetAssembly(baseTypes[0]).GetTypes())
             {
                 if (!type.IsClass || type.IsAbstract) continue;
-                
+
                 for (var i = 0; i < baseTypes.Count; i++)
                     if (type.IsSubclassOf(baseTypes[i]) && (type != baseTypes[i]))
                     {
@@ -1150,18 +1158,17 @@ namespace QuizCanners.Utils {
         }
         #endregion
 
-       /* public static bool SameAs<T>(this T ind, T other) where T : SafeIndexBase
-        {
-            if (ind == null && other == null)
-                return true;
+        /* public static bool SameAs<T>(this T ind, T other) where T : SafeIndexBase
+         {
+             if (ind == null && other == null)
+                 return true;
 
-            if (ind == null || other == null)
-                return false;
+             if (ind == null || other == null)
+                 return false;
 
-            return ind.index == other.index && (ind.GetType() == other.GetType());
-        }*/
+             return ind.index == other.index && (ind.GetType() == other.GetType());
+         }*/
 
     }
-
-
 }
+
