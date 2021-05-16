@@ -1904,7 +1904,7 @@ namespace QuizCanners.Inspect
                 lst.enter_Inspect_AsList(ref entered, current, label).changes_Internal(ref changed);
             else
             {
-                var pgi = QcUnity.TryGet_fromObj<IPEGI>(obj);
+                var pgi = QcUnity.TryGetInterfaceFrom<IPEGI>(obj);
 
                 if (isConditionally_Entered(pgi != null, ref entered, current, exitLabel: showLabelIfEntered ? label : ""))
                     pgi.Nested_Inspect().changes_Internal(ref changed);

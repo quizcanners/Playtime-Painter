@@ -491,7 +491,7 @@ namespace QuizCanners.CfgDecode
 
         public CfgEncoder TryAdd<T>(string tag, T obj) {
 
-            var objStd = QcUnity.TryGet_fromObj<ICfg>(obj); 
+            var objStd = QcUnity.TryGetInterfaceFrom<ICfg>(obj); 
             return (objStd != null) ? Add(tag, objStd) : this;
         }
 

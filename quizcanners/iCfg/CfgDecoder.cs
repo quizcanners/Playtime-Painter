@@ -5,11 +5,7 @@ using UnityEngine;
 
 namespace QuizCanners.CfgDecode
 {
-
-
-#pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching
-#pragma warning disable IDE0018 // Inline variable declaration
 
     public static class CfgDecoderExtensions {
 
@@ -103,6 +99,12 @@ namespace QuizCanners.CfgDecode
 
         public T DecodeTagsFor<T>(T std) where T : class, ICfg
         {
+
+            if (std == null) 
+            {
+                Debug.LogWarning("Decode Target is Null");
+                return std;
+            }
 
             if (_ignoreErrors)
             {
@@ -229,6 +231,4 @@ namespace QuizCanners.CfgDecode
 
 }
 
-#pragma warning restore IDE0034 // Simplify 'default' expression
 #pragma warning restore IDE0019 // Use pattern matching
-#pragma warning restore IDE0018 // Inline variable declaration

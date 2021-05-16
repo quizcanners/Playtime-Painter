@@ -12,11 +12,8 @@ namespace PlaytimePainter {
 
     [ExecuteInEditMode]
     [Serializable]
-    public class VolumeTexture : PainterSystemMono, IGotName
+    public class VolumeTexture : MonoBehaviour, IGotName, IPEGI
     {
-
-        public bool setForGlobal;
-
         public static List<VolumeTexture> all = new List<VolumeTexture>();
 
         private static int _tmpWidth = 1024;
@@ -87,8 +84,6 @@ namespace PlaytimePainter {
             }
         }
 
-        public List<Material> materials;
-
         public string NameForPEGI
         {
             get { return name; }
@@ -113,32 +108,21 @@ namespace PlaytimePainter {
                 var pos = transform.position / scaledChunks;
                 pos = Vector3Int.FloorToInt(pos);
                 pos *= scaledChunks;
-                    
-                return pos.ToVector4(1f / size);
+
+                var posSize = pos.ToVector4(1f / size);
+
+                PositionAndScaleProperty.SetGlobal(posSize);
+
+                return posSize;
             }
         }
 
         public Vector4 Slices4Shader {
             get {
-                float w = ((ImageMeta?.width ?? (TexturesPool.inst ? TexturesPool.inst.width : _tmpWidth)) - hSlices * 2) / hSlices;
+                float w = ((ImageMeta?.width ?? (TexturesPool.inst ? TexturesPool.inst.width : _tmpWidth)) //- hSlices * 2
+                    ) / hSlices;
                 return new Vector4(hSlices, w * 0.5f, 1f / w, 1f / hSlices);
             }
-        }
-
-        public virtual bool NeedsToManageMaterials => true;
-
-        public virtual void AddIfNew(PlaytimePainter p) => AddIfNew(p.Material);
-
-        private bool AddIfNew(Material mat)
-        {
-            if (materials.Contains(mat)) return false;
-            
-            materials.Add(mat);
-            
-            if (NeedsToManageMaterials)
-                UpdateMaterials();
-
-            return true;
         }
 
         private void UpdateImageMeta()
@@ -146,42 +130,36 @@ namespace PlaytimePainter {
             if (ImageMeta == null)
                 return;
             ImageMeta.isAVolumeTexture = true;
-            //ImageMeta.Rename(name + hSlices);
-        }
-
-        protected virtual void OnBecomeActive()
-        {
-
         }
 
         #region Inspect
 
-        private bool _searchedForPainter;
         [SerializeField] private PlaytimePainter _painter;
-
+        private bool _searchedForPainter;
         protected int inspectedElement = -1;
-
         protected int inspectedMaterial = -1;
 
         protected virtual bool VolumeDocumentation()
         {
-            "Volumes are 2D Textures that are used as".writeBig();
+            "In this context Volumes are Textures2D and RenderTextures that are used as".writeBig();
             " 3D Textures ".ClickLink("https://docs.unity3d.com/Manual/class-Texture3D.html").nl();
-               ("But 3D Textures are not supported on most mobile devices. That is why this trick with Texture2D is used " +
+               ("3D Textures are not supported on most mobile devices. That is why this trick with Texture2D is used " +
                 " The texture is sampled using World Space Position. Currently I implemented it to use only one volume per scene." +
                 " It will use global shader parameters to set all the values. This makes it easier to manage." +
-                " But there is no reason why many volumes can't be used in a scene.").writeBig();
-
-
+                " But there is no reason why many volumes can't be used in a scene with proper material manager.").writeBig();
 
             return false;
         }
         
-       public override void Inspect()
+        public virtual void Inspect()
         {
             var changed = pegi.ChangeTrackStart();
-            
+
+            pegi.nl();
+
             pegi.toggleDefaultInspector(this);
+
+            pegi.FullWindow.DocumentationClickOpen(VolumeDocumentation);
 
             if (_textureInShaderr != null)
             {
@@ -211,7 +189,6 @@ namespace PlaytimePainter {
                 }
 
                 pegi.nl();
-
             }
             else
             {
@@ -238,12 +215,10 @@ namespace PlaytimePainter {
                 pegi.nl();
             }
 
-            pegi.FullWindow.DocumentationClickOpen(VolumeDocumentation);
+          
 
             if (inspectedElement == -1)
             {
-                "Also set for Global shader parameters".toggleIcon(ref setForGlobal).nl();
-                
                 "Position chunks".edit(ref changePositionOnOffset);
 
                 pegi.FullWindow
@@ -259,15 +234,11 @@ namespace PlaytimePainter {
                 var n = NameForPEGI;
                 if ("Name".editDelayed(50, ref n).nl())
                     NameForPEGI = n;
+               
+                PositionAndScaleProperty.NameForDisplayPEGI().write_ForCopy().nl();
+
+                SlicesShadeProperty.NameForDisplayPEGI().write_ForCopy().nl();
                 
-                if (setForGlobal)
-                {
-                    "FOR GLOBAL ONLY:".nl();
-
-                    PositionAndScaleProperty.NameForDisplayPEGI().write_ForCopy().nl();
-
-                    SlicesShadeProperty.NameForDisplayPEGI().write_ForCopy().nl();
-                }
 
                 if (tex == null)
                     ImageMeta = null;
@@ -316,20 +287,8 @@ namespace PlaytimePainter {
                 pegi.nl();
             }
 
-            if ("Materials [{0}]".F(materials.Count).isEntered(ref inspectedElement, 2).nl_ifFoldedOut()) {
-
-                "Materials".edit_List_UObj(materials, ref inspectedMaterial);
-
-                if (inspectedMaterial == -1 && InspectedPainter)
-                {
-                    var pMat = InspectedPainter.Material;
-                    if (pMat != null && materials.Contains(pMat) && "Remove This Material".Click().nl())
-                        materials.Remove(pMat);
-                }
-            }
-
             if (changed || icon.Refresh.Click("Update Materials"))
-                UpdateMaterials();
+                UpdateShaderVariables();
 
             pegi.nl();
 
@@ -337,55 +296,42 @@ namespace PlaytimePainter {
         
         #endregion
 
-        public virtual void UpdateMaterials() {
-            
-            materials.SetVolumeTexture(this);
-
-            if (!setForGlobal) return;
-
-            if (PositionAndScaleProperty.GlobalValue != PosSize4Shader)
-            {
-               // Debug.Log("Updating pos n shader during move " +Time.frameCount );
-                PositionAndScaleProperty.SetGlobal(PosSize4Shader);
-            }
-
+        public virtual void UpdateShaderVariables() {
             SlicesShadeProperty.SetGlobal(Slices4Shader);
             TextureInShaderProperty.SetGlobal(ImageMeta.CurrentTexture());
-            
+            PositionAndScaleProperty.SetGlobal(PosSize4Shader);
         }
 
         private Vector3 _previousWorldPosition = Vector3.zero;
 
         private Texture _previousTarget;
 
-        public virtual void LateUpdate()
+        public void Update()
         {
+            bool needsUpdate = false;
 
             var currentTexture = ImageMeta.CurrentTexture();
 
             if (currentTexture != _previousTarget)
             {
                 _previousTarget = currentTexture;
-
-                UpdateMaterials();
+                needsUpdate = true;
             }
 
-            if (_previousWorldPosition == transform.position)
-                return;
+            if (_previousWorldPosition != transform.position)
+            {
+                _previousWorldPosition = transform.position;
+                needsUpdate = true;
+            }
             
-            _previousWorldPosition = transform.position;
-            
-            UpdateMaterials();
+            if (needsUpdate)
+                UpdateShaderVariables();
         }
 
         public virtual void OnEnable()
         {
-            if (materials == null)
-                materials = new List<Material>();
-
             all.Add(this);
-
-            UpdateMaterials();
+            UpdateShaderVariables();
         }
 
         public virtual void OnDisable()

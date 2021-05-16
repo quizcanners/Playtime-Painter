@@ -2711,16 +2711,16 @@ namespace QuizCanners.Inspect
             }
             else
             {
-                if ((QcUnity.TryGet_fromObj<IPEGI_Searchable>(obj)).SearchMatch_Internal(text, ref matched))
+                if ((QcUnity.TryGetInterfaceFrom<IPEGI_Searchable>(obj)).SearchMatch_Internal(text, ref matched))
                     return true;
 
-                if (QcUnity.TryGet_fromObj<IGotName>(obj).SearchMatch_Internal(text, ref matched))
+                if (QcUnity.TryGetInterfaceFrom<IGotName>(obj).SearchMatch_Internal(text, ref matched))
                     return true;
 
-                if (QcUnity.TryGet_fromObj<IGotDisplayName>(obj).SearchMatch_Internal(text, ref matched))
+                if (QcUnity.TryGetInterfaceFrom<IGotDisplayName>(obj).SearchMatch_Internal(text, ref matched))
                     return true;
 
-                if (QcUnity.TryGet_fromObj<INeedAttention>(obj).SearchMatch_Internal(text, ref matched))
+                if (QcUnity.TryGetInterfaceFrom<INeedAttention>(obj).SearchMatch_Internal(text, ref matched))
                     return true;
 
                 if (obj.ToString().SearchMatch_Internal(text, ref matched))

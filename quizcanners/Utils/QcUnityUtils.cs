@@ -507,7 +507,7 @@ namespace QuizCanners.Utils {
             return go;
         }
 
-        public static T TryGet_fromObj<T>(object obj) where T : class
+        public static T TryGetInterfaceFrom<T>(object obj) where T : class
         {
 
             if (IsNullOrDestroyed_Obj(obj))

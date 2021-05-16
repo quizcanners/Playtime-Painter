@@ -33,10 +33,10 @@ namespace PlaytimePainter {
 
             private float smoothing;
 
-            private static ShaderName _preview = new ShaderName("Playtime Painter/Editor/Preview/Volume");
-            private static ShaderName _brushDoubleBuffer = new ShaderName("Playtime Painter/Editor/Brush/Volume");
-            private static ShaderName _brushSingleBuffer = new ShaderName("Playtime Painter/Editor/Brush/Single Buffer/Volume");
-            private static ShaderName _brushShaderForRayTrace = new ShaderName("Playtime Painter/Editor/Brush/Volume_RayTrace");
+            private static readonly ShaderName _preview = new ShaderName("Playtime Painter/Editor/Preview/Volume");
+            private static readonly ShaderName _brushDoubleBuffer = new ShaderName("Playtime Painter/Editor/Brush/Volume");
+            private static readonly ShaderName _brushSingleBuffer = new ShaderName("Playtime Painter/Editor/Brush/Single Buffer/Volume");
+            private static readonly ShaderName _brushShaderForRayTrace = new ShaderName("Playtime Painter/Editor/Brush/Volume_RayTrace");
 
             #region Encode & Decode
 
@@ -250,8 +250,7 @@ namespace PlaytimePainter {
 
             private PaintCommand.UV delayedPaintingConfiguration;
 
-            private static ProjectorCameraConfiguration
-                rayTraceCameraConfiguration = new ProjectorCameraConfiguration();
+            private static readonly ProjectorCameraConfiguration rayTraceCameraConfiguration = new ProjectorCameraConfiguration();
 
             public bool ProjectorReady() => delayedPaintingConfiguration != null;
 
@@ -453,21 +452,7 @@ namespace PlaytimePainter {
                     if (!_exploreRayTaceCamera && PainterCamera.Data.showVolumeDetailsInPainter &&
                         (volTex.name + " " + VolumeEditingExtensions.VolumeSize(id.texture2D, volTex.hSlices))
                         .isFoldout(ref _exploreVolumeData).nl())
-                    {
-
                         volTex.Nested_Inspect();
-
-                        if (volTex.NeedsToManageMaterials)
-                        {
-                            var painterMaterial = InspectedPainter.Material;
-                            if (painterMaterial)
-                            {
-                                if (!volTex.materials.Contains(painterMaterial))
-                                    if ("Add This Material".Click().nl())
-                                        volTex.AddIfNew(p);
-                            }
-                        }
-                    }
 
                     if (!cpuBlit)
                         MsgPainter.Hardness.GetText()
@@ -550,7 +535,7 @@ namespace PlaytimePainter {
                 return false;
             }
             
-            public override void GetNonMaterialTextureNames(ref List<ShaderProperty.TextureValue> dest)
+            public override void GetNonMaterialTextureNames(ref List<TextureValue> dest)
             {
                 if (expectingAVolume && !volumeTexture)
                 {
@@ -562,7 +547,7 @@ namespace PlaytimePainter {
                     dest.Add(volumeTexture.TextureInShaderProperty);
             }
 
-            public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex)
+            public override bool GetTexture(TextureValue field, ref Texture tex)
             {
                 if (volumeTexture && field.Equals(volumeTexture.TextureInShaderProperty))
                 {
@@ -573,7 +558,7 @@ namespace PlaytimePainter {
                 return false;
             }
 
-            public override bool UpdateTilingFromMaterial(ShaderProperty.TextureValue fieldName)
+            public override bool UpdateTilingFromMaterial(TextureValue fieldName)
             {
                 if (!volumeTexture)
                     return false;
