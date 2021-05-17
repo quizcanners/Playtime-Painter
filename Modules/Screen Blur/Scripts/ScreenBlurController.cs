@@ -453,7 +453,7 @@ namespace PlaytimePainter
     }
 
 #if UNITY_EDITOR
-    [CustomEditor(typeof(ScreenBlurController))] internal class ScreenBlurControllerDrawer : PEGI_Inspector { }
+    [CustomEditor(typeof(ScreenBlurController))] internal class ScreenBlurControllerDrawer : PEGI_Inspector_Override { }
 #endif
 
 }

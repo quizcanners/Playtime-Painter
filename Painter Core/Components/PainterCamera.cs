@@ -1102,7 +1102,7 @@ namespace PlaytimePainter {
     }
 
 #if UNITY_EDITOR
-    [CustomEditor(typeof(PainterCamera))] internal class RenderTexturePainterEditor : PEGI_Inspector { }
+    [CustomEditor(typeof(PainterCamera))] internal class RenderTexturePainterEditor : PEGI_Inspector_Override { }
 #endif
 
 }

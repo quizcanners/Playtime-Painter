@@ -53,7 +53,7 @@ namespace QuizCanners.Inspect {
 
     #if UNITY_EDITOR
   
-    public abstract class PEGI_Inspector : Editor
+    public abstract class PEGI_Inspector_Override : Editor
     {
         public override void OnInspectorGUI()
         {

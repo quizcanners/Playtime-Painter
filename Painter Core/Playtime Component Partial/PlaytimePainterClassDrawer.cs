@@ -5,7 +5,7 @@ using UnityEditor;
 namespace PlaytimePainter {
 
     [CustomEditor(typeof(PlaytimePainter))]
-    internal class PlaytimePainterClassDrawer : PEGI_Inspector
+    internal class PlaytimePainterClassDrawer : PEGI_Inspector_Override
     {
 
      

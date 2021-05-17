@@ -603,7 +603,7 @@ namespace PlaytimePainter
     }
 
 #if UNITY_EDITOR
-    [CustomEditor(typeof(DepthProjectorCamera))] internal class DepthProjectorCameraDrawer : PEGI_Inspector { }
+    [CustomEditor(typeof(DepthProjectorCamera))] internal class DepthProjectorCameraDrawer : PEGI_Inspector_Override { }
 #endif
 
 }

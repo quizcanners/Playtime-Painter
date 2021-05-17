@@ -66,7 +66,7 @@ namespace PlaytimePainter
 
 
 #if UNITY_EDITOR
-    [CustomEditor(typeof(NoiseTextureMGMT))] internal class NoiseTextureMGMTDrawer : PEGI_Inspector { }
+    [CustomEditor(typeof(NoiseTextureMGMT))] internal class NoiseTextureMGMTDrawer : PEGI_Inspector_Override { }
 #endif
 
 }

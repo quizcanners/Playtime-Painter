@@ -104,7 +104,7 @@ namespace PlaytimePainter
     }
 
     #if UNITY_EDITOR
-    [CustomEditor(typeof(TexturesPool))] internal class TexturesPoolDrawer : PEGI_Inspector { }
+    [CustomEditor(typeof(TexturesPool))] internal class TexturesPoolDrawer : PEGI_Inspector_Override { }
     #endif
 
 }

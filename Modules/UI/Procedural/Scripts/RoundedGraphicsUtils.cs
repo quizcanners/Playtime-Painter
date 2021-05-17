@@ -113,7 +113,7 @@ namespace PlaytimePainter.UI
     #region Inspector override
 #if UNITY_EDITOR
     [CustomEditor(typeof(RoundedGraphic))]
-    internal class PixelPerfectShaderDrawer : PEGI_Inspector { }
+    internal class PixelPerfectShaderDrawer : PEGI_Inspector_Override { }
 #endif
     #endregion
 

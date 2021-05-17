@@ -44,6 +44,6 @@ namespace PlaytimePainter.UI
 
 
 #if UNITY_EDITOR
-        [CustomEditor(typeof(InvisibleUIGraphic))] internal class InvisibleUIGraphicDrawer : PEGI_Inspector { }
+        [CustomEditor(typeof(InvisibleUIGraphic))] internal class InvisibleUIGraphicDrawer : PEGI_Inspector_Override { }
 #endif
 }

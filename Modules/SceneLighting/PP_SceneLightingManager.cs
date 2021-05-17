@@ -315,7 +315,7 @@ namespace PlaytimePainter.Modules
 
 #if UNITY_EDITOR
     [CustomEditor(typeof(PP_SceneLightingManager))]
-internal class PlaytimePainter_SceneLightingManagerInspectorOverride : PEGI_Inspector { }
+internal class PlaytimePainter_SceneLightingManagerInspectorOverride : PEGI_Inspector_Override { }
 
 #endif
 
