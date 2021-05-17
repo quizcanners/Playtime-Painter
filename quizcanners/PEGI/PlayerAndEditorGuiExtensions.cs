@@ -57,7 +57,7 @@ namespace QuizCanners.Inspect
                 var indent = IndentLevel;
 
                 pgi.Inspect();
-                RestoreBGcolor();
+                RestoreBGColor();
 
                 IndentLevel = indent;
 
@@ -105,7 +105,7 @@ namespace QuizCanners.Inspect
 
                 pgi.Inspect();
 
-                RestoreBGcolor();
+                RestoreBGColor();
                 //RestoreBGColor();
                 //.changes(ref changed);
 

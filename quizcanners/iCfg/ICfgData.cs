@@ -7,6 +7,10 @@ using QuizCanners.Utils;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace QuizCanners.CfgDecode
 {
 
@@ -42,7 +46,7 @@ namespace QuizCanners.CfgDecode
     [Serializable]
     public struct CfgData : IPEGI
     {
-        private string _value;
+        [HideInInspector] [SerializeField] private string _value;
 
         public override string ToString() => _value;
 
@@ -57,7 +61,10 @@ namespace QuizCanners.CfgDecode
         
         public void Inspect()
         {
-            pegi.editBig(ref _value).nl();
+            pegi.CopyPaste.InspectOptionsFor(ref this);
+
+            if (_value != null)
+                "{0} characters".write();
         }
 
         private int ToIntInternal(string text)
@@ -711,7 +718,7 @@ namespace QuizCanners.CfgDecode
         #endregion
     }
 
-    #endregion
+#endregion
 
     #region Extensions
     public static class CfgExtensions {

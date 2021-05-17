@@ -355,7 +355,7 @@ namespace PlaytimePainter {
     }
 
 #if UNITY_EDITOR
-    [CustomEditor(typeof(VolumeTexture))] internal class VolumeTextureEditor : PEGI_Inspector_Mono<VolumeTexture> { }
+    [CustomEditor(typeof(VolumeTexture))] internal class VolumeTextureEditor : PEGI_Inspector { }
 #endif
 
 }

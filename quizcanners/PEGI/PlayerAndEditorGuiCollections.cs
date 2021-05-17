@@ -205,7 +205,7 @@ namespace QuizCanners.Inspect
 
                             yield return lel;
 
-                            RestoreBGcolor();
+                            RestoreBGColor();
 
                             if (Index >= _lastElementToShow)
                                 break;
@@ -219,7 +219,7 @@ namespace QuizCanners.Inspect
 
                             yield return el;
 
-                            RestoreBGcolor();
+                            RestoreBGColor();
 
                             if (Index >= _lastElementToShow)
                                 break;
@@ -279,7 +279,7 @@ namespace QuizCanners.Inspect
 
                             yield return collectionReference.ElementAt(Index);
 
-                            RestoreBGcolor();
+                            RestoreBGColor();
 
                             sectionIndex++;
                         }
@@ -1340,7 +1340,7 @@ namespace QuizCanners.Inspect
                     }
                 }
 
-                RestoreBGcolor();
+                RestoreBGColor();
 
                 if (listMeta != null)
                 {
@@ -1640,11 +1640,11 @@ namespace QuizCanners.Inspect
                         isPrevious = true;
 
                     if (listMeta != null && listMeta[ListInspectParams.showCopyPasteOptions])
-                        CopyPaste.InspectOptionsFor(el);
+                        CopyPaste.InspectOptionsFor(ref el);
                 }
             }
 
-            RestoreBGcolor();
+            RestoreBGColor();
 
             if (listMeta != null)
             {

@@ -424,6 +424,6 @@ namespace PlaytimePainter
     }
 
 #if UNITY_EDITOR
-    [CustomEditor(typeof(MergingTerrainController))] internal class MergingTerrainEditor : PEGI_Inspector_Mono<MergingTerrainController> { }
+    [CustomEditor(typeof(MergingTerrainController))] internal class MergingTerrainEditor : PEGI_Inspector { }
 #endif
 }

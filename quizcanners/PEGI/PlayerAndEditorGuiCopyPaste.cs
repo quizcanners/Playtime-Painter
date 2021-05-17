@@ -30,7 +30,7 @@ namespace QuizCanners.Inspect
                 return buff;
             }
 
-            public static bool InspectOptionsFor<T>(T el, Buffer buffer = null)
+            public static bool InspectOptionsFor<T>(ref T el, Buffer buffer = null)
             {
                 var type = typeof(T);
 

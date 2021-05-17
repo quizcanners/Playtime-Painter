@@ -384,7 +384,7 @@ namespace QuizCanners.Inspect
 
         public static bool RestoreBGColor(this bool val)
         {
-            RestoreBGcolor();
+            RestoreBGColor();
             return val;
         }
 
@@ -404,7 +404,7 @@ namespace QuizCanners.Inspect
 
         }
 
-        public static void RestoreBGcolor()
+        public static void RestoreBGColor()
         {
             if (BgColorReplaced)
                 GUI.backgroundColor = _previousBgColors[0];

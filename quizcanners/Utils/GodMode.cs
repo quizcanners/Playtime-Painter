@@ -453,6 +453,6 @@ namespace QuizCanners.Utils
     }
 
 #if UNITY_EDITOR
-[CustomEditor(typeof(GodMode))] internal class GodModeDrawer : PEGI_Inspector_Mono<GodMode> { }
+[CustomEditor(typeof(GodMode))] internal class GodModeDrawer : PEGI_Inspector { }
 #endif
 }

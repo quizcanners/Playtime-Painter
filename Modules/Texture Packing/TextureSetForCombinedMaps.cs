@@ -96,7 +96,7 @@ namespace PlaytimePainter.TexturePacking
     }
 
 #if UNITY_EDITOR
-[CustomEditor(typeof(TextureSetForCombinedMaps))] internal class TextureSetForCombinedMapsDrawer : PEGI_Inspector_SO<TextureSetForCombinedMaps> { }
+[CustomEditor(typeof(TextureSetForCombinedMaps))] internal class TextureSetForCombinedMapsDrawer : PEGI_Inspector { }
 #endif
 
 }

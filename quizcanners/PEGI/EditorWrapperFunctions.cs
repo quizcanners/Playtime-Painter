@@ -46,9 +46,6 @@ namespace QuizCanners.Inspect
 
 
 #if UNITY_EDITOR
-        public enum EditorType { Mono, ScriptableObject, Material, Unknown }
-
-        public static EditorType editorTypeForDefaultInspector = EditorType.Unknown;
 
         private static bool _lineOpen;
         private static int _selectedFold = -1;
@@ -57,6 +54,8 @@ namespace QuizCanners.Inspect
         public static SerializedObject serObj;
         private static Editor _editor;
         private static PEGI_Inspector_Material _materialEditor;
+        public static Object drawDefaultInspector;
+
 
         internal static bool IsNextFoldedOut => _selectedFold == _elementIndex-1;
         
@@ -105,13 +104,11 @@ namespace QuizCanners.Inspect
             return changed;
         }*/
 
-        public static bool Inspect<T>(Editor editor) where T : MonoBehaviour
+        public static void Inspect_MB(Editor editor) //where T : MonoBehaviour
         {
             _editor = editor;
 
-            editorTypeForDefaultInspector = EditorType.Mono;
-
-            var o = (T)editor.target;
+            MonoBehaviour o = editor.target as MonoBehaviour;
             var so = editor.serializedObject;
             inspectedTarget = editor.target;
 
@@ -162,61 +159,56 @@ namespace QuizCanners.Inspect
                 EditorUtility.SetDirty(o);
                 EditorUtility.SetDirty(go);
             }
-
-            return globChanged;
         }
 
-        public static bool Inspect_so<T>(Editor editor) where T : ScriptableObject
+        public static void Inspect_SO(Editor editor) //where T : ScriptableObject
         {
             _editor = editor;
 
-            editorTypeForDefaultInspector = EditorType.ScriptableObject;
+            var scrObj = editor.target as ScriptableObject;
 
-            if (editor.target is T == false)
+            if (!scrObj)
             {
                 start();
 
-                "Target is not {0}. Check your [CustomEditor] attribute.".F(typeof(T)).writeWarning();
+                "Target is not Scriptable Object. Check your PEGI_Inspector_OS.".writeWarning();
                 
                 end(editor.target);
 
                 editor.DrawDefaultInspector();
 
-                return false;
+                return;
             }
 
-            var o = (T)editor.target;
+           // var o = (T)editor.target;
             var so = editor.serializedObject;
             inspectedTarget = editor.target;
 
-            var pgi = o as IPEGI;
+            var pgi = scrObj as IPEGI;
             if (pgi != null)
             {
                 if (!pegi.FullWindow.ShowingPopup())
                 {
                     start(so);
                     pgi.Inspect();
-                    end(o);
+                    end(scrObj);
                 }
                 
-                return globChanged;
+                return;
             }
 
             EditorGUI.BeginChangeCheck();
             editor.DrawDefaultInspector();
             if (EditorGUI.EndChangeCheck())
             {
-                EditorUtility.SetDirty(o);
+                EditorUtility.SetDirty(scrObj);
             }
             
-            return false;
         }
 
         public static bool Inspect_Material(PEGI_Inspector_Material editor) {
             
             _materialEditor = editor;
-
-            editorTypeForDefaultInspector = EditorType.Material;
 
             ResetInspectionTarget(editor.unityMaterialEditor.target);
 
@@ -235,7 +227,7 @@ namespace QuizCanners.Inspect
         {
             var changed = false;
 
-            if (editorTypeForDefaultInspector == EditorType.Material)
+            if (target is Material)
             {
                 pegi.toggle(ref PEGI_Inspector_Material.drawDefaultInspector, icon.Exit, icon.Debug,
                     "Toggle Between regular and PEGI Material inspector", 20);
@@ -249,14 +241,14 @@ namespace QuizCanners.Inspect
 
                 if (target == inspectedUnityObject)
                 {
-                    bool isDefault = target == PEGI_UnityObjectInspector_Base.drawDefaultInspector;
+                    bool isDefault = target == drawDefaultInspector;
 
                     if (pegi.toggle(ref isDefault, icon.Exit, icon.Debug,
                         "Toggle Between regular and PEGI inspector", 20))
-                        PEGI_UnityObjectInspector_Base.drawDefaultInspector = isDefault ? target : null;
+                        drawDefaultInspector = isDefault ? target : null;
 
                     if (isDefault && "Custom Inspector".ClickLabel(style: PEGI_Styles.ExitLabel).nl())
-                        PEGI_UnityObjectInspector_Base.drawDefaultInspector = null;
+                        drawDefaultInspector = null;
                 }
                 else
                 {
@@ -281,7 +273,7 @@ namespace QuizCanners.Inspect
             globChanged = false;
         }
 
-        public static T ClearFromPooledSerializedObjects<T>(T obj) where T : Object
+        public static Object ClearFromPooledSerializedObjects(Object obj) //where T : Object
         {
             if (obj && SerializedObjects.ContainsKey(obj))
                 SerializedObjects.Remove(obj);

@@ -103,6 +103,6 @@ namespace PlaytimePainter
     }
 
 #if UNITY_EDITOR
-    [CustomEditor(typeof(ShaderEffectsManager))] internal class ShaderEffectsManagerDrawer : PEGI_Inspector_Mono<ShaderEffectsManager> { }
+    [CustomEditor(typeof(ShaderEffectsManager))] internal class ShaderEffectsManagerDrawer : PEGI_Inspector { }
 #endif
 }

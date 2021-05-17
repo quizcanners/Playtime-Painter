@@ -170,7 +170,7 @@ namespace QuizCanners.Inspect
 
                 img.Click(width);
 
-                RestoreBGcolor();
+                RestoreBGColor();
             }
         }
 
@@ -186,7 +186,7 @@ namespace QuizCanners.Inspect
 
                 SetBgColor(Color.clear);
                 img.Click(toolTip, width, width);
-                RestoreBGcolor();
+                RestoreBGColor();
             }
 
         }
@@ -224,7 +224,7 @@ namespace QuizCanners.Inspect
 
                 img.Click(toolTip, width, height);
 
-                RestoreBGcolor();
+                RestoreBGColor();
 
             }
 

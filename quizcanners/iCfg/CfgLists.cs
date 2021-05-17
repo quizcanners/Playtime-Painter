@@ -170,7 +170,7 @@ namespace QuizCanners.CfgDecode
                     SaveCurrentState();
             }
 
-            pegi.RestoreBGcolor();
+            pegi.RestoreBGColor();
         }
 
         #endregion

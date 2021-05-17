@@ -32,8 +32,6 @@ namespace QuizCanners.Inspect {
                 return;
             }
 
-            ef.editorTypeForDefaultInspector = ef.EditorType.Material;
-
             pegi.toggleDefaultInspector(materialEditor.target);
 
             DrawDefaultInspector();
@@ -53,30 +51,30 @@ namespace QuizCanners.Inspect {
 
     }
 
-
-
-#if UNITY_EDITOR
-    
-    public abstract class PEGI_UnityObjectInspector_Base  : Editor
+    #if UNITY_EDITOR
+  
+    public abstract class PEGI_Inspector : Editor
     {
-        public static Object drawDefaultInspector;
-        
-        protected abstract bool Inspect(Editor editor);
-        internal abstract ef.EditorType EditorType { get;  }
-
         public override void OnInspectorGUI()
         {
             ef.inspectedUnityObject = target;
             ef.ResetInspectionTarget(target);
 
-            if (target != drawDefaultInspector) {
-                
-                Inspect(this).RestoreBGColor();
-              
-                return;
+            if (target != ef.drawDefaultInspector)
+            {
+                if (target is MonoBehaviour)
+                {
+                    ef.Inspect_MB(this);
+                    pegi.RestoreBGColor();
+                    return;
+                }
+                else if (target is ScriptableObject)
+                {
+                    ef.Inspect_SO(this);
+                    pegi.RestoreBGColor();
+                    return;
+                }
             }
-
-            ef.editorTypeForDefaultInspector = EditorType;
 
             pegi.toggleDefaultInspector(target);
             EditorGUI.BeginChangeCheck();
@@ -86,26 +84,7 @@ namespace QuizCanners.Inspect {
                 target.SetToDirty();
             }
         }
-        
     }
-
-    public abstract class PEGI_Inspector_Mono<T> : PEGI_UnityObjectInspector_Base where T : MonoBehaviour
-    {
-        internal override ef.EditorType EditorType => ef.EditorType.Mono;
-
-        protected override bool Inspect(Editor editor) => ef.Inspect<T>(editor);
-
-    }
-
-    public abstract class PEGI_Inspector_SO<T> : PEGI_UnityObjectInspector_Base where T : ScriptableObject
-    {
-        internal override ef.EditorType EditorType => ef.EditorType.ScriptableObject;
-
-        protected override bool Inspect(Editor editor) => ef.Inspect_so<T>(editor);
-
-    }
-
-    
 
  // --------------------------------------------------------------------------------------------------------------------
  // <author>
