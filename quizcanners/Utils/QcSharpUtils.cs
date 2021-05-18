@@ -204,20 +204,29 @@ namespace QuizCanners.Utils
                 sb.AppendIfNonZero(value: span.Days / daysInYear, span.TotalDays / daysInYear, suffix: "y", last: false)
                   .AppendIfNonZero(value: span.Days, span.TotalDays, suffix: "d", last: true);
             }
-            if (span.TotalDays > 0)
+            if (span.TotalDays >= 1)
             {
                 sb.AppendIfNonZero(value: span.Days, span.TotalDays, suffix: "d", last: false)
                   .AppendIfNonZero(value: span.Hours, span.TotalHours, suffix: "h", last: true);
             }
-            else if (span.TotalHours > 0)
+            else if (span.TotalHours >=1 )
             {
                 sb.AppendIfNonZero(value: span.Hours, span.TotalHours, suffix: "h", last: false)
                   .AppendIfNonZero(value: span.Minutes, span.TotalMinutes, suffix: "m", last: true);
             }
-            else
+            else if (span.TotalMinutes >=1 )
             {
                 sb.AppendIfNonZero(value: span.Minutes, span.TotalMinutes, suffix: "m", last: false)
                   .AppendIfNonZero(value: span.Seconds, span.TotalSeconds, suffix: "s", last: true);
+            }
+            else if (span.TotalSeconds >= 1)
+            {
+                sb.AppendIfNonZero(value: span.Seconds, span.TotalSeconds, suffix: "s", last: false)
+                  .AppendIfNonZero(value: span.Milliseconds, span.TotalMilliseconds, suffix: "ms", last: true);
+            } else //if (span.TotalMilliseconds >= 1) 
+            {
+                sb.AppendIfNonZero(value: span.Milliseconds, span.TotalMilliseconds, suffix: "mss", last: false)
+                .AppendIfNonZero(value: 0, span.Ticks, suffix: "ticks", last: true);
             }
 
             return sb.ToString();
@@ -227,7 +236,7 @@ namespace QuizCanners.Utils
         {
             if (sb.Length == 0)
             {
-                value = totalValue; // Use Full value if no previous
+                value = Math.Floor(totalValue); // Use Full value if no previous
             }
 
             if (last && value == 0 && sb.Length == 0)

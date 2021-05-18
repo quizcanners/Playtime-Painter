@@ -54,13 +54,13 @@ namespace QuizCanners.Utils
 
         public static SerializableTimeSpan operator +(SerializableTimeSpan thisOne, TimeSpan toAdd)
         {
-            thisOne._ticks += toAdd.Ticks;
+            thisOne.Value += toAdd;
             return thisOne;
         }
 
         public static SerializableTimeSpan operator -(SerializableTimeSpan thisOne, TimeSpan toSubtract)
         {
-            thisOne._ticks -= toSubtract.Ticks;
+            thisOne.Value -= toSubtract;
             return thisOne;
         }
 

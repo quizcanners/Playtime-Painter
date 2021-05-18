@@ -147,7 +147,7 @@ namespace QuizCanners.Utils
             transform.position = campos;
             if (!orbitingFocused)
             {
-                camTr.localRotation = camTr.localRotation.LerpBySpeed(rot2, 200);
+                camTr.localRotation = LerpUtils.LerpBySpeed(camTr.localRotation, rot2, 200);
                 if (Quaternion.Angle(camTr.localRotation, rot2) < 1)
                     orbitingFocused = true;
             }
@@ -235,7 +235,7 @@ namespace QuizCanners.Utils
 
             operatorTf.localPosition += mainCameraVelocity * Time.deltaTime;
 
-            operatorTf.localRotation = operatorTf.localRotation.LerpBySpeed(Quaternion.identity, 160);
+            operatorTf.localRotation = LerpUtils.LerpBySpeed(operatorTf.localRotation, Quaternion.identity, 160);
 
             if (!Application.isPlaying || _disableRotation) return;
 
