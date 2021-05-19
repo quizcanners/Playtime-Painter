@@ -126,6 +126,8 @@ namespace QuizCanners.Inspect
                 {
                     var isPrefab = PrefabUtility.IsPartOfAnyPrefab(o);
 
+                    pegi.toggleDefaultInspector(o);
+
                     var change = pegi.ChangeTrackStart();
 
                     pgi.Inspect();
@@ -190,6 +192,8 @@ namespace QuizCanners.Inspect
                 if (!pegi.FullWindow.ShowingPopup())
                 {
                     start(so);
+
+                    pegi.toggleDefaultInspector(scrObj);
                     pgi.Inspect();
                     end(scrObj);
                 }
@@ -227,13 +231,17 @@ namespace QuizCanners.Inspect
         {
             var changed = false;
 
+            const string BACK_TO_CUSTOM = "Back to Custom Inspector";
+            const int ICON_SIZE_FOR_DEFAULT = 30;
+            const int ICON_SIZE_FOR_CUSTOM = 20;
+
             if (target is Material)
             {
                 pegi.toggle(ref PEGI_Inspector_Material.drawDefaultInspector, icon.Exit, icon.Debug,
-                    "Toggle Between regular and PEGI Material inspector", 20);
+                    "Toggle Between regular and PEGI Material inspector", PEGI_Inspector_Material.drawDefaultInspector ? ICON_SIZE_FOR_DEFAULT : ICON_SIZE_FOR_CUSTOM);
 
                 if (PEGI_Inspector_Material.drawDefaultInspector &&
-                    "Custom Inspector".ClickLabel(style: PEGI_Styles.ExitLabel).nl())
+                    BACK_TO_CUSTOM.ClickLabel(style: PEGI_Styles.ExitLabel).nl())
                     PEGI_Inspector_Material.drawDefaultInspector = false;
             }
             else
@@ -244,10 +252,10 @@ namespace QuizCanners.Inspect
                     bool isDefault = target == drawDefaultInspector;
 
                     if (pegi.toggle(ref isDefault, icon.Exit, icon.Debug,
-                        "Toggle Between regular and PEGI inspector", 20))
+                        "Toggle Between regular and PEGI inspector", isDefault ? ICON_SIZE_FOR_DEFAULT : ICON_SIZE_FOR_CUSTOM))
                         drawDefaultInspector = isDefault ? target : null;
 
-                    if (isDefault && "Custom Inspector".ClickLabel(style: PEGI_Styles.ExitLabel).nl())
+                    if (isDefault && BACK_TO_CUSTOM.ClickLabel(style: PEGI_Styles.ExitLabel).nl())
                         drawDefaultInspector = null;
                 }
                 else

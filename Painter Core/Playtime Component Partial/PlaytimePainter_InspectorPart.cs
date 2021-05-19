@@ -461,7 +461,7 @@ namespace PlaytimePainter
 
                         var painterNotUiOrPlaying = Application.isPlaying || !IsUiGraphicPainter;
 
-                        if (!LockTextureEditing && painterNotUiOrPlaying && !texMeta.errorWhileReading)
+                        if (!TextureEditingBlocked && painterNotUiOrPlaying && !texMeta.errorWhileReading)
                         {
                             if (texMeta.ProcessEnumerator != null)
                             {
@@ -876,13 +876,7 @@ namespace PlaytimePainter
                                         texMeta.From(texMeta.texture2D, true);
 
                                 }
-                                else if (pegi.toggle(ref texMeta.lockEditing, icon.Lock, icon.Unlock,
-                                    "Lock/Unlock editing of {0} Texture.".F(texMeta.GetNameForInspector()), 25))
-                                {
-                                    CheckPreviewShader();
-                                    if (LockTextureEditing)
-                                        UpdateOrSetTexTarget(TexTarget.Texture2D);
-                                }
+                               
                             }
 
                             tex = GetTextureOnMaterial();
@@ -998,7 +992,7 @@ namespace PlaytimePainter
 
                             #region Texture Saving/Loading
 
-                            if (!LockTextureEditing)
+                            if (!TextureEditingBlocked)
                             {
                                 pegi.nl();
                                 if (!IsTerrainControlTexture)
@@ -1173,7 +1167,7 @@ namespace PlaytimePainter
 
             var br = GlobalBrush;
 
-            if (NotUsingPreview && !LockTextureEditing && _lastMouseOverObject == this && IsCurrentTool &&
+            if (NotUsingPreview && !TextureEditingBlocked && _lastMouseOverObject == this && IsCurrentTool &&
                 Is3DBrush() && br.showingSize && !Cfg.showConfig)
                 Gizmos.DrawWireSphere(stroke.posTo, br.Size(true) * 0.5f
                 );

@@ -4,9 +4,6 @@ using QuizCanners.Inspect;
 using PlaytimePainter.ComponentModules;
 using QuizCanners.Utils;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace PlaytimePainter {
 
@@ -156,8 +153,6 @@ namespace PlaytimePainter {
             var changed = pegi.ChangeTrackStart();
 
             pegi.nl();
-
-            pegi.toggleDefaultInspector(this);
 
             pegi.FullWindow.DocumentationClickOpen(VolumeDocumentation);
 
@@ -354,8 +349,8 @@ namespace PlaytimePainter {
 
     }
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(VolumeTexture))] internal class VolumeTextureEditor : PEGI_Inspector_Override { }
-#endif
+
+    [PEGI_Inspector_Override(typeof(VolumeTexture))] internal class VolumeTextureEditor : PEGI_Inspector_Override { }
+
 
 }

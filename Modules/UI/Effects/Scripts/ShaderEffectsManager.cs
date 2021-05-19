@@ -1,13 +1,8 @@
 using QuizCanners.Inspect;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using QuizCanners.Utils;
 using QuizCanners.Lerp;
 using static QuizCanners.Utils.ShaderProperty;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace PlaytimePainter
 {
@@ -102,7 +97,7 @@ namespace PlaytimePainter
         }
     }
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(ShaderEffectsManager))] internal class ShaderEffectsManagerDrawer : PEGI_Inspector_Override { }
-#endif
+
+    [PEGI_Inspector_Override(typeof(ShaderEffectsManager))] internal class ShaderEffectsManagerDrawer : PEGI_Inspector_Override { }
+
 }

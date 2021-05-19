@@ -3,9 +3,6 @@ using System.Collections.Generic;
 using QuizCanners.Inspect;
 using QuizCanners.Utils;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace PlaytimePainter
 {
@@ -89,8 +86,7 @@ namespace PlaytimePainter
 
        public override void Inspect()
         {
-          
-            pegi.toggleDefaultInspector(this);
+            pegi.nl();
 
             "Data (Non Color) Texture".toggleIcon(ref nonColorData).nl();
 
@@ -99,13 +95,12 @@ namespace PlaytimePainter
             "Render Textures".edit_List_UObj(_rtList).nl();
 
             "Size:".selectPow2(ref width, 16, 4096).nl();
-
         }
     }
 
-    #if UNITY_EDITOR
-    [CustomEditor(typeof(TexturesPool))] internal class TexturesPoolDrawer : PEGI_Inspector_Override { }
-    #endif
+
+    [PEGI_Inspector_Override(typeof(TexturesPool))] internal class TexturesPoolDrawer : PEGI_Inspector_Override { }
+
 
 }
 

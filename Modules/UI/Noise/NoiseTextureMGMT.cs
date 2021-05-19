@@ -1,9 +1,6 @@
 ﻿using QuizCanners.Inspect;
 using UnityEngine;
 using static QuizCanners.Utils.ShaderProperty;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace PlaytimePainter
 {
@@ -35,8 +32,6 @@ namespace PlaytimePainter
         {
             var changed = pegi.ChangeTrackStart();
 
-            pegi.toggleDefaultInspector(this);
-
             pegi.FullWindow.DocumentationClickOpen("This component will set noise texture as a global parameter. Using texture is faster then generating noise in shader.", "About Noise Texture Manager");
 
             pegi.nl();
@@ -65,8 +60,8 @@ namespace PlaytimePainter
     }
 
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(NoiseTextureMGMT))] internal class NoiseTextureMGMTDrawer : PEGI_Inspector_Override { }
-#endif
+
+    [PEGI_Inspector_Override(typeof(NoiseTextureMGMT))] internal class NoiseTextureMGMTDrawer : PEGI_Inspector_Override { }
+
 
 }

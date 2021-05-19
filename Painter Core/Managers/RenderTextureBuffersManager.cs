@@ -660,7 +660,7 @@ namespace PlaytimePainter {
             if (painter.meshEditing)
                 return MeshEditorManager.target == painter && PainterCamera.Data.MeshTool.ShowGrid;
 
-            if (!PlaytimePainter.IsCurrentTool || painter.LockTextureEditing || PainterCamera.Data.showConfig)
+            if (!PlaytimePainter.IsCurrentTool || painter.TextureEditingBlocked || PainterCamera.Data.showConfig)
                 return false;
 
             return painter.GlobalBrushType.NeedsGrid;

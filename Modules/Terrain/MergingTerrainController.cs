@@ -5,9 +5,6 @@ using QuizCanners.Inspect;
 using QuizCanners.Utils;
 using UnityEngine;
 using UnityEngine.Serialization;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace PlaytimePainter
 {
@@ -79,9 +76,9 @@ namespace PlaytimePainter
         private int inspectedElement = -1;
         public void Inspect()
         {
-            var changed = pegi.toggleDefaultInspector(this);
-
             pegi.nl();
+
+            var changed = pegi.ChangeTrackStart();
 
             if ("Merge Sub Masks".edit_List(mergeSubMasks, ref inspectedElement).nl())
             {
@@ -423,7 +420,7 @@ namespace PlaytimePainter
 
     }
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(MergingTerrainController))] internal class MergingTerrainEditor : PEGI_Inspector_Override { }
-#endif
+
+    [PEGI_Inspector_Override(typeof(MergingTerrainController))] internal class MergingTerrainEditor : PEGI_Inspector_Override { }
+
 }

@@ -8,10 +8,6 @@
 using System;
 using UnityEngine;
 
-#if UNITY_EDITOR    // To make sure that Unity will build our script, we exclude Unity Editor classes from the code.
-using UnityEditor;  // This is only needed if you actually want to override Unity's inspector (See [CustomEditor] declaration at the very bottom).
-#endif              // The alternative is to Inspect this object from inspector of another object.
-
 namespace QuizCanners.Inspect.Examples
 {
 
@@ -43,7 +39,6 @@ namespace QuizCanners.Inspect.Examples
         {
             if (_selectedMenuOption == -1)
             {
-                pegi.toggleDefaultInspector(target: this); "<---- use this to see default inspector".nl();
                 pegi.nl();
 
                 "PEGI MAIN MENU".nl(style: PEGI_Styles.ListLabel);
@@ -131,8 +126,5 @@ namespace QuizCanners.Inspect.Examples
 
     }
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(InspectEXAMPLE_DOC))] internal class InspectEXAMPLE_DOCDrawer : PEGI_Inspector_Override { }
-#endif
-
+    [PEGI_Inspector_Override(typeof(InspectEXAMPLE_DOC))] internal class InspectEXAMPLE_DOCDrawer : PEGI_Inspector_Override { }
 }

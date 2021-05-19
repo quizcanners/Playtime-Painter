@@ -51,7 +51,7 @@ namespace PlaytimePainter
 
         public static bool AllowEditing(PlaytimePainter targetPainter) =>
             targetPainter && (Application.isPlaying || !targetPainter.IsUiGraphicPainter) &&
-            (!targetPainter.LockTextureEditing || targetPainter.IsEditingThisMesh);
+            (!targetPainter.TextureEditingBlocked || targetPainter.IsEditingThisMesh);
 
         public static void OnSceneGuiCombined() {
          

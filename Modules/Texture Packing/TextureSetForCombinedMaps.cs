@@ -2,10 +2,6 @@ using QuizCanners.Inspect;
 using QuizCanners.Utils;
 using UnityEngine;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 namespace PlaytimePainter.TexturePacking
 {
     [CreateAssetMenu(fileName = FILE_NAME, menuName = "Playtime Painter/" + FILE_NAME)]
@@ -95,8 +91,8 @@ namespace PlaytimePainter.TexturePacking
         #endregion
     }
 
-#if UNITY_EDITOR
-[CustomEditor(typeof(TextureSetForCombinedMaps))] internal class TextureSetForCombinedMapsDrawer : PEGI_Inspector_Override { }
-#endif
+
+[PEGI_Inspector_Override(typeof(TextureSetForCombinedMaps))] internal class TextureSetForCombinedMapsDrawer : PEGI_Inspector_Override { }
+
 
 }

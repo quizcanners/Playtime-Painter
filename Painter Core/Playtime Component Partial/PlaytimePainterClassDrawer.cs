@@ -1,10 +1,9 @@
 ﻿#if UNITY_EDITOR
 using QuizCanners.Inspect;
-using UnityEditor;
 
 namespace PlaytimePainter {
 
-    [CustomEditor(typeof(PlaytimePainter))]
+    [PEGI_Inspector_Override(typeof(PlaytimePainter))]
     internal class PlaytimePainterClassDrawer : PEGI_Inspector_Override
     {
 

@@ -3,10 +3,6 @@ using QuizCanners.Inspect;
 using QuizCanners.CfgDecode;
 using QuizCanners.Lerp;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 namespace QuizCanners.Utils
 {
 
@@ -320,11 +316,6 @@ namespace QuizCanners.Utils
         #region Inspector
         public void Inspect()
         {
-
-            pegi.toggleDefaultInspector(this);
-
-
-
             switch (mode)
             {
                 case Mode.FPS:
@@ -452,7 +443,6 @@ namespace QuizCanners.Utils
         #endregion
     }
 
-#if UNITY_EDITOR
-[CustomEditor(typeof(GodMode))] internal class GodModeDrawer : PEGI_Inspector_Override { }
-#endif
+[PEGI_Inspector_Override(typeof(GodMode))] internal class GodModeDrawer : PEGI_Inspector_Override { }
+
 }

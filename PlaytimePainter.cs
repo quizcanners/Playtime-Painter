@@ -321,7 +321,7 @@ namespace PlaytimePainter
 
             _lastMouseOverObject = this;
 
-            if (LockTextureEditing)
+            if (TextureEditingBlocked)
                 return "Texture Editing Locked";
 
             if (!enabled)
@@ -457,7 +457,7 @@ namespace PlaytimePainter
         {
             if (MatDta == null)
                 return;
-            if (!IsCurrentTool || (LockTextureEditing && !IsEditingThisMesh))
+            if (!IsCurrentTool || (TextureEditingBlocked && !IsEditingThisMesh))
                 SetOriginalShaderOnThis();
             else if (MatDta.usePreviewShader && NotUsingPreview)
                 SetPreviewShader();
@@ -713,7 +713,7 @@ namespace PlaytimePainter
 
         private void ReEnableRenderTexture()
         {
-            if (LockTextureEditing) return;
+            if (TextureEditingBlocked) return;
 
             OnEnable();
 
@@ -1430,19 +1430,14 @@ namespace PlaytimePainter
 
         #region COMPONENT MGMT 
 
-        public bool LockTextureEditing
+        public bool TextureEditingBlocked
         {
             get
             {
                 if (meshEditing || !TexMgmt)
                     return true;
                 var i = TexMeta;
-                return i == null || i.lockEditing || i.other;
-            }
-            set
-            {
-                var i = TexMeta;
-                if (i != null) i.lockEditing = value;
+                return i == null || i.other;
             }
         }
 
@@ -1629,7 +1624,7 @@ namespace PlaytimePainter
 
             }
 
-            if ((this == TexMgmt.autodisabledBufferTarget) && (!LockTextureEditing) &&
+            if ((this == TexMgmt.autodisabledBufferTarget) && (!TextureEditingBlocked) &&
                 (!QcUnity.ApplicationIsAboutToEnterPlayMode()))
                 ReEnableRenderTexture();
 

@@ -127,8 +127,6 @@ namespace PlaytimePainter.Modules
             
             inspected = this;
 
-            pegi.toggleDefaultInspector(this);
-
             if (Application.isPlaying)
             {
                 if (enabled && "Pause".Click())
@@ -313,10 +311,9 @@ namespace PlaytimePainter.Modules
 
 
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(PP_SceneLightingManager))]
+    [PEGI_Inspector_Override(typeof(PP_SceneLightingManager))]
 internal class PlaytimePainter_SceneLightingManagerInspectorOverride : PEGI_Inspector_Override { }
 
-#endif
+
 
 }

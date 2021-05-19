@@ -4,10 +4,6 @@ using QuizCanners.Inspect;
 using QuizCanners.Utils;
 using UnityEngine;
 using QuizCanners.CfgDecode;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 
 namespace PlaytimePainter
 {
@@ -52,8 +48,6 @@ namespace PlaytimePainter
 
        public override void Inspect()
         {
-            pegi.toggleDefaultInspector(this);
-            
             if (icon.Delete.Click("Delete Projector Camera"))
                 gameObject.DestroyWhatever();
             
@@ -602,8 +596,7 @@ namespace PlaytimePainter
         }
     }
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(DepthProjectorCamera))] internal class DepthProjectorCameraDrawer : PEGI_Inspector_Override { }
-#endif
+    [PEGI_Inspector_Override(typeof(DepthProjectorCamera))] internal class DepthProjectorCameraDrawer : PEGI_Inspector_Override { }
+
 
 }

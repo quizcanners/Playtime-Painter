@@ -492,7 +492,7 @@ namespace PlaytimePainter {
             {
                 var volume = painter.TexMeta.GetVolumeTextureData();
 
-                if (volume && !painter.LockTextureEditing)
+                if (volume && !painter.TextureEditingBlocked)
                     return volume.DrawGizmosOnPainter(painter);
 
                 return false;

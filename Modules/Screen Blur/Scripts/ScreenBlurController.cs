@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using QuizCanners.Inspect;
-using QuizCanners.Lerp;
 using QuizCanners.Utils;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 using UnityEngine;
 
 namespace PlaytimePainter
@@ -300,7 +296,7 @@ namespace PlaytimePainter
 
         public void Inspect()
         {
-            var changed = pegi.toggleDefaultInspector(this).nl();
+            pegi.nl();
 
             if (!MyCamera)
             {
@@ -452,8 +448,7 @@ namespace PlaytimePainter
         }
     }
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(ScreenBlurController))] internal class ScreenBlurControllerDrawer : PEGI_Inspector_Override { }
-#endif
+    [PEGI_Inspector_Override(typeof(ScreenBlurController))] internal class ScreenBlurControllerDrawer : PEGI_Inspector_Override { }
+
 
 }

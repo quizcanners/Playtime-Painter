@@ -906,9 +906,7 @@ namespace PlaytimePainter {
 
             if ("Painter Camera".isEntered(ref _inspectedStuff, 1))
                 DependenciesInspect(true);
-            else if (_inspectedStuff == -1)
-                pegi.toggleDefaultInspector(this);
-
+          
             pegi.nl();
 
             if ("Depth Projector Camera".isEntered(ref _inspectedStuff, 2).nl())
@@ -1101,8 +1099,8 @@ namespace PlaytimePainter {
 
     }
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(PainterCamera))] internal class RenderTexturePainterEditor : PEGI_Inspector_Override { }
-#endif
+
+    [PEGI_Inspector_Override(typeof(PainterCamera))] internal class RenderTexturePainterEditor : PEGI_Inspector_Override { }
+
 
 }

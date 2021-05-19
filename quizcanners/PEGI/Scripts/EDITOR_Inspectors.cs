@@ -4,12 +4,14 @@ using System.Linq;
 using System.Reflection;
 using QuizCanners.Utils;
 using UnityEngine;
-using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 namespace QuizCanners.Inspect {
+
+
+
 
     public abstract class PEGI_Inspector_Material
         #if UNITY_EDITOR
@@ -51,14 +53,33 @@ namespace QuizCanners.Inspect {
 
     }
 
-    #if UNITY_EDITOR
-  
+
+    public class PEGI_Inspector_OverrideAttribute :
+#if UNITY_EDITOR
+    CustomEditor
+    {
+        public PEGI_Inspector_OverrideAttribute(Type inspectedType) : base(inspectedType) { }
+    }
+
+
+#else
+    Attribute 
+     {
+        public PEGI_Inspector_OverrideAttribute(Type inspectedType)  { }
+    }
+#endif
+
+
+#if UNITY_EDITOR
+
     public abstract class PEGI_Inspector_Override : Editor
     {
         public override void OnInspectorGUI()
         {
             ef.inspectedUnityObject = target;
             ef.ResetInspectionTarget(target);
+
+           
 
             if (target != ef.drawDefaultInspector)
             {
@@ -77,6 +98,7 @@ namespace QuizCanners.Inspect {
             }
 
             pegi.toggleDefaultInspector(target);
+
             EditorGUI.BeginChangeCheck();
             DrawDefaultInspector();
             if (EditorGUI.EndChangeCheck())
@@ -262,6 +284,6 @@ namespace QuizCanners.Inspect {
     
     }
 
-#endif
+    #endif
             }
 

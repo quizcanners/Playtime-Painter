@@ -29,7 +29,6 @@ namespace PlaytimePainter
         [SerializeField] public int height = 128;
         [SerializeField] public bool useTexCoord2;
         [SerializeField] private bool _useTexCoord2AutoAssigned;
-        [SerializeField] public bool lockEditing;
         [SerializeField] public bool isATransparentLayer;
         [SerializeField] public bool enableUndoRedo;
         [SerializeField] public bool preserveTransparency = true;

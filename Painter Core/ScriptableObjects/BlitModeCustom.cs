@@ -1,8 +1,5 @@
 ﻿using QuizCanners.Inspect;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace PlaytimePainter
 {
@@ -23,8 +20,6 @@ namespace PlaytimePainter
 
         public void Inspect()
         {
-            pegi.toggleDefaultInspector(this);
-
             "Blit Mode Shader".edit(110, ref shader).nl();
 
             "Select texture to copy from".toggleIcon(ref selectSourceTexture).nl();
@@ -47,7 +42,7 @@ namespace PlaytimePainter
     }
 
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(BlitModeCustom))] internal class BlitModeCustomDrawer : PEGI_Inspector_Override { }
-#endif
+
+    [PEGI_Inspector_Override(typeof(BlitModeCustom))] internal class BlitModeCustomDrawer : PEGI_Inspector_Override { }
+
 }

@@ -712,8 +712,7 @@ namespace PlaytimePainter
 
     #endregion
 
-#if UNITY_EDITOR
-    [CustomEditor(typeof(PainterDataAndConfig))] internal class PainterDataAndConfigDrawer : PEGI_Inspector_Override { }
-#endif
+
+    [PEGI_Inspector_Override(typeof(PainterDataAndConfig))] internal class PainterDataAndConfigDrawer : PEGI_Inspector_Override { }
 
 }

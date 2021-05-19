@@ -451,8 +451,6 @@ namespace PlaytimePainter.UI
         {
             inspected = this;
 
-            pegi.toggleDefaultInspector(this);
-
             pegi.FullWindow.DocumentationClickOpen(info, "About Rounded Graphic").nl();
 
             var mat = material;
