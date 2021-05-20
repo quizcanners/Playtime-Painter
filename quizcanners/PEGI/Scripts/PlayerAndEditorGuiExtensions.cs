@@ -4,7 +4,6 @@ using QuizCanners.Utils;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using System.Collections;
-using System.Runtime.CompilerServices;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -279,7 +278,11 @@ namespace QuizCanners.Inspect
                 nl();
                 EditorGUI.BeginChangeCheck();
                 ed.DrawDefaultInspector();
-                return EditorGUI.EndChangeCheck();
+                var changed = EditorGUI.EndChangeCheck();
+                if (changed)
+                    ef.globChanged = true;
+
+                return changed;
 
             }
 #endif
@@ -295,13 +298,10 @@ namespace QuizCanners.Inspect
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
             {
-
                 var uObj = obj as Object;
 
                 if (uObj)
                 {
-
-
                     Editor ed;
                     var t = uObj.GetType();
                     if (!defaultEditors.TryGetValue(t, out ed))
@@ -316,12 +316,14 @@ namespace QuizCanners.Inspect
                     nl();
                     EditorGUI.BeginChangeCheck();
                     ed.DrawDefaultInspector();
-                    return EditorGUI.EndChangeCheck();
+                    var changed = EditorGUI.EndChangeCheck();
+                    if (changed)
+                        ef.globChanged = true;
+
+                    return changed;
                 }
             }
 #endif
-
-
 
             if (obj != null && obj is string)
             {
@@ -332,7 +334,6 @@ namespace QuizCanners.Inspect
                     return true;
                 }
             }
-
 
             return false;
 

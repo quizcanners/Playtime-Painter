@@ -1667,9 +1667,12 @@ namespace PlaytimePainter
         }
 #endif
 
+        private FrameGate frameGate = new FrameGate();
         public void ManagedUpdateOnFocused()
         {
-
+            if (!frameGate.Enter()) 
+                return;
+            
             if (this == _mouseOverPaintableGraphicElement)
             {
 

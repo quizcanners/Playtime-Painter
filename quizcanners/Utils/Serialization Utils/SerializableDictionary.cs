@@ -1,3 +1,4 @@
+using QuizCanners.Inspect;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
@@ -5,10 +6,10 @@ using UnityEngine;
 namespace QuizCanners.Utils 
 { 
     [Serializable]
-    public abstract class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver
-    {
-        [SerializeField] private List<TKey> keys = new List<TKey>();
-        [SerializeField] private List<TValue> values = new List<TValue>();
+    public abstract class SerializableDictionary<TKey, TValue> 
+        : Dictionary<TKey, TValue>, ISerializationCallbackReceiver, IPEGI  {
+        [HideInInspector][SerializeField] private List<TKey> keys = new List<TKey>();
+        [HideInInspector][SerializeField] private List<TValue> values = new List<TValue>();
 
         public void OnBeforeSerialize()
         {
@@ -34,6 +35,17 @@ namespace QuizCanners.Utils
 
             for (int i = 0; i < keys.Count; i++)
                 Add(keys[i], values[i]);
+
+            keys.Clear();
+            values.Clear();
         }
+
+        #region Inspector
+        [NonSerialized] private int _inspectedElement = -1;
+        public virtual void Inspect()
+        {
+            ToString().edit_Dictionary(this,  ref _inspectedElement).nl();
+        }
+        #endregion
     }
 }

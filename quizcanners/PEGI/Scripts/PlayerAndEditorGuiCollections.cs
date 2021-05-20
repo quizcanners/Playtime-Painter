@@ -2421,6 +2421,19 @@ namespace QuizCanners.Inspect
 
         }
 
+        public static bool edit_Dictionary<G, T>(Dictionary<G, T> dic, bool showKey = true)
+        {
+            int inspected = -1;
+            collectionInspector.write_Search_ListLabel(dic.ToString(), dic);
+            return edit_Dictionary_Internal(dic, ref inspected, showKey: showKey);
+        }
+
+        public static bool edit_Dictionary<G, T>(Dictionary<G, T> dic, ref int inspected, bool showKey = true)
+        {
+            collectionInspector.write_Search_DictionaryLabel(dic.ToString(), ref inspected, dic);
+            return edit_Dictionary_Internal(dic, ref inspected, showKey: showKey);
+        }
+
         public static bool edit_Dictionary<G, T>(this string label, Dictionary<G, T> dic, bool showKey = true)
         {
             int inspected = -1;

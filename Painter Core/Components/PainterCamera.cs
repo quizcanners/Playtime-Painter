@@ -208,8 +208,6 @@ namespace PlaytimePainter {
         public RenderBrush brushRenderer;
         #endregion
         
-        private static Vector3 _prevPosPreview;
-
         public static float _previewAlpha = 1;
 
         #region Encode & Decode
@@ -790,7 +788,12 @@ namespace PlaytimePainter {
 
         public static double lastManagedUpdate;
 
+        private FrameGate frameGate = new FrameGate();
+
         public void CombinedUpdate() {
+
+            if (frameGate.Enter() == false)
+               return; 
 
             if (!this || !Data)
                 return;
@@ -884,6 +887,8 @@ namespace PlaytimePainter {
 
        public override void Inspect()
         {
+            pegi.nl();
+
             if ("Data && Settings".isEntered(ref _inspectedStuff, 0))
             {
                 pegi.nl();

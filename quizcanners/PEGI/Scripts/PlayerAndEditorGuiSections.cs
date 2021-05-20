@@ -19,6 +19,8 @@ namespace QuizCanners.Inspect
 {
     public static partial class pegi
     {
+     
+
 
         #region Foldout    
 
@@ -104,18 +106,24 @@ namespace QuizCanners.Inspect
         #endregion
 
         #region Enter & Exit
-        
-        public static bool isEntered(ref int enteredOne, int current)
+
+        private static bool EnterOptionsDrawn_Internal (ref int entered, int thisOne) => entered == -1 || entered == thisOne;
+
+
+        public static bool isEntered(ref int entered, int thisOne)
         {
-            if (enteredOne == current)
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
+
+            if (entered == thisOne)
             {
                 if (icon.Exit.ClickUnFocus())
-                    enteredOne = -1;
+                    entered = -1;
             }
-            else if (enteredOne == -1 && icon.Enter.ClickUnFocus())
-                enteredOne = current;
+            else if (entered == -1 && icon.Enter.ClickUnFocus())
+                entered = thisOne;
 
-            ef.isFoldedOutOrEntered = (enteredOne == current);
+            ef.isFoldedOutOrEntered = (entered == thisOne);
 
             return ef.isFoldedOutOrEntered;
         }
@@ -123,23 +131,26 @@ namespace QuizCanners.Inspect
         public static bool isEntered<T>(this icon ico, ref int enteredOne, T currentEnum) where T : struct
             => ico.isEntered(ref enteredOne, Convert.ToInt32(currentEnum), currentEnum.ToString());
 
-        public static bool isEntered(this icon ico, ref int enteredOne, int thisOne, string tip = null)
+        public static bool isEntered(this icon ico, ref int entered, int thisOne, string tip = null)
         {
-            var outside = enteredOne == -1;
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
 
-            if (enteredOne == thisOne)
+            var outside = entered == -1;
+
+            if (entered == thisOne)
             {
                 if (icon.Exit.ClickUnFocus(tip))
-                    enteredOne = -1;
+                    entered = -1;
 
             }
             else if (outside)
             {
                 if (ico.ClickUnFocus(tip))
-                    enteredOne = thisOne;
+                    entered = thisOne;
             }
 
-            ef.isFoldedOutOrEntered = (enteredOne == thisOne);
+            ef.isFoldedOutOrEntered = (entered == thisOne);
 
             return ef.isFoldedOutOrEntered;
         }
@@ -181,27 +192,30 @@ namespace QuizCanners.Inspect
             return ef.isFoldedOutOrEntered;
         }
 
-        public static bool isEntered(this icon ico, string txt, ref int enteredOne, int thisOne, bool showLabelIfTrue = true, PEGI_Styles.PegiGuiStyle enterLabelStyle = null)
+        public static bool isEntered(this icon ico, string txt, ref int entered, int thisOne, bool showLabelIfTrue = true, PEGI_Styles.PegiGuiStyle enterLabelStyle = null)
         {
-            var outside = enteredOne == -1;
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
 
-            var current = enteredOne == thisOne;
+            var outside = entered == -1;
 
-            if (current)
+            var IsCurrent = entered == thisOne;
+
+            if (IsCurrent)
             {
                 if (icon.Exit.ClickUnFocus("{0} {1}".F(icon.Exit.GetText(), txt)))
-                    enteredOne = -1;
+                    entered = -1;
             }
             else if (outside && ico.ClickUnFocus(txt))
-                enteredOne = thisOne;
+                entered = thisOne;
 
 
-            if (((showLabelIfTrue && current) || outside) &&
+            if (((showLabelIfTrue && IsCurrent) || outside) &&
                 txt.ClickLabel(txt, -1, outside ? enterLabelStyle ?? PEGI_Styles.EnterLabel : PEGI_Styles.ExitLabel))
-                enteredOne = outside ? thisOne : -1;
+                entered = outside ? thisOne : -1;
 
 
-            ef.isFoldedOutOrEntered = (enteredOne == thisOne);
+            ef.isFoldedOutOrEntered = (entered == thisOne);
 
             return ef.isFoldedOutOrEntered;
         }
@@ -266,24 +280,26 @@ namespace QuizCanners.Inspect
             return ret;
         }
 
-        private static bool isEntered_HeaderPart<T>(this ListMetaData meta, List<T> list, ref int enteredOne, int thisOne, bool showLabelIfTrue = false)
+        private static bool isEntered_HeaderPart<T>(this ListMetaData meta, List<T> list, ref int entered, int thisOne, bool showLabelIfTrue = false)
         {
-            
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
+
             if (collectionInspector.listIsNull(list))
             {
-                if (enteredOne == thisOne)
-                    enteredOne = -1;
+                if (entered == thisOne)
+                    entered = -1;
                 return false;
             }
 
-            var entered = enteredOne == thisOne;
+            var isEntered = entered == thisOne;
 
-            var ret =icon.Enter.isEntered(meta.label.addCount(list, entered), ref enteredOne, thisOne, showLabelIfTrue, list.Count == 0 ? PEGI_Styles.ClippingText : null);
+            var ret =icon.Enter.isEntered(meta.label.addCount(list, isEntered), ref entered, thisOne, showLabelIfTrue, list.Count == 0 ? PEGI_Styles.ClippingText : null);
 
-            if (!entered && ret)
+            if (!isEntered && ret)
                 meta.inspected = -1;
 
-            ret |= list.isEntered_DirectlyToElement(ref meta.inspected, ref enteredOne, thisOne);
+            ret |= list.isEntered_DirectlyToElement(ref meta.inspected, ref entered, thisOne);
 
             return ret;
         }
@@ -305,24 +321,27 @@ namespace QuizCanners.Inspect
             return icon.List.isEntered(txt.addCount(list, isEntered), ref isEntered, showLabelIfTrue: false);
         }
         
-        private static bool isEntered_ListIcon<T>(this string txt, List<T> list, ref int inspected, ref int enteredOne, int thisOne)
+        private static bool isEntered_ListIcon<T>(this string txt, List<T> list, ref int inspected, ref int entered, int thisOne)
         {
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
+
             if (collectionInspector.listIsNull(list))
             {
-                if (enteredOne == thisOne)
-                    enteredOne = -1;
+                if (entered == thisOne)
+                    entered = -1;
                 return false;
             }
 
-            var before = enteredOne == thisOne;
+            var before = entered == thisOne;
 
-            if (icon.List.isEntered(txt.addCount(list, before), ref enteredOne, thisOne, false,
-                list.Count == 0 ? PEGI_Styles.ClippingText : null) && (!before) && (enteredOne == thisOne))
+            if (icon.List.isEntered(txt.addCount(list, before), ref entered, thisOne, false,
+                list.Count == 0 ? PEGI_Styles.ClippingText : null) && (!before) && (entered == thisOne))
                 inspected = -1;
 
-            list.isEntered_DirectlyToElement(ref inspected, ref enteredOne, thisOne);
+            list.isEntered_DirectlyToElement(ref inspected, ref entered, thisOne);
 
-            return enteredOne == thisOne;
+            return entered == thisOne;
         }
 
         private static bool isEnter_ListIcon<T>(this string txt, List<T> list, ref int inspected, ref bool entered)
@@ -392,14 +411,18 @@ namespace QuizCanners.Inspect
             return "{0} [1]".F(txt);
         }
 
-        public static bool enter_Inspect(this string label, IPEGI val, ref int inspected, int current)
+
+        public static bool enter_Inspect(this string label, IPEGI val, ref int entered, int thisOne)
         {
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
+
             if (val == null) 
             {
                 label += " (NULL)";
             }
 
-            if (label.isEntered(ref inspected, current))
+            if (label.isEntered(ref entered, thisOne))
             {              
                 return val.Nested_Inspect();
             }
@@ -407,27 +430,59 @@ namespace QuizCanners.Inspect
             return false;
         }
 
-        public static bool enter_Inspect(this IPEGI var, ref int enteredOne, int thisOne)
+        public static bool enter_Inspect(this IPEGI var, ref int entered, int thisOne)
         {
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
 
             var lst = var as IPEGI_ListInspect;
 
-            return lst != null ? lst.enter_Inspect_AsList(ref enteredOne, thisOne) :
-                var.GetNameForInspector().enter_Inspect(var, ref enteredOne, thisOne);
+            return lst != null ? lst.enter_Inspect_AsList(ref entered, thisOne) :
+                var.GetNameForInspector().enter_Inspect(var, ref entered, thisOne);
         }
 
-        public static bool enter_Inspect_AsList(this IPEGI_ListInspect var, ref int enteredOne, int thisOne, string exitLabel = null)
+        public static bool try_enter_Inspect(this string label, object target, ref int entered, int thisOne) 
         {
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
+
+            var lst = target as IPEGI_ListInspect;
+
+            if (lst != null)
+            {
+                return lst.enter_Inspect_AsList(ref entered, thisOne);
+            }
+
+            var IPEGI = target as IPEGI;
+
+            if (IPEGI == null) 
+            {
+                if (entered == thisOne && icon.Back.Click())
+                    entered = -1;
+
+                "{0} : {1}".F(label, (target == null) ? "NULL" : "No IPEGI").write();
+
+                return false;
+            }
+
+            return target.GetNameForInspector().enter_Inspect(IPEGI, ref entered, thisOne);
+        }
+
+        public static bool enter_Inspect_AsList(this IPEGI_ListInspect var, ref int entered, int thisOne, string exitLabel = null)
+        {
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
+
             var changed = ChangeTrackStart();
 
-            var outside = enteredOne == -1;
+            var outside = entered == -1;
 
             if (!var.IsNullOrDestroyed_Obj())
             {
 
                 if (outside) 
-                    var.InspectInList(thisOne, ref enteredOne);
-                else if (enteredOne == thisOne)
+                    var.InspectInList(thisOne, ref entered);
+                else if (entered == thisOne)
                 {
 
                     if (exitLabel.IsNullOrEmpty())
@@ -435,31 +490,33 @@ namespace QuizCanners.Inspect
 
                     if (icon.Exit.ClickUnFocus("{0} L {1}".F(icon.Exit.GetText(), var))
                         || exitLabel.ClickLabel(icon.Exit.GetDescription(), style: PEGI_Styles.ExitLabel))
-                        enteredOne = -1;
+                        entered = -1;
                     Try_Nested_Inspect(var);
                 }
             }
-            else if (enteredOne == thisOne)
-                enteredOne = -1;
+            else if (entered == thisOne)
+                entered = -1;
 
 
-            ef.isFoldedOutOrEntered = enteredOne == thisOne;
+            ef.isFoldedOutOrEntered = entered == thisOne;
 
             return changed;
         }
 
-        public static bool isConditionally_Entered(bool canEnter, ref int enteredOne, int thisOne, string exitLabel = "")
+        public static bool isConditionally_Entered(bool canEnter, ref int entered, int thisOne, string exitLabel = "")
         {
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
 
-            if (!canEnter && enteredOne == thisOne)
-                enteredOne = -1;
+            if (!canEnter && entered == thisOne)
+                entered = -1;
 
             if (canEnter)
             {
-                icon.Enter.isEntered(ref enteredOne, thisOne);
-                if (enteredOne == thisOne && !exitLabel.IsNullOrEmpty() &&
+                icon.Enter.isEntered(ref entered, thisOne);
+                if (entered == thisOne && !exitLabel.IsNullOrEmpty() &&
                     exitLabel.ClickLabel(icon.Exit.GetDescription(), style: PEGI_Styles.ExitLabel))
-                    enteredOne = -1;
+                    entered = -1;
             }
             else
                 ef.isFoldedOutOrEntered = false;
@@ -467,18 +524,20 @@ namespace QuizCanners.Inspect
             return ef.isFoldedOutOrEntered;
         }
 
-        public static bool isConditionally_Entered(this string label, bool canEnter, ref int enteredOne, int thisOne, bool showLabelIfTrue = true, PEGI_Styles.PegiGuiStyle enterLabelStyle = null)
+        public static bool isConditionally_Entered(this string label, bool canEnter, ref int entered, int thisOne, bool showLabelIfTrue = true, PEGI_Styles.PegiGuiStyle enterLabelStyle = null)
         {
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
 
-            if (!canEnter && enteredOne == thisOne)
+            if (!canEnter && entered == thisOne)
             {
                 if (icon.Back.Click() || "All Done here".ClickText(14))
-                    enteredOne = -1;
+                    entered = -1;
             }
             else
             {
                 if (canEnter)
-                    label.isEntered(ref enteredOne, thisOne, showLabelIfTrue, enterLabelStyle);
+                    label.isEntered(ref entered, thisOne, showLabelIfTrue, enterLabelStyle);
                 else
                     ef.isFoldedOutOrEntered = false;
             }
@@ -506,38 +565,46 @@ namespace QuizCanners.Inspect
             return ef.isFoldedOutOrEntered;
         }
 
-        public static bool isToggle_Entered(this string label, ref bool val, ref int enteredOne, int thisOne, bool showLabelWhenEntered = false)
+        public static bool isToggle_Entered(this string label, ref bool val, ref int entered, int thisOne, bool showLabelWhenEntered = false)
         {
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
 
-            if (enteredOne == -1)
+            if (entered == -1)
                 label.toggleIcon(ref val);
 
             if (val)
-                isEntered(ref enteredOne, thisOne);
+                isEntered(ref entered, thisOne);
             else
                 ef.isFoldedOutOrEntered = false;
 
-            if (enteredOne == thisOne)
+            if (entered == thisOne)
                 label.toggleIcon(ref val);
 
-            if (!val && enteredOne == thisOne)
-                enteredOne = -1;
+            if (!val && entered == thisOne)
+                entered = -1;
 
             return ef.isFoldedOutOrEntered;
         }
 
-        public static bool enter_List<T>(this ListMetaData meta, List<T> list, ref int enteredOne, int thisOne)
+        public static bool enter_List<T>(this ListMetaData meta, List<T> list, ref int entered, int thisOne)
         {
-            if (meta.isEntered_HeaderPart(list, ref enteredOne, thisOne))
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
+
+            if (meta.isEntered_HeaderPart(list, ref entered, thisOne))
                 return meta.edit_List(list).nl();
 
             return false;
         }
 
-        public static bool enter_List_UObj<T>(this string label, List<T> list, ref int enteredOne, int thisOne, List<T> selectFrom = null) where T : Object
+        public static bool enter_List_UObj<T>(this string label, List<T> list, ref int entered, int thisOne, List<T> selectFrom = null) where T : Object
         {
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
+
             var insp = -1;
-            if (isEntered_ListIcon(label, list, ref insp, ref enteredOne, thisOne)) 
+            if (isEntered_ListIcon(label, list, ref insp, ref entered, thisOne)) 
                 return label.edit_List_UObj(list, selectFrom).nl();
 
             return false;
@@ -546,13 +613,16 @@ namespace QuizCanners.Inspect
         public static bool enter_List<T>(this string label, List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne) =>
             enter_List(label, list, ref inspectedElement, ref enteredOne, thisOne, out _);
 
-        public static bool enter_List<T>(this string label, List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne, out T added)
+        public static bool enter_List<T>(this string label, List<T> list, ref int inspectedElement, ref int entered, int thisOne, out T added)
         {
             added = default(T);
 
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
+
             var changes = ChangeTrackStart();
 
-            if (enteredOne == -1 && list != null && list.Count == 0 && typeof(Object).IsAssignableFrom(typeof(T)) == false)
+            if (entered == -1 && list != null && list.Count == 0 && typeof(Object).IsAssignableFrom(typeof(T)) == false)
             {
                 var showedOption = collectionInspector.TryShowListAddNewOption(label, list, ref added);
 
@@ -565,7 +635,7 @@ namespace QuizCanners.Inspect
                 }
             }
 
-            if (isEntered_ListIcon(label, list, ref inspectedElement, ref enteredOne, thisOne)) //if (label.AddCount(list).enter(ref enteredOne, thisOne))
+            if (isEntered_ListIcon(label, list, ref inspectedElement, ref entered, thisOne)) //if (label.AddCount(list).enter(ref enteredOne, thisOne))
                 label.edit_List(list, ref inspectedElement, out added);
 
             return changes;
@@ -574,7 +644,7 @@ namespace QuizCanners.Inspect
         public static bool enter_List<T>(this string label, List<T> list, ref int inspectedElement, ref bool entered)
         {
 
-            var changed = pegi.ChangeTrackStart();
+            var changed = ChangeTrackStart();
 
             if (isEnter_ListIcon(label, list, ref inspectedElement, ref entered))// if (label.AddCount(list).enter(ref entered))
                 label.edit_List(list, ref inspectedElement).nl();
@@ -593,18 +663,23 @@ namespace QuizCanners.Inspect
 
         #region Tagged Types
 
-        public static bool enter_List<T>(this ListMetaData meta, List<T> list, ref int enteredOne, int thisOne, TaggedTypesCfg types, out T added)
+        public static bool enter_List<T>(this ListMetaData meta, List<T> list, ref int entered, int thisOne, TaggedTypesCfg types, out T added)
         {
+            added = default;
 
-            if (meta.isEntered_HeaderPart(list, ref enteredOne, thisOne))
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
+
+            if (meta.isEntered_HeaderPart(list, ref entered, thisOne))
                 return meta.edit_List(list, types, out added);
 
-            added = default;
+          
             return false;
         }
 
         public static bool enter_List<T>(this ListMetaData meta, List<T> list, ref bool entered, TaggedTypesCfg types, out T added)
         {
+
             if (meta.isEntered_HeaderPart(list, ref entered))
                 return meta.edit_List(list, types, out added);
 
@@ -614,16 +689,18 @@ namespace QuizCanners.Inspect
 
         #endregion
 
-        public static bool conditional_enter_List<T>(this string label, bool canEnter, List<T> list, ref int inspectedElement, ref int enteredOne, int thisOne)
+        public static bool conditional_enter_List<T>(this string label, bool canEnter, List<T> list, ref int inspectedElement, ref int entered, int thisOne)
         {
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
 
             var changed = ChangeTrackStart();
 
-            if (!canEnter && enteredOne == thisOne)
-                enteredOne = -1;
+            if (!canEnter && entered == thisOne)
+                entered = -1;
 
             if (canEnter)
-                label.enter_List(list, ref inspectedElement, ref enteredOne, thisOne);
+                label.enter_List(list, ref inspectedElement, ref entered, thisOne);
             else
                 ef.isFoldedOutOrEntered = false;
 
@@ -631,16 +708,18 @@ namespace QuizCanners.Inspect
 
         }
 
-        public static bool conditional_enter_List<T>(this ListMetaData meta, bool canEnter, List<T> list, ref int enteredOne, int thisOne)
+        public static bool conditional_enter_List<T>(this ListMetaData meta, bool canEnter, List<T> list, ref int entered, int thisOne)
         {
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
 
-            var changed = false;
+            var changed = ChangeTrackStart(); ;
 
-            if (!canEnter && enteredOne == thisOne)
-                enteredOne = -1;
+            if (!canEnter && entered == thisOne)
+                entered = -1;
 
             if (canEnter)
-                meta.enter_List(list, ref enteredOne, thisOne).changes_Internal(ref changed);
+                meta.enter_List(list, ref entered, thisOne);
             else
                 ef.isFoldedOutOrEntered = false;
 

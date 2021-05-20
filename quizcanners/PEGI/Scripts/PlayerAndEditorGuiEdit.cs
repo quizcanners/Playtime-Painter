@@ -908,8 +908,8 @@ namespace QuizCanners.Inspect
         #endregion
 
         #region Dictionary
-        public static bool select<G, T>(ref T val, Dictionary<G, T> dic, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true) 
-            => select(ref val, new List<T>(dic.Values), showIndex, stripSlashes, allowInsert);
+        public static bool select<TKey, TValue>(ref TValue val, Dictionary<TKey, TValue> dic, bool showIndex = false, bool stripSlashes = false, bool allowInsert = true) 
+            => select(ref val, new List<TValue>(dic.Values), showIndex, stripSlashes, allowInsert);
 
         public static bool select(ref int current, Dictionary<int, string> from)
         {
@@ -968,29 +968,27 @@ namespace QuizCanners.Inspect
 
         }
 
-        public static bool select<T>(this string text, int width, ref int key, Dictionary<int, T> from)
+        public static bool select<TKey, TValue>(this string text, int width, ref TKey key, Dictionary<TKey, TValue> from)
         {
             write(text, width);
             return select(ref key, from);
         }
 
-        public static bool select<T>(this string text, ref int key, Dictionary<int, T> from)
+        public static bool select<TKey, TValue>(this string text, ref TKey key, Dictionary<TKey, TValue> from)
         {
             write(text);
             return select(ref key, from);
         }
 
-        public static bool select<T>(ref int key, Dictionary<int, T> from)
+        public static bool select<TKey, TValue>(ref TKey key, Dictionary<TKey, TValue> from)
         {
-
             checkLine();
 
             var namesList = new List<string>(from.Count + 1);
-           // var indexes = new List<int>();
 
             int elementIndex = -1;
 
-            T val = default;
+            TValue val = default;
 
             for (var i = 0; i < from.Count; i++)
             {
@@ -998,7 +996,7 @@ namespace QuizCanners.Inspect
                 var pair = from.ElementAt(i);
 
 
-                if (key == pair.Key)
+                if (key.Equals(pair.Key))
                     elementIndex = i;
 
                 namesList.Add("{0}: {1}".F(pair.Key.ToString(), pair.Value.GetNameForInspector()));
