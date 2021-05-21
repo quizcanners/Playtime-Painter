@@ -19,9 +19,6 @@ namespace QuizCanners.Inspect
 {
     public static partial class pegi
     {
-     
-
-
         #region Foldout    
 
         public static bool isFoldout(this string txt, ref bool state)
@@ -108,7 +105,6 @@ namespace QuizCanners.Inspect
         #region Enter & Exit
 
         private static bool EnterOptionsDrawn_Internal (ref int entered, int thisOne) => entered == -1 || entered == thisOne;
-
 
         public static bool isEntered(ref int entered, int thisOne)
         {
@@ -220,197 +216,94 @@ namespace QuizCanners.Inspect
             return ef.isFoldedOutOrEntered;
         }
 
-        private static bool isEntered_DirectlyToElement<T>(this List<T> list, ref int inspected)
-        {
-
-            if ((inspected == -1 && list.Count > 1) || list.Count == 0) return false;
-
-            int suggestedIndex = Mathf.Max(inspected, 0);
-
-            if (suggestedIndex >= list.Count)
-                suggestedIndex = 0;
-
-            icon ico;
-            string msg;
-
-            if (NeedsAttention(list, out msg))
-            {
-                if (inspected == -1)
-                    suggestedIndex = LastNeedAttentionIndex;
-
-                ico = icon.Warning;
-            }
-            else
-            {
-                ico = icon.Next;
-                msg = "->";
-            }
-
-            var el = list.TryGet(suggestedIndex);// as IPEGI;
-
-            if (ico.Click(msg + el.GetNameForInspector()))
-            {
-                inspected = suggestedIndex;
-                ef.isFoldedOutOrEntered = true;
-                return true;
-            }
-            return false;
-        }
-
-        private static bool isEntered_DirectlyToElement<T>(this List<T> list, ref int inspected, ref int enteredOne, int thisOne)
-        {
-
-            if (enteredOne == -1 && list.isEntered_DirectlyToElement(ref inspected))
-                enteredOne = thisOne;
-
-            return enteredOne == thisOne;
-        }
-
-        private static void isEntered_DirectlyToElement<T>(this List<T> list, ref int inspected, ref bool entered)
-        {
-            if (!entered && list.isEntered_DirectlyToElement(ref inspected))
-                entered = true;
-        }
-
-        private static bool isEntered_HeaderPart<T>(this ListMetaData meta, List<T> list, ref bool entered, bool showLabelIfTrue = false)
-        {
-            int tmpEntered = entered ? 1 : -1;
-            var ret = meta.isEntered_HeaderPart(list, ref tmpEntered, 1, showLabelIfTrue);
-            entered = tmpEntered == 1;
-            return ret;
-        }
-
-        private static bool isEntered_HeaderPart<T>(this ListMetaData meta, List<T> list, ref int entered, int thisOne, bool showLabelIfTrue = false)
-        {
-            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
-                return false;
-
-            if (collectionInspector.listIsNull(list))
-            {
-                if (entered == thisOne)
-                    entered = -1;
-                return false;
-            }
-
-            var isEntered = entered == thisOne;
-
-            var ret =icon.Enter.isEntered(meta.label.addCount(list, isEntered), ref entered, thisOne, showLabelIfTrue, list.Count == 0 ? PEGI_Styles.ClippingText : null);
-
-            if (!isEntered && ret)
-                meta.inspected = -1;
-
-            ret |= list.isEntered_DirectlyToElement(ref meta.inspected, ref entered, thisOne);
-
-            return ret;
-        }
-
         public static bool isEntered(this string txt, ref bool state, bool showLabelIfTrue = true) => icon.Enter.isEntered(txt, ref state, showLabelIfTrue);
 
         public static bool isEntered(this string txt, ref int enteredOne, int thisOne, bool showLabelIfTrue = true, PEGI_Styles.PegiGuiStyle enterLabelStyle = null)
             => icon.Enter.isEntered(txt, ref enteredOne, thisOne, showLabelIfTrue, enterLabelStyle);
-        
-        private static bool isEntered_ListIcon<T>(this string txt, List<T> list, ref bool isEntered)
-        {
-            if (collectionInspector.listIsNull(list))
-            {
-                if (isEntered)
-                    isEntered = false;
-                return false;
-            }
 
-            return icon.List.isEntered(txt.addCount(list, isEntered), ref isEntered, showLabelIfTrue: false);
-        }
-        
-        private static bool isEntered_ListIcon<T>(this string txt, List<T> list, ref int inspected, ref int entered, int thisOne)
+        public static bool isConditionally_Entered(bool canEnter, ref int entered, int thisOne, string exitLabel = "")
         {
             if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
                 return false;
 
-            if (collectionInspector.listIsNull(list))
+            if (!canEnter && entered == thisOne)
+                entered = -1;
+
+            if (canEnter)
             {
-                if (entered == thisOne)
+                icon.Enter.isEntered(ref entered, thisOne);
+                if (entered == thisOne && !exitLabel.IsNullOrEmpty() &&
+                    exitLabel.ClickLabel(icon.Exit.GetDescription(), style: PEGI_Styles.ExitLabel))
                     entered = -1;
-                return false;
             }
+            else
+                ef.isFoldedOutOrEntered = false;
 
-            var before = entered == thisOne;
-
-            if (icon.List.isEntered(txt.addCount(list, before), ref entered, thisOne, false,
-                list.Count == 0 ? PEGI_Styles.ClippingText : null) && (!before) && (entered == thisOne))
-                inspected = -1;
-
-            list.isEntered_DirectlyToElement(ref inspected, ref entered, thisOne);
-
-            return entered == thisOne;
+            return ef.isFoldedOutOrEntered;
         }
 
-        private static bool isEnter_ListIcon<T>(this string txt, List<T> list, ref int inspected, ref bool entered)
+        public static bool isConditionally_Entered(this string label, bool canEnter, ref int entered, int thisOne, bool showLabelIfTrue = true, PEGI_Styles.PegiGuiStyle enterLabelStyle = null)
         {
-            if (collectionInspector.listIsNull(list))
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
+
+            if (!canEnter && entered == thisOne)
             {
-                if (entered)
+                if (icon.Back.Click() || "All Done here".ClickText(14))
+                    entered = -1;
+            }
+            else
+            {
+                if (canEnter)
+                    label.isEntered(ref entered, thisOne, showLabelIfTrue, enterLabelStyle);
+                else
+                    ef.isFoldedOutOrEntered = false;
+            }
+
+            return ef.isFoldedOutOrEntered;
+        }
+
+        public static bool isConditionally_Entered(this string label, bool canEnter, ref bool entered, bool showLabelIfTrue = true)
+        {
+
+            if (!canEnter && entered)
+            {
+                if (icon.Back.Click() || "All Done here".ClickText(14))
                     entered = false;
-                return false;
             }
-
-            bool before = entered;
-
-            if (icon.List.isEntered(txt.addCount(list, entered), ref entered, false) && (before != entered))
-                inspected = -1;
-
-            list.isEntered_DirectlyToElement(ref inspected, ref entered);
-
-            return entered;
-        }
-
-        private static string tryAddCount(this string txt, object obj)
-        {
-            var c = obj as IGotCount;
-            if (!c.IsNullOrDestroyed_Obj())
-                txt += " [{0}]".F(c.CountForInspector());
-
-            return txt;
-        }
-
-        public static string addCount<T>(this string txt, ICollection<T> lst, bool entered = false)
-        {
-            if (lst == null)
-                return "{0} is NULL".F(txt);
-
-            if (lst.Count > 1)
-                return "{0} [{1}]".F(txt, lst.Count);
-
-            if (lst.Count == 0)
-                return "NO {0}".F(txt);
-
-            if (!entered)
+            else
             {
 
-                var el = lst.ElementAt(0);
-
-                if (!el.IsNullOrDestroyed_Obj())
-                {
-
-                    var nm = el as IGotDisplayName;
-
-                    if (nm != null)
-                        return "{0}: {1}".F(txt, nm.NameForDisplayPEGI());
-
-                    var n = el as IGotName;
-
-                    if (n != null)
-                        return "{0}: {1}".F(txt, n.NameForPEGI);
-
-                    return "{0}: {1}".F(txt, el.GetNameForInspector());
-
-                }
-
-                return "{0} one Null Element".F(txt);
+                if (canEnter)
+                    label.isEntered(ref entered, showLabelIfTrue);
+                else
+                    ef.isFoldedOutOrEntered = false;
             }
 
-            return "{0} [1]".F(txt);
+            return ef.isFoldedOutOrEntered;
         }
 
+        public static bool isToggle_Entered(this string label, ref bool val, ref int entered, int thisOne, bool showLabelWhenEntered = false)
+        {
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
+
+            if (entered == -1)
+                label.toggleIcon(ref val);
+
+            if (val)
+                isEntered(ref entered, thisOne);
+            else
+                ef.isFoldedOutOrEntered = false;
+
+            if (entered == thisOne)
+                label.toggleIcon(ref val);
+
+            if (!val && entered == thisOne)
+                entered = -1;
+
+            return ef.isFoldedOutOrEntered;
+        }
 
         public static bool enter_Inspect(this string label, IPEGI val, ref int entered, int thisOne)
         {
@@ -503,89 +396,268 @@ namespace QuizCanners.Inspect
             return changed;
         }
 
-        public static bool isConditionally_Entered(bool canEnter, ref int entered, int thisOne, string exitLabel = "")
+        #region Internal
+
+        private static bool isEntered_ListIcon<T>(this string txt, List<T> list, ref bool isEntered)
+        {
+            if (collectionInspector.CollectionIsNull(list))
+            {
+                if (isEntered)
+                    isEntered = false;
+                return false;
+            }
+
+            return icon.List.isEntered(txt.addCount(list, isEntered), ref isEntered, showLabelIfTrue: false);
+        }
+
+        private static bool isEntered_ListIcon<T>(this string txt, List<T> list, ref int inspected, ref int entered, int thisOne)
         {
             if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
                 return false;
 
-            if (!canEnter && entered == thisOne)
-                entered = -1;
-
-            if (canEnter)
+            if (collectionInspector.CollectionIsNull(list))
             {
-                icon.Enter.isEntered(ref entered, thisOne);
-                if (entered == thisOne && !exitLabel.IsNullOrEmpty() &&
-                    exitLabel.ClickLabel(icon.Exit.GetDescription(), style: PEGI_Styles.ExitLabel))
+                if (entered == thisOne)
                     entered = -1;
-            }
-            else
-                ef.isFoldedOutOrEntered = false;
-
-            return ef.isFoldedOutOrEntered;
-        }
-
-        public static bool isConditionally_Entered(this string label, bool canEnter, ref int entered, int thisOne, bool showLabelIfTrue = true, PEGI_Styles.PegiGuiStyle enterLabelStyle = null)
-        {
-            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
                 return false;
-
-            if (!canEnter && entered == thisOne)
-            {
-                if (icon.Back.Click() || "All Done here".ClickText(14))
-                    entered = -1;
-            }
-            else
-            {
-                if (canEnter)
-                    label.isEntered(ref entered, thisOne, showLabelIfTrue, enterLabelStyle);
-                else
-                    ef.isFoldedOutOrEntered = false;
             }
 
-            return ef.isFoldedOutOrEntered;
+            var before = entered == thisOne;
+
+            if (icon.List.isEntered(txt.addCount(list, before), ref entered, thisOne, false,
+                list.Count == 0 ? PEGI_Styles.ClippingText : null) && (!before) && (entered == thisOne))
+                inspected = -1;
+
+            list.isEntered_DirectlyToElement(ref inspected, ref entered, thisOne);
+
+            return entered == thisOne;
         }
 
-        public static bool isConditionally_Entered(this string label, bool canEnter, ref bool entered, bool showLabelIfTrue = true)
+        private static bool isEnter_ListIcon<T>(this string txt, List<T> list, ref int inspected, ref bool entered)
         {
-
-            if (!canEnter && entered)
+            if (collectionInspector.CollectionIsNull(list))
             {
-                if (icon.Back.Click() || "All Done here".ClickText(14))
+                if (entered)
                     entered = false;
+                return false;
+            }
+
+            bool before = entered;
+
+            if (icon.List.isEntered(txt.addCount(list, entered), ref entered, false) && (before != entered))
+                inspected = -1;
+
+            list.isEntered_DirectlyToElement(ref inspected, ref entered);
+
+            return entered;
+        }
+
+        private static string tryAddCount(this string txt, object obj)
+        {
+            var c = obj as IGotCount;
+            if (!c.IsNullOrDestroyed_Obj())
+                txt += " [{0}]".F(c.CountForInspector());
+
+            return txt;
+        }
+
+        public static string addCount<T>(this string txt, ICollection<T> lst, bool entered = false)
+        {
+            if (lst == null)
+                return "{0} is NULL".F(txt);
+
+            if (lst.Count > 1)
+                return "{0} [{1}]".F(txt, lst.Count);
+
+            if (lst.Count == 0)
+                return "NO {0}".F(txt);
+
+            if (!entered)
+            {
+
+                var el = lst.ElementAt(0);
+
+                if (!el.IsNullOrDestroyed_Obj())
+                {
+
+                    var nm = el as IGotDisplayName;
+
+                    if (nm != null)
+                        return "{0}: {1}".F(txt, nm.NameForDisplayPEGI());
+
+                    var n = el as IGotName;
+
+                    if (n != null)
+                        return "{0}: {1}".F(txt, n.NameForPEGI);
+
+                    return "{0}: {1}".F(txt, el.GetNameForInspector());
+
+                }
+
+                return "{0} one Null Element".F(txt);
+            }
+
+            return "{0} [1]".F(txt);
+        }
+
+        private static bool isEntered_DirectlyToElement<K,V>(this Dictionary<K,V> dic, ref int inspected)
+        {
+
+            if ((inspected == -1 && dic.Count > 1) || dic.Count == 0) return false;
+
+            int suggestedIndex = Mathf.Max(inspected, 0);
+
+            if (suggestedIndex >= dic.Count)
+                suggestedIndex = 0;
+
+            icon ico;
+            string msg;
+
+            if (NeedsAttention(dic, out msg))
+            {
+                if (inspected == -1)
+                    suggestedIndex = LastNeedAttentionIndex;
+
+                ico = icon.Warning;
             }
             else
             {
-
-                if (canEnter)
-                    label.isEntered(ref entered, showLabelIfTrue);
-                else
-                    ef.isFoldedOutOrEntered = false;
+                ico = icon.Next;
+                msg = "->";
             }
 
-            return ef.isFoldedOutOrEntered;
+            var el = dic.TryGet(suggestedIndex);// as IPEGI;
+
+            if (ico.Click(msg + el.GetNameForInspector()))
+            {
+                inspected = suggestedIndex;
+                ef.isFoldedOutOrEntered = true;
+                return true;
+            }
+            return false;
+        }
+        private static bool isEntered_DirectlyToElement<K, V>(this Dictionary<K,V> list, ref int inspected, ref int enteredOne, int thisOne)
+        {
+
+            if (enteredOne == -1 && list.isEntered_DirectlyToElement(ref inspected))
+                enteredOne = thisOne;
+
+            return enteredOne == thisOne;
         }
 
-        public static bool isToggle_Entered(this string label, ref bool val, ref int entered, int thisOne, bool showLabelWhenEntered = false)
+
+        private static bool isEntered_DirectlyToElement<T>(this List<T> list, ref int inspected)
+        {
+
+            if ((inspected == -1 && list.Count > 1) || list.Count == 0) return false;
+
+            int suggestedIndex = Mathf.Max(inspected, 0);
+
+            if (suggestedIndex >= list.Count)
+                suggestedIndex = 0;
+
+            icon ico;
+            string msg;
+
+            if (NeedsAttention(list, out msg))
+            {
+                if (inspected == -1)
+                    suggestedIndex = LastNeedAttentionIndex;
+
+                ico = icon.Warning;
+            }
+            else
+            {
+                ico = icon.Next;
+                msg = "->";
+            }
+
+            var el = list.TryGet(suggestedIndex);// as IPEGI;
+
+            if (ico.Click(msg + el.GetNameForInspector()))
+            {
+                inspected = suggestedIndex;
+                ef.isFoldedOutOrEntered = true;
+                return true;
+            }
+            return false;
+        }
+
+        private static bool isEntered_DirectlyToElement<T>(this List<T> list, ref int inspected, ref int enteredOne, int thisOne)
+        {
+
+            if (enteredOne == -1 && list.isEntered_DirectlyToElement(ref inspected))
+                enteredOne = thisOne;
+
+            return enteredOne == thisOne;
+        }
+
+        private static void isEntered_DirectlyToElement<T>(this List<T> list, ref int inspected, ref bool entered)
+        {
+            if (!entered && list.isEntered_DirectlyToElement(ref inspected))
+                entered = true;
+        }
+
+        private static bool isEntered_HeaderPart<T>(this ListMetaData meta, List<T> list, ref bool entered, bool showLabelIfTrue = false)
+        {
+            int tmpEntered = entered ? 1 : -1;
+            var ret = meta.isEntered_HeaderPart(list, ref tmpEntered, 1, showLabelIfTrue);
+            entered = tmpEntered == 1;
+            return ret;
+        }
+
+        private static bool isEntered_HeaderPart<T>(this ListMetaData meta, List<T> list, ref int entered, int thisOne, bool showLabelIfTrue = false)
         {
             if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
                 return false;
 
-            if (entered == -1)
-                label.toggleIcon(ref val);
+            if (collectionInspector.CollectionIsNull(list))
+            {
+                if (entered == thisOne)
+                    entered = -1;
+                return false;
+            }
 
-            if (val)
-                isEntered(ref entered, thisOne);
-            else
-                ef.isFoldedOutOrEntered = false;
+            var isEntered = entered == thisOne;
 
-            if (entered == thisOne)
-                label.toggleIcon(ref val);
+            var ret = icon.Enter.isEntered(meta.label.addCount(list, isEntered), ref entered, thisOne, showLabelIfTrue, list.Count == 0 ? PEGI_Styles.ClippingText : null);
 
-            if (!val && entered == thisOne)
-                entered = -1;
+            if (!isEntered && ret)
+                meta.inspected = -1;
 
-            return ef.isFoldedOutOrEntered;
+            ret |= list.isEntered_DirectlyToElement(ref meta.inspected, ref entered, thisOne);
+
+            return ret;
         }
+
+        private static bool isEntered_HeaderPart<T,V>(this ListMetaData meta, Dictionary<T,V> dic, ref int entered, int thisOne, bool showLabelIfTrue = false)
+        {
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
+
+            if (collectionInspector.CollectionIsNull(dic))
+            {
+                if (entered == thisOne)
+                    entered = -1;
+                return false;
+            }
+
+            var isEntered = entered == thisOne;
+
+            var ret = icon.Enter.isEntered(meta.label.addCount(dic, isEntered), ref entered, thisOne, showLabelIfTrue, dic.Count == 0 ? PEGI_Styles.ClippingText : null);
+
+            if (!isEntered && ret)
+                meta.inspected = -1;
+
+            ret |= dic.isEntered_DirectlyToElement(ref meta.inspected, ref entered, thisOne);
+
+            return ret;
+        }
+
+
+        #endregion
+
+        #region List 
 
         public static bool enter_List<T>(this ListMetaData meta, List<T> list, ref int entered, int thisOne)
         {
@@ -660,35 +732,6 @@ namespace QuizCanners.Inspect
             return false;
         }
 
-
-        #region Tagged Types
-
-        public static bool enter_List<T>(this ListMetaData meta, List<T> list, ref int entered, int thisOne, TaggedTypesCfg types, out T added)
-        {
-            added = default;
-
-            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
-                return false;
-
-            if (meta.isEntered_HeaderPart(list, ref entered, thisOne))
-                return meta.edit_List(list, types, out added);
-
-          
-            return false;
-        }
-
-        public static bool enter_List<T>(this ListMetaData meta, List<T> list, ref bool entered, TaggedTypesCfg types, out T added)
-        {
-
-            if (meta.isEntered_HeaderPart(list, ref entered))
-                return meta.edit_List(list, types, out added);
-
-            added = default;
-            return false;
-        }
-
-        #endregion
-
         public static bool conditional_enter_List<T>(this string label, bool canEnter, List<T> list, ref int inspectedElement, ref int entered, int thisOne)
         {
             if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
@@ -725,6 +768,52 @@ namespace QuizCanners.Inspect
 
             return changed;
         }
+
+        #endregion
+
+        #region Dictionary 
+
+        public static bool enter_Dictionary<TKey, TValue>(this ListMetaData meta, Dictionary<TKey, TValue> list, ref int entered, int thisOne)
+        {
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
+
+            if (meta.isEntered_HeaderPart(list, ref entered, thisOne))
+                return meta.edit_Dictionary(list).nl();
+
+            return false;
+        }
+
+
+        #endregion
+
+        #region Tagged Types
+
+        public static bool enter_List<T>(this ListMetaData meta, List<T> list, ref int entered, int thisOne, TaggedTypesCfg types, out T added)
+        {
+            added = default;
+
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
+
+            if (meta.isEntered_HeaderPart(list, ref entered, thisOne))
+                return meta.edit_List(list, types, out added);
+
+          
+            return false;
+        }
+
+        public static bool enter_List<T>(this ListMetaData meta, List<T> list, ref bool entered, TaggedTypesCfg types, out T added)
+        {
+
+            if (meta.isEntered_HeaderPart(list, ref entered))
+                return meta.edit_List(list, types, out added);
+
+            added = default;
+            return false;
+        }
+
+        #endregion
 
         #endregion
 

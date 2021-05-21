@@ -16,7 +16,7 @@ namespace QuizCanners.Utils
     {
         public TKey Id;
 
-        protected abstract Dictionary<TKey, TValue> GetEnities();
+        protected abstract SerializableDictionary<TKey, TValue> GetEnities();
 
         public override bool SameAs(SmartId other) 
         {

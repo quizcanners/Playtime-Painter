@@ -276,7 +276,7 @@ namespace QuizCanners.Inspect
         private static void start()
         {
             _elementIndex = 0;
-            pegi.focusInd = 0;
+       
             _lineOpen = false;
             globChanged = false;
         }

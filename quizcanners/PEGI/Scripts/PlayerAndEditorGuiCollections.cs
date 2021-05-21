@@ -724,7 +724,22 @@ namespace QuizCanners.Inspect
                 return changed;
             }
 
-            public bool listIsNull<T>(List<T> list)
+            public bool CollectionIsNull<T,V>(Dictionary<T,V> list)
+            {
+                if (list == null)
+                {
+                    "Dictionary of {0} is null".F(typeof(T).ToPegiStringType()).write();
+
+                    /* if ("Initialize list".ClickUnFocus().nl())
+                         list = new List<T>();
+                     else*/
+                    return true;
+                }
+
+                return false;
+            }
+
+            public bool CollectionIsNull<T>(List<T> list)
             {
                 if (list == null)
                 {
@@ -1690,7 +1705,7 @@ namespace QuizCanners.Inspect
 
         private static T edit_List_SO<T>(List<T> list, ref int inspected, ListMetaData listMeta = null) where T : ScriptableObject
         {
-            if (collectionInspector.listIsNull(list))
+            if (collectionInspector.CollectionIsNull(list))
                 return null;
 
             var added = default(T);
@@ -1764,7 +1779,7 @@ namespace QuizCanners.Inspect
         {
             var changed = ChangeTrackStart();
 
-            if (collectionInspector.listIsNull(list))
+            if (collectionInspector.CollectionIsNull(list))
                 return changed;
 
             collectionInspector.edit_List_Order(list);
@@ -1795,7 +1810,7 @@ namespace QuizCanners.Inspect
         {
             var changed = ChangeTrackStart();
 
-            if (collectionInspector.listIsNull(list))
+            if (collectionInspector.CollectionIsNull(list))
                 return false;
 
             var before = inspected;
@@ -2138,7 +2153,7 @@ namespace QuizCanners.Inspect
 
             added = default(T);
 
-            if (collectionInspector.listIsNull(list))
+            if (collectionInspector.CollectionIsNull(list))
                 return changed;
 
             collectionInspector.edit_List_Order(list);
@@ -2235,7 +2250,7 @@ namespace QuizCanners.Inspect
         {
             var changed = ChangeTrackStart();
 
-            if (collectionInspector.listIsNull(list))
+            if (collectionInspector.CollectionIsNull(list))
                 return false;
 
             collectionInspector.edit_List_Order(list);
@@ -2381,37 +2396,35 @@ namespace QuizCanners.Inspect
         private static void WriteNullDictionary_Internal<T>() => "NULL {0} Dictionary".write();
         
 
-        private static int _tmpKey;
-        public static bool edit_Dictionary_AddPairOptions<T>(Dictionary<int, T> dic) where T: new()
+        private static int _tmpKeyInt;
+        private static string _tmpKeyString = "New Element";
+        public static bool addDictionaryPairOptions<T>(Dictionary<int, T> dic) where T: new()
         {
             var changed = ChangeTrackStart();
             if (dic == null)
             {
-                // if ("Instantiate Dictionary".Click())
-                // dic = new Dictionary<int, T>();
                 WriteNullDictionary_Internal<T>();
-
                 return changed;
             }
 
-            "Key".edit(60, ref _tmpKey);
+            "Key".edit(60, ref _tmpKeyInt);
 
-            if (dic.ContainsKey(_tmpKey))
+            if (dic.ContainsKey(_tmpKeyInt))
             {
                 if (icon.Refresh.Click("Find Free index"))
                 {
-                    while (dic.ContainsKey(_tmpKey))
-                        _tmpKey++;
+                    while (dic.ContainsKey(_tmpKeyInt))
+                        _tmpKeyInt++;
                 }
-                "Key {0} already exists".F(_tmpKey).writeWarning();
+                "Key {0} already exists".F(_tmpKeyInt).writeWarning();
             }
             else
             {
                 if (icon.Add.Click("Add new Value"))
                 {
-                    dic.Add(_tmpKey, new T());
-                    while (dic.ContainsKey(_tmpKey))
-                        _tmpKey++;
+                    dic.Add(_tmpKeyInt, new T());
+                    while (dic.ContainsKey(_tmpKeyInt))
+                        _tmpKeyInt++;
                 }
             }
 
@@ -2420,6 +2433,46 @@ namespace QuizCanners.Inspect
             return changed;
 
         }
+
+        public static bool addDictionaryPairOptions<T>(Dictionary<string, T> dic, string newElementName = "") where T : new()
+        {
+            var changed = ChangeTrackStart();
+            if (dic == null)
+            {
+                WriteNullDictionary_Internal<T>();
+                return changed;
+            }
+
+            if (newElementName.Length>0 && icon.Clear.Click())
+                _tmpKeyString = newElementName;
+
+            "Key".edit(60, ref _tmpKeyString);
+
+            if (dic.ContainsKey(_tmpKeyString))
+            {
+                pegi.nl();
+                "Key {0} already exists".F(_tmpKeyString).writeWarning();
+            }
+            else
+            {
+                if (icon.Add.Click("Add new Value"))
+                {
+                    var value = new T();
+                    dic.Add(_tmpKeyString, value);
+                    var name = value as IGotName;
+                    if (name != null)
+                        name.NameForPEGI = _tmpKeyString;
+
+                    _tmpKeyString = newElementName;
+                }
+
+            }
+
+            nl();
+
+            return changed;
+        }
+
 
         public static bool edit_Dictionary<G, T>(Dictionary<G, T> dic, bool showKey = true)
         {
@@ -2492,13 +2545,6 @@ namespace QuizCanners.Inspect
             if (dic == null)
             {
                 WriteNullDictionary_Internal<T>();
-
-               /* "Dictionary is null".writeHint();
-
-                if ("Initialize".Click().nl())
-
-                    dic= new Dictionary<G, T>();
-               */
                 return false;
             }
 
@@ -2570,9 +2616,6 @@ namespace QuizCanners.Inspect
             if (dic == null)
             {
                 WriteNullDictionary_Internal<T>();
-               // "Dictionary is null".writeWarning();
-               // if ("Initialize".Click().nl())
-                  //  dic = new Dictionary<G, T>();
                 return false;
             }
 

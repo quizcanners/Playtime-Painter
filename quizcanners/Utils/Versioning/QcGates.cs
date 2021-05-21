@@ -108,5 +108,23 @@ namespace QuizCanners.Utils
 
             return true;
         }
+
+        public bool IsChange(double value, double changeTreshold) 
+        {
+            if (!isSet)
+            {
+                isSet = true;
+                _previousValue = value;
+                return true;
+            }
+
+            if (Math.Abs(value - _previousValue) >= changeTreshold) 
+            {
+                _previousValue = value;
+                return true;
+            }
+
+            return false;
+        }
     }
 }

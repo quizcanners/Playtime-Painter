@@ -136,7 +136,7 @@ namespace QuizCanners.Inspect
                     ef.globChanged = false;
                     _elementIndex = 0;
                     _lineOpen = false;
-                    focusInd = 0;
+                   
 
                     try
                     {
@@ -437,20 +437,21 @@ namespace QuizCanners.Inspect
 
             var need = el as INeedAttention;
 
-            if (need == null) return false;
+            if (need == null) 
+                return false;
 
             msg = need.NeedAttention();
 
             return msg != null;
         }
 
-        public static bool NeedsAttention(ICollection list, out string message, string listName = "list", bool canBeNull = false)
+        public static bool NeedsAttention(IList list, out string message, string listName = "list", bool canBeNull = false)
         {
             message = NeedsAttention(list, listName, canBeNull);
             return message != null;
         }
 
-        public static string NeedsAttention(ICollection list, string listName = "list", bool canBeNull = false)
+        public static string NeedsAttention(IList list, string listName = "list", bool canBeNull = false)
         {
             string msg = null;
             if (list == null)
@@ -485,6 +486,46 @@ namespace QuizCanners.Inspect
 
             return msg;
         }
+
+        public static string NeedsAttention<T,K>(IDictionary<T,K> dic, string listName = "dictionary", bool canBeNull = false)
+        {
+            string msg = null;
+            if (dic == null)
+                msg = canBeNull ? null : "{0} is Null".F(listName);
+            else
+            {
+
+                int i = 0;
+
+                foreach (var pair in dic)
+                {
+                    var value = pair.Value;
+
+                    if (!value.IsNullOrDestroyed_Obj())
+                    {
+
+                        if (NeedsAttention(value, out msg))
+                        {
+                            msg = " {0} on {1}:{2}".F(msg, pair.Key, value.GetNameForInspector());
+                            LastNeedAttentionIndex = i;
+                            return msg;
+                        }
+                    }
+                    else if (!canBeNull)
+                    {
+                        msg = "{0} element in {1} is NULL".F(pair.Key, listName);
+                        LastNeedAttentionIndex = i;
+
+                        return msg;
+                    }
+
+                    i++;
+                }
+            }
+
+            return msg;
+        }
+
 
         public static void space()
         {

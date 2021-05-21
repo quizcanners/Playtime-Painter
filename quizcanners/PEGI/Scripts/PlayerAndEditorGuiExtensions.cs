@@ -4,6 +4,7 @@ using QuizCanners.Utils;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using System.Collections;
+using System.Linq;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -189,37 +190,6 @@ namespace QuizCanners.Inspect
             EditorApplication.Beep();
 #endif
         }
-
-        internal static object SetToDirty_Obj(this object obj)
-        {
-
-#if UNITY_EDITOR
-            (obj as Object).SetToDirty();
-#endif
-
-            return obj;
-        }
-
-        public static int focusInd;
-
-        private static Dictionary<IPEGI, int> inspectionChain = new Dictionary<IPEGI, int>();
-
-        internal static void ResetInspectedChain() => inspectionChain.Clear();
-
-
-
-#if UNITY_EDITOR
-        private static readonly Dictionary<Type, Editor> defaultEditors = new Dictionary<Type, Editor>();
-#endif
-
-        private static object TryGetObj(this IList list, int index)
-        {
-            if (list == null || index < 0 || index >= list.Count)
-                return null;
-            var el = list[index];
-            return el;
-        }
-
 
         public static bool Nested_Inspect(ref object obj)
         {
@@ -407,37 +377,6 @@ namespace QuizCanners.Inspect
             list.Add(newElement);
         }
 
-        private static bool ToPegiStringInterfacePart(this object obj, out string name)
-        {
-            name = null;
-
-            var dn = obj as IGotDisplayName;
-            if (dn != null)
-            {
-                name = dn.NameForDisplayPEGI();
-                if (!name.IsNullOrEmpty())
-                {
-                    name = name.FirstLine();
-                    return true;
-                }
-
-            }
-
-            var sn = obj as IGotName;
-
-            if (sn != null)
-            {
-                name = sn.NameForPEGI;
-                if (!name.IsNullOrEmpty())
-                {
-                    name = name.FirstLine();
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
         public static string GetNameForInspector_Uobj<T>(this T obj) where T : Object
         {
             if (obj == null)
@@ -515,6 +454,73 @@ namespace QuizCanners.Inspect
             
             return index;
         }
+
+        internal static V TryGet<T, V>(this Dictionary<T, V> list, int index, V defaultValue = default)
+        {
+            if (list == null || index < 0 || index >= list.Count)
+                return defaultValue;
+
+            return list.ElementAt(index).Value;
+        }
+
+        internal static object SetToDirty_Obj(this object obj)
+        {
+
+#if UNITY_EDITOR
+            (obj as Object).SetToDirty();
+#endif
+
+            return obj;
+        }
+
+        private static Dictionary<IPEGI, int> inspectionChain = new Dictionary<IPEGI, int>();
+
+        internal static void ResetInspectedChain() => inspectionChain.Clear();
+
+#if UNITY_EDITOR
+        private static readonly Dictionary<Type, Editor> defaultEditors = new Dictionary<Type, Editor>();
+#endif
+
+        private static object TryGetObj(this IList list, int index)
+        {
+            if (list == null || index < 0 || index >= list.Count)
+                return null;
+            var el = list[index];
+            return el;
+        }
+
+        private static bool ToPegiStringInterfacePart(this object obj, out string name)
+        {
+            name = null;
+
+            var dn = obj as IGotDisplayName;
+            if (dn != null)
+            {
+                name = dn.NameForDisplayPEGI();
+                if (!name.IsNullOrEmpty())
+                {
+                    name = name.FirstLine();
+                    return true;
+                }
+
+            }
+
+            var sn = obj as IGotName;
+
+            if (sn != null)
+            {
+                name = sn.NameForPEGI;
+                if (!name.IsNullOrEmpty())
+                {
+                    name = name.FirstLine();
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+
 
     }
 }
