@@ -2397,7 +2397,7 @@ namespace QuizCanners.Inspect
         
 
         private static int _tmpKeyInt;
-        private static string _tmpKeyString = "New Element";
+        private static string _tmpKeyString = "";
         public static bool addDictionaryPairOptions<T>(Dictionary<int, T> dic) where T: new()
         {
             var changed = ChangeTrackStart();
@@ -2443,14 +2443,14 @@ namespace QuizCanners.Inspect
                 return changed;
             }
 
-            if (newElementName.Length>0 && icon.Clear.Click())
-                _tmpKeyString = newElementName;
+            if (_tmpKeyString.Length>0 || icon.Refresh.Click())
+                _tmpKeyString = newElementName.Length>0 ? newElementName : "New Element";
 
             "Key".edit(60, ref _tmpKeyString);
 
             if (dic.ContainsKey(_tmpKeyString))
             {
-                pegi.nl();
+                nl();
                 "Key {0} already exists".F(_tmpKeyString).writeWarning();
             }
             else
@@ -2472,7 +2472,6 @@ namespace QuizCanners.Inspect
 
             return changed;
         }
-
 
         public static bool edit_Dictionary<G, T>(Dictionary<G, T> dic, bool showKey = true)
         {
@@ -2626,6 +2625,9 @@ namespace QuizCanners.Inspect
             if (inspected == -1)
             {
 
+                string keyToReplace = null;
+                string keyToReplaceWith = null;
+
                 if (listMeta != null)
                     showKey = listMeta[ListInspectParams.showDictionaryKey];
 
@@ -2633,7 +2635,8 @@ namespace QuizCanners.Inspect
                 {
                     var itemKey = item.Key;
                     
-                    if ((listMeta != null && listMeta[ListInspectParams.allowDeleting]) && icon.Delete.ClickUnFocus(25).changes_Internal(ref changed))
+                    if ((listMeta != null && listMeta[ListInspectParams.allowDeleting]) 
+                        && icon.Delete.ClickConfirm(confirmationTag: "DelDicEl"+collectionInspector.Index).changes_Internal(ref changed))
                     {
                         dic.Remove(itemKey);
                         return true;
@@ -2641,12 +2644,50 @@ namespace QuizCanners.Inspect
                     else
                     {
                         if (showKey)
-                            itemKey.GetNameForInspector().write_ForCopy(50);
-                        
+                        {
+                            bool keyHandled = false;
+
+                            var strKey = itemKey as string;
+                            if (strKey!= null)
+                            {
+                                var name = item.Value as IGotName;
+                                if (name != null)
+                                {
+                                    keyHandled = true;
+
+                                    if (!name.NameForPEGI.Equals(strKey))
+                                    {
+                                        if ("Key<-".ClickUnFocus("Override Key with Name"))
+                                        {
+                                            keyToReplace = strKey;
+                                            keyToReplaceWith = name.NameForPEGI;
+                                        }
+
+                                        if ("->Name".ClickUnFocus("strKey"))
+                                            name.NameForPEGI = strKey;
+
+
+                                    }
+                                }
+                            } 
+                            
+                            if (!keyHandled)
+                                itemKey.GetNameForInspector().write_ForCopy(50);
+                        }
+
                         InspectValueInDictionary(item, dic, collectionInspector.Index, ref inspected, listMeta).changes_Internal(ref changed);
                     }
                     nl();
                 }
+
+                if (keyToReplace != null)
+                {
+                    var strDic = dic as Dictionary<string, T>;
+                    var tmpVal = strDic[keyToReplace];
+                    strDic.Remove(keyToReplace);
+                    strDic.Add(keyToReplaceWith, tmpVal);
+                }
+
             }
             else
                 collectionInspector.ExitOrDrawPEGI(dic, ref inspected).changes_Internal(ref changed);
