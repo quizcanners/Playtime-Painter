@@ -598,7 +598,7 @@ namespace QuizCanners.Inspect
                 entered = true;
         }
 
-        private static bool isEntered_HeaderPart<T>(this ListMetaData meta, List<T> list, ref bool entered, bool showLabelIfTrue = false)
+        private static bool isEntered_HeaderPart<T>(this CollectionMetaData meta, List<T> list, ref bool entered, bool showLabelIfTrue = false)
         {
             int tmpEntered = entered ? 1 : -1;
             var ret = meta.isEntered_HeaderPart(list, ref tmpEntered, 1, showLabelIfTrue);
@@ -606,7 +606,7 @@ namespace QuizCanners.Inspect
             return ret;
         }
 
-        private static bool isEntered_HeaderPart<T>(this ListMetaData meta, List<T> list, ref int entered, int thisOne, bool showLabelIfTrue = false)
+        private static bool isEntered_HeaderPart<T>(this CollectionMetaData meta, List<T> list, ref int entered, int thisOne, bool showLabelIfTrue = false)
         {
             if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
                 return false;
@@ -623,14 +623,14 @@ namespace QuizCanners.Inspect
             var ret = icon.Enter.isEntered(meta.label.addCount(list, isEntered), ref entered, thisOne, showLabelIfTrue, list.Count == 0 ? PEGI_Styles.ClippingText : null);
 
             if (!isEntered && ret)
-                meta.inspected = -1;
+                meta.inspectedElement = -1;
 
-            ret |= list.isEntered_DirectlyToElement(ref meta.inspected, ref entered, thisOne);
+            ret |= list.isEntered_DirectlyToElement(ref meta.inspectedElement, ref entered, thisOne);
 
             return ret;
         }
 
-        private static bool isEntered_HeaderPart<T,V>(this ListMetaData meta, Dictionary<T,V> dic, ref int entered, int thisOne, bool showLabelIfTrue = false)
+        private static bool isEntered_HeaderPart<T,V>(this CollectionMetaData meta, Dictionary<T,V> dic, ref int entered, int thisOne, bool showLabelIfTrue = false)
         {
             if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
                 return false;
@@ -647,9 +647,9 @@ namespace QuizCanners.Inspect
             var ret = icon.Enter.isEntered(meta.label.addCount(dic, isEntered), ref entered, thisOne, showLabelIfTrue, dic.Count == 0 ? PEGI_Styles.ClippingText : null);
 
             if (!isEntered && ret)
-                meta.inspected = -1;
+                meta.inspectedElement = -1;
 
-            ret |= dic.isEntered_DirectlyToElement(ref meta.inspected, ref entered, thisOne);
+            ret |= dic.isEntered_DirectlyToElement(ref meta.inspectedElement, ref entered, thisOne);
 
             return ret;
         }
@@ -659,7 +659,7 @@ namespace QuizCanners.Inspect
 
         #region List 
 
-        public static bool enter_List<T>(this ListMetaData meta, List<T> list, ref int entered, int thisOne)
+        public static bool enter_List<T>(this CollectionMetaData meta, List<T> list, ref int entered, int thisOne)
         {
             if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
                 return false;
@@ -751,7 +751,7 @@ namespace QuizCanners.Inspect
 
         }
 
-        public static bool conditional_enter_List<T>(this ListMetaData meta, bool canEnter, List<T> list, ref int entered, int thisOne)
+        public static bool conditional_enter_List<T>(this CollectionMetaData meta, bool canEnter, List<T> list, ref int entered, int thisOne)
         {
             if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
                 return false;
@@ -773,7 +773,7 @@ namespace QuizCanners.Inspect
 
         #region Dictionary 
 
-        public static bool enter_Dictionary<TKey, TValue>(this ListMetaData meta, Dictionary<TKey, TValue> list, ref int entered, int thisOne)
+        public static bool enter_Dictionary<TKey, TValue>(this CollectionMetaData meta, Dictionary<TKey, TValue> list, ref int entered, int thisOne)
         {
             if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
                 return false;
@@ -789,7 +789,7 @@ namespace QuizCanners.Inspect
 
         #region Tagged Types
 
-        public static bool enter_List<T>(this ListMetaData meta, List<T> list, ref int entered, int thisOne, TaggedTypesCfg types, out T added)
+        public static bool enter_List<T>(this CollectionMetaData meta, List<T> list, ref int entered, int thisOne, TaggedTypesCfg types, out T added)
         {
             added = default;
 
@@ -803,7 +803,7 @@ namespace QuizCanners.Inspect
             return false;
         }
 
-        public static bool enter_List<T>(this ListMetaData meta, List<T> list, ref bool entered, TaggedTypesCfg types, out T added)
+        public static bool enter_List<T>(this CollectionMetaData meta, List<T> list, ref bool entered, TaggedTypesCfg types, out T added)
         {
 
             if (meta.isEntered_HeaderPart(list, ref entered))

@@ -29,7 +29,7 @@ namespace QuizCanners.Utils {
             return go.AddComponent<T>();
         }
         
-#region Lists
+        #region Lists
         public static void RemoveEmpty<T>(List<T> list) where T : Object {
 
             for (var i = list.Count-1; i >=0 ; i--)
@@ -74,9 +74,9 @@ namespace QuizCanners.Utils {
 
             return true;
         }
-#endregion
+        #endregion
 
-#region Scriptable Objects
+        #region Scriptable Objects
 
         private const string ScrObjExt = ".asset";
 
@@ -227,9 +227,9 @@ namespace QuizCanners.Utils {
 #endif
         }
 
-#endregion
+        #endregion
 
-#region External Communications
+        #region External Communications
 
         public static void SendEmail(string to) => Application.OpenURL("mailto:"+to);
 
@@ -238,12 +238,11 @@ namespace QuizCanners.Utils {
 
         private static string MyEscapeUrl(this string url) => WebUtility.UrlEncode(url).Replace("+", "%20");
 
-
         public static void OpenBrowser(string address) => Application.OpenURL(address);
 
-#endregion
+        #endregion
         
-#region Timing
+        #region Timing
 
         public static double TimeSinceStartup() =>
 #if UNITY_EDITOR
@@ -253,9 +252,9 @@ namespace QuizCanners.Utils {
 #endif
                 Time.realtimeSinceStartup;
         
-#endregion
+        #endregion
 
-#region Raycasts
+        #region Raycasts
 
         public static bool CastRay(this Vector3 origin, Vector3 target)
         {
@@ -278,9 +277,9 @@ namespace QuizCanners.Utils {
             return Physics.Raycast(new Ray(origin, ray), out hit);
         }
 
-#endregion
+        #endregion
 
-#region Color 
+        #region Color 
         
         public static Color Alpha(this Color col, float alpha)
         {
@@ -915,11 +914,10 @@ namespace QuizCanners.Utils {
 
 #endregion
 
-#region Unity Editor MGMT
+        #region Unity Editor MGMT
 
         public static bool Contains(this LayerMask layermask, int layer) => layermask == (layermask | (1 << layer));
         
-
         public static bool GetPlatformDirective(string define)
         {
 
@@ -1044,7 +1042,7 @@ namespace QuizCanners.Utils {
 #endif
         }
 
-#endregion
+        #endregion
 
         #region Assets Management
 
@@ -2265,15 +2263,9 @@ namespace QuizCanners.Utils {
 
         #endregion
 
-
-
     }
 
-#pragma warning restore IDE0034 // Simplify 'default' expression
 #pragma warning restore IDE0019 // Use pattern matching
-#pragma warning restore IDE0018 // Inline variable declaration
-
-
 }
 
 

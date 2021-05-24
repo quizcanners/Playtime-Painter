@@ -321,7 +321,7 @@ namespace QuizCanners.Inspect
             return ch;
         }
         
-        public static bool TryInspect<T>(this ListMetaData ld, ref T obj, int ind) where T : Object
+        public static bool TryInspect<T>(this CollectionMetaData ld, ref T obj, int ind) where T : Object
         {
             var el = ld.TryGetElement(ind);
 

@@ -64,7 +64,7 @@ namespace QuizCanners.Utils
 
         public static bool ClampIndexToCount(this ICollection list, ref int value, int min = 0)
         {
-            if (!list.IsNullOrEmptyCollection())
+            if (!list.IsNullOrEmpty())
             {
                 value = Mathf.Max(min, Mathf.Min(value, list.Count - 1));
                 return true;

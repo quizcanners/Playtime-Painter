@@ -31,7 +31,7 @@ namespace QuizCanners.Inspect
             return val;
         }
 
-        internal static string CurrentListLabel<T>(ListMetaData meta = null) => collectionInspector.GetCurrentListLabel<T>(meta);
+        internal static string CurrentListLabel<T>(CollectionMetaData meta = null) => collectionInspector.GetCurrentListLabel<T>(meta);
 
         internal static void UnselectAll() => collectionInspector.selectedEls.Clear();
 
@@ -107,7 +107,7 @@ namespace QuizCanners.Inspect
             private static IList addingNewOptionsInspected;
             private string addingNewNameHolder = "Name";
 
-            public IEnumerable<T> InspectionIndexes<T>(ICollection<T> collectionReference, ListMetaData listMeta = null, iCollectionInspector<T> listElementInspector = null)
+            public IEnumerable<T> InspectionIndexes<T>(ICollection<T> collectionReference, CollectionMetaData listMeta = null, iCollectionInspector<T> listElementInspector = null)
             {
 
                 searchData = listMeta == null ? defaultSearchData : listMeta.searchData;
@@ -340,7 +340,7 @@ namespace QuizCanners.Inspect
                 edit(ref addingNewNameHolder);
             }
 
-            public bool TryShowListCreateNewOptions<T>(List<T> lst, ref T added, ListMetaData ld)
+            public bool TryShowListCreateNewOptions<T>(List<T> lst, ref T added, CollectionMetaData ld)
             {
                 if (ld != null && !ld[ListInspectParams.showAddButton])
                     return false;
@@ -428,7 +428,7 @@ namespace QuizCanners.Inspect
                 return true;
             }
 
-            public bool TryShowListCreateNewOptions<T>(List<T> lst, ref T added, TaggedTypesCfg types, ListMetaData ld)
+            public bool TryShowListCreateNewOptions<T>(List<T> lst, ref T added, TaggedTypesCfg types, CollectionMetaData ld)
             {
                 if (ld != null && !ld[ListInspectParams.showAddButton])
                     return false;
@@ -524,7 +524,7 @@ namespace QuizCanners.Inspect
 
             private SearchData searchData;
 
-            private void SaveSectionIndex<T>(ICollection<T> list, ListMetaData listMeta)
+            private void SaveSectionIndex<T>(ICollection<T> list, CollectionMetaData listMeta)
             {
                 if (_searching)
                     searchData.inspectionIndexStart = _sectionStartIndex;
@@ -564,7 +564,7 @@ namespace QuizCanners.Inspect
             }
 
             private string currentListLabel = "";
-            public string GetCurrentListLabel<T>(ListMetaData ld = null) => 
+            public string GetCurrentListLabel<T>(CollectionMetaData ld = null) => 
                 ld != null 
                     ? ld.label :
                         (currentListLabel.IsNullOrEmpty() ? typeof(T).ToPegiStringType() : currentListLabel);
@@ -574,6 +574,9 @@ namespace QuizCanners.Inspect
                 currentListLabel = "";
             }
 
+            public void write_Search_DictionaryLabel<K, V>(CollectionMetaData listMEta, Dictionary<K, V> dic) =>
+                write_Search_DictionaryLabel<K, V>(listMEta.label, ref listMEta.inspectedElement, dic);
+            
             public void write_Search_DictionaryLabel<K, V>(string label, ref int inspected, Dictionary<K, V> dic)
             {
                 currentListLabel = label;
@@ -589,8 +592,11 @@ namespace QuizCanners.Inspect
                         inspected = -1;
                 }
 
-                if (dic != null && inspected >= 0 && dic.Count > inspected)
-                    label = "{0}->{1}".F(label, dic.ElementAt(inspected).Value.GetNameForInspector());
+                if (dic != null && inspected >= 0 && dic.Count > inspected) 
+                {
+                    var el = dic.ElementAt(inspected);
+                    label = "{0}->{1}:{2}".F(label, el.Key.GetNameForInspector(), el.Value.GetNameForInspector());
+                }
                 else label = (dic == null || dic.Count < 6) ? label : label.addCount(dic, true);
 
                 if (label.ClickLabel(label, RemainingLength(defaultButtonSize * 2 + 10), PEGI_Styles.ListLabel) && inspected != -1)
@@ -626,39 +632,37 @@ namespace QuizCanners.Inspect
                     inspected = -1;
             }
 
-            public void write_Search_ListLabel<T>(ListMetaData ld, ICollection<T> lst)
+            public void write_Search_ListLabel<T>(CollectionMetaData ld, ICollection<T> lst)
             {
 
                 currentListLabel = ld.label;
 
-                if (!ld.Inspecting && ld[ListInspectParams.showSearchButton])
+                if (!ld.InspectingElement && ld[ListInspectParams.showSearchButton])
                     ld.searchData.ToggleSearch(lst, ld.label);
 
-                if (lst != null && ld.inspected >= 0 && lst.Count > ld.inspected)
+                if (lst != null && ld.inspectedElement >= 0 && lst.Count > ld.inspectedElement)
                 {
-
-                    var el = lst.ElementAt(ld.inspected);
-
-                    currentListLabel = "{0}->{1}".F(ld.label, el.GetNameForInspector());
-
+                    var el = lst.ElementAt(ld.inspectedElement);
+                    string nameToShow = el.GetNameForInspector();
+                    currentListLabel = "{0}->{1}".F(ld.label, nameToShow);
                 }
                 else currentListLabel = (lst == null || lst.Count < 6) ? ld.label : ld.label.addCount(lst, true);
 
 
-                if (ld.Inspecting && lst!= null)
+                if (ld.InspectingElement && lst!= null)
                 {
                     exitOptionHandled = true;
                     if (icon.List.ClickUnFocus("{0} {1} [2]".F(Msg.ReturnToCollection.GetText(), currentListLabel, lst.Count)))
-                        ld.Inspecting = false;
+                        ld.InspectingElement = false;
                 }
 
-                if (currentListLabel.ClickLabel(ld.label, RemainingLength(defaultButtonSize * 2 + 10), PEGI_Styles.ListLabel) && ld.inspected != -1)
-                    ld.inspected = -1;
+                if (currentListLabel.ClickLabel(ld.label, RemainingLength(defaultButtonSize * 2 + 10), PEGI_Styles.ListLabel) && ld.inspectedElement != -1)
+                    ld.inspectedElement = -1;
             }
 
             private bool exitOptionHandled;
 
-            public bool ExitOrDrawPEGI<T>(T[] array, ref int index, ListMetaData ld = null)
+            public bool ExitOrDrawPEGI<T>(T[] array, ref int index, CollectionMetaData ld = null)
             {
                 var changed = false;
 
@@ -681,7 +685,7 @@ namespace QuizCanners.Inspect
                 return changed;
             }
 
-            public bool ExitOrDrawPEGI<K, T>(Dictionary<K, T> dic, ref int index, ListMetaData ld = null)
+            public bool ExitOrDrawPEGI<K, T>(Dictionary<K, T> dic, ref int index, CollectionMetaData ld = null)
             {
                 var changed = false;
 
@@ -704,7 +708,7 @@ namespace QuizCanners.Inspect
                 return changed;
             }
 
-            public bool ExitOrDrawPEGI<T>(List<T> list, ref int index, ListMetaData ld = null)
+            public bool ExitOrDrawPEGI<T>(List<T> list, ref int index, CollectionMetaData ld = null)
             {
                 var changed = false;
 
@@ -754,7 +758,7 @@ namespace QuizCanners.Inspect
                 return false;
             }
 
-            public bool list_DropOption<T>(List<T> list, ListMetaData meta = null) where T : Object
+            public bool list_DropOption<T>(List<T> list, CollectionMetaData meta = null) where T : Object
             {
                 var changed = false;
 #if UNITY_EDITOR
@@ -797,7 +801,7 @@ namespace QuizCanners.Inspect
 
             private bool cutPaste;
 
-            private void SetSelected<T>(ListMetaData meta, List<T> list, bool val)
+            private void SetSelected<T>(CollectionMetaData meta, List<T> list, bool val)
             {
                 if (meta == null)
                 {
@@ -835,7 +839,7 @@ namespace QuizCanners.Inspect
                     listCopyBuffer = null;
             }
 
-            public bool edit_Array_Order<T>(ref T[] array, ListMetaData listMeta = null)
+            public bool edit_Array_Order<T>(ref T[] array, CollectionMetaData listMeta = null)
             {
 
                 var changed = false;
@@ -914,7 +918,7 @@ namespace QuizCanners.Inspect
                 return changed;
             }
 
-            public bool edit_List_Order<T>(List<T> list, ListMetaData listMeta = null)
+            public bool edit_List_Order<T>(List<T> list, CollectionMetaData listMeta = null)
             {
 
                 var changed = false;
@@ -1204,7 +1208,7 @@ namespace QuizCanners.Inspect
 
                 if (listMeta != null && icon.Config.isEntered(ref listMeta.inspectListMeta))
                     listMeta.Nested_Inspect();
-                else if (typeof(Object).IsAssignableFrom(typeof(T)) || !listCopyBuffer.IsNullOrEmptyCollection())
+                else if (typeof(Object).IsAssignableFrom(typeof(T)) || !listCopyBuffer.IsNullOrEmpty())
                 {
                     "Allow Duplicants".toggle("Will add elements to the list even if they are already there", 120, ref duplicants)
                         .changes_Internal(ref changed);
@@ -1221,13 +1225,13 @@ namespace QuizCanners.Inspect
 
             public object previouslyEntered;
 
-            public bool InspectClassInList<T>(List<T> list, int index, ref int inspected, ListMetaData listMeta = null) where T : class
+            public bool InspectClassInList<T>(List<T> list, int index, ref int inspected, CollectionMetaData listMeta = null) where T : class
             {
                 var el = list[index];
                 var changed = false;
 
                 var pl = el as IPEGI_ListInspect;
-                var isPrevious = (listMeta != null && listMeta.previousInspected == index)
+                var isPrevious = (listMeta != null && listMeta.previouslyInspectedElement == index)
                                  || (listMeta == null && collectionInspector.previouslyEntered != null && el == collectionInspector.previouslyEntered);
 
                 if (isPrevious)
@@ -1359,10 +1363,10 @@ namespace QuizCanners.Inspect
 
                 if (listMeta != null)
                 {
-                    if (listMeta.inspected != -1)
-                        listMeta.previousInspected = listMeta.inspected;
+                    if (listMeta.inspectedElement != -1)
+                        listMeta.previouslyInspectedElement = listMeta.inspectedElement;
                     else if (isPrevious)
-                        listMeta.previousInspected = index;
+                        listMeta.previouslyInspectedElement = index;
 
                 }
                 else if (isPrevious)
@@ -1385,7 +1389,7 @@ namespace QuizCanners.Inspect
 
             }
 
-            public bool TryShowListAddNewOption<T>(string text, List<T> list, ref T added, ListMetaData ld = null)
+            public bool TryShowListAddNewOption<T>(string text, List<T> list, ref T added, CollectionMetaData ld = null)
             {
                 if (ld != null && !ld[ListInspectParams.showAddButton])
                     return false;
@@ -1421,7 +1425,7 @@ namespace QuizCanners.Inspect
                 return true;
             }
             
-            public bool TryShowListAddNewOption<T>(List<T> list, ref T added, ListMetaData ld = null)
+            public bool TryShowListAddNewOption<T>(List<T> list, ref T added, CollectionMetaData ld = null)
             {
 
                 if (ld != null && !ld[ListInspectParams.showAddButton])
@@ -1458,7 +1462,7 @@ namespace QuizCanners.Inspect
                 return true;
             }
 
-            public bool ListAddEmptyClick<T>(IList<T> list, ListMetaData ld = null)
+            public bool ListAddEmptyClick<T>(IList<T> list, CollectionMetaData ld = null)
             {
 
                 if (ld != null && !ld[ListInspectParams.showAddButton])
@@ -1480,7 +1484,7 @@ namespace QuizCanners.Inspect
 
         }
 
-        public static bool InspectValueInDictionary<K, T>(KeyValuePair<K,T> pair, Dictionary<K, T> dic, int index, ref int inspected, ListMetaData listMeta = null)
+        public static bool InspectValueInDictionary<K, T>(KeyValuePair<K,T> pair, Dictionary<K, T> dic, int index, ref int inspected, CollectionMetaData listMeta = null)
         {
             var el = pair.Value;
 
@@ -1494,7 +1498,7 @@ namespace QuizCanners.Inspect
             return changed;
         }
 
-        public static bool InspectValueInArray<T>(ref T[] array, int index, ref int inspected, ListMetaData listMeta = null)
+        public static bool InspectValueInArray<T>(ref T[] array, int index, ref int inspected, CollectionMetaData listMeta = null)
         {
             T el = array[index];
 
@@ -1507,7 +1511,7 @@ namespace QuizCanners.Inspect
         }
 
         public static bool InspectValueInList<T>(T el, List<T> list, int index, ref int inspected,
-            ListMetaData listMeta = null)
+            CollectionMetaData listMeta = null)
         {
 
             var changed = InspectValueInCollection(ref el, list, index, ref inspected, listMeta);
@@ -1519,14 +1523,14 @@ namespace QuizCanners.Inspect
 
         }
 
-        public static bool InspectValueInCollection<T>(ref T el, IList collection, int index, ref int inspected, ListMetaData listMeta = null)
+        public static bool InspectValueInCollection<T>(ref T el, IList collection, int index, ref int inspected, CollectionMetaData listMeta = null)
         {
 
             var changed = false;
 
             var pl = el as IPEGI_ListInspect;
 
-            var isPrevious = (listMeta != null && listMeta.previousInspected == index);
+            var isPrevious = (listMeta != null && listMeta.previouslyInspectedElement == index);
 
             if (isPrevious)
                 SetBgColor(PreviousInspectedColor);
@@ -1663,10 +1667,10 @@ namespace QuizCanners.Inspect
 
             if (listMeta != null)
             {
-                if (listMeta.inspected != -1)
-                    listMeta.previousInspected = listMeta.inspected;
+                if (listMeta.inspectedElement != -1)
+                    listMeta.previouslyInspectedElement = listMeta.inspectedElement;
                 else if (isPrevious)
-                    listMeta.previousInspected = index;
+                    listMeta.previouslyInspectedElement = index;
 
             }
             else if (isPrevious)
@@ -1696,14 +1700,14 @@ namespace QuizCanners.Inspect
             return edit_List_SO(list, ref edited).listLabel_Used();
         }
 
-        public static bool edit_List_SO<T>(this ListMetaData listMeta, List<T> list) where T : ScriptableObject
+        public static bool edit_List_SO<T>(this CollectionMetaData listMeta, List<T> list) where T : ScriptableObject
         {
             collectionInspector.write_Search_ListLabel(listMeta, list);
 
-            return edit_List_SO(list, ref listMeta.inspected, listMeta).listLabel_Used();
+            return edit_List_SO(list, ref listMeta.inspectedElement, listMeta).listLabel_Used();
         }
 
-        private static T edit_List_SO<T>(List<T> list, ref int inspected, ListMetaData listMeta = null) where T : ScriptableObject
+        private static T edit_List_SO<T>(List<T> list, ref int inspected, CollectionMetaData listMeta = null) where T : ScriptableObject
         {
             if (collectionInspector.CollectionIsNull(list))
                 return null;
@@ -1806,7 +1810,7 @@ namespace QuizCanners.Inspect
             return changed;
         }
 
-        public static bool edit_or_select_List_UObj<T, G>(List<T> list, List<G> from, ref int inspected, ListMetaData listMeta = null) where T : G where G : Object
+        public static bool edit_or_select_List_UObj<T, G>(List<T> list, List<G> from, ref int inspected, CollectionMetaData listMeta = null) where T : G where G : Object
         {
             var changed = ChangeTrackStart();
 
@@ -1903,24 +1907,24 @@ namespace QuizCanners.Inspect
             return edit_List(list, ref inspected, out added).listLabel_Used();
         }
 
-        public static bool edit_List<T>(this ListMetaData listMeta, List<T> list)
+        public static bool edit_List<T>(this CollectionMetaData listMeta, List<T> list)
         {
             var changed = ChangeTrackStart();
             collectionInspector.write_Search_ListLabel(listMeta, list);
-            edit_List(list, ref listMeta.inspected, out _, listMeta);
+            edit_List(list, ref listMeta.inspectedElement, out _, listMeta);
             collectionInspector.listLabel_Used();
             return changed;
         }
 
-        public static bool edit_List<T>(this ListMetaData listMeta, List<T> list, out T added)
+        public static bool edit_List<T>(this CollectionMetaData listMeta, List<T> list, out T added)
         {
             collectionInspector.write_Search_ListLabel(listMeta, list);
-            var ret = edit_List(list, ref listMeta.inspected, out added,  listMeta);
+            var ret = edit_List(list, ref listMeta.inspectedElement, out added,  listMeta);
             collectionInspector.listLabel_Used();
             return ret;
         }
 
-        public static bool edit_List<T>(List<T> list, ref int inspected, out T added, ListMetaData listMeta = null)
+        public static bool edit_List<T>(List<T> list, ref int inspected, out T added, CollectionMetaData listMeta = null)
         {
             var changes = ChangeTrackStart();
 
@@ -1983,19 +1987,19 @@ namespace QuizCanners.Inspect
 
         #region Tagged Types
 
-        public static bool edit_List<T>(this ListMetaData listMeta, List<T> list, TaggedTypesCfg types, out T added)
+        public static bool edit_List<T>(this CollectionMetaData listMeta, List<T> list, TaggedTypesCfg types, out T added)
         {
             collectionInspector.write_Search_ListLabel(listMeta, list);
-            var ret = edit_List(list, ref listMeta.inspected, types, out added, listMeta);
+            var ret = edit_List(list, ref listMeta.inspectedElement, types, out added, listMeta);
             collectionInspector.listLabel_Used();
             return ret;
         }
 
-        public static bool edit_List<T>(this ListMetaData listMeta, List<T> list, TaggedTypesCfg types)
+        public static bool edit_List<T>(this CollectionMetaData listMeta, List<T> list, TaggedTypesCfg types)
         {
             collectionInspector.write_Search_ListLabel(listMeta, list);
             
-            return edit_List(list, ref listMeta.inspected, types, out _, listMeta).listLabel_Used();
+            return edit_List(list, ref listMeta.inspectedElement, types, out _, listMeta).listLabel_Used();
         }
 
         public static bool edit_List<T>(this string label, List<T> list, ref int inspected, TaggedTypesCfg types, out T added)
@@ -2004,7 +2008,7 @@ namespace QuizCanners.Inspect
             return edit_List(list, ref inspected, types, out added).listLabel_Used();
         }
 
-        private static bool edit_List<T>(List<T> list, ref int inspected, TaggedTypesCfg types, out T added, ListMetaData listMeta = null)
+        private static bool edit_List<T>(List<T> list, ref int inspected, TaggedTypesCfg types, out T added, CollectionMetaData listMeta = null)
         {
             var changes = ChangeTrackStart();
 
@@ -2443,10 +2447,10 @@ namespace QuizCanners.Inspect
                 return changed;
             }
 
-            if (_tmpKeyString.Length>0 || icon.Refresh.Click())
-                _tmpKeyString = newElementName.Length>0 ? newElementName : "New Element";
-
             "Key".edit(60, ref _tmpKeyString);
+
+            if (_tmpKeyString.Length > 0 && icon.Refresh.Click())
+                _tmpKeyString = newElementName.Length > 0 ? newElementName : "New Element";
 
             if (dic.ContainsKey(_tmpKeyString))
             {
@@ -2476,7 +2480,7 @@ namespace QuizCanners.Inspect
         public static bool edit_Dictionary<G, T>(Dictionary<G, T> dic, bool showKey = true)
         {
             int inspected = -1;
-            collectionInspector.write_Search_ListLabel(dic.ToString(), dic);
+            collectionInspector.write_Search_DictionaryLabel(dic.ToString(), ref inspected,  dic);
             return edit_Dictionary_Internal(dic, ref inspected, showKey: showKey);
         }
 
@@ -2489,7 +2493,7 @@ namespace QuizCanners.Inspect
         public static bool edit_Dictionary<G, T>(this string label, Dictionary<G, T> dic, bool showKey = true)
         {
             int inspected = -1;
-            collectionInspector.write_Search_ListLabel(label, dic);
+            collectionInspector.write_Search_DictionaryLabel(label, ref inspected, dic);
             return edit_Dictionary_Internal(dic, ref inspected, showKey: showKey);
         }
 
@@ -2501,44 +2505,47 @@ namespace QuizCanners.Inspect
 
         public static bool edit_Dictionary<G, T>(this string label, Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = false)
         {
-            collectionInspector.write_Search_ListLabel(label, dic);
+            int inspected = -1;
+            collectionInspector.write_Search_DictionaryLabel(label, ref inspected, dic);
             return edit_Dictionary_Internal(dic, lambda, showKey: showKey);
         }
 
-        public static bool edit_Dictionary<G, T>(this ListMetaData listMeta, Dictionary<G, T> dic)
+        public static bool edit_Dictionary<G, T>(this CollectionMetaData listMeta, Dictionary<G, T> dic)
         {
-            collectionInspector.write_Search_ListLabel(listMeta, dic);
-            return edit_Dictionary_Internal(dic, ref listMeta.inspected, showKey: listMeta[ListInspectParams.showDictionaryKey], listMeta: listMeta);
+            collectionInspector.write_Search_DictionaryLabel(listMeta, dic);
+            return edit_Dictionary_Internal(dic, ref listMeta.inspectedElement, showKey: listMeta[ListInspectParams.showDictionaryKey], listMeta: listMeta);
         }
 
-        public static bool edit_Dictionary<G, T>(this ListMetaData listMeta, Dictionary<G, T> dic, Func<T, T> lambda)
+        public static bool edit_Dictionary<G, T>(this CollectionMetaData listMeta, Dictionary<G, T> dic, Func<T, T> lambda)
         {
-            collectionInspector.write_Search_ListLabel(listMeta, dic);
+            collectionInspector.write_Search_DictionaryLabel(listMeta, dic);
             return edit_Dictionary_Internal(dic, lambda, listMeta: listMeta);
         }
 
-        public static bool edit_Dictionary(this ListMetaData listMeta, Dictionary<string, string> dic)
+        public static bool edit_Dictionary(this CollectionMetaData listMeta, Dictionary<string, string> dic)
         {
-            collectionInspector.write_Search_ListLabel(listMeta, dic);
+            collectionInspector.write_Search_DictionaryLabel(listMeta, dic);
             return edit_Dictionary_Internal(dic, lambda_string, listMeta: listMeta);
         }
         
         public static bool edit_Dictionary(this string label, Dictionary<string, string> dic)
         {
-            collectionInspector.write_Search_ListLabel(label, dic);
+            int inspected = -1;
+            collectionInspector.write_Search_DictionaryLabel(label, ref inspected, dic);
             return edit_Dictionary_Internal(dic, lambda_string);
         }
 
         public static bool edit_Dictionary(this string label, Dictionary<int, string> dic, List<string> roles)
         {
-            collectionInspector.write_Search_ListLabel(label, dic);
+            int inspected = -1;
+            collectionInspector.write_Search_DictionaryLabel(label, ref inspected, dic);
             listElementsRoles = roles;
             var changes =  edit_Dictionary_Internal(dic, lambda_string_role, false);
             listElementsRoles = null;
             return changes;
         }
 
-        private static bool edit_Dictionary_Internal<G, T>(Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true, ListMetaData listMeta = null)
+        private static bool edit_Dictionary_Internal<G, T>(Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true, CollectionMetaData listMeta = null)
         {
 
             if (dic == null)
@@ -2554,15 +2561,15 @@ namespace QuizCanners.Inspect
 
             var changed = false;
 
-            if (listMeta != null && listMeta.Inspecting)
+            if (listMeta != null && listMeta.InspectingElement)
             {
 
                 if (icon.Exit.Click("Exit " + listMeta.label))
-                    listMeta.Inspecting = false;
+                    listMeta.InspectingElement = false;
 
-                if (listMeta.Inspecting && (dic.Count > listMeta.inspected))
+                if (listMeta.InspectingElement && (dic.Count > listMeta.inspectedElement))
                 {
-                    var el = dic.ElementAt(listMeta.inspected);
+                    var el = dic.ElementAt(listMeta.inspectedElement);
 
                     var val = el.Value;
 
@@ -2598,7 +2605,7 @@ namespace QuizCanners.Inspect
                         }
 
                         if (listMeta != null && icon.Enter.Click("Enter " + el))
-                            listMeta.inspected = collectionInspector.Index;
+                            listMeta.inspectedElement = collectionInspector.Index;
                     }
                     nl();
                 }
@@ -2606,7 +2613,7 @@ namespace QuizCanners.Inspect
             return changed;
         }
 
-        private static bool edit_Dictionary_Internal<G, T>(Dictionary<G, T> dic, ref int inspected, bool showKey, ListMetaData listMeta = null)
+        private static bool edit_Dictionary_Internal<G, T>(Dictionary<G, T> dic, ref int inspected, bool showKey, CollectionMetaData listMeta = null)
         {
             bool changed = false;
 
@@ -2720,7 +2727,7 @@ namespace QuizCanners.Inspect
             return changes;
         }
 
-        public static T edit_Array<T>(ref T[] array, ref int inspected, ref bool changed, ListMetaData metaDatas = null)
+        public static T edit_Array<T>(ref T[] array, ref int inspected, ref bool changed, CollectionMetaData metaDatas = null)
         {
             nl();
 

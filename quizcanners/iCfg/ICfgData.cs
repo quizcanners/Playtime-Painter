@@ -833,8 +833,13 @@ namespace QuizCanners.CfgDecode
             
         }
 
-        public static List<Type> TryGetDerivedClasses (this Type t) => t.TryGetClassAttribute<DerivedListAttribute>()?.derivedTypes.NullIfEmpty();
-            
+        public static List<Type> TryGetDerivedClasses(this Type t)
+        {
+            var tps = t.TryGetClassAttribute<DerivedListAttribute>()?.derivedTypes;
+            if (tps == null || tps.Count == 0)
+                return null;
+            return tps;
+        }
         public static string copyBufferValue;
         public static string copyBufferTag;
 

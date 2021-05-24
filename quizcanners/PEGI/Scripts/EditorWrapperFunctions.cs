@@ -1459,7 +1459,7 @@ namespace QuizCanners.Inspect
 
         private static readonly Dictionary<IList, ReorderableList> ReorderableList = new Dictionary<IList, ReorderableList>();
 
-        private static ReorderableList GetReordable<T>(this List<T> list, ListMetaData metaDatas)
+        private static ReorderableList GetReordable<T>(this List<T> list, CollectionMetaData metaDatas)
         {
             ReorderableList rl;
             ReorderableList.TryGetValue(list, out rl);
@@ -1479,7 +1479,7 @@ namespace QuizCanners.Inspect
         private static IList _currentReorderedList;
         private static Type _currentReorderedType;
         private static List<Type> _currentReorderedListTypes;
-        private static ListMetaData _listMetaData;
+        private static CollectionMetaData _listMetaData;
         private static TaggedTypesCfg _currentTaggedTypes;
 
 
@@ -1493,7 +1493,7 @@ namespace QuizCanners.Inspect
                 pegi.SetSelected(ind, val);
         }
 
-        public static bool reorder_List<T>(List<T> l, ListMetaData metas)
+        public static bool reorder_List<T>(List<T> l, CollectionMetaData metas)
         {
             _listMetaData = metas;
 

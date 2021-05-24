@@ -313,10 +313,11 @@ namespace QuizCanners.Utils
         #region List Management
         public static T GetRandom<T>(this List<T> list, ref int previous)
         {
-            if (list.IsNullOrEmptyCollection())
-            {
+            if (list.IsNullOrEmpty())
                 return default;
-            }
+
+            if (list.Count == 1)
+                return list[0];
 
             var rnd = Random.Range(0, list.Count);
 
@@ -328,7 +329,16 @@ namespace QuizCanners.Utils
             previous = rnd;
             return list[previous];
         }
-        public static T GetRandom<T>(this List<T> list) => list.Count == 0 ? default : list[Random.Range(0, list.Count)];
+        public static T GetRandom<T>(this List<T> list)
+        {
+            if (list.IsNullOrEmpty())
+                return default;
+            
+            if (list.Count == 1)
+                return list[0];
+
+            return list[Random.Range(minInclusive: 0, maxExclusive: list.Count)];
+        }
 
         public static T GetRandomByWeight<T>(this List<T> sequence, Func<T, float> weightSelector)
         {
@@ -434,22 +444,6 @@ namespace QuizCanners.Utils
             return list[index];
         }
 
-
-
-        public static int TryGetIndexOrAdd<T>(List<T> list, T obj)
-        {
-            var ind = -1;
-            if (list == null || obj == null) return ind;
-
-            ind = list.IndexOf(obj);
-
-            if (ind != -1) return ind;
-
-            list.Add(obj);
-            ind = list.Count - 1;
-            return ind;
-        }
-
         public static bool IsNew(this Type t) => t.IsValueType || (!t.IsUnityObject() && !t.IsAbstract && t.GetConstructor(Type.EmptyTypes) != null);
 
         public static void Move<T>(this List<T> list, int oldIndex, int newIndex)
@@ -502,12 +496,6 @@ namespace QuizCanners.Utils
         }
 
         public static bool IsNullOrEmpty<T>(this ICollection<T> list) => list == null || list.Count == 0;
-
-        public static bool IsNullOrEmptyCollection(this ICollection list) => list == null || list.Count == 0;
-
-        public static List<T> NullIfEmpty<T>(this List<T> list) => (list == null || list.Count == 0) ? null : list;
-
-        public static string CountToString(this IList lst) => lst == null ? "NULL" : lst.Count.ToString();
 
         #endregion
 
@@ -599,47 +587,6 @@ namespace QuizCanners.Utils
             for (var i = args.Length - add; i < args.Length; i++)
                 args[i] = Activator.CreateInstance<T>();
         }
-
-        public static T AddAndInit<T>(ref T[] args) where T : new()
-        {
-            T[] temp;
-            if (args != null)
-            {
-                temp = new T[args.Length + 1];
-                args.CopyTo(temp, 0);
-            }
-            else temp = new T[1];
-            args = temp;
-            var tmp = new T();
-            args[temp.Length - 1] = tmp;
-            return tmp;
-        }
-
-        public static void InsertAfterAndInit<T>(ref T[] args, int ind) where T : new()
-        {
-            if ((args != null) && (args.Length > 0))
-            {
-                var temp = new T[args.Length + 1];
-                Array.Copy(args, 0, temp, 0, ind + 1);
-                if (ind < args.Length - 1)
-                {
-                    var count = args.Length - ind - 1;
-                    Array.Copy(args, ind + 1, temp, ind + 2, count);
-                }
-                args = temp;
-                args[ind + 1] = new T();
-            }
-            else
-            {
-
-                args = new T[ind + 1];
-                for (var i = 0; i < ind + 1; i++)
-                    args[i] = new T();
-            }
-
-
-        }
-
 
         #endregion
 

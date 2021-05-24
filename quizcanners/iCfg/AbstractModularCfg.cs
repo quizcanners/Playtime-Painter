@@ -186,7 +186,7 @@ namespace QuizCanners.CfgDecode {
     
     public static class TaggedTypes {
 
-        public static void TryChangeObjectType(IList list, int index, Type type, TaggedTypesCfg cfg, ListMetaData ld = null)
+        public static void TryChangeObjectType(IList list, int index, Type type, TaggedTypesCfg cfg, CollectionMetaData ld = null)
         {
             object previous = null;
 
@@ -297,7 +297,7 @@ namespace QuizCanners.CfgDecode {
 
         #region Inspector
         
-        private ListMetaData modulesMeta = new ListMetaData("Modules", allowDeleting: false, showAddButton:false, allowReordering: false, showEditListButton:false);
+        private CollectionMetaData modulesMeta = new CollectionMetaData("Modules", allowDeleting: false, showAddButton:false, allowReordering: false, showEditListButton:false);
 
         public void Inspect()
         {

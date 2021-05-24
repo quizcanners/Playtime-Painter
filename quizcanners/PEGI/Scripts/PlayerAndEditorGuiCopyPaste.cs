@@ -57,7 +57,7 @@ namespace QuizCanners.Inspect
                 return changed;
             }
 
-            public static bool InspectOptions<T>(ListMetaData meta= null) 
+            public static bool InspectOptions<T>(CollectionMetaData meta= null) 
             {
                 if (meta != null && meta[ListInspectParams.showCopyPasteOptions] == false)
                     return false;

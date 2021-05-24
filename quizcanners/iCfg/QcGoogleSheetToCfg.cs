@@ -69,7 +69,7 @@ namespace QuizCanners.CfgDecode
        
         public void StartDownload()
         {
-            if (pages.IsNullOrEmptyCollection())
+            if (pages.IsNullOrEmpty())
                 Debug.LogError("No page assigned");
             else
                 StartDownload(pages[0]);

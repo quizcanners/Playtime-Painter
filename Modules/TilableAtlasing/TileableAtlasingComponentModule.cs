@@ -671,7 +671,7 @@ namespace PlaytimePainter.ComponentModules {
         public Texture2D aTexture;
 
         public List<AtlasTextureField> textures = new List<AtlasTextureField>();
-        private ListMetaData _texturesMeta = new ListMetaData("Textures");
+        private CollectionMetaData _texturesMeta = new CollectionMetaData("Textures");
 
         #region Encode & Decode
 

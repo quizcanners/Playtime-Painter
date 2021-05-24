@@ -22,11 +22,11 @@ namespace QuizCanners.Inspect
         showCopyPasteOptions = 128,
     }
     
-    public class ListMetaData : IPEGI
+    public class CollectionMetaData : IPEGI
     {
         public string label = "list";
-        public int inspected = -1;
-        public int previousInspected = -1;
+        public int inspectedElement = -1;
+        public int previouslyInspectedElement = -1;
         public int listSectionStartIndex;
         private ListInspectParams _config;
         public bool useOptimalShowRange = true;
@@ -49,10 +49,10 @@ namespace QuizCanners.Inspect
             }
         }
         
-        public bool Inspecting 
+        public bool InspectingElement 
         { 
-            get => inspected != -1;
-            set { if (value == false) inspected = -1; } 
+            get => inspectedElement != -1;
+            set { if (value == false) inspectedElement = -1; } 
         }
         
         public List<int> GetSelectedElements()
@@ -150,21 +150,21 @@ namespace QuizCanners.Inspect
         #endregion
 
     
-        public ListMetaData()
+        public CollectionMetaData()
         {
             this[ListInspectParams.showAddButton] = true;
             this[ListInspectParams.allowDeleting] = true;
             this[ListInspectParams.allowReordering] = true;
         }
 
-        public ListMetaData(string nameMe,params ListInspectParams[] configs)
+        public CollectionMetaData(string nameMe,params ListInspectParams[] configs)
         {
             label = nameMe;
             foreach (var config in configs)
                 this[config] = true;
         }
         
-        public ListMetaData(string nameMe, bool allowDeleting = true,
+        public CollectionMetaData(string nameMe, bool allowDeleting = true,
             bool allowReordering = true,
             bool showAddButton = true,
             bool showEditListButton = true,
@@ -291,9 +291,9 @@ namespace QuizCanners.Inspect
     public static class StdListDataExtensions
     {
 
-        public static T TryGet<T>(this List<T> list, ListMetaData meta) => list.TryGet(meta.inspected);
+        public static T TryGet<T>(this List<T> list, CollectionMetaData meta) => list.TryGet(meta.inspectedElement);
 
-        public static ElementData TryGetElement(this ListMetaData ld, int ind)
+        public static ElementData TryGetElement(this CollectionMetaData ld, int ind)
         {
             ElementData ed = new ElementData();
             ld?.elementDatas.TryGet(ind, out ed);

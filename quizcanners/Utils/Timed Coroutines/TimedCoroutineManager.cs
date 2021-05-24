@@ -60,14 +60,14 @@ namespace QuizCanners.Utils
             }
 
             #region Inspector 
-            private readonly ListMetaData coroutinesListMeta = new ListMetaData("Managed Coroutines", showAddButton: false);
+            private readonly CollectionMetaData coroutinesListMeta = new CollectionMetaData("Managed Coroutines", showAddButton: false);
 
             private Task _debugTask;
             public void Inspect()
             {
                 pegi.nl();
 
-                if (!coroutinesListMeta.Inspecting)
+                if (!coroutinesListMeta.InspectingElement)
                 {
                     "Pool Size: {0}".F(pool.Count).nl();
 
@@ -96,7 +96,7 @@ namespace QuizCanners.Utils
 
                 coroutinesListMeta.edit_List(enumerators).nl();
 
-                if (!coroutinesListMeta.Inspecting)
+                if (!coroutinesListMeta.InspectingElement)
                 {
                     ("Managed Timed coroutines can run in Editor, but need an object to send an update call to them every frame: QcAsync.UpdateManagedCoroutines()." +
                      " Alternatively a TimedEnumerator can be started with Unity's " +

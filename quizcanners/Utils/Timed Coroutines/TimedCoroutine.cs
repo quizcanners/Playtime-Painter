@@ -338,7 +338,7 @@ namespace QuizCanners.Utils
         {
             thisVersion = EnumeratorVersion;
 
-            if (_enumeratorStack.IsNullOrEmptyCollection())
+            if (_enumeratorStack.IsNullOrEmpty())
             {
                 _state = "No enumerator";
                 Debug.LogError(_state);

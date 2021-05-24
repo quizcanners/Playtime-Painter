@@ -127,7 +127,7 @@ namespace PlaytimePainter {
 
         #region Modules
       
-        private static ListMetaData _modulesMeta = new ListMetaData("Modules", true, true, true, false);
+        private static CollectionMetaData _modulesMeta = new CollectionMetaData("Modules", true, true, true, false);
 
         public static T GetModule<T>() where T : CameraModuleBase 
         {
@@ -928,7 +928,7 @@ namespace PlaytimePainter {
             {
                 _modulesMeta.edit_List(CameraModuleBase.modules, CameraModuleBase.all);
 
-                if (!_modulesMeta.Inspecting)
+                if (!_modulesMeta.InspectingElement)
                 {
                     if ("Find Modules".Click())
                         CameraModuleBase.RefreshModules();
