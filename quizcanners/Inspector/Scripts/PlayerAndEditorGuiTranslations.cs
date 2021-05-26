@@ -16,16 +16,6 @@ namespace QuizCanners.Inspect {
     public static partial class LazyLocalization {
 
         public const int eng = (int)SystemLanguage.English;
-        /*public const int ukr = (int)SystemLanguage.Ukrainian;
-        public const int trk = (int)SystemLanguage.Turkish;
-        public const int rus = (int)SystemLanguage.Russian;
-        public const int chn = (int)SystemLanguage.Chinese;
-        public const int gmn = (int)SystemLanguage.German;
-        public const int spn = (int)SystemLanguage.Spanish;
-        public const int jap = (int)SystemLanguage.Japanese;
-        public const int frc = (int)SystemLanguage.French;
-        public const int kor = (int)SystemLanguage.Korean;
-        public const int ptg = (int)SystemLanguage.Portuguese;*/
 
         public static LazyTranslation Get(this Msg msg)
         {
@@ -134,12 +124,6 @@ namespace QuizCanners.Inspect {
 
             return coreTranslations.GetWhenInited(index);
         }
-
-
-
-
-        
-
 
         public class LazyTranslation
         {

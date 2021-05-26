@@ -41,6 +41,13 @@ namespace QuizCanners.Inspect
         public static bool isFoldedOutOrEntered;
 
         public static bool globChanged; // Some times user can change temporary fields, like delayed Edits
+
+        internal static bool IsNextFoldedOut => _selectedFold == _elementIndex - 1;
+
+        private static int _elementIndex;
+
+        private static int _selectedFold = -1;
+
         #endregion
 
 
@@ -48,17 +55,12 @@ namespace QuizCanners.Inspect
 #if UNITY_EDITOR
 
         private static bool _lineOpen;
-        private static int _selectedFold = -1;
-        private static int _elementIndex;
         public static Object inspectedUnityObject;
         public static SerializedObject serObj;
         private static Editor _editor;
         private static PEGI_Inspector_Material _materialEditor;
         public static Object drawDefaultInspector;
 
-
-        internal static bool IsNextFoldedOut => _selectedFold == _elementIndex-1;
-        
         public static void RepaintEditor() {
             if (_editor)
                 _editor.Repaint();
@@ -1466,7 +1468,7 @@ namespace QuizCanners.Inspect
 
             if (rl != null) return rl;
 
-            rl = new ReorderableList(list, typeof(T), metaDatas == null || metaDatas[ListInspectParams.allowReordering], true, false, false);//metaDatas == null || metaDatas.allowDelete);
+            rl = new ReorderableList(list, typeof(T), metaDatas == null || metaDatas[CollectionInspectParams.allowReordering], true, false, false);//metaDatas == null || metaDatas.allowDelete);
             ReorderableList.Add(list, rl);
 
             rl.drawHeaderCallback += DrawHeader;

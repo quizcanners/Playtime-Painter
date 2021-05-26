@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 namespace QuizCanners.Inspect
 {
-    #region List Data
+    #region Collection Inspect Data
 
 
     [Flags]
-    public enum ListInspectParams
+    public enum CollectionInspectParams
     {
         None = 0,
         allowDeleting = 1,
@@ -28,12 +28,12 @@ namespace QuizCanners.Inspect
         public int inspectedElement = -1;
         public int previouslyInspectedElement = -1;
         public int listSectionStartIndex;
-        private ListInspectParams _config;
+        private CollectionInspectParams _config;
         public bool useOptimalShowRange = true;
         public int itemsToShow = 10;
         public UnNullable<ElementData> elementDatas = new UnNullable<ElementData>();
         
-        public bool this[ListInspectParams param]
+        public bool this[CollectionInspectParams param]
         {
             get => (_config & param) == param;
             set
@@ -152,12 +152,12 @@ namespace QuizCanners.Inspect
     
         public CollectionMetaData()
         {
-            this[ListInspectParams.showAddButton] = true;
-            this[ListInspectParams.allowDeleting] = true;
-            this[ListInspectParams.allowReordering] = true;
+            this[CollectionInspectParams.showAddButton] = true;
+            this[CollectionInspectParams.allowDeleting] = true;
+            this[CollectionInspectParams.allowReordering] = true;
         }
 
-        public CollectionMetaData(string nameMe,params ListInspectParams[] configs)
+        public CollectionMetaData(string nameMe,params CollectionInspectParams[] configs)
         {
             label = nameMe;
             foreach (var config in configs)
@@ -175,35 +175,30 @@ namespace QuizCanners.Inspect
 
             label = nameMe;
             
-            this[ListInspectParams.showAddButton] = showAddButton;
-            this[ListInspectParams.allowDeleting] = allowDeleting;
-            this[ListInspectParams.allowReordering] = allowReordering;
-            this[ListInspectParams.showEditListButton] = showEditListButton;
-            this[ListInspectParams.showSearchButton] = showSearchButton;
-            this[ListInspectParams.showDictionaryKey] = showDictionaryKey;
-            this[ListInspectParams.showCopyPasteOptions] = showCopyPasteOptions;
+            this[CollectionInspectParams.showAddButton] = showAddButton;
+            this[CollectionInspectParams.allowDeleting] = allowDeleting;
+            this[CollectionInspectParams.allowReordering] = allowReordering;
+            this[CollectionInspectParams.showEditListButton] = showEditListButton;
+            this[CollectionInspectParams.showSearchButton] = showSearchButton;
+            this[CollectionInspectParams.showDictionaryKey] = showDictionaryKey;
+            this[CollectionInspectParams.showCopyPasteOptions] = showCopyPasteOptions;
         }
     }
 
     public class ElementData : IGotName
     {
-
-
         public string name;
         public bool selected;
 
         public static bool enableEnterInspectEncoding;
 
-
         public void ChangeType(ref object obj, Type newType, TaggedTypesCfg taggedTypes)
         {
             var previous = obj;
 
-            var tObj = obj as IGotClassTag;
-
             CfgData prev = new CfgData();
 
-            if (tObj != null)
+            if (obj is IGotClassTag tObj)
                 prev = tObj.Encode().CfgData;
 
             obj = Activator.CreateInstance(newType);
@@ -216,7 +211,6 @@ namespace QuizCanners.Inspect
             }
 
             CfgExtensions.TryCopy_Std_AndOtherData(previous, obj);
-
         }
 
         public void Save<T>(T el)
@@ -284,13 +278,10 @@ namespace QuizCanners.Inspect
         }
 
         #endregion
-
-
     }
 
     public static class StdListDataExtensions
     {
-
         public static T TryGet<T>(this List<T> list, CollectionMetaData meta) => list.TryGet(meta.inspectedElement);
 
         public static ElementData TryGetElement(this CollectionMetaData ld, int ind)
@@ -299,9 +290,6 @@ namespace QuizCanners.Inspect
             ld?.elementDatas.TryGet(ind, out ed);
             return ed;
         }
-
     }
-
     #endregion
-
 }

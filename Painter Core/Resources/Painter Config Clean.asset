@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Painter Config Clean
   m_EditorClassIdentifier: 
   playtimePainterLayer: 30
-  isLineraColorSpace: 1
+  isLineraColorSpace: 0
   customBlitModes: []
   selectedCustomBlitMode: 0
   defaultMaterial: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
@@ -31,7 +31,6 @@ MonoBehaviour:
     height: 1024
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 0
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -56,7 +55,6 @@ MonoBehaviour:
     height: 1024
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 0
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -81,7 +79,6 @@ MonoBehaviour:
     height: 256
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 0
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -106,7 +103,6 @@ MonoBehaviour:
     height: 64
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 1
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -131,7 +127,6 @@ MonoBehaviour:
     height: 1600
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 1
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -156,7 +151,6 @@ MonoBehaviour:
     height: 1152
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 1
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -181,7 +175,6 @@ MonoBehaviour:
     height: 64
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 1
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -206,7 +199,6 @@ MonoBehaviour:
     height: 256
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 0
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -231,7 +223,6 @@ MonoBehaviour:
     height: 512
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 1
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -256,7 +247,6 @@ MonoBehaviour:
     height: 512
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 1
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -281,7 +271,6 @@ MonoBehaviour:
     height: 64
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 1
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -306,7 +295,6 @@ MonoBehaviour:
     height: 64
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 1
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -331,7 +319,6 @@ MonoBehaviour:
     height: 64
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 1
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -356,7 +343,6 @@ MonoBehaviour:
     height: 64
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 1
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -381,7 +367,6 @@ MonoBehaviour:
     height: 2048
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 0
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -406,7 +391,6 @@ MonoBehaviour:
     height: 2048
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 0
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -431,7 +415,6 @@ MonoBehaviour:
     height: 2048
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 0
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -456,7 +439,6 @@ MonoBehaviour:
     height: 2048
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 0
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -481,7 +463,6 @@ MonoBehaviour:
     height: 2048
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 0
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -506,7 +487,6 @@ MonoBehaviour:
     height: 2048
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 0
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -525,63 +505,12 @@ MonoBehaviour:
     inspectedItems: -1
   - target: 0
     renderTexture: {fileID: 0}
-    texture2D: {fileID: 2800000, guid: 7b6e8693e1d992d42b4e4e946a43e145, type: 3}
-    other: {fileID: 0}
-    width: 2048
-    height: 2048
-    useTexCoord2: 0
-    _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
-    isATransparentLayer: 0
-    enableUndoRedo: 0
-    preserveTransparency: 1
-    sdfMaxInside: 1
-    sdfMaxOutside: 1
-    sdfPostProcessDistance: 1
-    _repaintDelay: 0.016
-    updateTex2DafterStroke: 0
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    isAVolumeTexture: 0
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    backupManually: 0
-    saveName: Dungeons_Texture_FloorTiles_01
-    url: 
-    inspectedItems: -1
-  - target: 0
-    renderTexture: {fileID: 0}
-    texture2D: {fileID: 2800000, guid: b24b57e0cfed05643be34b0256df875e, type: 3}
-    other: {fileID: 0}
-    width: 1024
-    height: 1024
-    useTexCoord2: 0
-    _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
-    isATransparentLayer: 0
-    enableUndoRedo: 0
-    preserveTransparency: 1
-    sdfMaxInside: 1
-    sdfMaxOutside: 1
-    sdfPostProcessDistance: 1
-    _repaintDelay: 0.016
-    updateTex2DafterStroke: 0
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    isAVolumeTexture: 0
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    backupManually: 0
-    saveName: Dungeons_Texture_01
-    url: 
-    inspectedItems: -1
-  - target: 0
-    renderTexture: {fileID: 0}
     texture2D: {fileID: 2800000, guid: 507834b80a307ef42914caba414f2562, type: 3}
     other: {fileID: 0}
     width: 16
     height: 16
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 0
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -606,7 +535,6 @@ MonoBehaviour:
     height: 2048
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 0
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -631,7 +559,6 @@ MonoBehaviour:
     height: 2048
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 0
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -656,7 +583,6 @@ MonoBehaviour:
     height: 2048
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 0
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -681,7 +607,6 @@ MonoBehaviour:
     height: 1024
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 0
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -700,63 +625,12 @@ MonoBehaviour:
     inspectedItems: -1
   - target: 0
     renderTexture: {fileID: 0}
-    texture2D: {fileID: 2800000, guid: 24a5587de2eb8e247b6aa8c26aba8954, type: 3}
-    other: {fileID: 0}
-    width: 2048
-    height: 2048
-    useTexCoord2: 0
-    _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
-    isATransparentLayer: 0
-    enableUndoRedo: 0
-    preserveTransparency: 1
-    sdfMaxInside: 1
-    sdfMaxOutside: 1
-    sdfPostProcessDistance: 1
-    _repaintDelay: 0.016
-    updateTex2DafterStroke: 0
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    isAVolumeTexture: 0
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    backupManually: 0
-    saveName: Dungeons_Texture_WallTiles_mask
-    url: 
-    inspectedItems: -1
-  - target: 0
-    renderTexture: {fileID: 0}
-    texture2D: {fileID: 2800000, guid: 04c738e82af2a96438356f3111b4fa6f, type: 3}
-    other: {fileID: 0}
-    width: 2048
-    height: 2048
-    useTexCoord2: 0
-    _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
-    isATransparentLayer: 0
-    enableUndoRedo: 0
-    preserveTransparency: 1
-    sdfMaxInside: 1
-    sdfMaxOutside: 1
-    sdfPostProcessDistance: 1
-    _repaintDelay: 0.016
-    updateTex2DafterStroke: 0
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    isAVolumeTexture: 0
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    backupManually: 0
-    saveName: Dungeons_Texture_WallTiles_01
-    url: 
-    inspectedItems: -1
-  - target: 0
-    renderTexture: {fileID: 0}
     texture2D: {fileID: 2800000, guid: 6be84988c45c6554b821d7a19a15f32b, type: 3}
     other: {fileID: 0}
     width: 1024
     height: 1024
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 0
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -775,38 +649,12 @@ MonoBehaviour:
     inspectedItems: -1
   - target: 0
     renderTexture: {fileID: 0}
-    texture2D: {fileID: 2800000, guid: 777c850fab227a049a5d74a4e68b70e7, type: 3}
-    other: {fileID: 0}
-    width: 512
-    height: 512
-    useTexCoord2: 0
-    _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
-    isATransparentLayer: 0
-    enableUndoRedo: 0
-    preserveTransparency: 1
-    sdfMaxInside: 1
-    sdfMaxOutside: 1
-    sdfPostProcessDistance: 1
-    _repaintDelay: 0.016
-    updateTex2DafterStroke: 0
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    isAVolumeTexture: 0
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    backupManually: 0
-    saveName: New SM_Env_Bone_Skull_03
-    url: 
-    inspectedItems: -1
-  - target: 0
-    renderTexture: {fileID: 0}
     texture2D: {fileID: 2800000, guid: 35c200f47dffd51449fbe2275ec6f984, type: 3}
     other: {fileID: 0}
     width: 118
     height: 82
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 0
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -831,7 +679,6 @@ MonoBehaviour:
     height: 1024
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 1
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -856,7 +703,6 @@ MonoBehaviour:
     height: 1024
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 1
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -881,7 +727,6 @@ MonoBehaviour:
     height: 2048
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 0
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -906,7 +751,6 @@ MonoBehaviour:
     height: 256
     useTexCoord2: 0
     _useTexCoord2AutoAssigned: 0
-    lockEditing: 0
     isATransparentLayer: 0
     enableUndoRedo: 0
     preserveTransparency: 1
@@ -924,11 +768,6 @@ MonoBehaviour:
     url: 
     inspectedItems: -1
   matMetas:
-  - material: {fileID: 2100000, guid: b64531222cca0504c89bf60a156a2157, type: 2}
-    selectedTexture: 0
-    usePreviewShader: 0
-    colorToVertexColorOnMerge: 0
-    selectedForMerge: 0
   - material: {fileID: 2100000, guid: 98129db3de22cd74896bef29376ea219, type: 2}
     selectedTexture: 0
     usePreviewShader: 0
@@ -937,16 +776,6 @@ MonoBehaviour:
   - material: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
     selectedTexture: 0
     usePreviewShader: 1
-    colorToVertexColorOnMerge: 0
-    selectedForMerge: 0
-  - material: {fileID: 2100000, guid: 42b64fdb315e3054ea757d8d1c4bcfa7, type: 2}
-    selectedTexture: 0
-    usePreviewShader: 0
-    colorToVertexColorOnMerge: 0
-    selectedForMerge: 0
-  - material: {fileID: 2100000, guid: 0574116a7188c654ab34fcd54a2d0ecc, type: 2}
-    selectedTexture: 0
-    usePreviewShader: 0
     colorToVertexColorOnMerge: 0
     selectedForMerge: 0
   - material: {fileID: 2100000, guid: 122ad79ee7336ca40aca8b9e1c8420da, type: 2}

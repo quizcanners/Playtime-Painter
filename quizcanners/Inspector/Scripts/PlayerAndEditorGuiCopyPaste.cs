@@ -59,7 +59,7 @@ namespace QuizCanners.Inspect
 
             public static bool InspectOptions<T>(CollectionMetaData meta= null) 
             {
-                if (meta != null && meta[ListInspectParams.showCopyPasteOptions] == false)
+                if (meta != null && meta[CollectionInspectParams.showCopyPasteOptions] == false)
                     return false;
 
                 var type = typeof(T);

@@ -495,7 +495,7 @@ namespace QuizCanners.Utils
             list[indexB] = tmp;
         }
 
-        public static bool IsNullOrEmpty<T>(this ICollection<T> list) => list == null || list.Count == 0;
+        public static bool IsNullOrEmpty(this ICollection list) => list == null || list.Count == 0;
 
         #endregion
 
@@ -596,7 +596,8 @@ namespace QuizCanners.Utils
         {
             TValue val;
 
-            if (dict.TryGetValue(key, out val)) return val;
+            if (dict.TryGetValue(key, out val)) 
+                return val;
 
             val = new TValue();
             dict.Add(key, val);

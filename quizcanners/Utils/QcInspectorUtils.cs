@@ -1,15 +1,17 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using QuizCanners.CfgDecode;
 using QuizCanners.Inspect;
-using UnityEditor.Sprites;
 using UnityEngine;
 using UnityEngine.Profiling;
-using UnityEngine.U2D;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
+
+#if UNITY_EDITOR
+    using UnityEditor.Sprites;
+#endif
+
 namespace QuizCanners.Utils
 {
 #pragma warning disable IDE0034 // Simplify 'default' expression
@@ -843,6 +845,8 @@ namespace QuizCanners.Utils
 
             if ("Texture Utils".isEntered(ref inspectedSection, 7).nl())
             {
+
+#if UNITY_EDITOR
                 Sprite sa = null;
 
                 "To extract a Texture from Sprite, Set Read/Write Enabled to True and make sure it's format is Uncompressed (RGBA32 should do it)".writeHint();
@@ -863,6 +867,10 @@ namespace QuizCanners.Utils
                         atlasTexture.SaveTextureAsAsset("Atlas Textures", ref name, saveAsNew: true);
                     }
                 }
+#else
+                "Only in Editor".writeWarning();
+#endif
+
             }
 
             if ("Managed Coroutines [{0}]".F(QcAsync.DefaultCoroutineManager.GetActiveCoroutinesCount).isEntered(ref inspectedSection, 8).nl())

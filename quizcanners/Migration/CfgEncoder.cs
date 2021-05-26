@@ -8,12 +8,6 @@ using Object = UnityEngine.Object;
 
 namespace QuizCanners.CfgDecode
 {
-
-#pragma warning disable IDE0034 // Simplify 'default' expression
-#pragma warning disable IDE0019 // Use pattern matching
-#pragma warning disable IDE0018 // Inline variable declaration
-
-
     public static class EncodeExtensions {
 
         public static void AppendSplit(this StringBuilder builder, string value) => builder.Append(value).Append(CfgEncoder.Splitter);
@@ -54,21 +48,7 @@ namespace QuizCanners.CfgDecode
             .Add("pvt", tf.pivot)
             .Add("deSize", tf.sizeDelta);
         }
-        /*
-        public static CfgEncoder Encode(this ICfg cfg, ICfgSerializeNestedReferences keeper) {
-
-            var prevKeeper = CfgEncoder.keeper;
-            CfgEncoder.keeper = keeper;
-
-            var ret = cfg.Encode();
-
-            (keeper as Object).SetToDirty();
-
-            CfgEncoder.keeper = prevKeeper;
-            return ret;
-
-        }*/
-
+    
         public static CfgEncoder Encode<T>(this T[] arr) where T : ICfg {
             var cody = new CfgEncoder();
 
@@ -234,10 +214,8 @@ namespace QuizCanners.CfgDecode
 
         public CfgData CfgData => new CfgData(_builder.ToString());
 
-        public override string ToString() {
-           // if (_toUnlock != null)
-              //  _toUnlock.locked = false;
-
+        public override string ToString() 
+        {
             return _builder.ToString();
         }
 
@@ -292,38 +270,6 @@ namespace QuizCanners.CfgDecode
         #endregion
 
         #region Internal Add Unrecognized Data
-      /*  private CfgEncoder Add<T>(T val, IList<Type> types, int index) where T : ICfg
-        {
-
-            if (!QcUnity.IsNullOrDestroyed_Obj(val))
-            {
-                var typeIndex = types.IndexOf(val.GetType());
-                if (typeIndex != -1)
-                {
-                    Add(typeIndex.ToString(), val.Encode());
-                }
-                else
-                {
-                    Add_String(UnrecognizedTag, " ");
-                }
-            }
-            else
-            {
-                    Add_String(NullTag, "");
-            }
-
-            return this;
-        }*/
-
-    /*    private CfgEncoder Add_Abstract<T>(T val, int index) where T : IGotClassTag
-        {
-            if (val == null)
-                return Add_String(NullTag, "");
-            
-            
-          return Add(val.ClassTag, val);
- 
-        }*/
 
         public CfgEncoder Add<T>(T v, List<Type> types) where T : ICfg
         {
@@ -391,12 +337,10 @@ namespace QuizCanners.CfgDecode
                 cody.Add_String(CfgDecoder.ListElementTag, s);
 
             return Add(tag, cody);
-            
         }
 
         public CfgEncoder Add(string tag, List<uint> val)
         {
-
             var cody = new CfgEncoder();
             foreach (var i in val)
                 cody.Add(CfgDecoder.ListElementTag, i);
@@ -404,32 +348,30 @@ namespace QuizCanners.CfgDecode
             return Add(tag, cody);
         }
 
-        public CfgEncoder Add(string tag, List<Color> val)  {
-
+        public CfgEncoder Add(string tag, List<Color> val)  
+        {
             var cody = new CfgEncoder();
             
             foreach (var i in val)
                 cody.Add(CfgDecoder.ListElementTag, i);
             
             return Add(tag, cody);
-
         }
 
-        public CfgEncoder Add(string tag, List<Matrix4x4> val)  {
-
+        public CfgEncoder Add(string tag, List<Matrix4x4> val)  
+        {
             var cody = new CfgEncoder();
             
             foreach (var i in val)
                 cody.Add(CfgDecoder.ListElementTag, i);
             
             return Add(tag, cody);
-
         }
 
         public CfgEncoder Add(string tag, Matrix4x4[] arr) 
         {
-          
-            if (arr == null) return this;
+            if (arr == null) 
+                return this;
             
             var cody = new CfgEncoder()
             .Add("len", arr.Length);
@@ -438,12 +380,10 @@ namespace QuizCanners.CfgDecode
                 cody.Add(CfgDecoder.ListElementTag, v.Encode());
             
             return Add(tag, cody);
-
         }
 
         public CfgEncoder Add<T>(string tag, List<T> lst) where T : ICfg, new()
         {
-
             var cody = new CfgEncoder();
 
             if (lst == null) return this;
@@ -456,11 +396,13 @@ namespace QuizCanners.CfgDecode
                     cody.Add(v, indTypes);
             }
             else
+            {
                 foreach (var v in lst)
                     if (v != null)
                         cody.Add(CfgDecoder.ListElementTag, v.Encode());
                     else
                         cody.Add_String(NullTag, "");
+            }
 
 
             return Add(tag, cody);
@@ -476,7 +418,6 @@ namespace QuizCanners.CfgDecode
                 sub.Add_String(e.Key.ToString(), e.Value);
 
             return Add(tag, sub);
-
         }
 
         public CfgEncoder Add(string tag, Dictionary<string, string> dic) => Add(tag, dic.Encode());

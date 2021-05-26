@@ -60,18 +60,16 @@ namespace QuizCanners.Inspect {
     {
         public PEGI_Inspector_OverrideAttribute(Type inspectedType) : base(inspectedType) { }
     }
-
-
 #else
     Attribute 
-     {
+    {
         public PEGI_Inspector_OverrideAttribute(Type inspectedType)  { }
     }
 #endif
 
-
-#if UNITY_EDITOR
-
+#if !UNITY_EDITOR
+     public abstract class PEGI_Inspector_Override { }
+#else
     public abstract class PEGI_Inspector_Override : Editor
     {
         public override void OnInspectorGUI()

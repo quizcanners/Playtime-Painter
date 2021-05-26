@@ -23,7 +23,6 @@ namespace QuizCanners.Inspect
 {
     public static partial class pegi
     {
-
         #region Changes 
 
         public class ChangesToken 
@@ -107,7 +106,7 @@ namespace QuizCanners.Inspect
             return (showIndex || st.Length == 0) ? "{0}: {1}".F(index, st) : st;
         }
 
-        private static bool selectFinal(ref int val, ref int index, List<string> namesList)
+        private static bool selectFinal_Internal(ref int val, ref int index, List<string> namesList)
         {
             var count = namesList.Count;
 
@@ -133,7 +132,7 @@ namespace QuizCanners.Inspect
 
         }
 
-        private static bool selectFinal<T>(T val, ref int index, List<string> namesList)
+        private static bool selectFinal_Internal<T>(T val, ref int index, List<string> namesList)
         {
             var count = namesList.Count;
 
@@ -230,7 +229,7 @@ namespace QuizCanners.Inspect
                 listNames.Add(CompileSelectionName(i, el, showIndex, stripSlashes, dotsToSlashes));
             }
 
-            if (selectFinal(val, ref tmp, listNames))
+            if (selectFinal_Internal(val, ref tmp, listNames))
             {
                 val = arr[tmp];
                 return true;
@@ -394,7 +393,7 @@ namespace QuizCanners.Inspect
                 values.Add("{0} [{1}]".F(layer.name, layer.value));
             }
 
-            if (selectFinal(sortingLayer, ref selected, values))
+            if (selectFinal_Internal(sortingLayer, ref selected, values))
             {
                 sortingLayer = SortingLayer.layers[selected];
                 return true;
@@ -508,7 +507,7 @@ namespace QuizCanners.Inspect
                 indexList.Add(j);
             }
 
-            if (selectFinal(val, ref current, namesList))
+            if (selectFinal_Internal(val, ref current, namesList))
             {
                 val = array[indexList[current]];
                 return true;
@@ -551,7 +550,7 @@ namespace QuizCanners.Inspect
                     indexes.Add(i);
                 }
 
-                if (selectFinal(val, ref currentIndex, names))
+                if (selectFinal_Internal(val, ref currentIndex, names))
                 {
                     val = lst[indexes[currentIndex]];
                     changed = true;
@@ -598,7 +597,7 @@ namespace QuizCanners.Inspect
                 indexList.Add(j);
             }
 
-            if (selectFinal(val, ref current, namesList).changes_Internal(ref changed))
+            if (selectFinal_Internal(val, ref current, namesList).changes_Internal(ref changed))
                 val = lst[indexList[current]] as T;
             else if (allowInsert && notInTheList && !currentIsNull && icon.Insert.Click("Insert into list").changes_Internal(ref changed))
                 lst.TryAdd(val);
@@ -678,7 +677,7 @@ namespace QuizCanners.Inspect
                     indexes.Add(j);
                 }
 
-            if (selectFinal(ind, ref current, namesList))
+            if (selectFinal_Internal(ind, ref current, namesList))
             {
                 ind = indexes[current];
                 return true;
@@ -701,7 +700,7 @@ namespace QuizCanners.Inspect
                     lnms.Add(CompileSelectionName(i, arr[i], showIndex, stripSlashes, dotsToSlashes));
             }
 
-            return selectFinal(ind, ref ind, lnms);
+            return selectFinal_Internal(ind, ref ind, lnms);
 
         }
 
@@ -767,7 +766,7 @@ namespace QuizCanners.Inspect
             }
 
 
-            if (selectFinal(val, ref current, names))
+            if (selectFinal_Internal(val, ref current, names))
             {
                 val = indexes[current];
                 return true;
@@ -799,7 +798,7 @@ namespace QuizCanners.Inspect
                 indexList.Add(j);
             }
 
-            if (selectFinal(val, ref current, namesList).changes_Internal(ref changed))
+            if (selectFinal_Internal(val, ref current, namesList).changes_Internal(ref changed))
                 val = lst[indexList[current]];
 
             return changed;
@@ -1004,7 +1003,7 @@ namespace QuizCanners.Inspect
 
             }
 
-            if (selectFinal(val, ref elementIndex, namesList))
+            if (selectFinal_Internal(val, ref elementIndex, namesList))
             {
                 key = from.ElementAt(elementIndex).Key;
                 return true;
@@ -1210,7 +1209,7 @@ namespace QuizCanners.Inspect
 
                 }
 
-            if (selectFinal(ind, ref current, names))
+            if (selectFinal_Internal(ind, ref current, names))
             {
                 ind = indexes[current];
                 return true;
@@ -1243,7 +1242,7 @@ namespace QuizCanners.Inspect
 
             }
 
-            if (selectFinal(ref val, ref current, names))
+            if (selectFinal_Internal(ref val, ref current, names))
             {
                 val = indexes[current];
                 return true;
@@ -1317,7 +1316,7 @@ namespace QuizCanners.Inspect
             if (names.Count == 0)
                 return edit(ref ind);
 
-            if (selectFinal(ref ind, ref current, names))
+            if (selectFinal_Internal(ref ind, ref current, names))
             {
                 ind = indexes[current];
                 val = els[current];
@@ -1393,7 +1392,7 @@ namespace QuizCanners.Inspect
 
                 }
 
-            if (selectFinal(val, ref current, namesList))
+            if (selectFinal_Internal(val, ref current, namesList))
             {
                 val = namesList[current];
                 return true;
@@ -1425,7 +1424,7 @@ namespace QuizCanners.Inspect
 
                 }
 
-            if (selectFinal(val, ref current, namesList))
+            if (selectFinal_Internal(val, ref current, namesList))
             {
                 val = namesList[current];
                 return true;
@@ -3624,6 +3623,5 @@ namespace QuizCanners.Inspect
         }
 
         #endregion
-
     }
 }
