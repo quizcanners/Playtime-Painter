@@ -316,7 +316,7 @@ namespace QuizCanners.Inspect
             }
 
             if (label.isEntered(ref entered, thisOne))
-            {              
+            {
                 return val.Nested_Inspect();
             }
 
@@ -384,6 +384,7 @@ namespace QuizCanners.Inspect
                     if (icon.Exit.ClickUnFocus("{0} L {1}".F(icon.Exit.GetText(), var))
                         || exitLabel.ClickLabel(icon.Exit.GetDescription(), style: PEGI_Styles.ExitLabel))
                         entered = -1;
+
                     Try_Nested_Inspect(var);
                 }
             }

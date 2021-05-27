@@ -1891,58 +1891,74 @@ namespace QuizCanners.Inspect
         public static bool edit_enter_Inspect<T>(this string label, ref T obj, ref int entered, int current, List<T> selectFrom = null, bool showLabelIfEntered = true) where T : Object
             => label.edit_enter_Inspect(-1, ref obj, ref entered, current, selectFrom,  showLabelIfEntered: showLabelIfEntered);
 
-        public static bool edit_enter_Inspect<T>(this string label, int width, ref T obj, ref int entered, int current, List<T> selectFrom = null, bool showLabelIfEntered = true) where T : Object
+        public static bool edit_enter_Inspect<T>(this string label, int width, ref T obj, ref int entered, int thisOne, List<T> selectFrom = null, bool showLabelIfEntered = true) where T : Object
         {
-            var changed = false;
+            if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
+                return false;
+
+            var changed = ChangeTrackStart();
 
             var lst = obj as IPEGI_ListInspect;
 
-            if (lst != null)
-                lst.enter_Inspect_AsList(ref entered, current, label).changes_Internal(ref changed);
-            else
-            {
-                var pgi = QcUnity.TryGetInterfaceFrom<IPEGI>(obj);
+            bool enterHandled = false;
 
-                if (isConditionally_Entered(pgi != null, ref entered, current, exitLabel: showLabelIfEntered ? label : ""))
-                    pgi.Nested_Inspect().changes_Internal(ref changed);
+            if (lst != null)
+            {
+                enterHandled = true;
+                lst.enter_Inspect_AsList(ref entered, thisOne, label);
             }
 
             if (entered == -1)
             {
                 if (selectFrom == null)
                 {
-                    if (label.IsNullOrEmpty())
+                    if (!enterHandled)
                     {
-                        if (obj)
-                            label = obj.GetNameForInspector();
+                        if (label.IsNullOrEmpty())
+                        {
+                            if (obj)
+                                label = obj.GetNameForInspector();
+                            else
+                                label = typeof(T).ToPegiStringType();
+                        }
+
+                        label = label.tryAddCount(obj);
+
+                        if (width > 0)
+                        {
+                            if (label.ClickLabel(Msg.ClickToInspect.GetText(), width, EnterLabel))
+                                entered = thisOne;
+                        }
                         else
-                            label = typeof(T).ToPegiStringType();
-                    }
+                        if (label.ClickLabel(Msg.ClickToInspect.GetText(), style: EnterLabel))
+                            entered = thisOne;
 
-                    label = label.tryAddCount(obj);
+                        obj.ClickHighlight();
 
-                    if (width > 0)
-                    {
-                        if (label.ClickLabel(Msg.ClickToInspect.GetText(), width, EnterLabel))
-                            entered = current;
+                        enterHandled = true;
                     }
-                    else
-                    if (label.ClickLabel(Msg.ClickToInspect.GetText(), style: EnterLabel))
-                        entered = current;
 
                     if (!obj)
-                        edit(ref obj).changes_Internal(ref changed);
+                        edit(ref obj);
+
                 }
                 else
-                    label.select_or_edit(width, ref obj, selectFrom).changes_Internal(ref changed);
+                    label.select_or_edit(width, ref obj, selectFrom);
 
-                obj.ClickHighlight();
-
-                if (obj && icon.Delete.Click(Msg.MakeElementNull.GetText()))
-                    obj = null;
             }
 
+            if (!enterHandled)
+            {
+                var pgi = QcUnity.TryGetInterfaceFrom<IPEGI>(obj);
 
+                if (isConditionally_Entered(pgi != null, ref entered, thisOne, exitLabel: showLabelIfEntered ? label : "").nl())
+                    pgi.Nested_Inspect();
+
+                obj.ClickHighlight();
+            }
+
+            if ((entered == -1) && obj && icon.Clear.ClickConfirm(confirmationTag: "Del " + label + thisOne, Msg.MakeElementNull.GetText()))
+                obj = null;
 
             return changed;
         }

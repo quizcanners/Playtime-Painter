@@ -83,7 +83,7 @@ namespace QuizCanners.Inspect
 
         public static bool Nested_Inspect<T>(this T pgi) where T : class, IPEGI
         {
-
+            nl();
             if (pgi.IsNullOrDestroyed_Obj())
             {
                 "NULL".F(typeof(T).ToPegiStringType()).write();

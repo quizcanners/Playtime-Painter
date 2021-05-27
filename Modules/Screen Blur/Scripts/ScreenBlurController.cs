@@ -6,34 +6,40 @@ using UnityEngine;
 
 namespace PlaytimePainter
 {
-    [ExecuteInEditMode]
     public class ScreenBlurController : MonoBehaviour, IPEGI
     {
-        public Camera MyCamera;
+        public static ScreenBlurController instance;
 
-        protected Shader copyShader;
-        protected Shader postProcessShader;
-        protected PostProcessMethod postProcessMethod;
-        protected int postProcessIteration = 100;
-        protected Material materialPrototype;
-        public bool allowScreenGrabToRt;
-        public bool useSecondBufferForRenderTextureScreenGrab;
+        [SerializeField] public Camera MyCamera;
+        [SerializeField] protected Shader copyShader;
+        [SerializeField] protected Shader postProcessShader;
+        [SerializeField] protected int postProcessIteration = 100;
+
+        [Header("Config")]
+        [SerializeField] public bool allowScreenGrabToRt;
+        [SerializeField] public bool useSecondBufferForRenderTextureScreenGrab;
 
         [NonSerialized] protected ProcessCommand command;
         [NonSerialized] protected BlurStep step = BlurStep.Off;
-        [NonSerialized] protected Material _effectMaterialInstance;
+        [NonSerialized] protected Material effectMaterialInstance;
         [NonSerialized] protected Action onFirstRender;
         [NonSerialized] protected int blurIteration;
 
         protected readonly ShaderProperty.TextureValue screenGradTexture = new ShaderProperty.TextureValue("_qcPp_Global_Screen_Read");
         protected readonly ShaderProperty.TextureValue processedScreenTexture = new ShaderProperty.TextureValue("_qcPp_Global_Screen_Effect");
-       
+
+        public void RequestUpdate(Action onFirstRendered = null, ProcessCommand afterScreenGrab = ProcessCommand.Blur)
+        {
+            InvokeOnCaptured();
+            onFirstRender = onFirstRendered;
+            command = afterScreenGrab;
+            step = BlurStep.Requested;
+        }
+
         #region Textures and buffers
 
-        [SerializeField] protected CustomRenderTexture effetBuffer;
-
-        [SerializeField] private Texture2D _screenReadTexture2D;
-        public Texture2D ScreenReadTexture2D
+        [NonSerialized] protected Texture2D _screenReadTexture2D;
+        protected Texture2D ScreenReadTexture2D
         {
             get
             {
@@ -54,8 +60,8 @@ namespace PlaytimePainter
             }
         }
 
-        private RenderTexture _screenReadRenderTexture;
-        private RenderTexture ScreenReadRenderTexture
+        [NonSerialized] protected RenderTexture _screenReadRenderTexture;
+        protected RenderTexture ScreenReadRenderTexture
         {
             get
             {
@@ -65,47 +71,43 @@ namespace PlaytimePainter
                     {
                         Destroy(_screenReadRenderTexture);
                     }
-                    _screenReadRenderTexture = new RenderTexture(width: Screen.width, height: Screen.height, 32) { name = "Screen Grab Tmp" };
+                    _screenReadRenderTexture = new RenderTexture(width: (int)(Screen.width), height: (int)(Screen.height), 32) { name = "Screen Grab Tmp" };
                 }
                 return _screenReadRenderTexture;
             }
         }
 
-        #endregion
+        protected virtual Texture CurrentEffectTexture => MainEffectTexture;
 
-        public Texture CurrentEffectTexture => IsUsingCrt ? effetBuffer : MainEffectTexture;
-
-        public Texture CurrentScreenReadTexture => allowScreenGrabToRt
+        protected Texture CurrentScreenReadTexture => allowScreenGrabToRt
             ? (useSecondBufferForRenderTextureScreenGrab ? ScreenReadSecondBufferRt : (Texture)ScreenReadRenderTexture)
             : ScreenReadTexture2D;
 
-        private bool IsUsingCrt => postProcessMethod == PostProcessMethod.CustomRenderTexture;
+        #endregion
 
+        #region Swap Textures
+        private bool _latestIsZero;
+        protected void Swap() => _latestIsZero = !_latestIsZero;
 
-        private Material EffectMaterial
+        [SerializeField] protected List<RenderTexture> _renderTextures = new List<RenderTexture>();
+        protected virtual RenderTexture MainEffectTexture => (_latestIsZero ? _renderTextures[0] : _renderTextures[1]);
+        protected virtual RenderTexture PreviousTexture => (_latestIsZero ? _renderTextures[1] : _renderTextures[0]);
+        #endregion
+
+        protected virtual Material EffectMaterial
         {
             get
             {
-                if (_effectMaterialInstance)
+                if (!effectMaterialInstance)
                 {
-                    return _effectMaterialInstance;
+                    effectMaterialInstance = new Material(Shader.Find("Diffuse"));
                 }
 
-                _effectMaterialInstance = materialPrototype ? Instantiate(materialPrototype) : new Material(Shader.Find("Diffuse"));
-
-                return _effectMaterialInstance;
+                return effectMaterialInstance;
             }
         }
 
-        public void RequestUpdate(Action OnFirstRendered = null, ProcessCommand command = ProcessCommand.Nothing)
-        {
-            InvokeOnCaptured();
-            onFirstRender = OnFirstRendered;
-            this.command = command;
-            step = BlurStep.Requested;
-        }
-
-        private void InvokeOnCaptured()
+        protected void InvokeOnCaptured()
         {
             try
             {
@@ -119,7 +121,7 @@ namespace PlaytimePainter
             onFirstRender = null;
         }
 
-        private void OnPostRender()
+        protected void OnPostRender()
         {
             if (!allowScreenGrabToRt && step == BlurStep.Requested)
             {
@@ -130,40 +132,8 @@ namespace PlaytimePainter
             }
         }
 
-
-        #region Swap Textures
-        private bool _latestIsZero;
-        private void Swap() => _latestIsZero = !_latestIsZero;
-
-        [SerializeField] protected List<RenderTexture> _renderTextures = new List<RenderTexture>();
-        private RenderTexture MainEffectTexture => IsUsingCrt ? effetBuffer : (_latestIsZero ? _renderTextures[0] : _renderTextures[1]);
-        private RenderTexture PreviousTexture => IsUsingCrt ? effetBuffer : (_latestIsZero ? _renderTextures[1] : _renderTextures[0]);
-        #endregion
-
-        /*   private Texture CurrentScreenGrabTexture => allowScreenGrabToRt ? (Texture)ScreenTextureRt : ScreenTexture2D;
-
-           private Texture2D _screenTexture2D;
-           private Texture2D ScreenTexture2D
-           {
-               get
-               {
-                   if (!_screenTexture2D || _screenTexture2D.width != Screen.width || _screenTexture2D.height != Screen.height)
-                   {
-                       if (_screenTexture2D)
-                       {
-                           Destroy(_screenTexture2D);
-                       }
-                       _screenTexture2D = new Texture2D(Screen.width, Screen.height, TextureFormat.RGB24, mipChain: false)
-                       {
-                           name = "Screen Texture 2D" //, filterMode = FilterMode.Point
-                       };
-                   }
-                   return _screenTexture2D;
-               }
-           }*/
-
-        private RenderTexture _screenReadSecondBuffer;
-        private RenderTexture ScreenReadSecondBufferRt
+        protected RenderTexture _screenReadSecondBuffer;
+        protected RenderTexture ScreenReadSecondBufferRt
         {
             get
             {
@@ -173,7 +143,7 @@ namespace PlaytimePainter
                     {
                         Destroy(_screenReadSecondBuffer);
                     }
-                    _screenReadSecondBuffer = new RenderTexture(width: Screen.width, height: Screen.height, 0)
+                    _screenReadSecondBuffer = new RenderTexture(width: (int)(Screen.width), height: (int)(Screen.height), 0)
                     {
                         name = "Screen Rt" //, filterMode = FilterMode.Point
                     };
@@ -182,48 +152,59 @@ namespace PlaytimePainter
             }
         }
 
-        private void BlitBetweenEffectBuffers(Shader shader)
+        protected virtual void BlitBetweenEffectBuffers(Shader shader)
         {
             var mat = EffectMaterial;
             mat.shader = shader;
 
-            if (IsUsingCrt)
-            {
-                effetBuffer.material = mat;
-                effetBuffer.Update();
-            }
-            else
-            {
-                Swap();
-                Graphics.Blit(PreviousTexture, MainEffectTexture, mat);
-            }
+            Swap();
+            Graphics.Blit(PreviousTexture, MainEffectTexture, mat);
 
             processedScreenTexture.GlobalValue = MainEffectTexture;
         }
 
-        private void BlitToEffectBuffer(Texture tex, Shader shader = null)
+        protected void BlitToEffectBuffer(Texture tex, Shader shader = null)
         {
             Blit(tex, MainEffectTexture, shader);
 
             processedScreenTexture.GlobalValue = MainEffectTexture;
         }
 
-        private void Blit(Texture from, RenderTexture to, Shader shader)
+        protected virtual void Blit(Texture from, RenderTexture to, Shader shader)
         {
             if (shader)
             {
                 EffectMaterial.shader = shader;
 
-                if (postProcessMethod == PostProcessMethod.GlBlit)
-                    QcUnity.BlitGL(from, to, EffectMaterial);
-                else
-                    Graphics.Blit(from, to, EffectMaterial);
+                Graphics.Blit(from, to, EffectMaterial);
             }
             else
                 Graphics.Blit(from, to);
         }
 
-        public void Update()
+        protected static void BlitGL(Texture source, RenderTexture destination, Material mat)
+        {
+            RenderTexture.active = destination;
+            mat.SetTexture("_MainTex", source);
+            GL.PushMatrix();
+            GL.LoadOrtho();
+            GL.invertCulling = true;
+            mat.SetPass(0);
+            GL.Begin(GL.QUADS);
+            GL.MultiTexCoord2(0, 0.0f, 0.0f);
+            GL.Vertex3(0.0f, 0.0f, 0.0f);
+            GL.MultiTexCoord2(0, 1.0f, 0.0f);
+            GL.Vertex3(1.0f, 0.0f, 0.0f);
+            GL.MultiTexCoord2(0, 1.0f, 1.0f);
+            GL.Vertex3(1.0f, 1.0f, 1.0f);
+            GL.MultiTexCoord2(0, 0.0f, 1.0f);
+            GL.Vertex3(0.0f, 1.0f, 0.0f);
+            GL.End();
+            GL.invertCulling = false;
+            GL.PopMatrix();
+        }
+
+        protected virtual void Update()
         {
             switch (step)
             {
@@ -285,143 +266,11 @@ namespace PlaytimePainter
 
                     break;
             }
-
-
         }
 
-        #region Inspector
+        private void Awake() => instance = this;
 
-        private bool _showDebug;
-        private bool _showDependencies;
-
-        public void Inspect()
-        {
-            pegi.nl();
-
-            if (!MyCamera)
-            {
-                "No Camera Detected on this Game Object. I need camera".writeWarning();
-                if ("Try Find".Click())
-                    MyCamera = gameObject.GetComponent<Camera>();
-
-                pegi.nl();
-            }
-
-            "Post Process Method".editEnum(ref postProcessMethod);
-
-            if ("Request Update".Click().nl())
-                RequestUpdate();
-
-            if (postProcessMethod == PostProcessMethod.CustomRenderTexture && !effetBuffer)
-            {
-                pegi.writeWarning("Custom render texture not assigned");
-
-                pegi.nl();
-
-                "Effect Buffer".edit(ref effetBuffer).nl();
-            }
-
-            if ("Config".isFoldout(ref _showDependencies).nl())
-            {
-                "Allow Scren Grab To Rt".toggleIcon(ref allowScreenGrabToRt).nl();
-
-                if (allowScreenGrabToRt)
-                {
-                    "Use Second Buffer For Screen Read".toggleIcon(ref useSecondBufferForRenderTextureScreenGrab);
-
-                    pegi.FullWindow.DocumentationClickOpen("If you are expecting to make a Screen Grab while screen grab is showing on a screen, enable this." +
-                        " Same Texture can't be read from and written to at the same time. Black screen or other will show.");
-                }
-
-                pegi.nl();
-
-
-                "Screen".edit(ref _screenReadTexture2D).nl();
-
-                "Copy shader".edit(ref copyShader).nl();
-
-                "Post-Process".edit(ref postProcessShader).nl();
-
-                "Blur Iterations:".edit(ref postProcessIteration).nl();
-
-                if (!IsUsingCrt)
-                {
-                    if (_renderTextures.Count < 2)
-                        pegi.writeWarning("Need 2 Render Textures for Post-Process");
-
-                    "Render Textures".edit_List_UObj(_renderTextures).nl();
-                }
-                else
-                {
-                    "Custom Render Texture".edit(ref effetBuffer).nl();
-                }
-            }
-
-            if ("Debug".isFoldout(ref _showDebug).nl())
-            {
-                if (copyShader)
-                    "Copy Shader. Supported={0} | Pass Count = {1}".F(copyShader.isSupported, copyShader.passCount).nl();
-
-                "State".editEnum(ref step).nl();
-
-                "Buffers".write();
-
-                if ("Swap".Click())
-                    Swap();
-
-                if ("Screen Capture -> Effect Buffer".Click())
-                    BlitToEffectBuffer(CurrentScreenReadTexture, copyShader);
-
-                if ("Blur".Click())
-                    BlitBetweenEffectBuffers(postProcessShader);
-
-                pegi.nl();
-
-                "Screen Texture (Optional):".edit(ref _screenReadTexture2D).nl();
-
-                if (_screenReadTexture2D)
-                    _screenReadTexture2D.draw(250, alphaBlend: false);
-
-                pegi.nl();
-
-                if (_effectMaterialInstance)
-                {
-                    "Temp Mat Instance".write(_effectMaterialInstance);
-                    if (icon.Clear.Click().nl())
-                    {
-                        _effectMaterialInstance.DestroyWhateverUnityObject();
-                        _effectMaterialInstance = null;
-                    }
-                }
-                else
-                {
-                    "Material (Optional)".edit(ref materialPrototype).nl();
-                }
-
-                if (!IsUsingCrt)
-                {
-                    if (!_renderTextures.IsNullOrEmpty())
-                    {
-                        "Main Texture: {0}".F(MainEffectTexture).nl();
-
-                        MainEffectTexture.draw(250, alphaBlend: false);
-                        pegi.nl();
-
-                        "Previous Texture: {0}".F(PreviousTexture).nl();
-                        PreviousTexture.draw(250, alphaBlend: false);
-                        pegi.nl();
-                    }
-                }
-                else
-                {
-                    effetBuffer.draw(250, alphaBlend: false);
-                    pegi.nl();
-                }
-            }
-        }
-        #endregion
-
-        private void Reset()
+        void Reset()
         {
             MyCamera = GetComponent<Camera>();
             step = BlurStep.Off;
@@ -432,13 +281,6 @@ namespace PlaytimePainter
             Blur, Nothing
         }
 
-        public enum PostProcessMethod
-        {
-            GraphicsBlit,
-            CustomRenderTexture,
-            GlBlit
-        }
-
         protected enum BlurStep
         {
             Off,
@@ -446,9 +288,59 @@ namespace PlaytimePainter
             ReturnedFromCamera,
             Blurring
         }
+
+        public void Inspect()
+        {
+            pegi.nl();
+
+            if ("Grab Screenshot".Click())
+                RequestUpdate(afterScreenGrab: ProcessCommand.Nothing);
+
+            if ("Grab & Blur".Click())
+                RequestUpdate(afterScreenGrab: ProcessCommand.Blur);
+
+            pegi.nl();
+
+            if ("Settings".isFoldout().nl())
+            {
+                "Blur Iterations".edit(ref postProcessIteration);
+                pegi.FullWindow.DocumentationClickOpen(() => "For how many frames the Blur operation will be executed.");
+
+
+                pegi.nl();
+                "Grab To Render Texture".toggleIcon(ref allowScreenGrabToRt).nl();
+                if (allowScreenGrabToRt)
+                {
+                    "Use 2 Buffers".toggleIcon(ref useSecondBufferForRenderTextureScreenGrab);
+
+                    pegi.FullWindow.DocumentationClickOpen(() => "If you plan to take a screen shot while screen shot is already on the screen, you will to enable this option" +
+                                                                 "as same texture can't be read from and written to at the same time");
+
+                    pegi.nl();
+                }
+            }
+
+            if (pegi.IsFoldedOut || _renderTextures.Count < 2 || !_renderTextures[0] || !_renderTextures[1])
+            {
+                if (_renderTextures.Count < 2)
+                {
+                    "You need to assignt 2 render textures for blur to render between".writeWarning();
+                }
+
+                "Render Textures".edit_List_UObj(_renderTextures).nl();
+            }
+
+            if ("Debug".isFoldout().nl())
+            {
+                "Screen Read Texture 2D".write(ScreenReadTexture2D);
+            }
+
+        }
     }
 
-    [PEGI_Inspector_Override(typeof(ScreenBlurController))] internal class ScreenBlurControllerDrawer : PEGI_Inspector_Override { }
+
+    [PEGI_Inspector_Override(typeof(ScreenBlurController))]
+    internal class ScreenBlurControllerDrawer : PEGI_Inspector_Override { }
 
 
 }

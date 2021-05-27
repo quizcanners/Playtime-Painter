@@ -5,12 +5,20 @@ Shader "Playtime Painter/UI/ScreenGrab/Display"
     [PerRendererData]
      _MainTex("Sprite Texture", 2D) = "white" {}
       _Color("Tint", Color) = (1,1,1,1)
-
       [Toggle(ALPHA_MASK)] _UseMask("Use Alpha Mask", Float) = 0
+
+    [KeywordEnum(SCREEN_SHOT, BLURRED_SCREEN)] _Target("Screen Grab Data", Float) = 0
+           
+    _StencilComp("Stencil Comparison", Float) = 8
+    _Stencil("Stencil ID", Float) = 0
+    _StencilOp("Stencil Operation", Float) = 0
+    _StencilWriteMask("Stencil Write Mask", Float) = 255
+    _StencilReadMask("Stencil Read Mask", Float) = 255
+    _ColorMask("Color Mask", Float) = 15
 
   }
 
-    SubShader
+  SubShader
       {
         Tags
         {
@@ -21,6 +29,14 @@ Shader "Playtime Painter/UI/ScreenGrab/Display"
           "CanUseSpriteAtlas" = "True"
         }
 
+        Stencil
+        {
+            Ref[_Stencil]
+            Comp[_StencilComp]
+            Pass[_StencilOp]
+            ReadMask[_StencilReadMask]
+            WriteMask[_StencilWriteMask]
+        }
      
 
         Cull Off
@@ -28,6 +44,7 @@ Shader "Playtime Painter/UI/ScreenGrab/Display"
         ZWrite Off
         ZTest Off
         Blend SrcAlpha OneMinusSrcAlpha
+        ColorMask[_ColorMask]
 
         Pass
         {
@@ -36,6 +53,9 @@ Shader "Playtime Painter/UI/ScreenGrab/Display"
           #pragma vertex vert
           #pragma fragment frag
           #pragma shader_feature ___ ALPHA_MASK
+          #pragma shader_feature _SCREEN_SHOT  _BLURRED_SCREEN 
+          #pragma multi_compile __ _qcPp_FEED_MOUSE_POSITION
+        
 
           #include "UnityCG.cginc"
           #include "UnityUI.cginc"
@@ -59,10 +79,16 @@ Shader "Playtime Painter/UI/ScreenGrab/Display"
           };
 
           sampler2D _MainTex;
-          sampler2D _qcPp_Global_Screen_Read;
+
+          #if _SCREEN_SHOT  
+            sampler2D _qcPp_Global_Screen_Read;
+          #else
+            sampler2D _qcPp_Global_Screen_Effect;
+          #endif
           fixed4 _Color;
           float4 _TextureSampleAdd;
           float4 _MainTex_ST;
+          float4 _qcPp_MousePosition;
 
           v2f vert(appdata_t v)
           {
@@ -85,11 +111,31 @@ Shader "Playtime Painter/UI/ScreenGrab/Display"
 
             float2 screenPos = IN.screenPos.xy / IN.screenPos.w;
 
-            fixed4 color = tex2Dlod(_qcPp_Global_Screen_Read, float4(screenPos , 0, 0));
+            fixed4 color = tex2Dlod(
+                #if _SCREEN_SHOT  
+                    _qcPp_Global_Screen_Read
+                #else //_BLURRED_SCREEN
+                    _qcPp_Global_Screen_Effect
+                #endif
+                
+                , float4(screenPos , 0, 0));
              
-            color.a = 1;
+            #if _qcPp_FEED_MOUSE_POSITION
 
-            color *= IN.color;
+                half2 fromMouse = (screenPos - _qcPp_MousePosition.xy);
+
+                fromMouse.x *= _qcPp_MousePosition.w;
+
+                float lenM = length(fromMouse);
+
+                color.a = smoothstep(max(0, 0.99 - (lenM) * 0.9), 1, IN.color.a);
+
+                color.rgb *= IN.color.rgb;
+
+            #else
+                color.a = 1;
+                color *= IN.color;
+            #endif
 
             #if ALPHA_MASK
               color *= tex2D(_MainTex, IN.texcoord);
@@ -100,6 +146,5 @@ Shader "Playtime Painter/UI/ScreenGrab/Display"
         ENDCG
         }
       }
-
       Fallback "Legacy Shaders/Transparent/VertexLit"
 }
