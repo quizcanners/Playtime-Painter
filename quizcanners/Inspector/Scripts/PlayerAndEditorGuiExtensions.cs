@@ -18,18 +18,34 @@ namespace QuizCanners.Inspect
 {
     public static partial class pegi
     {
+        public static void write(Exception ex) 
+        {
+            icon.Warning.draw();
+            var txt = ex.ToString();
+            write_ForCopy(txt, showCopyButton: true);
+            if ("Log".Click())
+                Debug.LogException(ex);
+            nl();
+        }
+
         public static bool Nested_Inspect(Func<bool> function, Object target = null)
         {
-            var changed = false;
+            var changed = ChangeTrackStart();
 
             var il = IndentLevel;
 
-            if (function().changes_Internal(ref changed))
+            try
             {
-                if (target)
-                    target.SetToDirty();
-                else
-                    function.Target.SetToDirty_Obj();
+                if (function())
+                {
+                    if (target)
+                        target.SetToDirty();
+                    else
+                        function.Target.SetToDirty_Obj();
+                }
+            } catch (Exception ex) 
+            {
+                write(ex);
             }
 
             IndentLevel = il;
@@ -341,8 +357,10 @@ namespace QuizCanners.Inspect
 
         private static bool IsNullOrDestroyed_Obj(this object obj)
         {
-            if (obj as Object)
-                return false;
+            var uobj = obj as Object;
+
+            if (uobj!= null)
+                return !uobj;
 
             return obj == null;
         }

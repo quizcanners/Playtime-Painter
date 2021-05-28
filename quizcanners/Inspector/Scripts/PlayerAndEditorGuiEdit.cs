@@ -1914,6 +1914,9 @@ namespace QuizCanners.Inspect
                 {
                     if (!enterHandled)
                     {
+                        if (icon.Enter.Click())
+                            entered = thisOne; 
+                        
                         if (label.IsNullOrEmpty())
                         {
                             if (obj)

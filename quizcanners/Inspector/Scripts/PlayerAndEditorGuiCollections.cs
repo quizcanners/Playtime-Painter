@@ -1526,49 +1526,53 @@ namespace QuizCanners.Inspect
         public static bool InspectValueInCollection<T>(ref T el, IList collection, int index, ref int inspected, CollectionMetaData listMeta = null)
         {
 
-            var changed = false;
-
-            var pl = el as IPEGI_ListInspect;
+            var changed = ChangeTrackStart();
 
             var isPrevious = (listMeta != null && listMeta.previouslyInspectedElement == index);
 
             if (isPrevious)
                 SetBgColor(PreviousInspectedColor);
 
-            if (pl != null)
+            if (el.IsNullOrDestroyed_Obj())
             {
-                var chBefore = GUI.changed;
-                pl.InspectInList(index, ref inspected);
-                    
-                changed |= !chBefore && GUI.changed;
-                
-                if (changed && (typeof(T).IsValueType))
-                    el = (T)pl;
+                var ed = listMeta?[index];
+                if (ed == null)
+                {
+                    "{0}: NULL {1}".F(index, typeof(T).ToPegiStringType()).write(150);
 
-                if (changed || inspected == index)
-                    isPrevious = true;
+                }
+                else
+                {
+                    object obj = el;
 
+                    if (ed.PEGI_inList<T>(ref obj))
+                    {
+                        el = (T)obj;
+                        isPrevious = true;
+                    }
+                }
             }
             else
             {
-                if (el.IsNullOrDestroyed_Obj())
+                var pl = el as IPEGI_ListInspect;
+
+                if (pl != null)
                 {
-                    var ed = listMeta?[index];
-                    if (ed == null)
+                    try
                     {
-                        "{0}: NULL {1}".F(index, typeof(T).ToPegiStringType()).write(150);
-
+                        pl.InspectInList(index, ref inspected);
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        object obj = el;
-
-                        if (ed.PEGI_inList<T>(ref obj))
-                        {
-                            el = (T)obj;
-                            isPrevious = true;
-                        }
+                        write(ex);
                     }
+
+                    if (changed && (typeof(T).IsValueType))
+                        el = (T)pl;
+
+                    if (changed || inspected == index)
+                        isPrevious = true;
+
                 }
                 else
                 {
@@ -1595,7 +1599,7 @@ namespace QuizCanners.Inspect
                     {
                         isShown = true;
 
-                        if (edit(ref uo, typeof(T), 200).changes_Internal(ref changed))
+                        if (edit(ref uo, typeof(T), 200))
                             el = (T)(object)uo;
                     }
 
@@ -1604,7 +1608,7 @@ namespace QuizCanners.Inspect
                     {
                         //isShown = true;
                         var n = named.NameForPEGI;
-                        if (edit(ref n).changes_Internal(ref changed))
+                        if (edit(ref n))
                         {
                             named.NameForPEGI = n;
                             if (typeof(T).IsValueType)
@@ -1621,7 +1625,6 @@ namespace QuizCanners.Inspect
                             {
                                 inspected = index;
                                 isPrevious = true;
-                                changed = true;
                             }
                         }
                         else
@@ -1639,16 +1642,17 @@ namespace QuizCanners.Inspect
                                     clickHighlightHandled = true;
                                 }
                             }
-                            else if (el.GetNameForInspector().ClickLabel("Inspect", RemainingLength(defaultButtonSize * 2 + 10)).changes_Internal(ref changed))
+                            else if (el.GetNameForInspector().ClickLabel("Inspect", RemainingLength(defaultButtonSize * 2 + 10)))
                             {
                                 inspected = index;
                                 isPrevious = true;
                             }
                         }
+
                     }
 
                     if ((warningText == null &&
-                          icon.Enter.ClickUnFocus(Msg.InspectElement)) ||
+                            icon.Enter.ClickUnFocus(Msg.InspectElement)) ||
                         (warningText != null && icon.Warning.ClickUnFocus(warningText)))
                     {
                         inspected = index;
@@ -1662,6 +1666,7 @@ namespace QuizCanners.Inspect
                         CopyPaste.InspectOptionsFor(ref el);
                 }
             }
+            
 
             RestoreBGColor();
 

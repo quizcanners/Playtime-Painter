@@ -77,8 +77,6 @@ namespace QuizCanners.Inspect {
             ef.inspectedUnityObject = target;
             ef.ResetInspectionTarget(target);
 
-           
-
             if (target != ef.drawDefaultInspector)
             {
                 if (target is MonoBehaviour)
