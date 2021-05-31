@@ -642,7 +642,7 @@ namespace PlaytimePainter.UI
                     {
                         var n = mat.name;
                         if ("Rename Material".editDelayed("Press Enter to finish renaming.", 120, ref n))
-                            mat.RenameAsset(n);
+                            QcUnity.RenameAsset(mat, n);
                     }
                 }
 

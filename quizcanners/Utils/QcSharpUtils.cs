@@ -337,7 +337,7 @@ namespace QuizCanners.Utils
             if (list.Count == 1)
                 return list[0];
 
-            return list[Random.Range(minInclusive: 0, maxExclusive: list.Count)];
+            return list[Random.Range(0, list.Count)];
         }
 
         public static T GetRandomByWeight<T>(this List<T> sequence, Func<T, float> weightSelector)
@@ -394,11 +394,11 @@ namespace QuizCanners.Utils
 
         }
 
-        public static T TryTake<T>(this List<T> list, int index)
+        public static T TryTake<T>(this List<T> list, int index, T defaultValue = default)
         {
 
             if (list.IsNullOrEmpty() || list.Count <= index)
-                return default;
+                return defaultValue;
 
             var ret = list[index];
 

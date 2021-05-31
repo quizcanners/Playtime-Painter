@@ -245,8 +245,6 @@ namespace QuizCanners.CfgDecode
 
         public CfgEncoder Add_Bool(string tag, bool val) => Add_String(tag, val ? IsTrueTag : IsFalseTag);
         
-        public CfgEncoder Add_GUID(string tag, Object obj) => Add_IfNotEmpty(tag, obj.GetGuid());
-        
         #region ValueTypes
         public CfgEncoder Add(string tag, float val) =>
         Add_String(tag, val.ToString(CultureInfo.InvariantCulture.NumberFormat));

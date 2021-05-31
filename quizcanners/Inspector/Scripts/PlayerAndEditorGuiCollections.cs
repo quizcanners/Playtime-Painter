@@ -1298,7 +1298,7 @@ namespace QuizCanners.Inspect
                             {
                                 if (editDelayed(ref n).changes_Internal(ref changed))
                                 {
-                                    so.RenameAsset(n);
+                                    QcUnity.RenameAsset(so, n);
                                     named.NameForPEGI = n;
                                     isPrevious = true;
                                 }

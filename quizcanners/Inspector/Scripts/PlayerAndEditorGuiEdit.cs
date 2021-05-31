@@ -1793,6 +1793,47 @@ namespace QuizCanners.Inspect
 
         #region UnityObject
 
+        public static bool edit_scene(this string label, int width, ref string path)
+        {
+            if (PaintingGameViewUI)
+            {
+                label.write(width);
+                path.write();
+                return false;
+            }
+            else
+            {
+                label.write(width);
+                return edit_Scene(ref path);
+            }
+        }
+
+        public static bool edit_scene(this string label, ref string path) 
+        {
+            if (PaintingGameViewUI)
+            {
+                "{0}: {1}".F(label, path).write();
+                return false;
+            }
+            else
+            {
+                label.write();
+                return edit_Scene(ref path);
+            }
+        }
+
+        public static bool edit_Scene(ref string path, int width) =>
+#if UNITY_EDITOR
+                !PaintingGameViewUI ? ef.edit_Scene(ref path, width) :
+#endif
+            false;
+
+        public static bool edit_Scene(ref string path) =>
+#if UNITY_EDITOR
+                !PaintingGameViewUI ? ef.edit_Scene(ref path) :
+#endif
+            false;
+
         public static bool edit_ifNull<T>(this string label, ref T component, GameObject parent) where T : Component
         {
             if (component)
@@ -1824,7 +1865,10 @@ namespace QuizCanners.Inspect
                 !PaintingGameViewUI ? ef.edit(ref field, width, allowSceneObjects) :
 #endif
             false;
-        
+
+
+ 
+
         public static bool edit<T>(this string label, ref T field, bool allowSceneObjects = true) where T : Object
         {
 #if UNITY_EDITOR
@@ -1877,15 +1921,15 @@ namespace QuizCanners.Inspect
                 false;
         
         public static bool edit(ref Object field, Type type, bool allowSceneObjects = true) =>
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             !PaintingGameViewUI ? ef.edit(ref field, type, allowSceneObjects) :
-            #endif
+#endif
                 false;
 
         public static bool edit(ref Object field, Type type, int width, bool allowSceneObjects = true) =>
-                #if UNITY_EDITOR
+#if UNITY_EDITOR
                      !PaintingGameViewUI ? ef.edit(ref field, type, width, allowSceneObjects) :
-                #endif
+#endif
                 false;
 
         public static bool edit_enter_Inspect<T>(this string label, ref T obj, ref int entered, int current, List<T> selectFrom = null, bool showLabelIfEntered = true) where T : Object
@@ -1966,9 +2010,9 @@ namespace QuizCanners.Inspect
             return changed;
         }
 
-        #endregion
+#endregion
 
-        #region Vectors & Rects
+#region Vectors & Rects
 
         public static bool edit(this string label, ref Quaternion qt)
         {
@@ -2196,9 +2240,9 @@ namespace QuizCanners.Inspect
             return edit(ref v2);
         }
 
-        #endregion
+#endregion
 
-        #region Color
+#region Color
 
         public static bool edit(ref Color32 col)
         {
@@ -2327,9 +2371,9 @@ namespace QuizCanners.Inspect
             return edit(ref col);
         }
 
-        #endregion
+#endregion
 
-        #region Material
+#region Material
 
         public static bool editTexture(this Material mat, string name) => mat.editTexture(name, name);
 
@@ -2442,9 +2486,9 @@ namespace QuizCanners.Inspect
             return false;
         }
 
-        #endregion
+#endregion
 
-        #region UInt
+#region UInt
 
         public static bool edit(ref uint val)
         {
@@ -2535,9 +2579,9 @@ namespace QuizCanners.Inspect
             return edit(ref val);
         }
 
-        #endregion
+#endregion
 
-        #region Int
+#region Int
 
         public static bool editLayerMask(this string label, string tip, int width, ref string tag)
         {
@@ -2747,9 +2791,9 @@ namespace QuizCanners.Inspect
             return changed;
         }
 
-        #endregion
+#endregion
 
-        #region Long
+#region Long
 
         public static bool edit(ref long val)
         {
@@ -2804,9 +2848,9 @@ namespace QuizCanners.Inspect
             return edit(ref val);
         }
         
-        #endregion
+#endregion
 
-        #region Float
+#region Float
 
         public static bool edit(ref float val)
         {
@@ -3026,9 +3070,9 @@ namespace QuizCanners.Inspect
             return edit(ref val);
         }
 
-        #endregion
+#endregion
 
-        #region Double
+#region Double
 
         public static bool editDelayed(this string label, string tip, int width, ref double val)
         {
@@ -3154,9 +3198,9 @@ namespace QuizCanners.Inspect
 
         }
 
-        #endregion
+#endregion
 
-        #region Enum
+#region Enum
 
         public static bool editEnum<T>(this string text, int width, ref T eval)
         {
@@ -3252,9 +3296,9 @@ namespace QuizCanners.Inspect
             return false;
         }
         
-        #endregion
+#endregion
 
-        #region Enum Flags
+#region Enum Flags
 
         public static bool editEnumFlags<T>(this string text, ref T eval)
         {
@@ -3315,9 +3359,9 @@ namespace QuizCanners.Inspect
 
             return selectFlags(ref current, snms, width);
         }
-        #endregion
+#endregion
 
-        #region String
+#region String
 
         private static string editedText;
         private static string editedHash = "";
@@ -3504,9 +3548,9 @@ namespace QuizCanners.Inspect
         }
 
 
-        #endregion
+#endregion
 
-        #region Property
+#region Property
 
         public static bool edit_Property<T>(this string label, Expression<Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true)
         {
@@ -3525,9 +3569,9 @@ namespace QuizCanners.Inspect
         }
 
 
-        #endregion
+#endregion
 
-        #region Custom classes
+#region Custom classes
 
         public static bool edit(ref MyIntVec2 val)
         {
@@ -3547,11 +3591,11 @@ namespace QuizCanners.Inspect
             return edit(ref val);
         }
 
-        #endregion
+#endregion
         
-        #endregion
+#endregion
         
-        #region Inspect Name
+#region Inspect Name
 
         public static bool Try_NameInspect(object obj, string label = "", string tip = "")
         {
@@ -3584,7 +3628,7 @@ namespace QuizCanners.Inspect
                 if (gotLabel ? label.editDelayed(tip, 80, ref n) : editDelayed(ref n))
                 {
                     uObj.name = n;
-                    uObj.RenameAsset(n);
+                    QcUnity.RenameAsset(uObj, n);
                     changed = true;
                 }
             }
@@ -3641,6 +3685,6 @@ namespace QuizCanners.Inspect
             return false;
         }
 
-        #endregion
+#endregion
     }
 }

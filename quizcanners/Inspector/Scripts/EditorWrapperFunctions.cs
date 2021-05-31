@@ -639,34 +639,36 @@ namespace QuizCanners.Inspect
         #region Edit
 
         #region Values
-/*
-        public static bool editEnum(ref Enum val)
+
+        public static bool edit_Scene(ref string path)
         {
             BeginCheckLine();
-            val = EditorGUILayout.EnumPopup(val);
-            return EndCheckLine();
+
+            var oldScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(path);
+
+            var newScene = EditorGUILayout.ObjectField(oldScene, typeof(SceneAsset), allowSceneObjects: false) as SceneAsset;
+            if (EndCheckLine()) 
+            {
+                path = AssetDatabase.GetAssetPath(newScene);
+                return true;
+            }
+            return false;
         }
 
-        public static bool editEnum(ref Enum val, int width) 
+        public static bool edit_Scene(ref string path, int width)
         {
             BeginCheckLine();
-            val = EditorGUILayout.EnumPopup(val, GUILayout.MaxWidth(width));
-            return EndCheckLine();
-        }
 
-        public static bool editEnumFlags(ref Enum val) 
-        {
-            BeginCheckLine();
-            val = EditorGUILayout.EnumFlagsField(val);
-            return EndCheckLine();
-        }
+            var oldScene = AssetDatabase.LoadAssetAtPath<SceneAsset>(path);
 
-        public static bool editEnumFlags(ref Enum val, int width) 
-        {
-            BeginCheckLine();
-            val = EditorGUILayout.EnumFlagsField(val, GUILayout.MaxWidth(width));
-            return EndCheckLine();
-        }*/
+            var newScene = EditorGUILayout.ObjectField(oldScene, typeof(SceneAsset), allowSceneObjects: false, GUILayout.MaxWidth(width)) as SceneAsset;
+            if (EndCheckLine())
+            {
+                path = AssetDatabase.GetAssetPath(newScene);
+                return true;
+            }
+            return false;
+        }
 
         public static bool editTag(ref string tag)
         {

@@ -792,7 +792,7 @@ namespace PlaytimePainter {
 
         public void CombinedUpdate() {
 
-            if (frameGate.Enter() == false)
+            if (frameGate.TryEnter() == false)
                return; 
 
             if (!this || !Data)

@@ -111,7 +111,7 @@ namespace QuizCanners.Utils {
             return added;
         }
 
-        public static T DuplicateScriptableObject<T>(this T el, bool refreshDatabase = true) where T : ScriptableObject
+        public static T DuplicateScriptableObject<T>(T el, bool refreshDatabase = true) where T : ScriptableObject
         {
             T added;
 
@@ -1238,7 +1238,7 @@ namespace QuizCanners.Utils {
             obj;
 #endif
 
-        public static string GetGuid(this Object obj, string current)
+        public static string GetGuid(Object obj, string current)
         {
             if (!obj)
                 return current;
@@ -1261,9 +1261,9 @@ namespace QuizCanners.Utils {
                => null;
 #endif
 
-        public static string GetGuid(this Object obj) => obj.GetGuid(null);
+        public static string GetGuid(Object obj) => GetGuid(obj, null);
 
-        public static void RenameAsset<T>(this T obj, string newName) where T : Object
+        public static void RenameAsset<T>(T obj, string newName) where T : Object
         {
 
             if (newName.IsNullOrEmpty() || !obj) return;

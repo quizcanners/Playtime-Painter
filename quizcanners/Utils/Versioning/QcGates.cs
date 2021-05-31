@@ -8,7 +8,7 @@ namespace QuizCanners.Utils
         private bool _initialized;
         private int _frameIndex;
 
-        public bool Enter()
+        public bool TryEnter()
         {
             if (DoneThisFrame)
                 return false;
@@ -18,7 +18,7 @@ namespace QuizCanners.Utils
         }
 
         private int _editorFrame;
-        private ValueGateDouble _editorTime;
+        private readonly ValueGateDouble _editorTime;
         private int CurrentFrame
         {   get
             {
@@ -26,7 +26,7 @@ namespace QuizCanners.Utils
                     return Time.frameCount;
                 else
                 {
-                    if (_editorTime.IsChange(QcUnity.TimeSinceStartup()))
+                    if (_editorTime.TryChange(QcUnity.TimeSinceStartup()))
                         _editorFrame += 1;
 
                     return _editorFrame;
@@ -34,7 +34,7 @@ namespace QuizCanners.Utils
             }
         }
 
-        public bool DoneThisFrame
+        private bool DoneThisFrame
         {
             get
             {
@@ -61,7 +61,7 @@ namespace QuizCanners.Utils
         [SerializeField] private bool _initialized;
         [SerializeField] private int _previousValue;
 
-        public bool IsChange(int value)
+        public bool TryChange(int value)
         {
             if (!_initialized)
             {
@@ -99,7 +99,7 @@ namespace QuizCanners.Utils
 
         public double Value => _previousValue;
 
-        public bool IsChange(double value)
+        public bool TryChange(double value)
         {
             if (!_initialized)
             {
@@ -119,7 +119,7 @@ namespace QuizCanners.Utils
             return true;
         }
 
-        public bool IsChange(double value, double changeTreshold) 
+        public bool TryChange(double value, double changeTreshold) 
         {
             if (!_initialized)
             {
@@ -143,7 +143,7 @@ namespace QuizCanners.Utils
         }
         public ValueGateDouble(double initialValue)
         {
-            IsChange(initialValue);
+            TryChange(initialValue);
         }
     }
 }
