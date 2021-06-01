@@ -18,7 +18,7 @@ namespace QuizCanners.Utils
         }
 
         private int _editorFrame;
-        private readonly ValueGateDouble _editorTime;
+        private readonly ValueGateDouble _editorTime = new ValueGateDouble();
         private int CurrentFrame
         {   get
             {

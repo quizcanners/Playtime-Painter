@@ -18,6 +18,7 @@ using Object = UnityEngine.Object;
 #pragma warning disable IDE0018 // Inline variable declaration
 #pragma warning disable IDE0011 // Add braces
 #pragma warning disable IDE0008 // Use explicit type
+#pragma warning disable IDE0075 // Simplify conditional expression
 
 namespace QuizCanners.Inspect
 {
@@ -1942,70 +1943,40 @@ namespace QuizCanners.Inspect
 
             var changed = ChangeTrackStart();
 
-            var lst = obj as IPEGI_ListInspect;
-
-            bool enterHandled = false;
-
-            if (lst != null)
+            if (!obj)
             {
-                enterHandled = true;
-                lst.enter_Inspect_AsList(ref entered, thisOne, label);
-            }
+                if (label.IsNullOrEmpty())
+                    label = typeof(T).ToPegiStringType();
 
-            if (entered == -1)
-            {
-                if (selectFrom == null)
-                {
-                    if (!enterHandled)
-                    {
-                        if (icon.Enter.Click())
-                            entered = thisOne; 
-                        
-                        if (label.IsNullOrEmpty())
-                        {
-                            if (obj)
-                                label = obj.GetNameForInspector();
-                            else
-                                label = typeof(T).ToPegiStringType();
-                        }
-
-                        label = label.tryAddCount(obj);
-
-                        if (width > 0)
-                        {
-                            if (label.ClickLabel(Msg.ClickToInspect.GetText(), width, EnterLabel))
-                                entered = thisOne;
-                        }
-                        else
-                        if (label.ClickLabel(Msg.ClickToInspect.GetText(), style: EnterLabel))
-                            entered = thisOne;
-
-                        obj.ClickHighlight();
-
-                        enterHandled = true;
-                    }
-
-                    if (!obj)
-                        edit(ref obj);
-
-                }
-                else
+                if (!selectFrom.IsNullOrEmpty()) 
                     label.select_or_edit(width, ref obj, selectFrom);
-
+                else
+                    label.edit(width: ApproximateLength(label), ref obj);
             }
-
-            if (!enterHandled)
+            else
             {
-                var pgi = QcUnity.TryGetInterfaceFrom<IPEGI>(obj);
+                if (label.IsNullOrEmpty())
+                    label = obj.GetNameForInspector();
 
-                if (isConditionally_Entered(pgi != null, ref entered, thisOne, exitLabel: showLabelIfEntered ? label : "").nl())
-                    pgi.Nested_Inspect();
+                label = label.tryAddCount(obj);
 
-                obj.ClickHighlight();
+                var lst = obj as IPEGI_ListInspect;
+
+                if (lst != null)
+                    lst.enter_Inspect_AsList(ref entered, thisOne, label);
+                else
+                {
+                    var pgi = QcUnity.TryGetInterfaceFrom<IPEGI>(obj);
+
+                    if (label.isConditionally_Entered(pgi != null, ref entered, thisOne, showLabelIfEntered: showLabelIfEntered).nl_ifEntered())
+                        pgi.Nested_Inspect();
+                    else
+                        obj.ClickHighlight();
+                }
+
+                if ((entered == -1) && icon.Clear.ClickConfirm(confirmationTag: "Del " + label + thisOne, Msg.MakeElementNull.GetText()))
+                    obj = null;
             }
-
-            if ((entered == -1) && obj && icon.Clear.ClickConfirm(confirmationTag: "Del " + label + thisOne, Msg.MakeElementNull.GetText()))
-                obj = null;
 
             return changed;
         }
@@ -3235,6 +3206,19 @@ namespace QuizCanners.Inspect
 
         public static bool editEnum<T>(ref int current, int width = -1) => editEnum_Internal(ref current, typeof(T), width: width);
 
+        private static bool editEnum<T>(ref T eval, List<int> options, int width = -1)
+        {
+            var val = Convert.ToInt32(eval);
+
+            if (editEnum_Internal(ref val, typeof(T), options, width))
+            {
+                eval = (T)((object)val);
+                return true;
+            }
+
+            return false;
+        }
+
         private static bool editEnum_Internal<T>(ref int eval, List<int> options, int width = -1)
             => editEnum_Internal(ref eval, typeof(T), options, width);
 
@@ -3259,19 +3243,7 @@ namespace QuizCanners.Inspect
             return true;
         }
         
-        private static bool editEnum<T>(ref T eval, List<int> options, int width = -1)
-        {
-            var val = Convert.ToInt32(eval);
-
-            if (editEnum_Internal(ref val, typeof(T), options, width))
-            {
-                eval = (T)((object)val);
-                return true;
-            }
-
-            return false;
-        }
-        
+     
         private static bool editEnum_Internal(ref int current, Type type, List<int> options, int width = -1)
         {
             checkLine();

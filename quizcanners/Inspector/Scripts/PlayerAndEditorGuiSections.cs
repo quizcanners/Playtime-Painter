@@ -13,7 +13,6 @@ using Object = UnityEngine.Object;
 #pragma warning disable IDE0018 // Inline variable declaration
 #pragma warning disable IDE0011 // Add braces
 #pragma warning disable IDE0008 // Use explicit type
-#pragma warning disable IDE0009 // Member access should be qualified.
 
 namespace QuizCanners.Inspect
 {
@@ -242,7 +241,7 @@ namespace QuizCanners.Inspect
             return ef.isFoldedOutOrEntered;
         }
 
-        public static bool isConditionally_Entered(this string label, bool canEnter, ref int entered, int thisOne, bool showLabelIfTrue = true, PEGI_Styles.PegiGuiStyle enterLabelStyle = null)
+        public static bool isConditionally_Entered(this string label, bool canEnter, ref int entered, int thisOne, bool showLabelIfEntered = true, PEGI_Styles.PegiGuiStyle enterLabelStyle = null)
         {
             if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
                 return false;
@@ -255,7 +254,7 @@ namespace QuizCanners.Inspect
             else
             {
                 if (canEnter)
-                    label.isEntered(ref entered, thisOne, showLabelIfTrue, enterLabelStyle);
+                    label.isEntered(ref entered, thisOne, showLabelIfEntered, enterLabelStyle);
                 else
                     ef.isFoldedOutOrEntered = false;
             }
