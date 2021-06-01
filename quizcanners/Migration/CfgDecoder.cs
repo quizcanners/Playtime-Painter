@@ -91,7 +91,7 @@ namespace QuizCanners.CfgDecode
             }
             catch (Exception ex)
             {
-                Debug.LogError(ex);
+                Debug.LogException(ex);
             }
 
             _ignoreErrors = false;

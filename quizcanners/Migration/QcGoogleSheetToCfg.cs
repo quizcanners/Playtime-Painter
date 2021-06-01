@@ -190,7 +190,7 @@ namespace QuizCanners.CfgDecode
                         }
                         catch (Exception ex)
                         {
-                            Debug.LogError(ex);
+                            Debug.LogException(ex);
                         }
                     }
                     
@@ -291,9 +291,9 @@ namespace QuizCanners.CfgDecode
 
                             rawCells.Add(accumulatedCell);
                         }
-                        catch (Exception e)
+                        catch (Exception ex)
                         {
-                            Debug.LogError(e.Message + e.StackTrace + ", at row " + rowIndex);
+                            Debug.LogError(ex.Message + ex.StackTrace + ", at row " + rowIndex);
                         }
 
                         List<CfgData> cellsInRow = new List<CfgData>();

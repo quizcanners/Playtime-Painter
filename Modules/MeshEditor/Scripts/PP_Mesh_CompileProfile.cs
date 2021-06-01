@@ -408,7 +408,7 @@ namespace PlaytimePainter.MeshEditing
             }
             catch (Exception ex)
             {
-                Debug.LogError("Exception in {0}  :  {1}".F(Destination.GetNameForInspector(), ex.ToString()));
+                Debug.LogException(ex);
             }
         }
 

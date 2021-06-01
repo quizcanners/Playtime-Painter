@@ -115,9 +115,9 @@ namespace QuizCanners.Utils
                                (asBytes ? bytesFileType : textFileType);
                     AssetDatabase.DeleteAsset(path);
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    Debug.Log("Oh No " + e);
+                    Debug.LogException(ex);
                 }
 #endif
             }
@@ -189,7 +189,7 @@ namespace QuizCanners.Utils
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError(ex);
+                    Debug.LogException(ex);
                 }
                 finally
                 {

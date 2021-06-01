@@ -90,6 +90,7 @@ namespace QuizCanners.Utils
                 {
                     _state = "Eception in OnExit of TimedEnumerator: " + _state + ex;
                     Debug.LogError(_state);
+                    Debug.LogException(ex);
                 }
             }
 
@@ -110,6 +111,7 @@ namespace QuizCanners.Utils
                     {
                         _state = "Exception in OnFully Done " + ex;
                         Debug.LogError(_state);
+                        Debug.LogException(ex);
                     }
                 }
             }
@@ -227,6 +229,7 @@ namespace QuizCanners.Utils
                 _state = "Error after {0}: {1}".F(_state, ex.ToString());
 
                 Debug.LogError("Managed Exception in Timed Enumerator: " + _state);
+                Debug.LogException(ex);
 
                 _task = null;
                 _stopAndCancel = true;

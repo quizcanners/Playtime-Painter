@@ -942,7 +942,8 @@ namespace QuizCanners.CfgDecode
             }
             catch (Exception ex)
             {
-                Debug.LogError("Couldn't Decode: {0}".F(load) + ex);
+                Debug.LogError("Couldn't Decode: {0}".F(load));
+                Debug.LogException(ex);
                 return false;
             }
 

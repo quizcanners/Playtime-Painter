@@ -41,7 +41,7 @@ namespace PlaytimePainter.MeshEditing
                     }
                     catch (Exception ex)
                     {
-                        Debug.Log("Couldn't load a prefab. If this happened once it's ok. " + ex);
+                        Debug.LogException(ex);
                     }
 
                 }

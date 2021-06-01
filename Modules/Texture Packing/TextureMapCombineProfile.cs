@@ -296,7 +296,7 @@ namespace PlaytimePainter.TexturePacking
                 }
                 catch (Exception ex)
                 {
-                    Debug.Log("Pixel extraction from {0} failed".F(tex.name, ex));
+                    Debug.LogException(ex);
                     tex = null;
                 }
             }

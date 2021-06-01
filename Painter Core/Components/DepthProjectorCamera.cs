@@ -167,7 +167,7 @@ namespace PlaytimePainter
 
             if (userToGetUpdate != null && (QcUnity.TimeSinceStartup() - lastUserUpdateReturned > 1))
             {
-                logger.Log_Interval(60, "Could not return to user {0}".F(userToGetUpdate));
+                logger.Log( "Could not return to user {0}".F(userToGetUpdate));
                 
                 userToGetUpdate = null;
             }
@@ -283,7 +283,7 @@ namespace PlaytimePainter
             }
             catch (Exception ex)
             {
-                logger.Log_Interval(10, ex.ToString());
+                logger.Log(ex, 10);
                 userToGetUpdate = null;
             }
 
@@ -323,7 +323,7 @@ namespace PlaytimePainter
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError(ex);
+                    Debug.LogException(ex);
                 }
 
                 lastUserUpdateReturned = QcUnity.TimeSinceStartup();

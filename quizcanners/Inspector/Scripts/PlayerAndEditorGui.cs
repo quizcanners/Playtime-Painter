@@ -181,7 +181,7 @@ namespace QuizCanners.Inspect
                     }
                     catch (Exception ex)
                     {
-                        Debug.LogError(ex);
+                        Debug.LogException(ex);
                     }
 
                     PaintingGameViewUI = false;
@@ -879,7 +879,7 @@ namespace QuizCanners.Inspect
                         }
                         catch (Exception ex)
                         {
-                            Debug.LogError(ex.ToString());
+                            Debug.LogException(ex);
                         }
                         ClosePopUp();
                     }

@@ -379,7 +379,7 @@ namespace PlaytimePainter
             }
             catch (Exception ex)
             {
-                Debug.LogError(ex);
+                Debug.LogException(ex);
 
                 _pixels = null;
                 errorWhileReading = true;
@@ -554,7 +554,7 @@ namespace PlaytimePainter
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogError("Reading of {0} failed: {1}".F(tex, ex.ToString()));
+                    Debug.LogException(ex);
                     errorWhileReading = true;
                 }
             }

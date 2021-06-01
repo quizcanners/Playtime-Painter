@@ -75,8 +75,8 @@ namespace PlaytimePainter {
             if (!bigRtPair.IsNullOrEmpty() && bigRtPair[0]) {
                 bigRtPair[1].DiscardContents();
                 Graphics.Blit(bigRtPair[0], bigRtPair[1]);
-            } else 
-                logger.Log_Interval(5, "Render Texture buffers are null");
+            } else
+                logger.Log("Render Texture buffers are null");
 
             secondBufferUpdated = true;
             bigRtVersion++;
@@ -224,11 +224,11 @@ namespace PlaytimePainter {
         {
 
             if (!texture)
-                logger.Log_Interval(5, "Null texture as downscale source");
+                logger.Log("Null texture as downscale source");
             else if (texture.width != texture.height)
-                logger.Log_Interval(5, "Texture should be square");
+                logger.Log("Texture should be square");
             else if (!Mathf.IsPowerOfTwo(texture.width))
-                logger.Log_Interval(5, "{0} is not a Power of two".F(texture));
+                logger.Log("{0} is not a Power of two".F(texture));
             else
                 return Downscale_ToBuffer(texture, targetSize, targetSize, allowApprox: allowApprox);
 

@@ -2165,12 +2165,20 @@ namespace QuizCanners.Utils {
 
             }
 
+            public void Log_Now(Exception ex, Object obj = null)
+            {
+                if (obj)
+                    Debug.LogException(ex, obj);
+                else
+                    Debug.LogException(ex);
+
+                _lastLogged = TimeSinceStartup();
+                _calls = 0;
+                _logged = true;
+            }
+
             public void Log_Now(string msg, bool asError, Object obj = null)
             {
-
-                //  if (disabled)
-                //  return;
-
                 if (msg == null)
                     msg = message;
 
@@ -2187,7 +2195,7 @@ namespace QuizCanners.Utils {
                 else
                     Debug.Log(msg, obj);
 
-                _lastLogged = QcUnity.TimeSinceStartup();
+                _lastLogged = TimeSinceStartup();
                 _calls = 0;
                 _logged = true;
             }
@@ -2201,17 +2209,24 @@ namespace QuizCanners.Utils {
                     _calls++;
             }
 
-            public void Log_Interval(float seconds, string msg = null, bool asError = true, Object obj = null)
+            public void Log( string msg = null, float seconds = 5, bool asError = true, Object target = null)
             {
                 if (!_logged || (TimeSinceStartup() - _lastLogged > seconds))
-                    Log_Now(msg, asError, obj);
+                    Log_Now(msg, asError, target);
+                else
+                    _calls++;
+            }
+
+            public void Log(Exception err = null, float seconds = 5, Object obj = null)
+            {
+                if (!_logged || (TimeSinceStartup() - _lastLogged > seconds))
+                    Log_Now(err, obj);
                 else
                     _calls++;
             }
 
             public void Log_Every(int callCount, string msg = null, bool asError = true, Object obj = null)
             {
-
                 if (!_logged || (_calls > callCount))
                     Log_Now(msg, asError, obj);
                 else

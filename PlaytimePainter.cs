@@ -352,7 +352,7 @@ namespace PlaytimePainter
 
             if (!cam)
             {
-                _logger.Log_Interval(2, "No Main Camera to RayCast from", true, this);
+                _logger.Log("No Main Camera to RayCast from", target: this);
                 return false;
             }
 
@@ -1557,7 +1557,7 @@ namespace PlaytimePainter
             }
             catch (Exception ex)
             {
-                _logger.Log_Interval(1000, ex.ToString(), true, this);
+                _logger.Log(ex, 1000, this);
             }
         }
 
