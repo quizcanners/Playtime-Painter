@@ -13,12 +13,13 @@ using UnityEditor;
 #pragma warning disable IDE0018 // Inline variable declaration
 #pragma warning disable IDE0011 // Add braces
 #pragma warning disable IDE0008 // Use explicit type
+#pragma warning disable IDE1006 // Naming Styles
 
 namespace QuizCanners.Inspect
 {
     public static partial class pegi
     {
-        public static void write(Exception ex) 
+        public static void write(Exception ex)
         {
             icon.Warning.draw();
             var txt = ex.ToString();
@@ -491,7 +492,7 @@ namespace QuizCanners.Inspect
             return obj;
         }
 
-        private static Dictionary<IPEGI, int> inspectionChain = new Dictionary<IPEGI, int>();
+        private static readonly Dictionary<IPEGI, int> inspectionChain = new Dictionary<IPEGI, int>();
 
         internal static void ResetInspectedChain() => inspectionChain.Clear();
 

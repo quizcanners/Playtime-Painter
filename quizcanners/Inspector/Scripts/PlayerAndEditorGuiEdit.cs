@@ -2703,6 +2703,12 @@ namespace QuizCanners.Inspect
             return editDelayed(ref val);
         }
 
+        public static bool editDelayed(this string label, int width, ref int val)
+        {
+            label.write(Msg.EditDelayed_HitEnter.GetText(), width: width);
+            return editDelayed(ref val);
+        }
+
         public static bool edit(this string label, ref int val)
         {
             write(label);
@@ -3204,8 +3210,6 @@ namespace QuizCanners.Inspect
             return false;
         }
 
-        public static bool editEnum<T>(ref int current, int width = -1) => editEnum_Internal(ref current, typeof(T), width: width);
-
         private static bool editEnum<T>(ref T eval, List<int> options, int width = -1)
         {
             var val = Convert.ToInt32(eval);
@@ -3218,6 +3222,10 @@ namespace QuizCanners.Inspect
 
             return false;
         }
+
+        public static bool editEnum<T>(ref int current, int width = -1) => editEnum_Internal(ref current, typeof(T), width: width);
+
+
 
         private static bool editEnum_Internal<T>(ref int eval, List<int> options, int width = -1)
             => editEnum_Internal(ref eval, typeof(T), options, width);
@@ -3567,7 +3575,7 @@ namespace QuizCanners.Inspect
         
 #endregion
         
-#region Inspect Name
+        #region Inspect Name
 
         public static bool Try_NameInspect(object obj, string label = "", string tip = "")
         {
