@@ -1,18 +1,15 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using QuizCanners.Inspect;
 using UnityEngine;
 using QuizCanners.CfgDecode;
+using static QuizCanners.Utils.ShaderProperty;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
 namespace QuizCanners.Utils {
 
-#pragma warning disable IDE0034 // Simplify 'default' expression
-#pragma warning disable IDE0019 // Use pattern matching
-#pragma warning disable IDE0018 // Inline variable declaration
 
     public static class ShaderProperty {
 
@@ -634,7 +631,7 @@ namespace QuizCanners.Utils {
 
         public class ShaderKeyword : IPEGI {
 
-            private string _name;
+            private readonly string _name;
 
             public override string ToString() => _name;
             
@@ -660,7 +657,7 @@ namespace QuizCanners.Utils {
 
         public class ShaderName
         {
-            private string _name;
+            private readonly string _name;
             private Shader _shader;
             private bool _triedToFind;
 
@@ -794,31 +791,16 @@ namespace QuizCanners.Utils {
     #endregion
 
 
-    /*
+    
 #if UNITY_EDITOR
     [CustomPropertyDrawer(typeof(TextureValue))]
     public class TextureValueDrawer : PropertyDrawer {
-
         public override void OnGUI(Rect pos, SerializedProperty prop, GUIContent label) {
             if (prop.Inspect("latestValue", pos, label))
                 prop.GetValue<TextureValue>().SetGlobal();
         }
-
-    }
-
-
-    [CustomPropertyDrawer(typeof(ColorValue))]
-    public class ColorValueDrawer : PropertyDrawer
-    {
-
-        public override void OnGUI(Rect pos, SerializedProperty prop, GUIContent label)
-        {
-            if (prop.Inspect("latestValue", pos, label))
-                prop.GetValue<ColorValue>().SetGlobal();
-        }
-
     }
 
 #endif
-    */
+    
 }

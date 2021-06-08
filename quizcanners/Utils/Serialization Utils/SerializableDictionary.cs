@@ -3,11 +3,15 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
+
 namespace QuizCanners.Utils
 {
+
     [Serializable]
-    public abstract class SerializableDictionary<TKey, TValue>
-        : Dictionary<TKey, TValue>, ISerializationCallbackReceiver, IPEGI
+    public abstract class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver, IPEGI
     {
         [HideInInspector] [SerializeField] private List<TKey> keys = new List<TKey>();
         [HideInInspector] [SerializeField] private List<TValue> values = new List<TValue>();
@@ -33,9 +37,11 @@ namespace QuizCanners.Utils
                     "there are {0} keys and {1} values after deserialization. Make sure that both key and value types are serializable."
                     .F(keys.Count, values.Count));
             }
-
-            for (int i = 0; i < keys.Count; i++)
-                Add(keys[i], values[i]);
+            else
+            {
+                for (int i = 0; i < keys.Count; i++)
+                    Add(keys[i], values[i]);
+            }
 
             keys.Clear();
             values.Clear();

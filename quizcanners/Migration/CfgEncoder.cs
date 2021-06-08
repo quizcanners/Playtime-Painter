@@ -31,7 +31,7 @@ namespace QuizCanners.CfgDecode
             return cody;
         }
 
-        public static CfgEncoder Encode(this Rect rect, bool local) => new CfgEncoder()
+        public static CfgEncoder Encode(this Rect rect) => new CfgEncoder()
             .Add("pos",rect.position)
             .Add("size",rect.size);
             
@@ -255,7 +255,7 @@ namespace QuizCanners.CfgDecode
 
         public CfgEncoder Add(string tag, Transform tf) => Add(tag, tf.Encode(true));
         public CfgEncoder Add(string tag, Transform tf, bool local) => Add(tag, tf.Encode(local));
-        public CfgEncoder Add(string tag, Rect tf) => Add(tag, tf.Encode(true));
+        public CfgEncoder Add(string tag, Rect tf) => Add(tag, tf.Encode());
         public CfgEncoder Add(string tag, Matrix4x4 m) => Add(tag, m.Encode());
         public CfgEncoder Add(string tag, BoneWeight bw) => Add(tag, bw.Encode());
         public CfgEncoder Add(string tag, Quaternion q) => Add(tag, q.Encode());

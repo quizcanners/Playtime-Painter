@@ -40,23 +40,23 @@ namespace QuizCanners.Utils
         {
             private static readonly List<TimedCoroutine> pool = new List<TimedCoroutine>();
 
-            private List<TimedCoroutine> enumerators = new List<TimedCoroutine>();
+            private readonly List<TimedCoroutine> _enumerators = new List<TimedCoroutine>();
 
-            public int GetActiveCoroutinesCount => enumerators.Count;
+            public int GetActiveCoroutinesCount => _enumerators.Count;
 
             public TimedCoroutine Add(IEnumerator enumerator, Action onExit = null, Action onFullyDone = null)
             {
                 var enm = (pool.Count > 0) ? pool.TryTake(0) : new TimedCoroutine();
                 enm.Reset(enumerator, onExitAction: onExit, onDoneFullyAction: onFullyDone);
-                enumerators.Insert(0, enm);
+                _enumerators.Insert(0, enm);
                 return enm;
             }
 
             public void UpdateManagedCoroutines()
             {
-                for (int i = enumerators.Count - 1; i >= 0; i--)
-                    if (!enumerators[i].MoveNext())
-                        pool.Add(enumerators.TryTake(i));
+                for (int i = _enumerators.Count - 1; i >= 0; i--)
+                    if (!_enumerators[i].MoveNext())
+                        pool.Add(_enumerators.TryTake(i));
             }
 
             #region Inspector 
@@ -94,7 +94,7 @@ namespace QuizCanners.Utils
                 if ("Yield 1 frame".Click().nl())
                     UpdateManagedCoroutines();
 
-                coroutinesListMeta.edit_List(enumerators).nl();
+                coroutinesListMeta.edit_List(_enumerators).nl();
 
                 if (!coroutinesListMeta.InspectingElement)
                 {

@@ -366,6 +366,21 @@ namespace QuizCanners.Utils
             return sequence.TryGet(0);
         }
 
+        /// <summary>Returns True if any change to <c>List</c> were made to satisfy the target state.</summary>
+        public static bool SetContains<T>(this List<T> list, T value, bool targetState)
+        {
+            if (list.Contains(value) != targetState)
+            {
+                if (targetState)
+                    list.Add(value);
+                else
+                    list.Remove(value);
+
+                return true;
+            }
+
+            return false;
+        }
         public static void ForceSetCount<T>(this List<T> list, int count) where T : new()
         {
             if (count == list.Count)
@@ -619,17 +634,7 @@ namespace QuizCanners.Utils
             return value;
         }
 
-        public static bool TryChangeKey(this Dictionary<int, string> dic, int before, int now)
-        {
-            string value;
-            if ((dic.TryGetValue(now, out value)) || !dic.TryGetValue(before, out value)) return false;
-
-            dic.Remove(before);
-            dic.Add(now, value);
-            return true;
-        }
-
-        public static bool IsNullOrEmpty<T, TG>(this Dictionary<T, TG> dic) => dic == null || dic.Count == 0;
+      //  public static bool IsNullOrEmpty<T, TG>(this Dictionary<T, TG> dic) => dic == null || dic.Count == 0;
         #endregion
 
         #region String Editing

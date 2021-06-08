@@ -871,17 +871,7 @@ namespace QuizCanners.Inspect
 
         }
         */
-        public static bool editKey(ref Dictionary<int, string> dic, int key)
-        {
-            checkLine();
-            var before = key;
-
-            if (editDelayed(ref key, 40))
-                return dic.TryChangeKey(before, key) && setDirty;
-
-            return false;
-        }
-
+     
         public static bool edit(ref Dictionary<int, string> dic, int atKey)
         {
             var before = dic[atKey];
@@ -1658,6 +1648,5 @@ namespace QuizCanners.Inspect
 
 
 #pragma warning restore IDE1006 // Naming Styles
-#pragma warning restore IDE0034 // Simplify 'default' expression
 #pragma warning restore IDE0019 // Use pattern matching
 #pragma warning restore IDE0018 // Inline variable declaration

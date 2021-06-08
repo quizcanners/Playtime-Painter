@@ -50,17 +50,17 @@ namespace QuizCanners.Utils
         public bool Exited { get; private set; }
         public int EnumeratorVersion { get; private set; }
 
-        public Action onExit;
-        internal Action onDoneFully;
+        private readonly List<Action> _onExit = new List<Action>();
+        private readonly List<Action> _onDoneFully = new List<Action>();
 
-        private List<IEnumerator> _enumeratorStack = new List<IEnumerator>();
+        private readonly List<IEnumerator> _enumeratorStack = new List<IEnumerator>();
         private Task _task;
         private int _runningVersion;
         private CallAgainRequest _currentCallAgainRequest;
         private object _current;
         private bool _currentIsUncheck;
         protected bool _stopAndCancel;
-        private Stopwatch timer = new Stopwatch();
+        private readonly Stopwatch timer = new Stopwatch();
 
         public void Stop() => EnumeratorVersion +=1;
             
@@ -69,6 +69,9 @@ namespace QuizCanners.Utils
             EnumeratorVersion += 1; // To stop any active coroutines
             DoneFully = false;
             Exited = false;
+            _onExit.Clear();
+            _onDoneFully.Clear();
+
             _task = null;
             _stopAndCancel = false;
             _enumeratorStack.Clear();
@@ -80,18 +83,23 @@ namespace QuizCanners.Utils
         {
             Exited = true;
 
-            if (onExit != null)
+            if (_onExit.Count > 0)
             {
-                try
+                foreach (var act in _onExit)
                 {
-                    onExit?.Invoke();
+                    try
+                    {
+                        act?.Invoke();
+                    }
+                    catch (Exception ex)
+                    {
+                        _state = "Eception in OnExit of TimedEnumerator: " + _state + ex;
+                        Debug.LogError(_state);
+                        Debug.LogException(ex);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    _state = "Eception in OnExit of TimedEnumerator: " + _state + ex;
-                    Debug.LogError(_state);
-                    Debug.LogException(ex);
-                }
+
+                _onExit.Clear();
             }
 
             if (_stopAndCancel)
@@ -101,18 +109,23 @@ namespace QuizCanners.Utils
             else
             {
                 DoneFully = true;
-                if (onDoneFully != null)
+                if (_onDoneFully.Count>0)
                 {
-                    try
+                    foreach (var act in _onDoneFully)
                     {
-                        onDoneFully.Invoke();
+                        try
+                        {
+                            act.Invoke();
+                        }
+                        catch (Exception ex)
+                        {
+                            _state = "Exception in OnFully Done " + ex;
+                            Debug.LogError(_state);
+                            Debug.LogException(ex);
+                        }
                     }
-                    catch (Exception ex)
-                    {
-                        _state = "Exception in OnFully Done " + ex;
-                        Debug.LogError(_state);
-                        Debug.LogException(ex);
-                    }
+
+                    _onDoneFully.Clear();
                 }
             }
         }
@@ -130,14 +143,13 @@ namespace QuizCanners.Utils
             if (_current == null)
                 return;
 
-            var enm = _current as IEnumerator;
 
-            if (enm != null)
+            if (_current is IEnumerator enm)
             {
-                if (wasEnumerator) 
+                if (wasEnumerator)
                 {
-                    Debug.LogError("Upon change enumerator returned enumerator {0} => {1}".F(en.ToString(), enm.ToString()));
-                    if (enm == en) 
+                    // Debug.LogError("Upon change enumerator returned enumerator {0} => {1}".F(en.ToString(), enm.ToString()));
+                    if (enm == en)
                     {
                         return;
                     }
@@ -174,9 +186,8 @@ namespace QuizCanners.Utils
                 return;
             }
 
-            var tsk = _current as Task;
 
-            if (tsk != null)
+            if (_current is Task tsk)
             {
                 _task = tsk;
                 _current = null;
@@ -296,8 +307,10 @@ namespace QuizCanners.Utils
         public async Task StartTask(Action onExitAction = null, Action onDoneFullyAction = null)
         {
                 
-            if (!CanStart_Internal(onExitAction, onDoneFullyAction, out var thisVersion))
+            if (!CanStart_Internal(out var thisVersion))
                 return;
+
+            TryAdd(onExitAction: onExitAction, onDoneFullyAction: onDoneFullyAction);
 
             while (MoveNext_Internal())
             {
@@ -318,8 +331,10 @@ namespace QuizCanners.Utils
         //To be used inside a Coroutine:
         public IEnumerator GetCoroutine(Action onExitAction = null, Action onDoneFullyAction = null)
         {
-            if (!CanStart_Internal(onExitAction, onDoneFullyAction, out var thisVersion))
+            if (!CanStart_Internal(out var thisVersion))
                 yield break;
+
+            TryAdd(onExitAction: onExitAction, onDoneFullyAction: onDoneFullyAction);
 
             while (MoveNext_Internal())
             {
@@ -337,7 +352,16 @@ namespace QuizCanners.Utils
             OnDone();
         }
 
-        private bool CanStart_Internal(Action onExitAction, Action onDoneFullyAction, out int thisVersion)
+        private void TryAdd(Action onExitAction, Action onDoneFullyAction) 
+        {
+            if (onDoneFullyAction != null)
+                _onDoneFully.Add(onDoneFullyAction);
+
+            if (onExitAction != null)
+                _onExit.Add(onExitAction);
+        }
+
+        private bool CanStart_Internal(out int thisVersion)
         {
             thisVersion = EnumeratorVersion;
 
@@ -347,9 +371,6 @@ namespace QuizCanners.Utils
                 Debug.LogError(_state);
                 return false;
             }
-
-            onDoneFully = onDoneFullyAction;
-            onExit = onExitAction;
 
             if (thisVersion == _runningVersion)
             {
@@ -371,8 +392,7 @@ namespace QuizCanners.Utils
         {
             ResetInternal(enumerator);
             _state = "Resetting: " + enumerator;
-            onDoneFully = onExitAction;
-            onExit = onDoneFullyAction;
+            TryAdd(onExitAction: onExitAction, onDoneFullyAction: onDoneFullyAction);
             NameForPEGI = nameForInspector.IsNullOrEmpty() ? enumerator.ToString() : nameForInspector;
 
             return this;
