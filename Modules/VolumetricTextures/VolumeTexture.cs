@@ -32,7 +32,7 @@ namespace PlaytimePainter {
             }
         }
 
-        public TextureMeta ImageMeta
+        internal TextureMeta ImageMeta
         {
             get { return _texture.GetTextureMeta(); }
             set { _texture = value?.ExclusiveTexture(); }
@@ -93,7 +93,7 @@ namespace PlaytimePainter {
 
         public int Height => hSlices * hSlices;
 
-        public int Width => (ImageMeta?.width ?? (TexturesPool.inst ? TexturesPool.inst.width : _tmpWidth)) / hSlices;
+        public int Width => (ImageMeta?.width ?? (PlaytimePainter_TexturesPool.inst ? PlaytimePainter_TexturesPool.inst.width : _tmpWidth)) / hSlices;
 
         public Vector4 PosSize4Shader {
             get
@@ -116,7 +116,7 @@ namespace PlaytimePainter {
 
         public Vector4 Slices4Shader {
             get {
-                float w = ((ImageMeta?.width ?? (TexturesPool.inst ? TexturesPool.inst.width : _tmpWidth)) //- hSlices * 2
+                float w = ((ImageMeta?.width ?? (PlaytimePainter_TexturesPool.inst ? PlaytimePainter_TexturesPool.inst.width : _tmpWidth)) //- hSlices * 2
                     ) / hSlices;
                 return new Vector4(hSlices, w * 0.5f, 1f / w, 1f / hSlices);
             }
@@ -247,7 +247,7 @@ namespace PlaytimePainter {
                 if (ImageMeta == null)
                 {
 
-                    if (!TexturesPool.inst)
+                    if (!PlaytimePainter_TexturesPool.inst)
                     {
                         pegi.nl();
                         "Texture Width".edit(90, ref _tmpWidth);
@@ -255,15 +255,15 @@ namespace PlaytimePainter {
                         if ("Create Pool".Click().nl())
                         {
                             _tmpWidth = Mathf.ClosestPowerOfTwo(Mathf.Clamp(_tmpWidth, 128, 2048));
-                            TexturesPool.ForceInstance.width = _tmpWidth;
+                            PlaytimePainter_TexturesPool.ForceInstance.width = _tmpWidth;
                         }
                     }
                     else
                     {
                         if ("Get From Pool".Click().nl())
-                            ImageMeta = TexturesPool.inst.GetTexture2D().GetTextureMeta();
+                            ImageMeta = PlaytimePainter_TexturesPool.inst.GetTexture2D().GetTextureMeta();
 
-                        TexturesPool.inst.Nested_Inspect().nl();
+                        PlaytimePainter_TexturesPool.inst.Nested_Inspect().nl();
                     }
                 
 

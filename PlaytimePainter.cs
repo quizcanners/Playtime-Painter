@@ -19,8 +19,6 @@ using UnityEditor.EditorTools;
 namespace PlaytimePainter
 {
 
-#pragma warning disable IDE0034 // Simplify 'default' expression
-#pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 
 
@@ -37,7 +35,7 @@ namespace PlaytimePainter
 
 #if UNITY_EDITOR && UNITY_2019_1_OR_NEWER
                 if (!Application.isPlaying)
-                    return ToolManager.activeToolType == typeof(PainterAsIntegratedCustomTool);
+                    return ToolManager.activeToolType == typeof(PlaytimePainterEditorTool);
 #endif
 
                 return PainterDataAndConfig.toolEnabled;
@@ -46,7 +44,7 @@ namespace PlaytimePainter
                 PainterDataAndConfig.toolEnabled = value;
 
 #if UNITY_EDITOR
-                ToolManager.SetActiveTool(typeof(PainterAsIntegratedCustomTool));
+                ToolManager.SetActiveTool(typeof(PlaytimePainterEditorTool));
 #endif
             }
         }
@@ -57,7 +55,7 @@ namespace PlaytimePainter
 
         private static MeshEditorManager MeshMgmt => MeshEditorManager.Inst;
 
-        protected static PP_GridNavigator Grid => PP_GridNavigator.Instance;
+        protected static PlaytimePainter_GridNavigator Grid => PlaytimePainter_GridNavigator.Instance;
 
         private static Brush GlobalBrush => Cfg.Brush;
 
@@ -85,7 +83,7 @@ namespace PlaytimePainter
 
         private PainterModules _modulesContainer;
 
-        public PainterModules Modules
+        internal PainterModules Modules
         {
             get
             {
@@ -96,7 +94,7 @@ namespace PlaytimePainter
             }
         }
 
-        public class PainterModules : TaggedModulesList<ComponentModuleBase>
+        internal class PainterModules : TaggedModulesList<ComponentModuleBase>
         {
 
             public override void OnInitialize()
@@ -113,7 +111,7 @@ namespace PlaytimePainter
             }
         }
 
-        public T GetModule<T>() where T : ComponentModuleBase => Modules.GetModule<T>();
+        internal T GetModule<T>() where T : ComponentModuleBase => Modules.GetModule<T>();
 
         public void UpdateModules()
         {
@@ -186,7 +184,7 @@ namespace PlaytimePainter
 
         private void StrokeFromGrid()
         {
-            stroke.posTo = PP_GridNavigator.LatestMouseToGridProjection;
+            stroke.posTo = PlaytimePainter_GridNavigator.LatestMouseToGridProjection;
             PreviewShader_StrokePosition_Update();
         }
 
@@ -206,7 +204,7 @@ namespace PlaytimePainter
                     return;
 
                 if (NeedsGrid)
-                    PP_GridNavigator.MoveToPointedPosition();
+                    PlaytimePainter_GridNavigator.MoveToPointedPosition();
                 else
                     SampleTexture(stroke.uvTo);
 
@@ -297,7 +295,7 @@ namespace PlaytimePainter
         }
 
 #if UNITY_EDITOR
-        public void OnMouseOverSceneView(RaycastHit hit, Event e)
+        public void OnMouseOverSceneView(RaycastHit hit)
         {
 
             if (!GetPaintingBlocker().IsNullOrEmpty())
@@ -561,7 +559,7 @@ namespace PlaytimePainter
 
         #region  Texture MGMT 
 
-        public TextureMeta TexMeta => GetTextureOnMaterial().GetTextureMeta();
+        internal TextureMeta TexMeta => GetTextureOnMaterial().GetTextureMeta();
 
         private int SelectedTexture
         {
@@ -626,7 +624,7 @@ namespace PlaytimePainter
                 ChangeTexture(GetTextureOnMaterial());
         }
 
-        public void ChangeTexture(TextureMeta id) => ChangeTexture(id.CurrentTexture());
+        internal void ChangeTexture(TextureMeta id) => ChangeTexture(id.CurrentTexture());
 
         private void ChangeTexture(Texture texture)
         {
@@ -895,7 +893,7 @@ namespace PlaytimePainter
             }
         }
 
-        public MaterialMeta MatDta => Material.GetMaterialPainterMeta();
+        internal MaterialMeta MatDta => Material.GetMaterialPainterMeta();
 
         private Material GetMaterial(bool original = false)
         {
@@ -1028,10 +1026,10 @@ namespace PlaytimePainter
 
         private void RemoveTextureFromMaterial() => SetTextureOnMaterial(GetMaterialTextureProperty(), null);
 
-        public void SetTextureOnMaterial(TextureMeta id) =>
+        internal void SetTextureOnMaterial(TextureMeta id) =>
             SetTextureOnMaterial(GetMaterialTextureProperty(), id.CurrentTexture());
 
-        public TextureMeta SetTextureOnMaterial(Texture tex) => SetTextureOnMaterial(GetMaterialTextureProperty(), tex);
+        internal TextureMeta SetTextureOnMaterial(Texture tex) => SetTextureOnMaterial(GetMaterialTextureProperty(), tex);
 
         private TextureMeta SetTextureOnMaterial(ShaderProperty.TextureValue property, Texture tex)
         {
@@ -1040,7 +1038,7 @@ namespace PlaytimePainter
             return id;
         }
 
-        public TextureMeta SetTextureOnMaterial(ShaderProperty.TextureValue property, Texture tex, Material mat)
+        internal TextureMeta SetTextureOnMaterial(ShaderProperty.TextureValue property, Texture tex, Material mat)
         {
 
             var id = tex.GetTextureMeta();
@@ -1667,10 +1665,10 @@ namespace PlaytimePainter
         }
 #endif
 
-        private FrameGate frameGate = new FrameGate();
+        private readonly FrameGate _frameGate = new FrameGate();
         public void ManagedUpdateOnFocused()
         {
-            if (!frameGate.TryEnter()) 
+            if (!_frameGate.TryEnter()) 
                 return;
             
             if (this == _mouseOverPaintableGraphicElement)
@@ -1746,7 +1744,7 @@ namespace PlaytimePainter
                 return;
 
             var hide = Application.isPlaying ? Input.GetMouseButton(0) : currentlyPaintedObjectPainter == this;
-            PainterCamera.SHADER_POSITION_AND_PREVIEW_UPDATE(stroke, hide, GlobalBrush.Size(this));
+            PainterCamera.SHADER_POSITION_AND_PREVIEW_UPDATE(stroke, hide);
 
             if (!Application.isPlaying)
             {

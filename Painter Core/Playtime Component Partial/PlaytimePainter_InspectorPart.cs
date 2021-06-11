@@ -533,7 +533,7 @@ namespace PlaytimePainter
                                         //  RenderTextureBuffersManager.RefreshPaintingBuffers();
 
 
-                                        GlobalBrush.Nested_Inspect();
+                                        GlobalBrush.Nested_Inspect(fromNewLine: false);
 
                                         if (!cpu && texMeta.texture2D && texMeta.width != texMeta.height)
                                             icon.Warning.draw(
@@ -1188,7 +1188,7 @@ namespace PlaytimePainter
 
             if ((!tf.GetComponent<PlaytimePainter>())
                 && (tf.GetComponent<Renderer>())
-                && (!tf.GetComponent<RenderBrush>()) && (CanEditWithTag(tf.tag)))
+                && (!tf.GetComponent<PlaytimePainter_RenderBrush>()) && (CanEditWithTag(tf.tag)))
                 tf.gameObject.AddComponent<PlaytimePainter>();
 
             for (var i = 0; i < tf.childCount; i++)
@@ -1213,7 +1213,7 @@ namespace PlaytimePainter
                 foreach (var rt in rtp)
                     rt.gameObject.DestroyWhatever();
 
-            var dc = FindObjectsOfType<DepthProjectorCamera>();
+            var dc = FindObjectsOfType<PlaytimePainter_DepthProjectorCamera>();
 
             if (!dc.IsNullOrEmpty())
                 foreach (var d in dc)

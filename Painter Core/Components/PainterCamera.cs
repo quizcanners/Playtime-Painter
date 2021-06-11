@@ -20,22 +20,22 @@ namespace PlaytimePainter {
     [ExecuteInEditMode]
     public class PainterCamera : PainterSystemMono {
 
-        public static DepthProjectorCamera depthProjectorCamera;
+        public static PlaytimePainter_DepthProjectorCamera depthProjectorCamera;
 
-        public static DepthProjectorCamera GetOrCreateProjectorCamera()
+        public static PlaytimePainter_DepthProjectorCamera GetOrCreateProjectorCamera()
         {
           
                 if (depthProjectorCamera)
                     return depthProjectorCamera;
 
-                if (!DepthProjectorCamera.Instance)
-                    depthProjectorCamera = QcUnity.Instantiate<DepthProjectorCamera>();
+                if (!PlaytimePainter_DepthProjectorCamera.Instance)
+                    depthProjectorCamera = QcUnity.Instantiate<PlaytimePainter_DepthProjectorCamera>();
 
                 return depthProjectorCamera;
             
         }
 
-        public static readonly BrushMeshGenerator BrushMeshGenerator = new BrushMeshGenerator();
+        public static readonly PlaytimePainter_BrushMeshGenerator BrushMeshGenerator = new PlaytimePainter_BrushMeshGenerator();
 
         public static readonly MeshEditorManager MeshManager = new MeshEditorManager();
 
@@ -127,7 +127,7 @@ namespace PlaytimePainter {
 
         #region Modules
       
-        private static CollectionMetaData _modulesMeta = new CollectionMetaData("Modules", true, true, true, false);
+        private static readonly CollectionMetaData _modulesMeta = new CollectionMetaData("Modules", true, true, true, false);
 
         public static T GetModule<T>() where T : CameraModuleBase 
         {
@@ -202,10 +202,10 @@ namespace PlaytimePainter {
             set => brushRenderer.Set(value); 
         }
 
-        public RenderBrush brushPrefab;
+        public PlaytimePainter_RenderBrush brushPrefab;
         public const float OrthographicSize = 128; 
 
-        public RenderBrush brushRenderer;
+        public PlaytimePainter_RenderBrush brushRenderer;
         #endregion
         
         public static float _previewAlpha = 1;
@@ -215,7 +215,7 @@ namespace PlaytimePainter {
         public override CfgEncoder Encode() => base.Encode()//this.EncodeUnrecognized()
             .Add("mm", MeshManager)
             .Add_Abstract("pl", CameraModuleBase.modules)
-            .Add("rts", RenderTextureBuffersManager.renderBuffersSize);
+            .Add("rts", PlaytimePainter_RenderTextureBuffersManager.renderBuffersSize);
 
         public override void Decode(string key, CfgData data) {
             switch (key) {
@@ -224,7 +224,7 @@ namespace PlaytimePainter {
                     CameraModuleBase.RefreshModules();
                     break;
                 case "mm": MeshManager.DecodeFull(data); break;
-                case "rts": RenderTextureBuffersManager.renderBuffersSize = data.ToInt(); break;
+                case "rts": PlaytimePainter_RenderTextureBuffersManager.renderBuffersSize = data.ToInt(); break;
             }
         }
 
@@ -235,8 +235,8 @@ namespace PlaytimePainter {
         [NonSerialized] private TextureMeta alphaBufferDataTarget;
         [NonSerialized] private Shader alphaBufferDataShader;
 
-        public TextureMeta imgMetaUsingRendTex;
-        public List<MaterialMeta> materialsUsingRenderTexture = new List<MaterialMeta>();
+        [SerializeField] internal TextureMeta imgMetaUsingRendTex;
+        [SerializeField] internal List<MaterialMeta> materialsUsingRenderTexture = new List<MaterialMeta>();
         public PlaytimePainter autodisabledBufferTarget;
 
         public void EmptyBufferTarget()
@@ -255,10 +255,10 @@ namespace PlaytimePainter {
 
             materialsUsingRenderTexture.Clear();
             imgMetaUsingRendTex = null;
-            RenderTextureBuffersManager.DiscardPaintingBuffersContents();
+            PlaytimePainter_RenderTextureBuffersManager.DiscardPaintingBuffersContents();
         }
 
-        public void ChangeBufferTarget(TextureMeta newTarget, MaterialMeta mat, ShaderProperty.TextureValue parameter, PlaytimePainter painter)
+        internal void ChangeBufferTarget(TextureMeta newTarget, MaterialMeta mat, ShaderProperty.TextureValue parameter, PlaytimePainter painter)
         {
 
             if (newTarget != imgMetaUsingRendTex)  {
@@ -290,13 +290,13 @@ namespace PlaytimePainter {
             }
         }
         
-        public static RenderTexture FrontBuffer => RenderTextureBuffersManager.GetOrCreatePaintingBuffers()[0];
+        public static RenderTexture FrontBuffer => PlaytimePainter_RenderTextureBuffersManager.GetOrCreatePaintingBuffers()[0];
 
-        public static RenderTexture BackBuffer => RenderTextureBuffersManager.GetOrCreatePaintingBuffers()[1];
+        public static RenderTexture BackBuffer => PlaytimePainter_RenderTextureBuffersManager.GetOrCreatePaintingBuffers()[1];
 
-        public static RenderTexture AlphaBuffer => RenderTextureBuffersManager.alphaBufferTexture;
+        public static RenderTexture AlphaBuffer => PlaytimePainter_RenderTextureBuffersManager.alphaBufferTexture;
 
-        public static bool GotBuffers => Inst && RenderTextureBuffersManager.GotPaintingBuffers;
+        public static bool GotBuffers => Inst && PlaytimePainter_RenderTextureBuffersManager.GotPaintingBuffers;
         #endregion
 
         #region Brush Shader MGMT
@@ -445,8 +445,8 @@ namespace PlaytimePainter {
             }
 
 
-            if (!useSingle && !RenderTextureBuffersManager.secondBufferUpdated)
-                RenderTextureBuffersManager.UpdateBufferTwo();
+            if (!useSingle && !PlaytimePainter_RenderTextureBuffersManager.secondBufferUpdated)
+                PlaytimePainter_RenderTextureBuffersManager.UpdateBufferTwo();
             
             SHADER_BRUSH_UPDATE(command); 
 
@@ -460,7 +460,7 @@ namespace PlaytimePainter {
             CurrentShader = shd;
         }
 
-        public static void SHADER_POSITION_AND_PREVIEW_UPDATE(Stroke st, bool hidePreview, float size)
+        public static void SHADER_POSITION_AND_PREVIEW_UPDATE(Stroke st, bool hidePreview)
         {
 
             PainterShaderVariables.PREVIEW_BRUSH_UV_POS_FROM.GlobalValue = st.uvFrom.ToVector4(0, _previewAlpha);
@@ -482,12 +482,12 @@ namespace PlaytimePainter {
 
            // _prevPosPreview = st.posTo;
         }
-        
+
         #endregion
 
         #region Alpha Buffer 
 
-        public void AlphaBufferSetDirtyBeforeRender(TextureMeta id, Shader shade) {
+        internal void AlphaBufferSetDirtyBeforeRender(TextureMeta id, Shader shade) {
 
             if (alphaBufferDataTarget != null && (alphaBufferDataTarget != id || alphaBufferDataShader != shade))
                 UpdateFromAlphaBuffer(alphaBufferDataTarget.CurrentRenderTexture(), alphaBufferDataShader);
@@ -498,7 +498,7 @@ namespace PlaytimePainter {
         }
 
         public void DiscardAlphaBuffer() {
-            RenderTextureBuffersManager.ClearAlphaBuffer(); 
+            PlaytimePainter_RenderTextureBuffersManager.ClearAlphaBuffer(); 
             alphaBufferDataTarget = null;
         }
 
@@ -512,8 +512,8 @@ namespace PlaytimePainter {
 
             DiscardAlphaBuffer();
 
-            if (!RenderTextureBuffersManager.secondBufferUpdated)
-                RenderTextureBuffersManager.UpdateBufferTwo();
+            if (!PlaytimePainter_RenderTextureBuffersManager.secondBufferUpdated)
+                PlaytimePainter_RenderTextureBuffersManager.UpdateBufferTwo();
             
         }
 
@@ -543,7 +543,7 @@ namespace PlaytimePainter {
             var trg = TargetTexture;
 
             if (trg == FrontBuffer)
-                RenderTextureBuffersManager.secondBufferUpdated = false;
+                PlaytimePainter_RenderTextureBuffersManager.secondBufferUpdated = false;
 
             lastPainterCall = QcUnity.TimeSinceStartup();
             
@@ -581,9 +581,9 @@ namespace PlaytimePainter {
          
         public RenderTexture Render(Texture from, RenderTexture to) => Render(from, to, Data.brushBufferCopy.Shader);
 
-        public RenderTexture Render(TextureMeta from, RenderTexture to) => Render(from.CurrentTexture(), to, Data.brushBufferCopy.Shader);
+        internal RenderTexture Render(TextureMeta from, RenderTexture to) => Render(from.CurrentTexture(), to, Data.brushBufferCopy.Shader);
 
-        public RenderTexture Render(Texture from, TextureMeta to) => Render(from, to.CurrentRenderTexture(), Data.brushBufferCopy.Shader);
+        internal RenderTexture Render(Texture from, TextureMeta to) => Render(from, to.CurrentRenderTexture(), Data.brushBufferCopy.Shader);
 
         public RenderTexture Render(Color col, RenderTexture to)
         {
@@ -603,22 +603,22 @@ namespace PlaytimePainter {
                 TargetTexture = BackBuffer;
                 CurrentShader = Data.brushBufferCopy.Shader;
                 Render();
-                RenderTextureBuffersManager.secondBufferUpdated = true;
-                RenderTextureBuffersManager.bigRtVersion++;
+                PlaytimePainter_RenderTextureBuffersManager.secondBufferUpdated = true;
+                PlaytimePainter_RenderTextureBuffersManager.bigRtVersion++;
             }
         }
         #endregion
 
         #region Updates
 
-        public void TryApplyBufferChangesTo(TextureMeta id) {
+        internal void TryApplyBufferChangesTo(TextureMeta id) {
 
             if ((id != null) && (id == alphaBufferDataTarget))
                 FinalizePreviousAlphaDataTarget();
             
         }
 
-        public void TryDiscardBufferChangesTo(TextureMeta id) {
+        internal void TryDiscardBufferChangesTo(TextureMeta id) {
 
             if (id != null && id == alphaBufferDataTarget)
                 DiscardAlphaBuffer();
@@ -641,7 +641,7 @@ namespace PlaytimePainter {
             if (!MainCamera)
                 MainCamera = Camera.main;
 
-            DepthProjectorCamera.triedToFindDepthCamera = false;
+            PlaytimePainter_DepthProjectorCamera.triedToFindDepthCamera = false;
 
             PainterClass.applicationIsQuitting = false;
 
@@ -672,7 +672,7 @@ namespace PlaytimePainter {
             if (!brushPrefab) {
                 var go = Resources.Load(PainterDataAndConfig.PREFABS_RESOURCE_FOLDER +"/RenderCameraBrush") as GameObject;
                 if (go) {
-                    brushPrefab = go.GetComponent<RenderBrush>();
+                    brushPrefab = go.GetComponent<PlaytimePainter_RenderBrush>();
                     if (!brushPrefab)
                         Debug.Log("Couldn't find brush prefab.");
                 }
@@ -683,9 +683,9 @@ namespace PlaytimePainter {
             #endif
 
             if (!brushRenderer){
-                brushRenderer = GetComponentInChildren<RenderBrush>();
+                brushRenderer = GetComponentInChildren<PlaytimePainter_RenderBrush>();
                 if (!brushRenderer)
-                    brushRenderer = Instantiate(brushPrefab.gameObject, transform).GetComponent<RenderBrush>();
+                    brushRenderer = Instantiate(brushPrefab.gameObject, transform).GetComponent<PlaytimePainter_RenderBrush>();
             }
 
             var tf = transform;
@@ -766,7 +766,7 @@ namespace PlaytimePainter {
             if (Data)
                 Data.ManagedOnDisable();
 
-            RenderTextureBuffersManager.OnDisable();
+            PlaytimePainter_RenderTextureBuffersManager.OnDisable();
         }
 
         #if UNITY_EDITOR
@@ -788,11 +788,11 @@ namespace PlaytimePainter {
 
         public static double lastManagedUpdate;
 
-        private FrameGate frameGate = new FrameGate();
+        private readonly FrameGate _frameGate = new FrameGate();
 
         public void CombinedUpdate() {
 
-            if (frameGate.TryEnter() == false)
+            if (_frameGate.TryEnter() == false)
                return; 
 
             if (!this || !Data)
@@ -916,9 +916,9 @@ namespace PlaytimePainter {
 
             if ("Depth Projector Camera".isEntered(ref _inspectedStuff, 2).nl())
             {
-                if (DepthProjectorCamera.Instance)
+                if (PlaytimePainter_DepthProjectorCamera.Instance)
                 {
-                    DepthProjectorCamera.Instance.Nested_Inspect().nl();
+                    PlaytimePainter_DepthProjectorCamera.Instance.Nested_Inspect().nl();
                 }
                 else if ("Instantiate".Click())
                     GetOrCreateProjectorCamera();
@@ -969,7 +969,7 @@ namespace PlaytimePainter {
                 if ("Buffers".isEntered(ref _inspectedDependecy, 1).nl())
                 {
 
-                    RenderTextureBuffersManager.Inspect().nl();
+                    PlaytimePainter_RenderTextureBuffersManager.Inspect().nl();
 
 #if UNITY_EDITOR
                     "Disable Second Buffer Update (Debug Mode)".toggleIcon(ref disableSecondBufferUpdateDebug).nl();

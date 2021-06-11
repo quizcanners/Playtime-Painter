@@ -31,7 +31,7 @@ namespace PlaytimePainter
 
         public static bool toolEnabled;
 
-        public List<BlitModeCustom> customBlitModes = new List<BlitModeCustom>();
+        public List<PlaytimePainter_BlitModeCustom> customBlitModes = new List<PlaytimePainter_BlitModeCustom>();
 
         public int selectedCustomBlitMode;
 
@@ -200,12 +200,12 @@ namespace PlaytimePainter
 
         #region Texture Data Lists
 
-        public List<TextureMapCombineProfile> texturePackagingSolutions = new List<TextureMapCombineProfile>();
+        [SerializeField] internal List<TextureMapCombineProfile> texturePackagingSolutions = new List<TextureMapCombineProfile>();
         public List<AtlasTextureCreator> atlases = new List<AtlasTextureCreator>();
         public List<MaterialAtlases> atlasedMaterials = new List<MaterialAtlases>();
         public List<string> playtimeSavedTextures = new List<string>();
-        public List<TextureMeta> imgMetas = new List<TextureMeta>();
-        public List<MaterialMeta> matMetas = new List<MaterialMeta>();
+        [SerializeField] internal List<TextureMeta> imgMetas = new List<TextureMeta>();
+        [SerializeField] internal List<MaterialMeta> matMetas = new List<MaterialMeta>();
         public List<BrushTypes.VolumetricDecal> decals = new List<BrushTypes.VolumetricDecal>();
 
         public List<Texture> sourceTextures = new List<Texture>();
@@ -217,7 +217,7 @@ namespace PlaytimePainter
         public bool showRecentTextures;
         public bool showColorSchemes;
 
-        public MaterialMeta GetMaterialDataFor(Material mat)
+        internal MaterialMeta GetMaterialDataFor(Material mat)
         {
             if (!mat)
                 return null;
@@ -254,7 +254,7 @@ namespace PlaytimePainter
 
    
         [NonSerialized]
-        public readonly Dictionary<ShaderProperty.TextureValue, List<TextureMeta>> recentTextures = new Dictionary<ShaderProperty.TextureValue, List<TextureMeta>>();
+        internal readonly Dictionary<ShaderProperty.TextureValue, List<TextureMeta>> recentTextures = new Dictionary<ShaderProperty.TextureValue, List<TextureMeta>>();
 
         public MeshPackagingProfile GetMeshPackagingProfile(string packageName)
         {
@@ -302,9 +302,9 @@ namespace PlaytimePainter
         public string atlasFolderName = "Atlases";
 
         public bool enablePainterUIonPlay;
-        public BrushConfigScriptableObject BrushConfig;
+        public PlaytimePainter_BrushConfigScriptableObject BrushConfig;
 
-        [NonSerialized] private Brush _defaultBrush = new Brush();
+        [NonSerialized] private readonly Brush _defaultBrush = new Brush();
         public Brush Brush => BrushConfig ? BrushConfig.brush : _defaultBrush;
         
         public bool showColorSliders = true;
@@ -536,7 +536,7 @@ namespace PlaytimePainter
 
             if (!BrushConfig || inspectedItems == 12)
             {
-                "Brush Config not found, create {0} from context menu".F(BrushConfigScriptableObject.FILE_NAME).writeWarning();
+                "Brush Config not found, create {0} from context menu".F(PlaytimePainter_BrushConfigScriptableObject.FILE_NAME).writeWarning();
 
                 "Brush Config".edit(ref BrushConfig).nl();
             }

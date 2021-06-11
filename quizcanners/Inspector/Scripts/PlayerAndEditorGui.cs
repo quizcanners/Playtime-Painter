@@ -285,7 +285,7 @@ namespace QuizCanners.Inspect
 
         private static int letterSizeInPixels => PaintingGameViewUI ? 10 : 9;
 
-    public static int ApproximateLength(this string label, int fontSize = -1)
+        public static int ApproximateLength(this string label, int fontSize = -1)
         {
             if (label == null || label.Length == 0)
                 return 1;
