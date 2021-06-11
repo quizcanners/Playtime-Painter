@@ -34,7 +34,7 @@ namespace QuizCanners.Utils
             }
         }
 
-        private bool DoneThisFrame
+        public bool DoneThisFrame
         {
             get
             {
