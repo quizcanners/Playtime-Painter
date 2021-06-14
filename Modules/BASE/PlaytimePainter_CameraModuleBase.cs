@@ -55,7 +55,7 @@ namespace PlaytimePainter.CameraModules {
        
     }
     
-    public abstract class CameraModuleBase : PainterClassCfg, IGotDisplayName, IGotClassTag, IPEGI_ListInspect {
+    public abstract class CameraModuleBase : PainterClassCfg, IGotDisplayName, IGotClassTag, ICfg, IPEGI_ListInspect {
 
         internal static List<CameraModuleBase> modules;
 
@@ -133,7 +133,7 @@ namespace PlaytimePainter.CameraModules {
 
         public virtual string ToolTip => "Painter plugin";
 
-        public virtual void InspectInList(int ind, ref int edited) {
+        public virtual void InspectInList(ref int edited, int ind) {
 
             if (NameForDisplayPEGI().ClickLabel())
                 edited = ind;

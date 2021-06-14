@@ -3,7 +3,8 @@
 namespace PlaytimePainter
 {
 
-    internal abstract class ImageMetaModuleBase : PainterClassCfg, IGotClassTag {
+    internal abstract class ImageMetaModuleBase : PainterClassCfg, IGotClassTag, ICfg
+    {
 
         public TextureMeta parentMeta;
         

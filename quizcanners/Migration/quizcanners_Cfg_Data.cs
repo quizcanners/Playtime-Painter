@@ -411,7 +411,7 @@ namespace QuizCanners.CfgDecode
 
         #region Decodey To Type
 
-        public void Decode<T>(out T val, TaggedTypesCfg typeList) where T : IGotClassTag
+        public void Decode<T>(out T val, TaggedTypesCfg typeList) where T : IGotClassTag, ICfg
         {
             val = default;
 
@@ -514,7 +514,7 @@ namespace QuizCanners.CfgDecode
             {
                 var cody = new CfgDecoder(dta);
 
-                foreach (var unused in cody)
+                foreach (var _ in cody)
                     ToListInternal(list, cody, tps);
             } else 
                 list.Add(dta.Decode<T>(tag, tps));
@@ -563,7 +563,7 @@ namespace QuizCanners.CfgDecode
 
             var cody = new CfgDecoder(this);
 
-            var tps = typeof(T).TryGetDerivedClasses();
+            var tps = ICfgExtensions.TryGetDerivedClasses(typeof(T));
 
             if (tps != null)
                 foreach (string _ in cody)
@@ -721,7 +721,7 @@ namespace QuizCanners.CfgDecode
 #endregion
 
     #region Extensions
-    public static class CfgExtensions {
+    public static class ICfgExtensions {
 
         private const string StdStart = "<-<-<";
         private const string StdEnd = ">->->";
@@ -815,25 +815,16 @@ namespace QuizCanners.CfgDecode
 
                 if (fromStd != null)
                 {
-                   // var prev = CfgEncoder.keeper;
-                  //  CfgEncoder.keeper = TmpHolder;
                     intoStd.Decode(new CfgData(fromStd.Encode().ToString()));
-                  //  CfgEncoder.keeper = prev;
-
-                    //TmpHolder.nestedReferences.Clear();
                 }
-
-
             }
 
             var ch = into as ICanChangeClass;
             if (ch != null && !QcUnity.IsNullOrDestroyed_Obj(from))
                 ch.OnClassTypeChange(from);
-
-            
         }
 
-        public static List<Type> TryGetDerivedClasses(this Type t)
+        public static List<Type> TryGetDerivedClasses(Type t)
         {
             var tps = t.TryGetClassAttribute<DerivedListAttribute>()?.derivedTypes;
             if (tps == null || tps.Count == 0)

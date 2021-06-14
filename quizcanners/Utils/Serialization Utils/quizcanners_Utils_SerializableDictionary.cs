@@ -3,20 +3,16 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
 namespace QuizCanners.Utils
 {
 
     [Serializable]
     public abstract class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver, IPEGI
     {
-        [HideInInspector] [SerializeField] private List<TKey> keys = new List<TKey>();
-        [HideInInspector] [SerializeField] private List<TValue> values = new List<TValue>();
+        [HideInInspector] [SerializeField] protected List<TKey> keys = new List<TKey>();
+        [HideInInspector] [SerializeField] protected List<TValue> values = new List<TValue>();
 
-        public void OnBeforeSerialize()
+        public virtual void OnBeforeSerialize()
         {
             keys.Clear();
             values.Clear();
@@ -27,7 +23,7 @@ namespace QuizCanners.Utils
             }
         }
 
-        public void OnAfterDeserialize()
+        public virtual void OnAfterDeserialize()
         {
             Clear();
 
@@ -82,7 +78,7 @@ namespace QuizCanners.Utils
                 else
                 {
                     if (value is IPEGI_ListInspect pgi)
-                        pgi.InspectInList(index, ref inspectedElement);
+                        pgi.InspectInList(ref inspectedElement, index);
                     else
                         name.try_enter_Inspect(value, ref inspectedElement, index);
                 }

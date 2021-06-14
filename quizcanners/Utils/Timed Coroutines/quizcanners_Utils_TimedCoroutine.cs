@@ -419,7 +419,7 @@ namespace QuizCanners.Utils
 
         public string NameForPEGI { get; set; }
 
-        public void InspectInList(int ind, ref int edited)
+        public void InspectInList(ref int edited, int ind)
         {
 
             if (icon.Enter.Click())

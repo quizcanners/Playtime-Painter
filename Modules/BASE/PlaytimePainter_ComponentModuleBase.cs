@@ -12,7 +12,7 @@ namespace PlaytimePainter.ComponentModules
     }
     
     [PainterPlugin]*/
-    internal abstract class ComponentModuleBase : PainterClassCfg, IGotClassTag, IPEGI
+    internal abstract class ComponentModuleBase : PainterClassCfg, IGotClassTag, ICfg, IPEGI
     {
 
         public PlaytimePainter painter;

@@ -282,7 +282,7 @@ namespace QuizCanners.Inspect
             return ef.isFoldedOutOrEntered;
         }
 
-        public static bool isToggle_Entered(this string label, ref bool val, ref int entered, int thisOne, bool showLabelWhenEntered = false)
+        public static bool isToggle_Entered(this string label, ref bool val, ref int entered, int thisOne)
         {
             if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
                 return false;
@@ -373,7 +373,7 @@ namespace QuizCanners.Inspect
             {
 
                 if (outside) 
-                    var.InspectInList(thisOne, ref entered);
+                    var.InspectInList(ref entered, thisOne);
                 else if (entered == thisOne)
                 {
 

@@ -10,7 +10,6 @@ using UnityEngine.Networking;
 
 namespace QuizCanners.CfgDecode
 {
-#pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0044 // Add readonly modifier
     
     [Serializable]
@@ -56,7 +55,7 @@ namespace QuizCanners.CfgDecode
             public string pageName;
             public int pageIndex;
 
-            public void InspectInList(int ind, ref int edited)
+            public void InspectInList(ref int edited, int ind)
             {
                 "Name".edit(40, ref pageName);
                 "#gid=".edit(50, ref pageIndex);

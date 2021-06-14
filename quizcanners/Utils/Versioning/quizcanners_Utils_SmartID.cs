@@ -64,7 +64,7 @@ namespace QuizCanners.Utils
 
         }
 
-        public virtual void InspectInList(int ind, ref int edited)
+        public virtual void InspectInList(ref int edited, int ind)
         {
             pegi.CopyPaste.InspectOptionsFor(ref Id);
             "Key: {0} ".F(Id).write(45);

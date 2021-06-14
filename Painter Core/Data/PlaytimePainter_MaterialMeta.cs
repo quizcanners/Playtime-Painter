@@ -58,7 +58,7 @@ namespace PlaytimePainter {
 
         #region Inspector
 
-        public void InspectInList(int ind, ref int edited)
+        public void InspectInList(ref int edited, int ind)
         {
             pegi.write(material);
             if (icon.Enter.Click())

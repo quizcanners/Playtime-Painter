@@ -22,7 +22,7 @@ namespace PlaytimePainter
 
         public string NameForPEGI { get { return paletteName; } set { paletteName = value; } }
 
-        public void InspectInList(int ind, ref int edited)
+        public void InspectInList(ref int edited, int ind)
         {
             this.inspect_Name();
 

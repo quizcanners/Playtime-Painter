@@ -1,19 +1,14 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using QuizCanners.Inspect;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using QuizCanners.Utils;
-#if UNITY_EDITOR
-
-#endif
 
 namespace QuizCanners.CfgDecode
 {
-#pragma warning disable IDE0034 // Simplify 'default' expression
-#pragma warning disable IDE0019 // Use pattern matching
+
 #pragma warning disable IDE0018 // Inline variable declaration
 
    
@@ -23,7 +18,7 @@ namespace QuizCanners.CfgDecode
     [Serializable]
     public class ICfgObjectExplorer : IGotCount
     {
-        private List<CfgState> states = new List<CfgState>();
+        private readonly List<CfgState> states = new List<CfgState>();
         private string fileFolderHolder = "STDEncodes";
         private static ICfg inspectedCfg;
 
@@ -43,7 +38,7 @@ namespace QuizCanners.CfgDecode
             target.LoadCfgOnDrop().nl();
 
             if (icon.Copy.Click("Copy Component Data").nl())
-                CfgExtensions.copyBufferValue = target.Encode().ToString();
+                ICfgExtensions.copyBufferValue = target.Encode().ToString();
 
             pegi.nl();
 
@@ -207,7 +202,7 @@ namespace QuizCanners.CfgDecode
                 pegi.nl();
             }
 
-            public void InspectInList(int ind, ref int edited)
+            public void InspectInList(ref int edited, int ind)
             {
 
                 CountForInspector().ToString().write(50);
@@ -230,14 +225,14 @@ namespace QuizCanners.CfgDecode
 
                 if (icon.Copy.Click("Copy " + tag + " data to buffer."))
                 {
-                    CfgExtensions.copyBufferValue = data.ToString();
-                    CfgExtensions.copyBufferTag = tag;
+                    ICfgExtensions.copyBufferValue = data.ToString();
+                    ICfgExtensions.copyBufferTag = tag;
                 }
 
-                if (CfgExtensions.copyBufferValue != null && icon.Paste.Click("Paste " + CfgExtensions.copyBufferTag + " Data").nl())
+                if (ICfgExtensions.copyBufferValue != null && icon.Paste.Click("Paste " + ICfgExtensions.copyBufferTag + " Data").nl())
                 {
                     dirty = true;
-                    data = new CfgData(CfgExtensions.copyBufferValue);
+                    data = new CfgData(ICfgExtensions.copyBufferValue);
                 }
 
             }
@@ -327,7 +322,7 @@ namespace QuizCanners.CfgDecode
                 dataExplorer.Nested_Inspect();
             }
 
-            public void InspectInList(int ind, ref int edited)
+            public void InspectInList(ref int edited, int ind)
             {
 
                 if (dataExplorer.data.ToString().IsNullOrEmpty() == false && icon.Copy.Click())

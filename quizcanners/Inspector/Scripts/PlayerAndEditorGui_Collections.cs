@@ -39,7 +39,7 @@ namespace QuizCanners.Inspect
 
         internal static void SetSelected(int index, bool value) => collectionInspector.selectedEls[index] = value;
 
-        private static CollectionInspector collectionInspector = new CollectionInspector();
+        private static readonly CollectionInspector collectionInspector = new CollectionInspector();
 
         private class CollectionInspector
         {
@@ -350,7 +350,7 @@ namespace QuizCanners.Inspect
 
                 var type = typeof(T);
 
-                var intTypes = type.TryGetDerivedClasses();
+                var intTypes = ICfgExtensions.TryGetDerivedClasses(type);
 
                 var tagTypes = TaggedTypesCfg.TryGetOrCreate(type);
 
@@ -855,7 +855,7 @@ namespace QuizCanners.Inspect
 
                 if (array != _editingArrayOrder) return changed;
 
-                var derivedClasses = typeof(T).TryGetDerivedClasses();
+                var derivedClasses = ICfgExtensions.TryGetDerivedClasses(typeof(T));
 
                 for (var i = 0; i < array.Length; i++)
                 {
@@ -948,7 +948,7 @@ namespace QuizCanners.Inspect
                 #region Playtime UI reordering
 
                 {
-                    var derivedClasses = typeof(T).TryGetDerivedClasses();
+                    var derivedClasses = ICfgExtensions.TryGetDerivedClasses(typeof(T));
 
                     foreach (var el in collectionInspector.InspectionIndexes(list, listMeta))
                     {
@@ -1241,7 +1241,7 @@ namespace QuizCanners.Inspect
                 {
                     var chBefore = GUI.changed;
 
-                    pl.InspectInList(index, ref inspected);
+                    pl.InspectInList(ref inspected, index);
 
                     if (!chBefore && GUI.changed)
                         pl.SetToDirty_Obj();
@@ -1488,7 +1488,7 @@ namespace QuizCanners.Inspect
         {
             var el = pair.Value;
 
-            var changed = InspectValueInCollection(ref el, null, index, ref inspected, listMeta);
+            var changed = InspectValueInCollection(ref el, index, ref inspected, listMeta);
 
             if (changed && typeof(T).IsValueType)
             {
@@ -1502,7 +1502,7 @@ namespace QuizCanners.Inspect
         {
             T el = array[index];
 
-            var changed = InspectValueInCollection(ref el, array, index, ref inspected, listMeta);
+            var changed = InspectValueInCollection(ref el, index, ref inspected, listMeta);
 
             if (changed)
                 array[index] = el;
@@ -1514,7 +1514,7 @@ namespace QuizCanners.Inspect
             CollectionMetaData listMeta = null)
         {
 
-            var changed = InspectValueInCollection(ref el, list, index, ref inspected, listMeta);
+            var changed = InspectValueInCollection(ref el, index, ref inspected, listMeta);
 
             if (changed && typeof(T).IsValueType)
                 list[index] = el;
@@ -1523,7 +1523,7 @@ namespace QuizCanners.Inspect
 
         }
 
-        public static bool InspectValueInCollection<T>(ref T el, IList collection, int index, ref int inspected, CollectionMetaData listMeta = null)
+        public static bool InspectValueInCollection<T>(ref T el, int index, ref int inspected, CollectionMetaData listMeta = null)
         {
 
             var changed = ChangeTrackStart();
@@ -1560,7 +1560,7 @@ namespace QuizCanners.Inspect
                 {
                     try
                     {
-                        pl.InspectInList(index, ref inspected);
+                        pl.InspectInList(ref inspected, index);
                     }
                     catch (Exception ex)
                     {
@@ -1933,7 +1933,7 @@ namespace QuizCanners.Inspect
         {
             var changes = ChangeTrackStart();
 
-            added = default(T);
+            added = default;
 
             if (list == null)
             {
@@ -2893,7 +2893,7 @@ namespace QuizCanners.Inspect
 
         private static bool SearchMatch_Internal(this IGotIndex gotIndex, int[] indexes) => gotIndex != null && indexes.Any(t => gotIndex.IndexForPEGI == t);
 
-        private static SearchData defaultSearchData = new SearchData();
+        private static readonly SearchData defaultSearchData = new SearchData();
 
         private static readonly char[] splitCharacters = { ' ', '.' };
 
@@ -2905,7 +2905,7 @@ namespace QuizCanners.Inspect
             public int inspectionIndexStart;
             public bool filterByNeedAttention;
             private string[] searchBys;
-            private List<int> filteredListElements = new List<int>();
+            private readonly List<int> filteredListElements = new List<int>();
             private int fileredForCount = -1;
 
             public List<int> GetFilteredList(int count)

@@ -20,8 +20,7 @@ namespace QuizCanners.Inspect
 
     public interface IPEGI { void Inspect(); }
 
-    public interface IPEGI_ListInspect { void InspectInList(//IList list,
-        int ind, ref int edited); }
+    public interface IPEGI_ListInspect { void InspectInList(ref int edited, int ind); }
 
     public interface IPEGI_Searchable { bool String_SearchMatch(string searchString); }
 
@@ -270,7 +269,7 @@ namespace QuizCanners.Inspect
             private set { currentMode = value ? PegiPaintingMode.PlayAreaGui : PegiPaintingMode.EditorInspector; }
         }
 
-        private static int _playtimeGuiWidth = 400;
+        private static readonly int _playtimeGuiWidth = 400;
 
         private static GUILayoutOption GuiMaxWidthOption => GUILayout.MaxWidth(_playtimeGuiWidth);
 

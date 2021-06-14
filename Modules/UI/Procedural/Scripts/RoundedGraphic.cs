@@ -1003,7 +1003,7 @@ namespace PlaytimePainter.UI
             #endregion
 
             #region Inspect
-            public void InspectInList(int ind, ref int edited)
+            public void InspectInList(ref int edited, int ind)
             {
                 // var tg = inspected;
 
@@ -1050,7 +1050,7 @@ namespace PlaytimePainter.UI
             public override string ClassTag => Tag;
 
             #region Inspect
-            public void InspectInList(int ind, ref int edited)
+            public void InspectInList(ref int edited, int ind)
             {
 
                 var mat = inspected.material;
@@ -1114,7 +1114,7 @@ namespace PlaytimePainter.UI
 
             private readonly LinkedLerp.FloatValue _roundedCorners = new LinkedLerp.FloatValue();
 
-            private LerpData ld = new LerpData();
+            private readonly LerpData ld = new LerpData();
 
             public override bool Update(RoundedGraphic target)
             {
@@ -1135,7 +1135,7 @@ namespace PlaytimePainter.UI
             }
 
             #region Inspect
-            public void InspectInList(int ind, ref int edited)
+            public void InspectInList(ref int edited, int ind)
             {
 
                 "Normal".edit(50, ref valueWhenOff, 0, 1);
@@ -1186,7 +1186,7 @@ namespace PlaytimePainter.UI
         }
 
         [RoundedButtonModule]*/
-        protected abstract class RoundedButtonModuleBase : IGotClassTag, IGotDisplayName
+        protected abstract class RoundedButtonModuleBase : IGotClassTag, ICfg, IGotDisplayName
         {
             public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(RoundedButtonModuleBase));
             public TaggedTypesCfg AllTypes => all;

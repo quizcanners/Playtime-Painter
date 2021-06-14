@@ -1498,7 +1498,7 @@ namespace QuizCanners.Inspect
 
                 var type = typeof(T);
 
-                _currentReorderedListTypes = type.TryGetDerivedClasses();
+                _currentReorderedListTypes = ICfgExtensions.TryGetDerivedClasses(type);
 
                 if (_currentReorderedListTypes == null)
                 {

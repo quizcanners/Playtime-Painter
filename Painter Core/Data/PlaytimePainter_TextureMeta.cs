@@ -1322,7 +1322,7 @@ namespace PlaytimePainter
             return changed;
         }
 
-        public void InspectInList(int ind, ref int edited)
+        public void InspectInList(ref int edited, int ind)
         {
             pegi.write(texture2D);
             if (this.Click_Enter_Attention())

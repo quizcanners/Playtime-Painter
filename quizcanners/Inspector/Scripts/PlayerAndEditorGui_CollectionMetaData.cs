@@ -192,13 +192,13 @@ namespace QuizCanners.Inspect
 
         public static bool enableEnterInspectEncoding;
 
-        public void ChangeType(ref object obj, Type newType, TaggedTypesCfg taggedTypes)
+        public void ChangeType(ref object obj, Type newType)
         {
             var previous = obj;
 
             CfgData prev = new CfgData();
 
-            if (obj is IGotClassTag tObj)
+            if (obj is ICfg tObj)
                 prev = tObj.Encode().CfgData;
 
             obj = Activator.CreateInstance(newType);
@@ -210,7 +210,7 @@ namespace QuizCanners.Inspect
                  std.DecodeFull(prev);
             }
 
-            CfgExtensions.TryCopy_Std_AndOtherData(previous, obj);
+            ICfgExtensions.TryCopy_Std_AndOtherData(previous, obj);
         }
 
         public void Save<T>(T el)
@@ -240,8 +240,8 @@ namespace QuizCanners.Inspect
 
             var type = obj?.GetType();
 
-            if (all.Select(ref type).nl())
-                ChangeType(ref obj, type, all);
+            if (all.Inspect_Select(ref type).nl())
+                ChangeType(ref obj, type);
 
             return changed;
         }

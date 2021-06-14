@@ -142,7 +142,7 @@ namespace QuizCanners.Lerp
 
             #region Inspector
 
-            public virtual void InspectInList(int ind, ref int edited)
+            public virtual void InspectInList(ref int edited, int ind)
             {
                 if (!allowChangeParameters)
                 {
@@ -271,10 +271,10 @@ namespace QuizCanners.Lerp
 
             #region Inspector
 
-            public override void InspectInList(int ind, ref int edited)
+            public override void InspectInList(ref int edited, int ind)
             {
                 var change = pegi.ChangeTrackStart();
-                base.InspectInList(ind, ref edited);
+                base.InspectInList(ref edited, ind);
 
                 if (change)
                     targetValue = CurrentValue;
@@ -362,9 +362,9 @@ namespace QuizCanners.Lerp
 
             #region Inspector
 
-            public override void InspectInList(int ind, ref int edited)
+            public override void InspectInList(ref int edited, int ind)
             {
-                base.InspectInList(ind, ref edited);
+                base.InspectInList(ref edited, ind);
 
                 if (pegi.ChangeTrackStart())
                     targetValue = CurrentValue;
@@ -677,8 +677,7 @@ namespace QuizCanners.Lerp
 
             private Rect GetRect(Texture tex)
             {
-                Rect rect;
-                if (tex && offsets.TryGetValue(tex, out rect))
+                if (tex && offsets.TryGetValue(tex, out Rect rect))
                     return rect;
                 return new Rect(0, 0, 1, 1);
 
@@ -885,7 +884,7 @@ namespace QuizCanners.Lerp
                 set { }
             }
 
-            public override void InspectInList(int ind, ref int edited)
+            public override void InspectInList(ref int edited, int ind)
             {
                 if (allowChangeParameters)
                 {
@@ -1052,9 +1051,9 @@ namespace QuizCanners.Lerp
 
             #region Inspector
 
-            public override void InspectInList(int ind, ref int edited)
+            public override void InspectInList(ref int edited, int ind)
             {
-                base.InspectInList(ind, ref edited);
+                base.InspectInList(ref edited, ind);
 
                 if (pegi.ChangeTrackStart())
                     targetValue = CurrentValue;
@@ -1166,7 +1165,7 @@ namespace QuizCanners.Lerp
 
             #region Inspect
 
-            public override void InspectInList(int ind, ref int edited)
+            public override void InspectInList(ref int edited, int ind)
             {
 
                 if (allowChangeParameters)
@@ -1860,7 +1859,7 @@ namespace QuizCanners.Lerp
             "Reboot calls".edit(ref _resets).nl();
         }
 
-        public void InspectInList(int ind, ref int edited)
+        public void InspectInList(ref int edited, int ind)
         {
             "Lerp DP: {0} [{1}]".F(dominantParameter, _resets).write();
 

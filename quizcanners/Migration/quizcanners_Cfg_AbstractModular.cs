@@ -15,7 +15,7 @@ namespace QuizCanners.CfgDecode {
         void OnClassTypeChange(object previousInstance);
     }
 
-    public interface IGotClassTag : ICfg {
+    public interface IGotClassTag {
         string ClassTag { get; }
     }
 
@@ -162,7 +162,7 @@ namespace QuizCanners.CfgDecode {
 
         public List<string> DisplayNames => RefreshNodeTypesList()._displayNames;
 
-        public string Tag (Type type) {
+        public string GetTag (Type type) {
 
             int ind = Types.IndexOf(type);
             if (ind >= 0)
@@ -171,7 +171,7 @@ namespace QuizCanners.CfgDecode {
             return null;
         }
         
-        public bool Select(ref Type type)
+        public bool Inspect_Select(ref Type type)
         {
             var changed = pegi.ChangeTrackStart();
 
@@ -202,11 +202,11 @@ namespace QuizCanners.CfgDecode {
             var ed = ld.TryGetElement(index);
 
             if (ed != null && iTag != null)
-                ed.ChangeType(ref el, type, cfg);
+                ed.ChangeType(ref el, type);
             else
             {
                 el = std.TryDecodeInto<object>(type);
-                CfgExtensions.TryCopy_Std_AndOtherData(previous, el);
+                ICfgExtensions.TryCopy_Std_AndOtherData(previous, el);
             }
 
             list[index] = el;
@@ -227,7 +227,7 @@ namespace QuizCanners.CfgDecode {
         }
     }
     
-    public class TaggedModulesList<T> : ICfg, IPEGI, IEnumerable<T> where T : class, IGotClassTag {
+    public class TaggedModulesList<T> : ICfg, IPEGI, IEnumerable<T> where T : class, IGotClassTag, ICfg {
         
         protected List<T> modules = new List<T>();
         
@@ -297,7 +297,7 @@ namespace QuizCanners.CfgDecode {
 
         #region Inspector
         
-        private CollectionMetaData modulesMeta = new CollectionMetaData("Modules", allowDeleting: false, showAddButton:false, allowReordering: false, showEditListButton:false);
+        private readonly CollectionMetaData modulesMeta = new CollectionMetaData("Modules", allowDeleting: false, showAddButton:false, allowReordering: false, showEditListButton:false);
 
         public void Inspect()
         {

@@ -170,10 +170,8 @@ namespace PlaytimePainter
                 set { productName = value; }
             }
 
-            public void InspectInList(int ind, ref int edited)
+            public void InspectInList(ref int edited, int ind)
             {
-                var changed = pegi.ChangeTrackStart();
-                
                 this.inspect_Name();
 
                 if (Product_colorWithAlpha && !Product_colorWithAlpha.name.Equals(productName))

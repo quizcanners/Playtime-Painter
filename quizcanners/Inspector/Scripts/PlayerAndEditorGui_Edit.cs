@@ -8,9 +8,6 @@ using QuizCanners.Utils;
 using UnityEngine;
 using static QuizCanners.Inspect.PEGI_Styles;
 using Object = UnityEngine.Object;
-#if UNITY_EDITOR
-
-#endif
 
 // ReSharper disable InconsistentNaming
 #pragma warning disable IDE1006 // Naming Styles
@@ -893,11 +890,11 @@ namespace QuizCanners.Inspect
 
             var type = obj?.GetType();
 
-            if (cfg.Select(ref type).nl())
+            if (cfg.Inspect_Select(ref type).nl())
             {
                 var previous = obj;
                 obj = (T)Activator.CreateInstance(type);
-                CfgExtensions.TryCopy_Std_AndOtherData(previous, obj);
+                ICfgExtensions.TryCopy_Std_AndOtherData(previous, obj);
                 return true;
             }
 

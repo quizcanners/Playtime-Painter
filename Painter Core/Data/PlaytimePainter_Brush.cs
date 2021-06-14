@@ -743,7 +743,7 @@ namespace PlaytimePainter {
 
     public static class BrushDynamic {
         
-        public abstract class Base : IPEGI, IGotClassTag
+        public abstract class Base : IPEGI, IGotClassTag, ICfg
         {
 
             public virtual void OnPrepareRay(PlaytimePainter p, Brush bc, ref Ray ray)

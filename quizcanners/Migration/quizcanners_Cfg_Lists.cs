@@ -131,7 +131,7 @@ namespace QuizCanners.CfgDecode
             set { name = value; }
         }
 
-        public virtual void InspectInList(int ind, ref int edited)
+        public virtual void InspectInList(ref int edited, int ind)
         {
 
             var active = ActiveConfiguration;

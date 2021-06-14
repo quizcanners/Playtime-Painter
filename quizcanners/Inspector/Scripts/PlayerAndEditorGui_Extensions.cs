@@ -162,7 +162,7 @@ namespace QuizCanners.Inspect
 
             bool wasChanged = ef.globChanged;
 
-            obj.InspectInList(current, ref inspected);
+            obj.InspectInList(ref inspected, current);
 
             bool isChanged = ef.globChanged && !wasChanged;
 
@@ -187,7 +187,7 @@ namespace QuizCanners.Inspect
 
             bool wasChanged = ef.globChanged;
 
-            obj.InspectInList(0, ref tmp);
+            obj.InspectInList(ref tmp, 0);
             IndentLevel = il;
 
             bool isChanged = ef.globChanged && !wasChanged;

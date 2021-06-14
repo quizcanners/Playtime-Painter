@@ -6,9 +6,7 @@ using UnityEngine;
 
 namespace QuizCanners.Utils
 {
-    
-    #pragma warning disable IDE0034 // Simplify 'default' expression
-    #pragma warning disable IDE0019 // Use pattern matching
+
     #pragma warning disable IDE0018 // Inline variable declaration
 
 
@@ -21,7 +19,6 @@ namespace QuizCanners.Utils
         private bool _allowDelete;
 
         protected static bool IsDefaultOrNull(T obj) => (obj == null) || EqualityComparer<T>.Default.Equals(obj, default);
-
 
         #region Encode & Decode
 
@@ -86,7 +83,6 @@ namespace QuizCanners.Utils
             }
             else temp = new T[add];
             args = temp;
-
         }
 
         public T this[int index]
@@ -180,13 +176,11 @@ namespace QuizCanners.Utils
                 }
 
                 TryReduceDepth();
-
             }
         }
 
         public List<T> GetAllObjsNoOrder() => objs.Where(t => t != null).ToList();
         
-
         public List<T> GetAllObjs(out List<int> indexes)
         {
             var objects = new List<T>();
@@ -286,7 +280,7 @@ namespace QuizCanners.Utils
 
         public virtual T GetIfExists(int ind) => Get(ind);
         
-       public override void Inspect()
+        public override void Inspect()
         {
             var changed = false;
 
@@ -314,16 +308,15 @@ namespace QuizCanners.Utils
                     else
                     {
                         "{0}".F(ind).write(20);
-                        if (pegi.InspectValueInCollection(ref el, null, ind, ref _edited) && typeof(T).IsValueType)
+                        if (pegi.InspectValueInCollection(ref el, ind, ref _edited) && typeof(T).IsValueType)
                             this[ind] = el;
-
                     }
 
                     pegi.nl();
-
                 }
 
-            } else
+            } 
+            else
             {
                 if (icon.List.Click("Back to elements window"))
                     _edited = -1;

@@ -56,7 +56,7 @@ namespace QuizCanners.CfgDecode
 
             cody.Add("len", arr.Length);
 
-            var types = typeof(T).TryGetDerivedClasses();
+            var types = ICfgExtensions.TryGetDerivedClasses(typeof(T));
 
             if (types != null && types.Count > 0) {
                 foreach (var v in arr)
@@ -277,14 +277,17 @@ namespace QuizCanners.CfgDecode
             return Add(typeIndex != -1 ? typeIndex.ToString() : UnrecognizedTag, v.Encode());
            
         }
-        
+
         #endregion
 
         #region Abstracts
 
-        public CfgEncoder Add<T>(string tag, List<T> val, TaggedTypesCfg tts) where T : IGotClassTag => Add_Abstract(tag, val);
+#pragma warning disable IDE0060 // Remove unused parameter
+        public CfgEncoder Add<T>(string tag, List<T> val, TaggedTypesCfg tts) where T : IGotClassTag, ICfg => Add_Abstract(tag, val);
+#pragma warning restore IDE0060 // Remove unused parameter
 
-        public CfgEncoder Add_Abstract<T>(string tag, List<T> lst) where T : IGotClassTag {
+        public CfgEncoder Add_Abstract<T>(string tag, List<T> lst) where T : IGotClassTag, ICfg
+        {
 
             if (lst.IsNullOrEmpty()) return this;
             
@@ -300,10 +303,14 @@ namespace QuizCanners.CfgDecode
             return Add(tag, cody);
         }
 
-        public CfgEncoder Add(string tag, IGotClassTag typeTag, TaggedTypesCfg cfg) => typeTag == null ? this :
+#pragma warning disable IDE0060 // Remove unused parameter
+        public CfgEncoder Add<T>(string tag, T typeTag, TaggedTypesCfg cfg) where T: IGotClassTag, ICfg
+            => typeTag == null ? this :
             Add(tag, new CfgEncoder().Add(typeTag.ClassTag, typeTag.Encode()));
+#pragma warning restore IDE0060 // Remove unused parameter
 
-        public CfgEncoder Add_Abstract(string tag, IGotClassTag typeTag) =>  typeTag == null ? this :
+        public CfgEncoder Add_Abstract<T>(string tag, T typeTag) where T : IGotClassTag, ICfg
+            =>  typeTag == null ? this :
              Add(tag, new CfgEncoder().Add(typeTag.ClassTag, typeTag.Encode()));
         
         #endregion
@@ -386,7 +393,7 @@ namespace QuizCanners.CfgDecode
 
             if (lst == null) return this;
 
-            var indTypes = typeof(T).TryGetDerivedClasses();
+            var indTypes = ICfgExtensions.TryGetDerivedClasses(typeof(T));
 
             if (indTypes != null)
             {
@@ -475,9 +482,13 @@ namespace QuizCanners.CfgDecode
             return Add_String(tag, sub.ToString());
             
         }
-        
-        public CfgEncoder Add_IfNotEmpty<T>(string tag, List<T> val, TaggedTypesCfg tts) where T : IGotClassTag  =>
+
+#pragma warning disable IDE0060 // Remove unused parameter
+
+        public CfgEncoder Add_IfNotEmpty<T>(string tag, List<T> val, TaggedTypesCfg tts) where T : IGotClassTag, ICfg  =>
             val.IsNullOrEmpty() ? this : Add_Abstract(tag, val);
+
+#pragma warning restore IDE0060 // Remove unused parameter
 
         public CfgEncoder Add_IfNotEmpty(string tag, Dictionary<int, string> dic) => dic.IsNullOrEmpty() ? this : Add(tag, dic);
    

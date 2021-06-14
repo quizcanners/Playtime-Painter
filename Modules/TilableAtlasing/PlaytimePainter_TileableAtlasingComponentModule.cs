@@ -640,7 +640,7 @@ namespace PlaytimePainter.ComponentModules {
 
         #region Inspector
 
-        public void InspectInList(int ind, ref int edited)
+        public void InspectInList(ref int edited, int ind)
         {
             (used ? icon.Active : icon.InActive).draw();
 

@@ -105,7 +105,7 @@ namespace PlaytimePainter
                     enabled = true;
 
 #if UNITY_EDITOR
-                    var cs = GetComponents(typeof(Component));
+                    var cs = GetComponents<Component>();
 
                     foreach (var c in cs)
                         if (c.GetType() != typeof(PlaytimePainter))

@@ -14,7 +14,6 @@ using Object = UnityEngine.Object;
 
 namespace QuizCanners.Utils
 {
-#pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 
@@ -52,7 +51,7 @@ namespace QuizCanners.Utils
 
             var objType = obj.GetType();
 
-            var dl = typeof(T).TryGetDerivedClasses();
+            var dl = ICfgExtensions.TryGetDerivedClasses(typeof(T));
             if (dl != null)
             {
                 if (!dl.Contains(objType))
@@ -197,7 +196,7 @@ namespace QuizCanners.Utils
                 (Math.Abs(_intervalInSeconds - 1d) > float.Epsilon) ? _intervalInSeconds.ToString("0") : "", (int)_minYieldsPerInterval,
                 (int)_maxYieldsPerInterval, (int)_totalIntervalsProcessed);
 
-            public void InspectInList(int ind, ref int edited)
+            public void InspectInList(ref int edited, int ind)
             {
                 if (icon.Refresh.Click("Reset Stats"))
                     ResetStats();

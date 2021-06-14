@@ -948,7 +948,7 @@ namespace QuizCanners.Utils {
 
                     if (icon.Delete.Click())
                         this[ind] = default;
-                    else if (pegi.InspectValueInCollection(ref el, null, ind, ref _edited).nl() && typeof(T).IsValueType)
+                    else if (pegi.InspectValueInCollection(ref el, ind, ref _edited).nl() && typeof(T).IsValueType)
                         this[ind] = el;
                 }
 
@@ -1312,7 +1312,7 @@ namespace QuizCanners.Utils {
                         deleted = ind;//countless[ind] = default;
 
                     "{0}: ".F(ind).write(35);
-                    if (pegi.InspectValueInCollection(ref el, null, ind, ref inspected).nl() && typeof(T).IsValueType)
+                    if (pegi.InspectValueInCollection(ref el, ind, ref inspected).nl() && typeof(T).IsValueType)
                         countless[indexes[i]] = el;
                 }
             }
@@ -1448,7 +1448,6 @@ namespace QuizCanners.Utils {
     }
 
 #pragma warning restore IDE0034 // Simplify 'default' expression
-#pragma warning restore IDE0019 // Use pattern matching
 #pragma warning restore IDE0018 // Inline variable declaration
 
 
