@@ -7,10 +7,10 @@ using UnityEngine;
 
 namespace QuizCanners.Utils
 {
-    public abstract class SerializableDictionaryForTaggedTypesEnum<T> : Dictionary<string, T>, ISerializationCallbackReceiver, IPEGI where T : IGotClassTag
+    public abstract class SerializableDictionaryForTaggedTypesEnum<T> : Dictionary<string, T>, ISerializationCallbackReceiver, IPEGI, IGotDisplayName where T : IGotClassTag
     {
 
-        protected enum SerializationMode { Json = 0, ICfg = 1}
+        protected enum SerializationMode { Json = 0, ICfg = 1 }
 
         [HideInInspector] [SerializeField] protected List<string> keys = new List<string>();
         [HideInInspector] [SerializeField] protected List<string> values = new List<string>();
@@ -156,7 +156,7 @@ namespace QuizCanners.Utils
         private string _selectedTag = "_";
         public void Inspect()
         {
-            typeof(T).ToPegiStringType().edit_Dictionary(this, ref _inspected).nl();
+            NameForDisplayPEGI().edit_Dictionary(this, ref _inspected).nl();
 
             if (_inspected == -1) 
             {
@@ -174,6 +174,18 @@ namespace QuizCanners.Utils
 
                 pegi.nl();
             }
+        }
+
+        public virtual string NameForDisplayPEGI()
+        {
+            var tmp = typeof(T).ToString();
+
+            var parts = tmp.Split('.', '+');
+
+            if (parts.Length > 1)
+                return parts[parts.Length-2];
+
+            return tmp;
         }
 
         #endregion
