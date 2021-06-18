@@ -52,14 +52,24 @@ namespace QuizCanners.Utils
 
         }
 
-        public static Timer timer = new Timer();
+        public static IDisposable StartTimer(string measurementName) => new Timer().Start(measurementName);
 
-        public class Timer : IDisposable
+
+        public static TimerDictionary timer = new TimerDictionary();
+
+        public class Timer : IDisposable 
         {
+            protected readonly Stopwatch StopWatch = new Stopwatch();
 
-            private readonly Stopwatch StopWatch = new Stopwatch();
+            protected string _timerStartLabel;
 
-            private string _timerStartLabel;
+            public float LogTreshold;
+
+            public Timer SetLogTreshold(float logTreshold) 
+            {
+                LogTreshold = logTreshold;
+                return this;
+            }
 
             public Timer Start()
             {
@@ -85,21 +95,47 @@ namespace QuizCanners.Utils
 
                 text += TicksToReadableString(StopWatch.ElapsedTicks);
 
-                _timerStartLabel = null;
-
                 return text;
             }
 
             public override string ToString() => GetElapsedTimeString();
 
-            public string End_Restart(string labelForEndedSection = null, bool logInEditor = true, bool logInPlayer = false, int logThreshold = 0)
+            public string End_Restart(string labelForEndedSection = null, bool logInEditor = true, bool logInPlayer = false)
             {
-                var txt = End(labelForEndedSection, logInEditor, logInPlayer, logThreshold);
+                var txt = End(labelForEndedSection, logInEditor, logInPlayer);
                 StopWatch.Start();
                 return txt;
             }
 
-            public Timer Start_Dictionary(string keyForNextMeasurment)
+            public virtual void Dispose() => End();
+
+            public string End(string label = null, bool logInEditor = true, bool logInPlayer = false)
+            {
+                StopWatch.Stop();
+
+                if (label == null)
+                    label = _timerStartLabel;
+
+                _timerStartLabel = null;
+
+                var text = label + (label.IsNullOrEmpty() ? "" : ": ") + GetElapsedTimeString();
+
+                if ((Math.Abs(LogTreshold) < float.Epsilon || ((StopWatch.ElapsedTicks / TimeSpan.TicksPerSecond) > LogTreshold)) &&
+                    ((Application.isEditor && logInEditor) || (!Application.isEditor && logInPlayer)))
+                    Debug.Log(text);
+
+                StopWatch.Reset();
+
+                return text;
+            }
+        }
+
+        public class TimerDictionary : Timer
+        {
+            private string _timingKey = "?";
+            private Dictionary<string, string> _timingLogDictionary;
+
+            public TimerDictionary Start_Dictionary(string keyForNextMeasurment)
             {
                 SetNextDictionaryMeasurment(keyForNextMeasurment);
                 Start();
@@ -107,7 +143,7 @@ namespace QuizCanners.Utils
                 return this;
             }
 
-            public Timer Start_Dictionary(Dictionary<string, string> logDictionary,
+            public TimerDictionary Start_Dictionary(Dictionary<string, string> logDictionary,
                 string keyForNextMeasurment)
             {
                 _timingLogDictionary = logDictionary;
@@ -119,7 +155,7 @@ namespace QuizCanners.Utils
 
             public void End_Restart_Dictionary(string keyForNextMeasurment)
             {
-                TimingDictionary[_timingKey] = End_Restart(null, false);
+                TimingDictionary[_timingKey] = End_Restart(null, logInEditor: false);
                 SetNextDictionaryMeasurment(keyForNextMeasurment);
             }
 
@@ -138,29 +174,6 @@ namespace QuizCanners.Utils
                 return ret;
             }
 
-            public void Dispose()
-            {
-                if (_timingLogDictionary != null)
-                    End_Dictionary();
-                else
-                    End();
-            }
-
-            public string End(string label = null, bool logInEditor = true, bool logInPlayer = false, float logThreshold = 0)
-            {
-                StopWatch.Stop();
-
-                var text = label + (label.IsNullOrEmpty() ? "" : ": ") + GetElapsedTimeString();
-
-                if ((Math.Abs(logThreshold) < float.Epsilon || ((StopWatch.ElapsedTicks / TimeSpan.TicksPerSecond) > logThreshold)) &&
-                    ((Application.isEditor && logInEditor) || (!Application.isEditor && logInPlayer)))
-                    Debug.Log(text);
-
-                StopWatch.Reset();
-
-                return text;
-            }
-
             private void SetNextDictionaryMeasurment(string key)
             {
                 _timingKey = key;
@@ -174,9 +187,6 @@ namespace QuizCanners.Utils
 
                 dic[_timingKey] = "...";
             }
-
-            private string _timingKey = "?";
-            private Dictionary<string, string> _timingLogDictionary;
 
             private Dictionary<string, string> TimingDictionary
             {

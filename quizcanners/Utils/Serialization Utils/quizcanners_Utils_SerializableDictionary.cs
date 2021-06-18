@@ -5,7 +5,6 @@ using UnityEngine;
 
 namespace QuizCanners.Utils
 {
-
     [Serializable]
     public abstract class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver, IPEGI
     {

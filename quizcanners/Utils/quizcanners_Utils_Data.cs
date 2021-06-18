@@ -12,10 +12,6 @@ using UnityEditor;
 namespace QuizCanners.Utils
 {
 
-    #pragma warning disable IDE0034 // Simplify 'default' expression
-    #pragma warning disable IDE0019 // Use pattern matching
-    #pragma warning disable IDE0018 // Inline variable declaration
-
     public static class QcFile
     {
         private static readonly BinaryFormatter Formatter = new BinaryFormatter();
@@ -23,7 +19,7 @@ namespace QuizCanners.Utils
 
         public static readonly string OutsideOfAssetsFolder =
             Application.dataPath.Substring(0, Application.dataPath.Length - 6);
-        
+
         private const string textFileType = ".txt";
 
         private const string bytesFileType = ".bytes";
@@ -104,7 +100,6 @@ namespace QuizCanners.Utils
 
         public static class Delete
         {
-
             public static void FromResources(string assetFolder, string insideAssetFolderAndName, bool asBytes)
             {
 #if UNITY_EDITOR
@@ -198,7 +193,6 @@ namespace QuizCanners.Utils
 
                 return null;
             }
-
             public static string TryLoadAsTextAsset(Object o, bool useBytes = false)
             {
                 var asset = o as TextAsset;
@@ -227,7 +221,6 @@ namespace QuizCanners.Utils
                 return null;
             #endif
             }
-
             public static string FromPersistentPath(string subPath, string filename, bool asBytes = false)
             {
                 string extension = asBytes ? bytesFileType : textFileType;
@@ -251,7 +244,6 @@ namespace QuizCanners.Utils
 
             private static string PersistentPath(string subPath, string fileName, string extension)
                 => Path.Combine(Application.persistentDataPath, subPath, fileName + extension);
-            
             private static string InternalAsString(string fullPath, bool asBytes)
             {
                 if (!File.Exists(fullPath))
@@ -283,10 +275,37 @@ namespace QuizCanners.Utils
 
                 return data;
             }
+        
+            public class Json 
+            {
+                public static bool TryFromPersistentPath<T>(out T target, string subPath, string filename) where T: class
+                {
+                    target = null;
+
+                    var data = FromPersistentPath(subPath: subPath, filename: filename);
+                    if (data.IsNullOrEmpty())
+                        return false;
+
+                    try
+                    {
+                        var obj = JsonUtility.FromJson<T>(data);
+                        if (obj == null)
+                            return false;
+
+                        target = obj;
+                        return true;
+
+                    } catch (Exception ex) 
+                    {
+                        Debug.LogException(ex);
+                        return false;
+                    }
+                }
+            }
         }
 
-        public static class Save {
-
+        public static class Save 
+        {
             #region Unity Assets
 
             public static void Asset(Object obj, string folder, string extension, bool refreshAfter = false)
@@ -327,8 +346,8 @@ namespace QuizCanners.Utils
 
                 if (asBytes)
                 {
-                    using (var file = File.Create(fullPath))
-                        Formatter.Serialize(file, data);
+                    using var file = File.Create(fullPath);
+                    Formatter.Serialize(file, data);
                 }
                 else
                 {
@@ -345,8 +364,8 @@ namespace QuizCanners.Utils
 
                 if (asBytes)
                 {
-                    using (var file = File.Create(path))
-                        Formatter.Serialize(file, data);
+                    using var file = File.Create(path);
+                    Formatter.Serialize(file, data);
                 }
                 else
                 {
@@ -371,6 +390,24 @@ namespace QuizCanners.Utils
                 return Path.Combine(fullDirectoryPath, filename + extension);
             }
             #endregion
+
+            public class Json
+            {
+                public static bool TryToPersistentPath<T>(T target, string subPath, string filename) where T : class
+                {
+                    try
+                    {
+                        var data = JsonUtility.ToJson(target);
+                        ToPersistentPath(subPath: subPath, filename: filename, data: data);
+                        return true;
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.LogException(ex);
+                        return false;
+                    }
+                }
+            }
         }
 
     }

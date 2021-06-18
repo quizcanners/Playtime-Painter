@@ -16,9 +16,7 @@ using UnityEditorInternal;
 
 namespace QuizCanners.Utils {
     
-#pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching
-#pragma warning disable IDE0018 // Inline variable declaration
 
     public static class QcUnity {
 
@@ -37,43 +35,7 @@ namespace QuizCanners.Utils {
                     list.RemoveAt(i);
                 
         }
-
-        public static void RemoveEmpty_Obj<T>(List<T> list) {
-
-            for (var i = list.Count - 1; i >= 0; i--)
-                if (IsNullOrDestroyed_Obj(list[i]))
-                    list.RemoveAt(i);
-                
-        }
         
-        public static bool TryAddUObjIfNew<T>(this List<T> list, Object ass) where T : Object
-        {
-            if (!ass)
-                return false;
-
-            if (typeof(T).IsSubclassOf(typeof(MonoBehaviour)))
-            {
-                var go = ass as GameObject;
-                if (!go) return false;
-
-                var cmp = go.GetComponent<T>();
-
-                if (!cmp || list.Contains(cmp)) return false;
-
-                list.Add(cmp);
-                return true;
-            }
-
-            if (ass.GetType() != typeof(T) && !ass.GetType().IsSubclassOf(typeof(T))) return false;
-
-            var cst = ass as T;
-
-            if (list.Contains(cst)) return false;
-
-            list.Add(cst);
-
-            return true;
-        }
         #endregion
 
         #region Scriptable Objects
@@ -346,8 +308,8 @@ namespace QuizCanners.Utils {
 
                 var scaler = new Vector2(1f/tex.width, 1f/tex.height);
             
-                rect.size = rect.size * scaler;
-                rect.position = rect.position * scaler;
+                rect.size *= scaler;
+                rect.position *= scaler;
 
                 return rect;
         }
@@ -2233,7 +2195,7 @@ namespace QuizCanners.Utils {
                     _calls++;
             }
 
-            private static List<string> loggedErrors = new List<string>();
+            private static readonly List<string> loggedErrors = new List<string>();
             public static void LogErrorOnce(string msg, string key, Object target = null)
             {
                 if (loggedErrors.Contains(key))
@@ -2260,7 +2222,7 @@ namespace QuizCanners.Utils {
                     Debug.LogError(action());
             }
 
-            private static List<string> loggedWarnings = new List<string>();
+            private static readonly List<string> loggedWarnings = new List<string>();
             public static void LogWarningOnce( string msg, string key, Object target = null)
             {
                 if (loggedWarnings.Contains(key))

@@ -7,10 +7,7 @@ using UnityEngine;
 
 namespace PlaytimePainter.MeshEditing
 {
-#pragma warning disable IDE0034 // Simplify 'default' expression
 #pragma warning disable IDE0019 // Use pattern matching
-#pragma warning disable IDE0018 // Inline variable declaration
-
 
     public class PP_MeshData : PainterClassCfg, IPEGI, ICfgCustom
     {
@@ -107,185 +104,185 @@ namespace PlaytimePainter.MeshEditing
 
             meshName = mesh.name;
 
-            QcSharp.timer.Start("Breaking mesh");
+            using (QcSharp.timer.Start("Breaking mesh").SetLogTreshold(1)) { 
 
-            var vCnt = mesh.vertices.Length;
+                var vCnt = mesh.vertices.Length;
 
-            meshPoints = new List<PainterMesh.MeshPoint>();
-            var vertices = mesh.vertices;
+                meshPoints = new List<PainterMesh.MeshPoint>();
+                var vertices = mesh.vertices;
 
-            var cols = mesh.colors;
-            var bW = mesh.boneWeights;
-            var uv1 = mesh.uv;
-            var uv2 = mesh.uv2;
-            bindPoses = mesh.bindposes;
+                var cols = mesh.colors;
+                var bW = mesh.boneWeights;
+                var uv1 = mesh.uv;
+                var uv2 = mesh.uv2;
+                bindPoses = mesh.bindposes;
 
-            var gotUv1 = (uv1 != null) && (uv1.Length == vCnt);
-            var gotUv2 = (uv2 != null) && (uv2.Length == vCnt);
-            var gotColors = (cols != null) && (cols.Length == vCnt);
-            gotBoneWeights = (bW != null) && (bW.Length == vCnt);
+                var gotUv1 = (uv1 != null) && (uv1.Length == vCnt);
+                var gotUv2 = (uv2 != null) && (uv2.Length == vCnt);
+                var gotColors = (cols != null) && (cols.Length == vCnt);
+                gotBoneWeights = (bW != null) && (bW.Length == vCnt);
 
 
-            for (var i = 0; i < vCnt; i++)
-            {
-                var v = new PainterMesh.MeshPoint(vertices[i]);
-                meshPoints.Add(v);
-                new PainterMesh.Vertex(meshPoints[i], gotUv1 ? uv1[i] : Vector2.zero, gotUv2 ? uv2[i] : Vector2.zero);
-            }
-
-            if (gotColors)
                 for (var i = 0; i < vCnt; i++)
                 {
-                    var p = meshPoints[i];
-                    p.vertices[0].color = cols[i];
+                    var v = new PainterMesh.MeshPoint(vertices[i]);
+                    meshPoints.Add(v);
+                    new PainterMesh.Vertex(meshPoints[i], gotUv1 ? uv1[i] : Vector2.zero, gotUv2 ? uv2[i] : Vector2.zero);
                 }
 
-            //   "Got Colors".TimerEnd_Restart();
+                if (gotColors)
+                    for (var i = 0; i < vCnt; i++)
+                    {
+                        var p = meshPoints[i];
+                        p.vertices[0].color = cols[i];
+                    }
 
-            if (gotBoneWeights)
-                for (var i = 0; i < vCnt; i++)
-                {
-                    var p = meshPoints[i];
-                    p.vertices[0].boneWeight = bW[i];
-                }
+                //   "Got Colors".TimerEnd_Restart();
+
+                if (gotBoneWeights)
+                    for (var i = 0; i < vCnt; i++)
+                    {
+                        var p = meshPoints[i];
+                        p.vertices[0].boneWeight = bW[i];
+                    }
 
 
             //   "Gote Bone Weights".TimerEnd_Restart();
 
-            shapes = new List<string>();
+                shapes = new List<string>();
 
-            for (var s = 0; s < mesh.blendShapeCount; s++)
-            {
-
-                for (var v = 0; v < vCnt; v++)
-                    meshPoints[v].shapes.Add(new List<PainterMesh.BlendFrame>());
-
-                shapes.Add(mesh.GetBlendShapeName(s));
-
-                for (var f = 0; f < mesh.GetBlendShapeFrameCount(s); f++)
+                for (var s = 0; s < mesh.blendShapeCount; s++)
                 {
-
-                    blendWeights[s][f] = mesh.GetBlendShapeFrameWeight(s, f);
-
-                    var normals = new Vector3[vCnt];
-                    var pos = new Vector3[vCnt];
-                    var tng = new Vector3[vCnt];
-                    mesh.GetBlendShapeFrameVertices(s, f, pos, normals, tng);
 
                     for (var v = 0; v < vCnt; v++)
-                        meshPoints[v].shapes.TryGetLast().Add(new PainterMesh.BlendFrame(pos[v], normals[v], tng[v]));
+                        meshPoints[v].shapes.Add(new List<PainterMesh.BlendFrame>());
 
-                }
-            }
+                    shapes.Add(mesh.GetBlendShapeName(s));
 
-            triangles = new List<PainterMesh.Triangle>();
-            var points = new PainterMesh.Vertex[3];
-
-            subMeshCount = Mathf.Max(1, mesh.subMeshCount);
-            baseVertex = new List<uint>();
-
-            //   "Blend Shapes Done".TimerEnd_Restart();
-
-            for (var s = 0; s < subMeshCount; s++)
-            {
-
-                baseVertex.Add(mesh.GetBaseVertex(s));
-
-                var indices = mesh.GetTriangles(s);
-
-                var tCnt = indices.Length / 3;
-
-                for (var i = 0; i < tCnt; i++)
-                {
-
-                    for (var e = 0; e < 3; e++)
-                        points[e] = meshPoints[indices[i * 3 + e]].vertices[0];
-
-                    var t = new PainterMesh.Triangle(points)
-                    {
-                        subMeshIndex = s
-                    };
-                    triangles.Add(t);
-                }
-            }
-
-            //   "Triangles done".TimerEnd_Restart();
-
-            if (vCnt > 50)
-            {
-
-                //    Debug.Log("Using caching to merge vertex points.");
-
-               // var mSize = mesh.bounds;
-
-                float coef = 10000f / mesh.bounds.size.magnitude;
-
-                UnNullableLists<PainterMesh.MeshPoint> distanceGroups = new UnNullableLists<PainterMesh.MeshPoint>();
-
-                for (var i = 0; i < vCnt; i++)
-                {
-                    var p = meshPoints[i];
-                    distanceGroups[Mathf.FloorToInt(p.localPos.magnitude * coef)].Add(p);
-                }
-
-                var grps = distanceGroups.GetAllObjsNoOrder();
-
-                //  Debug.Log("Got {0} groups".F(grps.Count));
-
-                foreach (var groupList in grps)
-                {
-
-                    var cnt = groupList.Count;
-
-                    for (var aInd = 0; aInd < cnt; aInd++)
+                    for (var f = 0; f < mesh.GetBlendShapeFrameCount(s); f++)
                     {
 
-                        var aPoint = groupList[aInd];
+                        blendWeights[s][f] = mesh.GetBlendShapeFrameWeight(s, f);
 
-                        for (var bInd = aInd + 1; bInd < cnt; bInd++)
+                        var normals = new Vector3[vCnt];
+                        var pos = new Vector3[vCnt];
+                        var tng = new Vector3[vCnt];
+                        mesh.GetBlendShapeFrameVertices(s, f, pos, normals, tng);
+
+                        for (var v = 0; v < vCnt; v++)
+                            meshPoints[v].shapes.TryGetLast().Add(new PainterMesh.BlendFrame(pos[v], normals[v], tng[v]));
+
+                    }
+                }
+
+                triangles = new List<PainterMesh.Triangle>();
+                var points = new PainterMesh.Vertex[3];
+
+                subMeshCount = Mathf.Max(1, mesh.subMeshCount);
+                baseVertex = new List<uint>();
+
+                //   "Blend Shapes Done".TimerEnd_Restart();
+
+                for (var s = 0; s < subMeshCount; s++)
+                {
+
+                    baseVertex.Add(mesh.GetBaseVertex(s));
+
+                    var indices = mesh.GetTriangles(s);
+
+                    var tCnt = indices.Length / 3;
+
+                    for (var i = 0; i < tCnt; i++)
+                    {
+
+                        for (var e = 0; e < 3; e++)
+                            points[e] = meshPoints[indices[i * 3 + e]].vertices[0];
+
+                        var t = new PainterMesh.Triangle(points)
+                        {
+                            subMeshIndex = s
+                        };
+                        triangles.Add(t);
+                    }
+                }
+
+                //   "Triangles done".TimerEnd_Restart();
+
+                if (vCnt > 50)
+                {
+
+                    //    Debug.Log("Using caching to merge vertex points.");
+
+                    // var mSize = mesh.bounds;
+
+                    float coef = 10000f / mesh.bounds.size.magnitude;
+
+                    UnNullableLists<PainterMesh.MeshPoint> distanceGroups = new UnNullableLists<PainterMesh.MeshPoint>();
+
+                    for (var i = 0; i < vCnt; i++)
+                    {
+                        var p = meshPoints[i];
+                        distanceGroups[Mathf.FloorToInt(p.localPos.magnitude * coef)].Add(p);
+                    }
+
+                    var grps = distanceGroups.GetAllObjsNoOrder();
+
+                    //  Debug.Log("Got {0} groups".F(grps.Count));
+
+                    foreach (var groupList in grps)
+                    {
+
+                        var cnt = groupList.Count;
+
+                        for (var aInd = 0; aInd < cnt; aInd++)
                         {
 
-                            var bPoint = groupList[bInd];
+                            var aPoint = groupList[aInd];
 
-                            if (bPoint.localPos.Equals(aPoint.localPos))
+                            for (var bInd = aInd + 1; bInd < cnt; bInd++)
                             {
-                                aPoint.StripPointData_StageForDeleteFrom(bPoint);
-                                groupList.RemoveAt(bInd);
-                                bInd--;
-                                cnt--;
+
+                                var bPoint = groupList[bInd];
+
+                                if (bPoint.localPos.Equals(aPoint.localPos))
+                                {
+                                    aPoint.StripPointData_StageForDeleteFrom(bPoint);
+                                    groupList.RemoveAt(bInd);
+                                    bInd--;
+                                    cnt--;
+                                }
+                            }
+                        }
+                    }
+
+                    distanceGroups.Clear();
+
+                    DeleteStagedMeshPoints();
+
+                }
+                else
+                {
+
+                    for (var i = 0; i < vCnt; i++)
+                    {
+
+                        var main = meshPoints[i];
+                        for (var j = i + 1; j < vCnt; j++)
+                        {
+
+                            // if (!((meshPoints[j].localPos - main.localPos).magnitude < float.Epsilon)) continue;
+
+                            if (meshPoints[j].localPos.Equals(main.localPos))
+                            {
+                                Merge(MeshPointIndex.From(i), MeshPointIndex.From(j));
+                                j--;
+                                vCnt = meshPoints.Count;
                             }
                         }
                     }
                 }
 
-                distanceGroups.Clear();
-
-                DeleteStagedMeshPoints();
-
             }
-            else
-            {
-
-                for (var i = 0; i < vCnt; i++)
-                {
-
-                    var main = meshPoints[i];
-                    for (var j = i + 1; j < vCnt; j++)
-                    {
-
-                        // if (!((meshPoints[j].localPos - main.localPos).magnitude < float.Epsilon)) continue;
-
-                        if (meshPoints[j].localPos.Equals(main.localPos))
-                        {
-                            Merge(MeshPointIndex.From(i), MeshPointIndex.From(j));
-                            j--;
-                            vCnt = meshPoints.Count;
-                        }
-                    }
-                }
-            }
-
-            QcSharp.timer.End("Breaking mesh done", logThreshold: 1);
 
             //mesh = new Mesh();
 
