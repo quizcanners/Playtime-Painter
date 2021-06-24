@@ -12,7 +12,6 @@ namespace PlaytimePainter.ComponentModules {
         public override string ClassTag => tag;
 
         private MergingTerrainController mergingTerrain;
-        public int testData;
 
         private void FindMergingTerrain(PlaytimePainter forPainter) {
 

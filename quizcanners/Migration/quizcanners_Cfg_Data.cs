@@ -840,7 +840,7 @@ namespace QuizCanners.CfgDecode
 
             Object myType = null;
             if (pegi.edit(ref myType)) {
-                txt = QcFile.Load.TryLoadAsTextAsset(myType, useBytes: true);
+                txt = QcFile.Load.TryLoadAsTextAsset(myType, asBytes: true);
                 pegi.GameView.ShowNotification("Loaded " + myType.name);
 
                 return true;
@@ -899,13 +899,13 @@ namespace QuizCanners.CfgDecode
 
         public static ICfg SaveToPersistentPath(this ICfg s, string path, string filename)
         {
-            QcFile.Save.ToPersistentPath(path, filename, s.Encode().ToString(), asBytes: true);
+            QcFile.Save.ToPersistentPath.String(path, filename, s.Encode().ToString(), asBytes: true);
             return s;
         }
 
         public static bool LoadFromPersistentPath(this ICfg s, string path, string filename)
         {
-            var data = QcFile.Load.FromPersistentPath(path, filename, asBytes: true);
+            var data = QcFile.Load.FromPersistentPath.String(path, filename, asBytes: true);
             if (data != null)
             {
                 s.DecodeFull(new CfgData(data));

@@ -49,7 +49,7 @@ namespace PlaytimePainter.CameraModules {
         void PlugIn_MeshToolShowVertex();
     }*/
 
-    public interface IMeshToolPlugin
+    internal interface IMeshToolPlugin
     {
         bool MeshToolInspection(MeshToolBase currentTool);
        

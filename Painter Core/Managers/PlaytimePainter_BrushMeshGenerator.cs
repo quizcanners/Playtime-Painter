@@ -180,8 +180,10 @@ namespace PlaytimePainter
             var dirA = toA - fromA;
             var dirB = toB - fromB;
 
-            var offA = dirA.normalized * streakWidth * 0.5f;
-            var offB = dirB.normalized * streakWidth * 0.5f;
+            var halfStreak = 0.5f * streakWidth;
+
+            var offA = halfStreak * dirA.normalized;
+            var offB = halfStreak * dirB.normalized;
 
             if (head)
             {

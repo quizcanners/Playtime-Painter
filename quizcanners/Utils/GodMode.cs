@@ -189,7 +189,7 @@ namespace QuizCanners.Utils
 
         private LinkedLerp.TransformLocalPosition _positionLerp;// = new LinkedLerp.TransformLocalPosition("Position");
         private LinkedLerp.TransformLocalRotation _rotationLerp;// = new LinkedLerp.TransformLocalRotation("Rotation");
-        private LinkedLerp.FloatValue _heightLerp = new LinkedLerp.FloatValue(name: "Height");
+        private readonly LinkedLerp.FloatValue _heightLerp = new LinkedLerp.FloatValue(name: "Height");
 
         private bool IsLerpInitialized()
         {
@@ -227,7 +227,7 @@ namespace QuizCanners.Utils
 
             add.Normalize();
 
-            var mainCameraVelocity = add * speed * (Input.GetKey(KeyCode.LeftShift) ? 3f : 1f);
+            var mainCameraVelocity = (Input.GetKey(KeyCode.LeftShift) ? 3f : 1f) * speed * add;
 
             operatorTf.localPosition += mainCameraVelocity * Time.deltaTime;
 
@@ -273,7 +273,7 @@ namespace QuizCanners.Utils
             }
         }
 
-        private LerpData lerpData = new LerpData();
+        private readonly LerpData _lerpData = new LerpData();
 
         private bool lerpYourself;
 
@@ -291,13 +291,13 @@ namespace QuizCanners.Utils
                 case Mode.LERP:
                     if (lerpYourself)
                     {
-                        lerpData.Reset();
+                        _lerpData.Reset();
 
-                        Portion(lerpData);
+                        Portion(_lerpData);
 
-                        Lerp(lerpData, canSkipLerp: false);
+                        Lerp(_lerpData, canSkipLerp: false);
 
-                        if (lerpData.Done)
+                        if (_lerpData.Done)
                         {
                             mode = Mode.FPS;
                             lerpYourself = false;

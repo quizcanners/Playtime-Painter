@@ -374,7 +374,7 @@ namespace PlaytimePainter
 
             if (!Recordings.TryGetValue(filename, out data))
             {
-                data = QcFile.Load.FromPersistentPath(vectorsFolderName, filename);
+                data = QcFile.Load.FromPersistentPath.String(vectorsFolderName, filename);
                 Recordings.Add(filename, data);
             }
 

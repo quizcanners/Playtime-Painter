@@ -7,10 +7,6 @@ using System;
 
 namespace QuizCanners.Lerp
 {
-
-#pragma warning disable IDE0018 // Inline variable declaration
-
-
     public static class LerpUtils
     {
 
@@ -141,7 +137,7 @@ namespace QuizCanners.Lerp
 
             var toNormalized = to.normalized;
 
-            var targetDirection = toNormalized * (fromMagn + toMagn) * 0.5f;
+            var targetDirection = (fromMagn + toMagn) * 0.5f * toNormalized;
 
             var toTargetDirection = targetDirection - from;
 
@@ -292,7 +288,6 @@ namespace QuizCanners.Lerp
         }
 
         #endregion
-
 
         public static void Update(this LerpData ld, ILinkedLerping target, bool canSkipLerp)
         {

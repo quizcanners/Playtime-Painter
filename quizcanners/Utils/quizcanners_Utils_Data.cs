@@ -14,15 +14,32 @@ namespace QuizCanners.Utils
 
     public static class QcFile
     {
-        private static readonly BinaryFormatter Formatter = new BinaryFormatter();
+        private const string TEXT_FILE_TYPE = ".txt";
+        private const string BYTES_FILE_TYPE = ".bytes";
+        private const bool DEFAULT_IS_BINARY = false;
 
+        public enum LocationEnum { PersistantPath, Resources, Assets }
+
+        public class RelativeLocation 
+        {
+            public string FolderName;
+            public string FileName;
+            public bool AsBytes;
+
+            internal string Extension => AsBytes ? BYTES_FILE_TYPE : TEXT_FILE_TYPE;
+
+            public RelativeLocation (string folderName, string fileName, bool asBytes = DEFAULT_IS_BINARY) 
+            {
+                FolderName = folderName;
+                FileName = fileName;
+                AsBytes = asBytes;
+            }
+        }
+
+        private static readonly BinaryFormatter Formatter = new BinaryFormatter();
 
         public static readonly string OutsideOfAssetsFolder =
             Application.dataPath.Substring(0, Application.dataPath.Length - 6);
-
-        private const string textFileType = ".txt";
-
-        private const string bytesFileType = ".bytes";
 
         public static class Explorer
         {
@@ -100,14 +117,45 @@ namespace QuizCanners.Utils
 
         public static class Delete
         {
-            public static void FromResources(string assetFolder, string insideAssetFolderAndName, bool asBytes)
+            public class InPersistentFolder 
+            {
+                public static bool FileTry(string subPath, string fileName, bool asBytes = DEFAULT_IS_BINARY)
+                {
+                    var location = new RelativeLocation(folderName: subPath, fileName: fileName, asBytes: asBytes);
+                    return FileTry(location);
+                }
+
+                public static bool FileTry(RelativeLocation location)
+                  => DeleteInternal(Path.Combine(Application.persistentDataPath, location.FolderName, location.FileName + location.Extension));
+
+                public static void DeleteDirectory(string subPath, bool deleteSubdirectories = true, bool showNotificationInGameView = true)
+                {
+                    var path = Path.Combine(Application.persistentDataPath, subPath);
+
+                    if (Directory.Exists(path))
+                    {
+                        Directory.Delete(Path.Combine(Application.persistentDataPath, subPath), deleteSubdirectories);
+                        if (showNotificationInGameView && Application.isEditor)
+                        {
+                            pegi.GameView.ShowNotification("{0} removed".F(path));
+                        }
+                    }
+                    else if (showNotificationInGameView && Application.isEditor)
+                    {
+                        pegi.GameView.ShowNotification("{0} not found".F(path));
+                    }
+                }
+
+            }
+
+            public static void FromResources(string assetFolder, string insideAssetFolderAndName, bool asBytes = DEFAULT_IS_BINARY)
             {
 #if UNITY_EDITOR
                 try
                 {
                     var path = Path.Combine("Assets",
                                    Path.Combine(assetFolder, Path.Combine("Resources", insideAssetFolderAndName))) +
-                               (asBytes ? bytesFileType : textFileType);
+                               (asBytes ? BYTES_FILE_TYPE : TEXT_FILE_TYPE);
                     AssetDatabase.DeleteAsset(path);
                 }
                 catch (Exception ex)
@@ -117,31 +165,8 @@ namespace QuizCanners.Utils
 #endif
             }
 
-            public static bool FromPersistentFolder(string subPath, string fileName, bool asBytes = false) =>
-             FromPersistentFolder(subPath, fileName, extension: asBytes ? bytesFileType : textFileType);
 
-            public static bool FromPersistentFolder(string subPath, string fileName, string extension)
-                => File(Path.Combine(Application.persistentDataPath, subPath,
-                    Path.Combine(Application.persistentDataPath, subPath, fileName + extension)));
-
-            public static void DirectoryFromPersistentPath(string subPath, bool deleteSubdirectories = true, bool showNotificationInGameView = true)
-            {
-                var path = Path.Combine(Application.persistentDataPath, subPath);
-
-                if (Directory.Exists(path))
-                {
-                    Directory.Delete(Path.Combine(Application.persistentDataPath, subPath), deleteSubdirectories);
-                    if (showNotificationInGameView && Application.isEditor)
-                    {
-                        pegi.GameView.ShowNotification("{0} removed".F(path));
-                    }
-                } else if (showNotificationInGameView && Application.isEditor)
-                {
-                    pegi.GameView.ShowNotification("{0} not found".F(path));
-                }
-            }
-
-            private static bool File(string fullPath, bool showNotificationIn3DView = false)
+            private static bool DeleteInternal(string fullPath, bool showNotificationIn3DView = false)
             {
                 if (System.IO.File.Exists(fullPath)) {
                     
@@ -162,8 +187,7 @@ namespace QuizCanners.Utils
 
         public static class Load
         {
-         
-            public static string FromResources(string insideResourceFolder, string name, bool asBytes = false)
+            public static string FromResources(string insideResourceFolder, string name, bool asBytes = DEFAULT_IS_BINARY)
             {
                 var resourcePathAndName = insideResourceFolder + (insideResourceFolder.Length > 0 ? "/" : "") + name;
 
@@ -193,12 +217,12 @@ namespace QuizCanners.Utils
 
                 return null;
             }
-            public static string TryLoadAsTextAsset(Object o, bool useBytes = false)
+            public static string TryLoadAsTextAsset(Object o, bool asBytes = DEFAULT_IS_BINARY)
             {
                 var asset = o as TextAsset;
                 if (asset)
                 {
-                    if (useBytes)
+                    if (asBytes)
                     {
                         Stream stream = new MemoryStream(asset.bytes);
                         return Formatter.Deserialize(stream) as string;
@@ -215,35 +239,13 @@ namespace QuizCanners.Utils
                 var subpath = Application.dataPath;
                 path = subpath.Substring(0, subpath.Length - 6) + path;
 
-                return InternalAsString(path, useBytes);
+                return InternalAsString(path, asBytes);
 
             #else
                 return null;
             #endif
             }
-            public static string FromPersistentPath(string subPath, string filename, bool asBytes = false)
-            {
-                string extension = asBytes ? bytesFileType : textFileType;
 
-                var fullPath = PersistentPath(subPath: subPath, fileName: filename, extension: extension);
-
-                if (!File.Exists(fullPath))
-                    return null;
-
-                if (asBytes)
-                {
-                    var file = File.Open(fullPath, FileMode.Open);
-                    using (file)
-                    {
-                        return (string)Formatter.Deserialize(file);
-                    }
-                }
-
-                return File.ReadAllText(fullPath);
-            }
-
-            private static string PersistentPath(string subPath, string fileName, string extension)
-                => Path.Combine(Application.persistentDataPath, subPath, fileName + extension);
             private static string InternalAsString(string fullPath, bool asBytes)
             {
                 if (!File.Exists(fullPath))
@@ -275,32 +277,115 @@ namespace QuizCanners.Utils
 
                 return data;
             }
-        
-            public class Json 
+
+            public class FromPersistentPath 
             {
-                public static bool TryFromPersistentPath<T>(out T target, string subPath, string filename) where T: class
+               /* public static bool BinaryTry<T> (RelativeLocation location, out T result) 
                 {
-                    target = null;
+                    var fullPath = FullPath(location);
 
-                    var data = FromPersistentPath(subPath: subPath, filename: filename);
-                    if (data.IsNullOrEmpty())
+                    result = default(T);
+
+                    if (!File.Exists(fullPath))
                         return false;
 
-                    try
+                    var file = File.Open(fullPath, FileMode.Open);
+                    using (file)
                     {
-                        var obj = JsonUtility.FromJson<T>(data);
-                        if (obj == null)
-                            return false;
-
-                        target = obj;
+                        result = (T)Formatter.Deserialize(file);
                         return true;
-
-                    } catch (Exception ex) 
-                    {
-                        Debug.LogException(ex);
-                        return false;
                     }
                 }
+               */
+                public static bool StringTry(string subPath, string filename, out string result, bool asBytes = DEFAULT_IS_BINARY)
+                {
+                    var location = new RelativeLocation(folderName: subPath, fileName: filename, asBytes: asBytes);
+                    return StringTry(location, out result);
+                }
+
+                public static bool StringTry(RelativeLocation location, out string result)
+                {
+                    var fullPath = FullPath(location);
+
+                    result = null;
+
+                    if (!File.Exists(fullPath))
+                        return false;
+
+                    if (location.AsBytes)
+                    {
+                        var file = File.Open(fullPath, FileMode.Open);
+                        using (file)
+                        {
+                            result = (string)Formatter.Deserialize(file);
+                            return true;
+                        }
+                    }
+
+                    result = File.ReadAllText(fullPath);
+                    return true;
+                }
+
+                public static string String(RelativeLocation location)
+                {
+                    StringTry(location, out string result);
+                    return result;
+                }
+
+                public static string String(string subPath, string filename, bool asBytes = DEFAULT_IS_BINARY)
+                {
+                    StringTry(subPath: subPath, filename: filename, out string result, asBytes: asBytes);
+                    return result;
+                }
+
+                public static bool TryOverrideFromJson<T>(string subPath, string filename, ref T result, bool asBytes = DEFAULT_IS_BINARY) 
+                {
+                    var location = new RelativeLocation(folderName: subPath, fileName: filename, asBytes: asBytes);
+                    return TryOverrideFromJson(location, ref result);
+                }
+
+                public static bool TryOverrideFromJson<T>(RelativeLocation location, ref T result)
+                {
+                    if (StringTry(location, out string data))
+                    {
+                        try
+                        {
+                            if (typeof(T).IsValueType)
+                            {
+                                object boxedStruct = result;
+                                JsonUtility.FromJsonOverwrite(data, boxedStruct);
+                                result = (T)boxedStruct;
+                            }
+                            else
+                            {
+                                JsonUtility.FromJsonOverwrite(data, result);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogException(ex);
+                        }
+                        return true;
+                    }
+
+                    result = default(T);
+                    return false;
+                }
+
+                public static bool JsonTry<T>(RelativeLocation location, out T result)
+                {
+                    if (StringTry(location, out string data))
+                    {
+                        result = JsonUtility.FromJson<T>(data);
+                        return true;
+                    }
+
+                    result = default(T);
+                    return false;
+                }
+
+                internal static string FullPath(RelativeLocation location) // string subPath, string fileName, string extension)
+                    => Path.Combine(Application.persistentDataPath, location.FolderName, location.FileName + location.Extension);
             }
         }
 
@@ -332,17 +417,17 @@ namespace QuizCanners.Utils
 
             #region Write All Text
 
-            public static void ToResources(string resFolderPath, string insideResPath, string filename, string data, bool asBytes = false) =>
-                ToAssets(Path.Combine(resFolderPath, "Resources", insideResPath), filename, data, asBytes: asBytes);
+            public static void ToResources(string resFolderPath, string insideResPath, string filename, string data, bool asBytes = DEFAULT_IS_BINARY) =>
+               ToAssets(Path.Combine(resFolderPath, "Resources", insideResPath), filename, data, asBytes: asBytes);
 
-            public static void ToAssets(string path, string filename, string data, bool asBytes = false) =>
+            public static void ToAssets(string path, string filename, string data, bool asBytes = DEFAULT_IS_BINARY) =>
                 ByFullPath(Path.Combine(Application.dataPath, path), filename, data, asBytes: asBytes);
 
-            private static void ByFullPath(string fullDirectoryPath, string filename, string data, bool asBytes)
+            private static void ByFullPath(string fullDirectoryPath, string fileName, string data, bool asBytes)
             {
-                string extension = asBytes ? bytesFileType : textFileType;
+                string extension = asBytes ? BYTES_FILE_TYPE : TEXT_FILE_TYPE;
 
-                string fullPath = CreateDirectoryPath(fullDirectoryPath, filename, extension);
+                string fullPath = CreateDirectoryPath(fullDirectoryPath, fileName, extension);
 
                 if (asBytes)
                 {
@@ -355,50 +440,39 @@ namespace QuizCanners.Utils
                 }
 
             }
-            
-            public static void ToPersistentPath(string subPath, string filename, string data, bool asBytes = false)
+
+            public class ToPersistentPath 
             {
-                string extension = asBytes ? bytesFileType : textFileType;
-
-                var path = CreateDirectoryPath(Application.persistentDataPath, subPath, filename, extension);
-
-                if (asBytes)
+                /*
+                public static bool BinaryTry<T>(T objectToSave, RelativeLocation location)
                 {
-                    using var file = File.Create(path);
-                    Formatter.Serialize(file, data);
+                    var path = CreateDirectoryPath(Application.persistentDataPath, location);
+
+                    try
+                    {
+                        using var file = File.Create(path);
+                        Formatter.Serialize(file, objectToSave);
+                        return true;
+                    } catch (Exception ex) 
+                    {
+                        Debug.LogException(ex);
+                        return false;
+                    }
                 }
-                else
+                */
+                public static bool JsonTry(object objectToSerialize, string folderName, string filename, bool asBytes = DEFAULT_IS_BINARY)
                 {
-                    File.WriteAllText(path, data);
+                    var location = new RelativeLocation(folderName: folderName, fileName: filename, asBytes: asBytes);
+
+                    return JsonTry(objectToSerialize: objectToSerialize, location: location);
                 }
 
-               
-            }
-
-            #endregion
-
-            #region Create Directory
-            private static string CreateDirectoryPath(string path1, string path2, string filename, string extension)
-            {
-                var fullDirectoryPath = Path.Combine(path1, path2);
-                return CreateDirectoryPath(fullDirectoryPath, filename, extension);
-            }
-
-            private static string CreateDirectoryPath(string fullDirectoryPath, string filename, string extension)
-            {
-                Directory.CreateDirectory(fullDirectoryPath);
-                return Path.Combine(fullDirectoryPath, filename + extension);
-            }
-            #endregion
-
-            public class Json
-            {
-                public static bool TryToPersistentPath<T>(T target, string subPath, string filename) where T : class
+                public static bool JsonTry(object objectToSerialize, RelativeLocation location)
                 {
                     try
                     {
-                        var data = JsonUtility.ToJson(target);
-                        ToPersistentPath(subPath: subPath, filename: filename, data: data);
+                        var data = JsonUtility.ToJson(objectToSerialize);
+                        String(location, data);
                         return true;
                     }
                     catch (Exception ex)
@@ -407,6 +481,80 @@ namespace QuizCanners.Utils
                         return false;
                     }
                 }
+
+                public static void String(string subPath, string fileName, string data, bool asBytes = DEFAULT_IS_BINARY)
+                {
+                    RelativeLocation location = new RelativeLocation(folderName: subPath, fileName: fileName, asBytes: asBytes);
+                    String(location, data: data);
+                }
+
+                public static void String(RelativeLocation location, string data)
+                {
+                    var path = CreateDirectoryPath(Application.persistentDataPath, location);
+
+                    if (location.AsBytes)
+                    {
+                        using var file = File.Create(path);
+                        Formatter.Serialize(file, data);
+                    }
+                    else
+                    {
+                        File.WriteAllText(path, data);
+                    }
+                }
+            }
+
+            #endregion
+
+            #region Create Directory
+
+            private static string CreateDirectoryPath(string path1, RelativeLocation location)
+            {
+                var fullDirectoryPath = Path.Combine(path1, location.FolderName);
+                return CreateDirectoryPath(fullDirectoryPath, location.FileName, location.Extension);
+            }
+
+            private static string CreateDirectoryPath(string path1, string path2, string filename, string extension)
+            {
+                var fullDirectoryPath = Path.Combine(path1, path2);
+                return CreateDirectoryPath(fullDirectoryPath, filename, extension);
+            }
+
+            private static string CreateDirectoryPath(string fullDirectoryPath, string fileName, string extension)
+            {
+                Directory.CreateDirectory(fullDirectoryPath);
+                return Path.Combine(fullDirectoryPath, fileName + extension);
+            }
+            #endregion
+        }
+
+
+        public class Location : RelativeLocation
+        {
+            public LocationEnum LocationEnum;
+
+            public bool TrySaveJson(object objectToSerialize) 
+            {
+                switch (LocationEnum) 
+                {
+                    case LocationEnum.PersistantPath: return Save.ToPersistentPath.JsonTry(objectToSerialize, this);
+                    default: Debug.LogError(QcLog.CaseNotImplemented(LocationEnum, context: "Try Save Json")); return false;
+                }
+            }
+
+            public bool TryOverrideFromJson(ref object objectToSerialize)
+            {
+                switch (LocationEnum)
+                {
+                    case LocationEnum.PersistantPath: return Load.FromPersistentPath.TryOverrideFromJson(this, ref objectToSerialize);
+                    default: Debug.LogError(QcLog.CaseNotImplemented(LocationEnum, context: "Try Load Json")); return false;
+                }
+            }
+
+            public Location(LocationEnum location, string folderName, string fileName, bool asBytes = DEFAULT_IS_BINARY)
+                : base(folderName: folderName, fileName: fileName, asBytes: asBytes)
+            {
+                LocationEnum = location;
             }
         }
 

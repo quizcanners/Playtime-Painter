@@ -37,10 +37,6 @@ namespace QuizCanners.Lerp
 
             public virtual bool Enabled => lerpMode != LerpSpeedMode.LerpDisabled;
 
-            // protected virtual bool EaseInOutImplemented => false;
-
-            //  protected bool easeInOut;
-
             protected bool defaultSet;
             public float speedLimit = 1;
             protected bool allowChangeParameters = true;
@@ -49,8 +45,6 @@ namespace QuizCanners.Lerp
             public virtual string NameForDisplayPEGI() => Name_Internal;
 
             #region Encode & Decode
-
-
 
             public virtual CfgEncoder Encode()
             {
@@ -1126,7 +1120,6 @@ namespace QuizCanners.Lerp
             }
         }
 
-
         public class ShaderColorValueGlobal : ColorValue
         {
 
@@ -1355,67 +1348,6 @@ namespace QuizCanners.Lerp
             }
         }
 
-
-        #endregion
-
-        #region Rect Transform
-
-        public abstract class RectTransformVector2Value : BaseVector2Lerp
-        {
-            public RectTransform rectTransform;
-
-            public override bool Enabled => base.Enabled && rectTransform;
-
-            protected override string Name_Internal => (rectTransform ? rectTransform.name : "?") + NameSuffix_Internal;
-
-            protected abstract string NameSuffix_Internal { get; }
-
-            public RectTransformVector2Value()
-            {
-            }
-
-            public RectTransformVector2Value(RectTransform rect, float nspeed)
-            {
-                rectTransform = rect;
-                speedLimit = nspeed;
-            }
-        }
-
-        public class RectangleTransformAnchoredPositionValue : RectTransformVector2Value
-        {
-            protected override string NameSuffix_Internal => " Anchored Position";
-
-            public override Vector2 CurrentValue
-            {
-                get { return rectTransform ? rectTransform.anchoredPosition : targetValue; }
-                set
-                {
-                    if (rectTransform)
-                        rectTransform.anchoredPosition = value;
-                }
-            }
-
-            public RectangleTransformAnchoredPositionValue() { }
-
-            public RectangleTransformAnchoredPositionValue(RectTransform rect, float nspeed) : base(rect, nspeed) { }
-        }
-
-        public class RectangleTransformWidthHeight : RectTransformVector2Value
-        {
-            protected override string NameSuffix_Internal => " Width Height";
-
-            public override Vector2 CurrentValue
-            {
-                get { return rectTransform ? rectTransform.sizeDelta : targetValue; }
-                set { rectTransform.sizeDelta = value; }
-            }
-
-            public RectangleTransformWidthHeight()
-            {
-            }
-
-            public RectangleTransformWidthHeight(RectTransform rect, float speed) : base(rect, speed) { }
-        }
 
         #endregion
 

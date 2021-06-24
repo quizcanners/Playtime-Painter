@@ -11,8 +11,6 @@ using UnityEngine;
 namespace PlaytimePainter
 {
 
-    #pragma warning disable IDE0018 // Inline variable declaration
-
     public partial class PlaytimePainter
     {
 
@@ -84,7 +82,7 @@ namespace PlaytimePainter
         private string GenerateTextureSavePath() =>
             Path.Combine(Cfg.texturesFolderName, TexMeta.saveName + ".png");
 
-        private LoopLock _loopLock = new LoopLock();
+        private readonly LoopLock _loopLock = new LoopLock();
 
         private bool OnBeforeSaveTexture(TextureMeta id)
         {
@@ -96,15 +94,9 @@ namespace PlaytimePainter
 
             if (id.preserveTransparency && !tex.TextureHasAlpha())
             {
-
-
                 if (_loopLock.Unlocked)
                     using (_loopLock.Lock())
                     {
-                        //ChangeTexture(id.NewTexture2D());
-
-                        //id.texture2D.name = id.texture2D.name + "_A";
-
                         Debug.Log("Old Texture had no Alpha channel, creating new");
 
                         string tname = id.texture2D.name + "_A";
@@ -117,7 +109,6 @@ namespace PlaytimePainter
 
                         SetTextureOnMaterial(id);
                     }
-
 
                 return false;
             }
@@ -146,7 +137,6 @@ namespace PlaytimePainter
             id.texture2D = id.texture2D.RewriteOriginalTexture_NewName(texName);
 
             OnPostSaveTexture(id);
-
         }
 
         private void RewriteOriginalTexture()
@@ -157,7 +147,6 @@ namespace PlaytimePainter
 
             id.texture2D = id.texture2D.RewriteOriginalTexture();
             OnPostSaveTexture(id);
-
         }
 
         private void SaveTextureAsAsset(bool asNew)
@@ -175,7 +164,7 @@ namespace PlaytimePainter
             OnPostSaveTexture(id);
         }
 
-        public void SaveMesh()
+        internal void SaveMesh()
         {
             var m = this.GetMesh();
             var path = AssetDatabase.GetAssetPath(m);

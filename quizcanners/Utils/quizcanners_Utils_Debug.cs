@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace QuizCanners.Utils
 {
-    public static class QcDebug 
+    public static class QcLog
     {
         public static string CaseNotImplemented(object unimplementedValue) 
             => "Case [{0}] for [{1}] is not implemented".F(
@@ -17,12 +17,5 @@ namespace QuizCanners.Utils
                unimplementedValue.GetType().ToPegiStringType(),
                context
                );
-
-
-        public static void Inspect() 
-        {
-
-        } 
-
     }
 }

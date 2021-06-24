@@ -10,14 +10,14 @@ namespace PlaytimePainter
     {
         public static ScreenBlurController instance;
 
-        [SerializeField] public Camera MyCamera;
+        public Camera MyCamera;
         [SerializeField] protected Shader copyShader;
         [SerializeField] protected Shader postProcessShader;
         [SerializeField] protected int postProcessIteration = 100;
 
         [Header("Config")]
-        [SerializeField] public bool allowScreenGrabToRt;
-        [SerializeField] public bool useSecondBufferForRenderTextureScreenGrab;
+        public bool allowScreenGrabToRt;
+        public bool useSecondBufferForRenderTextureScreenGrab;
 
         [NonSerialized] protected ProcessCommand command;
         [NonSerialized] protected BlurStep step = BlurStep.Off;

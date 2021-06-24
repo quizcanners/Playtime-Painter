@@ -1175,17 +1175,6 @@ namespace PlaytimePainter.UI
             #endregion
         }
 
-      /*  protected class RoundedButtonModuleAttribute : AbstractWithTaggedTypes
-        {
-            public override TaggedTypesCfg TaggedTypes => RoundedButtonModuleBase.all;
-
-            public RoundedButtonModuleAttribute() { }
-
-            public RoundedButtonModuleAttribute(params System.Type[] types) : base(types) { }
-
-        }
-
-        [RoundedButtonModule]*/
         protected abstract class RoundedButtonModuleBase : IGotClassTag, ICfg, IGotDisplayName
         {
             public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(RoundedButtonModuleBase));

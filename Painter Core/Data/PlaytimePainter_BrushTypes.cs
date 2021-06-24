@@ -57,7 +57,7 @@ namespace PlaytimePainter
 
             protected static Vector2 UvToPosition(Vector2 uv)
             {
-                return (uv - Vector2.one * 0.5f) * PainterCamera.OrthographicSize * 2;
+                return 2 * PainterCamera.OrthographicSize * (uv - Vector2.one * 0.5f);
             }
 
             public void SetKeyword(bool texcoord2)
@@ -663,7 +663,7 @@ namespace PlaytimePainter
 
             public void Inspect()
             {
-                var changed = this.inspect_Name().nl();
+                this.inspect_Name().nl();
 
                 "GetBrushType".editEnum(40, ref type).nl();
                 "Height Map".edit(ref heightMap).nl();

@@ -720,7 +720,9 @@ namespace QuizCanners.Utils
         {
             pegi.nl();
 
-             if ("Data".isEntered(ref inspectedSection, 0).nl())
+            int sectionIndex = -1;
+
+             if ("Data".isEntered(ref inspectedSection, ++sectionIndex).nl())
             {
                 if (inspectedData == -1)
                 {
@@ -776,7 +778,7 @@ namespace QuizCanners.Utils
                 }
             }
 
-            if ("Profiler".isEntered(ref inspectedSection, 1).nl())
+            if ("Profiler".isEntered(ref inspectedSection, ++sectionIndex).nl())
             {
                 "Mono Heap Size Long {0}".F(Profiler.GetMonoHeapSizeLong().ToMegabytes()).nl();
 
@@ -796,7 +798,7 @@ namespace QuizCanners.Utils
 
             }
 
-            if ("Time & Audio".isEntered(ref inspectedSection, 2).nl())
+            if ("Time & Audio".isEntered(ref inspectedSection, ++sectionIndex).nl())
             {
                 "Time.time: {0}".F(QcSharp.SecondsToReadableString(Time.time)).nl();
 
@@ -830,19 +832,19 @@ namespace QuizCanners.Utils
                 }
             }
             
-            "Screen Shots".enter_Inspect(screenShots, ref inspectedSection, 3).nl();
+            "Screen Shots".enter_Inspect(screenShots, ref inspectedSection, ++sectionIndex).nl();
 
-            "Json Inspector".enter_Inspect(jsonInspector, ref inspectedSection, 4).nl();
+            "Json Inspector".enter_Inspect(jsonInspector, ref inspectedSection, ++sectionIndex).nl();
 
-            if ("ICfg Inspector".isEntered(ref inspectedSection, 5).nl())
+            if ("ICfg Inspector".isEntered(ref inspectedSection, ++sectionIndex).nl())
                 iCfgExplorer.Inspect(null).nl();
 
-            if ("Gui Styles".isEntered(ref inspectedSection, 6).nl())
+            if ("Gui Styles".isEntered(ref inspectedSection, ++sectionIndex).nl())
             {
                 PEGI_Styles.Inspect().nl();
             }
 
-            if ("Texture Utils".isEntered(ref inspectedSection, 7).nl())
+            if ("Texture Utils".isEntered(ref inspectedSection, ++sectionIndex).nl())
             {
 
 #if UNITY_EDITOR
@@ -872,7 +874,7 @@ namespace QuizCanners.Utils
 
             }
 
-            if ("Managed Coroutines [{0}]".F(QcAsync.DefaultCoroutineManager.GetActiveCoroutinesCount).isEntered(ref inspectedSection, 8).nl())
+            if ("Managed Coroutines [{0}]".F(QcAsync.DefaultCoroutineManager.GetActiveCoroutinesCount).isEntered(ref inspectedSection, ++sectionIndex).nl())
                 QcAsync.DefaultCoroutineManager.Nested_Inspect();
         }
 

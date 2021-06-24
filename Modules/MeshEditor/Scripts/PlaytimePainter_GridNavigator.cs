@@ -6,8 +6,6 @@ using UnityEngine;
 namespace PlaytimePainter.MeshEditing
 {
 
-#pragma warning disable IDE0034 // Simplify 'default' expression
-#pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
 
 
@@ -58,11 +56,11 @@ namespace PlaytimePainter.MeshEditing
         [HideInInspector] public GridPlane CurrentPlane = GridPlane.xz;
 
 
-        [SerializeField] public Material vertexPointMaterial;
+        public Material vertexPointMaterial;
+        public MarkerWithText[] vertices;
+        public MarkerWithText pointedVertex;
+        public MarkerWithText selectedVertex;
         [SerializeField] protected GameObject vertPrefab;
-        [SerializeField] public MarkerWithText[] vertices;
-        [SerializeField] public MarkerWithText pointedVertex;
-        [SerializeField] public MarkerWithText selectedVertex;
         [SerializeField] protected MeshRenderer dot;
         [SerializeField] protected MeshRenderer rendy;
 

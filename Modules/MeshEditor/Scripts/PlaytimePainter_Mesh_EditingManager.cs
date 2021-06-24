@@ -552,8 +552,7 @@ namespace PlaytimePainter.MeshEditing
 
 
                 go.SetActive(true);
-                tf.position = worldPos;
-                tf.rotation = camTf.rotation;
+                tf.SetPositionAndRotation(worldPos, camTf.rotation);
                 tf.localScale = new Vector3((editedMesh.IsInTriangleSet(point) ? 1.5f : 1) * tmpScale, tmpScale, tmpScale);
 
                 var tmpRay = new Ray {origin = camTf.position};

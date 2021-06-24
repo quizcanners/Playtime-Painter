@@ -2120,17 +2120,6 @@ namespace QuizCanners.Inspect
             return val;
         }
 
-        private static T lambda_Obj_role<T>(T val) where T : Object
-        {
-
-            var role = listElementsRoles.TryGetObj(collectionInspector.Index);
-            if (!role.IsNullOrDestroyed_Obj())
-                role.GetNameForInspector().edit(90, ref val);
-            else edit(ref val);
-
-            return val;
-        }
-
         public static bool edit_List(this string label, List<int> list) =>
             label.edit_List(list, lambda_int);
 

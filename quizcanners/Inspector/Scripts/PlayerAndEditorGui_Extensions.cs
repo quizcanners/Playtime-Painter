@@ -155,20 +155,32 @@ namespace QuizCanners.Inspect
 
         }
 
-        public static bool Inspect_AsInListNested<T>(this T obj, List<T> list, int current, ref int inspected) where T : IPEGI_ListInspect
+        public static bool Inspect_AsInListNested<T>(this T obj, ref int inspected, int current) where T : IPEGI_ListInspect
         {
+            if (!EnterOptionsDrawn_Internal(ref inspected, current))
+                return false;
+
+            var change = ChangeTrackStart();
 
             var il = IndentLevel;
 
-            bool wasChanged = ef.globChanged;
+            if (inspected == current)
+            {
+                if (icon.Back.Click() || obj.GetNameForInspector().ClickLabel().nl())
+                    inspected = -1;
+                else 
+                    Try_Nested_Inspect(obj);
+            }
+            else
+            {
+                obj.InspectInList(ref inspected, current);
+            }
 
-            obj.InspectInList(ref inspected, current);
-
-            bool isChanged = ef.globChanged && !wasChanged;
+            nl();
 
             IndentLevel = il;
 
-            if (isChanged)
+            if (change)
             {
 #if UNITY_EDITOR
                 ef.ClearFromPooledSerializedObjects(obj as Object);
@@ -176,7 +188,7 @@ namespace QuizCanners.Inspect
                 obj.SetToDirty_Obj();
             }
 
-            return isChanged;
+            return change;
         }
 
         public static bool Inspect_AsInList<T>(this T obj) where T: class, IPEGI_ListInspect
@@ -231,7 +243,7 @@ namespace QuizCanners.Inspect
 
             if (pgi != null)
             {
-                ch = pgi.Inspect_AsInListNested(null, entered, ref entered);
+                ch = pgi.Inspect_AsInListNested(ref entered, entered);
                 if (ch)
                     obj = (T)pgi;
             }
@@ -257,7 +269,7 @@ namespace QuizCanners.Inspect
 
             if (pgi != null)
             {
-                ch = pgi.Inspect_AsInListNested(null, current, ref entered);
+                ch = pgi.Inspect_AsInListNested(ref entered, current);
                 if (ch)
                     obj = pgi;
             }
