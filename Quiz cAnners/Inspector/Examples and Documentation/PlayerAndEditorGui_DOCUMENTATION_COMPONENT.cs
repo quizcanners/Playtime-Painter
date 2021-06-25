@@ -16,7 +16,7 @@ namespace QuizCanners.Inspect.Examples
         
         [SerializeField] private bool showInspectorInTheGameView;
 
-        [NonSerialized] private InspectExample_Nested someOtherScript;
+        [NonSerialized] private PlayerAndEditorGui_ExampleNested someOtherScript;
 
         #region To render inspecto in game view
 
@@ -117,14 +117,14 @@ namespace QuizCanners.Inspect.Examples
 
                     if ("Search for Component".Click().nl())
                     {
-                        someOtherScript = GetComponent<InspectExample_Nested>();
+                        someOtherScript = GetComponent<PlayerAndEditorGui_ExampleNested>();
                         if (!someOtherScript)
                             Debug.Log("One is not attached. Please click Create");
                     }
 
                     if ("Attach component".Click().nl())
                     {
-                        someOtherScript = gameObject.AddComponent<InspectExample_Nested>();
+                        someOtherScript = gameObject.AddComponent<PlayerAndEditorGui_ExampleNested>();
                     }
                 }
                 else

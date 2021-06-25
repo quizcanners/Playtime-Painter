@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace QuizCanners.Inspect.Examples
 {
-    public class InspectExample_Nested : MonoBehaviour, IPEGI
+    public class PlayerAndEditorGui_ExampleNested : MonoBehaviour, IPEGI
     {
 
         [NonSerialized] private Light lightSource;
