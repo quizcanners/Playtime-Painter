@@ -344,7 +344,9 @@ namespace PlaytimePainter
             if (needReimport)
                 resImp.SaveAndReimport();
 
+            #pragma warning disable UNT0017 // SetPixels invocation is slow
             Result.SetPixels(_dst);
+            #pragma warning restore UNT0017 // SetPixels invocation is slow
             Result.Apply();
             Result.SaveChanges();
 
@@ -383,11 +385,11 @@ namespace PlaytimePainter
 
             _width = gloss.width;
             _height = gloss.height;
-            Color[] dstColor;
+            Color32[] dstColor;
 
             try
             {
-                dstColor = diffuse.GetPixels();
+                dstColor = diffuse.GetPixels32();
                 _srcBmp = gloss.GetPixels(diffuse.width, diffuse.height);
             }
             catch (UnityException e)
@@ -403,12 +405,12 @@ namespace PlaytimePainter
                 {
                     var dstIndex = IndexFrom(bx, by);
                     var col = dstColor[dstIndex];
-                    col.a = _srcBmp[dstIndex].a;
+                    col.a = (byte)(_srcBmp[dstIndex].a*255);
                     dstColor[dstIndex] = col;
                 }
             }
 
-            product.SetPixels(dstColor);
+            product.SetPixels32(dstColor);
             product.Apply();
             product.SaveChanges();
 

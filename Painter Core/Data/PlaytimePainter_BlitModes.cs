@@ -127,7 +127,6 @@ namespace PlaytimePainter {
             
             public virtual bool ShowInDropdown()
             {
-
                 var cpu = Brush.InspectedIsCpuBrush;
 
                 if (!PlaytimePainter.inspected)

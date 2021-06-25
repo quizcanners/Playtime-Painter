@@ -1584,7 +1584,7 @@ namespace QuizCanners.Inspect
                         rect.width = 100;
 
                         if (select_Type(ref ty, _currentReorderedListTypes, rect))
-                            TaggedTypes.TryChangeObjectType(_currentReorderedList, index, ty, _currentTaggedTypes ,_listMetaData);
+                            TaggedTypes.TryChangeObjectType(_currentReorderedList, index, ty, _listMetaData);
                     }
                     else
                         EditorGUI.LabelField(rect, textAndToolTip);

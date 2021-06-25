@@ -11,6 +11,8 @@ using UnityEditor;
 
 namespace PlaytimePainter
 {
+    #pragma warning disable UNT0017 // SetPixels is Needed for floating point calculation
+
     public enum TexTarget { Texture2D, RenderTexture }
 
     [Serializable]
@@ -819,14 +821,11 @@ namespace PlaytimePainter
             return false;
         }
 
-        private bool LoadTexturePegi(string path)
+        private string LoadTexturePegi(string path)
         {
-            const bool changed = false;
-
             if ("Load {0}".F(path.Substring(path.LastIndexOf("/", StringComparison.Ordinal))).Click())
                 LoadInPlayer(path);
-
-            return changed;
+            return path;
         }
 
         private TimedCoroutine _processEnumerator;
@@ -1087,7 +1086,7 @@ namespace PlaytimePainter
                             SaveInPlayer();
 
                         if (Cfg && Cfg.playtimeSavedTextures.Count > 0)
-                            "Playtime Saved Textures".write_List(Cfg.playtimeSavedTextures, LoadTexturePegi);
+                            "Playtime Saved Textures".edit_List(Cfg.playtimeSavedTextures, LoadTexturePegi);
                     }
 
                     if ("Fade edges".isEntered(ref _inspectedProcess, 8).nl())

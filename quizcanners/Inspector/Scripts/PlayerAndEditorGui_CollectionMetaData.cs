@@ -79,15 +79,14 @@ namespace QuizCanners.Inspect
         {
             get
             {
-                ElementData dta;
-                elementDatas.TryGet(i, out dta);
+                elementDatas.TryGet(i, out ElementData dta);
                 return dta;
             }
         }
 
         #region Inspector
 
-        public readonly pegi.SearchData searchData = new pegi.SearchData();
+        internal readonly pegi.SearchData searchData = new pegi.SearchData();
 
         public void SaveElementDataFrom<T>(List<T> list)
         {
@@ -203,11 +202,9 @@ namespace QuizCanners.Inspect
 
             obj = Activator.CreateInstance(newType);
 
-            var std = obj as ICfg;
-
-            if (std != null)
+            if (obj is ICfg std)
             {
-                 std.DecodeFull(prev);
+                std.DecodeFull(prev);
             }
 
             ICfgExtensions.TryCopy_Std_AndOtherData(previous, obj);

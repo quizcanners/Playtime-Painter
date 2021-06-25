@@ -22,17 +22,17 @@ namespace QuizCanners.Inspect
 
     public interface IPEGI_ListInspect { void InspectInList(ref int edited, int ind); }
 
-    public interface IPEGI_Searchable { bool String_SearchMatch(string searchString); }
-
-    public interface INeedAttention { string NeedAttention(); }
+    public interface IGotDisplayName { string NameForDisplayPEGI(); }
 
     public interface IGotName { string NameForPEGI { get; set; } }
-
-    public interface IGotDisplayName { string NameForDisplayPEGI(); }
 
     public interface IGotIndex { int IndexForPEGI { get; set; } }
 
     public interface IGotCount { int CountForInspector(); }
+
+    public interface IPEGI_Searchable { bool String_SearchMatch(string searchString); }
+
+    public interface INeedAttention { string NeedAttention(); }
 
     public interface IEditorDropdown { bool ShowInDropdown(); }
 
@@ -677,14 +677,6 @@ namespace QuizCanners.Inspect
             public static void InitiatePopUp()
             {
                 popUpTarget = ef.inspectedTarget;
-
-                /*textsShown switch
-                {
-                 0 => understoodPopUpText = "OK",
-                 1 => understoodPopUpText = "Got it!",
-                 666 => understoodPopUpText = "By clicking I confirm to selling my kidney",
-                 _ => understoodPopUpText = (textsShown < 20 ? gotItTexts : gotItTextsWeird).GetRandom()
-                };*/
                 
                 switch (textsShown)
                 {

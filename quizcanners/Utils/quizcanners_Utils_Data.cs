@@ -368,7 +368,7 @@ namespace QuizCanners.Utils
                         return true;
                     }
 
-                    result = default(T);
+                    result = default;
                     return false;
                 }
 
@@ -380,7 +380,7 @@ namespace QuizCanners.Utils
                         return true;
                     }
 
-                    result = default(T);
+                    result = default;
                     return false;
                 }
 

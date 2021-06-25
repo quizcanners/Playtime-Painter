@@ -20,14 +20,14 @@ namespace QuizCanners.Utils
     public static class QcUtils
     {
        
-        public static bool CanAdd<T>(this List<T> list, ref object obj, out T conv, bool onlyIfNew = true)
+        public static bool CanAdd<T>(List<T> list, ref object obj, out T conv, bool onlyIfNew = true)
         {
             conv = default;
 
             if (obj == null || list == null)
                 return false;
 
-            if (!(obj is T))
+            if (!(obj is T t))
             {
 
                 GameObject go = null;
@@ -43,9 +43,11 @@ namespace QuizCanners.Utils
                 else go = obj as GameObject;
 
                 if (go)
+                    #pragma warning disable UNT0014 // Invalid type for call to GetComponent
                     conv = go.GetComponent<T>();
+                    #pragma warning restore UNT0014 // Invalid type for call to GetComponent
             }
-            else conv = (T)obj;
+            else conv = t;
 
             if (conv == null || conv.Equals(default(T))) return false;
 
@@ -98,11 +100,11 @@ namespace QuizCanners.Utils
             var named = e as IGotName;
             if (named != null)
                 named.NameForPEGI = name;
-            e.AssignUniqueNameIn(list);
+            AssignUniqueNameIn(e, list);
             return e;
         }
 
-        private static void AssignUniqueNameIn<T>(this T el, IList<T> list)
+        private static void AssignUniqueNameIn<T>(T el, IList<T> list)
         {
 
             var namedNewElement = el as IGotName;
@@ -216,7 +218,6 @@ namespace QuizCanners.Utils
         [Serializable]
         public class ScreenShootTaker : IPEGI
         {
-
             [SerializeField] public string folderName = "ScreenShoots";
 
             private bool _showAdditionalOptions;
@@ -304,12 +305,8 @@ namespace QuizCanners.Utils
 
             }
 
-
-          
-
             private bool grab;
 
-    
             [SerializeField] private Camera cameraToTakeScreenShotFrom;
             [SerializeField] private int UpScale = 1;
             [SerializeField] private bool AlphaBackground;
@@ -784,7 +781,7 @@ namespace QuizCanners.Utils
 
                 "Mono Used Size Long {0}".F(Profiler.GetMonoUsedSizeLong().ToMegabytes()).nl();
 
-                "Temp Allocated Size {0}".F(Profiler.GetTempAllocatorSize().ToMegabytes()).nl();
+                "Temp Allocated Size {0}".F(ToMegabytes(Profiler.GetTempAllocatorSize())).nl();
 
                 "Total Allocated Memmory Long {0}".F(Profiler.GetTotalAllocatedMemoryLong().ToMegabytes()).nl();
 
@@ -878,14 +875,14 @@ namespace QuizCanners.Utils
                 QcAsync.DefaultCoroutineManager.Nested_Inspect();
         }
 
-        public static string ToMegabytes(this uint bytes)
+        public static string ToMegabytes(uint bytes)
         {
-            bytes = (bytes >> 10);
+            bytes >>= 10;
             bytes /= 1024; // On new line to workaround IL2CPP bug
             return "{0} Mb".F(bytes.ToString());
         }
         
-        public static string ToMegabytes(this long bytes)
+        internal static string ToMegabytes(this long bytes)
         {
             bytes >>= 10;
             bytes /= 1024; // On new line to workaround IL2CPP bug

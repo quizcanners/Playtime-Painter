@@ -3,12 +3,13 @@ using QuizCanners.Utils;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace QuizCanners.CfgDecode
 {
 
     [AttributeUsage(AttributeTargets.Class)]
-    public class DerivedListAttribute : Attribute
+    public class DerivedListAttribute : PreserveAttribute //Attribute
     {
         public readonly List<Type> derivedTypes;
         public DerivedListAttribute(params Type[] types)

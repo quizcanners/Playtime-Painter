@@ -843,7 +843,9 @@ namespace PlaytimePainter.ComponentModules {
                 }
             }
 
+            #pragma warning disable UNT0017 // Needed for floating point calculation
             atlas.SetPixels(col, mipLevel);
+            #pragma warning restore UNT0017 // SetPixels invocation is slow
         }
 
         private void ReconstructAtlas()
@@ -876,9 +878,9 @@ namespace PlaytimePainter.ComponentModules {
                             tex.Reimport_IfNotReadale();
 #endif
 
-                            var from = tex.GetPixels(_textureSize, _textureSize);
+                            var from = tex.GetPixels32(_textureSize, _textureSize);
 
-                            aTexture.SetPixels(x * _textureSize, y * _textureSize, _textureSize, _textureSize, from);
+                            aTexture.SetPixels32(x * _textureSize, y * _textureSize, _textureSize, _textureSize, from);
 
                         }
                         else

@@ -6,6 +6,9 @@ using UnityEngine;
 
 namespace PlaytimePainter.TexturePacking
 {
+
+#pragma warning disable UNT0017 // SetPixels is Needed for precise calculation
+
     [Serializable]
     internal class TextureMapCombineProfile : PainterClass, IGotName, IPEGI
     {
@@ -215,12 +218,11 @@ namespace PlaytimePainter.TexturePacking
         {
             if (enabled)
             {
-
                 var rls = TextureRole.All;
 
                 pegi.select_Index(ref _sourceRole, rls);
 
-                rls[_sourceRole].Inspect(ref sourceChannel, this);
+                rls[_sourceRole].Inspect(ref sourceChannel);
             }
             pegi.nl();
         }
@@ -369,7 +371,7 @@ namespace PlaytimePainter.TexturePacking
             return mipLevels;
         }
 
-        public bool Inspect(ref int selectedChannel, TextureChannel tc)
+        public bool Inspect(ref int selectedChannel)
         {
             var changed = ".".select_Index(10, ref selectedChannel, GetChannels).nl();
 

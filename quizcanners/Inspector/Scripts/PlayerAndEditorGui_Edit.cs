@@ -981,24 +981,37 @@ namespace QuizCanners.Inspect
         {
             checkLine();
 
+            if (from == null) 
+            {
+                "Dictionary of {0} for {1} is null ".F(typeof(TValue).ToPegiStringType(), typeof(TKey).ToPegiStringType()).write();
+                return false;
+            }
+
             var namesList = new List<string>(from.Count + 1);
 
             int elementIndex = -1;
 
             TValue val = default;
 
-            for (var i = 0; i < from.Count; i++)
+            if (key == null)
             {
+                for (var i = 0; i < from.Count; i++)
+                {
+                    var pair = from.ElementAt(i);
+                    namesList.Add("{0}: {1}".F(pair.Key.ToString(), pair.Value.GetNameForInspector()));
+                }
+            }
+            else
+            {
+                for (var i = 0; i < from.Count; i++)
+                {
+                    var pair = from.ElementAt(i);
 
-                var pair = from.ElementAt(i);
+                    if (key.Equals(pair.Key))
+                        elementIndex = i;
 
-
-                if (key.Equals(pair.Key))
-                    elementIndex = i;
-
-                namesList.Add("{0}: {1}".F(pair.Key.ToString(), pair.Value.GetNameForInspector()));
-                //indexes.Add(i);
-
+                    namesList.Add("{0}: {1}".F(pair.Key.ToString(), pair.Value.GetNameForInspector()));
+                }
             }
 
             if (selectFinal_Internal(val, ref elementIndex, namesList))
@@ -3207,7 +3220,9 @@ namespace QuizCanners.Inspect
             return false;
         }
 
+#pragma warning disable IDE0051 // May still be used
         private static bool editEnum<T>(ref T eval, List<int> options, int width = -1)
+#pragma warning restore IDE0051 // Remove unused private members
         {
             var val = Convert.ToInt32(eval);
 

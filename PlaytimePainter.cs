@@ -1330,7 +1330,10 @@ namespace PlaytimePainter
                 }
             }
 
+            #pragma warning disable UNT0017 // SetPixels Needed for Floating point calculations
             terrainHeightTexture.SetPixels(col);
+            #pragma warning restore UNT0017 // SetPixels invocation is slow
+
             terrainHeightTexture.Apply(true, false);
 
             if (current)

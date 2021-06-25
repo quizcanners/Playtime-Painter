@@ -11,7 +11,6 @@ using UnityEngine;
 namespace QuizCanners.Utils
 {
 
-#pragma warning disable IDE0018 // Inline variable declaration
 #pragma warning disable IDE0019 // Use pattern matching
     
     public class EncodedJsonInspector : IPEGI
@@ -67,7 +66,7 @@ namespace QuizCanners.Utils
             
         }
 
-        [DerivedList(typeof(JsonString), typeof(JsonClass), typeof(JsonProperty), typeof(JsonList))]
+      
         protected class JsonString : JsonBase, IGotDisplayName
         {
             public bool dataOnly;
@@ -400,7 +399,7 @@ namespace QuizCanners.Utils
         protected class JsonList : JsonBase, IGotDisplayName
         {
 
-            private List<JsonBase> values;
+            private readonly List<JsonBase> values;
             private readonly Countless<bool> foldedOut = new Countless<bool>();
 
             private string previewValue = "";
@@ -640,7 +639,7 @@ namespace QuizCanners.Utils
             do { } while (rootJson.DecodeAll(ref rootJson));
         }
 
-        private static List<string> inspectedPath = new List<string>();
+        private static readonly List<string> inspectedPath = new List<string>();
 
         protected class PathAdd : IDisposable
         {
@@ -680,5 +679,4 @@ namespace QuizCanners.Utils
             DecodeOrInspectJson(ref rootJson, true);
         }
     }
-
 }

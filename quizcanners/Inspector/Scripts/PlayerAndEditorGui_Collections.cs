@@ -6,6 +6,7 @@ using QuizCanners.Utils;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using QuizCanners.CfgDecode;
+using System.Text;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -48,7 +49,7 @@ namespace QuizCanners.Inspect
             private const int UpDownHeight = 20;
             private readonly Dictionary<IEnumerable, int> Indexes = new Dictionary<IEnumerable, int>();
 
-            public int Index { get; set; } = -1;
+            internal int Index { get; set; } = -1;
 
             private bool _searching;
 
@@ -58,7 +59,7 @@ namespace QuizCanners.Inspect
 
             private int _count;
 
-            public IList reordering;
+            internal IList reordering;
 
             private bool allowDuplicants;
 
@@ -107,7 +108,7 @@ namespace QuizCanners.Inspect
             private static IList addingNewOptionsInspected;
             private string addingNewNameHolder = "Name";
 
-            public IEnumerable<T> InspectionIndexes<T>(ICollection<T> collectionReference, CollectionMetaData listMeta = null, iCollectionInspector<T> listElementInspector = null)
+            internal IEnumerable<T> InspectionIndexes<T>(ICollection<T> collectionReference, CollectionMetaData listMeta = null, iCollectionInspector<T> listElementInspector = null)
             {
 
                 searchData = listMeta == null ? defaultSearchData : listMeta.searchData;
@@ -333,14 +334,14 @@ namespace QuizCanners.Inspect
 
                 #endregion
             }
-            
-            public void listInstantiateNewName<T>()
+
+            internal void listInstantiateNewName<T>()
             {
                 Msg.New.GetText().write(Msg.NameNewBeforeInstancing_1p.GetText().F(typeof(T).ToPegiStringType()), 30, PEGI_Styles.ExitLabel);
                 edit(ref addingNewNameHolder);
             }
 
-            public bool TryShowListCreateNewOptions<T>(List<T> lst, ref T added, CollectionMetaData ld)
+            internal bool TryShowListCreateNewOptions<T>(List<T> lst, ref T added, CollectionMetaData ld)
             {
                 if (ld != null && !ld[CollectionInspectParams.showAddButton])
                     return false;
@@ -428,7 +429,7 @@ namespace QuizCanners.Inspect
                 return true;
             }
 
-            public bool TryShowListCreateNewOptions<T>(List<T> lst, ref T added, TaggedTypesCfg types, CollectionMetaData ld)
+            internal bool TryShowListCreateNewOptions<T>(List<T> lst, ref T added, TaggedTypesCfg types, CollectionMetaData ld)
             {
                 if (ld != null && !ld[CollectionInspectParams.showAddButton])
                     return false;
@@ -536,7 +537,7 @@ namespace QuizCanners.Inspect
 
             private bool _scrollDownRequested;
 
-            public void SkrollToBottom()
+            internal void SkrollToBottom()
             {
                 _scrollDownRequested = true;
             }
@@ -564,20 +565,20 @@ namespace QuizCanners.Inspect
             }
 
             private string currentListLabel = "";
-            public string GetCurrentListLabel<T>(CollectionMetaData ld = null) => 
+            internal string GetCurrentListLabel<T>(CollectionMetaData ld = null) => 
                 ld != null 
                     ? ld.label :
                         (currentListLabel.IsNullOrEmpty() ? typeof(T).ToPegiStringType() : currentListLabel);
 
-            public void listLabel_Used()
+            internal void listLabel_Used()
             {
                 currentListLabel = "";
             }
 
-            public void write_Search_DictionaryLabel<K, V>(CollectionMetaData listMEta, Dictionary<K, V> dic) =>
+            internal void write_Search_DictionaryLabel<K, V>(CollectionMetaData listMEta, Dictionary<K, V> dic) =>
                 write_Search_DictionaryLabel<K, V>(listMEta.label, ref listMEta.inspectedElement, dic);
-            
-            public void write_Search_DictionaryLabel<K, V>(string label, ref int inspected, Dictionary<K, V> dic)
+
+            internal void write_Search_DictionaryLabel<K, V>(string label, ref int inspected, Dictionary<K, V> dic)
             {
                 currentListLabel = label;
 
@@ -603,13 +604,13 @@ namespace QuizCanners.Inspect
                     inspected = -1;
             }
 
-            public void write_Search_ListLabel<T>(string label, ICollection<T> lst = null)
+            internal void write_Search_ListLabel<T>(string label, ICollection<T> lst = null)
             {
                 var notInsp = -1;
                 collectionInspector.write_Search_ListLabel(label, ref notInsp, lst);
             }
 
-            public void write_Search_ListLabel<T>(string label, ref int inspected, ICollection<T> lst)
+            internal void write_Search_ListLabel<T>(string label, ref int inspected, ICollection<T> lst)
             {
                 currentListLabel = label;
 
@@ -632,7 +633,7 @@ namespace QuizCanners.Inspect
                     inspected = -1;
             }
 
-            public void write_Search_ListLabel<T>(CollectionMetaData ld, ICollection<T> lst)
+            internal void write_Search_ListLabel<T>(CollectionMetaData ld, ICollection<T> lst)
             {
 
                 currentListLabel = ld.label;
@@ -662,7 +663,7 @@ namespace QuizCanners.Inspect
 
             private bool exitOptionHandled;
 
-            public bool ExitOrDrawPEGI<T>(T[] array, ref int index, CollectionMetaData ld = null)
+            internal bool ExitOrDrawPEGI<T>(T[] array, ref int index, CollectionMetaData ld = null)
             {
                 var changed = false;
 
@@ -685,7 +686,7 @@ namespace QuizCanners.Inspect
                 return changed;
             }
 
-            public bool ExitOrDrawPEGI<K, T>(Dictionary<K, T> dic, ref int index, CollectionMetaData ld = null)
+            internal bool ExitOrDrawPEGI<K, T>(Dictionary<K, T> dic, ref int index, CollectionMetaData ld = null)
             {
                 var changed = false;
 
@@ -708,7 +709,7 @@ namespace QuizCanners.Inspect
                 return changed;
             }
 
-            public bool ExitOrDrawPEGI<T>(List<T> list, ref int index, CollectionMetaData ld = null)
+            internal bool ExitOrDrawPEGI<T>(List<T> list, ref int index, CollectionMetaData ld = null)
             {
                 var changed = false;
 
@@ -728,7 +729,7 @@ namespace QuizCanners.Inspect
                 return changed;
             }
 
-            public bool CollectionIsNull<T,V>(Dictionary<T,V> list)
+            internal bool CollectionIsNull<T,V>(Dictionary<T,V> list)
             {
                 if (list == null)
                 {
@@ -743,7 +744,7 @@ namespace QuizCanners.Inspect
                 return false;
             }
 
-            public bool CollectionIsNull<T>(List<T> list)
+            internal bool CollectionIsNull<T>(List<T> list)
             {
                 if (list == null)
                 {
@@ -758,7 +759,7 @@ namespace QuizCanners.Inspect
                 return false;
             }
 
-            public bool list_DropOption<T>(List<T> list, CollectionMetaData meta = null) where T : Object
+            internal bool list_DropOption<T>(List<T> list, CollectionMetaData meta = null) where T : Object
             {
                 var changed = false;
 #if UNITY_EDITOR
@@ -793,9 +794,9 @@ namespace QuizCanners.Inspect
                 return changed;
             }
 
-            public Array _editingArrayOrder;
+            internal Array _editingArrayOrder;
 
-            public readonly CountlessBool selectedEls = new CountlessBool();
+            internal readonly CountlessBool selectedEls = new CountlessBool();
 
             private List<int> _copiedElements = new List<int>();
 
@@ -823,7 +824,7 @@ namespace QuizCanners.Inspect
                     var e = listCopyBuffer.TryGetObj(srcInd);
 
                     T conv;
-                    if (list.CanAdd(ref e, out conv, !isAllowDuplicants))
+                    if (QcUtils.CanAdd(list, ref e, out conv, !isAllowDuplicants))
                     {
                         list.Add(conv);
                         listCopyBuffer.RemoveAt(srcInd);
@@ -839,7 +840,7 @@ namespace QuizCanners.Inspect
                     listCopyBuffer = null;
             }
 
-            public bool edit_Array_Order<T>(ref T[] array, CollectionMetaData listMeta = null)
+            internal bool edit_Array_Order<T>(ref T[] array, CollectionMetaData listMeta = null)
             {
 
                 var changed = false;
@@ -918,7 +919,7 @@ namespace QuizCanners.Inspect
                 return changed;
             }
 
-            public bool edit_List_Order<T>(List<T> list, CollectionMetaData listMeta = null)
+            internal bool edit_List_Order<T>(List<T> list, CollectionMetaData listMeta = null)
             {
 
                 var changed = false;
@@ -1223,9 +1224,9 @@ namespace QuizCanners.Inspect
 
             private IList listCopyBuffer;
 
-            public object previouslyEntered;
+            internal object previouslyEntered;
 
-            public bool InspectClassInList<T>(List<T> list, int index, ref int inspected, CollectionMetaData listMeta = null) where T : class
+            internal bool InspectClassInList<T>(List<T> list, int index, ref int inspected, CollectionMetaData listMeta = null) where T : class
             {
                 var el = list[index];
                 var changed = false;
@@ -1375,21 +1376,23 @@ namespace QuizCanners.Inspect
                 return changed;
             }
 
-            public bool isMonoType<T>(IList<T> list, int i)
+            internal bool isMonoType<T>(IList<T> list, int i)
             {
                 if (!(typeof(MonoBehaviour)).IsAssignableFrom(typeof(T))) return false;
 
                 GameObject mb = null;
                 if (edit(ref mb))
                 {
+                    #pragma warning disable UNT0014 // Invalid type for call to GetComponent
                     list[i] = mb.GetComponent<T>();
+                    #pragma warning restore UNT0014 // Invalid type for call to GetComponent
                     if (list[i] == null) GameView.ShowNotification(typeof(T) + " Component not found");
                 }
                 return true;
 
             }
 
-            public bool TryShowListAddNewOption<T>(string text, List<T> list, ref T added, CollectionMetaData ld = null)
+            internal bool TryShowListAddNewOption<T>(string text, List<T> list, ref T added, CollectionMetaData ld = null)
             {
                 if (ld != null && !ld[CollectionInspectParams.showAddButton])
                     return false;
@@ -1424,8 +1427,8 @@ namespace QuizCanners.Inspect
 
                 return true;
             }
-            
-            public bool TryShowListAddNewOption<T>(List<T> list, ref T added, CollectionMetaData ld = null)
+
+            internal bool TryShowListAddNewOption<T>(List<T> list, ref T added, CollectionMetaData ld = null)
             {
 
                 if (ld != null && !ld[CollectionInspectParams.showAddButton])
@@ -1462,7 +1465,7 @@ namespace QuizCanners.Inspect
                 return true;
             }
 
-            public bool ListAddEmptyClick<T>(IList<T> list, CollectionMetaData ld = null)
+            internal bool ListAddEmptyClick<T>(IList<T> list, CollectionMetaData ld = null)
             {
 
                 if (ld != null && !ld[CollectionInspectParams.showAddButton])
@@ -1484,7 +1487,7 @@ namespace QuizCanners.Inspect
 
         }
 
-        public static bool InspectValueInDictionary<K, T>(KeyValuePair<K,T> pair, Dictionary<K, T> dic, int index, ref int inspected, CollectionMetaData listMeta = null)
+        internal static bool InspectValueInDictionary<K, T>(KeyValuePair<K,T> pair, Dictionary<K, T> dic, int index, ref int inspected, CollectionMetaData listMeta = null)
         {
             var el = pair.Value;
 
@@ -1498,7 +1501,7 @@ namespace QuizCanners.Inspect
             return changed;
         }
 
-        public static bool InspectValueInArray<T>(ref T[] array, int index, ref int inspected, CollectionMetaData listMeta = null)
+        internal static bool InspectValueInArray<T>(ref T[] array, int index, ref int inspected, CollectionMetaData listMeta = null)
         {
             T el = array[index];
 
@@ -1510,7 +1513,7 @@ namespace QuizCanners.Inspect
             return changed;
         }
 
-        public static bool InspectValueInList<T>(T el, List<T> list, int index, ref int inspected,
+        internal static bool InspectValueInList<T>(T el, List<T> list, int index, ref int inspected,
             CollectionMetaData listMeta = null)
         {
 
@@ -1576,7 +1579,6 @@ namespace QuizCanners.Inspect
                 }
                 else
                 {
-
                     var uo = el as Object;
 
                     var pg = el as IPEGI;
@@ -1588,10 +1590,6 @@ namespace QuizCanners.Inspect
                         SetBgColor(AttentionColor);
 
                     var clickHighlightHandled = false;
-
-                    var iind = el as IGotIndex;
-
-                    iind?.IndexForPEGI.ToString().write(20);
 
                     bool isShown = false;
 
@@ -1606,7 +1604,6 @@ namespace QuizCanners.Inspect
                     var named = el as IGotName;
                     if (named != null)
                     {
-                        //isShown = true;
                         var n = named.NameForPEGI;
                         if (edit(ref n))
                         {
@@ -1616,6 +1613,21 @@ namespace QuizCanners.Inspect
 
                             isPrevious = true;
                         }
+
+                        var sb = new StringBuilder();
+
+                        var iind = el as IGotIndex;
+                        if (iind != null)
+                            sb.Append(iind.IndexForPEGI.ToString() + ": ");
+
+                        var count = el as IGotCount;
+                        if (count != null)
+                            sb.Append("[x{0}] ".F(count.CountForInspector()));
+                        
+                        var label = sb.ToString();
+
+                        if (label.Length > 0)
+                            label.write(70);
                     }
                     else
                     {
@@ -2017,7 +2029,7 @@ namespace QuizCanners.Inspect
         {
             var changes = ChangeTrackStart();
 
-            added = default(T);
+            added = default;
 
             if (list == null)
             {
@@ -2149,7 +2161,7 @@ namespace QuizCanners.Inspect
         {
             var changed = ChangeTrackStart();
 
-            added = default(T);
+            added = default;
 
             if (collectionInspector.CollectionIsNull(list))
                 return changed;
@@ -2396,12 +2408,12 @@ namespace QuizCanners.Inspect
 
         private static int _tmpKeyInt;
         private static string _tmpKeyString = "";
-        public static bool addDictionaryPairOptions<T>(Dictionary<int, T> dic) where T: new()
+        public static bool addDictionaryPairOptions<TValue>(Dictionary<int, TValue> dic) 
         {
             var changed = ChangeTrackStart();
             if (dic == null)
             {
-                WriteNullDictionary_Internal<T>();
+                WriteNullDictionary_Internal<TValue>();
                 return changed;
             }
 
@@ -2420,7 +2432,7 @@ namespace QuizCanners.Inspect
             {
                 if (icon.Add.Click("Add new Value"))
                 {
-                    dic.Add(_tmpKeyInt, new T());
+                    dic.Add(_tmpKeyInt, Activator.CreateInstance<TValue>());
                     while (dic.ContainsKey(_tmpKeyInt))
                         _tmpKeyInt++;
                 }
@@ -2432,12 +2444,12 @@ namespace QuizCanners.Inspect
 
         }
 
-        public static bool addDictionaryPairOptions<T>(Dictionary<string, T> dic, string newElementName = "") where T : new()
+        public static bool addDictionaryPairOptions<TValue>(Dictionary<string, TValue> dic, string newElementName = "") 
         {
             var changed = ChangeTrackStart();
             if (dic == null)
             {
-                WriteNullDictionary_Internal<T>();
+                WriteNullDictionary_Internal<TValue>();
                 return changed;
             }
 
@@ -2455,7 +2467,7 @@ namespace QuizCanners.Inspect
             {
                 if (icon.Add.Click("Add new Value"))
                 {
-                    var value = new T();
+                    var value = Activator.CreateInstance<TValue>();
                     dic.Add(_tmpKeyString, value);
                     var name = value as IGotName;
                     if (name != null)
@@ -2471,33 +2483,33 @@ namespace QuizCanners.Inspect
             return changed;
         }
 
-        public static bool edit_Dictionary<G, T>(Dictionary<G, T> dic, bool showKey = true)
+        public static bool edit_Dictionary<TKey, TValue>(Dictionary<TKey, TValue> dic, bool showKey = true)
         {
             int inspected = -1;
             collectionInspector.write_Search_DictionaryLabel(dic.ToString(), ref inspected,  dic);
             return edit_Dictionary_Internal(dic, ref inspected, showKey: showKey);
         }
 
-        public static bool edit_Dictionary<G, T>(Dictionary<G, T> dic, ref int inspected, bool showKey = true)
+        public static bool edit_Dictionary<TKey, TValue>(Dictionary<TKey, TValue> dic, ref int inspected, bool showKey = true)
         {
             collectionInspector.write_Search_DictionaryLabel(dic.ToString(), ref inspected, dic);
             return edit_Dictionary_Internal(dic, ref inspected, showKey: showKey);
         }
 
-        public static bool edit_Dictionary<G, T>(this string label, Dictionary<G, T> dic, bool showKey = true)
+        public static bool edit_Dictionary<TKey, TValue>(this string label, Dictionary<TKey, TValue> dic, bool showKey = true)
         {
             int inspected = -1;
             collectionInspector.write_Search_DictionaryLabel(label, ref inspected, dic);
             return edit_Dictionary_Internal(dic, ref inspected, showKey: showKey);
         }
 
-        public static bool edit_Dictionary<G, T>(this string label, Dictionary<G, T> dic, ref int inspected, bool showKey = true)
+        public static bool edit_Dictionary<TKey, TValue>(this string label, Dictionary<TKey, TValue> dic, ref int inspected, bool showKey = true)
         {
             collectionInspector.write_Search_DictionaryLabel(label, ref inspected, dic);
             return edit_Dictionary_Internal(dic, ref inspected, showKey: showKey);
         }
 
-        public static bool edit_Dictionary<G, T>(this string label, Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = false)
+        public static bool edit_Dictionary<TKey, TValue>(this string label, Dictionary<TKey, TValue> dic, Func<TValue, TValue> lambda, bool showKey = false)
         {
             int inspected = -1;
             collectionInspector.write_Search_DictionaryLabel(label, ref inspected, dic);
@@ -2510,7 +2522,7 @@ namespace QuizCanners.Inspect
             return edit_Dictionary_Internal(dic, ref listMeta.inspectedElement, showKey: listMeta[CollectionInspectParams.showDictionaryKey], listMeta: listMeta);
         }
 
-        public static bool edit_Dictionary<G, T>(this CollectionMetaData listMeta, Dictionary<G, T> dic, Func<T, T> lambda)
+        public static bool edit_Dictionary<TKey, TValue>(this CollectionMetaData listMeta, Dictionary<TKey, TValue> dic, Func<TValue, TValue> lambda)
         {
             collectionInspector.write_Search_DictionaryLabel(listMeta, dic);
             return edit_Dictionary_Internal(dic, lambda, listMeta: listMeta);
@@ -2539,12 +2551,12 @@ namespace QuizCanners.Inspect
             return changes;
         }
 
-        private static bool edit_Dictionary_Internal<G, T>(Dictionary<G, T> dic, Func<T, T> lambda, bool showKey = true, CollectionMetaData listMeta = null)
+        internal static bool edit_Dictionary_Internal<TKey, TValue>(Dictionary<TKey, TValue> dic, Func<TValue, TValue> lambda, bool showKey = true, CollectionMetaData listMeta = null)
         {
 
             if (dic == null)
             {
-                WriteNullDictionary_Internal<T>();
+                WriteNullDictionary_Internal<TValue>();
                 return false;
             }
 
@@ -2577,7 +2589,7 @@ namespace QuizCanners.Inspect
             }
             else
             {
-                foreach (var item in collectionInspector.InspectionIndexes(dic, listMeta, new KeyValuePairInspector<G, T>()))
+                foreach (var item in collectionInspector.InspectionIndexes(dic, listMeta, new KeyValuePairInspector<TKey, TValue>()))
                 {
                     var itemKey = item.Key;
                     
@@ -2607,7 +2619,7 @@ namespace QuizCanners.Inspect
             return changed;
         }
 
-        private static bool edit_Dictionary_Internal<G, T>(Dictionary<G, T> dic, ref int inspected, bool showKey, CollectionMetaData listMeta = null)
+        internal static bool edit_Dictionary_Internal<TKey, TValue>(Dictionary<TKey, TValue> dic, ref int inspected, bool showKey, CollectionMetaData listMeta = null)
         {
             bool changed = false;
 
@@ -2615,7 +2627,7 @@ namespace QuizCanners.Inspect
 
             if (dic == null)
             {
-                WriteNullDictionary_Internal<T>();
+                WriteNullDictionary_Internal<TValue>();
                 return false;
             }
 
@@ -2632,7 +2644,7 @@ namespace QuizCanners.Inspect
                 if (listMeta != null)
                     showKey = listMeta[CollectionInspectParams.showDictionaryKey];
 
-                foreach (var item in collectionInspector.InspectionIndexes(dic, listMeta, new KeyValuePairInspector<G, T>()))
+                foreach (var item in collectionInspector.InspectionIndexes(dic, listMeta, new KeyValuePairInspector<TKey, TValue>()))
                 {
                     var itemKey = item.Key;
                     
@@ -2656,18 +2668,25 @@ namespace QuizCanners.Inspect
                                 {
                                     keyHandled = true;
 
-                                    if (!name.NameForPEGI.Equals(strKey))
+                                    var theName = name.NameForPEGI;
+
+                                    if (!theName.Equals(strKey))
                                     {
-                                        if ("Key<-".ClickUnFocus("Override Key with Name"))
+                                        var strDic = dic as Dictionary<string, TValue>;
+
+                                        if (strDic.ContainsKey(theName))
+                                            "Name exists as Key".write(90);
+                                        else
                                         {
-                                            keyToReplace = strKey;
-                                            keyToReplaceWith = name.NameForPEGI;
+                                            if ("Key<-".ClickUnFocus("Override Key with Name"))
+                                            {
+                                                keyToReplace = strKey;
+                                                keyToReplaceWith = theName;
+                                            }
+
+                                            if ("->Name".ClickUnFocus("Override Name with Key"))
+                                                name.NameForPEGI = strKey;
                                         }
-
-                                        if ("->Name".ClickUnFocus("strKey"))
-                                            name.NameForPEGI = strKey;
-
-
                                     }
                                 }
                             } 
@@ -2683,10 +2702,16 @@ namespace QuizCanners.Inspect
 
                 if (keyToReplace != null)
                 {
-                    var strDic = dic as Dictionary<string, T>;
+                    var strDic = dic as Dictionary<string, TValue>;
                     var tmpVal = strDic[keyToReplace];
                     strDic.Remove(keyToReplace);
                     strDic.Add(keyToReplaceWith, tmpVal);
+                }
+
+                if ((listMeta != null && listMeta[CollectionInspectParams.showAddButton]) && typeof(TKey).Equals(typeof(string)))
+                {
+                    var stringDick = dic as Dictionary<string, TValue>;
+                    addDictionaryPairOptions(stringDick, newElementName: "New " + (listMeta == null ? CurrentListLabel<TValue>() : listMeta.label));
                 }
 
             }
@@ -2886,7 +2911,7 @@ namespace QuizCanners.Inspect
 
         private static readonly char[] splitCharacters = { ' ', '.' };
 
-        public class SearchData 
+        internal class SearchData 
         {
             public IEnumerable filteredList;
             public string searchedText;

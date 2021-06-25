@@ -22,13 +22,6 @@ namespace QuizCanners.Utils
 
         #region Encode & Decode
 
-        private  int ToInt(string text)
-        {
-            int variable;
-            int.TryParse(text, out variable);
-            return variable;
-        }
-
         private List<int> _tmpDecodeInds;
         public override void Decode(string key, CfgData data) {
 
@@ -50,9 +43,8 @@ namespace QuizCanners.Utils
                 case "last": lastFreeIndex = data.ToInt(); break;
                 case "add": _allowAdd = data.ToBool(); break;
                 case "del": _allowDelete = data.ToBool(); break;
-                default: 
-                    // Legacy method:
-                    this[ToInt(key)] = data.Decode<T>(); break;
+                default:
+                    break;
             }
         }
 

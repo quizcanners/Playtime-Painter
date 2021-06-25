@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using QuizCanners.Inspect;
 using QuizCanners.Utils;
 using UnityEngine;
+using UnityEngine.Scripting;
 
 namespace QuizCanners.CfgDecode {
 
@@ -22,7 +23,7 @@ namespace QuizCanners.CfgDecode {
     #endregion
     
     [AttributeUsage(AttributeTargets.Class)]
-    public class TaggedType : Attribute
+    public class TaggedType : PreserveAttribute
     {
         public string tag;
 
@@ -186,7 +187,7 @@ namespace QuizCanners.CfgDecode {
     
     public static class TaggedTypes {
 
-        public static void TryChangeObjectType(IList list, int index, Type type, TaggedTypesCfg cfg, CollectionMetaData ld = null)
+        public static void TryChangeObjectType(IList list, int index, Type type, CollectionMetaData ld = null)
         {
             object previous = null;
 

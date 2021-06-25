@@ -412,7 +412,7 @@ namespace QuizCanners.Utils
 
             T toAdd;
 
-            if (list.CanAdd(ref ass, out toAdd, onlyIfNew))
+            if (QcUtils.CanAdd(list, ref ass, out toAdd, onlyIfNew))
                 list.Add(toAdd);
 
             return list;
@@ -630,15 +630,12 @@ namespace QuizCanners.Utils
             return val;
         }
 
-        public static T TryGet<T>(this Dictionary<string, T> dic, string tag)
-        {
-            T value;
-            dic.TryGetValue(tag, out value);
-            return value;
-        }
-
         public static TValue TryGet<TKey, TValue>(this Dictionary<TKey, TValue> dic, TKey tag)
         {
+            if (dic == null) 
+            {
+                return default;
+            }
             TValue value;
             dic.TryGetValue(tag, out value);
             return value;

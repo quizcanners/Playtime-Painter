@@ -1,5 +1,6 @@
 ﻿using QuizCanners.Inspect;
 using QuizCanners.Utils;
+using System;
 using System.Collections.Generic;
 
 namespace QuizCanners.Utils
@@ -12,11 +13,21 @@ namespace QuizCanners.Utils
         public abstract bool SameAs(SmartId other);
     }
 
-    public abstract class SmartIdGeneric<TKey, TValue> : SmartId, IPEGI_ListInspect, IPEGI, IGotDisplayName
+    public abstract class SmartIdGeneric<TValue> : SmartId, IPEGI_ListInspect, IPEGI, IGotDisplayName where TValue : IGotName, new()
     {
-        public TKey Id;
+        public string Id;
 
-        protected abstract SerializableDictionary<TKey, TValue> GetEnities();
+        protected abstract SerializableDictionary<string, TValue> GetEnities();
+
+        public virtual TValue GetEntity()
+        {
+            var prots = GetEnities();
+
+            if (prots != null)
+                return prots.TryGet(Id);
+
+            return default(TValue);
+        }
 
         public override bool SameAs(SmartId other) 
         {
@@ -24,44 +35,45 @@ namespace QuizCanners.Utils
                 return false;
 
             if (GetType() != other.GetType())
-            {
                 return false;
-            }
-
-            var asId = other as SmartIdGeneric<TKey, TValue>;
+            
+            var asId = other as SmartIdGeneric<TValue>;
 
             return Id.Equals(asId.Id);
         }
 
-        public virtual TValue GetEntity()
-        {
-            var prots = GetEnities();
-
-            if (prots == null)
-                return default(TValue);
-
-            return prots.TryGet(Id);
-        }
-
         #region Inspector
+
+        [NonSerialized] private int _inspectedStuff = -1;
+        [NonSerialized] private int _inspectedElement = -1;
+
         public virtual void Inspect()
         {
-            pegi.nl();
-
             var prots = GetEnities();
 
             if (prots == null)
                 "NO PROTS".nl();
-            else
+
+            if (_inspectedStuff == -1)
                 pegi.select(ref Id, prots).nl();
 
             TValue val = GetEntity();
 
-            if (val != null)
-                pegi.Try_Nested_Inspect(val).nl();
-            else
-                (GetEnities() == null ? "No Prototypes" : "ID {0} not found in Prototypes".F(Id)).nl();
+            if (val.GetNameForInspector().isEntered(ref _inspectedStuff, 1).nl())
+            { 
+                if (val != null)
+                    pegi.Try_Nested_Inspect(val).nl();
+                else
+                    ("ID {0} not found in Prototypes".F(Id)).nl();
+            }
 
+            if ("{0} Dictionary".F(typeof(TValue).ToPegiStringType()).isEntered(ref _inspectedStuff, 2).nl())
+            {
+                typeof(TValue).ToPegiStringType().edit_Dictionary(GetEnities(), ref _inspectedElement);
+
+                if (_inspectedElement == -1)
+                    pegi.addDictionaryPairOptions(GetEnities(), newElementName: "A Band of Knuckleheads");
+            }
         }
 
         public virtual void InspectInList(ref int edited, int ind)
@@ -84,7 +96,7 @@ namespace QuizCanners.Utils
         public virtual string NameForDisplayPEGI()
         {
             TValue ent = GetEntity();
-            return ent != null ? ent.GetNameForInspector() : "Id: {0} NOT FOUND".F(Id);
+            return ent != null ? "Smart Id of {0}".F(ent.GetNameForInspector()) : "Id: {0} NOT FOUND".F(Id);
         }
         #endregion
     }

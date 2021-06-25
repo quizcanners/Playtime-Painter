@@ -315,6 +315,7 @@ namespace QuizCanners.CfgDecode
         }
 
         #region Arrays
+        /*
         public T[] Decode_Array<T>(out T[] l) where T : class, ICfgCustom, new()
         {
             var cody = new CfgDecoder(this);
@@ -348,7 +349,7 @@ namespace QuizCanners.CfgDecode
 
             return l ?? tmpList.ToArray();
         }
-
+        */
         public Matrix4x4[] Decode_Array(out Matrix4x4[] l)
         {
 
@@ -423,18 +424,16 @@ namespace QuizCanners.CfgDecode
                 val = cody.GetData().Decode<T>(type);
         }
 
-        public T Decode<T>() where T : ICfg
+        public T Decode<T>() where T : ICfg, new()
         {
-            var val = (T)Activator.CreateInstance(typeof(T));
-           // var val = new T();
+            var val = new T();
             DecodeFull(ref val);
             return val;
         }
 
-        public void Decode<T>(out T val) where T : ICfg
+        public void Decode<T>(out T val) where T : ICfg, new()
         {
-            val = (T)Activator.CreateInstance(typeof(T));
-            //val = new T();
+            val = new T();
             DecodeFull(ref val);
         }
 
@@ -520,7 +519,7 @@ namespace QuizCanners.CfgDecode
                 list.Add(dta.Decode<T>(tag, tps));
         }
 
-        private void ToListInternal<T>(List<T> list, CfgDecoder overCody) where T : ICfg
+        private void ToListInternal<T>(List<T> list, CfgDecoder overCody) where T : ICfg, new()
         {
             var dta = overCody.GetData();
             var tag = overCody.CurrentTag;
@@ -537,7 +536,6 @@ namespace QuizCanners.CfgDecode
             }
             else
                 list.Add(dta.Decode<T>());
-
         }
 
         public List<List<T>> Decode_ListOfList<T>(out List<List<T>> l) where T : ICfg, new()
@@ -556,8 +554,8 @@ namespace QuizCanners.CfgDecode
 
             return l;
         }
-      
-        public void ToList<T>(out List<T> list) where T : ICfg
+
+        public void ToList_Derrived<T>(out List<T> list) where T : ICfg
         {
             list = new List<T>();
 
@@ -569,9 +567,18 @@ namespace QuizCanners.CfgDecode
                 foreach (string _ in cody)
                     ToListInternal(list, cody, tps);
             else
-                foreach (var _ in cody)
-                    ToListInternal(list, cody);
-                
+                Debug.LogError("{0} doesn't have Derrived classes".F(typeof(T).ToPegiStringType()));
+
+        }
+
+        public void ToList<T>(out List<T> list) where T : ICfg, new()
+        {
+            list = new List<T>();
+
+            var cody = new CfgDecoder(this);
+
+            foreach (var _ in cody)
+                ToListInternal(list, cody);
         }
 
         public void ToList<T>(out List<T> l, TaggedTypesCfg tps) where T : ICfg

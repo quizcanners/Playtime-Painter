@@ -49,26 +49,26 @@ namespace QuizCanners.CfgDecode
             .Add("deSize", tf.sizeDelta);
         }
     
-        public static CfgEncoder Encode<T>(this T[] arr) where T : ICfg {
+        public static CfgEncoder Encode<T>(this T[] arr) where T : ICfg, new() {
             var cody = new CfgEncoder();
 
             if (arr.IsNullOrEmpty()) return cody; 
 
             cody.Add("len", arr.Length);
 
-            var types = ICfgExtensions.TryGetDerivedClasses(typeof(T));
+          /*  var types = ICfgExtensions.TryGetDerivedClasses(typeof(T));
 
             if (types != null && types.Count > 0) {
                 foreach (var v in arr)
                     cody.Add(v, types);
             }
-            else
-                foreach (var v in arr) {
-                    if (!QcUnity.IsNullOrDestroyed_Obj(v))
-                        cody.Add(CfgDecoder.ListElementTag, v.Encode());
-                    else
-                        cody.Add_String(CfgEncoder.NullTag, "");
-                }
+            else*/
+            foreach (var v in arr) {
+                if (!QcUnity.IsNullOrDestroyed_Obj(v))
+                    cody.Add(CfgDecoder.ListElementTag, v.Encode());
+                else
+                    cody.Add_String(CfgEncoder.NullTag, "");
+            }
 
             return cody;
         }
@@ -387,7 +387,7 @@ namespace QuizCanners.CfgDecode
             return Add(tag, cody);
         }
 
-        public CfgEncoder Add<T>(string tag, List<T> lst) where T : ICfg, new()
+        public CfgEncoder Add_Derrived<T>(string tag, List<T> lst) where T : ICfg
         {
             var cody = new CfgEncoder();
 
@@ -399,17 +399,30 @@ namespace QuizCanners.CfgDecode
             {
                 foreach (var v in lst)
                     cody.Add(v, indTypes);
+
+                return Add(tag, cody);
             }
             else
             {
-                foreach (var v in lst)
-                    if (v != null)
-                        cody.Add(CfgDecoder.ListElementTag, v.Encode());
-                    else
-                        cody.Add_String(NullTag, "");
+                Debug.LogError("{0} doesn't have Derrived Classes".F(typeof(T).ToPegiStringType()));
+                return this;
             }
+        }
 
 
+        public CfgEncoder Add<T>(string tag, List<T> lst) where T : ICfg, new()
+        {
+            var cody = new CfgEncoder();
+
+            if (lst == null) 
+                return this;
+
+            foreach (var v in lst)
+                if (v != null)
+                    cody.Add(CfgDecoder.ListElementTag, v.Encode());
+                else
+                    cody.Add_String(NullTag, "");
+            
             return Add(tag, cody);
         }
         
@@ -431,7 +444,7 @@ namespace QuizCanners.CfgDecode
         
         public CfgEncoder Add<T>(string tag, Dictionary<string, T> dic) where T: ICfg => Add(tag, dic.Encode());
         
-        public CfgEncoder Add<T>(string tag, T[] val) where T : ICfg => Add(tag, val.Encode());
+        public CfgEncoder Add<T>(string tag, T[] val) where T : ICfg, new() => Add(tag, val.Encode());
 
         #region NonDefault Encodes
 
@@ -452,14 +465,15 @@ namespace QuizCanners.CfgDecode
         public CfgEncoder Add_IfNotDefault(string tag, ICfg cfg)
         {
             if (QcUnity.IsNullOrDestroyed_Obj(cfg)) return this;
-            
-            var def = cfg as ICanBeDefaultCfg;
 
-            return (def == null || !def.IsDefault) ? Add(tag, cfg) : this;
+            return (!(cfg is ICanBeDefaultCfg def) || !def.IsDefault) ? Add(tag, cfg) : this;
         }
 
         public CfgEncoder Add_IfNotEmpty(string tag, string val) => val.IsNullOrEmpty() ? this : Add_String(tag, val);
-            
+
+        public CfgEncoder Add_IfNotEmpty_Derrived<T>(string tag, List<T> lst) where T : ICfg =>
+                lst.IsNullOrEmpty() ? this : Add_Derrived(tag, lst);
+
         public CfgEncoder Add_IfNotEmpty<T>(string tag, List<T> lst) where T : ICfg, new() => 
             lst.IsNullOrEmpty() ? this : Add(tag, lst);
         
@@ -518,11 +532,9 @@ namespace QuizCanners.CfgDecode
 
         public CfgEncoder Add_IfNotWhite(string tag, Color col) => col == Color.white ? this : Add(tag, col);
 
-
         #endregion
 
         private static float RoundTo6Dec(float val) => Mathf.Round(val * 1000000f) * 0.000001f;
 
     }
-
 }

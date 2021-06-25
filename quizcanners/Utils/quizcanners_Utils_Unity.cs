@@ -481,7 +481,9 @@ namespace QuizCanners.Utils {
 
             var go = TryGetGameObjectFromObj(obj);
 
+#pragma warning disable UNT0014 // Can be component
             return go ? go.GetComponent<T>() : null;
+#pragma warning restore UNT0014 // Invalid type for call to GetComponent
         }
 
         public static bool IsNullOrDestroyed_Obj(object obj)
@@ -1431,7 +1433,33 @@ namespace QuizCanners.Utils {
 
             return dst;
         }
-        
+
+        public static Color32[] GetPixels32(this Texture2D tex, int width, int height)
+        {
+
+            if ((tex.width == width) && (tex.height == height))
+                return tex.GetPixels32();
+
+            var dst = new Color32[width * height];
+
+            var src = tex.GetPixels32();
+
+            var dX = tex.width / (float)width;
+            var dY = tex.height / (float)height;
+
+            for (var y = 0; y < height; y++)
+            {
+                var dstIndex = y * width;
+                var srcIndex = ((int)(y * dY)) * tex.width;
+                for (var x = 0; x < width; x++)
+                    dst[dstIndex + x] = src[srcIndex + (int)(x * dX)];
+            }
+
+
+            return dst;
+        }
+
+
         public static Texture2D CopyFrom(this Texture2D tex, RenderTexture rt)
         {
             if (!rt || !tex)
@@ -1457,8 +1485,6 @@ namespace QuizCanners.Utils {
 
             if (!tex) return false;
 
-            // May not cover all cases
-           
             switch (tex.format) {
                 case TextureFormat.ARGB32: return true;
                 case TextureFormat.RGBA32: return true;
@@ -1911,10 +1937,10 @@ namespace QuizCanners.Utils {
 
             diffuse.Reimport_IfNotReadale();
 
-            var pixels = diffuse.GetPixels(width, height);
-            pixels[0].a = 0.5f;
+            var pixels = diffuse.GetPixels32(width, height);
+            pixels[0].a = 128;
 
-            result.SetPixels(pixels);
+            result.SetPixels32(pixels);
 
             var bytes = result.EncodeToPNG();
 
