@@ -13,11 +13,10 @@ namespace QuizCanners.Lerp
         #region Float
 
         private static float SpeedToPortion( float speed, float dist) =>
-            Math.Abs(dist) > (float.Epsilon * 10) ? Mathf.Clamp01(speed * Time.deltaTime / Mathf.Abs(dist)) : 1;
+            Mathf.Approximately(dist , 0) ? 1 : Mathf.Clamp01(Mathf.Abs(speed) * Time.deltaTime / Mathf.Abs(dist));
 
         public static bool SpeedToMinPortion(float speed, float dist, ref float portion)
         {
-
             var nPortion = SpeedToPortion(speed, dist);
             if (!(nPortion < portion))
                 return (1 - portion) < float.Epsilon && dist > 0;
