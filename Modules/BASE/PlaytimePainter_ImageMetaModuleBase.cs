@@ -1,4 +1,4 @@
-﻿using QuizCanners.CfgDecode;
+﻿using QuizCanners.Migration;
 
 namespace PlaytimePainter
 {

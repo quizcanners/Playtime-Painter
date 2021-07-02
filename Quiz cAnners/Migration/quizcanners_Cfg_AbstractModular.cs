@@ -3,10 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using QuizCanners.Inspect;
 using QuizCanners.Utils;
-using UnityEngine;
-using UnityEngine.Scripting;
 
-namespace QuizCanners.CfgDecode {
+namespace QuizCanners.Migration {
 
     #region Interfaces
     #pragma warning disable IDE0019 // Use pattern matching
@@ -23,7 +21,7 @@ namespace QuizCanners.CfgDecode {
     #endregion
     
     [AttributeUsage(AttributeTargets.Class)]
-    public class TaggedType : PreserveAttribute
+    public class TaggedType : UnityEngine.Scripting.PreserveAttribute
     {
         public string tag;
 
@@ -129,7 +127,7 @@ namespace QuizCanners.CfgDecode {
                     continue;
 
                 if (_dictionary.ContainsKey(att.tag))
-                    Debug.LogError("Class {0} and class {1} both share the same tag {2}".F(att.displayName,
+                    UnityEngine.Debug.LogError("Class {0} and class {1} both share the same tag {2}".F(att.displayName,
                         _dictionary[att.tag].ToString(), att.tag));
                 else
                 {

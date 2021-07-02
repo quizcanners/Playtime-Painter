@@ -1,11 +1,10 @@
 using QuizCanners.Lerp;
 using System.Collections.Generic;
 using UnityEngine;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Inspect;
 using QuizCanners.Utils;
 #if UNITY_EDITOR
-using UnityEditor;
 using UnityEditorInternal;
 #endif
 
@@ -206,7 +205,7 @@ namespace PlaytimePainter.Modules
 #if UNITY_EDITOR
                 if (Application.isPlaying == false)
                 {
-                    SceneView.RepaintAll();
+                    UnityEditor.SceneView.RepaintAll();
                     InternalEditorUtility.RepaintAllViews();
                 }
 #endif

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Utils;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -213,6 +212,16 @@ namespace QuizCanners.Inspect
             ef.isFoldedOutOrEntered = (entered == thisOne);
 
             return ef.isFoldedOutOrEntered;
+        }
+
+        public static void IsEnteredCheckLast (ref int entered, int current) 
+        {
+            if (entered > current) 
+            {
+                "Section {0} was removed".writeWarning();
+                if ("Exit To Selection".ClickLabel())
+                    entered = current;
+            }
         }
 
         public static bool isEntered(this string txt, ref bool state, bool showLabelIfTrue = true) => icon.Enter.isEntered(txt, ref state, showLabelIfTrue);
@@ -456,7 +465,7 @@ namespace QuizCanners.Inspect
         {
             var c = obj as IGotCount;
             if (!c.IsNullOrDestroyed_Obj())
-                txt += " [{0}]".F(c.CountForInspector());
+                txt += " [{0}]".F(c.GetCount());
 
             return txt;
         }
@@ -475,20 +484,20 @@ namespace QuizCanners.Inspect
             if (!entered)
             {
 
-                var el = lst.ElementAt(0);
+                var el = lst.GetElementAt(0);
 
                 if (!el.IsNullOrDestroyed_Obj())
                 {
 
-                    var nm = el as IGotDisplayName;
+                    var nm = el as IGotReadOnlyName;
 
                     if (nm != null)
-                        return "{0}: {1}".F(txt, nm.NameForDisplayPEGI());
+                        return "{0}: {1}".F(txt, nm.GetNameForInspector());
 
                     var n = el as IGotName;
 
                     if (n != null)
-                        return "{0}: {1}".F(txt, n.NameForPEGI);
+                        return "{0}: {1}".F(txt, n.NameForInspector);
 
                     return "{0}: {1}".F(txt, el.GetNameForInspector());
 
@@ -670,14 +679,14 @@ namespace QuizCanners.Inspect
             return false;
         }
 
-        public static bool enter_List_UObj<T>(this string label, List<T> list, ref int entered, int thisOne, List<T> selectFrom = null) where T : Object
+        public static bool enter_List_UObj<T>(this string label, List<T> list, ref int entered, int thisOne) where T : Object
         {
             if (!EnterOptionsDrawn_Internal(ref entered, thisOne))
                 return false;
 
             var insp = -1;
             if (isEntered_ListIcon(label, list, ref insp, ref entered, thisOne)) 
-                return label.edit_List_UObj(list, selectFrom).nl();
+                return label.edit_List_UObj(list).nl();
 
             return false;
         }

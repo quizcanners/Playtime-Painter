@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Utils;
 using UnityEngine;
 
@@ -15,7 +15,7 @@ namespace PlaytimePainter.ComponentModules
         public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex)
         {
             if (!painter.terrain || (!field.HasUsageTag(PainterShaderVariables.TERRAIN_SPLAT_DIFFUSE))) return false;
-            var no = field.NameForDisplayPEGI()[0].CharToInt();
+            var no = field.GetNameForInspector()[0].CharToInt();
 
 #if UNITY_2019_1_OR_NEWER
             var l = painter.terrain.terrainData.terrainLayers;
@@ -62,7 +62,7 @@ namespace PlaytimePainter.ComponentModules
 
             if (!fieldName.HasUsageTag(PainterShaderVariables.TERRAIN_SPLAT_DIFFUSE)) return false;
 
-            var no = fieldName.NameForDisplayPEGI()[0].CharToInt();
+            var no = fieldName.GetNameForInspector()[0].CharToInt();
 
             var id = painter.TexMeta;
 
@@ -88,8 +88,8 @@ namespace PlaytimePainter.ComponentModules
             var length = terrainData.size.z / l.tileSize.y;
 
 
-            id.tiling = new Vector2(width, length);
-            id.offset = l.tileOffset;
+            id.Tiling = new Vector2(width, length);
+            id.Offset = l.tileOffset;
 
             return true;
         }
@@ -129,8 +129,8 @@ namespace PlaytimePainter.ComponentModules
             var tex = id.CurrentTexture();
             if (!painter.terrain) return false;
             if (!field.HasUsageTag(PainterShaderVariables.TERRAIN_SPLAT_DIFFUSE)) return false;
-            var no = field.NameForDisplayPEGI()[0].CharToInt();
-            SetSplashPrototypeTexture(painter.terrain, id.texture2D, no);
+            var no = field.GetNameForInspector()[0].CharToInt();
+            SetSplashPrototypeTexture(painter.terrain, id.Texture2D, no);
             if (tex.GetType() != typeof(Texture2D))
                 Debug.Log("Can only use Texture2D for Splat Prototypes. If using regular terrain may not see changes.");
             else

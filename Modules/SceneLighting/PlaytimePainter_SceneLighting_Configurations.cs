@@ -1,6 +1,6 @@
 ﻿using QuizCanners.Inspect;
 using UnityEngine;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 
 namespace PlaytimePainter.Modules
 {

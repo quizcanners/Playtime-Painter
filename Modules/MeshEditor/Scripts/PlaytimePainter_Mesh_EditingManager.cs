@@ -6,11 +6,7 @@ using QuizCanners.Inspect;
 using PlaytimePainter.CameraModules;
 using QuizCanners.Utils;
 using UnityEngine;
-using QuizCanners.CfgDecode;
-using Object = UnityEngine.Object;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+using QuizCanners.Migration;
 
 namespace PlaytimePainter.MeshEditing
 {
@@ -794,7 +790,7 @@ namespace PlaytimePainter.MeshEditing
 
             if (DocsEnabled)
                 pegi.FullWindow.DocumentationClickOpen(text: () => MeshTool.Tooltip + (MeshTool.ShowGrid ? PlaytimePainter_GridNavigator.ToolTip : ""),
-                    toolTip: "About {0} tool".F(MeshTool.NameForDisplayPEGI()));
+                    toolTip: "About {0} tool".F(MeshTool.GetNameForInspector()));
 
             
             if (target.skinnedMeshRenderer) 
@@ -838,9 +834,9 @@ namespace PlaytimePainter.MeshEditing
                     #if UNITY_EDITOR
                     "Mesh Name:".edit(70, ref editedMesh.meshName);
 
-                    var mesh = target.GetMesh();
+                    Mesh mesh = target.GetMesh();
 
-                    var exists = !AssetDatabase.GetAssetPath(mesh).IsNullOrEmpty();
+                    var exists = QcUnity.IsSavedAsAsset(mesh);
 
                     if ((exists ? icon.Save : icon.SaveAsNew)
                         .Click("Save Mesh As {0}".F(GenerateMeshSavePath()), 25).nl())

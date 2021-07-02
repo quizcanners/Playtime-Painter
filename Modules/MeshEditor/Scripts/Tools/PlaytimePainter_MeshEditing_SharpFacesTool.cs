@@ -1,4 +1,4 @@
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Inspect;
 using QuizCanners.Utils;
 using System.Collections;
@@ -30,7 +30,7 @@ namespace PlaytimePainter.MeshEditing
 
         #region Inspector
 
-        public override string NameForDisplayPEGI() => "Dominant Faces";
+        public override string GetNameForInspector() => "Dominant Faces";
 
         public override string Tooltip
         {

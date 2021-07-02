@@ -2,7 +2,7 @@
 using QuizCanners.Inspect;
 using PlaytimePainter.CameraModules;
 using PlaytimePainter.MeshEditing;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Utils;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -181,7 +181,7 @@ namespace PlaytimePainter {
                 {
                     var materialData = painter.MatDta;
 
-                    if (!imgData.renderTexture && !TexMGMT.materialsUsingRenderTexture.Contains(materialData))
+                    if (!imgData.RenderTexture && !TexMGMT.materialsUsingRenderTexture.Contains(materialData))
                     {
                         TexMGMT.ChangeBufferTarget(imgData, materialData, painter.GetMaterialTextureProperty(), painter);
                         painter.SetTextureOnMaterial(imgData);
@@ -264,7 +264,7 @@ namespace PlaytimePainter {
                 SetBlitMode(cpu, blitMode);
 
             if (DocsEnabled && blitMode != null)
-                pegi.FullWindow.DocumentationClickOpen(blitMode.ToolTip, toolTip: "About {0} mode".F(blitMode.NameForDisplayPEGI()));
+                pegi.FullWindow.DocumentationClickOpen(blitMode.ToolTip, toolTip: "About {0} mode".F(blitMode.GetNameForInspector()));
 
             if (showAdvanced)
                 pegi.nl();
@@ -283,9 +283,9 @@ namespace PlaytimePainter {
                 pegi.select_Index(ref _inGpuBrushType, BrushTypes.Base.AllTypes);
 
                 if (DocsEnabled && brushType != null)
-                    pegi.FullWindow.DocumentationClickOpen(brushType.ToolTip, toolTip: "About {0} brush type".F(brushType.NameForDisplayPEGI()));
+                    pegi.FullWindow.DocumentationClickOpen(brushType.ToolTip, toolTip: "About {0} brush type".F(brushType.GetNameForInspector()));
 
-                if (!brushType.ShowInDropdown())
+                if (!brushType.ShowInInspectorDropdown())
                 {
                     pegi.nl();
                     "Selected brush type is not supported in context of this Painter".writeWarning();
@@ -348,7 +348,7 @@ namespace PlaytimePainter {
             }
 
 
-            if (blitMode.ShowInDropdown())
+            if (blitMode.ShowInInspectorDropdown())
             {
                 blitMode.InspectWithModule().nl();
                 showingSize = true;
@@ -391,9 +391,9 @@ namespace PlaytimePainter {
             
             var id = p.TexMeta;
 
-            var cpuBlit = id.target == TexTarget.Texture2D;
+            var cpuBlit = id.Target == TexTarget.Texture2D;
             
-            if (id.texture2D)
+            if (id.Texture2D)
             {
                 if ((cpuBlit ? icon.CPU : icon.GPU).Click( cpuBlit ? "Switch to Render Texture" : "Switch to Texture2D" ,45))
                 {
@@ -403,7 +403,7 @@ namespace PlaytimePainter {
                         PlaytimePainter_RenderTextureBuffersManager.RefreshPaintingBuffers();
 
                     p.UpdateOrSetTexTarget(cpuBlit ? TexTarget.Texture2D : TexTarget.RenderTexture);
-                    SetSupportedFor(cpuBlit, !id.renderTexture);
+                    SetSupportedFor(cpuBlit, !id.RenderTexture);
                 }
             }
             
@@ -580,7 +580,7 @@ namespace PlaytimePainter {
             else
             {
                
-                if (id.TargetIsRenderTexture() && id.renderTexture)
+                if (id.TargetIsRenderTexture() && id.RenderTexture)
                 {
                     if (r) ChannelSlider(ColorChanel.R, ref Color).nl();
                     if (g) ChannelSlider(ColorChanel.G, ref Color).nl();
@@ -590,7 +590,7 @@ namespace PlaytimePainter {
                 else
                 {
 
-                    if (painter.IsEditingThisMesh || id==null || !id.isATransparentLayer || Color.a > 0)  {
+                    if (painter.IsEditingThisMesh || id==null || !id.IsATransparentLayer || Color.a > 0)  {
 
                         var slider_copy = blitMode.UsingSourceTexture ?
                             (srcColorUsage != SourceTextureColorUsage.Unchanged)
@@ -601,9 +601,9 @@ namespace PlaytimePainter {
                         if (b) ChannelSlider(ColorMask.B, ref Color, slider: slider_copy).nl();
                     }
                     
-                    var gotAlpha = painter.meshEditing || id == null || id.texture2D.TextureHasAlpha();
+                    var gotAlpha = painter.meshEditing || id == null || id.Texture2D.TextureHasAlpha();
 
-                    if (id == null ||  (!painter.IsEditingThisMesh &&  (gotAlpha || id.preserveTransparency) && (!id.isATransparentLayer || !mask.HasFlag(ColorMask.A)))) {
+                    if (id == null ||  (!painter.IsEditingThisMesh &&  (gotAlpha || id.PreserveTransparency) && (!id.IsATransparentLayer || !mask.HasFlag(ColorMask.A)))) {
                         if (!gotAlpha)
                             icon.Warning.draw("Texture as no alpha, clicking save will fix it");
 
@@ -612,7 +612,7 @@ namespace PlaytimePainter {
                 }
             }
 
-            if (!painter.IsEditingThisMesh && id!=null && id.isATransparentLayer) {
+            if (!painter.IsEditingThisMesh && id!=null && id.IsATransparentLayer) {
 
                 var erase = Color.a < 0.5f;
 
@@ -650,7 +650,7 @@ namespace PlaytimePainter {
             if (worldSpace)
                 cody.Add("size3D", brush3DRadius);
             else
-                cody.Add("size2D", brush2DRadius / id.width);
+                cody.Add("size2D", brush2DRadius / id.Width);
 
 
             cody.Add_Bool("useMask", useMask)

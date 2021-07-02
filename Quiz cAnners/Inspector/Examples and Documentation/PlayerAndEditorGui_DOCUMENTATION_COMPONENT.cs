@@ -104,7 +104,7 @@ namespace QuizCanners.Inspect.Examples
                 pegi.nl();
 
                 if (showInspectorInTheGameView)
-                    "Inspector size".edit(width: 70, ref OnGUIWindow.upscale, min: 1, max: 3).nl();
+                    "Inspector size".edit(width: 70, ref OnGUIWindow.Upscale, min: 1, max: 3).nl();
 
             }
 

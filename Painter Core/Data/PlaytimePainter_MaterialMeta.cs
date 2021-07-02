@@ -7,7 +7,7 @@ using UnityEngine;
 namespace PlaytimePainter {
 
     [Serializable]
-    internal class MaterialMeta : PainterClass, IPEGI, IPEGI_ListInspect, IGotDisplayName {
+    internal class MaterialMeta : PainterClass, IPEGI, IPEGI_ListInspect, IGotReadOnlyName {
         
         [SerializeField] public Material material;
         [SerializeField] public int selectedTexture;
@@ -54,7 +54,7 @@ namespace PlaytimePainter {
 
         public MaterialMeta()  {   }
 
-        public string NameForDisplayPEGI()=> material == null ? "Error" : material.name;
+        public string GetNameForInspector()=> material == null ? "Error" : material.name;
 
         #region Inspector
 

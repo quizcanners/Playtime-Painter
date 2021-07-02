@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Net;
-using System.Text;
 using UnityEngine;
-using UnityEngine.UI;
-using Object = UnityEngine.Object;
 using QuizCanners.Inspect;
-using UnityEngine.U2D;
 using QuizCanners.Lerp;
+
+using Graphic = UnityEngine.UI.Graphic;
+using Object = UnityEngine.Object;
+
 #if UNITY_EDITOR
-using UnityEditor;
-using UnityEditorInternal;
+using  UnityEditor;
 #endif
 
 namespace QuizCanners.Utils {
@@ -198,7 +196,7 @@ namespace QuizCanners.Utils {
         public static void SendEmail(string email, string subject, string body) =>
             Application.OpenURL(string.Format("mailto:{0}?subject={1}&body={2}",email, subject.MyEscapeUrl(), body.MyEscapeUrl()));
 
-        private static string MyEscapeUrl(this string url) => WebUtility.UrlEncode(url).Replace("+", "%20");
+        private static string MyEscapeUrl(this string url) => System.Net.WebUtility.UrlEncode(url).Replace("+", "%20");
 
         public static void OpenBrowser(string address) => Application.OpenURL(address);
 
@@ -381,7 +379,7 @@ namespace QuizCanners.Utils {
 
         #region Components & GameObjects
 
-        public static void TrySet(this List<Image> list, Sprite to)
+        public static void TrySet(this List<UnityEngine.UI.Image> list, Sprite to)
         {
             if (!list.IsNullOrEmpty())
                 foreach (var e in list)
@@ -733,16 +731,16 @@ namespace QuizCanners.Utils {
 
             MemoryStream stream = new MemoryStream();
 
-            Write(ref stream, Encoding.ASCII.GetBytes("RIFF")); //, "ID");
+            Write(ref stream, System.Text.Encoding.ASCII.GetBytes("RIFF")); //, "ID");
 
 
             const int BlockSize_16Bit = 2; // BlockSize (bitDepth)
             int chunkSize = newClip.samples * BlockSize_16Bit + headerSize - 8;
             Write(ref stream, chunkSize); //, "CHUNK_SIZE");
 
-            Write(ref stream, Encoding.ASCII.GetBytes("WAVE")); //, "FORMAT");
+            Write(ref stream, System.Text.Encoding.ASCII.GetBytes("WAVE")); //, "FORMAT");
 
-            byte[] id = Encoding.ASCII.GetBytes("fmt ");
+            byte[] id = System.Text.Encoding.ASCII.GetBytes("fmt ");
             Write(ref stream, id); //, "FMT_ID");
 
             int subchunk1Size = 16; // 24 - 8
@@ -764,7 +762,7 @@ namespace QuizCanners.Utils {
 
             Write(ref stream, bitDepth); //, "BITS_PER_SAMPLE");
 
-            Write(ref stream, Encoding.ASCII.GetBytes("data")); //, "DATA_ID");
+            Write(ref stream, System.Text.Encoding.ASCII.GetBytes("data")); //, "DATA_ID");
 
             Write(ref stream, Convert.ToInt32(newClip.samples * BlockSize_16Bit)); //, "SAMPLES");
 
@@ -936,7 +934,7 @@ namespace QuizCanners.Utils {
         {
 #if UNITY_EDITOR
             SceneView.RepaintAll();
-            InternalEditorUtility.RepaintAllViews();
+            UnityEditorInternal.InternalEditorUtility.RepaintAllViews();
 #endif
         }
 
@@ -1195,7 +1193,7 @@ namespace QuizCanners.Utils {
 #endif
         }
 
-        public static bool SavedAsAsset(Object obj) =>
+        public static bool IsSavedAsAsset(Object obj) =>
 #if UNITY_EDITOR
             obj && (!AssetDatabase.GetAssetPath(obj).IsNullOrEmpty());
 #else
@@ -1500,7 +1498,7 @@ namespace QuizCanners.Utils {
 
         }
 
-        public static Texture2D TryGeTexture(this SpriteAtlas atlas)
+        public static Texture2D TryGeTexture(this UnityEngine.U2D.SpriteAtlas atlas)
         {
             if (!atlas)
                 return null;
@@ -2128,7 +2126,7 @@ namespace QuizCanners.Utils {
 
         #region Logging
 
-        public class ChillLogger : IGotDisplayName
+        public class ChillLogger : IGotReadOnlyName
         {
             private bool _logged;
             private readonly bool _disabled;
@@ -2136,7 +2134,7 @@ namespace QuizCanners.Utils {
             private int _calls;
             private readonly string message = "error";
 
-            public string NameForDisplayPEGI() => message + (_disabled ? " Disabled" : " Enabled");
+            public string GetNameForInspector() => message + (_disabled ? " Disabled" : " Enabled");
 
             public ChillLogger(string msg, bool logInBuild = false)
             {

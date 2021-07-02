@@ -1,4 +1,4 @@
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Inspect;
 using QuizCanners.Utils;
 using System;
@@ -29,7 +29,7 @@ namespace PlaytimePainter.MeshEditing
 
         #region Inspector
 
-        public override string NameForDisplayPEGI() => "vertex Edge";
+        public override string GetNameForInspector() => "vertex Edge";
 
         public override string Tooltip =>
              "[HOLD] Shift - inverts edge value (1-edge)" + Environment.NewLine +

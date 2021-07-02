@@ -56,14 +56,14 @@ namespace PlaytimePainter
 
                 SetB(from, globalOrder);
 
-                exclusive = from.renderTexture != null;
+                exclusive = from.RenderTexture != null;
             }
 
             internal RenderTextureBackup(TextureMeta from, int globalOrder)
             {
                 RenderTexture frt = from.CurrentRenderTexture();
 
-                rt = new RenderTexture(from.width, from.height, 0, RenderTextureFormat.ARGB32,
+                rt = new RenderTexture(from.Width, from.Height, 0, RenderTextureFormat.ARGB32,
                     frt.sRGB ? RenderTextureReadWrite.sRGB : RenderTextureReadWrite.Linear)
                 {
                     filterMode = frt.filterMode
@@ -119,7 +119,7 @@ namespace PlaytimePainter
                 var fromRt = (tex2D.Count == 0) ||
                              ((rTex.Count > 0) && (tex2D[tex2D.Count - 1].order < rTex[rTex.Count - 1].order));
 
-                var toRt = id.target == TexTarget.RenderTexture;
+                var toRt = id.Target == TexTarget.RenderTexture;
 
                 if (toRt)
                     otherDirection.BackupRenderTexture(int.MaxValue, id);
@@ -150,13 +150,13 @@ namespace PlaytimePainter
                     if (fromRt)
                         Rtp.Render(rtBackup.rt, id);
                     else
-                        Rtp.Render(id.texture2D, id);
+                        Rtp.Render(id.Texture2D, id);
 
                 }
                 else if (fromRt)
                 {
-                    id.texture2D.CopyFrom(rtBackup.rt);
-                    id.PixelsFromTexture2D(id.texture2D);
+                    id.Texture2D.CopyFrom(rtBackup.rt);
+                    id.PixelsFromTexture2D(id.Texture2D);
 
                     var converted = false;
 
@@ -169,7 +169,7 @@ namespace PlaytimePainter
                     if (converted)
                         id.SetAndApply();
                     else
-                        id.texture2D.Apply(true);
+                        id.Texture2D.Apply(true);
                 }
 
                 if (fromRt)

@@ -81,7 +81,7 @@ namespace PlaytimePainter {
             }
         }
 
-        public string NameForPEGI
+        public string NameForInspector
         {
             get { return name; }
             set
@@ -93,7 +93,7 @@ namespace PlaytimePainter {
 
         public int Height => hSlices * hSlices;
 
-        public int Width => (ImageMeta?.width ?? (PlaytimePainter_TexturesPool.inst ? PlaytimePainter_TexturesPool.inst.width : _tmpWidth)) / hSlices;
+        public int Width => (ImageMeta?.Width ?? (PlaytimePainter_TexturesPool.inst ? PlaytimePainter_TexturesPool.inst.width : _tmpWidth)) / hSlices;
 
         public Vector4 PosSize4Shader {
             get
@@ -116,7 +116,7 @@ namespace PlaytimePainter {
 
         public Vector4 Slices4Shader {
             get {
-                float w = ((ImageMeta?.width ?? (PlaytimePainter_TexturesPool.inst ? PlaytimePainter_TexturesPool.inst.width : _tmpWidth)) //- hSlices * 2
+                float w = ((ImageMeta?.Width ?? (PlaytimePainter_TexturesPool.inst ? PlaytimePainter_TexturesPool.inst.width : _tmpWidth)) //- hSlices * 2
                     ) / hSlices;
                 return new Vector4(hSlices, w * 0.5f, 1f / w, 1f / hSlices);
             }
@@ -126,7 +126,7 @@ namespace PlaytimePainter {
         {
             if (ImageMeta == null)
                 return;
-            ImageMeta.isAVolumeTexture = true;
+            ImageMeta.IsAVolumeTexture = true;
         }
 
         #region Inspect
@@ -161,7 +161,7 @@ namespace PlaytimePainter {
                 if (icon.Delete.Click())
                     _textureInShaderr = null;
 
-                _textureInShaderr.GetNameForInspector().nl();
+                pegi.GetNameForInspector(_textureInShaderr).nl();
             }
 
             if (_searchedForPainter)
@@ -224,15 +224,15 @@ namespace PlaytimePainter {
 
             var tex = ImageMeta.CurrentTexture();
 
-            if ("Volume Texture ({0})".F(tex ? NameForPEGI : "NULL").isEntered(ref inspectedElement, 1).nl())
+            if ("Volume Texture ({0})".F(tex ? NameForInspector : "NULL").isEntered(ref inspectedElement, 1).nl())
             {
-                var n = NameForPEGI;
+                var n = NameForInspector;
                 if ("Name".editDelayed(50, ref n).nl())
-                    NameForPEGI = n;
+                    NameForInspector = n;
                
-                PositionAndScaleProperty.NameForDisplayPEGI().write_ForCopy().nl();
+                PositionAndScaleProperty.GetNameForInspector().write_ForCopy().nl();
 
-                SlicesShadeProperty.NameForDisplayPEGI().write_ForCopy().nl();
+                SlicesShadeProperty.GetNameForInspector().write_ForCopy().nl();
                 
 
                 if (tex == null)

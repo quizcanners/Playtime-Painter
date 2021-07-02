@@ -1,19 +1,13 @@
 ﻿#if UNITY_EDITOR
-
 using UnityEngine;
 using UnityEditor;
-using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using UnityEditor.SceneManagement;
 using QuizCanners.Utils;
-using UnityEditorInternal;
-using UnityEngine.SceneManagement;
-using Object = UnityEngine.Object;
-using QuizCanners.CfgDecode;
 
+using Type = System.Type;
+using ReorderableList = UnityEditorInternal.ReorderableList;
+using SceneManager = UnityEngine.SceneManagement.SceneManager;
+using Object = UnityEngine.Object;
 #endif
 
 // ReSharper disable InconsistentNaming
@@ -158,7 +152,7 @@ namespace QuizCanners.Inspect
             if (globChanged)
             {
                 if (!Application.isPlaying)
-                    EditorSceneManager.MarkSceneDirty(go ? go.scene : SceneManager.GetActiveScene());
+                    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(go ? go.scene : SceneManager.GetActiveScene());
 
                 EditorUtility.SetDirty(o);
                 EditorUtility.SetDirty(go);
@@ -297,7 +291,7 @@ namespace QuizCanners.Inspect
             if (globChanged)
             {
                 if (!Application.isPlaying)
-                    EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+                    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
 
                 ClearFromPooledSerializedObjects(obj);
 
@@ -442,7 +436,7 @@ namespace QuizCanners.Inspect
 
         }
 
-        public static bool select<T>(ref int no, CountlessCfg<T> tree) where T : ICfg, new()
+        public static bool select<T>(ref int no, CountlessCfg<T> tree) where T : Migration.ICfg, new()
         {
             List<int> indexes;
             var objs = tree.GetAllObjs(out indexes);
@@ -509,7 +503,7 @@ namespace QuizCanners.Inspect
 
             for (var i = 0; i < from.Count; i++)
             {
-                var e = from.ElementAt(i);
+                var e = from.GetElementAt(i);
                 options[i] = e.Value;
                 if (no == e.Key)
                     ind = i;
@@ -519,7 +513,7 @@ namespace QuizCanners.Inspect
             var newInd = EditorGUILayout.Popup(ind, options, EditorStyles.toolbarDropDown);
             if (!EndCheckLine()) return false;
 
-            no = from.ElementAt(newInd).Key;
+            no = from.GetElementAt(newInd).Key;
             return true;
 
         }
@@ -532,7 +526,7 @@ namespace QuizCanners.Inspect
 
             for (var i = 0; i < from.Count; i++)
             {
-                var e = from.ElementAt(i);
+                var e = from.GetElementAt(i);
                 options[i] = e.Value;
                 if (no == e.Key)
                     ind = i;
@@ -543,7 +537,7 @@ namespace QuizCanners.Inspect
             var newInd = EditorGUILayout.Popup(ind, options, EditorStyles.toolbarDropDown, GUILayout.MaxWidth(width));
             if (!EndCheckLine()) return false;
 
-            no = from.ElementAt(newInd).Key;
+            no = from.GetElementAt(newInd).Key;
             return true;
 
         }
@@ -823,7 +817,8 @@ namespace QuizCanners.Inspect
             checkLine();
             var before = Mathf.Sqrt(val);
             var after = EditorGUILayout.Slider(before, min, max);
-            if (Math.Abs(before - after) < float.Epsilon) return false;
+            if (Mathf.Approximately(System.Math.Abs(before - after), 0)) 
+                return false;
             val = after * after;
             return setDirty;
         }
@@ -1128,13 +1123,13 @@ namespace QuizCanners.Inspect
 
         #region Property
 
-        public static bool edit_Property<T>(int width, Expression<Func<T>> memberExpression, Object obj, bool includeChildren)
+        public static bool edit_Property<T>(int width, System.Linq.Expressions.Expression<System.Func<T>> memberExpression, Object obj, bool includeChildren)
         {
             var serializedObject = (!obj ? serObj : GetSerObj(obj));
 
             if (serializedObject == null) return false;
 
-            var member = ((MemberExpression)memberExpression.Body).Member;
+            var member = ((System.Linq.Expressions.MemberExpression)memberExpression.Body).Member;
             var name = member.Name;
 
             var tps = serializedObject.FindProperty(name);
@@ -1451,7 +1446,7 @@ namespace QuizCanners.Inspect
 
         #region Reordable List
 
-        private static readonly Dictionary<IList, ReorderableList> ReorderableList = new Dictionary<IList, ReorderableList>();
+        private static readonly Dictionary<System.Collections.IList, ReorderableList> ReorderableList = new Dictionary<System.Collections.IList, ReorderableList>();
 
         private static ReorderableList GetReordable<T>(this List<T> list, CollectionMetaData metaDatas)
         {
@@ -1470,21 +1465,23 @@ namespace QuizCanners.Inspect
             return rl;
         }
 
-        private static IList _currentReorderedList;
+        private static System.Collections.IList _currentReorderedList;
         private static Type _currentReorderedType;
         private static List<Type> _currentReorderedListTypes;
         private static CollectionMetaData _listMetaData;
-        private static TaggedTypesCfg _currentTaggedTypes;
+        private static Migration.TaggedTypesCfg _currentTaggedTypes;
 
 
-        private static bool GetIsSelected(int ind) => (_listMetaData != null) ? _listMetaData.GetIsSelected(ind) : pegi.Getselected(ind);
+        private static bool GetIsSelected(int ind) => (_listMetaData != null) 
+            ? _listMetaData.GetIsSelected(ind) 
+            : pegi.collectionInspector.selectedEls[ind]; //IsSelectedCollectionElement(ind);
 
         private static void SetIsSelected(int ind, bool val)
         {
             if (_listMetaData != null)
                 _listMetaData.SetIsSelected(ind, val);
             else
-                pegi.SetSelected(ind, val);
+                pegi.collectionInspector.selectedEls[ind] = val; //SetSelected(ind, val);
         }
 
         public static bool reorder_List<T>(List<T> l, CollectionMetaData metas)
@@ -1498,11 +1495,11 @@ namespace QuizCanners.Inspect
 
                 var type = typeof(T);
 
-                _currentReorderedListTypes = ICfgExtensions.TryGetDerivedClasses(type);
+                _currentReorderedListTypes = Migration.ICfgExtensions.TryGetDerivedClasses(type);
 
                 if (_currentReorderedListTypes == null)
                 {
-                    _currentTaggedTypes = TaggedTypesCfg.TryGetOrCreate(type); //typeof(T).TryGetTaggedClasses();
+                    _currentTaggedTypes = Migration.TaggedTypesCfg.TryGetOrCreate(type); //typeof(T).TryGetTaggedClasses();
                     if (_currentTaggedTypes != null)
                         _currentReorderedListTypes = _currentTaggedTypes.Types;
                 }
@@ -1511,7 +1508,7 @@ namespace QuizCanners.Inspect
                 _currentReorderedType = type;
                 _currentReorderedList = l;
                 if (metas == null)
-                    pegi.UnselectAll();
+                   pegi.collectionInspector.selectedEls.Clear();
 
             }
 
@@ -1584,7 +1581,7 @@ namespace QuizCanners.Inspect
                         rect.width = 100;
 
                         if (select_Type(ref ty, _currentReorderedListTypes, rect))
-                            TaggedTypes.TryChangeObjectType(_currentReorderedList, index, ty, _listMetaData);
+                            Migration.TaggedTypes.TryChangeObjectType(_currentReorderedList, index, ty, _listMetaData);
                     }
                     else
                         EditorGUI.LabelField(rect, textAndToolTip);

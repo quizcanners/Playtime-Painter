@@ -13,7 +13,7 @@ namespace QuizCanners.Utils
         public abstract bool SameAs(SmartId other);
     }
 
-    public abstract class SmartIdGeneric<TValue> : SmartId, IPEGI_ListInspect, IPEGI, IGotDisplayName where TValue : IGotName, new()
+    public abstract class SmartIdGeneric<TValue> : SmartId, IPEGI_ListInspect, IPEGI, IGotReadOnlyName where TValue : IGotName, new()
     {
         public string Id;
 
@@ -93,7 +93,7 @@ namespace QuizCanners.Utils
 
         }
 
-        public virtual string NameForDisplayPEGI()
+        public virtual string GetNameForInspector()
         {
             TValue ent = GetEntity();
             return ent != null ? "Smart Id of {0}".F(ent.GetNameForInspector()) : "Id: {0} NOT FOUND".F(Id);

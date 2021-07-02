@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using QuizCanners.Inspect;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Utils;
 using UnityEngine;
 
@@ -50,7 +50,7 @@ namespace PlaytimePainter.MeshEditing
         public bool WritesColor => UsesDestination<VertexDataTypes.VertexColorTrg>();
 
         #region Inspect
-        public string NameForPEGI { get { return name; } set { name = value;  } }
+        public string NameForInspector { get { return name; } set { name = value;  } }
         
         public virtual void Inspect()
         {
@@ -149,12 +149,12 @@ namespace PlaytimePainter.MeshEditing
     }
 
     #region Data
-    public abstract class VertexDataDestination : IGotDisplayName
+    public abstract class VertexDataDestination : IGotReadOnlyName
     {
         public byte channelsHas;
         public int myIndex;
 
-        public abstract string NameForDisplayPEGI();
+        public abstract string GetNameForInspector();
 
         public virtual void Set(Vector3[] dta)
         {
@@ -199,12 +199,12 @@ namespace PlaytimePainter.MeshEditing
         }
     }
 
-    public abstract class VertexDataSource: IGotDisplayName
+    public abstract class VertexDataSource: IGotReadOnlyName
     {
         public byte channelsNeed;
         public int myIndex;
 
-        public abstract string NameForDisplayPEGI();
+        public abstract string GetNameForInspector();
 
         public virtual string GetFieldName(int ind)
         {
@@ -326,7 +326,7 @@ namespace PlaytimePainter.MeshEditing
         {
             var changed = false;
 
-            (Destination.GetNameForInspector() + ":").toggle(80, ref enabled);
+            (pegi.GetNameForInspector(Destination) + ":").toggle(80, ref enabled);
 
             if (!enabled) 
                 return;
@@ -335,7 +335,7 @@ namespace PlaytimePainter.MeshEditing
             var nms = new string[tps.Count + 1];
 
             for (var i = 0; i < tps.Count; i++)
-                nms[i] = tps[i].GetNameForInspector();
+                nms[i] = pegi.GetNameForInspector(tps[i]);
 
             nms[tps.Count] = "Custom";
 
@@ -569,7 +569,7 @@ namespace PlaytimePainter.MeshEditing
                 
             }
 
-            public override string NameForDisplayPEGI()=> "position";
+            public override string GetNameForInspector()=> "position";
             
             public override void SetDefaults(VertexDataLink to)
             {
@@ -622,7 +622,7 @@ namespace PlaytimePainter.MeshEditing
                 }
             }
 
-            public override string NameForDisplayPEGI()=> "UV" + MyUvChanel();
+            public override string GetNameForInspector()=> "UV" + MyUvChanel();
             
             public override void SetDefaults(VertexDataLink to)
             {
@@ -664,7 +664,7 @@ namespace PlaytimePainter.MeshEditing
                 CurMeshDta.mesh.tangents = dta;
             }
 
-             public override string NameForDisplayPEGI()=> "tangent";
+             public override string GetNameForInspector()=> "tangent";
             
             public override void SetDefaults(VertexDataLink to)
             {
@@ -685,7 +685,7 @@ namespace PlaytimePainter.MeshEditing
 
             public override void Set(Vector3[] dta) =>  CurMeshDta.mesh.normals = dta;
             
-            public override string NameForDisplayPEGI()=> "normal";
+            public override string GetNameForInspector()=> "normal";
             
             public override void SetDefaults(VertexDataLink to)
             {
@@ -713,7 +713,7 @@ namespace PlaytimePainter.MeshEditing
                 CurMeshDta.mesh.colors = cols;
             }
 
-            public override string NameForDisplayPEGI()=> "color";
+            public override string GetNameForInspector()=> "color";
             
             public override string GetFieldName(int ind)
             {
@@ -776,7 +776,7 @@ namespace PlaytimePainter.MeshEditing
             public override Vector3[] GetV3(VertexDataDestination trg) => _vertices;
             
 
-            public override string NameForDisplayPEGI()=> "position";
+            public override string GetNameForInspector()=> "position";
             
             public VertexPos(int index) : base(dataSize, index)
             {
@@ -816,7 +816,7 @@ namespace PlaytimePainter.MeshEditing
                 v2s = null;
             }
 
-            public override string NameForDisplayPEGI()=> "uv" + _myUvIndex;
+            public override string GetNameForInspector()=> "uv" + _myUvIndex;
 
             public VertexUv(int index) : base(dataSize, index)
             {
@@ -861,7 +861,7 @@ namespace PlaytimePainter.MeshEditing
 
             public override void Clear() => v4s = null;
             
-            public override string NameForDisplayPEGI()=> "tangent";
+            public override string GetNameForInspector()=> "tangent";
             
             public VertexTangent(int index) : base(dataSize, index)
             {
@@ -898,7 +898,7 @@ namespace PlaytimePainter.MeshEditing
 
             public override void Clear() => v3norms = null;
             
-            public override string NameForDisplayPEGI()=> "normal";
+            public override string GetNameForInspector()=> "normal";
             
             public VertexNormal(int index) : base(dataSize, index)
             {
@@ -932,7 +932,7 @@ namespace PlaytimePainter.MeshEditing
             
             public override void Clear() => v3norms = null;
             
-            public override string NameForDisplayPEGI()=> "SharpNormal";
+            public override string GetNameForInspector()=> "SharpNormal";
             
             public VertexSharpNormal(int index) : base(dataSize, index)
             {
@@ -969,7 +969,7 @@ namespace PlaytimePainter.MeshEditing
                 return _chanelMedium;
             }
 
-            public override string NameForDisplayPEGI()=> "Color";
+            public override string GetNameForInspector()=> "Color";
             
             public override string GetFieldName(int ind)
             {
@@ -1015,7 +1015,7 @@ namespace PlaytimePainter.MeshEditing
             
             public override string GetFieldName(int ind) => "index";
             
-            public override string NameForDisplayPEGI()=> "vertexIndex";
+            public override string GetNameForInspector()=> "vertexIndex";
             
             public VertexIndex(int index) : base(dataSize, index)
             {
@@ -1049,7 +1049,7 @@ namespace PlaytimePainter.MeshEditing
 
             public override string GetFieldName(int ind) => "light " + ind;
             
-            public override string NameForDisplayPEGI()=> "shadow";
+            public override string GetNameForInspector()=> "shadow";
             
             public VertexShadow(int index) : base(dataSize, index)
             {
@@ -1090,7 +1090,7 @@ namespace PlaytimePainter.MeshEditing
 
             public override string GetFieldName(int ind) => "tex " + ind;
             
-            public override string NameForDisplayPEGI()=> "Atlas Texture";
+            public override string GetNameForInspector()=> "Atlas Texture";
             
             public VertexAtlasTextures(int index) : base(dataSize, index)
             {
@@ -1110,7 +1110,7 @@ namespace PlaytimePainter.MeshEditing
             
             public override string GetFieldName(int ind) => "null";
             
-            public override string NameForDisplayPEGI()=> "null";
+            public override string GetNameForInspector()=> "null";
             
             public VertexNull(int index) : base(dataSize, index)
             {
@@ -1146,7 +1146,7 @@ namespace PlaytimePainter.MeshEditing
                 return _chanelMedium;
             }
 
-            public override string NameForDisplayPEGI()=> "Edge";
+            public override string GetNameForInspector()=> "Edge";
             
             public override string GetFieldName(int ind)
             {
@@ -1190,7 +1190,7 @@ namespace PlaytimePainter.MeshEditing
                 return _chanelMedium;
             }
 
-            public override string NameForDisplayPEGI()=> "Edge * weight";
+            public override string GetNameForInspector()=> "Edge * weight";
             
             public override string GetFieldName(int ind)
             {
@@ -1238,7 +1238,7 @@ namespace PlaytimePainter.MeshEditing
                 return _chanelMedium;
             }
 
-            public override string NameForDisplayPEGI()=> "LineNormal_0";
+            public override string GetNameForInspector()=> "LineNormal_0";
             
 
             public override string GetFieldName(int ind)
@@ -1287,7 +1287,7 @@ namespace PlaytimePainter.MeshEditing
                 return _chanelMedium;
             }
 
-            public override string NameForDisplayPEGI()=> "LineNormal_1";
+            public override string GetNameForInspector()=> "LineNormal_1";
             
 
             public override string GetFieldName(int ind)
@@ -1333,7 +1333,7 @@ namespace PlaytimePainter.MeshEditing
                 return _chanelMedium;
             }
 
-            public override string NameForDisplayPEGI()=> "LineNormal_2";
+            public override string GetNameForInspector()=> "LineNormal_2";
             
 
             public override string GetFieldName(int ind)
@@ -1379,7 +1379,7 @@ namespace PlaytimePainter.MeshEditing
             _typesNames = new string[DataTypes.Length];
 
             for (var i = 0; i < DataTypes.Length; i++)
-                _typesNames[i] = DataTypes[i].GetNameForInspector();
+                _typesNames[i] = pegi.GetNameForInspector(DataTypes[i]);
 
             return _typesNames;
         }

@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using QuizCanners.Inspect;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using UnityEngine;
 
 namespace QuizCanners.Utils

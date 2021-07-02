@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using QuizCanners.Inspect;
 using PlaytimePainter.CameraModules;
 using PlaytimePainter.ComponentModules;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Utils;
 using UnityEngine;
 using static QuizCanners.Utils.ShaderProperty;
@@ -84,16 +84,16 @@ namespace PlaytimePainter {
                 _inst = this;
             }
 
-            public Shader GetPreviewShader(PlaytimePainter p) => p.TexMeta.isAVolumeTexture ? _preview.Shader : null;
+            public Shader GetPreviewShader(PlaytimePainter p) => p.TexMeta.IsAVolumeTexture ? _preview.Shader : null;
 
             public Shader GetBrushShaderDoubleBuffer(PlaytimePainter p) =>
-                p.TexMeta.isAVolumeTexture ? (_enableRayTracing ? _brushShaderForRayTrace.Shader : _brushDoubleBuffer.Shader) : null;
+                p.TexMeta.IsAVolumeTexture ? (_enableRayTracing ? _brushShaderForRayTrace.Shader : _brushDoubleBuffer.Shader) : null;
 
-            public Shader GetBrushShaderSingleBuffer(PlaytimePainter p) => p.TexMeta.isAVolumeTexture ? _brushSingleBuffer.Shader : null;
+            public Shader GetBrushShaderSingleBuffer(PlaytimePainter p) => p.TexMeta.IsAVolumeTexture ? _brushSingleBuffer.Shader : null;
 
             public bool IsA3DBrush(PlaytimePainter painter, Brush bc, ref bool overrideOther)
             {
-                if (!painter.TexMeta.isAVolumeTexture) return false;
+                if (!painter.TexMeta.IsAVolumeTexture) return false;
                 overrideOther = true;
                 return true;
             }
@@ -106,7 +106,7 @@ namespace PlaytimePainter {
                 TextureMeta image = command.TextureData;
                 Brush bc = command.Brush;
 
-                var volume = image.texture2D.GetVolumeTextureData();
+                var volume = image.Texture2D.GetVolumeTextureData();
 
                 if (!volume) return;
 
@@ -117,7 +117,7 @@ namespace PlaytimePainter {
                 var pos = (stroke.posFrom - volume.transform.position) / volumeScale + 0.5f * Vector3.one;
 
                 var height = volume.Height;
-                var texWidth = image.width;
+                var texWidth = image.Width;
 
                 BlitFunctions.brAlpha = brushAlpha;
                 bc.PrepareCpuBlit(image);
@@ -187,7 +187,7 @@ namespace PlaytimePainter {
 
                 if (!vt)
                 {
-                    Debug.LogError("Painted volume was not found");
+                    Debug.LogError(QcLog.IsNull(vt, context: nameof(PaintRenderTextureUvSpace))); 
                     return;
                 }
 
@@ -224,7 +224,7 @@ namespace PlaytimePainter {
 
                 UseSmoothing.Enabled = smoothing > 0;
 
-                image.useTexCoord2 = false;
+                image.UseTexCoord2 = false;
                 cfg.strokeAlphaPortion = Mathf.Clamp01(bc.Flow * 0.05f);
                 TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(cfg); 
 
@@ -306,7 +306,7 @@ namespace PlaytimePainter {
 
             private float BrushScaleMaxForCpu(VolumeTexture volTex) => volTex.size * volTex.Width * 0.025f;
 
-            public override string NameForDisplayPEGI() => "Volume Painting";
+            public override string GetNameForInspector() => "Volume Painting";
 
             public bool ComponentInspector()
             {
@@ -450,7 +450,7 @@ namespace PlaytimePainter {
 
 
                     if (!_exploreRayTaceCamera && PainterCamera.Data.showVolumeDetailsInPainter &&
-                        (volTex.name + " " + VolumeEditingExtensions.VolumeSize(id.texture2D, volTex.hSlices))
+                        (volTex.name + " " + VolumeEditingExtensions.VolumeSize(id.Texture2D, volTex.hSlices))
                         .isFoldout(ref _exploreVolumeData).nl())
                         volTex.Nested_Inspect();
 
@@ -564,10 +564,10 @@ namespace PlaytimePainter {
                     return false;
 
                 var id = painter.TexMeta;
-                if (id == null || !id.isAVolumeTexture)
+                if (id == null || !id.IsAVolumeTexture)
                     return false;
-                id.tiling = Vector2.one;
-                id.offset = Vector2.zero;
+                id.Tiling = Vector2.one;
+                id.Offset = Vector2.zero;
                 return true;
             }
 
@@ -616,7 +616,7 @@ namespace PlaytimePainter {
             if (imd == null)
                 return;
 
-            imd.isAVolumeTexture = true;
+            imd.IsAVolumeTexture = true;
 
             var pnS = vt.PosSize4Shader;
             var vhS = vt.Slices4Shader;
@@ -653,7 +653,7 @@ namespace PlaytimePainter {
                 else if (vt.ImageMeta != null && id == vt.ImageMeta)
                 {
                     _lastFetchedVt = vt;
-                    id.isAVolumeTexture = true;
+                    id.IsAVolumeTexture = true;
                     return vt;
                 }
             }

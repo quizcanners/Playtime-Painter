@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using QuizCanners.Inspect;
 using PlaytimePainter.MeshEditing;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Utils;
 using UnityEngine;
 
@@ -55,7 +55,7 @@ namespace PlaytimePainter.CameraModules {
        
     }
     
-    public abstract class CameraModuleBase : PainterClassCfg, IGotDisplayName, IGotClassTag, ICfg, IPEGI_ListInspect {
+    public abstract class CameraModuleBase : PainterClassCfg, IGotReadOnlyName, IGotClassTag, ICfg, IPEGI_ListInspect {
 
         internal static List<CameraModuleBase> modules;
 
@@ -121,7 +121,7 @@ namespace PlaytimePainter.CameraModules {
         public override void Decode(string key, CfgData data) { }
         #endregion
 
-        public virtual string NameForDisplayPEGI()=> ToString().SimplifyTypeName();
+        public virtual string GetNameForInspector()=> ToString().SimplifyTypeName();
         
         public virtual void Update() { }
 
@@ -135,7 +135,7 @@ namespace PlaytimePainter.CameraModules {
 
         public virtual void InspectInList(ref int edited, int ind) {
 
-            if (NameForDisplayPEGI().ClickLabel())
+            if (GetNameForInspector().ClickLabel())
                 edited = ind;
 
             pegi.FullWindow.DocumentationClickOpen(ToolTip);

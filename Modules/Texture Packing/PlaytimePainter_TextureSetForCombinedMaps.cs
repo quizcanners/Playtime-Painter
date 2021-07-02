@@ -39,7 +39,7 @@ namespace PlaytimePainter.TexturePacking
             return null;
         }
 
-        public string NameForPEGI { get { return name; } set { name = value; } }
+        public string NameForInspector { get { return name; } set { name = value; } }
 
         public int selectedProfile;
 

@@ -193,7 +193,7 @@ namespace QuizCanners.Inspect {
         
         #region Implementation of Extensions
 
-        private static TranslationsEnum coreTranslations = new TranslationsEnum();
+        private static readonly TranslationsEnum coreTranslations = new TranslationsEnum();
 
         private static Countless<LazyTranslation> Translate(this Msg smg, string english)
         {

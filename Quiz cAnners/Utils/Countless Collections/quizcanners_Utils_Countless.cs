@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using QuizCanners.Inspect;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using UnityEngine;
 
 namespace QuizCanners.Utils {
@@ -146,7 +146,7 @@ namespace QuizCanners.Utils {
 
         #region Inspector
 
-        public int CountForInspector() => count;
+        public int GetCount() => count;
 
         public virtual bool IsDefault => count == 0;
         
@@ -922,8 +922,8 @@ namespace QuizCanners.Utils {
         #region Inspector
         public T this[IGotIndex i]
         {
-            get { return Get(i.IndexForPEGI); }
-            set { Set(i.IndexForPEGI, value); }
+            get { return Get(i.IndexForInspector); }
+            set { Set(i.IndexForInspector, value); }
         }
 
         private int _edited = -1;

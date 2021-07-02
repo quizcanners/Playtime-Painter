@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using QuizCanners.Inspect;
-using UnityEngine;
+
 using Debug = UnityEngine.Debug;
 
 namespace QuizCanners.Utils
@@ -60,7 +57,7 @@ namespace QuizCanners.Utils
         private object _current;
         private bool _currentIsUncheck;
         protected bool _stopAndCancel;
-        private readonly Stopwatch timer = new Stopwatch();
+        private readonly System.Diagnostics.Stopwatch timer = new System.Diagnostics.Stopwatch();
 
         public void Stop() => EnumeratorVersion +=1;
             
@@ -262,7 +259,7 @@ namespace QuizCanners.Utils
 
                 TotalTimeUsedThisFrame += el;
 
-                if (_logUnoptimizedSections && Application.isEditor && el > maxMilisecondsPerFrame * 2)
+                if (_logUnoptimizedSections && UnityEngine.Application.isEditor && el > maxMilisecondsPerFrame * 2)
                 {
                     Debug.Log("{0} Needs x{1} segmentation".F(_state, el / maxMilisecondsPerFrame));
                 }
@@ -279,10 +276,10 @@ namespace QuizCanners.Utils
         {
             timer.Restart();
 
-            if (FrameIndex != Time.frameCount)
+            if (FrameIndex != UnityEngine.Time.frameCount)
             {
                 TotalTimeUsedThisFrame = 0;
-                FrameIndex = Time.frameCount;
+                FrameIndex = UnityEngine.Time.frameCount;
             }
         }
 
@@ -393,7 +390,7 @@ namespace QuizCanners.Utils
             ResetInternal(enumerator);
             _state = "Resetting: " + enumerator;
             TryAdd(onExitAction: onExitAction, onDoneFullyAction: onDoneFullyAction);
-            NameForPEGI = nameForInspector.IsNullOrEmpty() ? enumerator.ToString() : nameForInspector;
+            NameForInspector = nameForInspector.IsNullOrEmpty() ? enumerator.ToString() : nameForInspector;
 
             return this;
         }
@@ -401,7 +398,7 @@ namespace QuizCanners.Utils
         public TimedCoroutine(bool logUnoptimizedSections = false, string nameForInspector = "")
         {
             _logUnoptimizedSections = logUnoptimizedSections;
-            NameForPEGI = nameForInspector;
+            NameForInspector = nameForInspector;
         }
 
         public TimedCoroutine(IEnumerator enumerator, bool logUnoptimizedSections = false, string nameForInspector = "")
@@ -417,7 +414,7 @@ namespace QuizCanners.Utils
         private int _yields;
         private int _frames;
 
-        public string NameForPEGI { get; set; }
+        public string NameForInspector { get; set; }
 
         public void InspectInList(ref int edited, int ind)
         {
@@ -433,7 +430,7 @@ namespace QuizCanners.Utils
                 _frames, // 1
                 EnumeratorVersion > 1 ? ("v: " + EnumeratorVersion) : "", //2
                 _task == null ? "[CORO]" : "[TASK]", //3
-                NameForPEGI, // 4
+                NameForInspector, // 4
                 _state // 5
                 ) // 4
                 .write(_state);

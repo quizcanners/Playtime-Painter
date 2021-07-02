@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using QuizCanners.Inspect;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Utils;
 using UnityEngine;
 using UnityEngine.UI;
@@ -119,8 +119,8 @@ namespace PlaytimePainter.ComponentModules {
 
                 Rect uv = sp.TryGetAtlasedAtlasedUvs();
 
-                id.tiling = Vector2.one/uv.size;
-                id.offset = uv.position;
+                id.Tiling = Vector2.one/uv.size;
+                id.Offset = uv.position;
 
                 return true;
             }
@@ -129,8 +129,8 @@ namespace PlaytimePainter.ComponentModules {
             if (raw)
             {
                 var uvRect = raw.uvRect;
-                id.tiling = uvRect.max;
-                id.offset = uvRect.min;
+                id.Tiling = uvRect.max;
+                id.Offset = uvRect.min;
                 
                 return true;
             }

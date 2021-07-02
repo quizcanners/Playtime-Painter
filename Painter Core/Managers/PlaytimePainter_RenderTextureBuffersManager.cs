@@ -683,9 +683,9 @@ namespace PlaytimePainter
 
         }
 
-        internal static bool TargetIsTexture2D(this TextureMeta id) => id != null && id.target == TexTarget.Texture2D;
+        internal static bool TargetIsTexture2D(this TextureMeta id) => id != null && id.Target == TexTarget.Texture2D;
 
-        internal static bool TargetIsRenderTexture(this TextureMeta id) => id != null && id.target == TexTarget.RenderTexture;
+        internal static bool TargetIsRenderTexture(this TextureMeta id) => id != null && id.Target == TexTarget.RenderTexture;
 
         internal static TextureMeta GetImgDataIfExists(this Texture texture)
         {
@@ -707,7 +707,7 @@ namespace PlaytimePainter
             for (var i = 0; i < lst.Count; i++)
             {
                 var id = lst[i];
-                if ((texture != id.texture2D) && (texture != id.renderTexture) && (texture != id.other)) continue;
+                if ((texture != id.Texture2D) && (texture != id.RenderTexture) && (texture != id.OtherTexture)) continue;
 
                 rid = id;
 
@@ -751,22 +751,22 @@ namespace PlaytimePainter
         }
 
         internal static RenderTexture CurrentRenderTexture(this TextureMeta id) => (id == null) ? null :
-            (id.renderTexture ? id.renderTexture : PainterCamera.FrontBuffer);
+            (id.RenderTexture ? id.RenderTexture : PainterCamera.FrontBuffer);
 
         internal static Texture ExclusiveTexture(this TextureMeta id)
         {
             if (id == null)
                 return null;
 
-            if (id.other != null)
-                return id.other;
+            if (id.OtherTexture != null)
+                return id.OtherTexture;
 
-            switch (id.target)
+            switch (id.Target)
             {
                 case TexTarget.RenderTexture:
-                    return !id.renderTexture ? id.texture2D : (Texture)id.renderTexture;
+                    return !id.RenderTexture ? id.Texture2D : (Texture)id.RenderTexture;
                 case TexTarget.Texture2D:
-                    return id.texture2D;
+                    return id.Texture2D;
             }
             return null;
         }
@@ -776,20 +776,20 @@ namespace PlaytimePainter
             if (id == null)
                 return null;
 
-            if (id.other)
-                return id.other;
+            if (id.OtherTexture)
+                return id.OtherTexture;
 
-            switch (id.target)
+            switch (id.Target)
             {
                 case TexTarget.RenderTexture:
-                    if (id.renderTexture != null)
-                        return id.renderTexture;
+                    if (id.RenderTexture != null)
+                        return id.RenderTexture;
                     if (PainterCamera.Inst.imgMetaUsingRendTex == id)
                         return PainterCamera.FrontBuffer;
-                    id.target = TexTarget.Texture2D;
-                    return id.texture2D;
+                    id.Target = TexTarget.Texture2D;
+                    return id.Texture2D;
                 case TexTarget.Texture2D:
-                    return id.texture2D;
+                    return id.Texture2D;
             }
             return null;
         }

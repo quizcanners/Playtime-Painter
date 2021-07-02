@@ -45,8 +45,10 @@ namespace QuizCanners.Utils
 
         public static implicit operator SerializableDateTime(DateTime d)
         {
-            var val = new SerializableDateTime();
-            val.Value = d;
+            var val = new SerializableDateTime
+            {
+                Value = d
+            };
             return val;
         }
 

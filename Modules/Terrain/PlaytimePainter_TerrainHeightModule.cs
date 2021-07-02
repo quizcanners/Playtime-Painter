@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Utils;
 using UnityEngine;
 
@@ -35,8 +35,8 @@ namespace PlaytimePainter.ComponentModules {
 
             var id = painter.TexMeta;
             if (id == null) return true;
-            id.tiling = Vector2.one;
-            id.offset = Vector2.zero;
+            id.Tiling = Vector2.one;
+            id.Offset = Vector2.zero;
             return true;
         }
 
@@ -44,8 +44,8 @@ namespace PlaytimePainter.ComponentModules {
         {
             if (!CorrectField(field, painter)) return false;
 
-            if (id != null && id.texture2D)
-                painter.terrainHeightTexture = id.texture2D;
+            if (id != null && id.Texture2D)
+                painter.terrainHeightTexture = id.Texture2D;
 
             var tex = id.CurrentTexture();
 

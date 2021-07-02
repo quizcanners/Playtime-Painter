@@ -14,7 +14,7 @@ namespace PlaytimePainter
     public class BrushTypes
     {
 
-        public abstract class Base : PainterClass, IEditorDropdown, IPEGI, IGotDisplayName
+        public abstract class Base : PainterClass, IInspectorDropdown, IPEGI, IGotReadOnlyName
         {
 
             public Base AsBase => this;
@@ -102,13 +102,13 @@ namespace PlaytimePainter
 
             #region Inspect
 
-            public virtual string NameForDisplayPEGI() => Translation.GetText();
+            public virtual string GetNameForInspector() => Translation.GetText();
 
             public virtual string ToolTip => Translation.GetDescription(); //NameForDisplayPEGI()+ " (No Tooltip)";
 
             protected virtual MsgPainter Translation => MsgPainter.Unnamed;
 
-            public virtual bool ShowInDropdown()
+            public virtual bool ShowInInspectorDropdown()
             {
                 var p = PlaytimePainter.inspected;
 
@@ -135,10 +135,10 @@ namespace PlaytimePainter
 
                 return
 
-                    (id.target == TexTarget.Texture2D && SupportedByTex2D) ||
-                    (id.target == TexTarget.RenderTexture &&
-                     ((SupportedByRenderTexturePair && !id.renderTexture)
-                      || (SupportedBySingleBuffer && id.renderTexture)));
+                    (id.Target == TexTarget.Texture2D && SupportedByTex2D) ||
+                    (id.Target == TexTarget.RenderTexture &&
+                     ((SupportedByRenderTexturePair && !id.RenderTexture)
+                      || (SupportedBySingleBuffer && id.RenderTexture)));
             }
 
             public virtual void Inspect()
@@ -222,7 +222,7 @@ namespace PlaytimePainter
                 else
                 {
 
-                    var uvDist = (deltaUv.magnitude * id.width * 8 / br.Size(false));
+                    var uvDist = (deltaUv.magnitude * id.Width * 8 / br.Size(false));
                     var worldDist = st.DeltaWorldPos.magnitude;
 
                     steps = (int) Mathf.Max(1, IsAWorldSpaceBrush ? worldDist : uvDist);
@@ -286,7 +286,7 @@ namespace PlaytimePainter
                 rb.localScale = Vector3.one;
                 var direction = st.DeltaUv;
                 var length = direction.magnitude;
-                BrushMesh = PainterCamera.BrushMeshGenerator.GetLongMesh(length * 256, br.StrokeWidth(textureMeta.width, false));
+                BrushMesh = PainterCamera.BrushMeshGenerator.GetLongMesh(length * 256, br.StrokeWidth(textureMeta.Width, false));
                 rb.localRotation = Quaternion.Euler(new Vector3(0, 0,
                     (direction.x > 0 ? -1 : 1) * Vector2.Angle(Vector2.up, direction)));
 
@@ -382,7 +382,7 @@ namespace PlaytimePainter
 
                 TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command);// br, br.Speed * 0.05f, id, st, out alphaBuffer, painter);
 
-                RtBrush.localScale = Vector3.one * br.StrokeWidth(id.width, false);
+                RtBrush.localScale = Vector3.one * br.StrokeWidth(id.Width, false);
 
                 BrushMesh = PainterCamera.BrushMeshGenerator.GetQuad();
                 RtBrush.localRotation = Quaternion.identity;
@@ -431,7 +431,7 @@ namespace PlaytimePainter
 
                 TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command); // br, br.Speed * 0.05f, id, stroke, out alphaBuffer);
 
-                float width = br.StrokeWidth(command.TextureData.width, false);
+                float width = br.StrokeWidth(command.TextureData.Width, false);
 
                 RtBrush.localScale = Vector3.one;
 
@@ -527,7 +527,7 @@ namespace PlaytimePainter
                     {
                         var delta = st.uvTo - _previousUv;
 
-                        var portion = Mathf.Clamp01(delta.magnitude * id.width * 4 / br.Size(false));
+                        var portion = Mathf.Clamp01(delta.magnitude * id.Width * 4 / br.Size(false));
 
                         var newAngle = Vector2.SignedAngle(Vector2.up, delta) + br.decalAngleModifier;
                         br.decalAngle = Mathf.LerpAngle(br.decalAngle, newAngle, portion);
@@ -552,7 +552,7 @@ namespace PlaytimePainter
 
                     if (br.rotationMethod == RotationMethod.FaceStrokeDirection && !st.firstStroke)
                     {
-                        var length = Mathf.Max(deltaUv.magnitude * 2 * id.width / br.Size(false), 1);
+                        var length = Mathf.Max(deltaUv.magnitude * 2 * id.Width / br.Size(false), 1);
                         var scale = tf.localScale;
 
                         if ((Mathf.Abs(Mathf.Abs(br.decalAngleModifier) - 90)) < 40)
@@ -644,7 +644,7 @@ namespace PlaytimePainter
         }
 
         [Serializable]
-        public class VolumetricDecal : IEditorDropdown, IPEGI, IGotName, IGotDisplayName
+        public class VolumetricDecal : IInspectorDropdown, IPEGI, IGotName, IGotReadOnlyName
         {
             public string decalName;
             public VolumetricDecalType type;
@@ -653,9 +653,9 @@ namespace PlaytimePainter
 
             #region Inspector
             
-            public bool ShowInDropdown() => heightMap && overlay;
+            public bool ShowInInspectorDropdown() => heightMap && overlay;
 
-            public string NameForPEGI
+            public string NameForInspector
             {
                 get { return decalName; }
                 set { decalName = value; }
@@ -670,7 +670,7 @@ namespace PlaytimePainter
                 "Overlay".edit(ref overlay).nl();
             }
 
-            public string NameForDisplayPEGI() => "{0} ({1})".F(decalName, type);
+            public string GetNameForInspector() => "{0} ({1})".F(decalName, type);
 
             #endregion
         }
@@ -714,7 +714,7 @@ namespace PlaytimePainter
                 var deltaUv = st.DeltaUv; //uv - st.uvFrom;//.Previous_uv;
                 var magnitude = deltaUv.magnitude;
                 
-                var width = br.Size(false) / id.width * 4;
+                var width = br.Size(false) / id.Width * 4;
 
                 var trackPortion = (deltaUv.magnitude - width * 0.5f) * 0.25f;
 
@@ -786,7 +786,7 @@ namespace PlaytimePainter
 
                 var r = TexMGMT;
 
-                var meshWidth = br.StrokeWidth(id.width, false);
+                var meshWidth = br.StrokeWidth(id.Width, false);
 
                 var tf = RtBrush;
 
@@ -874,12 +874,12 @@ namespace PlaytimePainter
 
                 TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command); // br, br.Speed * 0.05f, id, stroke, out alphaBuffer, painter);
 
-                var offset = command.TextureData.offset - command.Stroke.unRepeatedUv.Floor();
+                var offset = command.TextureData.Offset - command.Stroke.unRepeatedUv.Floor();
 
                 command.Stroke.SetWorldPosInShader();
 
                 PainterShaderVariables.BRUSH_EDITED_UV_OFFSET.GlobalValue =
-                    new Vector4(td.tiling.x, td.tiling.y, offset.x, offset.y);
+                    new Vector4(td.Tiling.x, td.Tiling.y, offset.x, offset.y);
                 PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
             }
 

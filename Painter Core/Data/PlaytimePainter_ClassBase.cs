@@ -1,10 +1,7 @@
 ﻿using QuizCanners.Inspect;
 using PlaytimePainter.MeshEditing;
 using UnityEngine;
-using QuizCanners.CfgDecode;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+using QuizCanners.Migration;
 
 namespace PlaytimePainter
 {
@@ -82,8 +79,8 @@ namespace PlaytimePainter
 
 #if UNITY_EDITOR
 
-            if (SceneView.lastActiveSceneView != null)
-                return SceneView.lastActiveSceneView.camera.transform;
+            if (UnityEditor.SceneView.lastActiveSceneView != null)
+                return UnityEditor.SceneView.lastActiveSceneView.camera.transform;
 #endif
 
 

@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using QuizCanners.Inspect;
 using UnityEngine;
-using QuizCanners.CfgDecode;
-using static QuizCanners.Utils.ShaderProperty;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+using QuizCanners.Migration;
+
 
 namespace QuizCanners.Utils 
 {
@@ -15,7 +12,7 @@ namespace QuizCanners.Utils
 
         #region Base Abstract
 
-        public abstract class BaseShaderPropertyIndex : ICfg, IGotDisplayName, IPEGI_ListInspect
+        public abstract class BaseShaderPropertyIndex : ICfg, IGotReadOnlyName, IPEGI_ListInspect
         {
             protected int id;
             protected string name;
@@ -56,7 +53,7 @@ namespace QuizCanners.Utils
             }
 
             #region Inspector
-            public string NameForDisplayPEGI()=> name;
+            public string GetNameForInspector()=> name;
             
             public void InspectInList(ref int edited, int ind)
             {
@@ -316,7 +313,7 @@ namespace QuizCanners.Utils
             public void Inspect()
             {
 
-                NameForDisplayPEGI().write(); 
+                GetNameForInspector().write(); 
 
                 (DirectiveEnabledForLastValue ? icon.Active: icon.InActive).nl();
                 
@@ -373,7 +370,7 @@ namespace QuizCanners.Utils
             {
                 _colorSpaceChecked = true;
                 #if UNITY_EDITOR
-                ConvertToLinear = PlayerSettings.colorSpace == ColorSpace.Linear;
+                ConvertToLinear = UnityEditor.PlayerSettings.colorSpace == ColorSpace.Linear;
                 #endif
             }
 
@@ -626,7 +623,7 @@ namespace QuizCanners.Utils
             #if UNITY_EDITOR
             {
                 var lst = new List<TextureValue>();
-                foreach (var n in m.GetProperties(MaterialProperty.PropType.Texture))
+                foreach (var n in m.GetProperties(UnityEditor.MaterialProperty.PropType.Texture))
                     lst.Add(new TextureValue(n));
 
                 return lst;
@@ -736,16 +733,16 @@ namespace QuizCanners.Utils
     }
 
     #region Shader Tags
-    public class ShaderTag : IGotDisplayName
+    public class ShaderTag : IGotReadOnlyName
     {
         public readonly string tag;
-        public string NameForDisplayPEGI()=> tag;
+        public string GetNameForInspector()=> tag;
         public bool Has(Material mat) => mat.HasTag(tag);
         public string Get(Material mat, bool searchFallBacks = false, string defaultValue = "") => mat.GetTag(tag, searchFallBacks, defaultValue);
 
         public string Get(Material mat, ShaderProperty.BaseShaderPropertyIndex property,
             bool searchFallBacks = false) =>
-            Get(mat, property.NameForDisplayPEGI(), searchFallBacks);
+            Get(mat, property.GetNameForInspector(), searchFallBacks);
 
         public string Get(Material mat, string prefix, bool searchFallBacks = false) =>
             mat.GetTag(prefix + tag, searchFallBacks);
@@ -775,10 +772,10 @@ namespace QuizCanners.Utils
 
     }
 
-    public class ShaderTagValue : IGotDisplayName
+    public class ShaderTagValue : IGotReadOnlyName
     {
         private readonly ShaderTag tag;
-        public string NameForDisplayPEGI()=> value;
+        public string GetNameForInspector()=> value;
         private readonly string value;
 
         public bool Has(Material mat, bool searchFallBacks = false) =>
@@ -838,11 +835,12 @@ namespace QuizCanners.Utils
 
     
 #if UNITY_EDITOR
-    [CustomPropertyDrawer(typeof(TextureValue))]
-    public class TextureValueDrawer : PropertyDrawer {
-        public override void OnGUI(Rect pos, SerializedProperty prop, GUIContent label) {
+    [UnityEditor.CustomPropertyDrawer(typeof(ShaderProperty.TextureValue))]
+    public class TextureValueDrawer : UnityEditor.PropertyDrawer
+    {
+        public override void OnGUI(Rect pos, UnityEditor.SerializedProperty prop, GUIContent label) {
             if (prop.Inspect("latestValue", pos, label))
-                prop.GetValue<TextureValue>().SetGlobal();
+                prop.GetValue<ShaderProperty.TextureValue>().SetGlobal();
         }
     }
 

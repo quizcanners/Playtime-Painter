@@ -4,10 +4,7 @@ using PlaytimePainter.ComponentModules;
 using PlaytimePainter.MeshEditing;
 using QuizCanners.Utils;
 using UnityEngine;
-using QuizCanners.CfgDecode;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+using QuizCanners.Migration;
 
 namespace PlaytimePainter
 {
@@ -22,7 +19,7 @@ namespace PlaytimePainter
 
             public static TileableAtlasingCameraModule inst;
 
-            public override string NameForDisplayPEGI() => "Tilable Atlasing";
+            public override string GetNameForInspector() => "Tilable Atlasing";
             
             #region Inspector
 
@@ -81,7 +78,7 @@ namespace PlaytimePainter
 #if UNITY_EDITOR
 
                     var m = p.GetMesh();
-                    if (m && AssetDatabase.GetAssetPath(m).Length == 0)
+                    if (m && UnityEditor.AssetDatabase.GetAssetPath(m).Length == 0)
                     {
                         "Atlased Mesh is not saved".nl();
                         var n = m.name;
@@ -167,7 +164,7 @@ namespace PlaytimePainter
     public class TriangleAtlasTool : MeshToolBase
     {
 
-        public override string NameForDisplayPEGI()=> "triangle Atlas Textures"; 
+        public override string GetNameForInspector()=> "triangle Atlas Textures"; 
 
         public override bool ShowLines=> false;
 

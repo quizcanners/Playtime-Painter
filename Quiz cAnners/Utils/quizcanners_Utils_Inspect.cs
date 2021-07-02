@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Inspect;
 using UnityEngine;
-using UnityEngine.Profiling;
-using UnityEngine.UI;
+
+using Profiler = UnityEngine.Profiling.Profiler;
 using Object = UnityEngine.Object;
 
 #if UNITY_EDITOR
@@ -76,15 +75,15 @@ namespace QuizCanners.Utils
         {
             var ind = el as IGotIndex;
             if (ind == null) return;
-            var maxIndex = ind.IndexForPEGI;
+            var maxIndex = ind.IndexForInspector;
             foreach (var o in list)
                 if (!el.Equals(o))
                 {
                     var oInd = o as IGotIndex;
                     if (oInd != null)
-                        maxIndex = Mathf.Max(maxIndex, oInd.IndexForPEGI + 1);
+                        maxIndex = Mathf.Max(maxIndex, oInd.IndexForInspector + 1);
                 }
-            ind.IndexForPEGI = maxIndex;
+            ind.IndexForInspector = maxIndex;
 
         }
 
@@ -99,7 +98,7 @@ namespace QuizCanners.Utils
             list.Add(e);
             var named = e as IGotName;
             if (named != null)
-                named.NameForPEGI = name;
+                named.NameForInspector = name;
             AssignUniqueNameIn(e, list);
             return e;
         }
@@ -110,7 +109,7 @@ namespace QuizCanners.Utils
             var namedNewElement = el as IGotName;
             if (namedNewElement == null) return;
 
-            var newName = namedNewElement.NameForPEGI;
+            var newName = namedNewElement.NameForInspector;
             var duplicate = true;
             var counter = 0;
 
@@ -125,7 +124,7 @@ namespace QuizCanners.Utils
                     if (currentName == null)
                         continue;
 
-                    var otherName = currentName.NameForPEGI;
+                    var otherName = currentName.NameForInspector;
 
                     if (otherName == null)
                         otherName = "";
@@ -135,18 +134,18 @@ namespace QuizCanners.Utils
 
                     duplicate = true;
                     counter++;
-                    newName = namedNewElement.NameForPEGI + counter;
+                    newName = namedNewElement.NameForInspector + counter;
                     break;
                 }
             }
 
-            namedNewElement.NameForPEGI = newName;
+            namedNewElement.NameForInspector = newName;
 
         }
 
         #region Various Managers Classes
 
-        public class PerformanceTimer : IPEGI_ListInspect, IGotDisplayName
+        public class PerformanceTimer : IPEGI_ListInspect, IGotReadOnlyName
         {
             private readonly string _name;
             private float _timer;
@@ -193,7 +192,7 @@ namespace QuizCanners.Utils
 
             #region Inspector
 
-            public string NameForDisplayPEGI() => "Avg {0}: {1}/{2}sec [{3} - {4}] ({5}) ".F(_name,
+            public string GetNameForInspector() => "Avg {0}: {1}/{2}sec [{3} - {4}] ({5}) ".F(_name,
                 ((float)_averageYieldsPerInterval).ToString("0.00"),
                 (Math.Abs(_intervalInSeconds - 1d) > float.Epsilon) ? _intervalInSeconds.ToString("0") : "", (int)_minYieldsPerInterval,
                 (int)_maxYieldsPerInterval, (int)_totalIntervalsProcessed);
@@ -203,7 +202,7 @@ namespace QuizCanners.Utils
                 if (icon.Refresh.Click("Reset Stats"))
                     ResetStats();
                 
-                NameForDisplayPEGI().write();
+                GetNameForInspector().write();
             }
 
             #endregion
@@ -245,7 +244,7 @@ namespace QuizCanners.Utils
                 pegi.nl();
 
                 "Img Name".edit(90, ref screenShotName);
-                var path = Path.Combine(QcFile.OutsideOfAssetsFolder, folderName);
+                var path = System.IO.Path.Combine(QcFile.OutsideOfAssetsFolder, folderName);
                 if (icon.Folder.Click("Open Screen Shots Folder : {0}".F(path)))
                     QcFile.Explorer.OpenPath(path);
 
@@ -316,7 +315,7 @@ namespace QuizCanners.Utils
 
             public void CaptureScreenShot()
             {
-                ScreenCapture.CaptureScreenshot("{0}".F(Path.Combine(folderName, GetScreenShotName()) + ".png"), UpScale);
+                ScreenCapture.CaptureScreenshot("{0}".F(System.IO.Path.Combine(folderName, GetScreenShotName()) + ".png"), UpScale);
             }
 
             public void RenderToTextureManually()
@@ -438,7 +437,7 @@ namespace QuizCanners.Utils
 
         [Serializable]
         public class MaterialPlaytimeInstancer {
-            [SerializeField] public List<Graphic> materialUsers = new List<Graphic>();
+            [SerializeField] public List<UnityEngine.UI.Graphic> materialUsers = new List<UnityEngine.UI.Graphic>();
             [NonSerialized] private Material labelMaterialInstance;
 
             public Material MaterialInstance
@@ -775,6 +774,9 @@ namespace QuizCanners.Utils
                 }
             }
 
+            if ("Logs".isEntered(ref inspectedSection, ++sectionIndex).nl())
+                QcLog.LogHandler.Nested_Inspect();
+            
             if ("Profiler".isEntered(ref inspectedSection, ++sectionIndex).nl())
             {
                 "Mono Heap Size Long {0}".F(Profiler.GetMonoHeapSizeLong().ToMegabytes()).nl();
@@ -873,6 +875,9 @@ namespace QuizCanners.Utils
 
             if ("Managed Coroutines [{0}]".F(QcAsync.DefaultCoroutineManager.GetActiveCoroutinesCount).isEntered(ref inspectedSection, ++sectionIndex).nl())
                 QcAsync.DefaultCoroutineManager.Nested_Inspect();
+
+
+            pegi.IsEnteredCheckLast(ref inspectedSection, sectionIndex);
         }
 
         public static string ToMegabytes(uint bytes)

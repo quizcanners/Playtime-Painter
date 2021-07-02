@@ -1,4 +1,4 @@
-﻿using System;
+﻿//using System;
 using UnityEngine;
 
 namespace QuizCanners.Inspect.Examples
@@ -6,7 +6,7 @@ namespace QuizCanners.Inspect.Examples
     public class PlayerAndEditorGui_ExampleNested : MonoBehaviour, IPEGI
     {
 
-        [NonSerialized] private Light lightSource;
+        [System.NonSerialized] private Light lightSource;
 
         [SerializeField] private Color SunColor;
         [SerializeField] private Color MoonColor;

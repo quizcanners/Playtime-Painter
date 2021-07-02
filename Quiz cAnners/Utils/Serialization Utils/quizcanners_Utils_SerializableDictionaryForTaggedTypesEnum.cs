@@ -1,13 +1,12 @@
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Inspect;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 namespace QuizCanners.Utils
 {
-    public abstract class SerializableDictionaryForTaggedTypesEnum<T> : Dictionary<string, T>, ISerializationCallbackReceiver, IPEGI, IGotDisplayName where T : IGotClassTag
+    public abstract class SerializableDictionaryForTaggedTypesEnum<T> : Dictionary<string, T>, ISerializationCallbackReceiver, IPEGI, IGotReadOnlyName where T : IGotClassTag
     {
 
         protected enum SerializationMode { Json = 0, ICfg = 1 }
@@ -20,8 +19,7 @@ namespace QuizCanners.Utils
 
         public G GetOrCreate<G>() where G: T , new()
         {
-            G tmp;
-            if (TryGet(out tmp))
+            if (TryGet(out G tmp))
                 return tmp;
 
             G tmpG = new G();
@@ -35,8 +33,7 @@ namespace QuizCanners.Utils
         {
             var tag = Cfg.GetTag(typeof(G));
 
-            T tmp;
-            var result = TryGetValue(tag, out tmp);
+            var result = TryGetValue(tag, out T tmp);
 
             value = (G)tmp;
 
@@ -106,7 +103,7 @@ namespace QuizCanners.Utils
 
                         if (type == null)
                         {
-                            type = types.ElementAt(0).Value;
+                            type = types.GetElementAt(0).Value;
 
                             Debug.LogError("Could not find a class derived from {0} for Tag {1}. Using Default ({2})".F(typeof(T).ToString(), key, type.ToPegiStringType()));
                         }
@@ -118,8 +115,8 @@ namespace QuizCanners.Utils
                             {
                                 case SerializationMode.ICfg: 
                                     tmp = (T)Activator.CreateInstance(type);
-                                    var icfg = tmp as ICfg;
-                                    if (icfg != null)
+
+                                    if (tmp is ICfg icfg)
                                     {
                                         icfg.DecodeFull(new CfgData(values[i]));
                                         tmp = (T)icfg;
@@ -156,7 +153,7 @@ namespace QuizCanners.Utils
         private string _selectedTag = "_";
         public void Inspect()
         {
-            NameForDisplayPEGI().edit_Dictionary(this, ref _inspected).nl();
+            GetNameForInspector().edit_Dictionary(this, ref _inspected).nl();
 
             if (_inspected == -1) 
             {
@@ -176,7 +173,7 @@ namespace QuizCanners.Utils
             }
         }
 
-        public virtual string NameForDisplayPEGI()
+        public virtual string GetNameForInspector()
         {
             var tmp = typeof(T).ToString();
 

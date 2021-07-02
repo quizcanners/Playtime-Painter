@@ -3,13 +3,12 @@ using QuizCanners.Utils;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Scripting;
 
-namespace QuizCanners.CfgDecode
+namespace QuizCanners.Migration
 {
 
     [AttributeUsage(AttributeTargets.Class)]
-    public class DerivedListAttribute : PreserveAttribute //Attribute
+    public class DerivedListAttribute : UnityEngine.Scripting.PreserveAttribute //Attribute
     {
         public readonly List<Type> derivedTypes;
         public DerivedListAttribute(params Type[] types)
@@ -126,7 +125,7 @@ namespace QuizCanners.CfgDecode
 
         #region Inspect
 
-        public string NameForPEGI
+        public string NameForInspector
         {
             get { return name; }
             set { name = value; }

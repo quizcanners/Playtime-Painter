@@ -2,9 +2,6 @@
 using UnityEngine.UI;
 using QuizCanners.Inspect;
 using QuizCanners.Utils;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace PlaytimePainter.UI
 {
@@ -28,10 +25,10 @@ namespace PlaytimePainter.UI
     public static class InvisibleUIGraphicExtensions
     {
 #if UNITY_EDITOR
-        [MenuItem("GameObject/UI/Playtime Painter/Invisible Raycat Target", false, 0)]
+        [UnityEditor.MenuItem("GameObject/UI/Playtime Painter/Invisible Raycat Target", false, 0)]
         private static void CreateInvisibleRaycastTarget()
         {
-            var els = QcUnity.CreateUiElement<InvisibleUIGraphic>(Selection.gameObjects);
+            var els = QcUnity.CreateUiElement<InvisibleUIGraphic>(UnityEditor.Selection.gameObjects);
 
             foreach (var el in els)
             {

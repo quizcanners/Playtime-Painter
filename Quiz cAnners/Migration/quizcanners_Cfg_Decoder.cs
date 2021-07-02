@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace QuizCanners.CfgDecode
+namespace QuizCanners.Migration
 {
 #pragma warning disable IDE0019 // Use pattern matching
 

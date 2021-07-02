@@ -29,7 +29,7 @@ namespace PlaytimePainter
             private Texture _texture;
             private bool _failed;
 
-            public string NameForPEGI
+            public string NameForInspector
             {
                 get { return _url; }
                 set { _url = value; }
@@ -228,7 +228,7 @@ namespace PlaytimePainter
         public void Inspect()
         {
 
-            "Textures and Requests".write_List(_loadedTextures, ref inspected);
+            "Textures and Requests".edit_List(_loadedTextures, ref inspected);
 
             "URL".edit(30, ref tmp);
             if (tmp.Length > 0 && icon.Add.Click().nl())

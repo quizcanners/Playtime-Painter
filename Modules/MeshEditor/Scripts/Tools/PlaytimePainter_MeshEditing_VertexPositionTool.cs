@@ -1,4 +1,4 @@
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Inspect;
 using QuizCanners.Utils;
 using System.Collections.Generic;
@@ -65,7 +65,7 @@ namespace PlaytimePainter.MeshEditing
           "M - merge with nearest while dragging {0}" +
           "This tool also contains functionality related to smoothing and sharpening of the edges.").F(Environment.NewLine);*/
 
-        public override string NameForDisplayPEGI() => MsgPainter.MeshPointPositionTool.GetText(); // "ADD & MOVE";
+        public override string GetNameForInspector() => MsgPainter.MeshPointPositionTool.GetText(); // "ADD & MOVE";
 
         public override void Inspect()
         {

@@ -51,6 +51,7 @@ namespace QuizCanners.Inspect {
         Warning,
         Wait
     }
+
     #pragma warning restore IDE1006 // Naming Styles
 
     public static class Icons_MGMT {
@@ -124,9 +125,9 @@ namespace QuizCanners.Inspect {
     
     internal static class LazyLocalizationForIcons {
 
-        private static TranslationsEnum iconTranslations = new TranslationsEnum();
+        private static readonly TranslationsEnum iconTranslations = new TranslationsEnum();
 
-        public static LazyTranslation Get(this icon msg, int lang = 0) {
+        public static LazyTranslation GetTranslations(this icon msg, int lang = 0) {
 
             int index = (int)msg;
 
@@ -176,13 +177,13 @@ namespace QuizCanners.Inspect {
         
         public static string GetText(this icon msg)
         {
-            var lt = msg.Get();
+            var lt = msg.GetTranslations();
             return lt != null ? lt.ToString() : msg.ToString();
         }
 
         public static string GetDescription(this icon msg)
         {
-            var lt = msg.Get();
+            var lt = msg.GetTranslations();
             return lt != null ? lt.details : msg.ToString();
         }
 

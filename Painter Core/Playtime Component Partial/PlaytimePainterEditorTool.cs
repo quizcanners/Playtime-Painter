@@ -1,21 +1,20 @@
 ﻿#if UNITY_EDITOR
-#if UNITY_2019_1_OR_NEWER
+
 using UnityEditor.EditorTools;
 using QuizCanners.Inspect;
 using PlaytimePainter.MeshEditing;
 using QuizCanners.Utils;
-using UnityEditor;
+using  UnityEditor;
 using UnityEngine;
-#endif
 
 namespace PlaytimePainter
 {
 
 #pragma warning disable IDE0018 // Inline variable declaration
 
-
-#if UNITY_2019_1_OR_NEWER
-    // Tagging a class with the EditorTool attribute and no target type registers a global tool. Global tools are valid for any selection, and are accessible through the top left toolbar in the editor.
+    // Tagging a class with the EditorTool attribute and no target type registers a global tool. Global tools are valid for any selection,
+    // and are accessible through the top left toolbar in the editor.
+    
     [EditorTool(PainterDataAndConfig.ToolName)]
     internal class PlaytimePainterEditorTool : EditorTool {
         private GUIContent m_IconContent;
@@ -41,8 +40,7 @@ namespace PlaytimePainter
 
         }
     }
-#endif
-    
+
     public static class PlaytimePainterSceneViewEditor
     {
 

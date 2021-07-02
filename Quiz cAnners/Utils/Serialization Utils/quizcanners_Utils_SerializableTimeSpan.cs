@@ -1,10 +1,8 @@
 using System;
 using UnityEngine;
 
-
 namespace QuizCanners.Utils
 {
-
     [Serializable]
     public struct SerializableTimeSpan
     {
@@ -47,8 +45,10 @@ namespace QuizCanners.Utils
 
         public static implicit operator SerializableTimeSpan(TimeSpan d)
         {
-            var val = new SerializableTimeSpan();
-            val.Value = d;
+            var val = new SerializableTimeSpan
+            {
+                Value = d
+            };
             return val;
         }
 

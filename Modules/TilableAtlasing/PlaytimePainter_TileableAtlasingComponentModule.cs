@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,10 +7,7 @@ using PlaytimePainter.MeshEditing;
 using QuizCanners.Utils;
 using UnityEngine;
 using Object = UnityEngine.Object;
-using QuizCanners.CfgDecode;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+using QuizCanners.Migration;
 
 namespace PlaytimePainter.ComponentModules {
     
@@ -71,7 +67,7 @@ namespace PlaytimePainter.ComponentModules {
 
             var atlasedSection = GetAtlasedSection();
 
-            sectorSize = image.width / atlasRows;
+            sectorSize = image.Width / atlasRows;
             atlasSector.From(atlasedSection * sectorSize);
 
             BlitFunctions.brAlpha = brushAlpha;
@@ -125,7 +121,7 @@ namespace PlaytimePainter.ComponentModules {
                         if (sy < 0)
                             sy += sectorSize;
 
-                        BlitFunctions.blitMode(ref pixels[((atlasSector.y + sy)) * image.width + (atlasSector.x + sx)]);
+                        BlitFunctions.blitMode(ref pixels[((atlasSector.y + sy)) * image.Width + (atlasSector.x + sx)]);
                     }
 
                     tmp.x += 1;
@@ -288,7 +284,7 @@ namespace PlaytimePainter.ComponentModules {
 
         private Material DestinationMaterial => _atlasedMaterial ? _atlasedMaterial : originalMaterial; 
 
-        public string NameForPEGI { get { return name; } set { name = value; } }
+        public string NameForInspector { get { return name; } set { name = value; } }
 
         private readonly List<FieldAtlas> _fields = new List<FieldAtlas>();
         
@@ -320,7 +316,7 @@ namespace PlaytimePainter.ComponentModules {
                     var contains = false;
 
                     foreach (var p in texProperties)
-                        if (p.NameForDisplayPEGI().Equals(originalTextures[f.originField].NameForDisplayPEGI()))
+                        if (p.GetNameForInspector().Equals(originalTextures[f.originField].GetNameForInspector()))
                         {
                             contains = true;
                             break;
@@ -485,13 +481,13 @@ namespace PlaytimePainter.ComponentModules {
                 {
                     var ac = new FieldAtlas();
                     _fields.Add(ac);
-                    ac.atlasedField = t.NameForDisplayPEGI();
+                    ac.atlasedField = t.GetNameForInspector();
                 }
                 
                 _atlasedShader = DestinationMaterial.shader;
 
 
-                foreach (var p in MaterialEditor.GetMaterialProperties(new Object[] { DestinationMaterial }))
+                foreach (var p in UnityEditor.MaterialEditor.GetMaterialProperties(new Object[] { DestinationMaterial }))
                     if (p.displayName.Contains(PainterShaderVariables.isAtlasableDisaplyNameTag))
                         foreach (var f in _fields)
                             if (f.atlasedField.SameAs(p.name))
@@ -506,7 +502,7 @@ namespace PlaytimePainter.ComponentModules {
                     var orTexts = originalMaterial.MyGetTextureProperties_Editor();
                     foreach (var f in _fields)
                         for (var i = 0; i < orTexts.Count; i++)
-                            if (orTexts[i].NameForDisplayPEGI().SameAs(f.atlasedField))
+                            if (orTexts[i].GetNameForInspector().SameAs(f.atlasedField))
                                 f.originField = i;
 
 
@@ -660,7 +656,7 @@ namespace PlaytimePainter.ComponentModules {
 
         private bool _sRgb = true;
         
-        public string NameForPEGI { get; set;}
+        public string NameForInspector { get; set;}
 
         public List<ShaderProperty.TextureValue> targetFields = new List<ShaderProperty.TextureValue>();
 
@@ -679,7 +675,7 @@ namespace PlaytimePainter.ComponentModules {
             .Add("tf", targetFields)
             .Add("af", atlasFields)
             .Add("sf", _srcFields)
-            .Add_String("n", NameForPEGI)
+            .Add_String("n", NameForInspector)
             .Add_Bool("rgb", _sRgb)
             .Add("s", _textureSize)
             .Add("as", _atlasSize);
@@ -690,7 +686,7 @@ namespace PlaytimePainter.ComponentModules {
                 case "tf": data.ToList(out targetFields); break;
                 case "af": data.ToList(out atlasFields); break;
                 case "sf": data.ToList(out _srcFields); break;
-                case "n": NameForPEGI = data.ToString(); break;
+                case "n": NameForInspector = data.ToString(); break;
                 case "rgb": _sRgb = data.ToBool(); break;
                 case "s":  data.ToInt(ref _textureSize); break;
                 case "as":  data.ToInt(ref _atlasSize); break;
@@ -746,8 +742,8 @@ namespace PlaytimePainter.ComponentModules {
 
         public AtlasTextureCreator(string newName)
         {
-            NameForPEGI = newName;
-            NameForPEGI = GetUniqueName(NameForPEGI, Cfg.atlases);
+            NameForInspector = newName;
+            NameForInspector = GetUniqueName(NameForInspector, Cfg.atlases);
             Init();
         }
 
@@ -912,17 +908,17 @@ namespace PlaytimePainter.ComponentModules {
             var fullPath = Path.Combine(Application.dataPath, lastPart);
             Directory.CreateDirectory(fullPath);
 
-            var fileName = NameForPEGI + ".png";
+            var fileName = NameForInspector + ".png";
             var relativePath = Path.Combine("Assets", lastPart, fileName);
             fullPath += fileName;
 
             File.WriteAllBytes(fullPath, bytes);
-            
-            AssetDatabase.Refresh(); // few times caused color of the texture to get updated to earlier state for some reason
 
-            aTexture = (Texture2D)AssetDatabase.LoadAssetAtPath(relativePath, typeof(Texture2D));
+            UnityEditor.AssetDatabase.Refresh(); // few times caused color of the texture to get updated to earlier state for some reason
 
-            TextureImporter other = null;
+            aTexture = (Texture2D)UnityEditor.AssetDatabase.LoadAssetAtPath(relativePath, typeof(Texture2D));
+
+            UnityEditor.TextureImporter other = null;
 
             foreach (var t in textures)
                 if ((t != null) && t.texture) {
@@ -990,7 +986,7 @@ namespace PlaytimePainter.ComponentModules {
                 ReconstructAsset();
 
             if (aTexture)
-                ("Atlas At " + AssetDatabase.GetAssetPath(aTexture)).edit(ref aTexture, false).nl();
+                ("Atlas At " + UnityEditor.AssetDatabase.GetAssetPath(aTexture)).edit(ref aTexture, false).nl();
 
 #endif
 
@@ -1010,7 +1006,7 @@ namespace PlaytimePainter.ComponentModules {
 
         public static bool IsAtlased(this Material mat, string property) => mat.IsAtlased() && property.Contains(PainterShaderVariables.isAtlasableDisaplyNameTag);
         
-        public static bool IsAtlased(this Material mat, ShaderProperty.TextureValue property) => mat.IsAtlased() && property.NameForDisplayPEGI().Contains(PainterShaderVariables.isAtlasableDisaplyNameTag);
+        public static bool IsAtlased(this Material mat, ShaderProperty.TextureValue property) => mat.IsAtlased() && property.GetNameForInspector().Contains(PainterShaderVariables.isAtlasableDisaplyNameTag);
         
         public static bool IsAtlased(this Material mat) => mat && mat.shaderKeywords.Contains(PainterShaderVariables.UV_ATLASED);
       

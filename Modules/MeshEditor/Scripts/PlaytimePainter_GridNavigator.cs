@@ -106,9 +106,9 @@ namespace PlaytimePainter.MeshEditing
                 var v = vertices[i];
 
                 if (v == null)
-                    Debug.LogError("Got Null in vertices");
+                    Debug.LogError(QcLog.IsNull(v, nameof(DeactivateVertices))); //"Got Null in vertices");
                 else if (!v.go)
-                    Debug.LogError("Game object in vertices is null");
+                    Debug.LogError(QcLog.IsNull(v.go, nameof(DeactivateVertices)));
                 else
                     v.go.SetActive(false);
             }
@@ -170,13 +170,13 @@ namespace PlaytimePainter.MeshEditing
 
         public Vector2 InPlaneVector(Vector3 f)
         {
-            switch (CurrentPlane)
+            return CurrentPlane switch
             {
-                case GridPlane.xy: return new Vector2(f.x, f.y); //Mirror.z = 1; break;
-                case GridPlane.xz: return new Vector2(f.x, f.z); //
-                case GridPlane.zy: return new Vector2(f.z, f.y); //
-                default: return Vector3.zero;
-            }
+                GridPlane.xy => new Vector2(f.x, f.y),//Mirror.z = 1; break;
+                GridPlane.xz => new Vector2(f.x, f.z),//
+                GridPlane.zy => new Vector2(f.z, f.y),//
+                _ => Vector3.zero,
+            };
         }
 
         public float PerpendicularToPlaneVector(Vector3 f)

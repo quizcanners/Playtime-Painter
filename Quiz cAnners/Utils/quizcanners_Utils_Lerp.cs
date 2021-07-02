@@ -3,7 +3,6 @@ using QuizCanners.Utils;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
-using System;
 
 namespace QuizCanners.Lerp
 {
@@ -51,14 +50,14 @@ namespace QuizCanners.Lerp
 
         public static bool IsLerpingBySpeed(ref double from, double to, double speed)
         {
-            if (Math.Abs(from - to) < double.Epsilon * 10)
+            if (System.Math.Abs(from - to) < double.Epsilon * 10)
             {
                 return false;
             }
 
             double diff = to - from;
 
-            double dist = Math.Abs(diff);
+            double dist = System.Math.Abs(diff);
 
             from += diff * QcMath.Clamp01(speed * Time.deltaTime / dist);
             return true;
@@ -66,12 +65,12 @@ namespace QuizCanners.Lerp
 
         public static double LerpBySpeed(double from, double to, double speed)
         {
-            if (Math.Abs(from - to) < double.Epsilon * 10)
+            if (System.Math.Abs(from - to) < double.Epsilon * 10)
                 return from;
 
             double diff = to - from;
 
-            double dist = Math.Abs(diff);
+            double dist = System.Math.Abs(diff);
 
             return from + diff * QcMath.Clamp01(speed * Time.deltaTime / dist);
         }

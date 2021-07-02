@@ -1,24 +1,22 @@
 ﻿using QuizCanners.Utils;
 using UnityEngine;
 #if UNITY_EDITOR
-using UnityEditor;
+using  UnityEditor;
 #endif
 
 // ReSharper disable InconsistentNaming
 #pragma warning disable IDE1006 // Naming Styles
-#pragma warning disable IDE0034 // Simplify 'default' expression
-#pragma warning disable IDE0019 // Use pattern matching
-#pragma warning disable IDE0018 // Inline variable declaration
 #pragma warning disable IDE0011 // Add braces
 #pragma warning disable IDE0008 // Use explicit type
-#pragma warning disable IDE0009 // Member access should be qualified.
 
 namespace QuizCanners.Inspect
 {
     public static partial class pegi
     {
+
+
         #region GUI Contents
-        private static GUIContent imageAndTip = new GUIContent();
+        private static readonly GUIContent imageAndTip = new GUIContent();
 
         private static GUIContent ImageAndTip(Texture tex, string toolTip)
         {
@@ -34,7 +32,7 @@ namespace QuizCanners.Inspect
             return imageAndTip;
         }*/
 
-        private static GUIContent textAndTip = new GUIContent();
+        private static readonly GUIContent textAndTip = new GUIContent();
 
         private static GUIContent TextAndTip(string text)
         {
@@ -459,11 +457,12 @@ namespace QuizCanners.Inspect
 
         public static bool write_ForCopy_Big(this string label, string value, bool showCopyButton = false)
         {
+            label.write();
 
             if (showCopyButton && icon.Copy.Click("Copy text to clipboard"))
                 SetCopyPasteBuffer(value, label);
 
-            label.nl();
+            nl();
 
             if (PaintingGameViewUI && !value.IsNullOrEmpty() && value.ContainsAtLeast('\n', 5)) // Due to MGUI BUG
                 ".....   Big Text Has Many Lines: {0}".F(value.FirstLine()).write();
@@ -504,6 +503,17 @@ namespace QuizCanners.Inspect
         #endregion
 
         #region Warning & Hints
+        public static void write(System.Exception ex)
+        {
+            icon.Warning.draw();
+            var txt = ex.ToString();
+            write_ForCopy(txt, showCopyButton: true);
+            if ("Log".Click())
+                Debug.LogException(ex);
+            nl();
+        }
+
+
         public static void writeWarning(this string text)
         {
 

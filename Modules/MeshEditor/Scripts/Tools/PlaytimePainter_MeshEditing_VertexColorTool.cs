@@ -1,4 +1,4 @@
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Inspect;
 using QuizCanners.Utils;
 using UnityEngine;
@@ -36,7 +36,7 @@ namespace PlaytimePainter.MeshEditing
                                           "2. Only if shader outputs vertex color, changes will be visible. " +
                                           "1234 on Line - apply RGBA for Border.").F(pegi.EnvironmentNl);
 
-        public override string NameForDisplayPEGI() => "vertex Color";
+        public override string GetNameForInspector() => "vertex Color";
 
         public override void Inspect()
         {

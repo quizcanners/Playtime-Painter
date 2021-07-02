@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using QuizCanners.Inspect;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Utils;
 using UnityEngine;
 
@@ -144,14 +144,14 @@ namespace PlaytimePainter
                 else
                 {
 
-                    size /= parentMeta.width;
+                    size /= parentMeta.Width;
 
                     var dir = stroke.uvTo - _lastUv;
 
                     var dot = Vector2.Dot(dir.normalized, _prevDir);
 
                     canRecord |= (_strokeDistance > size * 5) || 
-                                 (_strokeDistance * parentMeta.width > 10) ||
+                                 (_strokeDistance * parentMeta.Width > 10) ||
                         ((dir.magnitude > size * 0.01f) && (dot < 0.8f));
 
 
@@ -366,7 +366,7 @@ namespace PlaytimePainter
                     currentlyDecodedPainter.UpdateOrSetTexTarget(data.ToString().Equals("C") ? TexTarget.Texture2D : TexTarget.RenderTexture); break;
                 case "brush":
                     GlobalBrush.DecodeFull(data);
-                    GlobalBrush.brush2DRadius *= parentMeta?.width ?? 256; break;
+                    GlobalBrush.brush2DRadius *= parentMeta?.Width ?? 256; break;
                 case "s":
                     currentlyDecodedPainter.stroke.DecodeFull(data);
                     GlobalBrush.Paint(currentlyDecodedPainter.PaintCommand);

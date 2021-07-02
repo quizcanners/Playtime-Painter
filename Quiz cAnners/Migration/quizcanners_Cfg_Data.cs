@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
 using QuizCanners.Inspect;
@@ -7,11 +6,7 @@ using QuizCanners.Utils;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
-
-namespace QuizCanners.CfgDecode
+namespace QuizCanners.Migration
 {
 
     #region Interfaces

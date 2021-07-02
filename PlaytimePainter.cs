@@ -8,12 +8,9 @@ using QuizCanners.Utils;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-#if UNITY_EDITOR
-using UnityEditor;
-using QuizCanners.CfgDecode;
-#if UNITY_2019_1_OR_NEWER
-using UnityEditor.EditorTools;
-#endif
+using QuizCanners.Migration;
+#if UNITY_EDITOR && UNITY_2019_1_OR_NEWER
+//using UnityEditor.EditorTools;
 #endif
 
 namespace PlaytimePainter
@@ -33,9 +30,9 @@ namespace PlaytimePainter
             get
             {
 
-#if UNITY_EDITOR && UNITY_2019_1_OR_NEWER
+#if UNITY_EDITOR
                 if (!Application.isPlaying)
-                    return ToolManager.activeToolType == typeof(PlaytimePainterEditorTool);
+                    return UnityEditor.EditorTools.ToolManager.activeToolType == typeof(PlaytimePainterEditorTool);
 #endif
 
                 return PainterDataAndConfig.toolEnabled;
@@ -44,7 +41,7 @@ namespace PlaytimePainter
                 PainterDataAndConfig.toolEnabled = value;
 
 #if UNITY_EDITOR
-                ToolManager.SetActiveTool(typeof(PlaytimePainterEditorTool));
+                UnityEditor.EditorTools.ToolManager.SetActiveTool(typeof(PlaytimePainterEditorTool));
 #endif
             }
         }
@@ -165,7 +162,7 @@ namespace PlaytimePainter
                 }
 
                 if (!_paintCommand.painter)
-                    Debug.LogError("Painter inside a command is zero");
+                    Debug.LogError(QcLog.IsNull(_paintCommand.painter, nameof(PaintCommand)));//"Painter inside a command is zero");
 
                 return _paintCommand;
             }
@@ -418,14 +415,14 @@ namespace PlaytimePainter
 
             if (id == null) return hit.textureCoord;
 
-            var uv = id.useTexCoord2 ? hit.textureCoord2 : hit.textureCoord;
+            var uv = id.UseTexCoord2 ? hit.textureCoord2 : hit.textureCoord;
 
             foreach (var p in Modules)
                 if (p.OffsetAndTileUv(hit, ref uv))
                     return uv;
 
-            uv.Scale(id.tiling);
-            uv += id.offset;
+            uv.Scale(id.Tiling);
+            uv += id.Offset;
 
             return uv;
         }
@@ -518,7 +515,7 @@ namespace PlaytimePainter
             }
 
             if (!shd)
-                Debug.LogError("Preview shader not found");
+                Debug.LogError(QcLog.IsNull(shd, nameof(SetPreviewShader)));
             else
             {
                 previewHolderOriginalShader = mat.shader;
@@ -584,8 +581,8 @@ namespace PlaytimePainter
             var mat = Material;
             if (IsUsingPreview && !terrain)
             {
-                id.tiling = mat.GetTiling(PainterShaderVariables.PreviewTexture);
-                id.offset = mat.GetOffset(PainterShaderVariables.PreviewTexture);
+                id.Tiling = mat.GetTiling(PainterShaderVariables.PreviewTexture);
+                id.Offset = mat.GetOffset(PainterShaderVariables.PreviewTexture);
                 return;
             }
 
@@ -597,8 +594,8 @@ namespace PlaytimePainter
 
             if (!mat || fieldName == null || id == null) return;
 
-            id.tiling = mat.GetTiling(fieldName);
-            id.offset = mat.GetOffset(fieldName);
+            id.Tiling = mat.GetTiling(fieldName);
+            id.Offset = mat.GetOffset(fieldName);
         }
 
         public void UpdateTilingToMaterial()
@@ -608,14 +605,14 @@ namespace PlaytimePainter
             var mat = Material;
             if (IsUsingPreview && !terrain)
             {
-                mat.SetTiling(PainterShaderVariables.PreviewTexture, id.tiling);
-                mat.SetOffset(PainterShaderVariables.PreviewTexture, id.offset);
+                mat.SetTiling(PainterShaderVariables.PreviewTexture, id.Tiling);
+                mat.SetOffset(PainterShaderVariables.PreviewTexture, id.Offset);
                 return;
             }
 
             if (!mat || fieldName == null || id == null) return;
-            mat.SetTiling(fieldName, id.tiling);
-            mat.SetOffset(fieldName, id.offset);
+            mat.SetTiling(fieldName, id.Tiling);
+            mat.SetOffset(fieldName, id.Offset);
         }
 
         private void OnChangedTexture_OnMaterial()
@@ -641,7 +638,7 @@ namespace PlaytimePainter
                 if (imp)
                 {
 
-                    var assetPath = AssetDatabase.GetAssetPath(texture);
+                    var assetPath = UnityEditor.AssetDatabase.GetAssetPath(texture);
                     var extension = assetPath.Substring(assetPath.LastIndexOf(".", StringComparison.Ordinal) + 1);
 
                     if (extension != "png")
@@ -672,12 +669,12 @@ namespace PlaytimePainter
                 if (field == null)
                     Debug.LogError("Field is null");
                 else
-                    id.useTexCoord2 = field.NameForDisplayPEGI().Contains(PainterShaderVariables.isUV2DisaplyNameTag);
+                    id.UseTexCoord2 = field.GetNameForInspector().Contains(PainterShaderVariables.isUV2DisaplyNameTag);
             }
 
             SetTextureOnMaterial(texture);
 
-            UpdateOrSetTexTarget(id.target);
+            UpdateOrSetTexTarget(id.Target);
 
             UpdateTilingFromMaterial();
 
@@ -701,7 +698,7 @@ namespace PlaytimePainter
             if (id == null)
                 return;
 
-            if (id.target == dst)
+            if (id.Target == dst)
                 return;
 
             id.ChangeDestination(dst, GetMaterial(true).GetMaterialPainterMeta(), GetMaterialTextureProperty(), this);
@@ -760,13 +757,13 @@ namespace PlaytimePainter
 #if UNITY_EDITOR
             SaveTextureAsAsset(false);
 
-            var importer = id.texture2D.GetTextureImporter();
+            var importer = id.Texture2D.GetTextureImporter();
             var needReimport = importer.WasNotReadable();
             needReimport |= importer.WasWrongIsColor(false);
             if (needReimport) importer.SaveAndReimport();
 #endif
 
-            SetTextureOnMaterial(id.texture2D);
+            SetTextureOnMaterial(id.Texture2D);
             UpdateModules();
         }
 
@@ -775,12 +772,12 @@ namespace PlaytimePainter
 
             var id = TexMeta;
 
-            var gotRenderTextureData = id != null && size == id.width && size == id.width && id.TargetIsRenderTexture();
+            var gotRenderTextureData = id != null && size == id.Width && size == id.Width && id.TargetIsRenderTexture();
 
             var texture = new Texture2D(size, size, TextureFormat.ARGB32, true, !isColor);
 
-            if (gotRenderTextureData && (!id.texture2D || textureName.SameAs(id.saveName)))
-                id.texture2D = texture;
+            if (gotRenderTextureData && (!id.Texture2D || textureName.SameAs(id.saveName)))
+                id.Texture2D = texture;
 
             texture.wrapMode = TextureWrapMode.Repeat;
 
@@ -827,7 +824,7 @@ namespace PlaytimePainter
 #if UNITY_EDITOR
             SaveTextureAsAsset(true);
 
-            var importer = id.texture2D.GetTextureImporter();
+            var importer = id.Texture2D.GetTextureImporter();
 
             var needReimport = importer.WasNotReadable();
             needReimport |= importer.WasWrongIsColor(isColor);
@@ -853,7 +850,7 @@ namespace PlaytimePainter
 
             nt.saveName = renderTextureName;
 
-            ChangeTexture(nt.renderTexture);
+            ChangeTexture(nt.RenderTexture);
 
             PainterCamera.Inst.Render(previous.CurrentTexture(), nt);
 
@@ -969,8 +966,8 @@ namespace PlaytimePainter
                     var tmp = Material.MyGetTextureProperties_Editor();
 
                     foreach (var t in tmp)
-                        if ((!t.NameForDisplayPEGI().Contains("_Splat")) &&
-                            (!t.NameForDisplayPEGI().Contains("_Normal")))
+                        if ((!t.GetNameForInspector().Contains("_Splat")) &&
+                            (!t.GetNameForInspector().Contains("_Normal")))
                             _lastTextureNames.Add(t);
 
                 }
@@ -1075,8 +1072,8 @@ namespace PlaytimePainter
 
             if (id == null) return;
 
-            mat.SetOffset(PainterShaderVariables.PreviewTexture, id.offset);
-            mat.SetTiling(PainterShaderVariables.PreviewTexture, id.tiling);
+            mat.SetOffset(PainterShaderVariables.PreviewTexture, id.Offset);
+            mat.SetTiling(PainterShaderVariables.PreviewTexture, id.Tiling);
 
         }
 
@@ -1126,7 +1123,7 @@ namespace PlaytimePainter
             var id = TexMeta;
 
             if (id != null && Material)
-                UpdateOrSetTexTarget(id.target);
+                UpdateOrSetTexTarget(id.Target);
 
             pegi.GameView.ShowNotification("Instantiating Material on {0}".F(gameObject.name));
 
@@ -1239,7 +1236,7 @@ namespace PlaytimePainter
 
             var res = td.heightmapResolution - 1;
 
-            var conversion = (id.width / (float) res);
+            var conversion = (id.Width / (float) res);
 
             var heights = td.GetHeights(0, 0, res + 1, res + 1);
 
@@ -1248,7 +1245,7 @@ namespace PlaytimePainter
             if (Math.Abs(conversion - 1) > float.Epsilon)
                 for (var y = 0; y < res; y++)
                 {
-                    var yInd = id.width * Mathf.FloorToInt((y * conversion));
+                    var yInd = id.Width * Mathf.FloorToInt((y * conversion));
                     for (var x = 0; x < res; x++)
                         heights[y, x] = cols[yInd + (int) (x * conversion)].a;
 
@@ -1256,7 +1253,7 @@ namespace PlaytimePainter
             else
                 for (var y = 0; y < res; y++)
                 {
-                    var yInd = id.width * y;
+                    var yInd = id.Width * y;
 
                     for (var x = 0; x < res; x++)
                         heights[y, x] = cols[yInd + x].a;
@@ -1292,9 +1289,9 @@ namespace PlaytimePainter
 
             var textureSize = td.heightmapResolution - 1;
 
-            if (id.width != textureSize)
+            if (id.Width != textureSize)
             {
-                Debug.Log("Wrong size: {0} textureSize {1}".F(id.width, id.texture2D.width));
+                Debug.Log("Wrong size: {0} textureSize {1}".F(id.Width, id.Texture2D.width));
                 if (current)
                     CreateTerrainHeightTexture(oid.saveName);
                 else Debug.Log("Is not current");
@@ -1303,7 +1300,7 @@ namespace PlaytimePainter
 
             }
 
-            terrainHeightTexture = id.texture2D;
+            terrainHeightTexture = id.Texture2D;
             var col = id.Pixels;
 
             var height = 1f / td.size.y;
@@ -1419,9 +1416,9 @@ namespace PlaytimePainter
 
             var uvClick = _uiUv;
 
-            uvClick.Scale(id.tiling);
-            uvClick += id.offset;
-            stroke.unRepeatedUv = uvClick + id.offset;
+            uvClick.Scale(id.Tiling);
+            uvClick += id.Offset;
+            stroke.unRepeatedUv = uvClick + id.Offset;
             stroke.uvTo = stroke.unRepeatedUv.To01Space();
             PreviewShader_StrokePosition_Update();
             return true;
@@ -1438,7 +1435,7 @@ namespace PlaytimePainter
                 if (meshEditing || !TexMgmt)
                     return true;
                 var i = TexMeta;
-                return i == null || i.other;
+                return i == null || i.OtherTexture;
             }
         }
 
@@ -1703,7 +1700,7 @@ namespace PlaytimePainter
                         var texMeta = SetTextureOnMaterial(l.Value, tex);
                         if (texMeta != null)
                         {
-                            texMeta.url = PainterCamera.DownloadManager.GetURL(l.Key);
+                            
                             texMeta.saveName = "Loaded Texture {0}".F(l.Key);
                         }
                     }

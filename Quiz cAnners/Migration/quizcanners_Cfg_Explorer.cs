@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using QuizCanners.Inspect;
 using UnityEngine;
 using Object = UnityEngine.Object;
 using QuizCanners.Utils;
 
-namespace QuizCanners.CfgDecode
+namespace QuizCanners.Migration
 {
 
 #pragma warning disable IDE0018 // Inline variable declaration
@@ -26,7 +25,7 @@ namespace QuizCanners.CfgDecode
 
         [NonSerialized] private int inspectedState = -1;
 
-        public int CountForInspector() => states.Count;
+        public int GetCount() => states.Count;
         
         public static bool PEGI_Static(ICfgCustom target)
         {
@@ -60,8 +59,8 @@ namespace QuizCanners.CfgDecode
             if (added != null && target != null)
             {
                 added.dataExplorer.data = target.Encode().CfgData;
-                added.NameForPEGI = target.GetNameForInspector();
-                added.comment = DateTime.Now.ToString(CultureInfo.InvariantCulture);
+                added.NameForInspector = target.GetNameForInspector();
+                added.comment = DateTime.Now.ToString(System.Globalization.CultureInfo.InvariantCulture);
             }
 
             if (inspectedState == -1)
@@ -78,8 +77,8 @@ namespace QuizCanners.CfgDecode
 
                     added.dataExplorer.data = new CfgData(QcFile.Load.TryLoadAsTextAsset(myType));
 
-                    added.NameForPEGI = myType.name;
-                    added.comment = DateTime.Now.ToString(CultureInfo.InvariantCulture);
+                    added.NameForInspector = myType.name;
+                    added.comment = DateTime.Now.ToString(System.Globalization.CultureInfo.InvariantCulture);
                     states.Add(added);
                 }
                 /*
@@ -147,9 +146,9 @@ namespace QuizCanners.CfgDecode
 
             #region Inspector
 
-            public int CountForInspector() => _tags.IsNullOrEmpty() ? data.ToString().Length : _tags.CountForInspector();
+            public int GetCount() => _tags.IsNullOrEmpty() ? data.ToString().Length : _tags.CountForInspector();
 
-            public string NameForPEGI
+            public string NameForInspector
             {
                 get { return tag; }
                 set { tag = value; }
@@ -205,7 +204,7 @@ namespace QuizCanners.CfgDecode
             public void InspectInList(ref int edited, int ind)
             {
 
-                CountForInspector().ToString().write(50);
+                GetCount().ToString().write(50);
 
                 if (data.IsEmpty == false && data.ToString().Contains("|"))
                 {
@@ -278,11 +277,11 @@ namespace QuizCanners.CfgDecode
             public ICfgProperty dataExplorer = new ICfgProperty("", new CfgData());
 
             #region Inspector
-            public string NameForPEGI { get { return dataExplorer.tag; } set { dataExplorer.tag = value; } }
+            public string NameForInspector { get { return dataExplorer.tag; } set { dataExplorer.tag = value; } }
 
             public static ICfgObjectExplorer Mgmt => inspected;
 
-            public int CountForInspector() => dataExplorer.CountForInspector();
+            public int GetCount() => dataExplorer.GetCount();
 
             public void Inspect()
             {
@@ -328,7 +327,7 @@ namespace QuizCanners.CfgDecode
                 if (dataExplorer.data.ToString().IsNullOrEmpty() == false && icon.Copy.Click())
                     pegi.SetCopyPasteBuffer(dataExplorer.data.ToString());
                 
-                CountForInspector().ToString().edit(60, ref dataExplorer.tag);
+                GetCount().ToString().edit(60, ref dataExplorer.tag);
 
                 if (Cfg != null)
                 {

@@ -1,6 +1,5 @@
 using QuizCanners.Utils;
-using System;
-using System.Collections;
+//using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -16,12 +15,11 @@ namespace QuizCanners.Inspect
                 public string CopyPasteJsonSourceName;
             }
 
-            private static Dictionary<Type, Buffer> _copyPasteBuffs = new Dictionary<Type, Buffer>();
+            private static readonly Dictionary<System.Type, Buffer> _copyPasteBuffs = new Dictionary<System.Type, Buffer>();
 
-            private static Buffer GetOrCreate(Type type) 
+            private static Buffer GetOrCreate(System.Type type) 
             {
-                Buffer buff;
-                if (_copyPasteBuffs.TryGetValue(type, out buff) == false)
+                if (_copyPasteBuffs.TryGetValue(type, out Buffer buff) == false)
                 {
                     buff = new Buffer();
                     _copyPasteBuffs[type] = buff;
@@ -30,7 +28,9 @@ namespace QuizCanners.Inspect
                 return buff;
             }
 
+#pragma warning disable IDE0060 // Remove unused parameter
             public static bool InspectOptionsFor<T>(ref T el, Buffer buffer = null)
+#pragma warning restore IDE0060 // Remove unused parameter
             {
                 var type = typeof(T);
 
@@ -64,8 +64,7 @@ namespace QuizCanners.Inspect
 
                 var type = typeof(T);
 
-                Buffer buff;
-                if (_copyPasteBuffs.TryGetValue(type, out buff))
+                if (_copyPasteBuffs.TryGetValue(type, out Buffer buff))
                 {
                     nl();
 

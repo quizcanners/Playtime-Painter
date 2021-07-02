@@ -1,21 +1,11 @@
 ﻿using QuizCanners.Utils;
 using UnityEngine;
-using static QuizCanners.Inspect.PEGI_Styles;
-using System;
 using Object = UnityEngine.Object;
-
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 // ReSharper disable InconsistentNaming
 #pragma warning disable IDE1006 // Naming Styles
-#pragma warning disable IDE0034 // Simplify 'default' expression
-#pragma warning disable IDE0019 // Use pattern matching
-#pragma warning disable IDE0018 // Inline variable declaration
 #pragma warning disable IDE0011 // Add braces
 #pragma warning disable IDE0008 // Use explicit type
-#pragma warning disable IDE0009 // Member access should be qualified.
 
 namespace QuizCanners.Inspect
 {
@@ -44,11 +34,12 @@ namespace QuizCanners.Inspect
             public static void RefocusIfLocked(Object current, Object target)
             {
 #if UNITY_EDITOR
-                if (current != target && target && ActiveEditorTracker.sharedTracker.isLocked)
+                var tracker = UnityEditor.ActiveEditorTracker.sharedTracker;
+                if (current != target && target && tracker.isLocked)
                 {
-                    ActiveEditorTracker.sharedTracker.isLocked = false;
+                    tracker.isLocked = false;
                     QcUnity.FocusOn(target);
-                    ActiveEditorTracker.sharedTracker.isLocked = true;
+                    tracker.isLocked = true;
                 }
 #endif
             }
@@ -58,17 +49,17 @@ namespace QuizCanners.Inspect
 #if UNITY_EDITOR
                 if (!PaintingGameViewUI)
                 {
-
-                    if (ActiveEditorTracker.sharedTracker.isLocked == false &&
+                    var tracker = UnityEditor.ActiveEditorTracker.sharedTracker;
+                    if (tracker.isLocked == false &&
                         icon.Unlock.ClickUnFocus("Lock Inspector Window"))
                     {
                         QcUnity.FocusOn(ef.serObj.targetObject);
-                        ActiveEditorTracker.sharedTracker.isLocked = true;
+                        tracker.isLocked = true;
                     }
 
-                    if (ActiveEditorTracker.sharedTracker.isLocked && icon.Lock.ClickUnFocus("Unlock Inspector Window"))
+                    if (tracker.isLocked && icon.Lock.ClickUnFocus("Unlock Inspector Window"))
                     {
-                        ActiveEditorTracker.sharedTracker.isLocked = false;
+                        tracker.isLocked = false;
                         QcUnity.FocusOn(obj);
                     }
                 }
@@ -145,7 +136,7 @@ namespace QuizCanners.Inspect
                 return ConfirmClick();
 
             if (label.ClickUnFocus(toolTip))
-                ConfirmationDialogue.Request(confirmationTag, details: toolTip);
+                ConfirmationDialogue.Request(confirmationTag, details: toolTip.IsNullOrEmpty() ? label : toolTip );
 
             return false;
         }
@@ -157,19 +148,19 @@ namespace QuizCanners.Inspect
                 return ConfirmClick();
 
             if (icon.ClickUnFocus(toolTip, width))
-                ConfirmationDialogue.Request(confirmationTag, details: toolTip);
+                ConfirmationDialogue.Request(confirmationTag, details: toolTip.IsNullOrEmpty() ? icon.GetTranslations().text : toolTip);
 
             return false;
         }
 
-        public static bool ClickConfirm(this icon icon, string confirmationTag, object obj, string tip = "", int width = defaultButtonSize)
+        public static bool ClickConfirm(this icon icon, string confirmationTag, object obj, string toolTip = "", int width = defaultButtonSize)
         {
 
             if (ConfirmationDialogue.IsRequestedFor(confirmationTag, obj))
                 return ConfirmClick();
 
-            if (icon.ClickUnFocus(tip, width))
-                ConfirmationDialogue.Request(confirmationTag, obj, tip);
+            if (icon.ClickUnFocus(toolTip, width))
+                ConfirmationDialogue.Request(confirmationTag, obj, toolTip.IsNullOrEmpty() ? icon.GetTranslations().text : toolTip);
 
             return false;
         }
@@ -208,12 +199,12 @@ namespace QuizCanners.Inspect
         {
             textAndTip.text = label;
             textAndTip.tooltip = label;
-            return textAndTip.ClickText(ScalableBlueText(fontSize));
+            return textAndTip.ClickText(PEGI_Styles.ScalableBlueText(fontSize));
         }
 
-        public static bool ClickText(this string label, string hint, int fontSize) => TextAndTip(label, hint).ClickText(ScalableBlueText(fontSize));
+        public static bool ClickText(this string label, string hint, int fontSize) => TextAndTip(label, hint).ClickText(PEGI_Styles.ScalableBlueText(fontSize));
 
-        private static bool ClickText(this GUIContent content, PegiGuiStyle style)
+        private static bool ClickText(this GUIContent content, PEGI_Styles.PegiGuiStyle style)
         {
 
 #if UNITY_EDITOR
@@ -224,7 +215,7 @@ namespace QuizCanners.Inspect
             return GUILayout.Button(content, style.Current, GuiMaxWidthOptionFrom(content, style: style)).FeedChanges_Internal();
         }
 
-        public static bool ClickLabelConfirm(this string label, string confirmationTag, string hint = "ClickAble Text", int width = -1, PegiGuiStyle style = null)
+        public static bool ClickLabelConfirm(this string label, string confirmationTag, string hint = "ClickAble Text", int width = -1, PEGI_Styles.PegiGuiStyle style = null)
         {
             if (ConfirmationDialogue.IsRequestedFor(confirmationTag))
                 return ConfirmClick();
@@ -235,11 +226,11 @@ namespace QuizCanners.Inspect
             return false;
         }
         
-        public static bool ClickLabel(this string label, string hint = "ClickAble Text", int width = -1, PegiGuiStyle style = null)
+        public static bool ClickLabel(this string label, string hint = "ClickAble Text", int width = -1, PEGI_Styles.PegiGuiStyle style = null)
         {
             SetBgColor(Color.clear);
 
-            GUIStyle st = style == null ? ClickableText.Current : style.Current;
+            GUIStyle st = style == null ? PEGI_Styles.ClickableText.Current : style.Current;
 
             textAndTip.text = label;
             textAndTip.tooltip = hint;
@@ -272,7 +263,7 @@ namespace QuizCanners.Inspect
 
         #region Action
 
-        public static bool Click<T>(this Action<T> action, T value)
+        public static bool Click<T>(this System.Action<T> action, T value)
         {
             string name = "{0}({1})".F(action.Method.Name, value.GetNameForInspector().SimplifyTypeName());
 
@@ -285,7 +276,7 @@ namespace QuizCanners.Inspect
             return false;
         }
 
-        public static bool Click(Action action)
+        public static bool Click(System.Action action)
         {
             string name = "{0}()".F(action.Method.Name);
 
@@ -476,7 +467,7 @@ namespace QuizCanners.Inspect
 #if UNITY_EDITOR
             if (sp && sp.Click(Msg.HighlightElement.GetText(), width))
             {
-                EditorGUIUtility.PingObject(sp);
+                UnityEditor.EditorGUIUtility.PingObject(sp);
                 return true;
             }
 #endif
@@ -488,7 +479,7 @@ namespace QuizCanners.Inspect
 #if UNITY_EDITOR
             if (tex && tex.Click(Msg.HighlightElement.GetText(), width))
             {
-                EditorGUIUtility.PingObject(tex);
+                UnityEditor.EditorGUIUtility.PingObject(tex);
                 return true;
             }
 #endif
@@ -504,7 +495,7 @@ namespace QuizCanners.Inspect
 #if UNITY_EDITOR
             if (obj && tex.Click(Msg.HighlightElement.GetText()))
             {
-                EditorGUIUtility.PingObject(obj);
+                UnityEditor.EditorGUIUtility.PingObject(obj);
                 return true;
             }
 #endif
@@ -517,7 +508,7 @@ namespace QuizCanners.Inspect
 #if UNITY_EDITOR
             if (obj && icon.Ping.Click(hint))
             {
-                EditorGUIUtility.PingObject(obj);
+                UnityEditor.EditorGUIUtility.PingObject(obj);
                 return true;
             }
 #endif
@@ -527,7 +518,7 @@ namespace QuizCanners.Inspect
 
         public static bool isAttentionWrite (this INeedAttention attention, bool canBeNull = false) 
         {
-            string warningMsg = null;
+            string warningMsg;
 
             if (attention.IsNullOrDestroyed_Obj())
             {
@@ -544,7 +535,7 @@ namespace QuizCanners.Inspect
                 if (icon.Warning.Click("Copy to Clipboard"))
                     SetCopyPasteBuffer(warningMsg);
 
-                warningMsg.write(WarningText);
+                warningMsg.write(PEGI_Styles.WarningText);
                 return true;
             }
 

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using QuizCanners.Inspect;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Utils;
 using UnityEngine;
 
@@ -13,7 +13,7 @@ namespace PlaytimePainter.MeshEditing {
     }
 
     #region Base
-    public class MeshToolBase : PainterClassCfg, IPEGI, IGotDisplayName
+    public class MeshToolBase : PainterClassCfg, IPEGI, IGotReadOnlyName
     {
 
         protected enum DetectionMode { Points, Lines, Triangles }
@@ -136,7 +136,7 @@ namespace PlaytimePainter.MeshEditing {
         #region Inspector
         public virtual string Tooltip => "No toolTip";
 
-        public virtual string NameForDisplayPEGI()=> " No Name ";
+        public virtual string GetNameForInspector()=> " No Name ";
 
         public virtual void Inspect() { }
         #endregion
@@ -157,7 +157,7 @@ namespace PlaytimePainter.MeshEditing {
         #region Inspector
         public override string Tooltip => "Click to set vertex as smooth/sharp" + Environment.NewLine;
 
-        public override string NameForDisplayPEGI()=> "Vertex Smoothing";
+        public override string GetNameForInspector()=> "Vertex Smoothing";
         
        public override void Inspect()
         {
@@ -360,7 +360,7 @@ namespace PlaytimePainter.MeshEditing {
         #region Inspector
 
         public override string Tooltip => "Ctrl+LMB - sample" + Environment.NewLine + "LMB on triangle - set sub mesh";
-        public override string NameForDisplayPEGI()=> "triangle Sub Mesh index";
+        public override string GetNameForInspector()=> "triangle Sub Mesh index";
 
        public override void Inspect() {
             "Sub Mesh: ".select(60, ref _curSubMesh, 0, EditedMesh.subMeshCount).nl();
@@ -403,6 +403,6 @@ namespace PlaytimePainter.MeshEditing {
 
         public override string StdTag => "t_vrtGr";
 
-        public override string NameForDisplayPEGI()=> "Vertex Group";
+        public override string GetNameForInspector()=> "Vertex Group";
     }
 }

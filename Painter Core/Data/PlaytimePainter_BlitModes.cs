@@ -2,16 +2,13 @@
 using QuizCanners.Inspect;
 using QuizCanners.Lerp;
 using QuizCanners.Utils;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 using UnityEngine;
 
 namespace PlaytimePainter {
 
     public static class BlitModes {
 
-        public abstract class Base : PainterClass, IEditorDropdown, IGotDisplayName {
+        public abstract class Base : PainterClass, IInspectorDropdown, IGotReadOnlyName {
 
             #region All Modes 
 
@@ -96,7 +93,7 @@ namespace PlaytimePainter {
 
             internal virtual BlitFunctions.BlitModeFunction BlitFunctionTex2D(TextureMeta id)
             {
-                if (id.isATransparentLayer)
+                if (id.IsATransparentLayer)
                     return BlitFunctions.AlphaBlitTransparent;
                 return BlitFunctions.AlphaBlitOpaque;
             }
@@ -121,11 +118,11 @@ namespace PlaytimePainter {
 
             protected virtual MsgPainter Translation => MsgPainter.Unnamed;
 
-            public virtual string NameForDisplayPEGI() => Translation.GetText();
+            public virtual string GetNameForInspector() => Translation.GetText();
 
             public virtual string ToolTip => Translation.GetDescription();
             
-            public virtual bool ShowInDropdown()
+            public virtual bool ShowInInspectorDropdown()
             {
                 var cpu = Brush.InspectedIsCpuBrush;
 
@@ -137,10 +134,10 @@ namespace PlaytimePainter {
                 if (id == null)
                     return false;
 
-                return ((id.target == TexTarget.Texture2D) && (SupportedByTex2D)) ||
-                       ((id.target == TexTarget.RenderTexture) &&
-                        ((SupportedByRenderTexturePair && (!id.renderTexture))
-                         || (SupportedBySingleBuffer && (id.renderTexture))));
+                return ((id.Target == TexTarget.Texture2D) && (SupportedByTex2D)) ||
+                       ((id.Target == TexTarget.RenderTexture) &&
+                        ((SupportedByRenderTexturePair && (!id.RenderTexture))
+                         || (SupportedBySingleBuffer && (id.RenderTexture))));
             }
 
             protected virtual bool Inspect() => false;
@@ -156,7 +153,7 @@ namespace PlaytimePainter {
                 {
 
                     var id = InspectedImageMeta;
-                    var cpuBlit = id == null ? InspectedBrush.targetIsTex2D : id.target == TexTarget.Texture2D;
+                    var cpuBlit = id == null ? InspectedBrush.targetIsTex2D : id.Target == TexTarget.Texture2D;
                     var brushType = InspectedBrush.GetBrushType(cpuBlit);
                     var blitMode = InspectedBrush.GetBlitMode(cpuBlit);
                     var usingDecals = (!cpuBlit) && brushType.IsUsingDecals;
@@ -191,12 +188,12 @@ namespace PlaytimePainter {
                     {
                         if (!brushType.IsPixelPerfect)
                             pegi.edit(ref InspectedBrush.brush2DRadius, cpuBlit ? 1 : 0.1f,
-                                usingDecals ? 128 : id?.width * 0.5f ?? 256);
+                                usingDecals ? 128 : id?.Width * 0.5f ?? 256);
                         else
                         {
                             var val = (int) InspectedBrush.brush2DRadius;
                             pegi.edit(ref val, (int) (cpuBlit ? 1 : 0.1f),
-                                (int) (usingDecals ? 128 : id?.width * 0.5f ?? 256));
+                                (int) (usingDecals ? 128 : id?.Width * 0.5f ?? 256));
                             InspectedBrush.brush2DRadius = val;
 
                         }
@@ -489,8 +486,8 @@ namespace PlaytimePainter {
 
                     if ("Set Tiling Offset".Click())
                     {
-                        id.tiling = Vector2.one * 1.5f;
-                        id.offset = -Vector2.one * 0.25f;
+                        id.Tiling = Vector2.one * 1.5f;
+                        id.Offset = -Vector2.one * 0.25f;
                         InspectedPainter.UpdateTilingToMaterial();
                     }
 
@@ -498,8 +495,8 @@ namespace PlaytimePainter {
                     {
                         var pix = id.Pixels;
 
-                        int dx = id.width / Cfg.samplingMaskSize.x;
-                        int dy = id.height / Cfg.samplingMaskSize.y;
+                        int dx = id.Width / Cfg.samplingMaskSize.x;
+                        int dy = id.Height / Cfg.samplingMaskSize.y;
 
                         for (currentPixel.x = 0; currentPixel.x < Cfg.samplingMaskSize.x; currentPixel.x++)
                         for (currentPixel.y = 0; currentPixel.y < Cfg.samplingMaskSize.y; currentPixel.y++)
@@ -514,15 +511,15 @@ namespace PlaytimePainter {
                             {
 
                                 int y = (currentPixel.y * dy + suby);
-                                int start = y * id.width + startX;
+                                int start = y * id.Width + startX;
 
-                                float offy = (center_uv_y - (y / (float) id.height)) / 2f + 0.5f;
+                                float offy = (center_uv_y - (y / (float) id.Height)) / 2f + 0.5f;
 
                                 for (int subx = 0; subx < dx; subx++)
                                 {
                                     int ind = start + subx;
 
-                                    float offx = (center_uv_x - ((startX + subx) / (float) id.width)) / 2f +
+                                    float offx = (center_uv_x - ((startX + subx) / (float) id.Width)) / 2f +
                                                  0.5f;
 
                                     pix[ind].r = offx;
@@ -682,7 +679,7 @@ namespace PlaytimePainter {
                     "Projector:".nl();
 
 #if UNITY_EDITOR
-                    if (Application.isPlaying && EditorApplication.isPaused && depthCamera._projectFromMainCamera)
+                    if (Application.isPlaying && UnityEditor.EditorApplication.isPaused && depthCamera._projectFromMainCamera)
                     {
                         "In Play mode Projector brush is copying position from main camera".writeHint();
                     }
@@ -701,7 +698,7 @@ namespace PlaytimePainter {
                     if (icon.Delete.Click("Delete Projector Camera"))
                         depthCamera.gameObject.DestroyWhatever();
                     else
-                       pegi.Nested_Inspect(depthCamera.Inspect_PainterShortcut).nl();
+                       pegi.Nested_Inspect(depthCamera.Inspect_PainterShortcut, depthCamera).nl();
 
                     pegi.line(Color.black);
                     pegi.nl();
@@ -781,7 +778,7 @@ namespace PlaytimePainter {
             public override Shader ShaderForAlphaOutput => CustomCfg ? CustomCfg.shader : null;
             public override Shader ShaderForAlphaBufferBlit => CustomCfg ? CustomCfg.shader : null;
 
-            public override bool ShowInDropdown() => true;
+            public override bool ShowInInspectorDropdown() => true;
 
             public override bool UsingSourceTexture => CustomCfg ? CustomCfg.selectSourceTexture : false;
 

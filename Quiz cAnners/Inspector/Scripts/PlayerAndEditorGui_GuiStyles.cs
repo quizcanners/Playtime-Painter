@@ -1,8 +1,7 @@
 ﻿using QuizCanners.Utils;
 using UnityEngine;
 #if UNITY_EDITOR
-using UnityEditor;
-
+using  UnityEditor;
 #endif
 
 namespace QuizCanners.Inspect
@@ -29,7 +28,7 @@ namespace QuizCanners.Inspect
             private GUIStyle editorGuiInList;
             private GUIStyle playtimeInList;
 
-            private CreateGUI generator;
+            private readonly CreateGUI generator;
 
             public GUIStyle Current
             {
@@ -38,13 +37,13 @@ namespace QuizCanners.Inspect
                     if (InGameView)
                     {
                         if (InList)
-                            return playtimeInList = playtimeInList ?? generator();
-                        return playtime = playtime ?? generator();
+                            return playtimeInList ??= generator();
+                        return playtime ??= generator();
                     }
 
                     if (InList)
-                        return editorGuiInList = editorGuiInList ?? generator();
-                    return editorGui = editorGui ?? generator();
+                        return editorGuiInList ??= generator();
+                    return editorGui ??= generator();
                 }
             }
 
@@ -113,7 +112,7 @@ namespace QuizCanners.Inspect
             return _scalableBlueText;
         }
 
-        private static PegiGuiStyle _scalableBlueText = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
+        private static readonly PegiGuiStyle _scalableBlueText = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
         {
             wordWrap = false,
             fontStyle = FontStyle.Bold,
@@ -133,14 +132,14 @@ namespace QuizCanners.Inspect
             contentOffset = new Vector2(0, 6)
         });
 
-        private static PegiGuiStyle ToggleLabel_Off = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
+        private static readonly PegiGuiStyle ToggleLabel_Off = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
         {
             contentOffset = new Vector2(0, 2),
             wordWrap = true,
             normal = {textColor = InGameView ? new Color32(255, 255, 255, 255) : new Color32(40, 40, 40, 255)}
         });
 
-        private static PegiGuiStyle ToggleLabel_On = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
+        private static readonly PegiGuiStyle ToggleLabel_On = new PegiGuiStyle(() => new GUIStyle(GUI.skin.label)
         {
             contentOffset = new Vector2(0, 2),
             wordWrap = true

@@ -6,10 +6,6 @@ using UnityEngine;
 namespace QuizCanners.Utils
 {
 
-#pragma warning disable IDE0034 // Simplify 'default' expression
-#pragma warning disable IDE0019 // Use pattern matching
-#pragma warning disable IDE0018 // Inline variable declaration
-
     public enum ColorChanel { R = 0, G = 1, B = 2, A = 3 }
 
     [Flags]
@@ -49,13 +45,13 @@ namespace QuizCanners.Utils
         public static Vector2 To01Space(this Vector2 v2)
         {
 
-            v2.x = v2.x % 1;
-            v2.y = v2.y % 1;
+            v2.x %= 1;
+            v2.y %= 1;
 
             v2 += Vector2.one;
 
-            v2.x = v2.x % 1;
-            v2.y = v2.y % 1;
+            v2.x %= 1;
+            v2.y %= 1;
 
             return v2;
         }

@@ -6,12 +6,8 @@ using PlaytimePainter.MeshEditing;
 using QuizCanners.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Lerp;
-#if UNITY_EDITOR
-using UnityEditor;
-using UnityEditor.SceneManagement;
-#endif
 
 namespace PlaytimePainter {
     
@@ -113,7 +109,7 @@ namespace PlaytimePainter {
             get
             {
                 #if UNITY_EDITOR
-                      return PlayerSettings.colorSpace == ColorSpace.Linear;
+                      return UnityEditor.PlayerSettings.colorSpace == ColorSpace.Linear;
                 #else
                       return Data.isLineraColorSpace;
                 #endif
@@ -164,10 +160,10 @@ namespace PlaytimePainter {
 
 #if UNITY_EDITOR
 
-            var vis = Tools.visibleLayers & flag;
+            var vis = UnityEditor.Tools.visibleLayers & flag;
             if (vis>0) {
                 Debug.Log("Editor, hiding Layer {0}".F(l));
-                Tools.visibleLayers &= ~flag;
+                UnityEditor.Tools.visibleLayers &= ~flag;
             }
 #endif
 
@@ -245,10 +241,10 @@ namespace PlaytimePainter {
             if (imgMetaUsingRendTex == null)
                 return;
 
-            if (imgMetaUsingRendTex.texture2D)
+            if (imgMetaUsingRendTex.Texture2D)
                 imgMetaUsingRendTex.RenderTexture_To_Texture2D();
 
-            imgMetaUsingRendTex.target = TexTarget.Texture2D;
+            imgMetaUsingRendTex.Target = TexTarget.Texture2D;
 
             foreach (var m in materialsUsingRenderTexture)
                 m.SetTextureOnLastTarget(imgMetaUsingRendTex);
@@ -268,10 +264,10 @@ namespace PlaytimePainter {
 
                 if (imgMetaUsingRendTex != null) {
 
-                    if (imgMetaUsingRendTex.texture2D)
+                    if (imgMetaUsingRendTex.Texture2D)
                         imgMetaUsingRendTex.RenderTexture_To_Texture2D();
 
-                    imgMetaUsingRendTex.target = TexTarget.Texture2D;
+                    imgMetaUsingRendTex.Target = TexTarget.Texture2D;
 
                     foreach (var m in materialsUsingRenderTexture)
                         m.SetTextureOnLastTarget(imgMetaUsingRendTex);
@@ -335,7 +331,7 @@ namespace PlaytimePainter {
             
             PainterShaderVariables.MaskOffsetProperty.GlobalValue = brush.maskOffset.ToVector4();
 
-            float brushSizeUvSpace = brush.Size(is3DBrush) / (id == null ? 256 : Mathf.Min(id.width, id.height));
+            float brushSizeUvSpace = brush.Size(is3DBrush) / (id == null ? 256 : Mathf.Min(id.Width, id.Height));
 
             PainterShaderVariables.BrushFormProperty.GlobalValue = new Vector4(
                 command.strokeAlphaPortion, // x - transparency
@@ -356,15 +352,15 @@ namespace PlaytimePainter {
             float useTransparentLayerBackground = 0;
 
             PainterShaderVariables.OriginalTextureTexelSize.GlobalValue = new Vector4(
-                1f/id.width,
-                1f/id.height,
-                id.width,
-                id.height
+                1f/id.Width,
+                1f/id.Height,
+                id.Width,
+                id.Height
                 );
 
             var painter = command.TryGetPainter();
 
-            if (id.isATransparentLayer && painter) {
+            if (id.IsATransparentLayer && painter) {
 
                 var md = painter.MatDta;
                 var mat = md.material;
@@ -383,12 +379,12 @@ namespace PlaytimePainter {
 
             PainterShaderVariables.AlphaPaintingBuffer.GlobalValue = AlphaBuffer;
 
-            brushType.SetKeyword(id.useTexCoord2);
+            brushType.SetKeyword(id.UseTexCoord2);
 
-            QcUnity.SetShaderKeyword(PainterShaderVariables.BRUSH_TEXCOORD_2, id.useTexCoord2);
+            QcUnity.SetShaderKeyword(PainterShaderVariables.BRUSH_TEXCOORD_2, id.UseTexCoord2);
 
             //if (blitMode.SupportsTransparentLayer)
-            QcUnity.SetShaderKeyword(PainterShaderVariables.TARGET_TRANSPARENT_LAYER, id.isATransparentLayer);
+            QcUnity.SetShaderKeyword(PainterShaderVariables.TARGET_TRANSPARENT_LAYER, id.IsATransparentLayer);
 
             blitMode.SetKeyword(id).SetGlobalShaderParameters();
 
@@ -409,7 +405,7 @@ namespace PlaytimePainter {
             Brush brush = command.Brush;
             TextureMeta textureMeta = command.TextureData;
   
-            var isDoubleBuffer = !textureMeta.renderTexture;
+            var isDoubleBuffer = !textureMeta.RenderTexture;
 
             var useSingle = !isDoubleBuffer || brush.IsSingleBufferBrush();
 
@@ -632,7 +628,7 @@ namespace PlaytimePainter {
         public void SubscribeToEditorUpdates()
         {
             #if UNITY_EDITOR
-            EditorApplication.update += CombinedUpdate;
+            UnityEditor.EditorApplication.update += CombinedUpdate;
             #endif
         }
         
@@ -657,15 +653,15 @@ namespace PlaytimePainter {
             
             if (!PainterDataAndConfig.toolEnabled && !Application.isEditor)
                     PainterDataAndConfig.toolEnabled = true;
-        
-            #if UNITY_EDITOR
 
-            EditorSceneManager.sceneSaving -= BeforeSceneSaved;
-            EditorSceneManager.sceneSaving += BeforeSceneSaved;
+#if UNITY_EDITOR
+
+            UnityEditor.SceneManagement.EditorSceneManager.sceneSaving -= BeforeSceneSaved;
+            UnityEditor.SceneManagement.EditorSceneManager.sceneSaving += BeforeSceneSaved;
             
-            IsLinearColorSpace = PlayerSettings.colorSpace == ColorSpace.Linear;
+            IsLinearColorSpace = UnityEditor.PlayerSettings.colorSpace == ColorSpace.Linear;
 
-            EditorApplication.update -= CombinedUpdate;
+            UnityEditor.EditorApplication.update -= CombinedUpdate;
             if (!QcUnity.ApplicationIsAboutToEnterPlayMode())
                 SubscribeToEditorUpdates();
 
@@ -713,9 +709,9 @@ namespace PlaytimePainter {
             painterCamera.rect = Rect.MinMaxRect(0,0,1,1);
 
 #if UNITY_EDITOR
-            EditorApplication.update -= CombinedUpdate;
-            if (EditorApplication.isPlayingOrWillChangePlaymode == false)
-                EditorApplication.update += CombinedUpdate;
+            UnityEditor.EditorApplication.update -= CombinedUpdate;
+            if (UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode == false)
+                UnityEditor.EditorApplication.update += CombinedUpdate;
 #endif
 
             autodisabledBufferTarget = null;
@@ -745,9 +741,9 @@ namespace PlaytimePainter {
         private void BeforeClosing()
         {
             DownloadManager.Dispose();
-            
+
             #if UNITY_EDITOR
-            EditorApplication.update -= CombinedUpdate;
+            UnityEditor.EditorApplication.update -= CombinedUpdate;
 
             if (PlaytimePainter.previewHolderMaterial)
                 PlaytimePainter.CheckSetOriginalShader();
@@ -928,7 +924,7 @@ namespace PlaytimePainter {
             {
                 _modulesMeta.edit_List(CameraModuleBase.modules, CameraModuleBase.all);
 
-                if (!_modulesMeta.InspectingElement)
+                if (!_modulesMeta.IsInspectingElement)
                 {
                     if ("Find Modules".Click())
                         CameraModuleBase.RefreshModules();
@@ -1027,10 +1023,12 @@ namespace PlaytimePainter {
                     if (!Data) {
                         dataHolder = ScriptableObject.CreateInstance<PainterDataAndConfig>();
 
-                        AssetDatabase.CreateAsset(dataHolder,
-                            "Assets/Playtime-Painter/Resources/Painter_Data.asset");
-                        AssetDatabase.SaveAssets();
-                        AssetDatabase.Refresh();
+
+                        UnityEditor.AssetDatabase.CreateAsset(dataHolder,
+                                "Assets/Playtime-Painter/Resources/Painter_Data.asset");
+                        UnityEditor.AssetDatabase.SaveAssets();
+                        UnityEditor.AssetDatabase.Refresh();
+                        
                     }
                 }
             }

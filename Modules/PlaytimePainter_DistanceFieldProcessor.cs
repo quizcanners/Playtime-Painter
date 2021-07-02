@@ -102,8 +102,8 @@ namespace PlaytimePainter {
                 yield break;
             }
 
-            width = image.width;
-            height = image.height;
+            width = image.Width;
+            height = image.Height;
 
             pixels = new Pixel[width, height];
 			int x, y;
@@ -263,8 +263,8 @@ namespace PlaytimePainter {
                 return 0.5f - a;
 			
 			float length = Mathf.Sqrt(gx * gx + gy * gy);
-			gx = gx / length;
-			gy = gy / length;
+			gx /= length;
+			gy /= length;
 			
 			gx = Mathf.Abs(gx);
 			gy = Mathf.Abs(gy);

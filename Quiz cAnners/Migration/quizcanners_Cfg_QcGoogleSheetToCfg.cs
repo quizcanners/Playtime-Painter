@@ -3,12 +3,11 @@ using QuizCanners.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Networking;
+//using UnityEngine.Networking;
 
-namespace QuizCanners.CfgDecode
+namespace QuizCanners.Migration
 {
 #pragma warning disable IDE0044 // Add readonly modifier
     
@@ -50,7 +49,7 @@ namespace QuizCanners.CfgDecode
         }
 
         [Serializable]
-        public class SheetPage : IGotDisplayName, IPEGI_ListInspect
+        public class SheetPage : IGotReadOnlyName, IPEGI_ListInspect
         {
             public string pageName;
             public int pageIndex;
@@ -61,10 +60,10 @@ namespace QuizCanners.CfgDecode
                 "#gid=".edit(50, ref pageIndex);
             }
 
-            public string NameForDisplayPEGI() => pageName;
+            public string GetNameForInspector() => pageName;
         }
 
-        [NonSerialized] private UnityWebRequest request;
+        [NonSerialized] private UnityEngine.Networking.UnityWebRequest request;
        
         public void StartDownload()
         {
@@ -76,11 +75,11 @@ namespace QuizCanners.CfgDecode
 
         public void StartDownload(SheetPage page)
         {
-            request = UnityWebRequest.Get("{0}gid={1}&single=true&output=csv".F(url, page.pageIndex.ToString()));
+            request = UnityEngine.Networking.UnityWebRequest.Get("{0}gid={1}&single=true&output=csv".F(url, page.pageIndex.ToString()));
             request.SendWebRequest();
         }
 
-        public bool IsDownloading() => request != null && request.result== UnityWebRequest.Result.InProgress;
+        public bool IsDownloading() => request != null && request.result== UnityEngine.Networking.UnityWebRequest.Result.InProgress;
 
         public IEnumerator DownloadingCoro()
         {
@@ -232,7 +231,7 @@ namespace QuizCanners.CfgDecode
 
             foreach (var el in tmpList)
             {
-                if (el.IndexForPEGI != -1)
+                if (el.IndexForInspector != -1)
                     list.AddOrReplaceByIGotIndex(el);
             }
         }
@@ -248,10 +247,10 @@ namespace QuizCanners.CfgDecode
             }
         }
         
-        private void Process(UnityWebRequest content)
+        private void Process(UnityEngine.Networking.UnityWebRequest content)
         {
           
-            var lines = new StringReader(content.downloadHandler.text);
+            var lines = new System.IO.StringReader(content.downloadHandler.text);
             using (lines)
             {
                 string line;

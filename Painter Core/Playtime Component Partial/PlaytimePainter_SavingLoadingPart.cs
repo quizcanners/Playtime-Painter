@@ -1,10 +1,10 @@
 ﻿using PlaytimePainter.MeshEditing;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Utils;
 using System;
 using System.IO;
 #if UNITY_EDITOR
-using UnityEditor;
+using  UnityEditor;
 #endif
 using UnityEngine;
 
@@ -69,9 +69,9 @@ namespace PlaytimePainter
 
             importer.SaveAndReimport();
             if (id.TargetIsRenderTexture())
-                id.Texture2DToRenderTexture(id.texture2D);
-            else if (id.texture2D)
-                id.PixelsFromTexture2D(id.texture2D);
+                id.Texture2DToRenderTexture(id.Texture2D);
+            else if (id.Texture2D)
+                id.PixelsFromTexture2D(id.Texture2D);
 
             SetTextureOnMaterial(id);
         }
@@ -90,22 +90,22 @@ namespace PlaytimePainter
             if (id.TargetIsRenderTexture())
                 id.RenderTexture_To_Texture2D();
 
-            var tex = id.texture2D;
+            var tex = id.Texture2D;
 
-            if (id.preserveTransparency && !tex.TextureHasAlpha())
+            if (id.PreserveTransparency && !tex.TextureHasAlpha())
             {
                 if (_loopLock.Unlocked)
                     using (_loopLock.Lock())
                     {
                         Debug.Log("Old Texture had no Alpha channel, creating new");
 
-                        string tname = id.texture2D.name + "_A";
+                        string tname = id.Texture2D.name + "_A";
 
-                        id.texture2D = id.texture2D.CreatePngSameDirectory(tname);
+                        id.Texture2D = id.Texture2D.CreatePngSameDirectory(tname);
 
                         id.saveName = tname;
 
-                        id.texture2D.CopyImportSettingFrom(tex).Reimport_IfNotReadale();
+                        id.Texture2D.CopyImportSettingFrom(tex).Reimport_IfNotReadale();
 
                         SetTextureOnMaterial(id);
                     }
@@ -121,7 +121,7 @@ namespace PlaytimePainter
         private void OnPostSaveTexture(TextureMeta id)
         {
             SetTextureOnMaterial(id);
-            UpdateOrSetTexTarget(id.target);
+            UpdateOrSetTexTarget(id.Target);
             UpdateModules();
 
             id.UnsetAlphaSavePixel();
@@ -134,7 +134,7 @@ namespace PlaytimePainter
 
             if (!OnBeforeSaveTexture(id)) return;
 
-            id.texture2D = id.texture2D.RewriteOriginalTexture_NewName(texName);
+            id.Texture2D = id.Texture2D.RewriteOriginalTexture_NewName(texName);
 
             OnPostSaveTexture(id);
         }
@@ -145,7 +145,7 @@ namespace PlaytimePainter
 
             if (!OnBeforeSaveTexture(id)) return;
 
-            id.texture2D = id.texture2D.RewriteOriginalTexture();
+            id.Texture2D = id.Texture2D.RewriteOriginalTexture();
             OnPostSaveTexture(id);
         }
 
@@ -156,9 +156,9 @@ namespace PlaytimePainter
 
             if (OnBeforeSaveTexture(id))
             {
-                id.texture2D = id.texture2D.SaveTextureAsAsset(Cfg.texturesFolderName, ref id.saveName, asNew);
+                id.Texture2D = id.Texture2D.SaveTextureAsAsset(Cfg.texturesFolderName, ref id.saveName, asNew);
 
-                id.texture2D.Reimport_IfNotReadale();
+                id.Texture2D.Reimport_IfNotReadale();
             }
 
             OnPostSaveTexture(id);

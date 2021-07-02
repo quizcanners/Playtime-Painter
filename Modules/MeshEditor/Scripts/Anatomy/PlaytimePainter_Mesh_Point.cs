@@ -1,4 +1,4 @@
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Utils;
 using System.Collections;
 using System.Collections.Generic;
@@ -263,8 +263,8 @@ namespace PlaytimePainter.MeshEditing
                 if (trg && (trg.TexMeta != null))
                 {
                     var id = trg.TexMeta;
-                    var width = id.width * 2;
-                    var height = id.height * 2;
+                    var width = id.Width * 2;
+                    var height = id.Height * 2;
 
                     foreach (var v2a in sharedUVs)
                         for (var i = 0; i < 2; i++)

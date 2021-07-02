@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace QuizCanners.Utils
 {
-    [Serializable]
+    [System.Serializable]
     public abstract class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver, IPEGI
     {
         [HideInInspector] [SerializeField] protected List<TKey> keys = new List<TKey>();
@@ -51,7 +51,7 @@ namespace QuizCanners.Utils
         #endregion
     }
 
-    [Serializable]
+    [System.Serializable]
     public abstract class SerializableDictionary_ForEnum<TKey, TValue> : SerializableDictionary<TKey, TValue> where TValue : new()
     {
         public virtual void Create(TKey key)

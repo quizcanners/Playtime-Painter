@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using QuizCanners.Utils;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+
 
 // ReSharper disable InconsistentNaming
 #pragma warning disable IDE1006 // Naming Styles
@@ -22,238 +19,47 @@ namespace QuizCanners.Inspect
 
     public interface IPEGI_ListInspect { void InspectInList(ref int edited, int ind); }
 
-    public interface IGotDisplayName { string NameForDisplayPEGI(); }
+    public interface IGotReadOnlyName { string GetNameForInspector(); }
 
-    public interface IGotName { string NameForPEGI { get; set; } }
+    public interface IGotName { string NameForInspector { get; set; } }
 
-    public interface IGotIndex { int IndexForPEGI { get; set; } }
+    public interface IGotIndex { int IndexForInspector { get; set; } }
 
-    public interface IGotCount { int CountForInspector(); }
+    public interface IGotCount { int GetCount(); }
 
-    public interface IPEGI_Searchable { bool String_SearchMatch(string searchString); }
+    public interface ISearchable { bool IsContainsSearchWord(string searchWord); }
 
     public interface INeedAttention { string NeedAttention(); }
 
-    public interface IEditorDropdown { bool ShowInDropdown(); }
-
-    public interface IPegiReleaseGuiManager
-    {
-        void Inspect();
-        void Write(string label);
-        bool Click(string label);
-    }
-
+    public interface IInspectorDropdown { bool ShowInInspectorDropdown(); }
 
     #endregion
 
     public static partial class pegi
     {
+        private const int PLAYTIME_GUI_WIDTH = 400;
+
+        private static int _elementIndex;
+        private static int selectedFold = -1;
+        private static bool _lineOpen;
+        private static readonly Color AttentionColor = new Color(1f, 0.7f, 0.7f, 1);
+        private static readonly Color PreviousInspectedColor = new Color(0.3f, 0.7f, 0.3f, 1);
+        private static bool _guiColorReplaced;
+        private static Color _originalGuiColor;
+        private static readonly List<Color> _previousBgColors = new List<Color>();
+
 
         public static bool IsFoldedOut => ef.isFoldedOutOrEntered;
-
         public static string EnvironmentNl => Environment.NewLine;
 
-        public static class GameView
-        {
-
-            private static Type gameViewType;
-
-            public static void ShowNotification(string text)
-            {
-#if UNITY_EDITOR
-
-                if (Application.isPlaying)
-                {
-                    if (gameViewType == null)
-                        gameViewType = typeof(EditorView).Assembly.GetType("UnityEditor.GameView");
-
-                    if (gameViewType == null)
-                    {
-                        //Debug.LogError(" text [Couldn't find GameView class to show in gameView Window]");
-
-                        /*var result = new List<Type>();
-                        System.Reflection.Assembly[] AS = System.AppDomain.CurrentDomain.GetAssemblies();
-                        Type editorWindow = typeof(EditorWindow);
-                        foreach (var A in AS)
-                        {
-                            System.Type[] types = A.GetTypes();
-                            foreach (var T in types)
-                            {
-                                if (T.IsSubclassOf(editorWindow))
-                                    Debug.Log(T.ToString()); //result.Add(T);
-                            }
-                        }*/
-                        
-
-
-                    }
-                    else
-                    {
-
-                        var ed = EditorWindow.GetWindow(gameViewType);
-                        if (ed != null)
-                            ed.ShowNotification(new GUIContent(text));
-                    }
-                }
-                else
-                {
-                    var lst = Resources.FindObjectsOfTypeAll<SceneView>();
-
-                    foreach (var w in lst)
-                        w.ShowNotification(new GUIContent(text));
-
-                }
-#endif
-            }
-
-            private static int mouseOverUi = -1;
-
-            public static bool MouseOverUI
-            {
-                get { return mouseOverUi >= Time.frameCount - 1; }
-                set
-                {
-                    if (value) mouseOverUi = Time.frameCount;
-                }
-            }
-
-            public delegate void WindowFunction();
-
-            public class Window
-            {
-                private WindowFunction _function;
-                private Rect _windowRect;
-                public float upscale;
-                private Vector2 scrollPosition;
-
-                protected bool UseWindow => Mathf.Approximately(upscale, 1);
-
-                private void DrawFunctionWrapper(int windowID)
-                {
-
-                    PaintingGameViewUI = true;
-                    ef.globChanged = false;
-                    _elementIndex = 0;
-                    _lineOpen = false;
-                   
-
-                    try
-                    {
-                        if (!UseWindow)
-                        {
-
-                            GUI.matrix = Matrix4x4.TRS(new Vector3(0, 0, 0), Quaternion.identity,
-                                new Vector3(upscale, upscale, 1));
-                            GUILayout.BeginArea(new Rect(40 / upscale, 20 / upscale, Screen.width / upscale,
-                                Screen.height / upscale));
-                        }
-
-                        scrollPosition = GUILayout.BeginScrollView(scrollPosition
-                            , GUILayout.Width(Screen.width * 0.9f / upscale)
-                            , GUILayout.Height(Screen.height * 0.9f / upscale));
-
-                            if (!FullWindow.ShowingPopup())
-                                _function();
-
-                            nl();
-                            
-                            UnIndent();
-
-                            (GUI.tooltip.IsNullOrEmpty() ? "" : "{0}:{1}".F(Msg.ToolTip.GetText(), GUI.tooltip)).nl(
-                                PEGI_Styles.HintText);
-
-                        GUILayout.EndScrollView();
-
-                        if (UseWindow)
-                        {
-                            if (_windowRect.Contains(Input.mousePosition))
-                                MouseOverUI = true;
-
-                            GUI.DragWindow(new Rect(0, 0, 3000, 40 * upscale));
-                        }
-                        else
-                        {
-                            MouseOverUI = true;
-                            GUILayout.EndArea();
-                        }
-
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogException(ex);
-                    }
-
-                    PaintingGameViewUI = false;
-                }
-
-                public void Render(IPEGI p) => Render(p, p.Inspect, p.GetNameForInspector());
-
-                public void Render(IPEGI p, string windowName) => Render(p, p.Inspect, windowName);
-
-                public void Render(IPEGI target, WindowFunction doWindow, string c_windowName)
-                {
-
-                    ef.ResetInspectionTarget(target);
-
-                    _function = doWindow;
-
-                    if (UseWindow)
-                    {
-                        _windowRect.x = Mathf.Clamp(_windowRect.x, 0, Screen.width - 10);
-                        _windowRect.y = Mathf.Clamp(_windowRect.y, 0, Screen.height - 10);
-
-                        _windowRect = GUILayout.Window(0, _windowRect, DrawFunctionWrapper, c_windowName,
-                            GUILayout.MaxWidth(360 * upscale), GUILayout.ExpandWidth(true));
-                    }
-                    else
-                    {
-                        DrawFunctionWrapper(0);
-                    }
-
-                }
-
-                public void Collapse()
-                {
-                    _windowRect.width = 250;
-                    _windowRect.height = 350;
-                    _windowRect.x = 20;
-                    _windowRect.y = 50;
-                }
-
-                public Window(float upscale = 1)
-                {
-                    this.upscale = upscale;
-                    _windowRect = new Rect(20, 50, 350 * upscale, 400 * upscale);
-                }
-            }
-
-            public static float AspectRatio
-            {
-                get
-                {
-                    var res = Resolution;
-                    return res.x / res.y;
-                }
-            }
-
-            public static int Width => (int) Resolution.x;
-
-            public static int Height => (int) Resolution.y;
-
-            public static Vector2 Resolution
-            {
-                get
-                {
-#if UNITY_EDITOR
-                    return Handles.GetMainGameViewSize();
-#else
-                    return new Vector2(Screen.width, Screen.height);
-#endif
-                }
-            }
-        }
-
+     
         #region GUI Modes & Fitting
+
+        public static bool PaintingGameViewUI
+        {
+            get { return currentMode == PegiPaintingMode.PlayAreaGui; }
+            private set { currentMode = value ? PegiPaintingMode.PlayAreaGui : PegiPaintingMode.EditorInspector; }
+        }
 
         private enum PegiPaintingMode
         {
@@ -263,26 +69,14 @@ namespace QuizCanners.Inspect
 
         private static PegiPaintingMode currentMode = PegiPaintingMode.EditorInspector;
 
-        public static bool PaintingGameViewUI
-        {
-            get { return currentMode == PegiPaintingMode.PlayAreaGui; }
-            private set { currentMode = value ? PegiPaintingMode.PlayAreaGui : PegiPaintingMode.EditorInspector; }
-        }
-
-        private static readonly int _playtimeGuiWidth = 400;
-
-        private static GUILayoutOption GuiMaxWidthOption => GUILayout.MaxWidth(_playtimeGuiWidth);
-
-        private static GUILayoutOption GuiMaxWidthOptionFrom(string text) =>
-            GUILayout.MaxWidth(Mathf.Min(_playtimeGuiWidth, ApproximateLength(text)));
-
-        private static GUILayoutOption GuiMaxWidthOptionFrom(string txt, GUIStyle style) =>
-            GUILayout.MaxWidth(Mathf.Min(_playtimeGuiWidth, ApproximateLength(txt, style.fontSize)));
-
-        private static GUILayoutOption GuiMaxWidthOptionFrom(GUIContent cnt, PEGI_Styles.PegiGuiStyle style) =>
-            GUILayout.MaxWidth(Mathf.Min(_playtimeGuiWidth, ApproximateLength(cnt.text, style.Current.fontSize)));
-
         private static int letterSizeInPixels => PaintingGameViewUI ? 10 : 9;
+        private static GUILayoutOption GuiMaxWidthOption => GUILayout.MaxWidth(PLAYTIME_GUI_WIDTH);
+        private static GUILayoutOption GuiMaxWidthOptionFrom(string text) =>
+            GUILayout.MaxWidth(Mathf.Min(PLAYTIME_GUI_WIDTH, ApproximateLength(text)));
+        private static GUILayoutOption GuiMaxWidthOptionFrom(string txt, GUIStyle style) =>
+            GUILayout.MaxWidth(Mathf.Min(PLAYTIME_GUI_WIDTH, ApproximateLength(txt, style.fontSize)));
+        private static GUILayoutOption GuiMaxWidthOptionFrom(GUIContent cnt, PEGI_Styles.PegiGuiStyle style) =>
+            GUILayout.MaxWidth(Mathf.Min(PLAYTIME_GUI_WIDTH, ApproximateLength(cnt.text, style.Current.fontSize)));
 
         public static int ApproximateLength(this string label, int fontSize = -1)
         {
@@ -294,8 +88,8 @@ namespace QuizCanners.Inspect
            
             int length = fontSize * label.Length;
 
-            if (PaintingGameViewUI && length > _playtimeGuiWidth)
-                return _playtimeGuiWidth;
+            if (PaintingGameViewUI && length > PLAYTIME_GUI_WIDTH)
+                return PLAYTIME_GUI_WIDTH;
 
             int count = 0;
             for (int i = 0; i < label.Length; i++)
@@ -307,28 +101,13 @@ namespace QuizCanners.Inspect
 
             return length;
         }
-
-        private static int RemainingLength(int otherElements) => PaintingGameViewUI ? _playtimeGuiWidth - otherElements : Screen.width - otherElements;
+        private static int RemainingLength(int otherElements) => PaintingGameViewUI ? PLAYTIME_GUI_WIDTH - otherElements : Screen.width - otherElements;
 
         #endregion
 
         #region Inspection Variables
 
-        private static int _elementIndex;
-        private static int selectedFold = -1;
-       
-        private static bool _lineOpen;
-
-        private static readonly Color AttentionColor = new Color(1f, 0.7f, 0.7f, 1);
-
-        private static readonly Color PreviousInspectedColor = new Color(0.3f, 0.7f, 0.3f, 1);
-
-
         #region GUI Colors
-
-        private static bool _guiColorReplaced;
-
-        private static Color _originalGuiColor;
 
         private static icon GUIColor(this icon icn, Color col)
         {
@@ -366,8 +145,6 @@ namespace QuizCanners.Inspect
         #region BG Color
 
         private static bool BgColorReplaced => !_previousBgColors.IsNullOrEmpty();
-
-        private static readonly List<Color> _previousBgColors = new List<Color>();
 
         public static icon BgColor(this icon icn, Color col)
         {
@@ -444,13 +221,13 @@ namespace QuizCanners.Inspect
             return msg != null;
         }
 
-        public static bool NeedsAttention(IList list, out string message, string listName = "list", bool canBeNull = false)
+        public static bool NeedsAttention(System.Collections.IList list, out string message, string listName = "list", bool canBeNull = false)
         {
             message = NeedsAttention(list, listName, canBeNull);
             return message != null;
         }
 
-        public static string NeedsAttention(IList list, string listName = "list", bool canBeNull = false)
+        public static string NeedsAttention(System.Collections.IList list, string listName = "list", bool canBeNull = false)
         {
             string msg = null;
             if (list == null)
@@ -525,7 +302,6 @@ namespace QuizCanners.Inspect
             return msg;
         }
 
-
         public static void space()
         {
 
@@ -557,7 +333,7 @@ namespace QuizCanners.Inspect
         {
             #if UNITY_EDITOR
             if (!PaintingGameViewUI)
-                EditorGUI.FocusTextInControl("_");
+                UnityEditor.EditorGUI.FocusTextInControl("_");
             else
             #endif
                 GUI.FocusControl("_");
@@ -590,7 +366,7 @@ namespace QuizCanners.Inspect
             set 
             {
 #if UNITY_EDITOR
-                EditorGUI.FocusTextInControl(value);
+                UnityEditor.EditorGUI.FocusTextInControl(value);
 #endif
             }
         }
@@ -604,23 +380,17 @@ namespace QuizCanners.Inspect
             public const string DISCORD_SERVER = "https://discord.gg/rF7yXq3";
             public const string SUPPORT_EMAIL = "quizcanners@gmail.com";
 
-            public static string popUpHeader = "";
+            internal static string popUpHeader = "";
+            internal static string popUpText = "";
+            internal static string relatedLink = "";
+            internal static string relatedLinkName = "";
+            internal static Func<bool> inspectDocumentationDelegate;
+            internal static Action areYouSureFunk;
 
-            public static string popUpText = "";
 
-            public static string relatedLink = "";
-
-            public static string relatedLinkName = "";
-
-            private static object popUpTarget;
-
-            private static string understoodPopUpText = "Got it";
-
-            public static Func<bool> inspectDocumentationDelegate;
-
-            public static Action areYouSureFunk;
-
-            private static readonly List<string> gotItTexts = new List<string>
+            private static object _popUpTarget;
+            private static string _understoodPopUpText = "Got it";
+            private static readonly List<string> _gotItTexts = new List<string>
             {
                 "I understand",
                 "Clear as day",
@@ -658,8 +428,7 @@ namespace QuizCanners.Inspect
 
 
             };
-
-            private static readonly List<string> gotItTextsWeird = new List<string>
+            private static readonly List<string> _gotItTextsWeird = new List<string>
             {
                 "Nice, this is easier then opening a documentation",
                 "So convenient, thanks!",
@@ -671,25 +440,24 @@ namespace QuizCanners.Inspect
                 "This texts are random every time, aren't they?",
                 "Why not make this just OK button"
             };
+            private static int _textsShown;
 
-            private static int textsShown;
-
-            public static void InitiatePopUp()
+            internal static void InitiatePopUp()
             {
-                popUpTarget = ef.inspectedTarget;
+                _popUpTarget = ef.inspectedTarget;
                 
-                switch (textsShown)
+                switch (_textsShown)
                 {
-                    case 0: understoodPopUpText = "OK"; break;
-                    case 1: understoodPopUpText = "Got it!"; break;
-                    case 666: understoodPopUpText = "By clicking I confirm to selling my kidney"; break;
-                    default: understoodPopUpText = (textsShown < 20 ? gotItTexts : gotItTextsWeird).GetRandom(); break;
+                    case 0: _understoodPopUpText = "OK"; break;
+                    case 1: _understoodPopUpText = "Got it!"; break;
+                    case 666: _understoodPopUpText = "By clicking I confirm to selling my kidney"; break;
+                    default: _understoodPopUpText = (_textsShown < 20 ? _gotItTexts : _gotItTextsWeird).GetRandom(); break;
                 }
 
-                textsShown++;
+                _textsShown++;
             }
 
-            public static void ClosePopUp()
+            internal static void ClosePopUp()
             {
                 popUpText = null;
                 relatedLink = null;
@@ -700,14 +468,7 @@ namespace QuizCanners.Inspect
 
             #region Documentation Click Open 
 
-            private static bool DocumentationClickInternal(string toolTip = "", int buttonSize = 20,  icon clickIcon = icon.Question)
-            {
-                if (toolTip.IsNullOrEmpty())
-                    toolTip = icon.Question.GetDescription();
-
-                return clickIcon.BgColor(Color.clear).Click(toolTip, buttonSize).SetPreviousBgColor();
-            }
-
+    
             public static void AreYouSureOpen(Action action, string header = "",  string text = "")
             {
                 if (header.IsNullOrEmpty())
@@ -721,7 +482,6 @@ namespace QuizCanners.Inspect
                 popUpHeader = header;
                 InitiatePopUp();
             }
-
             public static bool DocumentationWarningClickOpen(string text, string toolTip, int buttonSize = 20)
             {
                 if (DocumentationClickInternal(toolTip, buttonSize: buttonSize, icon.Warning)) 
@@ -732,13 +492,10 @@ namespace QuizCanners.Inspect
                 }
                 return false;
             }
-
             public static bool WarningDocumentationClickOpen(Func<string> text, string toolTip = "What is this?",
                 int buttonSize = 20) => DocumentationClickOpen(text, toolTip, buttonSize, icon.Warning);
-
             public static bool WarningDocumentationClickOpen(string text, string toolTip = "What is this?",
                 int buttonSize = 20) => DocumentationClickOpen(text, toolTip, buttonSize, icon.Warning);
-
             public static bool DocumentationClickOpen(Func<bool> inspectFunction, string toolTip = "", int buttonSize = 20, icon clickIcon = icon.Question)
             {
                 if (toolTip.IsNullOrEmpty())
@@ -753,7 +510,6 @@ namespace QuizCanners.Inspect
 
                 return false;
             }
-
             public static bool DocumentationClickOpen(Func<string> text, string toolTip = "", int buttonSize = 20, icon clickIcon = icon.Question)
             {
 
@@ -773,7 +529,6 @@ namespace QuizCanners.Inspect
 
                 return false;
             }
-
             public static bool DocumentationClickOpen(string text, string toolTip = "", int buttonSize = 20, icon clickIcon = icon.Question)
             {
 
@@ -793,7 +548,6 @@ namespace QuizCanners.Inspect
 
                 return false;
             }
-
             public static bool DocumentationWithLinkClickOpen(string text, string link, string linkName = null, string tip = "", int buttonSize = 20)
             {
                 if (tip.IsNullOrEmpty())
@@ -810,48 +564,21 @@ namespace QuizCanners.Inspect
 
                 return false;
             }
-            
+            private static bool DocumentationClickInternal(string toolTip = "", int buttonSize = 20, icon clickIcon = icon.Question)
+            {
+                if (toolTip.IsNullOrEmpty())
+                    toolTip = icon.Question.GetDescription();
+
+                return clickIcon.BgColor(Color.clear).Click(toolTip, buttonSize).SetPreviousBgColor();
+            }
+
             #endregion
-            
+
             #region Elements
-
-            private static void ContactOptions()
-            {
-                nl();
-                "Didn't get the answer you need?".write();
-                if (icon.Discord.Click())
-                    Application.OpenURL(DISCORD_SERVER);
-                if (icon.Email.Click())
-                    QcUnity.SendEmail(SUPPORT_EMAIL, "About this hint",
-                        "The toolTip:{0}***{0} {1} {0}***{0} haven't answered some of the questions I had on my mind. Specifically: {0}".F(EnvironmentNl, popUpText));
-
-            }
-
-            private static void ConfirmLabel()
-            {
-                nl();
-
-                if (understoodPopUpText.ClickText(15).nl())
-                    ClosePopUp();
-
-                ContactOptions();
-            }
-
-            private static bool WriteHeaderIfAny()
-            {
-                if (!popUpHeader.IsNullOrEmpty())
-                {
-                    popUpHeader.write(PEGI_Styles.ListLabel);
-                    return true;
-                }
-
-                return false;
-            }
-
             public static bool ShowingPopup()
             {
 
-                if (popUpTarget == null || popUpTarget != ef.inspectedTarget)
+                if (_popUpTarget == null || _popUpTarget != ef.inspectedTarget)
                     return false;
 
                 if (areYouSureFunk != null)
@@ -919,7 +646,39 @@ namespace QuizCanners.Inspect
 
                 return false;
             }
-#endregion
+            private static void ContactOptions()
+            {
+                nl();
+                "Didn't get the answer you need?".write();
+                if (icon.Discord.Click())
+                    Application.OpenURL(DISCORD_SERVER);
+                if (icon.Email.Click())
+                    QcUnity.SendEmail(SUPPORT_EMAIL, "About this hint",
+                        "The toolTip:{0}***{0} {1} {0}***{0} haven't answered some of the questions I had on my mind. Specifically: {0}".F(EnvironmentNl, popUpText));
+
+            }
+            private static void ConfirmLabel()
+            {
+                nl();
+
+                if (_understoodPopUpText.ClickText(15).nl())
+                    ClosePopUp();
+
+                ContactOptions();
+            }
+
+            private static bool WriteHeaderIfAny()
+            {
+                if (!popUpHeader.IsNullOrEmpty())
+                {
+                    popUpHeader.write(PEGI_Styles.ListLabel);
+                    return true;
+                }
+
+                return false;
+            }
+
+            #endregion
         }
 
 #endregion
@@ -932,7 +691,7 @@ namespace QuizCanners.Inspect
             {
 #if UNITY_EDITOR
                 if (!PaintingGameViewUI)
-                    return EditorGUI.indentLevel;
+                    return UnityEditor.EditorGUI.indentLevel;
 #endif
 
                 return 0;
@@ -942,7 +701,7 @@ namespace QuizCanners.Inspect
             {
 #if UNITY_EDITOR
                 if (!PaintingGameViewUI)
-                    EditorGUI.indentLevel = Mathf.Max(0, value);
+                    UnityEditor.EditorGUI.indentLevel = Mathf.Max(0, value);
 #endif
             }
         }
@@ -1005,13 +764,6 @@ namespace QuizCanners.Inspect
             nl_ifFoldedOut();
             return value;
         }
-
-      /*  public static bool nl_ifNotEntered(this bool value, ref bool changed)
-        {
-            changed |= value;
-            nl_ifNotEntered();
-            return value;
-        }*/
 
         public static bool nl_ifNotEntered(this bool value)
         {

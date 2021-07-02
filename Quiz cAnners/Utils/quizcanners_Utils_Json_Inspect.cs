@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-
 using QuizCanners.Inspect;
-using QuizCanners.CfgDecode;
 using UnityEngine;
+
+using StringBuilder = System.Text.StringBuilder;
 
 namespace QuizCanners.Utils
 {
@@ -67,7 +66,7 @@ namespace QuizCanners.Utils
         }
 
       
-        protected class JsonString : JsonBase, IGotDisplayName
+        protected class JsonString : JsonBase, IGotReadOnlyName
         {
             public bool dataOnly;
 
@@ -98,9 +97,9 @@ namespace QuizCanners.Utils
                 }
             }
 
-            public override int CountForInspector() => data.Length;
+            public override int GetCount() => data.Length;
 
-            public string NameForDisplayPEGI() => data.IsNullOrEmpty() ? "Empty" : data.FirstLine();
+            public string GetNameForInspector() => data.IsNullOrEmpty() ? "Empty" : data.FirstLine();
 
             public JsonString() { }
 
@@ -341,7 +340,7 @@ namespace QuizCanners.Utils
             }
         }
 
-        protected class JsonProperty : JsonBase, IGotDisplayName
+        protected class JsonProperty : JsonBase, IGotReadOnlyName
         {
 
             public string name;
@@ -361,13 +360,13 @@ namespace QuizCanners.Utils
 
             public bool foldedOut;
 
-            public override int CountForInspector() => 1;
+            public override int GetCount() => 1;
 
             public override bool DecodeAll(ref JsonBase thisJson) => data.DecodeAll(ref data);
 
             public static JsonProperty inspected;
 
-            public string NameForDisplayPEGI() => name + (data.HasNestedData ? "{}" : data.GetNameForInspector());
+            public string GetNameForInspector() => name + (data.HasNestedData ? "{}" : data.GetNameForInspector());
 
            public override void Inspect()
             {
@@ -377,12 +376,12 @@ namespace QuizCanners.Utils
 
                 pegi.nl();
 
-                if (data.CountForInspector() > 0)
+                if (data.GetCount() > 0)
                 {
                     if (data.HasNestedData)
                         (name + " " + data.GetNameForInspector()).isFoldout(ref foldedOut);
 
-                    using (new PathAdd(NameForDisplayPEGI()))
+                    using (new PathAdd(GetNameForInspector()))
                     {
                         DecodeOrInspectJson(ref data, foldedOut, name);
                     }
@@ -396,7 +395,7 @@ namespace QuizCanners.Utils
             }
         }
 
-        protected class JsonList : JsonBase, IGotDisplayName
+        protected class JsonList : JsonBase, IGotReadOnlyName
         {
 
             private readonly List<JsonBase> values;
@@ -405,14 +404,14 @@ namespace QuizCanners.Utils
             private string previewValue = "";
             private bool previewFoldout;
 
-            public override int CountForInspector() => values.Count;
+            public override int GetCount() => values.Count;
 
-            public string NameForDisplayPEGI() => "[{0}]".F(values.Count);
+            public string GetNameForInspector() => "[{0}]".F(values.Count);
 
            public override void Inspect()
             {
 
-                using (new PathAdd(NameForDisplayPEGI()))
+                using (new PathAdd(GetNameForInspector()))
                 {
                     if (values.Count > 0)
                     {
@@ -527,7 +526,7 @@ namespace QuizCanners.Utils
             public JsonList(List<JsonString> values) { this.values = values.ToList<JsonBase>(); }
         }
 
-        protected class JsonClass : JsonBase, IGotDisplayName
+        protected class JsonClass : JsonBase, IGotReadOnlyName
         {
             public List<JsonProperty> properties;
 
@@ -542,17 +541,17 @@ namespace QuizCanners.Utils
                 return null;
             }
 
-            public string NameForDisplayPEGI() => JsonProperty.inspected == null ? "  " :
-                (JsonProperty.inspected.foldedOut ? "{" : (" {" + CountForInspector() + "} "));
+            public string GetNameForInspector() => JsonProperty.inspected == null ? "  " :
+                (JsonProperty.inspected.foldedOut ? "{" : (" {" + GetCount() + "} "));
 
-            public override int CountForInspector() => properties.Count;
+            public override int GetCount() => properties.Count;
 
            public override void Inspect()
             {
 
                 pegi.Indent();
 
-                using (new PathAdd(NameForDisplayPEGI()))
+                using (new PathAdd(GetNameForInspector()))
                 {
                     for (int i = 0; i < properties.Count; i++)
                         properties[i].Nested_Inspect();
@@ -593,7 +592,7 @@ namespace QuizCanners.Utils
 
             public virtual JsonString AsJsonString => null;
 
-            public abstract int CountForInspector();
+            public abstract int GetCount();
 
             public abstract bool DecodeAll(ref JsonBase thisJson);
 

@@ -321,6 +321,9 @@ namespace QuizCanners.Utils
         }
 
         #region List Management
+
+        public static T GetElementAt<T>(this IEnumerable<T> source, int index) => source.ElementAt(index);
+        
         public static T GetRandom<T>(this List<T> list, ref int previous)
         {
             if (list.IsNullOrEmpty())

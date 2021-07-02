@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using QuizCanners.Inspect;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Utils;
 using UnityEngine;
 
@@ -42,8 +42,8 @@ namespace PlaytimePainter.ComponentModules {
             
             var id = painter.TexMeta;
             if (id == null) return true;
-            id.tiling = Vector2.one;
-            id.offset = Vector2.zero;
+            id.Tiling = Vector2.one;
+            id.Offset = Vector2.zero;
             return true;
 
         }
@@ -57,7 +57,7 @@ namespace PlaytimePainter.ComponentModules {
             
             FindMergingTerrain(painter);
                 if (mergingTerrain  && id!= null)
-                    mergingTerrain.lightTexture = id.texture2D;
+                    mergingTerrain.lightTexture = id.Texture2D;
 
 #if UNITY_EDITOR
 

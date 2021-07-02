@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using QuizCanners.Inspect;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Utils;
 using UnityEngine;
 
@@ -20,7 +20,7 @@ namespace PlaytimePainter
 
          private int _lastPicked = -1;
 
-        public string NameForPEGI { get { return paletteName; } set { paletteName = value; } }
+        public string NameForInspector { get { return paletteName; } set { paletteName = value; } }
 
         public void InspectInList(ref int edited, int ind)
         {

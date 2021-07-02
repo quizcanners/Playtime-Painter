@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using QuizCanners.Utils;
 using UnityEngine;
+
 using Object = UnityEngine.Object;
 using System.Collections;
-using System.Linq;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 #pragma warning disable IDE0019 // Use pattern matching
 #pragma warning disable IDE0018 // Inline variable declaration
@@ -19,17 +16,100 @@ namespace QuizCanners.Inspect
 {
     public static partial class pegi
     {
-        public static void write(Exception ex)
+
+        #region Inspect Name
+
+        public static bool Try_NameInspect(object obj, string label = "", string tip = "")
         {
-            icon.Warning.draw();
-            var txt = ex.ToString();
-            write_ForCopy(txt, showCopyButton: true);
-            if ("Log".Click())
-                Debug.LogException(ex);
-            nl();
+            return obj.Try_NameInspect(out _, label, tip);
         }
 
-        public static bool Nested_Inspect(Func<bool> function, Object target = null)
+        private static bool Try_NameInspect(this object obj, out bool couldInspect, string label = "", string tip = "")
+        {
+
+            var changed = false;
+
+            bool gotLabel = !label.IsNullOrEmpty();
+
+            couldInspect = true;
+            var iname = obj as IGotName;
+            if (iname != null)
+                return iname.inspect_Name(label);
+
+            Object uObj = obj as ScriptableObject;
+
+            if (!uObj)
+                uObj = QcUnity.TryGetGameObjectFromObj(obj);
+
+            if (!uObj)
+                uObj = obj as Object;
+
+            if (uObj)
+            {
+                var n = uObj.name;
+                if (gotLabel ? label.editDelayed(tip, 80, ref n) : editDelayed(ref n))
+                {
+                    uObj.name = n;
+                    QcUnity.RenameAsset(uObj, n);
+                    changed = true;
+                }
+            }
+            else
+                couldInspect = false;
+
+            return changed;
+        }
+
+        public static bool inspect_Name(this IGotName obj) => obj.inspect_Name("");
+
+        private static bool focusPassedToTheNext;
+        public static bool inspect_Name(this IGotName obj, string label)
+        {
+
+            var n = obj.NameForInspector;
+
+            bool gotLabel = !label.IsNullOrEmpty();
+
+            var uObj = obj as Object;
+
+            if (uObj)
+            {
+                if ((gotLabel && label.editDelayed(80, ref n)) || (!gotLabel && editDelayed(ref n)))
+                {
+                    obj.NameForInspector = n;
+
+                    return true;
+                }
+            }
+            else
+            {
+                string focusName = InspectedIndex.ToString() + obj.GetNameForInspector();
+
+                if (focusPassedToTheNext)
+                {
+                    FocusedText = focusName;
+                    focusPassedToTheNext = false;
+                }
+
+                if (FocusedName.Equals(focusName) && KeyCode.DownArrow.IsDown())
+                    focusPassedToTheNext = true;
+
+                NameNextForFocus(focusName);
+
+
+                if ((gotLabel && label.edit(80, ref n)) || (!gotLabel && edit(ref n)))
+                {
+                    obj.NameForInspector = n;
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        #endregion
+
+        public static bool Nested_Inspect(Func<bool> function, Object target)
         {
             var changed = ChangeTrackStart();
 
@@ -218,7 +298,7 @@ namespace QuizCanners.Inspect
         public static void BeepSound()
         {
 #if UNITY_EDITOR
-            EditorApplication.Beep();
+            UnityEditor.EditorApplication.Beep();
 #endif
         }
 
@@ -286,11 +366,11 @@ namespace QuizCanners.Inspect
 #if UNITY_EDITOR
             if (!PaintingGameViewUI && uObj)
             {
-                Editor ed;
+                UnityEditor.Editor ed;
                 var t = uObj.GetType();
                 if (!defaultEditors.TryGetValue(t, out ed))
                 {
-                    ed = Editor.CreateEditor(uObj);
+                    ed = UnityEditor.Editor.CreateEditor(uObj);
                     defaultEditors.Add(t, ed);
                 }
 
@@ -298,9 +378,9 @@ namespace QuizCanners.Inspect
                     return false;
 
                 nl();
-                EditorGUI.BeginChangeCheck();
+                UnityEditor.EditorGUI.BeginChangeCheck();
                 ed.DrawDefaultInspector();
-                var changed = EditorGUI.EndChangeCheck();
+                var changed = UnityEditor.EditorGUI.EndChangeCheck();
                 if (changed)
                     ef.globChanged = true;
 
@@ -324,11 +404,11 @@ namespace QuizCanners.Inspect
 
                 if (uObj)
                 {
-                    Editor ed;
+                    UnityEditor.Editor ed;
                     var t = uObj.GetType();
                     if (!defaultEditors.TryGetValue(t, out ed))
                     {
-                        ed = Editor.CreateEditor(uObj);
+                        ed = UnityEditor.Editor.CreateEditor(uObj);
                         defaultEditors.Add(t, ed);
                     }
 
@@ -336,9 +416,9 @@ namespace QuizCanners.Inspect
                         return false;
 
                     nl();
-                    EditorGUI.BeginChangeCheck();
+                    UnityEditor.EditorGUI.BeginChangeCheck();
                     ed.DrawDefaultInspector();
-                    var changed = EditorGUI.EndChangeCheck();
+                    var changed = UnityEditor.EditorGUI.EndChangeCheck();
                     if (changed)
                         ef.globChanged = true;
 
@@ -373,20 +453,13 @@ namespace QuizCanners.Inspect
             return ch;
         }
         
-        public static bool TryInspect<T>(this CollectionMetaData ld, ref T obj, int ind) where T : Object
-        {
-            var el = ld.TryGetElement(ind);
-
-            return el?.PEGI_inList_Obj(ref obj) ?? edit(ref obj);
-        }
-
         public static int CountForInspector<T>(this List<T> lst) where T : IGotCount
         {
             var count = 0;
 
             foreach (var e in lst)
                 if (!e.IsNullOrDestroyed_Obj())
-                    count += e.CountForInspector();
+                    count += e.GetCount();
 
             return count;
         }
@@ -407,7 +480,7 @@ namespace QuizCanners.Inspect
         {
             if (lst != null)
                 foreach (var el in lst)
-                    if (!el.IsNullOrDestroyed_Obj() && el.IndexForPEGI == index)
+                    if (!el.IsNullOrDestroyed_Obj() && el.IndexForInspector == index)
                         return el;
 
             return default;
@@ -415,12 +488,12 @@ namespace QuizCanners.Inspect
 
         public static void AddOrReplaceByIGotIndex<T>(this List<T> list, T newElement) where T: IGotIndex
         {
-            var newIndex = newElement.IndexForPEGI;
+            var newIndex = newElement.IndexForInspector;
 
             for (int i = 0; i < list.Count; i++)
             {
                 var el = list[i];
-                if (el != null && el.IndexForPEGI == newIndex)
+                if (el != null && el.IndexForInspector == newIndex)
                 {
                     list.RemoveAt(i);
                     list.Insert(i, newElement);
@@ -486,7 +559,7 @@ namespace QuizCanners.Inspect
 
             if (lst != null)
                 foreach (var el in lst)
-                    if (!el.IsNullOrDestroyed_Obj() && el.NameForPEGI.SameAs(name))
+                    if (!el.IsNullOrDestroyed_Obj() && el.NameForInspector.SameAs(name))
                         return el;
 
 
@@ -499,7 +572,7 @@ namespace QuizCanners.Inspect
 
             foreach (var el in list)
             {
-                bools[el.IndexForPEGI] = true;
+                bools[el.IndexForInspector] = true;
             }
 
             int index = 0;
@@ -514,7 +587,7 @@ namespace QuizCanners.Inspect
             if (list == null || index < 0 || index >= list.Count)
                 return defaultValue;
 
-            return list.ElementAt(index).Value;
+            return list.GetElementAt(index).Value;
         }
 
         internal static object SetToDirty_Obj(this object obj)
@@ -532,7 +605,7 @@ namespace QuizCanners.Inspect
         internal static void ResetInspectedChain() => inspectionChain.Clear();
 
 #if UNITY_EDITOR
-        private static readonly Dictionary<Type, Editor> defaultEditors = new Dictionary<Type, Editor>();
+        private static readonly Dictionary<Type, UnityEditor.Editor> defaultEditors = new Dictionary<Type, UnityEditor.Editor>();
 #endif
 
         private static object TryGetObj(this IList list, int index)
@@ -547,10 +620,10 @@ namespace QuizCanners.Inspect
         {
             name = null;
 
-            var dn = obj as IGotDisplayName;
+            var dn = obj as IGotReadOnlyName;
             if (dn != null)
             {
-                name = dn.NameForDisplayPEGI();
+                name = dn.GetNameForInspector();
                 if (!name.IsNullOrEmpty())
                 {
                     name = name.FirstLine();
@@ -563,7 +636,7 @@ namespace QuizCanners.Inspect
 
             if (sn != null)
             {
-                name = sn.NameForPEGI;
+                name = sn.NameForInspector;
                 if (!name.IsNullOrEmpty())
                 {
                     name = name.FirstLine();

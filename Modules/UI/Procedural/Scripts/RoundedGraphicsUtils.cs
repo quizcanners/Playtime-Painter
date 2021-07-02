@@ -2,17 +2,14 @@
 using QuizCanners.Utils;
 using UnityEngine;
 using UnityEngine.UI;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace PlaytimePainter.UI
 {
-    public static class ShaderTags
+    internal static class ShaderTags
     {
-        public static readonly ShaderTag PixelPerfectUi = new ShaderTag("PixelPerfectUI");
+        internal static readonly ShaderTag PixelPerfectUi = new ShaderTag("PixelPerfectUI");
 
-        public static class PixelPerfectUis
+        internal static class PixelPerfectUis
         {
             public static readonly ShaderTagValue Simple = new ShaderTagValue("Simple", PixelPerfectUi);
             public static readonly ShaderTagValue Position = new ShaderTagValue("Position", PixelPerfectUi);
@@ -20,18 +17,18 @@ namespace PlaytimePainter.UI
             public static readonly ShaderTagValue FadePosition = new ShaderTagValue("FadePosition", PixelPerfectUi);
         }
 
-        public static readonly ShaderTag SpriteRole = new ShaderTag("SpriteRole");
+        internal static readonly ShaderTag SpriteRole = new ShaderTag("SpriteRole");
 
-        public static class SpriteRoles
+        internal static class SpriteRoles
         {
             public static readonly ShaderTagValue Hide = new ShaderTagValue("Hide", SpriteRole);
             public static readonly ShaderTagValue Tile = new ShaderTagValue("Tile", SpriteRole);
             public static readonly ShaderTagValue Normal = new ShaderTagValue("Normal", SpriteRole);
         }
 
-        public static readonly ShaderTag PerEdgeData = new ShaderTag("PerEdgeData");
+        internal static readonly ShaderTag PerEdgeData = new ShaderTag("PerEdgeData");
 
-        public static class PerEdgeRoles
+        internal static class PerEdgeRoles
         {
             public static readonly ShaderTagValue UnlinkedCourners = new ShaderTagValue("Unlinked", PerEdgeData);
             public static readonly ShaderTagValue LinkedCourners = new ShaderTagValue("Linked", PerEdgeData);
@@ -39,7 +36,7 @@ namespace PlaytimePainter.UI
 
     }
 
-    public static class RoundedUiExtensions
+    internal static class RoundedUiExtensions
     {
 
         public static void AddFull(this VertexHelper vh, UIVertex vert) =>
@@ -51,10 +48,10 @@ namespace PlaytimePainter.UI
 
 #if UNITY_EDITOR
 
-        [MenuItem("GameObject/UI/Playtime Painter/Invisible Raycat Target", false, 0)]
+        [UnityEditor.MenuItem("GameObject/UI/Playtime Painter/Invisible Raycat Target", false, 0)]
         private static void CreateInvisibleRaycastTarget()
         {
-            var els = QcUnity.CreateUiElement<InvisibleUIGraphic>(Selection.gameObjects);
+            var els = QcUnity.CreateUiElement<InvisibleUIGraphic>(UnityEditor.Selection.gameObjects);
 
             foreach (var el in els)
             {
@@ -63,10 +60,10 @@ namespace PlaytimePainter.UI
 
         }
 
-        [MenuItem("GameObject/UI/Playtime Painter/Rounded UI Graphic", false, 0)]
+        [UnityEditor.MenuItem("GameObject/UI/Playtime Painter/Rounded UI Graphic", false, 0)]
         private static void CreateRoundedUiElement()
         {
-            QcUnity.CreateUiElement<RoundedGraphic>(Selection.gameObjects, onCreate: el =>
+            QcUnity.CreateUiElement<RoundedGraphic>(UnityEditor.Selection.gameObjects, onCreate: el =>
             {
                 el.maskable = el.GetComponentInParent<Mask>();
                 el.raycastTarget = false; 
@@ -117,7 +114,7 @@ namespace PlaytimePainter.UI
 
     #endregion
 
-    public class PixelPerfectMaterialDrawer : PEGI_Inspector_Material
+    internal class PixelPerfectMaterialDrawer : PEGI_Inspector_Material
     {
         private static readonly ShaderProperty.FloatValue Softness = new ShaderProperty.FloatValue(RoundedGraphic.EDGE_SOFTNESS_FLOAT);
 

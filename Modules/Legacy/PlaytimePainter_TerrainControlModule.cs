@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Utils;
 using UnityEngine;
 
@@ -15,7 +15,7 @@ namespace PlaytimePainter.ComponentModules
         public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex)
         {
             if (!painter.terrain || !field.HasUsageTag(PainterShaderVariables.TERRAIN_CONTROL_TEXTURE)) return false;
-            tex = painter.terrain.terrainData.alphamapTextures[field.NameForDisplayPEGI()[0].CharToInt()];
+            tex = painter.terrain.terrainData.alphamapTextures[field.GetNameForInspector()[0].CharToInt()];
             return true;
         }
 
@@ -35,8 +35,8 @@ namespace PlaytimePainter.ComponentModules
             var id = painter.TexMeta;
             if (id == null) return true;
             
-            id.tiling = Vector2.one;
-            id.offset = Vector2.zero;
+            id.Tiling = Vector2.one;
+            id.Offset = Vector2.zero;
             
             return true;
         }
@@ -48,12 +48,12 @@ namespace PlaytimePainter.ComponentModules
 
             if (!field.HasUsageTag(PainterShaderVariables.TERRAIN_CONTROL_TEXTURE)) return false;
             
-            var no = field.NameForDisplayPEGI()[0].CharToInt();
+            var no = field.GetNameForInspector()[0].CharToInt();
 
             if (no == 0)
                 PainterShaderVariables.TerrainControlMain.GlobalValue = tex;
 
-            painter.terrain.terrainData.alphamapTextures[no] = id.texture2D;
+            painter.terrain.terrainData.alphamapTextures[no] = id.Texture2D;
 
             return true;
         }
@@ -63,7 +63,7 @@ namespace PlaytimePainter.ComponentModules
         {
             if (!painter)
             {
-                Debug.LogError("Parent component is null in TerrainControlModule");
+                Debug.LogError(QcLog.IsNull(painter, "On Component Dirty")); //"Parent component is null in TerrainControlModule");
                 return;
             }
 

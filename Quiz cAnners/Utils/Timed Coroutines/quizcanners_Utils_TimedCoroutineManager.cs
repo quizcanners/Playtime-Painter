@@ -1,13 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using QuizCanners.Inspect;
 using UnityEngine;
+
 using Debug = UnityEngine.Debug;
+using Enm = System.Linq.Enumerable;
 
 namespace QuizCanners.Utils
 {
@@ -67,7 +66,7 @@ namespace QuizCanners.Utils
             {
                 pegi.nl();
 
-                if (!coroutinesListMeta.InspectingElement)
+                if (!coroutinesListMeta.IsInspectingElement)
                 {
                     "Pool Size: {0}".F(pool.Count).nl();
 
@@ -96,7 +95,7 @@ namespace QuizCanners.Utils
 
                 coroutinesListMeta.edit_List(_enumerators).nl();
 
-                if (!coroutinesListMeta.InspectingElement)
+                if (!coroutinesListMeta.IsInspectingElement)
                 {
                     ("Managed Timed coroutines can run in Editor, but need an object to send an update call to them every frame: QcAsync.UpdateManagedCoroutines()." +
                      " Alternatively a TimedEnumerator can be started with Unity's " +
@@ -159,7 +158,7 @@ namespace QuizCanners.Utils
                     x[j] = r[j] * 10;
             }
 
-            var sb = new StringBuilder(pi.Length);
+            var sb = new System.Text.StringBuilder(pi.Length);
 
             uint c = 0;
 
@@ -172,7 +171,7 @@ namespace QuizCanners.Utils
                 sb.Append(p.ToString());
             }
 
-            return new string(sb.ToString().Reverse().ToArray());
+            return new string(Enm.ToArray(Enm.Reverse(sb.ToString())));
 
         }
 

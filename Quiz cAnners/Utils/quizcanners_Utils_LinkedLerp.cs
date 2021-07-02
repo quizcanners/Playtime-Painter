@@ -1,9 +1,10 @@
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Inspect;
 using QuizCanners.Utils;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+
+using Graphic = UnityEngine.UI.Graphic;
 
 namespace QuizCanners.Lerp
 {
@@ -27,7 +28,7 @@ namespace QuizCanners.Lerp
 
         #region Abstract Base
 
-        public abstract class BaseLerp : ICfg, ILinkedLerping, IPEGI, IPEGI_ListInspect, IGotDisplayName
+        public abstract class BaseLerp : ICfg, ILinkedLerping, IPEGI, IPEGI_ListInspect, IGotReadOnlyName
         {
 
             public LerpSpeedMode lerpMode = LerpSpeedMode.SpeedThreshold;
@@ -42,7 +43,7 @@ namespace QuizCanners.Lerp
             protected bool allowChangeParameters = true;
 
             protected abstract string Name_Internal { get; }
-            public virtual string NameForDisplayPEGI() => Name_Internal;
+            public virtual string GetNameForInspector() => Name_Internal;
 
             #region Encode & Decode
 
@@ -168,7 +169,7 @@ namespace QuizCanners.Lerp
             public virtual void Inspect()
             {
 
-                NameForDisplayPEGI().write();
+                GetNameForInspector().write();
 
                 pegi.isFoldout(icon.Edit, "Will this config contain new parameters", ref allowChangeParameters).nl();
 
@@ -872,7 +873,7 @@ namespace QuizCanners.Lerp
             protected override string Name_Internal => _name;
 
             #region Inspect
-            public string NameForPEGI
+            public string NameForInspector
             {
                 get { return _name; }
                 set { }
@@ -970,7 +971,7 @@ namespace QuizCanners.Lerp
                 set { currentValue = value; }
             }
 
-            public string NameForPEGI
+            public string NameForInspector
             {
                 get { return _name; }
                 set { }
@@ -1359,7 +1360,7 @@ namespace QuizCanners.Lerp
                 _property;
 
             protected override string Name_Internal =>
-                _property != null ? _property.NameForDisplayPEGI() : "Material Float";
+                _property != null ? _property.GetNameForInspector() : "Material Float";
 
             public override float TargetValue
             {
@@ -1459,7 +1460,7 @@ namespace QuizCanners.Lerp
         {
             private readonly ShaderProperty.IndexGeneric<Color> _property;
 
-            protected override string Name_Internal => _property != null ? _property.NameForDisplayPEGI() : "Material Float";
+            protected override string Name_Internal => _property != null ? _property.GetNameForInspector() : "Material Float";
 
             public override Color TargetValue { get; set; }
 
@@ -1547,7 +1548,7 @@ namespace QuizCanners.Lerp
         {
             private readonly ShaderProperty.IndexGeneric<Vector4> _property;
 
-            protected override string Name_Internal => _property != null ? _property.NameForDisplayPEGI() : "Material Float4";
+            protected override string Name_Internal => _property != null ? _property.GetNameForInspector() : "Material Float4";
 
             public override Vector4 TargetValue
             {
@@ -1774,14 +1775,14 @@ namespace QuizCanners.Lerp
         #region Inspector
         private int _resets;
 
-        public string NameForPEGI
+        public string NameForInspector
         {
             get { return dominantParameter; }
             set { dominantParameter = value; }
         }
 
 
-        public int CountForInspector() => _resets;
+        public int GetCount() => _resets;
 
         public void Inspect()
         {

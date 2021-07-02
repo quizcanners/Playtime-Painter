@@ -135,8 +135,8 @@ namespace PlaytimePainter {
         {
             var id = texture.GetTextureMeta();
 
-            id.offset = offset;
-            id.tiling = tiling;
+            id.Offset = offset;
+            id.Tiling = tiling;
 
             var cmd = new PaintCommand.UV(new Stroke(uvCoords), texture.GetTextureMeta(), bc)
             {

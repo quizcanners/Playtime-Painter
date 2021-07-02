@@ -1,16 +1,13 @@
 ﻿using QuizCanners.Utils;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Text;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
-namespace QuizCanners.CfgDecode
+namespace QuizCanners.Migration
 {
     public static class EncodeExtensions {
 
-        public static void AppendSplit(this StringBuilder builder, string value) => builder.Append(value).Append(CfgEncoder.Splitter);
+        public static void AppendSplit(this System.Text.StringBuilder builder, string value) => builder.Append(value).Append(CfgEncoder.Splitter);
         
         public static CfgEncoder Encode (this Transform tf, bool local) {
 
@@ -210,7 +207,7 @@ namespace QuizCanners.CfgDecode
         public const string IsFalseTag = "n";
         #endregion
 
-        private readonly StringBuilder _builder = new StringBuilder();
+        private readonly System.Text.StringBuilder _builder = new System.Text.StringBuilder();
 
         public CfgData CfgData => new CfgData(_builder.ToString());
 
@@ -247,9 +244,9 @@ namespace QuizCanners.CfgDecode
         
         #region ValueTypes
         public CfgEncoder Add(string tag, float val) =>
-        Add_String(tag, val.ToString(CultureInfo.InvariantCulture.NumberFormat));
+        Add_String(tag, val.ToString(System.Globalization.CultureInfo.InvariantCulture.NumberFormat));
         public CfgEncoder Add(string tag, float val, int precision) =>
-            Add_String(tag, val.RoundTo(precision).ToString(CultureInfo.InvariantCulture.NumberFormat));
+            Add_String(tag, val.RoundTo(precision).ToString(System.Globalization.CultureInfo.InvariantCulture.NumberFormat));
         public CfgEncoder Add(string tag, int val) => Add_String(tag, val.ToString());
         public CfgEncoder Add(string tag, uint val) => Add_String(tag, val.ToString());
 
@@ -282,9 +279,7 @@ namespace QuizCanners.CfgDecode
 
         #region Abstracts
 
-#pragma warning disable IDE0060 // Remove unused parameter
-        public CfgEncoder Add<T>(string tag, List<T> val, TaggedTypesCfg tts) where T : IGotClassTag, ICfg => Add_Abstract(tag, val);
-#pragma warning restore IDE0060 // Remove unused parameter
+        public CfgEncoder Add<T>(string tag, List<T> val, TaggedTypesCfg _) where T : IGotClassTag, ICfg => Add_Abstract(tag, val);
 
         public CfgEncoder Add_Abstract<T>(string tag, List<T> lst) where T : IGotClassTag, ICfg
         {

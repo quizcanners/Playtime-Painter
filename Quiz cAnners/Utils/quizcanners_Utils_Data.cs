@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using QuizCanners.Inspect;
 using UnityEngine;
-using Object = UnityEngine.Object;
 using System.Runtime.Serialization.Formatters.Binary;
+
+using Object = UnityEngine.Object;
 #if UNITY_EDITOR
-using UnityEditor;
+using AssetDatabase = UnityEditor.AssetDatabase;
 #endif
 
 namespace QuizCanners.Utils
@@ -55,9 +55,9 @@ namespace QuizCanners.Utils
                 {
 
                     var txt = lst[i].Replace(@"\", @"/");
-                    txt = txt.Substring(txt.LastIndexOf("/", StringComparison.Ordinal) + 1);
+                    txt = txt.Substring(txt.LastIndexOf("/", System.StringComparison.Ordinal) + 1);
 
-                    int extension = txt.LastIndexOf(".", StringComparison.Ordinal);
+                    int extension = txt.LastIndexOf(".", System.StringComparison.Ordinal);
 
                     if (extension>0)
                         txt = txt.Substring(0, extension);
@@ -80,7 +80,7 @@ namespace QuizCanners.Utils
                 for (var i = 0; i < lst.Count; i++)
                 {
                     var txt = lst[i].Replace(@"\", @"/");
-                    txt = txt.Substring(txt.LastIndexOf("/", StringComparison.Ordinal) + 1);
+                    txt = txt.Substring(txt.LastIndexOf("/", System.StringComparison.Ordinal) + 1);
                     lst[i] = txt;
                 }
 
@@ -97,7 +97,7 @@ namespace QuizCanners.Utils
             public static void OpenPath(string path)
             {
 #if UNITY_EDITOR
-                EditorUtility.RevealInFinder(path);
+                UnityEditor.EditorUtility.RevealInFinder(path);
 #else
                  System.Diagnostics.Process.Start(path.TrimEnd(new[] { '\\', '/' }));
 #endif
@@ -158,7 +158,7 @@ namespace QuizCanners.Utils
                                (asBytes ? BYTES_FILE_TYPE : TEXT_FILE_TYPE);
                     AssetDatabase.DeleteAsset(path);
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
                     Debug.LogException(ex);
                 }
@@ -206,7 +206,7 @@ namespace QuizCanners.Utils
 
                     return asset.text;
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
                     Debug.LogException(ex);
                 }
@@ -270,7 +270,7 @@ namespace QuizCanners.Utils
                         reader.Close();
                     }
                 }
-                catch (Exception ex)
+                catch (System.Exception ex)
                 {
                     Debug.Log(fullPath + " not loaded " + ex);
                 }
@@ -361,7 +361,7 @@ namespace QuizCanners.Utils
                                 JsonUtility.FromJsonOverwrite(data, result);
                             }
                         }
-                        catch (Exception ex)
+                        catch (System.Exception ex)
                         {
                             Debug.LogException(ex);
                         }
@@ -412,6 +412,25 @@ namespace QuizCanners.Utils
 
             public static void TextureOutsideAssetsFolder(string subFolder, string fileName, string extension, Texture2D texture) =>
                 File.WriteAllBytes(CreateDirectoryPath(OutsideOfAssetsFolder, subFolder, fileName, extension), texture.EncodeToPNG());
+
+            public static void ToAssets(Object objectToSave, string subFolder = null, string extension = ".asset")
+            {
+#if UNITY_EDITOR
+                if (extension[0] != '.')
+                    extension = '.' + extension;
+
+                var sb = new System.Text.StringBuilder()
+                    .Append("Assets/");
+                if (!subFolder.IsNullOrEmpty())
+                    sb.Append(subFolder).Append('/');
+
+                sb.Append(objectToSave.name).Append(extension);
+
+                AssetDatabase.CreateAsset(objectToSave, path: sb.ToString());
+                AssetDatabase.SaveAssets();
+                AssetDatabase.Refresh();
+#endif
+            }
 
             #endregion
 
@@ -475,7 +494,7 @@ namespace QuizCanners.Utils
                         String(location, data);
                         return true;
                     }
-                    catch (Exception ex)
+                    catch (System.Exception ex)
                     {
                         Debug.LogException(ex);
                         return false;

@@ -5,11 +5,8 @@ using QuizCanners.Inspect;
 using PlaytimePainter.ComponentModules;
 using PlaytimePainter.MeshEditing;
 using PlaytimePainter.TexturePacking;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Utils;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 using UnityEngine;
 using Object = UnityEngine.Object;
 using static QuizCanners.Utils.ShaderProperty;
@@ -168,7 +165,7 @@ namespace PlaytimePainter
             {
                 shade = Shader.Find(path);
                 if (!shade)
-                    Debug.LogError("Could not find {0}".F(path));
+                    Debug.LogError(QcLog.IsNull(shade, nameof(CheckShader)));//"Could not find {0}".F(path));
             }
 
             if (!dontIncludeShaderInBuild && shade)
@@ -428,7 +425,7 @@ namespace PlaytimePainter
                     for (var index = 0; index < matMetas.Count; index++)
                     {
                         var md = matMetas[index];
-                        if (QcUnity.SavedAsAsset(md.material)) continue;
+                        if (QcUnity.IsSavedAsAsset(md.material)) continue;
                         
                         matMetas.Remove(md);
                         index--;
@@ -669,7 +666,7 @@ namespace PlaytimePainter
             
 #if UNITY_EDITOR
             if (!defaultMaterial)
-                defaultMaterial = AssetDatabase.GetBuiltinExtraResource<Material>("Default-Material.mat");
+                defaultMaterial = UnityEditor.AssetDatabase.GetBuiltinExtraResource<Material>("Default-Material.mat");
             
 #endif
 

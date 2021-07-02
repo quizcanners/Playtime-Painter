@@ -22,7 +22,7 @@ namespace PlaytimePainter.TexturePacking
         [SerializeField] private bool _glossNoiseFromBump;
         [SerializeField] public bool glossNoiseFromHeight;
         
-        public string NameForPEGI { get => _name;  set => _name = value;  }
+        public string NameForInspector { get => _name;  set => _name = value;  }
 
         public override string ToString() => _name;
         private void Combine(PlaytimePainter_TextureSetForCombinedMaps set, PlaytimePainter p)
@@ -37,9 +37,9 @@ namespace PlaytimePainter.TexturePacking
 
             if (id != null)
             {
-                size = id.width * id.height;
+                size = id.Width * id.Height;
                 dst = id.Pixels;
-                tex = id.texture2D;
+                tex = id.Texture2D;
             }
             else
             {
@@ -231,7 +231,7 @@ namespace PlaytimePainter.TexturePacking
 
     }
 
-    internal abstract class TextureRole : IGotDisplayName
+    internal abstract class TextureRole : IGotReadOnlyName
     {
         private static List<TextureRole> _allRoles;
         public static List<TextureRole> All =>
@@ -275,7 +275,7 @@ namespace PlaytimePainter.TexturePacking
         protected virtual List<string> GetChannels => Chennels;
         protected virtual Color DefaultColor => IsColor ? Color.white : Color.grey;
 
-        public abstract string NameForDisplayPEGI();
+        public abstract string GetNameForInspector();
         private static readonly List<string> Chennels = new List<string> { "R", "G", "B", "A" };
 
         protected void ExtractPixels(Texture2D tex, int width, int height)
@@ -318,8 +318,8 @@ namespace PlaytimePainter.TexturePacking
         {
             if (pixels == null)
                 ExtractPixels(set.diffuse, 
-                    id?.width ?? set.width,
-                    id?.height ?? set.height);
+                    id?.Width ?? set.width,
+                    id?.Height ?? set.height);
 
             return pixels;
         }
@@ -328,8 +328,8 @@ namespace PlaytimePainter.TexturePacking
         {
             if (mipLevels != null) return mipLevels;
             
-            var width = id?.width ?? set.width;
-            var height = id?.height ?? set.height;
+            var width = id?.Width ?? set.width;
+            var height = id?.Height ?? set.height;
 
             mipLevels = new List<Color[]>();
             
@@ -383,7 +383,7 @@ namespace PlaytimePainter.TexturePacking
 
     internal class TextureRoleResult : TextureRole
     {
-        public override string NameForDisplayPEGI()=> "Result";
+        public override string GetNameForInspector()=> "Result";
 
         public TextureRoleResult(int index) : base(index)
         {
@@ -410,15 +410,15 @@ namespace PlaytimePainter.TexturePacking
 
         public override bool UsingColorSelector => true;
 
-        public override string NameForDisplayPEGI()=> "Fill Color";
+        public override string GetNameForInspector()=> "Fill Color";
 
         public override Color[] GetPixels(PlaytimePainter_TextureSetForCombinedMaps set, TextureMeta id)
         {
             if (pixels != null) return pixels;
             
             var noID = id == null;
-            var width = noID ? set.width : id.width;
-            var height = noID ? set.height : id.height;
+            var width = noID ? set.width : id.Width;
+            var height = noID ? set.height : id.Height;
 
             var col = set.Profile.fillColor;
             var size = width * height;
@@ -439,11 +439,11 @@ namespace PlaytimePainter.TexturePacking
     {
         protected override bool IsColor => true;
 
-        public override string NameForDisplayPEGI()=> "Color";
+        public override string GetNameForInspector()=> "Color";
 
         public override Color[] GetPixels(PlaytimePainter_TextureSetForCombinedMaps set, TextureMeta id) {
             if (pixels == null)
-                ExtractPixels(set.diffuse, id?.width ?? set.width, id?.height ?? set.height);
+                ExtractPixels(set.diffuse, id?.Width ?? set.width, id?.Height ?? set.height);
 
             return pixels;
         }
@@ -456,14 +456,14 @@ namespace PlaytimePainter.TexturePacking
     internal class TextureRole_Gloss : TextureRole
     {
 
-        public override string NameForDisplayPEGI()=> "Gloss";
+        public override string GetNameForInspector()=> "Gloss";
 
         public override Color[] GetPixels(PlaytimePainter_TextureSetForCombinedMaps set, TextureMeta id)
         {
             if (pixels != null) return pixels;
             
-            var width = id?.width ?? set.width;
-            var height = id?.height ?? set.height;
+            var width = id?.Width ?? set.width;
+            var height = id?.Height ?? set.height;
 
             ExtractPixels(set.gloss ? set.gloss : set.reflectivity, width, height);
 
@@ -550,14 +550,14 @@ namespace PlaytimePainter.TexturePacking
     internal class TextureRoleReflectivity : TextureRole
     {
 
-        public override string NameForDisplayPEGI()=> "Reflectivity";
+        public override string GetNameForInspector()=> "Reflectivity";
 
         public override Color[] GetPixels(PlaytimePainter_TextureSetForCombinedMaps set, TextureMeta id)
         {
             if (pixels != null) return pixels;
             
-            var width = id?.width ?? set.width;
-            var height = id?.height ?? set.height;
+            var width = id?.Width ?? set.width;
+            var height = id?.Height ?? set.height;
             ExtractPixels(set.reflectivity ? set.reflectivity : set.gloss, width, height);
             return pixels;
         }
@@ -569,12 +569,12 @@ namespace PlaytimePainter.TexturePacking
     internal class TextureRoleAmbient : TextureRole
     {
 
-        public override string NameForDisplayPEGI()=> "Ambient";
+        public override string GetNameForInspector()=> "Ambient";
 
         public override Color[] GetPixels(PlaytimePainter_TextureSetForCombinedMaps set, TextureMeta id)
         {
-            var width = id?.width ?? set.width;
-            var height = id?.height ?? set.height;
+            var width = id?.Width ?? set.width;
+            var height = id?.Height ?? set.height;
             if (pixels == null)
                 ExtractPixels(set.ambient ? set.ambient : set.heightMap, width, height);
 
@@ -587,7 +587,7 @@ namespace PlaytimePainter.TexturePacking
 
     internal class TextureRoleHeight : TextureRole
     {
-        public override string NameForDisplayPEGI()=> "Height";
+        public override string GetNameForInspector()=> "Height";
         public override bool UsingBumpStrengthSlider(int channel) { return channel < 2; }
 
         protected override List<string> GetChannels => Channels;
@@ -616,8 +616,8 @@ namespace PlaytimePainter.TexturePacking
         {
             if (pixels != null) return pixels;
             
-            _width = id?.width ?? set.width;
-            _height = id?.height ?? set.height;
+            _width = id?.Width ?? set.width;
+            _height = id?.Height ?? set.height;
 
             ExtractPixels(set.heightMap ? set.heightMap : set.ambient, _width, _height);
 
@@ -658,7 +658,7 @@ namespace PlaytimePainter.TexturePacking
 
     internal class TextureRole_Normal : TextureRole
     {
-        public override string NameForDisplayPEGI()=> "Normal";
+        public override string GetNameForInspector()=> "Normal";
 
         public override bool UsingBumpStrengthSlider(int channel) => true; 
 
@@ -692,8 +692,8 @@ namespace PlaytimePainter.TexturePacking
           
             if (pixels == null)
             {
-                var width = id?.width ?? set.width;
-                var height = id?.height ?? set.height;
+                var width = id?.Width ?? set.width;
+                var height = id?.Height ?? set.height;
                 ExtractPixels(set.normalMap, width, height);
             }
 

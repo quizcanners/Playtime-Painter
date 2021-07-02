@@ -164,7 +164,7 @@ namespace PlaytimePainter
 
             #region Inspector
 
-            public string NameForPEGI
+            public string NameForInspector
             {
                 get { return productName; }
                 set { productName = value; }

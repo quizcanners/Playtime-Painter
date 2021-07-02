@@ -1,16 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using QuizCanners.Inspect;
 using QuizCanners.Utils;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Lerp;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+
 
 namespace PlaytimePainter.UI
 {
@@ -410,7 +407,7 @@ namespace PlaytimePainter.UI
             }
         }
 
-    private static List<Material> _compatibleMaterials = new List<Material>();
+        private static List<Material> _compatibleMaterials = new List<Material>();
 
         [SerializeField] private bool _showModules;
         [SerializeField] private int _inspectedModule;
@@ -421,10 +418,10 @@ namespace PlaytimePainter.UI
             "Also they may be tricky at times so take note of all the warnings and hints that my show in this inspector. " +
             "When Canvas is set To ScreenSpace-Camera it will also provide adjustive softening when scaled";
 
-        public static bool ClickDuplicate(ref Material mat, string newName = null, string folder = "Materials") => 
+        internal static bool ClickDuplicate(ref Material mat, string newName = null, string folder = "Materials") => 
             ClickDuplicate(ref mat, folder, ".mat", newName);
 
-        public static bool ClickDuplicate<T>(ref T obj, string folder, string extension, string newName = null) where T : Object
+        internal static bool ClickDuplicate<T>(ref T obj, string folder, string extension, string newName = null) where T : Object
         {
 
             if (!obj) return false;
@@ -432,7 +429,7 @@ namespace PlaytimePainter.UI
             var changed = pegi.ChangeTrackStart();
 
 #if UNITY_EDITOR
-            var path = AssetDatabase.GetAssetPath(obj);
+            var path = UnityEditor.AssetDatabase.GetAssetPath(obj);
             if (icon.Copy.ClickConfirm("dpl" + obj + "|" + path, "{0} Duplicate at {1}".F(obj, path)))
             {
                 obj = QcUnity.Duplicate(obj, folder, extension: extension, newName: newName);
@@ -488,21 +485,21 @@ namespace PlaytimePainter.UI
                     gotPixPerfTag = !pixPfTag.IsNullOrEmpty();
 
                     if (!gotPixPerfTag)
-                        "{0} doesn't have {1} tag".F(shad.name, ShaderTags.PixelPerfectUi.NameForDisplayPEGI()).writeWarning();
+                        "{0} doesn't have {1} tag".F(shad.name, ShaderTags.PixelPerfectUi.GetNameForInspector()).writeWarning();
                     else
                     {
 
                         mayBeDefaultMaterial = false;
 
-                        expectedScreenPosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.Position.NameForDisplayPEGI());
+                        expectedScreenPosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.Position.GetNameForInspector());
 
                         if (!expectedScreenPosition)
                         {
 
-                            expectedAtlasedPosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.AtlasedPosition.NameForDisplayPEGI());
+                            expectedAtlasedPosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.AtlasedPosition.GetNameForInspector());
 
                             if (!expectedAtlasedPosition)
-                                possibleFadePosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.FadePosition.NameForDisplayPEGI());
+                                possibleFadePosition = pixPfTag.Equals(ShaderTags.PixelPerfectUis.FadePosition.GetNameForInspector());
                         }
 
                         needThirdUv = expectedAtlasedPosition || (possibleFadePosition && feedPositionData);
@@ -786,7 +783,7 @@ namespace PlaytimePainter.UI
 
                 var noTag = spriteTag.IsNullOrEmpty();
 
-                if (noTag || !spriteTag.SameAs(ShaderTags.SpriteRoles.Hide.NameForDisplayPEGI()))
+                if (noTag || !spriteTag.SameAs(ShaderTags.SpriteRoles.Hide.GetNameForInspector()))
                 {
                     if (noTag)
                         spriteTag = "Sprite";
@@ -865,17 +862,17 @@ namespace PlaytimePainter.UI
 
         #region Mouse Mgmt
 
-        public bool ClickPossible => MouseDown && ((Time.time - MouseDownTime) < maxHoldForClick);
+        internal bool ClickPossible => MouseDown && ((Time.time - MouseDownTime) < maxHoldForClick);
 
-      //  public UnityEvent OnClick;
+        //  public UnityEvent OnClick;
 
-        public float maxHoldForClick = 0.3f;
-        public float maxMousePositionPixOffsetForClick = 20f;
+        internal float maxHoldForClick = 0.3f;
+        internal float maxMousePositionPixOffsetForClick = 20f;
 
-        public bool MouseDown { get; private set; }
-        public float MouseDownTime { get; private set; }
-        public Vector2 MouseDownPosition { get; private set; }
-        public bool MouseOver { get; private set; }
+        internal bool MouseDown { get; private set; }
+        internal float MouseDownTime { get; private set; }
+        internal Vector2 MouseDownPosition { get; private set; }
+        internal bool MouseOver { get; private set; }
 
         public void OnPointerEnter(PointerEventData eventData) => MouseOver = true;
 
@@ -1175,7 +1172,7 @@ namespace PlaytimePainter.UI
             #endregion
         }
 
-        protected abstract class RoundedButtonModuleBase : IGotClassTag, ICfg, IGotDisplayName
+        protected abstract class RoundedButtonModuleBase : IGotClassTag, ICfg, IGotReadOnlyName
         {
             public static TaggedTypesCfg all = new TaggedTypesCfg(typeof(RoundedButtonModuleBase));
             public TaggedTypesCfg AllTypes => all;
@@ -1184,7 +1181,7 @@ namespace PlaytimePainter.UI
             public virtual bool Update(RoundedGraphic target) => false;
 
             #region Inspect
-            public virtual string NameForDisplayPEGI() => ClassTag;
+            public virtual string GetNameForInspector() => ClassTag;
 
             public virtual void Inspect()
             {

@@ -1,12 +1,12 @@
 ﻿using QuizCanners.Inspect;
 using PlaytimePainter.CameraModules;
 using PlaytimePainter.MeshEditing;
-using QuizCanners.CfgDecode;
+using QuizCanners.Migration;
 using QuizCanners.Utils;
 using System;
 using System.Collections.Generic;
 #if UNITY_EDITOR
-using UnityEditor;
+using  UnityEditor;
 using UnityEditorInternal;
 #endif
 using UnityEngine;
@@ -181,7 +181,7 @@ namespace PlaytimePainter
 
                 var tex = GetTextureOnMaterial();
                 if (!meshEditing && ((tex && image == null) || (image != null && !tex) ||
-                                     (image != null && tex != image.texture2D && tex != image.CurrentTexture())))
+                                     (image != null && tex != image.Texture2D && tex != image.CurrentTexture())))
                     textureWasChanged = true;
 
                 #region Top Buttons
@@ -535,7 +535,7 @@ namespace PlaytimePainter
 
                                         GlobalBrush.Nested_Inspect(fromNewLine: false);
 
-                                        if (!cpu && texMeta.texture2D && texMeta.width != texMeta.height)
+                                        if (!cpu && texMeta.Texture2D && texMeta.Width != texMeta.Height)
                                             icon.Warning.draw(
                                                 "Non-square texture detected! Every switch between GPU and CPU mode will result in loss of quality.");
 
@@ -616,7 +616,7 @@ namespace PlaytimePainter
                                 }
                                 else
                                 {
-                                    var wasRt = texMeta.target == TexTarget.RenderTexture;
+                                    var wasRt = texMeta.Target == TexTarget.RenderTexture;
 
                                     if (wasRt)
                                         UpdateOrSetTexTarget(TexTarget.Texture2D);
@@ -667,7 +667,7 @@ namespace PlaytimePainter
                                     foreach (var module in texMeta.Modules)
                                         module.ShowHideSectionInspect().nl();
 
-                                    if (texMeta.isAVolumeTexture)
+                                    if (texMeta.IsAVolumeTexture)
                                         "Show Volume Data in Painter"
                                             .toggleIcon(ref PainterCamera.Data.showVolumeDetailsInPainter)
                                             .nl();
@@ -872,8 +872,8 @@ namespace PlaytimePainter
                                     icon.Warning.draw(
                                         "THere was error while reading texture. (ProBuilder's grid texture is not readable, some others may be to)");
 
-                                    if (texMeta.texture2D && icon.Refresh.Click("Retry reading the texture"))
-                                        texMeta.From(texMeta.texture2D, true);
+                                    if (texMeta.Texture2D && icon.Refresh.Click("Retry reading the texture"))
+                                        texMeta.From(texMeta.Texture2D, true);
 
                                 }
                                
@@ -927,7 +927,7 @@ namespace PlaytimePainter
                                                     out recentTexs) &&
                                                 (recentTexs.Count > 0)
                                                 && (texMeta == null || (recentTexs.Count > 1) ||
-                                                    (texMeta != recentTexs[0].texture2D.GetImgDataIfExists()))
+                                                    (texMeta != recentTexs[0].Texture2D.GetImgDataIfExists()))
                                                 && "Recent Textures:".select(100, ref texMeta, recentTexs)
                                                     .nl())
                                                 ChangeTexture(texMeta.ExclusiveTexture());
@@ -940,10 +940,10 @@ namespace PlaytimePainter
 
                                         if (texMeta != null && cfg.allowExclusiveRenderTextures)
                                         {
-                                            if (!texMeta.renderTexture && "Add Render Tex".Click())
+                                            if (!texMeta.RenderTexture && "Add Render Tex".Click())
                                                 texMeta.AddRenderTexture();
 
-                                            if (texMeta.renderTexture)
+                                            if (texMeta.RenderTexture)
                                             {
 
                                                 if ("Replace RendTex".Click(
@@ -953,10 +953,10 @@ namespace PlaytimePainter
                                                 if ("Remove RendTex".Click().nl())
                                                 {
 
-                                                    if (texMeta.texture2D)
+                                                    if (texMeta.Texture2D)
                                                     {
                                                         UpdateOrSetTexTarget(TexTarget.Texture2D);
-                                                        texMeta.renderTexture = null;
+                                                        texMeta.RenderTexture = null;
                                                     }
                                                     else
                                                         RemoveTextureFromMaterial();
@@ -1005,14 +1005,14 @@ namespace PlaytimePainter
 
 #if UNITY_EDITOR
                                     string orig = null;
-                                    if (texMeta.texture2D)
+                                    if (texMeta.Texture2D)
                                     {
-                                        orig = texMeta.texture2D.GetPathWithout_Assets_Word();
+                                        orig = texMeta.Texture2D.GetPathWithout_Assets_Word();
 
                                         if (orig != null && icon.Load.ClickUnFocus("Will reload " + orig))
                                         {
                                             ForceReimportMyTexture(orig);
-                                            texMeta.saveName = texMeta.texture2D.name;
+                                            texMeta.saveName = texMeta.Texture2D.name;
                                             if (terrain)
                                                 UpdateModules();
                                         }
@@ -1020,20 +1020,20 @@ namespace PlaytimePainter
 
                                     pegi.edit(ref texMeta.saveName);
 
-                                    if (texMeta.texture2D)
+                                    if (texMeta.Texture2D)
                                     {
 
-                                        if (!texMeta.saveName.SameAs(texMeta.texture2D.name) &&
+                                        if (!texMeta.saveName.SameAs(texMeta.Texture2D.name) &&
                                             icon.Refresh.Click(
-                                                "Use current texture name ({0})".F(texMeta.texture2D.name)))
-                                            texMeta.saveName = texMeta.texture2D.name;
+                                                "Use current texture name ({0})".F(texMeta.Texture2D.name)))
+                                            texMeta.saveName = texMeta.Texture2D.name;
 
                                         var destPath = GenerateTextureSavePath();
                                         var existsAtDestination = TextureExistsAtDestinationPath();
                                         var originalExists = !orig.IsNullOrEmpty();
                                         var sameTarget = originalExists && orig.Equals(destPath);
                                         var sameTextureName =
-                                            originalExists && texMeta.texture2D.name.Equals(texMeta.saveName);
+                                            originalExists && texMeta.Texture2D.name.Equals(texMeta.saveName);
 
                                         if (!existsAtDestination || sameTextureName)
                                         {
