@@ -1226,6 +1226,28 @@ namespace QuizCanners.Lerp
 
         #endregion
 
+        #region Rect Transform
+
+        public class RectTransformSizeDelta : BaseVector2Lerp
+        {
+            RectTransform _transform;
+            protected override string Name_Internal => "Size Delta";
+
+            public override Vector2 CurrentValue
+            {
+                get { return _transform.sizeDelta; }
+                set { _transform.sizeDelta = value; }
+            }
+
+            public RectTransformSizeDelta(RectTransform transform, float newSpeed)
+            {
+                _transform = transform;
+                speedLimit = newSpeed;
+            }
+        }
+
+        #endregion
+
         #region Transform
 
         public abstract class TransformQuaternionBase : BaseLerpGeneric<Quaternion>

@@ -1,3 +1,4 @@
+using QuizCanners.Inspect;
 using System;
 using UnityEngine;
 
@@ -7,6 +8,9 @@ namespace QuizCanners.Utils
     {
         private bool _initialized;
         private int _frameIndex;
+        private int _editorFrame;
+        private readonly ValueGateDouble _editorTime = new ValueGateDouble();
+
 
         public bool TryEnter()
         {
@@ -17,8 +21,6 @@ namespace QuizCanners.Utils
             return true;
         }
 
-        private int _editorFrame;
-        private readonly ValueGateDouble _editorTime = new ValueGateDouble();
         private int CurrentFrame
         {   get
             {
@@ -56,7 +58,7 @@ namespace QuizCanners.Utils
     }
 
     [Serializable]
-    public class ValueGateInt
+    public class ValueGateInt : IGotReadOnlyName
     {
         [SerializeField] private bool _initialized;
         [SerializeField] private int _previousValue;
@@ -80,6 +82,8 @@ namespace QuizCanners.Utils
             return true;
         }
 
+        public int CurrentValue => _previousValue;
+
         public ValueGateInt() 
         {
             
@@ -89,6 +93,9 @@ namespace QuizCanners.Utils
             _previousValue = initialValue;
             _initialized = true;
         }
+
+        public string GetNameForInspector() => _initialized ? _previousValue.ToString() : "NOT INIT";
+
     }
 
     [Serializable]
@@ -146,4 +153,64 @@ namespace QuizCanners.Utils
             TryChange(initialValue);
         }
     }
+
+
+    [Serializable]
+    public class TimeGate 
+    {
+        [SerializeField] private bool _initialized;
+        [SerializeField] private SerializableDateTime _lastTime = new SerializableDateTime();
+        private FrameGate _frameGate = new FrameGate();
+        private double _delta;
+
+        public double GetDeltaAndUpdate() 
+        {
+            _delta = GetDeltaWithoutUpdate();
+            _lastTime = DateTime.Now;
+            
+            return _delta;
+        }
+
+        public bool TryUpdateIfTimePassed(double secondsPassed) 
+        {
+            if (!WasInitialized())
+                return false;
+
+            var delta = GetDeltaWithoutUpdate();
+            if (delta>= secondsPassed) 
+            {
+                _lastTime = DateTime.Now;
+                return true;
+            }
+
+            return false;
+        }
+
+        public double GetDeltaWithoutUpdate() 
+        {
+            if (!WasInitialized())
+                return 0;
+
+            if (_frameGate.TryEnter())
+            {
+                _delta = Math.Max(0, (DateTime.Now - _lastTime).TotalSeconds);
+            }
+
+            return _delta;
+        }
+
+        private bool WasInitialized()
+        {
+            if (_initialized)
+                return true;
+
+            _initialized = true;
+            _frameGate.DoneThisFrame = true;
+            _lastTime = DateTime.Now;
+            return false;
+
+        }
+
+    }
+
 }

@@ -820,7 +820,7 @@ namespace PlaytimePainter.UI
                 pegi.nl();
 
                 var rt = raycastTarget;
-                if ("Click-able".toggleIcon("Is RayCast Target", ref rt, hideTextWhenTrue: true))
+                if ("Click-able".toggleIcon(hint: "Is RayCast Target", ref rt))
                     raycastTarget = rt;
 
                 if (rt)
