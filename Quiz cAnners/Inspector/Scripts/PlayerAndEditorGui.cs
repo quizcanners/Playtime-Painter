@@ -329,7 +329,7 @@ namespace QuizCanners.Inspect
 #endif
         }
 
-        internal static void UnFocus()
+        public static void UnFocus()
         {
             #if UNITY_EDITOR
             if (!PaintingGameViewUI)

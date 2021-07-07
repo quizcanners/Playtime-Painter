@@ -949,9 +949,9 @@ namespace QuizCanners.Inspect
 
         public static bool edit(ref MyIntVec2 val) => edit(ref val.x) || edit(ref val.y);
 
-        public static bool edit(ref MyIntVec2 val, int min, int max) => edit(ref val.x, min, max) || edit(ref val.y, min, max);
+        public static bool edit(ref MyIntVec2 val, int minInclusive, int maxInclusive) => edit(ref val.x, minInclusive: minInclusive, maxInclusive: maxInclusive) || edit(ref val.y, minInclusive: minInclusive, maxInclusive: maxInclusive);
 
-        public static bool edit(ref MyIntVec2 val, int min, MyIntVec2 max) => edit(ref val.x, min, max.x) || edit(ref val.y, min, max.y);
+        public static bool edit(ref MyIntVec2 val, int minInclusive, MyIntVec2 maxInclusive) => edit(ref val.x, minInclusive: minInclusive, maxInclusive: maxInclusive.x) || edit(ref val.y, minInclusive: minInclusive, maxInclusive: maxInclusive.y);
 
         public static bool edit(ref Vector4 val) => "X".edit(ref val.x).nl() || "Y".edit(ref val.y).nl() || "Z".edit(ref val.z).nl() || "W".edit(ref val.w).nl();
         #endregion

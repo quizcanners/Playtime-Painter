@@ -21,7 +21,7 @@ namespace PlaytimePainter {
     internal static class LazyLocalization 
     {
 
-        private static TranslationsEnum painterTranslations = new TranslationsEnum();
+        private static readonly TranslationsEnum painterTranslations = new TranslationsEnum();
 
         public static LazyTranslation Get(this MsgPainter msg, int lang = 0) {
 
@@ -384,9 +384,9 @@ namespace PlaytimePainter {
         }
 
         
-        public static bool DocumentationClick(this MsgPainter msg) =>  PainterDataAndConfig.hideDocumentation ? false : msg.Get().DocumentationClick();
+        public static bool DocumentationClick(this MsgPainter msg) => !PainterDataAndConfig.hideDocumentation && msg.Get().DocumentationClick();
         
-        public static bool DocumentationWarning(this MsgPainter msg) => PainterDataAndConfig.hideDocumentation ? false : msg.Get().WarningDocumentation();
+        public static bool DocumentationWarning(this MsgPainter msg) => !PainterDataAndConfig.hideDocumentation && msg.Get().WarningDocumentation();
 
     }
 }

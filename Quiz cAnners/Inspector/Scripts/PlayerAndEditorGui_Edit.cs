@@ -1279,16 +1279,16 @@ namespace QuizCanners.Inspect
 
         }
 
-        public static bool edit(ref int val, int min, int max)
+        public static bool edit(ref int val, int minInclusive, int maxInclusive)
         {
 
 #if UNITY_EDITOR
             if (!PaintingGameViewUI)
-                return ef.edit(ref val, min, max);
+                return ef.edit(ref val, minInclusive: minInclusive, maxInclusive: maxInclusive);
 #endif
 
             _START();
-            val = (int)GUILayout.HorizontalSlider(val, min, max, GuiMaxWidthOption);
+            val = (int)GUILayout.HorizontalSlider(val, minInclusive, maxInclusive, GuiMaxWidthOption);
             return _END();
 
         }
@@ -1355,16 +1355,16 @@ namespace QuizCanners.Inspect
             return edit(ref val);
         }
 
-        public static bool edit(this string label, ref int val, int min, int max)
+        public static bool edit(this string label, ref int val, int minInclusive, int maxInclusive)
         {
             label.sliderText(val, label, 90);
-            return edit(ref val, min, max);
+            return edit(ref val, minInclusive: minInclusive, maxInclusive: maxInclusive);
         }
 
-        public static bool edit(this string label, int width, ref int val, int min, int max)
+        public static bool edit(this string label, int width, ref int val, int minInclusiven, int maxInclusive)
         {
             label.sliderText(val, label, width);
-            return edit(ref val, min, max);
+            return edit(ref val, minInclusive: minInclusiven, maxInclusive: maxInclusive);
         }
 
         public static bool edit(this string label, string toolTip, int width, ref int val)
@@ -1373,10 +1373,10 @@ namespace QuizCanners.Inspect
             return edit(ref val);
         }
 
-        public static bool edit(this string label, string toolTip, int width, ref int val, int min, int max)
+        public static bool edit(this string label, string toolTip, int width, ref int val, int minInclusive, int maxInclusive)
         {
             label.sliderText(val, toolTip, width);
-            return edit(ref val, min, max);
+            return edit(ref val, minInclusive: minInclusive, maxInclusive: maxInclusive);
         }
 
         public static bool edit(this string label, int width, ref int val)

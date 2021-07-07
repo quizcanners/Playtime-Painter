@@ -11,9 +11,7 @@ namespace QuizCanners.Inspect {
         Init, List, Collection, Array, Dictionary
     }
 
-
-
-    internal static class LazyLocalization {
+    public static class LazyLocalization {
 
         public const int eng = (int)SystemLanguage.English;
 

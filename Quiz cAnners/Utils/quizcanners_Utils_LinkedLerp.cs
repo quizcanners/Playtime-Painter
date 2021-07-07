@@ -32,18 +32,18 @@ namespace QuizCanners.Lerp
         {
 
             public LerpSpeedMode lerpMode = LerpSpeedMode.SpeedThreshold;
+            public float SpeedLimit = 1;
+
+            protected bool defaultSet;
+           // protected bool allowChangeParameters = true;
 
             public virtual bool UsingLinkedThreshold =>
                 (lerpMode == LerpSpeedMode.SpeedThreshold && Application.isPlaying);
-
             public virtual bool Enabled => lerpMode != LerpSpeedMode.LerpDisabled;
-
-            protected bool defaultSet;
-            public float speedLimit = 1;
-            protected bool allowChangeParameters = true;
+            public virtual string GetNameForInspector() => Name_Internal;
 
             protected abstract string Name_Internal { get; }
-            public virtual string GetNameForInspector() => Name_Internal;
+         
 
             #region Encode & Decode
 
@@ -51,19 +51,11 @@ namespace QuizCanners.Lerp
             {
 
                 var cody = new CfgEncoder()
-                    .Add_Bool("ch", allowChangeParameters);
-
-                if (allowChangeParameters)
-                {
-
-                    //if (EaseInOutImplemented)
-                    //  cody.Add_Bool("eio", easeInOut);
-
-                    cody.Add("lm", (int)lerpMode);
+                    .Add("lm", (int)lerpMode);
 
                     if (lerpMode == LerpSpeedMode.SpeedThreshold)
-                        cody.Add("sp", speedLimit);
-                }
+                        cody.Add("sp", SpeedLimit);
+                
 
                 return cody;
             }
@@ -72,15 +64,8 @@ namespace QuizCanners.Lerp
             {
                 switch (key)
                 {
-                    case "ch":
-                        allowChangeParameters = data.ToBool();
-                        break;
-                    case "sp":
-                        speedLimit = data.ToFloat();
-                        break;
-                    case "lm":
-                        lerpMode = (LerpSpeedMode)data.ToInt();
-                        break;
+                    case "sp": SpeedLimit = data.ToFloat(); break;
+                    case "lm": lerpMode = (LerpSpeedMode)data.ToInt(); break;
                 }
             }
 
@@ -139,29 +124,23 @@ namespace QuizCanners.Lerp
 
             public virtual void InspectInList(ref int edited, int ind)
             {
-                if (!allowChangeParameters)
-                {
-                    Name_Internal.toggleIcon("Will this config contain new parameters", ref allowChangeParameters);
-                }
-                else
-                {
-                    if (Application.isPlaying)
-                        (Enabled ? icon.Active : icon.InActive).draw(Enabled ? "Lerp Possible" : "Lerp Not Possible");
+               
+                if (Application.isPlaying)
+                    (Enabled ? icon.Active : icon.InActive).draw(Enabled ? "Lerp Possible" : "Lerp Not Possible");
 
-                    switch (lerpMode)
-                    {
-                        case LerpSpeedMode.SpeedThreshold:
-                            (Name_Internal + " Thld").edit(ref speedLimit);
-                            break;
-                        case LerpSpeedMode.UnlinkedSpeed:
-                            (Name_Internal + " Speed").edit(ref speedLimit);
-                            break;
-                        default:
-                            (Name_Internal + " Mode").editEnum(ref lerpMode);
-                            break;
-                    }
+                switch (lerpMode)
+                {
+                    case LerpSpeedMode.SpeedThreshold:
+                        (Name_Internal + " Thld").edit(ref SpeedLimit);
+                        break;
+                    case LerpSpeedMode.UnlinkedSpeed:
+                        (Name_Internal + " Speed").edit(ref SpeedLimit);
+                        break;
+                    default:
+                        (Name_Internal + " Mode").editEnum(ref lerpMode);
+                        break;
                 }
-
+                
                 if (icon.Enter.Click())
                     edited = ind;
             }
@@ -171,10 +150,6 @@ namespace QuizCanners.Lerp
 
                 GetNameForInspector().write();
 
-                pegi.isFoldout(icon.Edit, "Will this config contain new parameters", ref allowChangeParameters).nl();
-
-                if (!allowChangeParameters) return;
-
                 "Lerp Speed Mode ".editEnum(110, ref lerpMode);
 
                 if (Application.isPlaying)
@@ -183,10 +158,10 @@ namespace QuizCanners.Lerp
                 switch (lerpMode)
                 {
                     case LerpSpeedMode.SpeedThreshold:
-                        ("Max Speed").edit(ref speedLimit);
+                        ("Max Speed").edit(ref SpeedLimit);
                         break;
                     case LerpSpeedMode.UnlinkedSpeed:
-                        ("Speed").edit(ref speedLimit);
+                        ("Speed").edit(ref SpeedLimit);
                         break;
                         //default:
                         //("Mode").editEnum(ref lerpMode).changes(ref changed);
@@ -253,7 +228,7 @@ namespace QuizCanners.Lerp
 
                 var magnitude = (CurrentValue - targetValue).magnitude;
 
-                var modSpeed = speedLimit;
+                var modSpeed = SpeedLimit;
 
                 /* if (easeInOut)
                  {
@@ -301,9 +276,8 @@ namespace QuizCanners.Lerp
             public override CfgEncoder Encode()
             {
                 var cody = new CfgEncoder()
-                    .Add("b", base.Encode);
-                if (allowChangeParameters)
-                    cody.Add("t", CurrentValue);
+                    .Add("b", base.Encode)
+                    .Add("t", CurrentValue);
 
                 return cody;
             }
@@ -352,7 +326,7 @@ namespace QuizCanners.Lerp
 
                 var magnitude = Quaternion.Angle(CurrentValue, targetValue);
 
-                return  LerpUtils.SpeedToMinPortion(speedLimit, magnitude, ref linkedPortion);
+                return  LerpUtils.SpeedToMinPortion(SpeedLimit, magnitude, ref linkedPortion);
             }
 
             #region Inspector
@@ -388,9 +362,8 @@ namespace QuizCanners.Lerp
             public override CfgEncoder Encode()
             {
                 var cody = new CfgEncoder()
-                    .Add("b", base.Encode);
-                if (allowChangeParameters)
-                    cody.Add("t", targetValue);
+                    .Add("b", base.Encode)
+                    .Add("t", targetValue);
 
                 return cody;
             }
@@ -427,7 +400,7 @@ namespace QuizCanners.Lerp
             }
 
             protected override bool Portion(ref float linkedPortion) =>
-                 LerpUtils.SpeedToMinPortion(speedLimit, CurrentValue - TargetValue, ref linkedPortion);
+                 LerpUtils.SpeedToMinPortion(SpeedLimit, CurrentValue - TargetValue, ref linkedPortion);
 
             #region Inspect
 
@@ -604,16 +577,11 @@ namespace QuizCanners.Lerp
                 base.Inspect();
 
                 var tex = Current;
-                if (allowChangeParameters)
-                {
+          
+                "On Start:".editEnum(60, ref _onStart).nl();
 
-                    "On Start:".editEnum(60, ref _onStart).nl();
-
-                    if ("Texture[{0}]".F(_targetTextures.Count).edit(90, ref tex).nl())
-                        TargetTexture = tex;
-
-                }
-                else TargetTexture.draw();
+                if ("Texture[{0}]".F(_targetTextures.Count).edit(90, ref tex).nl())
+                    TargetTexture = tex;
             }
 
             #endregion
@@ -623,14 +591,10 @@ namespace QuizCanners.Lerp
             public override CfgEncoder Encode()
             {
 
-                var cody = new CfgEncoder().Add("b", base.Encode);
-                if (allowChangeParameters)
-                {
-                    cody.Add_IfNotZero("onStart", (int)_onStart);
-                    /* if (_onStart == OnStart.LoadCurrent)
-                        cody.Add_Reference("s", _targetTextures.TryGetLast());*/
-                }
-
+                var cody = new CfgEncoder()
+                    .Add("b", base.Encode)
+                    .Add_IfNotZero("onStart", (int)_onStart);
+                  
                 return cody;
             }
 
@@ -766,7 +730,7 @@ namespace QuizCanners.Lerp
 
             protected BaseShaderLerp(float startingSpeed = 1, Material m = null, Renderer renderer = null)
             {
-                speedLimit = startingSpeed;
+                SpeedLimit = startingSpeed;
                 material = m;
                 rendy = renderer;
             }
@@ -806,7 +770,7 @@ namespace QuizCanners.Lerp
             }
 
             protected override bool Portion(ref float linkedPortion) =>
-                 LerpUtils.SpeedToMinPortion(speedLimit, LerpUtils.DistanceRgba(CurrentValue, targetValue), ref linkedPortion);
+                 LerpUtils.SpeedToMinPortion(SpeedLimit, LerpUtils.DistanceRgba(CurrentValue, targetValue), ref linkedPortion);
 
             protected sealed override bool LerpInternal(float linkedPortion)
             {
@@ -881,15 +845,13 @@ namespace QuizCanners.Lerp
 
             public override void InspectInList(ref int edited, int ind)
             {
-                if (allowChangeParameters)
-                {
-                    int width = _name.ApproximateLength();
-                    if (minMax)
-                        _name.edit(width, ref targetValue, min, max);
-                    else
-                        _name.edit(width, ref targetValue);
-                }
-
+               
+                int width = _name.ApproximateLength();
+                if (minMax)
+                    _name.edit(width, ref targetValue, min, max);
+                else
+                    _name.edit(width, ref targetValue);
+                
                 if (icon.Enter.Click())
                     edited = ind;
             }
@@ -932,7 +894,7 @@ namespace QuizCanners.Lerp
             {
                 _name = "Float Value";
                 targetValue = 1;
-                speedLimit = 1;
+                SpeedLimit = 1;
                 CurrentValue = 1;
             }
 
@@ -941,7 +903,7 @@ namespace QuizCanners.Lerp
                 _name = name;
                 targetValue = startValue;
                 CurrentValue = startValue;
-                speedLimit = lerpSpeed;
+                SpeedLimit = lerpSpeed;
             }
 
             public FloatValue(float startValue, float lerpSpeed, float min, float max, string name)
@@ -949,7 +911,7 @@ namespace QuizCanners.Lerp
                 _name = name;
                 targetValue = startValue;
                 CurrentValue = startValue;
-                speedLimit = lerpSpeed;
+                SpeedLimit = lerpSpeed;
                 minMax = true;
                 this.min = min;
                 this.max = max;
@@ -989,7 +951,7 @@ namespace QuizCanners.Lerp
             public ColorValue(string name, float speed)
             {
                 _name = name;
-                this.speedLimit = speed;
+                this.SpeedLimit = speed;
             }
 
 
@@ -1039,7 +1001,7 @@ namespace QuizCanners.Lerp
 
                 var magnitude = (CurrentValue - targetValue).magnitude;
 
-                var modSpeed = speedLimit;
+                var modSpeed = SpeedLimit;
 
                 return  LerpUtils.SpeedToMinPortion(modSpeed, magnitude, ref linkedPortion);
             }
@@ -1077,9 +1039,8 @@ namespace QuizCanners.Lerp
             public override CfgEncoder Encode()
             {
                 var cody = new CfgEncoder()
-                    .Add("b", base.Encode);
-                if (allowChangeParameters)
-                    cody.Add("t", CurrentValue);
+                    .Add("b", base.Encode)
+                    .Add("t", CurrentValue);
 
                 return cody;
             }
@@ -1161,13 +1122,9 @@ namespace QuizCanners.Lerp
 
             public override void InspectInList(ref int edited, int ind)
             {
-
-                if (allowChangeParameters)
-                {
-                    int width = Name_Internal.ApproximateLength();
-                    Name_Internal.edit(width, ref targetValue);
-                }
-
+                int width = Name_Internal.ApproximateLength();
+                Name_Internal.edit(width, ref targetValue);
+                
                 if (icon.Enter.Click())
                     edited = ind;
 
@@ -1218,10 +1175,8 @@ namespace QuizCanners.Lerp
                 _name = name;
                 targetValue = startValue;
                 CurrentValue = startValue;
-                speedLimit = lerpSpeed;
+                SpeedLimit = lerpSpeed;
             }
-
-
         }
 
         #endregion
@@ -1230,8 +1185,11 @@ namespace QuizCanners.Lerp
 
         public class RectTransformSizeDelta : BaseVector2Lerp
         {
-            RectTransform _transform;
+            readonly RectTransform _transform;
             protected override string Name_Internal => "Size Delta";
+
+            public void PortionX(LerpData ld, float targetValueX) => Portion(ld, targetValue: CurrentValue.X(targetValueX));
+            public void PortionY(LerpData ld, float targetValueY) => Portion(ld, targetValue: CurrentValue.Y(targetValueY));
 
             public override Vector2 CurrentValue
             {
@@ -1242,7 +1200,7 @@ namespace QuizCanners.Lerp
             public RectTransformSizeDelta(RectTransform transform, float newSpeed)
             {
                 _transform = transform;
-                speedLimit = newSpeed;
+                SpeedLimit = newSpeed;
             }
         }
 
@@ -1265,7 +1223,7 @@ namespace QuizCanners.Lerp
             protected TransformQuaternionBase(Transform transform, float newSpeed)
             {
                 this.transform = transform;
-                speedLimit = newSpeed;
+                SpeedLimit = newSpeed;
             }
 
             protected override bool LerpInternal(float portion)
@@ -1278,7 +1236,7 @@ namespace QuizCanners.Lerp
             }
 
             protected override bool Portion(ref float portion) =>
-                 LerpUtils.SpeedToMinPortion(speedLimit, Quaternion.Angle(CurrentValue, TargetValue), ref portion);
+                 LerpUtils.SpeedToMinPortion(SpeedLimit, Quaternion.Angle(CurrentValue, TargetValue), ref portion);
         }
 
         public abstract class TransformVector3Base : BaseLerpGeneric<Vector3>
@@ -1295,7 +1253,7 @@ namespace QuizCanners.Lerp
             public TransformVector3Base(Transform transform, float nspeed)
             {
                 this.transform = transform;
-                speedLimit = nspeed;
+                SpeedLimit = nspeed;
             }
 
             protected override bool LerpInternal(float portion)
@@ -1308,7 +1266,7 @@ namespace QuizCanners.Lerp
             }
 
             protected override bool Portion(ref float portion) =>
-                 LerpUtils.SpeedToMinPortion(speedLimit, (CurrentValue - targetValue).magnitude, ref portion);
+                 LerpUtils.SpeedToMinPortion(SpeedLimit, (CurrentValue - targetValue).magnitude, ref portion);
         }
 
         public class TransformLocalScale : TransformVector3Base
@@ -1427,7 +1385,7 @@ namespace QuizCanners.Lerp
             }
 
             protected override bool Portion(ref float linkedPortion) =>
-                 LerpUtils.SpeedToMinPortion(speedLimit, CurrentValue - targetValue, ref linkedPortion);
+                 LerpUtils.SpeedToMinPortion(SpeedLimit, CurrentValue - targetValue, ref linkedPortion);
 
             protected override bool LerpSubInternal(float portion)
             {
@@ -1530,7 +1488,7 @@ namespace QuizCanners.Lerp
             }
 
             protected override bool Portion(ref float portion) =>
-                 LerpUtils.SpeedToMinPortion(speedLimit,  LerpUtils.DistanceRgba(CurrentValue, TargetValue), ref portion);
+                 LerpUtils.SpeedToMinPortion(SpeedLimit,  LerpUtils.DistanceRgba(CurrentValue, TargetValue), ref portion);
 
             public override void Inspect()
             {
@@ -1616,7 +1574,7 @@ namespace QuizCanners.Lerp
             }
 
             protected override bool Portion(ref float portion) =>
-                 LerpUtils.SpeedToMinPortion(speedLimit, (CurrentValue - TargetValue).magnitude, ref portion);
+                 LerpUtils.SpeedToMinPortion(SpeedLimit, (CurrentValue - TargetValue).magnitude, ref portion);
 
             #region Encode & Decode
 
@@ -1646,6 +1604,53 @@ namespace QuizCanners.Lerp
         #endregion
 
         #region UIElement Values
+
+        public class CanvasGroupAlpha : BaseFloatLerp
+        {
+            public CanvasGroup CanvasGroup
+            {
+                get;
+                set;
+            }
+
+            private readonly bool _disableInteractivityOnFade;
+
+            private float targetValue;
+
+            public override float TargetValue
+            {
+                get => targetValue; 
+                set => targetValue = value; 
+            }
+
+            public override float CurrentValue
+            {
+                get => CanvasGroup ? CanvasGroup.alpha : targetValue;
+                set
+                {
+                    if (_disableInteractivityOnFade) 
+                    {
+                        bool interactable = Mathf.Approximately(value, 1) || value > CanvasGroup.alpha;
+                        CanvasGroup.interactable = interactable;
+                        CanvasGroup.blocksRaycasts = interactable;
+                    }
+
+                    CanvasGroup.alpha = value;
+                }
+            }
+
+            protected override string Name_Internal => "Graphic Alpha";
+
+            public CanvasGroupAlpha() { }
+
+            public CanvasGroupAlpha(CanvasGroup canvasGroup, float nSpeed, bool disableInteractivityOnFade)
+            {
+                SpeedLimit = nSpeed;
+                CanvasGroup = canvasGroup;
+                _disableInteractivityOnFade = disableInteractivityOnFade;
+            }
+        }
+
 
         public class GraphicAlpha : BaseFloatLerp, ICfgCustom
         {

@@ -15,7 +15,7 @@ HOW TO USE IN EDITOR TIME:
 
 HOW TO USE IT IN PLAYTIME:
 
-    In MonoBehaviour that needs to have playtime interface create the following code:
+    In MonoBehaviour that that you want a playtime interface for, create the following code:
 	pegi.GameView.Window window = new pegi.GameView.Window();
 	public void OnGUI() =>	window.Render(this, "TITLE");
 

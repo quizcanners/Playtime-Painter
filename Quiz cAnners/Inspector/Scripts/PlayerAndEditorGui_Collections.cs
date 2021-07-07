@@ -21,7 +21,7 @@ namespace QuizCanners.Inspect
 
         public static int InspectedIndex => collectionInspector.Index;
 
-        internal static string CurrentListLabel<T>(CollectionMetaData meta = null) => collectionInspector.GetCurrentListLabel<T>(meta);
+        public static string CurrentListLabel<T>(CollectionMetaData meta = null) => collectionInspector.GetCurrentListLabel<T>(meta);
 
         internal static readonly CollectionInspector collectionInspector = new CollectionInspector();
 

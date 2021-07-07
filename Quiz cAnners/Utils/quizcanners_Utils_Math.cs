@@ -194,6 +194,10 @@ namespace QuizCanners.Utils
         
         public static Vector2 YX(this Vector2 vec) => new Vector2(vec.y, vec.x);
 
+        public static Vector2 X(this Vector2 vec, float x) => new Vector2(x, vec.y);
+
+        public static Vector2 Y(this Vector2 vec, float y) => new Vector2(vec.x, y);
+
         public static Vector2 ZW(this Vector4 vec) => new Vector2(vec.z, vec.w);
 
         public static Vector2 XY(this Vector4 vec) => new Vector2(vec.x, vec.y);
