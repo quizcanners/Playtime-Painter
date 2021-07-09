@@ -81,7 +81,7 @@ namespace PlaytimePainter
                 set => SelectedSubMeshes.ForceSet(0, value);
             }
 
-            internal WorldSpace(Stroke stroke, TextureMeta textureData, Brush brush, Mesh mesh, int subMeshIndexFirst, GameObject gameObject) : base(stroke, textureData, brush)
+            public WorldSpace(Stroke stroke, TextureMeta textureData, Brush brush, Mesh mesh, int subMeshIndexFirst, GameObject gameObject) : base(stroke, textureData, brush)
             {
                 Mesh = mesh;
                 _selectedSubMeshes.ForceSet(0, subMeshIndexFirst); 

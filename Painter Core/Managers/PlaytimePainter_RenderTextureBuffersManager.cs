@@ -685,7 +685,7 @@ namespace PlaytimePainter
 
         internal static bool TargetIsTexture2D(this TextureMeta id) => id != null && id.Target == TexTarget.Texture2D;
 
-        internal static bool TargetIsRenderTexture(this TextureMeta id) => id != null && id.Target == TexTarget.RenderTexture;
+        public static bool TargetIsRenderTexture(this TextureMeta id) => id != null && id.Target == TexTarget.RenderTexture;
 
         internal static TextureMeta GetImgDataIfExists(this Texture texture)
         {
@@ -720,7 +720,7 @@ namespace PlaytimePainter
             return rid;
         }
 
-        internal static TextureMeta GetTextureMeta(this Texture texture)
+        public static TextureMeta GetTextureMeta(this Texture texture)
         {
             if (!texture)
                 return null;

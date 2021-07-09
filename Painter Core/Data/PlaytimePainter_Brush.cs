@@ -129,7 +129,7 @@ namespace PlaytimePainter {
         public float Size(bool worldSpace) => Mathf.Max(0.01f, worldSpace ? brush3DRadius : brush2DRadius);
         public Color Color;
 
-        internal bool Is3DBrush(TextureMeta texture = null)
+        public bool Is3DBrush(TextureMeta texture = null)
         {
             var cpu = IsCpu(texture);
             return GetBrushType(cpu).IsAWorldSpaceBrush;
@@ -790,19 +790,19 @@ namespace PlaytimePainter {
             #endregion
         }
 
-        [TaggedType(classTag, "None")]
+        [TaggedType(CLASS_KEY, "None")]
         public class None : Base
         {
-            private const string classTag = "none";
+            private const string CLASS_KEY = "none";
 
-            public override string ClassTag => classTag;
+            public override string ClassTag => CLASS_KEY;
         }
 
-        [TaggedType(classTag, "Jitter")]
+        [TaggedType(CLASS_KEY, "Jitter")]
         public class Jitter : Base
         {
-            private const string classTag = "gitter";
-            public override string ClassTag => classTag;
+            private const string CLASS_KEY = "gitter";
+            public override string ClassTag => CLASS_KEY;
 
             private float jitterStrength = 0.1f;
 
@@ -844,12 +844,12 @@ namespace PlaytimePainter {
 
         }
 
-        [TaggedType(classTag, "Size from Speed")]
+        [TaggedType(CLASS_KEY, "Size from Speed")]
         public class SpeedToSize : Base
         {
-            private const string classTag = "sts";
+            private const string CLASS_KEY = "sts";
 
-            public override string ClassTag => classTag;
+            public override string ClassTag => CLASS_KEY;
         }
     }
 

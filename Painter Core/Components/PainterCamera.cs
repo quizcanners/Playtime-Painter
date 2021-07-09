@@ -784,7 +784,7 @@ namespace PlaytimePainter {
 
         public static double lastManagedUpdate;
 
-        private readonly FrameGate _frameGate = new FrameGate();
+        private readonly Gate.Frame _frameGate = new Gate.Frame();
 
         public void CombinedUpdate() {
 

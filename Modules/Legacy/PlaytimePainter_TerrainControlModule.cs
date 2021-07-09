@@ -7,10 +7,10 @@ using UnityEngine;
 namespace PlaytimePainter.ComponentModules
 {
 
-    [TaggedType(tag)]
+    [TaggedType(CLASS_KEY)]
     internal class TerrainControlModule : ComponentModuleBase {
-        private const string tag = "TerCol";
-        public override string ClassTag => tag;
+        private const string CLASS_KEY = "TerCol";
+        public override string ClassTag => CLASS_KEY;
 
         public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex)
         {

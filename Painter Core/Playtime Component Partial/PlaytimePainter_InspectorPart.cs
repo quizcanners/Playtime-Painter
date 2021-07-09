@@ -1175,13 +1175,17 @@ namespace PlaytimePainter
             foreach (var p in CameraModuleBase.GizmoPlugins)
                 p.PlugIn_PainterGizmos(this);
         }
+#endif
 
+#if UNITY_EDITOR
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Add Painters To Selected")]
+
         private static void AddPainterToSelected()
         {
             foreach (var go in Selection.gameObjects)
                 IterateAssignToChildren(go.transform);
         }
+#endif
 
         private static void IterateAssignToChildren(Transform tf)
         {
@@ -1196,7 +1200,9 @@ namespace PlaytimePainter
 
         }
 
+#if UNITY_EDITOR
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Remove Painters From the Scene")]
+#endif
         private static void TakePainterFromAll()
         {
             var allObjects = FindObjectsOfType<Renderer>();
@@ -1222,17 +1228,23 @@ namespace PlaytimePainter
             PainterClass.applicationIsQuitting = false;
         }
 
+#if UNITY_EDITOR
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Join Discord")]
+#endif
         public static void Open_Discord() => Application.OpenURL(pegi.FullWindow.DISCORD_SERVER);
 
+#if UNITY_EDITOR
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Send an Email")]
+#endif
         public static void Open_Email() => QcUnity.SendEmail(pegi.FullWindow.SUPPORT_EMAIL,
             "About your Playtime Painter",
             "Hello Yuri, we need to talk. I purchased your asset and expect an excellent quality, but ...");
 
+#if UNITY_EDITOR
         [MenuItem("Tools/" + PainterDataAndConfig.ToolName + "/Open Manual")]
+#endif
         public static void OpenWWW_Documentation() => Application.OpenURL(OnlineManual);
 
-#endif
+
     }
 }

@@ -1130,11 +1130,23 @@ namespace QuizCanners.Inspect
             if (serializedObject == null) return false;
 
             var member = ((System.Linq.Expressions.MemberExpression)memberExpression.Body).Member;
-            var name = member.Name;
 
+            string name;
+
+            switch (member.MemberType) 
+            {
+                case System.Reflection.MemberTypes.Field: name = member.Name; break;
+                case System.Reflection.MemberTypes.Property: name = "m_{0}{1}".F(char.ToUpper(member.Name[0]), member.Name.Substring(1)); break;
+                default: QcLog.CaseNotImplemented(member.MemberType, context: "Get Serialized Property").write(); return false;
+            }
+            
             var tps = serializedObject.FindProperty(name);
 
-            if (tps == null) return false;
+            if (tps == null)
+            {
+                "{0} not found".F(name).write();
+                return false;
+            }
 
             EditorGUI.BeginChangeCheck();
 

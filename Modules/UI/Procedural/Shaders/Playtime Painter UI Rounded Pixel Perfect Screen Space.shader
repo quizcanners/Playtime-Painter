@@ -57,8 +57,6 @@
 			#include "UnityCG.cginc"
 			#include "UnityUI.cginc"
 
-			#pragma multi_compile_local _ UNITY_UI_CLIP_RECT
-			#pragma multi_compile_local _ UNITY_UI_ALPHACLIP
 			#pragma shader_feature __  _SOFT_FADE
 			#pragma shader_feature _MODE_PIXPERFECT _MODE_FILLSCREEN 
 			#pragma multi_compile ___ USE_NOISE_TEXTURE
@@ -170,17 +168,14 @@
 
 				float alpha = saturate(1 - dist);
 
-				alpha = saturate(pow(alpha * o.precompute.z, o.texcoord.z));
+				float w = length(fwidth(o.texcoord.xy));
+
+				alpha = smoothstep(0 , w*6 + 0.001, alpha);
+
+
+				//alpha = saturate(pow(alpha * o.precompute.z, o.texcoord.z));
 
 				color.a *= alpha;
-
-				#ifdef UNITY_UI_CLIP_RECT
-				color.a *= UnityGet2DClipping(o.worldPosition.xy, _ClipRect);
-				#endif
-
-				#ifdef UNITY_UI_ALPHACLIP
-				clip(color.a - 0.001);
-				#endif
 
 #if USE_NOISE_TEXTURE
 				float4 noise = tex2Dlod(_Global_Noise_Lookup, float4(fragCoord * 13.5 + float2(_SinTime.w, _CosTime.w) * 32, 0, 0));

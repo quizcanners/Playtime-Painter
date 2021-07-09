@@ -12,7 +12,7 @@ namespace PlaytimePainter
     public enum TexTarget { Texture2D, RenderTexture }
 
     [Serializable]
-    internal class TextureMeta : PainterClass, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention //, ICanBeDefaultCfg
+    public class TextureMeta : PainterClass, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention //, ICanBeDefaultCfg
     {
 
         #region Values

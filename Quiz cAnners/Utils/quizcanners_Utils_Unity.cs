@@ -1821,7 +1821,7 @@ namespace QuizCanners.Utils {
         {
 #if UNITY_EDITOR
             var path = AssetDatabase.GetAssetPath(tex);
-            return string.IsNullOrEmpty(path) ? null : path.Replace("Assets", "");
+            return string.IsNullOrEmpty(path) ? null : QcSharp.RemoveAssetsPart(path);//path.Replace("Assets", "");
 #else
                     return null;
 #endif

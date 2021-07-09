@@ -316,14 +316,13 @@ namespace QuizCanners.Inspect
 
         public static bool Inspect_AsInList_Value<T>(ref T obj) where T: struct, IPEGI_ListInspect
         {
-            int entered = -1;
-
             var pgi = obj as IPEGI_ListInspect;
             var ch = false;
 
             if (pgi != null)
             {
-                ch = pgi.Inspect_AsInListNested(ref entered, entered);
+                int entered = -1;
+                ch = pgi.Inspect_AsInListNested(ref entered, 0);
                 if (ch)
                     obj = (T)pgi;
             }

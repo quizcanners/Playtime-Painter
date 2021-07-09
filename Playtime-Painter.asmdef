@@ -1,7 +1,9 @@
 {
-    "name": "Quiz-cAnners",
+    "name": "Playtime-Painter",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:cdce99151fa041d4998cc8811fcfe22c"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

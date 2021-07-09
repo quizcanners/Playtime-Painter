@@ -77,7 +77,11 @@ namespace QuizCanners.Utils
                 else
                 {
                     if (value is IPEGI_ListInspect pgi)
+                    {
+                        if (name.ClickLabel(hint: "Click to Copy to Clipboard" ,width: 90))
+                            pegi.SetCopyPasteBuffer(name);
                         pgi.InspectInList(ref inspectedElement, index);
+                    }
                     else
                         name.try_enter_Inspect(value, ref inspectedElement, index);
                 }

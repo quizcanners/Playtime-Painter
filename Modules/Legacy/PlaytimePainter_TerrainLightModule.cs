@@ -6,10 +6,10 @@ using UnityEngine;
 
 namespace PlaytimePainter.ComponentModules {
 
-    [TaggedType(tag)]
+    [TaggedType(CLASS_KEY)]
     internal class TerrainLightModule : ComponentModuleBase {
-        private const string tag = "TerLight";
-        public override string ClassTag => tag;
+        private const string CLASS_KEY = "TerLight";
+        public override string ClassTag => CLASS_KEY;
 
         private MergingTerrainController mergingTerrain;
 

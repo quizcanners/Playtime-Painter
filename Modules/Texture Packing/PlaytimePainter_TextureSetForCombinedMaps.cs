@@ -76,7 +76,7 @@ namespace PlaytimePainter.TexturePacking
 
             if (icon.Add.Click("New Texture Packaging Profile").nl())
             {
-                QcUtils.AddWithUniqueNameAndIndex(Cfg.texturePackagingSolutions);
+                QcSharp.AddWithUniqueNameAndIndex(Cfg.texturePackagingSolutions);
                 selectedProfile = Cfg.texturePackagingSolutions.Count - 1;
                 Cfg.SetToDirty();
             }

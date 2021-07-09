@@ -6,12 +6,12 @@ using UnityEngine;
 
 namespace PlaytimePainter
 {
-    [TaggedType(tag)]
+    [TaggedType(CLASS_KEY)]
     internal class ImageMetaPaintingRecording : ImageMetaModuleBase
     {
-        private const string tag = "Plbk";
+        private const string CLASS_KEY = "Plbk";
 
-        public override string ClassTag => tag;
+        public override string ClassTag => CLASS_KEY;
 
         internal static readonly List<TextureMeta> playbackMetas = new List<TextureMeta>();
 

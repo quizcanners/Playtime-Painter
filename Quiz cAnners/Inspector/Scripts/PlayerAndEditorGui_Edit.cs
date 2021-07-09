@@ -2170,13 +2170,24 @@ namespace QuizCanners.Inspect
         }
 
 
-#endregion
+        #endregion
 
-#region Property
+        #region Property
+
+        public static bool edit_Property<T>(this string label, int width, System.Linq.Expressions.Expression<System.Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true)
+        {
+            label.write(width: width);
+            return edit_Property(memberExpression, fieldWidth, obj, includeChildren);
+        }
 
         public static bool edit_Property<T>(this string label, System.Linq.Expressions.Expression<System.Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true)
         {
-            label.nl();
+            label.write();
+            return edit_Property(memberExpression, fieldWidth, obj, includeChildren);
+        }
+
+        public static bool edit_Property<T>(System.Linq.Expressions.Expression<System.Func<T>> memberExpression, Object obj, int fieldWidth = -1, bool includeChildren = true)
+        {
             return edit_Property(memberExpression, fieldWidth, obj, includeChildren);
         }
 

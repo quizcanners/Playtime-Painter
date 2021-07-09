@@ -13,13 +13,13 @@ namespace PlaytimePainter {
     namespace CameraModules
     {
         
-        [TaggedType(tag)]
+        [TaggedType(CLASS_KEY)]
         internal class VolumePaintingCameraModule : CameraModuleBase, 
             IPainterManagerModuleComponentPEGI, IPainterManagerModuleBrush, IPainterManagerModuleGizmos,
             IUseDepthProjector, IUseReplacementCamera
         {
-            private const string tag = "VolumePntng";
-            public override string ClassTag => tag;
+            private const string CLASS_KEY = "VolumePntng";
+            public override string ClassTag => CLASS_KEY;
 
             public static VectorValue VOLUME_H_SLICES = new VectorValue("VOLUME_H_SLICES");
             public static VectorValue VOLUME_POSITION_N_SIZE = new VectorValue("VOLUME_POSITION_N_SIZE");
@@ -506,11 +506,11 @@ namespace PlaytimePainter {
 
     namespace ComponentModules
     {
-        [TaggedType(Tag)]
+        [TaggedType(CLASS_KEY)]
         internal class VolumeTextureComponentModule : ComponentModuleBase
         {
-            private const string Tag = "VolTexM";
-            public override string ClassTag => Tag;
+            private const string CLASS_KEY = "VolTexM";
+            public override string ClassTag => CLASS_KEY;
 
             public VolumeTexture volumeTexture;
 

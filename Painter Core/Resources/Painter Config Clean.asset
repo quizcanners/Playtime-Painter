@@ -25,6 +25,121 @@ MonoBehaviour:
   imgMetas:
   - Target: 0
     RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 963e34d7b4af5d64984565a55337d3fa, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 2048
+    Height: 1024
+    UseTexCoord2: 0
+    IsATransparentLayer: 1
+    PreserveTransparency: 1
+    IsAVolumeTexture: 0
+    enableUndoRedo: 0
+    repaintDelay: 0.016
+    updateTex2DafterStroke: 0
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    backupManually: 0
+    saveName: Cliff_COLOR
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _useTexCoord2AutoAssigned: 0
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    inspectedItems: -1
+  - Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 498c2375e8e6d134a962b4d1ed1c07f6, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 200
+    Height: 200
+    UseTexCoord2: 0
+    IsATransparentLayer: 1
+    PreserveTransparency: 1
+    IsAVolumeTexture: 0
+    enableUndoRedo: 0
+    repaintDelay: 0.016
+    updateTex2DafterStroke: 0
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    backupManually: 0
+    saveName: Debug
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _useTexCoord2AutoAssigned: 0
+    _sdfMaxInside: 50
+    _sdfMaxOutside: 50
+    _sdfPostProcessDistance: 1
+    inspectedItems: -1
+  - Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 2a92fd5670ad1be4b860b832f7c52210, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 2048
+    Height: 1631
+    UseTexCoord2: 0
+    IsATransparentLayer: 1
+    PreserveTransparency: 1
+    IsAVolumeTexture: 0
+    enableUndoRedo: 0
+    repaintDelay: 0.016
+    updateTex2DafterStroke: 0
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    backupManually: 0
+    saveName: Depositphotos_247063026_ds
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _useTexCoord2AutoAssigned: 0
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    inspectedItems: -1
+  - Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 35c200f47dffd51449fbe2275ec6f984, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 118
+    Height: 82
+    UseTexCoord2: 0
+    IsATransparentLayer: 0
+    PreserveTransparency: 1
+    IsAVolumeTexture: 0
+    enableUndoRedo: 0
+    repaintDelay: 0.016
+    updateTex2DafterStroke: 0
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    backupManually: 0
+    saveName: PixelPerfectTest
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _useTexCoord2AutoAssigned: 0
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    inspectedItems: -1
+  - Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 36256601d263baf44b57f783e958f8fe, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 256
+    Height: 256
+    UseTexCoord2: 0
+    IsATransparentLayer: 0
+    PreserveTransparency: 1
+    IsAVolumeTexture: 0
+    enableUndoRedo: 0
+    repaintDelay: 0.016
+    updateTex2DafterStroke: 0
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    backupManually: 0
+    saveName: PixNormBlurEx
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _useTexCoord2AutoAssigned: 0
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    inspectedItems: -1
+  - Target: 0
+    RenderTexture: {fileID: 0}
     Texture2D: {fileID: 2800000, guid: 209472c1215a51e49b93949ed4b98cb3, type: 3}
     OtherTexture: {fileID: 0}
     Width: 1024
@@ -71,29 +186,6 @@ MonoBehaviour:
     inspectedItems: -1
   - Target: 0
     RenderTexture: {fileID: 0}
-    Texture2D: {fileID: 2800000, guid: 963e34d7b4af5d64984565a55337d3fa, type: 3}
-    OtherTexture: {fileID: 0}
-    Width: 2048
-    Height: 1024
-    UseTexCoord2: 0
-    IsATransparentLayer: 1
-    PreserveTransparency: 1
-    IsAVolumeTexture: 0
-    enableUndoRedo: 0
-    repaintDelay: 0.016
-    updateTex2DafterStroke: 0
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    backupManually: 0
-    saveName: Cliff_COLOR
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    _useTexCoord2AutoAssigned: 0
-    _sdfMaxInside: 1
-    _sdfMaxOutside: 1
-    _sdfPostProcessDistance: 1
-    inspectedItems: -1
-  - Target: 0
-    RenderTexture: {fileID: 0}
     Texture2D: {fileID: 2800000, guid: b24b57e0cfed05643be34b0256df875e, type: 3}
     OtherTexture: {fileID: 0}
     Width: 1024
@@ -116,6 +208,11 @@ MonoBehaviour:
     _sdfPostProcessDistance: 1
     inspectedItems: -1
   matMetas:
+  - material: {fileID: 2100000, guid: 4a5767e81c90b634697899383087bb79, type: 2}
+    selectedTexture: 2
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
   - material: {fileID: 2100000, guid: 89e38bf753171a94c9a1342ac3242f43, type: 2}
     selectedTexture: 0
     usePreviewShader: 0

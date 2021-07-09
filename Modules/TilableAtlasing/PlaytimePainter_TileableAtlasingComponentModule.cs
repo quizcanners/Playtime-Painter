@@ -11,10 +11,10 @@ using QuizCanners.Migration;
 
 namespace PlaytimePainter.ComponentModules {
     
-    [TaggedType(tag)]
+    [TaggedType(CLASS_KEY)]
     internal class TileableAtlasingComponentModule : ComponentModuleBase {
-        private const string tag = "TilAtlsPntr";
-        public override string ClassTag => tag;
+        private const string CLASS_KEY = "TilAtlsPntr";
+        public override string ClassTag => CLASS_KEY;
 
         public List<Material> preAtlasingMaterials;
         public Mesh preAtlasingMesh;
@@ -891,61 +891,59 @@ namespace PlaytimePainter.ComponentModules {
         }
 
 
-#if UNITY_EDITOR
+
         public void ReconstructAsset()
         {
+            #if UNITY_EDITOR
+                ReconstructAtlas();
 
-            ReconstructAtlas();
+                for (var m = 0; m < aTexture.mipmapCount; m++)
+                    SmoothBorders(aTexture, m);
 
-            for (var m = 0; m < aTexture.mipmapCount; m++)
-                SmoothBorders(aTexture, m);
-
-            aTexture.Apply(false);
+                aTexture.Apply(false);
             
-            var bytes = aTexture.EncodeToPNG();
+                var bytes = aTexture.EncodeToPNG();
 
-            var lastPart = Path.Combine(Cfg.texturesFolderName, Cfg.atlasFolderName);
-            var fullPath = Path.Combine(Application.dataPath, lastPart);
-            Directory.CreateDirectory(fullPath);
+                var lastPart = Path.Combine(Cfg.texturesFolderName, Cfg.atlasFolderName);
+                var fullPath = Path.Combine(Application.dataPath, lastPart);
+                Directory.CreateDirectory(fullPath);
 
-            var fileName = NameForInspector + ".png";
-            var relativePath = Path.Combine("Assets", lastPart, fileName);
-            fullPath += fileName;
+                var fileName = NameForInspector + ".png";
+                var relativePath = Path.Combine("Assets", lastPart, fileName);
+                fullPath += fileName;
 
-            File.WriteAllBytes(fullPath, bytes);
+                File.WriteAllBytes(fullPath, bytes);
 
-            UnityEditor.AssetDatabase.Refresh(); // few times caused color of the texture to get updated to earlier state for some reason
+                UnityEditor.AssetDatabase.Refresh(); // few times caused color of the texture to get updated to earlier state for some reason
 
-            aTexture = (Texture2D)UnityEditor.AssetDatabase.LoadAssetAtPath(relativePath, typeof(Texture2D));
+                aTexture = (Texture2D)UnityEditor.AssetDatabase.LoadAssetAtPath(relativePath, typeof(Texture2D));
 
-            UnityEditor.TextureImporter other = null;
+                UnityEditor.TextureImporter other = null;
 
-            foreach (var t in textures)
-                if ((t != null) && t.texture) {
-                    other = t.texture.GetTextureImporter();
-                    break;
-                }
+                foreach (var t in textures)
+                    if ((t != null) && t.texture) {
+                        other = t.texture.GetTextureImporter();
+                        break;
+                    }
 
-            var ti = aTexture.GetTextureImporter();
+                var ti = aTexture.GetTextureImporter();
 
-            var needReimport = ti.WasNotReadable();
+                var needReimport = ti.WasNotReadable();
 
-            if (other != null)
-                needReimport |= ti.WasWrongIsColor(other.sRGBTexture);
+                if (other != null)
+                    needReimport |= ti.WasWrongIsColor(other.sRGBTexture);
 
-            needReimport |= ti.WasClamped();
+                needReimport |= ti.WasClamped();
 
-            if (needReimport) ti.SaveAndReimport();
-
+                if (needReimport) ti.SaveAndReimport();
+            #endif
         }
-#endif
+
 
 
         private int _inspectedItems = -1;
 
         public void Inspect() {
-
-#if UNITY_EDITOR
 
             if (_inspectedItems == -1) {
 
@@ -985,9 +983,9 @@ namespace PlaytimePainter.ComponentModules {
             if ("Generate".Click().nl())
                 ReconstructAsset();
 
+#if UNITY_EDITOR
             if (aTexture)
                 ("Atlas At " + UnityEditor.AssetDatabase.GetAssetPath(aTexture)).edit(ref aTexture, false).nl();
-
 #endif
 
         }

@@ -310,7 +310,7 @@ namespace QuizCanners.Utils
 
         #endregion
 
-        public static T TryGetClassAttribute<T>(this Type type, bool inherit = false) where T : Attribute
+        internal static T TryGetClassAttribute<T>(this Type type, bool inherit = false) where T : Attribute
         {
 
             if (!type.IsClass) return null;
@@ -321,6 +321,130 @@ namespace QuizCanners.Utils
         }
 
         #region List Management
+
+        internal static bool CanAdd<T>(List<T> list, ref object obj, out T conv, bool onlyIfNew = true)
+        {
+            conv = default;
+
+            if (obj == null || list == null)
+                return false;
+
+            if (!(obj is T t))
+            {
+
+                GameObject go = null;
+
+                if (typeof(T).IsSubclassOf(typeof(MonoBehaviour)))
+                {
+                    var mb = (obj as MonoBehaviour);
+                    if (mb)
+                    {
+                        go = mb.gameObject;
+                    }
+                }
+                else go = obj as GameObject;
+
+                if (go)
+#pragma warning disable UNT0014 // Invalid type for call to GetComponent
+                    conv = go.GetComponent<T>();
+#pragma warning restore UNT0014 // Invalid type for call to GetComponent
+            }
+            else conv = t;
+
+            if (conv == null || conv.Equals(default(T))) return false;
+
+            var objType = obj.GetType();
+
+            var dl = Migration.ICfgExtensions.TryGetDerivedClasses(typeof(T));
+            if (dl != null)
+            {
+                if (!dl.Contains(objType))
+                    return false;
+
+            }
+            else
+            {
+
+                var tc = Migration.TaggedTypesCfg.TryGetOrCreate(typeof(T));
+
+                if (tc != null && !tc.Types.Contains(objType))
+                    return false;
+            }
+
+            return !onlyIfNew || !list.Contains(conv);
+        }
+
+        private static void AssignUniqueIndex<T>(IList<T> list, T el)
+        {
+            var ind = el as IGotIndex;
+            if (ind == null) return;
+            var maxIndex = ind.IndexForInspector;
+            foreach (var o in list)
+                if (!el.Equals(o))
+                {
+                    var oInd = o as IGotIndex;
+                    if (oInd != null)
+                        maxIndex = Mathf.Max(maxIndex, oInd.IndexForInspector + 1);
+                }
+            ind.IndexForInspector = maxIndex;
+
+        }
+
+        public static T AddWithUniqueNameAndIndex<T>(IList<T> list) => AddWithUniqueNameAndIndex(list, "New " + typeof(T).ToPegiStringType());
+
+        internal static T AddWithUniqueNameAndIndex<T>(IList<T> list, string name) =>
+            AddWithUniqueNameAndIndex(list, (T)Activator.CreateInstance(typeof(T)), name);
+
+        internal static T AddWithUniqueNameAndIndex<T>(IList<T> list, T e, string name)
+        {
+            AssignUniqueIndex(list, e);
+            list.Add(e);
+            var named = e as IGotName;
+            if (named != null)
+                named.NameForInspector = name;
+            AssignUniqueNameIn(e, list);
+            return e;
+        }
+
+        private static void AssignUniqueNameIn<T>(T el, IList<T> list)
+        {
+
+            var namedNewElement = el as IGotName;
+            if (namedNewElement == null) return;
+
+            var newName = namedNewElement.NameForInspector;
+            var duplicate = true;
+            var counter = 0;
+
+            while (duplicate)
+            {
+                duplicate = false;
+
+                foreach (var e in list)
+                {
+                    var currentName = e as IGotName;
+
+                    if (currentName == null)
+                        continue;
+
+                    var otherName = currentName.NameForInspector;
+
+                    if (otherName == null)
+                        otherName = "";
+
+                    if (e.Equals(el) || !newName.Equals(otherName))
+                        continue;
+
+                    duplicate = true;
+                    counter++;
+                    newName = namedNewElement.NameForInspector + counter;
+                    break;
+                }
+            }
+
+            namedNewElement.NameForInspector = newName;
+
+        }
 
         public static T GetElementAt<T>(this IEnumerable<T> source, int index) => source.ElementAt(index);
         
@@ -415,7 +539,7 @@ namespace QuizCanners.Utils
 
             T toAdd;
 
-            if (QcUtils.CanAdd(list, ref ass, out toAdd, onlyIfNew))
+            if (CanAdd(list, ref ass, out toAdd, onlyIfNew))
                 list.Add(toAdd);
 
             return list;

@@ -107,12 +107,7 @@ namespace PlaytimePainter.UI
         }
     }
 
-    #region Inspector override
 
-    [PEGI_Inspector_Override(typeof(RoundedGraphic))]
-    internal class PixelPerfectShaderDrawer : PEGI_Inspector_Override { }
-
-    #endregion
 
     internal class PixelPerfectMaterialDrawer : PEGI_Inspector_Material
     {

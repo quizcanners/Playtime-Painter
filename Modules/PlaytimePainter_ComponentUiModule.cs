@@ -7,11 +7,11 @@ using UnityEngine.UI;
 
 namespace PlaytimePainter.ComponentModules {
 
-    [TaggedType(Tag)]
+    [TaggedType(CLASS_KEY)]
     internal class PainterComponentUiModule : ComponentModuleBase
     {
-        private const string Tag = "UiMdl";
-        public override string ClassTag => Tag;
+        private const string CLASS_KEY = "UiMdl";
+        public override string ClassTag => CLASS_KEY;
 
         private static readonly ShaderProperty.TextureValue textureName = new ShaderProperty.TextureValue("_UiSprite");
 

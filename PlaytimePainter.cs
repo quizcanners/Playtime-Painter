@@ -556,7 +556,7 @@ namespace PlaytimePainter
 
         #region  Texture MGMT 
 
-        internal TextureMeta TexMeta => GetTextureOnMaterial().GetTextureMeta();
+        public TextureMeta TexMeta => GetTextureOnMaterial().GetTextureMeta();
 
         private int SelectedTexture
         {
@@ -621,7 +621,7 @@ namespace PlaytimePainter
                 ChangeTexture(GetTextureOnMaterial());
         }
 
-        internal void ChangeTexture(TextureMeta id) => ChangeTexture(id.CurrentTexture());
+        public void ChangeTexture(TextureMeta id) => ChangeTexture(id.CurrentTexture());
 
         private void ChangeTexture(Texture texture)
         {
@@ -1665,7 +1665,7 @@ namespace PlaytimePainter
         }
 #endif
 
-        private readonly FrameGate _frameGate = new FrameGate();
+        private readonly Gate.Frame _frameGate = new Gate.Frame();
         public void ManagedUpdateOnFocused()
         {
             if (!_frameGate.TryEnter()) 

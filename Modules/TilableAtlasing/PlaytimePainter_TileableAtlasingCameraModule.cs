@@ -11,11 +11,11 @@ namespace PlaytimePainter
 
     namespace CameraModules
     {
-        [TaggedType(tag)]
+        [TaggedType(CLASS_KEY)]
         internal class TileableAtlasingCameraModule : CameraModuleBase, IMeshToolPlugin, IPainterManagerModuleBrush
         {
-            private const string tag = "TilAtlCntrl";
-            public override string ClassTag => tag;
+            private const string CLASS_KEY = "TilAtlCntrl";
+            public override string ClassTag => CLASS_KEY;
 
             public static TileableAtlasingCameraModule inst;
 

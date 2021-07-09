@@ -5,11 +5,11 @@ using UnityEngine;
 
 namespace PlaytimePainter.ComponentModules {
 
-    [TaggedType(Tag)]
+    [TaggedType(CLASS_KEY)]
     internal class TerrainHeightModule : ComponentModuleBase
     {
-        private const string Tag = "TerHeight";
-        public override string ClassTag => Tag;
+        private const string CLASS_KEY = "TerHeight";
+        public override string ClassTag => CLASS_KEY;
 
 
         private bool CorrectField(ShaderProperty.TextureValue field, PlaytimePainter pntr) => 

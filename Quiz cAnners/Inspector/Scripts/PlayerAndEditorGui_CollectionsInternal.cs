@@ -325,7 +325,7 @@ namespace QuizCanners.Inspect
                                 if (icon.Create.ClickUnFocus().nl())
                                 {
                                     added = (T)System.Activator.CreateInstance(t);
-                                    QcUtils.AddWithUniqueNameAndIndex(lst, added, addingNewNameHolder);
+                                    QcSharp.AddWithUniqueNameAndIndex(lst, added, addingNewNameHolder);
                                     SkrollToBottom();
                                 }
                             }
@@ -346,7 +346,7 @@ namespace QuizCanners.Inspect
                                     if (icon.Create.ClickUnFocus().nl())
                                     {
                                         added = (T)System.Activator.CreateInstance(tagTypes.TaggedTypes.TryGet(k[i]));
-                                        QcUtils.AddWithUniqueNameAndIndex(lst, added, addingNewNameHolder);
+                                        QcSharp.AddWithUniqueNameAndIndex(lst, added, addingNewNameHolder);
                                         SkrollToBottom();
                                     }
                                 }
@@ -407,7 +407,7 @@ namespace QuizCanners.Inspect
                             if (icon.Create.ClickUnFocus().nl(ref changed))
                             {
                                 added = (T)System.Activator.CreateInstance(types.TaggedTypes.TryGet(k[i]));
-                                QcUtils.AddWithUniqueNameAndIndex(lst, added, addingNewNameHolder);
+                                QcSharp.AddWithUniqueNameAndIndex(lst, added, addingNewNameHolder);
                                 SkrollToBottom();
                             }
                         }
@@ -775,7 +775,7 @@ namespace QuizCanners.Inspect
                     var srcInd = _copiedElements[i];
                     var e = listCopyBuffer.TryGetObj(srcInd);
 
-                    if (QcUtils.CanAdd(list, ref e, out T conv, !isAllowDuplicants))
+                    if (QcSharp.CanAdd(list, ref e, out T conv, !isAllowDuplicants))
                     {
                         list.Add(conv);
                         listCopyBuffer.RemoveAt(srcInd);
@@ -1362,7 +1362,7 @@ namespace QuizCanners.Inspect
                     if (typeof(T).IsSubclassOf(typeof(Object)))
                         list.Add(default);
                     else
-                        added = name.IsNullOrEmpty() ? QcUtils.AddWithUniqueNameAndIndex(list) : QcUtils.AddWithUniqueNameAndIndex(list, name);
+                        added = name.IsNullOrEmpty() ? QcSharp.AddWithUniqueNameAndIndex(list) : QcSharp.AddWithUniqueNameAndIndex(list, name);
 
                     SkrollToBottom();
                 }
@@ -1398,7 +1398,7 @@ namespace QuizCanners.Inspect
                     if (typeof(T).IsSubclassOf(typeof(Object)))
                         list.Add(default);
                     else
-                        added = name.IsNullOrEmpty() ? QcUtils.AddWithUniqueNameAndIndex(list) : QcUtils.AddWithUniqueNameAndIndex(list, name);
+                        added = name.IsNullOrEmpty() ? QcSharp.AddWithUniqueNameAndIndex(list) : QcSharp.AddWithUniqueNameAndIndex(list, name);
 
                     SkrollToBottom();
                 }

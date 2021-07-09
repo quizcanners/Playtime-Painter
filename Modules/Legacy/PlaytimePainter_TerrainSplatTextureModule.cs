@@ -6,11 +6,11 @@ using UnityEngine;
 namespace PlaytimePainter.ComponentModules
 {
 
-    [TaggedType(tag)]
+    [TaggedType(CLASS_KEY)]
     internal class TerrainSplatTextureModule : ComponentModuleBase
     {
-        private const string tag = "TerSplat";
-        public override string ClassTag => tag;
+        private const string CLASS_KEY = "TerSplat";
+        public override string ClassTag => CLASS_KEY;
 
         public override bool GetTexture(ShaderProperty.TextureValue field, ref Texture tex)
         {
