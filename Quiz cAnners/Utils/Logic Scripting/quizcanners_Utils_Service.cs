@@ -9,11 +9,42 @@ namespace QuizCanners.Utils
     {
         public static T Get<T>() => Singleton<T>.Instance;
 
+        public static bool Try<T>(Action<T> onFound, Action onFailed = null) 
+        {
+            var inst = Singleton<T>.Instance;
+
+            try
+            {
+                if (inst != null)
+                {
+                    onFound.Invoke(inst);
+                    return true;
+                }
+            } catch (Exception ex) 
+            {
+                Debug.LogException(ex);
+            }
+
+            if (onFailed != null)
+            {
+                try
+                {
+                    onFailed.Invoke();
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
+            }
+
+            return false;
+        }
+
         public static class Locator
         {
             internal static int Version;
 
-            private static Dictionary<Type, object> _services = new Dictionary<Type, object>();
+            private static readonly Dictionary<Type, object> _services = new Dictionary<Type, object>();
 
             public static object Get(Type type) => _services.TryGet(type);
 
@@ -90,7 +121,7 @@ namespace QuizCanners.Utils
         private static class Singleton<T>
         {
             private static T instance;
-            private static Gate.Integer _versionGate = new Gate.Integer();
+            private static readonly Gate.Integer _versionGate = new Gate.Integer();
             public static T Instance
             {
                 get
