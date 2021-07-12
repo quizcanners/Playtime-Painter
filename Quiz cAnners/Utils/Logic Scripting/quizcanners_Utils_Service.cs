@@ -11,7 +11,17 @@ namespace QuizCanners.Utils
 
         public static class Locator
         {
-            internal static Dictionary<Type, object> _services = new Dictionary<Type, object>();
+            internal static int Version;
+
+            private static Dictionary<Type, object> _services = new Dictionary<Type, object>();
+
+            public static object Get(Type type) => _services.TryGet(type);
+
+            public static void RegisterService(object service, Type type) 
+            {
+                _services[type] = service;
+                Version++;
+            }
 
             private static int _inspectedService = -1;
             public static void Inspect()
@@ -25,7 +35,7 @@ namespace QuizCanners.Utils
             protected virtual void OnEnable()
             {
                 var type = GetType();
-                Locator._services[type] = this;
+                Locator.RegisterService(this, type);
             }
 
             #region Inspector
@@ -71,7 +81,7 @@ namespace QuizCanners.Utils
         {
             public ClassBase()
             {
-                Locator._services[GetType()] = this;
+                Locator.RegisterService(this, GetType()); 
             }
 
             public string NameForDisplayPEGI() => QcSharp.AddSpacesInsteadOfCapitals(GetType().ToString().SimplifyTypeName(), keepCatipals: false);
@@ -80,19 +90,22 @@ namespace QuizCanners.Utils
         private static class Singleton<T>
         {
             private static T instance;
+            private static Gate.Integer _versionGate = new Gate.Integer();
             public static T Instance
             {
                 get
                 {
-                    if (instance == null)
-                        instance = (T)Locator._services.TryGet(typeof(T));
+                    if (_versionGate.TryChange(Locator.Version))
+                    {  
+                        instance = (T)Locator.Get(typeof(T));
+                    }
 
                     return instance;
                 }
                 set
                 {
                     instance = value;
-                    Locator._services[typeof(T)] = value;
+                    Locator.RegisterService(value, typeof(T));
                 }
             }
         }

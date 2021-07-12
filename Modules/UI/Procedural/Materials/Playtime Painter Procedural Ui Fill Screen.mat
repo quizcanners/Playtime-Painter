@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: Playtime Painter Procedural Ui Fill Screen
   m_Shader: {fileID: 4800000, guid: 3518b24cd43840a4ca0d693d8dd1764e, type: 3}
-  m_ShaderKeywords: _MODE_FILLSCREEN _UNLINKED
+  m_ShaderKeywords: _MODE_FILLSCREEN
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
