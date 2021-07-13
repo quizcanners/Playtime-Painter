@@ -279,7 +279,6 @@ namespace PlaytimePainter.UI
 
                 var changedMaterial = edit_Property(() => m_Material, this, fieldWidth: 60);
                
-
                 if (!Application.isPlaying && ClickDuplicate(ref mat, gameObject.name))
                 {
                     material = mat;
@@ -289,10 +288,8 @@ namespace PlaytimePainter.UI
                 if (changedMaterial)
                     _compatibleMaterials.AddIfNew(material);
 
-
                 if (!Application.isPlaying && icon.Refresh.Click("Find All Compatible Materials in Assets"))
                     _compatibleMaterials = ShaderTags.PixelPerfectUi.GetTaggedMaterialsFromAssets();
-
 
                 nl();
 
@@ -317,10 +314,6 @@ namespace PlaytimePainter.UI
                 nl();
 
                 "Color".edit_Property(90, () => color, this).nl();
-
-               /* var col = color;
-                if (edit(ref col).nl())
-                    color = col;*/
 
                 #region Position Data
 
@@ -378,45 +371,10 @@ namespace PlaytimePainter.UI
                     nl();
                 }
 
-                if (gotPixPerfTag && feedPositionData)
-                {
-                    if (!possiblePositionData)
+                if (gotPixPerfTag && feedPositionData && !possiblePositionData)
                         "Shader doesn't have any PixelPerfectUI Position Tags. Position updates may not be needed".writeWarning();
-                    else
-                    {
-                        nl();
-                        /*
-                        if (rectTransform.pivot != Vector2.one * 0.5f)
-                        {
-                            "Pivot is expected to be in the center for position processing to work".writeWarning();
-                            pegi.nl();
-                            if ("Set Pivot to 0.5,0.5".Click().nl())
-                                rectTransform.SetPivotTryKeepPosition(Vector2.one * 0.5f);
-                        }
-
-                        if (rectTransform.localScale != Vector3.one)
-                        {
-                            "Scale deformation can interfear with some shaders that use position".writeWarning();
-                            pegi.nl();
-                            if ("Set local scale to 1".Click().nl())
-                                rectTransform.localScale = Vector3.one;
-                        }
-
-                        if (rectTransform.localRotation != Quaternion.identity)
-                        {
-                            "Rotation can compromise calculations in shaders that need position".writeWarning();
-                            if ("Reset Rotation".Click().nl())
-                                rectTransform.localRotation = Quaternion.identity;
-
-                        }*/
-                    }
-
-                    // if (_positionDataType == PositionDataType.AtlasPosition) {
-                    //  "UV:".edit(ref atlasedUVs).nl();
-                    //   pegi.edit01(ref atlasedUVs).nl();
-                    // }
-
-                }
+                
+                nl();
 
                 #endregion
 
@@ -431,9 +389,6 @@ namespace PlaytimePainter.UI
 
                     spriteTag.edit_Property(90, () => sprite, this).nl();
 
-                    /*;
-                    if (spriteTag.edit(90, ref sp))
-                        sprite = sp;*/
                     var sp = sprite;
 
                     if (sp)
@@ -456,18 +411,7 @@ namespace PlaytimePainter.UI
 
                 pegi.edit_Property("Maskable", 90, () => maskable, this, includeChildren: true).nl();
 
-              /*  var isMaskable = maskable;
-
-                if ("Maskable".toggleIcon(ref isMaskable))
-                    maskable = isMaskable;*/
-
                 pegi.edit_Property("Raycast Target", 90, () => raycastTarget, this).nl();
-
-                /*var rt = raycastTarget;
-                if ("Click-able".toggleIcon(hint: "Is RayCast Target", ref rt))
-                    raycastTarget = rt;*/
-
-                nl();
             }
 
             if ("Modules".enter_List(_modules, ref _inspectedModule, ref _showModules).nl())

@@ -8,7 +8,7 @@ namespace QuizCanners.Utils
     {
         public abstract class GateBase 
         {
-            [SerializeField] protected bool initialized;
+            protected bool initialized;
 
             public bool ValueIsDefined => initialized;
         }
@@ -65,10 +65,9 @@ namespace QuizCanners.Utils
             }
         }
 
-        [Serializable]
         public class Integer : GateBase, IGotReadOnlyName
         {
-            [SerializeField] private int _previousValue;
+            private int _previousValue;
 
             public bool TryChange(int value)
             {
@@ -104,10 +103,9 @@ namespace QuizCanners.Utils
             public string GetNameForInspector() => initialized ? _previousValue.ToString() : "NOT INIT";
         }
 
-        [Serializable]
         public class Double : GateBase
         {
-            [SerializeField] private double _previousValue;
+            private double _previousValue;
 
             public double Value => _previousValue;
 
@@ -159,10 +157,9 @@ namespace QuizCanners.Utils
             }
         }
 
-        [Serializable]
         public class Time : GateBase
         {
-            [SerializeField] private SerializableDateTime _lastTime = new SerializableDateTime();
+            private SerializableDateTime _lastTime = new SerializableDateTime();
             private readonly Frame _frameGate = new Frame();
             private double _delta;
 
@@ -216,10 +213,9 @@ namespace QuizCanners.Utils
 
         }
 
-        [Serializable]
         public class Bool : GateBase
         {
-            [SerializeField] private bool _value;
+            private bool _value;
 
             public bool CurrentValue => _value;
 

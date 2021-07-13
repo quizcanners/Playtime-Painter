@@ -100,7 +100,7 @@ namespace QuizCanners.Inspect
             return changed;
         }*/
 
-        public static void Inspect_MB(Editor editor) //where T : MonoBehaviour
+        public static void Inspect_MB(Editor editor) 
         {
             _editor = editor;
 
@@ -120,7 +120,7 @@ namespace QuizCanners.Inspect
 
                 if (!pegi.FullWindow.ShowingPopup())
                 {
-                    var isPrefab = PrefabUtility.IsPartOfAnyPrefab(o);
+                    // var isPrefab = PrefabUtility.IsPartOfAnyPrefab(o);
 
                     pegi.toggleDefaultInspector(o);
 
@@ -131,8 +131,23 @@ namespace QuizCanners.Inspect
                     if (change)
                         ClearFromPooledSerializedObjects(o);
 
-                    if (globChanged && isPrefab)
+                    if (globChanged)// && isPrefab)
+                    {
                         PrefabUtility.RecordPrefabInstancePropertyModifications(o);
+                        // UnityEditor.SceneManagement.EditorSceneManager.SaveScene(SceneManager.GetActiveScene());
+                        /*var prefabStage = UnityEditor.Experimental.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage();
+                        if (prefabStage != null)
+                        {
+                            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(
+                                prefabStage.scene);
+                        }
+                        else
+                        {
+                            UnityEditor.EditorUtility.SetDirty(o.gameObject);
+                            UnityEditor.PrefabUtility.RecordPrefabInstancePropertyModifications(o);
+                            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(o.gameObject.scene);
+                        }*/
+                    }
                 }
 
                 newLine();
@@ -156,10 +171,11 @@ namespace QuizCanners.Inspect
 
                 EditorUtility.SetDirty(o);
                 EditorUtility.SetDirty(go);
+                Undo.RecordObject(o, "PEGI Editor modifications");
             }
         }
 
-        public static void Inspect_SO(Editor editor) //where T : ScriptableObject
+        public static void Inspect_SO(Editor editor) 
         {
             _editor = editor;
 
