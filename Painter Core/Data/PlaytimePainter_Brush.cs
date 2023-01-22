@@ -35,7 +35,20 @@ namespace PainterTool {
 
         public void Paint(PaintCommand.Base command)
         {
+            if (command == null) 
+            {
+                Debug.LogError("Command is nul");
+                return;
+            }
+
             var imgData = command.TextureData;
+
+            if (imgData == null)
+            {
+                Debug.LogError("Img Data is null");
+                return;
+            }
+
 
             TexTarget target = command.TextureData.Target;
             BrushTypes.Base brushType = GetBrushType(target);

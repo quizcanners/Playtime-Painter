@@ -54,6 +54,30 @@ MonoBehaviour:
   - _configurationFlags: 0
     Target: 0
     RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: b24b57e0cfed05643be34b0256df875e, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Dungeons_Texture_01
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
     Texture2D: {fileID: 2800000, guid: 6c525fd09aae7bf438b632b0e6981f34, type: 3}
     OtherTexture: {fileID: 0}
     Width: 128
@@ -78,18 +102,18 @@ MonoBehaviour:
   - _configurationFlags: 0
     Target: 0
     RenderTexture: {fileID: 0}
-    Texture2D: {fileID: 2800000, guid: b24b57e0cfed05643be34b0256df875e, type: 3}
+    Texture2D: {fileID: 2800000, guid: 4b4c478acd8242a449b412884e451693, type: 3}
     OtherTexture: {fileID: 0}
-    Width: 1024
-    Height: 1024
+    Width: 128
+    Height: 128
     IsAVolumeTexture: 0
     updateTex2DafterStroke: 0
     backupManually: 0
     _useTexCoord2AutoAssigned: 0
-    _isPng: 0
+    _isPng: 1
     repaintDelay: 0.016
     clearColor: {r: 0, g: 0, b: 0, a: 1}
-    saveName: Dungeons_Texture_01
+    saveName: chapel_diffuse
     _numberOfTexture2DBackups: 10
     _numberOfRenderTextureBackups: 10
     _sdfMaxInside: 1
@@ -124,20 +148,20 @@ MonoBehaviour:
     context:
       _currentlyEntered: 2
   - _configurationFlags: 0
-    Target: 0
-    RenderTexture: {fileID: 0}
-    Texture2D: {fileID: 2800000, guid: 4b4c478acd8242a449b412884e451693, type: 3}
+    Target: 1
+    RenderTexture: {fileID: 8400000, guid: ff228de16194c9c4ab6a5b37bdb7df3e, type: 2}
+    Texture2D: {fileID: 0}
     OtherTexture: {fileID: 0}
-    Width: 128
-    Height: 128
-    IsAVolumeTexture: 0
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 1
     updateTex2DafterStroke: 0
     backupManually: 0
     _useTexCoord2AutoAssigned: 0
-    _isPng: 1
+    _isPng: 0
     repaintDelay: 0.016
     clearColor: {r: 0, g: 0, b: 0, a: 1}
-    saveName: chapel_diffuse
+    saveName: _RayMarchingVolume Smoothed Result
     _numberOfTexture2DBackups: 10
     _numberOfRenderTextureBackups: 10
     _sdfMaxInside: 1
@@ -186,30 +210,6 @@ MonoBehaviour:
     repaintDelay: 0.016
     clearColor: {r: 0, g: 0, b: 0, a: 1}
     saveName: _RayMarchingVolume Volume Baker_Volume Size 1 Slices 6
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    _sdfMaxInside: 1
-    _sdfMaxOutside: 1
-    _sdfPostProcessDistance: 1
-    processContext:
-      _currentlyEntered: -1
-    context:
-      _currentlyEntered: -1
-  - _configurationFlags: 0
-    Target: 1
-    RenderTexture: {fileID: 8400000, guid: ff228de16194c9c4ab6a5b37bdb7df3e, type: 2}
-    Texture2D: {fileID: 0}
-    OtherTexture: {fileID: 0}
-    Width: 1024
-    Height: 1024
-    IsAVolumeTexture: 1
-    updateTex2DafterStroke: 0
-    backupManually: 0
-    _useTexCoord2AutoAssigned: 0
-    _isPng: 0
-    repaintDelay: 0.016
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    saveName: _RayMarchingVolume Smoothed Result
     _numberOfTexture2DBackups: 10
     _numberOfRenderTextureBackups: 10
     _sdfMaxInside: 1
