@@ -54,6 +54,30 @@ MonoBehaviour:
   - _configurationFlags: 0
     Target: 0
     RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 963e34d7b4af5d64984565a55337d3fa, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 2048
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Cliff_COLOR
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
     Texture2D: {fileID: 2800000, guid: b24b57e0cfed05643be34b0256df875e, type: 3}
     OtherTexture: {fileID: 0}
     Width: 1024
@@ -1014,30 +1038,6 @@ MonoBehaviour:
   - _configurationFlags: 0
     Target: 0
     RenderTexture: {fileID: 0}
-    Texture2D: {fileID: 2800000, guid: 963e34d7b4af5d64984565a55337d3fa, type: 3}
-    OtherTexture: {fileID: 0}
-    Width: 2048
-    Height: 1024
-    IsAVolumeTexture: 0
-    updateTex2DafterStroke: 0
-    backupManually: 0
-    _useTexCoord2AutoAssigned: 0
-    _isPng: 0
-    repaintDelay: 0.016
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    saveName: Cliff_COLOR
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    _sdfMaxInside: 1
-    _sdfMaxOutside: 1
-    _sdfPostProcessDistance: 1
-    processContext:
-      _currentlyEntered: -1
-    context:
-      _currentlyEntered: -1
-  - _configurationFlags: 0
-    Target: 0
-    RenderTexture: {fileID: 0}
     Texture2D: {fileID: 2800000, guid: b435393d37601e84db1f10ed766d0206, type: 3}
     OtherTexture: {fileID: 0}
     Width: 1024
@@ -1204,6 +1204,11 @@ MonoBehaviour:
     context:
       _currentlyEntered: -1
   matMetas:
+  - material: {fileID: 2100000, guid: 4bc814fcae1a7044987f74a722a25633, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
   - material: {fileID: 2100000, guid: afaa0e4544523a74e842e3375a6e21f0, type: 2}
     selectedTexture: 0
     usePreviewShader: 0
@@ -1396,9 +1401,9 @@ MonoBehaviour:
   showUrlField: 0
   showRecentTextures: 0
   showColorSchemes: 0
-  meshTool: 0
+  meshTool: 3
   bevelDetectionSensitivity: 7.3
-  meshToolsStd: t_pos|15|dm|1|1|inM|1|y||t_shF|7|dm|1|0||t_vCol|0||t_edgs|16|v|1|1|doCol|1|n||t_noStd|16|cat|1|0|cac|1|0||t_sbmsh|0||t_uv|42|gtuv|1|n|nrmWrap|1|1|fr|1|y|mp|1|y|po|1|n||
+  meshToolsStd: t_pos|15|dm|1|1|inM|1|y||t_shF|7|dm|1|0||t_vCol|0||t_edgs|16|v|1|1|doCol|1|y||t_noStd|16|cat|1|0|cac|1|0||t_sbmsh|0||t_uv|42|gtuv|1|n|nrmWrap|1|1|fr|1|y|mp|1|y|po|1|n||
   saveMeshUndos: 0
   makeVerticesUniqueOnEdgeColoring: 0
   gridSize: 1

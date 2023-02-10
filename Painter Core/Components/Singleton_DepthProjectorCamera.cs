@@ -105,7 +105,7 @@ namespace PainterTool
 
         private IUseDepthProjector userToGetUpdate;
 
-        [NonSerialized] private static readonly List<IUseDepthProjector> depthUsers = new List<IUseDepthProjector>();
+        [NonSerialized] private static readonly List<IUseDepthProjector> depthUsers = new();
 
         public static bool TrySubscribeToDepthCamera(IUseDepthProjector pj) 
         {
@@ -132,8 +132,8 @@ namespace PainterTool
         }
 
 
-        private readonly Gate.UnityTimeSinceStartup userUpdateGate = new Gate.UnityTimeSinceStartup();
-        private readonly Gate.UnityTimeSinceStartup updateGate = new Gate.UnityTimeSinceStartup();
+        private readonly Gate.UnityTimeSinceStartup userUpdateGate = new(Gate.InitialValue.StartArmed);
+        private readonly Gate.UnityTimeSinceStartup updateGate = new(Gate.InitialValue.StartArmed);
 
         public void ManagedUpdate() {
 
@@ -264,7 +264,7 @@ namespace PainterTool
                 _projectorCamera.Render();
         }
 
-        private readonly QcLog.ChillLogger logger = new QcLog.ChillLogger();
+        private readonly QcLog.ChillLogger logger = new();
 
         private void OnPostRender()
         {
@@ -363,9 +363,9 @@ namespace PainterTool
             }
         }
 
-        private readonly ProjectorCameraConfiguration painterProjectorCameraConfiguration = new ProjectorCameraConfiguration();
-        private readonly CameraMatrixParameters _painterDepthCameraMatrix = new CameraMatrixParameters("pp_");
-        private readonly ShaderProperty.TextureValue _painterDepthTexture = new ShaderProperty.TextureValue("pp_DepthProjection");
+        private readonly ProjectorCameraConfiguration painterProjectorCameraConfiguration = new();
+        private readonly CameraMatrixParameters _painterDepthCameraMatrix = new("pp_");
+        private readonly ShaderProperty.TextureValue _painterDepthTexture = new("pp_DepthProjection");
 
     }
 
