@@ -397,9 +397,8 @@ namespace PainterTool
 
         private bool ProcessHit(RaycastHit hit, Stroke st)
         {
-
-            var subMesh = this.GetMesh().GetSubMeshNumber(hit.triangleIndex);
-            if (subMesh != selectedSubMesh)
+           // var subMesh =  //this.GetMesh().GetSubMeshNumber(hit.triangleIndex);
+            if (hit.TryGetSubMeshIndex(out var subMesh) && subMesh != selectedSubMesh)
             {
                 if (autoSelectMaterialByNumberOfPointedSubMesh)
                 {

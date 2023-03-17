@@ -121,7 +121,7 @@ namespace PainterTool {
                 if (Texture)
                     width = Texture.width;
                 else
-                    width = Singleton.TryGetValue<Singleton_TexturesPool, int>(s => s.defaultWidth, defaultValue: _tmpWidth, logOnServiceMissing: false);
+                    width = Singleton.GetValue<Singleton_TexturesPool, int>(s => s.defaultWidth, defaultValue: _tmpWidth, logOnServiceMissing: false);
 
                 return width / hSlices;
             }

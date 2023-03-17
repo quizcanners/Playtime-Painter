@@ -37,7 +37,7 @@ namespace PainterTool
             if (!Application.isPlaying && !IsCurrentTool)
             {
                 if (ActiveEditorTracker.sharedTracker.isLocked)
-                    pegi.EditorViewPegi.Lock_UnlockClick(gameObject);
+                    pegi.EditorView.Lock_UnlockClick(gameObject);
 
                 MsgPainter.PleaseSelect.GetText().PegiLabel().Write_Hint();
 
@@ -889,13 +889,13 @@ namespace PainterTool
             Inspect_LockUnlock();
 
             if (currentlyPaintedObjectPainter)
-                pegi.EditorViewPegi.RefocusIfLocked(this, currentlyPaintedObjectPainter);
+                pegi.EditorView.RefocusIfLocked(this, currentlyPaintedObjectPainter);
 #if UNITY_EDITOR
             else if (Selection.objects.Length == 1)
             {
                 var go = Selection.objects[0] as GameObject;
                 if (go && go != gameObject)
-                    pegi.EditorViewPegi.RefocusIfLocked(this, go.GetComponent<PainterComponent>());
+                    pegi.EditorView.RefocusIfLocked(this, go.GetComponent<PainterComponent>());
             }
 #endif
 
@@ -938,7 +938,7 @@ namespace PainterTool
                     CheckPreviewShader();
                 }
 
-                pegi.EditorViewPegi.Lock_UnlockClick(gameObject);
+                pegi.EditorView.Lock_UnlockClick(gameObject);
 
                 return false;
             }
@@ -993,7 +993,7 @@ namespace PainterTool
                 UpdateOrSetTexTarget(TexTarget.Texture2D);
             }
 
-            pegi.EditorViewPegi.Lock_UnlockClick(gameObject);
+            pegi.EditorView.Lock_UnlockClick(gameObject);
 
             InitIfNotInitialized();
 
