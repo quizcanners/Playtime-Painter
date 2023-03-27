@@ -10,6 +10,7 @@ namespace PainterTool {
 
     [DisallowMultipleComponent]
     [ExecuteAlways]
+    [AddComponentMenu("Playtime Painter/Volume Texture")]
     public class C_VolumeTexture : MonoBehaviour, IGotName, IPEGI
     {
         internal static List<C_VolumeTexture> all = new List<C_VolumeTexture>();

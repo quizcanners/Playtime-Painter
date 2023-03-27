@@ -15,7 +15,7 @@ using UnityEngine.UI;
 namespace PainterTool
 {
     [DisallowMultipleComponent]
-    [AddComponentMenu("Mesh/Playtime Painter")]
+    [AddComponentMenu("Playtime Painter/Playtime Painter Tool")]
     [HelpURL(OnlineManual)]
     public partial class PainterComponent : IPEGI
     {

@@ -10,6 +10,7 @@ namespace PainterTool
 
 #pragma warning disable IDE0019 // Use pattern matching
     [ExecuteInEditMode]
+    [AddComponentMenu("Playtime Painter/Depth Projector Camera")]
     public class Singleton_DepthProjectorCamera : PainterSystemMono {
 
         public enum Mode { Clear, ReplacementShader }

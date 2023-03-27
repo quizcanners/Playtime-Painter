@@ -8,6 +8,7 @@ namespace PainterTool
 {
 
     [ExecuteInEditMode]
+    [AddComponentMenu("Playtime Painter/Textures Pool")]
     public class Singleton_TexturesPool : Singleton.BehaniourBase  
     {
         public static Singleton_TexturesPool ForcedInstance

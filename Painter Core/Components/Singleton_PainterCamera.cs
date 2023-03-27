@@ -14,6 +14,7 @@ namespace PainterTool {
     [HelpURL(PainterComponent.OnlineManual)]
     [DisallowMultipleComponent]
     [ExecuteInEditMode]
+    [AddComponentMenu("Playtime Painter/Painter Camera")]
     public class Singleton_PainterCamera : PainterSystemMono 
     {   
         internal static readonly PlaytimePainter_BrushMeshGenerator BrushMeshGenerator = new PlaytimePainter_BrushMeshGenerator();

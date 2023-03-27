@@ -8,6 +8,7 @@ namespace PainterTool
 {
 
     [ExecuteInEditMode]
+    [AddComponentMenu("Playtime Painter/Painter Brush")]
     public class PlaytimePainter_RenderBrush : PainterSystemMono
     {
 

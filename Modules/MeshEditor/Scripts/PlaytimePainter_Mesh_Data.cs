@@ -40,16 +40,16 @@ namespace PainterTool.MeshEditing
         public int uv2DistributeRow;
         public int uv2DistributeCurrent;
 
-        public List<uint> baseVertex = new List<uint>();
-        public Countless<Color> groupColors = new Countless<Color>();
+        public List<uint> baseVertex = new();
+        public Countless<Color> groupColors = new();
         public List<string> shapes;
-        public readonly UnNullable<Countless<float>> blendWeights = new UnNullable<Countless<float>>();
+        public readonly UnNullable<Countless<float>> blendWeights = new();
         public Matrix4x4[] bindPoses;
-        public List<PainterMesh.MeshPoint> meshPoints = new List<PainterMesh.MeshPoint>();
+        public List<PainterMesh.MeshPoint> meshPoints = new();
         public void Remove(MeshPointIndex point) => meshPoints.RemoveAt(point.index);
         public PainterMesh.MeshPoint this[MeshPointIndex point] => meshPoints[point.index];
-        public List<PainterMesh.Triangle> triangles = new List<PainterMesh.Triangle>();
-        public Mesh actualMesh;
+        public List<PainterMesh.Triangle> triangles = new();
+        //public Mesh actualMesh;
         public float averageSize;
 
         public void Edit(PainterComponent painter)
@@ -197,7 +197,7 @@ namespace PainterTool.MeshEditing
 
                     float coef = 10000f / mesh.bounds.size.magnitude;
 
-                    UnNullableLists<PainterMesh.MeshPoint> distanceGroups = new UnNullableLists<PainterMesh.MeshPoint>();
+                    UnNullableLists<PainterMesh.MeshPoint> distanceGroups = new();
 
                     for (var i = 0; i < vCnt; i++)
                     {
@@ -495,10 +495,10 @@ namespace PainterTool.MeshEditing
         private float _distanceLimit = 1;
         private const float NearTarget = 64;
 
-        public readonly List<PainterMesh.MeshPoint> _draggedVertices = new List<PainterMesh.MeshPoint>();
-        private readonly List<PainterMesh.MeshPoint> _sortVerticesClose = new List<PainterMesh.MeshPoint>();
-        private readonly List<PainterMesh.MeshPoint> _sortVerticesFar = new List<PainterMesh.MeshPoint>();
-        public CountlessCfg<PainterMesh.Vertex> uvsByFinalIndex = new CountlessCfg<PainterMesh.Vertex>();
+        public readonly List<PainterMesh.MeshPoint> _draggedVertices = new();
+        private readonly List<PainterMesh.MeshPoint> _sortVerticesClose = new();
+        private readonly List<PainterMesh.MeshPoint> _sortVerticesFar = new();
+        public CountlessCfg<PainterMesh.Vertex> uvsByFinalIndex = new();
 
         public PainterMesh.Vertex selectedUv;
 
@@ -1090,7 +1090,7 @@ namespace PainterTool.MeshEditing
                 }*/
 
                 //if (newUv == null)
-                PainterMesh.Vertex newUv = new PainterMesh.Vertex(newVrt);
+                PainterMesh.Vertex newUv = new(newVrt);
 
 
                 tr.AssignWeightedData(newUv, tr.DistanceToWeight(pos));

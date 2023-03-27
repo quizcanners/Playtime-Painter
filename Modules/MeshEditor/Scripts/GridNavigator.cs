@@ -16,6 +16,7 @@ namespace PainterTool.MeshEditing
     }
 
     [ExecuteInEditMode]
+    [AddComponentMenu("Playtime Painter/Grid XYZ Navigator")]
     public class GridNavigator : PainterSystemMono
     {
         public static GridNavigator GetOrCreate
