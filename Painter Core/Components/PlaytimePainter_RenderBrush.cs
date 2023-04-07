@@ -27,7 +27,7 @@ namespace PainterTool
         private int _replacedLayer;
         public bool deformedBounds;
 
-        [NonSerialized] private readonly MaterialInstancer.ForMeshRenderer materialInstancer = new MaterialInstancer.ForMeshRenderer() { InstantiateInEditor = true };
+        [NonSerialized] private readonly MaterialInstancer.ForMeshRenderer materialInstancer = new() { InstantiateInEditor = true };
 
         public override string InspectedCategory => nameof(PainterComponent);
 
@@ -158,7 +158,7 @@ namespace PainterTool
             deformedBounds = true;
         }
 
-        private readonly ShaderProperty.TextureValue _mainTex = new ShaderProperty.TextureValue("_MainTex");
+        private readonly ShaderProperty.TextureValue _mainTex = new("_MainTex");
 
 
         public PlaytimePainter_RenderBrush Set(Shader shade)
@@ -189,8 +189,7 @@ namespace PainterTool
             const float size = Singleton_PainterCamera.OrthographicSize * 2;
             var tf = transform;
             tf.localScale = new Vector3(size, size, 0);
-            tf.localPosition = Vector3.forward * 10;
-            tf.localRotation = Quaternion.identity;
+            tf.SetLocalPositionAndRotation(Vector3.forward * 10, Quaternion.identity);
             meshFilter.mesh = Singleton_PainterCamera.BrushMeshGenerator.GetQuad();
         }
 
@@ -224,8 +223,7 @@ namespace PainterTool
 
             var tf = transform;
             tf.localScale = new Vector3(size * aspectRatio, size, 0);
-            tf.localPosition = Vector3.forward * 10;
-            tf.localRotation = Quaternion.identity;
+            tf.SetLocalPositionAndRotation(Vector3.forward * 10, Quaternion.identity);
             meshFilter.mesh = Singleton_PainterCamera.BrushMeshGenerator.GetQuad();
 
             if (material)
@@ -262,8 +260,7 @@ namespace PainterTool
             var tf = transform;
             
             tf.localScale = new Vector3(size, size, 0);
-            tf.localPosition = Vector3.forward * 10;
-            tf.localRotation = Quaternion.identity;
+            tf.SetLocalPositionAndRotation(Vector3.forward * 10, Quaternion.identity);
             meshFilter.mesh = Singleton_PainterCamera.BrushMeshGenerator.GetQuad();
             PainterShaderVariables.BrushColorProperty.GlobalValue = col;
             Set(TexMgmtData.bufferColorFill); //.Set(col);

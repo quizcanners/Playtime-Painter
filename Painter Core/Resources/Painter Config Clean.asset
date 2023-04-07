@@ -51,78 +51,6 @@ MonoBehaviour:
   atlasedMaterials: []
   playtimeSavedTextures: []
   imgMetas:
-  - _configurationFlags: 0
-    Target: 0
-    RenderTexture: {fileID: 0}
-    Texture2D: {fileID: 2800000, guid: de31949a7e8d3bd4ab686843c3d7580f, type: 3}
-    OtherTexture: {fileID: 0}
-    Width: 512
-    Height: 512
-    IsAVolumeTexture: 0
-    updateTex2DafterStroke: 0
-    backupManually: 0
-    _useTexCoord2AutoAssigned: 0
-    _isPng: 1
-    repaintDelay: 0.016
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    saveName: PolygonWar_Texture_03_A
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    _sdfMaxInside: 1
-    _sdfMaxOutside: 1
-    _sdfPostProcessDistance: 1
-    processContext:
-      _currentlyEntered: -1
-    context:
-      _currentlyEntered: -1
-  - _configurationFlags: 0
-    Target: 0
-    RenderTexture: {fileID: 0}
-    Texture2D: {fileID: 2800000, guid: 61e2d540e28e1e345933eaa0304fb86e, type: 3}
-    OtherTexture: {fileID: 0}
-    Width: 128
-    Height: 128
-    IsAVolumeTexture: 0
-    updateTex2DafterStroke: 0
-    backupManually: 0
-    _useTexCoord2AutoAssigned: 0
-    _isPng: 1
-    repaintDelay: 0.016
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    saveName: Baked_Detalisation Terrain Control
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    _sdfMaxInside: 1
-    _sdfMaxOutside: 1
-    _sdfPostProcessDistance: 1
-    processContext:
-      _currentlyEntered: -1
-    context:
-      _currentlyEntered: -1
-  - _configurationFlags: 0
-    Target: 0
-    RenderTexture: {fileID: 0}
-    Texture2D: {fileID: 2800000, guid: 75c762e2f2f22c34a81acfb107e67a4b, type: 3}
-    OtherTexture: {fileID: 0}
-    Width: 2048
-    Height: 2048
-    IsAVolumeTexture: 0
-    updateTex2DafterStroke: 0
-    backupManually: 0
-    _useTexCoord2AutoAssigned: 0
-    _isPng: 0
-    repaintDelay: 0.016
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    saveName: Cliff
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    _sdfMaxInside: 1
-    _sdfMaxOutside: 1
-    _sdfPostProcessDistance: 1
-    processContext:
-      _currentlyEntered: -1
-    context:
-      _currentlyEntered: -1
   - _configurationFlags: 2
     Target: 0
     RenderTexture: {fileID: 0}
@@ -234,6 +162,102 @@ MonoBehaviour:
     repaintDelay: 0.016
     clearColor: {r: 0, g: 0, b: 0, a: 1}
     saveName: Dungeons_Texture_04_C
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 75c762e2f2f22c34a81acfb107e67a4b, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 2048
+    Height: 2048
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Cliff
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 74dce2e6af5d8bc4ebce58538ef6644b, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Terrain (1)_splatmap_0
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: de31949a7e8d3bd4ab686843c3d7580f, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 512
+    Height: 512
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: PolygonWar_Texture_03_A
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 61e2d540e28e1e345933eaa0304fb86e, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 128
+    Height: 128
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Baked_Detalisation Terrain Control
     _numberOfTexture2DBackups: 10
     _numberOfRenderTextureBackups: 10
     _sdfMaxInside: 1
@@ -892,22 +916,7 @@ MonoBehaviour:
     context:
       _currentlyEntered: -1
   matMetas:
-  - material: {fileID: 2100000, guid: c72491c806d13314487d375c8d0cf88b, type: 2}
-    selectedTexture: 0
-    usePreviewShader: 0
-    colorToVertexColorOnMerge: 0
-    selectedForMerge: 0
-  - material: {fileID: 2100000, guid: 505c6a505a475904e81718db81d730a3, type: 2}
-    selectedTexture: 0
-    usePreviewShader: 0
-    colorToVertexColorOnMerge: 0
-    selectedForMerge: 0
-  - material: {fileID: 2100000, guid: 841a5e1dc284dd94dbd9af67ce2fe754, type: 2}
-    selectedTexture: 0
-    usePreviewShader: 0
-    colorToVertexColorOnMerge: 0
-    selectedForMerge: 0
-  - material: {fileID: 2100000, guid: 42351158bf0f659488dd29026fea23f8, type: 2}
+  - material: {fileID: 2100000, guid: 51a18256b76561b4a8eff6181b7e6945, type: 2}
     selectedTexture: 0
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
@@ -927,12 +936,32 @@ MonoBehaviour:
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
     selectedForMerge: 0
-  - material: {fileID: 2100000, guid: 51a18256b76561b4a8eff6181b7e6945, type: 2}
+  - material: {fileID: 2100000, guid: be2bb959b01c1c04089cb69c52f5f5b2, type: 2}
     selectedTexture: 0
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
     selectedForMerge: 0
-  - material: {fileID: 2100000, guid: be2bb959b01c1c04089cb69c52f5f5b2, type: 2}
+  - material: {fileID: 2100000, guid: 42773e3ca85f1724a9358f767fa942f5, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: c72491c806d13314487d375c8d0cf88b, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 505c6a505a475904e81718db81d730a3, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 841a5e1dc284dd94dbd9af67ce2fe754, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 42351158bf0f659488dd29026fea23f8, type: 2}
     selectedTexture: 0
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
