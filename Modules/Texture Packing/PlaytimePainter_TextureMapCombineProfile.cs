@@ -116,7 +116,7 @@ namespace PainterTool.TexturePacking
                 name += "_" + _name;
 
                 set.lastProduct = QcUnity.SaveTextureAsAsset(tex, Cfg.texturesFolderName, ref name, false);
-
+                
                 var importer = set.lastProduct.GetTextureImporter_Editor();
 
                 var needReimport = importer.WasNotReadable_Editor();

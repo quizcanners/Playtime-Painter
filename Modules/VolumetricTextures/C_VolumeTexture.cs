@@ -4,7 +4,7 @@ using PainterTool.ComponentModules;
 using QuizCanners.Utils;
 using UnityEngine;
 using System.Linq;
-using UnityEngine.SceneManagement;
+using System;
 
 namespace PainterTool {
 
@@ -13,7 +13,9 @@ namespace PainterTool {
     [AddComponentMenu("Playtime Painter/Volume Texture")]
     public class C_VolumeTexture : MonoBehaviour, IGotName, IPEGI
     {
-        internal static List<C_VolumeTexture> all = new List<C_VolumeTexture>();
+        internal static List<C_VolumeTexture> all = new();
+
+        [NonSerialized] public bool ManagedExternally;
 
         public static C_VolumeTexture LatestInstance => all.TryGetLast();
 
@@ -21,7 +23,7 @@ namespace PainterTool {
 
         private int changePositionOnOffset = 32;
 
-        private readonly Gate.DirtyVersion _dirtyVersion = new Gate.DirtyVersion();
+        public readonly Gate.DirtyVersion DirtyVersion = new();
 
         public int hSlices = 4;
         public float size = 1;
@@ -128,7 +130,19 @@ namespace PainterTool {
             }
         }
 
-        private readonly Gate.Frame _recalculateFrame = new Gate.Frame();
+        public bool TryChangeVolume(int heightSlices, float size) 
+        {
+            if (hSlices == heightSlices && this.size == size)
+                return false;
+
+            hSlices = heightSlices;
+            this.size = size;
+            DirtyVersion.IsDirty = true;
+
+            return true;
+        }
+
+        private readonly Gate.Frame _recalculateFrame = new();
         private Vector4 posNSizeCached;
 
         public Vector4 GetPositionAndSizeForShader() 
@@ -177,7 +191,7 @@ namespace PainterTool {
 
         [SerializeField] private PainterComponent _painter;
         private bool _searchedForPainter;
-        protected pegi.EnterExitContext context = new pegi.EnterExitContext();
+        protected pegi.EnterExitContext context = new();
         protected int inspectedMaterial = -1;
 
         protected virtual void VolumeDocumentation()
@@ -192,6 +206,9 @@ namespace PainterTool {
         
         public virtual void Inspect()
         {
+            if (Application.isPlaying && !all.Contains(this))
+                "Not registered in the list of volumes".PegiLabel().WriteWarning().Nl();
+
             using (context.StartContext())
             {
                 var changed = pegi.ChangeTrackStart();
@@ -292,10 +309,7 @@ namespace PainterTool {
                             tex2D.ReadPixels(new Rect(0, 0, asRt.width, asRt.height), 0, 0);
                             tex2D.Apply();
 
-
-
                             string tname = (_textureInShaderr == null ? name : _textureInShaderr.ToString()) + " " + gameObject.scene.name + "_Volume Size {0} Slices {1}".F(size, hSlices);
-
 
 #if UNITY_EDITOR
 
@@ -312,8 +326,6 @@ namespace PainterTool {
                             var needsReimport = imp.WasWrongIsColor_Editor(isColor: false) | imp.WasWrongAlphaIsTransparency_Editor(isTransparency: false);
                             if (needsReimport)
                                 imp.SaveAndReimport();
-
-                           // _texture = tex2D;
 
 #endif
 
@@ -354,7 +366,7 @@ namespace PainterTool {
 
                 if (changed | Icon.Refresh.Click("Update Materials"))
                 {
-                    _dirtyVersion.IsDirty = true;
+                    DirtyVersion.IsDirty = true;
                 }
 
                 pegi.Nl();
@@ -365,23 +377,26 @@ namespace PainterTool {
 
 
 
-        private readonly Gate.Vector3Value _worldPosValue = new Gate.Vector3Value();
+        private readonly Gate.Vector3Value _worldPosValue = new();
         private Texture _previousTarget;
 
         public void Update()
         {
+            if (ManagedExternally)
+                return;
+
             var currentTexture = Texture; 
 
             if (currentTexture != _previousTarget)
             {
                 _previousTarget = currentTexture;
-                _dirtyVersion.IsDirty = true;
+                DirtyVersion.IsDirty = true;
             }
 
             if (_worldPosValue.TryChange(transform.position))
-                _dirtyVersion.IsDirty = true;
+                DirtyVersion.IsDirty = true;
 
-            if (_dirtyVersion.TryClear())
+            if (DirtyVersion.TryClear())
                 UpdateShaderVariables();
         }
 
@@ -403,7 +418,9 @@ namespace PainterTool {
 
         public virtual void OnDrawGizmosSelected()
         {
-            if (ImageMeta == null) return;
+            if (ImageMeta == null || ManagedExternally) 
+                return;
+
             var center = transform.position;
             var w = Width;
             center.y += Height * 0.5f * size;
