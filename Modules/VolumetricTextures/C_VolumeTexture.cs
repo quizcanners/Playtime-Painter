@@ -77,7 +77,6 @@ namespace PainterTool {
                 return _textureInShaderr;
             }
         }
-
         private ShaderProperty.VectorValue SlicesShadeProperty
         {
             get
@@ -90,7 +89,6 @@ namespace PainterTool {
                 return _slicesInShader;
             }
         }
-
         private ShaderProperty.VectorValue PositionAndScaleProperty
         {
             get
@@ -103,6 +101,74 @@ namespace PainterTool {
                 return _positionNsizeInShader;
             }
         }
+
+        #region Cubemap
+
+        [Header("Cube Map")]
+        public TextureAndProperty Texture_0_UP = new();
+        public TextureAndProperty Texture_1_DOWN = new();
+        public TextureAndProperty Texture_2_LEFT = new();
+        public TextureAndProperty Texture_3_RIGHT = new();
+        public TextureAndProperty Texture_4_BACK = new();
+        public TextureAndProperty Texture_5_FRONT = new();
+
+  
+        [Serializable]
+        public class TextureAndProperty : IPEGI
+        {
+            [NonSerialized] public LogicWrappers.Request IsDirty = new();
+            public Texture Texture;
+            private ShaderProperty.TextureValue _property;
+
+            public void Inspect()
+            {
+                _property?.Nested_Inspect().Nl();
+
+                if (Texture && Texture is RenderTexture && Icon.Clear.Click())
+                        RenderTextureBuffersManager.Blit(Color.clear, Texture as RenderTexture);
+
+
+                pegi.Draw(Texture, width: 256, alphaBlend: false).Nl();
+            }
+
+            public void SetGloablexture(C_VolumeTexture parent, VolumeCubeMapped.Direction dir) 
+            {
+                GetProperty(parent, dir).SetGlobal(Texture);
+            }
+
+            private ShaderProperty.TextureValue GetProperty(C_VolumeTexture parent, VolumeCubeMapped.Direction dir)
+            {
+                if (_property == null)
+                {
+                    var newName = "_RayMarchingVolume_" + dir.ToString();
+                    Debug.Log("Creating " + newName);
+                    _property = new ShaderProperty.TextureValue(newName);
+                }
+
+                return _property;
+            }
+        }
+
+        public TextureAndProperty this[VolumeCubeMapped.Direction dir]
+        {
+            get
+            {
+                switch (dir)
+                {
+                    case VolumeCubeMapped.Direction.UP: return Texture_0_UP;
+                    case VolumeCubeMapped.Direction.DOWN: return Texture_1_DOWN;
+                    case VolumeCubeMapped.Direction.LEFT: return Texture_2_LEFT;
+                    case VolumeCubeMapped.Direction.RIGHT: return Texture_3_RIGHT;
+                    case VolumeCubeMapped.Direction.BACK: return Texture_4_BACK;
+                    case VolumeCubeMapped.Direction.FRONT: return Texture_5_FRONT;
+                    default:
+                        Debug.LogError(QcLog.CaseNotImplemented(dir, nameof(C_VolumeTexture)));
+                        return Texture_1_DOWN;
+                }
+            }
+        }
+
+        #endregion
 
         public string NameForInspector
         {
@@ -432,6 +498,27 @@ namespace PainterTool {
 
     }
 
+    public static class VolumeCubeMapped
+    {
+        public enum Direction { UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3, BACK = 4, FRONT = 5 };
+
+
+        public static Vector3 ToVector(this Direction direction) 
+        {
+            switch (direction) 
+            {
+                case Direction.UP: return Vector3.up;
+                case Direction.RIGHT: return Vector3.right;
+                case Direction.LEFT: return Vector3.left;
+                case Direction.FRONT: return Vector3.forward;
+                case Direction.BACK: return Vector3.back;
+                case Direction.DOWN: return Vector3.down;
+                default:
+                    Debug.LogError(QcLog.CaseNotImplemented(direction, nameof(ToVector)));
+                    return Vector3.down;
+            }
+        }
+    }
 
     [PEGI_Inspector_Override(typeof(C_VolumeTexture))] internal class VolumeTextureEditor : PEGI_Inspector_Override { }
 

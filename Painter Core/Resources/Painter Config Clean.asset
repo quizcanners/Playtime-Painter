@@ -53,6 +53,54 @@ MonoBehaviour:
   imgMetas:
   - _configurationFlags: 0
     Target: 1
+    RenderTexture: {fileID: 8400000, guid: f450e603b55a4eb49b0e4b93a225b5dd, type: 2}
+    Texture2D: {fileID: 0}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: _RayMarchingVolume_3_RIGHT
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 1
+    RenderTexture: {fileID: 8400000, guid: 364192c3d623c68498a89ace22d3ffc0, type: 2}
+    Texture2D: {fileID: 0}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: _RayMarchingVolume_1_DOWN
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 1
     RenderTexture: {fileID: 8400000, guid: ff228de16194c9c4ab6a5b37bdb7df3e, type: 2}
     Texture2D: {fileID: 0}
     OtherTexture: {fileID: 0}
@@ -66,6 +114,78 @@ MonoBehaviour:
     repaintDelay: 0.016
     clearColor: {r: 0, g: 0, b: 0, a: 1}
     saveName: _RayMarchingVolume Smoothed Result
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 1
+    RenderTexture: {fileID: 8400000, guid: 4ce4466706cf1b84884adcc9443ccd2f, type: 2}
+    Texture2D: {fileID: 0}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: _RayMarchingVolume_5_FRONT
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 1
+    RenderTexture: {fileID: 8400000, guid: f0e92192cab6a05438f2871e5d938dae, type: 2}
+    Texture2D: {fileID: 0}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: _RayMarchingVolume_4_BACK
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 1
+    RenderTexture: {fileID: 8400000, guid: 6d646970d720fe943a837fbf55c01cb2, type: 2}
+    Texture2D: {fileID: 0}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: _RayMarchingVolume_0_UP
     _numberOfTexture2DBackups: 10
     _numberOfRenderTextureBackups: 10
     _sdfMaxInside: 1
