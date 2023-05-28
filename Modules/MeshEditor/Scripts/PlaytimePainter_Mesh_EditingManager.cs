@@ -20,7 +20,9 @@ namespace PainterTool.MeshEditing
 
         public static MeshToolBase MeshTool => Singleton_PainterCamera.Data.MeshTool;
 
-        public static PainterMesh.Vertex SelectedUv { get => editedMesh.selectedUv;
+        public static PainterMesh.Vertex SelectedUv 
+        { 
+            get => editedMesh.selectedUv;
             set => editedMesh.selectedUv = value;
         }
 
@@ -56,11 +58,11 @@ namespace PainterTool.MeshEditing
         public static Transform targetTransform;
        
 
-        private static readonly List<string> UndoMoves = new List<string>();
+        private static readonly List<string> UndoMoves = new();
 
-        private static readonly List<string> RedoMoves = new List<string>();
+        private static readonly List<string> RedoMoves = new();
 
-        internal static MeshData editedMesh = new MeshData();
+        internal static MeshData editedMesh = new();
         internal static MeshData previewEdMesh;
 
         private int _currentUv;
@@ -764,7 +766,7 @@ namespace PainterTool.MeshEditing
 
         #region Inspector
 
-        private readonly pegi.EnterExitContext contenxt = new pegi.EnterExitContext(); 
+        private readonly pegi.EnterExitContext contenxt = new(); 
 
         public void Inspect()  {
 

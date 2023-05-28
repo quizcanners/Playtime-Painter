@@ -37,10 +37,13 @@ namespace PainterTool.TexturePacking
 
             TextureRole.Clear();
 
+
+#if UNITY_EDITOR
+
             int size;
             TextureMeta id = p ? p.TexMeta : null;
             Color[] dst;
-            Texture2D tex = null;
+            Texture2D tex = set.lastProduct;
 
             if (id != null)
             {
@@ -51,15 +54,33 @@ namespace PainterTool.TexturePacking
             else
             {
                 size = set.width * set.height;
-                tex = new Texture2D(set.width, set.height, TextureFormat.ARGB32, true, set.isColor);
+      
+
+                if ((!tex) || (tex.width != set.width) || (tex.height != set.height))
+                {
+                    var reference = set.GetAnyTexture();
+
+                    var originalName = reference.name;
+
+                    tex = QcUnity.CreatePngSameDirectory(reference, reference.name + " " + _name, set.width, set.height, linear: !set.isColor);
+
+                    var importer = tex.GetTextureImporter_Editor();
+
+                    var needReimport = importer.WasNotReadable_Editor();
+                    needReimport |= importer.WasWrongIsColor_Editor(_isColor);
+                    needReimport |= importer.WasClamped_Editor();
+
+                    if (needReimport) importer.SaveAndReimport();
+                }
                 dst = new Color[size];
-                tex.wrapMode = TextureWrapMode.Repeat;
-                tex.name = set.name;
+              
             }
 
             var mips = new List<Color[]>();
             for (var i = 1; i < tex.mipmapCount; i++)
                 mips.Add(tex.GetPixels(i));
+
+          
 
             for (var colChan = 0; colChan < 4; colChan++)
             {
@@ -68,6 +89,9 @@ namespace PainterTool.TexturePacking
 
                 var ch = c.sourceChannel;
                 var col = c.Role.GetPixels(set, id);
+
+                
+             
 
                 if (c.flip)
                     for (var i = 0; i < size; i++)
@@ -99,34 +123,20 @@ namespace PainterTool.TexturePacking
             for (var i = 1; i < tex.mipmapCount; i++)
                 tex.SetPixels(mips[i - 1], i);
 
+            set.lastProduct = tex;
+
             if (id != null)
             {
                 id.SetAndApply(false);
-                set.lastProduct = tex;
             }
             else
             {
                 tex.SetPixels(dst);
-                tex.Apply(false, false);
-                set.lastProduct = tex;
-
-#if UNITY_EDITOR
-                var name = set.GetAnyTexture().name;
-
-                name += "_" + _name;
-
-                set.lastProduct = QcUnity.SaveTextureAsAsset(tex, Cfg.texturesFolderName, ref name, false);
-                
-                var importer = set.lastProduct.GetTextureImporter_Editor();
-
-                var needReimport = importer.WasNotReadable_Editor();
-                needReimport |= importer.WasWrongIsColor_Editor(_isColor);
-                needReimport |= importer.WasClamped_Editor();
-
-                if (needReimport) importer.SaveAndReimport();
-#endif
+                tex.Apply();
+                QcUnity.SaveChangesToPixels(tex);
             }
 
+#endif
             TextureRole.Clear();
         }
 

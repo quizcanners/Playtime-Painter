@@ -23,23 +23,49 @@ namespace PainterTool {
 
         private int changePositionOnOffset = 32;
 
-        public readonly Gate.DirtyVersion DirtyVersion = new();
+        private Texture _previousTarget;
 
         public int hSlices = 4;
         public float size = 1;
+        private Vector4 posNSizeCached;
 
-        private readonly Gate.Vector3Value _locationForSortingGate = new();
-        private int _locationForSortingVersion = 0;
+        public DirtyState Dirty = new();
+
+      
+
+        public class DirtyState 
+        {
+            public readonly Gate.DirtyVersion ShaderData = new();
+            public readonly Gate.DirtyVersion LocationForSorting_Version = new();
+            public readonly Gate.Vector3Value LocationForSortingGate_Gate = new();
+
+            public readonly Gate.Frame PositionUpdate = new();
+            public bool PosAndSizeSet = false;
+          
+            public readonly Gate.Vector3Value PreviousPosition = new();
+
+            public void SetDirty() 
+            {
+                ShaderData.IsDirty = true;
+                LocationForSorting_Version.IsDirty = true;
+
+                PositionUpdate.ValueIsDefined = false;
+                LocationForSortingGate_Gate.ValueIsDefined = false;
+                PreviousPosition.ValueIsDefined = false;
+                PosAndSizeSet = false;
+            }
+
+        }
 
         public int LocationVersion
         {
             get
             {
-                if (_locationForSortingGate.TryChange(GetPositionAndSizeForShader().XYZ()))
+                if (Dirty.LocationForSortingGate_Gate.TryChange(GetPositionAndSizeForShader().XYZ()))
                 {
-                    _locationForSortingVersion++;
+                    Dirty.LocationForSorting_Version.IsDirty = true;
                 }
-                return _locationForSortingVersion;
+                return Dirty.LocationForSorting_Version.Version;
             }
         }
 
@@ -105,20 +131,92 @@ namespace PainterTool {
         #region Cubemap
 
         [Header("Cube Map")]
-        public TextureAndProperty Texture_0_UP = new();
-        public TextureAndProperty Texture_1_DOWN = new();
-        public TextureAndProperty Texture_2_LEFT = new();
-        public TextureAndProperty Texture_3_RIGHT = new();
-        public TextureAndProperty Texture_4_BACK = new();
-        public TextureAndProperty Texture_5_FRONT = new();
+        public CubeSide Texture_0_RIGHT = new();
+        public CubeSide Texture_1_LEFT = new();
+        public CubeSide Texture_2_UP = new();
+        public CubeSide Texture_3_DOWN = new();
+        public CubeSide Texture_4_FRONT = new();
+        public CubeSide Texture_5_BACK = new();
 
-  
+        private ShaderProperty.TextureValue _cubeMapProperty;
+        public RenderTexture cubeArray;
+
+        public void Clear() 
+        {
+            if (cubeArray) 
+            {
+                cubeArray.DestroyWhatever();
+                cubeArray = null;
+            }
+        }
+
+        public void ToTextureArray(int face, Texture tex) 
+        {
+            Graphics.Blit(tex, GetTextureArray(), sourceDepthSlice: 0, destDepthSlice: (int)face);
+            SetTextureArray();
+        }
+
+        RenderTexture GetTextureArray() 
+        {
+            if (cubeArray == null)
+            {
+                cubeArray = new RenderTexture(width: 1024, 1024, depth: 0, RenderTextureFormat.ARGBHalf, mipCount: 0)
+                {
+                    useMipMap = false,
+                    autoGenerateMips = false,
+                    dimension = UnityEngine.Rendering.TextureDimension.Tex2DArray,
+                    volumeDepth = 6,
+                    name = "Specular Cubemap Array",
+                };
+            }
+
+            return cubeArray;
+        }
+
+        private void SetTextureArray() 
+        {
+            _cubeMapProperty ??= new ShaderProperty.TextureValue(RAY_MARCH_VOLUME + "CUBE");
+            _cubeMapProperty.SetGlobal(cubeArray);
+        }
+
+        public bool ToTextureArray() 
+        {
+            if (!SystemInfo.supports2DArrayTextures)
+            {
+                return false;
+            }
+
+            GetTextureArray();
+
+            for (int i=0; i<6; i++) 
+            {
+                var dir = (CubemapFace)i;
+
+                var tex = this[dir];
+
+                Graphics.Blit(tex.Texture, cubeArray, sourceDepthSlice: 0, destDepthSlice: i);
+            }
+
+            SetTextureArray();
+
+            return true;
+        }
+
+
+        const string RAY_MARCH_VOLUME = "_RayMarchingVolume_";
+
         [Serializable]
-        public class TextureAndProperty : IPEGI
+        public class CubeSide : IPEGI
         {
             [NonSerialized] public LogicWrappers.Request IsDirty = new();
             public Texture Texture;
             private ShaderProperty.TextureValue _property;
+
+            public void SetTexture(C_VolumeTexture parent, VolumeCubeMapped.Direction dir, Texture tex) 
+            {
+                Texture = tex;
+                GetProperty(parent, dir).SetGlobal(Texture);
+            }
 
             public void Inspect()
             {
@@ -140,8 +238,8 @@ namespace PainterTool {
             {
                 if (_property == null)
                 {
-                    var newName = "_RayMarchingVolume_" + dir.ToString();
-                    Debug.Log("Creating " + newName);
+                    var newName = RAY_MARCH_VOLUME + dir.ToString();
+                   
                     _property = new ShaderProperty.TextureValue(newName);
                 }
 
@@ -149,21 +247,42 @@ namespace PainterTool {
             }
         }
 
-        public TextureAndProperty this[VolumeCubeMapped.Direction dir]
+        public CubeSide this[VolumeCubeMapped.Direction dir]
         {
             get
             {
                 switch (dir)
                 {
-                    case VolumeCubeMapped.Direction.UP: return Texture_0_UP;
-                    case VolumeCubeMapped.Direction.DOWN: return Texture_1_DOWN;
-                    case VolumeCubeMapped.Direction.LEFT: return Texture_2_LEFT;
-                    case VolumeCubeMapped.Direction.RIGHT: return Texture_3_RIGHT;
-                    case VolumeCubeMapped.Direction.BACK: return Texture_4_BACK;
-                    case VolumeCubeMapped.Direction.FRONT: return Texture_5_FRONT;
+                    case VolumeCubeMapped.Direction.RIGHT: return Texture_0_RIGHT;
+                    case VolumeCubeMapped.Direction.LEFT: return Texture_1_LEFT;
+                    case VolumeCubeMapped.Direction.UP: return Texture_2_UP;
+                    case VolumeCubeMapped.Direction.DOWN: return Texture_3_DOWN;
+                    case VolumeCubeMapped.Direction.FRONT: return Texture_4_FRONT;
+                    case VolumeCubeMapped.Direction.BACK: return Texture_5_BACK;
+                 
                     default:
                         Debug.LogError(QcLog.CaseNotImplemented(dir, nameof(C_VolumeTexture)));
-                        return Texture_1_DOWN;
+                        return Texture_3_DOWN;
+                }
+            }
+        }
+
+        public CubeSide this[CubemapFace face] 
+        {
+            get 
+            {
+                switch (face) 
+                {
+                    case CubemapFace.PositiveX: return Texture_0_RIGHT;
+                    case CubemapFace.NegativeX: return Texture_1_LEFT;
+                    case CubemapFace.PositiveY: return Texture_2_UP;
+                    case CubemapFace.NegativeY: return Texture_3_DOWN;
+                    case CubemapFace.PositiveZ: return Texture_4_FRONT;
+                    case CubemapFace.NegativeZ: return Texture_5_BACK;
+
+                    default:
+                        Debug.LogError(QcLog.CaseNotImplemented(face, nameof(C_VolumeTexture)));
+                        return Texture_2_UP;
                 }
             }
         }
@@ -203,24 +322,30 @@ namespace PainterTool {
 
             hSlices = heightSlices;
             this.size = size;
-            DirtyVersion.IsDirty = true;
+
+
+            Dirty.SetDirty();
 
             return true;
         }
 
-        private readonly Gate.Frame _recalculateFrame = new();
-        private Vector4 posNSizeCached;
-
         public Vector4 GetPositionAndSizeForShader() 
         {
-            if (_recalculateFrame.TryEnter())
+            if (Dirty.PositionUpdate.TryEnter())
             {
                 changePositionOnOffset = Mathf.Max(1, changePositionOnOffset);
-                var scaledChunks = changePositionOnOffset * size;
-                var pos = (transform.position + (0.5f * scaledChunks * Vector3.one)) / scaledChunks;
-                pos = Vector3Int.FloorToInt(pos);
+                float scaledChunks = changePositionOnOffset * size;
+
+                Vector3 currentPosition = transform.position + (0.5f * scaledChunks * Vector3.one);
+
+                Vector3 pos = Vector3Int.FloorToInt(currentPosition / scaledChunks);
                 pos *= scaledChunks;
-                posNSizeCached = pos.ToVector4(1f / size);
+
+                if (!Dirty.PosAndSizeSet || (!posNSizeCached.XYZ().Equals(pos) && Vector3.Distance(transform.position, posNSizeCached.XYZ()) > scaledChunks))
+                {
+                    Dirty.PosAndSizeSet = true;
+                    posNSizeCached = pos.ToVector4(size);
+                }
             }
 
             return posNSizeCached;
@@ -232,9 +357,11 @@ namespace PainterTool {
             SlicesShadeProperty.SetGlobal(Slices4Shader);
             TextureInShaderProperty.SetGlobal(Texture); //ImageMeta.CurrentTexture());
             PositionAndScaleProperty.SetGlobal(res);
+
+            SetTextureArray();
+
             return res;
         }
-
 
         public Vector4 Slices4Shader {
             get {
@@ -257,8 +384,9 @@ namespace PainterTool {
 
         [SerializeField] private PainterComponent _painter;
         private bool _searchedForPainter;
-        protected pegi.EnterExitContext context = new();
         protected int inspectedMaterial = -1;
+        protected pegi.EnterExitContext context = new();
+        
 
         protected virtual void VolumeDocumentation()
         {
@@ -348,6 +476,14 @@ namespace PainterTool {
 
                 if ("Volume Texture ({0})".F(Texture ? NameForInspector : "NULL").PegiLabel().IsEntered().Nl())
                 {
+                    if (!cubeArray)
+                    {
+                        if ("Create Cubemap Array".PegiLabel().Click().Nl())
+                            ToTextureArray();
+                    }
+                    else
+                        pegi.Edit_Property(() => cubeArray, this).Nl();
+
                     var n = NameForInspector;
                     if ("Name".PegiLabel(50).Edit_Delayed(ref n).Nl())
                         NameForInspector = n;
@@ -362,6 +498,8 @@ namespace PainterTool {
 
                     if ("Volume Scale".PegiLabel(70).Edit_Delayed(ref size).Nl())
                         size = Mathf.Max(0.0001f, size);
+
+                    "Last Value: {0}".F(posNSizeCached).PegiLabel().Nl();
 
                     if (Texture)
                     {
@@ -432,7 +570,7 @@ namespace PainterTool {
 
                 if (changed | Icon.Refresh.Click("Update Materials"))
                 {
-                    DirtyVersion.IsDirty = true;
+                    Dirty.ShaderData.IsDirty = true;
                 }
 
                 pegi.Nl();
@@ -443,8 +581,7 @@ namespace PainterTool {
 
 
 
-        private readonly Gate.Vector3Value _worldPosValue = new();
-        private Texture _previousTarget;
+
 
         public void Update()
         {
@@ -456,13 +593,13 @@ namespace PainterTool {
             if (currentTexture != _previousTarget)
             {
                 _previousTarget = currentTexture;
-                DirtyVersion.IsDirty = true;
+                Dirty.ShaderData.IsDirty = true;
             }
 
-            if (_worldPosValue.TryChange(transform.position))
-                DirtyVersion.IsDirty = true;
+            if (Dirty.PreviousPosition.TryChange(transform.position))
+                Dirty.ShaderData.IsDirty = true;
 
-            if (DirtyVersion.TryClear())
+            if (Dirty.ShaderData.TryClear())
                 UpdateShaderVariables();
         }
 
@@ -480,6 +617,8 @@ namespace PainterTool {
                 if (all.Count > 0)
                     all.Last().UpdateShaderVariables();
             }
+
+            Clear();
         }
 
         public virtual void OnDrawGizmosSelected()
@@ -500,8 +639,8 @@ namespace PainterTool {
 
     public static class VolumeCubeMapped
     {
-        public enum Direction { UP = 0, DOWN = 1, LEFT = 2, RIGHT = 3, BACK = 4, FRONT = 5 };
 
+        public enum Direction { RIGHT = 0, LEFT = 1, UP = 2, DOWN = 3, FRONT = 4, BACK = 5};
 
         public static Vector3 ToVector(this Direction direction) 
         {

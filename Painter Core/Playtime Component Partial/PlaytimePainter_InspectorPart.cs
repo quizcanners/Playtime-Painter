@@ -55,9 +55,9 @@ namespace PainterTool
             var mg = MeshMgmt;
             mg.UndoRedoInspect(); pegi.Nl();
 
-            var sm = SharedMesh;
+            var sharedMesh = SharedMesh;
 
-            if (sm)
+            if (sharedMesh)
             {
                 if (this != MeshEditorManager.target)
                     if (SavedEditableMesh.IsEmpty == false)
@@ -82,7 +82,15 @@ namespace PainterTool
 
                         pegi.Nl();
 
-                        "Mesh has {0} vertices".F(sm.vertexCount).PegiLabel().Nl();
+                        "Mesh has {0} vertices".F(sharedMesh.vertexCount).PegiLabel().Nl();
+
+                        pegi.Nl();
+
+#if UNITY_EDITOR
+                        if ("Generate UV2".PegiLabel().Click().Nl())
+                            if (Unwrapping.GenerateSecondaryUVSet(sharedMesh) == false)
+                                Debug.LogError("UV2 generation failed");
+#endif
 
                         pegi.Nl();
 
@@ -125,7 +133,7 @@ namespace PainterTool
 
                 pegi.Edit_IfNull(ref meshRenderer, gameObject).Nl();
 
-                if (!sm && "Create Mesh".PegiLabel().Click())
+                if (!sharedMesh && "Create Mesh".PegiLabel().Click())
                     Mesh = new Mesh();
 
             }
@@ -658,7 +666,7 @@ namespace PainterTool
             {
 
                 pegi.Edit(ref texMeta.clearColor, 50);
-                if (Icon.Clear.Click("Clear channels which are not ignored"))
+                if (texMeta.CurrentTexture() && Icon.Clear.Click("Clear channels which are not ignored"))
                 {
                     if (GlobalBrush.PaintingAllChannels)
                     {
