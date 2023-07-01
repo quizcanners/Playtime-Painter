@@ -40,7 +40,7 @@ namespace PainterTool.MeshEditing
             var changed = pegi.ChangeTrackStart();
 
             var em = EditedMesh;
-            var br = Cfg.Brush;
+            var br = Painter.Data.Brush;
             var col = br.Color;
             var p = InspectedPainter;
 
@@ -49,7 +49,7 @@ namespace PainterTool.MeshEditing
 
             //"Mode".PegiLabel(50).Edit_Enum(ref _detectionMode).Nl();
 
-            "Make Vertex Unique On Paint".PegiLabel().ToggleIcon(ref Cfg.makeVerticesUniqueOnEdgeColoring).Nl();
+            "Make Vertex Unique On Paint".PegiLabel().ToggleIcon(ref Painter.Data.makeVerticesUniqueOnEdgeColoring).Nl();
 
 
             "Paint Radius".PegiLabel().ToggleIcon(ref _isPaintingWithRadius, hideTextWhenTrue: true);
@@ -189,7 +189,7 @@ namespace PainterTool.MeshEditing
                 float alpha = dist * _alpha / _radiusOfPainting;
 
                 foreach (var uvi in p.vertices)
-                    mask.SetValuesOn(ref uvi.color, source: Cfg.Brush.Color, alpha: alpha);
+                    mask.SetValuesOn(ref uvi.color, source: Painter.Data.Brush.Color, alpha: alpha);
             }
 
             EditedMesh.dirtyColor = true;
@@ -209,7 +209,7 @@ namespace PainterTool.MeshEditing
                 else
                 {
                     foreach (var uvi in MeshEditorManager.PointedUv.meshPoint.vertices)
-                        bcf.mask.SetValuesOn(ref uvi.color, Cfg.Brush.Color, alpha: _alpha);
+                        bcf.mask.SetValuesOn(ref uvi.color, Painter.Data.Brush.Color, alpha: _alpha);
 
                     if (_isPaintingWithRadius)
                         PaintRadius(MeshEditorManager.PointedUv.meshPoint);
@@ -229,7 +229,7 @@ namespace PainterTool.MeshEditing
             if (PointedLine.SameAsLastFrame)
                 return true;
 
-            var bcf = Cfg.Brush;
+            var bcf = Painter.Data.Brush;
 
             var a = PointedLine.vertexes[0];
             var b = PointedLine.vertexes[1];
@@ -256,7 +256,7 @@ namespace PainterTool.MeshEditing
             if (PointedTriangle.SameAsLastFrame)
                 return true;
 
-            var bcf = Cfg.Brush;
+            var bcf = Painter.Data.Brush;
 
             var c = bcf.Color;
 

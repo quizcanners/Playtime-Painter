@@ -23,9 +23,7 @@ namespace PainterTool.TexturePacking
 
         public bool isColor;
 
-        protected static SO_PainterDataAndConfig Cfg => Singleton_PainterCamera.Data;
-
-        public TextureMapCombineProfile Profile => Cfg.texturePackagingSolutions[selectedProfile];
+        public TextureMapCombineProfile Profile => Painter.Data.texturePackagingSolutions[selectedProfile];
 
         public Texture2D GetAnyTexture()
         {
@@ -73,25 +71,25 @@ namespace PainterTool.TexturePacking
 
             "is Color".PegiLabel().Toggle(ref isColor).Nl();
 
-            if (!Cfg) 
+            if (!Painter.Data) 
             {
                 "No Painter Config".PegiLabel().WriteWarning().Nl();
                 return;
             }
 
-            pegi.Select_Index(ref selectedProfile, Cfg.texturePackagingSolutions);
+            pegi.Select_Index(ref selectedProfile, Painter.Data.texturePackagingSolutions);
 
             if (Icon.Add.Click("New Texture Packaging Profile").Nl())
             {
-                QcSharp.AddWithUniqueNameAndIndex(Cfg.texturePackagingSolutions);
-                selectedProfile = Cfg.texturePackagingSolutions.Count - 1;
-                Cfg.SetToDirty();
+                QcSharp.AddWithUniqueNameAndIndex(Painter.Data.texturePackagingSolutions);
+                selectedProfile = Painter.Data.texturePackagingSolutions.Count - 1;
+                Painter.Data.SetToDirty();
             }
 
-            if ((selectedProfile < Cfg.texturePackagingSolutions.Count))
+            if ((selectedProfile < Painter.Data.texturePackagingSolutions.Count))
             {
-                if (pegi.Nested_Inspect(()=> Cfg.texturePackagingSolutions[selectedProfile].Inspect(this)).Nl())
-                    Cfg.SetToDirty();
+                if (pegi.Nested_Inspect(()=> Painter.Data.texturePackagingSolutions[selectedProfile].Inspect(this)).Nl())
+                    Painter.Data.SetToDirty();
             }
         }
 

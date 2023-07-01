@@ -27,17 +27,15 @@ namespace PainterTool.MeshEditing
 
             get
             {
-                switch (_detectionMode)
+                return _detectionMode switch
                 {
-                    case DetectionMode.Points: return "Click on points to toggle smoothed normal";
-                    case DetectionMode.Lines: return "Click on lines to set dominants";
-                    default:
-                        return (
-                            ("Paint the DOMINANCE on triangles {0} It will affect how normal vector will be calculated {0}"
-                            +
-                            "Alt + N on Triangle to flip normals").F(pegi.EnvironmentNl));
-                }
-
+                    DetectionMode.Points => "Click on points to toggle smoothed normal",
+                    DetectionMode.Lines => "Click on lines to set dominants",
+                    _ => (
+                                                ("Paint the DOMINANCE on triangles {0} It will affect how normal vector will be calculated {0}"
+                                                +
+                                                "Alt + N on Triangle to flip normals").F(pegi.EnvironmentNl)),
+                };
             }
 
         }
@@ -116,8 +114,8 @@ namespace PainterTool.MeshEditing
                 {
                     var a = (i + 1) % 3;
                     var b = (i + 2) % 3;
-                    if (!(dist[i] < dist[a] / Cfg.bevelDetectionSensitivity) ||
-                        !(dist[i] < dist[b] / Cfg.bevelDetectionSensitivity)) continue;
+                    if (!(dist[i] < dist[a] / Painter.Data.bevelDetectionSensitivity) ||
+                        !(dist[i] < dist[b] / Painter.Data.bevelDetectionSensitivity)) continue;
 
                     t.SetSharpCorners(false);
 
@@ -136,7 +134,7 @@ namespace PainterTool.MeshEditing
             {
                 if (!PlaytimePainter_EditorInputManager.Alt)
                 {
-                    var no = PointedTriangle.NumberOf(PointedTriangle.GetClosestTo(MeshMGMT.collisionPosLocal));
+                    var no = PointedTriangle.NumberOf(PointedTriangle.GetClosestTo(Painter.MeshManager.collisionPosLocal));
                     PointedTriangle.isPointDominant[no] = !PointedTriangle.isPointDominant[no];
                     (PointedTriangle.isPointDominant[no] ? "Triangle edge's Normal is now dominant" : "Triangle edge Normal is NO longer dominant").TeachingNotification();
                 }

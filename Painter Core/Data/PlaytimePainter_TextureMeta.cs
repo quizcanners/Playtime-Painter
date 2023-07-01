@@ -218,7 +218,7 @@ namespace PainterTool
 
             var msg = $"Saved {saveName} to {fullPath}";
 
-            Cfg.playtimeSavedTextures.Add(fullPath);
+            Painter.Data.playtimeSavedTextures.Add(fullPath);
 
             pegi.GameView.ShowNotification(msg);
 
@@ -249,7 +249,7 @@ namespace PainterTool
         #endregion
 
         #region Undo & Redo
-        public PaintingUndoRedo.UndoCache cache = new PaintingUndoRedo.UndoCache();
+        public PaintingUndoRedo.UndoCache cache = new();
 
         public void OnStrokeMouseDown_CheckBackup()
         {
@@ -338,7 +338,7 @@ namespace PainterTool
 
         public void Texture2D_To_RenderTexture() => Texture2DToRenderTexture(Texture2D);
 
-        public void Texture2DToRenderTexture(Texture2D tex) => Singleton_PainterCamera.GetOrCreate().Render(tex, this.CurrentRenderTexture(), Cfg.pixPerfectCopy.Shader);
+        public void Texture2DToRenderTexture(Texture2D tex) => Painter.Camera.Render(tex, this.CurrentRenderTexture(), Painter.Data.pixPerfectCopy.Shader);
 
         public void RenderTexture_To_Texture2D() => RenderTexture_To_Texture2D(Texture2D);
 
@@ -349,9 +349,9 @@ namespace PainterTool
 
             var rt = RenderTexture;
 
-            TexMGMT.TryApplyBufferChangesTo(this);
+            Painter.Camera.TryApplyBufferChangesTo(this);
 
-            if (!rt && TexMGMT.imgMetaUsingRendTex == this)
+            if (!rt && Painter.Camera.imgMetaUsingRendTex == this)
                 rt = RenderTextureBuffersManager.GetDownscaledBigRt(Width, Height);
 
             //Graphics.CopyTexture();
@@ -365,7 +365,7 @@ namespace PainterTool
 
             var converted = false;
 
-            if (Singleton_PainterCamera.GetOrCreate().IsLinearColorSpace)
+            if (Painter.IsLinearColorSpace)
             {
                 if (!tex.IsColorTexture())
                 {
@@ -389,7 +389,7 @@ namespace PainterTool
                 if (changeTo == TexTarget.RenderTexture)
                 {
                     if (!RenderTexture)
-                        Singleton_PainterCamera.GetOrCreate().ChangeBufferTarget(this, mat, parameter, painter);
+                        Painter.Camera.ChangeBufferTarget(this, mat, parameter, painter);
                     Texture2DToRenderTexture(Texture2D);
                 }
                 else
@@ -399,8 +399,8 @@ namespace PainterTool
 
                     if (!RenderTexture)
                     {
-                        Singleton_PainterCamera.GetOrCreate().EmptyBufferTarget();
-                        Singleton_PainterCamera.GetOrCreate().DiscardAlphaBuffer();
+                        Painter.Camera.EmptyBufferTarget();
+                        Painter.Camera.DiscardAlphaBuffer();
                     }
                     else if (painter.initialized && !painter.isBeingDisabled)
                     {
@@ -550,7 +550,7 @@ namespace PainterTool
             }
             else
             {
-                Singleton_PainterCamera.GetOrCreate().Prepare(color, this.CurrentRenderTexture()).Render();
+                Painter.Camera.Prepare(color, this.CurrentRenderTexture()).Render();
             }
         }
 
@@ -580,7 +580,7 @@ namespace PainterTool
 
             var pix = _sampler.GetPixel(0, 0);
 
-            if (Singleton_PainterCamera.GetOrCreate().IsLinearColorSpace)
+            if (Painter.IsLinearColorSpace)
                 pix = pix.linear;
 
             return pix;
@@ -632,7 +632,7 @@ namespace PainterTool
             return y * Width + x;
         }
 
-        public Vector2Int UvToPixelNumber(Vector2 uv) => new Vector2Int(Mathf.FloorToInt(uv.x * Width), Mathf.FloorToInt(uv.y * Height));
+        public Vector2Int UvToPixelNumber(Vector2 uv) => new(Mathf.FloorToInt(uv.x * Width), Mathf.FloorToInt(uv.y * Height));
 
         public Vector2Int UvToPixelNumber(Vector2 uv, out Vector2 pixelOffset)
         {
@@ -744,7 +744,7 @@ namespace PainterTool
             Width = renderTextureSize;
             Height = renderTextureSize;
             AddRenderTexture();
-            Cfg.imgMetas.Insert(0, this);
+            Painter.Data.imgMetas.Insert(0, this);
             Target = TexTarget.RenderTexture;
             return this;
         }
@@ -762,11 +762,11 @@ namespace PainterTool
             else
                 OtherTexture = tex;
 
-            if (Cfg == null)
+            if (Painter.Data == null)
                 return this;
 
-            if (!Cfg.imgMetas.Contains(this))
-                Cfg.imgMetas.Insert(0, this);
+            if (!Painter.Data.imgMetas.Contains(this))
+                Painter.Data.imgMetas.Insert(0, this);
             return this;
         }
 
@@ -787,7 +787,7 @@ namespace PainterTool
 #if UNITY_EDITOR
 
                     var assetPath = UnityEditor.AssetDatabase.GetAssetPath(Texture2D);
-                    var extension = assetPath.Substring(assetPath.LastIndexOf(".", StringComparison.Ordinal) + 1);
+                    var extension = assetPath[(assetPath.LastIndexOf(".", StringComparison.Ordinal) + 1)..];
 
                     _isPng = extension == "png";
 
@@ -872,7 +872,7 @@ namespace PainterTool
 
         private string LoadTexturePegi(string path)
         {
-            if ("Load {0}".F(path.Substring(path.LastIndexOf("/", StringComparison.Ordinal))).PegiLabel().Click())
+            if ("Load {0}".F(path[path.LastIndexOf("/", StringComparison.Ordinal)..]).PegiLabel().Click())
                 LoadInPlayer(path);
             return path;
         }
@@ -890,8 +890,8 @@ namespace PainterTool
             }
         }
 
-        public pegi.EnterExitContext processContext = new pegi.EnterExitContext();
-        public pegi.EnterExitContext context = new pegi.EnterExitContext();
+        public pegi.EnterExitContext processContext = new();
+        public pegi.EnterExitContext context = new();
 
         public void Inspect() {
 
@@ -919,8 +919,8 @@ namespace PainterTool
                     "Update Texture2D after every stroke".PegiLabel().ToggleIcon(ref updateTex2DafterStroke).Nl();
                 }
 
-                var newWidth = Cfg.SelectedWidthForNewTexture(); //PainterDataAndConfig.SizeIndexToSize(PainterCamera.Data.selectedWidthIndex);
-                var newHeight = Cfg.SelectedHeightForNewTexture();
+                var newWidth = Painter.Data.SelectedWidthForNewTexture(); //PainterDataAndConfig.SizeIndexToSize(PainterCamera.Data.selectedWidthIndex);
+                var newHeight = Painter.Data.SelectedHeightForNewTexture();
 
                 if ("Texture Processors".PegiLabel().IsEntered().Nl())
                 {
@@ -933,9 +933,9 @@ namespace PainterTool
 
                             if ("Resize ({0}*{1}) => ({2}*{3})".F(Width, Height, newWidth, newHeight).PegiLabel().IsEntered().Nl_ifEntered())
                             {
-                                "New Width ".PegiLabel(60).Select(ref Singleton_PainterCamera.Data.selectedWidthIndex, SO_PainterDataAndConfig.NewTextureSizeOptions).Nl();
+                                "New Width ".PegiLabel(60).Select(ref Painter.Data.selectedWidthIndex, SO_PainterDataAndConfig.NewTextureSizeOptions).Nl();
 
-                                "New Height ".PegiLabel().Select(ref Singleton_PainterCamera.Data.selectedHeightIndex, SO_PainterDataAndConfig.NewTextureSizeOptions).Nl();
+                                "New Height ".PegiLabel().Select(ref Painter.Data.selectedHeightIndex, SO_PainterDataAndConfig.NewTextureSizeOptions).Nl();
 
                                 if (newWidth != Width || newHeight != Height)
                                 {
@@ -1090,7 +1090,7 @@ namespace PainterTool
 
                             if ("Curves".PegiLabel().IsEntered().Nl())
                             {
-                                var crv = TexMGMT.InspectAnimationCurve("Channel");
+                                var crv = Painter.Camera.InspectAnimationCurve("Channel");
 
                                 if (Pixels != null)
                                 {
@@ -1138,8 +1138,8 @@ namespace PainterTool
                                 if ("Save Playtime".PegiLabel("Will save to {0}/{1}".F(Application.persistentDataPath, saveName)).Click().Nl())
                                     SaveInPlayer();
 
-                                if (Cfg && Cfg.playtimeSavedTextures.Count > 0)
-                                    "Playtime Saved Textures".PegiLabel().Edit_List(Cfg.playtimeSavedTextures, LoadTexturePegi);
+                                if (Painter.Data && Painter.Data.playtimeSavedTextures.Count > 0)
+                                    "Playtime Saved Textures".PegiLabel().Edit_List(Painter.Data.playtimeSavedTextures, LoadTexturePegi);
                             }
 
                             if ("Fade edges".PegiLabel().IsEntered().Nl())
@@ -1361,8 +1361,7 @@ namespace PainterTool
             if (this[TextureCfgFlags.EnableUndoRedo] == false)
                 return;
 
-            if (cache == null) 
-                cache = new PaintingUndoRedo.UndoCache();
+            cache ??= new PaintingUndoRedo.UndoCache();
 
             if (cache.undo.GotData)
             {
@@ -1474,7 +1473,7 @@ namespace PainterTool
                 if (imp)
                 {
                     var assetPath = UnityEditor.AssetDatabase.GetAssetPath(Texture2D);
-                    var extension = assetPath.Substring(assetPath.LastIndexOf(".", StringComparison.Ordinal) + 1);
+                    var extension = assetPath[(assetPath.LastIndexOf(".", StringComparison.Ordinal) + 1)..];
 
                     _isPng = extension == "png";
 

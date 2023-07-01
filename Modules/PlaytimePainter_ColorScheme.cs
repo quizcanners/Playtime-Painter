@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using QuizCanners.Inspect;
 using QuizCanners.Migration;
 using QuizCanners.Utils;
@@ -9,11 +8,10 @@ namespace PainterTool
 {
     public class ColorPicker : ICfg, IPEGI, IGotName, IPEGI_ListInspect
     {
-        private static SO_PainterDataAndConfig Cfg => Singleton_PainterCamera.Data;
-        private static Brush GlobalBrush => Cfg.Brush;
+        private static Brush GlobalBrush => Painter.Data.Brush;
         
         public string paletteName;
-        private List<Color> _colors = new List<Color>();
+        private List<Color> _colors = new();
         
         #region Inspector
 

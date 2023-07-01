@@ -21,7 +21,7 @@ namespace PainterTool.MeshEditing
 
         public override bool ShowTriangles => _detectionMode == DetectionMode.Triangles || (_addToTrianglesAndLines && _detectionMode == DetectionMode.Points);
 
-        private static List<PainterMesh.MeshPoint> _draggedVertices => EditedMesh._draggedVertices; // new List<MeshPoint>();
+        private static List<PainterMesh.MeshPoint> DraggedVertices => EditedMesh._draggedVertices; // new List<MeshPoint>();
 
         private Vector3 _originalPosition;
 
@@ -30,7 +30,7 @@ namespace PainterTool.MeshEditing
         public override void AssignText(MarkerWithText markers, PainterMesh.MeshPoint point)
         {
 
-            var selected = MeshMGMT.GetSelectedVertex();
+            var selected = Painter.MeshManager.GetSelectedVertex();
 
             if (point.vertices.Count > 1 || selected == point)
             {
@@ -69,7 +69,7 @@ namespace PainterTool.MeshEditing
 
         public override void Inspect()
         {
-            var sd = Cfg;
+            var sd = Painter.Data;
             var em = EditedMesh;
 
             // "Mode".PegiLabel(40).Edit_Enum(ref _detectionMode).Nl();
@@ -92,11 +92,11 @@ namespace PainterTool.MeshEditing
 
             pegi.Nl();
 
-            "Pixel-Perfect".PegiLabel("New vertex will have UV coordinate rounded to half a pixel.").ToggleIcon(ref Cfg.pixelPerfectMeshEditing).Nl();
+            "Pixel-Perfect".PegiLabel("New vertex will have UV coordinate rounded to half a pixel.").ToggleIcon(ref Painter.Data.pixelPerfectMeshEditing).Nl();
 
             "Insert vertices".PegiLabel("Will split triangles and edges by inserting vertices").ToggleIcon(ref _addToTrianglesAndLines).Nl();
 
-            "Add Unique:".PegiLabel().ToggleIcon(ref Cfg.newVerticesUnique).Nl();
+            "Add Unique:".PegiLabel().ToggleIcon(ref Painter.Data.newVerticesUnique).Nl();
 
             if ("All shared if same UV".PegiLabel("Will only merge vertices if they have same UV").Click().Nl())
             {
@@ -109,7 +109,7 @@ namespace PainterTool.MeshEditing
             {
                 em.AllVerticesShared();
                 em.Dirty = true;
-                Cfg.newVerticesUnique = false;
+                Painter.Data.newVerticesUnique = false;
             }
 
             if ("All unique".PegiLabel(toolTip: "If vertex belongs to more then one triangle, a new vertex will be created for each of the extra triangle.").ClickConfirm(confirmationTag: "AllUnq").Nl())
@@ -117,10 +117,10 @@ namespace PainterTool.MeshEditing
                 foreach (var t in EditedMesh.triangles)
                     em.GiveTriangleUniqueVertices(t);
 
-                Cfg.newVerticesUnique = true;
+                Painter.Data.newVerticesUnique = true;
             }
 
-            "Add Smooth:".PegiLabel().ToggleIcon(ref Cfg.newVerticesSmooth).Nl();
+            "Add Smooth:".PegiLabel().ToggleIcon(ref Painter.Data.newVerticesSmooth).Nl();
 
             if ("Sharp All".PegiLabel(toolTip: "Normal vectors will be different for each triangle when possible (when vertex/normal data is not shared with another triangle).").ClickConfirm(confirmationTag: "AllSrp"))
             {
@@ -128,7 +128,7 @@ namespace PainterTool.MeshEditing
                     vr.smoothNormal = false;
 
                 EditedMesh.Dirty = true;
-                Cfg.newVerticesSmooth = false;
+                Painter.Data.newVerticesSmooth = false;
             }
 
             if ("Smooth All".PegiLabel(toolTip: "All edge normals will be smooth even when a triangle can afford to have a different one.").ClickConfirm(confirmationTag: "AllSmth").Nl())
@@ -136,13 +136,13 @@ namespace PainterTool.MeshEditing
                 foreach (var vr in EditedMesh.meshPoints)
                     vr.smoothNormal = true;
                 EditedMesh.Dirty = true;
-                Cfg.newVerticesSmooth = true;
+                Painter.Data.newVerticesSmooth = true;
             }
 
 
             if ("Auto Bevel".PegiLabel().Click())
                 SharpFacesTool.AutoAssignDominantNormalsForBeveling();
-            "Sensitivity".PegiLabel(60).Edit(ref Cfg.bevelDetectionSensitivity, 3, 30).Nl();
+            "Sensitivity".PegiLabel(60).Edit(ref Painter.Data.bevelDetectionSensitivity, 3, 30).Nl();
 
             pegi.Nl();
         }
@@ -162,7 +162,7 @@ namespace PainterTool.MeshEditing
 
         public override void KeysEventDragging()
         {
-            var m = MeshMGMT;
+            var m = Painter.MeshManager;
             if (KeyCode.M.IsDown() && MeshEditorManager.SelectedUv != null)
             {
                 MeshEditorManager.SelectedUv.meshPoint.MergeWithNearest(EditedMesh);
@@ -177,7 +177,7 @@ namespace PainterTool.MeshEditing
         public override void KeysEventPointedVertex()
         {
 
-            var m = MeshMGMT;
+            var m = Painter.MeshManager;
 
             if (KeyCode.Delete.IsDown())
             {
@@ -252,13 +252,13 @@ namespace PainterTool.MeshEditing
         {
             if (PlaytimePainter_EditorInputManager.GetMouseButtonDown(0))
             {
-                var m = MeshMGMT;
+                var m = Painter.MeshManager;
 
                 m.Dragging = true;
                 m.AssignSelected(MeshEditorManager.PointedUv);
                 _originalPosition = PointedUv.meshPoint.WorldPos;
-                _draggedVertices.Clear();
-                _draggedVertices.Add(PointedUv.meshPoint);
+                DraggedVertices.Clear();
+                DraggedVertices.Add(PointedUv.meshPoint);
             }
             return false;
         }
@@ -266,22 +266,22 @@ namespace PainterTool.MeshEditing
         public override bool MouseEventPointedLine()
         {
 
-            var m = MeshMGMT;
+            var m = Painter.MeshManager;
 
             if (PlaytimePainter_EditorInputManager.GetMouseButtonDown(0))
             {
                 m.Dragging = true;
                 _originalPosition = GridNavigator.LatestMouseRaycastHit;
                 GridNavigator.LatestMouseToGridProjection = GridNavigator.LatestMouseRaycastHit;
-                _draggedVertices.Clear();
+                DraggedVertices.Clear();
                 foreach (var uv in PointedLine.vertexes)
-                    _draggedVertices.Add(uv.meshPoint);
+                    DraggedVertices.Add(uv.meshPoint);
             }
 
             if (PlaytimePainter_EditorInputManager.GetMouseButtonUp(0))
             {
-                if (_addToTrianglesAndLines && m.DragDelay > 0 && _draggedVertices.Contains(PointedLine))
-                    EditedMesh.InsertIntoLine(MeshEditorManager.PointedLine.vertexes[0].meshPoint, MeshEditorManager.PointedLine.vertexes[1].meshPoint, MeshMGMT.collisionPosLocal);
+                if (_addToTrianglesAndLines && m.DragDelay > 0 && DraggedVertices.Contains(PointedLine))
+                    EditedMesh.InsertIntoLine(MeshEditorManager.PointedLine.vertexes[0].meshPoint, MeshEditorManager.PointedLine.vertexes[1].meshPoint, Painter.MeshManager.collisionPosLocal);
             }
 
             return false;
@@ -289,7 +289,7 @@ namespace PainterTool.MeshEditing
 
         public override bool MouseEventPointedTriangle()
         {
-            var m = MeshMGMT;
+            var m = Painter.MeshManager;
 
             if (PlaytimePainter_EditorInputManager.GetMouseButtonDown(0))
             {
@@ -297,16 +297,16 @@ namespace PainterTool.MeshEditing
                 m.Dragging = true;
                 _originalPosition = GridNavigator.LatestMouseRaycastHit;
                 GridNavigator.LatestMouseToGridProjection = GridNavigator.LatestMouseRaycastHit;
-                _draggedVertices.Clear();
+                DraggedVertices.Clear();
                 foreach (var uv in PointedTriangle.vertexes)
-                    _draggedVertices.Add(uv.meshPoint);
+                    DraggedVertices.Add(uv.meshPoint);
 
             }
 
             if (!_addToTrianglesAndLines || !PlaytimePainter_EditorInputManager.GetMouseButtonUp(0) || !(m.DragDelay > 0) ||
-                !_draggedVertices.Contains(PointedTriangle)) return false;
+                !DraggedVertices.Contains(PointedTriangle)) return false;
 
-            if (Cfg.newVerticesUnique)
+            if (Painter.Data.newVerticesUnique)
                 EditedMesh.InsertIntoTriangleUniqueVertices(MeshEditorManager.PointedTriangle, m.collisionPosLocal);
             else
                 EditedMesh.InsertIntoTriangle(MeshEditorManager.PointedTriangle, m.collisionPosLocal);
@@ -317,7 +317,7 @@ namespace PainterTool.MeshEditing
         public override void MouseEventPointedNothing()
         {
             if (_addToTrianglesAndLines && PlaytimePainter_EditorInputManager.GetMouseButtonDown(0))
-                MeshMGMT.CreatePointAndFocus(MeshMGMT.onGridLocal);
+                Painter.MeshManager.CreatePointAndFocus(Painter.MeshManager.onGridLocal);
         }
 
         private void OnClickDetected()
@@ -328,7 +328,7 @@ namespace PainterTool.MeshEditing
 
         public override void ManageDragging()
         {
-            var m = MeshMGMT;
+            var m = Painter.MeshManager;
 
             var beforeCouldDrag = m.DragDelay <= 0;
 
@@ -359,7 +359,7 @@ namespace PainterTool.MeshEditing
 
                 MeshEditorManager.TriVertices = 0;
 
-                foreach (var v in _draggedVertices)
+                foreach (var v in DraggedVertices)
                     v.WorldPos += delta;
 
                 _originalPosition = GridNavigator.LatestMouseToGridProjection;

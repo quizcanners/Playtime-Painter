@@ -21,12 +21,12 @@ namespace PainterTool.MeshEditing
             public bool stagedForDeletion;
 
             // Data to save:
-            public List<Vector2[]> sharedUVs = new List<Vector2[]>();
+            public List<Vector2[]> sharedUVs = new();
             public List<Vertex> vertices;
             public Vector3 localPos;
             public bool smoothNormal;
             public Vector4 shadowBake;
-            public List<List<BlendFrame>> shapes = new List<List<BlendFrame>>(); // not currently working
+            public List<List<BlendFrame>> shapes = new(); // not currently working
             public Vector4 edgeStrength;
 
          
@@ -47,7 +47,7 @@ namespace PainterTool.MeshEditing
 
             public void UVto01Space()
             {
-                int ind = MeshMGMT.EditedUV;
+                int ind = Painter.MeshManager.EditedUV;
 
                 for (int i = 0; i < sharedUVs.Count; i++)
                     sharedUVs[i][ind] = sharedUVs[i][ind].To01Space();
@@ -243,7 +243,7 @@ namespace PainterTool.MeshEditing
                 Reboot(npos);
 
                 if (editing)
-                    smoothNormal = Cfg.newVerticesSmooth;
+                    smoothNormal = Painter.Data.newVerticesSmooth;
             }
 
             private void CopyFrom(MeshPoint other)
@@ -315,7 +315,7 @@ namespace PainterTool.MeshEditing
             {
                 float val = 1;
 
-                if (Cfg.makeVerticesUniqueOnEdgeColoring)
+                if (Painter.Data.makeVerticesUniqueOnEdgeColoring)
                     EditedMesh.GiveLineUniqueVerticesRefreshTriangleListing(new LineData(this, other));
 
                 foreach (var u in vertices)

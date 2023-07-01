@@ -219,8 +219,7 @@ namespace PainterTool
                         _projectorCamera.targetTexture = trg;
 
                         var prm = userToGetUpdate.GetGlobalCameraMatrixParameters();
-                        if (prm != null)
-                            prm.SetGlobalFrom(_projectorCamera);
+                        prm?.SetGlobalFrom(_projectorCamera);
 
                         gotUser = true;
 
@@ -261,7 +260,7 @@ namespace PainterTool
             }
 
             if (userToGetUpdate != null ||
-                (TexMgmtData.useDepthForProjector && updatePainterIfNoUser && !pauseAutoUpdates))
+                (Painter.Data.useDepthForProjector && updatePainterIfNoUser && !pauseAutoUpdates))
                 _projectorCamera.Render();
         }
 
@@ -309,7 +308,7 @@ namespace PainterTool
             _projectorCamera.allowMSAA = false;
             _projectorCamera.allowHDR = false;
 
-            var l = Cfg ? Cfg.playtimePainterLayer : 30;
+            var l = Painter.Data ? Painter.Data.playtimePainterLayer : 30;
 
             _projectorCamera.cullingMask &= ~(1 << l);
 
@@ -324,9 +323,9 @@ namespace PainterTool
             {
                 if (Application.isPlaying)
                 {
-                    if (Singleton_PainterCamera.GetOrCreate())
+                    if (Painter.Camera)
                     {
-                        var cam = Singleton_PainterCamera.GetOrCreate().MainCamera;
+                        var cam = Painter.Camera.MainCamera;
 
                         if (cam)
                         {

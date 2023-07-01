@@ -53,14 +53,14 @@ namespace PainterTool
             }
             else 
             {
-                transform.parent = Singleton_PainterCamera.GetOrCreate().transform;
+                transform.parent = Painter.Camera.transform;
                 _modifiedMesh.bounds = modifiedBound;
 
                 meshRenderer.materials = _replacedBrushesMaterials;
             }
         }
         
-        public void PrepareWorldSpace(PaintCommand.WorldSpaceBase command) 
+        public void PrepareWorldSpace(Painter.Command.WorldSpaceBase command) 
         {
             if (command.SkinnedMeshRenderer) 
                 UseSkinMeshAsBrush(command); 
@@ -68,7 +68,7 @@ namespace PainterTool
                 UseMeshAsBrush(command);
         }
 
-        private void UseSkinMeshAsBrush(PaintCommand.WorldSpaceBase command) 
+        private void UseSkinMeshAsBrush(Painter.Command.WorldSpaceBase command) 
         {
             GameObject go = command.GameObject;
             SkinnedMeshRenderer skinny = command.SkinnedMeshRenderer;
@@ -78,7 +78,7 @@ namespace PainterTool
 
             meshRenderer.enabled = false;
 
-            var camTransform = Singleton_PainterCamera.GetOrCreate().transform;
+            var camTransform = Painter.Camera.transform;
 
             _changedSkinnedMeshRenderer = skinny;
             _changedGameObject = go;
@@ -101,7 +101,7 @@ namespace PainterTool
         }
 
 
-        public void UseMeshAsBrush(PaintCommand.WorldSpaceBase command) 
+        public void UseMeshAsBrush(Painter.Command.WorldSpaceBase command) 
         {
             GameObject go = command.GameObject;
             Mesh mesh = command.Mesh;
@@ -120,11 +120,11 @@ namespace PainterTool
 
             if (selectedSubMeshes.IsNullOrEmpty())
             {
-                QcLog.ChillLogger.LogErrosExpOnly(()=> "PaintCommand.WorldSpace arrived with unassigned selectedSubmeshes array. Seeting 0", key: "emptSbM");
+                QcLog.ChillLogger.LogErrosExpOnly(()=> "Painter.Command.WorldSpace arrived with unassigned selectedSubmeshes array. Seeting 0", key: "emptSbM");
                 selectedSubMeshes = new List<int>(1) {0};
             }
 
-            var camTransform = TexMGMT.transform;
+            var camTransform = Painter.Camera.transform;
 
             var target = go.transform;
 
@@ -190,7 +190,7 @@ namespace PainterTool
             var tf = transform;
             tf.localScale = new Vector3(size, size, 0);
             tf.SetLocalPositionAndRotation(Vector3.forward * 10, Quaternion.identity);
-            meshFilter.mesh = Singleton_PainterCamera.BrushMeshGenerator.GetQuad();
+            meshFilter.mesh = Painter.BrushMeshGenerator.GetQuad();
         }
 
         public RenderTexture CopyBuffer(Texture tex, RenderTexture onto, Shader shade) => CopyBuffer(tex, onto, null, shade);
@@ -216,7 +216,7 @@ namespace PainterTool
                 aspectRatio = 1; 
             }
 
-            TexMGMT.TargetTexture = onto;
+            Painter.Camera.TargetTexture = onto;
 
             PainterShaderVariables.SourceTextureSize = tex;
             PainterShaderVariables.BufferCopyAspectRatio.GlobalValue = 1f / aspectRatio;
@@ -224,7 +224,7 @@ namespace PainterTool
             var tf = transform;
             tf.localScale = new Vector3(size * aspectRatio, size, 0);
             tf.SetLocalPositionAndRotation(Vector3.forward * 10, Quaternion.identity);
-            meshFilter.mesh = Singleton_PainterCamera.BrushMeshGenerator.GetQuad();
+            meshFilter.mesh = Painter.BrushMeshGenerator.GetQuad();
 
             if (material)
             {
@@ -232,18 +232,18 @@ namespace PainterTool
                 meshRenderer.material = material;
                 if (tex)
                     Set(tex);
-                TexMGMT.Render();
+                Painter.Camera.Render();
                 meshRenderer.material = tmpMat;
             }
             else
             {
 
                 if (!shade)
-                    shade = TexMgmtData.pixPerfectCopy.Shader;
+                    shade = Painter.Data.pixPerfectCopy.Shader;
 
                 Set(shade);
                 Set(tex);
-                TexMGMT.Render();
+                Painter.Camera.Render();
             }
 
 
@@ -261,9 +261,9 @@ namespace PainterTool
             
             tf.localScale = new Vector3(size, size, 0);
             tf.SetLocalPositionAndRotation(Vector3.forward * 10, Quaternion.identity);
-            meshFilter.mesh = Singleton_PainterCamera.BrushMeshGenerator.GetQuad();
+            meshFilter.mesh = Painter.BrushMeshGenerator.GetQuad();
             PainterShaderVariables.BrushColorProperty.GlobalValue = col;
-            Set(TexMgmtData.bufferColorFill); //.Set(col);
+            Set(Painter.Data.bufferColorFill); //.Set(col);
         }
         
         protected override void OnAfterEnable()
@@ -281,7 +281,7 @@ namespace PainterTool
 
             }
 
-            gameObject.layer = Cfg.playtimePainterLayer;
+            gameObject.layer = Painter.Data.playtimePainterLayer;
 
             PainterShaderVariables.BufferCopyAspectRatio.GlobalValue = 1f;
         }

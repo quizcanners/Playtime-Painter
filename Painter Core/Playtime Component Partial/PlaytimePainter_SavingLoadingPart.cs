@@ -23,7 +23,7 @@ namespace PainterTool
         public CfgEncoder EncodeMeshStuff()
         {
             if (IsEditingThisMesh)
-                MeshEditorManager.Inst.StopEditingMesh();
+                Painter.MeshManager.StopEditingMesh();
 
             return new CfgEncoder()
                 .Add("m", SavedEditableMesh)
@@ -68,7 +68,7 @@ namespace PainterTool
 
             var id = TexMeta;
 
-            TexMgmt.TryDiscardBufferChangesTo(id);
+            Painter.Camera.TryDiscardBufferChangesTo(id);
 
             importer.SaveAndReimport();
             if (id.TargetIsRenderTexture())
@@ -83,9 +83,9 @@ namespace PainterTool
             AssetImporter.GetAtPath(Path.Combine("Assets", GenerateTextureSavePath())) as TextureImporter != null;
 
         private string GenerateTextureSavePath() =>
-            Path.Combine(Cfg.texturesFolderName, TexMeta.saveName + ".png");
+            Path.Combine(Painter.Data.texturesFolderName, TexMeta.saveName + ".png");
 
-        private readonly LoopLock _loopLock = new LoopLock();
+        private readonly LoopLock _loopLock = new();
 
         private bool OnBeforeSaveTexture(TextureMeta id)
         {
@@ -159,7 +159,7 @@ namespace PainterTool
 
             if (OnBeforeSaveTexture(id))
             {
-                id.Texture2D = QcUnity.SaveTextureAsAsset(id.Texture2D, Cfg.texturesFolderName, ref id.saveName, asNew);
+                id.Texture2D = QcUnity.SaveTextureAsAsset(id.Texture2D, Painter.Data.texturesFolderName, ref id.saveName, asNew);
                 id.Texture2D.Reimport_IfNotReadale_Editor();
             }
 
@@ -173,7 +173,7 @@ namespace PainterTool
 
             if (exists)
             {
-                var path = AssetDatabase.GetAssetPath(mesh);
+               //var path = AssetDatabase.GetAssetPath(mesh);
                 //SharedMesh = Instantiate(SharedMesh);
 
                 // AssetDatabase.SaveAssets( sm, Path.Combine("Assets", MeshEditorManager.GenerateMeshSavePath()));
@@ -187,7 +187,7 @@ namespace PainterTool
             {
 
 
-                var folderPath = Path.Combine(Application.dataPath, Cfg.meshesFolderName);
+                var folderPath = Path.Combine(Application.dataPath, Painter.Data.meshesFolderName);
                 Directory.CreateDirectory(folderPath);
 
                 try
@@ -196,7 +196,7 @@ namespace PainterTool
 
                     var sm = SharedMesh;
 
-                    Directory.CreateDirectory(Path.Combine("Assets", Cfg.meshesFolderName));
+                    Directory.CreateDirectory(Path.Combine("Assets", Painter.Data.meshesFolderName));
 
                     AssetDatabase.CreateAsset(sm, Path.Combine("Assets", MeshEditorManager.GenerateMeshSavePath()));
 

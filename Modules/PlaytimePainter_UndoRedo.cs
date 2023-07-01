@@ -81,12 +81,11 @@ namespace PainterTool
 
         public class BackupsLineup
         {
-            private static Singleton_PainterCamera Rtp => Singleton_PainterCamera.GetOrCreate();
             public readonly bool isUndo;
             private int _order;
 
-            public readonly List<Texture2DBackup> tex2D = new List<Texture2DBackup>();
-            public readonly List<RenderTextureBackup> rTex = new List<RenderTextureBackup>();
+            public readonly List<Texture2DBackup> tex2D = new();
+            public readonly List<RenderTextureBackup> rTex = new();
 
             public BackupsLineup otherDirection;
 
@@ -117,7 +116,7 @@ namespace PainterTool
             {
 
                 var fromRt = (tex2D.Count == 0) ||
-                             ((rTex.Count > 0) && (tex2D[tex2D.Count - 1].order < rTex[rTex.Count - 1].order));
+                             ((rTex.Count > 0) && (tex2D[^1].order < rTex[^1].order));
 
                 var toRt = id.Target == TexTarget.RenderTexture;
 
@@ -148,9 +147,9 @@ namespace PainterTool
                 if (toRt)
                 {
                     if (fromRt)
-                        Rtp.Render(rtBackup.rt, id);
+                        Painter.Camera.Render(rtBackup.rt, id);
                     else
-                        Rtp.Render(id.Texture2D, id);
+                        Painter.Camera.Render(id.Texture2D, id);
 
                 }
                 else if (fromRt)
@@ -160,7 +159,7 @@ namespace PainterTool
 
                     var converted = false;
 
-                    if ((Singleton_PainterCamera.GetOrCreate().IsLinearColorSpace) && !rtBackup.exclusive)
+                    if ((Painter.IsLinearColorSpace) && !rtBackup.exclusive)
                     {
                         converted = true;
                         id.ConvertPixelsToGamma();

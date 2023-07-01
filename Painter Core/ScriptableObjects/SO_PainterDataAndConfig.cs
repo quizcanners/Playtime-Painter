@@ -28,7 +28,7 @@ namespace PainterTool
 
         public static bool toolEnabled;
 
-        public List<PlaytimePainter_BlitModeCustom> customBlitModes = new List<PlaytimePainter_BlitModeCustom>();
+        public List<PlaytimePainter_BlitModeCustom> customBlitModes = new();
 
         public int selectedCustomBlitMode;
 
@@ -37,7 +37,7 @@ namespace PainterTool
         #region Shaders
         public bool dontIncludeShaderInBuild;
 
-        [SerializeField] private List<Shader> shadersToBuldWith = new List<Shader>();
+        [SerializeField] private List<Shader> shadersToBuldWith = new();
 
         [NonSerialized] public Shader additiveAlphaOutput;
         [NonSerialized] public Shader additiveAlphaAndUVOutput;
@@ -45,16 +45,16 @@ namespace PainterTool
         [NonSerialized] public Shader blurAndSmudgeBufferBlit;
         [NonSerialized] public Shader projectorBrushBufferBlit;
 
-        [NonSerialized] public ShaderName brushBlit = new ShaderName("Playtime Painter/Editor/Brush/Blit");
-        [NonSerialized] public ShaderName brushAdd = new ShaderName("Playtime Painter/Editor/Brush/Add");
-        [NonSerialized] public ShaderName brushCopy = new ShaderName("Playtime Painter/Editor/Brush/Copy");
-        [NonSerialized] public ShaderName pixPerfectCopy = new ShaderName("Playtime Painter/Buffer Blit/Pixel Perfect Copy");
-        [NonSerialized] public ShaderName brushBufferCopy = new ShaderName("Playtime Painter/Editor/Buffer Blit/Copier");
-        [NonSerialized] public ShaderName brushBlitSmoothed = new ShaderName("Playtime Painter/Buffer Blit/Smooth");
-        [NonSerialized] public ShaderName brushDoubleBuffer = new ShaderName("Playtime Painter/Editor/Brush/DoubleBuffer");
-        [NonSerialized] public ShaderName brushDoubleBufferProjector = new ShaderName("Playtime Painter/Editor/Brush/DoubleBuffer_Projector");
-        [NonSerialized] public ShaderName brushBlurAndSmudge = new ShaderName("Playtime Painter/Editor/Brush/BlurN_Smudge");
-        [NonSerialized] public ShaderName inkColorSpread = new ShaderName("Playtime Painter/Editor/Brush/Double Buffered/Spread");
+        [NonSerialized] public ShaderName brushBlit = new ("Playtime Painter/Editor/Brush/Blit");
+        [NonSerialized] public ShaderName brushAdd = new ("Playtime Painter/Editor/Brush/Add");
+        [NonSerialized] public ShaderName brushCopy = new ("Playtime Painter/Editor/Brush/Copy");
+        [NonSerialized] public ShaderName pixPerfectCopy = new ("Playtime Painter/Buffer Blit/Pixel Perfect Copy");
+        [NonSerialized] public ShaderName brushBufferCopy = new ("Playtime Painter/Editor/Buffer Blit/Copier");
+        [NonSerialized] public ShaderName brushBlitSmoothed = new ("Playtime Painter/Buffer Blit/Smooth");
+        [NonSerialized] public ShaderName brushDoubleBuffer = new ("Playtime Painter/Editor/Brush/DoubleBuffer");
+        [NonSerialized] public ShaderName brushDoubleBufferProjector = new ("Playtime Painter/Editor/Brush/DoubleBuffer_Projector");
+        [NonSerialized] public ShaderName brushBlurAndSmudge = new ("Playtime Painter/Editor/Brush/BlurN_Smudge");
+        [NonSerialized] public ShaderName inkColorSpread = new ("Playtime Painter/Editor/Brush/Double Buffered/Spread");
 
         [NonSerialized] public Shader bufferColorFill;
         [NonSerialized] public Shader bufferCopyR;
@@ -71,14 +71,14 @@ namespace PainterTool
         [NonSerialized] public Shader rayTraceOutput;
 
         public Shader GetShaderToWriteInto(ColorChanel chan)  {
-            switch (chan) {
-                case ColorChanel.R: return bufferCopyR;
-                case ColorChanel.G: return bufferCopyG;
-                case ColorChanel.B: return bufferCopyB;
-                case ColorChanel.A: return bufferCopyA;
-            }
-
-            return null;
+            return chan switch
+            {
+                ColorChanel.R => bufferCopyR,
+                ColorChanel.G => bufferCopyG,
+                ColorChanel.B => bufferCopyB,
+                ColorChanel.A => bufferCopyA,
+                _ => null,
+            };
         }
 
         [NonSerialized] public Shader previewMesh;
@@ -195,36 +195,36 @@ namespace PainterTool
 #if !UNITY_EDITOR
         [NonSerialized]
 #endif
-        internal List<TextureMapCombineProfile> texturePackagingSolutions = new List<TextureMapCombineProfile>();
+        internal List<TextureMapCombineProfile> texturePackagingSolutions = new();
 
 
-        public List<AtlasTextureCreator> atlases = new List<AtlasTextureCreator>();
+        public List<AtlasTextureCreator> atlases = new();
 
 #if !UNITY_EDITOR
         [NonSerialized]
 #endif
-        public List<MaterialAtlases> atlasedMaterials = new List<MaterialAtlases>();
+        public List<MaterialAtlases> atlasedMaterials = new();
 
-        public List<string> playtimeSavedTextures = new List<string>();
-
-#if UNITY_EDITOR
-        [SerializeField]
-#else
-        [NonSerialized]
-#endif
-
-        internal List<TextureMeta> imgMetas = new List<TextureMeta>();
+        public List<string> playtimeSavedTextures = new();
 
 #if UNITY_EDITOR
         [SerializeField]
 #else
         [NonSerialized]
 #endif
-        internal List<MaterialMeta> matMetas = new List<MaterialMeta>();
-        public List<BrushTypes.VolumetricDecal> decals = new List<BrushTypes.VolumetricDecal>();
 
-        public List<Texture> sourceTextures = new List<Texture>();
-        public List<Texture> masks = new List<Texture>();
+        internal List<TextureMeta> imgMetas = new();
+
+#if UNITY_EDITOR
+        [SerializeField]
+#else
+        [NonSerialized]
+#endif
+        internal List<MaterialMeta> matMetas = new();
+        public List<BrushTypes.VolumetricDecal> decals = new();
+
+        public List<Texture> sourceTextures = new();
+        public List<Texture> masks = new();
 
         public int selectedColorScheme;
         public int inspectedColorScheme = -1;
@@ -269,7 +269,7 @@ namespace PainterTool
 
    
         [NonSerialized]
-        internal readonly Dictionary<ShaderProperty.TextureValue, List<TextureMeta>> recentTextures = new Dictionary<ShaderProperty.TextureValue, List<TextureMeta>>();
+        internal readonly Dictionary<TextureValue, List<TextureMeta>> recentTextures = new();
 
         public MeshPackagingProfile GetMeshPackagingProfile(string packageName)
         {
@@ -282,7 +282,7 @@ namespace PainterTool
             return meshPackagingSolutions[0];
         }
 
-        public List<ColorPicker> colorSchemes = new List<ColorPicker>();
+        public List<ColorPicker> colorSchemes = new();
 
 
 
@@ -290,7 +290,7 @@ namespace PainterTool
 
         #region Mesh Editing
 
-        public List<MeshPackagingProfile> meshPackagingSolutions = new List<MeshPackagingProfile>();
+        public List<MeshPackagingProfile> meshPackagingSolutions = new();
         public int meshTool;
         public MeshToolBase MeshTool { get { meshTool = Mathf.Min(meshTool, MeshToolBase.AllTools.Count - 1); return MeshToolBase.AllTools[meshTool]; } }
         public float bevelDetectionSensitivity = 6;
@@ -317,9 +317,9 @@ namespace PainterTool
         public string atlasFolderName = "Atlases";
 
         public bool enablePainterUIonPlay;
-        public PlaytimePainter_BrushConfigScriptableObject BrushConfig;
+        public SO_BrushConfigScriptableObject BrushConfig;
 
-        [NonSerialized] private readonly Brush _defaultBrush = new Brush();
+        [NonSerialized] private readonly Brush _defaultBrush = new();
         public Brush Brush => BrushConfig ? BrushConfig.brush : _defaultBrush;
         
         public bool showColorSliders = true;
@@ -343,7 +343,7 @@ namespace PainterTool
 
         public Color newTextureClearColor = Color.black;
 
-        public Color newTextureClearNonColorValue = new Color(0.5f, 0.5f, 0.5f, 0.5f);
+        public Color newTextureClearNonColorValue = new(0.5f, 0.5f, 0.5f, 0.5f);
 
         public int selectedWidthIndex = 4;
 
@@ -376,11 +376,11 @@ namespace PainterTool
 
         #region BrushStrokeRecordings
 
-        public List<string> recordingNames = new List<string>();
+        public List<string> recordingNames = new();
 
         public int browsedRecord;
 
-        private static readonly Dictionary<string, string> Recordings = new Dictionary<string, string>();
+        private static readonly Dictionary<string, string> Recordings = new();
 
         public IEnumerable<string> StrokeRecordingsFromFile(string filename)
         {
@@ -420,7 +420,7 @@ namespace PainterTool
             this.DecodeTagsFrom(data);
         }
 
-        private readonly LoopLock _encodeDecodeLock = new LoopLock();
+        private readonly LoopLock _encodeDecodeLock = new();
 
         public CfgEncoder Encode()
         {
@@ -456,7 +456,7 @@ namespace PainterTool
                         .Add("sch", selectedColorScheme)
                         
                         .Add("pals", colorSchemes)
-                        .Add("cam", Singleton_PainterCamera.GetOrCreate())
+                        .Add("cam", Singleton.Get<Singleton_PainterCamera>())
                         .Add("Vpck", meshPackagingSolutions)
                         .Add_IfTrue("hd", hideDocumentation)
                         .Add_IfNotNegative("im", _inspectedMaterial)
@@ -480,7 +480,7 @@ namespace PainterTool
                 case "sch": data.ToInt(ref selectedColorScheme); break;
                 //case "mats": data.Decode_List(out matMetas, this); break;
                 case "pals": data.ToList(out colorSchemes); break;
-                case "cam": if (Singleton_PainterCamera.GetOrCreate()) Singleton_PainterCamera.GetOrCreate().Decode(data); break;
+                case "cam": if (Singleton.Get<Singleton_PainterCamera>()) Singleton.Get<Singleton_PainterCamera>().Decode(data); break;
                 case "Vpck": data.ToList(out meshPackagingSolutions); break;
                 case "hd": hideDocumentation = data.ToBool(); break;
                 case "im": data.ToInt(ref _inspectedMaterial); break;
@@ -497,9 +497,9 @@ namespace PainterTool
 
         public static bool hideDocumentation;
 
-        [SerializeField] private pegi.EnterExitContext _context = new pegi.EnterExitContext();
-        [SerializeField] private pegi.EnterExitContext _contextLists = new pegi.EnterExitContext();
-        [SerializeField] private pegi.CollectionInspectorMeta _imagesInspectorMeta = new pegi.CollectionInspectorMeta("Img Metas");
+        [SerializeField] private pegi.EnterExitContext _context = new();
+        [SerializeField] private pegi.EnterExitContext _contextLists = new();
+        [SerializeField] private pegi.CollectionInspectorMeta _imagesInspectorMeta = new("Img Metas");
 
      //   private int _inspectedImgData = -1;
        // private int _inspectedList = -1;
@@ -524,7 +524,7 @@ namespace PainterTool
 #if UNITY_EDITOR
 
                     if ("Enable PlayTime UI".PegiLabel().ToggleIcon(ref enablePainterUIonPlay).Nl())
-                        MeshEditorManager.Inst.StopEditingMesh();
+                        Painter.MeshManager.StopEditingMesh();
 
                     "Hide documentation".PegiLabel().ToggleIcon(ref hideDocumentation);
                     MsgPainter.aboutDisableDocumentation.DocumentationClick();
@@ -548,7 +548,7 @@ namespace PainterTool
                 }
 
                 if (!BrushConfig)
-                    "Brush Config not found, create {0} from context menu".F(PlaytimePainter_BrushConfigScriptableObject.FILE_NAME).PegiLabel().WriteWarning();
+                    "Brush Config not found, create {0} from context menu".F(SO_BrushConfigScriptableObject.FILE_NAME).PegiLabel().WriteWarning();
 
                 "Shaders".PegiLabel().Enter_List_UObj(shadersToBuldWith).Nl();
 
@@ -699,29 +699,29 @@ namespace PainterTool
     #region Shader Tags
     public static class ShaderTags
     {
-        public static readonly ShaderTag LayerType = new ShaderTag("_LayerType");
+        public static readonly ShaderTag LayerType = new("_LayerType");
         public static class LayerTypes
         {
             public static readonly ShaderTagValue Transparent =
-                new ShaderTagValue("Transparent", LayerType);
+                new("Transparent", LayerType);
         }
 
-        public static readonly ShaderTag SamplingMode = new ShaderTag("_TextureSampling");
+        public static readonly ShaderTag SamplingMode = new ("_TextureSampling");
         public static class SamplingModes
         {
-            public static readonly ShaderTagValue Uv1 = new ShaderTagValue("UV1", SamplingMode);
-            public static readonly ShaderTagValue Uv2 = new ShaderTagValue("UV2", SamplingMode);
-            public static readonly ShaderTagValue TriplanarProjection = new ShaderTagValue("TriplanarProjection", SamplingMode);
+            public static readonly ShaderTagValue Uv1 = new ("UV1", SamplingMode);
+            public static readonly ShaderTagValue Uv2 = new ("UV2", SamplingMode);
+            public static readonly ShaderTagValue TriplanarProjection = new ("TriplanarProjection", SamplingMode);
         }
 
-        public static readonly ShaderTag VertexColorRole = new ShaderTag("_VertexColorRole");
+        public static readonly ShaderTag VertexColorRole = new ("_VertexColorRole");
 
-        public static readonly ShaderTag MeshSolution = new ShaderTag("Solution");
+        public static readonly ShaderTag MeshSolution = new ("Solution");
 
         public static class MeshSolutions
         {
-            public static readonly ShaderTagValue Bevel = new ShaderTagValue("Bevel", MeshSolution);
-            public static readonly ShaderTagValue AtlasedProjected = new ShaderTagValue("AtlasedProjected", MeshSolution);
+            public static readonly ShaderTagValue Bevel = new ("Bevel", MeshSolution);
+            public static readonly ShaderTagValue AtlasedProjected = new ("AtlasedProjected", MeshSolution);
         }
     }
 

@@ -59,7 +59,7 @@ namespace PainterTool.MeshEditing
         
        public override void Inspect() 
         {
-            var mm = MeshMGMT;
+            var mm = Painter.MeshManager;
 
             if (("Edited UV: " + mm.EditedUV + " (Click to switch)").PegiLabel().Click().Nl())
                 mm.EditedUV = mm.EditedUV == 1 ? 0 : 1; // 1 - mm.editedUV;
@@ -221,7 +221,7 @@ namespace PainterTool.MeshEditing
                 v.CleanEmptyIndexes();
 
             if (projectionUv)
-                MeshMGMT.Redraw();
+                Painter.MeshManager.Redraw();
         }
 
         public override void OnGridChange() => UpdateUvPreview();
@@ -230,13 +230,13 @@ namespace PainterTool.MeshEditing
 
         public override bool ShowGrid => projectionUv;
 
-        public override bool ShowVertices => !projectionUv && !MeshMGMT.Dragging;
+        public override bool ShowVertices => !projectionUv && !Painter.MeshManager.Dragging;
 
         public override bool ShowLines => false;
 
         public override void AssignText(MarkerWithText markers, PainterMesh.MeshPoint point)
         {
-            var vrt = MeshMGMT.GetSelectedVertex();
+            var vrt = Painter.MeshManager.GetSelectedVertex();
 
             if (point.vertices.Count > 1 || vrt == point)
             {
@@ -262,9 +262,9 @@ namespace PainterTool.MeshEditing
 
             if (PlaytimePainter_EditorInputManager.GetMouseButtonDown(0))
             {
-                MeshMGMT.AssignSelected(PointedUv); //pointedUV.editedUV = meshMGMT.selectedUV.editedUV;
+                Painter.MeshManager.AssignSelected(PointedUv); //pointedUV.editedUV = meshMGMT.selectedUV.editedUV;
                 _lastCalculatedUv = PointedUv.EditedUv;
-                MeshMGMT.Dragging = true;
+                Painter.MeshManager.Dragging = true;
             }
 
             /*
@@ -300,9 +300,9 @@ namespace PainterTool.MeshEditing
             var a = PointedLine.vertexes[0];
             var b = PointedLine.vertexes[1];
 
-            MeshMGMT.AssignSelected(
-                Vector3.Distance(MeshMGMT.collisionPosLocal, a.LocalPos) <
-                Vector3.Distance(MeshMGMT.collisionPosLocal, b.LocalPos)
+            Painter.MeshManager.AssignSelected(
+                Vector3.Distance(Painter.MeshManager.collisionPosLocal, a.LocalPos) <
+                Vector3.Distance(Painter.MeshManager.collisionPosLocal, b.LocalPos)
                     ? EditedMesh.GetUvPointAFromLine(a.meshPoint, b.meshPoint)
                     : EditedMesh.GetUvPointAFromLine(b.meshPoint, a.meshPoint));
 
@@ -321,8 +321,7 @@ namespace PainterTool.MeshEditing
             if (PointedTriangle.SameAsLastFrame)
                 return true;
 
-            if (MeshEditorManager.SelectedUv == null)
-                MeshEditorManager.SelectedUv = EditedMesh.meshPoints[0].vertices[0];
+            MeshEditorManager.SelectedUv ??= EditedMesh.meshPoints[0].vertices[0];
 
             if (!PlaytimePainter_EditorInputManager.Control) 
             {
@@ -332,8 +331,8 @@ namespace PainterTool.MeshEditing
                 {
                     var v = PointedTriangle.vertexes[i];
                     var uv = PosToUv(v.meshPoint.WorldPos - trgPos);
-                    var uv0 = MeshMGMT.EditedUV == 0 ? uv : v.GetUvSet(0);
-                    var uv1 = MeshMGMT.EditedUV == 1 ? uv : v.GetUvSet(1);
+                    var uv0 = Painter.MeshManager.EditedUV == 0 ? uv : v.GetUvSet(0);
+                    var uv1 = Painter.MeshManager.EditedUV == 1 ? uv : v.GetUvSet(1);
 
                     PointedTriangle.vertexes[i] = v.meshPoint.GetVertexForUv(uv0, uv1);
                   // EditedMesh.dirtyUvs |= v.SetUvIndexBy(PosToUv(v.meshPoint.WorldPos - trgPos));
@@ -389,7 +388,7 @@ namespace PainterTool.MeshEditing
             if (PointedTriangle != null && SelectedUv != null) {
 
                 var uv = SelectedUv.SharedEditedUv;
-                var posUv = PointedTriangle.LocalPosToEditedUv(MeshMGMT.collisionPosLocal);
+                var posUv = PointedTriangle.LocalPosToEditedUv(Painter.MeshManager.collisionPosLocal);
                 var newUv = uv * 2 - posUv;
                 var isChanged = newUv != _lastCalculatedUv;
                 _lastCalculatedUv = newUv;
@@ -412,12 +411,12 @@ namespace PainterTool.MeshEditing
                 MeshEditorManager.SelectedUv.SharedEditedUv = _lastCalculatedUv;
                 EditedMesh.dirtyUvs = true;
                 Debug.Log("Setting Dirty UV Test");
-                MeshMGMT.Dragging = false;
+                Painter.MeshManager.Dragging = false;
             }
 
 
             if (!PlaytimePainter_EditorInputManager.GetMouseButton(0))
-                MeshMGMT.Dragging = false;
+                Painter.MeshManager.Dragging = false;
 
         }
 

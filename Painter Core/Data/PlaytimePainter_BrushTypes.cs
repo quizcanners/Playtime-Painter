@@ -139,7 +139,7 @@ namespace PainterTool
 
             public virtual void Inspect()
             {
-                if (Brush.InspectedIsCpuBrush || !Singleton_PainterCamera.GetOrCreate())
+                if (Brush.InspectedIsCpuBrush || !Painter.Camera)
                     return;
 
                 var brush = InspectedBrush;
@@ -157,7 +157,7 @@ namespace PainterTool
                     if (brush.useMask)
                     {
 
-                        pegi.SelectOrAdd(ref brush.selectedSourceMask, ref Cfg.masks).Nl();
+                        pegi.SelectOrAdd(ref brush.selectedSourceMask, ref Painter.Data.masks).Nl();
 
                         if (adv)
                             "Mask greyscale".PegiLabel("Otherwise will use alpha").ToggleIcon(ref brush.maskFromGreyscale)
@@ -189,7 +189,7 @@ namespace PainterTool
 
             }
 
-            public virtual void PaintPixelsInRam(PaintCommand.Base command)
+            public virtual void PaintPixelsInRam(Painter.Command.Base command)
             {
                 Brush br = command.Brush;
                 Stroke st = command.Stroke;
@@ -230,7 +230,7 @@ namespace PainterTool
                     st.posFrom += deltaPos;
                 }
 
-                Action<PaintCommand.Base> blitMethod = null;
+                Action<Painter.Command.Base> blitMethod = null;
 
                 command.strokeAlphaPortion = alpha;
 
@@ -260,9 +260,9 @@ namespace PainterTool
                 command.OnStrokeComplete();//.AfterStroke(st);
             }
 
-            public virtual void PaintRenderTextureInWorldSpace(PaintCommand.WorldSpaceBase command) { }
+            public virtual void PaintRenderTextureInWorldSpace(Painter.Command.WorldSpaceBase command) { }
 
-            public virtual void PaintRenderTextureUvSpace(PaintCommand.Base command) 
+            public virtual void PaintRenderTextureUvSpace(Painter.Command.Base command) 
             {
                 TextureMeta textureMeta = command.TextureData;
                 Brush br = command.Brush;
@@ -275,36 +275,35 @@ namespace PainterTool
 
                 command.strokeAlphaPortion = Mathf.Clamp01(br.Flow * 0.05f);
 
-                TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command); 
+                Painter.Camera.SHADER_STROKE_SEGMENT_UPDATE(command); 
 
                 var rb = RtBrush;
 
                 rb.localScale = Vector3.one;
                 var direction = st.DeltaUv;
                 var length = direction.magnitude;
-                BrushMesh = Singleton_PainterCamera.BrushMeshGenerator.GetLongMesh(length * 256, br.StrokeWidth(textureMeta.Width, false));
-                rb.localRotation = Quaternion.Euler(new Vector3(0, 0,
-                    (direction.x > 0 ? -1 : 1) * Vector2.Angle(Vector2.up, direction)));
+                BrushMesh = Painter.BrushMeshGenerator.GetLongMesh(length * 256, br.StrokeWidth(textureMeta.Width, false));
+                
+                rb.SetLocalPositionAndRotation(Stroke.GetCameraProjectionTarget((st.uvFrom + st.uvTo) * 0.5f), Quaternion.Euler(new Vector3(0, 0,
+                    (direction.x > 0 ? -1 : 1) * Vector2.Angle(Vector2.up, direction))));
 
-                rb.localPosition = Stroke.GetCameraProjectionTarget((st.uvFrom + st.uvTo) * 0.5f);
-
-                TexMGMT.Render();
+                Painter.Camera.Render();
                 
                 AfterStroke(command);
 
             }
             
-            public void BeforeStroke(PaintCommand.Base command)
+            public void BeforeStroke(Painter.Command.Base command)
             {
                 RenderTextureBuffersManager.UpdateSecondBuffer();
 
-                PaintCommand.ForPainterComponent painterCommand = command as PaintCommand.ForPainterComponent;
+                Painter.Command.ForPainterComponent painterCommand = command as Painter.Command.ForPainterComponent;
                 if (painterCommand!= null)
                     foreach (var p in painterCommand.painter.Modules)
                         p.BeforeGpuStroke(painterCommand);
             }
 
-            public virtual void AfterStroke(PaintCommand.Base command)
+            public virtual void AfterStroke(Painter.Command.Base command)
             {
                 Brush brush = command.Brush;
                 Stroke stroke = command.Stroke;
@@ -315,18 +314,18 @@ namespace PainterTool
                 if (brush.useMask && stroke.MouseUpEvent && brush.randomMaskOffset)
                     brush.maskOffset = new Vector2(Random.Range(0f, 1f), Random.Range(0f, 1f));
 
-                PaintCommand.ForPainterComponent painterCommand = command as PaintCommand.ForPainterComponent;
+                Painter.Command.ForPainterComponent painterCommand = command as Painter.Command.ForPainterComponent;
 
                 if (command.usedAlphaBuffer)
                 {
                     var sh = brush.GetBlitMode(TexTarget.RenderTexture).ShaderForAlphaBufferBlit;
                     if (painterCommand==null || painterCommand.painter.NotUsingPreview)
-                        TexMGMT.UpdateFromAlphaBuffer(textureData.CurrentRenderTexture(), sh);
+                        Painter.Camera.UpdateFromAlphaBuffer(textureData.CurrentRenderTexture(), sh);
                     else
-                        TexMGMT.AlphaBufferSetDirtyBeforeRender(textureData, sh);
+                        Painter.Camera.AlphaBufferSetDirtyBeforeRender(textureData, sh);
                 }
                 else if (!brush.IsSingleBufferBrush() && !command.Is3DBrush)
-                    TexMGMT.UpdateBufferSegment();
+                    Painter.Camera.UpdateBufferSegment();
 
                 if (painterCommand!= null)
                     foreach (var p in painterCommand.painter.Modules)
@@ -360,7 +359,7 @@ namespace PainterTool
 
             public override bool IsPixelPerfect => true;
 
-            public override void PaintRenderTextureUvSpace(PaintCommand.Base command)
+            public override void PaintRenderTextureUvSpace(Painter.Command.Base command)
             {
                 Brush br = command.Brush;
                 Stroke st = command.Stroke;
@@ -372,16 +371,15 @@ namespace PainterTool
                 
                 command.strokeAlphaPortion = Mathf.Clamp01(br.Flow * 0.05f);
 
-                TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command);// br, br.Speed * 0.05f, id, st, out alphaBuffer, painter);
+                Painter.Camera.SHADER_STROKE_SEGMENT_UPDATE(command);// br, br.Speed * 0.05f, id, st, out alphaBuffer, painter);
 
                 RtBrush.localScale = Vector3.one * br.StrokeWidth(id.Width, false);
 
-                BrushMesh = Singleton_PainterCamera.BrushMeshGenerator.GetQuad();
-                RtBrush.localRotation = Quaternion.identity;
+                BrushMesh = Painter.BrushMeshGenerator.GetQuad();
+                
+                RtBrush.SetLocalPositionAndRotation(st.CameraProjectionTarget, Quaternion.identity);
 
-                RtBrush.localPosition = st.CameraProjectionTarget;
-
-                TexMGMT.Render();
+                Painter.Camera.Render();
 
                 AfterStroke(command);//painter, br, st, alphaBuffer, id);
             }
@@ -413,7 +411,7 @@ namespace PainterTool
             
             public static void Paint(Vector2 uv, Brush br, RenderTexture rt) {
 
-                var command = new PaintCommand.UV(new Stroke(uv)
+                var command = new Painter.Command.UV(new Stroke(uv)
                 {
                     firstStroke = false
                 }, rt.GetTextureMeta(), br)
@@ -421,25 +419,24 @@ namespace PainterTool
                     strokeAlphaPortion = Mathf.Clamp01(br.Flow * 0.05f)
                 };
 
-                TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command); // br, br.Speed * 0.05f, id, stroke, out alphaBuffer);
+                Painter.Camera.SHADER_STROKE_SEGMENT_UPDATE(command); // br, br.Speed * 0.05f, id, stroke, out alphaBuffer);
 
                 float width = br.StrokeWidth(command.TextureData.Width, false);
 
                 RtBrush.localScale = Vector3.one;
 
-                BrushMesh = Singleton_PainterCamera.BrushMeshGenerator.GetLongMesh(0, width);
-                RtBrush.localRotation = Quaternion.Euler(new Vector3(0, 0, Vector2.Angle(Vector2.up, Vector2.zero)));
+                BrushMesh = Painter.BrushMeshGenerator.GetLongMesh(0, width);
+                
+                RtBrush.SetLocalPositionAndRotation(Stroke.GetCameraProjectionTarget(command.Stroke.uvTo), Quaternion.Euler(new Vector3(0, 0, Vector2.Angle(Vector2.up, Vector2.zero))));
 
-                RtBrush.localPosition = Stroke.GetCameraProjectionTarget(command.Stroke.uvTo);
-
-                TexMGMT.Render();
+                Painter.Camera.Render();
 
                 br.GetBrushType(TexTarget.RenderTexture).AfterStroke(command); 
 
             }
 
             public static void Paint(RenderTexture renderTexture, Brush br, Stroke st) =>
-                _inst.PaintRenderTextureUvSpace(new PaintCommand.UV(st, renderTexture, br));
+                _inst.PaintRenderTextureUvSpace(new Painter.Command.UV(st, renderTexture, br));
 
         }
 
@@ -476,18 +473,18 @@ namespace PainterTool
 
 
             private readonly ShaderProperty.TextureValue _decalHeightProperty =
-                new ShaderProperty.TextureValue("_VolDecalHeight");
+                new("_VolDecalHeight");
 
             private readonly ShaderProperty.TextureValue _decalOverlayProperty =
-                new ShaderProperty.TextureValue("_VolDecalOverlay");
+                new("_VolDecalOverlay");
 
             private readonly ShaderProperty.VectorValue _decalParametersProperty =
-                new ShaderProperty.VectorValue("_DecalParameters");
+                new("_DecalParameters");
 
 
             public override void OnShaderBrushUpdate(Brush brush)
             {
-                var vd = Cfg.decals.TryGet(brush.selectedDecal);
+                var vd = Painter.Data.decals.TryGet(brush.selectedDecal);
 
                 if (vd == null)
                     return;
@@ -501,7 +498,7 @@ namespace PainterTool
                     0);
             }
 
-            public override void PaintRenderTextureUvSpace( PaintCommand.Base command) //PlaytimePainter painter, Brush br, Stroke st)
+            public override void PaintRenderTextureUvSpace( Painter.Command.Base command) //PlaytimePainter painter, Brush br, Stroke st)
             {
                 
                 Brush br = command.Brush;
@@ -529,11 +526,11 @@ namespace PainterTool
 
                     command.strokeAlphaPortion = 1;
 
-                    TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command); // br, 1, id, st, out alphaBuffer, command.painter);
+                    Painter.Camera.SHADER_STROKE_SEGMENT_UPDATE(command); // br, 1, id, st, out alphaBuffer, command.painter);
                     var tf = RtBrush;
                     tf.localScale = Vector3.one * br.Size(false);
                     tf.localRotation = Quaternion.Euler(new Vector3(0, 0, br.decalAngle));
-                    BrushMesh = Singleton_PainterCamera.BrushMeshGenerator.GetQuad();
+                    BrushMesh = Painter.BrushMeshGenerator.GetQuad();
 
                     st.uvTo = st.uvTo.To01Space();
 
@@ -557,7 +554,7 @@ namespace PainterTool
 
                     tf.localPosition = Stroke.GetCameraProjectionTarget(uv);
 
-                    TexMGMT.Render();
+                    Painter.Camera.Render();
 
                     AfterStroke(command);
 
@@ -566,7 +563,7 @@ namespace PainterTool
                     command.OnStrokeComplete(); //painter.AfterStroke(st);
             }
 
-            public override void AfterStroke(PaintCommand.Base command)
+            public override void AfterStroke(Painter.Command.Base command)
             {
                 Brush br = command.Brush;
 
@@ -575,7 +572,7 @@ namespace PainterTool
                 if (br.rotationMethod != RotationMethod.Random) return;
 
                 br.decalAngle = Random.Range(-90f, 450f);
-                OnShaderBrushUpdate(Cfg.Brush);
+                OnShaderBrushUpdate(Painter.Data.Brush);
             }
 
             #region Inspector
@@ -585,9 +582,9 @@ namespace PainterTool
            public override void Inspect()
             {
 
-                pegi.Select_Index(ref InspectedBrush.selectedDecal, Cfg.decals);
+                pegi.Select_Index(ref InspectedBrush.selectedDecal, Painter.Data.decals);
 
-                var decal = Cfg.decals.TryGet(InspectedBrush.selectedDecal);
+                var decal = Painter.Data.decals.TryGet(InspectedBrush.selectedDecal);
 
                 if (decal == null)
                 {
@@ -693,7 +690,7 @@ namespace PainterTool
 
             protected override MsgPainter Translation => MsgPainter.BrushTypeLazy;
 
-            public override void PaintRenderTextureUvSpace(PaintCommand.Base command)//PlaytimePainter painter, Brush br, Stroke st)
+            public override void PaintRenderTextureUvSpace(Painter.Command.Base command)//PlaytimePainter painter, Brush br, Stroke st)
             {
 
                 Brush br = command.Brush;
@@ -775,7 +772,7 @@ namespace PainterTool
                     }
                 }
 
-                var r = TexMGMT;
+                var r = Painter.Camera;
 
                 var meshWidth = br.StrokeWidth(id.Width, false);
 
@@ -796,11 +793,10 @@ namespace PainterTool
                     r.SHADER_STROKE_SEGMENT_UPDATE(command);//br, br.Speed * 0.05f, id, st2, out alphaBuffer, painter);
 
                     Vector3 junkPoint = st.uvFrom + st.previousDelta * 0.01f;
-                    BrushMesh = Singleton_PainterCamera.BrushMeshGenerator.GetStreak(UvToPosition(st.uvFrom),
+                    BrushMesh = Painter.BrushMeshGenerator.GetStreak(UvToPosition(st.uvFrom),
                         UvToPosition(junkPoint), meshWidth, true, false);
                     tf.localScale = Vector3.one;
-                    tf.localRotation = Quaternion.identity;
-                    tf.localPosition = new Vector3(0, 0, 10);
+                    tf.SetLocalPositionAndRotation(new Vector3(0, 0, 10), Quaternion.identity);
 
 
                     r.Render();
@@ -812,11 +808,10 @@ namespace PainterTool
 
                 r.SHADER_STROKE_SEGMENT_UPDATE(command);//br, br.Speed * 0.05f, id, st, out alphaBuffer, painter);
 
-                BrushMesh = Singleton_PainterCamera.BrushMeshGenerator.GetStreak(UvToPosition(st.uvFrom), UvToPosition(st.uvTo),
+                BrushMesh = Painter.BrushMeshGenerator.GetStreak(UvToPosition(st.uvFrom), UvToPosition(st.uvTo),
                     meshWidth, st.MouseUpEvent, isTail);
                 tf.localScale = Vector3.one;
-                tf.localRotation = Quaternion.identity;
-                tf.localPosition = new Vector3(0, 0, 10);
+                tf.SetLocalPositionAndRotation(new Vector3(0, 0, 10), Quaternion.identity);
 
                 st.previousDelta = direction;
 
@@ -850,16 +845,16 @@ namespace PainterTool
 
             public override bool SupportsAlphaBufferPainting => true;
 
-            public override bool NeedsGrid => Cfg.useGridForBrush;
+            public override bool NeedsGrid => Painter.Data.useGridForBrush;
 
-            private static void PrepareSphereBrush(PaintCommand.WorldSpaceBase command)
+            private static void PrepareSphereBrush(Painter.Command.WorldSpaceBase command)
             {
                 Brush br = command.Brush;
                 var td = command.TextureData;
 
                 command.strokeAlphaPortion = Mathf.Clamp01(br.Flow * 0.05f);
 
-                TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(command); 
+                Painter.Camera.SHADER_STROKE_SEGMENT_UPDATE(command); 
 
                 var offset = command.TextureData.Offset - command.Stroke.unRepeatedUv.Floor();
 
@@ -869,7 +864,7 @@ namespace PainterTool
                 PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
             }
 
-            public override void PaintRenderTextureInWorldSpace(PaintCommand.WorldSpaceBase command)
+            public override void PaintRenderTextureInWorldSpace(Painter.Command.WorldSpaceBase command)
             {
                
                 BeforeStroke(command);
@@ -877,29 +872,29 @@ namespace PainterTool
 
                // if (!command.Stroke.MouseDownEvent)
                // {
-                 TexMGMT.Prepare(command).Render();
+                 Painter.Camera.Prepare(command).Render();
                // }
 
                 AfterStroke(command);
             }
 
-            public static void Paint(PaintCommand.WorldSpaceBase command)
+            public static void Paint(Painter.Command.WorldSpaceBase command)
             {
                 Brush br = command.Brush;
                 br.GetBlitMode(command.TextureData.Target).PrePaint(command);
                 PrepareSphereBrush(command); 
-                TexMGMT.Prepare(command).Render();
+                Painter.Camera.Prepare(command).Render();
                 br.GetBrushType(command.TextureData.Target).AfterStroke(command);
             }
 
 
-            public override void PaintRenderTextureUvSpace(PaintCommand.Base command) 
+            public override void PaintRenderTextureUvSpace(Painter.Command.Base command) 
             {
                 Debug.LogError("{0} does not implemet {1}".F(nameof(Sphere), nameof(PaintRenderTextureUvSpace)));
             }
 
 
-            public static void PaintAtlased(PaintCommand.WorldSpaceBase command,int aTexturesInRow)
+            public static void PaintAtlased(Painter.Command.WorldSpaceBase command,int aTexturesInRow)
             {
                 PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, aTexturesInRow, 1);
 
@@ -921,18 +916,18 @@ namespace PainterTool
 
                 if (InspectedPainter && !InspectedPainter.GetMesh())
                 {
-                    if (!Cfg.useGridForBrush)
+                    if (!Painter.Data.useGridForBrush)
                     {
                         "No mesh for sphere painting detected.".PegiLabel().WriteWarning();
                         suggestGrid = true;
                     }
                 }
 
-                if (InspectAdvanced || Cfg.useGridForBrush || suggestGrid)
+                if (InspectAdvanced || Painter.Data.useGridForBrush || suggestGrid)
                 {
-                    (Cfg.useGridForBrush
+                    (Painter.Data.useGridForBrush
                         ? ("Grid: Z, X - change plane  |  Ctrl+LMB - reposition GRID")
-                        : "Paint On Grid").PegiLabel().ToggleIcon(ref Cfg.useGridForBrush).Nl();
+                        : "Paint On Grid").PegiLabel().ToggleIcon(ref Painter.Data.useGridForBrush).Nl();
 
                     pegi.Line();
                     pegi.Nl();

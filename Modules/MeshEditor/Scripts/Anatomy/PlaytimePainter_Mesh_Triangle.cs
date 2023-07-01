@@ -20,7 +20,7 @@ namespace PainterTool.MeshEditing
 
             public MeshPoint this[int index] => vertexes[index].meshPoint;
 
-            public LineData this[LineInTriangleIndex line] => new LineData(this, new[] { vertexes[line.index], vertexes[(line.index + 1) % 3] });
+            public LineData this[LineInTriangleIndex line] => new(this, new[] { vertexes[line.index], vertexes[(line.index + 1) % 3] });
 
             public Vertex this[VertexIndexInTriangle vertex]
             {
@@ -204,10 +204,7 @@ namespace PainterTool.MeshEditing
 
             public void InvertNormal()
             {
-                var hold = vertexes[0];
-
-                vertexes[0] = vertexes[2];
-                vertexes[2] = hold;
+                (vertexes[2], vertexes[0]) = (vertexes[0], vertexes[2]);
             }
 
             public bool IsSamePoints(Vertex[] other)
@@ -355,7 +352,7 @@ namespace PainterTool.MeshEditing
             public Vector2 LocalPosToEditedUv(Vector3 localPos)
             {
                 var w = DistanceToWeight(localPos);
-                var ind = MeshMGMT.EditedUV;
+                var ind = Painter.MeshManager.EditedUV;
                 return vertexes[0].GetUvSet(ind) * w.x + vertexes[1].GetUvSet(ind) * w.y + vertexes[2].GetUvSet(ind) * w.z;
             }
 

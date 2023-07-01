@@ -30,7 +30,7 @@ namespace PainterTool
 
         public bool nonColorData = true;
 
-        [NonSerialized] private readonly Dictionary<int, TexturesCollection> collectionBySize = new Dictionary<int, TexturesCollection>();
+        [NonSerialized] private readonly Dictionary<int, TexturesCollection> collectionBySize = new();
 
         public override string InspectedCategory => nameof(PainterComponent);
 
@@ -54,7 +54,7 @@ namespace PainterTool
 
             RenderTexture rt = (list.Count>0) ? list.RemoveLast() : CreateRenderTexture(width);
 
-            Singleton_PainterCamera.GetOrCreate().Prepare(textureColor, rt).Render();
+            Painter.Camera.Prepare(textureColor, rt).Render();
 
             rt.wrapMode = mode;
 
@@ -99,7 +99,7 @@ namespace PainterTool
 
         #region Inspector
 
-        private readonly pegi.CollectionInspectorMeta collection = new pegi.CollectionInspectorMeta("Render Textures");
+        private readonly pegi.CollectionInspectorMeta collection = new("Render Textures");
 
         public override void Inspect()
         {
@@ -119,7 +119,7 @@ namespace PainterTool
 
         private class TexturesCollection : IPEGI_ListInspect
         {
-            [NonSerialized] public readonly List<RenderTexture> _rtList = new List<RenderTexture>();
+            [NonSerialized] public readonly List<RenderTexture> _rtList = new();
 
             public void Return(RenderTexture texture)
             {

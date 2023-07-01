@@ -9,8 +9,7 @@ namespace PainterTool
 {
     public static class RenderTextureBuffersManager {
 
-        public static SO_PainterDataAndConfig Data =>
-            Singleton_PainterCamera.Data;
+        public static SO_PainterDataAndConfig Data => Painter.Data;
 
         #region Tiny Texture
 
@@ -135,7 +134,7 @@ namespace PainterTool
 
         public static void RefreshPaintingBuffers()
         {
-            Singleton_PainterCamera.GetOrCreate().EmptyBufferTarget();
+            Painter.Camera.EmptyBufferTarget();
             DestroyPaintingBuffers();
             GetOrCreatePaintingBuffers();
         }
@@ -147,13 +146,13 @@ namespace PainterTool
         
         private static readonly RenderTexture[] _squareBuffers = new RenderTexture[squareBuffersCount];
 
-        private static readonly List<RenderTexture> nonSquareBuffers = new List<RenderTexture>();
+        private static readonly List<RenderTexture> nonSquareBuffers = new();
         public static RenderTexture GetNonSquareBuffer(int width, int height)
         {
             foreach (RenderTexture r in nonSquareBuffers)
                 if ((r.width == width) && (r.height == height)) return r;
 
-            RenderTexture rt = new RenderTexture(width, height, 0, Data.useFloatForScalingBuffers ? RenderTextureFormat.ARGBFloat : RenderTextureFormat.ARGB32
+            RenderTexture rt = new(width, height, 0, Data.useFloatForScalingBuffers ? RenderTextureFormat.ARGBFloat : RenderTextureFormat.ARGB32
                 , RenderTextureReadWrite.Default);
             nonSquareBuffers.Add(rt);
             return rt;
@@ -238,14 +237,14 @@ namespace PainterTool
         private static RenderTexture Render(Texture src, RenderTexture trg, Material mat)
         {
             PainterShaderVariables.SourceTextureSize = src;
-            return Singleton_PainterCamera.GetOrCreate().Render(src, trg, mat);
+            return Painter.Camera.Render(src, trg, mat);
 
         }
 
         private static RenderTexture Render(Texture src, RenderTexture trg, Shader shd)
         {
             PainterShaderVariables.SourceTextureSize = src;
-            return Singleton_PainterCamera.GetOrCreate().Render(src, trg, shd);
+            return Painter.Camera.Render(src, trg, shd);
 
         }
 
@@ -355,7 +354,7 @@ namespace PainterTool
             return _depthTargetForUsers;
         }
 
-        private static RenderTexture GetDepthRenderTexture(int sz) => new RenderTexture(sz, sz, 32, RenderTextureFormat.Depth, RenderTextureReadWrite.Linear)
+        private static RenderTexture GetDepthRenderTexture(int sz) => new(sz, sz, 32, RenderTextureFormat.Depth, RenderTextureReadWrite.Linear)
         {
             wrapMode = TextureWrapMode.Clamp,
             filterMode = FilterMode.Bilinear,
@@ -444,7 +443,7 @@ namespace PainterTool
             {
                 if (!tmpMaterial)
                 {
-                    tmpMaterial = new Material(Singleton_PainterCamera.Data.pixPerfectCopy.Shader)
+                    tmpMaterial = new Material(Painter.Data.pixPerfectCopy.Shader)
                     {
                         name = "TMP Material"
                     };
@@ -515,7 +514,7 @@ namespace PainterTool
 
         #region Inspector
 
-        private static readonly QcLog.ChillLogger logger = new QcLog.ChillLogger("Buffers Mgmt");
+        private static readonly QcLog.ChillLogger logger = new("Buffers Mgmt");
         
         private static int inspectedElement = -1;
 
@@ -608,7 +607,7 @@ namespace PainterTool
 
         public static void TeachingNotification(this string text)
         {
-            if (Singleton_PainterCamera.Data && Singleton_PainterCamera.Data.showTeachingNotifications)
+            if (Painter.Data && Painter.Data.showTeachingNotifications)
                 pegi.GameView.ShowNotification(text);
         }
 
@@ -625,7 +624,11 @@ namespace PainterTool
 
         public static float StrokeWidth(this Brush br, float pixWidth, bool world) => br.Size(world) / (pixWidth) * 2 * Singleton_PainterCamera.OrthographicSize;
 
-        public static bool IsSingleBufferBrush(this Brush b) => (Singleton_PainterCamera.GetOrCreate().IsLinearColorSpace && b.GetBlitMode(TexTarget.RenderTexture).SupportedBySingleBuffer && b.GetBrushType(TexTarget.RenderTexture).SupportedBySingleBuffer && b.PaintingRGB);
+        public static bool IsSingleBufferBrush(this Brush b) => 
+            (Painter.IsLinearColorSpace 
+            && b.GetBlitMode(TexTarget.RenderTexture).SupportedBySingleBuffer
+            && b.GetBrushType(TexTarget.RenderTexture).SupportedBySingleBuffer 
+            && b.PaintingRGB);
 
         public static bool IsProjected(this Material mat) => mat && mat.shaderKeywords.Contains(PainterShaderVariables.UV_PROJECTED);
 
@@ -634,9 +637,9 @@ namespace PainterTool
             if (!painter || !painter.enabled) return false;
 
             if (painter.meshEditing)
-                return MeshEditorManager.target == painter && Singleton_PainterCamera.Data.MeshTool.ShowGrid;
+                return MeshEditorManager.target == painter && Painter.Data.MeshTool.ShowGrid;
 
-            if (!PainterComponent.IsCurrentTool || painter.TextureEditingBlocked || Singleton_PainterCamera.Data.showConfig)
+            if (!PainterComponent.IsCurrentTool || painter.TextureEditingBlocked || Painter.Data.showConfig)
                 return false;
 
             return painter.GlobalBrushType.NeedsGrid;
@@ -663,15 +666,15 @@ namespace PainterTool
 
         internal static TextureMeta GetImgDataIfExists(this Texture texture)
         {
-            if (!texture || !Singleton_PainterCamera.Data)
+            if (!texture || !Painter.Data)
                 return null;
 
-            if (texture.IsBigRenderTexturePair() && Singleton_PainterCamera.GetOrCreate().imgMetaUsingRendTex != null)
-                return Singleton_PainterCamera.GetOrCreate().imgMetaUsingRendTex;
+            if (texture.IsBigRenderTexturePair() && Painter.Camera.imgMetaUsingRendTex != null)
+                return Painter.Camera.imgMetaUsingRendTex;
 
           
 
-            var lst = Singleton_PainterCamera.Data.imgMetas;
+            var lst = Painter.Data.imgMetas;
 
             if (lst == null) 
                 return null;
@@ -686,7 +689,7 @@ namespace PainterTool
                 rid = id;
 
                 if (i > 3)
-                    Singleton_PainterCamera.Data.imgMetas.Move(i, 0);
+                    Painter.Data.imgMetas.Move(i, 0);
 
                 break;
             }
@@ -735,14 +738,12 @@ namespace PainterTool
             if (id.OtherTexture != null)
                 return id.OtherTexture;
 
-            switch (id.Target)
+            return id.Target switch
             {
-                case TexTarget.RenderTexture:
-                    return !id.RenderTexture ? id.Texture2D : (Texture)id.RenderTexture;
-                case TexTarget.Texture2D:
-                    return id.Texture2D;
-            }
-            return null;
+                TexTarget.RenderTexture => !id.RenderTexture ? id.Texture2D : (Texture)id.RenderTexture,
+                TexTarget.Texture2D => id.Texture2D,
+                _ => null,
+            };
         }
 
         internal static Texture CurrentTexture(this TextureMeta id)
@@ -758,7 +759,7 @@ namespace PainterTool
                 case TexTarget.RenderTexture:
                     if (id.RenderTexture != null)
                         return id.RenderTexture;
-                    if (Singleton_PainterCamera.GetOrCreate().imgMetaUsingRendTex == id)
+                    if (Painter.Camera.imgMetaUsingRendTex == id)
                         return Singleton_PainterCamera.FrontBuffer;
                     id.Target = TexTarget.Texture2D;
                     return id.Texture2D;
@@ -770,10 +771,10 @@ namespace PainterTool
 
         internal static MaterialMeta GetMaterialPainterMeta(this Material mat)
         {
-             if (!Singleton_PainterCamera.Data)
+             if (!Painter.Data)
                  return null;
          
-             return Singleton_PainterCamera.Data.GetMaterialDataFor(mat);
+             return Painter.Data.GetMaterialDataFor(mat);
         }
     }
 

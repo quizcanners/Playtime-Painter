@@ -9,7 +9,7 @@ namespace PainterTool.MeshEditing
     {
         public class Vertex : PainterClassCfg
         {
-            protected PainterComponent Painter => MeshEditorManager.target;
+           // protected PainterComponent Painter => MeshEditorManager.target;
 
             public BoneWeight boneWeight;
             public Color color;
@@ -18,7 +18,7 @@ namespace PainterTool.MeshEditing
             public int groupIndex;
 
             public bool hasVertex;
-            public List<Triangle> triangles = new List<Triangle>();
+            public List<Triangle> triangles = new();
             public Vertex myLastCopy;
             public MeshPoint meshPoint;
 
@@ -174,14 +174,14 @@ namespace PainterTool.MeshEditing
 
             public Vector2 EditedUv
             {
-                get { return meshPoint.sharedUVs[uvIndex][MeshMGMT.EditedUV]; }
+                get { return meshPoint.sharedUVs[uvIndex][Painter.MeshManager.EditedUV]; }
                 set { SetUvIndexBy(value); }
             }
 
             public Vector2 SharedEditedUv
             {
-                get { return meshPoint.sharedUVs[uvIndex][MeshMGMT.EditedUV]; }
-                set { meshPoint.sharedUVs[uvIndex][MeshMGMT.EditedUV] = value; }
+                get { return meshPoint.sharedUVs[uvIndex][Painter.MeshManager.EditedUV]; }
+                set { meshPoint.sharedUVs[uvIndex][Painter.MeshManager.EditedUV] = value; }
             }
 
             public Vector2 GetUvSet(int ind) => meshPoint.sharedUVs[uvIndex][ind];
@@ -205,8 +205,8 @@ namespace PainterTool.MeshEditing
 
             public bool SetUvIndexBy(Vector2 uvEdited)
             {
-                var uv0 = MeshMGMT.EditedUV == 0 ? uvEdited : GetUvSet(0);
-                var uv1 = MeshMGMT.EditedUV == 1 ? uvEdited : GetUvSet(1);
+                var uv0 = Painter.MeshManager.EditedUV == 0 ? uvEdited : GetUvSet(0);
+                var uv1 = Painter.MeshManager.EditedUV == 1 ? uvEdited : GetUvSet(1);
 
                 var index = meshPoint.GetUvsDataIndexFor(uv0, uv1);
 

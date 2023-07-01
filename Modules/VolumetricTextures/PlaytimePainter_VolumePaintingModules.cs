@@ -21,22 +21,22 @@ namespace PainterTool {
             private const string CLASS_KEY = "VolumePntng";
             public override string ClassTag => CLASS_KEY;
 
-            public static VectorValue VOLUME_H_SLICES = new VectorValue("VOLUME_H_SLICES");
-            public static VectorValue VOLUME_POSITION_N_SIZE = new VectorValue("VOLUME_POSITION_N_SIZE");
+            public static VectorValue VOLUME_H_SLICES = new ("VOLUME_H_SLICES");
+            public static VectorValue VOLUME_POSITION_N_SIZE = new ("VOLUME_POSITION_N_SIZE");
 
-            public static VectorValue VOLUME_H_SLICES_BRUSH = new VectorValue("VOLUME_H_SLICES_BRUSH");
-            public static VectorValue VOLUME_POSITION_N_SIZE_BRUSH = new VectorValue("VOLUME_POSITION_N_SIZE_BRUSH");
+            public static VectorValue VOLUME_H_SLICES_BRUSH = new ("VOLUME_H_SLICES_BRUSH");
+            public static VectorValue VOLUME_POSITION_N_SIZE_BRUSH = new ("VOLUME_POSITION_N_SIZE_BRUSH");
 
-            public static VectorValue VOLUME_BRUSH_DIRECTION = new VectorValue("VOLUME_BRUSH_DYRECTION");
+            public static VectorValue VOLUME_BRUSH_DIRECTION = new ("VOLUME_BRUSH_DYRECTION");
 
-            public static Feature UseSmoothing = new Feature("_SMOOTHING");
+            public static Feature UseSmoothing = new ("_SMOOTHING");
 
             private float smoothing;
 
-            private static readonly ShaderName _preview = new ShaderName("Playtime Painter/Editor/Preview/Volume");
-            private static readonly ShaderName _brushDoubleBuffer = new ShaderName("Playtime Painter/Editor/Brush/Volume");
-            private static readonly ShaderName _brushSingleBuffer = new ShaderName("Playtime Painter/Editor/Brush/Single Buffer/Volume");
-            private static readonly ShaderName _brushShaderForRayTrace = new ShaderName("Playtime Painter/Editor/Brush/Volume_RayTrace");
+            private static readonly ShaderName _preview = new ("Playtime Painter/Editor/Preview/Volume");
+            private static readonly ShaderName _brushDoubleBuffer = new ("Playtime Painter/Editor/Brush/Volume");
+            private static readonly ShaderName _brushSingleBuffer = new ("Playtime Painter/Editor/Brush/Single Buffer/Volume");
+            private static readonly ShaderName _brushShaderForRayTrace = new ("Playtime Painter/Editor/Brush/Volume_RayTrace");
 
             #region Encode & Decode
 
@@ -98,7 +98,7 @@ namespace PainterTool {
                 return true;
             }
 
-            public void PaintPixelsInRam(PaintCommand.Base command)
+            public void PaintPixelsInRam(Painter.Command.Base command)
             {
 
                 Stroke stroke = command.Stroke;
@@ -179,7 +179,7 @@ namespace PainterTool {
             public bool IsEnabledFor(PainterComponent painter, TextureMeta img, Brush cfg) =>
                 img.GetVolumeTextureData();
 
-            public void PaintRenderTextureUvSpace(PaintCommand.Base command) 
+            public void PaintRenderTextureUvSpace(Painter.Command.Base command) 
             {
                 Stroke stroke = command.Stroke;
                 TextureMeta image = command.TextureData;
@@ -200,16 +200,16 @@ namespace PainterTool {
 
                     bc.useAlphaBuffer = false;
 
-                    delayedPaintingConfiguration = new PaintCommand.UV(stroke, image, bc);
+                    delayedPaintingConfiguration = new Painter.Command.UV(stroke, image, bc);
 
-                    Singleton_PainterCamera.GetOrCreateProjectorCamera().RenderRightNow(this);
+                    Painter.GetOrCreateProjectorCamera().RenderRightNow(this);
                 }
                 else
                     PaintRenderTextureInternal(command); // Maybe wrong
 
             }
 
-            public bool PaintRenderTextureInternal(PaintCommand.Base cfg)
+            public bool PaintRenderTextureInternal(Painter.Command.Base cfg)
             {
                 var stroke = cfg.Stroke;
                 var image = cfg.TextureData;
@@ -228,12 +228,12 @@ namespace PainterTool {
 
                 image[TextureCfgFlags.Texcoord2] = false;
                 cfg.strokeAlphaPortion = Mathf.Clamp01(bc.Flow * 0.05f);
-                TexMGMT.SHADER_STROKE_SEGMENT_UPDATE(cfg); 
+                Painter.Camera.SHADER_STROKE_SEGMENT_UPDATE(cfg); 
 
                 stroke.FeedWorldPosInShader();
 
                 RenderTextureBuffersManager.Blit(null, image.CurrentRenderTexture(),
-                    TexMGMT.brushRenderer.GetMaterial().shader);
+                    Painter.Camera.brushRenderer.GetMaterial().shader);
 
                 BrushTypes.Sphere.Inst.AfterStroke(cfg); 
 
@@ -250,9 +250,9 @@ namespace PainterTool {
 
             //private float arbitraryBrightnessIncrease = 1.5f;
 
-            private PaintCommand.UV delayedPaintingConfiguration;
+            private Painter.Command.UV delayedPaintingConfiguration;
 
-            private static readonly ProjectorCameraConfiguration rayTraceCameraConfiguration = new ProjectorCameraConfiguration();
+            private static readonly ProjectorCameraConfiguration rayTraceCameraConfiguration = new ();
 
             public bool ProjectorReady() => delayedPaintingConfiguration != null;
 
@@ -281,7 +281,7 @@ namespace PainterTool {
                 foreach (var p in pix)
                     avg += p;
 
-                Singleton_PainterCamera.GetOrCreateProjectorCamera();
+                Painter.GetOrCreateProjectorCamera();
 
                 GlobalBrush.Color = avg / pixelsCount;
 
@@ -298,9 +298,9 @@ namespace PainterTool {
 
             public string ProjectorTagToReplace() => "RenderType";
 
-            public Shader ProjectorShaderToReplaceWith() => Cfg.rayTraceOutput;
+            public Shader ProjectorShaderToReplaceWith() => Painter.Data.rayTraceOutput;
 
-            public Color CameraReplacementClearColor() => new Color(0, 0, 1, 1);
+            public Color CameraReplacementClearColor() => new (0, 0, 1, 1);
 
             #endregion
 
@@ -419,7 +419,7 @@ namespace PainterTool {
                             if (!dp)
                             {
                                 if ("Create Projector Camera".PegiLabel().Click().Nl())
-                                    Singleton_PainterCamera.GetOrCreateProjectorCamera();
+                                    Painter.GetOrCreateProjectorCamera();
                             }
                             else if (dp.pauseAutoUpdates)
                             {
@@ -448,7 +448,7 @@ namespace PainterTool {
                     pegi.Nl();
 
 
-                    if (!_exploreRayTaceCamera && Singleton_PainterCamera.Data.showVolumeDetailsInPainter &&
+                    if (!_exploreRayTaceCamera && Painter.Data.showVolumeDetailsInPainter &&
                         (volTex.name + " " + VolumeEditingExtensions.VolumeSize(id.Texture2D, volTex.hSlices)).PegiLabel()
                         .IsFoldout(ref _exploreVolumeData).Nl())
                         volTex.Nested_Inspect();

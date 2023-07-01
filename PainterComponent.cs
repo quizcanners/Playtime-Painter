@@ -45,34 +45,18 @@ namespace PainterTool
             }
         }
 
-        private static SO_PainterDataAndConfig Cfg
-        {
-            get
-            {
-                if (!Singleton_PainterCamera.Data)
-                {
-                    QcLog.ChillLogger.LogErrorOnce("No Brush found in Config", key: "noBrush");
-                }
-
-                return Singleton_PainterCamera.Data;
-            }
-        }
-        private static Singleton_PainterCamera TexMgmt => Singleton_PainterCamera.GetOrCreate();
-
-        private static MeshEditorManager MeshMgmt => MeshEditorManager.Inst;
-
         protected static GridNavigator Grid => GridNavigator.GetOrCreate;
 
         private static Brush GlobalBrush
         {
             get
             {
-                if (Cfg.Brush == null) 
+                if (Painter.Data.Brush == null) 
                 {
                     QcLog.ChillLogger.LogErrorOnce("No Brush found in Config", key: "noBrush");
                 }
 
-                return Cfg.Brush;
+                return Painter.Data.Brush;
             }
         }
         public BrushTypes.Base GlobalBrushType => GlobalBrush.GetBrushType(TexMeta != null ? TexMeta.Target : TexTarget.Texture2D);
@@ -102,8 +86,7 @@ namespace PainterTool
         {
             get
             {
-                if (_modulesContainer == null)
-                    _modulesContainer = new PainterModules(this);
+                _modulesContainer ??= new PainterModules(this);
 
                 return _modulesContainer;
             }
@@ -168,26 +151,26 @@ namespace PainterTool
 
         public bool invertRayCast;
 
-        public Stroke stroke = new Stroke();
-        private PaintCommand.ForPainterComponent _paintCommand;
+        public Stroke stroke = new();
+        private Painter.Command.ForPainterComponent _command;
 
-        public PaintCommand.ForPainterComponent PaintCommand
+        public Painter.Command.ForPainterComponent Command
         {
             get
             {
-                if (_paintCommand == null)
-                    _paintCommand = new PaintCommand.ForPainterComponent(stroke, GlobalBrush, this);
+                if (_command == null)
+                    _command = new Painter.Command.ForPainterComponent(stroke, GlobalBrush, this);
                 else
                 {
-                    _paintCommand.TextureData = TexMeta;
-                    _paintCommand.Brush = GlobalBrush;
-                    _paintCommand.Stroke = stroke;
+                    _command.TextureData = TexMeta;
+                    _command.Brush = GlobalBrush;
+                    _command.Stroke = stroke;
                 }
 
-                if (!_paintCommand.painter)
-                    Debug.LogError(QcLog.IsNull(_paintCommand.painter, nameof(PaintCommand)));//"Painter inside a command is zero");
+                if (!_command.painter)
+                    Debug.LogError(QcLog.IsNull(_command.painter, nameof(Painter.Command)));//"Painter inside a command is zero");
 
-                return _paintCommand;
+                return _command;
             }
         }
 
@@ -256,7 +239,7 @@ namespace PainterTool
                         id.OnStrokeMouseDown_CheckBackup();
 
                     if (!stroke.MouseDownEvent || CanPaintOnMouseDown())
-                        GlobalBrush.Paint(PaintCommand);
+                        GlobalBrush.Paint(Command);
                     else
                         foreach (var module in TexMeta.Modules)
                             module.OnPaintingDrag(this);
@@ -355,12 +338,12 @@ namespace PainterTool
 
         }
 
-        private readonly QcLog.ChillLogger _chillLogger = new QcLog.ChillLogger(nameof(PainterComponent));
+        private readonly QcLog.ChillLogger _chillLogger = new(nameof(PainterComponent));
 
         private bool CastRayPlaytime(Stroke st, Vector3 mousePos)
         {
 
-            var cam = TexMgmt.MainCamera;
+            var cam = Painter.Camera.MainCamera;
 
             if (!cam)
             {
@@ -397,10 +380,10 @@ namespace PainterTool
 
         private bool ProcessHit(RaycastHit hit, Stroke st)
         {
-           // var subMesh =  //this.GetMesh().GetSubMeshNumber(hit.triangleIndex);
-            if (hit.TryGetSubMeshIndex(out var subMesh) && subMesh != selectedSubMesh)
+            // var subMesh =  //this.GetMesh().GetSubMeshNumber(hit.triangleIndex);
+            if (autoSelectMaterialByNumberOfPointedSubMesh)
             {
-                if (autoSelectMaterialByNumberOfPointedSubMesh)
+                if (hit.TryGetSubMeshIndex_MAlloc(out var subMesh) && subMesh != selectedSubMesh)
                 {
                     SetOriginalShaderOnThis();
 
@@ -408,6 +391,7 @@ namespace PainterTool
                     OnChangedTexture_OnMaterial();
 
                     CheckPreviewShader();
+
                 }
             }
 
@@ -445,7 +429,7 @@ namespace PainterTool
 
         public void SampleTexture(Vector2 uv)
         {
-            TexMgmt.OnBeforeBlitConfigurationChange();
+            Painter.Camera.OnBeforeBlitConfigurationChange();
             GlobalBrush.mask.SetValuesOn(ref GlobalBrush.Color, TexMeta.SampleAt(uv));
             Update_Brush_Parameters_For_Preview_Shader();
         }
@@ -508,7 +492,7 @@ namespace PainterTool
             Shader shd = null;
 
             if (meshEditing)
-                shd = Cfg.previewMesh;
+                shd = Painter.Data.previewMesh;
             else
             {
                 foreach (var pl in CameraModuleBase.BrushPlugins)
@@ -521,7 +505,7 @@ namespace PainterTool
                 }
 
                 if (!shd)
-                    shd = Cfg.previewBrush;
+                    shd = Painter.Data.previewBrush;
             }
 
             if (!shd)
@@ -557,8 +541,8 @@ namespace PainterTool
             previewHolderOriginalShader = null;
             previewHolderMaterial = null;
 
-            if (TexMgmt)
-                TexMgmt.FinalizePreviousAlphaDataTarget();
+            if (Painter.Camera)
+                Painter.Camera.FinalizePreviousAlphaDataTarget();
 
         }
 
@@ -720,7 +704,7 @@ namespace PainterTool
             var needsReColorizing = false;
 #endif
 
-            var colorData = isColor ? Cfg.newTextureClearNonColorValue : Cfg.newTextureClearColor;
+            var colorData = isColor ? Painter.Data.newTextureClearNonColorValue : Painter.Data.newTextureClearColor;
 
             if (gotRenderTextureData)
                 id.RenderTexture_To_Texture2D();
@@ -777,7 +761,7 @@ namespace PainterTool
 
             ChangeTexture(nt.RenderTexture);
 
-            Singleton_PainterCamera.GetOrCreate().Render(previous.CurrentTexture(), nt);
+            Painter.Camera.Render(previous.CurrentTexture(), nt);
 
             UpdateOrSetTexTarget(TexTarget.RenderTexture);
 
@@ -859,7 +843,7 @@ namespace PainterTool
         }
 
         private MaterialMeta _lastFetchedTextureNamesFor;
-        private List<ShaderProperty.TextureValue> _lastTextureNames = new List<ShaderProperty.TextureValue>();
+        private List<ShaderProperty.TextureValue> _lastTextureNames = new();
 
         private List<ShaderProperty.TextureValue> GetAllTextureNames()
         {
@@ -879,8 +863,7 @@ namespace PainterTool
                 _lastTextureNames.AddRange(Material.MyGetTextureProperties_Editor());
 
                 foreach (var nt in Modules)
-                    if (nt != null)
-                        nt.GetNonMaterialTextureNames(ref _lastTextureNames);
+                    nt?.GetNonMaterialTextureNames(ref _lastTextureNames);
 
                 _lastFetchedTextureNamesFor = materialData;
 
@@ -947,7 +930,7 @@ namespace PainterTool
             if (property != null)
             {
                 if (id != null)
-                    Cfg.recentTextures.AddIfNew(property, id);
+                    Painter.Data.recentTextures.AddIfNew(property, id);
 
                 foreach (var nt in Modules)
                     if (nt.SetTextureOnMaterial(property, id))
@@ -993,7 +976,7 @@ namespace PainterTool
 
             var mat = GetMaterial(true);
 
-            Material = new Material(mat ? mat : Cfg.defaultMaterial);
+            Material = new Material(mat ? mat : Painter.Data.defaultMaterial);
             CheckPreviewShader();
             
             var material = Material;
@@ -1005,7 +988,7 @@ namespace PainterTool
                 if (saveIt)
                 {
 #if UNITY_EDITOR
-                    QcFile.Save.Asset(material, Cfg.materialsFolderName, ".mat", true);
+                    QcFile.Save.Asset(material, Painter.Data.materialsFolderName, ".mat", true);
                     CheckPreviewShader();
 #endif
                 }
@@ -1061,7 +1044,7 @@ namespace PainterTool
         public bool meshEditing;
 
         public string selectedMeshProfile;
-        public MeshPackagingProfile MeshProfile => Cfg.GetMeshPackagingProfile(selectedMeshProfile);
+        public MeshPackagingProfile MeshProfile => Painter.Data.GetMeshPackagingProfile(selectedMeshProfile);
 
         [SerializeField] private CfgData savedMeshData;
         [SerializeField] private Mesh meshDataSavedFor;
@@ -1100,8 +1083,6 @@ namespace PainterTool
         }
 
         public bool IsEditingThisMesh => IsCurrentTool && meshEditing && (MeshEditorManager.target == this);
-
-        private static MeshEditorManager MeshManager => MeshEditorManager.Inst;
 
         #endregion
 
@@ -1176,7 +1157,7 @@ namespace PainterTool
         {
             get
             {
-                if (meshEditing || !TexMgmt)
+                if (meshEditing || !Painter.Camera)
                     return true;
                 var i = TexMeta;
                 return i == null || i.OtherTexture || i.IsReadable == false;
@@ -1185,13 +1166,12 @@ namespace PainterTool
 
         public bool forcedMeshCollider;
         [NonSerialized] public bool initialized;
-        public bool autoSelectMaterialByNumberOfPointedSubMesh = true;
+        public bool autoSelectMaterialByNumberOfPointedSubMesh = false;
 
         public const string OnlineManual =
             "https://docs.google.com/document/d/170k_CE-rowVW9nsAo3EUqVIAWlZNahC0ua11t1ibMBo/edit?usp=sharing";
 
-        private static readonly List<string> TextureEditorIgnore = new List<string>
-            {MeshEditorManager.VertexEditorUiElementTag, MeshEditorManager.ToolComponentTag, "o"};
+        private static readonly List<string> TextureEditorIgnore = new() { MeshEditorManager.VertexEditorUiElementTag, MeshEditorManager.ToolComponentTag, "o"};
 
         public static bool CanEditWithTag(string tag)
         {
@@ -1249,9 +1229,9 @@ namespace PainterTool
 
             _cfgData = Encode().CfgData;
 
-            if (!TexMgmt || MeshEditorManager.target != this) return;
+            if (!Painter.Camera || MeshEditorManager.target != this) return;
 
-            MeshEditorManager.Inst.StopEditingMesh();
+            Painter.MeshManager.StopEditingMesh();
 
         }
 
@@ -1354,7 +1334,7 @@ namespace PainterTool
             }
             else skinnedMeshRenderer = null;
 
-            if ((this == TexMgmt.autodisabledBufferTarget) && (!TextureEditingBlocked) &&
+            if ((this == Painter.Camera.autodisabledBufferTarget) && (!TextureEditingBlocked) &&
                 (!QcUnity.ApplicationIsAboutToEnterPlayMode()))
                 ReEnableRenderTexture();
 
@@ -1397,7 +1377,7 @@ namespace PainterTool
         }
 #endif
 
-        private readonly Gate.Frame _frameGate = new Gate.Frame();
+        private readonly Gate.Frame _frameGate = new();
         public void ManagedUpdateOnFocused()
         {
             if (!_frameGate.TryEnter()) 
@@ -1424,7 +1404,7 @@ namespace PainterTool
 
                 foreach (var l in loadingOrder)
                 {
-                    if (!Singleton_PainterCamera.DownloadManager.TryGetTexture(l.Key, out Texture tex, true)) continue;
+                    if (!Painter.DownloadManager.TryGetTexture(l.Key, out Texture tex, true)) continue;
 
                     if (tex)
                     {
@@ -1447,10 +1427,10 @@ namespace PainterTool
             #endregion
 
             if (Application.isPlaying && IsEditingThisMesh)
-                MeshEditorManager.Inst.DRAW_Lines(false);
+                Painter.MeshManager.DRAW_Lines(false);
 
             if (GlobalBrush!=null && GlobalBrush.previewDirty)
-                TexMgmt.SHADER_BRUSH_UPDATE(PaintCommand);
+                Painter.Camera.SHADER_BRUSH_UPDATE(_command);
 
             if (textureWasChanged)
                 OnChangedTexture_OnMaterial();
@@ -1491,9 +1471,9 @@ namespace PainterTool
 
             if (id == null || NotUsingPreview) return;
 
-            PaintCommand.TextureData = id;
+            Command.TextureData = id;
 
-            TexMgmt.SHADER_BRUSH_UPDATE(PaintCommand.Reset());
+            Painter.Camera.SHADER_BRUSH_UPDATE(_command.Reset());
 
             foreach (var p in Modules)
                 p.Update_Brush_Parameters_For_Preview_Shader();

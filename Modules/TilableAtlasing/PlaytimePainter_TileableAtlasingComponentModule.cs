@@ -56,7 +56,7 @@ namespace PainterTool.ComponentModules {
         public override void Update_Brush_Parameters_For_Preview_Shader() =>
             QcUnity.ToggleShaderKeywords(!painter.IsAtlased(), PainterShaderVariables.UV_NORMAL, PainterShaderVariables.UV_ATLASED);
         
-        public bool PaintTexture2D(PaintCommand.Base command) {
+        public bool PaintTexture2D(Painter.Command.Base command) {
 
             Stroke stroke = command.Stroke;
             float brushAlpha = command.strokeAlphaPortion;
@@ -204,7 +204,7 @@ namespace PainterTool.ComponentModules {
        
         #endregion
 
-        public override void BeforeGpuStroke(PaintCommand.ForPainterComponent command) //Brush br, Stroke st, BrushTypes.Base type)
+        public override void BeforeGpuStroke(Painter.Command.ForPainterComponent command) //Brush br, Stroke st, BrushTypes.Base type)
         {
             if (!painter.Is3DBrush(command.Brush) || !painter.IsAtlased()) return;
             
@@ -212,7 +212,7 @@ namespace PainterTool.ComponentModules {
             PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(ats.x, ats.y, atlasRows, 1);
         }
 
-        public override void AfterGpuStroke(PaintCommand.ForPainterComponent command) //Brush br, Stroke st, BrushTypes.Base type)
+        public override void AfterGpuStroke(Painter.Command.ForPainterComponent command) //Brush br, Stroke st, BrushTypes.Base type)
                                                                      {
             if (painter.Is3DBrush(command.Brush) && painter.IsAtlased())
                 PainterShaderVariables.BRUSH_ATLAS_SECTION_AND_ROWS.GlobalValue = new Vector4(0, 0, 1, 0);
@@ -227,7 +227,7 @@ namespace PainterTool.ComponentModules {
         public int atlasCreatorId;
         public bool enabled;
         public Color col;
-        public AtlasTextureCreator AtlasCreator => Cfg.atlases.Count > atlasCreatorId ? Cfg.atlases[atlasCreatorId] : null;
+        public AtlasTextureCreator AtlasCreator => Painter.Data.atlases.Count > atlasCreatorId ? Painter.Data.atlases[atlasCreatorId] : null;
 
         #region Inspector
 
@@ -249,12 +249,12 @@ namespace PainterTool.ComponentModules {
             "Atlas".PegiLabel().Enter_Inspect(AtlasCreator, ref _inspectedItems, 11).Nl();
 
             if (_inspectedItems == -1) {
-                "Atlases".PegiLabel(70).Select_Index(ref atlasCreatorId,Cfg.atlases);
+                "Atlases".PegiLabel(70).Select_Index(ref atlasCreatorId,Painter.Data.atlases);
                 if (Icon.Add.Click("Create new Atlas").Nl()) {
-                    atlasCreatorId = Cfg.atlases.Count;
+                    atlasCreatorId = Painter.Data.atlases.Count;
                     var ac = new AtlasTextureCreator(atlasedField + " for " + a.name);
-                    Cfg.atlases.Add(ac);
-                    Cfg.SetToDirty();
+                    Painter.Data.atlases.Add(ac);
+                    Painter.Data.SetToDirty();
                 }
             }
 
@@ -286,7 +286,7 @@ namespace PainterTool.ComponentModules {
 
         public string NameForInspector { get { return name; } set { name = value; } }
 
-        private readonly List<FieldAtlas> _fields = new List<FieldAtlas>();
+        private readonly List<FieldAtlas> _fields = new();
         
         private string _matAtlasProfile;
 
@@ -375,63 +375,63 @@ namespace PainterTool.ComponentModules {
 
             if (passedFields.Count <= 0) return;
             
-                var firstAtlasing = false;
+            var firstAtlasing = false;
 
-                var atlPlug = painter.GetModule<TileableAtlasingComponentModule>();
+            var atlPlug = painter.GetModule<TileableAtlasingComponentModule>();
 
-                if (atlPlug.preAtlasingMaterials == null)
-                {
-                    atlPlug.preAtlasingMaterials = painter.Materials.ToList();
-                    atlPlug.preAtlasingMesh = painter.GetMesh();
-                    firstAtlasing = true;
-                }
+            if (atlPlug.preAtlasingMaterials == null)
+            {
+                atlPlug.preAtlasingMaterials = painter.Materials.ToList();
+                atlPlug.preAtlasingMesh = painter.GetMesh();
+                firstAtlasing = true;
+            }
 
-                var mainField = passedFields[0];
+            var mainField = passedFields[0];
 
-                atlPlug.atlasRows = mainField.AtlasCreator.Row;
+            atlPlug.atlasRows = mainField.AtlasCreator.Row;
 
-                var tiling = mat.GetTiling(originalTextures[mainField.originField]);
-                var offset = mat.GetOffset(originalTextures[mainField.originField]);
+            var tiling = mat.GetTiling(originalTextures[mainField.originField]);
+            var offset = mat.GetOffset(originalTextures[mainField.originField]);
 
-                for (var i = 0; i < passedFields.Count; i++) {
+            for (var i = 0; i < passedFields.Count; i++) {
 
-                    var f = passedFields[i];
-                    var ac = f.AtlasCreator;
+                var f = passedFields[i];
+                var ac = f.AtlasCreator;
 
-                    ac.textures[index] = new AtlasTextureField(passedTextures[i], passedColors[i]);
+                ac.textures[index] = new AtlasTextureField(passedTextures[i], passedColors[i]);
 
-                    ac.AddTargets(f, originalTextures[f.originField]);
-                    ac.ReconstructAsset();
-                    _atlasedMaterial.SetTexture(f.atlasedField, ac.aTexture);
-                }
+                ac.AddTargets(f, originalTextures[f.originField]);
+                ac.ReconstructAsset();
+                _atlasedMaterial.SetTexture(f.atlasedField, ac.aTexture);
+            }
 
-                MeshEditorManager.Inst.EditMesh(painter, true);
+            Painter.MeshManager.EditMesh(painter, true);
 
-                if (firstAtlasing)
-                    atlPlug.preAtlasingSavedMesh = MeshEditorManager.editedMesh.Encode().CfgData;
+            if (firstAtlasing)
+                atlPlug.preAtlasingSavedMesh = MeshEditorManager.editedMesh.Encode().CfgData;
 
-                painter.selectedMeshProfile = _matAtlasProfile;
+            painter.selectedMeshProfile = _matAtlasProfile;
 
-                if (tiling != Vector2.one || offset != Vector2.zero)
-                {
-                    MeshEditorManager.editedMesh.TileAndOffsetUVs(offset, tiling, 0);
-                    Debug.Log("offsetting " + offset + " tiling " + tiling);
-                }
+            if (tiling != Vector2.one || offset != Vector2.zero)
+            {
+                MeshEditorManager.editedMesh.TileAndOffsetUVs(offset, tiling, 0);
+                Debug.Log("offsetting " + offset + " tiling " + tiling);
+            }
 
-                TriangleAtlasTool.Inst.SetAllTrianglesTextureTo(index, 0, painter.selectedSubMesh);
-                MeshEditorManager.Inst.Redraw();
-                MeshEditorManager.Inst.StopEditingMesh();
+            TriangleAtlasTool.Inst.SetAllTrianglesTextureTo(index, 0, painter.selectedSubMesh);
+            Painter.MeshManager.Redraw();
+            Painter.MeshManager.StopEditingMesh();
 
-                _atlasedMaterial.SetFloat(PainterShaderVariables.ATLASED_TEXTURES, atlPlug.atlasRows);
-                painter.Material = _atlasedMaterial;
+            _atlasedMaterial.SetFloat(PainterShaderVariables.ATLASED_TEXTURES, atlPlug.atlasRows);
+            painter.Material = _atlasedMaterial;
 
-                if (firstAtlasing)
-                {
-                    var m = painter.GetMesh();
-                    m.name = m.name + "_Atlased_" + index;
-                }
+            if (firstAtlasing)
+            {
+                var m = painter.GetMesh();
+                m.name = m.name + "_Atlased_" + index;
+            }
  
-                _atlasedMaterial.EnableKeyword(PainterShaderVariables.UV_ATLASED);
+            _atlasedMaterial.EnableKeyword(PainterShaderVariables.UV_ATLASED);
             
 #endif
                     }
@@ -440,7 +440,7 @@ namespace PainterTool.ComponentModules {
         {
             //var texMGMT = PainterCamera.Inst;
 
-            var atlases = Cfg.atlases;
+            var atlases = Painter.Data.atlases;
             
             for (var a = 0; a < atlases.Count; a++)
             {
@@ -583,11 +583,11 @@ namespace PainterTool.ComponentModules {
             foreach (var f in _fields)
                 f.Nested_Inspect().Nl();
 
-            "Mesh Profiles [{0}]".F(Singleton_PainterCamera.Data.meshPackagingSolutions.Count).PegiLabel()
-                .Select_iGotName(ref _matAtlasProfile, Singleton_PainterCamera.Data.meshPackagingSolutions);
+            "Mesh Profiles [{0}]".F(Painter.Data.meshPackagingSolutions.Count).PegiLabel()
+                .Select_iGotName(ref _matAtlasProfile, Painter.Data.meshPackagingSolutions);
 
             if (Icon.Refresh.Click("Refresh Mesh Packaging Solutions"))
-                Singleton_PainterCamera.Data.ResetMeshPackagingProfiles();
+                Painter.Data.ResetMeshPackagingProfiles();
 
             pegi.Nl();
 
@@ -658,16 +658,16 @@ namespace PainterTool.ComponentModules {
         
         public string NameForInspector { get; set;}
 
-        public List<ShaderProperty.TextureValue> targetFields = new List<ShaderProperty.TextureValue>();
+        public List<ShaderProperty.TextureValue> targetFields = new();
 
-        public List<string> atlasFields = new List<string>();
+        public List<string> atlasFields = new();
 
-        private List<string> _srcFields = new List<string>();
+        private List<string> _srcFields = new();
 
         public Texture2D aTexture;
 
-        public List<AtlasTextureField> textures = new List<AtlasTextureField>();
-        private readonly pegi.CollectionInspectorMeta _texturesMeta = new pegi.CollectionInspectorMeta("Textures");
+        public List<AtlasTextureField> textures = new();
+        private readonly pegi.CollectionInspectorMeta _texturesMeta = new("Textures");
 
         #region Encode & Decode
 
@@ -743,7 +743,7 @@ namespace PainterTool.ComponentModules {
         public AtlasTextureCreator(string newName)
         {
             NameForInspector = newName;
-            NameForInspector = GetUniqueName(NameForInspector, Cfg.atlases);
+            NameForInspector = GetUniqueName(NameForInspector, Painter.Data.atlases);
             Init();
         }
 
@@ -902,7 +902,7 @@ namespace PainterTool.ComponentModules {
             
                 var bytes = aTexture.EncodeToPNG();
 
-                var lastPart = Path.Combine(Cfg.texturesFolderName, Cfg.atlasFolderName);
+                var lastPart = Path.Combine(Painter.Data.texturesFolderName, Painter.Data.atlasFolderName);
                 var fullPath = Path.Combine(Application.dataPath, lastPart);
                 Directory.CreateDirectory(fullPath);
 
@@ -937,7 +937,7 @@ namespace PainterTool.ComponentModules {
             #endif
         }
 
-        [SerializeField]  private pegi.EnterExitContext context = new pegi.EnterExitContext();
+        [SerializeField]  private pegi.EnterExitContext context = new();
 
         public void Inspect()
         {

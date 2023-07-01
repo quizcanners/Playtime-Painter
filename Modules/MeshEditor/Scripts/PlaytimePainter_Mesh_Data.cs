@@ -75,7 +75,7 @@ namespace PainterTool.MeshEditing
 
             var name = mat.Get(ShaderTags.MeshSolution, false, "Standard");
 
-            var prf = Singleton_PainterCamera.Data.meshPackagingSolutions;
+            var prf = Painter.Data.meshPackagingSolutions;
 
             for (var i = 0; i < prf.Count; i++)
                 if (prf[i].name.SameAs(name)) painter.selectedMeshProfile = name;
@@ -967,7 +967,7 @@ namespace PainterTool.MeshEditing
 
         public void PaintAll(Color c)
         {
-            var bm = Cfg.Brush.mask;//glob.getBrush().brushMask;
+            var bm = Painter.Data.Brush.mask;//glob.getBrush().brushMask;
             foreach (var point in meshPoints)
                 foreach (var vertex in point.vertices)
                     bm.SetValuesOn(ref vertex.color, c);
@@ -977,7 +977,7 @@ namespace PainterTool.MeshEditing
 
         public void SetShadowAll(Color col)
         {
-            var bm = Cfg.Brush.mask;
+            var bm = Painter.Data.Brush.mask;
 
             foreach (var v in meshPoints)
                 bm.SetValuesOn(ref v.shadowBake, col);
@@ -1100,7 +1100,7 @@ namespace PainterTool.MeshEditing
                 triangles.Add(trb);
                 tr.Replace(auv, newUv);
 
-                if (Cfg.newVerticesUnique)
+                if (Painter.Data.newVerticesUnique)
                 {
                     var split = new PainterMesh.Vertex(splitUv);
                     trb.Replace(splitUv, split);
@@ -1112,7 +1112,7 @@ namespace PainterTool.MeshEditing
 
             Dirty = true;
 
-            if (Cfg.pixelPerfectMeshEditing)
+            if (Painter.Data.pixelPerfectMeshEditing)
                 newVrt.PixPerfect();
 
             return newVrt;
@@ -1170,7 +1170,7 @@ namespace PainterTool.MeshEditing
             triangles.Add(triandleC);
 
 
-            if (Cfg.pixelPerfectMeshEditing)
+            if (Painter.Data.pixelPerfectMeshEditing)
                 newVrt.PixPerfect();
 
             Dirty = true;
@@ -1215,7 +1215,7 @@ namespace PainterTool.MeshEditing
             c.MakeTriangleVertexUnique(c[VERT0]);
 
 
-            if (Cfg.pixelPerfectMeshEditing)
+            if (Painter.Data.pixelPerfectMeshEditing)
                 newVrt.PixPerfect();
 
             Dirty = true;

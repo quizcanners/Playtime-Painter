@@ -31,9 +31,9 @@ namespace PainterTool.ComponentModules
 
         public virtual void Update_Brush_Parameters_For_Preview_Shader() { }
 
-        public virtual void BeforeGpuStroke(PaintCommand.ForPainterComponent command) {} //Brush br, Stroke st, BrushTypes.Base type) { }
+        public virtual void BeforeGpuStroke(Painter.Command.ForPainterComponent command) {} //Brush br, Stroke st, BrushTypes.Base type) { }
 
-        public virtual void AfterGpuStroke(PaintCommand.ForPainterComponent command){} //Brush br, Stroke st, BrushTypes.Base type) {
+        public virtual void AfterGpuStroke(Painter.Command.ForPainterComponent command){} //Brush br, Stroke st, BrushTypes.Base type) {
 
         
         

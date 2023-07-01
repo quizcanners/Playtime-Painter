@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using QuizCanners.Inspect;
 using PainterTool.CameraModules;
-using PainterTool.MeshEditing;
 using QuizCanners.Utils;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -17,10 +16,6 @@ namespace PainterTool {
     [AddComponentMenu("Playtime Painter/Painter Camera")]
     public class Singleton_PainterCamera : PainterSystemMono 
     {   
-        internal static readonly PlaytimePainter_BrushMeshGenerator BrushMeshGenerator = new PlaytimePainter_BrushMeshGenerator();
-        internal static readonly MeshEditorManager MeshManager = new MeshEditorManager();
-        internal static readonly TextureDownloadManager DownloadManager = new TextureDownloadManager();
-
         [SerializeField] private Camera _mainCamera;
         [SerializeField] private Camera painterCamera;
         [SerializeField] private PlaytimePainter_RenderBrush brushPrefab;
@@ -30,107 +25,12 @@ namespace PainterTool {
         internal static float _previewAlpha = 1;
         private bool disableSecondBufferUpdateDebug;
 
-        [SerializeField] private SO_PainterDataAndConfig dataHolder;
+        [SerializeField] internal SO_PainterDataAndConfig dataHolder;
 
-        [NonSerialized] private bool _triedToFindPainterData;
-        [NonSerialized] private static bool _triedToFindCamera;
+        private static readonly List<TextureMeta> _texturesNeedUpdate = new();
 
-        public static SO_PainterDataAndConfig Data 
-        {
-            get {
-                var painterCam = GetOrCreate();
-
-                if (!painterCam)
-                    return null;
-
-                if (!painterCam._triedToFindPainterData && !painterCam.dataHolder) {
-
-                    var allConfigs = Resources.LoadAll<SO_PainterDataAndConfig>("");
-
-                    painterCam.dataHolder = allConfigs.TryGet(0);
-
-                    if (!painterCam.dataHolder)
-                        painterCam._triedToFindPainterData = true;
-                }
-
-                return painterCam.dataHolder;
-            }
-        }
-
-        #region Camera Singleton
-
-        internal static Singleton_DepthProjectorCamera GetOrCreateProjectorCamera()
-        {
-            var inst = Singleton.Get<Singleton_DepthProjectorCamera>();
-            if (inst)
-                return inst;
-
-            if (!Singleton.Get<Singleton_DepthProjectorCamera>())
-                inst = QcUnity.Instantiate<Singleton_DepthProjectorCamera>();
-
-            return inst;
-        }
-
-        public static Singleton_PainterCamera GetOrCreate() 
-        {
-            var _inst = Singleton.Get<Singleton_PainterCamera>();
-
-            if (_inst)
-                return _inst;
-
-            if (!_triedToFindCamera) 
-            {
-                _triedToFindCamera = true;
-                _inst = FindObjectOfType<Singleton_PainterCamera>();
-
-            }
-
-            if (!_inst && !PainterClass.applicationIsQuitting)
-            {
-                var go = Resources.Load(SO_PainterDataAndConfig.PREFABS_RESOURCE_FOLDER + "/" + SO_PainterDataAndConfig.PainterCameraName) as GameObject;
-                _inst = Instantiate(go).GetComponent<Singleton_PainterCamera>();
-            }
-
-            if (_inst)
-            {
-                _inst.name = SO_PainterDataAndConfig.PainterCameraName;
-                _inst.RegisterServiceAs<Singleton_PainterCamera>();
-                CameraModuleBase.RefreshModules();
-                _inst.gameObject.SetActive(true);
-            } else 
-            {
-                if (!PainterClass.applicationIsQuitting)
-                {
-                    QcLog.ChillLogger.LogErrorOnce("Failed to find or Load Painter Camera", key: "NoPpCam");
-                }
-            }
-
-            return _inst;
-        }
+        internal bool _triedToFindPainterData;
         
-        #endregion
-
-        internal PainterComponent FocusedPainter => PainterComponent.selectedInPlaytime;
-
-        public bool IsLinearColorSpace
-        {
-            get
-            {
-#if UNITY_EDITOR
-                return UnityEditor.PlayerSettings.colorSpace == ColorSpace.Linear;
-#else
-                      return Data.isLineraColorSpace;
-#endif
-            }
-            set
-            {
-                if (Data)
-                    Data.isLineraColorSpace = value;
-            }
-        }
-
-        private static readonly List<TextureMeta> _texturesNeedUpdate = new List<TextureMeta>();
-
         internal void RequestLateUpdate(TextureMeta meta) 
         {
             if (!_texturesNeedUpdate.Contains(meta))
@@ -141,7 +41,7 @@ namespace PainterTool {
 
         private void UpdateCullingMask() 
         {
-            var l = (Data ? Data.playtimePainterLayer : 30);
+            var l = (Painter.Data ? Painter.Data.playtimePainterLayer : 30);
 
             if (_mainCamera)
                 _mainCamera.SetMask(layerIndex: l, value: false); //cullingMask &= ~flag;
@@ -186,7 +86,7 @@ namespace PainterTool {
         #region Encode & Decode
 
         public override CfgEncoder Encode() => base.Encode()//this.EncodeUnrecognized()
-            .Add("mm", MeshManager)
+            .Add("mm", Painter.MeshManager)
             .Add_Abstract("pl", CameraModuleBase.modules)
             .Add("rts", RenderTextureBuffersManager.renderBuffersSize);
 
@@ -196,7 +96,7 @@ namespace PainterTool {
                     data.ToList(out CameraModuleBase.modules, CameraModuleBase.all);
                     CameraModuleBase.RefreshModules();
                     break;
-                case "mm": MeshManager.Decode(data); break;
+                case "mm": Painter.MeshManager.Decode(data); break;
                 case "rts": RenderTextureBuffersManager.renderBuffersSize = data.ToInt(); break;
             }
         }
@@ -209,7 +109,7 @@ namespace PainterTool {
         [NonSerialized] private Shader alphaBufferDataShader;
 
         [SerializeField] internal TextureMeta imgMetaUsingRendTex;
-        [SerializeField] internal List<MaterialMeta> materialsUsingRenderTexture = new List<MaterialMeta>();
+        [SerializeField] internal List<MaterialMeta> materialsUsingRenderTexture = new();
         [SerializeField] internal PainterComponent autodisabledBufferTarget;
 
         internal void EmptyBufferTarget()
@@ -265,12 +165,12 @@ namespace PainterTool {
         private static RenderTexture BackBuffer => RenderTextureBuffersManager.GetOrCreatePaintingBuffers()[1];
         private static RenderTexture AlphaBuffer => RenderTextureBuffersManager.alphaBufferTexture;
 
-        internal static bool GotBuffers => GetOrCreate() && RenderTextureBuffersManager.GotPaintingBuffers;
+        internal static bool GotBuffers => Painter.Camera && RenderTextureBuffersManager.GotPaintingBuffers;
         #endregion
 
         #region Brush Shader MGMT
 
-        internal void SHADER_BRUSH_UPDATE(PaintCommand.Base command)
+        internal void SHADER_BRUSH_UPDATE(Painter.Command.Base command)
         {
             Brush brush = command.Brush;
 
@@ -291,7 +191,7 @@ namespace PainterTool {
             brushType.OnShaderBrushUpdate(brush);
 
             if (rendTex)
-                PainterShaderVariables.SourceMaskProperty.GlobalValue = brush.useMask ? Data.masks.TryGet(brush.selectedSourceMask) : null;
+                PainterShaderVariables.SourceMaskProperty.GlobalValue = brush.useMask ? Painter.Data.masks.TryGet(brush.selectedSourceMask) : null;
 
             PainterShaderVariables.MaskDynamicsProperty.GlobalValue = new Vector4(
                 brush.maskTiling,
@@ -357,7 +257,7 @@ namespace PainterTool {
 
             if (rendTex && blitMode.UsingSourceTexture)
             {
-                PainterShaderVariables.SourceTextureProperty.GlobalValue = Data.sourceTextures.TryGet(brush.selectedSourceTexture);
+                PainterShaderVariables.SourceTextureProperty.GlobalValue = Painter.Data.sourceTextures.TryGet(brush.selectedSourceTexture);
                 PainterShaderVariables.TextureSourceParameters.GlobalValue = new Vector4(
                     (float)brush.srcColorUsage,
                     brush.clampSourceTexture ? 1f : 0f,
@@ -367,7 +267,7 @@ namespace PainterTool {
             }
         }
 
-        internal void SHADER_STROKE_SEGMENT_UPDATE(PaintCommand.Base command)
+        internal void SHADER_STROKE_SEGMENT_UPDATE(Painter.Command.Base command)
         {
             Brush brush = command.Brush;
             TextureMeta textureMeta = command.TextureData;
@@ -489,7 +389,7 @@ namespace PainterTool {
             return new ConfiguredRender(target);
         }
 
-        public ConfiguredRender Prepare(PaintCommand.WorldSpaceBase command) 
+        public ConfiguredRender Prepare(Painter.Command.WorldSpaceBase command) 
         {
             brushRenderer.PrepareWorldSpace(command);
             return new ConfiguredRender(command.TextureData.CurrentRenderTexture());
@@ -505,7 +405,7 @@ namespace PainterTool {
         
         public RenderTexture Render(Texture from, RenderTexture to, Material mat) =>  brushRenderer.CopyBuffer(from, to, mat);
          
-        internal RenderTexture Render(Texture from, TextureMeta to) => Render(from, to.CurrentRenderTexture(), Data.brushBufferCopy.Shader);
+        internal RenderTexture Render(Texture from, TextureMeta to) => Render(from, to.CurrentRenderTexture(), Painter.Data.brushBufferCopy.Shader);
 
         internal void Render()
         {
@@ -533,7 +433,7 @@ namespace PainterTool {
             {
                 brushRenderer.Set(FrontBuffer);
                 TargetTexture = BackBuffer;
-                CurrentShader = Data.brushBufferCopy.Shader;
+                CurrentShader = Painter.Data.brushBufferCopy.Shader;
                 Render();
                 RenderTextureBuffersManager.secondBufferUpdated = true;
                 RenderTextureBuffersManager.bigRtVersion++;
@@ -577,10 +477,10 @@ namespace PainterTool {
 
             PainterClass.applicationIsQuitting = false;
 
-            if (!Data)
+            if (!Painter.Data)
                 dataHolder = Resources.Load("Painter_Data") as SO_PainterDataAndConfig;
 
-            MeshManager.OnEnable();
+            Painter.MeshManager.OnEnable();
 
             if (!painterCamera)
                 painterCamera = GetComponent<Camera>();
@@ -592,8 +492,8 @@ namespace PainterTool {
 
             UnityEditor.SceneManagement.EditorSceneManager.sceneSaving -= BeforeSceneSaved;
             UnityEditor.SceneManagement.EditorSceneManager.sceneSaving += BeforeSceneSaved;
-            
-            IsLinearColorSpace = UnityEditor.PlayerSettings.colorSpace == ColorSpace.Linear;
+
+            Painter.IsLinearColorSpace = UnityEditor.PlayerSettings.colorSpace == ColorSpace.Linear;
 
             UnityEditor.EditorApplication.update -= ManagedUpdate;
             if (!QcUnity.ApplicationIsAboutToEnterPlayMode())
@@ -655,12 +555,12 @@ namespace PainterTool {
             foreach (var p in CameraModuleBase.modules)
                 p?.Enable();
             
-            if (Data)
-                Data.ManagedOnEnable();
+            if (Painter.Data)
+                Painter.Data.ManagedOnEnable();
 
             UpdateCullingMask();
 
-            PainterShaderVariables.BrushColorProperty.ConvertToLinear = IsLinearColorSpace;
+            PainterShaderVariables.BrushColorProperty.ConvertToLinear = Painter.IsLinearColorSpace;
 
         }
 
@@ -673,7 +573,7 @@ namespace PainterTool {
 
         private void BeforeClosing()
         {
-            DownloadManager.Dispose();
+            Painter.DownloadManager.Dispose();
 
             #if UNITY_EDITOR
             UnityEditor.EditorApplication.update -= ManagedUpdate;
@@ -692,8 +592,8 @@ namespace PainterTool {
                 foreach (var p in CameraModuleBase.modules)
                     p?.Disable();
             
-            if (Data)
-                Data.ManagedOnDisable();
+            if (Painter.Data)
+                Painter.Data.ManagedOnDisable();
 
             RenderTextureBuffersManager.OnDisable();
         }
@@ -718,14 +618,14 @@ namespace PainterTool {
 
         public static double lastManagedUpdate;
 
-        private readonly Gate.Frame _frameGate = new Gate.Frame();
+        private readonly Gate.Frame _frameGate = new();
 
         public void ManagedUpdate() {
 
             if (!_frameGate.TryEnter())
                 return; 
 
-            if (!this || !Data)
+            if (!this || !Painter.Data)
                 return;
 
             foreach (var t in _texturesNeedUpdate)
@@ -735,12 +635,12 @@ namespace PainterTool {
 
             lastManagedUpdate = QcUnity.TimeSinceStartup();
 
-            if (PainterComponent.IsCurrentTool && FocusedPainter)
-                FocusedPainter.ManagedUpdateOnFocused();
+            if (PainterComponent.IsCurrentTool && Painter.FocusedPainter)
+                Painter.FocusedPainter.ManagedUpdateOnFocused();
             
             QcAsync.DefaultCoroutineManager.UpdateManagedCoroutines();
 
-            MeshManager.CombinedUpdate();
+            Painter.MeshManager.CombinedUpdate();
 
             if (!Application.isPlaying)
                 Singleton.Try<Singleton_DepthProjectorCamera>(cam => cam.ManagedUpdate(), logOnServiceMissing: false);
@@ -789,16 +689,16 @@ namespace PainterTool {
         #region Inspector
         public override string InspectedCategory => nameof(PainterComponent);
 
-        private static readonly pegi.GameView.Window OnGUIWindow = new pegi.GameView.Window(600, 800);
+        private static readonly pegi.GameView.Window OnGUIWindow = new(600, 800);
         
         public void OnGUI()
         {
 
-            if (!Cfg || !Cfg.enablePainterUIonPlay) return;
+            if (!Painter.Data || !Painter.Data.enablePainterUIonPlay) return;
             
-            if (FocusedPainter)
+            if (Painter.FocusedPainter)
             {
-                OnGUIWindow.Render(FocusedPainter, "{0} {1}".F(FocusedPainter.name, FocusedPainter.GetMaterialTextureProperty()));
+                OnGUIWindow.Render(Painter.FocusedPainter, "{0} {1}".F(Painter.FocusedPainter.name, Painter.FocusedPainter.GetMaterialTextureProperty()));
 
                /* foreach (var p in CameraModuleBase.GuiPlugins)
                     p.OnGUI();*/
@@ -809,16 +709,16 @@ namespace PainterTool {
 
         }
 
-        public AnimationCurve tmpCurve = new AnimationCurve(new Keyframe(0, 0), new Keyframe(0.5f, 0.5f), new Keyframe(1, 1));
+        public AnimationCurve tmpCurve = new (new Keyframe(0, 0), new Keyframe(0.5f, 0.5f), new Keyframe(1, 1));
         
         public AnimationCurve InspectAnimationCurve(string role) {
             role.PegiLabel().Edit_Property(() => tmpCurve, this);
             return tmpCurve;
         }
 
-        [SerializeField] private pegi.EnterExitContext _dependencyContext = new pegi.EnterExitContext();
-        [SerializeField] private pegi.EnterExitContext _context = new pegi.EnterExitContext();
-        private static readonly pegi.CollectionInspectorMeta _modulesMeta = new pegi.CollectionInspectorMeta("Modules", true, true, true, false);
+        [SerializeField] private pegi.EnterExitContext _dependencyContext = new();
+        [SerializeField] private pegi.EnterExitContext _context = new();
+        private static readonly pegi.CollectionInspectorMeta _modulesMeta = new("Modules", true, true, true, false);
 
         private Shader _latestPaintShaderDebug;
 
@@ -833,8 +733,8 @@ namespace PainterTool {
                     pegi.Nl();
                     "Painter Data".PegiLabel().Edit(ref dataHolder).Nl();
 
-                    if (Data)
-                        Data.Nested_Inspect().Nl();
+                    if (Painter.Data)
+                        Painter.Data.Nested_Inspect().Nl();
                     else
                     {
                         "NO CONFIG Scriptable Object".PegiLabel().WriteWarning();
@@ -843,8 +743,8 @@ namespace PainterTool {
                     }
                 }
 
-                if (_context.IsAnyEntered == false && Data)
-                    pegi.ClickHighlight(Data);
+                if (_context.IsAnyEntered == false && Painter.Data)
+                    pegi.ClickHighlight(Painter.Data);
 
                 pegi.Nl();
 
@@ -857,7 +757,7 @@ namespace PainterTool {
                 {
                     if (!QuizCanners.Utils.Singleton.Try<Singleton_DepthProjectorCamera>(s => s.Nested_Inspect().Nl(), logOnServiceMissing: false)
                         && "Instantiate".PegiLabel().Click())
-                        GetOrCreateProjectorCamera();
+                        Painter.GetOrCreateProjectorCamera();
 
                 }
 
@@ -917,7 +817,7 @@ namespace PainterTool {
 
                     pegi.Nl();
 
-                    "Download Manager".PegiLabel().Enter_Inspect(DownloadManager).Nl();
+                    "Download Manager".PegiLabel().Enter_Inspect(Painter.DownloadManager).Nl();
 
                     if (_dependencyContext.IsAnyEntered == false)
                       
@@ -926,18 +826,18 @@ namespace PainterTool {
                     {
                             pegi.FullWindow.DocumentationClickOpen("You can enable URL field in the Optional UI elements to get texture directly from web");
 
-                            (IsLinearColorSpace ? "Linear" : "Gamma").PegiLabel().Nl();
+                            (Painter.IsLinearColorSpace ? "Linear" : "Gamma").PegiLabel().Nl();
 
 
 #if UNITY_EDITOR
                         if ("Refresh Brush Shaders".PegiLabel().Click().Nl())
                         {
-                            Data.CheckShaders(true);
+                                Painter.Data.CheckShaders(true);
                             pegi.GameView.ShowNotification("Shaders Refreshed");
                         }
 #endif
 
-                        "Using layer:".PegiLabel().Edit_LayerMask(ref Data.playtimePainterLayer).Nl();
+                        "Using layer:".PegiLabel().Edit_LayerMask(ref Painter.Data.playtimePainterLayer).Nl();
                     }
                 }
 
@@ -945,7 +845,7 @@ namespace PainterTool {
             }
 
             #if UNITY_EDITOR
-            if (!Data)  {
+            if (!Painter.Data)  {
                 pegi.Nl();
                 "No data Holder".PegiLabel(60).Edit(ref dataHolder).Nl();
 
@@ -961,7 +861,7 @@ namespace PainterTool {
                     PainterClass.applicationIsQuitting = false;
                     _triedToFindPainterData = false;
 
-                    if (!Data) {
+                    if (!Painter.Data) {
                         dataHolder = ScriptableObject.CreateInstance<SO_PainterDataAndConfig>();
 
 
@@ -1050,7 +950,7 @@ namespace PainterTool {
         public ConfiguredRender(RenderTexture target) 
         {
             Target = target;
-            Singleton_PainterCamera.GetOrCreate().TargetTexture = target;
+            Painter.Camera.TargetTexture = target;
         }
     }
 

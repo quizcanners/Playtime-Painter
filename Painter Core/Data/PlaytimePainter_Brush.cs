@@ -33,7 +33,7 @@ namespace PainterTool {
 
         [NonSerialized] public bool previewDirty = false;
 
-        public void Paint(PaintCommand.Base command)
+        public void Paint(Painter.Command.Base command)
         {
             if (command == null) 
             {
@@ -60,7 +60,7 @@ namespace PainterTool {
                 brushType = BrushTypes.Normal.Inst;
             }
 
-            PaintCommand.ForPainterComponent painterCommand = command as PaintCommand.ForPainterComponent;
+            Painter.Command.ForPainterComponent painterCommand = command as Painter.Command.ForPainterComponent;
 
             PainterComponent painter = painterCommand?.painter;
 
@@ -80,9 +80,9 @@ namespace PainterTool {
                 {
                     var materialData = painter.MatDta;
 
-                    if (!imgData.RenderTexture && !TexMGMT.materialsUsingRenderTexture.Contains(materialData))
+                    if (!imgData.RenderTexture && !Painter.Camera.materialsUsingRenderTexture.Contains(materialData))
                     {
-                        TexMGMT.ChangeBufferTarget(imgData, materialData, painter.GetMaterialTextureProperty(), painter);
+                        Painter.Camera.ChangeBufferTarget(imgData, materialData, painter.GetMaterialTextureProperty(), painter);
                         painter.SetTextureOnMaterial(imgData);
                     }
 
@@ -102,7 +102,7 @@ namespace PainterTool {
                     if (!rendered)
                     {
                         if (isWorldSpace)
-                            brushType.PaintRenderTextureInWorldSpace(command as PaintCommand.WorldSpaceBase);
+                            brushType.PaintRenderTextureInWorldSpace(command as Painter.Command.WorldSpaceBase);
                         else
                             brushType.PaintRenderTextureUvSpace(command);
                     }
@@ -111,7 +111,7 @@ namespace PainterTool {
                 else
                 {
                     if (isWorldSpace)
-                        brushType.PaintRenderTextureInWorldSpace(command as PaintCommand.WorldSpaceBase);
+                        brushType.PaintRenderTextureInWorldSpace(command as Painter.Command.WorldSpaceBase);
                     else
                         brushType.PaintRenderTextureUvSpace(command);
                 }
@@ -226,7 +226,7 @@ namespace PainterTool {
             return GetBrushType(texture).IsAWorldSpaceBrush;
         }
 
-        [SerializeField] public QcUtils.DynamicRangeFloat _dFlow = new QcUtils.DynamicRangeFloat(0.1f, 4.5f, 3f );
+        [SerializeField] public QcMath.DynamicRangeFloat _dFlow = new(0.1f, 4.5f, 3f );
 
         public float Flow
         {
@@ -527,7 +527,7 @@ namespace PainterTool {
 
             pegi.Edit(ref Color).Nl();
             
-            if (Cfg && !Cfg.showColorSliders)
+            if (Painter.Data && !Painter.Data.showColorSliders)
                 return;
 
             ChannelSlider(ColorMask.R, ref Color);  pegi.Nl();
@@ -536,6 +536,7 @@ namespace PainterTool {
             ChannelSlider(ColorMask.A, ref Color); pegi.Nl();
         }
 
+        /*
         private static Texture GetSplashPrototypeTexture(Terrain terrain, int ind)
         {
             var l = terrain.terrainData.terrainLayers;
@@ -547,7 +548,7 @@ namespace PainterTool {
             }
 
             return null;
-        }
+        }*/
 
 
         private bool ColorSliders_PlaytimePainter() {
@@ -563,10 +564,10 @@ namespace PainterTool {
             var changed = pegi.ChangeTrackStart();
 
            // if (Cfg.showColorSliders) {
-           bool r = Cfg.showColorSliders || !mask.HasFlag(ColorMask.R);
-           bool g = Cfg.showColorSliders || !mask.HasFlag(ColorMask.G);
-           bool b = Cfg.showColorSliders || !mask.HasFlag(ColorMask.B);
-           bool a = Cfg.showColorSliders || !mask.HasFlag(ColorMask.A);
+           bool r = Painter.Data.showColorSliders || !mask.HasFlag(ColorMask.R);
+           bool g = Painter.Data.showColorSliders || !mask.HasFlag(ColorMask.G);
+           bool b = Painter.Data.showColorSliders || !mask.HasFlag(ColorMask.B);
+           bool a = Painter.Data.showColorSliders || !mask.HasFlag(ColorMask.A);
 
 
             var slider = GetBlitMode(id.Target).ShowColorSliders;

@@ -23,19 +23,21 @@ namespace PainterTool.MeshEditing
         {
             get
             {
-                var srv = QuizCanners.Utils.Singleton.Get<GridNavigator>();
+                var srv = Singleton.Get<GridNavigator>();
 
                 if (srv) return srv;
                 if (!ApplicationIsQuitting)
                 {
-                    srv = Singleton_PainterCamera.GetOrCreate()
-                        .GetComponentInChildren<GridNavigator>(); //(GridNavigator)FindObjectOfType<GridNavigator>();
-                    if (srv) return srv;
+                    srv = Painter.Camera.GetComponentInChildren<GridNavigator>();
+
+                    if (srv) 
+                        return srv;
+
                     try
                     {
                         var prefab = Resources.Load(SO_PainterDataAndConfig.PREFABS_RESOURCE_FOLDER + "/grid") as GameObject;
                         srv = Instantiate(prefab).GetComponent<GridNavigator>();
-                        srv.transform.parent = Singleton_PainterCamera.GetOrCreate().transform;
+                        srv.transform.parent =Painter.Camera.transform;
                         srv.name = "grid";
 
                         srv.gameObject.hideFlags = HideFlags.DontSave;
@@ -70,9 +72,9 @@ namespace PainterTool.MeshEditing
         private const KeyCode verticalPlanesKey = KeyCode.Z;
         private const KeyCode horisontalPlaneKey = KeyCode.X;
 
-        private static Plane _xzPlane = new Plane(Vector3.up, 0);
-        private static Plane _zyPlane = new Plane(Vector3.right, 0);
-        private static Plane _xyPlane = new Plane(Vector3.forward, 0);
+        private static Plane _xzPlane = new (Vector3.up, 0);
+        private static Plane _zyPlane = new (Vector3.right, 0);
+        private static Plane _xyPlane = new (Vector3.forward, 0);
         private static readonly Quaternion XGrid = Quaternion.Euler(new Vector3(0, 90, 0));
         private static readonly Quaternion ZGrid = Quaternion.Euler(new Vector3(0, 0, 0));
         private static readonly Quaternion YGrid = Quaternion.Euler(new Vector3(90, 0, 0));
@@ -82,10 +84,10 @@ namespace PainterTool.MeshEditing
              .F(pegi.EnvironmentNl, verticalPlanesKey, horisontalPlaneKey);
 
 
-        private readonly ShaderProperty.FloatValue _dxProp = new ShaderProperty.FloatValue("_dx");
-        private readonly ShaderProperty.FloatValue _dyProp = new ShaderProperty.FloatValue("_dy");
-        private readonly ShaderProperty.FloatValue _sizeProp = new ShaderProperty.FloatValue("_Size");
-        private readonly ShaderProperty.VectorValue _dotPositionProperty = new ShaderProperty.VectorValue("_GridDotPosition");
+        private readonly ShaderProperty.FloatValue _dxProp = new("_dx");
+        private readonly ShaderProperty.FloatValue _dyProp = new("_dy");
+        private readonly ShaderProperty.FloatValue _sizeProp = new("_Size");
+        private readonly ShaderProperty.VectorValue _dotPositionProperty = new("_GridDotPosition");
 
         public override string InspectedCategory => nameof(PainterComponent);
 
@@ -100,12 +102,12 @@ namespace PainterTool.MeshEditing
             }
         }
 
-        public static bool RaycastMouse(out RaycastHit hit) => Physics.Raycast(PlaytimePainter_EditorInputManager.GetScreenMousePositionRay(TexMGMT.MainCamera), out hit);
+        public static bool RaycastMouse(out RaycastHit hit) => Physics.Raycast(PlaytimePainter_EditorInputManager.GetScreenMousePositionRay(Painter.Camera.MainCamera), out hit);
         
         public void DeactivateVertices()
         {
 
-            for (var i = 0; i < MeshEditorManager.Inst.verticesShowMax; i++)
+            for (var i = 0; i < Painter.MeshManager.verticesShowMax; i++)
             {
                 var v = vertices[i];
 
@@ -155,21 +157,20 @@ namespace PainterTool.MeshEditing
 
         private static Vector3 MouseToPlane(Plane plane)
         {
-            var ray = PlaytimePainter_EditorInputManager.GetScreenMousePositionRay(TexMGMT.MainCamera);
+            var ray = PlaytimePainter_EditorInputManager.GetScreenMousePositionRay(Painter.Camera.MainCamera);
             float rayDistance;
             return plane.Raycast(ray, out rayDistance) ? ray.GetPoint(rayDistance) : Vector3.zero;
         }
 
         public Vector3 PlaneToWorldVector(Vector2 v2)
         {
-            switch (CurrentPlane)
+            return CurrentPlane switch
             {
-                case GridPlane.xy: return new Vector3(v2.x, v2.y, 0); //Mirror.z = 1; break;
-                case GridPlane.xz: return new Vector3(v2.x, 0, v2.y); //
-                case GridPlane.zy: return new Vector3(0, v2.y, v2.x); //
-                default: return Vector3.zero;
-            }
-
+                GridPlane.xy => new Vector3(v2.x, v2.y, 0),//Mirror.z = 1; break;
+                GridPlane.xz => new Vector3(v2.x, 0, v2.y),//
+                GridPlane.zy => new Vector3(0, v2.y, v2.x),//
+                _ => Vector3.zero,
+            };
         }
 
         public Vector2 InPlaneVector(Vector3 f)
@@ -185,14 +186,13 @@ namespace PainterTool.MeshEditing
 
         public float PerpendicularToPlaneVector(Vector3 f)
         {
-            switch (CurrentPlane)
+            return CurrentPlane switch
             {
-                case GridPlane.xy: return f.z; //Mirror.z = 1; break;
-                case GridPlane.xz: return f.y; //new Vector2(f.x, f.z); //
-                case GridPlane.zy: return f.x; //new Vector2(f.z, f.y); //
-                default: return 0;
-            }
-
+                GridPlane.xy => f.z,//Mirror.z = 1; break;
+                GridPlane.xz => f.y,//new Vector2(f.x, f.z); //
+                GridPlane.zy => f.x,//new Vector2(f.z, f.y); //
+                _ => 0,
+            };
         }
 
         public Vector3 GetGridPerpendicularVector()
@@ -247,6 +247,8 @@ namespace PainterTool.MeshEditing
                     return new Vector3(src.x, pos.y, src.z);
                 case GridPlane.zy:
                     return new Vector3(pos.x, src.y, src.z);
+                default:
+                    break;
             }
 
             return Vector3.zero;
@@ -296,12 +298,12 @@ namespace PainterTool.MeshEditing
         public void UpdatePositions()
         {
 
-            var cfg = TexMgmtData;
+            var cfg = Painter.Data;
 
             if (!cfg)
                 return;
 
-            var showGrid = MeshEditorManager.target.NeedsGrid() || TexMGMT.FocusedPainter.NeedsGrid();
+            var showGrid = MeshEditorManager.target.NeedsGrid() || Painter.FocusedPainter.NeedsGrid();
 
             SetEnabled(showGrid, cfg.snapToGrid && showGrid);
 
@@ -403,7 +405,7 @@ namespace PainterTool.MeshEditing
                 .Set(_sizeProp, dist / scale);
 
             if (MeshEditorManager.target)
-                MeshMGMT.UpdateLocalSpaceMousePosition();
+                Painter.MeshManager.UpdateLocalSpaceMousePosition();
         }
 
         private void Update()
@@ -423,7 +425,7 @@ namespace PainterTool.MeshEditing
             }
 
 
-            if (!MeshEditorManager.target && TexMgmtData)
+            if (!MeshEditorManager.target && Painter.Data)
                 UpdatePositions();
 
         }
@@ -454,7 +456,7 @@ namespace PainterTool.MeshEditing
             if (PlaytimePainter_EditorInputManager.GetMouseButtonDown(2))
             {
                 RaycastHit hit;
-                if (Physics.Raycast(PlaytimePainter_EditorInputManager.GetScreenMousePositionRay(TexMGMT.MainCamera), out hit))
+                if (Physics.Raycast(PlaytimePainter_EditorInputManager.GetScreenMousePositionRay(Painter.Camera.MainCamera), out hit))
                     LatestMouseToGridProjection = hit.point;
             }
         }
@@ -470,7 +472,7 @@ namespace PainterTool.MeshEditing
 
                 for (int i = 0; i < verticesShowMax; i++)
                 {
-                    MarkerWithText v = new MarkerWithText();
+                    MarkerWithText v = new();
                     vertices[i] = v;
                     v.go = UnityEngine.Object.Instantiate(vertPrefab, transform, true);
                     v.Init();

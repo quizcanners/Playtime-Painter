@@ -61,7 +61,7 @@ namespace PainterTool
 
             public override void Enable() => inst = this;
 
-            private readonly pegi.EnterExitContext context = new pegi.EnterExitContext(); 
+            private readonly pegi.EnterExitContext context = new(); 
 
             public void Inspect()
             {
@@ -118,19 +118,19 @@ namespace PainterTool
 
                     if (p)
                         "Atlased Materials".PegiLabel()
-                            .Enter_List(Cfg.atlasedMaterials, ref p.selectedAtlasedMaterial)
+                            .Enter_List(Painter.Data.atlasedMaterials, ref p.selectedAtlasedMaterial)
                             .Nl();
 
-                    "Atlases".PegiLabel().Enter_List(Cfg.atlases, ref inspectedAtlas).Nl();
+                    "Atlases".PegiLabel().Enter_List(Painter.Data.atlases, ref inspectedAtlas).Nl();
                 }
                 if (changed)
-                    Cfg.SetToDirty();
+                    Painter.Data.SetToDirty();
 
             }
 
             #endregion
 
-            public void PaintPixelsInRam(PaintCommand.Base command)
+            public void PaintPixelsInRam(Painter.Command.Base command)
             {
                 var painter= command.TryGetPainter(); 
 
@@ -142,7 +142,7 @@ namespace PainterTool
 
             public bool IsA3DBrush(PainterComponent painter, Brush bc, ref bool overrideOther) => false;
 
-            public void PaintRenderTextureUvSpace(PaintCommand.Base command)
+            public void PaintRenderTextureUvSpace(Painter.Command.Base command)
             {
             }
 

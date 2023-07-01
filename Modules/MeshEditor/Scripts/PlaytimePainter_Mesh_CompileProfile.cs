@@ -58,7 +58,7 @@ namespace PainterTool.MeshEditing
             "Profile Name: ".PegiLabel(80).Edit_Delayed(ref name);
 
             #if UNITY_EDITOR
-            var path = Path.Combine(Singleton_PainterCamera.Data.meshesFolderName, FolderName);
+            var path = Path.Combine(Painter.Data.meshesFolderName, FolderName);
             
             if (Icon.Save.Click("Save To:" + path, 25).Nl()) {
                 this.SaveToAssets(path, name);
@@ -172,14 +172,14 @@ namespace PainterTool.MeshEditing
         {
             ind %= 4;
 
-            switch (ind)
+            return ind switch
             {
-                case 0: return "x";
-                case 1: return "y";
-                case 2: return "z";
-                case 3: return "w";
-                default: return "Error";
-            }
+                0 => "x",
+                1 => "y",
+                2 => "z",
+                3 => "w",
+                _ => "Error",
+            };
         }
 
         public VertexDataLink GetMySolution()
@@ -205,15 +205,14 @@ namespace PainterTool.MeshEditing
         {
             ind %= 4;
 
-            switch (ind)
+            return ind switch
             {
-                case 0: return "X";
-                case 1: return "Y";
-                case 2: return "Z";
-                case 3: return "W";
-            }
-
-            return "Error";
+                0 => "X",
+                1 => "Y",
+                2 => "Z",
+                3 => "W",
+                _ => "Error",
+            };
         }
 
         public VertexDataSource(byte chanCnt, int index)
@@ -253,7 +252,7 @@ namespace PainterTool.MeshEditing
     {
         public int sameSizeDataIndex = -1;
         private int _targetIndex;
-        public List<VertexDataChannelLink> links = new List<VertexDataChannelLink>();
+        public List<VertexDataChannelLink> links = new();
         public bool enabled;
 
         public VertexDataSource SameSizeValue => (sameSizeDataIndex >= 0) ? VertexDataTypes.DataTypes[sameSizeDataIndex] : null;
@@ -505,7 +504,7 @@ namespace PainterTool.MeshEditing
 
         #region Encode & Decode
         public virtual CfgEncoder Encode() {
-            CfgEncoder cody = new CfgEncoder();
+            CfgEncoder cody = new();
             cody.Add_IfNotZero("t", srcIndex);
             cody.Add_IfNotZero("v", dstIndex);
             return cody;
@@ -712,13 +711,14 @@ namespace PainterTool.MeshEditing
             
             public override string GetFieldName(int ind)
             {
-                switch (ind) {
-                    case 0: return "R";
-                    case 1: return "G";
-                    case 2: return "B";
-                    case 3: return "A";
-                    default: return "Error";
-                }
+                return ind switch
+                {
+                    0 => "R",
+                    1 => "G",
+                    2 => "B",
+                    3 => "A",
+                    _ => "Error",
+                };
             }
 
             public override void SetDefaults(VertexDataLink to)
@@ -754,8 +754,7 @@ namespace PainterTool.MeshEditing
 
             public override void GenerateIfNull()
             {
-                if (_vertices == null)
-                    _vertices = CurMeshDta.Position;
+                _vertices ??= CurMeshDta.Position;
  
             }
 
@@ -794,8 +793,7 @@ namespace PainterTool.MeshEditing
             private Vector2[] v2s;
 
             public override void GenerateIfNull() {
-                if (v2s == null)
-                    v2s =  (_myUvIndex == 0) ? CurMeshDta.Uv : CurMeshDta.Uv1;
+                v2s ??=  (_myUvIndex == 0) ? CurMeshDta.Uv : CurMeshDta.Uv1;
             }
 
             public override Vector2[] GetV2(VertexDataDestination trg) => v2s;
@@ -831,8 +829,7 @@ namespace PainterTool.MeshEditing
             private Vector4[] v4s;
 
             public override void GenerateIfNull() {
-                if (v4s == null)
-                    v4s = CurMeshDta.Tangents;
+                v4s ??= CurMeshDta.Tangents;
             }
 
             public override Vector4[] GetV4(VertexDataDestination trg)
@@ -873,8 +870,7 @@ namespace PainterTool.MeshEditing
             private Vector3[] v3norms;
 
             public override void GenerateIfNull() {
-                if (v3norms == null)
-                    v3norms = CurMeshDta.Normals;
+                v3norms ??= CurMeshDta.Normals;
             }
             
             public override float[] GetValue(int no)
@@ -910,8 +906,7 @@ namespace PainterTool.MeshEditing
 
             public override void GenerateIfNull()
             {
-                if (v3norms == null)
-                    v3norms = CurMeshDta.SharpNormals;
+                v3norms ??= CurMeshDta.SharpNormals;
 
             }
 
@@ -968,14 +963,14 @@ namespace PainterTool.MeshEditing
             
             public override string GetFieldName(int ind)
             {
-                switch (ind)
+                return ind switch
                 {
-                    case 0: return "R";
-                    case 1: return "G";
-                    case 2: return "B";
-                    case 3: return "A";
-                    default: return "Error";
-                }
+                    0 => "R",
+                    1 => "G",
+                    2 => "B",
+                    3 => "A",
+                    _ => "Error",
+                };
             }
 
             public VertexColor(int index) : base(dataSize, index)
@@ -995,8 +990,7 @@ namespace PainterTool.MeshEditing
 
             public override void GenerateIfNull()
             {
-                if (inds == null) 
-                    inds = CurMeshDta.VertexIndex;
+                inds ??= CurMeshDta.VertexIndex;
                 
             }
 
@@ -1027,8 +1021,7 @@ namespace PainterTool.MeshEditing
             private Vector4[] _shadows;
 
             public override void GenerateIfNull() {
-                if (_shadows == null)
-                        _shadows = CurMeshDta.ShadowBake;
+                _shadows ??= CurMeshDta.ShadowBake;
 
             }
 
@@ -1062,8 +1055,7 @@ namespace PainterTool.MeshEditing
 
 
             public override void GenerateIfNull() {
-                if (textureNumbers == null)
-                    textureNumbers = CurMeshDta.TriangleTextures;
+                textureNumbers ??= CurMeshDta.TriangleTextures;
             }
 
             public override float[] GetValue(int no)
@@ -1126,8 +1118,7 @@ namespace PainterTool.MeshEditing
 
             public override void GenerateIfNull()
             {
-                if (_edges == null)
-                    _edges = CurMeshDta.EdgeData;
+                _edges ??= CurMeshDta.EdgeData;
             }
 
             public override Vector4[] GetV4(VertexDataDestination trg) => _edges;
@@ -1145,14 +1136,14 @@ namespace PainterTool.MeshEditing
             
             public override string GetFieldName(int ind)
             {
-                switch (ind)
+                return ind switch
                 {
-                    case 0: return "x";
-                    case 1: return "y";
-                    case 2: return "z";
-                    case 3: return "Strength";
-                    default: return "Error";
-                }
+                    0 => "x",
+                    1 => "y",
+                    2 => "z",
+                    3 => "Strength",
+                    _ => "Error",
+                };
             }
 
             public VertexEdge(int index) : base(dataSize, index)
@@ -1189,14 +1180,14 @@ namespace PainterTool.MeshEditing
 
             public override string GetFieldName(int ind)
             {
-                switch (ind)
+                return ind switch
                 {
-                    case 0: return "A";
-                    case 1: return "B";
-                    case 2: return "C";
-                    case 3: return "D";
-                    default: return "Error";
-                }
+                    0 => "A",
+                    1 => "B",
+                    2 => "C",
+                    3 => "D",
+                    _ => "Error",
+                };
             }
 
             public VertexSeam(int index) : base(dataSize, index)
@@ -1215,8 +1206,7 @@ namespace PainterTool.MeshEditing
 
             public override void GenerateIfNull()
             {
-                if (edges == null)
-                    edges = CurMeshDta.EdgeDataByWeight;
+                edges ??= CurMeshDta.EdgeDataByWeight;
             }
 
             public override Vector3[] GetV3(VertexDataDestination trg) => edges;
@@ -1233,14 +1223,13 @@ namespace PainterTool.MeshEditing
             
             public override string GetFieldName(int ind)
             {
-                switch (ind)
+                return ind switch
                 {
-                    case 0: return "x";
-                    case 1: return "y";
-                    case 2: return "z";
-                    default: return "Error";
-                }
-                
+                    0 => "x",
+                    1 => "y",
+                    2 => "z",
+                    _ => "Error",
+                };
             }
 
             public VertexEdgeByWeight(int index) : base(dataSize, index)
@@ -1261,8 +1250,7 @@ namespace PainterTool.MeshEditing
             public override void GenerateIfNull()
             {
 
-                if (edges == null)
-                    edges = CurMeshDta.EdgeNormal0OrSharp;
+                edges ??= CurMeshDta.EdgeNormal0OrSharp;
 
             }
 
@@ -1282,14 +1270,13 @@ namespace PainterTool.MeshEditing
 
             public override string GetFieldName(int ind)
             {
-                switch (ind)
+                return ind switch
                 {
-                    case 0: return "x";
-                    case 1: return "y";
-                    case 2: return "z";
-                    default: return "Error";
-                }
-                
+                    0 => "x",
+                    1 => "y",
+                    2 => "z",
+                    _ => "Error",
+                };
             }
 
             public EdgeNormal0(int index) : base(dataSize, index)
@@ -1308,8 +1295,7 @@ namespace PainterTool.MeshEditing
             public override void GenerateIfNull()
             {
 
-                if (edges == null)
-                    edges = CurMeshDta.EdgeNormal1OrSharp;
+                edges ??= CurMeshDta.EdgeNormal1OrSharp;
 
             }
 
@@ -1331,14 +1317,13 @@ namespace PainterTool.MeshEditing
 
             public override string GetFieldName(int ind)
             {
-                switch (ind)
+                return ind switch
                 {
-                    case 0: return "x";
-                    case 1: return "y";
-                    case 2: return "z";
-                    default: return "Error";
-                }
-                
+                    0 => "x",
+                    1 => "y",
+                    2 => "z",
+                    _ => "Error",
+                };
             }
 
             public EdgeNormal1(int index) : base(dataSize, index)
@@ -1357,8 +1342,7 @@ namespace PainterTool.MeshEditing
             public override void GenerateIfNull()
             {
 
-                if (_edges == null)
-                    _edges = CurMeshDta.EdgeNormal2OrSharp;
+                _edges ??= CurMeshDta.EdgeNormal2OrSharp;
 
             }
 
@@ -1377,14 +1361,13 @@ namespace PainterTool.MeshEditing
 
             public override string GetFieldName(int ind)
             {
-                switch (ind)
+                return ind switch
                 {
-                    case 0: return "x";
-                    case 1: return "y";
-                    case 2: return "z";
-                    default:  return "Error";
-                }
-               
+                    0 => "x",
+                    1 => "y",
+                    2 => "z",
+                    _ => "Error",
+                };
             }
 
             public EdgeNormal2(int index) : base(dataSize, index)

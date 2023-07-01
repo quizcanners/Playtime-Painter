@@ -13,22 +13,22 @@ namespace PainterTool
 
         public override string ClassTag => CLASS_KEY;
 
-        internal static readonly List<TextureMeta> playbackMetas = new List<TextureMeta>();
+        internal static readonly List<TextureMeta> playbackMetas = new();
 
-        public static CfgDecoder cody = new CfgDecoder("");
+        public static CfgDecoder cody = new("");
 
-        public static List<string> playbackVectors = new List<string>();
+        public static List<string> playbackVectors = new();
 
         private void PlayByFilename(string recordingName) {
             if (!playbackMetas.Contains(parentMeta))
                 playbackMetas.Add(parentMeta);
             Stroke.pausePlayback = false;
-            playbackVectors.AddRange(Singleton_PainterCamera.Data.StrokeRecordingsFromFile(recordingName));
+            playbackVectors.AddRange(Painter.Data.StrokeRecordingsFromFile(recordingName));
 
         }
 
-        public List<string> recordedStrokes = new List<string>();
-        public List<string> recordedStrokesForUndoRedo = new List<string>(); // to sync strokes recording with Undo Redo
+        public List<string> recordedStrokes = new();
+        public List<string> recordedStrokesForUndoRedo = new(); // to sync strokes recording with Undo Redo
         public bool recording;
 
         public void StartRecording()
@@ -41,16 +41,16 @@ namespace PainterTool
         public void ContinueRecording()
         {
             StartRecording();
-            recordedStrokes.AddRange(Cfg.StrokeRecordingsFromFile(parentMeta.saveName));
+            recordedStrokes.AddRange(Painter.Data.StrokeRecordingsFromFile(parentMeta.saveName));
         }
 
         public void SaveRecording() {
 
             var allStrokes = new CfgEncoder().Add("strokes", recordedStrokes).ToString();
 
-            QcFile.Save.ToPersistentPath.String(subPath: Cfg.vectorsFolderName, fileName: parentMeta.saveName, data: allStrokes);
+            QcFile.Save.ToPersistentPath.String(subPath: Painter.Data.vectorsFolderName, fileName: parentMeta.saveName, data: allStrokes);
 
-            Cfg.recordingNames.Add(parentMeta.saveName);
+            Painter.Data.recordingNames.Add(parentMeta.saveName);
 
             recording = false;
 
@@ -230,7 +230,7 @@ namespace PainterTool
 
             if (showRecording && !recording)
             {
-                var cfg = Cfg;
+                var cfg = Painter.Data;
 
                 if (!cfg)
                     return;
@@ -360,7 +360,7 @@ namespace PainterTool
                     GlobalBrush.brush2DRadius *= parentMeta?.Width ?? 256; break;
                 case "s":
                     currentlyDecodedPainter.stroke.Decode(data);
-                    GlobalBrush.Paint(currentlyDecodedPainter.PaintCommand);
+                    GlobalBrush.Paint(currentlyDecodedPainter.Command);
                     break;
             }
         }

@@ -25,15 +25,11 @@ namespace PainterTool
 
         public virtual void DecodeTag(string key, CfgData data) { }
 
-        public virtual CfgEncoder Encode() => new CfgEncoder();//this.EncodeUnrecognized();
+        public virtual CfgEncoder Encode() => new();//this.EncodeUnrecognized();
         #endregion
 
-        protected static SO_PainterDataAndConfig Cfg => Singleton_PainterCamera.Data;
-        protected static SO_PainterDataAndConfig TexMgmtData => Singleton_PainterCamera.Data;
-        protected static Singleton_PainterCamera TexMGMT => Singleton_PainterCamera.GetOrCreate();
-        protected static Brush GlobalBrush => TexMgmtData.Brush;
+        protected static Brush GlobalBrush => Painter.Data.Brush;
         protected static PainterComponent InspectedPainter => PainterComponent.inspected;
-        internal static MeshEditorManager MeshMGMT => MeshEditorManager.Inst;
         protected static bool ApplicationIsQuitting => PainterClass.applicationIsQuitting;
 
         protected static Transform CurrentViewTransform(Transform defaultTransform = null) =>
@@ -44,16 +40,14 @@ namespace PainterTool
     public class PainterClass {
 
         protected static bool InspectAdvanced => Brush.showAdvanced;
-        protected static SO_PainterDataAndConfig Cfg => Singleton_PainterCamera.Data;
-        protected static Singleton_PainterCamera TexMGMT => Singleton_PainterCamera.GetOrCreate();
-        protected static Transform RtBrush => TexMGMT.brushRenderer.transform;
-        protected static Mesh BrushMesh { set { TexMGMT.brushRenderer.meshFilter.mesh = value; } }
+     
+        protected static Transform RtBrush => Painter.Camera.brushRenderer.transform;
+        protected static Mesh BrushMesh { set { Painter.Camera.brushRenderer.meshFilter.mesh = value; } }
         protected static Brush InspectedBrush => Brush._inspectedBrush;
-        protected static Brush GlobalBrush => Cfg.Brush;
+        protected static Brush GlobalBrush => Painter.Data.Brush;
         protected static PainterComponent InspectedPainter => PainterComponent.inspected;
         internal static TextureMeta InspectedImageMeta { get { var ip = InspectedPainter; return ip ? ip.TexMeta : null; } }
         protected static GridNavigator Grid => GridNavigator.GetOrCreate;
-        internal static MeshEditorManager MeshMGMT => MeshEditorManager.Inst;
         internal static MeshData EditedMesh => MeshEditorManager.editedMesh;
         protected static bool DocsEnabled => !SO_PainterDataAndConfig.hideDocumentation;
         public static bool applicationIsQuitting;
@@ -63,7 +57,7 @@ namespace PainterTool
 
             if (Application.isPlaying)
             {
-                return TexMGMT.MainCamera ? TexMGMT.MainCamera.transform : defaultTransform;
+                return Painter.Camera.MainCamera ? Painter.Camera.MainCamera.transform : defaultTransform;
             }
 
 #if UNITY_EDITOR

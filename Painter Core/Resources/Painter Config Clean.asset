@@ -54,7 +54,7 @@ MonoBehaviour:
   - _configurationFlags: 0
     Target: 0
     RenderTexture: {fileID: 0}
-    Texture2D: {fileID: 2800000, guid: 9e8854b99faabe844b4aa75c0d4eb638, type: 3}
+    Texture2D: {fileID: 2800000, guid: 608270c46596d774190816ad46451077, type: 3}
     OtherTexture: {fileID: 0}
     Width: 1024
     Height: 1024
@@ -62,10 +62,34 @@ MonoBehaviour:
     updateTex2DafterStroke: 0
     backupManually: 0
     _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Wood_Spec
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: f84f87cdb3e26444fb2d6de7cf42c422, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 128
+    Height: 128
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
     _isPng: 1
     repaintDelay: 0.016
     clearColor: {r: 0, g: 0, b: 0, a: 1}
-    saveName: Terrain_splatmap_0
+    saveName: Closed Corner Floor mask 5
     _numberOfTexture2DBackups: 10
     _numberOfRenderTextureBackups: 10
     _sdfMaxInside: 1
@@ -99,6 +123,102 @@ MonoBehaviour:
       _currentlyEntered: -1
     context:
       _currentlyEntered: -1
+  - _configurationFlags: 4
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: e26543de7e5ebb2429693980188e697a, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 128
+    Height: 128
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 0}
+    saveName: New Aset_building_wall_M_xgfnfebiy_00_LOD0__Damage_Tex_A
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 4
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: c18fb60362b5cfb4c974ba0b568b9c2d, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Plane Damage Mask_A
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: f132e4ceb0676f14f9d823c7106f20f1, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 2048
+    Height: 2048
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: T_ground_beech_forest_sand_02_BC_SM
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 1917c390ccb555b4f81079aa7c6965c8, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 2048
+    Height: 2048
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Albedo_2K__xgfnfebiy
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
   - _configurationFlags: 0
     Target: 0
     RenderTexture: {fileID: 0}
@@ -114,6 +234,270 @@ MonoBehaviour:
     repaintDelay: 0.016
     clearColor: {r: 0, g: 0, b: 0, a: 1}
     saveName: KB3D_BRT_ConcreteGrime_basecolor
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 1
+    RenderTexture: {fileID: 8400000, guid: f450e603b55a4eb49b0e4b93a225b5dd, type: 2}
+    Texture2D: {fileID: 0}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: _RayMarchingVolume_3_RIGHT
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 9e8854b99faabe844b4aa75c0d4eb638, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Terrain_splatmap_0
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 1
+    RenderTexture: {fileID: 8400000, guid: 735a7852f736b40469a20106ea976244, type: 2}
+    Texture2D: {fileID: 0}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: _RayMarchingVolume_2_LEFT
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 7e8ec98dd68d98b469ba5b74e0292d56, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 512
+    Height: 512
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: KB3D_SVB_ConcretePlywoodDark_basecolor
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 7a3a727b70f65f3408a86266b821d8c6, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 512
+    Height: 512
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: KB3D_SVB_ConcretePlywood_basecolor
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: e9befd85fab22d44e869c5fc0897c8b6, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 1024
+    Height: 1024
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: wood_d
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 40093b49201dc3141bd71f2ab8685481, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 512
+    Height: 512
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: KB3D_SVB_Concrete_basecolor
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 17567c8c5fad9764ea61dc2cdef67c9c, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 512
+    Height: 512
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: KB3D_SVB_ConcretePainted_basecolor
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: c7ed9f55dae1e5c478056278ca06c02d, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 512
+    Height: 512
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: KB3D_SVB_ConcretePebbly_basecolor
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: a4d1c4adb4a0255499cf65f496d002de, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 256
+    Height: 256
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 1
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Concrete_Barrier_AlbedoTransparency
+    _numberOfTexture2DBackups: 10
+    _numberOfRenderTextureBackups: 10
+    _sdfMaxInside: 1
+    _sdfMaxOutside: 1
+    _sdfPostProcessDistance: 1
+    processContext:
+      _currentlyEntered: -1
+    context:
+      _currentlyEntered: -1
+  - _configurationFlags: 0
+    Target: 0
+    RenderTexture: {fileID: 0}
+    Texture2D: {fileID: 2800000, guid: 2dab67d85bff0d442a4b19d452bc539f, type: 3}
+    OtherTexture: {fileID: 0}
+    Width: 256
+    Height: 256
+    IsAVolumeTexture: 0
+    updateTex2DafterStroke: 0
+    backupManually: 0
+    _useTexCoord2AutoAssigned: 0
+    _isPng: 0
+    repaintDelay: 0.016
+    clearColor: {r: 0, g: 0, b: 0, a: 1}
+    saveName: Concrete_FlatSurface_d
     _numberOfTexture2DBackups: 10
     _numberOfRenderTextureBackups: 10
     _sdfMaxInside: 1
@@ -268,30 +652,6 @@ MonoBehaviour:
     context:
       _currentlyEntered: -1
   - _configurationFlags: 0
-    Target: 0
-    RenderTexture: {fileID: 0}
-    Texture2D: {fileID: 2800000, guid: f132e4ceb0676f14f9d823c7106f20f1, type: 3}
-    OtherTexture: {fileID: 0}
-    Width: 2048
-    Height: 2048
-    IsAVolumeTexture: 0
-    updateTex2DafterStroke: 0
-    backupManually: 0
-    _useTexCoord2AutoAssigned: 0
-    _isPng: 0
-    repaintDelay: 0.016
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    saveName: T_ground_beech_forest_sand_02_BC_SM
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    _sdfMaxInside: 1
-    _sdfMaxOutside: 1
-    _sdfPostProcessDistance: 1
-    processContext:
-      _currentlyEntered: -1
-    context:
-      _currentlyEntered: -1
-  - _configurationFlags: 0
     Target: 1
     RenderTexture: {fileID: 8400000, guid: f0e92192cab6a05438f2871e5d938dae, type: 2}
     Texture2D: {fileID: 0}
@@ -378,54 +738,6 @@ MonoBehaviour:
     repaintDelay: 0.016
     clearColor: {r: 0, g: 0, b: 0, a: 1}
     saveName: _RayMarchingVolume_1_DOWN
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    _sdfMaxInside: 1
-    _sdfMaxOutside: 1
-    _sdfPostProcessDistance: 1
-    processContext:
-      _currentlyEntered: -1
-    context:
-      _currentlyEntered: -1
-  - _configurationFlags: 0
-    Target: 1
-    RenderTexture: {fileID: 8400000, guid: 735a7852f736b40469a20106ea976244, type: 2}
-    Texture2D: {fileID: 0}
-    OtherTexture: {fileID: 0}
-    Width: 1024
-    Height: 1024
-    IsAVolumeTexture: 0
-    updateTex2DafterStroke: 0
-    backupManually: 0
-    _useTexCoord2AutoAssigned: 0
-    _isPng: 0
-    repaintDelay: 0.016
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    saveName: _RayMarchingVolume_2_LEFT
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    _sdfMaxInside: 1
-    _sdfMaxOutside: 1
-    _sdfPostProcessDistance: 1
-    processContext:
-      _currentlyEntered: -1
-    context:
-      _currentlyEntered: -1
-  - _configurationFlags: 0
-    Target: 1
-    RenderTexture: {fileID: 8400000, guid: f450e603b55a4eb49b0e4b93a225b5dd, type: 2}
-    Texture2D: {fileID: 0}
-    OtherTexture: {fileID: 0}
-    Width: 1024
-    Height: 1024
-    IsAVolumeTexture: 0
-    updateTex2DafterStroke: 0
-    backupManually: 0
-    _useTexCoord2AutoAssigned: 0
-    _isPng: 0
-    repaintDelay: 0.016
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    saveName: _RayMarchingVolume_3_RIGHT
     _numberOfTexture2DBackups: 10
     _numberOfRenderTextureBackups: 10
     _sdfMaxInside: 1
@@ -534,54 +846,6 @@ MonoBehaviour:
   - _configurationFlags: 0
     Target: 0
     RenderTexture: {fileID: 0}
-    Texture2D: {fileID: 2800000, guid: 75c762e2f2f22c34a81acfb107e67a4b, type: 3}
-    OtherTexture: {fileID: 0}
-    Width: 2048
-    Height: 2048
-    IsAVolumeTexture: 0
-    updateTex2DafterStroke: 0
-    backupManually: 0
-    _useTexCoord2AutoAssigned: 0
-    _isPng: 0
-    repaintDelay: 0.016
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    saveName: Cliff
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    _sdfMaxInside: 1
-    _sdfMaxOutside: 1
-    _sdfPostProcessDistance: 1
-    processContext:
-      _currentlyEntered: -1
-    context:
-      _currentlyEntered: -1
-  - _configurationFlags: 0
-    Target: 0
-    RenderTexture: {fileID: 0}
-    Texture2D: {fileID: 2800000, guid: 74dce2e6af5d8bc4ebce58538ef6644b, type: 3}
-    OtherTexture: {fileID: 0}
-    Width: 1024
-    Height: 1024
-    IsAVolumeTexture: 0
-    updateTex2DafterStroke: 0
-    backupManually: 0
-    _useTexCoord2AutoAssigned: 0
-    _isPng: 1
-    repaintDelay: 0.016
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    saveName: Terrain (1)_splatmap_0
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    _sdfMaxInside: 1
-    _sdfMaxOutside: 1
-    _sdfPostProcessDistance: 1
-    processContext:
-      _currentlyEntered: -1
-    context:
-      _currentlyEntered: -1
-  - _configurationFlags: 0
-    Target: 0
-    RenderTexture: {fileID: 0}
     Texture2D: {fileID: 2800000, guid: de31949a7e8d3bd4ab686843c3d7580f, type: 3}
     OtherTexture: {fileID: 0}
     Width: 512
@@ -594,30 +858,6 @@ MonoBehaviour:
     repaintDelay: 0.016
     clearColor: {r: 0, g: 0, b: 0, a: 1}
     saveName: PolygonWar_Texture_03_A
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    _sdfMaxInside: 1
-    _sdfMaxOutside: 1
-    _sdfPostProcessDistance: 1
-    processContext:
-      _currentlyEntered: -1
-    context:
-      _currentlyEntered: -1
-  - _configurationFlags: 0
-    Target: 0
-    RenderTexture: {fileID: 0}
-    Texture2D: {fileID: 2800000, guid: 61e2d540e28e1e345933eaa0304fb86e, type: 3}
-    OtherTexture: {fileID: 0}
-    Width: 128
-    Height: 128
-    IsAVolumeTexture: 0
-    updateTex2DafterStroke: 0
-    backupManually: 0
-    _useTexCoord2AutoAssigned: 0
-    _isPng: 1
-    repaintDelay: 0.016
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    saveName: Baked_Detalisation Terrain Control
     _numberOfTexture2DBackups: 10
     _numberOfRenderTextureBackups: 10
     _sdfMaxInside: 1
@@ -642,30 +882,6 @@ MonoBehaviour:
     repaintDelay: 0.016
     clearColor: {r: 0, g: 0, b: 0, a: 1}
     saveName: GridBox_Default
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    _sdfMaxInside: 1
-    _sdfMaxOutside: 1
-    _sdfPostProcessDistance: 1
-    processContext:
-      _currentlyEntered: -1
-    context:
-      _currentlyEntered: -1
-  - _configurationFlags: 0
-    Target: 0
-    RenderTexture: {fileID: 0}
-    Texture2D: {fileID: 2800000, guid: 4b2e9af7bab4b6e459f9507ee801cc40, type: 3}
-    OtherTexture: {fileID: 0}
-    Width: 1024
-    Height: 1024
-    IsAVolumeTexture: 1
-    updateTex2DafterStroke: 0
-    backupManually: 0
-    _useTexCoord2AutoAssigned: 0
-    _isPng: 1
-    repaintDelay: 0.016
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    saveName: _RayMarchingVolume Volume Baker_Volume Size 1 Slices 6
     _numberOfTexture2DBackups: 10
     _numberOfRenderTextureBackups: 10
     _sdfMaxInside: 1
@@ -738,30 +954,6 @@ MonoBehaviour:
     repaintDelay: 0.016
     clearColor: {r: 0, g: 0, b: 0, a: 1}
     saveName: Cliff_COLOR
-    _numberOfTexture2DBackups: 10
-    _numberOfRenderTextureBackups: 10
-    _sdfMaxInside: 1
-    _sdfMaxOutside: 1
-    _sdfPostProcessDistance: 1
-    processContext:
-      _currentlyEntered: -1
-    context:
-      _currentlyEntered: -1
-  - _configurationFlags: 0
-    Target: 0
-    RenderTexture: {fileID: 0}
-    Texture2D: {fileID: 2800000, guid: 3b47b59bed1763142a1ab5502fba05a6, type: 3}
-    OtherTexture: {fileID: 0}
-    Width: 1024
-    Height: 1024
-    IsAVolumeTexture: 1
-    updateTex2DafterStroke: 0
-    backupManually: 0
-    _useTexCoord2AutoAssigned: 0
-    _isPng: 1
-    repaintDelay: 0.016
-    clearColor: {r: 0, g: 0, b: 0, a: 1}
-    saveName: _RayMarchingVolume Volume Baker_Volume Size 1 Slices 6
     _numberOfTexture2DBackups: 10
     _numberOfRenderTextureBackups: 10
     _sdfMaxInside: 1
@@ -1156,14 +1348,44 @@ MonoBehaviour:
     context:
       _currentlyEntered: -1
   matMetas:
-  - material: {fileID: 2100000, guid: 9eda44718e3661349ae30a1a2683c165, type: 2}
+  - material: {fileID: 2100000, guid: 91b80167328f75d48a325b5de9ba9b2e, type: 2}
+    selectedTexture: 8
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 4a81d884e03f2d64abebd8536d3cf2b5, type: 2}
+    selectedTexture: 8
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: d219800d8b50179469f45085afad5e23, type: 2}
     selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 46882d5c926450442924f9b4981ce100, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: bffa2d745b835aa4e89e024ab4bd3d03, type: 2}
+    selectedTexture: 5
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
     selectedForMerge: 0
   - material: {fileID: 2100000, guid: 11837696711c10845a58872cfe5ce964, type: 2}
     selectedTexture: 0
     usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 9eda44718e3661349ae30a1a2683c165, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+    selectedTexture: 0
+    usePreviewShader: 1
     colorToVertexColorOnMerge: 0
     selectedForMerge: 0
   - material: {fileID: 2100000, guid: 2b96f11d2be13e94380c89ddbd089664, type: 2}
@@ -1189,11 +1411,6 @@ MonoBehaviour:
   - material: {fileID: 2100000, guid: 97b40eca161983040b04238ff477e49d, type: 2}
     selectedTexture: 0
     usePreviewShader: 0
-    colorToVertexColorOnMerge: 0
-    selectedForMerge: 0
-  - material: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
-    selectedTexture: 0
-    usePreviewShader: 1
     colorToVertexColorOnMerge: 0
     selectedForMerge: 0
   - material: {fileID: 2100000, guid: 51a18256b76561b4a8eff6181b7e6945, type: 2}
@@ -1232,16 +1449,6 @@ MonoBehaviour:
     colorToVertexColorOnMerge: 0
     selectedForMerge: 0
   - material: {fileID: 2100000, guid: 505c6a505a475904e81718db81d730a3, type: 2}
-    selectedTexture: 0
-    usePreviewShader: 0
-    colorToVertexColorOnMerge: 0
-    selectedForMerge: 0
-  - material: {fileID: 2100000, guid: 841a5e1dc284dd94dbd9af67ce2fe754, type: 2}
-    selectedTexture: 0
-    usePreviewShader: 0
-    colorToVertexColorOnMerge: 0
-    selectedForMerge: 0
-  - material: {fileID: 2100000, guid: 42351158bf0f659488dd29026fea23f8, type: 2}
     selectedTexture: 0
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
@@ -1408,9 +1615,9 @@ MonoBehaviour:
   showUrlField: 0
   showRecentTextures: 0
   showColorSchemes: 0
-  meshTool: 3
-  bevelDetectionSensitivity: 7.3
-  meshToolsStd: t_pos|15|dm|1|1|inM|1|y||t_shF|7|dm|1|0||t_vCol|0||t_edgs|16|v|1|1|doCol|1|y||t_noStd|16|cat|1|0|cac|1|0||t_sbmsh|0||t_uv|42|gtuv|1|n|nrmWrap|1|1|fr|1|y|mp|1|y|po|1|n||
+  meshTool: 6
+  bevelDetectionSensitivity: 6.4
+  meshToolsStd: t_pos|15|dm|1|3|inM|1|y||t_shF|7|dm|1|0||t_vCol|0||t_edgs|16|v|1|1|doCol|1|n||t_noStd|16|cat|1|0|cac|1|0||t_sbmsh|0||t_uv|37|gtuv|1|y|nrmWrap|3|0.5|mp|1|y|po|1|n||
   saveMeshUndos: 0
   makeVerticesUniqueOnEdgeColoring: 0
   gridSize: 1
@@ -1439,7 +1646,7 @@ MonoBehaviour:
   newTextureIsColor: 1
   newTextureClearColor: {r: 0, g: 0, b: 0, a: 1}
   newTextureClearNonColorValue: {r: 0.5, g: 0.5, b: 0.5, a: 0.5}
-  selectedWidthIndex: 5
+  selectedWidthIndex: 8
   selectedHeightIndex: 5
   recordingNames: []
   browsedRecord: 0

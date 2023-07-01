@@ -138,14 +138,14 @@ namespace PainterTool {
             id.Offset = offset;
             id.Tiling = tiling;
 
-            var cmd = new PaintCommand.UV(new Stroke(uvCoords), texture.GetTextureMeta(), bc)
+            var cmd = new Painter.Command.UV(new Stroke(uvCoords), texture.GetTextureMeta(), bc)
             {
                 strokeAlphaPortion = brushAlpha
             };
             Paint(cmd);
         }
 
-        public static void Paint(PaintCommand.Base command)
+        public static void Paint(Painter.Command.Base command)
         {
 
             TextureMeta image = command.TextureData;

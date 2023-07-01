@@ -16,9 +16,8 @@ namespace PainterTool.MeshEditing
     {
 
         #region Getters Setters
-        public static MeshEditorManager Inst => Singleton_PainterCamera.MeshManager;
 
-        public static MeshToolBase MeshTool => Singleton_PainterCamera.Data.MeshTool;
+        public static MeshToolBase MeshTool => Painter.Data.MeshTool;
 
         public static PainterMesh.Vertex SelectedUv 
         { 
@@ -166,7 +165,7 @@ namespace PainterTool.MeshEditing
             }
         }
 
-        public static string GenerateMeshSavePath() => Path.Combine(Cfg.meshesFolderName, editedMesh.meshName + ".asset");
+        public static string GenerateMeshSavePath() => Path.Combine(Painter.Data.meshesFolderName, editedMesh.meshName + ".asset");
 
         #region Dragging
         [NonSerialized] private double _dragStartTime;
@@ -278,7 +277,7 @@ namespace PainterTool.MeshEditing
             if (!PlaytimePainter_EditorInputManager.Control)
                 EditedMesh.AddToTrisSet(vertex);
 
-            if (Cfg.pixelPerfectMeshEditing)
+            if (Painter.Data.pixelPerfectMeshEditing)
                 hold.PixPerfect();
 
             GridNavigator.LatestMouseRaycastHit = pos;
@@ -296,7 +295,7 @@ namespace PainterTool.MeshEditing
 
         public const string ToolComponentTag = "toolComponent";
 
-        public static List<string> meshEditorIgnore = new List<string> { VertexEditorUiElementTag, ToolComponentTag };
+        public static List<string> meshEditorIgnore = new() { VertexEditorUiElementTag, ToolComponentTag };
 
         private void ProcessLinesOnTriangle(PainterMesh.Triangle t)
         {
@@ -601,7 +600,7 @@ namespace PainterTool.MeshEditing
 
                 RedoMoves.Clear();
 
-                if (Cfg.saveMeshUndos) {
+                if (Painter.Data.saveMeshUndos) {
                     UndoMoves.Add(editedMesh.Encode().ToString());
 
                     if (UndoMoves.Count > 10)
@@ -692,7 +691,7 @@ namespace PainterTool.MeshEditing
 
         #region Mesh Merging
 
-        private static readonly List<PainterComponent> SelectedForMergePainters = new List<PainterComponent>();
+        private static readonly List<PainterComponent> SelectedForMergePainters = new();
 
         private static void MergeSelected() {
 
@@ -785,7 +784,7 @@ namespace PainterTool.MeshEditing
 
                 var previousTool = MeshTool;
 
-                if ("tool:".PegiLabel(35).Select_Index(ref Cfg.meshTool, MeshToolBase.AllTools))
+                if ("tool:".PegiLabel(35).Select_Index(ref Painter.Data.meshTool, MeshToolBase.AllTools))
                 {
                     Grid.vertexPointMaterial.color = MeshTool.VertexColor; //.SetColor("_Color", MeshTool.VertexColor);
                     previousTool.OnDeSelectTool();
@@ -857,8 +856,8 @@ namespace PainterTool.MeshEditing
                             target.SaveMesh();
 #endif
 
-                        "Save Undo".PegiLabel().ToggleIcon(ref Cfg.saveMeshUndos);
-                        if (Cfg.saveMeshUndos)
+                        "Save Undo".PegiLabel().ToggleIcon(ref Painter.Data.saveMeshUndos);
+                        if (Painter.Data.saveMeshUndos)
                             Icon.Warning.Draw("Can affect peformance");
                         pegi.Nl();
                     }
@@ -1194,15 +1193,15 @@ namespace PainterTool.MeshEditing
 
         public static void DrawTransformedCubeDebug(Transform tf, Color col)
         {
-            Vector3 dlb = new Vector3(-0.5f, -0.5f, -0.5f);
-            Vector3 dlf = new Vector3(-0.5f, -0.5f, 0.5f);
-            Vector3 drb = new Vector3(-0.5f, 0.5f, -0.5f);
-            Vector3 drf = new Vector3(-0.5f, 0.5f, 0.5f);
+            Vector3 dlb = new (-0.5f, -0.5f, -0.5f);
+            Vector3 dlf = new (-0.5f, -0.5f, 0.5f);
+            Vector3 drb = new (-0.5f, 0.5f, -0.5f);
+            Vector3 drf = new (-0.5f, 0.5f, 0.5f);
 
-            Vector3 ulb = new Vector3(0.5f, -0.5f, -0.5f);
-            Vector3 ulf = new Vector3(0.5f, -0.5f, 0.5f);
-            Vector3 urb = new Vector3(0.5f, 0.5f, -0.5f);
-            Vector3 urf = new Vector3(0.5f, 0.5f, 0.5f);
+            Vector3 ulb = new (0.5f, -0.5f, -0.5f);
+            Vector3 ulf = new (0.5f, -0.5f, 0.5f);
+            Vector3 urb = new (0.5f, 0.5f, -0.5f);
+            Vector3 urf = new (0.5f, 0.5f, 0.5f);
 
             DrawTransformedLine(tf, dlb, ulb, col);
             DrawTransformedLine(tf, dlf, ulf, col);
@@ -1227,16 +1226,16 @@ namespace PainterTool.MeshEditing
     
     public class MeshShaderMode {
 
-        private static readonly List<MeshShaderMode> _allModes = new List<MeshShaderMode>();
+        private static readonly List<MeshShaderMode> _allModes = new();
 
         public static List<MeshShaderMode> AllModes => _allModes;
 
         private MeshShaderMode(string value) { this.value = value; _allModes.Add(this); }
 
-        public static MeshShaderMode lit = new          MeshShaderMode(PainterShaderVariables.MESH_PREVIEW_LIT);
-        public static MeshShaderMode normVector = new   MeshShaderMode(PainterShaderVariables.MESH_PREVIEW_NORMAL);
-        public static MeshShaderMode vertexColor = new  MeshShaderMode(PainterShaderVariables.MESH_PREVIEW_VERTCOLOR);
-        public static MeshShaderMode projection = new   MeshShaderMode(PainterShaderVariables.MESH_PREVIEW_PROJECTION);
+        public static MeshShaderMode lit = new          (PainterShaderVariables.MESH_PREVIEW_LIT);
+        public static MeshShaderMode normVector = new   (PainterShaderVariables.MESH_PREVIEW_NORMAL);
+        public static MeshShaderMode vertexColor = new  (PainterShaderVariables.MESH_PREVIEW_VERTCOLOR);
+        public static MeshShaderMode projection = new   (PainterShaderVariables.MESH_PREVIEW_PROJECTION);
 
         public static MeshShaderMode selected;
 
@@ -1245,8 +1244,7 @@ namespace PainterTool.MeshEditing
         public override string ToString() => value;
 
         public static void ApplySelected() {
-            if (selected == null)
-                selected = _allModes[0];
+            selected ??= _allModes[0];
 
             foreach (MeshShaderMode s in _allModes)
                 QcUnity.SetShaderKeyword(s.value, selected == s);

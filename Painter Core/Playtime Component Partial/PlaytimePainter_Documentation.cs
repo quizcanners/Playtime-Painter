@@ -42,7 +42,7 @@ namespace PainterTool
                             {
                                 "{0} provides the default interface to all of the Platime Painter functionality.".F(nameof(PainterComponent)).PegiLabel().WriteBig();
                                 ("To modify textures during gameplay you should use {0} class directly. Create a command by feeding it " +
-                                    "Texture (what to paint), Stroke(where to paint) and Brush(how to paint it)").F(nameof(PaintCommand)).PegiLabel().WriteBig();
+                                    "Texture (what to paint), Stroke(where to paint) and Brush(how to paint it)").F(nameof(Painter.Command)).PegiLabel().WriteBig();
                             }
 
                             if ("Painter Camera".PegiLabel().IsEntered().Nl())
@@ -52,14 +52,14 @@ namespace PainterTool
 
                             if ("Paint Command: (Texture + Brush + Stroke)".PegiLabel().IsEntered().Nl())
                             {
-                                "{0} usually requires 3 elements to be created. It can also be reused. For World-Space brush you will also need to provide the Game Object.".F(nameof(PaintCommand)).PegiLabel().WriteBig();
+                                "{0} usually requires 3 elements to be created. It can also be reused. For World-Space brush you will also need to provide the Game Object.".F(nameof(Painter.Command)).PegiLabel().WriteBig();
                             }
 
                             if ("Brush Configuration".PegiLabel().IsEntered().Nl())
                             {
                                 ("{0} class contains all the configurations for a brush. While all instances of Painter Tool use a shared static instance. " +
                                     "For your other needs you can create more brushes. Examples included with the asset use {1} to configure additional brushes.")
-                                    .F(nameof(Brush), nameof(PlaytimePainter_BrushConfigScriptableObject)).PegiLabel().WriteBig();
+                                    .F(nameof(Brush), nameof(SO_BrushConfigScriptableObject)).PegiLabel().WriteBig();
                             }
 
                             if ("Stroke".PegiLabel().IsEntered().Nl())

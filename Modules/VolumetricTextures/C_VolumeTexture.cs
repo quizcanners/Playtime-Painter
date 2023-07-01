@@ -27,6 +27,7 @@ namespace PainterTool {
 
         public int hSlices = 4;
         public float size = 1;
+        public bool _staticPosition;
         private Vector4 posNSizeCached;
 
         public DirtyState Dirty = new();
@@ -128,9 +129,13 @@ namespace PainterTool {
             }
         }
 
+
+        private static readonly ShaderProperty.FloatFeature VOLUME_VISIBILITY = new(name: "qc_VolumeAlpha", featureDirective: "qc_GOT_VOLUME" );
+
+
         #region Cubemap
 
-        [Header("Cube Map")]
+       [Header("Cube Map")]
         public CubeSide Texture_0_RIGHT = new();
         public CubeSide Texture_1_LEFT = new();
         public CubeSide Texture_2_UP = new();
@@ -160,11 +165,13 @@ namespace PainterTool {
         {
             if (cubeArray == null)
             {
-                cubeArray = new RenderTexture(width: 1024, 1024, depth: 0, RenderTextureFormat.ARGBHalf, mipCount: 0)
+                cubeArray = new RenderTexture(width: 1024, 1024, depth: 0, RenderTextureFormat.ARGBHalf)
                 {
+                    dimension = UnityEngine.Rendering.TextureDimension.Tex2DArray,
                     useMipMap = false,
                     autoGenerateMips = false,
-                    dimension = UnityEngine.Rendering.TextureDimension.Tex2DArray,
+                    wrapMode = TextureWrapMode.Clamp,
+                    
                     volumeDepth = 6,
                     name = "Specular Cubemap Array",
                 };
@@ -315,33 +322,46 @@ namespace PainterTool {
             }
         }
 
-        public bool TryChangeVolume(int heightSlices, float size) 
+        public bool TryChangeVolume(int heightSlices, float size, bool staticPosition) 
         {
-            if (hSlices == heightSlices && this.size == size)
+            if (hSlices == heightSlices && this.size == size && staticPosition == _staticPosition)
                 return false;
 
             hSlices = heightSlices;
             this.size = size;
-
+            _staticPosition = staticPosition;
 
             Dirty.SetDirty();
 
             return true;
         }
 
+ 
+
         public Vector4 GetPositionAndSizeForShader() 
         {
             if (Dirty.PositionUpdate.TryEnter())
             {
-                changePositionOnOffset = Mathf.Max(1, changePositionOnOffset);
-                float scaledChunks = changePositionOnOffset * size;
+                Vector3 pos;
 
-                Vector3 currentPosition = transform.position + (0.5f * scaledChunks * Vector3.one);
+                if (_staticPosition) 
+                {
+                    pos = transform.position;
+                } else 
+                {
+                    //changePositionOnOffset = Mathf.Max(1, changePositionOnOffset);
+                    // float scaledChunks = changePositionOnOffset * size;
 
-                Vector3 pos = Vector3Int.FloorToInt(currentPosition / scaledChunks);
-                pos *= scaledChunks;
+                    //  Vector3 currentPosition = transform.position + (0.5f * scaledChunks * Vector3.one);
+                    // pos *= scaledChunks;
+                    pos = VolumeTexture.GetDiscretePosition(transform.position, size, out float scaledChunks, changePositionOnOffset);// Vector3Int.FloorToInt(currentPosition / scaledChunks);
 
-                if (!Dirty.PosAndSizeSet || (!posNSizeCached.XYZ().Equals(pos) && Vector3.Distance(transform.position, posNSizeCached.XYZ()) > scaledChunks))
+                    if ((!posNSizeCached.XYZ().Equals(pos) && Vector3.Distance(transform.position, posNSizeCached.XYZ()) > scaledChunks))
+                        Dirty.PosAndSizeSet = false;
+               
+                }
+
+                if (!Dirty.PosAndSizeSet)
                 {
                     Dirty.PosAndSizeSet = true;
                     posNSizeCached = pos.ToVector4(size);
@@ -465,6 +485,8 @@ namespace PainterTool {
 
                 if (context.IsAnyEntered == false)
                 {
+                    "Static Position".PegiLabel("Volume will use the exact position of the volume and ignore if the position changes").ToggleIcon(ref _staticPosition).Nl();
+
                     "Position chunk size".PegiLabel().Edit(ref changePositionOnOffset);
 
                     pegi.FullWindow
@@ -607,6 +629,7 @@ namespace PainterTool {
         {
             all.Add(this);
             UpdateShaderVariables();
+            VOLUME_VISIBILITY.GlobalValue = 1;
         }
 
         public virtual void OnDisable()
@@ -617,6 +640,9 @@ namespace PainterTool {
                 if (all.Count > 0)
                     all.Last().UpdateShaderVariables();
             }
+
+            if (all.Count == 0)
+                VOLUME_VISIBILITY.GlobalValue = 0;
 
             Clear();
         }

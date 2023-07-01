@@ -155,13 +155,13 @@ namespace PainterTool
                     if (pointedPainter && pointedPainter != edited && pointedPainter.meshEditing
                         && !pointedPainter.SavedEditableMesh.IsEmpty && lMouseDwn && e.button == 0)
                     {
-                        MeshEditorManager.Inst.EditMesh(pointedPainter, false);
+                        Painter.MeshManager.EditMesh(pointedPainter, false);
                         allowRefocusing = true;
                     }
                     else allowRefocusing = false;
 
 
-                    if (((e.button == 1 && !MeshEditorManager.Inst.Dragging) || e.button == 2)
+                    if (((e.button == 1 && !Painter.MeshManager.Dragging) || e.button == 2)
                         && (e.type == EventType.MouseDown || e.type == EventType.MouseDrag ||
                             e.type == EventType.MouseUp))
                         navigating = true;
@@ -205,7 +205,7 @@ namespace PainterTool
             painter.FeedEvents(e);
 
             if (painter.meshEditing)
-                MeshEditorManager.Inst.UpdateInputEditorTime(e);
+                Painter.MeshManager.UpdateInputEditorTime(e);
         }
 
         public static Tool previousTool;

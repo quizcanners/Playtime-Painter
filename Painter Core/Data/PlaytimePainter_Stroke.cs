@@ -52,7 +52,7 @@ namespace PainterTool {
 	    public Vector2 DeltaUv => uvTo - uvFrom;
         public Vector3 DeltaWorldPos => posTo - posFrom;
 
-        public void Paint(PainterComponent painter, Brush brush) => brush.Paint(painter.PaintCommand); //this, painter);
+        public void Paint(PainterComponent painter, Brush brush) => brush.Paint(painter.Command); //this, painter);
         
         public bool CrossedASeam() {
 
@@ -124,7 +124,7 @@ namespace PainterTool {
         }
         #endregion
 
-        public void StrokeEnd() {
+        public void OnStrokeEnd() {
 
             MouseUpEvent = mouseHeld;
 
@@ -132,7 +132,7 @@ namespace PainterTool {
             mouseHeld = false;
         }
 
-        public void StrokeStart(Vector2 pos)
+        public void OnStrokeStart(Vector2 pos)
         {
             UV_Set = true;
 
@@ -148,7 +148,8 @@ namespace PainterTool {
             uvTo = pos;
         }
 
-        public void StrokeStart(Vector3 pos) {
+        public void OnStrokeStart(Vector3 pos) 
+        {
             if (!mouseHeld) 
                 Down_Internal(pos);
             else {
@@ -160,9 +161,8 @@ namespace PainterTool {
             posTo = pos;
         }
 
-        public void StrokeStart(RaycastHit hit, bool texcoord2)
+        public void OnStrokeContiniousStart(RaycastHit hit, bool texcoord2)
         {
-
             var pos = hit.point;
             var uv = (texcoord2 ? hit.textureCoord2 : hit.textureCoord).To01Space();
             
@@ -215,7 +215,7 @@ namespace PainterTool {
 
         public  Vector3 CameraProjectionTarget => GetCameraProjectionTarget(uvTo);
 
-        private readonly Gate.Frame _frameGate = new Gate.Frame();
+        private readonly Gate.Frame _frameGate = new();
 
         public void TrySetPreviousValues() 
         {

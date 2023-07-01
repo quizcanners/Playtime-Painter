@@ -177,7 +177,7 @@ namespace PainterTool.MeshEditing {
                 foreach (PainterMesh.MeshPoint vr in EditedMesh.meshPoints)
                     vr.smoothNormal = false;
                 EditedMesh.Dirty = true;
-                Cfg.newVerticesSmooth = false;
+                Painter.Data.newVerticesSmooth = false;
             }
 
             if ("Smooth All".PegiLabel().Click().Nl())
@@ -185,7 +185,7 @@ namespace PainterTool.MeshEditing {
                 foreach (var vr in EditedMesh.meshPoints)
                     vr.smoothNormal = true;
                 EditedMesh.Dirty = true;
-                Cfg.newVerticesSmooth = true;
+                Painter.Data.newVerticesSmooth = true;
             }
 
 
@@ -193,14 +193,14 @@ namespace PainterTool.MeshEditing {
             {
                 EditedMesh.AllVerticesShared();
                 EditedMesh.Dirty = true;
-                Cfg.newVerticesUnique = false;
+                Painter.Data.newVerticesUnique = false;
             }
 
             if ("All unique".PegiLabel().Click().Nl())
             {
                 foreach (var t in EditedMesh.triangles)
                     EditedMesh.GiveTriangleUniqueVertices(t);
-                Cfg.newVerticesUnique = true;
+                Painter.Data.newVerticesUnique = true;
             }
 
         }

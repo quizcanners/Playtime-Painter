@@ -28,9 +28,9 @@ namespace PainterTool.CameraModules {
     {
         bool IsA3DBrush(PainterComponent painter, Brush bc, ref bool overrideOther);
 
-        void PaintRenderTextureUvSpace(PaintCommand.Base command);
+        void PaintRenderTextureUvSpace(Painter.Command.Base command);
 
-        void PaintPixelsInRam(PaintCommand.Base command);
+        void PaintPixelsInRam(Painter.Command.Base command);
 
         Shader GetPreviewShader(PainterComponent p);
 

@@ -37,7 +37,8 @@
 
 					float t = _Time.w * 50;
 
-					float2 jitter = _qcPp_AlphaBufferCfg.y * _qcPp_TargetTexture_TexelSize.xy * float2(sin(t), cos(t*1.3));
+					float2 jitter = //_qcPp_AlphaBufferCfg.y * 
+						_qcPp_TargetTexture_TexelSize.xy * 1.5 * normalize(float2(sin(t), cos(t*1.3)));
 
 					float4 worldPos = mul(unity_ObjectToWorld, float4(v.vertex.xyz, 1));
 

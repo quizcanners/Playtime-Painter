@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using QuizCanners.Inspect;
 using QuizCanners.Lerp;
+using QuizCanners.Migration;
 using QuizCanners.Utils;
 using UnityEngine;
 
@@ -90,7 +91,7 @@ namespace PainterTool {
             public virtual void SetGlobalShaderParameters()
             {
                 Shader.DisableKeyword("PREVIEW_SAMPLING_DISPLACEMENT");
-                QcUnity.ToggleShaderKeywords(Cfg.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
+                QcUnity.ToggleShaderKeywords(Painter.Data.previewAlphaChanel, "PREVIEW_ALPHA", "PREVIEW_RGB");
             }
 
             internal virtual BlitFunctions.BlitModeFunction BlitFunctionTex2D(TextureMeta id)
@@ -111,10 +112,10 @@ namespace PainterTool {
             public virtual bool NeedsWorldSpacePosition =>
                 false; // WorldSpace effect needs to be rendered using terget's mesh to have world positions of the vertexes
 
-            public virtual Shader ShaderForDoubleBuffer => Cfg.brushDoubleBuffer.Shader;
-            public virtual Shader ShaderForSingleBuffer => Cfg.brushBlit.Shader;
-            public virtual Shader ShaderForAlphaOutput => Cfg.additiveAlphaOutput;
-            public virtual Shader ShaderForAlphaBufferBlit => Cfg.multishadeBufferBlit;
+            public virtual Shader ShaderForDoubleBuffer => Painter.Data.brushDoubleBuffer.Shader;
+            public virtual Shader ShaderForSingleBuffer => Painter.Data.brushBlit.Shader;
+            public virtual Shader ShaderForAlphaOutput => Painter.Data.additiveAlphaOutput;
+            public virtual Shader ShaderForAlphaBufferBlit => Painter.Data.multishadeBufferBlit;
 
             #region Inspect
 
@@ -212,7 +213,7 @@ namespace PainterTool {
 
                     if (blitMode.UsingSourceTexture && (id == null || id.TargetIsRenderTexture()))
                         MsgPainter.CopyFrom.GetText().PegiLabel(70).SelectOrAdd(ref InspectedBrush.selectedSourceTexture,
-                                ref Cfg.sourceTextures)
+                                ref Painter.Data.sourceTextures)
                             .Nl();
                 }
 
@@ -222,7 +223,7 @@ namespace PainterTool {
 
             #endregion
 
-            public virtual void PrePaint(PaintCommand.Base paintCommand) //Brush br, Stroke st, PlaytimePainter painter = null)
+            public virtual void PrePaint(Painter.Command.Base command) //Brush br, Stroke st, PlaytimePainter painter = null)
             {
             }
 
@@ -262,7 +263,7 @@ namespace PainterTool {
 
             internal override string ShaderKeyword(TextureMeta id) => "BLIT_MODE_ADD";
 
-            public override Shader ShaderForSingleBuffer => Cfg.brushAdd.Shader;
+            public override Shader ShaderForSingleBuffer => Painter.Data.brushAdd.Shader;
             internal override BlitFunctions.BlitModeFunction BlitFunctionTex2D(TextureMeta id) => BlitFunctions.AddBlit;
 
             protected override MsgPainter Translation => MsgPainter.BlitModeAdd;
@@ -325,7 +326,7 @@ namespace PainterTool {
 
             public override bool SupportedByTex2D => false;
             public override bool UsingSourceTexture => true;
-            public override Shader ShaderForSingleBuffer => Cfg.brushCopy.Shader;
+            public override Shader ShaderForSingleBuffer => Painter.Data.brushCopy.Shader;
 
             public Copy(int ind) : base(ind)
             {
@@ -382,8 +383,8 @@ namespace PainterTool {
             public override bool SupportedBySingleBuffer => false;
             public override bool SupportedByTex2D => false;
 
-            public override Shader ShaderForDoubleBuffer => Cfg.brushBlurAndSmudge.Shader;
-            public override Shader ShaderForAlphaBufferBlit => Cfg.blurAndSmudgeBufferBlit;
+            public override Shader ShaderForDoubleBuffer => Painter.Data.brushBlurAndSmudge.Shader;
+            public override Shader ShaderForAlphaBufferBlit => Painter.Data.blurAndSmudgeBufferBlit;
 
             #region Inspector
 
@@ -439,16 +440,16 @@ namespace PainterTool {
 
             public void FromUv(Vector2 uv)
             {
-                currentPixel.x = (int) Mathf.Floor(uv.x * Cfg.samplingMaskSize.x);
-                currentPixel.y = (int) Mathf.Floor(uv.y * Cfg.samplingMaskSize.y);
+                currentPixel.x = (int) Mathf.Floor(uv.x * Painter.Data.samplingMaskSize.x);
+                currentPixel.y = (int) Mathf.Floor(uv.y * Painter.Data.samplingMaskSize.y);
             }
 
             public void FromColor(Brush brush, Vector2 uv)
             {
                 var c = brush.Color;
 
-                currentPixel.x = (int) Mathf.Floor((uv.x + (c.r - 0.5f) * 2) * Cfg.samplingMaskSize.x);
-                currentPixel.y = (int) Mathf.Floor((uv.y + (c.g - 0.5f) * 2) * Cfg.samplingMaskSize.y);
+                currentPixel.x = (int) Mathf.Floor((uv.x + (c.r - 0.5f) * 2) * Painter.Data.samplingMaskSize.x);
+                currentPixel.y = (int) Mathf.Floor((uv.y + (c.g - 0.5f) * 2) * Painter.Data.samplingMaskSize.y);
             }
 
             #region Inspector
@@ -464,9 +465,9 @@ namespace PainterTool {
 
                 pegi.Nl();
 
-                "Mask Size: ".PegiLabel(60).Edit(ref Cfg.samplingMaskSize).Nl();
+                "Mask Size: ".PegiLabel(60).Edit(ref Painter.Data.samplingMaskSize).Nl();
 
-                Cfg.samplingMaskSize.Clamp(1, 512);
+                Painter.Data.samplingMaskSize.Clamp(1, 512);
 
                 "Color Set On".PegiLabel().Edit_Enum(ref method).Nl();
 
@@ -474,7 +475,7 @@ namespace PainterTool {
                 {
                     "CurrentPixel".PegiLabel(80).Edit(ref currentPixel).Nl();
 
-                    var ssize = Cfg.samplingMaskSize;
+                    var ssize = Painter.Data.samplingMaskSize;
 
                     var max = System.Math.Max(ssize.x, ssize.y); 
 
@@ -497,15 +498,17 @@ namespace PainterTool {
                     {
                         var pix = id.Pixels;
 
-                        int dx = id.Width / Cfg.samplingMaskSize.x;
-                        int dy = id.Height / Cfg.samplingMaskSize.y;
+                        var samplingMaskSize = Painter.Data.samplingMaskSize;
 
-                        for (currentPixel.x = 0; currentPixel.x < Cfg.samplingMaskSize.x; currentPixel.x++)
-                        for (currentPixel.y = 0; currentPixel.y < Cfg.samplingMaskSize.y; currentPixel.y++)
+                        int dx = id.Width / samplingMaskSize.x;
+                        int dy = id.Height / samplingMaskSize.y;
+
+                        for (currentPixel.x = 0; currentPixel.x < samplingMaskSize.x; currentPixel.x++)
+                        for (currentPixel.y = 0; currentPixel.y < samplingMaskSize.y; currentPixel.y++)
                         {
 
-                            float center_uv_x = (currentPixel.x + 0.5f) / Cfg.samplingMaskSize.x;
-                            float center_uv_y = (currentPixel.y + 0.5f) / Cfg.samplingMaskSize.y;
+                            float center_uv_x = (currentPixel.x + 0.5f) / samplingMaskSize.x;
+                            float center_uv_y = (currentPixel.y + 0.5f) / samplingMaskSize.y;
 
                             int startX = currentPixel.x * dx;
 
@@ -543,15 +546,14 @@ namespace PainterTool {
 
             #endregion
 
-            private readonly ShaderProperty.VectorValue _pointedUvUnTiledProperty =
-                new ShaderProperty.VectorValue("_qcPp_brushUvPosTo_Untiled");
+            private readonly ShaderProperty.VectorValue _pointedUvUnTiledProperty = new("_qcPp_brushUvPosTo_Untiled");
 
-            private static readonly ShaderProperty.VectorValue BRUSH_SAMPLING_DISPLACEMENT = new ShaderProperty.VectorValue("_qcPp_brushSamplingDisplacement");
+            private static readonly ShaderProperty.VectorValue BRUSH_SAMPLING_DISPLACEMENT = new("_qcPp_brushSamplingDisplacement");
 
-            public override void PrePaint(PaintCommand.Base paintCommand) 
+            public override void PrePaint(Painter.Command.Base Command) 
             {
                 
-                Stroke st = paintCommand.Stroke;
+                Stroke st = Command.Stroke;
 
                 var v4 = new Vector4(st.unRepeatedUv.x, st.unRepeatedUv.y, Mathf.Floor(st.unRepeatedUv.x),
                     Mathf.Floor(st.unRepeatedUv.y));
@@ -562,26 +564,26 @@ namespace PainterTool {
 
                 if (method == (ColorSetMethod.MDownColor))
                 {
-                    var painter = paintCommand.TryGetPainter();
+                    var painter = Command.TryGetPainter();
 
                     if (painter)
                     {
                         painter.SampleTexture(st.uvTo);
                     }
                     else
-                        paintCommand.Brush.Color = paintCommand.TextureData.SampleAt(st.uvTo);
+                        Command.Brush.Color = Command.TextureData.SampleAt(st.uvTo);
 
-                    FromColor(paintCommand.Brush, st.unRepeatedUv);
+                    FromColor(Command.Brush, st.unRepeatedUv);
                 }
                 else if (method == (ColorSetMethod.MDownPosition))
                     FromUv(st.uvTo);
 
+                var samplingMaskSize = Painter.Data.samplingMaskSize;
+
                 BRUSH_SAMPLING_DISPLACEMENT.GlobalValue = new Vector4(
-                    (currentPixel.x + 0.5f) / Cfg.samplingMaskSize.x,
-
-                    (currentPixel.y + 0.5f) / Cfg.samplingMaskSize.y,
-
-                    Cfg.samplingMaskSize.x, Cfg.samplingMaskSize.y);
+                    (currentPixel.x + 0.5f) / samplingMaskSize.x,
+                    (currentPixel.y + 0.5f) / samplingMaskSize.y,
+                    samplingMaskSize.x, samplingMaskSize.y);
             }
         }
 
@@ -597,8 +599,8 @@ namespace PainterTool {
             public override bool SupportedBySingleBuffer => false;
             public override bool SupportedByTex2D => false;
 
-            public override Shader ShaderForDoubleBuffer => Cfg.brushBlurAndSmudge.Shader;
-            public override Shader ShaderForAlphaBufferBlit => Cfg.blurAndSmudgeBufferBlit;
+            public override Shader ShaderForDoubleBuffer => Painter.Data.brushBlurAndSmudge.Shader;
+            public override Shader ShaderForAlphaBufferBlit => Painter.Data.blurAndSmudgeBufferBlit;
 
             #region Inspector
 
@@ -637,16 +639,16 @@ namespace PainterTool {
 
             internal override string ShaderKeyword(TextureMeta id) => "BLIT_MODE_PROJECTION";
 
-            public override Shader ShaderForDoubleBuffer => Cfg.brushDoubleBufferProjector.Shader;
+            public override Shader ShaderForDoubleBuffer => Painter.Data.brushDoubleBufferProjector.Shader;
 
-            public override Shader ShaderForAlphaBufferBlit => Cfg.projectorBrushBufferBlit;
-            public override Shader ShaderForAlphaOutput => Cfg.additiveAlphaAndUVOutput;
+            public override Shader ShaderForAlphaBufferBlit => Painter.Data.projectorBrushBufferBlit;
+            public override Shader ShaderForAlphaOutput => Painter.Data.additiveAlphaAndUVOutput;
 
             public override void SetGlobalShaderParameters()
             {
                 base.SetGlobalShaderParameters();
                 QcUnity.SetShaderKeyword(PainterShaderVariables.USE_DEPTH_FOR_PROJECTOR,
-                    Cfg.useDepthForProjector);
+                    Painter.Data.useDepthForProjector);
             }
 
             public override bool NeedsWorldSpacePosition => true;
@@ -682,7 +684,7 @@ namespace PainterTool {
 #endif
 
                         if (Brush.showAdvanced)
-                        "Paint only visible (by Projector)".PegiLabel().ToggleIcon(ref Cfg.useDepthForProjector).Nl();
+                        "Paint only visible (by Projector)".PegiLabel().ToggleIcon(ref Painter.Data.useDepthForProjector).Nl();
 
                     var painter = PainterComponent.inspected;
 
@@ -725,7 +727,7 @@ namespace PainterTool {
 
             public override bool SupportsAlphaBufferPainting => false;
 
-            public override Shader ShaderForDoubleBuffer => Cfg.inkColorSpread.Shader;
+            public override Shader ShaderForDoubleBuffer => Painter.Data.inkColorSpread.Shader;
 
 #region Inspector
 
@@ -779,7 +781,7 @@ namespace PainterTool {
             
             public override bool NeedsWorldSpacePosition => CustomCfg ? CustomCfg.usingWorldSpacePosition : false;
 
-            private PlaytimePainter_BlitModeCustom CustomCfg => Cfg.customBlitModes.TryGet(Cfg.selectedCustomBlitMode);   
+            private PlaytimePainter_BlitModeCustom CustomCfg => Painter.Data.customBlitModes.TryGet(Painter.Data.selectedCustomBlitMode);   
             
             protected override MsgPainter Translation => MsgPainter.BlitModeCustom;
 
@@ -791,21 +793,21 @@ namespace PainterTool {
             {
                 base.Inspect(); pegi.Nl();
 
-                var allCstm = Cfg.customBlitModes;
+                var allCstm = Painter.Data.customBlitModes;
 
-                if ("Config".PegiLabel(60).Select_Index(ref Cfg.selectedCustomBlitMode, allCstm))
-                    Cfg.SetToDirty();
+                if ("Config".PegiLabel(60).Select_Index(ref Painter.Data.selectedCustomBlitMode, allCstm))
+                    Painter.Data.SetToDirty();
 
                 var cfg = CustomCfg;
 
                 if (pegi.Edit(ref cfg, 60).Nl() && cfg)
                 {
                     if (allCstm.Contains(cfg))
-                        Cfg.selectedCustomBlitMode = allCstm.IndexOf(cfg);
+                        Painter.Data.selectedCustomBlitMode = allCstm.IndexOf(cfg);
                     else
                     {
-                        Cfg.customBlitModes.Add(cfg);
-                        Cfg.selectedCustomBlitMode = Cfg.customBlitModes.Count - 1;
+                        Painter.Data.customBlitModes.Add(cfg);
+                        Painter.Data.selectedCustomBlitMode = Painter.Data.customBlitModes.Count - 1;
                     }
                 }
 
@@ -842,7 +844,7 @@ namespace PainterTool {
                         shader: CustomCfg.shader);
 
                 if ("Painter Camera Render".PegiLabel().Click().Nl())
-                    Singleton_PainterCamera.GetOrCreate().Render(
+                    Painter.Camera.Render(
                         @from: CustomCfg.sourceTexture ? CustomCfg.sourceTexture : rt,
                         to: rt,
                         shader: CustomCfg.shader);
