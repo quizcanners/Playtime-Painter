@@ -17,6 +17,8 @@ namespace PainterTool {
 
         [NonSerialized] public bool ManagedExternally;
 
+        public bool DiscretePosition;
+
         public static C_VolumeTexture LatestInstance => all.TryGetLast();
 
         private static int _tmpWidth = 1024;
@@ -27,12 +29,13 @@ namespace PainterTool {
 
         public int hSlices = 4;
         public float size = 1;
-        public bool _staticPosition;
+       // public bool _staticPosition;
         private Vector4 posNSizeCached;
 
         public DirtyState Dirty = new();
 
-      
+
+
 
         public class DirtyState 
         {
@@ -41,7 +44,7 @@ namespace PainterTool {
             public readonly Gate.Vector3Value LocationForSortingGate_Gate = new();
 
             public readonly Gate.Frame PositionUpdate = new();
-            public bool PosAndSizeSet = false;
+            public bool PosAndSize = false;
           
             public readonly Gate.Vector3Value PreviousPosition = new();
 
@@ -53,7 +56,7 @@ namespace PainterTool {
                 PositionUpdate.ValueIsDefined = false;
                 LocationForSortingGate_Gate.ValueIsDefined = false;
                 PreviousPosition.ValueIsDefined = false;
-                PosAndSizeSet = false;
+                PosAndSize = false;
             }
 
         }
@@ -71,6 +74,25 @@ namespace PainterTool {
         }
 
         public Texture _texture;
+
+        private bool _isRuntimeTexture;
+
+        public Texture GetOrCreate() 
+        {
+            if (_texture)
+                return _texture;
+
+            _texture = new RenderTexture(1024, 1024, depth: 0, RenderTextureFormat.ARGBHalf, mipCount: 0)
+            {
+                wrapMode = TextureWrapMode.Clamp
+            };
+
+            _isRuntimeTexture = true;
+
+            return _texture;
+        }
+
+
 
         public Texture Texture
         {
@@ -92,6 +114,11 @@ namespace PainterTool {
         private ShaderProperty.VectorValue _slicesInShader;
         private ShaderProperty.VectorValue _positionNsizeInShader;
 
+
+        public const string NAME = "_RayMarchingVolume"; // Temporarily hardcoded
+
+        
+
         public ShaderProperty.TextureValue TextureInShaderProperty
         {
             get
@@ -99,11 +126,12 @@ namespace PainterTool {
                 if (_textureInShaderr != null)
                     return _textureInShaderr;
 
-                _textureInShaderr = new ShaderProperty.TextureValue("_RayMarchingVolume");
+                _textureInShaderr = new ShaderProperty.TextureValue(NAME);
 
                 return _textureInShaderr;
             }
         }
+
         private ShaderProperty.VectorValue SlicesShadeProperty
         {
             get
@@ -111,7 +139,7 @@ namespace PainterTool {
                 if (_slicesInShader != null)
                     return _slicesInShader;
 
-                _slicesInShader = new ShaderProperty.VectorValue(name + "VOLUME_H_SLICES");
+                _slicesInShader = new ShaderProperty.VectorValue(NAME + "VOLUME_H_SLICES");
 
                 return _slicesInShader;
             }
@@ -123,15 +151,18 @@ namespace PainterTool {
                 if (_positionNsizeInShader != null)
                     return _positionNsizeInShader;
 
-                _positionNsizeInShader = new ShaderProperty.VectorValue(name + "VOLUME_POSITION_N_SIZE");
+                _positionNsizeInShader = new ShaderProperty.VectorValue(NAME + "VOLUME_POSITION_N_SIZE");
 
                 return _positionNsizeInShader;
             }
         }
 
 
-        private static readonly ShaderProperty.FloatFeature VOLUME_VISIBILITY = new(name: "qc_VolumeAlpha", featureDirective: "qc_GOT_VOLUME" );
 
+        public static readonly ShaderProperty.FloatFeature VOLUME_VISIBILITY = new(name: "qc_VolumeAlpha", featureDirective: "qc_GOT_VOLUME" );
+
+
+        public bool IsVisible => VOLUME_VISIBILITY.latestValue > 0.1f;
 
         #region Cubemap
 
@@ -153,6 +184,16 @@ namespace PainterTool {
                 cubeArray.DestroyWhatever();
                 cubeArray = null;
             }
+
+            Texture_0_RIGHT.Clear();
+            Texture_1_LEFT.Clear();
+            Texture_2_UP.Clear();
+            Texture_3_DOWN.Clear();
+            Texture_4_FRONT.Clear();
+            Texture_5_BACK.Clear();
+
+            if (_isRuntimeTexture)
+                _texture.DestroyWhatever();
         }
 
         public void ToTextureArray(int face, Texture tex) 
@@ -201,7 +242,7 @@ namespace PainterTool {
 
                 var tex = this[dir];
 
-                Graphics.Blit(tex.Texture, cubeArray, sourceDepthSlice: 0, destDepthSlice: i);
+                Graphics.Blit(tex.GetTexture(), cubeArray, sourceDepthSlice: 0, destDepthSlice: i);
             }
 
             SetTextureArray();
@@ -216,29 +257,51 @@ namespace PainterTool {
         public class CubeSide : IPEGI
         {
             [NonSerialized] public LogicWrappers.Request IsDirty = new();
-            public Texture Texture;
+            [NonSerialized] private Texture _texture;
             private ShaderProperty.TextureValue _property;
+
+            public Texture GetTexture()
+            {
+                if (_texture)
+                    return _texture;
+
+                _texture = new RenderTexture(1024, 1024, 0, RenderTextureFormat.ARGBHalf, mipCount: 0)
+                {
+                    wrapMode = TextureWrapMode.Clamp
+                };
+
+                return _texture;
+            }
+
+            public void Clear() 
+            {
+                if (_texture)
+                {
+                    _texture.DestroyWhatever();
+                    _texture = null;
+                }
+            }
 
             public void SetTexture(C_VolumeTexture parent, VolumeCubeMapped.Direction dir, Texture tex) 
             {
-                Texture = tex;
-                GetProperty(parent, dir).SetGlobal(Texture);
+                _texture = tex;
+                GetProperty(parent, dir).SetGlobal(_texture);
             }
 
             public void Inspect()
             {
                 _property?.Nested_Inspect().Nl();
 
-                if (Texture && Texture is RenderTexture && Icon.Clear.Click())
-                        RenderTextureBuffersManager.Blit(Color.clear, Texture as RenderTexture);
+                if (_texture && _texture is RenderTexture && Icon.Clear.Click())
+                        RenderTextureBuffersManager.Blit(Color.clear, _texture as RenderTexture);
 
 
-                pegi.Draw(Texture, width: 256, alphaBlend: false).Nl();
+                pegi.Draw(_texture, width: 256, alphaBlend: false).Nl();
             }
 
-            public void SetGloablexture(C_VolumeTexture parent, VolumeCubeMapped.Direction dir) 
+            public void SetGlobalTexture(C_VolumeTexture parent, VolumeCubeMapped.Direction dir) 
             {
-                GetProperty(parent, dir).SetGlobal(Texture);
+                GetProperty(parent, dir).SetGlobal(_texture);
             }
 
             private ShaderProperty.TextureValue GetProperty(C_VolumeTexture parent, VolumeCubeMapped.Direction dir)
@@ -306,9 +369,9 @@ namespace PainterTool {
             }
         }
 
-        public int Height => hSlices * hSlices;
+        public int TextureHeight => hSlices * hSlices;
 
-        public int Width
+        public int TextureWidth
         {
             get
             {
@@ -322,21 +385,30 @@ namespace PainterTool {
             }
         }
 
-        public bool TryChangeVolume(int heightSlices, float size, bool staticPosition) 
-        {
-            if (hSlices == heightSlices && this.size == size && staticPosition == _staticPosition)
-                return false;
+    //   public bool IsDifferent(int heightSlices, float size, bool staticPosition) 
+      //      => hSlices != heightSlices || this.size != size || staticPosition != _staticPosition;
+        
 
+        public void Set(int heightSlices, float size) 
+        {
             hSlices = heightSlices;
             this.size = size;
-            _staticPosition = staticPosition;
+           // _staticPosition = staticPosition;
 
             Dirty.SetDirty();
-
-            return true;
         }
 
- 
+        public Vector4 GetSlices4Shader()
+        {
+           
+                //var srv = Singleton.Get<TexturesPoolSingleton>();
+
+                float w = TextureWidth; //((ImageMeta?.Width ?? (srv ? srv.width : _tmpWidth)) //- hSlices * 2
+                                 //) / hSlices;
+                return new Vector4(hSlices, w * 0.5f, 1f / w, 1f / hSlices);
+            
+        }
+
 
         public Vector4 GetPositionAndSizeForShader() 
         {
@@ -344,26 +416,21 @@ namespace PainterTool {
             {
                 Vector3 pos;
 
-                if (_staticPosition) 
+                if (!DiscretePosition) 
                 {
                     pos = transform.position;
+                    Dirty.PosAndSize = false;
                 } else 
                 {
-                    //changePositionOnOffset = Mathf.Max(1, changePositionOnOffset);
-                    // float scaledChunks = changePositionOnOffset * size;
-
-                    //  Vector3 currentPosition = transform.position + (0.5f * scaledChunks * Vector3.one);
-                    // pos *= scaledChunks;
                     pos = VolumeTexture.GetDiscretePosition(transform.position, size, out float scaledChunks, changePositionOnOffset);// Vector3Int.FloorToInt(currentPosition / scaledChunks);
 
                     if ((!posNSizeCached.XYZ().Equals(pos) && Vector3.Distance(transform.position, posNSizeCached.XYZ()) > scaledChunks))
-                        Dirty.PosAndSizeSet = false;
-               
+                        Dirty.PosAndSize = false;
                 }
 
-                if (!Dirty.PosAndSizeSet)
+                if (!Dirty.PosAndSize)
                 {
-                    Dirty.PosAndSizeSet = true;
+                    Dirty.PosAndSize = true;
                     posNSizeCached = pos.ToVector4(size);
                 }
             }
@@ -371,27 +438,21 @@ namespace PainterTool {
             return posNSizeCached;
         }
 
+     
+
         public virtual Vector4 UpdateShaderVariables()
         {
             Vector4 res = GetPositionAndSizeForShader();
-            SlicesShadeProperty.SetGlobal(Slices4Shader);
-            TextureInShaderProperty.SetGlobal(Texture); //ImageMeta.CurrentTexture());
             PositionAndScaleProperty.SetGlobal(res);
+            SlicesShadeProperty.SetGlobal(GetSlices4Shader());
+            TextureInShaderProperty.SetGlobal(Texture); //ImageMeta.CurrentTexture());
+          
 
             SetTextureArray();
 
             return res;
         }
 
-        public Vector4 Slices4Shader {
-            get {
-                //var srv = Singleton.Get<TexturesPoolSingleton>();
-
-                float w = Width; //((ImageMeta?.Width ?? (srv ? srv.width : _tmpWidth)) //- hSlices * 2
-                    //) / hSlices;
-                return new Vector4(hSlices, w * 0.5f, 1f / w, 1f / hSlices);
-            }
-        }
 
         private void UpdateImageMeta()
         {
@@ -485,7 +546,7 @@ namespace PainterTool {
 
                 if (context.IsAnyEntered == false)
                 {
-                    "Static Position".PegiLabel("Volume will use the exact position of the volume and ignore if the position changes").ToggleIcon(ref _staticPosition).Nl();
+                   // "Static Position".PegiLabel("Volume will use the exact position of the volume and ignore if the position changes").ToggleIcon(ref _staticPosition).Nl();
 
                     "Position chunk size".PegiLabel().Edit(ref changePositionOnOffset);
 
@@ -549,7 +610,7 @@ namespace PainterTool {
 
                             tex2D = QcUnity.SaveTextureAsAsset(tex2D, path, ref tname, saveAsNew: false);
                             var imp = tex2D.GetTextureImporter_Editor();
-                            var needsReimport = imp.WasWrongIsColor_Editor(isColor: false) | imp.WasWrongAlphaIsTransparency_Editor(isTransparency: false);
+                            var needsReimport = imp.WasWrongIsColor_Editor(targetIsColor: false) | imp.WasWrongAlphaIsTransparency_Editor(isTransparency: false);
                             if (needsReimport)
                                 imp.SaveAndReimport();
 
@@ -580,11 +641,14 @@ namespace PainterTool {
 
                     "Slices:".PegiLabel("How texture will be sliced for height", 80).Edit(ref hSlices, 1, 8).Nl();
 
+                    if (Mathf.IsPowerOfTwo(hSlices))
+                        "When not power of 2, the result may be imperfect".PegiLabel().Write_Hint().Nl();
+
                     if (changed)
                         UpdateImageMeta();
 
-                    var w = Width;
-                    ("Will result in X:{0} Z:{0} Y:{1} volume".F(w,Height)).PegiLabel().Nl();
+                    var w = TextureWidth;
+                    ("Will result in X:{0} Z:{0} Y:{1} volume".F(w,TextureHeight)).PegiLabel().Nl();
 
                     pegi.Draw(tex, width: 256);
                     pegi.Nl();
@@ -645,6 +709,7 @@ namespace PainterTool {
                 VOLUME_VISIBILITY.GlobalValue = 0;
 
             Clear();
+
         }
 
         public virtual void OnDrawGizmosSelected()
@@ -652,11 +717,25 @@ namespace PainterTool {
             if (ImageMeta == null || ManagedExternally) 
                 return;
 
-            var center = transform.position;
-            var w = Width;
-            center.y += Height * 0.5f * size;
+            var w = TextureWidth;
             Gizmos.color = Color.green;
-            Gizmos.DrawWireCube(center, new Vector3(w, Height, w) * size);
+            Gizmos.DrawWireCube(VolumeCenter, new Vector3(w, TextureHeight, w) * size);
+        }
+
+        public Vector3 VolumeCenter 
+        {
+            get 
+            {
+                var center = transform.position;
+                center.y += TextureHeight * 0.5f * size;
+                return center;
+            }
+
+            set 
+            {
+                value.y -= TextureHeight * 0.5f * size;
+                transform.position = value;
+            }
         }
 
         public virtual void DrawGizmosOnPainter(PainterComponent painter) { }

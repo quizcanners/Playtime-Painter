@@ -8,57 +8,14 @@ namespace PainterTool.MeshEditing
 
 #pragma warning disable IDE0018 // Inline variable declaration
 
-    public enum GridPlane
-    {
-        xz = 0,
-        xy = 1,
-        zy = 2
-    }
+ 
 
     [ExecuteInEditMode]
     [AddComponentMenu("Playtime Painter/Grid XYZ Navigator")]
     public class GridNavigator : PainterSystemMono
     {
-        public static GridNavigator GetOrCreate
-        {
-            get
-            {
-                var srv = Singleton.Get<GridNavigator>();
-
-                if (srv) return srv;
-                if (!ApplicationIsQuitting)
-                {
-                    srv = Painter.Camera.GetComponentInChildren<GridNavigator>();
-
-                    if (srv) 
-                        return srv;
-
-                    try
-                    {
-                        var prefab = Resources.Load(SO_PainterDataAndConfig.PREFABS_RESOURCE_FOLDER + "/grid") as GameObject;
-                        srv = Instantiate(prefab).GetComponent<GridNavigator>();
-                        srv.transform.parent =Painter.Camera.transform;
-                        srv.name = "grid";
-
-                        srv.gameObject.hideFlags = HideFlags.DontSave;
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.LogException(ex);
-                    }
-
-                }
-                else srv = null;
-
-                return srv;
-            }
-        }
-
-
-        public static Vector3 LatestMouseRaycastHit;
-        public static Vector3 LatestMouseToGridProjection;
-        [HideInInspector] public GridPlane CurrentPlane = GridPlane.xz;
-
+     
+        [HideInInspector] 
 
         public Material vertexPointMaterial;
         public MarkerWithText[] vertices;
@@ -97,8 +54,8 @@ namespace PainterTool.MeshEditing
 
             if (RaycastMouse(out hit))
             {
-                LatestMouseRaycastHit = hit.point;
-                LatestMouseToGridProjection = LatestMouseRaycastHit;
+                MeshPainting.LatestMouseRaycastHit = hit.point;
+                MeshPainting.LatestMouseToGridProjection = MeshPainting.LatestMouseRaycastHit;
             }
         }
 
@@ -164,7 +121,7 @@ namespace PainterTool.MeshEditing
 
         public Vector3 PlaneToWorldVector(Vector2 v2)
         {
-            return CurrentPlane switch
+            return MeshPainting.CurrentPlane switch
             {
                 GridPlane.xy => new Vector3(v2.x, v2.y, 0),//Mirror.z = 1; break;
                 GridPlane.xz => new Vector3(v2.x, 0, v2.y),//
@@ -175,7 +132,7 @@ namespace PainterTool.MeshEditing
 
         public Vector2 InPlaneVector(Vector3 f)
         {
-            return CurrentPlane switch
+            return MeshPainting.CurrentPlane switch
             {
                 GridPlane.xy => new Vector2(f.x, f.y),//Mirror.z = 1; break;
                 GridPlane.xz => new Vector2(f.x, f.z),//
@@ -186,7 +143,7 @@ namespace PainterTool.MeshEditing
 
         public float PerpendicularToPlaneVector(Vector3 f)
         {
-            return CurrentPlane switch
+            return MeshPainting.CurrentPlane switch
             {
                 GridPlane.xy => f.z,//Mirror.z = 1; break;
                 GridPlane.xz => f.y,//new Vector2(f.x, f.z); //
@@ -199,7 +156,7 @@ namespace PainterTool.MeshEditing
         {
             var mirror = Vector3.zero;
 
-            switch (CurrentPlane)
+            switch (MeshPainting.CurrentPlane)
             {
                 case GridPlane.xy:
                     mirror.z = 1;
@@ -219,7 +176,7 @@ namespace PainterTool.MeshEditing
         {
             var mirror = Vector3.one;
 
-            switch (CurrentPlane)
+            switch (MeshPainting.CurrentPlane)
             {
                 case GridPlane.xy:
                     mirror.z = 0;
@@ -235,24 +192,7 @@ namespace PainterTool.MeshEditing
             return mirror;
         }
 
-        public Vector3 ProjectToGrid(Vector3 src)
-        {
-            var pos = LatestMouseToGridProjection;
-
-            switch (CurrentPlane)
-            {
-                case GridPlane.xy:
-                    return new Vector3(src.x, src.y, pos.z);
-                case GridPlane.xz:
-                    return new Vector3(src.x, pos.y, src.z);
-                case GridPlane.zy:
-                    return new Vector3(pos.x, src.y, src.z);
-                default:
-                    break;
-            }
-
-            return Vector3.zero;
-        }
+        
 
         private void ClosestAxis(bool horToo)
         {
@@ -262,9 +202,9 @@ namespace PainterTool.MeshEditing
                 var x = AngleClamp(XGrid);
                 var z = AngleClamp(ZGrid);
 
-                CurrentPlane = x <= z ? GridPlane.zy : GridPlane.xy;
+                MeshPainting.CurrentPlane = x <= z ? GridPlane.zy : GridPlane.xy;
             }
-            else CurrentPlane = GridPlane.xz;
+            else MeshPainting.CurrentPlane = GridPlane.xz;
 
         }
 
@@ -273,24 +213,25 @@ namespace PainterTool.MeshEditing
             if (!CurrentViewTransform())
                 return;
 
-            var before = CurrentPlane;
+
+            var before = MeshPainting.CurrentPlane;
             if (delta > 0)
-                switch (CurrentPlane)
+                switch (MeshPainting.CurrentPlane)
                 {
                     case GridPlane.xy:
-                        CurrentPlane = GridPlane.zy;
+                        MeshPainting.CurrentPlane = GridPlane.zy;
                         break;
                     case GridPlane.xz:
                         ClosestAxis(false);
                         break;
                     case GridPlane.zy:
-                        CurrentPlane = GridPlane.xy;
+                        MeshPainting.CurrentPlane = GridPlane.xy;
                         break;
                 }
             else if (delta < 0)
-                CurrentPlane = GridPlane.xz;
+                MeshPainting.CurrentPlane = GridPlane.xz;
 
-            if (before != CurrentPlane && MeshEditorManager.target)
+            if (before != MeshPainting.CurrentPlane && MeshPainting.target)
                 MeshEditorManager.MeshTool.OnGridChange();
 
         }
@@ -303,7 +244,7 @@ namespace PainterTool.MeshEditing
             if (!cfg)
                 return;
 
-            var showGrid = MeshEditorManager.target.NeedsGrid() || Painter.FocusedPainter.NeedsGrid();
+            var showGrid = MeshPainting.target.NeedsGrid() || Painter.FocusedPainter.NeedsGrid();
 
             SetEnabled(showGrid, cfg.snapToGrid && showGrid);
 
@@ -312,7 +253,7 @@ namespace PainterTool.MeshEditing
 
             if (cfg.gridSize <= 0) cfg.gridSize = 1;
 
-            switch (CurrentPlane)
+            switch (MeshPainting.CurrentPlane)
             {
                 case GridPlane.xy:
                     gridRenderer.transform.rotation = ZGrid;
@@ -325,13 +266,15 @@ namespace PainterTool.MeshEditing
                     break;
             }
 
+            var LatestMouseToGridProjection = MeshPainting.LatestMouseToGridProjection;
+
             _xzPlane.distance = -LatestMouseToGridProjection.y;
             _xyPlane.distance = -LatestMouseToGridProjection.z;
             _zyPlane.distance = -LatestMouseToGridProjection.x;
 
             var hit = Vector3.zero;
 
-            switch (CurrentPlane)
+            switch (MeshPainting.CurrentPlane)
             {
                 case GridPlane.xy:
                     hit = MouseToPlane(_xyPlane);
@@ -350,22 +293,22 @@ namespace PainterTool.MeshEditing
             if (hit != Vector3.zero)
             {
 
-                switch (CurrentPlane)
+                switch (MeshPainting.CurrentPlane)
                 {
                     case GridPlane.xy:
 
-                        LatestMouseToGridProjection.x = hit.x;
-                        LatestMouseToGridProjection.y = hit.y;
+                        MeshPainting.LatestMouseToGridProjection.x = hit.x;
+                        MeshPainting.LatestMouseToGridProjection.y = hit.y;
 
                         break;
                     case GridPlane.xz:
-                        LatestMouseToGridProjection.x = hit.x;
-                        LatestMouseToGridProjection.z = hit.z;
+                        MeshPainting.LatestMouseToGridProjection.x = hit.x;
+                        MeshPainting.LatestMouseToGridProjection.z = hit.z;
                         break;
                     case GridPlane.zy:
 
-                        LatestMouseToGridProjection.z = hit.z;
-                        LatestMouseToGridProjection.y = hit.y;
+                        MeshPainting.LatestMouseToGridProjection.z = hit.z;
+                        MeshPainting.LatestMouseToGridProjection.y = hit.y;
                         break;
                 }
             }
@@ -374,7 +317,7 @@ namespace PainterTool.MeshEditing
             var dotTf = dotPointed.transform;
             var rndTf = gridRenderer.transform;
 
-            tf.position = LatestMouseToGridProjection + Vector3.one * 0.01f;
+            tf.position = MeshPainting.LatestMouseToGridProjection + Vector3.one * 0.01f;
 
             var position = tf.position;
 
@@ -391,9 +334,9 @@ namespace PainterTool.MeshEditing
 
             float scale = !cfg.snapToGrid ? Mathf.Max(1, Mathf.ClosestPowerOfTwo((int) (dist / 8))) : cfg.gridSize;
 
-            var dx = CurrentPlane != GridPlane.zy ? position.x : -position.z;
+            var dx = MeshPainting.CurrentPlane != GridPlane.zy ? position.x : -position.z;
 
-            var dy = CurrentPlane != GridPlane.xz ? position.y : position.z;
+            var dy = MeshPainting.CurrentPlane != GridPlane.xz ? position.y : position.z;
 
             dx -= Mathf.Round(dx / scale) * scale;
             dy -= Mathf.Round(dy / scale) * scale;
@@ -404,8 +347,8 @@ namespace PainterTool.MeshEditing
                 .Set(_dyProp, dy / dist)
                 .Set(_sizeProp, dist / scale);
 
-            if (MeshEditorManager.target)
-                Painter.MeshManager.UpdateLocalSpaceMousePosition();
+            if (MeshPainting.target)
+                MeshPainting.UpdateLocalSpaceMousePosition();
         }
 
         private void Update()
@@ -425,7 +368,7 @@ namespace PainterTool.MeshEditing
             }
 
 
-            if (!MeshEditorManager.target && Painter.Data)
+            if (!MeshPainting.target && Painter.Data)
                 UpdatePositions();
 
         }
@@ -457,7 +400,7 @@ namespace PainterTool.MeshEditing
             {
                 RaycastHit hit;
                 if (Physics.Raycast(PlaytimePainter_EditorInputManager.GetScreenMousePositionRay(Painter.Camera.MainCamera), out hit))
-                    LatestMouseToGridProjection = hit.point;
+                    MeshPainting.LatestMouseToGridProjection = hit.point;
             }
         }
 

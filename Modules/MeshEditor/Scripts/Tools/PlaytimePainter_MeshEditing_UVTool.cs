@@ -101,7 +101,7 @@ namespace PainterTool.MeshEditing
 
                         for (int plane = 0; plane<3; plane++) 
                         {
-                            GridNavigator.GetOrCreate.CurrentPlane = (GridPlane)plane;
+                            MeshPainting.CurrentPlane = (GridPlane)plane;
                             projectFront = true;
                             UpdateUvPreview(true);
                             AutoProjectUVs(EditedMesh);
@@ -149,11 +149,11 @@ namespace PainterTool.MeshEditing
 
            // var m = MeshMGMT;
 
-            if (!MeshEditorManager.target || EditedMesh.meshPoints.IsNullOrEmpty()) return;
+            if (!MeshPainting.target || EditedMesh.meshPoints.IsNullOrEmpty()) return;
 
             var prMesh = GetPreviewMesh;
 
-            var trgPos = MeshEditorManager.targetTransform.position;
+            var trgPos = MeshPainting.targetTransform.position;
             
               if (!useThreshold) {
                   foreach (var v in prMesh.meshPoints)  {
@@ -165,7 +165,7 @@ namespace PainterTool.MeshEditing
               else
                   AutoProjectUVs(prMesh);
 
-              var trg = MeshEditorManager.target;
+              var trg = MeshPainting.target;
 
             new MeshConstructor(prMesh, trg.MeshProfile, trg.SharedMesh).UpdateMesh<VertexDataTypes.VertexUv>();
         }
@@ -175,7 +175,7 @@ namespace PainterTool.MeshEditing
 
             var uv = new Vector2();
 
-            switch (GridNavigator.GetOrCreate.CurrentPlane)
+            switch (MeshPainting.CurrentPlane)
             {
                 case GridPlane.xy:
                     uv.x = diff.x;
@@ -202,7 +202,7 @@ namespace PainterTool.MeshEditing
 
             Vector2 uv  = Vector2.zero;
 
-            var trgPos = MeshEditorManager.targetTransform.position;
+            var trgPos = MeshPainting.targetTransform.position;
 
             var diffs = new Vector3[3];
 
@@ -241,7 +241,7 @@ namespace PainterTool.MeshEditing
             if (point.vertices.Count > 1 || vrt == point)
             {
 
-                var tex = MeshEditorManager.target.meshRenderer.sharedMaterial.mainTexture;
+                var tex = MeshPainting.target.meshRenderer.sharedMaterial.mainTexture;
 
                 if (vrt == point)
                 {
@@ -301,8 +301,8 @@ namespace PainterTool.MeshEditing
             var b = PointedLine.vertexes[1];
 
             Painter.MeshManager.AssignSelected(
-                Vector3.Distance(Painter.MeshManager.collisionPosLocal, a.LocalPos) <
-                Vector3.Distance(Painter.MeshManager.collisionPosLocal, b.LocalPos)
+                Vector3.Distance(MeshPainting.collisionPosLocal, a.LocalPos) <
+                Vector3.Distance(MeshPainting.collisionPosLocal, b.LocalPos)
                     ? EditedMesh.GetUvPointAFromLine(a.meshPoint, b.meshPoint)
                     : EditedMesh.GetUvPointAFromLine(b.meshPoint, a.meshPoint));
 
@@ -325,7 +325,7 @@ namespace PainterTool.MeshEditing
 
             if (!PlaytimePainter_EditorInputManager.Control) 
             {
-                var trgPos = MeshEditorManager.targetTransform.position;
+                var trgPos = MeshPainting.targetTransform.position;
 
                 for (var i = 0; i < 3; i++) 
                 {
@@ -347,9 +347,9 @@ namespace PainterTool.MeshEditing
 
         private void AutoProjectUVs(MeshData eMesh) {
 
-            var trgPos = MeshEditorManager.targetTransform.position;
+            var trgPos = MeshPainting.targetTransform.position;
 
-            var gn = GridNavigator.GetOrCreate;
+            var gn = MeshPainting.Grid;
 
             if (Mathf.Approximately( projectorNormalThreshold01, 1)) {
                 foreach (var t in eMesh.triangles) {
@@ -388,12 +388,12 @@ namespace PainterTool.MeshEditing
             if (PointedTriangle != null && SelectedUv != null) {
 
                 var uv = SelectedUv.SharedEditedUv;
-                var posUv = PointedTriangle.LocalPosToEditedUv(Painter.MeshManager.collisionPosLocal);
+                var posUv = PointedTriangle.LocalPosToEditedUv(MeshPainting.collisionPosLocal);
                 var newUv = uv * 2 - posUv;
                 var isChanged = newUv != _lastCalculatedUv;
                 _lastCalculatedUv = newUv;
 
-                var trg = MeshEditorManager.target;
+                var trg = MeshPainting.target;
 
                 if (isChanged && !PlaytimePainter_EditorInputManager.GetMouseButtonUp(0))
                 {

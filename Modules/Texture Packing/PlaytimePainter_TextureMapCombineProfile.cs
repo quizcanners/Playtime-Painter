@@ -55,7 +55,6 @@ namespace PainterTool.TexturePacking
             {
                 size = set.width * set.height;
       
-
                 if ((!tex) || (tex.width != set.width) || (tex.height != set.height))
                 {
                     var reference = set.GetAnyTexture();
@@ -353,7 +352,8 @@ namespace PainterTool.TexturePacking
 
         public List<Color[]> GetMipPixels(PlaytimePainter_TextureSetForCombinedMaps set, TextureMeta id)
         {
-            if (mipLevels != null) return mipLevels;
+            if (mipLevels != null) 
+                return mipLevels;
             
             var width = id?.Width ?? set.width;
             var height = id?.Height ?? set.height;
@@ -378,11 +378,8 @@ namespace PainterTool.TexturePacking
                 for (var y = 0; y < h; y++)
                 for (var x = 0; x < w; x++)
                 {
-
                     var col = new Color(0, 0, 0, 0);
-
                     var start = y * dy * width + x * dx;
-
                     for (var sy = 0; sy < dy; sy++)
                     for (var sx = 0; sx < dx; sx++)
                         col += pixels[start + sy * width + sx];

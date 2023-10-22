@@ -569,7 +569,7 @@ namespace PainterTool.MeshEditing
                 var lst = new List<Triangle>();
 
                 foreach (var u in vertexes)
-                    foreach (var t in u.meshPoint.Triangles())
+                    foreach (var t in u.meshPoint.FindAllTriangles())
                         if (!t.wasProcessed && !lst.Contains(t) && t.IsNeighbourOf(this))
                             lst.Add(t);
 

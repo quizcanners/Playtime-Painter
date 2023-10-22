@@ -25,7 +25,6 @@ namespace PainterTool
         DisableContiniousLine = 1,
     }
 
-    [Serializable]
     public class TextureMeta : PainterClass, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention //, ICanBeDefaultCfg
     {
         #region Values

@@ -231,42 +231,49 @@ namespace PainterTool.ComponentModules {
 
         #region Inspector
 
-        private int _inspectedItems = -1;
+        //private int _inspectedItems = -1;
+
+        private readonly pegi.EnterExitContext context = new();
 
         public void Inspect() {
 
-            var a = MaterialAtlases.inspectedAtlas;
-
-            atlasedField.PegiLabel().ToggleIcon(ref enabled).Nl();
-
-            if (!enabled) 
-                return;
-            
-            pegi.Select_Index(ref originField, a.originalTextures).Nl();
-
-            pegi.Space();
-
-            "Atlas".PegiLabel().Enter_Inspect(AtlasCreator, ref _inspectedItems, 11).Nl();
-
-            if (_inspectedItems == -1) {
-                "Atlases".PegiLabel(70).Select_Index(ref atlasCreatorId,Painter.Data.atlases);
-                if (Icon.Add.Click("Create new Atlas").Nl()) {
-                    atlasCreatorId = Painter.Data.atlases.Count;
-                    var ac = new AtlasTextureCreator(atlasedField + " for " + a.name);
-                    Painter.Data.atlases.Add(ac);
-                    Painter.Data.SetToDirty();
-                }
-            }
-
-            if ((atlasedField != null) && (a.originalMaterial) && (AtlasCreator != null) && (originField < a.originalTextures.Count))
+            using (context.StartContext())
             {
-                var t = a.originalMaterial.Get(a.originalTextures[originField]);
-                if (t && t is Texture2D)
-                    Icon.Done.Draw();
-                else "Will use Color".PegiLabel().Edit(ref col).Nl();
+                var a = MaterialAtlases.inspectedAtlas;
+
+                atlasedField.PegiLabel().ToggleIcon(ref enabled).Nl();
+
+                if (!enabled)
+                    return;
+
+                pegi.Select_Index(ref originField, a.originalTextures).Nl();
+
+                pegi.Space();
+
+                "Atlas".PegiLabel().Enter_Inspect(AtlasCreator).Nl();
+
+                if (!context.IsAnyEntered)
+                {
+                    "Atlases".PegiLabel(70).Select_Index(ref atlasCreatorId, Painter.Data.atlases);
+                    if (Icon.Add.Click("Create new Atlas").Nl())
+                    {
+                        atlasCreatorId = Painter.Data.atlases.Count;
+                        var ac = new AtlasTextureCreator(atlasedField + " for " + a.name);
+                        Painter.Data.atlases.Add(ac);
+                        Painter.Data.SetToDirty();
+                    }
+                }
+
+                if ((atlasedField != null) && (a.originalMaterial) && (AtlasCreator != null) && (originField < a.originalTextures.Count))
+                {
+                    var t = a.originalMaterial.Get(a.originalTextures[originField]);
+                    if (t && t is Texture2D)
+                        Icon.Done.Draw();
+                    else "Will use Color".PegiLabel().Edit(ref col).Nl();
+                }
+                else
+                    "Color".PegiLabel("Color that will be used instead of a texture.", 35).Edit(ref col).Nl();
             }
-            else
-                "Color".PegiLabel("Color that will be used instead of a texture.", 35).Edit(ref col).Nl();
         }
 
         #endregion

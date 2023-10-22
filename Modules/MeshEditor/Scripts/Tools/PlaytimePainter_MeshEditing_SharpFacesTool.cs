@@ -82,7 +82,7 @@ namespace PainterTool.MeshEditing
         {
             if (PlaytimePainter_EditorInputManager.GetMouseButton(0))
             {
-                foreach (var t in MeshEditorManager.PointedLine.GetAllTriangles())
+                foreach (var t in MeshEditorManager.PointedLine.TryGetBothTriangles())
                     EditedMesh.Dirty |= t.SetSharpCorners(_setTo);
 
             }
@@ -134,7 +134,7 @@ namespace PainterTool.MeshEditing
             {
                 if (!PlaytimePainter_EditorInputManager.Alt)
                 {
-                    var no = PointedTriangle.NumberOf(PointedTriangle.GetClosestTo(Painter.MeshManager.collisionPosLocal));
+                    var no = PointedTriangle.NumberOf(PointedTriangle.GetClosestTo(MeshPainting.collisionPosLocal));
                     PointedTriangle.isPointDominant[no] = !PointedTriangle.isPointDominant[no];
                     (PointedTriangle.isPointDominant[no] ? "Triangle edge's Normal is now dominant" : "Triangle edge Normal is NO longer dominant").TeachingNotification();
                 }

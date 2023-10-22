@@ -271,8 +271,8 @@ namespace PainterTool.MeshEditing
             if (PlaytimePainter_EditorInputManager.GetMouseButtonDown(0))
             {
                 m.Dragging = true;
-                _originalPosition = GridNavigator.LatestMouseRaycastHit;
-                GridNavigator.LatestMouseToGridProjection = GridNavigator.LatestMouseRaycastHit;
+                _originalPosition = MeshPainting.LatestMouseRaycastHit;
+                MeshPainting.LatestMouseToGridProjection = MeshPainting.LatestMouseRaycastHit;
                 DraggedVertices.Clear();
                 foreach (var uv in PointedLine.vertexes)
                     DraggedVertices.Add(uv.meshPoint);
@@ -281,7 +281,7 @@ namespace PainterTool.MeshEditing
             if (PlaytimePainter_EditorInputManager.GetMouseButtonUp(0))
             {
                 if (_addToTrianglesAndLines && m.DragDelay > 0 && DraggedVertices.Contains(PointedLine))
-                    EditedMesh.InsertIntoLine(MeshEditorManager.PointedLine.vertexes[0].meshPoint, MeshEditorManager.PointedLine.vertexes[1].meshPoint, Painter.MeshManager.collisionPosLocal);
+                    EditedMesh.InsertIntoLine(MeshEditorManager.PointedLine.vertexes[0].meshPoint, MeshEditorManager.PointedLine.vertexes[1].meshPoint, MeshPainting.collisionPosLocal);
             }
 
             return false;
@@ -295,8 +295,8 @@ namespace PainterTool.MeshEditing
             {
 
                 m.Dragging = true;
-                _originalPosition = GridNavigator.LatestMouseRaycastHit;
-                GridNavigator.LatestMouseToGridProjection = GridNavigator.LatestMouseRaycastHit;
+                _originalPosition = MeshPainting.LatestMouseRaycastHit;
+                MeshPainting.LatestMouseToGridProjection = MeshPainting.LatestMouseRaycastHit;
                 DraggedVertices.Clear();
                 foreach (var uv in PointedTriangle.vertexes)
                     DraggedVertices.Add(uv.meshPoint);
@@ -307,9 +307,9 @@ namespace PainterTool.MeshEditing
                 !DraggedVertices.Contains(PointedTriangle)) return false;
 
             if (Painter.Data.newVerticesUnique)
-                EditedMesh.InsertIntoTriangleUniqueVertices(MeshEditorManager.PointedTriangle, m.collisionPosLocal);
+                EditedMesh.InsertIntoTriangleUniqueVertices(MeshEditorManager.PointedTriangle, MeshPainting.collisionPosLocal);
             else
-                EditedMesh.InsertIntoTriangle(MeshEditorManager.PointedTriangle, m.collisionPosLocal);
+                EditedMesh.InsertIntoTriangle(MeshEditorManager.PointedTriangle, MeshPainting.collisionPosLocal);
 
             return false;
         }
@@ -317,7 +317,7 @@ namespace PainterTool.MeshEditing
         public override void MouseEventPointedNothing()
         {
             if (_addToTrianglesAndLines && PlaytimePainter_EditorInputManager.GetMouseButtonDown(0))
-                Painter.MeshManager.CreatePointAndFocus(Painter.MeshManager.onGridLocal);
+                Painter.MeshManager.CreatePointAndFocus(MeshPainting.onGridLocal);
         }
 
         private void OnClickDetected()
@@ -350,9 +350,9 @@ namespace PainterTool.MeshEditing
                 if (beforeCouldDrag != canDrag && PlaytimePainter_EditorInputManager.Alt && MeshEditorManager.SelectedUv.meshPoint.vertices.Count > 1)
                     m.DisconnectDragged();
 
-                if (!canDrag || !(GridNavigator.GetOrCreate.AngGridToCamera(GridNavigator.LatestMouseToGridProjection) < 82)) return;
+                if (!canDrag || !(MeshPainting.Grid.AngGridToCamera(MeshPainting.LatestMouseToGridProjection) < 82)) return;
 
-                var delta = GridNavigator.LatestMouseToGridProjection - _originalPosition;
+                var delta = MeshPainting.LatestMouseToGridProjection - _originalPosition;
 
                 if (delta.magnitude == 0)
                     return;
@@ -362,7 +362,7 @@ namespace PainterTool.MeshEditing
                 foreach (var v in DraggedVertices)
                     v.WorldPos += delta;
 
-                _originalPosition = GridNavigator.LatestMouseToGridProjection;
+                _originalPosition = MeshPainting.LatestMouseToGridProjection;
             }
         }
         #endregion

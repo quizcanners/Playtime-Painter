@@ -65,8 +65,10 @@ namespace PainterTool.MeshEditing
             if ("Clear".PegiLabel().ClickConfirm("Edge Clear").Nl())
                 FillAll(0);
 
-            if ("Add Edges to Seams".PegiLabel().Click().Nl())
-                AddEdgesToHideSeams();
+            pegi.Click(AddEdgesToEdgeFall);
+            pegi.Click(AddEdgesToHideSeams);
+
+            pegi.Nl();
         }
 
         #endregion
@@ -79,7 +81,7 @@ namespace PainterTool.MeshEditing
                     p.edgeStrength = Vector4.zero;
 
                 p.edgeStrength.x = edgeStrength;
-                foreach (var triangle in p.Triangles())
+                foreach (var triangle in p.FindAllTriangles())
                 {
                     for (int i = 0; i < 3; i++)
                         triangle.edgeWeight[i] = edgeStrength;
@@ -154,9 +156,28 @@ namespace PainterTool.MeshEditing
            // return false;
         }
 
+        public void AddEdgesToEdgeFall()
+        {
+            
+            _edgeValue = 1;
+
+            EditedMesh.RunDebug();
+
+            foreach (var tri in EditedMesh.triangles)
+            {
+                foreach (LineData line in tri.Lines())
+                {
+                    if (line.TryGetBothTriangles().Count<2) //trianglesCount_Cahced == 1)
+                        PutEdgeOnLine(line);
+                }
+            }
+
+            EditedMesh.Dirty = true;
+        }
+
         public void AddEdgesToHideSeams()
         {
-            FillAll(0);
+            //FillAll(0);
 
             _edgeValue = 1;
 
@@ -178,7 +199,7 @@ namespace PainterTool.MeshEditing
         {
          
 
-            var tris = ld.GetAllTriangles();
+            var tris = ld.TryGetBothTriangles();
 
             foreach (var t in tris)
                 t.SetEdgeWeight(ld, EdgeValue);

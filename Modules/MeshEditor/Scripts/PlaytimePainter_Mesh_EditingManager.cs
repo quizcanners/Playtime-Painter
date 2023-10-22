@@ -53,8 +53,7 @@ namespace PainterTool.MeshEditing
 
         #endregion
         
-        public static PainterComponent target;
-        public static Transform targetTransform;
+       
        
 
         private static readonly List<string> UndoMoves = new();
@@ -67,8 +66,7 @@ namespace PainterTool.MeshEditing
         private int _currentUv;
         private bool _selectingUVbyNumber;
         public int verticesShowMax = 8;
-        public Vector3 onGridLocal;
-        public Vector3 collisionPosLocal;
+
 
         #region Encode & Decode
 
@@ -85,24 +83,18 @@ namespace PainterTool.MeshEditing
 
         #endregion
         
-        public void UpdateLocalSpaceMousePosition()
-        {
-            if (!target) return;
-            
-            onGridLocal = targetTransform.InverseTransformPoint(GridNavigator.LatestMouseToGridProjection);
-            collisionPosLocal = targetTransform.InverseTransformPoint(GridNavigator.LatestMouseRaycastHit);
-        }
+
 
         public void EditMesh(PainterComponent painter, bool editCopy)
         {
-            if (!painter || painter == target)
+            if (!painter || painter == MeshPainting.target)
                 return;
 
-            if (target)
+            if (MeshPainting.target)
                 StopEditingMesh();
 
-            target = painter;
-            targetTransform = painter.transform;
+            MeshPainting.target = painter;
+            MeshPainting.targetTransform = painter.transform;
             editedMesh = new MeshData(painter);
 
             if (editCopy)
@@ -124,14 +116,14 @@ namespace PainterTool.MeshEditing
         public void StopEditingMesh()
         {
 
-            if (target) {
+            if (MeshPainting.target) {
                 MeshTool.OnDeSelectTool();
-                target.SavedEditableMesh = new CfgData(editedMesh.Encode().ToString());
-                target = null;
-                targetTransform = null;
+                MeshPainting.target.SavedEditableMesh = new CfgData(editedMesh.Encode().ToString());
+                MeshPainting.target = null;
+                MeshPainting.targetTransform = null;
             }
             Grid.DeactivateVertices();
-            GridNavigator.GetOrCreate.SetEnabled(false, false);
+            MeshPainting.Grid.SetEnabled(false, false);
             UndoMoves.Clear();
             RedoMoves.Clear();
         }
@@ -140,11 +132,11 @@ namespace PainterTool.MeshEditing
 
             previewEdMesh = null;
 
-            if (target) {
+            if (MeshPainting.target) {
 
                 editedMesh.Dirty = false;
 
-                var mc = new MeshConstructor(editedMesh, target.MeshProfile, target.SharedMesh);
+                var mc = new MeshConstructor(editedMesh, MeshPainting.target.MeshProfile, MeshPainting.target.SharedMesh);
 
                 if (!editedMesh.dirtyVertexIndexes && EditedMesh.Dirty) {
 
@@ -159,8 +151,8 @@ namespace PainterTool.MeshEditing
 
                 }  else {
                     var m = mc.Construct();
-                    target.SharedMesh = m;
-                    target.UpdateMeshCollider(m); 
+                    MeshPainting.target.SharedMesh = m;
+                    MeshPainting.target.UpdateMeshCollider(m); 
                 }
             }
         }
@@ -214,11 +206,11 @@ namespace PainterTool.MeshEditing
 
         public void MoveVertexToGrid(PainterMesh.MeshPoint vp)
         {
-            UpdateLocalSpaceMousePosition();
+            MeshPainting.UpdateLocalSpaceMousePosition();
 
-            var diff = onGridLocal - vp.localPos;
+            var diff = MeshPainting.onGridLocal - vp.localPos;
 
-            diff.Scale(GridNavigator.GetOrCreate.GetGridPerpendicularVector());
+            diff.Scale(MeshPainting.Grid.GetGridPerpendicularVector());
             vp.localPos += diff;
         }
 
@@ -233,7 +225,7 @@ namespace PainterTool.MeshEditing
             else
                 if (!PlaytimePainter_EditorInputManager.Control)
             {
-                GridNavigator.LatestMouseToGridProjection = SelectedUv.meshPoint.WorldPos;
+                MeshPainting.LatestMouseToGridProjection = SelectedUv.meshPoint.WorldPos;
                 Grid.UpdatePositions();
             }
         }
@@ -280,9 +272,9 @@ namespace PainterTool.MeshEditing
             if (Painter.Data.pixelPerfectMeshEditing)
                 hold.PixPerfect();
 
-            GridNavigator.LatestMouseRaycastHit = pos;
+            MeshPainting.LatestMouseRaycastHit = pos;
 
-            UpdateLocalSpaceMousePosition();
+            MeshPainting.UpdateLocalSpaceMousePosition();
 
             return hold;
         }
@@ -302,7 +294,7 @@ namespace PainterTool.MeshEditing
             t.wasProcessed = true;
             const float precision = 0.05f;
 
-            var acc = (targetTransform.InverseTransformPoint(CurrentViewTransform().position) - collisionPosLocal).magnitude;
+            var acc = (MeshPainting.targetTransform.InverseTransformPoint(CurrentViewTransform().position) - MeshPainting.collisionPosLocal).magnitude;
 
             acc *= precision;
 
@@ -337,7 +329,7 @@ namespace PainterTool.MeshEditing
 
             editedMesh.TagTrianglesUnprocessed();
 
-            UpdateLocalSpaceMousePosition();
+            MeshPainting.UpdateLocalSpaceMousePosition();
 
             foreach (var t1 in editedMesh.meshPoints)
             foreach (var uv in t1.vertices)
@@ -351,7 +343,7 @@ namespace PainterTool.MeshEditing
                     if (PlaytimePainter_EditorInputManager.GetMouseButtonDown(0))
                     {
                         SelectedTriangle = t;
-                        AssignSelected(t.GetClosestTo(collisionPosLocal));
+                        AssignSelected(t.GetClosestTo(MeshPainting.collisionPosLocal));
                     }
 
                     PointedTriangle = t;
@@ -372,7 +364,7 @@ namespace PainterTool.MeshEditing
             var alt = PlaytimePainter_EditorInputManager.Alt;
 
             if (alt)
-                GridNavigator.LatestMouseRaycastHit = GridNavigator.LatestMouseToGridProjection;
+                MeshPainting.LatestMouseRaycastHit = MeshPainting.LatestMouseToGridProjection;
             
             RaycastHit hit;
             var vertexIsPointed = false;
@@ -387,22 +379,22 @@ namespace PainterTool.MeshEditing
 
                     if (vertexIsPointed)
                     {
-                        GridNavigator.LatestMouseRaycastHit = hit.transform.position;
-                        UpdateLocalSpaceMousePosition();
-                        editedMesh.SortAround(collisionPosLocal, true);
+                        MeshPainting.LatestMouseRaycastHit = hit.transform.position;
+                        MeshPainting.UpdateLocalSpaceMousePosition();
+                        editedMesh.SortAround(MeshPainting.collisionPosLocal, true);
 
                     }
                     else
                     {
-                        GridNavigator.LatestMouseRaycastHit = hit.point;
-                        UpdateLocalSpaceMousePosition();
-                        editedMesh.SortAround(collisionPosLocal, true);
+                        MeshPainting.LatestMouseRaycastHit = hit.point;
+                        MeshPainting.UpdateLocalSpaceMousePosition();
+                        editedMesh.SortAround(MeshPainting.collisionPosLocal, true);
                         GetPointedTriangleOrLine();
                     }
                 }
             }
             
-            UpdateLocalSpaceMousePosition();
+            MeshPainting.UpdateLocalSpaceMousePosition();
             return vertexIsPointed;
         }
 
@@ -412,7 +404,7 @@ namespace PainterTool.MeshEditing
             if (PlaytimePainter_EditorInputManager.GetMouseButtonDown(1))
             {
                 SelectedLine = new PainterMesh.LineData(t, a, b);
-                UpdateLocalSpaceMousePosition();
+                MeshPainting.UpdateLocalSpaceMousePosition();
             }
 
             PointedLine = new PainterMesh.LineData(t, new[] { a, b });
@@ -506,9 +498,9 @@ namespace PainterTool.MeshEditing
             if (!Grid.vertices[0].go)
                 InitGridIfNull();
 
-            UpdateLocalSpaceMousePosition();
+            MeshPainting.UpdateLocalSpaceMousePosition();
 
-            editedMesh.SortAround(collisionPosLocal, false);
+            editedMesh.SortAround(MeshPainting.collisionPosLocal, false);
 
             const float scaling = 16;
 
@@ -572,10 +564,10 @@ namespace PainterTool.MeshEditing
 
         public void CombinedUpdate()
         {
-            if (!target)
+            if (!MeshPainting.target)
                 return;
 
-            if (!target.enabled)  
+            if (!MeshPainting.target.enabled)  
             {
                 StopEditingMesh();
                 return;
@@ -621,7 +613,7 @@ namespace PainterTool.MeshEditing
         public void UpdateInputEditorTime(Event e)
         {
 
-            if (!target || _justLoaded > 0)
+            if (!MeshPainting.target || _justLoaded > 0)
                 return;
 
             if (e.type == EventType.KeyDown) {
@@ -695,10 +687,10 @@ namespace PainterTool.MeshEditing
 
         private static void MergeSelected() {
 
-            var mats = target.Materials.ToList();
+            var mats = MeshPainting.target.Materials.ToList();
 
             foreach (var p in SelectedForMergePainters)
-                if (target != p) {
+                if (MeshPainting.target != p) {
 
                     var nms = p.Materials;
 
@@ -730,12 +722,12 @@ namespace PainterTool.MeshEditing
 
             SelectedForMergePainters.Clear();
 
-            target.Materials = mats.ToArray();
+            MeshPainting.target.Materials = mats.ToArray();
         }
 
         private static void MergeSubMeshes()
         {
-            var mats = target.Materials;
+            var mats = MeshPainting.target.Materials;
 
             for (var i = 0; i < mats.Length; i++) {
 
@@ -758,7 +750,7 @@ namespace PainterTool.MeshEditing
 
             QcSharp.Resize(ref mats, 1);
 
-            target.Materials = mats;
+            MeshPainting.target.Materials = mats;
         }
 
         #endregion
@@ -773,13 +765,13 @@ namespace PainterTool.MeshEditing
                 MeshData.inspected = editedMesh;
 
 
-                target.Inspect_ConvexMeshCheckWarning();
+                MeshPainting.target.Inspect_ConvexMeshCheckWarning();
 
                 pegi.Nl();
 
-                target.Inspect_PreviewShaderToggle();
+                MeshPainting.target.Inspect_PreviewShaderToggle();
 
-                if (!target.NotUsingPreview && "preview".PegiLabel(45).Select(ref MeshShaderMode.selected, MeshShaderMode.AllModes).Nl())
+                if (!MeshPainting.target.NotUsingPreview && "preview".PegiLabel(45).Select(ref MeshShaderMode.selected, MeshShaderMode.AllModes).Nl())
                     MeshShaderMode.ApplySelected();
 
                 var previousTool = MeshTool;
@@ -797,7 +789,7 @@ namespace PainterTool.MeshEditing
                         toolTip: "About {0} tool".F(MeshTool.ToString()));
 
 
-                if (target.skinnedMeshRenderer)
+                if (MeshPainting.target.skinnedMeshRenderer)
                     pegi.FullWindow.WarningDocumentationClickOpen
                     ("When using Skinned Mesh Renderer, the mesh will be transformed by it, so mesh points will not be in the correct position, and it is impossible to do any modifications on mesh with the mouse. It is still possible to do automatic processes like " +
                      "changing mesh profile and everything that doesn't require direct input from mouse over the object. It is recommended to edit the object separately from the skinned mesh."
@@ -828,11 +820,11 @@ namespace PainterTool.MeshEditing
         }
         
         private Vector3 _offset;
-        public bool MeshOptionsInspect()
+        public bool MeshOptionsInspect(pegi.EnterExitContext parentContext)
         {
             var changed = pegi.ChangeTrackStart();
 
-            if (editedMesh != null && "Mesh ".PegiLabel().IsEntered(ref PainterComponent.s_inspectedMeshEditorItems, 2).Nl())
+            if ("Mesh ".PegiLabel().IsConditionally_Entered(canEnter: editedMesh != null).Nl())
             {
                 using (contenxt.StartContext())
                 {
@@ -842,7 +834,7 @@ namespace PainterTool.MeshEditing
 #if UNITY_EDITOR
                         "Mesh Name:".PegiLabel(70).Edit(ref editedMesh.meshName);
 
-                        Mesh mesh = target.GetMesh();
+                        Mesh mesh = MeshPainting.target.GetMesh();
 
                         if (editedMesh.meshName.Equals(mesh.name) == false && Icon.Refresh.Click("Reset Mesh Name"))
                             editedMesh.meshName = mesh.name;
@@ -853,7 +845,7 @@ namespace PainterTool.MeshEditing
 
                         if ((exists ? Icon.Save : Icon.SaveAsNew)
                             .Click(exists ? "Override original" : "Save Mesh As {0}".F(GenerateMeshSavePath())).Nl())
-                            target.SaveMesh();
+                            MeshPainting.target.SaveMesh();
 #endif
 
                         "Save Undo".PegiLabel().ToggleIcon(ref Painter.Data.saveMeshUndos);
@@ -892,10 +884,10 @@ namespace PainterTool.MeshEditing
                     if ("Combining meshes".PegiLabel().IsEntered().Nl())
                     {
 
-                        if (!SelectedForMergePainters.Contains(target))
+                        if (!SelectedForMergePainters.Contains(MeshPainting.target))
                         {
                             if ("Add To Group".PegiLabel("Add Mesh to the list of meshes to be merged").Click().Nl())
-                                SelectedForMergePainters.Add(target);
+                                SelectedForMergePainters.Add(MeshPainting.target);
 
                             if (!SelectedForMergePainters.IsNullOrEmpty())
                             {
@@ -929,7 +921,7 @@ namespace PainterTool.MeshEditing
                                 MergeSelected();
 
                             if ("Remove from Merge Group".PegiLabel().Click().Nl())
-                                SelectedForMergePainters.Remove(target);
+                                SelectedForMergePainters.Remove(MeshPainting.target);
 
                         }
 
@@ -950,13 +942,13 @@ namespace PainterTool.MeshEditing
 
                     }
 
-                    var mats = target.Materials;
+                    var mats = MeshPainting.target.Materials;
                     if ("Combining Sub Meshes".PegiLabel().IsConditionally_Entered(mats.Length > 1).Nl())
                     {
 
                         "Select which materials should transfer color into vertex color".PegiLabel().Write_Hint();
 
-                        var subMeshCount = target.GetMesh().subMeshCount;
+                        var subMeshCount = MeshPainting.target.GetMesh().subMeshCount;
 
                         for (var i = 0; i < Mathf.Max(subMeshCount, mats.Length); i++)
                         {
@@ -1076,11 +1068,11 @@ namespace PainterTool.MeshEditing
         public void DrowLinesAroundTargetPiece()
         {
 
-            var piecePos = targetTransform.TransformPoint(-Vector3.one / 2);//PositionScripts.PosUpdate(_target.getpos(), false);
+            var piecePos = MeshPainting.targetTransform.TransformPoint(-Vector3.one / 2);//PositionScripts.PosUpdate(_target.getpos(), false);
 
 
-            var projected = GridNavigator.GetOrCreate.ProjectToGrid(piecePos); // piecePos * getGridMaskVector() + ptdPos.ToV3(false)*getGridPerpendicularVector();
-            var gridMask = GridNavigator.GetOrCreate.GetGridMaskVector() * 128 + projected;
+            var projected = MeshPainting.ProjectToGrid(piecePos); // piecePos * getGridMaskVector() + ptdPos.ToV3(false)*getGridPerpendicularVector();
+            var gridMask = MeshPainting.Grid.GetGridMaskVector() * 128 + projected;
             
             Debug.DrawLine(new Vector3(projected.x, projected.y, projected.z), new Vector3(gridMask.x, projected.y, projected.z), Color.red);
             Debug.DrawLine(new Vector3(projected.x, projected.y, projected.z), new Vector3(projected.x, gridMask.y, projected.z), Color.red);
@@ -1090,7 +1082,7 @@ namespace PainterTool.MeshEditing
             Debug.DrawLine(new Vector3(gridMask.x, projected.y, gridMask.z), new Vector3(gridMask.x, gridMask.y, gridMask.z), Color.red);
             Debug.DrawLine(new Vector3(gridMask.x, gridMask.y, projected.z), new Vector3(gridMask.x, gridMask.y, gridMask.z), Color.red);
 
-            DrawTransformedCubeDebug(targetTransform, Color.blue);
+            DrawTransformedCubeDebug(MeshPainting.targetTransform, Color.blue);
 
 
         }
@@ -1100,7 +1092,7 @@ namespace PainterTool.MeshEditing
 
             GizmoLines = isGizmoCall;
 
-            if (!target) return;
+            if (!MeshPainting.target) return;
 
             if (MeshTool.ShowTriangles)
             {

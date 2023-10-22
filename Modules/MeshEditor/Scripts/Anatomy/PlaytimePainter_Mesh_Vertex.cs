@@ -9,7 +9,7 @@ namespace PainterTool.MeshEditing
     {
         public class Vertex : PainterClassCfg
         {
-           // protected PainterComponent Painter => MeshEditorManager.target;
+           // protected PainterComponent Painter => MeshPainting.target;
 
             public BoneWeight boneWeight;
             public Color color;

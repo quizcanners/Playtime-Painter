@@ -78,8 +78,10 @@ namespace PainterTool
             return CreateRenderTexture(width, mode);
         }
 
-        public void ReturnOne(RenderTexture rt) => collectionBySize.GetOrCreate(rt.width)._rtList.Add(rt);
-        
+        public void ReturnOne(RenderTexture rt)
+        {
+            collectionBySize.GetOrCreate(rt.width)._rtList.Add(rt);
+        }
         private void CheckSize(ref int size) 
         {
             if (size > 2 && Mathf.IsPowerOfTwo(size)) 
@@ -123,7 +125,8 @@ namespace PainterTool
 
             public void Return(RenderTexture texture)
             {
-                if (_rtList.Count > 8)
+                texture.Release();
+                if (_rtList.Count > 4)
                 {
                     texture.DestroyWhatever();
                 }

@@ -28,7 +28,7 @@ namespace PainterTool
         [NonSerialized] public readonly Dictionary<int, ShaderProperty.TextureValue> loadingOrder = new();
 
 
-        public static int s_inspectedMeshEditorItems = -1;
+        public static pegi.EnterExitContext constet = new(); //int s_inspectedMeshEditorItems = -1;
         internal static bool s_showTextureOptions;
 
         private void Inspect_LockUnlock() 
@@ -59,13 +59,13 @@ namespace PainterTool
 
             if (sharedMesh)
             {
-                if (this != MeshEditorManager.target)
+                if (this != MeshPainting.target)
                     if (SavedEditableMesh.IsEmpty == false)
                         "Component has saved mesh data.".PegiLabel().Nl();
 
                 "Warning, this will change (or mess up) your model.".PegiLabel().WriteOneTimeHint("MessUpMesh");
 
-                if (MeshEditorManager.target != this)
+                if (MeshPainting.target != this)
                 {
 
                     var ent = gameObject.GetComponent("pb_Entity");
@@ -140,82 +140,85 @@ namespace PainterTool
 
             if (IsEditingThisMesh)
             {
-
-                if (s_inspectedMeshEditorItems == -1)
+                using (constet.StartContext())
                 {
-                    Painter.MeshManager.Inspect();
-                    pegi.Nl();
-                }
-
-                pegi.Space();
-
-                pegi.Line();
-
-                if ("Profile".PegiLabel().IsEntered(ref s_inspectedMeshEditorItems, 0))
-                {
-
-                    MsgPainter.MeshProfileUsage.DocumentationClick();
-
-
-                    if ((cfg.meshPackagingSolutions.Count > 1) && Icon.Delete.Click(25))
+                    if (!constet.IsAnyEntered)
                     {
-                        for (int i = 0; i < cfg.meshPackagingSolutions.Count; i++)
+                        Painter.MeshManager.Inspect();
+                        pegi.Nl();
+                    }
+
+                    pegi.Space();
+
+                    pegi.Line();
+
+                    if ("Profile".PegiLabel().IsEntered())
+                    {
+
+                        MsgPainter.MeshProfileUsage.DocumentationClick();
+
+
+                        if ((cfg.meshPackagingSolutions.Count > 1) && Icon.Delete.Click(25))
                         {
-                            var pr = cfg.meshPackagingSolutions[i];
-                            if (pr.name.Equals(selectedMeshProfile))
+                            for (int i = 0; i < cfg.meshPackagingSolutions.Count; i++)
                             {
-                                cfg.meshPackagingSolutions.RemoveAt(i);
-                                break;
+                                var pr = cfg.meshPackagingSolutions[i];
+                                if (pr.name.Equals(selectedMeshProfile))
+                                {
+                                    cfg.meshPackagingSolutions.RemoveAt(i);
+                                    break;
+                                }
                             }
                         }
-                    }
-                    else
-                    {
-
-                        pegi.Nl();
-                        var mpf = MeshProfile;
-                        if (mpf == null)
-                            "There are no Mesh packaging profiles in the PainterDataObject".PegiLabel()
-                                .WriteWarning();
                         else
                         {
-                            if (!mpf.name.Equals(selectedMeshProfile))
-                                "Mesh profile not found, using default one".PegiLabel().WriteWarning();
 
                             pegi.Nl();
-
-
-                            if (mpf.Nested_Inspect().Nl())
+                            var mpf = MeshProfile;
+                            if (mpf == null)
+                                "There are no Mesh packaging profiles in the PainterDataObject".PegiLabel()
+                                    .WriteWarning();
+                            else
                             {
-                                selectedMeshProfile = mpf.name;
-                                MeshEditorManager.editedMesh.Dirty = true;
+                                if (!mpf.name.Equals(selectedMeshProfile))
+                                    "Mesh profile not found, using default one".PegiLabel().WriteWarning();
+
+                                pegi.Nl();
+
+
+                                if (mpf.Nested_Inspect().Nl())
+                                {
+                                    selectedMeshProfile = mpf.name;
+                                    MeshEditorManager.editedMesh.Dirty = true;
+                                }
                             }
+
+                        }
+                    }
+                    
+                    if (!constet.IsAnyEntered)
+                    {
+                        if (pegi.Select_iGotName(ref selectedMeshProfile,
+                                cfg.meshPackagingSolutions) &&
+                            IsEditingThisMesh)
+                            MeshEditorManager.editedMesh.Dirty = true;
+
+                        if (Icon.Add.Click(25))
+                        {
+                            var sol = new MeshPackagingProfile();
+                            cfg.meshPackagingSolutions.Add(sol);
+                            selectedMeshProfile = sol.name;
+                            //MeshProfile.name = "New Profile {0}".F(selectedMeshProfile);
                         }
 
-                    }
-                }
-                else if (s_inspectedMeshEditorItems == -1)
-                {
-                    if (pegi.Select_iGotName(ref selectedMeshProfile,
-                            cfg.meshPackagingSolutions) &&
-                        IsEditingThisMesh)
-                        MeshEditorManager.editedMesh.Dirty = true;
+                        if (Icon.Refresh.Click("Refresh Mesh Packaging Solutions"))
+                            Painter.Data.ResetMeshPackagingProfiles();
 
-                    if (Icon.Add.Click(25))
-                    {
-                        var sol = new MeshPackagingProfile();
-                        cfg.meshPackagingSolutions.Add(sol);
-                        selectedMeshProfile = sol.name;
-                        //MeshProfile.name = "New Profile {0}".F(selectedMeshProfile);
+                        pegi.Nl();
                     }
 
-                    if (Icon.Refresh.Click("Refresh Mesh Packaging Solutions"))
-                        Painter.Data.ResetMeshPackagingProfiles();
-
-                    pegi.Nl();
+                    Painter.MeshManager.MeshOptionsInspect(context);
                 }
-
-                Painter.MeshManager.MeshOptionsInspect();
             }
             
 
@@ -908,7 +911,9 @@ namespace PainterTool
 #endif
 
             if (!Painter.Camera && "Find camera".PegiLabel().Click())
-                PainterClass.applicationIsQuitting = false;
+            {
+                Painter.TryInstanciateCamera(out var cam);
+            }
 
             if (!Painter.Camera)
                 return false;
@@ -1005,7 +1010,7 @@ namespace PainterTool
 
             InitIfNotInitialized();
 
-            if (MeshEditorManager.target && (MeshEditorManager.target != this))
+            if (MeshPainting.target && (MeshPainting.target != this))
                 Painter.MeshManager.StopEditingMesh();
 
             return true;
@@ -1183,8 +1188,6 @@ namespace PainterTool
             if (!dc.IsNullOrEmpty())
                 foreach (var d in dc)
                     d.gameObject.DestroyWhatever();
-
-            PainterClass.applicationIsQuitting = false;
         }
 
 #if UNITY_EDITOR

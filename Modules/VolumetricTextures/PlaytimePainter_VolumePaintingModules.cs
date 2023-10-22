@@ -116,7 +116,7 @@ namespace PainterTool {
 
                 var pos = (stroke.posFrom - volume.transform.position) / volumeScale + 0.5f * Vector3.one;
 
-                var height = volume.Height;
+                var height = volume.TextureHeight;
                 var texWidth = image.Width;
 
                 BlitFunctions.brAlpha = brushAlpha;
@@ -221,7 +221,7 @@ namespace PainterTool {
                 BrushTypes.Sphere.Inst.BeforeStroke(cfg); //bc, stroke, painter);
 
                 VOLUME_POSITION_N_SIZE_BRUSH.GlobalValue = vt.UpdateShaderVariables();//PosSize4Shader;
-                VOLUME_H_SLICES_BRUSH.GlobalValue = vt.Slices4Shader;
+                VOLUME_H_SLICES_BRUSH.GlobalValue = vt.GetSlices4Shader();
                 VOLUME_BRUSH_DIRECTION.GlobalValue = stroke.collisionNormal.ToVector4(smoothing);
 
                 UseSmoothing.Enabled = smoothing > 0;
@@ -306,7 +306,7 @@ namespace PainterTool {
 
             #region Inspector
 
-            private float BrushScaleMaxForCpu(C_VolumeTexture volTex) => volTex.size * volTex.Width * 0.025f;
+            private float BrushScaleMaxForCpu(C_VolumeTexture volTex) => volTex.size * volTex.TextureWidth * 0.025f;
 
             public override string ToString() => "Volume Painting";
 
@@ -334,146 +334,151 @@ namespace PainterTool {
 
             private bool _exploreVolumeData;
 
-            private bool _exploreRayTaceCamera;
+            //private bool _exploreRayTaceCamera;
+
+            private readonly pegi.EnterExitContext contex = new();
 
             public void BrushConfigPEGI(Brush br)
             {
 
-                var changed = pegi.ChangeTrackStart();
-
-                var p = InspectedPainter;
-
-                var volTex = p.TexMeta.GetVolumeTextureData();
-
-                if (volTex)
+                using (contex.StartContext())
                 {
+                    var changed = pegi.ChangeTrackStart();
 
-                    var tex = volTex.Texture;
+                    var p = InspectedPainter;
 
-                    if (tex)
+                    var volTex = p.TexMeta.GetVolumeTextureData();
+
+                    if (volTex)
                     {
 
-                        "Volume is a {0} texture".F(tex.IsColorTexture() ? "Color" : "Non-Color Data").PegiLabel().Write();
+                        var tex = volTex.Texture;
+
+                        if (tex)
+                        {
+
+                            "Volume is a {0} texture".F(tex.IsColorTexture() ? "Color" : "Non-Color Data").PegiLabel().Write();
 
 #if UNITY_EDITOR
-                        if (tex.IsColorTexture())
-                        {
-                            pegi.Nl();
-                            var imp = tex.GetTextureImporter_Editor();
+                            if (tex.IsColorTexture())
+                            {
+                                pegi.Nl();
+                                var imp = tex.GetTextureImporter_Editor();
 
-                            if ((imp != null) && "FIX texture".PegiLabel().Click() && (imp.WasWrongIsColor_Editor(false)))
-                                imp.SaveAndReimport();
-                        }
+                                if ((imp != null) && "FIX texture".PegiLabel().Click() && (imp.WasWrongIsColor_Editor(false)))
+                                    imp.SaveAndReimport();
+                            }
 #endif
 
 
+                            pegi.Nl();
+                        }
+                        else
+                            "Volume has no texture".PegiLabel().WriteWarning();
+
+                        var id = p.TexMeta;
+
+                        var cpuBlit = id.TargetIsTexture2D();
                         pegi.Nl();
-                    }
-                    else
-                        "Volume has no texture".PegiLabel().WriteWarning();
 
-                    var id = p.TexMeta;
+                        br.showingSize = !_enableRayTracing || cpuBlit;
 
-                    var cpuBlit = id.TargetIsTexture2D();
-                    pegi.Nl();
-
-                    br.showingSize = !_enableRayTracing || cpuBlit;
-
-                    if (!cpuBlit)
-                    {
-
-                        if (Brush.showAdvanced || _enableRayTracing)
+                        if (!cpuBlit)
                         {
-                            "Ray-Tracing".PegiLabel().ToggleIcon(ref _enableRayTracing, true);
 
-                            if (br.useAlphaBuffer)
-                                Icon.Warning.Draw(
-                                    "Ray Tracing doesn't use Alpha buffer. Alpha buffer will be automatically disabled");
-
-                        }
-
-                        if ("Ray Trace Camera".PegiLabel().IsConditionally_Entered(
-                            _enableRayTracing && Singleton.Get<Singleton_DepthProjectorCamera>(),
-                            ref _exploreRayTaceCamera).Nl_ifEntered())
-                        {
-                            "Min".PegiLabel(40).Edit(ref minFov, 60, maxFov - 1).Nl();
-
-                            "Max".PegiLabel(40).Edit(ref maxFov, minFov + 1, 170).Nl();
-
-                            rayTraceCameraConfiguration.Nested_Inspect().Nl();
-                        }
-
-                        if (smoothing > 0 || Brush.showAdvanced)
-                        {
-                            pegi.Nl();
-                            "Smoothing".PegiLabel(70).Edit(ref smoothing, 0, 1);
-                            pegi.FullWindow.DocumentationClickOpen("Best used in the end");
-
-                            pegi.Nl();
-                        }
-
-                        if (!_exploreRayTaceCamera && _enableRayTracing)
-                        {
-                            var dp = Singleton.Get<Singleton_DepthProjectorCamera>(); //PainterCamera.depthProjectorCamera;
-
-                            if (!dp)
+                            if (Brush.showAdvanced || _enableRayTracing)
                             {
-                                if ("Create Projector Camera".PegiLabel().Click().Nl())
-                                    Painter.GetOrCreateProjectorCamera();
+                                "Ray-Tracing".PegiLabel().ToggleIcon(ref _enableRayTracing, true);
+
+                                if (br.useAlphaBuffer)
+                                    Icon.Warning.Draw(
+                                        "Ray Tracing doesn't use Alpha buffer. Alpha buffer will be automatically disabled");
+
                             }
-                            else if (dp.pauseAutoUpdates)
+
+                            if ("Ray Trace Camera".PegiLabel().IsConditionally_Entered(
+                                canEnter: _enableRayTracing && Singleton.Get<Singleton_DepthProjectorCamera>()
+                                ).Nl_ifEntered())
+                            {
+                                "Min".PegiLabel(40).Edit(ref minFov, 60, maxFov - 1).Nl();
+
+                                "Max".PegiLabel(40).Edit(ref maxFov, minFov + 1, 170).Nl();
+
+                                rayTraceCameraConfiguration.Nested_Inspect().Nl();
+                            }
+
+                            if (smoothing > 0 || Brush.showAdvanced)
                             {
                                 pegi.Nl();
-                                "Light Projectors paused".PegiLabel().ToggleIcon(ref dp.pauseAutoUpdates).Nl();
+                                "Smoothing".PegiLabel(70).Edit(ref smoothing, 0, 1);
+                                pegi.FullWindow.DocumentationClickOpen("Best used in the end");
+
+                                pegi.Nl();
                             }
 
+                            if (!contex.IsAnyEntered && _enableRayTracing)
+                            {
+                                var dp = Singleton.Get<Singleton_DepthProjectorCamera>(); //PainterCamera.depthProjectorCamera;
+
+                                if (!dp)
+                                {
+                                    if ("Create Projector Camera".PegiLabel().Click().Nl())
+                                        Painter.GetOrCreateProjectorCamera();
+                                }
+                                else if (dp.pauseAutoUpdates)
+                                {
+                                    pegi.Nl();
+                                    "Light Projectors paused".PegiLabel().ToggleIcon(ref dp.pauseAutoUpdates).Nl();
+                                }
+
+                                pegi.Nl();
+
+                            }
+                        }
+
+                        if (!cpuBlit)
+                        {
                             pegi.Nl();
 
+                            if (!br.GetBrushType(TexTarget.RenderTexture).IsAWorldSpaceBrush)
+                            {
+                                "Only World space brush can edit volumes".PegiLabel().Write_Hint();
+                                pegi.Nl();
+                                if ("Change to Sphere brush".PegiLabel().Click())
+                                    br.SetBrushType(TexTarget.RenderTexture, BrushTypes.Sphere.Inst);
+                            }
                         }
-                    }
 
-                    if (!cpuBlit)
-                    {
                         pegi.Nl();
 
-                        if (!br.GetBrushType(TexTarget.RenderTexture).IsAWorldSpaceBrush)
+
+                        if (!contex.IsAnyEntered && Painter.Data.showVolumeDetailsInPainter &&
+                            (volTex.name + " " + VolumeEditingExtensions.VolumeSize(id.Texture2D, volTex.hSlices)).PegiLabel()
+                            .IsFoldout(ref _exploreVolumeData).Nl())
+                            volTex.Nested_Inspect();
+
+                        if (!cpuBlit)
+                            MsgPainter.Sharpness.GetText().PegiLabel(MsgPainter.Sharpness.GetDescription(), 70)
+                                .Edit(ref br.hardness, 1f, 5f).Nl();
+
+                        var tmpSpeed = br._dFlow.Value;
+                        if (MsgPainter.Flow.GetText().PegiLabel(40).Edit(ref tmpSpeed, 0.01f, 4.5f).Nl())
+                            br._dFlow.Value = tmpSpeed;
+
+                        if (br.showingSize)
                         {
-                            "Only World space brush can edit volumes".PegiLabel().Write_Hint();
-                            pegi.Nl();
-                            if ("Change to Sphere brush".PegiLabel().Click())
-                                br.SetBrushType(TexTarget.RenderTexture, BrushTypes.Sphere.Inst);
+                            var maxScale = volTex.size * volTex.TextureWidth * 4;
+
+                            "Scale".PegiLabel(toolTip: "Scale For Volume painting", 40).Edit(ref br.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f);
+
+                            if (cpuBlit && !_brushShaderForRayTrace.Shader && br.brush3DRadius > BrushScaleMaxForCpu(volTex))
+                                Icon.Warning.Draw(
+                                    "Size will be reduced when panting due to low performance of the CPU brush for volumes");
+
                         }
+
+                        pegi.Nl();
                     }
-
-                    pegi.Nl();
-
-
-                    if (!_exploreRayTaceCamera && Painter.Data.showVolumeDetailsInPainter &&
-                        (volTex.name + " " + VolumeEditingExtensions.VolumeSize(id.Texture2D, volTex.hSlices)).PegiLabel()
-                        .IsFoldout(ref _exploreVolumeData).Nl())
-                        volTex.Nested_Inspect();
-
-                    if (!cpuBlit)
-                        MsgPainter.Sharpness.GetText().PegiLabel(MsgPainter.Sharpness.GetDescription(), 70)
-                            .Edit( ref br.hardness, 1f, 5f).Nl();
-
-                    var tmpSpeed = br._dFlow.Value;
-                    if (MsgPainter.Flow.GetText().PegiLabel(40).Edit(ref tmpSpeed, 0.01f, 4.5f).Nl())
-                        br._dFlow.Value = tmpSpeed;
-
-                    if (br.showingSize)
-                    {
-                        var maxScale = volTex.size * volTex.Width * 4;
-
-                        "Scale".PegiLabel(toolTip: "Scale For Volume painting", 40).Edit( ref br.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f);
-
-                        if (cpuBlit && !_brushShaderForRayTrace.Shader && br.brush3DRadius > BrushScaleMaxForCpu(volTex))
-                            Icon.Warning.Draw(
-                                "Size will be reduced when panting due to low performance of the CPU brush for volumes");
-
-                    }
-
-                    pegi.Nl();
                 }
 
             }
@@ -605,6 +610,7 @@ namespace PainterTool {
             return new Vector3(w, slices * slices, w);
         }
 
+        /*
         public static void SetVolumeTexture(this IEnumerable<Material> materials, C_VolumeTexture vt) {
             if (!vt)
                 return;
@@ -616,7 +622,7 @@ namespace PainterTool {
             imd.IsAVolumeTexture = true;
 
             var pnS = vt.UpdateShaderVariables();//PosSize4Shader;
-            var vhS = vt.Slices4Shader;
+            var vhS = vt.GetSlices4Shader();
             var tex = vt.TextureInShaderProperty;
             
             foreach (var m in materials)
@@ -626,7 +632,7 @@ namespace PainterTool {
                     VolumePaintingCameraModule.VOLUME_H_SLICES.SetOn(m, vhS);
                     tex.SetOn(m, imd.CurrentTexture());
                 }
-        }
+        }*/
 
         public static C_VolumeTexture GetVolumeTextureData(this Texture tex) => GetVolumeTextureData(tex.GetTextureMeta());
         

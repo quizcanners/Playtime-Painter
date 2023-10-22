@@ -488,6 +488,11 @@ namespace PainterTool
 
         public static RenderTexture Blit(Color col, RenderTexture to)
         {
+            if (!Data)
+            {
+                Debug.LogError("No Playtime painter for fill operation");
+                return to;
+            }
             PainterShaderVariables.BrushColorProperty.GlobalValue = col;
             Blit(Data.bufferColorFill, to);
 
@@ -515,85 +520,92 @@ namespace PainterTool
         #region Inspector
 
         private static readonly QcLog.ChillLogger logger = new("Buffers Mgmt");
-        
-        private static int inspectedElement = -1;
+
+        //private static int inspectedElement = -1;
+        private static readonly pegi.EnterExitContext context = new();
 
         public static void Inspect() {
 
-            var changed = pegi.ChangeTrackStart();
+            using (context.StartContext())
+            {
+                var changed = pegi.ChangeTrackStart();
 
-            if (inspectedElement < 2 && "Refresh Buffers".PegiLabel().Click().Nl())
-                RefreshPaintingBuffers();
-
-            if ("Panting Buffers".PegiLabel().IsEntered(ref inspectedElement, 0).Nl()) {
-
-                "ARGBfloat supported: {0}".F(GetTextureFormat()).PegiLabel().Nl();
-                
-                if (GotPaintingBuffers && Icon.Delete.Click())
-                    DestroyPaintingBuffers();
-
-                if ("Buffer Size".PegiLabel("Size of Buffers used for GPU painting", 90).SelectPow2(ref renderBuffersSize, 64, 4096).Nl()) 
+                if ("Refresh Buffers".PegiLabel().Click().Nl())
                     RefreshPaintingBuffers();
 
-                if (GotPaintingBuffers)
+                if ("Panting Buffers".PegiLabel().IsEntered().Nl())
                 {
-                    pegi.Draw(bigRtPair[0], 200);
-                    pegi.Nl();
-                    pegi.Draw(bigRtPair[1], 200);
 
-                    pegi.Nl();
-                }
+                    "ARGBfloat supported: {0}".F(GetTextureFormat()).PegiLabel().Nl();
 
-                "Depth".PegiLabel().Edit(ref alphaBufferTexture).Nl();
-            }
+                    if (GotPaintingBuffers && Icon.Delete.Click())
+                        DestroyPaintingBuffers();
 
-            if ("Scaling Buffers".PegiLabel().IsEntered(ref inspectedElement, 1).Nl())
-            {
-                if (Icon.Delete.Click().Nl())
-                    DestroyScalingBuffers();
+                    if ("Buffer Size".PegiLabel("Size of Buffers used for GPU painting", 90).SelectPow2(ref renderBuffersSize, 64, 4096).Nl())
+                        RefreshPaintingBuffers();
 
-                if ("Use RGBAFloat for scaling".PegiLabel().ToggleIcon(ref Data.useFloatForScalingBuffers).Nl())
-                    DestroyScalingBuffers();
+                    if (GotPaintingBuffers)
+                    {
+                        pegi.Draw(bigRtPair[0], 200);
+                        pegi.Nl();
+                        pegi.Draw(bigRtPair[1], 200);
 
-                for (int i = 0; i < squareBuffersCount; i++) {
-
-                    if (!_squareBuffers[i])
-                        "No Buffer for {0}*{0}".F(Mathf.Pow(2, i)).PegiLabel().Nl();
-                    else {
-
-                        pegi.Edit(ref _squareBuffers[i]).Nl();
-                        pegi.Draw(_squareBuffers[i], 250);
+                        pegi.Nl();
                     }
 
-                    pegi.Nl();
+                    "Depth".PegiLabel().Edit(ref alphaBufferTexture).Nl();
                 }
+
+                if ("Scaling Buffers".PegiLabel().IsEntered().Nl())
+                {
+                    if (Icon.Delete.Click().Nl())
+                        DestroyScalingBuffers();
+
+                    if ("Use RGBAFloat for scaling".PegiLabel().ToggleIcon(ref Data.useFloatForScalingBuffers).Nl())
+                        DestroyScalingBuffers();
+
+                    for (int i = 0; i < squareBuffersCount; i++)
+                    {
+
+                        if (!_squareBuffers[i])
+                            "No Buffer for {0}*{0}".F(Mathf.Pow(2, i)).PegiLabel().Nl();
+                        else
+                        {
+
+                            pegi.Edit(ref _squareBuffers[i]).Nl();
+                            pegi.Draw(_squareBuffers[i], 250);
+                        }
+
+                        pegi.Nl();
+                    }
+                }
+
+                if ("Depth Texture".PegiLabel().IsEntered().Nl())
+                {
+
+                    if (Icon.Delete.Click())
+                        DestroyDepthBuffers();
+
+                    "For Camera".PegiLabel().Edit(ref depthTarget).Nl();
+                    pegi.Draw(depthTarget, 250);
+                    pegi.Nl();
+
+                    "Reusable for blits".PegiLabel().Edit(ref _depthTargetForUsers).Nl();
+                    pegi.Draw(_depthTargetForUsers, 250);
+                }
+
+                if ("Render Textures with Depth buffer".PegiLabel().IsEntered().Nl())
+                {
+                    if (Icon.Delete.Click())
+                        DestroyBuffersWithDepth();
+
+                    "Reusable".PegiLabel().Edit(ref renderTextureWithDepth).Nl();
+                    pegi.Draw(renderTextureWithDepth, 250);
+                }
+
+                if (changed)
+                    Data.SetToDirty();
             }
-
-            if ("Depth Texture".PegiLabel().IsEntered(ref inspectedElement, 2).Nl()) {
-
-                if (Icon.Delete.Click())
-                    DestroyDepthBuffers();
-
-                "For Camera".PegiLabel().Edit(ref depthTarget).Nl();
-                pegi.Draw(depthTarget, 250);
-                pegi.Nl();
-
-                "Reusable for blits".PegiLabel().Edit(ref _depthTargetForUsers).Nl();
-                pegi.Draw(_depthTargetForUsers, 250);
-            }
-
-            if ("Render Textures with Depth buffer".PegiLabel().IsEntered(ref inspectedElement, 3).Nl())
-            {
-                if (Icon.Delete.Click())
-                    DestroyBuffersWithDepth();
-
-                "Reusable".PegiLabel().Edit(ref renderTextureWithDepth).Nl();
-                pegi.Draw(renderTextureWithDepth, 250);
-            }
-
-            if (changed)
-                Data.SetToDirty();
-
         }
         
         #endregion
@@ -637,7 +649,7 @@ namespace PainterTool
             if (!painter || !painter.enabled) return false;
 
             if (painter.meshEditing)
-                return MeshEditorManager.target == painter && Painter.Data.MeshTool.ShowGrid;
+                return MeshPainting.target == painter && Painter.Data.MeshTool.ShowGrid;
 
             if (!PainterComponent.IsCurrentTool || painter.TextureEditingBlocked || Painter.Data.showConfig)
                 return false;

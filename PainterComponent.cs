@@ -45,7 +45,7 @@ namespace PainterTool
             }
         }
 
-        protected static GridNavigator Grid => GridNavigator.GetOrCreate;
+        protected static GridNavigator Grid => MeshPainting.Grid;
 
         private static Brush GlobalBrush
         {
@@ -187,7 +187,7 @@ namespace PainterTool
 
         private void StrokeFromGrid()
         {
-            stroke.posTo = GridNavigator.LatestMouseToGridProjection;
+            stroke.posTo = MeshPainting.LatestMouseToGridProjection;
             PreviewShader_StrokePosition_Update();
         }
 
@@ -325,7 +325,7 @@ namespace PainterTool
             if (!enabled)
                 return "Component is disabled";
 
-            if (MeshEditorManager.target)
+            if (MeshPainting.target)
                 return "Is Editing mesh of this object";
 
             if (stroke.MouseDownEvent || stroke.MouseUpEvent)
@@ -470,7 +470,7 @@ namespace PainterTool
                     return;
             }
 
-            if (meshEditing && (MeshEditorManager.target != this))
+            if (meshEditing && (MeshPainting.target != this))
                 return;
 
             var id = TexMeta;
@@ -1082,7 +1082,7 @@ namespace PainterTool
 
         }
 
-        public bool IsEditingThisMesh => IsCurrentTool && meshEditing && (MeshEditorManager.target == this);
+        public bool IsEditingThisMesh => IsCurrentTool && meshEditing && (MeshPainting.target == this);
 
         #endregion
 
@@ -1229,7 +1229,7 @@ namespace PainterTool
 
             _cfgData = Encode().CfgData;
 
-            if (!Painter.Camera || MeshEditorManager.target != this) return;
+            if (!Painter.Camera || MeshPainting.target != this) return;
 
             Painter.MeshManager.StopEditingMesh();
 
@@ -1237,10 +1237,7 @@ namespace PainterTool
 
         private void OnEnable()
         {
-
             isBeingDisabled = false;
-
-            PainterClass.applicationIsQuitting = false;
 
             if (!meshRenderer)
                 meshRenderer = GetComponent<MeshRenderer>();
@@ -1334,7 +1331,7 @@ namespace PainterTool
             }
             else skinnedMeshRenderer = null;
 
-            if ((this == Painter.Camera.autodisabledBufferTarget) && (!TextureEditingBlocked) &&
+            if (Painter.Camera && (this == Painter.Camera.autodisabledBufferTarget) && (!TextureEditingBlocked) &&
                 (!QcUnity.ApplicationIsAboutToEnterPlayMode()))
                 ReEnableRenderTexture();
 

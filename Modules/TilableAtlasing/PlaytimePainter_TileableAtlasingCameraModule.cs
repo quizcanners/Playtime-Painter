@@ -28,7 +28,7 @@ namespace PainterTool
             public void MeshToolInspection(MeshToolBase currentTool)
             {
 
-                if (currentTool is VertexEdgeTool && MeshEditorManager.target.IsAtlased())
+                if (currentTool is VertexEdgeTool && MeshPainting.target.IsAtlased())
                 {
                     "ATL_tex_Chanal:".PegiLabel(80).Edit(ref TriangleAtlasTool.Inst.curAtlasChanel);
 
@@ -245,7 +245,7 @@ namespace PainterTool
                 if (PointedLine.SameAsLastFrame)
                     return true;
 
-                foreach (var t in MeshEditorManager.PointedLine.GetAllTriangles())
+                foreach (var t in MeshEditorManager.PointedLine.TryGetBothTriangles())
                     if (Mathf.Approximately(t.textureNo[curAtlasChanel], _curAtlasTexture) == false)
                     {
                         t.textureNo[curAtlasChanel] = _curAtlasTexture;

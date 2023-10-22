@@ -224,6 +224,12 @@ namespace PainterTool
         public List<BrushTypes.VolumetricDecal> decals = new();
 
         public List<Texture> sourceTextures = new();
+
+#if UNITY_EDITOR
+        [SerializeField]
+#else
+        [NonSerialized]
+#endif
         public List<Texture> masks = new();
 
         public int selectedColorScheme;
@@ -428,15 +434,14 @@ namespace PainterTool
             {
                 using (_encodeDecodeLock.Lock())
                 {
-
                     for (var i = 0; i < imgMetas.Count; i++)
                     {
                         var id = imgMetas[i];
-                        if (id != null && id.NeedsToBeSaved) continue;
+                        if (id != null && id.NeedsToBeSaved) 
+                            continue;
                         
                         imgMetas.RemoveAt(i); 
                         i--; 
-                    
                     }
 
                     for (var index = 0; index < matMetas.Count; index++)
@@ -446,15 +451,11 @@ namespace PainterTool
                         
                         matMetas.Remove(md);
                         index--;
-                        
                     }
                     
 
-                    var cody = new CfgEncoder()//this.EncodeUnrecognized()
-                        //.Add("imgs", imgMetas, this)
-                        //.Add("mats", matMetas, this)
+                    var cody = new CfgEncoder()
                         .Add("sch", selectedColorScheme)
-                        
                         .Add("pals", colorSchemes)
                         .Add("cam", Singleton.Get<Singleton_PainterCamera>())
                         .Add("Vpck", meshPackagingSolutions)
@@ -476,9 +477,7 @@ namespace PainterTool
         {
             switch (key)
             {
-                //case "imgs": data.Decode_List(out imgMetas, this); break;
                 case "sch": data.ToInt(ref selectedColorScheme); break;
-                //case "mats": data.Decode_List(out matMetas, this); break;
                 case "pals": data.ToList(out colorSchemes); break;
                 case "cam": if (Singleton.Get<Singleton_PainterCamera>()) Singleton.Get<Singleton_PainterCamera>().Decode(data); break;
                 case "Vpck": data.ToList(out meshPackagingSolutions); break;

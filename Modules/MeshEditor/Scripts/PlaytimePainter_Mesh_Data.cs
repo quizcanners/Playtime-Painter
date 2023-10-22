@@ -811,7 +811,7 @@ namespace PainterTool.MeshEditing
         public void GiveLineUniqueVerticesRefreshTriangleListing(PainterMesh.LineData ld)
         {
 
-            var trs = ld.GetAllTriangles();
+            var trs = ld.TryGetBothTriangles();
 
             if (trs.Count != 2) return;
 
@@ -1055,7 +1055,7 @@ namespace PainterTool.MeshEditing
 
             meshPoints.Add(newVrt);
 
-            var pointTris = a.Triangles();
+            var pointTris = a.FindAllTriangles();
 
             for (int i = 0; i < pointTris.Count; i++)
             {

@@ -81,7 +81,11 @@
 				float4 frag(v2f i) : COLOR{
 
 					float2 uv = i.texcoord.xy;
-					float2 d = _qcPp_TargetTexture_TexelSize.xy*_qcPp_brushForm.w;
+					float2 d = _qcPp_TargetTexture_TexelSize.xy;
+
+
+					float xker = d.x * _qcPp_brushForm.w;
+					float yker = d.y * _qcPp_brushForm.w;
 
 					#if UNITY_COLORSPACE_GAMMA
 
@@ -114,8 +118,6 @@
 				
 					float4 sum = 0;
 
-					float xker = 0.0001*_qcPp_brushForm.w;
-				
 					sum += GRABPIXELX(0.05, -4.0);
 					sum += GRABPIXELX(0.09, -3.0);
 					sum += GRABPIXELX(0.12, -2.0);
@@ -126,8 +128,7 @@
 					sum += GRABPIXELX(0.09, +3.0);
 					sum += GRABPIXELX(0.05, +4.0);
 
-					float yker = 0.0001*_qcPp_brushForm.w;
-
+				
 				
 					sum += GRABPIXELY(0.05, -4.0);
 					sum += GRABPIXELY(0.09, -3.0);

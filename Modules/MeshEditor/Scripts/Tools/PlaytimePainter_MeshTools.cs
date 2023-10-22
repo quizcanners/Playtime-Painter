@@ -55,7 +55,7 @@ namespace PainterTool.MeshEditing {
 
         public static void InitIfNotInited()
         {
-            if (!_allTools.IsNullOrEmpty() || applicationIsQuitting) 
+            if (!_allTools.IsNullOrEmpty()) 
                 return;
                 
             _allTools = new List<MeshToolBase>();

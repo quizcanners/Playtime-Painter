@@ -87,18 +87,18 @@ namespace PainterTool.MeshEditing
             public Vector3 WorldPos
             {
                 get
-                {
+                
                     //  if (!emc.AnimatedVertices())  
-                    return MeshEditorManager.targetTransform.TransformPoint(localPos);
+                    => MeshPainting.targetTransform.TransformPoint(localPos);
 
                     // var animNo = emc.GetVertexAnimationNumber();
                     //  return emc.transform.TransformPoint(localPos + anim[animNo]);
 
-                }
-                set { localPos = MeshEditorManager.targetTransform.InverseTransformPoint(value); }
+                
+                set => localPos = MeshPainting.targetTransform.InverseTransformPoint(value); 
             }
 
-            public Vector3 GetWorldNormal() => MeshEditorManager.targetTransform.TransformDirection(GetNormal());
+            public Vector3 GetWorldNormal() => MeshPainting.targetTransform.TransformDirection(GetNormal());
 
             private Vector3 GetNormal()
             {
@@ -266,7 +266,7 @@ namespace PainterTool.MeshEditing
 
             public void PixPerfect()
             {
-                var trg = MeshEditorManager.target;
+                var trg = MeshPainting.target;
 
                 if (trg && (trg.TexMeta != null))
                 {
@@ -380,7 +380,7 @@ namespace PainterTool.MeshEditing
                     edMesh.Merge(this, nearest);
             }
 
-            public List<Triangle> Triangles()
+            public List<Triangle> FindAllTriangles()
             {
                 var allTriangles = new List<Triangle>();
 
@@ -395,7 +395,7 @@ namespace PainterTool.MeshEditing
             {
                 float extrusion = 0;
 
-                List<Triangle> tris = Triangles();
+                List<Triangle> tris = FindAllTriangles();
                 Vector3 norm = GetNormal();
 
                 int points = 0;
@@ -425,7 +425,7 @@ namespace PainterTool.MeshEditing
 
             public bool AllPointsUnique()
             {
-                return (Triangles().Count <= vertices.Count);
+                return FindAllTriangles().Count <= vertices.Count;
             }
 
             public List<LineData> GetAllLines_USES_Tris_Listing()
@@ -446,7 +446,7 @@ namespace PainterTool.MeshEditing
                             foreach (var t in Alllines)
                             {
                                 if (!t.SameVertices(lines[i])) continue;
-                                t.trianglesCount++;
+                                t.trianglesCount_Cahced++;
                                 same = true;
                             }
 

@@ -3,18 +3,25 @@ using PainterTool.MeshEditing;
 using QuizCanners.Utils;
 using UnityEngine;
 
-
 namespace PainterTool
 {
-
     public static partial class Painter
     {
         internal static readonly PlaytimePainter_BrushMeshGenerator BrushMeshGenerator = new();
         internal static readonly MeshEditorManager MeshManager = new();
         internal static readonly TextureDownloadManager DownloadManager = new();
 
-        public static Singleton_PainterCamera Camera => Singleton.Get<Singleton_PainterCamera>();
+        public static Singleton_PainterCamera Camera
+        {
+            get
+            {
+                var cam = Singleton.Get<Singleton_PainterCamera>();
+               // if (!cam)
+                    //TryInstanciateCamera(out cam);
 
+                return cam;
+            }
+        }
 
         public static bool IsLinearColorSpace
         {
@@ -60,15 +67,13 @@ namespace PainterTool
             }
         }
 
-        public static void InstanciateCamera()
-        {
-            if (!PainterClass.applicationIsQuitting)
-            {
-                var go = Resources.Load(SO_PainterDataAndConfig.PREFABS_RESOURCE_FOLDER + "/" + SO_PainterDataAndConfig.PainterCameraName) as GameObject;
-                var isnt = GameObject.Instantiate(go).GetComponent<Singleton_PainterCamera>();
-                isnt.name = SO_PainterDataAndConfig.PainterCameraName;
-                CameraModuleBase.RefreshModules();
-            }
+        public static bool TryInstanciateCamera(out Singleton_PainterCamera isnt)
+        {            
+            var go = Resources.Load(SO_PainterDataAndConfig.PREFABS_RESOURCE_FOLDER + "/" + SO_PainterDataAndConfig.PainterCameraName) as GameObject;
+            isnt = Object.Instantiate(go).GetComponent<Singleton_PainterCamera>();
+            isnt.name = SO_PainterDataAndConfig.PainterCameraName;
+            CameraModuleBase.RefreshModules();
+            return isnt;
         }
 
         internal static Singleton_DepthProjectorCamera GetOrCreateProjectorCamera()

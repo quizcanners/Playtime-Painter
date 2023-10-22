@@ -10,7 +10,7 @@ namespace PainterTool.MeshEditing
         {
             private readonly Triangle triangle;
             public readonly Vertex[] vertexes = new Vertex[2];
-            public int trianglesCount;
+            public int trianglesCount_Cahced;
 
             public MeshPoint this[int index] => vertexes[index].meshPoint;
 
@@ -55,7 +55,7 @@ namespace PainterTool.MeshEditing
                 triangle = a.GetTriangleFromLine(b);
                 vertexes[0] = a.vertices[0];
                 vertexes[1] = b.vertices[0];
-                trianglesCount = 0;
+                trianglesCount_Cahced = 0;
             }
 
             public LineData(Triangle tri, Vertex[] nPoints)
@@ -63,7 +63,7 @@ namespace PainterTool.MeshEditing
                 triangle = tri;
                 vertexes[0] = nPoints[0];
                 vertexes[1] = nPoints[1];
-                trianglesCount = 0;
+                trianglesCount_Cahced = 0;
             }
 
             public LineData(Triangle tri, Vertex a, Vertex b)
@@ -72,7 +72,7 @@ namespace PainterTool.MeshEditing
                 vertexes[0] = a;
                 vertexes[1] = b;
 
-                trianglesCount = 0;
+                trianglesCount_Cahced = 0;
             }
 
             public Triangle GetOtherTriangle()
@@ -88,7 +88,7 @@ namespace PainterTool.MeshEditing
 
             }
 
-            public List<Triangle> GetAllTriangles()
+            public List<Triangle> TryGetBothTriangles()
             {
                 var allTriangles = new List<Triangle>();
 
@@ -121,7 +121,7 @@ namespace PainterTool.MeshEditing
                 var a = lineA.vertexes[0].LocalPos - lineA.vertexes[1].LocalPos;
                 var b = lineB.vertexes[1].LocalPos - lineB.vertexes[0].LocalPos;
 
-                var grid = GridNavigator.GetOrCreate;
+                var grid = MeshPainting.Grid;
 
                 var fromVector2 = grid.InPlaneVector(a);
                 var toVector2 = grid.InPlaneVector(b);
@@ -154,7 +154,7 @@ namespace PainterTool.MeshEditing
             public bool GiveUniqueVerticesToTriangles()
             {
                 var changed = false;
-                var triangles = GetAllTriangles();
+                var triangles = TryGetBothTriangles();
 
                 for (var i = 0; i < triangles.Count; i++)
                 for (var j = i + 1; j < triangles.Count; j++)

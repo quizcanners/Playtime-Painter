@@ -30,7 +30,6 @@ namespace PainterTool
 
         protected static Brush GlobalBrush => Painter.Data.Brush;
         protected static PainterComponent InspectedPainter => PainterComponent.inspected;
-        protected static bool ApplicationIsQuitting => PainterClass.applicationIsQuitting;
 
         protected static Transform CurrentViewTransform(Transform defaultTransform = null) =>
             PainterClass.CurrentViewTransform(defaultTransform);
@@ -47,10 +46,10 @@ namespace PainterTool
         protected static Brush GlobalBrush => Painter.Data.Brush;
         protected static PainterComponent InspectedPainter => PainterComponent.inspected;
         internal static TextureMeta InspectedImageMeta { get { var ip = InspectedPainter; return ip ? ip.TexMeta : null; } }
-        protected static GridNavigator Grid => GridNavigator.GetOrCreate;
+        protected static GridNavigator Grid => MeshPainting.Grid;
         internal static MeshData EditedMesh => MeshEditorManager.editedMesh;
         protected static bool DocsEnabled => !SO_PainterDataAndConfig.hideDocumentation;
-        public static bool applicationIsQuitting;
+       
         
         public static Transform CurrentViewTransform(Transform defaultTransform = null)
         {

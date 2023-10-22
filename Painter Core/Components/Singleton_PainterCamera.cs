@@ -331,7 +331,7 @@ namespace PainterTool {
             if (hidePreview && Math.Abs(_previewAlpha) < float.Epsilon)
                 return;
 
-            LerpUtils.IsLerpingBySpeed(ref _previewAlpha, hidePreview ? 0 : 1, 4f, unscaledTime: true);
+            QcLerp.IsLerpingBySpeed(ref _previewAlpha, hidePreview ? 0 : 1, 4f, unscaledTime: true);
 
             st.FeedWorldPosInShader();
             if (!hidePreview)
@@ -475,8 +475,6 @@ namespace PainterTool {
             if (!MainCamera)
                 MainCamera = Camera.main;
 
-            PainterClass.applicationIsQuitting = false;
-
             if (!Painter.Data)
                 dataHolder = Resources.Load("Painter_Data") as SO_PainterDataAndConfig;
 
@@ -566,7 +564,6 @@ namespace PainterTool {
 
         protected override void OnBeforeOnDisableOrEnterPlayMode(bool afterEnableCalled)
         {
-            PainterClass.applicationIsQuitting = true;
             BeforeClosing();
             base.OnBeforeOnDisableOrEnterPlayMode(afterEnableCalled);
         }
@@ -851,19 +848,15 @@ namespace PainterTool {
 
                 if (Icon.Refresh.Click("Try to find it")) 
                 {
-                    PainterClass.applicationIsQuitting = false;
                     _triedToFindPainterData = false;
                 }
 
                 if ("Create".PegiLabel().Click().Nl()) 
                 {
-                    
-                    PainterClass.applicationIsQuitting = false;
                     _triedToFindPainterData = false;
 
                     if (!Painter.Data) {
                         dataHolder = ScriptableObject.CreateInstance<SO_PainterDataAndConfig>();
-
 
                         UnityEditor.AssetDatabase.CreateAsset(dataHolder,
                                 "Assets/Playtime-Painter/Resources/Painter_Data.asset");

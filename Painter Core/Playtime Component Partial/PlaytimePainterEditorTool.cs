@@ -150,7 +150,7 @@ namespace PainterTool
                 if (painter.meshEditing)
                 {
 
-                    var edited = MeshEditorManager.target;
+                    var edited = MeshPainting.target;
 
                     if (pointedPainter && pointedPainter != edited && pointedPainter.meshEditing
                         && !pointedPainter.SavedEditableMesh.IsEmpty && lMouseDwn && e.button == 0)
@@ -198,7 +198,7 @@ namespace PainterTool
         public static void FeedEvents(Event e)
         {
 
-            GridNavigator.GetOrCreate.FeedEvent(e);
+            MeshPainting.Grid.FeedEvent(e);
 
             if (!painter) return;
 
