@@ -892,7 +892,7 @@ namespace PainterTool
         public pegi.EnterExitContext processContext = new();
         public pegi.EnterExitContext context = new();
 
-        public void Inspect() {
+        void IPEGI.Inspect() {
 
             using (context.StartContext())
             {

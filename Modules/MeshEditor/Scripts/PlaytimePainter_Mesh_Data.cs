@@ -1291,7 +1291,7 @@ namespace PainterTool.MeshEditing
 
         #region Inspector
 
-        public void Inspect()
+        void IPEGI.Inspect()
         {
             if ("Run Debug".PegiLabel().Click().Nl())
                 RunDebug();

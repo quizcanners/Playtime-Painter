@@ -7,6 +7,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using QuizCanners.Migration;
 using QuizCanners.Lerp;
+using UnityEngine.Rendering;
 
 namespace PainterTool {
 
@@ -20,6 +21,7 @@ namespace PainterTool {
         [SerializeField] private Camera painterCamera;
         [SerializeField] private PlaytimePainter_RenderBrush brushPrefab;
         [SerializeField] internal PlaytimePainter_RenderBrush brushRenderer;
+        [SerializeField] private Transform _destinationBuffer;
         internal const float OrthographicSize = 128;
         
         internal static float _previewAlpha = 1;
@@ -174,13 +176,13 @@ namespace PainterTool {
         {
             Brush brush = command.Brush;
 
-            var id = command.TextureData;
+            TextureMeta id = command.TextureData;
 
-            var rendTex = id.TargetIsRenderTexture();
+            bool rendTex = id.TargetIsRenderTexture();
 
-            var brushType = brush.GetBrushType(id.Target);
+            BrushTypes.Base brushType = brush.GetBrushType(id.Target);
 
-            var is3DBrush = command.Is3DBrush;
+            bool is3DBrush = command.Is3DBrush;
 
             brush.previewDirty = false;
 
@@ -227,11 +229,12 @@ namespace PainterTool {
 
             var painter = command.TryGetPainter();
 
-            if (id[TextureCfgFlags.TransparentLayer] && painter) {
-
+            if (id[TextureCfgFlags.TransparentLayer] && painter) 
+            {
                 var md = painter.MatDta;
                 var mat = md.material;
-                if (md != null && md.usePreviewShader && mat) {
+                if (md != null && md.usePreviewShader && mat) 
+                {
                     var mt = mat.mainTexture;
                     PainterShaderVariables.TransparentLayerUnderProperty.GlobalValue = mt;
                     useTransparentLayerBackground = (mt && (id != mt.GetImgDataIfExists())) ? 1 : 0;
@@ -272,7 +275,7 @@ namespace PainterTool {
             Brush brush = command.Brush;
             TextureMeta textureMeta = command.TextureData;
 
-            var isDoubleBuffer = !textureMeta.RenderTexture;
+            var isDoubleBuffer = GraphicsSettings.defaultRenderPipeline || !textureMeta.RenderTexture;
 
             var useSingle = !isDoubleBuffer || brush.IsSingleBufferBrush();
 
@@ -297,9 +300,10 @@ namespace PainterTool {
                     }
                 }
 
-            if (!shd) {
-
-                if (command.usedAlphaBuffer) {
+            if (!shd) 
+            {
+                if (command.usedAlphaBuffer) 
+                {
                     shd = blitMode.ShaderForAlphaOutput;
                     AlphaBufferSetDirtyBeforeRender(textureMeta, blitMode.ShaderForAlphaBufferBlit);
                 }
@@ -316,7 +320,13 @@ namespace PainterTool {
             TargetTexture = command.usedAlphaBuffer ? AlphaBuffer : textureMeta.CurrentRenderTexture();
 
             if (isDoubleBuffer)
+            {
                 PainterShaderVariables.DESTINATION_BUFFER.GlobalValue = BackBuffer;
+                _destinationBuffer.gameObject.SetActive(true);
+            }
+            else
+                _destinationBuffer.gameObject.SetActive(false);
+
 
             _latestPaintShaderDebug = shd;
 
@@ -417,6 +427,8 @@ namespace PainterTool {
 
             if (!disableSecondBufferUpdateDebug)
                 brushRenderer.gameObject.SetActive(false);
+
+            _destinationBuffer.gameObject.SetActive(false);
 
             var trg = TargetTexture;
 
@@ -546,6 +558,24 @@ namespace PainterTool {
                 UnityEditor.EditorApplication.update += ManagedUpdate;
 #endif
 
+            /*
+            CheckHDRP();
+
+            void CheckHDRP()
+            {
+                if (!GraphicsSettings.defaultRenderPipeline)
+                    return;
+
+                if (GraphicsSettings.defaultRenderPipeline.GetType().Name.Contains("HDRenderPipelineAsset"))
+                {
+                    Debug.Log("Configuring for HDRP");
+                    var data = painterCamera.gameObject.GetComponent<HDAdditionalCameraData>();
+                    data.volumeLayerMask = (1 << Painter.Data.playtimePainterLayer);
+                }
+            }
+
+            */
+
             autodisabledBufferTarget = null;
 
             CameraModuleBase.RefreshModules();
@@ -559,7 +589,6 @@ namespace PainterTool {
             UpdateCullingMask();
 
             PainterShaderVariables.BrushColorProperty.ConvertToLinear = Painter.IsLinearColorSpace;
-
         }
 
         protected override void OnBeforeOnDisableOrEnterPlayMode(bool afterEnableCalled)

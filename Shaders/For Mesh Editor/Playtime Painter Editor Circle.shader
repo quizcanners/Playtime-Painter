@@ -1,6 +1,4 @@
-﻿// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
-
-Shader "Playtime Painter/Editor/Markers/Circle" {
+﻿Shader "Playtime Painter/Editor/Markers/Circle" {
 	Properties {
 		_Color ("Color", Color) = (1,1,1,1)
 	}

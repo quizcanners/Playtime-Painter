@@ -649,7 +649,7 @@ namespace PainterTool
                 set { decalName = value; }
             }
 
-            public void Inspect()
+            void IPEGI.Inspect()
             {
                 this.inspect_Name().Nl();
 

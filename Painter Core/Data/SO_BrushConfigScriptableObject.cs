@@ -11,7 +11,7 @@ namespace PainterTool
 
         public Brush brush;
 
-        public void Inspect()
+        void IPEGI.Inspect()
         {
             pegi.Nl();
             pegi.CopyPaste.InspectOptionsFor(ref brush);

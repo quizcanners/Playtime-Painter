@@ -12,7 +12,7 @@ namespace PainterTool
     namespace CameraModules
     {
         [TaggedTypes.Tag(CLASS_KEY)]
-        internal class TileableAtlasingCameraModule : CameraModuleBase, IMeshToolPlugin, IPainterManagerModuleBrush
+        internal class TileableAtlasingCameraModule : CameraModuleBase, IMeshToolPlugin, IPainterManagerModuleBrush, IPEGI
         {
             private const string CLASS_KEY = "TilAtlCntrl";
             public override string ClassTag => CLASS_KEY;
@@ -63,7 +63,7 @@ namespace PainterTool
 
             private readonly pegi.EnterExitContext context = new(); 
 
-            public void Inspect()
+            void IPEGI.Inspect()
             {
                 bool changed = false;
 

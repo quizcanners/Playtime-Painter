@@ -176,7 +176,7 @@ namespace PainterTool
                 _url.PegiLabel().Write();
             }
 
-            public void Inspect()
+            void IPEGI.Inspect()
             {
                 TryGetTexture(out Texture tex);
 
@@ -225,7 +225,7 @@ namespace PainterTool
 
         private int inspected = -1;
         private string tmp = "";
-        public void Inspect()
+        void IPEGI.Inspect()
         {
 
             "Textures and Requests".PegiLabel().Edit_List(_loadedTextures, ref inspected);
