@@ -11,11 +11,11 @@ namespace PainterTool
   
         public const string ATLASED_TEXTURES = "_qcPp_AtlasTextures";
 
-        public static readonly TextureValue PreviewTexture              = new TextureValue("_qcPp_PreviewTex");
+        public static readonly TextureValue PreviewTexture              = new("_qcPp_PreviewTex");
 
-        public static readonly FloatValue TexturesInAtlasRow            = new FloatValue(ATLASED_TEXTURES);
-        public static readonly FloatValue BufferCopyAspectRatio         = new FloatValue("_qcPp_BufferCopyAspectRatio");
-        private static readonly VectorValue SourceTextureTexelSize       = new VectorValue("_qcPp_BufferSourceTexelSize");
+        public static readonly FloatValue TexturesInAtlasRow            = new(ATLASED_TEXTURES);
+        public static readonly FloatValue BufferCopyAspectRatio         = new("_qcPp_BufferCopyAspectRatio");
+        private static readonly VectorValue SourceTextureTexelSize       = new("_qcPp_BufferSourceTexelSize");
 
         public static Texture SourceTextureSize
         {
@@ -26,32 +26,32 @@ namespace PainterTool
             }
         }
 
-        public static readonly VectorValue BRUSH_WORLD_POS_FROM         = new VectorValue("_qcPp_brushWorldPosFrom");
-        public static readonly VectorValue BRUSH_WORLD_POS_TO           = new VectorValue("_qcPp_brushWorldPosTo");
-        public static readonly VectorValue PREVIEW_BRUSH_UV_POS_FROM            = new VectorValue("_qcPp_brushUvPosFrom");
-        public static readonly VectorValue PREVIEW_BRUSH_UV_POS_TO              = new VectorValue("_qcPp_brushUvPosTo");
-        public static readonly VectorValue BRUSH_EDITED_UV_OFFSET       = new VectorValue("_qcPp_brushEditedUVoffset");
-        public static readonly VectorValue BRUSH_ATLAS_SECTION_AND_ROWS = new VectorValue("_qcPp_brushAtlasSectionAndRows");
-        public static readonly TextureValue DESTINATION_BUFFER          = new TextureValue("_qcPp_DestBuffer");
+        public static readonly VectorValue BRUSH_WORLD_POS_FROM         = new("_qcPp_brushWorldPosFrom");
+        public static readonly VectorValue BRUSH_WORLD_POS_TO           = new("_qcPp_brushWorldPosTo");
+        public static readonly VectorValue PREVIEW_BRUSH_UV_POS_FROM    = new("_qcPp_brushUvPosFrom");
+        public static readonly VectorValue PREVIEW_BRUSH_UV_POS_TO      = new("_qcPp_brushUvPosTo");
+        public static readonly VectorValue BRUSH_EDITED_UV_OFFSET       = new("_qcPp_brushEditedUVoffset");
+        public static readonly VectorValue BRUSH_ATLAS_SECTION_AND_ROWS = new("_qcPp_brushAtlasSectionAndRows");
+        public static readonly TextureValue DESTINATION_BUFFER          = new("_qcPp_DestBuffer");
 
-        public static readonly FloatValue CopyColorTransparency         = new FloatValue("_qcPp_CopyBlitAlpha");
+        public static readonly FloatValue CopyColorTransparency         = new("_qcPp_CopyBlitAlpha");
 
-        public static readonly ColorValue BrushColorProperty      = new ColorValue("_qcPp_brushColor");
+        public static readonly ColorValue BrushColorProperty            = new("_qcPp_brushColor");
 
-        public static readonly VectorValue ChannelCopySourceMask        = new VectorValue("_qcPp_ChannelSourceMask");
-        public static readonly VectorValue BrushMaskProperty            = new VectorValue("_qcPp_brushMask");
-        public static readonly VectorValue MaskDynamicsProperty         = new VectorValue("_qcPp_maskDynamics");
-        public static readonly VectorValue MaskOffsetProperty           = new VectorValue("_qcPp_maskOffset");
-        public static readonly VectorValue BrushFormProperty            = new VectorValue("_qcPp_brushForm");
-        public static readonly VectorValue TextureSourceParameters      = new VectorValue("_qcPp_srcTextureUsage");
-        public static readonly VectorValue cameraPosition_Property      = new VectorValue("_qcPp_RTcamPosition");
-        public static readonly VectorValue AlphaBufferConfigProperty    = new VectorValue("_qcPp_AlphaBufferCfg");
-        public static readonly VectorValue OriginalTextureTexelSize     = new VectorValue("_qcPp_TargetTexture_TexelSize");
+        public static readonly VectorValue ChannelCopySourceMask        = new("_qcPp_ChannelSourceMask");
+        public static readonly VectorValue BrushMaskProperty            = new("_qcPp_brushMask");
+        public static readonly VectorValue MaskDynamicsProperty         = new("_qcPp_maskDynamics");
+        public static readonly VectorValue MaskOffsetProperty           = new("_qcPp_maskOffset");
+        public static readonly VectorValue BrushFormProperty            = new("_qcPp_brushForm");
+        public static readonly VectorValue TextureSourceParameters      = new("_qcPp_srcTextureUsage");
+        public static readonly VectorValue cameraPosition_Property      = new("_qcPp_RTcamPosition");
+        public static readonly VectorValue AlphaBufferConfigProperty    = new("_qcPp_AlphaBufferCfg");
+        public static readonly VectorValue OriginalTextureTexelSize     = new("_qcPp_TargetTexture_TexelSize");
 
-        public static readonly TextureValue SourceMaskProperty          = new TextureValue("_qcPp_SourceMask");
-        public static readonly TextureValue SourceTextureProperty       = new TextureValue("_qcPp_SourceTexture");
-        public static readonly TextureValue TransparentLayerUnderProperty = new TextureValue("_qcPp_TransparentLayerUnderlay");
-        public static readonly TextureValue AlphaPaintingBuffer         = new TextureValue("_qcPp_AlphaBuffer");
+        public static readonly TextureValue SourceMaskProperty          = new("_qcPp_SourceMask");
+        public static readonly TextureValue SourceTextureProperty       = new("_qcPp_SourceTexture");
+        public static readonly TextureValue TransparentLayerUnderProperty = new("_qcPp_TransparentLayerUnderlay");
+        public static readonly TextureValue AlphaPaintingBuffer         = new("_qcPp_AlphaBuffer");
 
 
         #region Shader Multicompile Keywords

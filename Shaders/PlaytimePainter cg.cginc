@@ -181,23 +181,9 @@ inline float DistToLine(float3 pos, float3 a, float3 b) {
 	return length(pa - ba * t);
 }
 
-inline float positionToAlpha(float3 worldPos) {
-
-	/*float a = length(_qcPp_brushWorldPosFrom - worldPos);
-	float b = length(_qcPp_brushWorldPosTo - worldPos);
-	float c = _qcPp_brushWorldPosTo.w;
-	float dist = 0;
-
-
-	if (isAcute(a, b, c)) dist = min(a, b);
-	else {
-		float s = (a + b + c) / 2;
-		float h = 4 * s * (s - a) * (s - b) * (s - c) / (c * c);
-		dist = sqrt(h);
-	}*/
-
+inline float positionToAlpha(float3 worldPos) 
+{
 	float dist = DistToLine(worldPos, _qcPp_brushWorldPosFrom, _qcPp_brushWorldPosTo);
-
 	return (_qcPp_brushForm.y - dist) / _qcPp_brushForm.y;
 }
 /*

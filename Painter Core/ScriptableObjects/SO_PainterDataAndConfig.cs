@@ -68,7 +68,7 @@ namespace PainterTool
         [NonSerialized] public Shader bufferCopyDownscaleX32_Approx;
         [NonSerialized] public Shader bufferCopyDownscaleX64_Approx;
 
-        [NonSerialized] public Shader rayTraceOutput;
+      //  [NonSerialized] public Shader rayTraceOutput;
 
         public Shader GetShaderToWriteInto(ColorChanel chan)  {
             return chan switch
@@ -147,7 +147,7 @@ namespace PainterTool
 
             CheckShader(ref bufferCopyDownscaleX64_Approx, "Playtime Painter/Buffer Blit/DownScaleX64_Approx", forceReload);
 
-            CheckShader(ref rayTraceOutput, "Playtime Painter/Editor/Replacement/ShadowDataOutput", forceReload);
+          //  CheckShader(ref rayTraceOutput, "Playtime Painter/Editor/Replacement/ShadowDataOutput", forceReload);
 
             this.SetToDirty();
 
@@ -506,7 +506,7 @@ namespace PainterTool
         private int _inspectedDecal = -1;
         private int _inspectedMeshPackSol = -1;
 
-        public void Inspect()
+        void IPEGI.Inspect()
         {
             using (_context.StartContext())
             {

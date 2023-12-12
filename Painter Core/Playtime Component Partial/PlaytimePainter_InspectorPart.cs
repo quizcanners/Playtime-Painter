@@ -144,7 +144,7 @@ namespace PainterTool
                 {
                     if (!constet.IsAnyEntered)
                     {
-                        Painter.MeshManager.Inspect();
+                        Painter.MeshManager.Nested_Inspect();
                         pegi.Nl();
                     }
 
@@ -1078,7 +1078,7 @@ namespace PainterTool
             }
         }
 
-        public void Inspect()
+        void IPEGI.Inspect()
         {
             using (QcSharp.SetTemporaryValueDisposable(this, p => inspected = p, () => null))
             {

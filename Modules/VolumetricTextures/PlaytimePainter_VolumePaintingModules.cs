@@ -14,9 +14,9 @@ namespace PainterTool {
     {
         
         [TaggedTypes.Tag(CLASS_KEY)]
-        internal class VolumePaintingCameraModule : CameraModuleBase, 
+        internal class VolumePaintingCameraModule : CameraModuleBase, IPEGI,
             IPainterManagerModuleComponentPEGI, IPainterManagerModuleBrush, IPainterManagerModuleGizmos,
-            IUseDepthProjector, IUseReplacementCamera
+            IUseDepthProjector //, IUseReplacementCamera
         {
             private const string CLASS_KEY = "VolumePntng";
             public override string ClassTag => CLASS_KEY;
@@ -298,7 +298,7 @@ namespace PainterTool {
 
             public string ProjectorTagToReplace() => "RenderType";
 
-            public Shader ProjectorShaderToReplaceWith() => Painter.Data.rayTraceOutput;
+         //   public Shader ProjectorShaderToReplaceWith() => Painter.Data.rayTraceOutput;
 
             public Color CameraReplacementClearColor() => new (0, 0, 1, 1);
 
@@ -485,7 +485,7 @@ namespace PainterTool {
 
             private int _exploredVolume;
 
-            public void Inspect()
+            void IPEGI.Inspect()
             {
                 "Volumes".PegiLabel().Edit_List(C_VolumeTexture.all, ref _exploredVolume);
             }

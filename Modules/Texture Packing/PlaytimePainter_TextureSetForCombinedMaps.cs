@@ -43,7 +43,7 @@ namespace PainterTool.TexturePacking
 
         #region Inspect
 
-        public void Inspect()
+        void IPEGI.Inspect()
         {
 
             pegi.Nl();

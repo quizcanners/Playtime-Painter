@@ -65,7 +65,7 @@ namespace PainterTool {
                 edited = ind;
         }
         
-        public void Inspect() {
+        void IPEGI.Inspect() {
 
             "Material:".PegiLabel(60).Write(material);
             pegi.Nl();

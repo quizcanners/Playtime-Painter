@@ -12,7 +12,7 @@ namespace PainterTool.MeshEditing
 {
     #pragma warning disable IDE0018 // Inline variable declaration
 
-    internal class MeshEditorManager : PainterClassCfg 
+    internal class MeshEditorManager : PainterClassCfg , IPEGI
     {
 
         #region Getters Setters
@@ -759,7 +759,7 @@ namespace PainterTool.MeshEditing
 
         private readonly pegi.EnterExitContext contenxt = new(); 
 
-        public void Inspect()  {
+        void IPEGI.Inspect()  {
 
                 var changed = pegi.ChangeTrackStart();
                 MeshData.inspected = editedMesh;

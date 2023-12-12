@@ -282,13 +282,13 @@ namespace PainterTool {
                 }
             }
 
-            public void SetTexture(C_VolumeTexture parent, VolumeCubeMapped.Direction dir, Texture tex) 
+            public void SetGlobalTexture(C_VolumeTexture parent, VolumeCubeMapped.Direction dir, Texture tex) 
             {
                 _texture = tex;
                 GetProperty(parent, dir).SetGlobal(_texture);
             }
 
-            public void Inspect()
+            void IPEGI.Inspect()
             {
                 _property?.Nested_Inspect().Nl();
 

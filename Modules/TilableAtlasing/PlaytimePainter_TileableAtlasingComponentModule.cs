@@ -235,7 +235,7 @@ namespace PainterTool.ComponentModules {
 
         private readonly pegi.EnterExitContext context = new();
 
-        public void Inspect() {
+        void IPEGI.Inspect() {
 
             using (context.StartContext())
             {
@@ -529,7 +529,7 @@ namespace PainterTool.ComponentModules {
         private Shader _atlasedShader;
         public static MaterialAtlases inspectedAtlas;
         private bool _showHint;
-        public void Inspect()
+        void IPEGI.Inspect()
         {
 
 #if UNITY_EDITOR
@@ -946,7 +946,7 @@ namespace PainterTool.ComponentModules {
 
         [SerializeField]  private pegi.EnterExitContext context = new();
 
-        public void Inspect()
+        void IPEGI.Inspect()
         {
             using (context.StartContext())
             {

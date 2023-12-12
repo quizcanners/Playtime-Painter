@@ -457,7 +457,7 @@ namespace PainterTool
 
         #region Inspector
         private Camera inspectedCamera;
-        public void Inspect() {
+        void IPEGI.Inspect() {
 
             "Local".PegiLabel("Use local Position and rotation of the camera.").ToggleIcon(ref localTransform).Nl();
             "Position: {0}".F(position).PegiLabel().Nl();

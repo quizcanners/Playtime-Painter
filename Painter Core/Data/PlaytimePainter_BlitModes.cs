@@ -168,8 +168,8 @@ namespace PainterTool {
 
                     txt.PegiLabel().ApproxWidth().Write();
 
-                    InspectedBrush._dFlow.Inspect();
-
+                    pegi.Nested_Inspect_Value(ref InspectedBrush._dFlow);
+            
                     pegi.Nl();
 
                     var is3D = InspectedBrush.Is3DBrush(id);

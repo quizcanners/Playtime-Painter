@@ -1267,7 +1267,8 @@ namespace PainterTool
 
             try
             {
-                if (!meshCollider) return;
+                if (!meshCollider) 
+                    return;
                 meshCollider.sharedMesh = null;
                 meshCollider.sharedMesh = colliderForSkinnedMesh;
             }
@@ -1310,18 +1311,16 @@ namespace PainterTool
                 meshCollider = GetComponent<MeshCollider>();
                 meshFilter = GetComponent<MeshFilter>();
 
-                if (!meshCollider)
+                if (meshCollider == null)
                 {
-                    meshCollider = meshRenderer.gameObject.AddComponent<MeshCollider>();
+                    meshCollider = gameObject.AddComponent<MeshCollider>();
                     forcedMeshCollider = true;
                 }
-                else if (meshCollider.enabled == false)
+                else if (!meshCollider.enabled)
                 {
                     meshCollider.enabled = true;
                     forcedMeshCollider = true;
                 }
-
-
             }
 
             if (meshRenderer && (meshRenderer.GetType() == typeof(SkinnedMeshRenderer)))

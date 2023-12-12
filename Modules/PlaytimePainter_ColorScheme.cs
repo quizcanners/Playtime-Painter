@@ -45,7 +45,7 @@ namespace PainterTool
             return col;
         }
 
-        public void Inspect() 
+        void IPEGI.Inspect() 
         {
             paletteName.PegiLabel().Edit_List(_colors, EditColor);
         }

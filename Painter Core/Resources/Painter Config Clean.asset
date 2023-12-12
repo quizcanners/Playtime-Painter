@@ -47,7 +47,6 @@ MonoBehaviour:
   - {fileID: 4800000, guid: 189db779c3259794ea3202f88c029174, type: 3}
   - {fileID: 4800000, guid: f109a9b24b09edf4c8669c1035baae20, type: 3}
   - {fileID: 4800000, guid: 3416c86bca183ed41afdb0a1b64a40cc, type: 3}
-  - {fileID: 4800000, guid: cedc6d7951a0d38408f58630ee5106d8, type: 3}
   atlasedMaterials: []
   playtimeSavedTextures: []
   matMetas:
@@ -56,12 +55,7 @@ MonoBehaviour:
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
     selectedForMerge: 0
-  - material: {fileID: 2100000, guid: 51b4c22533b3f504ebab569193a03e3b, type: 2}
-    selectedTexture: 0
-    usePreviewShader: 0
-    colorToVertexColorOnMerge: 0
-    selectedForMerge: 0
-  - material: {fileID: 2100000, guid: 5139ae5dbd9c0ae41879578e5f1da9fc, type: 2}
+  - material: {fileID: 2100000, guid: 789e54da23c7b5b45a4df3b72f895a0f, type: 2}
     selectedTexture: 0
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
@@ -81,12 +75,27 @@ MonoBehaviour:
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
     selectedForMerge: 0
-  - material: {fileID: 2100000, guid: 46882d5c926450442924f9b4981ce100, type: 2}
+  - material: {fileID: 2100000, guid: 51a18256b76561b4a8eff6181b7e6945, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 4b007b7ffe5d67c44bbfd9dadc643e1d, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 8e1b46c36b99c5a46bacae2d7fc247d3, type: 2}
     selectedTexture: 0
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
     selectedForMerge: 0
   - material: {fileID: 2100000, guid: d219800d8b50179469f45085afad5e23, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
     selectedTexture: 0
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0

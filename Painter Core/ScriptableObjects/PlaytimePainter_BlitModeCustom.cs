@@ -18,7 +18,7 @@ namespace PainterTool
 
         public bool AllSetUp => shader;
 
-        public void Inspect()
+        void IPEGI.Inspect()
         {
             "Blit Mode Shader".PegiLabel(110).Edit(ref shader).Nl();
 
