@@ -668,8 +668,8 @@ namespace PainterTool {
 
             Painter.MeshManager.CombinedUpdate();
 
-            if (!Application.isPlaying)
-                Singleton.Try<Singleton_DepthProjectorCamera>(cam => cam.ManagedUpdate(), logOnServiceMissing: false);
+            if (!Application.isPlaying && Singleton.TryGet<Singleton_DepthProjectorCamera>(out var cam))
+                    cam.ManagedUpdate();
             
 #if UNITY_EDITOR
             if (refocusOnThis) {
@@ -781,10 +781,12 @@ namespace PainterTool {
 
                 if ("Depth Projector Camera".PegiLabel().IsEntered().Nl())
                 {
-                    if (!QuizCanners.Utils.Singleton.Try<Singleton_DepthProjectorCamera>(s => s.Nested_Inspect().Nl(), logOnServiceMissing: false)
-                        && "Instantiate".PegiLabel().Click())
-                        Painter.GetOrCreateProjectorCamera();
-
+                    if (Singleton.TryGet<Singleton_DepthProjectorCamera>(out var s))
+                        s.Nested_Inspect().Nl();
+                    else {
+                        if ("Instantiate".PegiLabel().Click())
+                            Painter.GetOrCreateProjectorCamera();
+                    }
                 }
 
                 if ("Painter Camera Modules".PegiLabel().IsEntered(showLabelIfTrue: false).Nl_ifNotEntered())

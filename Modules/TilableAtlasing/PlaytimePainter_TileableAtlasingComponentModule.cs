@@ -679,7 +679,6 @@ namespace PainterTool.ComponentModules {
         #region Encode & Decode
 
         public override CfgEncoder Encode() => new CfgEncoder()//base.Encode()//this.EncodeUnrecognized()
-            .Add("tf", targetFields)
             .Add("af", atlasFields)
             .Add("sf", _srcFields)
             .Add_String("n", NameForInspector)
@@ -690,7 +689,6 @@ namespace PainterTool.ComponentModules {
         public override void DecodeTag(string key, CfgData data)
         {
             switch (key) {
-                case "tf": data.ToList(out targetFields); break;
                 case "af": data.ToList(out atlasFields); break;
                 case "sf": data.ToList(out _srcFields); break;
                 case "n": NameForInspector = data.ToString(); break;
