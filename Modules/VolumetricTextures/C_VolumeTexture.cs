@@ -34,9 +34,6 @@ namespace PainterTool {
 
         public DirtyState Dirty = new();
 
-
-
-
         public class DirtyState 
         {
             public readonly Gate.DirtyVersion ShaderData = new();
@@ -44,7 +41,7 @@ namespace PainterTool {
             public readonly Gate.Vector3Value LocationForSortingGate_Gate = new();
 
             public readonly Gate.Frame PositionUpdate = new();
-            public bool PosAndSize = false;
+            //public bool PosAndSize = false;
           
             public readonly Gate.Vector3Value PreviousPosition = new();
 
@@ -56,7 +53,7 @@ namespace PainterTool {
                 PositionUpdate.ValueIsDefined = false;
                 LocationForSortingGate_Gate.ValueIsDefined = false;
                 PreviousPosition.ValueIsDefined = false;
-                PosAndSize = false;
+              //  PosAndSize = false;
             }
 
         }
@@ -159,10 +156,7 @@ namespace PainterTool {
 
 
 
-        public static readonly ShaderProperty.FloatFeature VOLUME_VISIBILITY = new(name: "qc_VolumeAlpha", featureDirective: "qc_GOT_VOLUME" );
 
-
-        public bool IsVisible => VOLUME_VISIBILITY.latestValue > 0.1f;
 
         #region Cubemap
 
@@ -177,7 +171,7 @@ namespace PainterTool {
         private ShaderProperty.TextureValue _cubeMapProperty;
         public RenderTexture cubeArray;
 
-        public void Clear() 
+        public void Release() 
         {
             if (cubeArray) 
             {
@@ -389,13 +383,18 @@ namespace PainterTool {
       //      => hSlices != heightSlices || this.size != size || staticPosition != _staticPosition;
         
 
-        public void Set(int heightSlices, float size) 
+        public bool TryChange(int heightSlices, float size) 
         {
+            if (hSlices == heightSlices && this.size == size)
+                return false;
+
             hSlices = heightSlices;
             this.size = size;
            // _staticPosition = staticPosition;
 
             Dirty.SetDirty();
+
+            return true;
         }
 
         public Vector4 GetSlices4Shader()
@@ -412,29 +411,27 @@ namespace PainterTool {
 
         public Vector4 GetPositionAndSizeForShader() 
         {
-            if (Dirty.PositionUpdate.TryEnter())
+            if (!Dirty.PositionUpdate.TryEnter())
+                return posNSizeCached;
+
+            Vector3 pos;
+
+            if (!DiscretePosition) 
             {
-                Vector3 pos;
+                pos = transform.position;
+              //  Dirty.PosAndSize = false;
+            } else 
+            {
+                pos = TracedVolume.GetDiscretePosition(transform.position, size, out float scaledChunks, changePositionOnOffset);// Vector3Int.FloorToInt(currentPosition / scaledChunks);
 
-                if (!DiscretePosition) 
-                {
-                    pos = transform.position;
-                    Dirty.PosAndSize = false;
-                } else 
-                {
-                    pos = VolumeTexture.GetDiscretePosition(transform.position, size, out float scaledChunks, changePositionOnOffset);// Vector3Int.FloorToInt(currentPosition / scaledChunks);
-
-                    if ((!posNSizeCached.XYZ().Equals(pos) && Vector3.Distance(transform.position, posNSizeCached.XYZ()) > scaledChunks))
-                        Dirty.PosAndSize = false;
-                }
-
-                if (!Dirty.PosAndSize)
-                {
-                    Dirty.PosAndSize = true;
-                    posNSizeCached = pos.ToVector4(size);
-                }
+               // if ((!posNSizeCached.XYZ().Equals(pos) && Vector3.Distance(transform.position, posNSizeCached.XYZ()) > scaledChunks))
+                  //  Dirty.PosAndSize = false;
             }
 
+
+            posNSizeCached = pos.ToVector4(size);
+            
+            
             return posNSizeCached;
         }
 
@@ -693,7 +690,7 @@ namespace PainterTool {
         {
             all.Add(this);
             UpdateShaderVariables();
-            VOLUME_VISIBILITY.GlobalValue = 1;
+            TracedVolume.HasValidData = true;//VOLUME_VISIBILITY.GlobalValue = 1;
         }
 
         public virtual void OnDisable()
@@ -706,9 +703,9 @@ namespace PainterTool {
             }
 
             if (all.Count == 0)
-                VOLUME_VISIBILITY.GlobalValue = 0;
+                TracedVolume.HasValidData = false;//VOLUME_VISIBILITY.GlobalValue = 0;
 
-            Clear();
+            Release();
 
         }
 

@@ -50,7 +50,7 @@ MonoBehaviour:
   atlasedMaterials: []
   playtimeSavedTextures: []
   matMetas:
-  - material: {fileID: 2100000, guid: 1abe6f61604689545bc10af341036ccb, type: 2}
+  - material: {fileID: 2100000, guid: 11837696711c10845a58872cfe5ce964, type: 2}
     selectedTexture: 0
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
@@ -65,12 +65,32 @@ MonoBehaviour:
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
     selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 49814354475ac084887436eff3edfbd0, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 1abe6f61604689545bc10af341036ccb, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
   - material: {fileID: 2100000, guid: e062b0031189828459e0aaa98c70d311, type: 2}
     selectedTexture: 0
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0
     selectedForMerge: 0
-  - material: {fileID: 2100000, guid: 49814354475ac084887436eff3edfbd0, type: 2}
+  - material: {fileID: 2100000, guid: 4a7772be632d5cb4e9f2e025f29833d7, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: a2e8a6e2a618ef74293deb83252d9fc1, type: 2}
+    selectedTexture: 0
+    usePreviewShader: 0
+    colorToVertexColorOnMerge: 0
+    selectedForMerge: 0
+  - material: {fileID: 2100000, guid: 8b7ee753afedcbc42aa42cab2193968a, type: 2}
     selectedTexture: 0
     usePreviewShader: 0
     colorToVertexColorOnMerge: 0

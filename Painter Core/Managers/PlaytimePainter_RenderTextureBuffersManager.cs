@@ -486,8 +486,17 @@ namespace PainterTool
             Singleton_PainterCamera.lastPainterCall = QcUnity.TimeSinceStartup();
         }
 
-        public static RenderTexture Blit(Color col, RenderTexture to)
+        public static void Blit(Color col, RenderTexture renderTexture)
         {
+            renderTexture.Clear(col);
+            /*
+            RenderTexture rt = RenderTexture.active;
+            RenderTexture.active = renderTexture;
+            GL.Clear(true, true, col);
+            RenderTexture.active = rt;
+            */
+           
+            /*
             if (!Data)
             {
                 Debug.LogError("No Playtime painter for fill operation");
@@ -496,7 +505,7 @@ namespace PainterTool
             PainterShaderVariables.BrushColorProperty.GlobalValue = col;
             Blit(Data.bufferColorFill, to);
 
-            return to;
+            return to;*/
         }
 
         public static RenderTexture Blit(Shader shader, RenderTexture target) 

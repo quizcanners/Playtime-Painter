@@ -198,7 +198,8 @@ namespace PainterTool {
                 tmp.y += 1;
             }
 
-            Singleton.Try<Singleton_PainterCamera>(c => c.RequestLateUpdate(image));
+            if (Singleton.TryGet<Singleton_PainterCamera>(out var c))
+                c.RequestLateUpdate(image);
         }
         
         #region Processors
