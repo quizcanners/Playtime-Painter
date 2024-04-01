@@ -306,7 +306,7 @@ namespace PainterTool {
 
             #region Inspector
 
-            private float BrushScaleMaxForCpu(C_VolumeTexture volTex) => volTex.size * volTex.TextureWidth * 0.025f;
+            private float BrushScaleMaxForCpu(C_VolumeTexture volTex) => volTex.size * volTex.SliceWidth * 0.025f;
 
             public override string ToString() => "Volume Painting";
 
@@ -467,7 +467,7 @@ namespace PainterTool {
 
                         if (br.showingSize)
                         {
-                            var maxScale = volTex.size * volTex.TextureWidth * 4;
+                            var maxScale = volTex.size * volTex.SliceWidth * 4;
 
                             "Scale".PegiLabel(toolTip: "Scale For Volume painting", 40).Edit(ref br.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f);
 

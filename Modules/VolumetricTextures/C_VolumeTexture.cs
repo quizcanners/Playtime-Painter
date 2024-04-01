@@ -79,9 +79,11 @@ namespace PainterTool {
             if (_texture)
                 return _texture;
 
-            _texture = new RenderTexture(1024, 1024, depth: 0, RenderTextureFormat.ARGBHalf, mipCount: 0)
+            _texture = new RenderTexture(1024, 1024, depth:0, RenderTextureFormat.ARGBHalf, readWrite: RenderTextureReadWrite.Linear)
             {
-                wrapMode = TextureWrapMode.Clamp
+                wrapMode = TextureWrapMode.Clamp,
+                useMipMap = false,
+                
             };
 
             _isRuntimeTexture = true;
@@ -259,9 +261,10 @@ namespace PainterTool {
                 if (_texture)
                     return _texture;
 
-                _texture = new RenderTexture(1024, 1024, 0, RenderTextureFormat.ARGBHalf, mipCount: 0)
+                _texture = new RenderTexture(1024, 1024, 0, RenderTextureFormat.ARGBHalf, readWrite: RenderTextureReadWrite.Linear)
                 {
-                    wrapMode = TextureWrapMode.Clamp
+                    wrapMode = TextureWrapMode.Clamp,
+                    useMipMap = false,
                 };
 
                 return _texture;
@@ -365,24 +368,22 @@ namespace PainterTool {
 
         public int TextureHeight => hSlices * hSlices;
 
-        public int TextureWidth
+        public int TextureWidth 
         {
-            get
+            get 
             {
-                int width;
                 if (Texture)
-                    width = Texture.width;
-                else
-                    width = Singleton.GetValue<Singleton_TexturesPool, int>(s => s.defaultWidth, defaultValue: _tmpWidth, logOnServiceMissing: false);
+                    return Texture.width;
 
-                return width / hSlices;
+               return  Singleton.GetValue<Singleton_TexturesPool, int>(s => s.defaultWidth, defaultValue: _tmpWidth, logOnServiceMissing: false);
             }
         }
 
+        public int SliceWidth => TextureWidth / hSlices;
+          
     //   public bool IsDifferent(int heightSlices, float size, bool staticPosition) 
       //      => hSlices != heightSlices || this.size != size || staticPosition != _staticPosition;
         
-
         public bool TryChange(int heightSlices, float size) 
         {
             if (hSlices == heightSlices && this.size == size)
@@ -402,12 +403,11 @@ namespace PainterTool {
            
                 //var srv = Singleton.Get<TexturesPoolSingleton>();
 
-                float w = TextureWidth; //((ImageMeta?.Width ?? (srv ? srv.width : _tmpWidth)) //- hSlices * 2
+                float w = SliceWidth; //((ImageMeta?.Width ?? (srv ? srv.width : _tmpWidth)) //- hSlices * 2
                                  //) / hSlices;
                 return new Vector4(hSlices, w * 0.5f, 1f / w, 1f / hSlices);
             
         }
-
 
         public Vector4 GetPositionAndSizeForShader() 
         {
@@ -435,8 +435,6 @@ namespace PainterTool {
             return posNSizeCached;
         }
 
-     
-
         public virtual Vector4 UpdateShaderVariables()
         {
             Vector4 res = GetPositionAndSizeForShader();
@@ -449,7 +447,6 @@ namespace PainterTool {
 
             return res;
         }
-
 
         private void UpdateImageMeta()
         {
@@ -644,7 +641,7 @@ namespace PainterTool {
                     if (changed)
                         UpdateImageMeta();
 
-                    var w = TextureWidth;
+                    var w = SliceWidth;
                     ("Will result in X:{0} Z:{0} Y:{1} volume".F(w,TextureHeight)).PegiLabel().Nl();
 
                     pegi.Draw(tex, width: 256);
@@ -661,10 +658,6 @@ namespace PainterTool {
         }
         
         #endregion
-
-
-
-
 
         public void Update()
         {
@@ -714,9 +707,15 @@ namespace PainterTool {
             if (ImageMeta == null || ManagedExternally) 
                 return;
 
-            var w = TextureWidth;
+            var w = SliceWidth;
             Gizmos.color = Color.green;
             Gizmos.DrawWireCube(VolumeCenter, new Vector3(w, TextureHeight, w) * size);
+        }
+
+        public Bounds GetBounds()
+        {
+            var w = SliceWidth;
+            return new(center: VolumeCenter, new Vector3(w, TextureHeight, w) * size);
         }
 
         public Vector3 VolumeCenter 
