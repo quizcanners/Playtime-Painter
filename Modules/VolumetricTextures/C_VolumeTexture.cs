@@ -91,8 +91,6 @@ namespace PainterTool {
             return _texture;
         }
 
-
-
         public Texture Texture
         {
             get => _texture;
@@ -190,6 +188,12 @@ namespace PainterTool {
 
             if (_isRuntimeTexture)
                 _texture.DestroyWhatever();
+
+            if (_previousTarget)
+            {
+                _previousTarget.DestroyWhatever();
+                _previousTarget = null;
+            }
         }
 
         public void ToTextureArray(int face, Texture tex) 
@@ -279,7 +283,7 @@ namespace PainterTool {
                 }
             }
 
-            public void SetGlobalTexture(C_VolumeTexture parent, VolumeCubeMapped.Direction dir, Texture tex) 
+            public void SetTexture_AndShaderProperty(C_VolumeTexture parent, VolumeCubeMapped.Direction dir, Texture tex) 
             {
                 _texture = tex;
                 GetProperty(parent, dir).SetGlobal(_texture);
@@ -683,7 +687,7 @@ namespace PainterTool {
         {
             all.Add(this);
             UpdateShaderVariables();
-            TracedVolume.HasValidData = true;//VOLUME_VISIBILITY.GlobalValue = 1;
+            TracedVolume.VolumeExists = true;//VOLUME_VISIBILITY.GlobalValue = 1;
         }
 
         public virtual void OnDisable()
@@ -696,7 +700,7 @@ namespace PainterTool {
             }
 
             if (all.Count == 0)
-                TracedVolume.HasValidData = false;//VOLUME_VISIBILITY.GlobalValue = 0;
+                TracedVolume.VolumeExists = false;//VOLUME_VISIBILITY.GlobalValue = 0;
 
             Release();
 
