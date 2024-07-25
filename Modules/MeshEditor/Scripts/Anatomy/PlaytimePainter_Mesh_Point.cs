@@ -1,6 +1,5 @@
 using QuizCanners.Migration;
 using QuizCanners.Utils;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 

@@ -123,6 +123,8 @@ namespace PainterTool.MeshEditing
                         AutoProjectUVs(EditedMesh);
 
                     pegi.Nl();
+
+                    "To Auto-Generate LightmapUV(UV2), exit mesh editing (disable/enable component) and click GenerateUV2 before entering/insteadOf editing".PegiLabel().Write_Hint().Nl();
                 }
 
                 pegi.Nl();
