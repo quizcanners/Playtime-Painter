@@ -57,6 +57,49 @@ struct appdata_brush_qc
 
 #define TRANSFORM_TEX_QC(tex,name) (tex.xy * name##_ST.xy + name##_ST.zw)
 
+void vert_atlasedTexture(float _qcPp_AtlasTextures, float atlasNumber, out float4 atlasedUV)
+{
+    float atY = floor(atlasNumber / _qcPp_AtlasTextures);
+    float atX = atlasNumber - atY * _qcPp_AtlasTextures;
+    atlasedUV.xy = float2(atX, atY) / _qcPp_AtlasTextures;
+    atlasedUV.z = _qcPp_AtlasTextures;
+    atlasedUV.w = 1 / _qcPp_AtlasTextures;
+}
+
+// Old depricated
+void vert_atlasedTexture(float _qcPp_AtlasTextures, float atlasNumber, float _TexelSizeX, out float4 atlasedUV)
+{
+    float atY = floor(atlasNumber / _qcPp_AtlasTextures);
+    float atX = atlasNumber - atY * _qcPp_AtlasTextures;
+    atlasedUV.xy = float2(atX, atY) / _qcPp_AtlasTextures; //+edge;
+    atlasedUV.z = _TexelSizeX; //(1) / _qcPp_AtlasTextures - edge * 2;
+    atlasedUV.w = 1 / _qcPp_AtlasTextures;
+}
+
+float atlasUVlod(inout float2 uv, out float lod, float4 _TexelSize, float4 atlasedUV)
+{
+    _TexelSize.zw *= 0.5 * atlasedUV.w;
+    float2 px = _TexelSize.z * abs(ddx(uv.x));
+    float2 py = _TexelSize.w * abs(ddy(uv.y));
+	
+    lod = max(0, 0.5 * log2(max(dot(px, px), dot(py, py))));
+	
+    float seam = (_TexelSize.x) * pow(2, lod);
+
+    uv = frac(uv) * (atlasedUV.w - seam) + atlasedUV.xy + seam * 0.5;
+
+    return seam;
+}
+
+
+// Old depricated
+void frag_atlasedTexture(float4 atlasedUV, float mip, inout float2 uv)
+{
+    float seam = (atlasedUV.z) * pow(2, mip);
+    float2 fractal = (frac(uv) * (atlasedUV.w - seam) + seam * 0.5);
+    uv = fractal + atlasedUV.xy;
+}
+
 inline float3 SourceTextureByBrush(float3 src) {
 
 	// 0 - Copy, 1 = Multiply, 2 = Use Brush Color

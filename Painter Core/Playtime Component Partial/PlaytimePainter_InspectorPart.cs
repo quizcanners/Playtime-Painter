@@ -1169,21 +1169,22 @@ namespace PainterTool
 #endif
         private static void TakePainterFromAll()
         {
-            var allObjects = FindObjectsOfType<Renderer>();
+            var allObjects = FindObjectsByType<PainterComponent>(FindObjectsSortMode.None);//FindObjectsOfType<Renderer>();
             foreach (var mr in allObjects)
             {
-                var ip = mr.GetComponent<PainterComponent>();
-                if (ip)
-                    DestroyImmediate(ip);
+                mr.DestroyWhateverComponent();
+                //var ip = mr.GetComponent<PainterComponent>();
+                //if (ip)
+                  //  DestroyImmediate(ip);
             }
 
-            var rtp = FindObjectsOfType<Singleton_PainterCamera>();
+            var rtp = FindObjectsByType<Singleton_PainterCamera>(FindObjectsSortMode.None);
 
             if (!rtp.IsNullOrEmpty())
                 foreach (var rt in rtp)
                     rt.gameObject.DestroyWhatever();
 
-            var dc = FindObjectsOfType<Singleton_DepthProjectorCamera>();
+            var dc = FindObjectsByType<Singleton_DepthProjectorCamera>(FindObjectsSortMode.None);
 
             if (!dc.IsNullOrEmpty())
                 foreach (var d in dc)

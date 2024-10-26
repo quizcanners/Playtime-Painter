@@ -20,7 +20,7 @@ namespace PainterTool {
     internal static class LazyLocalization 
     {
 
-        private static readonly TranslationsEnum painterTranslations = new TranslationsEnum();
+        private static readonly TranslationsEnum painterTranslations = new();
 
         public static LazyTranslation Get(this MsgPainter msg, int lang = 0) {
 
@@ -275,9 +275,9 @@ namespace PainterTool {
         }
 
         
-        public static pegi.ChangesToken DocumentationClick(this MsgPainter msg) => new pegi.ChangesToken(!SO_PainterDataAndConfig.hideDocumentation && msg.Get().DocumentationClick());
+        public static pegi.ChangesToken DocumentationClick(this MsgPainter msg) => new(!SO_PainterDataAndConfig.hideDocumentation && msg.Get().DocumentationClick());
         
-        public static pegi.ChangesToken DocumentationWarning(this MsgPainter msg) => new pegi.ChangesToken(!SO_PainterDataAndConfig.hideDocumentation && msg.Get().WarningDocumentation());
+        public static pegi.ChangesToken DocumentationWarning(this MsgPainter msg) => new(!SO_PainterDataAndConfig.hideDocumentation && msg.Get().WarningDocumentation());
 
     }
 }

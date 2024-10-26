@@ -342,7 +342,7 @@ namespace PainterTool.MeshEditing
                         break;
                     }
 
-            pegi.Select(ref selected, nms).Nl();
+            pegi.Select_Deprecated(ref selected, nms).Nl();
 
             if (selected >= tps.Count)
                 sameSizeDataIndex = -1;
@@ -363,7 +363,7 @@ namespace PainterTool.MeshEditing
                     for (var j = 0; j < typeFields.Length; j++)
                         typeFields[j] = v.DataSource.GetFieldName(j);
 
-                    changed |= pegi.Select(ref v.dstIndex, typeFields).Nl();
+                    changed |= pegi.Select_Deprecated(ref v.dstIndex, typeFields).Nl();
 
                     typeFields.ClampIndexToCount(ref v.dstIndex);
                 }

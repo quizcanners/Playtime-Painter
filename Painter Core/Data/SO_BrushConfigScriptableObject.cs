@@ -1,4 +1,5 @@
 using QuizCanners.Inspect;
+using QuizCanners.Utils;
 using UnityEngine;
 
 namespace PainterTool
@@ -11,9 +12,10 @@ namespace PainterTool
 
         public Brush brush;
 
+        public override string ToString() => "Brush Config ({0})".F(name);
+
         void IPEGI.Inspect()
         {
-            pegi.Nl();
             pegi.CopyPaste.InspectOptionsFor(ref brush);
             pegi.Nl();
             brush.Nested_Inspect();

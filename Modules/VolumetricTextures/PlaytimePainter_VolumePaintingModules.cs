@@ -29,7 +29,7 @@ namespace PainterTool {
 
             public static VectorValue VOLUME_BRUSH_DIRECTION = new ("VOLUME_BRUSH_DYRECTION");
 
-            public static Feature UseSmoothing = new ("_SMOOTHING");
+            public static GlobalFeature UseSmoothing = new ("_SMOOTHING");
 
             private float smoothing;
 

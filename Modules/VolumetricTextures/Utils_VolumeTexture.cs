@@ -7,7 +7,7 @@ namespace PainterTool
 
     public static class TracedVolume
     {
-        public static readonly ShaderProperty.Feature VOLUME_VISIBILITY = new("qc_GOT_VOLUME");
+        public static readonly ShaderProperty.GlobalFeature VOLUME_VISIBILITY = new("qc_GOT_VOLUME");
 
         public static readonly ShaderProperty.FloatValue BASE_LIGHT_VOLUME_VISIBILITY = new(name : "qc_VolumeAlpha");
 

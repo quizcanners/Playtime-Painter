@@ -512,8 +512,7 @@ namespace PainterTool {
             if (!brushPrefab) {
                 var go = Resources.Load(SO_PainterDataAndConfig.PREFABS_RESOURCE_FOLDER +"/RenderCameraBrush") as GameObject;
                 if (go) {
-                    brushPrefab = go.GetComponent<PlaytimePainter_RenderBrush>();
-                    if (!brushPrefab)
+                    if (!go.TryGetComponent(out brushPrefab))
                         Debug.Log("Couldn't find brush prefab.");
                 }
                 else
@@ -522,7 +521,8 @@ namespace PainterTool {
             
             #endif
 
-            if (!brushRenderer){
+            if (!brushRenderer)
+            {
                 brushRenderer = GetComponentInChildren<PlaytimePainter_RenderBrush>();
                 if (!brushRenderer)
                     brushRenderer = Instantiate(brushPrefab.gameObject, transform).GetComponent<PlaytimePainter_RenderBrush>();
@@ -930,8 +930,8 @@ namespace PainterTool {
                 pegi.Nl();
 
                 var cam = MainCamera;
-                
-                var cams = new List<Camera>(FindObjectsOfType<Camera>());
+
+                var cams = new List<Camera>(FindObjectsByType<Camera>(FindObjectsSortMode.None));//FindObjectsOfType<Camera>());
 
                 if (painterCamera && cams.Contains(painterCamera))
                     cams.Remove(painterCamera);
