@@ -686,7 +686,7 @@ namespace QuizCanners.Utils
         protected T[] objs = new T[0];
         private int _firstFreeObj;
 
-        public pegi.ChangesToken Select<T>(ref int no)
+        public pegi.ChangesToken Select(ref int no)
         {
             List<int> indexes;
             var objs = GetAllObjs(out indexes);

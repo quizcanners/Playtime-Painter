@@ -20,7 +20,7 @@ namespace PainterTool
 
         void IPEGI.Inspect()
         {
-            "Blit Mode Shader".PegiLabel(110).Edit(ref shader).Nl();
+            "Blit Mode Shader".ConstLabel().Edit(ref shader).Nl();
 
             "Select texture to copy from".PegiLabel().ToggleIcon(ref selectSourceTexture).Nl();
             if (selectSourceTexture)

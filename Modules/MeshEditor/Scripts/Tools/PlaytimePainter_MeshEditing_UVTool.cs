@@ -74,12 +74,15 @@ namespace PainterTool.MeshEditing
                 if ("tiling".PegiLabel().Edit(ref tiling).Nl())
                     UpdateUvPreview();
 
-                (preciseOffset ? Icon.Round : Icon.Size).Click(()=> preciseOffset = !preciseOffset);
+                if (preciseOffset)
+                    pegi.Click(Painter.Data.UiIcons.Round).OnChanged(() => preciseOffset = !preciseOffset);
+                else
+                    Icon.Size.Click(()=> preciseOffset = !preciseOffset);
 
                 if (preciseOffset)
-                    "offset".PegiLabel(60).Edit(ref offset, -1, 1).Nl().OnChanged(()=> UpdateUvPreview());
+                    "offset".ConstLabel().Edit(ref offset, -1, 1).Nl().OnChanged(()=> UpdateUvPreview());
                 else
-                    "offset".PegiLabel(60).Edit(ref offset).Nl().OnChanged(() => UpdateUvPreview());
+                    "offset".ConstLabel().Edit(ref offset).Nl().OnChanged(() => UpdateUvPreview());
 
                 if ("Projection UV Stop".PegiLabel().Click().Nl()) {
                     projectionUv = false;

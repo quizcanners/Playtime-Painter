@@ -212,7 +212,7 @@ namespace PainterTool {
                     pegi.Nl();
 
                     if (blitMode.UsingSourceTexture && (id == null || id.TargetIsRenderTexture()))
-                        MsgPainter.CopyFrom.GetText().PegiLabel(70).SelectOrAdd(ref InspectedBrush.selectedSourceTexture,
+                        MsgPainter.CopyFrom.GetText().ConstLabel().SelectOrAdd(ref InspectedBrush.selectedSourceTexture,
                                 ref Painter.Data.sourceTextures)
                             .Nl();
                 }
@@ -465,15 +465,15 @@ namespace PainterTool {
 
                 pegi.Nl();
 
-                "Mask Size: ".PegiLabel(60).Edit(ref Painter.Data.samplingMaskSize).Nl();
+                "Mask Size: ".ConstLabel().Edit(ref Painter.Data.samplingMaskSize).Nl();
 
                 Painter.Data.samplingMaskSize.Clamp(1, 512);
 
-                "Color Set On".PegiLabel().Edit_Enum(ref method).Nl();
+                "Color Set On".ConstLabel().Edit_Enum(ref method).Nl();
 
                 if (method == ColorSetMethod.Manual)
                 {
-                    "CurrentPixel".PegiLabel(80).Edit(ref currentPixel).Nl();
+                    "CurrentPixel".ConstLabel().Edit(ref currentPixel).Nl();
 
                     var ssize = Painter.Data.samplingMaskSize;
 
@@ -610,7 +610,7 @@ namespace PainterTool {
             {
                 base.Inspect();
                 pegi.Nl();
-                "Bloom Radius".PegiLabel(70).Edit(ref InspectedBrush.blurAmount, 1f, 8f).Nl();
+                "Bloom Radius".ConstLabel().Edit(ref InspectedBrush.blurAmount, 1f, 8f).Nl();
             }
 
             #endregion
@@ -795,7 +795,7 @@ namespace PainterTool {
 
                 var allCstm = Painter.Data.customBlitModes;
 
-                if ("Config".PegiLabel(60).Select_Index(ref Painter.Data.selectedCustomBlitMode, allCstm))
+                if ("Config".ConstLabel().Select_Index(ref Painter.Data.selectedCustomBlitMode, allCstm))
                     Painter.Data.SetToDirty();
 
                 var cfg = CustomCfg;

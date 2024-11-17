@@ -254,7 +254,7 @@ namespace PainterTool.ComponentModules {
 
                 if (!context.IsAnyEntered)
                 {
-                    "Atlases".PegiLabel(70).Select_Index(ref atlasCreatorId, Painter.Data.atlases);
+                    "Atlases".ConstLabel().Select_Index(ref atlasCreatorId, Painter.Data.atlases);
                     if (Icon.Add.Click("Create new Atlas").Nl())
                     {
                         atlasCreatorId = Painter.Data.atlases.Count;
@@ -548,7 +548,7 @@ namespace PainterTool.ComponentModules {
                 OnChangeMaterial();
             }
 
-            "Name".PegiLabel(50).Edit(ref name).Nl();
+            "Name".ConstLabel().Edit(ref name).Nl();
 
             if ("Hint".PegiLabel().IsFoldout(ref _showHint).Nl())
             {
@@ -559,7 +559,7 @@ namespace PainterTool.ComponentModules {
                     "Also if light looks smudged, rebuild the light.").PegiLabel().Write_Hint();
             }
 
-            if (("Atlased Material:".PegiLabel(90).Edit(ref _atlasedMaterial).Nl() ||
+            if (("Atlased Material".ConstLabel().Edit(ref _atlasedMaterial).Nl() ||
                 (_atlasedMaterial && _atlasedMaterial.shader != _atlasedShader))) 
                 OnChangeMaterial();
             

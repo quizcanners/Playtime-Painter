@@ -168,7 +168,7 @@ namespace PainterTool.MeshEditing {
 
            // var m = MeshMGMT;
 
-            "OnClick:".PegiLabel(60).Write();
+            "OnClick:".ConstLabel().Write();
             if ((_mergeUnMerge ? "Merging (Shift: Unmerge)" : "Smoothing (Shift: Unsmoothing)").PegiLabel().Click().Nl())
                 _mergeUnMerge = !_mergeUnMerge;
 
@@ -367,15 +367,13 @@ namespace PainterTool.MeshEditing {
         public override string ToString() => "triangle Sub Mesh index";
 
        public override void Inspect() {
-            "Sub Mesh: ".PegiLabel(60).Select(ref _curSubMesh, 0, EditedMesh.subMeshCount).Nl();
+            "Sub Mesh".ConstLabel().Select(ref _curSubMesh, 0, EditedMesh.subMeshCount).Nl();
             
             if ("Make all 0".PegiLabel().Click().Nl())
                 EditedMesh.SubMeshIndex = 0;
 
             if ("Delete Sub Mesh".PegiLabel().Click())
             {
-
-
                 EditedMesh.Dirty = true;
             }
         }

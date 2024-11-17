@@ -33,7 +33,27 @@ namespace PainterTool
         public int selectedCustomBlitMode;
 
         public Material defaultMaterial;
-        
+
+        public Icons UiIcons;
+
+        [Serializable]        
+        public class Icons 
+        {
+            public Sprite CPU;
+            public Sprite Discord;
+            public Sprite Docs;
+            public Sprite Email;
+            public Sprite GPU;
+            public Sprite Mesh;
+            public Sprite NewMaterial;
+            public Sprite NewTexture;
+            public Sprite OriginalShader;
+            public Sprite PreviewShader;
+            public Sprite Round;
+            public Sprite Square;
+        }
+
+
         #region Shaders
         public bool dontIncludeShaderInBuild;
 
@@ -225,9 +245,7 @@ namespace PainterTool
 
         public List<Texture> sourceTextures = new();
 
-#if UNITY_EDITOR
-        [SerializeField]
-#else
+#if !UNITY_EDITOR
         [NonSerialized]
 #endif
         public List<Texture> masks = new();
@@ -533,15 +551,15 @@ namespace PainterTool
 
                     "Where to save content".PegiLabel(style: pegi.Styles.ListLabel).Nl();
 
-                    "Textures".PegiLabel(60).Edit(ref texturesFolderName).Nl();
+                    "Textures".ConstLabel().Edit(ref texturesFolderName).Nl();
 
                     "Atlases: {0}/".F(texturesFolderName).PegiLabel(120).Edit(ref atlasFolderName).Nl();
 
-                    "Materials".PegiLabel(60).Edit(ref materialsFolderName).Nl();
+                    "Materials".ConstLabel().Edit(ref materialsFolderName).Nl();
 
                     "Default for New Material".PegiLabel().Edit(ref defaultMaterial).Nl();
 
-                    "Meshes".PegiLabel(60).Edit(ref meshesFolderName).Nl();
+                    "Meshes".ConstLabel().Edit(ref meshesFolderName).Nl();
 
 #endif
                 }
@@ -576,13 +594,13 @@ namespace PainterTool
 
                     pegi.Nl();
 
-                    if (Icon.Discord.Click("Join Discord", 64))
+                    if (pegi.Click(UiIcons.Discord, "Join Discord", 64))
                         PainterComponent.Open_Discord();
 
-                    if (Icon.Docs.Click("Open Asset Documentation", 64))
+                    if (pegi.Click(UiIcons.Docs, "Open Asset Documentation", 64))
                         PainterComponent.OpenWWW_Documentation();
 
-                    if (Icon.Email.Click("Report a bug / send suggestion / ask question.", 64))
+                    if (pegi.Click(UiIcons.Email, "Report a bug / send suggestion / ask question.", 64))
                         PainterComponent.Open_Email();
 
                     pegi.Nl();

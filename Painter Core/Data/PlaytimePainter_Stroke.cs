@@ -215,7 +215,7 @@ namespace PainterTool {
 
         public  Vector3 CameraProjectionTarget => GetCameraProjectionTarget(uvTo);
 
-        private readonly Gate.Frame _frameGate = new();
+        private readonly Gate.Frame _frameGate = new(Gate.InitialValue.StartArmed);
 
         public void TrySetPreviousValues() 
         {

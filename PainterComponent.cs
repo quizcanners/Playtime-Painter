@@ -1373,7 +1373,7 @@ namespace PainterTool
         }
 #endif
 
-        private readonly Gate.Frame _frameGate = new();
+        private readonly Gate.Frame _frameGate = new(Gate.InitialValue.StartArmed);
         public void ManagedUpdateOnFocused()
         {
             if (!_frameGate.TryEnter()) 

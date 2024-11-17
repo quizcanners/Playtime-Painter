@@ -346,7 +346,7 @@ namespace PainterTool
                                 scheme?.PickerPEGI();
 
                                 if (cfg.showColorSchemes)
-                                    "Scheme".PegiLabel(60).Select_Index(ref cfg.selectedColorScheme, cfg.colorSchemes)
+                                    "Scheme".ConstLabel().Select_Index(ref cfg.selectedColorScheme, cfg.colorSchemes)
                                         .Nl();
 
                             }
@@ -404,7 +404,7 @@ namespace PainterTool
                 if (pegi.Edit(ref mater))
                     Material = mater;
 
-                if (Icon.NewMaterial.Click("Instantiate Material").Nl())
+                if (pegi.Click(Painter.Data.UiIcons.NewMaterial, "Instantiate Material").Nl())
                     InstantiateMaterial(true);
 
                 pegi.Nl();
@@ -418,7 +418,7 @@ namespace PainterTool
                 if (cfg.showUrlField)
                 {
 
-                    "URL".PegiLabel(40).Edit(ref _tmpUrl);
+                    "URL".ConstLabel().Edit(ref _tmpUrl);
                     if (_tmpUrl.Length > 5 && Icon.Download.Click())
                     {
                         loadingOrder.Add(Painter.DownloadManager.StartDownload(_tmpUrl),
@@ -481,10 +481,8 @@ namespace PainterTool
 
                         const string newTexConfirmTag = "pp_nTex";
 
-                        if (((texMeta == null) &&
-                              Icon.NewTexture.Click("Create new texture2D for " + param)) ||
-                             (texMeta != null && Icon.NewTexture.ClickConfirm(newTexConfirmTag, texMeta,
-                                  "Replace " + param + " with new Texture2D " + texScale + "*" + texScale)))
+                        if (((texMeta == null) && pegi.Click(Painter.Data.UiIcons.NewTexture, "Create new texture2D for " + param)) ||
+                             (texMeta != null && pegi.ClickConfirm(Painter.Data.UiIcons.NewTexture, newTexConfirmTag, texMeta, "Replace " + param + " with new Texture2D " + texScale + "*" + texScale)))
                            
                         {
                             pegi.Nl();
@@ -506,7 +504,7 @@ namespace PainterTool
                                     (recentTexs.Count > 0)
                                     && (texMeta == null || (recentTexs.Count > 1) ||
                                         (texMeta != recentTexs[0].Texture2D.GetImgDataIfExists()))
-                                    && "Recent Textures:".PegiLabel(100).Select(ref texMeta, recentTexs)
+                                    && "Recent Textures".ConstLabel().Select(ref texMeta, recentTexs)
                                         .Nl())
                                     ChangeTexture(texMeta.ExclusiveTexture());
 
@@ -866,14 +864,14 @@ namespace PainterTool
                     pegi.GameView.ShowNotification("Editing Texture");
                 }
 
-                Icon.Mesh.Draw("Editing Mesh");
+                pegi.Draw_Selected(Painter.Data.UiIcons.Mesh);
 
             }
             else
             {
                 Icon.Painter.Draw("Editing Texture");
 
-                if (Icon.Mesh.Click("Edit Mesh"))
+                if (pegi.Click(Painter.Data.UiIcons.Mesh, "Edit Mesh")) //Icon.Mesh.Click())
                 {
                     meshEditing = true;
 
@@ -890,7 +888,7 @@ namespace PainterTool
             if (Icon.Config.Click("Preferences"))
                 cfg.showConfig = true;
 
-            if (Icon.Book.Click(toolTip: "Documentation"))
+            if (pegi.Click(Painter.Data.UiIcons.Docs, toolTip: "Documentation"))
                 pegi.FullWindow.OpenDocumentation(Documentation.Inspect);
        
         }
@@ -1043,10 +1041,10 @@ namespace PainterTool
 
             var changed = pegi.ChangeTrackStart();
           
-            if (NotUsingPreview && Icon.OriginalShader.Click("Switch To Preview Shader", 45))
+            if (NotUsingPreview && pegi.Click(Painter.Data.UiIcons.OriginalShader, "Switch To Preview Shader", 45))
                 SetPreviewShader();
 
-            if (IsUsingPreview && Icon.PreviewShader.Click("Return to Original Shader", 45))
+            if (IsUsingPreview && pegi.Click(Painter.Data.UiIcons.PreviewShader, "Return to Original Shader", 45))
             {
                 MatDta.usePreviewShader = false;
                 SetOriginalShaderOnThis();

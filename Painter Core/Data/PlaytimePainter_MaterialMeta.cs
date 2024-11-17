@@ -14,7 +14,7 @@ namespace PainterTool {
         [SerializeField] public bool usePreviewShader;
         [SerializeField] public bool colorToVertexColorOnMerge;
         [SerializeField] public bool selectedForMerge;
-        [SerializeField] public List<ShaderProperty.TextureValue> materialsTextureFields = new List<ShaderProperty.TextureValue>();
+        [SerializeField] public List<ShaderProperty.TextureValue> materialsTextureFields = new();
 
         [NonSerialized] public ShaderProperty.TextureValue bufferParameterTarget; // which texture is currently using RenderTexture buffer
         [NonSerialized] public PainterComponent painterTarget;
@@ -67,7 +67,7 @@ namespace PainterTool {
         
         void IPEGI.Inspect() {
 
-            "Material:".PegiLabel(60).Write(material);
+            "Material:".ConstLabel().Write(material);
             pegi.Nl();
 
             if (material) {

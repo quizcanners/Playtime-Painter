@@ -145,10 +145,10 @@ namespace PainterTool.MeshEditing
                 {
                     case "u0":
                         sharedUVs.Add(new Vector2[2]);
-                        sharedUVs.TryGetLast()[0] = data.ToVector2();
+                        sharedUVs[^1][0] = data.ToVector2();
                         break;
                     case "u1":
-                        sharedUVs.TryGetLast()[1] = data.ToVector2();
+                        sharedUVs[^1][1] = data.ToVector2();
                         break;
                     case "uvs":
                         currentlyDecoded = this;

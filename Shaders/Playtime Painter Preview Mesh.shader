@@ -49,6 +49,46 @@
 				float4 _GridDotPosition;
 				float _qcPp_AtlasTextures;
 
+
+				void normalAndPositionToUV (float3 worldNormal, float3 scenepos, out float4 tang, out float2 uv)
+				{
+					//scenepos += _wrldOffset.xyz;
+
+					worldNormal = abs(worldNormal);
+					float znorm = saturate((worldNormal.x-worldNormal.z)*55555);
+					float xnorm = saturate(((worldNormal.z+worldNormal.y) - worldNormal.x)*55555);
+					float ynorm = saturate((worldNormal.y-0.8)*55555);
+					
+					float x = (scenepos.x)*(xnorm)+(scenepos.z)*(1-xnorm);
+					float y = (scenepos.y)*(1-ynorm)+(scenepos.z)*(ynorm);
+
+					uv.x = x;
+					uv.y = y;
+
+					float dey = 1-ynorm;
+
+					tang.w = xnorm*ynorm;
+					tang.x = tang.w + (1-znorm)*dey;
+					tang.y = dey; 
+					tang.z = znorm*dey; 
+				}
+
+				void normalAndPositionToUV(float3 worldNormal, float3 scenepos, out float2 uv) {
+
+					//scenepos += _wrldOffset.xyz;
+
+					worldNormal = abs(worldNormal);
+					float znorm = saturate((worldNormal.x - worldNormal.z) * 55555);
+					float xnorm = saturate(((worldNormal.z + worldNormal.y) - worldNormal.x) * 55555);
+					float ynorm = saturate((worldNormal.y - 0.8) * 55555);
+
+					float x = lerp(scenepos.z, scenepos.x, xnorm);//(scenepos.x)*(xnorm)+(scenepos.z)*(1 - xnorm);
+					float y = lerp(scenepos.y, scenepos.z, ynorm);//(scenepos.y)*(1 - ynorm) + (scenepos.z)*(ynorm);
+
+					uv.x = x;
+					uv.y = y;
+				}
+
 				v2f vert (appdata_full v)  {
 					v2f o;
 			

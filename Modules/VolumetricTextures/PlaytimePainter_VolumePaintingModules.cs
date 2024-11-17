@@ -400,9 +400,9 @@ namespace PainterTool {
                                 canEnter: _enableRayTracing && Singleton.Get<Singleton_DepthProjectorCamera>()
                                 ).Nl_ifEntered())
                             {
-                                "Min".PegiLabel(40).Edit(ref minFov, 60, maxFov - 1).Nl();
+                                "Min".ConstLabel().Edit(ref minFov, 60, maxFov - 1).Nl();
 
-                                "Max".PegiLabel(40).Edit(ref maxFov, minFov + 1, 170).Nl();
+                                "Max".ConstLabel().Edit(ref maxFov, minFov + 1, 170).Nl();
 
                                 rayTraceCameraConfiguration.Nested_Inspect().Nl();
                             }
@@ -410,7 +410,7 @@ namespace PainterTool {
                             if (smoothing > 0 || Brush.showAdvanced)
                             {
                                 pegi.Nl();
-                                "Smoothing".PegiLabel(70).Edit(ref smoothing, 0, 1);
+                                "Smoothing".ConstLabel().Edit(ref smoothing, 0, 1);
                                 pegi.FullWindow.DocumentationClickOpen("Best used in the end");
 
                                 pegi.Nl();

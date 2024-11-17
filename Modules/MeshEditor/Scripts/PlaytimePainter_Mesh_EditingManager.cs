@@ -771,12 +771,12 @@ namespace PainterTool.MeshEditing
 
                 MeshPainting.target.Inspect_PreviewShaderToggle();
 
-                if (!MeshPainting.target.NotUsingPreview && "preview".PegiLabel(45).Select(ref MeshShaderMode.selected, MeshShaderMode.AllModes).Nl())
+                if (!MeshPainting.target.NotUsingPreview && "Preview".ConstLabel().Select(ref MeshShaderMode.selected, MeshShaderMode.AllModes).Nl())
                     MeshShaderMode.ApplySelected();
 
                 var previousTool = MeshTool;
 
-                if ("tool:".PegiLabel(35).Select_Index(ref Painter.Data.meshTool, MeshToolBase.AllTools))
+                if ("Tool".ConstLabel().Select_Index(ref Painter.Data.meshTool, MeshToolBase.AllTools))
                 {
                     Grid.vertexPointMaterial.color = MeshTool.VertexColor; //.SetColor("_Color", MeshTool.VertexColor);
                     previousTool.OnDeSelectTool();
@@ -832,7 +832,7 @@ namespace PainterTool.MeshEditing
                     {
 
 #if UNITY_EDITOR
-                        "Mesh Name:".PegiLabel(70).Edit(ref editedMesh.meshName);
+                        "Mesh Name:".ConstLabel().Edit(ref editedMesh.meshName);
 
                         Mesh mesh = MeshPainting.target.GetMesh();
 
@@ -1002,7 +1002,7 @@ namespace PainterTool.MeshEditing
             if (UndoMoves.Count > 1) {
                 if (Icon.Undo.Click(25)) {
                     RedoMoves.Add(UndoMoves.RemoveLast());
-                    new CfgData(UndoMoves.TryGetLast()).Decode(out editedMesh);
+                    new CfgData(UndoMoves[^1]).Decode(out editedMesh);
                     Redraw();
                 }
             }
@@ -1011,7 +1011,7 @@ namespace PainterTool.MeshEditing
 
             if (RedoMoves.Count > 0) {
                 if (Icon.Redo.Click(25)) {
-                    new CfgData(RedoMoves.TryGetLast()).Decode(out editedMesh);
+                    new CfgData(RedoMoves[^1]).Decode(out editedMesh);
                     UndoMoves.Add(RedoMoves.RemoveLast());
                     Redraw();
                 }

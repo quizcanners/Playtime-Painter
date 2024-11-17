@@ -173,7 +173,7 @@ namespace PainterTool
                             "Random Mask Offset".PegiLabel().ToggleIcon(ref brush.randomMaskOffset).Nl();
 
                         if (adv)
-                            if ("Mask Tiling: ".PegiLabel(70).Edit(ref brush.maskTiling, 1, 8).Nl())
+                            if ("Mask Tiling: ".ConstLabel().Edit(ref brush.maskTiling, 1, 8).Nl())
                                 brush.maskTiling = Mathf.Clamp(brush.maskTiling, 0.1f, 64);
                     }
                 }
@@ -653,7 +653,7 @@ namespace PainterTool
             {
                 this.inspect_Name().Nl();
 
-                "GetBrushType".PegiLabel(40).Edit_Enum(ref type).Nl();
+                "Brush Type".ConstLabel().Edit_Enum(ref type).Nl();
                 "Height Map".PegiLabel().Edit(ref heightMap).Nl();
                 "Overlay".PegiLabel().Edit(ref overlay).Nl();
             }

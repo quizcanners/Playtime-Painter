@@ -112,7 +112,7 @@ namespace PainterTool
             if (!collection.IsAnyEntered)
             {
                 "Data (Non Color) Texture".PegiLabel().ToggleIcon(ref nonColorData).Nl();
-                "Default Size:".PegiLabel(90).SelectPow2(ref defaultWidth, 16, 4096).Nl();
+                "Default Size:".ConstLabel().SelectPow2(ref defaultWidth, 16, 4096).Nl();
             }
         }
 

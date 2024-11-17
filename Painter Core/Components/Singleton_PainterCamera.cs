@@ -644,7 +644,7 @@ namespace PainterTool {
 
         public static double lastManagedUpdate;
 
-        private readonly Gate.Frame _frameGate = new();
+        private readonly Gate.Frame _frameGate = new(Gate.InitialValue.StartArmed);
 
         public void ManagedUpdate() {
 
@@ -875,7 +875,7 @@ namespace PainterTool {
             #if UNITY_EDITOR
             if (!Painter.Data)  {
                 pegi.Nl();
-                "No data Holder".PegiLabel(60).Edit(ref dataHolder).Nl();
+                "No data Holder".ConstLabel().Edit(ref dataHolder).Nl();
 
                 if (Icon.Refresh.Click("Try to find it")) 
                 {
@@ -939,7 +939,7 @@ namespace PainterTool {
                 if (depthCamera && cams.Contains(depthCamera))
                     cams.Remove(depthCamera);
 
-                "Main Camera".PegiLabel(90).Select(ref cam, cams).OnChanged(()=> MainCamera = cam);
+                "Main Camera".ConstLabel().Select(ref cam, cams).OnChanged(()=> MainCamera = cam);
                 
                 if (Icon.Refresh.Click("Try to find camera tagged as Main Camera")) {
                     MainCamera = Camera.main;

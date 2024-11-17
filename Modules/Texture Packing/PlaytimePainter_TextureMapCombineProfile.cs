@@ -21,7 +21,7 @@ namespace PainterTool.TexturePacking
         [SerializeField] public Color fillColor;
         [SerializeField] private bool _glossNoiseFromBump;
         [SerializeField] public bool glossNoiseFromHeight;
-        [SerializeField] private List<string> _fieldNames = new List<string>();
+        [SerializeField] private List<string> _fieldNames = new();
 
         private string this[int index]
         {
@@ -157,7 +157,7 @@ namespace PainterTool.TexturePacking
 
             pegi.Nl();
 
-           "Name".PegiLabel(80).Edit(ref _name).Nl();
+           "Name".ConstLabel().Edit(ref _name).Nl();
 
             "Color texture ".PegiLabel().ToggleIcon(ref _isColor).Nl();
 
@@ -257,8 +257,7 @@ namespace PainterTool.TexturePacking
         public static List<TextureRole> All {
             get
             {
-                if (_allRoles == null) 
-                    _allRoles = new List<TextureRole>
+                _allRoles ??= new List<TextureRole>
                     {
                         new TextureRoleDiffuse(0),
                         new TextureRoleHeight(1),
@@ -302,7 +301,7 @@ namespace PainterTool.TexturePacking
         protected virtual List<string> GetChannels => Chennels;
         protected virtual Color DefaultColor => IsColor ? Color.white : Color.grey;
 
-        private static readonly List<string> Chennels = new List<string> { "R", "G", "B", "A" };
+        private static readonly List<string> Chennels = new() { "R", "G", "B", "A" };
 
         protected void ExtractPixels(Texture2D tex, int width, int height)
         {
@@ -616,7 +615,7 @@ namespace PainterTool.TexturePacking
 
         protected override List<string> GetChannels => Channels;
 
-        private static readonly List<string> Channels = new List<string> { "Normal R", "Normal G", "Height Greyscale", "Height Alpha" };
+        private static readonly List<string> Channels = new() { "Normal R", "Normal G", "Height Greyscale", "Height Alpha" };
 
         private static int _width;
         private static int _height;

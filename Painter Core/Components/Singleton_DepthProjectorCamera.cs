@@ -50,7 +50,7 @@ namespace PainterTool
 
                 var fov = _projectorCamera.fieldOfView;
 
-                if ("FOV".PegiLabel(30).Edit(ref fov, 0.1f, 180f).Nl())
+                if ("FOV".ConstLabel().Edit(ref fov, 0.1f, 180f).Nl())
                 {
 
                     _projectorCamera.fieldOfView = fov;
@@ -73,8 +73,8 @@ namespace PainterTool
                 if (_centerOnMousePosition)
                 {
                     pegi.Nl();
-                    "Off X".PegiLabel(60).Edit(ref _fromMouseOffset.x, -1, 1).Nl();
-                    "Off Y".PegiLabel(60).Edit(ref _fromMouseOffset.y, -1, 1).Nl();
+                    "Off X".ConstLabel().Edit(ref _fromMouseOffset.x, -1, 1).Nl();
+                    "Off Y".ConstLabel().Edit(ref _fromMouseOffset.y, -1, 1).Nl();
                 }
 
             }
@@ -463,7 +463,7 @@ namespace PainterTool
             "Position: {0}".F(position).PegiLabel().Nl();
             "Rotation: {0}".F(rotation).PegiLabel().Nl();
 
-            "FOV".PegiLabel(40).Edit(ref fieldOfView, 60, 180).Nl();
+            "FOV".ConstLabel().Edit(ref fieldOfView, 60, 180).Nl();
 
             "Range".PegiLabel().Edit_Range(ref nearPlane, ref farPlane).Nl();
             

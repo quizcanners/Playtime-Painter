@@ -15,7 +15,7 @@ namespace PainterTool
 
     internal class TextureDownloadManager : IPEGI
     {
-        private readonly List<WebRequestMeta> _loadedTextures = new List<WebRequestMeta>();
+        private readonly List<WebRequestMeta> _loadedTextures = new();
 
         private class WebRequestMeta : IGotName, IPEGI_ListInspect, IPEGI
         {
@@ -202,9 +202,7 @@ namespace PainterTool
 
         public int StartDownload(string address)
         {
-            var el = _loadedTextures.GetByIGotName(address);
-
-            if (el == null)
+            if (!_loadedTextures.TryGetByIGotName(address, out var el))
             {
                 el = new WebRequestMeta(address);
                 _loadedTextures.Add(el);
@@ -230,7 +228,7 @@ namespace PainterTool
 
             "Textures and Requests".PegiLabel().Edit_List(_loadedTextures, ref inspected);
 
-            "URL".PegiLabel(30).Edit(ref tmp);
+            "URL".ConstLabel().Edit(ref tmp);
             if (tmp.Length > 0)
                 Icon.Add.Click(() => StartDownload(tmp)).Nl();
 

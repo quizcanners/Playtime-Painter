@@ -55,7 +55,7 @@ namespace PainterTool.MeshEditing
         public virtual void Inspect()
         {
 
-            "Profile Name: ".PegiLabel(80).Edit_Delayed(ref name);
+            "Profile Name".ConstLabel().Edit_Delayed(ref name);
 
             #if UNITY_EDITOR
             var path = Path.Combine(Painter.Data.meshesFolderName, FolderName);

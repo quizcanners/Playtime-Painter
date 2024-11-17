@@ -17,6 +17,19 @@ MonoBehaviour:
   customBlitModes: []
   selectedCustomBlitMode: 0
   defaultMaterial: {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  UiIcons:
+    CPU: {fileID: 21300000, guid: 49dd9a1c5dae23647b32b400bb5cf915, type: 3}
+    Discord: {fileID: 21300000, guid: d67c1a2fa297cf24388b8c9cdd42ae9f, type: 3}
+    Docs: {fileID: 21300000, guid: c8200e7426caf764fb9461490f32e2fd, type: 3}
+    Email: {fileID: 21300000, guid: 4412c84e0796ef44a9b9beda1425fe64, type: 3}
+    GPU: {fileID: 21300000, guid: 083eab9c631e2aa44bb4833c0a34199e, type: 3}
+    Mesh: {fileID: 21300000, guid: 161bfd4fae4339f4481274380bb3a849, type: 3}
+    NewMaterial: {fileID: 21300000, guid: 9ad90947ac2c0be4b992fec6056495db, type: 3}
+    NewTexture: {fileID: 21300000, guid: 5a64a1bd36dcfc444aab3ee16922ee0f, type: 3}
+    OriginalShader: {fileID: 21300000, guid: d099ef4cd78ddce418c924f3cc99904e, type: 3}
+    PreviewShader: {fileID: 21300000, guid: a240084fef7c5bb46abce25b1622775c, type: 3}
+    Round: {fileID: 21300000, guid: 732c069fbb73c2e409e1519cb3cc00e3, type: 3}
+    Square: {fileID: 21300000, guid: 9cfee59f0cf3c7f43944063954ef2b66, type: 3}
   dontIncludeShaderInBuild: 0
   shadersToBuldWith:
   - {fileID: 4800000, guid: 2c53ba0be849dbf4aa4be3323d13167c, type: 3}
@@ -177,10 +190,6 @@ MonoBehaviour:
     _value: sch|1|0|pals|0||cam|119|mm|0||pl|95|TilAtlCntrl|0||VolumePntng|64|mFiv|2|60|mFov|3|170|cam|35|fov|2|90|p|0||r|0||n|3|0.1|f|3|100||||rts|4|2048||Vpck|2607|e|312|n|6|Simple|sln|292|e|20|en|1|y|sameSize|1|0||e|75|en|1|y|t|1|1|vals|53|e|6|t|1|1||e|12|t|1|1|v|1|1||e|7|t|2|10||e|7|t|2|10||||e|61|en|1|y|t|1|2|vals|39|e|6|t|1|2||e|12|t|1|2|v|1|1||e|0||e|0||||e|6|t|1|3||e|6|t|1|4||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|512|n|5|Bevel|sln|493|e|20|en|1|y|sameSize|1|0||e|81|en|1|y|t|1|1|vals|59|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|9||e|13|t|2|11|v|1|3||||e|84|en|1|y|t|1|2|vals|62|e|7|t|2|12||e|13|t|2|12|v|1|1||e|13|t|2|12|v|1|2||e|7|t|2|11||||e|91|en|1|y|t|1|3|vals|69|e|7|t|2|13||e|13|t|2|13|v|1|1||e|13|t|2|13|v|1|2||e|13|t|2|11|v|1|1||||e|91|en|1|y|t|1|4|vals|69|e|7|t|2|14||e|13|t|2|14|v|1|1||e|13|t|2|14|v|1|2||e|13|t|2|11|v|1|2||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|515|n|14|Bevel
       Weighted|sln|486|e|20|en|1|y|sameSize|1|0||e|74|en|1|y|t|1|1|vals|52|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|9||e|7|t|2|10||||e|84|en|1|y|t|1|2|vals|62|e|7|t|2|12||e|13|t|2|12|v|1|1||e|13|t|2|12|v|1|2||e|7|t|2|15||||e|91|en|1|y|t|1|3|vals|69|e|7|t|2|13||e|13|t|2|13|v|1|1||e|13|t|2|13|v|1|2||e|13|t|2|15|v|1|1||||e|91|en|1|y|t|1|4|vals|69|e|7|t|2|14||e|13|t|2|14|v|1|1||e|13|t|2|14|v|1|2||e|13|t|2|15|v|1|2||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|344|n|16|AtlasedProjected|sln|313|e|20|en|1|y|sameSize|1|0||e|75|en|1|y|t|1|1|vals|53|e|6|t|1|1||e|12|t|1|1|v|1|1||e|7|t|2|10||e|7|t|2|10||||e|6|t|1|2||e|6|t|1|3||e|27|en|1|y|t|1|4|sameSize|2|11||e|26|en|1|y|t|1|5|sameSize|1|3||e|81|en|1|y|t|1|6|vals|59|e|6|t|1|5||e|12|t|1|5|v|1|1||e|12|t|1|5|v|1|2||e|7|t|2|10||||e|26|en|1|y|t|1|7|sameSize|1|6||||e|364|n|16|Standard_Atlased|sln|333|e|20|en|1|y|sameSize|1|0||e|80|en|1|y|t|1|1|vals|58|e|6|t|1|1||e|12|t|1|1|v|1|1||e|6|t|1|9||e|12|t|1|9|v|1|1||||e|75|en|1|y|t|1|2|vals|53|e|6|t|1|2||e|12|t|1|2|v|1|1||e|7|t|2|10||e|7|t|2|10||||e|6|t|1|3||e|27|en|1|y|t|1|4|sameSize|2|11||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|26|en|1|y|t|1|7|sameSize|1|6||||e|518|n|15|Bevel
       With Seam|sln|488|e|20|en|1|y|sameSize|1|0||e|75|en|1|y|t|1|1|vals|53|e|6|t|1|1||e|12|t|1|1|v|1|1||e|7|t|2|10||e|7|t|2|10||||e|84|en|1|y|t|1|2|vals|62|e|7|t|2|12||e|13|t|2|12|v|1|1||e|13|t|2|12|v|1|2||e|7|t|2|11||||e|91|en|1|y|t|1|3|vals|69|e|7|t|2|13||e|13|t|2|13|v|1|1||e|13|t|2|13|v|1|2||e|13|t|2|11|v|1|1||||e|91|en|1|y|t|1|4|vals|69|e|7|t|2|14||e|13|t|2|14|v|1|1||e|13|t|2|14|v|1|2||e|13|t|2|11|v|1|2||||e|26|en|1|y|t|1|5|sameSize|1|3||e|26|en|1|y|t|1|6|sameSize|1|4||e|27|en|1|y|t|1|7|sameSize|2|16|||||
-  _context:
-    _currentlyEntered: -1
-  _contextLists:
-    _currentlyEntered: -1
   _imagesInspectorMeta:
     inspectedElement_Internal: -1
     listSectionStartIndex: 0

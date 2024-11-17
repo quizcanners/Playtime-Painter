@@ -932,9 +932,9 @@ namespace PainterTool
 
                             if ("Resize ({0}*{1}) => ({2}*{3})".F(Width, Height, newWidth, newHeight).PegiLabel().IsEntered().Nl_ifEntered())
                             {
-                                "New Width ".PegiLabel(60).Select(ref Painter.Data.selectedWidthIndex, SO_PainterDataAndConfig.NewTextureSizeOptions).Nl();
+                                "New Width".ConstLabel().Select(ref Painter.Data.selectedWidthIndex, SO_PainterDataAndConfig.NewTextureSizeOptions).Nl();
 
-                                "New Height ".PegiLabel().Select(ref Painter.Data.selectedHeightIndex, SO_PainterDataAndConfig.NewTextureSizeOptions).Nl();
+                                "New Height".ConstLabel().Select(ref Painter.Data.selectedHeightIndex, SO_PainterDataAndConfig.NewTextureSizeOptions).Nl();
 
                                 if (newWidth != Width || newHeight != Height)
                                 {
@@ -978,7 +978,7 @@ namespace PainterTool
                             if ("Clear ".PegiLabel().IsEntered(false))
                             {
 
-                                "Clear Color".PegiLabel(80).Edit(ref clearColor).Nl();
+                                "Clear Color".ConstLabel().Edit(ref clearColor).Nl();
 
                                 if ("Clear Texture".PegiLabel().Click().Nl())
                                 {
@@ -998,7 +998,7 @@ namespace PainterTool
                             if ("Color to Alpha".PegiLabel().IsEntered().Nl())
                             {
 
-                                "Background Color".PegiLabel(80).Edit(ref clearColor).Nl();
+                                "Background Color".ConstLabel().Edit(ref clearColor).Nl();
                                 if (Pixels != null)
                                 {
 
@@ -1129,7 +1129,7 @@ namespace PainterTool
 
                                 pegi.Nl();
 
-                                "Save Name".PegiLabel(70).Edit(ref saveName);
+                                "Save Name".ConstLabel().Edit(ref saveName);
 
                                 if (Icon.Folder.Click("Open Folder with textures").Nl())
                                     QcFile.Explorer.OpenPersistentFolder(SavedImagesFolder);
@@ -1198,7 +1198,7 @@ namespace PainterTool
                             if ("Add Background".PegiLabel().IsEntered().Nl())
                             {
 
-                                "Background Color".PegiLabel(80).Edit(ref clearColor).Nl();
+                                "Background Color".ConstLabel().Edit(ref clearColor).Nl();
 
                                 if ("Add Background".PegiLabel("Will Add Beckground color and make everything non transparent").Click().Nl())
                                 {
@@ -1255,8 +1255,8 @@ namespace PainterTool
 
                 if (lbl.IsConditionally_Entered(canEnter: this[TextureCfgFlags.EnableUndoRedo]).Nl())
                 {
-                    "UNDOs: Tex2D".PegiLabel(80).Edit(ref _numberOfTexture2DBackups);
-                    "RendTex".PegiLabel(60).Edit(ref _numberOfRenderTextureBackups).Nl();
+                    "UNDOs: Tex2D".ConstLabel().Edit(ref _numberOfTexture2DBackups);
+                    "RendTex".ConstLabel().Edit(ref _numberOfRenderTextureBackups).Nl();
 
                     "Backup manually".PegiLabel().ToggleIcon(ref backupManually).Nl();
 

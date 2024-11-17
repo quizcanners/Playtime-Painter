@@ -44,7 +44,7 @@ namespace PainterTool.MeshEditing
         {
             "Will Set {0} On Click".F(_setTo).PegiLabel().ToggleIcon(ref _setTo).Nl();
 
-            "Mode".PegiLabel(50).Edit_Enum(ref _detectionMode).Nl();
+            "Mode".ConstLabel().Edit_Enum(ref _detectionMode).Nl();
 
             /* if ("Auto Bevel".PegiLabel().Click())
                  AutoAssignDominantNormalsForBeveling();

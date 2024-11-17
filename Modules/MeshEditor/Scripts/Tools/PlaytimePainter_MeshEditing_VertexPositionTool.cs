@@ -87,7 +87,7 @@ namespace PainterTool.MeshEditing
                 "Snap to grid (Use XZ to toggle grid orientation)".PegiLabel().ToggleIcon(ref sd.snapToGrid).Nl();
 
                 if (sd.snapToGrid)
-                    "size:".PegiLabel(40).Edit(ref sd.gridSize);
+                    "Size".ConstLabel().Edit(ref sd.gridSize);
             }
 
             pegi.Nl();
@@ -142,7 +142,7 @@ namespace PainterTool.MeshEditing
 
             if ("Auto Bevel".PegiLabel().Click())
                 SharpFacesTool.AutoAssignDominantNormalsForBeveling();
-            "Sensitivity".PegiLabel(60).Edit(ref Painter.Data.bevelDetectionSensitivity, 3, 30).Nl();
+            "Sensitivity".ConstLabel().Edit(ref Painter.Data.bevelDetectionSensitivity, 3, 30).Nl();
 
             pegi.Nl();
         }

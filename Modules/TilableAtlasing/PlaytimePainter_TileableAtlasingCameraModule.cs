@@ -30,7 +30,7 @@ namespace PainterTool
 
                 if (currentTool is VertexEdgeTool && MeshPainting.target.IsAtlased())
                 {
-                    "ATL_tex_Chanal:".PegiLabel(80).Edit(ref TriangleAtlasTool.Inst.curAtlasChanel);
+                    "ATL_tex_Chanal:".ConstLabel().Edit(ref TriangleAtlasTool.Inst.curAtlasChanel);
 
                     if ("Auto Edge".PegiLabel().Click().Nl())
                     {
@@ -80,7 +80,7 @@ namespace PainterTool
                     {
                         "Atlased Mesh is not saved".PegiLabel().Nl();
                         var n = m.name;
-                        if ("Mesh Name".PegiLabel(80).Edit(ref n))
+                        if ("Mesh Name".ConstLabel().Edit(ref n))
                             m.name = n;
                         Icon.Save.Click(() => p.SaveMesh()).Nl();
                     }

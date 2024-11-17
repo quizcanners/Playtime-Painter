@@ -54,11 +54,11 @@ namespace PainterTool.MeshEditing
 
             "Paint Radius".PegiLabel().ToggleIcon(ref _isPaintingWithRadius, hideTextWhenTrue: true);
             if (_isPaintingWithRadius)
-                "Radius".PegiLabel(60).Edit(ref _radiusOfPainting, min: em.averageSize * 0.001f, max: em.averageSize);
+                "Radius".ConstLabel().Edit(ref _radiusOfPainting, min: em.averageSize * 0.001f, max: em.averageSize);
 
             pegi.Nl();
 
-            "Flow".PegiLabel(50).Edit_01(ref _alpha).Nl();
+            "Flow".ConstLabel().Edit_01(ref _alpha).Nl();
 
             if (em.subMeshCount > 1)
             {
@@ -70,7 +70,7 @@ namespace PainterTool.MeshEditing
                 for (var i = 0; i < cnt; i++)
                     nms[i] = "{0}: {1}".F(i, mats.TryGet(i));
 
-                "Color Sub Mesh".PegiLabel(90).Select(ref selectedSubMesh, nms);
+                "Color Sub Mesh".ConstLabel().Select(ref selectedSubMesh, nms);
 
                 if (selectedSubMesh < em.subMeshCount && "Apply".PegiLabel().Click())
                     em.ColorSubMesh(selectedSubMesh, col);

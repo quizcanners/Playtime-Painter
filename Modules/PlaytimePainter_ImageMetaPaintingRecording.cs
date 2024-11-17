@@ -79,26 +79,29 @@ namespace PainterTool
         
         public override void ManagedUpdate()
         {
-            if (playbackMetas.Count <= 0 || Stroke.pausePlayback) return;
-            
-            if (playbackMetas.TryGetLast() == null)
+            if (!playbackMetas.TryGetLast(out var el) || Stroke.pausePlayback) return;
+
+            if (el == null)
+            {
                 playbackMetas.RemoveLast(1);
+                return;
+            }
+           
+            var last = el.GetModule<ImageMetaPaintingRecording>();
+
+            if (last == null) return;
+
+            if (cody.GotData)
+                DecodeStroke(cody.GetNextTag(), cody.GetData());
             else
             {
-                var last = playbackMetas.TryGetLast().GetModule<ImageMetaPaintingRecording>();
-
-                if (last == null) return;
-                
-                if (cody.GotData)
-                    DecodeStroke(cody.GetNextTag(), cody.GetData());
-                else {
-                    if (playbackVectors.Count > 0) {
-                        cody = new CfgDecoder(playbackVectors[0]);
-                        playbackVectors.RemoveAt(0);
-                    }
-                    else
-                        playbackMetas.Remove(parentMeta);
+                if (playbackVectors.Count > 0)
+                {
+                    cody = new CfgDecoder(playbackVectors[0]);
+                    playbackVectors.RemoveAt(0);
                 }
+                else
+                    playbackMetas.Remove(parentMeta);
             }
         }
 
@@ -297,7 +300,7 @@ namespace PainterTool
             if (recording)
             {
                 ("Recording... " + recordedStrokes.Count + " vectors").PegiLabel().Nl();
-                "Will Save As ".PegiLabel(70).Edit(ref parentMeta.saveName);
+                "Will Save As".ConstLabel().Edit(ref parentMeta.saveName);
 
                 if (Icon.Close.Click("Stop, don't save"))
                     recording = false;

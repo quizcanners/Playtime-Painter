@@ -19,7 +19,7 @@ namespace PainterTool {
 
         public bool DiscretePosition;
 
-        public static C_VolumeTexture LatestInstance => all.TryGetLast();
+        public static C_VolumeTexture LatestInstance => all.TryGetLast(out var last) ? last : null;
 
         private static int _tmpWidth = 1024;
 
@@ -40,7 +40,7 @@ namespace PainterTool {
             public readonly Gate.DirtyVersion LocationForSorting_Version = new();
             public readonly Gate.Vector3Value LocationForSortingGate_Gate = new();
 
-            public readonly Gate.Frame PositionUpdate = new();
+            public readonly Gate.Frame PositionUpdate = new(Gate.InitialValue.StartArmed);
             //public bool PosAndSize = false;
           
             public readonly Gate.Vector3Value PreviousPosition = new();
@@ -283,10 +283,10 @@ namespace PainterTool {
                 }
             }
 
-            public void SetTexture_AndShaderProperty(C_VolumeTexture parent, VolumeCubeMapped.Direction dir, Texture tex) 
+            public void SetTexture_AndShaderProperty(VolumeCubeMapped.Direction dir, Texture tex) 
             {
                 _texture = tex;
-                GetProperty(parent, dir).SetGlobal(_texture);
+                GetProperty(dir).SetGlobal(_texture);
             }
 
             void IPEGI.Inspect()
@@ -300,12 +300,12 @@ namespace PainterTool {
                 pegi.Draw(_texture, width: 256, alphaBlend: false).Nl();
             }
 
-            public void SetGlobalTexture(C_VolumeTexture parent, VolumeCubeMapped.Direction dir) 
+            public void SetGlobalTexture(VolumeCubeMapped.Direction dir) 
             {
-                GetProperty(parent, dir).SetGlobal(_texture);
+                GetProperty(dir).SetGlobal(_texture);
             }
 
-            private ShaderProperty.TextureValue GetProperty(C_VolumeTexture parent, VolumeCubeMapped.Direction dir)
+            private ShaderProperty.TextureValue GetProperty(VolumeCubeMapped.Direction dir)
             {
                 if (_property == null)
                 {
@@ -426,7 +426,7 @@ namespace PainterTool {
               //  Dirty.PosAndSize = false;
             } else 
             {
-                pos = TracedVolume.GetDiscretePosition(transform.position, size, out float scaledChunks, changePositionOnOffset);// Vector3Int.FloorToInt(currentPosition / scaledChunks);
+                pos = TracedVolume.GetDiscretePosition(transform.position, size, out _, changePositionOnOffset);// Vector3Int.FloorToInt(currentPosition / scaledChunks);
 
                // if ((!posNSizeCached.XYZ().Equals(pos) && Vector3.Distance(transform.position, posNSizeCached.XYZ()) > scaledChunks))
                   //  Dirty.PosAndSize = false;
@@ -566,7 +566,7 @@ namespace PainterTool {
                         pegi.Edit_Property(() => cubeArray, this).Nl();
 
                     var n = NameForInspector;
-                    if ("Name".PegiLabel(50).Edit_Delayed(ref n).Nl())
+                    if ("Name".ConstLabel().Edit_Delayed(ref n).Nl())
                         NameForInspector = n;
 
                     PositionAndScaleProperty.ToString().PegiLabel().Write_ForCopy().Nl();
@@ -574,10 +574,10 @@ namespace PainterTool {
                     SlicesShadeProperty.ToString().PegiLabel().Write_ForCopy().Nl();
 
                     var tex = Texture;
-                    if ("Texture".PegiLabel(60).Edit(ref tex).Nl())
+                    if ("Texture".ConstLabel().Edit(ref tex).Nl())
                         Texture = tex;
 
-                    if ("Volume Scale".PegiLabel(70).Edit_Delayed(ref size).Nl())
+                    if ("Volume Scale".ConstLabel().Edit_Delayed(ref size).Nl())
                         size = Mathf.Max(0.0001f, size);
 
                     "Last Value: {0}".F(posNSizeCached).PegiLabel().Nl();
@@ -622,7 +622,7 @@ namespace PainterTool {
                         if (!Singleton.Get<Singleton_TexturesPool>())
                         {
                             pegi.Nl();
-                            "Texture Width".PegiLabel(90).Edit(ref _tmpWidth);
+                            "Texture Width".ConstLabel().Edit(ref _tmpWidth);
 
                             if ("Create Pool".PegiLabel().Click().Nl())
                             {

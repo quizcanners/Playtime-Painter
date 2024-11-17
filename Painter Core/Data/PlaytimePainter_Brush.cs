@@ -344,7 +344,7 @@ namespace PainterTool {
 
                 if (blitMode.UsingSourceTexture) {
 
-                    "Texture Color".PegiLabel(120).Edit_Enum(ref srcColorUsage).Nl();
+                    "Texture Color".ConstLabel().Edit_Enum(ref srcColorUsage).Nl();
 
                     if (InspectAdvanced) {
                         "Clamp".PegiLabel().ToggleIcon(ref clampSourceTexture).Nl();
@@ -392,8 +392,8 @@ namespace PainterTool {
 
         public void Targets_PEGI()
         {
-            if ((fallbackTargetIsTex2D ? Icon.CPU : Icon.GPU).Click(
-                fallbackTargetIsTex2D ? "Render Texture Config" : "Texture2D Config", 45))
+            var ico = Painter.Data.UiIcons;
+            if (pegi.Click(fallbackTargetIsTex2D ? ico.CPU : ico.GPU, fallbackTargetIsTex2D ? "Render Texture Config" : "Texture2D Config", 45))
             {
                 fallbackTargetIsTex2D = !fallbackTargetIsTex2D;
                 SetSupportedFor(fallbackTargetIsTex2D ? TexTarget.Texture2D : TexTarget.RenderTexture, true);
@@ -401,9 +401,17 @@ namespace PainterTool {
 
             var smooth = GetBrushType(fallbackTargetIsTex2D ? TexTarget.Texture2D : TexTarget.RenderTexture) != BrushTypes.Pixel.Inst;
 
-            if (fallbackTargetIsTex2D && 
-                pegi.Toggle(ref smooth, Icon.Round, Icon.Square, "Smooth/Pixels Brush", 45))
-                SetBrushType(fallbackTargetIsTex2D ? TexTarget.Texture2D : TexTarget.RenderTexture, smooth ? BrushTypes.Normal.Inst : BrushTypes.Pixel.Inst);
+
+            if (fallbackTargetIsTex2D)
+            {
+                var current = smooth ? ico.Round : ico.Square;
+                if (pegi.Click(current))
+                {
+                    smooth = !smooth;
+                    //pegi.Toggle(ref smooth, Icon.Round, Icon.Square, "Smooth/Pixels Brush", 45))
+                    SetBrushType(fallbackTargetIsTex2D ? TexTarget.Texture2D : TexTarget.RenderTexture, smooth ? BrushTypes.Normal.Inst : BrushTypes.Pixel.Inst);
+                }
+            }
         }
         
         public virtual void Inspect() {
@@ -423,9 +431,12 @@ namespace PainterTool {
             var target = id.Target;
             bool cpuBlit = target == TexTarget.Texture2D;
 
+            var icos = Painter.Data.UiIcons;
+
             if (id.Texture2D)
             {
-                if ((cpuBlit ? Icon.CPU : Icon.GPU).Click( cpuBlit ? "Switch to Render Texture" : "Switch to Texture2D" ,45))
+                var ico = cpuBlit ? icos.CPU : icos.GPU;
+                if (pegi.Click(ico, cpuBlit ? "Switch to Render Texture" : "Switch to Texture2D" ,45))
                 {
                     cpuBlit = !cpuBlit;
 
@@ -443,14 +454,19 @@ namespace PainterTool {
             
             if (cpuBlit) 
             {
-                if (pegi.Toggle(ref smooth, Icon.Round, Icon.Square, "Smooth/Pixels Brush", 45))
+                var sIco = smooth ? icos.Round : icos.Square;
+                if (pegi.Click(sIco, "Smooth/Pixels Brush", 45))
+                {
+                    smooth = !smooth;
                     SetBrushType(target, smooth ? BrushTypes.Normal.Inst : BrushTypes.Pixel.Inst);
+                } //pegi.Toggle(ref smooth, Icon.Round, Icon.Square, "Smooth/Pixels Brush", 45))
+                   
             }
 
             pegi.Nl();
 
             if (showBrushDynamics) {
-                if ("Brush Dynamic".PegiLabel(90).SelectType( ref brushDynamic).Nl())
+                if ("Brush Dynamic".ConstLabel().SelectType( ref brushDynamic).Nl())
                     brushDynamic?.Nested_Inspect().Nl();
             }
             else if (brushDynamic.GetType() != typeof(BrushDynamic.None))
