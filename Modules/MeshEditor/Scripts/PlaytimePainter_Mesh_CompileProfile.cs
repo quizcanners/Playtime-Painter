@@ -9,7 +9,7 @@ using UnityEngine;
 namespace PainterTool.MeshEditing
 {
     
-    public class MeshPackagingProfile : ICfg, IPEGI, IGotName
+    public class MeshPackagingProfile : ICfg, IPEGI, IGotStringId
     {
         public List<VertexDataLink> dtaLnks;
 
@@ -50,12 +50,12 @@ namespace PainterTool.MeshEditing
         public bool WritesColor => UsesDestination<VertexDataTypes.VertexColorTrg>();
 
         #region Inspect
-        public string NameForInspector { get { return name; } set { name = value;  } }
+        public string StringId { get { return name; } set { name = value;  } }
         
         public virtual void Inspect()
         {
 
-            "Profile Name".ConstLabel().Edit_Delayed(ref name);
+            "Profile Name".ConstL().Edit_Delayed(ref name);
 
             #if UNITY_EDITOR
             var path = Path.Combine(Painter.Data.meshesFolderName, FolderName);
@@ -320,7 +320,7 @@ namespace PainterTool.MeshEditing
         {
             var changed = false;
 
-            (pegi.GetNameForInspector(Destination) + ":").PegiLabel(80).Toggle(ref enabled);
+            (Destination.ToString() + ":").PL(80).Toggle(ref enabled);
 
             if (!enabled) 
                 return;
@@ -329,7 +329,7 @@ namespace PainterTool.MeshEditing
             var nms = new string[tps.Count + 1];
 
             for (var i = 0; i < tps.Count; i++)
-                nms[i] = pegi.GetNameForInspector(tps[i]);
+                nms[i] = tps[i].ToString();
 
             nms[tps.Count] = "Custom";
 
@@ -356,7 +356,7 @@ namespace PainterTool.MeshEditing
                 for (var i = 0; i < links.Count; i++) {
                     var v = links[i];
 
-                    changed |= Destination.GetFieldName(i).PegiLabel(40).Select(ref v.srcIndex, allDataNames);
+                    changed |= Destination.GetFieldName(i).PL(40).Select(ref v.srcIndex, allDataNames);
 
                     var typeFields = new string[v.DataSource.channelsNeed];
 
@@ -368,7 +368,7 @@ namespace PainterTool.MeshEditing
                     typeFields.ClampIndexToCount(ref v.dstIndex);
                 }
             }
-            "**************************************************".PegiLabel().Nl();
+            "**************************************************".PL().Nl();
 
         }
 
@@ -1403,7 +1403,7 @@ namespace PainterTool.MeshEditing
             _typesNames = new string[DataTypes.Length];
 
             for (var i = 0; i < DataTypes.Length; i++)
-                _typesNames[i] = pegi.GetNameForInspector(DataTypes[i]);
+                _typesNames[i] = DataTypes[i].ToString();
 
             return _typesNames;
         }

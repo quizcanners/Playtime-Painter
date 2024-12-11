@@ -25,7 +25,7 @@ namespace PainterTool
         DisableContiniousLine = 1,
     }
 
-    public class TextureMeta : PainterClass, IPEGI, IPEGI_ListInspect, IGotName, INeedAttention //, ICanBeDefaultCfg
+    public class TextureMeta : PainterClass, IPEGI, IPEGI_ListInspect, IGotStringId, INeedAttention //, ICanBeDefaultCfg
     {
         #region Values
 
@@ -841,7 +841,7 @@ namespace PainterTool
 
         #region Inspector
 
-        public string NameForInspector
+        public string StringId
         {
             get { return saveName; }
 
@@ -871,7 +871,7 @@ namespace PainterTool
 
         private string LoadTexturePegi(string path)
         {
-            if ("Load {0}".F(path[path.LastIndexOf("/", StringComparison.Ordinal)..]).PegiLabel().Click())
+            if ("Load {0}".F(path[path.LastIndexOf("/", StringComparison.Ordinal)..]).PL().Click())
                 LoadInPlayer(path);
             return path;
         }
@@ -898,54 +898,54 @@ namespace PainterTool
             {
                 if (ProcessEnumerator != null)
                 {
-                    "Running Coroutine".PegiLabel().Nl();
+                    "Running Coroutine".PL().Nl();
                     _processEnumerator.InspectInList_Nested();
                     return;
                 }
 
-                if ("CPU blit options".PegiLabel().IsConditionally_Entered(this.TargetIsTexture2D()).Nl())
+                if ("CPU blit options".PL().IsConditionally_Entered(this.TargetIsTexture2D()).Nl())
                 {
                     var tmp = this[TextureStateFlags.DisableContiniousLine];
-                    "Disable Continious Lines".PegiLabel("If you see unwanted lines appearing on the texture as you paint, enable this.").ToggleIcon(ref tmp).Nl().OnChanged(()=> this[TextureStateFlags.DisableContiniousLine] = tmp);
+                    "Disable Continious Lines".PL("If you see unwanted lines appearing on the texture as you paint, enable this.").ToggleIcon(ref tmp).Nl().OnChanged(()=> this[TextureStateFlags.DisableContiniousLine] = tmp);
 
-                    "CPU blit repaint delay".PegiLabel("Delay for video memory update when painting to Texture2D", 140).Edit(ref repaintDelay, 0.01f, 0.5f).Nl();
+                    "CPU blit repaint delay".PL("Delay for video memory update when painting to Texture2D", 140).Edit(ref repaintDelay, 0.01f, 0.5f).Nl();
 
-                    "Don't update mipMaps".PegiLabel("May improve performance, but your changes may not disaplay if you are far from texture.").ToggleIcon(ref dontRedoMipMaps);
+                    "Don't update mipMaps".PL("May improve performance, but your changes may not disaplay if you are far from texture.").ToggleIcon(ref dontRedoMipMaps);
                 }
 
-                if ("GPU blit options".PegiLabel().IsEntered().Nl())
+                if ("GPU blit options".PL().IsEntered().Nl())
                 {
-                    "Update Texture2D after every stroke".PegiLabel().ToggleIcon(ref updateTex2DafterStroke).Nl();
+                    "Update Texture2D after every stroke".PL().ToggleIcon(ref updateTex2DafterStroke).Nl();
                 }
 
                 var newWidth = Painter.Data.SelectedWidthForNewTexture(); //PainterDataAndConfig.SizeIndexToSize(PainterCamera.Data.selectedWidthIndex);
                 var newHeight = Painter.Data.SelectedHeightForNewTexture();
 
-                if ("Texture Processors".PegiLabel().IsEntered().Nl())
+                if ("Texture Processors".PL().IsEntered().Nl())
                 {
                     if (errorWhileReading)
-                        "There was en error reading texture pixels, can't process it".PegiLabel().WriteWarning();
+                        "There was en error reading texture pixels, can't process it".PL().WriteWarning();
                     else
                     {
                         using (processContext.StartContext())
                         {
 
-                            if ("Resize ({0}*{1}) => ({2}*{3})".F(Width, Height, newWidth, newHeight).PegiLabel().IsEntered().Nl_ifEntered())
+                            if ("Resize ({0}*{1}) => ({2}*{3})".F(Width, Height, newWidth, newHeight).PL().IsEntered().Nl_ifEntered())
                             {
-                                "New Width".ConstLabel().Select(ref Painter.Data.selectedWidthIndex, SO_PainterDataAndConfig.NewTextureSizeOptions).Nl();
+                                "New Width".ConstL().Select(ref Painter.Data.selectedWidthIndex, SO_PainterDataAndConfig.NewTextureSizeOptions).Nl();
 
-                                "New Height".ConstLabel().Select(ref Painter.Data.selectedHeightIndex, SO_PainterDataAndConfig.NewTextureSizeOptions).Nl();
+                                "New Height".ConstL().Select(ref Painter.Data.selectedHeightIndex, SO_PainterDataAndConfig.NewTextureSizeOptions).Nl();
 
                                 if (newWidth != Width || newHeight != Height)
                                 {
                                     bool rescale;
 
                                     if (newWidth <= Width && newHeight <= Height)
-                                        rescale = "Downscale".PegiLabel().Click();
+                                        rescale = "Downscale".PL().Click();
                                     else if (newWidth >= Width && newHeight >= Height)
-                                        rescale = "Upscale".PegiLabel().Click();
+                                        rescale = "Upscale".PL().Click();
                                     else
-                                        rescale = "Rescale".PegiLabel().Click();
+                                        rescale = "Rescale".PL().Click();
 
                                     if (rescale)
                                     {
@@ -975,12 +975,12 @@ namespace PainterTool
                                 pegi.Nl();
                             }
 
-                            if ("Clear ".PegiLabel().IsEntered(false))
+                            if ("Clear ".PL().IsEntered(false))
                             {
 
-                                "Clear Color".ConstLabel().Edit(ref clearColor).Nl();
+                                "Clear Color".ConstL().Edit(ref clearColor).Nl();
 
-                                if ("Clear Texture".PegiLabel().Click().Nl())
+                                if ("Clear Texture".PL().Click().Nl())
                                 {
                                     FillWithColor(clearColor);
                                     //SetPixels(clearColor);
@@ -995,14 +995,14 @@ namespace PainterTool
                                 //SetApplyUpdateRenderTexture();
                             }
 
-                            if ("Color to Alpha".PegiLabel().IsEntered().Nl())
+                            if ("Color to Alpha".PL().IsEntered().Nl())
                             {
 
-                                "Background Color".ConstLabel().Edit(ref clearColor).Nl();
+                                "Background Color".ConstL().Edit(ref clearColor).Nl();
                                 if (Pixels != null)
                                 {
 
-                                    if ("Color to Alpha".PegiLabel("Will Convert Background Color with transparency").Click().Nl())
+                                    if ("Color to Alpha".PL("Will Convert Background Color with transparency").Click().Nl())
                                     {
                                         bool wasRt = WasRenderTexture();
 
@@ -1015,7 +1015,7 @@ namespace PainterTool
                                             ReturnToRenderTexture();
                                     }
 
-                                    if ("Color from Alpha".PegiLabel("Will subtract background color from transparency").Click().Nl())
+                                    if ("Color from Alpha".PL("Will subtract background color from transparency").Click().Nl())
                                     {
 
                                         bool wasRt = WasRenderTexture();
@@ -1038,30 +1038,30 @@ namespace PainterTool
                                 }
                             }
 
-                            if ("Signed Distance Filelds generator".PegiLabel().IsEntered().Nl())
+                            if ("Signed Distance Filelds generator".PL().IsEntered().Nl())
                             {
 
                                 if (Texture2D.IsColorTexture())
                                 {
-                                    "Texture is a color texture, best to switch to non-color for SDF. Save any changes first, as the texture will reimport.".PegiLabel().WriteWarning();
+                                    "Texture is a color texture, best to switch to non-color for SDF. Save any changes first, as the texture will reimport.".PL().WriteWarning();
 
 #if UNITY_EDITOR
                                     var ai = Texture2D.GetTextureImporter_Editor();
 
-                                    if (ai != null && "Convert to non-Color".PegiLabel("This will undo any unsaved changes. Proceed?").ClickConfirm("SDFnc") && ai.WasWrongIsColor_Editor(false))
+                                    if (ai != null && "Convert to non-Color".PL("This will undo any unsaved changes. Proceed?").ClickConfirm("SDFnc") && ai.WasWrongIsColor_Editor(false))
                                         ai.SaveAndReimport();
 
 #endif
                                 }
 
-                                "Will convert black and white color to black and white signed field".PegiLabel().Nl();
+                                "Will convert black and white color to black and white signed field".PL().Nl();
 
-                                "SDF Max Inside".PegiLabel().Edit(ref _sdfMaxInside).Nl();
-                                "SDF Max Outside".PegiLabel().Edit(ref _sdfMaxOutside).Nl();
-                                "SDF Post Process".PegiLabel().Edit(ref _sdfPostProcessDistance).Nl();
+                                "SDF Max Inside".PL().Edit(ref _sdfMaxInside).Nl();
+                                "SDF Max Outside".PL().Edit(ref _sdfMaxOutside).Nl();
+                                "SDF Post Process".PL().Edit(ref _sdfPostProcessDistance).Nl();
 
-                                bool fromGs = "From Greyscale".PegiLabel().Click();
-                                bool fromAlpha = "From Transparency".PegiLabel().Click();
+                                bool fromGs = "From Greyscale".PL().Click();
+                                bool fromAlpha = "From Transparency".PL().Click();
 
                                 if (fromGs || fromAlpha)
                                 {
@@ -1087,14 +1087,14 @@ namespace PainterTool
 
                             }
 
-                            if ("Curves".PegiLabel().IsEntered().Nl())
+                            if ("Curves".PL().IsEntered().Nl())
                             {
                                 var crv = Painter.Camera.InspectAnimationCurve("Channel");
 
                                 if (Pixels != null)
                                 {
 
-                                    if ("Remap Alpha".PegiLabel().Click())
+                                    if ("Remap Alpha".PL().Click())
                                     {
                                         for (int i = 0; i < _pixels.Length; i++)
                                         {
@@ -1105,7 +1105,7 @@ namespace PainterTool
                                         SetApplyUpdateRenderTexture();
                                     }
 
-                                    if ("Remap Color".PegiLabel().Click())
+                                    if ("Remap Color".PL().Click())
                                     {
                                         for (int i = 0; i < _pixels.Length; i++)
                                         {
@@ -1121,31 +1121,31 @@ namespace PainterTool
                                 }
                             }
 
-                            if ("Save Textures In Game ".PegiLabel().IsEntered().Nl())
+                            if ("Save Textures In Game ".PL().IsEntered().Nl())
                             {
 
-                                "This is intended to test playtime saving. The functions to do so are quite simple. You can find them inside ImageData.cs class.".PegiLabel()
+                                "This is intended to test playtime saving. The functions to do so are quite simple. You can find them inside ImageData.cs class.".PL()
                                     .Write_Hint();
 
                                 pegi.Nl();
 
-                                "Save Name".ConstLabel().Edit(ref saveName);
+                                "Save Name".ConstL().Edit(ref saveName);
 
                                 if (Icon.Folder.Click("Open Folder with textures").Nl())
                                     QcFile.Explorer.OpenPersistentFolder(SavedImagesFolder);
 
-                                if ("Save Playtime".PegiLabel("Will save to {0}/{1}".F(Application.persistentDataPath, saveName)).Click().Nl())
+                                if ("Save Playtime".PL("Will save to {0}/{1}".F(Application.persistentDataPath, saveName)).Click().Nl())
                                     SaveInPlayer();
 
                                 if (Painter.Data && Painter.Data.playtimeSavedTextures.Count > 0)
-                                    "Playtime Saved Textures".PegiLabel().Edit_List(Painter.Data.playtimeSavedTextures, LoadTexturePegi);
+                                    "Playtime Saved Textures".PL().Edit_List(Painter.Data.playtimeSavedTextures, LoadTexturePegi);
                             }
 
-                            if ("Fade edges".PegiLabel().IsEntered().Nl())
+                            if ("Fade edges".PL().IsEntered().Nl())
                             {
 
                                 ("This will cahange pixels on the edges of the texture. Useful when wrap mode " +
-                                 "is set to clamp.").PegiLabel().Write_Hint();
+                                 "is set to clamp.").PL().Write_Hint();
 
                                 if (Texture2D)
                                 {
@@ -1155,7 +1155,7 @@ namespace PainterTool
                                     if (ti)
                                     {
                                         if (ti.wrapMode != TextureWrapMode.Clamp && "Change wrap mode from {0} to Clamp"
-                                                .F(ti.wrapMode).PegiLabel().Click().Nl())
+                                                .F(ti.wrapMode).PL().Click().Nl())
                                         {
                                             ti.wrapMode = TextureWrapMode.Clamp;
                                             ti.SaveAndReimport();
@@ -1164,21 +1164,21 @@ namespace PainterTool
 #endif
 
                                     //AddEdgePixels(Color col)
-                                    if ("Set edges to transparent".PegiLabel().Click().Nl())
+                                    if ("Set edges to transparent".PL().Click().Nl())
                                     {
                                         SetEdges(Color.clear, ColorMask.A);
                                         SetAndApply();
                                     }
 
-                                    if ("Set edges to Clear Black".PegiLabel().Click().Nl())
+                                    if ("Set edges to Clear Black".PL().Click().Nl())
                                     {
                                         SetEdges(Color.clear);
                                         SetAndApply();
                                     }
 
-                                    "Background Color".PegiLabel().Edit(ref clearColor);
+                                    "Background Color".PL().Edit(ref clearColor);
 
-                                    if ("Apply to edges".PegiLabel().Click())
+                                    if ("Apply to edges".PL().Click())
                                     {
                                         SetEdges(clearColor);
                                         SetAndApply();
@@ -1186,7 +1186,7 @@ namespace PainterTool
 
                                     pegi.Nl();
 
-                                    if ("Add Edges".PegiLabel(toolTip: "This will resize the texture").ClickConfirm(confirmationTag: "addEdge"))
+                                    if ("Add Edges".PL(toolTip: "This will resize the texture").ClickConfirm(confirmationTag: "addEdge"))
                                     {
                                         AddEdgePixels(clearColor);
                                         SetAndApply();
@@ -1195,12 +1195,12 @@ namespace PainterTool
                                 }
                             }
 
-                            if ("Add Background".PegiLabel().IsEntered().Nl())
+                            if ("Add Background".PL().IsEntered().Nl())
                             {
 
-                                "Background Color".ConstLabel().Edit(ref clearColor).Nl();
+                                "Background Color".ConstL().Edit(ref clearColor).Nl();
 
-                                if ("Add Background".PegiLabel("Will Add Beckground color and make everything non transparent").Click().Nl())
+                                if ("Add Background".PL("Will Add Beckground color and make everything non transparent").Click().Nl())
                                 {
 
                                     bool wasRt = WasRenderTexture();
@@ -1216,24 +1216,24 @@ namespace PainterTool
 
                             }
 
-                            if ("Offset".PegiLabel().IsEntered().Nl())
+                            if ("Offset".PL().IsEntered().Nl())
                             {
 
-                                "X:".PegiLabel().Edit(ref _offsetByX);
+                                "X:".PL().Edit(ref _offsetByX);
 
-                                if ((_offsetByX != Width / 2) && "{0}/{1}".F(Width / 2, Width).PegiLabel().Click())
+                                if ((_offsetByX != Width / 2) && "{0}/{1}".F(Width / 2, Width).PL().Click())
                                     _offsetByX = Width / 2;
 
                                 pegi.Nl();
 
-                                "Y:".PegiLabel().Edit(ref _offsetByY);
+                                "Y:".PL().Edit(ref _offsetByY);
 
-                                if ((_offsetByY != Height / 2) && "{0}/{1}".F(Height / 2, Height).PegiLabel().Click())
+                                if ((_offsetByY != Height / 2) && "{0}/{1}".F(Height / 2, Height).PL().Click())
                                     _offsetByY = Height / 2;
 
                                 pegi.Nl();
 
-                                if (((_offsetByX % Width != 0) || (_offsetByY % Height != 0)) && "Apply Offset".PegiLabel().Click())
+                                if (((_offsetByX % Width != 0) || (_offsetByY % Height != 0)) && "Apply Offset".PL().Click())
                                 {
                                     OffsetPixels();
                                     SetAndApply();
@@ -1244,7 +1244,7 @@ namespace PainterTool
                     }
                 }
 
-                var lbl = "Enable Undo for '{0}'".F(NameForInspector).PegiLabel();
+                var lbl = "Enable Undo for '{0}'".F(StringId).PL();
 
                 if (context.IsAnyEntered == false)
                 {
@@ -1255,23 +1255,23 @@ namespace PainterTool
 
                 if (lbl.IsConditionally_Entered(canEnter: this[TextureCfgFlags.EnableUndoRedo]).Nl())
                 {
-                    "UNDOs: Tex2D".ConstLabel().Edit(ref _numberOfTexture2DBackups);
-                    "RendTex".ConstLabel().Edit(ref _numberOfRenderTextureBackups).Nl();
+                    "UNDOs: Tex2D".ConstL().Edit(ref _numberOfTexture2DBackups);
+                    "RendTex".ConstL().Edit(ref _numberOfRenderTextureBackups).Nl();
 
-                    "Backup manually".PegiLabel().ToggleIcon(ref backupManually).Nl();
+                    "Backup manually".PL().ToggleIcon(ref backupManually).Nl();
 
                     if (_numberOfTexture2DBackups > 50 || _numberOfRenderTextureBackups > 50)
-                        "Too big of a number will eat up lot of memory".PegiLabel().WriteWarning();
+                        "Too big of a number will eat up lot of memory".PL().WriteWarning();
 
-                    "Creating more backups will eat more memory".PegiLabel().WriteOneTimeHint("backupIsMem");
-                    "This are not connected to Unity's Undo/Redo because when you run out of backups you will by accident start undoing other operations.".PegiLabel().WriteOneTimeHint("noNativeUndo");
-                    "Use Z/X to undo/redo".PegiLabel().WriteOneTimeHint("ZxUndoRedo");
+                    "Creating more backups will eat more memory".PL().WriteOneTimeHint("backupIsMem");
+                    "This are not connected to Unity's Undo/Redo because when you run out of backups you will by accident start undoing other operations.".PL().WriteOneTimeHint("noNativeUndo");
+                    "Use Z/X to undo/redo".PL().WriteOneTimeHint("ZxUndoRedo");
                 }
 
                 pegi.Nl();
 
                 if (!context.IsAnyEntered && IsAVolumeTexture)
-                        "Is A volume texture".PegiLabel().ToggleIcon(ref IsAVolumeTexture).Nl();
+                        "Is A volume texture".PL().ToggleIcon(ref IsAVolumeTexture).Nl();
             }
         }
 
@@ -1294,14 +1294,14 @@ namespace PainterTool
 
             if (!this[TextureCfgFlags.TransparentLayer] && hasAlphaLayerTag)
             {
-                "Material Field {0} is a Transparent Layer ".F(property).PegiLabel().Write_Hint();
+                "Material Field {0} is a Transparent Layer ".F(property).PL().Write_Hint();
                 forceOpenUTransparentLayer = true;
             }
 
             if (showToggles || (this[TextureCfgFlags.TransparentLayer] && !hasAlphaLayerTag) || forceOpenUTransparentLayer)
             {
                 var isTp = this[TextureCfgFlags.TransparentLayer];
-                MsgPainter.TransparentLayer.GetText().PegiLabel().ToggleIcon(ref isTp).OnChanged(()=> this[TextureCfgFlags.TransparentLayer] = isTp);
+                MsgPainter.TransparentLayer.GetText().PL().ToggleIcon(ref isTp).OnChanged(()=> this[TextureCfgFlags.TransparentLayer] = isTp);
 
                 pegi.FullWindow.DocumentationWithLinkClickOpen(
                 MsgPainter.TransparentLayer.GetDescription(),
@@ -1323,7 +1323,7 @@ namespace PainterTool
                 else
                 {
                     var pts = this[TextureCfgFlags.PreserveTransparency];
-                    MsgPainter.PreserveTransparency.GetText().PegiLabel().ToggleIcon(ref pts).OnChanged(()=> this[TextureCfgFlags.PreserveTransparency] = pts);
+                    MsgPainter.PreserveTransparency.GetText().PL().ToggleIcon(ref pts).OnChanged(()=> this[TextureCfgFlags.PreserveTransparency] = pts);
 
                     MsgPainter.PreserveTransparency.DocumentationClick();
 
@@ -1342,14 +1342,14 @@ namespace PainterTool
                     _useTexCoord2AutoAssigned = true;
                 }
                 else
-                    "Material Field {0} is Sampled using Texture Coordinates 2 ".F(property).PegiLabel().Write_Hint();
+                    "Material Field {0} is Sampled using Texture Coordinates 2 ".F(property).PL().Write_Hint();
                 forceOpenUv2 = true;
             }
 
             if (showToggles || (this[TextureCfgFlags.Texcoord2] && !hasUv2Tag) || forceOpenUv2)
             {
                 var uv2 = this[TextureCfgFlags.Texcoord2];
-                "Use UV2".PegiLabel().ToggleIcon(ref uv2).Nl().OnChanged(()=> this[TextureCfgFlags.Texcoord2] = uv2);
+                "Use UV2".PL().ToggleIcon(ref uv2).Nl().OnChanged(()=> this[TextureCfgFlags.Texcoord2] = uv2);
             }
 
             return changed;
@@ -1403,18 +1403,18 @@ namespace PainterTool
 
                 if (!IsPNG && !IsReadable)
                 {
-                    "Texture isn't readable and isn't in PNG format. Can't edit. ".PegiLabel().WriteWarning();
+                    "Texture isn't readable and isn't in PNG format. Can't edit. ".PL().WriteWarning();
                     pegi.Nl();
                     if (Application.isEditor)
                     {
-                        "Convert Options:".PegiLabel().Nl();// pegi.Styles.ListLabel);
+                        "Convert Options:".PL().Nl();// pegi.Styles.ListLabel);
 
-                        " ".PegiLabel(10).Write();
+                        " ".PL(10).Write();
 
-                        if ("Copy to PNG".PegiLabel().Click())
+                        if ("Copy to PNG".PL().Click())
                             ConvertToPngIfNeeded(painter);
 
-                        if ("Readable without Alpha".PegiLabel().Click())
+                        if ("Readable without Alpha".PL().Click())
                             IsReadable = true;
                     }
 
@@ -1422,11 +1422,11 @@ namespace PainterTool
                 else if (!IsPNG)
                 {
 
-                    "Texture isn't in PNG format, transparency edits may not persist".PegiLabel().WriteWarning();
+                    "Texture isn't in PNG format, transparency edits may not persist".PL().WriteWarning();
                     pegi.Nl();
                     if (Application.isEditor)
                     {
-                        if ("Create .png copy".PegiLabel().Click())
+                        if ("Create .png copy".PL().Click())
                             ConvertToPngIfNeeded(painter);
                     }
 
@@ -1434,12 +1434,12 @@ namespace PainterTool
                 else if (!IsReadable)
                 {
 
-                    "Texture wasn't marked as readable, can't edit".PegiLabel().WriteWarning();
+                    "Texture wasn't marked as readable, can't edit".PL().WriteWarning();
                     pegi.Nl();
 
                     if (Application.isEditor)
                     {
-                        if ("Make Texture Readable".PegiLabel().Click())
+                        if ("Make Texture Readable".PL().Click())
                             IsReadable = true;
                     }
                 }

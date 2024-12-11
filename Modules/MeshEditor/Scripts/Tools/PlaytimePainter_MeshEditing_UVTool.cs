@@ -61,17 +61,17 @@ namespace PainterTool.MeshEditing
         {
             var mm = Painter.MeshManager;
 
-            if (("Edited UV: " + mm.EditedUV + " (Click to switch)").PegiLabel().Click().Nl())
+            if (("Edited UV: " + mm.EditedUV + " (Click to switch)").PL().Click().Nl())
                 mm.EditedUV = mm.EditedUV == 1 ? 0 : 1; // 1 - mm.editedUV;
 
-            if (!projectionUv && "Projection UV Start".PegiLabel().Click().Nl()) {
+            if (!projectionUv && "Projection UV Start".PL().Click().Nl()) {
                 projectionUv = true;
                 UpdateUvPreview();
             }
 
             if (projectionUv) 
             {
-                if ("tiling".PegiLabel().Edit(ref tiling).Nl())
+                if ("tiling".PL().Edit(ref tiling).Nl())
                     UpdateUvPreview();
 
                 if (preciseOffset)
@@ -80,25 +80,25 @@ namespace PainterTool.MeshEditing
                     Icon.Size.Click(()=> preciseOffset = !preciseOffset);
 
                 if (preciseOffset)
-                    "offset".ConstLabel().Edit(ref offset, -1, 1).Nl().OnChanged(()=> UpdateUvPreview());
+                    "offset".ConstL().Edit(ref offset, -1, 1).Nl().OnChanged(()=> UpdateUvPreview());
                 else
-                    "offset".ConstLabel().Edit(ref offset).Nl().OnChanged(() => UpdateUvPreview());
+                    "offset".ConstL().Edit(ref offset).Nl().OnChanged(() => UpdateUvPreview());
 
-                if ("Projection UV Stop".PegiLabel().Click().Nl()) {
+                if ("Projection UV Stop".PL().Click().Nl()) {
                     projectionUv = false;
                     EditedMesh.Dirty = true;
                 }
 
                 ("Paint on vertices where you want to apply current UV configuration. {0} " +
                     
-                    "Use scroll wheel or XZ to change projection plane").F(pegi.EnvironmentNl).PegiLabel().Write_Hint();
+                    "Use scroll wheel or XZ to change projection plane").F(pegi.EnvironmentNl).PL().Write_Hint();
             }
 
-            if ("Processors".PegiLabel().IsFoldout(ref meshProcessors).Nl())  {
+            if ("Processors".PL().IsFoldout(ref meshProcessors).Nl())  {
 
                 if (projectionUv) {
 
-                    if ("Auto - Project All sides".PegiLabel(toolTip: "This will change UV of the entire mesh").ClickConfirm(confirmationTag: "Auto Project").Nl())
+                    if ("Auto - Project All sides".PL(toolTip: "This will change UV of the entire mesh").ClickConfirm(confirmationTag: "Auto Project").Nl())
                     {
                         projectorNormalThreshold01 = 0.5f;
 
@@ -116,10 +116,10 @@ namespace PainterTool.MeshEditing
                         OnDeSelectTool();
                     }
 
-                    if ("Auto Apply Threshold".PegiLabel().Edit(ref projectorNormalThreshold01, 0.01f, 1f))
+                    if ("Auto Apply Threshold".PL().Edit(ref projectorNormalThreshold01, 0.01f, 1f))
                         UpdateUvPreview(true);
 
-                    if ((projectFront ? "front" : "back").PegiLabel().Click())
+                    if ((projectFront ? "front" : "back").PL().Click())
                         projectFront = !projectFront;
 
                     if (Icon.Done.Click("Auto apply to all"))
@@ -127,12 +127,12 @@ namespace PainterTool.MeshEditing
 
                     pegi.Nl();
 
-                    "To Auto-Generate LightmapUV(UV2), exit mesh editing (disable/enable component) and click GenerateUV2 before entering/insteadOf editing".PegiLabel().Write_Hint().Nl();
+                    "To Auto-Generate LightmapUV(UV2), exit mesh editing (disable/enable component) and click GenerateUV2 before entering/insteadOf editing".PL().Write_Hint().Nl();
                 }
 
                 pegi.Nl();
 
-                if ("All UVs to 01 space".PegiLabel().Click())
+                if ("All UVs to 01 space".PL().Click())
                 {
                     foreach (var point in EditedMesh.meshPoints)
                         point.UVto01Space();

@@ -161,12 +161,12 @@ namespace PainterTool {
                     pegi.Nl();
 
                     if (target == TexTarget.RenderTexture)
-                        MsgPainter.Sharpness.GetText().PegiLabel("Makes edges more rough.", 70)
+                        MsgPainter.Sharpness.GetText().PL("Makes edges more rough.", 70)
                             .Edit( ref InspectedBrush.hardness, 1f, 5f).Nl();
 
                     var txt = (usingDecals ? "Tint alpha" : MsgPainter.Flow.GetText());
 
-                    txt.PegiLabel().ApproxWidth().Write();
+                    txt.PL().ApproxWidth().Write();
 
                     pegi.Nested_Inspect_Value(ref InspectedBrush._dFlow);
             
@@ -189,7 +189,7 @@ namespace PainterTool {
                             pegi.Edit(ref InspectedBrush.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f);
                         } else 
                         {
-                            "Scale".PegiLabel().Edit(ref InspectedBrush.brush3DRadius);
+                            "Scale".PL().Edit(ref InspectedBrush.brush3DRadius);
                         }
                     }
                     else
@@ -212,7 +212,7 @@ namespace PainterTool {
                     pegi.Nl();
 
                     if (blitMode.UsingSourceTexture && (id == null || id.TargetIsRenderTexture()))
-                        MsgPainter.CopyFrom.GetText().ConstLabel().SelectOrAdd(ref InspectedBrush.selectedSourceTexture,
+                        MsgPainter.CopyFrom.GetText().ConstL().SelectOrAdd(ref InspectedBrush.selectedSourceTexture,
                                 ref Painter.Data.sourceTextures)
                             .Nl();
                 }
@@ -273,7 +273,7 @@ namespace PainterTool {
                 base.Inspect();
 
                 if (GlobalBrush.Color.DistanceRgba(Color.clear, GlobalBrush.mask) < 0.1f)
-                    "Color value is very low. Increase if flow of painting is slower then expected. ".PegiLabel().WriteWarning();
+                    "Color value is very low. Increase if flow of painting is slower then expected. ".PL().WriteWarning();
             }
 
 
@@ -308,7 +308,7 @@ namespace PainterTool {
                 base.Inspect();
 
                 if (GlobalBrush.Color.DistanceRgba(Color.clear, GlobalBrush.mask) < 0.1f)
-                    "Color value is very low. Subtraction effect will accumulate slowly. ".PegiLabel().WriteWarning();
+                    "Color value is very low. Subtraction effect will accumulate slowly. ".PL().WriteWarning();
             }
 
         }
@@ -394,7 +394,7 @@ namespace PainterTool {
             {
                 base.Inspect(); pegi.Nl();
                 var txt = MsgPainter.BlurAmount.GetText();
-                txt.PegiLabel().ApproxWidth().Edit( ref InspectedBrush.blurAmount, 1f, 8f).Nl();
+                txt.PL().ApproxWidth().Edit( ref InspectedBrush.blurAmount, 1f, 8f).Nl();
             }
 
             #endregion
@@ -465,15 +465,15 @@ namespace PainterTool {
 
                 pegi.Nl();
 
-                "Mask Size: ".ConstLabel().Edit(ref Painter.Data.samplingMaskSize).Nl();
+                "Mask Size: ".ConstL().Edit(ref Painter.Data.samplingMaskSize).Nl();
 
                 Painter.Data.samplingMaskSize.Clamp(1, 512);
 
-                "Color Set On".ConstLabel().Edit_Enum(ref method).Nl();
+                "Color Set On".ConstL().Edit_Enum(ref method).Nl();
 
                 if (method == ColorSetMethod.Manual)
                 {
-                    "CurrentPixel".ConstLabel().Edit(ref currentPixel).Nl();
+                    "CurrentPixel".ConstL().Edit(ref currentPixel).Nl();
 
                     var ssize = Painter.Data.samplingMaskSize;
 
@@ -487,14 +487,14 @@ namespace PainterTool {
                 if (id != null)
                 {
 
-                    if ("Set Tiling Offset".PegiLabel().Click())
+                    if ("Set Tiling Offset".PL().Click())
                     {
                         id.Tiling = Vector2.one * 1.5f;
                         id.Offset = -Vector2.one * 0.25f;
                         InspectedPainter.UpdateTilingToMaterial();
                     }
 
-                    if (InspectedPainter != null && "Generate Default".PegiLabel().Click().Nl())
+                    if (InspectedPainter != null && "Generate Default".PL().Click().Nl())
                     {
                         var pix = id.Pixels;
 
@@ -610,7 +610,7 @@ namespace PainterTool {
             {
                 base.Inspect();
                 pegi.Nl();
-                "Bloom Radius".ConstLabel().Edit(ref InspectedBrush.blurAmount, 1f, 8f).Nl();
+                "Bloom Radius".ConstL().Edit(ref InspectedBrush.blurAmount, 1f, 8f).Nl();
             }
 
             #endregion
@@ -663,10 +663,10 @@ namespace PainterTool {
 
                 if (!depthCamera)
                 {
-                    "Projector brush needs Projector Camera to be in the scene".PegiLabel().WriteWarning();
+                    "Projector brush needs Projector Camera to be in the scene".PL().WriteWarning();
                     pegi.Nl();
 
-                    if ("Create Projector Camera".PegiLabel().Click().Nl())
+                    if ("Create Projector Camera".PL().Click().Nl())
                     {
                         QcUnity.Instantiate<Singleton_DepthProjectorCamera>();
                     }
@@ -674,24 +674,24 @@ namespace PainterTool {
                 else
                 {
 
-                    "Projector:".PegiLabel().Nl();
+                    "Projector:".PL().Nl();
 
 #if UNITY_EDITOR
                     if (Application.isPlaying && UnityEditor.EditorApplication.isPaused && depthCamera._projectFromMainCamera)
                     {
-                        "In Play mode Projector brush is copying position from main camera".PegiLabel().Write_Hint();
+                        "In Play mode Projector brush is copying position from main camera".PL().Write_Hint();
                     }
 #endif
 
                         if (Brush.showAdvanced)
-                        "Paint only visible (by Projector)".PegiLabel().ToggleIcon(ref Painter.Data.useDepthForProjector).Nl();
+                        "Paint only visible (by Projector)".PL().ToggleIcon(ref Painter.Data.useDepthForProjector).Nl();
 
                     var painter = PainterComponent.inspected;
 
                     if (painter && painter.NotUsingPreview)
-                        "Preview helps see the Projection".PegiLabel().WriteWarning();
+                        "Preview helps see the Projection".PL().WriteWarning();
                     else if (!depthCamera._projectFromMainCamera)
-                         "You can Lock Projector to current camera view to allign the projection.".PegiLabel().Write_Hint();
+                         "You can Lock Projector to current camera view to allign the projection.".PL().Write_Hint();
                     
                     if (Icon.Delete.Click("Delete Projector Camera"))
                         depthCamera.gameObject.DestroyWhatever();
@@ -740,7 +740,7 @@ namespace PainterTool {
 
                 var txt = MsgPainter.SpreadSpeed.GetText();
 
-                txt.PegiLabel().ApproxWidth().Edit( ref InspectedBrush.blurAmount, 1f, 8f).Nl();
+                txt.PL().ApproxWidth().Edit( ref InspectedBrush.blurAmount, 1f, 8f).Nl();
             }
 
 #endregion
@@ -795,7 +795,7 @@ namespace PainterTool {
 
                 var allCstm = Painter.Data.customBlitModes;
 
-                if ("Config".ConstLabel().Select_Index(ref Painter.Data.selectedCustomBlitMode, allCstm))
+                if ("Config".ConstL().Select_Index(ref Painter.Data.selectedCustomBlitMode, allCstm))
                     Painter.Data.SetToDirty();
 
                 var cfg = CustomCfg;
@@ -815,7 +815,7 @@ namespace PainterTool {
 
                 if (CustomCfg)
                 {
-                    if (CustomCfg.name.PegiLabel().IsFoldout(ref _showConfig).Nl())
+                    if (CustomCfg.name.PL().IsFoldout(ref _showConfig).Nl())
                     {
                         CustomCfg.Nested_Inspect();
                     }
@@ -823,7 +823,7 @@ namespace PainterTool {
                 else
                 {
                     ("Create a BlitModeCustom Scriptable Object and put your custom blit shader into it. " +
-                     " Right mouse button in the Project view and select Create->Playtime Painter-> Blit Mode Custom ").PegiLabel().Write_Hint();
+                     " Right mouse button in the Project view and select Create->Playtime Painter-> Blit Mode Custom ").PL().Write_Hint();
                     pegi.Nl();
                 }
 
@@ -837,13 +837,13 @@ namespace PainterTool {
 
                 if (!rt) return;
                 
-                if ("Grahics BLIT".PegiLabel().Click().Nl())
+                if ("Grahics BLIT".PL().Click().Nl())
                     RenderTextureBuffersManager.Blit(
                         @from: CustomCfg.sourceTexture ? CustomCfg.sourceTexture : rt,
                         to: rt,
                         shader: CustomCfg.shader);
 
-                if ("Painter Camera Render".PegiLabel().Click().Nl())
+                if ("Painter Camera Render".PL().Click().Nl())
                     Painter.Camera.Render(
                         @from: CustomCfg.sourceTexture ? CustomCfg.sourceTexture : rt,
                         to: rt,

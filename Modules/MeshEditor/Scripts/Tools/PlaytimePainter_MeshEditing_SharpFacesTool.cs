@@ -42,9 +42,9 @@ namespace PainterTool.MeshEditing
 
         public override void Inspect()
         {
-            "Will Set {0} On Click".F(_setTo).PegiLabel().ToggleIcon(ref _setTo).Nl();
+            "Will Set {0} On Click".F(_setTo).PL().ToggleIcon(ref _setTo).Nl();
 
-            "Mode".ConstLabel().Edit_Enum(ref _detectionMode).Nl();
+            "Mode".ConstL().Edit_Enum(ref _detectionMode).Nl();
 
             /* if ("Auto Bevel".PegiLabel().Click())
                  AutoAssignDominantNormalsForBeveling();

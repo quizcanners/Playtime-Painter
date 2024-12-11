@@ -43,21 +43,21 @@ namespace PainterTool
             if (_projectorCamera)
             {
 
-                "Project from Camera".PegiLabel("Will always project from Play or Editor Camera").ToggleIcon(ref _projectFromMainCamera).Nl();
+                "Project from Camera".PL("Will always project from Play or Editor Camera").ToggleIcon(ref _projectFromMainCamera).Nl();
 
                 if (_projectFromMainCamera)
-                    "Follow the mouse".PegiLabel().ToggleIcon(ref _centerOnMousePosition).Nl();
+                    "Follow the mouse".PL().ToggleIcon(ref _centerOnMousePosition).Nl();
 
                 var fov = _projectorCamera.fieldOfView;
 
-                if ("FOV".ConstLabel().Edit(ref fov, 0.1f, 180f).Nl())
+                if ("FOV".ConstL().Edit(ref fov, 0.1f, 180f).Nl())
                 {
 
                     _projectorCamera.fieldOfView = fov;
                 }
             }
 
-            "Requested updates".PegiLabel().Edit_List(depthUsers, ref _inspectedUser).Nl();
+            "Requested updates".PL().Edit_List(depthUsers, ref _inspectedUser).Nl();
 
         }
 
@@ -68,13 +68,13 @@ namespace PainterTool
 
             if (_projectFromMainCamera)
             {
-                "Follow the mouse".PegiLabel().ToggleIcon(ref _centerOnMousePosition);
+                "Follow the mouse".PL().ToggleIcon(ref _centerOnMousePosition);
 
                 if (_centerOnMousePosition)
                 {
                     pegi.Nl();
-                    "Off X".ConstLabel().Edit(ref _fromMouseOffset.x, -1, 1).Nl();
-                    "Off Y".ConstLabel().Edit(ref _fromMouseOffset.y, -1, 1).Nl();
+                    "Off X".ConstL().Edit(ref _fromMouseOffset.x, -1, 1).Nl();
+                    "Off Y".ConstL().Edit(ref _fromMouseOffset.y, -1, 1).Nl();
                 }
 
             }
@@ -459,15 +459,15 @@ namespace PainterTool
         private Camera inspectedCamera;
         void IPEGI.Inspect() {
 
-            "Local".PegiLabel("Use local Position and rotation of the camera.").ToggleIcon(ref localTransform).Nl();
-            "Position: {0}".F(position).PegiLabel().Nl();
-            "Rotation: {0}".F(rotation).PegiLabel().Nl();
+            "Local".PL("Use local Position and rotation of the camera.").ToggleIcon(ref localTransform).Nl();
+            "Position: {0}".F(position).PL().Nl();
+            "Rotation: {0}".F(rotation).PL().Nl();
 
-            "FOV".ConstLabel().Edit(ref fieldOfView, 60, 180).Nl();
+            "FOV".ConstL().Edit(ref fieldOfView, 60, 180).Nl();
 
-            "Range".PegiLabel().Edit_Range(ref nearPlane, ref farPlane).Nl();
+            "Range".PL().Edit_Range(ref nearPlane, ref farPlane).Nl();
             
-            "Tmp Camera".PegiLabel().Edit(ref inspectedCamera);
+            "Tmp Camera".PL().Edit(ref inspectedCamera);
 
             if (inspectedCamera) {
                 if (Icon.Load.Click("Load configuration into camera"))

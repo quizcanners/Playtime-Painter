@@ -1293,12 +1293,12 @@ namespace PainterTool.MeshEditing
 
         void IPEGI.Inspect()
         {
-            if ("Run Debug".PegiLabel().Click().Nl())
+            if ("Run Debug".PL().Click().Nl())
                 RunDebug();
 
-            "{0} points; Avg size {1}; {2} sub Meshes; {3} triangles".F(vertexCount, averageSize, subMeshCount, triangles.Count).PegiLabel().Nl();
+            "{0} points; Avg size {1}; {2} sub Meshes; {3} triangles".F(vertexCount, averageSize, subMeshCount, triangles.Count).PL().Nl();
 
-            "Bone Weights".PegiLabel().Write(); (gotBoneWeights ? Icon.Done : Icon.Close).Draw(gotBoneWeights ? "Got Bone Weights" : " No Bone Weights");
+            "Bone Weights".PL().Write(); (gotBoneWeights ? Icon.Done : Icon.Close).Draw(gotBoneWeights ? "Got Bone Weights" : " No Bone Weights");
 
             if (gotBoneWeights && Icon.Delete.Click("Don't Save Bone Weights"))
                 gotBoneWeights = false;
@@ -1307,7 +1307,7 @@ namespace PainterTool.MeshEditing
 
             var gotBindPos = !bindPoses.IsNullOrEmpty();
 
-            "Bind Positions".PegiLabel().Write(); (gotBindPos ? Icon.Done : Icon.Close).Draw(gotBindPos ? "Got Bind Positions {0}".F(bindPoses.Length) : " No Bind Positions");
+            "Bind Positions".PL().Write(); (gotBindPos ? Icon.Done : Icon.Close).Draw(gotBindPos ? "Got Bind Positions {0}".F(bindPoses.Length) : " No Bind Positions");
 
             if (gotBindPos && Icon.Delete.Click("Remove Bind Positions"))
                 bindPoses = null;
@@ -1315,7 +1315,7 @@ namespace PainterTool.MeshEditing
             pegi.Nl();
 
             if (!shapes.IsNullOrEmpty())
-                "Shapes".PegiLabel().Edit_List(shapes).Nl();
+                "Shapes".PL().Edit_List(shapes).Nl();
         }
         public static MeshData inspected;
 

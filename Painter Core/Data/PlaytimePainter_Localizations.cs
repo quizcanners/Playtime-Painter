@@ -245,10 +245,10 @@ namespace PainterTool {
 
 
         
-        public static void Write(this MsgPainter m) => m.GetText().PegiLabel(m.GetDescription()).Write(); 
-        public static void Write(this MsgPainter m, int width) => m.GetText().PegiLabel(m.GetDescription(), width).Write(); 
-        public static void Write(this MsgPainter m, string tip, int width) => m.GetText().PegiLabel(tip, width).Write(); 
-        public static void Write(this MsgPainter m, string tip) { m.GetText().PegiLabel(tip).ApproxWidth().Write(); }
+        public static void Write(this MsgPainter m) => m.GetText().PL(m.GetDescription()).Write(); 
+        public static void Write(this MsgPainter m, int width) => m.GetText().PL(m.GetDescription(), width).Write(); 
+        public static void Write(this MsgPainter m, string tip, int width) => m.GetText().PL(tip, width).Write(); 
+        public static void Write(this MsgPainter m, string tip) { m.GetText().PL(tip).ApproxWidth().Write(); }
 
         public static string GetText(this MsgPainter msg)
         {

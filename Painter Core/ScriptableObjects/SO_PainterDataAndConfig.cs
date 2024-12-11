@@ -530,58 +530,58 @@ namespace PainterTool
             {
                 pegi.Nl();
 
-                if ("Data Lists".PegiLabel().IsEntered().Nl())
+                if ("Data Lists".PL().IsEntered().Nl())
                     InspectLists();
 
-                if ("Settings".PegiLabel().IsEntered().Nl())
+                if ("Settings".PL().IsEntered().Nl())
                 {
-                    if ("Don't Build with Painter Shaders".PegiLabel().ToggleIcon(ref dontIncludeShaderInBuild).Nl())
+                    if ("Don't Build with Painter Shaders".PL().ToggleIcon(ref dontIncludeShaderInBuild).Nl())
                         CheckShaders(forceReload: true);
 
 #if UNITY_EDITOR
 
-                    if ("Enable PlayTime UI".PegiLabel().ToggleIcon(ref enablePainterUIonPlay).Nl())
+                    if ("Enable PlayTime UI".PL().ToggleIcon(ref enablePainterUIonPlay).Nl())
                         Painter.MeshManager.StopEditingMesh();
 
-                    "Hide documentation".PegiLabel().ToggleIcon(ref hideDocumentation);
+                    "Hide documentation".PL().ToggleIcon(ref hideDocumentation);
                     MsgPainter.aboutDisableDocumentation.DocumentationClick();
                     pegi.Nl();
 
-                    "Teaching Notifications".PegiLabel("Will show some notifications on the screen").ToggleIcon(ref showTeachingNotifications).Nl();
+                    "Teaching Notifications".PL("Will show some notifications on the screen").ToggleIcon(ref showTeachingNotifications).Nl();
 
-                    "Where to save content".PegiLabel(style: pegi.Styles.ListLabel).Nl();
+                    "Where to save content".PL(style: pegi.Styles.ListLabel).Nl();
 
-                    "Textures".ConstLabel().Edit(ref texturesFolderName).Nl();
+                    "Textures".ConstL().Edit(ref texturesFolderName).Nl();
 
-                    "Atlases: {0}/".F(texturesFolderName).PegiLabel(120).Edit(ref atlasFolderName).Nl();
+                    "Atlases: {0}/".F(texturesFolderName).PL(120).Edit(ref atlasFolderName).Nl();
 
-                    "Materials".ConstLabel().Edit(ref materialsFolderName).Nl();
+                    "Materials".ConstL().Edit(ref materialsFolderName).Nl();
 
-                    "Default for New Material".PegiLabel().Edit(ref defaultMaterial).Nl();
+                    "Default for New Material".PL().Edit(ref defaultMaterial).Nl();
 
-                    "Meshes".ConstLabel().Edit(ref meshesFolderName).Nl();
+                    "Meshes".ConstL().Edit(ref meshesFolderName).Nl();
 
 #endif
                 }
 
                 if (!BrushConfig)
-                    "Brush Config not found, create {0} from context menu".F(SO_BrushConfigScriptableObject.FILE_NAME).PegiLabel().WriteWarning();
+                    "Brush Config not found, create {0} from context menu".F(SO_BrushConfigScriptableObject.FILE_NAME).PL().WriteWarning();
 
-                "Shaders".PegiLabel().Enter_List_UObj(shadersToBuldWith).Nl();
+                "Shaders".PL().Enter_List_UObj(shadersToBuldWith).Nl();
 
                 if (!BrushConfig || _context.IsCurrentEntered)
-                    "Brush Config".PegiLabel().Edit(ref BrushConfig).Nl();
+                    "Brush Config".PL().Edit(ref BrushConfig).Nl();
 
                 if (_context.IsAnyEntered == false)
                 {
 
                     if (!cfgLoaded)
                     {
-                        if ("Initialize Object (Load Cfg)".PegiLabel().Click())
+                        if ("Initialize Object (Load Cfg)".PL().Click())
                             this.Decode(stdData);
                     }
                     else
-                    if ("Painter Data Encode / Decode Test".PegiLabel().Click())
+                    if ("Painter Data Encode / Decode Test".PL().Click())
                     {
                         stdData = Encode().CfgData;
                         //this.SaveCfgData();
@@ -617,22 +617,22 @@ namespace PainterTool
 
                 _imagesInspectorMeta.Enter_List(imgMetas).Nl();
 
-                "Mat Metas".PegiLabel().Enter_List(matMetas, ref _inspectedMaterial).Nl();
+                "Mat Metas".PL().Enter_List(matMetas, ref _inspectedMaterial).Nl();
 
-                "Source Textures".PegiLabel().Enter_List_UObj(sourceTextures).Nl();
+                "Source Textures".PL().Enter_List_UObj(sourceTextures).Nl();
 
-                "Masks".PegiLabel().Enter_List_UObj(masks).Nl();
+                "Masks".PL().Enter_List_UObj(masks).Nl();
 
-                "Decals".PegiLabel().Enter_List(decals, ref _inspectedDecal).Nl();
+                "Decals".PL().Enter_List(decals, ref _inspectedDecal).Nl();
 
-                "Mesh Packaging solutions".PegiLabel().Enter_List(meshPackagingSolutions, ref _inspectedMeshPackSol).Nl();
+                "Mesh Packaging solutions".PL().Enter_List(meshPackagingSolutions, ref _inspectedMeshPackSol).Nl();
 
                 if (_contextLists.IsCurrentEntered)
                 {
 #if UNITY_EDITOR
                     Object newProfile = null;
 
-                    if ("Drop New Profile Here:".PegiLabel().Edit(ref newProfile).Nl())
+                    if ("Drop New Profile Here:".PL().Edit(ref newProfile).Nl())
                     {
                         var mSol = new MeshPackagingProfile();
                         mSol.Decode(new CfgData(QcFile.Load.TryLoadAsTextAsset(newProfile)));

@@ -428,11 +428,11 @@ namespace PainterTool.MeshEditing
 
         public override void Inspect()
         {
-            "vertexPointMaterial".PegiLabel().Write(vertexPointMaterial);
+            "vertexPointMaterial".PL().Write(vertexPointMaterial);
             pegi.Nl();
-            "vertexPrefab".PegiLabel().Edit(ref vertPrefab).Nl();
-            "pointedVertex".PegiLabel().Edit(ref pointedVertex.go).Nl();
-            "SelectedVertex".PegiLabel().Edit(ref selectedVertex.go).Nl();
+            "vertexPrefab".PL().Edit(ref vertPrefab).Nl();
+            "pointedVertex".PL().Edit(ref pointedVertex.go).Nl();
+            "SelectedVertex".PL().Edit(ref selectedVertex.go).Nl();
         }
 
     }

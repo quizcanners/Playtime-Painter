@@ -314,7 +314,7 @@ namespace PainterTool {
             {
                 if (!InspectedPainter)
                 {
-                    "No inspected Painter found".PegiLabel().WriteWarning();
+                    "No inspected Painter found".PL().WriteWarning();
                     return false;
                 }
 
@@ -325,7 +325,7 @@ namespace PainterTool {
 
                 if (!vt.Texture)
                 {
-                    "Volume has no texture".PegiLabel().WriteWarning();
+                    "Volume has no texture".PL().WriteWarning();
                     return false;
                 }
 
@@ -357,7 +357,7 @@ namespace PainterTool {
                         if (tex)
                         {
 
-                            "Volume is a {0} texture".F(tex.IsColorTexture() ? "Color" : "Non-Color Data").PegiLabel().Write();
+                            "Volume is a {0} texture".F(tex.IsColorTexture() ? "Color" : "Non-Color Data").PL().Write();
 
 #if UNITY_EDITOR
                             if (tex.IsColorTexture())
@@ -365,7 +365,7 @@ namespace PainterTool {
                                 pegi.Nl();
                                 var imp = tex.GetTextureImporter_Editor();
 
-                                if ((imp != null) && "FIX texture".PegiLabel().Click() && (imp.WasWrongIsColor_Editor(false)))
+                                if ((imp != null) && "FIX texture".PL().Click() && (imp.WasWrongIsColor_Editor(false)))
                                     imp.SaveAndReimport();
                             }
 #endif
@@ -374,7 +374,7 @@ namespace PainterTool {
                             pegi.Nl();
                         }
                         else
-                            "Volume has no texture".PegiLabel().WriteWarning();
+                            "Volume has no texture".PL().WriteWarning();
 
                         var id = p.TexMeta;
 
@@ -388,7 +388,7 @@ namespace PainterTool {
 
                             if (Brush.showAdvanced || _enableRayTracing)
                             {
-                                "Ray-Tracing".PegiLabel().ToggleIcon(ref _enableRayTracing, true);
+                                "Ray-Tracing".PL().ToggleIcon(ref _enableRayTracing, true);
 
                                 if (br.useAlphaBuffer)
                                     Icon.Warning.Draw(
@@ -396,13 +396,13 @@ namespace PainterTool {
 
                             }
 
-                            if ("Ray Trace Camera".PegiLabel().IsConditionally_Entered(
+                            if ("Ray Trace Camera".PL().IsConditionally_Entered(
                                 canEnter: _enableRayTracing && Singleton.Get<Singleton_DepthProjectorCamera>()
                                 ).Nl_ifEntered())
                             {
-                                "Min".ConstLabel().Edit(ref minFov, 60, maxFov - 1).Nl();
+                                "Min".ConstL().Edit(ref minFov, 60, maxFov - 1).Nl();
 
-                                "Max".ConstLabel().Edit(ref maxFov, minFov + 1, 170).Nl();
+                                "Max".ConstL().Edit(ref maxFov, minFov + 1, 170).Nl();
 
                                 rayTraceCameraConfiguration.Nested_Inspect().Nl();
                             }
@@ -410,7 +410,7 @@ namespace PainterTool {
                             if (smoothing > 0 || Brush.showAdvanced)
                             {
                                 pegi.Nl();
-                                "Smoothing".ConstLabel().Edit(ref smoothing, 0, 1);
+                                "Smoothing".ConstL().Edit(ref smoothing, 0, 1);
                                 pegi.FullWindow.DocumentationClickOpen("Best used in the end");
 
                                 pegi.Nl();
@@ -422,13 +422,13 @@ namespace PainterTool {
 
                                 if (!dp)
                                 {
-                                    if ("Create Projector Camera".PegiLabel().Click().Nl())
+                                    if ("Create Projector Camera".PL().Click().Nl())
                                         Painter.GetOrCreateProjectorCamera();
                                 }
                                 else if (dp.pauseAutoUpdates)
                                 {
                                     pegi.Nl();
-                                    "Light Projectors paused".PegiLabel().ToggleIcon(ref dp.pauseAutoUpdates).Nl();
+                                    "Light Projectors paused".PL().ToggleIcon(ref dp.pauseAutoUpdates).Nl();
                                 }
 
                                 pegi.Nl();
@@ -442,9 +442,9 @@ namespace PainterTool {
 
                             if (!br.GetBrushType(TexTarget.RenderTexture).IsAWorldSpaceBrush)
                             {
-                                "Only World space brush can edit volumes".PegiLabel().Write_Hint();
+                                "Only World space brush can edit volumes".PL().Write_Hint();
                                 pegi.Nl();
-                                if ("Change to Sphere brush".PegiLabel().Click())
+                                if ("Change to Sphere brush".PL().Click())
                                     br.SetBrushType(TexTarget.RenderTexture, BrushTypes.Sphere.Inst);
                             }
                         }
@@ -453,23 +453,23 @@ namespace PainterTool {
 
 
                         if (!contex.IsAnyEntered && Painter.Data.showVolumeDetailsInPainter &&
-                            (volTex.name + " " + VolumeEditingExtensions.VolumeSize(id.Texture2D, volTex.hSlices)).PegiLabel()
+                            (volTex.name + " " + VolumeEditingExtensions.VolumeSize(id.Texture2D, volTex.hSlices)).PL()
                             .IsFoldout(ref _exploreVolumeData).Nl())
                             volTex.Nested_Inspect();
 
                         if (!cpuBlit)
-                            MsgPainter.Sharpness.GetText().PegiLabel(MsgPainter.Sharpness.GetDescription(), 70)
+                            MsgPainter.Sharpness.GetText().PL(MsgPainter.Sharpness.GetDescription(), 70)
                                 .Edit(ref br.hardness, 1f, 5f).Nl();
 
                         var tmpSpeed = br._dFlow.Value;
-                        if (MsgPainter.Flow.GetText().PegiLabel(40).Edit(ref tmpSpeed, 0.01f, 4.5f).Nl())
+                        if (MsgPainter.Flow.GetText().PL(40).Edit(ref tmpSpeed, 0.01f, 4.5f).Nl())
                             br._dFlow.Value = tmpSpeed;
 
                         if (br.showingSize)
                         {
                             var maxScale = volTex.size * volTex.SliceWidth * 4;
 
-                            "Scale".PegiLabel(toolTip: "Scale For Volume painting", 40).Edit(ref br.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f);
+                            "Scale".PL(toolTip: "Scale For Volume painting", 40).Edit(ref br.brush3DRadius, 0.001f * maxScale, maxScale * 0.5f);
 
                             if (cpuBlit && !_brushShaderForRayTrace.Shader && br.brush3DRadius > BrushScaleMaxForCpu(volTex))
                                 Icon.Warning.Draw(
@@ -487,7 +487,7 @@ namespace PainterTool {
 
             void IPEGI.Inspect()
             {
-                "Volumes".PegiLabel().Edit_List(C_VolumeTexture.all, ref _exploredVolume);
+                "Volumes".PL().Edit_List(C_VolumeTexture.all, ref _exploredVolume);
             }
 
             public void PlugIn_PainterGizmos(PainterComponent painter)
@@ -594,7 +594,7 @@ namespace PainterTool {
 
             public override void Inspect()
             {
-                "Volume Texture:".PegiLabel().Edit(ref volumeTexture).Nl();
+                "Volume Texture:".PL().Edit(ref volumeTexture).Nl();
             }
 
 

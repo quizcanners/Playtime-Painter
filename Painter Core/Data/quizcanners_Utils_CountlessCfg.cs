@@ -283,7 +283,7 @@ namespace QuizCanners.Utils
             {
                 if (no == indexes[i])
                     current = i;
-                filtered.Add("{0}: {1}".F(i, objs[i].GetNameForInspector()));
+                filtered.Add("{0}: {1}".F(i, objs[i].ToString()));
             }
 
             if (pegi.Select(ref current, filtered))
@@ -320,7 +320,7 @@ namespace QuizCanners.Utils
                         this[ind] = default;
                     else
                     {
-                        "{0}".F(ind).PegiLabel(20).Write();
+                        "{0}".F(ind).PL(20).Write();
                         if (pegi.InspectValueInCollection(ref el, ind, ref _edited) && typeof(T).IsValueType)
                             this[ind] = el;
                     }

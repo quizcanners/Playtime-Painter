@@ -43,17 +43,17 @@ namespace PainterTool.MeshEditing
             InspectDetectionMode();
             pegi.Nl();
 
-            "Weight to paint: ".PegiLabel().Edit(ref _edgeValue);
+            "Weight to paint: ".PL().Edit(ref _edgeValue);
 
-            if (_edgeValue == 0 && "Set 1".PegiLabel().Click().UnfocusOnChange())
+            if (_edgeValue == 0 && "Set 1".PL().Click().UnfocusOnChange())
                 _edgeValue = 1;
 
-            if (_edgeValue == 1 && "Set 0".PegiLabel().Click().UnfocusOnChange())
+            if (_edgeValue == 1 && "Set 0".PL().Click().UnfocusOnChange())
                 _edgeValue = 0;
 
             pegi.Nl();
 
-            "Also do color".PegiLabel().ToggleIcon(ref _alsoDoColor).Nl();
+            "Also do color".PL().ToggleIcon(ref _alsoDoColor).Nl();
 
             if (_alsoDoColor)
                 GlobalBrush.ColorSliders();
@@ -62,7 +62,7 @@ namespace PainterTool.MeshEditing
          //   "Flexible Edge".PegiLabel("Edge type can be seen in Packaging profile (if any). Bevel shader doesn't have a Flexible edge.").ToggleIcon(                
             //     ref _editingFlexibleEdge).Nl();
 
-            if ("Clear".PegiLabel().ClickConfirm("Edge Clear").Nl())
+            if ("Clear".PL().ClickConfirm("Edge Clear").Nl())
                 FillAll(0);
 
             pegi.Click(AddEdgesToEdgeFall);

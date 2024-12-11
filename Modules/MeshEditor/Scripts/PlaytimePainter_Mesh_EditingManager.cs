@@ -771,12 +771,12 @@ namespace PainterTool.MeshEditing
 
                 MeshPainting.target.Inspect_PreviewShaderToggle();
 
-                if (!MeshPainting.target.NotUsingPreview && "Preview".ConstLabel().Select(ref MeshShaderMode.selected, MeshShaderMode.AllModes).Nl())
+                if (!MeshPainting.target.NotUsingPreview && "Preview".ConstL().Select(ref MeshShaderMode.selected, MeshShaderMode.AllModes).Nl())
                     MeshShaderMode.ApplySelected();
 
                 var previousTool = MeshTool;
 
-                if ("Tool".ConstLabel().Select_Index(ref Painter.Data.meshTool, MeshToolBase.AllTools))
+                if ("Tool".ConstL().Select_Index(ref Painter.Data.meshTool, MeshToolBase.AllTools))
                 {
                     Grid.vertexPointMaterial.color = MeshTool.VertexColor; //.SetColor("_Color", MeshTool.VertexColor);
                     previousTool.OnDeSelectTool();
@@ -824,7 +824,7 @@ namespace PainterTool.MeshEditing
         {
             var changed = pegi.ChangeTrackStart();
 
-            if ("Mesh ".PegiLabel().IsConditionally_Entered(canEnter: editedMesh != null).Nl())
+            if ("Mesh ".PL().IsConditionally_Entered(canEnter: editedMesh != null).Nl())
             {
                 using (contenxt.StartContext())
                 {
@@ -832,7 +832,7 @@ namespace PainterTool.MeshEditing
                     {
 
 #if UNITY_EDITOR
-                        "Mesh Name:".ConstLabel().Edit(ref editedMesh.meshName);
+                        "Mesh Name:".ConstL().Edit(ref editedMesh.meshName);
 
                         Mesh mesh = MeshPainting.target.GetMesh();
 
@@ -848,7 +848,7 @@ namespace PainterTool.MeshEditing
                             MeshPainting.target.SaveMesh();
 #endif
 
-                        "Save Undo".PegiLabel().ToggleIcon(ref Painter.Data.saveMeshUndos);
+                        "Save Undo".PL().ToggleIcon(ref Painter.Data.saveMeshUndos);
                         if (Painter.Data.saveMeshUndos)
                             Icon.Warning.Draw("Can affect peformance");
                         pegi.Nl();
@@ -856,10 +856,10 @@ namespace PainterTool.MeshEditing
 
                     editedMesh.Nested_Inspect().Nl();
 
-                    if ("Center".PegiLabel().IsEntered().Nl())
+                    if ("Center".PL().IsEntered().Nl())
                     {
-                        "Offset Center by:".PegiLabel().Edit(ref _offset).Nl();
-                        if ("Modify".PegiLabel().Click().Nl())
+                        "Offset Center by:".PL().Edit(ref _offset).Nl();
+                        if ("Modify".PL().Click().Nl())
                         {
                             foreach (var v in EditedMesh.meshPoints)
                                 v.localPos += _offset;
@@ -870,7 +870,7 @@ namespace PainterTool.MeshEditing
 
                         }
 
-                        if ("Auto Center".PegiLabel().Click().Nl())
+                        if ("Auto Center".PL().Click().Nl())
                         {
                             var avr = Vector3.zero;
                             foreach (var v in EditedMesh.meshPoints)
@@ -881,53 +881,53 @@ namespace PainterTool.MeshEditing
 
                     }
 
-                    if ("Combining meshes".PegiLabel().IsEntered().Nl())
+                    if ("Combining meshes".PL().IsEntered().Nl())
                     {
 
                         if (!SelectedForMergePainters.Contains(MeshPainting.target))
                         {
-                            if ("Add To Group".PegiLabel("Add Mesh to the list of meshes to be merged").Click().Nl())
+                            if ("Add To Group".PL("Add Mesh to the list of meshes to be merged").Click().Nl())
                                 SelectedForMergePainters.Add(MeshPainting.target);
 
                             if (!SelectedForMergePainters.IsNullOrEmpty())
                             {
 
-                                if (editedMesh.uv2DistributeRow < 2 && "Enable EV2 Distribution".PegiLabel("Each mesh's UV2 will be modified to use a unique portion of a texture.").ToggleInt(ref editedMesh.uv2DistributeRow).Nl())
+                                if (editedMesh.uv2DistributeRow < 2 && "Enable EV2 Distribution".PL("Each mesh's UV2 will be modified to use a unique portion of a texture.").ToggleInt(ref editedMesh.uv2DistributeRow).Nl())
                                     editedMesh.uv2DistributeRow = Mathf.Max(2, (int)Mathf.Sqrt(SelectedForMergePainters.Count));
                                 else
                                 {
                                     if (editedMesh.uv2DistributeCurrent > 0)
                                     {
                                         ("All added meshes will be distributed in " + editedMesh.uv2DistributeRow + " by " + editedMesh.uv2DistributeRow + " grid. By cancelling this added" +
-                                            "meshes will have UVs unchanged and may use the same portion of Texture (sampled with UV2) as other meshes.").PegiLabel().Write_Hint();
-                                        if ("Cancel Distribution".PegiLabel().Click().Nl())
+                                            "meshes will have UVs unchanged and may use the same portion of Texture (sampled with UV2) as other meshes.").PL().Write_Hint();
+                                        if ("Cancel Distribution".PL().Click().Nl())
                                             editedMesh.uv2DistributeRow = 0;
                                     }
                                     else
                                     {
-                                        "Row:".PegiLabel("Will change UV2 so that every mesh will have it's own portion of a texture.", 25).Edit(ref editedMesh.uv2DistributeRow, 2, 16).Nl();
-                                        "Start from".PegiLabel().Edit(ref editedMesh.uv2DistributeCurrent).Nl();
+                                        "Row:".PL("Will change UV2 so that every mesh will have it's own portion of a texture.", 25).Edit(ref editedMesh.uv2DistributeRow, 2, 16).Nl();
+                                        "Start from".PL().Edit(ref editedMesh.uv2DistributeCurrent).Nl();
                                     }
 
                                     "Using {0} out of {1} spots".F(editedMesh.uv2DistributeCurrent + SelectedForMergePainters.Count + 1, editedMesh.uv2DistributeRow * editedMesh.uv2DistributeRow)
-                                        .PegiLabel().Nl();
+                                        .PL().Nl();
 
                                 }
                             }
                         }
                         else
                         {
-                            if (SelectedForMergePainters.Count > 1 && "Merge!".PegiLabel().Click().Nl())
+                            if (SelectedForMergePainters.Count > 1 && "Merge!".PL().Click().Nl())
                                 MergeSelected();
 
-                            if ("Remove from Merge Group".PegiLabel().Click().Nl())
+                            if ("Remove from Merge Group".PL().Click().Nl())
                                 SelectedForMergePainters.Remove(MeshPainting.target);
 
                         }
 
                         if (SelectedForMergePainters.Count > 1)
                         {
-                            "Current merging group:".PegiLabel().Nl();
+                            "Current merging group:".PL().Nl();
                             for (var i = 0; i < SelectedForMergePainters.Count; i++)
                                 if (!SelectedForMergePainters[i] || Icon.Delete.Click(25))
                                 {
@@ -936,17 +936,17 @@ namespace PainterTool.MeshEditing
                                 }
                                 else
                                 {
-                                    SelectedForMergePainters[i].gameObject.name.PegiLabel().Nl();
+                                    SelectedForMergePainters[i].gameObject.name.PL().Nl();
                                 }
                         }
 
                     }
 
                     var mats = MeshPainting.target.Materials;
-                    if ("Combining Sub Meshes".PegiLabel().IsConditionally_Entered(mats.Length > 1).Nl())
+                    if ("Combining Sub Meshes".PL().IsConditionally_Entered(mats.Length > 1).Nl())
                     {
 
-                        "Select which materials should transfer color into vertex color".PegiLabel().Write_Hint();
+                        "Select which materials should transfer color into vertex color".PL().Write_Hint();
 
                         var subMeshCount = MeshPainting.target.GetMesh().subMeshCount;
 
@@ -955,12 +955,12 @@ namespace PainterTool.MeshEditing
                             var m = mats.TryGet(i);
 
                             if (!m)
-                                "Null".PegiLabel().Nl();
+                                "Null".PL().Nl();
                             else
                             {
                                 var md = m.GetMaterialPainterMeta();
 
-                                "{0} color to vertex color".F(m.name).PegiLabel().ToggleIcon(ref md.colorToVertexColorOnMerge, true);
+                                "{0} color to vertex color".F(m.name).PL().ToggleIcon(ref md.colorToVertexColorOnMerge, true);
 
                                 if (md.colorToVertexColorOnMerge)
                                 {
@@ -977,7 +977,7 @@ namespace PainterTool.MeshEditing
                             pegi.Nl();
                         }
 
-                        if ("Merge All Submeshes".PegiLabel().Click())
+                        if ("Merge All Submeshes".PL().Click())
                             MergeSubMeshes();
 
 
@@ -985,10 +985,10 @@ namespace PainterTool.MeshEditing
 
                     pegi.Nl();
 
-                    if (!Application.isPlaying && "Debug".PegiLabel().IsFoldout().Nl())
+                    if (!Application.isPlaying && "Debug".PL().IsFoldout().Nl())
                     {
                         Grid.Nested_Inspect();
-                        "Max Vertex Markers ".PegiLabel().Edit(ref verticesShowMax).Nl();
+                        "Max Vertex Markers ".PL().Edit(ref verticesShowMax).Nl();
                     }
                 }
             }

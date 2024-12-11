@@ -17,7 +17,7 @@ namespace PainterTool
     {
         private readonly List<WebRequestMeta> _loadedTextures = new();
 
-        private class WebRequestMeta : IGotName, IPEGI_ListInspect, IPEGI
+        private class WebRequestMeta : IGotStringId, IPEGI_ListInspect, IPEGI
         {
             
 #if QC_USE_NETWORKING
@@ -29,7 +29,7 @@ namespace PainterTool
             private Texture _texture;
             private bool _failed;
 
-            public string NameForInspector
+            public string StringId
             {
                 get { return _url; }
                 set { _url = value; }
@@ -165,15 +165,15 @@ namespace PainterTool
 
                 }
 #else
-                "QC_USE_NETWORKING is disabled (to prevent unwanted android permissions)".PegiLabel().WriteWarning();
+                "QC_USE_NETWORKING is disabled (to prevent unwanted android permissions)".PL().WriteWarning();
 
                     pegi.Nl();
 
-                    if ("Enable QC_USE_NETWORKING".PegiLabel().Click())
+                    if ("Enable QC_USE_NETWORKING".PL().Click())
                         QcUnity.SetPlatformDirective("QC_USE_NETWORKING", true);
 
 #endif
-                _url.PegiLabel().Write();
+                _url.PL().Write();
             }
 
             void IPEGI.Inspect()
@@ -226,9 +226,9 @@ namespace PainterTool
         void IPEGI.Inspect()
         {
 
-            "Textures and Requests".PegiLabel().Edit_List(_loadedTextures, ref inspected);
+            "Textures and Requests".PL().Edit_List(_loadedTextures, ref inspected);
 
-            "URL".ConstLabel().Edit(ref tmp);
+            "URL".ConstL().Edit(ref tmp);
             if (tmp.Length > 0)
                 Icon.Add.Click(() => StartDownload(tmp)).Nl();
 

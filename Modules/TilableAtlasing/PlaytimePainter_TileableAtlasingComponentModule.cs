@@ -185,19 +185,19 @@ namespace PainterTool.ComponentModules {
                     atlasRows = m.GetInt(PainterShaderVariables.ATLASED_TEXTURES);
             }
 
-            "Atlased Texture {0}*{0}".F(atlasRows).PegiLabel("Shader has _ATLASED define").Write();
+            "Atlased Texture {0}*{0}".F(atlasRows).PL("Shader has _ATLASED define").Write();
 
-            if ("Undo".PegiLabel().Click().Nl())
+            if ("Undo".PL().Click().Nl())
                 m.DisableKeyword(PainterShaderVariables.UV_ATLASED);
 
             var id = p.TexMeta;
 
             if (id.TargetIsRenderTexture())
-                "Watch out, Render Texture Brush can change neighboring textures on the Atlas.".PegiLabel().WriteOneTimeHint("rtOnAtlas");
+                "Watch out, Render Texture Brush can change neighboring textures on the Atlas.".PL().WriteOneTimeHint("rtOnAtlas");
 
             if (id.TargetIsTexture2D()) return;
             
-            "Render Texture painting does not yet support Atlas Editing".PegiLabel().WriteWarning();
+            "Render Texture painting does not yet support Atlas Editing".PL().WriteWarning();
             
             pegi.Nl();
         }
@@ -241,7 +241,7 @@ namespace PainterTool.ComponentModules {
             {
                 var a = MaterialAtlases.inspectedAtlas;
 
-                atlasedField.PegiLabel().ToggleIcon(ref enabled).Nl();
+                atlasedField.PL().ToggleIcon(ref enabled).Nl();
 
                 if (!enabled)
                     return;
@@ -250,11 +250,11 @@ namespace PainterTool.ComponentModules {
 
                 pegi.Space();
 
-                "Atlas".PegiLabel().Enter_Inspect(AtlasCreator).Nl();
+                "Atlas".PL().Enter_Inspect(AtlasCreator).Nl();
 
                 if (!context.IsAnyEntered)
                 {
-                    "Atlases".ConstLabel().Select_Index(ref atlasCreatorId, Painter.Data.atlases);
+                    "Atlases".ConstL().Select_Index(ref atlasCreatorId, Painter.Data.atlases);
                     if (Icon.Add.Click("Create new Atlas").Nl())
                     {
                         atlasCreatorId = Painter.Data.atlases.Count;
@@ -269,10 +269,10 @@ namespace PainterTool.ComponentModules {
                     var t = a.originalMaterial.Get(a.originalTextures[originField]);
                     if (t && t is Texture2D)
                         Icon.Done.Draw();
-                    else "Will use Color".PegiLabel().Edit(ref col).Nl();
+                    else "Will use Color".PL().Edit(ref col).Nl();
                 }
                 else
-                    "Color".PegiLabel("Color that will be used instead of a texture.", 35).Edit(ref col).Nl();
+                    "Color".PL("Color that will be used instead of a texture.", 35).Edit(ref col).Nl();
             }
         }
 
@@ -280,7 +280,7 @@ namespace PainterTool.ComponentModules {
     }
     
     [Serializable]
-    public class MaterialAtlases : PainterClass, IGotName, IPEGI {
+    public class MaterialAtlases : PainterClass, IGotStringId, IPEGI {
 
         [SerializeField] public string name;
         [SerializeField] public Material originalMaterial;
@@ -291,7 +291,7 @@ namespace PainterTool.ComponentModules {
 
         private Material DestinationMaterial => _atlasedMaterial ? _atlasedMaterial : originalMaterial; 
 
-        public string NameForInspector { get { return name; } set { name = value; } }
+        public string StringId { get { return name; } set { name = value; } }
 
         private readonly List<FieldAtlas> _fields = new();
         
@@ -548,18 +548,18 @@ namespace PainterTool.ComponentModules {
                 OnChangeMaterial();
             }
 
-            "Name".ConstLabel().Edit(ref name).Nl();
+            "Name".ConstL().Edit(ref name).Nl();
 
-            if ("Hint".PegiLabel().IsFoldout(ref _showHint).Nl())
+            if ("Hint".PL().IsFoldout(ref _showHint).Nl())
             {
 
                 ("If you don't set Atlased Material(Destination)  it will try to create a copy of current material and set isAtlased toggle on it, if it has one." +
                     " Below you can see: list of Texture Properties, for each you can select or create an atlas. Atlas is a class that holds all textures assigned to an atlas, and also creates and stores the atlas itself." +
                     "After this you can select a field from current Material, texture of which will be copied into an atlas. A bit confusing, I know)" +
-                    "Also if light looks smudged, rebuild the light.").PegiLabel().Write_Hint();
+                    "Also if light looks smudged, rebuild the light.").PL().Write_Hint();
             }
 
-            if (("Atlased Material".ConstLabel().Edit(ref _atlasedMaterial).Nl() ||
+            if (("Atlased Material".ConstL().Edit(ref _atlasedMaterial).Nl() ||
                 (_atlasedMaterial && _atlasedMaterial.shader != _atlasedShader))) 
                 OnChangeMaterial();
             
@@ -571,11 +571,11 @@ namespace PainterTool.ComponentModules {
                 {
                     if (mats.Length > 1)
                     {
-                        if ("Source Material:".PegiLabel("Same as selecting a sub Mesh, which will be converted", 90).Select_Index( ref painter.selectedSubMesh, mats))
+                        if ("Source Material:".PL("Same as selecting a sub Mesh, which will be converted", 90).Select_Index( ref painter.selectedSubMesh, mats))
                             OnChangeMaterial();
                     }
                     else if (mats.Length > 0)
-                        "Source Material".PegiLabel("Sub Mesh which will be converted", 90).Write( mats[0]);
+                        "Source Material".PL("Sub Mesh which will be converted", 90).Write( mats[0]);
                 }
                 pegi.Nl();
                 pegi.Space();
@@ -590,7 +590,7 @@ namespace PainterTool.ComponentModules {
             foreach (var f in _fields)
                 f.Nested_Inspect().Nl();
 
-            "Mesh Profiles [{0}]".F(Painter.Data.meshPackagingSolutions.Count).PegiLabel()
+            "Mesh Profiles [{0}]".F(Painter.Data.meshPackagingSolutions.Count).PL()
                 .Select_iGotName(ref _matAtlasProfile, Painter.Data.meshPackagingSolutions);
 
             if (Icon.Refresh.Click("Refresh Mesh Packaging Solutions"))
@@ -600,8 +600,8 @@ namespace PainterTool.ComponentModules {
 
             if (DestinationMaterial && !DestinationMaterial.HasProperty(PainterShaderVariables.isAtlasedProperty))
             {
-                if (!_atlasedMaterial) "Original Material doesn't have isAtlased property, change shader or add Destination Atlased Material".PegiLabel().Write_Hint();
-                else "Atlased Material doesn't have isAtlased property".PegiLabel().Write_Hint();
+                if (!_atlasedMaterial) "Original Material doesn't have isAtlased property, change shader or add Destination Atlased Material".PL().Write_Hint();
+                else "Atlased Material doesn't have isAtlased property".PL().Write_Hint();
             }
             else if (originalMaterial)
             {
@@ -611,8 +611,8 @@ namespace PainterTool.ComponentModules {
                     if (f.enabled && f.AtlasCreator == null) names += f.atlasedField + ", ";
 
                 if (names.Length > 0)
-                    ("Fields " + names + " don't have atlases assigned to them, create some").PegiLabel().Write_Hint();
-                else if ("Convert to Atlased".PegiLabel().Click())
+                    ("Fields " + names + " don't have atlases assigned to them, create some").PL().Write_Hint();
+                else if ("Convert to Atlased".PL().Click())
                     ConvertToAtlased(painter);
             }
 #endif
@@ -655,7 +655,7 @@ namespace PainterTool.ComponentModules {
         #endregion
     }
     
-    public class AtlasTextureCreator : PainterClassCfg, IGotName, IPEGI
+    public class AtlasTextureCreator : PainterClassCfg, IGotStringId, IPEGI
     {
         private int _atlasSize = 2048;
 
@@ -663,7 +663,7 @@ namespace PainterTool.ComponentModules {
 
         private bool _sRgb = true;
         
-        public string NameForInspector { get; set;}
+        public string StringId { get; set;}
 
         public List<ShaderProperty.TextureValue> targetFields = new();
 
@@ -681,7 +681,7 @@ namespace PainterTool.ComponentModules {
         public override CfgEncoder Encode() => new CfgEncoder()//base.Encode()//this.EncodeUnrecognized()
             .Add("af", atlasFields)
             .Add("sf", _srcFields)
-            .Add_String("n", NameForInspector)
+            .Add_String("n", StringId)
             .Add_Bool("rgb", _sRgb)
             .Add("s", _textureSize)
             .Add("as", _atlasSize);
@@ -691,7 +691,7 @@ namespace PainterTool.ComponentModules {
             switch (key) {
                 case "af": data.ToList(out atlasFields); break;
                 case "sf": data.ToList(out _srcFields); break;
-                case "n": NameForInspector = data.ToString(); break;
+                case "n": StringId = data.ToString(); break;
                 case "rgb": _sRgb = data.ToBool(); break;
                 case "s":  data.ToInt(ref _textureSize); break;
                 case "as":  data.ToInt(ref _atlasSize); break;
@@ -747,8 +747,8 @@ namespace PainterTool.ComponentModules {
 
         public AtlasTextureCreator(string newName)
         {
-            NameForInspector = newName;
-            NameForInspector = GetUniqueName(NameForInspector, Painter.Data.atlases);
+            StringId = newName;
+            StringId = GetUniqueName(StringId, Painter.Data.atlases);
             Init();
         }
 
@@ -911,7 +911,7 @@ namespace PainterTool.ComponentModules {
                 var fullPath = Path.Combine(Application.dataPath, lastPart);
                 Directory.CreateDirectory(fullPath);
 
-                var fileName = NameForInspector + ".png";
+                var fileName = StringId + ".png";
                 var relativePath = Path.Combine("Assets", lastPart, fileName);
                 fullPath += fileName;
 
@@ -950,10 +950,10 @@ namespace PainterTool.ComponentModules {
             {
                 if (!context.IsAnyEntered)
                 {
-                    "Atlas size:".PegiLabel().Edit_Delayed(ref _atlasSize, 80).Nl();
+                    "Atlas size:".PL().Edit_Delayed(ref _atlasSize, 80).Nl();
                     _atlasSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(_atlasSize, 512, 4096));
 
-                    if ("Textures size:".PegiLabel().Edit_Delayed(ref _textureSize, 80).Nl())
+                    if ("Textures size:".PL().Edit_Delayed(ref _textureSize, 80).Nl())
 
                         _textureSize = Mathf.ClosestPowerOfTwo(Mathf.Clamp(_textureSize, 32, _atlasSize / 2));
 
@@ -962,7 +962,7 @@ namespace PainterTool.ComponentModules {
 
                 _texturesMeta.Enter_List(textures).Nl();
 
-                if ("Textures:".PegiLabel().IsFoldout().Nl())
+                if ("Textures:".PL().IsFoldout().Nl())
                 {
                     AdjustListSize();
                     var max = TextureCount;
@@ -983,14 +983,14 @@ namespace PainterTool.ComponentModules {
                 }
 
                 pegi.Nl();
-                "Is Color Atlas:".PegiLabel().ToggleIcon(ref _sRgb).Nl();
+                "Is Color Atlas:".PL().ToggleIcon(ref _sRgb).Nl();
 
-                if ("Generate".PegiLabel().Click().Nl())
+                if ("Generate".PL().Click().Nl())
                     ReconstructAsset();
 
 #if UNITY_EDITOR
                 if (aTexture)
-                    ("Atlas At " + UnityEditor.AssetDatabase.GetAssetPath(aTexture)).PegiLabel().Edit(ref aTexture, false).Nl();
+                    ("Atlas At " + UnityEditor.AssetDatabase.GetAssetPath(aTexture)).PL().Edit(ref aTexture, false).Nl();
 #endif
 
             }

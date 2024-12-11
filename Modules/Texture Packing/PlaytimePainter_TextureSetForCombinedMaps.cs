@@ -5,7 +5,7 @@ using UnityEngine;
 namespace PainterTool.TexturePacking
 {
     [CreateAssetMenu(fileName = FILE_NAME, menuName = "Playtime Painter/" + FILE_NAME)]
-    internal class PlaytimePainter_TextureSetForCombinedMaps : ScriptableObject, IPEGI, IGotName
+    internal class PlaytimePainter_TextureSetForCombinedMaps : ScriptableObject, IPEGI, IGotStringId
     {
 
         public const string FILE_NAME = "Texture Set For Combined Textures";
@@ -37,7 +37,7 @@ namespace PainterTool.TexturePacking
             return null;
         }
 
-        public string NameForInspector { get { return name; } set { name = value; } }
+        public string StringId { get { return name; } set { name = value; } }
 
         public int selectedProfile;
 
@@ -48,32 +48,32 @@ namespace PainterTool.TexturePacking
 
             pegi.Nl();
 
-            "Diffuse".PegiLabel("Texture that contains Color of your object. Usually used in _MainTex field.", 70).Edit( ref diffuse).Nl();
-            "Height".PegiLabel("Greyscale Texture which represents displacement of your surface. Can be used for parallax effect" +
+            "Diffuse".PL("Texture that contains Color of your object. Usually used in _MainTex field.", 70).Edit( ref diffuse).Nl();
+            "Height".PL("Greyscale Texture which represents displacement of your surface. Can be used for parallax effect" +
                 "or height based terrain blending.", 70).Edit(ref heightMap).Nl();
-            "Normal".PegiLabel("Normal map - a pinkish texture which modifies normal vector, adding a sense of relief. Normal can also be " +
+            "Normal".PL("Normal map - a pinkish texture which modifies normal vector, adding a sense of relief. Normal can also be " +
                 "generated from Height", 70).Edit( ref normalMap).Nl();
-            "Gloss".PegiLabel("How smooth the surface is. Polished metal - is very smooth, while rubber is usually not.", 70).Edit( ref gloss).Nl();
-            "Reflectivity".PegiLabel("Best used to add a feel of wear to the surface. Reflectivity blocks some of the incoming light.", 70).Edit( ref reflectivity).Nl();
-            "Ambient".PegiLabel("Ambient is an approximation of how much light will fail to reach a given segment due to it's indentation in the surface. " +
+            "Gloss".PL("How smooth the surface is. Polished metal - is very smooth, while rubber is usually not.", 70).Edit( ref gloss).Nl();
+            "Reflectivity".PL("Best used to add a feel of wear to the surface. Reflectivity blocks some of the incoming light.", 70).Edit( ref reflectivity).Nl();
+            "Ambient".PL("Ambient is an approximation of how much light will fail to reach a given segment due to it's indentation in the surface. " +
             "Ambient map may look a bit similar to height map in some cases, but will more clearly outline shapes on the surface.", 70).Edit( ref ambient).Nl();
-            "Last Result".PegiLabel("Whatever you produce, will be stored here, also it can be reused.", 70).Edit( ref lastProduct).Nl();
+            "Last Result".PL("Whatever you produce, will be stored here, also it can be reused.", 70).Edit( ref lastProduct).Nl();
 
 
             var firstTex = GetAnyTexture();
-            "width:".PegiLabel().Edit(ref width).Nl();
-            "height".PegiLabel().Edit(ref height).Nl();
-            if (firstTex && "Match Source".PegiLabel().Click().Nl())
+            "width:".PL().Edit(ref width).Nl();
+            "height".PL().Edit(ref height).Nl();
+            if (firstTex && "Match Source".PL().Click().Nl())
             {
                 width = firstTex.width;
                 height = firstTex.height;
             }
 
-            "is Color".PegiLabel().Toggle(ref isColor).Nl();
+            "is Color".PL().Toggle(ref isColor).Nl();
 
             if (!Painter.Data) 
             {
-                "No Painter Config".PegiLabel().WriteWarning().Nl();
+                "No Painter Config".PL().WriteWarning().Nl();
                 return;
             }
 
@@ -81,7 +81,7 @@ namespace PainterTool.TexturePacking
 
             if (Icon.Add.Click("New Texture Packaging Profile").Nl())
             {
-                QcSharp.AddWithUniqueNameAndIndex(Painter.Data.texturePackagingSolutions);
+                QcSharp.AddWithUniqueStringIdAndIndex(Painter.Data.texturePackagingSolutions);
                 selectedProfile = Painter.Data.texturePackagingSolutions.Count - 1;
                 Painter.Data.SetToDirty();
             }

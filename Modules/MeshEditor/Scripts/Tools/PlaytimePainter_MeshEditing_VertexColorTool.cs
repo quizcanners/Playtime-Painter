@@ -49,16 +49,16 @@ namespace PainterTool.MeshEditing
 
             //"Mode".PegiLabel(50).Edit_Enum(ref _detectionMode).Nl();
 
-            "Make Vertex Unique On Paint".PegiLabel().ToggleIcon(ref Painter.Data.makeVerticesUniqueOnEdgeColoring).Nl();
+            "Make Vertex Unique On Paint".PL().ToggleIcon(ref Painter.Data.makeVerticesUniqueOnEdgeColoring).Nl();
 
 
-            "Paint Radius".PegiLabel().ToggleIcon(ref _isPaintingWithRadius, hideTextWhenTrue: true);
+            "Paint Radius".PL().ToggleIcon(ref _isPaintingWithRadius, hideTextWhenTrue: true);
             if (_isPaintingWithRadius)
-                "Radius".ConstLabel().Edit(ref _radiusOfPainting, min: em.averageSize * 0.001f, max: em.averageSize);
+                "Radius".ConstL().Edit(ref _radiusOfPainting, min: em.averageSize * 0.001f, max: em.averageSize);
 
             pegi.Nl();
 
-            "Flow".ConstLabel().Edit_01(ref _alpha).Nl();
+            "Flow".ConstL().Edit_01(ref _alpha).Nl();
 
             if (em.subMeshCount > 1)
             {
@@ -70,9 +70,9 @@ namespace PainterTool.MeshEditing
                 for (var i = 0; i < cnt; i++)
                     nms[i] = "{0}: {1}".F(i, mats.TryGet(i));
 
-                "Color Sub Mesh".ConstLabel().Select(ref selectedSubMesh, nms);
+                "Color Sub Mesh".ConstL().Select(ref selectedSubMesh, nms);
 
-                if (selectedSubMesh < em.subMeshCount && "Apply".PegiLabel().Click())
+                if (selectedSubMesh < em.subMeshCount && "Apply".PL().Click())
                     em.ColorSubMesh(selectedSubMesh, col);
 
                 pegi.Nl();
@@ -83,25 +83,25 @@ namespace PainterTool.MeshEditing
             pegi.Nl();
 
             if (p.MeshProfile == null)
-                "No Mesh Packaging profile selected".PegiLabel().WriteWarning();
+                "No Mesh Packaging profile selected".PL().WriteWarning();
             else
             {
                 if (!p.MeshProfile.UsesColor)
-                    "Selected Mesh Profile does not appear to be using Color".PegiLabel().WriteWarning();
+                    "Selected Mesh Profile does not appear to be using Color".PL().WriteWarning();
                 if (!p.MeshProfile.WritesColor)
-                    "Selected Mesh Profile doesn't write to Color.".PegiLabel().Write_Hint();
+                    "Selected Mesh Profile doesn't write to Color.".PL().Write_Hint();
             }
 
 
-            if (("Paint All with Brush Color").PegiLabel().Click().Nl())
+            if (("Paint All with Brush Color").PL().Click().Nl())
                 em.PaintAll(br.Color);
 
-            "Submeshes".PegiLabel(style: pegi.Styles.ListLabel).Nl();
+            "Submeshes".PL(style: pegi.Styles.ListLabel).Nl();
 
             for (int i = 0; i <= em.maxGroupIndex; i++)
             {
 
-                "{0}:".F(i).PegiLabel(20).Write();
+                "{0}:".F(i).PL(20).Write();
 
                 var c = em.groupColors[i];
 
@@ -125,7 +125,7 @@ namespace PainterTool.MeshEditing
 
             pegi.Nl();
 
-            "Recolor group On Edit".PegiLabel().ToggleIcon(ref constantUpdateOnGroupColors);
+            "Recolor group On Edit".PL().ToggleIcon(ref constantUpdateOnGroupColors);
 
             pegi.FullWindow.DocumentationClickOpen(() => ("If mesh has submeshes he will have a couple of groups. This can be used to change their colors individually." +
                                                                      "After changing color of the group, you can click on the brush to the right to apply the color." +
@@ -133,7 +133,7 @@ namespace PainterTool.MeshEditing
 
             pegi.Nl();
 
-            "Paint Extrusion [-1 1] To Alpha".PegiLabel().ClickConfirm("PwAmb").OnChanged(PaintExtrusionToAlpha).Nl();
+            "Paint Extrusion [-1 1] To Alpha".PL().ClickConfirm("PwAmb").OnChanged(PaintExtrusionToAlpha).Nl();
 
         }
 

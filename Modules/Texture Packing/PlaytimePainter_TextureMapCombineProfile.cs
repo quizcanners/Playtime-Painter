@@ -10,7 +10,7 @@ namespace PainterTool.TexturePacking
 #pragma warning disable UNT0017 // SetPixels is Needed for precise calculation
 
     [Serializable]
-    internal class TextureMapCombineProfile : PainterClass, IGotName, IPEGI
+    internal class TextureMapCombineProfile : PainterClass, IGotStringId, IPEGI
     {
 
         [SerializeField] private bool _isColor;
@@ -29,7 +29,7 @@ namespace PainterTool.TexturePacking
             set => _fieldNames.ForceSet(index, value);
         }
 
-        public string NameForInspector { get => _name; set => _name = value; }
+        public string StringId { get => _name; set => _name = value; }
 
         public override string ToString() => _name;
         private void Combine(PlaytimePainter_TextureSetForCombinedMaps set, PainterComponent p)
@@ -157,9 +157,9 @@ namespace PainterTool.TexturePacking
 
             pegi.Nl();
 
-           "Name".ConstLabel().Edit(ref _name).Nl();
+           "Name".ConstL().Edit(ref _name).Nl();
 
-            "Color texture ".PegiLabel().ToggleIcon(ref _isColor).Nl();
+            "Color texture ".PL().ToggleIcon(ref _isColor).Nl();
 
             var usingBumpStrength = false;
             var usingColorSelector = false;
@@ -175,7 +175,7 @@ namespace PainterTool.TexturePacking
                     var n = this[c];
                     pegi.Edit(ref n).OnChanged(()=> this[c] = n);
 
-                    if ((ch.flip ? "inverted" : "+ 0").PegiLabel("Copy as is or invert (1-X)").Click())
+                    if ((ch.flip ? "inverted" : "+ 0").PL("Copy as is or invert (1-X)").Click())
                         ch.flip = !ch.flip;
 
                     ch.Nested_Inspect(fromNewLine: false);
@@ -190,31 +190,31 @@ namespace PainterTool.TexturePacking
                 pegi.Nl();
             }
 
-            if (usingBumpStrength) "Bump Strength".PegiLabel().Edit(ref bumpStrength).Nl();
-            if (usingColorSelector) "Color".PegiLabel().Edit(ref fillColor).Nl();
+            if (usingBumpStrength) "Bump Strength".PL().Edit(ref bumpStrength).Nl();
+            if (usingColorSelector) "Color".PL().Edit(ref fillColor).Nl();
             if (usingGlossMap)
             {
 
                 if ((sets == null || sets.heightMap) &&
-                 "Gloss Mip -= Height Noise".PegiLabel().Toggle(ref glossNoiseFromHeight).Nl())
+                 "Gloss Mip -= Height Noise".PL().Toggle(ref glossNoiseFromHeight).Nl())
                     _glossNoiseFromBump = false;
 
                 if ((sets == null || sets.normalMap)
-                    && "Gloss Mip -= Normal Noise".PegiLabel().Toggle(ref _glossNoiseFromBump).Nl())
+                    && "Gloss Mip -= Normal Noise".PL().Toggle(ref _glossNoiseFromBump).Nl())
                     glossNoiseFromHeight = false;
 
                 if (glossNoiseFromHeight || _glossNoiseFromBump)
-                    "Fraction".PegiLabel().Edit(ref bumpNoiseInGlossFraction, 0f, 40f).Nl();
+                    "Fraction".PL().Edit(ref bumpNoiseInGlossFraction, 0f, 40f).Nl();
 
             }
 
             if (sets != null)
             {
-                if ("Combine".PegiLabel().Click().Nl())
+                if ("Combine".PL().Click().Nl())
                     Combine(sets, p);
 
                 if (p)
-                    "You will still need to press SAVE in Painter to update original texture.".PegiLabel().Write_Hint();
+                    "You will still need to press SAVE in Painter to update original texture.".PL().Write_Hint();
             }
         }
 
@@ -396,7 +396,7 @@ namespace PainterTool.TexturePacking
 
         public bool Inspect(ref int selectedChannel)
         {
-            var changed = ".".PegiLabel(10).Select_Index(ref selectedChannel, GetChannels).Nl();
+            var changed = ".".PL(10).Select_Index(ref selectedChannel, GetChannels).Nl();
 
             return changed;
         }

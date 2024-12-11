@@ -30,9 +30,9 @@ namespace PainterTool
 
                 if (currentTool is VertexEdgeTool && MeshPainting.target.IsAtlased())
                 {
-                    "ATL_tex_Chanal:".ConstLabel().Edit(ref TriangleAtlasTool.Inst.curAtlasChanel);
+                    "ATL_tex_Chanal:".ConstL().Edit(ref TriangleAtlasTool.Inst.curAtlasChanel);
 
-                    if ("Auto Edge".PegiLabel().Click().Nl())
+                    if ("Auto Edge".PL().Click().Nl())
                     {
 
                         EditedMesh.TagTrianglesUnprocessed();
@@ -72,15 +72,15 @@ namespace PainterTool
                 if (p.IsAtlased())
                 {
 
-                    "***** Selected Material Atlased *****".PegiLabel().Nl();
+                    "***** Selected Material Atlased *****".PL().Nl();
 #if UNITY_EDITOR
 
                     var m = p.GetMesh();
                     if (m && UnityEditor.AssetDatabase.GetAssetPath(m).Length == 0)
                     {
-                        "Atlased Mesh is not saved".PegiLabel().Nl();
+                        "Atlased Mesh is not saved".PL().Nl();
                         var n = m.name;
-                        if ("Mesh Name".ConstLabel().Edit(ref n))
+                        if ("Mesh Name".ConstL().Edit(ref n))
                             m.name = n;
                         Icon.Save.Click(() => p.SaveMesh()).Nl();
                     }
@@ -89,7 +89,7 @@ namespace PainterTool
 
                     var atlPlug = p.GetModule<TileableAtlasingComponentModule>();
 
-                    if ("Undo Atlasing".PegiLabel().Click())
+                    if ("Undo Atlasing".PL().Click())
                     {
                         p.meshRenderer.sharedMaterials = atlPlug.preAtlasingMaterials.ToArray();
 
@@ -102,7 +102,7 @@ namespace PainterTool
                         p.meshRenderer.sharedMaterial.DisableKeyword(PainterShaderVariables.UV_ATLASED);
                     }
 
-                    if ("Not Atlased".PegiLabel().Click().Nl())
+                    if ("Not Atlased".PL().Click().Nl())
                     {
                         atlPlug.preAtlasingMaterials = null;
                         p.meshRenderer.sharedMaterial.DisableKeyword(PainterShaderVariables.UV_ATLASED);
@@ -117,11 +117,11 @@ namespace PainterTool
                 {
 
                     if (p)
-                        "Atlased Materials".PegiLabel()
+                        "Atlased Materials".PL()
                             .Enter_List(Painter.Data.atlasedMaterials, ref p.selectedAtlasedMaterial)
                             .Nl();
 
-                    "Atlases".PegiLabel().Enter_List(Painter.Data.atlases, ref inspectedAtlas).Nl();
+                    "Atlases".PL().Enter_List(Painter.Data.atlases, ref inspectedAtlas).Nl();
                 }
                 if (changed)
                     Painter.Data.SetToDirty();
@@ -206,15 +206,15 @@ namespace PainterTool
             if (!InspectedPainter.Material.IsAtlased())
                 ("Atlasing will work with custom shader that has tilable sampling from atlas. The material with such shader is not detected. " +
                     "But who am I to tell you what to do, I'm just a computer, a humble" +
-                    " servant of a human race ... for now").PegiLabel().WriteWarning();
+                    " servant of a human race ... for now").PL().WriteWarning();
 
-            "Atlas Texture: ".PegiLabel().Edit(ref _curAtlasTexture).Nl();
-            "Atlas Chanel: ".PegiLabel().Edit(ref curAtlasChanel).Nl();
+            "Atlas Texture: ".PL().Edit(ref _curAtlasTexture).Nl();
+            "Atlas Chanel: ".PL().Edit(ref curAtlasChanel).Nl();
 
             if (MeshEditorManager.SelectedTriangle != null)
-                ("Selected triangles uses Atlas Texture " + MeshEditorManager.SelectedTriangle.textureNo[0]).PegiLabel().Nl();
+                ("Selected triangles uses Atlas Texture " + MeshEditorManager.SelectedTriangle.textureNo[0]).PL().Nl();
             
-            "Cntrl + LMB -> Sample Texture Index".PegiLabel().Write_Hint();
+            "Cntrl + LMB -> Sample Texture Index".PL().Write_Hint();
         }
 
         #endregion

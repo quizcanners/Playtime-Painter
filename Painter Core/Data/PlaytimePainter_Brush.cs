@@ -291,7 +291,7 @@ namespace PainterTool {
             pegi.Toggle(ref showAdvanced, Icon.FoldedOut, Icon.Create, "Brush Options", 25);
 
             if (showAdvanced)
-                "Advanced options: (if any)".PegiLabel().Write();
+                "Advanced options: (if any)".PL().Write();
             
 
             pegi.Nl();
@@ -307,7 +307,7 @@ namespace PainterTool {
                 if (!brushType.ShowInInspectorDropdown())
                 {
                     pegi.Nl();
-                    "Selected brush type is not supported in context of this Painter".PegiLabel().WriteWarning();
+                    "Selected brush type is not supported in context of this Painter".PL().WriteWarning();
                     
                 }
 
@@ -344,24 +344,24 @@ namespace PainterTool {
 
                 if (blitMode.UsingSourceTexture) {
 
-                    "Texture Color".ConstLabel().Edit_Enum(ref srcColorUsage).Nl();
+                    "Texture Color".ConstL().Edit_Enum(ref srcColorUsage).Nl();
 
                     if (InspectAdvanced) {
-                        "Clamp".PegiLabel().ToggleIcon(ref clampSourceTexture).Nl();
-                        "Multiply by Alpha".PegiLabel().ToggleIcon(ref ignoreSrcTextureTransparency);
+                        "Clamp".PL().ToggleIcon(ref clampSourceTexture).Nl();
+                        "Multiply by Alpha".PL().ToggleIcon(ref ignoreSrcTextureTransparency);
                         pegi.FullWindow.DocumentationClickOpen("Ignore transparency of the source texture. To only paint parts of the texture which are visible").Nl();
                     }
                 }
                 
                 if (target == TexTarget.RenderTexture && brushType.SupportsAlphaBufferPainting && blitMode.SupportsAlphaBufferPainting && (useAlphaBuffer || InspectAdvanced)) {
 
-                    "Alpha Buffer".PegiLabel().ToggleIcon(ref useAlphaBuffer, true);
+                    "Alpha Buffer".PL().ToggleIcon(ref useAlphaBuffer, true);
 
                     if (useAlphaBuffer)
                     {
                         var txt = MsgPainter.Opacity.GetText();
 
-                        txt.PegiLabel("This is the kind of alpha you see in standard painting software. But it is only available when using Alpha Buffer"
+                        txt.PL("This is the kind of alpha you see in standard painting software. But it is only available when using Alpha Buffer"
                             ).ApproxWidth().Edit( ref alphaLimitForAlphaBuffer, 0.01f, 1f);
 
                         if (p && p.NotUsingPreview)
@@ -383,7 +383,7 @@ namespace PainterTool {
             } else 
             {
                 pegi.Nl();
-                "Blit Mode {0} is not Supported for {1} painting".F(blitMode.GetNameForInspector(), target).PegiLabel().WriteWarning().Nl();
+                "Blit Mode {0} is not Supported for {1} painting".F(blitMode.ToString(), target).PL().WriteWarning().Nl();
             }
           
             _inspectedBrush = null;
@@ -466,7 +466,7 @@ namespace PainterTool {
             pegi.Nl();
 
             if (showBrushDynamics) {
-                if ("Brush Dynamic".ConstLabel().SelectType( ref brushDynamic).Nl())
+                if ("Brush Dynamic".ConstL().SelectType( ref brushDynamic).Nl())
                     brushDynamic?.Nested_Inspect().Nl();
             }
             else if (brushDynamic.GetType() != typeof(BrushDynamic.None))
@@ -513,7 +513,7 @@ namespace PainterTool {
                     if (!tag.IsNullOrEmpty()) {
 
                         if (channelEnabled)
-                            (tag + ":").PegiLabel().Nl();
+                            (tag + ":").PL().Nl();
                         else
                             label = tag + " ";
                     }
@@ -522,7 +522,7 @@ namespace PainterTool {
 
             
 
-            if (channelEnabled ? pegi.Click(icon, label) : "{0} channel ignored".F(label).PegiLabel().ToggleIcon(ref channelEnabled, true))
+            if (channelEnabled ? pegi.Click(icon, label) : "{0} channel ignored".F(label).PL().ToggleIcon(ref channelEnabled, true))
                  mask ^= inspectedMask;
 
             if (slider && channelEnabled) {
@@ -624,7 +624,7 @@ namespace PainterTool {
 
                 var erase = Color.a < 0.5f;
 
-                "Erase".PegiLabel().ToggleIcon(ref erase).Nl();
+                "Erase".PL().ToggleIcon(ref erase).Nl();
 
                 Color.a = erase ? 0 : 1;
 
@@ -832,7 +832,7 @@ namespace PainterTool {
                 // {
                 //   var changed = false;
 
-                "Strength".PegiLabel().Edit(ref jitterStrength, 0.00001f, 0.25f);
+                "Strength".PL().Edit(ref jitterStrength, 0.00001f, 0.25f);
 
             //  return changed;
 

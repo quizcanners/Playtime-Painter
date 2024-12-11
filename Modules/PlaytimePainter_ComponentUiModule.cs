@@ -61,8 +61,8 @@ namespace PainterTool.ComponentModules {
                 var gr = p.uiGraphic;
 
                 if (!gr.raycastTarget) {
-                    "Raycast target on UI is disabled, enable for painting".PegiLabel().WriteWarning();
-                    if ("Enable Raycasts on UI".PegiLabel().Click().Nl())
+                    "Raycast target on UI is disabled, enable for painting".PL().WriteWarning();
+                    if ("Enable Raycasts on UI".PL().Click().Nl())
                         gr.raycastTarget = true;
                 }
 
@@ -71,10 +71,10 @@ namespace PainterTool.ComponentModules {
                     var prop = p.GetMaterialTextureProperty();
 
                     if (textureName.Equals(prop) && p.NotUsingPreview)
-                        "Image element can't use Render Texture as sprite. Switch to preview. Sprite will be updated when switching to CPU".PegiLabel().WriteWarning();
+                        "Image element can't use Render Texture as sprite. Switch to preview. Sprite will be updated when switching to CPU".PL().WriteWarning();
 
                     if (GlobalBrush.GetBrushType(TexTarget.RenderTexture) == BrushTypes.Sphere.Inst)
-                        "Brush sphere doesn't work with UI.".PegiLabel().WriteWarning();
+                        "Brush sphere doesn't work with UI.".PL().WriteWarning();
                 }
             }
         }

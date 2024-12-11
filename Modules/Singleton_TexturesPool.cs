@@ -111,8 +111,8 @@ namespace PainterTool
 
             if (!collection.IsAnyEntered)
             {
-                "Data (Non Color) Texture".PegiLabel().ToggleIcon(ref nonColorData).Nl();
-                "Default Size:".ConstLabel().SelectPow2(ref defaultWidth, 16, 4096).Nl();
+                "Data (Non Color) Texture".PL().ToggleIcon(ref nonColorData).Nl();
+                "Default Size:".ConstL().SelectPow2(ref defaultWidth, 16, 4096).Nl();
             }
         }
 
@@ -135,11 +135,11 @@ namespace PainterTool
             public void InspectInList(ref int edited, int index)
             {
                 if (_rtList.Count == 0)
-                    "Empty".PegiLabel().Write();
+                    "Empty".PL().Write();
                 else
                 {
                     var first = _rtList[0];
-                    "x {0} Textures. {1} pixels".F(_rtList.Count, (first.width * first.height * _rtList.Count).ToReadableString()).PegiLabel().Write();
+                    "x {0} Textures. {1} pixels".F(_rtList.Count, (first.width * first.height * _rtList.Count).ToReadableString()).PL().Write();
                 }
             }
         }

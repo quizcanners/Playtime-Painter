@@ -152,11 +152,11 @@ namespace QuizCanners.Utils
         
         public virtual void Inspect()
         {
-            if ("Clear".PegiLabel().Click().Nl())
+            if ("Clear".PL().Click().Nl())
                 Clear();
-            ("Depth: " + depth).PegiLabel().Nl();
-            ("First free: " + firstFree).PegiLabel().Nl();
-            "Count: {0}".F(count).PegiLabel().Nl();
+            ("Depth: " + depth).PL().Nl();
+            ("First free: " + firstFree).PL().Nl();
+            "Count: {0}".F(count).PL().Nl();
         }
         #endregion
 
@@ -697,7 +697,7 @@ namespace QuizCanners.Utils
             {
                 if (no == indexes[i])
                     current = i;
-                filtered.Add(objs[i].GetNameForInspector());
+                filtered.Add(objs[i].ToString());
             }
 
             if (pegi.Select(ref current, filtered))
@@ -958,7 +958,7 @@ namespace QuizCanners.Utils
                     var ind = indxs[i];
                     var el = allElements[i];
 
-                    ind.ToString().PegiLabel(60).Write();
+                    ind.ToString().PL(60).Write();
 
                     if (Icon.Delete.Click())
                         this[ind] = default;
@@ -969,7 +969,7 @@ namespace QuizCanners.Utils
 
                 if (objs.Length > 0)
                 {
-                    "Test: ".PegiLabel().Edit(ref _testIndex);
+                    "Test: ".PL().Edit(ref _testIndex);
                     if (Icon.Add.Click().Nl())
                     {
                         this[_testIndex] = objs[0];

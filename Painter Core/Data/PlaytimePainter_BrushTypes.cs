@@ -152,7 +152,7 @@ namespace PainterTool
                 {
 
                     if (adv || brush.useMask)
-                        "Mask".PegiLabel("Multiply Brush Speed By Mask Texture's alpha").ToggleIcon(ref brush.useMask, true);
+                        "Mask".PL("Multiply Brush Speed By Mask Texture's alpha").ToggleIcon(ref brush.useMask, true);
 
                     if (brush.useMask)
                     {
@@ -160,20 +160,20 @@ namespace PainterTool
                         pegi.SelectOrAdd(ref brush.selectedSourceMask, ref Painter.Data.masks).Nl();
 
                         if (adv)
-                            "Mask greyscale".PegiLabel("Otherwise will use alpha").ToggleIcon(ref brush.maskFromGreyscale)
+                            "Mask greyscale".PL("Otherwise will use alpha").ToggleIcon(ref brush.maskFromGreyscale)
                                 .Nl();
 
                         if (brush.flipMaskAlpha || adv)
-                            "Flip Mask ".PegiLabel("Alpha = 1-Alpha").ToggleIcon(ref brush.flipMaskAlpha).Nl();
+                            "Flip Mask ".PL("Alpha = 1-Alpha").ToggleIcon(ref brush.flipMaskAlpha).Nl();
 
                         if (!brush.randomMaskOffset && adv)
-                            "Mask Offset ".PegiLabel().Edit_01(ref brush.maskOffset).Nl();
+                            "Mask Offset ".PL().Edit_01(ref brush.maskOffset).Nl();
 
                         if (brush.randomMaskOffset || adv)
-                            "Random Mask Offset".PegiLabel().ToggleIcon(ref brush.randomMaskOffset).Nl();
+                            "Random Mask Offset".PL().ToggleIcon(ref brush.randomMaskOffset).Nl();
 
                         if (adv)
-                            if ("Mask Tiling: ".ConstLabel().Edit(ref brush.maskTiling, 1, 8).Nl())
+                            if ("Mask Tiling: ".ConstL().Edit(ref brush.maskTiling, 1, 8).Nl())
                                 brush.maskTiling = Mathf.Clamp(brush.maskTiling, 0.1f, 64);
                     }
                 }
@@ -593,32 +593,32 @@ namespace PainterTool
 
                 pegi.Nl();
                 
-                "Continuous".PegiLabel("Will keep adding decal every frame while the mouse is down", 80).Toggle(
+                "Continuous".PL("Will keep adding decal every frame while the mouse is down", 80).Toggle(
                     ref InspectedBrush.decalContentious);
 
                 pegi.FullWindow.DocumentationClickOpen("Continious Decal will keep painting every frame while mouse button is held", "Countinious Decal");
 
                 pegi.Nl();
 
-                "Rotation".PegiLabel("Rotation method", 60).Write();
+                "Rotation".PL("Rotation method", 60).Write();
 
                 pegi.Edit_Enum(ref InspectedBrush.rotationMethod).Nl();
 
                 switch (InspectedBrush.rotationMethod)
                 {
                     case RotationMethod.Constant:
-                        "Angle:".PegiLabel("Decal rotation", 60).Write();
+                        "Angle:".PL("Decal rotation", 60).Write();
                         pegi.Edit(ref InspectedBrush.decalAngle, -90, 450);
                         break;
                     case RotationMethod.FaceStrokeDirection:
-                        "Ang Offset:".PegiLabel("Angle modifier after the rotation method is applied", 80).Edit(
+                        "Ang Offset:".PL("Angle modifier after the rotation method is applied", 80).Edit(
                             ref InspectedBrush.decalAngleModifier, -180f, 180f);
                         break;
                 }
 
                 pegi.Nl();
                 if (!InspectedBrush.mask.HasFlag(ColorMask.A))
-                    "! Alpha chanel is disabled. Decals may not render properly".PegiLabel().Write_Hint();
+                    "! Alpha chanel is disabled. Decals may not render properly".PL().Write_Hint();
 
             }
 
@@ -632,7 +632,7 @@ namespace PainterTool
         }
 
         [Serializable]
-        public class VolumetricDecal : IInspectorDropdown, IPEGI, IGotName
+        public class VolumetricDecal : IInspectorDropdown, IPEGI, IGotStringId
         {
             public string decalName;
             public VolumetricDecalType type;
@@ -643,7 +643,7 @@ namespace PainterTool
             
             public bool ShowInInspectorDropdown() => heightMap && overlay;
 
-            public string NameForInspector
+            public string StringId
             {
                 get { return decalName; }
                 set { decalName = value; }
@@ -653,9 +653,9 @@ namespace PainterTool
             {
                 this.inspect_Name().Nl();
 
-                "Brush Type".ConstLabel().Edit_Enum(ref type).Nl();
-                "Height Map".PegiLabel().Edit(ref heightMap).Nl();
-                "Overlay".PegiLabel().Edit(ref overlay).Nl();
+                "Brush Type".ConstL().Edit_Enum(ref type).Nl();
+                "Height Map".PL().Edit(ref heightMap).Nl();
+                "Overlay".PL().Edit(ref overlay).Nl();
             }
 
             public override string ToString() => "{0} ({1})".F(decalName, type);
@@ -918,7 +918,7 @@ namespace PainterTool
                 {
                     if (!Painter.Data.useGridForBrush)
                     {
-                        "No mesh for sphere painting detected.".PegiLabel().WriteWarning();
+                        "No mesh for sphere painting detected.".PL().WriteWarning();
                         suggestGrid = true;
                     }
                 }
@@ -927,7 +927,7 @@ namespace PainterTool
                 {
                     (Painter.Data.useGridForBrush
                         ? ("Grid: Z, X - change plane  |  Ctrl+LMB - reposition GRID")
-                        : "Paint On Grid").PegiLabel().ToggleIcon(ref Painter.Data.useGridForBrush).Nl();
+                        : "Paint On Grid").PL().ToggleIcon(ref Painter.Data.useGridForBrush).Nl();
 
                     pegi.Line();
                     pegi.Nl();
@@ -935,7 +935,7 @@ namespace PainterTool
 
                 if (!br.useAlphaBuffer && (br.worldSpaceBrushPixelJitter || InspectAdvanced))
                 {
-                    "One Pixel Jitter".PegiLabel().ToggleIcon(ref br.worldSpaceBrushPixelJitter);
+                    "One Pixel Jitter".PL().ToggleIcon(ref br.worldSpaceBrushPixelJitter);
                     pegi.FullWindow.DocumentationClickOpen("Will provide a single pixel jitter which can help fix seams not being painted properly", "Why use one pixel jitter?");
                     pegi.Nl();
                 }

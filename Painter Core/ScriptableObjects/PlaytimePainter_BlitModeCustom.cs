@@ -20,22 +20,22 @@ namespace PainterTool
 
         void IPEGI.Inspect()
         {
-            "Blit Mode Shader".ConstLabel().Edit(ref shader).Nl();
+            "Blit Mode Shader".ConstL().Edit(ref shader).Nl();
 
-            "Select texture to copy from".PegiLabel().ToggleIcon(ref selectSourceTexture).Nl();
+            "Select texture to copy from".PL().ToggleIcon(ref selectSourceTexture).Nl();
             if (selectSourceTexture)
             {
-                "Source Texture".PegiLabel().Edit(ref sourceTexture).Nl();
+                "Source Texture".PL().Edit(ref sourceTexture).Nl();
             }
 
-            "Using World Space Position".PegiLabel().ToggleIcon(ref usingWorldSpacePosition).Nl();
+            "Using World Space Position".PL().ToggleIcon(ref usingWorldSpacePosition).Nl();
 
-            "Uses brush color".PegiLabel().ToggleIcon(ref showColorSliders).Nl();
-            "Double Buffer".PegiLabel().ToggleIcon(ref doubleBuffer).Nl();
+            "Uses brush color".PL().ToggleIcon(ref showColorSliders).Nl();
+            "Double Buffer".PL().ToggleIcon(ref doubleBuffer).Nl();
             
             if (!shader)
             {
-                "Shader field is not optional".PegiLabel().Write_Hint();
+                "Shader field is not optional".PL().Write_Hint();
             }
 
         }

@@ -40,7 +40,7 @@ namespace PainterTool.MeshEditing
         {
             var col = GlobalBrush.Color;
             var msk = GlobalBrush.mask;
-            if ("Paint All".PegiLabel().Click().Nl())
+            if ("Paint All".PL().Click().Nl())
             {
                 foreach (var v in EditedMesh.meshPoints)
                     msk.SetValuesOn(ref v.shadowBake, col);

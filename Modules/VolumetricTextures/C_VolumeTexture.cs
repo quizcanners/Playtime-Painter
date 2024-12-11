@@ -11,7 +11,7 @@ namespace PainterTool {
     [DisallowMultipleComponent]
     [ExecuteAlways]
     [AddComponentMenu("Playtime Painter/Volume Texture")]
-    public class C_VolumeTexture : MonoBehaviour, IGotName, IPEGI
+    public class C_VolumeTexture : MonoBehaviour, IGotStringId, IPEGI
     {
         internal static List<C_VolumeTexture> all = new();
 
@@ -114,8 +114,6 @@ namespace PainterTool {
 
         public const string NAME = "_RayMarchingVolume"; // Temporarily hardcoded
 
-        
-
         public ShaderProperty.TextureValue TextureInShaderProperty
         {
             get
@@ -153,10 +151,6 @@ namespace PainterTool {
                 return _positionNsizeInShader;
             }
         }
-
-
-
-
 
         #region Cubemap
 
@@ -360,7 +354,7 @@ namespace PainterTool {
 
         #endregion
 
-        public string NameForInspector
+        public string StringId
         {
             get { return name; }
             set
@@ -465,22 +459,21 @@ namespace PainterTool {
         private bool _searchedForPainter;
         protected int inspectedMaterial = -1;
         protected pegi.EnterExitContext context = new();
-        
 
         protected virtual void VolumeDocumentation()
         {
-            "In this context Volumes are Textures2D and RenderTextures that are used as".PegiLabel().WriteBig();
-            " 3D Textures ".PegiLabel().ClickLink("https://docs.unity3d.com/Manual/class-Texture3D.html").Nl();
+            "In this context Volumes are Textures2D and RenderTextures that are used as".PL().WriteBig();
+            " 3D Textures ".PL().ClickLink("https://docs.unity3d.com/Manual/class-Texture3D.html").Nl();
                ("3D Textures are not supported on most mobile devices. That is why this trick with Texture2D is used " +
                 " The texture is sampled using World Space Position. Currently I implemented it to use only one volume per scene." +
                 " It will use global shader parameters to set all the values. This makes it easier to manage." +
-                " But there is no reason why many volumes can't be used in a scene with proper material manager.").PegiLabel().WriteBig();
+                " But there is no reason why many volumes can't be used in a scene with proper material manager.").PL().WriteBig();
         }
         
         public virtual void Inspect()
         {
             if (Application.isPlaying && !all.Contains(this))
-                "Not registered in the list of volumes".PegiLabel().WriteWarning().Nl();
+                "Not registered in the list of volumes".PL().WriteWarning().Nl();
 
             using (context.StartContext())
             {
@@ -493,7 +486,7 @@ namespace PainterTool {
                     if (Icon.Delete.Click())
                         _textureInShaderr = null;
 
-                    pegi.GetNameForInspector(_textureInShaderr).PegiLabel().Nl();
+                    _textureInShaderr.ToString().PL().Nl();
                 }
 
                 if (_searchedForPainter)
@@ -504,8 +497,8 @@ namespace PainterTool {
 
                 if (!_painter)
                 {
-                    "Painter [None]".PegiLabel().Write();
-                    if ("Search".PegiLabel().Click())
+                    "Painter [None]".PL().Write();
+                    if ("Search".PL().Click())
                         _painter = GetComponent<PainterComponent>();
 
                     if (Icon.Add.Click())
@@ -521,19 +514,19 @@ namespace PainterTool {
                 {
                     if (_painter.gameObject != gameObject)
                     {
-                        "Painter is on a different Game Object".PegiLabel().WriteWarning();
-                        if ("Disconnect".PegiLabel().Click())
+                        "Painter is on a different Game Object".PL().WriteWarning();
+                        if ("Disconnect".PL().Click())
                             _painter = null;
                     }
 
                     var mod = _painter.GetModule<VolumeTextureComponentModule>();
-                    if (!mod.volumeTexture && "Assign volume texture to painter".PegiLabel().Click().Nl())
+                    if (!mod.volumeTexture && "Assign volume texture to painter".PL().Click().Nl())
                         mod.volumeTexture = this;
 
                     if (mod.volumeTexture)
                     {
                         if (mod.volumeTexture == this)
-                            "This volume texture is attached".PegiLabel().Write();
+                            "This volume texture is attached".PL().Write();
 
                         if (Icon.UnLinked.Click("Unlink"))
                             mod.volumeTexture = null;
@@ -546,7 +539,7 @@ namespace PainterTool {
                 {
                    // "Static Position".PegiLabel("Volume will use the exact position of the volume and ignore if the position changes").ToggleIcon(ref _staticPosition).Nl();
 
-                    "Position chunk size".PegiLabel().Edit(ref changePositionOnOffset);
+                    "Position chunk size".PL().Edit(ref changePositionOnOffset);
 
                     pegi.FullWindow
                         .DocumentationClickOpen("For Baking optimisations, how often position is changed");
@@ -555,36 +548,36 @@ namespace PainterTool {
                 }
 
 
-                if ("Volume Texture ({0})".F(Texture ? NameForInspector : "NULL").PegiLabel().IsEntered().Nl())
+                if ("Volume Texture ({0})".F(Texture ? StringId : "NULL").PL().IsEntered().Nl())
                 {
                     if (!cubeArray)
                     {
-                        if ("Create Cubemap Array".PegiLabel().Click().Nl())
+                        if ("Create Cubemap Array".PL().Click().Nl())
                             ToTextureArray();
                     }
                     else
                         pegi.Edit_Property(() => cubeArray, this).Nl();
 
-                    var n = NameForInspector;
-                    if ("Name".ConstLabel().Edit_Delayed(ref n).Nl())
-                        NameForInspector = n;
+                    var n = StringId;
+                    if ("Name".ConstL().Edit_Delayed(ref n).Nl())
+                        StringId = n;
 
-                    PositionAndScaleProperty.ToString().PegiLabel().Write_ForCopy().Nl();
+                    PositionAndScaleProperty.ToString().PL().Write_ForCopy().Nl();
 
-                    SlicesShadeProperty.ToString().PegiLabel().Write_ForCopy().Nl();
+                    SlicesShadeProperty.ToString().PL().Write_ForCopy().Nl();
 
                     var tex = Texture;
-                    if ("Texture".ConstLabel().Edit(ref tex).Nl())
+                    if ("Texture".ConstL().Edit(ref tex).Nl())
                         Texture = tex;
 
-                    if ("Volume Scale".ConstLabel().Edit_Delayed(ref size).Nl())
+                    if ("Volume Scale".ConstL().Edit_Delayed(ref size).Nl())
                         size = Mathf.Max(0.0001f, size);
 
-                    "Last Value: {0}".F(posNSizeCached).PegiLabel().Nl();
+                    "Last Value: {0}".F(posNSizeCached).PL().Nl();
 
                     if (Texture)
                     {
-                        if (Texture is RenderTexture && "Save Texture As Texture 2D".PegiLabel().Click())
+                        if (Texture is RenderTexture && "Save Texture As Texture 2D".PL().Click())
                         {
                             var asRt = Texture as RenderTexture;
 
@@ -622,9 +615,9 @@ namespace PainterTool {
                         if (!Singleton.Get<Singleton_TexturesPool>())
                         {
                             pegi.Nl();
-                            "Texture Width".ConstLabel().Edit(ref _tmpWidth);
+                            "Texture Width".ConstL().Edit(ref _tmpWidth);
 
-                            if ("Create Pool".PegiLabel().Click().Nl())
+                            if ("Create Pool".PL().Click().Nl())
                             {
                                 _tmpWidth = Mathf.ClosestPowerOfTwo(Mathf.Clamp(_tmpWidth, 128, 2048));
                                 Singleton_TexturesPool.ForcedInstance.defaultWidth = _tmpWidth;
@@ -637,16 +630,16 @@ namespace PainterTool {
                     }
                     pegi.Nl();
 
-                    "Slices:".PegiLabel("How texture will be sliced for height", 80).Edit(ref hSlices, 1, 8).Nl();
+                    "Slices:".PL("How texture will be sliced for height", 80).Edit(ref hSlices, 1, 8).Nl();
 
                     if (Mathf.IsPowerOfTwo(hSlices))
-                        "When not power of 2, the result may be imperfect".PegiLabel().Write_Hint().Nl();
+                        "When not power of 2, the result may be imperfect".PL().Write_Hint().Nl();
 
                     if (changed)
                         UpdateImageMeta();
 
                     var w = SliceWidth;
-                    ("Will result in X:{0} Z:{0} Y:{1} volume".F(w,TextureHeight)).PegiLabel().Nl();
+                    ("Will result in X:{0} Z:{0} Y:{1} volume".F(w,TextureHeight)).PL().Nl();
 
                     pegi.Draw(tex, width: 256);
                     pegi.Nl();
@@ -738,6 +731,7 @@ namespace PainterTool {
             }
         }
 
+    
         public virtual void DrawGizmosOnPainter(PainterComponent painter) { }
 
     }

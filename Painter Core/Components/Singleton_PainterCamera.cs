@@ -738,7 +738,7 @@ namespace PainterTool {
         public AnimationCurve tmpCurve = new (new Keyframe(0, 0), new Keyframe(0.5f, 0.5f), new Keyframe(1, 1));
         
         public AnimationCurve InspectAnimationCurve(string role) {
-            role.PegiLabel().Edit_Property(() => tmpCurve, this);
+            role.PL().Edit_Property(() => tmpCurve, this);
             return tmpCurve;
         }
 
@@ -754,16 +754,16 @@ namespace PainterTool {
             {
                 pegi.Nl();
 
-                if ("Data && Settings".PegiLabel().IsEntered())
+                if ("Data && Settings".PL().IsEntered())
                 {
                     pegi.Nl();
-                    "Painter Data".PegiLabel().Edit(ref dataHolder).Nl();
+                    "Painter Data".PL().Edit(ref dataHolder).Nl();
 
                     if (Painter.Data)
                         Painter.Data.Nested_Inspect().Nl();
                     else
                     {
-                        "NO CONFIG Scriptable Object".PegiLabel().WriteWarning();
+                        "NO CONFIG Scriptable Object".PL().WriteWarning();
                         pegi.Nl();
                         DependenciesInspect(true);
                     }
@@ -774,49 +774,49 @@ namespace PainterTool {
 
                 pegi.Nl();
 
-                if ("Painter Camera".PegiLabel().IsEntered())
+                if ("Painter Camera".PL().IsEntered())
                     DependenciesInspect(true);
 
                 pegi.Nl();
 
-                if ("Depth Projector Camera".PegiLabel().IsEntered().Nl())
+                if ("Depth Projector Camera".PL().IsEntered().Nl())
                 {
                     if (Singleton.TryGet<Singleton_DepthProjectorCamera>(out var s))
                         s.Nested_Inspect().Nl();
                     else {
-                        if ("Instantiate".PegiLabel().Click())
+                        if ("Instantiate".PL().Click())
                             Painter.GetOrCreateProjectorCamera();
                     }
                 }
 
-                if ("Painter Camera Modules".PegiLabel().IsEntered(showLabelIfTrue: false).Nl_ifNotEntered())
+                if ("Painter Camera Modules".PL().IsEntered(showLabelIfTrue: false).Nl_ifNotEntered())
                 {
                     _modulesMeta.Edit_List(CameraModuleBase.modules, CameraModuleBase.all);
 
                     if (!_modulesMeta.IsAnyEntered)
                     {
-                        if ("Find Modules".PegiLabel().Click())
+                        if ("Find Modules".PL().Click())
                             CameraModuleBase.RefreshModules();
 
-                        if ("Delete Modules".PegiLabel().Click().Nl())
+                        if ("Delete Modules".PL().Click().Nl())
                             CameraModuleBase.modules = null;
                     }
 
                     pegi.Nl();
                 }
 
-                if ("Global Shader Variables".PegiLabel().IsEntered().Nl())
+                if ("Global Shader Variables".PL().IsEntered().Nl())
                     PainterShaderVariables.Inspect();
 
                 pegi.Nl();
 
-                if ("Utils".PegiLabel().IsEntered().Nl())
+                if ("Utils".PL().IsEntered().Nl())
                     QcUtils.InspectAllUtils();
 
                 pegi.Nl();
 
                 if (!_context.IsAnyEntered)
-                    "Latest Paint Shader (For Debug)".PegiLabel().Edit(ref _latestPaintShaderDebug).Nl();
+                    "Latest Paint Shader (For Debug)".PL().Edit(ref _latestPaintShaderDebug).Nl();
             }
         }
 
@@ -832,12 +832,12 @@ namespace PainterTool {
                 {
                     pegi.Nl();
 
-                    if ("Buffers".PegiLabel().IsEntered().Nl())
+                    if ("Buffers".PL().IsEntered().Nl())
                     {
                         RenderTextureBuffersManager.Inspect();
                         pegi.Nl();
 #if UNITY_EDITOR
-                        "Disable Second Buffer Update (Debug Mode)".PegiLabel().ToggleIcon(ref disableSecondBufferUpdateDebug).Nl();
+                        "Disable Second Buffer Update (Debug Mode)".PL().ToggleIcon(ref disableSecondBufferUpdateDebug).Nl();
 #endif
 
                         return changed;
@@ -845,7 +845,7 @@ namespace PainterTool {
 
                     pegi.Nl();
 
-                    "Download Manager".PegiLabel().Enter_Inspect(Painter.DownloadManager).Nl();
+                    "Download Manager".PL().Enter_Inspect(Painter.DownloadManager).Nl();
 
                     if (_dependencyContext.IsAnyEntered == false)
                       
@@ -854,18 +854,18 @@ namespace PainterTool {
                     {
                             pegi.FullWindow.DocumentationClickOpen("You can enable URL field in the Optional UI elements to get texture directly from web");
 
-                            (Painter.IsLinearColorSpace ? "Linear" : "Gamma").PegiLabel().Nl();
+                            (Painter.IsLinearColorSpace ? "Linear" : "Gamma").PL().Nl();
 
 
 #if UNITY_EDITOR
-                        if ("Refresh Brush Shaders".PegiLabel().Click().Nl())
+                        if ("Refresh Brush Shaders".PL().Click().Nl())
                         {
                                 Painter.Data.CheckShaders(true);
                             pegi.GameView.ShowNotification("Shaders Refreshed");
                         }
 #endif
 
-                        "Using layer:".PegiLabel().Edit_LayerMask(ref Painter.Data.playtimePainterLayer).Nl();
+                        "Using layer:".PL().Edit_LayerMask(ref Painter.Data.playtimePainterLayer).Nl();
                     }
                 }
 
@@ -875,14 +875,14 @@ namespace PainterTool {
             #if UNITY_EDITOR
             if (!Painter.Data)  {
                 pegi.Nl();
-                "No data Holder".ConstLabel().Edit(ref dataHolder).Nl();
+                "No data Holder".ConstL().Edit(ref dataHolder).Nl();
 
                 if (Icon.Refresh.Click("Try to find it")) 
                 {
                     _triedToFindPainterData = false;
                 }
 
-                if ("Create".PegiLabel().Click().Nl()) 
+                if ("Create".PL().Click().Nl()) 
                 {
                     _triedToFindPainterData = false;
 
@@ -903,7 +903,7 @@ namespace PainterTool {
             if (!painterCamera) 
             {
                 pegi.Nl();
-                "no painter camera".PegiLabel().WriteWarning();
+                "no painter camera".PL().WriteWarning();
                 pegi.Nl();
             }
             else
@@ -911,8 +911,8 @@ namespace PainterTool {
                 if (painterCamera.clearFlags != CameraClearFlags.Nothing)
                 {
                     pegi.Nl();
-                    "Painter camera is not set to DontClear".PegiLabel().WriteWarning();
-                    if ("Set to DontClear".PegiLabel().Click().Nl())
+                    "Painter camera is not set to DontClear".PL().WriteWarning();
+                    if ("Set to DontClear".PL().Click().Nl())
                     {
                         painterCamera.clearFlags = CameraClearFlags.Nothing;
                         painterCamera.SetToDirty();
@@ -939,7 +939,7 @@ namespace PainterTool {
                 if (depthCamera && cams.Contains(depthCamera))
                     cams.Remove(depthCamera);
 
-                "Main Camera".ConstLabel().Select(ref cam, cams).OnChanged(()=> MainCamera = cam);
+                "Main Camera".ConstL().Select(ref cam, cams).OnChanged(()=> MainCamera = cam);
                 
                 if (Icon.Refresh.Click("Try to find camera tagged as Main Camera")) {
                     MainCamera = Camera.main;
@@ -950,12 +950,12 @@ namespace PainterTool {
                 pegi.Nl();
 
                 if (depthAsMain) {
-                    "Depth projector camera is set as Main Camera - this is likely a mistake".PegiLabel().WriteWarning();
+                    "Depth projector camera is set as Main Camera - this is likely a mistake".PL().WriteWarning();
                     pegi.Nl();
                 }
 
                 if (!cam)
-                    "No Main Camera found. Playtime Painting will not be possible".PegiLabel().WriteWarning();
+                    "No Main Camera found. Playtime Painting will not be possible".PL().WriteWarning();
 
                 pegi.Nl();
 

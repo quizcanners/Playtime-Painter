@@ -79,7 +79,7 @@ namespace PainterTool
 
         public static void Inspect() 
         {
-            "Painting to:".PegiLabel().Nl();
+            "Painting to:".PL().Nl();
             DESTINATION_BUFFER.Inspect();
 
            

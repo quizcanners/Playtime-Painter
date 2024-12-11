@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace PainterTool
 {
-    public class ColorPicker : ICfg, IPEGI, IGotName, IPEGI_ListInspect
+    public class ColorPicker : ICfg, IPEGI, IGotStringId, IPEGI_ListInspect
     {
         private static Brush GlobalBrush => Painter.Data.Brush;
         
@@ -19,7 +19,7 @@ namespace PainterTool
 
         public override string ToString() => paletteName;
 
-        public string NameForInspector { get { return paletteName; } set { paletteName = value; } }
+        public string StringId { get { return paletteName; } set { paletteName = value; } }
 
         public void InspectInList(ref int edited, int ind)
         {
@@ -47,7 +47,7 @@ namespace PainterTool
 
         void IPEGI.Inspect() 
         {
-            paletteName.PegiLabel().Edit_List(_colors, EditColor);
+            paletteName.PL().Edit_List(_colors, EditColor);
         }
 
         public void PickerPEGI() {

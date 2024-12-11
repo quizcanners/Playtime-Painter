@@ -79,40 +79,40 @@ namespace PainterTool.MeshEditing
 
             if (_detectionMode != DetectionMode.Points)
             {
-                "Gizmos needs to be toggled on (if they are off)".PegiLabel().Write_Hint();
+                "Gizmos needs to be toggled on (if they are off)".PL().Write_Hint();
             }
 
             if (MeshEditorManager.MeshTool.ShowGrid)
             {
-                "Snap to grid (Use XZ to toggle grid orientation)".PegiLabel().ToggleIcon(ref sd.snapToGrid).Nl();
+                "Snap to grid (Use XZ to toggle grid orientation)".PL().ToggleIcon(ref sd.snapToGrid).Nl();
 
                 if (sd.snapToGrid)
-                    "Size".ConstLabel().Edit(ref sd.gridSize);
+                    "Size".ConstL().Edit(ref sd.gridSize);
             }
 
             pegi.Nl();
 
-            "Pixel-Perfect".PegiLabel("New vertex will have UV coordinate rounded to half a pixel.").ToggleIcon(ref Painter.Data.pixelPerfectMeshEditing).Nl();
+            "Pixel-Perfect".PL("New vertex will have UV coordinate rounded to half a pixel.").ToggleIcon(ref Painter.Data.pixelPerfectMeshEditing).Nl();
 
-            "Insert vertices".PegiLabel("Will split triangles and edges by inserting vertices").ToggleIcon(ref _addToTrianglesAndLines).Nl();
+            "Insert vertices".PL("Will split triangles and edges by inserting vertices").ToggleIcon(ref _addToTrianglesAndLines).Nl();
 
-            "Add Unique:".PegiLabel().ToggleIcon(ref Painter.Data.newVerticesUnique).Nl();
+            "Add Unique:".PL().ToggleIcon(ref Painter.Data.newVerticesUnique).Nl();
 
-            if ("All shared if same UV".PegiLabel("Will only merge vertices if they have same UV").Click().Nl())
+            if ("All shared if same UV".PL("Will only merge vertices if they have same UV").Click().Nl())
             {
                 em.AllVerticesSharedIfSameUV();
                 em.Dirty = true;
 
             }
 
-            if ("All shared".PegiLabel(toolTip: "Vertices will be merged if they share the position. This may result in loss of UV data.").ClickConfirm(confirmationTag: "AllShrd"))
+            if ("All shared".PL(toolTip: "Vertices will be merged if they share the position. This may result in loss of UV data.").ClickConfirm(confirmationTag: "AllShrd"))
             {
                 em.AllVerticesShared();
                 em.Dirty = true;
                 Painter.Data.newVerticesUnique = false;
             }
 
-            if ("All unique".PegiLabel(toolTip: "If vertex belongs to more then one triangle, a new vertex will be created for each of the extra triangle.").ClickConfirm(confirmationTag: "AllUnq").Nl())
+            if ("All unique".PL(toolTip: "If vertex belongs to more then one triangle, a new vertex will be created for each of the extra triangle.").ClickConfirm(confirmationTag: "AllUnq").Nl())
             {
                 foreach (var t in EditedMesh.triangles)
                     em.GiveTriangleUniqueVertices(t);
@@ -120,9 +120,9 @@ namespace PainterTool.MeshEditing
                 Painter.Data.newVerticesUnique = true;
             }
 
-            "Add Smooth:".PegiLabel().ToggleIcon(ref Painter.Data.newVerticesSmooth).Nl();
+            "Add Smooth:".PL().ToggleIcon(ref Painter.Data.newVerticesSmooth).Nl();
 
-            if ("Sharp All".PegiLabel(toolTip: "Normal vectors will be different for each triangle when possible (when vertex/normal data is not shared with another triangle).").ClickConfirm(confirmationTag: "AllSrp"))
+            if ("Sharp All".PL(toolTip: "Normal vectors will be different for each triangle when possible (when vertex/normal data is not shared with another triangle).").ClickConfirm(confirmationTag: "AllSrp"))
             {
                 foreach (var vr in EditedMesh.meshPoints)
                     vr.smoothNormal = false;
@@ -131,7 +131,7 @@ namespace PainterTool.MeshEditing
                 Painter.Data.newVerticesSmooth = false;
             }
 
-            if ("Smooth All".PegiLabel(toolTip: "All edge normals will be smooth even when a triangle can afford to have a different one.").ClickConfirm(confirmationTag: "AllSmth").Nl())
+            if ("Smooth All".PL(toolTip: "All edge normals will be smooth even when a triangle can afford to have a different one.").ClickConfirm(confirmationTag: "AllSmth").Nl())
             {
                 foreach (var vr in EditedMesh.meshPoints)
                     vr.smoothNormal = true;
@@ -140,9 +140,9 @@ namespace PainterTool.MeshEditing
             }
 
 
-            if ("Auto Bevel".PegiLabel().Click())
+            if ("Auto Bevel".PL().Click())
                 SharpFacesTool.AutoAssignDominantNormalsForBeveling();
-            "Sensitivity".ConstLabel().Edit(ref Painter.Data.bevelDetectionSensitivity, 3, 30).Nl();
+            "Sensitivity".ConstL().Edit(ref Painter.Data.bevelDetectionSensitivity, 3, 30).Nl();
 
             pegi.Nl();
         }

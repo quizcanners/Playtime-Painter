@@ -39,7 +39,7 @@ namespace PainterTool
                 if (ActiveEditorTracker.sharedTracker.isLocked)
                     pegi.EditorView.Lock_UnlockClick(gameObject);
 
-                MsgPainter.PleaseSelect.GetText().PegiLabel().Write_Hint();
+                MsgPainter.PleaseSelect.GetText().PL().Write_Hint();
 
                 TrySetOriginalTexture();
 
@@ -61,9 +61,9 @@ namespace PainterTool
             {
                 if (this != MeshPainting.target)
                     if (SavedEditableMesh.IsEmpty == false)
-                        "Component has saved mesh data.".PegiLabel().Nl();
+                        "Component has saved mesh data.".PL().Nl();
 
-                "Warning, this will change (or mess up) your model.".PegiLabel().WriteOneTimeHint("MessUpMesh");
+                "Warning, this will change (or mess up) your model.".PL().WriteOneTimeHint("MessUpMesh");
 
                 if (MeshPainting.target != this)
                 {
@@ -72,22 +72,22 @@ namespace PainterTool
                     var obj = gameObject.GetComponent("pb_Object");
 
                     if (ent || obj)
-                        "PRO builder detected. Strip it using Actions in the Tools/ProBuilder menu.".PegiLabel()
+                        "PRO builder detected. Strip it using Actions in the Tools/ProBuilder menu.".PL()
                             .Write_Hint();
                     else
                     {
                         if (Application.isPlaying)
-                            "Playtime Changes will be reverted once you try to edit the mesh again.".PegiLabel()
+                            "Playtime Changes will be reverted once you try to edit the mesh again.".PL()
                                 .WriteWarning();
 
                         pegi.Nl();
 
-                        "Mesh has {0} vertices".F(sharedMesh.vertexCount).PegiLabel().Nl();
+                        "Mesh has {0} vertices".F(sharedMesh.vertexCount).PL().Nl();
 
                         pegi.Nl();
 
 #if UNITY_EDITOR
-                        if ("Generate UV2".PegiLabel().Click().Nl())
+                        if ("Generate UV2".PL().Click().Nl())
                             if (Unwrapping.GenerateSecondaryUVSet(sharedMesh) == false)
                                 Debug.LogError("UV2 generation failed");
 #endif
@@ -99,7 +99,7 @@ namespace PainterTool
                         if (!pegi.ConfirmationDialogue.IsRequestedFor(confirmTag))
                         {
 
-                            if ("New Mesh".PegiLabel(!SavedEditableMesh.IsEmpty
+                            if ("New Mesh".PL(!SavedEditableMesh.IsEmpty
                                     ? "This will erase existing editable mesh. Proceed?"
                                     : "Create a mesh?").ClickConfirm("newMesh"))
                             {
@@ -112,15 +112,15 @@ namespace PainterTool
                         if (SharedMesh && SharedMesh.vertexCount == 0)
                         {
                             pegi.Nl();
-                            "Shared Mesh has no vertices, you may want to create a new mesh".PegiLabel()
+                            "Shared Mesh has no vertices, you may want to create a new mesh".PL()
                                 .Write_Hint();
                         }
                         else
                         {
-                            if (!pegi.ConfirmationDialogue.IsRequestedFor(confirmTag) && "Copy & Edit".PegiLabel().Click())
+                            if (!pegi.ConfirmationDialogue.IsRequestedFor(confirmTag) && "Copy & Edit".PL().Click())
                                 mg.EditMesh(this, true);
 
-                            if ("Edit this".PegiLabel("Are you sure you want to edit the original one instead of editing a copy(safer)? " +
+                            if ("Edit this".PL("Are you sure you want to edit the original one instead of editing a copy(safer)? " +
                                     "Playtime Painter's Undo functionality can be limited.").ClickConfirm(confirmTag).Nl())
                                 mg.EditMesh(this, false);
                         }
@@ -133,7 +133,7 @@ namespace PainterTool
 
                 pegi.Edit_IfNull(ref meshRenderer, gameObject).Nl();
 
-                if (!sharedMesh && "Create Mesh".PegiLabel().Click())
+                if (!sharedMesh && "Create Mesh".PL().Click())
                     Mesh = new Mesh();
 
             }
@@ -152,7 +152,7 @@ namespace PainterTool
 
                     pegi.Line();
 
-                    if ("Profile".PegiLabel().IsEntered())
+                    if ("Profile".PL().IsEntered())
                     {
 
                         MsgPainter.MeshProfileUsage.DocumentationClick();
@@ -176,12 +176,12 @@ namespace PainterTool
                             pegi.Nl();
                             var mpf = MeshProfile;
                             if (mpf == null)
-                                "There are no Mesh packaging profiles in the PainterDataObject".PegiLabel()
+                                "There are no Mesh packaging profiles in the PainterDataObject".PL()
                                     .WriteWarning();
                             else
                             {
                                 if (!mpf.name.Equals(selectedMeshProfile))
-                                    "Mesh profile not found, using default one".PegiLabel().WriteWarning();
+                                    "Mesh profile not found, using default one".PL().WriteWarning();
 
                                 pegi.Nl();
 
@@ -247,7 +247,7 @@ namespace PainterTool
                     if (!s_showTextureOptions)
                     {
                         pegi.Nl();
-                        "Processing Texture".PegiLabel().Nl();
+                        "Processing Texture".PL().Nl();
                         texMeta.ProcessEnumerator.InspectInList_Nested().Nl();
                     }
                 }
@@ -268,9 +268,9 @@ namespace PainterTool
                     var mat = Material;
                     if (mat.IsProjected())
                     {
-                        "Projected UV Shader detected. Painting may not work properly".PegiLabel().WriteWarning();
+                        "Projected UV Shader detected. Painting may not work properly".PL().WriteWarning();
 
-                        if ("Undo".PegiLabel().Click().Nl())
+                        if ("Undo".PL().Click().Nl())
                             mat.DisableKeyword(PainterShaderVariables.UV_PROJECTED);
                     }
 
@@ -285,7 +285,7 @@ namespace PainterTool
 
                         if (skinnedMeshRenderer)
                         {
-                            if ("Update Collider from Skinned Mesh".PegiLabel().Click())
+                            if ("Update Collider from Skinned Mesh".PL().Click())
                                 UpdateMeshCollider();
 
                             if (!SO_PainterDataAndConfig.hideDocumentation)
@@ -302,7 +302,7 @@ namespace PainterTool
 
                         if (!blocker.IsNullOrEmpty())
                         {
-                            "Can't paint because {0}".F(blocker).PegiLabel().WriteWarning();
+                            "Can't paint because {0}".F(blocker).PL().WriteWarning();
                         }
                         else
                         {
@@ -346,7 +346,7 @@ namespace PainterTool
                                 scheme?.PickerPEGI();
 
                                 if (cfg.showColorSchemes)
-                                    "Scheme".ConstLabel().Select_Index(ref cfg.selectedColorScheme, cfg.colorSchemes)
+                                    "Scheme".ConstL().Select_Index(ref cfg.selectedColorScheme, cfg.colorSchemes)
                                         .Nl();
 
                             }
@@ -364,7 +364,7 @@ namespace PainterTool
                 if (!painterNotUiOrPlaying)
                 {
                     pegi.Nl();
-                    "UI Element editing only works in Game View during Play.".PegiLabel().WriteWarning();
+                    "UI Element editing only works in Game View during Play.".PL().WriteWarning();
                 }
             }
 
@@ -418,7 +418,7 @@ namespace PainterTool
                 if (cfg.showUrlField)
                 {
 
-                    "URL".ConstLabel().Edit(ref _tmpUrl);
+                    "URL".ConstL().Edit(ref _tmpUrl);
                     if (_tmpUrl.Length > 5 && Icon.Download.Click())
                     {
                         loadingOrder.Add(Painter.DownloadManager.StartDownload(_tmpUrl),
@@ -429,7 +429,7 @@ namespace PainterTool
 
                     pegi.Nl();
                     if (loadingOrder.Count > 0)
-                        "Loading {0} texture{1}".F(loadingOrder.Count, loadingOrder.Count > 1 ? "s" : "").PegiLabel()
+                        "Loading {0} texture{1}".F(loadingOrder.Count, loadingOrder.Count > 1 ? "s" : "").PL()
                             .Nl();
 
                     pegi.Nl();
@@ -504,28 +504,28 @@ namespace PainterTool
                                     (recentTexs.Count > 0)
                                     && (texMeta == null || (recentTexs.Count > 1) ||
                                         (texMeta != recentTexs[0].Texture2D.GetImgDataIfExists()))
-                                    && "Recent Textures".ConstLabel().Select(ref texMeta, recentTexs)
+                                    && "Recent Textures".ConstL().Select(ref texMeta, recentTexs)
                                         .Nl())
                                     ChangeTexture(texMeta.ExclusiveTexture());
 
                             }
 
                             if (texMeta == null && cfg.allowExclusiveRenderTextures &&
-                                "Create Render Texture".PegiLabel().Click())
+                                "Create Render Texture".PL().Click())
                                 CreateRenderTexture(texScale, _nameHolder);
 
                             if (texMeta != null && cfg.allowExclusiveRenderTextures)
                             {
-                                if (!texMeta.RenderTexture && "Add Render Tex".PegiLabel().Click())
+                                if (!texMeta.RenderTexture && "Add Render Tex".PL().Click())
                                     texMeta.AddRenderTexture();
 
                                 if (texMeta.RenderTexture)
                                 {
 
-                                    if ("Replace RendTex".PegiLabel("Replace " + param + " with Rend Tex size: " + texScale).Click())
+                                    if ("Replace RendTex".PL("Replace " + param + " with Rend Tex size: " + texScale).Click())
                                         CreateRenderTexture(texScale, _nameHolder);
 
-                                    if ("Remove RendTex".PegiLabel().Click().Nl())
+                                    if ("Remove RendTex".PL().Click().Nl())
                                     {
 
                                         if (texMeta.Texture2D)
@@ -549,14 +549,14 @@ namespace PainterTool
                     pegi.Nl();
 
                     if (texMeta == null)
-                        "Name (New Texture):".PegiLabel("Name for new texture", 120).Edit( ref _nameHolder).Nl();
+                        "Name (New Texture):".PL("Name for new texture", 120).Edit( ref _nameHolder).Nl();
 
                 
 
                 pegi.Nl();
 
                 if (!tex)
-                    "No texture. Drag and drop or click on the plus icon to create New".PegiLabel().Write_Hint();
+                    "No texture. Drag and drop or click on the plus icon to create New".PL().Write_Hint();
 
                 pegi.Nl();
 
@@ -572,7 +572,7 @@ namespace PainterTool
                     pegi.Nl();
               
                         if (Application.isEditor)
-                            "Unless saved, the texture will loose all changes when scene is offloaded or Unity Editor closed.".PegiLabel()
+                            "Unless saved, the texture will loose all changes when scene is offloaded or Unity Editor closed.".PL()
                                 .WriteOneTimeHint("_pp_hint_saveTex");
 
                         pegi.Nl();
@@ -661,7 +661,7 @@ namespace PainterTool
 
 
             pegi.Nl();
-            MsgPainter.TextureSettings.GetText().PegiLabel().IsFoldout(ref s_showTextureOptions);
+            MsgPainter.TextureSettings.GetText().PL().IsFoldout(ref s_showTextureOptions);
 
             if (texMeta != null && !s_showTextureOptions)
             {
@@ -702,17 +702,17 @@ namespace PainterTool
 
                 using (context.StartContext())
                 {
-                    if ("Optional UI Elements".PegiLabel().IsEntered().Nl())
+                    if ("Optional UI Elements".PL().IsEntered().Nl())
                     {
 
-                        "Show Previous Textures (if any) ".PegiLabel("Will show textures previously used for this material property.")
+                        "Show Previous Textures (if any) ".PL("Will show textures previously used for this material property.")
                             .ToggleIcon(  ref cfg.showRecentTextures).Nl();
 
-                        "Exclusive Render Textures".PegiLabel("Allow creation of simple Render Textures - the have limited editing capabilities.")
+                        "Exclusive Render Textures".PL("Allow creation of simple Render Textures - the have limited editing capabilities.")
                             .ToggleIcon(
                                 ref cfg.allowExclusiveRenderTextures).Nl();
 
-                        "Color Sliders ".PegiLabel("Should the color slider be shown ").ToggleIcon(
+                        "Color Sliders ".PL("Should the color slider be shown ").ToggleIcon(
                             ref cfg.showColorSliders).Nl();
 
                         if (texMeta != null)
@@ -725,20 +725,20 @@ namespace PainterTool
                             }
 
                             if (texMeta.IsAVolumeTexture)
-                                "Show Volume Data in Painter".PegiLabel()
+                                "Show Volume Data in Painter".PL()
                                     .ToggleIcon(ref Painter.Data.showVolumeDetailsInPainter)
                                     .Nl();
 
                         }
 
-                        "Brush Dynamics".PegiLabel("Will modify scale and other values based on movement.")
+                        "Brush Dynamics".PL("Will modify scale and other values based on movement.")
                             .ToggleIcon(
                                 ref GlobalBrush.showBrushDynamics).Nl();
 
-                        "URL field".PegiLabel("Option to load images by URL").ToggleIcon(ref cfg.showUrlField).Nl();
+                        "URL field".PL("Option to load images by URL").ToggleIcon(ref cfg.showUrlField).Nl();
                     }
 
-                    if ("Color Schemes".PegiLabel().Toggle_Enter(ref cfg.showColorSchemes).Nl_ifNotEntered().Nl())
+                    if ("Color Schemes".PL().Toggle_Enter(ref cfg.showColorSchemes).Nl_ifNotEntered().Nl())
                     {
                         if (cfg.colorSchemes.Count == 0)
                             cfg.colorSchemes.Add(new ColorPicker { paletteName = "New Color Scheme" });
@@ -746,30 +746,30 @@ namespace PainterTool
                         pegi.Edit_List(cfg.colorSchemes, ref cfg.inspectedColorScheme);
                     }
 
-                    if ("New Texture ".PegiLabel().IsEntered().Nl())
+                    if ("New Texture ".PL().IsEntered().Nl())
                     {
 
                         if (cfg.newTextureIsColor)
-                            "Clear Color".PegiLabel().Edit(ref cfg.newTextureClearColor).Nl();
+                            "Clear Color".PL().Edit(ref cfg.newTextureClearColor).Nl();
                         else
-                            "Clear Value".PegiLabel().Edit(ref cfg.newTextureClearNonColorValue).Nl();
+                            "Clear Value".PL().Edit(ref cfg.newTextureClearNonColorValue).Nl();
 
-                        "Color Texture".PegiLabel("Will the new texture be a Color Texture").ToggleIcon(ref cfg.newTextureIsColor).Nl();
+                        "Color Texture".PL("Will the new texture be a Color Texture").ToggleIcon(ref cfg.newTextureIsColor).Nl();
 
-                        "Size:".PegiLabel("Size of the new Texture", 40).Select_Index(
+                        "Size:".PL("Size of the new Texture", 40).Select_Index(
                             ref Painter.Data.selectedWidthIndex,
                             SO_PainterDataAndConfig.NewTextureSizeOptions).Nl();
 
-                        "Click + next to texture field below to create texture using this parameters".PegiLabel()
+                        "Click + next to texture field below to create texture using this parameters".PL()
                             .Write_Hint();
 
                         pegi.Nl();
 
                     }
 
-                    "Painter Modules (Debug)".PegiLabel().IsEntered().Nl().If_Entered(() => Modules.Nested_Inspect().Nl());
+                    "Painter Modules (Debug)".PL().IsEntered().Nl().If_Entered(() => Modules.Nested_Inspect().Nl());
 
-                    "Texture Meta".PegiLabel().Enter_Inspect(texMeta).Nl();
+                    "Texture Meta".PL().Enter_Inspect(texMeta).Nl();
                 }
 
                 if (context.IsAnyEntered)
@@ -786,13 +786,13 @@ namespace PainterTool
                     if (uiImage && !uiImage.sprite)
                     {
                         pegi.Nl();
-                        "Sprite is null. Convert image to sprite and assign it".PegiLabel().WriteWarning();
+                        "Sprite is null. Convert image to sprite and assign it".PL().WriteWarning();
                         pegi.Nl();
                     }
 
                     if (texMeta.updateTex2DafterStroke == false && texMeta.TargetIsRenderTexture())
                     {
-                        "Update Original Texture after every Stroke".PegiLabel().ToggleIcon(ref texMeta.updateTex2DafterStroke).Nl();
+                        "Update Original Texture after every Stroke".PL().ToggleIcon(ref texMeta.updateTex2DafterStroke).Nl();
                     }
                 }
 
@@ -801,7 +801,7 @@ namespace PainterTool
 
                 if (s_showTextureOptions || (IsUsingPreview && cfg.previewAlphaChanel))
                 {
-                    "Preview Edited RGBA".PegiLabel().ToggleIcon(ref cfg.previewAlphaChanel);
+                    "Preview Edited RGBA".PL().ToggleIcon(ref cfg.previewAlphaChanel);
 
                     MsgPainter.previewRGBA.DocumentationClick().Nl();
                 }
@@ -811,7 +811,7 @@ namespace PainterTool
                     var mats = Materials;
                     if (autoSelectMaterialByNumberOfPointedSubMesh || !mats.IsNullOrEmpty())
                     {
-                        "Auto Select Material".PegiLabel("Material will be changed based on the subMesh you are painting on").ToggleIcon(ref autoSelectMaterialByNumberOfPointedSubMesh);
+                        "Auto Select Material".PL("Material will be changed based on the subMesh you are painting on").ToggleIcon(ref autoSelectMaterialByNumberOfPointedSubMesh);
                         MsgPainter.AutoSelectMaterial.DocumentationClick().Nl();
                     }
                 }
@@ -819,14 +819,14 @@ namespace PainterTool
                 if (s_showTextureOptions || invertRayCast)
                 {
                     if (!IsUiGraphicPainter)
-                        "Invert RayCast".PegiLabel("Will rayCast into the camera (for cases when editing from inside a sphere, mask for 360 video for example.)").ToggleIcon(ref invertRayCast).Nl();
+                        "Invert RayCast".PL("Will rayCast into the camera (for cases when editing from inside a sphere, mask for 360 video for example.)").ToggleIcon(ref invertRayCast).Nl();
                     else
                         invertRayCast = false;
                 }
 
 
 
-                if (texMeta[TextureCfgFlags.EnableUndoRedo] && texMeta.backupManually && "Backup for UNDO".PegiLabel().Click())
+                if (texMeta[TextureCfgFlags.EnableUndoRedo] && texMeta.backupManually && "Backup for UNDO".PL().Click())
                     texMeta.OnStrokeMouseDown_CheckBackup();
 
                 if (texMeta.dontRedoMipMaps && Icon.Refresh.Click("Update Mipmaps now").Nl())
@@ -839,7 +839,7 @@ namespace PainterTool
         private void Inspect_Config() 
         {
             pegi.Nl();
-            if (Icon.Exit.Click() | "Preferences".PegiLabel().ClickLabel())
+            if (Icon.Exit.Click() | "Preferences".PL().ClickLabel())
                 Painter.Data.showConfig = false;
             else
             {
@@ -908,7 +908,7 @@ namespace PainterTool
             }
 #endif
 
-            if (!Painter.Camera && "Find camera".PegiLabel().Click())
+            if (!Painter.Camera && "Find camera".PL().Click())
             {
                 Painter.TryInstanciateCamera(out var cam);
             }
@@ -924,7 +924,7 @@ namespace PainterTool
 
             if (QcUnity.IsPartOfAPrefab(gameObject))
             {
-                "Inspecting a prefab.".PegiLabel().Nl();
+                "Inspecting a prefab.".PL().Nl();
                 return false;
             }
 
@@ -956,9 +956,9 @@ namespace PainterTool
 
             if (!Painter.Camera.enabled)
             {
-                "Painter Camera is disabled".PegiLabel().WriteWarning();
+                "Painter Camera is disabled".PL().WriteWarning();
        
-                if ("Enable".PegiLabel().Click())
+                if ("Enable".PL().Click())
                     Painter.Camera.enabled = true;
 
                 return false;
@@ -967,11 +967,11 @@ namespace PainterTool
             {
                 if (Painter.Camera.gameObject.activeSelf == false)
                 {
-                    "Painter Camera Game Object or parent is disabled".PegiLabel().WriteWarning();
-                    if ("Enable".PegiLabel().Click())
+                    "Painter Camera Game Object or parent is disabled".PL().WriteWarning();
+                    if ("Enable".PL().Click())
                         Painter.Camera.gameObject.SetActive(true);
                 } else
-                    "Painter Camera is child of disabled game object".PegiLabel().WriteWarning();
+                    "Painter Camera is child of disabled game object".PL().WriteWarning();
 
                 return false;
             }
@@ -981,9 +981,9 @@ namespace PainterTool
 
                 if (sinceUpdate > 100)
                 {
-                    "It's been {0} seconds since the last managed update".F(sinceUpdate).PegiLabel().WriteWarning();
+                    "It's been {0} seconds since the last managed update".F(sinceUpdate).PL().WriteWarning();
 
-                    if ("Resubscribe camera to updates".PegiLabel().Click())
+                    if ("Resubscribe camera to updates".PL().Click())
                         Painter.Camera.SubscribeToEditorUpdates();
 
                     return false;
@@ -1021,16 +1021,16 @@ namespace PainterTool
                 if (meshCollider.convex)
                 {
                     pegi.Nl();
-                    "Convex mesh collider detected. Texture-space brushes and some mesh tools will not work".PegiLabel().WriteWarning();
-                    if ("Disable convex".PegiLabel().Click())
+                    "Convex mesh collider detected. Texture-space brushes and some mesh tools will not work".PL().WriteWarning();
+                    if ("Disable convex".PL().Click())
                         meshCollider.convex = false;
                     pegi.Nl();
                 } else if (!gameObject.isStatic && meshCollider.sharedMesh && meshFilter && meshFilter.sharedMesh != meshCollider.sharedMesh) 
                 {
                     pegi.Nl();
 
-                    "Mesh Collider & Mesh Filter are using different meshes. If it is Convex painting may not work properly".PegiLabel().WriteWarning();
-                    if ("Replace Mesh on Mesh Collider".PegiLabel().Click().Nl())
+                    "Mesh Collider & Mesh Filter are using different meshes. If it is Convex painting may not work properly".PL().WriteWarning();
+                    if ("Replace Mesh on Mesh Collider".PL().Click().Nl())
                         meshCollider.sharedMesh = meshFilter.sharedMesh;
                 }
             }
@@ -1061,8 +1061,8 @@ namespace PainterTool
                 if (!meshCollider.sharedMesh)
                 {
                     pegi.Nl();
-                    "Mesh Collider has no mesh".PegiLabel().WriteWarning();
-                    if (meshFilter && meshFilter.sharedMesh && "Assign".PegiLabel("Will assign {0}".F(meshFilter.sharedMesh)).Click())
+                    "Mesh Collider has no mesh".PL().WriteWarning();
+                    if (meshFilter && meshFilter.sharedMesh && "Assign".PL("Will assign {0}".F(meshFilter.sharedMesh)).Click())
                         meshCollider.sharedMesh = meshFilter.sharedMesh;
 
                     pegi.Nl();

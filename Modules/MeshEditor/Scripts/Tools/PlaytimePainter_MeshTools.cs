@@ -168,11 +168,11 @@ namespace PainterTool.MeshEditing {
 
            // var m = MeshMGMT;
 
-            "OnClick:".ConstLabel().Write();
-            if ((_mergeUnMerge ? "Merging (Shift: Unmerge)" : "Smoothing (Shift: Unsmoothing)").PegiLabel().Click().Nl())
+            "OnClick:".ConstL().Write();
+            if ((_mergeUnMerge ? "Merging (Shift: Unmerge)" : "Smoothing (Shift: Unsmoothing)").PL().Click().Nl())
                 _mergeUnMerge = !_mergeUnMerge;
 
-            if ("Sharp All".PegiLabel().Click())
+            if ("Sharp All".PL().Click())
             {
                 foreach (PainterMesh.MeshPoint vr in EditedMesh.meshPoints)
                     vr.smoothNormal = false;
@@ -180,7 +180,7 @@ namespace PainterTool.MeshEditing {
                 Painter.Data.newVerticesSmooth = false;
             }
 
-            if ("Smooth All".PegiLabel().Click().Nl())
+            if ("Smooth All".PL().Click().Nl())
             {
                 foreach (var vr in EditedMesh.meshPoints)
                     vr.smoothNormal = true;
@@ -189,14 +189,14 @@ namespace PainterTool.MeshEditing {
             }
 
 
-            if ("All shared".PegiLabel().Click())
+            if ("All shared".PL().Click())
             {
                 EditedMesh.AllVerticesShared();
                 EditedMesh.Dirty = true;
                 Painter.Data.newVerticesUnique = false;
             }
 
-            if ("All unique".PegiLabel().Click().Nl())
+            if ("All unique".PL().Click().Nl())
             {
                 foreach (var t in EditedMesh.triangles)
                     EditedMesh.GiveTriangleUniqueVertices(t);
@@ -367,12 +367,12 @@ namespace PainterTool.MeshEditing {
         public override string ToString() => "triangle Sub Mesh index";
 
        public override void Inspect() {
-            "Sub Mesh".ConstLabel().Select(ref _curSubMesh, 0, EditedMesh.subMeshCount).Nl();
+            "Sub Mesh".ConstL().Select(ref _curSubMesh, 0, EditedMesh.subMeshCount).Nl();
             
-            if ("Make all 0".PegiLabel().Click().Nl())
+            if ("Make all 0".PL().Click().Nl())
                 EditedMesh.SubMeshIndex = 0;
 
-            if ("Delete Sub Mesh".PegiLabel().Click())
+            if ("Delete Sub Mesh".PL().Click())
             {
                 EditedMesh.Dirty = true;
             }

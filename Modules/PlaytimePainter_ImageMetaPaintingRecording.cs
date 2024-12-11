@@ -224,7 +224,7 @@ namespace PainterTool
 
         public override void ShowHideSectionInspect()
         {
-            "Recording/Playback".PegiLabel("Show options for brush recording").ToggleIcon(
+            "Recording/Playback".PL("Show options for brush recording").ToggleIcon(
                 ref showRecording).Nl();
         }
 
@@ -243,7 +243,7 @@ namespace PainterTool
 
                 if (playbackMetas.Count > 0)
                 {
-                    "Playback In progress".PegiLabel().Nl();
+                    "Playback In progress".PL().Nl();
 
                     if (Icon.Close.Click("Cancel All Playbacks", 20))
                         CancelAllPlaybacks();
@@ -283,7 +283,7 @@ namespace PainterTool
                     }
 
                     if ((gotVectors && Icon.Add.Click("Start new Vector recording", 18)) ||
-                        (!gotVectors && "New Vector Recording".PegiLabel("Start New recording").Click()))
+                        (!gotVectors && "New Vector Recording".PL("Start New recording").Click()))
                     {
                         parentMeta.saveName = "Unnamed";
                         StartRecording();
@@ -299,8 +299,8 @@ namespace PainterTool
 
             if (recording)
             {
-                ("Recording... " + recordedStrokes.Count + " vectors").PegiLabel().Nl();
-                "Will Save As".ConstLabel().Edit(ref parentMeta.saveName);
+                ("Recording... " + recordedStrokes.Count + " vectors").PL().Nl();
+                "Will Save As".ConstL().Edit(ref parentMeta.saveName);
 
                 if (Icon.Close.Click("Stop, don't save"))
                     recording = false;

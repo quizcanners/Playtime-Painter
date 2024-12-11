@@ -67,20 +67,20 @@ namespace PainterTool {
         
         void IPEGI.Inspect() {
 
-            "Material:".ConstLabel().Write(material);
+            "Material:".ConstL().Write(material);
             pegi.Nl();
 
             if (material) {
 
-                ("Shader: " + material.shader).PegiLabel().Write();
+                ("Shader: " + material.shader).PL().Write();
 
                 if (material.shader)
                     pegi.ClickHighlight(material.shader).Nl();
             }
 
-            "Color to Vertex color on Merge".PegiLabel().ToggleIcon(ref colorToVertexColorOnMerge).Nl();
+            "Color to Vertex color on Merge".PL().ToggleIcon(ref colorToVertexColorOnMerge).Nl();
 
-            "Textures".PegiLabel().Edit_List(materialsTextureFields);
+            "Textures".PL().Edit_List(materialsTextureFields);
 
             if (material) {
 
@@ -88,11 +88,11 @@ namespace PainterTool {
 
                 if (colorFields.Count > 0) {
 
-                    "Colors".PegiLabel(style: pegi.Styles.ListLabel).Nl();
+                    "Colors".PL(style: pegi.Styles.ListLabel).Nl();
 
                     foreach (var colorField in colorFields)
                     {
-                        colorField.PegiLabel().Write_ForCopy();
+                        colorField.PL().Write_ForCopy();
                         pegi.Nl();
                     }
 

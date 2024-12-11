@@ -136,7 +136,7 @@ namespace PainterTool.CameraModules {
 
         public virtual void InspectInList(ref int edited, int ind) {
 
-            if (ToString().PegiLabel().ClickLabel())
+            if (ToString().PL().ClickLabel())
                 edited = ind;
 
             pegi.FullWindow.DocumentationClickOpen(ToolTip);
