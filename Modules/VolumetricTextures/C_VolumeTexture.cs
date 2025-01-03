@@ -426,9 +426,7 @@ namespace PainterTool {
                   //  Dirty.PosAndSize = false;
             }
 
-
             posNSizeCached = pos.ToVector4(size);
-            
             
             return posNSizeCached;
         }
@@ -438,9 +436,7 @@ namespace PainterTool {
             Vector4 res = GetPositionAndSizeForShader();
             PositionAndScaleProperty.SetGlobal(res);
             SlicesShadeProperty.SetGlobal(GetSlices4Shader());
-            TextureInShaderProperty.SetGlobal(Texture); //ImageMeta.CurrentTexture());
-          
-
+            TextureInShaderProperty.SetGlobal(Texture);
             SetTextureArray();
 
             return res;
@@ -656,7 +652,7 @@ namespace PainterTool {
         
         #endregion
 
-        public void Update()
+       /* public void Update()
         {
             if (ManagedExternally)
                 return;
@@ -674,7 +670,7 @@ namespace PainterTool {
 
             if (Dirty.ShaderData.TryClear())
                 UpdateShaderVariables();
-        }
+        }*/
 
         public virtual void OnEnable()
         {
@@ -699,6 +695,7 @@ namespace PainterTool {
 
         }
 
+        /*
         public virtual void OnDrawGizmosSelected()
         {
             if (ImageMeta == null || ManagedExternally) 
@@ -707,7 +704,7 @@ namespace PainterTool {
             var w = SliceWidth;
             Gizmos.color = Color.green;
             Gizmos.DrawWireCube(VolumeCenter, new Vector3(w, TextureHeight, w) * size);
-        }
+        }*/
 
         public Bounds GetBounds()
         {
